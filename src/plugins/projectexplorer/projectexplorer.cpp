@@ -500,6 +500,8 @@ public:
     using EnvironmentGetter = std::function<std::optional<Environment>(const Project *project)>;
     void openTerminalHere(const EnvironmentGetter &env);
     void openTerminalHereWithRunEnv();
+    void setOpenTerminalError(const QString &details);
+    void clearOpenTerminalError();
 
     void invalidateProject(Project *project);
 
@@ -675,6 +677,8 @@ public:
     IDocumentFactory m_documentFactory;
     IDocumentFactory m_taskFileFactory;
     StopMonitoringHandler closeTaskFile;
+
+    Task m_openTerminalError;
 };
 
 static ProjectExplorerPlugin *m_instance = nullptr;
@@ -3802,6 +3806,8 @@ void ProjectExplorerPluginPrivate::showInFileSystemPane()
 
 void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env)
 {
+    clearOpenTerminalError();
+
     const Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
 
@@ -3828,8 +3834,7 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
     const Result<FilePath> shell = Terminal::defaultShellForDevice(buildDevice->rootPath());
 
     if (!shell) {
-        Core::MessageManager::writeDisrupting(
-            Tr::tr("Failed opening terminal.\n%1").arg(shell.error()));
+        setOpenTerminalError(shell.error());
         return;
     }
 
@@ -3841,6 +3846,8 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
 
 void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
 {
+    clearOpenTerminalError();
+
     const Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
 
@@ -3867,8 +3874,7 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
     const Result<FilePath> shell = Terminal::defaultShellForDevice(device->rootPath());
 
     if (!shell) {
-        Core::MessageManager::writeDisrupting(
-            Tr::tr("Failed opening terminal.\n%1").arg(shell.error()));
+        setOpenTerminalError(shell.error());
         return;
     }
 
@@ -3877,6 +3883,22 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
     } else {
         Terminal::Hooks::instance().openTerminal({CommandLine{*shell}, workingDir,
                                                   runnable.environment});
+    }
+}
+
+void ProjectExplorerPluginPrivate::setOpenTerminalError(const QString &details)
+{
+    m_openTerminalError
+            = OtherTask(Task::Error, Tr::tr("Failed to open terminal.").append('\n').append(details));
+    TaskHub::addTask(m_openTerminalError);
+    TaskHub::requestPopup();
+}
+
+void ProjectExplorerPluginPrivate::clearOpenTerminalError()
+{
+    if (!m_openTerminalError.isNull()) {
+        TaskHub::removeTask(m_openTerminalError);
+        m_openTerminalError.clear();
     }
 }
 
