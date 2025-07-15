@@ -1017,10 +1017,11 @@ void PythonSettings::initFromSettings(QtcSettings *settings)
         const Interpreter interpreter{interpreterList.value(0).toString(),
                                       interpreterList.value(1).toString(),
                                       FilePath::fromSettings(interpreterList.value(2)),
-                                      interpreterList.value(3, true).toBool()};
+                                      interpreterList.value(3, true).toBool(),
+                                      interpreterList.value(4, QString()).toString()};
         if (interpreterList.size() == 3)
             oldSettings << interpreter;
-        else if (interpreterList.size() == 4)
+        else if (interpreterList.size() >= 4)
             m_interpreters << interpreter;
     }
 
@@ -1083,6 +1084,7 @@ void PythonSettings::writeToSettings(QtcSettings *settings)
         interpretersVar.append(QVariant(interpreterVar)); // old settings
         interpreterVar.append(interpreter.autoDetected);
         interpretersVar.append(QVariant(interpreterVar)); // new settings
+        interpretersVar.append(interpreter.detectionSource);
     }
     settings->setValue(interpreterKey, interpretersVar);
     settings->setValue(defaultKey, m_defaultInterpreterId);

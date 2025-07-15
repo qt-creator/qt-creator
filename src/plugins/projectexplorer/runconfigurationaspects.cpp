@@ -791,11 +791,13 @@ Interpreter::Interpreter()
 Interpreter::Interpreter(const QString &_id,
                          const QString &_name,
                          const FilePath &_command,
-                         bool _autoDetected)
+                         bool _autoDetected,
+                         const QString &_detectionSource)
     : id(_id)
     , name(_name)
     , command(_command)
     , autoDetected(_autoDetected)
+    , detectionSource(_detectionSource)
 {}
 
 static QString launcherType2UiString(const QString &type)

@@ -207,7 +207,8 @@ public:
     Interpreter(const QString &id,
                 const QString &name,
                 const Utils::FilePath &command,
-                bool autoDetected = true);
+                bool autoDetected = true,
+                const QString &detectionSource = QString());
 
     inline bool operator==(const Interpreter &other) const
     {
