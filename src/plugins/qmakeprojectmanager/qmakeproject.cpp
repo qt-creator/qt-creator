@@ -1511,9 +1511,17 @@ QList<QPair<Id, QString>> QmakeBuildSystem::generators() const
 
 void QmakeBuildSystem::runGenerator(Utils::Id id)
 {
+    if (!m_generatorError.isNull()) {
+        TaskHub::removeTask(m_generatorError);
+        m_generatorError.clear();
+    }
+
     QTC_ASSERT(buildConfiguration(), return);
-    const auto showError = [](const QString &detail) {
-        Core::MessageManager::writeDisrupting(Tr::tr("qmake generator failed: %1.").arg(detail));
+    const auto showError = [this](const QString &detail) {
+        m_generatorError
+            = OtherTask(Task::Error, Tr::tr("qmake generator failed.").append('\n').append(detail));
+        TaskHub::addTask(m_generatorError);
+        TaskHub::requestPopup();
     };
     const QtVersion * const qtVersion = QtKitAspect::qtVersion(kit());
     if (!qtVersion) {

@@ -11,6 +11,7 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/task.h>
 
 #include <QStringList>
 #include <QFutureInterface>
@@ -199,6 +200,7 @@ private:
     Internal::CentralizedFolderWatcher *m_centralizedFolderWatcher = nullptr;
 
     ProjectExplorer::BuildSystem::ParseGuard m_guard;
+    ProjectExplorer::Task m_generatorError;
     bool m_firstParseNeeded = true;
 };
 
