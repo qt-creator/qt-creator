@@ -133,6 +133,8 @@ private: //functions
     void updateSize();
 
     void select();
+    void loadLockedNode();
+    void saveLockedNode();
     void setActiveNodeToSelection();
     void forceSelection(const ModelNode &node);
 
@@ -150,15 +152,16 @@ private: //functions
     void setActiveNode(const ModelNode &node);
     QList<ModelNode> currentNodes() const;
 
-    void resetSelectionLocked();
+    void setSelectionUnlocked();
     void setIsSelectionLocked(bool locked);
 
     bool isNodeOrChildSelected(const ModelNode &node) const;
-    void resetIfNodeIsRemoved(const ModelNode &removedNode);
+    void setSelectionUnlockedIfNodeRemoved(const ModelNode &removedNode);
 
     static PropertyEditorView *instance(); // TODO: remove
 
     NodeMetaInfo findCommonAncestor(const ModelNode &node);
+    AuxiliaryDataKey activeNodeAuxKey() const;
 
     void showAsExtraWidget();
 

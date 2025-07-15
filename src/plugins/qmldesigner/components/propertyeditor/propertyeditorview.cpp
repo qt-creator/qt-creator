@@ -506,6 +506,12 @@ NodeMetaInfo PropertyEditorView::findCommonAncestor(const ModelNode &node)
     return node.metaInfo();
 }
 
+AuxiliaryDataKey PropertyEditorView::activeNodeAuxKey() const
+{
+    return AuxiliaryDataKey{AuxiliaryDataType::Temporary,
+                            QLatin1StringView("PropertyEditor_ActiveNode_%1").arg(m_uniqueWidgetId)};
+}
+
 void PropertyEditorView::showAsExtraWidget()
 {
     NanotraceHR::Tracer tracer{"property editor show as extra widget", category()};
@@ -910,7 +916,7 @@ QList<ModelNode> PropertyEditorView::currentNodes() const
     NanotraceHR::Tracer tracer{"property editor view current nodes", category()};
 
     if (m_isSelectionLocked)
-        return {m_activeNode};
+        return {activeNode()};
 
     return selectedModelNodes();
 }
@@ -939,20 +945,21 @@ bool PropertyEditorView::isNodeOrChildSelected(const ModelNode &node) const
     return false;
 }
 
-void PropertyEditorView::resetSelectionLocked()
+void PropertyEditorView::setSelectionUnlocked()
 {
-    NanotraceHR::Tracer tracer{"property editor view reset selection locked", category()};
+    NanotraceHR::Tracer tracer{"property editor view set selection unlocked", category()};
 
     if (m_isSelectionLocked)
         setIsSelectionLocked(false);
 }
 
-void PropertyEditorView::resetIfNodeIsRemoved(const ModelNode &removedNode)
+void PropertyEditorView::setSelectionUnlockedIfNodeRemoved(const ModelNode &removedNode)
 {
-    NanotraceHR::Tracer tracer{"property editor view reset if node is removed", category()};
+    NanotraceHR::Tracer tracer{"property editor set selection unlocked if node is removed",
+                               category()};
 
     if (isNodeOrChildSelected(removedNode)) {
-        resetSelectionLocked();
+        setSelectionUnlocked();
         select();
     }
 }
@@ -961,7 +968,7 @@ void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     NanotraceHR::Tracer tracer{"property editor view node about to be removed", category()};
 
-    resetIfNodeIsRemoved(removedNode);
+    setSelectionUnlockedIfNodeRemoved(removedNode);
 
     const ModelNodes &allRemovedNodes = removedNode.allSubModelNodesAndThisNode();
 
@@ -1001,7 +1008,7 @@ void PropertyEditorView::modelAttached(Model *model)
     if (debug)
         qDebug() << Q_FUNC_INFO;
 
-    resetSelectionLocked();
+    loadLockedNode();
     resetView();
 
     showAsExtraWidget();
@@ -1019,6 +1026,7 @@ void PropertyEditorView::modelAboutToBeDetached(Model *model)
 {
     NanotraceHR::Tracer tracer{"property editor view model about to be detached", category()};
 
+    saveLockedNode();
     AbstractView::modelAboutToBeDetached(model);
     if (m_qmlBackEndForCurrentType)
         m_qmlBackEndForCurrentType->propertyEditorTransaction()->end();
@@ -1035,6 +1043,7 @@ void PropertyEditorView::modelAboutToBeDetached(Model *model)
             }
         }
     }
+    setActiveNode({});
 }
 
 void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
@@ -1315,6 +1324,36 @@ void PropertyEditorView::select()
         m_qmlBackEndForCurrentType->emitSelectionToBeChanged();
 
     resetView();
+}
+
+void PropertyEditorView::loadLockedNode()
+{
+    NanotraceHR::Tracer tracer{"property editor load locked node", category()};
+
+    ModelNode rootNode = rootModelNode();
+    ModelNode loadedNode;
+    AuxiliaryDataKey key = activeNodeAuxKey();
+
+    if (auto data = rootNode.auxiliaryData(key); data.has_value()) {
+        loadedNode = data->value<ModelNode>();
+        rootNode.removeAuxiliaryData(key);
+    }
+
+    setActiveNode(loadedNode);
+    setIsSelectionLocked(loadedNode.isValid());
+}
+
+void PropertyEditorView::saveLockedNode()
+{
+    NanotraceHR::Tracer tracer{"property editor save locked node", category()};
+
+    ModelNode rootNode = rootModelNode();
+    if (!rootNode)
+        return;
+
+    ModelNode lockedNode = m_isSelectionLocked ? activeNode() : ModelNode{};
+    if (lockedNode)
+        rootNode.setAuxiliaryData(activeNodeAuxKey(), QVariant::fromValue(lockedNode));
 }
 
 void PropertyEditorView::setActiveNodeToSelection()
