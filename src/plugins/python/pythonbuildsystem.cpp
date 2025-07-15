@@ -10,7 +10,6 @@
 #include "pythontr.h"
 
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/messagemanager.h>
 #include <coreplugin/textdocument.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -222,6 +221,17 @@ void PythonBuildSystem::updateQmlCodeModelInfo(QmlCodeModelInfo &projectInfo)
 */
 bool PythonBuildSystem::save()
 {
+    if (!m_saveError.isNull()) {
+        TaskHub::removeTask(m_saveError);
+        m_saveError.clear();
+    }
+    const auto setError = [this](const QString &reason) {
+        m_saveError = OtherTask(
+            Task::DisruptingError,
+            Tr::tr("Error saving python project file.").append('\n').append(reason));
+        TaskHub::addTask(m_saveError);
+    };
+
     const FilePath filePath = projectFilePath();
     const QStringList projectFiles = Utils::transform(m_files, &FileEntry::rawEntry);
     const FileChangeBlocker changeGuard(filePath);
@@ -232,12 +242,12 @@ bool PythonBuildSystem::save()
         Core::BaseTextDocument projectFile;
         const BaseTextDocument::ReadResult result = projectFile.read(filePath);
         if (result.code != TextFileFormat::ReadSuccess) {
-            MessageManager::writeDisrupting(result.error);
+            setError(result.error);
             return false;
         }
         auto newPyProjectToml = updatePyProjectTomlContent(result.content, projectFiles);
         if (!newPyProjectToml) {
-            MessageManager::writeDisrupting(newPyProjectToml.error());
+            setError(newPyProjectToml.error());
             return false;
         }
         newContents = newPyProjectToml.value().toUtf8();
@@ -245,7 +255,7 @@ bool PythonBuildSystem::save()
         // *.pyproject project file
         Result<QByteArray> contents = filePath.fileContents();
         if (!contents) {
-            MessageManager::writeDisrupting(contents.error());
+            setError(contents.error());
             return false;
         }
         QJsonDocument doc = QJsonDocument::fromJson(*contents);
@@ -260,7 +270,7 @@ bool PythonBuildSystem::save()
 
     const Result<qint64> writeResult = filePath.writeFileContents(newContents);
     if (!writeResult) {
-        MessageManager::writeDisrupting(writeResult.error());
+        setError(writeResult.error());
         return false;
     }
     return true;
@@ -343,18 +353,25 @@ void PythonBuildSystem::parse()
     QStringList files;
     QStringList qmlImportPaths;
 
+    TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+    const auto addError = [](const QString &reason) {
+        TaskHub::addTask<BuildSystemTask>(
+            Task::Warning, Tr::tr("Error reading python project.").append('\n').append(reason));
+        TaskHub::requestPopup();
+    };
+
     const FilePath filePath = projectFilePath();
     QString errorMessage;
     if (filePath.endsWith(".pyproject")) {
         // The PySide .pyproject file is JSON based
         files = readLinesJson(filePath, &errorMessage);
         if (!errorMessage.isEmpty()) {
-            MessageManager::writeFlashing(errorMessage);
+            addError(errorMessage);
             errorMessage.clear();
         }
         qmlImportPaths = readImportPathsJson(filePath, &errorMessage);
         if (!errorMessage.isEmpty())
-            MessageManager::writeFlashing(errorMessage);
+            addError(errorMessage);
     } else if (filePath.endsWith(".pyqtc")) {
         // To keep compatibility with PyQt we keep the compatibility with plain
         // text files as project files.
@@ -362,7 +379,6 @@ void PythonBuildSystem::parse()
     } else if (filePath.fileName() == "pyproject.toml") {
         auto pyProjectTomlParseResult = parsePyProjectToml(filePath);
 
-        TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
         for (const PyProjectTomlError &error : std::as_const(pyProjectTomlParseResult.errors)) {
             TaskHub::addTask<BuildSystemTask>(
                 Task::TaskType::Error, error.description, filePath, error.line);

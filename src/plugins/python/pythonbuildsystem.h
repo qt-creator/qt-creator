@@ -4,6 +4,7 @@
 #pragma once
 
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/task.h>
 
 namespace Python::Internal {
 
@@ -46,6 +47,7 @@ private:
 
     QList<FileEntry> m_files;
     QList<FileEntry> m_qmlImportPaths;
+    ProjectExplorer::Task m_saveError;
 };
 
 } // namespace Python::Internal
