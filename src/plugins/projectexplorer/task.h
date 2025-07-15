@@ -95,6 +95,7 @@ public:
     bool shouldCreateTextMark() const { return m_addTextMark; }
     void preventTextMarkCreation() { m_addTextMark = false; }
     void createTextMarkIfApplicable();
+    bool hasMark() const { return m_mark.get(); }
 
     friend PROJECTEXPLORER_EXPORT bool operator==(const Task &t1, const Task &t2);
     friend PROJECTEXPLORER_EXPORT bool operator<(const Task &a, const Task &b);
@@ -128,8 +129,6 @@ private:
     std::shared_ptr<TextEditor::TextMark> m_mark;
     mutable QIcon m_icon;
     static unsigned int s_nextId;
-
-    friend class TaskHub;
 };
 
 class PROJECTEXPLORER_EXPORT CompileTask : public Task

@@ -53,13 +53,13 @@ void TaskHub::addTask(Task task)
         task.setType(Task::Error);
     }
 
-    QTC_ASSERT(s_registeredCategories.contains(task.m_category), return);
+    QTC_ASSERT(s_registeredCategories.contains(task.category()), return);
     QTC_ASSERT(!task.description().isEmpty(), return);
     QTC_ASSERT(!task.isNull(), return);
-    QTC_ASSERT(!task.m_mark, return);
+    QTC_ASSERT(!task.hasMark(), return);
 
-    if (task.m_file.isEmpty() || task.m_line <= 0)
-        task.m_line = -1;
+    if (task.file().isEmpty() || task.line() <= 0)
+        task.setLine(-1);
     emit taskHub().taskAdded(task);
     if (popUp)
         requestPopup();
