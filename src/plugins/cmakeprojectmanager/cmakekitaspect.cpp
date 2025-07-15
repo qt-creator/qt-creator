@@ -235,6 +235,8 @@ Id CMakeKitAspect::cmakeToolId(const Kit *k)
 
 CMakeTool *CMakeKitAspect::cmakeTool(const Kit *k)
 {
+    if (!k)
+        return nullptr;
     return k->isAspectRelevant(id()) ? CMakeToolManager::findById(cmakeToolId(k)) : nullptr;
 }
 
