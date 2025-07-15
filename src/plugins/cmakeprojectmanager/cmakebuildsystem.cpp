@@ -2697,9 +2697,15 @@ QList<QPair<Id, QString>> CMakeBuildSystem::generators() const
 void CMakeBuildSystem::runGenerator(Id id)
 {
     QTC_ASSERT(cmakeBuildConfiguration(), return);
-    const auto showError = [](const QString &detail) {
-        Core::MessageManager::writeDisrupting(
-            addCMakePrefix(Tr::tr("cmake generator failed: %1.").arg(detail)));
+    if (!m_generatorError.isNull()) {
+        TaskHub::removeTask(m_generatorError);
+        m_generatorError.clear();
+    }
+    const auto showError = [this](const QString &detail) {
+        m_generatorError = OtherTask(Task::Error,
+                                     Tr::tr("cmake generator failed.").append('\n').append(detail));
+        TaskHub::addTask(m_generatorError);
+        TaskHub::requestPopup();
     };
     const CMakeTool * const cmakeTool = CMakeKitAspect::cmakeTool(kit());
     if (!cmakeTool) {

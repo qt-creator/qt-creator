@@ -9,6 +9,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/task.h>
 
 #include <utils/synchronizedvalue.h>
 #include <utils/temporarydirectory.h>
@@ -272,6 +273,7 @@ private:
 
     QStringList m_extraHeaderPaths;
     QList<QByteArray> m_moduleMappings;
+    ProjectExplorer::Task m_generatorError;
 };
 
 #ifdef WITH_TESTS
