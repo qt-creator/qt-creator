@@ -163,7 +163,7 @@ private slots:
             JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {});
 
         QVERIFY(res.has_value());
-        JsonWizardFactory *factory = *res;
+        const std::unique_ptr<JsonWizardFactory> factory(*res);
         QVERIFY(factory);
 
         std::unique_ptr<Wizard> wizard{factory->runWizard({}, Id(), QVariantMap())};
