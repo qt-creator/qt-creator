@@ -92,9 +92,8 @@ static Result<> analysisPathValid(const FilePath &analysisPath)
     if (analysisPath.isEmpty())
         return ResultOk;
 
-    // FIXME enable on master
-    // if (!analysisPath.isLocal())
-    //     return ResultError(Tr::tr("Analysis path must be local."));
+    if (!analysisPath.isLocal())
+        return ResultError(Tr::tr("Analysis path must be local."));
 
     static const QRegularExpression invalid("^(.*/)?\\.\\.?(/.*)?$");
     if (invalid.match(analysisPath.path()).hasMatch())
