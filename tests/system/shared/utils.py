@@ -128,17 +128,25 @@ def textUnderCursor(window, fromPos, toPos):
 def cleanUpUserFiles(pathsToProFiles=None):
     if pathsToProFiles==None:
         return False
+
+    def __processSinglePathToProjectFile__(pathToProjFile, fileList):
+        dir, fileName = os.path.split(pathToProjFile)
+        fileList.extend(glob.glob(os.path.join(dir, ".qtcreator", fileName + ".user*")))
+        # needed to be kept for a while - remove with QC19?
+        fileList.extend(glob.glob(pathToProjFile + ".user*"))
+
+    fileList = []
     if isString(pathsToProFiles):
-        filelist = glob.glob(pathsToProFiles+".user*")
+        __processSinglePathToProjectFile__(pathsToProFiles, fileList)
     elif isinstance(pathsToProFiles, (list, tuple)):
-        filelist = []
         for p in pathsToProFiles:
-            filelist.extend(glob.glob(p+".user*"))
+            __processSinglePathToProjectFile__(p, fileList)
     else:
         test.fatal("Got an unsupported object.")
         return False
     doneWithoutErrors = True
-    for file in filelist:
+
+    for file in fileList:
         try:
             file = os.path.abspath(file)
             os.remove(file)
