@@ -176,7 +176,8 @@ struct TerminalSurfacePrivate
                 return 1;
             };
 
-        vterm_state_set_selection_callbacks(vts, &m_vtermSelectionCallbacks, this, nullptr, 256);
+        vterm_state_set_selection_callbacks(
+            vts, &m_vtermSelectionCallbacks, this, buffer, sizeof buffer);
 
         vterm_state_set_bold_highbright(vts, true);
 
@@ -399,6 +400,7 @@ struct TerminalSurfacePrivate
     }
 
     std::unique_ptr<VTerm, void (*)(VTerm *)> m_vterm;
+    char buffer[256];
     VTermScreen *m_vtermScreen;
     VTermScreenCallbacks m_vtermScreenCallbacks;
     VTermStateFallbacks m_vtermStateFallbacks;
