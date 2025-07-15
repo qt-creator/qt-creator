@@ -53,11 +53,13 @@ static ProcessTask vcsProcessTaskHelper(
     const seconds timeout = seconds(10),
     const std::optional<EventLoopMode> eventLoopMode = {})
 {
-    const auto onDone = [data, resultStorage](const Process &process) {
+    const auto onDone = [data, resultStorage](const Process &process, DoneWith doneWith) {
         if (data.flags & RunFlags::ExpectRepoChanges)
             GlobalFileChangeBlocker::instance()->forceBlocked(true);
         ProcessResult result;
-        if (data.interpreter && process.error() != QProcess::FailedToStart
+        if (doneWith == DoneWith::Cancel) {
+            result = ProcessResult::Canceled;
+        } else if (data.interpreter && process.error() != QProcess::FailedToStart
             && process.exitStatus() == QProcess::NormalExit) {
             result = data.interpreter(process.exitCode());
         } else {
@@ -143,7 +145,12 @@ static ProcessTask vcsProcessTaskHelper(
                        return SetupResult::StopWithError);
             process.setTimeOutMessageBoxEnabled(*eventLoopMode == EventLoopMode::On);
             process.runBlocking(timeout, *eventLoopMode);
-            const bool success = onDone(process);
+            DoneWith doneWith = DoneWith::Error;
+            if (process.result() == ProcessResult::FinishedWithSuccess)
+                doneWith = DoneWith::Success;
+            else if (process.result() == ProcessResult::Canceled)
+                doneWith = DoneWith::Cancel;
+            const bool success = onDone(process, doneWith);
             return success ? SetupResult::StopWithSuccess : SetupResult::StopWithError;
         }
         return SetupResult::Continue;
