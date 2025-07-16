@@ -268,16 +268,16 @@ QStringList SshSharedConnection::connectionArgs(const FilePath &binary) const
 
 class ShellThreadHandler;
 
-class LinuxDeviceAccess : public UnixDeviceFileAccess
+class LinuxDeviceAccess final : public UnixDeviceFileAccess
 {
 public:
     explicit LinuxDeviceAccess(LinuxDevicePrivate *devicePrivate);
     ~LinuxDeviceAccess();
 
-    RunResult runInShell(const CommandLine &cmdLine,
-                         const QByteArray &stdInData) const override;
+    Result<RunResult> runInShellImpl(const CommandLine &cmdLine,
+                                     const QByteArray &stdInData) const final;
 
-    Environment deviceEnvironment() const override;
+    Result<Environment> deviceEnvironment() const final;
 
     void attachToSharedConnection(SshConnectionHandle *connectionHandle,
                                   const SshParameters &sshParameters);
@@ -394,15 +394,15 @@ Environment LinuxDevicePrivate::getEnvironment()
     return m_environmentCache.value();
 }
 
-RunResult LinuxDeviceAccess::runInShell(const CommandLine &cmdLine,
-                                        const QByteArray &stdInData) const
+Result<RunResult> LinuxDeviceAccess::runInShellImpl(
+    const CommandLine &cmdLine, const QByteArray &stdInData) const
 {
     if (m_devicePrivate->checkDisconnectedWithWarning())
-        return {-1, {}, Tr::tr("Device is disconnected.").toUtf8()};
+        return RunResult{-1, {}, Tr::tr("Device is disconnected.").toUtf8()};
     return m_devicePrivate->runInShell(cmdLine, stdInData);
 }
 
-Environment LinuxDeviceAccess::deviceEnvironment() const
+Result<Environment> LinuxDeviceAccess::deviceEnvironment() const
 {
     if (m_devicePrivate->checkDisconnectedWithWarning())
         return {};

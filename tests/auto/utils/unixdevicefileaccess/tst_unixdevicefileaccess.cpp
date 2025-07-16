@@ -30,8 +30,8 @@ class TestDFA : public UnixDeviceFileAccess
 public:
     using UnixDeviceFileAccess::UnixDeviceFileAccess;
 
-    RunResult runInShell(const CommandLine &cmdLine,
-                         const QByteArray &inputData = {}) const override
+    Result<RunResult> runInShellImpl(const CommandLine &cmdLine,
+                                     const QByteArray &inputData = {}) const override
     {
         // Note: Don't convert into Utils::Process. See more comments in this change in gerrit.
         QProcess p;
@@ -46,7 +46,7 @@ public:
             p.closeWriteChannel();
         }
         p.waitForFinished();
-        return {p.exitCode(), p.readAllStandardOutput(), p.readAllStandardError()};
+        return RunResult{p.exitCode(), p.readAllStandardOutput(), p.readAllStandardError()};
     }
 
     void findUsingLs(const QString &current, const FileFilter &filter, QStringList *found)

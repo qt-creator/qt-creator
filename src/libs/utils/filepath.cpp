@@ -19,6 +19,7 @@
 #include <QDebug>
 #include <QDirIterator>
 #include <QFileInfo>
+#include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QStringView>
 #include <QTemporaryFile>
@@ -34,6 +35,8 @@
 
 namespace Utils {
 
+Q_LOGGING_CATEGORY(fpLog, "qtc.filepath", QtWarningMsg);
+
 static DeviceFileHooks &deviceFileHooks()
 {
     static DeviceFileHooks theDeviceHooks;
@@ -46,6 +49,11 @@ void DeviceFileHooks::setupDeviceFileHooks(const DeviceFileHooks &hooks)
     QTC_ASSERT(!wasAlreadySet, return);
     wasAlreadySet = true;
     deviceFileHooks() = hooks;
+}
+
+static void logError(const QString &context, const QString &errorMsg)
+{
+    qCDebug(fpLog) << context << ":" << errorMsg;
 }
 
 static bool isWindowsDriveLetter(QChar ch)
@@ -629,7 +637,12 @@ Result<> FilePath::ensureWritableDir() const
 
 bool FilePath::ensureExistingFile() const
 {
-    return fileAccess()->ensureExistingFile(*this);
+    const Result<> res = fileAccess()->ensureExistingFile(*this);
+    if (!res) {
+        logError("ensureExistingFile", res.error());
+        return false;
+    }
+    return true;
 }
 
 /*!
@@ -642,7 +655,12 @@ bool FilePath::ensureExistingFile() const
 */
 std::optional<FilePath> FilePath::refersToExecutableFile(MatchScope matchScope) const
 {
-    return fileAccess()->refersToExecutableFile(*this,  matchScope);
+    const auto res = fileAccess()->refersToExecutableFile(*this,  matchScope);
+    if (!res) {
+        logError("refersToExecutableFile", res.error());
+        return {};
+    }
+    return *res;
 }
 
 Result<FilePath> FilePath::tmpDir() const
@@ -684,7 +702,10 @@ Result<FilePath> FilePath::createTempFile() const
 
 bool FilePath::hasHardLinks() const
 {
-    return fileAccess()->hasHardLinks(*this);
+    const Result<bool> res = fileAccess()->hasHardLinks(*this);
+    if (!res.has_value())
+        logError("hasHardlinks", res.error());
+    return res.has_value();
 }
 
 /*!
@@ -697,7 +718,8 @@ bool FilePath::hasHardLinks() const
 */
 bool FilePath::createDir() const
 {
-    return fileAccess()->createDirectory(*this);
+    const Result<> res = fileAccess()->createDirectory(*this);
+    return res.has_value();
 }
 
 FilePaths FilePath::dirEntries(const FileFilter &filter, QDir::SortFlags sort) const
@@ -828,15 +850,21 @@ bool FilePath::isSameFile(const FilePath &other) const
     if (!isSameDevice(other))
         return false;
 
-    const QByteArray fileId = fileAccess()->fileId(*this);
-    const QByteArray otherFileId = fileAccess()->fileId(other);
-    if (fileId.isEmpty() || otherFileId.isEmpty())
+    const Result<QByteArray> fileId = fileAccess()->fileId(*this);
+    if (!fileId) {
+        logError("isSameFile", fileId.error());
+        return false;
+    }
+    const Result<QByteArray> otherFileId = fileAccess()->fileId(other);
+    if (!otherFileId) {
+        logError("isSameFile", otherFileId.error());
+        return false;
+    }
+
+    if (fileId->isEmpty() || otherFileId->isEmpty())
         return false;
 
-    if (fileId == otherFileId)
-        return true;
-
-    return false;
+    return *fileId == *otherFileId;
 }
 
 static FilePaths appendExeExtensions(const FilePath &executable,
@@ -898,7 +926,12 @@ bool FilePath::isSameExecutable(const FilePath &other) const
 */
 FilePath FilePath::symLinkTarget() const
 {
-    return fileAccess()->symLinkTarget(*this);
+    const Result<FilePath> res = fileAccess()->symLinkTarget(*this);
+    if (!res) {
+        logError("symLinkTarget", res.error());
+        return {};
+    }
+    return *res;
 }
 
 FilePath FilePath::withExecutableSuffix() const
@@ -1367,7 +1400,13 @@ FilePathInfo FilePath::filePathInfo() const
     const Result<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return {};
-    return (*access)->filePathInfo(*this);
+
+    const Result<FilePathInfo> res = (*access)->filePathInfo(*this);
+    if (!res) {
+        logError("filePathInfo", res.error());
+        return {};
+    }
+    return *res;
 }
 
 /*!
@@ -1382,7 +1421,12 @@ bool FilePath::exists() const
     if (!access)
         return false;
 
-    return (*access)->exists(*this);
+    const Result<bool> res = (*access)->exists(*this);
+    if (!res) {
+        logError("exists", res.error());
+        return false;
+    }
+    return *res;
 }
 
 /*!
@@ -1397,7 +1441,12 @@ bool FilePath::isExecutableFile() const
     if (!access)
         return false;
 
-    return (*access)->isExecutableFile(*this);
+    const Result<bool> res = (*access)->isExecutableFile(*this);
+    if (!res) {
+        logError("isExecutableFile", res.error());
+        return false;
+    }
+    return *res;
 }
 
 /*!
@@ -1412,7 +1461,12 @@ bool FilePath::isWritableDir() const
     if (!access)
         return false;
 
-    return (*access)->isWritableDirectory(*this);
+    const Result<bool> res = (*access)->isWritableDirectory(*this);
+    if (!res) {
+        logError("isWritableDir", res.error());
+        return false;
+    }
+    return *res;
 }
 
 /*!
@@ -1427,7 +1481,12 @@ bool FilePath::isWritableFile() const
     if (!access)
         return false;
 
-    return (*access)->isWritableFile(*this);
+    const Result<bool> res = (*access)->isWritableFile(*this);
+    if (!res) {
+        logError("isWritableFile", res.error());
+        return false;
+    }
+    return *res;
 }
 
 bool FilePath::isReadableFile() const
@@ -1439,7 +1498,12 @@ bool FilePath::isReadableFile() const
     if (!access)
         return false;
 
-    return (*access)->isReadableFile(*this);
+    const Result<bool> res = (*access)->isReadableFile(*this);
+    if (!res) {
+        logError("isReadableFile", res.error());
+        return false;
+    }
+    return *res;
 }
 
 bool FilePath::isReadableDir() const
@@ -1451,7 +1515,12 @@ bool FilePath::isReadableDir() const
     if (!access)
         return false;
 
-    return (*access)->isReadableDirectory(*this);
+    const Result<bool> res = (*access)->isReadableDirectory(*this);
+    if (!res) {
+        logError("isReadableDir", res.error());
+        return false;
+    }
+    return *res;
 }
 
 bool FilePath::isFile() const
@@ -1463,7 +1532,12 @@ bool FilePath::isFile() const
     if (!access)
         return false;
 
-    return (*access)->isFile(*this);
+    const Result<bool> res = (*access)->isFile(*this);
+    if (!res) {
+        logError("isFile", res.error());
+        return false;
+    }
+    return *res;
 }
 
 bool FilePath::isDir() const
@@ -1475,7 +1549,12 @@ bool FilePath::isDir() const
     if (!access)
         return false;
 
-    return (*access)->isDirectory(*this);
+    const Result<bool> res = (*access)->isDirectory(*this);
+    if (!res) {
+        logError("isDir", res.error());
+        return false;
+    }
+    return *res;
 }
 
 bool FilePath::isSymLink() const
@@ -1487,7 +1566,12 @@ bool FilePath::isSymLink() const
     if (!access)
         return false;
 
-    return (*access)->isSymLink(*this);
+    const Result<bool> res = (*access)->isSymLink(*this);
+    if (!res) {
+        logError("isSymLink", res.error());
+        return false;
+    }
+    return *res;
 }
 
 /*!
@@ -2043,17 +2127,32 @@ std::optional<FilePath> FilePath::prefixRemoved(const QString &str) const
 
 QDateTime FilePath::lastModified() const
 {
-    return fileAccess()->lastModified(*this);
+    const Result<QDateTime> res = fileAccess()->lastModified(*this);
+    if (!res) {
+        logError("lastModified", res.error());
+        return {};
+    }
+    return *res;
 }
 
 QFile::Permissions FilePath::permissions() const
 {
-    return fileAccess()->permissions(*this);
+    const Result<QFile::Permissions> res = fileAccess()->permissions(*this);
+    if (!res) {
+        logError("permissions", res.error());
+        return {};
+    }
+    return *res;
 }
 
 bool FilePath::setPermissions(QFile::Permissions permissions) const
 {
-    return fileAccess()->setPermissions(*this, permissions);
+    const Result<> res = fileAccess()->setPermissions(*this, permissions);
+    if (!res) {
+        logError("setPermissions", res.error());
+        return false;
+    }
+    return true;
 }
 
 bool FilePath::makeWritable() const
@@ -2158,32 +2257,62 @@ Result<> FilePath::renameFile(const FilePath &target) const
 
 qint64 FilePath::fileSize() const
 {
-    return fileAccess()->fileSize(*this);
+    const Result<qint64> res = fileAccess()->fileSize(*this);
+    if (!res) {
+        logError("fileSize", res.error());
+        return {};
+    }
+    return *res;
 }
 
 QString FilePath::owner() const
 {
-    return fileAccess()->owner(*this);
+    const Result<QString> res = fileAccess()->owner(*this);
+    if (!res) {
+        logError("owner", res.error());
+        return {};
+    }
+    return *res;
 }
 
 uint FilePath::ownerId() const
 {
-    return fileAccess()->ownerId(*this);
+    const Result<uint> res = fileAccess()->ownerId(*this);
+    if (!res) {
+        logError("ownerId", res.error());
+        return {};
+    }
+    return *res;
 }
 
 QString FilePath::group() const
 {
-    return fileAccess()->group(*this);
+    const Result<QString> res = fileAccess()->group(*this);
+    if (!res) {
+        logError("group", res.error());
+        return {};
+    }
+    return *res;
 }
 
 uint FilePath::groupId() const
 {
-    return fileAccess()->groupId(*this);
+    const Result<uint> res = fileAccess()->groupId(*this);
+    if (!res) {
+        logError("groupId", res.error());
+        return {};
+    }
+    return *res;
 }
 
 qint64 FilePath::bytesAvailable() const
 {
-    return fileAccess()->bytesAvailable(*this);
+    const Result<qint64> res = fileAccess()->bytesAvailable(*this);
+    if (!res) {
+        logError("bytesAvailable", res.error());
+        return {};
+    }
+    return *res;
 }
 
 /*!

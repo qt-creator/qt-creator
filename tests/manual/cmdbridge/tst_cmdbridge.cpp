@@ -25,7 +25,7 @@ class TestDFA : public UnixDeviceFileAccess
 public:
     using UnixDeviceFileAccess::UnixDeviceFileAccess;
 
-    RunResult runInShell(const CommandLine &cmdLine, const QByteArray &inputData = {}) const override
+    Result<RunResult> runInShellImpl(const CommandLine &cmdLine, const QByteArray &inputData = {}) const final
     {
         // Note: Don't convert into Utils::Process. See more comments in this change in gerrit.
         QProcess p;
@@ -40,7 +40,7 @@ public:
             p.closeWriteChannel();
         }
         p.waitForFinished();
-        return {p.exitCode(), p.readAllStandardOutput(), p.readAllStandardError()};
+        return RunResult{p.exitCode(), p.readAllStandardOutput(), p.readAllStandardError()};
     }
 
     void findUsingLs(const QString &current, const FileFilter &filter, QStringList *found)
@@ -67,7 +67,7 @@ private slots:
     void testDeviceEnvironment()
     {
         CmdBridge::FileAccess fileAccess;
-        Utils::Result<> res = fileAccess.deployAndInit(
+        Result<> res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
@@ -75,37 +75,38 @@ private slots:
         if (!res)
             qDebug() << "Failed to deploy and init:" << res.error();
 
-        QVERIFY(res);
+        QVERIFY_RESULT(res);
 
-        Environment env = fileAccess.deviceEnvironment();
-        QVERIFY(env.hasChanges());
-        QVERIFY(!env.toStringList().isEmpty());
+        Result<Environment> env = fileAccess.deviceEnvironment();
+        QVERIFY_RESULT(env);
+        QVERIFY(env->hasChanges());
+        QVERIFY(!env->toStringList().isEmpty());
         env = fileAccess.deviceEnvironment();
     }
 
     void testSetPermissions()
     {
         CmdBridge::FileAccess fileAccess;
-        auto res = fileAccess.deployAndInit(
+        Result<> res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY(res);
+        QVERIFY_RESULT(res);
 
-        auto tempFile = fileAccess.createTempFile(FilePath::fromUserInput(QDir::tempPath())
+        Result<FilePath> tempFile = fileAccess.createTempFile(FilePath::fromUserInput(QDir::tempPath())
                                                   / "test.XXXXXX");
-        QVERIFY(tempFile);
+        QVERIFY_RESULT(tempFile);
 
         QFile::Permissions perms = QFile::ReadOwner | QFile::WriteOwner;
 
         QVERIFY(fileAccess.setPermissions(*tempFile, perms));
-        QCOMPARE(fileAccess.permissions(*tempFile) & 0xF0FF, perms);
+        QCOMPARE(*fileAccess.permissions(*tempFile) & 0xF0FF, perms);
 
         perms = QFile::ReadOwner | QFile::WriteOwner | QFile::ReadGroup | QFile::WriteOther;
 
         QVERIFY(fileAccess.setPermissions(*tempFile, perms));
-        QCOMPARE(fileAccess.permissions(*tempFile) & 0xF0FF, perms);
+        QCOMPARE(*fileAccess.permissions(*tempFile) & 0xF0FF, perms);
 
         QVERIFY(fileAccess.removeFile(*tempFile));
     }
@@ -113,39 +114,43 @@ private slots:
     void testTempFile()
     {
         CmdBridge::FileAccess fileAccess;
-        auto res = fileAccess.deployAndInit(
+        Result<> res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY(res);
+        QVERIFY_RESULT(res);
 
-        auto tempFile = fileAccess.createTempFile(FilePath::fromUserInput(QDir::tempPath()));
+        Result<FilePath> tempFile = fileAccess.createTempFile(FilePath::fromUserInput(QDir::tempPath())
+                                                  / "test.XXXXXX");
 
-        QVERIFY(tempFile);
-        QVERIFY(fileAccess.exists(*tempFile));
-        QVERIFY(fileAccess.removeFile(*tempFile));
-        QVERIFY(!fileAccess.exists(*tempFile));
+        QVERIFY_RESULT(tempFile);
+        QVERIFY_RESULT(fileAccess.exists(*tempFile));
+        QVERIFY(fileAccess.exists(*tempFile).value());
+        QVERIFY_RESULT(fileAccess.removeFile(*tempFile));
+        QVERIFY_RESULT(fileAccess.exists(*tempFile));
+        QVERIFY(!fileAccess.exists(*tempFile).value());
 
         tempFile = fileAccess.createTempFile(FilePath::fromUserInput(QDir::tempPath())
                                              / "test.XXXXXX");
-        QVERIFY(tempFile);
+        QVERIFY_RESULT(tempFile);
         QVERIFY(tempFile->fileName().startsWith("test."));
         QVERIFY(!tempFile->fileName().startsWith("test.XXXXXX"));
-        QVERIFY(fileAccess.exists(*tempFile));
-        QVERIFY(fileAccess.removeFile(*tempFile));
-        QVERIFY(!fileAccess.exists(*tempFile));
+        QVERIFY_RESULT(fileAccess.exists(*tempFile));
+        QVERIFY(fileAccess.exists(*tempFile).value());
+        QVERIFY_RESULT(fileAccess.removeFile(*tempFile));
+        QVERIFY(!fileAccess.exists(*tempFile).value());
     }
 
     void testTempFileWithoutPlaceholder()
     {
         CmdBridge::FileAccess fileAccess;
-        auto res = fileAccess.deployAndInit(
+        Result<> res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY(res);
+        QVERIFY_RESULT(res);
 
         const FilePath pattern = FilePath::fromUserInput(QDir::tempPath()) / "test.txt";
 
@@ -153,24 +158,26 @@ private slots:
         // adding. go' os.CreateTemp() will fail if no placeholder is present, and the file exists.
         pattern.writeFileContents("Test");
 
-        auto tempFile = fileAccess.createTempFile(pattern);
+        Result<FilePath> tempFile = fileAccess.createTempFile(pattern);
 
-        QVERIFY(tempFile);
-        QVERIFY(fileAccess.exists(*tempFile));
-        QVERIFY(fileAccess.removeFile(*tempFile));
-        QVERIFY(!fileAccess.exists(*tempFile));
+        QVERIFY_RESULT(tempFile);
+        QVERIFY_RESULT(fileAccess.exists(*tempFile));
+        QVERIFY(fileAccess.exists(*tempFile).value());
+        QVERIFY_RESULT(fileAccess.removeFile(*tempFile));
+        QVERIFY_RESULT(fileAccess.exists(*tempFile));
+        QVERIFY(!fileAccess.exists(*tempFile).value());
         QVERIFY(tempFile->fileName().startsWith("test.txt."));
     }
 
     void testFileContents()
     {
         CmdBridge::FileAccess fileAccess;
-        auto res = fileAccess.deployAndInit(
+        Result<> res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY(res);
+        QVERIFY_RESULT(res);
 
         const FilePath testFile = FilePath::fromUserInput(QDir::tempPath() + "/test.txt");
 
@@ -212,34 +219,40 @@ The end.
         QVERIFY(fileContents->size() > 0);
 
         const FilePath fileCopy = FilePath::fromUserInput(QDir::tempPath() + "/testcopy.txt");
-        QVERIFY(fileAccess.copyFile(testFile, fileCopy));
-        QVERIFY(fileAccess.exists(fileCopy));
+        QVERIFY_RESULT(fileAccess.copyFile(testFile, fileCopy));
+        QVERIFY_RESULT(fileAccess.exists(fileCopy));
+        QVERIFY(fileAccess.exists(fileCopy).value());
         QCOMPARE(fileAccess.fileContents(fileCopy, -1, 0), fileContents);
 
         const FilePath mvTarget = FilePath::fromUserInput(QDir::tempPath() + "/testmoved.txt");
-        QVERIFY(fileAccess.renameFile(fileCopy, mvTarget));
-        QVERIFY(fileAccess.exists(mvTarget));
-        QVERIFY(!fileAccess.exists(fileCopy));
+        QVERIFY_RESULT(fileAccess.renameFile(fileCopy, mvTarget));
+        QVERIFY_RESULT(fileAccess.exists(mvTarget));
+        QVERIFY(fileAccess.exists(mvTarget).value());
+        QVERIFY_RESULT(fileAccess.exists(fileCopy));
+        QVERIFY(!fileAccess.exists(fileCopy).value());
         QCOMPARE(fileAccess.fileContents(mvTarget, -1, 0), fileContents);
 
-        QVERIFY(fileAccess.removeFile(mvTarget));
-        QVERIFY(fileAccess.removeFile(testFile));
+        QVERIFY_RESULT(fileAccess.removeFile(mvTarget));
+        QVERIFY_RESULT(fileAccess.removeFile(testFile));
         QVERIFY(!fileAccess.removeFile(testFile));
 
-        QVERIFY(fileAccess.ensureExistingFile(testFile));
-        QVERIFY(fileAccess.removeFile(testFile));
+        QVERIFY_RESULT(fileAccess.ensureExistingFile(testFile));
+        QVERIFY_RESULT(fileAccess.removeFile(testFile));
 
         const FilePath dir = FilePath::fromUserInput(QDir::tempPath() + "/testdir");
-        QVERIFY(fileAccess.createDirectory(dir));
-        QVERIFY(fileAccess.exists(dir));
-        QVERIFY(fileAccess.isReadableDirectory(dir));
-        QVERIFY(fileAccess.removeRecursively(dir));
-        QVERIFY(!fileAccess.exists(dir));
+        QVERIFY_RESULT(fileAccess.createDirectory(dir));
+        QVERIFY_RESULT(fileAccess.exists(dir));
+        QVERIFY(fileAccess.exists(dir).value());
+        QVERIFY_RESULT(fileAccess.isReadableDirectory(dir));
+        QVERIFY(fileAccess.isReadableDirectory(dir).value());
+        QVERIFY_RESULT(fileAccess.removeRecursively(dir));
+        QVERIFY_RESULT(fileAccess.exists(dir));
+        QVERIFY(!fileAccess.exists(dir).value());
     }
 
     void testIs()
     {
-        auto bridgePath = CmdBridge::Client::getCmdBridgePath(HostOsInfo::hostOs(),
+        Result<FilePath> bridgePath = CmdBridge::Client::getCmdBridgePath(HostOsInfo::hostOs(),
                                                               HostOsInfo::hostArchitecture(),
                                                               FilePath::fromUserInput(libExecPath));
         QTC_ASSERT_RESULT(bridgePath, QSKIP("No bridge found"));
@@ -247,7 +260,7 @@ The end.
         CmdBridge::Client client(*bridgePath, Environment::systemEnvironment());
         client.start();
 
-        auto result = client.is("/tmp", CmdBridge::Client::Is::Dir)->result();
+        bool result = client.is("/tmp", CmdBridge::Client::Is::Dir)->result();
         QVERIFY(result);
 
         result = client.is("/idonotexist", CmdBridge::Client::Is::Dir)->result();
@@ -258,7 +271,7 @@ The end.
 
     void testStat()
     {
-        auto bridgePath = CmdBridge::Client::getCmdBridgePath(HostOsInfo::hostOs(),
+        Result<FilePath> bridgePath = CmdBridge::Client::getCmdBridgePath(HostOsInfo::hostOs(),
                                                               HostOsInfo::hostArchitecture(),
                                                               FilePath::fromUserInput(libExecPath));
         QTC_ASSERT_RESULT(bridgePath, QSKIP("No bridge found"));
@@ -278,57 +291,61 @@ The end.
     void testSymLink()
     {
         CmdBridge::FileAccess fileAccess;
-        auto res = fileAccess.deployAndInit(
+        Result<> res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY(res);
+        QVERIFY_RESULT(res);
 
-        FilePath tmptarget = fileAccess.symLinkTarget(FilePath::fromUserInput("/tmp"));
+        // FIXME: /tmp is not everywhere a symlink. Create a test link ourselves?
+        Result<FilePath> tmptarget = fileAccess.symLinkTarget(FilePath::fromUserInput("/tmp"));
+        QVERIFY_RESULT(tmptarget);
 
-        qDebug() << "SymLinkTarget:" << tmptarget.toUserOutput();
+        qDebug() << "SymLinkTarget:" << tmptarget->toUserOutput();
     }
 
     void testFileId()
     {
         CmdBridge::FileAccess fileAccess;
-        auto res = fileAccess.deployAndInit(
+        Result<> res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY(res);
+        QVERIFY_RESULT(res);
 
-        QByteArray fileId = fileAccess.fileId(FilePath::fromUserInput(QDir::rootPath()));
+        Result<QByteArray> fileId = fileAccess.fileId(FilePath::fromUserInput(QDir::rootPath()));
+        QVERIFY_RESULT(fileId);
 
-        qDebug() << "File Id:" << fileId;
+        qDebug() << "File Id:" << *fileId;
     }
 
     void testFreeSpace()
     {
         CmdBridge::FileAccess fileAccess;
-        auto res = fileAccess.deployAndInit(
+        Result<> res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY(res);
+        QVERIFY_RESULT(res);
 
-        quint64 freeSpace = fileAccess.bytesAvailable(FilePath::fromUserInput(QDir::rootPath()));
+        Result<quint64> freeSpace = fileAccess.bytesAvailable(FilePath::fromUserInput(QDir::rootPath()));
+        QVERIFY_RESULT(freeSpace);
 
-        qDebug() << "Free Space:" << freeSpace;
+        qDebug() << "Free Space:" << *freeSpace;
     }
 
     void testFind()
     {
         CmdBridge::FileAccess fileAccess;
-        auto res = fileAccess.deployAndInit(
+        Result<> res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY(res);
+        QVERIFY_RESULT(res);
         fileAccess.iterateDirectory(
             FilePath::fromUserInput(QDir::homePath()),
             [](const FilePath &path, const FilePathInfo &) {
@@ -351,12 +368,12 @@ The end.
     void testBridge()
     {
         CmdBridge::FileAccess fileAccess;
-        auto res = fileAccess.deployAndInit(
+        Result<> res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());
 
-        QVERIFY(res);
+        QVERIFY_RESULT(res);
 
         QElapsedTimer timer;
         timer.start();
@@ -382,7 +399,7 @@ The end.
 
     void testInit()
     {
-        auto bridgePath = CmdBridge::Client::getCmdBridgePath(HostOsInfo::hostOs(),
+        Result<FilePath> bridgePath = CmdBridge::Client::getCmdBridgePath(HostOsInfo::hostOs(),
                                                               HostOsInfo::hostArchitecture(),
                                                               FilePath::fromUserInput(libExecPath));
         QTC_ASSERT_RESULT(bridgePath, QSKIP("No bridge found"));

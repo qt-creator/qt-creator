@@ -48,7 +48,9 @@ public:
             if (IDevice::ConstPtr device = RunDeviceKitAspect::device(aspect->kit())) {
                 DeviceFileAccess *access = device->fileAccess();
                 QTC_ASSERT(access, return);
-                aspect->setRemoteEnvironment(access->deviceEnvironment());
+                Result<Environment> res = access->deviceEnvironment();
+                QTC_ASSERT_RESULT(res, return);
+                aspect->setRemoteEnvironment(*res);
             }
         });
 

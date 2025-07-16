@@ -23,7 +23,7 @@ public:
     DeviceFileAccess();
     virtual ~DeviceFileAccess();
 
-    virtual Environment deviceEnvironment() const;
+    virtual Result<Environment> deviceEnvironment() const;
 
 protected:
     friend class FilePath;
@@ -31,19 +31,19 @@ protected:
 
     virtual QString mapToDevicePath(const QString &hostPath) const;
 
-    virtual bool isExecutableFile(const FilePath &filePath) const;
-    virtual bool isReadableFile(const FilePath &filePath) const;
-    virtual bool isWritableFile(const FilePath &filePath) const;
-    virtual bool isReadableDirectory(const FilePath &filePath) const;
-    virtual bool isWritableDirectory(const FilePath &filePath) const;
-    virtual bool isFile(const FilePath &filePath) const;
-    virtual bool isDirectory(const FilePath &filePath) const;
-    virtual bool isSymLink(const FilePath &filePath) const;
-    virtual bool hasHardLinks(const FilePath &filePath) const;
+    virtual Result<bool> isExecutableFile(const FilePath &filePath) const;
+    virtual Result<bool> isReadableFile(const FilePath &filePath) const;
+    virtual Result<bool> isWritableFile(const FilePath &filePath) const;
+    virtual Result<bool> isReadableDirectory(const FilePath &filePath) const;
+    virtual Result<bool> isWritableDirectory(const FilePath &filePath) const;
+    virtual Result<bool> isFile(const FilePath &filePath) const;
+    virtual Result<bool> isDirectory(const FilePath &filePath) const;
+    virtual Result<bool> isSymLink(const FilePath &filePath) const;
+    virtual Result<bool> hasHardLinks(const FilePath &filePath) const;
     virtual Result<> ensureWritableDirectory(const FilePath &filePath) const;
-    virtual bool ensureExistingFile(const FilePath &filePath) const;
-    virtual bool createDirectory(const FilePath &filePath) const;
-    virtual bool exists(const FilePath &filePath) const;
+    virtual Result<> ensureExistingFile(const FilePath &filePath) const;
+    virtual Result<> createDirectory(const FilePath &filePath) const;
+    virtual Result<bool> exists(const FilePath &filePath) const;
     virtual Result<> removeFile(const FilePath &filePath) const;
     virtual Result<> removeRecursively(const FilePath &filePath) const;
     virtual Result<> copyFile(const FilePath &filePath, const FilePath &target) const;
@@ -51,38 +51,38 @@ protected:
     virtual Result<> copyRecursively(const FilePath &filePath, const FilePath &target) const;
     virtual Result<> renameFile(const FilePath &filePath, const FilePath &target) const;
 
-    virtual FilePath symLinkTarget(const FilePath &filePath) const;
-    virtual FilePathInfo filePathInfo(const FilePath &filePath) const;
-    virtual QDateTime lastModified(const FilePath &filePath) const;
-    virtual QFile::Permissions permissions(const FilePath &filePath) const;
-    virtual bool setPermissions(const FilePath &filePath, QFile::Permissions) const;
-    virtual qint64 fileSize(const FilePath &filePath) const;
-    virtual QString owner(const FilePath &filePath) const;
-    virtual uint ownerId(const FilePath &filePath) const;
-    virtual QString group(const FilePath &filePath) const;
-    virtual uint groupId(const FilePath &filePath) const;
-    virtual qint64 bytesAvailable(const FilePath &filePath) const;
-    virtual QByteArray fileId(const FilePath &filePath) const;
+    virtual Result<FilePath> symLinkTarget(const FilePath &filePath) const;
+    virtual Result<FilePathInfo> filePathInfo(const FilePath &filePath) const;
+    virtual Result<QDateTime> lastModified(const FilePath &filePath) const;
+    virtual Result<QFile::Permissions> permissions(const FilePath &filePath) const;
+    virtual Result<> setPermissions(const FilePath &filePath, QFile::Permissions) const;
+    virtual Result<qint64> fileSize(const FilePath &filePath) const;
+    virtual Result<QString> owner(const FilePath &filePath) const;
+    virtual Result<uint> ownerId(const FilePath &filePath) const;
+    virtual Result<QString> group(const FilePath &filePath) const;
+    virtual Result<uint> groupId(const FilePath &filePath) const;
+    virtual Result<qint64> bytesAvailable(const FilePath &filePath) const;
+    virtual Result<QByteArray> fileId(const FilePath &filePath) const;
 
-    virtual std::optional<FilePath> refersToExecutableFile(
+    virtual Result<std::optional<FilePath>> refersToExecutableFile(
             const FilePath &filePath,
             FilePath::MatchScope matchScope) const;
 
-    virtual void iterateDirectory(
+    virtual Result<> iterateDirectory(
             const FilePath &filePath,
             const FilePath::IterateDirCallback &callBack,
             const FileFilter &filter) const;
 
     virtual Result<QByteArray> fileContents(const FilePath &filePath,
-                                                  qint64 limit,
-                                                  qint64 offset) const;
+                                            qint64 limit,
+                                            qint64 offset) const;
 
     virtual Result<qint64> writeFileContents(const FilePath &filePath,
-                                                   const QByteArray &data) const;
+                                             const QByteArray &data) const;
 
     virtual Result<FilePath> createTempFile(const FilePath &filePath);
 
-    virtual Utils::Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const;
+    virtual Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const;
 
     virtual TextEncoding processStdOutEncoding(const FilePath &executable) const;
     virtual TextEncoding processStdErrEncoding(const FilePath &executable) const;
@@ -97,20 +97,20 @@ public:
 protected:
     QString mapToDevicePath(const QString &hostPath) const override;
 
-    Environment deviceEnvironment() const override;
-    bool isExecutableFile(const FilePath &filePath) const override;
-    bool isReadableFile(const FilePath &filePath) const override;
-    bool isWritableFile(const FilePath &filePath) const override;
-    bool isReadableDirectory(const FilePath &filePath) const override;
-    bool isWritableDirectory(const FilePath &filePath) const override;
-    bool isFile(const FilePath &filePath) const override;
-    bool isDirectory(const FilePath &filePath) const override;
-    bool isSymLink(const FilePath &filePath) const override;
-    bool hasHardLinks(const FilePath &filePath) const override;
+    Result<Environment> deviceEnvironment() const override;
+    Result<bool> isExecutableFile(const FilePath &filePath) const override;
+    Result<bool> isReadableFile(const FilePath &filePath) const override;
+    Result<bool> isWritableFile(const FilePath &filePath) const override;
+    Result<bool> isReadableDirectory(const FilePath &filePath) const override;
+    Result<bool> isWritableDirectory(const FilePath &filePath) const override;
+    Result<bool> isFile(const FilePath &filePath) const override;
+    Result<bool> isDirectory(const FilePath &filePath) const override;
+    Result<bool> isSymLink(const FilePath &filePath) const override;
+    Result<bool> hasHardLinks(const FilePath &filePath) const override;
     Result<> ensureWritableDirectory(const FilePath &filePath) const override;
-    bool ensureExistingFile(const FilePath &filePath) const override;
-    bool createDirectory(const FilePath &filePath) const override;
-    bool exists(const FilePath &filePath) const override;
+    Result<> ensureExistingFile(const FilePath &filePath) const override;
+    Result<> createDirectory(const FilePath &filePath) const override;
+    Result<bool> exists(const FilePath &filePath) const override;
     Result<> removeFile(const FilePath &filePath) const override;
     Result<> removeRecursively(const FilePath &filePath) const override;
     Result<> copyFile(const FilePath &filePath, const FilePath &target) const override;
@@ -118,24 +118,24 @@ protected:
     Result<> copyRecursively(const FilePath &filePath, const FilePath &target) const override;
     Result<> renameFile(const FilePath &filePath, const FilePath &target) const override;
 
-    FilePath symLinkTarget(const FilePath &filePath) const override;
-    FilePathInfo filePathInfo(const FilePath &filePath) const override;
-    QDateTime lastModified(const FilePath &filePath) const override;
-    QFile::Permissions permissions(const FilePath &filePath) const override;
-    bool setPermissions(const FilePath &filePath, QFile::Permissions) const override;
-    qint64 fileSize(const FilePath &filePath) const override;
-    QString owner(const FilePath &filePath) const override;
-    uint ownerId(const FilePath &filePath) const override;
-    QString group(const FilePath &filePath) const override;
-    uint groupId(const FilePath &filePath) const override;
-    qint64 bytesAvailable(const FilePath &filePath) const override;
-    QByteArray fileId(const FilePath &filePath) const override;
+    Result<FilePath> symLinkTarget(const FilePath &filePath) const override;
+    Result<FilePathInfo> filePathInfo(const FilePath &filePath) const override;
+    Result<QDateTime> lastModified(const FilePath &filePath) const override;
+    Result<QFile::Permissions> permissions(const FilePath &filePath) const override;
+    Result<> setPermissions(const FilePath &filePath, QFile::Permissions) const override;
+    Result<qint64> fileSize(const FilePath &filePath) const override;
+    Result<QString> owner(const FilePath &filePath) const override;
+    Result<uint> ownerId(const FilePath &filePath) const override;
+    Result<QString> group(const FilePath &filePath) const override;
+    Result<uint> groupId(const FilePath &filePath) const override;
+    Result<qint64> bytesAvailable(const FilePath &filePath) const override;
+    Result<QByteArray> fileId(const FilePath &filePath) const override;
 
-    std::optional<FilePath> refersToExecutableFile(
+    Result<std::optional<FilePath>> refersToExecutableFile(
             const FilePath &filePath,
             FilePath::MatchScope matchScope) const override;
 
-    void iterateDirectory(
+    Result<> iterateDirectory(
             const FilePath &filePath,
             const FilePath::IterateDirCallback &callBack,
             const FileFilter &filter) const override;
@@ -149,7 +149,7 @@ protected:
 
     Result<FilePath> createTempFile(const FilePath &filePath) override;
 
-    Utils::Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const override;
+    Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &filePath) const override;
 };
 
 class QTCREATOR_UTILS_EXPORT DesktopDeviceFileAccess : public DeviceFileAccess
@@ -161,48 +161,48 @@ public:
     static DesktopDeviceFileAccess *instance();
 
 protected:
-    bool isExecutableFile(const FilePath &filePath) const override;
-    bool isReadableFile(const FilePath &filePath) const override;
-    bool isWritableFile(const FilePath &filePath) const override;
-    bool isReadableDirectory(const FilePath &filePath) const override;
-    bool isWritableDirectory(const FilePath &filePath) const override;
-    bool isFile(const FilePath &filePath) const override;
-    bool isDirectory(const FilePath &filePath) const override;
-    bool isSymLink(const FilePath &filePath) const override;
-    bool hasHardLinks(const FilePath &filePath) const override;
+    Result<bool> isExecutableFile(const FilePath &filePath) const override;
+    Result<bool> isReadableFile(const FilePath &filePath) const override;
+    Result<bool> isWritableFile(const FilePath &filePath) const override;
+    Result<bool> isReadableDirectory(const FilePath &filePath) const override;
+    Result<bool> isWritableDirectory(const FilePath &filePath) const override;
+    Result<bool> isFile(const FilePath &filePath) const override;
+    Result<bool> isDirectory(const FilePath &filePath) const override;
+    Result<bool> isSymLink(const FilePath &filePath) const override;
+    Result<bool> hasHardLinks(const FilePath &filePath) const override;
     Result<> ensureWritableDirectory(const FilePath &filePath) const override;
-    bool ensureExistingFile(const FilePath &filePath) const override;
-    bool createDirectory(const FilePath &filePath) const override;
-    bool exists(const FilePath &filePath) const override;
+    Result<> ensureExistingFile(const FilePath &filePath) const override;
+    Result<> createDirectory(const FilePath &filePath) const override;
+    Result<bool> exists(const FilePath &filePath) const override;
     Result<> removeFile(const FilePath &filePath) const override;
     Result<> removeRecursively(const FilePath &filePath) const override;
     Result<> copyFile(const FilePath &filePath, const FilePath &target) const override;
     Result<> createSymLink(const FilePath &filePath, const FilePath &symLink) const override;
     Result<> renameFile(const FilePath &filePath, const FilePath &target) const override;
 
-    FilePath symLinkTarget(const FilePath &filePath) const override;
-    FilePathInfo filePathInfo(const FilePath &filePath) const override;
-    QDateTime lastModified(const FilePath &filePath) const override;
-    QFile::Permissions permissions(const FilePath &filePath) const override;
-    bool setPermissions(const FilePath &filePath, QFile::Permissions) const override;
-    qint64 fileSize(const FilePath &filePath) const override;
-    QString owner(const FilePath &filePath) const override;
-    uint ownerId(const FilePath &filePath) const override;
-    QString group(const FilePath &filePath) const override;
-    uint groupId(const FilePath &filePath) const override;
-    qint64 bytesAvailable(const FilePath &filePath) const override;
-    QByteArray fileId(const FilePath &filePath) const override;
+    Result<FilePath> symLinkTarget(const FilePath &filePath) const override;
+    Result<FilePathInfo> filePathInfo(const FilePath &filePath) const override;
+    Result<QDateTime> lastModified(const FilePath &filePath) const override;
+    Result<QFile::Permissions> permissions(const FilePath &filePath) const override;
+    Result<> setPermissions(const FilePath &filePath, QFile::Permissions) const override;
+    Result<qint64> fileSize(const FilePath &filePath) const override;
+    Result<QString> owner(const FilePath &filePath) const override;
+    Result<uint> ownerId(const FilePath &filePath) const override;
+    Result<QString> group(const FilePath &filePath) const override;
+    Result<uint> groupId(const FilePath &filePath) const override;
+    Result<qint64> bytesAvailable(const FilePath &filePath) const override;
+    Result<QByteArray> fileId(const FilePath &filePath) const override;
 
-    std::optional<FilePath> refersToExecutableFile(
+    Result<std::optional<FilePath>> refersToExecutableFile(
             const FilePath &filePath,
             FilePath::MatchScope matchScope) const override;
 
-    void iterateDirectory(
+    Result<> iterateDirectory(
             const FilePath &filePath,
             const FilePath::IterateDirCallback &callBack,
             const FileFilter &filter) const override;
 
-    Environment deviceEnvironment() const override;
+    Result<Environment> deviceEnvironment() const override;
 
     Result<QByteArray> fileContents(const FilePath &filePath,
                                           qint64 limit,
@@ -224,47 +224,48 @@ public:
     ~UnixDeviceFileAccess() override;
 
 protected:
-    virtual RunResult runInShell(const CommandLine &cmdLine,
-                                 const QByteArray &inputData = {}) const = 0;
-    Result<> runInShellSuccess(const CommandLine &cmdLine, const QByteArray &stdInData = {}) const;
+    virtual Result<RunResult> runInShellImpl(const CommandLine &cmdLine,
+                                             const QByteArray &inputData = {}) const = 0;
+    Result<QByteArray> runInShell(const CommandLine &cmdLine, const QByteArray &stdInData = {}) const;
+    Result<bool> runInShellSuccess(const CommandLine &cmdLine, const QByteArray &stdInData = {}) const;
 
-    bool isExecutableFile(const FilePath &filePath) const override;
-    bool isReadableFile(const FilePath &filePath) const override;
-    bool isWritableFile(const FilePath &filePath) const override;
-    bool isReadableDirectory(const FilePath &filePath) const override;
-    bool isWritableDirectory(const FilePath &filePath) const override;
-    bool isFile(const FilePath &filePath) const override;
-    bool isDirectory(const FilePath &filePath) const override;
-    bool isSymLink(const FilePath &filePath) const override;
-    bool hasHardLinks(const FilePath &filePath) const override;
-    bool ensureExistingFile(const FilePath &filePath) const override;
-    bool createDirectory(const FilePath &filePath) const override;
-    bool exists(const FilePath &filePath) const override;
+    Result<bool> isExecutableFile(const FilePath &filePath) const override;
+    Result<bool> isReadableFile(const FilePath &filePath) const override;
+    Result<bool> isWritableFile(const FilePath &filePath) const override;
+    Result<bool> isReadableDirectory(const FilePath &filePath) const override;
+    Result<bool> isWritableDirectory(const FilePath &filePath) const override;
+    Result<bool> isFile(const FilePath &filePath) const override;
+    Result<bool> isDirectory(const FilePath &filePath) const override;
+    Result<bool> isSymLink(const FilePath &filePath) const override;
+    Result<bool> hasHardLinks(const FilePath &filePath) const override;
+    Result<> ensureExistingFile(const FilePath &filePath) const override;
+    Result<> createDirectory(const FilePath &filePath) const override;
+    Result<bool> exists(const FilePath &filePath) const override;
     Result<> removeFile(const FilePath &filePath) const override;
     Result<> removeRecursively(const FilePath &filePath) const override;
     Result<> copyFile(const FilePath &filePath, const FilePath &target) const override;
     Result<> createSymLink(const FilePath &filePath, const FilePath &symLink) const override;
     Result<> renameFile(const FilePath &filePath, const FilePath &target) const override;
 
-    FilePathInfo filePathInfo(const FilePath &filePath) const override;
-    FilePath symLinkTarget(const FilePath &filePath) const override;
-    QDateTime lastModified(const FilePath &filePath) const override;
-    QFile::Permissions permissions(const FilePath &filePath) const override;
-    bool setPermissions(const FilePath &filePath, QFile::Permissions) const override;
-    qint64 fileSize(const FilePath &filePath) const override;
-    QString owner(const FilePath &filePath) const override;
-    uint ownerId(const FilePath &filePath) const override;
-    QString group(const FilePath &filePath) const override;
-    uint groupId(const FilePath &filePath) const override;
-    qint64 bytesAvailable(const FilePath &filePath) const override;
-    QByteArray fileId(const FilePath &filePath) const override;
+    Result<FilePathInfo> filePathInfo(const FilePath &filePath) const override;
+    Result<FilePath> symLinkTarget(const FilePath &filePath) const override;
+    Result<QDateTime> lastModified(const FilePath &filePath) const override;
+    Result<QFile::Permissions> permissions(const FilePath &filePath) const override;
+    Result<> setPermissions(const FilePath &filePath, QFile::Permissions) const override;
+    Result<qint64> fileSize(const FilePath &filePath) const override;
+    Result<QString> owner(const FilePath &filePath) const override;
+    Result<uint> ownerId(const FilePath &filePath) const override;
+    Result<QString> group(const FilePath &filePath) const override;
+    Result<uint> groupId(const FilePath &filePath) const override;
+    Result<qint64> bytesAvailable(const FilePath &filePath) const override;
+    Result<QByteArray> fileId(const FilePath &filePath) const override;
 
-    void iterateDirectory(
+    Result<> iterateDirectory(
             const FilePath &filePath,
             const FilePath::IterateDirCallback &callBack,
             const FileFilter &filter) const override;
 
-    Environment deviceEnvironment() const override;
+    Result<Environment> deviceEnvironment() const override;
     Result<QByteArray> fileContents(const FilePath &filePath,
                                           qint64 limit,
                                           qint64 offset) const override;
@@ -273,15 +274,15 @@ protected:
 
     Result<FilePath> createTempFile(const FilePath &filePath) override;
 
-    void findUsingLs(const QString &current,
-                     const FileFilter &filter,
-                     QStringList *found,
-                     const QString &start) const;
+    Result<> findUsingLs(const QString &current,
+                         const FileFilter &filter,
+                         QStringList *found,
+                         const QString &start) const;
 
 private:
-    bool iterateWithFind(const FilePath &filePath,
-                         const FileFilter &filter,
-                         const FilePath::IterateDirCallback &callBack) const;
+    Result<> iterateWithFind(const FilePath &filePath,
+                             const FileFilter &filter,
+                             const FilePath::IterateDirCallback &callBack) const;
 
     QStringList statArgs(const FilePath &filePath,
                          const QString &linuxFormat,

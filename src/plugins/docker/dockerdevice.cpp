@@ -119,7 +119,7 @@ public:
         : m_rootPath(rootPath)
     {}
 
-    RunResult runInShell(const CommandLine &cmdLine, const QByteArray &stdInData) const override
+    Result<RunResult> runInShellImpl(const CommandLine &cmdLine, const QByteArray &stdInData) const override
     {
         Process proc;
         proc.setWriteData(stdInData);
@@ -127,7 +127,7 @@ public:
             {m_rootPath.withNewPath(cmdLine.executable().path()), cmdLine.splitArguments()});
         proc.runBlocking();
 
-        return {
+        return RunResult {
             proc.resultData().m_exitCode,
             proc.readAllRawStandardOutput(),
             proc.readAllRawStandardError(),
