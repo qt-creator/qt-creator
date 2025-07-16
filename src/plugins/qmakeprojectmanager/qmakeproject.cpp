@@ -1256,11 +1256,7 @@ void QmakeBuildSystem::collectApplicationData(const QmakeProFile *file, Deployme
 
 static FilePath destDirFor(const TargetInformation &ti)
 {
-    if (ti.destDir.isEmpty())
-        return ti.buildDir;
-    if (QDir::isRelativePath(ti.destDir.path()))
-        return ti.buildDir / ti.destDir.path();
-    return ti.destDir;
+    return ti.buildDir.resolvePath(ti.destDir);
 }
 
 FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) const
