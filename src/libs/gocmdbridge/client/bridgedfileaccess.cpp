@@ -404,8 +404,20 @@ FilePath FileAccess::symLinkTarget(const FilePath &filePath) const
         Result<QFuture<QString>> f = m_client->readlink(filePath.nativePath());
         QTC_ASSERT_RESULT(f, return {});
         return filePath.parentDir().resolvePath(filePath.withNewPath(f->result()).path());
+    } catch (const std::system_error &e) {
+        if (e.code().value() == ENOENT) {
+            qCDebug(faLog) << "No such file:" << filePath.toUserOutput();
+            return {};
+        } else if (e.code().value() == EINVAL) {
+            qCDebug(faLog) << "Path is not a symlink:" << filePath.toUserOutput();
+            return {};
+        }
+        qCWarning(faLog) << "Error getting symlink target:" << e.what() << "for"
+                         << filePath.toUserOutput();
+        return {};
     } catch (const std::exception &e) {
-        qCWarning(faLog) << "Error getting symlink target:" << e.what();
+        qCWarning(faLog) << "Error getting symlink target:" << e.what() << "for"
+                         << filePath.toUserOutput();
         return {};
     }
 }

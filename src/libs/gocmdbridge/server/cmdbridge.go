@@ -50,6 +50,7 @@ type errorresult struct {
 	Id    int
 	Error string
 	ErrorType string
+	Errno int
 }
 
 type readlinkresult struct {
@@ -153,14 +154,13 @@ func readPacket(decoder *cbor.Decoder) (*command, error) {
 func sendError(out chan<- []byte, cmd command, err error) {
 	errMsg := err.Error()
 	errType := reflect.TypeOf(err).Name()
+	errno := syscall.EINVAL
 	if e, ok := err.(*os.PathError); ok {
 		errMsg = e.Err.Error()
 		errType = reflect.TypeOf(e.Err).Name()
 
 		if erno, ok := e.Err.(syscall.Errno); ok {
-			if erno == syscall.ENOENT {
-				errType = "ENOENT"
-			}
+			errno = erno
 		}
 	}
 	result, _ := cbor.Marshal(errorresult{
@@ -168,6 +168,7 @@ func sendError(out chan<- []byte, cmd command, err error) {
 		Id:    cmd.Id,
 		Error: errMsg,
 		ErrorType: errType,
+		Errno: int(errno),
 	})
 	out <- result
 }

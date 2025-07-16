@@ -435,9 +435,11 @@ static Utils::Result<QFuture<R>> createJob(
         if (handleErrors == Errors::Handle && type == "error") {
             const QString err = map.value("Error", QString{}).toString();
             const QString errType = map.value("ErrorType", QString{}).toString();
-            if (errType == "ENOENT") {
+            const int errNo = map.value("Errno", -1).toInt();
+
+            if (errType == "Errno") {
                 promise->setException(
-                    std::make_exception_ptr(std::system_error(ENOENT, std::generic_category())));
+                    std::make_exception_ptr(std::system_error(errNo, std::generic_category())));
                 promise->finish();
             } else if (errType == "NormalExit") {
                 promise->setException(std::make_exception_ptr(std::runtime_error("NormalExit")));
