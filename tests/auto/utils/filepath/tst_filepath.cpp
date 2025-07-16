@@ -71,8 +71,11 @@ private slots:
     void pathAppended_data();
     void pathAppended();
 
-    void resolvePath_data();
-    void resolvePath();
+    void resolvePath_filepath_data();
+    void resolvePath_filepath();
+
+    void resolvePath_string_data();
+    void resolvePath_string();
 
     void relativeChildPath_data();
     void relativeChildPath();
@@ -1246,7 +1249,45 @@ void tst_filepath::pathAppended_data()
     }
 }
 
-void tst_filepath::resolvePath_data()
+void tst_filepath::resolvePath_string_data()
+{
+    QTest::addColumn<FilePath>("left");
+    QTest::addColumn<QString>("right");
+    QTest::addColumn<FilePath>("expected");
+
+    QTest::newRow("empty") << FilePath() << QString() << FilePath();
+    QTest::newRow("s0") << FilePath("/") << QString("b") << FilePath("/b");
+    QTest::newRow("s1") << FilePath() << QString("b") << FilePath("b");
+    QTest::newRow("s2") << FilePath("a") << QString() << FilePath("a");
+    QTest::newRow("s3") << FilePath("a") << QString("b") << FilePath("a/b");
+    QTest::newRow("s4") << FilePath("/a") << QString("/b") << FilePath("/b");
+    QTest::newRow("s5") << FilePath("a") << QString("/b") << FilePath("/b");
+    QTest::newRow("s6") << FilePath("/a") << QString("b") << FilePath("/a/b");
+    QTest::newRow("s7") << FilePath("/a") << QString(".") << FilePath("/a");
+    QTest::newRow("s8") << FilePath("/a") << QString("./b") << FilePath("/a/b");
+    QTest::newRow("s9") << FilePath("../..") << QString("/b") << FilePath("/b");
+    QTest::newRow("sa") << FilePath("../..") << QString("b") << FilePath("../../b");
+    QTest::newRow("sb") << FilePath("a/A") << QString("..") << FilePath("a");
+
+    FilePath r = FilePath::fromString("ssh://user@127.0.0.1/tmp/a");
+    QTest::newRow("r1") << r  << QString("bar") << FilePath::fromString("ssh://user@127.0.0.1/tmp/a/bar");
+    QTest::newRow("r2") << r  << QString("..") << FilePath::fromString("ssh://user@127.0.0.1/tmp");
+    QTest::newRow("r3") << r  << QString("../..") << FilePath::fromString("ssh://user@127.0.0.1/");
+    QTest::newRow("r4") << r  << QString("/foo") << FilePath::fromString("ssh://user@127.0.0.1/foo");
+}
+
+void tst_filepath::resolvePath_string()
+{
+    QFETCH(FilePath, left);
+    QFETCH(QString, right);
+    QFETCH(FilePath, expected);
+
+    const FilePath result = left.resolvePath(right);
+
+    QCOMPARE(result, expected);
+}
+
+void tst_filepath::resolvePath_filepath_data()
 {
     QTest::addColumn<FilePath>("left");
     QTest::addColumn<FilePath>("right");
@@ -1265,9 +1306,15 @@ void tst_filepath::resolvePath_data()
     QTest::newRow("s9") << FilePath("../..") << FilePath("/b") << FilePath("/b");
     QTest::newRow("sa") << FilePath("../..") << FilePath("b") << FilePath("../../b");
     QTest::newRow("sb") << FilePath("a/A") << FilePath("..") << FilePath("a");
+
+    FilePath r = FilePath::fromString("ssh://user@127.0.0.1/tmp/a");
+    QTest::newRow("r1") << r  << FilePath("bar") << FilePath::fromString("ssh://user@127.0.0.1/tmp/a/bar");
+    QTest::newRow("r2") << r  << FilePath("..") << FilePath::fromString("ssh://user@127.0.0.1/tmp");
+    QTest::newRow("r3") << r  << FilePath("../..") << FilePath::fromString("ssh://user@127.0.0.1/");
+    QTest::newRow("r4") << r  << FilePath("/foo") << FilePath::fromString("/foo");
 }
 
-void tst_filepath::resolvePath()
+void tst_filepath::resolvePath_filepath()
 {
     QFETCH(FilePath, left);
     QFETCH(FilePath, right);

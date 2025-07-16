@@ -923,6 +923,17 @@ static bool startsWithWindowsDriveLetter(QStringView path)
     return path.size() == 2 && path[1] == ':' && isWindowsDriveLetter(path[0]);
 }
 
+static bool isRelativePathHelper(QStringView path)
+{
+    if (path.startsWith('/'))
+        return false;
+    if (startsWithWindowsDriveLetterAndSlash(path))
+        return false;
+    if (path.startsWith(u":/")) // QRC
+        return false;
+    return true;
+}
+
 int FilePath::rootLength(const QStringView path)
 {
     if (path.size() == 0)
@@ -2378,14 +2389,7 @@ QString FilePath::shortNativePath() const
 */
 bool FilePath::isRelativePath() const
 {
-    const QStringView p = pathView();
-    if (p.startsWith('/'))
-        return false;
-    if (startsWithWindowsDriveLetterAndSlash(p))
-        return false;
-    if (p.startsWith(u":/")) // QRC
-        return false;
-    return true;
+    return isRelativePathHelper(pathView());
 }
 
 /*!
@@ -2405,11 +2409,15 @@ FilePath FilePath::resolvePath(const FilePath &tail) const
 /*!
     \brief Appends the \a tail to this, if the tail is a relative path.
 
-    Returns the tail if the tail is absolute, otherwise this + tail.
+    Returns this with new path tail if the tail is absolute, otherwise this + tail.
 */
 FilePath FilePath::resolvePath(const QString &tail) const
 {
-   return resolvePath(FilePath::fromUserInput(tail));
+    if (tail.isEmpty())
+        return *this;
+    if (isRelativePathHelper(tail))
+        return pathAppended(tail).cleanPath();
+    return withNewPath(tail);
 }
 
 Result<FilePath> FilePath::localSource() const
