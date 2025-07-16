@@ -54,6 +54,133 @@ static State resultToState(DoneWith result)
     return State::Initial;
 }
 
+struct GroupSetup
+{
+    WorkflowPolicy policy = WorkflowPolicy::StopOnError;
+    ExecuteMode mode = ExecuteMode::Sequential;
+};
+
+class GlueItem
+{
+public:
+    virtual ExecutableItem recipe() const = 0;
+    virtual QWidget *widget() const = 0;
+    virtual void reset() const = 0;
+
+    ~GlueItem() { qDeleteAll(m_children); }
+
+protected:
+    GlueItem(const QList<GlueItem *> children) : m_children(children) {}
+
+    void resetChildren() const
+    {
+        for (GlueItem *child : m_children)
+            child->reset();
+    }
+
+    QList<GroupItem> childrenRecipes() const
+    {
+        QList<GroupItem> recipes;
+        for (GlueItem *child : m_children)
+            recipes.append(child->recipe());
+        return recipes;
+    }
+
+private:
+    QList<GlueItem *> m_children;
+};
+
+class GroupGlueItem : public GlueItem
+{
+public:
+    GroupGlueItem(const GroupSetup &setup, const QList<GlueItem *> &children)
+        : GlueItem(children)
+        , m_groupWidget(new GroupWidget)
+        , m_widget(new QWidget)
+    {
+        QBoxLayout *layout = new QHBoxLayout(m_widget);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(m_groupWidget);
+        QGroupBox *groupBox = new QGroupBox;
+        QBoxLayout *subLayout = new QVBoxLayout(groupBox);
+        for (int i = 0; i < children.size(); ++i) {
+            if (i > 0)
+                subLayout->addWidget(hr());
+            subLayout->addWidget(children.at(i)->widget());
+        }
+        layout->addWidget(groupBox);
+        m_groupWidget->setWorkflowPolicy(setup.policy);
+        m_groupWidget->setExecuteMode(setup.mode);
+    }
+
+    ExecutableItem recipe() const final
+    {
+        return Group {
+            m_groupWidget->executeMode(),
+            m_groupWidget->workflowPolicy(),
+            onGroupSetup([this] { m_groupWidget->setState(State::Running); }),
+            childrenRecipes(),
+            onGroupDone([this](DoneWith result) { m_groupWidget->setState(resultToState(result)); })
+        };
+    }
+    QWidget *widget() const final { return m_widget; }
+    void reset() const final
+    {
+        m_groupWidget->setState(State::Initial);
+        resetChildren();
+    }
+
+private:
+    GroupWidget *m_groupWidget = nullptr;
+    QWidget *m_widget = nullptr;
+};
+
+class TaskGlueItem : public GlueItem
+{
+public:
+    TaskGlueItem(int busyTime, DoneResult result)
+        : GlueItem({})
+        , m_taskWidget(new TaskWidget)
+    {
+        m_taskWidget->setBusyTime(busyTime);
+        m_taskWidget->setDesiredResult(result);
+    }
+
+    ExecutableItem recipe() const final
+    {
+        const milliseconds timeout(m_taskWidget->busyTime() * 1000);
+        const auto onSetup = [this, timeout](milliseconds &taskObject) {
+            taskObject = timeout;
+            m_taskWidget->setState(State::Running);
+        };
+        const auto onDone = [this, desiredResult = m_taskWidget->desiredResult()](DoneWith doneWith) {
+            // The TimeoutTask, when not DoneWith::Cancel, always reports DoneWith::Success.
+            // Tweak the final result in case the desired result is Error.
+            const DoneWith result = doneWith == DoneWith::Success
+                           && desiredResult == DoneResult::Error ? DoneWith::Error : doneWith;
+            m_taskWidget->setState(resultToState(result));
+            return desiredResult;
+        };
+        return TimeoutTask(onSetup, onDone);
+    }
+
+    QWidget *widget() const final { return m_taskWidget; }
+    void reset() const final { m_taskWidget->setState(State::Initial); }
+
+private:
+    TaskWidget *m_taskWidget = nullptr;
+};
+
+static GlueItem *group(const GroupSetup &groupSetup, const QList<GlueItem *> children)
+{
+    return new GroupGlueItem(groupSetup, children);
+}
+
+static GlueItem *task(int busyTime = 1, DoneResult result = DoneResult::Success)
+{
+    return new TaskGlueItem(busyTime, result);
+}
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -74,90 +201,35 @@ int main(int argc, char *argv[])
     scrollArea->setWidgetResizable(true);
     QWidget *scrollAreaWidget = new QWidget;
 
-    // Task GUI
-
-    QList<GroupWidget *> allGroupWidgets;
-    QList<TaskWidget *> allTaskWidgets;
-
-    auto createGroupWidget = [&allGroupWidgets] {
-        auto *widget = new GroupWidget;
-        allGroupWidgets.append(widget);
-        return widget;
+    std::unique_ptr<GlueItem> tree {
+        group({WorkflowPolicy::ContinueOnSuccess}, {
+            group({}, {
+                task(),
+                task(2, DoneResult::Error),
+                task(3)
+            }),
+            task(),
+            task(),
+            group({WorkflowPolicy::FinishAllAndSuccess}, {
+                task(),
+                task(),
+                group({WorkflowPolicy::StopOnError, ExecuteMode::Parallel}, {
+                    task(4),
+                    task(2),
+                    task(1),
+                    task(3),
+                }),
+                task(2),
+                task(3)
+            }),
+            task()
+        })
     };
-    auto createTaskWidget = [&allTaskWidgets] {
-        auto *widget = new TaskWidget;
-        allTaskWidgets.append(widget);
-        return widget;
-    };
-
-    GroupWidget *rootGroup = createGroupWidget();
-
-    GroupWidget *groupTask_1 = createGroupWidget();
-    TaskWidget *task_1_1 = createTaskWidget();
-    TaskWidget *task_1_2 = createTaskWidget();
-    TaskWidget *task_1_3 = createTaskWidget();
-
-    TaskWidget *task_2 = createTaskWidget();
-    TaskWidget *task_3 = createTaskWidget();
-
-    GroupWidget *groupTask_4 = createGroupWidget();
-    TaskWidget *task_4_1 = createTaskWidget();
-    TaskWidget *task_4_2 = createTaskWidget();
-    GroupWidget *groupTask_4_3 = createGroupWidget();
-    TaskWidget *task_4_3_1 = createTaskWidget();
-    TaskWidget *task_4_3_2 = createTaskWidget();
-    TaskWidget *task_4_3_3 = createTaskWidget();
-    TaskWidget *task_4_3_4 = createTaskWidget();
-    TaskWidget *task_4_4 = createTaskWidget();
-    TaskWidget *task_4_5 = createTaskWidget();
-
-    TaskWidget *task_5 = createTaskWidget();
-
-    // Task initial configuration
-
-    task_1_2->setBusyTime(2);
-    task_1_2->setDesiredResult(DoneResult::Error);
-    task_1_3->setBusyTime(3);
-    task_4_3_1->setBusyTime(4);
-    task_4_3_2->setBusyTime(2);
-    task_4_3_3->setBusyTime(1);
-    task_4_3_4->setBusyTime(3);
-    task_4_3_4->setDesiredResult(DoneResult::Error);
-    task_4_4->setBusyTime(6);
-    task_4_4->setBusyTime(3);
-
-    groupTask_1->setWorkflowPolicy(WorkflowPolicy::ContinueOnSuccess);
-    groupTask_4->setWorkflowPolicy(WorkflowPolicy::FinishAllAndSuccess);
-    groupTask_4_3->setExecuteMode(ExecuteMode::Parallel);
-    groupTask_4_3->setWorkflowPolicy(WorkflowPolicy::StopOnError);
-
-    // Task layout
 
     {
-        QWidget *taskTree = taskGroup(rootGroup, {
-            taskGroup(groupTask_1, {
-                task_1_1,
-                task_1_2,
-                task_1_3
-            }),
-            task_2,
-            task_3,
-            taskGroup(groupTask_4, {
-                task_4_1,
-                task_4_2,
-                taskGroup(groupTask_4_3, {
-                    task_4_3_1,
-                    task_4_3_2,
-                    task_4_3_3,
-                    task_4_3_4,
-                }),
-                task_4_4,
-                task_4_5
-            }),
-            task_5
-        });
+        // Task layout
         QBoxLayout *scrollLayout = new QVBoxLayout(scrollAreaWidget);
-        scrollLayout->addWidget(taskTree);
+        scrollLayout->addWidget(tree->widget());
         scrollLayout->addStretch();
         scrollArea->setWidget(scrollAreaWidget);
 
@@ -180,8 +252,6 @@ int main(int argc, char *argv[])
         mainLayout->addLayout(footerLayout);
     }
 
-    // Task tree (takes initial configuation from GUI)
-
     TaskTreeRunner taskTreeRunner;
 
     QObject::connect(&taskTreeRunner, &TaskTreeRunner::aboutToStart,
@@ -191,64 +261,6 @@ int main(int argc, char *argv[])
                          progressBar, &QProgressBar::setValue);
     });
 
-    const auto setupGroup = [](GroupWidget *widget) {
-        return GroupItem {
-            widget->executeMode(),
-            widget->workflowPolicy(),
-            onGroupSetup([widget] { widget->setState(State::Running); }),
-            onGroupDone([widget](DoneWith result) { widget->setState(resultToState(result)); }),
-        };
-    };
-
-    const auto setupTask = [](TaskWidget *widget) {
-        const milliseconds timeout(widget->busyTime() * 1000);
-        const auto onSetup = [widget, timeout](milliseconds &taskObject) {
-            taskObject = timeout;
-            widget->setState(State::Running);
-        };
-        const auto onDone = [widget, desiredResult = widget->desiredResult()](DoneWith doneWith) {
-            // The TimeoutTask, when not DoneWith::Cancel, always reports DoneWith::Success.
-            // Tweak the final result in case the desired result is Error.
-            const DoneWith result = doneWith == DoneWith::Success
-                            && desiredResult == DoneResult::Error ? DoneWith::Error : doneWith;
-            widget->setState(resultToState(result));
-            return desiredResult;
-        };
-        return TimeoutTask(onSetup, onDone);
-    };
-
-    const auto recipe = [&] {
-        const Group root {
-            setupGroup(rootGroup),
-            Group {
-                setupGroup(groupTask_1),
-                setupTask(task_1_1),
-                setupTask(task_1_2),
-                setupTask(task_1_3)
-            },
-            setupTask(task_2),
-            setupTask(task_3),
-            Group {
-                setupGroup(groupTask_4),
-                setupTask(task_4_1),
-                setupTask(task_4_2),
-                Group {
-                    setupGroup(groupTask_4_3),
-                    setupTask(task_4_3_1),
-                    setupTask(task_4_3_2),
-                    setupTask(task_4_3_3),
-                    setupTask(task_4_3_4)
-                },
-                setupTask(task_4_4),
-                setupTask(task_4_5)
-            },
-            setupTask(task_5)
-        };
-        return root;
-    };
-
-    // Non-task GUI handling
-
     const auto stopTaskTree = [&] {
         if (taskTreeRunner.isRunning())
             taskTreeRunner.cancel();
@@ -256,16 +268,13 @@ int main(int argc, char *argv[])
 
     const auto resetTaskTree = [&] {
         taskTreeRunner.reset();
-        for (GroupWidget *widget : allGroupWidgets)
-            widget->setState(State::Initial);
-        for (TaskWidget *widget : allTaskWidgets)
-            widget->setState(State::Initial);
+        tree->reset();
         progressBar->setValue(0);
     };
 
     auto startTaskTree = [&] {
         resetTaskTree();
-        taskTreeRunner.start(recipe());
+        taskTreeRunner.start({tree->recipe()});
     };
 
     QObject::connect(startButton, &QAbstractButton::clicked, startTaskTree);
