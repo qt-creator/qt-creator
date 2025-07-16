@@ -280,19 +280,6 @@ const char CUSTOM_PARSER_PREFIX_KEY[] = "ProjectExplorer/Settings/CustomParser";
 
 } // namespace Constants
 
-
-static std::optional<Environment> sysEnv(const Project *)
-{
-    return Environment::systemEnvironment();
-}
-
-static std::optional<Environment> buildEnv(const Project *project)
-{
-    if (const BuildConfiguration * const bc = activeBuildConfig(project))
-        return bc->environment();
-    return {};
-}
-
 static const RunConfiguration *runConfigForNode(const BuildConfiguration *bc, const ProjectNode *node)
 {
     if (node && node->productType() == ProductType::App) {
@@ -305,6 +292,72 @@ static const RunConfiguration *runConfigForNode(const BuildConfiguration *bc, co
     return bc->activeRunConfiguration();
 }
 
+class OpenTerminalParameters
+{
+public:
+    Environment env;
+    FilePath workingDir;
+    IDeviceConstPtr device;
+};
+static std::optional<OpenTerminalParameters> genericTerminalParameters(
+        const Project *project, const Node *node)
+{
+    if (!node || !project)
+        return {};
+
+    OpenTerminalParameters params;
+    params.env = Environment::systemEnvironment();
+    params.workingDir = node->directory();
+    if (const BuildConfiguration * const bc = activeBuildConfig(project))
+        params.device = BuildDeviceKitAspect::device(bc->kit());
+
+    return params;
+}
+static std::optional<OpenTerminalParameters> buildConfigTerminalParameters(
+        const Project *project, const Node *node)
+{
+    if (!node || !project)
+        return {};
+
+    const BuildConfiguration * const bc = activeBuildConfig(project);
+    if (!bc)
+        return {};
+    const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(bc->kit());
+    if (!buildDevice || !buildDevice->canOpenTerminal())
+        return {};
+    FilePath workingDir = buildDevice->type() == Constants::DESKTOP_DEVICE_TYPE
+            ? node->directory()
+            : bc->buildDirectory();
+
+    return OpenTerminalParameters{bc->environment(), node->directory(), buildDevice};
+}
+static std::optional<OpenTerminalParameters> runConfigTerminalParameters(
+        const Project *project, const Node *node)
+{
+    if (!node || !project)
+        return {};
+
+    const BuildConfiguration * const bc = project->activeBuildConfiguration();
+    if (!bc)
+        return {};
+    const RunConfiguration * const runConfig = runConfigForNode(bc, node->asProjectNode());
+    if (!runConfig)
+        return {};
+
+    const ProcessRunData runnable = runConfig->runnable();
+    IDevice::ConstPtr device = DeviceManager::deviceForPath(runnable.command.executable());
+    if (!device)
+        device = RunDeviceKitAspect::device(bc->kit());
+    if (!device || !device->canOpenTerminal())
+        return {};
+
+    FilePath workingDir = device->type() == Constants::DESKTOP_DEVICE_TYPE
+            ? node->directory()
+            : runnable.workingDirectory;
+
+    return OpenTerminalParameters{runnable.environment, workingDir, device};
+}
+
 static bool hideBuildMenu()
 {
     return ICore::settings()->value(Constants::SETTINGS_MENU_HIDE_BUILD, false).toBool();
@@ -313,23 +366,6 @@ static bool hideBuildMenu()
 static bool hideDebugMenu()
 {
     return ICore::settings()->value(Constants::SETTINGS_MENU_HIDE_DEBUG, false).toBool();
-}
-
-static bool canOpenTerminalWithRunEnv(const Project *project, const ProjectNode *node)
-{
-    if (!project)
-        return false;
-    const BuildConfiguration * const bc = project->activeBuildConfiguration();
-    if (!bc)
-        return false;
-    const RunConfiguration * const runConfig = runConfigForNode(bc, node);
-    if (!runConfig)
-        return false;
-    IDevice::ConstPtr device
-        = DeviceManager::deviceForPath(runConfig->runnable().command.executable());
-    if (!device)
-        device = RunDeviceKitAspect::device(project->activeKit());
-    return device && device->canOpenTerminal();
 }
 
 static bool isTextFile(const FilePath &filePath)
@@ -497,11 +533,9 @@ public:
     void openRecentProject(const FilePath &filePath);
     void removeFromRecentProjects(const FilePath &filePath);
     void updateUnloadProjectMenu();
-    using EnvironmentGetter = std::function<std::optional<Environment>(const Project *project)>;
-    void openTerminalHere(const EnvironmentGetter &env);
-    void openTerminalHereWithRunEnv();
-    void setOpenTerminalError(const QString &details);
-    void clearOpenTerminalError();
+    using OpenTerminalParametersGetter
+    = std::function<std::optional<OpenTerminalParameters>(const Project *, const Node *)>;
+    void openTerminalHere(const OpenTerminalParametersGetter &getParams);
 
     void invalidateProject(Project *project);
 
@@ -1880,9 +1914,15 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
             &ProjectExplorerPluginPrivate::showInFileSystemPane,
             Qt::QueuedConnection);
 
-    connect(dd->m_openTerminalHereSysEnv, &QAction::triggered, dd, [] { dd->openTerminalHere(sysEnv); });
-    connect(dd->m_openTerminalHereBuildEnv, &QAction::triggered, dd, [] { dd->openTerminalHere(buildEnv); });
-    connect(dd->m_openTerminalHereRunEnv, &QAction::triggered, dd, [] { dd->openTerminalHereWithRunEnv(); });
+    connect(dd->m_openTerminalHereSysEnv, &QAction::triggered, dd, [] {
+        dd->openTerminalHere(genericTerminalParameters);
+    });
+    connect(dd->m_openTerminalHereBuildEnv, &QAction::triggered, dd, [] {
+        dd->openTerminalHere(buildConfigTerminalParameters);
+    });
+    connect(dd->m_openTerminalHereRunEnv, &QAction::triggered, dd, [] {
+        dd->openTerminalHere(runConfigTerminalParameters);
+    });
 
     connect(dd->m_filePropertiesAction, &QAction::triggered, this, [] {
                 const Node *currentNode = ProjectTree::currentNode();
@@ -3383,8 +3423,10 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
             pn = const_cast<ProjectNode*>(currentNode->asProjectNode());
 
         Project *project = ProjectTree::currentProject();
-        m_openTerminalHereBuildEnv->setVisible(bool(buildEnv(project)));
-        m_openTerminalHereRunEnv->setVisible(canOpenTerminalWithRunEnv(project, pn));
+        m_openTerminalHereBuildEnv->setVisible(
+                    bool(buildConfigTerminalParameters(project, currentNode)));
+        m_openTerminalHereRunEnv->setVisible(
+                    bool(runConfigTerminalParameters(project, currentNode)));
 
         if (pn && project) {
             if (pn == project->rootProjectNode()) {
@@ -3804,102 +3846,42 @@ void ProjectExplorerPluginPrivate::showInFileSystemPane()
     Core::FileUtils::showInFileSystemView(currentNode->filePath());
 }
 
-void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env)
-{
-    clearOpenTerminalError();
-
-    const Node *currentNode = ProjectTree::currentNode();
-    QTC_ASSERT(currentNode, return);
-
-    const auto environment = env(ProjectTree::projectForNode(currentNode));
-    if (!environment)
-        return;
-
-    BuildConfiguration *bc = activeBuildConfig(ProjectTree::projectForNode(currentNode));
-    if (!bc) {
-        Terminal::Hooks::instance().openTerminal({currentNode->directory(), environment});
-        return;
-    }
-
-    IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(bc->kit());
-
-    if (!buildDevice)
-        return;
-
-    FilePath workingDir = currentNode->directory();
-    if (!buildDevice->filePath(workingDir.path()).exists()
-        && !buildDevice->ensureReachable(workingDir))
-        workingDir.clear();
-
-    const Result<FilePath> shell = Terminal::defaultShellForDevice(buildDevice->rootPath());
-
-    if (!shell) {
-        setOpenTerminalError(shell.error());
-        return;
-    }
-
-    if (buildDevice->rootPath().isLocal())
-        Terminal::Hooks::instance().openTerminal({workingDir, environment});
-    else
-        Terminal::Hooks::instance().openTerminal({CommandLine{*shell}, workingDir, environment});
-}
-
-void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
-{
-    clearOpenTerminalError();
-
-    const Node *currentNode = ProjectTree::currentNode();
-    QTC_ASSERT(currentNode, return);
-
-    const Project * const project = ProjectTree::projectForNode(currentNode);
-    QTC_ASSERT(project, return);
-    const BuildConfiguration * const bc = project->activeBuildConfiguration();
-    QTC_ASSERT(bc, return);
-    const RunConfiguration * const runConfig = runConfigForNode(bc, currentNode->asProjectNode());
-    QTC_ASSERT(runConfig, return);
-
-    const ProcessRunData runnable = runConfig->runnable();
-    IDevice::ConstPtr device = DeviceManager::deviceForPath(runnable.command.executable());
-    if (!device)
-        device = RunDeviceKitAspect::device(bc->kit());
-    QTC_ASSERT(device && device->canOpenTerminal(), return);
-
-    FilePath workingDir = device->type() == Constants::DESKTOP_DEVICE_TYPE
-                              ? currentNode->directory()
-                              : runnable.workingDirectory;
-
-    if (!device->filePath(workingDir.path()).exists() && !device->ensureReachable(workingDir))
-        workingDir.clear();
-
-    const Result<FilePath> shell = Terminal::defaultShellForDevice(device->rootPath());
-
-    if (!shell) {
-        setOpenTerminalError(shell.error());
-        return;
-    }
-
-    if (!device->rootPath().isLocal()) {
-        Terminal::Hooks::instance().openTerminal({workingDir, runnable.environment});
-    } else {
-        Terminal::Hooks::instance().openTerminal({CommandLine{*shell}, workingDir,
-                                                  runnable.environment});
-    }
-}
-
-void ProjectExplorerPluginPrivate::setOpenTerminalError(const QString &details)
-{
-    m_openTerminalError
-            = OtherTask(Task::Error, Tr::tr("Failed to open terminal.").append('\n').append(details));
-    TaskHub::addTask(m_openTerminalError);
-    TaskHub::requestPopup();
-}
-
-void ProjectExplorerPluginPrivate::clearOpenTerminalError()
+void ProjectExplorerPluginPrivate::openTerminalHere(const OpenTerminalParametersGetter &getParams)
 {
     if (!m_openTerminalError.isNull()) {
         TaskHub::removeTask(m_openTerminalError);
         m_openTerminalError.clear();
     }
+
+    const Node *currentNode = ProjectTree::currentNode();
+    QTC_ASSERT(currentNode, return);
+    const Project * const project = ProjectTree::projectForNode(currentNode);
+    QTC_ASSERT(project, return);
+
+    const auto params = getParams(project, currentNode);
+    if (!params)
+        return;
+
+    FilePath workingDir = params->workingDir;
+    if (params->device && !params->device->filePath(workingDir.path()).exists()
+            && !params->device->ensureReachable(workingDir)) {
+        workingDir.clear();
+    }
+
+    if (!params->device || params->device->rootPath().isLocal()) {
+        Terminal::Hooks::instance().openTerminal({workingDir, params->env});
+        return;
+    }
+
+    const Result<FilePath> shell = Terminal::defaultShellForDevice(params->device->rootPath());
+    if (!shell) {
+        m_openTerminalError = OtherTask(
+                    Task::DisruptingError,
+                    Tr::tr("Failed to open terminal.").append('\n').append(shell.error()));
+        TaskHub::addTask(m_openTerminalError);
+        return;
+    }
+    Terminal::Hooks::instance().openTerminal({CommandLine{*shell}, workingDir, params->env});
 }
 
 void ProjectExplorerPluginPrivate::removeFile()
