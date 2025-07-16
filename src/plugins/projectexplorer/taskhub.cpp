@@ -46,6 +46,12 @@ void TaskHub::addTask(Task task)
         return;
     }
 
+    bool popUp = false;
+    if (task.type() == Task::DisruptingError) {
+        popUp = true;
+        task.setType(Task::Error);
+    }
+
     QTC_ASSERT(s_registeredCategories.contains(task.m_category), return);
     QTC_ASSERT(!task.description().isEmpty(), return);
     QTC_ASSERT(!task.isNull(), return);
@@ -54,6 +60,8 @@ void TaskHub::addTask(Task task)
     if (task.m_file.isEmpty() || task.m_line <= 0)
         task.m_line = -1;
     emit taskHub().taskAdded(task);
+    if (popUp)
+        requestPopup();
 }
 
 void TaskHub::clearTasks(Id categoryId)

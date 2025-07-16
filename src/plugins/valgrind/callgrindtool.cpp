@@ -1170,8 +1170,7 @@ void CallgrindTool::loadExternalLogFile()
     if (!logFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QString msg = Tr::tr("Callgrind: Failed to open file for reading: %1")
                 .arg(filePath.toUserOutput());
-        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
-        TaskHub::requestPopup();
+        TaskHub::addTask(Task::DisruptingError, msg, Debugger::Constants::ANALYZERTASK_ID);
         return;
     }
 

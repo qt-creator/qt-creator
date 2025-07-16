@@ -162,10 +162,9 @@ void ClangCodeModelPlugin::createCompilationDBAction()
         }
         const auto setError = [this](const QString &reason) {
             m_generateCompilationDBError = OtherTask(
-                Task::Error,
+                Task::DisruptingError,
                 Tr::tr("Cannot generate compilation database.").append('\n').append(reason));
             TaskHub::addTask(m_generateCompilationDBError);
-            TaskHub::requestPopup();
         };
         if (!m_generateCompilationDBAction->isEnabled())
             return setError(Tr::tr("Generator is already running."));

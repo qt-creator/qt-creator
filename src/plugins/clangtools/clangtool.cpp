@@ -876,9 +876,10 @@ FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelect
     // early bailout
     if (selectionType && *selectionType == FileSelectionType::CurrentFile
         && !EditorManager::currentDocument()) {
-        TaskHub::addTask(Task::Error, Tr::tr("Cannot analyze current file: No files open."),
-                                         taskCategory());
-        TaskHub::requestPopup();
+        TaskHub::addTask(
+            Task::DisruptingError,
+            Tr::tr("Cannot analyze current file: No files open."),
+            taskCategory());
         return {};
     }
 
@@ -911,11 +912,11 @@ FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelect
         });
         if (!fileInfo.file.isEmpty())
             return {fileInfo};
-        TaskHub::addTask(Task::Error,
-                         Tr::tr("Cannot analyze current file: \"%1\" is not a known source file.")
-                         .arg(filePath.toUserOutput()),
-                         taskCategory());
-        TaskHub::requestPopup();
+        TaskHub::addTask(
+            Task::DisruptingError,
+            Tr::tr("Cannot analyze current file: \"%1\" is not a known source file.")
+                .arg(filePath.toUserOutput()),
+            taskCategory());
     }
 
     return {};

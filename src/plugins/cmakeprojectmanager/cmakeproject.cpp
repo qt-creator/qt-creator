@@ -194,12 +194,11 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
         for (const auto &p : userPresets) {
             if (presetsHash.contains(p.name)) {
                 TaskHub::addTask<BuildSystemTask>(
-                    Task::TaskType::Error,
+                    Task::TaskType::DisruptingError,
                     Tr::tr("CMakeUserPresets.json cannot re-define the %1 preset: %2")
                         .arg(presetType)
                         .arg(p.name),
                     FilePath::fromString("CMakeUserPresets.json"));
-                TaskHub::requestPopup();
             } else {
                 presetsHash.insert(p.name, p);
             }
@@ -237,10 +236,9 @@ void CMakeProject::setupBuildPresets(Internal::PresetsData &presetsData)
         if (buildPreset.inheritConfigureEnvironment) {
             if (!buildPreset.configurePreset && !buildPreset.hidden) {
                 TaskHub::addTask<BuildSystemTask>(
-                    Task::TaskType::Error,
+                    Task::TaskType::DisruptingError,
                     Tr::tr("Build preset %1 is missing a corresponding configure preset.")
                         .arg(buildPreset.name));
-                TaskHub::requestPopup();
             }
 
             const QString &configurePresetName = buildPreset.configurePreset.value_or(QString());
@@ -312,11 +310,10 @@ void CMakeProject::readPresets()
                 data = parser.presetsData();
             } else {
                 TaskHub::addTask<BuildSystemTask>(
-                    Task::TaskType::Error,
+                    Task::TaskType::DisruptingError,
                     Tr::tr("Failed to load %1: %2").arg(presetFile.fileName()).arg(errorMessage),
                     presetFile,
                     errorLine);
-                TaskHub::requestPopup();
             }
         }
         return data;

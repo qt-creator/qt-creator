@@ -576,8 +576,7 @@ void MemcheckTool::heobAction()
     }
     if (!hasLocalRc) {
         const QString msg = Tr::tr("Heob: No local run configuration available.");
-        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
-        TaskHub::requestPopup();
+        TaskHub::addTask(Task::DisruptingError, msg, Debugger::Constants::ANALYZERTASK_ID);
         return;
     }
     if (abi.architecture() != Abi::X86Architecture
@@ -585,8 +584,7 @@ void MemcheckTool::heobAction()
             || abi.binaryFormat() != Abi::PEFormat
             || (abi.wordWidth() != 32 && abi.wordWidth() != 64)) {
         const QString msg = Tr::tr("Heob: No toolchain available.");
-        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
-        TaskHub::requestPopup();
+        TaskHub::addTask(Task::DisruptingError, msg, Debugger::Constants::ANALYZERTASK_ID);
         return;
     }
 
@@ -598,16 +596,14 @@ void MemcheckTool::heobAction()
     // target executable
     if (executable.isEmpty()) {
         const QString msg = Tr::tr("Heob: No executable set.");
-        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
-        TaskHub::requestPopup();
+        TaskHub::addTask(Task::DisruptingError, msg, Debugger::Constants::ANALYZERTASK_ID);
         return;
     }
     if (!executable.exists())
         executable = executable.withExecutableSuffix();
     if (!executable.exists()) {
         const QString msg = Tr::tr("Heob: Cannot find %1.").arg(executable.toUserOutput());
-        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
-        TaskHub::requestPopup();
+        TaskHub::addTask(Task::DisruptingError, msg, Debugger::Constants::ANALYZERTASK_ID);
         return;
     }
 
@@ -878,8 +874,7 @@ void MemcheckTool::loadXmlLogFile(const QString &filePath)
     QFile logFile(filePath);
     if (!logFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QString msg = Tr::tr("Memcheck: Failed to open file for reading: %1").arg(filePath);
-        TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
-        TaskHub::requestPopup();
+        TaskHub::addTask(Task::DisruptingError, msg, Debugger::Constants::ANALYZERTASK_ID);
         if (!m_exitMsg.isEmpty())
             Debugger::showPermanentStatusMessage(m_exitMsg);
         return;
@@ -916,8 +911,7 @@ void MemcheckTool::parserError(const Error &error)
 void MemcheckTool::internalParserError(const QString &errorString)
 {
     QString msg = Tr::tr("Memcheck: Error occurred parsing Valgrind output: %1").arg(errorString);
-    TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
-    TaskHub::requestPopup();
+    TaskHub::addTask(Task::DisruptingError, msg, Debugger::Constants::ANALYZERTASK_ID);
 }
 
 void MemcheckTool::clearErrorView()

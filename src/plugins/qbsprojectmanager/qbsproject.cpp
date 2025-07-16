@@ -402,9 +402,9 @@ void QbsBuildSystem::clearFileUpdateError()
 void QbsBuildSystem::setFileUpdateError(const QString &reason)
 {
     m_fileUpdateError = OtherTask(
-        Task::Error, Tr::tr("Error updating qbs project file.").append('\n').append(reason));
+        Task::DisruptingError,
+        Tr::tr("Error updating qbs project file.").append('\n').append(reason));
     TaskHub::addTask(m_fileUpdateError);
-    TaskHub::requestPopup();
 }
 
 bool QbsBuildSystem::addFilesToProduct(

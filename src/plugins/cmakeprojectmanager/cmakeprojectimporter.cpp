@@ -878,8 +878,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             } else {
                 configurePreset.cmakeExecutable = FilePath();
                 TaskHub::addTask<BuildSystemTask>(
-                    Task::TaskType::Error, Tr::tr("<No CMake Tool available>"));
-                TaskHub::requestPopup();
+                    Task::TaskType::DisruptingError, Tr::tr("<No CMake Tool available>"));
             }
         } else {
             QString cmakeExecutable = configurePreset.cmakeExecutable.value().toUrlishString();

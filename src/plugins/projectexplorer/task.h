@@ -23,9 +23,12 @@ class TaskHub;
 class PROJECTEXPLORER_EXPORT Task
 {
 public:
+    // Note: DisruptingError requests a pop-up of the issues pane and will be converted to
+    //       Error afterwards.
     enum TaskType : char {
         Unknown,
         Error,
+        DisruptingError,
         Warning
     };
 

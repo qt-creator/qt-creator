@@ -411,6 +411,9 @@ bool TaskFilterModel::filterAcceptsTask(const Task &task) const
     case Task::Error:
         accept = m_includeErrors;
         break;
+    case Task::DisruptingError:
+        QTC_CHECK(false);
+        break;
     }
 
     if (accept && m_categoryIds.contains(task.category()))

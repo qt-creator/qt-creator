@@ -2702,10 +2702,9 @@ void CMakeBuildSystem::runGenerator(Id id)
         m_generatorError.clear();
     }
     const auto showError = [this](const QString &detail) {
-        m_generatorError = OtherTask(Task::Error,
+        m_generatorError = OtherTask(Task::DisruptingError,
                                      Tr::tr("cmake generator failed.").append('\n').append(detail));
         TaskHub::addTask(m_generatorError);
-        TaskHub::requestPopup();
     };
     const CMakeTool * const cmakeTool = CMakeKitAspect::cmakeTool(kit());
     if (!cmakeTool) {

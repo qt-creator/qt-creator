@@ -1515,9 +1515,8 @@ void QmakeBuildSystem::runGenerator(Utils::Id id)
     QTC_ASSERT(buildConfiguration(), return);
     const auto showError = [this](const QString &detail) {
         m_generatorError
-            = OtherTask(Task::Error, Tr::tr("qmake generator failed.").append('\n').append(detail));
+            = OtherTask(Task::DisruptingError, Tr::tr("qmake generator failed.").append('\n').append(detail));
         TaskHub::addTask(m_generatorError);
-        TaskHub::requestPopup();
     };
     const QtVersion * const qtVersion = QtKitAspect::qtVersion(kit());
     if (!qtVersion) {
