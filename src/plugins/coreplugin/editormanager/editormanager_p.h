@@ -169,23 +169,9 @@ private:
     static void autoSave();
     static void handleContextChange(const QList<Core::IContext *> &context);
 
-    static void copyFilePathFromContextMenu();
-    void copyLocationFromContextMenu();
-    static void copyFileNameFromContextMenu();
-    static void saveDocumentFromContextMenu();
-    static void saveDocumentAsFromContextMenu();
-    static void revertToSavedFromContextMenu();
-    static void closeEditorFromContextMenu();
-    static void closeOtherDocumentsFromContextMenu();
-
     static void closeAllEditorsExceptVisible();
     static void revertToSaved(IDocument *document);
     static void autoSuspendDocuments();
-
-    static void openTerminal();
-    static void findInDirectory();
-
-    static void togglePinned();
 
     static void removeCurrentSplit();
 
@@ -251,28 +237,8 @@ private:
     QAction *m_gotoPreviousSplitAction = nullptr;
     QAction *m_gotoNextSplitAction = nullptr;
 
-    QAction *m_copyFilePathContextAction = nullptr;
-    QAction *m_copyLocationContextAction = nullptr; // Copy path and line number.
-    QAction *m_copyFileNameContextAction = nullptr;
-    QAction *m_saveCurrentEditorContextAction = nullptr;
-    QAction *m_saveAsCurrentEditorContextAction = nullptr;
-    QAction *m_revertToSavedCurrentEditorContextAction = nullptr;
-
-    QAction *m_closeCurrentEditorContextAction = nullptr;
-    QAction *m_closeAllEditorsContextAction = nullptr;
-    QAction *m_closeOtherDocumentsContextAction = nullptr;
-    QAction *m_closeAllEditorsExceptVisibleContextAction = nullptr;
     QAction *m_openGraphicalShellAction = nullptr;
-    QAction *m_openGraphicalShellContextAction = nullptr;
     QAction *m_showInFileSystemViewAction = nullptr;
-    QAction *m_showInFileSystemViewContextAction = nullptr;
-    QAction *m_openTerminalAction = nullptr;
-    QAction *m_findInDirectoryAction = nullptr;
-    QAction *m_filePropertiesAction = nullptr;
-    QAction *m_pinAction = nullptr;
-    DocumentModel::Entry *m_contextMenuEntry = nullptr;
-    QPointer<IDocument> m_contextMenuDocument;
-    QPointer<IEditor> m_contextMenuEditor;
 
     OpenEditorsWindow *m_windowPopup = nullptr;
 

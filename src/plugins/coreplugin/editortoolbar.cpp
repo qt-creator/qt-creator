@@ -198,8 +198,10 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     connect(d->m_dragHandleMenu, &QMenu::aboutToHide, this, [this] {
         // Remove actions from context menu, to avoid any shortcuts set on them
         // for the display in the menu interfering with global actions
+        // This must be queued, so the QActions in the menu aren't deleted before they
+        // are triggered
         d->m_dragHandleMenu->clear();
-    });
+    }, Qt::QueuedConnection);
     connect(d->m_lockButton, &QAbstractButton::clicked, this, &EditorToolBar::makeEditorWritable);
     connect(d->m_closeEditorButton, &QAbstractButton::clicked,
             this, &EditorToolBar::closeEditor, Qt::QueuedConnection);
