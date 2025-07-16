@@ -589,7 +589,7 @@ public:
     QAction *m_vcsLogAction = nullptr;
     QAction *m_showInGraphicalShell;
     QAction *m_showFileSystemPane;
-    QAction *m_openTerminalHere;
+    QAction *m_openTerminalHereSysEnv;
     QAction *m_openTerminalHereBuildEnv;
     QAction *m_openTerminalHereRunEnv;
     Action *m_setStartupProjectAction;
@@ -1173,11 +1173,6 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
 
-    // Open Terminal Here menu
-    dd->m_openTerminalHere = new QAction(Core::FileUtils::msgTerminalHereAction(), this);
-    cmd = ActionManager::registerAction(dd->m_openTerminalHere, Constants::OPENTERMINALHERE,
-                                        projectTreeContext);
-
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
@@ -1188,14 +1183,17 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     msubProjectContextMenu->addMenu(openTerminal, Constants::G_PROJECT_LAST);
     mprojectContextMenu->addMenu(openTerminal, Constants::G_PROJECT_LAST);
 
-
+    // Open Terminal actions
+    dd->m_openTerminalHereSysEnv = new QAction(Tr::tr("System Environment"), this);
+    cmd = ActionManager::registerAction(dd->m_openTerminalHereSysEnv, Constants::OPENTERMINALHERE,
+                                        projectTreeContext);
+    dd->m_openTerminalMenu->addAction(dd->m_openTerminalHereSysEnv);
     dd->m_openTerminalHereBuildEnv = new QAction(Tr::tr("Build Environment"), this);
     dd->m_openTerminalHereRunEnv = new QAction(Tr::tr("Run Environment"), this);
     cmd = ActionManager::registerAction(dd->m_openTerminalHereBuildEnv,
                                         "ProjectExplorer.OpenTerminalHereBuildEnv",
                                         projectTreeContext);
     dd->m_openTerminalMenu->addAction(dd->m_openTerminalHereBuildEnv);
-
     cmd = ActionManager::registerAction(dd->m_openTerminalHereRunEnv,
                                         "ProjectExplorer.OpenTerminalHereRunEnv",
                                         projectTreeContext);
@@ -1878,7 +1876,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
             &ProjectExplorerPluginPrivate::showInFileSystemPane,
             Qt::QueuedConnection);
 
-    connect(dd->m_openTerminalHere, &QAction::triggered, dd, [] { dd->openTerminalHere(sysEnv); });
+    connect(dd->m_openTerminalHereSysEnv, &QAction::triggered, dd, [] { dd->openTerminalHere(sysEnv); });
     connect(dd->m_openTerminalHereBuildEnv, &QAction::triggered, dd, [] { dd->openTerminalHere(buildEnv); });
     connect(dd->m_openTerminalHereRunEnv, &QAction::triggered, dd, [] { dd->openTerminalHereWithRunEnv(); });
 
@@ -3360,7 +3358,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
     m_createHeaderAction->setVisible(false);
     m_createSourceAction->setVisible(false);
 
-    m_openTerminalHere->setVisible(true);
+    m_openTerminalHereSysEnv->setVisible(true);
     m_openTerminalHereBuildEnv->setVisible(false);
     m_openTerminalHereRunEnv->setVisible(false);
 
@@ -3485,7 +3483,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
         }
 
         if (supports(HidePathActions)) {
-            m_openTerminalHere->setVisible(false);
+            m_openTerminalHereSysEnv->setVisible(false);
             m_showInGraphicalShell->setVisible(false);
             m_showFileSystemPane->setVisible(false);
             m_searchOnFileSystem->setVisible(false);
