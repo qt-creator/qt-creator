@@ -1031,8 +1031,9 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         m_typesButtonGroup->addButton(button, ++buttonId);
         m_typesLayout->addWidget(button);
     }
-    if (auto firstButton = m_typesButtonGroup->button(1))
-        firstButton->setChecked(true);
+    // prefer last issue kind (usually style issues)
+    if (auto lastButton = m_typesButtonGroup->button(buttonId))
+        lastButton->setChecked(true);
 
     GuardLocker lock(m_signalBlocker);
     m_userNames.clear();
