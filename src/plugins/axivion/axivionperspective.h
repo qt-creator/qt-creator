@@ -12,7 +12,7 @@ void showFilterException(const QString &errorMessage);
 void showErrorMessage(const QString &errorMessage);
 void reinitDashboard(const QString &projectName);
 void resetDashboard();
-void updateIssueDetails(const QString &html);
+void updateIssueDetails(const QString &html, const QString &projectName);
 void updateNamedFilters();
 void updateLocalBuildStateFor(const QString &projectName, const QString &state, int percent);
 

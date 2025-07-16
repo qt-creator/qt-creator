@@ -1373,6 +1373,8 @@ static void loadImage(QPromise<QImage> &promise, const QByteArray &data)
 class LazyImageBrowser : public QTextBrowser
 {
 public:
+    QString projectName() const { return m_projectName; }
+
     QVariant loadResource(int type, const QUrl &name) override
     {
         if (type == QTextDocument::ImageResource) {
@@ -1386,8 +1388,9 @@ public:
         return QTextBrowser::loadResource(type, name);
     }
 
-    void setHtmlAfterCheckingCacheSize(const QString &html)
+    void setHtmlAfterCheckingCacheSize(const QString &html, const QString &projectName)
     {
+        m_projectName = projectName;
         if (m_cachedImagesSize >= 1024 * 1024 * 250) { // if we exceeded 250MB reset the doc
             m_cachedImagesSize = 0;
             setDocument(new QTextDocument(this)); // create a new document to clear resources
@@ -1437,6 +1440,7 @@ private:
 
     QList<QUrl> m_loadingQueue;
     SingleTaskTreeRunner m_loaderTaskTree;
+    QString m_projectName;
     unsigned int m_cachedImagesSize = 0;
 };
 
@@ -1648,7 +1652,7 @@ public:
     void resetDashboard();
     bool handleContextMenu(bool globalDashboard, const QString &issue, const ItemViewEvent &e);
     bool handleProgressContextMenu(const ItemViewEvent &e);
-    void setIssueDetailsHtml(const QString &html);
+    void setIssueDetailsHtml(const QString &html, const QString &projectName);
     void handleAnchorClicked(const QUrl &url);
     void updateNamedFilters();
     void updateLocalBuildStateFor(const QString &projectName, const QString &state, int percent);
@@ -1852,9 +1856,9 @@ bool AxivionPerspective::handleProgressContextMenu(const ItemViewEvent &e)
     return true;
 }
 
-void AxivionPerspective::setIssueDetailsHtml(const QString &html)
+void AxivionPerspective::setIssueDetailsHtml(const QString &html, const QString &projectName)
 {
-    m_issueDetails->setHtmlAfterCheckingCacheSize(html);
+    m_issueDetails->setHtmlAfterCheckingCacheSize(html, projectName);
 }
 
 void AxivionPerspective::handleAnchorClicked(const QUrl &url)
@@ -1985,10 +1989,10 @@ void showErrorMessage(const QString &errorMessage)
     axivionPerspective()->handleShowErrorMessage(errorMessage);
 }
 
-void updateIssueDetails(const QString &html)
+void updateIssueDetails(const QString &html, const QString &projectName)
 {
     QTC_ASSERT(axivionPerspective(), return);
-    axivionPerspective()->setIssueDetailsHtml(html);
+    axivionPerspective()->setIssueDetailsHtml(html, projectName);
 }
 
 void updateNamedFilters()

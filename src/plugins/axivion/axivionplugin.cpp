@@ -1134,8 +1134,9 @@ void AxivionPluginPrivate::fetchIssueInfo(DashboardMode dashboardMode, const QSt
     if (!m_currentProjectInfo || !dd->m_analysisVersion)
         return;
 
+    const QString projectName = dd->m_currentProjectInfo->name;
     const QUrl url = constructUrl(dashboardMode,
-                                  dd->m_currentProjectInfo->name,
+                                  projectName,
                                   QString("issues/" + id + "/properties/"),
                                   {{"version", *dd->m_analysisVersion}});
 
@@ -1143,12 +1144,12 @@ void AxivionPluginPrivate::fetchIssueInfo(DashboardMode dashboardMode, const QSt
 
     const auto onSetup = [storage, url] { storage->inputUrl = url; };
 
-    const auto onDone = [storage] {
+    const auto onDone = [storage, projectName] {
         QByteArray fixedHtml = storage->outputData;
         const int idx = fixedHtml.indexOf("<div class=\"ax-issuedetails-table-container\">");
         if (idx >= 0)
             fixedHtml = "<html><body>" + fixedHtml.mid(idx);
-        updateIssueDetails(QString::fromUtf8(fixedHtml));
+        updateIssueDetails(QString::fromUtf8(fixedHtml), projectName);
     };
 
     m_issueInfoRunner.start({
