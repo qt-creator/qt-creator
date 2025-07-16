@@ -27,23 +27,6 @@ static QWidget *hr()
     return frame;
 }
 
-static QWidget *taskGroup(QWidget *groupWidget, const QList<QWidget *> &widgets)
-{
-    QWidget *widget = new QWidget;
-    QBoxLayout *layout = new QHBoxLayout(widget);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(groupWidget);
-    QGroupBox *groupBox = new QGroupBox;
-    QBoxLayout *subLayout = new QVBoxLayout(groupBox);
-    for (int i = 0; i < widgets.size(); ++i) {
-        if (i > 0)
-            subLayout->addWidget(hr());
-        subLayout->addWidget(widgets.at(i));
-    }
-    layout->addWidget(groupBox);
-    return widget;
-}
-
 static State resultToState(DoneWith result)
 {
     switch (result) {
