@@ -240,6 +240,7 @@ QtcPlugin {
     QtcTestResources { files: ["testdata/**"] }
 
     Export {
+        Depends { name: "Tasking" }
         Depends { name: "Qt.network" }
     }
 }
