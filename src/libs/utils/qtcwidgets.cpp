@@ -560,27 +560,13 @@ void QtcIconButton::paintEvent(QPaintEvent *e)
     QPainter p(this);
     QRect r(QPoint(), size());
 
-    if (m_containsMouse && isEnabled()) {
+    if (underMouse() && isEnabled()) {
         QColor c = creatorColor(Theme::TextColorDisabled);
         c.setAlphaF(c.alphaF() * .5);
         StyleHelper::drawPanelBgRect(&p, r, c);
     }
 
     icon().paint(&p, r, Qt::AlignCenter);
-}
-
-void QtcIconButton::enterEvent(QEnterEvent *e)
-{
-    m_containsMouse = true;
-    e->accept();
-    update();
-}
-
-void QtcIconButton::leaveEvent(QEvent *e)
-{
-    m_containsMouse = false;
-    e->accept();
-    update();
 }
 
 QSize QtcIconButton::sizeHint() const

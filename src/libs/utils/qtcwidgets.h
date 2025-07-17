@@ -122,13 +122,8 @@ public:
     QtcIconButton(QWidget *parent = nullptr);
 
     void paintEvent(QPaintEvent *e) override;
-    void enterEvent(QEnterEvent *e) override;
-    void leaveEvent(QEvent *e) override;
 
     QSize sizeHint() const override;
-
-private:
-    bool m_containsMouse{false};
 };
 
 class QTCREATOR_UTILS_EXPORT QtcRectangleWidget : public QWidget
