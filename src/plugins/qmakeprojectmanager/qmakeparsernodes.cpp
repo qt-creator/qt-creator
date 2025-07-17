@@ -1960,7 +1960,7 @@ TargetInformation QmakeProFile::targetInformation(QtSupport::ProFileReader *read
     result.buildDir = buildDir;
 
     if (readerBuildPass->contains(QLatin1String("DESTDIR")))
-        result.destDir = FilePath::fromString(readerBuildPass->value(QLatin1String("DESTDIR")));
+        result.destDir = result.buildDir.resolvePath(readerBuildPass->value(QLatin1String("DESTDIR")));
 
     // Target
     result.target = readerBuildPass->value(QLatin1String("TARGET"));
