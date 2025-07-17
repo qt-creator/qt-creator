@@ -3568,7 +3568,7 @@ void ProjectExplorerPluginPrivate::addNewFile()
     // store void pointer to avoid QVariant to use qobject_cast, which might core-dump when trying
     // to access meta data on an object that get deleted in the meantime:
     map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(static_cast<void *>(currentNode)));
-    map.insert(Constants::PREFERRED_PROJECT_NODE_PATH, currentNode->filePath().toUrlishString());
+    map.insert(Constants::PREFERRED_PROJECT_NODE_PATH, currentNode->filePath().toVariant());
     Project *p = ProjectTree::projectForNode(currentNode);
     QTC_ASSERT(p, p = ProjectTree::currentProject());
     if (p) {
@@ -3600,7 +3600,7 @@ void ProjectExplorerPluginPrivate::addNewHeaderOrSource()
     QVariantMap map;
     map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE),
                QVariant::fromValue(static_cast<void *>(folderNode)));
-    map.insert(Constants::PREFERRED_PROJECT_NODE_PATH, folderNode->filePath().toUrlishString());
+    map.insert(Constants::PREFERRED_PROJECT_NODE_PATH, folderNode->filePath().toVariant());
     map.insert("InitialFileName", fileNode->filePath().completeBaseName());
     Project *p = ProjectTree::projectForNode(folderNode);
     QTC_ASSERT(p, p = ProjectTree::currentProject());
