@@ -399,9 +399,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
         return processLinkCallback(link);
     }
 
-    FilePath fileName = dir.withNewPath(unescape(buffer));
-    if (fileName.isRelativePath())
-        fileName = dir.pathAppended(fileName.path());
+    FilePath fileName = dir.resolvePath(unescape(buffer));
     if (fileName.exists()) {
         if (fileName.isDir()) {
             FilePath subProject = fileName.pathAppended(Constants::CMAKE_LISTS_TXT);
