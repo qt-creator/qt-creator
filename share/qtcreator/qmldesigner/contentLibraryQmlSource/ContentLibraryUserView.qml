@@ -183,10 +183,18 @@ Item {
                             } else if (categoryTitle === "3D") {
                                 ContentLibraryBackend.rootView.accept3DDrop(drag.getDataAsArrayBuffer(drag.formats[0]))
                             } else { // custom bundle folder
-                                if (drag.formats[0] === "application/vnd.qtdesignstudio.assets")
+
+                                if (drag.formats[0] === "application/vnd.qtdesignstudio.assets") {
                                     ContentLibraryBackend.rootView.acceptTexturesDrop(drag.urls, categoryBundlePath)
-                                else if (drag.formats[0] === "application/vnd.qtdesignstudio.texture")
+                                } else if (drag.formats[0] === "application/vnd.qtdesignstudio.texture") {
                                     ContentLibraryBackend.rootView.acceptTextureDrop(drag.getDataAsString(drag.formats[0]), categoryBundlePath)
+                                } else if (drag.formats[0] === "text/uri-list") {
+                                    let validExternalDrop = ContentLibraryBackend.rootView
+                                            .hasTexture(drag.formats[0], drag.urls)
+
+                                    if (validExternalDrop)
+                                        ContentLibraryBackend.rootView.acceptTexturesDrop(drag.urls, categoryBundlePath)
+                                }
                             }
                         }
 

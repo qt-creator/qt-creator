@@ -690,7 +690,7 @@ bool ContentLibraryWidget::hasTexture(const QString &format, const QVariant &dat
 {
     if (format == Constants::MIME_TYPE_TEXTURE) { // from material browser
         return true;
-    } else if (format == Constants::MIME_TYPE_ASSETS) {
+    } else if (format == Constants::MIME_TYPE_ASSETS || format == "text/uri-list") {
         const QList<QVariant> urlList = data.toList();
 
         for (const QVariant &url : urlList) {
