@@ -308,7 +308,7 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
     This signal is emitted after the \a document closed, but before it is deleted.
 */
 /*!
-    \fn void EditorManager::findOnFileSystemRequest(const QString &path)
+    \fn void EditorManager::findOnFileSystemRequest(const Utils::FilePath &path)
 
     \internal
 */
@@ -3055,8 +3055,7 @@ void EditorManagerPrivate::addNativeDirAndOpenWithActions(
 
     // Find in This Directory
     addMenuAction(contextMenu, FileUtils::msgFindInDirectory(), enabled, m_instance, [filePath] {
-        emit m_instance->findOnFileSystemRequest(
-            (filePath.isDir() ? filePath : filePath.parentDir()).toUrlishString());
+        emit m_instance->findOnFileSystemRequest(filePath);
     });
 
     // Properties

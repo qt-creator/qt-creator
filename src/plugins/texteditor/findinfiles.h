@@ -36,7 +36,8 @@ public:
 
     void setDirectory(const Utils::FilePath &directory);
     void setBaseDirectory(const Utils::FilePath &directory);
-    static void findOnFileSystem(const QString &path);
+
+    static void findOnFileSystem(const Utils::FilePath &path);
     static FindInFiles *instance();
 
     // deprecated

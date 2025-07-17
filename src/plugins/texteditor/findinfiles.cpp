@@ -220,11 +220,10 @@ FindInFiles &findInFiles()
     return *s_instance;
 }
 
-void FindInFiles::findOnFileSystem(const QString &path)
+void FindInFiles::findOnFileSystem(const FilePath &path)
 {
-    const QFileInfo fi(path);
-    const QString folder = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-    findInFiles().setSearchDir(FilePath::fromString(folder));
+    const FilePath folder = path.isDir() ? path : path.parentDir();
+    findInFiles().setSearchDir(folder);
     Find::openFindDialog(&findInFiles());
 }
 

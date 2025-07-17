@@ -3817,7 +3817,7 @@ void ProjectExplorerPluginPrivate::searchOnFileSystem()
 {
     const Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    TextEditor::FindInFiles::findOnFileSystem(currentNode->path().toUrlishString());
+    TextEditor::FindInFiles::findOnFileSystem(currentNode->path());
 }
 
 void ProjectExplorerPluginPrivate::vcsLogDirectory()

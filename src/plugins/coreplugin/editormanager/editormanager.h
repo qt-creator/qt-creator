@@ -164,7 +164,7 @@ signals:
     void editorAboutToClose(Core::IEditor *editor);
     void editorsClosed(QList<Core::IEditor *> editors);
     void documentClosed(Core::IDocument *document);
-    void findOnFileSystemRequest(const QString &path);
+    void findOnFileSystemRequest(const Utils::FilePath &path);
     void openFileProperties(const Utils::FilePath &path);
     void aboutToSave(IDocument *document);
     void saved(IDocument *document);
