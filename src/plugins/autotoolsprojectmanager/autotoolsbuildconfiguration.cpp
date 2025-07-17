@@ -225,8 +225,7 @@ public:
         setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
             BuildInfo info;
             info.typeName = ::ProjectExplorer::Tr::tr("Build");
-            info.buildDirectory = forSetup
-                    ? FilePath::fromString(projectPath.toFileInfo().absolutePath()) : projectPath;
+            info.buildDirectory = forSetup ? projectPath.parentDir() : projectPath;
             if (forSetup) {
                 //: The name of the build configuration created by default for a autotools project.
                 info.displayName = ::ProjectExplorer::Tr::tr("Default");
