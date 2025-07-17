@@ -69,14 +69,14 @@ public:
     // Keep for compatibility with Qt Creator 4.10
     void toMap(Utils::Store &map) const final;
 
-    QStringList excludedFiles() const;
-    void setExcludedFiles(const QStringList &excludedFiles);
+    Utils::FilePaths excludedFiles() const;
+    void setExcludedFiles(const Utils::FilePaths &excludedFiles);
 
 protected:
     // Keep for compatibility with Qt Creator 4.10
     RestoreResult fromMap(const Utils::Store &map, QString *errorMessage) final;
 
-    QStringList m_excludedFiles;
+    Utils::FilePaths m_excludedFiles;
 };
 
 void setupNimbleProject();

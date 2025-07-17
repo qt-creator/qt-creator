@@ -236,14 +236,14 @@ bool NimbleBuildSystem::supportsAction(Node *context, ProjectAction action, cons
 
 bool NimbleBuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *)
 {
-    return m_projectScanner.addFiles(Utils::transform(filePaths, &FilePath::toUrlishString));
+    return m_projectScanner.addFiles(filePaths);
 }
 
 RemovedFilesFromProject NimbleBuildSystem::removeFiles(Node *,
                                                        const FilePaths &filePaths,
                                                        FilePaths *)
 {
-    return m_projectScanner.removeFiles(Utils::transform(filePaths, &FilePath::toUrlishString));
+    return m_projectScanner.removeFiles(filePaths);
 }
 
 bool NimbleBuildSystem::deleteFiles(Node *, const FilePaths &)
@@ -255,7 +255,7 @@ bool NimbleBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, File
 {
     bool success = true;
     for (const auto &[oldFilePath, newFilePath] : filesToRename) {
-        if (!m_projectScanner.renameFile(oldFilePath.toUrlishString(), newFilePath.toUrlishString())) {
+        if (!m_projectScanner.renameFile(oldFilePath, newFilePath)) {
             success = false;
             if (notRenamed)
                 *notRenamed << oldFilePath;
@@ -270,7 +270,7 @@ class NimbleBuildConfiguration : public ProjectExplorer::BuildConfiguration
 
     friend class ProjectExplorer::BuildConfigurationFactory;
 
-    NimbleBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id)
+    NimbleBuildConfiguration(ProjectExplorer::Target *target, Id id)
         : BuildConfiguration(target, id)
     {
         setConfigWidgetDisplayName(Tr::tr("General"));
@@ -353,22 +353,22 @@ NimbleProject::NimbleProject(const FilePath &fileName)
 void NimbleProject::toMap(Store &map) const
 {
     Project::toMap(map);
-    map[Constants::C_NIMPROJECT_EXCLUDEDFILES] = m_excludedFiles;
+    map[Constants::C_NIMPROJECT_EXCLUDEDFILES] = m_excludedFiles.toSettings();
 }
 
 Project::RestoreResult NimbleProject::fromMap(const Store &map, QString *errorMessage)
 {
-    auto result = Project::fromMap(map, errorMessage);
-    m_excludedFiles = map.value(Constants::C_NIMPROJECT_EXCLUDEDFILES).toStringList();
+    RestoreResult result = Project::fromMap(map, errorMessage);
+    m_excludedFiles = FilePaths::fromSettings(map.value(Constants::C_NIMPROJECT_EXCLUDEDFILES));
     return result;
 }
 
-QStringList NimbleProject::excludedFiles() const
+FilePaths NimbleProject::excludedFiles() const
 {
     return m_excludedFiles;
 }
 
-void NimbleProject::setExcludedFiles(const QStringList &excludedFiles)
+void NimbleProject::setExcludedFiles(const FilePaths &excludedFiles)
 {
     m_excludedFiles = excludedFiles;
 }

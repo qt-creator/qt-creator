@@ -37,12 +37,12 @@ public:
     void startScan();
     void watchProjectFilePath();
 
-    void setExcludedFiles(const QStringList &list);
-    QStringList excludedFiles() const;
+    void setExcludedFiles(const Utils::FilePaths &list);
+    Utils::FilePaths excludedFiles() const;
 
-    bool addFiles(const QStringList &filePaths);
-    ProjectExplorer::RemovedFilesFromProject removeFiles(const QStringList &filePaths);
-    bool renameFile(const QString &from, const QString &to);
+    bool addFiles(const Utils::FilePaths &filePaths);
+    ProjectExplorer::RemovedFilesFromProject removeFiles(const Utils::FilePaths &filePaths);
+    bool renameFile(const Utils::FilePath &from, const Utils::FilePath &to);
 
 signals:
     void finished();

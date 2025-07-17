@@ -72,7 +72,7 @@ void NimProjectScanner::loadSettings()
 {
     QVariantMap settings = m_project->namedSettings(SETTINGS_KEY).toMap();
     if (settings.contains(EXCLUDED_FILES_KEY))
-        setExcludedFiles(settings.value(EXCLUDED_FILES_KEY, excludedFiles()).toStringList());
+        setExcludedFiles(FilePaths::fromSettings(settings.value(EXCLUDED_FILES_KEY, excludedFiles().toSettings())));
 
     emit requestReparse();
 }
@@ -80,17 +80,16 @@ void NimProjectScanner::loadSettings()
 void NimProjectScanner::saveSettings()
 {
     QVariantMap settings;
-    settings.insert(EXCLUDED_FILES_KEY, excludedFiles());
+    settings.insert(EXCLUDED_FILES_KEY, excludedFiles().toSettings());
     m_project->setNamedSettings(SETTINGS_KEY, settings);
 }
 
 void NimProjectScanner::startScan()
 {
     m_scanner.setFilter(
-        [excludedFiles = excludedFiles()](const Utils::MimeType &, const FilePath &fp) {
-            const QString path = fp.toUrlishString();
-            return excludedFiles.contains(path) || path.endsWith(".nimproject")
-                   || path.contains(".nimproject.user") || path.contains(".nimble.user");
+        [excludedFiles = excludedFiles()](const MimeType &, const FilePath &fp) {
+            return excludedFiles.contains(fp) || fp.endsWith(".nimproject")
+                   || fp.contains(".nimproject.user") || fp.contains(".nimble.user");
         });
 
     m_scanner.asyncScanForFiles(m_project->projectDirectory());
@@ -101,19 +100,19 @@ void NimProjectScanner::watchProjectFilePath()
     m_directoryWatcher.addFile(m_project->projectFilePath(), FileSystemWatcher::WatchModifiedDate);
 }
 
-void NimProjectScanner::setExcludedFiles(const QStringList &list)
+void NimProjectScanner::setExcludedFiles(const FilePaths &list)
 {
     static_cast<NimbleProject *>(m_project)->setExcludedFiles(list);
 }
 
-QStringList NimProjectScanner::excludedFiles() const
+FilePaths NimProjectScanner::excludedFiles() const
 {
     return static_cast<NimbleProject *>(m_project)->excludedFiles();
 }
 
-bool NimProjectScanner::addFiles(const QStringList &filePaths)
+bool NimProjectScanner::addFiles(const FilePaths &filePaths)
 {
-    setExcludedFiles(Utils::filtered(excludedFiles(), [&](const QString & f) {
+    setExcludedFiles(Utils::filtered(excludedFiles(), [&](const FilePath & f) {
         return !filePaths.contains(f);
     }));
 
@@ -122,7 +121,7 @@ bool NimProjectScanner::addFiles(const QStringList &filePaths)
     return true;
 }
 
-RemovedFilesFromProject NimProjectScanner::removeFiles(const QStringList &filePaths)
+RemovedFilesFromProject NimProjectScanner::removeFiles(const FilePaths &filePaths)
 {
     setExcludedFiles(Utils::filteredUnique(excludedFiles() + filePaths));
 
@@ -131,9 +130,9 @@ RemovedFilesFromProject NimProjectScanner::removeFiles(const QStringList &filePa
     return RemovedFilesFromProject::Ok;
 }
 
-bool NimProjectScanner::renameFile(const QString &, const QString &to)
+bool NimProjectScanner::renameFile(const FilePath &, const FilePath &to)
 {
-    QStringList files = excludedFiles();
+    FilePaths files = excludedFiles();
     files.removeOne(to);
     setExcludedFiles(files);
 
@@ -233,14 +232,14 @@ bool NimBuildSystem::supportsAction(Node *context, ProjectAction action, const N
 
 bool NimBuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *)
 {
-    return m_projectScanner.addFiles(Utils::transform(filePaths, &FilePath::toUrlishString));
+    return m_projectScanner.addFiles(filePaths);
 }
 
 RemovedFilesFromProject NimBuildSystem::removeFiles(Node *,
                                                     const FilePaths &filePaths,
                                                     FilePaths *)
 {
-    return m_projectScanner.removeFiles(Utils::transform(filePaths, &FilePath::toUrlishString));
+    return m_projectScanner.removeFiles(filePaths);
 }
 
 bool NimBuildSystem::deleteFiles(Node *, const FilePaths &)
@@ -252,7 +251,7 @@ bool NimBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, FilePat
 {
     bool success = true;
     for (const auto &[oldFilePath, newFilePath] : filesToRename) {
-        if (!m_projectScanner.renameFile(oldFilePath.toUrlishString(), newFilePath.toUrlishString())) {
+        if (!m_projectScanner.renameFile(oldFilePath, newFilePath)) {
             success = false;
             if (notRenamed)
                 *notRenamed << oldFilePath;
