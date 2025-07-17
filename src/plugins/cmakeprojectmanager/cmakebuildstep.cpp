@@ -657,7 +657,6 @@ QWidget *CMakeBuildStep::createConfigWidget()
     useStaging.addOnChanged(this, updateDetails);
     stagingDir.addOnChanged(this, updateDetails);
     useiOSAutomaticProvisioningUpdates.addOnChanged(this, updateDetails);
-    projectExplorerSettings().addOnChanged(this, updateDetails);
 
     connect(buildConfiguration(), &BuildConfiguration::environmentChanged, this, updateDetails);
     connect(this, &CMakeBuildStep::buildTargetsChanged, widget, updateDetails);
