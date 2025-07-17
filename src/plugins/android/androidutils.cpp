@@ -305,11 +305,10 @@ FilePath androidAppProcessDir(const BuildConfiguration *bc)
 
 bool isQt5CmakeProject(const ProjectExplorer::Target *target)
 {
+    if (target->project()->id() != CMakeProjectManager::Constants::CMAKE_PROJECT_ID)
+        return false;
     const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
-    const bool isQt5 = qt && qt->qtVersion() < QVersionNumber(6, 0, 0);
-    const Context cmakeCtx(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
-    const bool isCmakeProject = (target->project()->projectContext() == cmakeCtx);
-    return isQt5 && isCmakeProject;
+    return qt && qt->qtVersion() < QVersionNumber(6, 0, 0);
 }
 
 FilePath buildDirectory(const BuildConfiguration *bc)
@@ -398,8 +397,7 @@ bool skipInstallationAndPackageSteps(const BuildConfiguration *bc)
 
     const Project *p = bc->project();
 
-    const Context cmakeCtx(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
-    const bool isCmakeProject = p->projectContext() == cmakeCtx;
+    const bool isCmakeProject = p->id() == CMakeProjectManager::Constants::CMAKE_PROJECT_ID;
     if (isCmakeProject)
         return false; // CMake reports ProductType::Other for Android Apps
 
