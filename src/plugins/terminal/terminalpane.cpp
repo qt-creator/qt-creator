@@ -109,9 +109,11 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
     if (!parametersCopy.workingDirectory) {
         const std::optional<FilePath> projectDir = startupProjectDirectory();
         if (projectDir) {
-            if (!parametersCopy.shellCommand
-                || parametersCopy.shellCommand->executable().ensureReachable(*projectDir)) {
+            if (!parametersCopy.shellCommand) {
                 parametersCopy.workingDirectory = *projectDir;
+            } else if (parametersCopy.shellCommand->executable().ensureReachable(*projectDir)) {
+                parametersCopy.workingDirectory
+                    = parametersCopy.shellCommand->executable().withNewMappedPath(*projectDir);
             }
         }
     }
