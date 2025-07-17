@@ -380,7 +380,7 @@ public:
         FilePath workingDir = m_setup.m_workingDirectory;
         if (!workingDir.isDir())
             workingDir = workingDir.parentDir();
-        if (!QTC_GUARD(workingDir.exists()))
+        if (!workingDir.isEmpty() && !QTC_GUARD(workingDir.exists()))
             workingDir = workingDir.withNewPath({});
 
         connect(m_ptyProcess->notifier(), &QIODevice::readyRead, this, [this] {
