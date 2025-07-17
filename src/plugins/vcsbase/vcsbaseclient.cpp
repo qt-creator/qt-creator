@@ -290,12 +290,12 @@ bool VcsBaseClient::synchronousRemove(const FilePath &workingDir,
 }
 
 bool VcsBaseClient::synchronousMove(const FilePath &workingDir,
-                                    const QString &from,
-                                    const QString &to,
+                                    const FilePath &from,
+                                    const FilePath &to,
                                     const QStringList &extraOptions)
 {
     QStringList args;
-    args << vcsCommandString(MoveCommand) << extraOptions << from << to;
+    args << vcsCommandString(MoveCommand) << extraOptions << from.path() << to.path();
     return vcsSynchronousExec(workingDir, args).result() == ProcessResult::FinishedWithSuccess;
 }
 

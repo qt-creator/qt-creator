@@ -602,18 +602,19 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
 }
 
 bool FossilClient::synchronousMove(const FilePath &workingDir,
-                                   const QString &from, const QString &to,
+                                   const FilePath &from, const FilePath &to,
                                    const QStringList &extraOptions)
 {
     // Fossil move does not rename actual file on disk, only changes it in repo
     // So try to move the actual file first, then move it in repo to preserve
     // history in case actual move fails.
 
-    if (!QFile::rename(from, to))
+    Result<> res = from.renameFile(to);
+    if (!res)
         return false;
 
     QStringList args(vcsCommandString(MoveCommand));
-    args << extraOptions << from << to;
+    args << extraOptions << from.path() << to.path();
     return vcsSynchronousExec(workingDir, args).result() == ProcessResult::FinishedWithSuccess;
 }
 

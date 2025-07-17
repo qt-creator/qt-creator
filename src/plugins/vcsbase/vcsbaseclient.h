@@ -130,7 +130,7 @@ public:
                                    const QString &fileName,
                                    const QStringList &extraOptions = {});
     virtual bool synchronousMove(const Utils::FilePath &workingDir,
-                                 const QString &from, const QString &to,
+                                 const Utils::FilePath &from, const Utils::FilePath &to,
                                  const QStringList &extraOptions = {});
     void pull(const Utils::FilePath &workingDir, const QString &srcLocation,
               const QStringList &extraOptions = {}, const CommandHandler &commandHandler = {});

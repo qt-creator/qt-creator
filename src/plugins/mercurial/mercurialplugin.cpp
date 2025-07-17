@@ -707,11 +707,7 @@ bool MercurialPluginPrivate::vcsDelete(const FilePath &filePath)
 
 bool MercurialPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
-    const QFileInfo fromInfo = from.toFileInfo();
-    const QFileInfo toInfo = to.toFileInfo();
-    return mercurialClient().synchronousMove(from.parentDir(),
-                                    fromInfo.absoluteFilePath(),
-                                    toInfo.absoluteFilePath());
+    return mercurialClient().synchronousMove(from.parentDir(), from, to);
 }
 
 bool MercurialPluginPrivate::vcsCreateRepository(const FilePath &directory)

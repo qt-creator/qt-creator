@@ -921,11 +921,7 @@ bool BazaarPluginPrivate::vcsDelete(const FilePath &filePath)
 
 bool BazaarPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
-    const QFileInfo fromInfo = from.toFileInfo();
-    const QFileInfo toInfo = to.toFileInfo();
-    return m_client.synchronousMove(from.absolutePath(),
-                                    fromInfo.absoluteFilePath(),
-                                    toInfo.absoluteFilePath());
+    return m_client.synchronousMove(from.absolutePath(), from, to);
 }
 
 bool BazaarPluginPrivate::vcsCreateRepository(const FilePath &directory)

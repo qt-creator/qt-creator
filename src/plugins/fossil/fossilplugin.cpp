@@ -846,10 +846,7 @@ bool FossilPluginPrivate::vcsDelete(const FilePath &filePath)
 
 bool FossilPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
-    const QFileInfo fromInfo = from.toFileInfo();
-    const QFileInfo toInfo = to.toFileInfo();
-    return fossilClient().synchronousMove(from.absolutePath(), fromInfo.absoluteFilePath(),
-                                    toInfo.absoluteFilePath());
+    return fossilClient().synchronousMove(from.absolutePath(), from, to);
 }
 
 bool FossilPluginPrivate::vcsCreateRepository(const FilePath &directory)
