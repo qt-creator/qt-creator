@@ -50,10 +50,10 @@ public:
     virtual QWidget *widget() const = 0;
     virtual void reset() const = 0;
 
-    ~GlueItem() { qDeleteAll(m_children); }
+    virtual ~GlueItem() { qDeleteAll(m_children); }
 
 protected:
-    GlueItem(const QList<GlueItem *> children) : m_children(children) {}
+    GlueItem(const QList<GlueItem *> &children = {}) : m_children(children) {}
 
     void resetChildren() const
     {
@@ -122,8 +122,7 @@ class TaskGlueItem : public GlueItem
 {
 public:
     TaskGlueItem(int busyTime, DoneResult result)
-        : GlueItem({})
-        , m_taskWidget(new TaskWidget)
+        : m_taskWidget(new TaskWidget)
     {
         m_taskWidget->setBusyTime(busyTime);
         m_taskWidget->setDesiredResult(result);
@@ -200,7 +199,7 @@ int main(int argc, char *argv[])
                     task(4),
                     task(2),
                     task(1),
-                    task(3),
+                    task(3)
                 }),
                 task(2),
                 task(3)
