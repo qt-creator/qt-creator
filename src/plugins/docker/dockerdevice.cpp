@@ -286,76 +286,69 @@ public:
     SynchronizedValue<std::unique_ptr<DockerContainerThread>> m_deviceThread;
 };
 
-class DockerProcessImpl : public WrappedProcessInterface
+static WrappedProcessInterface *makeProcessInterface(
+    IDevice::ConstPtr device, DockerDevicePrivate *devicePrivate)
 {
-public:
-    DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePrivate *devicePrivate);
+    std::weak_ptr<const IDevice> weakDevice = device;
 
-    Result<CommandLine> wrapCommmandLine(
-        const ProcessSetupData &setupData, const QString &markerTemplate) const override;
-    void forwardControlSignal(ControlSignal controlSignal, qint64 remotePid) const override;
+    const auto wrapCommandLine =
+        [devicePrivate](const ProcessSetupData &setupData, const QString &markerTemplate)
+        -> Result<CommandLine> {
+        QTC_ASSERT(
+            devicePrivate,
+            return ResultError(
+                Tr::tr("Docker device is not initialized. Cannot create command line.")));
 
-private:
-    DockerDevicePrivate *m_devicePrivate = nullptr;
-    std::weak_ptr<const IDevice> m_device;
-};
+        const bool inTerminal = setupData.m_terminalMode != TerminalMode::Off
+                                || setupData.m_ptyData.has_value();
 
-DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePrivate *devicePrivate)
-    : m_devicePrivate(devicePrivate)
-    , m_device(device)
-{
-    connect(device.get(), &QObject::destroyed, this, [this] {
-        emit done(ProcessResultData{
-            -1,
-            QProcess::ExitStatus::CrashExit,
-            QProcess::ProcessError::UnknownError,
-            Tr::tr("Device is shut down."),
-        });
+        const bool interactive = setupData.m_processMode == ProcessMode::Writer
+                                 || !setupData.m_writeData.isEmpty() || inTerminal;
+
+        return devicePrivate->withDockerExecCmd(
+            markerTemplate,
+            setupData.m_commandLine,
+            setupData.m_environment,
+            setupData.m_workingDirectory,
+            interactive,
+            inTerminal,
+            !setupData.m_ptyData);
+    };
+
+    const auto controlSignalFunction =
+        [weakDevice, devicePrivate](ControlSignal controlSignal, qint64 remotePid) {
+            QTC_ASSERT(devicePrivate, return);
+            auto device = weakDevice.lock();
+            if (!device)
+                return;
+
+            auto dfa = dynamic_cast<DockerDeviceFileAccess *>(device->fileAccess());
+            if (dfa) {
+                dfa->signalProcess(remotePid, controlSignal);
+            } else {
+                const int signal = ProcessInterface::controlSignalToInt(controlSignal);
+                Process p;
+                p.setCommand(
+                    {device->rootPath().withNewPath("kill"),
+                     {QString("-%1").arg(signal), QString("%2").arg(remotePid)}});
+                p.runBlocking();
+            }
+        };
+
+    WrappedProcessInterface *processInterface
+        = new WrappedProcessInterface(wrapCommandLine, controlSignalFunction);
+
+    QObject::connect(device.get(), &QObject::destroyed, processInterface, [processInterface] {
+        processInterface->emitDone(
+            ProcessResultData{
+                -1,
+                QProcess::ExitStatus::CrashExit,
+                QProcess::ProcessError::UnknownError,
+                Tr::tr("Device is shut down."),
+            });
     });
-}
 
-Result<CommandLine> DockerProcessImpl::wrapCommmandLine(
-    const ProcessSetupData &setupData, const QString &markerTemplate) const
-{
-    QTC_ASSERT(
-        m_devicePrivate,
-        return ResultError(
-            Tr::tr("Docker device is not initialized. Cannot create command line.")));
-
-    const bool inTerminal = m_setup.m_terminalMode != TerminalMode::Off
-                            || m_setup.m_ptyData.has_value();
-
-    const bool interactive = m_setup.m_processMode == ProcessMode::Writer
-                             || !m_setup.m_writeData.isEmpty() || inTerminal;
-
-    return m_devicePrivate->withDockerExecCmd(
-        markerTemplate,
-        m_setup.m_commandLine,
-        m_setup.m_environment,
-        m_setup.m_workingDirectory,
-        interactive,
-        inTerminal,
-        !setupData.m_ptyData);
-}
-
-void DockerProcessImpl::forwardControlSignal(ControlSignal controlSignal, qint64 remotePid) const
-{
-    QTC_ASSERT(m_devicePrivate, return);
-    auto device = m_device.lock();
-    if (!device)
-        return;
-
-    auto dfa = dynamic_cast<DockerDeviceFileAccess *>(device->fileAccess());
-    if (dfa) {
-        dfa->signalProcess(remotePid, controlSignal);
-    } else {
-        const int signal = controlSignalToInt(controlSignal);
-        Process p;
-        p.setCommand(
-            {device->rootPath().withNewPath("kill"),
-             {QString("-%1").arg(signal), QString("%2").arg(remotePid)}});
-        p.runBlocking();
-    }
+    return processInterface;
 }
 
 CommandLine DockerDevice::createCommandLine() const
@@ -939,7 +932,7 @@ void DockerDevice::toMap(Store &map) const
 
 ProcessInterface *DockerDevice::createProcessInterface() const
 {
-    return new DockerProcessImpl(shared_from_this(), d);
+    return makeProcessInterface(shared_from_this(), d);
 }
 
 DeviceTester *DockerDevice::createDeviceTester()

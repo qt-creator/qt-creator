@@ -52,13 +52,20 @@ public:
     QString m_unexpectedStartupOutput;
     bool m_forwardStdout = false;
     bool m_forwardStderr = false;
+
+    WrappedProcessInterface::WrapFunction m_wrapFunction;
+    WrappedProcessInterface::ControlSignalFunction m_controlSignalFunction;
 };
 
 } // namespace Internal
 
-WrappedProcessInterface::WrappedProcessInterface()
+WrappedProcessInterface::WrappedProcessInterface(
+        const WrapFunction &wrapFunction, const ControlSignalFunction &controlSignalFunction)
     : d(std::make_unique<Internal::WrappedProcessInterfacePrivate>())
 {
+    d->m_wrapFunction = wrapFunction;
+    d->m_controlSignalFunction = controlSignalFunction;
+
     d->m_process.setParent(this);
 
     connect(&d->m_process, &Process::started, this, [this] {
@@ -185,7 +192,7 @@ void WrappedProcessInterface::start()
     d->m_forwardStderr = m_setup.m_processChannelMode == QProcess::ForwardedChannels
                          || m_setup.m_processChannelMode == QProcess::ForwardedErrorChannel;
 
-    const Result<CommandLine> fullCommandLine = wrapCommmandLine(m_setup, "__qtc%1qtc__");
+    const Result<CommandLine> fullCommandLine = d->m_wrapFunction(m_setup, "__qtc%1qtc__");
 
     if (!fullCommandLine) {
         emit done(ProcessResultData{
@@ -214,7 +221,7 @@ void WrappedProcessInterface::sendControlSignal(ControlSignal controlSignal)
             d->m_process.closeWriteChannel();
             return;
         }
-        forwardControlSignal(controlSignal, d->m_remotePID);
+        d->m_controlSignalFunction(controlSignal, d->m_remotePID);
     } else {
         // clang-format off
         switch (controlSignal) {

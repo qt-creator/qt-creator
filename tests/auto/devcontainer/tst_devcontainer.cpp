@@ -452,6 +452,15 @@ void tst_DevContainer::processInterface()
     QCOMPARE(firstEnv.value("CONTAINER_CHANGE_ME"), "changed_container_value");
     QCOMPARE(firstEnv.value("REMOTEENV_FROM_CONTAINER"), "test_value_container");
 
+    Process sleepProc;
+    sleepProc.setProcessInterfaceCreator(
+        [&]() { return instance->createProcessInterface(runningInstance); });
+    sleepProc.setCommand({"sleep", {"100000"}});
+    sleepProc.start();
+    QVERIFY(sleepProc.waitForStarted());
+    sleepProc.kill();
+    QVERIFY(sleepProc.waitForFinished());
+
     Utils::Result<Tasking::Group> downRecipe = instance->downRecipe();
     QVERIFY_RESULT(downRecipe);
     QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);

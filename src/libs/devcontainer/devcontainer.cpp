@@ -1521,22 +1521,14 @@ const Config &Instance::config() const
     return d->config;
 }
 
-class DevContainerProcessInterface : public Utils::WrappedProcessInterface
+static WrappedProcessInterface *makeProcessInterface(
+    const Config &config,
+    const InstanceConfig &instanceConfig,
+    const RunningInstance &runningInstance)
 {
-public:
-    DevContainerProcessInterface(
-        const Config &config,
-        const InstanceConfig &instanceConfig,
-        const RunningInstance &runningInstance)
-        : m_config(config)
-        , m_instanceConfig(instanceConfig)
-        , m_runningInstance(runningInstance)
-    {}
-
-    Result<CommandLine> wrapCommmandLine(
-        const ProcessSetupData &setupData, const QString &markerTemplate) const override
-    {
-        CommandLine dockerCmd{m_instanceConfig.dockerCli, {"exec"}};
+    const auto wrapCommandLine = [=](const ProcessSetupData &setupData,
+                                     const QString &markerTemplate) -> Result<CommandLine> {
+        CommandLine dockerCmd{instanceConfig.dockerCli, {"exec"}};
 
         const bool inTerminal = setupData.m_terminalMode != TerminalMode::Off
                                 || setupData.m_ptyData.has_value();
@@ -1552,16 +1544,16 @@ public:
 
         QStringList unsetKeys;
         Environment remoteEnv;
-        for (const auto &[k, v] : m_config.common.remoteEnv) {
+        for (const auto &[k, v] : config.common.remoteEnv) {
             if (v) {
                 QString value = *v;
                 const Internal::Replacers replacers = {
-                    {"containerEnv", [this](const QStringList &parts) {
+                    {"containerEnv", [runningInstance](const QStringList &parts) {
                          if (parts.isEmpty())
                              return QString();
                          const QString varname = parts.first();
                          const QString defaultValue = parts.mid(1).join(':');
-                         return m_runningInstance->remoteEnvironment.value_or(varname, defaultValue);
+                         return runningInstance->remoteEnvironment.value_or(varname, defaultValue);
                      }}};
                 Internal::substituteVariables(value, replacers);
                 remoteEnv.set(k, value);
@@ -1582,12 +1574,12 @@ public:
         }
 
         const FilePath workingDirectory = setupData.m_workingDirectory.isEmpty()
-                                              ? Config::workspaceFolder(m_config)
+                                              ? Config::workspaceFolder(config)
                                               : setupData.m_workingDirectory;
 
         dockerCmd.addArgs({"-w", workingDirectory.path()});
 
-        dockerCmd.addArg(containerName(m_instanceConfig));
+        dockerCmd.addArg(containerName(instanceConfig));
 
         dockerCmd.addArgs({"/bin/sh", "-c"});
 
@@ -1603,7 +1595,7 @@ public:
             CommandLine testType({"type", {}});
             testType.addArg(
                 setupData.m_commandLine.executable().path(),
-                Utils::OsTypeLinux); //osAndArch->first);
+                OsTypeLinux); //osAndArch->first);
             testType.addArgs(">/dev/null", CommandLine::Raw);
 
             // Send PID only if existence was confirmed, so we can correctly notify
@@ -1620,25 +1612,30 @@ public:
         }
 
         return dockerCmd;
-    }
+    };
 
-    void forwardControlSignal(ControlSignal controlSignal, qint64 remotePid) const override
-    {
-        Q_UNUSED(controlSignal);
-        Q_UNUSED(remotePid);
-        QTC_CHECK(false); // Not implemented yet.
-    }
+    const auto controlSignal = [instanceConfig](ControlSignal controlSignal, qint64 remotePid) {
+        const int signal = ProcessInterface::controlSignalToInt(controlSignal);
 
-protected:
-    Config m_config;
-    InstanceConfig m_instanceConfig;
-    RunningInstance m_runningInstance;
-};
+        CommandLine dockerCmd{
+            instanceConfig.dockerCli,
+            {{"exec", containerName(instanceConfig)},
+             {"kill", QString("-%1").arg(signal), QString("%2").arg(remotePid)}}};
+
+        Process p;
+        p.setCommand(dockerCmd);
+        p.runBlocking();
+    };
+
+    auto *processInterface = new WrappedProcessInterface(wrapCommandLine, controlSignal);
+
+    return processInterface;
+}
 
 ProcessInterface *Instance::createProcessInterface(const RunningInstance &runningInstance) const
 {
     QTC_ASSERT(runningInstance, return nullptr);
-    return new DevContainerProcessInterface(d->config, d->instanceConfig, runningInstance);
+    return makeProcessInterface(d->config, d->instanceConfig, runningInstance);
 }
 
 } // namespace DevContainer
