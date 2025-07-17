@@ -465,12 +465,13 @@ const QList<Node *> ProjectTree::siblingsWithSameBaseName(const Node *fileNode)
         productNode = productNode->parentProjectNode();
     if (!productNode)
         return {};
-    const QFileInfo fi = fileNode->filePath().toFileInfo();
-    const auto filter = [&fi](const Node *n) {
+    const FilePath fp = fileNode->filePath();
+    const FilePath fpd = fp.parentDir();
+    const auto filter = [fp, fpd](const Node *n) {
         return n->asFileNode()
-                && n->filePath().toFileInfo().dir() == fi.dir()
-                && n->filePath().completeBaseName() == fi.completeBaseName()
-                && n->filePath().toUrlishString() != fi.filePath();
+                && n->filePath().parentDir() == fpd
+                && n->filePath().completeBaseName() == fp.completeBaseName()
+                && n->filePath() != fp;
     };
     return productNode->findNodes(filter);
 }

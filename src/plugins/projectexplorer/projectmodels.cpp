@@ -294,10 +294,9 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
     QTC_ASSERT(node, return false);
 
     std::vector<std::tuple<Node *, FilePath, FilePath>> toRename;
+    const QString valuePath = value.toString();
     const FilePath orgFilePath = node->filePath();
-    const FilePath newFilePath = orgFilePath.parentDir().pathAppended(value.toString());
-    const FilePath valuePath = FilePath::fromString(value.toString());
-    const QFileInfo orgFileInfo = orgFilePath.toFileInfo();
+    const FilePath newFilePath = orgFilePath.parentDir().pathAppended(valuePath);
     toRename.emplace_back(std::make_tuple(node, orgFilePath, newFilePath));
 
     // The base name of the file was changed. Go look for other files with the same base name
@@ -317,18 +316,17 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
                         QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
                         QMessageBox::Yes);
             switch (reply) {
-            case QMessageBox::Yes:
+            case QMessageBox::Yes: {
+                const FilePath dir = orgFilePath.parentDir();
                 for (Node * const n : candidateNodes) {
-                    QString targetFilePath = orgFileInfo.absolutePath() + '/'
-                                             + valuePath.parentDir().path() + '/'
-                                             + valuePath.completeBaseName();
+                    FilePath targetFilePath = dir / dir.pathAppended(valuePath).completeBaseName();
                     const QString suffix = n->filePath().suffix();
                     if (!suffix.isEmpty())
-                        targetFilePath.append('.').append(suffix);
-                    toRename.emplace_back(std::make_tuple(n, n->filePath(),
-                                                          FilePath::fromString(targetFilePath).cleanPath()));
+                        targetFilePath = targetFilePath.stringAppended('.' + suffix);
+                    toRename.emplace_back(std::make_tuple(n, n->filePath(), targetFilePath));
                 }
                 break;
+            }
             case QMessageBox::Cancel:
                 return false;
             default:
