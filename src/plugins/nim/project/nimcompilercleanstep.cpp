@@ -86,7 +86,7 @@ bool NimCompilerCleanStep::removeCacheDirectory()
     QTC_ASSERT(bc, return false);
     if (!bc->cacheDirectory().exists())
         return true;
-    QDir dir = QDir::fromNativeSeparators(bc->cacheDirectory().toUrlishString());
+    QDir dir = bc->cacheDirectory().toFSPathString();
     const QString dirName = dir.dirName();
     if (!dir.cdUp())
         return false;
@@ -100,7 +100,7 @@ bool NimCompilerCleanStep::removeOutFilePath()
     QTC_ASSERT(bc, return false);
     if (!bc->outFilePath().exists())
         return true;
-    return QFile(bc->outFilePath().toFileInfo().absoluteFilePath()).remove();
+    return bc->outFilePath().removeFile().has_value();
 }
 
 // NimCompilerCleanStepFactory

@@ -86,10 +86,10 @@ QWidget *NimCompilerBuildStep::createConfigWidget()
         const FilePaths files = project()->files(Project::AllFiles);
         for (const FilePath &file : files) {
             if (file.endsWith(".nim"))
-                targetComboBox->addItem(file.fileName(), file.toUrlishString());
+                targetComboBox->addItem(file.fileName(), file.toVariant());
         }
 
-        const int index = targetComboBox->findData(m_targetNimFile.toUrlishString());
+        const int index = targetComboBox->findData(m_targetNimFile.toVariant());
         targetComboBox->setCurrentIndex(index);
 
         const QString text = m_userCompilerOptions.join(QChar::Space);
@@ -135,7 +135,7 @@ void NimCompilerBuildStep::toMap(Store &map) const
     AbstractProcessStep::toMap(map);
     map[Constants::C_NIMCOMPILERBUILDSTEP_USERCOMPILEROPTIONS] = m_userCompilerOptions.join('|');
     map[Constants::C_NIMCOMPILERBUILDSTEP_DEFAULTBUILDOPTIONS] = m_defaultOptions;
-    map[Constants::C_NIMCOMPILERBUILDSTEP_TARGETNIMFILE] = m_targetNimFile.toUrlishString();
+    map[Constants::C_NIMCOMPILERBUILDSTEP_TARGETNIMFILE] = m_targetNimFile.toSettings();
 }
 
 void NimCompilerBuildStep::setBuildType(BuildConfiguration::BuildType buildType)
@@ -172,8 +172,8 @@ CommandLine NimCompilerBuildStep::commandLine()
     else if (m_defaultOptions == Debug)
         cmd.addArgs({"--debugInfo", "--lineDir:on"});
 
-    cmd.addArg("--out:" + outFilePath().toUrlishString());
-    cmd.addArg("--nimCache:" + bc->cacheDirectory().toUrlishString());
+    cmd.addArg("--out:" + outFilePath().path());
+    cmd.addArg("--nimCache:" + bc->cacheDirectory().path());
 
     for (const QString &arg : std::as_const(m_userCompilerOptions)) {
         if (!arg.isEmpty())
@@ -181,7 +181,7 @@ CommandLine NimCompilerBuildStep::commandLine()
     }
 
     if (!m_targetNimFile.isEmpty())
-        cmd.addArg(m_targetNimFile.toUrlishString());
+        cmd.addArg(m_targetNimFile.path());
 
     return cmd;
 }
