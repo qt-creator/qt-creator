@@ -645,7 +645,6 @@ public:
 
     void setOrRemoveBreakpoint();
     void enableOrDisableBreakpoint();
-    void updateDebugWithoutDeployMenu();
 
     void attachToRunningApplication();
     void attachToUnstartedApplicationDialog();
@@ -1202,7 +1201,9 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
             }
         });
 
-    projectExplorerSettings().addOnChanged(this, [this] { updateDebugWithoutDeployMenu(); });
+    projectExplorerSettings().deployBeforeRun.addOnChanged(this, [this] {
+        m_debugWithoutDeployAction.setVisible(projectExplorerSettings().deployBeforeRun());
+    });
 
     // Debug mode setup
     m_mode = new DebugMode;
@@ -1933,12 +1934,6 @@ void DebuggerPluginPrivate::setInitialState()
 
     settings().autoDerefPointers.setEnabled(true);
     settings().expandStack.setEnabled(false);
-}
-
-void DebuggerPluginPrivate::updateDebugWithoutDeployMenu()
-{
-    const bool state = projectExplorerSettings().deployBeforeRun();
-    m_debugWithoutDeployAction.setVisible(state);
 }
 
 void DebuggerPluginPrivate::dumpLog()
