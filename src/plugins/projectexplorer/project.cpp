@@ -358,7 +358,7 @@ QString Project::displayName() const
     return d->m_displayName;
 }
 
-Id Project::id() const
+Id Project::type() const
 {
     QTC_CHECK(d->m_id.isValid());
     return d->m_id;
@@ -800,7 +800,7 @@ void Project::setDisplayName(const QString &name)
     emit displayNameChanged();
 }
 
-void Project::setId(Id id)
+void Project::setType(Id id)
 {
     QTC_ASSERT(!d->m_id.isValid(), return); // Id may not change ever!
     d->m_id = id;
@@ -1744,7 +1744,7 @@ class TestProject : public Project
 public:
     TestProject() : Project(TEST_PROJECT_MIMETYPE, TEST_PROJECT_PATH)
     {
-        setId(TEST_PROJECT_ID);
+        setType(TEST_PROJECT_ID);
         setDisplayName(TEST_PROJECT_DISPLAYNAME);
         setBuildSystemCreator<TestBuildSystem>("test");
         target = addTargetForKit(&testKit);
@@ -1783,7 +1783,7 @@ private slots:
         QCOMPARE(project.files(Project::AllFiles), FilePaths{TEST_PROJECT_PATH});
         QCOMPARE(project.files(Project::GeneratedFiles), {});
 
-        QCOMPARE(project.id(), Id(TEST_PROJECT_ID));
+        QCOMPARE(project.type(), Id(TEST_PROJECT_ID));
 
         QVERIFY(!project.activeBuildSystem()->isParsing());
         QVERIFY(!project.activeBuildSystem()->hasParsingData());

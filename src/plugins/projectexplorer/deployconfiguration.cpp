@@ -148,7 +148,7 @@ QString DeployConfigurationFactory::defaultDisplayName() const
 bool DeployConfigurationFactory::canHandle(Target *target) const
 {
     if (m_supportedProjectType.isValid()) {
-        if (target->project()->id() != m_supportedProjectType)
+        if (target->project()->type() != m_supportedProjectType)
             return false;
     }
 

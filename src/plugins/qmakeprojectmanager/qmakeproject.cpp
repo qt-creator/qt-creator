@@ -155,7 +155,7 @@ private:
 QmakeProject::QmakeProject(const FilePath &fileName) :
     Project(Utils::Constants::PROFILE_MIMETYPE, fileName)
 {
-    setId(Constants::QMAKEPROJECT_ID);
+    setType(Constants::QMAKEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
     setCanBuildProducts();

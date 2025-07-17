@@ -160,7 +160,7 @@ void JsonProjectPage::initUiForSubProject()
 
         ProjectInfo info;
         info.projectFile = proj->projectFilePath();
-        info.projectId = proj->id();
+        info.projectId = proj->type();
         info.projectDirectory = proj->rootProjectDirectory();
         info.display = rootNode->displayName() + " - " + proj->projectFilePath().toUserOutput();
         info.buildSystem = proj->buildSystemName();

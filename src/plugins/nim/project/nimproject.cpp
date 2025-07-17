@@ -355,7 +355,7 @@ protected:
 
 NimProject::NimProject(const FilePath &filePath) : Project(Constants::C_NIM_MIMETYPE, filePath)
 {
-    setId(Constants::C_NIMPROJECT_ID);
+    setType(Constants::C_NIMPROJECT_ID);
     setDisplayName(filePath.completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));

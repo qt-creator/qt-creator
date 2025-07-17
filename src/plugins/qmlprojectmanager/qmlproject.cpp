@@ -39,7 +39,7 @@ namespace QmlProjectManager {
 QmlProject::QmlProject(const Utils::FilePath &fileName)
     : Project(Utils::Constants::QMLPROJECT_MIMETYPE, fileName)
 {
-    setId(QmlProjectManager::Constants::QML_PROJECT_ID);
+    setType(QmlProjectManager::Constants::QML_PROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
 

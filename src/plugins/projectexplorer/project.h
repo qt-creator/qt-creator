@@ -64,7 +64,7 @@ public:
 
     QString buildSystemName() const;
     QString displayName() const;
-    Utils::Id id() const;
+    Utils::Id type() const;
 
     void markAsShuttingDown();
     bool isShuttingDown() const;
@@ -218,6 +218,9 @@ public:
 
     void syncRunConfigurations(bool force);
 
+    [[deprecated("Use Project::type()")]]
+    Utils::Id id() const { return type(); }
+
 signals:
     void projectFileIsDirty(const Utils::FilePath &path);
 
@@ -257,7 +260,7 @@ protected:
     void setCanBuildProducts();
     void setIsEditModePreferred(bool preferEditMode);
 
-    void setId(Utils::Id id);
+    void setType(Utils::Id id);
     void setProjectLanguages(Core::Context language);
     void setHasMakeInstallEquivalent(bool enabled);
 
@@ -268,6 +271,9 @@ protected:
         setBuildSystemName(name);
         setBuildSystemCreator([](BuildConfiguration *bc) { return new BuildSystemImpl(bc); });
     }
+
+    [[deprecated("Use Project::setType()")]]
+    void setId(Utils::Id id) { setType(id); }
 
 private:
     void setBuildSystemName(const QString &name);

@@ -269,7 +269,7 @@ void ProjectManager::addProject(Project *pro)
 {
     QTC_ASSERT(pro, return);
     QTC_CHECK(!pro->displayName().isEmpty());
-    QTC_CHECK(pro->id().isValid());
+    QTC_CHECK(pro->type().isValid());
 
     SessionManager::markSessionFileDirty();
     QTC_ASSERT(!d->m_projects.contains(pro), return);

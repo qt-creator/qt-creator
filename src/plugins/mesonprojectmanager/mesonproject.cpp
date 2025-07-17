@@ -26,7 +26,7 @@ public:
     explicit MesonProject(const Utils::FilePath &path)
         : Project{Constants::Project::MIMETYPE, path}
     {
-        setId(Constants::Project::ID);
+        setType(Constants::Project::ID);
         setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
         setDisplayName(projectDirectory().fileName());
         setCanBuildProducts();

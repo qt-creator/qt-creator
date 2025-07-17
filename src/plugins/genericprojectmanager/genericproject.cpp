@@ -206,7 +206,7 @@ public:
     explicit GenericProject(const FilePath &filePath)
         : Project(Constants::GENERICMIMETYPE, filePath)
     {
-        setId(Constants::GENERICPROJECT_ID);
+        setType(Constants::GENERICPROJECT_ID);
         setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
         setDisplayName(filePath.completeBaseName());
         setBuildSystemCreator<GenericBuildSystem>("generic");

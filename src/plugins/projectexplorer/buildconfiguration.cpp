@@ -1374,7 +1374,7 @@ void BuildConfigurationFactory::addSupportedTargetDeviceType(Utils::Id id)
 
 bool BuildConfigurationFactory::canHandle(const Target *target) const
 {
-    if (m_supportedProjectType.isValid() && m_supportedProjectType != target->project()->id())
+    if (m_supportedProjectType.isValid() && m_supportedProjectType != target->project()->type())
         return false;
 
     if (containsType(target->project()->projectIssues(target->kit()), Task::TaskType::Error))

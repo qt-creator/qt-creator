@@ -343,7 +343,7 @@ public:
 NimbleProject::NimbleProject(const FilePath &fileName)
     : Project(Constants::C_NIMBLE_MIMETYPE, fileName)
 {
-    setId(Constants::C_NIMBLEPROJECT_ID);
+    setType(Constants::C_NIMBLEPROJECT_ID);
     setDisplayName(fileName.completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));

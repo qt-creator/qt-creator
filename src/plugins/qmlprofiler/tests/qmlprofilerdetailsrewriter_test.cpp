@@ -39,7 +39,7 @@ public:
         root->addNode(std::move(fileNode));
         setRootProjectNode(std::move(root));
         setDisplayName(file.toUrlishString());
-        setId("QmlProfilerDetailsRewriterTest.DummyProject");
+        setType("QmlProfilerDetailsRewriterTest.DummyProject");
     }
 
     bool needsConfiguration() const final { return false; }

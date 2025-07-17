@@ -772,14 +772,15 @@ bool RunConfigurationFactory::canHandle(Target *target) const
     if (containsType(target->project()->projectIssues(kit), Task::TaskType::Error))
         return false;
 
-    if (!m_supportedProjectTypes.isEmpty())
-        if (!m_supportedProjectTypes.contains(project->id()))
+    if (!m_supportedProjectTypes.isEmpty()) {
+        if (!m_supportedProjectTypes.contains(project->type()))
             return false;
+    }
 
-    if (!m_supportedTargetDeviceTypes.isEmpty())
-        if (!m_supportedTargetDeviceTypes.contains(
-                    RunDeviceTypeKitAspect::deviceTypeId(kit)))
+    if (!m_supportedTargetDeviceTypes.isEmpty()) {
+        if (!m_supportedTargetDeviceTypes.contains(RunDeviceTypeKitAspect::deviceTypeId(kit)))
             return false;
+    }
 
     return true;
 }

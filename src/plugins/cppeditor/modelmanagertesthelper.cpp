@@ -24,7 +24,7 @@ TestProject::TestProject(const QString &name, QObject *parent, const FilePath &f
     m_name(name)
 {
     setParent(parent);
-    setId(Id::fromString(name));
+    setType(Id::fromString(name));
     setDisplayName(name);
     qRegisterMetaType<QSet<QString> >();
 }

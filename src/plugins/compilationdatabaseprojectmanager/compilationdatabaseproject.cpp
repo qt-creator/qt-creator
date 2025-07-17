@@ -415,7 +415,7 @@ void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
 CompilationDatabaseProject::CompilationDatabaseProject(const FilePath &projectFile)
     : Project(Constants::COMPILATIONDATABASEMIMETYPE, projectFile)
 {
-    setId(Constants::COMPILATIONDATABASEPROJECT_ID);
+    setType(Constants::COMPILATIONDATABASEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
     setBuildSystemCreator<CompilationDatabaseBuildSystem>("compilationdb");

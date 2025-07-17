@@ -20,7 +20,7 @@ namespace Python::Internal {
 PythonProject::PythonProject(const FilePath &fileName)
     : Project(Constants::C_PY_PROJECT_MIME_TYPE_TOML, fileName)
 {
-    setId(PythonProjectId);
+    setType(PythonProjectId);
     setProjectLanguages(Context(ProjectExplorer::Constants::PYTHON_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
     setBuildSystemCreator<PythonBuildSystem>("python");

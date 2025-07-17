@@ -3639,7 +3639,7 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
                                                                 return t->id().toString();
                                                             });
             map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), profileIds);
-            projectType = project->id();
+            projectType = project->type();
             map.insert(Constants::PROJECT_POINTER, QVariant::fromValue(static_cast<void *>(project)));
         }
 

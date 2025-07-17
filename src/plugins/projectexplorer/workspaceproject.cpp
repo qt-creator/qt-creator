@@ -596,7 +596,7 @@ public:
             projectFilePath().writeFileContents(QJsonDocument(projectJson).toJson());
         }
 
-        setId(WORKSPACE_PROJECT_ID);
+        setType(WORKSPACE_PROJECT_ID);
         setDisplayName(projectDirectory().fileName());
         setBuildSystemCreator<WorkspaceBuildSystem>("Workspace");
 

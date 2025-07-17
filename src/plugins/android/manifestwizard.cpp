@@ -272,8 +272,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
 
     ProjectNode *node = m_buildSystem->project()->findNodeForBuildKey(m_buildKey);
     if (node) {
-        const bool isCmakeProject = (m_buildSystem->project()->id() == CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
-        if (!isCmakeProject)
+        if (m_buildSystem->project()->type() != CMakeProjectManager::Constants::CMAKE_PROJECT_ID)
             node->addFiles(copy.files());
 
         QString androidPackageDir;

@@ -250,7 +250,7 @@ public:
     explicit AutotoolsProject(const Utils::FilePath &fileName)
         : Project(Utils::Constants::MAKEFILE_MIMETYPE, fileName)
     {
-        setId(Constants::AUTOTOOLS_PROJECT_ID);
+        setType(Constants::AUTOTOOLS_PROJECT_ID);
         setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
         setDisplayName(projectDirectory().fileName());
         setHasMakeInstallEquivalent(true);

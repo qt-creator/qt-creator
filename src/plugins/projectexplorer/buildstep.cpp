@@ -279,8 +279,8 @@ bool BuildStepFactory::canHandle(BuildStepList *bsl) const
     if (m_supportedProjectType.isValid()) {
         if (!config)
             return false;
-        Id projectId = config->project()->id();
-        if (projectId != m_supportedProjectType)
+        Id projectType = config->project()->type();
+        if (projectType != m_supportedProjectType)
             return false;
     }
 
