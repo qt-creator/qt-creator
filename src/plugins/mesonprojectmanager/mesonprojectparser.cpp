@@ -200,8 +200,7 @@ static std::unique_ptr<MesonProjectNode> buildTree(
     auto root = std::make_unique<MesonProjectNode>(srcDir);
     //Populating all build system files ensures all folders are created
     for (FilePath bsFile : bsFiles) {
-        if (!bsFile.isAbsolutePath())
-            bsFile = srcDir.pathAppended(bsFile.toUrlishString());
+        bsFile = srcDir.resolvePath(bsFile);
         // For some reason Meson also list files outside of the project directory
         // like the python3 or qmake path
         if (bsFile.canonicalPath().isChildOf(srcDir))
