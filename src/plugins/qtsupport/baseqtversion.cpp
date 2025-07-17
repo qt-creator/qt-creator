@@ -2378,7 +2378,7 @@ QtVersion *QtVersionFactory::createQtVersionFromQMakePath
     ProFileCacheManager::instance()->incRefCount();
     QMakeParser parser(ProFileCacheManager::instance()->cache(), &vfs, &msgHandler);
     ProFileEvaluator evaluator(&globals, &parser, &vfs, &msgHandler);
-    evaluator.loadNamedSpec(mkspec.path(), false);
+    evaluator.loadNamedSpec(mkspec.toFSPathString(), false);
 
     const QList<QtVersionFactory *> factories = Utils::sorted(g_qtVersionFactories,
             [](const QtVersionFactory *l, const QtVersionFactory *r) {
