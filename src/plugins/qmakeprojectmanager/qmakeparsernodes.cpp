@@ -2057,7 +2057,7 @@ FilePaths QmakeProFile::generatedFiles(const FilePath &buildDir,
         FilePath location;
         auto it = m_varValues.constFind(Variable::UiDir);
         if (it != m_varValues.constEnd() && !it.value().isEmpty())
-            location = FilePath::fromString(it.value().front());
+            location = buildDir.resolvePath(it.value().front());
         else
             location = buildDir;
         if (location.isEmpty())
