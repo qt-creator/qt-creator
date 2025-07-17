@@ -3644,11 +3644,6 @@ static int scheduleTimeout(milliseconds timeout, QObject *context, const Timeout
     return timerId;
 }
 
-TimeoutTaskAdapter::TimeoutTaskAdapter()
-{
-    *task() = milliseconds::zero();
-}
-
 TimeoutTaskAdapter::~TimeoutTaskAdapter()
 {
     if (m_timerId)

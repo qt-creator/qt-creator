@@ -522,7 +522,7 @@ template <typename Task, typename Deleter = std::default_delete<Task>>
 class TaskAdapter : public TaskInterface
 {
 protected:
-    TaskAdapter() : m_task(new Task) {}
+    TaskAdapter() : m_task(new Task()) {}
     Task *task() { return m_task.get(); }
     const Task *task() const { return m_task.get(); }
 
@@ -727,7 +727,6 @@ private:
 class TASKING_EXPORT TimeoutTaskAdapter final : public TaskAdapter<std::chrono::milliseconds>
 {
 public:
-    TimeoutTaskAdapter();
     ~TimeoutTaskAdapter();
 
 private:
