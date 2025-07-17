@@ -585,12 +585,12 @@ void EditorView::listSelectionActivated(int index)
     EditorManagerPrivate::activateEditorForEntry(this, DocumentModel::entryAtRow(index));
 }
 
-void EditorView::fillListContextMenu(QMenu *menu) const
+void EditorView::fillListContextMenu(QMenu *menu)
 {
     IEditor *editor = currentEditor();
     DocumentModel::Entry *entry = editor ? DocumentModel::entryForDocument(editor->document())
                                          : nullptr;
-    EditorManager::addContextMenuActions(menu, entry, editor);
+    EditorManagerPrivate::addContextMenuActions(menu, entry, editor, this);
 }
 
 void EditorView::splitHorizontally()

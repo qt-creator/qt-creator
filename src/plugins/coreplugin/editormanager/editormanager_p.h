@@ -76,7 +76,8 @@ public:
                                  Utils::Id editorId = {},
                                  EditorManager::OpenEditorFlags flags = EditorManager::NoFlags,
                                  bool *newEditor = nullptr);
-    static IEditor *openEditorWith(const Utils::FilePath &filePath, Utils::Id editorId);
+    static IEditor *openEditorWith(
+        const Utils::FilePath &filePath, Utils::Id editorId, EditorView *mainView = nullptr);
     static IEditor *duplicateEditor(IEditor *editor);
     static IEditor *activateEditor(EditorView *view, IEditor *editor,
                                    EditorManager::OpenEditorFlags flags = EditorManager::NoFlags);
@@ -209,8 +210,10 @@ private:
         DocumentModel::Entry *entry,
         IEditor *editor,
         EditorView *view = nullptr);
-    static void addNativeDirAndOpenWithActions(QMenu *contextMenu, const Utils::FilePath &filePath);
-    static void populateOpenWithMenu(QMenu *menu, const Utils::FilePath &filePath);
+    static void addNativeDirAndOpenWithActions(
+        QMenu *contextMenu, const Utils::FilePath &filePath, EditorView *view = nullptr);
+    static void populateOpenWithMenu(
+        QMenu *menu, const Utils::FilePath &filePath, EditorView *view = nullptr);
 
 private:
     explicit EditorManagerPrivate(QObject *parent);

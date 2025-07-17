@@ -977,7 +977,8 @@ IEditor *EditorManagerPrivate::openEditorAt(EditorView *view,
     return editor;
 }
 
-IEditor *EditorManagerPrivate::openEditorWith(const FilePath &filePath, Id editorId)
+IEditor *EditorManagerPrivate::openEditorWith(
+    const FilePath &filePath, Id editorId, EditorView *mainView)
 {
     // close any open editors that have this file open
     // remember the views to open new editors in there
@@ -992,28 +993,42 @@ IEditor *EditorManagerPrivate::openEditorWith(const FilePath &filePath, Id edito
         return nullptr;
 
     IEditor *openedEditor = nullptr;
-    if (views.isEmpty()) {
-        openedEditor = EditorManager::openEditor(filePath, editorId);
+    EditorView *currentView = EditorManagerPrivate::currentEditorView();
+    // First view in the list is set to current
+    if (mainView) {
+        // mainView always takes part and becomes current
+        if (!views.contains(mainView))
+            views.prepend(mainView);
+    } else if (views.isEmpty()) {
+        // E.g. when using Open With in Open Documents view on a suspended document
+        // Open at least in one view
+        // Find a view with a (suspended) tab, or fall back to current view
+        EditorView *v = Utils::findOr(
+            EditorManagerPrivate::allEditorViews(), currentView, [filePath](EditorView *view) {
+                return Utils::anyOf(view->visibleTabs(), [filePath](const EditorView::TabData &data) {
+                    return data.entry->filePath() == filePath;
+                });
+            });
+        views += v;
     } else {
-        if (EditorView *currentView = EditorManagerPrivate::currentEditorView()) {
-            if (views.removeOne(currentView))
-                views.prepend(currentView); // open editor in current view first
-        }
-        EditorManager::OpenEditorFlags flags;
-        for (EditorView *view : std::as_const(views)) {
-            IEditor *editor = EditorManagerPrivate::openEditor(view, filePath, editorId, flags);
-            if (!openedEditor && editor)
-                openedEditor = editor;
-            // Do not change the current editor after opening the first one. That
-            // * prevents multiple updates of focus etc which are not necessary
-            // * lets us control which editor is made current by putting the current editor view
-            //   to the front (if that was in the list in the first place)
-            flags |= EditorManager::DoNotChangeCurrentEditor;
-            // do not try to open more editors if this one failed, or editor type does not
-            // support duplication anyhow
-            if (!editor || !editor->duplicateSupported())
-                break;
-        }
+        // Keep current view current, if it is included, and not overridden by mainView
+        if (views.removeOne(currentView))
+            views.prepend(currentView);
+    }
+    EditorManager::OpenEditorFlags flags;
+    for (EditorView *view : std::as_const(views)) {
+        IEditor *editor = EditorManagerPrivate::openEditor(view, filePath, editorId, flags);
+        if (!openedEditor && editor)
+            openedEditor = editor;
+        // Do not change the current editor after opening the first one. That
+        // * prevents multiple updates of focus etc which are not necessary
+        // * lets us control which editor is made current by putting the current editor view
+        //   to the front (if that was in the list in the first place)
+        flags |= EditorManager::DoNotChangeCurrentEditor;
+        // do not try to open more editors if this one failed, or editor type does not
+        // support duplication anyhow
+        if (!editor || !editor->duplicateSupported())
+            break;
     }
     return openedEditor;
 }
@@ -3049,7 +3064,7 @@ void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentM
 }
 
 void EditorManagerPrivate::addNativeDirAndOpenWithActions(
-    QMenu *contextMenu, const FilePath &filePath)
+    QMenu *contextMenu, const FilePath &filePath, EditorView *view)
 {
     QTC_ASSERT(contextMenu, return);
     bool enabled = !filePath.isEmpty();
@@ -3083,7 +3098,7 @@ void EditorManagerPrivate::addNativeDirAndOpenWithActions(
     QMenu *openWith = contextMenu->addMenu(::Core::Tr::tr("Open With"));
     openWith->setEnabled(enabled);
     if (enabled)
-        populateOpenWithMenu(openWith, filePath);
+        populateOpenWithMenu(openWith, filePath, view);
 }
 
 void EditorManager::addContextMenuActions(
@@ -3106,7 +3121,8 @@ void EditorManagerPrivate::addContextMenuActions(
     contextMenu->addSeparator();
     EditorManager::addPinEditorActions(contextMenu, entry);
     contextMenu->addSeparator();
-    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, filePathFor(entry, editor));
+    EditorManagerPrivate::addNativeDirAndOpenWithActions(
+        contextMenu, filePathFor(entry, editor), view);
 }
 
 /*!
@@ -3118,10 +3134,12 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const FilePath &filePath)
     EditorManagerPrivate::populateOpenWithMenu(menu, filePath);
 }
 
-void EditorManagerPrivate::populateOpenWithMenu(QMenu *menu, const FilePath &filePath)
+void EditorManagerPrivate::populateOpenWithMenu(
+    QMenu *menu, const FilePath &filePath, EditorView *view)
 {
     menu->clear();
 
+    QPointer<EditorView> contextView = view;
     const EditorFactories factories = IEditorFactory::preferredEditorTypes(filePath);
     const bool anyMatches = !factories.empty();
     if (anyMatches) {
@@ -3135,13 +3153,18 @@ void EditorManagerPrivate::populateOpenWithMenu(QMenu *menu, const FilePath &fil
             // is inside of a qrc file itself, and the qrc editor opens the Open with menu,
             // crashes happen, because the editor instance is deleted by openEditorWith
             // while the menu is still being processed.
-            connect(action, &QAction::triggered, d, [filePath, editorId] {
+            connect(
+                action,
+                &QAction::triggered,
+                d,
+                [filePath, editorId, contextView] {
                     IEditorFactory *type = IEditorFactory::editorFactoryForId(editorId);
-                if (type && type->isExternalEditor())
-                    EditorManager::openExternalEditor(filePath, editorId);
-                else
-                    EditorManagerPrivate::openEditorWith(filePath, editorId);
-            }, Qt::QueuedConnection);
+                    if (type && type->isExternalEditor())
+                        EditorManager::openExternalEditor(filePath, editorId);
+                    else
+                        EditorManagerPrivate::openEditorWith(filePath, editorId, contextView);
+                },
+                Qt::QueuedConnection);
         }
     }
     menu->setEnabled(anyMatches);

@@ -161,7 +161,7 @@ private:
 
     void setParentSplitterOrView(SplitterOrView *splitterOrView);
 
-    void fillListContextMenu(QMenu *menu) const;
+    void fillListContextMenu(QMenu *menu);
     void updateNavigatorActions();
     void updateToolBar(IEditor *editor);
     void checkProjectLoaded(IEditor *editor);
