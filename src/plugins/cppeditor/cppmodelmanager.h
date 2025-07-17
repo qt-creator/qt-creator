@@ -168,7 +168,7 @@ public:
     static void findMacroUsages(const CPlusPlus::Macro &macro);
     static void renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement);
 
-    static void finishedRefreshingSourceFiles(const QSet<QString> &files);
+    static void finishedRefreshingSourceFiles(const QSet<Utils::FilePath> &files);
 
     static void activateClangCodeModel(std::unique_ptr<ModelManagerSupport> &&modelManagerSupport);
     static CppCompletionAssistProvider *completionAssistProvider();
@@ -259,7 +259,7 @@ signals:
     void aboutToRemoveFiles(const Utils::FilePaths &files);
 
     void documentUpdated(CPlusPlus::Document::Ptr doc);
-    void sourceFilesRefreshed(const QSet<QString> &files);
+    void sourceFilesRefreshed(const QSet<Utils::FilePath> &files);
 
     void projectPartsUpdated(ProjectExplorer::Project *project);
     void projectPartsRemoved(const QStringList &projectPartIds);

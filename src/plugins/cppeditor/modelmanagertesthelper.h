@@ -50,14 +50,14 @@ signals:
     void projectAdded(Project*);
 
 public slots:
-    void sourceFilesRefreshed(const QSet<QString> &files);
+    void sourceFilesRefreshed(const QSet<Utils::FilePath> &files);
     void gcFinished();
 
 private:
     bool m_gcFinished;
     bool m_refreshHappened;
     bool m_testOnlyForCleanedProjects;
-    QSet<QString> m_lastRefreshedSourceFiles;
+    QSet<Utils::FilePath> m_lastRefreshedSourceFiles;
     QList<Project *> m_projects;
 };
 

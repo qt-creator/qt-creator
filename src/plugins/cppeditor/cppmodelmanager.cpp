@@ -1303,8 +1303,8 @@ CppLocatorData *CppModelManager::locatorData()
     return &d->m_locatorData;
 }
 
-static QSet<QString> filteredFilesRemoved(const QSet<QString> &files,
-                                          const CppCodeModelSettings &settings)
+static QSet<FilePath> filteredFilesRemoved(const QSet<FilePath> &files,
+                                           const CppCodeModelSettings &settings)
 {
     if (!settings.enableIndexing)
         return {};
@@ -1313,7 +1313,7 @@ static QSet<QString> filteredFilesRemoved(const QSet<QString> &files,
     if (fileSizeLimitInMb <= 0 && !settings.ignoreFiles)
         return files;
 
-    QSet<QString> result;
+    QSet<FilePath> result;
     QList<QRegularExpression> regexes;
     const QStringList wildcards = settings.ignorePattern.split('\n');
 
@@ -1321,8 +1321,7 @@ static QSet<QString> filteredFilesRemoved(const QSet<QString> &files,
         regexes.append(QRegularExpression::fromWildcard(wildcard, Qt::CaseInsensitive,
                                                         QRegularExpression::UnanchoredWildcardConversion));
 
-    for (const QString &file : files) {
-        const FilePath filePath = FilePath::fromString(file);
+    for (const FilePath &filePath : files) {
         if (fileSizeLimitInMb > 0 && fileSizeExceedsLimit(filePath, fileSizeLimitInMb))
             continue;
         bool skip = false;
@@ -1339,7 +1338,7 @@ static QSet<QString> filteredFilesRemoved(const QSet<QString> &files,
         }
 
         if (!skip)
-            result << filePath.toUrlishString();
+            result << filePath;
     }
 
     return result;
@@ -1351,17 +1350,17 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<FilePath> &sourceFil
     if (sourceFiles.isEmpty() || !d->m_indexerEnabled)
         return QFuture<void>();
 
-    std::unordered_map<Project *, QSet<QString>> sourcesPerProject;
+    std::unordered_map<Project *, QSet<FilePath>> sourcesPerProject;
     for (const FilePath &fp : sourceFiles)
-        sourcesPerProject[ProjectManager::projectForFile(fp)] << fp.toUrlishString();
-    std::vector<std::pair<QSet<QString>, CppCodeModelSettings>> sourcesAndSettings;
+        sourcesPerProject[ProjectManager::projectForFile(fp)] << fp;
+    std::vector<std::pair<QSet<FilePath>, CppCodeModelSettings>> sourcesAndSettings;
     for (const auto &it : sourcesPerProject) {
         sourcesAndSettings
             .emplace_back(it.second, CppCodeModelSettings::settingsForProject(it.first));
     }
 
     const auto filteredFiles = [sourcesAndSettings = std::move(sourcesAndSettings)] {
-        QSet<QString> result;
+        QSet<FilePath> result;
         for (const auto &it : sourcesAndSettings)
             result.unite(filteredFilesRemoved(it.first, it.second));
         return result;
@@ -2184,7 +2183,7 @@ void CppModelManager::GC()
     emit m_instance->gcFinished();
 }
 
-void CppModelManager::finishedRefreshingSourceFiles(const QSet<QString> &files)
+void CppModelManager::finishedRefreshingSourceFiles(const QSet<FilePath> &files)
 {
     emit m_instance->sourceFilesRefreshed(files);
 }

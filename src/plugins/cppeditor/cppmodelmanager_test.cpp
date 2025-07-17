@@ -1274,9 +1274,9 @@ void ModelManagerTest::testSettingsChanges()
     ModelManagerTestHelper helper;
 
     int refreshCount = 0;
-    QSet<QString> refreshedFiles;
+    QSet<FilePath> refreshedFiles;
     connect(CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed,
-            &helper, [&](const QSet<QString> &files) {
+            &helper, [&](const QSet<FilePath> &files) {
         ++refreshCount;
         refreshedFiles.unite(files);
     });
@@ -1310,7 +1310,7 @@ void ModelManagerTest::testSettingsChanges()
     RawProjectPart rpp1;
     const auto part1 = ProjectPart::create(p1->projectFilePath(), rpp1, {}, p1ProjectFiles);
     const auto pi1 = ProjectInfo::create(ProjectUpdateInfo(p1, KitInfo(nullptr), {}, {}), {part1});
-    const auto p1Sources = Utils::transform<QSet<QString>>(p1Files, &FilePath::toUrlishString);
+    const QSet<FilePath> p1Sources = Utils::toSet(p1Files);
     CppModelManager::updateProjectInfo(pi1);
 
     const MyTestDataDir p2Dir("testdata_project2");
@@ -1325,13 +1325,13 @@ void ModelManagerTest::testSettingsChanges()
     RawProjectPart rpp2;
     const auto part2 = ProjectPart::create(p2->projectFilePath(), rpp2, {}, p2ProjectFiles);
     const auto pi2 = ProjectInfo::create(ProjectUpdateInfo(p2, KitInfo(nullptr), {}, {}), {part2});
-    const auto p2Sources = Utils::transform<QSet<QString>>(p2Files, &FilePath::toUrlishString);
+    const QSet<FilePath> p2Sources = Utils::toSet(p2Files);
     CppModelManager::updateProjectInfo(pi2);
 
     // Initial check: Have all files been indexed?
     while (refreshCount < 2)
         QVERIFY(waitForRefresh());
-    const auto allSources = p1Sources + p2Sources;
+    const QSet<FilePath> allSources = p1Sources + p2Sources;
     QCOMPARE(refreshedFiles, allSources);
 
     // Switch first project from global to local settings. Nothing should get re-indexed,
@@ -1364,8 +1364,8 @@ void ModelManagerTest::testSettingsChanges()
     if (refreshCount == 0)
         QVERIFY(waitForRefresh());
     QVERIFY(!waitForRefresh());
-    QSet<QString> filteredP1Sources = p1Sources;
-    filteredP1Sources -= p1Dir.filePath("baz3.h").toUrlishString();
+    QSet<FilePath> filteredP1Sources = p1Sources;
+    filteredP1Sources -= p1Dir.filePath("baz3.h");
     QCOMPARE(refreshedFiles, filteredP1Sources);
 }
 

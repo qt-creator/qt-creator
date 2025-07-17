@@ -153,7 +153,7 @@ void CppSourceProcessor::addFrameworkPath(const HeaderPath &frameworkPath)
     }
 }
 
-void CppSourceProcessor::setTodo(const QSet<QString> &files)
+void CppSourceProcessor::setTodo(const QSet<FilePath> &files)
 {
     m_todo = files;
 }
@@ -427,7 +427,7 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
         return;
     }
 
-    qCDebug(log) << "Parsing:" << absoluteFilePath.toUrlishString() << "contents:" << contents.size() << "bytes";
+    qCDebug(log) << "Parsing:" << absoluteFilePath.toUserOutput() << "contents:" << contents.size() << "bytes";
 
     Document::Ptr document = Document::create(absoluteFilePath);
     document->setEditorRevision(editorRevision);
@@ -454,7 +454,7 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
         switchCurrentDocument(previousDocument);
         mergeEnvironment(globalDocument);
         m_snapshot.insert(globalDocument);
-        m_todo.remove(absoluteFilePath.toUrlishString());
+        m_todo.remove(absoluteFilePath);
         return;
     }
 
@@ -468,7 +468,7 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
     m_documentFinished(document);
 
     m_snapshot.insert(document);
-    m_todo.remove(absoluteFilePath.toUrlishString());
+    m_todo.remove(absoluteFilePath);
     switchCurrentDocument(previousDocument);
 }
 

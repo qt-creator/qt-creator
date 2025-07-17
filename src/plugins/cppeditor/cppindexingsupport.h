@@ -62,7 +62,7 @@ public:
     static bool isFindErrorsIndexingActive();
 
     QFuture<void> refreshSourceFiles(
-        const std::function<QSet<QString>()> &sourceFiles,
+        const std::function<QSet<Utils::FilePath>()> &sourceFiles,
         CppModelManager::ProgressNotificationMode mode);
 
 private:

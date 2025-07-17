@@ -14,6 +14,8 @@
 
 #include <QPromise>
 
+using namespace Utils;
+
 namespace CppEditor {
 
 /*!
@@ -25,7 +27,7 @@ namespace CppEditor {
 */
 
 BaseEditorDocumentProcessor::BaseEditorDocumentProcessor(QTextDocument *textDocument,
-                                                         const Utils::FilePath &filePath)
+                                                         const FilePath &filePath)
     : m_filePath(filePath),
       m_textDocument(textDocument),
       m_settings(CppCodeModelSettings::settingsForFile(filePath))
@@ -39,8 +41,8 @@ void BaseEditorDocumentProcessor::run(bool projectsUpdated)
     if (projectsUpdated)
         m_settings = CppCodeModelSettings::settingsForFile(m_filePath);
 
-    const Utils::Language languagePreference
-        = m_settings.interpretAmbigiousHeadersAsC ? Utils::Language::C : Utils::Language::Cxx;
+    const Language languagePreference
+        = m_settings.interpretAmbigiousHeadersAsC ? Language::C : Language::Cxx;
 
     runImpl({CppModelManager::workingCopy(),
              ProjectExplorer::ProjectManager::startupProject(),
@@ -75,7 +77,7 @@ void BaseEditorDocumentProcessor::runParser(QPromise<void> &promise,
     }
 
     parser->update(promise, updateParams);
-    CppModelManager::finishedRefreshingSourceFiles({parser->filePath().toUrlishString()});
+    CppModelManager::finishedRefreshingSourceFiles({parser->filePath()});
 
     promise.setProgressValue(1);
 }

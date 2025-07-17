@@ -39,14 +39,14 @@ public:
     void setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths);
     void setLanguageFeatures(CPlusPlus::LanguageFeatures languageFeatures);
     void setFileSizeLimitInMb(int fileSizeLimitInMb);
-    void setTodo(const QSet<QString> &files);
+    void setTodo(const QSet<Utils::FilePath> &files);
 
     void run(const Utils::FilePath &filePath, const Utils::FilePaths &initialIncludes = {});
     void removeFromCache(const Utils::FilePath &filePath);
     void resetEnvironment();
 
     CPlusPlus::Snapshot snapshot() const { return m_snapshot; }
-    const QSet<QString> &todo() const { return m_todo; }
+    const QSet<Utils::FilePath> &todo() const { return m_todo; }
 
     void setGlobalSnapshot(const CPlusPlus::Snapshot &snapshot) { m_globalSnapshot = snapshot; }
 
@@ -94,7 +94,7 @@ private:
     WorkingCopy m_workingCopy;
     QSet<Utils::FilePath> m_included;
     CPlusPlus::Document::Ptr m_currentDoc;
-    QSet<QString> m_todo;
+    QSet<Utils::FilePath> m_todo;
     QSet<Utils::FilePath> m_processed;
     QHash<Utils::FilePath, Utils::FilePath> m_fileNameCache;
     int m_fileSizeLimitInMb = -1;

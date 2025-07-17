@@ -2673,6 +2673,11 @@ FilePath FilePaths::commonPath() const
     return result;
 }
 
+void FilePaths::sort()
+{
+    std::sort(begin(), end(), std::less<FilePath>());
+}
+
 QTextStream &operator<<(QTextStream &s, const FilePath &fn)
 {
     return s << fn.toUrlishString();

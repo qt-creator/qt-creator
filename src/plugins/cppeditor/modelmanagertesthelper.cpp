@@ -33,7 +33,6 @@ ModelManagerTestHelper::ModelManagerTestHelper(QObject *parent,
                                                bool testOnlyForCleanedProjects)
     : QObject(parent)
     , m_testOnlyForCleanedProjects(testOnlyForCleanedProjects)
-
 {
     CppModelManager *mm = CppModelManager::instance();
     connect(this, &ModelManagerTestHelper::aboutToRemoveProject,
@@ -98,7 +97,7 @@ QSet<FilePath> ModelManagerTestHelper::waitForRefreshedSourceFiles()
     while (!m_refreshHappened)
         QCoreApplication::processEvents();
 
-    return Utils::transform(m_lastRefreshedSourceFiles, &FilePath::fromString);
+    return m_lastRefreshedSourceFiles;
 }
 
 void ModelManagerTestHelper::waitForFinishedGc()
@@ -109,7 +108,7 @@ void ModelManagerTestHelper::waitForFinishedGc()
         QCoreApplication::processEvents();
 }
 
-void ModelManagerTestHelper::sourceFilesRefreshed(const QSet<QString> &files)
+void ModelManagerTestHelper::sourceFilesRefreshed(const QSet<FilePath> &files)
 {
     m_lastRefreshedSourceFiles = files;
     m_refreshHappened = true;

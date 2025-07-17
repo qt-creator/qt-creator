@@ -72,6 +72,7 @@ public:
     [[nodiscard]] QStringList toFsPathStrings() const;
     [[nodiscard]] QString toUserOutput(const QString &separator) const;
     [[nodiscard]] FilePath commonPath() const;
+    void sort();
 };
 
 // Needed with older gcc.
