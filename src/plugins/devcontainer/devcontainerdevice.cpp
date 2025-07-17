@@ -17,6 +17,8 @@
 
 #include <projectexplorer/kitaspect.h>
 
+#include <tasking/conditional.h>
+
 #include <QLoggingCategory>
 #include <QProgressDialog>
 
@@ -162,6 +164,7 @@ Result<> Device::up(
         QString libExecMountPoint = "/devcontainer/libexec";
         QString workspaceFolderMountPoint;
         bool runProcessesInTerminal = false;
+        bool autoDetectKits = true;
     };
 
     Storage<std::shared_ptr<Instance>> instance;
@@ -194,6 +197,9 @@ Result<> Device::up(
             options->runProcessesInTerminal
                 = DevContainer::customization(*config, "qt-creator/device/run-processes-in-terminal")
                       .toBool(false);
+
+            options->autoDetectKits
+                = DevContainer::customization(*config, "qt-creator/auto-detect-kits").toBool(true);
 
             instanceConfig.runProcessesInTerminal = options->runProcessesInTerminal;
 
@@ -303,24 +309,7 @@ Result<> Device::up(
         return DoneResult::Success;
     };
 
-    const auto setupKits = [instance] {
-        QJsonArray kits = customization((*instance)->config(), "qt-creator/kits").toArray();
-
-        for (const QJsonValue &kitValue : kits) {
-            if (!kitValue.isObject())
-                continue;
-
-            const QJsonObject kitObject = kitValue.toObject();
-        }
-
-        return DoneResult::Success;
-    };
-
-    const auto detectionTree = [this, progress, instance, instanceConfig](TaskTree &taskTree) {
-        taskTree.setRecipe(kitDetectionRecipe(shared_from_this(), instanceConfig.logFunction));
-        progress->addSource(taskTree);
-        return SetupResult::Continue;
-    };
+    const auto autoDetectKitsEnabled = [options] { return options->autoDetectKits; };
 
     // clang-format off
     Group recipe {
@@ -329,8 +318,9 @@ Result<> Device::up(
         TaskTreeTask(startDeviceTree, onDeviceStarted),
         Sync(setupProcessInterfaceCreator),
         Sync(setupCmdBridge),
-        Sync(setupKits),
-        TaskTreeTask(detectionTree)
+        If (autoDetectKitsEnabled) >> Then {
+            kitDetectionRecipe(shared_from_this(), instanceConfig.logFunction)
+        },
     };
     // clang-format on
 

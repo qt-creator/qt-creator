@@ -8,6 +8,7 @@
     "customizations": {
         "qt-creator": {
             "device": {
+                "auto-detect-kits": true
                 "run-processes-in-terminal": false,
                 "copy-cmd-bridge": false,
                 "mount-libexec": true,
@@ -20,6 +21,7 @@
 
 | Key | Type | Description |
 | --- | ---- | ----------- |
+| `auto-detect-kits` | boolean | If set to true, the devcontainer will try to automatically detect a kit in the devcontainer. |
 | `run-processes-in-terminal` | boolean | If set to true, some of the devcontainer setup processes will be run in a terminal window. Currently only used for `docker build`. |
 | `copy-cmd-bridge` | boolean | If set to true, the cmd bridge script will be copied into the devcontainer instead of trying to mount it. This is useful if the devcontainer is not able to mount the host filesystem. |
 | `mount-libexec` | boolean | If set to true, the libexec directory will be mounted into the devcontainer. This is used for the cmd bridge. |
