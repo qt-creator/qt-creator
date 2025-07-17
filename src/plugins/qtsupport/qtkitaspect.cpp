@@ -32,6 +32,7 @@
 #include <utils/qtcassert.h>
 
 #include <QHBoxLayout>
+#include <QJsonValue>
 
 using namespace ProjectExplorer;
 using namespace Utils;

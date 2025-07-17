@@ -11,9 +11,12 @@
 #include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
+#include <QElapsedTimer>
 #include <QObject>
-#include <QtConcurrent>
+#include <QRandomGenerator>
 #include <QTest>
+#include <QVersionNumber>
+#include <QtConcurrentMap>
 
 using namespace Utils;
 

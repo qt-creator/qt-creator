@@ -15,6 +15,7 @@
 #include <QMutexLocker>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QPointer>
 #include <QWaitCondition>
 
 namespace Utils {

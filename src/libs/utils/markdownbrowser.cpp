@@ -24,6 +24,7 @@
 #include <QClipboard>
 #include <QDesktopServices>
 #include <QGuiApplication>
+#include <QMimeData>
 #include <QPainter>
 #include <QScrollBar>
 #include <QTextBlock>
@@ -32,6 +33,7 @@
 #include <QTextDocumentFragment>
 #include <QTextDocumentWriter>
 #include <QTextObjectInterface>
+#include <QTimer>
 
 namespace Utils {
 

@@ -50,11 +50,12 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QHash>
+#include <QLibraryInfo>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QUrl>
 #include <QVersionNumber>
-#include <QtConcurrent>
+#include <QtConcurrentMap>
 
 #include <algorithm>
 #include <optional>

@@ -8,6 +8,8 @@
 
 #include <utils/async.h>
 
+#include <QCoreApplication>
+
 namespace TextEditor {
 
 AsyncProcessor::AsyncProcessor()

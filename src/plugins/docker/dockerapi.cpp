@@ -12,6 +12,9 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
+#include <QJsonDocument>
+#include <QJsonParseError>
+#include <QJsonValue>
 #include <QLoggingCategory>
 
 #include <thread>

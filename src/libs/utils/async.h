@@ -12,7 +12,7 @@
 #include <solutions/tasking/tasktree.h>
 
 #include <QFutureWatcher>
-#include <QtConcurrent>
+#include <QtConcurrentRun>
 
 namespace Utils {
 

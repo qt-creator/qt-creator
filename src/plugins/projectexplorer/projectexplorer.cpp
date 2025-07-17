@@ -153,6 +153,7 @@
 #include <QThreadPool>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QtConcurrentMap>
 
 #include <algorithm>
 #include <functional>

@@ -15,6 +15,8 @@
 #include <QJSEngine>
 #include <QPair>
 #include <QPointer>
+#include <QTimer>
+#include <QWaitCondition>
 
 #include <chrono>
 

@@ -45,6 +45,7 @@
 #include <QPushButton>
 #include <QTimer>
 #include <QTreeView>
+#include <QVersionNumber>
 #include <QWidget>
 
 using namespace Core;

@@ -19,7 +19,8 @@
 
 #include <QMessageBox>
 #include <QProgressDialog>
-#include <QtConcurrent>
+#include <QXmlStreamWriter>
+#include <QtConcurrentRun>
 
 using namespace Utils;
 

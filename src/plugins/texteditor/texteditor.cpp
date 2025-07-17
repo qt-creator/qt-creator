@@ -100,6 +100,7 @@
 #include <QScrollBar>
 #include <QSequentialAnimationGroup>
 #include <QShortcut>
+#include <QStack>
 #include <QStyle>
 #include <QStyleFactory>
 #include <QTextBlock>

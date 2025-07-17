@@ -22,7 +22,7 @@
 #include <QMenuBar>
 #include <QPointer>
 #include <QRegularExpression>
-#include <QtConcurrent>
+#include <QtConcurrentMap>
 #include <QTextDocument>
 
 using namespace Tasking;

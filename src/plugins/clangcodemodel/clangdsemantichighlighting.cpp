@@ -19,7 +19,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/textstyles.h>
 
-#include <QtConcurrent>
+#include <QtConcurrentMap>
 #include <QTextDocument>
 
 using namespace LanguageClient;

@@ -21,6 +21,7 @@
 #include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
 
+#include <QElapsedTimer>
 #include <QLoggingCategory>
 #include <QRegularExpression>
 

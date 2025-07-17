@@ -21,6 +21,7 @@
 #include <QMetaEnum>
 #include <QMutex>
 #include <QPromise>
+#include <QTimer>
 #include <QWaitCondition>
 #include <QXmlStreamReader>
 

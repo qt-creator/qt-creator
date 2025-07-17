@@ -40,10 +40,13 @@
 
 #include <QAction>
 #include <QInputDialog>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QMessageBox>
 #include <QNetworkAccessManager>
 #include <QNetworkCookieJar>
 #include <QNetworkReply>
+#include <QRandomGenerator>
 #include <QUrlQuery>
 
 #include <cmath>

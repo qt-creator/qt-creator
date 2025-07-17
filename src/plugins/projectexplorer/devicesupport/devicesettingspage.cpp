@@ -27,6 +27,7 @@
 #include <QComboBox>
 #include <QFormLayout>
 #include <QGroupBox>
+#include <QIdentityProxyModel>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>

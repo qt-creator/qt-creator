@@ -33,6 +33,7 @@
 #include <QReadWriteLock>
 #include <QStandardItem>
 #include <QString>
+#include <QVersionNumber>
 
 /*!
  * \class ProjectExplorer::IDevice::DeviceAction

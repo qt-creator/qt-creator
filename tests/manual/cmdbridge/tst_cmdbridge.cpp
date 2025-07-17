@@ -12,8 +12,8 @@
 #include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
+#include <QElapsedTimer>
 #include <QObject>
-#include <QtConcurrent>
 #include <QTest>
 
 using namespace Utils;

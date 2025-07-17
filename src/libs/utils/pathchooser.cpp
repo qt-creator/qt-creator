@@ -21,6 +21,7 @@
 #include <QHBoxLayout>
 #include <QHelpEvent>
 #include <QMenu>
+#include <QPointer>
 #include <QPushButton>
 #include <QStandardPaths>
 

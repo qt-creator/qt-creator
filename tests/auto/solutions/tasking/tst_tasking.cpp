@@ -12,6 +12,7 @@
 #include <QHash>
 #include <QSignalSpy>
 #include <QTest>
+#include <QTimer>
 
 using namespace Tasking;
 

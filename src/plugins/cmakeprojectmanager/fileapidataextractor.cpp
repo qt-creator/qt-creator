@@ -23,7 +23,7 @@
 #include <utils/qtcassert.h>
 
 #include <QLoggingCategory>
-#include <QtConcurrent>
+#include <QtConcurrentMap>
 
 using namespace ProjectExplorer;
 using namespace Utils;

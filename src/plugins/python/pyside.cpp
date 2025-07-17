@@ -33,6 +33,7 @@
 #include <QDialogButtonBox>
 #include <QPointer>
 #include <QRegularExpression>
+#include <QTextCursor>
 #include <QVersionNumber>
 
 using namespace ProjectExplorer;

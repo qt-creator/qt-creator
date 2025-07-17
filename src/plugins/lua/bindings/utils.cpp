@@ -17,7 +17,9 @@
 #include <utils/infobar.h>
 #include <utils/processinterface.h>
 
+#include <QCoreApplication>
 #include <QDesktopServices>
+#include <QStandardPaths>
 #include <QTimer>
 #include <QUuid>
 

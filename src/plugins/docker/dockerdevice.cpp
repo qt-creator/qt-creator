@@ -68,6 +68,7 @@
 #include <QRegularExpression>
 #include <QStandardItem>
 #include <QTextBrowser>
+#include <QTimer>
 #include <QThread>
 #include <QToolButton>
 

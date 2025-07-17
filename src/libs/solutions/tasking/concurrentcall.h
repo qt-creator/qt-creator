@@ -7,7 +7,9 @@
 
 #include "tasktree.h"
 
-#include <QtConcurrent/QtConcurrent>
+#include <QtConcurrent/QtConcurrentRun>
+#include <QtCore/QFuture>
+#include <QtCore/QFutureWatcher>
 
 QT_BEGIN_NAMESPACE
 

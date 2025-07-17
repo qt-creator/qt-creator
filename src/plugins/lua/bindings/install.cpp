@@ -26,7 +26,6 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QTemporaryFile>
-#include <QtConcurrent>
 
 using namespace Core;
 using namespace Tasking;

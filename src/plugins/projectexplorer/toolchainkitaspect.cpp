@@ -21,6 +21,8 @@
 
 #include <QComboBox>
 #include <QGridLayout>
+#include <QJsonValue>
+#include <QJsonObject>
 
 using namespace Utils;
 
