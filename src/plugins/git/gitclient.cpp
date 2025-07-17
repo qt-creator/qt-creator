@@ -1560,11 +1560,10 @@ bool GitClient::synchronousDelete(const FilePath &workingDirectory,
             == ProcessResult::FinishedWithSuccess;
 }
 
-bool GitClient::synchronousMove(const FilePath &workingDirectory,
-                                const QString &from,
-                                const QString &to)
+bool GitClient::synchronousMove(
+    const FilePath &workingDirectory, const FilePath &from, const FilePath &to)
 {
-    return vcsSynchronousExec(workingDirectory, {"mv", from, to}).result()
+    return vcsSynchronousExec(workingDirectory, {"mv", from.path(), to.path()}).result()
             == ProcessResult::FinishedWithSuccess;
 }
 

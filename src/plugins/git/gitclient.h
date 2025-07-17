@@ -196,8 +196,8 @@ public:
                            bool force,
                            const QStringList &files);
     bool synchronousMove(const Utils::FilePath &workingDirectory,
-                         const QString &from,
-                         const QString &to);
+                         const Utils::FilePath &from,
+                         const Utils::FilePath &to);
     bool synchronousReset(const Utils::FilePath &workingDirectory, const QStringList &files = {},
                           QString *errorMessage = nullptr);
     bool synchronousCleanList(const Utils::FilePath &workingDirectory, const QString &modulePath,
