@@ -184,7 +184,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     connect(hub, &TaskHub::taskAdded, this, &TaskWindow::addTask);
     connect(hub, &TaskHub::taskRemoved, this, &TaskWindow::removeTask);
     connect(hub, &TaskHub::taskLineNumberUpdated, this, &TaskWindow::updatedTaskLineNumber);
-    connect(hub, &TaskHub::taskFileNameUpdated, this, &TaskWindow::updatedTaskFileName);
+    connect(hub, &TaskHub::taskFilePathUpdated, this, &TaskWindow::updatedTaskFilePath);
     connect(hub, &TaskHub::tasksCleared, this, &TaskWindow::clearTasks);
     connect(hub, &TaskHub::categoryVisibilityChanged, this, &TaskWindow::setCategoryVisibility);
     connect(hub, &TaskHub::popupRequested, this, &TaskWindow::popup, Qt::QueuedConnection);
@@ -334,9 +334,9 @@ void TaskWindow::removeTask(const Task &task)
     navigateStateChanged();
 }
 
-void TaskWindow::updatedTaskFileName(const Task &task, const QString &fileName)
+void TaskWindow::updatedTaskFilePath(const Task &task, const FilePath &filePath)
 {
-    d->m_model->updateTaskFileName(task, fileName);
+    d->m_model->updateTaskFilePath(task, filePath);
     emit tasksChanged();
 }
 
@@ -383,7 +383,7 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
         const FilePath userChoice = Utils::chooseFileFromList(task.fileCandidates());
         if (!userChoice.isEmpty()) {
             task.setFile(userChoice);
-            updatedTaskFileName(task, task.file().toUrlishString());
+            updatedTaskFilePath(task, task.file());
         }
     }
 

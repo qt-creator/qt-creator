@@ -39,7 +39,7 @@ public:
     void addTask(Task t);
     void removeTask(unsigned int id);
     void clearTasks(Utils::Id categoryId = Utils::Id());
-    void updateTaskFileName(const Task &task, const QString &fileName);
+    void updateTaskFilePath(const Task &task, const Utils::FilePath &filePath);
     void updateTaskLineNumber(const Task &task, int line);
 
     int sizeOfFile(const QFont &font);

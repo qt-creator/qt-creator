@@ -15,7 +15,6 @@
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
-#include <QFileInfo>
 #include <QGuiApplication>
 #include <QTextStream>
 
@@ -62,10 +61,10 @@ public:
         TaskHub::taskMarkClicked(m_task);
     }
 
-    void updateFilePath(const FilePath &fileName) override
+    void updateFilePath(const FilePath &filePath) override
     {
-        TaskHub::updateTaskFileName(m_task, fileName.toUrlishString());
-        TextMark::updateFilePath(FilePath::fromString(fileName.toUrlishString()));
+        TaskHub::updateTaskFilePath(m_task, filePath);
+        TextMark::updateFilePath(filePath);
     }
 
     void updateLineNumber(int lineNumber) override

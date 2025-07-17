@@ -3,23 +3,21 @@
 
 #include "taskmodel.h"
 
-#include "fileinsessionfinder.h"
 #include "task.h"
 #include "taskhub.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
 #include <QFontMetrics>
 
 #include <algorithm>
 #include <functional>
 
 using namespace std::placeholders;
+using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 /////
 // TaskModel
@@ -126,12 +124,12 @@ int TaskModel::rowForTask(const Task &task)
     return it - m_tasks.constBegin();
 }
 
-void TaskModel::updateTaskFileName(const Task &task, const QString &fileName)
+void TaskModel::updateTaskFilePath(const Task &task, const FilePath &filePath)
 {
     int i = rowForTask(task);
     QTC_ASSERT(i != -1, return);
     if (m_tasks.at(i).id() == task.id()) {
-        m_tasks[i].setFile(Utils::FilePath::fromString(fileName));
+        m_tasks[i].setFile(filePath);
         const QModelIndex itemIndex = index(i, 0);
         emit dataChanged(itemIndex, itemIndex);
     }
@@ -431,5 +429,4 @@ bool TaskFilterModel::filterAcceptsTask(const Task &task) const
     return accept;
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

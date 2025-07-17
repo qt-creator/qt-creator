@@ -4,6 +4,7 @@
 #include "taskhub.h"
 
 #include <coreplugin/ioutputpane.h>
+
 #include <utils/qtcassert.h>
 #include <utils/threadutils.h>
 
@@ -75,9 +76,9 @@ void TaskHub::removeTask(const Task &task)
     emit taskHub().taskRemoved(task);
 }
 
-void TaskHub::updateTaskFileName(const Task &task, const QString &fileName)
+void TaskHub::updateTaskFilePath(const Task &task, const FilePath &filePath)
 {
-    emit taskHub().taskFileNameUpdated(task, fileName);
+    emit taskHub().taskFilePathUpdated(task, filePath);
 }
 
 void TaskHub::updateTaskLineNumber(const Task &task, int line)

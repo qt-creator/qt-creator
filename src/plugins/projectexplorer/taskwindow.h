@@ -7,6 +7,8 @@
 
 #include <memory>
 
+namespace Utils { class FilePath; }
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QModelIndex;
@@ -62,7 +64,7 @@ private:
     void addCategory(const TaskCategory &category);
     void addTask(const ProjectExplorer::Task &task);
     void removeTask(const ProjectExplorer::Task &task);
-    void updatedTaskFileName(const Task &task, const QString &fileName);
+    void updatedTaskFilePath(const Task &task, const Utils::FilePath &fileName);
     void updatedTaskLineNumber(const Task &task, int line);
     void showTask(const Task &task);
     void openTask(const Task &task);

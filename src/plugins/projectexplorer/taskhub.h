@@ -40,7 +40,7 @@ public:
     static void removeTask(const ProjectExplorer::Task &task);
 
     static void addCategory(const TaskCategory &category);
-    static void updateTaskFileName(const Task &task, const QString &fileName);
+    static void updateTaskFilePath(const Task &task, const Utils::FilePath &filePath);
     static void updateTaskLineNumber(const Task &task, int line);
     static void taskMarkClicked(const Task &task);
     static void showTaskInEditor(const Task &task);
@@ -53,7 +53,7 @@ signals:
     void taskAdded(const ProjectExplorer::Task &task);
     void taskRemoved(const ProjectExplorer::Task &task);
     void tasksCleared(Utils::Id categoryId);
-    void taskFileNameUpdated(const Task &task, const QString &fileName);
+    void taskFilePathUpdated(const Task &task, const Utils::FilePath &filePath);
     void taskLineNumberUpdated(const Task &task, int line);
     void categoryVisibilityChanged(Utils::Id categoryId, bool visible);
     void popupRequested(int);
