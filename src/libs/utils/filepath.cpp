@@ -956,15 +956,18 @@ static bool startsWithWindowsDriveLetter(QStringView path)
     return path.size() == 2 && path[1] == ':' && isWindowsDriveLetter(path[0]);
 }
 
-static bool isRelativePathHelper(QStringView path)
+// This is a compromise across platforms. It will mis-classify "C:/..." as absolute
+// paths on non-Windows, and QRC paths ":abc..." (wrongly) as non-absolute.
+
+static bool isAbsolutePathHelper(QStringView path)
 {
     if (path.startsWith('/'))
-        return false;
+        return true;
     if (startsWithWindowsDriveLetterAndSlash(path))
-        return false;
+        return true;
     if (path.startsWith(u":/")) // QRC
-        return false;
-    return true;
+        return true;
+    return false;
 }
 
 int FilePath::rootLength(const QStringView path)
@@ -2514,11 +2517,35 @@ QString FilePath::shortNativePath() const
 /*!
     \brief Checks whether the path is relative.
 
-    Returns true if the path is relative.
+    Returns true if the path starts neither with a slash, nor with a letter
+    and a colon, nor with a colon and a slash.
+
+    \note This is independent of the platform on which \QC currently runs,
+    so this does not necessarily match the platform's definition of
+    a relative path. Use with care, and try to avoid.
+
+    \sa isAbsolutePath()
 */
 bool FilePath::isRelativePath() const
 {
-    return isRelativePathHelper(pathView());
+    return !isAbsolutePath();
+}
+
+/*!
+    \brief Checks whether the path is absolute.
+
+    Returns true if the path starts with a slash, or with a letter and a colon,
+    or with a colon and a slash.
+
+    \note This is independent of the platform on which \QC currently runs,
+    so this does not necessarily match the platform's definition of
+    an absolute path. Use with care, and try to avoid.
+
+    \sa isRelativePath().
+*/
+bool FilePath::isAbsolutePath() const
+{
+    return isAbsolutePathHelper(pathView());
 }
 
 /*!
@@ -2544,9 +2571,9 @@ FilePath FilePath::resolvePath(const QString &tail) const
 {
     if (tail.isEmpty())
         return *this;
-    if (isRelativePathHelper(tail))
-        return pathAppended(tail).cleanPath();
-    return withNewPath(tail);
+    if (isAbsolutePathHelper(tail))
+        return withNewPath(tail);
+    return pathAppended(tail).cleanPath();
 }
 
 Result<FilePath> FilePath::localSource() const

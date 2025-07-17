@@ -186,7 +186,7 @@ public:
     bool isReadableFile() const;
     bool isReadableDir() const;
     bool isRelativePath() const;
-    bool isAbsolutePath() const { return !isRelativePath(); }
+    bool isAbsolutePath() const;
     bool isFile() const;
     bool isDir() const;
     bool isSymLink() const;
