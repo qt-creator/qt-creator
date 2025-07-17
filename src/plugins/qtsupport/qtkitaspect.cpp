@@ -150,6 +150,13 @@ private:
 
     void listAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
+
+    Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
+        const QString &detectionSource,
+        const FilePath &rootPath,
+        Kit *kit,
+        const QJsonValue &json,
+        const LogCallback &logCallback) const override;
 };
 
 const QtKitAspectFactory theQtKitAspectFactory;
@@ -513,6 +520,69 @@ void QtKitAspectFactory::listAutoDetected(
         if (qt->detectionSource() == detectionSource)
             logCallback(Tr::tr("Qt: %1").arg(qt->displayName()));
     }
+}
+
+Utils::Result<Tasking::ExecutableItem> QtKitAspectFactory::createAspectFromJson(
+    const QString &detectionSource,
+    const FilePath &rootPath,
+    Kit *kit,
+    const QJsonValue &json,
+    const LogCallback &logCallback) const
+{
+    using ResultType = Result<QtVersion *>;
+
+    if (!json.isString())
+        return ResultError(Tr::tr("Expected String, got: %1").arg(json.toString()));
+
+    const QString qmakePath = json.toString();
+
+    if (qmakePath.isEmpty())
+        return ResultError(Tr::tr("Expected non-empty qmake path."));
+
+    const auto setup =
+        [qmakePath, rootPath, detectionSource, logCallback](Async<ResultType> &async) {
+            async.setConcurrentCallData(
+                [](QPromise<ResultType> &promise,
+                   const QString &qmakePath,
+                   const QString &detectionSource,
+                   const FilePath &rootPath) {
+                    QString error;
+                    QtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(
+                        rootPath.withNewPath(qmakePath), true, detectionSource, &error);
+
+                    if (!qtVersion) {
+                        promise.addResult(ResultError(
+                            Tr::tr("Failed to create Qt version from qmake path '%1': %2")
+                                .arg(qmakePath, error)));
+                        return;
+                    }
+
+                    promise.addResult(qtVersion);
+                },
+                qmakePath,
+                detectionSource,
+                rootPath);
+        };
+
+    const auto onDone = [logCallback, kit, json](const Async<ResultType> &async) {
+        const ResultType result = async.result();
+        if (!result) {
+            logCallback(result.error());
+            return;
+        }
+
+        QtVersion *qtVersion = result.value();
+        if (!qtVersion->isValid()) {
+            logCallback(Tr::tr("Qt version '%1' is not valid.").arg(qtVersion->displayName()));
+            return;
+        }
+
+        logCallback(Tr::tr("Adding Qt version: %1").arg(qtVersion->displayName()));
+        QtVersionManager::addVersion(qtVersion);
+        QtKitAspect::setQtVersion(kit, qtVersion);
+    };
+
+    return AsyncTask<ResultType>(setup, onDone);
 }
 
 Kit::Predicate QtKitAspect::platformPredicate(Id platform)

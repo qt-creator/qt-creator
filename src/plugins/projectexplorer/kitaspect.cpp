@@ -430,24 +430,41 @@ void KitAspectFactory::listAutoDetected(
     Q_UNUSED(logCallback)
 }
 
+Result<Tasking::ExecutableItem> KitAspectFactory::createAspectFromJson(
+    const QString &detectionSource,
+    const FilePath &rootPath,
+    Kit *kit,
+    const QJsonValue &json,
+    const LogCallback &logCallback) const
+{
+    Q_UNUSED(detectionSource);
+    Q_UNUSED(kit);
+    Q_UNUSED(json);
+    Q_UNUSED(logCallback);
+    Q_UNUSED(rootPath);
+    return ResultError(
+        Tr::tr("Kit aspect factory '%1' does not support creating aspects from JSON.")
+            .arg(id().toString()));
+}
+
 Tasking::Group kitDetectionRecipe(const IDeviceConstPtr &device, const LogCallback &logCallback)
 {
     using namespace Tasking;
     using namespace Utils;
 
-    const auto root = device->rootPath();
-
-    const FilePaths searchPaths
-        = Utils::transform(device->systemEnvironment().path(), [&root](const FilePath &path) {
-              return root.withNewPath(path.path());
-          });
-
-    const QString detectionSource = device->id().toString();
-
     Storage<GroupItems> detectorItems;
     Storage<Kit *> kit;
 
-    const auto setup = [kit, detectorItems, searchPaths, detectionSource, device, logCallback] {
+    const auto setup = [kit, detectorItems, device, logCallback] {
+        const auto root = device->rootPath();
+
+        const FilePaths searchPaths
+            = Utils::transform(device->systemEnvironment().path(), [&root](const FilePath &path) {
+                  return root.withNewPath(path.path());
+              });
+
+        const QString detectionSource = device->id().toString();
+
         logCallback(Tr::tr("Auto detecting Kits for device: %1").arg(device->displayName()));
 
         *kit = KitManager::registerKit([detectionSource, device](Kit *k) {

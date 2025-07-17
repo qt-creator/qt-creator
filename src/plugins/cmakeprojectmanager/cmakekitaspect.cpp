@@ -133,6 +133,13 @@ public:
 
     void listAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
+
+    Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
+        const QString &detectionSource,
+        const FilePath &rootPath,
+        Kit *kit,
+        const QJsonValue &json,
+        const LogCallback &logCallback) const override;
 };
 
 class CMakeGeneratorKitAspectFactory : public KitAspectFactory
@@ -388,6 +395,84 @@ void CMakeKitAspectFactory::listAutoDetected(
         if (tool->isAutoDetected() && tool->detectionSource() == detectionSource)
             logCallback(Tr::tr("CMake tool: %1").arg(tool->displayName()));
     }
+}
+
+Utils::Result<Tasking::ExecutableItem> CMakeKitAspectFactory::createAspectFromJson(
+    const QString &detectionSource,
+    const Utils::FilePath &rootPath,
+    Kit *kit,
+    const QJsonValue &json,
+    const LogCallback &logCallback) const
+{
+    using ResultType = Result<std::unique_ptr<CMakeTool>>;
+
+    const auto setup = [json, rootPath, detectionSource, logCallback](Async<ResultType> &async) {
+        async.setConcurrentCallData(
+            [](QPromise<ResultType> &promise,
+               const QJsonValue &json,
+               const QString &detectionSource,
+               const Utils::FilePath &rootPath) {
+                ResultType result;
+
+                if (!json.isObject()) {
+                    promise.addResult(
+                        ResultError(Tr::tr("Expected JSON Object, got: %1").arg(json.toString())));
+                    return;
+                }
+
+                const QJsonObject obj = json.toObject();
+                const QJsonValue binaryValue = obj.value("binary");
+                if (!binaryValue.isString()) {
+                    promise.addResult(ResultError(
+                        Tr::tr("Expected JSON Object with key 'binary' to be a string")));
+                    return;
+                }
+                const FilePath cmakeExecutable = rootPath.withNewPath(binaryValue.toString());
+                if (!cmakeExecutable.isExecutableFile()) {
+                    promise.addResult(ResultError(
+                        Tr::tr("CMake executable '%1' is not valid")
+                            .arg(cmakeExecutable.toUserOutput())));
+                    return;
+                }
+
+                Id id = Id::fromString(cmakeExecutable.toUserOutput());
+
+                auto newTool = std::make_unique<CMakeTool>(CMakeTool::ManualDetection, id);
+                newTool->setFilePath(cmakeExecutable);
+                newTool->setAutoDetected(true);
+                newTool->setDetectionSource(detectionSource);
+                newTool->setDisplayName(cmakeExecutable.toUserOutput());
+                id = newTool->id();
+
+                if (newTool->isValid())
+                    promise.addResult(std::move(newTool));
+                else
+                    promise.addResult(ResultError(
+                        Tr::tr("CMake tool '%1' is not valid").arg(cmakeExecutable.toUserOutput())));
+            },
+            json,
+            detectionSource,
+            rootPath);
+    };
+
+    const auto onDone = [logCallback, kit, json](const Async<ResultType> &async) {
+        ResultType tool = async.takeResult();
+        if (!tool) {
+            logCallback(Tr::tr("Failed to create CMake tool from JSON: %1").arg(tool.error()));
+            return;
+        }
+        const QJsonObject obj = json.toObject();
+        const Id id = (*tool)->id();
+
+        CMakeToolManager::registerCMakeTool(std::move(*tool));
+        logCallback(Tr::tr("Found CMake tool: %1").arg(id.toString()));
+        CMakeKitAspect::setCMakeTool(kit, id);
+
+        if (obj.contains("generator"))
+            CMakeGeneratorKitAspect::setGenerator(kit, obj.value("generator").toString());
+    };
+
+    return AsyncTask<ResultType>(setup, onDone);
 }
 
 QString CMakeKitAspect::msgUnsupportedVersion(const QByteArray &versionString)

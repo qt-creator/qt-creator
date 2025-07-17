@@ -144,6 +144,13 @@ public:
     virtual void listAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const;
 
+    virtual Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
+        const QString &detectionSource,
+        const Utils::FilePath &rootPath,
+        Kit *kit,
+        const QJsonValue &json,
+        const LogCallback &logCallback) const;
+
 protected:
     KitAspectFactory();
     ~KitAspectFactory();

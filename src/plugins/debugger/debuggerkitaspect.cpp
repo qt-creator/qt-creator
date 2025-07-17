@@ -437,6 +437,17 @@ public:
                 logCallback(Tr::tr("Debugger: \"%1\"").arg(debugger.displayName()));
         }
     }
+
+    Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
+        const QString &detectionSource,
+        const Utils::FilePath &rootPath,
+        Kit *kit,
+        const QJsonValue &json,
+        const LogCallback &logCallback) const override
+    {
+        return Internal::createAspectFromJson(
+            detectionSource, rootPath, kit, json, logCallback);
+    }
 };
 
 const DebuggerKitAspectFactory debuggerKitAspectFactory;

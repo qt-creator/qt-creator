@@ -15,7 +15,13 @@
 
 #include <devcontainer/devcontainerconfig.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kitaspect.h>
+#include <projectexplorer/kitmanager.h>
+
+#include <tasking/conditional.h>
+
+#include <utils/algorithm.h>
 
 #include <tasking/conditional.h>
 
@@ -25,6 +31,7 @@
 Q_LOGGING_CATEGORY(devContainerDeviceLog, "qtc.devcontainer.device", QtWarningMsg)
 
 using namespace Utils;
+using namespace ProjectExplorer;
 
 namespace DevContainer {
 
@@ -40,7 +47,7 @@ Device::Device()
 
 Device::~Device() {} // Necessary for forward declared unique_ptr
 
-ProjectExplorer::IDeviceWidget *Device::createWidget()
+IDeviceWidget *Device::createWidget()
 {
     return nullptr;
 }
@@ -169,6 +176,7 @@ Result<> Device::up(
 
     Storage<std::shared_ptr<Instance>> instance;
     Storage<Options> options;
+
     auto runningInstance = std::make_shared<DevContainer::RunningInstanceData>();
 
     const auto loadConfig = [&path, &instanceConfig, instance, options, this]() -> DoneResult {
@@ -309,6 +317,64 @@ Result<> Device::up(
         return DoneResult::Success;
     };
 
+    const auto setupManualKits = [this, instance, instanceConfig](TaskTree &tree) {
+        QJsonArray kits = customization((*instance)->config(), "qt-creator/kits").toArray();
+
+        GroupItems steps;
+
+        for (const QJsonValue &kitValue : kits) {
+            if (!kitValue.isObject())
+                continue;
+
+            const QJsonObject kitObject = kitValue.toObject();
+
+            Kit *kit = KitManager::registerKit([this](Kit *kit) {
+                kit->setAutoDetected(true);
+                kit->setAutoDetectionSource(id().toString());
+                kit->setUnexpandedDisplayName("%{Device:Name}");
+
+                RunDeviceTypeKitAspect::setDeviceTypeId(kit, type());
+                RunDeviceKitAspect::setDevice(kit, shared_from_this());
+                BuildDeviceTypeKitAspect::setDeviceTypeId(kit, type());
+                BuildDeviceKitAspect::setDevice(kit, shared_from_this());
+
+                kit->setSticky(BuildDeviceKitAspect::id(), true);
+                kit->setSticky(BuildDeviceTypeKitAspect::id(), true);
+            });
+
+            for (auto it = kitObject.constBegin(); it != kitObject.constEnd(); ++it) {
+                if (it.key() == "name") {
+                    kit->setUnexpandedDisplayName(it.value().toString("%{Device:Name}"));
+                    continue;
+                }
+
+                const auto factory = Utils::findOrDefault(
+                    KitAspectFactory::kitAspectFactories(),
+                    Utils::equal(&KitAspectFactory::id, Utils::Id::fromString(it.key())));
+
+                if (!factory) {
+                    instanceConfig.logFunction(
+                        Tr::tr("Unknown kit aspect factory: %1").arg(it.key()));
+                    continue;
+                }
+
+                auto executableItem = factory->createAspectFromJson(
+                    id().toString(), rootPath(), kit, it.value(), instanceConfig.logFunction);
+                if (!executableItem) {
+                    instanceConfig.logFunction(
+                        Tr::tr("Failed to create kit aspect %1: %2")
+                            .arg(it.key())
+                            .arg(executableItem.error()));
+                    continue;
+                }
+
+                steps.append(*executableItem);
+            }
+        }
+
+        tree.setRecipe(steps);
+    };
+
     const auto autoDetectKitsEnabled = [options] { return options->autoDetectKits; };
 
     // clang-format off
@@ -318,6 +384,7 @@ Result<> Device::up(
         TaskTreeTask(startDeviceTree, onDeviceStarted),
         Sync(setupProcessInterfaceCreator),
         Sync(setupCmdBridge),
+        TaskTreeTask(setupManualKits),
         If (autoDetectKitsEnabled) >> Then {
             kitDetectionRecipe(shared_from_this(), instanceConfig.logFunction)
         },
@@ -407,7 +474,7 @@ Result<FilePath> Device::localSource(const FilePath &other) const
     const FilePath workspaceFolderMountPoint = fileAccess->workspaceFolderMountPoint();
     const FilePath workspaceFolder = fileAccess->workspaceFolder();
 
-    if (other.path().startsWith(workspaceFolderMountPoint.path()))
+    if (other.startsWith(workspaceFolderMountPoint.path()))
         return workspaceFolder / other.path().mid(workspaceFolderMountPoint.path().length());
 
     return ResultError(

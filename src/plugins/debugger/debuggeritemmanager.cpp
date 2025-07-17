@@ -1022,6 +1022,46 @@ Tasking::ExecutableItem removeAutoDetected(
     });
 }
 
+Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
+    const QString &detectionSource,
+    const Utils::FilePath &rootPath,
+    ProjectExplorer::Kit *kit,
+    const QJsonValue &json,
+    const ProjectExplorer::LogCallback &logCallback)
+{
+    if (!json.isString())
+        return ResultError(Tr::tr("Invalid JSON value for debugger: %1").arg(json.toString()));
+
+    const FilePath command = rootPath.withNewPath(json.toString());
+
+    if (command.isEmpty())
+        return ResultError(Tr::tr("Empty command for debugger"));
+
+    const auto setup = [command, detectionSource, logCallback](Async<Result<DebuggerItem>> &async) {
+        async.setConcurrentCallData(
+            [](QPromise<Result<DebuggerItem>> &promise,
+               const FilePath &command,
+               const QString &detectionSource) {
+                promise.addResult(makeAutoDetectedDebuggerItem(command, detectionSource));
+            },
+            command,
+            detectionSource);
+    };
+
+    const auto registerDebugger = [kit, logCallback](const Async<Result<DebuggerItem>> &async) {
+        Result<DebuggerItem> item = async.result();
+        if (!item) {
+            logCallback(Tr::tr("Failed to create debugger from JSON: %1").arg(item.error()));
+            return;
+        }
+
+        DebuggerItemManager::registerDebugger(*item);
+        DebuggerKitAspect::setDebugger(kit, item->id());
+    };
+
+    return AsyncTask<Result<DebuggerItem>>(setup, registerDebugger);
+}
+
 } // namespace Internal
 
 // --------------------------------------------------------------------------

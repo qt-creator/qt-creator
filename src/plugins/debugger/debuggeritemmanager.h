@@ -66,5 +66,12 @@ Tasking::ExecutableItem autoDetectDebuggerRecipe(
 Tasking::ExecutableItem removeAutoDetected(
     const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
 
+Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
+    const QString &detectionSource,
+    const Utils::FilePath &rootPath,
+    ProjectExplorer::Kit *kit,
+    const QJsonValue &json,
+    const ProjectExplorer::LogCallback &logCallback);
+
 } // Internal
 } // Debugger

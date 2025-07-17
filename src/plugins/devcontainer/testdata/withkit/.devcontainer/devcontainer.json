@@ -8,9 +8,20 @@
     },
     "customizations": {
         "qt-creator": {
+            "auto-detect-kits": false,
             "kits": [
                 {
-                    "name": "DevContainer Kit"
+                    "name": "My DevContainer Kit",
+                    "QtSupport.QtInformation": "/6.7.0/gcc_64/bin/qmake6",
+                    "PE.Profile.ToolChainsV3": {
+                        "Cxx": "/usr/bin/c++",
+                        "C": "/usr/bin/gcc"
+                    },
+                    "CMakeProjectManager.CMakeKitInformation": {
+                        "binary": "/usr/bin/cmake",
+                        "generator": "Unix Makefiles"
+                    },
+                    "Debugger.Information": "/usr/bin/lldb"
                 }
             ]
         }

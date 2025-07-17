@@ -172,6 +172,13 @@ private:
 
     void listAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
+
+    Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
+        const QString &detectionSource,
+        const Utils::FilePath &rootPath,
+        Kit *kit,
+        const QJsonValue &json,
+        const LogCallback &logCallback) const override;
 };
 
 ToolchainKitAspectFactory::ToolchainKitAspectFactory()
@@ -508,6 +515,79 @@ void ToolchainKitAspectFactory::listAutoDetected(
         if (tc->detectionSource().isAutoDetected() && tc->detectionSource().id == detectionSource)
             logCallback(Tr::tr("Toolchain: %1").arg(tc->displayName()));
     }
+}
+
+Result<Tasking::ExecutableItem> ToolchainKitAspectFactory::createAspectFromJson(
+    const QString &detectionSource,
+    const Utils::FilePath &rootPath,
+    Kit *kit,
+    const QJsonValue &json,
+    const LogCallback &logCallback) const
+{
+    Q_UNUSED(logCallback);
+
+    if (!json.isObject()) {
+        return ResultError(
+            Tr::tr("Expected a JSON object for toolchain detection, got: %1").arg(json.type()));
+    }
+
+    QJsonObject jsonObject = json.toObject();
+    if (jsonObject.isEmpty()) {
+        return ResultError(Tr::tr("No toolchains found in JSON object for detection."));
+    }
+
+    QList<QPair<Utils::Id, Utils::FilePath>> toolchains;
+    for (auto it = jsonObject.constBegin(); it != jsonObject.constEnd(); ++it) {
+        const Id language = findLanguage(it.key());
+        if (!language.isValid())
+            return ResultError(Tr::tr("Unknown language in toolchain detection: %1").arg(it.key()));
+
+        const FilePath path = rootPath.withNewPath(it.value().toString());
+        toolchains.append(qMakePair(language, path));
+    }
+
+    const auto detect = [](QPromise<Toolchains> &promise,
+                           const QList<ToolchainDescription> &tcds,
+                           const QString &detectionSource) {
+        Toolchains result;
+        for (const ToolchainDescription &tcd : tcds) {
+            for (ToolchainFactory *factory : ToolchainFactory::allToolchainFactories()) {
+                const Toolchains detected = factory->detectForImport(tcd);
+                for (Toolchain *detected : detected) {
+                    if (detected->isValid())
+                        detected->setDetectionSource({DetectionSource::FromSystem, detectionSource});
+                }
+                result.append(detected);
+            }
+        }
+        promise.addResult(result);
+    };
+
+    const auto setup = [toolchains, detectionSource, detect](Async<Toolchains> &async) {
+        QList<ToolchainDescription> toolchainDescriptions;
+
+        for (const auto &toolchain : toolchains) {
+            ToolchainDescription tcd;
+            tcd.compilerPath = toolchain.second;
+            tcd.language = toolchain.first;
+            toolchainDescriptions.append(tcd);
+        }
+
+        async.setConcurrentCallData(detect, toolchainDescriptions, detectionSource);
+    };
+
+    const auto bundle = [kit](const Async<Toolchains> &async) {
+        const Toolchains allDetected = async.result();
+        ToolchainManager::registerToolchains(allDetected);
+
+        const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
+            allDetected, ToolchainBundle::HandleMissing::CreateAndRegister);
+
+        if (!bundles.isEmpty())
+            ToolchainKitAspect::setBundle(kit, bundles.first());
+    };
+
+    return AsyncTask<Toolchains>(setup, bundle);
 }
 
 const ToolchainKitAspectFactory thsToolChainKitAspectFactory;
