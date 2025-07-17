@@ -3955,13 +3955,12 @@ void ProjectExplorerPluginPrivate::duplicateFile()
 
     ProjectTree::CurrentNodeKeeper nodeKeeper;
 
-    FileNode *fileNode = currentNode->asFileNode();
-    QString filePath = currentNode->filePath().toUrlishString();
-    QFileInfo sourceFileInfo(filePath);
-    QString baseName = sourceFileInfo.baseName();
+    const FileNode *fileNode = currentNode->asFileNode();
+    const FilePath filePath = currentNode->filePath();
+    const QString baseName = filePath.baseName();
 
-    QString newFileName = sourceFileInfo.fileName();
-    int copyTokenIndex = newFileName.lastIndexOf(baseName)+baseName.length();
+    QString newFileName = filePath.fileName();
+    int copyTokenIndex = newFileName.lastIndexOf(baseName) + baseName.length();
     newFileName.insert(copyTokenIndex, Tr::tr("_copy"));
 
     bool okPressed;
@@ -3972,24 +3971,23 @@ void ProjectExplorerPluginPrivate::duplicateFile()
     if (!ProjectTree::hasNode(currentNode))
         return;
 
-    const QString newFilePath = sourceFileInfo.path() + '/' + newFileName;
+    const FilePath newFilePath = filePath.parentDir() / newFileName;
     FolderNode *folderNode = fileNode->parentFolderNode();
     QTC_ASSERT(folderNode, return);
-    QFile sourceFile(filePath);
-    if (!sourceFile.copy(newFilePath)) {
+    const Result<> res = filePath.copyFile(newFilePath);
+    if (!res) {
         QMessageBox::critical(ICore::dialogParent(), Tr::tr("Duplicating File Failed"),
                              Tr::tr("Failed to copy file \"%1\" to \"%2\": %3.")
-                             .arg(QDir::toNativeSeparators(filePath),
-                                  QDir::toNativeSeparators(newFilePath), sourceFile.errorString()));
+                         .arg(filePath.toUserOutput(), newFilePath.toUserOutput(), res.error()));
         return;
     }
     Core::FileUtils::updateHeaderFileGuardIfApplicable(currentNode->filePath(),
-                                                       FilePath::fromString(newFilePath),
+                                                       newFilePath,
                                                        canTryToRenameIncludeGuards(currentNode));
-    if (!folderNode->addFiles({FilePath::fromString(newFilePath)})) {
+    if (!folderNode->addFiles({newFilePath})) {
         QMessageBox::critical(ICore::dialogParent(), Tr::tr("Duplicating File Failed"),
                               Tr::tr("Failed to add new file \"%1\" to the project.")
-                              .arg(QDir::toNativeSeparators(newFilePath)));
+                              .arg(newFilePath.toUserOutput()));
     }
 }
 
