@@ -1092,6 +1092,55 @@ void PythonSettings::writeToSettings(QtcSettings *settings)
     settings->endGroup();
 }
 
+std::optional<Tasking::ExecutableItem> PythonSettings::autoDetect(
+    Kit *kit,
+    const Utils::FilePaths &searchPaths,
+    const QString &detectionSource,
+    const LogCallback &logCallback)
+{
+    Q_UNUSED(kit);
+
+    using namespace Tasking;
+
+    const auto setupSearch = [searchPaths, detectionSource](Async<Interpreter> &task) {
+        const QList<Interpreter> alreadyConfigured = PythonSettings::interpreters();
+
+        task.setConcurrentCallData(
+            [](QPromise<Interpreter> &promise,
+               const FilePaths &searchPaths,
+               const QList<Interpreter> &alreadyConfigured,
+               const QString &detectionSource) {
+                for (const FilePath &path : searchPaths) {
+                    const FilePath python = path.pathAppended("python3").withExecutableSuffix();
+                    if (!python.isExecutableFile())
+                        continue;
+                    if (Utils::contains(
+                            alreadyConfigured, Utils::equal(&Interpreter::command, python)))
+                        continue;
+
+                    Interpreter interpreter = PythonSettings::createInterpreter(
+                        python, {}, "(" + python.toUserOutput() + ")", detectionSource);
+
+                    promise.addResult(interpreter);
+                }
+            },
+            searchPaths,
+            alreadyConfigured,
+            detectionSource);
+    };
+
+    const auto searchDone = [detectionSource, logCallback](const Async<Interpreter> &task) {
+        for (const auto &interpreter : task.results()) {
+            interpreterOptionsPage().addInterpreter(interpreter);
+            logCallback(
+                Tr::tr("Found \"%1\" (%2)")
+                    .arg(interpreter.name, interpreter.command.toUserOutput()));
+        }
+    };
+
+    return AsyncTask<Interpreter>(setupSearch, searchDone);
+}
+
 void PythonSettings::removeDetectedPython(
     const QString &detectionSource, const LogCallback &logCallback)
 {
