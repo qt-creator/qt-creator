@@ -122,8 +122,6 @@ QWidget *IosBuildStep::createConfigWidget()
                                                  HostOsInfo::hostOs()));
     });
 
-    projectExplorerSettings().addOnChanged(this, updateDetails);
-
     connect(buildConfiguration(), &BuildConfiguration::kitChanged, this, updateDetails);
     connect(buildConfiguration(), &BuildConfiguration::environmentChanged,
             this, updateDetails);

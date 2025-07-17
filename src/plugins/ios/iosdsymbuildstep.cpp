@@ -262,8 +262,6 @@ QWidget *IosDsymBuildStep::createConfigWidget()
         updateDetails();
     });
 
-    projectExplorerSettings().addOnChanged(this, updateDetails);
-
     connect(buildConfiguration(), &BuildConfiguration::kitChanged, this, updateDetails);
     connect(buildConfiguration(), &BuildConfiguration::enabledChanged,
             this, updateDetails);
