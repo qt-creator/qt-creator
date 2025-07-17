@@ -149,7 +149,7 @@ void OutputLineParser::addLinkSpecForAbsoluteFilePath(
     int pos,
     int len)
 {
-    if (filePath.toFileInfo().isAbsolute())
+    if (filePath.isAbsolutePath())
         linkSpecs.append({pos, len, createLinkTarget(filePath, lineNo, column)});
 }
 
