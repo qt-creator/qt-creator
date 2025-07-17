@@ -58,7 +58,7 @@ TerminalAspect::TerminalAspect(AspectContainer *container)
     addDataExtractor(this, &TerminalAspect::isUserSet, &Data::isUserSet);
 
     calculateUseTerminal();
-    projectExplorerSettings().addOnChanged(this, [this] { calculateUseTerminal(); });
+    projectExplorerSettings().terminalMode.addOnChanged(this, [this] { calculateUseTerminal(); });
 }
 
 /*!

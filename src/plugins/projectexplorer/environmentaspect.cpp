@@ -32,7 +32,9 @@ EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
             env.modify(projectExplorerSettings().appEnvChanges());
             env.modify(EnvironmentKitAspect::runEnvChanges(runConfig->kit()));
         });
-        projectExplorerSettings().addOnChanged(this, [this] { emit environmentChanged(); });
+        projectExplorerSettings().appEnvChanges.addOnChanged(this, [this] {
+            emit environmentChanged();
+        });
     }
     connect(this, &EnvironmentAspect::environmentChanged, this, &BaseAspect::changed);
 }

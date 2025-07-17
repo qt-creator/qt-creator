@@ -73,7 +73,9 @@ BuildDirectoryAspect::BuildDirectoryAspect(BuildConfiguration *bc)
         Core::FileUtils::openTerminal(expandedValue(), bc->environment());
     });
 
-    projectExplorerSettings().addOnChanged(this, [this] { validateInput(); });
+    projectExplorerSettings().warnAgainstNonAsciiBuildDir.addOnChanged(this, [this] {
+        validateInput();
+    });
 }
 
 BuildDirectoryAspect::~BuildDirectoryAspect()

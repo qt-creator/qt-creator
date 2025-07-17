@@ -1087,7 +1087,9 @@ TargetGroupItem::TargetGroupItem(Project *project)
          scheduleRebuildContents();
     });
 
-    projectExplorerSettings().addOnChanged(&m_guard, [this] { scheduleRebuildContents(); });
+    projectExplorerSettings().showAllKits.addOnChanged(&m_guard, [this] {
+        scheduleRebuildContents();
+    });
 
     rebuildContents();
 }

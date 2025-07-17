@@ -230,8 +230,9 @@ Project::Project(const QString &mimeType, const FilePath &fileName)
     KitManager *km = KitManager::instance();
     connect(km, &KitManager::kitUpdated, this, &Project::handleKitUpdated);
     connect(km, &KitManager::kitRemoved, this, &Project::handleKitRemoval);
-    connect(&projectExplorerSettings().syncRunConfigurations, &BaseAspect::changed,
-            this, [this] { syncRunConfigurations(false); });
+    projectExplorerSettings().syncRunConfigurations.addOnChanged(this, [this] {
+        syncRunConfigurations(false);
+    });
 }
 
 Project::~Project()
