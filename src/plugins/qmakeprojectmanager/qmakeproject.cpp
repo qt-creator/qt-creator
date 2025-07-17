@@ -1254,11 +1254,6 @@ void QmakeBuildSystem::collectApplicationData(const QmakeProFile *file, Deployme
                                DeployableFile::TypeExecutable);
 }
 
-static FilePath destDirFor(const TargetInformation &ti)
-{
-    return ti.buildDir.resolvePath(ti.destDir);
-}
-
 FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) const
 {
     const Toolchain *const toolchain = ToolchainKitAspect::cxxToolchain(kit());
@@ -1289,7 +1284,7 @@ FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) cons
         break;
     }
     case Abi::DarwinOS: {
-        FilePath destDir = destDirFor(ti);
+        FilePath destDir = ti.destDir;
         if (config.contains(QLatin1String("lib_bundle"))) {
             destDir = destDir.pathAppended(ti.target + ".framework");
         } else {
@@ -1320,10 +1315,10 @@ FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) cons
 
         targetFileName += QLatin1Char('.');
         if (isStatic) {
-            libs << destDirFor(ti) / (targetFileName + QLatin1Char('a'));
+            libs << ti.destDir.pathAppended(targetFileName + QLatin1Char('a'));
         } else {
             targetFileName += QLatin1String("so");
-            libs << destDirFor(ti) / targetFileName;
+            libs << ti.destDir / targetFileName;
             if (nameIsVersioned) {
                 QString version = file->singleVariableValue(Variable::Version);
                 if (version.isEmpty())
@@ -1334,7 +1329,7 @@ FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) cons
                 targetFileName += QLatin1Char('.');
                 while (!versionComponents.isEmpty()) {
                     const QString versionString = versionComponents.join(QLatin1Char('.'));
-                    libs << destDirFor(ti).pathAppended(targetFileName + versionString);
+                    libs << ti.destDir.pathAppended(targetFileName + versionString);
                     versionComponents.removeLast();
                 }
             }
@@ -1446,7 +1441,7 @@ FilePath QmakeBuildSystem::executableFor(const QmakeProFile *file)
         else
             target = ti.target + extension;
     }
-    return (destDirFor(ti) / target).absoluteFilePath();
+    return ti.destDir / target;
 }
 
 ProjectImporter *QmakeProject::projectImporter() const
