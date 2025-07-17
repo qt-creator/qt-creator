@@ -240,7 +240,8 @@ static bool parentTakesOverRendering(const ModelNode &modelNode)
 
 static QString crashErrorMessage()
 {
-    return Tr::tr("Internal process (QML Puppet) crashed.");
+    return Tr::tr(
+        "QML Puppet, the process used to emulate the QML runtime, has stopped unexpectedly.");
 }
 
 /*!
