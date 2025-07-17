@@ -26,8 +26,8 @@
 #include <utils/fileutils.h>
 
 #include <QSignalSpy>
+#include <QTest>
 #include <QTimer>
-#include <QtTest>
 
 using namespace CppEditor;
 using namespace ProjectExplorer;

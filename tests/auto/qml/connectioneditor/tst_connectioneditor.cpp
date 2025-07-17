@@ -8,7 +8,7 @@
 #include <QApplication>
 #include <QGraphicsObject>
 #include <QScopedPointer>
-#include <QtTest>
+#include <QTest>
 
 #include <algorithm>
 

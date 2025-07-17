@@ -20,7 +20,7 @@
 #include "cppquickfix_test.h"
 #include <projectexplorer/kitmanager.h>
 #include <texteditor/textdocument.h>
-#include <QtTest>
+#include <QTest>
 #endif
 
 #include <memory>

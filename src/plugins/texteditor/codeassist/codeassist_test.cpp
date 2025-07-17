@@ -18,7 +18,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/temporarydirectory.h>
 
-#include <QtTest/QtTest>
+#include <QSignalSpy>
+#include <QTest>
 
 namespace TextEditor::Internal {
 

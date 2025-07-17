@@ -4,7 +4,7 @@
 #include <utils/macroexpander.h>
 #include <utils/templateengine.h>
 
-#include <QtTest>
+#include <QTest>
 
 //TESTED_COMPONENT=src/libs/utils
 

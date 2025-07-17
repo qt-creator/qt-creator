@@ -8,7 +8,7 @@
 #include "cpptoolstestcase.h"
 
 #include <QElapsedTimer>
-#include <QtTest>
+#include <QTest>
 
 // Uses 1-based line and 0-based column.
 struct Selection

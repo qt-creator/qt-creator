@@ -11,7 +11,7 @@
 #include <QLocalSocket>
 #include <QNetworkAccessManager>
 #include <QProcess>
-#include <QtTest>
+#include <QTest>
 
 #ifndef WITH_TESTS
 #define WITH_TESTS

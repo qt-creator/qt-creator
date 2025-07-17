@@ -28,7 +28,7 @@
 
 #include <QDebug>
 #include <QScopeGuard>
-#include <QtTest>
+#include <QTest>
 
 #include <memory>
 

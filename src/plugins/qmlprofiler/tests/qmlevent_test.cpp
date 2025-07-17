@@ -3,9 +3,10 @@
 
 #include "qmlevent_test.h"
 
-#include <QtTest>
+#include <QBuffer>
 #include <QList>
 #include <QQueue>
+#include <QTest>
 
 #include <cstring>
 

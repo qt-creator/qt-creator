@@ -9,10 +9,11 @@
 #include <utils/theme/theme_p.h>
 
 #include <QObject>
+#include <QRandomGenerator>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickWidget>
-#include <QtTest>
+#include <QTest>
 
 class DummyTheme : public Utils::Theme
 {

@@ -6,8 +6,8 @@
 #include <tracing/timelinerenderstate.h>
 #include <tracing/timelineabstractrenderer_p.h>
 
-#include <QtTest>
 #include <QSGMaterialShader>
+#include <QTest>
 
 using namespace Timeline;
 

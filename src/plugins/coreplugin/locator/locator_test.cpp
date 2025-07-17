@@ -9,7 +9,7 @@
 #include <utils/fileutils.h>
 
 #include <QDir>
-#include <QtTest>
+#include <QTest>
 
 using namespace Core::Tests;
 using namespace Utils;

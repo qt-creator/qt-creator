@@ -3,8 +3,8 @@
 
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinerenderstate.h>
-#include <QtTest>
 #include <QSGSimpleRectNode>
+#include <QTest>
 
 using namespace Timeline;
 

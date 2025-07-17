@@ -12,7 +12,7 @@
 #include <QObject>
 #include <QString>
 #include <QTemporaryDir>
-#include <QtTest/QtTest>
+#include <QTest>
 
 using namespace MesonProjectManager::Internal;
 

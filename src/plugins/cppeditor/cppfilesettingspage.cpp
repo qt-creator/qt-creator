@@ -34,7 +34,7 @@
 #include <QVBoxLayout>
 
 #ifdef WITH_TESTS
-#include <QtTest>
+#include <QTest>
 #endif
 
 using namespace ProjectExplorer;

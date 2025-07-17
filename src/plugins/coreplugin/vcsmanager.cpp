@@ -547,7 +547,7 @@ void VcsManager::handleConfigurationChanges(IVersionControl *vc)
 
 #ifdef WITH_TESTS
 
-#include <QtTest>
+#include <QTest>
 
 #include <extensionsystem/pluginmanager.h>
 

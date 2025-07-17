@@ -34,7 +34,7 @@
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
 #include <QAbstractItemModelTester>
-#include <QtTest>
+#include <QTest>
 #endif
 
 using namespace CPlusPlus;

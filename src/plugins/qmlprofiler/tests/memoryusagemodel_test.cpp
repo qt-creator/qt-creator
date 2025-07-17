@@ -5,7 +5,7 @@
 
 #include "../qmlprofilertr.h"
 
-#include <QtTest>
+#include <QTest>
 
 namespace QmlProfiler::Internal {
 

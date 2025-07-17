@@ -19,9 +19,9 @@
 
 #include <QDebug>
 #include <QDir>
+#include <QTest>
 #include <QTextCursor>
 #include <QTextDocument>
-#include <QtTest>
 
 using namespace CPlusPlus;
 using namespace Utils;

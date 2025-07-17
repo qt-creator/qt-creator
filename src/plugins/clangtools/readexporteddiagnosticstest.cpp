@@ -11,7 +11,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace CppEditor::Tests;
 using namespace Utils;

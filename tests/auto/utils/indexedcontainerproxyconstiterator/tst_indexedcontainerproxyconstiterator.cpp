@@ -3,7 +3,7 @@
 
 #include <utils/indexedcontainerproxyconstiterator.h>
 
-#include <QtTest>
+#include <QTest>
 
 #include <string>
 #include <vector>

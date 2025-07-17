@@ -8,7 +8,7 @@
 #include <qmlprofiler/qmlprofilerbindingloopsrenderpass.h>
 #include <qmlprofiler/qmlprofilerrangemodel.h>
 
-#include <QtTest>
+#include <QTest>
 
 namespace QmlProfiler::Internal {
 

@@ -7,8 +7,7 @@
 #include <QStandardItemModel>
 #include <QQmlComponent>
 #include <QQuickItem>
-#include <QtTest>
-#include <QQuickItem>
+#include <QTest>
 
 class DelegateObject : public QQuickItem
 {

@@ -3,7 +3,7 @@
 
 #include <qmljs/qmljssimplereader.h>
 
-#include <QtTest>
+#include <QTest>
 #include <algorithm>
 
 using namespace QmlJS;

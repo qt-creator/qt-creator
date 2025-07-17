@@ -8,7 +8,8 @@
 
 #include <QDebug>
 #include <QFileSystemModel>
-#include <QtTest>
+#include <QTemporaryFile>
+#include <QTest>
 
 using namespace Utils;
 

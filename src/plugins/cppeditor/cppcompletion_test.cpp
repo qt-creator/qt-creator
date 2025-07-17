@@ -21,8 +21,8 @@
 
 #include <QDebug>
 #include <QDir>
+#include <QTest>
 #include <QTextDocument>
-#include <QtTest>
 
 /*!
     Tests for code completion.

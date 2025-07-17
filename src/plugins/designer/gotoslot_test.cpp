@@ -18,7 +18,7 @@
 #include <QDesignerFormEditorInterface>
 #include <QDesignerIntegrationInterface>
 #include <QStringList>
-#include <QtTest>
+#include <QTest>
 
 using namespace Core;
 using namespace Core::Tests;

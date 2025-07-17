@@ -24,9 +24,9 @@
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
 
-#include <QSignalSpy>
 #include <QElapsedTimer>
-#include <QtTest>
+#include <QSignalSpy>
+#include <QTest>
 #include <QVariant>
 
 #include <functional>

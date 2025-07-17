@@ -12,7 +12,7 @@
 
 #include <utils/async.h>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace Utils;
 

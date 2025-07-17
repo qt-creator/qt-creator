@@ -3,7 +3,7 @@
 
 #include "avdmanageroutputparser.h"
 
-#include <QtTest>
+#include <QTest>
 
 using namespace Android;
 using namespace Android::Internal;

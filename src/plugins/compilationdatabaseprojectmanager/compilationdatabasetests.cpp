@@ -19,7 +19,7 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace CppEditor;
 using namespace ProjectExplorer;

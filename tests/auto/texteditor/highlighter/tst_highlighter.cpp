@@ -10,9 +10,9 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <QObject>
+#include <QTest>
 #include <QTextBlock>
 #include <QTextDocument>
-#include <QtTest>
 
 namespace TextEditor {
 

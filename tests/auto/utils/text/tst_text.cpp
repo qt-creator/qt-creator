@@ -3,9 +3,9 @@
 
 #include <utils/textutils.h>
 
+#include <QTest>
 #include <QTextCursor>
 #include <QTextDocument>
-#include <QtTest>
 
 using namespace Utils::Text;
 

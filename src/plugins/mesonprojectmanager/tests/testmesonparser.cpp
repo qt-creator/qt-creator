@@ -9,7 +9,7 @@
 
 #include <QDir>
 #include <QTemporaryDir>
-#include <QtTest/QtTest>
+#include <QTest>
 
 #include <iostream>
 

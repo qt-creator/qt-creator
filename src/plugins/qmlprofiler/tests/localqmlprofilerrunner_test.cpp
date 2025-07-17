@@ -14,8 +14,8 @@
 #include <utils/url.h>
 #include <utils/temporaryfile.h>
 
-#include <QtTest>
 #include <QTcpServer>
+#include <QTest>
 
 using namespace ProjectExplorer;
 using namespace Utils;

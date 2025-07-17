@@ -3,7 +3,7 @@
 
 #include <tasking/qprocesstask.h>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace Tasking;
 

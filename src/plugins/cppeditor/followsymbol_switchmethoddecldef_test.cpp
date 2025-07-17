@@ -30,7 +30,7 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QtTest>
+#include <QTest>
 
 //
 // The following "non-latin1" code points are used in the tests:

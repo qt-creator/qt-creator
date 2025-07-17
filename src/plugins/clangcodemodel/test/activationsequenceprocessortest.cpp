@@ -7,7 +7,7 @@
 
 #include <cplusplus/Token.h>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace CPlusPlus;
 

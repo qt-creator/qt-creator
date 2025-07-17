@@ -3,7 +3,9 @@
 
 #include "qmlnote_test.h"
 #include <qmlprofiler/qmlnote.h>
-#include <QtTest>
+
+#include <QBuffer>
+#include <QTest>
 
 namespace QmlProfiler::Internal {
 

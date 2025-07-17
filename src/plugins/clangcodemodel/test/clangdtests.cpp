@@ -47,8 +47,8 @@
 #include <QFileInfo>
 #include <QPair>
 #include <QScopedPointer>
+#include <QTest>
 #include <QTimer>
-#include <QtTest>
 
 #include <tuple>
 

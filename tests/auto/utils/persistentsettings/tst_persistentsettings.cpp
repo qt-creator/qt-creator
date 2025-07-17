@@ -5,7 +5,7 @@
 
 #include <QTemporaryDir>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace Utils;
 

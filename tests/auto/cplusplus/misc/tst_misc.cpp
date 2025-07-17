@@ -5,8 +5,8 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/findcdbbreakpoint.h>
 
-#include <QtTest>
 #include <QDebug>
+#include <QTest>
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;

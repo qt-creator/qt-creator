@@ -38,7 +38,7 @@
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace ProjectExplorer;
 using namespace Utils;

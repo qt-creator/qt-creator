@@ -8,9 +8,9 @@
 #include <texteditor/tabsettings.h>
 #include <utils/fileutils.h>
 
+#include <QTest>
 #include <QTextCursor>
 #include <QTextDocument>
-#include <QtTest>
 
 #include <optional>
 

@@ -13,7 +13,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <QtTest>
+#include <QTest>
 #include <QTextEdit>
 #include <QTextDocument>
 #include <QTextBlock>

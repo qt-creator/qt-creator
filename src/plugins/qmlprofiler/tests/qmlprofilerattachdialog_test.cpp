@@ -6,7 +6,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
 
-#include <QtTest>
+#include <QTest>
 
 namespace QmlProfiler::Internal {
 

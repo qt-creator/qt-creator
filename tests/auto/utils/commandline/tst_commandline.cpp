@@ -12,7 +12,7 @@
 #include <utils/temporarydirectory.h>
 
 #include <QObject>
-#include <QtTest>
+#include <QTest>
 
 #include <iostream>
 

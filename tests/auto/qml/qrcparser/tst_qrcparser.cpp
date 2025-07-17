@@ -3,9 +3,9 @@
 
 #include <utils/qrcparser.h>
 
-#include <QtTest>
 #include <QDebug>
 #include <QLocale>
+#include <QTest>
 
 using namespace Utils;
 

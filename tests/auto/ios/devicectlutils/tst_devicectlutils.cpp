@@ -3,7 +3,7 @@
 
 #include "../../../../src/plugins/ios/devicectlutils.h"
 
-#include <QtTest>
+#include <QTest>
 
 using namespace Ios::Internal;
 

@@ -3,9 +3,9 @@
 
 #include "../cplusplus_global.h"
 
-#include <QtTest>
-#include <QObject>
 #include <QList>
+#include <QObject>
+#include <QTest>
 
 #include <cplusplus/AST.h>
 #include <cplusplus/ASTVisitor.h>

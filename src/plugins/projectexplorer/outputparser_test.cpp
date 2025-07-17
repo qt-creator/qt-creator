@@ -8,7 +8,7 @@
 #include "task.h"
 #include "taskhub.h"
 
-#include <QtTest>
+#include <QTest>
 
 namespace ProjectExplorer {
 

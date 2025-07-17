@@ -4,7 +4,7 @@
 #include "qmlpreviewclient_test.h"
 #include <qmlpreview/qmlpreviewclient.h>
 #include <qmldebug/qpacketprotocol.h>
-#include <QtTest>
+#include <QTest>
 
 namespace QmlPreview {
 

@@ -22,7 +22,7 @@
 
 #ifdef WITH_TESTS
 #include "cpptoolstestcase.h"
-#include <QtTest>
+#include <QTest>
 #endif
 
 using namespace CppEditor::Internal;

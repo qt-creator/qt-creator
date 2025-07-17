@@ -4,7 +4,7 @@
 #include <utils/filepath.h>
 #include <utils/stringutils.h>
 
-#include <QtTest>
+#include <QTest>
 
 //TESTED_COMPONENT=src/libs/utils
 

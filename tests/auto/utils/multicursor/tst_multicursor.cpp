@@ -5,7 +5,7 @@
 #include <utils/multitextcursor.h>
 
 #include <QPlainTextEdit>
-#include <QtTest>
+#include <QTest>
 
 using namespace Utils;
 

@@ -27,7 +27,7 @@
 #include "../cppsourceprocessertesthelper.h"
 #include "../cpptoolstestcase.h"
 #include "cppquickfix_test.h"
-#include <QtTest>
+#include <QTest>
 #endif
 
 using namespace Core;

@@ -11,8 +11,8 @@
 
 #include <utils/filepath.h>
 
-#include <QtTest>
 #include <QDebug>
+#include <QTest>
 
 #ifdef Q_OS_WIN
     #include <cctype>  // std:isspace

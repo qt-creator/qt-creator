@@ -11,7 +11,7 @@
 
 #include <utils/algorithm.h>
 
-#include <QtTest>
+#include <QTest>
 
 #include <cassert>
 

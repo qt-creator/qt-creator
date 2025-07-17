@@ -5,12 +5,12 @@
 #include <extensionsystem/pluginmanager_p.h>
 #include <extensionsystem/pluginspec.h>
 
+#include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QObject>
 #include <QMetaObject>
-#include <QtTest>
-#include <QDir>
+#include <QObject>
+#include <QTest>
 
 using namespace ExtensionSystem;
 

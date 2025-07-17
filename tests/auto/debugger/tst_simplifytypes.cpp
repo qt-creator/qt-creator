@@ -4,7 +4,7 @@
 #include "simplifytype.h"
 
 #include <QString>
-#include <QtTest>
+#include <QTest>
 
 using namespace Debugger;
 using namespace Internal;

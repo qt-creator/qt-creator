@@ -4,7 +4,7 @@
 #include "silversearcherparser.h"
 #include "silversearcherparser_test.h"
 
-#include <QtTest>
+#include <QTest>
 
 using namespace Utils;
 

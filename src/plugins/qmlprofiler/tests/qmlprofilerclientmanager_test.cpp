@@ -11,7 +11,8 @@
 #include <QLocalSocket>
 #include <QQmlDebuggingEnabler>
 
-#include <QtTest>
+#include <QTest>
+#include <QSignalSpy>
 
 using namespace ProjectExplorer;
 

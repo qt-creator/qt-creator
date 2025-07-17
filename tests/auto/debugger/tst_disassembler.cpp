@@ -3,7 +3,7 @@
 
 #include "disassemblerlines.h"
 
-#include <QtTest>
+#include <QTest>
 
 //TESTED_COMPONENT=src/plugins/debugger/gdb
 

@@ -6,9 +6,9 @@
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
 
-#include <QtTest>
-#include <QObject>
 #include <QFile>
+#include <QObject>
+#include <QTest>
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;

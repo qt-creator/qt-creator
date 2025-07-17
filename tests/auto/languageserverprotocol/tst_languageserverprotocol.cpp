@@ -8,7 +8,8 @@
 #include <utils/hostosinfo.h>
 #include <utils/textcodec.h>
 
-#include <QtTest>
+#include <QBuffer>
+#include <QTest>
 
 using namespace LanguageServerProtocol;
 using namespace Utils;

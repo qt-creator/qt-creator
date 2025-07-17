@@ -4,7 +4,7 @@
 #include <QDir>
 #include <QProcess>
 #include <QString>
-#include <QtTest>
+#include <QTest>
 
 #include <iostream>
 

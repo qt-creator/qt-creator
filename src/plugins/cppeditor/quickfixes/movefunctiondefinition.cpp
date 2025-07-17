@@ -23,7 +23,7 @@ using namespace Utils;
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
+#include <QTest>
 #endif
 
 namespace CppEditor::Internal {

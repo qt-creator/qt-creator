@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QStringList>
-#include <QtTest>
+#include <QTest>
 
 class tst_TestTrie : public QObject
 {

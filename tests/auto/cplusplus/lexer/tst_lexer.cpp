@@ -6,8 +6,8 @@
 #include <cplusplus/Token.h>
 #include <cplusplus/SimpleLexer.h>
 
-#include <QtTest>
 #include <QDebug>
+#include <QTest>
 
 //#define DEBUG_TOKENS
 

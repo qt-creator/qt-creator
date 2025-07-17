@@ -14,7 +14,7 @@
 
 #include <QByteArray>
 #include <QList>
-#include <QtTest>
+#include <QTest>
 
 using namespace CPlusPlus;
 using namespace Utils;

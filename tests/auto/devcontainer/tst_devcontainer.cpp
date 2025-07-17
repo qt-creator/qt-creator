@@ -7,7 +7,8 @@
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
-#include <QtTest>
+#include <QTemporaryFile>
+#include <QTest>
 
 #ifdef __GNUC__
 // We are making use of named initializers a lot here, and GCC complains if we do not initialize all fields.

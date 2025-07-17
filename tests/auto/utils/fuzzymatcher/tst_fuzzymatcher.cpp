@@ -4,7 +4,7 @@
 
 #include <utils/fuzzymatcher.h>
 
-#include <QtTest>
+#include <QTest>
 
 class tst_FuzzyMatcher : public QObject
 {

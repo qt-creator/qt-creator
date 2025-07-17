@@ -4,7 +4,7 @@
 #include <utils/externalterminalprocessimpl.h>
 
 #include <QRandomGenerator>
-#include <QtTest>
+#include <QTest>
 
 //TESTED_COMPONENT=src/utils/changeset
 

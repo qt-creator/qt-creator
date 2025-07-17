@@ -10,8 +10,8 @@
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
-#include <QtTest>
 #include <QDebug>
+#include <QTest>
 
 /*!
     Tests for various parts of the code generation. Well, okay, currently it only

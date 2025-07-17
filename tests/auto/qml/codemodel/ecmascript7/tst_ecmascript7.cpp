@@ -7,7 +7,7 @@
 #include <QTextStream>
 #include <QDateTime>
 #include <QLibraryInfo>
-#include <QtTest>
+#include <QTest>
 
 #include <QDebug>
 

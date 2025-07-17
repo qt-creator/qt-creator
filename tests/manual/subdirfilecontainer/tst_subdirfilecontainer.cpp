@@ -11,8 +11,8 @@
 
 #include <QDirIterator>
 #include <QObject>
+#include <QTest>
 #include <QTemporaryDir>
-#include <QtTest>
 
 #include <unordered_set>
 

@@ -10,7 +10,7 @@
 #include <cplusplus/TypePrettyPrinter.h>
 
 #include <QObject>
-#include <QtTest>
+#include <QTest>
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;

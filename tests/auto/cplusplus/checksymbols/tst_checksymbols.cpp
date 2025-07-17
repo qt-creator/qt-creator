@@ -17,7 +17,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QList>
-#include <QtTest>
+#include <QTest>
 
 /*!
     Tests CheckSymbols, the "data provider" of the semantic highlighter.

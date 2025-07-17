@@ -18,7 +18,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QDirIterator>
-#include <QtTest>
+#include <QTest>
 
 /*!
     Tests for quick-fixes.

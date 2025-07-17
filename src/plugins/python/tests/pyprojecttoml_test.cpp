@@ -6,11 +6,11 @@
 #include "pyprojecttoml_test.h"
 #include "../pyprojecttoml.h"
 
-#include <QtTest/QtTest>
-
 #include <coreplugin/textdocument.h>
 
 #include <utils/filepath.h>
+
+#include <QTest>
 
 using namespace Utils;
 

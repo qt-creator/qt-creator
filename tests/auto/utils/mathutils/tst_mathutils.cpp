@@ -3,7 +3,7 @@
 
 #include <utils/mathutils.h>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace Utils;
 

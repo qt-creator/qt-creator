@@ -5,7 +5,8 @@
 
 #include <qmlprofiler/qmleventlocation.h>
 
-#include <QtTest>
+#include <QBuffer>
+#include <QTest>
 
 namespace QmlProfiler::Internal {
 

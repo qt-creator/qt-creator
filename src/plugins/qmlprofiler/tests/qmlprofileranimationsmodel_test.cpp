@@ -4,7 +4,7 @@
 #include "qmlprofileranimationsmodel_test.h"
 #include "../qmlprofilertr.h"
 #include <tracing/timelineformattime.h>
-#include <QtTest>
+#include <QTest>
 
 namespace QmlProfiler::Internal {
 

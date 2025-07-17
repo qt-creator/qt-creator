@@ -7,7 +7,7 @@
 #include <qmljs/qmljsvalueowner.h>
 #include <qmljstools/qmljsmodelmanager.h>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace QmlJS;
 

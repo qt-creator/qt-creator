@@ -7,7 +7,7 @@
 #include <tracing/timelinemodel_p.h>
 #include <tracing/timelineformattime.h>
 
-#include <QtTest>
+#include <QTest>
 
 namespace QmlProfiler::Internal {
 

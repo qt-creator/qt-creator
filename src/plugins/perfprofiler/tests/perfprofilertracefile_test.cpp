@@ -7,7 +7,7 @@
 #include <perfprofiler/perftimelinemodel.h>
 #include <utils/temporaryfile.h>
 
-#include <QtTest>
+#include <QTest>
 
 namespace PerfProfiler {
 namespace Internal {

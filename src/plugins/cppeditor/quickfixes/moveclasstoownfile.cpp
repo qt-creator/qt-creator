@@ -29,7 +29,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <texteditor/textdocument.h>
-#include <QtTest>
+#include <QTest>
 #endif // WITH_TESTS
 
 using namespace CPlusPlus;

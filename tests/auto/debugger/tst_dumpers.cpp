@@ -10,7 +10,9 @@
 #include <utils/environment.h>
 
 #include <QLoggingCategory>
-#include <QtTest>
+#include <QProcess>
+#include <QTemporaryFile>
+#include <QTest>
 #include <math.h>
 
 #ifndef CDBEXT_PATH

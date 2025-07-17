@@ -14,7 +14,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QKeyEvent>
-#include <QtTest>
+#include <QTest>
 
 namespace { typedef QByteArray _; }
 

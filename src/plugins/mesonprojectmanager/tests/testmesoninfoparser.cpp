@@ -14,7 +14,7 @@
 #include <QString>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
-#include <QtTest/QtTest>
+#include <QTest>
 
 using namespace MesonProjectManager::Internal;
 using namespace Utils;

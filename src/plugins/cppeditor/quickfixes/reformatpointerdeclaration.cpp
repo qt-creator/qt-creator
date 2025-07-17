@@ -13,7 +13,7 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
+#include <QTest>
 #endif
 
 using namespace CPlusPlus;

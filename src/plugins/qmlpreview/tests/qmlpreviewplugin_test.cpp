@@ -6,7 +6,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
-#include <QtTest>
+#include <QSignalSpy>
+#include <QTest>
 #include <QVariant>
 
 typedef QByteArray (*TestFileLoader)(const QString &, bool *);

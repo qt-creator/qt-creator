@@ -14,7 +14,7 @@
 #include <projectexplorer/toolchainconfigwidget.h>
 #include <utils/algorithm.h>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace ProjectExplorer;
 

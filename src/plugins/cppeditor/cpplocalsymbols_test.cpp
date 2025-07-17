@@ -9,7 +9,7 @@
 #include <cplusplus/Overview.h>
 #include <utils/algorithm.h>
 
-#include <QtTest>
+#include <QTest>
 
 namespace {
 

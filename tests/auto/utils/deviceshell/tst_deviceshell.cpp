@@ -13,7 +13,7 @@
 
 #include <QObject>
 #include <QtConcurrent>
-#include <QtTest>
+#include <QTest>
 
 using namespace Utils;
 

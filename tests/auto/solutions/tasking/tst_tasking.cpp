@@ -9,8 +9,8 @@
 #include <tasking/conditional.h>
 #include <tasking/tasktreerunner.h>
 
-#include <QtTest>
 #include <QHash>
+#include <QTest>
 
 using namespace Tasking;
 

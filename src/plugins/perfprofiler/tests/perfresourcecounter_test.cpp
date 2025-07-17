@@ -3,7 +3,9 @@
 
 #include "perfresourcecounter_test.h"
 #include <perfprofiler/perfresourcecounter.h>
-#include <QtTest>
+
+#include <QRandomGenerator>
+#include <QTest>
 
 namespace PerfProfiler::Internal {
 

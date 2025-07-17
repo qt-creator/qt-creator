@@ -5,7 +5,7 @@
 
 #include <QObject>
 
-#include <QtTest>
+#include <QTest>
 
 #include <extensionsystem/pluginmanager.h>
 

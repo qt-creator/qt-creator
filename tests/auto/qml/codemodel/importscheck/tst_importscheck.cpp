@@ -9,7 +9,7 @@
 #include <QScopedPointer>
 #include <QSettings>
 #include <QStringList>
-#include <QtTest>
+#include <QTest>
 
 #include <utils/algorithm.h>
 #include <qmljs/qmljsbind.h>

@@ -7,7 +7,7 @@
 
 #include <utils/filepath.h>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace Utils;
 

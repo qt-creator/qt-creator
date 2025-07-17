@@ -6,8 +6,10 @@
 
 #include <qmlprofiler/qmlprofilertool.h>
 
-#include <QtTest>
 #include <QMenu>
+#include <QSignalSpy>
+#include <QTest>
+#include <QTimer>
 #include <QWindow>
 
 namespace QmlProfiler::Internal {

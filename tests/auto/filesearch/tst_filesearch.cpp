@@ -3,7 +3,9 @@
 
 #include <utils/filesearch.h>
 
-#include <QtTest>
+#include <QFutureWatcher>
+#include <QSignalSpy>
+#include <QTest>
 
 using namespace Utils;
 

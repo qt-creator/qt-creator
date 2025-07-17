@@ -16,7 +16,7 @@
 #include <cplusplus/CppDocument.h>
 #include <utils/fileutils.h>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace CPlusPlus;
 using namespace ProjectExplorer;

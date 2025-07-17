@@ -15,7 +15,7 @@
 #include "cppmodelmanager.h"
 #include "cppsourceprocessertesthelper.h"
 #include "cppsourceprocessor.h"
-#include <QtTest>
+#include <QTest>
 #endif // WITH_TESTS
 
 #include <QDir>

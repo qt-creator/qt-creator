@@ -3,7 +3,7 @@
 
 #include <cppeditor/cppfileiterationorder.h>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace CppEditor;
 

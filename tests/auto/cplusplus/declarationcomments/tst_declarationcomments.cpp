@@ -6,7 +6,7 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/SymbolVisitor.h>
 
-#include <QtTest>
+#include <QTest>
 #include <QTextDocument>
 
 using namespace CPlusPlus;

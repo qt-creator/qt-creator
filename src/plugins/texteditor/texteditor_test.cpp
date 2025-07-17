@@ -5,8 +5,8 @@
 
 #include "tabsettings.h"
 
+#include <QTest>
 #include <QTextDocument>
-#include <QtTest/QtTest>
 
 namespace TextEditor::Internal {
 

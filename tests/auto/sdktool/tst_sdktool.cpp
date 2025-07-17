@@ -4,7 +4,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QProcess>
-#include <QtTest>
+#include <QTest>
 
 #ifndef WITH_TESTS
 #define WITH_TESTS

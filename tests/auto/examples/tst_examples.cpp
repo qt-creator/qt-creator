@@ -4,7 +4,7 @@
 #include <utils/filepath.h>
 #include <qtsupport/examplesparser.h>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace Core;
 using namespace Utils;

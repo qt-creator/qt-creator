@@ -7,9 +7,9 @@
 #include <tracing/timelineitemsrenderpass.h>
 #include <tracing/timelinemodelaggregator.h>
 
-#include <QtTest>
 #include <QSGMaterialShader>
 #include <QSGSimpleRectNode>
+#include <QTest>
 
 using namespace Timeline;
 

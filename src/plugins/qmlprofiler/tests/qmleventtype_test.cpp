@@ -3,7 +3,8 @@
 #include "qmleventtype_test.h"
 #include <qmlprofiler/qmleventtype.h>
 
-#include <QtTest>
+#include <QBuffer>
+#include <QTest>
 
 namespace QmlProfiler::Internal {
 

@@ -3,7 +3,8 @@
 
 #include <aggregation/aggregate.h>
 
-#include <QtTest>
+#include <QPointer>
+#include <QTest>
 
 //TESTED_COMPONENT=src/libs/aggregation
 

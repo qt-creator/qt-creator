@@ -6,7 +6,7 @@
 #include "../qmlprofilertr.h"
 #include <qmldebug/qpacketprotocol.h>
 
-#include <QtTest>
+#include <QTest>
 
 namespace QmlProfiler::Internal {
 

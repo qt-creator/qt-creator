@@ -11,7 +11,7 @@
 
 #include <utils/filepath.h>
 
-#include <QtTest>
+#include <QTest>
 #include <QTextDocument>
 
 using namespace CPlusPlus;

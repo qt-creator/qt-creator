@@ -18,7 +18,8 @@
 
 #include <QElapsedTimer>
 #include <QRegularExpression>
-#include <QtTest>
+#include <QSignalSpy>
+#include <QTest>
 
 using namespace Utils;
 

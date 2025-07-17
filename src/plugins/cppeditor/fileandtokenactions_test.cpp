@@ -26,8 +26,8 @@
 
 #include <QApplication>
 #include <QDebug>
+#include <QTest>
 #include <QTextDocument>
-#include <QtTest>
 
 /*!
     Tests for executing "test actions" for

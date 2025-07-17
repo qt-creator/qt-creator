@@ -10,7 +10,7 @@
 #include <utils/changeset.h>
 
 #include <QScopedPointer>
-#include <QtTest>
+#include <QTest>
 
 namespace ClangCodeModel::Internal {
 

@@ -8,7 +8,7 @@
 
 #ifdef WITH_TESTS
 #include <QObject>
-#include <QtTest>
+#include <QTest>
 #endif // WITH_TESTS
 
 namespace ClangTools::Internal {

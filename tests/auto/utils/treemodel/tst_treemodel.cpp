@@ -3,7 +3,7 @@
 
 #include <utils/treemodel.h>
 
-#include <QtTest>
+#include <QTest>
 
 #include <type_traits>
 

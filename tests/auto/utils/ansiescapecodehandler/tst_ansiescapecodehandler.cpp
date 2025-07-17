@@ -4,7 +4,7 @@
 #include <utils/ansiescapecodehandler.h>
 
 #include <QString>
-#include <QtTest>
+#include <QTest>
 
 using namespace Utils;
 

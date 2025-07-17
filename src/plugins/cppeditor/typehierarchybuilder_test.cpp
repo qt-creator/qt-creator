@@ -13,7 +13,7 @@
 #include <utils/fileutils.h>
 
 #include <QDir>
-#include <QtTest>
+#include <QTest>
 
 using namespace CPlusPlus;
 using namespace Utils;

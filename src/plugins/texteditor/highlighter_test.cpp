@@ -15,7 +15,7 @@
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 
-#include <QtTest/QtTest>
+#include <QTest>
 
 namespace TextEditor::Internal {
 

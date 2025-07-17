@@ -3,7 +3,7 @@
 
 #include <tasking/concurrentcall.h>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace Tasking;
 

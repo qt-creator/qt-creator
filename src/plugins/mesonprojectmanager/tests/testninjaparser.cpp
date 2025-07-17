@@ -7,7 +7,7 @@
 #include <QObject>
 #include <QString>
 #include <QTemporaryDir>
-#include <QtTest/QtTest>
+#include <QTest>
 
 #include <iostream>
 

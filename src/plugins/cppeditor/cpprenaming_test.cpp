@@ -10,8 +10,8 @@
 #include <texteditor/texteditor.h>
 
 #include <QEventLoop>
+#include <QTest>
 #include <QTimer>
-#include <QtTest>
 
 namespace CppEditor::Internal::Tests {
 

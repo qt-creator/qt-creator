@@ -11,7 +11,7 @@
 #include <utils/environment.h>
 
 #include <QDebug>
-#include <QtTest>
+#include <QTest>
 
 using namespace Core;
 using namespace Core::Tests;

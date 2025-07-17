@@ -7,9 +7,9 @@
 
 #include <utils/qtcsettings_p.h>
 
-#include <QtTest>
-
 #include <QObject>
+#include <QSignalSpy>
+#include <QTest>
 
 using namespace ExtensionSystem;
 using namespace Utils;

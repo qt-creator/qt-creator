@@ -4,7 +4,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 
-#include <QtTest>
+#include <QTest>
 
 using namespace Utils;
 

@@ -3,7 +3,7 @@
 
 #include <utils/changeset.h>
 
-#include <QtTest>
+#include <QTest>
 
 //TESTED_COMPONENT=src/utils/changeset
 

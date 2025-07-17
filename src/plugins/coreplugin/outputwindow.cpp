@@ -34,7 +34,7 @@
 #include <QTimer>
 
 #ifdef WITH_TESTS
-#include <QtTest>
+#include <QTest>
 #endif
 
 #include <numeric>

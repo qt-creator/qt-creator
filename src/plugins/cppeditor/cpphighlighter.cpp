@@ -23,7 +23,7 @@
 #ifdef WITH_TESTS
 #include "cppeditorwidget.h"
 #include "cpptoolstestcase.h"
-#include <QtTest>
+#include <QTest>
 #include <utility>
 #endif
 

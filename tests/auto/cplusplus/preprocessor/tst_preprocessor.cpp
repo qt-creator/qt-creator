@@ -3,10 +3,10 @@
 
 #include "../cplusplus_global.h"
 #include <cplusplus/pp.h>
-#include <QtTest>
 #include <QFile>
 #include <QHash>
 #include <QSet>
+#include <QTest>
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;

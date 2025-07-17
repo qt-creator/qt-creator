@@ -3,8 +3,7 @@
 
 #include <coreplugin/find/itemviewfind.h>
 
-#include <QtTest>
-
+#include <QTest>
 #include <QTreeWidget>
 
 class tst_treeviewfind : public QObject

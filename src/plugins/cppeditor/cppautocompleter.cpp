@@ -22,7 +22,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <QScopeGuard>
-#include <QtTest>
+#include <QTest>
 
 #endif // WITH_TESTS
 
