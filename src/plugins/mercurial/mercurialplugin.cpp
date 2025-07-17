@@ -665,10 +665,7 @@ bool MercurialPluginPrivate::managesFile(const FilePath &workingDirectory, const
 bool MercurialPluginPrivate::isConfigured() const
 {
     const FilePath binary = settings().binaryPath.effectiveBinary();
-    if (binary.isEmpty())
-        return false;
-    QFileInfo fi = binary.toFileInfo();
-    return fi.exists() && fi.isFile() && fi.isExecutable();
+    return binary.isExecutableFile();
 }
 
 bool MercurialPluginPrivate::supportsOperation(Operation operation) const

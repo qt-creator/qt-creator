@@ -359,7 +359,7 @@ bool DocumentClangToolRunner::isSuppressed(const Diagnostic &diagnostic) const
         if (suppressed.description != diagnostic.description)
             return false;
         FilePath filePath = suppressed.filePath;
-        if (filePath.toFileInfo().isRelative())
+        if (filePath.isRelativePath())
             filePath = m_lastProjectDirectory.resolvePath(filePath);
         return filePath == diagnostic.location.targetFilePath;
     };

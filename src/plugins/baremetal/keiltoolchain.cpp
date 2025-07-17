@@ -38,8 +38,7 @@ namespace BareMetal::Internal {
 
 static Abi::Architecture guessArchitecture(const FilePath &compilerPath)
 {
-    const QFileInfo fi = compilerPath.toFileInfo();
-    const QString bn = fi.baseName().toLower();
+    const QString bn = compilerPath.baseName().toLower();
     if (bn == "c51" || bn == "cx51")
         return Abi::Architecture::Mcs51Architecture;
     if (bn == "c251")

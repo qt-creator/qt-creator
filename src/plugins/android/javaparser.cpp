@@ -49,7 +49,7 @@ OutputLineParser::Result JavaParser::handleLine(const QString &line, OutputForma
         FilePath relativePath = file.relativeChildPath(m_buildDirectory);
         file = m_sourceDirectory.resolvePath(relativePath);
     }
-    if (file.toFileInfo().isRelative()) {
+    if (file.isRelativePath()) {
         for (int i = 0; i < m_fileList.size(); i++)
             if (m_fileList[i].endsWith(file.path())) {
                 file = m_fileList[i];
