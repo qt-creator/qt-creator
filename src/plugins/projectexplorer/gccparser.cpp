@@ -408,7 +408,6 @@ private slots:
                                FilePath::fromUserInput("/temp/test/untitled8/main.cpp"),
                                8, 2));
 
-        QList<QTextLayout::FormatRange> formatRanges;
         QTest::newRow("Invalid rpath")
             << QString::fromLatin1("g++: /usr/local/lib: No such file or directory")
             << OutputParserTester::STDERR
@@ -614,21 +613,6 @@ private slots:
                                31, 0,
                                QList<QTextLayout::FormatRange>()
                                    << formatRange(23, 85)));
-
-        formatRanges.clear();
-        if (HostOsInfo::isWindowsHost()) {
-            formatRanges << formatRange(33, 22)
-            << formatRange(55, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.h::6792::0")
-            << formatRange(93, 29)
-            << formatRange(122, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32std.h::25::0")
-            << formatRange(160, 5)
-            << formatRange(165, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::0::0")
-            << formatRange(205, 69)
-            << formatRange(274, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::7094::0")
-            << formatRange(314, 48);
-        } else {
-            formatRanges << formatRange(33, 329);
-        }
         QTest::newRow("GCCE from lines")
             << QString::fromLatin1("In file included from C:/Symbian_SDK/epoc32/include/e32cmn.h:6792,\n"
                                    "                 from C:/Symbian_SDK/epoc32/include/e32std.h:25,\n"
@@ -644,7 +628,17 @@ private slots:
                                  "C:/Symbian_SDK/epoc32/include/e32cmn.inl:7094: warning: returning reference to temporary",
                                  FilePath::fromUserInput("C:/Symbian_SDK/epoc32/include/e32cmn.inl"),
                                  7094, 0,
-                                 formatRanges)};
+                                 QList<QTextLayout::FormatRange>{
+                                     formatRange(33, 22),
+                                     formatRange(55, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.h::6792::0"),
+                                     formatRange(93, 29),
+                                     formatRange(122, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32std.h::25::0"),
+                                     formatRange(160, 5),
+                                     formatRange(165, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::0::0"),
+                                     formatRange(205, 69),
+                                     formatRange(274, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::7094::0"),
+                                     formatRange(314, 48)}
+                                 )};
         QTest::newRow("In constructor 2")
             << QString::fromUtf8("perfattributes.cpp: In constructor ‘PerfEventAttributes::PerfEventAttributes()’:\n"
                                  "perfattributes.cpp:28:48: warning: ‘void* memset(void*, int, size_t)’ clearing an object of non-trivial type ‘class PerfEventAttributes’; use assignment or value-initialization instead [-Wclass-memaccess]\n"

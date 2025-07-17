@@ -207,14 +207,6 @@ private slots:
             return task;
         };
 
-        QList<QTextLayout::FormatRange> formatRanges;
-        if (HostOsInfo::isWindowsHost()) {
-            formatRanges << formatRange(51, 28)
-            << formatRange(79, 31, "olpfile://C:/temp/test/untitled8/main.cpp::8::-1")
-            << formatRange(110, 54);
-        } else {
-            formatRanges << formatRange(51, 113);
-        }
         QTest::newRow("Undefined reference (debug)")
             << QString::fromLatin1("main.o: In function `main':\n"
                                    "C:\\temp\\test\\untitled8/main.cpp:8: undefined reference to `MainWindow::doSomething()'\n"
@@ -228,17 +220,12 @@ private slots:
                                "C:\\temp\\test\\untitled8/main.cpp:8: undefined reference to `MainWindow::doSomething()'",
                                FilePath::fromUserInput("C:\\temp\\test\\untitled8/main.cpp"),
                                8, 0,
-                               formatRanges)
+                               QList<QTextLayout::FormatRange>{
+                                   formatRange(51, 28),
+                                   formatRange(79, 31, "olpfile://C:/temp/test/untitled8/main.cpp::8::-1"),
+                                   formatRange(110, 54)})
                 << CompileTask(Task::Error, "collect2: ld returned 1 exit status"));
 
-        formatRanges.clear();
-        if (HostOsInfo::isWindowsHost()) {
-            formatRanges << formatRange(51, 28)
-            << formatRange(79, 31, "olpfile://C:/temp/test/untitled8/main.cpp::-1::-1")
-            << formatRange(110, 65);
-        } else {
-            formatRanges << formatRange(51, 124);
-        }
         QTest::newRow("Undefined reference (release)")
             << QString::fromLatin1("main.o: In function `main':\n"
                                    "C:\\temp\\test\\untitled8/main.cpp:(.text+0x40): undefined reference to `MainWindow::doSomething()'\n"
@@ -252,7 +239,11 @@ private slots:
                                "C:\\temp\\test\\untitled8/main.cpp:(.text+0x40): undefined reference to `MainWindow::doSomething()'",
                                FilePath::fromUserInput("C:\\temp\\test\\untitled8/main.cpp"),
                                -1, 0,
-                               formatRanges)
+                               QList<QTextLayout::FormatRange>{
+                                   formatRange(51, 28),
+                                   formatRange(79, 31, "olpfile://C:/temp/test/untitled8/main.cpp::-1::-1"),
+                                   formatRange(110, 65)}
+                               )
                 << CompileTask(Task::Error, "collect2: ld returned 1 exit status"));
 
         QTest::newRow("linker: dll format not recognized")
@@ -307,14 +298,6 @@ private slots:
                                "warning: feupdateenv is not implemented and will always fail",
                                FilePath::fromUserInput("libimf.so")));
 
-        formatRanges.clear();
-        if (HostOsInfo::isWindowsHost()) {
-            formatRanges << formatRange(46, 44)
-            << formatRange(90, 39, "olpfile://M:/Development/x64/QtPlot/qplotaxis.cpp::26::-1")
-            << formatRange(129, 50);
-        } else {
-            formatRanges << formatRange(46, 133);
-        }
         QTest::newRow("QTCREATORBUG-597")
             << QString::fromLatin1("debug/qplotaxis.o: In function `QPlotAxis':\n"
                                    "M:\\Development\\x64\\QtPlot/qplotaxis.cpp:26: undefined reference to `vtable for QPlotAxis'\n"
@@ -329,7 +312,10 @@ private slots:
                                "M:\\Development\\x64\\QtPlot/qplotaxis.cpp:26: undefined reference to `vtable for QPlotAxis'",
                                FilePath::fromUserInput("M:\\Development\\x64\\QtPlot/qplotaxis.cpp"),
                                26, 0,
-                               formatRanges)
+                               QList<QTextLayout::FormatRange>{
+                                   formatRange(46, 44),
+                                   formatRange(90, 39, "olpfile://M:/Development/x64/QtPlot/qplotaxis.cpp::26::-1"),
+                                   formatRange(129, 50)})
                 << CompileTask(Task::Error,
                                "undefined reference to `vtable for QPlotAxis'",
                                FilePath::fromUserInput("M:\\Development\\x64\\QtPlot/qplotaxis.cpp"),
