@@ -21,6 +21,8 @@ public:
 
     bool eventFilter(QObject *watched, QEvent *event) override;
 
+    QList<PropertyEditorView *> registeredViews() const;
+
 private:
     void increaseOne();
     void decreaseOne();

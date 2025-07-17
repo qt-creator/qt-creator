@@ -107,6 +107,11 @@ bool MultiPropertyEditorAction::eventFilter(QObject *watched, QEvent *event)
     return QAction::eventFilter(watched, event);
 }
 
+QList<PropertyEditorView *> MultiPropertyEditorAction::registeredViews() const
+{
+    return m_views;
+}
+
 void MultiPropertyEditorAction::increaseOne()
 {
     m_count++;

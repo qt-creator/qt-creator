@@ -96,8 +96,10 @@ public:
     void changeExpression(const QString &name);
     void exportPropertyAsAlias(const QString &name);
     void removeAliasExport(const QString &name);
+    void demoteCustomManagerRole();
 
     bool locked() const;
+    bool isSelectionLocked() const { return m_isSelectionLocked; }
 
     void currentTimelineChanged(const ModelNode &node) override;
 
@@ -136,7 +138,6 @@ private: //functions
     void loadLockedNode();
     void saveLockedNode();
     void setActiveNodeToSelection();
-    void forceSelection(const ModelNode &node);
 
     void delayedResetView();
     void setupQmlBackend();
@@ -166,6 +167,7 @@ private: //functions
     void showAsExtraWidget();
 
 private: //variables
+    enum class ManageCustomNotifications { No, Yes };
     AsynchronousImageCache &m_imageCache;
     ModelNode m_activeNode;
     QShortcut *m_updateShortcut;
@@ -183,9 +185,11 @@ private: //variables
     QString m_parentWidgetId = "";
     QString m_uniqueWidgetId = "Properties";
     QString m_widgetTabName = tr("Properties");
+    ManageCustomNotifications m_manageNotifications;
 
     friend class PropertyEditorDynamicPropertiesProxyModel;
     friend class MultiPropertyEditorAction;
+    friend class MultiPropertyEditorView;
 };
 
 } //QmlDesigner

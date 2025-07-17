@@ -8,6 +8,7 @@
 namespace QmlDesigner {
 
 class MultiPropertyEditorAction;
+class PropertyEditorView;
 
 class MultiPropertyEditorView : public AbstractView
 {
@@ -25,7 +26,10 @@ public:
 
     MultiPropertyEditorAction *unifiedAction() const;
 
-private:
+private: // functions
+    PropertyEditorView *createView(const QString &parentId);
+
+private: // variables
     AsynchronousImageCache &m_imageCache;
     ExternalDependenciesInterface &m_externalDependencies;
     MultiPropertyEditorAction *m_unifiedAction = nullptr;

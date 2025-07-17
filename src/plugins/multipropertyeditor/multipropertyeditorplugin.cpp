@@ -26,7 +26,9 @@ bool MultiPropertyEditorPlugin::delayedInitialize()
         designerPlugin->imageCache(),
         QmlDesigner::QmlDesignerPlugin::externalDependenciesForPluginInitializationOnly()));
 
-    view->unifiedAction()->registerView(viewManager.propertyEditorView());
+    auto standardPropertyEditorView = viewManager.propertyEditorView();
+    view->unifiedAction()->registerView(standardPropertyEditorView);
+    standardPropertyEditorView->demoteCustomManagerRole();
 
     return true;
 }

@@ -566,7 +566,7 @@ void openNodeInPropertyEditor(const ModelNode &node)
     QTC_ASSERT(node, return);
     const auto mainWidget = QmlDesignerPlugin::instance()->mainWidget();
     mainWidget->showDockWidget("Properties"_L1);
-    mainWidget->viewManager().emitCustomNotification("force_editing_node", {node}, {});
+    mainWidget->viewManager().emitCustomNotification("set_property_editor_target_node", {node}, {});
 }
 
 bool hasImported3dType(AbstractView *view,

@@ -27,20 +27,10 @@ void MultiPropertyEditorView::customNotification(const AbstractView *view,
                                                  const QList<ModelNode> &nodeList,
                                                  const QList<QVariant> &data)
 {
-    auto &viewManager = QmlDesignerPlugin::instance()->viewManager();
-
     if (identifier == "add_extra_property_editor_widget") {
-        auto newView = std::make_unique<PropertyEditorView>(m_imageCache, m_externalDependencies);
-        WidgetInfo info = newView->widgetInfo();
-        info.tabName = tr("Properties");
-        info.parentId = data.at(0).toString();
-        newView->setWidgetInfo(info);
-        PropertyEditorView *propertyEditorView = viewManager.registerView(std::move(newView));
-        propertyEditorView->setUnifiedAction(unifiedAction());
-        unifiedAction()->registerView(propertyEditorView);
-        propertyEditorView->registerWidgetInfo();
-        propertyEditorView->action()->setChecked(true);
-        viewManager.showView(*propertyEditorView);
+        if (data.isEmpty())
+            return;
+        createView(data.first().toString());
     } else if (identifier == "register_property_editor") {
         if (data.size() != 1)
             return;
@@ -51,6 +41,36 @@ void MultiPropertyEditorView::customNotification(const AbstractView *view,
             return;
         PropertyEditorView *propertyEditorView = data.first().value<PropertyEditorView *>();
         unifiedAction()->unregisterView(propertyEditorView);
+    } else if (identifier == "set_property_editor_target_node") {
+        if (nodeList.isEmpty())
+            return;
+
+        const ModelNode &node = nodeList.first();
+
+        PropertyEditorView *targetView = nullptr;
+
+        // Select any existing view that contains the node.
+        // else find the first unlocked property editor.
+        // else create a new property editor.
+        const QList<PropertyEditorView *> propertyEditorViews = unifiedAction()->registeredViews();
+        if (auto it = std::ranges::find(propertyEditorViews, node, &PropertyEditorView::activeNode);
+            it != propertyEditorViews.constEnd()) {
+            targetView = *it;
+        } else if (auto it = std::ranges::find_if_not(
+                       propertyEditorViews, &PropertyEditorView::isSelectionLocked);
+                   it != propertyEditorViews.constEnd()) {
+            targetView = *it;
+        } else {
+            targetView = createView(QmlDesignerPlugin::instance()
+                                        ->viewManager()
+                                        .propertyEditorView()
+                                        ->widgetInfo()
+                                        .uniqueId);
+        }
+
+        if (node != targetView->activeNode())
+            targetView->setSelectedModelNode(node);
+        targetView->widgetInfo().widget->setFocus();
     }
 }
 
@@ -58,6 +78,24 @@ void MultiPropertyEditorView::customNotification(const AbstractView *view,
 MultiPropertyEditorAction *MultiPropertyEditorView::unifiedAction() const
 {
     return m_unifiedAction;
+}
+
+PropertyEditorView *MultiPropertyEditorView::createView(const QString &parentId)
+{
+    auto &viewManager = QmlDesignerPlugin::instance()->viewManager();
+    auto newView = std::make_unique<PropertyEditorView>(m_imageCache, m_externalDependencies);
+    WidgetInfo info = newView->widgetInfo();
+    info.tabName = tr("Properties");
+    info.parentId = parentId;
+    newView->setWidgetInfo(info);
+    PropertyEditorView *propertyEditorView = viewManager.registerView(std::move(newView));
+    propertyEditorView->setUnifiedAction(unifiedAction());
+    unifiedAction()->registerView(propertyEditorView);
+    propertyEditorView->registerWidgetInfo();
+    propertyEditorView->demoteCustomManagerRole();
+    propertyEditorView->action()->setChecked(true);
+    viewManager.showView(*propertyEditorView);
+    return propertyEditorView;
 }
 
 } // namespace QmlDesigner

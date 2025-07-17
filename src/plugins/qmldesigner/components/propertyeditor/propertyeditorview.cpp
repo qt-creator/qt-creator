@@ -30,6 +30,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -83,6 +84,7 @@ PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
     , m_qmlBackEndForCurrentType(nullptr)
     , m_propertyComponentGenerator{PropertyEditorQmlBackend::propertyEditorResourcesPath(), model()}
     , m_locked(false)
+    , m_manageNotifications(ManageCustomNotifications::Yes)
 {
     NanotraceHR::Tracer tracer{"property editor view constructor", category()};
 
@@ -310,6 +312,13 @@ void PropertyEditorView::removeAliasExport(const QString &name)
 
     executeInTransaction("PropertyEditorView::exportPropertyAsAlias",
                          [&]() { removeAliasForProperty(activeNode(), name); });
+}
+
+void PropertyEditorView::demoteCustomManagerRole()
+{
+    NanotraceHR::Tracer tracer{"property editor view demote custom manager role", category()};
+
+    m_manageNotifications = ManageCustomNotifications::No;
 }
 
 bool PropertyEditorView::locked() const
@@ -1373,20 +1382,6 @@ void PropertyEditorView::setActiveNodeToSelection()
         setActiveNode(node);
 }
 
-void PropertyEditorView::forceSelection(const ModelNode &node)
-{
-    NanotraceHR::Tracer tracer{"property editor view force selection", category()};
-
-    if (node == activeNode())
-        return;
-
-    if (m_isSelectionLocked)
-        setActiveNode(node);
-    ModelNode(node).selectNode();
-
-    resetView();
-}
-
 bool PropertyEditorView::hasWidget() const
 {
     NanotraceHR::Tracer tracer{"property editor view has widget", category()};
@@ -1532,9 +1527,20 @@ void PropertyEditorView::customNotification([[maybe_unused]] const AbstractView 
 {
     NanotraceHR::Tracer tracer{"property editor view custom notification", category()};
 
-    if (identifier == "force_editing_node") {
-        if (!nodeList.isEmpty())
-            forceSelection(nodeList.first());
+    if (m_manageNotifications == ManageCustomNotifications::No)
+        return;
+
+    if (identifier == "set_property_editor_target_node") {
+        if (nodeList.isEmpty())
+            return;
+
+        const ModelNode &node = nodeList.first();
+        if (node != activeNode()) {
+            setSelectionUnlocked();
+            setSelectedModelNode(node);
+        }
+
+        m_stackedWidget->setFocus();
     }
 }
 
