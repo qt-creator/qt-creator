@@ -101,6 +101,9 @@ public:
         Utils::AspectContainer *currentSettings = nullptr;
     };
 
+signals:
+    void currentSettingsChanged();
+
 protected:
     friend class RunConfiguration;
     void fromMap(const Utils::Store &map) override;
@@ -113,7 +116,8 @@ private:
     Utils::AspectContainer *m_globalSettings = nullptr;  // Not owned.
 };
 
-PROJECTEXPLORER_EXPORT QWidget *createRunConfigAspectWidget(GlobalOrProjectAspect *);
+PROJECTEXPLORER_EXPORT QWidget *createGlobalOrProjectAspectWidget(GlobalOrProjectAspect *aspect);
+PROJECTEXPLORER_EXPORT QWidget *createRunConfigAspectWidget(GlobalOrProjectAspect *aspect);
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration

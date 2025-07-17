@@ -77,7 +77,10 @@ void GlobalOrProjectAspect::setGlobalSettings(AspectContainer *settings)
 
 void GlobalOrProjectAspect::setUsingGlobalSettings(bool value)
 {
-    m_useGlobalSettings = value;
+    if (m_useGlobalSettings != value) {
+        m_useGlobalSettings = value;
+        emit currentSettingsChanged();
+    }
 }
 
 AspectContainer *GlobalOrProjectAspect::currentSettings() const
@@ -120,10 +123,10 @@ void GlobalOrProjectAspect::resetProjectToGlobalSettings()
 }
 
 
-class RunConfigAspectWidget : public QWidget
+class GlobalOrProjectAspectWidget : public QWidget
 {
 public:
-    explicit RunConfigAspectWidget(GlobalOrProjectAspect *aspect)
+    explicit GlobalOrProjectAspectWidget(GlobalOrProjectAspect *aspect)
     {
         using namespace Layouting;
 
@@ -136,17 +139,13 @@ public:
         auto innerPane = new QWidget;
         auto configWidget = aspect->projectSettings()->layouter()().emerge();
 
-        auto details = new DetailsWidget;
-        details->setWidget(innerPane);
-
         Column {
             Row { settingsCombo, restoreButton, st },
             configWidget
         }.attachTo(innerPane);
 
-        Column { details }.attachTo(this);
+        Column { innerPane }.attachTo(this);
 
-        details->layout()->setContentsMargins(0, 0, 0, 0);
         innerPane->layout()->setContentsMargins(0, 0, 0, 0);
         layout()->setContentsMargins(0, 0, 0, 0);
 
@@ -157,9 +156,6 @@ public:
             aspect->setUsingGlobalSettings(!isCustom);
             configWidget->setEnabled(isCustom);
             restoreButton->setEnabled(isCustom);
-            details->setSummaryText(isCustom
-                                    ? Tr::tr("Use Customized Settings")
-                                    : Tr::tr("Use Global Settings"));
         };
 
         chooseSettings(aspect->isUsingGlobalSettings() ? 0 : 1);
@@ -169,6 +165,36 @@ public:
                 aspect, &ProjectExplorer::GlobalOrProjectAspect::resetProjectToGlobalSettings);
     }
 };
+
+class RunConfigAspectWidget : public QWidget
+{
+public:
+    explicit RunConfigAspectWidget(GlobalOrProjectAspect *aspect)
+    {
+        using namespace Layouting;
+
+        auto details = new DetailsWidget;
+        details->setWidget(createGlobalOrProjectAspectWidget(aspect));
+
+        Column { details }.attachTo(this);
+
+        details->layout()->setContentsMargins(0, 0, 0, 0);
+        layout()->setContentsMargins(0, 0, 0, 0);
+
+        const auto updateDetails = [details, aspect] {
+            details->setSummaryText(aspect->isUsingGlobalSettings()
+                                    ? Tr::tr("Use Global Settings")
+                                    : Tr::tr("Use Customized Settings"));
+        };
+        connect(aspect, &GlobalOrProjectAspect::currentSettingsChanged, this, updateDetails);
+        updateDetails();
+    }
+};
+
+QWidget *createGlobalOrProjectAspectWidget(GlobalOrProjectAspect *aspect)
+{
+    return new GlobalOrProjectAspectWidget(aspect);
+}
 
 QWidget *createRunConfigAspectWidget(GlobalOrProjectAspect *aspect)
 {
