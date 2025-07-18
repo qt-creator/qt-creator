@@ -254,16 +254,32 @@ void ProcessReaper::reap(QProcess *process, int timeoutMs)
     priv->scheduleReap(reaperSetup);
 }
 
-void QProcessDeleter::deleteAll()
+void QProcessTaskDeleter::deleteAll()
 {
     QMutexLocker locker(&s_instanceMutex);
     delete s_instance;
     s_instance = nullptr;
 }
 
-void QProcessDeleter::operator()(QProcess *process)
+void QProcessTaskDeleter::operator()(QProcess *process)
 {
     ProcessReaper::reap(process);
+}
+
+void QProcessTaskAdapter::operator()(QProcess *task, TaskInterface *iface)
+{
+    QObject::connect(task, &QProcess::finished, iface, [iface, task] {
+        const bool success = task->exitStatus() == QProcess::NormalExit
+                             && task->error() == QProcess::UnknownError
+                             && task->exitCode() == 0;
+        iface->reportDone(toDoneResult(success));
+    });
+    QObject::connect(task, &QProcess::errorOccurred, iface, [iface](QProcess::ProcessError error) {
+        if (error != QProcess::FailedToStart)
+            return;
+        iface->reportDone(DoneResult::Error);
+    });
+    task->start();
 }
 
 } // namespace Tasking

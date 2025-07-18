@@ -41,6 +41,6 @@ private:
     FilePath m_destination;
 };
 
-using UnarchiverTask = Tasking::SimpleCustomTask<Unarchiver>;
+using UnarchiverTask = Tasking::CustomTask<Unarchiver>;
 
 } // namespace Utils

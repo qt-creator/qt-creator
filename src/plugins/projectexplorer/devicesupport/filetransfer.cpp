@@ -200,20 +200,20 @@ static void setupTransfer(FileTransfer *transfer, TaskInterface *iface)
         const bool success = result.m_exitStatus == QProcess::NormalExit
                              && result.m_error == QProcess::UnknownError
                              && result.m_exitCode == 0;
-        emit iface->done(toDoneResult(success));
+        iface->reportDone(toDoneResult(success));
     }, Qt::SingleShotConnection);
 }
 
-void FileTransferTaskAdapter::start()
+void FileTransferTaskAdapter::operator()(FileTransfer *task, TaskInterface *iface)
 {
-    setupTransfer(task(), this);
-    task()->start();
+    setupTransfer(task, iface);
+    task->start();
 }
 
-void FileTransferTestTaskAdapter::start()
+void FileTransferTestTaskAdapter::operator()(FileTransfer *task, TaskInterface *iface)
 {
-    setupTransfer(task(), this);
-    task()->test();
+    setupTransfer(task, iface);
+    task->test();
 }
 
 } // namespace ProjectExplorer

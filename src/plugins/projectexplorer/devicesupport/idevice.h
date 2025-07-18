@@ -328,6 +328,6 @@ private:
     Utils::Result<> m_result = Utils::ResultOk;
 };
 
-using DeviceProcessKillerTask = Tasking::SimpleCustomTask<DeviceProcessKiller>;
+using DeviceProcessKillerTask = Tasking::CustomTask<DeviceProcessKiller>;
 
 } // namespace ProjectExplorer

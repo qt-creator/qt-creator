@@ -153,25 +153,33 @@ private:
     QPointer<TaskWindow> m_taskWindow;
 };
 
-class ParserAwaiterTaskAdapter final : public TaskAdapter<QSet<BuildSystem *>>
+class ParserAwaiterTaskAdapter final
 {
+public:
+    void operator()(QSet<BuildSystem *> *task, TaskInterface *iface) {
+        m_buildSystems = *task;
+        m_iface = iface;
+        checkParsing();
+    }
+
 private:
-    void start() final { checkParsing(); }
     void checkParsing() {
-        const QSet<BuildSystem *> buildSystems = *task();
-        for (BuildSystem *buildSystem : buildSystems) {
+        for (BuildSystem *buildSystem : std::as_const(m_buildSystems)) {
             if (!buildSystem || !buildSystem->isParsing())
                 continue;
-            connect(buildSystem, &BuildSystem::parsingFinished, this, [this](bool success) {
-                success ? checkParsing() : emit done(DoneResult::Error);
+            QObject::connect(buildSystem, &BuildSystem::parsingFinished, m_iface, [this](bool success) {
+                success ? checkParsing() : m_iface->reportDone(DoneResult::Error);
             }, Qt::SingleShotConnection);
             return;
         }
-        emit done(DoneResult::Success);
+        m_iface->reportDone(DoneResult::Success);
     }
+
+    QSet<BuildSystem *> m_buildSystems;
+    TaskInterface *m_iface = nullptr;
 };
 
-using ParserAwaiterTask = CustomTask<ParserAwaiterTaskAdapter>;
+using ParserAwaiterTask = CustomTask<QSet<BuildSystem *>, ParserAwaiterTaskAdapter>;
 
 static QString msgProgress(int progress, int total)
 {

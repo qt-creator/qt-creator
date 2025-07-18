@@ -73,18 +73,19 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runcontrol", QtWarningMsg)
 
 namespace ClangTools::Internal {
 
-class ProjectBuilderTaskAdapter final : public TaskAdapter<QPointer<RunControl>>
+class ProjectBuilderTaskAdapter final
 {
 public:
-    void start() final {
-        connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
-                this, [this](bool success) {
-            emit done(toDoneResult(success));
-        }, Qt::SingleShotConnection);
-        RunControl *runControl = *task();
-        QTC_ASSERT(runControl, emit done(DoneResult::Error); return);
+    void operator()(QPointer<RunControl> *task, TaskInterface *iface)
+    {
+        RunControl *runControl = *task;
+        QTC_ASSERT(runControl, iface->reportDone(DoneResult::Error); return);
         BuildConfiguration *bc = runControl->buildConfiguration();
-        QTC_ASSERT(bc, emit done(DoneResult::Error); return);
+        QTC_ASSERT(bc, iface->reportDone(DoneResult::Error); return);
+        QObject::connect(BuildManager::instance(), &BuildManager::buildQueueFinished, iface,
+                         [iface](bool success) {
+            iface->reportDone(toDoneResult(success));
+        }, Qt::SingleShotConnection);
         if (!BuildManager::isBuilding(bc->target())) {
             BuildManager::buildProjectWithDependencies(runControl->project(), ConfigSelection::Active,
                                                        runControl);
@@ -92,7 +93,7 @@ public:
     }
 };
 
-using ProjectBuilderTask = CustomTask<ProjectBuilderTaskAdapter>;
+using ProjectBuilderTask = CustomTask<QPointer<RunControl>, ProjectBuilderTaskAdapter>;
 
 static QDebug operator<<(QDebug debug, const Environment &environment)
 {

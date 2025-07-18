@@ -379,7 +379,7 @@ private:
     milliseconds m_interval;
 };
 
-using TickAndDoneTask = SimpleCustomTask<TickAndDone>;
+using TickAndDoneTask = CustomTask<TickAndDone>;
 
 template <typename StoredBarrierType>
 ExecutableItem createBarrierAdvance(const Storage<CustomStorage> &storage,
@@ -3077,18 +3077,18 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        class CustomTaskAdapter final : public TaskAdapter<bool> // bool is dummy
+        class DummyTaskAdapter final // bool is dummy
         {
-        private:
-            void start() final { emit done(DoneResult::Error); }
+        public:
+            void operator()(bool *, TaskInterface *iface) { iface->reportDone(DoneResult::Error); }
         };
 
-        using CustomTask = CustomTask<CustomTaskAdapter>;
+        using DummyTask = CustomTask<bool, DummyTaskAdapter>;
 
         // Check if progress is updated correctly on error when the 1st task finishes synchonously.
         const Group root {
             storage,
-            CustomTask(),
+            DummyTask(),
             createSuccessTask(1)
         };
         QTest::newRow("ProgressOnSynchronousError")
@@ -4386,15 +4386,22 @@ void tst_Tasking::restart()
     QVERIFY(taskTree.isRunning());
 }
 
-class BrokenTaskAdapter final : public TaskAdapter<int>
+class BrokenTaskAdapter final
 {
 public:
     // QTCREATORBUG-30204
-    ~BrokenTaskAdapter() { emit done(DoneResult::Success); }
-    void start() final {}
+    ~BrokenTaskAdapter()
+    {
+        if (m_iface)
+            m_iface->reportDone(DoneResult::Success);
+    }
+    void operator()(int *, TaskInterface *iface) { m_iface = iface; }
+
+private:
+    TaskInterface *m_iface = nullptr;
 };
 
-using BrokenTask = CustomTask<BrokenTaskAdapter>;
+using BrokenTask = CustomTask<int, BrokenTaskAdapter>;
 
 void tst_Tasking::destructorOfTaskEmittingDone()
 {

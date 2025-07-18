@@ -47,19 +47,19 @@ private:
     FileTransferPrivate *d;
 };
 
-class PROJECTEXPLORER_EXPORT FileTransferTaskAdapter final : public Tasking::TaskAdapter<FileTransfer>
+class FileTransferTaskAdapter final
 {
 public:
-    void start() final;
+    PROJECTEXPLORER_EXPORT void operator()(FileTransfer *task, Tasking::TaskInterface *iface);
 };
 
-class PROJECTEXPLORER_EXPORT FileTransferTestTaskAdapter final : public Tasking::TaskAdapter<FileTransfer>
+class FileTransferTestTaskAdapter final
 {
 public:
-    void start() final;
+    PROJECTEXPLORER_EXPORT void operator()(FileTransfer *task, Tasking::TaskInterface *iface);
 };
 
-using FileTransferTask = Tasking::CustomTask<FileTransferTaskAdapter>;
-using FileTransferTestTask = Tasking::CustomTask<FileTransferTestTaskAdapter>;
+using FileTransferTask = Tasking::CustomTask<FileTransfer, FileTransferTaskAdapter>;
+using FileTransferTestTask = Tasking::CustomTask<FileTransfer, FileTransferTestTaskAdapter>;
 
 } // namespace ProjectExplorer

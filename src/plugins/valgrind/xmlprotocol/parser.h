@@ -53,17 +53,18 @@ private:
     std::unique_ptr<ParserPrivate> d;
 };
 
-class ParserTaskAdapter final : public Tasking::TaskAdapter<Parser>
+class ParserTaskAdapter final
 {
 public:
-    void start() final {
-        connect(task(), &Parser::done, this, [this](const Utils::Result<> &result) {
-            emit done(Tasking::toDoneResult(result == Utils::ResultOk));
+    void operator()(Parser *task, Tasking::TaskInterface *iface)
+    {
+        QObject::connect(task, &Parser::done, iface, [iface](const Utils::Result<> &result) {
+            iface->reportDone(Tasking::toDoneResult(result == Utils::ResultOk));
         }, Qt::SingleShotConnection);
-        task()->start();
+        task->start();
     }
 };
 
-using ParserTask = Tasking::CustomTask<ParserTaskAdapter>;
+using ParserTask = Tasking::CustomTask<Parser, ParserTaskAdapter>;
 
 } // Valgrind::XmlProtocol

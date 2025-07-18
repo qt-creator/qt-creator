@@ -92,7 +92,7 @@ private:
     std::unique_ptr<IosToolHandler> m_toolHandler;
 };
 
-using IosTransferTask = SimpleCustomTask<IosTransfer>;
+using IosTransferTask = CustomTask<IosTransfer>;
 
 GroupItem createDeviceCtlDeployTask(
     const IosDevice::ConstPtr &device,

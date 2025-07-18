@@ -62,6 +62,6 @@ private:
     std::unique_ptr<ValgrindProcessPrivate> d;
 };
 
-using ValgrindProcessTask = Tasking::SimpleCustomTask<ValgrindProcess>;
+using ValgrindProcessTask = Tasking::CustomTask<ValgrindProcess>;
 
 } // namespace Valgrind::Internal

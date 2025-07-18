@@ -1343,6 +1343,11 @@ static DoneWith toDoneWith(DoneResult result)
     return result == DoneResult::Success ? DoneWith::Success : DoneWith::Error;
 }
 
+void TaskInterface::reportDone(DoneResult result)
+{
+    Q_EMIT done(result, QPrivateSignal());
+}
+
 class LoopThreadData
 {
     Q_DISABLE_COPY_MOVE(LoopThreadData)
@@ -1468,7 +1473,7 @@ StorageBase::StorageBase(const StorageConstructor &ctor, const StorageDestructor
     : m_storageData(new StorageData{ctor, dtor})
 {}
 
-void *StorageBase::activeStorageVoid() const
+StoragePtr StorageBase::activeStorageVoid() const
 {
     return m_storageData->threadData().activeStorage();
 }
@@ -1521,7 +1526,7 @@ void GroupItem::addChildren(const GroupItems &children)
             }
             break;
         case Type::TaskHandler:
-            QT_ASSERT(child.m_taskHandler.m_createHandler,
+            QT_ASSERT(child.m_taskHandler.m_taskAdapterConstructor,
                       qWarning("Task create handler can't be null, skipping..."); return);
             m_children.append(child);
             break;
@@ -1850,7 +1855,7 @@ public:
         , m_container(taskTreePrivate, task)
     {}
 
-    bool isTask() const { return bool(m_taskHandler.m_createHandler); }
+    bool isTask() const { return bool(m_taskHandler.m_taskAdapterConstructor); }
     int taskCount() const { return isTask() ? 1 : m_container.m_taskCount; }
 
     const GroupItem::TaskHandler m_taskHandler;
@@ -2029,21 +2034,35 @@ public:
     std::vector<std::unique_ptr<RuntimeIteration>> m_iterations; // Owning.
 };
 
+class TaskInterfaceAdapter : public QObject
+{
+public:
+    TaskInterfaceAdapter(const GroupItem::TaskHandler &taskHandler)
+        : m_taskAdapter(taskHandler.m_taskAdapterConstructor())
+        , m_taskAdapterDestructor(taskHandler.m_taskAdapterDestructor)
+    {}
+    ~TaskInterfaceAdapter() { m_taskAdapterDestructor(m_taskAdapter); }
+
+    TaskInterface m_taskInterface;
+    GroupItem::TaskAdapterPtr m_taskAdapter = nullptr; // Owning.
+    GroupItem::TaskAdapterDestructor m_taskAdapterDestructor;
+};
+
 class RuntimeTask
 {
 public:
     ~RuntimeTask()
     {
-        if (m_task) {
+        if (m_taskInterfaceAdapter) {
             // Ensures the running task's d'tor doesn't emit done() signal. QTCREATORBUG-30204.
-            QObject::disconnect(m_task.get(), &TaskInterface::done, nullptr, nullptr);
+            QObject::disconnect(&m_taskInterfaceAdapter->m_taskInterface, &TaskInterface::done, nullptr, nullptr);
         }
     }
 
     const TaskNode &m_taskNode; // Not owning.
     RuntimeIteration *m_parentIteration = nullptr; // Not owning.
     std::optional<RuntimeContainer> m_container = {}; // Owning.
-    std::unique_ptr<TaskInterface> m_task = {}; // Owning.
+    std::unique_ptr<TaskInterfaceAdapter> m_taskInterfaceAdapter = {}; // Owning.
     SetupResult m_setupResult = SetupResult::Continue;
 };
 
@@ -2416,9 +2435,9 @@ void TaskTreePrivate::startTask(const std::shared_ptr<RuntimeTask> &node)
     }
 
     const GroupItem::TaskHandler &handler = node->m_taskNode.m_taskHandler;
-    node->m_task.reset(handler.m_createHandler());
-    node->m_setupResult = handler.m_setupHandler
-        ? invokeHandler(node->m_parentIteration, handler.m_setupHandler, *node->m_task.get())
+    node->m_taskInterfaceAdapter.reset(new TaskInterfaceAdapter(handler));
+    node->m_setupResult = handler.m_taskAdapterSetupHandler
+        ? invokeHandler(node->m_parentIteration, handler.m_taskAdapterSetupHandler, node->m_taskInterfaceAdapter->m_taskAdapter)
         : SetupResult::Continue;
     if (node->m_setupResult != SetupResult::Continue) {
         if (node->m_parentIteration->m_isProgressive)
@@ -2426,11 +2445,11 @@ void TaskTreePrivate::startTask(const std::shared_ptr<RuntimeTask> &node)
         node->m_parentIteration->removeChild(node.get());
         return;
     }
-    QObject::connect(node->m_task.get(), &TaskInterface::done,
+    QObject::connect(&node->m_taskInterfaceAdapter->m_taskInterface, &TaskInterface::done,
                      q, [this, node](DoneResult doneResult) {
         const bool result = invokeTaskDoneHandler(node.get(), toDoneWith(doneResult));
         node->m_setupResult = toSetupResult(result);
-        node->m_task.release()->deleteLater();
+        node->m_taskInterfaceAdapter.release()->deleteLater();
         RuntimeIteration *parentIteration = node->m_parentIteration;
         if (parentIteration->m_container->isStarting())
             return;
@@ -2439,31 +2458,33 @@ void TaskTreePrivate::startTask(const std::shared_ptr<RuntimeTask> &node)
         childDone(parentIteration, result);
         bumpAsyncCount();
     }, Qt::SingleShotConnection);
-    node->m_task->start();
+    handler.m_taskAdapterStarter(node->m_taskInterfaceAdapter->m_taskAdapter,
+                                 &node->m_taskInterfaceAdapter->m_taskInterface);
 }
 
 void TaskTreePrivate::stopTask(RuntimeTask *node)
 {
-    if (!node->m_task) {
-        if (!node->m_container)
-            return;
-        stopContainer(&*node->m_container);
-        node->m_container->updateSuccessBit(false);
-        invokeDoneHandler(&*node->m_container, DoneWith::Cancel);
+    if (node->m_taskInterfaceAdapter) {
+        invokeTaskDoneHandler(node, DoneWith::Cancel);
+        node->m_taskInterfaceAdapter.reset();
         return;
     }
 
-    invokeTaskDoneHandler(node, DoneWith::Cancel);
-    node->m_task.reset();
+    if (!node->m_container)
+        return;
+
+    stopContainer(&*node->m_container);
+    node->m_container->updateSuccessBit(false);
+    invokeDoneHandler(&*node->m_container, DoneWith::Cancel);
 }
 
 bool TaskTreePrivate::invokeTaskDoneHandler(RuntimeTask *node, DoneWith doneWith)
 {
     DoneResult result = toDoneResult(doneWith);
     const GroupItem::TaskHandler &handler = node->m_taskNode.m_taskHandler;
-    if (handler.m_doneHandler && shouldCall(handler.m_callDoneIf, doneWith)) {
-        result = invokeHandler(node->m_parentIteration,
-                               handler.m_doneHandler, *node->m_task.get(), doneWith);
+    if (handler.m_taskAdapterDoneHandler && shouldCall(handler.m_callDoneIf, doneWith)) {
+        result = invokeHandler(node->m_parentIteration, handler.m_taskAdapterDoneHandler,
+                               node->m_taskInterfaceAdapter->m_taskAdapter, doneWith);
     }
     if (node->m_parentIteration->m_isProgressive)
         advanceProgress(1);
@@ -3546,12 +3567,12 @@ void TaskTree::setupStorageHandler(const StorageBase &storage,
     }
 }
 
-void TaskTreeTaskAdapter::start()
+void TaskTreeTaskAdapter::operator()(TaskTree *task, TaskInterface *iface)
 {
-    connect(task(), &TaskTree::done, this, [this](DoneWith result) {
-        emit done(toDoneResult(result));
-    }, Qt::SingleShotConnection);
-    task()->start();
+    QObject::connect(task, &TaskTree::done, iface, [iface](DoneWith result) {
+        iface->reportDone(toDoneResult(result));
+    });
+    task->start();
 }
 
 using TimeoutCallback = std::function<void()>;
@@ -3647,11 +3668,11 @@ TimeoutTaskAdapter::~TimeoutTaskAdapter()
         removeTimerId(*m_timerId);
 }
 
-void TimeoutTaskAdapter::start()
+void TimeoutTaskAdapter::operator()(std::chrono::milliseconds *task, TaskInterface *iface)
 {
-    m_timerId = scheduleTimeout(*task(), this, [this] {
+    m_timerId = scheduleTimeout(*task, iface, [this, iface] {
         m_timerId.reset();
-        emit done(DoneResult::Success);
+        iface->reportDone(DoneResult::Success);
     });
 }
 

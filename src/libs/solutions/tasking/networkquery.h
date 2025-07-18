@@ -54,7 +54,7 @@ private:
     std::unique_ptr<QNetworkReply> m_reply;
 };
 
-using NetworkQueryTask = SimpleCustomTask<NetworkQuery>;
+using NetworkQueryTask = CustomTask<NetworkQuery>;
 
 } // namespace Tasking
 

@@ -311,8 +311,8 @@ private:
     WriteBuffer *m_writeBuffer = nullptr;
 };
 
-using FileStreamReaderTask = SimpleCustomTask<FileStreamReader>;
-using FileStreamWriterTask = SimpleCustomTask<FileStreamWriter>;
+using FileStreamReaderTask = CustomTask<FileStreamReader>;
+using FileStreamWriterTask = CustomTask<FileStreamWriter>;
 
 static Group sameRemoteDeviceTransferTask(const FilePath &source, const FilePath &destination)
 {

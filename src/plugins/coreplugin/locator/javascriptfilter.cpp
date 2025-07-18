@@ -342,7 +342,7 @@ private:
     JavaScriptOutput m_output;
 };
 
-using JavaScriptRequestTask = SimpleCustomTask<JavaScriptRequest>;
+using JavaScriptRequestTask = CustomTask<JavaScriptRequest>;
 
 namespace Core::Internal {
 

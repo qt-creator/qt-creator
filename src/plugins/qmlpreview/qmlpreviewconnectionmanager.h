@@ -61,24 +61,27 @@ private:
     QmlDebugTranslationClientFactoryFunction m_createDebugTranslationClientMethod;
 };
 
-class QmlPreviewConnectionManagerTaskAdapter final : public Tasking::TaskAdapter<QmlPreviewConnectionManager>
+class QmlPreviewConnectionManagerTaskAdapter final
 {
 public:
-    ~QmlPreviewConnectionManagerTaskAdapter() { task()->disconnectFromServer(); }
+    ~QmlPreviewConnectionManagerTaskAdapter() { m_task->disconnectFromServer(); }
+    void operator()(QmlPreviewConnectionManager *task, Tasking::TaskInterface *iface)
+    {
+        m_task = task;
+        QObject::connect(task, &QmlPreviewConnectionManager::connectionClosed, iface, [iface] {
+            iface->reportDone(Tasking::DoneResult::Success);
+        }, Qt::SingleShotConnection);
+        QObject::connect(task, &QmlPreviewConnectionManager::connectionFailed, iface, [iface] {
+            iface->reportDone(Tasking::DoneResult::Error);
+        }, Qt::SingleShotConnection);
+        task->connectToServer();
+    }
 
 private:
-    void start() final
-    {
-        connect(task(), &QmlPreviewConnectionManager::connectionClosed, this, [this] {
-            emit done(Tasking::DoneResult::Success);
-        }, Qt::SingleShotConnection);
-        connect(task(), &QmlPreviewConnectionManager::connectionFailed, this, [this] {
-            emit done(Tasking::DoneResult::Error);
-        }, Qt::SingleShotConnection);
-        task()->connectToServer();
-    }
+    QmlPreviewConnectionManager *m_task = nullptr;
 };
 
-using QmlPreviewConnectionManagerTask = Tasking::CustomTask<QmlPreviewConnectionManagerTaskAdapter>;
+using QmlPreviewConnectionManagerTask
+    = Tasking::CustomTask<QmlPreviewConnectionManager, QmlPreviewConnectionManagerTaskAdapter>;
 
 } // namespace QmlPreview

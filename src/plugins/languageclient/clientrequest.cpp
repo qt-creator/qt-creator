@@ -8,12 +8,13 @@ using namespace Tasking;
 
 namespace LanguageClient {
 
-void ClientWorkspaceSymbolRequestTaskAdapter::start()
+void ClientWorkspaceSymbolRequestTaskAdapter::operator()(ClientWorkspaceSymbolRequest *task,
+                                                         TaskInterface *iface)
 {
-    task()->setResponseCallback([this](const WorkspaceSymbolRequest::Response &response){
-        emit done(toDoneResult(response.result().has_value()));
+    task->setResponseCallback([iface](const WorkspaceSymbolRequest::Response &response) {
+        iface->reportDone(toDoneResult(response.result().has_value()));
     });
-    task()->start();
+    task->start();
 }
 
 bool ClientWorkspaceSymbolRequest::preStartCheck()

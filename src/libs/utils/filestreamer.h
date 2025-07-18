@@ -48,6 +48,6 @@ private:
     class FileStreamerPrivate *d = nullptr;
 };
 
-using FileStreamerTask = Tasking::SimpleCustomTask<FileStreamer>;
+using FileStreamerTask = Tasking::CustomTask<FileStreamer>;
 
 } // namespace Utils

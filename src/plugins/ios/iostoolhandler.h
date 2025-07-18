@@ -87,12 +87,12 @@ private:
     Internal::IosDeviceType m_deviceType = Internal::IosDeviceType::IosDevice;
 };
 
-class IosToolTaskAdapter final : public Tasking::TaskAdapter<IosToolRunner>
+class IosToolTaskAdapter final
 {
 public:
-    void start() final;
+    void operator()(IosToolRunner *task, Tasking::TaskInterface *iface);
 };
 
-using IosToolTask = Tasking::CustomTask<IosToolTaskAdapter>;
+using IosToolTask = Tasking::CustomTask<IosToolRunner, IosToolTaskAdapter>;
 
 } // namespace Ios

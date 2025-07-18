@@ -38,7 +38,7 @@ private:
     int m_current = -1;
 };
 
-using BarrierTask = SimpleCustomTask<Barrier>;
+using BarrierTask = CustomTask<Barrier>;
 
 template <int Limit = 1>
 class StartedBarrier final : public Barrier
@@ -98,26 +98,31 @@ public:
         , m_workflowPolicy(policy)
     {}
 
-    template <typename Adapter, typename Signal>
-    When(const CustomTask<Adapter> &customTask, Signal signal,
-         WorkflowPolicy policy = WorkflowPolicy::StopOnError)
-        : m_workflowPolicy(policy)
+    template <typename Task, typename Adapter, typename Deleter, typename Signal>
+    explicit When(const CustomTask<Task, Adapter, Deleter> &customTask, Signal signal,
+                  WorkflowPolicy policy = WorkflowPolicy::StopOnError)
+        : When(kickerForSignal(customTask, signal), policy)
+    {}
+
+private:
+    template <typename Task, typename Adapter, typename Deleter, typename Signal>
+    BarrierKickerGetter kickerForSignal(const CustomTask<Task, Adapter, Deleter> &customTask, Signal signal)
     {
-        m_barrierKicker = [taskHandler = customTask.m_taskHandler, signal](const StoredBarrier &barrier) {
+        return [taskHandler = customTask.m_taskHandler, signal](const StoredBarrier &barrier) {
             auto handler = std::move(taskHandler);
-            const auto wrappedSetupHandler = [originalSetupHandler = std::move(handler.m_setupHandler),
-                                              barrier, signal](TaskInterface &taskInterface) {
-                const SetupResult setupResult = std::invoke(originalSetupHandler, taskInterface);
-                Adapter &adapter = static_cast<Adapter &>(taskInterface);
-                QObject::connect(adapter.task(), signal, barrier.activeStorage(), &Barrier::advance);
+            const auto wrappedSetupHandler = [originalSetupHandler = std::move(handler.m_taskAdapterSetupHandler),
+                                              barrier, signal](void *taskAdapter) {
+                const SetupResult setupResult = std::invoke(originalSetupHandler, taskAdapter);
+                using TaskAdapter = typename CustomTask<Task, Adapter, Deleter>::TaskAdapter;
+                TaskAdapter *adapter = static_cast<TaskAdapter *>(taskAdapter);
+                QObject::connect(adapter->task.get(), signal, barrier.activeStorage(), &Barrier::advance);
                 return setupResult;
             };
-            handler.m_setupHandler = std::move(wrappedSetupHandler);
+            handler.m_taskAdapterSetupHandler = std::move(wrappedSetupHandler);
             return ExecutableItem(std::move(handler));
         };
     }
 
-private:
     TASKING_EXPORT friend Group operator>>(const When &whenItem, const Do &doItem);
 
     BarrierKickerGetter m_barrierKicker;

@@ -65,22 +65,23 @@ const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "CMakeProjectManager.MakeStep.ClearS
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "CMakeProjectManager.MakeStep.UserEnvironmentChanges";
 const char BUILD_PRESET_KEY[] = "CMakeProjectManager.MakeStep.BuildPreset";
 
-class ProjectParserTaskAdapter final : public TaskAdapter<QPointer<BuildSystem>>
+class ProjectParserTaskAdapter final
 {
 public:
-    void start() final {
-        BuildSystem *bs = *task();
+    void operator()(QPointer<BuildSystem> *task, TaskInterface *iface)
+    {
+        BuildSystem *bs = *task;
         if (!bs) {
-            emit done(DoneResult::Error);
+            iface->reportDone(DoneResult::Error);
             return;
         }
-        connect(bs, &BuildSystem::parsingFinished, this, [this](bool success) {
-            emit done(toDoneResult(success));
+        QObject::connect(bs, &BuildSystem::parsingFinished, iface, [iface](bool success) {
+            iface->reportDone(toDoneResult(success));
         }, Qt::SingleShotConnection);
     }
 };
 
-using ProjectParserTask = CustomTask<ProjectParserTaskAdapter>;
+using ProjectParserTask = CustomTask<QPointer<BuildSystem>, ProjectParserTaskAdapter>;
 
 class CMakeProgressParser : public Utils::OutputLineParser
 {

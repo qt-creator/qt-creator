@@ -40,7 +40,7 @@ namespace Tasking {
 // The implementation of the internal reaper is inspired by the Utils::ProcessReaper taken
 // from the QtCreator codebase.
 
-class TASKING_EXPORT QProcessDeleter
+class TASKING_EXPORT QProcessTaskDeleter
 {
 public:
     // Blocking, should be called after all QProcessAdapter instances are deleted.
@@ -48,26 +48,13 @@ public:
     void operator()(QProcess *process);
 };
 
-class TASKING_EXPORT QProcessAdapter final : public TaskAdapter<QProcess, QProcessDeleter>
+class QProcessTaskAdapter final
 {
-private:
-    void start() final {
-        connect(task(), &QProcess::finished, this, [this] {
-            const bool success = task()->exitStatus() == QProcess::NormalExit
-                                 && task()->error() == QProcess::UnknownError
-                                 && task()->exitCode() == 0;
-            Q_EMIT done(toDoneResult(success));
-        }, Qt::SingleShotConnection);
-        connect(task(), &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
-            if (error != QProcess::FailedToStart)
-                return;
-            Q_EMIT done(DoneResult::Error);
-        }, Qt::SingleShotConnection);
-        task()->start();
-    }
+public:
+    TASKING_EXPORT void operator()(QProcess *task, TaskInterface *iface);
 };
 
-using QProcessTask = CustomTask<QProcessAdapter>;
+using QProcessTask = CustomTask<QProcess, QProcessTaskAdapter, QProcessTaskDeleter>;
 
 } // namespace Tasking
 

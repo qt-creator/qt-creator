@@ -841,7 +841,7 @@ private:
     QNetworkReply *m_reply = nullptr;
 };
 
-using DownloadTask = Tasking::SimpleCustomTask<Downloader>;
+using DownloadTask = Tasking::CustomTask<Downloader>;
 
 void ExtensionsBrowser::fetchExtensions()
 {

@@ -228,12 +228,12 @@ public:
     std::function<ProcessInterface *(const FilePath &)> processImplHook;
 };
 
-class QTCREATOR_UTILS_EXPORT ProcessTaskAdapter final : public Tasking::TaskAdapter<Process>
+class ProcessTaskAdapter final
 {
 public:
-    void start() final;
+    QTCREATOR_UTILS_EXPORT void operator()(Process *task, Tasking::TaskInterface *iface);
 };
 
-using ProcessTask = Tasking::CustomTask<ProcessTaskAdapter>;
+using ProcessTask = Tasking::CustomTask<Process, ProcessTaskAdapter>;
 
 } // namespace Utils

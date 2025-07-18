@@ -67,14 +67,14 @@ public:
     bool preStartCheck() override;
 };
 
-class LANGUAGECLIENT_EXPORT ClientWorkspaceSymbolRequestTaskAdapter final
-    : public Tasking::TaskAdapter<ClientWorkspaceSymbolRequest>
+class ClientWorkspaceSymbolRequestTaskAdapter final
 {
 public:
-    void start() final;
+    LANGUAGECLIENT_EXPORT void operator()(ClientWorkspaceSymbolRequest *task,
+                                          Tasking::TaskInterface *iface);
 };
 
 using ClientWorkspaceSymbolRequestTask
-    = Tasking::CustomTask<ClientWorkspaceSymbolRequestTaskAdapter>;
+    = Tasking::CustomTask<ClientWorkspaceSymbolRequest, ClientWorkspaceSymbolRequestTaskAdapter>;
 
 } // namespace LanguageClient

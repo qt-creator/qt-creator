@@ -12,40 +12,39 @@ namespace Core {
 
 CredentialQueryTaskAdapter::~CredentialQueryTaskAdapter() = default;
 
-void CredentialQueryTaskAdapter::start()
+void CredentialQueryTaskAdapter::operator()(CredentialQuery *task, TaskInterface *iface)
 {
     Job *job = nullptr;
     ReadPasswordJob *reader = nullptr;
 
-    switch (task()->m_operation) {
+    switch (task->m_operation) {
     case CredentialOperation::Get: {
-        job = reader = new ReadPasswordJob(task()->m_service);
+        job = reader = new ReadPasswordJob(task->m_service);
         break;
     }
     case CredentialOperation::Set: {
-        WritePasswordJob *writer = new WritePasswordJob(task()->m_service);
-        if (task()->m_data)
-            writer->setBinaryData(*task()->m_data);
+        WritePasswordJob *writer = new WritePasswordJob(task->m_service);
+        if (task->m_data)
+            writer->setBinaryData(*task->m_data);
         job = writer;
         break;
     }
     case CredentialOperation::Delete:
-        job = new DeletePasswordJob(task()->m_service);
+        job = new DeletePasswordJob(task->m_service);
         break;
     }
 
     job->setAutoDelete(false);
-    job->setKey(task()->m_key);
+    job->setKey(task->m_key);
     m_guard.reset(job);
 
-    connect(job, &Job::finished, this, [this, reader](Job *job) {
+    QObject::connect(job, &Job::finished, iface, [this, iface, task, reader](Job *job) {
         const bool success = job->error() == NoError || job->error() == EntryNotFound;
         if (!success)
-            task()->m_errorString = job->errorString();
+            task->m_errorString = job->errorString();
         else if (reader && job->error() == NoError)
-            task()->m_data = reader->binaryData();
-        disconnect(job, &Job::finished, this, nullptr);
-        emit done(toDoneResult(success));
+            task->m_data = reader->binaryData();
+        iface->reportDone(toDoneResult(success));
         m_guard.release()->deleteLater();
     }, Qt::SingleShotConnection);
     job->start();

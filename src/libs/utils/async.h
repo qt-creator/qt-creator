@@ -221,18 +221,18 @@ private:
 };
 
 template <typename ResultType>
-class AsyncTaskAdapter final : public Tasking::TaskAdapter<Async<ResultType>>
+class AsyncTaskAdapter final
 {
 public:
-    void start() final {
-        this->connect(this->task(), &AsyncBase::done, this, [this] {
-            emit this->done(Tasking::toDoneResult(!this->task()->isCanceled()));
+    void operator()(Async<ResultType> *task, Tasking::TaskInterface *iface) {
+        QObject::connect(task, &AsyncBase::done, iface, [iface, task] {
+            iface->reportDone(Tasking::toDoneResult(!task->isCanceled()));
         }, Qt::SingleShotConnection);
-        this->task()->start();
+        task->start();
     }
 };
 
 template <typename T>
-using AsyncTask = Tasking::CustomTask<AsyncTaskAdapter<T>>;
+using AsyncTask = Tasking::CustomTask<Async<T>, AsyncTaskAdapter<T>>;
 
 } // namespace Utils

@@ -997,16 +997,16 @@ void IosToolRunner::setDeviceType(const Internal::IosDeviceType &type)
     m_deviceType = type;
 }
 
-void IosToolTaskAdapter::start()
+void IosToolTaskAdapter::operator()(IosToolRunner *task, Tasking::TaskInterface *iface)
 {
-    task()->m_iosToolHandler.reset(new IosToolHandler(Internal::IosDeviceType(task()->m_deviceType)));
-    connect(task()->m_iosToolHandler.get(), &IosToolHandler::finished, this, [this] {
-        const Tasking::DoneResult result = task()->m_iosToolHandler->exitCode() == 0
+    task->m_iosToolHandler.reset(new IosToolHandler(Internal::IosDeviceType(task->m_deviceType)));
+    QObject::connect(task->m_iosToolHandler.get(), &IosToolHandler::finished, iface, [iface, task] {
+        const Tasking::DoneResult result = task->m_iosToolHandler->exitCode() == 0
             ? Tasking::DoneResult::Success : Tasking::DoneResult::Error;
-        task()->m_iosToolHandler.release()->deleteLater();
-        emit done(result);
+        task->m_iosToolHandler.release()->deleteLater();
+        iface->reportDone(result);
     }, Qt::SingleShotConnection);
-    task()->m_startHandler(task()->m_iosToolHandler.get());
+    task->m_startHandler(task->m_iosToolHandler.get());
 }
 
 } // namespace Ios

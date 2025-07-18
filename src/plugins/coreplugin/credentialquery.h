@@ -32,14 +32,16 @@ private:
     friend class CredentialQueryTaskAdapter;
 };
 
-class CORE_EXPORT CredentialQueryTaskAdapter final : public Tasking::TaskAdapter<CredentialQuery>
+class CredentialQueryTaskAdapter final
 {
+public:
+    CORE_EXPORT ~CredentialQueryTaskAdapter();
+    CORE_EXPORT void operator()(CredentialQuery *task, Tasking::TaskInterface *iface);
+
 private:
-    ~CredentialQueryTaskAdapter();
-    void start() final;
     std::unique_ptr<QObject> m_guard;
 };
 
-using CredentialQueryTask = Tasking::CustomTask<CredentialQueryTaskAdapter>;
+using CredentialQueryTask = Tasking::CustomTask<CredentialQuery, CredentialQueryTaskAdapter>;
 
 } // Core

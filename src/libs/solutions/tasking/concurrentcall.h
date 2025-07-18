@@ -70,7 +70,7 @@ private:
 };
 
 template <typename ResultType>
-class ConcurrentCallTaskAdapter final : public TaskAdapter<ConcurrentCall<ResultType>>
+class ConcurrentCallTaskAdapter final
 {
 public:
     ~ConcurrentCallTaskAdapter() {
@@ -80,26 +80,26 @@ public:
         }
     }
 
-    void start() final {
-        if (!this->task()->m_startHandler) {
-            emit this->done(DoneResult::Error); // TODO: Add runtime assert
+    void operator()(ConcurrentCall<ResultType> *task, TaskInterface *iface) {
+        if (!task->m_startHandler) {
+            iface->reportDone(DoneResult::Error); // TODO: Add runtime assert
             return;
         }
         m_watcher.reset(new QFutureWatcher<ResultType>);
-        this->connect(m_watcher.get(), &QFutureWatcherBase::finished, this, [this] {
-            emit this->done(toDoneResult(!m_watcher->isCanceled()));
+        QObject::connect(m_watcher.get(), &QFutureWatcherBase::finished, iface, [this, iface] {
+            iface->reportDone(toDoneResult(!m_watcher->isCanceled()));
             m_watcher.release()->deleteLater();
-        }, Qt::SingleShotConnection);
-        this->task()->m_future = this->task()->m_startHandler();
-        m_watcher->setFuture(this->task()->m_future);
+        });
+        task->m_future = task->m_startHandler();
+        m_watcher->setFuture(task->m_future);
     }
 
 private:
     std::unique_ptr<QFutureWatcher<ResultType>> m_watcher;
 };
 
-template <typename T>
-using ConcurrentCallTask = CustomTask<ConcurrentCallTaskAdapter<T>>;
+template <typename ResultType>
+using ConcurrentCallTask = CustomTask<ConcurrentCall<ResultType>, ConcurrentCallTaskAdapter<ResultType>>;
 
 } // namespace Tasking
 
