@@ -1872,6 +1872,8 @@ void Process::runBlocking(seconds timeout, EventLoopMode eventLoopMode)
         if (state() == QProcess::NotRunning)
             return;
         stop();
+        // TODO: This arbitrary 2s causes flakiness of:
+        //       tst_Process::runBlockingStdOut:"Short timeout without end of line".
         QTC_CHECK(waitForFinished(2s));
     };
 
