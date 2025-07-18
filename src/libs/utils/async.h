@@ -57,8 +57,9 @@ const QFuture<T> &onResultReady(const QFuture<T> &future, R *receiver, void(R::*
 {
     auto watcher = new QFutureWatcher<T>(receiver);
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
-    QObject::connect(watcher, &QFutureWatcherBase::resultReadyAt, receiver, [=](int index) {
-        (receiver->*member)(watcher->future().resultAt(index));
+    QObject::connect(watcher, &QFutureWatcherBase::resultReadyAt, receiver,
+                     [future, receiver, member](int index) {
+        (receiver->*member)(future.resultAt(index));
     });
     watcher->setFuture(future);
     return future;
@@ -94,7 +95,7 @@ const QFuture<T> &onFinished(const QFuture<T> &future,
     auto watcher = new QFutureWatcher<T>(receiver);
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
     QObject::connect(watcher, &QFutureWatcherBase::finished, receiver,
-                     [=] { (receiver->*member)(watcher->future()); });
+                     [future, receiver, member] { (receiver->*member)(future); });
     watcher->setFuture(future);
     return future;
 }
