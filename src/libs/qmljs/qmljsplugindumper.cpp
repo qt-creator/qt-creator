@@ -314,7 +314,7 @@ void PluginDumper::pluginChanged(const FilePath &pluginLibrary)
 QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(const FilePaths &paths) const
 {
     auto future = Utils::asyncRun(m_modelManager->threadPool(),
-                                  [=](QPromise<PluginDumper::QmlTypeDescription> &promise) {
+                                  [paths](QPromise<PluginDumper::QmlTypeDescription> &promise) {
         PluginDumper::QmlTypeDescription result;
 
         for (const FilePath &p: paths) {
