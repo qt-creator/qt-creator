@@ -6,6 +6,7 @@
 #include <QtGlobal>
 
 #include <iosfwd>
+#include <iterator>
 #include <ostream>
 
 QT_BEGIN_NAMESPACE
@@ -23,16 +24,9 @@ template<typename Type, qsizetype Size>
 std::ostream &operator<<(std::ostream &out, const QVarLengthArray<Type, Size> &array)
 {
     out << "[";
-
-    int i = 0;
-    for (auto &&value : array) {
-        i++;
-        out << value;
-        if (i < array.size())
-            out << ", ";
-    }
-
-    return out << "]";
+    copy(array.cbegin(), array.cend(), std::ostream_iterator<Type>(out, ", "));
+    out << "]";
+    return out;
 }
 
 std::ostream &operator<<(std::ostream &out, const QVariant &QVariant);
