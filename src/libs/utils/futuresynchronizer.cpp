@@ -65,6 +65,12 @@ void FutureSynchronizer::flushFinishedFutures()
     m_futures = newFutures;
 }
 
+void FutureSynchronizer::addFutureImpl(const QFuture<void> &future)
+{
+    m_futures.append(future);
+    flushFinishedFutures();
+}
+
 Q_GLOBAL_STATIC(FutureSynchronizer, s_futureSynchronizer);
 
 /*!

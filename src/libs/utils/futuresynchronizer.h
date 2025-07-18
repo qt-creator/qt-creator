@@ -18,11 +18,7 @@ public:
     ~FutureSynchronizer();
 
     template <typename T>
-    void addFuture(const QFuture<T> &future)
-    {
-        m_futures.append(QFuture<void>(future));
-        flushFinishedFutures();
-    }
+    void addFuture(const QFuture<T> &future) { addFutureImpl(QFuture<void>(future)); }
 
     bool isEmpty() const;
 
@@ -37,6 +33,8 @@ public:
     void flushFinishedFutures();
 
 private:
+    void addFutureImpl(const QFuture<void> &future);
+
     QList<QFuture<void>> m_futures;
     // Note: This default value is different than QFutureSynchronizer's one. True makes more sense.
     bool m_cancelOnWait = true;
