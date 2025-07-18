@@ -30,6 +30,7 @@ public:
         Hide,
         Show
     };
+    Q_ENUM(OnAllDisabledBehavior)
 
     virtual void setOnAllDisabledBehavior(OnAllDisabledBehavior behavior) = 0;
     virtual ActionContainer::OnAllDisabledBehavior onAllDisabledBehavior() const = 0;

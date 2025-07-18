@@ -2,6 +2,7 @@
 -- SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 local Utils = require("Utils")
 local Action = require("Action")
+local Menu = require("Menu")
 local a = require("async")
 
 
@@ -60,12 +61,19 @@ local function runTests()
 end
 
 local function setup()
+    Menu.create("Lua.Tests", {
+        title = "Lua Tests",
+        containers = { "QtCreator.Menu.Tools" },
+        icon = ":/lua/images/settingscategory_lua.png"
+    })
     Action.create("LuaTests.run", {
         text = "Run lua tests",
-        onTrigger = function() a.sync(runTests)() end,
+        containers = { "Lua.Tests" },
+        onTrigger = function() a.sync(runTests)() end
     })
     Action.create("LuaTests.layoutDemo", {
         text = "Lua Layout Demo",
+        containers = { "Lua.Tests" },
         onTrigger = function()
             local script, err = loadfile(Utils.FilePath.fromUserInput(script_path()):parentDir():resolvePath(
             "guidemo.lua"):nativePath())

@@ -1,5 +1,4 @@
 ---@meta Utils
-
 local utils = {}
 
 ---The Process ID of Qt Creator.
@@ -193,6 +192,8 @@ function utils.stringToBase64(text) end
 function utils.base64ToString(text) end
 ---@class Icon
 utils.Icon = {}
+
+---@alias IconFilePathOrString Icon|FilePath|string
 
 ---@enum IconStyleOption
 utils.IconStyleOption = {

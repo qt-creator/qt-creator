@@ -57,6 +57,7 @@ void setupInstallModule();
 void setupJsonModule();
 void setupLocalSocketModule();
 void setupMacroModule();
+void setupMenuModule();
 void setupMessageManagerModule();
 void setupProcessModule();
 void setupProjectModule();
@@ -309,6 +310,7 @@ public:
         setupJsonModule();
         setupLocalSocketModule();
         setupMacroModule();
+        setupMenuModule();
         setupMessageManagerModule();
         setupProcessModule();
         setupProjectModule();

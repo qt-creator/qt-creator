@@ -35,6 +35,7 @@ gui.baseWidgetOptions = {}
 ---@field title? string The title of the widget, if applicable.
 ---@field onTextChanged? function The function to be called when the text of the widget changes, if applicable.
 ---@field onClicked? function The function to be called when the widget is clicked, if applicable.
+---@field icon? IconFilePathOrString The icon of the widget, if applicable. Can be a string, FilePath or Icon.
 ---@field iconPath? FilePath The path to the icon of the widget, if applicable. Empty or not existent paths set null icon. (see [QIcon](https://doc.qt.io/qt-5/qicon.html#QIcon))
 ---@field text? string The text of the widget, if applicable.
 ---@field value? integer The value of the widget, if applicable.
@@ -324,7 +325,7 @@ local spinner = {}
 local IconDisplay = {}
 
 ---@class (exact) IconDisplayOptions : BaseWidgetOptions
----@param icon? Utils.Icon|FilePath|string The icon to display
+---@field icon? IconFilePathOrString The icon to display
 gui.iconDisplayOptions = {}
 
 ---@param options IconDisplayOptions

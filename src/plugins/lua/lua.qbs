@@ -48,6 +48,7 @@ QtcPlugin {
             "json.cpp",
             "localsocket.cpp",
             "macro.cpp",
+            "menu.cpp",
             "messagemanager.cpp",
             "project.cpp",
             "qt.cpp",

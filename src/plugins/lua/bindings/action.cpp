@@ -105,6 +105,19 @@ void setupActionModule()
                     }
                 } else if (key == "icon") {
                     b.setIcon(toIcon(v.as<IconFilePathOrString>())->icon());
+                } else if (key == "containers") {
+                    v.as<sol::table>().for_each([&b](sol::object, sol::object value) {
+                        if (value.is<sol::table>()) {
+                            const sol::table t = value.as<sol::table>();
+                            const auto containerId = t.get<std::string>("containerId");
+                            const auto groupId = t.get_or<std::string>("groupId", {});
+                            b.addToContainer(
+                                Id::fromString(QString::fromStdString(containerId)),
+                                Id::fromString(QString::fromStdString(groupId)));
+                        } else if (value.is<QString>()) {
+                            b.addToContainer(Id::fromString(value.as<QString>()));
+                        }
+                    });
                 } else
                     throw std::runtime_error("Unknown key: " + key.toStdString());
             }

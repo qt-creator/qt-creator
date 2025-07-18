@@ -14,6 +14,7 @@ add_qtc_plugin(Lua
     bindings/json.cpp
     bindings/localsocket.cpp
     bindings/macro.cpp
+    bindings/menu.cpp
     bindings/messagemanager.cpp
     bindings/project.cpp
     bindings/qt.cpp
