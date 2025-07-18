@@ -26,6 +26,7 @@
 
 #include <QApplication>
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QTest>
 #include <QTextDocument>
 

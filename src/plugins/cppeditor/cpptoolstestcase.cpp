@@ -38,6 +38,7 @@
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
+#include <QElapsedTimer>
 #include <QTest>
 
 using namespace ProjectExplorer;
