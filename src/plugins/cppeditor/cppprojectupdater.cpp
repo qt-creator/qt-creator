@@ -52,7 +52,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
         });
 
     // Run the project info generator in a worker thread and continue if that one is finished.
-    const auto infoGenerator = [=](QPromise<ProjectInfo::ConstPtr> &promise) {
+    const auto infoGenerator = [projectUpdateInfo](QPromise<ProjectInfo::ConstPtr> &promise) {
         ProjectUpdateInfo fullProjectUpdateInfo = projectUpdateInfo;
         if (fullProjectUpdateInfo.rppGenerator)
             fullProjectUpdateInfo.rawProjectParts = fullProjectUpdateInfo.rppGenerator();
