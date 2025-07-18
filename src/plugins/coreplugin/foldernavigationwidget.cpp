@@ -727,13 +727,9 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         emit m_instance->aboutToShowContextMenu(&menu, filePath, isDir);
     }
 
-    // we need dummy DocumentModel::Entry with absolute file path in it
-    // to get EditorManager::addNativeDirAndOpenWithActions() working
-    DocumentModel::Entry fakeEntry;
-    IDocument document;
-    document.setFilePath(filePath);
-    fakeEntry.document = &document;
-    EditorManager::addNativeDirAndOpenWithActions(&menu, &fakeEntry);
+    menu.addSeparator();
+    EditorManager::addContextMenuActions(&menu, filePath);
+    menu.addSeparator();
 
     if (hasCurrentItem) {
         if (isDir) {
