@@ -365,14 +365,14 @@ public:
                 (QmlDesigner::SourceId sourceId),
                 (const, override));
 
-    MOCK_METHOD(QmlDesigner::Storage::Synchronization::DirectoryInfos,
-                fetchDirectoryInfos,
-                (QmlDesigner::DirectoryPathId directoryId),
+    MOCK_METHOD(QmlDesigner::Storage::Synchronization::ProjectEntryInfos,
+                fetchProjectEntryInfos,
+                (QmlDesigner::SourceId contextSourceId),
                 (const, override));
 
-    MOCK_METHOD(QmlDesigner::Storage::Synchronization::DirectoryInfos,
-                fetchDirectoryInfos,
-                (QmlDesigner::DirectoryPathId directoryId,
+    MOCK_METHOD(QmlDesigner::Storage::Synchronization::ProjectEntryInfos,
+                fetchProjectEntryInfos,
+                (QmlDesigner::SourceId contextSourceId,
                  QmlDesigner::Storage::Synchronization::FileType),
                 (const, override));
 
@@ -381,8 +381,8 @@ public:
                 (QmlDesigner::DirectoryPathId directoryId),
                 (const, override));
 
-    MOCK_METHOD(std::optional<QmlDesigner::Storage::Synchronization::DirectoryInfo>,
-                fetchDirectoryInfo,
+    MOCK_METHOD(std::optional<QmlDesigner::Storage::Synchronization::ProjectEntryInfo>,
+                fetchProjectEntryInfo,
                 (QmlDesigner::SourceId sourceId),
                 (const, override));
 

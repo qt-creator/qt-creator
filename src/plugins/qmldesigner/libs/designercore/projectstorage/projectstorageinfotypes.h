@@ -559,6 +559,8 @@ public:
     TypeId propertyTypeId;
 };
 
+using PropertyDeclarations = std::vector<PropertyDeclaration>;
+
 class Type
 {
 public:
@@ -585,6 +587,8 @@ public:
     SourceId sourceId;
     TypeTraits traits;
 };
+
+using Types = std::vector<Type>;
 
 using TypeIdsWithoutProperties = std::array<TypeId, 8>;
 

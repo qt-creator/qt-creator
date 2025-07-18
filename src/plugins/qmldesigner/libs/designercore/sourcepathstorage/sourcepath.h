@@ -25,7 +25,7 @@ public:
         m_slashIndex = view.slashIndex();
     }
 
-    explicit SourcePath(Utils::SmallStringView &&sourcePath)
+    explicit SourcePath(std::string_view sourcePath)
         : Utils::PathString(sourcePath)
     {
         SourcePathView view{*this};

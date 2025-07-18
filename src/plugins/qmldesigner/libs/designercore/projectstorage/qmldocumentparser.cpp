@@ -73,18 +73,18 @@ Storage::Import createImport(const QmlDom::Import &qmlImport,
     case QmlUriKind::DirectoryUrl: {
         auto moduleId = modulesStorage.moduleId(Utils::PathString{uri.toString()},
                                                 ModuleKind::PathLibrary);
-        return Storage::Import(moduleId, convertVersion(qmlImport.version), sourceId);
+        return Storage::Import(moduleId, convertVersion(qmlImport.version), sourceId, sourceId);
     }
     case QmlUriKind::RelativePath: {
         auto path = createNormalizedPath(directoryPath, uri.localPath());
         auto moduleId = modulesStorage.moduleId(createNormalizedPath(directoryPath, uri.localPath()),
                                                 ModuleKind::PathLibrary);
-        return Storage::Import(moduleId, Storage::Version{}, sourceId);
+        return Storage::Import(moduleId, Storage::Version{}, sourceId, sourceId);
     }
     case QmlUriKind::ModuleUri: {
         auto moduleId = modulesStorage.moduleId(Utils::PathString{uri.moduleUri()},
                                                 ModuleKind::QmlLibrary);
-        return Storage::Import(moduleId, convertVersion(qmlImport.version), sourceId);
+        return Storage::Import(moduleId, convertVersion(qmlImport.version), sourceId, sourceId);
     }
     case QmlUriKind::Invalid:
         return Storage::Import{};
@@ -133,11 +133,11 @@ void addImports(Storage::Imports &imports,
     using Storage::ModuleKind;
 
     auto localDirectoryModuleId = modulesStorage.moduleId(directoryPath, ModuleKind::PathLibrary);
-    imports.emplace_back(localDirectoryModuleId, Storage::Version{}, sourceId);
+    imports.emplace_back(localDirectoryModuleId, Storage::Version{}, sourceId, sourceId);
     ++importCount;
 
     auto qmlModuleId = modulesStorage.moduleId("QML", ModuleKind::QmlLibrary);
-    imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId);
+    imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId, sourceId);
     ++importCount;
 
     auto end = imports.end();

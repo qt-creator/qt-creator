@@ -42,7 +42,8 @@ public:
     void parse(const QString &sourceContent,
                Storage::Imports &imports,
                Storage::Synchronization::Types &types,
-               const Storage::Synchronization::DirectoryInfo &directoryInfo,
+               Storage::Synchronization::ExportedTypes &exportedTypes,
+               const Storage::Synchronization::ProjectEntryInfo &projectEntryInfo,
                IsInsideProject isInsideProject) override;
 
 private:

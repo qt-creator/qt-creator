@@ -45,6 +45,14 @@ public:
         return compoundId;
     }
 
+    static constexpr SourceId create(DirectoryPathId directoryPathId)
+    {
+        SourceId compoundId;
+        compoundId.id = static_cast<long long>(directoryPathId.internalId()) << 32;
+
+        return compoundId;
+    }
+
     static constexpr SourceId create(long long idNumber)
     {
         SourceId id;

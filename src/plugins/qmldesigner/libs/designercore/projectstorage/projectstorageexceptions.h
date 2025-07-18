@@ -103,26 +103,26 @@ public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT DirectoryInfoHasInvalidProjectSourceId : public ProjectStorageError
+class QMLDESIGNERCORE_EXPORT ProjectEntryInfoHasInvalidProjectSourceId : public ProjectStorageError
 {
 public:
-    DirectoryInfoHasInvalidProjectSourceId(
+    ProjectEntryInfoHasInvalidProjectSourceId(
         const Sqlite::source_location &location = Sqlite::source_location::current());
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT DirectoryInfoHasInvalidSourceId : public ProjectStorageError
+class QMLDESIGNERCORE_EXPORT ProjectEntryInfoHasInvalidSourceId : public ProjectStorageError
 {
 public:
-    DirectoryInfoHasInvalidSourceId(
+    ProjectEntryInfoHasInvalidSourceId(
         const Sqlite::source_location &location = Sqlite::source_location::current());
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT DirectoryInfoHasInvalidModuleId : public ProjectStorageError
+class QMLDESIGNERCORE_EXPORT ProjectEntryInfoHasInvalidModuleId : public ProjectStorageError
 {
 public:
-    DirectoryInfoHasInvalidModuleId(
+    ProjectEntryInfoHasInvalidModuleId(
         const Sqlite::source_location &location = Sqlite::source_location::current());
     const char *what() const noexcept override;
 };

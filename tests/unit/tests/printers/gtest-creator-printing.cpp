@@ -155,6 +155,11 @@ void PrintTo(const Utils::SmallString &text, ::std::ostream *os)
     *os << "\"" << text << "\"";
 }
 
+void PrintTo(const Utils::BasicSmallString<64> &text, ::std::ostream *os)
+{
+    *os << "\"" << text << "\"";
+}
+
 void PrintTo(const Utils::BasicSmallString<96> &text, ::std::ostream *os)
 {
     *os << "\"" << text << "\"";
@@ -592,8 +597,8 @@ std::ostream &operator<<(std::ostream &out, AuxiliaryDataType type)
 
 std::ostream &operator<<(std::ostream &out, SourceId sourceId)
 {
-    return out << "id=(" << sourceId.fileNameId().internalId() << ", "
-               << sourceId.directoryPathId().internalId() << ")";
+    return out << "id=(" << sourceId.directoryPathId().internalId() << ", "
+               << sourceId.fileNameId().internalId() << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const ItemLibraryEntry &entry)
@@ -745,8 +750,9 @@ namespace Storage::Info {
 std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyDeclaration)
 {
     using Utils::operator<<;
-    return out << "(\"" << propertyDeclaration.typeId << "\", " << propertyDeclaration.name << ", "
-               << propertyDeclaration.traits << ", " << propertyDeclaration.propertyTypeId << ")";
+    return out << "(type " << propertyDeclaration.typeId << ", name: \"" << propertyDeclaration.name
+               << "\", traits: " << propertyDeclaration.traits << ", property type "
+               << propertyDeclaration.propertyTypeId << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const Type &type)
@@ -756,8 +762,8 @@ std::ostream &operator<<(std::ostream &out, const Type &type)
 
 std::ostream &operator<<(std::ostream &out, const ExportedTypeName &name)
 {
-    return out << "(\"" << name.name << "\", " << name.moduleId << ", " << name.version << ", "
-               << name.typeId << ")";
+    return out << "(name: \"" << name.name << "\", module " << name.moduleId
+               << ", version: " << name.version << ", type " << name.typeId << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const TypeHint &hint)
@@ -838,20 +844,6 @@ const char *fileTypeToText(FileType fileType)
     return "";
 }
 
-const char *changeLevelToText(ChangeLevel changeLevel)
-{
-    switch (changeLevel) {
-    case ChangeLevel::Full:
-        return "Full";
-    case ChangeLevel::Minimal:
-        return "Minimal";
-    case ChangeLevel::ExcludeExportedTypes:
-        return "ExcludeExportedTypes";
-    }
-
-    return "";
-}
-
 } // namespace
 
 std::ostream &operator<<(std::ostream &out, FileType fileType)
@@ -859,34 +851,33 @@ std::ostream &operator<<(std::ostream &out, FileType fileType)
     return out << fileTypeToText(fileType);
 }
 
-std::ostream &operator<<(std::ostream &out, ChangeLevel changeLevel)
-{
-    return out << changeLevelToText(changeLevel);
-}
-
 std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &package)
 {
-    return out << "(\n\t\timports: " << package.imports << ",\n\t\ttypes: " << package.types
-               << ",\n\t\tupdatedSourceIds: " << package.updatedSourceIds
+    return out << "(\n\t\timports: " << package.imports
+               << ",\n\t\tupdatedImportSourceIds: " << package.updatedImportSourceIds
+               << ",\n\t\texportTypes: " << package.exportedTypes
+               << ",\n\t\tupdatedExportedTypeSourceIds: " << package.updatedExportedTypeSourceIds
+               << ",\n\t\ttypes: " << package.types
+               << ",\n\t\tupdatedTypeSourceIds: " << package.updatedTypeSourceIds
                << ",\n\t\tfileStatuses: " << package.fileStatuses
                << ",\n\t\tupdatedFileStatusSourceIds: " << package.updatedFileStatusSourceIds
-               << ",\n\t\tdirectoryInfos: " << package.directoryInfos
-               << ",\n\t\tupdatedDirectoryInfoDirectoryIds: " << package.updatedDirectoryInfoDirectoryIds
+               << ",\n\t\tprojectEntryInfos: " << package.projectEntryInfos
+               << ",\n\t\tupdatedProjectEntryInfoSourceIds: " << package.updatedProjectEntryInfoSourceIds
                << ",\n\t\tpropertyEditorQmlPaths: " << package.propertyEditorQmlPaths
                << ",\n\t\tupdatedPropertyEditorQmlPathSourceIds: "
                << package.updatedPropertyEditorQmlPathDirectoryIds
                << ",\n\t\ttypeAnnotations: " << package.typeAnnotations
                << ",\n\t\tupdatedTypeAnnotationSourceIds: " << package.updatedTypeAnnotationSourceIds
                << ",\n\t\tmoduleDependencies: " << package.moduleDependencies
-               << ",\n\t\tupdatedTypeAnnotationSourceIds: " << package.updatedModuleDependencySourceIds
+               << ",\n\t\tupdatedModuleDependencySourceIds: " << package.updatedModuleDependencySourceIds
                << ",\n\t\tmoduleExportedImports: " << package.moduleExportedImports
                << ",\n\t\tupdatedModuleIds: " << package.updatedModuleIds << "\n)";
 }
 
-std::ostream &operator<<(std::ostream &out, const DirectoryInfo &data)
+std::ostream &operator<<(std::ostream &out, const ProjectEntryInfo &data)
 {
-    return out << "(" << data.directoryId << ", " << data.sourceId << ", " << data.moduleId << ", "
-               << data.fileType << ")";
+    return out << "(context source " << data.contextSourceId << ", source " << data.sourceId
+               << ", module " << data.moduleId << ", file type: " << data.fileType << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, IsQualified isQualified)
@@ -896,8 +887,10 @@ std::ostream &operator<<(std::ostream &out, IsQualified isQualified)
 
 std::ostream &operator<<(std::ostream &out, const ExportedType &exportedType)
 {
-    return out << "(\"" << exportedType.name << "\"," << exportedType.moduleId << ", "
-               << exportedType.version << ")";
+    return out << "(name: \"" << exportedType.name << "\", module " << exportedType.moduleId
+               << ", version: " << exportedType.version << ", type source "
+               << exportedType.typeSourceId << ", type id name: \"" << exportedType.typeIdName
+               << "\", context source " << exportedType.contextSourceId << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const ImportedType &importedType)
@@ -914,13 +907,12 @@ std::ostream &operator<<(std::ostream &out, const Type &type)
     using std::operator<<;
     using Utils::operator<<;
     return out << "(\n\t\t\ttypename: \"" << type.typeName << "\",\n\t\t\tprototype: {\""
-               << type.prototype << "\", " << type.prototypeId << "}, " << "\",\n\t\t\textension: {\""
-               << type.extension << "\", " << type.extensionId << "},\n\t\t\ttraits" << type.traits
-               << ",\n\t\t\tsource: " << type.sourceId << ",\n\t\t\texports: " << type.exportedTypes
+               << type.prototype << "\", " << type.prototypeId << "}, "
+               << "\",\n\t\t\textension: {\"" << type.extension << "\", " << type.extensionId
+               << "},\n\t\t\ttraits" << type.traits << ",\n\t\t\tsource: " << type.sourceId
                << ",\n\t\t\tproperties: " << type.propertyDeclarations
                << ",\n\t\t\tfunctions: " << type.functionDeclarations
                << ",\n\t\t\tsignals: " << type.signalDeclarations
-               << ",\n\t\t\tchangeLevel: " << type.changeLevel
                << ",\n\t\t\tdefault: " << type.defaultPropertyName << "\n\t\t\t)";
 }
 

@@ -256,17 +256,21 @@ public:
     Storage::Synchronization::Type fetchTypeByTypeId(TypeId typeId);
 
     Storage::Synchronization::Types fetchTypes();
+    SmallTypeIds<256> fetchTypeIds() const;
 
     FileStatuses fetchAllFileStatuses() const;
 
     FileStatus fetchFileStatus(SourceId sourceId) const override;
 
-    std::optional<Storage::Synchronization::DirectoryInfo> fetchDirectoryInfo(SourceId sourceId) const override;
+    std::optional<Storage::Synchronization::ProjectEntryInfo> fetchProjectEntryInfo(
+        SourceId sourceId) const override;
 
-    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(DirectoryPathId directoryId) const override;
-    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(
-        DirectoryPathId directoryId, Storage::Synchronization::FileType fileType) const override;
-    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(const DirectoryPathIds &directoryIds) const;
+    Storage::Synchronization::ProjectEntryInfos fetchProjectEntryInfos(
+        SourceId contextSourceId) const override;
+    Storage::Synchronization::ProjectEntryInfos fetchProjectEntryInfos(
+        SourceId contextSourceId, Storage::Synchronization::FileType fileType) const override;
+    Storage::Synchronization::ProjectEntryInfos fetchProjectEntryInfos(
+        const SourceIds &contextSourceIds) const;
     SmallDirectoryPathIds<32> fetchSubdirectoryIds(DirectoryPathId directoryId) const override;
 
     void setPropertyEditorPathId(TypeId typeId, SourceId pathId);
@@ -276,6 +280,11 @@ public:
     Storage::Imports fetchDocumentImports() const;
 
     void resetForTestsOnly();
+
+    Storage::Synchronization::FunctionDeclarations fetchFunctionDeclarationsForTestOnly(TypeId typeId) const;
+    Storage::Synchronization::SignalDeclarations fetchSignalDeclarationsForTestOnly(TypeId typeId) const;
+    Storage::Synchronization::EnumerationDeclarations fetchEnumerationDeclarationsForTestOnly(
+        TypeId typeId) const;
 
 private:
     enum class ExportedTypesChanged { No, Yes };
@@ -529,14 +538,11 @@ private:
                           AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                           PropertyDeclarations &relinkablePropertyDeclarations,
                           Bases &relinkableBases,
-                          ExportedTypesChanged &exportedTypesChanged,
-                          Storage::Info::ExportedTypeNames &removedExportedTypeNames,
-                          Storage::Info::ExportedTypeNames &addedExportedTypeNames,
                           const SourceIds &updatedSourceIds,
                           SmallTypeIds<256> &updatedPrototypeTypes);
 
-    void synchronizeDirectoryInfos(Storage::Synchronization::DirectoryInfos &directoryInfos,
-                                   const DirectoryPathIds &updatedDirectoryInfoDirectoryIds);
+    void synchronizeProjectEntryInfos(Storage::Synchronization::ProjectEntryInfos &projectEntryInfos,
+                                      const SourceIds &updatedProjectEntryInfoSourceIds);
 
     void synchronizeFileStatuses(FileStatuses &fileStatuses, const SourceIds &updatedSourceIds);
 
@@ -611,8 +617,8 @@ private:
 
     void repairBrokenAliasPropertyDeclarations();
 
-    void synchronizeExportedTypes(const TypeIds &updatedTypeIds,
-                                  Storage::Synchronization::ExportedTypes &exportedTypes,
+    void synchronizeExportedTypes(Storage::Synchronization::ExportedTypes &exportedTypes,
+                                  const SourceIds &updatedExportedTypeSourceIds,
                                   AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                                   PropertyDeclarations &relinkablePropertyDeclarations,
                                   Bases &relinkableBases,
@@ -765,11 +771,7 @@ private:
     void synchronizeEnumerationDeclarations(
         TypeId typeId, Storage::Synchronization::EnumerationDeclarations &enumerationDeclarations);
 
-    void extractExportedTypes(TypeId typeId,
-                              const Storage::Synchronization::Type &type,
-                              Storage::Synchronization::ExportedTypes &exportedTypes);
-
-    TypeId declareType(Storage::Synchronization::Type &type);
+    TypeId declareType(std::string_view typeName, SourceId sourceId);
 
     void syncDeclarations(Storage::Synchronization::Type &type,
                           AliasPropertyDeclarations &aliasPropertyDeclarationsToLink,
@@ -887,15 +889,14 @@ private:
 
     TypeId fetchPrototypeId(TypeId typeId);
     TypeId fetchExtensionId(TypeId typeId);
-    Storage::Synchronization::ExportedTypes fetchExportedTypes(TypeId typeId);
 
-    Storage::Synchronization::PropertyDeclarations fetchPropertyDeclarations(TypeId typeId);
+    Storage::Synchronization::PropertyDeclarations fetchPropertyDeclarations(TypeId typeId) const;
 
-    Storage::Synchronization::FunctionDeclarations fetchFunctionDeclarations(TypeId typeId);
+    Storage::Synchronization::FunctionDeclarations fetchFunctionDeclarations(TypeId typeId) const;
 
-    Storage::Synchronization::SignalDeclarations fetchSignalDeclarations(TypeId typeId);
+    Storage::Synchronization::SignalDeclarations fetchSignalDeclarations(TypeId typeId) const;
 
-    Storage::Synchronization::EnumerationDeclarations fetchEnumerationDeclarations(TypeId typeId);
+    Storage::Synchronization::EnumerationDeclarations fetchEnumerationDeclarations(TypeId typeId) const;
 
     void resetBasesCache();
 

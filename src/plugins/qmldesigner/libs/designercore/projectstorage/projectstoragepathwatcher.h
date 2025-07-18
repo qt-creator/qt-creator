@@ -60,7 +60,7 @@ public:
 
         addEntries(entires);
 
-        auto notContainsId = [&, &ids = ids](WatcherEntry entry) {
+        auto notContainsId = [&](WatcherEntry entry) {
             return !std::ranges::binary_search(ids, entry.id)
                    || !std::ranges::binary_search(directoryPathIds, entry.directoryPathId);
         };

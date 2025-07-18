@@ -179,12 +179,12 @@ Storage::Imports createStorageImports(const Imports &imports,
 
     for (const Import &import : imports) {
         ModuleId moduleId = createModuleId(import, localDirectoryPath, modulesStorage);
-        storageImports.emplace_back(moduleId, import.majorVersion(), import.minorVersion(), fileId);
+        storageImports.emplace_back(moduleId, import.majorVersion(), import.minorVersion(), fileId, fileId);
     }
 
     auto localDirectoryModuleId = modulesStorage.moduleId(localDirectoryPath, ModuleKind::PathLibrary);
 
-    storageImports.emplace_back(localDirectoryModuleId, Storage::Version{}, fileId);
+    storageImports.emplace_back(localDirectoryModuleId, Storage::Version{}, fileId, fileId);
 
     return storageImports;
 }
@@ -409,7 +409,7 @@ ImportedTypeNameId ModelPrivate::importedTypeNameId(Utils::SmallStringView typeN
                 ModuleId moduleId = modulesStorage->moduleId(Utils::PathString{found->url()},
                                                              moduleKind);
                 ImportId importId = projectStorage->importId(Storage::Import::fromSignedInteger(
-                    moduleId, found->majorVersion(), found->minorVersion(), m_sourceId));
+                    moduleId, found->majorVersion(), found->minorVersion(), m_sourceId, m_sourceId));
                 return projectStorage->importedTypeNameId(importId, shortTypeName);
             }
         }

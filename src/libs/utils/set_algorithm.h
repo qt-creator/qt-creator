@@ -99,7 +99,7 @@ struct set_greedy_intersection_functor
 
     template<std::ranges::input_range Range1,
              std::ranges::input_range Range2,
-             std::invocable<std::iter_value_t<Range1> &> Callable,
+             std::invocable<std::ranges::range_value_t<Range1> &> Callable,
              typename Comp = std::ranges::less,
              typename Projection1 = std::identity,
              typename Projection2 = std::identity>
@@ -152,7 +152,7 @@ struct set_greedy_intersection_functor
 
     template<std::ranges::input_range Range1,
              std::ranges::input_range Range2,
-             std::invocable<std::iter_value_t<Range1> &, std::iter_value_t<Range2> &> Callable,
+             std::invocable<std::ranges::range_value_t<Range1> &, std::ranges::range_value_t<Range2> &> Callable,
              typename Comp = std::ranges::less,
              typename Projection1 = std::identity,
              typename Projection2 = std::identity>
@@ -216,7 +216,7 @@ struct set_greedy_difference_functor
 
     template<std::ranges::input_range Range1,
              std::ranges::input_range Range2,
-             std::invocable<std::iter_value_t<Range1> &> Callable,
+             std::invocable<std::ranges::range_value_t<Range1> &> Callable,
              typename Comp = std::ranges::less,
              typename Projection1 = std::identity,
              typename Projection2 = std::identity>
@@ -281,7 +281,7 @@ struct set_difference_functor
 
     template<std::ranges::input_range Range1,
              std::ranges::input_range Range2,
-             std::invocable<std::iter_value_t<Range1> &> Callable,
+             std::invocable<std::ranges::range_value_t<Range1> &> Callable,
              typename Comp = std::ranges::less,
              typename Projection1 = std::identity,
              typename Projection2 = std::identity>

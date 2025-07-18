@@ -110,39 +110,39 @@ const char *CannotParseQmlDocumentFile::what() const noexcept
     return "Cannot parse qml document file!";
 }
 
-DirectoryInfoHasInvalidProjectSourceId::DirectoryInfoHasInvalidProjectSourceId(
+ProjectEntryInfoHasInvalidProjectSourceId::ProjectEntryInfoHasInvalidProjectSourceId(
     const Sqlite::source_location &location)
     : ProjectStorageError{location}
 
 {
-    category().threadEvent("DirectoryInfoHasInvalidProjectSourceId");
+    category().threadEvent("ProjectEntryInfoHasInvalidProjectSourceId");
 }
 
-const char *DirectoryInfoHasInvalidProjectSourceId::what() const noexcept
+const char *ProjectEntryInfoHasInvalidProjectSourceId::what() const noexcept
 {
     return "The project source id is invalid!";
 }
 
-DirectoryInfoHasInvalidSourceId::DirectoryInfoHasInvalidSourceId(const Sqlite::source_location &location)
+ProjectEntryInfoHasInvalidSourceId::ProjectEntryInfoHasInvalidSourceId(const Sqlite::source_location &location)
     : ProjectStorageError{location}
 
 {
-    category().threadEvent("DirectoryInfoHasInvalidSourceId");
+    category().threadEvent("ProjectEntryInfoHasInvalidSourceId");
 }
 
-const char *DirectoryInfoHasInvalidSourceId::what() const noexcept
+const char *ProjectEntryInfoHasInvalidSourceId::what() const noexcept
 {
     return "The source id is invalid!";
 }
 
-DirectoryInfoHasInvalidModuleId::DirectoryInfoHasInvalidModuleId(const Sqlite::source_location &location)
+ProjectEntryInfoHasInvalidModuleId::ProjectEntryInfoHasInvalidModuleId(const Sqlite::source_location &location)
     : ProjectStorageError{location}
 
 {
-    category().threadEvent("DirectoryInfoHasInvalidModuleId");
+    category().threadEvent("ProjectEntryInfoHasInvalidModuleId");
 }
 
-const char *DirectoryInfoHasInvalidModuleId::what() const noexcept
+const char *ProjectEntryInfoHasInvalidModuleId::what() const noexcept
 {
     return "The module id is invalid!";
 }

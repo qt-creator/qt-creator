@@ -71,7 +71,7 @@ const Storage::Import &appendImports(Storage::Imports &imports,
     Utils::PathString moduleName{QStringView(dependency.begin(), spaceFound)};
     ModuleId cppModuleId = modulesStorage.moduleId(moduleName, ModuleKind::CppLibrary);
 
-    return imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
+    return imports.emplace_back(cppModuleId, Storage::Version{}, sourceId, sourceId);
 }
 
 void addImports(Storage::Imports &imports,
@@ -92,12 +92,12 @@ void addImports(Storage::Imports &imports,
         tracer.tick("append import", keyValue("import", import), keyValue("dependency", dependency));
     }
 
-    const auto &import = imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
+    const auto &import = imports.emplace_back(cppModuleId, Storage::Version{}, sourceId, sourceId);
     tracer.tick("append import", keyValue("import", import));
 
     if (ModuleId qmlCppModuleId = modulesStorage.moduleId("QML", ModuleKind::CppLibrary);
         cppModuleId != qmlCppModuleId) {
-        const auto &import = imports.emplace_back(qmlCppModuleId, Storage::Version{}, sourceId);
+        const auto &import = imports.emplace_back(qmlCppModuleId, Storage::Version{}, sourceId, sourceId);
         tracer.tick("append import", keyValue("import", import));
     }
 }
@@ -154,25 +154,35 @@ ModuleId getQmlModuleId(const QString &name,
     return moduleId;
 }
 
-Storage::Synchronization::ExportedTypes createExports(const QList<QQmlJSScope::Export> &qmlExports,
-                                                      Utils::SmallStringView internalName,
-                                                      ModulesStorage &modulesStorage,
-                                                      ModuleId cppModuleId,
-                                                      Internal::LastModule &lastQmlModule)
+Storage::Synchronization::ExportedTypes addExports(Storage::Synchronization::ExportedTypes &exportedTypes,
+                                                   const QList<QQmlJSScope::Export> &qmlExports,
+                                                   Utils::SmallStringView internalName,
+                                                   ModulesStorage &modulesStorage,
+                                                   ModuleId cppModuleId,
+                                                   SourceId sourceId,
+                                                   Internal::LastModule &lastQmlModule)
 {
-    Storage::Synchronization::ExportedTypes exportedTypes;
-    exportedTypes.reserve(Utils::usize(qmlExports));
+    exportedTypes.reserve(Utils::usize(qmlExports) + exportedTypes.size());
+
+    TypeNameString cppExportedTypeName{internalName};
 
     for (const QQmlJSScope::Export &qmlExport : qmlExports) {
         TypeNameString exportedTypeName{qmlExport.type()};
 
-        exportedTypes.emplace_back(getQmlModuleId(qmlExport.package(), modulesStorage, lastQmlModule),
+        exportedTypes.emplace_back(sourceId,
+                                   getQmlModuleId(qmlExport.package(), modulesStorage, lastQmlModule),
                                    std::move(exportedTypeName),
-                                   createVersion(qmlExport.version()));
+                                   createVersion(qmlExport.version()),
+                                   sourceId,
+                                   cppExportedTypeName);
     }
 
-    TypeNameString cppExportedTypeName{internalName};
-    exportedTypes.emplace_back(cppModuleId, cppExportedTypeName);
+    exportedTypes.emplace_back(sourceId,
+                               cppModuleId,
+                               cppExportedTypeName,
+                               Storage::Version{},
+                               sourceId,
+                               cppExportedTypeName);
 
     return exportedTypes;
 }
@@ -186,23 +196,26 @@ auto createCppEnumerationExport(Utils::SmallStringView typeName, Utils::SmallStr
     return cppExportedTypeName;
 }
 
-Storage::Synchronization::ExportedTypes createCppEnumerationExports(
+Storage::Synchronization::ExportedTypes addCppEnumerationExports(
+    Storage::Synchronization::ExportedTypes &exportedTypes,
     Utils::SmallStringView typeName,
     ModuleId cppModuleId,
+    SourceId sourceId,
     Utils::SmallStringView enumerationName,
     Utils::SmallStringView enumerationAlias)
 {
-    Storage::Synchronization::ExportedTypes exportedTypes;
+    auto scopedTypeName = createCppEnumerationExport(typeName, enumerationName);
 
     if (!enumerationAlias.empty()) {
         exportedTypes.reserve(2);
-        exportedTypes.emplace_back(cppModuleId,
-                                   createCppEnumerationExport(typeName, enumerationAlias));
+        auto name = createCppEnumerationExport(typeName, enumerationAlias);
+        exportedTypes.emplace_back(sourceId, cppModuleId, name, Storage::Version{}, sourceId, scopedTypeName);
     } else {
         exportedTypes.reserve(1);
     }
 
-    exportedTypes.emplace_back(cppModuleId, createCppEnumerationExport(typeName, enumerationName));
+    exportedTypes.emplace_back(
+        sourceId, cppModuleId, scopedTypeName, Storage::Version{}, sourceId, scopedTypeName);
 
     return exportedTypes;
 }
@@ -384,6 +397,7 @@ auto addEnumerationType(EnumerationTypes &enumerationTypes,
 
 void addEnumerationType(EnumerationTypes &enumerationTypes,
                         Storage::Synchronization::Types &types,
+                        Storage::Synchronization::ExportedTypes &exportedTypes,
                         Utils::SmallStringView typeName,
                         Utils::SmallStringView enumerationName,
                         SourceId sourceId,
@@ -397,11 +411,10 @@ void addEnumerationType(EnumerationTypes &enumerationTypes,
                        Storage::Synchronization::ImportedType{TypeNameString{}},
                        Storage::Synchronization::ImportedType{},
                        typeTraits,
-                       sourceId,
-                       createCppEnumerationExports(typeName,
-                                                   cppModuleId,
-                                                   enumerationName,
-                                                   enumerationAlias));
+                       sourceId);
+
+    addCppEnumerationExports(
+        exportedTypes, typeName, cppModuleId, sourceId, enumerationName, enumerationAlias);
 
     if (!enumerationAlias.empty())
         addEnumerationType(enumerationTypes, typeName, enumerationAlias);
@@ -420,6 +433,7 @@ QSet<QString> createEnumerationAliases(const QHash<QString, QQmlJSMetaEnum> &qml
 }
 
 EnumerationTypes addEnumerationTypes(Storage::Synchronization::Types &types,
+                                     Storage::Synchronization::ExportedTypes &exportedTypes,
                                      Utils::SmallStringView typeName,
                                      SourceId sourceId,
                                      ModuleId cppModuleId,
@@ -438,6 +452,7 @@ EnumerationTypes addEnumerationTypes(Storage::Synchronization::Types &types,
         TypeNameString enumerationAlias{qmlEnumeration.alias()};
         addEnumerationType(enumerationTypes,
                            types,
+                           exportedTypes,
                            typeName,
                            enumerationName,
                            sourceId,
@@ -457,6 +472,7 @@ TypeNameString extensionTypeName(const auto &component)
 }
 
 void addType(Storage::Synchronization::Types &types,
+             Storage::Synchronization::ExportedTypes &exportedTypes,
              SourceId sourceId,
              ModuleId cppModuleId,
              const QQmlJSExportedScope &exportScope,
@@ -472,13 +488,17 @@ void addType(Storage::Synchronization::Types &types,
 
     const auto &component = *exportScope.scope;
 
-    auto [functionsDeclarations, signalDeclarations] = createFunctionAndSignals(
-        component.ownMethods(), componentNameWithoutNamespace);
     TypeNameString typeName{component.internalName()};
-    auto enumerations = component.ownEnumerations();
     auto exports = exportScope.exports;
 
-    auto enumerationTypes = addEnumerationTypes(types, typeName, sourceId, cppModuleId, enumerations);
+    addExports(exportedTypes, exports, typeName, modulesStorage, cppModuleId, sourceId, lastQmlModule);
+
+    auto [functionsDeclarations, signalDeclarations] = createFunctionAndSignals(
+        component.ownMethods(), componentNameWithoutNamespace);
+    auto enumerations = component.ownEnumerations();
+    auto enumerationTypes = addEnumerationTypes(
+        types, exportedTypes, typeName, sourceId, cppModuleId, enumerations);
+
     const auto &type = types.emplace_back(
         Utils::SmallStringView{typeName},
         Storage::Synchronization::ImportedType{TypeNameString{component.baseTypeName()}},
@@ -488,18 +508,17 @@ void addType(Storage::Synchronization::Types &types,
                          component.isSingleton(),
                          isInsideProject),
         sourceId,
-        createExports(exports, typeName, modulesStorage, cppModuleId, lastQmlModule),
         createProperties(component.ownProperties(), enumerationTypes, componentNameWithoutNamespace),
         std::move(functionsDeclarations),
         std::move(signalDeclarations),
         createEnumeration(enumerations),
-        Storage::Synchronization::ChangeLevel::Full,
         Utils::SmallString{component.ownDefaultPropertyName()});
     tracer.end(keyValue("type", type));
 }
 
 void addTypes(Storage::Synchronization::Types &types,
-              const Storage::Synchronization::DirectoryInfo &directoryInfo,
+              Storage::Synchronization::ExportedTypes &exportedTypes,
+              const Storage::Synchronization::ProjectEntryInfo &projectEntryInfo,
               const QList<QQmlJSExportedScope> &objects,
               ModulesStorage &modulesStorage,
               const ComponentWithoutNamespaces &componentNameWithoutNamespaces,
@@ -512,8 +531,9 @@ void addTypes(Storage::Synchronization::Types &types,
 
     for (const auto &object : objects) {
         addType(types,
-                directoryInfo.sourceId,
-                directoryInfo.moduleId,
+                exportedTypes,
+                projectEntryInfo.sourceId,
+                projectEntryInfo.moduleId,
                 object,
                 modulesStorage,
                 componentNameWithoutNamespaces,
@@ -527,7 +547,8 @@ void addTypes(Storage::Synchronization::Types &types,
 void QmlTypesParser::parse(const QString &sourceContent,
                            Storage::Imports &imports,
                            Storage::Synchronization::Types &types,
-                           const Storage::Synchronization::DirectoryInfo &directoryInfo,
+                           Storage::Synchronization::ExportedTypes &exportedTypes,
+                           const Storage::Synchronization::ProjectEntryInfo &projectEntryInfo,
                            IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"qmltypes parser parse", category()};
@@ -544,9 +565,10 @@ void QmlTypesParser::parse(const QString &sourceContent,
 
     auto componentNameWithoutNamespaces = createComponentNameWithoutNamespaces(components);
 
-    addImports(imports, directoryInfo.sourceId, dependencies, m_modulesStorage, directoryInfo.moduleId);
+    addImports(imports, projectEntryInfo.sourceId, dependencies, m_modulesStorage, projectEntryInfo.moduleId);
     addTypes(types,
-             directoryInfo,
+             exportedTypes,
+             projectEntryInfo,
              components,
              m_modulesStorage,
              componentNameWithoutNamespaces,
@@ -559,7 +581,8 @@ void QmlTypesParser::parse(const QString &sourceContent,
 void QmlTypesParser::parse([[maybe_unused]] const QString &sourceContent,
                            [[maybe_unused]] Storage::Imports &imports,
                            [[maybe_unused]] Storage::Synchronization::Types &types,
-                           [[maybe_unused]] const Storage::Synchronization::DirectoryInfo &directoryInfo,
+                           [[maybe_unused]] Storage::Synchronization::ExportedTypes &exportedTypes,
+                           [[maybe_unused]] const Storage::Synchronization::ProjectEntryInfo &projectEntryInfo,
                            [[maybe_unused]] IsInsideProject isInsideProject)
 {}
 
