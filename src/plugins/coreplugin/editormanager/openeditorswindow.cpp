@@ -131,20 +131,20 @@ public:
 OpenEditorsWindow::OpenEditorsWindow(QWidget *parent)
     : QFrame(parent, Qt::Popup)
 {
-    m_editorView = new OpenEditorsView;
+    m_openEditorsView = new OpenEditorsView;
 
     setMinimumSize(300, 200);
-    m_editorView->installEventFilter(this);
+    m_openEditorsView->installEventFilter(this);
 
     // We disable the frame on this list view and use a QFrame around it instead.
     // This improves the look with QGTKStyle.
     if (!Utils::HostOsInfo::isMacHost())
-        setFrameStyle(m_editorView->frameStyle());
-    m_editorView->setFrameStyle(QFrame::NoFrame);
+        setFrameStyle(m_openEditorsView->frameStyle());
+    m_openEditorsView->setFrameStyle(QFrame::NoFrame);
 
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(m_editorView);
+    layout->addWidget(m_openEditorsView);
 
     // Close the popup and clear it if documents are closed behind the back of the view
     connect(DocumentModel::model(), &QAbstractItemModel::rowsAboutToBeRemoved, this, [this] {
@@ -154,7 +154,7 @@ OpenEditorsWindow::OpenEditorsWindow(QWidget *parent)
 
 void OpenEditorsWindow::selectAndHide()
 {
-    selectEditor(m_editorView->currentItem());
+    selectEditor(m_openEditorsView->currentItem());
     setVisible(false);
 }
 
@@ -164,12 +164,12 @@ void OpenEditorsWindow::setVisible(bool visible)
     if (visible)
         setFocus();
     else
-        m_editorView->m_model.clear();
+        m_openEditorsView->m_model.clear();
 }
 
 bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
 {
-    if (obj == m_editorView) {
+    if (obj == m_openEditorsView) {
         if (e->type() == QEvent::ShortcutOverride) {
             auto ke = static_cast<QKeyEvent*>(e);
             switch (ke->key()) {
@@ -199,7 +199,7 @@ bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
                 return true;
             case Qt::Key_Return:
             case Qt::Key_Enter:
-                selectEditor(m_editorView->currentItem());
+                selectEditor(m_openEditorsView->currentItem());
                 return true;
             }
 
@@ -222,7 +222,7 @@ bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
 
 void OpenEditorsWindow::focusInEvent(QFocusEvent *)
 {
-    m_editorView->setFocus();
+    m_openEditorsView->setFocus();
 }
 
 void OpenEditorsView::selectUpDown(bool up)
@@ -256,31 +256,31 @@ void OpenEditorsView::selectUpDown(bool up)
 
 void OpenEditorsWindow::selectPreviousEditor()
 {
-    m_editorView->selectUpDown(false);
+    m_openEditorsView->selectUpDown(false);
 }
 
 void OpenEditorsWindow::selectNextEditor()
 {
-    m_editorView->selectUpDown(true);
+    m_openEditorsView->selectUpDown(true);
 }
 
 QSize OpenEditorsWindow::sizeHint() const
 {
-    return m_editorView->sizeHint() + QSize(frameWidth() * 2, frameWidth() * 2);
+    return m_openEditorsView->sizeHint() + QSize(frameWidth() * 2, frameWidth() * 2);
 }
 
 void OpenEditorsWindow::setEditors(const QList<EditLocation> &globalHistory, EditorView *view)
 {
-    m_editorView->m_model.clear();
+    m_openEditorsView->m_model.clear();
 
     QSet<const DocumentModel::Entry *> entriesDone;
-    m_editorView->addHistoryItems(view->editorHistory(), view, entriesDone);
+    m_openEditorsView->addHistoryItems(view->editorHistory(), view, entriesDone);
 
     // add missing editors from the global history
-    m_editorView->addHistoryItems(globalHistory, view, entriesDone);
+    m_openEditorsView->addHistoryItems(globalHistory, view, entriesDone);
 
     // add purely suspended editors which are not initialised yet
-    m_editorView->addRemainingItems(view, entriesDone);
+    m_openEditorsView->addRemainingItems(view, entriesDone);
 }
 
 static DocumentModel::Entry *entryForEditLocation(const EditLocation &item)

@@ -30,7 +30,7 @@ private:
     bool eventFilter(QObject *src, QEvent *e) final;
     void focusInEvent(QFocusEvent *) final;
 
-    OpenEditorsView *m_editorView;
+    OpenEditorsView *m_openEditorsView;
 };
 
 } // Core::Internal
