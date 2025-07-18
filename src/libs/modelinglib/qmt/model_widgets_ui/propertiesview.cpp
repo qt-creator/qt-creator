@@ -17,9 +17,8 @@ namespace qmt {
 
 PropertiesView::PropertiesView(QObject *parent)
     : QObject(parent),
-      m_viewFactory([=](PropertiesView *propertiesView) { return new MView(propertiesView); })
-{
-}
+      m_viewFactory([](PropertiesView *propertiesView) { return new MView(propertiesView); })
+{}
 
 PropertiesView::~PropertiesView()
 {
