@@ -16,6 +16,7 @@
 #include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsoutputwindow.h>
@@ -227,27 +228,11 @@ void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAct
     }
 
     case FileCopyClipboard:
-        QApplication::clipboard()->setText(filePath.toUserOutput());
-        break;
-
-    case FileCopyFullClipboard:
-        QApplication::clipboard()->setText(fullPath.toUserOutput());
+        setClipboardAndSelection(filePath.toUserOutput());
         break;
 
     case FileOpenEditor:
         Core::EditorManager::openEditor(fullPath);
-        break;
-
-    case FileOpenGraphicalShell:
-        Core::FileUtils::showInGraphicalShell(fullPath);
-        break;
-
-    case FileShowFileSystem:
-        Core::FileUtils::showInFileSystemView(fullPath);
-        break;
-
-    case FileOpenTerminal:
-        Core::FileUtils::openTerminal(fullPath, {});
         break;
 
     case FileStage:

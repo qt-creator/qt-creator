@@ -361,6 +361,15 @@ static void setFocusToEditorViewAndUnmaximizePanes(EditorView *view)
 
 namespace Internal {
 
+static FilePath filePathFor(DocumentModel::Entry *entry, IEditor *editor = nullptr)
+{
+    if (entry)
+        return entry->filePath();
+    if (editor)
+        return editor->document()->filePath();
+    return {};
+}
+
 EditorManagerPrivate::EditorManagerPrivate(QObject *parent)
     : QObject(parent)
 {
@@ -2892,16 +2901,10 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
     EditorManagerPrivate::addSaveAndCloseEditorActions(contextMenu, entry, editor);
 }
 
-void EditorManagerPrivate::addSaveAndCloseEditorActions(
-    QMenu *contextMenu, DocumentModel::Entry *entry, IEditor *editor, EditorView *view)
+void EditorManagerPrivate::addCopyFilePathActions(
+    QMenu *contextMenu, const Utils::FilePath &filePath, Core::IEditor *editor)
 {
     QTC_ASSERT(contextMenu, return);
-
-    QPointer<IDocument> contextDocument = entry ? entry->document : nullptr;
-    QPointer<IEditor> contextEditor = editor;
-    QPointer<EditorView> contextView = view;
-
-    const FilePath filePath = entry ? entry->filePath() : FilePath();
     const bool copyActionsEnabled = !filePath.isEmpty();
 
     // Copy Full Path
@@ -2910,7 +2913,7 @@ void EditorManagerPrivate::addSaveAndCloseEditorActions(
     });
 
     // Copy Path and Line Number
-    if (editor && entry) {
+    if (editor) {
         if (const int lineNumber = editor->currentLine()) {
             addMenuAction(
                 contextMenu,
@@ -2929,6 +2932,20 @@ void EditorManagerPrivate::addSaveAndCloseEditorActions(
     addMenuAction(contextMenu, ::Core::Tr::tr("Copy File Name"), copyActionsEnabled, d, [filePath] {
         setClipboardAndSelection(filePath.fileName());
     });
+}
+
+void EditorManagerPrivate::addSaveAndCloseEditorActions(
+    QMenu *contextMenu, DocumentModel::Entry *entry, IEditor *editor, EditorView *view)
+{
+    QTC_ASSERT(contextMenu, return);
+
+    QPointer<IDocument> contextDocument = entry ? entry->document : nullptr;
+    QPointer<IEditor> contextEditor = editor;
+    QPointer<EditorView> contextView = view;
+
+    const FilePath filePath = filePathFor(entry, editor);
+
+    addCopyFilePathActions(contextMenu, filePath, editor);
 
     contextMenu->addSeparator();
 
@@ -3028,14 +3045,13 @@ void EditorManager::addPinEditorActions(QMenu *contextMenu, DocumentModel::Entry
 */
 void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry)
 {
-    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, entry);
+    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, filePathFor(entry));
 }
 
 void EditorManagerPrivate::addNativeDirAndOpenWithActions(
-    QMenu *contextMenu, DocumentModel::Entry *entry)
+    QMenu *contextMenu, const FilePath &filePath)
 {
     QTC_ASSERT(contextMenu, return);
-    const FilePath filePath = entry ? entry->filePath() : FilePath();
     bool enabled = !filePath.isEmpty();
 
     // Open in Finder/Explorer
@@ -3067,13 +3083,20 @@ void EditorManagerPrivate::addNativeDirAndOpenWithActions(
     QMenu *openWith = contextMenu->addMenu(::Core::Tr::tr("Open With"));
     openWith->setEnabled(enabled);
     if (enabled)
-        populateOpenWithMenu(openWith, entry->filePath());
+        populateOpenWithMenu(openWith, filePath);
 }
 
 void EditorManager::addContextMenuActions(
     QMenu *contextMenu, DocumentModel::Entry *entry, IEditor *editor)
 {
     EditorManagerPrivate::addContextMenuActions(contextMenu, entry, editor);
+}
+
+void EditorManager::addContextMenuActions(QMenu *contextMenu, const Utils::FilePath &filePath)
+{
+    EditorManagerPrivate::addCopyFilePathActions(contextMenu, filePath);
+    contextMenu->addSeparator();
+    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, filePath);
 }
 
 void EditorManagerPrivate::addContextMenuActions(
@@ -3083,7 +3106,7 @@ void EditorManagerPrivate::addContextMenuActions(
     contextMenu->addSeparator();
     EditorManager::addPinEditorActions(contextMenu, entry);
     contextMenu->addSeparator();
-    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, entry);
+    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, filePathFor(entry, editor));
 }
 
 /*!

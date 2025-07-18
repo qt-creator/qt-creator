@@ -10,6 +10,7 @@
 #include "logchangedialog.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileutils.h>
 
 #include <utils/completingtextedit.h>
@@ -272,6 +273,7 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
 {
     const VcsBase::SubmitFileModel *model = fileModel();
     const FilePath filePath = FilePath::fromString(model->file(index.row()));
+    const FilePath fullFilePath = model->repositoryRoot().resolvePath(filePath);
     const FileStates state = static_cast<FileStates>(model->extraData(index.row()).toInt());
 
     menu->addSeparator();
@@ -293,13 +295,10 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
                 emit fileActionRequested(filePath, action);
             });
         };
-    addAction(Tr::tr("Copy \"%1\"").arg(filePath.toUserOutput()), FileCopyClipboard);
-    addAction(Tr::tr("Copy Full Path"), FileCopyFullClipboard);
+    addAction(Tr::tr("Open \"%1\"").arg(filePath.toUserOutput()), FileOpenEditor);
     menu->addSeparator();
-    addAction(Tr::tr("Open \"%1\" in Editor").arg(filePath.toUserOutput()), FileOpenEditor);
-    addAction(Core::FileUtils::msgGraphicalShellAction(), FileOpenGraphicalShell);
-    addAction(Core::FileUtils::msgFileSystemAction(), FileShowFileSystem);
-    addAction(Core::FileUtils::msgTerminalHereAction(), FileOpenTerminal);
+    addAction(Tr::tr("Copy \"%1\"").arg(filePath.toUserOutput()), FileCopyClipboard);
+    Core::EditorManager::addContextMenuActions(menu, fullFilePath);
     menu->addSeparator();
     if (state & DeletedFile) {
         addAction(Tr::tr("Recover \"%1\"").arg(filePath.toUserOutput()), FileRevertDeletion);

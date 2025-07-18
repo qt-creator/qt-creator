@@ -26,11 +26,7 @@ enum FileAction {
     FileRevertUnstaged,
     FileRevertDeletion,
     FileCopyClipboard,
-    FileCopyFullClipboard,
     FileOpenEditor,
-    FileOpenGraphicalShell,
-    FileShowFileSystem,
-    FileOpenTerminal,
     FileStage,
     FileUnstage
 };
