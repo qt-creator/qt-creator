@@ -9,6 +9,7 @@
 #include <utils/fileutils.h>
 #include <utils/environment.h>
 
+#include <QElapsedTimer>
 #include <QLoggingCategory>
 #include <QProcess>
 #include <QTemporaryFile>
