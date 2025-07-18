@@ -4,5 +4,5 @@ add_qtc_integration_test(
     QmlProjectManagerLib
     Qt::Core
   SOURCES
-    converterstest.cpp
+    converters-test.cpp
 )
