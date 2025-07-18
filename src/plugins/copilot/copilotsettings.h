@@ -19,14 +19,10 @@ public:
     Utils::BoolAspect autoComplete{this};
     Utils::BoolAspect enableCopilot{this};
 
-    Utils::BoolAspect useProxy{this};
-    Utils::StringAspect proxyHost{this};
-    Utils::IntegerAspect proxyPort{this};
-    Utils::StringAspect proxyUser{this};
-
-    Utils::BoolAspect saveProxyPassword{this};
-    Utils::StringAspect proxyPassword{this};
+    Utils::StringAspect proxy{this};
     Utils::BoolAspect proxyRejectUnauthorized{this};
+
+    Utils::StringAspect githubEnterpriseUrl{this};
 };
 
 CopilotSettings &settings();

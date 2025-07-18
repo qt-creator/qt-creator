@@ -48,48 +48,10 @@ public:
     void setEditorName(const QString &n) { insert(name, n); }
 };
 
-class NetworkProxy : public LanguageServerProtocol::JsonObject
-{
-    static constexpr Key host{"host"};
-    static constexpr Key port{"port"};
-    static constexpr Key user{"username"};
-    static constexpr Key password{"password"};
-    static constexpr Key rejectUnauthorized{"rejectUnauthorized"};
-
-public:
-    using JsonObject::JsonObject;
-
-    NetworkProxy(const QString &host,
-                 int port,
-                 const QString &user,
-                 const QString &password,
-                 bool rejectUnauthorized)
-    {
-        setHost(host);
-        setPort(port);
-        setUser(user);
-        setPassword(password);
-        setRejectUnauthorized(rejectUnauthorized);
-    }
-
-    void insertIfNotEmpty(const Key key, const QString &value)
-    {
-        if (!value.isEmpty())
-            insert(key, value);
-    }
-
-    void setHost(const QString &h) { insert(host, h); }
-    void setPort(int p) { insert(port, p); }
-    void setUser(const QString &u) { insertIfNotEmpty(user, u); }
-    void setPassword(const QString &p) { insertIfNotEmpty(password, p); }
-    void setRejectUnauthorized(bool r) { insert(rejectUnauthorized, r); }
-};
-
 class SetEditorInfoParams : public LanguageServerProtocol::JsonObject
 {
     static constexpr Key editorInfo{"editorInfo"};
     static constexpr Key editorPluginInfo{"editorPluginInfo"};
-    static constexpr Key networkProxy{"networkProxy"};
 
 public:
     using JsonObject::JsonObject;
@@ -100,18 +62,8 @@ public:
         setEditorPluginInfo(editorPluginInfo);
     }
 
-    SetEditorInfoParams(const EditorInfo &editorInfo,
-                        const EditorPluginInfo &editorPluginInfo,
-                        const NetworkProxy &networkProxy)
-    {
-        setEditorInfo(editorInfo);
-        setEditorPluginInfo(editorPluginInfo);
-        setNetworkProxy(networkProxy);
-    }
-
     void setEditorInfo(const EditorInfo &info) { insert(editorInfo, info); }
     void setEditorPluginInfo(const EditorPluginInfo &info) { insert(editorPluginInfo, info); }
-    void setNetworkProxy(const NetworkProxy &proxy) { insert(networkProxy, proxy); }
 };
 
 class SetEditorInfoRequest

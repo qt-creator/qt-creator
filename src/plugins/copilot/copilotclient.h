@@ -50,8 +50,6 @@ public:
 
     bool isEnabled(ProjectExplorer::Project *project);
 
-    void proxyAuthenticationFailed();
-
 private:
     void requestSetEditorInfo();
 
@@ -62,7 +60,6 @@ private:
         QTimer *timer = nullptr;
     };
     QHash<TextEditor::TextEditorWidget *, ScheduleData> m_scheduledRequests;
-    bool m_isAskingForPassword{false};
 };
 
 } // namespace Copilot::Internal

@@ -140,7 +140,12 @@ void AuthWidget::signIn()
 
     m_client->requestSignInInitiate(
         guardedCallback(this, [this](const SignInInitiateRequest::Response &response) {
-            QTC_ASSERT(!response.error(), return);
+            if (response.error()) {
+                const QString error
+                    = Tr::tr("The sign-in request failed: %1").arg(response.error()->message());
+                setState("Sign in", error, false);
+                return;
+            }
 
             Utils::setClipboardAndSelection(response.result()->userCode());
 
