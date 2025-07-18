@@ -17,6 +17,7 @@
 
 #include <QDesignerFormEditorInterface>
 #include <QDesignerIntegrationInterface>
+#include <QElapsedTimer>
 #include <QStringList>
 #include <QTest>
 
