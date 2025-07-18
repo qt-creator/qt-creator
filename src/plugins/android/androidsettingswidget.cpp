@@ -634,7 +634,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
 
     connect(openSslProgressDialog, &QProgressDialog::canceled, gitCloner, &QObject::deleteLater);
 
-    const auto failDialog = [=](const QString &msgSuffix = {}) {
+    const auto failDialog = [openSslRepo](const QString &msgSuffix = {}) {
         QStringList sl;
         sl << Tr::tr("OpenSSL prebuilt libraries cloning failed.");
         if (!msgSuffix.isEmpty())
