@@ -189,7 +189,7 @@ bool AbstractProcessStep::setupProcess(Process &process)
     process.setEnvironment(envWithPwd);
     process.setCommand({d->m_param.effectiveCommand(), d->m_param.effectiveArguments(),
                         CommandLine::Raw});
-    if (d->m_lowPriority && projectExplorerSettings().lowBuildPriority())
+    if (d->m_lowPriority && ProjectExplorerSettings::get(this).lowBuildPriority())
         process.setLowPriority();
 
     if (buildEnvironment().hasKey("VSLANG"))

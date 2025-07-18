@@ -166,8 +166,10 @@ private:
 class ProjectPrivate
 {
 public:
+    ProjectPrivate(Project *q) : q(q) {}
     ~ProjectPrivate();
 
+    Project * const q;
     Id m_id;
     bool m_needsInitialExpansion = false;
     bool m_canBuildProducts = false;
@@ -191,6 +193,7 @@ public:
     QHash<Id, QPair<QString, std::function<void()>>> m_generators;
     std::function<Tasks(const Kit *)> m_issuesGenerator;
     Tasks m_tasks;
+    PerProjectProjectExplorerSettings m_projectExplorerSettings{q};
 
     QString m_buildSystemName;
     QString m_displayName;
@@ -214,7 +217,7 @@ ProjectPrivate::~ProjectPrivate()
 }
 
 Project::Project(const QString &mimeType, const FilePath &fileName)
-    : d(new ProjectPrivate)
+    : d(new ProjectPrivate(this))
 {
     d->m_document = std::make_unique<ProjectDocument>(mimeType, fileName, this);
     DocumentManager::addDocument(d->m_document.get());
@@ -230,9 +233,10 @@ Project::Project(const QString &mimeType, const FilePath &fileName)
     KitManager *km = KitManager::instance();
     connect(km, &KitManager::kitUpdated, this, &Project::handleKitUpdated);
     connect(km, &KitManager::kitRemoved, this, &Project::handleKitRemoval);
-    projectExplorerSettings().syncRunConfigurations.addOnChanged(this, [this] {
-        syncRunConfigurations(false);
-    });
+    ProjectExplorerSettings::registerCallback(
+        this, &ProjectExplorerSettings::syncRunConfigurations, [this] {
+            syncRunConfigurations(false);
+        });
 }
 
 Project::~Project()
@@ -266,7 +270,8 @@ void Project::syncRunConfigurations(bool force)
     const QVariant projectSyncSetting = namedSettings(key);
     const SyncRunConfigs prevSyncSetting = projectSyncSetting.isValid()
         ? static_cast<SyncRunConfigs>(projectSyncSetting.toInt()) : SyncRunConfigs::Off;
-    const SyncRunConfigs curSyncSetting = projectExplorerSettings().syncRunConfigurations.value();
+    const SyncRunConfigs curSyncSetting
+        = ProjectExplorerSettings::get(this).syncRunConfigurations.value();
     setNamedSettings(key, static_cast<int>(curSyncSetting));
 
     // Invariant: If the setting has not changed, everything is as it should be.
@@ -347,6 +352,11 @@ void Project::syncRunConfigurations(bool force)
             }
         }
     }
+}
+
+PerProjectProjectExplorerSettings &Project::projectExplorerSettings() const
+{
+    return d->m_projectExplorerSettings;
 }
 
 QString Project::buildSystemName() const
@@ -1014,6 +1024,8 @@ Project::RestoreResult Project::fromMap(const Store &map, QString *errorMessage)
 
     d->m_rootProjectDirectory = FilePath::fromString(
         namedSettings(Constants::PROJECT_ROOT_PATH_KEY).toString());
+
+    d->m_projectExplorerSettings.restore();
 
     return RestoreResult::Ok;
 }

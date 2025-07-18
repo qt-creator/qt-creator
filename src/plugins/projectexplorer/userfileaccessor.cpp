@@ -172,7 +172,7 @@ UserFileAccessor::UserFileAccessor(Project *project)
     secondary->setReadOnly();
     setSecondaryAccessor(std::move(secondary));
 
-    setSettingsId(projectExplorerSettings().environmentId());
+    setSettingsId(globalProjectExplorerSettings().environmentId());
 
     // Register Upgraders:
     addVersionUpgrader(std::make_unique<UserFileVersion18Upgrader>());
@@ -568,7 +568,7 @@ private slots:
 
         QCOMPARE(result.count(), data.count() + 2);
         QCOMPARE(
-            result.value("EnvironmentId").toByteArray(), projectExplorerSettings().environmentId());
+            result.value("EnvironmentId").toByteArray(), globalProjectExplorerSettings().environmentId());
         QCOMPARE(result.value("UserStickyKeys"), QVariant(QStringList({"shared1"})));
         QCOMPARE(result.value("Version").toInt(), accessor.currentVersion());
         QCOMPARE(result.value("shared1"), data.value("shared1"));
@@ -590,7 +590,7 @@ private slots:
 
         Store data;
         data.insert("Version", accessor.currentVersion());
-        data.insert("EnvironmentId", projectExplorerSettings().environmentId());
+        data.insert("EnvironmentId", globalProjectExplorerSettings().environmentId());
         data.insert("UserStickyKeys", QStringList({"shared1"}));
         data.insert("shared1", "bar1");
         data.insert("unique1", 1234);
@@ -603,7 +603,7 @@ private slots:
         // mergeSettings does not run updateSettings, so no OriginalVersion will be set
         QCOMPARE(
             result.data.value("EnvironmentId").toByteArray(),
-            projectExplorerSettings().environmentId()); // unchanged
+            globalProjectExplorerSettings().environmentId()); // unchanged
         QCOMPARE(result.data.value("UserStickyKeys"), QVariant(QStringList({"shared1"}))); // unchanged
         QCOMPARE(result.data.value("Version").toInt(), accessor.currentVersion()); // forced
         QCOMPARE(result.data.value("shared1"), data.value("shared1")); // from data
@@ -644,7 +644,7 @@ private slots:
         Store data;
         data.insert("Version", accessor.currentVersion());
         data.insert("OriginalVersion", accessor.currentVersion());
-        data.insert("EnvironmentId", projectExplorerSettings().environmentId());
+        data.insert("EnvironmentId", globalProjectExplorerSettings().environmentId());
         data.insert("UserStickyKeys", QStringList({"shared1"}));
         data.insert("shared1", "bar1");
         data.insert("unique1", 1234);

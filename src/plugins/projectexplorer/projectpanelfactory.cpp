@@ -65,7 +65,7 @@ void ProjectPanelFactory::setId(Id id)
     m_id = id;
 }
 
-ProjectSettingsWidget *ProjectPanelFactory::createWidget(Project *project) const
+QWidget *ProjectPanelFactory::createWidget(Project *project) const
 {
     return m_widgetCreator(project);
 }

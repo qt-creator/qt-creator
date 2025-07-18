@@ -58,7 +58,8 @@ public:
         using RCsPerBuildConfig = QHash<const BuildConfiguration *, RCList>;
         using RCsPerTarget = QHash<const Target *, RCsPerBuildConfig>;
         QHash<const Project *, RCsPerTarget> eligibleRcs;
-        const SyncRunConfigs syncSetting = projectExplorerSettings().syncRunConfigurations.value();
+        const SyncRunConfigs syncSetting
+            = ProjectExplorerSettings::get(thisRc).syncRunConfigurations.value();
         const bool considerOtherBuildConfigs = syncSetting == SyncRunConfigs::Off;
         const bool considerOtherTargets = syncSetting != SyncRunConfigs::All;
         for (const Project * const p : ProjectManager::projects()) {
@@ -476,7 +477,7 @@ void RunSettingsWidget::removeAllRunConfigurations()
         return;
 
     QList<BuildConfiguration *> affectedBcs;
-    switch (projectExplorerSettings().syncRunConfigurations.value()) {
+    switch (ProjectExplorerSettings::get(m_target).syncRunConfigurations.value()) {
     case SyncRunConfigs::Off:
         affectedBcs << m_target->activeBuildConfiguration();
         break;

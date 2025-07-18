@@ -116,10 +116,12 @@ void GlobalOrProjectAspect::toActiveMap(Store &data) const
 void GlobalOrProjectAspect::resetProjectToGlobalSettings()
 {
     QTC_ASSERT(m_globalSettings, return);
+    if (!m_projectSettings)
+        return;
     Store map;
     m_globalSettings->toMap(map);
-    if (m_projectSettings)
-        m_projectSettings->fromMap(map);
+    m_projectSettings->fromMap(map);
+    emit wasResetToGlobalValues();
 }
 
 
@@ -501,7 +503,7 @@ void RunConfiguration::cloneFromOther(const RunConfiguration *rc)
 const QList<BuildConfiguration *> RunConfiguration::syncableBuildConfigurations() const
 {
     QList<BuildConfiguration *> buildConfigs;
-    switch (projectExplorerSettings().syncRunConfigurations.value()) {
+    switch (ProjectExplorerSettings::get(this).syncRunConfigurations.value()) {
     case SyncRunConfigs::Off:
         break;
     case SyncRunConfigs::SameKit:

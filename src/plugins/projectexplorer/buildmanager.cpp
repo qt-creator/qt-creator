@@ -239,7 +239,7 @@ static int queue(
     if (!ProjectExplorerPlugin::saveModifiedFiles())
         return -1;
 
-    const StopBeforeBuild stopBeforeBuild = projectExplorerSettings().stopBeforeBuild();
+    const StopBeforeBuild stopBeforeBuild = globalProjectExplorerSettings().stopBeforeBuild();
     if (stopBeforeBuild != StopBeforeBuild::None && !projectsAndStepIds.isEmpty()
         && projectsAndStepIds.last().second.contains(Constants::BUILDSTEPS_BUILD)) {
         StopBeforeBuild stopCondition = stopBeforeBuild;
@@ -291,7 +291,7 @@ static int queue(
 
         if (!toStop.isEmpty()) {
             bool stopThem = true;
-            if (projectExplorerSettings().promptToStopRunControl()) {
+            if (globalProjectExplorerSettings().promptToStopRunControl()) {
                 QStringList names = Utils::transform(toStop, &RunControl::displayName);
                 if (QMessageBox::question(ICore::dialogParent(),
                         Tr::tr("Stop Applications"),
@@ -558,7 +558,7 @@ void BuildManager::rebuildProjects(const QList<Project *> &projects,
 void BuildManager::deployProjects(const QList<Project *> &projects)
 {
     QList<Id> steps;
-    if (projectExplorerSettings().buildBeforeDeploy() != BuildBeforeRunMode::Off)
+    if (globalProjectExplorerSettings().buildBeforeDeploy() != BuildBeforeRunMode::Off)
         steps << Id(Constants::BUILDSTEPS_BUILD);
     steps << Id(Constants::BUILDSTEPS_DEPLOY);
     queue(projectsWithStepIds(projects, steps), ConfigSelection::Active);
@@ -567,9 +567,9 @@ void BuildManager::deployProjects(const QList<Project *> &projects)
 BuildForRunConfigStatus BuildManager::potentiallyBuildForRunConfig(RunConfiguration *rc)
 {
     QList<Id> stepIds;
-    if (projectExplorerSettings().deployBeforeRun()) {
+    if (globalProjectExplorerSettings().deployBeforeRun()) {
         if (!isBuilding()) {
-            switch (projectExplorerSettings().buildBeforeDeploy()) {
+            switch (globalProjectExplorerSettings().buildBeforeDeploy()) {
             case BuildBeforeRunMode::AppOnly:
                 if (rc->buildConfiguration())
                     rc->buildConfiguration()->restrictNextBuild(rc);
@@ -762,7 +762,7 @@ void BuildManager::startBuildQueue()
     };
 
     const GroupItem abortPolicy
-        = projectExplorerSettings().abortBuildAllOnError() ? stopOnError : continueOnError;
+        = globalProjectExplorerSettings().abortBuildAllOnError() ? stopOnError : continueOnError;
 
     GroupItems topLevel { abortPolicy, ParserAwaiterTask(onAwaiterSetup) };
     Project *lastProject = nullptr;
@@ -899,7 +899,7 @@ bool BuildManager::buildQueueAppend(const QList<BuildItem> &items, const QString
 {
     if (!d->m_taskTreeRunner.isRunning()) {
         d->m_outputWindow->clearContents();
-        if (projectExplorerSettings().clearIssuesOnRebuild()) {
+        if (globalProjectExplorerSettings().clearIssuesOnRebuild()) {
             TaskHub::clearTasks(Constants::TASK_CATEGORY_COMPILE);
             TaskHub::clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
             TaskHub::clearTasks(Constants::TASK_CATEGORY_DEPLOYMENT);

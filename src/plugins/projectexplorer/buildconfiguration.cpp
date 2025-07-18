@@ -706,7 +706,7 @@ void BuildConfiguration::updateDefaultRunConfigurations()
             }
         }
         if (!present &&
-            projectExplorerSettings().automaticallyCreateRunConfigurations() &&
+            ProjectExplorerSettings::get(this).automaticallyCreateRunConfigurations() &&
             !rc->isCustomized()) {
             toRemove.append(rc);
         }
@@ -714,7 +714,7 @@ void BuildConfiguration::updateDefaultRunConfigurations()
     configuredCount -= toRemove.count();
 
     bool removeExistingUnconfigured = false;
-    if (projectExplorerSettings().automaticallyCreateRunConfigurations()) {
+    if (ProjectExplorerSettings::get(this).automaticallyCreateRunConfigurations()) {
         // Create new "automatic" RCs and put them into newConfigured/newUnconfigured
         for (const RunConfigurationCreationInfo &item : creators) {
             if (item.creationMode == RunConfigurationCreationInfo::ManualCreationOnly)

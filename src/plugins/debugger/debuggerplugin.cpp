@@ -1201,8 +1201,8 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
             }
         });
 
-    projectExplorerSettings().deployBeforeRun.addOnChanged(this, [this] {
-        m_debugWithoutDeployAction.setVisible(projectExplorerSettings().deployBeforeRun());
+    globalProjectExplorerSettings().deployBeforeRun.addOnChanged(this, [this] {
+        m_debugWithoutDeployAction.setVisible(globalProjectExplorerSettings().deployBeforeRun());
     });
 
     // Debug mode setup

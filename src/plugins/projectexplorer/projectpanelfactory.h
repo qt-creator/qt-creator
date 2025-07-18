@@ -34,7 +34,7 @@ public:
     bool supports(Project *project);
     // Widgets created by this function should use setWindowTitle() to specify
     // their tab title.
-    ProjectSettingsWidget *createWidget(Project *project) const;
+    QWidget *createWidget(Project *project) const;
 
     // interface for "implementations" of ProjectPanelFactory
     // by default all projects are supported, only set a custom supports function
@@ -46,7 +46,7 @@ public:
 
     Utils::TreeItem *createPanelItem(Project *project);
 
-    using WidgetCreator = std::function<ProjectSettingsWidget *(Project *)>;
+    using WidgetCreator = std::function<QWidget *(Project *)>;
     void setCreateWidgetFunction(const WidgetCreator &createWidgetFunction);
 
 private:

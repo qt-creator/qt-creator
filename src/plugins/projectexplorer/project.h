@@ -38,6 +38,7 @@ class EditorConfiguration;
 class QmlCodeModelInfo;
 class FolderNode;
 class Node;
+class PerProjectProjectExplorerSettings;
 class ProjectImporter;
 class ProjectNode;
 class ProjectPrivate;
@@ -217,6 +218,8 @@ public:
     QmlCodeModelInfo gatherQmlCodeModelInfo(Kit *kit, BuildConfiguration *bc);
 
     void syncRunConfigurations(bool force);
+
+    PerProjectProjectExplorerSettings &projectExplorerSettings() const;
 
     [[deprecated("Use Project::type()")]]
     Utils::Id id() const { return type(); }

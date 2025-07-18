@@ -6,8 +6,10 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
+#include "projectpanelfactory.h"
+#include "runcontrol.h"
+#include "target.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -31,7 +33,7 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
-ProjectExplorerSettings::ProjectExplorerSettings()
+ProjectExplorerSettings::ProjectExplorerSettings(bool global)
 {
     setSettingsGroups("ProjectExplorer", "Settings");
     setAutoApply(false);
@@ -169,7 +171,8 @@ ProjectExplorerSettings::ProjectExplorerSettings()
 
     environmentId.setSettingsKey("EnvironmentId");
 
-    readSettings();
+    if (global)
+        readSettings();
 
     // Fix up pre-Qt 4.12
     const QVariant value = ICore::settings()->value("ProjectExplorer/Settings/BuildBeforeDeploy");
@@ -193,21 +196,48 @@ ProjectExplorerSettings::ProjectExplorerSettings()
     }
 }
 
+ProjectExplorerSettings &ProjectExplorerSettings::get(QObject *context)
+{
+    if (const Project * const project = projectForContext(context))
+        return project->projectExplorerSettings().current();
+    return globalProjectExplorerSettings();
+}
+
+ProjectExplorerSettings &ProjectExplorerSettings::get(const QObject *context)
+{
+    return get(const_cast<QObject *>(context));
+}
+
+Project *ProjectExplorerSettings::projectForContext(QObject *context)
+{
+    if (const auto project = qobject_cast<Project *>(context))
+        return project;
+    if (const auto target = qobject_cast<Target *>(context))
+        return target->project();
+    if (const auto runControl = qobject_cast<RunControl *>(context))
+        return runControl->project();
+    if (const auto projectConf = qobject_cast<ProjectConfiguration *>(context))
+        return projectConf->project();
+    if (const auto aspect = qobject_cast<BaseAspect *>(context))
+        return projectForContext(aspect->container());
+    return nullptr;
+}
+
 namespace Internal {
 
 enum { UseCurrentDirectory, UseProjectDirectory };
 
 void setPromptToStopSettings(bool promptToStop)
 {
-    projectExplorerSettings().promptToStopRunControl.setValue(promptToStop);
-    projectExplorerSettings().promptToStopRunControl.writeSettings();
-    emit projectExplorerSettings().changed();
+    globalProjectExplorerSettings().promptToStopRunControl.setValue(promptToStop);
+    globalProjectExplorerSettings().promptToStopRunControl.writeSettings();
+    emit globalProjectExplorerSettings().changed();
 }
 
 void setSaveBeforeBuildSettings(bool saveBeforeBuild)
 {
-    projectExplorerSettings().saveBeforeBuild.setValue(saveBeforeBuild);
-    projectExplorerSettings().saveBeforeBuild.writeSettings();
+    globalProjectExplorerSettings().saveBeforeBuild.setValue(saveBeforeBuild);
+    globalProjectExplorerSettings().saveBeforeBuild.writeSettings();
 }
 
 class ProjectExplorerSettingsWidget : public IOptionsPageWidget
@@ -223,9 +253,9 @@ public:
 
     void apply() final
     {
-        if (projectExplorerSettings().isDirty()) {
-            projectExplorerSettings().apply();
-            projectExplorerSettings().writeSettings();
+        if (globalProjectExplorerSettings().isDirty()) {
+            globalProjectExplorerSettings().apply();
+            globalProjectExplorerSettings().writeSettings();
         }
 
         DocumentManager::setProjectsDirectory(projectsDirectory());
@@ -234,7 +264,7 @@ public:
 
     void cancel() final
     {
-        projectExplorerSettings().cancel();
+        globalProjectExplorerSettings().cancel();
     }
 
 private:
@@ -252,7 +282,7 @@ private:
 
 ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
 {
-    ProjectExplorerSettings &s = projectExplorerSettings();
+    ProjectExplorerSettings &s = globalProjectExplorerSettings();
 
     m_currentDirectoryRadioButton = new QRadioButton(Tr::tr("Current directory"));
     m_directoryRadioButton = new QRadioButton(Tr::tr("Directory"));
@@ -375,7 +405,7 @@ void ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged()
 
 void ProjectExplorerSettingsWidget::updateAppEnvChangesLabel()
 {
-    const EnvironmentItems changes = projectExplorerSettings().appEnvChanges.volatileValue();
+    const EnvironmentItems changes = globalProjectExplorerSettings().appEnvChanges.volatileValue();
     const QString shortSummary = EnvironmentItem::toStringList(changes).join("; ");
     m_appEnvLabel->setText(shortSummary.isEmpty() ? Tr::tr("No changes to apply.")
                                                   : shortSummary);
@@ -400,12 +430,86 @@ void setupProjectExplorerSettings()
     static ProjectExplorerSettingsPage theProjectExplorerSettingsPage;
 }
 
+class ProjectExplorerSettingsProjectPanelFactory final : public ProjectPanelFactory
+{
+public:
+    ProjectExplorerSettingsProjectPanelFactory()
+    {
+        setPriority(10);
+        setId("ProjectExplorer.BuildAndRunSettings");
+        setDisplayName(Tr::tr("Building And Running"));
+        setCreateWidgetFunction([](Project *project) {
+            return project->projectExplorerSettings().createConfigWidget();
+        });
+    }
+};
+
+void setupProjectExplorerSettingsProjectPanel()
+{
+    static ProjectExplorerSettingsProjectPanelFactory theFactory;
+}
+
 } // Internal
 
-ProjectExplorerSettings &projectExplorerSettings()
+ProjectExplorerSettings &globalProjectExplorerSettings()
 {
-    static ProjectExplorerSettings theProjectExplorerSettings;
+    static ProjectExplorerSettings theProjectExplorerSettings(true);
     return theProjectExplorerSettings;
+}
+
+PerProjectProjectExplorerSettings::PerProjectProjectExplorerSettings(Project *project)
+    : m_project(project)
+{
+    QTC_ASSERT(project, return);
+
+    const auto settings = new ProjectExplorerSettings(false);
+    setProjectSettings(settings);
+    setGlobalSettings(&globalProjectExplorerSettings());
+    setId("PESettingsAspect");
+    settings->setSettingsKey("PESettings");
+    settings->setLayouter([settings] {
+        using namespace Layouting;
+        return Column {
+            settings->addLibraryPathsToRunEnv,
+            settings->automaticallyCreateRunConfigurations,
+            settings->lowBuildPriority,
+            settings->warnAgainstNonAsciiBuildDir,
+
+            Form {
+                settings->terminalMode, br,
+                settings->syncRunConfigurations, br,
+                settings->reaperTimeoutInSeconds, st, br,
+            },
+            st,
+        };
+    });
+    setDisplayName(Tr::tr("Building And Running"));
+    setUsingGlobalSettings(true);
+    resetProjectToGlobalSettings();
+    setConfigWidgetCreator([this] { return createGlobalOrProjectAspectWidget(this); });
+
+    const auto save = [this, project] {
+        Store map;
+        toMap(map);
+        project->setNamedSettings(id().toKey(), mapFromStore(map));
+    };
+    connect(settings, &BaseAspect::changed, this, save);
+    connect(this, &GlobalOrProjectAspect::currentSettingsChanged, this, save);
+}
+
+ProjectExplorerSettings &PerProjectProjectExplorerSettings::custom()
+{
+    return *static_cast<ProjectExplorerSettings *>(projectSettings());
+}
+
+ProjectExplorerSettings &PerProjectProjectExplorerSettings::current()
+{
+    return *static_cast<ProjectExplorerSettings *>(currentSettings());
+}
+
+void PerProjectProjectExplorerSettings::restore()
+{
+    fromMap(storeFromVariant(m_project->namedSettings(id().toKey())));
 }
 
 } // ProjectExplorer

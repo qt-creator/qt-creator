@@ -842,7 +842,7 @@ QVariant CMakeGeneratorKitAspectFactory::defaultValue(const Kit *k) const
                                   return g.matches("NMake Makefiles")
                                          || g.matches("NMake Makefiles JOM");
                               });
-            if (projectExplorerSettings().useJom()) {
+            if (globalProjectExplorerSettings().useJom()) {
                 it = std::find_if(known.constBegin(),
                                   known.constEnd(),
                                   [](const CMakeTool::Generator &g) {

@@ -29,10 +29,10 @@ EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
     addDataExtractor(this, &EnvironmentAspect::environment, &Data::environment);
     if (const auto runConfig = qobject_cast<RunConfiguration *>(container)) {
         addModifier([runConfig](Environment &env) {
-            env.modify(projectExplorerSettings().appEnvChanges());
+            env.modify(ProjectExplorerSettings::get(runConfig).appEnvChanges());
             env.modify(EnvironmentKitAspect::runEnvChanges(runConfig->kit()));
         });
-        projectExplorerSettings().appEnvChanges.addOnChanged(this, [this] {
+        globalProjectExplorerSettings().appEnvChanges.addOnChanged(this, [this] {
             emit environmentChanged();
         });
     }

@@ -48,7 +48,7 @@ Group androidKicker(const StoredBarrier &barrier, RunControl *runControl)
 
     std::optional<ExecutableItem> avdRecipe;
 
-    if (!projectExplorerSettings().deployBeforeRun() && runControl->project()) {
+    if (!ProjectExplorerSettings::get(runControl).deployBeforeRun() && runControl->project()) {
         qCDebug(androidRunnerLog) << "Run without deployment";
 
         const IDevice::ConstPtr device = RunDeviceKitAspect::device(runControl->kit());

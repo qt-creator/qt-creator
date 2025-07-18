@@ -73,9 +73,8 @@ BuildDirectoryAspect::BuildDirectoryAspect(BuildConfiguration *bc)
         Core::FileUtils::openTerminal(expandedValue(), bc->environment());
     });
 
-    projectExplorerSettings().warnAgainstNonAsciiBuildDir.addOnChanged(this, [this] {
-        validateInput();
-    });
+    ProjectExplorerSettings::registerCallback(
+        this, &ProjectExplorerSettings::warnAgainstNonAsciiBuildDir, [this] { validateInput(); });
 }
 
 BuildDirectoryAspect::~BuildDirectoryAspect()
@@ -188,7 +187,7 @@ QString BuildDirectoryAspect::updateProblemLabelsHelper(const QString &value)
 
     QString genericProblem;
     QString genericProblemLabelString;
-    if (projectExplorerSettings().warnAgainstNonAsciiBuildDir()) {
+    if (ProjectExplorerSettings::get(this).warnAgainstNonAsciiBuildDir()) {
         const auto isInvalid = [](QChar c) { return c.isSpace() || !isascii(c.toLatin1()); };
         if (const auto invalidChar = Utils::findOr(value, std::nullopt, isInvalid)) {
             genericProblem = Tr::tr(

@@ -902,7 +902,7 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
         const Environment environment = process.environment();
         process.setTerminalMode(useTerminal ? Utils::TerminalMode::Run : Utils::TerminalMode::Off);
         process.setReaperTimeout(
-            std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds()));
+            std::chrono::seconds(ProjectExplorerSettings::get(this).reaperTimeoutInSeconds()));
 
         postMessage(Tr::tr("Starting %1...").arg(command.displayName()), NormalMessageFormat);
         if (isPrintEnvironmentEnabled()) {
@@ -1061,14 +1061,16 @@ void RunControl::handleProcessCancellation(Process *process)
 {
     postMessage(Tr::tr("Requesting process to stop..."), NormalMessageFormat);
     process->stop();
-    QTimer::singleShot(2 * std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds()),
-                       process, [this, process] {
-        postMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
-        if (!process->commandLine().executable().isLocal())
-            postMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
-        process->kill();
-        emit process->done();
-    });
+    QTimer::singleShot(
+        2 * std::chrono::seconds(ProjectExplorerSettings::get(this).reaperTimeoutInSeconds()),
+        process,
+        [this, process] {
+            postMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
+            if (!process->commandLine().executable().isLocal())
+                postMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
+            process->kill();
+            emit process->done();
+        });
 }
 
 } // namespace ProjectExplorer

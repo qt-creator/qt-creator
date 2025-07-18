@@ -1087,7 +1087,7 @@ TargetGroupItem::TargetGroupItem(Project *project)
          scheduleRebuildContents();
     });
 
-    projectExplorerSettings().showAllKits.addOnChanged(&m_guard, [this] {
+    globalProjectExplorerSettings().showAllKits.addOnChanged(&m_guard, [this] {
         scheduleRebuildContents();
     });
 
@@ -1167,7 +1167,7 @@ void TargetGroupItem::rebuildContents()
 
     for (Kit *kit : sortedKits) {
         if (!isAnyKitNotEnabled
-                || projectExplorerSettings().showAllKits()
+                || globalProjectExplorerSettings().showAllKits()
                 || m_project->target(kit->id()) != nullptr) {
             appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
         }
@@ -1322,9 +1322,9 @@ public:
     {
         if (ev->button() != Qt::LeftButton)
             return;
-        const bool newShowAllKits = !projectExplorerSettings().showAllKits();
-        projectExplorerSettings().showAllKits.setValue(newShowAllKits);
-        projectExplorerSettings().writeSettings();
+        const bool newShowAllKits = !globalProjectExplorerSettings().showAllKits();
+        globalProjectExplorerSettings().showAllKits.setValue(newShowAllKits);
+        globalProjectExplorerSettings().writeSettings();
         updateText();
         m_projectsModel->rootItem()->forFirstLevelChildren([](ProjectItem *item) {
             item->targetsItem()->scheduleRebuildContents();
@@ -1333,7 +1333,7 @@ public:
 
     void updateText()
     {
-        setText(projectExplorerSettings().showAllKits()
+        setText(globalProjectExplorerSettings().showAllKits()
                     ? Tr::tr("Hide Inactive Kits")
                     : Tr::tr("Show All Kits"));
     }

@@ -103,6 +103,7 @@ public:
 
 signals:
     void currentSettingsChanged();
+    void wasResetToGlobalValues();
 
 protected:
     friend class RunConfiguration;

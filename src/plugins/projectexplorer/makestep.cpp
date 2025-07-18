@@ -379,7 +379,7 @@ QWidget *MakeStep::createConfigWidget()
     connect(&m_overrideMakeflagsAspect, &BoolAspect::changed, widget, updateDetails);
     connect(&m_buildTargetsAspect, &BaseAspect::changed, widget, updateDetails);
 
-    projectExplorerSettings().useJom.addOnChanged(widget, updateDetails);
+    globalProjectExplorerSettings().useJom.addOnChanged(widget, updateDetails);
 
     connect(buildConfiguration(), &BuildConfiguration::kitChanged, widget, updateDetails);
     connect(buildConfiguration(), &BuildConfiguration::environmentChanged, widget, updateDetails);
