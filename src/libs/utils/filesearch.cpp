@@ -587,8 +587,7 @@ static FileContainerIterator::Advancer fileListAdvancer(
 static FileContainer::AdvancerProvider fileListAdvancerProvider(const FilePaths &fileList,
     const QList<TextEncoding> &encodings)
 {
-    const auto initialCache = toFileListCache(fileList, encodings);
-    return [=] { return fileListAdvancer(initialCache); };
+    return [initCache = toFileListCache(fileList, encodings)] { return fileListAdvancer(initCache); };
 }
 
 FileListContainer::FileListContainer(const FilePaths &fileList,
@@ -712,8 +711,8 @@ std::optional<FileContainerIterator::Item> SubDirCache::updateCache(int advanceI
 
 static FileContainerIterator::Advancer subDirAdvancer(const SubDirCache &initialCache)
 {
-    const std::shared_ptr<SubDirCache> sharedCache(new SubDirCache(initialCache));
-    return [=](FileContainerIterator::Data *iterator) {
+    return [initialCache, sharedCache = std::make_shared<SubDirCache>(initialCache)]
+        (FileContainerIterator::Data *iterator) {
         ++iterator->m_index;
         const std::optional<FileContainerIterator::Item> item
             = sharedCache->updateCache(iterator->m_index, initialCache);
