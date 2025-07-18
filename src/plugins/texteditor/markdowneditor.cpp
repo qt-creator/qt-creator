@@ -306,6 +306,8 @@ public:
         });
     }
 
+    ~MarkdownEditor() { delete widget(); }
+
     void triggerEmphasis()
     {
         triggerFormatingAction([](QString *selectedText, int *cursorOffset) {
