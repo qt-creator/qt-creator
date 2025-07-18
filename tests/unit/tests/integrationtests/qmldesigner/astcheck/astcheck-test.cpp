@@ -1,17 +1,23 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "utils/googletest.h" // IWYU pragma: keep
+#include <gmock/gmock-matchers.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest-printers.h>
+#include <gtest/gtest-typed-test.h>
+#include <gtest/gtest.h>
+#include <printers/gtest-qt-printing.h>
+#include <utils/google-using-declarations.h>
 
 #include <3rdparty/googletest/googletest/include/gtest/gtest.h>
 
 #include <utils/fileutils.h>
 
-#include <astcheck.h>
+#include <astcheck/astcheck.h>
 
 namespace QmlJS::StaticAnalysis {
 
-std::ostream &operator<<(std::ostream &os, const Message &message)
+static std::ostream &operator<<(std::ostream &os, const Message &message)
 {
     return os << message.toDiagnosticMessage().message.toStdString();
 }
@@ -30,15 +36,15 @@ struct Parameters
     bool hasError;
     bool isUiFile;
     QmlJS::StaticAnalysis::Type errorType;
-
-    friend std::ostream &operator<<(std::ostream &os, const Parameters &obj)
-    {
-        return os << "FileTestCase(filename: " << obj.filename << ", has error: " << std::boolalpha
-                  << obj.hasError << ")"
-                  << ", is ui file: " << std::boolalpha << obj.isUiFile << ")"
-                  << ", error type: " << obj.errorType;
-    }
 };
+
+std::ostream &operator<<(std::ostream &os, const Parameters &obj)
+{
+    return os << "FileTestCase(filename: " << obj.filename << ", has error: " << std::boolalpha
+              << obj.hasError << ")"
+              << ", is ui file: " << std::boolalpha << obj.isUiFile << ")"
+              << ", error type: " << obj.errorType;
+}
 
 class AstCheckTest : public testing::TestWithParam<Parameters>
 {
@@ -169,9 +175,10 @@ TEST_P(AstCheckTest, qml_simple_check)
     auto messages = astcheck();
 
     ASSERT_EQ(messages.isEmpty(), !parameter.hasError) << messages;
-    if (parameter.hasError)
+    if (parameter.hasError) {
         ASSERT_THAT(messages,
                     Contains(Field(&QmlJS::StaticAnalysis::Message::type, parameter.errorType)));
+    }
 }
 
 } // namespace

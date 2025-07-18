@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <qmldesignercorelib_exports.h>
-
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsstaticanalysismessage.h>
@@ -19,7 +17,7 @@ namespace Utils { class QtcSettings; }
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT AstCheck : protected QmlJS::AST::Visitor
+class AstCheck : protected QmlJS::AST::Visitor
 {
     typedef QSet<QString> StringSet;
 

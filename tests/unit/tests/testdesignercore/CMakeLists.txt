@@ -10,6 +10,7 @@ add_qtc_library(TestDesignerCore OBJECT
     Qt6::QmlDomPrivate
     Qt6::QmlCompilerPrivate
     QmlJS
+    AstCheck
   PUBLIC_DEPENDS
     Threads::Threads
     Qt::Quick
@@ -50,8 +51,6 @@ extend_qtc_library(TestDesignerCore
   PUBLIC_INCLUDES ${QML_DESIGNER_CORE_DIRECTORY}/designercoreutils
   SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/designercoreutils
   SOURCES
-    astcheck.cpp
-    astcheck.h
     generatedcomponentutils.cpp
     generatedcomponentutils.h
     modelmerger.cpp

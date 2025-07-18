@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "astcheck.h"
-#include "modelutils.h"
+#include "astutils.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsutils.h>
@@ -675,7 +675,7 @@ bool AstCheck::visit(UiScriptBinding *ast)
         }
 
         /* Those ds are still very commonly used, but GUI does not allow them anymore. */
-        if (id != "rectangle" && id != "mouseArea" && id != "button" && ModelUtils::isBannedQmlId(id))
+        if (id != "rectangle" && id != "mouseArea" && id != "button" && AstUtils::isBannedQmlId(id))
             addMessage(ErrInvalidIdeInVisualDesigner, loc);
 
         if (m_idStack.top().contains(id)) {

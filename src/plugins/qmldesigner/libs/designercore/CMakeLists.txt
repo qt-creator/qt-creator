@@ -17,6 +17,7 @@ add_qtc_library(QmlDesignerCore
     QmlJS
     TextEditorSupport
     QmlDesignerSettings
+    AstCheck
   PUBLIC_DEPENDS
     QmlPuppetCommunication
     QmlDesignerUtils
@@ -34,8 +35,6 @@ extend_qtc_library(QmlDesignerCore
   PUBLIC_INCLUDES designercoreutils
   SOURCES_PREFIX designercoreutils
   SOURCES
-    astcheck.cpp
-    astcheck.h
     functional.h
     generatedcomponentutils.cpp
     generatedcomponentutils.h

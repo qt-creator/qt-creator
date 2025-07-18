@@ -21,7 +21,7 @@
 #include "rewriterview.h"
 #include "signalhandlerproperty.h"
 #include "variantproperty.h"
-#include <astcheck.h>
+#include <astcheck/astcheck.h>
 
 #include <externaldependenciesinterface.h>
 #include <import.h>

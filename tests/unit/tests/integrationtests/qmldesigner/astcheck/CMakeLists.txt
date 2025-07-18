@@ -1,8 +1,7 @@
 add_qtc_integration_test(
   "astcheck"
   DEPENDS
-    TestDesignerCore
-    Qt::Core
+    AstCheck
   SOURCES
-  astcheck-test.cpp
+    astcheck-test.cpp
 )
