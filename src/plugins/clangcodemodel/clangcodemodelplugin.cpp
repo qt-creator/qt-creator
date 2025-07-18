@@ -156,10 +156,7 @@ void ClangCodeModelPlugin::createCompilationDBAction()
         m_generateCompilationDBAction->setEnabled(true);
     });
     connect(m_generateCompilationDBAction, &QAction::triggered, this, [this] {
-        if (!m_generateCompilationDBError.isNull()) {
-            TaskHub::removeTask(m_generateCompilationDBError);
-            m_generateCompilationDBError.clear();
-        }
+        TaskHub::clearAndRemoveTask(m_generateCompilationDBError);
         const auto setError = [this](const QString &reason) {
             m_generateCompilationDBError = OtherTask(
                 Task::DisruptingError,

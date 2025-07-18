@@ -535,10 +535,7 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
     installCustomApkButton->setText(Tr::tr("Install an APK File"));
 
     connect(installCustomApkButton, &QAbstractButton::clicked, this, [this] {
-        if (!m_installApkError.isNull()) {
-            TaskHub::removeTask(m_installApkError);
-            m_installApkError.clear();
-        }
+        TaskHub::clearAndRemoveTask(m_installApkError);
         const FilePath packagePath
                 = FileUtils::getOpenFilePath(Tr::tr("Qt Android Installer"),
                                              FileUtils::homePath(),

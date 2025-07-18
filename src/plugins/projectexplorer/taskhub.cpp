@@ -76,6 +76,14 @@ void TaskHub::removeTask(const Task &task)
     emit taskHub().taskRemoved(task);
 }
 
+void TaskHub::clearAndRemoveTask(Task &task)
+{
+    if (!task.isNull()) {
+        removeTask(task);
+        task.clear();
+    }
+}
+
 void TaskHub::updateTaskFilePath(const Task &task, const FilePath &filePath)
 {
     emit taskHub().taskFilePathUpdated(task, filePath);

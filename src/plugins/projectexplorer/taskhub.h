@@ -35,9 +35,10 @@ public:
     static void addTask(Task::TaskType type, const QString &description,
                         Utils::Id category);
 
-    static void addTask(ProjectExplorer::Task task);
+    static void addTask(Task task);
     static void clearTasks(Utils::Id categoryId = Utils::Id());
-    static void removeTask(const ProjectExplorer::Task &task);
+    static void removeTask(const Task &task);
+    static void clearAndRemoveTask(Task &task);
 
     static void addCategory(const TaskCategory &category);
     static void updateTaskFilePath(const Task &task, const Utils::FilePath &filePath);

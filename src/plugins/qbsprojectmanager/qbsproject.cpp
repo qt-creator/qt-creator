@@ -393,10 +393,7 @@ bool QbsBuildSystem::ensureWriteableQbsFile(const FilePath &file)
 
 void QbsBuildSystem::clearFileUpdateError()
 {
-    if (!m_fileUpdateError.isNull()) {
-        TaskHub::removeTask(m_fileUpdateError);
-        m_fileUpdateError.clear();
-    }
+    TaskHub::clearAndRemoveTask(m_fileUpdateError);
 }
 
 void QbsBuildSystem::setFileUpdateError(const QString &reason)

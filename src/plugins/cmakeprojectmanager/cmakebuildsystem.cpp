@@ -2697,10 +2697,7 @@ QList<QPair<Id, QString>> CMakeBuildSystem::generators() const
 void CMakeBuildSystem::runGenerator(Id id)
 {
     QTC_ASSERT(cmakeBuildConfiguration(), return);
-    if (!m_generatorError.isNull()) {
-        TaskHub::removeTask(m_generatorError);
-        m_generatorError.clear();
-    }
+    TaskHub::clearAndRemoveTask(m_generatorError);
     const auto showError = [this](const QString &detail) {
         m_generatorError = OtherTask(Task::DisruptingError,
                                      Tr::tr("cmake generator failed.").append('\n').append(detail));

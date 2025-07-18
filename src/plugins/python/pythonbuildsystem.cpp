@@ -221,10 +221,7 @@ void PythonBuildSystem::updateQmlCodeModelInfo(QmlCodeModelInfo &projectInfo)
 */
 bool PythonBuildSystem::save()
 {
-    if (!m_saveError.isNull()) {
-        TaskHub::removeTask(m_saveError);
-        m_saveError.clear();
-    }
+    TaskHub::clearAndRemoveTask(m_saveError);
     const auto setError = [this](const QString &reason) {
         m_saveError = OtherTask(
             Task::DisruptingError,

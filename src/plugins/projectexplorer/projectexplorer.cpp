@@ -3848,10 +3848,7 @@ void ProjectExplorerPluginPrivate::showInFileSystemPane()
 
 void ProjectExplorerPluginPrivate::openTerminalHere(const OpenTerminalParametersGetter &getParams)
 {
-    if (!m_openTerminalError.isNull()) {
-        TaskHub::removeTask(m_openTerminalError);
-        m_openTerminalError.clear();
-    }
+    TaskHub::clearAndRemoveTask(m_openTerminalError);
 
     const Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);

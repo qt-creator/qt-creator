@@ -1502,10 +1502,7 @@ QList<QPair<Id, QString>> QmakeBuildSystem::generators() const
 
 void QmakeBuildSystem::runGenerator(Utils::Id id)
 {
-    if (!m_generatorError.isNull()) {
-        TaskHub::removeTask(m_generatorError);
-        m_generatorError.clear();
-    }
+    TaskHub::clearAndRemoveTask(m_generatorError);
 
     QTC_ASSERT(buildConfiguration(), return);
     const auto showError = [this](const QString &detail) {
