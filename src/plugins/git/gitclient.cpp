@@ -1613,6 +1613,12 @@ bool GitClient::synchronousInit(const FilePath &workingDirectory)
     return false;
 }
 
+FilePath GitClient::findGitignoreFor(const FilePath &workingDirectory) const
+{
+    const FilePath repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
+    return repoDirectory.pathAppended(".gitignore");
+}
+
 bool GitClient::synchronousAddGitignore(const FilePath &workingDirectory)
 {
     const FilePath gitIgnoreDestination = workingDirectory.pathAppended(".gitignore");

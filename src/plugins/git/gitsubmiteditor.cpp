@@ -15,10 +15,12 @@
 
 #include <utils/async.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <vcsbase/submitfilemodel.h>
+#include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QApplication>
@@ -201,6 +203,34 @@ void GitSubmitEditor::showLog(const QStringList &range)
         gitClient().log(m_workingDirectory, {}, false, range);
 }
 
+void GitSubmitEditor::addToGitignore(const FilePath &relativePath)
+{
+    const FilePath fullPath = m_workingDirectory.resolvePath(relativePath);
+    const FilePath gitignorePath = gitClient().findGitignoreFor(fullPath);
+    const QString pattern = "/" + relativePath.path();
+
+    const TextEncoding fallbackEncoding = VcsBaseEditor::getEncoding(m_workingDirectory);
+    TextFileFormat format;
+    TextFileFormat::ReadResult readResult = format.readFile(gitignorePath, fallbackEncoding);
+
+    if (readResult.code != TextFileFormat::ReadSuccess) {
+        const QString message = Tr::tr("Cannot read \"%1\", reason %2.")
+                                    .arg(gitignorePath.toUserOutput(), readResult.error);
+        VcsOutputWindow::appendError(m_workingDirectory, message);
+        return;
+    }
+
+    QStringList lines = readResult.content.split('\n');
+    insertSorted(&lines, pattern);
+
+    const Result<> writeResult = format.writeFile(gitignorePath, lines.join('\n'));
+    if (!writeResult) {
+        const QString message = Tr::tr("Cannot write \"%1\", reason %2.")
+                                    .arg(gitignorePath.toUserOutput(), writeResult.error());
+        VcsOutputWindow::appendError(m_workingDirectory, message);
+    }
+}
+
 void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAction action)
 {
     if (m_workingDirectory.isEmpty())
@@ -226,6 +256,11 @@ void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAct
         }
         break;
     }
+
+    case FileAddGitignore:
+        addToGitignore(filePath);
+        refresh = true;
+        break;
 
     case FileCopyClipboard:
         setClipboardAndSelection(filePath.toUserOutput());

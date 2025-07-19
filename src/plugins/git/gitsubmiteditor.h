@@ -43,6 +43,7 @@ private:
     void showLog(const QStringList &range);
     void performFileAction(const Utils::FilePath &filePath, FileAction action);
     void commitDataRetrieved();
+    void addToGitignore(const Utils::FilePath &relativePath);
 
     inline GitSubmitEditorWidget *submitEditorWidget();
     inline const GitSubmitEditorWidget *submitEditorWidget() const;

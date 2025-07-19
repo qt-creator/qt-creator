@@ -306,6 +306,8 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
     menu->addSeparator();
     if (state & DeletedFile) {
         addAction(Tr::tr("Recover \"%1\"").arg(filePath.toUserOutput()), FileRevertDeletion);
+    } else if (state == (StagedFile | AddedFile)) {
+        addAction(Tr::tr("Unstage \"%1\"").arg(filePath.toUserOutput()), FileUnstage);
     } else if (state == (StagedFile | ModifiedFile)) {
         addAction(Tr::tr("Unstage \"%1\"").arg(filePath.toUserOutput()), FileUnstage);
         menu->addSeparator();
@@ -324,6 +326,31 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
             Tr::tr("<p>Undo unstaged changes to the file \"%1\"?</p>"
                    "<p>Note: These changes will be lost.</p>")
                 .arg(filePath.toUserOutput()));
+    } else if (state == UntrackedFile) {
+        addAction(Tr::tr("Stage \"%1\"").arg(filePath.toUserOutput()), FileStage);
+        menu->addSeparator();
+
+        const char message[] = "Add to gitignore \"%1\"";
+        addAction(Tr::tr(message).arg("/" + filePath.path()), FileAddGitignore);
+        const std::optional<Utils::FilePath> path = filePath.tailRemoved(filePath.fileName());
+        if (!path.has_value())
+            return;
+
+        const QString baseName = filePath.completeBaseName();
+        const QString suffix = filePath.suffix();
+        if (baseName.isEmpty() || suffix.isEmpty())
+            return;
+
+        const Utils::FilePath suffixMask = path->stringAppended("*." + suffix);
+        QAction *act0 = menu->addAction(Tr::tr(message).arg("/" + suffixMask.path()));
+        connect(act0, &QAction::triggered, this, [suffixMask, this] {
+            emit fileActionRequested(suffixMask, FileAddGitignore);
+        });
+        const Utils::FilePath nameMask = path->stringAppended(baseName + ".*");
+        QAction *act1 = menu->addAction(Tr::tr(message).arg("/" + nameMask.path()));
+        connect(act1, &QAction::triggered, this, [nameMask, this] {
+            emit fileActionRequested(nameMask, FileAddGitignore);
+        });
     }
 }
 

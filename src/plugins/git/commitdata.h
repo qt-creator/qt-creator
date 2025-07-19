@@ -28,7 +28,8 @@ enum FileAction {
     FileCopyClipboard,
     FileOpenEditor,
     FileStage,
-    FileUnstage
+    FileUnstage,
+    FileAddGitignore
 };
 
 enum PushAction {
