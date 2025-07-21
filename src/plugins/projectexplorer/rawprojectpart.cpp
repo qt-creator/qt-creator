@@ -120,11 +120,6 @@ void RawProjectPart::setIncludePaths(const QStringList &includePaths)
 
 void RawProjectPart::setPreCompiledHeaders(const FilePaths &preCompiledHeaders)
 {
-    this->precompiledHeaders = Utils::transform(preCompiledHeaders, &FilePath::toFSPathString);
-}
-
-void RawProjectPart::setPreCompiledHeaders(const QStringList &preCompiledHeaders)
-{
     this->precompiledHeaders = preCompiledHeaders;
 }
 

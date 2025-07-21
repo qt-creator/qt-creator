@@ -1041,7 +1041,7 @@ static RawProjectPart generateProjectPart(
                             << groupName << "in product" << productName;
         qCWarning(qbsPmLog) << "Expect problems with code model";
     }
-    rpp.setPreCompiledHeaders(Utils::toList(pchFiles));
+    rpp.setPreCompiledHeaders(FilePaths::fromStrings(Utils::toList(pchFiles)));
     rpp.setIncludedFiles(
         Utils::transform(arrayToStringList(props.value("cpp.prefixHeaders")), [&](const QString &f) {
             return refFile.withNewPath(f);

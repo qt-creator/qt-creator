@@ -792,7 +792,7 @@ void ModelManagerTest::testPrecompiledHeaders()
     RawProjectPart rpp1;
     rpp1.setProjectFileLocation("project1.projectfile");
     rpp1.setQtVersion(Utils::QtMajorVersion::None);
-    rpp1.setPreCompiledHeaders({pch1File.toUrlishString()});
+    rpp1.setPreCompiledHeaders({pch1File});
     rpp1.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part1 = ProjectPart::create(project->projectFilePath(), rpp1, {},
             {{main1File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});
@@ -800,7 +800,7 @@ void ModelManagerTest::testPrecompiledHeaders()
     RawProjectPart rpp2;
     rpp2.setProjectFileLocation("project2.projectfile");
     rpp2.setQtVersion(Utils::QtMajorVersion::None);
-    rpp2.setPreCompiledHeaders({pch2File.toUrlishString()});
+    rpp2.setPreCompiledHeaders({pch2File});
     rpp2.setHeaderPaths({HeaderPath::makeUser(testDataDirectory.includeDir(false))});
     const auto part2 = ProjectPart::create(project->projectFilePath(), rpp2, {},
             {{main2File, ProjectFile::CXXSource}, {header, ProjectFile::CXXHeader}});

@@ -563,7 +563,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                 FilePath qtc_precompiled_header = precompiled_header.parentDir().pathAppended(qtcPchFile);
                 FileUtils::copyIfDifferent(precompiled_header, qtc_precompiled_header);
 
-                rpp.setPreCompiledHeaders({qtc_precompiled_header.path()});
+                rpp.setPreCompiledHeaders({qtc_precompiled_header});
             }
 
             RawProjectPartFlags projectFlags;

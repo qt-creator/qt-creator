@@ -67,7 +67,6 @@ public:
     void setHeaderPaths(const HeaderPaths &headerPaths);
     void setIncludePaths(const QStringList &includePaths);
     void setPreCompiledHeaders(const Utils::FilePaths &preCompiledHeaders);
-    void setPreCompiledHeaders(const QStringList &preCompiledHeaders);
     void setIncludedFiles(const Utils::FilePaths &files);
 
     void setBuildSystemTarget(const QString &target);
@@ -92,7 +91,7 @@ public:
     QStringList files;
     FileIsActive fileIsActive;
     GetMimeType getMimeType;
-    QStringList precompiledHeaders;
+    Utils::FilePaths precompiledHeaders;
     QStringList includedFiles;
     HeaderPaths headerPaths;
     QString projectConfigFile; // Generic Project Manager only
