@@ -86,7 +86,7 @@ public:
 
     static void run(const QList<TestDocumentPtr> &testDocuments,
                     CppQuickFixFactory *factory,
-                    const QString &headerPath,
+                    const Utils::FilePath &headerPath,
                     int operationIndex = 0);
 };
 

@@ -24,7 +24,7 @@ using namespace Utils;
 
 using Include = Document::Include;
 using CppEditor::Tests::TestCase;
-using CppEditor::Tests::Internal::TestIncludePaths;
+using namespace CppEditor::Tests::Internal;
 
 namespace CppEditor::Internal {
 

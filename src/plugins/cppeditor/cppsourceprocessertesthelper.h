@@ -3,23 +3,16 @@
 
 #pragma once
 
-#include <QtGlobal>
 #include <QString>
 
 namespace Utils { class FilePath; }
 
-namespace CppEditor::Tests::Internal {
+namespace CppEditor::Tests::Internal::TestIncludePaths {
 
-class TestIncludePaths
-{
-    Q_DISABLE_COPY(TestIncludePaths)
+Utils::FilePath includeBaseDirectory();
+Utils::FilePath globalQtCoreIncludePath();
+Utils::FilePath globalIncludePath();
+Utils::FilePath directoryOfTestFile();
+Utils::FilePath testFilePath(const QString &fileName = QLatin1String("file.cpp"));
 
-public:
-    static QString includeBaseDirectory();
-    static QString globalQtCoreIncludePath();
-    static QString globalIncludePath();
-    static Utils::FilePath directoryOfTestFile();
-    static Utils::FilePath testFilePath(const QString &fileName = QLatin1String("file.cpp"));
-};
-
-} // CppEditor::Tests::Internal
+} // CppEditor::Tests::Internal::TestIncludePaths

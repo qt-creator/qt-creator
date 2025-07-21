@@ -5,36 +5,34 @@
 
 #include <utils/filepath.h>
 
-#include <QDir>
-
 using namespace Utils;
 
-namespace CppEditor::Tests::Internal {
+namespace CppEditor::Tests::Internal::TestIncludePaths {
 
-QString TestIncludePaths::includeBaseDirectory()
+FilePath includeBaseDirectory()
 {
-    return QLatin1String(SRCDIR)
-            + QLatin1String("/../../../tests/auto/cplusplus/preprocessor/data/include-data");
+    return FilePath::fromUserInput(QLatin1String(SRCDIR)
+            + QLatin1String("/../../../tests/auto/cplusplus/preprocessor/data/include-data"));
 }
 
-QString TestIncludePaths::globalQtCoreIncludePath()
+FilePath globalQtCoreIncludePath()
 {
-    return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/QtCore"));
+    return includeBaseDirectory() / "QtCore";
 }
 
-QString TestIncludePaths::globalIncludePath()
+FilePath globalIncludePath()
 {
-    return QDir::cleanPath(includeBaseDirectory() + QLatin1String("/global"));
+    return includeBaseDirectory() / "global";
 }
 
-FilePath TestIncludePaths::directoryOfTestFile()
+FilePath directoryOfTestFile()
 {
-    return FilePath::fromString(QDir::cleanPath(includeBaseDirectory())) / "local";
+    return includeBaseDirectory() / "local";
 }
 
-FilePath TestIncludePaths::testFilePath(const QString &fileName)
+FilePath testFilePath(const QString &fileName)
 {
     return directoryOfTestFile() / fileName;
 }
 
-} // CppEditor::Tests::Internal
+} // CppEditor::Tests::Internal::TestIncludePaths

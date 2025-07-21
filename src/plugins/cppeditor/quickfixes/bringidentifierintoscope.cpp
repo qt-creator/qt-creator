@@ -510,7 +510,7 @@ class BringIdentifierIntoScopeTest : public QObject
 private slots:
     void testAddIncludeForUndefinedIdentifier_data()
     {
-        QTest::addColumn<QString>("headerPath");
+        QTest::addColumn<FilePath>("headerPath");
         QTest::addColumn<QuickFixTestDocuments>("testDocuments");
         QTest::addColumn<int>("refactoringOperationIndex");
         QTest::addColumn<QString>("includeForTestFactory");
@@ -1319,7 +1319,7 @@ private slots:
 
     void testAddIncludeForUndefinedIdentifier()
     {
-        QFETCH(QString, headerPath);
+        QFETCH(FilePath, headerPath);
         QFETCH(QuickFixTestDocuments, testDocuments);
         QFETCH(int, refactoringOperationIndex);
         QFETCH(QString, includeForTestFactory);
@@ -1364,7 +1364,7 @@ private slots:
             testDocuments,
             &factory,
             ProjectExplorer::toUserHeaderPaths(
-                QStringList{TestIncludePaths::globalQtCoreIncludePath()}),
+                FilePaths{TestIncludePaths::globalQtCoreIncludePath()}),
             expectedOperations);
     }
 

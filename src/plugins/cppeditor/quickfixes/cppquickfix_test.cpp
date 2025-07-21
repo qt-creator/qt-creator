@@ -30,11 +30,9 @@ using namespace TextEditor;
 using namespace Utils;
 
 using CppEditor::Tests::TemporaryDir;
-using CppEditor::Tests::Internal::TestIncludePaths;
+using namespace CppEditor::Tests::Internal;
 
-namespace CppEditor {
-namespace Internal {
-namespace Tests {
+namespace CppEditor::Internal::Tests {
 
 QList<TestDocumentPtr> singleDocument(
     const QByteArray &original, const QByteArray &expected, const QByteArray fileName)
@@ -238,11 +236,10 @@ QuickFixOperationTest::QuickFixOperationTest(const QList<TestDocumentPtr> &testD
 
 void QuickFixOperationTest::run(const QList<TestDocumentPtr> &testDocuments,
                                 CppQuickFixFactory *factory,
-                                const QString &headerPath,
+                                const FilePath &headerPath,
                                 int operationIndex)
 {
-    ProjectExplorer::HeaderPaths headerPaths;
-    headerPaths.push_back(ProjectExplorer::HeaderPath::makeUser(headerPath));
+    HeaderPaths headerPaths = { HeaderPath::makeUser(headerPath) };
     QuickFixOperationTest(testDocuments, factory, headerPaths, operationIndex);
 }
 
@@ -407,7 +404,4 @@ void CppQuickFixTestObject::test()
     QuickFixOperationTest(testDocuments, m_factory.get(), {}, opIndex, failMessage);
 }
 
-} // namespace Tests
-} // namespace Internal
-} // namespace CppEditor
-
+} // namespace CppEditor::Internal::Tests

@@ -614,7 +614,7 @@ bool IncludeGroup::hasCommonIncludeDir() const
 namespace CppEditor::Internal {
 
 using namespace Tests;
-using Tests::Internal::TestIncludePaths;
+using namespace Tests::Internal;
 
 class IncludeGroupsTest : public QObject
 {
