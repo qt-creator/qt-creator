@@ -64,7 +64,11 @@ private:
 class QmlPreviewConnectionManagerTaskAdapter final
 {
 public:
-    ~QmlPreviewConnectionManagerTaskAdapter() { m_task->disconnectFromServer(); }
+    ~QmlPreviewConnectionManagerTaskAdapter()
+    {
+        if (m_task)
+            m_task->disconnectFromServer();
+    }
     void operator()(QmlPreviewConnectionManager *task, Tasking::TaskInterface *iface)
     {
         m_task = task;
