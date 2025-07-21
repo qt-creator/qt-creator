@@ -54,7 +54,7 @@ QTextLayout *TextEditorLayout::blockLayout(const QTextBlock &block) const
 void TextEditorLayout::clearBlockLayout(QTextBlock &block) const
 {
     if (LayoutData &data = layoutData(block.fragmentIndex()); data.layout)
-        data.layout.release();
+        data.layout.reset();
     const int blockNumber = block.blockNumber();
     resetOffsetCache(blockNumber);
 }
