@@ -93,7 +93,7 @@ private:
 
     void completeObjCMsgSend(CPlusPlus::ClassOrNamespace *binding, bool staticClassAccess);
     bool completeInclude(const QTextCursor &cursor);
-    void completeInclude(const QString &realPath, const QStringList &suffixes);
+    void completeInclude(const Utils::FilePath &realPath, const QStringList &suffixes);
     void completePreprocessor();
     bool completeConstructorOrFunction(const QList<CPlusPlus::LookupItem> &results,
                                        int endOfExpression,

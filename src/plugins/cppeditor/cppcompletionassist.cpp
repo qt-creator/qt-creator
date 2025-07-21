@@ -43,6 +43,7 @@
 
 using namespace CPlusPlus;
 using namespace CppEditor;
+using namespace ProjectExplorer;
 using namespace TextEditor;
 
 namespace CppEditor::Internal {
@@ -1209,22 +1210,20 @@ bool InternalCppCompletionAssistProcessor::completeInclude(const QTextCursor &cu
     }
 
     // Make completion for all relevant includes
-    ProjectExplorer::HeaderPaths headerPaths = cppInterface()->headerPaths();
-    const auto currentFilePath = ProjectExplorer::HeaderPath::makeUser(
-                interface()->filePath().toFileInfo().path());
+    HeaderPaths headerPaths = cppInterface()->headerPaths();
+    const HeaderPath currentFilePath = HeaderPath::makeUser(interface()->filePath().path());
     if (!headerPaths.contains(currentFilePath))
         headerPaths.append(currentFilePath);
 
     const QStringList suffixes =
         Utils::mimeTypeForName(Utils::Constants::CPP_HEADER_MIMETYPE).suffixes();
 
-    for (const ProjectExplorer::HeaderPath &headerPath : std::as_const(headerPaths)) {
-        QString realPath = headerPath.path;
+    for (const HeaderPath &headerPath : std::as_const(headerPaths)) {
+        Utils::FilePath realPath = Utils::FilePath::fromString(headerPath.path);
         if (!directoryPrefix.isEmpty()) {
-            realPath += QLatin1Char('/');
-            realPath += directoryPrefix;
-            if (headerPath.type == ProjectExplorer::HeaderPathType::Framework)
-                realPath += QLatin1String(".framework/Headers");
+            realPath /= directoryPrefix;
+            if (headerPath.type == HeaderPathType::Framework)
+                realPath = realPath.stringAppended(QLatin1String(".framework/Headers"));
         }
         completeInclude(realPath, suffixes);
     }
@@ -1232,17 +1231,16 @@ bool InternalCppCompletionAssistProcessor::completeInclude(const QTextCursor &cu
     return !m_completions.isEmpty();
 }
 
-void InternalCppCompletionAssistProcessor::completeInclude(const QString &realPath,
-                                                           const QStringList &suffixes)
+void InternalCppCompletionAssistProcessor::completeInclude(
+    const Utils::FilePath &realPath, const QStringList &suffixes)
 {
-    QDirIterator i(realPath, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
-    while (i.hasNext()) {
-        const QString fileName = i.next();
-        const QFileInfo fileInfo = i.fileInfo();
-        const QString suffix = fileInfo.suffix();
+    const Utils::FilePaths entries =
+        realPath.dirEntries(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const Utils::FilePath &entry : entries) {
+        const QString suffix = entry.suffix();
         if (suffix.isEmpty() || suffixes.contains(suffix)) {
-            QString text = fileName.mid(realPath.length() + 1);
-            if (fileInfo.isDir())
+            QString text = entry.fileName();
+            if (entry.isDir())
                 text += QLatin1Char('/');
             addCompletionItem(text, Icons::keywordIcon());
         }
