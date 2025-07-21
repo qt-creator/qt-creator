@@ -2571,9 +2571,10 @@ FilePath FilePath::resolvePath(const QString &tail) const
 {
     if (tail.isEmpty())
         return *this;
-    if (isAbsolutePathHelper(tail))
-        return withNewPath(tail);
-    return pathAppended(tail).cleanPath();
+    const FilePath clean = FilePath::fromUserInput(tail);
+    if (clean.isAbsolutePath())
+        return withNewPath(clean.path());
+    return pathAppended(clean.path()).cleanPath();
 }
 
 Result<FilePath> FilePath::localSource() const
