@@ -1310,7 +1310,8 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                 type = name;
             d->setHelpItemForTooltip(id, filePath, type, HelpItem::ClassOrNamespace);
         }
-        if (node.role() == "specifier" && node.kind() == "NamespaceAlias") {
+        if (node.role() == "specifier"
+            && (node.kind() == "NamespaceAlias" || node.kind() == "Namespace")) {
             d->setHelpItemForTooltip(id,
                                      filePath,
                                      node.detail().value_or(QString()).chopped(2),
