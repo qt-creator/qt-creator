@@ -262,17 +262,16 @@ static void createTree(
     std::unique_ptr<FolderNode> secondRoot;
 
     for (const RawProjectPart &rpp : rpps) {
-        for (const QString &filePath : rpp.files) {
-            FilePath fileName = FilePath::fromString(filePath);
-            if (!fileName.isChildOf(rootPath)) {
-                if (fileName.isChildOf(FilePath::fromString(rpp.buildSystemTarget))) {
+        for (const Utils::FilePath &filePath : rpp.files) {
+            if (!filePath.isChildOf(rootPath)) {
+                if (filePath.isChildOf(FilePath::fromString(rpp.buildSystemTarget))) {
                     if (!secondRoot)
                         secondRoot = std::make_unique<ProjectNode>(
                             FilePath::fromString(rpp.buildSystemTarget));
-                    addChild(secondRoot.get(), fileName);
+                    addChild(secondRoot.get(), filePath);
                 }
             } else {
-                addChild(root.get(), fileName);
+                addChild(root.get(), filePath);
             }
         }
     }
@@ -371,7 +370,7 @@ void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
     const DbEntry *prevEntry = nullptr;
     for (const DbEntry &entry : dbContents.entries) {
         if (prevEntry && prevEntry->flags == entry.flags) {
-            rpps.back().files.append(entry.fileName.path());
+            rpps.back().files.append(entry.fileName);
             continue;
         }
 
@@ -386,9 +385,9 @@ void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
     if (!dbContents.extras.empty()) {
         const FilePath baseDir = projectFilePath().parentDir();
 
-        QStringList extraFiles;
+        FilePaths extraFiles;
         for (const QString &extra : dbContents.extras)
-            extraFiles.append(baseDir.pathAppended(extra).path());
+            extraFiles.append(baseDir.pathAppended(extra));
 
         RawProjectPart rppExtra;
         rppExtra.setFiles(extraFiles);

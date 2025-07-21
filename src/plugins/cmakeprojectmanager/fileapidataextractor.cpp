@@ -530,7 +530,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
 
             rpp.setFiles(filtered,
                          {},
-                         [headerMimeType](const QString &path) {
+                         [headerMimeType](const FilePath &path) {
                              if (CppEditor::ProjectFile::isAmbiguousHeader(path))
                                  return headerMimeType;
                              return Utils::mimeTypeForFile(path).name();

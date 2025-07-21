@@ -425,7 +425,7 @@ RawProjectPart MesonProjectParser::buildRawPart(
     RawProjectPart part;
     part.setDisplayName(target.name);
     part.setBuildSystemTarget(target.name);
-    part.setFiles(sources.sources + sources.generatedSources);
+    part.setFiles(FilePaths::fromStrings(sources.sources + sources.generatedSources));
     CompilerArgs flags = splitArgs(sources.parameters);
     part.setMacros(flags.macros);
     part.setIncludePaths(toAbsolutePath(m_buildDir, flags.includePaths));

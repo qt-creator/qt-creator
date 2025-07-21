@@ -992,15 +992,15 @@ static RawProjectPart generateProjectPart(
     }
     rpp.setSelectedForBuilding(groupOrProduct.value("is-enabled").toBool());
 
-    QHash<QString, QJsonObject> filePathToSourceArtifact;
+    QHash<FilePath, QJsonObject> filePathToSourceArtifact;
     bool hasCFiles = false;
     bool hasCxxFiles = false;
     bool hasObjcFiles = false;
     bool hasObjcxxFiles = false;
     const auto artifactWorker = [&](const QJsonObject &source) {
-        const QString filePath = refFile.withNewPath(source.value("file-path").toString()).toUrlishString();
+        const FilePath filePath = refFile.withNewPath(source.value("file-path").toString());
         QJsonObject translatedSource = source;
-        translatedSource.insert("file-path", filePath);
+        translatedSource.insert("file-path", filePath.toUrlishString());
         filePathToSourceArtifact.insert(filePath, translatedSource);
         for (const QJsonValue &tag : source.value("file-tags").toArray()) {
             if (tag == "c")
@@ -1047,7 +1047,7 @@ static RawProjectPart generateProjectPart(
             return refFile.withNewPath(f);
         }));
     rpp.setFiles(filePathToSourceArtifact.keys(), {},
-                 [filePathToSourceArtifact](const QString &filePath) {
+                 [filePathToSourceArtifact](const FilePath &filePath) {
         // Keep this lambda thread-safe!
         return getMimeType(filePathToSourceArtifact.value(filePath));
     });

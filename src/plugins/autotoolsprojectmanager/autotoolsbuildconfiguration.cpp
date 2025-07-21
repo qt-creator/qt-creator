@@ -176,7 +176,7 @@ void AutotoolsBuildSystem::makefileParsingFinished(const MakefileParserOutputDat
 
     rpp.setIncludePaths(filterIncludes(absSrc, absBuild, outputData.m_includePaths));
     rpp.setMacros(outputData.m_macros);
-    rpp.setFiles(Utils::transform(m_files, &FilePath::toFSPathString));
+    rpp.setFiles(m_files);
 
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {rpp}});
 

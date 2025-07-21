@@ -401,7 +401,7 @@ void ProjectInfoGeneratorTest::testCreateNoProjectPartsForEmptyFileList()
 void ProjectInfoGeneratorTest::testCreateSingleProjectPart()
 {
     ProjectInfoGeneratorTestHelper t;
-    t.rawProjectPart.files = QStringList{ "foo.cpp", "foo.h"};
+    t.rawProjectPart.files = Utils::FilePaths{ "foo.cpp", "foo.h"};
     const ProjectInfo::ConstPtr projectInfo = t.generate();
 
     QCOMPARE(projectInfo->projectParts().size(), 1);
@@ -410,7 +410,7 @@ void ProjectInfoGeneratorTest::testCreateSingleProjectPart()
 void ProjectInfoGeneratorTest::testCreateMultipleProjectParts()
 {
     ProjectInfoGeneratorTestHelper t;
-    t.rawProjectPart.files = QStringList{ "foo.cpp", "foo.h", "bar.c", "bar.h" };
+    t.rawProjectPart.files = Utils::FilePaths{ "foo.cpp", "foo.h", "bar.c", "bar.h" };
     const ProjectInfo::ConstPtr projectInfo = t.generate();
 
     QCOMPARE(projectInfo->projectParts().size(), 2);
@@ -419,7 +419,7 @@ void ProjectInfoGeneratorTest::testCreateMultipleProjectParts()
 void ProjectInfoGeneratorTest::testProjectPartIndicatesObjectiveCExtensionsByDefault()
 {
     ProjectInfoGeneratorTestHelper t;
-    t.rawProjectPart.files = QStringList{ "foo.mm" };
+    t.rawProjectPart.files = Utils::FilePaths{ "foo.mm" };
     const ProjectInfo::ConstPtr projectInfo = t.generate();
     QCOMPARE(projectInfo->projectParts().size(), 1);
 
@@ -430,7 +430,7 @@ void ProjectInfoGeneratorTest::testProjectPartIndicatesObjectiveCExtensionsByDef
 void ProjectInfoGeneratorTest::testProjectPartHasLatestLanguageVersionByDefault()
 {
     ProjectInfoGeneratorTestHelper t;
-    t.rawProjectPart.files = QStringList{ "foo.cpp" };
+    t.rawProjectPart.files = Utils::FilePaths{ "foo.cpp" };
     const ProjectInfo::ConstPtr projectInfo = t.generate();
     QCOMPARE(projectInfo->projectParts().size(), 1);
 
@@ -444,7 +444,7 @@ void ProjectInfoGeneratorTest::testUseMacroInspectionReportForLanguageVersion()
     t.projectUpdateInfo.cxxToolchainInfo.macroInspectionRunner = [](const QStringList &) {
         return TestToolchain::MacroInspectionReport{Macros(), Utils::LanguageVersion::CXX17};
     };
-    t.rawProjectPart.files = QStringList{ "foo.cpp" };
+    t.rawProjectPart.files = Utils::FilePaths{ "foo.cpp" };
     const ProjectInfo::ConstPtr projectInfo = t.generate();
 
     QCOMPARE(projectInfo->projectParts().size(), 1);
@@ -456,7 +456,7 @@ void ProjectInfoGeneratorTest::testUseMacroInspectionReportForLanguageVersion()
 void ProjectInfoGeneratorTest::testUseCompilerFlagsForLanguageExtensions()
 {
     ProjectInfoGeneratorTestHelper t;
-    t.rawProjectPart.files = QStringList{ "foo.cpp" };
+    t.rawProjectPart.files = Utils::FilePaths{ "foo.cpp" };
     t.rawProjectPart.flagsForCxx.languageExtensions = Utils::LanguageExtension::Microsoft;
     const ProjectInfo::ConstPtr projectInfo = t.generate();
 
@@ -469,7 +469,7 @@ void ProjectInfoGeneratorTest::testUseCompilerFlagsForLanguageExtensions()
 void ProjectInfoGeneratorTest::testProjectFileKindsMatchProjectPartVersion()
 {
     ProjectInfoGeneratorTestHelper t;
-    t.rawProjectPart.files = QStringList{ "foo.h" };
+    t.rawProjectPart.files = Utils::FilePaths{ "foo.h" };
     const ProjectInfo::ConstPtr projectInfo = t.generate();
 
     QCOMPARE(projectInfo->projectParts().size(), 4);

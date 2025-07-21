@@ -43,13 +43,6 @@ void RawProjectPart::setFiles(const FilePaths &files,
                               const FileIsActive &fileIsActive,
                               const GetMimeType &getMimeType)
 {
-    setFiles(Utils::transform(files, &FilePath::toFSPathString), fileIsActive, getMimeType);
-}
-
-void RawProjectPart::setFiles(const QStringList &files,
-                              const FileIsActive &fileIsActive,
-                              const GetMimeType &getMimeType)
-{
     this->files = files;
     this->fileIsActive = fileIsActive;
     this->getMimeType = getMimeType;

@@ -7,8 +7,6 @@
 
 #include <projectexplorer/rawprojectpart.h>
 
-#include <QString>
-
 namespace CppEditor {
 
 class CPPEDITOR_EXPORT ProjectFileCategorizer
@@ -19,7 +17,7 @@ public:
 
 public:
     ProjectFileCategorizer(const QString &projectPartName,
-                           const QStringList &filePaths,
+                           const Utils::FilePaths &filePaths,
                            const FileIsActive &fileIsActive = {},
                            const GetMimeType &getMimeType = {});
 
@@ -39,7 +37,7 @@ public:
     QString partName(const QString &languageName) const;
 
 private:
-    ProjectFiles classifyFiles(const QStringList &filePaths,
+    ProjectFiles classifyFiles(const Utils::FilePaths &filePaths,
                                const FileIsActive &fileIsActive,
                                const GetMimeType &getMimeType);
     void expandSourcesWithAmbiguousHeaders(const ProjectFiles &ambiguousHeaders);

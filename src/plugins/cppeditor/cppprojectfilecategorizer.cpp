@@ -4,14 +4,13 @@
 #include "cppprojectfilecategorizer.h"
 
 #include <utils/algorithm.h>
-#include <utils/filepath.h>
 
 using namespace Utils;
 
 namespace CppEditor {
 
 ProjectFileCategorizer::ProjectFileCategorizer(const QString &projectPartName,
-                                               const QStringList &filePaths,
+                                               const FilePaths &filePaths,
                                                const FileIsActive &fileIsActive,
                                                const GetMimeType &getMimeType)
     : m_partName(projectPartName)
@@ -34,14 +33,14 @@ QString ProjectFileCategorizer::partName(const QString &languageName) const
     return m_partName;
 }
 
-ProjectFiles ProjectFileCategorizer::classifyFiles(const QStringList &filePaths,
+ProjectFiles ProjectFileCategorizer::classifyFiles(const FilePaths &filePaths,
                                                    const FileIsActive &fileIsActive,
                                                    const GetMimeType &getMimeType)
 {
     ProjectFiles ambiguousHeaders;
 
-    for (const QString &filePath : filePaths) {
-        const ProjectFile projectFile(FilePath::fromString(filePath),
+    for (const FilePath &filePath : filePaths) {
+        const ProjectFile projectFile(filePath,
                                       getMimeType
                                           ? ProjectFile::classifyByMimeType(getMimeType(filePath))
                                           : ProjectFile::classify(filePath),
