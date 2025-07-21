@@ -18,5 +18,6 @@ Rectangle {
         id: textLabel
         text: qsTr("Hello %{ProjectName}")
         anchors.centerIn: parent
+        font.pixelSize: 14
     }
 }
