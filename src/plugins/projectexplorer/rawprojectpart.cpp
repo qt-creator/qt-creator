@@ -30,8 +30,7 @@ RawProjectPartFlags::RawProjectPartFlags(const Toolchain *toolChain,
     if (toolChain) {
         warningFlags = toolChain->warningFlags(commandLineFlags);
         languageExtensions = toolChain->languageExtensions(commandLineFlags);
-        includedFiles = Utils::transform(toolChain->includedFiles(commandLineFlags, includeFileBaseDir),
-                                         &FilePath::toFSPathString);
+        includedFiles = toolChain->includedFiles(commandLineFlags, includeFileBaseDir);
     }
 }
 
@@ -125,7 +124,7 @@ void RawProjectPart::setPreCompiledHeaders(const FilePaths &preCompiledHeaders)
 
 void RawProjectPart::setIncludedFiles(const FilePaths &files)
 {
-     includedFiles = Utils::transform(files, &FilePath::toFSPathString);
+     includedFiles = files;
 }
 
 void RawProjectPart::setSelectedForBuilding(bool yesno)

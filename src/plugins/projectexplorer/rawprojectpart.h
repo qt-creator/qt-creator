@@ -42,7 +42,7 @@ public:
     // The following are deduced from commandLineFlags.
     Utils::WarningFlags warningFlags = Utils::WarningFlags::Default;
     Utils::LanguageExtensions languageExtensions = Utils::LanguageExtension::None;
-    QStringList includedFiles;
+    Utils::FilePaths includedFiles;
 };
 
 class PROJECTEXPLORER_EXPORT RawProjectPart
@@ -92,7 +92,7 @@ public:
     FileIsActive fileIsActive;
     GetMimeType getMimeType;
     Utils::FilePaths precompiledHeaders;
-    QStringList includedFiles;
+    Utils::FilePaths includedFiles;
     HeaderPaths headerPaths;
     QString projectConfigFile; // Generic Project Manager only
 
