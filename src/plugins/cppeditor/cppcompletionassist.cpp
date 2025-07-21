@@ -1211,7 +1211,7 @@ bool InternalCppCompletionAssistProcessor::completeInclude(const QTextCursor &cu
 
     // Make completion for all relevant includes
     HeaderPaths headerPaths = cppInterface()->headerPaths();
-    const HeaderPath currentFilePath = HeaderPath::makeUser(interface()->filePath().path());
+    const HeaderPath currentFilePath = HeaderPath::makeUser(interface()->filePath());
     if (!headerPaths.contains(currentFilePath))
         headerPaths.append(currentFilePath);
 

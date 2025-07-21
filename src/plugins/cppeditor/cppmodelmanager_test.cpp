@@ -64,11 +64,11 @@ public:
         : TestDataDir(_(SRCDIR "/../../../tests/cppmodelmanager/") + dir)
     {}
 
-    QString includeDir(bool cleaned = true) const
-    { return directory(_("include"), cleaned); }
+    FilePath includeDir(bool cleaned = true) const
+    { return FilePath::fromUserInput(directory(_("include"), cleaned)); }
 
-    QString frameworksDir(bool cleaned = true) const
-    { return directory(_("frameworks"), cleaned); }
+    FilePath frameworksDir(bool cleaned = true) const
+    { return FilePath::fromUserInput(directory(_("frameworks"), cleaned)); }
 
     FilePath fileFromSourcesDir(const QString &fileName) const
     {

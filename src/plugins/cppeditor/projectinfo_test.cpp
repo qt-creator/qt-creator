@@ -17,6 +17,7 @@
 #include <QTest>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace CppEditor::Internal {
 
@@ -509,10 +510,10 @@ public:
         return *projectPart;
     }
 
-    static HeaderPath user(const QString &path) { return HeaderPath::makeUser(path); }
-    static HeaderPath builtIn(const QString &path) { return HeaderPath::makeBuiltIn(path); }
-    static HeaderPath system(const QString &path) { return HeaderPath::makeSystem(path); }
-    static HeaderPath framework(const QString &path) { return HeaderPath::makeFramework(path); }
+    static HeaderPath user(const FilePath &path) { return HeaderPath::makeUser(path); }
+    static HeaderPath builtIn(const FilePath &path) { return HeaderPath::makeBuiltIn(path); }
+    static HeaderPath system(const FilePath &path) { return HeaderPath::makeSystem(path); }
+    static HeaderPath framework(const FilePath &path) { return HeaderPath::makeFramework(path); }
 
     QString targetTriple;
     Utils::Id toolchainType;

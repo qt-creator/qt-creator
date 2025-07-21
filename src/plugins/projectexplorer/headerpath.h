@@ -39,7 +39,7 @@ public:
         return !(*this == other);
     }
 
-    template<typename F> static HeaderPath makeUser(const F &fp)
+    static HeaderPath makeUser(const Utils::FilePath &fp)
     {
         return {fp, HeaderPathType::User};
     }

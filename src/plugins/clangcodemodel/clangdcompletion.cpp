@@ -614,8 +614,7 @@ QList<AssistProposalItemInterface *> CustomAssistProcessor::completeInclude(
 
     // Make completion for all relevant includes
     HeaderPaths allHeaderPaths = headerPaths;
-    const auto currentFilePath = HeaderPath::makeUser(
-                interface->filePath().toFileInfo().path());
+    const HeaderPath currentFilePath = HeaderPath::makeUser(interface->filePath());
     if (!allHeaderPaths.contains(currentFilePath))
         allHeaderPaths.append(currentFilePath);
 
