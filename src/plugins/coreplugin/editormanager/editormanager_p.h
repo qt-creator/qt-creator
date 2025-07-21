@@ -193,7 +193,6 @@ private:
     static void removeEditor(IEditor *editor, bool removeSusependedEntry);
     static IEditor *placeEditor(EditorView *view, IEditor *editor);
     static void restoreEditorState(IEditor *editor);
-    static int visibleDocumentsCount();
     static EditorArea *findEditorArea(const EditorView *view, int *areaIndex = nullptr);
     static IEditor *pickUnusedEditor(Internal::EditorView **foundView = nullptr);
     static void addDocumentToRecentFiles(IDocument *document);

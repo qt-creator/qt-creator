@@ -633,6 +633,15 @@ void EditorView::closeTab(DocumentModel::Entry *entry)
     closeTab(tabForEntry(entry));
 }
 
+void EditorView::removeUnpinnedSuspendedTabs()
+{
+    for (int i = m_tabBar->count() - 1; i >= 0; --i) {
+        const auto data = m_tabBar->tabData(i).value<TabData>();
+        if (!data.editor && !data.entry->pinned)
+            m_tabBar->removeTab(i);
+    }
+}
+
 void EditorView::closeTab(int index)
 {
     if (index < 0 || index >= m_tabBar->count())

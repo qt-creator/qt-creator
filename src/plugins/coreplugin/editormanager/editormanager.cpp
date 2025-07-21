@@ -1801,21 +1801,6 @@ void EditorManagerPrivate::restoreEditorState(IEditor *editor)
     editor->restoreState(d->m_editorStates.value(fileName).toByteArray());
 }
 
-int EditorManagerPrivate::visibleDocumentsCount()
-{
-    const QList<IEditor *> editors = EditorManager::visibleEditors();
-    const int editorsCount = editors.count();
-    if (editorsCount < 2)
-        return editorsCount;
-
-    QSet<const IDocument *> visibleDocuments;
-    for (const IEditor *editor : editors) {
-        if (const IDocument *document = editor->document())
-            visibleDocuments << document;
-    }
-    return visibleDocuments.count();
-}
-
 static void setView(QList<QPointer<EditorView>> &list, EditorView *view)
 {
     // remove view from the list, as well as any deleted views
@@ -2211,8 +2196,7 @@ void EditorManagerPrivate::updateActions()
     d->m_closeOtherDocumentsAction->setEnabled(openedCount > 1);
     d->m_closeOtherDocumentsAction->setText((openedCount > 1 ? ::Core::Tr::tr("Close All Except %1").arg(quotedName)
                                                              : ::Core::Tr::tr("Close Others")));
-
-    d->m_closeAllEditorsExceptVisibleAction->setEnabled(visibleDocumentsCount() < openedCount);
+    d->m_closeAllEditorsExceptVisibleAction->setEnabled(openedCount > 1);
 
     d->m_gotoNextDocHistoryAction->setEnabled(openedCount != 0);
     d->m_gotoPreviousDocHistoryAction->setEnabled(openedCount != 0);
@@ -2630,17 +2614,27 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
 
 void EditorManagerPrivate::closeAllEditorsExceptVisible()
 {
+    // Close:
+    // - all suspended entries, except pinned
+    // - all editors, except visible or pinned
+    // - all suspended tabs, except pinned
     DocumentModelPrivate::removeAllSuspendedEntries(DocumentModelPrivate::DoNotRemovePinnedFiles);
-    QList<IDocument *> documentsToClose = DocumentModel::openedDocuments();
-    // Remove all pinned files from the list of files to close.
-    documentsToClose = Utils::filtered(documentsToClose, [](IDocument *document) {
-        DocumentModel::Entry *entry = DocumentModel::entryForDocument(document);
-        return !entry->pinned;
-    });
-    const QList<IEditor *> editors = EditorManager::visibleEditors();
-    for (const IEditor *editor : editors)
-        documentsToClose.removeAll(editor->document());
-    EditorManager::closeDocuments(documentsToClose, true);
+    const QList<IDocument *> documentsToKeep
+        = Utils::filtered(DocumentModel::openedDocuments(), [](IDocument *document) {
+              DocumentModel::Entry *entry = DocumentModel::entryForDocument(document);
+              return entry->pinned;
+          });
+    QList<IEditor *> editorsToClose;
+    const QList<EditorView *> views = allEditorViews();
+    for (EditorView *view : views) {
+        const QList<IEditor *> editors = view->editors();
+        IEditor *visible = view->currentEditor();
+        editorsToClose += Utils::filtered(editors, [visible, &documentsToKeep](IEditor *e) {
+            return e != visible && !documentsToKeep.contains(e->document());
+        });
+        view->removeUnpinnedSuspendedTabs();
+    }
+    EditorManager::closeEditors(editorsToClose, true);
 }
 
 void EditorManagerPrivate::revertToSaved(IDocument *document)

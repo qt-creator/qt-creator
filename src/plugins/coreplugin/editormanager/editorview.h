@@ -97,6 +97,8 @@ public:
     // all "tabs" (even if no actual tabs are shown)
     QList<TabData> tabs() const;
     void closeTab(DocumentModel::Entry *document);
+    // Use with care. Doesn't close any document Entry, just removes tabs.
+    void removeUnpinnedSuspendedTabs();
 
     void showEditorStatusBar(const QString &id,
                            const QString &infoText,
