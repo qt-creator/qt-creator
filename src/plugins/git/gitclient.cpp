@@ -39,6 +39,7 @@
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/shutdownguard.h>
 #include <utils/stringutils.h>
 #include <utils/temporaryfile.h>
 #include <utils/theme/theme.h>
@@ -785,7 +786,7 @@ static inline void msgCannotRun(const QStringList &args, const FilePath &working
 
 GitClient &gitClient()
 {
-    static GitClient client;
+    static GuardedObject<GitClient> client;
     return client;
 }
 
