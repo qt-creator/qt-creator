@@ -270,7 +270,7 @@ public:
     Command textCommand() const final
     {
         const FilePath cfgFile = configurationFile();
-        return cfgFile.isEmpty() ? Command() : textCommand(cfgFile.toFSPathString());
+        return cfgFile.isEmpty() ? Command() : textCommand(cfgFile);
     }
 
     bool isApplicable(const Core::IDocument *document) const final
@@ -284,7 +284,7 @@ public:
         if (cfgFileName.isEmpty())
             showError(BeautifierTool::msgCannotGetConfigurationFile(asDisplayName()));
         else
-            formatCurrentFile(textCommand(cfgFileName.toFSPathString()));
+            formatCurrentFile(textCommand(cfgFileName));
     }
 
     FilePath configurationFile() const
@@ -323,12 +323,12 @@ public:
         return {};
     }
 
-    Command textCommand(const QString &cfgFile) const
+    Command textCommand(const FilePath &cfgFile) const
     {
         Command cmd;
         cmd.setExecutable(settings().command());
         cmd.addOption("-q");
-        cmd.addOption("--options=" + cfgFile);
+        cmd.addOption("--options=" + cfgFile.path());
 
         const QVersionNumber version = settings().version();
         if (version > QVersionNumber(2, 3)) {
