@@ -104,7 +104,8 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Environment &
             } else {
                 const QString headerPath = QFileInfo(line.trimmed())
                         .canonicalFilePath();
-                headerPaths.append(HeaderPath::makeBuiltIn(headerPath));
+                headerPaths.append(
+                    HeaderPath::makeBuiltIn(FilePath::fromUserInput(headerPath)));
             }
         }
     }

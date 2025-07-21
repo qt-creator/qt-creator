@@ -43,7 +43,7 @@ public:
     {
         return {fp, HeaderPathType::User};
     }
-    template<typename F> static HeaderPath makeBuiltIn(const F &fp)
+    static  HeaderPath makeBuiltIn(const Utils::FilePath &fp)
     {
         return {fp, HeaderPathType::BuiltIn};
     }

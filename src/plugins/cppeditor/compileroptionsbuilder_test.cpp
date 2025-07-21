@@ -53,7 +53,7 @@ public:
         return *projectPart;
     }
 
-    static HeaderPath builtIn(const QString &path) { return HeaderPath::makeBuiltIn(path); }
+    static HeaderPath builtIn(const Utils::FilePath &path) { return HeaderPath::makeBuiltIn(path); }
 
     QString toNative(const QString &toNative) const
     {

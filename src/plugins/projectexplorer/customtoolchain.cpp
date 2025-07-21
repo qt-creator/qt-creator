@@ -175,8 +175,10 @@ Toolchain::BuiltInHeaderPathsRunner CustomToolchain::createBuiltInHeaderPathsRun
         Q_UNUSED(sysRoot)
         HeaderPaths flagHeaderPaths;
         for (const QString &cxxFlag : cxxFlags) {
-            if (cxxFlag.startsWith(QLatin1String("-I")))
-                flagHeaderPaths.push_back(HeaderPath::makeBuiltIn(cxxFlag.mid(2).trimmed()));
+            if (cxxFlag.startsWith(QLatin1String("-I"))) {
+                flagHeaderPaths.push_back(
+                    HeaderPath::makeBuiltIn(FilePath::fromUserInput(cxxFlag.mid(2).trimmed())));
+            }
         }
 
         return builtInHeaderPaths + flagHeaderPaths;
@@ -223,7 +225,7 @@ QStringList CustomToolchain::headerPathsList() const
 void CustomToolchain::setHeaderPaths(const QStringList &list)
 {
     HeaderPaths tmp = Utils::transform<QList>(list, [](const QString &headerPath) {
-        return HeaderPath::makeBuiltIn(headerPath.trimmed());
+        return HeaderPath::makeBuiltIn(FilePath::fromUserInput(headerPath.trimmed()));
     });
 
     if (m_builtInHeaderPaths == tmp)
