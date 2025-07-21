@@ -35,7 +35,7 @@ QList<TargetInformation> TargetInformation::readFromProject(
         return result;
 
     const QVariantList packageTargets
-        = bc->project()->extraData(AppManager::Constants::APPMAN_PACKAGE_TARGETS).toList();
+        = bc->extraData(AppManager::Constants::APPMAN_PACKAGE_TARGETS).toList();
 //        qDebug() << "APPMAN TARGETS" << packageTargets;
 
     for (const auto &packageTarget : packageTargets) {

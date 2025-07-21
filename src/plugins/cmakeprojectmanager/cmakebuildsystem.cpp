@@ -1789,10 +1789,11 @@ void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
         = CMakeConfigItem::toBool(cmakeConfig.stringValueOf("QT_USE_TARGET_ANDROID_BUILD_DIR"))
               .value_or(false);
 
-    project()->setExtraData(Android::Constants::AndroidBuildTargetDirSupport,
-                            QVariant::fromValue(hasAndroidTargetBuildDirSupport));
-    project()->setExtraData(Android::Constants::UseAndroidBuildTargetDir,
-                            QVariant::fromValue(useAndroidTargetBuildDir));
+    buildConfiguration()->setExtraData(
+        Android::Constants::AndroidBuildTargetDirSupport,
+        QVariant::fromValue(hasAndroidTargetBuildDirSupport));
+    buildConfiguration()->setExtraData(
+        Android::Constants::UseAndroidBuildTargetDir, QVariant::fromValue(useAndroidTargetBuildDir));
 
     QVariantList packageTargets;
     for (const CMakeBuildTarget &buildTarget : buildTargets()) {
@@ -1823,7 +1824,7 @@ void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
         }
         packageTargets.append(packageTarget);
     }
-    project()->setExtraData(AppManager::Constants::APPMAN_PACKAGE_TARGETS, packageTargets);
+    buildConfiguration()->setExtraData(AppManager::Constants::APPMAN_PACKAGE_TARGETS, packageTargets);
 
     setConfigurationFromCMake(cmakeConfig);
 }

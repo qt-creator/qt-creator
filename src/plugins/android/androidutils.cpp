@@ -290,9 +290,8 @@ bool isQtCreatorGenerated(const FilePath &deploymentFile)
 FilePath androidBuildDirectory(const BuildConfiguration *bc)
 {
     QString suffix;
-    const Project *project = bc->project();
-    if (project->extraData(Android::Constants::AndroidBuildTargetDirSupport).toBool()
-        && project->extraData(Android::Constants::UseAndroidBuildTargetDir).toBool())
+    if (bc->extraData(Android::Constants::AndroidBuildTargetDirSupport).toBool()
+        && bc->extraData(Android::Constants::UseAndroidBuildTargetDir).toBool())
         suffix = QString("-%1").arg(bc->activeBuildKey());
 
     return buildDirectory(bc) / (Constants::ANDROID_BUILD_DIRECTORY + suffix);
