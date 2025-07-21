@@ -323,11 +323,10 @@ QVariant ProjectHeaderPathsModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         const int row = index.row();
         const int column = index.column();
-        if (column == TypeColumn) {
+        if (column == TypeColumn)
             return CMI::Utils::toString(m_paths.at(row).type);
-        } else if (column == PathColumn) {
-            return m_paths.at(row).path.path();
-        }
+        if (column == PathColumn)
+            return m_paths.at(row).path.toUserOutput();
     }
     return QVariant();
 }
