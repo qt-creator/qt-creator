@@ -78,12 +78,10 @@ private:
     void setIsEmpty(bool value);
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
-    void resetModel();
-    void createBackendModel();
-    void destroyBackendModel();
+    QFileSystemModel *createFsModel(const QString &path = {});
+    Utils::FileSystemWatcher *createFsWatcher();
 
     QString m_searchText;
-    QString m_rootPath;
     QFileSystemModel *m_sourceFsModel = nullptr;
     bool m_isEmpty = true;
     Utils::FileSystemWatcher *m_fileWatcher = nullptr;
