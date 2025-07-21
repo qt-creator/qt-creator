@@ -32,9 +32,10 @@ void HeaderPathFilter::process()
         tweakHeaderPaths();
 }
 
-bool HeaderPathFilter::isProjectHeaderPath(const QString &path) const
+bool HeaderPathFilter::isProjectHeaderPath(const FilePath &path) const
 {
-    return path.startsWith(projectDirectory) || path.startsWith(buildDirectory);
+    return path == projectDirectory || path.isChildOf(projectDirectory) || projectDirectory.isEmpty()
+        || path == buildDirectory || path.isChildOf(buildDirectory) || buildDirectory.isEmpty();
 }
 
 void HeaderPathFilter::removeGccInternalIncludePaths()
@@ -70,7 +71,7 @@ void HeaderPathFilter::filterHeaderPath(const ProjectExplorer::HeaderPath &heade
         systemHeaderPaths.push_back(headerPath);
         break;
     case HeaderPathType::User:
-        if (isProjectHeaderPath(headerPath.path.path()))
+        if (isProjectHeaderPath(headerPath.path))
             userHeaderPaths.push_back(headerPath);
         else
             systemHeaderPaths.push_back(headerPath);
@@ -129,19 +130,9 @@ void HeaderPathFilter::tweakHeaderPaths()
 void HeaderPathFilter::addPreIncludesPath()
 {
     if (!projectDirectory.isEmpty()) {
-        const Utils::FilePath rootProjectDirectory = Utils::FilePath::fromString(projectDirectory)
-                .pathAppended(".pre_includes");
-        systemHeaderPaths.push_back(ProjectExplorer::HeaderPath::makeSystem(rootProjectDirectory));
+        const FilePath rootProjectDirectory = projectDirectory / ".pre_includes";
+        systemHeaderPaths.push_back(HeaderPath::makeSystem(rootProjectDirectory));
     }
-}
-
-QString HeaderPathFilter::ensurePathWithSlashEnding(const QString &path)
-{
-    QString pathWithSlashEnding = path;
-    if (!pathWithSlashEnding.isEmpty() && *pathWithSlashEnding.rbegin() != '/')
-        pathWithSlashEnding.push_back('/');
-
-    return pathWithSlashEnding;
 }
 
 } // namespace CppEditor::Internal

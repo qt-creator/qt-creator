@@ -16,12 +16,12 @@ public:
     HeaderPathFilter(const ProjectPart &projectPart,
                      UseTweakedHeaderPaths useTweakedHeaderPaths = UseTweakedHeaderPaths::Yes,
                      const Utils::FilePath &clangIncludeDirectory = {},
-                     const QString &projectDirectory = {},
-                     const QString &buildDirectory = {})
+                     const Utils::FilePath &projectDirectory = {},
+                     const Utils::FilePath &buildDirectory = {})
         : projectPart{projectPart}
         , clangIncludeDirectory{clangIncludeDirectory}
-        , projectDirectory(ensurePathWithSlashEnding(projectDirectory))
-        , buildDirectory(ensurePathWithSlashEnding(buildDirectory))
+        , projectDirectory(projectDirectory)
+        , buildDirectory(buildDirectory)
         , useTweakedHeaderPaths{useTweakedHeaderPaths}
     {}
 
@@ -34,11 +34,9 @@ private:
 
     void addPreIncludesPath();
 
-    bool isProjectHeaderPath(const QString &path) const;
+    bool isProjectHeaderPath(const Utils::FilePath &path) const;
 
     void removeGccInternalIncludePaths();
-
-    static QString ensurePathWithSlashEnding(const QString &path);
 
 public:
     ProjectExplorer::HeaderPaths builtInHeaderPaths;
@@ -46,8 +44,8 @@ public:
     ProjectExplorer::HeaderPaths userHeaderPaths;
     const ProjectPart &projectPart;
     const Utils::FilePath clangIncludeDirectory;
-    const QString projectDirectory;
-    const QString buildDirectory;
+    const Utils::FilePath projectDirectory;
+    const Utils::FilePath buildDirectory;
     const UseTweakedHeaderPaths useTweakedHeaderPaths;
 };
 
