@@ -48,21 +48,11 @@ void RawProjectPart::setFiles(const FilePaths &files,
     this->getMimeType = getMimeType;
 }
 
-static QString trimTrailingSlashes(const QString &path)
-{
-    QString p = path;
-    while (p.endsWith('/') && p.size() > 1) {
-        p.chop(1);
-    }
-    return p;
-}
-
 HeaderPath RawProjectPart::frameworkDetectionHeuristic(const HeaderPath &header)
 {
-    QString path = trimTrailingSlashes(header.path.path());
-
-    if (path.endsWith(".framework"))
-        return HeaderPath::makeFramework(path.left(path.lastIndexOf('/')));
+    QTC_CHECK(!header.path.endsWith("/"));
+    if (header.path.endsWith(".framework"))
+        return HeaderPath::makeFramework(header.path.parentDir());
     return header;
 }
 

@@ -51,7 +51,7 @@ public:
     {
         return {fp, HeaderPathType::System};
     }
-    template<typename F> static HeaderPath makeFramework(const F &fp)
+    static HeaderPath makeFramework(const Utils::FilePath &fp)
     {
         return {fp, HeaderPathType::Framework};
     }

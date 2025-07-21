@@ -148,8 +148,10 @@ void CppSourceProcessor::addFrameworkPath(const HeaderPath &frameworkPath)
             continue;
         const QFileInfo privateFrameworks(framework.absoluteFilePath(),
                                           QLatin1String("Frameworks"));
-        if (privateFrameworks.exists() && privateFrameworks.isDir())
-            addFrameworkPath(HeaderPath::makeFramework(privateFrameworks.absoluteFilePath()));
+        if (privateFrameworks.exists() && privateFrameworks.isDir()) {
+            addFrameworkPath(HeaderPath::makeFramework(
+                FilePath::fromUserInput(privateFrameworks.absoluteFilePath())));
+        }
     }
 }
 
