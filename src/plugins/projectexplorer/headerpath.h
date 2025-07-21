@@ -47,7 +47,7 @@ public:
     {
         return {fp, HeaderPathType::BuiltIn};
     }
-    template<typename F> static HeaderPath makeSystem(const F &fp)
+    static HeaderPath makeSystem(const Utils::FilePath &fp)
     {
         return {fp, HeaderPathType::System};
     }
