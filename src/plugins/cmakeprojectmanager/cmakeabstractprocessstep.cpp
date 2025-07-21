@@ -32,13 +32,6 @@ bool CMakeAbstractProcessStep::init()
     BuildConfiguration *bc = buildConfiguration();
     QTC_ASSERT(bc, return false);
 
-    if (!bc->isEnabled()) {
-        emit addTask(
-            BuildSystemTask(Task::Error, Tr::tr("The build configuration is currently disabled.")));
-        emitFaultyConfigurationMessage();
-        return false;
-    }
-
     CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
     if (!tool || !tool->isValid()) {
         emit addTask(BuildSystemTask(Task::Error,

@@ -156,13 +156,6 @@ void CMakeBuildSystem::triggerParsing()
 {
     qCDebug(cmakeBuildSystemLog) << buildConfiguration()->displayName() << "Parsing has been triggered";
 
-    if (!buildConfiguration()->isActive()) {
-        qCDebug(cmakeBuildSystemLog)
-            << "Parsing has been triggered: SKIPPING since BC is not active -- clearing state.";
-        stopParsingAndClearState();
-        return; // ignore request, this build configuration is not active!
-    }
-
     auto guard = guardParsingRun();
 
     if (!guard.guardsProject()) {
@@ -1332,12 +1325,6 @@ void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &pa
                                  << "setting parameters and requesting reparse"
                                  << reparseParametersString(reparseParameters);
 
-    if (!buildConfiguration()->isActive()) {
-        qCDebug(cmakeBuildSystemLog) << "setting parameters and requesting reparse: SKIPPING since BC is not active -- clearing state.";
-        stopParsingAndClearState();
-        return; // ignore request, this build configuration is not active!
-    }
-
     const CMakeTool *tool = parameters.cmakeTool();
     if (!tool || !tool->isValid()) {
         TaskHub::addTask<BuildSystemTask>(
@@ -1475,8 +1462,14 @@ bool CMakeBuildSystem::persistCMakeState()
         qCDebug(cmakeBuildSystemLog) << "   -> must run CMake with initial arguments.";
     }
 
-    if (reparseFlags == REPARSE_DEFAULT)
-        return false;
+    if (reparseFlags == REPARSE_DEFAULT) {
+        if (buildConfiguration()->isEnabled())
+            return false;
+
+        qCDebug(cmakeBuildSystemLog) << "Requesting parse the CMake project";
+        setParametersAndRequestParse(parameters, REPARSE_URGENT | reparseFlags);
+        return true;
+    }
 
     qCDebug(cmakeBuildSystemLog) << "Requesting parse to persist CMake State";
     setParametersAndRequestParse(parameters,
@@ -1516,38 +1509,36 @@ void CMakeBuildSystem::disableCMakeBuildMenuActions()
 
 void CMakeBuildSystem::combineScanAndParse(bool restoredFromBackup)
 {
-    if (buildConfiguration()->isActive()) {
-        if (m_waitingForParse)
-            return;
+    if (m_waitingForParse)
+        return;
 
-        if (m_combinedScanAndParseResult) {
-            updateProjectData();
-            m_currentGuard.markAsSuccess();
+    if (m_combinedScanAndParseResult) {
+        updateProjectData();
+        m_currentGuard.markAsSuccess();
 
-            if (restoredFromBackup)
-                project()->addIssue(
-                    CMakeProject::IssueType::Warning,
-                    Tr::tr("<b>CMake configuration failed<b>"
-                           "<p>The backup of the previous configuration has been restored.</p>"
-                           "<p>Issues and \"Projects > Build\" settings "
-                           "show more information about the failure.</p>"));
+        if (restoredFromBackup)
+            project()->addIssue(
+                CMakeProject::IssueType::Warning,
+                Tr::tr("<b>CMake configuration failed<b>"
+                       "<p>The backup of the previous configuration has been restored.</p>"
+                       "<p>Issues and \"Projects > Build\" settings "
+                       "show more information about the failure.</p>"));
 
-            m_reader.resetData();
+        m_reader.resetData();
 
-            m_currentGuard = {};
-            m_testNames.clear();
+        m_currentGuard = {};
+        m_testNames.clear();
 
-            emitBuildSystemUpdated();
+        emitBuildSystemUpdated();
 
-            runCTest();
-        } else {
-            updateFallbackProjectData();
+        runCTest();
+    } else {
+        updateFallbackProjectData();
 
-            project()->addIssue(CMakeProject::IssueType::Warning,
-                                Tr::tr("<b>Failed to load project<b>"
-                                       "<p>Issues and \"Projects > Build\" settings "
-                                       "show more information about the failure.</p>"));
-        }
+        project()->addIssue(CMakeProject::IssueType::Warning,
+                            Tr::tr("<b>Failed to load project<b>"
+                                   "<p>Issues and \"Projects > Build\" settings "
+                                   "show more information about the failure.</p>"));
     }
 }
 
@@ -1605,7 +1596,8 @@ void CMakeBuildSystem::updateProjectData()
     }
 
     Project *p = project();
-    {
+    // Show the Project view only for the active build configuration
+    if (buildConfiguration()->isActive()) {
         auto newRoot = m_reader.rootProjectNode();
         if (newRoot) {
             setRootProjectNode(std::move(newRoot));
@@ -1838,11 +1830,6 @@ void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
 
 void CMakeBuildSystem::handleParsingSucceeded(bool restoredFromBackup)
 {
-    if (!buildConfiguration()->isActive()) {
-        stopParsingAndClearState();
-        return;
-    }
-
     clearError();
 
     QString errorMessage;
@@ -1906,11 +1893,17 @@ void CMakeBuildSystem::wireUpConnections()
 
     // Became active/inactive:
     connect(target(), &Target::activeBuildConfigurationChanged, this, [this] {
+        if (!buildConfiguration()->isActive())
+            return;
+
         // Build configuration has changed:
         qCDebug(cmakeBuildSystemLog) << "Requesting parse due to active BC changed";
         reparse(CMakeBuildSystem::REPARSE_DEFAULT);
     });
     connect(project(), &Project::activeTargetChanged, this, [this] {
+        if (!buildConfiguration()->isActive())
+            return;
+
         // Build configuration has changed:
         qCDebug(cmakeBuildSystemLog) << "Requesting parse due to active target changed";
         reparse(CMakeBuildSystem::REPARSE_DEFAULT);
@@ -1918,11 +1911,17 @@ void CMakeBuildSystem::wireUpConnections()
 
     // BuildConfiguration changed:
     connect(buildConfiguration(), &BuildConfiguration::environmentChanged, this, [this] {
+        if (!buildConfiguration()->isActive())
+            return;
+
         // The environment on our BC has changed, force CMake run to catch up with possible changes
         qCDebug(cmakeBuildSystemLog) << "Requesting parse due to environment change";
         reparse(CMakeBuildSystem::REPARSE_FORCE_CMAKE_RUN);
     });
     connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged, this, [this] {
+        if (!buildConfiguration()->isActive())
+            return;
+
         // The build directory of our BC has changed:
         // Does the directory contain a CMakeCache ? Existing build, just parse
         // No CMakeCache? Run with initial arguments!
@@ -1955,12 +1954,6 @@ void CMakeBuildSystem::wireUpConnections()
             }
         }
     });
-
-    // Force initial parsing run:
-    if (buildConfiguration()->isActive()) {
-        qCDebug(cmakeBuildSystemLog) << "Initial run:";
-        reparse(CMakeBuildSystem::REPARSE_DEFAULT);
-    }
 }
 
 void CMakeBuildSystem::setupCMakeSymbolsHash()
