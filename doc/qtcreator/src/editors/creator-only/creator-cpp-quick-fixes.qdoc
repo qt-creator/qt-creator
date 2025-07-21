@@ -466,7 +466,7 @@
                 matching code.
 
                 When this fix is available, a light bulb icon appears:
-                \inlineimage icons/refactormarker.png
+                \inlineimage {icons/refactormarker.png} {Light bulb icon}
         \row
             \li Convert Function Call to Qt Meta-Method Invocation
             \li Converts an invocable function call into a meta method

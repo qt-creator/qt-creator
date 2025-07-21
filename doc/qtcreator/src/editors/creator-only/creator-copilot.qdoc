@@ -65,7 +65,7 @@
             \note The password is saved insecurely.
         \li In \uicontrol {Proxy password}, enter the password to save.
             To see the password as you type, select
-            \inlineimage icons/original-size.png.
+            \inlineimage {icons/original-size.png} {Show Password}.
     \endlist
 
     \section1 Receive suggestions
@@ -81,8 +81,8 @@
     \uicontrol {Request Copilot Suggestion} in the \l{Navigate with locator}
     {locator}.
 
-    Hover over a suggestion to show a toolbar with \inlineimage icons/prev.png
-    and \inlineimage icons/next.png
+    Hover over a suggestion to show a toolbar with \inlineimage {icons/prev.png} {Previous}
+    and \inlineimage {icons/next.png} {Next}
     buttons for cycling between Copilot suggestions.
 
     To apply a suggestion as a whole, select \uicontrol Apply or press
@@ -101,8 +101,8 @@
     \section2 Toggle Copilot suggestions
 
     To turn Copilot suggestions on or off globally, select
-    \inlineimage icons/copilot.png (\uicontrol {Toggle Copilot}). This also
-    sets the value of \uicontrol {Enable Copilot} in \preferences >
+    \inlineimage {icons/copilot.png} {Toggle Copilot} (\uicontrol {Toggle Copilot}).
+    This also sets the value of \uicontrol {Enable Copilot} in \preferences >
     \uicontrol Copilot accordingly.
 
     \section2 Turn suggestions on or off for a project

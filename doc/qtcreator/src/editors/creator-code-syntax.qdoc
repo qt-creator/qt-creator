@@ -17,7 +17,7 @@
     As you write code, \QC checks code syntax. When \QC spots a syntax error in
     your code, it underlines it, displays an icon, and shows error details when
     you move the mouse pointer over the error or the icon. To apply an available
-    fix, select \inlineimage icons/refactormarker.png.
+    fix, select \inlineimage {icons/refactormarker.png} {Light bulb icon}.
 
     Similarly, when you are working on an instance of a JavaScript object
     notation (JSON) entity, \QC underlines errors in the JSON data structure.

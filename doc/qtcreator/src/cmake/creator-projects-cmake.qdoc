@@ -124,7 +124,8 @@
     \endlist
 
     To view the documentation online, open it in the \uicontrol Help mode and
-    select \inlineimage icons/online.png (\uicontrol {Open Online Documentation}).
+    select \inlineimage {icons/online.png} {Open Online Documentation}
+    (\uicontrol {Open Online Documentation}).
 
     \sa {Build with CMake}{How To: Build with CMake},
     {Read Documentation}{How To: Read Documentation}, {CMake}

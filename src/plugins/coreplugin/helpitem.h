@@ -82,6 +82,10 @@ public:
     static void setLinkNarrower(const LinkNarrower &narrower);
     static std::pair<QUrl, QVersionNumber> extractQtVersionNumber(const QUrl &url);
 
+    friend CORE_EXPORT QDebug operator<<(QDebug debug, const HelpItem &i);
+
+    static void debugPrintLinks(const QString &title, const Links &toPrint, const Links &toMark);
+
 private:
     QString extractContent(bool extended) const;
 

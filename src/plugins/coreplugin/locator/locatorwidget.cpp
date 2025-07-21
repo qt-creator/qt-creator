@@ -516,6 +516,7 @@ void CompletionList::keyPressEvent(QKeyEvent *event)
             emit completionRequested(currentIndex());
             return;
         }
+        [[fallthrough]];
     case Qt::Key_Down:
         next();
         return;

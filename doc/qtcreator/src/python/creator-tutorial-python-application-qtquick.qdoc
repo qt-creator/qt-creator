@@ -194,7 +194,8 @@
 
     \section1 Run the application
 
-    Select \inlineimage icons/run_small.png to run the application.
+    Select \inlineimage {icons/run_small.png} {Run} (\uicontrol {Run}) to run the
+    application.
 
     \sa {Tutorial: Qt Widgets and Python}, {Tutorial: Qt Widgets UI and Python},
     {Develop Qt for Python Applications}

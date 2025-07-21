@@ -24,8 +24,9 @@
     To run Clang-Tidy or Clazy to analyze the currently open file:
 
     \list
-        \li Select the \inlineimage icons/debugger_singleinstructionmode.png
-            (\uicontrol {Analyze File}) button on the editor toolbar, and then
+        \li Select
+            \inlineimage {icons/debugger_singleinstructionmode.png} {Analyze File}
+            (\uicontrol {Analyze File}) on the editor toolbar, and then
             select the tool: \uicontrol {Clang-Tidy} or \uicontrol {Clazy}.
         \li Select \uicontrol Tools > \uicontrol {C++} >
             \uicontrol {Analyze Current File with Clang-Tidy} or
@@ -59,8 +60,9 @@
     \note If you select \uicontrol Debug in the mode selector to open the
     \uicontrol Debug mode and then select \uicontrol {Clang-Tidy} or
     \uicontrol {Clazy}, you must select the
-    \inlineimage icons/qtcreator-analyze-start-button.png
-    (\uicontrol Start) button to open the \uicontrol {Files to Analyze} dialog.
+    \inlineimage {icons/qtcreator-analyze-start-button.png} {Analyze Project}
+    (\uicontrol Analyze Project) button to open the \uicontrol {Files to Analyze}
+    dialog.
 
     Double-click an issue to move to the location where the issue appears in
     the code editor.
@@ -71,10 +73,10 @@
     mouse pointer over the icon next to the check box.
 
     To see more information about an issue that is marked with the
-    \inlineimage icons/refactormarker.png
+    \inlineimage {icons/refactormarker.png} {Light bulb icon}
     icon, hover the mouse pointer over the line.
 
-    Select the \inlineimage icons/settings.png
+    Select the \inlineimage {icons/settings.png} {Settings}
     button to customize diagnostics for the current project.
 
     \section2 Filter dianostics
@@ -82,8 +84,8 @@
     To filter diagnostics:
 
     \list 1
-        \li Select \inlineimage icons/filtericon.png to open the
-            \uicontrol {Filter Diagnostics} dialog.
+        \li Select \inlineimage {icons/filtericon.png} {Filter Diagnostics}
+            to open the \uicontrol {Filter Diagnostics} dialog.
             \image {qtcreator-clang-tools-filter-diagnostics.webp} {Filter Diagnostics dialog}
         \li Select the diagnostics to view.
         \li Select \uicontrol OK.
@@ -117,7 +119,7 @@
     \section1 Load diagnostics from YAML files
 
     In addition to running the tools to collect diagnostics, you can select
-    \inlineimage icons/open.png
+    \inlineimage {icons/open.png} {Load diagnostics from YAML files exported with "-export-fixes"}
     to load diagnostics from \l{https://yaml.org/}{YAML} files that you exported
     using the \c {-export fixes} option.
 

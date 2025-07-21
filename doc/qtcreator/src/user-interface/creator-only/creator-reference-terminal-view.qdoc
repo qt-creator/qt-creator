@@ -24,18 +24,20 @@
     \image {qtcreator-output-terminal.webp} {Terminal pane}
 
     \list
-        \li To clear the terminal, select \inlineimage icons/clean_pane_small.png
-            (\uicontrol Clear).
+        \li To clear the terminal, select
+            \inlineimage {icons/clean_pane_small.png} {Clear} (\uicontrol Clear).
 
-        \li To close the current terminal, select \inlineimage icons/terminal-close.png
-            .
+        \li To close the current terminal, select
+            \inlineimage {icons/terminal-close.png} {Close the current terminal}
+            (\uicontrol Close).
 
-        \li To open new terminals as tabs, select \inlineimage icons/terminal-create.png
-            .
+        \li To open new terminals as tabs, select
+            \inlineimage {icons/terminal-create.png} {Create a new terminal}
+            (\uicontrol Create New).
 
-        \li To move between terminals, select the tabs or \inlineimage icons/arrowup.png
-            and \inlineimage icons/arrowdown.png
-            .
+        \li To move between terminals, select the tabs or
+            \inlineimage {icons/arrowup.png} {Previous Item} (\uicontrol {Previous Item})
+            and \inlineimage {icons/arrowdown.png} {Next Item} (\uicontrol {Next Item}).
 
         \li To select a word in a terminal, double-click it. To select the whole line,
             triple-click it. To select all text, select \uicontrol {Select All}
@@ -47,14 +49,15 @@
         \li To \l{Search in current file}{search} through the output, press
             \key {Ctrl+F}.
 
-        \li To make the font larger or smaller, select the \inlineimage icons/plus.png
-            and \inlineimage icons/minus.png
-            buttons. You can also change the font size in terminal preferences.
+        \li To make the font larger or smaller, select
+            \inlineimage {icons/plus.png} {Zoom In}
+            and \inlineimage {icons/minus.png} {Zoom Out}.
+            You can also change the font size in terminal preferences.
 
-        \li To open terminal preferences, select \inlineimage icons/settings.png
-        (\uicontrol Configure).
+        \li To open terminal preferences, select
+            \inlineimage {icons/settings.png} {Configure} (\uicontrol Configure).
         \li To keep \QC keyboard shortcuts from interfering in the terminal,
-            select \inlineimage icons/shortcuts.png.
+            select \inlineimage {icons/shortcuts.png} {Shortcuts}.
     \endlist
 
     Most of the \QC keyboard shortcuts are disabled in the terminal, except the
@@ -66,8 +69,7 @@
     \section1 Terminal Preferences
 
     To set preferences for the internal terminal, select \preferences >
-    \uicontrol Terminal, or select the \uicontrol Configure button in
-    the \uicontrol Terminal pane.
+    \uicontrol Terminal, or select \uicontrol Configure in \uicontrol Terminal.
 
     \image {qtcreator-preferences-terminal.webp} {Terminal preferences}
 
@@ -100,9 +102,9 @@
     \row
         \li \uicontrol {Font}
         \li Select the \uicontrol {Font family} and \uicontrol Size for the text
-            in the terminal. You can also use the \inlineimage icons/plus.png
-            and \inlineimage icons/minus.png buttons in the \uicontrol Terminal
-            pane to change the font size.
+            in the terminal. You can also use the \inlineimage {icons/plus.png} {Zoom In}
+            and \inlineimage {icons/minus.png} {Zoom Out} buttons in the
+            \uicontrol Terminal pane to change the font size.
     \row
         \li \uicontrol {Colors}
         \li Set colors for the \uicontrol Terminal pane \uicontrol Foreground,

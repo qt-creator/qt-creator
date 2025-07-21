@@ -55,7 +55,6 @@ QString archTriplet(const QString &abi);
 bool isQt5CmakeProject(const ProjectExplorer::Target *target);
 
 Utils::FilePath androidBuildDirectory(const ProjectExplorer::BuildConfiguration *bc);
-Utils::FilePath androidAppProcessDir(const ProjectExplorer::BuildConfiguration *bc);
 Utils::FilePath buildDirectory(const ProjectExplorer::BuildConfiguration *bc);
 Utils::FilePath manifestPath(const ProjectExplorer::BuildConfiguration *bc);
 void setManifestPath(ProjectExplorer::BuildConfiguration *bc, const Utils::FilePath &path);

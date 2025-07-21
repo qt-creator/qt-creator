@@ -115,8 +115,8 @@
     By default, when you select an element in a diagram, it is highlighted also
     in \uicontrol Structure view. To change this behavior so that selecting
     an element in \uicontrol Structure makes it highlighted also in the
-    diagram, select \inlineimage icons/linkicon.png and then select
-    \uicontrol {Synchronize Diagram with Structure}.
+    diagram, select \inlineimage {icons/linkicon.png} {Synchronize} and then
+    select \uicontrol {Synchronize Diagram with Structure}.
     To keep the selections in the diagram and \uicontrol Structure view
     synchronized, select \uicontrol {Keep Synchronized}.
 

@@ -33,14 +33,14 @@
     \endlist
 
     By default, you can find the locator in the bottom left of the \QC window.
-    To open it as a centered popup, select \inlineimage icons/magnifier.png, and
-    then select \uicontrol {Open as Centered Popup}.
+    To open it as a centered popup, select \inlineimage {icons/magnifier.png} {Locator menu},
+    and then select \uicontrol {Open as Centered Popup}.
 
     \section1 Use locator filters
 
     The filters that are available depend on the current document and project.
     If the locator field is empty, a list of available filters is shown.
-    A list of filters is also shown when selecting \inlineimage icons/magnifier.png.
+    A list of filters is also shown when selecting \inlineimage {icons/magnifier.png} {Locator menu}.
     For more information about what a particular locator filter does, see the
     tooltips that appear when you hover over a filter.
 
@@ -141,7 +141,8 @@
 
     To set locator preferences, go to \preferences > \uicontrol Environment >
     \uicontrol Locator, or select
-    \inlineimage icons/magnifier.png > \uicontrol Configure in the locator field.
+    \inlineimage {icons/magnifier.png} {Locator menu} > \uicontrol Configure in
+    the locator field.
 
     \image {qtcreator-locator-customize.webp} {Locator tab in Environment preferences}
 
@@ -249,7 +250,8 @@
     filters once an hour.
 
     To update the cached information manually, select
-    \inlineimage icons/magnifier.png > \uicontrol Refresh in the locator.
+    \inlineimage {icons/magnifier.png} {Locator menu} > \uicontrol Refresh in the
+    locator.
 
     To set a new cache update time:
 

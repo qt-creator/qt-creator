@@ -25,7 +25,7 @@
 
     Use the buttons on the editor toolbar to format text as italic (i), bold (b),
     or inline code (`), and to create links to web sites
-    (\inlineimage icons/linkicon.png).
+    (\inlineimage {icons/linkicon.png} {Hyperlink}).
 
     \section1 Move to a line and column
 

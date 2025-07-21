@@ -15,14 +15,14 @@
     To record screens:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol {Screen Recording}.
+        \li Select \uicontrol Tools > \uicontrol {Record Screen}.
            \image {qtcreator-record-screen.webp} {Record Screen dialog}
-        \li Select \inlineimage icons/settings.png
+        \li Select \inlineimage {icons/settings.png} {Options}
             to select the screen to record from and to set the recorded
             screen area.
-        \li Select \inlineimage icons/recordfill.png
+        \li Select \inlineimage {icons/recordfill.png} {Record}
             to start recording.
-        \li Select \inlineimage icons/stop_small.png
+        \li Select \inlineimage {icons/stop_small.png} {Stop}
             when you are done recording.
         \li Select \uicontrol {Crop and Trim} to edit the recording.
         \li Select \uicontrol Export to save the recording as an animated image
@@ -49,7 +49,7 @@
             dialog.
     \endlist
 
-    Select \inlineimage icons/reset.png
+    Select \inlineimage {icons/reset.png} {Reset}
     to reset the area.
 
     \section1 Edit recordings
@@ -63,12 +63,10 @@
     the recorded area, as well as the width and height of the area.
 
     To save a cropped version of the current frame as a file, select
-    \inlineimage icons/savefile.png
-    .
+    \inlineimage {icons/savefile.png} {Save}.
 
     To copy a cropped version of the current frame to the clipboard, select
-    \inlineimage icons/camera.png
-    .
+    \inlineimage {icons/camera.png} {Copy}.
 
     To trim a recording:
 
@@ -81,7 +79,7 @@
         \li Select \uicontrol End to set the last frame.
     \endlist
 
-    Select \inlineimage icons/reset.png
+    Select \inlineimage {icons/reset.png} {Reset}
     to reset the crop area and trim range.
 
     \sa {Screen Recording}, {Enable and disable plugins}

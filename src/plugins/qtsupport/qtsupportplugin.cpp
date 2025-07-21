@@ -262,33 +262,31 @@ void QtSupportPlugin::extensionsInitialized()
         HelpItem::Links exactVersion;
         HelpItem::Links sameMinor;
         HelpItem::Links sameMajor;
-        bool hasExact = false;
-        bool hasSameMinor = false;
-        bool hasSameMajor = false;
+        HelpItem::Links noVersion;
         for (const HelpItem::Link &link : links) {
             const QUrl url = link.second;
             const QVersionNumber version = HelpItem::extractQtVersionNumber(url).second;
             // version.isNull() means it's not a Qt documentation URL, so include regardless
-            if (version.isNull() || version.majorVersion() == qtVersion.majorVersion()) {
+            if (version.isNull()) {
+                noVersion.push_back(link);
+            } else if (version.majorVersion() == qtVersion.majorVersion()) {
                 sameMajor.push_back(link);
-                hasSameMajor = true;
-                if (version.isNull() || version.minorVersion() == qtVersion.minorVersion()) {
+                if (version.minorVersion() == qtVersion.minorVersion()) {
                     sameMinor.push_back(link);
-                    hasSameMinor = true;
-                    if (version.isNull() || version.microVersion() == qtVersion.microVersion()) {
+                    if (version.microVersion() == qtVersion.microVersion())
                         exactVersion.push_back(link);
-                        hasExact = true;
-                    }
                 }
             }
         }
-        // HelpItem itself finds the highest version within sameMinor/Major/etc itself
-        if (hasExact)
-            return exactVersion;
-        if (hasSameMinor)
-            return sameMinor;
-        if (hasSameMajor)
-            return sameMajor;
+        if (!exactVersion.empty() || !sameMinor.empty() || !sameMajor.empty()) {
+            // Concatenate "noVersion" items to first of [exactVersion, sameMinor, sameMajor]
+            // HelpItem itself finds the highest version within sameMinor/Major/etc itself
+            HelpItem::Links &result = !exactVersion.empty() ? exactVersion
+                                      : !sameMinor.empty()  ? sameMinor
+                                                            : sameMajor;
+            result.insert(result.end(), noVersion.begin(), noVersion.end());
+            return result;
+        }
         return links;
     });
 

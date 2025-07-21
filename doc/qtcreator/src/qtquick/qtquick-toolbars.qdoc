@@ -26,8 +26,8 @@
     To easily edit these properties, use the Qt Quick toolbars.
 
     When you select a QML type in the code and a light bulb icon appears
-    (\inlineimage icons/refactormarker.png), select it to open a toolbar
-    for changing the properties of that type.
+    (\inlineimage {icons/refactormarker.png} {Light bulb icon}), select
+    it to open a toolbar for changing the properties of that type.
 
     \section1 Preview images
 
@@ -101,7 +101,7 @@
     \section1 Pin toolbars
 
     Drag the toolbar to pin it to another location. Select
-    \inlineimage icons/pin.png to unpin the toolbar and move
+    \inlineimage {icons/pin.png} {Pin} to unpin the toolbar and move
     it to its default location.
 
     To pin toolbars by default, select \uicontrol {Pin Qt Quick Toolbar}.

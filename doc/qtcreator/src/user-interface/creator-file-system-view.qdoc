@@ -50,7 +50,8 @@
     \endlist
 
     To stop the synchronization between the editor and the
-    \uicontrol {File System} view, clear \inlineimage {icons/linkicon.png} {}
+    \uicontrol {File System} view, clear
+    \inlineimage {icons/linkicon.png} {Synchronize Root Directory with Editor}
     (\uicontrol {Synchronize Root Directory with Editor}).
 
     The view displays the path to the active file as bread crumbs. You can move
@@ -94,7 +95,7 @@
     The toolbar in the \uicontrol {File System} view has additional
     options.
 
-    To manage view contents, select \inlineimage {icons/filtericon.png} {}
+    To manage view contents, select \inlineimage {icons/filtericon.png} {Options}
     (\uicontrol Options):
 
     \list
@@ -106,7 +107,7 @@
     \endlist
 
     To stop the synchronization with the file currently open in the
-    editor, clear \inlineimage {icons/linkicon.png} {}
+    editor, clear \inlineimage {icons/linkicon.png} {Synchronize with Editor}
     (\uicontrol {Synchronize with Editor}).
 
     \sa {View CMake project contents}, {Projects}

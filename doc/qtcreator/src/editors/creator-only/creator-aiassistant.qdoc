@@ -168,14 +168,14 @@
     to implement your requests in human language, ask questions, or execute
     \e {smart commands}. To open the chat, select \key {Ctrl+Shift+A}.
     Alternatively, to open the inline prompt window, you can select code
-    and then select \inlineimage icons/ai-assistant.png.
+    and then select \inlineimage {icons/ai-assistant.png} {AI Assistant}.
 
     To close the inline prompt window, select \key Esc or
-    \inlineimage icons/close.png.
+    \inlineimage {icons/close.png} {Close}.
 
     To go to Qt AI Assistant preferences from the inline prompt window, select
-    \inlineimage icons/settings.png. There, you can set the model to use for
-    prompts and code reviews.
+    \inlineimage {icons/settings.png} {Preferences}. There, you can set the model
+    to use for prompts and code reviews.
 
     \section2 Request suggestions using human language
 
