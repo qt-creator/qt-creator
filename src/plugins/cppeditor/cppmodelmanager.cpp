@@ -1112,7 +1112,7 @@ HeaderPaths CppModelManagerPrivate::internalHeaderPaths(SyncedProjectData &ld)
     for (const ProjectData &projectData : std::as_const(ld.m_projectData)) {
         for (const ProjectPart::ConstPtr &part : projectData.projectInfo->projectParts()) {
             for (const HeaderPath &path : part->headerPaths) {
-                HeaderPath hp(QDir::cleanPath(path.path), path.type);
+                HeaderPath hp(path.path, path.type);
                 if (!headerPaths.contains(hp))
                     headerPaths.push_back(std::move(hp));
             }

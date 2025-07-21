@@ -76,8 +76,8 @@ static void extractAllFiles(ProjectExplorer::Project *project, QStringList &incl
                 assemblers.push_back(file.path);
         }
         for (const HeaderPath &include : std::as_const(part->headerPaths)) {
-            if (!includes.contains(include.path))
-                includes.push_back(include.path);
+            if (!includes.contains(include.path.path()))
+                includes.push_back(include.path.path());
         }
     }
 }

@@ -624,7 +624,7 @@ QList<AssistProposalItemInterface *> CustomAssistProcessor::completeInclude(
 
     QList<AssistProposalItemInterface *> completions;
     for (const HeaderPath &headerPath : std::as_const(allHeaderPaths)) {
-        QString realPath = headerPath.path;
+        QString realPath = headerPath.path.path();
         if (!directoryPrefix.isEmpty()) {
             realPath += QLatin1Char('/');
             realPath += directoryPrefix;

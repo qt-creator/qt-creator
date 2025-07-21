@@ -59,9 +59,9 @@ static QString findShortestInclude(
         result = QLatin1Char('"') + fileInfo.fileName() + QLatin1Char('"');
     } else {
         for (const HeaderPath &headerPath : headerPaths) {
-            if (!candidateFilePath.startsWith(headerPath.path))
+            if (!candidateFilePath.startsWith(headerPath.path.path()))
                 continue;
-            QString relativePath = candidateFilePath.mid(headerPath.path.size());
+            QString relativePath = candidateFilePath.mid(headerPath.path.path().size());
             if (!relativePath.isEmpty() && relativePath.at(0) == QLatin1Char('/'))
                 relativePath = relativePath.mid(1);
             if (result.isEmpty() || relativePath.size() + 2 < result.size())
@@ -83,7 +83,7 @@ static QString findMatchingInclude(const QString &className, const HeaderPaths &
         className.toLower() + ".hpp"};
     for (const QString &fileName : candidateFileNames) {
         for (const HeaderPath &headerPath : headerPaths) {
-            const QString headerPathCandidate = headerPath.path + QLatin1Char('/') + fileName;
+            const QString headerPathCandidate = headerPath.path.path() + QLatin1Char('/') + fileName;
             const QFileInfo fileInfo(headerPathCandidate);
             if (fileInfo.exists() && fileInfo.isFile())
                 return '<' + fileName + '>';

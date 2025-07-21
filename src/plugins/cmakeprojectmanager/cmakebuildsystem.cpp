@@ -1703,7 +1703,7 @@ void CMakeBuildSystem::updateProjectData()
             if (mergedHeaderPathsAndQmlImportPaths) {
                 for (const auto &headerPath : rpp.headerPaths) {
                     if (headerPath.type == HeaderPathType::User || headerPath.type == HeaderPathType::System)
-                        m_extraHeaderPaths.append(headerPath.path);
+                        m_extraHeaderPaths.append(headerPath.path.path());
                 }
             }
         }

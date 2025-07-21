@@ -215,7 +215,9 @@ QList<OutputLineParser *> CustomToolchain::createOutputParsers() const
 
 QStringList CustomToolchain::headerPathsList() const
 {
-    return Utils::transform<QList>(m_builtInHeaderPaths, &HeaderPath::path);
+    return Utils::transform<QList>(m_builtInHeaderPaths, [](const HeaderPath &header) {
+        return header.path.path();
+    });
 }
 
 void CustomToolchain::setHeaderPaths(const QStringList &list)

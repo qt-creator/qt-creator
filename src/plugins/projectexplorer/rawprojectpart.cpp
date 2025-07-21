@@ -67,7 +67,7 @@ static QString trimTrailingSlashes(const QString &path)
 
 HeaderPath RawProjectPart::frameworkDetectionHeuristic(const HeaderPath &header)
 {
-    QString path = trimTrailingSlashes(header.path);
+    QString path = trimTrailingSlashes(header.path.path());
 
     if (path.endsWith(".framework"))
         return HeaderPath::makeFramework(path.left(path.lastIndexOf('/')));

@@ -326,7 +326,7 @@ QVariant ProjectHeaderPathsModel::data(const QModelIndex &index, int role) const
         if (column == TypeColumn) {
             return CMI::Utils::toString(m_paths.at(row).type);
         } else if (column == PathColumn) {
-            return m_paths.at(row).path;
+            return m_paths.at(row).path.path();
         }
     }
     return QVariant();

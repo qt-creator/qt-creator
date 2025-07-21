@@ -84,7 +84,7 @@ static HeaderPaths getHeaderPaths(const RawProjectPart &rpp,
     // TODO: Do this once when finalizing the raw project part?
     std::set<QString> seenPaths;
     for (const HeaderPath &p : std::as_const(rpp.headerPaths)) {
-        const QString cleanPath = QDir::cleanPath(p.path);
+        const QString cleanPath = QDir::cleanPath(p.path.path());
         if (seenPaths.insert(cleanPath).second)
             headerPaths << HeaderPath(cleanPath, p.type);
     }
@@ -133,7 +133,7 @@ static QStringList getExtraCodeModelFlags(const RawProjectPart &rpp, const Proje
             continue;
         if (!hp.path.endsWith("/include"))
             continue;
-        const Utils::FilePath includeDir = Utils::FilePath::fromString(hp.path);
+        const FilePath includeDir = hp.path;
         if (!includeDir.pathAppended("cuda.h").exists())
             continue;
         for (FilePath dir = includeDir.parentDir(); cudaPath.isEmpty() && !dir.isRootPath();

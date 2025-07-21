@@ -351,7 +351,7 @@ bool GenericBuildSystem::addFiles(Node *, const FilePaths &filePaths_, FilePaths
     }
 
     const auto includes = transform<QSet<QString>>(m_projectIncludePaths,
-                                                   [](const HeaderPath &hp) { return hp.path; });
+                                                   [](const HeaderPath &hp) { return hp.path.path(); });
     QSet<QString> toAdd;
 
     for (const QString &filePath : filePaths) {

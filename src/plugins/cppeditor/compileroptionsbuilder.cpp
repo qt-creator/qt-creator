@@ -685,7 +685,7 @@ void CompilerOptionsBuilder::addIncludeDirOptionForPath(const HeaderPath &path)
 {
     if (path.type == HeaderPathType::Framework) {
         QTC_ASSERT(!isClStyle(), return;);
-        add({"-F", QDir::toNativeSeparators(path.path)});
+        add({"-F", path.path.nativePath()});
         return;
     }
 
@@ -697,17 +697,17 @@ void CompilerOptionsBuilder::addIncludeDirOptionForPath(const HeaderPath &path)
     } else {
         // ProjectExplorer::HeaderPathType::User
         if (m_useSystemHeader == UseSystemHeader::Yes && m_projectPart.hasProject()
-            && !Utils::FilePath::fromString(path.path).isChildOf(m_projectPart.topLevelProject)) {
+            && !path.path.isChildOf(m_projectPart.topLevelProject)) {
             systemPath = true;
         }
     }
 
     if (systemPath) {
-        add({includeSystemPathOption, QDir::toNativeSeparators(path.path)}, true);
+        add({includeSystemPathOption, path.path.nativePath()}, true);
         return;
     }
 
-    add(includeUserPathOption + QDir::toNativeSeparators(path.path));
+    add(includeUserPathOption + path.path.nativePath());
 }
 
 bool CompilerOptionsBuilder::excludeDefineDirective(const Macro &macro) const

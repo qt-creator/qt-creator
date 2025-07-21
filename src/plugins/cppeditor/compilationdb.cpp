@@ -31,12 +31,12 @@ static QStringList projectPartArguments(const ProjectPart &projectPart)
     args << projectPart.compilerFlags;
     for (const ProjectExplorer::HeaderPath &headerPath : projectPart.headerPaths) {
         if (headerPath.type == HeaderPathType::User) {
-            args << "-I" + headerPath.path;
+            args << "-I" + headerPath.path.path();
         } else if (headerPath.type == HeaderPathType::System) {
             args << (projectPart.toolchainType == PEConstants::MSVC_TOOLCHAIN_TYPEID
                          ? "-I"
                          : "-isystem")
-                        + headerPath.path;
+                        + headerPath.path.path();
         }
     }
     for (const Macro &macro : projectPart.projectMacros) {

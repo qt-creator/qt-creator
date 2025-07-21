@@ -1219,7 +1219,7 @@ bool InternalCppCompletionAssistProcessor::completeInclude(const QTextCursor &cu
         Utils::mimeTypeForName(Utils::Constants::CPP_HEADER_MIMETYPE).suffixes();
 
     for (const HeaderPath &headerPath : std::as_const(headerPaths)) {
-        Utils::FilePath realPath = Utils::FilePath::fromString(headerPath.path);
+        Utils::FilePath realPath = headerPath.path;
         if (!directoryPrefix.isEmpty()) {
             realPath /= directoryPrefix;
             if (headerPath.type == HeaderPathType::Framework)

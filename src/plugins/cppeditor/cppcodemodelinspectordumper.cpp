@@ -428,7 +428,7 @@ QString Utils::pathListToString(const ProjectExplorer::HeaderPaths &pathList)
     QStringList result;
     for (const ProjectExplorer::HeaderPath &path : pathList)
         result << QString(QLatin1String("%1 (%2 path)")).arg(
-                      QDir::toNativeSeparators(path.path), toString(path.type));
+                      path.path.nativePath(), toString(path.type));
 
     return result.join(QLatin1Char('\n'));
 }

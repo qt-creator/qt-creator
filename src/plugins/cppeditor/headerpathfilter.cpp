@@ -47,11 +47,10 @@ void HeaderPathFilter::removeGccInternalIncludePaths()
     if (projectPart.toolchainInstallDir.isEmpty())
         return;
 
-    const Utils::FilePath gccInstallDir = projectPart.toolchainInstallDir;
+    const FilePath gccInstallDir = projectPart.toolchainInstallDir;
     auto isGccInternalInclude = [gccInstallDir](const HeaderPath &headerPath) {
-        const auto filePath = Utils::FilePath::fromString(headerPath.path);
-        return filePath == gccInstallDir.pathAppended("include")
-               || filePath == gccInstallDir.pathAppended("include-fixed");
+        return headerPath.path == gccInstallDir.pathAppended("include")
+               || headerPath.path == gccInstallDir.pathAppended("include-fixed");
     };
 
     Utils::erase(builtInHeaderPaths, isGccInternalInclude);
@@ -71,7 +70,7 @@ void HeaderPathFilter::filterHeaderPath(const ProjectExplorer::HeaderPath &heade
         systemHeaderPaths.push_back(headerPath);
         break;
     case HeaderPathType::User:
-        if (isProjectHeaderPath(headerPath.path))
+        if (isProjectHeaderPath(headerPath.path.path()))
             userHeaderPaths.push_back(headerPath);
         else
             systemHeaderPaths.push_back(headerPath);
@@ -93,7 +92,7 @@ HeaderPaths::iterator resourceIterator(HeaderPaths &headerPaths)
     return std::stable_partition(headerPaths.begin(),
                                  headerPaths.end(),
                                  [&](const HeaderPath &headerPath) {
-                                     return includeRegExp.match(headerPath.path).hasMatch();
+                                     return includeRegExp.match(headerPath.path.path()).hasMatch();
                                  });
 }
 
@@ -105,7 +104,7 @@ bool isClangSystemHeaderPath(const HeaderPath &headerPath)
     // include incorrect system headers.
     static const QRegularExpression clangIncludeDir(
         R"(\A.*/lib\d*/clang/\d+(\.\d+){0,2}/include\z)");
-    return clangIncludeDir.match(headerPath.path).hasMatch();
+    return clangIncludeDir.match(headerPath.path.path()).hasMatch();
 }
 
 void removeClangSystemHeaderPaths(HeaderPaths &headerPaths)

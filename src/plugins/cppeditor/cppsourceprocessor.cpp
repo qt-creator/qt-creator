@@ -140,7 +140,7 @@ void CppSourceProcessor::addFrameworkPath(const HeaderPath &frameworkPath)
     if (!m_headerPaths.contains(cleanFrameworkPath))
         m_headerPaths.append(cleanFrameworkPath);
 
-    const QDir frameworkDir(cleanFrameworkPath.path);
+    const QDir frameworkDir(cleanFrameworkPath.path.path());
     const QStringList filter = QStringList("*.framework");
     const QList<QFileInfo> frameworks = frameworkDir.entryInfoList(filter);
     for (const QFileInfo &framework : frameworks) {
@@ -238,7 +238,7 @@ FilePath CppSourceProcessor::resolveFile(const FilePath &filePath, IncludeType t
             auto headerPathsEnd = m_headerPaths.end();
             auto headerPathsIt = m_headerPaths.begin();
             for (; headerPathsIt != headerPathsEnd; ++headerPathsIt) {
-                if (headerPathsIt->path == currentDirPath.path()) {
+                if (headerPathsIt->path.path() == currentDirPath.path()) {
                     ++headerPathsIt;
                     return resolveFile_helper(filePath, headerPathsIt);
                 }
@@ -262,15 +262,15 @@ FilePath CppSourceProcessor::resolveFile_helper(const FilePath &filePath,
     auto headerPathsEnd = m_headerPaths.end();
     const int index = fileName.indexOf(QLatin1Char('/'));
     for (; headerPathsIt != headerPathsEnd; ++headerPathsIt) {
-        if (!headerPathsIt->path.isNull()) {
+        if (!headerPathsIt->path.isEmpty()) {
             FilePath path;
             if (headerPathsIt->type == HeaderPathType::Framework) {
                 if (index == -1)
                     continue;
-                path = FilePath::fromString(headerPathsIt->path).pathAppended(fileName.left(index)
+                path = headerPathsIt->path.pathAppended(fileName.left(index)
                        + QLatin1String(".framework/Headers/") + fileName.mid(index + 1));
             } else {
-                path = FilePath::fromString(headerPathsIt->path) /  fileName;
+                path = headerPathsIt->path /  fileName;
             }
             if (m_workingCopy.get(path) || checkFile(path))
                 return path;

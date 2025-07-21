@@ -23,9 +23,10 @@ class HeaderPath
 public:
     HeaderPath() = default;
     HeaderPath(const QString &path, HeaderPathType type)
-        : path(QDir::fromNativeSeparators(path)), type(type) { }
+        : path(Utils::FilePath::fromUserInput(path)), type(type)
+    {}
     HeaderPath(const Utils::FilePath &path, HeaderPathType type)
-        : HeaderPath(path.path(), type)
+        : path(path), type(type)
     {}
 
     bool operator==(const HeaderPath &other) const
@@ -60,7 +61,7 @@ public:
         return ((qHash(key.path) << 2) | uint(key.type)) ^ seed;
     }
 
-    QString path;
+    Utils::FilePath path;
     HeaderPathType type = HeaderPathType::User;
 };
 

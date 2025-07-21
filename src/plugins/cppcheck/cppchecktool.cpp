@@ -111,7 +111,7 @@ QStringList CppcheckTool::additionalArguments(const CppEditor::ProjectPart &part
             const QString projectDir = m_project->projectDirectory().toUrlishString();
             if (path.type == ProjectExplorer::HeaderPathType::User
                 && path.path.startsWith(projectDir))
-                result.push_back("-I " + path.path);
+                result.push_back("-I " + path.path.path());
         }
     }
 
