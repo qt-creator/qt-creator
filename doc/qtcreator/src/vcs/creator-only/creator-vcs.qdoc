@@ -158,10 +158,9 @@
 
     With Git, Mercurial, and Subversion, the diff is displayed side-by-side in
     a \l{Compare files}{diff editor} by default. To use the inline diff view
-    instead, select the \uicontrol {Unified Diff Editor} option from
-    the toolbar. In the inline
-    diff view, you can use context menu commands to apply, revert, stage, and
-    unstage chunks or selected lines, as well as send chunks to a code pasting
+    instead, select the \uicontrol {Unified Diff Editor} option from the toolbar.
+    In both diff views, you can use context menu commands to apply, revert, stage,
+    and unstage chunks or selected lines, as well as send chunks to a code pasting
     service.
 
     \section1 View versioning history and change details
