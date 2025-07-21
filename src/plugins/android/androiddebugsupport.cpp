@@ -129,7 +129,6 @@ static DebuggerRunParameters debuggerRunParameters(RunControl *runControl)
         FilePath::removeDuplicates(solibSearchPath);
         rp.setSolibSearchPath(solibSearchPath);
         qCDebug(androidDebugSupportLog).noquote() << "SoLibSearchPath: " << solibSearchPath;
-        rp.setSymbolFile(androidAppProcessDir(bc).pathAppended("app_process"));
         rp.setUseExtendedRemote(true);
         const QString devicePreferredAbi = apkDevicePreferredAbi(bc);
         rp.setToolChainAbi(androidAbi2Abi(devicePreferredAbi));

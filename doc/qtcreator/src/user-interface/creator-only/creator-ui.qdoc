@@ -1,0 +1,77 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-quick-tour.html
+    \previouspage creator-overview.html
+    \nextpage creator-configuring.html
+
+    \title User interface
+
+    When you start \QC, it opens to the \uicontrol Welcome mode.
+
+    \image {qtcreator-welcome.webp} {Welcome mode}
+
+    \table
+    \header
+        \li Number
+        \li UI Control
+        \li Purpose
+        \li Read More
+    \row
+        \li \inlineimage {numbers/01.png} {1}
+        \li Mode selector
+        \li Perform a particular task, such as designing the UI, writing code, or
+            debugging the application.
+        \li \l{Switch between modes}
+    \row
+        \li \inlineimage {numbers/02.png} {2}
+        \li Kit selector
+        \li Select the appropriate \l{Kits}{kit} for building
+            the project and running it on particular hardware.
+        \li \l{Activate kits for a project}
+    \row
+        \li \inlineimage {numbers/03.png} {3}
+        \li Run button
+        \li Run the application on the selected target platform.
+        \li \l{Run on many platforms}
+    \row
+        \li \inlineimage {numbers/04.png} {4}
+        \li Debug button
+        \li Debug the application on the selected target platform.
+        \li \l{Debugging}
+    \row
+        \li \inlineimage {numbers/05.png} {5}
+        \li Build button
+        \li Build the application using the selected kit.
+        \li \l{Build for many platforms}
+    \row
+        \li \inlineimage {numbers/06.png} {6}
+        \li Locator
+        \li Find a particular project, file, class, or function.
+        \li \l{Navigate with locator}
+    \row
+        \li \inlineimage {numbers/07.png} {7}
+        \li Output
+        \li View output from building, running, and other actions.
+        \li \l{View output}
+    \endtable
+
+    To see where the above controls are in the UI, select
+    \uicontrol Help > \uicontrol {UI Tour}.
+
+    \section1 Take courses at Qt Academy
+
+    To learn more about the parts of the UI and the \uicontrol Welcome mode, take
+    the \l{Qt Academy: Getting Started with \QC} course.
+
+    To enroll to a course, go to \uicontrol Courses, and then select a course in
+    the list.
+
+    \section1 What's new?
+
+    For information about new features and bug fixes in each \QC release,
+    select \uicontrol Help > \uicontrol {Change Log}.
+
+    \sa {Use the UI}{How To: Use the UI}, {Reference}
+*/

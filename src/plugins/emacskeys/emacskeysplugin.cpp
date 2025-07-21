@@ -16,14 +16,12 @@
 
 #include <utils/qtcassert.h>
 
-
-#include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>
-#include <QPlainTextEdit>
 #include <QScrollBar>
 #include <QTextCursor>
 
@@ -32,6 +30,7 @@ extern void qt_set_sequence_auto_mnemonic(bool enable);
 QT_END_NAMESPACE
 
 using namespace Core;
+using namespace TextEditor;
 using namespace Utils;
 
 namespace EmacsKeys::Internal {
@@ -81,10 +80,10 @@ class EmacsKeysPlugin final : public ExtensionSystem::IPlugin
     void genericGoto(QTextCursor::MoveOperation op, bool abortAssist = true);
     void genericVScroll(int direction);
 
-    QHash<QPlainTextEdit *, EmacsKeysState *> m_stateMap;
-    QPlainTextEdit *m_currentEditorWidget = nullptr;
+    QHash<PlainTextEdit *, EmacsKeysState *> m_stateMap;
+    PlainTextEdit *m_currentEditorWidget = nullptr;
     EmacsKeysState *m_currentState = nullptr;
-    TextEditor::TextEditorWidget *m_currentBaseTextEditorWidget = nullptr;
+    TextEditorWidget *m_currentBaseTextEditorWidget = nullptr;
 };
 
 void EmacsKeysPlugin::initialize()
@@ -149,7 +148,7 @@ void EmacsKeysPlugin::initialize()
 
 void EmacsKeysPlugin::editorAboutToClose(IEditor *editor)
 {
-    auto w = qobject_cast<QPlainTextEdit*>(editor->widget());
+    auto w = qobject_cast<PlainTextEdit *>(editor->widget());
     if (!w)
         return;
 
@@ -165,7 +164,7 @@ void EmacsKeysPlugin::currentEditorChanged(IEditor *editor)
         m_currentEditorWidget = nullptr;
         return;
     }
-    m_currentEditorWidget = qobject_cast<QPlainTextEdit*>(editor->widget());
+    m_currentEditorWidget = qobject_cast<PlainTextEdit *>(editor->widget());
     if (!m_currentEditorWidget)
         return;
 
@@ -173,8 +172,7 @@ void EmacsKeysPlugin::currentEditorChanged(IEditor *editor)
         m_stateMap[m_currentEditorWidget] = new EmacsKeysState(m_currentEditorWidget);
     }
     m_currentState = m_stateMap[m_currentEditorWidget];
-    m_currentBaseTextEditorWidget =
-        qobject_cast<TextEditor::TextEditorWidget*>(editor->widget());
+    m_currentBaseTextEditorWidget = TextEditorWidget::fromEditor(editor);
 }
 
 void EmacsKeysPlugin::gotoFileStart()         { genericGoto(QTextCursor::Start); }

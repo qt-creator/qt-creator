@@ -31,11 +31,13 @@
             All occurrences of the text are highlighted in the editor as you
             type.
 
-        \li To go to the next occurrence, select \inlineimage icons/next.png
-            (\uicontrol {Find Next}), or select \key F3.
+        \li To go to the next occurrence, select
+            \inlineimage {icons/next.png} {Find Next} (\uicontrol {Find Next})
+            or \key F3.
 
-        \li To go to the previous occurrence, select \inlineimage icons/prev.png
-            (\uicontrol {Find Previous}), or select \key {Shift+F3}.
+        \li To go to the previous occurrence, select
+            \inlineimage {icons/prev.png} {Find Previous}
+            (\uicontrol {Find Previous}) or \key {Shift+F3}.
 
         \li To select all found occurrences in a file, select
             \uicontrol {Select All}.
@@ -48,7 +50,8 @@
     \section1 Set search criteria
 
     To restrict the search in the \uicontrol Find box, select
-    \inlineimage icons/qtcreator-new-search-icon.png and set search criteria:
+    \inlineimage {icons/qtcreator-new-search-icon.png} {New Search}
+    (\uicontrol {New Search}) and set search criteria:
 
     \list
 
@@ -79,7 +82,8 @@
     \section1 Preserve case when replacing
 
     To preserve the case of the original text when replacing, select
-    \inlineimage icons/qtcreator-new-search-icon.png and then select
+    \inlineimage {icons/qtcreator-new-search-icon.png} {New Search}
+    (\uicontrol {New Search}) and then select
     \uicontrol {Preserve Case when Replacing}. You cannot use this option
     together with \uicontrol {Use Regular Expressions}.
 

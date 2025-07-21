@@ -135,11 +135,11 @@
     To show or hide detailed progress information, select
     \uicontrol {Toggle Progress Details} (1).
 
-    \image {qtcreator-toggle-progress-bar.webp} {Toggle Progress Details button}
+    \image {qtcreator-toggle-progress-bar.webp} {Toggle Progress Details}
 
     You can drag the progress bar to another position. The position is saved for
-    later. Select the \inlineimage icons/pin.png
-    (\uicontrol Pin) button to pin the progress bar back to the toggle button.
+    later. Select \inlineimage {icons/pin.png} {Pin}
+    (\uicontrol Pin) to pin the progress bar back to the toggle button.
 
     \sa {Configure projects for building}, {Configure projects for running},
     {Manage Kits}{How To: Manage Kits}, {Kits}

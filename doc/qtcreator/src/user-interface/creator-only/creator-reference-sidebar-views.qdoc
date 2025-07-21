@@ -18,13 +18,14 @@
 
     \list
         \li To see a complete list of all bindings, select
-            \inlineimage icons/filtericon.png
+            \inlineimage {icons/filtericon.png} {Filter Tree}
             (\uicontrol {Filter Tree}) > \uicontrol {Show All Bindings}.
         \li To sort types or symbols alphabetically, select
-            \inlineimage icons/sort_alphabetically.png
+            \inlineimage {icons/sort_alphabetically.png} {Sort Alphabetically}
             (\uicontrol {Sort Alphabetically}).
         \li To stop the synchronization with the type or symbol selected in the
-            editor, clear \inlineimage icons/linkicon.png
+            editor, clear
+            \inlineimage {icons/linkicon.png} {Synchronize with Editor}
             (\uicontrol {Synchronize with Editor}).
     \endlist
 */
@@ -42,7 +43,7 @@
 
     \list
         \li To organize the view by subprojects, click
-            \inlineimage icons/qtcreator-show-subprojects.png
+            \inlineimage {icons/qtcreator-show-subprojects.png} {Show Subprojects}
             (\uicontrol {Show Subprojects}).
         \li To visit all parts of a namespace, double-click on the
             namespace item multiple times.
@@ -64,8 +65,8 @@
     so you can also see the caller of the caller. However, Clangd only lists
     incoming calls.
 
-    Select the \inlineimage icons/languageclient.png
-    button on the \l{Edit Mode}{editor toolbar}, and then select
+    Select \inlineimage {icons/languageclient.png} {Language Client menu}
+    on the \l{Edit Mode}{editor toolbar}, and then select
     \uicontrol {Restart} to collect call hierarchy information for the function.
 
     \image {qtcreator-call-hierarchy-view.webp} {Call Hierarchy view}
@@ -124,6 +125,6 @@
     \image {qtcreator-include-hierarchy-view.webp} {Include Hierarchy view}
 
     To keep the view synchronized with the file currently open in the editor,
-    select \inlineimage icons/linkicon.png
+    select \inlineimage {icons/linkicon.png} {Synchronize with Editor}
     (\uicontrol {Synchronize with Editor}).
 */

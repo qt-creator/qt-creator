@@ -33,7 +33,8 @@
         \li Go to \uicontrol Analyze > \uicontrol {Performance Analyzer} to
             profile the current application.
 
-        \li Select \inlineimage icons/qtcreator-analyze-start-button.png
+        \li Select
+            \inlineimage {icons/qtcreator-analyze-start-button.png} {Start a performance analysis}
             (\uicontrol Start) to start the application from the
             \uicontrol {Performance Analyzer}.
 
@@ -42,7 +43,7 @@
     \endlist
 
     \note If data collection does not start automatically, select
-    \inlineimage icons/recordfill.png
+    \inlineimage {icons/recordfill.png} {Start collecting profile data}
     (\uicontrol {Collect profile data}).
 
     When you start analyzing an application, the application is launched, and
@@ -53,7 +54,8 @@
     several seconds after it was generated. \uicontrol {Processing delay} shows
     an estimate of the delay.
 
-    Data is collected until you select \inlineimage icons/recordfill.png
+    Data is collected until you select
+    \inlineimage {icons/recordfill.png} {Stop collecting profile data}
     (\uicontrol {Stop collecting profile data}) or close the application.
 
     Select \uicontrol {Stop collecting profile data} to turn off the
@@ -68,7 +70,8 @@
     \list
         \li Go to \uicontrol Analyze > \uicontrol {Performance Analyzer Options}
             > \uicontrol {Create Memory Trace Points}.
-        \li Select \inlineimage icons/create-tracepoint.png
+        \li Select
+            \inlineimage {icons/create-tracepoint.png} {Create trace points for memory profiling on the target device}
             on the \uicontrol {Performance Analyzer} toolbar.
     \endlist
 
@@ -125,8 +128,8 @@
     \image {qtcreator-performance-analyzer-settings.png} {Performance Analyzer Settings}
 
     To edit the settings for the current run configuration, select the
-    drop down menu next to \inlineimage icons/recordfill.png on the
-    Performance Analyzer toolbar.
+    drop down menu next to \inlineimage {icons/recordfill.png}
+    {Toggle profile data collection} on the Performance Analyzer toolbar.
 
     \image {qtcreator-performance-analyzer-toolbar.webp} {Performance Analyzer toolbar}
 

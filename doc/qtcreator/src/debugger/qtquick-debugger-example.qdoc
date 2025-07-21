@@ -68,7 +68,7 @@
 
             \image {qtquick-example-setting-breakpoint2.webp} {Debugger view}
 
-        \li Select \inlineimage icons/debugger_stepinto_small.png
+        \li Select \inlineimage {icons/debugger_stepinto_small.png} {Step Into}
             (\uicontrol {Step Into}) on the toolbar or select \key F11 to step
             into the code in the stack. The samegame.js file opens in the code
             editor at the function that starts a new game.
@@ -80,7 +80,7 @@
             the view.
 
         \li Add a breakpoint at the end of the \c {startNewGame()} function, and
-            select \inlineimage icons/qtcreator-debugging-continue.png
+            select \inlineimage {icons/qtcreator-debugging-continue.png} {Continue}
             (\uicontrol Continue) to hit the breakpoint.
 
             \image {qtquick-example-setting-breakpoint3.webp} {Second breakpoint in the Breakpoints view}

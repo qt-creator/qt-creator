@@ -356,16 +356,16 @@
         \li In the \uicontrol {Test Results} view, select:
 
             \list
-                \li \inlineimage icons/run_small.png
+                \li \inlineimage {icons/run_small.png} {Run All Tests}
                     (\uicontrol {Run All Tests}) to run all tests.
-                 \li \inlineimage icons/qtcreator-run-selected-tests.png
+                 \li \inlineimage {icons/qtcreator-run-selected-tests.png} {Run Selected Tests}
                     (\uicontrol {Run Selected Tests}) to run the selected tests.
-                 \li \inlineimage icons/qtcreator-run-failed-tests.png
+                 \li \inlineimage {icons/qtcreator-run-failed-tests.png} {Run Failed Tests}
                     (\uicontrol {Run Failed Tests}) to re-run the tests which failed
                     in the last run.
                     Depending on the framework, this may select more tests if it
                     is impossible to distinguish or to fully address the test.
-                 \li \inlineimage icons/qtcreator-run-tests-in-current-file.png
+                 \li \inlineimage {icons/qtcreator-run-tests-in-current-file.png} {Run Tests for Current File}
                     (\uicontrol {Run Tests for Current File}) to run the tests
                     in the file currently open in the code editor.
             \endlist
@@ -403,14 +403,14 @@
     To refresh the view, select \uicontrol {Rescan Tests} in the context menu.
 
     To show or hide init and cleanup or data functions in the \uicontrol Tests
-    view, select \inlineimage icons/filtericon.png
+    view, select \inlineimage {icons/filtericon.png} {Filter Test Tree}
     (\uicontrol {Filter Test Tree}), and then select \uicontrol {Show Init and
     Cleanup Functions} or \uicontrol {Show Data Functions}. Double-click a
     function in the list to open its source code in the code editor.
 
     The \uicontrol Tests view lists test cases in alphabetic, case insensitive
     order. To list them in the order in which they appear in the source code,
-    select \inlineimage icons/leafsort.png
+    select \inlineimage {icons/leafsort.png} {Sort Naturally}
     (\uicontrol {Sort Naturally}).
 
     \section1 Run and debug tests from code editor
@@ -800,7 +800,8 @@
     \image {qtcreator-test-results.webp} {Visual display in the Test Results view}
 
     The view shows test duration for the test frameworks that support it. To
-    show and hide duration information, select \inlineimage icons/stopwatch.png.
+    show and hide duration information, select
+    \inlineimage {icons/stopwatch.png} {Duration}.
 
     \section1 Qt Test Output
 
@@ -814,7 +815,8 @@
 
     To view the results of Qt and Qt Quick tests as plain text, go to
     \preferences > \uicontrol {Testing} > \uicontrol {Qt Test} and then clear
-    \uicontrol {Use XML output}. Then select \inlineimage icons/text.png
+    \uicontrol {Use XML output}. Then select
+    \inlineimage {icons/text.png} {Switch Between Visual and Text Display}
     (\uicontrol {Switch Between Visual and Text Display}) in
     \uicontrol {Test Results} to switch to the text display.
 
@@ -871,8 +873,9 @@
     \section1 Filtering Test Results
 
     To view only messages of a particular type, select
-    \inlineimage icons/filtericon.png (\uicontrol {Filter Test Results}) and
-    then select the types of messages to show.
+    \inlineimage {icons/filtericon.png} {Filter Test Results}
+    (\uicontrol {Filter Test Results}), and then select the
+    types of messages to show.
 
     To show all messages, select \uicontrol {Check All Filters}.
 

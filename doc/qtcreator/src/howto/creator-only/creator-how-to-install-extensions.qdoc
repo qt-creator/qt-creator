@@ -21,7 +21,7 @@
 
     To add URLs for installing extensions from external registries
     or to install extensions from installation packages, select
-    \inlineimage {icons/settings.png} {Settings button}.
+    \inlineimage {icons/settings.png} {Settings}.
 
     \sa {Enable and disable plugins}, {Install extensions}, {Load extensions}
 */

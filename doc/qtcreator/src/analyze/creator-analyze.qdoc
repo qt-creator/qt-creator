@@ -15,7 +15,8 @@
     \title Analyzing Code
 
     To use a code analysis tool, select it in the \uicontrol {Analyze Menu} or
-    in the pull-down menu of the \inlineimage icons/qtcreator-debug-button.png
+    in the pull-down menu of the
+    \inlineimage {icons/qtcreator-debug-button.png} {Start Debugging of Startup Project}
     (\uicontrol {Start Debugging of Startup Project}) button.
     In the \uicontrol Debug mode, switch between tools by selecting them in the
     menu on the debugger toolbar.

@@ -25,13 +25,13 @@
 
     \image {qtcreator-axivion-annotation.webp} {Annotation popup}
 
-    Select \inlineimage icons/info.png to view detailed information about the
-    issue in the \uicontrol {Issue Details} view.
+    Select \inlineimage {icons/info.png} {Show Issues in Editor} to view detailed
+    information about the issue in the \uicontrol {Issue Details} view.
 
     \image {qtcreator-axivion-view-rule.webp} {Issue Details view}
 
     To hide inline annotations, go to \uicontrol Analyze > \uicontrol Axivion
-    and clear \inlineimage icons/warning.png.
+    and clear \inlineimage {icons/warning.png} {Show Issue Annotations Inline}.
 
     \section1 View issues
 
@@ -51,9 +51,9 @@
         \li Select the icon of an issue type.
     \endlist
 
-    To refresh the list, select \inlineimage icons/reload_gray.png.
+    To refresh the list, select \inlineimage {icons/reload_gray.png} {Reload}.
 
-    To get help, select \inlineimage icons/info.png.
+    To get help, select \inlineimage {icons/info.png} {Show Online Filter Help}.
 
     \section1 Issue types
 
@@ -65,29 +65,29 @@
         \li Type
         \li Description
     \row
-        \li \inlineimage icons/axivion-av.png
+        \li \inlineimage {icons/axivion-av.png} {AV}
         \li \uicontrol AV
         \li Architecture violations, such as hidden dependencies.
     \row
-        \li \inlineimage icons/axivion-cl.png
+        \li \inlineimage {icons/axivion-cl.png} {CL}
         \li \uicontrol CL
         \li Clones, such as duplicates and similar pieces of code.
     \row
-        \li \inlineimage icons/axivion-cy.png
+        \li \inlineimage {icons/axivion-cy.png} {CY}
         \li \uicontrol CY
         \li Cyclic dependencies, such as call, component, and include cycles.
     \row
-        \li \inlineimage icons/axivion-de.png
+        \li \inlineimage {icons/axivion-de.png} {DE}
         \li \uicontrol DE
         \li Dead entities are callable entities in the source code that cannot
             be reached from the entry points of the system under analysis.
     \row
-        \li \inlineimage icons/axivion-mv.png
+        \li \inlineimage {icons/axivion-mv.png} {MV}
         \li \uicontrol MV
         \li Violations of metrics based on lines and tokens,
             nesting, cyclomatic complexity, control flow, and so on.
     \row
-        \li \inlineimage icons/axivion-sv.png
+        \li \inlineimage {icons/axivion-sv.png} {SV}
         \li \uicontrol SV
         \li Style violations, such as deviations from the naming
             or coding conventions.
@@ -101,8 +101,10 @@
         \li The icon of an issue type.
         \li Two analyzed versions to compare. Select \uicontrol EMPTY to see
             issues from the version you select in the right-side version box.
-        \li \inlineimage icons/arrowup.png to see only added issues.
-        \li \inlineimage icons/arrowdown.png to see only removed issues.
+        \li \inlineimage {icons/arrowup.png} {Added Issues} to see only added
+            issues.
+        \li \inlineimage {icons/arrowdown.png} {Removed Issues} to see only
+            removed issues.
         \li The owner of the issue. Select \uicontrol ANYBODY to see all issues,
             \uicontrol NOBODY to see issues that are not associated with a user,
             or a user name to see issues owned by a particular user.
@@ -110,15 +112,16 @@
             match the pattern.
     \endlist
 
-    Select \inlineimage icons/filtericon.png for a column to set or clear the
-    filter expression for the column.
+    Select \inlineimage {icons/filtericon.png} {Filter} for a column to
+    set or clear the filter expression for the column.
 
     The information you see depends on the issue type. Select an issue
     to see more information about it in the \uicontrol {Issue Details} view.
     Double-click an issue to see the code that causes the issue inside the
     editor.
 
-    To show inline issues, select \inlineimage icons/location.png.
+    To show inline issues, select
+    \inlineimage {icons/location.png} {Show Issues in Editor}.
 
     \section1 Jump to issues in the editor
 

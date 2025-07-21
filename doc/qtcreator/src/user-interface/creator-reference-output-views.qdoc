@@ -26,9 +26,10 @@
     The \uicontrol Issues view filters out irrelevant output from the build tools
     and presents the issues in an organized way.
 
-    To further filter the output by type, select \inlineimage icons/filtericon.png
-    (\uicontrol {Filter Tree}) and then select a filter. See the tooltips for
-    more information about each filter.
+    To further filter the output by type, select
+    \inlineimage {icons/filtericon.png} {Filter Tree} (\uicontrol {Filter Tree})
+    and then select a filter. See the tooltips for more information about each
+    filter.
 
     \image {qtcreator-issues.webp} {Issues}
 
@@ -52,9 +53,9 @@
     select \uicontrol {Show Compile Output} in the context menu.
 
     To jump from one issue to the next or previous
-    one, select \inlineimage icons/arrowup.png
-    and \inlineimage icons/arrowdown.png
-    or select \key F6 and \key Shift+F6.
+    one, select \inlineimage {icons/arrowup.png} {Previous Item}
+    and \inlineimage {icons/arrowdown.png} {Next Item}
+    or \key F6 and \key Shift+F6.
 
     By default, a new build clears the \uicontrol Issues view. To keep
     the issues from the previous build rounds, clear \preferences >
@@ -143,17 +144,20 @@
 
     \list
         \li To clear the search results, select
-            \inlineimage icons/clean_pane_small.png (\uicontrol Clear).
-        \li To move between instances, select \inlineimage icons/arrowdown.png
-            (\uicontrol {Next Item}) and \inlineimage icons/arrowup.png
+            \inlineimage {icons/clean_pane_small.png} {Clear} (\uicontrol Clear).
+        \li To move between instances, select
+            \inlineimage {icons/arrowdown.png} {Next Item} (\uicontrol {Next Item})
+            and \inlineimage {icons/arrowup.png} {Previous Item}
             (\uicontrol {Previous Item}).
         \li To expand and collapse the search results, select
-            \inlineimage icons/qtcreator-expand.png (\uicontrol {Expand All}).
+            \inlineimage {icons/qtcreator-expand.png} {Expand All}
+            (\uicontrol {Expand All}).
         \li To filter the search results for the usage of symbols according to
             access type, such as read, write, or declaration, select
-            \inlineimage icons/filtericon.png (\uicontrol {Filter Tree}).
+            \inlineimage {icons/filtericon.png} {Filter Tree}
+            (\uicontrol {Filter Tree}).
         \li To start a new search, select
-            \inlineimage icons/qtcreator-new-search-icon.png
+            \inlineimage {icons/qtcreator-new-search-icon.png} {New Search}
             (\uicontrol {New Search}).
         \li If the active project has long paths, select \uicontrol {../}
             (\uicontrol {Show Paths in Relation to Active Project}) to show
@@ -204,8 +208,8 @@
     \list
         \li Select \preferences > \uicontrol {Build & Run} >
             \uicontrol {Application Output}.
-        \li Select the \inlineimage icons/settings.png
-            (\uicontrol {Open Settings Page}) button.
+        \li Select \inlineimage {icons/settings.png} {Configure}
+            (\uicontrol {Configure}) in \uicontrol {Application Output}.
     \endlist
 
     \image {qtcreator-preferences-application-output.webp} {Application Output tab in Build & Run preferences}
@@ -257,8 +261,8 @@
         \li Open the preferences:
             \list
                 \li In the \uicontrol {Compile Output} view,
-                    select \inlineimage icons/settings.png
-                    (\uicontrol {Open Settings Page}).
+                    select \inlineimage {icons/settings.png} {Configure}
+                    (\uicontrol {Configure}).
                 \li Select \preferences > \uicontrol {Build & Run} >
                     \uicontrol {Compile Output}.
             \endlist

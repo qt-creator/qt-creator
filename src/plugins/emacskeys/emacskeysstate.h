@@ -5,9 +5,7 @@
 
 #include <QObject>
 
-QT_BEGIN_NAMESPACE
-class QPlainTextEdit;
-QT_END_NAMESPACE
+namespace Utils { class PlainTextEdit; }
 
 namespace EmacsKeys {
 namespace Internal {
@@ -22,7 +20,7 @@ enum EmacsKeysAction {
 class EmacsKeysState : public QObject
 {
 public:
-    EmacsKeysState(QPlainTextEdit *edit);
+    EmacsKeysState(Utils::PlainTextEdit *edit);
     ~EmacsKeysState() override;
     void setLastAction(EmacsKeysAction action);
     void beginOwnAction() { m_ignore3rdParty = true; }
@@ -43,7 +41,7 @@ private:
     bool m_ignore3rdParty;
     int m_mark;
     EmacsKeysAction m_lastAction;
-    QPlainTextEdit *m_editorWidget;
+    Utils::PlainTextEdit *m_editorWidget;
 };
 
 } // namespace Internal
