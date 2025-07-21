@@ -258,17 +258,6 @@ static CompilerArgs splitArgs(const QStringList &args)
     return splited;
 }
 
-static QStringList toAbsolutePath(const FilePath &refPath, QStringList &pathList)
-{
-    QStringList allAbs;
-    std::transform(
-        std::cbegin(pathList),
-        std::cend(pathList),
-        std::back_inserter(allAbs),
-        [refPath](const QString &path) { return refPath.resolvePath(path).toUrlishString(); });
-    return allAbs;
-}
-
 MesonProjectParser::MesonProjectParser(const Id &meson, const Environment &env, Project *project)
     : m_env{env}
     , m_meson{meson}
@@ -428,7 +417,7 @@ RawProjectPart MesonProjectParser::buildRawPart(
     part.setFiles(FilePaths::fromStrings(sources.sources + sources.generatedSources));
     CompilerArgs flags = splitArgs(sources.parameters);
     part.setMacros(flags.macros);
-    part.setIncludePaths(toAbsolutePath(m_buildDir, flags.includePaths));
+    part.setIncludePaths(FilePaths::resolvePaths(m_buildDir, flags.includePaths));
     part.setProjectFileLocation(FilePath::fromUserInput(target.definedIn));
     if (sources.language == "cpp")
         part.setFlagsForCxx({cxxToolchain, flags.args, {}});

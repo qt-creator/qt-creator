@@ -62,7 +62,7 @@ public:
                   const GetMimeType &getMimeType = {});
     static HeaderPath frameworkDetectionHeuristic(const HeaderPath &header);
     void setHeaderPaths(const HeaderPaths &headerPaths);
-    void setIncludePaths(const QStringList &includePaths);
+    void setIncludePaths(const Utils::FilePaths &includePaths);
     void setPreCompiledHeaders(const Utils::FilePaths &preCompiledHeaders);
     void setIncludedFiles(const Utils::FilePaths &files);
 

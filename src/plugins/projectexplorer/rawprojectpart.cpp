@@ -103,9 +103,9 @@ void RawProjectPart::setHeaderPaths(const HeaderPaths &headerPaths)
     this->headerPaths = headerPaths;
 }
 
-void RawProjectPart::setIncludePaths(const QStringList &includePaths)
+void RawProjectPart::setIncludePaths(const FilePaths &includePaths)
 {
-    this->headerPaths = Utils::transform<QList>(includePaths, [](const QString &path) {
+    this->headerPaths = Utils::transform<QList>(includePaths, [](const FilePath &path) {
         return RawProjectPart::frameworkDetectionHeuristic(HeaderPath::makeUser(path));
     });
 }

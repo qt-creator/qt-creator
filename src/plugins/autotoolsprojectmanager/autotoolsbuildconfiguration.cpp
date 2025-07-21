@@ -100,19 +100,21 @@ void AutotoolsBuildSystem::triggerParsing()
     m_parserRunner.start(recipe);
 }
 
-static QStringList filterIncludes(const QString &absSrc, const QString &absBuild,
-                                  const QStringList &in)
+static FilePaths filterIncludes(const FilePath &absSrc, const FilePath &absBuild,
+                                const QStringList &in)
 {
-    QStringList result;
+    QTC_CHECK(absSrc.isSameDevice(absBuild));
+
+    FilePaths result;
     for (const QString &i : in) {
         QString out = i;
-        out.replace(QLatin1String("$(top_srcdir)"), absSrc);
-        out.replace(QLatin1String("$(abs_top_srcdir)"), absSrc);
+        out.replace(QLatin1String("$(top_srcdir)"), absSrc.path());
+        out.replace(QLatin1String("$(abs_top_srcdir)"), absSrc.path());
 
-        out.replace(QLatin1String("$(top_builddir)"), absBuild);
-        out.replace(QLatin1String("$(abs_top_builddir)"), absBuild);
+        out.replace(QLatin1String("$(top_builddir)"), absBuild.path());
+        out.replace(QLatin1String("$(abs_top_builddir)"), absBuild.path());
 
-        result << out;
+        result << absSrc.withNewPath(out).cleanPath();
     }
     return result;
 }
@@ -169,10 +171,10 @@ void AutotoolsBuildSystem::makefileParsingFinished(const MakefileParserOutputDat
     rpp.setFlagsForC({kitInfo.cToolchain, cflags, includeFileBaseDir});
     rpp.setFlagsForCxx({kitInfo.cxxToolchain, cxxflags, includeFileBaseDir});
 
-    const QString absSrc = project()->projectDirectory().path();
+    const FilePath absSrc = project()->projectDirectory();
     BuildConfiguration *bc = target()->activeBuildConfiguration();
 
-    const QString absBuild = bc ? bc->buildDirectory().path() : QString();
+    const FilePath absBuild = bc ? bc->buildDirectory() : FilePath();
 
     rpp.setIncludePaths(filterIncludes(absSrc, absBuild, outputData.m_includePaths));
     rpp.setMacros(outputData.m_macros);
