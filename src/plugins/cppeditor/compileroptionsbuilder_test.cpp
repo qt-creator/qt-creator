@@ -69,9 +69,11 @@ public:
     QStringList flags;
     Utils::Id toolchainType = Constants::CLANG_TOOLCHAIN_TYPEID;
     QString targetTriple = "x86_64-apple-darwin10";
-    HeaderPaths headerPaths{builtIn("/tmp/builtin_path"),
-                HeaderPath::makeSystem("/tmp/system_path"),
-                HeaderPath::makeUser("/tmp/path")};
+    HeaderPaths headerPaths{
+        builtIn("/tmp/builtin_path"),
+        HeaderPath::makeSystem(Utils::FilePath("/tmp/system_path")),
+        HeaderPath::makeUser(Utils::FilePath("/tmp/path"))
+    };
     Utils::LanguageVersion languageVersion = Utils::LanguageVersion::CXX17;
     Utils::LanguageExtensions languageExtensions;
     Macros toolchainMacros{

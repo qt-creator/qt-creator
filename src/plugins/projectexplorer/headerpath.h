@@ -24,7 +24,6 @@ public:
     HeaderPath() = default;
     HeaderPath(const QString &path, HeaderPathType type)
         : path(QDir::fromNativeSeparators(path)), type(type) { }
-    HeaderPath(const char *path, HeaderPathType type) : HeaderPath(QLatin1String(path), type) {}
     HeaderPath(const Utils::FilePath &path, HeaderPathType type)
         : HeaderPath(path.path(), type)
     {}
