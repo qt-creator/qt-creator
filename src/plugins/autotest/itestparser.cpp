@@ -16,7 +16,7 @@ using namespace Utils;
 
 namespace Autotest {
 
-using LookupInfo = QPair<QString, QString>;
+using LookupInfo = QPair<FilePath, QString>;
 static QHash<LookupInfo, bool> s_pchLookupCache;
 Q_GLOBAL_STATIC(QMutex, s_cacheMutex);
 
@@ -65,14 +65,13 @@ bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
         = CppEditor::CppModelManager::projectPart(filePath);
     if (projectParts.isEmpty())
         return false;
-    const QStringList precompiledHeaders = projectParts.first()->precompiledHeaders;
-    auto headerContains = [&](const QString &header){
+    const FilePaths precompiledHeaders = projectParts.first()->precompiledHeaders;
+    auto headerContains = [&](const FilePath &header){
         LookupInfo info{header, cacheString};
         auto it = s_pchLookupCache.find(info);
         if (it == s_pchLookupCache.end()) {
             it = s_pchLookupCache.insert(info,
-                         Utils::anyOf(snapshot.allIncludesForDocument(FilePath::fromString(header)),
-                                      checker));
+                         Utils::anyOf(snapshot.allIncludesForDocument(header), checker));
         }
         return it.value();
     };

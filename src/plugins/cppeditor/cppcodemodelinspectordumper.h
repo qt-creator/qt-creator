@@ -35,7 +35,6 @@ struct Utils
     static QString toString(const ProjectExplorer::Abi &abi);
     static QString partsForFile(const ::Utils::FilePath &filePath);
     static QString unresolvedFileNameWithDelimiters(const CPlusPlus::Document::Include &include);
-    static QString pathListToString(const QStringList &pathList);
     static QString pathListToString(const ProjectExplorer::HeaderPaths &pathList);
     static QList<CPlusPlus::Document::Ptr> snapshotToList(const CPlusPlus::Snapshot &snapshot);
 };

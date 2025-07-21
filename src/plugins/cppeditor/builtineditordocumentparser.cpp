@@ -87,9 +87,9 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
             configFile += ProjectPart::readProjectConfigFile(part->projectConfigFile);
         headerPaths = part->headerPaths;
         projectConfigFile = part->projectConfigFile;
-        includedFiles = FilePaths::fromStrings(part->includedFiles);
+        includedFiles = part->includedFiles;
         if (baseConfig.usePrecompiledHeaders)
-            precompiledHeaders = FilePaths::fromStrings(part->precompiledHeaders);
+            precompiledHeaders = part->precompiledHeaders;
         features = part->languageFeatures;
     }
 

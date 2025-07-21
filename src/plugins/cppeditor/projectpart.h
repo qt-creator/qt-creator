@@ -69,8 +69,8 @@ public:
 
     // Files
     const ProjectFiles files;
-    const QStringList includedFiles;
-    const QStringList precompiledHeaders;
+    const Utils::FilePaths includedFiles;
+    const Utils::FilePaths precompiledHeaders;
     const ProjectExplorer::HeaderPaths headerPaths;
 
     // Macros

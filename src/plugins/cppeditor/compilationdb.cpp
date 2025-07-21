@@ -87,10 +87,9 @@ QJsonArray clangOptionsForFile(const ProjectFile &file, const ProjectPart &proje
         fileKind = projectPart.languageVersion <= LanguageVersion::LatestC
                        ? ProjectFile::CHeader : ProjectFile::CXXHeader;
     }
-    if (usePch == UsePrecompiledHeaders::Yes
-        && projectPart.precompiledHeaders.contains(file.path.path())) {
+    if (usePch == UsePrecompiledHeaders::Yes && projectPart.precompiledHeaders.contains(file.path))
         usePch = UsePrecompiledHeaders::No;
-    }
+
     optionsBuilder.updateFileLanguage(fileKind);
     optionsBuilder.addPrecompiledHeaderOptions(usePch);
     const QJsonArray specificOptions = QJsonArray::fromStringList(optionsBuilder.options());

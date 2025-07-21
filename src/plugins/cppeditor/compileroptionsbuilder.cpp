@@ -374,12 +374,12 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
     }
 }
 
-void CompilerOptionsBuilder::addIncludeFile(const QString &file)
+void CompilerOptionsBuilder::addIncludeFile(const FilePath &file)
 {
-    if (QFileInfo::exists(file)) {
+    if (file.exists()) {
         add({isClStyle() ? QLatin1String(includeFileOptionCl)
                          : QLatin1String(includeFileOptionGcc),
-             QDir::toNativeSeparators(file)});
+             file.nativePath()});
     }
 }
 
@@ -394,9 +394,9 @@ void CompilerOptionsBuilder::removeUnsupportedCpuFlags()
     }
 }
 
-void CompilerOptionsBuilder::addIncludedFiles(const QStringList &files)
+void CompilerOptionsBuilder::addIncludedFiles(const FilePaths &files)
 {
-    for (const QString &file : files) {
+    for (const FilePath &file : files) {
         if (m_projectPart.precompiledHeaders.contains(file))
             continue;
 
@@ -409,9 +409,8 @@ void CompilerOptionsBuilder::addPrecompiledHeaderOptions(UsePrecompiledHeaders u
     if (usePrecompiledHeaders == UsePrecompiledHeaders::No)
         return;
 
-    for (const QString &pchFile : m_projectPart.precompiledHeaders) {
+    for (const FilePath &pchFile : m_projectPart.precompiledHeaders)
         addIncludeFile(pchFile);
-    }
 }
 
 void CompilerOptionsBuilder::addProjectMacros()

@@ -1950,7 +1950,7 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Const
 
     const QString precompiledHeaders = part->precompiledHeaders.isEmpty()
             ? QString::fromLatin1("<None>")
-            : part->precompiledHeaders.join(',');
+            : part->precompiledHeaders.toUserOutput(",");
 
     KeyValueModel::Table table = {
         {QString::fromLatin1("Project Part Name"), part->displayName},
@@ -1996,8 +1996,7 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Const
         partTabName(ProjectPartHeaderPathsTab, part->headerPaths.size()));
 
     // Precompiled Headers
-    m_partPrecompiledHeadersEdit->setPlainText(
-                CMI::Utils::pathListToString(part->precompiledHeaders));
+    m_partPrecompiledHeadersEdit->setPlainText(part->precompiledHeaders.toUserOutput("\n"));
     m_projectPartTab->setTabText(ProjectPartPrecompiledHeadersTab,
         partTabName(ProjectPartPrecompiledHeadersTab, part->precompiledHeaders.size()));
 }
