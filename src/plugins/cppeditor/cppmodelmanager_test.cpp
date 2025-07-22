@@ -61,23 +61,22 @@ class MyTestDataDir : public Core::Tests::TestDataDir
 {
 public:
     explicit MyTestDataDir(const QString &dir)
-        : TestDataDir(_(SRCDIR "/../../../tests/cppmodelmanager/") + dir)
+        : TestDataDir(SRCDIR "/../../../tests/cppmodelmanager/" + dir)
     {}
 
     FilePath includeDir(bool cleaned = true) const
-    { return FilePath::fromUserInput(directory(_("include"), cleaned)); }
+    {
+        return directoryPath("include", cleaned);
+    }
 
     FilePath frameworksDir(bool cleaned = true) const
-    { return FilePath::fromUserInput(directory(_("frameworks"), cleaned)); }
+    {
+        return directoryPath("frameworks", cleaned);
+    }
 
     FilePath fileFromSourcesDir(const QString &fileName) const
     {
-        return FilePath::fromString(directory(_("sources"))).pathAppended(fileName);
-    }
-
-    FilePath filePath(const QString &p) const
-    {
-        return FilePath::fromString(TestDataDir::file(p));
+        return directoryPath("sources").pathAppended(fileName);
     }
 };
 
