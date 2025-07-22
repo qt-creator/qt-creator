@@ -371,6 +371,9 @@ void KitManager::saveKits()
     int count = 0;
     const QList<Kit *> kits = KitManager::kits();
     for (Kit *k : kits) {
+        if (k->detectionSource().isTemporary())
+            continue;
+
         Store tmp = k->toMap();
         if (tmp.isEmpty())
             continue;
