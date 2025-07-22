@@ -18,6 +18,10 @@ QtcPlugin {
     Depends { name: "TerminalLib" }
     Depends { name: "qtkeychain" }
 
+    pluginTestDepends: [
+        "TextEditor"
+    ]
+
     cpp.dynamicLibraries: {
         if (qbs.targetOS.contains("windows"))
             return ["ole32", "user32"]
@@ -271,6 +275,7 @@ QtcPlugin {
         files: [
             "testdatadir.cpp",
             "testdatadir.h",
+            "editormanager/editormanager_test.cpp",
             "locator/locatorfiltertest.cpp",
             "locator/locatorfiltertest.h",
             "locator/locator_test.cpp"

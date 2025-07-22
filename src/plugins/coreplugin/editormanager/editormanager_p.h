@@ -41,6 +41,10 @@ class OpenEditorsWindow;
 
 enum MakeWritableResult { OpenedWithVersionControl, MadeWritable, SavedAs, Failed };
 
+#ifdef WITH_TESTS
+QObject *createTabbedEditorTest();
+#endif
+
 class EditorManagerPrivate : public QObject
 {
     Q_OBJECT

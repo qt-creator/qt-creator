@@ -68,6 +68,8 @@ public:
     {
         IEditor *editor = nullptr;
         DocumentModel::Entry *entry = nullptr;
+
+        bool operator==(const TabData &) const = default;
     };
 
     explicit EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent = nullptr);

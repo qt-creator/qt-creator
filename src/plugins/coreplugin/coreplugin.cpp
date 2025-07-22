@@ -22,6 +22,7 @@
 #include "actionmanager/actionmanager.h"
 #include "coreconstants.h"
 #include "documentmanager.h"
+#include "editormanager/editormanager_p.h"
 #include "fileutils.h"
 #include "find/findplugin.h"
 #include "locator/locator.h"
@@ -409,7 +410,8 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
 #endif
 
 #ifdef WITH_TESTS
-    addTestCreator(&createVcsManagerTest);
+    addTestCreator(createVcsManagerTest);
+    addTestCreator(createTabbedEditorTest);
 #endif
 
     return ResultOk;
