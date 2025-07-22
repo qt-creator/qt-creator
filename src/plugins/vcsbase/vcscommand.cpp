@@ -55,7 +55,7 @@ static ProcessTask vcsProcessTaskHelper(
 {
     const auto onDone = [data, resultStorage](const Process &process, DoneWith doneWith) {
         if (data.flags & RunFlags::ExpectRepoChanges)
-            GlobalFileChangeBlocker::instance()->forceBlocked(true);
+            GlobalFileChangeBlocker::instance()->forceBlocked(false);
         ProcessResult result;
         if (doneWith == DoneWith::Cancel) {
             result = ProcessResult::Canceled;
