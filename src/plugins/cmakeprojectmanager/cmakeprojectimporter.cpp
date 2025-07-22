@@ -287,7 +287,7 @@ static QVariant findOrRegisterDebugger(
         debugger.setCommand(debuggerPath);
         debugger.setUnexpandedDisplayName(
             mainName.arg(preset.name).arg(debuggerPath.completeBaseName()));
-        debugger.setAutoDetected(false);
+        debugger.setDetectionSource(DetectionSource::Manual);
         QString errorMessage;
         debugger.reinitializeFromFile(&errorMessage, &env);
         if (!errorMessage.isEmpty())

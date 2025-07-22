@@ -7,6 +7,7 @@
 #include "debuggerconstants.h"
 
 #include <projectexplorer/abi.h>
+#include <projectexplorer/kitaspect.h>
 
 #include <utils/filepath.h>
 #include <utils/environment.h>
@@ -41,6 +42,8 @@ public:
         QString version;
     };
 
+    static const ProjectExplorer::DetectionSource genericDetectionSource;
+
     DebuggerItem() = default;
     DebuggerItem(const Utils::Store &data);
 
@@ -63,8 +66,8 @@ public:
     Utils::FilePath command() const { return m_command; }
     void setCommand(const Utils::FilePath &command);
 
-    bool isAutoDetected() const { return m_isAutoDetected; }
-    void setAutoDetected(bool isAutoDetected);
+    [[deprecated("Use getDetectionSource().isAutoDetected() instead")]] bool isAutoDetected() const;
+    [[deprecated("Use setDetectionSource() instead")]] void setAutoDetected(bool isAutoDetected);
 
     QString version() const;
     void setVersion(const QString &version);
@@ -94,11 +97,14 @@ public:
     Utils::FilePath workingDirectory() const { return m_workingDirectory; }
     void setWorkingDirectory(const Utils::FilePath &workingPath) { m_workingDirectory = workingPath; }
 
-    QString detectionSource() const { return m_detectionSource; }
-    void setDetectionSource(const QString &source) { m_detectionSource = source; }
+    [[deprecated("Use setDetectionSource(DetectionSource) instead")]] void setDetectionSource(
+        const QString &source);
+
+    // Note: the earlier returned QString is the same as DetectionSource::id now
+    ProjectExplorer::DetectionSource detectionSource() const;
+    void setDetectionSource(const ProjectExplorer::DetectionSource &source);
 
     bool isGeneric() const;
-    void setGeneric(bool on);
 
     static bool addAndroidLldbPythonEnv(const Utils::FilePath &lldbCmd, Utils::Environment &env);
     static bool fixupAndroidLlldbPythonDylib(const Utils::FilePath &lldbCmd);
@@ -112,9 +118,8 @@ private:
     TechnicalData m_technicalData;
     Utils::FilePath m_command;
     Utils::FilePath m_workingDirectory;
-    bool m_isAutoDetected = false;
+    ProjectExplorer::DetectionSource m_detectionSource;
     QDateTime m_lastModified;
-    QString m_detectionSource;
 
     friend class Internal::DebuggerConfigWidget;
     friend class Internal::DebuggerItemConfigWidget;

@@ -55,25 +55,24 @@ using namespace Utils;
 static DebuggerItem makeAutoDetectedDebuggerItem(
     const FilePath &command,
     const DebuggerItem::TechnicalData &technicalData,
-    const QString &detectionSource)
+    const DetectionSource &detectionSource)
 {
     DebuggerItem item;
     item.createId();
     item.setCommand(command);
     item.setDetectionSource(detectionSource);
-    item.setAutoDetected(true);
     item.setEngineType(technicalData.engineType);
     item.setAbis(technicalData.abis);
     item.setVersion(technicalData.version);
-    const QString name = detectionSource.isEmpty() ? Tr::tr("System %1 at %2")
-                                                   : Tr::tr("Detected %1 at %2");
+    const QString name = detectionSource.id.isEmpty() ? Tr::tr("System %1 at %2")
+                                                      : Tr::tr("Detected %1 at %2");
     item.setUnexpandedDisplayName(name.arg(item.engineTypeName()).arg(command.toUserOutput()));
     item.setLastModified(command.lastModified());
     return item;
 }
 
 static Result<DebuggerItem> makeAutoDetectedDebuggerItem(
-    const FilePath &command, const QString &detectionSource)
+    const FilePath &command, const DetectionSource &detectionSource)
 {
     Result<DebuggerItem::TechnicalData> technicalData
         = DebuggerItem::TechnicalData::extract(command, {});
@@ -123,8 +122,7 @@ private:
     QLineEdit *m_displayNameLineEdit;
     QLabel *m_cdbLabel;
     PathChooser *m_binaryChooser;
-    bool m_autodetected = false;
-    bool m_generic = false;
+    DetectionSource m_detectionSource;
     DebuggerEngineType m_engineType = NoEngineType;
     QVariant m_id;
 
@@ -206,7 +204,7 @@ public:
 
     void addDebugger(const DebuggerItem &item);
     QVariant registerDebugger(const DebuggerItem &item);
-    void readDebuggers(const FilePath &fileName, bool isSystem);
+    void readDebuggers(const FilePath &fileName, bool isSdk);
     void autoDetectCdbDebuggers();
     void autoDetectGdbOrLldbDebuggers(const FilePaths &searchPaths,
                                       const QString &detectionSource,
@@ -255,8 +253,7 @@ DebuggerItemModel::DebuggerItemModel()
     rootItem()->appendChild(new StaticTreeItem(ProjectExplorer::Constants::msgManual()));
 
     DebuggerItem genericGdb(QVariant("gdb"));
-    genericGdb.setAutoDetected(true);
-    genericGdb.setGeneric(true);
+    genericGdb.setDetectionSource(DebuggerItem::genericDetectionSource);
     genericGdb.setEngineType(GdbEngineType);
     genericGdb.setAbi(Abi());
     genericGdb.setCommand("gdb");
@@ -264,9 +261,8 @@ DebuggerItemModel::DebuggerItemModel()
     generic->appendChild(new DebuggerTreeItem(genericGdb, false));
 
     DebuggerItem genericLldb(QVariant("lldb"));
-    genericLldb.setAutoDetected(true);
+    genericGdb.setDetectionSource(DebuggerItem::genericDetectionSource);
     genericLldb.setEngineType(LldbEngineType);
-    genericLldb.setGeneric(true);
     genericLldb.setAbi(Abi());
     genericLldb.setCommand("lldb");
     genericLldb.setUnexpandedDisplayName(Tr::tr("LLDB from PATH on Build Device"));
@@ -279,7 +275,13 @@ DebuggerItemModel::DebuggerItemModel()
 DebuggerTreeItem *DebuggerItemModel::addDebuggerItem(const DebuggerItem &item, bool changed)
 {
     QTC_ASSERT(item.id().isValid(), return {});
-    int group = item.isGeneric() ? Generic : (item.isAutoDetected() ? AutoDetected : Manual);
+    const int group = [&]{
+        if (item.isGeneric())
+            return Generic;
+        if (item.detectionSource().isAutoDetected())
+            return AutoDetected;
+        return Manual;
+    }();
     auto treeItem = new DebuggerTreeItem(item, changed);
     rootItem()->childAt(group)->appendChild(treeItem);
     return treeItem;
@@ -435,7 +437,7 @@ DebuggerItem DebuggerItemConfigWidget::item() const
     item.setUnexpandedDisplayName(m_displayNameLineEdit->text());
     item.setCommand(m_binaryChooser->filePath());
     item.setWorkingDirectory(m_workingDirectoryChooser->filePath());
-    item.setAutoDetected(m_autodetected);
+    item.setDetectionSource(m_detectionSource);
     Abis abiList;
     const QStringList abis = m_abis->text().split(noAbi);
     for (const QString &a : abis) {
@@ -446,7 +448,6 @@ DebuggerItem DebuggerItemConfigWidget::item() const
     item.setAbis(abiList);
     item.setVersion(m_version->text());
     item.setEngineType(m_engineType);
-    item.setGeneric(m_generic);
     return item;
 }
 
@@ -468,19 +469,19 @@ void DebuggerItemConfigWidget::load(const DebuggerItem *item)
         return;
 
     // Set values:
-    m_generic = item->isGeneric();
-    m_autodetected = item->isAutoDetected();
+    m_detectionSource = item->detectionSource();
 
-    m_displayNameLineEdit->setEnabled(!item->isAutoDetected());
+    m_displayNameLineEdit->setEnabled(!item->detectionSource().isAutoDetected());
     m_displayNameLineEdit->setText(item->unexpandedDisplayName());
 
     m_type->setText(item->engineTypeName());
 
-    m_binaryChooser->setReadOnly(item->isAutoDetected());
+    m_binaryChooser->setReadOnly(item->detectionSource().isAutoDetected());
     m_binaryChooser->setFilePath(item->command());
-    m_binaryChooser->setExpectedKind(m_generic ? PathChooser::Any : PathChooser::ExistingCommand);
+    m_binaryChooser->setExpectedKind(
+        item->isGeneric() ? PathChooser::Any : PathChooser::ExistingCommand);
 
-    m_workingDirectoryChooser->setReadOnly(item->isAutoDetected());
+    m_workingDirectoryChooser->setReadOnly(item->detectionSource().isAutoDetected());
     m_workingDirectoryChooser->setFilePath(item->workingDirectory());
 
     QString text;
@@ -514,7 +515,7 @@ void DebuggerItemConfigWidget::binaryPathHasChanged()
     if (!m_id.isValid())
         return;
 
-    if (!m_generic) {
+    if (m_detectionSource != DebuggerItem::genericDetectionSource) {
         m_updateWatcher.cancel();
 
         if (m_binaryChooser->filePath().isExecutableFile()) {
@@ -600,7 +601,7 @@ void DebuggerItemModel::autoDetectCdbDebuggers()
             continue;
         DebuggerItem item;
         item.createId();
-        item.setAutoDetected(true);
+        item.setDetectionSource(DetectionSource::FromSystem);
         item.setAbis(Abi::abisOfBinary(cdb));
         item.setCommand(cdb);
         item.setEngineType(CdbEngineType);
@@ -642,10 +643,11 @@ static Utils::FilePaths searchGdbPathsFromRegistry()
     return searchPaths;
 }
 
-void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPaths,
-                                                     const QString &detectionSource,
-                                                     QString *logMessage)
+void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(
+    const FilePaths &searchPaths, const QString &detectionSourceId, QString *logMessage)
 {
+    const DetectionSource detectionSource{DetectionSource::FromSystem, detectionSourceId};
+
     QStringList filters
         = {"gdb-i686-pc-mingw32",
            "gdb-i686-pc-mingw32.exe",
@@ -812,7 +814,7 @@ void DebuggerItemModel::autoDetectUvscDebuggers()
 
         DebuggerItem item;
         item.createId();
-        item.setAutoDetected(true);
+        item.setDetectionSource(DetectionSource::FromSystem);
         item.setCommand(uVision);
         item.setVersion(uVisionVersion);
         item.setEngineType(UvscEngineType);
@@ -837,10 +839,10 @@ QVariant DebuggerItemModel::registerDebugger(const DebuggerItem &item)
     DebuggerTreeItem *titem = findItemAtLevel<2>([item](DebuggerTreeItem *titem) {
         const DebuggerItem &d = titem->m_item;
         return d.command() == item.command()
-                && d.isAutoDetected() == item.isAutoDetected()
-                && d.engineType() == item.engineType()
-                && d.unexpandedDisplayName() == item.unexpandedDisplayName()
-                && d.abis() == item.abis();
+               && d.detectionSource().isAutoDetected() == item.detectionSource().isAutoDetected()
+               && d.engineType() == item.engineType()
+               && d.unexpandedDisplayName() == item.unexpandedDisplayName()
+               && d.abis() == item.abis();
     });
     if (titem)
         return titem->m_item.id();
@@ -854,7 +856,7 @@ QVariant DebuggerItemModel::registerDebugger(const DebuggerItem &item)
     return di.id();
 }
 
-void DebuggerItemModel::readDebuggers(const FilePath &fileName, bool isSystem)
+void DebuggerItemModel::readDebuggers(const FilePath &fileName, bool isSdk)
 {
     PersistentSettingsReader reader;
     if (!reader.load(fileName))
@@ -873,12 +875,12 @@ void DebuggerItemModel::readDebuggers(const FilePath &fileName, bool isSystem)
             continue;
         const Store dbMap = storeFromVariant(data.value(key));
         DebuggerItem item(dbMap);
-        if (isSystem) {
-            item.setAutoDetected(true);
+        if (isSdk) {
+            item.setDetectionSource(DetectionSource::FromSdk);
             // SDK debuggers are always considered to be up-to-date, so no need to recheck them.
         } else {
             // User settings.
-            if (item.isAutoDetected()) {
+            if (item.detectionSource().isAutoDetected()) {
                 if (!item.isValid() || item.engineType() == NoEngineType) {
                     qWarning() << QString("DebuggerItem \"%1\" (%2) read from \"%3\" dropped since it is not valid.")
                                   .arg(item.command().toUserOutput(), item.id().toString(), fileName.toUserOutput());
@@ -891,7 +893,6 @@ void DebuggerItemModel::readDebuggers(const FilePath &fileName, bool isSystem)
                     continue;
                 }
             }
-
         }
         registerDebugger(item);
     }
@@ -939,7 +940,7 @@ void DebuggerItemModel::saveDebuggers()
 Tasking::ExecutableItem autoDetectDebuggerRecipe(
     ProjectExplorer::Kit *kit,
     const Utils::FilePaths &searchPaths,
-    const QString &detectionSource,
+    const DetectionSource &detectionSource,
     const LogCallback &logCallback)
 {
     QStringList searchFilters
@@ -969,7 +970,7 @@ Tasking::ExecutableItem autoDetectDebuggerRecipe(
 
     static const auto searchDebuggers = [](QPromise<DebuggerItem> &promise,
                                            const FilePaths &searchPaths,
-                                           const QString &detectionSource,
+                                           const DetectionSource &detectionSource,
                                            const QStringList &searchFilters) {
         FilePaths suspects;
 
@@ -1007,13 +1008,13 @@ Tasking::ExecutableItem autoDetectDebuggerRecipe(
 }
 
 Tasking::ExecutableItem removeAutoDetected(
-    const QString &detectionSource, const LogCallback &logCallback)
+    const QString &detectionSourceId, const LogCallback &logCallback)
 {
-    return Tasking::Sync([detectionSource, logCallback]() {
-        const auto debuggers
-            = filtered(DebuggerItemManager::debuggers(), [detectionSource](const DebuggerItem &item) {
-                  return item.isAutoDetected() && item.detectionSource() == detectionSource;
-              });
+    return Tasking::Sync([detectionSourceId, logCallback]() {
+        const auto debuggers = filtered(
+            DebuggerItemManager::debuggers(), [detectionSourceId](const DebuggerItem &item) {
+                return item.detectionSource().id == detectionSourceId;
+            });
 
         for (const auto &debugger : debuggers) {
             logCallback(Tr::tr("Removing debugger: \"%1\"").arg(debugger.displayName()));
@@ -1042,7 +1043,8 @@ Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
             [](QPromise<Result<DebuggerItem>> &promise,
                const FilePath &command,
                const QString &detectionSource) {
-                promise.addResult(makeAutoDetectedDebuggerItem(command, detectionSource));
+                promise.addResult(makeAutoDetectedDebuggerItem(
+                    command, {DetectionSource::FromSystem, detectionSource}));
             },
             command,
             detectionSource);
@@ -1129,7 +1131,7 @@ void DebuggerItemManager::removeDetectedDebuggers(const QString &detectionSource
     QList<DebuggerTreeItem *> toBeRemoved;
 
     itemModel().forItemsAtLevel<2>([detectionSource, &toBeRemoved](DebuggerTreeItem *titem) {
-        if (titem->m_item.detectionSource() == detectionSource) {
+        if (titem->m_item.detectionSource().id == detectionSource) {
             toBeRemoved.append(titem);
             return;
         }
@@ -1152,7 +1154,7 @@ void DebuggerItemManager::listDetectedDebuggers(const QString &detectionSource, 
     QTC_ASSERT(logMessage, return);
     QStringList logMessages{Tr::tr("Debuggers:")};
     itemModel().forItemsAtLevel<2>([detectionSource, &logMessages](DebuggerTreeItem *titem) {
-        if (titem->m_item.detectionSource() == detectionSource)
+        if (titem->m_item.detectionSource().id == detectionSource)
             logMessages.append(titem->m_item.displayName());
     });
     *logMessage = logMessages.join('\n');
@@ -1267,8 +1269,7 @@ void DebuggerSettingsPageWidget::cloneDebugger()
     newItem.setCommand(item->command());
     newItem.setUnexpandedDisplayName(itemModel().uniqueDisplayName(Tr::tr("Clone of %1").arg(item->displayName())));
     newItem.reinitializeFromFile();
-    newItem.setAutoDetected(false);
-    newItem.setGeneric(item->isGeneric());
+    newItem.setDetectionSource({DetectionSource::Manual, item->detectionSource().id});
     newItem.setEngineType(item->engineType());
     auto addedItem = itemModel().addDebuggerItem(newItem, true);
     m_debuggerView->setCurrentIndex(m_sortModel->mapFromSource(itemModel().indexForItem(addedItem)));
@@ -1280,7 +1281,6 @@ void DebuggerSettingsPageWidget::addDebugger()
     item.createId();
     item.setEngineType(NoEngineType);
     item.setUnexpandedDisplayName(itemModel().uniqueDisplayName(Tr::tr("New Debugger")));
-    item.setAutoDetected(false);
     auto addedItem = itemModel().addDebuggerItem(item, true);
     m_debuggerView->setCurrentIndex(m_sortModel->mapFromSource(itemModel().indexForItem(addedItem)));
 }
@@ -1308,7 +1308,7 @@ void DebuggerSettingsPageWidget::updateButtons()
     m_itemConfigWidget->load(item);
     m_container->setVisible(item != nullptr);
     m_cloneButton->setEnabled(item && item->isValid() && item->canClone());
-    m_delButton->setEnabled(item && !item->isAutoDetected());
+    m_delButton->setEnabled(item && !item->detectionSource().isAutoDetected());
     m_delButton->setText(item && titem->m_removed ? Tr::tr("Restore") : Tr::tr("Remove"));
 }
 

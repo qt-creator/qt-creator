@@ -292,7 +292,8 @@ public:
                     && systemEnvironment.path().contains(item.command().parentDir())) {
                     level = DebuggerItem::MatchesPerfectlyInPath;
                 }
-                if (!item.detectionSource().isEmpty() && item.detectionSource() == k->detectionSource().id)
+                if (!item.detectionSource().id.isEmpty()
+                    && item.detectionSource().id == k->detectionSource().id)
                     level = DebuggerItem::MatchLevel(level + 2);
             } else if (rawId.typeId() == QMetaType::QString) {
                 // New structure.
@@ -420,7 +421,8 @@ public:
         const QString &detectionSource,
         const LogCallback &logCallback) const override
     {
-        return Internal::autoDetectDebuggerRecipe(kit, searchPaths, detectionSource, logCallback);
+        return Internal::autoDetectDebuggerRecipe(
+            kit, searchPaths, {DetectionSource::FromSystem, detectionSource}, logCallback);
     }
 
     std::optional<Tasking::ExecutableItem> removeAutoDetected(
@@ -433,7 +435,8 @@ public:
         const QString &detectionSource, const LogCallback &logCallback) const override
     {
         for (const auto &debugger : DebuggerItemManager::debuggers()) {
-            if (debugger.isAutoDetected() && debugger.detectionSource() == detectionSource)
+            if (debugger.detectionSource().isAutoDetected()
+                && debugger.detectionSource().id == detectionSource)
                 logCallback(Tr::tr("Debugger: \"%1\"").arg(debugger.displayName()));
         }
     }

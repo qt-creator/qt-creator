@@ -27,6 +27,9 @@ using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
+const DetectionSource DebuggerItem::genericDetectionSource
+    = {DetectionSource::FromSystem, "Generic"};
+
 static Result<QString> fetchVersionOutput(const FilePath &executable, Environment environment)
 {
     // CDB only understands the single-dash -version, whereas GDB and LLDB are
@@ -288,8 +291,11 @@ DebuggerItem::DebuggerItem(const Store &data)
     m_command = FilePath::fromSettings(data.value(DEBUGGER_INFORMATION_COMMAND));
     m_workingDirectory = FilePath::fromSettings(data.value(DEBUGGER_INFORMATION_WORKINGDIRECTORY));
     m_unexpandedDisplayName = data.value(DEBUGGER_INFORMATION_DISPLAYNAME).toString();
-    m_isAutoDetected = data.value(DEBUGGER_INFORMATION_AUTODETECTED, false).toBool();
-    m_detectionSource = data.value(DEBUGGER_INFORMATION_DETECTION_SOURCE).toString();
+    const bool autoDetected = data.value(DEBUGGER_INFORMATION_AUTODETECTED, false).toBool();
+    const QString detectionSourceId = data.value(DEBUGGER_INFORMATION_DETECTION_SOURCE).toString();
+    m_detectionSource
+        = {autoDetected ? DetectionSource::FromSystem : DetectionSource::Manual, detectionSourceId};
+
     m_technicalData.version = data.value(DEBUGGER_INFORMATION_VERSION).toString();
     m_technicalData.engineType = DebuggerEngineType(
         data.value(DEBUGGER_INFORMATION_ENGINETYPE, static_cast<int>(NoEngineType)).toInt());
@@ -409,14 +415,9 @@ QString DebuggerItem::engineTypeName() const
     }
 }
 
-void DebuggerItem::setGeneric(bool on)
-{
-    m_detectionSource = on ? QLatin1String("Generic") : QLatin1String();
-}
-
 bool DebuggerItem::isGeneric() const
 {
-    return m_detectionSource == "Generic";
+    return m_detectionSource.id == "Generic";
 }
 
 QStringList DebuggerItem::abiNames() const
@@ -483,7 +484,6 @@ bool DebuggerItem::operator==(const DebuggerItem &other) const
 {
     return m_id == other.m_id
             && m_unexpandedDisplayName == other.m_unexpandedDisplayName
-            && m_isAutoDetected == other.m_isAutoDetected
             && m_detectionSource == other.m_detectionSource
             && m_command == other.m_command
             && m_workingDirectory == other.m_workingDirectory;
@@ -497,8 +497,8 @@ Store DebuggerItem::toMap() const
     data.insert(DEBUGGER_INFORMATION_COMMAND, m_command.toSettings());
     data.insert(DEBUGGER_INFORMATION_WORKINGDIRECTORY, m_workingDirectory.toSettings());
     data.insert(DEBUGGER_INFORMATION_ENGINETYPE, int(m_technicalData.engineType));
-    data.insert(DEBUGGER_INFORMATION_AUTODETECTED, m_isAutoDetected);
-    data.insert(DEBUGGER_INFORMATION_DETECTION_SOURCE, m_detectionSource);
+    data.insert(DEBUGGER_INFORMATION_AUTODETECTED, m_detectionSource.isAutoDetected());
+    data.insert(DEBUGGER_INFORMATION_DETECTION_SOURCE, m_detectionSource.id);
     data.insert(DEBUGGER_INFORMATION_VERSION, m_technicalData.version);
     data.insert(DEBUGGER_INFORMATION_ABIS, abiNames());
     data.insert(DEBUGGER_INFORMATION_LASTMODIFIED, m_lastModified);
@@ -542,7 +542,8 @@ void DebuggerItem::setCommand(const FilePath &command)
 
 void DebuggerItem::setAutoDetected(bool isAutoDetected)
 {
-    m_isAutoDetected = isAutoDetected;
+    m_detectionSource.type = isAutoDetected ? ProjectExplorer::DetectionSource::FromSystem
+                                            : ProjectExplorer::DetectionSource::Manual;
 }
 
 QString DebuggerItem::version() const
@@ -633,6 +634,26 @@ DebuggerItem::MatchLevel DebuggerItem::matchTarget(const Abi &targetAbi) const
 bool DebuggerItem::isValid() const
 {
     return !m_id.isNull();
+}
+
+void DebuggerItem::setDetectionSource(const QString &source)
+{
+    m_detectionSource.id = source;
+}
+
+DetectionSource DebuggerItem::detectionSource() const
+{
+    return m_detectionSource;
+}
+
+void DebuggerItem::setDetectionSource(const ProjectExplorer::DetectionSource &source)
+{
+    m_detectionSource = source;
+}
+
+bool DebuggerItem::isAutoDetected() const
+{
+    return m_detectionSource.isAutoDetected();
 }
 
 } // namespace Debugger

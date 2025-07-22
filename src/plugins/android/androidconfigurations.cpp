@@ -1288,7 +1288,8 @@ void AndroidConfigurations::removeUnusedDebuggers()
         const bool isMultiAbiNdkGdb = debugger.command().fileName().startsWith("gdb");
         const bool hasMultiAbiName = debugger.displayName().contains("Multi-Abi");
 
-        if (debugger.isAutoDetected() && (!isChildOfNdk || (isMultiAbiNdkGdb && !hasMultiAbiName)))
+        if (debugger.detectionSource().isAutoDetected()
+            && (!isChildOfNdk || (isMultiAbiNdkGdb && !hasMultiAbiName)))
             Debugger::DebuggerItemManager::deregisterDebugger(debugger.id());
     }
 }
@@ -1325,7 +1326,7 @@ static const Debugger::DebuggerItem *existingDebugger(const FilePath &command,
     const Debugger::DebuggerItem *existing = Debugger::DebuggerItemManager::findByCommand(command);
 
     // Return existing debugger with same command
-    if (existing && existing->engineType() == type && existing->isAutoDetected())
+    if (existing && existing->engineType() == type && existing->detectionSource().isAutoDetected())
         return existing;
     return nullptr;
 }
@@ -1351,7 +1352,7 @@ static QVariant findOrRegisterDebugger(Toolchain *tc, bool customDebugger = fals
     debugger.setUnexpandedDisplayName(custom + Tr::tr("Android Debugger (%1, NDK %2)")
         .arg(getMultiOrSingleAbiString(allSupportedAbis()), AndroidConfig::ndkVersion(ndk).toString())
         + ' ' + debugger.engineTypeName());
-    debugger.setAutoDetected(true);
+    debugger.setDetectionSource(DetectionSource::FromSystem);
     debugger.reinitializeFromFile();
     return Debugger::DebuggerItemManager::registerDebugger(debugger);
 }

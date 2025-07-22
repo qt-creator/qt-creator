@@ -60,7 +60,7 @@ public:
 Tasking::ExecutableItem autoDetectDebuggerRecipe(
     ProjectExplorer::Kit *kit,
     const Utils::FilePaths &searchPaths,
-    const QString &detectionSource,
+    const ProjectExplorer::DetectionSource &detectionSource,
     const ProjectExplorer::LogCallback &logCallback);
 
 Tasking::ExecutableItem removeAutoDetected(
