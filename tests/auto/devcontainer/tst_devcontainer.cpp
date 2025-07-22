@@ -88,6 +88,7 @@ int main() {
             qWarning().noquote() << "Log:\n\n" << logMessages;
     }
 
+    void dockerCompose();
     void processInterface();
     void instanceConfigToString_data();
     void instanceConfigToString();
@@ -107,7 +108,6 @@ void tst_DevContainer::instanceConfigToString_data()
 
     DevContainer::InstanceConfig instanceConfig{
         .dockerCli = "docker",
-        .dockerComposeCli = "docker-compose",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -202,7 +202,6 @@ void tst_DevContainer::readConfig()
 
     DevContainer::InstanceConfig instanceConfig{
         .dockerCli = "docker",
-        .dockerComposeCli = "docker-compose",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -280,7 +279,6 @@ FROM alpine:latest AS test
 
     DevContainer::InstanceConfig instanceConfig{
         .dockerCli = "docker",
-        .dockerComposeCli = "docker-compose",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -313,7 +311,6 @@ void tst_DevContainer::upImage()
 
     DevContainer::InstanceConfig instanceConfig{
         .dockerCli = "docker",
-        .dockerComposeCli = "docker-compose",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -360,7 +357,6 @@ void tst_DevContainer::upWithHooks()
 
     DevContainer::InstanceConfig instanceConfig{
         .dockerCli = "docker",
-        .dockerComposeCli = "docker-compose",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -408,7 +404,6 @@ void tst_DevContainer::processInterface()
 
     DevContainer::InstanceConfig instanceConfig{
         .dockerCli = "docker",
-        .dockerComposeCli = "docker-compose",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -484,7 +479,6 @@ void tst_DevContainer::containerWorkspaceReplacers()
 
     DevContainer::InstanceConfig instanceConfig{
         .dockerCli = "docker",
-        .dockerComposeCli = "docker-compose",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
@@ -502,6 +496,92 @@ void tst_DevContainer::containerWorkspaceReplacers()
     QCOMPARE(containerConfig.workspaceFolder, "/custom/workspace/folder");
     QCOMPARE((*config).common.containerEnv.at("folder"), "/custom/workspace/folder");
     QCOMPARE((*config).common.containerEnv.at("basename"), "folder");
+}
+
+void tst_DevContainer::dockerCompose()
+{
+    static const QByteArray composeFile = R"yaml(
+version: '3.8'
+services:
+  devcontainer:
+    image: alpine:latest
+    volumes:
+      - ../..:/workspaces:cached
+    network_mode: service:db
+    command: sleep infinity
+
+  db:
+    image: postgres:latest
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+
+volumes:
+  postgres-data:
+)yaml";
+
+    static const QByteArray devcontainerJson = R"json(
+{
+    "name": "Test Compose",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "devcontainer",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
+}
+)json";
+
+    const FilePath dotDevContainerDir = tempDir / ".devcontainer";
+    QVERIFY_RESULT(dotDevContainerDir.ensureWritableDir());
+
+    const FilePath composePath = dotDevContainerDir / "docker-compose.yml";
+    QVERIFY_RESULT(composePath.writeFileContents(composeFile));
+
+    DevContainer::InstanceConfig instanceConfig{
+        .dockerCli = "docker",
+        .workspaceFolder = tempDir,
+        .configFilePath = dotDevContainerDir / "devcontainer.json",
+        .mounts = {},
+        .logFunction = logFunction};
+
+    const Utils::Result<DevContainer::Config> config
+        = DevContainer::Config::fromJson(devcontainerJson, [instanceConfig](const QJsonValue &value) {
+              return instanceConfig.jsonToString(value);
+          });
+
+    QVERIFY_RESULT(config);
+
+    std::unique_ptr<DevContainer::Instance> instance
+        = DevContainer::Instance::fromConfig(*config, instanceConfig);
+
+    DevContainer::RunningInstance runningInstance
+        = std::make_shared<DevContainer::RunningInstanceData>();
+    Utils::Result<Tasking::Group> recipe = instance->upRecipe(runningInstance);
+    QVERIFY_RESULT(recipe);
+    QCOMPARE(
+        Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
+        Tasking::DoneWith::Success);
+
+    Process process;
+    process.setProcessInterfaceCreator(
+        [&]() { return instance->createProcessInterface(runningInstance); });
+    process.setCommand({"ls", {"-lach"}});
+    process.runBlocking(std::chrono::seconds(10), EventLoopMode::On);
+
+    logFunction("Process output: " + process.cleanedStdOut().trimmed());
+    logFunction("Process error: " + process.cleanedStdErr().trimmed());
+    logFunction(process.verboseExitMessage());
+
+    QVERIFY(process.exitCode() == 0);
+
+    // Shutdown
+    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe();
+    QVERIFY_RESULT(downRecipe);
+    QCOMPARE(
+        Tasking::TaskTree::runBlocking((*downRecipe).withTimeout(recipeTimeout)),
+        Tasking::DoneWith::Success);
 }
 
 QTEST_GUILESS_MAIN(tst_DevContainer)

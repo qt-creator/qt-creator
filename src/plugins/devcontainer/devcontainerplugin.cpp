@@ -117,7 +117,6 @@ void DevContainerPlugin::onProjectAdded(Project *project)
     if (path.exists()) {
         DevContainer::InstanceConfig instanceConfig = {
             .dockerCli = "docker",
-            .dockerComposeCli = "docker-compose",
             .workspaceFolder = project->projectDirectory(),
             .configFilePath = path,
             .mounts = {},

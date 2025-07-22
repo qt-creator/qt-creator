@@ -21,6 +21,7 @@
 Q_LOGGING_CATEGORY(devcontainerlog, "devcontainer", QtWarningMsg)
 
 using namespace Utils;
+using namespace Tasking;
 
 namespace DevContainer {
 
@@ -28,8 +29,20 @@ struct InstancePrivate
 {
     Config config;
     InstanceConfig instanceConfig;
-    Tasking::TaskTree taskTree;
+    TaskTree taskTree;
 };
+
+using DynamicString = std::variant<QString, Storage<QString>, std::function<QString()>>;
+
+static QString dynamicStringToString(const DynamicString &containerId)
+{
+    return std::visit(
+        overloaded{
+            [](const QString &id) { return id; },
+            [](const Storage<QString> &id) { return *id; },
+            [](const std::function<QString()> &f) { return f(); }},
+        containerId);
+}
 
 // Generates a unique ID for the devcontainer instance based on the workspace folder
 // and config file path.
@@ -110,6 +123,7 @@ struct ContainerDetails
     QString Id;
     QString Created;
     QString Name;
+    QString Image;
 
     struct
     {
@@ -236,8 +250,6 @@ QDebug operator<<(QDebug debug, const ImageDetails &details)
     return debug;
 }
 
-using namespace Tasking;
-
 static void connectProcessToLog(
     Process &process, const InstanceConfig &instanceConfig, const QString &context)
 {
@@ -278,6 +290,13 @@ static QString containerName(const InstanceConfig &instanceConfig)
     return imageName(instanceConfig) + "-container";
 }
 
+static QString projectName(const InstanceConfig &instanceConfig)
+{
+    QRegularExpression invalidChars("[^-_a-z0-9]");
+    QString fileName = instanceConfig.workspaceFolder.fileName().toLower().remove(invalidChars);
+    return imageName(instanceConfig) + "-" + fileName;
+}
+
 static QStringList toAppPortArg(int port)
 {
     return {"-p", QString("127.0.0.1:%1:%1").arg(port)};
@@ -311,13 +330,46 @@ QStringList createAppPortArgs(std::variant<int, QString, QList<std::variant<int,
         appPort);
 }
 
-static ProcessTask inspectContainerTask(
-    Storage<ContainerDetails> containerDetails, const InstanceConfig &instanceConfig)
+static ProcessTask findContainerId(
+    Storage<QString> containerId,
+    const ComposeContainer &composeContainer,
+    const InstanceConfig &instanceConfig)
 {
-    const auto setupInspectContainer = [containerDetails, instanceConfig](Process &process) {
+    const auto setup = [composeContainer, instanceConfig](Process &process) {
+        connectProcessToLog(process, instanceConfig, "Find Container Id");
+        CommandLine cmdLine{
+            instanceConfig.dockerCli,
+            {"ps",
+             {"-q", "--no-trunc", "-a"},
+             {"--filter", "label=com.docker.compose.project=" + projectName(instanceConfig)},
+             {"--filter", "label=com.docker.compose.service=" + composeContainer.service}}};
+        process.setCommand(cmdLine);
+        process.setWorkingDirectory(instanceConfig.workspaceFolder);
+    };
+
+    const auto done = [containerId](const Process &process) -> DoneResult {
+        const QString output = process.cleanedStdOut().trimmed();
+        if (output.isEmpty()) {
+            qCWarning(devcontainerlog) << "No container found for compose service.";
+            return DoneResult::Error;
+        }
+        *containerId = output;
+        return DoneResult::Success;
+    };
+
+    return ProcessTask(setup, done);
+}
+
+static ProcessTask inspectContainerTask(
+    Storage<ContainerDetails> containerDetails,
+    const InstanceConfig &instanceConfig,
+    const DynamicString &identifier)
+{
+    const auto setupInspectContainer = [containerDetails, identifier, instanceConfig](
+                                           Process &process) {
         CommandLine inspectCmdLine{
             instanceConfig.dockerCli,
-            {"inspect", {"--type", "container"}, containerName(instanceConfig)}};
+            {"inspect", {"--type", "container"}, dynamicStringToString(identifier)}};
 
         process.setCommand(inspectCmdLine);
         process.setWorkingDirectory(instanceConfig.workspaceFolder);
@@ -347,6 +399,7 @@ static ProcessTask inspectContainerTask(
         details.Id = json.value("Id").toString();
         details.Created = json.value("Created").toString();
         details.Name = json.value("Name").toString().mid(1); // Remove leading '/'
+        details.Image = json.value("Image").toString();
 
         QJsonObject stateObj = json.value("State").toObject();
         details.State.Status = stateObj.value("Status").toString();
@@ -451,14 +504,21 @@ static ProcessTask inspectContainerTask(
     return ProcessTask{setupInspectContainer, doneInspectContainer};
 }
 
+static ProcessTask inspectContainerTask(
+    Storage<ContainerDetails> containerDetails, const InstanceConfig &instanceConfig)
+{
+    return inspectContainerTask(containerDetails, instanceConfig, containerName(instanceConfig));
+}
+
 static ProcessTask inspectImageTask(
     Storage<ImageDetails> imageDetails,
     const InstanceConfig &instanceConfig,
-    const QString &imageName)
+    const DynamicString &imageName)
 {
     const auto setupInspectImage = [imageDetails, instanceConfig, imageName](Process &process) {
-        CommandLine
-            inspectCmdLine{instanceConfig.dockerCli, {"inspect", {"--type", "image"}, imageName}};
+        CommandLine inspectCmdLine{
+            instanceConfig.dockerCli,
+            {"inspect", {"--type", "image"}, dynamicStringToString(imageName)}};
 
         process.setCommand(inspectCmdLine);
         process.setWorkingDirectory(instanceConfig.workspaceFolder);
@@ -692,14 +752,16 @@ static QString containerUser(const ContainerDetails &containerDetails)
 static ExecutableItem execInContainerTask(
     const QString &logPrefix,
     const InstanceConfig &instanceConfig,
+    const DynamicString &containerId,
     const std::variant<std::function<QString()>, std::function<CommandLine()>, CommandLine, QString>
         &cmdLine,
     const ProcessTask::TaskDoneHandler &doneHandler)
 {
-    const auto setupExec = [instanceConfig, cmdLine, logPrefix](Process &process) {
+    const auto setupExec = [instanceConfig, containerId, cmdLine, logPrefix](Process &process) {
         connectProcessToLog(process, instanceConfig, logPrefix);
 
-        CommandLine execCmdLine{instanceConfig.dockerCli, {"exec", containerName(instanceConfig)}};
+        CommandLine
+            execCmdLine{instanceConfig.dockerCli, {"exec", dynamicStringToString(containerId)}};
         if (std::holds_alternative<CommandLine>(cmdLine)) {
             execCmdLine.addCommandLineAsArgs(std::get<CommandLine>(cmdLine));
         } else if (std::holds_alternative<QString>(cmdLine)) {
@@ -736,7 +798,8 @@ static ExecutableItem execInContainerTask(
 static ExecutableItem probeUserEnvTask(
     Storage<RunningContainerDetails> containerDetails,
     const DevContainerCommon &commonConfig,
-    const InstanceConfig &instanceConfig)
+    const InstanceConfig &instanceConfig,
+    const DynamicString &containerId)
 {
     if (commonConfig.userEnvProbe == UserEnvProbe::None)
         return Group{};
@@ -752,6 +815,7 @@ static ExecutableItem probeUserEnvTask(
     return execInContainerTask(
         "Probe User Environment",
         instanceConfig,
+        containerId,
         [containerDetails, shellArg]() -> CommandLine {
             return {FilePath::fromUserInput(containerDetails->userShell), {shellArg, "printenv"}};
         },
@@ -808,11 +872,13 @@ static ExecutableItem runningContainerDetailsTask(
     Storage<ContainerDetails> containerDetails,
     Storage<RunningContainerDetails> runningDetails,
     const DevContainerCommon &commonConfig,
-    const InstanceConfig &instanceConfig)
+    const InstanceConfig &instanceConfig,
+    const DynamicString &containerId)
 {
     const ExecutableItem idTask = execInContainerTask(
         "Get Running Container User",
         instanceConfig,
+        containerId,
         CommandLine{"id", {"-un"}},
         [runningDetails](const Process &process, DoneWith doneWith) -> DoneResult {
             if (doneWith == DoneWith::Error) {
@@ -830,6 +896,7 @@ static ExecutableItem runningContainerDetailsTask(
     const ExecutableItem shellTask = execInContainerTask(
         "Get Running Container User Shell",
         instanceConfig,
+        containerId,
         [containerDetails, runningDetails]() -> CommandLine {
             const QString userName = containerUser(*containerDetails);
             QString userEscapedForShell = userName;
@@ -883,7 +950,10 @@ static ExecutableItem runningContainerDetailsTask(
             return DoneResult::Success;
         });
 
-    return Group{idTask, shellTask, probeUserEnvTask(runningDetails, commonConfig, instanceConfig)};
+    return Group{
+        idTask,
+        shellTask,
+        probeUserEnvTask(runningDetails, commonConfig, instanceConfig, containerId)};
 }
 
 static ProcessTask lifecycleHookTask(
@@ -1179,14 +1249,16 @@ static ExecutableItem startContainerRecipe(const InstanceConfig &instanceConfig)
 static Sync fillRunningInstance(
     const RunningInstance &runningInstance,
     const Storage<RunningContainerDetails> &runningDetails,
-    const Storage<ImageDetails> &imageDetails)
+    const Storage<ImageDetails> &imageDetails,
+    const DynamicString &containerId)
 {
-    return Sync([runningInstance, runningDetails, imageDetails]() {
+    return Sync([containerId, runningInstance, runningDetails, imageDetails]() {
         runningInstance->remoteEnvironment = runningDetails->probedUserEnvironment;
 
         runningInstance->osType = osTypeFromString(imageDetails->Os).value_or(OsType::OsTypeOther);
         runningInstance->osArch
             = osArchFromString(imageDetails->Architecture).value_or(OsArch::OsArchUnknown);
+        runningInstance->containerId = dynamicStringToString(containerId);
     });
 }
 
@@ -1269,9 +1341,9 @@ static Result<Group> prepareContainerRecipe(
             imageDetails, containerConfig, commonConfig, instanceConfig),
         inspectContainerTask(containerDetails, instanceConfig),
         startContainerRecipe(instanceConfig),
-        runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig),
+        runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig, containerName(instanceConfig)),
         runLifecycleHooksRecipe(commonConfig, instanceConfig),
-        fillRunningInstance(runningInstance, runningDetails, imageDetails)
+        fillRunningInstance(runningInstance, runningDetails, imageDetails, containerName(instanceConfig))
     };
     // clang-format on
 }
@@ -1333,9 +1405,9 @@ static Result<Group> prepareContainerRecipe(
         createContainerRecipe(imageDetails, imageConfig, commonConfig, instanceConfig),
         inspectContainerTask(containerDetails, instanceConfig),
         startContainerRecipe(instanceConfig),
-        runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig),
+        runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig, containerName(instanceConfig)),
         runLifecycleHooksRecipe(commonConfig, instanceConfig),
-        fillRunningInstance(runningInstance, runningDetails, imageDetails)
+        fillRunningInstance(runningInstance, runningDetails, imageDetails, containerName(instanceConfig)),
     };
     // clang-format on
 }
@@ -1348,6 +1420,7 @@ static Result<Group> prepareContainerRecipe(
 {
     Q_UNUSED(commonConfig);
     Q_UNUSED(runningInstance);
+
     const auto setupComposeUp = [config, instanceConfig](Process &process) {
         connectProcessToLog(process, instanceConfig, "Compose Up");
 
@@ -1375,22 +1448,41 @@ static Result<Group> prepareContainerRecipe(
         services.unite({runServices.begin(), runServices.end()});
 
         CommandLine composeCmdLine{
-            instanceConfig.dockerComposeCli,
-            {"up",
+            instanceConfig.dockerCli,
+            {"compose",
              composeFilesWithFlag,
-             {
-                 "--build",
-                 "--detach",
-             },
+             {"--project-name", projectName(instanceConfig)},
+             "up",
+             "--build",
+             "--detach",
              services.values()}};
         process.setCommand(composeCmdLine);
-        process.setWorkingDirectory(instanceConfig.workspaceFolder);
+        process.setWorkingDirectory(instanceConfig.configFilePath.parentDir());
 
         instanceConfig.logFunction(
             QString("Compose Up: %1").arg(process.commandLine().toUserOutput()));
     };
+    Storage<ContainerDetails> containerDetails;
+    Storage<RunningContainerDetails> runningDetails;
+    Storage<QString> containerId;
+    Storage<ImageDetails> imageDetails;
 
-    return ResultError("Docker Compose is not yet supported in DevContainer.");
+    DynamicString getImage = (std::function<QString()>) [containerDetails]
+    {
+        return containerDetails->Image;
+    };
+
+    // clang-format off
+    return Group {
+        containerId, containerDetails, runningDetails, imageDetails,
+        ProcessTask(setupComposeUp),
+        findContainerId(containerId, config, instanceConfig),
+        inspectContainerTask(containerDetails, instanceConfig, containerId),
+        inspectImageTask(imageDetails, instanceConfig, getImage),
+        runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig, containerId),
+        fillRunningInstance(runningInstance, runningDetails, imageDetails, containerId)
+    };
+    // clang-format on
 }
 
 static Result<Group> prepareRecipe(
@@ -1453,11 +1545,34 @@ static Result<Group> downContainerRecipe(
 static Result<Group> downContainerRecipe(
     const ComposeContainer &config, const InstanceConfig &instanceConfig)
 {
-    Q_UNUSED(config);
-    const auto setupComposeDown = [instanceConfig](Process &process) {
+    const auto setupComposeDown = [config, instanceConfig](Process &process) {
         connectProcessToLog(process, instanceConfig, "Compose Down");
 
-        CommandLine composeCmdLine{instanceConfig.dockerComposeCli, {"down", "--remove-orphans"}};
+        const FilePath configFileDir = instanceConfig.configFilePath.parentDir();
+
+        QStringList composeFiles = std::visit(
+            overloaded{
+                [](const QString &file) { return QStringList{file}; },
+                [](const QStringList &files) { return files; }},
+            config.dockerComposeFile);
+
+        composeFiles
+            = Utils::transform(composeFiles, [&configFileDir](const QString &relativeComposeFile) {
+                  return configFileDir.resolvePath(relativeComposeFile).nativePath();
+              });
+
+        QStringList composeFilesWithFlag;
+        for (const QString &file : composeFiles) {
+            composeFilesWithFlag.append("-f");
+            composeFilesWithFlag.append(file);
+        }
+
+        CommandLine composeCmdLine{
+            instanceConfig.dockerCli,
+            {"compose",
+             {"--project-name", projectName(instanceConfig)},
+             composeFilesWithFlag,
+             "down"}};
         process.setCommand(composeCmdLine);
         process.setWorkingDirectory(instanceConfig.workspaceFolder);
 
@@ -1527,7 +1642,8 @@ const Config &Instance::config() const
 static WrappedProcessInterface *makeProcessInterface(
     const Config &config,
     const InstanceConfig &instanceConfig,
-    const RunningInstance &runningInstance)
+    const RunningInstance &runningInstance,
+    const DynamicString &containerId)
 {
     const auto wrapCommandLine = [=](const ProcessSetupData &setupData,
                                      const QString &markerTemplate) -> Result<CommandLine> {
@@ -1582,7 +1698,7 @@ static WrappedProcessInterface *makeProcessInterface(
 
         dockerCmd.addArgs({"-w", workingDirectory.path()});
 
-        dockerCmd.addArg(containerName(instanceConfig));
+        dockerCmd.addArg(dynamicStringToString(containerId));
 
         dockerCmd.addArgs({"/bin/sh", "-c"});
 
@@ -1638,7 +1754,8 @@ static WrappedProcessInterface *makeProcessInterface(
 ProcessInterface *Instance::createProcessInterface(const RunningInstance &runningInstance) const
 {
     QTC_ASSERT(runningInstance, return nullptr);
-    return makeProcessInterface(d->config, d->instanceConfig, runningInstance);
+    return makeProcessInterface(
+        d->config, d->instanceConfig, runningInstance, runningInstance->containerId);
 }
 
 } // namespace DevContainer

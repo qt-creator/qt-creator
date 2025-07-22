@@ -21,7 +21,6 @@ struct InstancePrivate;
 struct DEVCONTAINER_EXPORT InstanceConfig
 {
     Utils::FilePath dockerCli;
-    Utils::FilePath dockerComposeCli;
     Utils::FilePath workspaceFolder;
     Utils::FilePath configFilePath;
 
@@ -43,6 +42,7 @@ struct DEVCONTAINER_EXPORT RunningInstanceData
     Utils::OsType osType;
     Utils::OsArch osArch;
     Utils::Environment remoteEnvironment;
+    QString containerId;
 };
 
 using RunningInstance = std::shared_ptr<RunningInstanceData>;
