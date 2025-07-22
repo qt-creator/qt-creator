@@ -450,17 +450,17 @@ QWidget *QMakeStep::createConfigWidget()
     });
 
     connect(project(), &Project::projectLanguagesUpdated,
-            widget, [this] { linkQmlDebuggingLibraryChanged(); });
+            this, [this] { linkQmlDebuggingLibraryChanged(); });
     connect(buildSystem(), &BuildSystem::parsingFinished,
-            widget, [this] { updateEffectiveQMakeCall(); });
+            this, [this] { updateEffectiveQMakeCall(); });
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::useQtQuickCompilerChanged,
-            widget, [this] { useQtQuickCompilerChanged(); });
+            this, [this] { useQtQuickCompilerChanged(); });
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::separateDebugInfoChanged,
-            widget, [this] { separateDebugInfoChanged(); });
+            this, [this] { separateDebugInfoChanged(); });
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,
-            widget, [this] { qmakeBuildConfigChanged(); });
+            this, [this] { qmakeBuildConfigChanged(); });
     connect(buildConfiguration(), &BuildConfiguration::kitChanged,
-            widget, [this] { qtVersionChanged(); });
+            this, [this] { qtVersionChanged(); });
 
     connect(abisListWidget, &QListWidget::itemChanged, this, [this] {
         if (m_ignoreChanges.isLocked())
