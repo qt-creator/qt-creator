@@ -46,4 +46,9 @@ QString TestDataDir::directory(const QString &subdir, bool clean) const
     return path;
 }
 
+FilePath TestDataDir::directoryPath(const QString &subdir, bool clean) const
+{
+    return FilePath::fromUserInput(directory(subdir, clean));
+}
+
 } // Core::Tests

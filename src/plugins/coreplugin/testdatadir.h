@@ -17,8 +17,7 @@
 
 namespace Utils { class FilePath; }
 
-namespace Core {
-namespace Tests {
+namespace Core::Tests {
 
 class CORE_EXPORT TestDataDir
 {
@@ -28,6 +27,7 @@ public:
     QString file(const QString &fileName) const;
     Utils::FilePath filePath(const QString &fileName) const;
     QString directory(const QString &subdir = QString(), bool clean = true) const;
+    Utils::FilePath directoryPath(const QString &subdir = QString(), bool clean = true) const;
 
     QString path() const;
 
@@ -35,5 +35,4 @@ private:
     QString m_directory;
 };
 
-} // namespace Tests
-} // namespace Core
+} // namespace Core::Tests
