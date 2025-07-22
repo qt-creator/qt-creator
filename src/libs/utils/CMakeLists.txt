@@ -215,7 +215,7 @@ add_qtc_library(Utils
     USE_ATTRIBUTION_FILES
     CREATE_SBOM_FOR_EACH_ATTRIBUTION
     ATTRIBUTION_FILE_PATHS
-      ../../../qt_attributions.json
+      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
     ATTRIBUTION_IDS
       std-span-martinmoene
       tartanllama-expected
@@ -309,7 +309,7 @@ extend_qtc_library(Utils
           fsengine/filepathinfocache.h
   SBOM_ARGS
     ATTRIBUTION_FILE_PATHS
-      ../../../qt_attributions.json
+      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
     ATTRIBUTION_IDS
       ptyqt
       ptyqt-conpty

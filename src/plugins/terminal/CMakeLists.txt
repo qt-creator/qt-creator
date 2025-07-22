@@ -19,7 +19,7 @@ add_qtc_plugin(Terminal
     USE_ATTRIBUTION_FILES
     CREATE_SBOM_FOR_EACH_ATTRIBUTION
     ATTRIBUTION_FILE_PATHS
-      ../../../qt_attributions.json
+      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
     ATTRIBUTION_IDS
       terminal-shellintegrations
       terminal-shellintegrations-clink

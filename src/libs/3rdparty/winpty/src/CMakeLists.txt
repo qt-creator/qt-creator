@@ -93,7 +93,7 @@ add_qtc_executable(winpty-agent
   SBOM_ARGS
     USE_ATTRIBUTION_FILES
     ATTRIBUTION_FILE_PATHS
-      ../../../../../qt_attributions.json
+      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
     ATTRIBUTION_IDS
       winpty
 )

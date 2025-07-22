@@ -23,7 +23,7 @@ qtc_add_sbom(PackageManagerResources
   LICENSE_EXPRESSION "MIT"
   USE_ATTRIBUTION_FILES
   ATTRIBUTION_FILE_PATHS
-    ../../../qt_attributions.json
+    "${QtCreator_SOURCE_DIR}/qt_attributions.json"
   ATTRIBUTION_IDS
     conan.cmake
 )
@@ -40,7 +40,7 @@ qtc_add_sbom(FontsResources
   LICENSE_EXPRESSION "OFL-1.1-RFN"
   USE_ATTRIBUTION_FILES
   ATTRIBUTION_FILE_PATHS
-    ../../../qt_attributions.json
+    "${QtCreator_SOURCE_DIR}/qt_attributions.json"
   ATTRIBUTION_IDS
     source-code-pro-font
 )
