@@ -290,7 +290,7 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
                 if (!revertPrompt.isEmpty()) {
                     const int result = QMessageBox::question(
                         this,
-                        Tr::tr("Revert File"),
+                        Tr::tr("Confirm File Changes"),
                         revertPrompt,
                         QMessageBox::Yes | QMessageBox::No);
                     if (result != QMessageBox::Yes)
@@ -304,7 +304,25 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
     addAction(Tr::tr("Copy \"%1\"").arg(filePath.toUserOutput()), FileCopyClipboard);
     Core::EditorManager::addContextMenuActions(menu, fullFilePath);
     menu->addSeparator();
-    if (state & DeletedFile) {
+    if (state & (UnmergedFile | UnmergedThem | UnmergedUs)) {
+        const QString fp = filePath.toUserOutput();
+        addAction(Tr::tr("Run Merge Tool for \"%1\"").arg(fp), FileMergeTool);
+
+        if (state & DeletedFile) {
+            addAction(Tr::tr("Resolve by Recovering \"%1\"").arg(fp), FileMergeRecover);
+            addAction(Tr::tr("Resolve by Removing \"%1\"...").arg(fp), FileMergeRemove,
+                      Tr::tr("<p>Permanently remove file \"%1\"?</p>"
+                             "<p>Note: The changes will be discarded.</p>").arg(fp));
+        } else {
+            addAction(Tr::tr("Mark Conflicts Resolved for \"%1\"").arg(fp), FileMergeResolved);
+            addAction(Tr::tr("Resolve Conflicts in \"%1\" with Ours...").arg(fp), FileMergeOurs,
+                      Tr::tr("<p>Resolve all conflicts to the file \"%1\" with <b>our</b> version?</p>"
+                             "<p>Note: The other changes will be discarded.</p>").arg(fp));
+            addAction(Tr::tr("Resolve Conflicts in \"%1\" with Theirs...").arg(fp), FileMergeTheirs,
+                      Tr::tr("<p>Resolve all conflicts to the file \"%1\" with <b>their</b> version?</p>"
+                             "<p>Note: Our changes will be discarded.</p>").arg(fp));
+        }
+    } else if (state & DeletedFile) {
         addAction(Tr::tr("Recover \"%1\"").arg(filePath.toUserOutput()), FileRevertDeletion);
     } else if (state == (StagedFile | AddedFile)) {
         addAction(Tr::tr("Unstage \"%1\"").arg(filePath.toUserOutput()), FileUnstage);

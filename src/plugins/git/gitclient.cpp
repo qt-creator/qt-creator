@@ -1032,6 +1032,27 @@ void GitClient::requestReload(const QString &documentId, const FilePath &source,
     controller->requestReload();
 }
 
+/**
+ * Returns \c true if \a filePath has all merge conflicts resolved.
+ *
+ * If the \a filePath still contains conflict markers, \c false is returned.
+ */
+bool GitClient::isConflictFree(const Utils::FilePath &workingDirectory,
+                               const Utils::FilePath &filePath,
+                               DiffMode diffMode) const
+{
+    QStringList args = {"-c", "core.whitespace=nowarn", "diff", "--check"};
+    if (diffMode == GitClient::Staged)
+        args.append("--cached");
+    args.append(filePath.path());
+
+    RunFlags flags = RunFlags::ShowStdOut;
+
+    const CommandResult result = vcsSynchronousExec(workingDirectory, args, flags, vcsTimeoutS(),
+                                                    encoding(EncodingLogOutput, workingDirectory));
+    return result.result() == ProcessResult::FinishedWithSuccess;
+}
+
 void GitClient::diffFiles(const FilePath &workingDirectory,
                           const QStringList &unstagedFileNames,
                           const QStringList &stagedFileNames) const

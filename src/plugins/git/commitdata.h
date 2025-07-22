@@ -29,7 +29,13 @@ enum FileAction {
     FileOpenEditor,
     FileStage,
     FileUnstage,
-    FileAddGitignore
+    FileAddGitignore,
+    FileMergeTool,
+    FileMergeResolved,
+    FileMergeOurs,
+    FileMergeTheirs,
+    FileMergeRemove,
+    FileMergeRecover
 };
 
 enum PushAction {

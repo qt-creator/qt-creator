@@ -243,6 +243,16 @@ void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAct
     bool refresh = false;
     const FilePath fullPath = m_workingDirectory.pathAppended(filePath.toUrlishString());
 
+    auto markAsResolved = [this, &refresh](const Utils::FilePath &filePath) {
+        // Check if file still contains conflict markers
+        if (!gitClient().isConflictFree(m_workingDirectory, filePath))
+            return;
+
+        // Otherwise mark as resolved
+        gitClient().addFile(m_workingDirectory, filePath.toUrlishString());
+        refresh = true;
+    };
+
     switch (action) {
     case FileRevertAll:
     case FileRevertUnstaged:
@@ -281,6 +291,36 @@ void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAct
 
     case FileUnstage:
         gitClient().synchronousReset(m_workingDirectory, {filePath.toUrlishString()});
+        refresh = true;
+        break;
+
+    case FileMergeTool:
+        gitClient().merge(m_workingDirectory, {filePath.toUrlishString()});
+        break;
+
+    case FileMergeResolved:
+        markAsResolved(filePath);
+        break;
+
+    case FileMergeOurs:
+        gitClient().synchronousCheckoutFiles(m_workingDirectory, {filePath.toUrlishString()},
+                                             "--ours");
+        markAsResolved(filePath);
+        break;
+
+    case FileMergeTheirs:
+        gitClient().synchronousCheckoutFiles(m_workingDirectory, {filePath.toUrlishString()},
+                                             "--theirs");
+        markAsResolved(filePath);
+        break;
+
+    case FileMergeRecover:
+        gitClient().addFile(m_workingDirectory, filePath.toUrlishString());
+        refresh = true;
+        break;
+
+    case FileMergeRemove:
+        gitClient().synchronousDelete(m_workingDirectory, false, {filePath.toUrlishString()});
         refresh = true;
         break;
     }

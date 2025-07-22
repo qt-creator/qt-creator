@@ -152,6 +152,8 @@ public:
     void stopMonitoring(const Utils::FilePath &path);
 
     enum DiffMode { Unstaged, Staged };
+    bool isConflictFree(const Utils::FilePath &workingDirectory, const Utils::FilePath &fileName,
+                        DiffMode diffMode = Unstaged) const;
     void diffFile(const Utils::FilePath &workingDirectory, const QString &fileName,
                   DiffMode diffMode = Unstaged) const;
     void diffFiles(const Utils::FilePath &workingDirectory,
