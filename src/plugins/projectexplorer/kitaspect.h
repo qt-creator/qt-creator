@@ -49,6 +49,7 @@ public:
         Manual,
         FromSystem,
         FromSdk,
+        Temporary,
         Uninitialized,
     };
 
@@ -59,7 +60,12 @@ public:
 
     bool isAutoDetected() const
     {
-        return type == FromSystem || type == FromSdk;
+        return type == FromSystem || type == FromSdk || type == Temporary;
+    }
+
+    bool isTemporary() const
+    {
+        return type == Temporary;
     }
 
     bool isSdkProvided() const
