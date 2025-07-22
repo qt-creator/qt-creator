@@ -339,7 +339,7 @@ void ToolchainKitAspectFactory::setup(Kit *k)
     QTC_ASSERT(ToolchainManager::isLoaded(), return);
     QTC_ASSERT(k, return);
 
-    if (k->isSdkProvided())
+    if (k->detectionSource().isSdkProvided())
         setupForSdkKit(k);
     else
         setupForNonSdkKit(k);

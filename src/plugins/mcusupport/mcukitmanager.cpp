@@ -122,7 +122,7 @@ public:
         k->setValue(KIT_MCUTARGET_KITVERSION_KEY, KIT_VERSION);
         k->setValue(KIT_MCUTARGET_OS_KEY, static_cast<int>(mcuTarget->os()));
         k->setValue(KIT_MCUTARGET_TOOLCHAIN_KEY, mcuTarget->toolChainPackage()->toolchainName());
-        k->setAutoDetected(false);
+        k->setDetectionSource(DetectionSource::Manual);
         k->makeSticky();
         if (mcuTarget->toolChainPackage()->isDesktopToolchain())
             k->setDeviceTypeForIcon(DEVICE_TYPE);
@@ -720,9 +720,8 @@ void fixExistingKits(const SettingsHandler::Ptr &settingsHandler)
         if (!kit->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY))
             continue;
 
-        if (kit->isAutoDetected()) {
-            kit->setAutoDetected(false);
-        }
+        if (kit->detectionSource().isAutoDetected())
+            kit->setDetectionSource(DetectionSource::Manual);
 
         // Check if the MCU kits are flagged as supplying a QtQuick import path, in order
         // to tell the QMLJS code-model that it won't need to add a fall-back import

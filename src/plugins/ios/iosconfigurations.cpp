@@ -157,7 +157,7 @@ static QSet<Kit *> existingAutoDetectedIosKits()
 {
     return toSet(filtered(KitManager::kits(), [](Kit *kit) -> bool {
         Id deviceKind = RunDeviceTypeKitAspect::deviceTypeId(kit);
-        return kit->isAutoDetected() && (deviceKind == Constants::IOS_DEVICE_TYPE
+        return kit->detectionSource().isAutoDetected() && (deviceKind == Constants::IOS_DEVICE_TYPE
                                          || deviceKind == Constants::IOS_SIMULATOR_TYPE);
     }));
 }
@@ -288,7 +288,7 @@ void IosConfigurations::updateAutomaticKitList()
                 } else {
                     qCDebug(kitSetupLog) << "    - Setting up new kit";
                     const auto init = [&](Kit *k) {
-                        k->setAutoDetected(true);
+                        k->setDetectionSource({DetectionSource::FromSystem, iosDetectionSource});
                         const QString baseDisplayName = isSimulatorDeviceId(pDeviceType)
                                 ? Tr::tr("%1 Simulator").arg(qtVersion->unexpandedDisplayName())
                                 : qtVersion->unexpandedDisplayName();

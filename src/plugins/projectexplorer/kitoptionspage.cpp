@@ -350,8 +350,7 @@ Kit *KitModel::markForAddition(Kit *baseKit)
     KitGuard g(k);
     if (baseKit) {
         k->copyFrom(baseKit);
-        k->setAutoDetected(false); // Make sure we have a manual kit!
-        k->setSdkProvided(false);
+        k->setDetectionSource(DetectionSource::Manual);
     } else {
         k->setup();
     }
@@ -412,7 +411,7 @@ void KitModel::addKit(Kit *k)
             return;
     }
 
-    TreeItem *parent = k->isAutoDetected() ? m_autoRoot : m_manualRoot;
+    TreeItem *parent = k->detectionSource().isAutoDetected() ? m_autoRoot : m_manualRoot;
     parent->appendChild(createNode(k));
 
     validateKitNames();
@@ -678,7 +677,7 @@ void KitOptionsPageWidget::updateState()
 
     if (Kit *k = currentKit()) {
         canCopy = true;
-        canDelete = !k->isSdkProvided();
+        canDelete = !k->detectionSource().isSdkProvided();
         canMakeDefault = !m_model->isDefaultKit(k);
     }
 
@@ -711,7 +710,7 @@ void KitNode::ensureWidget()
     QObject::connect(m_widget, &KitManagerConfigWidget::isAutoDetectedChanged, m_model, [this] {
         TreeItem *oldParent = parent();
         TreeItem *newParent =
-            m_model->rootItem()->childAt(m_widget->workingCopy()->isAutoDetected() ? 0 : 1);
+            m_model->rootItem()->childAt(m_widget->workingCopy()->detectionSource().isAutoDetected() ? 0 : 1);
         if (oldParent && oldParent != newParent) {
             m_model->takeItem(this);
             newParent->appendChild(this);

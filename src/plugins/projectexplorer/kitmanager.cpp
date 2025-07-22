@@ -179,7 +179,7 @@ void KitManager::restoreKits()
         defaultUserKit = userKits.defaultKit;
 
         for (auto &k : userKits.kits) {
-            if (k->isSdkProvided()) {
+            if (k->detectionSource().isSdkProvided()) {
                 kitsToCheck.emplace_back(std::move(k));
             } else {
                 completeKit(k.get()); // Store manual kits
@@ -195,8 +195,7 @@ void KitManager::restoreKits()
         // SDK kits need to get updated with the user-provided extra settings:
         for (auto &current : system.kits) {
             // make sure we mark these as autodetected and run additional setup logic
-            current->setAutoDetected(true);
-            current->setSdkProvided(true);
+            current->setDetectionSource(DetectionSource::FromSdk);
             current->makeSticky();
 
             // Process:
@@ -273,8 +272,7 @@ void KitManager::restoreKits()
         decltype(resultList) tempList;
         for (auto it = uniqueToolchains.cbegin(); it != uniqueToolchains.cend(); ++it) {
             auto kit = std::make_unique<Kit>();
-            kit->setSdkProvided(false);
-            kit->setAutoDetected(false); // TODO: Why false? What does autodetected mean here?
+            kit->setDetectionSource(DetectionSource::Manual); // TODO: Why manual? What does autodetected mean here?
             for (const auto &bundle : it.value())
                 ToolchainKitAspect::setBundle(kit.get(), *bundle);
             if (contains(resultList, [&kit](const std::unique_ptr<Kit> &existingKit) {

@@ -133,7 +133,7 @@ Project::RestoreResult QmlProject::fromMap(const Store &map, QString *errorMessa
 bool QmlProject::setKitWithVersion(const int qtMajorVersion, const QList<Kit *> kits)
 {
     const QList<Kit *> qtVersionkits = Utils::filtered(kits, [qtMajorVersion](const Kit *k) {
-        if (!k->isAutoDetected())
+        if (!k->detectionSource().isAutoDetected())
             return false;
 
         if (k->isReplacementKit())

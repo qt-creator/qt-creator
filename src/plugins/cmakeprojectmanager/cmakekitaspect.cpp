@@ -275,7 +275,7 @@ void CMakeKitAspectFactory::setup(Kit *k)
         return;
 
     // Look for a suitable auto-detected one:
-    const QString kitSource = k->autoDetectionSource();
+    const QString kitSource = k->detectionSource().id;
     for (CMakeTool *tool : CMakeToolManager::cmakeTools()) {
         const QString toolSource = tool->detectionSource();
         if (!toolSource.isEmpty() && toolSource == kitSource) {

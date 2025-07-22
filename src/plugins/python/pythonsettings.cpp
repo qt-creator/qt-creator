@@ -784,9 +784,10 @@ void PythonSettings::addKitsForInterpreter(const Interpreter &interpreter, bool 
     } else if (force || !isVenvPython(interpreter.command)) {
         KitManager::registerKit(
             [interpreter](Kit *k) {
-                k->setAutoDetected(true);
-                k->setAutoDetectionSource(
-                    interpreter.detectionSource.isEmpty() ? "Python" : interpreter.detectionSource);
+                const QString source = interpreter.detectionSource.isEmpty()
+                                           ? "Python"
+                                           : interpreter.detectionSource;
+                k->setDetectionSource({DetectionSource::FromSystem, source});
                 k->setUnexpandedDisplayName("%{Python:Name}");
                 setRelevantAspectsToKit(k);
                 PythonKitAspect::setPython(k, interpreter.id);

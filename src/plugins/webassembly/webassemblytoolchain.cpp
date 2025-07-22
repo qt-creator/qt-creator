@@ -158,7 +158,7 @@ void registerToolChains()
 
     // Let kits pick up the new toolchains
     for (Kit *kit : KitManager::kits()) {
-        if (!kit->isAutoDetected())
+        if (!kit->detectionSource().isAutoDetected())
             continue;
         const QtVersion *qtVersion = QtKitAspect::qtVersion(kit);
         if (!qtVersion || qtVersion->type() != Constants::WEBASSEMBLY_QT_VERSION)

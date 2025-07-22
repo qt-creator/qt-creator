@@ -1385,8 +1385,8 @@ void AndroidConfigurations::updateAutomaticKitList()
 
     const QList<Kit *> existingKits = Utils::filtered(KitManager::kits(), [](Kit *k) {
         Id deviceTypeId = RunDeviceTypeKitAspect::deviceTypeId(k);
-        if (k->isAutoDetected() && !k->isSdkProvided()
-                && deviceTypeId == Constants::ANDROID_DEVICE_TYPE) {
+        if (k->detectionSource().isAutoDetected() && !k->detectionSource().isSdkProvided()
+            && deviceTypeId == Constants::ANDROID_DEVICE_TYPE) {
             return true;
         }
         return false;
@@ -1430,8 +1430,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             });
 
             const auto initializeKit = [&bundle, qt](Kit *k) {
-                k->setAutoDetected(true);
-                k->setAutoDetectionSource("AndroidConfiguration");
+                k->setDetectionSource({DetectionSource::FromSystem, "AndroidConfiguration"});
                 RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
                 ToolchainKitAspect::setBundle(k, bundle);
                 QtKitAspect::setQtVersion(k, qt);

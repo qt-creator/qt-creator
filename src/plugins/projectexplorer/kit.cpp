@@ -91,11 +91,9 @@ public:
 
     DisplayName m_unexpandedDisplayName;
     QString m_fileSystemFriendlyName;
-    QString m_autoDetectionSource;
+    DetectionSource m_detectionSource;
     Id m_id;
     int m_nestedBlockingLevel = 0;
-    bool m_autodetected = false;
-    bool m_sdkProvided = false;
     bool m_hasError = false;
     bool m_hasWarning = false;
     bool m_hasValidityInfo = false;
@@ -133,15 +131,22 @@ Kit::Kit(const Store &data)
 {
     d->m_id = Id::fromSetting(data.value(ID_KEY));
 
-    d->m_autodetected = data.value(AUTODETECTED_KEY).toBool();
-    d->m_autoDetectionSource = data.value(AUTODETECTIONSOURCE_KEY).toString();
+    const bool autoDetected = data.value(AUTODETECTED_KEY).toBool();
+    const QString autoDetectionSource = data.value(AUTODETECTIONSOURCE_KEY).toString();
 
     // if we don't have that setting assume that autodetected implies sdk
     QVariant value = data.value(SDK_PROVIDED_KEY);
-    if (value.isValid())
-        d->m_sdkProvided = value.toBool();
-    else
-        d->m_sdkProvided = d->m_autodetected;
+    const bool sdkProvided = value.isValid() ? value.toBool() : autoDetected;
+
+    DetectionSource::DetectionType detectionType = [&]() {
+        if (sdkProvided)
+            return DetectionSource::FromSdk;
+        if (autoDetected)
+            return DetectionSource::FromSystem;
+        return DetectionSource::Manual;
+    }();
+
+    d->m_detectionSource = DetectionSource(detectionType, autoDetectionSource);
 
     d->m_unexpandedDisplayName.fromMap(data, DISPLAYNAME_KEY);
     d->m_fileSystemFriendlyName = data.value(FILESYSTEMFRIENDLYNAME_KEY).toString();
@@ -206,7 +211,7 @@ Kit *Kit::clone(bool keepName) const
         k->d->m_unexpandedDisplayName = d->m_unexpandedDisplayName;
     else
         k->d->m_unexpandedDisplayName.setValue(newKitName(KitManager::kits()));
-    k->d->m_autodetected = false;
+    k->d->m_detectionSource = DetectionSource::Manual;
     // Do not clone m_fileSystemFriendlyName, needs to be unique
     k->d->m_hasError = d->m_hasError;  // TODO: Is this intentionally not done for copyFrom()?
     return k;
@@ -215,9 +220,7 @@ Kit *Kit::clone(bool keepName) const
 void Kit::copyFrom(const Kit *k)
 {
     copyKitCommon(this, k);
-    d->m_autodetected = k->d->m_autodetected;
-    d->m_sdkProvided = k->d->m_sdkProvided;
-    d->m_autoDetectionSource = k->d->m_autoDetectionSource;
+    d->m_detectionSource = k->d->m_detectionSource;
     d->m_unexpandedDisplayName = k->d->m_unexpandedDisplayName;
     d->m_fileSystemFriendlyName = k->d->m_fileSystemFriendlyName;
 }
@@ -331,22 +334,27 @@ QString Kit::fileSystemFriendlyName() const
 
 bool Kit::isAutoDetected() const
 {
-    return d->m_autodetected;
+    return d->m_detectionSource.isAutoDetected();
 }
 
 QString Kit::autoDetectionSource() const
 {
-    return d->m_autoDetectionSource;
+    return d->m_detectionSource.id;
 }
 
 bool Kit::isSdkProvided() const
 {
-    return d->m_sdkProvided;
+    return d->m_detectionSource.isSdkProvided();
 }
 
 Id Kit::id() const
 {
     return d->m_id;
+}
+
+DetectionSource Kit::detectionSource() const
+{
+    return d->m_detectionSource;
 }
 
 int Kit::weight() const
@@ -507,11 +515,11 @@ Store Kit::toMap() const
     Store data;
     d->m_unexpandedDisplayName.toMap(data, DISPLAYNAME_KEY);
     data.insert(ID_KEY, QString::fromLatin1(d->m_id.name()));
-    data.insert(AUTODETECTED_KEY, d->m_autodetected);
+    data.insert(AUTODETECTED_KEY, d->m_detectionSource.isAutoDetected());
     if (!d->m_fileSystemFriendlyName.isEmpty())
         data.insert(FILESYSTEMFRIENDLYNAME_KEY, d->m_fileSystemFriendlyName);
-    data.insert(AUTODETECTIONSOURCE_KEY, d->m_autoDetectionSource);
-    data.insert(SDK_PROVIDED_KEY, d->m_sdkProvided);
+    data.insert(AUTODETECTIONSOURCE_KEY, d->m_detectionSource.id);
+    data.insert(SDK_PROVIDED_KEY, d->m_detectionSource.isSdkProvided());
     data.insert(ICON_KEY, d->m_iconPath.toUrlishString());
     data.insert(DEVICE_TYPE_FOR_ICON_KEY, d->m_deviceTypeForIcon.toSetting());
 
@@ -624,28 +632,23 @@ QString Kit::toHtml(const Tasks &additional, const QString &extraText) const
     return result;
 }
 
+void Kit::setDetectionSource(const DetectionSource &source)
+{
+    if (d->m_detectionSource == source)
+        return;
+    d->m_detectionSource = source;
+    kitUpdated();
+}
+
 void Kit::setAutoDetected(bool detected)
 {
-    if (d->m_autodetected == detected)
-        return;
-    d->m_autodetected = detected;
-    kitUpdated();
+    setDetectionSource(DetectionSource(
+        detected ? DetectionSource::FromSystem : DetectionSource::Manual, d->m_detectionSource.id));
 }
 
 void Kit::setAutoDetectionSource(const QString &autoDetectionSource)
 {
-    if (d->m_autoDetectionSource == autoDetectionSource)
-        return;
-    d->m_autoDetectionSource = autoDetectionSource;
-    kitUpdated();
-}
-
-void Kit::setSdkProvided(bool sdkProvided)
-{
-    if (d->m_sdkProvided == sdkProvided)
-        return;
-    d->m_sdkProvided = sdkProvided;
-    kitUpdated();
+    setDetectionSource(DetectionSource(d->m_detectionSource.type, autoDetectionSource));
 }
 
 void Kit::makeSticky()

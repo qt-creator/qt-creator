@@ -111,7 +111,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, bool &isDefaultKit, bool 
 
     updateVisibility();
 
-    if (k && k->isAutoDetected())
+    if (k && k->detectionSource().isAutoDetected())
         makeStickySubWidgetsReadOnly();
     setVisible(false);
 }
@@ -358,7 +358,8 @@ void KitManagerConfigWidget::workingCopyWasUpdated(Kit *k)
 void KitManagerConfigWidget::kitWasUpdated(Kit *k)
 {
     if (m_kit == k) {
-        bool emitSignal = m_kit->isAutoDetected() != m_modifiedKit->isAutoDetected();
+        bool emitSignal = m_kit->detectionSource().isAutoDetected()
+                          != m_modifiedKit->detectionSource().isAutoDetected();
         discard();
         if (emitSignal)
             emit isAutoDetectedChanged();

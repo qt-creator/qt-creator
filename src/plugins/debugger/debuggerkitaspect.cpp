@@ -292,7 +292,7 @@ public:
                     && systemEnvironment.path().contains(item.command().parentDir())) {
                     level = DebuggerItem::MatchesPerfectlyInPath;
                 }
-                if (!item.detectionSource().isEmpty() && item.detectionSource() == k->autoDetectionSource())
+                if (!item.detectionSource().isEmpty() && item.detectionSource() == k->detectionSource().id)
                     level = DebuggerItem::MatchLevel(level + 2);
             } else if (rawId.typeId() == QMetaType::QString) {
                 // New structure.

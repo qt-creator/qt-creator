@@ -468,8 +468,7 @@ Tasking::Group kitDetectionRecipe(const IDeviceConstPtr &device, const LogCallba
         logCallback(Tr::tr("Auto detecting Kits for device: %1").arg(device->displayName()));
 
         *kit = KitManager::registerKit([detectionSource, device](Kit *k) {
-            k->setAutoDetected(true);
-            k->setAutoDetectionSource(detectionSource);
+            k->setDetectionSource({DetectionSource::FromSystem, detectionSource});
             k->setUnexpandedDisplayName("%{Device:Name}");
 
             RunDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
@@ -527,7 +526,7 @@ Tasking::Group removeDetectedKitsRecipe(const IDeviceConstPtr &device, const Log
         logCallback(Tr::tr("Removing kits for device: %1").arg(device->displayName()));
 
         const auto detectedKits = filtered(KitManager::kits(), [detectionSource](const Kit *k) {
-            return k->isAutoDetected() && k->autoDetectionSource() == detectionSource;
+            return k->detectionSource().id == detectionSource;
         });
 
         for (Kit *kit : detectedKits) {
@@ -552,7 +551,7 @@ void listAutoDetected(const IDeviceConstPtr &device, const LogCallback &logCallb
     const QString detectionSource = device->id().toString();
 
     for (const auto kit : KitManager::kits()) {
-        if (kit->isAutoDetected() && kit->autoDetectionSource() == detectionSource)
+        if (kit->detectionSource().id == detectionSource)
             logCallback(Tr::tr("Kit: %1").arg(kit->displayName()));
     }
 

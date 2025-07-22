@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "kitaspect.h"
 #include "projectexplorer_export.h"
 #include "task.h"
 
@@ -66,9 +67,11 @@ public:
     QString customFileSystemFriendlyName() const;
     void setCustomFileSystemFriendlyName(const QString &fileSystemFriendlyName);
 
-    bool isAutoDetected() const;
-    QString autoDetectionSource() const;
-    bool isSdkProvided() const;
+    [[deprecated("Use detectionSource().isAutoDetected() instead")]] bool isAutoDetected() const;
+    [[deprecated("Use detectionSource().id instead")]] QString autoDetectionSource() const;
+    [[deprecated("Use detectionSource().isSdkProvided() instead")]] bool isSdkProvided() const;
+    DetectionSource detectionSource() const;
+
     Utils::Id id() const;
 
     // The higher the weight, the more aspects have sensible values for this kit.
@@ -109,8 +112,10 @@ public:
     void copyFrom(const Kit *k);
 
     // Note: Stickyness is *not* saved!
-    void setAutoDetected(bool detected);
-    void setAutoDetectionSource(const QString &autoDetectionSource);
+    void setDetectionSource(const DetectionSource &source);
+    [[deprecated("Use setDetectionSource() instead")]] void setAutoDetected(bool detected);
+    [[deprecated("Use setDetectionSource() instead")]] void setAutoDetectionSource(const QString &autoDetectionSource);
+
     void makeSticky();
     void setSticky(Utils::Id id, bool b);
     void makeUnSticky();
@@ -136,7 +141,6 @@ public:
 
 private:
     static void copyKitCommon(Kit *target, const Kit *source);
-    void setSdkProvided(bool sdkProvided);
 
     Kit(const Kit &other) = delete;
     void operator=(const Kit &other) = delete;

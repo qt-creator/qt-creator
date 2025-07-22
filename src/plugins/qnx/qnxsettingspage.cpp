@@ -186,7 +186,7 @@ void QnxConfiguration::deactivate()
 
     const QList<Kit *> kits = KitManager::kits();
     for (Kit *kit : kits) {
-        if (kit->isAutoDetected()
+        if (kit->detectionSource().isAutoDetected()
                 && RunDeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
                 && toolChainsToRemove.contains(ToolchainKitAspect::cxxToolchain(kit))) {
             KitManager::deregisterKit(kit);
@@ -275,8 +275,8 @@ void QnxConfiguration::createKit(const QnxTarget &target)
                     .arg(m_configName)
                     .arg(target.shortDescription()));
 
-        k->setAutoDetected(false);
-        k->setAutoDetectionSource(m_envFile.toUrlishString());
+        // TODO: Manual with detection source make little sense, why?
+        k->setDetectionSource({DetectionSource::Manual, m_envFile.toUrlishString()});
 
         k->setSticky(ToolchainKitAspect::id(), true);
         k->setSticky(RunDeviceTypeKitAspect::id(), true);

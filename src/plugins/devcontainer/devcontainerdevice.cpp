@@ -329,8 +329,7 @@ Result<> Device::up(
             const QJsonObject kitObject = kitValue.toObject();
 
             Kit *kit = KitManager::registerKit([this](Kit *kit) {
-                kit->setAutoDetected(true);
-                kit->setAutoDetectionSource(id().toString());
+                kit->setDetectionSource({DetectionSource::Temporary, id().toString()});
                 kit->setUnexpandedDisplayName("%{Device:Name}");
 
                 RunDeviceTypeKitAspect::setDeviceTypeId(kit, type());

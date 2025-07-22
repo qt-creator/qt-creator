@@ -78,6 +78,11 @@ public:
         return type == FromSystem;
     }
 
+    bool operator==(const DetectionSource &other) const
+    {
+        return type == other.type && id == other.id;
+    }
+
     DetectionType type = Uninitialized;
     QString id;
 };
