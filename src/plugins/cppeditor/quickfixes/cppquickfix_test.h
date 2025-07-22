@@ -67,9 +67,8 @@ class QuickFixOfferedOperationsTest : public BaseQuickFixTestCase
 public:
     QuickFixOfferedOperationsTest(const QList<TestDocumentPtr> &testDocuments,
                                   CppQuickFixFactory *factory,
-                                  const ProjectExplorer::HeaderPaths &headerPaths
-                                  = ProjectExplorer::HeaderPaths(),
-                                  const QStringList &expectedOperations = QStringList());
+                                  const ProjectExplorer::HeaderPaths &headerPaths = {},
+                                  const QStringList &expectedOperations = {});
 };
 
 /// Tests a concrete QuickFixOperation of a given CppQuickFixFactory

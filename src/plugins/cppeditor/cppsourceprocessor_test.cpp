@@ -168,16 +168,16 @@ static bool isMacroDefinedInDocument(const QByteArray &macroName, const Document
 
 void SourceProcessorTest::testIncludeNext()
 {
-    const FilePath data = SRCDIR "/../../../tests/auto/cplusplus/preprocessor/data/include_next-data/";
+    FilePath data = SRCDIR "/../../../tests/auto/cplusplus/preprocessor/data/include_next-data";
+    data = data.canonicalPath();
     QVERIFY(data.isReadableDir());
     const FilePath mainFilePath = data / "main.cpp";
-    const FilePath customHeaderPath = data / "customIncludePath";
-    const FilePath systemHeaderPath = data / "systemIncludePath";
+    const HeaderPath customHeaderPath(data / "customIncludePath", HeaderPathType::User);
+    const HeaderPath systemHeaderPath(data / "systemIncludePath", HeaderPathType::User);
 
     CppSourceProcessor::DocumentCallback documentCallback = [](const Document::Ptr &){};
     CppSourceProcessor sourceProcessor(Snapshot(), documentCallback);
-    sourceProcessor.setHeaderPaths(ProjectExplorer::toUserHeaderPaths(
-                                       QStringList{customHeaderPath.path(), systemHeaderPath.path()}));
+    sourceProcessor.setHeaderPaths({customHeaderPath, systemHeaderPath});
 
     sourceProcessor.run(mainFilePath);
     const Snapshot snapshot = sourceProcessor.snapshot();

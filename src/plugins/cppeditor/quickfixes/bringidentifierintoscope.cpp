@@ -1373,8 +1373,7 @@ private slots:
         QuickFixOfferedOperationsTest(
             testDocuments,
             &factory,
-            ProjectExplorer::toUserHeaderPaths(
-                FilePaths{TestIncludePaths::globalQtCoreIncludePath()}),
+            {HeaderPath(TestIncludePaths::globalQtCoreIncludePath(), HeaderPathType::User)},
             expectedOperations);
     }
 

@@ -66,23 +66,12 @@ public:
 };
 
 using HeaderPaths = QList<HeaderPath>;
-template<typename C> HeaderPaths toHeaderPaths(const C &list, HeaderPathType type)
+
+inline HeaderPaths toHeaderPaths(const Utils::FilePaths &list, HeaderPathType type)
 {
-    return Utils::transform<HeaderPaths>(list, [type](const auto &fp) {
+    return Utils::transform<HeaderPaths>(list, [type](const Utils::FilePath &fp) {
         return HeaderPath(fp, type);
     });
-}
-template<typename C> HeaderPaths toUserHeaderPaths(const C &list)
-{
-    return toHeaderPaths(list, HeaderPathType::User);
-}
-template<typename C> HeaderPaths toBuiltInHeaderPaths(const C &list)
-{
-    return toHeaderPaths(list, HeaderPathType::BuiltIn);
-}
-template<typename C> HeaderPaths toFrameworkHeaderPaths(const C &list)
-{
-    return toHeaderPaths(list, HeaderPathType::Framework);
 }
 
 } // namespace ProjectExplorer

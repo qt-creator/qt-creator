@@ -460,8 +460,8 @@ void GenericBuildSystem::parse(RefreshOptions options)
                 return pair.first;
             });
         };
-        m_projectIncludePaths = toUserHeaderPaths(expandedPaths(normalPaths));
-        m_projectIncludePaths << toFrameworkHeaderPaths(expandedPaths(frameworkPaths));
+        m_projectIncludePaths = toHeaderPaths(expandedPaths(normalPaths), HeaderPathType::User)
+                + toHeaderPaths(expandedPaths(frameworkPaths), HeaderPathType::Framework);
         m_cxxflags = readFlags(m_cxxflagsFilePath);
         m_cflags = readFlags(m_cflagsFilePath);
     }
