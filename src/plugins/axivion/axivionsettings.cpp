@@ -294,6 +294,9 @@ AxivionSettings::AxivionSettings()
 
     lastLocalBuildCommand.setSettingsKey("LastLocalBuildCmd"); // used without UI
 
+    defaultIssueKind.setSettingsKey("DefaultIssueKind"); // used without UI
+    defaultIssueKind.setDefaultValue("SV"); // style violations
+
     m_defaultServerId.setSettingsKey("DefaultDashboardId");
     pathMappingSettings().readSettings();
     AspectContainer::readSettings();

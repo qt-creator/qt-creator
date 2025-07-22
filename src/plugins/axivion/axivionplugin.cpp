@@ -1350,6 +1350,9 @@ void AxivionPluginPrivate::onSessionLoaded(const QString &sessionName)
 
 void AxivionPluginPrivate::onAboutToSaveSession()
 {
+    // store default issue kind - otherwise this would need to be done everytime issue kind changes
+    settings().writeSettings();
+
     // explicitly ignore default session
     if (SessionManager::startupSession() == "default")
         return;

@@ -633,11 +633,25 @@ void IssuesWidget::updateUi(const QString &kind)
         }
     }
     if (m_currentPrefix.isEmpty()) {
-        const int id = m_typesButtonGroup->checkedId();
-        if (id > 0 && id <= int(info.issueKinds.size()))
-            m_currentPrefix = info.issueKinds.at(id - 1).prefix;
-        else
-            m_currentPrefix = info.issueKinds.size() ? info.issueKinds.front().prefix : QString{};
+        const QString preferred = settings().defaultIssueKind();
+        const int index =
+                Utils::indexOf(info.issueKinds, [preferred](const Dto::IssueKindInfoDto &dto) {
+            return dto.prefix == preferred;
+        });
+        if (index != -1) {
+            auto kindButton = m_typesButtonGroup->button(index + 1);
+            if (QTC_GUARD(kindButton))
+                kindButton->setChecked(true);
+            m_currentPrefix = preferred;
+        }
+        // if we could not find the preferred kind, fall back to old approach
+        if (m_currentPrefix.isEmpty()) {
+            const int id = m_typesButtonGroup->checkedId();
+            if (id > 0 && id <= int(info.issueKinds.size()))
+                m_currentPrefix = info.issueKinds.at(id - 1).prefix;
+            else
+                m_currentPrefix = info.issueKinds.size() ? info.issueKinds.front().prefix : QString{};
+        }
     }
     fetchTable();
 }
@@ -1025,6 +1039,8 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         button->setCheckable(true);
         connect(button, &QToolButton::clicked, this, [this, prefix = kind.prefix]{
             m_currentPrefix = prefix;
+            settings().defaultIssueKind.setValue(prefix);
+            settings().defaultIssueKind.apply();
             updateNamedFilters();
             fetchTable();
         });
