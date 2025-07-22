@@ -32,8 +32,9 @@
 #include <utils/stringutils.h>
 #include <utils/variablechooser.h>
 
-#include <QComboBox>
+#include <QCheckBox>
 #include <QHash>
+#include <QLabel>
 #include <QLayout>
 #include <QPushButton>
 #include <QLoggingCategory>
@@ -133,25 +134,26 @@ public:
     {
         using namespace Layouting;
 
-        auto settingsCombo = new QComboBox;
-        settingsCombo->addItem(Tr::tr("Global"));
-        settingsCombo->addItem(Tr::tr("Custom"));
-
-        auto restoreButton = new QPushButton(Tr::tr("Restore Global"));
-
-        QPushButton *showGlobalButton = nullptr;
+        const auto useGlobalCheckBox = new QCheckBox;
+        const auto useGlobalLabel = new QLabel;
         if (aspect->settingsPage().isValid()) {
-            showGlobalButton = new QPushButton(Tr::tr("Show Global"));
-            connect(showGlobalButton, &QPushButton::clicked, aspect, [aspect] {
+            useGlobalLabel->setText(Tr::tr("Use <a href=\"dummy\">global settings</a>"));
+            connect(useGlobalLabel, &QLabel::linkActivated, aspect, [aspect] {
                 Core::ICore::showOptionsDialog(aspect->settingsPage());
             });
-        };
+        } else {
+            useGlobalLabel->setText(Tr::tr("Use global settings"));
+        }
+
+        auto restoreButton = new QPushButton(Tr::tr("Restore Global"));
 
         auto innerPane = new QWidget;
         auto configWidget = aspect->projectSettings()->layouter()().emerge();
 
         Column {
-            Row { settingsCombo, restoreButton, showGlobalButton, st },
+            Row { useGlobalCheckBox, useGlobalLabel, st },
+            hr,
+            Row { restoreButton, st },
             configWidget
         }.attachTo(innerPane);
 
@@ -160,18 +162,16 @@ public:
         innerPane->layout()->setContentsMargins(0, 0, 0, 0);
         layout()->setContentsMargins(0, 0, 0, 0);
 
-        auto chooseSettings = [=](int setting) {
-            const bool isCustom = (setting == 1);
-
-            settingsCombo->setCurrentIndex(setting);
-            aspect->setUsingGlobalSettings(!isCustom);
-            configWidget->setEnabled(isCustom);
-            restoreButton->setEnabled(isCustom);
+        auto chooseSettings = [=](bool isGlobal) {
+            useGlobalCheckBox->setChecked(isGlobal);
+            aspect->setUsingGlobalSettings(isGlobal);
+            configWidget->setEnabled(!isGlobal);
+            restoreButton->setEnabled(!isGlobal);
         };
 
-        chooseSettings(aspect->isUsingGlobalSettings() ? 0 : 1);
+        chooseSettings(aspect->isUsingGlobalSettings());
 
-        connect(settingsCombo, &QComboBox::activated, this, chooseSettings);
+        connect(useGlobalCheckBox, &QCheckBox::clicked, this, chooseSettings);
         connect(restoreButton, &QPushButton::clicked,
                 aspect, &ProjectExplorer::GlobalOrProjectAspect::resetProjectToGlobalSettings);
     }
