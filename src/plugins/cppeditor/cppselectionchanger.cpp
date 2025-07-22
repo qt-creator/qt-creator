@@ -529,8 +529,7 @@ void CppSelectionChanger::fineTuneASTNodePositions(ASTNodePositions &positions) 
         // Select literal without quotes on first step, and the whole literal on next step.
         if (currentASTStep() == 1) {
             Token firstToken = m_unit->tokenAt(stringLiteralAST->firstToken());
-            bool isRawLiteral = firstToken.f.kind >= T_FIRST_RAW_STRING_LITERAL
-                                && firstToken.f.kind <= T_RAW_UTF32_STRING_LITERAL;
+            bool isRawLiteral = firstToken.isRawStringLiteral();
             if (debug && isRawLiteral)
                 qDebug() << "Is raw literal.";
 

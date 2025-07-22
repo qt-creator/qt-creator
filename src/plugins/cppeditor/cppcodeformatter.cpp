@@ -836,11 +836,8 @@ bool CodeFormatter::tryExpression(bool alsoExpression)
         break;
     }
 
-    if (m_currentToken.isStringLiteral()) {
-        newState = m_currentToken.kind() >= T_FIRST_RAW_STRING_LITERAL
-                && m_currentToken.kind() <= T_LAST_RAW_STRING_LITERAL ? raw_string_open
-                                                                      : string_open;
-    }
+    if (m_currentToken.isStringLiteral())
+        newState = m_currentToken.isRawStringLiteral() ? raw_string_open : string_open;
 
     if (newState != -1) {
         if (alsoExpression)

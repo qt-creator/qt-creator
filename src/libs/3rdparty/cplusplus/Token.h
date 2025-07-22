@@ -347,6 +347,9 @@ public:
     inline bool isStringLiteral() const
     { return f.kind >= T_FIRST_STRING_LITERAL && f.kind <= T_LAST_STRING_LITERAL; }
 
+    inline bool isRawStringLiteral() const
+    { return f.kind >= T_FIRST_RAW_STRING_LITERAL && f.kind <= T_LAST_RAW_STRING_LITERAL; }
+
     inline bool isOperator() const
     { return f.kind >= T_FIRST_OPERATOR && f.kind <= T_LAST_OPERATOR; }
 

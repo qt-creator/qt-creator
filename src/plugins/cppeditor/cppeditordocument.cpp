@@ -334,10 +334,8 @@ void CppEditorDocument::removeTrailingWhitespace(const QTextBlock &block)
     if (astPath.isEmpty())
         return baseImpl();
     const CPlusPlus::Token &tok = doc->translationUnit()->tokenAt(astPath.last()->firstToken());
-    if (tok.kind() < CPlusPlus::T_FIRST_RAW_STRING_LITERAL
-        || tok.kind() > CPlusPlus::T_LAST_RAW_STRING_LITERAL) {
+    if (!tok.isRawStringLiteral())
         baseImpl();
-    }
 }
 
 void CppEditorDocument::processDocument()
