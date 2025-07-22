@@ -245,6 +245,9 @@ void ToolchainSettingsAccessor::saveToolchains(const Toolchains &toolchains, QWi
 
     int count = 0;
     for (const Toolchain *tc : toolchains) {
+        if (tc->detectionSource().isTemporary())
+            continue;
+
         if (!tc || (!tc->isValid() && tc->detectionSource().isAutoDetected()))
             continue;
         Store tmp;
