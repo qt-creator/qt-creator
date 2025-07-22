@@ -710,7 +710,7 @@ bool StudioWelcomePlugin::delayedInitialize()
             const QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
             const bool valid = version && version->isValid();
             const bool isQt6 = valid && version->qtVersion().majorVersion() == 6;
-            const bool autoDetected = valid && version->isAutodetected();
+            const bool autoDetected = valid && version->detectionSource().isAutoDetected();
 
             return isQt6 && autoDetected
                    && RunDeviceTypeKitAspect::deviceTypeId(k)

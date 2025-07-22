@@ -10,6 +10,7 @@
 #include <utils/store.h>
 
 #include <projectexplorer/abi.h>
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/task.h>
 
 #include <QSet>
@@ -53,8 +54,9 @@ public:
     virtual void fromMap(const Utils::Store &map, const Utils::FilePath &filePath = {});
     virtual bool equals(QtVersion *other);
 
-    bool isAutodetected() const;
-    QString detectionSource() const;
+    // Note: the earlier returned QString is the same as DetectionSource::id now
+    ProjectExplorer::DetectionSource detectionSource() const;
+    [[deprecated("Use detectionSource().isAutoDetected() instead")]] bool isAutodetected() const;
 
     QString displayName() const;
     QString unexpandedDisplayName() const;

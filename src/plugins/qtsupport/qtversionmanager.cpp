@@ -327,7 +327,7 @@ void QtVersionManagerImpl::updateFromInstaller(bool emitSignal)
         bool restored = false;
         const VersionMap versionsCopy = m_versions; // m_versions is modified in loop
         for (QtVersion *v : versionsCopy) {
-            if (v->detectionSource() == autoDetectionSource) {
+            if (v->detectionSource().id == autoDetectionSource) {
                 id = v->uniqueId();
                 qCDebug(log) << " Qt version found with same autodetection source" << autoDetectionSource << " => Migrating id:" << id;
                 m_versions.remove(id);
@@ -336,7 +336,7 @@ void QtVersionManagerImpl::updateFromInstaller(bool emitSignal)
                 delete v;
 
                 if (QtVersion *qtv = factory->restore(type, qtversionMap, reader.filePath())) {
-                    Q_ASSERT(qtv->isAutodetected());
+                    Q_ASSERT(qtv->detectionSource().isAutoDetected());
                     m_versions.insert(id, qtv);
                     restored = true;
                 }
@@ -350,7 +350,7 @@ void QtVersionManagerImpl::updateFromInstaller(bool emitSignal)
         if (!restored) { // didn't replace any existing versions
             qCDebug(log) << " No Qt version found matching" << autoDetectionSource << " => Creating new version";
             if (QtVersion *qtv = factory->restore(type, qtversionMap, reader.filePath())) {
-                Q_ASSERT(qtv->isAutodetected());
+                Q_ASSERT(qtv->detectionSource().isAutoDetected());
                 m_versions.insert(qtv->uniqueId(), qtv);
                 added << qtv->uniqueId();
                 restored = true;
@@ -372,8 +372,8 @@ void QtVersionManagerImpl::updateFromInstaller(bool emitSignal)
     }
     const VersionMap versionsCopy = m_versions; // m_versions is modified in loop
     for (QtVersion *qtVersion : versionsCopy) {
-        if (qtVersion->detectionSource().startsWith("SDK.")) {
-            if (!sdkVersions.contains(qtVersion->detectionSource())) {
+        if (qtVersion->detectionSource().id.startsWith("SDK.")) {
+            if (!sdkVersions.contains(qtVersion->detectionSource().id)) {
                 qCDebug(log) << "  removing version" << qtVersion->detectionSource();
                 m_versions.remove(qtVersion->uniqueId());
                 removed << qtVersion->uniqueId();

@@ -1442,7 +1442,7 @@ void AndroidConfigurations::updateAutomaticKitList()
                 k->setSticky(RunDeviceTypeKitAspect::id(), true);
 
                 QString versionStr = QLatin1String("Qt %{Qt:Version}");
-                if (!qt->isAutodetected())
+                if (!qt->detectionSource().isAutoDetected())
                     versionStr = QString("%1").arg(qt->displayName());
                 const QStringList abis = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
                 k->setUnexpandedDisplayName(Tr::tr("Android %1 Clang %2")

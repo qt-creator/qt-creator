@@ -668,7 +668,7 @@ void QtSettingsPageWidget::updateQtVersions(const QList<int> &additions, const Q
         item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
 
         // Insert in the right place:
-        TreeItem *parent = version->isAutodetected()? m_autoItem : m_manualItem;
+        TreeItem *parent = version->detectionSource().isAutoDetected() ? m_autoItem : m_manualItem;
         parent->appendChild(item);
     }
 
@@ -851,7 +851,7 @@ void QtSettingsPageWidget::updateWidgets()
         m_configurationWidget = version->createConfigurationWidget();
         if (m_configurationWidget) {
             m_formLayout->addRow(m_configurationWidget);
-            m_configurationWidget->setEnabled(!version->isAutodetected());
+            m_configurationWidget->setEnabled(!version->detectionSource().isAutoDetected());
             connect(m_configurationWidget, &QtConfigWidget::changed,
                     this, &QtSettingsPageWidget::updateDescriptionLabel);
         }
@@ -861,7 +861,7 @@ void QtSettingsPageWidget::updateWidgets()
     }
 
     const bool enabled = version != nullptr;
-    const bool isAutodetected = enabled && version->isAutodetected();
+    const bool isAutodetected = enabled && version->detectionSource().isAutoDetected();
     m_delButton->setEnabled(enabled && !isAutodetected);
     m_nameEdit->setEnabled(enabled);
     m_editPathPushButton->setEnabled(enabled && !isAutodetected);

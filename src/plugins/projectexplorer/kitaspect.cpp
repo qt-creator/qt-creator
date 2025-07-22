@@ -559,4 +559,14 @@ void listAutoDetected(const IDeviceConstPtr &device, const LogCallback &logCallb
         factory->listAutoDetected(detectionSource, logCallback);
 }
 
+QDebug operator<<(QDebug dbg, const DetectionSource &source)
+{
+    dbg.nospace() << "DetectionSource(";
+    dbg.nospace() << "type: " << source.type;
+    if (!source.id.isEmpty())
+        dbg.nospace() << ", id: " << source.id;
+    dbg.nospace() << ")";
+    return dbg;
+}
+
 } // namespace ProjectExplorer

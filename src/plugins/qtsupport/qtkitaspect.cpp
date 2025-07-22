@@ -205,8 +205,8 @@ void QtKitAspectFactory::setup(Kit *k)
               return v->qtVersion() == maxVersion;
           });
 
-    QtVersion * const qtFromPath = QtVersionManager::version(
-                equal(&QtVersion::detectionSource, QString("PATH")));
+    QtVersion *const qtFromPath = QtVersionManager::version(
+        [](const QtVersion *v) { return v->detectionSource().id == "PATH"; });
     if (qtFromPath && highestVersions.contains(qtFromPath))
         k->setValue(id(), qtFromPath->uniqueId());
     else
@@ -378,7 +378,8 @@ int QtKitAspect::qtVersionId(const Kit *k)
             id = -1;
     } else {
         QString source = data.toString();
-        QtVersion *v = QtVersionManager::version([source](const QtVersion *v) { return v->detectionSource() == source; });
+        QtVersion *v = QtVersionManager::version(
+            [source](const QtVersion *v) { return v->detectionSource().id == source; });
         if (v)
             id = v->uniqueId();
     }
@@ -503,7 +504,7 @@ std::optional<Tasking::ExecutableItem> QtKitAspectFactory::removeAutoDetected(
 {
     return Tasking::Sync([detectionSource, logCallback]() {
         const auto versions = QtVersionManager::versions([detectionSource](const QtVersion *qt) {
-            return qt->detectionSource() == detectionSource;
+            return qt->detectionSource().id == detectionSource;
         });
 
         for (QtVersion *version : versions) {
@@ -517,7 +518,7 @@ void QtKitAspectFactory::listAutoDetected(
     const QString &detectionSource, const LogCallback &logCallback) const
 {
     for (const QtVersion *qt : QtVersionManager::versions()) {
-        if (qt->detectionSource() == detectionSource)
+        if (qt->detectionSource().id == detectionSource)
             logCallback(Tr::tr("Qt: %1").arg(qt->displayName()));
     }
 }

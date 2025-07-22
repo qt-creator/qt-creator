@@ -85,6 +85,9 @@ public:
 
     DetectionType type = Uninitialized;
     QString id;
+
+private:
+    PROJECTEXPLORER_EXPORT friend QDebug operator<<(QDebug dbg, const DetectionSource &source);
 };
 
 /**

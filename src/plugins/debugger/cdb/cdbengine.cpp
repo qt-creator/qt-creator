@@ -2210,7 +2210,7 @@ void CdbEngine::checkQtSdkPdbFiles(const QString &module)
     const FilePath modulePath = FilePath::fromUserInput(module).parentDir();
     QtSupport::QtVersion *version = QtSupport::QtVersionManager::version(
         [modulePath](const QtSupport::QtVersion *version) {
-            return version->isAutodetected() && version->binPath() == modulePath;
+            return version->detectionSource().isAutoDetected() && version->binPath() == modulePath;
         });
     if (!version)
         return;
