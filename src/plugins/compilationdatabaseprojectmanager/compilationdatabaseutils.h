@@ -4,6 +4,8 @@
 #pragma once
 
 #include <cppeditor/cppprojectfile.h>
+
+#include <utils/filepath.h>
 #include <utils/synchronizedvalue.h>
 
 #include <QHash>
@@ -13,20 +15,21 @@ class HeaderPath;
 class Macro;
 }
 
-namespace CompilationDatabaseProjectManager {
-namespace Internal {
+namespace CompilationDatabaseProjectManager::Internal {
 
-class DbEntry {
+class DbEntry
+{
 public:
     QStringList flags;
     Utils::FilePath fileName;
     Utils::FilePath workingDir;
 };
 
-class DbContents {
+class DbContents
+{
 public:
     std::vector<DbEntry> entries;
-    QString extraFileName;
+    Utils::FilePath extraFileName;
     QStringList extras;
 };
 
@@ -44,5 +47,4 @@ void filteredFlags(const Utils::FilePath &filePath,
 
 QStringList splitCommandLine(QString commandLine, QSet<QString> &flagsCache);
 
-} // namespace Internal
-} // namespace CompilationDatabaseProjectManager
+} // namespace CompilationDatabaseProjectManager::Internal

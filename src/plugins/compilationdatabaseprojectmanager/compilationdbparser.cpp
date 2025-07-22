@@ -77,11 +77,11 @@ static std::vector<DbEntry> readJsonObjects(const QByteArray &projectFileContent
     return result;
 }
 
-static QStringList readExtraFiles(const QString &filePath)
+static QStringList readExtraFiles(const FilePath &filePath)
 {
     QStringList result;
 
-    QFile file(filePath);
+    QFile file(filePath.toFSPathString());
     if (file.open(QFile::ReadOnly)) {
         QTextStream stream(&file);
         while (!stream.atEnd()) {
@@ -100,8 +100,8 @@ static DbContents parseProject(const QByteArray &projectFileContents,
 {
     DbContents dbContents;
     dbContents.entries = readJsonObjects(projectFileContents);
-    dbContents.extraFileName = projectFilePath.path()
-                               + Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX;
+    dbContents.extraFileName = projectFilePath.stringAppended(
+        Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX);
     dbContents.extras = readExtraFiles(dbContents.extraFileName);
     std::sort(dbContents.entries.begin(), dbContents.entries.end(),
               [](const DbEntry &lhs, const DbEntry &rhs) {

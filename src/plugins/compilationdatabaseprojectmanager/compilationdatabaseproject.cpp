@@ -7,7 +7,6 @@
 #include "compilationdbparser.h"
 
 #include <coreplugin/coreplugintr.h>
-#include <coreplugin/icontext.h>
 
 #include <cppeditor/projectinfo.h>
 
@@ -15,7 +14,6 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
-#include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -31,8 +29,6 @@
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
-
-#include <QFileDialog>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -81,10 +77,10 @@ static Toolchain *toolchainFromCompilerId(const Id &compilerId, const Id &langua
     });
 }
 
-static QString compilerPath(QString pathFlag)
+static FilePath compilerPath(QString pathFlag)
 {
     if (pathFlag.isEmpty())
-        return pathFlag;
+        return {};
 #ifdef Q_OS_WIN
     // Handle short DOS style file names (cmake can generate them).
     const DWORD pathLength
@@ -98,7 +94,7 @@ static QString compilerPath(QString pathFlag)
         delete[] buffer;
     }
 #endif
-    return QDir::fromNativeSeparators(pathFlag);
+    return FilePath::fromUserInput(pathFlag);
 }
 
 static Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Id &language)
@@ -109,7 +105,7 @@ static Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, c
         return kitToolchain;
 
     // Try exact compiler match.
-    const FilePath compiler = FilePath::fromUserInput(compilerPath(flags.front()));
+    const FilePath compiler = compilerPath(flags.front());
     Toolchain *toolchain = ToolchainManager::toolchain([&compiler, &language](const Toolchain *tc) {
         return tc->isValid() && tc->language() == language && tc->compilerCommand() == compiler;
     });
@@ -399,9 +395,8 @@ void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
 
     root->addNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
 
-    if (QFileInfo::exists(dbContents.extraFileName))
-        root->addNode(std::make_unique<FileNode>(
-            FilePath::fromString(dbContents.extraFileName), FileType::Project));
+    if (dbContents.extraFileName.exists())
+        root->addNode(std::make_unique<FileNode>(dbContents.extraFileName, FileType::Project));
 
     setRootProjectNode(std::move(root));
 

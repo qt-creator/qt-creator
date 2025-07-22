@@ -10,7 +10,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/stringutils.h>
 
-#include <QDir>
 #include <QRegularExpression>
 #include <QSet>
 
@@ -19,8 +18,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace CompilationDatabaseProjectManager {
-namespace Internal {
+namespace CompilationDatabaseProjectManager::Internal {
 
 static CppEditor::ProjectFile::Kind fileKindFromString(QString flag)
 {
@@ -229,5 +227,4 @@ QStringList splitCommandLine(QString commandLine, QSet<QString> &flagsCache)
     return result;
 }
 
-} // namespace Internal
-} // namespace CompilationDatabaseProjectManager
+} // namespace CompilationDatabaseProjectManager::Internal
