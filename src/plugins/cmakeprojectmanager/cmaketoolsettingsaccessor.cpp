@@ -183,6 +183,9 @@ void CMakeToolSettingsAccessor::saveCMakeTools(const QList<CMakeTool *> &cmakeTo
 
     int count = 0;
     for (CMakeTool *item : cmakeTools) {
+        if (item->detectionSource().isTemporary())
+            continue;
+
         Utils::FilePath fi = item->cmakeExecutable();
         if (!fi.isLocal() || fi.isExecutableFile()) { // be graceful for device related stuff
             Store tmp = item->toMap();
