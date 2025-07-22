@@ -1286,7 +1286,7 @@ CMakeProjectImporter::findOrCreateCMakeTool(const FilePath &cmakeToolPath) const
 
         UpdateGuard guard(*this);
 
-        auto newTool = std::make_unique<CMakeTool>(CMakeTool::ManualDetection, CMakeTool::createId());
+        auto newTool = std::make_unique<CMakeTool>(DetectionSource::Manual, CMakeTool::createId());
         newTool->setFilePath(cmakeToolPath);
         newTool->setDisplayName(uniqueCMakeToolDisplayName(*newTool));
 

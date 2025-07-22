@@ -7,6 +7,8 @@
 #include <utils/id.h>
 #include <utils/treemodel.h>
 
+#include <projectexplorer/kitaspect.h>
+
 namespace CMakeProjectManager {
 class CMakeTool;
 
@@ -24,7 +26,7 @@ public:
         const Utils::FilePath &executable,
         const Utils::FilePath &qchFile,
         bool autoRun,
-        bool autodetected);
+        const ProjectExplorer::DetectionSource &detectionSource);
 
     void updateErrorFlags();
     bool hasError() const;
@@ -38,12 +40,11 @@ public:
     Utils::FilePath m_executable;
     Utils::FilePath m_qchFile;
     QString m_versionDisplay;
-    QString m_detectionSource;
+    ProjectExplorer::DetectionSource m_detectionSource;
     bool m_isAutoRun = true;
     bool m_pathExists = false;
     bool m_pathIsFile = false;
     bool m_pathIsExecutable = false;
-    bool m_autodetected = false;
     bool m_isSupported = false;
     bool m_changed = true;
 };

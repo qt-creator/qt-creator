@@ -489,7 +489,7 @@ QList<Id> CMakeToolManager::autoDetectCMakeForDevice(
 }
 
 
-Id CMakeToolManager::registerCMakeByPath(const FilePath &cmakePath, const QString &detectionSource)
+Id CMakeToolManager::registerCMakeByPath(const FilePath &cmakePath, const QString &detectionSourceId)
 {
     Id id = Id::fromString(cmakePath.toUserOutput());
 
@@ -497,9 +497,9 @@ Id CMakeToolManager::registerCMakeByPath(const FilePath &cmakePath, const QStrin
     if (cmakeTool)
         return cmakeTool->id();
 
-    auto newTool = std::make_unique<CMakeTool>(CMakeTool::ManualDetection, id);
+    const DetectionSource detectionSource{DetectionSource::Manual, detectionSourceId};
+    auto newTool = std::make_unique<CMakeTool>(detectionSource, id);
     newTool->setFilePath(cmakePath);
-    newTool->setDetectionSource(detectionSource);
     newTool->setDisplayName(cmakePath.toUserOutput());
     id = newTool->id();
     registerCMakeTool(std::move(newTool));
@@ -511,8 +511,10 @@ void CMakeToolManager::removeDetectedCMake(
     const QString &detectionSource, const LogCallback &logCallback)
 {
     while (true) {
-        auto toRemove = Utils::take(
-            d->m_cmakeTools, Utils::equal(&CMakeTool::detectionSource, detectionSource));
+        auto toRemove = Utils::take(d->m_cmakeTools, [detectionSource](const auto &tool) {
+            return tool->detectionSource().id == detectionSource
+                   && tool->detectionSource().isAutoDetected();
+        });
         if (!toRemove.has_value())
             break;
         logCallback(Tr::tr("Removing CMake tool \"%1\"").arg((*toRemove)->displayName()));
@@ -527,7 +529,8 @@ void CMakeToolManager::listDetectedCMake(
     const QString &detectionSource, const LogCallback &logCallback)
 {
     for (const auto &tool : std::as_const(d->m_cmakeTools)) {
-        if (tool->detectionSource() == detectionSource)
+        if (tool->detectionSource().id == detectionSource
+            && tool->detectionSource().isAutoDetected())
             logCallback(tool->displayName());
     }
 }
@@ -553,7 +556,7 @@ void CMakeToolManager::ensureDefaultCMakeToolIsValid()
         if (findById(d->m_defaultCMake))
             return;
         auto cmakeTool = Utils::findOrDefault(cmakeTools(), [](CMakeTool *tool) {
-            return tool->detectionSource().isEmpty() && tool->cmakeExecutable().isLocal();
+            return tool->detectionSource().id.isEmpty() && tool->cmakeExecutable().isLocal();
         });
         if (cmakeTool)
             d->m_defaultCMake = cmakeTool->id();

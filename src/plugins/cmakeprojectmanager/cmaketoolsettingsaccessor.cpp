@@ -16,6 +16,7 @@
 #include <QGuiApplication>
 
 using namespace Utils;
+using namespace ProjectExplorer;
 
 namespace CMakeProjectManager::Internal {
 
@@ -67,7 +68,7 @@ static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
 
     std::vector<std::unique_ptr<CMakeTool>> found;
     for (const FilePath &command : std::as_const(suspects)) {
-        auto item = std::make_unique<CMakeTool>(CMakeTool::AutoDetection, CMakeTool::createId());
+        auto item = std::make_unique<CMakeTool>(DetectionSource::FromSystem, CMakeTool::createId());
         item->setFilePath(command);
         item->setDisplayName(Tr::tr("System CMake at %1").arg(command.toUserOutput()));
 
@@ -98,11 +99,11 @@ mergeTools(std::vector<std::unique_ptr<CMakeTool>> &sdkTools,
             // Replace the sdk tool with the user tool, so any user changes do not get lost
             result[userToolIndex] = std::move(userTool);
         } else {
-            const bool wasOriginallyAutoDetected = userTool->isAutoDetected();
+            const bool wasOriginallyAutoDetected = userTool->detectionSource().isAutoDetected();
             const bool isAutoDetectedAgain = Utils::contains(
                 autoDetectedTools,
                 Utils::equal(&CMakeTool::cmakeExecutable, userTool->cmakeExecutable()));
-            const bool hasAutoDetectionSource = !userTool->detectionSource().isEmpty();
+            const bool hasAutoDetectionSource = !userTool->detectionSource().id.isEmpty();
 
             // Tools from the SDK are auto-detected, but don't have an auto-detection source set.
             // Tools auto-detected from a device by the user have an auto-detection source set.
@@ -210,7 +211,8 @@ CMakeToolSettingsAccessor::cmakeTools(const Store &data, bool fromSdk) const
         const Store dbMap = storeFromVariant(data.value(key));
         auto item = std::make_unique<CMakeTool>(dbMap, fromSdk);
         const FilePath cmakeExecutable = item->cmakeExecutable();
-        if (item->isAutoDetected() && cmakeExecutable.isLocal() && !cmakeExecutable.isExecutableFile()) {
+        if (item->detectionSource().isAutoDetected() && cmakeExecutable.isLocal()
+            && !cmakeExecutable.isExecutableFile()) {
             qWarning() << QString("CMakeTool \"%1\" (%2) dropped since the command is not executable.")
                           .arg(cmakeExecutable.toUserOutput(), item->id().toString());
             continue;

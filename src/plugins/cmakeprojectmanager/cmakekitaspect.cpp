@@ -277,7 +277,7 @@ void CMakeKitAspectFactory::setup(Kit *k)
     // Look for a suitable auto-detected one:
     const QString kitSource = k->detectionSource().id;
     for (CMakeTool *tool : CMakeToolManager::cmakeTools()) {
-        const QString toolSource = tool->detectionSource();
+        const QString toolSource = tool->detectionSource().id;
         if (!toolSource.isEmpty() && toolSource == kitSource) {
             CMakeKitAspect::setCMakeTool(k, tool->id());
             return;
@@ -348,10 +348,9 @@ std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::autoDetect(
                 for (const auto &candidate : candidates) {
                     Id id = Id::fromString(candidate.toUserOutput());
 
-                    auto newTool = std::make_unique<CMakeTool>(CMakeTool::ManualDetection, id);
+                    auto newTool = std::make_unique<CMakeTool>(
+                        DetectionSource{DetectionSource::FromSystem, detectionSource}, id);
                     newTool->setFilePath(candidate);
-                    newTool->setAutoDetected(true);
-                    newTool->setDetectionSource(detectionSource);
                     newTool->setDisplayName(candidate.toUserOutput());
                     id = newTool->id();
 
@@ -392,7 +391,8 @@ void CMakeKitAspectFactory::listAutoDetected(
     const QString &detectionSource, const LogCallback &logCallback) const
 {
     for (const CMakeTool *tool : CMakeToolManager::cmakeTools()) {
-        if (tool->isAutoDetected() && tool->detectionSource() == detectionSource)
+        if (tool->detectionSource().isAutoDetected()
+            && tool->detectionSource().id == detectionSource)
             logCallback(Tr::tr("CMake tool: %1").arg(tool->displayName()));
     }
 }
@@ -437,10 +437,9 @@ Utils::Result<Tasking::ExecutableItem> CMakeKitAspectFactory::createAspectFromJs
 
                 Id id = Id::fromString(cmakeExecutable.toUserOutput());
 
-                auto newTool = std::make_unique<CMakeTool>(CMakeTool::ManualDetection, id);
+                auto newTool = std::make_unique<CMakeTool>(
+                    DetectionSource{DetectionSource::FromSystem, detectionSource}, id);
                 newTool->setFilePath(cmakeExecutable);
-                newTool->setAutoDetected(true);
-                newTool->setDetectionSource(detectionSource);
                 newTool->setDisplayName(cmakeExecutable.toUserOutput());
                 id = newTool->id();
 

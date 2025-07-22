@@ -5,6 +5,8 @@
 
 #include "cmake_global.h"
 
+#include <projectexplorer/kitaspect.h>
+
 #include <texteditor/codeassist/keywordscompletionassist.h>
 
 #include <utils/filepath.h>
@@ -39,7 +41,10 @@ struct CMAKE_EXPORT CMakeKeywords
 class CMAKE_EXPORT CMakeTool
 {
 public:
-    enum Detection { ManualDetection, AutoDetection };
+    enum [[deprecated("Use DetectionSource::Type instead")]] Detection {
+        ManualDetection,
+        AutoDetection
+    };
 
     enum ReaderType { FileApi };
 
@@ -68,8 +73,12 @@ public:
 
     using PathMapper = std::function<Utils::FilePath (const Utils::FilePath &)>;
 
-    explicit CMakeTool(Detection d, const Utils::Id &id);
+    [[deprecated("Use CMakeTool(DetectionSource, Id) instead")]] explicit CMakeTool(
+        Detection d, const Utils::Id &id);
+
     explicit CMakeTool(const Utils::Store &map, bool fromSdk);
+    explicit CMakeTool(const ProjectExplorer::DetectionSource &d, const Utils::Id &id);
+
     ~CMakeTool();
 
     static Utils::Id createId();
@@ -93,8 +102,8 @@ public:
     Version version() const;
     QString versionDisplay() const;
 
-    bool isAutoDetected() const;
-    void setAutoDetected(bool autoDetected);
+    [[deprecated("Use detectionSource().isAutoDetected() instead")]] bool isAutoDetected() const;
+    [[deprecated("Use setDetectionSource() instead")]] void setAutoDetected(bool autoDetected);
     QString displayName() const;
     void setDisplayName(const QString &displayName);
 
@@ -105,8 +114,12 @@ public:
 
     static Utils::FilePath searchQchFile(const Utils::FilePath &executable);
 
-    QString detectionSource() const { return m_detectionSource; }
-    void setDetectionSource(const QString &source) { m_detectionSource = source; }
+    [[deprecated("Use setDetectionSource(DetectionSource) instead")]] void setDetectionSource(
+        const QString &source);
+
+    // Note: the earlier returned QString is the same as DetectionSource::id now
+    ProjectExplorer::DetectionSource detectionSource() const;
+    void setDetectionSource(const ProjectExplorer::DetectionSource &source);
 
     static QString documentationUrl(const Version &version, bool online);
     static void openCMakeHelpUrl(const CMakeTool *tool, const QString &linkUrl);
@@ -129,8 +142,7 @@ private:
     Utils::FilePath m_executable;
     Utils::FilePath m_qchFilePath;
 
-    bool m_isAutoDetected = false;
-    QString m_detectionSource;
+    ProjectExplorer::DetectionSource m_detectionSource;
     bool m_autoCreateBuildDirectory = false;
 
     std::optional<ReaderType> m_readerType;

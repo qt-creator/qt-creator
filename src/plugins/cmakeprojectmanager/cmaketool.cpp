@@ -26,6 +26,7 @@
 #include <memory>
 
 using namespace Utils;
+using namespace ProjectExplorer;
 
 namespace CMakeProjectManager {
 
@@ -100,25 +101,40 @@ public:
 ///////////////////////////
 CMakeTool::CMakeTool(Detection d, const Id &id)
     : m_id(id)
-    , m_isAutoDetected(d == AutoDetection)
+    , m_detectionSource(
+          d == Detection::AutoDetection ? DetectionSource::FromSystem : DetectionSource::Manual)
     , m_introspection(std::make_unique<Internal::IntrospectionData>())
 {
     QTC_ASSERT(m_id.isValid(), m_id = Id::generate());
 }
 
-CMakeTool::CMakeTool(const Store &map, bool fromSdk) :
-    CMakeTool(fromSdk ? CMakeTool::AutoDetection : CMakeTool::ManualDetection,
-              Id::fromSetting(map.value(CMAKE_INFORMATION_ID)))
+CMakeTool::CMakeTool(const DetectionSource &d, const Id &id)
+    : m_id(id)
+    , m_detectionSource(d)
+    , m_introspection(std::make_unique<Internal::IntrospectionData>())
+{
+    QTC_ASSERT(m_id.isValid(), m_id = Id::generate());
+}
+
+CMakeTool::CMakeTool(const Store &map, bool fromSdk)
+    : m_id(Id::fromSetting(map.value(CMAKE_INFORMATION_ID)))
+    , m_introspection(std::make_unique<Internal::IntrospectionData>())
 {
     m_displayName = map.value(CMAKE_INFORMATION_DISPLAYNAME).toString();
     m_autoCreateBuildDirectory = map.value(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, false).toBool();
     m_readerType = Internal::readerTypeFromString(
         map.value(CMAKE_INFORMATION_READERTYPE).toString());
 
-    //loading a CMakeTool from SDK is always autodetection
-    if (!fromSdk)
-        m_isAutoDetected = map.value(CMAKE_INFORMATION_AUTODETECTED, false).toBool();
-    m_detectionSource = map.value(CMAKE_INFORMATION_DETECTIONSOURCE).toString();
+    const DetectionSource::DetectionType type = [&] {
+        if (fromSdk)
+            return DetectionSource::FromSdk;
+        if (map.value(CMAKE_INFORMATION_AUTODETECTED, false).toBool())
+            return DetectionSource::FromSystem;
+        return DetectionSource::Manual;
+    }();
+    const QString detectionSourceId = map.value(CMAKE_INFORMATION_DETECTIONSOURCE).toString();
+
+    m_detectionSource = {type, detectionSourceId};
 
     m_qchFilePath = FilePath::fromSettings(map.value(CMAKE_INFORMATION_QCH_FILE_PATH));
 
@@ -184,8 +200,8 @@ Store CMakeTool::toMap() const
     data.insert(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, m_autoCreateBuildDirectory);
     if (m_readerType)
         data.insert(CMAKE_INFORMATION_READERTYPE, Internal::readerTypeToString(*m_readerType));
-    data.insert(CMAKE_INFORMATION_AUTODETECTED, m_isAutoDetected);
-    data.insert(CMAKE_INFORMATION_DETECTIONSOURCE, m_detectionSource);
+    data.insert(CMAKE_INFORMATION_AUTODETECTED, m_detectionSource.isAutoDetected());
+    data.insert(CMAKE_INFORMATION_DETECTIONSOURCE, m_detectionSource.id);
     return data;
 }
 
@@ -341,12 +357,12 @@ QString CMakeTool::versionDisplay() const
 
 bool CMakeTool::isAutoDetected() const
 {
-    return m_isAutoDetected;
+    return m_detectionSource.isAutoDetected();
 }
 
 void CMakeTool::setAutoDetected(bool autoDetected)
 {
-    m_isAutoDetected = autoDetected;
+    m_detectionSource.type = autoDetected ? DetectionSource::FromSystem : DetectionSource::Manual;
 }
 
 QString CMakeTool::displayName() const
@@ -688,6 +704,21 @@ void CMakeTool::parseFromCapabilities(const QString &input) const
     m_introspection->m_version.minor = versionInfo.value("minor").toInt();
     m_introspection->m_version.patch = versionInfo.value("patch").toInt();
     m_introspection->m_version.fullVersion = versionInfo.value("string").toByteArray();
+}
+
+void CMakeTool::setDetectionSource(const QString &source)
+{
+    m_detectionSource.id = source;
+}
+
+void CMakeTool::setDetectionSource(const DetectionSource &source)
+{
+    m_detectionSource = source;
+}
+
+DetectionSource CMakeTool::detectionSource() const
+{
+    return m_detectionSource;
 }
 
 } // namespace CMakeProjectManager

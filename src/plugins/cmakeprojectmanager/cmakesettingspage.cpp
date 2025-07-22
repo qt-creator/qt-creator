@@ -32,6 +32,7 @@
 #include <QTreeView>
 
 using namespace Utils;
+using namespace ProjectExplorer;
 
 namespace CMakeProjectManager::Internal {
 
@@ -46,11 +47,12 @@ public:
 
     CMakeToolTreeItem *cmakeToolItem(const Utils::Id &id) const;
     CMakeToolTreeItem *cmakeToolItem(const QModelIndex &index) const;
-    QModelIndex addCMakeTool(const QString &name,
-                             const FilePath &executable,
-                             const FilePath &qchFile,
-                             const bool autoRun,
-                             const bool isAutoDetected);
+    QModelIndex addCMakeTool(
+        const QString &name,
+        const FilePath &executable,
+        const FilePath &qchFile,
+        const bool autoRun,
+        const DetectionSource &detectionSource);
     void addCMakeTool(const CMakeTool *item, bool changed);
     TreeItem *autoGroupItem() const;
     TreeItem *manualGroupItem() const;
@@ -80,7 +82,6 @@ CMakeToolTreeItem::CMakeToolTreeItem(const CMakeTool *item, bool changed)
     , m_qchFile(item->qchFilePath())
     , m_versionDisplay(item->versionDisplay())
     , m_detectionSource(item->detectionSource())
-    , m_autodetected(item->isAutoDetected())
     , m_isSupported(item->hasFileApi())
     , m_changed(changed)
 {
@@ -92,13 +93,13 @@ CMakeToolTreeItem::CMakeToolTreeItem(
     const FilePath &executable,
     const FilePath &qchFile,
     bool autoRun,
-    bool autodetected)
+    const DetectionSource &detectionSource)
     : m_id(Id::generate())
     , m_name(name)
     , m_executable(executable)
     , m_qchFile(qchFile)
+    , m_detectionSource(detectionSource)
     , m_isAutoRun(autoRun)
-    , m_autodetected(autodetected)
 {
     updateErrorFlags();
 }
@@ -110,19 +111,19 @@ void CMakeToolTreeItem::updateErrorFlags()
     m_pathIsFile = filePath.isFile();
     m_pathIsExecutable = filePath.isExecutableFile();
 
-    CMakeTool cmake(m_autodetected ? CMakeTool::AutoDetection : CMakeTool::ManualDetection, m_id);
+    CMakeTool cmake(m_detectionSource, m_id);
     cmake.setFilePath(m_executable);
     m_isSupported = cmake.hasFileApi();
 
     m_tooltip = Tr::tr("Version: %1").arg(cmake.versionDisplay());
     m_tooltip += "<br>"
                  + Tr::tr("Supports fileApi: %1").arg(m_isSupported ? Tr::tr("yes") : Tr::tr("no"));
-    m_tooltip += "<br>" + Tr::tr("Detection source: \"%1\"").arg(m_detectionSource);
+    m_tooltip += "<br>" + Tr::tr("Detection source: \"%1\"").arg(m_detectionSource.id);
 
     m_versionDisplay = cmake.versionDisplay();
 
     // Make sure to always have the right version in the name for Qt SDK CMake installations
-    if (m_autodetected && m_name.startsWith("CMake") && m_name.endsWith("(Qt)"))
+    if (m_detectionSource.isAutoDetected() && m_name.startsWith("CMake") && m_name.endsWith("(Qt)"))
         m_name = QString("CMake %1 (Qt)").arg(m_versionDisplay);
 }
 
@@ -217,14 +218,15 @@ CMakeToolItemModel::CMakeToolItemModel()
 
 }
 
-QModelIndex CMakeToolItemModel::addCMakeTool(const QString &name,
-                                             const FilePath &executable,
-                                             const FilePath &qchFile,
-                                             const bool autoRun,
-                                             const bool isAutoDetected)
+QModelIndex CMakeToolItemModel::addCMakeTool(
+    const QString &name,
+    const FilePath &executable,
+    const FilePath &qchFile,
+    const bool autoRun,
+    const DetectionSource &detectionSource)
 {
-    auto item = new CMakeToolTreeItem(name, executable, qchFile, autoRun, isAutoDetected);
-    if (isAutoDetected)
+    auto item = new CMakeToolTreeItem(name, executable, qchFile, autoRun, detectionSource);
+    if (detectionSource.isAutoDetected())
         autoGroupItem()->appendChild(item);
     else
         manualGroupItem()->appendChild(item);
@@ -240,7 +242,7 @@ void CMakeToolItemModel::addCMakeTool(const CMakeTool *item, bool changed)
         return;
 
     auto treeItem = new CMakeToolTreeItem(item, changed);
-    if (item->isAutoDetected())
+    if (item->detectionSource().isAutoDetected())
         autoGroupItem()->appendChild(treeItem);
     else
         manualGroupItem()->appendChild(treeItem);
@@ -332,13 +334,10 @@ void CMakeToolItemModel::apply()
     });
 
     for (CMakeToolTreeItem *item : std::as_const(toRegister)) {
-        CMakeTool::Detection detection = item->m_autodetected ? CMakeTool::AutoDetection
-                                                              : CMakeTool::ManualDetection;
-        auto cmake = std::make_unique<CMakeTool>(detection, item->m_id);
+        auto cmake = std::make_unique<CMakeTool>(item->m_detectionSource, item->m_id);
         cmake->setDisplayName(item->m_name);
         cmake->setFilePath(item->m_executable);
         cmake->setQchFilePath(item->m_qchFile);
-        cmake->setDetectionSource(item->m_detectionSource);
         if (!CMakeToolManager::registerCMakeTool(std::move(cmake)))
             item->m_changed = true;
     }
@@ -478,13 +477,13 @@ void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
     }
 
     // Set values:
-    m_displayNameLineEdit->setEnabled(!item->m_autodetected);
+    m_displayNameLineEdit->setEnabled(!item->m_detectionSource.isAutoDetected());
     m_displayNameLineEdit->setText(item->m_name);
 
-    m_binaryChooser->setReadOnly(item->m_autodetected);
+    m_binaryChooser->setReadOnly(item->m_detectionSource.isAutoDetected());
     m_binaryChooser->setFilePath(item->m_executable);
 
-    m_qchFileChooser->setReadOnly(item->m_autodetected);
+    m_qchFileChooser->setReadOnly(item->m_detectionSource.isAutoDetected());
     m_qchFileChooser->setBaseDirectory(item->m_executable.parentDir());
     m_qchFileChooser->setFilePath(item->m_qchFile);
 
@@ -593,22 +592,24 @@ void CMakeToolConfigWidget::cloneCMakeTool()
     if (!m_currentItem)
         return;
 
-    QModelIndex newItem = m_model.addCMakeTool(Tr::tr("Clone of %1").arg(m_currentItem->m_name),
-                                               m_currentItem->m_executable,
-                                               m_currentItem->m_qchFile,
-                                               m_currentItem->m_isAutoRun,
-                                               false);
+    QModelIndex newItem = m_model.addCMakeTool(
+        Tr::tr("Clone of %1").arg(m_currentItem->m_name),
+        m_currentItem->m_executable,
+        m_currentItem->m_qchFile,
+        m_currentItem->m_isAutoRun,
+        DetectionSource{DetectionSource::Manual, m_currentItem->m_detectionSource.id});
 
     m_cmakeToolsView->setCurrentIndex(newItem);
 }
 
 void CMakeToolConfigWidget::addCMakeTool()
 {
-    QModelIndex newItem = m_model.addCMakeTool(m_model.uniqueDisplayName(Tr::tr("New CMake")),
-                                               FilePath(),
-                                               FilePath(),
-                                               true,
-                                               false);
+    QModelIndex newItem = m_model.addCMakeTool(
+        m_model.uniqueDisplayName(Tr::tr("New CMake")),
+        FilePath(),
+        FilePath(),
+        true,
+        DetectionSource::Manual);
 
     m_cmakeToolsView->setCurrentIndex(newItem);
 }
@@ -650,7 +651,7 @@ void CMakeToolConfigWidget::currentCMakeToolChanged(const QModelIndex &newCurren
     m_itemConfigWidget->load(m_currentItem);
     m_container->setVisible(m_currentItem);
     m_cloneButton->setEnabled(m_currentItem);
-    m_delButton->setEnabled(m_currentItem && !m_currentItem->m_autodetected);
+    m_delButton->setEnabled(m_currentItem && !m_currentItem->m_detectionSource.isAutoDetected());
     m_makeDefButton->setEnabled(m_currentItem && (!m_model.defaultItemId().isValid() || m_currentItem->m_id != m_model.defaultItemId()));
 }
 
