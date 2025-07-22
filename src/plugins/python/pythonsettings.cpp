@@ -65,7 +65,7 @@ Interpreter PythonSettings::createInterpreter(
     const FilePath &python,
     const QString &defaultName,
     const QString &suffix,
-    const QString &detectionSource)
+    const DetectionSource &detectionSource)
 {
     Interpreter result;
     result.id = QUuid::createUuid().toString();
@@ -234,7 +234,9 @@ void InterpreterOptionsWidget::addInterpreter(const Interpreter &interpreter)
 
 void InterpreterOptionsWidget::removeInterpreterFrom(const QString &detectionSource)
 {
-    m_model->destroyItems(Utils::equal(&Interpreter::detectionSource, detectionSource));
+    m_model->destroyItems([&detectionSource](const Interpreter &interpreter) {
+        return interpreter.detectionSource.id == detectionSource;
+    });
 }
 
 QList<Interpreter> InterpreterOptionsWidget::interpreters() const
@@ -247,7 +249,9 @@ QList<Interpreter> InterpreterOptionsWidget::interpreters() const
 
 QList<Interpreter> InterpreterOptionsWidget::interpreterFrom(const QString &detectionSource) const
 {
-    return m_model->allData(Utils::equal(&Interpreter::detectionSource, detectionSource));
+    return m_model->allData([&detectionSource](const Interpreter &interpreter) {
+        return interpreter.detectionSource.id == detectionSource;
+    });
 }
 
 void InterpreterOptionsWidget::currentChanged(const QModelIndex &index, const QModelIndex &previous)
@@ -298,7 +302,7 @@ void InterpreterOptionsWidget::updateGenerateKitButton(const Interpreter &interp
 void InterpreterOptionsWidget::addItem()
 {
     const QModelIndex &index = m_model->indexForItem(m_model->appendItem(
-        {QUuid::createUuid().toString(), QString("Python"), FilePath(), false}));
+        {QUuid::createUuid().toString(), QString("Python"), FilePath(), DetectionSource::Manual}));
     QTC_ASSERT(index.isValid(), return);
     m_view->setCurrentIndex(index);
     updateCleanButton();
@@ -784,10 +788,11 @@ void PythonSettings::addKitsForInterpreter(const Interpreter &interpreter, bool 
     } else if (force || !isVenvPython(interpreter.command)) {
         KitManager::registerKit(
             [interpreter](Kit *k) {
-                const QString source = interpreter.detectionSource.isEmpty()
-                                           ? "Python"
-                                           : interpreter.detectionSource;
-                k->setDetectionSource({DetectionSource::FromSystem, source});
+                if (interpreter.detectionSource.id.isEmpty())
+                    k->setDetectionSource({DetectionSource::FromSystem, "Python"});
+                else
+                    k->setDetectionSource(interpreter.detectionSource);
+
                 k->setUnexpandedDisplayName("%{Python:Name}");
                 setRelevantAspectsToKit(k);
                 PythonKitAspect::setPython(k, interpreter.id);
@@ -1016,18 +1021,24 @@ void PythonSettings::initFromSettings(QtcSettings *settings)
         auto interpreterMembers = interpreterVariant.toList();
         if (interpreterMembers.size() <= 3)
             continue; // old settings, skip
+
+        const bool isAutoDetected = interpreterMembers.value(3, true).toBool();
+        const QString detectionSourceId = interpreterMembers.value(4, QString()).toString();
+        DetectionSource detectionSource{
+            isAutoDetected ? DetectionSource::FromSystem : DetectionSource::Manual,
+            detectionSourceId};
+
         m_interpreters << Interpreter{
             interpreterMembers.value(0).toString(),
             interpreterMembers.value(1).toString(),
             FilePath::fromSettings(interpreterMembers.value(2)),
-            interpreterMembers.value(3, true).toBool(),
-            interpreterMembers.value(4, QString()).toString()};
+            detectionSource};
     }
 
     const auto keepInterpreter = [](const Interpreter &interpreter) {
-        return !interpreter.autoDetected // always keep user added interpreters
-                || !interpreter.command.isLocal() // remote devices might not be reachable at startup
-                || interpreter.command.isExecutableFile();
+        return !interpreter.detectionSource.isAutoDetected() // always keep user added interpreters
+               || !interpreter.command.isLocal() // remote devices might not be reachable at startup
+               || interpreter.command.isExecutableFile();
     };
 
     const auto [valid, outdatedInterpreters] = Utils::partition(m_interpreters, keepInterpreter);
@@ -1039,7 +1050,7 @@ void PythonSettings::initFromSettings(QtcSettings *settings)
     for (const Interpreter &interpreter : std::as_const(m_interpreters)) {
         cacheVenvAndPipUsability(interpreter);
         if (!kitsGenerated) {
-            if (interpreter.autoDetected) {
+            if (interpreter.detectionSource.isAutoDetected()) {
                 const FilePath &cmd = interpreter.command;
                 if (!cmd.isLocal() || cmd.parentDir().pathAppended("activate").exists())
                     continue;
@@ -1075,8 +1086,8 @@ void PythonSettings::writeToSettings(QtcSettings *settings)
             interpreter.id,
             interpreter.name,
             interpreter.command.toSettings(),
-            interpreter.autoDetected,
-            interpreter.detectionSource};
+            interpreter.detectionSource.isAutoDetected(),
+            interpreter.detectionSource.id};
         // We need to cast to QVariant() here, otherwise interpretersList will simply append each
         // member as a separate item.
         interpretersList.append(QVariant(members)); // new settings
@@ -1120,7 +1131,10 @@ std::optional<Tasking::ExecutableItem> PythonSettings::autoDetect(
                         continue;
 
                     Interpreter interpreter = PythonSettings::createInterpreter(
-                        python, {}, "(" + python.toUserOutput() + ")", detectionSource);
+                        python,
+                        {},
+                        "(" + python.toUserOutput() + ")",
+                        DetectionSource{DetectionSource::FromSystem, detectionSource});
 
                     promise.addResult(interpreter);
                 }

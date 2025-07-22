@@ -4,6 +4,7 @@
 #pragma once
 
 #include "environmentaspect.h"
+#include "kitaspect.h"
 
 #include <utils/aspects.h>
 
@@ -207,8 +208,7 @@ public:
     Interpreter(const QString &id,
                 const QString &name,
                 const Utils::FilePath &command,
-                bool autoDetected = true,
-                const QString &detectionSource = QString());
+                const DetectionSource &detectionSource = {});
 
     inline bool operator==(const Interpreter &other) const
     {
@@ -219,8 +219,7 @@ public:
     QString id;
     QString name;
     Utils::FilePath command;
-    bool autoDetected = true;
-    QString detectionSource;
+    DetectionSource detectionSource;
 };
 
 class PROJECTEXPLORER_EXPORT LauncherAspect : public Utils::BaseAspect

@@ -31,7 +31,7 @@ public:
         const Utils::FilePath &python,
         const QString &defaultName,
         const QString &suffix = {},
-        const QString &detectionSource = {});
+        const ProjectExplorer::DetectionSource &detectionSource = {});
 
     static void addInterpreter(const Interpreter &interpreter, bool isDefault = false);
     static Interpreter addInterpreter(const Utils::FilePath &interpreterPath,
