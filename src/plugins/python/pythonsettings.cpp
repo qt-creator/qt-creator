@@ -1082,6 +1082,9 @@ void PythonSettings::writeToSettings(QtcSettings *settings)
     settings->beginGroup(settingsGroupKey);
     QVariantList interpretersList;
     for (const Interpreter &interpreter : std::as_const(m_interpreters)) {
+        if (interpreter.detectionSource.isTemporary())
+            continue;
+
         const QVariantList members{
             interpreter.id,
             interpreter.name,
