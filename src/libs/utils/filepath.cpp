@@ -1672,6 +1672,14 @@ FilePaths FilePaths::fromStrings(const QStringList &fileNames)
     return transform(fileNames, &FilePath::fromString);
 }
 
+FilePaths FilePaths::resolvePaths(const FilePath &anchor, const QStringList &fileNames)
+{
+    FilePaths result;
+    for (const QString &fileName : fileNames)
+        result.append(anchor.resolvePath(fileName));
+    return result;
+}
+
 QStringList FilePaths::toFsPathStrings() const
 {
     return transform(*this, &FilePath::toFSPathString);

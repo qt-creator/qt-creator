@@ -67,6 +67,8 @@ public:
 
     [[nodiscard]] static FilePaths fromSettings(const QVariant &variant);
     [[nodiscard]] static FilePaths fromStrings(const QStringList &fileNames);
+    [[nodiscard]] static FilePaths resolvePaths(const FilePath &anchor,
+                                                const QStringList &fileNames);
 
     [[nodiscard]] QVariant toSettings() const;
     [[nodiscard]] QStringList toFsPathStrings() const;
