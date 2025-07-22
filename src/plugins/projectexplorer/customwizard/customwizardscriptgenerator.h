@@ -10,6 +10,8 @@
 
 namespace Core { class GeneratedFile; }
 
+namespace Utils { class FilePath; }
+
 namespace ProjectExplorer::Internal {
 
 class GeneratorScriptArgument;
@@ -19,13 +21,13 @@ QStringList fixGeneratorScript(const QString &configFile, QString attributeIn);
 
 // Step 1) Do a dry run of the generation script to get a list of files on stdout
 Utils::Result<QList<Core::GeneratedFile>>
-    dryRunCustomWizardGeneratorScript(const QString &targetPath,
+    dryRunCustomWizardGeneratorScript(const Utils::FilePath &targetPath,
                                       const QStringList &script,
                                       const QList<GeneratorScriptArgument> &arguments,
                                       const QMap<QString, QString> &fieldMap);
 
 // Step 2) Generate files
-Utils::Result<> runCustomWizardGeneratorScript(const QString &targetPath,
+Utils::Result<> runCustomWizardGeneratorScript(const Utils::FilePath &targetPath,
                                                const QStringList &script,
                                                const QList<GeneratorScriptArgument> &arguments,
                                                const QMap<QString, QString> &fieldMap);

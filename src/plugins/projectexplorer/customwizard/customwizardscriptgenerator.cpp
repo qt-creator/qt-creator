@@ -116,7 +116,7 @@ static Result<>
 */
 
 Result<QList<GeneratedFile>>
-    dryRunCustomWizardGeneratorScript(const QString &targetPath,
+    dryRunCustomWizardGeneratorScript(const FilePath &targetPath,
                                       const QStringList &script,
                                       const QList<GeneratorScriptArgument> &arguments,
                                       const QMap<QString, QString> &fieldMap)
@@ -145,16 +145,11 @@ Result<QList<GeneratedFile>>
                     if (token == QLatin1String(customWizardFileOpenEditorAttributeC))
                         attributes |= GeneratedFile::OpenEditorAttribute;
                     else if (token == QLatin1String(customWizardFileOpenProjectAttributeC))
-                            attributes |= GeneratedFile::OpenProjectAttribute;
+                        attributes |= GeneratedFile::OpenProjectAttribute;
                 } else {
                     // Token 0 is file name. Wizard wants native names.
                     // Expand to full path if relative
-                    const QFileInfo fileInfo(token);
-                    const QString fullPath =
-                            fileInfo.isAbsolute() ?
-                            token :
-                            (targetPath + QLatin1Char('/') + token);
-                    file.setFilePath(FilePath::fromString(fullPath).cleanPath());
+                    file.setFilePath(targetPath.resolvePath(token));
                 }
             }
             file.setAttributes(attributes);
@@ -202,13 +197,12 @@ Result<QList<GeneratedFile>>
     \sa dryRunCustomWizardGeneratorScript, ProjectExplorer::CustomWizard
  */
 
-Result<> runCustomWizardGeneratorScript(const QString &targetPath,
-                                      const QStringList &script,
-                                      const QList<GeneratorScriptArgument> &arguments,
-                                      const QMap<QString, QString> &fieldMap)
+Result<> runCustomWizardGeneratorScript(const FilePath &targetPath,
+                                        const QStringList &script,
+                                        const QList<GeneratorScriptArgument> &arguments,
+                                        const QMap<QString, QString> &fieldMap)
 {
-    return runGenerationScriptHelper(FilePath::fromString(targetPath), script, arguments,
-                                     false, fieldMap, nullptr);
+    return runGenerationScriptHelper(targetPath, script, arguments, false, fieldMap, nullptr);
 }
 
 } // namespace ProjectExplorer::Internal

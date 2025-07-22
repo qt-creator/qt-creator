@@ -212,14 +212,14 @@ template <class WizardPage>
 
 // Determine where to run the generator script. The user may specify
 // an expression subject to field replacement, default is the target path.
-static inline QString scriptWorkingDirectory(const std::shared_ptr<CustomWizardContext> &ctx,
-                                             const std::shared_ptr<CustomWizardParameters> &p)
+static FilePath scriptWorkingDirectory(const std::shared_ptr<CustomWizardContext> &ctx,
+                                       const std::shared_ptr<CustomWizardParameters> &p)
 {
     if (p->filesGeneratorScriptWorkingDirectory.isEmpty())
-        return ctx->targetPath.toUrlishString();
+        return ctx->targetPath;
     QString path = p->filesGeneratorScriptWorkingDirectory;
     CustomWizardContext::replaceFields(ctx->replacements, &path);
-    return path;
+    return FilePath::fromUserInput(path);
 }
 
 GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString *errorMessage) const
@@ -261,13 +261,14 @@ Result<> CustomWizard::writeFiles(const GeneratedFiles &files) const
     // Known issue: By nature, the script does not honor
     // GeneratedFile::KeepExistingFileAttribute.
     const CustomWizardContextPtr ctx = context();
-    const QString scriptWorkingDir = scriptWorkingDirectory(ctx, d->m_parameters);
-    const QDir scriptWorkingDirDir(scriptWorkingDir);
-    if (!scriptWorkingDirDir.exists()) {
+    const FilePath scriptWorkingDir = scriptWorkingDirectory(ctx, d->m_parameters);
+    if (!scriptWorkingDir.exists()) {
         if (CustomWizardPrivate::verbose)
-            qDebug("Creating directory %s", qPrintable(scriptWorkingDir));
-        if (!scriptWorkingDirDir.mkpath(scriptWorkingDir))
-            return ResultError(QString("Unable to create the target directory \"%1\"").arg(scriptWorkingDir));
+            qDebug("Creating directory %s", qPrintable(scriptWorkingDir.toUserOutput()));
+        if (const Result<> res = scriptWorkingDir.ensureWritableDir(); !res)  {
+            return ResultError(QString("Unable to create the target directory \"%1\": %2")
+                .arg(scriptWorkingDir.toUserOutput(), res.error()));
+        }
     }
     // Run the custom script to actually generate the files.
     const Result<> res = runCustomWizardGeneratorScript(scriptWorkingDir,
