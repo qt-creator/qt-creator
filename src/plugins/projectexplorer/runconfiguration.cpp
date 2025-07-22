@@ -69,10 +69,11 @@ void GlobalOrProjectAspect::setProjectSettings(AspectContainer *settings)
     m_projectSettings->setAutoApply(true);
 }
 
-void GlobalOrProjectAspect::setGlobalSettings(AspectContainer *settings)
+void GlobalOrProjectAspect::setGlobalSettings(AspectContainer *settings, Id settingsPage)
 {
     m_globalSettings = settings;
     m_globalSettings->setAutoApply(false);
+    m_settingsPage = settingsPage;
 }
 
 void GlobalOrProjectAspect::setUsingGlobalSettings(bool value)
@@ -138,11 +139,19 @@ public:
 
         auto restoreButton = new QPushButton(Tr::tr("Restore Global"));
 
+        QPushButton *showGlobalButton = nullptr;
+        if (aspect->settingsPage().isValid()) {
+            showGlobalButton = new QPushButton(Tr::tr("Show Global"));
+            connect(showGlobalButton, &QPushButton::clicked, aspect, [aspect] {
+                Core::ICore::showOptionsDialog(aspect->settingsPage());
+            });
+        };
+
         auto innerPane = new QWidget;
         auto configWidget = aspect->projectSettings()->layouter()().emerge();
 
         Column {
-            Row { settingsCombo, restoreButton, st },
+            Row { settingsCombo, restoreButton, showGlobalButton, st },
             configWidget
         }.attachTo(innerPane);
 

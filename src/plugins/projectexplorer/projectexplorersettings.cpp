@@ -464,7 +464,7 @@ PerProjectProjectExplorerSettings::PerProjectProjectExplorerSettings(Project *pr
 
     const auto settings = new ProjectExplorerSettings(false);
     setProjectSettings(settings);
-    setGlobalSettings(&globalProjectExplorerSettings());
+    setGlobalSettings(&globalProjectExplorerSettings(), Constants::BUILD_AND_RUN_SETTINGS_PAGE_ID);
     setId("PESettingsAspect");
     settings->setSettingsKey("PESettings");
     settings->setLayouter([settings] {

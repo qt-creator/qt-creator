@@ -15,7 +15,7 @@ namespace PerfProfiler::Internal {
 PerfRunConfigurationAspect::PerfRunConfigurationAspect(BuildConfiguration *bc)
 {
     setProjectSettings(new PerfSettings(bc->target()));
-    setGlobalSettings(&PerfProfiler::globalSettings());
+    setGlobalSettings(&PerfProfiler::globalSettings(), Constants::PerfSettingsId);
     setId(Constants::PerfSettingsId);
     setDisplayName(Tr::tr("Performance Analyzer Settings"));
     setUsingGlobalSettings(true);

@@ -16,7 +16,7 @@ namespace QmlProfiler::Internal {
 QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(BuildConfiguration *)
 {
     setProjectSettings(new QmlProfilerSettings);
-    setGlobalSettings(&Internal::globalSettings());
+    setGlobalSettings(&Internal::globalSettings(), Constants::SETTINGS);
     setId(Constants::SETTINGS);
     setDisplayName(Tr::tr("QML Profiler Settings"));
     setUsingGlobalSettings(true);

@@ -87,7 +87,7 @@ public:
     ~GlobalOrProjectAspect() override;
 
     void setProjectSettings(Utils::AspectContainer *settings);
-    void setGlobalSettings(Utils::AspectContainer *settings);
+    void setGlobalSettings(Utils::AspectContainer *settings, Utils::Id settingsPage);
 
     bool isUsingGlobalSettings() const { return m_useGlobalSettings; }
     void setUsingGlobalSettings(bool value);
@@ -95,6 +95,7 @@ public:
 
     Utils::AspectContainer *projectSettings() const { return m_projectSettings; }
     Utils::AspectContainer *currentSettings() const;
+    Utils::Id settingsPage() const { return m_settingsPage; }
 
     struct Data : Utils::BaseAspect::Data
     {
@@ -115,6 +116,7 @@ private:
     bool m_useGlobalSettings = false;
     Utils::AspectContainer *m_projectSettings = nullptr; // Owned if present.
     Utils::AspectContainer *m_globalSettings = nullptr;  // Not owned.
+    Utils::Id m_settingsPage;
 };
 
 PROJECTEXPLORER_EXPORT QWidget *createGlobalOrProjectAspectWidget(GlobalOrProjectAspect *aspect);

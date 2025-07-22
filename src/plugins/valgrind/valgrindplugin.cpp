@@ -30,7 +30,7 @@ public:
     ValgrindRunConfigurationAspect(BuildConfiguration *)
     {
         setProjectSettings(new ValgrindSettings(false));
-        setGlobalSettings(&globalSettings());
+        setGlobalSettings(&globalSettings(), ANALYZER_VALGRIND_SETTINGS);
         setId(ANALYZER_VALGRIND_SETTINGS);
         setDisplayName(Tr::tr("Valgrind Settings"));
         setUsingGlobalSettings(true);
