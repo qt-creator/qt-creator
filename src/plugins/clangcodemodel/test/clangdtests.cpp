@@ -1710,7 +1710,7 @@ void ClangdTestCompletion::testCompleteGlobals()
     item->apply(editor, cursorPos);
     QCOMPARE(editor->textDocument()->blockText(6), "   globalFunction() /* COMPLETE HERE */");
     QCOMPARE(editor->lineColumn(), Text::Position({7, 19}));
-    QVERIFY(editor->autoCompleteHighlightPositions().isEmpty());
+    QVERIFY(editor->autoCompleteHighlightPosition().isNull());
 }
 
 void ClangdTestCompletion::testCompleteMembers()
@@ -1730,7 +1730,7 @@ void ClangdTestCompletion::testCompleteMembers()
     item->apply(editor, cursorPos);
     QCOMPARE(editor->textDocument()->blockText(6), "    s.member /* COMPLETE HERE */");
     QCOMPARE(editor->lineColumn(), Text::Position({7, 12}));
-    QVERIFY(editor->autoCompleteHighlightPositions().isEmpty());
+    QVERIFY(editor->autoCompleteHighlightPosition().isNull());
 }
 
 void ClangdTestCompletion::testCompleteMembersFromInside()
@@ -1748,7 +1748,7 @@ void ClangdTestCompletion::testCompleteMembersFromInside()
     item->apply(editor, cursorPos);
     QCOMPARE(editor->textDocument()->blockText(3), "        privateFunc() /* COMPLETE HERE */");
     QCOMPARE(editor->lineColumn(), Text::Position({4, 21}));
-    QVERIFY(editor->autoCompleteHighlightPositions().isEmpty());
+    QVERIFY(editor->autoCompleteHighlightPosition().isNull());
 }
 
 void ClangdTestCompletion::testCompleteMembersFromOutside()
@@ -1766,7 +1766,7 @@ void ClangdTestCompletion::testCompleteMembersFromOutside()
     item->apply(editor, cursorPos);
     QCOMPARE(editor->textDocument()->blockText(12), "    c.publicFunc() /* COMPLETE HERE */");
     QCOMPARE(editor->lineColumn(), Text::Position({13, 18}));
-    QVERIFY(editor->autoCompleteHighlightPositions().isEmpty());
+    QVERIFY(editor->autoCompleteHighlightPosition().isNull());
 }
 
 void ClangdTestCompletion::testCompleteMembersFromFriend()
@@ -1784,7 +1784,7 @@ void ClangdTestCompletion::testCompleteMembersFromFriend()
     item->apply(editor, cursorPos);
     QCOMPARE(editor->textDocument()->blockText(13), "    C().privateFunc() /* COMPLETE HERE */");
     QCOMPARE(editor->lineColumn(), Text::Position({14, 21}));
-    QVERIFY(editor->autoCompleteHighlightPositions().isEmpty());
+    QVERIFY(editor->autoCompleteHighlightPosition().isNull());
 }
 
 void ClangdTestCompletion::testFunctionAddress()
@@ -1801,7 +1801,7 @@ void ClangdTestCompletion::testFunctionAddress()
     item->apply(editor, cursorPos);
     QCOMPARE(editor->textDocument()->blockText(6), "    const auto p = &S::memberFunc /* COMPLETE HERE */;");
     QCOMPARE(editor->lineColumn(), Text::Position({7, 33}));
-    QVERIFY(editor->autoCompleteHighlightPositions().isEmpty());
+    QVERIFY(editor->autoCompleteHighlightPosition().isNull());
 }
 
 void ClangdTestCompletion::testFunctionHints()
@@ -1865,7 +1865,7 @@ void ClangdTestCompletion::testCompleteClassAndConstructor()
     item->apply(editor, cursorPos);
     QCOMPARE(editor->textDocument()->blockText(6), "    Foo( /* COMPLETE HERE */");
     QCOMPARE(editor->lineColumn(), Text::Position({7, 8}));
-    QVERIFY(editor->autoCompleteHighlightPositions().isEmpty());
+    QVERIFY(editor->autoCompleteHighlightPosition().isNull());
 }
 
 void ClangdTestCompletion::testCompletePrivateFunctionDefinition()
@@ -1892,7 +1892,7 @@ void ClangdTestCompletion::testCompleteWithDotToArrowCorrection()
     item->apply(editor, cursorPos);
     QCOMPARE(editor->textDocument()->blockText(3), "    bar->member /* COMPLETE HERE */");
     QCOMPARE(editor->lineColumn(), Text::Position({4, 15}));
-    QVERIFY(editor->autoCompleteHighlightPositions().isEmpty());
+    QVERIFY(editor->autoCompleteHighlightPosition().isNull());
 }
 
 void ClangdTestCompletion::testDontCompleteWithDotToArrowCorrectionForFloats()
@@ -1923,7 +1923,7 @@ void ClangdTestCompletion::testCompleteCodeInGeneratedUiFile()
     item->apply(editor, cursorPos);
     QCOMPARE(editor->textDocument()->blockText(33), "    ui->setupUi( /* COMPLETE HERE */");
     QCOMPARE(editor->lineColumn(), Text::Position({34, 16}));
-    QVERIFY(editor->autoCompleteHighlightPositions().isEmpty());
+    QVERIFY(editor->autoCompleteHighlightPosition().isNull());
 }
 
 void ClangdTestCompletion::testSignalCompletion_data()

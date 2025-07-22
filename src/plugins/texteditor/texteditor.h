@@ -539,7 +539,7 @@ public:
 
     std::unique_ptr<EmbeddedWidgetInterface> insertWidget(QWidget *widget, int pos);
 
-    QList<QTextCursor> autoCompleteHighlightPositions() const;
+    QTextCursor autoCompleteHighlightPosition() const;
 
 #ifdef WITH_TESTS
     void processTooltipRequest(const QTextCursor &c);

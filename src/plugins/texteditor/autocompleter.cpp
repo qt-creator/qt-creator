@@ -148,7 +148,7 @@ bool AutoCompleter::isNextBlockIndented(const QTextBlock &currentBlock) const
     return false;
 }
 
-QString AutoCompleter::replaceSelection(QTextCursor &cursor, const QString &textToInsert) const
+QString AutoCompleter::replaceSelection(const QTextCursor &cursor, const QString &textToInsert) const
 {
     if (!cursor.hasSelection())
         return QString();

@@ -75,7 +75,7 @@ public:
     bool isNextBlockIndented(const QTextBlock &currentBlock) const;
 
 private:
-    QString replaceSelection(QTextCursor &cursor, const QString &textToInsert) const;
+    QString replaceSelection(const QTextCursor &cursor, const QString &textToInsert) const;
 
 private:
     TabSettings m_tabSettings;
