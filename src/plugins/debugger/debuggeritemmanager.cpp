@@ -921,6 +921,8 @@ void DebuggerItemModel::saveDebuggers()
 
     int count = 0;
     forAllDebuggers([&count, &data](DebuggerItem &item) {
+        if (item.detectionSource().isTemporary())
+            return;
         if (item.isGeneric()) // do not store generic debuggers, these get added automatically
             return;
         if (item.isValid() && item.engineType() != NoEngineType) {
