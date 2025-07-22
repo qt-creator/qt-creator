@@ -404,6 +404,8 @@ void QtVersionManagerImpl::saveQtVersions()
 
     int count = 0;
     for (QtVersion *qtv : std::as_const(m_versions)) {
+        if (qtv->detectionSource().isTemporary())
+            continue; // don't save temporary versions
         Store tmp = qtv->toMap();
         if (tmp.isEmpty())
             continue;
