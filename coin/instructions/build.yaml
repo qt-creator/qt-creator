@@ -13,6 +13,7 @@ instructions:
                 --llvm-path {{.AgentWorkingDir}}/build/qt_temp/libclang
                 {{.Env.QTC_TEST_OPTION}}
                 --no-zip
+                {{.Env.QTC_SBOM_OPTION}}
                 {{.Env.QTC_SCCACHE_C_OPTION}}
                 {{.Env.QTC_SCCACHE_CXX_OPTION}}
                 {{.Env.QTC_SCCACHE_ENABLE_OPTION}}
@@ -51,6 +52,7 @@ instructions:
                 --keychain-unlock-script /Users/qt/unlock-keychain.sh
                 {{.Env.QTC_TEST_OPTION}}
                 --no-zip
+                {{.Env.QTC_SBOM_OPTION}}
                 {{.Env.QTC_SCCACHE_C_OPTION}}
                 {{.Env.QTC_SCCACHE_CXX_OPTION}}
                 {{.Env.QTC_SCCACHE_ENABLE_OPTION}}
@@ -94,6 +96,7 @@ instructions:
                 --elfutils-path {{.AgentWorkingDir}}/buid/qt_temp/elfutils
                 --llvm-path {{.AgentWorkingDir}}/build/qt_temp/libclang
                 --no-zip
+                {{.Env.QTC_SBOM_OPTION}}
                 {{.Env.QTC_TEST_OPTION}}
                 {{.Env.QTC_SCCACHE_C_OPTION}}
                 {{.Env.QTC_SCCACHE_CXX_OPTION}}
