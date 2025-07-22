@@ -5,6 +5,8 @@
 
 #include "qtsupport_global.h"
 
+#include <projectexplorer/kitaspect.h>
+
 #include <utils/store.h>
 
 namespace Utils { class FilePath; }
@@ -29,10 +31,11 @@ public:
     /// the desktop factory claims to handle all paths
     int priority() const { return m_priority; }
 
-    static QtVersion *createQtVersionFromQMakePath(const Utils::FilePath &qmakePath,
-                                                       bool isAutoDetected = false,
-                                                       const QString &detectionSource = {},
-                                                       QString *error = nullptr);
+    static QtVersion *createQtVersionFromQMakePath(
+        const Utils::FilePath &qmakePath,
+        const ProjectExplorer::DetectionSource &detectionSource,
+        QString *error = nullptr);
+
 protected:
     struct SetupData
     {

@@ -78,7 +78,7 @@ QtProjectImporter::findOrCreateQtVersion(const Utils::FilePath &qmakePath) const
 
     // Create a new version if not found:
     // Do not use the canonical path here...
-    result.qt = QtVersionFactory::createQtVersionFromQMakePath(qmakePath);
+    result.qt = QtVersionFactory::createQtVersionFromQMakePath(qmakePath, DetectionSource::Manual);
     result.isTemporary = true;
     if (result.qt) {
         UpdateGuard guard(*this);

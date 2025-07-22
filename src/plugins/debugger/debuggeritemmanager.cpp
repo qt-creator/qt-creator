@@ -1026,7 +1026,7 @@ Tasking::ExecutableItem removeAutoDetected(
 }
 
 Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
-    const QString &detectionSource,
+    const DetectionSource &detectionSource,
     const Utils::FilePath &rootPath,
     ProjectExplorer::Kit *kit,
     const QJsonValue &json,
@@ -1044,9 +1044,8 @@ Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
         async.setConcurrentCallData(
             [](QPromise<Result<DebuggerItem>> &promise,
                const FilePath &command,
-               const QString &detectionSource) {
-                promise.addResult(makeAutoDetectedDebuggerItem(
-                    command, {DetectionSource::FromSystem, detectionSource}));
+               const DetectionSource &detectionSource) {
+                promise.addResult(makeAutoDetectedDebuggerItem(command, detectionSource));
             },
             command,
             detectionSource);

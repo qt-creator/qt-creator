@@ -58,7 +58,7 @@ public:
     static std::optional<Tasking::ExecutableItem> autoDetect(
         ProjectExplorer::Kit *kit,
         const Utils::FilePaths &searchPaths,
-        const QString &detectionSource,
+        const ProjectExplorer::DetectionSource &detectionSource,
         const ProjectExplorer::LogCallback &logCallback);
     static void removeDetectedPython(
         const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);

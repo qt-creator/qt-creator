@@ -404,7 +404,7 @@ const QList<KitAspectFactory *> KitAspectFactory::kitAspectFactories()
 std::optional<Tasking::ExecutableItem> KitAspectFactory::autoDetect(
     Kit *kit,
     const Utils::FilePaths &searchPaths,
-    const QString &detectionSource,
+    const DetectionSource &detectionSource,
     const LogCallback &logCallback) const
 {
     Q_UNUSED(kit);
@@ -416,22 +416,22 @@ std::optional<Tasking::ExecutableItem> KitAspectFactory::autoDetect(
 }
 
 std::optional<Tasking::ExecutableItem> KitAspectFactory::removeAutoDetected(
-    const QString &detectionSource, const LogCallback &logCallback) const
+    const QString &detectionSourceId, const LogCallback &logCallback) const
 {
-    Q_UNUSED(detectionSource);
+    Q_UNUSED(detectionSourceId);
     Q_UNUSED(logCallback);
     return std::nullopt;
 }
 
 void KitAspectFactory::listAutoDetected(
-    const QString &detectionSource, const LogCallback &logCallback) const
+    const QString &detectionSourceId, const LogCallback &logCallback) const
 {
-    Q_UNUSED(detectionSource)
+    Q_UNUSED(detectionSourceId)
     Q_UNUSED(logCallback)
 }
 
 Result<Tasking::ExecutableItem> KitAspectFactory::createAspectFromJson(
-    const QString &detectionSource,
+    const DetectionSource &detectionSource,
     const FilePath &rootPath,
     Kit *kit,
     const QJsonValue &json,
@@ -447,7 +447,10 @@ Result<Tasking::ExecutableItem> KitAspectFactory::createAspectFromJson(
             .arg(id().toString()));
 }
 
-Tasking::Group kitDetectionRecipe(const IDeviceConstPtr &device, const LogCallback &logCallback)
+Tasking::Group kitDetectionRecipe(
+    const IDeviceConstPtr &device,
+    DetectionSource::DetectionType detectionType,
+    const LogCallback &logCallback)
 {
     using namespace Tasking;
     using namespace Utils;
@@ -455,7 +458,9 @@ Tasking::Group kitDetectionRecipe(const IDeviceConstPtr &device, const LogCallba
     Storage<GroupItems> detectorItems;
     Storage<Kit *> kit;
 
-    const auto setup = [kit, detectorItems, device, logCallback] {
+    const DetectionSource detectionSource{detectionType, device->id().toString()};
+
+    const auto setup = [kit, detectorItems, device, detectionSource, logCallback] {
         const auto root = device->rootPath();
 
         const FilePaths searchPaths
@@ -463,12 +468,12 @@ Tasking::Group kitDetectionRecipe(const IDeviceConstPtr &device, const LogCallba
                   return root.withNewPath(path.path());
               });
 
-        const QString detectionSource = device->id().toString();
+        const QString detectionSourceId = device->id().toString();
 
         logCallback(Tr::tr("Auto detecting Kits for device: %1").arg(device->displayName()));
 
-        *kit = KitManager::registerKit([detectionSource, device](Kit *k) {
-            k->setDetectionSource({DetectionSource::FromSystem, detectionSource});
+        *kit = KitManager::registerKit([detectionSourceId, device, detectionSource](Kit *k) {
+            k->setDetectionSource(detectionSource);
             k->setUnexpandedDisplayName("%{Device:Name}");
 
             RunDeviceTypeKitAspect::setDeviceTypeId(k, device->type());

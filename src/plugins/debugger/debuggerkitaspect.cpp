@@ -418,11 +418,10 @@ public:
     std::optional<Tasking::ExecutableItem> autoDetect(
         Kit *kit,
         const Utils::FilePaths &searchPaths,
-        const QString &detectionSource,
+        const DetectionSource &detectionSource,
         const LogCallback &logCallback) const override
     {
-        return Internal::autoDetectDebuggerRecipe(
-            kit, searchPaths, {DetectionSource::FromSystem, detectionSource}, logCallback);
+        return Internal::autoDetectDebuggerRecipe(kit, searchPaths, detectionSource, logCallback);
     }
 
     std::optional<Tasking::ExecutableItem> removeAutoDetected(
@@ -442,14 +441,13 @@ public:
     }
 
     Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
-        const QString &detectionSource,
+        const DetectionSource &detectionSource,
         const Utils::FilePath &rootPath,
         Kit *kit,
         const QJsonValue &json,
         const LogCallback &logCallback) const override
     {
-        return Internal::createAspectFromJson(
-            detectionSource, rootPath, kit, json, logCallback);
+        return Internal::createAspectFromJson(detectionSource, rootPath, kit, json, logCallback);
     }
 };
 

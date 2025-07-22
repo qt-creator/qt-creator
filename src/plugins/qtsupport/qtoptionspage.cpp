@@ -722,7 +722,7 @@ void QtSettingsPageWidget::addQtDir()
     }
 
     QString error;
-    QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion, false, QString(), &error);
+    QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion, DetectionSource::Manual, &error);
     if (version) {
         auto item = new QtVersionItem(version);
         item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
@@ -761,7 +761,7 @@ void QtSettingsPageWidget::editPath()
                                        QFileDialog::DontResolveSymlinks);
     if (qtVersion.isEmpty())
         return;
-    QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion);
+    QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion, DetectionSource::Manual, nullptr);
     if (!version)
         return;
     // Same type? then replace!

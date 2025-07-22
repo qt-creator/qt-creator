@@ -142,7 +142,7 @@ private:
     std::optional<Tasking::ExecutableItem> autoDetect(
         Kit *kit,
         const Utils::FilePaths &searchPaths,
-        const QString &detectionSource,
+        const DetectionSource &detectionSource,
         const LogCallback &logCallback) const override;
 
     std::optional<Tasking::ExecutableItem> removeAutoDetected(
@@ -152,7 +152,7 @@ private:
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
     Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
-        const QString &detectionSource,
+        const DetectionSource &detectionSource,
         const FilePath &rootPath,
         Kit *kit,
         const QJsonValue &json,
@@ -446,7 +446,7 @@ void QtKitAspectFactory::onKitsLoaded()
 std::optional<Tasking::ExecutableItem> QtKitAspectFactory::autoDetect(
     Kit *kit,
     const FilePaths &searchPaths,
-    const QString &detectionSource,
+    const DetectionSource &detectionSource,
     const LogCallback &logCallback) const
 {
     const auto searchQtse = [searchPaths, detectionSource](Async<QtVersion *> &async) {
@@ -457,7 +457,7 @@ std::optional<Tasking::ExecutableItem> QtKitAspectFactory::autoDetect(
                     [&detectionSource, &foundQtVersions, &promise](const FilePath &qmake) {
                         QString error;
                         QtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(
-                            qmake, true, detectionSource, &error);
+                            qmake, detectionSource, &error);
 
                         if (qtVersion && qtVersion->isValid()) {
                             // Trigger loading the version data
@@ -524,7 +524,7 @@ void QtKitAspectFactory::listAutoDetected(
 }
 
 Utils::Result<Tasking::ExecutableItem> QtKitAspectFactory::createAspectFromJson(
-    const QString &detectionSource,
+    const DetectionSource &detectionSource,
     const FilePath &rootPath,
     Kit *kit,
     const QJsonValue &json,
@@ -545,11 +545,11 @@ Utils::Result<Tasking::ExecutableItem> QtKitAspectFactory::createAspectFromJson(
             async.setConcurrentCallData(
                 [](QPromise<ResultType> &promise,
                    const QString &qmakePath,
-                   const QString &detectionSource,
+                   const DetectionSource &detectionSource,
                    const FilePath &rootPath) {
                     QString error;
                     QtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(
-                        rootPath.withNewPath(qmakePath), true, detectionSource, &error);
+                        rootPath.withNewPath(qmakePath), detectionSource, &error);
 
                     if (!qtVersion) {
                         promise.addResult(ResultError(

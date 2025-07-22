@@ -1110,7 +1110,7 @@ void PythonSettings::writeToSettings(QtcSettings *settings)
 std::optional<Tasking::ExecutableItem> PythonSettings::autoDetect(
     Kit *kit,
     const Utils::FilePaths &searchPaths,
-    const QString &detectionSource,
+    const DetectionSource &detectionSource,
     const LogCallback &logCallback)
 {
     Q_UNUSED(kit);
@@ -1124,7 +1124,7 @@ std::optional<Tasking::ExecutableItem> PythonSettings::autoDetect(
             [](QPromise<Interpreter> &promise,
                const FilePaths &searchPaths,
                const QList<Interpreter> &alreadyConfigured,
-               const QString &detectionSource) {
+               const DetectionSource &detectionSource) {
                 for (const FilePath &path : searchPaths) {
                     const FilePath python = path.pathAppended("python3").withExecutableSuffix();
                     if (!python.isExecutableFile())
@@ -1134,10 +1134,7 @@ std::optional<Tasking::ExecutableItem> PythonSettings::autoDetect(
                         continue;
 
                     Interpreter interpreter = PythonSettings::createInterpreter(
-                        python,
-                        {},
-                        "(" + python.toUserOutput() + ")",
-                        DetectionSource{DetectionSource::FromSystem, detectionSource});
+                        python, {}, "(" + python.toUserOutput() + ")", detectionSource);
 
                     promise.addResult(interpreter);
                 }

@@ -474,9 +474,8 @@ void QtVersionManagerImpl::findSystemQt()
         };
         if (contains(m_versions, isSameQmake))
             continue;
-        QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qmakePath,
-                                                                                false,
-                                                                                "PATH");
+        QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(
+            qmakePath, {DetectionSource::Manual, "PATH"});
         if (version)
             m_versions.insert(version->uniqueId(), version);
     }

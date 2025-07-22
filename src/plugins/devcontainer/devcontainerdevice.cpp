@@ -358,7 +358,12 @@ Result<> Device::up(
                 }
 
                 auto executableItem = factory->createAspectFromJson(
-                    id().toString(), rootPath(), kit, it.value(), instanceConfig.logFunction);
+                    {DetectionSource::Temporary, id().toString()},
+                    rootPath(),
+                    kit,
+                    it.value(),
+                    instanceConfig.logFunction);
+
                 if (!executableItem) {
                     instanceConfig.logFunction(
                         Tr::tr("Failed to create kit aspect %1: %2")
@@ -385,7 +390,7 @@ Result<> Device::up(
         Sync(setupCmdBridge),
         TaskTreeTask(setupManualKits),
         If (autoDetectKitsEnabled) >> Then {
-            kitDetectionRecipe(shared_from_this(), instanceConfig.logFunction)
+            kitDetectionRecipe(shared_from_this(), DetectionSource::Temporary, instanceConfig.logFunction)
         },
     };
     // clang-format on

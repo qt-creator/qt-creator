@@ -125,7 +125,7 @@ public:
     std::optional<Tasking::ExecutableItem> autoDetect(
         Kit *kit,
         const Utils::FilePaths &searchPaths,
-        const QString &detectionSource,
+        const DetectionSource &detectionSource,
         const LogCallback &logCallback) const override;
 
     std::optional<Tasking::ExecutableItem> removeAutoDetected(
@@ -135,7 +135,7 @@ public:
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
     Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
-        const QString &detectionSource,
+        const DetectionSource &detectionSource,
         const FilePath &rootPath,
         Kit *kit,
         const QJsonValue &json,
@@ -328,7 +328,7 @@ QSet<Id> CMakeKitAspectFactory::availableFeatures(const Kit *k) const
 std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::autoDetect(
     Kit *kit,
     const Utils::FilePaths &searchPaths,
-    const QString &detectionSource,
+    const DetectionSource &detectionSource,
     const LogCallback &logCallback) const
 {
     using namespace Tasking;
@@ -339,7 +339,7 @@ std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::autoDetect(
         async.setConcurrentCallData(
             [](QPromise<ResultType> &promise,
                const FilePaths &searchPaths,
-               const QString &detectionSource) {
+               const DetectionSource &detectionSource) {
                 const FilePath cmake = "cmake";
                 const FilePaths candidates = cmake.searchAllInDirectories(searchPaths);
 
@@ -348,8 +348,7 @@ std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::autoDetect(
                 for (const auto &candidate : candidates) {
                     Id id = Id::fromString(candidate.toUserOutput());
 
-                    auto newTool = std::make_unique<CMakeTool>(
-                        DetectionSource{DetectionSource::FromSystem, detectionSource}, id);
+                    auto newTool = std::make_unique<CMakeTool>(detectionSource, id);
                     newTool->setFilePath(candidate);
                     newTool->setDisplayName(candidate.toUserOutput());
                     id = newTool->id();
@@ -398,7 +397,7 @@ void CMakeKitAspectFactory::listAutoDetected(
 }
 
 Utils::Result<Tasking::ExecutableItem> CMakeKitAspectFactory::createAspectFromJson(
-    const QString &detectionSource,
+    const DetectionSource &detectionSource,
     const Utils::FilePath &rootPath,
     Kit *kit,
     const QJsonValue &json,
@@ -410,7 +409,7 @@ Utils::Result<Tasking::ExecutableItem> CMakeKitAspectFactory::createAspectFromJs
         async.setConcurrentCallData(
             [](QPromise<ResultType> &promise,
                const QJsonValue &json,
-               const QString &detectionSource,
+               const DetectionSource &detectionSource,
                const Utils::FilePath &rootPath) {
                 ResultType result;
 
@@ -437,8 +436,7 @@ Utils::Result<Tasking::ExecutableItem> CMakeKitAspectFactory::createAspectFromJs
 
                 Id id = Id::fromString(cmakeExecutable.toUserOutput());
 
-                auto newTool = std::make_unique<CMakeTool>(
-                    DetectionSource{DetectionSource::FromSystem, detectionSource}, id);
+                auto newTool = std::make_unique<CMakeTool>(detectionSource, id);
                 newTool->setFilePath(cmakeExecutable);
                 newTool->setDisplayName(cmakeExecutable.toUserOutput());
                 id = newTool->id();

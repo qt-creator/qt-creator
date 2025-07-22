@@ -164,7 +164,7 @@ private:
     std::optional<Tasking::ExecutableItem> autoDetect(
         Kit *kit,
         const Utils::FilePaths &searchPaths,
-        const QString &detectionSource,
+        const DetectionSource &detectionSource,
         const LogCallback &logCallback) const override;
 
     std::optional<Tasking::ExecutableItem> removeAutoDetected(
@@ -174,7 +174,7 @@ private:
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
     Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
-        const QString &detectionSource,
+        const DetectionSource &detectionSource,
         const Utils::FilePath &rootPath,
         Kit *kit,
         const QJsonValue &json,
@@ -448,7 +448,7 @@ void ToolchainKitAspectFactory::toolChainsDeregistered()
 std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
     Kit *kit,
     const FilePaths &searchPaths,
-    const QString &detectionSource,
+    const DetectionSource &detectionSource,
     const LogCallback &logCallback) const
 {
     const auto searchToolchains = [searchPaths](Async<Toolchain *> &async) {
@@ -476,7 +476,7 @@ std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
             const Toolchains toolchains = async.results();
 
             for (Toolchain *toolchain : toolchains) {
-                toolchain->setDetectionSource({DetectionSource::FromSystem, detectionSource});
+                toolchain->setDetectionSource(detectionSource);
                 logCallback(Tr::tr("Found toolchain: %1").arg(toolchain->displayName()));
             }
 
@@ -518,7 +518,7 @@ void ToolchainKitAspectFactory::listAutoDetected(
 }
 
 Result<Tasking::ExecutableItem> ToolchainKitAspectFactory::createAspectFromJson(
-    const QString &detectionSource,
+    const DetectionSource &detectionSource,
     const Utils::FilePath &rootPath,
     Kit *kit,
     const QJsonValue &json,
@@ -548,14 +548,14 @@ Result<Tasking::ExecutableItem> ToolchainKitAspectFactory::createAspectFromJson(
 
     const auto detect = [](QPromise<Toolchains> &promise,
                            const QList<ToolchainDescription> &tcds,
-                           const QString &detectionSource) {
+                           const DetectionSource &detectionSource) {
         Toolchains result;
         for (const ToolchainDescription &tcd : tcds) {
             for (ToolchainFactory *factory : ToolchainFactory::allToolchainFactories()) {
                 const Toolchains detected = factory->detectForImport(tcd);
                 for (Toolchain *detected : detected) {
                     if (detected->isValid())
-                        detected->setDetectionSource({DetectionSource::FromSystem, detectionSource});
+                        detected->setDetectionSource(detectionSource);
                 }
                 result.append(detected);
             }

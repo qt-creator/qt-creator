@@ -169,7 +169,7 @@ public:
     std::optional<Tasking::ExecutableItem> autoDetect(
         Kit *kit,
         const Utils::FilePaths &searchPaths,
-        const QString &detectionSource,
+        const DetectionSource &detectionSource,
         const LogCallback &logCallback) const override
     {
         return PythonSettings::autoDetect(kit, searchPaths, detectionSource, logCallback);

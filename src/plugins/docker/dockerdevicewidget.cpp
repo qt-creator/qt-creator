@@ -138,7 +138,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                 // clang-format off
                 Tasking::Group recipe {
                     ProjectExplorer::removeDetectedKitsRecipe(dockerDevice, log),
-                    ProjectExplorer::kitDetectionRecipe(dockerDevice, log)
+                    ProjectExplorer::kitDetectionRecipe(dockerDevice, DetectionSource::FromSystem, log)
                 };
                 // clang-format on
 

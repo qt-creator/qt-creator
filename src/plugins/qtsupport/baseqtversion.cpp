@@ -2364,8 +2364,8 @@ void QtVersion::resetCache() const
 
 static QList<QtVersionFactory *> g_qtVersionFactories;
 
-QtVersion *QtVersionFactory::createQtVersionFromQMakePath
-    (const FilePath &qmakePath, bool isAutoDetected, const QString &detectionSource, QString *error)
+QtVersion *QtVersionFactory::createQtVersionFromQMakePath(
+    const FilePath &qmakePath, const DetectionSource &detectionSource, QString *error)
 {
     QHash<ProKey, ProString> versionInfo;
     const Environment env = qmakePath.deviceEnvironment();
@@ -2404,10 +2404,7 @@ QtVersion *QtVersionFactory::createQtVersionFromQMakePath
             QTC_CHECK(ver->d->m_qmakeCommand.isEmpty()); // Should only be used once.
             ver->d->m_qmakeCommand = qmakePath;
             ver->d->updateVersionInfoNow();
-            if (isAutoDetected)
-                ver->d->m_detectionSource = {DetectionSource::FromSystem, detectionSource};
-            else
-                ver->d->m_detectionSource = {DetectionSource::Manual, detectionSource};
+            ver->d->m_detectionSource = detectionSource;
             ver->updateDefaultDisplayName();
             ProFileCacheManager::instance()->decRefCount();
             return ver;

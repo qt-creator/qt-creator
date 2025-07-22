@@ -33,15 +33,6 @@ class KitAspect;
 
 using LogCallback = std::function<void(const QString &message)>;
 
-PROJECTEXPLORER_EXPORT Tasking::Group kitDetectionRecipe(
-    const IDeviceConstPtr &device, const LogCallback &logCallback);
-
-PROJECTEXPLORER_EXPORT Tasking::Group removeDetectedKitsRecipe(
-    const IDeviceConstPtr &device, const LogCallback &logCallback);
-
-PROJECTEXPLORER_EXPORT void listAutoDetected(
-    const IDeviceConstPtr &device, const LogCallback &logCallback);
-
 class DetectionSource
 {
 public:
@@ -89,6 +80,17 @@ public:
 private:
     PROJECTEXPLORER_EXPORT friend QDebug operator<<(QDebug dbg, const DetectionSource &source);
 };
+
+PROJECTEXPLORER_EXPORT Tasking::Group kitDetectionRecipe(
+    const IDeviceConstPtr &device,
+    DetectionSource::DetectionType detectionType,
+    const LogCallback &logCallback);
+
+PROJECTEXPLORER_EXPORT Tasking::Group removeDetectedKitsRecipe(
+    const IDeviceConstPtr &device, const LogCallback &logCallback);
+
+PROJECTEXPLORER_EXPORT void listAutoDetected(
+    const IDeviceConstPtr &device, const LogCallback &logCallback);
 
 /**
  * @brief The KitAspectFactory class
@@ -149,17 +151,17 @@ public:
     virtual std::optional<Tasking::ExecutableItem> autoDetect(
         Kit *kit,
         const Utils::FilePaths &searchPaths,
-        const QString &detectionSource,
+        const DetectionSource &detectionSource,
         const LogCallback &logCallback) const;
 
     virtual std::optional<Tasking::ExecutableItem> removeAutoDetected(
-        const QString &detectionSource, const LogCallback &logCallback) const;
+        const QString &detectionSourceId, const LogCallback &logCallback) const;
 
     virtual void listAutoDetected(
-        const QString &detectionSource, const LogCallback &logCallback) const;
+        const QString &detectionSourceId, const LogCallback &logCallback) const;
 
     virtual Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
-        const QString &detectionSource,
+        const DetectionSource &detectionSource,
         const Utils::FilePath &rootPath,
         Kit *kit,
         const QJsonValue &json,
