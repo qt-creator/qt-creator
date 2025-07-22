@@ -131,8 +131,6 @@ class QTCREATOR_UTILS_EXPORT QtcRectangleWidget : public QWidget
 public:
     QtcRectangleWidget(QWidget *parent = nullptr);
 
-    QSize sizeHint() const override;
-
     int radius() const;
     void setRadius(int radius);
 

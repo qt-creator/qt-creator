@@ -581,13 +581,8 @@ QSize QtcIconButton::sizeHint() const
 
 QtcRectangleWidget::QtcRectangleWidget(QWidget *parent)
     : QWidget(parent)
-{}
-
-QSize QtcRectangleWidget::sizeHint() const
 {
-    if (layout())
-        return layout()->sizeHint() + QSize(m_radius * 2, m_radius * 2);
-    return QSize(m_radius * 2, m_radius * 2);
+    setContentsMargins(m_radius, m_radius, m_radius, m_radius);
 }
 
 void QtcRectangleWidget::paintEvent(QPaintEvent *event)
@@ -606,6 +601,7 @@ void QtcRectangleWidget::setRadius(int radius)
 {
     if (m_radius != radius) {
         m_radius = radius;
+        setContentsMargins(m_radius, m_radius, m_radius, m_radius);
         update();
     }
 }
