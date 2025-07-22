@@ -375,72 +375,72 @@ void CustomWizard::createWizards()
     QString errorMessage;
     QString verboseLog;
 
-    const QString templateDirName = ICore::resourcePath(templatePathC).toUrlishString();
-    const QString userTemplateDirName = ICore::userResourcePath(templatePathC).toUrlishString();
+    const FilePath templateDir = ICore::resourcePath(templatePathC);
+    const FilePath userTemplateDir = ICore::userResourcePath(templatePathC);
 
-    const QDir templateDir(templateDirName);
     if (CustomWizardPrivate::verbose)
-        verboseLog += QString::fromLatin1("### CustomWizard: Checking \"%1\"\n").arg(templateDirName);
+        verboseLog += QString("### CustomWizard: Checking \"%1\"\n").arg(templateDir.toUserOutput());
     if (!templateDir.exists()) {
         if (CustomWizardPrivate::verbose)
-           qWarning("Custom project template path %s does not exist.", qPrintable(templateDir.absolutePath()));
+           qWarning("Custom project template path %s does not exist.", qPrintable(templateDir.toUserOutput()));
         return;
     }
 
-    const QDir userTemplateDir(userTemplateDirName);
     if (CustomWizardPrivate::verbose)
-        verboseLog += QString::fromLatin1("### CustomWizard: Checking \"%1\"\n").arg(userTemplateDirName);
+        verboseLog += QString("### CustomWizard: Checking \"%1\"\n").arg(userTemplateDir.toUserOutput());
 
-    const QDir::Filters filters = QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot;
+    const FileFilter filters({}, QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot);
     const QDir::SortFlags sortflags = QDir::Name|QDir::IgnoreCase;
-    QFileInfoList dirs;
+    FilePaths dirs;
     if (userTemplateDir.exists()) {
-        if (CustomWizardPrivate::verbose)
-            verboseLog += QString::fromLatin1("### CustomWizard: userTemplateDir \"%1\" found, adding\n").arg(userTemplateDirName);
-        dirs += userTemplateDir.entryInfoList(filters, sortflags);
+        if (CustomWizardPrivate::verbose) {
+            verboseLog += QString("### CustomWizard: userTemplateDir \"%1\" found, adding\n")
+                .arg(userTemplateDir.toUserOutput());
+        }
+        dirs += userTemplateDir.dirEntries(filters, sortflags);
     }
-    dirs += templateDir.entryInfoList(filters, sortflags);
+    dirs += templateDir.dirEntries(filters, sortflags);
 
-    const QString configFile = QLatin1String(configFileC);
     // Check and parse config file in each directory.
 
     QList<CustomWizardParametersPtr> toCreate;
 
     while (enableLoadTemplateFiles() && !dirs.isEmpty()) {
-        const QFileInfo dirFi = dirs.takeFirst();
-        const QDir dir(dirFi.absoluteFilePath());
+        const FilePath dir = dirs.takeFirst();
         if (CustomWizardPrivate::verbose)
-            verboseLog += QString::fromLatin1("CustomWizard: Scanning %1\n").arg(dirFi.absoluteFilePath());
-        if (dir.exists(configFile)) {
+            verboseLog += QString("CustomWizard: Scanning %1\n").arg(dir.toUserOutput());
+        const FilePath configFile = dir.pathAppended(configFileC);
+        if (configFile.exists()) {
             CustomWizardParametersPtr parameters(new CustomWizardParameters);
-            switch (parameters->parse(dir.absoluteFilePath(configFile), &errorMessage)) {
+            switch (parameters->parse(configFile, &errorMessage)) {
             case CustomWizardParameters::ParseOk:
                 if (!Utils::contains(toCreate, [parameters](CustomWizardParametersPtr p) { return parameters->id == p->id; })) {
                     toCreate.append(parameters);
-                    parameters->directory = dir.absolutePath();
+                    parameters->directory = dir.path();
                     IWizardFactory::registerFactoryCreator([parameters] { return createWizard(parameters); });
                 } else {
                     verboseLog += QString::fromLatin1("Customwizard: Ignoring wizard in %1 due to duplicate Id %2.\n")
-                            .arg(dir.absolutePath()).arg(parameters->id.toString());
+                            .arg(dir.toUserOutput()).arg(parameters->id.toString());
                 }
                 break;
             case CustomWizardParameters::ParseDisabled:
                 if (CustomWizardPrivate::verbose)
-                    qWarning("Ignoring disabled wizard %s...", qPrintable(dir.absolutePath()));
+                    qWarning("Ignoring disabled wizard %s...", qPrintable(dir.toUserOutput()));
                 break;
             case CustomWizardParameters::ParseFailed:
                 qWarning("Failed to initialize custom project wizard in %s: %s",
-                         qPrintable(dir.absolutePath()), qPrintable(errorMessage));
+                         qPrintable(dir.toUserOutput()), qPrintable(errorMessage));
                 break;
             }
         } else {
-            QFileInfoList subDirs = dir.entryInfoList(filters, sortflags);
+            FilePaths subDirs = dir.dirEntries(filters, sortflags);
             if (!subDirs.isEmpty()) {
                 // There is no QList::prepend(QList)...
                 dirs.swap(subDirs);
                 dirs.append(subDirs);
             } else if (CustomWizardPrivate::verbose) {
-                verboseLog += QString::fromLatin1("CustomWizard: \"%1\" not found\n").arg(configFile);
+                verboseLog += QString::fromLatin1("CustomWizard: \"%1\" not found\n")
+                    .arg(configFile.toUserOutput());
             }
         }
     }

@@ -84,9 +84,9 @@ public:
 
     CustomWizardParameters() = default;
     void clear();
-    ParseResult parse(QIODevice &device, const QString &configFileFullPath,
+    ParseResult parse(QIODevice &device, const Utils::FilePath &configFileFullPath,
                       QString *errorMessage);
-    ParseResult parse(const QString &configFileFullPath, QString *errorMessage);
+    ParseResult parse(const Utils::FilePath &configFileFullPath, QString *errorMessage);
 
     Utils::Id id;
     QString directory;

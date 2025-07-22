@@ -451,11 +451,12 @@ static inline IWizardFactory::WizardFlags wizardFlags(const QXmlStreamReader &re
 }
 
 static inline QString msgError(const QXmlStreamReader &reader,
-                               const QString &fileName,
+                               const FilePath &filePath,
                                const QString &what)
 {
-    return QString::fromLatin1("Error in %1 at line %2, column %3: %4").
-            arg(fileName).arg(reader.lineNumber()).arg(reader.columnNumber()).arg(what);
+    return QString::fromLatin1("Error in %1 at line %2, column %3: %4")
+            .arg(filePath.toUserOutput()).arg(reader.lineNumber())
+            .arg(reader.columnNumber()).arg(what);
 }
 
 static inline bool booleanAttributeValue(const QXmlStreamReader &r, const char *nameC,
@@ -517,7 +518,7 @@ GeneratorScriptArgument::GeneratorScriptArgument(const QString &v) :
 
 // Main parsing routine
 CustomWizardParameters::ParseResult
-CustomWizardParameters::parse(QIODevice &device, const QString &configFileFullPath,
+CustomWizardParameters::parse(QIODevice &device, const FilePath &configFileFullPath,
                               QString *errorMessage)
 {
     int comboEntryCount = 0;
@@ -537,7 +538,7 @@ CustomWizardParameters::parse(QIODevice &device, const QString &configFileFullPa
         case QXmlStreamReader::StartElement:
             do {
                 // Read out subelements applicable to current state
-                if (state == ParseWithinWizard && parseCustomProjectElement(reader, configFileFullPath, language, this))
+                if (state == ParseWithinWizard && parseCustomProjectElement(reader, configFileFullPath.path(), language, this))
                     break;
                 // switch to next state
                 state = nextOpeningState(state, reader.name());
@@ -607,7 +608,8 @@ CustomWizardParameters::parse(QIODevice &device, const QString &configFileFullPa
                     }
                     break;
                 case ParseWithinScript:
-                    filesGeneratorScript = fixGeneratorScript(configFileFullPath, attributeValue(reader, generatorScriptBinaryAttributeC));
+                    filesGeneratorScript = fixGeneratorScript(configFileFullPath.path(),
+                            attributeValue(reader, generatorScriptBinaryAttributeC));
                     if (filesGeneratorScript.isEmpty()) {
                         *errorMessage = QString::fromLatin1("No binary specified for generator script.");
                         return ParseFailed;
@@ -671,11 +673,12 @@ CustomWizardParameters::parse(QIODevice &device, const QString &configFileFullPa
 }
 
 CustomWizardParameters::ParseResult
-CustomWizardParameters::parse(const QString &configFileFullPath, QString *errorMessage)
+CustomWizardParameters::parse(const FilePath &configFileFullPath, QString *errorMessage)
 {
-    QFile configFile(configFileFullPath);
+    QFile configFile(configFileFullPath.toFSPathString());
     if (!configFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        *errorMessage = QString::fromLatin1("Cannot open %1: %2").arg(configFileFullPath, configFile.errorString());
+        *errorMessage = QString::fromLatin1("Cannot open %1: %2")
+            .arg(configFileFullPath.toUserOutput(), configFile.errorString());
         return ParseFailed;
     }
     return parse(configFile, configFileFullPath, errorMessage);
