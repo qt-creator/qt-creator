@@ -7,10 +7,13 @@
 #include "globalfilechangeblocker.h"
 #include "filepath.h"
 
+#include <chrono>
+
+#include <QDateTime>
 #include <QDir>
 #include <QFileSystemWatcher>
-#include <QDateTime>
 #include <QLoggingCategory>
+#include <QTimer>
 
 // Returns upper limit of file handles that can be opened by this process at
 // once. (which is limited on MacOS, exceeding it will probably result in
@@ -139,6 +142,7 @@ public:
 
     const int m_id;
     FileSystemWatcherStaticData *m_staticData = nullptr;
+    QHash<QString, QTimer *> m_timerMap;
 
 private:
     void autoReloadPostponed(bool postponed);
@@ -449,29 +453,47 @@ void FileSystemWatcher::slotFileChanged(const QString &path)
 
 void FileSystemWatcher::slotDirectoryChanged(const QString &path)
 {
+    if (QTimer *timer = d->m_timerMap.value(path)) {
+        timer->start();
+    } else {
+        using namespace std::chrono_literals;
+        timer = new QTimer(this);
+        connect(timer, &QTimer::timeout, this, [path, timer, this]() {
+            d->m_timerMap.remove(path);
+            timer->deleteLater();
+            handleDirChanged(path);
+        });
+        timer->setInterval(100ms);
+        d->m_timerMap.insert(path, timer);
+        timer->start();
+    }
+}
+
+void FileSystemWatcher::handleDirChanged(const QString &path)
+{
     const auto it = d->m_directories.find(path);
     if (it != d->m_directories.end() && it.value().trigger(path)) {
         qCDebug(fileSystemWatcherLog)
-            << this << "triggers on dir" << it.key()
-            << it.value().watchMode
+            << this << "triggers on dir" << it.key() << it.value().watchMode
             << it.value().modifiedTime.toString(Qt::ISODate);
         d->directoryChanged(path);
     }
 
-    QStringList toReadd;
-    const auto dir = FilePath::fromString(path);
-    for (const FilePath &entry : dir.dirEntries(QDir::Files)) {
+    QStringList toReAdd;
+    const FilePaths dirEntries = FilePath::fromString(path).dirEntries(QDir::Files);
+    for (const FilePath &entry : dirEntries) {
         const QString file = entry.toFSPathString();
         if (d->m_files.contains(file))
-            toReadd.append(file);
+            toReAdd.append(file);
     }
 
-    if (!toReadd.isEmpty()) {
-        for (const QString &rejected : d->m_staticData->m_watcher->addPaths(toReadd))
-            toReadd.removeOne(rejected);
+    if (!toReAdd.isEmpty()) {
+        const QStringList rejectedPaths = d->m_staticData->m_watcher->addPaths(toReAdd);
+        for (const QString &rejected : rejectedPaths)
+            toReAdd.removeOne(rejected);
 
         // If we've successfully added the file, that means it was deleted and replaced.
-        for (const QString &reAdded : std::as_const(toReadd)) {
+        for (const QString &reAdded : std::as_const(toReAdd)) {
             const QString directory = QFileInfo(reAdded).path();
             const int dirCount = --d->m_staticData->m_directoryCount[directory];
             QTC_CHECK(dirCount >= 0);
