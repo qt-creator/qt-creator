@@ -449,7 +449,7 @@ void SideDiffEditorWidget::paintSeparator(QPainter &painter,
     const QString elidedText = fontMetrics().elidedText(text,
                                                         Qt::ElideRight,
                                                         viewport()->width() - x);
-    QTextLayout *layout = block.layout();
+    QTextLayout *layout = editorLayout()->blockLayout(block);
     QTextLine textLine = layout->lineAt(0);
     QRectF lineRect = textLine.naturalTextRect().translated(offset.x(), top);
     QRect clipRect = contentsRect();
