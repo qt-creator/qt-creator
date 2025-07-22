@@ -48,17 +48,10 @@ static QByteArray canonicalName(const QByteArray &input)
             s_canonicalNames.insert(input, builtinCanonicalized);
             return builtinCanonicalized;
         }
-        QTC_CHECK(false);
     }
 
-    const QStringDecoder icuDecoder(input, QStringDecoder::Flag::UsesIcu);
-    QTC_ASSERT(icuDecoder.isValid(), return {});
-
-    const QByteArray icuCanonicalized = icuDecoder.name();
-    QTC_ASSERT(!icuCanonicalized.isEmpty(), return {});
-
-    s_canonicalNames.insert(input, icuCanonicalized);
-    return icuCanonicalized;
+    QTC_CHECK(false);
+    return input;
 }
 
 TextEncoding::TextEncoding() = default;
@@ -135,10 +128,15 @@ const QList<TextEncoding> &TextEncoding::availableEncodings()
         std::set<QString> encodingNames;
         const QList<QString> codecs = QStringConverter::availableCodecs();
         for (const QString &name : codecs) {
+            // Drop encoders that don't even remember their names.
+            QStringEncoder encoder(name);
+            if (!encoder.isValid())
+                continue;
+            if (QByteArray(encoder.name()).isEmpty())
+                continue;
             const auto [_, inserted] = encodingNames.insert(name);
             QTC_ASSERT(inserted, continue);
             TextEncoding encoding(name.toUtf8());
-            QTC_ASSERT(encoding.isValid(), continue);
             encodings.append(encoding);
         }
 #else
