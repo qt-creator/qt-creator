@@ -41,6 +41,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -325,15 +326,6 @@ bool GenericBuildSystem::saveRawList(const QStringList &rawList, const QString &
     return result.has_value();
 }
 
-static void insertSorted(QStringList *list, const QString &value)
-{
-    const auto it = std::lower_bound(list->begin(), list->end(), value);
-    if (it == list->end())
-        list->append(value);
-    else if (*it > value)
-        list->insert(it, value);
-}
-
 bool GenericBuildSystem::addFiles(Node *, const FilePaths &filePaths_, FilePaths *)
 {
     const QStringList filePaths = Utils::transform(filePaths_, &FilePath::toUrlishString);
@@ -347,7 +339,7 @@ bool GenericBuildSystem::addFiles(Node *, const FilePaths &filePaths_, FilePaths
         newList.erase(std::unique(newList.begin(), newList.end()), newList.end());
     } else {
         for (const QString &filePath : filePaths)
-            insertSorted(&newList, baseDir.relativeFilePath(filePath));
+            Utils::insertSorted(&newList, baseDir.relativeFilePath(filePath));
     }
 
     const auto includes = transform<QSet<QString>>(m_projectIncludePaths,
@@ -428,7 +420,7 @@ bool GenericBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, Fil
 
         QDir baseDir(projectDirectory().toUrlishString());
         newList.removeAt(index);
-        insertSorted(&newList, baseDir.relativeFilePath(newFilePath.toUrlishString()));
+        Utils::insertSorted(&newList, baseDir.relativeFilePath(newFilePath.toUrlishString()));
     }
 
     if (!saveRawFileList(newList)) {

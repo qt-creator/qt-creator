@@ -27,6 +27,7 @@
 #include <QTextList>
 #include <QTime>
 
+#include <algorithm>
 #include <limits.h>
 
 namespace Utils {
@@ -76,6 +77,15 @@ QTCREATOR_UTILS_EXPORT QString commonPrefix(const QStringList &strings)
     if (!commonLength)
         return QString();
     return strings.at(0).left(commonLength);
+}
+
+QTCREATOR_UTILS_EXPORT void insertSorted(QStringList *list, const QString &value)
+{
+    const auto it = std::lower_bound(list->begin(), list->end(), value);
+    if (it == list->end())
+        list->append(value);
+    else if (*it > value)
+        list->insert(it, value);
 }
 
 QTCREATOR_UTILS_EXPORT QString stripAccelerator(const QString &text)

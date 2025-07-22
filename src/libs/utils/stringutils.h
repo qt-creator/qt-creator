@@ -29,6 +29,9 @@ QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category);
 // "C:\foo\bar1" "C:\foo\bar2"  -> "C:\foo\bar"
 QTCREATOR_UTILS_EXPORT QString commonPrefix(const QStringList &strings);
 
+// Inserts value at appropriate position in list
+QTCREATOR_UTILS_EXPORT void insertSorted(QStringList *list, const QString &value);
+
 // Removes first unescaped ampersand in text
 QTCREATOR_UTILS_EXPORT QString stripAccelerator(const QString &text);
 // Quotes all ampersands
