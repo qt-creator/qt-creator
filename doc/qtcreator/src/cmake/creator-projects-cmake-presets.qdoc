@@ -35,8 +35,9 @@
 
     \image {qtcreator-cmake-presets-environment.webp} {CMake environment configuration}
 
-    To update changes to the \c CMakePresets.json file, select \uicontrol Build >
-    \uicontrol {Reload CMake Presets}, and then select the presets file to load.
+    To update changes to the \c CMakePresets.json file, go to \uicontrol Build,
+    select \uicontrol {Reload CMake Presets}, and then select the presets file
+    to load.
 
     \section1 Configure Presets
 
@@ -335,7 +336,7 @@
         \li \l{View CMake project contents}
     \row
         \li \c {AskBeforePresetsReload}
-        \li Asks before acting when you select \uicontrol Build >
+        \li Asks before acting when you go to \uicontrol Build and select
             \uicontrol {Reload CMake Presets}.
         \li \l{CMake Presets}
     \row

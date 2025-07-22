@@ -78,11 +78,11 @@
             \li Go to \uicontrol Projects > \uicontrol {Build & Run} to activate
                 the kit that you specified above.
         \endlist
-        \li Select \uicontrol Run to specify run settings. Usually, you can use
-            the default settings.
+        \li Go to \uicontrol {Run Settings} to specify run settings.
+            Usually, you can use the default settings.
 
-            When you run the project, \QC deploys the application as
-            specified by the deploy steps. By default, \QC copies the
+        \li When you run the project, \QC deploys the application as specified
+            in \uicontrol {Deploy Settings}. By default, \QC copies the
             application files to the device.
     \endlist
 

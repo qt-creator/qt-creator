@@ -268,7 +268,7 @@
         \li Select \uicontrol Projects > \uicontrol {Build & Run}, and then
             select the kit for building the application and running it on the
             MCU board specified in the kit.
-        \li Select \uicontrol Run to specify run settings.
+        \li Go to \uicontrol {Run Settings} to specify run settings.
             Usually, you can use the default settings.
     \endlist
 

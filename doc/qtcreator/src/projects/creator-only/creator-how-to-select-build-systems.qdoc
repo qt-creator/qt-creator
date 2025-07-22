@@ -35,7 +35,7 @@
     \section1 Migrate to another build system
 
     To export a project to some other build system, such as Microsoft Visual
-    Studio, select \uicontrol Build > \uicontrol {Run Generator}, and select
+    Studio, go to \uicontrol Build > \uicontrol {Run Generator} and select
     a generator in the list. \QC generates the build files, such as .vcxproj,
     in the project's build directory.
 

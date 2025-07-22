@@ -193,7 +193,7 @@
                 activate the kit for Docker devices.
         \endlist
 
-    Select \uicontrol Run to specify run settings. Usually, you can use
+    Go to \uicontrol {Run Settings} to specify run settings. Usually, you can use
     the default settings.
 
     \sa {Enable and disable plugins}, {Docker}{How To: Develop for Docker},

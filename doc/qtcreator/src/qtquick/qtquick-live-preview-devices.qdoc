@@ -48,8 +48,8 @@
         \li Select the kit for the device in the bottom toolbar.
             \image {design-studio-select-kit.webp} {Selecting a kit for a device.}
         \endif
-        \li Select \uicontrol Build > \uicontrol {QML Preview} or
-            select \key {Alt+P}.
+        \li Go to \uicontrol Build, and select \uicontrol {QML Preview} or
+            \key {Alt+P}.
     \endlist
 
     \section2 On Android

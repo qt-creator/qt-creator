@@ -16,9 +16,8 @@
 
     \title Configure projects for running
 
-    Specify settings for running applications on the \l {Kits}{Run device} that
-    you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
-    \uicontrol Run > \uicontrol {Run Settings}.
+    To specify settings for running applications on the \l {Kits}{Run device} that
+    you select for a kit, go to \uicontrol Projects > \uicontrol {Run Settings}.
 
     \image {qtcreator-settings-run-desktop.webp} {Run Settings in the Projects mode}
 

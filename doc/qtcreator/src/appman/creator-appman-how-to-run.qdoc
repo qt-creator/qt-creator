@@ -57,8 +57,7 @@
     \section1 Customize the installation
 
     To change the settings for deploying and running the application with the
-    selected kit, go to \uicontrol Projects and select \uicontrol {Build & Run}
-    > \uicontrol Run.
+    selected kit, go to \uicontrol Projects > \uicontrol {Deploy Settings}.
 
     \image {qtcreator-appman-deploy-settings.webp} {Deploy to application manager}
 
@@ -75,8 +74,9 @@
 
     \section2 Deployment configuration
 
-    In \uicontrol Method, \uicontrol {Automatic Application Manager
-    Deploy Configuration} adds the necessary CMake and tool arguments, as well as
+    In \uicontrol {Active deployment configuration},
+    \uicontrol {Automatic Application Manager Deploy Configuration}
+    adds the necessary CMake and tool arguments, as well as
     \uicontrol Targets to the effective \uicontrol Build command. You can select
     the targets in the kit selector to deploy and run applications on them.
 

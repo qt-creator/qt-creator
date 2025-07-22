@@ -63,7 +63,7 @@
         \li Open a project for an application you want to run in a web browser.
         \li Go to \uicontrol Projects > \uicontrol {Build & Run}, and then
             select the WebAssembly kit as the build and run kit for the project.
-        \li Select \uicontrol Run to specify run settings.
+        \li Select \uicontrol {Run Settings} to specify run settings.
         \li In \uicontrol {Web browser}, select a browser.
             \image {qtcreator-settings-run-webassembly.png} {Selecting the browser to run in Qt for WebAssembly run settings}
     \endlist

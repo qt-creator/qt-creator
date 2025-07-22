@@ -122,7 +122,7 @@
     \uicontrol Analyzer > \uicontrol {CPU Usage}.
 
     To set preferences for a particular run configuration, go to
-    \uicontrol Projects > \uicontrol Run, and then select \uicontrol Details
+    \uicontrol Projects > \uicontrol {Run Settings} and select \uicontrol Details
     next to \uicontrol {Performance Analyzer Settings}.
 
     \image {qtcreator-performance-analyzer-settings.png} {Performance Analyzer Settings}

@@ -143,8 +143,8 @@
     \l {Tutorial: Qt Widgets and Python}{pyproject.toml}
     configuration file.
 
-    Install Python and set the interpreter to use in \uicontrol Projects
-    > \uicontrol Run.
+    To install Python and set the interpreter to use, go to \uicontrol Projects
+    > \uicontrol {Run Settings}.
 
     \image {qtcreator-run-settings-python.webp} {Run settings for a Python project}
 

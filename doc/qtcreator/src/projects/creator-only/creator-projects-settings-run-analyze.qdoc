@@ -9,9 +9,8 @@
 
     \title Specify Valgrind settings for a project
 
-    Specify settings for running applications on the \l {Kits}{Run device} that
-    you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
-    \uicontrol Run > \uicontrol {Run Settings}.
+    To specify settings for running applications on the \l {Kits}{Run device} that
+    you select for a kit, go to \uicontrol Projects > \uicontrol {Run Settings}.
 
     With \l{Valgrind's Tool Suite}, you can detect memory leaks and profile
     function execution.

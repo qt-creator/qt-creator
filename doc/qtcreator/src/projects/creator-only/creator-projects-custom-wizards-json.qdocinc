@@ -8,7 +8,7 @@
     If you are a \QC developer or build your own \QC version for delivery to
     others, you can integrate the wizard into \QC. To deliver the wizard as
     part of the \QC build, place the wizard files in the shared directory in
-    the \QC sources. Then select \uicontrol Build > \uicontrol {Run CMake}.
+    the \QC sources. Then go to \uicontrol Build, and select \uicontrol {Run CMake}.
     This ensures that the new files you added for your wizard are actually
     copied from the \QC source directory into the \QC build directory
     as part of the next \QC build.

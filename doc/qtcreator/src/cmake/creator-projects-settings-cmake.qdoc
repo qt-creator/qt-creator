@@ -46,7 +46,7 @@
         \li \l{Re-configuring with Initial Variables}
     \row
         \li Ask before reloading CMake presets
-        \li Asks before acting when you select \uicontrol Build >
+        \li Asks before acting when you go to \uicontrol Build and select
             \uicontrol {Reload CMake Presets}.
         \li \l{CMake Presets}
     \row

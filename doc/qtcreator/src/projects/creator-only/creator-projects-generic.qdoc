@@ -131,7 +131,7 @@
     \section1 Create a run configuration
 
     \QC cannot automatically determine which executable to run, so you must
-    set the executable in \uicontrol {Projects} > \uicontrol {Run} >
+    set the executable in \uicontrol {Projects} > \uicontrol {Run Settings} >
     \uicontrol Add > \uicontrol {Custom Executable}.
 
     \sa {Specify a custom executable to run},  {Use project wizards},

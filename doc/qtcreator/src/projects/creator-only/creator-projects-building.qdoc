@@ -34,12 +34,12 @@
     \list 1
 
         \li  Select the \uicontrol {Build and Run Kit Selector} icon or go to
-             \uicontrol Build > \uicontrol {Open Build and Run Kit Selector} to
+             \uicontrol Build > \uicontrol {Open Build and Run Kit Selector} and
              select the build and run kit or an \l{Manage AVDs}{Android device}.
 
             \image {qtcreator-kit-selector.webp} {Kit selector}
 
-        \li  Select \uicontrol Build > \uicontrol {Build Project} or press
+        \li  Go to \uicontrol Build, and select \uicontrol {Build Project} or
              \key {Ctrl+B}.
 
              Or, select \inlineimage {icons/run_small.png} {Run} (\uicontrol Run)
@@ -57,7 +57,7 @@
     \list
         \li Select \inlineimage {icons/cancel-build.png} {Cancel Build}.
         \li Select \key {Alt+Backspace}.
-        \li Go to \uicontrol Build > \uicontrol {Cancel Build}.
+        \li Go to \uicontrol Build, and select \uicontrol {Cancel Build}.
     \endlist
 
     If you selected a build command and now would also like to run the
@@ -66,7 +66,8 @@
 
     \section1 Build projects in several configurations
 
-    Go to \uicontrol Build to build, rebuild, and clean projects.
+    Go to \uicontrol Build, and select menu commands to build, rebuild, and clean
+    projects.
 
     To build the current project in all its configurations, that
     is, for all build configurations in all enabled kits, select
@@ -82,7 +83,7 @@
     \section1 Build files or subprojects
 
     To quickly check the compile output for changes that you made in one file or
-    subproject, use the \uicontrol Build menu commands to build it. The available
+    subproject, select \uicontrol Build menu commands to build it. The available
     build menu commands depend on the build system you selected for the project:
     CMake, qmake, or Qbs.
 
@@ -93,7 +94,8 @@
 
     \section1 Remove build artifacts
 
-    To remove all build artifacts, go to \uicontrol Build > \uicontrol {Clean}.
+    To remove all build artifacts, go to \uicontrol Build and select
+    \uicontrol {Clean}.
 
     To clean the build directory and then build the project, select
     \uicontrol {Rebuild}.

@@ -11,9 +11,8 @@
 
     \brief Settings for building applications with the Conan package manager.
 
-    Specify build settings for the selected \l{Kits}{kit} in
-    \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
-    \uicontrol {Build Settings}.
+    To specify build settings for the selected \l{Kits}{kit}, go to
+    \uicontrol Projects > \uicontrol {Build Settings}.
 
     To configure a project to be built using the Conan package manager, select
     \uicontrol {Add Build Step} > \uicontrol {Run Conan Install}.

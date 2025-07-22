@@ -11,9 +11,8 @@
 
     \brief Settings for running applications on Linux-based devices.
 
-    Specify run settings for the selected \l{Kits}{kit} in
-    \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Run >
-    \uicontrol {Run Settings}.
+    To specify run settings for the selected \l{Kits}{kit}, go to
+    \uicontrol Projects > \uicontrol {Run Settings}.
 
     To run and debug an application on a Linux-based device, you must create
     connections from the development host to the device and add the device

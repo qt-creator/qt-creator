@@ -27,8 +27,8 @@
 
     \image {qtcreator-projects-kits.webp} {Sidebar in the Projects mode}
 
-    To specify build or run settings for a kit, select \uicontrol Build or
-    \uicontrol Run below the kit name.
+    To specify build or run settings for a kit, select the kit and go to
+    \uicontrol {Build Settings} or \uicontrol {Run Settings}.
 
     \section1 Specifying Build Settings
 

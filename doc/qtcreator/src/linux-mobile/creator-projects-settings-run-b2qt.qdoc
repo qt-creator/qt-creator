@@ -11,9 +11,8 @@
 
     \brief Settings for running applications on \B2Q devices.
 
-    Specify settings for running applications on the \l {Kits}{Run device} that
-    you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
-    \uicontrol Run > \uicontrol {Run Settings}.
+    To specify settings for running applications on the \l {Kits}{Run device} that
+    you select for a kit, go to \uicontrol Projects > \uicontrol {Run Settings}.
 
     To run and debug an application on a \l{\B2Q: Documentation}{\B2Q} device
     (commercial only), create connections from the development host to the device

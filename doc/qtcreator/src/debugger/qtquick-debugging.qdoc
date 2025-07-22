@@ -58,7 +58,7 @@
         \list 1
 
         \li To create a build configuration that supports QML debugging,
-            go to \uicontrol {Projects} > \uicontrol {Build}.
+            go to \uicontrol {Projects} > \uicontrol {Build Settings}.
 
         \li In \uicontrol {QML debugging and profiling}, select \uicontrol Enable.
 
@@ -78,8 +78,8 @@
             time, also select \uicontrol Automatic or \uicontrol Enabled in
             \uicontrol {C++ debugger}.
 
-        \li Select \uicontrol Build > \uicontrol {Rebuild Project} to clean and
-            rebuild the project.
+        \li Go to \uicontrol Build, and select \uicontrol {Rebuild Project} to
+            clean and rebuild the project.
 
         \li To debug applications on \l{glossary-device}{devices}, check that
             Qt libraries are installed on the device and
@@ -114,8 +114,8 @@
     makes applications vulnerable.
 
     The \uicontrol {Leave at Default} option in \uicontrol {Projects} >
-    \uicontrol {Build} > \uicontrol {QML debugging and profiling} is needed to keep existing,
-    already configured CMake build directories intact. Also, it
+    \uicontrol {Build Settings} > \uicontrol {QML debugging and profiling}
+    keeps existing, already configured CMake build directories intact. Also, it
     enables you to import an existing build into \QC without enforced changes,
     so that you don't have to worry about a complete rebuild of the project, for
     example. Even if you later change the configuration of the build outside of

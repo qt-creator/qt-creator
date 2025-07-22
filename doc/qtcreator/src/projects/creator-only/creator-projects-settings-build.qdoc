@@ -16,9 +16,8 @@
 
     \title Configure projects for building
 
-    Specify build settings for the selected \l{Kits}{kit} in
-    \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
-    \uicontrol {Build Settings}.
+    To specify build settings for the selected \l{Kits}{kit}, go to
+    \uicontrol Projects > \uicontrol {Build Settings}.
 
     \image {qtcreator-build-configurations.png} {Build Settings}
 

@@ -85,9 +85,8 @@
 
     \list 1
         \li Activate a VxWorks kit for the project.
-        \li Go to \uicontrol Projects > \uicontrol Run.
-        \li In \uicontrol {Run Settings}, set \uicontrol Priority and
-            \uicontrol {Stack size}.
+        \li Go to \uicontrol Projects > \uicontrol {Run Settings}.
+        \li Set \uicontrol Priority and \uicontrol {Stack size}.
             \image {qtcreator-run-settings-vxworks.webp} {Run Settings for VxWorks}
         \li In \uicontrol Environment, set the \c LD_LIBRARY_PATH variable to
             the location of the libraries on the SD card. If the path to the

@@ -10,9 +10,8 @@
 
     \title Enable debugging
 
-    Specify settings for running applications on the \l {Kits}{Run device} that
-    you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
-    \uicontrol Run > \uicontrol {Run Settings}.
+    To specify settings for running applications on the \l {Kits}{Run device} that
+    you select for a kit, go to \uicontrol Projects > \uicontrol {Run Settings}.
 
     \image {qtquick-debugger-settings.webp} {Debugger Settings section in Run Settings}
 

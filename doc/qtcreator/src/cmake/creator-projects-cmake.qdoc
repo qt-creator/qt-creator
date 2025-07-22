@@ -84,8 +84,9 @@
     To re-configure the project:
 
     \list 1
-        \li Select \uicontrol Build > \uicontrol {Clear CMake Configuration}.
-        \li Select \uicontrol Build > \uicontrol {Run CMake}.
+        \li Go to \uicontrol Build, and select
+            \uicontrol {Clear CMake Configuration}.
+        \li Go to \uicontrol Build, and select \uicontrol {Run CMake}.
     \endlist
 
     \section1 Hide subfolder names in Projects view
@@ -95,7 +96,7 @@
     only according to their source group, select \preferences >
     \uicontrol CMake > \uicontrol General, and then
     clear the \uicontrol {Show subfolders inside source group folders} check
-    box. The change takes effect after you select \uicontrol Build >
+    box. The change takes effect after you go to \uicontrol Build and select
     \uicontrol {Run CMake}.
 
     \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Open projects},
@@ -212,8 +213,8 @@
 
     You can also use the \c cmo filter in the \l {Navigate with locator}{locator}
     to open the CMakeLists.txt file for the current run configuration
-    in the editor. This is the same build target as when you select
-    \uicontrol Build > \uicontrol {Build for Run Configuration}.
+    in the editor. This is the same build target as when you go to
+    \uicontrol Build and select \uicontrol {Build for Run Configuration}.
 
     The following features are supported:
 

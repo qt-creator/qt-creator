@@ -23,7 +23,8 @@
     database JSON file.
 
     To generate a compilation database from the information that the code model
-    has, select \uicontrol Build > \uicontrol {Run Generator} > \uicontrol {Compilation Database}.
+    has, go to \uicontrol Build > \uicontrol {Run Generator} and select
+    \uicontrol {Compilation Database}.
 
     You can add files, such as non-C files, to the project in
     \e {compile_database.json.files}.

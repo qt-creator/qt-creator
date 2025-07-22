@@ -10,9 +10,8 @@
 
     \brief Build and clean steps for Incredibuild.
 
-    Specify build settings for the selected \l{Kits}{kit} in
-    \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
-    \uicontrol {Build Settings}.
+    To specify build settings for the selected \l{Kits}{kit}, go to
+    \uicontrol Projects > \uicontrol {Build Settings}.
 
     You can specify build steps and clean steps for IncrediBuild.
 
