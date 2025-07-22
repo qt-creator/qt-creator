@@ -642,6 +642,9 @@
 
     \image {qtcreator-preferences-texteditor-completion.webp} {Completion tab in Text Editor preferences}
 
+    Also, \QC automatically inserts the closing character of a raw string literal
+    prefix.
+
     \sa {Completion}, {Edit Code}{How To: Edit Code}, {Edit Mode}
 */
 
