@@ -16,6 +16,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmapCache>
+#include <QVariantAnimation>
 #include <QWidget>
 
 namespace Utils {
@@ -857,6 +858,75 @@ bool QtcTabBar::event(QEvent *event)
     if (event->type() == QEvent::MouseMove || event->type() == QEvent::Leave)
         repaint();
     return QTabBar::event(event);
+}
+
+const int pageIndicatorDotSize = PrimitiveM;
+const int pageIndicatorDotGap = PrimitiveS; // Gap between two dots
+
+QtcPageIndicator::QtcPageIndicator(QWidget *parent)
+    : QWidget(parent)
+{
+    m_animation = new QVariantAnimation(this);
+    m_animation->setDuration(400);
+    m_animation->setStartValue(0);
+    m_animation->setEndValue(100);
+    m_animation->setEasingCurve(QEasingCurve::OutQuad);
+}
+
+QSize QtcPageIndicator::minimumSizeHint() const
+{
+    const int dotsWidth = m_pagesCount * pageIndicatorDotSize
+                          + (m_pagesCount - 1) * pageIndicatorDotGap;
+    return {dotsWidth, pageIndicatorDotSize};
+}
+
+void QtcPageIndicator::setPagesCount(int count)
+{
+    m_pagesCount = count;
+    setCurrentPage(m_currentPage);
+}
+
+int QtcPageIndicator::pagesCount() const
+{
+    return m_pagesCount;
+}
+
+void QtcPageIndicator::setCurrentPage(int current)
+{
+    m_previousPage = qBound(0, m_currentPage, m_pagesCount - 1);
+    m_currentPage = qBound(0, current, m_pagesCount - 1);
+    m_animation->stop();
+    m_animation->start();
+    update();
+}
+
+int QtcPageIndicator::currentPage() const
+{
+    return m_currentPage;
+}
+
+void QtcPageIndicator::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    const QColor activeDot = creatorColor(isEnabled() ? Theme::Token_Accent_Default
+                                                      : Theme::Token_Foreground_Default);
+    const QColor inactiveDot = creatorColor(isEnabled() ? Theme::Token_Foreground_Default
+                                                        : Theme::Token_Foreground_Subtle);
+    const QColor previousDot = StyleHelper::mergedColors(inactiveDot, activeDot,
+                                                         m_animation->currentValue().toInt());
+    QPainter p(this);
+    p.setPen(Qt::NoPen);
+    p.setRenderHint(QPainter::Antialiasing);
+    for (int i = 0; i < m_pagesCount; ++i) {
+        const int x = i * (pageIndicatorDotSize + pageIndicatorDotGap);
+        const QRectF dotRect(x, 0, pageIndicatorDotSize, pageIndicatorDotSize);
+        const QBrush fill = i == m_currentPage ? activeDot
+                                               : (i == m_previousPage ? previousDot : inactiveDot);
+        p.setBrush(fill);
+        p.drawEllipse(dotRect);
+    }
+    if (m_animation->state() == QAbstractAnimation::Running)
+        update();
 }
 
 namespace QtcWidgets {

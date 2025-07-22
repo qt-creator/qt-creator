@@ -4,6 +4,7 @@
 #include "../common/themeselector.h"
 
 #include <QApplication>
+#include <QTimer>
 
 #include <utils/layoutbuilder.h>
 #include <utils/qtcwidgets.h>
@@ -27,6 +28,15 @@ QWidget *widgets()
     tabBar->addTab("Tab number 1");
     tabBar->addTab("2");
     tabBar->addTab("3");
+
+    auto pageIndicator = new QtcPageIndicator;
+    auto *pageTimer = new QTimer(widget);
+    pageTimer->setInterval(1000);
+    QObject::connect(pageTimer, &QTimer::timeout, pageIndicator, [pageIndicator]{
+        const int nextPage = (pageIndicator->currentPage() + 1) % pageIndicator->pagesCount();
+        pageIndicator->setCurrentPage(nextPage);
+    });
+    pageTimer->start();
 
     using namespace Layouting;
     Column {
@@ -88,6 +98,12 @@ QWidget *widgets()
                 Row {
                     tabBar,
                 },
+            },
+        },
+        Group {
+            title("PageIndicator"),
+            Row {
+                st, pageIndicator, st,
             },
         },
     }.attachTo(widget);

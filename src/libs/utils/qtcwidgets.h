@@ -14,6 +14,8 @@
 #include <QComboBox>
 #include <QLabel>
 
+QT_FORWARD_DECLARE_CLASS(QVariantAnimation)
+
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT TextFormat
@@ -188,6 +190,27 @@ protected:
     bool event(QEvent *event) override;
 };
 
+class QTCREATOR_UTILS_EXPORT QtcPageIndicator : public QWidget
+{
+public:
+    QtcPageIndicator(QWidget *parent = nullptr);
+
+    QSize minimumSizeHint() const override;
+
+    void setPagesCount(int count);
+    int pagesCount() const;
+    void setCurrentPage(int current);
+    int currentPage() const;
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    int m_previousPage = -1;
+    int m_currentPage = 0;
+    int m_pagesCount = 5;
+    QVariantAnimation *m_animation;
+};
 
 namespace QtcWidgets {
 
