@@ -397,9 +397,7 @@ static Group deviceCtlPollingTask(RunControl *runControl, const Storage<AppInfo>
               "--filter",
               QLatin1String("processIdentifier == %1").arg(QString::number(*pidStorage))}});
     };
-    const auto onPollDone = [runControl, appInfo](const Process &process, DoneWith result) {
-        if (result == DoneWith::Cancel)
-            return DoneResult::Error;
+    const auto onPollDone = [runControl, appInfo](const Process &process) {
         const Result<QJsonValue> resultValue = parseDevicectlResult(process.rawStdOut());
         if (!resultValue || (*resultValue)["runningProcesses"].toArray().size() < 1) {
             // no process with processIdentifier found, or some error occurred, device disconnected
@@ -451,7 +449,7 @@ static Group deviceCtlPollingTask(RunControl *runControl, const Storage<AppInfo>
         Group {
             Forever {
                 timeoutTask(500ms, DoneResult::Success),
-                ProcessTask(onPollSetup, onPollDone)
+                ProcessTask(onPollSetup, onPollDone, CallDone::OnSuccess | CallDone::OnError)
             }.withCancel(runControl->canceler(), {
                 ProcessTask(onStopSetup, onStopDone)
             }),
