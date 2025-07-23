@@ -43,7 +43,7 @@ private:
         QByteArray configFile;
 
         ProjectExplorer::HeaderPaths headerPaths;
-        QString projectConfigFile;
+        Utils::FilePath projectConfigFile;
         Utils::FilePaths includedFiles;
         Utils::FilePaths precompiledHeaders;
 

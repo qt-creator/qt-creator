@@ -31,7 +31,7 @@ public:
         rpp.setMacros({Macro{"projectFoo", "projectBar"}});
         rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
         rpp.setHeaderPaths(headerPaths);
-        rpp.setConfigFileName(projectConfigFile);
+        rpp.setConfigFilePath(projectConfigFile);
         ToolchainInfo tcInfo;
         tcInfo.type = toolchainType;
         tcInfo.targetTriple = targetTriple;
@@ -79,7 +79,7 @@ public:
         Macro{"foo", "bar"}, Macro{"__cplusplus", "2"}, Macro{"__STDC_VERSION__", "2"},
         Macro{"_MSVC_LANG", "2"}, Macro{"_MSC_BUILD", "2"}, Macro{"_MSC_FULL_VER", "1900"},
         Macro{"_MSC_VER", "19"}};
-    QString projectConfigFile;
+    Utils::FilePath projectConfigFile;
     QStringList extraFlags;
     bool isMsvc2015 = false;
 

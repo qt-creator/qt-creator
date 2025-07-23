@@ -73,9 +73,9 @@ void RawProjectPart::setProjectFileLocation(const FilePath &projectFile, int lin
     projectFileColumn = column;
 }
 
-void RawProjectPart::setConfigFileName(const QString &configFileName)
+void RawProjectPart::setConfigFilePath(const FilePath &configFilePath)
 {
-    this->projectConfigFile = configFileName;
+    projectConfigFile = configFilePath;
 }
 
 void RawProjectPart::setBuildSystemTarget(const QString &target)

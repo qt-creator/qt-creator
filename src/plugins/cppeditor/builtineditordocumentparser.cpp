@@ -63,7 +63,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
     ProjectExplorer::HeaderPaths headerPaths;
     FilePaths includedFiles;
     FilePaths precompiledHeaders;
-    QString projectConfigFile;
+    FilePath projectConfigFile;
     LanguageFeatures features = LanguageFeatures::defaultFeatures();
 
     baseState.projectPartInfo = determineProjectPart(filePath(),

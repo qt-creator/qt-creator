@@ -50,11 +50,11 @@ Project *ProjectPart::project() const
     return ProjectManager::projectWithProjectFilePath(topLevelProject);
 }
 
-QByteArray ProjectPart::readProjectConfigFile(const QString &projectConfigFile)
+QByteArray ProjectPart::readProjectConfigFile(const FilePath &projectConfigFile)
 {
     QByteArray result;
 
-    QFile f(projectConfigFile);
+    QFile f(projectConfigFile.toFSPathString());
     if (f.open(QIODevice::ReadOnly)) {
         QTextStream is(&f);
         result = is.readAll().toUtf8();

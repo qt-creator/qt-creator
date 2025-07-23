@@ -50,12 +50,12 @@ public:
     bool belongsToProject(const Utils::FilePath &project) const;
     ProjectExplorer::Project *project() const;
 
-    static QByteArray readProjectConfigFile(const QString &projectConfigFile);
+    static QByteArray readProjectConfigFile(const Utils::FilePath &projectConfigFile);
 
     const Utils::FilePath topLevelProject;
     const QString displayName;
     const Utils::FilePath projectFile;
-    const QString projectConfigFile; // Generic Project Manager only
+    const Utils::FilePath projectConfigFile; // Generic Project Manager only
 
     const int projectFileLine = -1;
     const int projectFileColumn = -1;

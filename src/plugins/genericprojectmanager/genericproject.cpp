@@ -116,7 +116,7 @@ public:
 private:
     QString m_filesFileName;
     QString m_includesFileName;
-    QString m_configFileName;
+    FilePath m_configFilePath;
     QString m_cxxflagsFileName;
     QString m_cflagsFileName;
     QStringList m_rawFileList;
@@ -244,7 +244,7 @@ GenericBuildSystem::GenericBuildSystem(BuildConfiguration *bc)
 
     m_filesFileName    = QFileInfo(dir, projectName + ".files").absoluteFilePath();
     m_includesFileName = QFileInfo(dir, projectName + ".includes").absoluteFilePath();
-    m_configFileName = QFileInfo(dir, projectName + ".config").absoluteFilePath();
+    m_configFilePath = FilePath::fromString(QFileInfo(dir, projectName + ".config").absoluteFilePath());
 
     const QFileInfo cxxflagsFileInfo(dir, projectName + ".cxxflags");
     m_cxxflagsFileName = cxxflagsFileInfo.absoluteFilePath();
@@ -260,7 +260,7 @@ GenericBuildSystem::GenericBuildSystem(BuildConfiguration *bc)
 
     project()->setExtraProjectFiles({FilePath::fromString(m_filesFileName),
                                      FilePath::fromString(m_includesFileName),
-                                     FilePath::fromString(m_configFileName),
+                                     m_configFilePath,
                                      FilePath::fromString(m_cxxflagsFileName),
                                      FilePath::fromString(m_cflagsFileName)});
 
@@ -525,8 +525,7 @@ void GenericBuildSystem::refresh(RefreshOptions options)
                                                           FileType::Project));
         newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(m_includesFileName),
                                                           FileType::Project));
-        newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(m_configFileName),
-                                                          FileType::Project));
+        newRoot->addNestedNode(std::make_unique<FileNode>(m_configFilePath, FileType::Project));
         newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(m_cxxflagsFileName),
                                                           FileType::Project));
         newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(m_cflagsFileName),
@@ -605,7 +604,7 @@ void GenericBuildSystem::refreshCppCodeModel()
     rpp.setProjectFileLocation(projectFilePath());
     rpp.setQtVersion(kitInfo.projectPartQtVersion);
     rpp.setHeaderPaths(m_projectIncludePaths);
-    rpp.setConfigFileName(m_configFileName);
+    rpp.setConfigFilePath(m_configFilePath);
     rpp.setFlagsForCxx({nullptr, m_cxxflags, projectDirectory()});
     rpp.setFlagsForC({nullptr, m_cflags, projectDirectory()});
 

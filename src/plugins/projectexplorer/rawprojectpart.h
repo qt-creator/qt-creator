@@ -51,7 +51,7 @@ public:
     void setDisplayName(const QString &displayName);
 
     void setProjectFileLocation(const Utils::FilePath &projectFile, int line = -1, int column = -1);
-    void setConfigFileName(const QString &configFileName);
+    void setConfigFilePath(const Utils::FilePath &configFilePath);
     void setCallGroupId(const QString &id);
 
     // FileIsActive and GetMimeType must be thread-safe.
@@ -91,7 +91,7 @@ public:
     Utils::FilePaths precompiledHeaders;
     Utils::FilePaths includedFiles;
     HeaderPaths headerPaths;
-    QString projectConfigFile; // Generic Project Manager only
+    Utils::FilePath projectConfigFile; // Generic Project Manager only
 
     // Build system
     QString buildSystemTarget;

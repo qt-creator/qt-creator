@@ -1938,13 +1938,13 @@ void CppCodeModelInspectorDialog::updateProjectPartData(const ProjectPart::Const
         {QString::fromLatin1("ToolChain Type"), part->toolchainType.toString()},
         {QString::fromLatin1("ToolChain Target Triple"), part->toolchainTargetTriple},
         {QString::fromLatin1("ToolChain Word Width"), CMI::Utils::toString(part->toolchainAbi.wordWidth())},
-        {QString::fromLatin1("ToolChain Install Dir"), part->toolchainInstallDir.toUrlishString()},
+        {QString::fromLatin1("ToolChain Install Dir"), part->toolchainInstallDir.toUserOutput()},
         {QString::fromLatin1("Language Version"), CMI::Utils::toString(part->languageVersion)},
         {QString::fromLatin1("Language Extensions"), CMI::Utils::toString(part->languageExtensions)},
         {QString::fromLatin1("Qt Version"), CMI::Utils::toString(part->qtVersion)}
     };
     if (!part->projectConfigFile.isEmpty())
-        table.prepend({QString::fromLatin1("Project Config File"), part->projectConfigFile});
+        table.prepend({QString::fromLatin1("Project Config File"), part->projectConfigFile.toUserOutput()});
     m_partGenericInfoModel.configure(table);
     resizeColumns<KeyValueModel>(m_partGeneralView);
 

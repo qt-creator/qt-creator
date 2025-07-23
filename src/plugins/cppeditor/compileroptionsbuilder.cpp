@@ -769,7 +769,7 @@ void CompilerOptionsBuilder::addProjectConfigFileInclude()
 {
     if (!m_projectPart.projectConfigFile.isEmpty()) {
         add({isClStyle() ? QLatin1String(includeFileOptionCl) : QLatin1String(includeFileOptionGcc),
-             QDir::toNativeSeparators(m_projectPart.projectConfigFile)});
+             m_projectPart.projectConfigFile.nativePath()});
     }
 }
 
