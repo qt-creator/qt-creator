@@ -203,7 +203,7 @@ GroupItem GenericDirectUploadStep::uploadTask(const Storage<UploadStorage> &stor
         addErrorMessage(transfer.resultData().m_errorString);
     };
 
-    return FileTransferTask(onSetup, onError, CallDone::OnErrorOrCancel);
+    return FileTransferTask(onSetup, onError, CallDone::OnError);
 }
 
 GroupItem GenericDirectUploadStep::deployRecipe()

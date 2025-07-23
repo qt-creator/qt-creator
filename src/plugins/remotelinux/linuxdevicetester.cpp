@@ -255,7 +255,7 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTasks() const
         onGroupDone([this] {
             emit q->errorMessage(Tr::tr("Deployment to this device will not work out of the box.")
                                  + "\n");
-        }, CallDone::OnErrorOrCancel)
+        }, CallDone::OnError)
     };
 }
 
