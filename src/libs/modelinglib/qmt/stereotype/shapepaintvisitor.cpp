@@ -27,6 +27,8 @@
 
 #include "shapes.h"
 
+#include <QPainterPath>
+
 namespace qmt {
 
 ShapePaintVisitor::ShapePaintVisitor(QPainter *painter, const QPointF &scaledOrigin, const QSizeF &originalSize,

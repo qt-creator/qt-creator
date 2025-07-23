@@ -35,6 +35,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QMenu>
+#include <QStyleOptionToolBar>
 #include <QToolTip>
 
 #include <QDebug>

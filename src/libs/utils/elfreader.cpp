@@ -30,6 +30,7 @@
 #include <QDebug>
 
 #include <new> // std::bad_alloc
+#include <limits>
 
 namespace Utils {
 

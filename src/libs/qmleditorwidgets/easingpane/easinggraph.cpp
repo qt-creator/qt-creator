@@ -26,6 +26,7 @@
 #include "easinggraph.h"
 
 #include <QPainter>
+#include <QPainterPath>
 #include <QStyleOptionGraphicsItem>
 #include <math.h>
 

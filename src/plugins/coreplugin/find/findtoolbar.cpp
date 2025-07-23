@@ -43,6 +43,7 @@
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
+#include <QAbstractItemView>
 #include <QDebug>
 #include <QSettings>
 
