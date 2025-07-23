@@ -292,7 +292,7 @@ static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QStr
 
     return Group {
         If (ProcessTask(onForwardListSetup, onForwardListDone)) >> Then {
-            ProcessTask(onForwardRemoveSetup, onForwardRemoveDone, CallDone::OnErrorOrCancel)
+            ProcessTask(onForwardRemoveSetup, onForwardRemoveDone)
         },
         ProcessTask(onForwardPortSetup, onForwardPortDone)
     };
