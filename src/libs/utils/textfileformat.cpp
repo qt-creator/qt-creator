@@ -150,8 +150,10 @@ TextFileFormat::readFile(const FilePath &filePath, const TextEncoding &fallbackE
 
     TextFileFormat::ReadResult result;
     if (!decode(data, &result.content)) {
+        result.code = TextFileFormat::ReadEncodingError;
+        result.error = Tr::tr("An encoding error was encountered.");
         result.decodingErrorSample = TextFileFormat::decodingErrorSample(data);
-        return {TextFileFormat::ReadEncodingError, Tr::tr("An encoding error was encountered.")};
+        return result;
     }
     return result;
 }
