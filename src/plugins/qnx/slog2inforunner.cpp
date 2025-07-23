@@ -79,17 +79,14 @@ Group slog2InfoRecipe(RunControl *runControl)
                                     .arg(process.errorString()), StdErrFormat);
     };
 
-    const auto onCanceled = [storage](DoneWith result) {
-        if (result == DoneWith::Cancel)
-            storage->processRemainingLogData();
-    };
+    const auto onCanceled = [storage] { storage->processRemainingLogData(); };
 
     return Group {
         storage,
-        ProcessTask(onTestSetup, onTestDone, CallDone::OnErrorOrCancel),
+        ProcessTask(onTestSetup, onTestDone, CallDone::OnError),
         ProcessTask(onLaunchTimeSetup, onLaunchTimeDone, CallDone::OnSuccess),
-        ProcessTask(onLogSetup, onLogError, CallDone::OnErrorOrCancel),
-        onGroupDone(onCanceled, CallDone::OnErrorOrCancel)
+        ProcessTask(onLogSetup, onLogError, CallDone::OnError),
+        onGroupDone(onCanceled, CallDone::OnCancel)
     }.withCancel(runControl->canceler());
 }
 
