@@ -51,7 +51,7 @@ static QByteArray canonicalName(const QByteArray &input)
     }
 
     QTC_CHECK(false);
-    return input;
+    return {};
 }
 
 TextEncoding::TextEncoding() = default;
