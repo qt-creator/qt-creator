@@ -60,6 +60,7 @@ public:
     void selectAll() override;
 
     void switchDeclarationDefinition(bool inNextSplit);
+    void goToParentImpl(bool inNextSplit);
     void showPreProcessorWidget();
 
     void findUsages() override;

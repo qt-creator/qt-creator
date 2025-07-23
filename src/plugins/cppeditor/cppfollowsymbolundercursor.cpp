@@ -3,6 +3,8 @@
 
 #include "cppfollowsymbolundercursor.h"
 
+#include "baseeditordocumentprocessor.h"
+#include "cppeditordocument.h"
 #include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
@@ -21,14 +23,80 @@
 #include <utils/textutils.h>
 #include <utils/qtcassert.h>
 
+#include <QHash>
 #include <QList>
+#include <QQueue>
 #include <QSet>
+
+#ifdef WITH_TESTS
+#include "cpptoolstestcase.h"
+#include <QEventLoop>
+#include <QTest>
+#include <QTimer>
+#endif
 
 using namespace CPlusPlus;
 using namespace TextEditor;
 using namespace Utils;
 
 namespace CppEditor {
+
+struct Declarations
+{
+    Symbol *decl = nullptr;
+    Symbol *funcDecl = nullptr;
+    Function *funcDef = nullptr;
+};
+Declarations declsFromCursor(const Document::Ptr &doc, const QTextCursor &cursor)
+{
+    Declarations decls;
+    ASTPath astPathFinder(doc);
+    const QList<AST *> astPath = astPathFinder(cursor);
+
+    for (AST *ast : astPath) { // FIXME: Shouldn't this search backwards?
+        if (FunctionDefinitionAST *functionDefinitionAST = ast->asFunctionDefinition()) {
+            if ((decls.funcDef = functionDefinitionAST->symbol))
+                break; // Function definition found!
+        } else if (SimpleDeclarationAST *simpleDeclaration = ast->asSimpleDeclaration()) {
+            if (List<Symbol *> *symbols = simpleDeclaration->symbols) {
+                if (Symbol *symbol = symbols->value) {
+                    if (symbol->asDeclaration()) {
+                        decls.decl = symbol;
+                        if (symbol->type()->asFunctionType()) {
+                            decls.funcDecl = symbol;
+                            break; // Function declaration found!
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return decls;
+}
+
+static Symbol *functionDeclFromDef(Function *def, const Document::Ptr &doc, const Snapshot &snapshot)
+{
+    const LookupContext context(doc, snapshot);
+    ClassOrNamespace * const binding = context.lookupType(def);
+    const QList<LookupItem> declarations = context.lookup(def->name(), def->enclosingScope());
+    QList<Symbol *> best;
+    for (const LookupItem &r : declarations) {
+        if (Symbol *decl = r.declaration()) {
+            if (Function *funTy = decl->type()->asFunctionType()) {
+                if (funTy->match(def)) {
+                    if (decl != def && binding == r.binding())
+                        best.prepend(decl);
+                    else
+                        best.append(decl);
+                }
+            }
+        }
+    }
+
+    if (best.isEmpty())
+        return nullptr;
+    return best.first();
+}
 
 namespace {
 
@@ -774,6 +842,97 @@ void FollowSymbolUnderCursor::findLink(
     processLinkCallback(Link());
 }
 
+void FollowSymbolUnderCursor::findParentImpl(
+    const CursorInEditor &data,
+    const Utils::LinkHandler &processLinkCallback,
+    const CPlusPlus::Snapshot &snapshot,
+    const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+    SymbolFinder *symbolFinder)
+{
+    using namespace Internal;
+
+    const auto noOp = [&processLinkCallback] { return processLinkCallback({}); };
+
+    if (!documentFromSemanticInfo)
+        return noOp();
+
+    // Locate the function declaration whose "parent" we want to find.
+    const Declarations decls = declsFromCursor(documentFromSemanticInfo, data.cursor());
+    Symbol *funcDecl = decls.funcDecl;
+    if (!funcDecl && decls.funcDef)
+        funcDecl = functionDeclFromDef(decls.funcDef, documentFromSemanticInfo, snapshot);
+    if (!funcDecl)
+        return noOp();
+
+    LookupContext context(documentFromSemanticInfo, snapshot);
+    if (!FunctionUtils::isVirtualFunction(funcDecl->type()->asFunctionType(), context))
+        return noOp();
+
+    QHash<FilePath, LookupContext> contexts;
+    contexts.insert(documentFromSemanticInfo->filePath(), context);
+    const auto contextForPath = [&](const FilePath &fp) -> LookupContext & {
+        LookupContext &lc = contexts[fp];
+        if (lc.thisDocument().isNull())
+            lc = LookupContext(snapshot.document(fp), snapshot);
+        return lc;
+    };
+    const auto classForBaseClass = [&](const Class *c, const BaseClass *bc) -> const Class * {
+        const QList<LookupItem> items
+            = contextForPath(c->filePath()).lookup(bc->name(), c->enclosingScope());
+        for (const LookupItem &item : items) {
+            if (!item.declaration())
+                continue;
+            if (const Class * const klass = item.declaration()->asClass())
+                return klass;
+
+            // TODO: Typedefs, templates
+        }
+        return nullptr;
+    };
+
+    QTC_ASSERT(funcDecl->enclosingScope(), return noOp());
+    const Class * const theClass = funcDecl->enclosingScope()->asClass();
+    QTC_ASSERT(theClass, return noOp());
+
+    // Go through the base classes and look for a matching virtual function.
+    QQueue<const Class *> classesWhoseBaseClassesToCheck;
+    classesWhoseBaseClassesToCheck.enqueue(theClass);
+    while (!classesWhoseBaseClassesToCheck.isEmpty()) {
+        const Class * const c = classesWhoseBaseClassesToCheck.dequeue();
+        for (int i = 0; i < c->baseClassCount(); ++i) {
+            BaseClass * const bc = c->baseClassAt(i);
+            const Class * const actualBaseClass = classForBaseClass(c, bc);
+            if (!actualBaseClass)
+                continue;
+            for (auto s = actualBaseClass->memberBegin(); s != actualBaseClass->memberEnd(); ++s) {
+                Function * const func = (*s)->type()->asFunctionType();
+                if (!func)
+                    continue;
+                if (!FunctionUtils::isVirtualFunction(
+                        func, contextForPath(actualBaseClass->filePath()))) {
+                    continue;
+                }
+
+                // Match!
+                // TODO: Operators
+                if (func->identifier() && func->identifier()->match(funcDecl->identifier())
+                    && func->type() && func->type()->match(funcDecl->type().type())) {
+
+                    // Prefer implementation.
+                    if (const Function * const def
+                        = symbolFinder->findMatchingDefinition(func, snapshot, true)) {
+                        return processLinkCallback(def->toLink());
+                    }
+                    return processLinkCallback(func->toLink());
+                }
+            }
+            classesWhoseBaseClassesToCheck << actualBaseClass;
+        }
+    }
+
+    noOp();
+}
+
 void FollowSymbolUnderCursor::switchDeclDef(
         const CursorInEditor &data,
         const Utils::LinkHandler &processLinkCallback,
@@ -786,68 +945,20 @@ void FollowSymbolUnderCursor::switchDeclDef(
         return;
     }
 
-    // Find function declaration or definition under cursor
-    Function *functionDefinitionSymbol = nullptr;
-    Symbol *functionDeclarationSymbol = nullptr;
-    Symbol *declarationSymbol = nullptr;
+    const Declarations decls = declsFromCursor(documentFromSemanticInfo, data.cursor());
 
-    ASTPath astPathFinder(documentFromSemanticInfo);
-    const QList<AST *> astPath = astPathFinder(data.cursor());
-
-    for (AST *ast : astPath) {
-        if (FunctionDefinitionAST *functionDefinitionAST = ast->asFunctionDefinition()) {
-            if ((functionDefinitionSymbol = functionDefinitionAST->symbol))
-                break; // Function definition found!
-        } else if (SimpleDeclarationAST *simpleDeclaration = ast->asSimpleDeclaration()) {
-            if (List<Symbol *> *symbols = simpleDeclaration->symbols) {
-                if (Symbol *symbol = symbols->value) {
-                    if (symbol->asDeclaration()) {
-                        declarationSymbol = symbol;
-                        if (symbol->type()->asFunctionType()) {
-                            functionDeclarationSymbol = symbol;
-                            break; // Function declaration found!
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Link to function definition/declaration
     Utils::Link symbolLink;
-    if (functionDeclarationSymbol) {
-        Symbol *symbol
-            = symbolFinder->findMatchingDefinition(functionDeclarationSymbol, snapshot, false);
-        if (symbol)
+    if (decls.funcDecl) {
+        if (Symbol *symbol = symbolFinder->findMatchingDefinition(decls.funcDecl, snapshot, false))
             symbolLink = symbol->toLink();
-    } else if (declarationSymbol) {
-        Symbol *symbol = symbolFinder->findMatchingVarDefinition(declarationSymbol, snapshot);
-        if (symbol)
+    } else if (decls.decl) {
+        if (Symbol *symbol = symbolFinder->findMatchingVarDefinition(decls.decl, snapshot))
             symbolLink = symbol->toLink();
-    } else if (functionDefinitionSymbol) {
-        LookupContext context(documentFromSemanticInfo, snapshot);
-        ClassOrNamespace *binding = context.lookupType(functionDefinitionSymbol);
-        const QList<LookupItem> declarations
-            = context.lookup(functionDefinitionSymbol->name(),
-                             functionDefinitionSymbol->enclosingScope());
-
-        QList<Symbol *> best;
-        for (const LookupItem &r : declarations) {
-            if (Symbol *decl = r.declaration()) {
-                if (Function *funTy = decl->type()->asFunctionType()) {
-                    if (funTy->match(functionDefinitionSymbol)) {
-                        if (decl != functionDefinitionSymbol && binding == r.binding())
-                            best.prepend(decl);
-                        else
-                            best.append(decl);
-                    }
-                }
-            }
+    } else if (decls.funcDef) {
+        if (const Symbol * const decl
+            = functionDeclFromDef(decls.funcDef, documentFromSemanticInfo, snapshot)) {
+            symbolLink = decl->toLink();
         }
-
-        if (best.isEmpty())
-            return;
-        symbolLink = best.first()->toLink();
     }
     processLinkCallback(symbolLink);
 }
@@ -863,4 +974,117 @@ void FollowSymbolUnderCursor::setVirtualFunctionAssistProvider(
     m_virtualFunctionAssistProvider = provider;
 }
 
-} // CppEditor
+#ifdef WITH_TESTS
+namespace Internal {
+class FindParentImplTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test_data()
+    {
+        QTest::addColumn<QByteArray>("source");
+
+        QTest::newRow("not a virtual function") << QByteArray("class C { void @foo(); };");
+
+        const QByteArray complex = R"cpp(
+namespace A {
+class Base {
+virtual void @0foo(int) {}
+virtual void foo(double) {}
+};
+}
+namespace B { class Derived1 : public A::Base { void foo(int) override; }; }
+void B::Derived1::@1foo(int) {}
+namespace C { class Derived2 : public B::Derived1 { void foo(int) override; }; }
+void C::Derived2::@2foo(int) {}
+class Derived3 : public C::Derived2 { void foo(double) override; }
+class Derived4 : public Derived3 { void @3foo(int) override; }
+)cpp";
+
+        QByteArray source = complex;
+        source.replace("@3", "@").replace("@2", "$").replace("@1", "").replace("@0", "");
+        QTest::newRow("derived decl to base impl") << source;
+
+        source = complex;
+        source.replace("@3", "").replace("@2", "@").replace("@1", "$").replace("@0", "");
+        QTest::newRow("derived impl to base impl") << source;
+
+        source = complex;
+        source.replace("@3", "").replace("@2", "").replace("@1", "@").replace("@0", "$");
+        QTest::newRow("derived impl to base decl") << source;
+
+        source = complex;
+        source.replace("@3", "").replace("@2", "").replace("@1", "").replace("@0", "@");
+        QTest::newRow("base decl to nothing") << source;
+    }
+
+    void test()
+    {
+        using namespace Tests;
+        using namespace CppEditor::Tests;
+
+        QFETCH(QByteArray, source);
+
+        TemporaryDir tempDir;
+        QVERIFY(tempDir.isValid());
+        TestDocumentPtr doc = CppTestDocument::create(source, "test.cpp");
+        QVERIFY(doc->hasCursorMarker());
+        doc->setBaseDirectory(tempDir.path());
+        QVERIFY(doc->writeToDisk());
+        TestCase testCase;
+        QVERIFY(testCase.succeededSoFar());
+        QVERIFY(testCase.openCppEditor(doc->filePath(), &doc->m_editor, &doc->m_editorWidget));
+        testCase.closeEditorAtEndOfTestCase(doc->m_editor);
+        TextDocument * const textDoc = doc->m_editorWidget->cppEditorDocument();
+        BaseEditorDocumentProcessor * const processor = CppModelManager::cppEditorDocumentProcessor(
+            doc->filePath());
+        QVERIFY(processor);
+        QVERIFY(TestCase::waitForProcessedEditorDocument(doc->filePath()));
+        TestCase::waitForRehighlightedSemanticDocument(doc->m_editorWidget);
+        Snapshot snapshot = processor->snapshot();
+        QCOMPARE(snapshot.size(), 2); // Configuration file included
+
+        Link expectedTarget;
+        if (doc->hasTargetCursorMarker()) {
+            expectedTarget.targetFilePath = doc->filePath();
+            expectedTarget.target = Text::Position::fromPositionInDocument(
+                textDoc->document(), doc->m_targetCursorPosition);
+        }
+        Link actualTarget;
+
+        QTimer timer;
+        QEventLoop loop;
+        const auto handler = [&](const Link &link) {
+            actualTarget = link;
+            timer.stop();
+            loop.quit();
+        };
+        QTextCursor cursor(textDoc->document());
+        cursor.setPosition(doc->m_cursorPosition);
+        QTimer::singleShot(0, [&] {
+            CppModelManager::followFunctionToParentImpl(
+                {cursor, doc->filePath(), doc->m_editorWidget, textDoc}, handler);
+        });
+        timer.setSingleShot(true);
+        connect(&timer, &QTimer::timeout, [&loop] { loop.exit(1); });
+        timer.start(TestCase::defaultTimeOutInMs);
+        QCOMPARE(loop.exec(), 0);
+        QCOMPARE(actualTarget.hasValidTarget(), expectedTarget.hasValidTarget());
+        if (expectedTarget.hasValidTarget())
+            QCOMPARE(actualTarget, expectedTarget);
+
+    }
+};
+
+QObject *createFindParentImplTest() { return new FindParentImplTest; }
+
+} // namespace Internal
+#endif
+
+} // namespace CppEditor
+
+
+#ifdef WITH_TESTS
+#include <cppfollowsymbolundercursor.moc>
+#endif

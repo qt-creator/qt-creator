@@ -335,6 +335,13 @@ void ClangModelManagerSupport::followSymbolToType(const CursorInEditor &data,
                                         CppModelManager::Backend::Builtin);
 }
 
+void ClangModelManagerSupport::followFunctionToParentImpl(
+    const CppEditor::CursorInEditor &data, const Utils::LinkHandler &processLinkCallback)
+{
+    Q_UNUSED(data)
+    QTC_ASSERT(false, processLinkCallback({}));
+}
+
 void ClangModelManagerSupport::switchDeclDef(const CursorInEditor &data,
                                              const LinkHandler &processLinkCallback)
 {

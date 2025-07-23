@@ -27,6 +27,13 @@ public:
                   SymbolFinder *symbolFinder,
                   bool inNextSplit);
 
+    void findParentImpl(
+        const CursorInEditor &data,
+        const Utils::LinkHandler &processLinkCallback,
+        const CPlusPlus::Snapshot &snapshot,
+        const CPlusPlus::Document::Ptr &documentFromSemanticInfo,
+        SymbolFinder *symbolFinder);
+
     void switchDeclDef(const CursorInEditor &data,
                        const Utils::LinkHandler &processLinkCallback,
                        const CPlusPlus::Snapshot &snapshot,
@@ -40,5 +47,9 @@ public:
 private:
     QSharedPointer<VirtualFunctionAssistProvider> m_virtualFunctionAssistProvider;
 };
+
+#ifdef WITH_TESTS
+namespace Internal { QObject *createFindParentImplTest(); }
+#endif
 
 } // namespace CppEditor

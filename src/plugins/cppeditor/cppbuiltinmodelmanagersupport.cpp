@@ -127,6 +127,18 @@ void BuiltinModelManagerSupport::followSymbolToType(const CursorInEditor &data,
                 Tr::tr("Follow Symbol to Type is only available when using clangd"));
 }
 
+void BuiltinModelManagerSupport::followFunctionToParentImpl(
+    const CursorInEditor &data, const Utils::LinkHandler &processLinkCallback)
+{
+    SymbolFinder finder;
+    m_followSymbol->findParentImpl(
+        data,
+        processLinkCallback,
+        CppModelManager::snapshot(),
+        data.editorWidget()->semanticInfo().doc,
+        &finder);
+}
+
 void BuiltinModelManagerSupport::switchDeclDef(const CursorInEditor &data,
                                                const Utils::LinkHandler &processLinkCallback)
 {

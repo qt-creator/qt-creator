@@ -30,6 +30,7 @@
 #include "cppcodegen_test.h"
 #include "cppcompletion_test.h"
 #include "cppdoxygen_test.h"
+#include "cppfollowsymbolundercursor.h"
 #include "cppincludehierarchy_test.h"
 #include "cpplocalsymbols_test.h"
 #include "cpplocatorfilter_test.h"
@@ -356,6 +357,27 @@ void CppEditorPlugin::addPerSymbolActions()
     addSymbolActionToMenus(TextEditor::Constants::FOLLOW_SYMBOL_TO_TYPE);
     addSymbolActionToMenus(TextEditor::Constants::FOLLOW_SYMBOL_TO_TYPE_IN_NEXT_SPLIT);
 
+    ActionBuilder followToParentImpl(this, "CppEditor.FollowToParentImpl");
+    followToParentImpl.setText(Tr::tr("Follow Virtual Function to Base Class Implementation"));
+    followToParentImpl.setContext(context);
+    followToParentImpl.setScriptable(true);
+    followToParentImpl.addToContainers(menus, Constants::G_SYMBOL);
+    followToParentImpl.addOnTriggered(this, [] {
+        if (CppEditorWidget *editorWidget = currentCppEditorWidget())
+            editorWidget->goToParentImpl(/*inNextSplit*/ false);
+    });
+
+    ActionBuilder followToParentImplSplit(this, "CppEditor.FollowToParentImplInNextSplit");
+    followToParentImplSplit.setText(
+        Tr::tr("Follow Virtual Function to Base Class Implementation in Next Split"));
+    followToParentImplSplit.setContext(context);
+    followToParentImplSplit.setScriptable(true);
+    followToParentImplSplit.addToContainers(menus, Constants::G_SYMBOL);
+    followToParentImplSplit.addOnTriggered(this, [] {
+        if (CppEditorWidget *editorWidget = currentCppEditorWidget())
+            editorWidget->goToParentImpl(/*inNextSplit*/ true);
+    });
+
     ActionBuilder switchDeclDef(this, Constants::SWITCH_DECLARATION_DEFINITION);
     switchDeclDef.setText(Tr::tr("Switch Between Function Declaration/Definition"));
     switchDeclDef.setContext(context);
@@ -531,6 +553,7 @@ void CppEditorPlugin::registerTests()
     addTest<CodegenTest>();
     addTest<CompilerOptionsBuilderTest>();
     addTest<CompletionTest>();
+    addTestCreator(createFindParentImplTest);
     addTest<FunctionUtilsTest>();
     addTest<HeaderPathFilterTest>();
     addTestCreator(createCppHeaderSourceTest);

@@ -58,6 +58,9 @@ private:
     void followSymbolToType(const CppEditor::CursorInEditor &data,
                             const Utils::LinkHandler &processLinkCallback,
                             bool inNextSplit) override;
+    void followFunctionToParentImpl(
+        const CppEditor::CursorInEditor &data,
+        const Utils::LinkHandler &processLinkCallback) override;
     void switchDeclDef(const CppEditor::CursorInEditor &data,
                        const Utils::LinkHandler &processLinkCallback) override;
     void startLocalRenaming(const CppEditor::CursorInEditor &data,

@@ -2222,6 +2222,12 @@ void CppModelManager::followSymbolToType(const CursorInEditor &data,
                                                                  inNextSplit);
 }
 
+void CppModelManager::followFunctionToParentImpl(
+    const CursorInEditor &data, const Utils::LinkHandler &processLinkCallback)
+{
+    modelManagerSupport(Backend::Builtin)->followFunctionToParentImpl(data, processLinkCallback);
+}
+
 void CppModelManager::switchDeclDef(const CursorInEditor &data,
                                     const LinkHandler &processLinkCallback,
                                     Backend backend)

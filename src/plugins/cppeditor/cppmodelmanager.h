@@ -185,6 +185,8 @@ public:
     static void followSymbolToType(const CursorInEditor &data,
                                    const Utils::LinkHandler &processLinkCallback, bool inNextSplit,
                                    Backend backend = Backend::Best);
+    static void followFunctionToParentImpl(
+        const CursorInEditor &data, const Utils::LinkHandler &processLinkCallback);
     static void switchDeclDef(const CursorInEditor &data,
                               const Utils::LinkHandler &processLinkCallback,
                               Backend backend = Backend::Best);

@@ -904,6 +904,20 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
     CppModelManager::switchDeclDef(cursor, std::move(callback));
 }
 
+void CppEditorWidget::goToParentImpl(bool inNextSplit)
+{
+    if (!CppModelManager::instance())
+        return;
+
+    const CursorInEditor cursor(textCursor(), textDocument()->filePath(), this, textDocument());
+    auto callback = [self = QPointer(this),
+                     split = inNextSplit != alwaysOpenLinksInNextSplit()](const Link &link) {
+        if (self && link.hasValidTarget())
+            self->openLink(link, split);
+    };
+    CppModelManager::followFunctionToParentImpl(cursor, callback);
+}
+
 bool CppEditorWidget::followUrl(const QTextCursor &cursor,
                                    const Utils::LinkHandler &processLinkCallback)
 {
