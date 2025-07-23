@@ -134,7 +134,7 @@ signals:
 
 private:
     QTreeView *view;
-    Utils::FancyLineEdit *lineEdit;
+    FancyLineEdit *lineEdit;
 };
 
 FilterableView::FilterableView(QWidget *parent)
@@ -145,7 +145,7 @@ FilterableView::FilterableView(QWidget *parent)
     view->setTextElideMode(Qt::ElideMiddle);
     view->setSortingEnabled(true);
 
-    lineEdit = new Utils::FancyLineEdit(this);
+    lineEdit = new FancyLineEdit(this);
     lineEdit->setFiltering(true);
     lineEdit->setPlaceholderText(QLatin1String("File Path"));
     QObject::connect(lineEdit, &QLineEdit::textChanged, this, &FilterableView::filterChanged);
@@ -431,7 +431,7 @@ public:
     void configure(const Snapshot &snapshot);
     void setGlobalSnapshot(const Snapshot &snapshot);
 
-    QModelIndex indexForDocument(const Utils::FilePath &filePath);
+    QModelIndex indexForDocument(const FilePath &filePath);
 
     enum Columns { SymbolCountColumn, SharedColumn, FilePathColumn, ColumnCount };
 
@@ -1164,7 +1164,7 @@ public:
     WorkingCopyModel() = default;
 
     void configure(const WorkingCopy &workingCopy);
-    QModelIndex indexForFile(const Utils::FilePath &filePath);
+    QModelIndex indexForFile(const FilePath &filePath);
 
     enum Columns { RevisionColumn, FilePathColumn, ColumnCount };
 
@@ -1174,12 +1174,13 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
 private:
-    struct WorkingCopyEntry {
-        WorkingCopyEntry(const Utils::FilePath &filePath, const QByteArray &source, unsigned revision)
+    struct WorkingCopyEntry
+    {
+        WorkingCopyEntry(const FilePath &filePath, const QByteArray &source, unsigned revision)
             : filePath(filePath), source(source), revision(revision)
         {}
 
-        Utils::FilePath filePath;
+        FilePath filePath;
         QByteArray source;
         unsigned revision;
     };
@@ -1198,7 +1199,7 @@ void WorkingCopyModel::configure(const WorkingCopy &workingCopy)
     emit layoutChanged();
 }
 
-QModelIndex WorkingCopyModel::indexForFile(const Utils::FilePath &filePath)
+QModelIndex WorkingCopyModel::indexForFile(const FilePath &filePath)
 {
     for (int i = 0, total = m_workingCopyList.size(); i < total; ++i) {
         const WorkingCopyEntry entry = m_workingCopyList.at(i);
@@ -1463,8 +1464,8 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog()
                 }
             }
         ),
-        Tab("&Header Paths", Column{ projectHeaderPathsView }),
-        Tab("Pre&compiled Headers", Column{ m_partPrecompiledHeadersEdit }),
+        Tab("&Header Paths", Column { projectHeaderPathsView }),
+        Tab("Pre&compiled Headers", Column { m_partPrecompiledHeadersEdit }),
     };
 
     TabWidget docTab {
