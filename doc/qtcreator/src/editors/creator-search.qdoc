@@ -143,20 +143,31 @@
 
     \title Search in projects or file systems
 
+    To search in projects or file systems in the \uicontrol {Search Results}
+    view:
+
+    \list
+        \li Select \key {Ctrl+Shift+F}
+        \li Go to \uicontrol Edit > \uicontrol {Find/Replace} >
+            \uicontrol {Advanced Find}, and select
+            \uicontrol {Open Advanced Find}.
+        \li Go to the \uicontrol {Search Results} view.
+    \endlist
+
     The search scope and search criteria determine where \QC looks for the search
     string, how it matches the string with text, and which results it shows.
 
-    \section1 Search in all projects
+    \section1 Search in a single project
 
     \list 1
-        \li Select \key {Ctrl+Shift+F} or go to \uicontrol Edit >
-            \uicontrol {Find/Replace} > \uicontrol {Advanced Find} >
-            \uicontrol {Open Advanced Find}.
-        \li In \uicontrol Scope, select \uicontrol {All Projects}.
-            \image {qtcreator-search-all-projects.webp} {Search Results view}
+        \li In \uicontrol Scope, select \uicontrol {Single Project}.
+            \image {qtcreator-search-single-projects.webp} {Single Project option in the Search Results view}
         \li In \uicontrol {Search for}, enter the string you are looking for.
         \li Select options to make the search case sensitive, search only whole
             words, use regular expressions, or ignore binary files.
+        \li In \uicontrol Project, select an open project to search in.
+            Select \uicontrol Current to search in the project that the currently
+            active file belongs to.
         \li In \uicontrol {File pattern}, specify file patterns to
             restrict the search to files that match the pattern. For example, to
             search for a string only in \c {.cpp} and \c {.h} files, enter
@@ -171,6 +182,15 @@
     how to declare them as a part of the project.
     \endif
 
+    \section1 Search in all projects
+
+    \list 1
+        \li In \uicontrol Scope, select \uicontrol {All Projects}.
+            \image {qtcreator-search-all-projects.webp} {All Projects option in the Search Results view}
+        \li Set search criteria.
+        \li Select \uicontrol Search.
+    \endlist
+
     \section1 Search in the file system
 
     In addition to the options available for searching from all projects, you can
@@ -178,7 +198,7 @@
 
     \list 1
         \li In \uicontrol Scope, select \uicontrol {Files in File System}.
-            \image {qtcreator-search-file-system.webp} {Search Results view}
+            \image {qtcreator-search-file-system.webp} {Files in File System option in the Search Results view}
         \li In \uicontrol {Search for}, enter the string you are looking for.
         \li In \uicontrol {Search engine}, select the search engine to use:
             \list

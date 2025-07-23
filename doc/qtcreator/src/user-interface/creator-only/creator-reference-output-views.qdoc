@@ -82,8 +82,7 @@
 
     \list
         \li \uicontrol {All Projects} searches in all projects.
-        \li \uicontrol {Current Project} searches in the currently active
-            project.
+        \li \uicontrol {Single Project} searches in the selected project.
         \li \uicontrol {Files in All Project Directories} recursively searches
             in all project directories.
         \li \uicontrol {Files in File System} recursively searches in
