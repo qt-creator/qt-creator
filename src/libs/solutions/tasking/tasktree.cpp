@@ -1506,8 +1506,8 @@ void GroupItem::addChildren(const GroupItems &children)
                           qWarning("Group done handler redefinition, overriding..."));
                 m_groupData.m_groupHandler.m_doneHandler
                     = child.m_groupData.m_groupHandler.m_doneHandler;
-                m_groupData.m_groupHandler.m_callDoneIf
-                    = child.m_groupData.m_groupHandler.m_callDoneIf;
+                m_groupData.m_groupHandler.m_callDoneFlags
+                    = child.m_groupData.m_groupHandler.m_callDoneFlags;
             }
             if (child.m_groupData.m_parallelLimit) {
                 QT_ASSERT(!m_groupData.m_parallelLimit,
@@ -2384,18 +2384,26 @@ void TaskTreePrivate::stopContainer(RuntimeContainer *container)
     }
 }
 
-static bool shouldCall(CallDone callDoneIf, DoneWith result)
+static CallDone toCallDone(DoneWith result)
 {
-    if (result == DoneWith::Success)
-        return callDoneIf != CallDone::OnErrorOrCancel;
-    return callDoneIf != CallDone::OnSuccess;
+    switch (result) {
+    case DoneWith::Success: return CallDone::OnSuccess;
+    case DoneWith::Error: return CallDone::OnError;
+    case DoneWith::Cancel: return CallDone::OnCancel;
+    }
+    return CallDone::Never;
+}
+
+static bool shouldCall(CallDoneFlags callDone, DoneWith result)
+{
+    return callDone & toCallDone(result);
 }
 
 bool TaskTreePrivate::invokeDoneHandler(RuntimeContainer *container, DoneWith doneWith)
 {
     DoneResult result = toDoneResult(doneWith);
     const GroupItem::GroupHandler &groupHandler = container->m_containerNode.m_groupHandler;
-    if (groupHandler.m_doneHandler && shouldCall(groupHandler.m_callDoneIf, doneWith))
+    if (groupHandler.m_doneHandler && shouldCall(groupHandler.m_callDoneFlags, doneWith))
         result = invokeHandler(container, groupHandler.m_doneHandler, doneWith);
     container->m_callStorageDoneHandlersOnDestruction = true;
     return result == DoneResult::Success;
@@ -2482,7 +2490,7 @@ bool TaskTreePrivate::invokeTaskDoneHandler(RuntimeTask *node, DoneWith doneWith
 {
     DoneResult result = toDoneResult(doneWith);
     const GroupItem::TaskHandler &handler = node->m_taskNode.m_taskHandler;
-    if (handler.m_taskAdapterDoneHandler && shouldCall(handler.m_callDoneIf, doneWith)) {
+    if (handler.m_taskAdapterDoneHandler && shouldCall(handler.m_callDoneFlags, doneWith)) {
         result = invokeHandler(node->m_parentIteration, handler.m_taskAdapterDoneHandler,
                                node->m_taskInterfaceAdapter->m_taskAdapter, doneWith);
     }

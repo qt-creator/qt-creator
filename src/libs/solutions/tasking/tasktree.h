@@ -75,11 +75,16 @@ Q_ENUM_NS(DoneWith)
 
 enum class CallDone
 {
-    OnSuccess,
-    OnErrorOrCancel,
-    Always
+    Never = 0,
+    OnSuccess = 1 << 0,
+    OnError   = 1 << 1,
+    OnCancel  = 1 << 2,
+    OnErrorOrCancel = OnError | OnCancel,
+    Always = OnSuccess | OnError | OnCancel
 };
 Q_ENUM_NS(CallDone)
+Q_DECLARE_FLAGS(CallDoneFlags, CallDone)
+Q_DECLARE_OPERATORS_FOR_FLAGS(CallDoneFlags)
 
 TASKING_EXPORT DoneResult toDoneResult(bool success);
 
@@ -242,13 +247,13 @@ protected:
         TaskAdapterStarter m_taskAdapterStarter;
         TaskAdapterSetupHandler m_taskAdapterSetupHandler = {};
         TaskAdapterDoneHandler m_taskAdapterDoneHandler = {};
-        CallDone m_callDoneIf = CallDone::Always;
+        CallDoneFlags m_callDoneFlags = CallDone::Always;
     };
 
     struct GroupHandler {
         GroupSetupHandler m_setupHandler;
         GroupDoneHandler m_doneHandler = {};
-        CallDone m_callDoneIf = CallDone::Always;
+        CallDoneFlags m_callDoneFlags = CallDone::Always;
     };
 
     struct GroupData {
@@ -347,8 +352,8 @@ public:
         return groupHandler({wrapGroupSetup(std::forward<Handler>(handler))});
     }
     template <typename Handler>
-    static GroupItem onGroupDone(Handler &&handler, CallDone callDoneIf = CallDone::Always) {
-        return groupHandler({{}, wrapGroupDone(std::forward<Handler>(handler)), callDoneIf});
+    static GroupItem onGroupDone(Handler &&handler, CallDoneFlags callDone = CallDone::Always) {
+        return groupHandler({{}, wrapGroupDone(std::forward<Handler>(handler)), callDone});
     }
 
 private:
@@ -435,9 +440,9 @@ static GroupItem onGroupSetup(Handler &&handler)
 }
 
 template <typename Handler>
-static GroupItem onGroupDone(Handler &&handler, CallDone callDoneIf = CallDone::Always)
+static GroupItem onGroupDone(Handler &&handler, CallDoneFlags callDone = CallDone::Always)
 {
-    return Group::onGroupDone(std::forward<Handler>(handler), callDoneIf);
+    return Group::onGroupDone(std::forward<Handler>(handler), callDone);
 }
 
 // Default: 1 (sequential). 0 means unlimited (parallel).
@@ -557,10 +562,10 @@ public:
 
     template <typename SetupHandler = TaskSetupHandler, typename DoneHandler = TaskDoneHandler>
     CustomTask(SetupHandler &&setup = TaskSetupHandler(), DoneHandler &&done = TaskDoneHandler(),
-               CallDone callDoneIf = CallDone::Always)
+               CallDoneFlags callDone = CallDone::Always)
         : ExecutableItem({&taskAdapterConstructor, &taskAdapterDestructor, &taskAdapterStarter,
                           wrapSetup(std::forward<SetupHandler>(setup)),
-                          wrapDone(std::forward<DoneHandler>(done)), callDoneIf})
+                          wrapDone(std::forward<DoneHandler>(done)), callDone})
     {}
 
 private:

@@ -197,9 +197,9 @@ void tst_Tasking::validConstructs()
         TestTask(setupHandler, finishHandler, CallDone::OnSuccess),
         TestTask(setupHandler, doneHandler),
         // need to explicitly pass empty handler for done
-        TestTask(setupHandler, errorHandler, CallDone::OnErrorOrCancel),
+        TestTask(setupHandler, errorHandler, CallDone::OnError),
         TestTask({}, finishHandler, CallDone::OnSuccess),
-        TestTask({}, errorHandler, CallDone::OnErrorOrCancel)
+        TestTask({}, errorHandler, CallDone::OnError)
     };
 
     // When turning each of below blocks on, you should see the specific compiler error message.
@@ -623,10 +623,10 @@ void tst_Tasking::testTree_data()
             storage->m_log.append({taskId, Handler::GroupSetup});
         });
     };
-    const auto groupDone = [storage](int taskId, CallDone callIf = CallDone::Always) {
+    const auto groupDone = [storage](int taskId, CallDoneFlags calldone = CallDone::Always) {
         return onGroupDone([storage, taskId](DoneWith result) {
             storage->m_log.append({taskId, resultToGroupHandler(result)});
-        }, callIf);
+        }, calldone);
     };
     const auto groupSetupWithTweak = [storage](int taskId, SetupResult desiredResult) {
         return onGroupSetup([storage, taskId, desiredResult] {
@@ -3196,52 +3196,99 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const auto createRoot = [=](DoneResult doneResult, CallDone callDoneIf) {
+        // These tests ensure the task handlers are invoked according to the CallDoneFlags
+
+        const auto createRoot = [storage, groupDone](DoneWith doneWith, CallDoneFlags callDone) {
             return Group {
                 storage,
+                parallel,
                 Group {
-                    createTask(1, doneResult)
+                    TestTask({}, toDoneResult(doneWith == DoneWith::Success)),
+                    groupDone(1, callDone)
                 },
-                groupDone(2, callDoneIf)
+                doneWith == DoneWith::Cancel ? Sync([] { return false; }) : nullItem
             };
         };
 
-        const Log logSuccessLong {
-            {1, Handler::Setup},
-            {1, Handler::Success},
-            {2, Handler::GroupSuccess}
-        };
-        const Log logSuccessShort {
-            {1, Handler::Setup},
-            {1, Handler::Success}
-        };
-        const Log logErrorLong {
-            {1, Handler::Setup},
-            {1, Handler::Error},
-            {2, Handler::GroupError}
-        };
-        const Log logErrorShort {
-            {1, Handler::Setup},
-            {1, Handler::Error}
-        };
-        QTest::newRow("CallDoneIfGroupSuccessOrErrorAfterSuccess")
-            << TestData{storage, createRoot(DoneResult::Success, CallDone::Always),
-                        logSuccessLong, 1, DoneWith::Success, 1};
-        QTest::newRow("CallDoneIfGroupSuccessAfterSuccess")
-            << TestData{storage, createRoot(DoneResult::Success, CallDone::OnSuccess),
-                        logSuccessLong, 1, DoneWith::Success, 1};
-        QTest::newRow("CallDoneIfGroupErrorAfterSuccess")
-            << TestData{storage, createRoot(DoneResult::Success, CallDone::OnErrorOrCancel),
-                        logSuccessShort, 1, DoneWith::Success, 1};
-        QTest::newRow("CallDoneIfGroupSuccessOrErrorAfterError")
-            << TestData{storage, createRoot(DoneResult::Error, CallDone::Always),
-                        logErrorLong, 1, DoneWith::Error, 1};
-        QTest::newRow("CallDoneIfGroupSuccessAfterError")
-            << TestData{storage, createRoot(DoneResult::Error, CallDone::OnSuccess),
-                        logErrorShort, 1, DoneWith::Error, 1};
-        QTest::newRow("CallDoneIfGroupErrorAfterError")
-            << TestData{storage, createRoot(DoneResult::Error, CallDone::OnErrorOrCancel),
-                        logErrorLong, 1, DoneWith::Error, 1};
+        const Log logNoDone { };
+        const Log logSuccess {{1, Handler::GroupSuccess}};
+        const Log logError {{1, Handler::GroupError}};
+        const Log logCanceled {{1, Handler::GroupCanceled}};
+
+        QTest::newRow("SuccessCallDoneNever")
+            << TestData{storage, createRoot(DoneWith::Success, CallDone::Never),
+                        logNoDone, 1, DoneWith::Success, 1};
+        QTest::newRow("SuccessCallDoneOnSuccess")
+            << TestData{storage, createRoot(DoneWith::Success, CallDone::OnSuccess),
+                        logSuccess, 1, DoneWith::Success, 1};
+        QTest::newRow("SuccessCallDoneOnError")
+            << TestData{storage, createRoot(DoneWith::Success, CallDone::OnError),
+                        logNoDone, 1, DoneWith::Success, 1};
+        QTest::newRow("SuccessCallDoneOnCancel")
+            << TestData{storage, createRoot(DoneWith::Success, CallDone::OnCancel),
+                        logNoDone, 1, DoneWith::Success, 1};
+        QTest::newRow("SuccessCallDoneOnSuccessOrError")
+            << TestData{storage, createRoot(DoneWith::Success, CallDone::OnSuccess | CallDone::OnError),
+                        logSuccess, 1, DoneWith::Success, 1};
+        QTest::newRow("SuccessCallDoneOnSuccessOrCancel")
+            << TestData{storage, createRoot(DoneWith::Success, CallDone::OnSuccess | CallDone::OnCancel),
+                        logSuccess, 1, DoneWith::Success, 1};
+        QTest::newRow("SuccessCallDoneOnErrorOrCancel")
+            << TestData{storage, createRoot(DoneWith::Success, CallDone::OnError | CallDone::OnCancel),
+                        logNoDone, 1, DoneWith::Success, 1};
+        QTest::newRow("SuccessCallDoneAlways")
+            << TestData{storage, createRoot(DoneWith::Success, CallDone::Always),
+                        logSuccess, 1, DoneWith::Success, 1};
+
+        QTest::newRow("ErrorCallDoneNever")
+            << TestData{storage, createRoot(DoneWith::Error, CallDone::Never),
+                        logNoDone, 1, DoneWith::Error, 1};
+        QTest::newRow("ErrorCallDoneOnSuccess")
+            << TestData{storage, createRoot(DoneWith::Error, CallDone::OnSuccess),
+                        logNoDone, 1, DoneWith::Error, 1};
+        QTest::newRow("ErrorCallDoneOnError")
+            << TestData{storage, createRoot(DoneWith::Error, CallDone::OnError),
+                        logError, 1, DoneWith::Error, 1};
+        QTest::newRow("ErrorCallDoneOnCancel")
+            << TestData{storage, createRoot(DoneWith::Error, CallDone::OnCancel),
+                        logNoDone, 1, DoneWith::Error, 1};
+        QTest::newRow("ErrorCallDoneOnSuccessOrError")
+            << TestData{storage, createRoot(DoneWith::Error, CallDone::OnSuccess | CallDone::OnError),
+                        logError, 1, DoneWith::Error, 1};
+        QTest::newRow("ErrorCallDoneOnSuccessOrCancel")
+            << TestData{storage, createRoot(DoneWith::Error, CallDone::OnSuccess | CallDone::OnCancel),
+                        logNoDone, 1, DoneWith::Error, 1};
+        QTest::newRow("ErrorCallDoneOnErrorOrCancel")
+            << TestData{storage, createRoot(DoneWith::Error, CallDone::OnError | CallDone::OnCancel),
+                        logError, 1, DoneWith::Error, 1};
+        QTest::newRow("ErrorCallDoneAlways")
+            << TestData{storage, createRoot(DoneWith::Error, CallDone::Always),
+                        logError, 1, DoneWith::Error, 1};
+
+        QTest::newRow("CancelCallDoneNever")
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::Never),
+                        logNoDone, 1, DoneWith::Error, 0};
+        QTest::newRow("CancelCallDoneOnSuccess")
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::OnSuccess),
+                        logNoDone, 1, DoneWith::Error, 0};
+        QTest::newRow("CancelCallDoneOnError")
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::OnError),
+                        logNoDone, 1, DoneWith::Error, 0};
+        QTest::newRow("CancelCallDoneOnCancel")
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::OnCancel),
+                        logCanceled, 1, DoneWith::Error, 0};
+        QTest::newRow("CancelCallDoneOnSuccessOrError")
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::OnSuccess | CallDone::OnError),
+                        logNoDone, 1, DoneWith::Error, 0};
+        QTest::newRow("CancelCallDoneOnSuccessOrCancel")
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::OnSuccess | CallDone::OnCancel),
+                        logCanceled, 1, DoneWith::Error, 0};
+        QTest::newRow("CancelCallDoneOnErrorOrCancel")
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::OnError | CallDone::OnCancel),
+                        logCanceled, 1, DoneWith::Error, 0};
+        QTest::newRow("CancelCallDoneAlways")
+            << TestData{storage, createRoot(DoneWith::Cancel, CallDone::Always),
+                        logCanceled, 1, DoneWith::Error, 0};
     }
 
     {
