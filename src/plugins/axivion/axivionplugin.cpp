@@ -922,7 +922,7 @@ static Group authorizationRecipe(DashboardMode dashboardMode)
                     apiTokenStorage,
                     onGroupSetup(onApiTokenGroupSetup),
                     dtoRecipe(apiTokenStorage),
-                    CredentialQueryTask(onSetCredentialSetup, onSetCredentialDone, CallDone::OnErrorOrCancel)
+                    CredentialQueryTask(onSetCredentialSetup, onSetCredentialDone, CallDone::OnError)
                 }
             },
             Group {
