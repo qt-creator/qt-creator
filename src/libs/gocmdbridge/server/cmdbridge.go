@@ -581,7 +581,7 @@ func writeMain(out *bufio.Writer) {
 }
 
 func watchDogLoop(channel chan struct {}, deleteOnExit bool) {
-	watchDogTimeOut := 60 * time.Second
+	watchDogTimeOut := 60 * time.Minute
 	timer := time.NewTimer(watchDogTimeOut)
 
 	for {
