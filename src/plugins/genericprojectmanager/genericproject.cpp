@@ -93,12 +93,12 @@ public:
         Utils::FilePaths *notRenamed) final;
     bool addFiles(Node *, const FilePaths &filePaths, FilePaths *) final;
 
-    FilePath filesFilePath() const { return ::FilePath::fromString(m_filesFileName); }
+    FilePath filesFilePath() const { return m_filesFilePath; }
 
     void refresh(RefreshOptions options);
 
     bool saveRawFileList(const QStringList &rawFileList);
-    bool saveRawList(const QStringList &rawList, const QString &fileName);
+    bool saveRawList(const QStringList &rawList, const FilePath &filePath);
     void parse(RefreshOptions options);
 
     using SourceFile = QPair<FilePath, QStringList>;
@@ -114,11 +114,11 @@ public:
     void removeFiles(const FilePaths &filesToRemove);
 
 private:
-    QString m_filesFileName;
-    QString m_includesFileName;
+    FilePath m_filesFilePath;
+    FilePath m_includesFilePath;
     FilePath m_configFilePath;
-    QString m_cxxflagsFileName;
-    QString m_cflagsFileName;
+    FilePath m_cxxflagsFilePath;
+    FilePath m_cflagsFilePath;
     QStringList m_rawFileList;
     SourceFiles m_files;
     QHash<QString, QString> m_rawListEntries;
@@ -192,10 +192,9 @@ public:
 // GenericProject
 //
 
-static bool writeFile(const QString &filePath, const QString &contents)
+static bool writeFile(const FilePath &filePath, const QString &contents)
 {
-    FileSaver saver(FilePath::fromString(filePath),
-                    QIODevice::Text | QIODevice::WriteOnly);
+    FileSaver saver(filePath, QIODevice::Text | QIODevice::WriteOnly);
     return saver.write(contents.toUtf8()) && saver.finalize();
 }
 
@@ -237,32 +236,28 @@ GenericBuildSystem::GenericBuildSystem(BuildConfiguration *bc)
             refresh(Everything);
     });
 
-    const QFileInfo fileInfo = projectFilePath().toFileInfo();
-    const QDir dir = fileInfo.dir();
+    const FilePath dir = projectFilePath().parentDir().absoluteFilePath();
+    const QString projectName = projectFilePath().completeBaseName();
 
-    const QString projectName = fileInfo.completeBaseName();
+    m_filesFilePath = dir.pathAppended(projectName + ".files");
+    m_includesFilePath = dir.pathAppended(projectName + ".includes");
+    m_configFilePath = dir.pathAppended(projectName + ".config");
 
-    m_filesFileName    = QFileInfo(dir, projectName + ".files").absoluteFilePath();
-    m_includesFileName = QFileInfo(dir, projectName + ".includes").absoluteFilePath();
-    m_configFilePath = FilePath::fromString(QFileInfo(dir, projectName + ".config").absoluteFilePath());
-
-    const QFileInfo cxxflagsFileInfo(dir, projectName + ".cxxflags");
-    m_cxxflagsFileName = cxxflagsFileInfo.absoluteFilePath();
-    if (!cxxflagsFileInfo.exists()) {
-        QTC_CHECK(writeFile(m_cxxflagsFileName, Constants::GENERICPROJECT_CXXFLAGS_FILE_TEMPLATE));
+    m_cxxflagsFilePath = dir.pathAppended(projectName + ".cxxflags");
+    if (!m_cxxflagsFilePath.exists()) {
+        QTC_CHECK(writeFile(m_cxxflagsFilePath, Constants::GENERICPROJECT_CXXFLAGS_FILE_TEMPLATE));
     }
 
-    const QFileInfo cflagsFileInfo(dir, projectName + ".cflags");
-    m_cflagsFileName = cflagsFileInfo.absoluteFilePath();
-    if (!cflagsFileInfo.exists()) {
-        QTC_CHECK(writeFile(m_cflagsFileName, Constants::GENERICPROJECT_CFLAGS_FILE_TEMPLATE));
+    m_cflagsFilePath = dir.pathAppended(projectName + ".cflags");
+    if (!m_cflagsFilePath.exists()) {
+        QTC_CHECK(writeFile(m_cflagsFilePath, Constants::GENERICPROJECT_CFLAGS_FILE_TEMPLATE));
     }
 
-    project()->setExtraProjectFiles({FilePath::fromString(m_filesFileName),
-                                     FilePath::fromString(m_includesFileName),
+    project()->setExtraProjectFiles({m_filesFilePath,
+                                     m_includesFilePath,
                                      m_configFilePath,
-                                     FilePath::fromString(m_cxxflagsFileName),
-                                     FilePath::fromString(m_cflagsFileName)});
+                                     m_cxxflagsFilePath,
+                                     m_cflagsFilePath});
 
     connect(&m_deployFileWatcher, &FileSystemWatcher::fileChanged,
             this, &GenericBuildSystem::updateDeploymentData);
@@ -281,11 +276,11 @@ void GenericBuildSystem::triggerParsing()
     refresh(Everything);
 }
 
-static QStringList readLines(const QString &absoluteFileName)
+static QStringList readLines(const FilePath &absoluteFileName)
 {
     QStringList lines;
 
-    QFile file(absoluteFileName);
+    QFile file(absoluteFileName.toFSPathString());
     if (file.open(QFile::ReadOnly)) {
         QTextStream stream(&file);
 
@@ -303,14 +298,13 @@ static QStringList readLines(const QString &absoluteFileName)
 
 bool GenericBuildSystem::saveRawFileList(const QStringList &rawFileList)
 {
-    bool result = saveRawList(rawFileList, m_filesFileName);
+    bool result = saveRawList(rawFileList, m_filesFilePath);
     refresh(Files);
     return result;
 }
 
-bool GenericBuildSystem::saveRawList(const QStringList &rawList, const QString &fileName)
+bool GenericBuildSystem::saveRawList(const QStringList &rawList, const FilePath &filePath)
 {
-    const FilePath filePath = FilePath::fromString(fileName);
     FileChangeBlocker changeGuard(filePath);
     // Make sure we can open the file for writing
     FileSaver saver(filePath, QIODevice::Text);
@@ -362,8 +356,8 @@ bool GenericBuildSystem::addFiles(Node *, const FilePaths &filePaths_, FilePaths
         m_rawProjectIncludePaths.append(relative);
     }
 
-    bool result = saveRawList(newList, m_filesFileName);
-    result &= saveRawList(m_rawProjectIncludePaths, m_includesFileName);
+    bool result = saveRawList(newList, m_filesFilePath);
+    result &= saveRawList(m_rawProjectIncludePaths, m_includesFilePath);
     refresh(Everything);
 
     return result;
@@ -432,14 +426,14 @@ bool GenericBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, Fil
     return success;
 }
 
-static QStringList readFlags(const QString &filePath)
+static QStringList readFlags(const FilePath &filePath)
 {
     const QStringList lines = readLines(filePath);
     if (lines.isEmpty())
         return {};
     QStringList flags;
     for (const auto &line : lines)
-        flags.append(ProcessArgs::splitArgs(line, HostOsInfo::hostOs()));
+        flags.append(ProcessArgs::splitArgs(line, filePath.osType()));
     return flags;
 }
 
@@ -447,15 +441,15 @@ void GenericBuildSystem::parse(RefreshOptions options)
 {
     if (options & Files) {
         m_rawListEntries.clear();
-        m_rawFileList = readLines(m_filesFileName);
+        m_rawFileList = readLines(m_filesFilePath);
         m_files = processEntries(m_rawFileList, &m_rawListEntries);
     }
 
     if (options & Configuration) {
-        m_rawProjectIncludePaths = readLines(m_includesFileName);
+        m_rawProjectIncludePaths = readLines(m_includesFilePath);
         QStringList normalPaths;
         QStringList frameworkPaths;
-        const auto baseDir = FilePath::fromString(m_includesFileName).parentDir();
+        const FilePath baseDir = m_includesFilePath.parentDir();
         for (const QString &rawPath : std::as_const(m_rawProjectIncludePaths)) {
             if (rawPath.startsWith("-F"))
                 frameworkPaths << rawPath.mid(2);
@@ -469,15 +463,15 @@ void GenericBuildSystem::parse(RefreshOptions options)
         };
         m_projectIncludePaths = toUserHeaderPaths(expandedPaths(normalPaths));
         m_projectIncludePaths << toFrameworkHeaderPaths(expandedPaths(frameworkPaths));
-        m_cxxflags = readFlags(m_cxxflagsFileName);
-        m_cflags = readFlags(m_cflagsFileName);
+        m_cxxflags = readFlags(m_cxxflagsFilePath);
+        m_cflags = readFlags(m_cflagsFilePath);
     }
 }
 
 FilePath GenericBuildSystem::findCommonSourceRoot()
 {
     if (m_files.isEmpty())
-        return FilePath::fromFileInfo(QFileInfo(m_filesFileName));
+        return m_filesFilePath;
 
     QString root = m_files.front().first.toUrlishString();
     for (const SourceFile &sourceFile : std::as_const(m_files)) {
@@ -521,15 +515,11 @@ void GenericBuildSystem::refresh(RefreshOptions options)
         }
         newRoot->addNestedNodes(std::move(fileNodes), baseDir);
 
-        newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(m_filesFileName),
-                                                          FileType::Project));
-        newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(m_includesFileName),
-                                                          FileType::Project));
+        newRoot->addNestedNode(std::make_unique<FileNode>(m_filesFilePath, FileType::Project));
+        newRoot->addNestedNode(std::make_unique<FileNode>(m_includesFilePath, FileType::Project));
         newRoot->addNestedNode(std::make_unique<FileNode>(m_configFilePath, FileType::Project));
-        newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(m_cxxflagsFileName),
-                                                          FileType::Project));
-        newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(m_cflagsFileName),
-                                                          FileType::Project));
+        newRoot->addNestedNode(std::make_unique<FileNode>(m_cxxflagsFilePath, FileType::Project));
+        newRoot->addNestedNode(std::make_unique<FileNode>(m_cflagsFilePath, FileType::Project));
 
         newRoot->compress();
         setRootProjectNode(std::move(newRoot));
