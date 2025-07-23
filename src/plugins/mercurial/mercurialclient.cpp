@@ -64,7 +64,7 @@ MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document
 
     const Group root {
         diffInputStorage,
-        ProcessTask(onDiffSetup, onDiffDone, CallDoneIf::Success),
+        ProcessTask(onDiffSetup, onDiffDone, CallDone::OnSuccess),
         postProcessTask(diffInputStorage)
     };
     setReloadRecipe(root);

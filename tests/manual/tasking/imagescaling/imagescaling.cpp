@@ -102,7 +102,7 @@ void Images::process()
             NetworkQueryTask(onDownloadSetup, onDownloadDone),
             ConcurrentCallTask<QImage>(onScalingSetup, onScalingDone)
         },
-        onGroupDone(onRootDone, CallDoneIf::Success)
+        onGroupDone(onRootDone, CallDone::OnSuccess)
     };
     taskTreeRunner.start(recipe);
 }

@@ -421,7 +421,7 @@ ProcessTask debugServerTask(const Storage<DebuggerData> &storage)
         storage->runControl->postMessage(process.errorString(), ErrorMessageFormat);
     };
 
-    return ProcessTask(onSetup, onDone, CallDoneIf::Error);
+    return ProcessTask(onSetup, onDone, CallDone::OnErrorOrCancel);
 }
 
 static ExecutableItem doneAwaiter(const Storage<DebuggerData> &storage)

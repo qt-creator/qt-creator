@@ -62,7 +62,7 @@ void QnxDeviceTester::testDevice()
                 : Tr::tr("Files cannot be created in %1.").arg(Constants::QNX_TMP_DIR);
         emit errorMessage(message + '\n');
     };
-    setExtraTests({ProcessTask(onSetup, onDone, CallDoneIf::Success)});
+    setExtraTests({ProcessTask(onSetup, onDone, CallDone::OnSuccess)});
 
     RemoteLinux::GenericLinuxDeviceTester::testDevice();
 }

@@ -105,7 +105,7 @@ GroupItem GenericDeployStep::mkdirTask(const Storage<FilesToTransfer> &storage)
         }
     };
 
-    return AsyncTask<Result<>>(onSetup, onError, CallDoneIf::Error);
+    return AsyncTask<Result<>>(onSetup, onError, CallDone::OnErrorOrCancel);
 }
 
 static FileTransferMethod effectiveTransferMethodFor(const FileToTransfer &fileToTransfer,
@@ -180,7 +180,7 @@ GroupItem GenericDeployStep::transferTask(const Storage<FilesToTransfer> &storag
                 + "\n" + result.m_errorString);
         }
     };
-    return FileTransferTask(onSetup, onError, CallDoneIf::Error);
+    return FileTransferTask(onSetup, onError, CallDone::OnErrorOrCancel);
 }
 
 GroupItem GenericDeployStep::deployRecipe()

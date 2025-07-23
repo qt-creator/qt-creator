@@ -205,7 +205,7 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
             ProcessTask(onDescriptionSetup, onDescriptionDone)
         },
         Group {
-            ProcessTask(onDiffSetup, onDiffDone, CallDoneIf::Success),
+            ProcessTask(onDiffSetup, onDiffDone, CallDone::OnSuccess),
             postProcessTask(diffInputStorage)
         }
     };

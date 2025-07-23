@@ -97,7 +97,7 @@ Tasking::GroupItem ConfigureStep::runRecipe()
 
     return Group {
         onGroupSetup(onSetup),
-        onGroupDone([this] { m_runConfigure = false; }, CallDoneIf::Success),
+        onGroupDone([this] { m_runConfigure = false; }, CallDone::OnSuccess),
         defaultProcessTask()
     };
 }

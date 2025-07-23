@@ -340,7 +340,7 @@ void AvdDialog::createAvd()
         errorStorage,
         createAvdRecipe(errorStorage, avdInfo, m_overwriteCheckBox->isChecked())
             .withCancel(onCancelSetup),
-        onGroupDone(onDone, CallDoneIf::Error)
+        onGroupDone(onDone, CallDone::OnErrorOrCancel)
     };
 
     m_taskTreeRunner.start(recipe, {}, [this, avdInfo](DoneWith result) {

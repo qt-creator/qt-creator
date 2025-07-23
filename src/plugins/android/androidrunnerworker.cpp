@@ -239,7 +239,7 @@ static ExecutableItem forceStopRecipe(const Storage<RunnerStorage> &storage)
         const QString pid = process.cleanedStdOut().trimmed();
         return pid == QString::number(storage->m_processPID);
     };
-    const auto pidOfTask = ProcessTask(onPidOfSetup, onPidOfDone, CallDoneIf::Success);
+    const auto pidOfTask = ProcessTask(onPidOfSetup, onPidOfDone, CallDone::OnSuccess);
 
     const auto onRunAsSetup = [storage](Process &process) {
         process.setCommand(storage->adbCommand({"shell", "run-as", storage->m_packageName, "kill", "-9",
@@ -292,7 +292,7 @@ static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QStr
 
     return Group {
         If (ProcessTask(onForwardListSetup, onForwardListDone)) >> Then {
-            ProcessTask(onForwardRemoveSetup, onForwardRemoveDone, CallDoneIf::Error)
+            ProcessTask(onForwardRemoveSetup, onForwardRemoveDone, CallDone::OnErrorOrCancel)
         },
         ProcessTask(onForwardPortSetup, onForwardPortDone)
     };
@@ -453,7 +453,7 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
         settledJdbBarrier,
         Group {
             bufferStorage,
-            ProcessTask(onTimeSetup, onTimeDone, CallDoneIf::Success) || successItem,
+            ProcessTask(onTimeSetup, onTimeDone, CallDone::OnSuccess) || successItem,
             ProcessTask(onLogcatSetup)
         },
         jdbRecipe(storage, startJdbBarrier, settledJdbBarrier)
@@ -526,13 +526,13 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
         cmdStorage,
         onGroupSetup(onArgsSetup),
         For (iterator) >> Do {
-            ProcessTask(onPreCommandSetup, onPreCommandDone, CallDoneIf::Error)
+            ProcessTask(onPreCommandSetup, onPreCommandDone, CallDone::OnErrorOrCancel)
         },
         If (isQmlDebug) >> Then {
             TaskTreeTask(onTaskTreeSetup),
             Sync(onQmlDebugSync)
         },
-        ProcessTask(onActivitySetup, onActivityDone, CallDoneIf::Error)
+        ProcessTask(onActivitySetup, onActivityDone, CallDone::OnErrorOrCancel)
     };
 }
 
@@ -630,17 +630,17 @@ static ExecutableItem uploadDebugServerRecipe(const Storage<RunnerStorage> &stor
         Sync(onTempDebugServerPath),
         If (!ProcessTask(onServerUploadSetup)) >> Then {
             Sync([] { qCDebug(androidRunWorkerLog) << "Debug server upload to temp directory failed"; }),
-            ProcessTask(onCleanupSetup, onCleanupDone, CallDoneIf::Error) && errorItem
+            ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnErrorOrCancel) && errorItem
         },
         If (!ProcessTask(onServerCopySetup)) >> Then {
             Sync([] { qCDebug(androidRunWorkerLog) << "Debug server copy from temp directory failed"; }),
-            ProcessTask(onCleanupSetup, onCleanupDone, CallDoneIf::Error) && errorItem
+            ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnErrorOrCancel) && errorItem
         },
         If (!ProcessTask(onServerChmodSetup)) >> Then {
             Sync([] { qCDebug(androidRunWorkerLog) << "Debug server chmod failed"; }),
-            ProcessTask(onCleanupSetup, onCleanupDone, CallDoneIf::Error) && errorItem
+            ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnErrorOrCancel) && errorItem
         },
-        ProcessTask(onCleanupSetup, onCleanupDone, CallDoneIf::Error) || successItem,
+        ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnErrorOrCancel) || successItem,
         Sync(onDebugSetupFinished)
     };
 }
@@ -794,10 +794,10 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
     return Group {
         Forever {
             stopOnSuccess,
-            ProcessTask(onPidSetup, onPidDone, CallDoneIf::Success),
+            ProcessTask(onPidSetup, onPidDone, CallDone::OnSuccess),
             timeoutTask(200ms)
         }.withTimeout(45s),
-        ProcessTask(onUserSetup, onUserDone, CallDoneIf::Success),
+        ProcessTask(onUserSetup, onUserDone, CallDone::OnSuccess),
         ProcessTask(onArtSetup, onArtDone),
         ProcessTask(onCompileSetup, onCompileDone),
         Group {

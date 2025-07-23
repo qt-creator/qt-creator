@@ -331,7 +331,7 @@ void IosDeviceManager::updateInfo(const QString &devId)
             deviceInfo(devId, IosDevice::Handler::DeviceCtl, *result);
             return DoneResult::Success;
         },
-        CallDoneIf::Success);
+        CallDone::OnSuccess);
 
     const auto infoFromIosTool = IosToolTask([this, devId](IosToolRunner &runner) {
         runner.setDeviceType(IosDeviceType::IosDevice);

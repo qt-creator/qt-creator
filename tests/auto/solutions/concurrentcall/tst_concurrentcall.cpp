@@ -211,10 +211,10 @@ void tst_ConcurrentCall::taskTree_data()
             storage,
             internalStorage,
             onGroupSetup([internalStorage] { *internalStorage = 1; }),
-            ConcurrentCallTask<int>(onSetup, onDone, CallDoneIf::Success),
-            ConcurrentCallTask<int>(onSetup, onDone, CallDoneIf::Success),
-            ConcurrentCallTask<int>(onSetup, onDone, CallDoneIf::Success),
-            ConcurrentCallTask<int>(onSetup, onDone, CallDoneIf::Success),
+            ConcurrentCallTask<int>(onSetup, onDone, CallDone::OnSuccess),
+            ConcurrentCallTask<int>(onSetup, onDone, CallDone::OnSuccess),
+            ConcurrentCallTask<int>(onSetup, onDone, CallDone::OnSuccess),
+            ConcurrentCallTask<int>(onSetup, onDone, CallDone::OnSuccess),
             onGroupDone([storage, internalStorage] { *storage = *internalStorage == 16; })
         };
 

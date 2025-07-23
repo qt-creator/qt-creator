@@ -421,7 +421,7 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
         parallelLimit(limit),
         storage,
         onGroupSetup([storage, filteredFiles] { *storage = filteredFiles.cbegin(); }),
-        AsyncTask<TestParseResultPtr>(onSetup, onDone, CallDoneIf::Success)
+        AsyncTask<TestParseResultPtr>(onSetup, onDone, CallDone::OnSuccess)
     };
     m_taskTreeRunner.start(recipe);
 }

@@ -1030,7 +1030,7 @@ static ExecutableItem hostAddressRecipe(const Storage<QHostAddress> &hostStorage
         *hostStorage = hostAddress;
         return DoneResult::Success;
     };
-    return ProcessTask(onSetup, onDone, CallDoneIf::Success).withCancel(runControl->canceler());
+    return ProcessTask(onSetup, onDone, CallDone::OnSuccess).withCancel(runControl->canceler());
 }
 
 static ExecutableItem debuggerRecipe(const Storage<ProcessHandle> pidStorage, RunControl *runControl)

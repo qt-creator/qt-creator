@@ -194,12 +194,12 @@ void tst_Tasking::validConstructs()
         parallel,
         TestTask(),
         TestTask(setupHandler),
-        TestTask(setupHandler, finishHandler, CallDoneIf::Success),
+        TestTask(setupHandler, finishHandler, CallDone::OnSuccess),
         TestTask(setupHandler, doneHandler),
         // need to explicitly pass empty handler for done
-        TestTask(setupHandler, errorHandler, CallDoneIf::Error),
-        TestTask({}, finishHandler, CallDoneIf::Success),
-        TestTask({}, errorHandler, CallDoneIf::Error)
+        TestTask(setupHandler, errorHandler, CallDone::OnErrorOrCancel),
+        TestTask({}, finishHandler, CallDone::OnSuccess),
+        TestTask({}, errorHandler, CallDone::OnErrorOrCancel)
     };
 
     // When turning each of below blocks on, you should see the specific compiler error message.
@@ -623,7 +623,7 @@ void tst_Tasking::testTree_data()
             storage->m_log.append({taskId, Handler::GroupSetup});
         });
     };
-    const auto groupDone = [storage](int taskId, CallDoneIf callIf = CallDoneIf::SuccessOrError) {
+    const auto groupDone = [storage](int taskId, CallDone callIf = CallDone::Always) {
         return onGroupDone([storage, taskId](DoneWith result) {
             storage->m_log.append({taskId, resultToGroupHandler(result)});
         }, callIf);
@@ -3196,7 +3196,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const auto createRoot = [=](DoneResult doneResult, CallDoneIf callDoneIf) {
+        const auto createRoot = [=](DoneResult doneResult, CallDone callDoneIf) {
             return Group {
                 storage,
                 Group {
@@ -3225,22 +3225,22 @@ void tst_Tasking::testTree_data()
             {1, Handler::Error}
         };
         QTest::newRow("CallDoneIfGroupSuccessOrErrorAfterSuccess")
-            << TestData{storage, createRoot(DoneResult::Success, CallDoneIf::SuccessOrError),
+            << TestData{storage, createRoot(DoneResult::Success, CallDone::Always),
                         logSuccessLong, 1, DoneWith::Success, 1};
         QTest::newRow("CallDoneIfGroupSuccessAfterSuccess")
-            << TestData{storage, createRoot(DoneResult::Success, CallDoneIf::Success),
+            << TestData{storage, createRoot(DoneResult::Success, CallDone::OnSuccess),
                         logSuccessLong, 1, DoneWith::Success, 1};
         QTest::newRow("CallDoneIfGroupErrorAfterSuccess")
-            << TestData{storage, createRoot(DoneResult::Success, CallDoneIf::Error),
+            << TestData{storage, createRoot(DoneResult::Success, CallDone::OnErrorOrCancel),
                         logSuccessShort, 1, DoneWith::Success, 1};
         QTest::newRow("CallDoneIfGroupSuccessOrErrorAfterError")
-            << TestData{storage, createRoot(DoneResult::Error, CallDoneIf::SuccessOrError),
+            << TestData{storage, createRoot(DoneResult::Error, CallDone::Always),
                         logErrorLong, 1, DoneWith::Error, 1};
         QTest::newRow("CallDoneIfGroupSuccessAfterError")
-            << TestData{storage, createRoot(DoneResult::Error, CallDoneIf::Success),
+            << TestData{storage, createRoot(DoneResult::Error, CallDone::OnSuccess),
                         logErrorShort, 1, DoneWith::Error, 1};
         QTest::newRow("CallDoneIfGroupErrorAfterError")
-            << TestData{storage, createRoot(DoneResult::Error, CallDoneIf::Error),
+            << TestData{storage, createRoot(DoneResult::Error, CallDone::OnErrorOrCancel),
                         logErrorLong, 1, DoneWith::Error, 1};
     }
 

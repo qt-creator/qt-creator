@@ -267,12 +267,12 @@ void AttachCoreDialog::accepted()
                                   task.setConcurrentCallData(copyFileAsync, coreFile());
                               },
                               [this](const Async<ResultType> &task) { m_coreFileResult = task.result(); },
-                              CallDoneIf::Success},
+                              CallDone::OnSuccess},
         AsyncTask<ResultType>{[this, copyFileAsync](auto &task) {
                                   task.setConcurrentCallData(copyFileAsync, symbolFile());
                               },
                               [this](const Async<ResultType> &task) { m_symbolFileResult = task.result(); },
-                              CallDoneIf::Success}
+                              CallDone::OnSuccess}
     };
 
     m_taskTree.setRecipe(root);

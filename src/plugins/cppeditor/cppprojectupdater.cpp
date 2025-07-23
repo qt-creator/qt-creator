@@ -74,7 +74,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     };
     GroupItems tasks{parallel};
     tasks.append(AsyncTask<ProjectInfo::ConstPtr>(onInfoGeneratorSetup, onInfoGeneratorDone,
-                                                  CallDoneIf::Success));
+                                                  CallDone::OnSuccess));
     for (QPointer<ExtraCompiler> compiler : compilers) {
         if (compiler && compiler->isDirty())
             tasks.append(compiler->compileFileItem());
@@ -97,7 +97,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     const Group root {
         storage,
         Group(tasks),
-        onGroupDone(onDone, CallDoneIf::Success)
+        onGroupDone(onDone, CallDone::OnSuccess)
     };
     m_taskTreeRunner.start(root, [](TaskTree *taskTree) {
         auto progress = new Core::TaskProgress(taskTree);

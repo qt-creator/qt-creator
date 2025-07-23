@@ -73,13 +73,13 @@ enum class DoneWith
 };
 Q_ENUM_NS(DoneWith)
 
-enum class CallDoneIf
+enum class CallDone
 {
-    SuccessOrError,
-    Success,
-    Error
+    OnSuccess,
+    OnErrorOrCancel,
+    Always
 };
-Q_ENUM_NS(CallDoneIf)
+Q_ENUM_NS(CallDone)
 
 TASKING_EXPORT DoneResult toDoneResult(bool success);
 
@@ -242,13 +242,13 @@ protected:
         TaskAdapterStarter m_taskAdapterStarter;
         TaskAdapterSetupHandler m_taskAdapterSetupHandler = {};
         TaskAdapterDoneHandler m_taskAdapterDoneHandler = {};
-        CallDoneIf m_callDoneIf = CallDoneIf::SuccessOrError;
+        CallDone m_callDoneIf = CallDone::Always;
     };
 
     struct GroupHandler {
         GroupSetupHandler m_setupHandler;
         GroupDoneHandler m_doneHandler = {};
-        CallDoneIf m_callDoneIf = CallDoneIf::SuccessOrError;
+        CallDone m_callDoneIf = CallDone::Always;
     };
 
     struct GroupData {
@@ -347,7 +347,7 @@ public:
         return groupHandler({wrapGroupSetup(std::forward<Handler>(handler))});
     }
     template <typename Handler>
-    static GroupItem onGroupDone(Handler &&handler, CallDoneIf callDoneIf = CallDoneIf::SuccessOrError) {
+    static GroupItem onGroupDone(Handler &&handler, CallDone callDoneIf = CallDone::Always) {
         return groupHandler({{}, wrapGroupDone(std::forward<Handler>(handler)), callDoneIf});
     }
 
@@ -435,7 +435,7 @@ static GroupItem onGroupSetup(Handler &&handler)
 }
 
 template <typename Handler>
-static GroupItem onGroupDone(Handler &&handler, CallDoneIf callDoneIf = CallDoneIf::SuccessOrError)
+static GroupItem onGroupDone(Handler &&handler, CallDone callDoneIf = CallDone::Always)
 {
     return Group::onGroupDone(std::forward<Handler>(handler), callDoneIf);
 }
@@ -557,7 +557,7 @@ public:
 
     template <typename SetupHandler = TaskSetupHandler, typename DoneHandler = TaskDoneHandler>
     CustomTask(SetupHandler &&setup = TaskSetupHandler(), DoneHandler &&done = TaskDoneHandler(),
-               CallDoneIf callDoneIf = CallDoneIf::SuccessOrError)
+               CallDone callDoneIf = CallDone::Always)
         : ExecutableItem({&taskAdapterConstructor, &taskAdapterDestructor, &taskAdapterStarter,
                           wrapSetup(std::forward<SetupHandler>(setup)),
                           wrapDone(std::forward<DoneHandler>(done)), callDoneIf})

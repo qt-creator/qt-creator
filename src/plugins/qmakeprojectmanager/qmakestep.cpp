@@ -301,7 +301,7 @@ Tasking::GroupItem QMakeStep::runRecipe()
         onGroupSetup(onSetup),
         ProcessTask(onQMakeSetup, onProcessDone),
         m_runMakeQmake ? ProcessTask(onMakeQMakeSetup, onProcessDone) : nullItem,
-        onGroupDone(onDone, CallDoneIf::Success)
+        onGroupDone(onDone, CallDone::OnSuccess)
     };
 }
 

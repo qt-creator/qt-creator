@@ -1408,7 +1408,7 @@ private:
                 storage,
                 onGroupSetup(onSetup),
                 If (downloadDataRecipe(dashboardMode, storage)) >> Then {
-                    AsyncTask<QImage>(onImageLoadSetup, onImageLoadDone, CallDoneIf::Success) || successItem
+                    AsyncTask<QImage>(onImageLoadSetup, onImageLoadDone, CallDone::OnSuccess) || successItem
                 },
                 onGroupDone(onDone)
             }

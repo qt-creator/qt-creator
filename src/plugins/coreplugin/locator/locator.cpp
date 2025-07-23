@@ -450,7 +450,7 @@ void Locator::refresh(const QList<ILocatorFilter *> &filters)
         const Group group {
             finishAllAndSuccess,
             *task,
-            onGroupDone([this, filter] { m_refreshingFilters.removeOne(filter); }, CallDoneIf::Success)
+            onGroupDone([this, filter] { m_refreshingFilters.removeOne(filter); }, CallDone::OnSuccess)
         };
         tasks.append(group);
     }

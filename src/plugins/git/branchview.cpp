@@ -565,12 +565,12 @@ Group BranchView::fastForwardMergeRecipe(const std::function<void()> &callback)
     const Group root {
         storage,
         parallel,
-        ProcessTask(onMergeBaseSetup, onMergeBaseDone, CallDoneIf::Success),
+        ProcessTask(onMergeBaseSetup, onMergeBaseDone, CallDone::OnSuccess),
         topRevisionProc,
         onGroupDone([storage, callback] {
             if (storage->mergeBase == storage->topRevision)
                 callback();
-        }, CallDoneIf::Success)
+        }, CallDone::OnSuccess)
     };
     return root;
 }

@@ -292,7 +292,7 @@ public:
         // clang-format off
         const Group root{
             UnarchiverTask(onUnarchiverSetup, onUnarchiverDone),
-            AsyncTask<CheckResult>(onCheckerSetup, onCheckerDone, CallDoneIf::Success)
+            AsyncTask<CheckResult>(onCheckerSetup, onCheckerDone, CallDone::OnSuccess)
         };
         // clang-format on
         m_cancelButton->setVisible(true);

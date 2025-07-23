@@ -501,7 +501,7 @@ void AssetDownloader::start()
         storage,
         onGroupSetup(onSetup),
         NetworkQueryTask(onJsonDownloadSetup, onJsonDownloadDone),
-        ConcurrentCallTask<DownloadableAssets>(onReadAssetsFileSetup, onReadAssetsFileDone, CallDoneIf::Success),
+        ConcurrentCallTask<DownloadableAssets>(onReadAssetsFileSetup, onReadAssetsFileDone, CallDone::OnSuccess),
         Group {
             onGroupSetup(onSkipIfAllAssetsPresent),
             NetworkQueryTask(onZipDownloadSetup, onZipDownloadDone),

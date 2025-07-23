@@ -82,7 +82,7 @@ private:
 
         return Group {
             onGroupSetup(onSetup),
-            onGroupDone([this] { m_runAutoreconf = false; }, CallDoneIf::Success),
+            onGroupDone([this] { m_runAutoreconf = false; }, CallDone::OnSuccess),
             defaultProcessTask()
         };
     }

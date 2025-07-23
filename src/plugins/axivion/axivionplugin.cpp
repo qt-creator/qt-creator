@@ -922,7 +922,7 @@ static Group authorizationRecipe(DashboardMode dashboardMode)
                     apiTokenStorage,
                     onGroupSetup(onApiTokenGroupSetup),
                     dtoRecipe(apiTokenStorage),
-                    CredentialQueryTask(onSetCredentialSetup, onSetCredentialDone, CallDoneIf::Error)
+                    CredentialQueryTask(onSetCredentialSetup, onSetCredentialDone, CallDone::OnErrorOrCancel)
                 }
             },
             Group {
@@ -1152,7 +1152,7 @@ void AxivionPluginPrivate::fetchIssueInfo(DashboardMode dashboardMode, const QSt
         storage,
         onGroupSetup(onSetup),
         downloadDataRecipe(dashboardMode, storage),
-        onGroupDone(onDone, CallDoneIf::Success)
+        onGroupDone(onDone, CallDone::OnSuccess)
     });
 }
 

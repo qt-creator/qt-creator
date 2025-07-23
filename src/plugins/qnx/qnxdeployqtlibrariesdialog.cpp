@@ -157,7 +157,7 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::removeDirTask()
         m_deployLogWindow->appendPlainText(Tr::tr("Connection failed: %1")
                                            .arg(process.errorString()));
     };
-    return ProcessTask(onSetup, onError, CallDoneIf::Error);
+    return ProcessTask(onSetup, onError, CallDone::OnErrorOrCancel);
 }
 
 GroupItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
@@ -194,7 +194,7 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
     const auto onError = [this](const FileTransfer &transfer) {
         emitErrorMessage(transfer.resultData().m_errorString);
     };
-    return FileTransferTask(onSetup, onError, CallDoneIf::Error);
+    return FileTransferTask(onSetup, onError, CallDone::OnErrorOrCancel);
 }
 
 Group QnxDeployQtLibrariesDialogPrivate::deployRecipe()
@@ -235,7 +235,7 @@ Group QnxDeployQtLibrariesDialogPrivate::deployRecipe()
             removeDirTask(),
             uploadTask()
         },
-        onGroupDone(doneHandler, CallDoneIf::Success)
+        onGroupDone(doneHandler, CallDone::OnSuccess)
     };
     return root;
 }

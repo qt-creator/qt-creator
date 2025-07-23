@@ -95,7 +95,7 @@ Tasking::GroupItem AutogenStep::runRecipe()
 
     return Group {
         onGroupSetup(onSetup),
-        onGroupDone([this] { m_runAutogen = false; }, CallDoneIf::Success),
+        onGroupDone([this] { m_runAutogen = false; }, CallDone::OnSuccess),
         defaultProcessTask()
     };
 }

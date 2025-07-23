@@ -1574,7 +1574,7 @@ Group ExecutableItem::withTimeout(milliseconds timeout,
         stopOnSuccessOrError,
         Group {
             finishAllAndError,
-            handler ? TimeoutTask(onSetup, [handler] { handler(); }, CallDoneIf::Success)
+            handler ? TimeoutTask(onSetup, [handler] { handler(); }, CallDone::OnSuccess)
                     : TimeoutTask(onSetup)
         },
         *this
@@ -2384,11 +2384,11 @@ void TaskTreePrivate::stopContainer(RuntimeContainer *container)
     }
 }
 
-static bool shouldCall(CallDoneIf callDoneIf, DoneWith result)
+static bool shouldCall(CallDone callDoneIf, DoneWith result)
 {
     if (result == DoneWith::Success)
-        return callDoneIf != CallDoneIf::Error;
-    return callDoneIf != CallDoneIf::Success;
+        return callDoneIf != CallDone::OnErrorOrCancel;
+    return callDoneIf != CallDone::OnSuccess;
 }
 
 bool TaskTreePrivate::invokeDoneHandler(RuntimeContainer *container, DoneWith doneWith)

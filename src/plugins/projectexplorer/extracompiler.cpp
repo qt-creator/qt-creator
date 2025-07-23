@@ -329,7 +329,7 @@ GroupItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
             setContent(it.key(), it.value());
         updateCompileTime();
     };
-    return AsyncTask<FileNameToContentsHash>(onSetup, onDone, CallDoneIf::Success);
+    return AsyncTask<FileNameToContentsHash>(onSetup, onDone, CallDone::OnSuccess);
 }
 
 FilePath ProcessExtraCompiler::workingDirectory() const
