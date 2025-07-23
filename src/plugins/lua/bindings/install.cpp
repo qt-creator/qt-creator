@@ -165,10 +165,7 @@ static Group installRecipe(
         };
 
     const auto onUnarchiverDone =
-        [appDataPath, installOptionsIt, emitResult](const Unarchiver &unarchiver, DoneWith result) {
-            if (result == DoneWith::Cancel)
-                return DoneResult::Error;
-
+        [appDataPath, installOptionsIt, emitResult](const Unarchiver &unarchiver) {
             Result<> r = unarchiver.result();
             if (!r)
                 return emitResult(r.error());
@@ -221,7 +218,7 @@ static Group installRecipe(
                 return SetupResult::Continue;
             }),
             NetworkQueryTask(onDownloadSetup, onDownloadDone),
-            UnarchiverTask(onUnarchiveSetup, onUnarchiverDone),
+            UnarchiverTask(onUnarchiveSetup, onUnarchiverDone, CallDone::OnSuccess | CallDone::OnError),
             onGroupDone([storage] { storage->remove(); }),
         },
         onGroupDone([emitResult](DoneWith result) {
