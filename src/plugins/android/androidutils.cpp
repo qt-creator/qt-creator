@@ -617,7 +617,7 @@ static ExecutableItem startAvdAsyncRecipe(const QString &avdName)
         is32Storage,
         onGroupSetup(onSetup),
         ProcessTask(onGetConfSetup, onGetConfDone),
-        AsyncTask<void>(onAvdSetup, onAvdDone, CallDone::OnErrorOrCancel)
+        AsyncTask<void>(onAvdSetup, onAvdDone, CallDone::OnError)
     };
 }
 

@@ -526,13 +526,13 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
         cmdStorage,
         onGroupSetup(onArgsSetup),
         For (iterator) >> Do {
-            ProcessTask(onPreCommandSetup, onPreCommandDone, CallDone::OnErrorOrCancel)
+            ProcessTask(onPreCommandSetup, onPreCommandDone, CallDone::OnError)
         },
         If (isQmlDebug) >> Then {
             TaskTreeTask(onTaskTreeSetup),
             Sync(onQmlDebugSync)
         },
-        ProcessTask(onActivitySetup, onActivityDone, CallDone::OnErrorOrCancel)
+        ProcessTask(onActivitySetup, onActivityDone, CallDone::OnError)
     };
 }
 
@@ -630,17 +630,17 @@ static ExecutableItem uploadDebugServerRecipe(const Storage<RunnerStorage> &stor
         Sync(onTempDebugServerPath),
         If (!ProcessTask(onServerUploadSetup)) >> Then {
             Sync([] { qCDebug(androidRunWorkerLog) << "Debug server upload to temp directory failed"; }),
-            ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnErrorOrCancel) && errorItem
+            ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnError) && errorItem
         },
         If (!ProcessTask(onServerCopySetup)) >> Then {
             Sync([] { qCDebug(androidRunWorkerLog) << "Debug server copy from temp directory failed"; }),
-            ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnErrorOrCancel) && errorItem
+            ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnError) && errorItem
         },
         If (!ProcessTask(onServerChmodSetup)) >> Then {
             Sync([] { qCDebug(androidRunWorkerLog) << "Debug server chmod failed"; }),
-            ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnErrorOrCancel) && errorItem
+            ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnError) && errorItem
         },
-        ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnErrorOrCancel) || successItem,
+        ProcessTask(onCleanupSetup, onCleanupDone, CallDone::OnError) || successItem,
         Sync(onDebugSetupFinished)
     };
 }

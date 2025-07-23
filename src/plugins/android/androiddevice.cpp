@@ -1045,7 +1045,7 @@ Group createAvdRecipe(const Storage<std::optional<QString>> &errorStorage,
 
     return {
         storage,
-        ProcessTask(onSetup, onDone, CallDone::OnErrorOrCancel)
+        ProcessTask(onSetup, onDone, CallDone::OnError)
     };
 }
 
