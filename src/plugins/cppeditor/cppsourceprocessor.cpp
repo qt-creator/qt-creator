@@ -395,6 +395,9 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
     if (filePath.isEmpty())
         return;
 
+    if (filePath.isDir())
+        return;
+
     const FilePath absoluteFilePath = resolveFile(filePath, type);
 
     if (m_currentDoc) {
