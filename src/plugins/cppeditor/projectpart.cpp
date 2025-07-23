@@ -76,15 +76,15 @@ static Macros getProjectMacros(const RawProjectPart &rpp)
 
 static HeaderPaths getHeaderPaths(const RawProjectPart &rpp,
                                   const RawProjectPartFlags &flags,
-                                  const ProjectExplorer::ToolchainInfo &tcInfo)
+                                  const ToolchainInfo &tcInfo)
 {
     HeaderPaths headerPaths;
 
     // Prevent duplicate include paths.
     // TODO: Do this once when finalizing the raw project part?
-    std::set<QString> seenPaths;
+    std::set<FilePath> seenPaths;
     for (const HeaderPath &p : std::as_const(rpp.headerPaths)) {
-        const QString cleanPath = QDir::cleanPath(p.path.path());
+        const FilePath cleanPath = p.path.cleanPath();
         if (seenPaths.insert(cleanPath).second)
             headerPaths << HeaderPath(cleanPath, p.type);
     }

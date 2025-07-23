@@ -289,6 +289,7 @@ public:
 
     QStringList variableValue(const Variable var) const;
     QString singleVariableValue(const Variable var) const;
+    Utils::FilePaths filePathsValue(const Variable var) const;
 
     bool isSubProjectDeployable(const Utils::FilePath &filePath) const {
         return !m_subProjectsNotToDeploy.contains(filePath);

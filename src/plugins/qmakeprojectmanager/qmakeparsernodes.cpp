@@ -1223,6 +1223,13 @@ QString QmakeProFile::singleVariableValue(const Variable var) const
     return values.isEmpty() ? QString() : values.first();
 }
 
+FilePaths QmakeProFile::filePathsValue(const Variable var) const
+{
+    return transform(variableValue(var), [this](const QString &fileName) {
+        return m_filePath.withNewPath(fileName);
+    });
+}
+
 void QmakeProFile::setParseInProgressRecursive(bool b)
 {
     setParseInProgress(b);
