@@ -404,7 +404,10 @@ Result<FilePathInfo> FileAccess::filePathInfo(const FilePath &filePath) const
                 fileInfoFlagsfromStatMode(stat.mode) | FilePathInfo::FileFlags(stat.usermode),
                 stat.modTime};
     } catch (const std::exception &e) {
-        return exceptionError("Error getting file path info of %1", filePath, e);
+        QString message = "Error getting file path info of " + filePath.toUserOutput()
+                          + QString::fromLocal8Bit(e.what());
+        qDebug(faLog) << message;
+        return ResultError(message);
     }
 }
 
