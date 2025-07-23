@@ -169,6 +169,41 @@ private slots:
         QVERIFY(tempFile->fileName().startsWith("test.txt."));
     }
 
+    void testIsWritableDirectory()
+    {
+        CmdBridge::FileAccess fileAccess;
+        Result<> res = fileAccess.deployAndInit(
+            FilePath::fromUserInput(libExecPath),
+            FilePath::fromUserInput("/"),
+            Environment::systemEnvironment());
+
+        QVERIFY_RESULT(res);
+
+        const FilePath testDir = FilePath::fromUserInput(QDir::tempPath() + "/testIsWritableDir");
+        QVERIFY_RESULT(fileAccess.isWritableDirectory(testDir));
+        QVERIFY(!fileAccess.isWritableDirectory(testDir).value());
+    }
+
+    void testEnsureWritableDir()
+    {
+        CmdBridge::FileAccess fileAccess;
+        Result<> res = fileAccess.deployAndInit(
+            FilePath::fromUserInput(libExecPath),
+            FilePath::fromUserInput("/"),
+            Environment::systemEnvironment());
+
+        QVERIFY_RESULT(res);
+
+        const FilePath testFile = FilePath::fromUserInput(
+            QDir::tempPath() + "/testEnsureWritableDir");
+        QVERIFY(!QDir(testFile.path()).exists());
+
+        const auto result = fileAccess.ensureWritableDirectory(testFile);
+        QVERIFY_RESULT(result);
+        QVERIFY(QDir(testFile.path()).exists());
+        QVERIFY_RESULT(testFile.removeRecursively());
+    }
+
     void testFileContents()
     {
         CmdBridge::FileAccess fileAccess;

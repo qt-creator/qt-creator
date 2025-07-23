@@ -408,7 +408,9 @@ void PersistentSettingsWriter::setContents(const Store &data)
 
 Result<> PersistentSettingsWriter::write(const Store &data) const
 {
-    m_fileName.parentDir().ensureWritableDir();
+    const Result<> result = m_fileName.parentDir().ensureWritableDir();
+    if (!result)
+        return result;
     FileSaver saver(m_fileName, QIODevice::Text);
     if (!saver.hasError()) {
         QXmlStreamWriter w(saver.file());

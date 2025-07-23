@@ -132,19 +132,35 @@ Result<bool> DeviceFileAccess::hasHardLinks(const FilePath &filePath) const
 
 Result<> DeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
 {
-    if (isWritableDirectory(filePath))
+    Result<bool> result = isWritableDirectory(filePath);
+    if (!result) {
+        return ResultError(
+            Tr::tr("Couldn't check if \"%1\" is a writable directory: %2")
+                .arg(filePath.toUserOutput(), result.error()));
+    }
+    if (*result)
         return ResultOk;
 
-    if (exists(filePath)) {
+    result = exists(filePath);
+    if (!result) {
+        return ResultError(
+            Tr::tr("Couldn't check if \"%1\" exists: %2")
+                .arg(filePath.toUserOutput(), result.error()));
+    }
+
+    if (*result) {
         return ResultError(Tr::tr("Path \"%1\" exists but is not a writable directory.")
                                    .arg(filePath.toUserOutput()));
     }
 
-    const Result<> result = createDirectory(filePath);
-    if (result)
+    const Result<> createResult = createDirectory(filePath);
+    if (createResult)
         return ResultOk;
 
-    return ResultError(Tr::tr("Failed to create directory \"%1\".").arg(filePath.toUserOutput()));
+    return ResultError(
+        Tr::tr("Failed to create directory \"%1\": %2")
+            .arg(filePath.toUserOutput())
+            .arg(createResult.error()));
 }
 
 Result<> DeviceFileAccess::ensureExistingFile(const FilePath &filePath) const
