@@ -72,7 +72,7 @@ void TextEditorLayout::clearBlockLayout(QTextBlock &start, QTextBlock &end, bool
                 blockVisibilityChanged = true;
                 setBlockLineCount(block, 0);
             }
-            data.layout.release();
+            data.layout.reset();
         }
     }
     resetOffsetCache(start.blockNumber());
