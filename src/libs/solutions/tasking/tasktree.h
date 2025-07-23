@@ -79,7 +79,6 @@ enum class CallDone
     OnSuccess = 1 << 0,
     OnError   = 1 << 1,
     OnCancel  = 1 << 2,
-    OnErrorOrCancel = OnError | OnCancel,
     Always = OnSuccess | OnError | OnCancel
 };
 Q_ENUM_NS(CallDone)
