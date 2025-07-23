@@ -927,7 +927,7 @@ void ExtensionsBrowser::fetchExtensions()
             d->m_spinner->hide();
             qCDebug(browserLog) << "Done with" << result << "unpacked repositories" << *unpackedRepositories;
             d->model->setRepositoryPaths(*unpackedRepositories);
-        }, CallDoneIf::SuccessOrError)
+        })
     };
     // clang-format on
 
