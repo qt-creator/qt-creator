@@ -668,7 +668,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
             m_runControl->postMessage(message, ErrorMessageFormat);
             setState(State::PreparationFailed);
         };
-        topTasks.append(ProjectBuilderTask(onSetup, onError, CallDone::OnErrorOrCancel));
+        topTasks.append(ProjectBuilderTask(onSetup, onError, CallDone::OnError));
     }
 
     const ProjectInfo::ConstPtr projectInfoBeforeBuild
