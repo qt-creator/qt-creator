@@ -174,10 +174,7 @@ GroupItem downloadSdkRecipe()
         task.setDestination(sdkFileName.parentDir());
         return SetupResult::Continue;
     };
-    const auto onUnarchiverDone = [storage](const Unarchiver &task, DoneWith result) {
-        if (result == DoneWith::Cancel)
-            return;
-
+    const auto onUnarchiverDone = [storage](const Unarchiver &task) {
         const Result<> unarchiveResult = task.result();
 
         if (!unarchiveResult) {
@@ -197,7 +194,7 @@ GroupItem downloadSdkRecipe()
             onGroupSetup(onSetup),
             NetworkQueryTask(onQuerySetup, onQueryDone),
             AsyncTask<void>(onValidationSetup, onValidationDone),
-            UnarchiverTask(onUnarchiveSetup, onUnarchiverDone)
+            UnarchiverTask(onUnarchiveSetup, onUnarchiverDone, CallDone::OnSuccess | CallDone::OnError)
         }.withCancel(onCancelSetup)
     };
 }
