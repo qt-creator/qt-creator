@@ -538,7 +538,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
             parallel,
             continueOnSuccess,
             ProcessTask(onFollowSetup, onFollowDone, CallDone::OnSuccess),
-            onGroupDone(onDone, CallDone::OnErrorOrCancel)
+            onGroupDone(onDone, CallDone::OnError)
         };
         taskTree.setRecipe(recipe);
     };
@@ -557,6 +557,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
     const Group root {
         storage,
         parallel,
+        continueOnError,
         onGroupSetup([this] { setStartupFile(VcsBase::source(this->document()).toUrlishString()); }),
         Group {
             finishAllAndSuccess,
