@@ -5,7 +5,7 @@
 
 #include <qtsupport/qtprojectimporter.h>
 
-#include <utils/temporarydirectory.h>
+#include <utils/temporaryfile.h>
 
 namespace CMakeProjectManager {
 
@@ -48,7 +48,7 @@ private:
     void ensureBuildDirectory(DirectoryData &data, const ProjectExplorer::Kit *k) const;
 
     const CMakeProject *m_project;
-    Utils::TemporaryDirectory m_presetsTempDir;
+    std::unique_ptr<Utils::TemporaryFilePath> m_presetsTempDir;
 };
 
 #ifdef WITH_TESTS

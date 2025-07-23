@@ -124,12 +124,21 @@ static QString uniqueCMakeToolDisplayName(CMakeTool &tool)
     return Utils::makeUniquelyNumbered(baseName, existingNames);
 }
 
+static std::unique_ptr<TemporaryFilePath> ensureDir(const FilePath &path, const QString &pattern)
+{
+    QTC_CHECK_RESULT(path.ensureWritableDir());
+    Result<std::unique_ptr<TemporaryFilePath>> tempDir
+        = TemporaryFilePath::create(path.pathAppended(pattern), true);
+    QTC_CHECK_RESULT(tempDir);
+    return std::move(tempDir.value());
+}
+
 // CMakeProjectImporter
 
 CMakeProjectImporter::CMakeProjectImporter(const FilePath &path, const CMakeProject *project)
     : QtProjectImporter(path)
     , m_project(project)
-    , m_presetsTempDir("qtc-cmake-presets-XXXXXXXX")
+    , m_presetsTempDir(ensureDir(path.parentDir() / ".qtcreator", "qtc-cmake-presets-XXXXXXXX"))
 {
     useTemporaryKitAspect(CMakeKitAspect::id(),
                                [this](Kit *k, const QVariantList &vl) { cleanupTemporaryCMake(k, vl); },
@@ -215,8 +224,8 @@ FilePaths CMakeProjectImporter::presetCandidates()
                 continue;
         }
 
-        const FilePath configPresetDir = m_presetsTempDir.filePath(
-            presetNameToFileName(configPreset.name));
+        const FilePath configPresetDir = m_presetsTempDir->filePath()
+                                         / presetNameToFileName(configPreset.name);
         configPresetDir.createDir();
         candidates << configPresetDir;
 
@@ -852,7 +861,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
     QList<void *> result;
     qCInfo(cmInputLog) << "Examining directory:" << importPath.toUserOutput();
 
-    if (importPath.isChildOf(m_presetsTempDir.path())) {
+    if (importPath.isChildOf(m_presetsTempDir->filePath())) {
         auto data = std::make_unique<DirectoryData>();
 
         const QString presetName = fileNameToPresetName(importPath.fileName());
