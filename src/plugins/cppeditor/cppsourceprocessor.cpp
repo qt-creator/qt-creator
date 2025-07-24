@@ -395,10 +395,10 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
     if (filePath.isEmpty())
         return;
 
-    if (filePath.isDir())
-        return;
-
     const FilePath absoluteFilePath = resolveFile(filePath, type);
+
+    if (absoluteFilePath.isDir())
+        return;
 
     if (m_currentDoc) {
         m_currentDoc->addIncludeFile(Document::Include(filePath.toUrlishString(), absoluteFilePath, line, type));
