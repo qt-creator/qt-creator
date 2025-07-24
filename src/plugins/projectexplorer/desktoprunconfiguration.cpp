@@ -27,7 +27,7 @@ class DesktopRunConfiguration : public RunConfiguration
 {
 public:
     DesktopRunConfiguration(BuildConfiguration *bc, Id id)
-        : RunConfiguration(bc, id), m_kind(K)
+        : RunConfiguration(bc, id)
     {
         environment.setSupportForBuildEnvironment(bc);
 
@@ -79,7 +79,6 @@ private:
 
     FilePath executableToRun(const BuildTargetInfo &targetInfo) const;
 
-    const Kind m_kind;
     LauncherAspect launcher{this};
     EnvironmentAspect environment{this};
     ExecutableAspect executable{this};
@@ -104,8 +103,7 @@ void DesktopRunConfiguration<K>::updateTargetInformation()
     auto launcherAspect = aspect<LauncherAspect>();
     launcherAspect->setVisible(false);
 
-    if (m_kind == Kind::QMake) {
-
+    if constexpr (K == Kind::QMake) {
         FilePath profile = FilePath::fromString(buildKey());
         if (profile.isEmpty())
             setDefaultDisplayName(Tr::tr("Qt Run Configuration"));
@@ -120,15 +118,13 @@ void DesktopRunConfiguration<K>::updateTargetInformation()
 
         aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
 
-    }  else if (m_kind == Kind::Qbs) {
-
+    } else if constexpr (K == Kind::Qbs) {
         setDefaultDisplayName(bti.displayName);
         const FilePath executable = executableToRun(bti);
 
         aspect<ExecutableAspect>()->setExecutable(executable);
 
-    } else if (m_kind == Kind::CMake) {
-
+    } else if constexpr (K == Kind::CMake) {
         if (bti.launchers.size() > 0) {
             launcherAspect->setVisible(true);
             // Use start program by default, if defined (see toBuildTarget() for details)
