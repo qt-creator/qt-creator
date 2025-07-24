@@ -76,7 +76,6 @@
     \list
         \li \c codellama:7b-code
         \li \c deepseek-coder-v2:lite
-        \li \c starcoder2:7b
         \li \c theqtcompany/codellama-7b-qml
         \li \c theqtcompany/codellama-13b-qml
     \endlist
@@ -112,7 +111,6 @@
         \li Code Llama 7B QML through Ollama (running locally on your computer)
         \li Code Llama 7B through Ollama (running locally on your computer)
         \li DeepSeek Coder V2 Lite through Ollama (running locally on your computer)
-        \li StarCoder2 through Ollama (running locally on your computer)
     \endlist
 
     To connect to an LLM:

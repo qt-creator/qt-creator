@@ -39,7 +39,12 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor)
             return;
         LocatorFilterEntries entries[int(ILocatorFilter::MatchLevel::Count)];
 
-        const QList<Project *> projects = ProjectManager::projects();
+        QList<Project *> projects = ProjectManager::projects();
+        // Make the active project's results at the top
+        const qsizetype startupProjectIndex = projects.indexOf(ProjectManager::startupProject());
+        if (startupProjectIndex > 0)
+            projects.move(startupProjectIndex, 0);
+
         for (Project *project : projects) {
             const auto cmakeProject = qobject_cast<const CMakeProject *>(project);
             if (!cmakeProject)
