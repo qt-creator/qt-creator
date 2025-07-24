@@ -69,19 +69,19 @@ private:
     QFuture<QmlTypeDescription> loadQmlTypeDescription(const Utils::FilePaths &path) const;
     Utils::FilePath buildQmltypesPath(const QString &name) const;
 
-    QFuture<PluginDumper::DependencyInfo> loadDependencies(const Utils::FilePaths &dependencies,
-                                                           QSharedPointer<QSet<Utils::FilePath> > visited) const;
+    QFuture<PluginDumper::DependencyInfo> loadDependencies(const QStringList &dependencies,
+                                                           QSharedPointer<QSet<QString>> visited) const;
 
     void loadQmltypesFile(const Utils::FilePaths &qmltypesFilePaths,
                           const Utils::FilePath &libraryPath,
                           QmlJS::LibraryInfo libraryInfo);
     Utils::FilePath resolvePlugin(const Utils::FilePath &qmldirPath,
-                                  const QString &qmldirPluginPath,
+                                  const Utils::FilePath &qmldirPluginPath,
                                   const QString &baseName);
     Utils::FilePath resolvePlugin(const Utils::FilePath &qmldirPath,
-                                  const QString &qmldirPluginPath,
+                                  const Utils::FilePath &qmldirPluginPath,
                                   const QString &baseName, const QStringList &suffixes,
-                                  const QString &prefix = QString());
+                                  const QString &prefix = {});
 
 private:
     void watchFilePath(const Utils::FilePath &path);

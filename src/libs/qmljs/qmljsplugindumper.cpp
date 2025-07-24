@@ -125,7 +125,9 @@ void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
     // watch plugin libraries
     const QList<QmlDirParser::Plugin> plugins = snapshot.libraryInfo(canonicalLibraryPath).plugins();
     for (const QmlDirParser::Plugin &plugin : plugins) {
-        const FilePath pluginLibrary = resolvePlugin(canonicalLibraryPath, plugin.path, plugin.name);
+        const FilePath pluginLibrary = resolvePlugin(canonicalLibraryPath,
+                                                     libraryPath.withNewPath(plugin.path),
+                                                     plugin.name);
         if (!pluginLibrary.isEmpty()) {
             watchFilePath(pluginLibrary);
             m_libraryToPluginIndex.insert(pluginLibrary, index);
@@ -387,26 +389,23 @@ Utils::FilePath PluginDumper::buildQmltypesPath(const QString &name) const
 
 /*!
  * \brief Recursively load dependencies.
- * \param dependencies
- * \param errors
- * \param warnings
- * \param objects
  *
- * Recursively load type descriptions of dependencies, collecting results
- * in \a objects.
+ * \param dependencies Something like {"QtQuick 2.0"}
+ *
+ * Recursively load type descriptions of dependencies.
  */
-QFuture<PluginDumper::DependencyInfo> PluginDumper::loadDependencies(const FilePaths &dependencies,
-                                                                     QSharedPointer<QSet<FilePath>> visited) const
+QFuture<PluginDumper::DependencyInfo> PluginDumper::loadDependencies(const QStringList &dependencies,
+                                                                     QSharedPointer<QSet<QString>> visited) const
 {
     auto iface = QSharedPointer<QFutureInterface<PluginDumper::DependencyInfo>>(new QFutureInterface<PluginDumper::DependencyInfo>);
 
     if (visited.isNull())
-        visited = QSharedPointer<QSet<FilePath>>(new QSet<FilePath>());
+        visited = QSharedPointer<QSet<QString>>(new QSet<QString>());
 
     FilePaths dependenciesPaths;
     FilePath path;
-    for (const FilePath &name : dependencies) {
-        path = buildQmltypesPath(name.toUrlishString());
+    for (const QString &name : dependencies) {
+        path = buildQmltypesPath(name);
         if (!path.isEmpty())
             dependenciesPaths << path;
         visited->insert(name);
@@ -419,7 +418,7 @@ QFuture<PluginDumper::DependencyInfo> PluginDumper::loadDependencies(const FileP
             return;
         }
         PluginDumper::QmlTypeDescription typesResult = typesFuture.result();
-        FilePaths newDependencies = FilePaths::fromStrings(typesResult.dependencies);
+        QStringList newDependencies = typesResult.dependencies;
 
         newDependencies = Utils::toList(Utils::toSet(newDependencies) - *visited.data());
         if (!newDependencies.isEmpty()) {
@@ -562,8 +561,7 @@ void PluginDumper::loadQmltypesFile(const FilePaths &qmltypesFilePaths,
         PluginDumper::QmlTypeDescription typesResult = typesFuture.result();
         if (!typesResult.dependencies.isEmpty())
         {
-            Utils::onFinished(loadDependencies(FilePaths::fromStrings(typesResult.dependencies),
-                                               QSharedPointer<QSet<FilePath>>()), this,
+            Utils::onFinished(loadDependencies(typesResult.dependencies, {}), this,
                               [typesResult, libraryInfo, libraryPath, this] (const QFuture<PluginDumper::DependencyInfo> &loadFuture)
             {
                 if (loadFuture.isCanceled() || loadFuture.resultCount() == 0)
@@ -683,27 +681,27 @@ void PluginDumper::dump(const Plugin &plugin)
 
   Adapted from QDeclarativeImportDatabase::resolvePlugin.
 */
-FilePath PluginDumper::resolvePlugin(const FilePath &qmldirPath, const QString &qmldirPluginPath,
+FilePath PluginDumper::resolvePlugin(const FilePath &qmldirPath, const FilePath &qmldirPluginPath,
                                      const QString &baseName, const QStringList &suffixes,
                                      const QString &prefix)
 {
-    QStringList searchPaths = {"."};
+    FilePaths searchPaths = {"."};
 
-    bool qmldirPluginPathIsRelative = QDir::isRelativePath(qmldirPluginPath);
+    bool qmldirPluginPathIsRelative = qmldirPluginPath.isRelativePath();
     if (!qmldirPluginPathIsRelative)
         searchPaths.prepend(qmldirPluginPath);
 
-    for (const QString &pluginPath : std::as_const(searchPaths)) {
+    for (const FilePath &pluginPath : std::as_const(searchPaths)) {
 
         FilePath resolvedPath;
 
-        if (pluginPath == QLatin1String(".")) {
+        if (pluginPath.path() == QLatin1String(".")) {
             if (qmldirPluginPathIsRelative)
                 resolvedPath = qmldirPath.resolvePath(qmldirPluginPath);
             else
                 resolvedPath = qmldirPath.absoluteFilePath();
         } else {
-            resolvedPath = FilePath::fromString(pluginPath);
+            resolvedPath = pluginPath;
         }
 
         for (const QString &suffix : suffixes) {
@@ -732,7 +730,7 @@ FilePath PluginDumper::resolvePlugin(const FilePath &qmldirPath, const QString &
 
   Version number on unix are ignored.
 */
-FilePath PluginDumper::resolvePlugin(const FilePath &qmldirPath, const QString &qmldirPluginPath,
+FilePath PluginDumper::resolvePlugin(const FilePath &qmldirPath, const FilePath &qmldirPluginPath,
                                      const QString &baseName)
 {
     QStringList validSuffixList;
