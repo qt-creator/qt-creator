@@ -628,16 +628,15 @@ static void forEachCell(Functor f, QAbstractItemModel *model, const QModelIndex 
         forEachCell(f, model, model->index(i, 0, idx));
 }
 
-QString BaseTreeView::selectionAsText() const
+static QString toString(QAbstractItemModel *model, QItemSelectionModel *selection = nullptr)
 {
-    QAbstractItemModel *model = this->model();
     QTC_ASSERT(model, return {});
 
     const int ncols = model->columnCount(QModelIndex());
     QList<int> largestColumnWidths(ncols, 0);
 
     QSet<QModelIndex> selected;
-    if (QItemSelectionModel *selection = this->selectionModel()) {
+    if (selection) {
         const QModelIndexList list = selection->selectedIndexes();
         selected = QSet<QModelIndex>(list.begin(), list.end());
     }
@@ -673,6 +672,16 @@ QString BaseTreeView::selectionAsText() const
     }, model, QModelIndex());
 
     return str.trimmed();
+}
+
+QString BaseTreeView::selectionAsText() const
+{
+    return toString(model(), selectionModel());
+}
+
+QString BaseTreeView::contentAsText() const
+{
+    return toString(model());
 }
 
 } // namespace Utils

@@ -61,6 +61,7 @@ public:
     void refreshSpanColumn();
 
     QString selectionAsText() const;
+    QString contentAsText() const;
 
 signals:
     void aboutToShow();

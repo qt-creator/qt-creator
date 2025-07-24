@@ -434,6 +434,10 @@ void addStandardActions(QWidget *treeView, QMenu *menu)
 
     menu->addSeparator();
 
+    addAction(view, menu, Tr::tr("Copy Content to Clipboard"), true, [view] {
+        setClipboardAndSelection(view->contentAsText());
+    });
+
     addAction(view, menu, Tr::tr("Copy Selected Items to Clipboard"), true, [view] {
         setClipboardAndSelection(view->selectionAsText());
     });
