@@ -508,7 +508,7 @@ private:
             // the *storage or storage-> operators.
             sequential,
             storage,
-            NetworkQueryTask(onFirstSetup, onFirstDone, CallDoneIf::Success),
+            NetworkQueryTask(onFirstSetup, onFirstDone, CallDone::OnSuccess),
             ConcurrentCallTask<QImage>(onSecondSetup)
         };
     \endcode
@@ -717,7 +717,7 @@ private:
 */
 
 /*!
-    \fn template <typename Adapter> template <typename SetupHandler = TaskSetupHandler, typename DoneHandler = TaskDoneHandler> CustomTask<Adapter>::CustomTask(SetupHandler &&setup = TaskSetupHandler(), DoneHandler &&done = TaskDoneHandler(), CallDoneIf callDoneIf = CallDoneIf::SuccessOrError)
+    \fn template <typename Adapter> template <typename SetupHandler = TaskSetupHandler, typename DoneHandler = TaskDoneHandler> CustomTask<Adapter>::CustomTask(SetupHandler &&setup = TaskSetupHandler(), DoneHandler &&done = TaskDoneHandler(), CallDoneFlags callDone = CallDone::Always)
 
     Constructs a \c CustomTask instance and attaches the \a setup and \a done handlers to the task.
     When the running task tree is about to start the task,
@@ -756,8 +756,8 @@ private:
 
     The \a done handler is of the \l TaskDoneHandler type.
     By default, the \a done handler is invoked whenever the task finishes.
-    Pass a non-default value for the \a callDoneIf argument when you want the handler to be called
-    only on a successful or failed execution.
+    Pass a non-default value for the \a callDone argument when you want the handler to be called
+    only on a successful, failed, or canceled execution.
 
     \sa TaskSetupHandler, TaskDoneHandler
 */
@@ -1095,19 +1095,24 @@ private:
 */
 
 /*!
-    \enum Tasking::CallDoneIf
+    \enum Tasking::CallDone
 
     This enum is an optional argument for the \l onGroupDone() element or custom task's constructor.
     It instructs the task tree on when the group's or task's done handler should be invoked.
 
-    \value SuccessOrError
-           The done handler is always invoked.
-    \value Success
+    \value Never
+           The done handler is never invoked.
+    \value OnSuccess
            The done handler is invoked only after successful execution,
            that is, when DoneWith::Success.
-    \value Error
+    \value OnError
            The done handler is invoked only after failed execution,
-           that is, when DoneWith::Error or when DoneWith::Cancel.
+           that is, when DoneWith::Error.
+    \value OnCancel
+           The done handler is invoked only after canceled execution,
+           that is, when DoneWith::Cancel.
+    \value Always
+           The done handler is always invoked.
 */
 
 /*!
@@ -1185,12 +1190,12 @@ private:
 */
 
 /*!
-    \fn template <typename Handler> GroupItem onGroupDone(Handler &&handler, CallDoneIf callDoneIf = CallDoneIf::SuccessOrError)
+    \fn template <typename Handler> GroupItem onGroupDone(Handler &&handler, CallDoneFlags callDone = CallDone::Always)
 
     Constructs a group's element holding the group done handler.
     By default, the \a handler is invoked whenever the group finishes.
-    Pass a non-default value for the \a callDoneIf argument when you want the handler to be called
-    only on a successful or failed execution.
+    Pass a non-default value for the \a callDone argument when you want the handler to be called
+    only on a successful, failed, or canceled execution.
     Depending on the group's workflow policy, this handler may also be called
     when the running group is canceled (e.g. when stopOnError element was used).
 
@@ -2953,8 +2958,8 @@ bool TaskTreePrivate::invokeTaskDoneHandler(RuntimeTask *node, DoneWith doneWith
             const Group root {
                 // [7] runtime: task tree creates an instance of CopyStorage when root is entered
                 storage,
-                ConcurrentCallTask<QByteArray>(onLoaderSetup, onLoaderDone, CallDoneIf::Success),
-                ConcurrentCallTask<void>(onSaverSetup, onSaverDone, CallDoneIf::Success)
+                ConcurrentCallTask<QByteArray>(onLoaderSetup, onLoaderDone, CallDone::OnSuccess),
+                ConcurrentCallTask<void>(onSaverSetup, onSaverDone, CallDone::OnSuccess)
             };
             return root;
         }
@@ -3530,7 +3535,7 @@ int TaskTree::progressValue() const
 
         const Group root {
             storage,
-            ConcurrentCallTask(onLoaderSetup, onLoaderDone, CallDoneIf::Success)
+            ConcurrentCallTask(onLoaderSetup, onLoaderDone, CallDone::OnSuccess)
         };
 
         TaskTree taskTree(root);
