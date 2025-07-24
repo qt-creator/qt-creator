@@ -6,6 +6,7 @@
 #include "utils_global.h"
 
 #include "filepath.h"
+#include "temporaryfile.h"
 
 #include <QFile>
 

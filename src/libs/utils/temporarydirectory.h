@@ -11,6 +11,7 @@ namespace Utils {
 
 class FilePath;
 
+// Note: This is local-only
 class QTCREATOR_UTILS_EXPORT TemporaryDirectory : public QTemporaryDir
 {
 public:

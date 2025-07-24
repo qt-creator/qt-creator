@@ -6,6 +6,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
+#include <utils/temporaryfile.h>
 #include <utils/hostosinfo.h>
 #include <utils/link.h>
 

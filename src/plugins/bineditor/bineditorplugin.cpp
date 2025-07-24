@@ -33,6 +33,7 @@
 #include <utils/qtcassert.h>
 #include <utils/reloadpromptutils.h>
 #include <utils/stringutils.h>
+#include <utils/temporaryfile.h>
 
 #include <QAbstractScrollArea>
 #include <QAction>

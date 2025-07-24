@@ -9,6 +9,60 @@
 
 namespace Utils {
 
+// TemporaryFilePath
+
+class TemporaryFilePathPrivate
+{
+public:
+    FilePath templatePath;
+    FilePath filePath;
+    bool autoRemove = true;
+};
+
+Result<std::unique_ptr<TemporaryFilePath>> TemporaryFilePath::create(
+    const FilePath &templatePath)
+{
+    Result<FilePath> result = templatePath.createTempFile();
+    if (!result)
+        return ResultError(result.error());
+    return std::unique_ptr<TemporaryFilePath>(new TemporaryFilePath(templatePath, *result));
+}
+
+TemporaryFilePath::TemporaryFilePath(const FilePath &templatePath, const FilePath &filePath)
+    : d(std::make_unique<TemporaryFilePathPrivate>())
+{
+    d->templatePath = templatePath;
+    d->filePath = filePath;
+}
+
+TemporaryFilePath::~TemporaryFilePath()
+{
+    if (d->autoRemove)
+        d->filePath.removeFile();
+}
+
+void TemporaryFilePath::setAutoRemove(bool autoRemove)
+{
+    d->autoRemove = autoRemove;
+}
+
+bool TemporaryFilePath::autoRemove() const
+{
+    return d->autoRemove;
+}
+
+FilePath TemporaryFilePath::templatePath() const
+{
+    return d->templatePath;
+}
+
+FilePath TemporaryFilePath::filePath() const
+{
+    return d->filePath;
+}
+
+// TemporaryFilePath
+
 TemporaryFile::TemporaryFile(const QString &pattern) :
     QTemporaryFile(TemporaryDirectory::masterTemporaryDirectory()->path() + '/' + pattern)
 {
