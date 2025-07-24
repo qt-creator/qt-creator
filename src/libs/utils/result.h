@@ -36,7 +36,7 @@ public:
     ResultError(const QString &errorMessage);
     ResultError(ResultSpecialErrorCode code, const QString &errorMessage = {});
 
-    template<typename T> operator Result<T>() { return tl::make_unexpected(m_error); }
+    template<typename T> operator Result<T>() const { return tl::make_unexpected(m_error); }
 
 private:
     QString m_error;
