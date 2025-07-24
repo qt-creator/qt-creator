@@ -369,7 +369,7 @@ public:
 
         const BuildTargetInfo bti = buildTargetInfo();
         executable.setLabelText(Tr::tr("Executable:"));
-        executable.setValue(bti.targetFilePath);
+        executable.setExecutable(bti.targetFilePath);
         executable.setSettingsKey("Workspace.RunConfiguration.Executable");
 
         auto argumentsAsString = [this]() {
@@ -387,17 +387,11 @@ public:
             workingDirectory.setDefaultWorkingDirectory(bti.workingDirectory);
         workingDirectory.setSettingsKey("Workspace.RunConfiguration.WorkingDirectory");
 
-        setCommandLineGetter([this] {
-            return CommandLine(executable.effectiveBinary(),
-                               arguments.arguments(),
-                               CommandLine::Raw);
-        });
-
         setUpdater([this, argumentsAsString] {
             if (enabled.value()) // skip the update for cloned run configurations
                 return;
             const BuildTargetInfo bti = buildTargetInfo();
-            executable.setValue(bti.targetFilePath);
+            executable.setExecutable(bti.targetFilePath);
             arguments.setArguments(argumentsAsString());
             if (!bti.workingDirectory.isEmpty())
                 workingDirectory.setDefaultWorkingDirectory(bti.workingDirectory);
@@ -418,7 +412,7 @@ public:
     }
 
     TextDisplay hint{this};
-    FilePathAspect executable{this};
+    ExecutableAspect executable{this};
     ArgumentsAspect arguments{this};
     WorkingDirectoryAspect workingDirectory{this};
     BoolAspect enabled{this};
