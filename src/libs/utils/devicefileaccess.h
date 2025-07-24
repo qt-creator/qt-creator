@@ -170,7 +170,6 @@ protected:
     Result<bool> isDirectory(const FilePath &filePath) const override;
     Result<bool> isSymLink(const FilePath &filePath) const override;
     Result<bool> hasHardLinks(const FilePath &filePath) const override;
-    Result<> ensureWritableDirectory(const FilePath &filePath) const override;
     Result<> ensureExistingFile(const FilePath &filePath) const override;
     Result<> createDirectory(const FilePath &filePath) const override;
     Result<bool> exists(const FilePath &filePath) const override;

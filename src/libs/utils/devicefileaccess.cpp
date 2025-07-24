@@ -132,35 +132,19 @@ Result<bool> DeviceFileAccess::hasHardLinks(const FilePath &filePath) const
 
 Result<> DeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
 {
-    Result<bool> result = isWritableDirectory(filePath);
-    if (!result) {
-        return ResultError(
-            Tr::tr("Couldn't check if \"%1\" is a writable directory: %2")
-                .arg(filePath.toUserOutput(), result.error()));
-    }
-    if (*result)
-        return ResultOk;
+    return isWritableDirectory(filePath).and_then([&](bool isWritableDir) {
+        if (isWritableDir)
+            return ResultOk;
 
-    result = exists(filePath);
-    if (!result) {
-        return ResultError(
-            Tr::tr("Couldn't check if \"%1\" exists: %2")
-                .arg(filePath.toUserOutput(), result.error()));
-    }
+        return exists(filePath).and_then([&](bool exists) -> Result<> {
+            if (!exists)
+                return createDirectory(filePath);
 
-    if (*result) {
-        return ResultError(Tr::tr("Path \"%1\" exists but is not a writable directory.")
-                                   .arg(filePath.toUserOutput()));
-    }
-
-    const Result<> createResult = createDirectory(filePath);
-    if (createResult)
-        return ResultOk;
-
-    return ResultError(
-        Tr::tr("Failed to create directory \"%1\": %2")
-            .arg(filePath.toUserOutput())
-            .arg(createResult.error()));
+            return ResultError(
+                Tr::tr("Path \"%1\" exists but is not a writable directory.")
+                    .arg(filePath.toUserOutput()));
+        });
+    });
 }
 
 Result<> DeviceFileAccess::ensureExistingFile(const FilePath &filePath) const
@@ -986,24 +970,6 @@ Result<bool> DesktopDeviceFileAccess::hasHardLinks(const FilePath &filePath) con
     return false;
 }
 
-Result<> DesktopDeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
-{
-    const QFileInfo fi(filePath.path());
-    if (fi.isDir() && fi.isWritable())
-        return ResultOk;
-
-    if (fi.exists()) {
-        return ResultError(Tr::tr("Path \"%1\" exists but is not a writable directory.")
-                                   .arg(filePath.toUserOutput()));
-    }
-
-    const bool result = QDir().mkpath(filePath.path());
-    if (result)
-        return ResultOk;
-
-    return ResultError(
-        Tr::tr("Failed to create directory \"%1\".").arg(filePath.toUserOutput()));
-}
 
 Result<> DesktopDeviceFileAccess::ensureExistingFile(const FilePath &filePath) const
 {

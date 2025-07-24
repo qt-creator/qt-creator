@@ -134,6 +134,8 @@ private slots:
 
     void symLinks();
 
+    void ensureWritableDirectory();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
@@ -1983,6 +1985,38 @@ void tst_filepath::symLinks()
     QVERIFY_RESULT(res);
     QVERIFY(link.isSymLink());
     QCOMPARE(link.symLinkTarget(), orig);
+}
+
+void tst_filepath::ensureWritableDirectory()
+{
+    const FilePath dir = FilePath::fromString(rootPath).pathAppended("x/y/writableDir");
+    QVERIFY(!dir.exists());
+    Result<> res = dir.ensureWritableDir();
+    QVERIFY_RESULT(res);
+    QVERIFY(dir.exists());
+    QVERIFY(dir.isWritableDir());
+
+    const FilePath dir2 = FilePath::fromString(rootPath).pathAppended("x/y/initiallyNotWritableDir");
+    QVERIFY(!dir2.exists());
+    res = dir2.ensureWritableDir();
+    QVERIFY_RESULT(res);
+    QVERIFY(dir2.exists());
+    QVERIFY(dir2.isWritableDir());
+
+    dir2.setPermissions(QFile::Permissions(QFile::ReadOwner | QFile::ReadGroup | QFile::ReadOther));
+    QVERIFY(dir2.exists());
+    QVERIFY(!dir2.isWritableDir());
+    QVERIFY(!dir2.ensureWritableDir());
+    QVERIFY(dir2.exists());
+    QVERIFY(!dir2.isWritableDir());
+
+    const FilePath notdir = FilePath::fromString(rootPath).pathAppended("x/y/notADirectory.txt");
+    QVERIFY(!notdir.exists());
+    QVERIFY_RESULT(notdir.writeFileContents({}));
+    QVERIFY(notdir.exists());
+    res = notdir.ensureWritableDir();
+    QVERIFY(!res);
+    QVERIFY(notdir.isFile());
 }
 
 void tst_filepath::pathComponents()
