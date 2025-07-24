@@ -301,21 +301,21 @@ bool FileInProjectFinder::checkProjectFiles(const FilePath &originalPath,
     qCDebug(finderLog) << "FileInProjectFinder: checking project files ...";
 
     const QString lastSegment = originalPath.fileName();
-    QStringList matches;
+    FilePaths matches;
     if (fileHandler)
         matches.append(filesWithSameFileName(lastSegment));
     if (directoryHandler)
         matches.append(pathSegmentsWithSameName(lastSegment));
 
-    const QStringList matchedFilePaths = bestMatches(matches, originalPath.toUrlishString());
+    const FilePaths matchedFilePaths = bestMatches(matches, originalPath);
     if (matchedFilePaths.isEmpty())
         return false;
 
-    const int matchLength = commonPostFixLength(matchedFilePaths.first(), originalPath.toUrlishString());
+    const int matchLength = commonPostFixLength(matchedFilePaths.first(), originalPath);
     FilePaths hits;
-    for (const QString &matchedFilePath : matchedFilePaths) {
-        if (checkPath(FilePath::fromString(matchedFilePath), matchLength, fileHandler, directoryHandler))
-            hits.append(FilePath::fromString(matchedFilePath));
+    for (const FilePath &matchedFilePath : matchedFilePaths) {
+        if (checkPath(matchedFilePath, matchLength, fileHandler, directoryHandler))
+            hits.append(matchedFilePath);
     }
     if (hits.isEmpty())
         return false;
@@ -432,45 +432,47 @@ FileInProjectFinder::CacheEntry FileInProjectFinder::findInSearchPath(
     return CacheEntry();
 }
 
-QStringList FileInProjectFinder::filesWithSameFileName(const QString &fileName) const
+FilePaths FileInProjectFinder::filesWithSameFileName(const QString &fileName) const
 {
-    QStringList result;
+    FilePaths result;
     for (const FilePath &f : m_projectFiles) {
         if (f.fileName() == fileName)
-            result << f.toUrlishString();
+            result << f;
     }
     return result;
 }
 
-QStringList FileInProjectFinder::pathSegmentsWithSameName(const QString &pathSegment) const
+FilePaths FileInProjectFinder::pathSegmentsWithSameName(const QString &pathSegment) const
 {
-    QStringList result;
+    FilePaths result;
     for (const FilePath &f : m_projectFiles) {
         FilePath currentPath = f.parentDir();
         do {
             if (currentPath.fileName() == pathSegment) {
-                if (result.isEmpty() || result.last() != currentPath.toUrlishString())
-                    result.append(currentPath.toUrlishString());
+                if (result.isEmpty() || result.last() != currentPath)
+                    result.append(currentPath);
             }
             currentPath = currentPath.parentDir();
         } while (!currentPath.isEmpty());
     }
-    result.removeDuplicates();
+    FilePath::removeDuplicates(result);
     return result;
 }
 
-int FileInProjectFinder::commonPostFixLength(const QString &candidatePath,
-                                             const QString &filePathToFind)
+int FileInProjectFinder::commonPostFixLength(const FilePath &candidatePath,
+                                             const FilePath &filePathToFind)
 {
     int rank = 0;
-    for (int a = candidatePath.length(), b = filePathToFind.length();
-         --a >= 0 && --b >= 0 && candidatePath.at(a) == filePathToFind.at(b);)
+    const QStringView candidate = candidatePath.pathView();
+    const QStringView needle = filePathToFind.pathView();
+    for (int a = candidate.size(), b = needle.size();
+             --a >= 0 && --b >= 0 && candidate.at(a) == needle.at(b);)
         rank++;
     return rank;
 }
 
-QStringList FileInProjectFinder::bestMatches(const QStringList &filePaths,
-                                             const QString &filePathToFind)
+FilePaths FileInProjectFinder::bestMatches(const FilePaths &filePaths,
+                                           const FilePath &filePathToFind)
 {
     if (filePaths.isEmpty())
         return {};
@@ -480,8 +482,8 @@ QStringList FileInProjectFinder::bestMatches(const QStringList &filePaths,
         return filePaths;
     }
     int bestRank = -1;
-    QStringList bestFilePaths;
-    for (const QString &fp : filePaths) {
+    FilePaths bestFilePaths;
+    for (const FilePath &fp : filePaths) {
         const int currentRank = commonPostFixLength(fp, filePathToFind);
         if (currentRank < bestRank)
             continue;

@@ -63,8 +63,8 @@ private:
 
     static CacheEntry findInSearchPath(const FilePath &searchPath, const FilePath &filePath,
                                        FileHandler fileHandler, DirectoryHandler directoryHandler);
-    QStringList filesWithSameFileName(const QString &fileName) const;
-    QStringList pathSegmentsWithSameName(const QString &path) const;
+    FilePaths filesWithSameFileName(const QString &fileName) const;
+    FilePaths pathSegmentsWithSameName(const QString &path) const;
 
     bool checkRootDirectory(const FilePath &originalPath, DirectoryHandler directoryHandler) const;
     bool checkMappedPath(const FilePath &originalPath,
@@ -88,8 +88,8 @@ private:
     bool handleSuccess(const FilePath &originalPath, const FilePaths &found, int confidence,
                        const char *where) const;
 
-    static int commonPostFixLength(const QString &candidatePath, const QString &filePathToFind);
-    static QStringList bestMatches(const QStringList &filePaths, const QString &filePathToFind);
+    static int commonPostFixLength(const FilePath &candidatePath, const FilePath &filePathToFind);
+    static FilePaths bestMatches(const FilePaths &filePaths, const FilePath &filePathToFind);
 
     FilePath m_projectDir;
     FilePath m_sysroot;
