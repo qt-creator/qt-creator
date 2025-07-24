@@ -25,11 +25,13 @@
     version of \QC and a beta version or a release candidate of the upcoming
     release, depending on the release cycle.
 
-    Search for \QC in the \QOI to find the avaiable versions.
+    Search for \QC in the \QOI to find the available versions.
 
     \image {qt-online-installer.webp} {Qt Creator installers filtered in Qt Online Installer}
 
     \note You need a \l{https://account.qt.io/}{Qt Account} to use \QOI.
+
+    If you develop Qt Quick applications, consider also installing \QDS.
 
     \section1 Standalone \QC
 

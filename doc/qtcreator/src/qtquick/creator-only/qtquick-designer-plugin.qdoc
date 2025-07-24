@@ -42,6 +42,8 @@
 
     \image {qtcreator-qml-js-editing.webp} {QML/JS Editing tab in Qt Quick preferences}
 
+    To use \QOI to install \QDS, select \uicontrol {Install \QDS}.
+
     \section1 Editing Files in \QMLD
 
     Enable the \QMLD plugin in \QC for editing UI files. The functionality is
