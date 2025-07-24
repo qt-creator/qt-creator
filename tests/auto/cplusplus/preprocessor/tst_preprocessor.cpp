@@ -998,29 +998,48 @@ void tst_Preprocessor::includes_1()
                 QLatin1String("<stdin>"),
                 QByteArray("#define FOO <foo.h>\n"
                            "#define BAR \"bar.h\"\n"
+                           "#define GET_INCLUDE(hdr) <hdr>\n"
+                           "#define GET_INCLUDE2(hdr) hdr\n"
+                           "#define GET_INCLUDE3(hdr) #hdr\n"
                            "\n"
                            "#include FOO\n"
                            "#include BAR\n"
                            "\n"
                            "#include <zoo.h>\n"
                            "#include \"mooze.h\"\n"
+                           "#include GET_INCLUDE(other.h)\n"
+                           "#include GET_INCLUDE2(<other2.h>)\n"
+                           "#include GET_INCLUDE2(\"other3.h\")\n"
+                           "#include GET_INCLUDE3(other4.h)\n"
                            ));
 
     QList<Include> incs = client.recordedIncludes();
 //    qDebug()<<incs;
-    QCOMPARE(incs.size(), 4);
+    QCOMPARE(incs.size(), 8);
     QCOMPARE(incs.at(0).fileName, QLatin1String("foo.h"));
     QCOMPARE(incs.at(0).type, Client::IncludeGlobal);
-    QCOMPARE(incs.at(0).line, 4);
+    QCOMPARE(incs.at(0).line, 7);
     QCOMPARE(incs.at(1).fileName, QLatin1String("bar.h"));
     QCOMPARE(incs.at(1).type, Client::IncludeLocal);
-    QCOMPARE(incs.at(1).line, 5);
+    QCOMPARE(incs.at(1).line, 8);
     QCOMPARE(incs.at(2).fileName, QLatin1String("zoo.h"));
     QCOMPARE(incs.at(2).type, Client::IncludeGlobal);
-    QCOMPARE(incs.at(2).line, 7);
+    QCOMPARE(incs.at(2).line, 10);
     QCOMPARE(incs.at(3).fileName, QLatin1String("mooze.h"));
     QCOMPARE(incs.at(3).type, Client::IncludeLocal);
-    QCOMPARE(incs.at(3).line, 8);
+    QCOMPARE(incs.at(3).line, 11);
+    QCOMPARE(incs.at(4).fileName, QLatin1String("other.h"));
+    QCOMPARE(incs.at(4).type, Client::IncludeGlobal);
+    QCOMPARE(incs.at(4).line, 12);
+    QCOMPARE(incs.at(5).fileName, QLatin1String("other2.h"));
+    QCOMPARE(incs.at(5).type, Client::IncludeGlobal);
+    QCOMPARE(incs.at(5).line, 13);
+    QCOMPARE(incs.at(6).fileName, QLatin1String("other3.h"));
+    QCOMPARE(incs.at(6).type, Client::IncludeLocal);
+    QCOMPARE(incs.at(6).line, 14);
+    QCOMPARE(incs.at(7).fileName, QLatin1String("other4.h"));
+    QCOMPARE(incs.at(7).type, Client::IncludeLocal);
+    QCOMPARE(incs.at(7).line, 15);
 }
 
 void tst_Preprocessor::defined()

@@ -1687,6 +1687,14 @@ void Preprocessor::handleIncludeDirective(PPToken *tk, bool includeNext)
         lex(tk); // consume string token
     } else {
         included = expand(tk);
+
+        // Clean up artifact from expansion via function-like macro.
+        for (qsizetype i = 0, size = included.size() - 1; i < size; ++i) {
+            if (included.at(i) == '<' && std::isspace(included.at(i + 1))) {
+                included.remove(i + 1, 1);
+                break;
+            }
+        }
     }
     included = included.trimmed();
 
