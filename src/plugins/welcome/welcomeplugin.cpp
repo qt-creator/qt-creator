@@ -74,8 +74,8 @@ public:
             Row {
                 m_pluginButtons,
                 st,
-                newButton,
                 openButton,
+                newButton,
                 spacing(GapHXl),
                 customMargins(PaddingHXxl, PaddingVXl, PaddingHXxl, PaddingVXl),
             },
