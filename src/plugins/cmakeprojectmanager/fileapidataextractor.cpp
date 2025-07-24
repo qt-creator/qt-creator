@@ -423,8 +423,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             // keep quiet about it:-)
             if (ci.defines.empty() && ci.includes.empty() && allOf(ci.sources, [&t](const int sid) {
                     const SourceInfo &source = t.sources[static_cast<size_t>(sid)];
-                    return Node::fileTypeForFileName(FilePath::fromString(source.path))
-                           == FileType::Header;
+                    return Node::fileTypeForFileName(source.path) == FileType::Header;
                 })) {
                 qWarning() << "Not reporting all-header compilegroup of target" << t.name
                            << "to code model.";
@@ -537,9 +536,9 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                          });
 
             FilePath precompiled_header
-                = FilePath::fromString(findOrDefault(t.sources, [&ending](const SourceInfo &si) {
+                = findOrDefault(t.sources, [&ending](const SourceInfo &si) {
                                            return si.path.endsWith(ending);
-                                       }).path);
+                                       }).path;
             if (!precompiled_header.isEmpty()) {
                 precompiled_header = sourceDirectory.resolvePath(precompiled_header);
 

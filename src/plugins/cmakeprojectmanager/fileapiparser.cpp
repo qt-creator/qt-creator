@@ -21,6 +21,7 @@
 #include <QLoggingCategory>
 #include <QPromise>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
@@ -489,27 +490,26 @@ static std::vector<FileApiDetails::FragmentInfo> extractFragments(const QJsonObj
     });
 }
 
-static void addIncludeInfo(std::vector<IncludeInfo> *includes,
+static void addIncludeInfo(const FilePath &replyDir,
+                           std::vector<IncludeInfo> *includes,
                            const QJsonObject &compileGroups,
                            const QString &section)
 {
     const std::vector<IncludeInfo> add
-        = transform<std::vector>(compileGroups.value(section).toArray(), [](const QJsonValue &v) {
+        = transform<std::vector>(compileGroups.value(section).toArray(), [replyDir](const QJsonValue &v) {
               const QJsonObject i = v.toObject();
-              const QString path = i.value("path").toString();
+              const FilePath path = replyDir.withNewPath(i.value("path").toString());
               const bool isSystem = i.value("isSystem").toBool();
-              const ProjectExplorer::HeaderPath hp(path,
-                                                   isSystem
-                                                       ? ProjectExplorer::HeaderPathType::System
-                                                       : ProjectExplorer::HeaderPathType::User);
+              const HeaderPath hp(path, isSystem ? HeaderPathType::System : HeaderPathType::User);
 
-              return IncludeInfo{ProjectExplorer::RawProjectPart::frameworkDetectionHeuristic(hp),
+              return IncludeInfo{RawProjectPart::frameworkDetectionHeuristic(hp),
                                  i.value("backtrace").toInt(-1)};
           });
     std::copy(add.cbegin(), add.cend(), std::back_inserter(*includes));
 }
 
-static TargetDetails extractTargetDetails(const QJsonObject &root, QString &errorMessage)
+static TargetDetails extractTargetDetails
+    (const FilePath &replyDir, const QJsonObject &root, QString &errorMessage)
 {
     TargetDetails t;
     t.name = root.value("name").toString();
@@ -528,8 +528,8 @@ static TargetDetails extractTargetDetails(const QJsonObject &root, QString &erro
     }
     {
         const QJsonObject paths = root.value("paths").toObject();
-        t.sourceDir = FilePath::fromString(paths.value("source").toString());
-        t.buildDir = FilePath::fromString(paths.value("build").toString());
+        t.sourceDir = replyDir.withNewPath(paths.value("source").toString());
+        t.buildDir = replyDir.withNewPath(paths.value("build").toString());
     }
     t.nameOnDisk = root.value("nameOnDisk").toString();
     {
@@ -584,9 +584,9 @@ static TargetDetails extractTargetDetails(const QJsonObject &root, QString &erro
     }
     {
         const QJsonArray sources = root.value("sources").toArray();
-        t.sources = transform<std::vector>(sources, [](const QJsonValue &v) {
+        t.sources = transform<std::vector>(sources, [replyDir](const QJsonValue &v) {
             const QJsonObject o = v.toObject();
-            return SourceInfo{o.value("path").toString(),
+            return SourceInfo{replyDir.withNewPath(o.value("path").toString()),
                               o.value("compileGroupIndex").toInt(-1),
                               o.value("sourceGroupIndex").toInt(-1),
                               o.value("backtrace").toInt(-1),
@@ -602,12 +602,12 @@ static TargetDetails extractTargetDetails(const QJsonObject &root, QString &erro
     }
     {
         const QJsonArray compileGroups = root.value("compileGroups").toArray();
-        t.compileGroups = transform<std::vector>(compileGroups, [](const QJsonValue &v) {
+        t.compileGroups = transform<std::vector>(compileGroups, [replyDir](const QJsonValue &v) {
             const QJsonObject o = v.toObject();
             std::vector<IncludeInfo> includes;
-            addIncludeInfo(&includes, o, "includes");
+            addIncludeInfo(replyDir, &includes, o, "includes");
             // new in CMake 3.27+:
-            addIncludeInfo(&includes, o, "frameworks");
+            addIncludeInfo(replyDir, &includes, o, "frameworks");
             return CompileInfo{
                 transform<std::vector>(o.value("sourceIndexes").toArray(),
                                        [](const QJsonValue &v) { return v.toInt(-1); }),
@@ -622,8 +622,7 @@ static TargetDetails extractTargetDetails(const QJsonObject &root, QString &erro
                                        [](const QJsonValue &v) {
                                            const QJsonObject d = v.toObject();
                                            return DefineInfo{
-                                               ProjectExplorer::Macro::fromKeyValue(
-                                                   d.value("define").toString()),
+                                               Macro::fromKeyValue(d.value("define").toString()),
                                                d.value("backtrace").toInt(-1),
                                            };
                                        }),
@@ -660,7 +659,7 @@ static TargetDetails extractTargetDetails(const QJsonObject &root, QString &erro
                 for (const QJsonValue &arg : o.value("arguments").toArray())
                     arguments.append(arg.toString());
                 FilePath command = FilePath::fromString(o.value("command").toString());
-                return ProjectExplorer::LauncherInfo { o.value("type").toString(), command, arguments };
+                return LauncherInfo { o.value("type").toString(), command, arguments };
             });
         }
     }
@@ -781,12 +780,12 @@ static bool validateTargetDetails(const TargetDetails &t)
     return true;
 }
 
-static TargetDetails readTargetFile(const FilePath &targetFile, QString &errorMessage)
+static TargetDetails readTargetFile(const FilePath &replyDir, const FilePath &targetFile, QString &errorMessage)
 {
     const QJsonDocument doc = readJsonFile(targetFile);
     const QJsonObject root = doc.object();
 
-    TargetDetails result = extractTargetDetails(root, errorMessage);
+    TargetDetails result = extractTargetDetails(replyDir, root, errorMessage);
     if (errorMessage.isEmpty() && !validateTargetDetails(result)) {
         errorMessage = Tr::tr(
             "Invalid target file generated by CMake: Broken indexes in target details.");
@@ -928,7 +927,7 @@ FileApiData FileApiParser::parseData(QPromise<std::shared_ptr<FileApiQtcData>> &
         if (cancelCheck())
             return {};
         QString targetErrorMessage;
-        TargetDetails td = readTargetFile((replyDir / targetFile).absoluteFilePath(), targetErrorMessage);
+        TargetDetails td = readTargetFile(replyDir, replyDir / targetFile, targetErrorMessage);
         if (targetErrorMessage.isEmpty()) {
             result.targetDetails.emplace_back(std::move(td));
         } else {

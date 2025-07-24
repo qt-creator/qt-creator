@@ -9,14 +9,10 @@
 
 #include <projectexplorer/rawprojectpart.h>
 
-#include <utils/filepath.h>
-
 #include <QList>
 #include <QSet>
-#include <QString>
 
 #include <memory>
-#include <optional>
 
 namespace CMakeProjectManager::Internal {
 

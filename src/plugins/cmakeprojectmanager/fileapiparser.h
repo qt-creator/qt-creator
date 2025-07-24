@@ -128,7 +128,7 @@ public:
 class SourceInfo
 {
 public:
-    QString path;
+    Utils::FilePath path;
     int compileGroup = -1;
     int sourceGroup = -1;
     int backtrace = -1;
