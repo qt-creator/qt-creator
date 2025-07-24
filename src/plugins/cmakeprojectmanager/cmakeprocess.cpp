@@ -121,7 +121,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     }
 
     const auto parser = new CMakeOutputParser;
-    parser->setSourceDirectory(parameters.sourceDirectory);
+    parser->setSourceDirectories({parameters.sourceDirectory, parameters.buildDirectory});
     m_parser.addLineParsers({new CMakeAutogenParser, parser});
     m_parser.addLineParsers(parameters.outputParsers());
 

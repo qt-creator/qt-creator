@@ -42,19 +42,17 @@ CMakeOutputParser::CMakeOutputParser()
     QTC_CHECK(m_sourceLineAndFunction.isValid());
 }
 
-void CMakeOutputParser::setSourceDirectory(const FilePath &sourceDir)
+void CMakeOutputParser::setSourceDirectories(const FilePaths &sourceDirs)
 {
-    if (m_sourceDirectory)
-        emit searchDirExpired(m_sourceDirectory.value());
-    m_sourceDirectory = sourceDir;
-    emit newSearchDirFound(sourceDir);
-}
+    std::ranges::for_each(m_sourceDirectories, [this](const FilePath &path) {
+        emit searchDirExpired(path);
+    });
 
-FilePath CMakeOutputParser::resolvePath(const QString &path) const
-{
-    if (m_sourceDirectory)
-        return m_sourceDirectory->resolvePath(path);
-    return FilePath::fromUserInput(path);
+    m_sourceDirectories = sourceDirs;
+
+    std::ranges::for_each(m_sourceDirectories, [this](const FilePath &path) {
+        emit newSearchDirFound(path);
+    });
 }
 
 OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, OutputFormat type)
@@ -88,7 +86,7 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
 
         match = m_commonError.match(trimmedLine);
         if (match.hasMatch()) {
-            const FilePath path = resolvePath(match.captured(1));
+            const FilePath path = FilePath::fromUserInput(match.captured(1));
 
             m_lastTask = CMakeTask(Task::Error,
                                          QString(),
@@ -117,7 +115,7 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
         }
         match = m_commonWarning.match(trimmedLine);
         if (match.hasMatch()) {
-            const FilePath path = resolvePath(match.captured(2));
+            const FilePath path = FilePath::fromUserInput(match.captured(2));
             m_lastTask = CMakeTask(Task::Warning,
                                          QString(),
                                          absoluteFilePath(path),
@@ -137,7 +135,7 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
                 match = m_sourceLineAndFunction.match(trimmedLine);
                 if (match.hasMatch()) {
                     CallStackLine stackLine;
-                    stackLine.file = absoluteFilePath(resolvePath(match.captured(1)));
+                    stackLine.file = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
                     stackLine.line = match.captured(2).toInt();
                     stackLine.function = match.captured(3);
                     m_callStack << stackLine;

@@ -10,26 +10,23 @@
 
 #include <QRegularExpression>
 
-#include <optional>
-
 namespace CMakeProjectManager::Internal {
 
 class CMakeOutputParser : public ProjectExplorer::OutputTaskParser
 {
 public:
     explicit CMakeOutputParser();
-    void setSourceDirectory(const Utils::FilePath &sourceDir);
+    void setSourceDirectories(const Utils::FilePaths &sourceDirs);
 
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
     void flush() override;
-    Utils::FilePath resolvePath(const QString &path) const;
 
     enum TripleLineError { NONE, LINE_LOCATION, LINE_DESCRIPTION, LINE_DESCRIPTION2 };
 
     TripleLineError m_expectTripleLineErrorData = NONE;
 
-    std::optional<Utils::FilePath> m_sourceDirectory;
+    Utils::FilePaths m_sourceDirectories;
     ProjectExplorer::Task m_lastTask;
     QRegularExpression m_commonError;
     QRegularExpression m_nextSubError;
