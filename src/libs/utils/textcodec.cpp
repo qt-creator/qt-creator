@@ -129,7 +129,7 @@ const QList<TextEncoding> &TextEncoding::availableEncodings()
         const QList<QString> codecs = QStringConverter::availableCodecs();
         for (const QString &name : codecs) {
             // Drop encoders that don't even remember their names.
-            QStringEncoder encoder(name);
+            QStringEncoder encoder(name.toUtf8());
             if (!encoder.isValid())
                 continue;
             if (QByteArray(encoder.name()).isEmpty())
