@@ -20,9 +20,6 @@ using namespace ProjectExplorer::Constants;
 
 namespace ProjectExplorer::Internal {
 
-enum class Kind { QMake, Qbs, CMake };
-
-template <Kind K>
 class DesktopRunConfiguration : public RunConfiguration
 {
 public:
@@ -90,8 +87,7 @@ private:
     RunAsRootAspect runAsRoot{this};
 };
 
-template <Kind K>
-void DesktopRunConfiguration<K>::updateTargetInformation()
+void DesktopRunConfiguration::updateTargetInformation()
 {
     QTC_ASSERT(buildSystem(), return);
 
@@ -103,49 +99,29 @@ void DesktopRunConfiguration<K>::updateTargetInformation()
     auto launcherAspect = aspect<LauncherAspect>();
     launcherAspect->setVisible(false);
 
-    if constexpr (K == Kind::QMake) {
-        FilePath profile = FilePath::fromString(buildKey());
-        if (profile.isEmpty())
-            setDefaultDisplayName(Tr::tr("Qt Run Configuration"));
-        else
-            setDefaultDisplayName(profile.completeBaseName());
+    auto wda = aspect<WorkingDirectoryAspect>();
+    if (!bti.workingDirectory.isEmpty())
+        wda->setDefaultWorkingDirectory(bti.workingDirectory);
 
-        emit aspect<EnvironmentAspect>()->environmentChanged();
+    const FilePath executable = executableToRun(bti);
+    aspect<ExecutableAspect>()->setExecutable(executable);
 
-        auto wda = aspect<WorkingDirectoryAspect>();
-        if (!bti.workingDirectory.isEmpty())
-            wda->setDefaultWorkingDirectory(bti.workingDirectory);
+    const QStringList argumentsList = bti.additionalData.toMap()["arguments"].toStringList();
+    if (!argumentsList.isEmpty())
+        aspect<ArgumentsAspect>()->setArguments(
+            ProcessArgs::joinArgs(argumentsList, bti.targetFilePath.osType()));
 
-        aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
-
-    } else if constexpr (K == Kind::Qbs) {
-        setDefaultDisplayName(bti.displayName);
-        const FilePath executable = executableToRun(bti);
-
-        aspect<ExecutableAspect>()->setExecutable(executable);
-
-    } else if constexpr (K == Kind::CMake) {
-        if (bti.launchers.size() > 0) {
-            launcherAspect->setVisible(true);
-            // Use start program by default, if defined (see toBuildTarget() for details)
-            launcherAspect->setDefaultLauncher(bti.launchers.last());
-            launcherAspect->updateLaunchers(bti.launchers);
-        }
-        aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
-        if (!bti.workingDirectory.isEmpty())
-            aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
-
-        const QStringList argumentsList = bti.additionalData.toMap()["arguments"].toStringList();
-        if (!argumentsList.isEmpty())
-            aspect<ArgumentsAspect>()->setArguments(
-                ProcessArgs::joinArgs(argumentsList, bti.targetFilePath.osType()));
-
-        emit aspect<EnvironmentAspect>()->environmentChanged();
+    if (bti.launchers.size() > 0) {
+        launcherAspect->setVisible(true);
+        // Use start program by default, if defined (see toBuildTarget() for details)
+        launcherAspect->setDefaultLauncher(bti.launchers.last());
+        launcherAspect->updateLaunchers(bti.launchers);
     }
+
+    emit aspect<EnvironmentAspect>()->environmentChanged();
 }
 
-template <Kind K>
-FilePath DesktopRunConfiguration<K>::executableToRun(const BuildTargetInfo &targetInfo) const
+FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &targetInfo) const
 {
     const FilePath appInBuildDir = targetInfo.targetFilePath;
     const DeploymentData deploymentData = buildSystem()->deploymentData();
@@ -161,49 +137,29 @@ FilePath DesktopRunConfiguration<K>::executableToRun(const BuildTargetInfo &targ
     return appInLocalInstallDir.exists() ? appInLocalInstallDir : appInBuildDir;
 }
 
-// Factories
+// Factory
 
-class CMakeRunConfigurationFactory final : public RunConfigurationFactory
+class DesktopRunConfigurationFactory final : public RunConfigurationFactory
 {
 public:
-    CMakeRunConfigurationFactory()
+    DesktopRunConfigurationFactory(const Utils::Id &runConfigId, const Utils::Id &projectTypeId)
     {
-        registerRunConfiguration<DesktopRunConfiguration<Kind::CMake>>(Constants::CMAKE_RUNCONFIG_ID);
-        addSupportedProjectType(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
+        registerRunConfiguration<DesktopRunConfiguration>(runConfigId);
+        addSupportedProjectType(projectTypeId);
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
     }
 };
 
-class QbsRunConfigurationFactory final : public RunConfigurationFactory
-{
-public:
-    QbsRunConfigurationFactory()
-    {
-        registerRunConfiguration<DesktopRunConfiguration<Kind::Qbs>>(Constants::QBS_RUNCONFIG_ID);
-        addSupportedProjectType(QbsProjectManager::Constants::PROJECT_ID);
-        addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-        addSupportedTargetDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
-    }
-};
-
-class DesktopQmakeRunConfigurationFactory final : public RunConfigurationFactory
-{
-public:
-    DesktopQmakeRunConfigurationFactory()
-    {
-        registerRunConfiguration<DesktopRunConfiguration<Kind::QMake>>(Constants::QMAKE_RUNCONFIG_ID);
-        addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
-        addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-        addSupportedTargetDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
-    }
-};
 
 void setupDesktopRunConfigurations()
 {
-    static DesktopQmakeRunConfigurationFactory theQmakeRunConfigFactory;
-    static QbsRunConfigurationFactory theQbsRunConfigFactory;
-    static CMakeRunConfigurationFactory theCmakeRunConfigFactory;
+    static DesktopRunConfigurationFactory theQmakeRunConfigFactory
+        (Constants::QMAKE_RUNCONFIG_ID, QmakeProjectManager::Constants::QMAKEPROJECT_ID);
+    static DesktopRunConfigurationFactory theQbsRunConfigFactory
+        (Constants::QBS_RUNCONFIG_ID, QbsProjectManager::Constants::PROJECT_ID);
+    static DesktopRunConfigurationFactory theCmakeRunConfigFactory
+        (Constants::CMAKE_RUNCONFIG_ID, CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
 }
 
 void setupDesktopRunWorker()
