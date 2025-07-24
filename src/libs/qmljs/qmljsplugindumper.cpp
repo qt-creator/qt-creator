@@ -717,49 +717,26 @@ FilePath PluginDumper::resolvePlugin(const FilePath &qmldirPath, const FilePath 
 /*!
   Returns the result of the merge of \a baseName with \a dir and the platform suffix.
 
-  Adapted from QDeclarativeImportDatabase::resolvePlugin.
+  Adapted from QQmlPluginImporter::resolvePlugin()
 
-  \table
-  \header \li Platform \li Valid suffixes
-  \row \li Windows     \li \c .dll
-  \row \li Unix/Linux  \li \c .so
-  \row \li AIX  \li \c .a
-  \row \li HP-UX       \li \c .sl, \c .so (HP-UXi)
-  \row \li macOS    \li \c .dylib, \c .bundle, \c .so
-  \endtable
-
-  Version number on unix are ignored.
+  Version numbers on Unix are ignored.
 */
 FilePath PluginDumper::resolvePlugin(const FilePath &qmldirPath, const FilePath &qmldirPluginPath,
                                      const QString &baseName)
 {
     QStringList validSuffixList;
     QString prefix;
-    if (Utils::HostOsInfo::isWindowsHost()) {
+    if (qmldirPath.osType() == OsTypeWindows) {
         // try a qmake-style debug build first
         validSuffixList = QStringList({"d.dll",  ".dll"});
-    } else if (Utils::HostOsInfo::isMacHost()) {
+    } else if (qmldirPath.osType() == Utils::OsTypeMac) {
         // try a qmake-style debug build first
         validSuffixList = QStringList({"_debug.dylib", ".dylib", ".so", ".bundle", "lib"});
     } else {
         // Examples of valid library names:
         //  libfoo.so
         prefix = "lib";
-#if defined(Q_OS_HPUX)
-/*
-    See "HP-UX Linker and Libraries User's Guide", section "Link-time Differences between PA-RISC and IPF":
-    "In PA-RISC (PA-32 and PA-64) shared libraries are suffixed with .sl. In IPF (32-bit and 64-bit),
-    the shared libraries are suffixed with .so. For compatibility, the IPF linker also supports the .sl suffix."
- */
-        validSuffixList << QLatin1String(".sl");
-# if defined __ia64
         validSuffixList << QLatin1String(".so");
-# endif
-#elif defined(Q_OS_AIX)
-        validSuffixList << QLatin1String(".a") << QLatin1String(".so");
-#else
-        validSuffixList << QLatin1String(".so");
-#endif
     }
     return resolvePlugin(qmldirPath, qmldirPluginPath, baseName, validSuffixList, prefix);
 }
