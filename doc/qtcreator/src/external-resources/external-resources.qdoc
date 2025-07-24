@@ -310,3 +310,7 @@
     \externalpage https://chromium.googlesource.com/breakpad/breakpad/+/HEAD/docs/client_design.md
     \title Google Breakpad
 */
+/*!
+    \externalpage https://doc.qt.io/qt-6/android-manifest-file-configuration.html#style-extraction
+    \title Style Extraction
+*/

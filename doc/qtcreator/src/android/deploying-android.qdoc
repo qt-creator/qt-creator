@@ -299,7 +299,8 @@
     \row
         \li \uicontrol {Style extraction}
         \li The method that Qt uses to determine which \l{Styling}{UI style}
-            to use.
+            to use. For more information about package names, see
+            \l{Style Extraction}.
     \row
         \li \uicontrol {Screen orientation}
         \li How to determine \l{Screen Orientation}{screen orientation}.
@@ -335,25 +336,6 @@
 
     For more information about package names, see
     \l{Android Application Fundamentals}.
-
-    \section2 Styling
-
-    Qt uses different methods to determine how Qt Widgets and Qt Quick Controls
-    should be styled:
-
-    \list
-        \li Select \uicontrol Default or \uicontrol Full when using
-            Qt Widgets or Qt Quick Controls 1 in your project.
-
-            \note This method uses some Android non-SDK interfaces
-                  that are being restricted by Google starting from Android 9.0
-                  (API 28).
-        \li Select \uicontrol Minimal when using Qt Quick Controls 2
-            but no Qt Widgets or Qt Quick Controls 1. This is faster than
-            using the default or full options.
-        \li Select \uicontrol None when using neither Qt Widgets
-            nor Qt Quick Controls 1 or 2.
-    \endlist
 
     \section2 Screen Orientation
 
