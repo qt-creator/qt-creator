@@ -135,6 +135,7 @@ private slots:
     void symLinks();
 
     void ensureWritableDirectory();
+    void ensureWritableDirectoryPermissions();
 
 private:
     QTemporaryDir tempDir;
@@ -1996,9 +1997,23 @@ void tst_filepath::ensureWritableDirectory()
     QVERIFY(dir.exists());
     QVERIFY(dir.isWritableDir());
 
+    const FilePath notdir = FilePath::fromString(rootPath).pathAppended("x/y/notADirectory.txt");
+    QVERIFY(!notdir.exists());
+    QVERIFY_RESULT(notdir.writeFileContents({}));
+    QVERIFY(notdir.exists());
+    res = notdir.ensureWritableDir();
+    QVERIFY(!res);
+    QVERIFY(notdir.isFile());
+}
+
+void tst_filepath::ensureWritableDirectoryPermissions()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("Permissions are not supported on Windows");
+
     const FilePath dir2 = FilePath::fromString(rootPath).pathAppended("x/y/initiallyNotWritableDir");
     QVERIFY(!dir2.exists());
-    res = dir2.ensureWritableDir();
+    const Result<> res = dir2.ensureWritableDir();
     QVERIFY_RESULT(res);
     QVERIFY(dir2.exists());
     QVERIFY(dir2.isWritableDir());
@@ -2009,14 +2024,6 @@ void tst_filepath::ensureWritableDirectory()
     QVERIFY(!dir2.ensureWritableDir());
     QVERIFY(dir2.exists());
     QVERIFY(!dir2.isWritableDir());
-
-    const FilePath notdir = FilePath::fromString(rootPath).pathAppended("x/y/notADirectory.txt");
-    QVERIFY(!notdir.exists());
-    QVERIFY_RESULT(notdir.writeFileContents({}));
-    QVERIFY(notdir.exists());
-    res = notdir.ensureWritableDir();
-    QVERIFY(!res);
-    QVERIFY(notdir.isFile());
 }
 
 void tst_filepath::pathComponents()
