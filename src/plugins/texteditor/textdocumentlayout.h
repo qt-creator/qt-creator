@@ -183,8 +183,6 @@ public:
 
     void requestExtraAreaUpdate();
 
-    void emitDocumentSizeChanged() { emit documentSizeChanged(documentSize()); }
-
     int lastSaveRevision = 0;
     bool hasMarks = false;
     bool hasLocationMarker = false;

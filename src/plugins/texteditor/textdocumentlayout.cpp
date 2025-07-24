@@ -698,11 +698,12 @@ void TextBlockUserData::doFoldOrUnfold(const QTextBlock &block, bool unfold, boo
 
     int indent = foldingIndent(block);
     auto documentLayout = qobject_cast<TextDocumentLayout *>(b.document()->documentLayout());
+    QTC_CHECK(documentLayout);
     while (b.isValid() && foldingIndent(b) > indent && (unfold || b.next().isValid())) {
         if (b.isVisible() != unfold) {
             b.setVisible(unfold);
             if (documentLayout)
-                documentLayout->blockVisibilityChanged(b);
+                documentLayout->blockSizeChanged(b);
         }
         b.setLineCount(unfold? qMax(1, b.layout()->lineCount()) : 0);
         if (recursive) {

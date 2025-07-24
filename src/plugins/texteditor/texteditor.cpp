@@ -64,6 +64,7 @@
 #include <utils/mimeutils.h>
 #include <utils/minimizableinfobars.h>
 #include <utils/multitextcursor.h>
+#include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/qtcassert.h>
 #include <utils/searchresultitem.h>
 #include <utils/styledbar.h>
@@ -666,7 +667,7 @@ struct CursorData
 struct PaintEventData
 {
     PaintEventData(TextEditorWidget *editor, QPaintEvent *event, QPointF offset)
-        : offset(offset)
+        : mainLayoutOffset(offset)
         , viewportRect(editor->viewport()->rect())
         , eventRect(event->rect())
         , doc(editor->document())
@@ -685,7 +686,7 @@ struct PaintEventData
         , tabSettings(editor->textDocument()->tabSettings())
 
     { }
-    QPointF offset;
+    QPointF mainLayoutOffset;
     const QRect viewportRect;
     const QRect eventRect;
     qreal rightMargin = -1;
@@ -778,7 +779,7 @@ public:
     void paintSelectionOverlay(const PaintEventData &data, QPainter &painter) const;
     void paintIfDefedOutBlocks(const PaintEventData &data, QPainter &painter) const;
     void paintFindScope(const PaintEventData &data, QPainter &painter) const;
-    void paintCurrentLineHighlight(const PaintEventData &data, QPainter &painter) const;
+    void paintLineHighlight(const PaintEventData &data, QPainter &painter) const;
     QRectF cursorBlockRect(const QTextDocument *doc,
                            const QTextBlock &block,
                            int cursorPosition,
@@ -5170,10 +5171,10 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
     int idx = -1;
     int l = 0;
 
-    const int left = data.viewportRect.left() - int(data.offset.x());
-    const int right = data.viewportRect.right() - int(data.offset.x());
-    const int top = data.viewportRect.top() - int(data.offset.y());
-    const int bottom = data.viewportRect.bottom() - int(data.offset.y());
+    const int left = data.viewportRect.left() - int(data.mainLayoutOffset.x());
+    const int right = data.viewportRect.right() - int(data.mainLayoutOffset.x());
+    const int top = data.viewportRect.top() - int(data.mainLayoutOffset.y());
+    const int bottom = data.viewportRect.bottom() - int(data.mainLayoutOffset.y());
     const QColor &searchResultColor = m_document->fontSettings()
             .toTextCharFormat(C_SEARCH_RESULT).background().color().darker(120);
 
@@ -5259,10 +5260,10 @@ void TextEditorWidgetPrivate::highlightSelection(const QTextBlock &block, const 
     text.replace(QChar::Nbsp, QLatin1Char(' '));
     const int l = selection.length();
 
-    const int left = data.viewportRect.left() - int(data.offset.x());
-    const int right = data.viewportRect.right() - int(data.offset.x());
-    const int top = data.viewportRect.top() - int(data.offset.y());
-    const int bottom = data.viewportRect.bottom() - int(data.offset.y());
+    const int left = data.viewportRect.left() - int(data.mainLayoutOffset.x());
+    const int right = data.viewportRect.right() - int(data.mainLayoutOffset.x());
+    const int top = data.viewportRect.top() - int(data.mainLayoutOffset.y());
+    const int bottom = data.viewportRect.bottom() - int(data.mainLayoutOffset.y());
 
     for (int idx = text.indexOf(selection, 0, Qt::CaseInsensitive);
          idx >= 0;
@@ -5639,7 +5640,7 @@ void TextEditorWidgetPrivate::paintRightMarginArea(PaintEventData &data, QPainte
     // Don't use QFontMetricsF::averageCharWidth here, due to it returning
     // a fractional size even when this is not supported by the platform.
     data.rightMargin = charWidth() * (m_visibleWrapColumn + m_visualIndentOffset)
-            + data.offset.x() + 4;
+            + data.mainLayoutOffset.x() + 4;
     if (m_marginSettings.m_tintMarginArea && data.rightMargin < data.viewportRect.width()) {
         const QRectF behindMargin(data.rightMargin,
                                   data.eventRect.top(),
@@ -5674,7 +5675,7 @@ void TextEditorWidgetPrivate::paintBlockHighlight(const PaintEventData &data,
 
     const int margin = 5;
     QTextBlock block = data.block;
-    QPointF offset = data.offset;
+    QPointF offset = data.mainLayoutOffset;
     while (block.isValid()) {
         QRectF blockBoundingRect = q->blockBoundingRect(block).translated(offset);
 
@@ -5729,7 +5730,7 @@ void TextEditorWidgetPrivate::paintSearchResultOverlay(const PaintEventData &dat
 
     const int margin = 5;
     QTextBlock block = data.block;
-    QPointF offset = data.offset;
+    QPointF offset = data.mainLayoutOffset;
     while (block.isValid()) {
         QRectF blockBoundingRect = q->blockBoundingRect(block).translated(offset);
 
@@ -5755,7 +5756,7 @@ void TextEditorWidgetPrivate::paintSelectionOverlay(const PaintEventData &data,
 {
     const int margin = 5;
     QTextBlock block = data.block;
-    QPointF offset = data.offset;
+    QPointF offset = data.mainLayoutOffset;
     while (block.isValid()) {
         QRectF blockBoundingRect = q->blockBoundingRect(block).translated(offset);
 
@@ -5782,7 +5783,7 @@ void TextEditorWidgetPrivate::paintIfDefedOutBlocks(const PaintEventData &data,
                                                     QPainter &painter) const
 {
     QTextBlock block = data.block;
-    QPointF offset = data.offset;
+    QPointF offset = data.mainLayoutOffset;
     while (block.isValid()) {
 
         QRectF r = q->blockBoundingRect(block).translated(offset);
@@ -5822,35 +5823,38 @@ void TextEditorWidgetPrivate::paintFindScope(const PaintEventData &data, QPainte
     delete overlay;
 }
 
-void TextEditorWidgetPrivate::paintCurrentLineHighlight(const PaintEventData &data,
-                                                        QPainter &painter) const
+void TextEditorWidgetPrivate::paintLineHighlight(const PaintEventData &data, QPainter &painter) const
 {
-    if (!m_highlightCurrentLine)
-        return;
+    QPointF fullLineHighlightOffset = data.mainLayoutOffset;
+    fullLineHighlightOffset.ry() -= q->editorLayout()->mainLayoutOffset(data.block);
+    q->editorLayout()->paintBackground(data.block, &painter, fullLineHighlightOffset, data.eventRect);
 
-    QList<QTextCursor> cursorsForBlock;
-    for (const QTextCursor &c : m_cursors) {
-        if (c.block() == data.block)
-            cursorsForBlock << c;
-    }
-    if (cursorsForBlock.isEmpty())
-        return;
+    data.block.isVisible();
 
-    const QRectF blockRect = q->blockBoundingRect(data.block).translated(data.offset);
-    QColor color = m_document->fontSettings().toTextCharFormat(C_CURRENT_LINE).background().color();
-    color.setAlpha(128);
-    QSet<int> seenLines;
-    for (const QTextCursor &cursor : std::as_const(cursorsForBlock)) {
-        QTextLayout *layout = q->editorLayout()->blockLayout(data.block);
-        const QTextLine line = layout->lineForTextPosition(cursor.positionInBlock());
-        QTC_ASSERT(line.isValid(), continue);
-        if (!Utils::insert(seenLines, line.lineNumber()))
-            continue;
-        QRectF lineRect = line.rect();
-        lineRect.moveTop(lineRect.top() + blockRect.top());
-        lineRect.setLeft(0);
-        lineRect.setRight(data.viewportRect.width());
-        painter.fillRect(lineRect, color);
+    if (m_highlightCurrentLine) {
+        QList<QTextCursor> cursorsForBlock;
+        for (const QTextCursor &c : m_cursors) {
+            if (c.block() == data.block)
+                cursorsForBlock << c;
+        }
+        if (cursorsForBlock.isEmpty())
+            return;
+        const QRectF blockRect = q->blockBoundingRect(data.block).translated(data.mainLayoutOffset);
+        QColor color
+            = m_document->fontSettings().toTextCharFormat(C_CURRENT_LINE).background().color();
+        color.setAlpha(128);
+        QSet<int> seenLines;
+        for (const QTextCursor &cursor : cursorsForBlock) {
+            QTextLine line = data.block.layout()->lineForTextPosition(cursor.positionInBlock());
+            if (!Utils::insert(seenLines, line.lineNumber()))
+                continue;
+            QRectF lineRect = line.rect();
+            lineRect.moveTop(lineRect.top() + blockRect.top());
+            lineRect.setLeft(0);
+            const qreal right = data.rightMargin < 0 ? data.viewportRect.width() : data.rightMargin;
+            lineRect.setRight(right);
+            painter.fillRect(lineRect, color);
+        }
     }
 }
 
@@ -5929,7 +5933,7 @@ void TextEditorWidgetPrivate::paintAdditionalVisualWhitespaces(PaintEventData &d
         painter.setPen(data.visualWhitespaceFormat.foreground().color());
         for (int i = 0; i < lineCount-1; ++i) { // paint line wrap indicator
             QTextLine line = layout->lineAt(i);
-            QRectF lineRect = line.naturalTextRect().translated(data.offset.x(), top);
+            QRectF lineRect = line.naturalTextRect().translated(data.mainLayoutOffset.x(), top);
             QChar visualArrow(ushort(0x21b5));
             painter.drawText(QPointF(lineRect.right(), lineRect.top() + line.ascent()),
                              visualArrow);
@@ -5950,7 +5954,7 @@ void TextEditorWidgetPrivate::paintAdditionalVisualWhitespaces(PaintEventData &d
                 lineCount = layout->lineCount();
             }
             QTextLine line = layout->lineAt(lineCount - 1);
-            QRectF lineRect = line.naturalTextRect().translated(data.offset.x(), top);
+            QRectF lineRect = line.naturalTextRect().translated(data.mainLayoutOffset.x(), top);
             int h = 4;
             lineRect.adjust(0, 0, -1, -1);
             QPainterPath path;
@@ -6033,7 +6037,7 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
 
     const QTextLine textLine = blockData.layout->lineAt(0);
     const QRectF rect = textLine.naturalTextRect();
-    qreal x = textLine.x() + data.offset.x() + qMax(0, q->cursorWidth() - 1)
+    qreal x = textLine.x() + data.mainLayoutOffset.x() + qMax(0, q->cursorWidth() - 1)
               + singleAdvance * m_visualIndentOffset;
     int paintColumn = 0;
 
@@ -6096,7 +6100,7 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
 
         QTextLayout *layout = q->editorLayout()->blockLayout(data.block);
         QTextLine line = layout->lineAt(layout->lineCount()-1);
-        QRectF lineRect = line.naturalTextRect().translated(data.offset.x(), top);
+        QRectF lineRect = line.naturalTextRect().translated(data.mainLayoutOffset.x(), top);
         lineRect.adjust(0, 0, -1, -1);
 
         QString replacement = q->foldReplacementText(data.block);
@@ -6272,7 +6276,7 @@ static CursorData generateCursorData(const int cursorPos,
 {
     CursorData cursorData;
     cursorData.layout = blockData.layout;
-    cursorData.offset = data.offset;
+    cursorData.offset = data.mainLayoutOffset;
     cursorData.pos = cursorPos;
     cursorData.pen = painter.pen();
     return cursorData;
@@ -6352,7 +6356,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
 
     QPainter painter(viewport());
     // Set a brush origin so that the WaveUnderline knows where the wave started
-    painter.setBrushOrigin(data.offset);
+    painter.setBrushOrigin(data.mainLayoutOffset);
 
     data.block = firstVisibleBlock();
     data.context = getPaintContext();
@@ -6380,7 +6384,10 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
     while (data.block.isValid()) {
 
         PaintEventBlockData blockData;
-        blockData.boundingRect = blockBoundingRect(data.block).translated(data.offset);
+        blockData.boundingRect = blockBoundingRect(data.block).translated(data.mainLayoutOffset);
+
+        const int mainLayoutOffset = editorLayout()->mainLayoutOffset(data.block);
+        data.mainLayoutOffset.ry() += mainLayoutOffset;
 
         if (blockData.boundingRect.bottom() >= data.eventRect.top()
                 && blockData.boundingRect.top() <= data.eventRect.bottom()) {
@@ -6391,7 +6398,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             blockData.length = data.block.length();
             d->setupSelections(data, blockData);
 
-            d->paintCurrentLineHighlight(data, painter);
+            d->paintLineHighlight(data, painter);
 
             bool drawCursor = false;
             bool drawCursorAsBlock = false;
@@ -6412,7 +6419,9 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                 }
             }
 
-            paintBlock(&painter, data.block, data.offset, blockData.selections, data.eventRect);
+            QPointF paintOffset = data.mainLayoutOffset;
+            paintOffset.ry() -= mainLayoutOffset;
+            paintBlock(&painter, data.block, paintOffset, blockData.selections, data.eventRect);
 
             if (data.isEditable && !blockData.layout->preeditAreaText().isEmpty()) {
                 if (data.context.cursorPosition < -1) {
@@ -6429,9 +6438,9 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             d->updateLineAnnotation(data, blockData, painter);
         }
 
-        data.offset.ry() += blockData.boundingRect.height();
+        data.mainLayoutOffset.ry() += blockData.boundingRect.height() - mainLayoutOffset;
 
-        if (data.offset.y() > data.viewportRect.height())
+        if (data.mainLayoutOffset.y() > data.viewportRect.height())
             break;
 
         data.block = data.block.next();
@@ -6439,7 +6448,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
         if (!data.block.isVisible()) {
             if (data.block.blockNumber() == d->visibleFoldedBlockNumber) {
                 data.visibleCollapsedBlock = data.block;
-                data.visibleCollapsedBlockOffset = data.offset;
+                data.visibleCollapsedBlockOffset = data.mainLayoutOffset;
             }
 
             data.block = TextEditorWidgetPrivate::nextVisibleBlock(data.block);
@@ -6488,7 +6497,7 @@ void TextEditorWidget::paintBlock(QPainter *painter,
         return;
     }
 
-    editorLayout()->blockLayout(block)->draw(painter, offset, selections, clipRect);
+    editorLayout()->paintBlock(block, painter, offset, selections, clipRect);
 }
 
 int TextEditorWidget::visibleFoldedBlockNumber() const
@@ -6707,10 +6716,13 @@ void TextEditorWidgetPrivate::paintLineNumbers(QPainter &painter,
                              data.currentLineNumberFormat.background().color());
         }
     }
-    painter.drawText(QRectF(data.markWidth, blockBoundingRect.top(),
-                            data.extraAreaWidth - data.markWidth - 4, blockBoundingRect.height()),
-                     Qt::AlignRight,
-                     number);
+
+    QRectF rect;
+    rect.setX(data.markWidth);
+    rect.setY(blockBoundingRect.top() + q->editorLayout()->mainLayoutOffset(data.block));
+    rect.setWidth(data.extraAreaWidth - data.markWidth - 4);
+    rect.setHeight(blockBoundingRect.height());
+    painter.drawText(rect, Qt::AlignRight, number);
     if (selected)
         painter.restore();
 }

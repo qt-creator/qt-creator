@@ -20,6 +20,7 @@
 
 #include <utils/async.h>
 #include <utils/mathutils.h>
+#include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/tooltip/tooltip.h>
 
 #include <QMenu>

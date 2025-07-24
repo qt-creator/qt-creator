@@ -1540,6 +1540,7 @@ QRectF WidgetTextControlPrivate::rectForPosition(int position) const
 
     QRectF r;
 
+    const qreal mainLayoutOffset = q->mainLayoutOffset(block);
     if (line.isValid()) {
         qreal x = line.cursorToX(relativePos);
         qreal w = 0;
@@ -1549,10 +1550,10 @@ QRectF WidgetTextControlPrivate::rectForPosition(int position) const
             else
                 w = QFontMetrics(blockLayout(block)->font()).horizontalAdvance(u' '); // in sync with QTextLine::draw()
         }
-        r = QRectF(layoutPos.x() + x, layoutPos.y() + line.y(),
+        r = QRectF(layoutPos.x() + x, layoutPos.y() + line.y() + mainLayoutOffset,
                    cursorWidth + w, line.height());
     } else {
-        r = QRectF(layoutPos.x(), layoutPos.y(), cursorWidth, 10); // #### correct height
+        r = QRectF(layoutPos.x(), layoutPos.y() + mainLayoutOffset, cursorWidth, 10); // #### correct height
     }
 
     return r;
@@ -3463,6 +3464,11 @@ int WidgetTextControl::hitTest(const QPointF &point, Qt::HitTestAccuracy accurac
 QRectF WidgetTextControl::blockBoundingRect(const QTextBlock &block) const
 {
     return layout()->blockBoundingRect(block);
+}
+
+qreal WidgetTextControl::mainLayoutOffset(const QTextBlock &) const
+{
+    return 0;
 }
 
 #ifndef QT_NO_CONTEXTMENU

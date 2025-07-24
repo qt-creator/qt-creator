@@ -21,6 +21,7 @@ namespace Utils {
 
 class PlainTextDocumentLayout;
 class PlainTextEditPrivate;
+class TextEditorLayout;
 
 class QTCREATOR_UTILS_EXPORT PlainTextEdit : public QAbstractScrollArea
 {
@@ -150,7 +151,7 @@ public:
     QVariant inputMethodQuery(Qt::InputMethodQuery property) const override;
     Q_INVOKABLE QVariant inputMethodQuery(Qt::InputMethodQuery query, QVariant argument) const;
 
-    PlainTextDocumentLayout *editorLayout() const;
+    TextEditorLayout *editorLayout() const;
 
 public Q_SLOTS:
 
@@ -291,9 +292,13 @@ public:
         QTextCursor::MoveMode mode = QTextCursor::MoveAnchor,
         int steps = 1) const;
 
+    void emitDocumentSizeChanged() { emit documentSizeChanged(documentSize()); }
+
+    static qreal layoutWidth(const QTextLayout *layout);
+
 signals:
     void documentContentsChanged(int from, int charsRemoved, int charsAdded);
-    void blockVisibilityChanged(const QTextBlock &block);
+    void blockSizeChanged(const QTextBlock &block);
     void additionalBlockHeightChanged(const QTextBlock &block, int additionalHeight);
 
 protected:
@@ -305,12 +310,11 @@ protected:
     virtual void relayout();
     qreal textWidth() const;
     void layoutBlock(const QTextBlock &block);
-    qreal blockWidth(const QTextBlock &block);
+    virtual qreal blockWidth(const QTextBlock &block);
 
     friend class PlainTextEdit;
     friend class PlainTextEditPrivate;
     friend class PlainTextDocumentLayoutPrivate;
-    friend class TextEditorLayout;
 
     std::unique_ptr<PlainTextDocumentLayoutPrivate> d;
 };

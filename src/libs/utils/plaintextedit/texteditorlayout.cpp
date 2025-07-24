@@ -3,12 +3,85 @@
 
 #include "texteditorlayout.h"
 
+#include "../algorithm.h"
 #include "../qtcassert.h"
+
+#include <QPainter>
 
 namespace Utils {
 
+static const int DOCUMENT_LAYOUT_FORMAT_PROPERTY_ID = QTextCharFormat::UserFormat + 0x100;
+const char MAIN_LAYOUT_CATEGORY[] = "TextEditorLayout.MainLayout";
+
+struct LayoutData
+{
+    LayoutData() = default;
+
+    LayoutData(const LayoutData &) = delete;
+    LayoutData &operator=(const LayoutData &) = delete;
+
+    LayoutData(LayoutData &&other) = default;
+    LayoutData &operator=(LayoutData &&other) = default;
+
+    std::unique_ptr<LayoutItems> layoutItems = std::make_unique<LayoutItems>();
+    LayoutItems::iterator mainLayoutIterator = layoutItems->end();
+    int lineCount = 1;
+    bool layedOut = false;
+
+    QTextLayout *mainLayout() const
+    {
+        if (mainLayoutIterator == layoutItems->end())
+            return nullptr;
+        if (auto mainLayoutItem = dynamic_cast<TextLayoutItem *>(mainLayoutIterator->get()))
+            return mainLayoutItem->layout();
+        return nullptr;
+    }
+
+    void clearLayout()
+    {
+        for (auto &item : *layoutItems)
+            item->clear();
+        lineCount = 1;
+        layedOut = false;
+    }
+};
+
+struct OffsetData
+{
+    int offset = -1;
+    int firstLine = -1;
+};
+
+class TextEditorLayout::TextEditorLayoutPrivate
+{
+public:
+    LayoutData &layoutData(int index)
+    {
+        if (m_layoutData.size() <= std::vector<LayoutData>::size_type(index))
+            m_layoutData.resize(std::vector<LayoutData>::size_type(index) + 1);
+        return m_layoutData[index];
+    }
+
+    void resetOffsetCache(int blockNumber)
+    {
+        if (m_offsetCache.size() > std::vector<OffsetData>::size_type(blockNumber))
+            m_offsetCache.resize(blockNumber);
+    }
+
+    void resizeOffsetCache(int blockNumber)
+    {
+        if (m_offsetCache.size() <= std::vector<OffsetData>::size_type(blockNumber))
+            m_offsetCache.resize(blockNumber + 1);
+    }
+
+    std::vector<LayoutData> m_layoutData;
+    std::vector<OffsetData> m_offsetCache;
+    bool updatingFormats = false;
+};
+
 TextEditorLayout::TextEditorLayout(PlainTextDocumentLayout *docLayout)
     : PlainTextDocumentLayout(docLayout->document())
+    , d(new TextEditorLayoutPrivate)
 {
     connect(
         docLayout,
@@ -17,9 +90,9 @@ TextEditorLayout::TextEditorLayout(PlainTextDocumentLayout *docLayout)
         &TextEditorLayout::documentChanged);
     connect(
         docLayout,
-        &PlainTextDocumentLayout::blockVisibilityChanged,
+        &PlainTextDocumentLayout::blockSizeChanged,
         this,
-        &TextEditorLayout::handleBlockVisibilityChanged);
+        &TextEditorLayout::resetBlockSize);
     connect(
         docLayout,
         &PlainTextDocumentLayout::documentSizeChanged,
@@ -28,68 +101,112 @@ TextEditorLayout::TextEditorLayout(PlainTextDocumentLayout *docLayout)
     connect(docLayout, &PlainTextDocumentLayout::update, this, &TextEditorLayout::update);
 }
 
-void TextEditorLayout::handleBlockVisibilityChanged(const QTextBlock &block)
+TextEditorLayout::~TextEditorLayout()
+{
+    delete d;
+}
+
+void TextEditorLayout::resetBlockSize(const QTextBlock &block)
 {
     const int blockNumber = block.blockNumber();
 
     int lineCount = 0;
-    LayoutData &data = layoutData(block.fragmentIndex());
-    if (block.isVisible())
-        lineCount = data.layout ? std::max(1, data.layout->lineCount()) : 1;
+    LayoutData &data = d->layoutData(block.fragmentIndex());
+    if (block.isVisible()) {
+        if (auto mainLayout = data.mainLayout())
+            lineCount = mainLayout->lineCount();
+        lineCount = std::max(lineCount, 1);
+    }
     data.lineCount = lineCount;
-    resetOffsetCache(blockNumber);
+    d->resetOffsetCache(blockNumber);
+}
+
+void TextEditorLayout::paintBackground(
+    const QTextBlock &block, QPainter *p, const QPointF &offset, const QRectF &clip)
+{
+    QPointF pos = offset;
+    for (auto &layoutItem : *d->layoutData(block.fragmentIndex()).layoutItems) {
+        layoutItem->paintBackground(p, pos, clip);
+        pos.ry() += layoutItem->height();
+    }
+}
+
+void TextEditorLayout::paintBlock(
+    const QTextBlock &block,
+    QPainter *painter,
+    const QPointF &offset,
+    const QList<QTextLayout::FormatRange> &selections,
+    const QRectF &clipRect)
+{
+    QPointF pos = offset;
+    for (auto &layoutItem : *d->layoutData(block.fragmentIndex()).layoutItems) {
+        layoutItem->paintItem(painter, pos, selections, clipRect);
+        pos.ry() += layoutItem->height();
+    }
 }
 
 QTextLayout *TextEditorLayout::blockLayout(const QTextBlock &block) const
 {
-    LayoutData &data = layoutData(block.fragmentIndex());
-    QTextLayout *layout = data.layout.get();
+    LayoutData &data = d->layoutData(block.fragmentIndex());
+    QTextLayout *layout = data.mainLayout();
     if (!layout) {
         layout = new QTextLayout(block);
-        data.layout.reset(layout);
+        data.mainLayoutIterator = data.layoutItems->emplace(
+            data.layoutItems->begin(),
+            std::make_unique<TextLayoutItem>(
+                std::unique_ptr<QTextLayout>(layout), MAIN_LAYOUT_CATEGORY));
     }
     return layout;
 }
 
 void TextEditorLayout::clearBlockLayout(QTextBlock &block) const
 {
-    if (LayoutData &data = layoutData(block.fragmentIndex()); data.layout)
-        data.layout.reset();
+    d->layoutData(block.fragmentIndex()).clearLayout();
     const int blockNumber = block.blockNumber();
-    resetOffsetCache(blockNumber);
+    d->resetOffsetCache(blockNumber);
 }
 
 void TextEditorLayout::clearBlockLayout(QTextBlock &start, QTextBlock &end, bool &blockVisibilityChanged) const
 {
     for (QTextBlock block = start; block.isValid() && block != end; block = block.next()) {
-        if (LayoutData &data = layoutData(block.fragmentIndex()); data.layout) {
-            if (block.isVisible()) {
-                if (blockLineCount(block) == 0) {
-                    blockVisibilityChanged = true;
-                    setBlockLineCount(block, 1);
-                }
-            } else if (blockLineCount(block) > 0) {
+        LayoutData &data = d->layoutData(block.fragmentIndex());
+        if (block.isVisible()) {
+            if (blockLineCount(block) == 0) {
                 blockVisibilityChanged = true;
-                setBlockLineCount(block, 0);
+                setBlockLineCount(block, 1);
             }
-            data.layout.reset();
+        } else if (blockLineCount(block) > 0) {
+            blockVisibilityChanged = true;
+            setBlockLineCount(block, 0);
         }
+        data.clearLayout();
     }
-    resetOffsetCache(start.blockNumber());
+    d->resetOffsetCache(start.blockNumber());
 }
 
 void TextEditorLayout::relayout()
 {
-    for (LayoutData &data : m_layoutData)
+    for (LayoutData &data : d->m_layoutData)
         data.clearLayout();
-    m_offsetCache.clear();
+    d->m_offsetCache.clear();
 }
 
 int TextEditorLayout::additionalBlockHeight(const QTextBlock &block) const
 {
+    int additionalHeight = 0;
+    const QFontMetrics fm(block.charFormat().font());
+    LayoutItems *layoutItems = d->layoutData(block.fragmentIndex()).layoutItems.get();
+    const LayoutItems::iterator end = layoutItems->end();
+    for (auto it = layoutItems->begin(); it != end; ++it) {
+        if (it == d->layoutData(block.fragmentIndex()).mainLayoutIterator)
+            continue; // only collect additional height from additional layoutItems
+        (*it)->ensureLayouted(document(), fm, textWidth());
+        additionalHeight += (*it)->height();
+    }
     auto documentLayout = qobject_cast<PlainTextDocumentLayout *>(document()->documentLayout());
-    QTC_ASSERT(documentLayout, return 0);
-    return documentLayout->additionalBlockHeight(block);
+    if (QTC_GUARD(documentLayout))
+        additionalHeight += documentLayout->additionalBlockHeight(block);
+    return additionalHeight;
 }
 
 QRectF TextEditorLayout::replacementBlockBoundingRect(const QTextBlock &block) const
@@ -113,14 +230,93 @@ int TextEditorLayout::relativeLineSpacing() const
     return documentLayout->relativeLineSpacing();
 }
 
+int TextEditorLayout::mainLayoutOffset(const QTextBlock &block) const
+{
+    int offset = 0;
+    const LayoutItems *layouts = d->layoutData(block.fragmentIndex()).layoutItems.get();
+    auto it = layouts->begin();
+    auto end = d->layoutData(block.fragmentIndex()).mainLayoutIterator;
+    while (it != end) {
+        offset += (*it)->height();
+        ++it;
+    }
+    return offset;
+}
+
+void TextEditorLayout::prependLayoutItem(
+    const QTextBlock &block, std::unique_ptr<LayoutItem> &&layoutItem)
+{
+    LayoutData &data = d->layoutData(block.fragmentIndex());
+    data.layoutItems->emplace(data.layoutItems->begin(), std::move(layoutItem));
+    d->resetOffsetCache(block.blockNumber());
+}
+
+void TextEditorLayout::appendLayoutItem(
+    const QTextBlock &block, std::unique_ptr<LayoutItem> &&layoutItem)
+{
+    LayoutData &data = d->layoutData(block.fragmentIndex());
+    data.layoutItems->emplace_back(std::move(layoutItem));
+    d->resetOffsetCache(block.blockNumber());
+}
+
+void TextEditorLayout::prependAdditionalLayouts(
+    const QTextBlock &block, const QList<QTextLayout *> &layouts, const Id id)
+{
+    if (layouts.isEmpty())
+        return;
+    LayoutData &data = d->layoutData(block.fragmentIndex());
+    for (auto layout : layouts) {
+        QTC_ASSERT(layout, continue);
+        data.layoutItems->emplace(
+            data.layoutItems->begin(),
+            std::make_unique<TextLayoutItem>(std::unique_ptr<QTextLayout>(layout), id));
+    }
+    d->resetOffsetCache(block.blockNumber());
+}
+
+void TextEditorLayout::appendAdditionalLayouts(
+    const QTextBlock &block, const QList<QTextLayout *> &layouts, const Id id)
+{
+    if (layouts.isEmpty())
+        return;
+    LayoutData &data = d->layoutData(block.fragmentIndex());
+    for (auto layout : layouts) {
+        QTC_ASSERT(layout, continue);
+        data.layoutItems->emplace_back(
+            std::make_unique<TextLayoutItem>(std::unique_ptr<QTextLayout>(layout), id));
+    }
+    d->resetOffsetCache(block.blockNumber());
+}
+
+int TextEditorLayout::removeLayoutItems(const QTextBlock &block, const Id id)
+{
+    LayoutItems *layoutItems = d->layoutData(block.fragmentIndex()).layoutItems.get();
+    const size_t removeCount = layoutItems->remove_if(
+        [&id](const std::unique_ptr<LayoutItem> &item) { return item->category() == id; });
+    return int(removeCount);
+}
+
+const QList<LayoutItem *> TextEditorLayout::layoutItems(const QTextBlock &block) const
+{
+    return Utils::transform<QList>(
+        *d->layoutData(block.fragmentIndex()).layoutItems,
+        [](const std::unique_ptr<LayoutItem> &item) -> LayoutItem * { return item.get(); });
+}
+
+const QList<LayoutItem *> TextEditorLayout::layoutItemsForCategory(
+    const QTextBlock &block, const Id id) const
+{
+    return Utils::filtered(layoutItems(block), Utils::equal(&LayoutItem::category, id));
+}
+
 void TextEditorLayout::documentChanged(int from, int charsRemoved, int charsAdded)
 {
-    if (updatingFormats)
+    if (d->updatingFormats)
         return;
 
     QTextDocument *doc = document();
     const int blockCount = doc->blockCount();
-    m_offsetCache.reserve(blockCount);
+    d->m_offsetCache.reserve(blockCount);
 
     PlainTextDocumentLayout::documentChanged(from, charsRemoved, charsAdded);
 
@@ -129,36 +325,44 @@ void TextEditorLayout::documentChanged(int from, int charsRemoved, int charsAdde
     QTextBlock block = doc->findBlock(from);
     QTextBlock end = doc->findBlock(qMax(0, from + charsChanged - 1)).next();
 
-    updatingFormats = true;
+    d->updatingFormats = true;
     while (block.isValid() && block != end) {
-        const QList<QTextLayout::FormatRange> formats = block.layout()->formats();
-        if (!formats.isEmpty())
-            blockLayout(block)->setFormats(formats);
-        else if (LayoutData &data = layoutData(block.fragmentIndex()); data.layout)
-            data.layout->setFormats(formats);
+        QList<QTextLayout::FormatRange> documentFormats = block.layout()->formats();
+        for (QTextLayout::FormatRange &range : documentFormats)
+            range.format.setProperty(DOCUMENT_LAYOUT_FORMAT_PROPERTY_ID, true);
+        if (QTextLayout *mainLayout = d->layoutData(block.fragmentIndex()).mainLayout()) {
+            QList<QTextLayout::FormatRange> editorFormats = Utils::filtered(
+                mainLayout->formats(), [](const QTextLayout::FormatRange &range) {
+                    return !range.format.property(DOCUMENT_LAYOUT_FORMAT_PROPERTY_ID).toBool();
+                });
+
+            mainLayout->setFormats(editorFormats + documentFormats);
+        } else if (!documentFormats.isEmpty()) {
+            blockLayout(block)->setFormats(documentFormats);
+        }
         block = block.next();
     }
-    updatingFormats = false;
+    d->updatingFormats = false;
 }
 
 int TextEditorLayout::blockLineCount(const QTextBlock &block) const
 {
-    return layoutData(block.fragmentIndex()).lineCount;
+    return d->layoutData(block.fragmentIndex()).lineCount;
 }
 
 void TextEditorLayout::setBlockLineCount(QTextBlock &block, int lineCount) const
 {
-    LayoutData &data = layoutData(block.fragmentIndex());
+    LayoutData &data = d->layoutData(block.fragmentIndex());
     if (data.lineCount != lineCount) {
         data.lineCount = lineCount;
         const int blockNumber = block.blockNumber();
-        m_offsetCache.resize(blockNumber);
+        d->m_offsetCache.resize(blockNumber);
     }
 }
 
 void TextEditorLayout::setBlockLayedOut(const QTextBlock &block) const
 {
-    layoutData(block.fragmentIndex()).layedOut = true;
+    d->layoutData(block.fragmentIndex()).layedOut = true;
 }
 
 int TextEditorLayout::lineCount() const
@@ -171,17 +375,17 @@ int TextEditorLayout::firstLineNumberOf(const QTextBlock &block) const
 {
     // FIXME: The first line cache is not reset/recalculated on width change
     const int blockNumber = block.blockNumber();
-    const int oldCacheSize = int(m_offsetCache.size());
-    resizeOffsetCache(blockNumber);
-    int line = m_offsetCache[blockNumber].firstLine;
+    const int oldCacheSize = int(d->m_offsetCache.size());
+    d->resizeOffsetCache(blockNumber);
+    int line = d->m_offsetCache[blockNumber].firstLine;
     if (line >= 0)
         return line;
 
     // try to find the last entry in the cache with a valid line number
     int lastValidCacheIndex = std::min(blockNumber, oldCacheSize - 1);
     for (; lastValidCacheIndex >= 0; --lastValidCacheIndex) {
-        if (m_offsetCache[lastValidCacheIndex].firstLine >= 0) {
-            line = m_offsetCache[lastValidCacheIndex].firstLine;
+        if (d->m_offsetCache[lastValidCacheIndex].firstLine >= 0) {
+            line = d->m_offsetCache[lastValidCacheIndex].firstLine;
             break;
         }
     }
@@ -193,17 +397,17 @@ int TextEditorLayout::firstLineNumberOf(const QTextBlock &block) const
         line = 0;
     } else { // found a valid cache entry add the
         currentBlock = document()->findBlockByNumber(lastValidCacheIndex);
-        line += layoutData(currentBlock.fragmentIndex()).lineCount;
+        line += d->layoutData(currentBlock.fragmentIndex()).lineCount;
         currentBlockNumber = lastValidCacheIndex + 1;
         currentBlock = currentBlock.next();
     }
 
     // fill the cache until we reached the requested block number
     while (currentBlock.isValid()) {
-        m_offsetCache[currentBlockNumber].firstLine = line;
+        d->m_offsetCache[currentBlockNumber].firstLine = line;
         if (currentBlockNumber == blockNumber)
             break;
-        line += layoutData(currentBlock.fragmentIndex()).lineCount;
+        line += d->layoutData(currentBlock.fragmentIndex()).lineCount;
         currentBlock = currentBlock.next();
         ++currentBlockNumber;
     }
@@ -213,46 +417,45 @@ int TextEditorLayout::firstLineNumberOf(const QTextBlock &block) const
 
 bool TextEditorLayout::blockLayoutValid(int index) const
 {
-    return layoutData(index).layedOut;
+    return d->layoutData(index).layedOut;
 }
 
-int TextEditorLayout::blockHeight(const QTextBlock &block, int lineSpacing) const
+int TextEditorLayout::blockHeight(const QTextBlock &block) const
 {
     if (QRectF replacement = replacementBlockBoundingRect(block); !replacement.isNull())
         return replacement.height();
     return blockLayoutValid(block.fragmentIndex()) ? blockBoundingRect(block).height()
-                                                   : lineSpacing + additionalBlockHeight(block);
+                                                   : lineSpacing() + additionalBlockHeight(block);
 }
 
-int TextEditorLayout::offsetForBlock(const QTextBlock &b) const
+int TextEditorLayout::offsetForBlock(const QTextBlock &block) const
 {
-    QTC_ASSERT(b.isValid(), return 0;);
-    const int blockNumber = b.blockNumber();
-    int currentBlockNumber = std::max(0, std::min(int(m_offsetCache.size()) - 1, blockNumber));
+    QTC_ASSERT(block.isValid(), return 0;);
+    const int blockNumber = block.blockNumber();
+    int currentBlockNumber = std::max(0, std::min(int(d->m_offsetCache.size()) - 1, blockNumber));
     for (;currentBlockNumber > 0; --currentBlockNumber) {
-        if (m_offsetCache[currentBlockNumber].offset >= 0)
+        if (d->m_offsetCache[currentBlockNumber].offset >= 0)
             break;
     }
-    resizeOffsetCache(blockNumber);
-    int offset = m_offsetCache[blockNumber].offset;
+    d->resizeOffsetCache(blockNumber);
+    int offset = d->m_offsetCache[blockNumber].offset;
     if (offset >= 0)
         return offset;
 
     QTextDocument *doc = document();
-    QTextBlock block = doc->findBlockByNumber(currentBlockNumber);
-    const int lineSpacing = this->lineSpacing();
-    offset = currentBlockNumber == 0 ? 0 : m_offsetCache[currentBlockNumber].offset;
-    while (block.isValid() && block != b) {
-        resizeOffsetCache(currentBlockNumber); // blockHeigt potentially resizes the cache
-        m_offsetCache[currentBlockNumber].offset = offset;
-        if (block.isVisible())
-            offset += blockHeight(block, lineSpacing);
+    QTextBlock currrentBlock = doc->findBlockByNumber(currentBlockNumber);
+    offset = currentBlockNumber == 0 ? 0 : d->m_offsetCache[currentBlockNumber].offset;
+    while (block.isValid() && block != currrentBlock) {
+        d->resizeOffsetCache(currentBlockNumber); // blockHeigt potentially resizes the cache
+        d->m_offsetCache[currentBlockNumber].offset = offset;
+        if (currrentBlock.isVisible())
+            offset += blockHeight(currrentBlock);
 
-        block = block.next();
+        currrentBlock = currrentBlock.next();
         ++currentBlockNumber;
     }
-    resizeOffsetCache(blockNumber);
-    m_offsetCache[blockNumber].offset = offset;
+    d->resizeOffsetCache(blockNumber);
+    d->m_offsetCache[blockNumber].offset = offset;
     return offset;
 }
 
@@ -273,9 +476,15 @@ int TextEditorLayout::lineForOffset(int offset) const
 {
     QTextDocument *doc = document();
     QTextBlock block = doc->firstBlock();
+    int currentBlockNumber = block.blockNumber();
 
     while (block.isValid()) {
-        const int blockOffset = offsetForBlock(block);
+        int blockOffset = -1;
+        if (currentBlockNumber < d->m_offsetCache.size())
+            blockOffset = d->m_offsetCache[currentBlockNumber].offset;
+        ++currentBlockNumber;
+        if (blockOffset < 0)
+            blockOffset = offsetForBlock(block);
         if (blockOffset == offset)
             return firstLineNumberOf(block);
         if (blockOffset > offset)
@@ -306,17 +515,17 @@ int TextEditorLayout::lineForOffset(int offset) const
 int TextEditorLayout::documentPixelHeight() const
 {
     const QTextBlock block = document()->lastBlock();
-    return offsetForBlock(block) + blockHeight(block, lineSpacing());
+    return offsetForBlock(block) + blockHeight(block);
 }
 
 QTextBlock TextEditorLayout::findBlockByLineNumber(int lineNumber) const
 {
     int blockNumber = 0;
-    if (!m_offsetCache.empty()) {
-        const int cacheSize(static_cast<int>(m_offsetCache.size()));
+    if (!d->m_offsetCache.empty()) {
+        const int cacheSize = int(d->m_offsetCache.size());
         int i = cacheSize < lineNumber ? cacheSize - 1 : lineNumber;
         for (; i > 0; --i) {
-            if (m_offsetCache[i].firstLine >= 0 && m_offsetCache[i].firstLine <= lineNumber) {
+            if (d->m_offsetCache[i].firstLine >= 0 && d->m_offsetCache[i].firstLine <= lineNumber) {
                 blockNumber = i;
                 break;
             }
@@ -333,7 +542,8 @@ QTextBlock TextEditorLayout::findBlockByLineNumber(int lineNumber) const
     return b;
 }
 
-bool TextEditorLayout::moveCursorImpl(QTextCursor &cursor, QTextCursor::MoveOperation operation, QTextCursor::MoveMode mode) const
+bool TextEditorLayout::moveCursorImpl(
+    QTextCursor &cursor, QTextCursor::MoveOperation operation, QTextCursor::MoveMode mode) const
 {
     QTextBlock block = cursor.block();
     QTC_ASSERT(block.isValid(), return false);
@@ -398,7 +608,11 @@ bool TextEditorLayout::moveCursorImpl(QTextCursor &cursor, QTextCursor::MoveOper
     return false;
 }
 
-bool TextEditorLayout::moveCursor(QTextCursor &cursor, QTextCursor::MoveOperation operation, QTextCursor::MoveMode mode, int steps) const
+bool TextEditorLayout::moveCursor(
+    QTextCursor &cursor,
+    QTextCursor::MoveOperation operation,
+    QTextCursor::MoveMode mode,
+    int steps) const
 {
     if (operation == QTextCursor::MoveOperation::StartOfLine
         || operation == QTextCursor::MoveOperation::EndOfLine) {
@@ -415,23 +629,149 @@ bool TextEditorLayout::moveCursor(QTextCursor &cursor, QTextCursor::MoveOperatio
     return PlainTextDocumentLayout::moveCursor(cursor, operation, mode, steps);
 }
 
-void TextEditorLayout::resetOffsetCache(int blockNumber) const
+qreal TextEditorLayout::blockWidth(const QTextBlock &block)
 {
-    if (m_offsetCache.size() > std::vector<OffsetData>::size_type(blockNumber))
-        m_offsetCache.resize(blockNumber);
+    qreal width = 0.0;
+    for (auto &layoutItem : *d->layoutData(block.fragmentIndex()).layoutItems)
+        width = qMax(width, layoutItem->width());
+    return width;
 }
 
-void TextEditorLayout::resizeOffsetCache(int blockNumber) const
+LayoutItem::LayoutItem(const Id &category)
+    : m_category(category)
+{}
+
+void LayoutItem::ensureLayouted(QTextDocument *, const QFontMetrics &, qreal)
 {
-    if (m_offsetCache.size() <= std::vector<OffsetData>::size_type(blockNumber))
-        m_offsetCache.resize(blockNumber + 1);
 }
 
-TextEditorLayout::LayoutData &TextEditorLayout::layoutData(int index) const
+void LayoutItem::paintBackground(QPainter *, const QPointF &, const QRectF &)
 {
-    if (m_layoutData.size() <= std::vector<LayoutData>::size_type(index))
-        m_layoutData.resize(index + 1);
-    return m_layoutData[index];
+}
+
+void LayoutItem::paintItem(QPainter *, const QPointF &, const FormatRanges &, const QRectF &)
+{
+
+}
+
+TextLayoutItem::TextLayoutItem(std::unique_ptr<QTextLayout> &&layout, const Id &category)
+    : LayoutItem(category)
+    , m_textLayout(std::move(layout))
+{}
+
+qreal TextLayoutItem::height()
+{
+    QTC_ASSERT(m_textLayout, return 0);
+    return m_textLayout->boundingRect().height();
+}
+
+qreal TextLayoutItem::width() const
+{
+    QTC_ASSERT(m_textLayout, return 0);
+    return PlainTextDocumentLayout::layoutWidth(m_textLayout.get());
+    qreal blockWidth = 0;
+    for (int i = 0; i < m_textLayout->lineCount(); ++i) {
+        QTextLine line = m_textLayout->lineAt(i);
+        blockWidth = qMax(line.naturalTextWidth() + 8, blockWidth);
+    }
+    return blockWidth;
+
+}
+
+void TextLayoutItem::ensureLayouted(QTextDocument *doc, const QFontMetrics & fm, qreal availableWidth)
+{
+    QTC_ASSERT(m_textLayout, return);
+
+    if (m_textLayout->lineCount() > 0)
+        return;
+
+    qreal margin = doc->documentMargin();
+    qreal height = 0;
+    QTextOption option = doc->defaultTextOption();
+    m_textLayout->setTextOption(option);
+
+    int extraMargin = 0;
+    if (option.flags() & QTextOption::AddSpaceForLineAndParagraphSeparators)
+        extraMargin += fm.horizontalAdvance(QChar(0x21B5));
+
+    m_textLayout->beginLayout();
+    if (availableWidth <= 0)
+        availableWidth = qreal(INT_MAX); // similar to text edit with pageSize.width == 0
+
+    availableWidth -= 2 * margin + extraMargin;
+    while (1) {
+        QTextLine line = m_textLayout->createLine();
+        if (!line.isValid())
+            break;
+        line.setLeadingIncluded(true);
+        line.setLineWidth(availableWidth);
+        line.setPosition(QPointF(margin, height));
+        height += line.height();
+        if (line.leading() < 0)
+            height += qCeil(line.leading());
+    }
+    m_textLayout->endLayout();
+
+}
+
+void TextLayoutItem::paintBackground(QPainter *p, const QPointF &pos, const QRectF &clip)
+{
+    QTC_ASSERT(m_textLayout, return);
+    for (auto format : m_textLayout->formats()) {
+        if (format.format.boolProperty(FULL_LINE_HIGHLIGHT_FORMAT_PROPERTY_ID)) {
+            QRectF blockRect = m_textLayout->boundingRect();
+            blockRect = blockRect.translated(pos);
+            blockRect.setRight(clip.right());
+            p->fillRect(blockRect, format.format.background());
+        }
+    }
+}
+
+void TextLayoutItem::paintItem(
+    QPainter *p, const QPointF &pos, const FormatRanges &selections, const QRectF &clip)
+{
+    QTC_ASSERT(m_textLayout, return);
+    m_textLayout->draw(p, pos, selections, clip);
+}
+
+void TextLayoutItem::clear()
+{
+    QTC_ASSERT(m_textLayout, return);
+    m_textLayout->clearLayout();
+}
+
+QTextLayout *TextLayoutItem::layout()
+{
+    return m_textLayout.get();
+}
+
+EmptyLayoutItem::EmptyLayoutItem(qreal height, const Id &category)
+    : LayoutItem(category)
+    , m_height(height)
+{}
+
+qreal EmptyLayoutItem::height()
+{
+    return m_height;
+}
+
+void EmptyLayoutItem::paintBackground(QPainter *p, const QPointF &pos, const QRectF &clip)
+{
+    if (m_background.style() == Qt::NoBrush || m_height <= 0)
+        return;
+    QRectF rect;
+    rect.setTopLeft(pos);
+    rect.setRight(clip.right());
+    rect.setHeight(m_height);
+    p->fillRect(rect, m_background);
+}
+
+void EmptyLayoutItem::paintItem(QPainter *p, const QPointF &pos, const FormatRanges &selections, const QRectF &clip)
+{
+    Q_UNUSED(p);
+    Q_UNUSED(pos);
+    Q_UNUSED(selections);
+    Q_UNUSED(clip);
 }
 
 } // namespace Utils

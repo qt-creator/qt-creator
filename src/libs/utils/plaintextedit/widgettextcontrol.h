@@ -129,6 +129,7 @@ public:
 
     virtual int hitTest(const QPointF &point, Qt::HitTestAccuracy accuracy) const;
     virtual QRectF blockBoundingRect(const QTextBlock &block) const;
+    virtual qreal mainLayoutOffset(const QTextBlock &block) const;
     QAbstractTextDocumentLayout::PaintContext getPaintContext(QWidget *widget) const;
 
 public Q_SLOTS:
