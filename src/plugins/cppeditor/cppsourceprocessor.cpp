@@ -401,7 +401,7 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
         return;
 
     if (m_currentDoc) {
-        m_currentDoc->addIncludeFile(Document::Include(filePath.toUrlishString(), absoluteFilePath, line, type));
+        m_currentDoc->addIncludeFile(Document::Include(filePath.path(), absoluteFilePath, line, type));
         if (absoluteFilePath.isEmpty()) {
             m_currentDoc->addDiagnosticMessage(messageNoSuchFile(m_currentDoc, filePath, line));
             return;
@@ -437,7 +437,7 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
     document->setLanguageFeatures(m_languageFeatures);
     for (const FilePath &include : initialIncludes) {
         m_included.insert(include);
-        Document::Include inc(include.toUrlishString(), include, 0, IncludeLocal);
+        Document::Include inc(include.path(), include, 0, IncludeLocal);
         document->addIncludeFile(inc);
     }
     if (absoluteFilePath.exists())
