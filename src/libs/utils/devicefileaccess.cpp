@@ -45,12 +45,12 @@ namespace Utils {
 static ResultError notImplementedError(const QString &function, const FilePath &filePath)
 {
     return ResultError(ResultUnimplemented,
-        Tr::tr("Function \"%s\" is not implemented for \"%1\".").arg(function, filePath.toUserOutput()));
+        Tr::tr("Function \"%1\" is not implemented for \"%2\".").arg(function, filePath.toUserOutput()));
 }
 
 static ResultError unavailableError(const FilePath &filePath)
 {
-    return ResultError(Tr::tr("Device for %s is unavailable.").arg(filePath.toUserOutput()));
+    return ResultError(Tr::tr("Device for %1 is unavailable.").arg(filePath.toUserOutput()));
 }
 
 // DeviceFileAccess
