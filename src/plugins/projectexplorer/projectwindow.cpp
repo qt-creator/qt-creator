@@ -999,7 +999,7 @@ public:
         });
 
         QMenu *copyMenu = menu->addMenu(Tr::tr("Copy Steps From Another Kit..."));
-        if (m_kitId.isValid() && m_project->target(m_kitId)) {
+        if (m_kitId.isValid()) {
             const QList<Kit *> kits = KitManager::kits();
             for (Kit *kit : kits) {
                 QAction *copyAction = copyMenu->addAction(kit->displayName());
@@ -1007,9 +1007,8 @@ public:
                     copyAction->setEnabled(false);
                 } else {
                     QObject::connect(copyAction, &QAction::triggered, [this, kit] {
-                        Target *thisTarget = m_project->target(m_kitId);
                         Target *sourceTarget = m_project->target(kit->id());
-                        Project::copySteps(sourceTarget, thisTarget);
+                        m_project->copySteps(sourceTarget, KitManager::kit(m_kitId));
                     });
                 }
             }

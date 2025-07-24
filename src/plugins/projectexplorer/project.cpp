@@ -709,15 +709,22 @@ void Project::addTask(const Task &task)
     TaskHub::addTask(task);
 }
 
-bool Project::copySteps(Target *sourceTarget, Target *newTarget)
+bool Project::copySteps(Target *sourceTarget, Kit *targetKit)
 {
-    QTC_ASSERT(newTarget, return false);
+    QTC_ASSERT(targetKit, return false);
+
     bool fatalError = false;
     QStringList buildconfigurationError;
     QStringList deployconfigurationError;
     QStringList runconfigurationError;
 
-    const Project * const project = newTarget->project();
+    std::unique_ptr<Target> tempTarget;
+    Target *newTarget = target(targetKit->id());
+    if (!newTarget) {
+        tempTarget = Target::create(this, targetKit);
+        newTarget = tempTarget.get();
+    }
+
     for (BuildConfiguration *sourceBc : sourceTarget->buildConfigurations()) {
         BuildConfiguration *newBc = sourceBc->clone(newTarget);
         if (!newBc) {
@@ -726,8 +733,8 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
         }
         newBc->setDisplayName(sourceBc->displayName());
         newBc->setBuildDirectory(BuildConfiguration::buildDirectoryFromTemplate(
-                    project->projectDirectory(), project->projectFilePath(),
-                    project->displayName(), newTarget->kit(),
+                    projectDirectory(), projectFilePath(),
+                    displayName(), targetKit,
                     sourceBc->displayName(), sourceBc->buildType(),
                     sourceBc->buildSystem()->name()));
         newTarget->addBuildConfiguration(newBc);
@@ -750,7 +757,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
                               ::PE::Tr::tr("Incompatible Kit"),
                               ::PE::Tr::tr("Kit %1 is incompatible with kit %2.")
                                   .arg(sourceTarget->kit()->displayName())
-                                  .arg(newTarget->kit()->displayName()));
+                                  .arg(targetKit->displayName()));
     } else if (!buildconfigurationError.isEmpty()
                || !deployconfigurationError.isEmpty()
                || ! runconfigurationError.isEmpty()) {
@@ -783,7 +790,11 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
         fatalError = msgBox.exec() != QDialog::Accepted;
     }
 
-    return !fatalError;
+    if (fatalError)
+        return false;
+
+    addTarget(std::move(tempTarget));
+    return true;
 }
 
 bool Project::copySteps(const Utils::Store &store, Kit *targetKit)

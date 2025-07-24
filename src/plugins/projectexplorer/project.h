@@ -116,7 +116,7 @@ public:
     // unless the user removes it.
     void addTask(const Task &task);
 
-    static bool copySteps(Target *sourceTarget, Target *newTarget);
+    bool copySteps(Target *sourceTarget, Kit *targetKit);
     bool copySteps(const Utils::Store &store, Kit *targetKit);
 
     void saveSettings();
