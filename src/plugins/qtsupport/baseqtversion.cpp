@@ -23,6 +23,7 @@
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -462,11 +463,13 @@ Tasks QtVersion::validateKit(const Kit *k)
     if (qtAbis.isEmpty()) // No need to test if Qt does not know anyway...
         return result;
 
-    const Id dt = RunDeviceTypeKitAspect::deviceTypeId(k);
-    if (dt != ProjectExplorer::Constants::DOCKER_DEVICE_TYPE) {
-        const QSet<Id> tdt = targetDeviceTypes();
-        if (!tdt.isEmpty() && !tdt.contains(dt))
-            result << BuildSystemTask(Task::Warning, Tr::tr("Device type is not supported by Qt version."));
+    const QSet<Id> tdt = targetDeviceTypes();
+    const IDevice::ConstPtr device = RunDeviceKitAspect::device(k);
+    const bool deviceSupportsTdt = !device || device->supportsQtTargetDeviceType(tdt);
+
+    if (!deviceSupportsTdt) {
+        result << BuildSystemTask(
+            Task::Warning, Tr::tr("Device type is not supported by Qt version."));
     }
 
     if (Toolchain *tc = ToolchainKitAspect::cxxToolchain(k)) {

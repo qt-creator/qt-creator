@@ -941,4 +941,9 @@ SshParametersAspectContainer &IDevice::sshParametersAspectContainer() const
     return d->sshParametersAspectContainer;
 }
 
+bool IDevice::supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const
+{
+    return targetDeviceTypes.contains(type());
+}
+
 } // namespace ProjectExplorer

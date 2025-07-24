@@ -219,6 +219,8 @@ public:
 
     void doApply() const;
 
+    virtual bool supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const;
+
 public:
     Utils::BoolAspect allowEmptyCommand{this};
     Utils::StringSelectionAspect linkDevice{this};

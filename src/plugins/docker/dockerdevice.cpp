@@ -1396,4 +1396,11 @@ QStringList PortMappings::createArguments() const
 
     return cmds;
 }
+
+bool DockerDevice::supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const
+{
+    return targetDeviceTypes.contains(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+           || IDevice::supportsQtTargetDeviceType(targetDeviceTypes);
+}
+
 } // namespace Docker::Internal
