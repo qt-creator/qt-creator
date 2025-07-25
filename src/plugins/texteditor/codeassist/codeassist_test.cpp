@@ -166,6 +166,7 @@ void CodeAssistTests::testFollowSymbolBigFile()
 void CodeAssistTests::cleanupTestCase()
 {
     m_testProvider->m_items.clear();
+    delete m_testProvider;
     Core::EditorManager::closeEditors(m_editorsToClose);
     QVERIFY(Core::EditorManager::currentEditor() == nullptr);
 }
