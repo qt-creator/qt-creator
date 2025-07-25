@@ -70,7 +70,10 @@ else ()
 
     add_custom_target(CmdBridge
       DEPENDS
-        ${ALL_CMDBRIDGE_PLATFORMS})
+        ${ALL_CMDBRIDGE_PLATFORMS}
+      SOURCES
+        ${SOURCE_FILES}
+    )
 endif()
 
 add_feature_info("Executable CmdBridge" ${CMDBRIDGEFEATURE} ${CMDBRIDGEFEATURE_TEXT})
