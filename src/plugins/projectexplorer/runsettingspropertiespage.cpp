@@ -225,7 +225,6 @@ private:
 
     void updateEnabledState();
 
-    QObject m_guard;
     QPointer<Target> m_target;
     QPointer<QWidget> m_runConfigurationWidget;
     QPointer<RunConfiguration> m_runConfiguration;
@@ -251,6 +250,7 @@ private:
     QPushButton *m_cloneIntoThisButton;
     QPushButton *m_renameDeployButton;
     InfoLabel *m_disabledText;
+    QObject m_guard;
 };
 
 RunSettingsWidget::RunSettingsWidget(Target *target)
