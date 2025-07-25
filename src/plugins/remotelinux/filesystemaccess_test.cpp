@@ -77,13 +77,27 @@ void FileSystemAccessTest::initTestCase()
     }
     FilePath filePath = baseFilePath();
 
-    if (DeviceManager::deviceForPath(filePath) == nullptr) {
-        const IDevice::Ptr device = m_testLinuxDeviceFactory.create();
-        QVERIFY(device);
-        DeviceManager::addDevice(device);
-        m_device = DeviceManager::find(device->id());
-        QVERIFY(m_device);
-    }
+    // Create device.
+    const IDevice::Ptr device = m_testLinuxDeviceFactory.create();
+    QVERIFY(device);
+    DeviceManager::addDevice(device);
+    m_device = DeviceManager::find(device->id());
+    QVERIFY(m_device);
+    QCOMPARE(m_device->deviceState(), IDevice::DeviceDisconnected);
+
+    // Establish initial connection.
+    QEventLoop loop;
+    QTimer timer;
+    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    timer.setSingleShot(true);
+    timer.start(30 * 1000);
+    const auto handler = [&](const Result<> &res) { loop.exit(res.has_value() ? 0 : 1); };
+    std::static_pointer_cast<LinuxDevice>(device)->tryToConnect(Continuation<>(this, handler));
+    QCOMPARE(loop.exec(), 0);
+    QVERIFY(timer.isActive());
+    timer.stop();
+    QCOMPARE(m_device->deviceState(), IDevice::DeviceReadyToUse);
+
     if (filePath.exists()) // Do initial cleanup after possible leftovers from previously failed test
         QVERIFY(filePath.removeRecursively());
     QVERIFY(!filePath.exists());

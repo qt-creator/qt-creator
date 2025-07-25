@@ -154,6 +154,10 @@ void DeviceManager::load()
             d->defaultDevices[device->type()] = device->id();
     }
 
+    // Trigger auto-connection
+    for (const IDevice::Ptr &device : d->devices)
+        device->postLoad();
+
     emit m_instance->devicesLoaded();
 }
 

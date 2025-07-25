@@ -325,6 +325,7 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
         device->sshParametersAspectContainer().userName, st, br,
         device->sshParametersAspectContainer().useKeyFile, st, br,
         device->sshParametersAspectContainer().privateKeyFile, createKeyButton, br,
+        linuxDevice->autoConnectOnStartup, br,
         linuxDevice->sourceProfile, br,
         device->deviceToolAspects(), br,
         device->sshForwardDebugServerPort, br,
@@ -371,27 +372,22 @@ public:
     void attachToSharedConnection(SshConnectionHandle *connectionHandle,
                                   const SshParameters &sshParameters);
 
+    bool isRunning(const SshParameters &sshParams) const;
+
     LinuxDevicePrivate *m_devicePrivate = nullptr;
-    QThread m_shellThread;
     ShellThreadHandler *m_handler = nullptr;
-    mutable QRecursiveMutex m_shellMutex;
+
+private:
+    QThread m_shellThread;
 };
 
 class LinuxDevicePrivate
 {
 public:
     explicit LinuxDevicePrivate(LinuxDevice *parent)
-        : q(parent), m_scriptAccess(this)
+        : q(parent)
     {
-        m_disconnected.setSettingsKey("Disconnected");
-        parent->registerAspect(&m_disconnected);
-
-        q->readSettings();
-
-        if (m_disconnected())
-            setupDisconnectedAccess();
-        else
-            setupConnectedAccess();
+        q->setFileAccess(&m_disconnectedAccess);
     }
 
     void setOsType(OsType osType)
@@ -400,23 +396,10 @@ public:
         q->setOsType(osType);
     }
 
-    void setupConnectedAccess()
-    {
-        m_disconnected.setValue(false);
-        q->setFileAccess(&m_scriptAccess);
-    }
-
-    void setupDisconnectedAccess();
-
-    Result<> setupShell(const SshParameters &sshParameters, bool announce);
+    void setupShell(const SshParameters &sshParameters, const Continuation<> &cont);
+    void setupShellPhase2(const Result<> &result, const Continuation<> &cont);
 
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
-
-    Result<> tryToConnect(const SshParameters &sshParameters)
-    {
-        QMutexLocker locker(&m_scriptAccess.m_shellMutex);
-        return setupShell(sshParameters, false);
-    }
 
     bool checkDisconnectedWithWarning();
 
@@ -430,19 +413,27 @@ public:
     Environment getEnvironment();
     void invalidateEnvironmentCache();
 
-    void shutdown()
+    void closeConnection()
     {
+        QMutexLocker locker(&m_shellMutex);
+        m_deviceState = IDevice::DeviceDisconnected;
         q->setFileAccess(&m_disconnectedAccess);
         m_cmdBridgeAccess.reset();
+        m_scriptAccess.reset();
     }
 
     LinuxDevice *q = nullptr;
 
-    BoolAspect m_disconnected;
+    // We use DeviceConnected if (only) the shell access is usable (either fully,
+    // or single-shot fallback only), and Device::ReadyToUse if the gocmdbridge
+    // is up and running.
+    IDevice::DeviceState m_deviceState = IDevice::DeviceDisconnected;
+
     UnavailableDeviceFileAccess m_disconnectedAccess;
-    LinuxDeviceAccess m_scriptAccess;
+    std::unique_ptr<LinuxDeviceAccess> m_scriptAccess;
     std::unique_ptr<CmdBridge::FileAccess> m_cmdBridgeAccess;
 
+    QRecursiveMutex m_shellMutex;
     QReadWriteLock m_environmentCacheLock;
     std::optional<Environment> m_environmentCache;
 };
@@ -464,7 +455,7 @@ Environment LinuxDevicePrivate::getEnvironment()
     if (m_environmentCache.has_value())
         return m_environmentCache.value();
 
-    if (m_disconnected())
+    if (m_deviceState == IDevice::DeviceDisconnected)
         return {};
 
     Process getEnvProc;
@@ -947,6 +938,9 @@ static SshParameters displayless(const SshParameters &sshParameters)
 
 class ShellThreadHandler : public QObject
 {
+    Q_OBJECT
+
+private:
     class LinuxDeviceShell : public DeviceShell
     {
     public:
@@ -991,7 +985,7 @@ public:
     }
 
     // Call me with shell mutex locked
-    Result<> start(const SshParameters &parameters)
+    void startThreadHandler(const SshParameters &parameters)
     {
         closeShell();
         setSshParameters(parameters);
@@ -1012,7 +1006,8 @@ public:
             qCDebug(linuxDeviceLog) << "Failed to start shell for:" << parameters.userAtHostAndPort()
                                     << ", " << result.error();
         }
-        return result;
+
+        emit threadHandlerStarted(result);
     }
 
     // Call me with shell mutex locked
@@ -1098,6 +1093,10 @@ public:
            return false;
         return true;
     }
+
+signals:
+    void threadHandlerStarted(const Result<> &res);
+
 private:
     mutable QMutex m_mutex;
     SshParameters m_displaylessSshParameters;
@@ -1128,9 +1127,48 @@ LinuxDevice::LinuxDevice()
     sourceProfile.setLabelText(Tr::tr("Source %1 and %2").arg("/etc/profile").arg("$HOME/.profile"));
     sourceProfile.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
-    addDeviceAction({Tr::tr("Deploy Public Key..."), [](const IDevice::Ptr &device) {
-        runPublicKeyDeploymentDialog(device);
-    }});
+    autoConnectOnStartup.setSettingsKey("AutoConnectOnStartup");
+    autoConnectOnStartup.setDefaultValue(false);
+    autoConnectOnStartup.setLabelText(Tr::tr("Auto-connect on startup"));
+    autoConnectOnStartup.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
+
+    addDeviceAction({
+        Tr::tr("Deploy Public Key..."),
+        [](const IDevice::Ptr &device) {
+            runPublicKeyDeploymentDialog(device);
+        }
+    });
+
+    addDeviceAction({
+        Tr::tr("Connect"),
+        [](const IDevicePtr &device) {
+            const auto dev = std::dynamic_pointer_cast<const LinuxDevice>(device);
+            QTC_ASSERT(dev, return);
+            dev->tryToConnect({const_cast<LinuxDevice *>(dev.get()), [](const Result<> &res) {
+               if (!res) {
+                   QMessageBox::critical(dialogParent(), Tr::tr("Connection"),
+                                         Tr::tr("Connection failed: %1").arg(res.error()));
+               }
+            }});
+        },
+        [](const IDeviceConstPtr &device) {
+            return device->deviceState() == IDevice::DeviceDisconnected
+                || device->deviceState() == IDevice::DeviceStateUnknown;
+        }
+    });
+
+    addDeviceAction({
+        Tr::tr("Disconnect"),
+        [](const IDevicePtr &device) {
+            const auto dev = std::dynamic_pointer_cast<const LinuxDevice>(device);
+            QTC_ASSERT(dev, return);
+            dev->closeConnection();
+        },
+        [](const IDeviceConstPtr &device) {
+            return device->deviceState() == IDevice::DeviceConnected
+                || device->deviceState() == IDevice::DeviceReadyToUse;
+        },
+    });
 
     setOpenTerminal([this](const Environment &env,
                            const FilePath &workingDir) -> Result<> {
@@ -1228,7 +1266,7 @@ LinuxDeviceAccess::LinuxDeviceAccess(LinuxDevicePrivate *devicePrivate)
 
 LinuxDeviceAccess::~LinuxDeviceAccess()
 {
-    QMutexLocker locker(&m_shellMutex);
+    QMutexLocker locker(&m_devicePrivate->m_shellMutex);
     auto closeShell = [this] {
         m_shellThread.quit();
         m_shellThread.wait();
@@ -1250,95 +1288,133 @@ void LinuxDevicePrivate::setOsTypeFromUnameResult(const RunResult &result)
         setOsType(OsTypeLinux);
 }
 
-void LinuxDevicePrivate::setupDisconnectedAccess()
+void LinuxDevicePrivate::setupShell(const SshParameters &sshParameters,
+                                    const Continuation<> &cont)
 {
-    m_disconnected.setValue(true);
-    q->setFileAccess(&m_disconnectedAccess);
-    m_scriptAccess.m_handler->closeShell();
-}
+    QTC_ASSERT(isMainThread(),
+               cont(ResultError(ResultAssert, "setupShell called from wrong thread")));
 
-// Call me with shell mutex locked
-Result<> LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool announce)
-{
-    if (m_scriptAccess.m_handler->isRunning(sshParameters)) {
-        setupConnectedAccess();
-        return ResultOk;
-    }
+    announceConnectionAttempt();
+
+    // Remove previous access first.
+    closeConnection();
+
+    m_scriptAccess = std::make_unique<LinuxDeviceAccess>(this);
+
+    m_shellMutex.lock();
 
     invalidateEnvironmentCache();
 
-    if (announce)
-        announceConnectionAttempt();
+    QObject::connect(
+        m_scriptAccess->m_handler,
+        &ShellThreadHandler::threadHandlerStarted,
+        q,
+        [this, cont](const Result<> &res) { setupShellPhase2(res, cont); },
+        Qt::SingleShotConnection
+    );
 
-    Result<> result = ResultError("setupShell failed");
-    QMetaObject::invokeMethod(m_scriptAccess.m_handler, [this, sshParameters] {
-        return m_scriptAccess.m_handler->start(sshParameters);
-    }, Qt::BlockingQueuedConnection, &result);
+    QMetaObject::invokeMethod(m_scriptAccess->m_handler, [this, sshParameters] {
+        return m_scriptAccess->m_handler->startThreadHandler(sshParameters);
+    });
+}
 
-    if (announce)
-        unannounceConnectionAttempt();
+void LinuxDevicePrivate::setupShellPhase2(const Result<> &result,
+                                          const Continuation<> &cont)
+{
+    if (result) {
+        // Shell setup is ok.
+        q->setFileAccess(m_scriptAccess.get());
+        m_deviceState = IDevice::DeviceConnected;
 
-    if (!result) {
-        setupDisconnectedAccess();
-        return result;
-    }
+        setOsTypeFromUnameResult(m_scriptAccess->m_handler->runInShell(unameCommand()));
 
-    setupConnectedAccess();
-    setOsTypeFromUnameResult(m_scriptAccess.m_handler->runInShell(unameCommand()));
+        // We have good shell access now, try to get bridge access, too:
 
-    m_cmdBridgeAccess = std::make_unique<CmdBridge::FileAccess>();
-    // We have good shell access now, try to get bridge access, too:
-    Result<> initResult
-        = m_cmdBridgeAccess
-              ->deployAndInit(Core::ICore::libexecPath(), q->rootPath(), getEnvironment());
-    if (initResult) {
-        qCDebug(linuxDeviceLog) << "Bridge ok to use";
-        q->setFileAccess(m_cmdBridgeAccess.get());
+        m_cmdBridgeAccess = std::make_unique<CmdBridge::FileAccess>();
+        Result<> initResult
+            = m_cmdBridgeAccess
+                  ->deployAndInit(Core::ICore::libexecPath(), q->rootPath(), getEnvironment());
+        if (initResult) {
+            DEBUG("Bridge ok to use");
+            q->setFileAccess(m_cmdBridgeAccess.get());
+            m_deviceState = IDevice::DeviceReadyToUse;
+        } else {
+            DEBUG("Failed to start CmdBridge:" << initResult.error()
+                   << ", falling back to slow shell access");
+        }
     } else {
-        qCDebug(linuxDeviceLog) << "Failed to start CmdBridge:" << initResult.error()
-                                  << ", falling back to slow shell access";
+        DEBUG("Failed to setup state");
+        q->setFileAccess(&m_disconnectedAccess);
+        m_deviceState = IDevice::DeviceDisconnected;
     }
 
-    return ResultOk; // Both are fine.
+    m_shellMutex.unlock();
+
+    unannounceConnectionAttempt();
+
+    cont(result); // either "script access" and "cmdbridge access" is good enough to continue.
+
+    DeviceManager::instance()->deviceUpdated(q->id());
 }
 
 RunResult LinuxDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray &data)
 {
-    QMutexLocker locker(&m_scriptAccess.m_shellMutex);
     DEBUG(cmd.toUserOutput());
-    if (checkDisconnectedWithWarning())
-        return {};
-    const bool isSetup = setupShell(q->sshParameters(), true).has_value();
-    if (checkDisconnectedWithWarning())
-        return {};
-    QTC_ASSERT(isSetup, return {});
-    return m_scriptAccess.m_handler->runInShell(cmd, data);
+    QMutexLocker locker(&m_shellMutex);
+    QTC_ASSERT(m_scriptAccess, return RunResult());
+    return m_scriptAccess->m_handler->runInShell(cmd, data);
 }
 
 void LinuxDevicePrivate::announceConnectionAttempt()
 {
     const QString message = Tr::tr("Establishing initial connection to device \"%1\". "
                                    "This might take a moment.").arg(q->displayName());
-    qCDebug(linuxDeviceLog) << message;
-    if (isMainThread()) {
-        InfoBarEntry info(announceId(), message);
-        info.setTitle(Tr::tr("Establishing a Connection"));
-        info.setInfoType(InfoLabel::Ok);
-        Core::ICore::infoBar()->addInfo(info);
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents); // Yes, twice.
-    }
+    DEBUG(message);
+    QTC_ASSERT(isMainThread(), return);
+    InfoBarEntry info(announceId(), message);
+    info.setTitle(Tr::tr("Establishing a Connection"));
+    info.setInfoType(InfoLabel::Ok);
+    Core::ICore::infoBar()->addInfo(info);
+    Core::MessageManager::writeSilently(message);
 }
 
 void LinuxDevicePrivate::unannounceConnectionAttempt()
 {
-    if (isMainThread())
-        Core::ICore::infoBar()->removeInfo(announceId());
+    QString message =
+        Tr::tr("Connection attempt to device \"%1\" finished.").arg(q->displayName()) + "\n";
+
+    InfoLabel::InfoType infoType = InfoLabel::Ok;
+    switch (m_deviceState) {
+        case IDevice::DeviceDisconnected:
+            message += Tr::tr("Connection could not be established.");
+            infoType = InfoLabel::Error;
+            break;
+        case IDevice::DeviceReadyToUse:
+            message += Tr::tr("Connection in fast mode established.");
+            break;
+        case IDevice::DeviceConnected:
+            message += Tr::tr("Connection in fallback mode established.");
+            break;
+        case IDevice::DeviceStateUnknown:
+            QTC_CHECK(false);
+            infoType = InfoLabel::Error;
+            break;
+    };
+    DEBUG(message);
+    QTC_ASSERT(isMainThread(), return);
+
+    InfoBarEntry info(announceId(), message);
+    info.setTitle(Tr::tr("Connection Attempt Finished"));
+    info.setInfoType(infoType);
+    Core::ICore::infoBar()->addInfo(info);
+    Core::MessageManager::writeSilently(message);
+
+    QTimer::singleShot(5000, q, [id=announceId()] { Core::ICore::infoBar()->removeInfo(id); });
 }
 
 bool LinuxDevicePrivate::checkDisconnectedWithWarning()
 {
-    if (!m_disconnected())
+    if (m_deviceState != IDevice::DeviceDisconnected)
         return false;
 
     InfoBar *infoBar = Core::ICore::infoBar();
@@ -1363,6 +1439,7 @@ bool LinuxDevicePrivate::checkDisconnectedWithWarning()
             return label;
         });
         infoBar->addInfo(info);
+        Core::MessageManager::writeSilently(warnStr);
     });
     return true;
 }
@@ -1382,6 +1459,11 @@ void LinuxDeviceAccess::attachToSharedConnection(SshConnectionHandle *connection
         emit connectionHandle->connected(socketFilePath);
 }
 
+bool LinuxDeviceAccess::isRunning(const SshParameters &sshParams) const
+{
+    return m_handler && m_handler->isRunning(sshParams);
+}
+
 FileTransferInterface *LinuxDevice::createFileTransferInterface(
         const FileTransferSetupData &setup) const
 {
@@ -1391,7 +1473,8 @@ FileTransferInterface *LinuxDevice::createFileTransferInterface(
 void LinuxDevice::attachToSharedConnection(SshConnectionHandle *sshConnectionHandle,
                                            const SshParameters &sshParams) const
 {
-    return d->m_scriptAccess.attachToSharedConnection(sshConnectionHandle, sshParams);
+    QTC_ASSERT(d->m_scriptAccess, return);
+    return d->m_scriptAccess->attachToSharedConnection(sshConnectionHandle, sshParams);
 }
 
 void LinuxDevice::checkOsType()
@@ -1401,44 +1484,38 @@ void LinuxDevice::checkOsType()
 
 IDevice::DeviceState LinuxDevice::deviceState() const
 {
-    QMutexLocker locker(&d->m_scriptAccess.m_shellMutex);
-    if (isDisconnected())
-        return DeviceDisconnected;
-    else if (d->m_cmdBridgeAccess)
-        return DeviceReadyToUse;
-    else if (d->m_scriptAccess.m_handler && d->m_scriptAccess.m_handler->isRunning(sshParameters()))
-        return DeviceConnected;
-
-    return IDevice::deviceState();
+    return d->m_deviceState;
 }
 
 QString LinuxDevice::deviceStateToString() const
 {
-    QMutexLocker locker(&d->m_scriptAccess.m_shellMutex);
-
-    if (isDisconnected())
-        return Tr::tr("Device is considered unconnected. Re-run device test to reset state.");
-    else if (d->m_cmdBridgeAccess)
-        return Tr::tr("Connected");
-    else if (d->m_scriptAccess.m_handler && d->m_scriptAccess.m_handler->isRunning(sshParameters()))
-        return Tr::tr("Connected (fallback)");
-
+    switch (d->m_deviceState) {
+        case IDevice::DeviceDisconnected:
+            return Tr::tr("Device is considered unconnected. Re-run device test to reset state.");
+        case IDevice::DeviceReadyToUse:
+            return Tr::tr("Connected");
+        case IDevice::DeviceConnected:
+            return Tr::tr("Connected (fallback)");
+        case IDevice::DeviceStateUnknown:
+            break;
+    };
+    QTC_CHECK(false);
     return IDevice::deviceStateToString();
 }
 
 bool LinuxDevice::isDisconnected() const
 {
-    return d->m_disconnected();
+    return d->m_deviceState == IDevice::DeviceDisconnected;
 }
 
-Result<> LinuxDevice::tryToConnect()
+void LinuxDevice::tryToConnect(const Continuation<> &cont) const
 {
-    return d->tryToConnect(sshParameters());
+    d->setupShell(sshParameters(), cont);
 }
 
-void LinuxDevice::shutdown()
+void LinuxDevice::closeConnection() const
 {
-    d->shutdown();
+    d->closeConnection();
 }
 
 Internal::LinuxDeviceFactory::LinuxDeviceFactory()
@@ -1476,12 +1553,11 @@ void Internal::LinuxDeviceFactory::shutdownExistingDevices()
     m_existingDevices.read([](const std::vector<std::weak_ptr<LinuxDevice>> &devices) {
         for (auto device : devices) {
             if (auto d = device.lock())
-                d->shutdown();
+                d->closeConnection();
         }
     });
 }
 
-namespace {
 static const char SourceProfile[] = "RemoteLinux.SourceProfile";
 
 static void backwardsFromExtraData(LinuxDevice *device)
@@ -1496,17 +1572,38 @@ static void backwardsToExtraData(LinuxDevice *device)
     device->setExtraData(SourceProfile, device->sourceProfile.value());
 }
 
-} // namespace
-
-void LinuxDevice::fromMap(const Utils::Store &map)
+void LinuxDevice::fromMap(const Store &map)
 {
-    ProjectExplorer::IDevice::fromMap(map);
+    IDevice::fromMap(map);
     backwardsFromExtraData(this);
 }
-void LinuxDevice::toMap(Utils::Store &map) const
+
+void LinuxDevice::toMap(Store &map) const
 {
     backwardsToExtraData(const_cast<LinuxDevice *>(this));
-    ProjectExplorer::IDevice::toMap(map);
+    IDevice::toMap(map);
+}
+
+void LinuxDevice::postLoad()
+{
+    if (!autoConnectOnStartup())
+        return;
+
+    tryToConnect({this, [this](const Result<> &res) {
+        if (res)
+            return;
+        const QString message =
+            Tr::tr("Auto-connection to device \"%1\" failed.").arg(displayName());
+            + "\n" + Tr::tr("Switching auto-connection off.");
+        DEBUG(message);
+        autoConnectOnStartup.setValue(false);
+        QTC_ASSERT(isMainThread(), return);
+        InfoBarEntry info(d->announceId(), message);
+        info.setTitle(Tr::tr("Establishing a Connection"));
+        info.setInfoType(InfoLabel::Warning);
+        Core::ICore::infoBar()->addInfo(info);
+        Core::MessageManager::writeSilently(message);
+    }});
 }
 
 } // namespace RemoteLinux

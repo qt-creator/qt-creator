@@ -120,7 +120,6 @@ class PROJECTEXPLORER_EXPORT IDevice
 public:
     using Ptr = IDevicePtr;
     using ConstPtr = IDeviceConstPtr;
-    template <class ...Args> using Continuation = std::function<void(Args...)>;
 
     enum Origin { ManuallyAdded, AutoDetected, AddedBySdk };
     enum MachineType { Hardware, Emulator };
@@ -161,9 +160,17 @@ public:
 
     virtual IDeviceWidget *createWidget() = 0;
 
-    struct DeviceAction {
+    struct DeviceAction
+    {
+        DeviceAction(const QString &display,
+                     const std::function<void(const IDevice::Ptr &)> &execute,
+                     const std::function<bool(const IDevice::ConstPtr &)> &activeChecker = {})
+            : display(display), execute(execute), activeChecker(activeChecker)
+        {}
+
         QString display;
         std::function<void(const IDevice::Ptr &device)> execute;
+        std::function<bool(const IDevice::ConstPtr &device)> activeChecker;
     };
     void addDeviceAction(const DeviceAction &deviceAction);
     const QList<DeviceAction> deviceActions() const;
@@ -265,6 +272,7 @@ protected:
 
     virtual void fromMap(const Utils::Store &map);
     virtual void toMap(Utils::Store &map) const;
+    virtual void postLoad() {}
 
     using OpenTerminal = std::function<Utils::Result<>(const Utils::Environment &,
                                                                  const Utils::FilePath &)>;

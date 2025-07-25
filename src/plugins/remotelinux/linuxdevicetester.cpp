@@ -87,26 +87,50 @@ QStringList GenericLinuxDeviceTesterPrivate::commandsToTest() const
     return commands;
 }
 
+class ConnectionData
+{
+public:
+    LinuxDevice::ConstPtr device;
+    QPointer<QObject> guard;
+    Result<> result;
+};
+
+class ConnectionTaskAdapter final
+{
+public:
+    void operator()(ConnectionData *data, Tasking::TaskInterface *iface)
+    {
+        data->device->tryToConnect(Continuation<>(data->guard, [data, iface](const Result<> &res) {
+            if (data->guard) {
+                data->result = res;
+                iface->reportDone(DoneResult::Success); // The test itself finished.
+            }
+        }));
+    }
+};
+
+using ConnectionTask = Tasking::CustomTask<ConnectionData, ConnectionTaskAdapter>;
+
 GroupItem GenericLinuxDeviceTesterPrivate::connectionTask() const
 {
-    const auto onSetup = [this](Async<Result<>> &task) {
+    const auto onSetup = [this](ConnectionData &data) {
+        data.device = m_device;
+        data.guard = q;
         emit q->progressMessage(Tr::tr("Connecting to device..."));
-        task.setConcurrentCallData([device = m_device] { return device->tryToConnect(); });
     };
-    const auto onDone = [this](const Async<Result<>> &task) {
-        const bool success = task.isResultAvailable() && task.result();
+    const auto onDone = [this](const ConnectionData &data) {
+        const bool success = data.result.has_value();
         if (success) {
             emit q->progressMessage(Tr::tr("Connected. Now doing extended checks.") + "\n");
         } else {
-            if (!task.result().has_value())
-                emit q->errorMessage(task.result().error());
+            emit q->errorMessage(data.result.error());
             emit q->errorMessage(
                 Tr::tr("Basic connectivity test failed, device is considered unusable.") + '\n'
             );
         }
         return toDoneResult(success);
     };
-    return AsyncTask<Result<>>(onSetup, onDone);
+    return ConnectionTask(onSetup, onDone);
 }
 
 GroupItem GenericLinuxDeviceTesterPrivate::echoTask(const QString &contents) const

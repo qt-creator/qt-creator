@@ -43,6 +43,22 @@ namespace ProjectExplorer::Internal {
 
 const char LastDeviceIndexKey[] = "LastDisplayedMaemoDeviceConfig";
 
+class DeviceActionButton final : public QPushButton
+{
+public:
+    DeviceActionButton(const IDevice::DeviceAction &deviceAction)
+        : QPushButton(deviceAction.display), deviceAction(deviceAction)
+    {}
+
+    void update(const IDevice::ConstPtr &device)
+    {
+        if (deviceAction.activeChecker)
+            setEnabled(deviceAction.activeChecker(device));
+    }
+
+    const IDevice::DeviceAction deviceAction;
+};
+
 class DeviceProxyModel : public QIdentityProxyModel
 {
 public:
@@ -355,6 +371,11 @@ void DeviceSettingsWidget::updateButtons()
     f.setStrikeOut(isMarkedForDeletion);
     f.setItalic(isNewDevice);
     m_configurationComboBox->setFont(f);
+
+    for (QPushButton *button : std::as_const(m_additionalActionButtons)) {
+        if (auto devButton = dynamic_cast<DeviceActionButton *>(button))
+            devButton->update(current);
+    };
 }
 
 void DeviceSettingsWidget::displayCurrent()
@@ -476,7 +497,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     }
 
     for (const IDevice::DeviceAction &deviceAction : device->deviceActions()) {
-        QPushButton * const button = new QPushButton(deviceAction.display);
+        QPushButton * const button = new DeviceActionButton(deviceAction);
         m_additionalActionButtons << button;
         connect(button, &QAbstractButton::clicked, this, [this, deviceAction] {
             const IDevice::Ptr device = DeviceManager::mutableDevice(currentDevice()->id());

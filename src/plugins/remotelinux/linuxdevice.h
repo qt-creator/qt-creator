@@ -69,18 +69,19 @@ public:
     QString deviceStateToString() const override;
 
     bool isDisconnected() const;
-    Utils::Result<> tryToConnect();
+    void tryToConnect(const Utils::Continuation<> &cont) const;
+    void closeConnection() const;
 
     void attachToSharedConnection(Internal::SshConnectionHandle *sshConnectionHandle,
                                   const ProjectExplorer::SshParameters &sshParams) const;
 
-    void shutdown();
-
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
+    void postLoad() override;
 
 public:
     Utils::BoolAspect sourceProfile{this};
+    Utils::BoolAspect autoConnectOnStartup{this};
 
 protected:
     LinuxDevice();
