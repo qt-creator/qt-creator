@@ -99,14 +99,6 @@ public:
 ///////////////////////////
 // CMakeTool
 ///////////////////////////
-CMakeTool::CMakeTool(Detection d, const Id &id)
-    : m_id(id)
-    , m_detectionSource(
-          d == Detection::AutoDetection ? DetectionSource::FromSystem : DetectionSource::Manual)
-    , m_introspection(std::make_unique<Internal::IntrospectionData>())
-{
-    QTC_ASSERT(m_id.isValid(), m_id = Id::generate());
-}
 
 CMakeTool::CMakeTool(const DetectionSource &d, const Id &id)
     : m_id(id)

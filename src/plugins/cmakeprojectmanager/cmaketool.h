@@ -73,9 +73,6 @@ public:
 
     using PathMapper = std::function<Utils::FilePath (const Utils::FilePath &)>;
 
-    [[deprecated("Use CMakeTool(DetectionSource, Id) instead")]] explicit CMakeTool(
-        Detection d, const Utils::Id &id);
-
     explicit CMakeTool(const Utils::Store &map, bool fromSdk);
     explicit CMakeTool(const ProjectExplorer::DetectionSource &d, const Utils::Id &id);
 
