@@ -400,7 +400,7 @@ Result<> Device::up(
     return ResultOk;
 }
 
-Utils::Result<> Device::down()
+Result<> Device::down()
 {
     if (!m_downRecipe)
         return ResultError(Tr::tr("DevContainer is not running or has not been started."));
@@ -455,7 +455,7 @@ Result<Environment> Device::systemEnvironmentWithError() const
     if (!m_systemEnvironment)
         return ResultError(Tr::tr("System environment is not available for this device."));
     return *m_systemEnvironment;
-};
+}
 
 bool Device::ensureReachable(const FilePath &other) const
 {
@@ -467,7 +467,7 @@ bool Device::ensureReachable(const FilePath &other) const
         return true;
 
     return false;
-};
+}
 
 Result<FilePath> Device::localSource(const FilePath &other) const
 {

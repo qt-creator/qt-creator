@@ -26,6 +26,7 @@
 #include <QMessageBox>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace DevContainer::Internal {
 
@@ -56,14 +57,14 @@ public:
     }
 
 public slots:
-    void onProjectAdded(ProjectExplorer::Project *project);
-    void onProjectRemoved(ProjectExplorer::Project *project);
+    void onProjectAdded(Project *project);
+    void onProjectRemoved(Project *project);
 
 private:
     static void startDeviceForProject(
         Private *d,
-        const Utils::FilePath &path,
-        ProjectExplorer::Project *project,
+        const FilePath &path,
+        Project *project,
         DevContainer::InstanceConfig instanceConfig);
 
 #ifdef WITH_TESTS
@@ -72,11 +73,11 @@ signals:
 #endif
 
 private:
-    std::map<ProjectExplorer::Project *, std::shared_ptr<Device>> devices;
+    std::map<Project *, std::shared_ptr<Device>> devices;
     std::unique_ptr<DevContainerDeviceFactory> deviceFactory;
 };
 
-void Private::onProjectRemoved(ProjectExplorer::Project *project)
+void Private::onProjectRemoved(Project *project)
 {
     auto it = devices.find(project);
     if (it == devices.end())
@@ -89,10 +90,9 @@ void Private::onProjectRemoved(ProjectExplorer::Project *project)
     devices.erase(it);
 }
 
-void Private::onProjectAdded(ProjectExplorer::Project *project)
+void Private::onProjectAdded(Project *project)
 {
-    const Utils::FilePath path = project->projectDirectory() / ".devcontainer"
-                                 / "devcontainer.json";
+    const FilePath path = project->projectDirectory() / ".devcontainer" / "devcontainer.json";
     if (path.exists()) {
         DevContainer::InstanceConfig instanceConfig = {
             .dockerCli = "docker",
@@ -102,16 +102,16 @@ void Private::onProjectAdded(ProjectExplorer::Project *project)
             .mounts = {},
         };
 
-        const Utils::Id infoBarId = Utils::Id::fromString(
-            QString("DevContainer.Instantiate.InfoBar." + instanceConfig.devContainerId()));
+        const Id infoBarId = Id("DevContainer.Instantiate.InfoBar.")
+            .withSuffix(instanceConfig.devContainerId());
 
-        Utils::InfoBarEntry entry(
+        InfoBarEntry entry(
             infoBarId,
             Tr::tr("Found devcontainers in project, would you like to start them?"),
-            Utils::InfoBarEntry::GlobalSuppression::Enabled);
+            InfoBarEntry::GlobalSuppression::Enabled);
 
         entry.setTitle(Tr::tr("Configure devcontainer?"));
-        entry.setInfoType(Utils::InfoLabel::Information);
+        entry.setInfoType(InfoLabel::Information);
         entry.addCustomButton(
             Tr::tr("Yes"),
             [this, project, path, instanceConfig, infoBarId] {
@@ -126,8 +126,8 @@ void Private::onProjectAdded(ProjectExplorer::Project *project)
 
 void Private::startDeviceForProject(
     Private *d,
-    const Utils::FilePath &path,
-    ProjectExplorer::Project *project,
+    const FilePath &path,
+    Project *project,
     DevContainer::InstanceConfig instanceConfig)
 {
     std::shared_ptr<QString> log = std::make_shared<QString>();
@@ -138,11 +138,11 @@ void Private::startDeviceForProject(
 
     std::shared_ptr<Device> device = std::make_shared<DevContainer::Device>();
     device->setDisplayName(Tr::tr("DevContainer for %1").arg(project->displayName()));
-    ProjectExplorer::DeviceManager::addDevice(device);
-    Utils::Result<> result = device->up(
+    DeviceManager::addDevice(device);
+    Result<> result = device->up(
         path,
         instanceConfig,
-        Utils::guardedCallback(d, [d, project, log, device](Utils::Result<> result) {
+        Utils::guardedCallback(d, [d, project, log, device](Result<> result) {
             if (result) {
                 d->devices.insert({project, device});
                 log->clear();
@@ -152,7 +152,7 @@ void Private::startDeviceForProject(
                 return;
             }
 
-            ProjectExplorer::DeviceManager::removeDevice(device->id());
+            DeviceManager::removeDevice(device->id());
 
             QMessageBox box(Core::ICore::dialogParent());
             box.setWindowTitle(Tr::tr("DevContainer Error"));
@@ -171,7 +171,7 @@ void Private::startDeviceForProject(
     if (!result) {
         QMessageBox::critical(
             Core::ICore::dialogParent(), Tr::tr("DevContainer Error"), result.error());
-        ProjectExplorer::DeviceManager::removeDevice(device->id());
+        DeviceManager::removeDevice(device->id());
     }
 }
 
@@ -188,11 +188,11 @@ public:
     DevContainerPlugin()
         : d(std::make_unique<Private>())
     {
-        Utils::FSEngine::registerDeviceScheme(Constants::DEVCONTAINER_FS_SCHEME);
+        FSEngine::registerDeviceScheme(Constants::DEVCONTAINER_FS_SCHEME);
     }
     ~DevContainerPlugin() final
     {
-        Utils::FSEngine::unregisterDeviceScheme(Constants::DEVCONTAINER_FS_SCHEME);
+        FSEngine::unregisterDeviceScheme(Constants::DEVCONTAINER_FS_SCHEME);
     }
 
     std::unique_ptr<DevContainer::Internal::Private> d;
@@ -212,7 +212,7 @@ public:
     void extensionsInitialized() final {}
 };
 
-class DevContainerDeviceFactory final : public ProjectExplorer::IDeviceFactory
+class DevContainerDeviceFactory final : public IDeviceFactory
 {
 public:
     DevContainerDeviceFactory()
