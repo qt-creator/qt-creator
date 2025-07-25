@@ -77,13 +77,8 @@ public:
         for (auto project : ProjectManager::instance()->projects())
             onProjectAdded(project);
 
-
 #ifdef WITH_TESTS
-        addTestCreator([this]() {
-            QObject *tests = createDevcontainerTest();
-            QObject::connect(d.get(), SIGNAL(deviceUpDone()), tests, SIGNAL(deviceUpDone()));
-            return tests;
-        });
+        addTestCreator(&createDevcontainerTest);
 #endif
     }
     void onProjectAdded(Project *project);
