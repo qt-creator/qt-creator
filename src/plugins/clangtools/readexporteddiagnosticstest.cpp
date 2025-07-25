@@ -25,6 +25,43 @@ const char nonAsciiMultiLine[] = "\xc3\xbc" "\n"
                                  "\xe4\xba\x8c" "\n"
                                  "\xf0\x90\x8c\x82" "X";
 
+static QString link2String(const Link &link)
+{
+    return link.targetFilePath.toUserOutput() + ':' + QString::number(link.target.line) + ':'
+           + QString::number(link.target.column) + ':' + QString::number(link.linkTextStart) + ':'
+           + QString::number(link.linkTextEnd);
+}
+
+static QString step2String(const ExplainingStep &step)
+{
+    QString s = step.message;
+    s.append('@').append(link2String(step.location));
+    for (const Link &l : step.ranges)
+        s.append('[').append(link2String(l)).append(']');
+    return s.append('|').append(QString::number(step.isFixIt));
+}
+
+static QString diag2String(const Diagnostic &diag)
+{
+    QString s =diag.name;
+    s.append(' ')
+        .append(diag.description)
+        .append(' ')
+        .append(diag.category)
+        .append(' ')
+        .append(diag.type)
+        .append('@')
+        .append(link2String(diag.location));
+    for (const ExplainingStep &step : diag.explainingSteps)
+        s.append('|').append(step2String(step));
+    return s.append('|').append(QString::number(diag.hasFixits));
+}
+
+static char *toString(const Diagnostic &diag)
+{
+    return QTest::toString(diag2String(diag));
+}
+
 ReadExportedDiagnosticsTest::ReadExportedDiagnosticsTest()
     : m_baseDir(new TemporaryCopiedDir(":/clangtools/unit-tests/exported-diagnostics")) {}
 
@@ -80,6 +117,7 @@ void ReadExportedDiagnosticsTest::testTidy()
     const Result<Diagnostics> diags = readExportedDiagnostics(exportedFile);
 
     QVERIFY(diags.has_value());
+    QVERIFY(!diags->empty());
     QCOMPARE(*diags, {expectedDiag});
 }
 
