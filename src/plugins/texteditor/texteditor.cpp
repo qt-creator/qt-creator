@@ -3354,7 +3354,8 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                 moveCursor(d->m_autoCompleteHighlightPos);
                 moveCursor(cursor);
             }
-            autoText = autoCompleter()->autoComplete(cursor, eventText.mid(skippedChars), false);
+            if (skippedChars < eventText.size())
+                autoText = autoCompleter()->autoComplete(cursor, eventText.mid(skippedChars), false);
         }
         const bool cursorWithinSnippet = d->snippetCheckCursor(cursor);
 
