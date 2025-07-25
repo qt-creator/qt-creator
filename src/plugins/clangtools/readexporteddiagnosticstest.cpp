@@ -68,14 +68,14 @@ void ReadExportedDiagnosticsTest::testTidy()
         = createFile(filePath(appendYamlSuffix("tidy.modernize-use-nullptr")), sourceFile);
     Diagnostic expectedDiag;
     expectedDiag.name = "modernize-use-nullptr";
-    expectedDiag.location = {sourceFile, 2, 25};
+    expectedDiag.location = {sourceFile, 2, 24};
     expectedDiag.description = "use nullptr [modernize-use-nullptr]";
     expectedDiag.type = "warning";
     expectedDiag.hasFixits = true;
     expectedDiag.explainingSteps = {
         ExplainingStep{"nullptr",
                        expectedDiag.location,
-                       {expectedDiag.location, {sourceFile, 2, 26}},
+                       {expectedDiag.location, {sourceFile, 2, 25}},
                        true}};
     const Result<Diagnostics> diags = readExportedDiagnostics(exportedFile);
 
@@ -103,23 +103,23 @@ void ReadExportedDiagnosticsTest::testTidy_ClangAnalyzer()
         = createFile(filePath(appendYamlSuffix("clang-analyzer.dividezero")), sourceFile);
     Diagnostic expectedDiag;
     expectedDiag.name = "clang-analyzer-core.DivideZero";
-    expectedDiag.location = {sourceFile, 4, 15};
+    expectedDiag.location = {sourceFile, 4, 14};
     expectedDiag.description = "Division by zero [clang-analyzer-core.DivideZero]";
     expectedDiag.type = "warning";
     expectedDiag.hasFixits = false;
     expectedDiag.explainingSteps = {
         ExplainingStep{"Assuming 'z' is equal to 0",
-                       {sourceFile, 3, 7},
+                       {sourceFile, 3, 6},
                        {},
                        false,
         },
         ExplainingStep{"Taking true branch",
-                       {sourceFile, 3, 3},
+                       {sourceFile, 3, 2},
                        {},
                        false,
         },
         ExplainingStep{"Division by zero",
-                       {sourceFile, 4, 15},
+                       {sourceFile, 4, 14},
                        {},
                        false,
         },
@@ -136,19 +136,19 @@ void ReadExportedDiagnosticsTest::testClazy()
                                              sourceFile);
     Diagnostic expectedDiag;
     expectedDiag.name = "clazy-qgetenv";
-    expectedDiag.location = {sourceFile, 7, 5};
+    expectedDiag.location = {sourceFile, 7, 4};
     expectedDiag.description = "qgetenv().isEmpty() allocates. Use qEnvironmentVariableIsEmpty() instead [clazy-qgetenv]";
     expectedDiag.type = "warning";
     expectedDiag.hasFixits = true;
     expectedDiag.explainingSteps = {
         ExplainingStep{"qEnvironmentVariableIsEmpty",
                        expectedDiag.location,
-                       {expectedDiag.location, {sourceFile, 7, 12}},
+                       {expectedDiag.location, {sourceFile, 7, 11}},
                        true
         },
         ExplainingStep{")",
-                       {sourceFile, 7, 18},
-                       {{sourceFile, 7, 18}, {sourceFile, 7, 29}},
+                       {sourceFile, 7, 17},
+                       {{sourceFile, 7, 17}, {sourceFile, 7, 28}},
                        true},
     };
     const Result<Diagnostics> diags = readExportedDiagnostics(exportedFile);
