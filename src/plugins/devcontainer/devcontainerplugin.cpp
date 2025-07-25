@@ -30,42 +30,67 @@ using namespace Utils;
 
 namespace DevContainer::Internal {
 
-class DevContainerDeviceFactory;
+#ifdef WITH_TESTS
+QObject *createDevcontainerTest();
+#endif
 
-class Private : public QObject
+class DevContainerDeviceFactory final : public IDeviceFactory
+{
+public:
+    DevContainerDeviceFactory()
+        : IDeviceFactory(Constants::DEVCONTAINER_DEVICE_TYPE)
+    {
+        setDisplayName(Tr::tr("Development Container Device"));
+        setIcon(QIcon());
+    }
+};
+
+class DevContainerPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DevContainerPlugin.json")
 
 public:
-    void init()
+    DevContainerPlugin()
     {
-        deviceFactory = std::make_unique<DevContainerDeviceFactory>();
+        FSEngine::registerDeviceScheme(Constants::DEVCONTAINER_FS_SCHEME);
+    }
 
+    ~DevContainerPlugin() final
+    {
+        FSEngine::unregisterDeviceScheme(Constants::DEVCONTAINER_FS_SCHEME);
+    }
+
+    void initialize() final
+    {
         connect(
             ProjectManager::instance(),
             &ProjectManager::projectAdded,
             this,
-            &Private::onProjectAdded);
+            &DevContainerPlugin::onProjectAdded);
         connect(
             ProjectManager::instance(),
             &ProjectManager::projectRemoved,
             this,
-            &Private::onProjectRemoved);
+            &DevContainerPlugin::onProjectRemoved);
 
         for (auto project : ProjectManager::instance()->projects())
             onProjectAdded(project);
-    }
 
-public slots:
+
+#ifdef WITH_TESTS
+        addTestCreator([this]() {
+            QObject *tests = createDevcontainerTest();
+            QObject::connect(d.get(), SIGNAL(deviceUpDone()), tests, SIGNAL(deviceUpDone()));
+            return tests;
+        });
+#endif
+    }
     void onProjectAdded(Project *project);
     void onProjectRemoved(Project *project);
 
-private:
-    static void startDeviceForProject(
-        Private *d,
-        const FilePath &path,
-        Project *project,
-        DevContainer::InstanceConfig instanceConfig);
+    void startDeviceForProject(
+        const FilePath &path, Project *project, DevContainer::InstanceConfig instanceConfig);
 
 #ifdef WITH_TESTS
 signals:
@@ -74,10 +99,11 @@ signals:
 
 private:
     std::map<Project *, std::shared_ptr<Device>> devices;
-    std::unique_ptr<DevContainerDeviceFactory> deviceFactory;
+    DevContainerDeviceFactory deviceFactory;
+    QObject guard;
 };
 
-void Private::onProjectRemoved(Project *project)
+void DevContainerPlugin::onProjectRemoved(Project *project)
 {
     auto it = devices.find(project);
     if (it == devices.end())
@@ -90,7 +116,7 @@ void Private::onProjectRemoved(Project *project)
     devices.erase(it);
 }
 
-void Private::onProjectAdded(Project *project)
+void DevContainerPlugin::onProjectAdded(Project *project)
 {
     const FilePath path = project->projectDirectory() / ".devcontainer" / "devcontainer.json";
     if (path.exists()) {
@@ -116,7 +142,7 @@ void Private::onProjectAdded(Project *project)
             Tr::tr("Yes"),
             [this, project, path, instanceConfig, infoBarId] {
                 Core::ICore::infoBar()->removeInfo(infoBarId);
-                startDeviceForProject(this, path, project, instanceConfig);
+                startDeviceForProject(path, project, instanceConfig);
             },
             Tr::tr("Start DevContainer"));
 
@@ -124,8 +150,7 @@ void Private::onProjectAdded(Project *project)
     };
 }
 
-void Private::startDeviceForProject(
-    Private *d,
+void DevContainerPlugin::startDeviceForProject(
     const FilePath &path,
     Project *project,
     DevContainer::InstanceConfig instanceConfig)
@@ -142,12 +167,12 @@ void Private::startDeviceForProject(
     Result<> result = device->up(
         path,
         instanceConfig,
-        Utils::guardedCallback(d, [d, project, log, device](Result<> result) {
+        Utils::guardedCallback(&guard, [this, project, log, device](Result<> result) {
             if (result) {
-                d->devices.insert({project, device});
+                devices.insert({project, device});
                 log->clear();
 #ifdef WITH_TESTS
-                emit d->deviceUpDone();
+                emit deviceUpDone();
 #endif
                 return;
             }
@@ -162,7 +187,7 @@ void Private::startDeviceForProject(
             box.exec();
 
 #ifdef WITH_TESTS
-            emit d->deviceUpDone();
+            emit deviceUpDone();
 #endif
 
             log->clear();
@@ -174,54 +199,6 @@ void Private::startDeviceForProject(
         DeviceManager::removeDevice(device->id());
     }
 }
-
-#ifdef WITH_TESTS
-QObject *createDevcontainerTest();
-#endif
-
-class DevContainerPlugin final : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DevContainerPlugin.json")
-
-public:
-    DevContainerPlugin()
-        : d(std::make_unique<Private>())
-    {
-        FSEngine::registerDeviceScheme(Constants::DEVCONTAINER_FS_SCHEME);
-    }
-    ~DevContainerPlugin() final
-    {
-        FSEngine::unregisterDeviceScheme(Constants::DEVCONTAINER_FS_SCHEME);
-    }
-
-    std::unique_ptr<DevContainer::Internal::Private> d;
-
-    void initialize() final
-    {
-        d->init();
-
-#ifdef WITH_TESTS
-        addTestCreator([this]() {
-            QObject *tests = createDevcontainerTest();
-            QObject::connect(d.get(), SIGNAL(deviceUpDone()), tests, SIGNAL(deviceUpDone()));
-            return tests;
-        });
-#endif
-    }
-    void extensionsInitialized() final {}
-};
-
-class DevContainerDeviceFactory final : public IDeviceFactory
-{
-public:
-    DevContainerDeviceFactory()
-        : IDeviceFactory(Constants::DEVCONTAINER_DEVICE_TYPE)
-    {
-        setDisplayName(Tr::tr("Development Container Device"));
-        setIcon(QIcon());
-    }
-};
 
 } // namespace DevContainer::Internal
 
