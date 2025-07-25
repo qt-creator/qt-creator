@@ -151,7 +151,10 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     connect(&d->m_treeView, &QAbstractItemView::activated,
             this, &TaskWindow::triggerDefaultHandler);
     connect(d->m_treeView.selectionModel(), &QItemSelectionModel::selectionChanged,
-            this, [] { updateTaskHandlerActionsState(); });
+            this, [this] {
+        delayedInitialization();
+        updateTaskHandlerActionsState();
+    });
 
     d->m_treeView.setContextMenuPolicy(Qt::ActionsContextMenu);
 
