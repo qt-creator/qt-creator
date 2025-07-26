@@ -271,6 +271,10 @@ QString GitSubmitEditorWidget::commitName() const
 
 void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelIndex &index)
 {
+    // Do not add context menu actions when multiple files are selected
+    if (selectedRows().size() > 1)
+        return;
+
     const VcsBase::SubmitFileModel *model = fileModel();
     const FilePath filePath = FilePath::fromString(model->file(index.row()));
     const FilePath fullFilePath = model->repositoryRoot().resolvePath(filePath);
