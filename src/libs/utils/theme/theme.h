@@ -254,6 +254,7 @@ public:
 
         /* VcsBase Plugin */
         VcsBase_FileStatusUnknown_TextColor,
+        VcsBase_FileUntracked_TextColor,
         VcsBase_FileAdded_TextColor,
         VcsBase_FileModified_TextColor,
         VcsBase_FileDeleted_TextColor,

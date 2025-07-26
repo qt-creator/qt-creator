@@ -65,6 +65,7 @@ const char CONFIGURE_REPOSITORY[] = "Fossil.Action.Settings";
 const char CREATE_REPOSITORY[] = "Fossil.Action.CreateRepository";
 
 // File status hint
+const char FSTATUS_NEW[] = "New";
 const char FSTATUS_ADDED[] = "Added";
 const char FSTATUS_ADDED_BY_MERGE[] = "Added by Merge";
 const char FSTATUS_ADDED_BY_INTEGRATE[] = "Added by Integrate";

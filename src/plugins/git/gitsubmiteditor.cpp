@@ -109,6 +109,8 @@ const GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget() const
 
 void GitSubmitEditor::setCommitData(const CommitData &d)
 {
+    using IVCF = Core::IVersionControl::FileState;
+
     m_commitEncoding = d.commitEncoding;
     m_workingDirectory = d.panelInfo.repository;
     m_commitType = d.commitType;
@@ -125,16 +127,18 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     m_model->setFileStatusQualifier([](const QString &, const QVariant &extraData) {
         const FileStates state = static_cast<FileStates>(extraData.toInt());
         if (state & (UnmergedFile | UnmergedThem | UnmergedUs))
-            return SubmitFileModel::FileUnmerged;
-        if (state.testFlag(AddedFile) || state.testFlag(UntrackedFile))
-            return SubmitFileModel::FileAdded;
+            return IVCF::Unmerged;
+        if (state.testFlag(UntrackedFile))
+            return IVCF::Untracked;
+        if (state.testFlag(AddedFile))
+            return IVCF::Added;
         if (state.testFlag(ModifiedFile) || state.testFlag(TypeChangedFile))
-            return SubmitFileModel::FileModified;
+            return IVCF::Modified;
         if (state.testFlag(DeletedFile))
-            return SubmitFileModel::FileDeleted;
+            return IVCF::Deleted;
         if (state.testFlag(RenamedFile))
-            return SubmitFileModel::FileRenamed;
-        return SubmitFileModel::FileStatusUnknown;
+            return IVCF::Renamed;
+        return IVCF::Unknown;
     } );
 
     if (!d.files.isEmpty()) {

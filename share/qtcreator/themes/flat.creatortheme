@@ -400,7 +400,8 @@ Timeline_HandleColor=alternateBackground
 Timeline_RangeColor=selectedBackground
 
 VcsBase_FileStatusUnknown_TextColor=ff000000
-VcsBase_FileAdded_TextColor=ff00aa00
+VcsBase_FileUntracked_TextColor=ff00aa00
+VcsBase_FileAdded_TextColor=ff006400
 VcsBase_FileModified_TextColor=ff0000ee
 VcsBase_FileDeleted_TextColor=ff800000
 VcsBase_FileRenamed_TextColor=ffd77d00

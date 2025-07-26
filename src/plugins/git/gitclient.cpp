@@ -881,7 +881,7 @@ IVersionControl::FileState GitClient::modificationState(const Utils::FilePath &w
     const ModificationInfo &info = m_modifInfos[workingDirectory];
     int length = workingDirectory.toUrlishString().size();
     const QString fileNameFromRoot = fileName.absoluteFilePath().path().mid(length + 1);
-    return info.modifiedFiles.value(fileNameFromRoot, IVersionControl::FileState::NoModification);
+    return info.modifiedFiles.value(fileNameFromRoot, IVersionControl::FileState::Unknown);
 }
 
 void GitClient::stopMonitoring(const Utils::FilePath &path)
@@ -948,17 +948,18 @@ void GitClient::updateNextModificationInfo()
                 continue;
 
             static const QHash<QChar, IVCF> gitStates {
-                                                      {'M', IVCF::ModifiedState},
-                                                      {'A', IVCF::AddedState},
-                                                      {'R', IVCF::RenamedState},
-                                                      {'D', IVCF::DeletedState},
-                                                      {'?', IVCF::UnmanagedState},
+                                                      {'M', IVCF::Modified},
+                                                      {'?', IVCF::Untracked},
+                                                      {'A', IVCF::Added},
+                                                      {'R', IVCF::Renamed},
+                                                      {'D', IVCF::Deleted},
+                                                      {'U', IVCF::Unmerged},
                                                       };
 
-            const IVCF modification = std::max(gitStates.value(line.at(0), IVCF::NoModification),
-                                               gitStates.value(line.at(1), IVCF::NoModification));
+            const IVCF modification = std::max(gitStates.value(line.at(0), IVCF::Unknown),
+                                               gitStates.value(line.at(1), IVCF::Unknown));
 
-            if (modification != IVCF::NoModification)
+            if (modification != IVCF::Unknown)
                 modifiedFiles.insert(line.mid(3).trimmed(), modification);
         }
 

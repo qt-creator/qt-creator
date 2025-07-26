@@ -30,6 +30,8 @@ void CommitEditor::setFields(const FilePath &repositoryRoot, const BranchInfo &b
                              const QString &userName, const QString &email,
                              const QList<VcsBase::VcsBaseClient::StatusItem> &repoStatus)
 {
+    using IVCF = Core::IVersionControl::FileState;
+
     BazaarCommitWidget *bazaarWidget = commitWidget();
     if (!bazaarWidget)
         return;
@@ -39,15 +41,17 @@ void CommitEditor::setFields(const FilePath &repositoryRoot, const BranchInfo &b
     m_fileModel = new VcsBase::SubmitFileModel(this);
     m_fileModel->setRepositoryRoot(repositoryRoot);
     m_fileModel->setFileStatusQualifier([](const QString &status, const QVariant &) {
+        if (status == QLatin1String(Constants::FSTATUS_UNKNOWN))
+            return IVCF::Untracked;
         if (status == QLatin1String(Constants::FSTATUS_CREATED))
-            return VcsBase::SubmitFileModel::FileAdded;
+            return IVCF::Added;
         if (status == QLatin1String(Constants::FSTATUS_MODIFIED))
-            return VcsBase::SubmitFileModel::FileModified;
+            return IVCF::Modified;
         if (status == QLatin1String(Constants::FSTATUS_DELETED))
-            return VcsBase::SubmitFileModel::FileDeleted;
+            return IVCF::Deleted;
         if (status == QLatin1String(Constants::FSTATUS_RENAMED))
-            return VcsBase::SubmitFileModel::FileRenamed;
-        return VcsBase::SubmitFileModel::FileStatusUnknown;
+            return IVCF::Renamed;
+        return IVCF::Unknown;
     } );
 
     for (const VcsBase::VcsBaseClient::StatusItem &item : repoStatus)

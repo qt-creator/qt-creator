@@ -30,6 +30,7 @@ const char DIFFLOG_ID[] = "Bazaar Diff Editor";
 const char DIFFAPP[] = "text/x-patch";
 
 // File status hint
+const char FSTATUS_UNKNOWN[] = "Unknown";
 const char FSTATUS_CREATED[] = "Created";
 const char FSTATUS_DELETED[] = "Deleted";
 const char FSTATUS_MODIFIED[] = "Modified";

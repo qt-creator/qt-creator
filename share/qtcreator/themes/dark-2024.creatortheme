@@ -305,7 +305,8 @@ Debugger_LogWindow_LogStatus=ff00875a
 Debugger_LogWindow_LogTime=ffbf0303
 
 VcsBase_FileStatusUnknown_TextColor=Token_Text_Default
-VcsBase_FileAdded_TextColor=ff00ff00
+VcsBase_FileUntracked_TextColor=ff00ff00
+VcsBase_FileAdded_TextColor=ff228b22
 VcsBase_FileModified_TextColor=ff8ee0ff
 VcsBase_FileDeleted_TextColor=fffff6c6c
 VcsBase_FileRenamed_TextColor=ffffa500

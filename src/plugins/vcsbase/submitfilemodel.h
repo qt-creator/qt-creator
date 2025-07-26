@@ -5,6 +5,8 @@
 
 #include "vcsbase_global.h"
 
+#include <coreplugin/iversioncontrol.h>
+
 #include <utils/filepath.h>
 
 #include <QStandardItemModel>
@@ -49,20 +51,10 @@ public:
 
     virtual void updateSelections(SubmitFileModel *source);
 
-    enum FileStatusHint
-    {
-        FileStatusUnknown,
-        FileAdded,
-        FileModified,
-        FileDeleted,
-        FileRenamed,
-        FileUnmerged
-    };
-
-    // Function that converts(qualifies) a QString/QVariant pair to FileStatusHint
+    // Function that converts(qualifies) a QString/QVariant pair to FileState
     //     1st arg is the file status string as passed to addFile()
     //     2nd arg is the file extra data as passed to addFile()
-    typedef std::function<FileStatusHint (const QString &, const QVariant &)>
+    typedef std::function<Core::IVersionControl::FileState(const QString &, const QVariant &)>
             FileStatusQualifier;
 
     const FileStatusQualifier &fileStatusQualifier() const;

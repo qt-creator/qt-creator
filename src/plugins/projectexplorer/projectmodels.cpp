@@ -248,7 +248,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     case Qt::ForegroundRole:
         if (fileNode) {
             Core::IVersionControl::FileState state = fileNode->modificationState();
-            if (state != Core::IVersionControl::FileState::NoModification)
+            if (state != Core::IVersionControl::FileState::Unknown)
                 return Core::IVersionControl::vcStateToColor(state);
         }
         return node->isEnabled() ? QVariant()

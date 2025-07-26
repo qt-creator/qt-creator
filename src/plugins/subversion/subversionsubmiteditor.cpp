@@ -26,19 +26,21 @@ void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOu
     // Hack to allow completion in "description" field : completion needs a root repository, the
     // checkScriptWorkingDirectory property is fine (at this point it was set by SubversionPlugin)
     model->setRepositoryRoot(checkScriptWorkingDirectory());
-    model->setFileStatusQualifier([](const QString &status, const QVariant &)
-                                  -> VcsBase::SubmitFileModel::FileStatusHint
-    {
+    model->setFileStatusQualifier([](const QString &status, const QVariant &) {
+        using IVCF = Core::IVersionControl::FileState;
+
         const QByteArray statusC = status.toLatin1();
         if (statusC == FileConflictedC)
-            return VcsBase::SubmitFileModel::FileUnmerged;
+            return IVCF::Unmerged;
+        if (statusC == FileUntrackedC)
+            return IVCF::Untracked;
         if (statusC == FileAddedC)
-            return VcsBase::SubmitFileModel::FileAdded;
+            return IVCF::Added;
         if (statusC == FileModifiedC)
-            return VcsBase::SubmitFileModel::FileModified;
+            return IVCF::Modified;
         if (statusC == FileDeletedC)
-            return VcsBase::SubmitFileModel::FileDeleted;
-        return VcsBase::SubmitFileModel::FileStatusUnknown;
+            return IVCF::Deleted;
+        return IVCF::Unknown;
     } );
 
     for (const StatusFilePair &pair : statusOutput) {

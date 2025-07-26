@@ -43,12 +43,13 @@ public:
     };
 
     enum class FileState : quint8 {
-        NoModification = 0x00,
-        ModifiedState,
-        AddedState,
-        DeletedState,
-        RenamedState,
-        UnmanagedState
+        Unknown = 0x00,
+        Untracked,
+        Added,
+        Modified,
+        Deleted,
+        Renamed,
+        Unmerged,
     };
     Q_ENUM(FileState)
 

@@ -67,7 +67,7 @@ FilePaths IVersionControl::additionalToolsPath() const
 IVersionControl::FileState IVersionControl::modificationState(const FilePath &path) const
 {
     Q_UNUSED(path)
-    return IVersionControl::FileState::NoModification;
+    return IVersionControl::FileState::Unknown;
 }
 
 void IVersionControl::monitorDirectory(const Utils::FilePath &path)
@@ -228,18 +228,20 @@ bool IVersionControl::handleLink(const FilePath &workingDirectory, const QString
 
 QColor IVersionControl::vcStateToColor(const IVersionControl::FileState &state)
 {
-    using CIVF = Core::IVersionControl::FileState;
+    using IVCF = Core::IVersionControl::FileState;
     using UT = Utils::Theme;
     switch (state) {
-    case CIVF::ModifiedState:
+    case IVCF::Modified:
         return Utils::creatorColor(UT::VcsBase_FileModified_TextColor);
-    case CIVF::AddedState:
+    case IVCF::Added:
         return Utils::creatorColor(UT::VcsBase_FileAdded_TextColor);
-    case CIVF::RenamedState:
+    case IVCF::Renamed:
         return Utils::creatorColor(UT::VcsBase_FileRenamed_TextColor);
-    case CIVF::DeletedState:
+    case IVCF::Deleted:
         return Utils::creatorColor(UT::VcsBase_FileDeleted_TextColor);
-    case CIVF::UnmanagedState:
+    case IVCF::Untracked:
+        return Utils::creatorColor(UT::VcsBase_FileUntracked_TextColor);
+    case IVCF::Unmerged:
         return Utils::creatorColor(UT::VcsBase_FileUnmerged_TextColor);
     default:
         return Utils::creatorColor(UT::PaletteText);
@@ -248,18 +250,20 @@ QColor IVersionControl::vcStateToColor(const IVersionControl::FileState &state)
 
 QString IVersionControl::modificationToText(const IVersionControl::FileState &state)
 {
-    using CIVF = Core::IVersionControl::FileState;
+    using IVCF = Core::IVersionControl::FileState;
     switch (state) {
-    case CIVF::AddedState:
+    case IVCF::Added:
         return Tr::tr("Version control state: added.");
-    case CIVF::ModifiedState:
+    case IVCF::Modified:
         return Tr::tr("Version control state: modified.");
-    case CIVF::DeletedState:
+    case IVCF::Deleted:
         return Tr::tr("Version control state: deleted.");
-    case CIVF::RenamedState:
+    case IVCF::Renamed:
         return Tr::tr("Version control state: renamed.");
-    case CIVF::UnmanagedState:
+    case IVCF::Untracked:
         return Tr::tr("Version control state: untracked.");
+    case IVCF::Unmerged:
+        return Tr::tr("Version control state: unmerged.");
     default:
         return {};
     }
