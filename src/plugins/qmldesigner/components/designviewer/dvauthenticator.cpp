@@ -66,11 +66,12 @@ constexpr auto htmlErrorResponse = R"(
 } // namespace StringConstants
 
 DVAuthenticator::~DVAuthenticator() = default;
+
 DVAuthenticator::DVAuthenticator(QObject *parent)
     : QObject{parent}
-    , m_settingsPath(Core::ICore::settings()->fileName() + "/qt_design_viwer.json")
+    , m_settingsPath(Core::ICore::settings()->fileName() + "/qt_design_viewer.json")
     , m_oauth2(this)
-    , m_replyHandler(QHostAddress::Any, 8080, this)
+    , m_replyHandler(QHostAddress::LocalHost, 54867, this)
 {
     m_oauth2.setAuthorizationUrl(QUrl(QtLogin::serviceUrl + QtLogin::authorize));
     m_oauth2.setAccessTokenUrl(QUrl(QtLogin::serviceUrl + QtLogin::token));
