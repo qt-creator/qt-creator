@@ -36,10 +36,9 @@ class Environment;
 enum class FileStreamHandle;
 class TextEncoding;
 
-template <class ...Args> using Continuation = std::function<void(Args...)>;
-using CopyContinuation = Continuation<const Result<> &>;
-using ReadContinuation = Continuation<const Result<QByteArray> &>;
-using WriteContinuation = Continuation<const Result<qint64> &>;
+using CopyContinuation = std::function<void(const Result<> &)>;
+using ReadContinuation = std::function<void(const Result<QByteArray> &)>;
+using WriteContinuation = std::function<void(const Result<qint64> &)>;
 
 class QTCREATOR_UTILS_EXPORT FileFilter
 {

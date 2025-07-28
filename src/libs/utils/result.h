@@ -8,6 +8,8 @@
 #include "expected.h"
 #include "qtcassert.h"
 
+#include <QObject>
+#include <QPointer>
 #include <QString>
 
 namespace Utils {
@@ -20,6 +22,33 @@ class Result
 
 template<typename T = void>
 using Result = Utils::expected<T, QString>;
+
+template<typename T = void>
+class Continuation
+{
+public:
+    Continuation(QObject *guard, const std::function<void(const Result<T> &)> &callback)
+        : m_guard(guard), m_callback(callback)
+    {
+        QTC_CHECK(guard);
+        QTC_CHECK(callback);
+    }
+
+    void operator()(const Result<T> &result) const
+    {
+        if (m_guard)
+            m_callback(result);
+    }
+
+    QObject *guard() const
+    {
+        return m_guard.get();
+    }
+
+private:
+    QPointer<QObject> m_guard;
+    std::function<void(const Result<T> &)> m_callback;
+};
 
 QTCREATOR_UTILS_EXPORT extern const Result<> ResultOk;
 
