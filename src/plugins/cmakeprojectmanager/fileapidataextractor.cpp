@@ -81,8 +81,8 @@ static CMakeFileResult extractCMakeFilesData(const QFuture<void> &cancelFuture,
                       if (!absolute.cmakeListFile.ParseString(fileContent->toStdString(),
                                                               sfn.fileName().toStdString(),
                                                               errorString)) {
-                          qCWarning(cmakeLogger) << "Failed to parse:" << sfn.path()
-                                                 << QString::fromLatin1(errorString);
+                          qCDebug(cmakeLogger) << "Failed to parse:" << sfn.path()
+                                               << QString::fromLatin1(errorString);
                       }
                   }
               }
