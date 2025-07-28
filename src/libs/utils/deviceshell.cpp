@@ -188,7 +188,7 @@ Result<> DeviceShell::start()
                 return ResultError(Tr::tr("The process failed to start."));
             }
 
-            auto installResult = installShellScript();
+            Result<> installResult = installShellScript();
             if (installResult) {
                 connect(m_shellProcess.get(),
                         &Process::readyReadStandardOutput,
@@ -212,13 +212,44 @@ Result<> DeviceShell::start()
                     }
                 });
 
-                return {};
-            } else if (m_shellProcess->isRunning()) {
-                m_shellProcess->kill();
+                return ResultOk;
             }
+
+            const CommandLine savedShellCmd = m_shellProcess->commandLine();
+
+            if (m_shellProcess->isRunning())
+                m_shellProcess->kill();
             m_shellProcess.reset();
-            return ResultError(Tr::tr("Failed to install shell script: %1")
-                                       .arg(installResult.error()));
+
+            qCDebug(deviceShellLog()) << "Failed to install shell script: " << installResult.error();
+
+            // Shell script setup might not have worked, e.g. due to a missing 'base64'
+            // on the device, but the connection could in principle still be usable due
+            // to the fallback to "single shot" mode.
+            // Try to execute a simple command to check:
+
+            QStringList args = savedShellCmd.splitArguments();
+            QTC_ASSERT(!args.empty(), return ResultError(ResultAssert));
+            args.removeLast(); // drop the traling /bin/bash, so we don't depend on bash either.
+            args.append("echo");
+            args.append("TEST_OK");
+
+            const CommandLine fallbackTestCommand = {savedShellCmd.executable(), args};
+            qCDebug(deviceShellLog()) << "Checking plain access as fallback"
+                                      << fallbackTestCommand.toUserOutput();
+            Process process;
+            process.setProcessChannelMode(QProcess::MergedChannels);
+            process.setCommand(fallbackTestCommand);
+            process.runBlocking(5s);
+
+            const QByteArray out = process.readAllRawStandardOutput().trimmed();
+
+            if (process.result() != ProcessResult::FinishedWithSuccess || out != "TEST_OK") {
+                qCDebug(deviceShellLog()) << "Fallback failed:" << process.error();
+                return ResultError(installResult.error() + process.errorString() + out);
+            }
+
+            return ResultOk;
         },
         Qt::BlockingQueuedConnection,
         &result);
