@@ -1085,7 +1085,7 @@ LinuxDevice::~LinuxDevice()
 
 IDeviceWidget *LinuxDevice::createWidget()
 {
-    return new Internal::GenericLinuxDeviceConfigurationWidget(shared_from_this());
+    return createLinuxDeviceWidget(shared_from_this());
 }
 
 DeviceTester *LinuxDevice::createDeviceTester()

@@ -33,6 +33,16 @@ using namespace Utils;
 
 namespace RemoteLinux::Internal {
 
+class GenericLinuxDeviceConfigurationWidget final : public IDeviceWidget
+{
+public:
+    explicit GenericLinuxDeviceConfigurationWidget(const IDevicePtr &device);
+
+private:
+    void createNewKey();
+    void updateDeviceFromUi() override {}
+};
+
 GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     const IDevice::Ptr &device)
     : IDeviceWidget(device)
@@ -81,8 +91,6 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
         &GenericLinuxDeviceConfigurationWidget::createNewKey);
 }
 
-GenericLinuxDeviceConfigurationWidget::~GenericLinuxDeviceConfigurationWidget() = default;
-
 void GenericLinuxDeviceConfigurationWidget::createNewKey()
 {
     SshKeyCreationDialog dialog(this);
@@ -90,6 +98,11 @@ void GenericLinuxDeviceConfigurationWidget::createNewKey()
         device()->sshParametersAspectContainer().privateKeyFile.setValue(
             dialog.privateKeyFilePath());
     }
+}
+
+IDeviceWidget *createLinuxDeviceWidget(const IDevicePtr &device)
+{
+    return new GenericLinuxDeviceConfigurationWidget(device);
 }
 
 } // RemoteLinux::Internal

@@ -5,34 +5,8 @@
 
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-class QComboBox;
-class QLabel;
-class QRadioButton;
-class QSpinBox;
-QT_END_NAMESPACE
-
-namespace Utils {
-class FancyLineEdit;
-class FilePath;
-class PathChooser;
-} // Utils
-
 namespace RemoteLinux::Internal {
 
-class GenericLinuxDeviceConfigurationWidget
-        : public ProjectExplorer::IDeviceWidget
-{
-    Q_OBJECT
-
-public:
-    explicit GenericLinuxDeviceConfigurationWidget(const ProjectExplorer::IDevicePtr &device);
-    ~GenericLinuxDeviceConfigurationWidget() override;
-
-private:
-    void createNewKey();
-    void updateDeviceFromUi() override {}
-};
+ProjectExplorer::IDeviceWidget *createLinuxDeviceWidget(const ProjectExplorer::IDevicePtr &device);
 
 } // RemoteLinux::Internal
