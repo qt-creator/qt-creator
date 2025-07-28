@@ -51,8 +51,6 @@ public:
     bool isEnabled(ProjectExplorer::Project *project);
 
 private:
-    void requestSetEditorInfo();
-
     QHash<TextEditor::TextEditorWidget *, GetCompletionRequest> m_runningRequests;
     struct ScheduleData
     {

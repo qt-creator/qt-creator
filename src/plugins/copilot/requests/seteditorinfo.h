@@ -48,33 +48,4 @@ public:
     void setEditorName(const QString &n) { insert(name, n); }
 };
 
-class SetEditorInfoParams : public LanguageServerProtocol::JsonObject
-{
-    static constexpr Key editorInfo{"editorInfo"};
-    static constexpr Key editorPluginInfo{"editorPluginInfo"};
-
-public:
-    using JsonObject::JsonObject;
-
-    SetEditorInfoParams(const EditorInfo &editorInfo, const EditorPluginInfo &editorPluginInfo)
-    {
-        setEditorInfo(editorInfo);
-        setEditorPluginInfo(editorPluginInfo);
-    }
-
-    void setEditorInfo(const EditorInfo &info) { insert(editorInfo, info); }
-    void setEditorPluginInfo(const EditorPluginInfo &info) { insert(editorPluginInfo, info); }
-};
-
-class SetEditorInfoRequest
-    : public LanguageServerProtocol::Request<CheckStatusResponse, std::nullptr_t, SetEditorInfoParams>
-{
-public:
-    explicit SetEditorInfoRequest(const SetEditorInfoParams &params)
-        : Request(methodName, params)
-    {}
-    using Request::Request;
-    constexpr static const Key methodName{"setEditorInfo"};
-};
-
 } // namespace Copilot

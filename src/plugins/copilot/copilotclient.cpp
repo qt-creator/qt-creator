@@ -3,7 +3,6 @@
 
 #include "copilotclient.h"
 #include "copilotsettings.h"
-#include "copilottr.h"
 
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
@@ -59,6 +58,12 @@ CopilotClient::CopilotClient(const FilePath &nodePath, const FilePath &distPath)
 
     setSupportedLanguage(langFilter);
     setActivatable(false);
+    setInitializationOptions({
+        {"editorInfo",
+         QJsonObject{{"name", qApp->applicationName()}, {"version", qApp->applicationVersion()}}},
+        {"editorPluginInfo",
+         QJsonObject{{"name", "Copilot"}, {"version", qApp->applicationVersion()}}},
+    });
 
     registerCustomMethod("LogMessage", [](const LanguageServerProtocol::JsonRpcMessage &message) {
         QString msg = message.toJsonObject().value("params").toObject().value("message").toString();
@@ -94,8 +99,6 @@ CopilotClient::CopilotClient(const FilePath &nodePath, const FilePath &distPath)
                 if (auto textDocument = qobject_cast<TextDocument *>(document))
                     closeDocument(textDocument);
             });
-
-    connect(this, &LanguageClient::Client::initialized, this, &CopilotClient::requestSetEditorInfo);
 
     for (IDocument *doc : DocumentModel::openedDocuments())
         openDoc(doc);
@@ -251,19 +254,6 @@ void CopilotClient::cancelRunningRequest(TextEditor::TextEditorWidget *editor)
 }
 
 static QString currentProxyPassword;
-
-void CopilotClient::requestSetEditorInfo()
-{
-    const EditorInfo editorInfo{QCoreApplication::applicationVersion(),
-                                QGuiApplication::applicationDisplayName()};
-    const EditorPluginInfo editorPluginInfo{QCoreApplication::applicationVersion(),
-                                            "Qt Creator Copilot plugin"};
-
-    SetEditorInfoParams params(editorInfo, editorPluginInfo);
-
-    SetEditorInfoRequest request(params);
-    sendMessage(request);
-}
 
 void CopilotClient::requestCheckStatus(
     bool localChecksOnly, std::function<void(const CheckStatusRequest::Response &response)> callback)
