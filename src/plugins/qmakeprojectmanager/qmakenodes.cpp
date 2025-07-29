@@ -423,9 +423,13 @@ bool QmakeProFileNode::setData(Id role, const QVariant &value) const
     if (role == Android::Constants::AndroidExtraLibs)
         return pro->setProVariable(QLatin1String(Android::Constants::ANDROID_EXTRA_LIBS),
                                    value.toStringList(), scope, flags);
-    if (role == Android::Constants::AndroidPackageSourceDir)
+    if (role == Android::Constants::AndroidPackageSourceDir) {
+        QString dir = value.toString();
+        if (!dir.startsWith("$$PWD/") && FilePath::fromString(dir).isRelativePath())
+            dir.prepend("$$PWD/");
         return pro->setProVariable(QLatin1String(Android::Constants::ANDROID_PACKAGE_SOURCE_DIR),
-                                   {value.toString()}, scope, flags);
+                                   {dir}, scope, flags);
+    }
     if (role == Android::Constants::AndroidApplicationArgs)
         return pro->setProVariable(QLatin1String(Android::Constants::ANDROID_APPLICATION_ARGUMENTS),
                                    {value.toString()}, scope, flags);

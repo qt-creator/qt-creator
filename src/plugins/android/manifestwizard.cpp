@@ -278,18 +278,23 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
         QString androidPackageDir;
         androidPackageDir = node->data(Android::Constants::AndroidPackageSourceDir).toString();
         if (androidPackageDir.isEmpty()) {
-            // and now time for some magic
             const BuildTargetInfo bti = m_buildSystem->buildTarget(m_buildKey);
-            const QString value
-                = "$$PWD/"
-                  + bti.projectFilePath.absoluteFilePath().relativePathFromDir(m_directory);
-            bool result = node->setData(Android::Constants::AndroidPackageSourceDir, value);
+            const FilePath projectDir = bti.projectFilePath.parentDir();
+            const QString relativeAndroidDirPath = m_directory.relativePathFromDir(projectDir);
 
+            bool result = node->setData(Android::Constants::AndroidPackageSourceDir, relativeAndroidDirPath);
             if (!result) {
-                QMessageBox::warning(this,
-                                     Tr::tr("Project File not Updated"),
-                                     Tr::tr("Could not update the project file %1.")
-                                     .arg(bti.projectFilePath.toUserOutput()));
+                const auto isCmakeProject = [&]() {
+                    return m_buildSystem->project()->type() == CMakeProjectManager::Constants::CMAKE_PROJECT_ID;
+                };
+                const QString androidPackageSrcDir = isCmakeProject()
+                                                         ? QString(QLatin1String("QT_")) + Android::Constants::ANDROID_PACKAGE_SOURCE_DIR
+                                                         : QString(Android::Constants::ANDROID_PACKAGE_SOURCE_DIR);
+
+                QMessageBox::warning(this, Tr::tr("Project File not Updated"),
+                                    Tr::tr("Could not automatically update the project file for %1.\n"
+                                    "Set the %2 manually.").arg(bti.projectFilePath.toUserOutput(),
+                                    androidPackageSrcDir));
             }
         }
     }
