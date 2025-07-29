@@ -357,12 +357,22 @@ QVector4D GeneralHelper::focusNodesToCamera(QQuick3DCamera *camera, float defaul
                         auto geometry = qobject_cast<SelectionBoxGeometry *>(model->geometry());
                         if (geometry) {
                             bounds = geometry->bounds();
+
+                            // Selection boxes manipulate render node parent's transform directly,
+                            // so we can't just use sceneTransform() of the model.
+                            // However, they are always at top level, so we can use local transform
+                            // from the render node's parent.
+                            QMatrix4x4 m;
+                            if (renderModel->parent)
+                                m = renderModel->parent->localTransform;
+                            m *= renderModel->localTransform;
+                            center = m.map(bounds.center());
                         } else {
                             const auto &bufferManager(context->bufferManager());
                             bounds = bufferManager->getModelBounds(renderModel);
+                            center = model->sceneTransform().map(bounds.center());
                         }
 
-                        center = renderModel->globalTransform.map(bounds.center());
                         const QVector3D e = bounds.extents();
                         const QVector3D s = model->sceneScale();
                         qreal maxScale = qSqrt(qreal(s.x() * s.x() + s.y() * s.y() + s.z() * s.z()));

@@ -808,8 +808,7 @@ QVector3D MouseArea3D::getMousePosInPlane(const MouseArea3D *helper,
     const DoubleVec3D rayPos0 = m_view3D->mapTo3DScene(mousePos1.toVec3());
     DoubleVec3D rayPos1;
     if (qobject_cast<QQuick3DOrthographicCamera *>(m_view3D->camera())) {
-        if (auto cameraNode = static_cast<QSSGRenderCamera *>(QQuick3DObjectPrivate::get(m_view3D->camera())->spatialNode))
-            rayPos1 = rayPos0 - rayPos0.length() * DoubleVec3D(cameraNode->getDirection());
+        rayPos1 = rayPos0 - rayPos0.length() * DoubleVec3D(getDirection(m_view3D->camera()));
     } else {
         DoubleVec3D dir;
         DoubleVec3D camPos = m_view3D->camera()->scenePosition();
@@ -1030,6 +1029,15 @@ QVector3D MouseArea3D::getNormal() const
     return QVector3D(dataPtr[8], dataPtr[9], dataPtr[10]).normalized();
 }
 
+QVector3D MouseArea3D::getDirection(const QQuick3DNode *node) const
+{
+    const QMatrix4x4 m = node->sceneTransform();
+    const float *dataPtr(m.data());
+    QVector3D retval(dataPtr[8], dataPtr[9], dataPtr[10]);
+    retval.normalize();
+    return retval;
+}
+
 QVector3D MouseArea3D::getCameraToNodeDir(QQuick3DNode *node) const
 {
     QVector3D dir;
@@ -1037,8 +1045,7 @@ QVector3D MouseArea3D::getCameraToNodeDir(QQuick3DNode *node) const
         // We need to do a cast here to be compatible with Qt 5.x.
         // From Qt 6.2 the type can be read from the node directly.
         if (qobject_cast<QQuick3DOrthographicCamera *>(m_view3D->camera())) {
-            if (auto renderCamera = QQuick3DObjectPrivate::get(m_view3D->camera())->spatialNode)
-                dir -= static_cast<QSSGRenderCamera *>(renderCamera)->getDirection();
+            dir -= getDirection(m_view3D->camera());
         } else {
             QVector3D camPos = m_view3D->camera()->scenePosition();
             QVector3D nodePos = pivotScenePosition(node);

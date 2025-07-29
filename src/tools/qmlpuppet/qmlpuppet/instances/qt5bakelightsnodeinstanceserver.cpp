@@ -96,6 +96,7 @@ void Qt5BakeLightsNodeInstanceServer::bakeLights()
         return;
     }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 10, 0)
     QQuick3DLightmapBaker::Callback callback = [this](QQuick3DLightmapBaker::BakingStatus status,
             std::optional<QString> msg, QQuick3DLightmapBaker::BakingControl *) {
         m_callbackReceived = true;
@@ -119,6 +120,33 @@ void Qt5BakeLightsNodeInstanceServer::bakeLights()
             break;
         }
     };
+#else
+    QQuick3DLightmapBaker::Callback callback = [this](const QVariantMap &data,
+                                                      QQuick3DLightmapBaker::BakingControl *) {
+        m_callbackReceived = true;
+        const QQuick3DLightmapBaker::BakingStatus status
+            = static_cast<QQuick3DLightmapBaker::BakingStatus>(data[QStringLiteral("status")].toInt());
+        QString msg = data.value("message").toString();
+        switch (status) {
+        case QQuick3DLightmapBaker::BakingStatus::Warning:
+        case QQuick3DLightmapBaker::BakingStatus::Error: {
+            nodeInstanceClient()->handlePuppetToCreatorCommand(
+                {PuppetToCreatorCommand::BakeLightsProgress, msg});
+            nodeInstanceClient()->flush();
+        } break;
+        case QQuick3DLightmapBaker::BakingStatus::Cancelled:
+            abort(tr("Baking cancelled."));
+            break;
+        case QQuick3DLightmapBaker::BakingStatus::Complete:
+            runDenoiser();
+            break;
+        default:
+            qWarning() << __FUNCTION__ << "Unexpected light baking status received:"
+                       << int(status) << msg;
+            break;
+        }
+    };
+#endif
 
     QQuick3DLightmapBaker *baker = m_view3D->lightmapBaker();
     baker->bake(callback);
