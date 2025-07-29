@@ -1324,7 +1324,7 @@ EditorFactories EditorManagerPrivate::findFactories(Id editorId, const FilePath 
     }
     if (factories.empty()) {
         qWarning("%s: unable to find an editor factory for the file '%s', editor Id '%s'.",
-                 Q_FUNC_INFO, filePath.toUrlishString().toUtf8().constData(), editorId.name().constData());
+                 Q_FUNC_INFO, filePath.toUserOutput().toUtf8().constData(), editorId.name().constData());
     }
 
     return factories;
