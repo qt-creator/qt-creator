@@ -242,5 +242,6 @@ QTCREATOR_UTILS_EXPORT bool isReadableOn(const QColor &background, const QColor 
 // returns a foreground color readable on background (desiredForeground if already readable or adaption fails)
 QTCREATOR_UTILS_EXPORT QColor ensureReadableOn(const QColor &background,
                                                const QColor &desiredForeground);
-
+// modifies widget's palette QPalette::Base to color, leaves other colors of palette untouched
+QTCREATOR_UTILS_EXPORT void modifyPaletteBase(QWidget *widget, const QColor &color);
 } // namespace Utils::StyleHelper

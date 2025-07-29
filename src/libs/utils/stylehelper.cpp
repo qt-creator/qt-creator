@@ -1061,4 +1061,12 @@ QString StyleHelper::fontToCssProperties(const QFont &font)
     return fontCssStyle;
 }
 
+void StyleHelper::modifyPaletteBase(QWidget *widget, const QColor &color)
+{
+    QTC_ASSERT(widget, return);
+    QPalette palette = widget->palette();
+    palette.setColor(QPalette::Base, color);
+    widget->setPalette(palette);
+}
+
 } // namespace Utils
