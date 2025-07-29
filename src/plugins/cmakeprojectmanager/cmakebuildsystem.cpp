@@ -2706,7 +2706,7 @@ void CMakeBuildSystem::runGenerator(Id id)
     const FilePath outDir = buildConfiguration()->buildDirectory()
             / ("qtc_" + FileUtils::fileSystemFriendlyName(generator));
     if (!outDir.ensureWritableDir()) {
-        showError(Tr::tr("Cannot create output directory \"%1\".").arg(outDir.toUrlishString()));
+        showError(Tr::tr("Cannot create output directory \"%1\".").arg(outDir.toFSPathString()));
         return;
     }
     CommandLine cmdLine(cmakeTool->cmakeExecutable(), {"-S", buildConfiguration()

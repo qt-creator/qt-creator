@@ -215,21 +215,21 @@ FilePath CMakeTool::qchFilePath() const
 FilePath CMakeTool::cmakeExecutable(const FilePath &path)
 {
     if (path.osType() == OsTypeMac) {
-        const QString executableString = path.toUrlishString();
+        const QString executableString = path.path();
         const int appIndex = executableString.lastIndexOf(".app");
         const int appCutIndex = appIndex + 4;
         const bool endsWithApp = appIndex >= 0 && appCutIndex >= executableString.size();
         const bool containsApp = appIndex >= 0 && !endsWithApp
                                  && executableString.at(appCutIndex) == '/';
         if (endsWithApp || containsApp) {
-            const FilePath toTest = FilePath::fromString(executableString.left(appCutIndex))
+            const FilePath toTest = path.withNewPath(executableString.left(appCutIndex))
                     .pathAppended("Contents/bin/cmake");
             if (toTest.exists())
                 return toTest.canonicalPath();
         }
     }
 
-    FilePath resolvedPath = path.canonicalPath();
+    const FilePath resolvedPath = path.canonicalPath();
     // Evil hack to make snap-packages of CMake work. See QTCREATORBUG-23376
     if (path.osType() == OsTypeLinux && resolvedPath.fileName() == "snap")
         return path;

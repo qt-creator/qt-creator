@@ -881,10 +881,11 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                     Task::TaskType::DisruptingError, Tr::tr("<No CMake Tool available>"));
             }
         } else {
-            QString cmakeExecutable = configurePreset.cmakeExecutable.value().toUrlishString();
-            CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), cmakeExecutable);
+            FilePath cmakeExecutable = configurePreset.cmakeExecutable.value();
+            QString cmake = cmakeExecutable.path(); // Don't replace in scheme/host
+            CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), cmake);
 
-            configurePreset.cmakeExecutable = FilePath::fromUserInput(cmakeExecutable);
+            configurePreset.cmakeExecutable = cmakeExecutable.withNewPath(cmake);
         }
 
         data->cmakeBinary = configurePreset.cmakeExecutable.value();
@@ -955,7 +956,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             updateCompilerPaths(config, env);
             config << CMakeConfigItem("CMAKE_COMMAND",
                                       CMakeConfigItem::PATH,
-                                      configurePreset.cmakeExecutable.value().toUrlishString().toUtf8());
+                                      configurePreset.cmakeExecutable.value().path().toUtf8());
             if (configurePreset.generator)
                 config << CMakeConfigItem("CMAKE_GENERATOR",
                                           CMakeConfigItem::STRING,
@@ -1381,31 +1382,32 @@ void CMakeProjectImporterTest::testCMakeProjectImporterQt()
                                                              Environment::systemEnvironment());
     QCOMPARE(realQmake.path(), expectedQmake);
 }
+
 void CMakeProjectImporterTest::testCMakeProjectImporterToolchain_data()
 {
     QTest::addColumn<QStringList>("cache");
     QTest::addColumn<QByteArrayList>("expectedLanguages");
-    QTest::addColumn<QStringList>("expectedToolchains");
+    QTest::addColumn<FilePaths>("expectedToolchains");
 
     QTest::newRow("Empty input")
-            << QStringList() << QByteArrayList() << QStringList();
+            << QStringList() << QByteArrayList() << FilePaths();
 
     QTest::newRow("Unrelated input")
-            << QStringList("CMAKE_SOMETHING_ELSE=/tmp") << QByteArrayList() << QStringList();
+            << QStringList("CMAKE_SOMETHING_ELSE=/tmp") << QByteArrayList() << FilePaths();
     QTest::newRow("CXX compiler")
             << QStringList({"CMAKE_CXX_COMPILER=/usr/bin/g++"})
             << QByteArrayList({"Cxx"})
-            << QStringList({"/usr/bin/g++"});
+            << FilePaths({"/usr/bin/g++"});
     QTest::newRow("CXX compiler, C compiler")
             << QStringList({"CMAKE_CXX_COMPILER=/usr/bin/g++", "CMAKE_C_COMPILER=/usr/bin/clang"})
             << QByteArrayList({"Cxx", "C"})
-            << QStringList({"/usr/bin/g++", "/usr/bin/clang"});
+            << FilePaths({"/usr/bin/g++", "/usr/bin/clang"});
     QTest::newRow("CXX compiler, C compiler, strange compiler")
             << QStringList({"CMAKE_CXX_COMPILER=/usr/bin/g++",
                              "CMAKE_C_COMPILER=/usr/bin/clang",
                              "CMAKE_STRANGE_LANGUAGE_COMPILER=/tmp/strange/compiler"})
             << QByteArrayList({"Cxx", "C", "STRANGE_LANGUAGE"})
-            << QStringList({"/usr/bin/g++", "/usr/bin/clang", "/tmp/strange/compiler"});
+            << FilePaths({"/usr/bin/g++", "/usr/bin/clang", "/tmp/strange/compiler"});
     QTest::newRow("CXX compiler, C compiler, strange compiler (with junk)")
             << QStringList({"FOO=test",
                              "CMAKE_CXX_COMPILER=/usr/bin/g++",
@@ -1415,14 +1417,14 @@ void CMakeProjectImporterTest::testCMakeProjectImporterToolchain_data()
                              "CMAKE_STRANGE_LANGUAGE_COMPILER=/tmp/strange/compiler",
                              "BAR=more test"})
             << QByteArrayList({"Cxx", "C", "STRANGE_LANGUAGE"})
-            << QStringList({"/usr/bin/g++", "/usr/bin/clang", "/tmp/strange/compiler"});
+            << FilePaths({"/usr/bin/g++", "/usr/bin/clang", "/tmp/strange/compiler"});
 }
 
 void CMakeProjectImporterTest::testCMakeProjectImporterToolchain()
 {
     QFETCH(QStringList, cache);
     QFETCH(QByteArrayList, expectedLanguages);
-    QFETCH(QStringList, expectedToolchains);
+    QFETCH(FilePaths, expectedToolchains);
 
     QCOMPARE(expectedLanguages.count(), expectedToolchains.count());
 
@@ -1439,7 +1441,7 @@ void CMakeProjectImporterTest::testCMakeProjectImporterToolchain()
     QCOMPARE(tcs.count(), expectedLanguages.count());
     for (int i = 0; i < tcs.count(); ++i) {
         QCOMPARE(tcs.at(i).language, expectedLanguages.at(i));
-        QCOMPARE(tcs.at(i).compilerPath.toUrlishString(), expectedToolchains.at(i));
+        QCOMPARE(tcs.at(i).compilerPath, expectedToolchains.at(i));
     }
 }
 
