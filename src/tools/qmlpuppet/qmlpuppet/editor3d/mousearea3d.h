@@ -135,6 +135,7 @@ private:
     void setDragging(bool enable);
     void setHovering(bool enable);
     QVector3D getNormal() const;
+    QVector3D getDirection(const QQuick3DNode *node) const;
     QVector3D getCameraToNodeDir(QQuick3DNode *node) const;
 
     Q_DISABLE_COPY(MouseArea3D)

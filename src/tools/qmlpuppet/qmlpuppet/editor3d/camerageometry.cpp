@@ -154,7 +154,7 @@ void CameraGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexDat
         QRectF rect = m_viewPortRect;
         if (rect.isNull())
              rect = QRectF(0, 0, 1000, 1000); // Let's have some visualization for null viewports
-        camera->calculateGlobalVariables(rect);
+        camera->calculateProjection(rect);
         m = camera->projection.inverted();
     }
 

@@ -195,13 +195,10 @@ void SelectionBoxGeometry::doUpdateGeometry()
             // to avoid having to reparent the selection box. This has to be done directly on render
             // nodes.
             QMatrix4x4 m;
-            if (targetRN->parent) {
-                targetRN->parent->calculateGlobalVariables();
-                m = targetRN->parent->globalTransform;
-            }
+            if (m_targetNode->parentNode())
+                m = m_targetNode->parentNode()->sceneTransform();
             rootRN->localTransform = m;
             rootRN->markDirty(QSSGRenderNode::DirtyFlag::TransformDirty);
-            rootRN->calculateGlobalVariables();
         } else if (!m_spatialNodeUpdatePending) {
             // Necessary spatial nodes do not yet exist. Defer selection box creation one frame.
             m_spatialNodeUpdatePending = true;
