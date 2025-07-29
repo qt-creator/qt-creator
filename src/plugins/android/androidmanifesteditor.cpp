@@ -49,6 +49,7 @@
 #include <QLineEdit>
 #include <QListView>
 #include <QLoggingCategory>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QScrollArea>
@@ -67,6 +68,8 @@ using namespace TextEditor;
 using namespace Utils;
 
 static Q_LOGGING_CATEGORY(androidManifestEditorLog, "qtc.android.manifestEditor", QtWarningMsg)
+
+const char ANDROID_GUI_EDITOR_ENABLED_KEY[] = "Android/GuiEditorEnabled";
 
 namespace Android::Internal {
 
@@ -498,6 +501,9 @@ public:
 
     void setDirty(bool dirty = true);
 
+    Qt::CheckState guiEnabledState() const { return m_guiEnabled->checkState(); };
+    void setGuiEnabledState(Qt::CheckState state) { m_guiEnabled->setCheckState(state); };
+
 protected:
     void focusInEvent(QFocusEvent *event) override;
 
@@ -523,6 +529,8 @@ private:
     void updateInfoBar(const QString &errorMessage, int line, int column);
     void hideInfoBar();
 
+    void saveGuiEnabledState(bool checked);
+
     void parseManifest(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     void parseApplication(QXmlStreamReader &reader, QXmlStreamWriter &writer);
     void parseSplashScreen(QXmlStreamWriter &writer);
@@ -539,6 +547,7 @@ private:
     QGroupBox *createPackageFormLayout(QWidget *parent);
     QGroupBox *createApplicationGroupBox(QWidget *parent);
     QGroupBox *createAdvancedGroupBox(QWidget *parent);
+    QGroupBox *createSettingsGroupBox(QWidget *parent);
 
     bool m_dirty = false; // indicates that we need to call syncToEditor()
     bool m_stayClean = false;
@@ -546,6 +555,8 @@ private:
     int m_errorColumn;
     QString m_currentsplashImageName[3];
     bool m_currentsplashSticky = false;
+
+    QCheckBox *m_guiEnabled;
 
     QLineEdit *m_packageNameLineEdit;
     QLabel *m_packageNameWarningIcon;
@@ -606,6 +617,15 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
             this, [this](bool success) { if (success) updateAfterFileLoad(); });
     connect(m_textEditorWidget->textDocument(), &TextDocument::openFinishedSuccessfully,
             this, &AndroidManifestEditorWidget::updateAfterFileLoad);
+
+    setActivePage(Source);
+    setEnabled(true);
+}
+
+void AndroidManifestEditorWidget::saveGuiEnabledState(bool checked)
+{
+    QSettings settings;
+    settings.setValue(ANDROID_GUI_EDITOR_ENABLED_KEY, checked);
 }
 
 QGroupBox *AndroidManifestEditorWidget::createPermissionsGroupBox(QWidget *parent)
@@ -960,15 +980,38 @@ QGroupBox *AndroidManifestEditorWidget::createAdvancedGroupBox(QWidget *parent)
     return otherGroupBox;
 }
 
+QGroupBox *AndroidManifestEditorWidget::createSettingsGroupBox(QWidget *parent)
+{
+    auto otherGroupBox = new QGroupBox(parent);
+    otherGroupBox->setTitle(::Android::Tr::tr("Settings"));
+    auto formLayout = new QFormLayout();
+
+    QSettings settings;
+    const bool isGuiEnabled = settings.value(ANDROID_GUI_EDITOR_ENABLED_KEY, false).toBool();
+
+    m_guiEnabled = new QCheckBox(
+        Tr::tr("Don't ask for confirmation when switching to the Manifest Editor UI"));
+    m_guiEnabled->setToolTip(Tr::tr("Warning: Using the Manifest Editor UI may overwrite any manual"
+                                    " changes made to the AndroidManifest.xml"));
+    m_guiEnabled->setChecked(isGuiEnabled);
+    connect(
+        m_guiEnabled, &QCheckBox::toggled, this, &AndroidManifestEditorWidget::saveGuiEnabledState);
+    formLayout->addWidget(m_guiEnabled);
+    otherGroupBox->setLayout(formLayout);
+
+    return otherGroupBox;
+}
+
 void AndroidManifestEditorWidget::initializePage()
 {
     QWidget *mainWidget = new QWidget(); // different name
     auto topLayout = new QGridLayout(mainWidget);
 
-    topLayout->addWidget(createPackageFormLayout(mainWidget), 0, 0);
-    topLayout->addWidget(createApplicationGroupBox(mainWidget), 0, 1);
-    topLayout->addWidget(createPermissionsGroupBox(mainWidget), 1, 0, 1, 2);
-    topLayout->addWidget(createAdvancedGroupBox(mainWidget), 2, 0, 1, 2);
+    topLayout->addWidget(createSettingsGroupBox(mainWidget), 0, 0, 1, 3);
+    topLayout->addWidget(createPackageFormLayout(mainWidget), 1, 0);
+    topLayout->addWidget(createApplicationGroupBox(mainWidget), 1, 1);
+    topLayout->addWidget(createPermissionsGroupBox(mainWidget), 2, 0, 1, 3);
+    topLayout->addWidget(createAdvancedGroupBox(mainWidget), 3, 0, 1, 3);
     topLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::MinimumExpanding), 3, 0);
 
     auto mainWidgetScrollArea = new QScrollArea;
@@ -1947,17 +1990,17 @@ AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editor
     connect(m_actionGroup, &QActionGroup::triggered,
             this, &AndroidManifestEditor::changeEditorPage);
 
-    QAction *generalAction = m_toolBar->addAction(Tr::tr("General"));
-    generalAction->setData(AndroidManifestEditorWidget::General);
-    generalAction->setCheckable(true);
-    m_actionGroup->addAction(generalAction);
-
     QAction *sourceAction = m_toolBar->addAction(Tr::tr("XML Source"));
     sourceAction->setData(AndroidManifestEditorWidget::Source);
     sourceAction->setCheckable(true);
     m_actionGroup->addAction(sourceAction);
+    sourceAction->setChecked(true);
 
-    generalAction->setChecked(true);
+    QAction *generalAction = m_toolBar->addAction(Tr::tr("General"));
+    generalAction->setData(AndroidManifestEditorWidget::General);
+    generalAction->setCheckable(true);
+    m_actionGroup->addAction(generalAction);
+    generalAction->setChecked(false);
 
     setWidget(editorWidget);
 }
@@ -2000,11 +2043,37 @@ void AndroidManifestEditor::gotoLine(int line, int column, bool centerLine)
 
 void AndroidManifestEditor::changeEditorPage(QAction *action)
 {
-    if (!ownWidget()->setActivePage(static_cast<AndroidManifestEditorWidget::EditorPage>(action->data().toInt()))) {
+    const auto targetPage = static_cast<AndroidManifestEditorWidget::EditorPage>(
+        action->data().toInt());
+
+    if (targetPage == AndroidManifestEditorWidget::EditorPage::General
+        && ownWidget()->guiEnabledState() == Qt::CheckState::Unchecked) {
+        int ret = QMessageBox::warning(
+            this->ownWidget(),
+            Tr::tr("Enabling the Manifest Editor UI"),
+            Tr::tr("Using the Manifest Editor UI may overwrite any manual changes "
+                   "made to the AndroidManifest.xml."),
+            QMessageBox::Cancel,
+            QMessageBox::Ok);
+        if (ret != QMessageBox::Ok) {
+            const QList<QAction *> actions = m_actionGroup->actions();
+            for (QAction *currentAction : actions) {
+                if (currentAction->data().toInt() == ownWidget()->activePage()) {
+                    currentAction->setChecked(true);
+                    break;
+                }
+            }
+            return;
+        } else {
+            ownWidget()->setGuiEnabledState(Qt::CheckState::Checked);
+        }
+    }
+
+    if (!ownWidget()->setActivePage(targetPage)) {
         const QList<QAction *> actions = m_actionGroup->actions();
-        for (QAction *action : actions) {
-            if (action->data().toInt() == ownWidget()->activePage()) {
-                action->setChecked(true);
+        for (QAction *currentAction : actions) {
+            if (currentAction->data().toInt() == ownWidget()->activePage()) {
+                currentAction->setChecked(true);
                 break;
             }
         }
