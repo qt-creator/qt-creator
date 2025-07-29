@@ -37,10 +37,10 @@ public:
     Common::MainWidget *designWidget() const;
     void syncXmlFromDesignWidget();
     QString designWidgetContents() const;
-    void setFilePath(const Utils::FilePath&) override;
+    void setFilePath(const Utils::FilePath &filePath) override;
 
 signals:
-    void reloadRequested(QString *errorString, const QString &);
+    void reloadRequested(QString *errorString, const Utils::FilePath &);
 
 protected:
     Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;

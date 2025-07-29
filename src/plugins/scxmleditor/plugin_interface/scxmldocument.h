@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QFileInfo>
 #include <QHash>
 #include <QList>
@@ -14,9 +16,7 @@
 QT_FORWARD_DECLARE_CLASS(QUndoStack)
 QT_FORWARD_DECLARE_CLASS(QXmlStreamReader)
 
-namespace ScxmlEditor {
-
-namespace PluginInterface {
+namespace ScxmlEditor::PluginInterface {
 
 class ScxmlNamespace;
 class ScxmlTag;
@@ -55,8 +55,8 @@ public:
         TagChangeFullNameSpace
     };
 
-    explicit ScxmlDocument(const QString &fileName = QString(), QObject *parent = nullptr);
-    explicit ScxmlDocument(const QByteArray &data, QObject *parent = nullptr);
+    explicit ScxmlDocument(const Utils::FilePath &filePath = {}, QObject *parent = nullptr);
+    // explicit ScxmlDocument(const QByteArray &data, QObject *parent = nullptr);
     ~ScxmlDocument() override;
 
     void addNamespace(ScxmlNamespace *ns);
@@ -146,11 +146,11 @@ public:
     ScxmlTag *popRootTag();
 
     /**
-     * @brief fileName - return current filename of the document
+     * @brief filePath - return current filename of the document
      * @return
      */
-    QString fileName() const;
-    void setFileName(const QString &filename);
+    Utils::FilePath filePath() const;
+    void setFilePath(const Utils::FilePath &filePath);
 
     /**
      * @brief undoStack - return undo-stack of the document (see UndoStack)
@@ -160,12 +160,12 @@ public:
 
     /**
      * @brief save - save document with given filename
-     * @param fileName -
+     * @param filePath -
      * @return return true if file has successfully wrote
      */
-    bool save(const QString &fileName);
+    bool save(const Utils::FilePath &filePath);
     bool save();
-    void load(const QString &fileName);
+    void load(const Utils::FilePath &filePath);
     bool pasteData(const QByteArray &data, const QPointF &minPos = QPointF(0, 0), const QPointF &pastePos = QPointF(0, 0));
     bool load(QIODevice *io);
 
@@ -254,7 +254,7 @@ private:
     void removeTagRecursive(ScxmlTag *tag);
 
     ScxmlTag *createScxmlTag();
-    QString m_fileName;
+    Utils::FilePath m_filePath;
     QUndoStack *m_undoStack;
     QList<ScxmlTag*> m_tags;
     QHash<QString, int> m_nextIdHash;
@@ -272,5 +272,4 @@ private:
     QFileInfo m_qtBinDir;
 };
 
-} // namespace PluginInterface
-} // namespace ScxmlEditor
+} // namespace ScxmlEditor::PluginInterface

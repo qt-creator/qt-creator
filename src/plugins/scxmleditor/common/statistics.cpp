@@ -147,7 +147,7 @@ Statistics::Statistics(QWidget *parent)
 
 void Statistics::setDocument(ScxmlDocument *doc)
 {
-    m_fileNameLabel->setText(doc->fileName());
+    m_fileNameLabel->setText(doc->filePath().toUserOutput());
     m_model->setDocument(doc);
     m_proxyModel->invalidate();
     m_proxyModel->sort(1, Qt::DescendingOrder);

@@ -17,7 +17,7 @@ public:
     ScxmlTextEditor();
 
     void finalizeInitialization() override;
-    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    bool open(QString *errorString, const Utils::FilePath &filePath);
 
     QWidget *toolBar() override
     {

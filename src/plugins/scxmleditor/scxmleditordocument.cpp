@@ -46,7 +46,7 @@ Result<> ScxmlEditorDocument::open(const FilePath &filePath, const FilePath &rea
         return ResultError(ResultAssert);
 
     const FilePath &absoluteFilePath = filePath.absoluteFilePath();
-    if (!m_designWidget->load(absoluteFilePath.toUrlishString()))
+    if (!m_designWidget->load(absoluteFilePath))
         return ResultError(m_designWidget->errorMessage());
 
     setFilePath(absoluteFilePath);
@@ -61,14 +61,14 @@ Result<> ScxmlEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 
     bool dirty = m_designWidget->isDirty();
 
-    m_designWidget->setFileName(filePath.toUrlishString());
+    m_designWidget->setFilePath(filePath);
     if (!m_designWidget->save()) {
-        m_designWidget->setFileName(this->filePath().toUrlishString());
+        m_designWidget->setFilePath(this->filePath());
         return ResultError(m_designWidget->errorMessage());
     }
 
     if (autoSave) {
-        m_designWidget->setFileName(this->filePath().toUrlishString());
+        m_designWidget->setFilePath(this->filePath());
         m_designWidget->save();
         return ResultOk;
     }
@@ -81,10 +81,10 @@ Result<> ScxmlEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
     return ResultOk;
 }
 
-void ScxmlEditorDocument::setFilePath(const FilePath &newName)
+void ScxmlEditorDocument::setFilePath(const FilePath &filePath)
 {
-    m_designWidget->setFileName(newName.toUrlishString());
-    IDocument::setFilePath(newName);
+    m_designWidget->setFilePath(filePath);
+    IDocument::setFilePath(filePath);
 }
 
 bool ScxmlEditorDocument::shouldAutoSave() const
@@ -114,7 +114,7 @@ Result<> ScxmlEditorDocument::reload(ReloadFlag flag, ChangeType type)
         return ResultOk;
     emit aboutToReload();
     QString errorString;
-    emit reloadRequested(&errorString, filePath().toUrlishString());
+    emit reloadRequested(&errorString, filePath());
     const bool success = errorString.isEmpty();
     emit reloadFinished(success);
     return makeResult(success, errorString);

@@ -13,22 +13,24 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-using namespace ScxmlEditor::PluginInterface;
+using namespace Utils;
 
-ScxmlDocument::ScxmlDocument(const QString &fileName, QObject *parent)
+namespace ScxmlEditor::PluginInterface {
+
+ScxmlDocument::ScxmlDocument(const FilePath &filePath, QObject *parent)
     : QObject(parent)
 {
     initVariables();
-    m_fileName = fileName;
-    load(fileName);
+    m_filePath = filePath;
+    load(filePath);
 }
 
-ScxmlDocument::ScxmlDocument(const QByteArray &data, QObject *parent)
-    : QObject(parent)
-{
-    initVariables();
-    load(QLatin1String(data));
-}
+// ScxmlDocument::ScxmlDocument(const QByteArray &data, QObject *parent)
+//     : QObject(parent)
+// {
+//     initVariables();
+//     load(QLatin1String(data));
+// }
 
 ScxmlDocument::~ScxmlDocument()
 {
@@ -85,14 +87,14 @@ void ScxmlDocument::setNameSpaceDelimiter(const QString &delimiter)
     m_idDelimiter = delimiter;
 }
 
-QString ScxmlDocument::fileName() const
+FilePath ScxmlDocument::filePath() const
 {
-    return m_fileName;
+    return m_filePath;
 }
 
-void ScxmlDocument::setFileName(const QString &filename)
+void ScxmlDocument::setFilePath(const FilePath &filePath)
 {
-    m_fileName = filename;
+    m_filePath = filePath;
 }
 
 ScxmlNamespace *ScxmlDocument::scxmlNamespace(const QString &prefix)
@@ -216,7 +218,7 @@ bool ScxmlDocument::load(QIODevice *io)
     if (xml.hasError()) {
         m_hasError = true;
         initErrorMessage(xml, io);
-        m_fileName.clear();
+        m_filePath.clear();
         ok = false;
 
         clear();
@@ -347,14 +349,13 @@ bool ScxmlDocument::pasteData(const QByteArray &data, const QPointF &minPos, con
     return ok;
 }
 
-void ScxmlDocument::load(const QString &fileName)
+void ScxmlDocument::load(const FilePath &filePath)
 {
-    if (QFileInfo::exists(fileName)) {
-        QFile file(fileName);
+    if (filePath.exists()) {
+        QFile file(filePath.toFSPathString());
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            if (load(&file)) {
-                m_fileName = fileName;
-            }
+            if (load(&file))
+                m_filePath = filePath;
         }
     }
 
@@ -411,12 +412,12 @@ QByteArray ScxmlDocument::content(ScxmlTag *tag) const
 
 bool ScxmlDocument::save()
 {
-    return save(m_fileName);
+    return save(m_filePath);
 }
 
-bool ScxmlDocument::save(const QString &fileName)
+bool ScxmlDocument::save(const FilePath &filePath)
 {
-    QString name(fileName);
+    QString name = filePath.toFSPathString();
     if (!name.endsWith(".scxml", Qt::CaseInsensitive))
         name.append(".scxml");
 
@@ -426,15 +427,15 @@ bool ScxmlDocument::save(const QString &fileName)
     if (file.open(QIODevice::WriteOnly)) {
         ok = generateSCXML(&file, scxmlRootTag());
         if (ok) {
-            m_fileName = name;
+            m_filePath = FilePath::fromString(name);
             m_undoStack->setClean();
         }
         file.close();
         if (!ok)
-            m_lastError = Tr::tr("Cannot save XML to the file %1.").arg(fileName);
+            m_lastError = Tr::tr("Cannot save XML to the file %1.").arg(name);
     } else {
         ok = false;
-        m_lastError = Tr::tr("Cannot open file %1.").arg(fileName);
+        m_lastError = Tr::tr("Cannot open file %1.").arg(name);
     }
 
     return ok;
@@ -680,3 +681,5 @@ QFileInfo ScxmlDocument::qtBinDir() const
 {
     return m_qtBinDir;
 }
+
+} // namespace ScxmlEditor::PluginInterface

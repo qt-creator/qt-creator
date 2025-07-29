@@ -62,10 +62,10 @@
 #include <iostream>
 
 using namespace ScxmlEditor::PluginInterface;
-using namespace ScxmlEditor::Common;
 using namespace ScxmlEditor::OutputPane;
-
 using namespace Utils;
+
+namespace ScxmlEditor::Common {
 
 void msgHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -412,7 +412,7 @@ void MainWidget::exportToImage()
     if (!view)
         return;
 
-    QString suggestedFileName = QFileInfo(m_document->fileName()).baseName();
+    QString suggestedFileName = m_document->filePath().baseName();
     if (suggestedFileName.isEmpty())
         suggestedFileName = Tr::tr("Untitled");
 
@@ -571,7 +571,7 @@ void MainWidget::newDocument()
 {
     clear();
     addStateView();
-    m_document->setFileName(QString());
+    m_document->setFilePath({});
     m_uiFactory->documentChanged(NewDocument, m_document);
     documentChanged();
 }
@@ -621,11 +621,11 @@ void MainWidget::handleTabVisibilityChanged(bool visible)
     }
 }
 
-bool MainWidget::load(const QString &fileName)
+bool MainWidget::load(const FilePath &filePath)
 {
     clear();
     addStateView();
-    m_document->load(fileName);
+    m_document->load(filePath);
     m_uiFactory->documentChanged(AfterLoad, m_document);
     documentChanged();
     return !m_document->hasError();
@@ -813,14 +813,14 @@ QString MainWidget::errorMessage() const
     return m_document->lastError();
 }
 
-QString MainWidget::fileName() const
+FilePath MainWidget::filePath() const
 {
-    return m_document->fileName();
+    return m_document->filePath();
 }
 
-void MainWidget::setFileName(const QString &filename)
+void MainWidget::setFilePath(const FilePath &filePath)
 {
-    m_document->setFileName(filename);
+    m_document->setFilePath(filePath);
 }
 
 bool MainWidget::isDirty() const
@@ -858,3 +858,5 @@ bool MainWidget::event(QEvent *e)
 
     return QWidget::event(e);
 }
+
+} // namespace ScxmlEditor::Common

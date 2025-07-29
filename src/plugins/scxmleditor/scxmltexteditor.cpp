@@ -13,10 +13,11 @@
 #include <utils/qtcassert.h>
 
 #include <QBuffer>
-#include <QFileInfo>
 
-using namespace ScxmlEditor;
 using namespace ScxmlEditor::Internal;
+using namespace Utils;
+
+namespace ScxmlEditor {
 
 ScxmlTextEditor::ScxmlTextEditor()
 {
@@ -29,30 +30,31 @@ void ScxmlTextEditor::finalizeInitialization()
     // Revert to saved/load externally modified files.
     auto document = qobject_cast<const ScxmlEditorDocument*>(textDocument());
     connect(document, &ScxmlEditorDocument::reloadRequested,
-            this, [this](QString *errorString, const QString &fileName) {
-        open(errorString, fileName, fileName);
+            this, [this](QString *errorString, const FilePath &filePath) {
+        open(errorString, filePath);
     });
 }
 
-bool ScxmlTextEditor::open(QString *errorString, const QString &fileName, const QString & /*realFileName*/)
+bool ScxmlTextEditor::open(QString *errorString, const FilePath &filePath)
 {
     auto document = qobject_cast<ScxmlEditorDocument*>(textDocument());
     Common::MainWidget *designWidget = document->designWidget();
     QTC_ASSERT(designWidget, return false);
 
-    if (fileName.isEmpty())
+    if (filePath.isEmpty())
         return true;
 
-    const QFileInfo fi(fileName);
-    const QString absfileName = fi.absoluteFilePath();
+    const FilePath absfilePath = filePath.absoluteFilePath();
 
-    if (!designWidget->load(absfileName)) {
+    if (!designWidget->load(absfilePath)) {
         *errorString = designWidget->errorMessage();
         return false;
     }
 
     document->syncXmlFromDesignWidget();
-    document->setFilePath(Utils::FilePath::fromString(absfileName));
+    document->setFilePath(absfilePath);
 
     return true;
 }
+
+} // ScxmlEditor
