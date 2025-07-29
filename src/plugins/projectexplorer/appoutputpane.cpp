@@ -42,6 +42,7 @@
 #include <QLabel>
 #include <QLoggingCategory>
 #include <QMenu>
+#include <QPushButton>
 #include <QSpinBox>
 #include <QTabBar>
 #include <QTabWidget>
@@ -905,9 +906,18 @@ public:
         if (bgColor == AppOutputSettings::defaultBackgroundColor())
             bgColor = QColor();
         m_backgroundColor.setColor(bgColor);
-        connect(&m_overwriteColor, &QCheckBox::clicked,
-                &m_backgroundColor, &QtColorButton::setEnabled);
         m_backgroundColor.setEnabled(m_overwriteColor.isChecked());
+        auto resetColorButton = new QPushButton(Tr::tr("Reset"));
+        resetColorButton->setToolTip(Tr::tr("Reset to default.", "Color"));
+        resetColorButton->setEnabled(m_overwriteColor.isChecked());
+        connect(resetColorButton, &QPushButton::clicked, this, [this] {
+            m_backgroundColor.setColor({});
+        });
+        connect(&m_overwriteColor, &QCheckBox::clicked,
+                this, [this, resetColorButton](bool checked) {
+                m_backgroundColor.setEnabled(checked);
+                resetColorButton->setEnabled(checked);
+        });
 
         const auto layout = new QVBoxLayout(this);
         layout->addWidget(&m_wrapOutputCheckBox);
@@ -928,6 +938,7 @@ public:
         const auto bgColorLayout = new QHBoxLayout;
         bgColorLayout->addWidget(&m_overwriteColor);
         bgColorLayout->addWidget(&m_backgroundColor);
+        bgColorLayout->addWidget(resetColorButton);
         bgColorLayout->addStretch(1);
         layout->addLayout(outputModeLayout);
         layout->addLayout(maxCharsLayout);
