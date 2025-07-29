@@ -3,40 +3,23 @@
 
 #pragma once
 
-#include "utils_global.h"
-
 #include "filepath.h"
 
-#include <QObject>
+namespace Utils::FileStreamerManager {
 
-QT_BEGIN_NAMESPACE
-class QByteArray;
-QT_END_NAMESPACE
+QTCREATOR_UTILS_EXPORT FileStreamHandle copy(const Continuation<> &cont,
+                                             const FilePath &source,
+                                             const FilePath &destination);
 
-namespace Utils {
+QTCREATOR_UTILS_EXPORT FileStreamHandle read(const Continuation<QByteArray> &cont,
+                                             const FilePath &source);
 
-enum class FileStreamHandle : int {};
+QTCREATOR_UTILS_EXPORT FileStreamHandle write(const Continuation<qint64> &cont,
+                                              const FilePath &destination,
+                                              const QByteArray &data);
 
-class QTCREATOR_UTILS_EXPORT FileStreamerManager
-{
-public:
-    static FileStreamHandle copy(const FilePath &source, const FilePath &destination,
-                                 const CopyContinuation &cont);
-    static FileStreamHandle copy(const FilePath &source, const FilePath &destination,
-                                 QObject *context, const CopyContinuation &cont);
+// If called from the same thread that started the task, no continuation is going to be called.
+QTCREATOR_UTILS_EXPORT void stop(FileStreamHandle handle);
+QTCREATOR_UTILS_EXPORT void stopAll();
 
-    static FileStreamHandle read(const FilePath &source, const ReadContinuation &cont = {});
-    static FileStreamHandle read(const FilePath &source, QObject *context,
-                                 const ReadContinuation &cont = {});
-
-    static FileStreamHandle write(const FilePath &destination, const QByteArray &data,
-                                  const WriteContinuation &cont = {});
-    static FileStreamHandle write(const FilePath &destination, const QByteArray &data,
-                                  QObject *context, const WriteContinuation &cont = {});
-
-    // If called from the same thread that started the task, no continuation is going to be called.
-    static void stop(FileStreamHandle handle);
-    static void stopAll();
-};
-
-} // namespace Utils
+} // namespace Utils::FileStreamerManager

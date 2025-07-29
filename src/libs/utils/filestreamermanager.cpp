@@ -14,7 +14,7 @@
 
 #include <unordered_map>
 
-namespace Utils {
+namespace Utils::FileStreamerManager {
 
 // TODO: destruct the instance before destructing ProjectExplorer::DeviceManager (?)
 
@@ -91,9 +91,9 @@ static FileStreamHandle checkHandle(FileStreamHandle handle)
     return s_fileStreamers.find(handle) != s_fileStreamers.end() ? handle : FileStreamHandle(0);
 }
 
-FileStreamHandle execute(const std::function<void(FileStreamer *)> &onSetup,
-                         const std::function<void(FileStreamer *)> &onDone,
-                         QObject *context)
+static FileStreamHandle execute(const std::function<void(FileStreamer *)> &onSetup,
+                                const std::function<void(FileStreamer *)> &onDone,
+                                QObject *context)
 {
     FileStreamer *streamer = new FileStreamer;
     onSetup(streamer);
@@ -112,21 +112,14 @@ FileStreamHandle execute(const std::function<void(FileStreamer *)> &onSetup,
     return checkHandle(handle); // The handle could have been already removed
 }
 
-FileStreamHandle FileStreamerManager::copy(const FilePath &source, const FilePath &destination,
-                                           const CopyContinuation &cont)
-{
-    return copy(source, destination, nullptr, cont);
-}
-
-FileStreamHandle FileStreamerManager::copy(const FilePath &source, const FilePath &destination,
-                                           QObject *context, const CopyContinuation &cont)
+FileStreamHandle copy(const Continuation<> &cont,
+                      const FilePath &source,
+                      const FilePath &destination)
 {
     const auto onSetup = [=](FileStreamer *streamer) {
         streamer->setSource(source);
         streamer->setDestination(destination);
     };
-    if (!cont)
-        return execute(onSetup, {}, context);
 
     const auto onDone = [=](FileStreamer *streamer) {
         if (streamer->result() == Tasking::DoneResult::Success)
@@ -134,23 +127,16 @@ FileStreamHandle FileStreamerManager::copy(const FilePath &source, const FilePat
         else
             cont(ResultError(Tr::tr("Failed copying file.")));
     };
-    return execute(onSetup, onDone, context);
+    return execute(onSetup, onDone, cont.guard());
 }
 
-FileStreamHandle FileStreamerManager::read(const FilePath &source, const ReadContinuation &cont)
-{
-    return read(source, nullptr, cont);
-}
-
-FileStreamHandle FileStreamerManager::read(const FilePath &source, QObject *context,
-                                           const ReadContinuation &cont)
+FileStreamHandle read(const Continuation<QByteArray> &cont,
+                      const FilePath &source)
 {
     const auto onSetup = [=](FileStreamer *streamer) {
         streamer->setStreamMode(StreamMode::Reader);
         streamer->setSource(source);
     };
-    if (!cont)
-        return execute(onSetup, {}, context);
 
     const auto onDone = [=](FileStreamer *streamer) {
         if (streamer->result() == Tasking::DoneResult::Success)
@@ -158,25 +144,19 @@ FileStreamHandle FileStreamerManager::read(const FilePath &source, QObject *cont
         else
             cont(ResultError(Tr::tr("Failed reading file.")));
     };
-    return execute(onSetup, onDone, context);
+    return execute(onSetup, onDone, cont.guard());
 }
 
-FileStreamHandle FileStreamerManager::write(const FilePath &destination, const QByteArray &data,
-                                            const WriteContinuation &cont)
-{
-    return write(destination, data, nullptr, cont);
-}
 
-FileStreamHandle FileStreamerManager::write(const FilePath &destination, const QByteArray &data,
-                                            QObject *context, const WriteContinuation &cont)
+FileStreamHandle write(const Continuation<qint64> &cont,
+                       const FilePath &destination,
+                       const QByteArray &data)
 {
     const auto onSetup = [=](FileStreamer *streamer) {
         streamer->setStreamMode(StreamMode::Writer);
         streamer->setDestination(destination);
         streamer->setWriteData(data);
     };
-    if (!cont)
-        return execute(onSetup, {}, context);
 
     const auto onDone = [=](FileStreamer *streamer) {
         if (streamer->result() == Tasking::DoneResult::Success)
@@ -184,18 +164,18 @@ FileStreamHandle FileStreamerManager::write(const FilePath &destination, const Q
         else
             cont(ResultError(Tr::tr("Failed writing file.")));
     };
-    return execute(onSetup, onDone, context);
+    return execute(onSetup, onDone, cont.guard());
 }
 
-void FileStreamerManager::stop(FileStreamHandle handle)
+void stop(FileStreamHandle handle)
 {
     deleteStreamer(handle);
 }
 
-void FileStreamerManager::stopAll()
+void stopAll()
 {
     deleteAllStreamers();
 }
 
-} // namespace Utils
+} // namespace Utils::FileStreamerManager
 

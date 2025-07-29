@@ -585,9 +585,10 @@ void FileSystemAccessTest::testFileStreamerManager()
     int counter = 0;
     int *hitCount = &counter;
 
-    const auto writeAndRead = [hitCount, loop, data](const FilePath &destination,
-                                                     std::optional<QByteArray> *result) {
-        const auto onWrite = [hitCount, loop, destination, result]
+    QObject guard;
+    const auto writeAndRead = [guard=&guard, hitCount, loop, data]
+            (const FilePath &destination, std::optional<QByteArray> *result) {
+        const auto onWrite = [guard, hitCount, loop, destination, result]
             (const Result<qint64> &writeResult) {
             QVERIFY(writeResult);
             const auto onRead = [hitCount, loop, result]
@@ -598,9 +599,9 @@ void FileSystemAccessTest::testFileStreamerManager()
                 if (*hitCount == 2)
                     loop->quit();
             };
-            FileStreamerManager::read(destination, onRead);
+            FileStreamerManager::read({guard, onRead}, destination);
         };
-        FileStreamerManager::write(destination, data, onWrite);
+        FileStreamerManager::write({guard, onWrite}, destination, data);
     };
 
     writeAndRead(localSourcePath, &localData);
@@ -616,10 +617,9 @@ void FileSystemAccessTest::testFileStreamerManager()
     loop = &eventLoop2;
     counter = 0;
 
-    const auto transferAndRead = [hitCount, loop, data](const FilePath &source,
-                                                        const FilePath &destination,
-                                                        std::optional<QByteArray> *result) {
-        const auto onTransfer = [hitCount, loop, destination, result]
+    const auto transferAndRead = [guard=&guard, hitCount, loop, data]
+            (const FilePath &source, const FilePath &destination, std::optional<QByteArray> *result) {
+        const auto onTransfer = [guard, hitCount, loop, destination, result]
             (const Result<> &transferResult) {
                 QVERIFY(transferResult);
                 const auto onRead = [hitCount, loop, result]
@@ -630,9 +630,9 @@ void FileSystemAccessTest::testFileStreamerManager()
                     if (*hitCount == 4)
                         loop->quit();
                 };
-                FileStreamerManager::read(destination, onRead);
+                FileStreamerManager::read({guard, onRead}, destination);
             };
-        FileStreamerManager::copy(source, destination, onTransfer);
+        FileStreamerManager::copy({guard, onTransfer}, source, destination);
     };
 
     transferAndRead(localSourcePath, localLocalDestPath, &localLocalData);

@@ -33,12 +33,8 @@ namespace Utils {
 
 class DeviceFileAccess;
 class Environment;
-enum class FileStreamHandle;
+enum class FileStreamHandle : int {};
 class TextEncoding;
-
-using CopyContinuation = std::function<void(const Result<> &)>;
-using ReadContinuation = std::function<void(const Result<QByteArray> &)>;
-using WriteContinuation = std::function<void(const Result<qint64> &)>;
 
 class QTCREATOR_UTILS_EXPORT FileFilter
 {
@@ -285,11 +281,9 @@ public:
     static void sort(FilePaths &files);
 
     // Asynchronous interface
-    FileStreamHandle asyncCopy(const FilePath &target, QObject *context,
-                               const CopyContinuation &cont = {}) const;
-    FileStreamHandle asyncRead(QObject *context, const ReadContinuation &cont = {}) const;
-    FileStreamHandle asyncWrite(const QByteArray &data, QObject *context,
-                                const WriteContinuation &cont = {}) const;
+    FileStreamHandle asyncCopy(const Continuation<> &cont, const FilePath &target) const;
+    FileStreamHandle asyncRead(const Continuation<QByteArray> &cont) const;
+    FileStreamHandle asyncWrite(const Continuation<qint64> &cont, const QByteArray &data) const;
 
     // Prefer not to use
     // Using isLocal() in "user" code is likely to result in code that

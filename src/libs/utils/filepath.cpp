@@ -809,21 +809,19 @@ Result<qint64> FilePath::writeFileContents(const QByteArray &data) const
     return fileAccess()->writeFileContents(*this, data);
 }
 
-FileStreamHandle FilePath::asyncCopy(const FilePath &target, QObject *context,
-                                     const CopyContinuation &cont) const
+FileStreamHandle FilePath::asyncCopy(const Continuation<> &cont, const FilePath &target) const
 {
-    return FileStreamerManager::copy(*this, target, context, cont);
+    return FileStreamerManager::copy(cont, *this, target);
 }
 
-FileStreamHandle FilePath::asyncRead(QObject *context, const ReadContinuation &cont) const
+FileStreamHandle FilePath::asyncRead(const Continuation<QByteArray> &cont) const
 {
-    return FileStreamerManager::read(*this, context, cont);
+    return FileStreamerManager::read(cont, *this);
 }
 
-FileStreamHandle FilePath::asyncWrite(const QByteArray &data, QObject *context,
-                                      const WriteContinuation &cont) const
+FileStreamHandle FilePath::asyncWrite(const Continuation<qint64> &cont, const QByteArray &data) const
 {
-    return FileStreamerManager::write(*this, data, context, cont);
+    return FileStreamerManager::write(cont, *this, data);
 }
 
 bool FilePath::isLocal() const
