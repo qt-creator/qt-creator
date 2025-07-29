@@ -777,6 +777,7 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
+  CONDITION TARGET Qt::NetworkAuth
   SOURCES_PREFIX components/designviewer
   DEPENDS
     qtkeychain Qt::NetworkAuth
