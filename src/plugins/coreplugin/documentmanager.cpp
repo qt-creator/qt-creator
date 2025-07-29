@@ -716,7 +716,7 @@ bool DocumentManager::saveDocument(IDocument *document,
 
     if (const Result<> res = document->save(savePath, false); !res) {
         if (isReadOnly) {
-            QFile ofi(savePath.toUrlishString());
+            QFile ofi(savePath.toFSPathString());
             // Check whether the existing file is writable
             if (!ofi.open(QIODevice::ReadWrite) && ofi.open(QIODevice::ReadOnly)) {
                 *isReadOnly = true;
@@ -1230,8 +1230,7 @@ void DocumentManager::checkForReload()
                 } else {
                     // Ask about content change
                     previousReloadAnswer = reloadPrompt(document->filePath(), document->isModified(),
-                                                        DiffService::instance(),
-                                                        ICore::dialogParent());
+                                                        DiffService::instance());
                     switch (previousReloadAnswer) {
                     case ReloadAll:
                     case ReloadCurrent:
@@ -1255,11 +1254,9 @@ void DocumentManager::checkForReload()
                 // Ask about removed file
                 bool unhandled = true;
                 while (unhandled) {
-                    if (previousDeletedAnswer != FileDeletedCloseAll) {
-                        previousDeletedAnswer =
-                                fileDeletedPrompt(document->filePath().toUrlishString(),
-                                                  ICore::dialogParent());
-                    }
+                    if (previousDeletedAnswer != FileDeletedCloseAll)
+                        previousDeletedAnswer = fileDeletedPrompt(document->filePath());
+
                     switch (previousDeletedAnswer) {
                     case FileDeletedSave:
                         documentsToSave.insert(document, document->filePath());

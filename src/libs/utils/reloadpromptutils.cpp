@@ -3,23 +3,21 @@
 
 #include "reloadpromptutils.h"
 
-#include "fileutils.h"
+#include "filepath.h"
+#include "guiutils.h"
 #include "hostosinfo.h"
 #include "utilstr.h"
 
-#include <QDir>
 #include <QGuiApplication>
 #include <QMessageBox>
 #include <QPushButton>
 
 namespace Utils {
 
-QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const FilePath &fileName,
-                                                       bool modified,
-                                                       bool enableDiffOption,
-                                                       QWidget *parent)
+ReloadPromptAnswer reloadPrompt(const FilePath &fileName,
+                                bool modified,
+                                bool enableDiffOption)
 {
-
     const QString title = Tr::tr("File Changed");
     QString msg;
 
@@ -38,16 +36,15 @@ QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const FilePath &fileName,
         msg += Tr::tr("The default behavior can be set in Edit > Preferences > Environment > System.");
     }
     msg += "</p>";
-    return reloadPrompt(title, msg, fileName.toUserOutput(), enableDiffOption, parent);
+    return reloadPrompt(title, msg, fileName.toUserOutput(), enableDiffOption);
 }
 
-QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title,
-                                                       const QString &prompt,
-                                                       const QString &details,
-                                                       bool enableDiffOption,
-                                                       QWidget *parent)
+ReloadPromptAnswer reloadPrompt(const QString &title,
+                                const QString &prompt,
+                                const QString &details,
+                                bool enableDiffOption)
 {
-    QMessageBox msg(parent);
+    QMessageBox msg(dialogParent());
     msg.setStandardButtons(QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Close
                            | QMessageBox::No | QMessageBox::NoToAll);
     msg.setDefaultButton(QMessageBox::YesToAll);
@@ -81,14 +78,13 @@ QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title,
     return ReloadNone;
 }
 
-QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer
-        fileDeletedPrompt(const QString &fileName, QWidget *parent)
+FileDeletedPromptAnswer fileDeletedPrompt(const FilePath &filePath)
 {
     const QString title = Tr::tr("File Has Been Removed");
     const QString msg = Tr::tr("The file %1 has been removed from disk. "
                                "Do you want to save it under a different name, or close "
-                               "the editor?").arg(QDir::toNativeSeparators(fileName));
-    QMessageBox box(QMessageBox::Question, title, msg, QMessageBox::NoButton, parent);
+                               "the editor?").arg(filePath.toUserOutput());
+    QMessageBox box(QMessageBox::Question, title, msg, QMessageBox::NoButton, dialogParent());
     QPushButton *saveas = box.addButton(Tr::tr("Save &as..."), QMessageBox::ActionRole);
     QPushButton *close = box.addButton(Tr::tr("&Close"), QMessageBox::RejectRole);
     QPushButton *closeAll =
@@ -100,11 +96,11 @@ QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer
     QAbstractButton *clickedbutton = box.clickedButton();
     if (clickedbutton == close)
         return FileDeletedClose;
-    else if (clickedbutton == closeAll)
+    if (clickedbutton == closeAll)
         return FileDeletedCloseAll;
-    else if (clickedbutton == saveas)
+    if (clickedbutton == saveas)
         return FileDeletedSaveAs;
-    else if (clickedbutton == save)
+    if (clickedbutton == save)
         return FileDeletedSave;
     return FileDeletedClose;
 }

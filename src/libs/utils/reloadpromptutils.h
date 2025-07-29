@@ -7,10 +7,10 @@
 
 QT_BEGIN_NAMESPACE
 class QString;
-class QWidget;
 QT_END_NAMESPACE
 
 namespace Utils {
+
 class FilePath;
 
 enum ReloadPromptAnswer {
@@ -24,13 +24,11 @@ enum ReloadPromptAnswer {
 
 QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const FilePath &fileName,
                                                        bool modified,
-                                                       bool enableDiffOption,
-                                                       QWidget *parent);
+                                                       bool enableDiffOption);
 QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title,
                                                        const QString &prompt,
                                                        const QString &details,
-                                                       bool enableDiffOption,
-                                                       QWidget *parent);
+                                                       bool enableDiffOption);
 
 enum FileDeletedPromptAnswer {
     FileDeletedClose,
@@ -39,7 +37,6 @@ enum FileDeletedPromptAnswer {
     FileDeletedSave
 };
 
-QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer fileDeletedPrompt(const QString &fileName,
-                                                                 QWidget *parent);
+QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer fileDeletedPrompt(const FilePath &filePath);
 
 } // namespace Utils
