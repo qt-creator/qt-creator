@@ -56,8 +56,12 @@ VersionDialog::VersionDialog()
     copyRightLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
-    QPushButton *copyButton = buttonBox->addButton(Tr::tr("Copy and Close"),
-                                                   QDialogButtonBox::ApplyRole);
+    QPushButton *copyButton = buttonBox->addButton(Tr::tr("Copy to Clipboard"),
+                                                   QDialogButtonBox::ActionRole);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(copyButton, &QPushButton::pressed, this, [] {
+        Utils::setClipboardAndSelection(ICore::aboutInformationCompact());
+    });
 
     using namespace Layouting;
     Column {
@@ -69,13 +73,6 @@ VersionDialog::VersionDialog()
     }.attachTo(this);
 
     layout()->setSizeConstraint(QLayout::SetFixedSize);
-
-    connect(copyButton, &QPushButton::pressed, this, [this] {
-        Utils::setClipboardAndSelection(ICore::aboutInformationCompact());
-        accept();
-    });
-    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 bool VersionDialog::event(QEvent *event)

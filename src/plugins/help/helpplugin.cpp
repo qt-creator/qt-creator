@@ -63,6 +63,7 @@
 #include <QLibraryInfo>
 #include <QMenu>
 #include <QPlainTextEdit>
+#include <QPushButton>
 #include <QRegularExpression>
 #include <QSplitter>
 #include <QStackedLayout>
@@ -595,16 +596,17 @@ void HelpPluginPrivate::slotSystemInformation()
     info->setFont(font);
     info->setPlainText(text);
     layout->addWidget(info);
-    auto buttonBox = new QDialogButtonBox;
-    buttonBox->addButton(QDialogButtonBox::Cancel);
-    buttonBox->addButton(Tr::tr("Copy to Clipboard"), QDialogButtonBox::AcceptRole);
-    connect(buttonBox, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
+
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
+    QPushButton *copyButton = buttonBox->addButton(Tr::tr("Copy to Clipboard"),
+                                                   QDialogButtonBox::ActionRole);
     connect(buttonBox, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
-    layout->addWidget(buttonBox);
-    connect(dialog, &QDialog::accepted, info, [info]() {
+    connect(copyButton, &QPushButton::pressed, info, [info] {
         setClipboardAndSelection(info->toPlainText());
     });
-    connect(dialog, &QDialog::rejected, dialog, [dialog]{ dialog->close(); });
+
+    layout->addWidget(buttonBox);
+
     dialog->resize(700, 400);
     ICore::registerWindow(dialog, Context("Help.SystemInformation"));
     dialog->show();
