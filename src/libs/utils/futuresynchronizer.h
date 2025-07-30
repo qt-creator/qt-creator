@@ -7,7 +7,6 @@
 
 #include <QFuture>
 #include <QList>
-#include <QtGlobal>
 
 namespace Utils {
 
