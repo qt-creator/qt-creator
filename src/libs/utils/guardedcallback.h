@@ -5,6 +5,8 @@
 
 #include <utility>
 
+#include <QObject>
+
 namespace Utils {
 
 /*!
@@ -15,16 +17,28 @@ namespace Utils {
     \param guardObject The QObject used to guard the callback.
     \param method The callback to call if the guardObject is still alive.
 */
-template<class O, class F>
-auto guardedCallback(O *guardObject, const F &method)
+template<class F>
+auto guardedCallback(QObject *guard, const F &method)
 {
-    F *methodPtr = new F(method);
+    struct Guardian
+    {
+        Guardian(QObject *guard, const F &f) : func(f)
+        {
+            conn = QObject::connect(guard, &QObject::destroyed, [this] { func.reset(); });
+        }
 
-    QObject::connect(guardObject, &QObject::destroyed, [methodPtr] { delete methodPtr; });
+        ~Guardian()
+        {
+            QObject::disconnect(conn);
+        }
 
-    return [gp = QPointer<O>(guardObject), methodPtr](auto &&...args) {
-        if (gp)
-            (*methodPtr)(std::forward<decltype(args)>(args)...);
+        std::optional<F> func;
+        QMetaObject::Connection conn;
+    };
+
+    return [guard = Guardian(guard, method)](auto &&...args) {
+        if (guard.func)
+            (*guard.func)(std::forward<decltype(args)>(args)...);
     };
 }
 
