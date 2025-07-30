@@ -23,7 +23,6 @@ public:
 
     void waitForFinished();
     void cancelAllFutures();
-    void clearFutures();
 
     void setCancelOnWait(bool enabled);
     // Note: The QFutureSynchronizer contains cancelOnWait(), what suggests action, not a getter.

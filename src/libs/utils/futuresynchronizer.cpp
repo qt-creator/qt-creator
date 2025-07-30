@@ -31,18 +31,13 @@ void FutureSynchronizer::waitForFinished()
         cancelAllFutures();
     for (QFuture<void> &future : m_futures)
         future.waitForFinished();
-    clearFutures();
+    m_futures.clear();
 }
 
 void FutureSynchronizer::cancelAllFutures()
 {
     for (QFuture<void> &future : m_futures)
         future.cancel();
-}
-
-void FutureSynchronizer::clearFutures()
-{
-    m_futures.clear();
 }
 
 void FutureSynchronizer::setCancelOnWait(bool enabled)

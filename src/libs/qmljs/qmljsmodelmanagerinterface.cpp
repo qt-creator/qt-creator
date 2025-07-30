@@ -1739,10 +1739,10 @@ void ModelManagerInterface::joinAllThreads(bool cancelOnWait)
 {
     while (true) {
         FutureSynchronizer futureSynchronizer;
+        futureSynchronizer.setCancelOnWait(false); // It will be swapped with m_futureSynchronizer
         {
             QMutexLocker locker(&m_futuresMutex);
-            futureSynchronizer = m_futureSynchronizer;
-            m_futureSynchronizer.clearFutures();
+            std::swap(futureSynchronizer, m_futureSynchronizer);
         }
         futureSynchronizer.setCancelOnWait(cancelOnWait);
         if (futureSynchronizer.isEmpty())
