@@ -119,7 +119,7 @@ QString VectorType::toString() const
     if (elementType()->asBoolType() != nullptr)
         prefix = "b";
     else if (elementType()->asIntType() != nullptr)
-        prefix = "i'";
+        prefix = "i";
     else if (elementType()->asUIntType() != nullptr)
         prefix = "u";
     else if (elementType()->asDoubleType() != nullptr)
