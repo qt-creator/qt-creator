@@ -247,7 +247,12 @@
             You can set conditions for the tracepoint.
     \row
         \li \uicontrol Message
-        \li The tracepoint message to show in \l {Application Output}.
+        \li The tracepoint message to show in
+            \if defined(qtcreator)
+            \l {Application Output}.
+            \else
+            \l {Accessing the Output messages}{Output}.
+            \endif
     \endtable
 
     \if defined(qtcreator)

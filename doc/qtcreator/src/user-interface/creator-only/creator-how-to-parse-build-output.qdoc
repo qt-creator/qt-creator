@@ -1,0 +1,40 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-parse-build-output.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-build
+
+    \title Parse build output
+
+    You can use \QC's output parsers to parse output from builds done outside
+    of \QC or stored from previous build runs. By default, the parsers from the
+    kit selected for the active project are used, but you can select another
+    kit.
+
+    To parse build output:
+
+    \list 1
+        \li Go to \uicontrol Tools > \uicontrol {Parse Build Output}, or select
+            \inlineimage {icons/open.png} {Create Issues From External Build Output}
+            (\uicontrol {Create Issues From External Build Output}) in the
+            \uicontrol {Issues} view.
+            \image {qtcreator-parse-build-output.png} {Parse Build Output dialog}
+        \li Paste the build output in \uicontrol {Build Output}, or
+            select \uicontrol {Load from File} to load it from a file.
+        \li Clear \uicontrol {Output went to stderr} if the parser expects issues
+            on \c stdout.
+        \li In \uicontrol {Use parsers from kit}, select the kit to
+            use for parsing the output. Select \uicontrol Manage to view
+            and modify kit settings.
+        \li The parser displays the parsed output in \uicontrol Issues. By
+            default, the view is cleared before adding the new output.
+            Clear \uicontrol {Clear existing tasks} to append
+            the new output to the old output.
+        \li Select \uicontrol OK to start parsing.
+    \endlist
+
+    \sa {Issues}
+*/

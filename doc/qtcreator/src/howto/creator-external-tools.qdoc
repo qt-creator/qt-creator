@@ -65,9 +65,12 @@
             working directory.
 
         \li In the \uicontrol Output field, select how to handle output from the
-            tool. You can ignore the output, view it in \l{View output}
+            tool.
+            \if defined(qtcreator)
+            You can ignore the output, view it in \l{View output}
             {General Messages}, or replace the selected text with the
             output in the code editor.
+            \endif
 
         \li In the \uicontrol {Error output} field, select how to handle error
             messages from the tool.
@@ -205,7 +208,9 @@
         \li Right-click the filename in one of the following views to open a context
             menu:
             \list
+                \if defined(qtcreator)
                 \li \l {Edit mode}
+                \endif
                 \li \l {File System}
                 \li \l {Open Documents}
                 \li \l {Projects}

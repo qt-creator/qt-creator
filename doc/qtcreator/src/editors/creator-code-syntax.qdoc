@@ -111,7 +111,12 @@
     \uicontrol {Run Checks} or select \key {Ctrl+Shift+C}.
 
     View the results in the \uicontrol QML and \uicontrol {QML Analysis}
-    filters in \l Issues.
+    filters in
+    \if defined(qtcreator)
+    \l Issues.
+    \else
+    \l {Accessing the Issue and Warning messages}{Issues}.
+    \endif
 
     \note If you turn on \QMLLS for a project, it uses \l {qmllint Reference}
     {qmllint} to check QML and JavaScript code and to generate warnings, so the

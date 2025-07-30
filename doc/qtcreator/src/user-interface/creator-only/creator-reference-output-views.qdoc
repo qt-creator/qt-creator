@@ -1,4 +1,4 @@
-// Copyright (C) 2024 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -9,15 +9,9 @@
 
 /*!
     \page creator-reference-issues-view.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-reference-compile-output-view.html
-    \nextpage creator-reference-search-results-view.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference-output-views
-    \ingroup studio-reference-output-views
 
     \title Issues
 
@@ -35,6 +29,9 @@
 
     To find output in the view, enter search criteria in the \uicontrol Filter
     field.
+
+    To show and hide warnings, select \inlineimage {icons/warning.png}
+    {Show Warnings} (\uicontrol {Show Warnings}).
 
     Select one or several lines to apply context-menu actions to their contents.
     You can remove the selected lines or copy their contents to the clipboard.
@@ -57,27 +54,24 @@
     and \inlineimage {icons/arrowdown.png} {Next Item}
     or \key F6 and \key Shift+F6.
 
+    To parse build output, select \inlineimage {icons/open.png}
+    {Create Issues From External Build Output}
+    (\uicontrol {Create Issues From External Build Output}).
+
     By default, a new build clears the \uicontrol Issues view. To keep
     the issues from the previous build rounds, clear \preferences >
     \uicontrol {Build & Run} > \uicontrol General >
     \uicontrol {Clear issues list on new build}.
 
-    \sa {View output}
-    \if defined(qtcreator)
-    \sa {Add custom output parsers}, {Show task list files in Issues}
-    \endif
+    \sa {View output}, {Add custom output parsers}, {Parse build output},
+    {Show task list files in Issues}
 */
 
 /*!
     \page creator-reference-search-results-view.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-reference-issues-view.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference-output-views
-    \ingroup studio-reference-output-views
 
     \title Search Results View
 
@@ -166,24 +160,14 @@
             \uicontrol History.
     \endlist
 
-    \sa {View output}
-
-    \if defined(qtcreator)
-    \sa {Search}{How To: Search}
-    \endif
+    \sa {View output}, {Search}{How To: Search}
 */
 
 /*!
     \page creator-reference-application-output-view.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-how-to-view-output.html
-    \nextpage creator-reference-compile-output-view.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference-output-views
-    \ingroup studio-reference-output-views
 
     \title Application Output
 
@@ -192,11 +176,9 @@
 
     \image {qtcreator-application-output.webp} {Application Output}
 
-    \if defined(qtcreator)
     If you specify command-line arguments in the run settings that are passed
     to the application when running it, they are displayed as a part of the
     application output. For more information, see \l{Desktop Device Run Settings}.
-    \endif
 
     Select toolbar buttons to run applications, to attach the debugger to the
     running application, and to stop running or debugging.
@@ -223,15 +205,9 @@
 
 /*!
     \page creator-reference-compile-output-view.html
-    \if defined(qtdesignstudio)
-    \previouspage creator-reference-application-output-view.html
-    \nextpage creator-reference-issues-view.html
-    \else
     \previouspage creator-reference.html
-    \endif
 
     \ingroup creator-reference-output-views
-    \ingroup studio-reference-output-views
 
     \title Compile Output
 
@@ -274,34 +250,5 @@
             maximum amount of build output lines to display.
     \endlist
 
-    \section1 Parsing Existing Compile Output
-
-    You can use \QC's output parsers to parse output from builds done outside
-    of \QC or stored from previous build runs. By default, the parsers from the
-    kit selected for the active project are used, but you can select another
-    kit.
-
-    To parse compile output:
-
-    \list 1
-        \li Go to \uicontrol Tools > \uicontrol {Parse Build Output}.
-            \image {qtcreator-parse-build-output.png} {Parse Build Output dialog}
-        \li Paste the build output in \uicontrol {Build Output}, or
-            select \uicontrol {Load from File} to load it from a file.
-        \li Clear \uicontrol {Output went to stderr} if the parser expects issues
-            on \c stdout.
-        \li In \uicontrol {Use parsers from kit}, select the kit to
-            use for parsing the output. Select \uicontrol Manage to view
-            and modify kit settings.
-        \li The parser displays the parsed output in \l Issues. By default, the
-            view is cleared before adding the new output.
-            Clear \uicontrol {Clear existing tasks} to append
-            the new output to the old output.
-        \li Select \uicontrol OK to start parsing.
-    \endlist
-
-    \sa {View output}
-    \if defined(qtcreator)
-    \sa {Add custom output parsers}, {Kits}
-    \endif
+    \sa {View output}, {Add custom output parsers}, {Parse build output}, {Kits}
 */

@@ -3,12 +3,7 @@
 
 /*!
     \page creator-how-to-view-output.html
-    \if defined(qtdesignstudio)
-    \previouspage studio-ui.html
-    \nextpage creator-reference-application-output-view.html
-    \else
     \previouspage creator-how-tos.html
-    \endif
 
     \ingroup creator-how-to-ui
 
@@ -21,17 +16,11 @@
 
     \image {qtcreator-output-panes-taskbar.webp} {Output views}
 
-    You can open output views in all
-    \if defined (qtcreator)
-    \l{Switch between modes}{modes}
-    \else
-    modes
-    \endif in the following ways:
+    You can open output views in all \l{Switch between modes}{modes} modes
+    in the following ways:
 
     \list
-        \if defined(qtcreator)
         \li Select the output view.
-        \endif
         \li Select \uicontrol View > \uicontrol Output.
             The menu items also display the \l{Keyboard Shortcuts}
             {keyboard shortcuts} that you can use.
@@ -83,13 +72,5 @@
     To copy output to a temporary file, select
     \uicontrol {Copy Contents to Scratch Buffer}.
 
-    \if defined(qtcreator)
     \sa {Output Views}, {Write down notes}
-    \else
-    \section1 Output views
-
-    The following views show output:
-
-    \annotatedlist studio-reference-output-views
-    \endif
 */

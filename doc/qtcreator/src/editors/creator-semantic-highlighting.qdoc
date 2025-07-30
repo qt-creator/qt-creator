@@ -44,8 +44,10 @@
     for editing, it prompts you to download additional highlight definition
     files. Select \uicontrol {Download Definitions} to download the files.
 
+    \if defined(qtcreator)
     To view information about the downloaded files, open the \l{View output}
     {General Messages} view.
+    \endif
 
     \section2 Ignore file patterns
 
