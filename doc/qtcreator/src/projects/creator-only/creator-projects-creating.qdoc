@@ -124,9 +124,8 @@
             \li Other project
             \li Create custom \l{\QD} widgets or widget collections,
                 \l{Create Qt Quick UI Prototypes}{Qt Quick UI projects},
-                \l{Add subprojects to projects}{subprojects},
-                empty qmake projects, or qmake projects for testing
-                code snippets.
+                \l{Add subprojects to projects}{subprojects}, or empty
+                qmake projects.
         \row
             \li Non-Qt project
             \li Create plain C or C++ applications or \l {Create Nimble projects}
