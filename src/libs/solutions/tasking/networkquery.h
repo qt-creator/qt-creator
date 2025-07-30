@@ -23,8 +23,6 @@ namespace Tasking {
 // is independent on Qt::Network.
 // Possibly, it could be placed inside Qt::Network library, as a wrapper around QNetworkReply.
 
-enum class NetworkOperation { Get, Put, Post, Delete };
-
 class TASKING_EXPORT NetworkQuery final : public QObject
 {
     Q_OBJECT
@@ -32,7 +30,8 @@ class TASKING_EXPORT NetworkQuery final : public QObject
 public:
     ~NetworkQuery();
     void setRequest(const QNetworkRequest &request) { m_request = request; }
-    void setOperation(NetworkOperation operation) { m_operation = operation; }
+    void setOperation(QNetworkAccessManager::Operation operation) { m_operation = operation; }
+    void setVerb(const QByteArray &verb) { m_verb = verb; }
     void setWriteData(const QByteArray &data) { m_writeData = data; }
     void setNetworkAccessManager(QNetworkAccessManager *manager) { m_manager = manager; }
     QNetworkReply *reply() const { return m_reply.get(); }
@@ -48,8 +47,9 @@ Q_SIGNALS:
 
 private:
     QNetworkRequest m_request;
-    NetworkOperation m_operation = NetworkOperation::Get;
-    QByteArray m_writeData; // Used by Put and Post
+    QNetworkAccessManager::Operation m_operation = QNetworkAccessManager::GetOperation;
+    QByteArray m_verb; // Used by Custom
+    QByteArray m_writeData; // Used by Put, Post and Custom
     QNetworkAccessManager *m_manager = nullptr;
     std::unique_ptr<QNetworkReply> m_reply;
 };

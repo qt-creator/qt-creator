@@ -23,18 +23,29 @@ void NetworkQuery::start()
         return;
     }
     switch (m_operation) {
-    case NetworkOperation::Get:
+    case QNetworkAccessManager::HeadOperation:
+        m_reply.reset(m_manager->head(m_request));
+        break;
+    case QNetworkAccessManager::GetOperation:
         m_reply.reset(m_manager->get(m_request));
         break;
-    case NetworkOperation::Put:
+    case QNetworkAccessManager::PutOperation:
         m_reply.reset(m_manager->put(m_request, m_writeData));
         break;
-    case NetworkOperation::Post:
+    case QNetworkAccessManager::PostOperation:
         m_reply.reset(m_manager->post(m_request, m_writeData));
         break;
-    case NetworkOperation::Delete:
+    case QNetworkAccessManager::DeleteOperation:
         m_reply.reset(m_manager->deleteResource(m_request));
         break;
+    case QNetworkAccessManager::CustomOperation:
+        m_reply.reset(m_manager->sendCustomRequest(m_request, m_verb, m_writeData));
+        break;
+    case QNetworkAccessManager::UnknownOperation:
+        qWarning("Can't start the NetworkQuery with UnknownOperation. "
+                 "Stopping with an error.");
+        emit done(DoneResult::Error);
+        return;
     }
 
     connect(m_reply.get(), &QNetworkReply::downloadProgress, this, &NetworkQuery::downloadProgress);

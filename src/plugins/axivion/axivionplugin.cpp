@@ -608,7 +608,7 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
             request.setRawHeader("Content-Type", "application/json");
             request.setRawHeader("AX-CSRF-Token", dtoStorage->csrfToken);
             query.setWriteData(dtoStorage->writeData);
-            query.setOperation(NetworkOperation::Post);
+            query.setOperation(QNetworkAccessManager::PostOperation);
         }
 
         query.setRequest(request);
