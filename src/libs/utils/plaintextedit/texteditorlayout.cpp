@@ -313,7 +313,7 @@ QTextBlock TextEditorLayout::findBlockByLineNumber(int lineNumber) const
 {
     int blockNumber = 0;
     if (!m_offsetCache.empty()) {
-        const int cacheSize(m_offsetCache.size());
+        const int cacheSize(static_cast<int>(m_offsetCache.size()));
         int i = cacheSize < lineNumber ? cacheSize - 1 : lineNumber;
         for (; i > 0; --i) {
             if (m_offsetCache[i].firstLine >= 0 && m_offsetCache[i].firstLine <= lineNumber) {
