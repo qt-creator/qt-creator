@@ -1,4 +1,4 @@
-if (MSVC)
+if (MSVC OR CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
     add_compile_definitions(NOMINMAX UNICODE _UNICODE)
 endif()
 

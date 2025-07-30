@@ -266,6 +266,7 @@ endif()
 
 extend_qtc_library(Utils CONDITION MSVC
   DEPENDS ${DbgHelpLib}
+  DEFINES HAVE_DBGHELP
 )
 
 extend_qtc_library(Utils CONDITION WIN32

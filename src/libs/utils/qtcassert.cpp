@@ -36,7 +36,7 @@ void dumpBacktrace(int maxdepth)
     for (int i = 0; i < size; ++i)
         qDebug() << "0x" + QByteArray::number(quintptr(bt[i]), 16) << lines[i];
     free(lines);
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) && defined(HAVE_DBGHELP)
     DWORD machineType;
 #if defined(_M_X64)
     machineType = IMAGE_FILE_MACHINE_AMD64;
