@@ -50,37 +50,9 @@ public:
     const QDirIterator::IteratorFlags iteratorFlags = QDirIterator::NoIteratorFlags;
 };
 
-class FilePath;
+class FilePaths;
 using FilePair = std::pair<FilePath, FilePath>;
 using FilePairs = QList<FilePair>;
-
-class QTCREATOR_UTILS_EXPORT FilePaths final : public QList<FilePath>
-{
-public:
-    using QList<FilePath>::QList;
-    FilePaths(const QList<FilePath> &filePaths) : QList<FilePath>(filePaths) {}
-
-    [[nodiscard]] static FilePaths fromSettings(const QVariant &variant);
-    [[nodiscard]] static FilePaths fromStrings(const QStringList &fileNames);
-    [[nodiscard]] static FilePaths resolvePaths(const FilePath &anchor,
-                                                const QStringList &fileNames);
-
-    [[nodiscard]] QVariant toSettings() const;
-    [[nodiscard]] QStringList toFsPathStrings() const;
-    [[nodiscard]] QString toUserOutput(const QString &separator) const;
-    [[nodiscard]] FilePath commonPath() const;
-    void sort();
-};
-
-// Needed with older gcc.
-template<template<typename...> class C = QList, // result container
-         typename F> // Arguments to C
-Q_REQUIRED_RESULT
-auto transform(const FilePaths &container, F function)
-{
-    return transform<C, const QList<FilePath> &>(static_cast<QList<FilePath>>(container), function);
-}
-
 
 QTCREATOR_UTILS_EXPORT FilePaths firstPaths(const FilePairs &pairs);
 QTCREATOR_UTILS_EXPORT FilePaths secondPaths(const FilePairs &pairs);
@@ -251,11 +223,13 @@ public:
     [[nodiscard]] FilePaths searchAllInDirectories(const FilePaths &dirs,
                                                    const FilePathPredicate &filter = {},
                                                    MatchScope matchScope = WithAnySuffix) const;
-    [[nodiscard]] FilePath searchInPath(const FilePaths &additionalDirs = {},
+    [[nodiscard]] FilePath searchInPath() const;
+    [[nodiscard]] FilePath searchInPath(const FilePaths &additionalDirs,
                                         PathAmending = AppendToPath,
                                         const FilePathPredicate &filter = {},
                                         MatchScope matchScope = WithAnySuffix) const;
-    [[nodiscard]] FilePaths searchAllInPath(const FilePaths &additionalDirs = {},
+    [[nodiscard]] FilePaths searchAllInPath() const;
+    [[nodiscard]] FilePaths searchAllInPath(const FilePaths &additionalDirs,
                                             PathAmending = AppendToPath,
                                             const FilePathPredicate &filter = {},
                                             MatchScope matchScope = WithAnySuffix) const;
@@ -383,6 +357,33 @@ public:
     // Only call once.
     static void setupDeviceFileHooks(const DeviceFileHooks &hooks);
 };
+
+class QTCREATOR_UTILS_EXPORT FilePaths final : public QList<FilePath>
+{
+public:
+    using QList<FilePath>::QList;
+    FilePaths(const QList<FilePath> &filePaths) : QList<FilePath>(filePaths) {}
+
+    [[nodiscard]] static FilePaths fromSettings(const QVariant &variant);
+    [[nodiscard]] static FilePaths fromStrings(const QStringList &fileNames);
+    [[nodiscard]] static FilePaths resolvePaths(const FilePath &anchor,
+                                                const QStringList &fileNames);
+
+    [[nodiscard]] QVariant toSettings() const;
+    [[nodiscard]] QStringList toFsPathStrings() const;
+    [[nodiscard]] QString toUserOutput(const QString &separator) const;
+    [[nodiscard]] FilePath commonPath() const;
+    void sort();
+};
+
+// Needed with older gcc.
+template<template<typename...> class C = QList, // result container
+         typename F> // Arguments to C
+Q_REQUIRED_RESULT
+    auto transform(const FilePaths &container, F function)
+{
+    return transform<C, const QList<FilePath> &>(static_cast<QList<FilePath>>(container), function);
+}
 
 
 // For testing

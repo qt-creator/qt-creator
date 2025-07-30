@@ -2014,6 +2014,11 @@ static FilePaths dirsFromPath(const FilePath &anchor,
     return directories;
 }
 
+FilePath FilePath::searchInPath() const
+{
+    return searchInPath({});
+}
+
 FilePath FilePath::searchInPath(const FilePaths &additionalDirs,
                                 PathAmending amending,
                                 const FilePathPredicate &filter,
@@ -2024,6 +2029,11 @@ FilePath FilePath::searchInPath(const FilePaths &additionalDirs,
 
     const FilePaths directories = dirsFromPath(*this, additionalDirs, amending);
     return searchInDirectories(directories, filter, matchScope);
+}
+
+FilePaths FilePath::searchAllInPath() const
+{
+    return searchAllInPath({});
 }
 
 FilePaths FilePath::searchAllInPath(const FilePaths &additionalDirs,
