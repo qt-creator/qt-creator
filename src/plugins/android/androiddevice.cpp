@@ -1081,6 +1081,7 @@ public:
                 Tr::tr("The device info returned from AvdDialog is invalid."));
             return IDevice::Ptr();
         });
+        setExecutionTypeId(Constants::ANDROID_EXECUTION_TYPE_ID);
     }
 };
 

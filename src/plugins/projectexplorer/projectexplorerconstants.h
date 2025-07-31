@@ -173,7 +173,6 @@ const char GENERATOR_ID_PREFIX[] = "PE.Wizard.Generator.";
 
 // Device types
 const char DESKTOP_DEVICE_TYPE[] = "Desktop";
-const char DOCKER_DEVICE_TYPE[] = "DockerDeviceType";
 
 // RunMode
 const char NO_RUN_MODE[]="RunConfiguration.NoRunMode";
@@ -199,6 +198,8 @@ const char QMAKE_RUNCONFIG_ID[] = "Qt4ProjectManager.Qt4RunConfiguration:";
 const char QBS_RUNCONFIG_ID[]   = "Qbs.RunConfiguration:";
 const char CMAKE_RUNCONFIG_ID[] = "CMakeProjectManager.CMakeRunConfiguration.";
 const char CUSTOM_EXECUTABLE_RUNCONFIG_ID[] = "ProjectExplorer.CustomExecutableRunConfiguration";
+
+const char STDPROCESS_EXECUTION_TYPE_ID[] = "StdProcessExecutionType";
 
 // Navigation Widget
 const char PROJECTTREE_ID[] = "Projects";

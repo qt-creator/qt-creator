@@ -98,6 +98,7 @@ public:
     {
         registerRunConfiguration<AndroidRunConfiguration>(Android::Constants::ANDROID_RUNCONFIG_ID);
         addSupportedTargetDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
+        setExecutionTypeId(Constants::ANDROID_EXECUTION_TYPE_ID);
     }
 };
 

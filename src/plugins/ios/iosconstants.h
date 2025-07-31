@@ -24,6 +24,8 @@ const char IOS_DSYM_BUILD_STEP_ID[] = "Ios.IosDsymBuildStep";
 const char IOS_DEPLOY_STEP_ID[] = "Qt4ProjectManager.IosDeployStep";
 const char IOS_RUNCONFIG_ID[] = "Qt4ProjectManager.IosRunConfiguration:";
 
+const char IOS_EXECUTION_TYPE_ID[] = "IosExecutionType";
+
 const char IosTarget[] = "IosTarget"; // QString
 const char IosBuildDir[] = "IosBuildDir"; // QString
 const char IosCmakeGenerator[] = "IosCmakeGenerator";

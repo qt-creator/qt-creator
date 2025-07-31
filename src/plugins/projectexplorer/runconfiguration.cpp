@@ -47,6 +47,7 @@ namespace ProjectExplorer {
 const char BUILD_KEY[] = "ProjectExplorer.RunConfiguration.BuildKey";
 const char CUSTOMIZED_KEY[] = "ProjectExplorer.RunConfiguration.Customized";
 const char UNIQUE_ID_KEY[] = "ProjectExplorer.RunConfiguration.UniqueId";
+const char EXECUTION_TYPE_KEY[] = "ProjectExplorer.RunConfiguration.ExecutionType";
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -426,6 +427,16 @@ void RunConfiguration::setupMacroExpander(
         }, true, !documentationOnly);
 }
 
+void RunConfiguration::setExecutionType(Id executionType)
+{
+    m_executionType = executionType;
+}
+
+Id RunConfiguration::executionType() const
+{
+    return m_executionType;
+}
+
 void RunConfiguration::setUpdater(const Updater &updater)
 {
     m_updater = updater;
@@ -454,6 +465,7 @@ void RunConfiguration::toMapSimple(Store &map) const
 
     map.insert(BUILD_KEY, m_buildKey);
     map.insert(UNIQUE_ID_KEY, m_uniqueId);
+    map.insert(EXECUTION_TYPE_KEY, m_executionType.toSetting());
 }
 
 void RunConfiguration::setCommandLineGetter(const CommandLineGetter &cmdGetter)
@@ -568,6 +580,7 @@ void RunConfiguration::fromMap(const Store &map)
     m_customized = m_customized || map.value(CUSTOMIZED_KEY, false).toBool();
     m_buildKey = map.value(BUILD_KEY).toString();
     m_uniqueId = map.value(UNIQUE_ID_KEY).toString();
+    m_executionType = Id::fromSetting(map.value(EXECUTION_TYPE_KEY));
 
     if (m_usesEmptyBuildKeys) {
         QTC_CHECK(m_buildKey.isEmpty());
@@ -775,12 +788,26 @@ void RunConfigurationFactory::addSupportedProjectType(Id id)
     m_supportedProjectTypes.append(id);
 }
 
+void RunConfigurationFactory::setExecutionTypeId(Id executionType)
+{
+    m_executionType = executionType;
+}
+
+Id RunConfigurationFactory::executionTypeId() const
+{
+    return m_executionType;
+}
+
 bool RunConfigurationFactory::canHandle(Target *target) const
 {
     const Project *project = target->project();
     Kit *kit = target->kit();
 
     if (containsType(target->project()->projectIssues(kit), Task::TaskType::Error))
+        return false;
+
+    const bool supportsAnyExecutionType = !m_executionType.isValid();
+    if (!supportsAnyExecutionType && RunDeviceTypeKitAspect::executionTypeId(kit) != m_executionType)
         return false;
 
     if (!m_supportedProjectTypes.isEmpty()) {
@@ -821,6 +848,7 @@ RunConfiguration *RunConfigurationCreationInfo::create(BuildConfiguration *bc) c
     rc->update();
     rc->setDisplayName(displayName);
     rc->setPristineState();
+    rc->setExecutionType(factory->executionTypeId());
 
     return rc;
 }

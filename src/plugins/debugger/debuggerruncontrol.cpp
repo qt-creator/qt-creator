@@ -763,8 +763,7 @@ public:
         addSupportedRunMode(ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::DAP_LLDB_DEBUG_RUN_MODE);
 
-        addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-        addSupportedDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
+        setExecutionType(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
 
         addSupportForLocalRunConfigs();
     }

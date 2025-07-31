@@ -50,7 +50,7 @@ NimbleRunConfigurationFactory::NimbleRunConfigurationFactory()
 {
     registerRunConfiguration<NimbleRunConfiguration>("Nim.NimbleRunConfiguration");
     addSupportedProjectType(Constants::C_NIMBLEPROJECT_ID);
-    addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+    setExecutionTypeId(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
 }
 
 

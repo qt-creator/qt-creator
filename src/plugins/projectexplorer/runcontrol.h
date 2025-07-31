@@ -52,6 +52,7 @@ protected:
     void setId(Utils::Id id) { m_id = id; }
     void setRecipeProducer(const RecipeCreator &producer);
     void setSupportedRunConfigs(const QList<Utils::Id> &runConfigs);
+    void setExecutionType(Utils::Id executionType);
     void addSupportedRunMode(Utils::Id runMode);
     void addSupportedRunConfig(Utils::Id runConfig);
     void addSupportedDeviceType(Utils::Id deviceType);
@@ -61,13 +62,18 @@ protected:
 private:
     friend class RunControl;
     friend class Internal::RunWorkerConflictTest;
-    bool canCreate(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId) const;
+    bool canCreate(
+        Utils::Id runMode,
+        Utils::Id deviceType,
+        Utils::Id runConfigId,
+        Utils::Id executionType) const;
     Tasking::Group createRecipe(RunControl *runControl) const;
 
     RecipeCreator m_recipeCreator;
     QList<Utils::Id> m_supportedRunModes;
     QList<Utils::Id> m_supportedRunConfigurations;
     QList<Utils::Id> m_supportedDeviceTypes;
+    Utils::Id m_executionType;
     Utils::Id m_id;
 };
 
@@ -214,7 +220,8 @@ public:
     Tasking::Group createRecipe(Utils::Id runMode);
 
     bool createMainRecipe();
-    static bool canRun(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId);
+    static bool canRun(
+        Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId, Utils::Id executionType);
     void postMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
 
     void requestDebugChannel();

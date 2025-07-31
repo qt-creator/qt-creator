@@ -431,6 +431,7 @@ public:
         registerRunConfiguration<IosRunConfiguration>(Constants::IOS_RUNCONFIG_ID);
         addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
         addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
+        setExecutionTypeId(Constants::IOS_EXECUTION_TYPE_ID);
     }
 };
 

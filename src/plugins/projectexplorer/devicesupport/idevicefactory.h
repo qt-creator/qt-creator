@@ -29,6 +29,7 @@ public:
     IDevicePtr construct() const;
     IDevicePtr create() const;
     bool quickCreationAllowed() const;
+    Utils::Id executionTypeId() const;
 
     virtual bool canRestore(const Utils::Store &) const { return true; }
 
@@ -45,6 +46,7 @@ protected:
     void setConstructionFunction(const std::function<IDevicePtr ()> &constructor);
     void setCreator(const std::function<IDevicePtr()> &creator);
     void setQuickCreationAllowed(bool on);
+    void setExecutionTypeId(Utils::Id executionType);
 
 private:
     std::function<IDevicePtr()> m_creator;
@@ -53,6 +55,7 @@ private:
     QIcon m_icon;
     std::function<IDevicePtr()> m_constructor;
     bool m_quickCreationAllowed = false;
+    Utils::Id m_executionType;
 };
 
 } // namespace ProjectExplorer

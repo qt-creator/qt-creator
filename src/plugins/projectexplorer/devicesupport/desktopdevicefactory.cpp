@@ -27,6 +27,7 @@ DesktopDeviceFactory::DesktopDeviceFactory()
                 ? Utils::Icon::combinedIcon(
                     {Icons::DESKTOP_DEVICE.icon(), Core::Icons::DESKTOP_DEVICE_SMALL.icon()})
                 : QApplication::style()->standardIcon(QStyle::SP_ComputerIcon));
+    setExecutionTypeId(Constants::STDPROCESS_EXECUTION_TYPE_ID);
 }
 
 } // namespace ProjectExplorer::Internal

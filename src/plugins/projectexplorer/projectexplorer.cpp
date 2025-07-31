@@ -3258,8 +3258,9 @@ Result<> ProjectExplorerPlugin::canRunStartupProject(Utils::Id runMode)
             return ResultError(Tr::tr("A build is still in progress."));
     }
 
+    const Id deviceTypeId = RunDeviceTypeKitAspect::deviceTypeId(kit);
     // shouldn't actually be shown to the user...
-    if (!RunControl::canRun(runMode, RunDeviceTypeKitAspect::deviceTypeId(kit), activeRC->id()))
+    if (!RunControl::canRun(runMode, deviceTypeId, activeRC->id(), activeRC->executionType()))
         return ResultError(Tr::tr("Cannot run \"%1\".").arg(activeRC->displayName()));
 
     if (dd->m_delayedRunConfiguration && dd->m_delayedRunConfiguration->project() == project)

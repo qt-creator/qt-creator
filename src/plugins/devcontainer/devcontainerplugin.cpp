@@ -17,6 +17,7 @@
 #include <projectexplorer/devicesupport/idevicefactory.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 
 #include <utils/fsengine/fsengine.h>
@@ -42,6 +43,7 @@ public:
     {
         setDisplayName(Tr::tr("Development Container Device"));
         setIcon(QIcon());
+        setExecutionTypeId(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
     }
 };
 

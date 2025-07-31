@@ -674,6 +674,7 @@ public:
         setCombinedIcon(":/ios/images/iosdevicesmall.png",
                         ":/ios/images/iosdevice.png");
         setConstructionFunction([] { return IDevice::Ptr(new IosDevice); });
+        setExecutionTypeId(Constants::IOS_EXECUTION_TYPE_ID);
     }
 
     bool canRestore(const Utils::Store &map) const override

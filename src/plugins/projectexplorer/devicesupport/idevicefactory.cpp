@@ -138,6 +138,16 @@ void IDeviceFactory::setDisplayName(const QString &displayName)
     m_displayName = displayName;
 }
 
+void IDeviceFactory::setExecutionTypeId(Utils::Id executionType)
+{
+    m_executionType = executionType;
+}
+
+Utils::Id IDeviceFactory::executionTypeId() const
+{
+    return m_executionType;
+}
+
 IDeviceFactory::~IDeviceFactory()
 {
     g_deviceFactories.removeOne(this);

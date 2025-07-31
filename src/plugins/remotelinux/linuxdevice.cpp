@@ -1620,6 +1620,7 @@ Internal::LinuxDeviceFactory::LinuxDeviceFactory()
         m_existingDevices.writeLocked()->push_back(device);
         return device;
     });
+    setExecutionTypeId(Constants::ExecutionType);
 }
 
 Internal::LinuxDeviceFactory::~LinuxDeviceFactory()

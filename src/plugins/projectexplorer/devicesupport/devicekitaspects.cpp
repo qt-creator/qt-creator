@@ -354,6 +354,18 @@ const Id RunDeviceTypeKitAspect::deviceTypeId(const Kit *k)
     return Constants::DESKTOP_DEVICE_TYPE;
 }
 
+Utils::Id RunDeviceTypeKitAspect::executionTypeId(const Kit *k)
+{
+    if (!k)
+        return {};
+    if (const Id theId = Id::fromSetting(k->value(id())); theId.isValid()) {
+        if (IDeviceFactory *factory = IDeviceFactory::find(theId))
+            return factory->executionTypeId();
+    }
+
+    return {};
+}
+
 void RunDeviceTypeKitAspect::setDeviceTypeId(Kit *k, Id type)
 {
     QTC_ASSERT(k, return);

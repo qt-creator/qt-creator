@@ -117,9 +117,7 @@ public:
 
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
         addSupportForLocalRunConfigs();
-        addSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
-        addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-        addSupportedDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
+        setExecutionType(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
     }
 };
 
@@ -155,9 +153,7 @@ public:
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
         addSupportForLocalRunConfigs();
-        addSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
-        addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-        addSupportedDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
+        setExecutionType(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
     }
 };
 

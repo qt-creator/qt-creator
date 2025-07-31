@@ -81,6 +81,11 @@ void RunWorkerFactory::setSupportedRunConfigs(const QList<Id> &runConfigs)
     m_supportedRunConfigurations = runConfigs;
 }
 
+void RunWorkerFactory::setExecutionType(Id executionType)
+{
+    m_executionType = executionType;
+}
+
 void RunWorkerFactory::addSupportedRunMode(Id runMode)
 {
     g_runModes.insert(runMode); // Debugging only.
@@ -121,8 +126,12 @@ void RunWorkerFactory::cloneProduct(Id exitstingStepId)
     QTC_CHECK(false);
 }
 
-bool RunWorkerFactory::canCreate(Id runMode, Id deviceType, Id runConfigId) const
+bool RunWorkerFactory::canCreate(
+    Id runMode, Id deviceType, Id runConfigId, Utils::Id executionType) const
 {
+    if (executionType.isValid() && executionType != m_executionType)
+        return false;
+
     if (!m_supportedRunModes.contains(runMode))
         return false;
 
@@ -149,11 +158,13 @@ void RunWorkerFactory::dumpAll()
         qDebug() << "";
         for (Id device : devices) {
             for (Id runConfig : std::as_const(g_runConfigs)) {
-                const auto check = std::bind(&RunWorkerFactory::canCreate,
-                                             std::placeholders::_1,
-                                             runMode,
-                                             device,
-                                             runConfig);
+                const auto check = std::bind(
+                    &RunWorkerFactory::canCreate,
+                    std::placeholders::_1,
+                    runMode,
+                    device,
+                    runConfig,
+                    Utils::Id{}); // TODO: !!!
                 const auto factory = findOrDefault(g_runWorkerFactories, check);
                 qDebug() << "MODE:" << runMode << device << runConfig << factory;
             }
@@ -193,6 +204,7 @@ public:
     QString buildKey;
     QMap<Id, Store> settingsData;
     Id runConfigId;
+    Id executionType;
     BuildTargetInfo buildTargetInfo;
     FilePath buildDirectory;
     Environment buildEnvironment;
@@ -307,6 +319,7 @@ void RunControl::copyDataFromRunConfiguration(RunConfiguration *runConfig)
     d->data.settingsData = runConfig->settingsData();
     d->data.aspectData = runConfig->aspectData();
     d->data.printEnvironment = runConfig->isPrintEnvironmentEnabled();
+    d->data.executionType = runConfig->executionType();
 
     setBuildConfiguration(runConfig->buildConfiguration());
 
@@ -404,7 +417,7 @@ Group RunControl::createRecipe(Id runMode)
 {
     const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(d->data.kit);
     for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
-        if (factory->canCreate(runMode, deviceType, d->data.runConfigId))
+        if (factory->canCreate(runMode, deviceType, d->data.runConfigId, d->data.executionType))
             return factory->createRecipe(this);
     }
     return noRecipeTask();
@@ -414,9 +427,11 @@ bool RunControl::createMainRecipe()
 {
     const QList<RunWorkerFactory *> candidates
         = filtered(g_runWorkerFactories, [this](RunWorkerFactory *factory) {
-              return factory->canCreate(d->runMode,
-                                        RunDeviceTypeKitAspect::deviceTypeId(d->data.kit),
-                                        d->data.runConfigId);
+              return factory->canCreate(
+                  d->runMode,
+                  RunDeviceTypeKitAspect::deviceTypeId(d->data.kit),
+                  d->data.runConfigId,
+                  d->data.executionType);
           });
 
     // There might be combinations that cannot run. But that should have been checked
@@ -430,10 +445,10 @@ bool RunControl::createMainRecipe()
     return true;
 }
 
-bool RunControl::canRun(Id runMode, Id deviceType, Id runConfigId)
+bool RunControl::canRun(Id runMode, Id deviceType, Id runConfigId, Id executionType)
 {
     for (const RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
-        if (factory->canCreate(runMode, deviceType, runConfigId))
+        if (factory->canCreate(runMode, deviceType, runConfigId, executionType))
             return true;
     }
     return false;
@@ -1050,6 +1065,7 @@ ProcessRunnerFactory::ProcessRunnerFactory(const QList<Id> &runConfigs)
     setRecipeProducer([](RunControl *runControl) { return runControl->processRecipe(runControl->processTask()); });
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     setSupportedRunConfigs(runConfigs);
+    setExecutionType(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
 }
 
 Canceler RunControl::canceler()
@@ -1111,7 +1127,8 @@ private slots:
                 for (Id runConfig : std::as_const(g_runConfigs)) {
                     QList<Id> creators;
                     for (RunWorkerFactory *factory : g_runWorkerFactories) {
-                        if (factory->canCreate(runMode, device, runConfig))
+                        // TODO: !!
+                        if (factory->canCreate(runMode, device, runConfig, Id()))
                             creators.append(factory->id());
                     }
                     if (!creators.isEmpty())

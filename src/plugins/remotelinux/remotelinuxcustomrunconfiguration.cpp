@@ -88,7 +88,7 @@ public:
         : FixedRunConfigurationFactory(Tr::tr("Custom Executable"), true)
     {
         registerRunConfiguration<RemoteLinuxCustomRunConfiguration>(Constants::CustomRunConfigId);
-        addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        setExecutionTypeId(Constants::ExecutionType);
     }
 };
 

@@ -200,6 +200,9 @@ public:
     static void setupMacroExpander(
         Utils::MacroExpander &exp, const RunConfiguration *rc, bool documentationOnly);
 
+    void setExecutionType(Utils::Id executionType);
+    Utils::Id executionType() const;
+
 protected:
     RunConfiguration(BuildConfiguration *bc, Utils::Id id);
 
@@ -232,6 +235,7 @@ private:
     QString m_uniqueId;
     bool m_customized = false;
     bool m_usesEmptyBuildKeys = false;
+    Utils::Id m_executionType;
 };
 
 class RunConfigurationCreationInfo
@@ -281,6 +285,8 @@ protected:
     void addSupportedProjectType(Utils::Id projectTypeId);
     void addSupportedTargetDeviceType(Utils::Id deviceTypeId);
     void setDecorateDisplayNames(bool on);
+    void setExecutionTypeId(Utils::Id executionType);
+    Utils::Id executionTypeId() const;
 
 private:
     bool canHandle(Target *target) const;
@@ -290,6 +296,7 @@ private:
     friend class RunConfiguration;
     RunConfigurationCreator m_creator;
     Utils::Id m_runConfigurationId;
+    Utils::Id m_executionType;
     QList<Utils::Id> m_supportedProjectTypes;
     QList<Utils::Id> m_supportedTargetDeviceTypes;
     bool m_decorateDisplayNames = false;

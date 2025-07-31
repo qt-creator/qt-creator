@@ -210,6 +210,7 @@ IosSimulatorFactory::IosSimulatorFactory()
     setCombinedIcon(":/ios/images/iosdevicesmall.png",
                     ":/ios/images/iosdevice.png");
     setConstructionFunction([] { return IDevice::Ptr(new IosSimulator()); });
+    setExecutionTypeId(Constants::IOS_EXECUTION_TYPE_ID);
 }
 
 } // Ios::Internal

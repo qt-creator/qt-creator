@@ -241,9 +241,7 @@ public:
         addSupportedRunMode(MEMCHECK_RUN_MODE);
         addSupportedRunMode(MEMCHECK_WITH_GDB_RUN_MODE);
 
-        addSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
-        addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-        addSupportedDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
+        setExecutionType(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
         // FIXME: https://github.com/nihui/valgrind-android suggests this could work for android
     }
 };

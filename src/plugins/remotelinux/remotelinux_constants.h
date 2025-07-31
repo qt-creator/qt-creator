@@ -25,5 +25,7 @@ const char DisableSharing[] = "RemoteLinux.DisableSharing";
 const char RunConfigId[] = "RemoteLinuxRunConfiguration:";
 const char CustomRunConfigId[] = "RemoteLinux.CustomRunConfig";
 
+const char ExecutionType[] = "RemoteLinux.ExecutionType";
+
 } // Constants
 } // RemoteLinux

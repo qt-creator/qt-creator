@@ -18,6 +18,7 @@
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <tasking/conditional.h>
 

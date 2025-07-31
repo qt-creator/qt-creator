@@ -521,7 +521,7 @@ DockerDevice::DockerDevice()
     setDisplayType(Tr::tr("Docker"));
     setOsType(OsTypeLinux);
     setupId(IDevice::ManuallyAdded);
-    setType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
+    setType(Constants::DOCKER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
 
     setFileAccessFactory([this] { return d->createFileAccess(); });
@@ -1150,7 +1150,7 @@ public:
 // Factory
 
 DockerDeviceFactory::DockerDeviceFactory()
-    : IDeviceFactory(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE)
+    : IDeviceFactory(Constants::DOCKER_DEVICE_TYPE)
 {
     setDisplayName(Tr::tr("Docker Device"));
     setIcon(QIcon());
@@ -1167,6 +1167,7 @@ DockerDeviceFactory::DockerDeviceFactory()
         m_existingDevices.writeLocked()->push_back(device);
         return device;
     });
+    setExecutionTypeId(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
 }
 
 void DockerDeviceFactory::shutdownExistingDevices()

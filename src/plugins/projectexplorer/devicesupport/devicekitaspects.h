@@ -19,6 +19,7 @@ public:
     static const Utils::Id id();
     static const Utils::Id deviceTypeId(const Kit *k);
     static void setDeviceTypeId(Kit *k, Utils::Id type);
+    static Utils::Id executionTypeId(const Kit *k);
 };
 
 class PROJECTEXPLORER_EXPORT RunDeviceKitAspect

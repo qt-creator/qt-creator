@@ -95,7 +95,7 @@ public:
     {
         registerRunConfiguration<RemoteLinuxRunConfiguration>(Constants::RunConfigId);
         setDecorateDisplayNames(true);
-        addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        addSupportedTargetDeviceType(Constants::GenericLinuxOsType);
     }
 };
 

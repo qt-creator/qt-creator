@@ -14,6 +14,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <remotelinux/linuxprocessinterface.h>
+#include <remotelinux/remotelinux_constants.h>
 
 #include <utils/portlist.h>
 #include <utils/qtcprocess.h>
@@ -248,6 +249,7 @@ public:
                 return IDevice::Ptr();
             return wizard.device();
         });
+        setExecutionTypeId(RemoteLinux::Constants::ExecutionType);
     }
 };
 

@@ -146,11 +146,9 @@ public:
     {
         registerRunConfiguration<DesktopRunConfiguration>(runConfigId);
         addSupportedProjectType(projectTypeId);
-        addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-        addSupportedTargetDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
+        setExecutionTypeId(STDPROCESS_EXECUTION_TYPE_ID);
     }
 };
-
 
 void setupDesktopRunConfigurations()
 {

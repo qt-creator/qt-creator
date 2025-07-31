@@ -101,6 +101,7 @@ public:
                 return {};
             return device;
         });
+        setExecutionTypeId(RemoteLinux::Constants::ExecutionType);
     }
 };
 

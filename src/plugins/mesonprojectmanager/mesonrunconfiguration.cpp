@@ -80,7 +80,7 @@ public:
     {
         registerRunConfiguration<MesonRunConfiguration>(Constants::MESON_RUNCONFIG_ID);
         addSupportedProjectType(Constants::Project::ID);
-        addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+        setExecutionTypeId(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
     }
 };
 
