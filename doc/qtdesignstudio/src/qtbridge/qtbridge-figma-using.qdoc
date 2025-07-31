@@ -115,7 +115,7 @@
         \li When the exporting is done, select \uicontrol OK.
     \endlist
 
-    \QBF exports everything into a .qtbridge archive. You can import the archive
+    \QBF exports everything into a \c {.qtbridge} archive. You can import the archive
     into a project in \QDS, as described in \l{Importing 2D Assets}.
 
     \section1 Export settings

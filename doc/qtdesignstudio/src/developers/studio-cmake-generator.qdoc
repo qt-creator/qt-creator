@@ -96,11 +96,11 @@
                 matches these URIs.
             \li Add missing filters to the \c .qmlproject file.
                 \list
-                    \li If a folder contains \c QML and \c JavaScript files, define
+                    \li If a folder contains QML and JavaScript files, define
                         \c QMLFiles and \c JavaScriptFiles in the \c .qmlproject file.
                     \li For the files that don't have dedicated keywords, such as
                         \c ImageFiles or \c FontFiles, add them to the
-                        \c .qmlproject as a filter. To add \c WAV or \c MP3 files,
+                        \c .qmlproject as a filter. To add WAV or MP3 files,
                         define filters in the \c .qmlproject file like this:
                         \code
                            Files {
@@ -110,7 +110,7 @@
                         To learn more about the defined file formats, see
                         \l {https://doc.qt.io/archives/QtForMCUs-2.5/qtul-qmlproject-reference.html#imagefiles}.
                 \endlist
-            \li Remove all the \c CMakeLists.txt files. The \e CMakeLists.txt files are
+            \li Remove all the \c CMakeLists.txt files. The \c CMakeLists.txt files are
                 automatically generated when you access CMake generation using
                 \uicontrol File > \uicontrol {Export Project} >
                 \uicontrol {Enable CMake Generator}.

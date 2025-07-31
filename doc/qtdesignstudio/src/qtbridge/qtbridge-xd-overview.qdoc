@@ -13,7 +13,7 @@
     \note This is a \e {Technical Preview} release of the \QBXD. Some design
     elements might not be exported and imported into \QDS as expected.
 
-    You can use \QBXD to export designs from Adobe XD to \e {.qtbridge}
+    You can use \QBXD to export designs from Adobe XD to \c {.qtbridge}
     format that you can \l{Importing 2D Assets}{import} to projects in \QDS.
 
     \image {qt-bridge-xd.png} {The Qt Bridge for Adobe XD open in Adobe XD.}

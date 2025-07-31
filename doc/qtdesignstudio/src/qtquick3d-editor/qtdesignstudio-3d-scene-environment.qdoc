@@ -272,11 +272,11 @@
     instead of or in addition to standard lights. The image is preferably a
     high-dynamic range image or a pre-generated cubemap. Pre-baking provides
     significant performance improvements at run time because no time is spent on
-    filtering and mipmap generation. If the source is a .hdr or other image,
+    filtering and mipmap generation. If the source is a \c{.hdr} or other image,
     the GPU-based pre-processing happens at run time after loading the image
     file, which can be potentially time consuming, in particular on embedded and
     mobile hardware. Therefore, it is strongly recommended that applications
-    pre-process .hdr images at latest at build time, as described here.
+    pre-process \c{.hdr} images at latest at build time, as described here.
 
     \note In Qt 6, using a \uicontrol Texture component with \uicontrol Image >
     \uicontrol Source is not supported in combination with this property.

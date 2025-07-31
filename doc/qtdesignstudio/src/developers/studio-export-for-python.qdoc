@@ -17,12 +17,12 @@
 
             \li Go to \uicontrol {File} > \uicontrol {Export Project}
                 > \uicontrol {Enable Python Generator}. This creates a
-                Python folder in your project folder. You can find the
-                \c {main.py} file in the Python folder. This file is
+                \c Python folder in your project folder. You can find the
+                \c {main.py} file in the \c Python folder. This file is
                 necessary for working in Python.
 
                 \note Do not modify the contents of the \c {autogen} folder inside
-                    the Python folder manually; they are overwritten with each
+                    the \c Python folder manually; they are overwritten with each
                     change you make in the project.
 
             \image studio-project-export-python.webp {Exporting a Qt Design Studio project to Python.}

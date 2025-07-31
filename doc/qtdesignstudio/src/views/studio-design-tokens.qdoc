@@ -62,7 +62,7 @@
 
     \note You can locate this collection's \c qml in the \uicontrol Projects view. However,
         an empty collection does not appear. After adding variables to the collection,
-        you can find it in the folder \uicontrol Generated > \uicontrol DesignSystem.
+        you can find it in the folder \c {Generated/DesignSystem}.
 
     \DT variables can be used in a binding. Check the example below:
     \code

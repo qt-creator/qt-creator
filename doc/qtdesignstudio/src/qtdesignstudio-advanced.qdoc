@@ -11,7 +11,7 @@
     \table
         \row
             \li \image qds-front-advanced.png
-            \li Learn more about the UI files (.ui.qml) and collecting data about
+            \li Learn more about the UI files (\c{.ui.qml}) and collecting data about
                 \QDS usage.
     \endtable
 

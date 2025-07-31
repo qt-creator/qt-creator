@@ -17,7 +17,7 @@
                 prototyping, and validating UIs with very little effort.
 
                 You can use the \l{Code} view to edit your component
-                files (.qml). If you use JavaScript, you can debug and profile
+                files (\c{.qml}). If you use JavaScript, you can debug and profile
                 your UIs to find and fix problems in them.
     \endtable
 
@@ -25,8 +25,8 @@
 
         \li \l{Designer-developer workflow}
 
-            In \QDS projects, you work on \l{UI files} (.ui.qml),
-            while developers work on the .qml and C++ source files in
+            In \QDS projects, you work on \l{UI files} (\c{.ui.qml}),
+            while developers work on the QML and C++ source files in
             Qt Creator to create an application that you can build and
             run on target hardware.
         \li \l{Code}{Coding}

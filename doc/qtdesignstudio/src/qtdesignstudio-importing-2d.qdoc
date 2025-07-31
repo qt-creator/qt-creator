@@ -39,8 +39,8 @@
     changes you have made in \QDS. For more information, see
     \l {Exporting from Design Tools}.
 
-    \QB exports the designs either as an archive(.qtbridge) or as images with
-    a .metadata file. \QDS support both formats.
+    \QB exports the designs either as an archive(\c{.qtbridge}) or as images with
+    a \c{.metadata} file. \QDS support both formats.
 
     The following instructions use an empty project as an example. For more
     information about the options you have, see
@@ -52,7 +52,7 @@
         \li Select \uicontrol File > \uicontrol {New Project} >
             \uicontrol General > \uicontrol {Empty}. Add \uicontrol {Details} about
             the project and select \uicontrol Create.
-        \li In \uicontrol Projects, double-click \e Screen01.ui.qml to move to
+        \li In \uicontrol Projects, double-click \c Screen01.ui.qml to move to
             the Design mode.
         \li Select \uicontrol Assets > \imageplus
             .

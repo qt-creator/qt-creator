@@ -9,8 +9,8 @@
 
     \title Importing 3D assets
 
-    In \QDS, you can import 3D assets in formats such as .stl, .dae, .fbx, .glb,
-    .gltf, .obj, .uia, and .uip. For a list of formats supported by each
+    In \QDS, you can import 3D assets in formats such as \c{.stl}, \c{.dae}, \c{.fbx}, \c{.glb},
+    \c{.gltf}, \c{.obj}, \c{.uia}, and \c{.uip}. For a list of formats supported by each
     \l{Qt Quick 3D} version, see the module documentation.
 
     During the import, you can optimize the files for \QDS. You can remove

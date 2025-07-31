@@ -16,7 +16,7 @@
 
     \list
         \li Group files together.
-        \li Include \l{UI files} (.ui.qml), component files (.qml),
+        \li Include \l{UI files} (\c{.ui.qml}), component files (\c{.qml}),
             and assets files.
         \li Specify settings for previewing UIs.
     \endlist
@@ -130,7 +130,7 @@
             \li File or folder
             \li Description
         \row
-            \li ProjectName.qmlproject
+            \li \c {ProjectName.qmlproject}
             \li This file defines that all components, JavaScript, and image files in the project
                 folder belong to the project. Therefore, you do not need to individually list all
                 the files in the project. Since \QDS 4.5, the default
@@ -141,18 +141,18 @@
             \li \c {ProjectName} (folder)
             \li This folder contains the essential QML files for the project.
         \row
-            \li Constants.qml
+            \li \c {Constants.qml}
             \li This file defines a font loader for the Arial font and the screen resolution.
-                The size of the default Screen.ui.qml \l{basic-rectangle}{Rectangle} should
+                The size of the default \c{Screen.ui.qml} \l{basic-rectangle}{Rectangle} should
                 be set as \c {width: Constants.width & height: Constants.height} so
                 that it inherits the global resolution saved here. This is the default
                 QML singleton created by the wizard. You can add more singletons here. Afterward,
                 edit the qmldir file accordingly.
         \row
-            \li EventListModel.qml
+            \li \c {EventListModel.qml}
             \li This file defines and triggers "Global Events" in a \QDS/QML application.
         \row
-            \li EventListSimulator.qml
+            \li \c {EventListSimulator.qml}
             \li This file defines and triggers "Global Events" in a \QDS/QML application.
         \row
             \li qmldir
@@ -164,16 +164,16 @@
                 necessary files. It is not considered a module in \QDS context. Do not import it
                 if you want to make singletons and objects. Use the ProjectName module instead.
         \row
-            \li App.qml
+            \li \c {App.qml}
             \li This file defines the default dimension of the application window.
                 This is the entry point to QML application.
         \row
-            \li Screen01.ui.qml
+            \li \c {Screen01.ui.qml}
             \li This file defines a custom component that you can edit in the \uicontrol {2D} view.
                 For more information, see \l {UI files}.
                 The project wizard generates this as the first scene.
         \row
-            \li qtquickcontrols2.conf
+            \li \c {qtquickcontrols2.conf}
             \li This file specifies the preferred style and style-specific arguments.
     \endtable
 

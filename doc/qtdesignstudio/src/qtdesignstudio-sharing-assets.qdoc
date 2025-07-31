@@ -8,7 +8,7 @@
     \sa {Content Library}
 
     \title Sharing assets
-    With \QDS Bundle files (\e{.qdsbundle}), you can import and export 3D components (such as
+    With \QDS Bundle files (\c{.qdsbundle}), you can import and export 3D components (such as
     cameras, lights, and models) and materials easily.
 
     \section1 Exporting Bundles
