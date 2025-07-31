@@ -568,8 +568,6 @@ DockerDevice::DockerDevice()
     setFileAccessFactory([this] { return d->createFileAccess(); });
 
     setOpenTerminal([this](const Environment &env, const FilePath &workingDir) -> Result<> {
-        Q_UNUSED(env) // TODO: That's the runnable's environment in general. Use it via -e below.
-
         Result<QString> result = d->updateContainerAccess();
 
         if (!result)
