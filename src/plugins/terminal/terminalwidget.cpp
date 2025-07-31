@@ -386,8 +386,8 @@ void TerminalWidget::surfaceChanged()
     connect(m_shellIntegration.get(),
             &ShellIntegration::currentDirChanged,
             this,
-            [this](const QString &currentDir) {
-                m_cwd = FilePath::fromUserInput(currentDir);
+            [this](const FilePath &currentDir) {
+                m_cwd = currentDir;
                 emit cwdChanged(m_cwd);
             });
 }
