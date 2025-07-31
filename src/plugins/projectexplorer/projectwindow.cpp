@@ -822,6 +822,7 @@ public:
     ~TargetItem()
     {
         delete m_buildSettingsWidget;
+        delete m_deploySettingsWidget;
         delete m_runSettingsWidget;
     }
 
@@ -903,10 +904,16 @@ public:
     {
         if (!m_buildSettingsWidget)
             m_buildSettingsWidget = new ProjectPanel(createBuildSettingsWidget(target()));
+        if (!m_deploySettingsWidget)
+            m_deploySettingsWidget = new ProjectPanel(createDeploySettingsWidget(target()));
         if (!m_runSettingsWidget)
             m_runSettingsWidget = new ProjectPanel(createRunSettingsWidget(target()));
 
-        return { m_buildSettingsWidget.get(), m_runSettingsWidget.get() };
+        return {
+            m_buildSettingsWidget.get(),
+            m_deploySettingsWidget.get(),
+            m_runSettingsWidget.get()
+        };
     }
 
     void addToMenu(QMenu *menu) const final
@@ -1061,6 +1068,7 @@ public:
     Tasks m_kitIssues;
 
     mutable QPointer<QWidget> m_buildSettingsWidget;
+    mutable QPointer<QWidget> m_deploySettingsWidget;
     mutable QPointer<QWidget> m_runSettingsWidget;
 };
 

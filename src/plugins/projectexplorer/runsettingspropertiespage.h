@@ -9,6 +9,7 @@ namespace ProjectExplorer { class Target; }
 
 namespace ProjectExplorer::Internal {
 
+QWidget *createDeploySettingsWidget(Target *target);
 QWidget *createRunSettingsWidget(Target *target);
 
 } // namespace ProjectExplorer::Internal
