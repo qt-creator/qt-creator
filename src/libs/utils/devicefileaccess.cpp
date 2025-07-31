@@ -23,6 +23,7 @@
 #include <QRegularExpression>
 #include <QStandardPaths>
 #include <QStorageInfo>
+#include <QTemporaryDir>
 #include <QTemporaryFile>
 #include <QThread>
 
@@ -422,6 +423,13 @@ Result<FilePath> DeviceFileAccess::createTempFile(const FilePath &filePath)
     return notImplementedError("createTempFile()", filePath);
 }
 
+Result<FilePath> DeviceFileAccess::createTempDir(const FilePath &filePath)
+{
+    Q_UNUSED(filePath)
+    QTC_CHECK(false);
+    return notImplementedError("createTempDir()", filePath);
+}
+
 Result<std::unique_ptr<FilePathWatcher>> DeviceFileAccess::watch(const FilePath &filePath) const
 {
     return notImplementedError("watch()", filePath);
@@ -646,6 +654,11 @@ Result<std::optional<FilePath>> UnavailableDeviceFileAccess::refersToExecutableF
 }
 
 Result<FilePath> UnavailableDeviceFileAccess::createTempFile(const FilePath &filePath)
+{
+    return unavailableError(filePath);
+}
+
+Result<FilePath> UnavailableDeviceFileAccess::createTempDir(const FilePath &filePath)
 {
     return unavailableError(filePath);
 }
@@ -1246,6 +1259,19 @@ Result<FilePath> DesktopDeviceFileAccess::createTempFile(const FilePath &filePat
     return filePath.withNewPath(file.fileName());
 }
 
+Result<FilePath> DesktopDeviceFileAccess::createTempDir(const FilePath &filePath)
+{
+    QTemporaryDir dir(filePath.path());
+    dir.setAutoRemove(false);
+    if (!dir.isValid()) {
+        return ResultError(
+            Tr::tr("Could not create temporary directory in \"%1\" (%2).")
+                .arg(filePath.toUserOutput())
+                .arg(dir.errorString()));
+    }
+    return filePath.withNewPath(dir.path());
+}
+
 Result<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(const FilePath &path) const
 {
     auto watcher = std::make_unique<DesktopFilePathWatcher>(path);
@@ -1640,7 +1666,7 @@ Result<qint64> UnixDeviceFileAccess::writeFileContents(const FilePath &filePath,
     return data.size();
 }
 
-Result<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &filePath)
+Result<FilePath> UnixDeviceFileAccess::createTempPath(const FilePath &filePath, bool createDir)
 {
     if (!m_hasMkTemp.has_value())
         m_hasMkTemp = runInShellSuccess({"which", {"mktemp"}, OsType::OsTypeLinux}).has_value();
@@ -1652,14 +1678,18 @@ Result<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &filePath)
         tmplate += ".XXXXXX";
 
     if (m_hasMkTemp) {
-        const Result<QByteArray> res = runInShell({"mktemp", {tmplate}, OsType::OsTypeLinux});
+        QStringList args;
+        if (createDir)
+            args << "-d";
+        args << tmplate;
+        const Result<QByteArray> res = runInShell({"mktemp", args, OsType::OsTypeLinux});
         if (!res)
             return ResultError(res.error());
 
         return filePath.withNewPath(QString::fromUtf8(res->trimmed()));
     }
 
-    // Manually create a temporary/unique file.
+    // Manually create a temporary/unique file or directory.
     std::reverse_iterator<QChar *> firstX = std::find_if_not(std::rbegin(tmplate),
                                                              std::rend(tmplate),
                                                              [](QChar ch) { return ch == 'X'; });
@@ -1682,17 +1712,34 @@ Result<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &filePath)
         }
         newPath = filePath.withNewPath(tmplate);
         if (--maxTries == 0) {
-            return ResultError(Tr::tr("Failed creating temporary file \"%1\" (too many tries).")
-                                       .arg(filePath.toUserOutput()));
+            QString msg = createDir
+                              ? Tr::tr("Failed creating temporary directory \"%1\" (too many tries).")
+                              : Tr::tr("Failed creating temporary files \"%1\" (too many tries).");
+
+            return ResultError(msg.arg(filePath.toUserOutput()));
         }
     } while (newPath.exists());
 
-    const Result<qint64> createResult = newPath.writeFileContents({});
+    Result<qint64> createResult;
+    if (createDir)
+        createResult = newPath.createDir();
+    else
+        createResult = newPath.writeFileContents({});
 
     if (!createResult)
         return ResultError(createResult.error());
 
     return newPath;
+}
+
+Result<FilePath> UnixDeviceFileAccess::createTempDir(const FilePath &filePath)
+{
+    return createTempPath(filePath, true);
+}
+
+Result<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &filePath)
+{
+    return createTempPath(filePath, false);
 }
 
 Result<QDateTime> UnixDeviceFileAccess::lastModified(const FilePath &filePath) const

@@ -55,6 +55,11 @@ public:
     {
         UnixDeviceFileAccess::findUsingLs(current, filter, found, {});
     }
+
+    Result<FilePath> createTempDir(const FilePath &filePath) override
+    {
+        return UnixDeviceFileAccess::createTempDir(filePath);
+    }
 };
 
 class tst_unixdevicefileaccess : public QObject
@@ -95,6 +100,16 @@ private slots:
         QCOMPARE(result,
                  QStringList(
                      {".", "..", "lsfindsubdir/.", "lsfindsubdir/..", "lsfindsubdir", "size-test"}));
+    }
+
+    void createTempDir()
+    {
+        FilePath tmpDirTemplate = FilePath::fromUserInput(QDir::tempPath()) / "qtc-XXXXXX";
+        const Result<FilePath> tmpDirResult = m_dfa.createTempDir(tmpDirTemplate);
+        QVERIFY_RESULT(tmpDirResult);
+        const FilePath tmpDir = *tmpDirResult;
+        QVERIFY(tmpDir.isWritableDir());
+        QVERIFY(tmpDir.removeRecursively());
     }
 
 private:

@@ -23,7 +23,8 @@ public:
 
     ~TemporaryFilePath();
 
-    static Result<std::unique_ptr<TemporaryFilePath>> create(const FilePath &templatePath);
+    static Result<std::unique_ptr<TemporaryFilePath>> create(
+        const FilePath &templatePath, bool directory = false);
 
     void setAutoRemove(bool autoDelete);
     bool autoRemove() const;
@@ -32,7 +33,7 @@ public:
     FilePath filePath() const;
 
 private:
-    TemporaryFilePath(const FilePath &templatePath, const FilePath &filePath);
+    TemporaryFilePath(const FilePath &templatePath, const FilePath &filePath, bool directory);
 
 private:
     std::unique_ptr<TemporaryFilePathPrivate> d;

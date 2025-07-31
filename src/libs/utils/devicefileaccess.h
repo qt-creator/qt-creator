@@ -81,6 +81,7 @@ protected:
                                              const QByteArray &data) const;
 
     virtual Result<FilePath> createTempFile(const FilePath &filePath);
+    virtual Result<FilePath> createTempDir(const FilePath &filePath);
 
     virtual Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const;
 
@@ -148,6 +149,7 @@ protected:
                                            const QByteArray &data) const override;
 
     Result<FilePath> createTempFile(const FilePath &filePath) override;
+    Result<FilePath> createTempDir(const FilePath &filePath) override;
 
     Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &filePath) const override;
 };
@@ -210,6 +212,7 @@ protected:
                                            const QByteArray &data) const override;
 
     Result<FilePath> createTempFile(const FilePath &filePath) override;
+    Result<FilePath> createTempDir(const FilePath &filePath) override;
 
     Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const override;
 
@@ -272,6 +275,7 @@ protected:
                                            const QByteArray &data) const override;
 
     Result<FilePath> createTempFile(const FilePath &filePath) override;
+    Result<FilePath> createTempDir(const FilePath &filePath) override;
 
     Result<> findUsingLs(const QString &current,
                          const FileFilter &filter,
@@ -279,6 +283,7 @@ protected:
                          const QString &start) const;
 
 private:
+    Result<FilePath> createTempPath(const FilePath &filePath, bool createDir);
     Result<> iterateWithFind(const FilePath &filePath,
                              const FileFilter &filter,
                              const FilePath::IterateDirCallback &callBack) const;

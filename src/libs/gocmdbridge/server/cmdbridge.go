@@ -38,7 +38,7 @@ type command struct {
 	Error string
 
 	CopyFile copyfile
-        CreateSymLink createsymlink
+	CreateSymLink createsymlink
 	RenameFile renamefile
 	SetPermissions setpermissions
 
@@ -128,6 +128,12 @@ type setpermissions struct {
 }
 
 type createtempfileresult struct {
+	Type string
+	Id   int
+	Path string
+}
+
+type createtempdirresult struct {
 	Type string
 	Id   int
 	Path string
@@ -358,6 +364,29 @@ func processRenameFile(cmd command, out chan<- []byte) {
 	out <- result
 }
 
+func processCreateTempDir(cmd command, out chan<- []byte) {
+	dir := cmd.Path
+	template := ""
+
+	if _, err := os.Stat(cmd.Path); os.IsNotExist(err) {
+		dir = filepath.Dir(cmd.Path)
+		template = filepath.Base(cmd.Path)
+	}
+
+	tempDir, err := os.MkdirTemp(dir, template)
+	if err != nil {
+		sendError(out, cmd, err)
+		return
+	}
+
+	result, _ := cbor.Marshal(createtempdirresult{
+		Type: "createtempdirresult",
+		Id:   cmd.Id,
+		Path: tempDir,
+	})
+	out <- result
+}
+
 func processCreateTempFile(cmd command, out chan<- []byte) {
 	dir := cmd.Path
 	template := ""
@@ -453,6 +482,8 @@ func processCommand(watcher *WatcherHandler, watchDogChannel chan struct{} ,cmd 
 		processCreateDir(cmd, out)
 	case "createtempfile":
 		processCreateTempFile(cmd, out)
+	case "createtempdir":
+		processCreateTempDir(cmd, out)
 	case "ensureexistingfile":
 		processEnsureExistingFile(cmd, out)
 	case "exec":

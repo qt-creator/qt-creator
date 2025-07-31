@@ -655,7 +655,7 @@ Result<> FileAccess::signalProcess(int pid, ControlSignal signal) const
     return ResultOk;
 }
 
-Result<FilePath> FileAccess::createTempFile(const FilePath &filePath)
+Result<FilePath> FileAccess::createTemp(const FilePath &filePath, bool dir)
 {
     try {
         QString path = filePath.nativePath();
@@ -670,7 +670,8 @@ Result<FilePath> FileAccess::createTempFile(const FilePath &filePath)
             path += ".*";
         }
 
-        Result<QFuture<FilePath>> f = m_client->createTempFile(path);
+        Result<QFuture<FilePath>> f = dir ? m_client->createTempDir(path)
+                                          : m_client->createTempFile(path);
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
         f->waitForFinished();
 
@@ -681,6 +682,16 @@ Result<FilePath> FileAccess::createTempFile(const FilePath &filePath)
     } catch (const std::exception &e) {
         return exceptionError("Error creating temporary file for %1", filePath, e);
     }
+}
+
+Result<FilePath> FileAccess::createTempDir(const FilePath &filePath)
+{
+    return createTemp(filePath, true);
+}
+
+Result<FilePath> FileAccess::createTempFile(const FilePath &filePath)
+{
+    return createTemp(filePath, false);
 }
 
 Result<> FileAccess::iterateDirectory(

@@ -22,6 +22,7 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QStringView>
+#include <QTemporaryDir>
 #include <QTemporaryFile>
 #include <QUrl>
 
@@ -679,8 +680,8 @@ Result<FilePath> FilePath::tmpDir() const
 
         if (osType() != OsTypeWindows)
             return withNewPath("/tmp");
-        return ResultError(QString("Could not find temporary directory on device %1")
-                               .arg(displayName()));
+        return ResultError(
+            Tr::tr("Could not find temporary directory on device %1").arg(displayName()));
     }
 
     return FilePath::fromUserInput(QDir::tempPath());
@@ -694,10 +695,25 @@ Result<FilePath> FilePath::createTempFile() const
         if (file.open())
             return FilePath::fromString(file.fileName());
 
-        return ResultError(QString("Could not create temporary file: %1").arg(file.errorString()));
+        return ResultError(Tr::tr("Could not create temporary file: %1").arg(file.errorString()));
     }
 
     return fileAccess()->createTempFile(*this);
+}
+
+Result<FilePath> FilePath::createTempDir() const
+{
+    if (isLocal()) {
+        QTemporaryDir dir(path());
+        dir.setAutoRemove(false);
+        if (!dir.path().isEmpty())
+            return FilePath::fromString(dir.path());
+
+        return ResultError(
+            Tr::tr("Could not create temporary directory: %1").arg(dir.errorString()));
+    }
+
+    return fileAccess()->createTempDir(*this);
 }
 
 bool FilePath::hasHardLinks() const

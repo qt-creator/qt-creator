@@ -104,6 +104,7 @@ public:
     Utils::Result<QFuture<void>> renameFile(const QString &source, const QString &target);
 
     Utils::Result<QFuture<Utils::FilePath>> createTempFile(const QString &path);
+    Utils::Result<QFuture<Utils::FilePath>> createTempDir(const QString &path);
 
     Utils::Result<QFuture<void>> setPermissions(const QString &path, QFile::Permissions perms);
 

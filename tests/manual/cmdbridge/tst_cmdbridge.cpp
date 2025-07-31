@@ -142,6 +142,29 @@ private slots:
         QVERIFY(!fileAccess.exists(*tempFile).value());
     }
 
+    void testTempDir()
+    {
+        CmdBridge::FileAccess fileAccess;
+        Result<> res = fileAccess.deployAndInit(
+            FilePath::fromUserInput(libExecPath),
+            FilePath::fromUserInput("/"),
+            Environment::systemEnvironment());
+
+        QVERIFY_RESULT(res);
+
+        Result<FilePath> tempDir = fileAccess.createTempDir(
+            FilePath::fromUserInput(QDir::tempPath()) / "test.XXXXXX");
+
+        QVERIFY_RESULT(tempDir);
+        QVERIFY_RESULT(fileAccess.exists(*tempDir));
+        QVERIFY(fileAccess.exists(*tempDir).value());
+        QVERIFY_RESULT(fileAccess.isWritableDirectory(*tempDir));
+        QVERIFY(fileAccess.isWritableDirectory(*tempDir).value());
+        QVERIFY_RESULT(fileAccess.removeRecursively(*tempDir));
+        QVERIFY_RESULT(fileAccess.exists(*tempDir));
+        QVERIFY(!fileAccess.exists(*tempDir).value());
+    }
+
     void testTempFileWithoutPlaceholder()
     {
         CmdBridge::FileAccess fileAccess;

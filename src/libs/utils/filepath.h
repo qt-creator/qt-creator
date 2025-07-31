@@ -238,6 +238,7 @@ public:
 
     [[nodiscard]] Result<FilePath> tmpDir() const;
     [[nodiscard]] Result<FilePath> createTempFile() const;
+    [[nodiscard]] Result<FilePath> createTempDir() const;
 
     // makes sure that capitalization of directories is canonical
     // on Windows and macOS. This is rarely needed.

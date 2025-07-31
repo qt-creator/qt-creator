@@ -93,6 +93,8 @@ protected:
         const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
 
     Utils::Result<Utils::FilePath> createTempFile(const Utils::FilePath &filePath) override;
+    Utils::Result<Utils::FilePath> createTempDir(const Utils::FilePath &filePath) override;
+    Utils::Result<Utils::FilePath> createTemp(const Utils::FilePath &filePath, bool dir);
 
     Utils::Result<std::unique_ptr<Utils::FilePathWatcher>> watch(
         const Utils::FilePath &filePath) const override;

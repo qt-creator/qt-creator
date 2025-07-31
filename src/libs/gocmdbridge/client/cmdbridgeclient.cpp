@@ -729,6 +729,20 @@ Utils::Result<QFuture<FilePath>> Client::createTempFile(const QString &path)
         });
 }
 
+Utils::Result<QFuture<FilePath>> Client::createTempDir(const QString &path)
+{
+    return createJob<FilePath>(
+        d.get(),
+        QCborMap{{"Type", "createtempdir"}, {"Path", path}},
+        [](QVariantMap map, QPromise<FilePath> &promise) {
+            ASSERT_TYPE("createtempdirresult");
+
+            promise.addResult(FilePath::fromUserInput(map.value("Path").toString()));
+
+            return JobResult::Done;
+        });
+}
+
 /*
 Convert QFileDevice::Permissions to Unix chmod flags.
 The mode is copied from system libraries.

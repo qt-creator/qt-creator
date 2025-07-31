@@ -17,28 +17,36 @@ public:
     FilePath templatePath;
     FilePath filePath;
     bool autoRemove = true;
+    bool dir = false;
 };
 
 Result<std::unique_ptr<TemporaryFilePath>> TemporaryFilePath::create(
-    const FilePath &templatePath)
+    const FilePath &templatePath, bool directory)
 {
-    Result<FilePath> result = templatePath.createTempFile();
+    Result<FilePath> result = directory ? templatePath.createTempDir()
+                                        : templatePath.createTempFile();
     if (!result)
         return ResultError(result.error());
-    return std::unique_ptr<TemporaryFilePath>(new TemporaryFilePath(templatePath, *result));
+    return std::unique_ptr<TemporaryFilePath>(new TemporaryFilePath(templatePath, *result, directory));
 }
 
-TemporaryFilePath::TemporaryFilePath(const FilePath &templatePath, const FilePath &filePath)
+TemporaryFilePath::TemporaryFilePath(
+    const FilePath &templatePath, const FilePath &filePath, bool directory)
     : d(std::make_unique<TemporaryFilePathPrivate>())
 {
     d->templatePath = templatePath;
     d->filePath = filePath;
+    d->dir = directory;
 }
 
 TemporaryFilePath::~TemporaryFilePath()
 {
-    if (d->autoRemove)
-        d->filePath.removeFile();
+    if (d->autoRemove) {
+        if (d->dir)
+            d->filePath.removeRecursively();
+        else
+            d->filePath.removeFile();
+    }
 }
 
 void TemporaryFilePath::setAutoRemove(bool autoRemove)
