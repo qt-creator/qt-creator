@@ -287,7 +287,7 @@ DeploySettingsWidget::DeploySettingsWidget(Target *target)
 
     auto deployWidget = new QWidget(this);
 
-    auto deployLabel = new QLabel(Tr::tr("Deployment method:"), this);
+    auto deployLabel = new QLabel(Tr::tr("Active deployment configuration:"), this);
     deployLabel->setBuddy(m_deployConfigurationCombo);
 
     m_gridLayout->addWidget(deployLabel, 0, 0, 1, 1);
@@ -298,7 +298,6 @@ DeploySettingsWidget::DeploySettingsWidget(Target *target)
     m_gridLayout->addItem(spacer1, 1, 8, 1, 1);
     m_gridLayout->addWidget(deployWidget, 2, 0, 1, -1);
     m_gridLayout->addItem(spacer2, 3, 0, 1, 1);
-
     deployWidget->setContentsMargins(0, 10, 0, 25);
     m_deployLayout = new QVBoxLayout(deployWidget);
     m_deployLayout->setContentsMargins(0, 0, 0, 0);
@@ -566,7 +565,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
 
     auto runWidget = new QWidget(this);
 
-    auto runLabel = new QLabel(Tr::tr("Run configuration:"), this);
+    auto runLabel = new QLabel(Tr::tr("Active run configuration:"), this);
     runLabel->setBuddy(m_runConfigurationCombo);
 
     m_gridLayout->addWidget(runLabel, 0, 0, 1, 1);
