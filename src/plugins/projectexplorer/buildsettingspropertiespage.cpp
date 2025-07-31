@@ -101,7 +101,7 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target)
         m_cloneButton = new QPushButton(Tr::tr("Clone..."), this);
 
         auto hbox = new QHBoxLayout();
-        hbox->setContentsMargins(0, 0, 0, 0);
+        hbox->setContentsMargins(0, 20, 0, 0);
         hbox->addWidget(new QLabel(Tr::tr("Active build configuration:"), this));
         hbox->addWidget(m_buildConfigurationComboBox);
         hbox->addWidget(m_addButton);
