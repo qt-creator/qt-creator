@@ -398,10 +398,9 @@ int SideDiffData::blockNumberForFileIndex(int fileIndex) const
 int SideDiffData::fileIndexForBlockNumber(int blockNumber) const
 {
     int i = -1;
-    for (auto it = m_fileInfo.cbegin(), end = m_fileInfo.cend(); it != end; ++it) {
+    for (auto it = m_fileInfo.cbegin(), end = m_fileInfo.cend(); it != end; ++it, ++i) {
         if (it.key() > blockNumber)
             break;
-        ++i;
     }
 
     return i;
