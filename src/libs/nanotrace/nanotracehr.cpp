@@ -86,6 +86,8 @@ void writeMetaEvent(EnabledTraceFile &file, std::string_view key, std::string_vi
     auto &out = file.out;
 
     if (out.is_open()) {
+        std::lock_guard lock{file.flushMutex};
+
         file.out << R"({"name":")" << key << R"(","ph":"M", "pid":)"
                  << getUnsignedIntegerHash(QCoreApplication::applicationPid()) << R"(,"tid":)"
                  << getUnsignedIntegerHash(std::this_thread::get_id()) << R"(,"args":{"name":")"
@@ -173,6 +175,8 @@ template void flushEvents(const Utils::span<TraceEventWithoutArguments> events,
 void openFile(EnabledTraceFile &file)
 {
     if (file.out = std::ofstream{file.filePath, std::ios::trunc}; file.out.good()) {
+        std::lock_guard lock{file.flushMutex};
+
         file.out << std::fixed << std::setprecision(3) << R"({"traceEvents": [)";
         file.out << R"({"name":"process_name","ph":"M", "pid":)"
                  << QCoreApplication::applicationPid() << R"(,"args":{"name":"QtCreator"}})"
@@ -234,6 +238,8 @@ void finalizeFile(EnabledTraceFile &file)
     auto &out = file.out;
 
     if (out.is_open()) {
+        std::lock_guard lock{file.flushMutex};
+
 #ifdef Q_OS_WINDOWS
         out.seekp(-3, std::ios_base::cur); // removes last comma and new line
 #else
