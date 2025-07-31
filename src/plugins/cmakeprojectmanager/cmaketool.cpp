@@ -396,7 +396,7 @@ FilePath CMakeTool::searchQchFile(const FilePath &executable)
     if (executable.isEmpty() || !executable.isLocal()) // do not register docs from devices
         return {};
 
-    FilePath prefixDir = executable.parentDir().parentDir();
+    const FilePath prefixDir = executable.resolveSymlinks().parentDir().parentDir();
     FilePath docDir = prefixDir.pathAppended("doc/cmake");
     if (!docDir.exists())
         docDir = prefixDir.pathAppended("share/doc/cmake");
