@@ -828,7 +828,7 @@ QList<ModelNode> ModelNode::directSubModelNodesOfType(const NodeMetaInfo &type, 
                                keyValue("caller location", sl)};
 
     return Utils::filtered(directSubModelNodes(), [&](const ModelNode &node) {
-        return node.metaInfo().isValid() && node.metaInfo().isBasedOn(type);
+        return node.metaInfo().isBasedOn(type);
     });
 }
 
@@ -840,7 +840,7 @@ QList<ModelNode> ModelNode::subModelNodesOfType(const NodeMetaInfo &type, SL sl)
                                keyValue("caller location", sl)};
 
     return Utils::filtered(allSubModelNodes(), [&](const ModelNode &node) {
-        return node.metaInfo().isValid() && node.metaInfo().isBasedOn(type);
+        return node.metaInfo().isBasedOn(type);
     });
 }
 
