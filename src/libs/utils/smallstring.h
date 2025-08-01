@@ -45,7 +45,7 @@ public:
                             : sizeof(Internal::StringDataLayout<Size>) == Size + 16,
                   "Size is wrong");
 
-    BasicSmallString() noexcept = default;
+    constexpr BasicSmallString() noexcept = default;
 
     constexpr BasicSmallString(const BasicSmallStringLiteral<Size> &stringReference) noexcept
         : m_data(stringReference.m_data)

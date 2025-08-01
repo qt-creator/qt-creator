@@ -87,7 +87,9 @@ TEST_F(ModelUtilsWithModel, component_file_path_for_node)
     QmlDesigner::Storage::TypeTraits traits{QmlDesigner::Storage::TypeTraitsKind::Reference};
     traits.isFileComponent = true;
     auto typeId = projectStorageMock.createType(moduleId, "Foo", traits, {}, sourceId);
-    projectStorageMock.createImportedTypeNameId(pathCacheMock.sourceId, "Foo", typeId);
+    projectStorageMock.createImportedTypeNameId(pathCacheMock.sourceId,
+                                                "Foo",
+                                                {moduleId, typeId, "Foo"});
     auto node = model.createModelNode("Foo");
 
     auto path = QmlDesigner::ModelUtils::componentFilePath(node);
@@ -117,7 +119,9 @@ TEST_F(ModelUtilsWithModel, component_file_path_for_node_without_metainfo_is_emp
 TEST_F(ModelUtilsWithModel, component_file_path_for_non_file_component_node_is_empty)
 {
     auto typeId = projectStorageMock.createType(moduleId, "Foo", {}, {}, sourceId);
-    projectStorageMock.createImportedTypeNameId(pathCacheMock.sourceId, "Foo", typeId);
+    projectStorageMock.createImportedTypeNameId(pathCacheMock.sourceId,
+                                                "Foo",
+                                                {moduleId, typeId, "Foo"});
     auto node = model.createModelNode("Foo");
 
     auto path = QmlDesigner::ModelUtils::componentFilePath(node);

@@ -14,7 +14,6 @@ public:
     using ExportedTypeNames = Storage::Info::ExportedTypeNames;
 
     virtual void removedTypeIds(const TypeIds &removedTypeIds) = 0;
-    virtual void exportedTypesChanged() = 0;
     virtual void exportedTypeNamesChanged(const ExportedTypeNames &added, const ExportedTypeNames &removed) = 0;
 };
 } // namespace QmlDesigner

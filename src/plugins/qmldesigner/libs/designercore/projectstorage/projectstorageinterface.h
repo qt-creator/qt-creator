@@ -37,7 +37,7 @@ public:
                           ::Utils::SmallStringView exportedTypeName,
                           Storage::Version version) const
         = 0;
-    virtual TypeId typeId(ImportedTypeNameId typeNameId) const = 0;
+    virtual Storage::Info::ExportedTypeName exportedTypeName(ImportedTypeNameId typeNameId) const = 0;
     virtual SmallTypeIds<256> typeIds(ModuleId moduleId) const = 0;
     virtual SmallTypeIds<256> singletonTypeIds(SourceId sourceId) const = 0;
     virtual Storage::Info::ExportedTypeNames exportedTypeNames(TypeId typeId) const = 0;

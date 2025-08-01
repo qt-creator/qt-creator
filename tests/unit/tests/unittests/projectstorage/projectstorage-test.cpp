@@ -104,6 +104,25 @@ auto IsExportedTypeName(const auto &moduleIdMatcher, const auto &nameMatcher, co
                        versionMatcher));
 }
 
+auto IsExportedTypeName(const auto &moduleIdMatcher,
+                        const auto &nameMatcher,
+                        const auto &versionMatcher,
+                        const auto &typeIdMatcher)
+{
+    return AllOf(Field("ExportedTypeName::moduleId",
+                       &QmlDesigner::Storage::Info::ExportedTypeName::moduleId,
+                       moduleIdMatcher),
+                 Field("ExportedTypeName::name",
+                       &QmlDesigner::Storage::Info::ExportedTypeName::name,
+                       nameMatcher),
+                 Field("ExportedTypeName::version",
+                       &QmlDesigner::Storage::Info::ExportedTypeName::version,
+                       versionMatcher),
+                 Field("ExportedTypeName::typeId",
+                       &QmlDesigner::Storage::Info::ExportedTypeName::typeId,
+                       typeIdMatcher));
+}
+
 auto IsInfoPropertyDeclaration(const auto &nameMatcher,
                                const auto &propertyTypeIdMatcher,
                                const auto &traitsMatcher)
@@ -137,19 +156,22 @@ auto IsInfoPropertyDeclaration(TypeId typeId,
 
 auto IsUnresolvedTypeId()
 {
-    return Property("QmlDesigner::TypeId::internalId", &QmlDesigner::TypeId::internalId, -1);
+    return Property("TypeId::internalId", &QmlDesigner::TypeId::internalId, -1);
 }
 
 auto IsNullTypeId()
 {
-    return Property("QmlDesigner::TypeId::isNull", &QmlDesigner::TypeId::isNull, true);
+    return Property("TypeId::isNull", &QmlDesigner::TypeId::isNull, true);
+}
+
+auto IsNullModuleId()
+{
+    return Property("TypeId::isNull", &QmlDesigner::ModuleId::isNull, true);
 }
 
 auto IsNullPropertyDeclarationId()
 {
-    return Property("QmlDesigner::PropertyDeclarationId::isNull",
-                    &QmlDesigner::PropertyDeclarationId::isNull,
-                    true);
+    return Property("PropertyDeclarationId::isNull", &QmlDesigner::PropertyDeclarationId::isNull, true);
 }
 
 template<typename Matcher>
@@ -1055,6 +1077,15 @@ protected:
         return package;
     }
 
+    auto createSynchronizationPackageWithVersionsAndImport()
+    {
+        auto package = createSynchronizationPackageWithVersions();
+
+        package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId1, qmldir1SourceId);
+        package.updatedImportSourceIds.push_back(qmldir1SourceId);
+
+        return package;
+    }
     enum class ExchangePrototypeAndExtension { No, Yes };
 
     auto createPackageWithProperties(
@@ -6732,6 +6763,328 @@ TEST_F(ProjectStorage, get_no_type_id_with_complete_version_for_wrong_major_vers
     ASSERT_FALSE(typeId);
 }
 
+TEST_F(ProjectStorage, get_exported_name)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    storage.synchronize(package);
+    auto objectimportedTypeNameId = storage.importedTypeNameId(sourceId1, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(qmlModuleId,
+                                   "Object",
+                                   IsVersion(3, 4),
+                                   fetchTypeId(sourceId1, "QObject4")));
+}
+
+TEST_F(ProjectStorage, get_no_exported_name_for_missing_import)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.clear();
+    storage.synchronize(package);
+    auto objectimportedTypeNameId = storage.importedTypeNameId(sourceId1, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(IsNullModuleId(), IsEmpty(), HasNoVersion(), IsNullTypeId()));
+}
+
+TEST_F(ProjectStorage, get_no_exported_name_for_invalid_imported_type_name_id)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    storage.synchronize(package);
+    QmlDesigner::ImportedTypeNameId objectimportedTypeNameId;
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(IsNullModuleId(), IsEmpty(), HasNoVersion(), IsNullTypeId()));
+}
+
+TEST_F(ProjectStorage, get_no_exported_name_for_missing_export)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    storage.synchronize(package);
+    auto objectimportedTypeNameId = storage.importedTypeNameId(sourceId1, "Foo");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(IsNullModuleId(), IsEmpty(), HasNoVersion(), IsNullTypeId()));
+}
+
+TEST_F(ProjectStorage, get_exported_name_with_version)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.front().version = Storage::Version{3, 4};
+    storage.synchronize(package);
+    auto objectimportedTypeNameId = storage.importedTypeNameId(sourceId1, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(qmlModuleId,
+                                   "Object",
+                                   IsVersion(3, 4),
+                                   fetchTypeId(sourceId1, "QObject4")));
+}
+
+TEST_F(ProjectStorage, get_exported_name_with_major_version_only)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.front().version = Storage::Version{2};
+    storage.synchronize(package);
+    auto objectimportedTypeNameId = storage.importedTypeNameId(sourceId1, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(qmlModuleId,
+                                   "Object",
+                                   IsVersion(2, 11),
+                                   fetchTypeId(sourceId1, "QObject3")));
+}
+
+TEST_F(ProjectStorage, get_same_exported_name_with_higher_minor_version)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.front().version = Storage::Version{3, 5};
+    storage.synchronize(package);
+    auto objectimportedTypeNameId = storage.importedTypeNameId(sourceId1, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(qmlModuleId,
+                                   "Object",
+                                   IsVersion(3, 4),
+                                   fetchTypeId(sourceId1, "QObject4")));
+}
+
+TEST_F(ProjectStorage, get_no_exported_name_with_lower_minor_version)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.front().version = Storage::Version{3, 3};
+    storage.synchronize(package);
+    auto objectimportedTypeNameId = storage.importedTypeNameId(sourceId1, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(IsNullModuleId(), IsEmpty(), HasNoVersion(), IsNullTypeId()));
+}
+
+TEST_F(ProjectStorage, get_no_exported_name_with_higher_major_version)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.front().version = Storage::Version{4, 0};
+    storage.synchronize(package);
+    auto objectimportedTypeNameId = storage.importedTypeNameId(sourceId1, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(IsNullModuleId(), IsEmpty(), HasNoVersion(), IsNullTypeId()));
+}
+
+TEST_F(ProjectStorage, get_different_exported_name_with_lower_major_version)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.front().version = Storage::Version{2, 0};
+    storage.synchronize(package);
+    auto objectimportedTypeNameId = storage.importedTypeNameId(sourceId1, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(qmlModuleId,
+                                   "Object",
+                                   IsVersion(2, 0),
+                                   fetchTypeId(sourceId1, "QObject2")));
+}
+
+TEST_F(ProjectStorage, get_different_exported_name_with_higher_minor_version)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.front().version = Storage::Version{2, 12};
+    storage.synchronize(package);
+    auto objectimportedTypeNameId = storage.importedTypeNameId(sourceId1, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(qmlModuleId,
+                                   "Object",
+                                   IsVersion(2, 11),
+                                   fetchTypeId(sourceId1, "QObject3")));
+}
+
+TEST_F(ProjectStorage, get_exported_name_for_exported_name_without_version)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.clear();
+    package.imports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1, qmldir1SourceId);
+    storage.synchronize(package);
+    auto objectimportedTypeNameId = storage.importedTypeNameId(sourceId1, "QObject");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(qmlNativeModuleId,
+                                   "QObject",
+                                   HasNoVersion(),
+                                   fetchTypeId(sourceId1, "QObject")));
+}
+
+TEST_F(ProjectStorage, get_exported_name_with_qualified_import)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    storage.synchronize(package);
+    auto importId = storage.importId({sourceId1, qmlModuleId, Storage::Version{}});
+    auto objectimportedTypeNameId = storage.importedTypeNameId(importId, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(qmlModuleId,
+                                   "Object",
+                                   IsVersion(3, 4),
+                                   fetchTypeId(sourceId1, "QObject4")));
+}
+
+TEST_F(ProjectStorage, get_no_exported_name_with_invalid_import_id)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    storage.synchronize(package);
+    QmlDesigner::ImportId importId;
+    auto objectimportedTypeNameId = storage.importedTypeNameId(importId, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(IsNullModuleId(), IsEmpty(), HasNoVersion(), IsNullTypeId()));
+}
+
+TEST_F(ProjectStorage, get_exported_name_with_qualified_import_version)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.front().version = Storage::Version{2, 0};
+    storage.synchronize(package);
+    auto importId = storage.importId({sourceId1, qmlModuleId, Storage::Version{2, 0}});
+    auto objectimportedTypeNameId = storage.importedTypeNameId(importId, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(qmlModuleId,
+                                   "Object",
+                                   IsVersion(2, 0),
+                                   fetchTypeId(sourceId1, "QObject2")));
+}
+
+TEST_F(ProjectStorage, get_exported_name_with_qualified_import_major_version_only_version)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.front().version = Storage::Version{2};
+    storage.synchronize(package);
+    auto importId = storage.importId({sourceId1, qmlModuleId, Storage::Version{2}});
+    auto objectimportedTypeNameId = storage.importedTypeNameId(importId, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(qmlModuleId,
+                                   "Object",
+                                   IsVersion(2, 11),
+                                   fetchTypeId(sourceId1, "QObject3")));
+}
+
+TEST_F(ProjectStorage, get_same_exported_name_with_higher_qualified_import_minor_version)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.front().version = Storage::Version{2, 10};
+    storage.synchronize(package);
+    auto importId = storage.importId({sourceId1, qmlModuleId, Storage::Version{2, 10}});
+    auto objectimportedTypeNameId = storage.importedTypeNameId(importId, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(qmlModuleId,
+                                   "Object",
+                                   IsVersion(2, 0),
+                                   fetchTypeId(sourceId1, "QObject2")));
+}
+
+TEST_F(ProjectStorage, get_no_exported_name_with_lower_qualified_import_minor_version)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.front().version = Storage::Version{3, 0};
+    storage.synchronize(package);
+    auto importId = storage.importId({sourceId1, qmlModuleId, Storage::Version{3, 0}});
+    auto objectimportedTypeNameId = storage.importedTypeNameId(importId, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(IsNullModuleId(), IsEmpty(), HasNoVersion(), IsNullTypeId()));
+}
+
+TEST_F(ProjectStorage, get_different_exported_name_with_lower_qualified_import_major_version)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.front().version = Storage::Version{1};
+    storage.synchronize(package);
+    auto importId = storage.importId({sourceId1, qmlModuleId, Storage::Version{1}});
+    auto objectimportedTypeNameId = storage.importedTypeNameId(importId, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(qmlModuleId,
+                                   "Object",
+                                   IsVersion(1),
+                                   fetchTypeId(sourceId1, "QObject")));
+}
+
+TEST_F(ProjectStorage, get_different_exported_name_with_higher_qualified_import_minor_version)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.front().version = Storage::Version{2, 12};
+    storage.synchronize(package);
+    auto importId = storage.importId({sourceId1, qmlModuleId, Storage::Version{2, 12}});
+    auto objectimportedTypeNameId = storage.importedTypeNameId(importId, "Object");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(qmlModuleId,
+                                   "Object",
+                                   IsVersion(2, 11),
+                                   fetchTypeId(sourceId1, "QObject3")));
+}
+
+TEST_F(ProjectStorage,
+       get_different_exported_name_with_qualified_import_for_exported_name_without_version)
+{
+    auto package{createSynchronizationPackageWithVersionsAndImport()};
+    package.imports.clear();
+    package.imports.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1, qmldir1SourceId);
+    storage.synchronize(package);
+    auto importId = storage.importId({sourceId1, qmlNativeModuleId, Storage::Version{}});
+    auto objectimportedTypeNameId = storage.importedTypeNameId(importId, "QObject");
+
+    auto exportedTypeName = storage.exportedTypeName(objectimportedTypeNameId);
+
+    ASSERT_THAT(exportedTypeName,
+                IsExportedTypeName(qmlNativeModuleId,
+                                   "QObject",
+                                   HasNoVersion(),
+                                   fetchTypeId(sourceId1, "QObject")));
+}
+
 TEST_F(ProjectStorage, get_property_declaration_ids_over_prototype_chain)
 {
     auto package{createPackageWithProperties()};
@@ -8730,46 +9083,6 @@ TEST_F(ProjectStorage, added_document_import_fixes_unresolved_extension)
     storage.synchronize(package);
 
     ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasExtensionId(fetchTypeId(sourceId2, "QObject")));
-}
-
-TEST_F(ProjectStorage, added_export_is_notifying_changed_exported_types)
-{
-    auto package{createSimpleSynchronizationPackage()};
-    storage.synchronize(package);
-    package.exportedTypes.emplace_back(
-        qmldir2SourceId, qmlNativeModuleId, "Objec", Storage::Version{}, sourceId2, "QObject");
-    NiceMock<ProjectStorageObserverMock> observerMock;
-    storage.addObserver(&observerMock);
-
-    EXPECT_CALL(observerMock, exportedTypesChanged());
-
-    storage.synchronize(std::move(package));
-}
-
-TEST_F(ProjectStorage, removed_export_is_notifying_changed_exported_types)
-{
-    auto package{createSimpleSynchronizationPackage()};
-    storage.synchronize(package);
-    package.exportedTypes.pop_back();
-    NiceMock<ProjectStorageObserverMock> observerMock;
-    storage.addObserver(&observerMock);
-
-    EXPECT_CALL(observerMock, exportedTypesChanged());
-
-    storage.synchronize(std::move(package));
-}
-
-TEST_F(ProjectStorage, changed_export_is_notifying_changed_exported_types)
-{
-    auto package{createSimpleSynchronizationPackage()};
-    storage.synchronize(package);
-    renameExportedTypeNames(package.exportedTypes, "Obj", "Obj2");
-    NiceMock<ProjectStorageObserverMock> observerMock;
-    storage.addObserver(&observerMock);
-
-    EXPECT_CALL(observerMock, exportedTypesChanged());
-
-    storage.synchronize(std::move(package));
 }
 
 TEST_F(ProjectStorage, added_export_is_notifying_changed_exported_type_names)

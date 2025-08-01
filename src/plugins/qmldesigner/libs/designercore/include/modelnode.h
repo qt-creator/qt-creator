@@ -5,6 +5,7 @@
 
 #include "abstractproperty.h"
 #include "auxiliarydata.h"
+#include <projectstorage/projectstorageinfotypes.h>
 
 #include <tracing/qmldesignertracing.h>
 
@@ -171,6 +172,7 @@ public:
     AbstractView *view() const;
 
     NodeMetaInfo metaInfo(SL sl = {}) const;
+    const Storage::Info::ExportedTypeName &exportedTypeName(SL sl = {}) const;
     bool hasMetaInfo(SL sl = {}) const;
 
     bool isSelected(SL sl = {}) const;

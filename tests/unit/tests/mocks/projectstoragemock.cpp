@@ -55,7 +55,9 @@ ModuleId ProjectStorageMock::createModule(Utils::SmallStringView moduleName,
 }
 
 QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
-    SourceId sourceId, Utils::SmallStringView typeName, TypeId typeId)
+    SourceId sourceId,
+    Utils::SmallStringView typeName,
+    const QmlDesigner::Storage::Info::ExportedTypeName &exportedTypeName)
 {
     if (auto id = importedTypeNameId(sourceId, typeName))
         return id;
@@ -66,15 +68,16 @@ QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
     ON_CALL(*this, importedTypeNameId(sourceId, Eq(typeName)))
         .WillByDefault(Return(importedTypeNameId));
 
-    ON_CALL(*this, typeId(importedTypeNameId)).WillByDefault(Return(typeId));
+    ON_CALL(*this, exportedTypeName(importedTypeNameId)).WillByDefault(Return(exportedTypeName));
 
     return importedTypeNameId;
 }
 
-void ProjectStorageMock::refreshImportedTypeNameId(QmlDesigner::ImportedTypeNameId importedTypeId,
-                                                   TypeId typeId)
+void ProjectStorageMock::refreshImportedTypeNameId(
+    QmlDesigner::ImportedTypeNameId importedTypeId,
+    const QmlDesigner::Storage::Info::ExportedTypeName &exportedTypeName)
 {
-    ON_CALL(*this, typeId(importedTypeId)).WillByDefault(Return(typeId));
+    ON_CALL(*this, exportedTypeName(importedTypeId)).WillByDefault(Return(exportedTypeName));
 }
 
 QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
@@ -82,11 +85,15 @@ QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
 {
     return createImportedTypeNameId(sourceId,
                                     typeName,
-                                    typeId(moduleId, typeName, QmlDesigner::Storage::Version{}));
+                                    {moduleId,
+                                     typeId(moduleId, typeName, QmlDesigner::Storage::Version{}),
+                                     typeName});
 }
 
 QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
-    QmlDesigner::ImportId importId, Utils::SmallStringView typeName, QmlDesigner::TypeId typeId)
+    QmlDesigner::ImportId importId,
+    Utils::SmallStringView typeName,
+    const QmlDesigner::Storage::Info::ExportedTypeName &exportedTypeName)
 {
     if (auto id = importedTypeNameId(importId, typeName)) {
         return id;
@@ -98,7 +105,7 @@ QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
     ON_CALL(*this, importedTypeNameId(importId, Eq(typeName)))
         .WillByDefault(Return(importedTypeNameId));
 
-    ON_CALL(*this, typeId(importedTypeNameId)).WillByDefault(Return(typeId));
+    ON_CALL(*this, exportedTypeName(importedTypeNameId)).WillByDefault(Return(exportedTypeName));
 
     return importedTypeNameId;
 }
@@ -122,7 +129,7 @@ void ProjectStorageMock::addExportedTypeName(QmlDesigner::TypeId typeId,
     ON_CALL(*this, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(typeId));
     ON_CALL(*this, fetchTypeIdByModuleIdAndExportedName(Eq(moduleId), Eq(typeName)))
         .WillByDefault(Return(typeId));
-    exportedTypeName[typeId].emplace_back(moduleId, typeId, typeName);
+    exportedTypeNamesPerType[typeId].emplace_back(moduleId, typeId, typeName);
 }
 
 void ProjectStorageMock::addExportedTypeNameBySourceId(QmlDesigner::TypeId typeId,
@@ -140,7 +147,7 @@ void ProjectStorageMock::removeExportedTypeName(QmlDesigner::TypeId typeId,
     ON_CALL(*this, typeId(Eq(moduleId), Eq(typeName), _)).WillByDefault(Return(TypeId{}));
     ON_CALL(*this, fetchTypeIdByModuleIdAndExportedName(Eq(moduleId), Eq(typeName)))
         .WillByDefault(Return(TypeId{}));
-    exportedTypeName.erase(typeId);
+    exportedTypeNamesPerType.erase(typeId);
 }
 
 PropertyDeclarationId ProjectStorageMock::createProperty(TypeId typeId,
@@ -384,7 +391,7 @@ ProjectStorageMock::ProjectStorageMock(QmlDesigner::ModulesStorage &modulesStora
     , typeCache{*this, modulesStorage}
 {
     ON_CALL(*this, exportedTypeNames(_)).WillByDefault([&](TypeId id) {
-        return exportedTypeName[id];
+        return exportedTypeNamesPerType[id];
     });
 
     ON_CALL(*this, exportedTypeNames(_, _)).WillByDefault([&](TypeId typeId, SourceId sourceId) {

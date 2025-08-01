@@ -1059,8 +1059,7 @@ TypeName createQualifiedTypeName(const ModelNode &node, ModulesStorage &modulesS
         return {};
 
 #ifdef QDS_USE_PROJECTSTORAGE
-    auto model = node.model();
-    auto exportedType = model->exportedTypeNameForMetaInfo(node.metaInfo());
+    auto exportedType = node.exportedTypeName();
     if (exportedType.name.size()) {
         using Storage::ModuleKind;
         auto module = modulesStorage.module(exportedType.moduleId);

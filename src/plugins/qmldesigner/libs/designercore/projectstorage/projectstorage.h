@@ -63,7 +63,7 @@ public:
                   Utils::SmallStringView exportedTypeName,
                   Storage::Version version) const override;
 
-    TypeId typeId(ImportedTypeNameId typeNameId) const override;
+    Storage::Info::ExportedTypeName exportedTypeName(ImportedTypeNameId typeNameId) const override;
 
     SmallTypeIds<256> typeIds(ModuleId moduleId) const override;
 
@@ -840,6 +840,10 @@ private:
                                                Utils::SmallStringView typeName);
 
     TypeId fetchTypeId(ImportedTypeNameId typeNameId) const;
+
+    Storage::Info::ExportedTypeName fetchExportedTypeName(
+        ImportedTypeNameId typeNameId, Storage::Synchronization::TypeNameKind kind) const;
+    Storage::Info::ExportedTypeName fetchExportedTypeName(ImportedTypeNameId typeNameId) const;
 
     Utils::SmallString fetchImportedTypeName(ImportedTypeNameId typeNameId) const;
     SourceId fetchTypeSourceId(TypeId typeId) const;

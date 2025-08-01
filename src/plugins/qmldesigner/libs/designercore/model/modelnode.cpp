@@ -906,13 +906,28 @@ NodeMetaInfo ModelNode::metaInfo([[maybe_unused]] SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    return NodeMetaInfo(m_internalNode->typeId, m_model->projectStorage());
+    return NodeMetaInfo(m_internalNode->exportedTypeName.typeId, m_model->projectStorage());
 #else
     return NodeMetaInfo(m_model->metaInfoProxyModel(),
                         m_internalNode->typeName,
                         m_internalNode->majorVersion,
                         m_internalNode->minorVersion);
 #endif
+}
+
+const Storage::Info::ExportedTypeName &ModelNode::exportedTypeName(SL sl) const
+{
+    if (!isValid()) {
+        static constinit const Storage::Info::ExportedTypeName null;
+        return null;
+    }
+
+    NanotraceHR::Tracer tracer{"model node exported type name",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    return m_internalNode->exportedTypeName;
 }
 
 bool ModelNode::hasMetaInfo(SL sl) const

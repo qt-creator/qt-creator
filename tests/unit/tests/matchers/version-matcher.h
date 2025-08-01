@@ -22,12 +22,12 @@ inline auto HasNoVersionNumber()
 template<typename Matcher>
 auto IsMinorVersion(const Matcher &matcher)
 {
-    return Field("QmlDesigner::Storage::Version::minor", &QmlDesigner::Storage::Version::minor, matcher);
+    return Field("Version::minor", &QmlDesigner::Storage::Version::minor, matcher);
 }
 
 auto IsMajorVersion(const auto &matcher)
 {
-    return Field("QmlDesigner::Storage::Version::major", &QmlDesigner::Storage::Version::major, matcher);
+    return Field("Version::major", &QmlDesigner::Storage::Version::major, matcher);
 }
 
 auto IsVersion(const auto &majorMatcher, const auto &minorMatcher)

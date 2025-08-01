@@ -372,7 +372,7 @@ static QString nodeTypeName(const ModelNode &node, Model *model)
     using Storage::Info::ExportedTypeName;
     using Storage::Module;
 
-    ExportedTypeName exportedName = model->exportedTypeNameForMetaInfo(node.metaInfo());
+    ExportedTypeName exportedName = node.exportedTypeName();
     if (exportedName.moduleId) {
         Module moduleStorageModule = model->projectStorageDependencies().modulesStorage.module(
             exportedName.moduleId);
@@ -382,7 +382,7 @@ static QString nodeTypeName(const ModelNode &node, Model *model)
     return QString::fromUtf8(node.type());
 }
 
-static Storage::Info::ExportedTypeNames getTypeNamesForNode(const ModelNode &node, Model *model)
+static Storage::Info::ExportedTypeNames getTypeNamesForNode(const ModelNode &node)
 {
     using Storage::Info::ExportedTypeName;
     using Storage::Info::ExportedTypeNames;
@@ -392,7 +392,7 @@ static Storage::Info::ExportedTypeNames getTypeNamesForNode(const ModelNode &nod
     typeNames.reserve(Utils::usize(allNodes));
 
     for (const ModelNode &node : allNodes) {
-        ExportedTypeName exportedName = model->exportedTypeNameForMetaInfo(node.metaInfo());
+        ExportedTypeName exportedName = node.exportedTypeName();
         if (exportedName.moduleId)
             typeNames.push_back(exportedName);
     }
@@ -430,7 +430,7 @@ static Imports getRequiredImports(const ModelNode &node,
         };
     };
 
-    ExportedTypeNames typeNames = getTypeNamesForNode(node, model);
+    ExportedTypeNames typeNames = getTypeNamesForNode(node);
     std::ranges::sort(typeNames, {}, &ExportedTypeName::moduleId);
     auto removedRanges = std::ranges::unique(typeNames, {}, &ExportedTypeName::moduleId);
     typeNames.erase(removedRanges.begin(), removedRanges.end());

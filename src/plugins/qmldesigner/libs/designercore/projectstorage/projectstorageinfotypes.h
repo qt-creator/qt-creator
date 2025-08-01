@@ -470,7 +470,7 @@ using ItemLibraryEntries = QVarLengthArray<ItemLibraryEntry, 1>;
 class ExportedTypeName
 {
 public:
-    ExportedTypeName() = default;
+    constexpr ExportedTypeName() = default;
 
     ExportedTypeName(ModuleId moduleId,
                      TypeId typeId,

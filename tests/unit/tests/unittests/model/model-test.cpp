@@ -30,6 +30,7 @@ using QmlDesigner::ModelNode;
 using QmlDesigner::ModelNodes;
 using QmlDesigner::ModelResourceSet;
 using QmlDesigner::SourceId;
+using QmlDesigner::Storage::Info::ExportedTypeName;
 using QmlDesigner::Storage::ModuleKind;
 
 MATCHER(IsSorted, std::string(negation ? "isn't sorted" : "is sorted"))
@@ -102,6 +103,26 @@ MATCHER_P3(IsItemLibraryProperty,
 
     return property.name() == name && property.type() == type && property.value() == value;
 }
+
+auto IsExportedTypeName(const auto &moduleIdMatcher,
+                        const auto &nameMatcher,
+                        const auto &versionMatcher,
+                        const auto &typeIdMatcher)
+{
+    return AllOf(Field("ExportedTypeName::moduleId",
+                       &QmlDesigner::Storage::Info::ExportedTypeName::moduleId,
+                       moduleIdMatcher),
+                 Field("ExportedTypeName::name",
+                       &QmlDesigner::Storage::Info::ExportedTypeName::name,
+                       nameMatcher),
+                 Field("ExportedTypeName::version",
+                       &QmlDesigner::Storage::Info::ExportedTypeName::version,
+                       versionMatcher),
+                 Field("ExportedTypeName::typeId",
+                       &QmlDesigner::Storage::Info::ExportedTypeName::typeId,
+                       typeIdMatcher));
+}
+
 class Model : public ::testing::Test
 {
 protected:
@@ -186,7 +207,7 @@ protected:
                                                                "Item",
                                                                QmlDesigner::Storage::Version{});
     QmlDesigner::ImportedTypeNameId itemTypeNameId = projectStorageMock.createImportedTypeNameId(
-        documentSourceId, "Item", itemTypeId);
+        documentSourceId, "Item", {qtQuickModuleId, itemTypeId, "Item"});
     ModelNode rootNode;
 };
 
@@ -1111,7 +1132,9 @@ TEST_F(Model_Node, create_qualified_model_node_has_meta_info)
     auto listModelTypeId = projectStorageMock.typeId(qtQmlModelsModulesId,
                                                      "ListModel",
                                                      QmlDesigner::Storage::Version{});
-    projectStorageMock.createImportedTypeNameId(importId, "ListModel", listModelTypeId);
+    projectStorageMock.createImportedTypeNameId(importId,
+                                                "ListModel",
+                                                {qtQmlModelsModulesId, listModelTypeId, "ListModel"});
     model.changeImports({qtQmlModelsImport}, {});
 
     auto node = model.createModelNode("Foo.ListModel");
@@ -1121,9 +1144,12 @@ TEST_F(Model_Node, create_qualified_model_node_has_meta_info)
 
 TEST_F(Model_Node, change_node_type_changes_meta_info)
 {
+    auto qtQmlModelsModulesId = modulesStorage.moduleId("QtQml.Models", ModuleKind::QmlLibrary);
     projectStorageMock.createImportedTypeNameId(documentSourceId,
                                                 "QtObject",
-                                                model.qmlQtObjectMetaInfo().id());
+                                                {qtQmlModelsModulesId,
+                                                 model.qmlQtObjectMetaInfo().id(),
+                                                 "QtObject"});
     auto node = model.createModelNode("Item");
 
     node.changeType("QtObject");
@@ -1133,9 +1159,12 @@ TEST_F(Model_Node, change_node_type_changes_meta_info)
 
 TEST_F(Model_Node, change_root_node_type_changes_meta_info)
 {
+    auto qtQmlModelsModulesId = modulesStorage.moduleId("QtQml.Models", ModuleKind::QmlLibrary);
     projectStorageMock.createImportedTypeNameId(documentSourceId,
                                                 "QtObject",
-                                                model.qmlQtObjectMetaInfo().id());
+                                                {qtQmlModelsModulesId,
+                                                 model.qmlQtObjectMetaInfo().id(),
+                                                 "QtObject"});
 
     model.changeRootNodeType("QtObject");
 
@@ -1330,45 +1359,101 @@ TEST_F(Model_MetaInfo, create_node_has_unresolved_meta_type_for_invalid_type_nam
     ASSERT_THAT(node.metaInfo(), IsFalse());
 }
 
-TEST_F(Model_MetaInfo, refresh_type_id_if_project_storage_removed_type_id)
+TEST_F(Model_MetaInfo, refresh_meta_info_if_project_storage_removed_exported_type_name)
 {
     auto node = model.createModelNode("Item");
     projectStorageMock.removeType(qtQuickModuleId, "Item");
     auto observer = projectStorageMock.observers.front();
     auto itemTypeId2 = projectStorageMock.createObject(qtQuickModuleId, "Item");
-    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, itemTypeId2);
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId,
+                                                 {qtQuickModuleId, itemTypeId2, "Item"});
+    ExportedTypeName itemExportedTypeName{qtQuickModuleId, itemTypeId, "Item"};
+    ExportedTypeName item2ExportedTypeName{qtQuickModuleId, itemTypeId2, "Item"};
 
-    observer->removedTypeIds({itemTypeId});
+    observer->exportedTypeNamesChanged({item2ExportedTypeName}, {itemExportedTypeName});
 
     ASSERT_THAT(node.metaInfo().id(), itemTypeId2);
 }
 
-TEST_F(Model_MetaInfo, set_null_type_id_if_project_storage_removed_type_id_cannot_be_refreshed)
+TEST_F(Model_MetaInfo, refresh_exported_type_name_if_project_storage_removed_exported_type_name)
 {
     auto node = model.createModelNode("Item");
     projectStorageMock.removeType(qtQuickModuleId, "Item");
-    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, QmlDesigner::TypeId{});
-
     auto observer = projectStorageMock.observers.front();
+    auto itemTypeId2 = projectStorageMock.createObject(qtQuickModuleId, "Item");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId,
+                                                 {qtQuickModuleId, itemTypeId2, "Item"});
+    ExportedTypeName itemExportedTypeName{qtQuickModuleId, itemTypeId, "Item"};
+    ExportedTypeName item2ExportedTypeName{qtQuickModuleId, itemTypeId2, "Item"};
 
-    observer->removedTypeIds({itemTypeId});
+    observer->exportedTypeNamesChanged({item2ExportedTypeName}, {itemExportedTypeName});
 
-    ASSERT_THAT(node.metaInfo().id(), IsFalse());
+    ASSERT_THAT(node.exportedTypeName(),
+                IsExportedTypeName(qtQuickModuleId, "Item", HasNoVersion(), itemTypeId2));
 }
 
-TEST_F(Model_MetaInfo, null_type_id_are_refreshed_if_exported_types_are_updated)
+TEST_F(Model_MetaInfo,
+       set_null_meta_info_if_project_storage_removed_exported_type_name_cannot_be_refreshed)
 {
     auto node = model.createModelNode("Item");
     projectStorageMock.removeType(qtQuickModuleId, "Item");
-    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, QmlDesigner::TypeId{});
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, {});
+    ExportedTypeName itemExportedTypeName{qtQuickModuleId, itemTypeId, "Item"};
+    auto observer = projectStorageMock.observers.front();
+
+    observer->exportedTypeNamesChanged({}, {itemExportedTypeName});
+
+    ASSERT_THAT(node.metaInfo(), IsFalse());
+}
+
+TEST_F(Model_MetaInfo,
+       reset_exported_type_name_if_project_storage_removed_exported_type_name_cannot_be_refreshed)
+{
+    auto node = model.createModelNode("Item");
+    projectStorageMock.removeType(qtQuickModuleId, "Item");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, {});
+    ExportedTypeName itemExportedTypeName{qtQuickModuleId, itemTypeId, "Item"};
+    auto observer = projectStorageMock.observers.front();
+
+    observer->exportedTypeNamesChanged({}, {itemExportedTypeName});
+
+    ASSERT_THAT(node.exportedTypeName(),
+                IsExportedTypeName(IsFalse(), IsEmpty(), HasNoVersion(), IsFalse()));
+}
+
+TEST_F(Model_MetaInfo, null_meta_info_are_refreshed_if_exported_types_are_updated)
+{
+    auto node = model.createModelNode("Item");
+    projectStorageMock.removeType(qtQuickModuleId, "Item");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, {});
     auto observer = projectStorageMock.observers.front();
     observer->removedTypeIds({itemTypeId});
     auto itemTypeId2 = projectStorageMock.createObject(qtQuickModuleId, "Item");
-    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, itemTypeId2);
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId,
+                                                 {qtQuickModuleId, itemTypeId2, "Item"});
+    ExportedTypeName item2ExportedTypeName{qtQuickModuleId, itemTypeId2, "Item"};
 
-    observer->exportedTypesChanged();
+    observer->exportedTypeNamesChanged({item2ExportedTypeName}, {});
 
     ASSERT_THAT(node.metaInfo().id(), itemTypeId2);
+}
+
+TEST_F(Model_MetaInfo, empty_exported_type_name_are_refreshed_if_exported_types_are_updated)
+{
+    auto node = model.createModelNode("Item");
+    projectStorageMock.removeType(qtQuickModuleId, "Item");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, {});
+    auto observer = projectStorageMock.observers.front();
+    observer->removedTypeIds({itemTypeId});
+    auto itemTypeId2 = projectStorageMock.createObject(qtQuickModuleId, "Item");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId,
+                                                 {qtQuickModuleId, itemTypeId2, "Item"});
+    ExportedTypeName item2ExportedTypeName{qtQuickModuleId, itemTypeId2, "Item"};
+
+    observer->exportedTypeNamesChanged({item2ExportedTypeName}, {});
+
+    ASSERT_THAT(node.exportedTypeName(),
+                IsExportedTypeName(qtQuickModuleId, "Item", HasNoVersion(), itemTypeId2));
 }
 
 class Model_TypeAnnotation : public Model

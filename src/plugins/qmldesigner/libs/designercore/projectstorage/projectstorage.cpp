@@ -668,7 +668,7 @@ struct ProjectStorage::Statements
         "SELECT kind FROM importedTypeNames WHERE importedTypeNameId=?1", database};
     mutable Sqlite::ReadStatement<1, 1> selectNameFromImportedTypeNamesStatement{
         "SELECT name FROM importedTypeNames WHERE importedTypeNameId=?1", database};
-    mutable Sqlite::ReadStatement<1, 1> selectTypeIdForQualifiedImportedTypeNameNamesStatement{
+    mutable Sqlite::ReadStatement<1, 1> selectTypeIdForQualifiedImportedTypeNameStatement{
         "SELECT typeId "
         "FROM importedTypeNames AS itn "
         "  JOIN documentImports AS di ON importOrSourceId=di.importId "
@@ -684,8 +684,38 @@ struct ProjectStorage::Statements
         "ORDER BY etn.majorVersion DESC, etn.minorVersion DESC "
         "LIMIT 1",
         database};
-    mutable Sqlite::ReadStatement<1, 1> selectTypeIdForImportedTypeNameNamesStatement{
+    mutable Sqlite::ReadStatement<1, 1> selectTypeIdForImportedTypeNameStatement{
         "SELECT typeId FROM importedTypeNames AS itn "
+        "  JOIN exportedTypeNames AS etn USING(name) "
+        "  JOIN documentImports AS di ON importOrSourceId=sourceId "
+        "WHERE  importedTypeNameId=?1 "
+        "  AND itn.kind=1 "
+        "  AND etn.moduleId=di.moduleId "
+        "  AND (di.majorVersion=0xFFFFFFFF "
+        "    OR (di.majorVersion=etn.majorVersion "
+        "      AND (di.minorVersion=0xFFFFFFFF OR di.minorVersion>=etn.minorVersion))) "
+        "ORDER BY di.kind, etn.majorVersion DESC, etn.minorVersion DESC "
+        "LIMIT 1",
+        database};
+    mutable Sqlite::ReadStatement<5, 1> selectExportedTypeNameForQualifiedImportedTypeNameStatement{
+        "SELECT etn.moduleId, etn.typeId, etn.name, etn.majorVersion, etn.minorVersion "
+        "FROM importedTypeNames AS itn "
+        "  JOIN documentImports AS di ON importOrSourceId=di.importId "
+        "  JOIN documentImports AS di2 ON di.sourceId=di2.sourceId "
+        "    AND di.moduleId=di2.sourceModuleId "
+        "  JOIN exportedTypeNames AS etn ON di2.moduleId=etn.moduleId "
+        "WHERE itn.kind=2 "
+        "  AND importedTypeNameId=?1 "
+        "  AND itn.name=etn.name "
+        "  AND (di.majorVersion=0xFFFFFFFF "
+        "    OR (di.majorVersion=etn.majorVersion "
+        "      AND (di.minorVersion=0xFFFFFFFF OR di.minorVersion>=etn.minorVersion))) "
+        "ORDER BY etn.majorVersion DESC, etn.minorVersion DESC "
+        "LIMIT 1",
+        database};
+    mutable Sqlite::ReadStatement<5, 1> selectExportedTypeNameForImportedTypeNameStatement{
+        "SELECT etn.moduleId, etn.typeId, etn.name, etn.majorVersion, etn.minorVersion "
+        "FROM importedTypeNames AS itn "
         "  JOIN exportedTypeNames AS etn USING(name) "
         "  JOIN documentImports AS di ON importOrSourceId=sourceId "
         "WHERE  importedTypeNameId=?1 "
@@ -1497,17 +1527,14 @@ TypeId ProjectStorage::typeId(ModuleId moduleId,
     return typeId;
 }
 
-TypeId ProjectStorage::typeId(ImportedTypeNameId typeNameId) const
+Storage::Info::ExportedTypeName ProjectStorage::exportedTypeName(ImportedTypeNameId typeNameId) const
 {
-    NanotraceHR::Tracer tracer{"get type id by imported type name",
+    NanotraceHR::Tracer tracer{"get exported type name id by imported type name",
                                category(),
                                keyValue("imported type name id", typeNameId)};
 
-    auto typeId = Sqlite::withDeferredTransaction(database, [&] { return fetchTypeId(typeNameId); });
-
-    tracer.end(keyValue("type id", typeId));
-
-    return typeId;
+    return Sqlite::withDeferredTransaction(database,
+                                           [&] { return fetchExportedTypeName(typeNameId); });
 }
 
 QVarLengthArray<TypeId, 256> ProjectStorage::typeIds(ModuleId moduleId) const
@@ -2386,7 +2413,6 @@ void ProjectStorage::callRefreshMetaInfoCallback(
 
     if (exportedTypesChanged == ExportedTypesChanged::Yes) {
         for (ProjectStorageObserver *observer : observers) {
-            observer->exportedTypesChanged();
             observer->exportedTypeNamesChanged(addedExportedTypeNames, removedExportedTypeNames);
         }
     }
@@ -4593,6 +4619,35 @@ TypeId ProjectStorage::fetchTypeId(ImportedTypeNameId typeNameId) const
     return typeId;
 }
 
+Storage::Info::ExportedTypeName ProjectStorage::fetchExportedTypeName(
+    ImportedTypeNameId typeNameId, Storage::Synchronization::TypeNameKind kind) const
+{
+    NanotraceHR::Tracer tracer{"fetch exported type name with type name kind",
+                               category(),
+                               keyValue("type name id", typeNameId),
+                               keyValue("type name kind", kind)};
+
+    if (kind == Storage::Synchronization::TypeNameKind::Exported) {
+        return s->selectExportedTypeNameForImportedTypeNameStatement
+            .value<Storage::Info::ExportedTypeName>(typeNameId);
+    } else {
+        return s->selectExportedTypeNameForQualifiedImportedTypeNameStatement
+            .value<Storage::Info::ExportedTypeName>(typeNameId);
+    }
+}
+
+Storage::Info::ExportedTypeName ProjectStorage::fetchExportedTypeName(ImportedTypeNameId typeNameId) const
+{
+    NanotraceHR::Tracer tracer{"fetch exported type name",
+                               category(),
+                               keyValue("type name id", typeNameId)};
+
+    auto kind = s->selectKindFromImportedTypeNamesStatement.value<Storage::Synchronization::TypeNameKind>(
+        typeNameId);
+
+    return fetchExportedTypeName(typeNameId, kind);
+}
+
 Utils::SmallString ProjectStorage::fetchImportedTypeName(ImportedTypeNameId typeNameId) const
 {
     return s->selectNameFromImportedTypeNamesStatement.value<Utils::SmallString>(typeNameId);
@@ -4613,9 +4668,9 @@ TypeId ProjectStorage::fetchTypeId(ImportedTypeNameId typeNameId,
 
     TypeId typeId;
     if (kind == Storage::Synchronization::TypeNameKind::Exported) {
-        typeId = s->selectTypeIdForImportedTypeNameNamesStatement.value<UnresolvedTypeId>(typeNameId);
+        typeId = s->selectTypeIdForImportedTypeNameStatement.value<UnresolvedTypeId>(typeNameId);
     } else {
-        typeId = s->selectTypeIdForQualifiedImportedTypeNameNamesStatement.value<UnresolvedTypeId>(
+        typeId = s->selectTypeIdForQualifiedImportedTypeNameStatement.value<UnresolvedTypeId>(
             typeNameId);
     }
 

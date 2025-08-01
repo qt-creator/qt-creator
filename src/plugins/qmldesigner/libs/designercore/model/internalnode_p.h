@@ -56,11 +56,13 @@ public:
     using ManyNodes = QVarLengthArray<Pointer, 1024>;
 
     explicit InternalNode(TypeNameView typeName,
+                          std::string_view unqualifiedTypeName,
                           int majorVersion,
                           int minorVersion,
                           qint32 internalId,
                           ModelTracing::FlowToken flowTraceToken)
         : typeName(typeName.toByteArray())
+        , unqualifiedTypeName(unqualifiedTypeName)
         , majorVersion(majorVersion)
         , minorVersion(minorVersion)
         , isValid(true)
@@ -233,6 +235,7 @@ public:
 
 public:
     TypeName typeName;
+    Utils::SmallString unqualifiedTypeName;
     QString id;
     int majorVersion = 0;
     int minorVersion = 0;
@@ -242,9 +245,8 @@ public:
     int nodeSourceType = 0;
     QString behaviorPropertyName;
     QStringList scriptFunctions;
-    ModuleId moduleId;
     ImportedTypeNameId importedTypeNameId;
-    TypeId typeId;
+    Storage::Info::ExportedTypeName exportedTypeName;
     NO_UNIQUE_ADDRESS ModelTracing::AsynchronousToken traceToken;
 
 private:

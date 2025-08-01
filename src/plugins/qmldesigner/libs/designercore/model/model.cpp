@@ -290,15 +290,32 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
     }
 }
 
+namespace {
+
+std::pair<Utils::SmallStringView, Utils::SmallStringView> decomposeTypePath(Utils::SmallStringView typeName)
+{
+    auto found = std::find(typeName.rbegin(), typeName.rend(), '.');
+
+    if (found == typeName.rend())
+        return {{}, typeName};
+
+    return {{typeName.begin(), std::prev(found.base())}, {found.base(), typeName.end()}};
+}
+
+} // namespace
+
 void ModelPrivate::changeNodeType(const InternalNodePointer &node,
                                   const TypeName &typeName,
                                   int majorVersion,
                                   int minorVersion)
 {
+    auto [moduleName, unqualifiedTypeName] = decomposeTypePath(typeName);
+
     node->typeName = typeName;
+    node->unqualifiedTypeName = unqualifiedTypeName;
     node->majorVersion = majorVersion;
     node->minorVersion = minorVersion;
-    setTypeId(node.get(), typeName);
+    setTypeId(node.get(), moduleName, unqualifiedTypeName);
 
     try {
         notifyNodeTypeChanged(node, typeName, majorVersion, minorVersion);
@@ -324,13 +341,16 @@ InternalNodePointer ModelPrivate::createNode(TypeNameView typeName,
     if (!isRootNode)
         internalId = m_internalIdCounter++;
 
+    auto [moduleName, unqualifiedTypeName] = decomposeTypePath(typeName);
+
     auto newNode = std::make_shared<InternalNode>(typeName,
+                                                  unqualifiedTypeName,
                                                   majorVersion,
                                                   minorVersion,
                                                   internalId,
                                                   traceToken.tickWithFlow("create node"));
 
-    setTypeId(newNode.get(), typeName);
+    setTypeId(newNode.get(), moduleName, unqualifiedTypeName);
 
     newNode->nodeSourceType = nodeSourceType;
 
@@ -377,61 +397,47 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
     m_internalIdNodeHash.remove(node->internalId);
 }
 
-namespace {
-QT_WARNING_PUSH
-QT_WARNING_DISABLE_CLANG("-Wunneeded-internal-declaration")
-
-std::pair<Utils::SmallStringView, Utils::SmallStringView> decomposeTypePath(Utils::SmallStringView typeName)
-{
-    auto found = std::find(typeName.rbegin(), typeName.rend(), '.');
-
-    if (found == typeName.rend())
-        return {{}, typeName};
-
-    return {{typeName.begin(), std::prev(found.base())}, {found.base(), typeName.end()}};
-}
-
-QT_WARNING_POP
-} // namespace
-
 ImportedTypeNameId ModelPrivate::importedTypeNameId(Utils::SmallStringView typeName)
 {
-    if constexpr (useProjectStorage()) {
-        auto [moduleName, shortTypeName] = decomposeTypePath(typeName);
+    auto [moduleName, unqualifiedTypeName] = decomposeTypePath(typeName);
 
-        if (moduleName.size()) {
-            QString aliasName = QString{moduleName};
-            auto found = std::ranges::find(m_imports, aliasName, &Import::alias);
-            if (found != m_imports.end()) {
-                using Storage::ModuleKind;
-                auto moduleKind = found->isLibraryImport() ? ModuleKind::QmlLibrary
-                                                           : ModuleKind::PathLibrary;
-                ModuleId moduleId = modulesStorage->moduleId(Utils::PathString{found->url()},
-                                                             moduleKind);
-                ImportId importId = projectStorage->importId(Storage::Import::fromSignedInteger(
-                    moduleId, found->majorVersion(), found->minorVersion(), m_sourceId, m_sourceId));
-                return projectStorage->importedTypeNameId(importId, shortTypeName);
-            }
-        }
-
-        return projectStorage->importedTypeNameId(m_sourceId, shortTypeName);
-    }
-
-    return ImportedTypeNameId{};
+    return importedTypeNameId(moduleName, unqualifiedTypeName);
 }
 
-void ModelPrivate::setTypeId(InternalNode *node, Utils::SmallStringView typeName)
+ImportedTypeNameId ModelPrivate::importedTypeNameId(Utils::SmallStringView moduleName,
+                                                    Utils::SmallStringView unqualifiedTypeName)
+{
+    if (moduleName.size()) {
+        QString aliasName = QString{moduleName};
+        auto found = std::ranges::find(m_imports, aliasName, &Import::alias);
+        if (found != m_imports.end()) {
+            using Storage::ModuleKind;
+            auto moduleKind = found->isLibraryImport() ? ModuleKind::QmlLibrary
+                                                       : ModuleKind::PathLibrary;
+            ModuleId moduleId = modulesStorage->moduleId(Utils::PathString{found->url()}, moduleKind);
+            ImportId importId = projectStorage->importId(Storage::Import::fromSignedInteger(
+                moduleId, found->majorVersion(), found->minorVersion(), m_sourceId, m_sourceId));
+            return projectStorage->importedTypeNameId(importId, unqualifiedTypeName);
+        }
+    }
+
+    return projectStorage->importedTypeNameId(m_sourceId, unqualifiedTypeName);
+}
+
+void ModelPrivate::setTypeId(InternalNode *node,
+                             Utils::SmallStringView moduleName,
+                             Utils::SmallStringView unqualifiedTypeName)
 {
     if constexpr (useProjectStorage()) {
-        node->importedTypeNameId = importedTypeNameId(typeName);
-        node->typeId = projectStorage->typeId(node->importedTypeNameId);
+        node->importedTypeNameId = importedTypeNameId(moduleName, unqualifiedTypeName);
+        node->exportedTypeName = projectStorage->exportedTypeName(node->importedTypeNameId);
     }
 }
 
-void ModelPrivate::refreshTypeId(InternalNode *node)
+void ModelPrivate::refreshExportdTypeName(InternalNode *node)
 {
     if constexpr (useProjectStorage())
-        node->typeId = projectStorage->typeId(node->importedTypeNameId);
+        node->exportedTypeName = projectStorage->exportedTypeName(node->importedTypeNameId);
 }
 
 void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
@@ -446,35 +452,37 @@ void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
     setBindingProperties(resourceSet.setExpressions);
 }
 
-void ModelPrivate::updateModelNodeTypeIds(const TypeIds &removedTypeIds)
+void ModelPrivate::updateModelNodeTypeIds(const ExportedTypeNames &addedExportedTypeNames,
+                                          const ExportedTypeNames &removedExportedTypeNames)
 {
     auto nodes = m_nodes;
+    std::ranges::sort(nodes, {}, &InternalNode::exportedTypeName);
+    auto refeshNodeTypeId = [&](auto &node) { refreshExportdTypeName(node.get()); };
+    Utils::set_greedy_intersection(nodes,
+                                   removedExportedTypeNames,
+                                   refeshNodeTypeId,
+                                   {},
+                                   &InternalNode::exportedTypeName);
 
-    std::ranges::sort(nodes, {}, &InternalNode::typeId);
-
-    auto refeshNodeTypeId = [&](auto &node) { refreshTypeId(node.get()); };
-
-    Utils::set_greedy_intersection(nodes, removedTypeIds, refeshNodeTypeId, {}, &InternalNode::typeId);
+    Utils::set_greedy_intersection(nodes,
+                                   addedExportedTypeNames,
+                                   refeshNodeTypeId,
+                                   {},
+                                   &InternalNode::unqualifiedTypeName,
+                                   &Storage::Info::ExportedTypeName::name);
 }
 
 void ModelPrivate::removedTypeIds(const TypeIds &removedTypeIds)
 {
-    updateModelNodeTypeIds(removedTypeIds);
 
     notifyNodeInstanceViewLast([&](AbstractView *view) { view->refreshMetaInfos(removedTypeIds); });
-}
-
-void ModelPrivate::exportedTypesChanged()
-{
-    for (auto &node : m_nodes) {
-        if (!node->typeId)
-            refreshTypeId(node.get());
-    }
 }
 
 void ModelPrivate::exportedTypeNamesChanged(const ExportedTypeNames &added,
                                             const ExportedTypeNames &removed)
 {
+    updateModelNodeTypeIds(added, removed);
+
     notifyNodeInstanceViewLast(
         [&](AbstractView *view) { view->exportedTypeNamesChanged(added, removed); });
 }
@@ -1641,17 +1649,20 @@ void ModelPrivate::clearParent(const InternalNodePointer &node)
                        AbstractView::NoAdditionalChanges);
 }
 
-void ModelPrivate::changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion)
+void ModelPrivate::changeRootNodeType(const TypeName &typeName, int majorVersion, int minorVersion)
 {
     Q_ASSERT(rootNode());
 
-    m_rootInternalNode->traceToken.tick("type name", keyValue("type name", type));
+    m_rootInternalNode->traceToken.tick("type name", keyValue("type name", typeName));
 
-    m_rootInternalNode->typeName = type;
+    auto [moduleName, unqualifiedTypeName] = decomposeTypePath(typeName);
+
+    m_rootInternalNode->typeName = typeName;
+    m_rootInternalNode->unqualifiedTypeName = unqualifiedTypeName;
     m_rootInternalNode->majorVersion = majorVersion;
     m_rootInternalNode->minorVersion = minorVersion;
-    setTypeId(m_rootInternalNode.get(), type);
-    notifyRootNodeTypeChanged(QString::fromUtf8(type), majorVersion, minorVersion);
+    setTypeId(m_rootInternalNode.get(), moduleName, unqualifiedTypeName);
+    notifyRootNodeTypeChanged(QString::fromUtf8(typeName), majorVersion, minorVersion);
 }
 
 void ModelPrivate::setScriptFunctions(const InternalNodePointer &node,
@@ -3289,7 +3300,8 @@ NodeMetaInfo Model::metaInfo(const TypeName &typeName,
                                ModelTracing::category(),
                                keyValue("caller location", sl)};
 
-    return NodeMetaInfo(d->projectStorage->typeId(d->importedTypeNameId(typeName)), d->projectStorage);
+    return NodeMetaInfo(d->projectStorage->exportedTypeName(d->importedTypeNameId(typeName)).typeId,
+                        d->projectStorage);
 #else
     return NodeMetaInfo(metaInfoProxyModel(), typeName, majorVersion, minorVersion);
 #endif

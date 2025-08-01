@@ -320,11 +320,11 @@ public:
         return m_nodeMetaInfoCache;
     }
 
-    void updateModelNodeTypeIds(const TypeIds &removedTypeIds);
+    void updateModelNodeTypeIds(const ExportedTypeNames &addedExportedTypeNames,
+                                const ExportedTypeNames &removedExportedTypeNames);
 
 protected:
     void removedTypeIds(const TypeIds &removedTypeIds) override;
-    void exportedTypesChanged() override;
     void exportedTypeNamesChanged(const ExportedTypeNames &added,
                                   const ExportedTypeNames &removed) override;
     void removeNode(const InternalNodePointer &node);
@@ -340,8 +340,12 @@ private:
     static QList<std::tuple<QmlDesigner::Internal::InternalBindingProperty *, QString>>
     toInternalBindingProperties(const ModelResourceSet::SetExpressions &setExpressions);
     ImportedTypeNameId importedTypeNameId(Utils::SmallStringView typeName);
-    void setTypeId(InternalNode *node, Utils::SmallStringView typeName);
-    void refreshTypeId(InternalNode *node);
+    ImportedTypeNameId importedTypeNameId(Utils::SmallStringView moduleName,
+                                          Utils::SmallStringView unqualifiedTypeName);
+    void setTypeId(InternalNode *node,
+                   Utils::SmallStringView moduleName,
+                   Utils::SmallStringView unqualifiedTypeName);
+    void refreshExportdTypeName(InternalNode *node);
 
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
