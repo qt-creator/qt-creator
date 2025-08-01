@@ -1,0 +1,46 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \page creator-how-to-set-build-run-directory.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-run
+    \ingroup creator-how-to-build
+
+    \title Set the default build and run directories
+
+    To set the default working directory for run configurations,
+    go to \preferences > \uicontrol {Build & Run} >
+    \uicontrol {Default Build Properties}.
+
+    \image {qtcreator-build-settings-default.webp} {Default Build Properties tab in Build & Run preferences}
+
+    \section1 Set the default build directory
+
+    In the \uicontrol {Default build directory} field, you can use the variables
+    that are listed when you select \inlineimage {icons/replace.png} {Variables}
+    (\uicontrol Variables), as well as variables that are available for a
+    particular kit. To see those, go to \uicontrol Projects >
+    \uicontrol {Build Settings} and then select \inlineimage {icons/replace.png}
+    {Variables} in the \uicontrol {Build Directory} field for a kit.
+
+    \section1 Set the default working directory
+
+    In \uicontrol {Default working directory}, specify a template for
+    constructing the default working directory of a run configuration.
+    You can use the variables that are listed when you select
+    \inlineimage {icons/replace.png} {Variables}.
+
+    You can also use the \c QTC_DEFAULT_WORKING_DIRECTORY_TEMPLATE environment
+    variable to set a template for creating the default working directory.
+
+    \sa {Configure projects for building}, {Configure projects for running}
+*/

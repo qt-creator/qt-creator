@@ -110,6 +110,7 @@
     \c {executable()} function in Meson build descriptions.
 
     \sa {Enable debugging}, {Configuring Projects},
+    {Set the default build and run directories},
     {Specify a custom executable to run},
     {Specify Valgrind settings for a project},
     {Run Configurations}{Reference: Run Configurations}

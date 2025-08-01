@@ -88,14 +88,6 @@
 
     \image {qtcreator-build-settings-default.webp} {Default Build Properties tab in Build & Run preferences}
 
-    In the \uicontrol {Default build directory} field, you can use the variables
-    that are listed when you select \inlineimage {icons/replace.png} {Variables},
-    as well as
-    variables that are available for a particular kit. Those you can see when
-    you select the button in the \uicontrol Projects > \uicontrol {Build & Run} >
-    \uicontrol Build > \uicontrol {Build Settings} > \uicontrol {Build Directory}
-    field for a kit.
-
     \section1 qmake Build Steps
 
     \QC builds qmake projects by running the \c make or \c nmake command from
@@ -124,6 +116,6 @@
     the \l{Conan Build Configuration}{Conan} package manager with qmake
 
     \sa {Activate kits for a project}, {Configure projects for building},
-    {Configure projects for running}, {Open projects}
-
+    {Configure projects for running}, {Open projects},
+    {Set the default build and run directories}
 */
