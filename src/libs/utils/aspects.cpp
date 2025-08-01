@@ -568,14 +568,14 @@ void BaseAspect::addToLayoutImpl(Layout &)
 {
 }
 
-void addToLayout(Layouting::Layout *iface, const BaseAspect &aspect)
+void addToLayout(Layouting::Layout *layout, const BaseAspect &aspect)
 {
-    aspect.addToLayout(*iface);
+    aspect.addToLayout(*layout);
 }
 
-void addToLayout(Layouting::Layout *item, const BaseAspect *aspect)
+void addToLayout(Layouting::Layout *layout, const BaseAspect *aspect)
 {
-    aspect->addToLayout(*item);
+    aspect->addToLayout(*layout);
 }
 
 /*!
@@ -3286,7 +3286,6 @@ void AspectContainer::fromMap(const Store &map)
         aspect->fromMap(map);
 
     emit fromMapFinished();
-
 }
 
 void AspectContainer::toMap(Store &map) const

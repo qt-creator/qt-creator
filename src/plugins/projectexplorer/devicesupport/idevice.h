@@ -54,6 +54,43 @@ namespace Internal { class IDevicePrivate; }
 class IDeviceWidget;
 class DeviceTester;
 
+class PROJECTEXPLORER_EXPORT DeviceToolAspect : public Utils::FilePathAspect
+{
+public:
+    using Utils::FilePathAspect::FilePathAspect;
+
+    void addToLayoutImpl(Layouting::Layout &parent) override;
+};
+
+class PROJECTEXPLORER_EXPORT DeviceToolAspectFactory
+{
+public:
+    DeviceToolAspectFactory();
+    ~DeviceToolAspectFactory();
+
+    Utils::Id toolId() const;
+    QStringList filePattern() const;
+    QString labelText() const;
+    QString toolTip() const;
+    QByteArray variablePrefix() const;
+
+    DeviceToolAspect *createAspect() const;
+
+protected:
+    void setToolId(const Utils::Id &toolId);
+    void setFilePattern(const QStringList &filePattern);
+    void setLabelText(const QString &labelText);
+    void setToolTip(const QString &toolTip);
+    void setVariablePrefix(const QByteArray &variablePrefix);
+
+private:
+    Utils::Id m_toolId;
+    QString m_labelText;
+    QString m_toolTip;
+    QStringList m_filePattern;
+    QByteArray m_variablePrefix;
+};
+
 class PROJECTEXPLORER_EXPORT DeviceProcessSignalOperation : public QObject
 {
     Q_OBJECT
@@ -173,11 +210,9 @@ public:
     virtual Utils::FilePath rootPath() const;
     virtual Utils::FilePath filePath(const QString &pathOnDevice) const;
 
-    Utils::FilePath debugServerPath() const;
-    void setDebugServerPath(const Utils::FilePath &path);
-
-    Utils::FilePath qmlRunCommand() const;
-    void setQmlRunCommand(const Utils::FilePath &path);
+    Utils::FilePath deviceToolPath(Utils::Id toolId) const;
+    void setDeviceToolPath(Utils::Id toolId, const Utils::FilePath &filePath);
+    QList<DeviceToolAspect *> deviceToolAspects() const;
 
     void setExtraData(Utils::Id kind, const QVariant &data);
     QVariant extraData(Utils::Id kind) const;
@@ -225,8 +260,6 @@ public:
     Utils::BoolAspect allowEmptyCommand{this};
     Utils::StringSelectionAspect linkDevice{this};
     Utils::BoolAspect sshForwardDebugServerPort{this};
-    Utils::FilePathAspect debugServerPathAspect{this};
-    Utils::FilePathAspect qmlRunCommandAspect{this};
     Utils::PortListAspect freePortsAspect{this};
 
 protected:

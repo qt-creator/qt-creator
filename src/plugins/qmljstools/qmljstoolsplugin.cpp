@@ -10,22 +10,37 @@
 #include "qmljstoolstr.h"
 #include "qmljstools_test.h"
 
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <extensionsystem/iplugin.h>
+
+#include <projectexplorer/devicesupport/idevice.h>
 
 #include <qmljseditor/qmljseditorconstants.h>
 
 #include <QMenu>
 
 using namespace Core;
+using namespace ProjectExplorer;
 
 namespace QmlJSTools::Internal {
+
+class QmlRuntimeToolFactory : public DeviceToolAspectFactory
+{
+public:
+    QmlRuntimeToolFactory()
+    {
+        setToolId(Constants::QML_TOOL_ID);
+        setFilePattern({"qml"});
+        setLabelText(Tr::tr("QML runtime executable:"));
+        setToolTip(Tr::tr("The QML runtime executable to use on the device."));
+    }
+};
 
 class QmlJSToolsPluginPrivate : public QObject
 {
@@ -38,6 +53,7 @@ public:
 
     QmlJSCodeStyleSettingsPage codeStyleSettingsPage;
     BasicBundleProvider basicBundleProvider;
+    QmlRuntimeToolFactory qmlRuntimeToolFactory;
 };
 
 QmlJSToolsPluginPrivate::QmlJSToolsPluginPrivate()

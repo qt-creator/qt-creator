@@ -5,8 +5,7 @@
 
 #include <QtGlobal>
 
-namespace QmlJSTools {
-namespace Constants {
+namespace QmlJSTools::Constants {
 
 const char QML_JS_CODE_STYLE_SETTINGS_ID[] = "A.Code Style";
 const char QML_JS_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("QtC::QmlJSTools", "Code Style");
@@ -16,5 +15,6 @@ const char QML_JS_SETTINGS_ID[] = "QmlJS";
 const char M_TOOLS_QMLJS[] = "QmlJSTools.Tools.Menu";
 const char RESET_CODEMODEL[] = "QmlJSTools.ResetCodeModel";
 
-} // namespace Constants
-} // namespace QmlJSTools
+const char QML_TOOL_ID[] = "QmlsceneKey";
+
+} // namespace QmlJSTools::Constants

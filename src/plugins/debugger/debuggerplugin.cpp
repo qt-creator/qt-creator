@@ -559,6 +559,18 @@ static Kit *findUniversalCdbKit()
     return KitManager::kit(cdbPredicate());
 }
 
+class DebugServerToolFactory : public DeviceToolAspectFactory
+{
+public:
+    DebugServerToolFactory()
+    {
+        setToolId(Constants::DEBUGSERVER_TOOL_ID);
+        setFilePattern({"gdbserver"});
+        setLabelText(Tr::tr("GDB server executable:"));
+        setToolTip(Tr::tr("The GDB server executable to use on the device."));
+    }
+};
+
 ///////////////////////////////////////////////////////////////////////
 //
 // DebuggerPluginPrivate
@@ -714,6 +726,8 @@ public:
     Perspective m_perspectiveDap{Constants::DAP_PERSPECTIVE_ID, Tr::tr("DAP")};
 
     std::optional<QPoint> attachToUnstartedApplicationDialogLastPosition;
+
+    DebugServerToolFactory m_debugServerToolFactory;
 
     // FIXME: Needed?
 //            QString mainScript = runConfig->property("mainScript").toString();

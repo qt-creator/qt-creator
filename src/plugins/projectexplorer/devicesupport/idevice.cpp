@@ -17,6 +17,7 @@
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/icon.h>
+#include <utils/layoutbuilder.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronizedvalue.h>
@@ -110,9 +111,6 @@ const char KeyFileKey[] = "KeyFile";
 const char TimeoutKey[] = "Timeout";
 const char HostKeyCheckingKey[] = "HostKeyChecking";
 
-const char DebugServerKey[] = "DebugServerKey";
-const char QmlRuntimeKey[] = "QmlsceneKey";
-
 const char SshForwardDebugServerPortKey[] = "SshForwardDebugServerPort";
 const char LinkDeviceKey[] = "LinkDevice";
 
@@ -138,21 +136,103 @@ public:
     std::function<DeviceFileAccess *()> fileAccessFactory;
     int version = 0; // This is used by devices that have been added by the SDK.
 
-    Utils::SynchronizedValue<SshParameters> sshParameters;
+    SynchronizedValue<SshParameters> sshParameters;
 
     QList<Icon> deviceIcons;
     QList<IDevice::DeviceAction> deviceActions;
     Store extraData;
     IDevice::OpenTerminal openTerminal;
 
-    Utils::StringAspect displayName;
+    StringAspect displayName;
 
     SshParametersAspectContainer sshParametersAspectContainer;
+
+    QHash<Id, DeviceToolAspect *> deviceToolAspects;
 
     bool isTesting = false;
 };
 
 } // namespace Internal
+
+
+// DeviceToolFactory
+
+static QList<DeviceToolAspectFactory *> theDeviceToolFactories;
+
+DeviceToolAspectFactory::DeviceToolAspectFactory()
+{
+    theDeviceToolFactories.append(this);
+}
+
+DeviceToolAspectFactory::~DeviceToolAspectFactory()
+{
+    theDeviceToolFactories.removeOne(this);
+}
+
+DeviceToolAspect *DeviceToolAspectFactory::createAspect() const
+{
+    auto toolAspect = new DeviceToolAspect;
+    toolAspect->setSettingsKey(toolId().name());
+    toolAspect->setLabelText(labelText());
+    toolAspect->setToolTip(toolTip());
+    toolAspect->setPlaceHolderText(Tr::tr("Leave empty to look up executable in $PATH"));
+    toolAspect->setHistoryCompleter(toolId().name());
+    toolAspect->setAllowPathFromDevice(true);
+    toolAspect->setExpectedKind(PathChooser::ExistingCommand);
+    return toolAspect;
+}
+
+Id DeviceToolAspectFactory::toolId() const
+{
+    return m_toolId;
+}
+
+void DeviceToolAspectFactory::setToolId(const Id &toolId)
+{
+    m_toolId = toolId;
+}
+
+QString DeviceToolAspectFactory::labelText() const
+{
+    return m_labelText;
+}
+
+void DeviceToolAspectFactory::setLabelText(const QString &labelText)
+{
+    m_labelText = labelText;
+}
+
+QString DeviceToolAspectFactory::toolTip() const
+{
+    return m_toolTip;
+}
+
+void DeviceToolAspectFactory::setToolTip(const QString &toolTip)
+{
+    m_toolTip = toolTip;
+}
+
+QByteArray DeviceToolAspectFactory::variablePrefix() const
+{
+    return m_variablePrefix;
+}
+
+void DeviceToolAspectFactory::setVariablePrefix(const QByteArray &newVariablePrefix)
+{
+    m_variablePrefix = newVariablePrefix;
+}
+
+QStringList DeviceToolAspectFactory::filePattern() const
+{
+    return m_filePattern;
+}
+
+void DeviceToolAspectFactory::setFilePattern(const QStringList &filePattern)
+{
+    m_filePattern = filePattern;
+}
+
+// DeviceTester
 
 DeviceTester::DeviceTester(const IDevice::Ptr &device, QObject *parent)
     : QObject(parent)
@@ -240,21 +320,11 @@ IDevice::IDevice()
             return newValue;
         });
 
-    debugServerPathAspect.setSettingsKey(DebugServerKey);
-    debugServerPathAspect.setLabelText(Tr::tr("GDB server executable:"));
-    debugServerPathAspect.setToolTip(Tr::tr("The GDB server executable to use on the device."));
-    debugServerPathAspect.setPlaceHolderText(Tr::tr("Leave empty to look up executable in $PATH"));
-    debugServerPathAspect.setHistoryCompleter("GdbServer");
-    debugServerPathAspect.setAllowPathFromDevice(true);
-    debugServerPathAspect.setExpectedKind(PathChooser::ExistingCommand);
-
-    qmlRunCommandAspect.setSettingsKey(QmlRuntimeKey);
-    qmlRunCommandAspect.setLabelText(Tr::tr("QML runtime executable:"));
-    qmlRunCommandAspect.setToolTip(Tr::tr("The QML runtime executable to use on the device."));
-    qmlRunCommandAspect.setPlaceHolderText(Tr::tr("Leave empty to look up executable in $PATH"));
-    qmlRunCommandAspect.setHistoryCompleter("QmlRuntime");
-    qmlRunCommandAspect.setAllowPathFromDevice(true);
-    qmlRunCommandAspect.setExpectedKind(PathChooser::ExistingCommand);
+    for (const DeviceToolAspectFactory *factory : theDeviceToolFactories) {
+        DeviceToolAspect *toolAspect = factory->createAspect();
+        registerAspect(toolAspect, true);
+        d->deviceToolAspects.insert(factory->toolId(), toolAspect);
+    }
 
     freePortsAspect.setSettingsKey(PortsSpecKey);
     freePortsAspect.setLabelText(Tr::tr("Free ports:"));
@@ -305,26 +375,6 @@ DeviceFileAccess *IDevice::fileAccess() const
 FilePath IDevice::filePath(const QString &pathOnDevice) const
 {
     return rootPath().withNewPath(pathOnDevice);
-}
-
-FilePath IDevice::debugServerPath() const
-{
-    return debugServerPathAspect();
-}
-
-void IDevice::setDebugServerPath(const FilePath &path)
-{
-    debugServerPathAspect.setValue(path);
-}
-
-FilePath IDevice::qmlRunCommand() const
-{
-    return qmlRunCommandAspect();
-}
-
-void IDevice::setQmlRunCommand(const FilePath &path)
-{
-    qmlRunCommandAspect.setValue(path);
 }
 
 bool IDevice::handlesFile(const FilePath &filePath) const
@@ -749,6 +799,31 @@ IDevice::MachineType IDevice::machineType() const
 void IDevice::setMachineType(MachineType machineType)
 {
     d->machineType = machineType;
+}
+
+void IDevice::setDeviceToolPath(Id toolId, const FilePath &filePath)
+{
+    DeviceToolAspect *toolAspect = d->deviceToolAspects.value(toolId);
+    QTC_ASSERT(toolAspect, return);
+    toolAspect->setValue(filePath);
+}
+
+FilePath IDevice::deviceToolPath(Id toolId) const
+{
+    DeviceToolAspect *toolAspect = d->deviceToolAspects.value(toolId);
+    QTC_ASSERT(toolAspect, return {});
+    return (*toolAspect)();
+}
+
+QList<DeviceToolAspect *> IDevice::deviceToolAspects() const
+{
+    return d->deviceToolAspects.values();
+}
+
+void DeviceToolAspect::addToLayoutImpl(Layouting::Layout &parent)
+{
+    FilePathAspect::addToLayoutImpl(parent);
+    parent.flush();
 }
 
 FilePath IDevice::rootPath() const

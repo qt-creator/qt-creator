@@ -55,6 +55,8 @@ const char CRT_DEBUG_REPORT[]                 = "CrtDbgReport";
 
 const char NO_DEBUG_HEAP[]                    = "_NO_DEBUG_HEAP";
 
+const char DEBUGSERVER_TOOL_ID[]              = "DebugServer";
+
 } // namespace Constants
 
 enum ModelRoles

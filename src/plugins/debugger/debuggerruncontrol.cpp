@@ -319,7 +319,7 @@ ProcessTask debugServerTask(const Storage<DebuggerData> &storage)
             cmd.addArg(qmlDebugTcpArguments(QmlDebuggerServices, runControl->qmlChannel()));
             cmd.addArgs(commandLine.arguments(), CommandLine::Raw);
         } else {
-            cmd.setExecutable(runControl->device()->debugServerPath());
+            cmd.setExecutable(runControl->device()->deviceToolPath(Constants::DEBUGSERVER_TOOL_ID));
 
             if (cmd.isEmpty()) {
                 if (runControl->device()->osType() == Utils::OsTypeMac) {

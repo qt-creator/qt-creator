@@ -1,12 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "qmlprojectrunconfiguration.h"
 #include "buildsystem/qmlbuildsystem.h"
 #include "qmlmainfileaspect.h"
 #include "qmlmultilanguageaspect.h"
 #include "qmlprojectconstants.h"
 #include "qmlprojectmanagertr.h"
-#include "qmlprojectrunconfiguration.h"
 
 #include <coreplugin/icore.h>
 
@@ -26,6 +26,8 @@
 
 #include <qmldesignerbase/qmldesignerbaseplugin.h>
 #include <qmldesignerbase/utils/qmlpuppetpaths.h>
+
+#include <qmljstools/qmljstoolsconstants.h>
 
 #include <qtsupport/qtkitaspect.h>
 
@@ -194,7 +196,7 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
     // might know what is good for running.
     IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit());
     if (dev) {
-        const FilePath qmlRuntime = dev->qmlRunCommand();
+        const FilePath qmlRuntime = dev->deviceToolPath(QmlJSTools::Constants::QML_TOOL_ID);
         if (!qmlRuntime.isEmpty())
             return qmlRuntime;
     }
