@@ -56,7 +56,7 @@ ModelNode materialLibraryNode(AbstractView *view)
     return view->modelNodeForId(Constants::MATERIAL_LIB_ID);
 }
 
-// Creates material library if it doesn't exist and moves any existing materials into it.
+// Creates material library if it doesn't exist and moves any existing materials and textures into it.
 void ensureMaterialLibraryNode(AbstractView *view)
 {
     ModelNode matLib = view->modelNodeForId(Constants::MATERIAL_LIB_ID);
@@ -83,14 +83,19 @@ void ensureMaterialLibraryNode(AbstractView *view)
 
     // Do the material reparentings in different transaction to work around issue QDS-8094
     view->executeInTransaction(__FUNCTION__, [&] {
-        const QList<ModelNode> materials = view->rootModelNode().subModelNodesOfType(
-            view->model()->qtQuick3DMaterialMetaInfo());
-        if (!materials.isEmpty()) {
-            // Move all materials to under material library node
-            for (const ModelNode &node : materials) {
-                // If material has no name, set name to id
-                QString matName = node.variantProperty("objectName").value().toString();
-                if (matName.isEmpty()) {
+        const NodeMetaInfo matInfo = view->model()->qtQuick3DMaterialMetaInfo();
+        const NodeMetaInfo texInfo = view->model()->qtQuick3DTextureMetaInfo();
+        const QList<ModelNode> materialsAndTextures
+            = Utils::filtered(view->rootModelNode().allSubModelNodes(), [&](const ModelNode &node) {
+            return node.metaInfo().isBasedOn(matInfo, texInfo);
+        });
+
+        if (!materialsAndTextures.isEmpty()) {
+            // Move all matching nodes to under material library node
+            for (const ModelNode &node : materialsAndTextures) {
+                // If node has no name, set name to id
+                QString name = node.variantProperty("objectName").value().toString();
+                if (name.isEmpty()) {
                     VariantProperty objNameProp = node.variantProperty("objectName");
                     objNameProp.setValue(node.id());
                 }
