@@ -18,9 +18,6 @@ class TemporaryFilePathPrivate;
 class QTCREATOR_UTILS_EXPORT TemporaryFilePath
 {
 public:
-    TemporaryFilePath() = delete;
-    TemporaryFilePath(const TemporaryFilePath &other) = delete;
-
     ~TemporaryFilePath();
 
     static Result<std::unique_ptr<TemporaryFilePath>> create(
@@ -33,9 +30,11 @@ public:
     FilePath filePath() const;
 
 private:
+    TemporaryFilePath() = delete;
+    TemporaryFilePath(const TemporaryFilePath &other) = delete;
+
     TemporaryFilePath(const FilePath &templatePath, const FilePath &filePath, bool directory);
 
-private:
     std::unique_ptr<TemporaryFilePathPrivate> d;
 };
 
