@@ -41,6 +41,9 @@
     Select the build configuration to edit in the
     \uicontrol {Edit build configuration} field.
 
+    To edit the active build configuration, select \key {Ctrl+E, Ctrl+B}
+    (or \key {Cmd+E, Cmd+B} on \macos).
+
     The available build settings depend on the build system that you selected
     for the project:
 

@@ -878,9 +878,17 @@
             \li Ctrl+T
             \li Cmd+T
         \row
+            \li Edit the active build configuration
+            \li Ctrl+E, Ctrl+B
+            \li Cmd+E, Cmd+B
+        \row
             \li Run
             \li Ctrl+R
             \li Cmd+R
+        \row
+            \li Edit the active run configuration
+            \li Ctrl+E, Ctrl+R
+            \li Cmd+E, Cmd+R
     \endtable
 
     \section1 Debugger Shortcuts

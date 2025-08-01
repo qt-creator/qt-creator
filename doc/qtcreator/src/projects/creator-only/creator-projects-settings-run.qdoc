@@ -57,6 +57,9 @@
     all run configurations that belong to a build configuration, select
     \uicontrol {Remove All}.
 
+    To edit the active run configuration, select \key {Ctrl+E, Ctrl+R}
+    (or \key {Cmd+E, Cmd+R} on \macos).
+
     \section2 qmake run configurations
 
     The run configurations for qmake projects derive their executable from the
