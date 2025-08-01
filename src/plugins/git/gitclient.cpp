@@ -1455,9 +1455,8 @@ void GitClient::reset(const FilePath &workingDirectory, const QString &argument,
     if (!commit.isEmpty())
         arguments << commit;
 
-    RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
-    if (argument == "--hard")
-        flags |= RunFlags::ExpectRepoChanges;
+    const RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage
+                           | RunFlags::ExpectRepoChanges;
 
     const auto isHard = [argument] { return argument == "--hard"; };
 
@@ -1580,7 +1579,8 @@ bool GitClient::synchronousReset(const FilePath &workingDirectory,
     else
         arguments << HEAD << "--" << files;
 
-    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, arguments,
+                                                    RunFlags::ExpectRepoChanges);
     const QString stdOut = result.cleanedStdOut();
     VcsOutputWindow::appendSilently(workingDirectory, stdOut);
     // Note that git exits with 1 even if the operation is successful
@@ -3468,7 +3468,8 @@ void GitClient::vcsExecAbortable(const FilePath &workingDirectory, const QString
     QTC_ASSERT(!arguments.isEmpty(), return);
     const QString abortString = abortCommand.isEmpty() ? arguments.at(0) : abortCommand;
     const ProgressParser progressParser = isRebase ? GitProgressParser() : ProgressParser();
-    enqueueCommand({workingDirectory, arguments, RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage,
+    enqueueCommand({workingDirectory, arguments,
+                    RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage | RunFlags::ExpectRepoChanges,
                     progressParser, {},
                     [workingDirectory, abortString, handler](const CommandResult &result) {
                         handleConflictResponse(result, workingDirectory, abortString);
