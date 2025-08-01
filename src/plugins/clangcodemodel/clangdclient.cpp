@@ -19,16 +19,20 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+
 #include <cplusplus/AST.h>
 #include <cplusplus/ASTPath.h>
+
 #include <cppeditor/compilationdb.h>
 #include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpprefactoringchanges.h>
 #include <cppeditor/cppsemanticinfo.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/semantichighlighter.h>
+
 #include <languageclient/diagnosticmanager.h>
 #include <languageclient/languageclienthoverhandler.h>
 #include <languageclient/languageclientinterface.h>
@@ -173,8 +177,11 @@ static std::optional<Utils::FilePath> clangdExecutableFromBuildDevice(Kit *kit)
     if (!kit)
         return std::nullopt;
 
-    if (const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit))
-        return buildDevice->clangdExecutable();
+    if (const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit)) {
+        FilePath clangd = buildDevice->deviceToolPath(CppEditor::Constants::CLANGD_TOOL_ID);
+        if (!clangd.isEmpty())
+            return clangd;
+    }
 
     return std::nullopt;
 }

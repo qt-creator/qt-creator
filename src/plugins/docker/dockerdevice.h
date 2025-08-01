@@ -65,7 +65,6 @@ public:
     void setMounts(const QStringList &mounts) const;
 
     bool prepareForBuild(const ProjectExplorer::Target *target) override;
-    std::optional<Utils::FilePath> clangdExecutable() const override;
 
     QString repoAndTag() const;
     QString repoAndTagEncoded() const;
@@ -77,7 +76,6 @@ public:
     Utils::FilePathListAspect mounts{this};
     Utils::BoolAspect keepEntryPoint{this};
     Utils::BoolAspect enableLldbFlags{this};
-    Utils::FilePathAspect clangdExecutableAspect{this};
     Utils::StringSelectionAspect network{this};
     Utils::StringAspect extraArgs{this};
     DockerDeviceEnvironmentAspect environment{this};

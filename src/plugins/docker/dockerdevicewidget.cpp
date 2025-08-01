@@ -7,6 +7,8 @@
 #include "dockerdevice.h"
 #include "dockertr.h"
 
+#include <cppeditor/cppeditorconstants.h>
+
 #include <projectexplorer/kitaspect.h>
 
 #include <utils/algorithm.h>
@@ -133,7 +135,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                           });
 
                 if (!clangdPath.isEmpty())
-                    dockerDevice->clangdExecutableAspect.setValue(clangdPath);
+                    dockerDevice->setDeviceToolPath(CppEditor::Constants::CLANGD_TOOL_ID, clangdPath);
 
                 const auto log = [logView](const QString &msg) { logView->append(msg); };
                 // clang-format off
@@ -200,7 +202,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             dockerDevice->keepEntryPoint, br,
             dockerDevice->enableLldbFlags, br,
             dockerDevice->mountCmdBridge, br,
-            dockerDevice->clangdExecutableAspect, br,
+            dockerDevice->deviceToolAspects(), br,
             dockerDevice->network, br,
             dockerDevice->extraArgs, br,
             dockerDevice->environment, br,

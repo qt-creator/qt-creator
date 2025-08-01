@@ -11,9 +11,9 @@
 #include "cppeditortr.h"
 #include "cppeditorwidget.h"
 #include "cppfilesettingspage.h"
+#include "cppheadersource.h"
 #include "cpphighlighter.h"
 #include "cppincludehierarchy.h"
-#include "cppheadersource.h"
 #include "cppmodelmanager.h"
 #include "cppoutline.h"
 #include "cppprojectupdater.h"
@@ -64,6 +64,7 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -78,6 +79,8 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
+#include <utils/clangutils.h>
 #include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
@@ -147,6 +150,28 @@ public:
     }
 };
 
+class ClangdToolFactory : public DeviceToolAspectFactory
+{
+public:
+    ClangdToolFactory()
+    {
+        setToolId(Constants::CLANGD_TOOL_ID);
+        setFilePattern({"clangd"});
+        setLabelText(Tr::tr("Clangd executable:"));
+        setValidationFunction([](const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
+            return asyncRun([newValue]() -> Result<QString> {
+                QString changedValue = newValue;
+                FilePath path = FilePath::fromUserInput(newValue);
+                QString error;
+                bool result = checkClangdVersion(path, &error);
+                if (!result)
+                    return ResultError(error);
+                return changedValue;
+            });
+        });
+    }
+};
+
 ///////////////////////////////// CppEditorPlugin //////////////////////////////////
 
 class CppEditorPluginPrivate : public QObject
@@ -162,6 +187,7 @@ public:
 
     CppModelManager modelManager;
     CppToolsSettings settings;
+    ClangdToolFactory clangdToolFactory;
 };
 
 class CppEditorPlugin final : public ExtensionSystem::IPlugin

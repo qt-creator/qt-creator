@@ -169,22 +169,23 @@ DeviceToolAspectFactory::~DeviceToolAspectFactory()
     theDeviceToolFactories.removeOne(this);
 }
 
-DeviceToolAspect *DeviceToolAspectFactory::createAspect() const
-{
-    auto toolAspect = new DeviceToolAspect;
-    toolAspect->setSettingsKey(toolId().name());
-    toolAspect->setLabelText(labelText());
-    toolAspect->setToolTip(toolTip());
-    toolAspect->setPlaceHolderText(Tr::tr("Leave empty to look up executable in $PATH"));
-    toolAspect->setHistoryCompleter(toolId().name());
-    toolAspect->setAllowPathFromDevice(true);
-    toolAspect->setExpectedKind(PathChooser::ExistingCommand);
-    return toolAspect;
-}
-
 Id DeviceToolAspectFactory::toolId() const
 {
     return m_toolId;
+}
+
+DeviceToolAspect *DeviceToolAspectFactory::createAspect() const
+{
+    auto toolAspect = new DeviceToolAspect;
+    toolAspect->setSettingsKey(m_toolId.name());
+    toolAspect->setLabelText(m_labelText);
+    toolAspect->setToolTip(m_toolTip);
+    toolAspect->setPlaceHolderText(Tr::tr("Leave empty to look up executable in $PATH"));
+    toolAspect->setHistoryCompleter(m_toolId.name());
+    toolAspect->setValidationFunction(m_validationFunction);
+    toolAspect->setAllowPathFromDevice(true);
+    toolAspect->setExpectedKind(PathChooser::ExistingCommand);
+    return toolAspect;
 }
 
 void DeviceToolAspectFactory::setToolId(const Id &toolId)
@@ -192,19 +193,9 @@ void DeviceToolAspectFactory::setToolId(const Id &toolId)
     m_toolId = toolId;
 }
 
-QString DeviceToolAspectFactory::labelText() const
-{
-    return m_labelText;
-}
-
 void DeviceToolAspectFactory::setLabelText(const QString &labelText)
 {
     m_labelText = labelText;
-}
-
-QString DeviceToolAspectFactory::toolTip() const
-{
-    return m_toolTip;
 }
 
 void DeviceToolAspectFactory::setToolTip(const QString &toolTip)
@@ -212,19 +203,15 @@ void DeviceToolAspectFactory::setToolTip(const QString &toolTip)
     m_toolTip = toolTip;
 }
 
-QByteArray DeviceToolAspectFactory::variablePrefix() const
+void DeviceToolAspectFactory::setVariablePrefix(const QByteArray &variablePrefix)
 {
-    return m_variablePrefix;
+    m_variablePrefix = variablePrefix;
 }
 
-void DeviceToolAspectFactory::setVariablePrefix(const QByteArray &newVariablePrefix)
+void DeviceToolAspectFactory::setValidationFunction(
+    const FancyLineEdit::ValidationFunction &validationFunction)
 {
-    m_variablePrefix = newVariablePrefix;
-}
-
-QStringList DeviceToolAspectFactory::filePattern() const
-{
-    return m_filePattern;
+    m_validationFunction = validationFunction;
 }
 
 void DeviceToolAspectFactory::setFilePattern(const QStringList &filePattern)
@@ -812,7 +799,12 @@ FilePath IDevice::deviceToolPath(Id toolId) const
 {
     DeviceToolAspect *toolAspect = d->deviceToolAspects.value(toolId);
     QTC_ASSERT(toolAspect, return {});
-    return (*toolAspect)();
+    FilePath filePath = (*toolAspect)();
+    if (filePath.isEmpty())
+        return {};
+    if (filePath.isLocal())
+        return rootPath().withNewMappedPath(filePath);
+    return filePath;
 }
 
 QList<DeviceToolAspect *> IDevice::deviceToolAspects() const
@@ -878,11 +870,6 @@ bool IDevice::prepareForBuild(const Target *target)
 {
     Q_UNUSED(target)
     return true;
-}
-
-std::optional<Utils::FilePath> IDevice::clangdExecutable() const
-{
-    return std::nullopt;
 }
 
 void IDevice::doApply() const

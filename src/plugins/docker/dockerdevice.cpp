@@ -31,7 +31,6 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/basetreeview.h>
-#include <utils/clangutils.h>
 #include <utils/devicefileaccess.h>
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
@@ -94,7 +93,6 @@ const char DockerDeviceUseOutsideUser[] = "DockerDeviceUseUidGid";
 const char DockerDeviceMappedPaths[] = "DockerDeviceMappedPaths";
 const char DockerDeviceKeepEntryPoint[] = "DockerDeviceKeepEntryPoint";
 const char DockerDeviceEnableLldbFlags[] = "DockerDeviceEnableLldbFlags";
-const char DockerDeviceClangDExecutable[] = "DockerDeviceClangDExecutable";
 const char DockerDeviceExtraArgs[] = "DockerDeviceExtraCreateArguments";
 const char DockerDeviceEnvironment[] = "DockerDeviceEnvironment";
 
@@ -470,10 +468,6 @@ DockerDevice::DockerDevice()
     extraArgs.setToolTip(Tr::tr("Extra arguments to pass to docker create."));
     extraArgs.setDisplayStyle(StringAspect::LineEditDisplay);
 
-    clangdExecutableAspect.setSettingsKey(DockerDeviceClangDExecutable);
-    clangdExecutableAspect.setLabelText(Tr::tr("Clangd executable:"));
-    clangdExecutableAspect.setAllowPathFromDevice(true);
-
     network.setSettingsKey("Network");
     network.setLabelText(Tr::tr("Network:"));
     network.setDefaultValue("bridge");
@@ -507,32 +501,6 @@ DockerDevice::DockerDevice()
             &DockerApi::dockerDaemonAvailableChanged,
             &network,
             &StringSelectionAspect::refill);
-
-    clangdExecutableAspect.setValidationFunction(
-        [this](const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
-            const FilePath rootPath = FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME,
-                                                          repoAndTagEncoded(),
-                                                          u"/");
-            return asyncRun([rootPath, newValue]() -> Result<QString> {
-                QString changedValue = newValue;
-                FilePath path = FilePath::fromUserInput(newValue);
-                if (path.isLocal()) {
-                    const FilePath onDevicePath = rootPath.withNewMappedPath(path);
-                    if (onDevicePath.exists()) {
-                        changedValue = onDevicePath.toUserOutput();
-                        path = onDevicePath;
-                    } else {
-                        return make_unexpected(
-                            Tr::tr("The path \"%1\" does not exist.").arg(onDevicePath.toUserOutput()));
-                    }
-                }
-                QString error;
-                bool result = checkClangdVersion(path, &error);
-                if (!result)
-                    return make_unexpected(error);
-                return changedValue;
-            });
-        });
 
     containerStatus.setText(Tr::tr("stopped"));
 
@@ -1288,15 +1256,6 @@ bool DockerDevicePrivate::ensureReachable(const FilePath &other)
 bool DockerDevice::prepareForBuild(const Target *target)
 {
     return d->prepareForBuild(target);
-}
-
-std::optional<FilePath> DockerDevice::clangdExecutable() const
-{
-    if (clangdExecutableAspect().isEmpty())
-        return std::nullopt;
-    if (clangdExecutableAspect().isLocal())
-        return rootPath().withNewMappedPath(clangdExecutableAspect());
-    return clangdExecutableAspect();
 }
 
 class PortMapping : public Utils::AspectContainer

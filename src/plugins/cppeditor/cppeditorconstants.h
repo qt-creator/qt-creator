@@ -128,5 +128,7 @@ const char SYMBOLS_FIND_FILTER_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::CppEdito
 constexpr const char CLANG_STATIC_ANALYZER_DOCUMENTATION_URL[]
     = "https://clang-analyzer.llvm.org/available_checks.html";
 
+const char CLANGD_TOOL_ID[] = "DockerDeviceClangDExecutable";
+
 } // namespace Constants
 } // namespace CppEditor

@@ -9,6 +9,7 @@
 #include <solutions/tasking/tasktree.h>
 
 #include <utils/aspects.h>
+#include <utils/fancylineedit.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/id.h>
@@ -69,10 +70,6 @@ public:
     ~DeviceToolAspectFactory();
 
     Utils::Id toolId() const;
-    QStringList filePattern() const;
-    QString labelText() const;
-    QString toolTip() const;
-    QByteArray variablePrefix() const;
 
     DeviceToolAspect *createAspect() const;
 
@@ -82,6 +79,7 @@ protected:
     void setLabelText(const QString &labelText);
     void setToolTip(const QString &toolTip);
     void setVariablePrefix(const QByteArray &variablePrefix);
+    void setValidationFunction(const Utils::FancyLineEdit::ValidationFunction &validationFunction);
 
 private:
     Utils::Id m_toolId;
@@ -89,6 +87,7 @@ private:
     QString m_toolTip;
     QStringList m_filePattern;
     QByteArray m_variablePrefix;
+    Utils::FancyLineEdit::ValidationFunction m_validationFunction;
 };
 
 class PROJECTEXPLORER_EXPORT DeviceProcessSignalOperation : public QObject
@@ -248,7 +247,6 @@ public:
     virtual Utils::Result<Utils::FilePath> localSource(const Utils::FilePath &other) const;
 
     virtual bool prepareForBuild(const Target *target);
-    virtual std::optional<Utils::FilePath> clangdExecutable() const;
 
     virtual void checkOsType() {}
 
