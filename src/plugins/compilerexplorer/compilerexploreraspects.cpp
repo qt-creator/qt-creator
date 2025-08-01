@@ -30,10 +30,9 @@ void LibrarySelectionAspect::bufferToGui()
 
     for (int i = 0; i < m_model->rowCount(); i++) {
         QModelIndex idx = m_model->index(i, 0);
-        if (m_buffer.contains(qvariant_cast<Api::Library>(idx.data(LibraryData)).id))
-            m_model->setData(idx,
-                             m_buffer[qvariant_cast<Api::Library>(idx.data(LibraryData)).id],
-                             SelectedVersion);
+        const QString libId = idx.data(LibraryData).value<Api::Library>().id;
+        if (m_buffer.contains(libId))
+            m_model->setData(idx, m_buffer[libId], SelectedVersion);
         else
             m_model->setData(idx, QVariant(), SelectedVersion);
     }
