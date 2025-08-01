@@ -22,8 +22,6 @@ QtcPlugin {
         "genericdeploystep.h",
         "genericdirectuploadstep.cpp",
         "genericdirectuploadstep.h",
-        "genericlinuxdeviceconfigurationwidget.cpp",
-        "genericlinuxdeviceconfigurationwidget.h",
         "killappstep.cpp",
         "killappstep.h",
         "linuxdevice.cpp",

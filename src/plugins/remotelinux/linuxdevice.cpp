@@ -3,7 +3,6 @@
 
 #include "linuxdevice.h"
 
-#include "genericlinuxdeviceconfigurationwidget.h"
 #include "linuxdevicetester.h"
 #include "linuxprocessinterface.h"
 #include "publickeydeploymentdialog.h"
@@ -12,6 +11,7 @@
 #include "remotelinuxsignaloperation.h"
 #include "remotelinuxtr.h"
 #include "sshdevicewizard.h"
+#include "sshkeycreationdialog.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -20,6 +20,8 @@
 #include <gocmdbridge/client/cmdbridgeclient.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/devicesupport/processlist.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/devicesupport/sshsettings.h>
@@ -30,9 +32,13 @@
 #include <utils/devicefileaccess.h>
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
+#include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/infobar.h>
+#include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/port.h>
+#include <utils/portlist.h>
 #include <utils/portlist.h>
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
@@ -41,15 +47,24 @@
 #include <utils/synchronizedvalue.h>
 #include <utils/temporaryfile.h>
 #include <utils/threadutils.h>
+#include <utils/utilsicons.h>
 
 #include <QApplication>
+#include <QCheckBox>
+#include <QComboBox>
 #include <QDateTime>
+#include <QLabel>
+#include <QLineEdit>
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QMutex>
 #include <QPointer>
+#include <QPushButton>
+#include <QRadioButton>
 #include <QReadWriteLock>
 #include <QRegularExpression>
+#include <QSpacerItem>
+#include <QSpinBox>
 #include <QTemporaryDir>
 #include <QThread>
 #include <QTimer>
@@ -262,6 +277,80 @@ QStringList SshSharedConnection::connectionArgs(const FilePath &binary) const
 {
     return m_sshParameters.connectionOptions(binary) << "-o" << ("ControlPath=" + socketFilePath())
                                                      << m_sshParameters.host();
+}
+
+// LinuxDeviceConfigurationWidget
+
+class LinuxDeviceConfigurationWidget final : public IDeviceWidget
+{
+public:
+    explicit LinuxDeviceConfigurationWidget(const IDevicePtr &device);
+
+private:
+    void createNewKey();
+    void updateDeviceFromUi() override {}
+};
+
+LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
+    const IDevice::Ptr &device)
+    : IDeviceWidget(device)
+{
+    auto createKeyButton = new QPushButton(Tr::tr("Create New..."));
+
+    const QString machineType = device->machineType() == IDevice::Hardware
+                                    ? Tr::tr("Physical Device")
+                                    : Tr::tr("Emulator");
+    auto linuxDevice = std::dynamic_pointer_cast<LinuxDevice>(device);
+    QTC_ASSERT(linuxDevice, return);
+
+    using namespace Layouting;
+
+    auto portWarningLabel = new QLabel(
+        QString("<font color=\"red\">%1</font>").arg(Tr::tr("You will need at least one port.")));
+
+    auto updatePortWarningLabel = [portWarningLabel, device]() {
+        portWarningLabel->setVisible(device->freePortsAspect.volatileValue().isEmpty());
+    };
+
+    updatePortWarningLabel();
+
+    // clang-format off
+    connect(&device->freePortsAspect, &PortListAspect::volatileValueChanged, this, updatePortWarningLabel);
+
+    Form {
+        Tr::tr("Machine type:"), machineType, st, br,
+        device->sshParametersAspectContainer().host, device->sshParametersAspectContainer().port, device->sshParametersAspectContainer().hostKeyCheckingMode, st, br,
+        device->freePortsAspect, portWarningLabel, device->sshParametersAspectContainer().timeout, st, br,
+        device->sshParametersAspectContainer().userName, st, br,
+        device->sshParametersAspectContainer().useKeyFile, st, br,
+        device->sshParametersAspectContainer().privateKeyFile, createKeyButton, br,
+        device->debugServerPathAspect, br,
+        device->qmlRunCommandAspect, br,
+        linuxDevice->sourceProfile, br,
+        device->sshForwardDebugServerPort, br,
+        device->linkDevice, br,
+    }.attachTo(this);
+    // clang-format on
+
+    connect(
+        createKeyButton,
+        &QAbstractButton::clicked,
+        this,
+        &LinuxDeviceConfigurationWidget::createNewKey);
+}
+
+void LinuxDeviceConfigurationWidget::createNewKey()
+{
+    SshKeyCreationDialog dialog(this);
+    if (dialog.exec() == QDialog::Accepted) {
+        device()->sshParametersAspectContainer().privateKeyFile.setValue(
+            dialog.privateKeyFilePath());
+    }
+}
+
+IDeviceWidget *createLinuxDeviceWidget(const IDevicePtr &device)
+{
+    return new LinuxDeviceConfigurationWidget(device);
 }
 
 // LinuxDevicePrivate
