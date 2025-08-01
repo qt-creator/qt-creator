@@ -29,13 +29,14 @@
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
 #include <utils/action.h>
@@ -61,6 +62,17 @@ static QbsProject *currentEditorProject()
     return doc ? qobject_cast<QbsProject *>(ProjectManager::projectForFile(doc->filePath())) : nullptr;
 }
 
+class QbsToolFactory : public DeviceToolAspectFactory
+{
+public:
+    QbsToolFactory()
+    {
+        setToolId(Constants::QBS_TOOL_ID);
+        setFilePattern({"qbs"});
+        setLabelText(Tr::tr("Qbs executable:"));
+    }
+};
+
 class QbsProjectManagerPluginPrivate
 {
 public:
@@ -71,6 +83,7 @@ public:
     QbsSettingsPage settingsPage;
     QbsProfilesSettingsPage profilesSetttingsPage;
     QbsEditorFactory editorFactory;
+    QbsToolFactory toolFactory;
 };
 
 class QbsProjectManagerPlugin final : public ExtensionSystem::IPlugin

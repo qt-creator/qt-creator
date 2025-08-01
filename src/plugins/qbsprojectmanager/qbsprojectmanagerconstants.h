@@ -5,8 +5,7 @@
 
 #include <QtGlobal>
 
-namespace QbsProjectManager {
-namespace Constants {
+namespace QbsProjectManager::Constants {
 
 // Contexts
 const char PROJECT_ID[] = "Qbs.QbsProject";
@@ -74,5 +73,6 @@ const char QBS_SETTINGS_CATEGORY_ICON[]  = ":/projectexplorer/images/build.png";
 
 const char QBS_PROFILING_ENV[] = "QTC_QBS_PROFILING";
 
-} // namespace Constants
-} // namespace QbsProjectManager
+const char QBS_TOOL_ID[] = "QbsExecutable";
+
+} // namespace QbsProjectManager::Constants
