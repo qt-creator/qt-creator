@@ -56,6 +56,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     });
 
     auto pathListLabel = new InfoLabel(Tr::tr("Paths to mount:"));
+    pathListLabel->setElideMode(Qt::ElideNone);
     pathListLabel->setAdditionalToolTip(Tr::tr("Source directory list should not be empty."));
 
     auto markupMounts = [dockerDevice, pathListLabel] {
@@ -203,11 +204,8 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             dockerDevice->network, br,
             dockerDevice->extraArgs, br,
             dockerDevice->environment, br,
-            Column {
-                pathListLabel,
-                dockerDevice->mounts,
-            }, br,
-            dockerDevice->portMappings, br,
+            pathListLabel, dockerDevice->mounts, br,
+            Tr::tr("Port mappings:"), dockerDevice->portMappings, br,
             If (!dockerDevice->isAutoDetected()) >> Then {
                 detectionControls
             },
