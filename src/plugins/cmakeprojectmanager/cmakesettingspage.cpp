@@ -14,6 +14,7 @@
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/detailswidget.h>
 #include <utils/fileutils.h>
 #include <utils/headerviewstretcher.h>
@@ -111,16 +112,22 @@ void CMakeToolTreeItem::updateErrorFlags()
     m_pathIsFile = filePath.isFile();
     m_pathIsExecutable = filePath.isExecutableFile();
 
-    CMakeTool cmake(m_detectionSource, m_id);
-    cmake.setFilePath(m_executable);
-    m_isSupported = cmake.hasFileApi();
+    std::unique_ptr<CMakeTool> temporaryTool;
+    CMakeTool *cmake = CMakeToolManager::findById(m_id);
+    if (!cmake) {
+        temporaryTool = std::make_unique<CMakeTool>(m_detectionSource, m_id);
+        cmake = temporaryTool.get();
+        cmake->setFilePath(m_executable);
+    }
+    cmake->setFilePath(m_executable);
+    m_isSupported = cmake->hasFileApi();
 
-    m_tooltip = Tr::tr("Version: %1").arg(cmake.versionDisplay());
+    m_tooltip = Tr::tr("Version: %1").arg(cmake->versionDisplay());
     m_tooltip += "<br>"
                  + Tr::tr("Supports fileApi: %1").arg(m_isSupported ? Tr::tr("yes") : Tr::tr("no"));
     m_tooltip += "<br>" + Tr::tr("Detection source: \"%1\"").arg(m_detectionSource.id);
 
-    m_versionDisplay = cmake.versionDisplay();
+    m_versionDisplay = cmake->versionDisplay();
 
     // Make sure to always have the right version in the name for Qt SDK CMake installations
     if (m_detectionSource.isAutoDetected() && m_name.startsWith("CMake") && m_name.endsWith("(Qt)"))
