@@ -291,10 +291,11 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
                                                          ? QString(QLatin1String("QT_")) + Android::Constants::ANDROID_PACKAGE_SOURCE_DIR
                                                          : QString(Android::Constants::ANDROID_PACKAGE_SOURCE_DIR);
 
-                QMessageBox::warning(this, Tr::tr("Project File not Updated"),
-                                    Tr::tr("Could not automatically update the project file for %1.\n"
-                                    "Set the %2 manually.").arg(bti.projectFilePath.toUserOutput(),
-                                    androidPackageSrcDir));
+                QMessageBox::warning(this,
+                    Tr::tr("Project File Update Failed"),
+                    Tr::tr("Could not automatically update the project file for %1.\n"
+                           "Set the %2 property manually.")
+                        .arg(bti.projectFilePath.toUserOutput(), androidPackageSrcDir));
             }
         }
     }
