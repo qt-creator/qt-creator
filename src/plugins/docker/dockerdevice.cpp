@@ -195,15 +195,6 @@ public:
 
     Result<FilePath> getCmdBridgePath() const;
 
-    std::optional<FilePath> clangdExecutable() const
-    {
-        if (q->clangdExecutableAspect().isEmpty())
-            return std::nullopt;
-        if (q->clangdExecutableAspect().isLocal())
-            return q->rootPath().withNewMappedPath(q->clangdExecutableAspect());
-        return q->clangdExecutableAspect();
-    }
-
     QStringList createMountArgs() const;
 
     bool isImageAvailable() const;
@@ -1301,7 +1292,11 @@ bool DockerDevice::prepareForBuild(const Target *target)
 
 std::optional<FilePath> DockerDevice::clangdExecutable() const
 {
-    return d->clangdExecutable();
+    if (clangdExecutableAspect().isEmpty())
+        return std::nullopt;
+    if (clangdExecutableAspect().isLocal())
+        return rootPath().withNewMappedPath(clangdExecutableAspect());
+    return clangdExecutableAspect();
 }
 
 class PortMapping : public Utils::AspectContainer
