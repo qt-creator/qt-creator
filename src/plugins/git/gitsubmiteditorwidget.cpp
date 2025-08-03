@@ -330,7 +330,7 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
         addAction(Tr::tr("Unstage \"%1\"").arg(filePath.toUserOutput()), FileUnstage);
         menu->addSeparator();
         addAction(
-            Tr::tr("Revert All Changes to \"%1\"").arg(filePath.toUserOutput()),
+            Tr::tr("Revert All Changes to \"%1\"...").arg(filePath.toUserOutput()),
             FileRevertAll,
             Tr::tr("<p>Undo <b>all</b> changes to the file \"%1\"?</p>"
                    "<p>Note: These changes will be lost.</p>")
@@ -339,7 +339,7 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
         addAction(Tr::tr("Stage \"%1\"").arg(filePath.toUserOutput()), FileStage);
         menu->addSeparator();
         addAction(
-            Tr::tr("Revert Unstaged Changes to \"%1\"").arg(filePath.toUserOutput()),
+            Tr::tr("Revert Unstaged Changes to \"%1\"...").arg(filePath.toUserOutput()),
             FileRevertUnstaged,
             Tr::tr("<p>Undo unstaged changes to the file \"%1\"?</p>"
                    "<p>Note: These changes will be lost.</p>")
