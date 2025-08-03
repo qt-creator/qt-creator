@@ -2872,6 +2872,16 @@ Result<CommitData> GitClient::getCommitData(CommitType commitType, const FilePat
         commitData.commentChar = commentChar(repoDirectory);
     }
 
+    if (commitData.commitType == AmendCommit) {
+        const CommandInProgress command = checkCommandInProgress(repoDirectory);
+        if (command == Merge || command == CherryPick) {
+            const QString message = (command == Merge)
+                        ? Tr::tr("Cannot amend during merge, use git commit instead.")
+                        : Tr::tr("Cannot amend during cherry-pick, use git commit instead.");
+            return ResultError(message);
+        }
+    }
+
     const StatusResult status = gitStatus(repoDirectory, ShowAll, &output, &errorMessage);
     switch (status) {
     case StatusResult::Changed:
