@@ -347,7 +347,10 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
     } else if (state == UntrackedFile) {
         addAction(Tr::tr("Stage \"%1\"").arg(filePath.toUserOutput()), FileStage);
         menu->addSeparator();
-
+        addAction(Tr::tr("Remove \"%1\"...").arg(filePath.toUserOutput()), FileRemove,
+                  Tr::tr("<p>Permanently remove the file \"%1\"?</p>"
+                         "<p>Note: The deletion cannot be undone.</p>").arg(filePath.toUserOutput()));
+        menu->addSeparator();
         const char message[] = "Add to gitignore \"%1\"";
         addAction(Tr::tr(message).arg("/" + filePath.path()), FileAddGitignore);
         const std::optional<Utils::FilePath> path = filePath.tailRemoved(filePath.fileName());

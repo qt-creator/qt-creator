@@ -271,6 +271,17 @@ void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAct
         break;
     }
 
+    case FileRemove: {
+        const Result<> success  = fullPath.removeFile();
+        if (!success) {
+            const QString message = Tr::tr("Error removing file: \"%1\": %2")
+                                        .arg(filePath.toUserOutput(), success.error());
+            VcsOutputWindow::appendError(m_workingDirectory, message);
+        }
+        refresh = true;
+        break;
+    }
+
     case FileAddGitignore:
         addToGitignore(filePath);
         refresh = true;

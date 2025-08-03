@@ -29,6 +29,7 @@ enum FileAction {
     FileOpenEditor,
     FileStage,
     FileUnstage,
+    FileRemove,
     FileAddGitignore,
     FileMergeTool,
     FileMergeResolved,
