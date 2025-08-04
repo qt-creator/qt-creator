@@ -1469,6 +1469,8 @@ int FunctionDefinitionAST::firstToken() const
     if (declarator)
         if (int candidate = declarator->firstToken())
             return candidate;
+    if (semicolon_token)
+        return semicolon_token;
     if (ctor_initializer)
         if (int candidate = ctor_initializer->firstToken())
             return candidate;
@@ -1487,6 +1489,8 @@ int FunctionDefinitionAST::lastToken() const
     if (ctor_initializer)
         if (int candidate = ctor_initializer->lastToken())
             return candidate;
+    if (semicolon_token)
+        return semicolon_token + 1;
     if (declarator)
         if (int candidate = declarator->lastToken())
             return candidate;

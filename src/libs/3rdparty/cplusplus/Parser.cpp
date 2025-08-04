@@ -4667,6 +4667,25 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
         declarator_ptr = &(*declarator_ptr)->next;
     }
 
+    if (LA() == T_SEMICOLON) {
+        if (declarator && declarator->initializer && declarator->initializer->asIdExpression()
+                && declarator->initializer->asIdExpression()->name
+                && declarator->initializer->asIdExpression()->name->asSimpleName()) {
+            const Kind tokKind = _translationUnit->tokenKind(
+                        declarator->initializer->asIdExpression()
+                        ->name->asSimpleName()->identifier_token);
+            if (tokKind == T_DEFAULT || tokKind == T_DELETE) {
+                const auto ast = new (_pool) FunctionDefinitionAST;
+                ast->qt_invokable_token = qt_invokable_token;
+                ast->decl_specifier_list = decl_specifier_seq;
+                ast->declarator = firstDeclarator;
+                match(T_SEMICOLON, &ast->semicolon_token);
+                node = ast;
+                CACHE_AND_RETURN(cacheKey, true); // recognized a function definition.
+            }
+        }
+    }
+
     if (LA() == T_COMMA || LA() == T_SEMICOLON || has_complex_type_specifier) {
         while (LA() == T_COMMA) {
             consumeToken(); // consume T_COMMA

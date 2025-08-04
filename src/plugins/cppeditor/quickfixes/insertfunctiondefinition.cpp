@@ -887,6 +887,40 @@ private slots:
         QuickFixOperationTest(singleDocument(original, ""), &factory, ProjectExplorer::HeaderPaths(), 1);
     }
 
+    void testNotTriggeringForDefaultedInline()
+    {
+        const QByteArray original =
+            "class Foo {\n"
+            "    Fo@o() = default;\n"
+            "};\n";
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(singleDocument(original, ""), &factory, ProjectExplorer::HeaderPaths(), 1);
+    }
+
+    void testNotTriggeringForDefaulted()
+    {
+        const QByteArray original =
+            "class Foo {\n"
+            "    Fo@o() = default;\n"
+            "};\n"
+            "Foo::Foo() = default;";
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(singleDocument(original, ""), &factory, ProjectExplorer::HeaderPaths(), 1);
+    }
+
+    void testNotTriggeringForDeleted()
+    {
+        const QByteArray original =
+            "class Foo {\n"
+            "    Fo@o() = delete;\n"
+            "};\n";
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(singleDocument(original, ""), &factory, ProjectExplorer::HeaderPaths(), 1);
+    }
+
     /// Find right implementation file.
     void testFindRightImplementationFile()
     {

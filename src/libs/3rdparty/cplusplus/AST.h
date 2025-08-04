@@ -1664,6 +1664,7 @@ public:
     int qt_invokable_token = 0;
     SpecifierListAST *decl_specifier_list = nullptr;
     DeclaratorAST *declarator = nullptr;
+    int semicolon_token = 0; // For defaulted and deleted definitions.
     CtorInitializerAST *ctor_initializer = nullptr;
     StatementAST *function_body = nullptr;
 

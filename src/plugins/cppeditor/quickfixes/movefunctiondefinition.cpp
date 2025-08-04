@@ -29,6 +29,45 @@ using namespace Utils;
 namespace CppEditor::Internal {
 namespace {
 
+static bool isDefaultedOrDeleted(
+    const FunctionDefinitionAST *funcAST, const TranslationUnit *tu, Kind tokenKind)
+{
+    const DeclaratorAST * const declarator = funcAST->declarator;
+    return declarator && declarator->initializer && declarator->initializer->asIdExpression()
+           && declarator->initializer->asIdExpression()->name
+           && declarator->initializer->asIdExpression()->name->asSimpleName()
+           && tu->tokenKind(
+                  declarator->initializer->asIdExpression()->name->asSimpleName()->identifier_token)
+                  == tokenKind;
+}
+
+static bool isDefaulted(const FunctionDefinitionAST *funcAST, const TranslationUnit *tu)
+{
+    return isDefaultedOrDeleted(funcAST, tu, T_DEFAULT);
+}
+
+static bool isDeleted(const FunctionDefinitionAST *funcAST, const TranslationUnit *tu)
+{
+    return isDefaultedOrDeleted(funcAST, tu, T_DELETE);
+}
+
+static QString definitionTextForDefaulted(
+    const FunctionDefinitionAST *funcAST, const CppRefactoringFilePtr &file, int *startPos = nullptr)
+{
+    const DeclaratorAST * const declarator = funcAST->declarator;
+    const AST *preceding = nullptr;
+    if (declarator->post_attribute_list)
+        preceding = declarator->post_attribute_list->lastValue();
+    else if (declarator->postfix_declarator_list)
+        preceding = declarator->postfix_declarator_list->lastValue();
+    else
+        preceding = declarator->core_declarator;
+    int start = file->endOf(preceding);
+    if (startPos)
+        *startPos = start;
+    return file->textOf(start, file->endOf(declarator->initializer)) + ';';
+}
+
 static QString definitionSignature(
     const CppQuickFixInterface *assist,
     FunctionDefinitionAST *functionDefinitionAST,
@@ -125,9 +164,14 @@ public:
         funcDec.insert(inlineIndex, inlinePref);
 
         QString funcDef = prefix + funcDec;
-        const int startPosition = m_fromFile->endOf(funcAST->declarator);
-        const int endPosition = m_fromFile->endOf(funcAST);
-        funcDef += m_fromFile->textOf(startPosition, endPosition);
+        int startPosition;
+        if (isDefaulted(funcAST, m_fromFile->cppDocument()->translationUnit())) {
+            funcDef += definitionTextForDefaulted(funcAST, m_fromFile, &startPosition);
+        } else {
+            startPosition = m_fromFile->endOf(funcAST->declarator);
+            const int endPosition = m_fromFile->endOf(funcAST);
+            funcDef += m_fromFile->textOf(startPosition, endPosition);
+        }
         funcDef += suffix;
 
         // insert definition at new position
@@ -223,8 +267,10 @@ public:
         MoveFuncDefRefactoringHelper helper(this, m_type, m_cppFilePath);
         for (DeclarationListAST *it = m_classDef->member_specifier_list; it; it = it->next) {
             if (FunctionDefinitionAST *funcAST = it->value->asFunctionDefinition()) {
-                if (funcAST->symbol && !funcAST->symbol->isGenerated())
+                if (funcAST->symbol && !funcAST->symbol->isGenerated()
+                    && !isDeleted(funcAST, currentFile()->cppDocument()->translationUnit())) {
                     helper.performMove(funcAST);
+                }
             }
         }
         helper.applyChanges();
@@ -277,9 +323,13 @@ private:
         if (!m_funcAST)
             return;
 
-        const QString wholeFunctionText = m_declarationText
-                                          + fromFile->textOf(fromFile->endOf(m_funcAST->declarator),
-                                                             fromFile->endOf(m_funcAST->function_body));
+        QString wholeFunctionText = m_declarationText;
+        if (isDefaulted(m_funcAST, fromFile->cppDocument()->translationUnit())) {
+            wholeFunctionText += definitionTextForDefaulted(m_funcAST, fromFile);
+        } else {
+            wholeFunctionText += fromFile->textOf(fromFile->endOf(m_funcAST->declarator),
+                                                  fromFile->endOf(m_funcAST->function_body));
+        }
 
         // Replace declaration with function and delete old definition
         ChangeSet toTarget;
@@ -345,9 +395,9 @@ public:
         for (int idx = 1; idx < pathSize; ++idx) {
             if ((funcAST = path.at(idx)->asFunctionDefinition())) {
                 // check cursor position
-                if (idx != pathSize - 1  // Do not allow "void a() @ {..."
-                    && funcAST->function_body
-                    && !interface.isCursorOn(funcAST->function_body)) {
+                if (idx != pathSize - 1 // Do not allow "void a() @ {..."
+                    && (!funcAST->function_body || !interface.isCursorOn(funcAST->function_body))
+                    && !isDeleted(funcAST, interface.currentFile()->cppDocument()->translationUnit())) {
                     if (path.at(idx - 1)->asTranslationUnit()) { // normal function
                         if (idx + 3 < pathSize && path.at(idx + 3)->asQualifiedName()) // Outside member
                             moveOutsideMemberDefinition = true;                        // definition
@@ -448,9 +498,8 @@ private:
                     return;
 
                 // check cursor position
-                if (idx != pathSize - 1  // Do not allow "void a() @ {..."
-                    && funcAST->function_body
-                    && !interface.isCursorOn(funcAST->function_body)) {
+                if (idx != pathSize - 1 // Do not allow "void a() @ {..."
+                    && (!funcAST->function_body || !interface.isCursorOn(funcAST->function_body))) {
                     completeDefAST = enclosingAST->asTemplateDeclaration() ? enclosingAST : funcAST;
                     break;
                 }
@@ -902,6 +951,51 @@ private slots:
             "};\n\n\n";
         QTest::newRow("function template") << QByteArrayList()
                                            << QByteArrayList{originalSource, expectedSource};
+
+        originalSource =
+            "class Foo\n"
+            "{\n"
+            "    @Foo();\n"
+            "};\n"
+            "\n"
+            "Foo::Fo@o() = default;\n";
+        expectedSource =
+            "class Foo\n"
+            "{\n"
+            "    Foo() = default;\n"
+            "};\n\n\n";
+        QTest::newRow("defaulted constructor") << QByteArrayList()
+                                               << QByteArrayList{originalSource, expectedSource};
+
+        originalSource =
+            "class Foo\n"
+            "{\n"
+            "    ~@Foo();\n"
+            "};\n"
+            "\n"
+            "Foo::~Fo@o() = default;\n";
+        expectedSource =
+            "class Foo\n"
+            "{\n"
+            "    ~Foo() = default;\n"
+            "};\n\n\n";
+        QTest::newRow("defaulted destructor") << QByteArrayList()
+                                              << QByteArrayList{originalSource, expectedSource};
+
+        originalSource =
+            "class Foo\n"
+            "{\n"
+            "    Foo& @operator=(const Foo &);\n"
+            "};\n"
+            "\n"
+            "Foo& Foo::@operator=(const Foo &) = default;\n";
+        expectedSource =
+            "class Foo\n"
+            "{\n"
+            "    Foo& operator=(const Foo &) = default;\n"
+            "};\n\n\n";
+        QTest::newRow("defaulted operator") << QByteArrayList()
+                                            << QByteArrayList{originalSource, expectedSource};
     }
 
     void test()
@@ -925,8 +1019,12 @@ private slots:
             testDocuments << CppTestDocument::create("file.h", headers.first(), headers.last());
         testDocuments << CppTestDocument::create("file.cpp", sources.first(), sources.last());
 
-        MoveFuncDefToDeclPush pushFactory;
-        QuickFixOperationTest(testDocuments, &pushFactory);
+        if (QString::fromLatin1(QTest::currentDataTag()) == QLatin1String("defaulted operator")) {
+            qDebug() << "FIXME: MoveFuncDefToDeclPush does not support operators";
+        } else {
+            MoveFuncDefToDeclPush pushFactory;
+            QuickFixOperationTest(testDocuments, &pushFactory);
+        }
 
         declDoc.insert(declCursorPos, '@');
         sources.first().remove(defCursorPos, 1);

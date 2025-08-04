@@ -801,6 +801,43 @@ void FollowSymbolTest::testSwitchMethodDeclDef_data()
                  "};\n")
             << _("#include \"file.h\"\n"
                  "Foo::@operator int() const { return {}; }\n");
+
+    QTest::newRow("defaultedConstructorDecl2Def")
+        << _("struct Foo {\n"
+             "    @Foo();\n"
+             "};\n")
+        << _("#include \"file.h\"\n"
+             "Foo::$Foo() = default;\n");
+    QTest::newRow("defaultedConstructorDef2Decl")
+        << _("struct Foo {\n"
+             "    $Foo();\n"
+             "};\n")
+        << _("#include \"file.h\"\n"
+             "Foo::Foo() = @default;\n");
+    QTest::newRow("defaultedDestructorDecl2Def")
+        << _("struct Foo {\n"
+             "    ~@Foo();\n"
+             "};\n")
+        << _("#include \"file.h\"\n"
+             "Foo::~$Foo() = default;\n");
+    QTest::newRow("defaultedDestructorDef2Decl")
+        << _("struct Foo {\n"
+             "    ~$Foo();\n"
+             "};\n")
+        << _("#include \"file.h\"\n"
+             "Foo::~Foo() @= default;\n");
+    QTest::newRow("defaultedOperatorDecl2Def")
+        << _("struct Foo {\n"
+             "    Foo& @operator=(const Foo &);\n"
+             "};\n")
+        << _("#include \"file.h\"\n"
+             "Foo& Foo::$operator=(const Foo &) = default;\n");
+    QTest::newRow("defaultedOperatorDef2Decl")
+        << _("struct Foo {\n"
+             "    Foo& $operator=(const Foo &);\n"
+             "};\n")
+        << _("#include \"file.h\"\n"
+             "Foo& Foo::op@erator=(const Foo &) = default;\n");
 }
 
 void FollowSymbolTest::testSwitchMethodDeclDef()
@@ -1258,6 +1295,37 @@ void FollowSymbolTest::testFollowSymbol_data()
         "struct Child : public Parent { void $disconnect(); };\n"
         "void test() { Child c; c.@disconnect(); }\n"
     );
+
+    QTest::newRow("defaultedConstructorDecl2Def")
+        << _("struct Foo {\n"
+             "    @Foo();\n"
+             "};\n"
+             "Foo::$Foo() = default;\n");
+    QTest::newRow("defaultedConstructorDef2Decl")
+        << _("struct Foo {\n"
+             "    $Foo();\n"
+             "};\n"
+             "Foo::@Foo() = default;\n");
+    QTest::newRow("defaultedDestructorDecl2Def")
+        << _("struct Foo {\n"
+             "    ~@Foo();\n"
+             "};\n"
+             "Foo::~$Foo() = default;\n");
+    QTest::newRow("defaultedDestructorDef2Decl")
+        << _("struct Foo {\n"
+             "    ~$Foo();\n"
+             "};\n"
+             "Foo::~@Foo() = default;\n");
+    QTest::newRow("defaultedOperatorDecl2Def")
+        << _("struct Foo {\n"
+             "    Foo& @operator=(const Foo &);\n"
+             "};\n"
+             "Foo& Foo::$operator=(const Foo &) = default;\n");
+    QTest::newRow("defaultedOperatorDef2Decl")
+        << _("struct Foo {\n"
+             "    Foo& $operator=(const Foo &);\n"
+             "};\n"
+             "Foo& Foo::op@erator=(const Foo &) = default;\n");
 }
 
 void FollowSymbolTest::testFollowSymbol()

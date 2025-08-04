@@ -711,6 +711,7 @@ FunctionDefinitionAST *FunctionDefinitionAST::clone(MemoryPool *pool) const
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : nullptr);
     if (declarator)
         ast->declarator = declarator->clone(pool);
+    ast->semicolon_token = semicolon_token;
     if (ctor_initializer)
         ast->ctor_initializer = ctor_initializer->clone(pool);
     if (function_body)

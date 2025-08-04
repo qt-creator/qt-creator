@@ -1166,6 +1166,7 @@ bool ASTMatcher::match(FunctionDefinitionAST *node, FunctionDefinitionAST *patte
     (void) pattern;
 
     pattern->qt_invokable_token = node->qt_invokable_token;
+    pattern->semicolon_token = node->semicolon_token;
 
     if (! pattern->decl_specifier_list)
         pattern->decl_specifier_list = node->decl_specifier_list;

@@ -4789,9 +4789,9 @@ public:
 class Foo{
     int test;
 public:
-    Foo() = default;
     Foo(int test) : test(test)
     {}
+    Foo() = default;
 };
 )--";
         QTest::newRow("in section after")
