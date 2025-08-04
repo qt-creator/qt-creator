@@ -1,0 +1,8 @@
+# This file is used to ignore intermediate files
+# ----------------------------------------------------------------------------
+
+*.gif
+*.png
+*.webp
+*.jpg
+.qtcreator/

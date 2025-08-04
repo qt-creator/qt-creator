@@ -1,0 +1,5 @@
+[project]
+name = "updatethumbnails"
+
+[tool.pyside6-project]
+files = ["updatethumbnails.py"]
