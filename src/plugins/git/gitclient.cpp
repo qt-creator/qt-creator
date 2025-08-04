@@ -2856,7 +2856,6 @@ Result<CommitData> GitClient::getCommitData(CommitType commitType, const FilePat
             .arg(repoDirectory.toUserOutput()));
     }
 
-    // Run status. Note that it has exitcode 1 if there are no added files.
     QString errorMessage;
     QString output;
     if (commitData.commitType == FixupCommit) {
@@ -2882,6 +2881,7 @@ Result<CommitData> GitClient::getCommitData(CommitType commitType, const FilePat
         }
     }
 
+    // Run status. Note that it has exitcode 1 if there are no added files.
     const StatusResult status = gitStatus(repoDirectory, ShowAll, &output, &errorMessage);
     switch (status) {
     case StatusResult::Changed:
