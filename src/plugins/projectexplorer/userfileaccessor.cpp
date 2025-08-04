@@ -189,7 +189,7 @@ std::optional<SettingsAccessor::Issue> UserFileAccessor::writeFile(
 
     const FilePath userFileV1 = projectUserFileV1();
     const FilePath userFileV2 = projectUserFileV2();
-    if (path == userFileV2 && userFileV1.exists()) {
+    if (userFileV1 != userFileV2 && path == userFileV2 && userFileV1.exists()) {
         userFileV1.removeFile();
         userFileV2.copyFile(userFileV1);
     }
@@ -265,6 +265,12 @@ FilePath UserFileAccessor::projectUserFileV1() const
 FilePath UserFileAccessor::projectUserFileV2() const
 {
     const FilePath projectFile = m_project->projectFilePath();
+
+    // Don't nest the hidden subdirs; e.g. WorkspaceProject already puts its project file
+    // in there.
+    if (projectFile.parentDir().fileName() == ".qtcreator")
+        return projectUserFileV1();
+
     return projectFile.parentDir()
         .pathAppended(".qtcreator")
         .pathAppended(projectFile.fileName())
