@@ -1299,6 +1299,8 @@ class Dumper(DumperBase):
         self.prepare(args)
         self.output = []
 
+        self.output = []
+        self.put('stack={frames=[')
         i = 0
         if extraQml:
             frame = gdb.newest_frame()
@@ -1351,8 +1353,6 @@ class Dumper(DumperBase):
 
         frame = gdb.newest_frame()
         self.currentCallContext = None
-        self.output = []
-        self.put('stack={frames=[')
         while i < limit and frame:
             name = frame.name()
             functionName = '??' if name is None else name
