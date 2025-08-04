@@ -240,6 +240,8 @@ protected:
 
 private:
     bool canHandle(const ProjectExplorer::Target *t) const;
+    QList<BuildInfo> buildListHelper(
+        const Kit *kit, const Utils::FilePath &projectPath, bool forSetup) const;
 
     BuildConfigurationCreator m_creator;
     Utils::Id m_buildConfigId;

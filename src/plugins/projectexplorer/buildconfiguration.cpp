@@ -1296,27 +1296,37 @@ const Tasks BuildConfigurationFactory::reportIssues(Kit *kit, const FilePath &pr
     return issues;
 }
 
-const QList<BuildInfo> BuildConfigurationFactory::allAvailableBuilds(const Target *parent) const
+QList<BuildInfo> BuildConfigurationFactory::buildListHelper(const Kit *kit,
+                                                            const FilePath &projectPath,
+                                                            bool forSetup) const
 {
     QTC_ASSERT(m_buildGenerator, return {});
-    QList<BuildInfo> list = m_buildGenerator(parent->kit(), parent->project()->projectFilePath(), false);
+    auto buildDevice = BuildDeviceKitAspect::device(kit);
+    if (!buildDevice)
+        return {};
+
+    FilePath buildRoot = buildDevice->rootPath();
+    if (!buildDevice->ensureReachable(projectPath))
+        return {};
+
+    QList<BuildInfo> list = m_buildGenerator(kit, projectPath, forSetup);
     for (BuildInfo &info : list) {
         info.factory = this;
-        info.kitId = parent->kit()->id();
+        info.kitId = kit->id();
     }
     return list;
 }
 
-const QList<BuildInfo>
-    BuildConfigurationFactory::allAvailableSetups(const Kit *k, const FilePath &projectPath) const
+const QList<BuildInfo> BuildConfigurationFactory::allAvailableBuilds(const Target *target) const
 {
-    QTC_ASSERT(m_buildGenerator, return {});
-    QList<BuildInfo> list = m_buildGenerator(k, projectPath, /* forSetup = */ true);
-    for (BuildInfo &info : list) {
-        info.factory = this;
-        info.kitId = k->id();
-    }
-    return list;
+    const FilePath projectPath = target->project()->projectFilePath();
+    return buildListHelper(target->kit(), projectPath, /* forSetup = */ false);
+}
+
+const QList<BuildInfo>
+    BuildConfigurationFactory::allAvailableSetups(const Kit *kit, const FilePath &projectPath) const
+{
+    return buildListHelper(kit, projectPath, /* forSetup = */ true);
 }
 
 bool BuildConfigurationFactory::supportsTargetDeviceType(Utils::Id id) const
