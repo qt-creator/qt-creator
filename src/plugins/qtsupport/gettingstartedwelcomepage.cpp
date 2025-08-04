@@ -175,18 +175,19 @@ static FilePath copyToAlternativeLocation(const FilePath &proFile,
     return {};
 }
 
-static void openProject(const ExampleItem *item)
+void openExampleProject(const FilePath &project, const FilePaths &toOpen, const FilePath &mainFile,
+                        const FilePaths &dependencies, const QUrl &docUrl)
 {
     using namespace ProjectExplorer;
-    FilePath proFile = item->projectPath;
+    FilePath proFile = project;
     if (proFile.isEmpty())
         return;
 
-    FilePaths filesToOpen = item->filesToOpen;
-    if (!item->mainFile.isEmpty()) {
+    FilePaths filesToOpen = toOpen;
+    if (!mainFile.isEmpty()) {
         // ensure that the main file is opened on top (i.e. opened last)
-        filesToOpen.removeAll(item->mainFile);
-        filesToOpen.append(item->mainFile);
+        filesToOpen.removeAll(mainFile);
+        filesToOpen.append(mainFile);
     }
 
     if (!proFile.exists())
@@ -200,7 +201,7 @@ static void openProject(const ExampleItem *item)
                || !proFile.parentDir().parentDir().isWritableDir() /* shadow build directory */;
     });
     if (needsCopy)
-        proFile = copyToAlternativeLocation(proFile, filesToOpen, item->dependencies);
+        proFile = copyToAlternativeLocation(proFile, filesToOpen, dependencies);
 
     // don't try to load help and files if loading the help request is being cancelled
     if (proFile.isEmpty())
@@ -210,7 +211,6 @@ static void openProject(const ExampleItem *item)
     if (result) {
         ICore::openFiles(filesToOpen);
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
-        QUrl docUrl = QUrl::fromUserInput(item->docUrl);
         if (docUrl.isValid())
             HelpManager::showHelpUrl(docUrl, HelpManager::ExternalHelpAlways);
         ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
@@ -231,13 +231,16 @@ protected:
         QTC_ASSERT(item, return);
         const auto exampleItem = static_cast<const ExampleItem *>(item);
 
-        if (exampleItem->isVideo)
+        if (exampleItem->isVideo) {
             QDesktopServices::openUrl(QUrl::fromUserInput(exampleItem->videoUrl));
-        else if (exampleItem->hasSourceCode)
-            openProject(exampleItem);
-        else
+        } else if (exampleItem->hasSourceCode) {
+            openExampleProject(exampleItem->projectPath, exampleItem->filesToOpen,
+                               exampleItem->mainFile, exampleItem->dependencies,
+                               QUrl::fromUserInput(exampleItem->docUrl));
+        } else {
             HelpManager::showHelpUrl(QUrl::fromUserInput(exampleItem->docUrl),
                                      HelpManager::ExternalHelpAlways);
+        }
     }
 
     void drawPixmapOverlay(const ListItem *item, QPainter *painter,

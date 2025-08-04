@@ -5,6 +5,7 @@
 
 #include "baseqtversion.h"
 #include "exampleslistmodel.h"
+#include "gettingstartedwelcomepage.h"
 #include "qtsupportconstants.h"
 #include "qtversionfactory.h"
 
@@ -508,6 +509,15 @@ void QtVersionManager::registerExampleSet(const QString &displayName,
                                           const QString &examplesPath)
 {
     m_pluginRegisteredExampleSets.append({displayName, manifestPath, examplesPath});
+}
+
+void QtVersionManager::openExampleProject(const FilePath &project,
+                                          const FilePaths &toOpen,
+                                          const FilePath &mainFile,
+                                          const FilePaths &dependencies,
+                                          const QUrl &docUrl)
+{
+    Internal::openExampleProject(project, toOpen, mainFile, dependencies, docUrl);
 }
 
 using Path = QString;

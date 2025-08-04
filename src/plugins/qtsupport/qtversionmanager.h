@@ -41,6 +41,12 @@ public:
                                    const QString &manifestPath,
                                    const QString &examplesPath);
 
+    static void openExampleProject(const Utils::FilePath &project,
+                                   const Utils::FilePaths &toOpen,
+                                   const Utils::FilePath &mainFile,
+                                   const Utils::FilePaths &dependencies,
+                                   const QUrl &docUrl);
+
 signals:
     // content of QtVersion objects with qmake path might have changed
     void qtVersionsChanged(const QList<int> &addedIds, const QList<int> &removedIds = {},
