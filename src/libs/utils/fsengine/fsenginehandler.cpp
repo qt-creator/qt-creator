@@ -51,7 +51,6 @@ public:
     bool setSize(qint64 size) final;
     bool caseSensitive() const final;
     bool isRelativePath() const final;
-    QStringList entryList(QDir::Filters filters, const QStringList &filterNames) const final;
     FileFlags fileFlags(FileFlags type) const final;
     bool setPermissions(uint perms) final;
     QByteArray id() const final;
@@ -276,22 +275,6 @@ bool FSEngineImpl::caseSensitive() const
 bool FSEngineImpl::isRelativePath() const
 {
     return false;
-}
-
-QStringList FSEngineImpl::entryList(QDir::Filters filters, const QStringList &filterNames) const
-{
-    QStringList result;
-    m_filePath.iterateDirectory(
-        [&result](const FilePath &p, const FilePathInfo &fi) {
-            result.append(p.toFSPathString());
-            g_filePathInfoCache
-                .cache(p,
-                       new FilePathInfoCache::CachedData{fi,
-                                                         QDateTime::currentDateTime().addSecs(60)});
-            return IterationPolicy::Continue;
-        },
-        {filterNames, filters});
-    return result;
 }
 
 QAbstractFileEngine::FileFlags FSEngineImpl::fileFlags(FileFlags type) const
