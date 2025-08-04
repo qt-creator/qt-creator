@@ -893,6 +893,8 @@ int QtcPageIndicator::pagesCount() const
 
 void QtcPageIndicator::setCurrentPage(int current)
 {
+    if (m_pagesCount <= 0)
+        return;
     m_previousPage = qBound(0, m_currentPage, m_pagesCount - 1);
     m_currentPage = qBound(0, current, m_pagesCount - 1);
     m_animation->stop();
