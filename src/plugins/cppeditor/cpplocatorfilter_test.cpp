@@ -28,15 +28,15 @@ class CppLocatorFilterTestCase : public CppEditor::Tests::TestCase
 {
 public:
     CppLocatorFilterTestCase(const LocatorMatcherTasks &matchers,
-                             const QString &fileName,
+                             const FilePath &filePath,
                              const QString &searchText,
                              const ResultDataList &expectedResults)
     {
         QVERIFY(succeededSoFar());
-        QVERIFY(!fileName.isEmpty());
+        QVERIFY(!filePath.isEmpty());
         QVERIFY(garbageCollectGlobalSnapshot());
 
-        QVERIFY(parseFiles(fileName));
+        QVERIFY(parseFiles({filePath}));
         const LocatorFilterEntries entries = LocatorMatcher::runBlocking(matchers, searchText);
         QVERIFY(garbageCollectGlobalSnapshot());
         const ResultDataList results = ResultData::fromFilterEntryList(entries);
@@ -86,7 +86,7 @@ public:
 
 void LocatorFilterTest::testLocatorFilter()
 {
-    QFETCH(QString, testFile);
+    QFETCH(FilePath, testFile);
     QFETCH(MatcherType, matcherType);
     QFETCH(QString, searchText);
     QFETCH(ResultDataList, expectedResults);
@@ -98,17 +98,19 @@ void LocatorFilterTest::testLocatorFilter()
 
 void LocatorFilterTest::testLocatorFilter_data()
 {
-    QTest::addColumn<QString>("testFile");
+    QTest::addColumn<FilePath>("testFile");
     QTest::addColumn<MatcherType>("matcherType");
     QTest::addColumn<QString>("searchText");
     QTest::addColumn<ResultDataList>("expectedResults");
 
     MyTestDataDir testDirectory("testdata_basic");
-    QString testFile = testDirectory.file("file1.cpp");
-    testFile[0] = testFile[0].toLower(); // Ensure Windows path sorts after scope names.
-    const QString objTestFile = testDirectory.file("file1.mm");
-    const QString testFileShort = FilePath::fromString(testFile).shortNativePath();
-    const QString objTestFileShort = FilePath::fromString(objTestFile).shortNativePath();
+    FilePath testFile = testDirectory.filePath("file1.cpp");
+    QString p = testFile.path();
+    p[0] = p[0].toLower(); // Ensure Windows path sorts after scope names.
+    testFile = testFile.withNewPath(p);
+    const FilePath objTestFile = testDirectory.filePath("file1.mm");
+    const QString testFileShort = testFile.shortNativePath();
+    const QString objTestFileShort = objTestFile.shortNativePath();
 
     QTest::newRow("CppFunctionsFilter")
         << testFile
@@ -333,8 +335,8 @@ void LocatorFilterTest::testCurrentDocumentHighlighting()
 void LocatorFilterTest::testFunctionsFilterHighlighting()
 {
     MyTestDataDir testDirectory("testdata_basic");
-    const QString testFile = testDirectory.file("file1.cpp");
-    const QString testFileShort = FilePath::fromString(testFile).shortNativePath();
+    const FilePath testFile = testDirectory.filePath("file1.cpp");
+    const QString testFileShort = testFile.shortNativePath();
 
     const QString searchText = "pos";
     const ResultDataList expectedResults{

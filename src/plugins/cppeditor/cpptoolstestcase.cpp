@@ -330,11 +330,6 @@ bool TestCase::parseFiles(const QSet<FilePath> &filePaths)
     return true;
 }
 
-bool TestCase::parseFiles(const QString &filePath)
-{
-    return parseFiles({FilePath::fromString(filePath)});
-}
-
 void TestCase::closeEditorAtEndOfTestCase(Core::IEditor *editor)
 {
     if (editor && !m_editorsToClose.contains(editor))

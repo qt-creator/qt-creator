@@ -70,16 +70,16 @@ namespace  {
 class SymbolSearcherTestCase : public CppEditor::Tests::TestCase
 {
 public:
-    SymbolSearcherTestCase(const QString &testFile,
+    SymbolSearcherTestCase(const FilePath &testFile,
                            const SearchParameters &searchParameters,
                            const ResultDataList &expectedResults)
     {
         QVERIFY(succeededSoFar());
-        QVERIFY(parseFiles(testFile));
+        QVERIFY(parseFiles({testFile}));
 
         QFuture<Utils::SearchResultItem> search
             = Utils::asyncRun(&Internal::searchForSymbols, CppModelManager::snapshot(),
-                              searchParameters, QSet<FilePath>{FilePath::fromString(testFile)});
+                              searchParameters, QSet<FilePath>{testFile});
         search.waitForFinished();
         ResultDataList results = ResultData::fromSearchResultList(search.results());
         QCOMPARE(results, expectedResults);
@@ -89,7 +89,7 @@ public:
 
 void SymbolSearcherTest::test()
 {
-    QFETCH(QString, testFile);
+    QFETCH(FilePath, testFile);
     QFETCH(SearchParameters, searchParameters);
     QFETCH(ResultDataList, expectedResults);
 
@@ -98,12 +98,12 @@ void SymbolSearcherTest::test()
 
 void SymbolSearcherTest::test_data()
 {
-    QTest::addColumn<QString>("testFile");
+    QTest::addColumn<FilePath>("testFile");
     QTest::addColumn<SearchParameters>("searchParameters");
     QTest::addColumn<ResultDataList>("expectedResults");
 
     MyTestDataDir testDirectory(QLatin1String("testdata_basic"));
-    const QString testFile = testDirectory.file(QLatin1String("file1.cpp"));
+    const FilePath testFile = testDirectory.filePath(QLatin1String("file1.cpp"));
 
     SearchParameters searchParameters;
 
