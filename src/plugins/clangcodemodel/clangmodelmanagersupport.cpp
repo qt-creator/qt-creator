@@ -913,33 +913,30 @@ void ClangModelManagerSupport::onEditorOpened(IEditor *editor)
     }
 }
 
-void ClangModelManagerSupport::onAbstractEditorSupportContentsUpdated(const QString &filePath,
-                                                                      const QString &,
-                                                                      const QByteArray &content)
+void ClangModelManagerSupport::onAbstractEditorSupportContentsUpdated(
+    const FilePath &filePath, const FilePath &, const QByteArray &content)
 {
     QTC_ASSERT(!filePath.isEmpty(), return);
 
     if (content.size() == 0)
         return; // Generation not yet finished.
-    const auto fp = FilePath::fromString(filePath);
     const QString stringContent = QString::fromUtf8(content);
-    if (Client * const client = clientForGeneratedFile(fp)) {
-        client->setShadowDocument(fp, stringContent);
-        ClangdClient::handleUiHeaderChange(fp.fileName());
+    if (Client * const client = clientForGeneratedFile(filePath)) {
+        client->setShadowDocument(filePath, stringContent);
+        ClangdClient::handleUiHeaderChange(filePath.fileName());
     }
-    m_potentialShadowDocuments.insert(fp, stringContent);
+    m_potentialShadowDocuments.insert(filePath, stringContent);
 }
 
-void ClangModelManagerSupport::onAbstractEditorSupportRemoved(const QString &filePath)
+void ClangModelManagerSupport::onAbstractEditorSupportRemoved(const FilePath &filePath)
 {
     QTC_ASSERT(!filePath.isEmpty(), return);
 
-    const auto fp = FilePath::fromString(filePath);
-    if (Client * const client = clientForGeneratedFile(fp)) {
-        client->removeShadowDocument(fp);
-        ClangdClient::handleUiHeaderChange(fp.fileName());
+    if (Client * const client = clientForGeneratedFile(filePath)) {
+        client->removeShadowDocument(filePath);
+        ClangdClient::handleUiHeaderChange(filePath.fileName());
     }
-    m_potentialShadowDocuments.remove(fp);
+    m_potentialShadowDocuments.remove(filePath);
 }
 
 void addFixItsActionsToMenu(QMenu *menu, const TextEditor::QuickFixOperations &fixItOperations)

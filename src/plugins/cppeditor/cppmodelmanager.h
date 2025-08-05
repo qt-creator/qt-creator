@@ -130,10 +130,10 @@ public:
     static bool replaceDocument(Document::Ptr newDoc);
 
     static void emitDocumentUpdated(Document::Ptr doc);
-    static void emitAbstractEditorSupportContentsUpdated(const QString &filePath,
-                                                  const QString &sourcePath,
-                                                  const QByteArray &contents);
-    static void emitAbstractEditorSupportRemoved(const QString &filePath);
+    static void emitAbstractEditorSupportContentsUpdated(const Utils::FilePath &filePath,
+                                                         const Utils::FilePath &sourcePath,
+                                                         const QByteArray &contents);
+    static void emitAbstractEditorSupportRemoved(const Utils::FilePath &filePath);
 
     static bool isCppEditor(Core::IEditor *editor);
     static std::optional<QVersionNumber> usesClangd(const TextEditor::TextDocument *document);
@@ -270,10 +270,10 @@ signals:
 
     void gcFinished(); // Needed for tests.
 
-    void abstractEditorSupportContentsUpdated(const QString &filePath,
-                                              const QString &sourcePath,
+    void abstractEditorSupportContentsUpdated(const Utils::FilePath &filePath,
+                                              const Utils::FilePath &sourcePath,
                                               const QByteArray &contents);
-    void abstractEditorSupportRemoved(const QString &filePath);
+    void abstractEditorSupportRemoved(const Utils::FilePath &filePath);
     void fallbackProjectPartUpdated();
 
     void diagnosticsChanged(const Utils::FilePath &filePath, const QString &kind);

@@ -1751,14 +1751,13 @@ void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
         emit m_instance->documentUpdated(doc);
 }
 
-void CppModelManager::emitAbstractEditorSupportContentsUpdated(const QString &filePath,
-                                                               const QString &sourcePath,
-                                                               const QByteArray &contents)
+void CppModelManager::emitAbstractEditorSupportContentsUpdated(
+    const FilePath &filePath, const FilePath &sourcePath, const QByteArray &contents)
 {
     emit m_instance->abstractEditorSupportContentsUpdated(filePath, sourcePath, contents);
 }
 
-void CppModelManager::emitAbstractEditorSupportRemoved(const QString &filePath)
+void CppModelManager::emitAbstractEditorSupportRemoved(const FilePath &filePath)
 {
     emit m_instance->abstractEditorSupportRemoved(filePath);
 }

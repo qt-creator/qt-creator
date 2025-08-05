@@ -76,10 +76,10 @@ private:
     void onEditorOpened(Core::IEditor *editor);
     void onCurrentEditorChanged(Core::IEditor *newCurrent);
 
-    void onAbstractEditorSupportContentsUpdated(const QString &filePath,
-                                                const QString &sourceFilePath,
+    void onAbstractEditorSupportContentsUpdated(const Utils::FilePath &filePath,
+                                                const Utils::FilePath &sourceFilePath,
                                                 const QByteArray &content);
-    void onAbstractEditorSupportRemoved(const QString &filePath);
+    void onAbstractEditorSupportRemoved(const Utils::FilePath &filePath);
 
     void onTextMarkContextMenuRequested(TextEditor::TextEditorWidget *widget,
                                         int lineNumber,
