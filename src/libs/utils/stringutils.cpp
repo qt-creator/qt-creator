@@ -23,6 +23,7 @@
 #include <QPalette>
 #include <QRegularExpression>
 #include <QSet>
+#include <QStack>
 #include <QTextDocument>
 #include <QTextList>
 #include <QTime>
@@ -96,6 +97,58 @@ QTCREATOR_UTILS_EXPORT QString stripAccelerator(const QString &text)
     return res;
 }
 
+static bool isJsonWhitespace(char ch)
+{
+    return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
+}
+
+static bool isNotJsonWhitespace(char ch)
+{
+    return !isJsonWhitespace(ch);
+}
+
+QTCREATOR_UTILS_EXPORT QByteArray removeExtraCommasFromJson(const QByteArray &json)
+{
+    QByteArray result;
+    result.reserve(json.size());
+
+    enum State { Normal, InString, Escape };
+
+    State state = Normal;
+
+    for (const char c : json) {
+        result.append(c);
+
+        switch (state) {
+        case Normal:
+            if (c == '"') {
+                state = InString;
+            } else if (c == '}' || c == ']') {
+                auto firstNonWhitespace
+                    = std::find_if(result.rbegin() + 1, result.rend(), isNotJsonWhitespace);
+
+                if (firstNonWhitespace != result.rend() && *firstNonWhitespace == ',')
+                    result.erase(firstNonWhitespace.base() - 1);
+            }
+            break;
+
+        case InString:
+            if (c == '\\') {
+                state = Escape;
+            } else if (c == '"') {
+                state = Normal;
+            }
+            break;
+
+        case Escape:
+            state = InString;
+            break;
+        }
+    }
+
+    return result;
+}
+
 QTCREATOR_UTILS_EXPORT QByteArray removeCommentsFromJson(const QByteArray &input)
 {
     QByteArray output;
@@ -144,6 +197,11 @@ QTCREATOR_UTILS_EXPORT QByteArray removeCommentsFromJson(const QByteArray &input
     }
 
     return output;
+}
+
+QTCREATOR_UTILS_EXPORT QByteArray cleanJson(const QByteArray &json)
+{
+    return removeExtraCommasFromJson(removeCommentsFromJson(json));
 }
 
 QTCREATOR_UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString *out)

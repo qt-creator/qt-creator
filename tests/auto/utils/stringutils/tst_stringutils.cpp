@@ -34,7 +34,97 @@ private slots:
     void testNormalizeNewlinesInByteArray();
     void testRemoveCommentsFromJson();
     void testRemoveCommentsFromJson_data();
+    void testRemoveExtraCommasFromJson();
+    void testRemoveExtraCommasFromJson_data();
+    void testCleanJson();
+    void testCleanJson_data();
 };
+
+void tst_StringUtils::testCleanJson_data()
+{
+    QTest::addColumn<QByteArray>("input");
+    QTest::addColumn<QByteArray>("expected");
+
+    QTest::newRow("simple object with trailing comma")
+        << QByteArray(R"({"key1": "value1", "key2": "value2",})")
+        << QByteArray(R"({"key1": "value1", "key2": "value2"})");
+
+    QTest::newRow("simple with comment")
+        << QByteArray(R"({"key1": "value1", "key2": "value2"} // comment)")
+        << QByteArray(R"({"key1": "value1", "key2": "value2"} )");
+
+    QTest::newRow("comma in comment")
+        << QByteArray(R"({"key1": "value1", "key2": "value2"} // comment,)")
+        << QByteArray(R"({"key1": "value1", "key2": "value2"} )");
+
+    QTest::newRow("comma after comment")
+        << QByteArray(R"({"key1": "value1", "key2": "value2" /* comment*/,})")
+        << QByteArray(R"({"key1": "value1", "key2": "value2" })");
+
+    QTest::newRow("comma before comment")
+        << QByteArray(R"({"key1": "value1", "key2": "value2", /* comment*/})")
+        << QByteArray(R"({"key1": "value1", "key2": "value2" })");
+
+    QTest::newRow("escaped comma in string")
+        << QByteArray(R"({"key1": "value1", "key2": "value2\,"})")
+        << QByteArray(R"({"key1": "value1", "key2": "value2\,"})");
+    QTest::newRow("escaped quote in string")
+        << QByteArray(R"({"key1": "val\"ue1", "key2": "\,value2\"",})")
+        << QByteArray(R"({"key1": "val\"ue1", "key2": "\,value2\""})");
+}
+
+void tst_StringUtils::testCleanJson()
+{
+    QFETCH(QByteArray, input);
+    QFETCH(QByteArray, expected);
+
+    QByteArray result = cleanJson(input);
+    QCOMPARE(result, expected);
+}
+
+void tst_StringUtils::testRemoveExtraCommasFromJson_data()
+{
+    QTest::addColumn<QByteArray>("input");
+    QTest::addColumn<QByteArray>("expected");
+
+    QTest::newRow("object with trailing comma")
+        << QByteArray(R"({"a": 1, "b": 2,})") << QByteArray(R"({"a": 1, "b": 2})");
+
+    QTest::newRow("array with trailing comma")
+        << QByteArray(R"([1, 2, 3,])") << QByteArray(R"([1, 2, 3])");
+
+    QTest::newRow("array with many trailing comma")
+        << QByteArray(R"([1, 2, 3,,,,])") << QByteArray(R"([1, 2, 3,,,])");
+
+    QTest::newRow("nested structures") << QByteArray(R"({"a": [1,2,3,], "b": {"x": 5,},})")
+                                       << QByteArray(R"({"a": [1,2,3], "b": {"x": 5}})");
+
+    QTest::newRow("empty array and object")
+        << QByteArray(R"({"emptyArray": [], "emptyObject": {},})")
+        << QByteArray(R"({"emptyArray": [], "emptyObject": {}})");
+
+    QTest::newRow("already valid JSON") << QByteArray(R"({"valid": [1,2], "obj": {"a": 1}})")
+                                        << QByteArray(R"({"valid": [1,2], "obj": {"a": 1}})");
+
+    QTest::newRow("commas in strings")
+        << QByteArray(R"({"text": "hello, world,", "another": "brace } test",})")
+        << QByteArray(R"({"text": "hello, world,", "another": "brace } test"})");
+
+    QTest::newRow("whitespace before closing") << QByteArray("{\n  \"a\": 1, \n  \"b\": 2,\n}")
+                                               << QByteArray("{\n  \"a\": 1, \n  \"b\": 2\n}");
+
+    QTest::newRow("whitespace before comma")
+        << QByteArray(R"({"a": 1, "b": 2   ,  })") << QByteArray(R"({"a": 1, "b": 2     })");
+}
+
+void tst_StringUtils::testRemoveExtraCommasFromJson()
+{
+    QFETCH(QByteArray, input);
+    QFETCH(QByteArray, expected);
+
+    QByteArray result = removeExtraCommasFromJson(input);
+    QCOMPARE(result, expected);
+}
 
 void tst_StringUtils::testRemoveCommentsFromJson_data()
 {

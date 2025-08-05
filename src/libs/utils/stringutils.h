@@ -41,7 +41,9 @@ QTCREATOR_UTILS_EXPORT QString asciify(const QString &input);
 
 QTCREATOR_UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString *out);
 
+QTCREATOR_UTILS_EXPORT QByteArray removeExtraCommasFromJson(const QByteArray &json);
 QTCREATOR_UTILS_EXPORT QByteArray removeCommentsFromJson(const QByteArray &json);
+QTCREATOR_UTILS_EXPORT QByteArray cleanJson(const QByteArray &json);
 
 // Compare case insensitive and use case sensitive comparison in case of that being equal.
 QTCREATOR_UTILS_EXPORT int caseFriendlyCompare(const QString &a, const QString &b);
