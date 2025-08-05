@@ -401,6 +401,9 @@ void PathChooser::slotBrowse(bool remote)
             predefined.clear();
     }
 
+    if (predefined.isEmpty())
+        predefined = d->m_baseDirectory.value();
+
     remote = remote || !filePath().isLocal();
 
     // Prompt for a file/dir
