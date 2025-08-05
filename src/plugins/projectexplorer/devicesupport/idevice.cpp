@@ -310,6 +310,7 @@ IDevice::IDevice()
     for (const DeviceToolAspectFactory *factory : theDeviceToolFactories) {
         DeviceToolAspect *toolAspect = factory->createAspect();
         registerAspect(toolAspect, true);
+        toolAspect->setBaseDirectory([this] { return rootPath(); });
         d->deviceToolAspects.insert(factory->toolId(), toolAspect);
     }
 
