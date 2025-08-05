@@ -896,10 +896,9 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
 
         if (!m_clangdChooser.isValid())
             return;
-        const Utils::FilePath clangdPath = m_clangdChooser.filePath();
-        QString errorMessage;
-        if (!Utils::checkClangdVersion(clangdPath, &errorMessage))
-            labelSetter.setWarning(errorMessage);
+        const FilePath clangdPath = m_clangdChooser.filePath();
+        if (Result<> res = Utils::checkClangdVersion(clangdPath); !res)
+            labelSetter.setWarning(res.error());
     };
     connect(&m_clangdChooser, &Utils::PathChooser::textChanged, this, updateWarningLabel);
     connect(&m_clangdChooser, &Utils::PathChooser::validChanged, this, updateWarningLabel);

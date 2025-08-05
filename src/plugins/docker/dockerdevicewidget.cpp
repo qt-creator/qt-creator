@@ -131,7 +131,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                 const FilePath clangdPath
                     = dockerDevice->filePath("clangd")
                           .searchInPath({}, FilePath::AppendToPath, [](const FilePath &clangd) {
-                              return Utils::checkClangdVersion(clangd);
+                              return Utils::checkClangdVersion(clangd).has_value();
                           });
 
                 if (!clangdPath.isEmpty())

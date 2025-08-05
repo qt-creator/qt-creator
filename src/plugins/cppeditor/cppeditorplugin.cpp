@@ -160,13 +160,11 @@ public:
         setLabelText(Tr::tr("Clangd executable:"));
         setValidationFunction([](const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
             return asyncRun([newValue]() -> Result<QString> {
-                QString changedValue = newValue;
                 FilePath path = FilePath::fromUserInput(newValue);
-                QString error;
-                bool result = checkClangdVersion(path, &error);
+                Result<> result = checkClangdVersion(path);
                 if (!result)
-                    return ResultError(error);
-                return changedValue;
+                    return result.error();
+                return newValue;
             });
         });
     }

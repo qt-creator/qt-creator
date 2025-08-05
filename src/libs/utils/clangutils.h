@@ -5,6 +5,8 @@
 
 #include "utils_global.h"
 
+#include <utils/result.h>
+
 QT_BEGIN_NAMESPACE
 class QVersionNumber;
 QT_END_NAMESPACE
@@ -14,7 +16,7 @@ namespace Utils {
 class FilePath;
 
 QTCREATOR_UTILS_EXPORT QVersionNumber clangdVersion(const FilePath &clangd);
-QTCREATOR_UTILS_EXPORT bool checkClangdVersion(const FilePath &clangd, QString *error = nullptr);
+QTCREATOR_UTILS_EXPORT Utils::Result<> checkClangdVersion(const FilePath &clangd);
 QTCREATOR_UTILS_EXPORT QVersionNumber minimumClangdVersion();
 
 } // namespace Utils
