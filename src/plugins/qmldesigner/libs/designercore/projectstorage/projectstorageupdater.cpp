@@ -175,6 +175,11 @@ void addExportedTypesFromQmldir(const QMultiHash<QString, QQmlDirParser::Compone
                                 Storage::Synchronization::ExportedTypes &exportedTypes,
                                 SourceId qmldirSourceId)
 {
+    NanotraceHR::Tracer tracer{"add exported types from qmldir",
+                               category(),
+                               keyValue("directory", directory),
+                               keyValue("module id", moduleId)};
+
     for (const QQmlDirParser::Component &qmlDirParserComponent : qmlDirParserComponents) {
         if (std::ranges::find(qmlDirParserComponent.fileName, '+')
             != qmlDirParserComponent.fileName.end()) {
@@ -191,12 +196,18 @@ void addExportedTypesFromQmldir(const QMultiHash<QString, QQmlDirParser::Compone
         SourcePathView sourcePath{normalizedPath};
 
         auto typeSourceId = pathCache.sourceId(sourcePath);
+        Utils::SmallString typeName{qmlDirParserComponent.typeName};
+        auto typeIdName = sourcePath.name();
+        tracer.tick("add exported type",
+                    keyValue("type name", typeName),
+                    keyValue("type id name", typeIdName),
+                    keyValue("source id", typeSourceId));
         exportedTypes.emplace_back(qmldirSourceId,
                                    moduleId,
-                                   Utils::SmallString{qmlDirParserComponent.typeName},
+                                   std::move(typeName),
                                    convertVersion(qmlDirParserComponent.version),
                                    typeSourceId,
-                                   sourcePath.name());
+                                   typeIdName);
     }
 }
 
@@ -327,15 +338,10 @@ void appendIdPaths(WatchedSourceIds watchedSourceIds, ProjectPartId id, std::vec
 
 void removeDuplicates(Storage::Synchronization::ExportedTypes &exportedTypes)
 {
-    using Storage::Synchronization::ExportedType;
+    std::ranges::sort(exportedTypes);
 
-    auto compare = makeCompare(&ExportedType::name, &ExportedType::version);
-    auto less = compare(std::ranges::less{});
-    auto equal = compare(std::ranges::equal_to{});
+    auto duplicateExportedTypes = std::ranges::unique(exportedTypes);
 
-    std::ranges::sort(exportedTypes, less);
-
-    auto duplicateExportedTypes = std::ranges::unique(exportedTypes, equal);
     exportedTypes.erase(duplicateExportedTypes.begin(), duplicateExportedTypes.end());
 }
 

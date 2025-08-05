@@ -417,13 +417,14 @@ public:
 
     friend bool operator==(const ExportedType &first, const ExportedType &second)
     {
-        return first.name == second.name;
+        return std::tie(first.moduleId, first.name, first.version)
+               == std::tie(second.moduleId, second.name, second.version);
     }
 
-    friend bool operator<(const ExportedType &first, const ExportedType &second)
+    friend std::weak_ordering operator<=>(const ExportedType &first, const ExportedType &second)
     {
         return std::tie(first.moduleId, first.name, first.version)
-               < std::tie(second.moduleId, second.name, second.version);
+               <=> std::tie(second.moduleId, second.name, second.version);
     }
 
     template<typename String>
