@@ -207,11 +207,11 @@ void BuiltinModelManagerSupport::switchHeaderSource(const FilePath &filePath,
         openEditor(otherFile, inNextSplit);
 }
 
-void BuiltinModelManagerSupport::checkUnused(const Utils::Link &link, SearchResult *search,
-                                             const Utils::LinkHandler &callback)
+void BuiltinModelManagerSupport::checkUnused(const Link &link, SearchResult *search,
+                                             const LinkHandler &callback)
 {
     CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
-    QFile file(link.targetFilePath.toUrlishString());
+    QFile file(link.targetFilePath.toFSPathString());
     if (!file.open(QIODevice::ReadOnly))
         return callback(link);
     const QByteArray &contents = file.readAll();
