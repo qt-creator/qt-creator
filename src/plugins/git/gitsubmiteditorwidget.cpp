@@ -89,16 +89,16 @@ public:
         }.attachTo(this);
     }
 
-    QLabel *repositoryLabel;
-    QLabel *branchLabel;
-    QLabel *showHeadLabel;
-    QGroupBox *editGroup;
-    QLineEdit *authorLineEdit;
-    QLabel *invalidAuthorLabel;
-    QLineEdit *emailLineEdit;
-    QLabel *invalidEmailLabel;
-    QCheckBox *bypassHooksCheckBox;
-    QCheckBox *signOffCheckBox;
+    QLabel *repositoryLabel = nullptr;
+    QLabel *branchLabel = nullptr;
+    QLabel *showHeadLabel = nullptr;
+    QGroupBox *editGroup = nullptr;
+    QLineEdit *authorLineEdit = nullptr;
+    QLabel *invalidAuthorLabel = nullptr;
+    QLineEdit *emailLineEdit = nullptr;
+    QLabel *invalidEmailLabel = nullptr;
+    QCheckBox *bypassHooksCheckBox = nullptr;
+    QCheckBox *signOffCheckBox = nullptr;
 };
 
 // ------------------
