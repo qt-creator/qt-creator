@@ -317,12 +317,12 @@ void CompilerOptionsBuilder::insertWrappedMingwHeaders()
     insertWrappedHeaders(wrappedMingwHeadersIncludePath());
 }
 
-static QString creatorResourcePath()
+static FilePath creatorResourcePath()
 {
 #ifndef UNIT_TESTS
-    return Core::ICore::resourcePath().toUrlishString();
+    return Core::ICore::resourcePath();
 #else
-    return QDir::toNativeSeparators(QString::fromUtf8(QTC_RESOURCE_DIR ""));
+    return FilePath(QTC_RESOURCE_DIR "");
 #endif
 }
 
@@ -335,10 +335,10 @@ void CompilerOptionsBuilder::insertWrappedHeaders(const QStringList &relPaths)
 
     QStringList args;
     for (const QString &relPath : relPaths) {
-        static const QString baseDir = creatorResourcePath() + "/cplusplus";
-        const QString fullPath = baseDir + '/' + relPath;
-        QTC_ASSERT(QDir(fullPath).exists(), continue);
-        args << (includeUserPathOption + QDir::toNativeSeparators(fullPath));
+        static const FilePath baseDir = creatorResourcePath() / "cplusplus";
+        const FilePath fullPath = baseDir / relPath;
+        QTC_ASSERT(fullPath.exists(), continue);
+        args << (includeUserPathOption + fullPath.nativePath());
     }
 
     static const QRegularExpression regexp("\\A-I.*\\z");
