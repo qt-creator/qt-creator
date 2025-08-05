@@ -247,7 +247,7 @@ void tst_filepath::parentDir_data()
                                 << ""
                                 << "";
     QTest::newRow("root only") << "/"
-                               << "/"
+                               << (HostOsInfo::isWindowsHost() ? "" : "/")
                                << "";
     QTest::newRow("//") << "//"
                         << ""
@@ -267,7 +267,7 @@ void tst_filepath::parentDir_data()
                              << "C:/"
                              << "";
     QTest::newRow("C:/") << "C:/"
-                         << ""
+                         << (HostOsInfo::isWindowsHost() ? "C:/" : "")
                          << "";
     QTest::newRow("//./com1") << "//./com1"
                               << "//./"
