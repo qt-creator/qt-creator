@@ -91,6 +91,8 @@ Utils::FilePath CppQuickFixProjectsSettings::searchForCppQuickFixSettingsFile()
         if (path.exists())
             return path;
 
+        if (cur.isRootPath())
+            return {};
         cur = cur.parentDir();
     }
     return cur;
