@@ -1971,7 +1971,7 @@ QmlDesigner::Imports createPossibleFileImports(const Utils::FilePath &path)
 
 QmlDesigner::Imports createQt6ModulesForProjectStorage()
 {
-    QmlDesigner::Imports imports = {
+    return {
         QmlDesigner::Import::createLibraryImport("QtQuick"),
         QmlDesigner::Import::createLibraryImport("QtQuick.Controls"),
         QmlDesigner::Import::createLibraryImport("QtQuick.Window"),
@@ -2010,9 +2010,6 @@ QmlDesigner::Imports createQt6ModulesForProjectStorage()
         QmlDesigner::Import::createLibraryImport("Qt.SafeRenderer"),
 
         QmlDesigner::Import::createLibraryImport("SimulinkConnector")};
-
-    std::ranges::sort(imports);
-    return imports;
 };
 
 } //namespace
@@ -2029,6 +2026,7 @@ Imports Model::possibleImports([[maybe_unused]] SL sl) const
     static auto qt6Imports = createQt6ModulesForProjectStorage();
     auto imports = createPossibleFileImports(Utils::FilePath::fromUrl(fileUrl()));
     imports.append(qt6Imports);
+    std::ranges::sort(imports);
 
     return imports;
 #else
