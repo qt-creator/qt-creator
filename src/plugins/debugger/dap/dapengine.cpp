@@ -851,14 +851,14 @@ void DapEngine::handleBreakpointResponse(const QJsonObject &response)
             if (!bp->isEnabled())
                 continue;
 
-            QString path = bp->requestedParameters().fileName.toUrlishString();
+            FilePath path = bp->requestedParameters().fileName;
             int line = bp->requestedParameters().textPosition.line;
 
             QJsonObject jsonBreakpoint;
             QString key;
             for (auto it = map.cbegin(); it != map.cend(); ++it) {
                 const QJsonObject breakpoint = *it;
-                if (path == bp->requestedParameters().fileName.toUrlishString()
+                if (path == bp->requestedParameters().fileName
                     && abs(breakpoint.value("line").toInt() - line)
                            < abs(jsonBreakpoint.value("line").toInt() - line)) {
                     jsonBreakpoint = breakpoint;
