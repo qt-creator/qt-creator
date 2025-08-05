@@ -143,14 +143,7 @@ QString StackFrame::toToolTip() const
 
 static FilePath findFile(const FilePath &baseDir, const FilePath &relativeFile)
 {
-    for (FilePath dir(baseDir); !dir.isEmpty(); dir = dir.parentDir()) {
-        const FilePath absolutePath = dir.resolvePath(relativeFile);
-        if (absolutePath.isFile())
-            return absolutePath;
-        if (absolutePath.isRootPath())
-            break;
-    }
-    return {};
+    return baseDir.searchHereAndInParents(relativeFile.path(), QDir::Files);
 }
 
 // Try to resolve files coming from resource files.

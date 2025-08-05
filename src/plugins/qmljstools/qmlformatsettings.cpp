@@ -108,15 +108,9 @@ Utils::FilePath QmlFormatSettings::globalQmlFormatIniFile()
 
 Utils::FilePath QmlFormatSettings::currentQmlFormatIniFile(const Utils::FilePath &path)
 {
-    Utils::FilePath dir = path.isDir() ? path : path.parentDir();
-    const QString settingsFileName = ".qmlformat.ini";
-    while (dir.exists()) {
-        Utils::FilePath iniFile = dir.pathAppended(settingsFileName);
-        if (iniFile.exists()) {
-            return iniFile;
-        }
-        dir = dir.parentDir();
-    }
+    const FilePath iniFile = path.searchHereAndInParents(".qmlformat.ini", QDir::Files);
+    if (!iniFile.isEmpty())
+        return iniFile;
     return globalQmlFormatIniFile();
 }
 

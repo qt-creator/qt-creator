@@ -631,17 +631,17 @@ int JsonWizardFactory::verbose()
 
 static QString qmlProjectName(const FilePath &folder)
 {
-    FilePath currentFolder = folder;
-    while (true) {
-        const FilePaths fileList = currentFolder.dirEntries({{"*.qmlproject"}});
-        if (!fileList.isEmpty())
-            return fileList.first().baseName();
-        if (currentFolder.isRootPath())
-            break;
-        currentFolder = currentFolder.parentDir();
-    }
-
-    return {};
+    QString projectName;
+    const auto constraint = [&](const FilePath &dir) {
+        const FilePaths fileList = dir.dirEntries({{"*.qmlproject"}});
+        if (!fileList.isEmpty()) {
+            projectName = fileList.first().baseName();
+            return true;
+        }
+        return false;
+    };
+    folder.searchHereAndInParents(constraint);
+    return projectName;
 }
 
 Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, Id platform,

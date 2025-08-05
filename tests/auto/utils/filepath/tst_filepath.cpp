@@ -139,6 +139,8 @@ private slots:
     void ensureWritableDirectory();
     void ensureWritableDirectoryPermissions();
 
+    void searchHereAndInParents();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
@@ -2037,6 +2039,28 @@ void tst_filepath::ensureWritableDirectoryPermissions()
     QVERIFY(!dir2.ensureWritableDir());
     QVERIFY(dir2.exists());
     QVERIFY(!dir2.isWritableDir());
+}
+
+void tst_filepath::searchHereAndInParents()
+{
+    const FilePath dir = FilePath::fromString(rootPath).pathAppended("a/b/c/d");
+    QVERIFY(dir.isDir());
+
+    // Do not find (not reachable by going up from here).
+    const FilePath file2 = dir.searchHereAndInParents("file2.txt", QDir::Files);
+    QVERIFY2(file2.isEmpty(), qPrintable(file2.toUserOutput()));
+
+    // Do not find (wrong type).
+    const FilePath file1Dir = dir.searchHereAndInParents("file1.txt", QDir::Dirs);
+    QVERIFY2(file1Dir.isEmpty(), qPrintable(file1Dir.toUserOutput()));
+
+    // Find in same dir.
+    const FilePath file1 = dir.searchHereAndInParents("file1.txt", QDir::Files);
+    QCOMPARE(file1, dir.pathAppended("file1.txt"));
+
+    // Find in some parent dir.
+    const FilePath file3 = file1.searchHereAndInParents("file3.txt", QDir::Files);
+    QCOMPARE(file3, FilePath::fromString(rootPath).pathAppended("a/file3.txt"));
 }
 
 void tst_filepath::pathComponents()

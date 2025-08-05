@@ -233,6 +233,9 @@ public:
                                             PathAmending = AppendToPath,
                                             const FilePathPredicate &filter = {},
                                             MatchScope matchScope = WithAnySuffix) const;
+    [[nodiscard]] FilePath searchHereAndInParents(const QString &fileName, QDir::Filter type) const;
+    [[nodiscard]] FilePath searchHereAndInParents(const QStringList &fileNames, QDir::Filter type) const;
+    void searchHereAndInParents(const std::function<bool(const FilePath &)> &constraint) const;
 
     std::optional<FilePath> refersToExecutableFile(MatchScope considerScript) const;
 

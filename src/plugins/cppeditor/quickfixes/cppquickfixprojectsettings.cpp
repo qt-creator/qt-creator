@@ -83,19 +83,9 @@ CppQuickFixSettings *CppQuickFixProjectsSettings::getQuickFixSettings(ProjectExp
     return CppQuickFixSettings::instance();
 }
 
-Utils::FilePath CppQuickFixProjectsSettings::searchForCppQuickFixSettingsFile()
+FilePath CppQuickFixProjectsSettings::searchForCppQuickFixSettingsFile()
 {
-    auto cur = m_project->projectDirectory();
-    while (!cur.isEmpty()) {
-        const auto path = cur / SETTINGS_FILE_NAME;
-        if (path.exists())
-            return path;
-
-        if (cur.isRootPath())
-            return {};
-        cur = cur.parentDir();
-    }
-    return cur;
+    return m_project->projectDirectory().searchHereAndInParents(SETTINGS_FILE_NAME, QDir::Files);
 }
 
 void CppQuickFixProjectsSettings::useGlobalSettings()

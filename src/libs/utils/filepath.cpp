@@ -2061,6 +2061,43 @@ FilePaths FilePath::searchAllInPath(const FilePaths &additionalDirs,
     return searchAllInDirectories(directories, filter, matchScope);
 }
 
+FilePath FilePath::searchHereAndInParents(const QString &fileName, QDir::Filter type) const
+{
+    return searchHereAndInParents(QStringList{fileName}, type);
+}
+
+FilePath FilePath::searchHereAndInParents(const QStringList &fileNames, QDir::Filter type) const
+{
+    const bool wantFile = type == QDir::Files;
+    const bool wantDir = type == QDir::Dirs;
+    QTC_ASSERT(wantFile || wantDir, return {});
+
+    FilePath file;
+    const auto constraint = [&](const FilePath &dir) {
+        for (const QString &fileName : fileNames) {
+            const FilePath candidate = dir.pathAppended(fileName);
+            if ((wantFile && candidate.isFile()) || (wantDir && file.isDir())) {
+                file = candidate;
+                return true;
+            }
+        }
+        return false;
+    };
+    searchHereAndInParents(constraint);
+    return file;
+}
+
+void FilePath::searchHereAndInParents(const std::function<bool(const FilePath &)> &constraint) const
+{
+    QTC_ASSERT(!isEmpty(), return);
+
+    FilePath dir = *this;
+    if (!isDir())
+        dir = dir.parentDir();
+    for (; !constraint(dir) && !dir.isRootPath(); dir = dir.parentDir())
+        ;
+}
+
 Environment FilePath::deviceEnvironment() const
 {
     Result<Environment> env = deviceEnvironmentWithError();

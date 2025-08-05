@@ -78,14 +78,7 @@ bool RunSettings::hasConfigFileForSourceFile(const Utils::FilePath &sourceFile) 
 {
     if (!preferConfigFile())
         return false;
-    for (FilePath parentDir = sourceFile.parentDir(); !parentDir.isEmpty();
-         parentDir = parentDir.parentDir()) {
-        if (parentDir.resolvePath(QLatin1String(".clang-tidy")).isReadableFile())
-            return true;
-        if (parentDir.isRootPath())
-            break;
-    }
-    return false;
+    return !sourceFile.searchHereAndInParents(".clang-tidy", QDir::Files).isEmpty();
 }
 
 ClangToolsSettings *ClangToolsSettings::instance()

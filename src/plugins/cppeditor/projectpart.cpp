@@ -136,11 +136,8 @@ static QStringList getExtraCodeModelFlags(const RawProjectPart &rpp, const Proje
         const FilePath includeDir = hp.path;
         if (!includeDir.pathAppended("cuda.h").exists())
             continue;
-        for (FilePath dir = includeDir.parentDir(); cudaPath.isEmpty() && !dir.isRootPath();
-             dir = dir.parentDir()) {
-            if (dir.pathAppended("nvvm").exists())
-                cudaPath = dir;
-        }
+        if (cudaPath.isEmpty())
+            cudaPath = includeDir.parentDir().searchHereAndInParents("nvvm", QDir::Files);
         break;
     }
     if (!cudaPath.isEmpty())

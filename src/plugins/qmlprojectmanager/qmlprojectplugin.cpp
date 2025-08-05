@@ -143,14 +143,12 @@ const FilePath findQmlProject(const FilePath &folder)
 
 const FilePath findQmlProjectUpwards(const FilePath &folder)
 {
-    FilePath ret = findQmlProject(folder);
-    if (ret.exists())
-        return ret;
-
-    if (folder.parentDir().isDir())
-        return findQmlProjectUpwards(folder.parentDir());
-
-    return {};
+    FilePath projectFile;
+    folder.searchHereAndInParents([&](const FilePath &dir) {
+        projectFile = findQmlProject(dir);
+        return !projectFile.isEmpty();
+    });
+    return projectFile;
 }
 
 static bool findAndOpenProject(const FilePath &filePath)

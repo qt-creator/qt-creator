@@ -321,19 +321,8 @@ ClangFormatSettings::Mode getCurrentIndentationOrFormattingSettings(const Utils:
 
 Utils::FilePath findConfig(const Utils::FilePath &filePath)
 {
-    Utils::FilePath parentDirectory = filePath.parentDir();
-    while (parentDirectory.exists()) {
-        Utils::FilePath settingsFilePath = parentDirectory / Constants::SETTINGS_FILE_NAME;
-        if (settingsFilePath.exists())
-            return settingsFilePath;
-
-        Utils::FilePath settingsAltFilePath = parentDirectory / Constants::SETTINGS_FILE_ALT_NAME;
-        if (settingsAltFilePath.exists())
-            return settingsAltFilePath;
-
-        parentDirectory = parentDirectory.parentDir();
-    }
-    return {};
+    return filePath.searchHereAndInParents(
+        {Constants::SETTINGS_FILE_NAME, Constants::SETTINGS_FILE_ALT_NAME}, QDir::Files);
 }
 
 ICodeStylePreferences *preferencesForFile(const FilePath &filePath)
