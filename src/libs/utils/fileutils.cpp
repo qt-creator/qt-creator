@@ -366,7 +366,7 @@ FilePaths getFilePaths(const QString &caption,
     QFileDialog dialog(dialogParent(), caption, dir.toFSPathString(), filter);
     dialog.setFileMode(fileMode);
 
-    if (forceNonNativeDialog)
+    if (forceNonNativeDialog || !dir.isLocal())
         options.setFlag(QFileDialog::DontUseNativeDialog);
 
     dialog.setOptions(options);
