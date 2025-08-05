@@ -247,7 +247,7 @@ void tst_filepath::parentDir_data()
                                 << ""
                                 << "";
     QTest::newRow("root only") << "/"
-                               << ""
+                               << "/"
                                << "";
     QTest::newRow("//") << "//"
                         << ""
