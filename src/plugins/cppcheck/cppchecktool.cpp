@@ -108,9 +108,8 @@ QStringList CppcheckTool::additionalArguments(const CppEditor::ProjectPart &part
 
     if (settings().addIncludePaths()) {
         for (const ProjectExplorer::HeaderPath &path : part.headerPaths) {
-            const QString projectDir = m_project->projectDirectory().toUrlishString();
             if (path.type == ProjectExplorer::HeaderPathType::User
-                && path.path.startsWith(projectDir))
+                && path.path.startsWith(m_project->projectDirectory().path()))
                 result.push_back("-I " + path.path.path());
         }
     }
