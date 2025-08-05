@@ -23,12 +23,11 @@ using namespace Utils;
 using CppEditor::Tests::TemporaryDir;
 
 namespace CppEditor::Internal {
-namespace {
 
-Document::Ptr createDocument(const QString &filePath, const QByteArray &text,
-                             int expectedGlobalSymbolCount)
+static Document::Ptr createDocument(const FilePath &filePath, const QByteArray &text,
+                                    int expectedGlobalSymbolCount)
 {
-    Document::Ptr document = Document::create(FilePath::fromString(filePath));
+    Document::Ptr document = Document::create(filePath);
     document->setUtf8Source(text);
     document->check();
     QTC_ASSERT(document->diagnosticMessages().isEmpty(), return Document::Ptr());
@@ -37,19 +36,17 @@ Document::Ptr createDocument(const QString &filePath, const QByteArray &text,
     return document;
 }
 
-Document::Ptr createDocumentAndFile(TemporaryDir *temporaryDir,
-                                    const QByteArray relativeFilePath,
-                                    const QByteArray text,
-                                    int expectedGlobalSymbolCount)
+static Document::Ptr createDocumentAndFile(TemporaryDir *temporaryDir,
+                                           const QByteArray relativeFilePath,
+                                           const QByteArray text,
+                                           int expectedGlobalSymbolCount)
 {
     QTC_ASSERT(temporaryDir, return Document::Ptr());
     const FilePath absoluteFilePath = temporaryDir->createFile(relativeFilePath, text);
     QTC_ASSERT(!absoluteFilePath.isEmpty(), return Document::Ptr());
 
-    return createDocument(absoluteFilePath.toUrlishString(), text, expectedGlobalSymbolCount);
+    return createDocument(absoluteFilePath, text, expectedGlobalSymbolCount);
 }
-
-} // anonymous namespace
 
 /*!
     Should insert at line 3, column 1, with "public:\n" as prefix and without suffix.
@@ -61,7 +58,7 @@ void CodegenTest::testPublicInEmptyClass()
             "{\n"
             "};\n"
             "\n";
-    Document::Ptr doc = createDocument(QLatin1String("public_in_empty_class"), src, 1);
+    Document::Ptr doc = createDocument("public_in_empty_class", src, 1);
     QVERIFY(doc);
 
     Class *foo = doc->globalSymbolAt(0)->asClass();
@@ -95,7 +92,7 @@ void CodegenTest::testPublicInNonemptyClass()
             "public:\n"   // line 3
             "};\n"        // line 4
             "\n";
-    Document::Ptr doc = createDocument(QLatin1String("public_in_nonempty_class"), src, 1);
+    Document::Ptr doc = createDocument("public_in_nonempty_class", src, 1);
     QVERIFY(doc);
 
     Class *foo = doc->globalSymbolAt(0)->asClass();
@@ -129,7 +126,7 @@ void CodegenTest::testPublicBeforeProtected()
             "protected:\n" // line 3
             "};\n"
             "\n";
-    Document::Ptr doc = createDocument(QLatin1String("public_before_protected"), src, 1);
+    Document::Ptr doc = createDocument("public_before_protected", src, 1);
     QVERIFY(doc);
 
     Class *foo = doc->globalSymbolAt(0)->asClass();
@@ -164,7 +161,7 @@ void CodegenTest::testPrivateAfterProtected()
             "protected:\n" // line 3
             "};\n"
             "\n";
-    Document::Ptr doc = createDocument(QLatin1String("private_after_protected"), src, 1);
+    Document::Ptr doc = createDocument("private_after_protected", src, 1);
     QVERIFY(doc);
 
     Class *foo = doc->globalSymbolAt(0)->asClass();
@@ -199,7 +196,7 @@ void CodegenTest::testProtectedInNonemptyClass()
             "public:\n"   // line 3
             "};\n"        // line 4
             "\n";
-    Document::Ptr doc = createDocument(QLatin1String("protected_in_nonempty_class"), src, 1);
+    Document::Ptr doc = createDocument("protected_in_nonempty_class", src, 1);
     QVERIFY(doc);
 
     Class *foo = doc->globalSymbolAt(0)->asClass();
@@ -234,7 +231,7 @@ void CodegenTest::testProtectedBetweenPublicAndPrivate()
             "private:\n"  // line 4
             "};\n"        // line 5
             "\n";
-    Document::Ptr doc = createDocument(QLatin1String("protected_betwee_public_and_private"), src, 1);
+    Document::Ptr doc = createDocument("protected_betwee_public_and_private", src, 1);
     QVERIFY(doc);
 
     Class *foo = doc->globalSymbolAt(0)->asClass();
@@ -290,7 +287,7 @@ void CodegenTest::testQtdesignerIntegration()
             "\n"
             "#endif // MAINWINDOW_H\n";
 
-    Document::Ptr doc = createDocument(QLatin1String("qtdesigner_integration"), src, 2);
+    Document::Ptr doc = createDocument("qtdesigner_integration", src, 2);
     QVERIFY(doc);
 
     Class *foo = doc->globalSymbolAt(1)->asClass();
