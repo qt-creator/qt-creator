@@ -1,3 +1,10 @@
+
+To build all images specified in this directory run "make build"
+
+
+General notes:
+
+
 Limitations:
 
 - Linux, Mac, Windows hosts are supported in principle,
