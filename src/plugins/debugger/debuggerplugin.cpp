@@ -2299,7 +2299,7 @@ void DebuggerPlugin::attachToProcess(const qint64 processId, const Utils::FilePa
 {
     ProcessInfo processInfo;
     processInfo.processId = processId;
-    processInfo.executable = executable.toUrlishString();
+    processInfo.executable = executable.path();
 
     auto kitChooser = new KitChooser;
     kitChooser->setShowIcons(true);

@@ -3117,7 +3117,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         const ElfData elfData = reader.readHeaders();
         const QString error = reader.errorString();
 
-        showMessage("EXAMINING " + rp.symbolFile().toUrlishString(), LogDebug);
+        showMessage("EXAMINING " + rp.symbolFile().toUserOutput(), LogDebug);
         QByteArray msg = "ELF SECTIONS: ";
 
         static const QList<QByteArray> interesting = {
