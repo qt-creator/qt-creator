@@ -450,14 +450,14 @@ Result<ComposeContainer> ComposeContainer::fromJson(
 
     if (json.contains("dockerComposeFile")) {
         if (json["dockerComposeFile"].isString()) {
-            container.dockerComposeFile = jsonStringToString(json["dockerComposeFile"]);
+            container.dockerComposeFiles = {jsonStringToString(json["dockerComposeFile"])};
         } else if (json["dockerComposeFile"].isArray()) {
             QStringList composeFiles;
             QJsonArray composeArray = json["dockerComposeFile"].toArray();
             for (const QJsonValue &value : composeArray) {
                 composeFiles.append(jsonStringToString(value));
             }
-            container.dockerComposeFile = composeFiles;
+            container.dockerComposeFiles = composeFiles;
         }
     }
 
@@ -1213,10 +1213,7 @@ QDebug operator<<(QDebug debug, const DevContainer::ComposeContainer &value)
     debug.nospace() << "ComposeContainer(";
 
     debug << "dockerComposeFile=";
-    if (std::holds_alternative<QString>(value.dockerComposeFile))
-        debug << std::get<QString>(value.dockerComposeFile);
-    else if (std::holds_alternative<QStringList>(value.dockerComposeFile))
-        debug << std::get<QStringList>(value.dockerComposeFile);
+    debug << value.dockerComposeFiles;
 
     debug << ", service=" << value.service;
 

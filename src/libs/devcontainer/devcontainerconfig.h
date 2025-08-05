@@ -176,7 +176,7 @@ struct DEVCONTAINER_EXPORT ImageContainer : NonComposeBase
 // Compose container structure
 struct DEVCONTAINER_EXPORT ComposeContainer
 {
-    std::variant<QString, QStringList> dockerComposeFile;
+    QStringList dockerComposeFiles;
     QString service;
     std::optional<QStringList> runServices;
     QString workspaceFolder = "/devcontainer/workspace";

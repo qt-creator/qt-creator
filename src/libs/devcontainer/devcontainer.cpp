@@ -1426,12 +1426,7 @@ static Result<Group> prepareContainerRecipe(
 
         const FilePath configFileDir = instanceConfig.configFilePath.parentDir();
 
-        QStringList composeFiles = std::visit(
-            overloaded{
-                [](const QString &file) { return QStringList{file}; },
-                [](const QStringList &files) { return files; }},
-            config.dockerComposeFile);
-
+        QStringList composeFiles = config.dockerComposeFiles;
         composeFiles
             = Utils::transform(composeFiles, [&configFileDir](const QString &relativeComposeFile) {
                   return configFileDir.resolvePath(relativeComposeFile).nativePath();
@@ -1550,11 +1545,7 @@ static Result<Group> downContainerRecipe(
 
         const FilePath configFileDir = instanceConfig.configFilePath.parentDir();
 
-        QStringList composeFiles = std::visit(
-            overloaded{
-                [](const QString &file) { return QStringList{file}; },
-                [](const QStringList &files) { return files; }},
-            config.dockerComposeFile);
+        QStringList composeFiles = config.dockerComposeFiles;
 
         composeFiles
             = Utils::transform(composeFiles, [&configFileDir](const QString &relativeComposeFile) {
