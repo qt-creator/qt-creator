@@ -184,6 +184,7 @@ QtcLibrary {
         "jsontreeitem.h",
         "layoutbuilder.cpp",
         "layoutbuilder.h",
+        "lazy.h",
         "link.cpp",
         "link.h",
         "listmodel.h",

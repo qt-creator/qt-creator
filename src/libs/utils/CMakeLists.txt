@@ -89,6 +89,7 @@ add_qtc_library(Utils
     itemviews.cpp itemviews.h
     jsontreeitem.cpp jsontreeitem.h
     layoutbuilder.cpp layoutbuilder.h
+    lazy.h
     link.cpp link.h
     listmodel.h
     listutils.h
