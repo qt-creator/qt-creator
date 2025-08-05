@@ -233,7 +233,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
 
-    d->m_buildDirectoryAspect.setBaseFileName(project()->projectDirectory());
+    d->m_buildDirectoryAspect.setBaseDirectory(project()->projectDirectory());
     d->m_buildDirectoryAspect.setEnvironment(environment());
     connect(&d->m_buildDirectoryAspect, &StringAspect::changed,
             this, &BuildConfiguration::emitBuildDirectoryChanged);

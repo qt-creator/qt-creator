@@ -212,7 +212,7 @@ void typedAspectCreate(FilePathAspect *aspect, const std::string &key, const sol
     else if (key == "environment")
         aspect->setEnvironment(value.as<Environment>());
     else if (key == "baseFileName")
-        aspect->setBaseFileName(value.as<FilePath>());
+        aspect->setBaseDirectory(value.as<FilePath>());
     else if (key == "valueAcceptor")
         aspect->setValueAcceptor(
             [func = value.as<sol::main_function>()](const QString &oldValue, const QString &newValue)

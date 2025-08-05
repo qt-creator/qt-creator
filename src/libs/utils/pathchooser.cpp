@@ -174,7 +174,7 @@ public:
     QString m_dialogFilter;
     FilePath m_initialBrowsePathOverride;
     QString m_defaultValue;
-    FilePath m_baseDirectory;
+    Lazy<FilePath> m_baseDirectory;
     Environment m_environment;
     BinaryVersionToolTipEventFilter *m_binaryVersionToolTipEventFilter = nullptr;
     QList<QAbstractButton *> m_buttons;
@@ -215,7 +215,7 @@ FilePath PathChooserPrivate::expandedPath(const FilePath &input) const
     switch (m_acceptingKind) {
     case PathChooser::Command:
     case PathChooser::ExistingCommand: {
-        const FilePath expanded = path.searchInPath({m_baseDirectory});
+        const FilePath expanded = path.searchInPath({m_baseDirectory.value()});
         return expanded.isEmpty() ? path : expanded;
     }
     case PathChooser::Any:
@@ -224,8 +224,8 @@ FilePath PathChooserPrivate::expandedPath(const FilePath &input) const
     case PathChooser::ExistingDirectory:
     case PathChooser::File:
     case PathChooser::SaveFile:
-        if (!m_baseDirectory.isEmpty()) {
-            FilePath fp = m_baseDirectory.resolvePath(path.path()).absoluteFilePath();
+        if (!m_baseDirectory.value().isEmpty()) {
+            FilePath fp = m_baseDirectory.value().resolvePath(path.path()).absoluteFilePath();
             // FIXME bad hotfix for manually editing PathChooser (invalid paths, jumping cursor)
             // examples: have an absolute path and try to change the device letter by typing the new
             // letter and removing the original afterwards ends up in
@@ -319,17 +319,17 @@ QAbstractButton *PathChooser::buttonAtIndex(int index) const
     return d->m_buttons.at(index);
 }
 
-void PathChooser::setBaseDirectory(const FilePath &base)
+void PathChooser::setBaseDirectory(const Lazy<FilePath> &base)
 {
-    if (d->m_baseDirectory == base)
-        return;
+    const bool sameValue = d->m_baseDirectory.value() == base.value();
     d->m_baseDirectory = base;
-    triggerChanged();
+    if (!sameValue)
+        triggerChanged();
 }
 
 FilePath PathChooser::baseDirectory() const
 {
-    return d->m_baseDirectory;
+    return d->m_baseDirectory.value();
 }
 
 void PathChooser::setEnvironment(const Environment &env)
@@ -354,7 +354,7 @@ FilePath PathChooser::filePath() const
 
 FilePath PathChooser::absoluteFilePath() const
 {
-    return d->m_baseDirectory.resolvePath(filePath());
+    return d->m_baseDirectory.value().resolvePath(filePath());
 }
 
 void PathChooser::setPath(const QString &path)

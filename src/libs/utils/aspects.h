@@ -726,7 +726,7 @@ public:
     void setOpenTerminalHandler(const std::function<void()> &openTerminal);
     void setExpectedKind(const PathChooser::Kind expectedKind);
     void setEnvironment(const Environment &env);
-    void setBaseFileName(const FilePath &baseFileName);
+    void setBaseDirectory(const Lazy<FilePath> &baseDirectory);
 
     void setPlaceHolderText(const QString &placeHolderText);
     void setValidationFunction(const FancyLineEdit::ValidationFunction &validator);

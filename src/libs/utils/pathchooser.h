@@ -7,6 +7,7 @@
 
 #include "fancylineedit.h"
 #include "filepath.h"
+#include "lazy.h"
 
 #include <QWidget>
 
@@ -73,7 +74,7 @@ public:
     FilePath unexpandedFilePath() const; // The raw unexpanded input as FilePath.
 
     FilePath baseDirectory() const;
-    void setBaseDirectory(const FilePath &base);
+    void setBaseDirectory(const Lazy<FilePath> &base);
 
     void setEnvironment(const Environment &env);
 

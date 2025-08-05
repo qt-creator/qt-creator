@@ -52,7 +52,7 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
     // FIXME: Replace with  id.name() + MAKE_COMMAND_SUFFIX  after the Key/Store transition
     m_makeCommandAspect.setSettingsKey(id.toKey() + MAKE_COMMAND_SUFFIX);
     m_makeCommandAspect.setExpectedKind(PathChooser::ExistingCommand);
-    m_makeCommandAspect.setBaseFileName(PathChooser::homePath());
+    m_makeCommandAspect.setBaseDirectory(PathChooser::homePath());
     m_makeCommandAspect.setHistoryCompleter("PE.MakeCommand.History");
 
     m_userArgumentsAspect.setSettingsKey(id.toKey() + MAKE_ARGUMENTS_SUFFIX);

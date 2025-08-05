@@ -16,9 +16,9 @@ public:
 
     T value() const
     {
-        if (T *res = std::get_if<T>(this))
+        if (const T *res = std::get_if<T>(this))
             return *res;
-        std::function<T()> *res = std::get_if<std::function<T()>>(this);
+        const std::function<T()> *res = std::get_if<std::function<T()>>(this);
         return (*res)();
     }
 };

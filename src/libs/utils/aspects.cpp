@@ -1525,7 +1525,7 @@ public:
     PathChooser::Kind m_expectedKind = PathChooser::File;
     Environment m_environment;
     QPointer<PathChooser> m_pathChooserDisplay;
-    FilePath m_baseFileName;
+    Lazy<FilePath> m_baseDirectory;
     StringAspect::ValueAcceptor m_valueAcceptor;
     std::optional<FancyLineEdit::ValidationFunction> m_validator;
     std::optional<FilePath> m_effectiveBinary;
@@ -1717,7 +1717,7 @@ void FilePathAspect::addToLayoutImpl(Layouting::Layout &parent)
     if (d->m_validator)
         d->m_pathChooserDisplay->setValidationFunction(*d->m_validator);
     d->m_pathChooserDisplay->setEnvironment(d->m_environment);
-    d->m_pathChooserDisplay->setBaseDirectory(d->m_baseFileName);
+    d->m_pathChooserDisplay->setBaseDirectory(d->m_baseDirectory);
     d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
     d->m_pathChooserDisplay->setPromptDialogFilter(d->m_prompDialogFilter);
     d->m_pathChooserDisplay->setPromptDialogTitle(d->m_prompDialogTitle);
@@ -1846,11 +1846,11 @@ void FilePathAspect::setEnvironment(const Environment &env)
         d->m_pathChooserDisplay->setEnvironment(env);
 }
 
-void FilePathAspect::setBaseFileName(const FilePath &baseFileName)
+void FilePathAspect::setBaseDirectory(const Lazy<FilePath> &baseDirectory)
 {
-    d->m_baseFileName = baseFileName;
+    d->m_baseDirectory = baseDirectory;
     if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setBaseDirectory(baseFileName);
+        d->m_pathChooserDisplay->setBaseDirectory(baseDirectory);
 }
 
 void FilePathAspect::setPlaceHolderText(const QString &placeHolderText)
