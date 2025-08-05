@@ -268,6 +268,8 @@ QString QtVersion::defaultUnexpandedDisplayName() const
                 && dirName.compare("qt", Qt::CaseInsensitive)) {
                 break;
             }
+            if (dir.isRootPath())
+                break;
         }
     }
 

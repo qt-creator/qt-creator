@@ -147,6 +147,8 @@ static FilePath findFile(const FilePath &baseDir, const FilePath &relativeFile)
         const FilePath absolutePath = dir.resolvePath(relativeFile);
         if (absolutePath.isFile())
             return absolutePath;
+        if (absolutePath.isRootPath())
+            break;
     }
     return {};
 }

@@ -82,6 +82,8 @@ bool RunSettings::hasConfigFileForSourceFile(const Utils::FilePath &sourceFile) 
          parentDir = parentDir.parentDir()) {
         if (parentDir.resolvePath(QLatin1String(".clang-tidy")).isReadableFile())
             return true;
+        if (parentDir.isRootPath())
+            break;
     }
     return false;
 }

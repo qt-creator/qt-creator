@@ -90,6 +90,8 @@ public:
             if (!vc)
                 break;
             tmpDir = tmpDir.parentDir();
+            if (tmpDir.isRootPath())
+                break;
         }
     }
 

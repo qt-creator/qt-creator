@@ -452,6 +452,8 @@ FilePaths FileInProjectFinder::pathSegmentsWithSameName(const QString &pathSegme
                 if (result.isEmpty() || result.last() != currentPath)
                     result.append(currentPath);
             }
+            if (currentPath.isRootPath())
+                break;
             currentPath = currentPath.parentDir();
         } while (!currentPath.isEmpty());
     }

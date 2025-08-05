@@ -179,6 +179,8 @@ public:
                 return configFiles;
 
             parentDirectory = parentDirectory.parentDir();
+            if (parentDirectory.isRootPath())
+                break;
         }
         return FilePaths();
     }
