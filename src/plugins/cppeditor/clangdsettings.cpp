@@ -474,8 +474,8 @@ Store ClangdSettings::Data::toMap() const
     map.insert(useClangdKey(), useClangd);
 
     map.insert(clangdPathKey(),
-               executableFilePath != fallbackClangdFilePath() ? executableFilePath.toUrlishString()
-                                                              : QString());
+               executableFilePath != fallbackClangdFilePath() ? executableFilePath.toSettings()
+                                                              : QVariant());
 
     map.insert(clangdIndexingKey(), indexingPriority != IndexingPriority::Off);
     map.insert(clangdIndexingPriorityKey(), int(indexingPriority));
@@ -499,7 +499,7 @@ Store ClangdSettings::Data::toMap() const
 void ClangdSettings::Data::fromMap(const Store &map)
 {
     useClangd = map.value(useClangdKey(), true).toBool();
-    executableFilePath = FilePath::fromString(map.value(clangdPathKey()).toString());
+    executableFilePath = FilePath::fromSettings(map.value(clangdPathKey()));
     indexingPriority = IndexingPriority(
         map.value(clangdIndexingPriorityKey(), int(this->indexingPriority)).toInt());
     const auto it = map.find(clangdIndexingKey());
