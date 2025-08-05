@@ -8,12 +8,14 @@
 #include <coreplugin/documentmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
 
-namespace Squish {
-namespace Internal {
+using namespace Utils;
+
+namespace Squish::Internal {
 
 const char squishLanguageKey[] = "LANGUAGE";
 const char squishTestCasesKey[] = "TEST_CASES";
@@ -268,30 +270,29 @@ void SuiteConf::setLanguage(const QString &language)
         QTC_ASSERT(false, m_language = Language::JavaScript);
 }
 
-QStringList SuiteConf::validTestCases(const QString &baseDirectory)
+FilePaths SuiteConf::validTestCases(const FilePath &baseDir)
 {
-    QStringList validCases;
-    const Utils::FilePath subDir = Utils::FilePath::fromString(baseDirectory);
-    const Utils::FilePath suiteConf = subDir / "suite.conf";
+    FilePaths validCases;
+    const FilePath suiteConf = baseDir / "suite.conf";
     if (suiteConf.exists()) {
         const SuiteConf conf = readSuiteConf(suiteConf);
         const QString extension = conf.scriptExtension();
         const QStringList cases = conf.testCases();
 
         for (const QString &testCase : cases) {
-            const Utils::FilePath testCaseDir = subDir / testCase;
+            const FilePath testCaseDir = baseDir / testCase;
             if (testCaseDir.isDir()) {
-                Utils::FilePath testCaseTest = testCaseDir.pathAppended("test" + extension);
-                validCases.append(testCaseTest.toUrlishString());
+                FilePath testCaseTest = testCaseDir.pathAppended("test" + extension);
+                validCases.append(testCaseTest);
             }
         }
 
         // now unlisted matching tests (suite.conf's TEST_CASES is used for some ordering)
-        const Utils::FilePaths entries = subDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
-        for (const Utils::FilePath &entry : entries) {
+        const FilePaths entries = baseDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const FilePath &entry : entries) {
             if (!entry.fileName().startsWith("tst_"))
                 continue;
-            const QString testFileStr = entry.pathAppended("test" + extension).toUrlishString();
+            const FilePath testFileStr = entry.pathAppended("test" + extension);
             if (!validCases.contains(testFileStr))
                 validCases.append(testFileStr);
         }
@@ -299,7 +300,7 @@ QStringList SuiteConf::validTestCases(const QString &baseDirectory)
     return validCases;
 }
 
-SuiteConf SuiteConf::readSuiteConf(const Utils::FilePath &suiteConfPath)
+SuiteConf SuiteConf::readSuiteConf(const FilePath &suiteConfPath)
 {
     SuiteConf suiteConf(suiteConfPath);
     suiteConf.read();
@@ -309,26 +310,25 @@ SuiteConf SuiteConf::readSuiteConf(const Utils::FilePath &suiteConfPath)
 bool SuiteConf::ensureObjectMapExists() const
 {
     if (m_objectMapStyle != "script") {
-        const Utils::FilePath objectMap = objectMapPath();
+        const FilePath objectMap = objectMapPath();
         return objectMap.parentDir().ensureWritableDir() && objectMap.ensureExistingFile();
     }
 
-    const Utils::FilePath scripts = settings().scriptsPath(language());
+    const FilePath scripts = settings().scriptsPath(language());
     QTC_ASSERT(scripts.exists(), return false);
 
     const QString extension = scriptExtension();
-    const Utils::FilePath destinationObjectMap = m_filePath.parentDir()
+    const FilePath destinationObjectMap = m_filePath.parentDir()
             .pathAppended("shared/scripts/names" + extension);
     if (destinationObjectMap.exists()) // do not overwrite existing
         return true;
 
-    const Utils::FilePath objectMap = scripts.pathAppended("objectmap_template" + extension);
-    Utils::Result<> result = destinationObjectMap.parentDir().ensureWritableDir();
+    const FilePath objectMap = scripts.pathAppended("objectmap_template" + extension);
+    Result<> result = destinationObjectMap.parentDir().ensureWritableDir();
     QTC_ASSERT_RESULT(result, return false);
     result = objectMap.copyFile(destinationObjectMap);
     QTC_ASSERT_RESULT(result, return false);
     return true;
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

@@ -17,10 +17,13 @@ namespace Internal {
 class SquishFileHandler : public QObject
 {
     Q_OBJECT
+
 public:
     explicit SquishFileHandler(QObject *parent = nullptr);
     ~SquishFileHandler() override = default;
+
     static SquishFileHandler *instance();
+
     void openTestSuites();
     void openTestSuite(const Utils::FilePath &suiteConfPath, bool isReopen = false);
     void closeTestSuite(const QString &suiteName);
@@ -51,7 +54,7 @@ private:
 
     void modifySuiteItem(const QString &suiteName,
                          const Utils::FilePath &suiteConf,
-                         const QStringList &cases);
+                         const Utils::FilePaths &cases);
 
     QMap<QString, Utils::FilePath> m_suites;
     Utils::FilePaths m_sharedFolders;

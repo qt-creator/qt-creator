@@ -5,10 +5,7 @@
 
 #include <utils/filepath.h>
 
-#include <QString>
-
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 enum class Language { Python, Perl, JavaScript, Ruby, Tcl };
 
@@ -18,7 +15,7 @@ public:
     explicit SuiteConf(const Utils::FilePath &suiteConf) : m_filePath(suiteConf) {}
 
     static SuiteConf readSuiteConf(const Utils::FilePath &suiteConfPath);
-    static QStringList validTestCases(const QString &baseDirectory);
+    static Utils::FilePaths validTestCases(const Utils::FilePath &baseDir);
 
     bool read();
     bool write();
@@ -40,6 +37,7 @@ public:
     QStringList usedTestCases() const;
 
     bool ensureObjectMapExists() const;
+
 private:
     void setLanguage(const QString &language);
 
@@ -52,5 +50,4 @@ private:
     Language m_language = Language::JavaScript;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal
