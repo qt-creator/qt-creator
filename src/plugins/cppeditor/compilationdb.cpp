@@ -21,7 +21,7 @@ namespace CppEditor {
 static QStringList projectPartArguments(const ProjectPart &projectPart)
 {
     QStringList args;
-    args << projectPart.compilerFilePath.toUrlishString();
+    args << projectPart.compilerFilePath.path();
     args << "-c";
     if (projectPart.toolchainType != PEConstants::MSVC_TOOLCHAIN_TYPEID) {
         args << "--target=" + projectPart.toolchainTargetTriple;
