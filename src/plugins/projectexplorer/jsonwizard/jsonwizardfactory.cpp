@@ -632,10 +632,12 @@ int JsonWizardFactory::verbose()
 static QString qmlProjectName(const FilePath &folder)
 {
     FilePath currentFolder = folder;
-    while (!currentFolder.isEmpty()) {
+    while (true) {
         const FilePaths fileList = currentFolder.dirEntries({{"*.qmlproject"}});
         if (!fileList.isEmpty())
             return fileList.first().baseName();
+        if (currentFolder.isRootPath())
+            break;
         currentFolder = currentFolder.parentDir();
     }
 
