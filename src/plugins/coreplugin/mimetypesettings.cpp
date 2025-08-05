@@ -599,11 +599,10 @@ void MimeTypeSettingsWidget::ensurePendingMimeType(const Utils::MimeType &mimeTy
 
 void MimeTypeSettingsPage::writeUserModifiedMimeTypes()
 {
-    static Utils::FilePath modifiedMimeTypesFile = ICore::userResourcePath(kModifiedMimeTypesFile);
+    static FilePath modifiedMimeTypesFile = ICore::userResourcePath(kModifiedMimeTypesFile);
 
-    if (QFileInfo::exists(modifiedMimeTypesFile.toUrlishString())
-            || QDir().mkpath(modifiedMimeTypesFile.parentDir().toUrlishString())) {
-        QFile file(modifiedMimeTypesFile.toUrlishString());
+    if (modifiedMimeTypesFile.parentDir().ensureWritableDir()) {
+        QFile file(modifiedMimeTypesFile.toFSPathString());
         if (file.open(QFile::WriteOnly | QFile::Truncate)) {
             // Notice this file only represents user modifications. It is writen in a
             // convienient way for synchronization, which is similar to but not exactly the
