@@ -45,3 +45,26 @@ qt-linux-with-gcc-10: Dockerfile-gcc-10 ## Build Ubuntu 22.04, Qt 6, docker-cli 
 	docker build . -f Dockerfile-gcc-10 -t qt-linux-gcc-10 -t qt-linux-gcc-10:6
 qt-linux-with-gcc-10-run: qt-linux-with-gcc-10 ## Build & run the image, With GCC 10
 	docker run -it --rm  $(default_run_args) qt-linux-gcc-10:6 /bin/bash
+
+pyside6-ubuntu: Dockerfile-pyside6-ubuntu ## Build Ubuntu latest, PySide6 image
+	docker build . -f Dockerfile-pyside6-ubuntu -t pyside6-ubuntu
+
+qt-5-ubuntu-16.04-build: Dockerfile-qt-5-ubuntu-16.04-build ## Build-Image, Ubuntu 16.04, Qt 5 image
+	docker build . -f Dockerfile-qt-5-ubuntu-16.04-build -t qt-5-ubuntu-16.04-build
+
+qt-5-ubuntu-20.04-build: Dockerfile-qt-5-ubuntu-20.04-build ## Build-Image, Ubuntu 20.04, Qt 5 image
+	docker build . -f Dockerfile-qt-5-ubuntu-20.04-build -t qt-5-ubuntu-20.04-build
+
+qt-5-ubuntu-20.04-run: Dockerfile-qt-5-ubuntu-20.04-run ## Run-Image, Ubuntu 20.04, Qt 5 image
+	docker build . -f Dockerfile-qt-5-ubuntu-20.04-run -t qt-5-ubuntu-20.04-run
+
+qt-5-ubuntu-20.04-clang-lldb-build: Dockerfile-qt-5-ubuntu-20.04-clang-lldb-build ## Build-Image, Ubuntu 20.04, Qt 5 image, with Clang and LLDB
+	docker build . -f Dockerfile-qt-5-ubuntu-20.04-clang-lldb-build -t qt-5-ubuntu-20.04-clang-lldb-build
+
+qt-6-fedora-37-build: Dockerfile-qt-6-fedora-37-build ## Build-Image, Fedora 37, Qt 6 image
+	docker build . -f Dockerfile-qt-6-fedora-37-build -t qt-6-fedora-37-build
+
+qt-6-ubuntu-24.04-build: Dockerfile-qt-6-ubuntu-24.04-build ## Build-Image, Ubuntu 24.04, Qt 6 image, With qbs
+	docker build . -f Dockerfile-qt-6-ubuntu-24.04-build -t qt-6-ubuntu-24.04-build
+
+build: qt-5-ubuntu-16.04-build qt-5-ubuntu-20.04-build qt-5-ubuntu-20.04-run qt-5-ubuntu-20.04-clang-lldb-build qt-6-fedora-37-build qt-6-ubuntu-24.04-build ## Old build.sh targets
