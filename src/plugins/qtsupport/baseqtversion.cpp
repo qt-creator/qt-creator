@@ -1227,7 +1227,7 @@ bool QtVersion::hasMkspec(const QString &spec) const
     if (spec.isEmpty())
         return true; // default spec of a Qt version
 
-    const FilePath absSpec = hostDataPath() / "mkspecs" / spec;
+    const FilePath absSpec = hostDataPath().pathAppended("mkspecs").resolvePath(spec);
     if (absSpec.pathAppended("qmake.conf").isReadableFile())
         return true;
 
