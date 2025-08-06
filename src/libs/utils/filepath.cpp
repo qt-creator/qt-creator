@@ -264,7 +264,7 @@ bool FilePath::isRootPath() const
         return true;
     }
 
-    return *this == HostOsInfo::root();
+    return QDir(path()).isRoot();
 }
 
 bool FilePath::isResourceFile() const

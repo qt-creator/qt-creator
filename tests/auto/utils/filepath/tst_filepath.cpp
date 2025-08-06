@@ -117,6 +117,7 @@ private slots:
     void sort_data();
 
     void isRootPath();
+    void isRootPath_data();
 
     void lessThan();
     void lessThan_data();
@@ -1782,31 +1783,38 @@ void tst_filepath::asQMapKey()
              false);
 }
 
-void tst_filepath::isRootPath()
+void tst_filepath::isRootPath_data()
 {
-    FilePath localRoot = FilePath::fromString(QDir::rootPath());
-    QVERIFY(localRoot.isRootPath());
+    QTest::addColumn<FilePath>("path");
+    QTest::addColumn<bool>("expected");
 
-    FilePath localNonRoot = FilePath::fromString(QDir::rootPath() + "x");
-    QVERIFY(!localNonRoot.isRootPath());
+    QTest::newRow("local-root") << FilePath::fromString(QDir::rootPath()) << true;
+    QTest::newRow("local-non-root") << FilePath::fromString(QDir::rootPath() + "x") << false;
 
     if (HostOsInfo::isWindowsHost()) {
-        FilePath remoteWindowsRoot = FilePath::fromString("device://test/c:/");
-        QVERIFY(remoteWindowsRoot.isRootPath());
-
-        FilePath remoteWindowsRoot1 = FilePath::fromString("device://test/c:");
-        QVERIFY(remoteWindowsRoot1.isRootPath());
-
-        FilePath remoteWindowsNotRoot = FilePath::fromString("device://test/c:/x");
-        QVERIFY(!remoteWindowsNotRoot.isRootPath());
+        QTest::newRow("remote-windows-root") << FilePath::fromString("device://test/c:/") << true;
+        QTest::newRow("remote-windows-root1") << FilePath::fromString("device://test/c:") << true;
+        QTest::newRow("remote-windows-not-root") << FilePath::fromString("device://test/c:/x") << false;
+        QTest::newRow("local-c-drive") << FilePath::fromString("c:/") << true;
+        QTest::newRow("local-d-drive") << FilePath::fromString("d:/") << true;
+        QTest::newRow("local-c-drive-noslash") << FilePath::fromString("c:") << false;
+        QTest::newRow("local-d-drive-noslash") << FilePath::fromString("d:") << false;
+        QTest::newRow("unc-root-and-share") << FilePath::fromString("//server/share") << false;
+        QTest::newRow("unc-root") << FilePath::fromString("//server") << true;
     } else {
-        FilePath remoteRoot = FilePath::fromString("device://test/");
-        QVERIFY(remoteRoot.isRootPath());
-
-        FilePath remotePath = FilePath::fromString("device://test/x");
-        QVERIFY(!remotePath.isRootPath());
+        QTest::newRow("remote-root") << FilePath::fromString("device://test/") << true;
+        QTest::newRow("remote-path") << FilePath::fromString("device://test/x") << false;
     }
 }
+
+void tst_filepath::isRootPath()
+{
+    QFETCH(FilePath, path);
+    QFETCH(bool, expected);
+
+    QCOMPARE(path.isRootPath(), expected);
+}
+
 void tst_filepath::sort_data()
 {
     QTest::addColumn<QStringList>("input");
