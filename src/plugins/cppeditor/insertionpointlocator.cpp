@@ -635,8 +635,13 @@ const QList<InsertionLocation> InsertionPointLocator::methodDefinition(
 
     if (useSymbolFinder) {
         SymbolFinder symbolFinder;
-        if (symbolFinder.findMatchingDefinition(declaration, m_refactoringChanges.snapshot(), true))
+        const Snapshot &snapshot = m_refactoringChanges.snapshot();
+        if (declaration->type()->asFunctionType()) {
+            if (symbolFinder.findMatchingDefinition(declaration, snapshot, true))
+                return result;
+        } else if (symbolFinder.findMatchingVarDefinition(declaration, snapshot)) {
             return result;
+        }
     }
 
     const InsertionLocation location = nextToSurroundingDefinitions(declaration,
