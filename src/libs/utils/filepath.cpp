@@ -1182,13 +1182,10 @@ FilePath FilePath::parentDir() const
     if (basePath.isEmpty())
         return {};
 
-    if (isRootPath())
-        return *this;
-
     const QString path = basePath + QLatin1String("/..");
     const QString parent = doCleanPath(path);
     if (parent == path)
-        return {};
+        return *this;
 
     return withNewPath(parent);
 }

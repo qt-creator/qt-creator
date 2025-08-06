@@ -246,11 +246,8 @@ void tst_filepath::parentDir_data()
     QTest::newRow("empty path") << ""
                                 << ""
                                 << "";
-    QTest::newRow("root only") << "/"
-                               << (HostOsInfo::isWindowsHost() ? "" : "/")
-                               << "";
     QTest::newRow("//") << "//"
-                        << ""
+                        << "//"
                         << "";
     QTest::newRow("/tmp/dir") << "/tmp/dir"
                               << "/tmp"
@@ -266,9 +263,6 @@ void tst_filepath::parentDir_data()
     QTest::newRow("C:/data") << "C:/data"
                              << "C:/"
                              << "";
-    QTest::newRow("C:/") << "C:/"
-                         << (HostOsInfo::isWindowsHost() ? "C:/" : "")
-                         << "";
     QTest::newRow("//./com1") << "//./com1"
                               << "//./"
                               << "";
@@ -285,11 +279,21 @@ void tst_filepath::parentDir_data()
                                         << "//server/"
                                         << "";
     QTest::newRow("//server") << "//server"
-                              << ""
+                              << "//server"
                               << "";
 
     QTest::newRow("qrc") << ":/foo/bar.txt"
                          << ":/foo"
+                         << "";
+
+    QTest::newRow("root only") << "/"
+                               << "/"
+                               << "";
+    QTest::newRow("C:/") << "C:/"
+                         << "C:/"
+                         << "";
+    QTest::newRow("D:/") << "D:/"
+                         << "D:/"
                          << "";
 }
 
