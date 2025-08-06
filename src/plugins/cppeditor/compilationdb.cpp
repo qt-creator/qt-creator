@@ -183,7 +183,8 @@ void generateCompilationDB(
                 ppOptions = fullProjectPartOptions(projectPartOptions(optionsBuilder),
                                                    jsonProjectOptions);
             }
-            for (const ProjectFile &projFile : projectPart->files) {
+            for (qsizetype i = 0; i < projectPart->files.size(); ++i) {
+                const ProjectFile &projFile = projectPart->files.at(i);
                 if (promise.isCanceled())
                     return;
                 const QJsonObject json
@@ -195,7 +196,7 @@ void generateCompilationDB(
                                        ppOptions,
                                        projectInfo->settings().usePrecompiledHeaders(),
                                        optionsBuilder.isClStyle());
-                if (compileCommandsFile.size() > 1)
+                if (i > 0)
                     compileCommandsFile.write(",");
                 compileCommandsFile.write(QJsonDocument(json).toJson(QJsonDocument::Compact));
             }
