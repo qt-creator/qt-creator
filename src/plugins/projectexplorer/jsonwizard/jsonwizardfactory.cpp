@@ -632,15 +632,13 @@ int JsonWizardFactory::verbose()
 static QString qmlProjectName(const FilePath &folder)
 {
     QString projectName;
-    const auto constraint = [&](const FilePath &dir) {
+    for (const FilePath &dir : PathAndParents(folder)) {
         const FilePaths fileList = dir.dirEntries({{"*.qmlproject"}});
         if (!fileList.isEmpty()) {
             projectName = fileList.first().baseName();
-            return true;
+            break;
         }
-        return false;
-    };
-    folder.searchHereAndInParents(constraint);
+    }
     return projectName;
 }
 

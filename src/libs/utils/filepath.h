@@ -235,7 +235,7 @@ public:
                                             MatchScope matchScope = WithAnySuffix) const;
     [[nodiscard]] FilePath searchHereAndInParents(const QString &fileName, QDir::Filter type) const;
     [[nodiscard]] FilePath searchHereAndInParents(const QStringList &fileNames, QDir::Filter type) const;
-    void searchHereAndInParents(const std::function<bool(const FilePath &)> &constraint) const;
+    void searchHereAndInParents(const std::function<IterationPolicy(const FilePath &)> &constraint) const;
 
     std::optional<FilePath> refersToExecutableFile(MatchScope considerScript) const;
 
@@ -378,6 +378,43 @@ public:
     [[nodiscard]] QString toUserOutput(const QString &separator) const;
     [[nodiscard]] FilePath commonPath() const;
     void sort();
+};
+
+//! A Range that iterates over the specified path and its parent directories. Optionally only up to "last".
+class QTCREATOR_UTILS_EXPORT PathAndParents
+{
+public:
+    PathAndParents(const FilePath &p);
+    PathAndParents(const FilePath &p, const FilePath &last);
+
+    class QTCREATOR_UTILS_EXPORT iterator
+    {
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = FilePath;
+        using difference_type = std::ptrdiff_t;
+        using pointer = FilePath *;
+        using reference = FilePath &;
+
+        explicit iterator(const FilePath &p);
+
+        iterator &operator++();
+        iterator operator++(int);
+
+        bool operator!=(const iterator &other) const;
+        bool operator==(const iterator &other) const;
+        [[nodiscard]] const FilePath &operator*() const;
+
+    private:
+        FilePath current;
+    };
+
+    [[nodiscard]] iterator begin() const;
+    [[nodiscard]] iterator end() const;
+
+private:
+    const FilePath m_path;
+    const FilePath m_lastPath;
 };
 
 // Needed with older gcc.

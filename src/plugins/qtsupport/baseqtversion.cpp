@@ -255,22 +255,20 @@ QString QtVersion::defaultUnexpandedDisplayName() const
     } else {
         // Deduce a description from '/foo/qt-folder/[qtbase]/bin/qmake' -> '/foo/qt-folder'.
         // '/usr' indicates System Qt 4.X on Linux.
-        const auto constraint = [&](const FilePath &dir) {
+        for (const FilePath &dir : PathAndParents(qmakeFilePath().parentDir())) {
             const QString dirName = dir.fileName();
             if (dirName == "usr") { // System-installed Qt.
                 location = Tr::tr("System");
-                return true;
+                break;
             }
             location = dirName;
             // Also skip default checkouts named 'qt'. Parent dir might have descriptive name.
             if (dirName.compare("bin", Qt::CaseInsensitive)
                 && dirName.compare("qtbase", Qt::CaseInsensitive)
                 && dirName.compare("qt", Qt::CaseInsensitive)) {
-                return true;
+                break;
             }
-            return false;
-        };
-        qmakeFilePath().searchHereAndInParents(constraint);
+        }
     }
 
     QString result = detectionSource().id == "PATH"

@@ -77,20 +77,14 @@ public:
     void cache(IVersionControl *vc, const FilePath &topLevel, const FilePath &dir)
     {
         QTC_ASSERT(dir.isAbsolutePath(), return);
-
-        const QString topLevelString = topLevel.toUrlishString();
         QTC_ASSERT(dir.isChildOf(topLevel) || topLevel == dir || topLevel.isEmpty(), return);
         QTC_ASSERT((topLevel.isEmpty() && !vc) || (!topLevel.isEmpty() && vc), return);
 
-        FilePath tmpDir = dir;
-        while (tmpDir.toUrlishString().size() >= topLevelString.size() && !tmpDir.isEmpty()) {
+        for (const FilePath &tmpDir : PathAndParents(dir, topLevel)) {
             m_cachedMatches.insert(tmpDir, {vc, topLevel});
             // if no vc was found, this might mean we're inside a repo internal directory (.git)
             // Cache only input directory, not parents
             if (!vc)
-                break;
-            tmpDir = tmpDir.parentDir();
-            if (tmpDir.isRootPath())
                 break;
         }
     }

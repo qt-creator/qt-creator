@@ -1182,7 +1182,8 @@ FilePath FilePath::parentDir() const
     if (basePath.isEmpty())
         return {};
 
-    const QString path = basePath + QLatin1String("/..");
+    const QString path = basePath
+                         + (basePath.endsWith('/') ? QLatin1String("..") : QLatin1String("/.."));
     const QString parent = doCleanPath(path);
     if (parent == path)
         return *this;
@@ -2073,29 +2074,32 @@ FilePath FilePath::searchHereAndInParents(const QStringList &fileNames, QDir::Fi
     QTC_ASSERT(wantFile || wantDir, return {});
 
     FilePath file;
-    const auto constraint = [&](const FilePath &dir) {
+    const auto constraint = [wantFile, wantDir, &fileNames, &file](const FilePath &dir) {
         for (const QString &fileName : fileNames) {
             const FilePath candidate = dir.pathAppended(fileName);
             if ((wantFile && candidate.isFile()) || (wantDir && file.isDir())) {
                 file = candidate;
-                return true;
+                return IterationPolicy::Stop;
             }
         }
-        return false;
+        return IterationPolicy::Continue;
     };
     searchHereAndInParents(constraint);
     return file;
 }
 
-void FilePath::searchHereAndInParents(const std::function<bool(const FilePath &)> &constraint) const
+void FilePath::searchHereAndInParents(const std::function<IterationPolicy(const FilePath &)> &constraint) const
 {
     QTC_ASSERT(!isEmpty(), return);
 
     FilePath dir = *this;
     if (!isDir())
         dir = dir.parentDir();
-    for (; !constraint(dir) && !dir.isRootPath(); dir = dir.parentDir())
-        ;
+
+    for (const FilePath &parent : PathAndParents(dir)) {
+        if (constraint(parent) == IterationPolicy::Stop)
+            break;
+    }
 }
 
 Environment FilePath::deviceEnvironment() const
@@ -2930,4 +2934,68 @@ FilePaths secondPaths(const FilePairs &pairs)
     return transform(pairs, &FilePair::second);
 }
 
-} // Utils
+PathAndParents::PathAndParents(const FilePath &p)
+    : m_path(p)
+{}
+
+PathAndParents::PathAndParents(const FilePath &p, const FilePath &last)
+    : m_path(p)
+    , m_lastPath(last)
+{
+    QTC_CHECK(p.isChildOf(last) || p == last);
+}
+
+PathAndParents::iterator PathAndParents::begin() const
+{
+    return iterator(m_path);
+}
+
+PathAndParents::iterator PathAndParents::end() const
+{
+    if (m_lastPath.isEmpty())
+        return iterator(FilePath());
+
+    const FilePath &endPath = m_lastPath.parentDir();
+    if (endPath == m_lastPath) // Did the user specify "root" as the last path?
+        return iterator(FilePath());
+    QTC_ASSERT(m_path == m_lastPath || m_path.isChildOf(m_lastPath), return iterator(FilePath()));
+    return iterator(endPath);
+}
+
+PathAndParents::iterator::iterator(const FilePath &p)
+    : current(p)
+{}
+
+PathAndParents::iterator &PathAndParents::iterator::operator++()
+{
+    const FilePath newParent = current.parentDir();
+    if (newParent == current)
+        current = FilePath(); // Reached the root, stop iterating.
+    else
+        current = newParent;
+    return *this;
+}
+
+PathAndParents::iterator PathAndParents::iterator::operator++(int)
+{
+    iterator temp = *this;
+    ++*this;
+    return temp;
+}
+
+bool PathAndParents::iterator::operator!=(const iterator &other) const
+{
+    return !(*this == other);
+}
+
+bool PathAndParents::iterator::operator==(const iterator &other) const
+{
+    return current == other.current;
+}
+
+const FilePath &PathAndParents::iterator::operator*() const
+{
+    return current;
+}
+
+} // namespace Utils

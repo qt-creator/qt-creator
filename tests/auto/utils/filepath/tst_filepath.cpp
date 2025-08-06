@@ -22,6 +22,11 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+void ignoreSoftAssert()
+{
+    QTest::ignoreMessage(QtDebugMsg, QRegularExpression("SOFT ASSERT.*"));
+}
+
 class tst_filepath : public QObject
 {
     Q_OBJECT
@@ -140,6 +145,13 @@ private slots:
     void ensureWritableDirectoryPermissions();
 
     void searchHereAndInParents();
+
+    void parents();
+    void emptyParents();
+    void parentsWithDevice();
+    void parentsWithDrive();
+    void parentsWithUncPath();
+    void parentsWithLastPath();
 
 private:
     QTemporaryDir tempDir;
@@ -2072,6 +2084,118 @@ void tst_filepath::pathComponents()
         = Utils::transform(FilePath::fromString(path).pathComponents(), &QStringView::toString);
 
     QCOMPARE(components, expected);
+}
+
+void tst_filepath::parentsWithDevice()
+{
+    const FilePath path = FilePath::fromUserInput("test://test/a/b/c");
+    const PathAndParents parentPaths(path);
+    auto it = std::begin(parentPaths);
+    QCOMPARE(*it, FilePath::fromUserInput("test://test/a/b/c"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("test://test/a/b"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("test://test/a"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("test://test/"));
+    ++it;
+    QCOMPARE(it, std::end(parentPaths));
+}
+
+void tst_filepath::parentsWithDrive()
+{
+    const FilePath path = FilePath::fromUserInput("C:/a/b/c");
+    const PathAndParents parentPaths(path);
+    auto it = std::begin(parentPaths);
+    QCOMPARE(*it, FilePath::fromUserInput("C:/a/b/c"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("C:/a/b"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("C:/a"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("C:/"));
+    ++it;
+    QCOMPARE(it, std::end(parentPaths));
+}
+
+void tst_filepath::parentsWithUncPath()
+{
+    const FilePath path = FilePath::fromUserInput("//server/share/a/b/c");
+    const PathAndParents parentPaths(path);
+    auto it = std::begin(parentPaths);
+    QCOMPARE(*it, FilePath::fromUserInput("//server/share/a/b/c"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("//server/share/a/b"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("//server/share/a"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("//server/share"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("//server/"));
+    ++it;
+    QCOMPARE(it, std::end(parentPaths));
+}
+
+void tst_filepath::emptyParents()
+{
+    const FilePath path = FilePath::fromUserInput("");
+    const PathAndParents parentPaths(path);
+    auto it = std::begin(parentPaths);
+    QCOMPARE(it, std::end(parentPaths));
+}
+
+void tst_filepath::parents()
+{
+    const FilePath path = FilePath::fromUserInput("/a/b/c");
+    const PathAndParents parentPaths(path);
+    auto it = std::begin(parentPaths);
+    QCOMPARE(*it, FilePath::fromUserInput("/a/b/c"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("/a/b"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("/a"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("/"));
+    ++it;
+    QCOMPARE(it, std::end(parentPaths));
+}
+
+void tst_filepath::parentsWithLastPath()
+{
+    const FilePath path = FilePath::fromUserInput("/a/b/c/d");
+    const PathAndParents parentPaths(path, FilePath::fromUserInput("/a/b"));
+    auto it = std::begin(parentPaths);
+    QCOMPARE(*it, FilePath::fromUserInput("/a/b/c/d"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("/a/b/c"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("/a/b"));
+    ++it;
+    QCOMPARE(it, std::end(parentPaths));
+
+    const PathAndParents parentPaths2(path, path);
+    it = std::begin(parentPaths2);
+    QCOMPARE(*it, FilePath::fromUserInput("/a/b/c/d"));
+    ++it;
+    QCOMPARE(it, std::end(parentPaths2));
+
+    // Specifying a path that is not a parent of the given path
+    // should fall back to iterating until the root.
+    ignoreSoftAssert();
+    const PathAndParents parentPaths3(path, FilePath::fromUserInput("/x"));
+    it = std::begin(parentPaths3);
+    QCOMPARE(*it, FilePath::fromUserInput("/a/b/c/d"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("/a/b/c"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("/a/b"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("/a"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("/"));
+    ++it;
+    ignoreSoftAssert();
+    QCOMPARE(it, std::end(parentPaths3));
 }
 
 } // Utils

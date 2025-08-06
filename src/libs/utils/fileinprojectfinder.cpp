@@ -446,16 +446,12 @@ FilePaths FileInProjectFinder::pathSegmentsWithSameName(const QString &pathSegme
 {
     FilePaths result;
     for (const FilePath &f : m_projectFiles) {
-        FilePath currentPath = f.parentDir();
-        do {
+        for (const auto &currentPath : PathAndParents(f.parentDir())) {
             if (currentPath.fileName() == pathSegment) {
                 if (result.isEmpty() || result.last() != currentPath)
                     result.append(currentPath);
             }
-            if (currentPath.isRootPath())
-                break;
-            currentPath = currentPath.parentDir();
-        } while (!currentPath.isEmpty());
+        }
     }
     FilePath::removeDuplicates(result);
     return result;

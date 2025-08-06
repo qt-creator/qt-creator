@@ -172,12 +172,12 @@ public:
 
     static FilePaths findConfigs(const FilePath &fileName)
     {
-        FilePaths configFiles;
-        fileName.searchHereAndInParents([&](const FilePath &dir) {
-            configFiles = formatConfigFiles(dir);
-            return !configFiles.isEmpty();
-        });
-        return configFiles;
+        for (const FilePath &parentDirectory : PathAndParents(fileName.parentDir())) {
+            FilePaths configFiles = formatConfigFiles(parentDirectory);
+            if (!configFiles.isEmpty())
+                return configFiles;
+        }
+        return FilePaths();
     }
 
     static void extendCommandWithConfigs(TextEditor::Command &command, const FilePath &source)

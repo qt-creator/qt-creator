@@ -146,7 +146,7 @@ const FilePath findQmlProjectUpwards(const FilePath &folder)
     FilePath projectFile;
     folder.searchHereAndInParents([&](const FilePath &dir) {
         projectFile = findQmlProject(dir);
-        return !projectFile.isEmpty();
+        return projectFile.isEmpty() ? IterationPolicy::Continue : IterationPolicy::Stop;
     });
     return projectFile;
 }
