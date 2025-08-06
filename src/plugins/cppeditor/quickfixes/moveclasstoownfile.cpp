@@ -354,11 +354,6 @@ private:
             mustCreateSourceFile = dlg.createSourceFile();
             mustNotCreateSourceFile = !dlg.createSourceFile();
         }
-        const auto fileListForDisplay = [](const FilePaths &files) {
-            return Utils::transform<QStringList>(files, [](const FilePath &fp) {
-                       return '"' + fp.toUserOutput() + '"';
-                   }).join(", ");
-        };
         FilePaths existingFiles;
         if (headerFilePath.exists())
             existingFiles << headerFilePath;
@@ -367,7 +362,7 @@ private:
         if (!existingFiles.isEmpty()) {
             MessageManager::writeDisrupting(
                 Tr::tr("Refusing to overwrite the following files: %1\n")
-                    .arg(fileListForDisplay(existingFiles)));
+                    .arg(existingFiles.toUserOutput(", ")));
             return;
         }
         const QString headerFileName = headerFilePath.fileName();
@@ -456,7 +451,7 @@ private:
         if (!notAdded.isEmpty()) {
             MessageManager::writeDisrupting(
                 Tr::tr("Failed to add to project file \"%1\": %2")
-                    .arg(projectNode->filePath().toUserOutput(), fileListForDisplay(notAdded)));
+                    .arg(projectNode->filePath().toUserOutput(), notAdded.toUserOutput(", ")));
         }
 
         if (state->interactive)
