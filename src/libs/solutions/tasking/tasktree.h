@@ -86,6 +86,7 @@ Q_DECLARE_FLAGS(CallDoneFlags, CallDone)
 Q_DECLARE_OPERATORS_FOR_FLAGS(CallDoneFlags)
 
 TASKING_EXPORT DoneResult toDoneResult(bool success);
+TASKING_EXPORT bool shouldCallDone(CallDoneFlags callDone, DoneWith result);
 
 // Checks if Function may be invoked with Args and if Function's return type is Result.
 template <typename Result, typename Function, typename ...Args,

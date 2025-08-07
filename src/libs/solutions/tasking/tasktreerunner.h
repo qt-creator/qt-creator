@@ -30,11 +30,13 @@ public:
     template <typename SetupHandler = TreeSetupHandler, typename DoneHandler = TreeDoneHandler>
     void start(const Group &recipe,
                SetupHandler &&setupHandler = {},
-               DoneHandler &&doneHandler = {})
+               DoneHandler &&doneHandler = {},
+               CallDoneFlags callDone = CallDone::Always)
     {
         startImpl(recipe,
                   wrapSetup(std::forward<SetupHandler>(setupHandler)),
-                  wrapDone(std::forward<DoneHandler>(doneHandler)));
+                  wrapDone(std::forward<DoneHandler>(doneHandler)),
+                  callDone);
     }
 
     // When task tree is running it emits done(DoneWith::Cancel) synchronously.
@@ -93,7 +95,8 @@ private:
 
     void startImpl(const Group &recipe,
                    const TreeSetupHandler &setupHandler = {},
-                   const TreeDoneHandler &doneHandler = {});
+                   const TreeDoneHandler &doneHandler = {},
+                   CallDoneFlags callDone = CallDone::Always);
 
     std::unique_ptr<TaskTree> m_taskTree;
 };

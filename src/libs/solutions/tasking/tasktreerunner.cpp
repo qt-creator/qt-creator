@@ -14,13 +14,14 @@ TaskTreeRunner::~TaskTreeRunner() = default;
 
 void TaskTreeRunner::startImpl(const Group &recipe,
                                const TreeSetupHandler &setupHandler,
-                               const TreeDoneHandler &doneHandler)
+                               const TreeDoneHandler &doneHandler,
+                               CallDoneFlags callDone)
 {
     m_taskTree.reset(new TaskTree(recipe));
-    connect(m_taskTree.get(), &TaskTree::done, this, [this, doneHandler](DoneWith result) {
+    connect(m_taskTree.get(), &TaskTree::done, this, [this, doneHandler, callDone](DoneWith result) {
         TaskTree *taskTree = m_taskTree.release();
         taskTree->deleteLater();
-        if (doneHandler)
+        if (doneHandler && shouldCallDone(callDone, result))
             doneHandler(*taskTree, result);
         emit done(result);
     });

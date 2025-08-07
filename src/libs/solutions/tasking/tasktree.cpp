@@ -2399,7 +2399,7 @@ static CallDone toCallDone(DoneWith result)
     return CallDone::Never;
 }
 
-static bool shouldCall(CallDoneFlags callDone, DoneWith result)
+bool shouldCallDone(CallDoneFlags callDone, DoneWith result)
 {
     return callDone & toCallDone(result);
 }
@@ -2408,7 +2408,7 @@ bool TaskTreePrivate::invokeDoneHandler(RuntimeContainer *container, DoneWith do
 {
     DoneResult result = toDoneResult(doneWith);
     const GroupItem::GroupHandler &groupHandler = container->m_containerNode.m_groupHandler;
-    if (groupHandler.m_doneHandler && shouldCall(groupHandler.m_callDoneFlags, doneWith))
+    if (groupHandler.m_doneHandler && shouldCallDone(groupHandler.m_callDoneFlags, doneWith))
         result = invokeHandler(container, groupHandler.m_doneHandler, doneWith);
     container->m_callStorageDoneHandlersOnDestruction = true;
     return result == DoneResult::Success;
@@ -2495,7 +2495,7 @@ bool TaskTreePrivate::invokeTaskDoneHandler(RuntimeTask *node, DoneWith doneWith
 {
     DoneResult result = toDoneResult(doneWith);
     const GroupItem::TaskHandler &handler = node->m_taskNode.m_taskHandler;
-    if (handler.m_taskAdapterDoneHandler && shouldCall(handler.m_callDoneFlags, doneWith)) {
+    if (handler.m_taskAdapterDoneHandler && shouldCallDone(handler.m_callDoneFlags, doneWith)) {
         result = invokeHandler(node->m_parentIteration, handler.m_taskAdapterDoneHandler,
                                node->m_taskInterfaceAdapter->m_taskAdapter, doneWith);
     }
