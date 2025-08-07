@@ -47,7 +47,7 @@ public:
 
 Q_SIGNALS:
     void aboutToStart(TaskTree *taskTree);
-    void done(DoneWith result);
+    void done(DoneWith result, TaskTree *taskTree);
 
 private:
     template <typename Handler>

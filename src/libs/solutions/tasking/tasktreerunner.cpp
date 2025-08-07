@@ -23,7 +23,7 @@ void TaskTreeRunner::startImpl(const Group &recipe,
         taskTree->deleteLater();
         if (doneHandler && shouldCallDone(callDone, result))
             doneHandler(*taskTree, result);
-        emit done(result);
+        emit done(result, taskTree);
     });
     if (setupHandler)
         setupHandler(*m_taskTree);
