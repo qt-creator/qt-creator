@@ -163,17 +163,22 @@ MATCHER_P5(IsExportedType,
            && type.typeSourceId == typeSourceId;
 }
 
-MATCHER_P3(IsFileStatus,
-           sourceId,
-           size,
-           lastModified,
-           std::string(negation ? "isn't " : "is ")
-               + PrintToString(FileStatus{sourceId, size, lastModified}))
+auto IsFileStatus(SourceId sourceIdmatcher, long long size, long long lastModified)
 {
-    const FileStatus &fileStatus = arg;
+    using file_time_type = std::filesystem::file_time_type;
 
-    return fileStatus.sourceId == sourceId && fileStatus.size == size
-           && fileStatus.lastModified == lastModified;
+    return AllOf(Field("FileStatus::sourceId", &FileStatus::sourceId, sourceIdmatcher),
+                 Field("FileStatus::size", &FileStatus::size, size),
+                 Field("FileStatus::lastModified",
+                       &FileStatus::lastModified,
+                       file_time_type{file_time_type::duration{lastModified}}));
+}
+
+auto IsNullFileStatus(const auto &sourceIdmatcher)
+{
+    return AllOf(Field("FileStatus::sourceId", &FileStatus::sourceId, sourceIdmatcher),
+                 Field("FileStatus::size", &FileStatus::size, -1),
+                 Field("FileStatus::lastModified", &FileStatus::lastModified, FileStatus::null));
 }
 
 MATCHER_P4(IsProjectEntryInfo,
@@ -287,9 +292,9 @@ public:
     {
         for (auto sourceId : sourceIds) {
             ON_CALL(fileSystemMock, fileStatus(Eq(sourceId)))
-                .WillByDefault(Return(FileStatus{sourceId, 2, 421}));
+                .WillByDefault(Return(createFileStatus(sourceId, 2, 421)));
             ON_CALL(projectStorageMock, fetchFileStatus(Eq(sourceId)))
-                .WillByDefault(Return(FileStatus{sourceId, 2, 421}));
+                .WillByDefault(Return(createFileStatus(sourceId, 2, 421)));
         }
     }
 
@@ -297,9 +302,9 @@ public:
     {
         for (auto sourceId : sourceIds) {
             ON_CALL(fileSystemMock, fileStatus(Eq(sourceId)))
-                .WillByDefault(Return(FileStatus{sourceId, 1, 21}));
+                .WillByDefault(Return(createFileStatus(sourceId, 1, 21)));
             ON_CALL(projectStorageMock, fetchFileStatus(Eq(sourceId)))
-                .WillByDefault(Return(FileStatus{sourceId, 2, 421}));
+                .WillByDefault(Return(createFileStatus(sourceId, 2, 421)));
         }
     }
 
@@ -307,7 +312,7 @@ public:
     {
         for (auto sourceId : sourceIds) {
             ON_CALL(fileSystemMock, fileStatus(Eq(sourceId)))
-                .WillByDefault(Return(FileStatus{sourceId, 1, 21}));
+                .WillByDefault(Return(createFileStatus(sourceId, 1, 21)));
             ON_CALL(projectStorageMock, fetchFileStatus(Eq(sourceId)))
                 .WillByDefault(Return(FileStatus{}));
         }
@@ -316,30 +321,27 @@ public:
     void setFilesRemoved(const QmlDesigner::SourceIds &sourceIds)
     {
         for (auto sourceId : sourceIds) {
-            ON_CALL(fileSystemMock, fileStatus(Eq(sourceId)))
-                .WillByDefault(Return(FileStatus{sourceId, -1, -1}));
+            ON_CALL(fileSystemMock, fileStatus(Eq(sourceId))).WillByDefault(Return(FileStatus{sourceId}));
             ON_CALL(projectStorageMock, fetchFileStatus(Eq(sourceId)))
-                .WillByDefault(Return(FileStatus{sourceId, 1, 21}));
+                .WillByDefault(Return(createFileStatus(sourceId, 1, 21)));
         }
     }
 
     void setFilesNotExists(const QmlDesigner::SourceIds &sourceIds)
     {
         for (auto sourceId : sourceIds) {
-            ON_CALL(fileSystemMock, fileStatus(Eq(sourceId)))
-                .WillByDefault(Return(FileStatus{sourceId, -1, -1}));
+            ON_CALL(fileSystemMock, fileStatus(Eq(sourceId))).WillByDefault(Return(FileStatus{sourceId}));
             ON_CALL(projectStorageMock, fetchFileStatus(Eq(sourceId)))
-                .WillByDefault(Return(FileStatus{SourceId{}, -1, -1}));
+                .WillByDefault(Return(FileStatus{SourceId{}}));
         }
     }
 
     void setFilesNotExistsUnchanged(const QmlDesigner::SourceIds &sourceIds)
     {
         for (auto sourceId : sourceIds) {
-            ON_CALL(fileSystemMock, fileStatus(Eq(sourceId)))
-                .WillByDefault(Return(FileStatus{sourceId, -1, -1}));
+            ON_CALL(fileSystemMock, fileStatus(Eq(sourceId))).WillByDefault(Return(FileStatus{sourceId}));
             ON_CALL(projectStorageMock, fetchFileStatus(Eq(sourceId)))
-                .WillByDefault(Return(FileStatus{sourceId, -1, -1}));
+                .WillByDefault(Return(FileStatus{sourceId}));
         }
     }
 
@@ -442,6 +444,17 @@ public:
     SourceId createDirectorySourceIdFromQString(const QString &path) const
     {
         return createDirectorySourceId(Utils::PathString{path});
+    }
+
+    static QmlDesigner::FileStatus createFileStatus(SourceId sourceId,
+                                                    long long size,
+                                                    long long modifiedTime)
+    {
+        using file_time_type = std::filesystem::file_time_type;
+
+        return QmlDesigner::FileStatus{sourceId,
+                                       size,
+                                       file_time_type{file_time_type::duration{modifiedTime}}};
     }
 
 protected:
@@ -2227,7 +2240,7 @@ TEST_P(synchronize_changed_qml_documents, project_entry_infos_for_one_document)
              {directoryPathSourceId, qmlDocument1_2SourceId, ModuleId{}, FileType::QmlDocument},
              {directoryPathSourceId, qmlDocument2SourceId, ModuleId{}, FileType::QmlDocument}});
     }
-    setFilesUnchanged({qmlDocument1_2SourceId, qmlDocument2SourceId, qmlDirPathSourceId});
+    setFilesUnchanged({qmlDocument1SourceId, qmlDocument2SourceId, qmlDirPathSourceId});
     setFiles(state, {qmlDocument1_2SourceId});
 
     EXPECT_CALL(projectStorageMock,
@@ -4841,10 +4854,10 @@ public:
     ProjectStorageUpdater_property_editor_panes()
     {
         ON_CALL(fileSystemMock, fileStatus(_)).WillByDefault([](SourceId sourceId) {
-            return FileStatus{sourceId, 1, 21};
+            return createFileStatus(sourceId, 1, 21);
         });
         ON_CALL(projectStorageMock, fetchFileStatus(_)).WillByDefault([](SourceId sourceId) {
-            return FileStatus{sourceId, 1, 21};
+            return createFileStatus(sourceId, 1, 21);
         });
     }
 
@@ -4926,10 +4939,10 @@ public:
     ProjectStorageUpdater_global_type_annotations()
     {
         ON_CALL(fileSystemMock, fileStatus(_)).WillByDefault([](SourceId sourceId) {
-            return FileStatus{sourceId, 1, 21};
+            return createFileStatus(sourceId, 1, 21);
         });
         ON_CALL(projectStorageMock, fetchFileStatus(_)).WillByDefault([](SourceId sourceId) {
-            return FileStatus{sourceId, 1, 21};
+            return createFileStatus(sourceId, 1, 21);
         });
 
         ON_CALL(projectStorageMock, typeAnnotationDirectoryIds())
@@ -5204,8 +5217,8 @@ TEST_F(ProjectStorageUpdater_added_property_editor_qml_paths,
                 synchronize(
                     AllOf(Field("SynchronizationPackage::fileStatuses",
                                 &SynchronizationPackage::fileStatuses,
-                                IsSupersetOf({IsFileStatus(path2SourceId, 1, 21),
-                                              IsFileStatus(designer2SourceId, -1, -1)})),
+                                AllOf(Contains(IsFileStatus(path2SourceId, 1, 21)),
+                                      Contains(IsNullFileStatus(designer2SourceId)))),
                           Field("SynchronizationPackage::updatedFileStatusSourceIds",
                                 &SynchronizationPackage::updatedFileStatusSourceIds,
                                 IsSupersetOf({designer2SourceId})),

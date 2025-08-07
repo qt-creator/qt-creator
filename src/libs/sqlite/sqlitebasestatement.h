@@ -19,6 +19,7 @@
 #include <nanotrace/nanotracehr.h>
 #include <utils/span.h>
 
+#include <chrono>
 #include <cstdint>
 #include <exception>
 #include <functional>
@@ -58,6 +59,10 @@ public:
     int fetchIntValue(int column) const;
     long fetchLongValue(int column) const;
     long long fetchLongLongValue(int column) const;
+#ifdef Q_OS_UNIX
+    __int128_t fetchInt128Value(int column) const;
+#endif
+
     double fetchDoubleValue(int column) const;
     Utils::SmallStringView fetchSmallStringViewValue(int column) const;
     ValueView fetchValueView(int column) const;
@@ -69,6 +74,10 @@ public:
     void bind(int index, NullValue, const source_location &sourceLocation);
     void bind(int index, int value, const source_location &sourceLocation);
     void bind(int index, long long value, const source_location &sourceLocation);
+#ifdef Q_OS_UNIX
+    void bind(int index, __int128_t value, const source_location &sourceLocation);
+#endif
+
     void bind(int index, double value, const source_location &sourceLocation);
     void bind(int index, void *pointer, const source_location &sourceLocation);
     void bind(int index, Utils::span<const int> values, const source_location &sourceLocation);
@@ -103,6 +112,14 @@ public:
     void bind(int index, long value, const source_location &sourceLocation)
     {
         bind(index, static_cast<long long>(value), sourceLocation);
+    }
+
+    template<typename Clock, typename Duration>
+    void bind(int index,
+              std::chrono::time_point<Clock, Duration> value,
+              const source_location &sourceLocation)
+    {
+        bind(index, value.time_since_epoch().count(), sourceLocation);
     }
 
     void prepare(Utils::SmallStringView sqlStatement, const source_location &sourceLocation);
@@ -683,6 +700,12 @@ private:
             return static_cast<Enumeration>(statement.fetchLongLongValue(column));
         }
 
+        template<typename Clock, typename Duration>
+        constexpr operator std::chrono::time_point<Clock, Duration>() const
+        {
+            return std::chrono::time_point<Clock, Duration>(
+                Duration{statement.template fetchValue<typename Duration::rep>(column)});
+        }
         StatementImplementation &statement;
         int column;
     };

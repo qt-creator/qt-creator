@@ -36,6 +36,19 @@ std::ostream &operator<<(std::ostream &out, const monostate &)
     return out << "monostate";
 }
 
+namespace filesystem {
+std::ostream &operator<<(std::ostream &out, const file_time_type &time)
+{
+#ifdef Q_OS_WIN
+    return out << clock_cast<std::chrono::utc_clock>(time);
+#elif defined(Q_OS_LINUX)
+    return out << file_time_type::clock::to_sys(time).time_since_epoch().count();
+#else
+    return out << "broken libC++";
+#endif
+}
+} // namespace filesystem
+
 } // namespace std
 
 namespace Utils {

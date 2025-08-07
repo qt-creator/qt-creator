@@ -1598,6 +1598,17 @@ protected:
         return projectEntryInfos;
     }
 
+    static QmlDesigner::FileStatus createFileStatus(SourceId sourceId,
+                                                    long long size,
+                                                    long long modifiedTime)
+    {
+        using file_time_type = std::filesystem::file_time_type;
+
+        return QmlDesigner::FileStatus{sourceId,
+                                       size,
+                                       file_time_type{file_time_type::duration{modifiedTime}}};
+    }
+
     Storage::Synchronization::ProjectEntryInfos fetchProjectEntryInfos(
         const DirectoryPathIds &directoryPathIds)
     {
@@ -5273,8 +5284,8 @@ TEST_F(ProjectStorage, change_property_type_module_id_with_qualified_type)
 
 TEST_F(ProjectStorage, add_file_statuses)
 {
-    FileStatus fileStatus1{sourceId1, 100, 100};
-    FileStatus fileStatus2{sourceId2, 101, 101};
+    FileStatus fileStatus1 = createFileStatus(sourceId1, 100, 100);
+    FileStatus fileStatus2 = createFileStatus(sourceId2, 101, 101);
 
     storage.synchronize({.fileStatuses = {fileStatus1, fileStatus2},
                          .updatedFileStatusSourceIds = {sourceId1, sourceId2}});
@@ -5285,8 +5296,8 @@ TEST_F(ProjectStorage, add_file_statuses)
 
 TEST_F(ProjectStorage, remove_file_status)
 {
-    FileStatus fileStatus1{sourceId1, 100, 100};
-    FileStatus fileStatus2{sourceId2, 101, 101};
+    FileStatus fileStatus1 = createFileStatus(sourceId1, 100, 100);
+    FileStatus fileStatus2 = createFileStatus(sourceId2, 101, 101);
     storage.synchronize({.fileStatuses = {fileStatus1, fileStatus2},
                          .updatedFileStatusSourceIds = {sourceId1, sourceId2}});
 
@@ -5298,9 +5309,9 @@ TEST_F(ProjectStorage, remove_file_status)
 
 TEST_F(ProjectStorage, update_file_status)
 {
-    FileStatus fileStatus1{sourceId1, 100, 100};
-    FileStatus fileStatus2{sourceId2, 101, 101};
-    FileStatus fileStatus2b{sourceId2, 102, 102};
+    FileStatus fileStatus1 = createFileStatus(sourceId1, 100, 100);
+    FileStatus fileStatus2 = createFileStatus(sourceId2, 101, 101);
+    FileStatus fileStatus2b = createFileStatus(sourceId2, 102, 102);
     storage.synchronize({.fileStatuses = {fileStatus1, fileStatus2},
                          .updatedFileStatusSourceIds = {sourceId1, sourceId2}});
 
@@ -5313,7 +5324,7 @@ TEST_F(ProjectStorage, update_file_status)
 
 TEST_F(ProjectStorage, throw_for_invalid_source_id_in_file_status)
 {
-    FileStatus fileStatus1{SourceId{}, 100, 100};
+    FileStatus fileStatus1 = createFileStatus(SourceId{}, 100, 100);
 
     ASSERT_THROW(storage.synchronize(
                      {.fileStatuses = {fileStatus1}, .updatedFileStatusSourceIds = {sourceId1}}),
@@ -5322,8 +5333,8 @@ TEST_F(ProjectStorage, throw_for_invalid_source_id_in_file_status)
 
 TEST_F(ProjectStorage, fetch_all_file_statuses)
 {
-    FileStatus fileStatus1{sourceId1, 100, 100};
-    FileStatus fileStatus2{sourceId2, 101, 101};
+    FileStatus fileStatus1 = createFileStatus(sourceId1, 100, 100);
+    FileStatus fileStatus2 = createFileStatus(sourceId2, 101, 101);
     storage.synchronize({.fileStatuses = {fileStatus1, fileStatus2},
                          .updatedFileStatusSourceIds = {sourceId1, sourceId2}});
 
@@ -5334,8 +5345,8 @@ TEST_F(ProjectStorage, fetch_all_file_statuses)
 
 TEST_F(ProjectStorage, fetch_all_file_statuses_reverse)
 {
-    FileStatus fileStatus1{sourceId1, 100, 100};
-    FileStatus fileStatus2{sourceId2, 101, 101};
+    FileStatus fileStatus1 = createFileStatus(sourceId1, 100, 100);
+    FileStatus fileStatus2 = createFileStatus(sourceId2, 101, 101);
     storage.synchronize({.fileStatuses = {fileStatus2, fileStatus1},
                          .updatedFileStatusSourceIds = {sourceId1, sourceId2}});
 
@@ -5346,8 +5357,8 @@ TEST_F(ProjectStorage, fetch_all_file_statuses_reverse)
 
 TEST_F(ProjectStorage, fetch_file_status)
 {
-    FileStatus fileStatus1{sourceId1, 100, 100};
-    FileStatus fileStatus2{sourceId2, 101, 101};
+    FileStatus fileStatus1 = createFileStatus(sourceId1, 100, 100);
+    FileStatus fileStatus2 = createFileStatus(sourceId2, 101, 101);
     storage.synchronize({.fileStatuses = {fileStatus1, fileStatus2},
                          .updatedFileStatusSourceIds = {sourceId1, sourceId2}});
 

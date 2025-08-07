@@ -8,6 +8,7 @@
 #include "projectstoragepathwatcherinterface.h"
 #include "projectstoragepathwatchernotifierinterface.h"
 #include "projectstoragepathwatchertypes.h"
+#include "projectstoragetracing.h"
 #include "projectstoragetriggerupdateinterface.h"
 
 #include <sourcepathstorage/storagecache.h>
@@ -31,6 +32,9 @@ public:
         , m_pathCache(pathCache)
         , m_notifier(notifier)
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher constructor",
+                                   ProjectStorageTracing::category()};
+
         QObject::connect(&m_fileSystemWatcher,
                          &FileSystemWatcher::directoryChanged,
                          [&](const QString &path) { compressChangedDirectoryPath(path); });
@@ -43,6 +47,9 @@ public:
 
     void updateIdPaths(const std::vector<IdPaths> &idPaths) override
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher update id paths",
+                                   ProjectStorageTracing::category()};
+
         const auto &[entires, ids] = convertIdPathsToWatcherEntriesAndIds(idPaths);
 
         addEntries(entires);
@@ -56,6 +63,9 @@ public:
     void updateContextIdPaths(const std::vector<IdPaths> &idPaths,
                               const DirectoryPathIds &directoryPathIds) override
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher update context id paths",
+                                   ProjectStorageTracing::category()};
+
         const auto &[entires, ids] = convertIdPathsToWatcherEntriesAndIds(idPaths);
 
         addEntries(entires);
@@ -70,6 +80,9 @@ public:
 
     void checkForChangeInDirectory(DirectoryPathIds directoryPathIds) override
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher check for change in directory",
+                                   ProjectStorageTracing::category()};
+
         std::ranges::sort(directoryPathIds);
         auto removed = std::ranges::unique(directoryPathIds);
         directoryPathIds.erase(removed.begin(), removed.end());
@@ -79,6 +92,9 @@ public:
 
     void removeIds(const ProjectPartIds &ids) override
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher remove ids",
+                                   ProjectStorageTracing::category()};
+
         auto removedEntries = removeIdsFromWatchedEntries(ids);
 
         auto filteredPaths = filterNotWatchedPaths(removedEntries);
@@ -89,11 +105,17 @@ public:
 
     void setNotifier(ProjectStoragePathWatcherNotifierInterface *notifier) override
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher set notifier",
+                                   ProjectStorageTracing::category()};
+
         m_notifier = notifier;
     }
 
     std::size_t sizeOfIdPaths(const std::vector<IdPaths> &idPaths)
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher size of id paths",
+                                   ProjectStorageTracing::category()};
+
         auto sumSize = [](std::size_t size, const IdPaths &idPath) {
             return size + idPath.sourceIds.size();
         };
@@ -104,6 +126,10 @@ public:
     std::pair<WatcherEntries, ProjectChunkIds> convertIdPathsToWatcherEntriesAndIds(
         const std::vector<IdPaths> &idPaths)
     {
+        NanotraceHR::Tracer tracer{
+            "project storage path watcher convert id paths to watcher entries",
+            ProjectStorageTracing::category()};
+
         WatcherEntries entries;
         entries.reserve(sizeOfIdPaths(idPaths));
         ProjectChunkIds ids;
@@ -133,6 +159,9 @@ public:
 
     void addEntries(const WatcherEntries &entries)
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher add entries",
+                                   ProjectStorageTracing::category()};
+
         auto newEntries = notWatchedEntries(entries);
 
         auto filteredPaths = filterNotWatchedPaths(newEntries);
@@ -146,6 +175,9 @@ public:
     template<typename Filter>
     void removeUnusedEntries(const WatcherEntries &entries, Filter filter)
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher remove unused entries",
+                                   ProjectStorageTracing::category()};
+
         auto oldEntries = notAnymoreWatchedEntriesWithIds(entries, filter);
 
         removeFromWatchedEntries(oldEntries);
@@ -156,10 +188,19 @@ public:
             m_fileSystemWatcher.removePaths(convertWatcherEntriesToDirectoryPathList(filteredPaths));
     }
 
-    FileSystemWatcher &fileSystemWatcher() { return m_fileSystemWatcher; }
+    FileSystemWatcher &fileSystemWatcher()
+    {
+        NanotraceHR::Tracer tracer{"project storage path watcher file system watcher",
+                                   ProjectStorageTracing::category()};
+        return m_fileSystemWatcher;
+    }
 
     QStringList convertWatcherEntriesToDirectoryPathList(const DirectoryPathIds &directoryPathIds) const
     {
+        NanotraceHR::Tracer tracer{
+            "project storage path watcher convert watcher entries to directory path list",
+            ProjectStorageTracing::category()};
+
         return Utils::transform<QStringList>(directoryPathIds, [&](DirectoryPathId id) {
             return QString(m_pathCache.directoryPath(id));
         });
@@ -167,6 +208,10 @@ public:
 
     QStringList convertWatcherEntriesToDirectoryPathList(const WatcherEntries &watcherEntries) const
     {
+        NanotraceHR::Tracer tracer{
+            "project storage path watcher convert watcher entries to directory path list",
+            ProjectStorageTracing::category()};
+
         DirectoryPathIds directoryPathIds = Utils::transform<DirectoryPathIds>(
             watcherEntries, &WatcherEntry::directoryPathId);
 
@@ -179,6 +224,9 @@ public:
 
     WatcherEntries notWatchedEntries(const WatcherEntries &entries) const
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher not watched entries",
+                                   ProjectStorageTracing::category()};
+
         WatcherEntries notWatchedEntries;
         notWatchedEntries.reserve(entries.size());
 
@@ -189,6 +237,9 @@ public:
 
     DirectoryPathIds notWatchedPaths(const DirectoryPathIds &ids) const
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher not watched paths",
+                                   ProjectStorageTracing::category()};
+
         DirectoryPathIds notWatchedDirectoryIds;
         notWatchedDirectoryIds.reserve(ids.size());
 
@@ -200,6 +251,9 @@ public:
     template<typename Compare>
     WatcherEntries notAnymoreWatchedEntries(const WatcherEntries &newEntries, Compare compare) const
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher not anymore watched entries",
+                                   ProjectStorageTracing::category()};
+
         WatcherEntries notAnymoreWatchedEntries;
         notAnymoreWatchedEntries.reserve(m_watchedEntries.size());
 
@@ -214,6 +268,10 @@ public:
     template<typename Filter>
     WatcherEntries notAnymoreWatchedEntriesWithIds(const WatcherEntries &newEntries, Filter filter) const
     {
+        NanotraceHR::Tracer tracer{
+            "project storage path watcher not anymore watched entries with ids",
+            ProjectStorageTracing::category()};
+
         auto oldEntries = notAnymoreWatchedEntries(newEntries, std::ranges::less{});
 
         std::erase_if(oldEntries, filter);
@@ -223,6 +281,9 @@ public:
 
     void mergeToWatchedEntries(const WatcherEntries &newEntries)
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher merge to watched entries",
+                                   ProjectStorageTracing::category()};
+
         WatcherEntries newWatchedEntries;
         newWatchedEntries.reserve(m_watchedEntries.size() + newEntries.size());
 
@@ -246,13 +307,25 @@ public:
 
     DirectoryPathIds filterNotWatchedPaths(const WatcherEntries &entries) const
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher filter not watched paths",
+                                   ProjectStorageTracing::category()};
+
         return notWatchedPaths(uniquePaths(entries));
     }
 
-    const WatcherEntries &watchedEntries() const { return m_watchedEntries; }
+    const WatcherEntries &watchedEntries() const
+    {
+        NanotraceHR::Tracer tracer{"project storage path watcher watched entries",
+                                   ProjectStorageTracing::category()};
+
+        return m_watchedEntries;
+    }
 
     WatcherEntries removeIdsFromWatchedEntries(const ProjectPartIds &ids)
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher remove ids from watched entries",
+                                   ProjectStorageTracing::category()};
+
         auto keep = [&](WatcherEntry entry) { return !std::ranges::binary_search(ids, entry.id.id); };
 
         auto removed = std::ranges::stable_partition(m_watchedEntries, keep);
@@ -266,6 +339,9 @@ public:
 
     void removeFromWatchedEntries(const WatcherEntries &oldEntries)
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher remove from watched entries",
+                                   ProjectStorageTracing::category()};
+
         WatcherEntries newWatchedEntries;
         newWatchedEntries.reserve(m_watchedEntries.size() - oldEntries.size());
 
@@ -278,12 +354,18 @@ public:
 
     void compressChangedDirectoryPath(const QString &path)
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher compress changed directory path",
+                                   ProjectStorageTracing::category()};
+
         m_directoryPathCompressor.addDirectoryPathId(
             m_pathCache.directoryPathId(Utils::PathString{path}));
     }
 
     WatcherEntries watchedEntriesForPaths(const QmlDesigner::DirectoryPathIds &directoryPathIds)
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher watched entries for paths",
+                                   ProjectStorageTracing::category()};
+
         WatcherEntries foundEntries;
         foundEntries.reserve(m_watchedEntries.size());
 
@@ -307,6 +389,9 @@ public:
 
     SourceIds watchedPaths(const WatcherEntries &entries) const
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher watched paths",
+                                   ProjectStorageTracing::category()};
+
         auto sourceIds = Utils::transform<SourceIds>(entries, &WatcherEntry::sourceId);
 
         std::ranges::sort(sourceIds);
@@ -318,6 +403,9 @@ public:
 
     std::vector<IdPaths> idPathsForWatcherEntries(WatcherEntries &&foundEntries)
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher id paths for watcher entries",
+                                   ProjectStorageTracing::category()};
+
         std::ranges::sort(foundEntries, {}, [](const WatcherEntry &entry) {
             return std::tie(entry.id, entry.sourceId);
         });
@@ -341,6 +429,9 @@ public:
 
     void addChangedPathForFilePath(const DirectoryPathIds &directoryPathIds)
     {
+        NanotraceHR::Tracer tracer{"project storage path watcher add changed path for file path",
+                                   ProjectStorageTracing::category()};
+
         if (m_notifier) {
             WatcherEntries foundEntries = watchedEntriesForPaths(directoryPathIds);
 

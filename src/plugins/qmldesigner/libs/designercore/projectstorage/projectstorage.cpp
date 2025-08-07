@@ -1289,7 +1289,10 @@ public:
         table.setName("fileStatuses");
         table.addColumn("sourceId", Sqlite::StrictColumnType::Integer, {Sqlite::PrimaryKey{}});
         table.addColumn("size", Sqlite::StrictColumnType::Integer);
-        table.addColumn("lastModified", Sqlite::StrictColumnType::Integer);
+        if constexpr (sizeof(std::filesystem::file_time_type::rep) == 16)
+            table.addColumn("lastModified", Sqlite::StrictColumnType::Blob);
+        else
+            table.addColumn("lastModified", Sqlite::StrictColumnType::Integer);
 
         table.initialize(database);
     }

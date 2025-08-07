@@ -95,11 +95,13 @@ public:
 
 class WatcherEntry
 {
+    using file_time_type = std::filesystem::file_time_type;
+
 public:
     ProjectChunkId id;
     DirectoryPathId directoryPathId;
     SourceId sourceId;
-    long long lastModified = -1;
+    file_time_type lastModified = file_time_type::min();
     long long size = -1;
 
     friend bool operator==(WatcherEntry first, WatcherEntry second)

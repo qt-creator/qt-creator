@@ -22,8 +22,6 @@ public:
     FileStatusCache &operator=(const FileStatusCache &) = delete;
     FileStatusCache(const FileStatusCache &) = delete;
 
-    long long lastModifiedTime(SourceId sourceId) const;
-    long long fileSize(SourceId sourceId) const;
     const FileStatus &find(SourceId sourceId) const;
 
     void update(SourceId sourceId);

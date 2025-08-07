@@ -377,6 +377,18 @@ TEST_F(SqliteStatement, bind_long_integer)
     ASSERT_THAT(statement.fetchSmallStringViewValue(0), "poo");
 }
 
+#ifdef Q_OS_LINUX
+TEST_F(SqliteStatement, bind_int128)
+{
+    SqliteTestStatement<1, 1> statement("WITH T(blob) AS (VALUES (?)) SELECT blob FROM T", database);
+
+    statement.bind(1, __int128_t(40), sourceLocation);
+    statement.next(sourceLocation);
+
+    ASSERT_THAT(statement.fetchInt128Value(0), __int128_t(40));
+}
+#endif
+
 TEST_F(SqliteStatement, bind_double)
 {
     SqliteTestStatement<2, 1> statement("SELECT name, number FROM test WHERE number=?", database);

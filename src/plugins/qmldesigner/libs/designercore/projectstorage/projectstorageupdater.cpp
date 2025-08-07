@@ -1590,11 +1590,11 @@ void ProjectStorageUpdater::parseQmlDocument(const QString &qmlFileName,
                                              Storage::Synchronization::SynchronizationPackage &package,
                                              NotUpdatedSourceIds &notUpdatedSourceIds,
                                              WatchedSourceIds &watchedSourceIds,
-                                             FileState directoryState,
+                                             FileState,
                                              IsInsideProject isInsideProject)
 {
     Utils::PathString fileName{qmlFileName};
-    NanotraceHR::Tracer tracer{"parse qml document", category()};
+    NanotraceHR::Tracer tracer{"parse qml document", category(), keyValue("file name", fileName)};
 
     SourceId sourceId = m_pathCache.sourceId(directoryId, Utils::PathString{qmlFileName});
 
@@ -1616,11 +1616,12 @@ void ProjectStorageUpdater::parseQmlDocument(const QString &qmlFileName,
             Storage::Synchronization::FileType::QmlDocument);
         tracer.tick("append project data", keyValue("project data", projectEntryInfo));
 
-        return;
+        break;
     }
     case FileState::NotExists:
     case FileState::Removed:
         tracer.tick("file does not exits", keyValue("source id", sourceId));
+        package.updatedTypeSourceIds.push_back(sourceId);
         package.updatedImportSourceIds.push_back(sourceId);
         break;
     case FileState::NotExistsUnchanged:
@@ -1636,27 +1637,24 @@ void ProjectStorageUpdater::parseQmlDocument(const QString &qmlFileName,
         const auto content = m_fileSystem.contentAsQString(qmlFilePath);
         package.updatedImportSourceIds.push_back(sourceId);
         type = m_qmlDocumentParser.parse(content, package.imports, sourceId, directoryPath, isInsideProject);
-        break;
-    }
 
-    if (isChanged(directoryState)) {
         const auto &projectEntryInfo = package.projectEntryInfos.emplace_back(
             SourceId::create(directoryId),
             sourceId,
             ModuleId{},
             Storage::Synchronization::FileType::QmlDocument);
         tracer.tick("append directory info", keyValue("project data", projectEntryInfo));
+
+        tracer.tick("append updated source id", keyValue("source id", sourceId));
+        package.updatedTypeSourceIds.push_back(sourceId);
+
+        type.typeName = fileName;
+        type.sourceId = sourceId;
+
+        tracer.end(keyValue("type", type));
+
+        package.types.push_back(std::move(type));
     }
-
-    tracer.tick("append updated source id", keyValue("source id", sourceId));
-    package.updatedTypeSourceIds.push_back(sourceId);
-
-    type.typeName = fileName;
-    type.sourceId = sourceId;
-
-    tracer.end(keyValue("type", type));
-
-    package.types.push_back(std::move(type));
 }
 
 void ProjectStorageUpdater::parseQmlDocument(SourceId sourceId,

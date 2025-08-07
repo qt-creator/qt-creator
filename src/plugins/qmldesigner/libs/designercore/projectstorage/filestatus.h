@@ -5,15 +5,23 @@
 
 #include "projectstorageids.h"
 
+#include <filesystem>
 #include <vector>
 
 namespace QmlDesigner {
 
 class FileStatus
 {
+    using file_time_type = std::filesystem::file_time_type;
+
 public:
     explicit FileStatus() = default;
-    explicit FileStatus(SourceId sourceId, long long size, long long lastModified)
+
+    explicit FileStatus(SourceId sourceId)
+        : sourceId{sourceId}
+    {}
+
+    explicit FileStatus(SourceId sourceId, long long size, file_time_type lastModified)
         : sourceId{sourceId}
         , size{size}
         , lastModified{lastModified}
@@ -30,7 +38,7 @@ public:
         return first.sourceId <=> second.sourceId;
     }
 
-    bool isExisting() const { return sourceId && size >= 0 && lastModified >= 0; }
+    bool isExisting() const { return sourceId && size >= 0 && lastModified > null; }
 
     explicit operator bool() const { return bool(sourceId); }
 
@@ -46,10 +54,12 @@ public:
         convertToString(string, dict);
     }
 
+    static constexpr file_time_type null = file_time_type::min();
+
 public:
     SourceId sourceId;
     long long size = -1;
-    long long lastModified = -1;
+    file_time_type lastModified = null;
 };
 
 using FileStatuses = std::vector<FileStatus>;

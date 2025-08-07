@@ -19,17 +19,42 @@ using QmlDesigner::SourceIds;
 
 class FileStatusCache : public testing::Test
 {
+    using file_time_type = std::filesystem::file_time_type;
+
 protected:
     FileStatusCache()
     {
         ON_CALL(fileSystem, fileStatus(Eq(header)))
-            .WillByDefault(Return(FileStatus{header, headerFileSize, headerLastModifiedTime}));
+            .WillByDefault(Return(createFileStatus(header, headerFileSize, headerLastModifiedTime)));
         ON_CALL(fileSystem, fileStatus(Eq(source)))
-            .WillByDefault(Return(FileStatus{source, sourceFileSize, sourceLastModifiedTime}));
+            .WillByDefault(Return(createFileStatus(source, sourceFileSize, sourceLastModifiedTime)));
         ON_CALL(fileSystem, fileStatus(Eq(header2)))
-            .WillByDefault(Return(FileStatus{header2, header2FileSize, header2LastModifiedTime}));
+            .WillByDefault(Return(createFileStatus(header2, header2FileSize, header2LastModifiedTime)));
         ON_CALL(fileSystem, fileStatus(Eq(source2)))
-            .WillByDefault(Return(FileStatus{source2, source2FileSize, source2LastModifiedTime}));
+            .WillByDefault(Return(createFileStatus(source2, source2FileSize, source2LastModifiedTime)));
+    }
+
+    static QmlDesigner::FileStatus createFileStatus(SourceId sourceId,
+                                                    long long size,
+                                                    long long modifiedTime)
+    {
+        using file_time_type = std::filesystem::file_time_type;
+
+        return QmlDesigner::FileStatus{sourceId,
+                                       size,
+                                       file_time_type{file_time_type::duration{modifiedTime}}};
+    }
+
+    static QmlDesigner::FileStatus createFileStatus(SourceId sourceId,
+                                                    long long size,
+                                                    file_time_type modifiedTime)
+    {
+        return QmlDesigner::FileStatus{sourceId, size, modifiedTime};
+    }
+
+    file_time_type createFileTimeType(long long time)
+    {
+        return file_time_type{file_time_type::duration{time}};
     }
 
 protected:
@@ -40,16 +65,16 @@ protected:
     SourceId header2{SourceId::create(3)};
     SourceId source2{SourceId::create(4)};
     SourceIds entries{header, source, header2, source2};
-    long long headerLastModifiedTime = 100;
-    long long headerLastModifiedTime2 = 110;
+    file_time_type headerLastModifiedTime = createFileTimeType(100);
+    file_time_type headerLastModifiedTime2 = createFileTimeType(110);
     long long headerFileSize = 1000;
     long long headerFileSize2 = 1100;
-    long long header2LastModifiedTime = 300;
-    long long header2LastModifiedTime2 = 310;
+    file_time_type header2LastModifiedTime = createFileTimeType(300);
+    file_time_type header2LastModifiedTime2 = createFileTimeType(310);
     long long header2FileSize = 3000;
     long long header2FileSize2 = 3100;
-    long long sourceLastModifiedTime = 200;
-    long long source2LastModifiedTime = 400;
+    file_time_type sourceLastModifiedTime = createFileTimeType(200);
+    file_time_type source2LastModifiedTime = createFileTimeType(400);
     long long sourceFileSize = 2000;
     long long source2FileSize = 4000;
 };
@@ -65,7 +90,7 @@ TEST_F(FileStatusCache, ask_created_entry_for_last_modified_time)
 {
     auto fileStatus = cache.find(header);
 
-    ASSERT_THAT(fileStatus, (FileStatus{header, headerFileSize, headerLastModifiedTime}));
+    ASSERT_THAT(fileStatus, (createFileStatus(header, headerFileSize, headerLastModifiedTime)));
 }
 
 TEST_F(FileStatusCache, find_cached_entry)
@@ -74,14 +99,14 @@ TEST_F(FileStatusCache, find_cached_entry)
 
     auto fileStatus = cache.find(header);
 
-    ASSERT_THAT(fileStatus, (FileStatus{header, headerFileSize, headerLastModifiedTime}));
+    ASSERT_THAT(fileStatus, (createFileStatus(header, headerFileSize, headerLastModifiedTime)));
 }
 
 TEST_F(FileStatusCache, last_modified_time)
 {
     cache.find(header);
 
-    auto lastModifiedTime = cache.lastModifiedTime(header);
+    auto lastModifiedTime = cache.find(header).lastModified;
 
     ASSERT_THAT(lastModifiedTime, headerLastModifiedTime);
 }
@@ -90,7 +115,7 @@ TEST_F(FileStatusCache, file_size)
 {
     cache.find(header);
 
-    auto fileSize = cache.fileSize(header);
+    auto fileSize = cache.find(header).size;
 
     ASSERT_THAT(fileSize, headerFileSize);
 }
@@ -119,7 +144,7 @@ TEST_F(FileStatusCache, ask_new_entry_for_last_modified_time)
 
     auto fileStatus = cache.find(source);
 
-    ASSERT_THAT(fileStatus, (FileStatus{source, sourceFileSize, sourceLastModifiedTime}));
+    ASSERT_THAT(fileStatus, (createFileStatus(source, sourceFileSize, sourceLastModifiedTime)));
 }
 
 TEST_F(FileStatusCache, add_new_entry_reverse_order)
@@ -137,29 +162,30 @@ TEST_F(FileStatusCache, ask_new_entry_reverse_order_added_for_last_modified_time
 
     auto fileStatus = cache.find(header);
 
-    ASSERT_THAT(fileStatus, (FileStatus{header, headerFileSize, headerLastModifiedTime}));
+    ASSERT_THAT(fileStatus, (createFileStatus(header, headerFileSize, headerLastModifiedTime)));
 }
 
 TEST_F(FileStatusCache, update_file)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)
-        .WillOnce(Return(FileStatus{header, headerFileSize, headerLastModifiedTime}))
-        .WillOnce(Return(FileStatus{header, headerFileSize2, headerLastModifiedTime2}));
-    cache.lastModifiedTime(header);
+        .WillOnce(Return(createFileStatus(header, headerFileSize, headerLastModifiedTime)))
+        .WillOnce(Return(createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
+    cache.find(header);
 
     cache.update(header);
 
-    ASSERT_THAT(cache.find(header), (FileStatus{header, headerFileSize2, headerLastModifiedTime2}));
+    ASSERT_THAT(cache.find(header),
+                (createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
 }
 
 TEST_F(FileStatusCache, update_file_does_not_change_entry_count)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)
-        .WillOnce(Return(FileStatus{header, headerFileSize, headerLastModifiedTime}))
-        .WillOnce(Return(FileStatus{header, headerFileSize, headerLastModifiedTime2}));
-    cache.lastModifiedTime(header);
+        .WillOnce(Return(createFileStatus(header, headerFileSize, headerLastModifiedTime)))
+        .WillOnce(Return(createFileStatus(header, headerFileSize, headerLastModifiedTime2)));
+    cache.find(header);
 
     cache.update(header);
 
@@ -177,34 +203,35 @@ TEST_F(FileStatusCache, update_file_stats)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)
-        .WillOnce(Return(FileStatus{header, headerFileSize, headerLastModifiedTime}))
-        .WillOnce(Return(FileStatus{header, headerFileSize2, headerLastModifiedTime2}));
+        .WillOnce(Return(createFileStatus(header, headerFileSize, headerLastModifiedTime)))
+        .WillOnce(Return(createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
     EXPECT_CALL(fileSystem, fileStatus(Eq(header2)))
         .Times(2)
-        .WillOnce(Return(FileStatus{header2, header2FileSize, header2LastModifiedTime}))
-        .WillOnce(Return(FileStatus{header2, header2FileSize2, header2LastModifiedTime2}));
-    cache.lastModifiedTime(header);
-    cache.lastModifiedTime(header2);
+        .WillOnce(Return(createFileStatus(header2, header2FileSize, header2LastModifiedTime)))
+        .WillOnce(Return(createFileStatus(header2, header2FileSize2, header2LastModifiedTime2)));
+    cache.find(header);
+    cache.find(header2);
 
     cache.update(entries);
 
-    ASSERT_THAT(cache.find(header), (FileStatus{header, headerFileSize2, headerLastModifiedTime2}));
+    ASSERT_THAT(cache.find(header),
+                (createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
     ASSERT_THAT(cache.find(header2),
-                (FileStatus{header2, header2FileSize2, header2LastModifiedTime2}));
+                (createFileStatus(header2, header2FileSize2, header2LastModifiedTime2)));
 }
 
 TEST_F(FileStatusCache, update_files_does_not_change_entry_count)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)
-        .WillOnce(Return(FileStatus{header, headerFileSize, headerLastModifiedTime}))
-        .WillOnce(Return(FileStatus{header, headerFileSize2, headerLastModifiedTime}));
+        .WillOnce(Return(createFileStatus(header, headerFileSize, headerLastModifiedTime)))
+        .WillOnce(Return(createFileStatus(header, headerFileSize2, headerLastModifiedTime)));
     EXPECT_CALL(fileSystem, fileStatus(Eq(header2)))
         .Times(2)
-        .WillOnce(Return(FileStatus{header2, header2FileSize, header2LastModifiedTime}))
-        .WillOnce(Return(FileStatus{header2, header2FileSize2, header2LastModifiedTime}));
-    cache.lastModifiedTime(header);
-    cache.lastModifiedTime(header2);
+        .WillOnce(Return(createFileStatus(header2, header2FileSize, header2LastModifiedTime)))
+        .WillOnce(Return(createFileStatus(header2, header2FileSize2, header2LastModifiedTime)));
+    cache.find(header);
+    cache.find(header2);
 
     cache.update(entries);
 
@@ -247,18 +274,18 @@ TEST_F(FileStatusCache, some_already_existing_modified_entries)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)
-        .WillOnce(Return(FileStatus{header, headerFileSize, headerLastModifiedTime}))
-        .WillOnce(Return(FileStatus{header, headerFileSize2, headerLastModifiedTime}));
+        .WillOnce(Return(createFileStatus(header, headerFileSize, headerLastModifiedTime)))
+        .WillOnce(Return(createFileStatus(header, headerFileSize2, headerLastModifiedTime)));
     EXPECT_CALL(fileSystem, fileStatus(Eq(header2)))
         .Times(2)
-        .WillOnce(Return(FileStatus{header2, header2FileSize, header2LastModifiedTime}))
-        .WillOnce(Return(FileStatus{header2, header2FileSize2, header2LastModifiedTime}));
+        .WillOnce(Return(createFileStatus(header2, header2FileSize, header2LastModifiedTime)))
+        .WillOnce(Return(createFileStatus(header2, header2FileSize2, header2LastModifiedTime)));
     EXPECT_CALL(fileSystem, fileStatus(Eq(source)))
         .Times(2)
-        .WillRepeatedly(Return(FileStatus{source, sourceFileSize, sourceLastModifiedTime}));
+        .WillRepeatedly(Return(createFileStatus(source, sourceFileSize, sourceLastModifiedTime)));
     EXPECT_CALL(fileSystem, fileStatus(Eq(source2)))
         .Times(2)
-        .WillRepeatedly(Return(FileStatus{source2, source2FileSize, source2LastModifiedTime}));
+        .WillRepeatedly(Return(createFileStatus(source2, source2FileSize, source2LastModifiedTime)));
     cache.modified(entries);
 
     auto modifiedIds = cache.modified(entries);
@@ -269,16 +296,16 @@ TEST_F(FileStatusCache, some_already_existing_modified_entries)
 TEST_F(FileStatusCache, some_already_existing_and_some_new_modified_entries)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
-        .WillRepeatedly(Return(FileStatus{header, headerFileSize, headerLastModifiedTime}));
+        .WillRepeatedly(Return(createFileStatus(header, headerFileSize, headerLastModifiedTime)));
     EXPECT_CALL(fileSystem, fileStatus(Eq(header2)))
         .Times(2)
-        .WillOnce(Return(FileStatus{header2, header2FileSize, header2LastModifiedTime}))
-        .WillOnce(Return(FileStatus{header2, header2FileSize, header2LastModifiedTime2}));
+        .WillOnce(Return(createFileStatus(header2, header2FileSize, header2LastModifiedTime)))
+        .WillOnce(Return(createFileStatus(header2, header2FileSize, header2LastModifiedTime2)));
     EXPECT_CALL(fileSystem, fileStatus(Eq(source)))
         .Times(2)
-        .WillRepeatedly(Return(FileStatus{source, sourceFileSize, sourceLastModifiedTime}));
+        .WillRepeatedly(Return(createFileStatus(source, sourceFileSize, sourceLastModifiedTime)));
     EXPECT_CALL(fileSystem, fileStatus(Eq(source2)))
-        .WillRepeatedly(Return(FileStatus{source2, source2FileSize, source2LastModifiedTime}));
+        .WillRepeatedly(Return(createFileStatus(source2, source2FileSize, source2LastModifiedTime)));
     cache.modified({source, header2});
 
     auto modifiedIds = cache.modified(entries);
@@ -290,23 +317,24 @@ TEST_F(FileStatusCache, time_is_updated_for_some_already_existing_modified_entri
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)
-        .WillOnce(Return(FileStatus{header, headerFileSize, headerLastModifiedTime}))
-        .WillOnce(Return(FileStatus{header, headerFileSize2, headerLastModifiedTime2}));
+        .WillOnce(Return(createFileStatus(header, headerFileSize, headerLastModifiedTime)))
+        .WillOnce(Return(createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
     EXPECT_CALL(fileSystem, fileStatus(Eq(header2)))
         .Times(2)
-        .WillOnce(Return(FileStatus{header2, header2FileSize, header2LastModifiedTime}))
-        .WillOnce(Return(FileStatus{header2, header2FileSize2, header2LastModifiedTime2}));
+        .WillOnce(Return(createFileStatus(header2, header2FileSize, header2LastModifiedTime)))
+        .WillOnce(Return(createFileStatus(header2, header2FileSize2, header2LastModifiedTime2)));
     EXPECT_CALL(fileSystem, fileStatus(Eq(source)))
         .Times(2)
-        .WillRepeatedly(Return(FileStatus{source, sourceFileSize, sourceLastModifiedTime}));
+        .WillRepeatedly(Return(createFileStatus(source, sourceFileSize, sourceLastModifiedTime)));
     EXPECT_CALL(fileSystem, fileStatus(Eq(source2)))
         .Times(2)
-        .WillRepeatedly(Return(FileStatus{source2, source2FileSize, source2LastModifiedTime}));
+        .WillRepeatedly(Return(createFileStatus(source2, source2FileSize, source2LastModifiedTime)));
     cache.modified(entries);
 
     cache.modified(entries);
 
-    ASSERT_THAT(cache.find(header), (FileStatus{header, headerFileSize2, headerLastModifiedTime2}));
+    ASSERT_THAT(cache.find(header),
+                (createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
 }
 
 } // namespace

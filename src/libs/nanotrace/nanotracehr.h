@@ -29,6 +29,7 @@
 #if defined(__cpp_lib_semaphore) and __cpp_lib_semaphore >= 201907L
 #  include <semaphore>
 #endif
+#include <filesystem>
 #include <string>
 #include <string_view>
 #include <thread>
@@ -158,6 +159,12 @@ void convertToString(String &string, bool isTrue)
         string.append("true");
     else
         string.append("false");
+}
+
+template<typename String>
+void convertToString(String &string, std::filesystem::file_time_type time)
+{
+    string.append(time.time_since_epoch().count());
 }
 
 template<typename String, typename Callable, typename std::enable_if_t<std::is_invocable_v<Callable>, bool> = true>

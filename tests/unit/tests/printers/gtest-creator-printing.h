@@ -10,9 +10,14 @@
 
 #include <QtGlobal>
 
+#include <filesystem>
 #include <iosfwd>
 #include <optional>
 #include <variant>
+
+namespace std::filesystem {
+std::ostream &operator<<(std::ostream &out, const file_time_type &entry);
+}
 
 namespace Sqlite {
 class Value;

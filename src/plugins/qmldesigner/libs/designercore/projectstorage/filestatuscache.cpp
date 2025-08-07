@@ -3,6 +3,7 @@
 
 #include "filestatuscache.h"
 #include "filesystem.h"
+#include "projectstoragetracing.h"
 
 #include <utils/algorithm.h>
 #include <utils/set_algorithm.h>
@@ -12,15 +13,8 @@
 
 namespace QmlDesigner {
 
-long long FileStatusCache::lastModifiedTime(SourceId sourceId) const
-{
-    return find(sourceId).lastModified;
-}
-
-long long FileStatusCache::fileSize(SourceId sourceId) const
-{
-    return find(sourceId).size;
-}
+using NanotraceHR::keyValue;
+using ProjectStorageTracing::category;
 
 void FileStatusCache::update(SourceId sourceId)
 {
@@ -32,16 +26,23 @@ void FileStatusCache::update(SourceId sourceId)
 
 void FileStatusCache::update(SourceIds sourceIds)
 {
-    Utils::set_greedy_intersection(
-        m_cacheEntries,
-        sourceIds,
-        [&](auto &entry) { entry = m_fileSystem.fileStatus(entry.sourceId); },
-        {},
-        &FileStatus::sourceId);
+    NanotraceHR::Tracer tracer{"file status cache update", category()};
+
+    auto getFileStatus = [&](auto &entry) {
+        NanotraceHR::Tracer tracer{"get file status", category()};
+
+        entry = m_fileSystem.fileStatus(entry.sourceId);
+
+        tracer.end(keyValue("entry", entry));
+    };
+
+    Utils::set_greedy_intersection(m_cacheEntries, sourceIds, getFileStatus, {}, &FileStatus::sourceId);
 }
 
 SourceIds FileStatusCache::modified(SourceIds sourceIds) const
 {
+    NanotraceHR::Tracer tracer{"file status cache modified", category()};
+
     SourceIds modifiedSourceIds;
     modifiedSourceIds.reserve(sourceIds.size());
 
@@ -53,6 +54,7 @@ SourceIds FileStatusCache::modified(SourceIds sourceIds) const
             if (fileStatus != entry) {
                 modifiedSourceIds.push_back(entry.sourceId);
                 entry = fileStatus;
+                tracer.tick("update entry", keyValue("entry", entry));
             }
         },
         {},
@@ -65,8 +67,9 @@ SourceIds FileStatusCache::modified(SourceIds sourceIds) const
         sourceIds,
         m_cacheEntries,
         [&](SourceId newSourceId) {
-            newEntries.push_back(m_fileSystem.fileStatus(newSourceId));
+            const auto &entry = newEntries.emplace_back(m_fileSystem.fileStatus(newSourceId));
             modifiedSourceIds.push_back(newSourceId);
+            tracer.tick("new entry", keyValue("entry", entry));
         },
         {},
         {},
@@ -88,19 +91,31 @@ SourceIds FileStatusCache::modified(SourceIds sourceIds) const
 
 FileStatusCache::size_type FileStatusCache::size() const
 {
+    NanotraceHR::Tracer tracer{"file status cache size", category()};
+
     return m_cacheEntries.size();
 }
 
 const FileStatus &FileStatusCache::find(SourceId sourceId) const
 {
+    NanotraceHR::Tracer tracer{"file status cache find", category(), keyValue("source id", sourceId)};
+
     auto found = std::ranges::lower_bound(m_cacheEntries, sourceId, {}, &FileStatus::sourceId);
 
-    if (found != m_cacheEntries.end() && found->sourceId == sourceId)
-        return *found;
+    if (found != m_cacheEntries.end() && found->sourceId == sourceId) {
+        const auto &entry = *found;
+
+        tracer.tick("found entry", keyValue("entry", entry));
+
+        return entry;
+    }
 
     auto inserted = m_cacheEntries.insert(found, m_fileSystem.fileStatus(sourceId));
+    const auto &entry = *inserted;
 
-    return *inserted;
+    tracer.tick("inserted entry", keyValue("entry", entry));
+
+    return entry;
 }
 
 } // namespace QmlDesigner
