@@ -1988,7 +1988,6 @@ foo::foo2::MyType<int> foo::foo2::bar()
         InsertDefFromDecl factory;
         factory.setOutside();
         QuickFixOperationTest(singleHeader(original, expected), &factory);
-
     }
 
     void testNotTriggeringWhenVarDefinitionExists()
@@ -2083,6 +2082,56 @@ foo::foo2::MyType<int> foo::foo2::bar()
 
         InsertDefFromDecl factory;
         QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths());
+    }
+
+    void testClassInTemplateAsReturnType()
+    {
+        QByteArray original =
+            "template<typename T> struct S { struct iterator{}; };"
+            "class Foo\n"
+            "{\n"
+            "    S<int>::iterator ge@t();\n"
+            "};\n";
+        QByteArray expected =
+            "template<typename T> struct S { struct iterator{}; };"
+            "class Foo\n"
+            "{\n"
+            "    S<int>::iterator get();\n"
+            "};\n"
+            "\n"
+            "S<int>::iterator Foo::get()\n"
+            "{\n"
+            "\n"
+            "}\n";
+
+        InsertDefFromDecl factory;
+        factory.setOutside();
+        QuickFixOperationTest(singleDocument(original, expected), &factory);
+    }
+
+    void testClassInTemplateAsArgument()
+    {
+        QByteArray original =
+            "template<typename T> struct S { struct iterator{}; };"
+            "class Foo\n"
+            "{\n"
+            "    void fu@nc(S<int>::iterator);\n"
+            "};\n";
+        QByteArray expected =
+            "template<typename T> struct S { struct iterator{}; };"
+            "class Foo\n"
+            "{\n"
+            "    void func(S<int>::iterator);\n"
+            "};\n"
+            "\n"
+            "void Foo::func(S<int>::iterator)\n"
+            "{\n"
+            "\n"
+            "}\n";
+
+        InsertDefFromDecl factory;
+        factory.setOutside();
+        QuickFixOperationTest(singleDocument(original, expected), &factory);
     }
 };
 

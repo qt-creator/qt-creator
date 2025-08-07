@@ -431,13 +431,23 @@ UseMinimalNames::~UseMinimalNames()
 
 }
 
+static bool hasTemplateNameIdComponent(const Name *name)
+{
+    if (name->asTemplateNameId())
+        return true;
+    if (const auto qualName = name->asQualifiedNameId()) {
+        return hasTemplateNameIdComponent(qualName->name())
+               || hasTemplateNameIdComponent(qualName->base());
+    }
+    return false;
+}
+
 FullySpecifiedType UseMinimalNames::apply(const Name *name, Rewrite *rewrite) const
 {
     SubstitutionEnvironment *env = rewrite->env;
     Scope *scope = env->scope();
 
-    if (name->asTemplateNameId() ||
-            (name->asQualifiedNameId() && name->asQualifiedNameId()->name()->asTemplateNameId()))
+    if (hasTemplateNameIdComponent(name))
         return FullySpecifiedType();
 
     if (! scope)
