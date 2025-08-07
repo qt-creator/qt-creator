@@ -530,9 +530,8 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
             ProcessTask(onAdbSetup, onAdbDone)
         };
 
-        TaskTreeRunner *runner = new TaskTreeRunner;
-        runner->setParent(target());
-        runner->start(recipe);
+        TaskTree *taskTree = new TaskTree(recipe, target());
+        taskTree->start();
     });
 
     using namespace Layouting;
