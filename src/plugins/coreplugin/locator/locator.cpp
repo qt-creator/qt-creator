@@ -432,8 +432,8 @@ void Locator::refresh(const QList<ILocatorFilter *> &filters)
     m_taskTreeRunner.reset(); // Superfluous, just for clarity. The start() below is enough.
     m_refreshingFilters = Utils::filteredUnique(m_refreshingFilters + filters);
 
-    const auto onTreeSetup = [](TaskTree *taskTree) {
-        auto progress = new TaskProgress(taskTree);
+    const auto onTreeSetup = [](TaskTree &taskTree) {
+        auto progress = new TaskProgress(&taskTree);
         progress->setDisplayName(Tr::tr("Updating Locator Caches"));
     };
     const auto onTreeDone = [this](DoneWith result) {

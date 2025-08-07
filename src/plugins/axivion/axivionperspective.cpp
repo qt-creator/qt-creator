@@ -1174,7 +1174,7 @@ void IssuesWidget::fetchTable()
     const auto tableHandler = [this](const Dto::TableInfoDto &dto) {
         m_currentTableInfo.emplace(dto);
     };
-    const auto setupHandler = [this](TaskTree *) {
+    const auto setupHandler = [this] {
         m_totalRowCount = 0;
         m_currentTableInfo.reset();
         m_issuesView->showProgressIndicator();
@@ -1219,8 +1219,8 @@ void IssuesWidget::fetchIssues(DashboardMode dashboardMode, const IssueListSearc
     const auto issuesHandler = [this, startRow = search.offset](const Dto::IssueTableDto &dto) {
         addIssues(dto, startRow);
     };
-    const auto setupHandler = [this](TaskTree *) { m_issuesView->showProgressIndicator(); };
-    const auto doneHandler = [this](DoneWith) { m_issuesView->hideProgressIndicator(); };
+    const auto setupHandler = [this] { m_issuesView->showProgressIndicator(); };
+    const auto doneHandler = [this] { m_issuesView->hideProgressIndicator(); };
     m_taskTreeRunner.start(issueTableRecipe(dashboardMode, search, issuesHandler),
                            setupHandler, doneHandler);
 }

@@ -99,8 +99,8 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
         Group(tasks),
         onGroupDone(onDone, CallDone::OnSuccess)
     };
-    m_taskTreeRunner.start(root, [](TaskTree *taskTree) {
-        auto progress = new Core::TaskProgress(taskTree);
+    m_taskTreeRunner.start(root, [](TaskTree &taskTree) {
+        auto progress = new Core::TaskProgress(&taskTree);
         progress->setDisplayName(Tr::tr("Preparing C++ Code Model"));
     });
 }

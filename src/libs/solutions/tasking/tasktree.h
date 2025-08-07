@@ -87,6 +87,17 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(CallDoneFlags)
 
 TASKING_EXPORT DoneResult toDoneResult(bool success);
 
+// Checks if Function may be invoked with Args and if Function's return type is Result.
+template <typename Result, typename Function, typename ...Args,
+          typename DecayedFunction = std::decay_t<Function>>
+static constexpr bool isInvocable()
+{
+    // Note, that std::is_invocable_r_v doesn't check Result type properly.
+    if constexpr (std::is_invocable_r_v<Result, DecayedFunction, Args...>)
+        return std::is_same_v<Result, std::invoke_result_t<DecayedFunction, Args...>>;
+    return false;
+}
+
 class LoopData;
 class StorageData;
 class TaskTreePrivate;
@@ -281,17 +292,6 @@ protected:
     void addChildren(const GroupItems &children);
 
     static GroupItem groupHandler(const GroupHandler &handler) { return GroupItem({handler}); }
-
-    // Checks if Function may be invoked with Args and if Function's return type is Result.
-    template <typename Result, typename Function, typename ...Args,
-              typename DecayedFunction = std::decay_t<Function>>
-    static constexpr bool isInvocable()
-    {
-        // Note, that std::is_invocable_r_v doesn't check Result type properly.
-        if constexpr (std::is_invocable_r_v<Result, DecayedFunction, Args...>)
-            return std::is_same_v<Result, std::invoke_result_t<DecayedFunction, Args...>>;
-        return false;
-    }
 
 private:
     TASKING_EXPORT friend Group operator>>(const For &forItem, const Do &doItem);

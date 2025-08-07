@@ -522,6 +522,6 @@ void AssetDownloader::start()
             }
         }
     };
-    d->m_taskTreeRunner.start(root,[this](TaskTree *) { emit started(); },
+    d->m_taskTreeRunner.start(root, [this] { emit started(); },
             [this](DoneWith result) { emit finished(result == DoneWith::Success); });
 }

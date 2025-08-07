@@ -334,8 +334,8 @@ void UpdateInfoPlugin::startCheckForUpdates()
 
     emit checkForUpdatesRunningChanged(true);
 
-    const auto onTreeSetup = [](TaskTree *taskTree) {
-        m_d->m_progress = new TaskProgress(taskTree);
+    const auto onTreeSetup = [](TaskTree &taskTree) {
+        m_d->m_progress = new TaskProgress(&taskTree);
         using namespace std::chrono_literals;
         m_d->m_progress->setHalfLifeTimePerTask(30s);
         m_d->m_progress->setDisplayName(Tr::tr("Checking for Updates"));
