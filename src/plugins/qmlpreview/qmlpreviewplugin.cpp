@@ -515,11 +515,8 @@ void QmlPreviewPluginPrivate::checkDocument(const QString &name, const QByteArra
     const auto onParseSetup = [name, contents, dialect](Utils::Async<void> &async) {
         async.setConcurrentCallData(parse, name, contents, dialect);
     };
-    const auto onDone = [this, name, contents](DoneWith result) {
-        if (result == DoneWith::Success)
-            triggerPreview(name, contents);
-    };
-    m_parseRunner.start({Utils::AsyncTask<void>(onParseSetup)}, {}, onDone);
+    const auto onDone = [this, name, contents] { triggerPreview(name, contents); };
+    m_parseRunner.start({Utils::AsyncTask<void>(onParseSetup)}, {}, onDone, CallDone::OnSuccess);
 }
 
 } // namespace QmlPreview

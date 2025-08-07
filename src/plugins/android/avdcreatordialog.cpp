@@ -343,13 +343,11 @@ void AvdDialog::createAvd()
         onGroupDone(onDone, CallDone::OnError)
     };
 
-    m_taskTreeRunner.start(recipe, {}, [this, avdInfo](DoneWith result) {
-        if (result == DoneWith::Error)
-            return;
+    m_taskTreeRunner.start(recipe, {}, [this, avdInfo] {
         m_createdAvdInfo = avdInfo;
         updateAvdList();
         accept();
-    });
+    }, CallDone::OnSuccess);
 }
 
 void AvdDialog::updateDeviceDefinitionComboBox()

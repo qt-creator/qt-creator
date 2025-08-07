@@ -436,10 +436,7 @@ void Locator::refresh(const QList<ILocatorFilter *> &filters)
         auto progress = new TaskProgress(&taskTree);
         progress->setDisplayName(Tr::tr("Updating Locator Caches"));
     };
-    const auto onTreeDone = [this](DoneWith result) {
-        if (result == DoneWith::Success)
-            saveSettings();
-    };
+    const auto onTreeDone = [this] { saveSettings(); };
 
     GroupItems tasks{parallel};
     for (ILocatorFilter *filter : std::as_const(m_refreshingFilters)) {
@@ -454,7 +451,7 @@ void Locator::refresh(const QList<ILocatorFilter *> &filters)
         };
         tasks.append(group);
     }
-    m_taskTreeRunner.start(tasks, onTreeSetup, onTreeDone);
+    m_taskTreeRunner.start(tasks, onTreeSetup, onTreeDone, CallDone::OnSuccess);
 }
 
 void Locator::showFilter(ILocatorFilter *filter, LocatorWidget *widget)
