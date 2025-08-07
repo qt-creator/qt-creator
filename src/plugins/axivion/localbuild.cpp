@@ -13,7 +13,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <solutions/tasking/tasktreerunner.h>
 #include <solutions/tasking/tasktree.h>
 
 #include <utils/algorithm.h>
@@ -112,7 +111,7 @@ private:
     QHash<QString, LocalDashboard> m_startedDashboards;
     std::unordered_map<QString, std::unique_ptr<TaskTree>> m_startedDashboardTrees;
 
-    QHash<QString, TaskTreeRunner *> m_runningLocalBuilds;
+    QHash<QString, TaskTree *> m_runningLocalBuilds;
     QHash<QString, LocalBuildInfo> m_localBuildInfos;
     FilePath m_lastBauhausFromDB;
 };
@@ -583,9 +582,6 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
     if (!settings().bauhausPython().isEmpty())
         env.set("BAUHAUS_PYTHON", settings().bauhausPython().toUserOutput());
 
-    TaskTreeRunner *localBuildRunner = new TaskTreeRunner;
-    m_runningLocalBuilds.insert(projectName, localBuildRunner);
-
     const auto onSetup = [this, projectName, cmdLine, env](Process &process) {
         CommandLine cmd = HostOsInfo::isWindowsHost() ? CommandLine{"cmd", {"/c"}}
                                                       : CommandLine{"/bin/sh", {"-c"}};
@@ -611,24 +607,26 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
                                                process.cleanedStdErr()});
         qCDebug(localBuildLog) << "buildState changed >" << state << projectName;
         updateLocalBuildStateFor(projectName, state, 100);
-        TaskTreeRunner *runner = m_runningLocalBuilds.take(projectName);
-        if (runner)
-            runner->deleteLater();
+        TaskTree *taskTree = m_runningLocalBuilds.take(projectName);
+        if (taskTree)
+            taskTree->deleteLater();
     };
 
     m_localBuildInfos.insert(projectName, {LocalBuildState::None});
     updateLocalBuildStateFor(projectName, Tr::tr("Starting"), 1);
     qCDebug(localBuildLog) << "starting local build (" << projectName << "):"
                            << cmdLine.toUserOutput();
-    localBuildRunner->start({ProcessTask(onSetup, onDone)});
+    TaskTree *taskTree = new TaskTree({ProcessTask(onSetup, onDone)});
+    m_runningLocalBuilds.insert(projectName, taskTree);
+    taskTree->start();
     return true;
 }
 
 void LocalBuild::cancelLocalBuildFor(const QString &projectName)
 {
-    TaskTreeRunner *runner = m_runningLocalBuilds.value(projectName);
-    if (runner)
-        runner->cancel();
+    TaskTree *taskTree = m_runningLocalBuilds.value(projectName);
+    if (taskTree)
+        taskTree->cancel();
 }
 
 void LocalBuild::removeFinishedLocalBuilds()
