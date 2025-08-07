@@ -848,17 +848,10 @@ QDebug operator<<(QDebug debug, const DevContainer::DevContainerCommon &value)
         debug << "  ]\n";
     }
 
-    if (value.init)
-        debug << "  init=" << *value.init << "\n";
-
-    if (value.privileged)
-        debug << "  privileged=" << *value.privileged << "\n";
-
-    if (value.capAdd)
-        debug << "  capAdd=" << *value.capAdd << "\n";
-
-    if (value.securityOpt)
-        debug << "  securityOpt=" << *value.securityOpt << "\n";
+    debug << "  init=" << value.init << "\n";
+    debug << "  privileged=" << value.privileged << "\n";
+    debug << "  capAdd=" << value.capAdd << "\n";
+    debug << "  securityOpt=" << value.securityOpt << "\n";
 
     if (!value.remoteEnv.empty()) {
         debug << "  remoteEnv={\n";

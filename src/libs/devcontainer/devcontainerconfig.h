@@ -204,10 +204,10 @@ struct DEVCONTAINER_EXPORT DevContainerCommon
     std::map<QString, QString> containerEnv;
     std::optional<QString> containerUser;
     std::vector<std::variant<Mount, QString>> mounts;
-    std::optional<bool> init;
-    std::optional<bool> privileged;
-    std::optional<QStringList> capAdd;
-    std::optional<QStringList> securityOpt;
+    bool init;
+    bool privileged;
+    QStringList capAdd;
+    QStringList securityOpt;
     std::map<QString, std::optional<QString>> remoteEnv;
     std::optional<QString> remoteUser;
     std::optional<Command> initializeCommand;

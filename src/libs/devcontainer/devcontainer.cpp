@@ -662,14 +662,36 @@ while sleep 1 & wait $!; do :; done
                        containerConfig.workspaceFolder)};
     }
 
+    const auto containerUserArgs = [&commonConfig]() -> QStringList {
+        if (commonConfig.containerUser)
+            return {"-u", *commonConfig.containerUser};
+        return {};
+    }();
+
+    const auto featureArgs = [&commonConfig]() -> QStringList {
+        QStringList args;
+        // TODO: Merge feature args from features
+        if (commonConfig.init)
+            args << "--init";
+        if (commonConfig.privileged)
+            args << "--privileged";
+        for (const QString &cap : commonConfig.capAdd)
+            args << "--cap-add" << cap;
+        for (const QString &securityOpt : commonConfig.securityOpt)
+            args << "--security-opt" << securityOpt;
+        return args;
+    }();
+
     CommandLine createCmdLine{
         instanceConfig.dockerCli,
         {"create",
          {"--name", containerName(instanceConfig)},
          containerEnvArgs,
+         containerUserArgs,
          appPortArgs,
          workspaceMountArgs,
          generateMountArgs(instanceConfig, commonConfig),
+         featureArgs,
          {"--entrypoint", "/bin/sh"},
          imageName(instanceConfig),
          cmd}};
