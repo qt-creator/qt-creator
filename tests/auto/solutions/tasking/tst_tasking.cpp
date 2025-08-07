@@ -4462,9 +4462,9 @@ void tst_Tasking::restartTaskTreeRunnerFromDoneHandler()
     QStringList log;
     QStringList expectedLog{"1", "2"};
 
-    const auto onFirstDone = [&runner, &log](DoneWith) {
+    const auto onFirstDone = [&runner, &log] {
         log.append("1");
-        runner.start({TestTask()}, {}, [&log](DoneWith) { log.append("2"); });
+        runner.start({TestTask()}, {}, [&log] { log.append("2"); });
     };
     runner.start({TestTask()}, {}, onFirstDone);
     QTRY_VERIFY(!runner.isRunning());

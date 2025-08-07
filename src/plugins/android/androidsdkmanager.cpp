@@ -580,7 +580,7 @@ void AndroidSdkManagerPrivate::runDialogRecipe(const Storage<DialogStorage> &dia
             }
         }.withCancel(onCancelSetup)
     };
-    m_taskTreeRunner.start(root, {}, [this](DoneWith) {
+    m_taskTreeRunner.start(root, {}, [this] {
         QMetaObject::invokeMethod(&m_sdkManager, &AndroidSdkManager::reloadPackages,
                                   Qt::QueuedConnection);
     });

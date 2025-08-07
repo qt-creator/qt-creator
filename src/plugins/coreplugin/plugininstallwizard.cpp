@@ -296,7 +296,7 @@ public:
         };
         // clang-format on
         m_cancelButton->setVisible(true);
-        m_taskTreeRunner.start(root, {}, [this](DoneWith) { m_cancelButton->setVisible(false); });
+        m_taskTreeRunner.start(root, {}, [this] { m_cancelButton->setVisible(false); });
     }
 
     void cleanupPage() final

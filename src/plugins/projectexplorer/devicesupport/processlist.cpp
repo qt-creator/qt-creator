@@ -120,9 +120,7 @@ void ProcessList::update()
         emit processListUpdated();
     };
 
-    d->m_taskTree.start(Group{
-        AsyncTask<ProcessListResult>(setupListFetcher, listFetchDone),
-    });
+    d->m_taskTree.start({AsyncTask<ProcessListResult>(setupListFetcher, listFetchDone)});
 }
 
 void ProcessList::killProcess(int row)

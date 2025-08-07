@@ -804,7 +804,7 @@ void RunControlPrivate::startTaskTree()
         data.m_runRecipe
     };
 
-    m_taskTreeRunner.start(recipe, {}, [this](DoneWith) {
+    m_taskTreeRunner.start(recipe, {}, [this] {
         debugMessage("Done");
         emitStopped();
     });

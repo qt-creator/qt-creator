@@ -224,7 +224,7 @@ bool ServiceImpl::installPackages(const QString &filterRegex)
                 connect(actionButton, &QPushButton::clicked, &dialog, &QDialog::accept);
                 cancelButton->setVisible(false);
             };
-        runner.start(Group{ProcessTask(onInstallSetup, onInstallDone)});
+        runner.start({ProcessTask(onInstallSetup, onInstallDone)});
     };
     const auto showNotFoundPage = [stackWidget, notFoundPage, cancelButton] {
         stackWidget->setCurrentWidget(notFoundPage);
@@ -277,7 +277,7 @@ bool ServiceImpl::installPackages(const QString &filterRegex)
             showPackagesPage();
     };
 
-    runner.start(Group{ProcessTask(onSearchSetup, onSearchDone)});
+    runner.start({ProcessTask(onSearchSetup, onSearchDone)});
 
     return dialog.exec() == QDialog::Accepted;
 }
