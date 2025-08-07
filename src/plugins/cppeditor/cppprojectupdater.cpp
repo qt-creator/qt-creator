@@ -94,12 +94,12 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
         m_futureSynchronizer.addFuture(updateFuture);
     };
 
-    const Group root {
+    const Group recipe {
         storage,
         Group(tasks),
         onGroupDone(onDone, CallDone::OnSuccess)
     };
-    m_taskTreeRunner.start(root, [](TaskTree &taskTree) {
+    m_taskTreeRunner.start(recipe, [](TaskTree &taskTree) {
         auto progress = new Core::TaskProgress(&taskTree);
         progress->setDisplayName(Tr::tr("Preparing C++ Code Model"));
     });

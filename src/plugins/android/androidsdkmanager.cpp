@@ -568,7 +568,7 @@ void AndroidSdkManagerPrivate::runDialogRecipe(const Storage<DialogStorage> &dia
         return std::make_pair(dialogStorage->m_dialog.get(), &QDialog::accepted);
     };
     const auto onError = [dialogStorage] { dialogStorage->m_dialog->setDone(); };
-    const Group root {
+    const Group recipe {
         dialogStorage,
         Group {
             If (!Group {
@@ -580,7 +580,7 @@ void AndroidSdkManagerPrivate::runDialogRecipe(const Storage<DialogStorage> &dia
             }
         }.withCancel(onCancelSetup)
     };
-    m_taskTreeRunner.start(root, {}, [this] {
+    m_taskTreeRunner.start(recipe, {}, [this] {
         QMetaObject::invokeMethod(&m_sdkManager, &AndroidSdkManager::reloadPackages,
                                   Qt::QueuedConnection);
     });

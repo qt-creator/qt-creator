@@ -583,11 +583,11 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         }
     };
 
-    const Group root {
+    const Group recipe {
         topRevisionProc,
         ProcessTask(onForEachRefSetup, onForEachRefDone)
     };
-    d->taskTreeRunner.start(root);
+    d->taskTreeRunner.start(recipe);
 }
 
 void BranchModel::setCurrentBranch()

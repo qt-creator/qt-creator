@@ -538,11 +538,7 @@ private:
             m_spinner->hide();
         };
 
-        Group group {
-            NetworkQueryTask{onQuerySetup, onQueryDone},
-        };
-
-        taskTreeRunner.start(group);
+        taskTreeRunner.start({NetworkQueryTask(onQuerySetup, onQueryDone)});
     }
 
     void queueImageForDownload(const QString &url)

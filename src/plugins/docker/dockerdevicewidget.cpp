@@ -139,7 +139,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
                 const auto log = [logView](const QString &msg) { logView->append(msg); };
                 // clang-format off
-                Tasking::Group recipe {
+                const Tasking::Group recipe {
                     ProjectExplorer::removeDetectedKitsRecipe(dockerDevice, log),
                     ProjectExplorer::kitDetectionRecipe(dockerDevice, DetectionSource::FromSystem, log)
                 };
@@ -159,7 +159,8 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         m_detectionRunner.start(
             ProjectExplorer::removeDetectedKitsRecipe(device, [logView](const QString &msg) {
                 logView->append(msg);
-            }));
+            })
+        );
     });
 
     connect(listAutoDetectedButton, &QPushButton::clicked, this, [logView, device] {

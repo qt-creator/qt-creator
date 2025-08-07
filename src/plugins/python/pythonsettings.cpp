@@ -55,8 +55,8 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-using namespace Layouting;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Python::Internal {
@@ -104,6 +104,8 @@ public:
 
         connect(m_name, &QLineEdit::textChanged, this, &InterpreterDetailsWidget::changed);
         connect(m_executable, &PathChooser::textChanged, this, &InterpreterDetailsWidget::changed);
+
+        using namespace Layouting;
 
         Form {
             Tr::tr("Name:"), m_name, br,
@@ -186,6 +188,8 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
     m_cleanButton->setToolTip(Tr::tr("Remove all Python interpreters without a valid executable."));
 
     m_view = new QTreeView(this);
+
+    using namespace Layouting;
 
     Column buttons {
         addButton,
@@ -741,10 +745,10 @@ PythonSettings::PythonSettings()
         }
     };
 
-    const Tasking::Group recipe {
-        Tasking::finishAllAndSuccess,
+    const Group recipe {
+        finishAllAndSuccess,
         Utils::HostOsInfo::isWindowsHost()
-            ? AsyncTask<QList<Interpreter>>(onRegistrySetup, onTaskDone) : Tasking::nullItem,
+            ? AsyncTask<QList<Interpreter>>(onRegistrySetup, onTaskDone) : nullItem,
         AsyncTask<QList<Interpreter>>(onPathSetup, onTaskDone)
     };
     m_taskTreeRunner.start(recipe);
@@ -1107,15 +1111,13 @@ void PythonSettings::writeToSettings(QtcSettings *settings)
     settings->endGroup();
 }
 
-std::optional<Tasking::ExecutableItem> PythonSettings::autoDetect(
+std::optional<ExecutableItem> PythonSettings::autoDetect(
     Kit *kit,
     const Utils::FilePaths &searchPaths,
     const DetectionSource &detectionSource,
     const LogCallback &logCallback)
 {
     Q_UNUSED(kit);
-
-    using namespace Tasking;
 
     const auto setupSearch = [searchPaths, detectionSource](Async<Interpreter> &task) {
         const QList<Interpreter> alreadyConfigured = PythonSettings::interpreters();

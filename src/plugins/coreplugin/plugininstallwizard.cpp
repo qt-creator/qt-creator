@@ -290,13 +290,13 @@ public:
         };
 
         // clang-format off
-        const Group root{
+        const Group recipe {
             UnarchiverTask(onUnarchiverSetup, onUnarchiverDone),
             AsyncTask<CheckResult>(onCheckerSetup, onCheckerDone, CallDone::OnSuccess)
         };
         // clang-format on
         m_cancelButton->setVisible(true);
-        m_taskTreeRunner.start(root, {}, [this] { m_cancelButton->setVisible(false); });
+        m_taskTreeRunner.start(recipe, {}, [this] { m_cancelButton->setVisible(false); });
     }
 
     void cleanupPage() final

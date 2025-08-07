@@ -1202,16 +1202,15 @@ void AxivionPluginPrivate::fetchNamedFilters(DashboardMode dashboardMode)
         updateNamedFilters();
     };
 
-    Group namedFiltersGroup = Group {
-            globalStorage,
-            userStorage,
-            onGroupSetup(onSetup),
-            downloadDataRecipe(dashboardMode, globalStorage) || successItem,
-            downloadDataRecipe(dashboardMode, userStorage) || successItem,
-            onGroupDone(onDone)
+    const Group recipe {
+        globalStorage,
+        userStorage,
+        onGroupSetup(onSetup),
+        downloadDataRecipe(dashboardMode, globalStorage) || successItem,
+        downloadDataRecipe(dashboardMode, userStorage) || successItem,
+        onGroupDone(onDone)
     };
-
-    m_namedFilterRunner.start(namedFiltersGroup);
+    m_namedFilterRunner.start(recipe);
 }
 
 void AxivionPluginPrivate::handleOpenedDocs()

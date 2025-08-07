@@ -981,15 +981,15 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update,
     };
     */
 
-    Group group{
+    const Group recipe {
         storage,
         NetworkQueryTask{onQuerySetup, onQueryDone},
         Sync{onPluginInstallation},
-        Sync{[this]() { updateView(m_extensionBrowser->currentIndex()); }},
+        Sync{[this] { updateView(m_extensionBrowser->currentIndex()); }},
         //NetworkQueryTask{onDownloadSetup, onDownloadDone},
     };
 
-    m_dlTaskTreeRunner.start(group);
+    m_dlTaskTreeRunner.start(recipe);
 }
 
 QWidget *createExtensionManagerWidget()

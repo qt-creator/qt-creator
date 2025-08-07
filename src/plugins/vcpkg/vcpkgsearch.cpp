@@ -204,7 +204,7 @@ void VcpkgPackageSearchDialog::updatePackages()
 {
     using namespace Tasking;
 
-    const Group group {
+    const Group recipe {
         onGroupSetup([this] { m_spinner->show(); }),
         AsyncTask<VcpkgManifest>{
             [](Async<VcpkgManifest> &task) {
@@ -220,7 +220,7 @@ void VcpkgPackageSearchDialog::updatePackages()
             updateStatus();
         }),
     };
-    m_taskTreeRunner.start(group);
+    m_taskTreeRunner.start(recipe);
 }
 
 VcpkgManifest parseVcpkgManifest(const QByteArray &vcpkgManifestJsonData, bool *ok)

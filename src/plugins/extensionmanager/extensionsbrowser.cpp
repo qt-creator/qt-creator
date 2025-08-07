@@ -907,7 +907,7 @@ void ExtensionsBrowser::fetchExtensions()
     };
 
     // clang-format off
-    Group group {
+    const Group recipe {
         unpackedRepositories,
         Sync([this] { d->m_spinner->show(); }),
         For (urlIterator) >> Do {
@@ -931,7 +931,7 @@ void ExtensionsBrowser::fetchExtensions()
     };
     // clang-format on
 
-    d->taskTreeRunner.start(group);
+    d->taskTreeRunner.start(recipe);
 }
 
 const int iconRectRounding = 4;

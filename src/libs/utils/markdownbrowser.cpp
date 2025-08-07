@@ -565,7 +565,7 @@ public:
             };
 
             // clang-format off
-            Group group {
+            const Group recipe {
                 parallelLimit(2),
                 For(remoteIterator) >> Do {
                     remoteData,
@@ -580,7 +580,7 @@ public:
             };
             // clang-format on
 
-            m_imageLoaderTree.start(group);
+            m_imageLoaderTree.start(recipe);
         });
     }
 

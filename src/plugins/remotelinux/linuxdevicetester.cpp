@@ -322,7 +322,7 @@ void GenericLinuxDeviceTester::testDevice()
 
     d->m_device = std::static_pointer_cast<LinuxDevice>(device());
 
-    const Group root {
+    const Group recipe {
         d->connectionTask(),
         d->echoTask("Hello"), // No quoting necessary
         d->echoTask("Hello Remote World!"), // Checks quoting, too.
@@ -332,7 +332,7 @@ void GenericLinuxDeviceTester::testDevice()
         d->m_extraTests,
         d->commandTasks()
     };
-    d->m_taskTreeRunner.start(root);
+    d->m_taskTreeRunner.start(recipe);
 }
 
 void GenericLinuxDeviceTester::stopTest()

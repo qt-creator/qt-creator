@@ -979,7 +979,7 @@ void CallgrindTool::unpause()
     executeController({ optionRecipe(Option::UnPause) });
 }
 
-void CallgrindTool::executeController(const Tasking::Group &recipe)
+void CallgrindTool::executeController(const Group &recipe)
 {
     if (m_controllerRunner.isRunning())
         Debugger::showPermanentStatusMessage(Tr::tr("Previous command has not yet finished."));

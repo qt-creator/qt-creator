@@ -360,7 +360,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
         m_d->m_updateOutput = process.cleanedStdOut();
     };
 
-    const Group recipe{
+    const Group recipe {
         ProcessTask(onUpdateSetup, onUpdateDone, CallDone::OnSuccess),
         m_d->m_settings.checkForQtVersions
             ? ProcessTask(
@@ -371,7 +371,8 @@ void UpdateInfoPlugin::startCheckForUpdates()
                   },
                   [](const Process &process) { m_d->m_packagesOutput = process.cleanedStdOut(); },
                   CallDone::OnSuccess)
-            : nullItem};
+            : nullItem
+    };
     m_d->m_taskTreeRunner.start(recipe, onTreeSetup, onTreeDone);
 }
 

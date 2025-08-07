@@ -497,7 +497,7 @@ void AssetDownloader::start()
         d->updateProgress(storageData.doneCount, storageData.assets.allAssets.size());
     };
 
-    const Group root {
+    const Group recipe {
         storage,
         onGroupSetup(onSetup),
         NetworkQueryTask(onJsonDownloadSetup, onJsonDownloadDone),
@@ -522,6 +522,6 @@ void AssetDownloader::start()
             }
         }
     };
-    d->m_taskTreeRunner.start(root, [this] { emit started(); },
+    d->m_taskTreeRunner.start(recipe, [this] { emit started(); },
             [this](DoneWith result) { emit finished(result == DoneWith::Success); });
 }

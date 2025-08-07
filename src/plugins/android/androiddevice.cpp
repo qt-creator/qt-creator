@@ -600,13 +600,13 @@ void AndroidDevice::startAvd()
             DeviceManager::setDeviceState(id(), IDevice::DeviceReadyToUse);
     };
 
-    const Group root {
+    const Group recipe {
         serialNumberStorage,
         startAvdRecipe(avdName(), serialNumberStorage),
         onGroupDone(onDone, CallDone::OnSuccess)
     };
 
-    m_taskTreeRunner.start(root);
+    m_taskTreeRunner.start(recipe);
 }
 
 IDevice::DeviceInfo AndroidDevice::deviceInformation() const
@@ -928,7 +928,7 @@ void AndroidDeviceManagerInstance::setupDevicesWatcher()
         return DoneResult::Success; // Continue the Forever loop.
     };
 
-    m_avdDeviceWatcherRunner.start(Group { Forever { ProcessTask(onSetup, onDone) } });
+    m_avdDeviceWatcherRunner.start({ Forever { ProcessTask(onSetup, onDone) } });
 
     // Setup AVD filesystem watcher to listen for changes when an avd is created/deleted,
     // or started/stopped

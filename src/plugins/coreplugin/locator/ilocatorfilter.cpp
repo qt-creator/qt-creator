@@ -387,7 +387,7 @@ void LocatorMatcher::start()
         });
     };
 
-    const Group root {
+    const Group recipe {
         parallel,
         collectorStorage,
         AsyncTask<LocatorFilterEntries>(onCollectorSetup, onCollectorDone),
@@ -396,7 +396,7 @@ void LocatorMatcher::start()
             TaskTreeTask(onTaskTreeSetup)
         }
     };
-    d->m_taskTreeRunner.start(root, {}, [this](DoneWith result) {
+    d->m_taskTreeRunner.start(recipe, {}, [this](DoneWith result) {
         emit done(result == DoneWith::Success);
     });
 }

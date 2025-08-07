@@ -373,14 +373,10 @@ bool AxivionSettings::updateDashboardServers(const QList<AxivionServer> &other,
         query.setKey(*iterator);
     };
 
-    const Group recipe {
-        For (iterator) >> Do {
-            CredentialQueryTask(onDeleteKeySetup)
-        }
+    const Group recipe = For (iterator) >> Do {
+        CredentialQueryTask(onDeleteKeySetup)
     };
-
     m_taskTreeRunner.start(recipe);
-
     return true;
 }
 

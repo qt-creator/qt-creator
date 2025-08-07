@@ -100,9 +100,7 @@ void SecretAspect::readSecret(const std::function<void(Result<QString>)> &cb) co
         return DoneResult::Success;
     };
 
-    d->readRunner.start({
-        CredentialQueryTask(onGetCredentialSetup, onGetCredentialDone),
-    });
+    d->readRunner.start({CredentialQueryTask(onGetCredentialSetup, onGetCredentialDone)});
 }
 
 QString SecretAspect::warningThatNoSecretStorageIsAvailable()
@@ -158,11 +156,11 @@ void SecretAspect::writeSettings() const
     const LoopUntil iterator([this](int) { return std::exchange(d->repeatWriting, false); });
 
     // clang-format off
-    d->writeRunner.start({
-        For(iterator) >> Do {
-             CredentialQueryTask(onSetCredentialSetup, onSetCredentialsDone),
-         }
-    });
+    d->writeRunner.start(
+        For (iterator) >> Do {
+            CredentialQueryTask(onSetCredentialSetup, onSetCredentialsDone)
+        }
+    );
     // clang-format on
 }
 
