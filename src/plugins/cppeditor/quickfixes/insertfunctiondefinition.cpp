@@ -494,141 +494,133 @@ private:
 
         int idx = path.size() - 1;
         for (; idx >= 0; --idx) {
-            AST *node = path.at(idx);
-            if (SimpleDeclarationAST *simpleDecl = node->asSimpleDeclaration()) {
-                if (!simpleDecl->declarator_list || !simpleDecl->declarator_list->value)
-                    return;
-                if (idx > 0 && path.at(idx - 1)->asStatement())
-                    return;
-                if (simpleDecl->symbols && !simpleDecl->symbols->next) {
-                    if (Symbol *symbol = simpleDecl->symbols->value) {
-                        if (Declaration *decl = symbol->asDeclaration()) {
-                            Function * const func = decl->type()->asFunctionType();
-                            if (func && (func->isSignal() || func->isPureVirtual()
-                                         || func->isFriend())) {
-                                return;
-                            }
-                            if (!func
-                                && (!decl->type().isStatic() || decl->type().isInline()
-                                    || simpleDecl->declarator_list->value->initializer)) {
-                                return;
-                            }
-
-                            const Project * const declProject
-                                = ProjectManager::projectForFile(decl->filePath());
-                            const ProjectNode * const declProduct
-                                = declProject
-                                      ? declProject->productNodeForFilePath(decl->filePath())
-                                      : nullptr;
-
-                            // Check if there is already a definition in this product.
-                            SymbolFinder symbolFinder;
-                            QList<Symbol *> defs;
-                            if (func) {
-                                const QList<Function *> funcDefs
-                                    = symbolFinder.findMatchingDefinitions(
-                                        decl, interface.snapshot(), true, false);
-                                for (Function * const def : funcDefs)
-                                    defs << def;
-                            } else if (
-                                Symbol * const varDef
-                                = symbolFinder.findMatchingVarDefinition(decl, interface.snapshot())) {
-                                defs << varDef;
-                            }
-                            for (const Symbol * const def : defs) {
-                                const Project * const defProject
-                                    = ProjectManager::projectForFile(def->filePath());
-                                if (declProject == defProject) {
-                                    if (!declProduct)
-                                        return;
-                                    const ProjectNode * const defProduct
-                                        = defProject ? defProject->productNodeForFilePath(
-                                                           def->filePath())
-                                                     : nullptr;
-                                    if (!defProduct || declProduct == defProduct)
-                                        return;
-                                }
-                            }
-
-                            // Insert Position: Implementation File
-                            InsertDefOperation *op = nullptr;
-                            ProjectFile::Kind kind = ProjectFile::classify(interface.filePath().toUrlishString());
-                            const bool isHeaderFile = ProjectFile::isHeader(kind);
-                            if (isHeaderFile) {
-                                CppRefactoringChanges refactoring(interface.snapshot());
-                                InsertionPointLocator locator(refactoring);
-                                // find appropriate implementation file, but do not use this
-                                // location, because insertLocationForMethodDefinition() should
-                                // be used in perform() to get consistent insert positions.
-                                for (const InsertionLocation &location :
-                                     locator.methodDefinition(decl, false, {})) {
-                                    if (!location.isValid())
-                                        continue;
-
-                                    const FilePath filePath = location.filePath();
-                                    const Project * const defProject
-                                        = ProjectManager::projectForFile(filePath);
-                                    if (declProject != defProject)
-                                        continue;
-                                    if (declProduct) {
-                                        const ProjectNode * const defProduct = defProject
-                                                                                  ? defProject->productNodeForFilePath(filePath)
-                                                                                  : nullptr;
-                                        if (defProduct && declProduct != defProduct)
-                                            continue;
-                                    }
-
-                                    if (ProjectFile::isHeader(ProjectFile::classify(filePath.path()))) {
-                                        const FilePath source = correspondingHeaderOrSource(filePath);
-                                        if (!source.isEmpty()) {
-                                            op = new InsertDefOperation(interface, decl, simpleDecl,
-                                                                        InsertionLocation(),
-                                                                        DefPosImplementationFile,
-                                                                        source);
-                                        }
-                                    } else {
-                                        op = new InsertDefOperation(interface, decl, simpleDecl,
-                                                                    InsertionLocation(),
-                                                                    DefPosImplementationFile,
-                                                                    filePath);
-                                    }
-
-                                    if (op)
-                                        result << op;
-                                    break;
-                                }
-                            }
-
-                            // Determine if we are dealing with a free function
-                            const bool isFreeFunction = func && !func->enclosingClass();
-
-                            // Insert Position: Outside Class
-                            if ((func || !isHeaderFile)
-                                && (!isFreeFunction || m_defPosOutsideClass)) {
-                                result << new InsertDefOperation(interface, decl, simpleDecl,
-                                                                 InsertionLocation(),
-                                                                 DefPosOutsideClass,
-                                                                 interface.filePath());
-                            }
-
-                            // Insert Position: Inside Class
-                            // Determine insert location direct after the declaration.
-                            int line, column;
-                            const CppRefactoringFilePtr file = interface.currentFile();
-                            file->lineAndColumn(file->endOf(simpleDecl), &line, &column);
-                            const InsertionLocation loc
-                                = InsertionLocation(interface.filePath(), QString(),
-                                                    QString(), line, column);
-                            result << new InsertDefOperation(interface, decl, simpleDecl, loc,
-                                                             DefPosInsideClass, FilePath(),
-                                                             isFreeFunction);
-
-                            return;
-                        }
-                    }
-                }
-                break;
+            SimpleDeclarationAST * const simpleDecl = path.at(idx)->asSimpleDeclaration();
+            if (!simpleDecl)
+                continue;
+            if (!simpleDecl->declarator_list || !simpleDecl->declarator_list->value)
+                return;
+            if (idx > 0 && path.at(idx - 1)->asStatement())
+                return;
+            if (!simpleDecl->symbols || !simpleDecl->symbols->value || simpleDecl->symbols->next)
+                return;
+            Declaration *const decl = simpleDecl->symbols->value->asDeclaration();
+            if (!decl)
+                return;
+            Function *const func = decl->type()->asFunctionType();
+            if (func && (func->isSignal() || func->isPureVirtual() || func->isFriend()))
+                return;
+            if (!func
+                && (!decl->type().isStatic() || decl->type().isInline()
+                    || simpleDecl->declarator_list->value->initializer)) {
+                return;
             }
+
+            const Project * const declProject = ProjectManager::projectForFile(decl->filePath());
+            const ProjectNode * const declProduct
+                = declProject ? declProject->productNodeForFilePath(decl->filePath()) : nullptr;
+
+            // Check if there is already a definition in this product.
+            SymbolFinder symbolFinder;
+            QList<Symbol *> defs;
+            if (func) {
+                const QList<Function *> funcDefs
+                    = symbolFinder.findMatchingDefinitions(decl, interface.snapshot(), true, false);
+                for (Function *const def : funcDefs)
+                    defs << def;
+            } else if (
+                Symbol *const varDef
+                = symbolFinder.findMatchingVarDefinition(decl, interface.snapshot())) {
+                defs << varDef;
+            }
+            for (const Symbol * const def : defs) {
+                const Project * const defProject = ProjectManager::projectForFile(def->filePath());
+                if (declProject == defProject) {
+                    if (!declProduct)
+                        return;
+                    const ProjectNode *const defProduct = defProject
+                        ? defProject->productNodeForFilePath(def->filePath())
+                        : nullptr;
+                    if (!defProduct || declProduct == defProduct)
+                        return;
+                }
+            }
+
+            // Insert Position: Implementation File
+            InsertDefOperation *op = nullptr;
+            ProjectFile::Kind kind = ProjectFile::classify(interface.filePath().toUrlishString());
+            const bool isHeaderFile = ProjectFile::isHeader(kind);
+            if (isHeaderFile) {
+                CppRefactoringChanges refactoring(interface.snapshot());
+                InsertionPointLocator locator(refactoring);
+                // find appropriate implementation file, but do not use this
+                // location, because insertLocationForMethodDefinition() should
+                // be used in perform() to get consistent insert positions.
+                for (const InsertionLocation &location : locator.methodDefinition(decl, false, {})) {
+                    if (!location.isValid())
+                        continue;
+
+                    const FilePath filePath = location.filePath();
+                    const Project *const defProject = ProjectManager::projectForFile(filePath);
+                    if (declProject != defProject)
+                        continue;
+                    if (declProduct) {
+                        const ProjectNode *const defProduct
+                            = defProject ? defProject->productNodeForFilePath(filePath) : nullptr;
+                        if (defProduct && declProduct != defProduct)
+                            continue;
+                    }
+
+                    if (ProjectFile::isHeader(ProjectFile::classify(filePath.path()))) {
+                        const FilePath source = correspondingHeaderOrSource(filePath);
+                        if (!source.isEmpty()) {
+                            op = new InsertDefOperation(
+                                interface,
+                                decl,
+                                simpleDecl,
+                                InsertionLocation(),
+                                DefPosImplementationFile,
+                                source);
+                        }
+                    } else {
+                        op = new InsertDefOperation(
+                            interface,
+                            decl,
+                            simpleDecl,
+                            InsertionLocation(),
+                            DefPosImplementationFile,
+                            filePath);
+                    }
+
+                    if (op)
+                        result << op;
+                    break;
+                }
+            }
+
+            // Determine if we are dealing with a free function
+            const bool isFreeFunction = func && !func->enclosingClass();
+
+            // Insert Position: Outside Class
+            if ((func || !isHeaderFile) && (!isFreeFunction || m_defPosOutsideClass)) {
+                result << new InsertDefOperation(
+                    interface,
+                    decl,
+                    simpleDecl,
+                    InsertionLocation(),
+                    DefPosOutsideClass,
+                    interface.filePath());
+            }
+
+            // Insert Position: Inside Class
+            // Determine insert location direct after the declaration.
+            int line, column;
+            const CppRefactoringFilePtr file = interface.currentFile();
+            file->lineAndColumn(file->endOf(simpleDecl), &line, &column);
+            const InsertionLocation loc
+                = InsertionLocation(interface.filePath(), QString(), QString(), line, column);
+            result << new InsertDefOperation(
+                interface, decl, simpleDecl, loc, DefPosInsideClass, FilePath(), isFreeFunction);
+            return;
         }
     }
 
