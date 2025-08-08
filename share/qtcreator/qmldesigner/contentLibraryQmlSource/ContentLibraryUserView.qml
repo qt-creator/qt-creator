@@ -283,10 +283,12 @@ Item {
                             text: {
                                 let categoryName = (categoryTitle === "3D") ? categoryTitle + " assets"
                                                                             : categoryTitle.toLowerCase()
+                                let alwaysAvailable = categoryTitle === "Textures"
+                                    || categoryTitle === "2D" || section.isCustomCat
                                 if (!ContentLibraryBackend.rootView.isQt6Project) {
                                     qsTr("<b>Content Library</b> is not supported in Qt5 projects.")
                                 } else if (!ContentLibraryBackend.rootView.hasQuick3DImport
-                                           && categoryTitle !== "Textures" && !section.isCustomCat) {
+                                           && !alwaysAvailable) {
                                     qsTr('To use %1, add the <b>QtQuick3D</b> module and the <b>View3D</b>
                                          component in the <b>Components</b> view, or click
                                          <a href=\"#add_import\"><span style=\"text-decoration:none;color:%2\">
@@ -294,7 +296,7 @@ Item {
                                     .arg(categoryName)
                                     .arg(StudioTheme.Values.themeInteraction)
                                 } else if (!ContentLibraryBackend.rootView.hasMaterialLibrary
-                                           && categoryTitle !== "Textures" && !section.isCustomCat) {
+                                           && !alwaysAvailable) {
                                     qsTr("<b>Content Library</b> is disabled inside a non-visual component.")
                                 } else if (categoryEmpty) {
                                     qsTr("There are no items in this category.")
