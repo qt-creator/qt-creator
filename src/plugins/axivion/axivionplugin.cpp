@@ -1253,6 +1253,9 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     if (m_allMarks.contains(docFilePath)) // FIXME local vs global dashboard
         return;
 
+    if (docFilePath.isEmpty())
+        return;
+
     FilePath filePath = settings().mappedFilePath(docFilePath, m_currentProjectInfo->name);
     if (filePath.isEmpty() && m_project && m_project->isKnownFile(docFilePath))
         filePath = docFilePath.relativeChildPath(m_project->projectDirectory());
