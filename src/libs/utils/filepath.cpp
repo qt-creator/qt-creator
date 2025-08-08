@@ -2942,7 +2942,7 @@ PathAndParents::PathAndParents(const FilePath &p, const FilePath &last)
     : m_path(p)
     , m_lastPath(last)
 {
-    QTC_CHECK(p.isChildOf(last) || p == last);
+    QTC_CHECK(last.isEmpty() || p == last || p.isChildOf(last));
 }
 
 PathAndParents::iterator PathAndParents::begin() const

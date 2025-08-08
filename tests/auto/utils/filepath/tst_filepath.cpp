@@ -2196,6 +2196,20 @@ void tst_filepath::parentsWithLastPath()
     ++it;
     ignoreSoftAssert();
     QCOMPARE(it, std::end(parentPaths3));
+
+    const PathAndParents emptyLast(path, FilePath());
+    it = std::begin(emptyLast);
+    QCOMPARE(*it, FilePath::fromUserInput("/a/b/c/d"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("/a/b/c"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("/a/b"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("/a"));
+    ++it;
+    QCOMPARE(*it, FilePath::fromUserInput("/"));
+    ++it;
+    QCOMPARE(it, std::end(emptyLast));
 }
 
 } // Utils
