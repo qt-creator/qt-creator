@@ -121,6 +121,47 @@ private:
     std::unique_ptr<TaskTree> m_taskTree;
 };
 
+class TASKING_EXPORT SequentialTaskTreeRunner : public AbstractTaskTreeRunner
+{
+    Q_OBJECT
+
+public:
+    SequentialTaskTreeRunner();
+    ~SequentialTaskTreeRunner();
+
+    bool isRunning() const override;
+
+    // When task tree is running it resets the old task tree.
+    template <typename SetupHandler = TreeSetupHandler, typename DoneHandler = TreeDoneHandler>
+    void enqueue(const Group &recipe,
+                 SetupHandler &&setupHandler = {},
+                 DoneHandler &&doneHandler = {},
+                 CallDoneFlags callDone = CallDone::Always)
+    {
+        enqueueImpl({recipe,
+                     wrapTreeSetupHandler(std::forward<SetupHandler>(setupHandler)),
+                     wrapTreeDoneHandler(std::forward<DoneHandler>(doneHandler)),
+                     callDone});
+    }
+
+    // The running task trees is canceled. Emits done(DoneWith::Cancel) signals synchronously.
+    // The eunqeued tasks are removed.
+    void cancel() override;
+    void cancelCurrent();
+
+    // All running task trees are deleted. No done() signal is emitted.
+    // The eunqeued tasks are removed.
+    void reset() override;
+    void resetCurrent();
+
+private:
+    void enqueueImpl(const TreeData &data);
+    void startNext();
+
+    QList<TreeData> m_treeDataQueue;
+    SingleTaskTreeRunner m_taskTreeRunner;
+};
+
 } // namespace Tasking
 
 QT_END_NAMESPACE

@@ -365,6 +365,7 @@ struct RunnerData
 {
     QList<QPair<QString, Group>> recipes;
     Log singleLog;
+    Log sequentialLog;
 };
 
 static Handler resultToGroupHandler(DoneWith doneWith)
@@ -490,9 +491,27 @@ void tst_Tasking::taskTreeRunner_data()
             {31, Handler::Error},
             {3, Handler::GroupError}
         };
+
+        const Log sequentialLog {
+            {1, Handler::GroupSetup},
+            {11, Handler::Setup},
+            {11, Handler::Success},
+            {12, Handler::Setup},
+            {12, Handler::Error},
+            {1, Handler::GroupError},
+            {2, Handler::GroupSetup},
+            {21, Handler::Setup},
+            {21, Handler::Success},
+            {2, Handler::GroupSuccess},
+            {3, Handler::GroupSetup},
+            {31, Handler::Setup},
+            {31, Handler::Error},
+            {3, Handler::GroupError}
+        };
+
         QTest::newRow("TaskTreeRunner")
                 << RunnerData{{{"keyA", recipe_A}, {"keyB", recipe_B}, {"keyA", recipe_C}},
-                              singleLog};
+                              singleLog, sequentialLog};
     }
 }
 
@@ -508,6 +527,21 @@ void tst_Tasking::taskTreeRunner()
         QSignalSpy doneSpy(&emitter, &DoneEmitter::done);
         for (const QPair<QString, Group> &recipe : runnerData.recipes)
             taskTreeRunner.start(recipe.second);
+
+        doneSpy.wait(1s);
+
+        QVERIFY(!taskTreeRunner.isRunning());
+        QCOMPARE(s_globalLog, expectedLog);
+    }
+
+    {
+        s_globalLog = {};
+        const Log expectedLog = runnerData.sequentialLog;
+        SequentialTaskTreeRunner taskTreeRunner;
+        DoneEmitter emitter(&taskTreeRunner, doneCount(expectedLog));
+        QSignalSpy doneSpy(&emitter, &DoneEmitter::done);
+        for (const QPair<QString, Group> &recipe : runnerData.recipes)
+            taskTreeRunner.enqueue(recipe.second);
 
         doneSpy.wait(1s);
 

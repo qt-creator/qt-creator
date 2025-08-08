@@ -42,6 +42,63 @@ void SingleTaskTreeRunner::reset()
     m_taskTree.reset();
 }
 
+SequentialTaskTreeRunner::SequentialTaskTreeRunner()
+{
+    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::aboutToStart,
+            this, &SequentialTaskTreeRunner::aboutToStart);
+    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done,
+            this, [this](DoneWith result, TaskTree *taskTree) {
+        emit done(result, taskTree);
+        startNext();
+    });
+}
+
+SequentialTaskTreeRunner::~SequentialTaskTreeRunner() = default;
+
+bool SequentialTaskTreeRunner::isRunning() const
+{
+    return !m_treeDataQueue.isEmpty() || m_taskTreeRunner.isRunning();
+}
+
+void SequentialTaskTreeRunner::cancel()
+{
+    m_treeDataQueue.empty();
+    m_taskTreeRunner.cancel();
+}
+
+void SequentialTaskTreeRunner::cancelCurrent()
+{
+    m_taskTreeRunner.cancel();
+}
+
+void SequentialTaskTreeRunner::reset()
+{
+    m_treeDataQueue.empty();
+    m_taskTreeRunner.reset();
+}
+
+void SequentialTaskTreeRunner::resetCurrent()
+{
+    m_taskTreeRunner.reset();
+    startNext();
+}
+
+void SequentialTaskTreeRunner::enqueueImpl(const TreeData &data)
+{
+    m_treeDataQueue.append(data);
+    if (!m_taskTreeRunner.isRunning())
+        startNext();
+}
+
+void SequentialTaskTreeRunner::startNext()
+{
+    if (m_treeDataQueue.isEmpty())
+        return;
+
+    const TreeData data = m_treeDataQueue.takeFirst();
+    m_taskTreeRunner.start(data.recipe, data.setupHandler, data.doneHandler, data.callDone);
+}
+
 } // namespace Tasking
 
 QT_END_NAMESPACE
