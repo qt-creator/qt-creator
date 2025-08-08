@@ -143,6 +143,8 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
         result.vendor = cmakeUserPresetsData.vendor;
     }
 
+    result.hasValidPresets = cmakePresetsData.hasValidPresets && cmakeUserPresetsData.hasValidPresets;
+
     auto combinePresetsInternal = [](auto &presetsHash,
                                      auto &presets,
                                      auto &userPresets,
@@ -241,6 +243,7 @@ void CMakeProject::setupBuildPresets(Internal::PresetsData &presetsData)
                     Tr::tr("Build preset %1 is missing a corresponding configure preset.")
                         .arg(buildPreset.name)));
                 TaskHub::requestPopup();
+                presetsData.hasValidPresets = false;
             }
 
             const QString &configurePresetName = buildPreset.configurePreset.value_or(QString());
@@ -307,18 +310,13 @@ void CMakeProject::readPresets()
         QString errorMessage;
         int errorLine = -1;
 
-        if (presetFile.exists()) {
-            if (parser.parse(presetFile, errorMessage, errorLine)) {
-                data = parser.presetsData();
-            } else {
-                TaskHub::addTask(BuildSystemTask(Task::TaskType::Error,
-                                                 Tr::tr("Failed to load %1: %2")
-                                                     .arg(presetFile.fileName())
-                                                     .arg(errorMessage),
-                                                 presetFile,
-                                                 errorLine));
-                TaskHub::requestPopup();
-            }
+        if (parser.parse(presetFile, errorMessage, errorLine)) {
+            data = parser.presetsData();
+        } else {
+            TaskHub::addTask(
+                BuildSystemTask(Task::TaskType::Error, errorMessage, presetFile, errorLine));
+            TaskHub::requestPopup();
+            data.hasValidPresets = false;
         }
         return data;
     };
@@ -349,6 +347,7 @@ void CMakeProject::readPresets()
                     presetData.configurePresets = includeData.configurePresets
                                                   + presetData.configurePresets;
                     presetData.buildPresets = includeData.buildPresets + presetData.buildPresets;
+                    presetData.hasValidPresets = includeData.hasValidPresets && presetData.hasValidPresets;
 
                     includeStack << includePath;
                 }
@@ -358,8 +357,13 @@ void CMakeProject::readPresets()
     const Utils::FilePath cmakePresetsJson = projectDirectory().pathAppended("CMakePresets.json");
     const Utils::FilePath cmakeUserPresetsJson = projectDirectory().pathAppended("CMakeUserPresets.json");
 
+    if (!cmakePresetsJson.exists())
+        return;
+
     Internal::PresetsData cmakePresetsData = parsePreset(cmakePresetsJson);
-    Internal::PresetsData cmakeUserPresetsData = parsePreset(cmakeUserPresetsJson);
+    Internal::PresetsData cmakeUserPresetsData;
+    if (cmakeUserPresetsJson.exists())
+        cmakeUserPresetsData = parsePreset(cmakeUserPresetsJson);
 
     // resolve the include
     Utils::FilePaths includeStack = {cmakePresetsJson};
@@ -370,6 +374,11 @@ void CMakeProject::readPresets()
 
     m_presetsData = combinePresets(cmakePresetsData, cmakeUserPresetsData);
     setupBuildPresets(m_presetsData);
+
+    if (!m_presetsData.hasValidPresets) {
+        m_presetsData = {};
+        return;
+    }
 
     for (const auto &configPreset : std::as_const(m_presetsData.configurePresets)) {
         if (configPreset.hidden)
