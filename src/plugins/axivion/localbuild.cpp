@@ -75,7 +75,7 @@ public:
     {
         QTC_CHECK(m_startedDashboards.isEmpty()); // shutdownAll() must be done already
         QTC_ASSERT(m_runningLocalBuilds.isEmpty(), qDeleteAll(m_runningLocalBuilds));
-        QTC_CHECK(m_startedDashboardTrees.empty());
+        QTC_CHECK(!m_startedDashboardsRunner.isRunning());
     }
 
     std::optional<LocalDashboardAccess> localDashboardAccessFor(const QString &projectName) const;
@@ -110,7 +110,7 @@ private:
     void handleLocalBuildOutputFor(const QString &projectName, const QString &line);
 
     QHash<QString, LocalDashboard> m_startedDashboards;
-    std::unordered_map<QString, std::unique_ptr<TaskTree>> m_startedDashboardTrees;
+    MappedTaskTreeRunner<QString> m_startedDashboardsRunner;
 
     QHash<QString, TaskTree *> m_runningLocalBuilds;
     QHash<QString, LocalBuildInfo> m_localBuildInfos;
@@ -131,12 +131,6 @@ void LocalBuild::startDashboard(const QString &projectName, const LocalDashboard
 
     const auto onDone
             = [this, onSuccess, onFail, dash = dashboard, projectName](const Process &process) {
-        const auto onFinish = qScopeGuard([this, projectName] {
-            auto it = m_startedDashboardTrees.find(projectName);
-            QTC_ASSERT(it != m_startedDashboardTrees.end(), return);
-            it->second.release()->deleteLater();
-            m_startedDashboardTrees.erase(it);
-        });
         if (process.result() != ProcessResult::FinishedWithSuccess) {
             qCDebug(localDashLog) << "Process failed..." << int(process.result());
             const QString errOutput = process.cleanedStdErr();
@@ -170,9 +164,7 @@ void LocalBuild::startDashboard(const QString &projectName, const LocalDashboard
 
     m_startedDashboards.insert(dashboard.id, dashboard);
     qCDebug(localDashLog) << "Dashboard [start]" << dashboard.startCommandLine.toUserOutput();
-    TaskTree *taskTree = new TaskTree({ProcessTask(onSetup, onDone)});
-    m_startedDashboardTrees.insert_or_assign(projectName, std::unique_ptr<TaskTree>(taskTree));
-    taskTree->start();
+    m_startedDashboardsRunner.start(projectName, {ProcessTask(onSetup, onDone)});
 }
 
 bool LocalBuild::shutdownAll(const std::function<void()> &callback)
@@ -180,12 +172,7 @@ bool LocalBuild::shutdownAll(const std::function<void()> &callback)
     for (auto it : std::as_const(m_runningLocalBuilds)) // runners that perform a local build
         it->cancel();
 
-    for (auto it = m_startedDashboardTrees.begin(), end = m_startedDashboardTrees.end();
-         it != end; ++it) {
-        if (it->second)
-            it->second->cancel();
-    }
-
+    m_startedDashboardsRunner.cancel();
     if (m_startedDashboards.isEmpty())
         return false;
 
