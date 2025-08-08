@@ -7,7 +7,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 
-#include <solutions/tasking/tasktree.h>
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <QMessageBox>
 #include <QPointer>
@@ -93,7 +93,7 @@ public:
 private:
     void updateUserModeDevices();
     IosDeviceManager(QObject *parent = nullptr);
-    std::unordered_map<QString, std::unique_ptr<Tasking::TaskTree>> m_updateTasks; // deviceid->task
+    Tasking::MappedTaskTreeRunner<QString> m_updatesRunner; // deviceid->task
     QTimer m_userModeDevicesTimer;
     QStringList m_userModeDeviceIds;
     QPointer<QMessageBox> m_devModeDialog;

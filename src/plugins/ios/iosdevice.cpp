@@ -286,7 +286,7 @@ void IosDeviceManager::deviceDisconnected(const QString &uid)
     qCDebug(detectLog) << "detected disconnection of ios device " << uid;
     // if an update is currently still running for the device being connected, cancel that
     // erasing deletes the unique_ptr which deletes the TaskTree which stops it
-    m_updateTasks.erase(uid);
+    m_updatesRunner.resetKey(uid);
     Utils::Id baseDevId(Constants::IOS_DEVICE_ID);
     Utils::Id devType(Constants::IOS_DEVICE_TYPE);
     Utils::Id devId = baseDevId.withSuffix(uid);
@@ -349,7 +349,7 @@ void IosDeviceManager::updateInfo(const QString &devId)
     });
 
     // clang-format off
-    const Group root{
+    const Group recipe {
         parallel,
         continueOnError,
         m_deviceCtlVersion ? nullItem : getDeviceCtlVersion,
@@ -359,16 +359,7 @@ void IosDeviceManager::updateInfo(const QString &devId)
     };
     // clang-format on
 
-    TaskTree *task = new TaskTree(root);
-    m_updateTasks[devId].reset(task); // cancels any existing update, not calling done handlers
-    connect(task, &TaskTree::done, this, [this, task, devId] {
-        const auto taskIt = m_updateTasks.find(devId);
-        QTC_ASSERT(taskIt != m_updateTasks.end(), return);
-        QTC_ASSERT(taskIt->second.get() == task, return);
-        taskIt->second.release()->deleteLater();
-        m_updateTasks.erase(taskIt);
-    });
-    task->start();
+    m_updatesRunner.start(devId, recipe);
 }
 
 void IosDeviceManager::deviceInfo(const QString &uid,
