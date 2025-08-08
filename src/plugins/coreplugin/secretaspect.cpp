@@ -39,8 +39,8 @@ public:
     }
 
 public:
-    TaskTreeRunner readRunner;
-    TaskTreeRunner writeRunner;
+    SingleTaskTreeRunner readRunner;
+    SingleTaskTreeRunner writeRunner;
     bool wasFetchedFromSecretStorage = false;
     bool wasEdited = false;
     bool repeatWriting = false;

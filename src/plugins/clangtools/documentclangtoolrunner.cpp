@@ -69,7 +69,7 @@ DocumentClangToolRunner::DocumentClangToolRunner(IDocument *document)
     });
 
     connect(&m_runTimer, &QTimer::timeout, this, &DocumentClangToolRunner::run);
-    connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, &DocumentClangToolRunner::finalize);
+    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done, this, &DocumentClangToolRunner::finalize);
     run();
 }
 

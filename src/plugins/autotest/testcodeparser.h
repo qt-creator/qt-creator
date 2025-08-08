@@ -98,7 +98,7 @@ private:
     QTimer m_reparseTimer;
     QSet<ITestParser *> m_updateParsers;
     Utils::FutureSynchronizer m_futureSynchronizer;
-    Tasking::TaskTreeRunner m_taskTreeRunner;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
     bool m_withTaskProgress = false;
     QHash<Utils::FilePath, int> m_qmlEditorRev;
 

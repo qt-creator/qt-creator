@@ -231,7 +231,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
     const bool isTag = m_model->isTag(index);
     const bool hasActions = m_model->isLeaf(index);
     const bool currentLocal = m_model->isLocal(currentBranch);
-    TaskTreeRunner taskTreeRunner;
+    SingleTaskTreeRunner taskTreeRunner;
     QAction *mergeAction = nullptr;
 
     SetInContext block(m_blockRefresh);
@@ -287,7 +287,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
                 mergeAction->setText(Tr::tr("Merge \"%1\" into \"%2\" (No &Fast-Forward)")
                                          .arg(indexName, currentName));
             }));
-            connect(mergeAction, &QObject::destroyed, &taskTreeRunner, &TaskTreeRunner::reset);
+            connect(mergeAction, &QObject::destroyed, &taskTreeRunner, &SingleTaskTreeRunner::reset);
 
             contextMenu.addAction(Tr::tr("&Rebase \"%1\" on \"%2\"")
                                   .arg(currentName, indexName),

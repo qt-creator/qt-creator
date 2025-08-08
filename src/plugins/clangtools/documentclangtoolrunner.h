@@ -55,7 +55,7 @@ private:
     QList<QPointer<TextEditor::TextEditorWidget>> m_editorsWithMarkers;
     SuppressedDiagnosticsList m_suppressed;
     Utils::FilePath m_lastProjectDirectory;
-    Tasking::TaskTreeRunner m_taskTreeRunner;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace Internal

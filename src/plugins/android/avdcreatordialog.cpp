@@ -106,7 +106,7 @@ private:
     QComboBox *m_deviceDefinitionTypeComboBox;
     QCheckBox *m_overwriteCheckBox;
     QDialogButtonBox *m_buttonBox;
-    Tasking::TaskTreeRunner m_taskTreeRunner;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 AvdDialog::AvdDialog()

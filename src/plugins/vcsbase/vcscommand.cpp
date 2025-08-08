@@ -178,7 +178,7 @@ CommandResult vcsRunBlocking(const VcsProcessData &data, const seconds timeout,
         onGroupDone(onDone)
     };
 
-    TaskTreeRunner taskTreeRunner;
+    SingleTaskTreeRunner taskTreeRunner;
     taskTreeRunner.start(recipe);
     QTC_CHECK(!taskTreeRunner.isRunning());
     return result;

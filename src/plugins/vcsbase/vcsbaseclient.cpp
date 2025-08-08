@@ -59,7 +59,7 @@ VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseSettings *baseSettings)
 {
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &VcsBaseClientImpl::saveSettings);
-    connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, &VcsBaseClientImpl::startNextTask);
+    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done, this, &VcsBaseClientImpl::startNextTask);
 }
 
 FilePath VcsBaseClientImpl::vcsBinary(const Utils::FilePath &forDirectory) const

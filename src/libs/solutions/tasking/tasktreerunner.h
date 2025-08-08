@@ -14,7 +14,8 @@ QT_BEGIN_NAMESPACE
 
 namespace Tasking {
 
-class TASKING_EXPORT TaskTreeRunner : public QObject
+// TODO: Is AbstractTaskTreeController a better name?
+class TASKING_EXPORT AbstractTaskTreeRunner : public QObject
 {
     Q_OBJECT
 
@@ -22,37 +23,26 @@ public:
     using TreeSetupHandler = std::function<void(TaskTree &)>;
     using TreeDoneHandler = std::function<void(const TaskTree &, DoneWith)>;
 
-    ~TaskTreeRunner();
-
-    bool isRunning() const { return bool(m_taskTree); }
-
-    // When task tree is running it resets the old task tree.
-    template <typename SetupHandler = TreeSetupHandler, typename DoneHandler = TreeDoneHandler>
-    void start(const Group &recipe,
-               SetupHandler &&setupHandler = {},
-               DoneHandler &&doneHandler = {},
-               CallDoneFlags callDone = CallDone::Always)
-    {
-        startImpl(recipe,
-                  wrapSetup(std::forward<SetupHandler>(setupHandler)),
-                  wrapDone(std::forward<DoneHandler>(doneHandler)),
-                  callDone);
-    }
-
-    // When task tree is running it emits done(DoneWith::Cancel) synchronously.
-    void cancel();
-
-    // No done() signal is emitted.
-    void reset();
+    virtual bool isRunning() const = 0;
+    virtual void cancel() = 0;
+    virtual void reset() = 0;
 
 Q_SIGNALS:
     void aboutToStart(TaskTree *taskTree);
     void done(DoneWith result, TaskTree *taskTree);
 
-private:
+protected:
+    struct TreeData
+    {
+        Group recipe;
+        TreeSetupHandler setupHandler;
+        TreeDoneHandler doneHandler;
+        CallDoneFlags callDone;
+    };
+
     template <typename Handler>
-    static TreeSetupHandler wrapSetup(Handler &&handler) {
-        if constexpr (std::is_same_v<Handler, TreeSetupHandler>)
+    static TreeSetupHandler wrapTreeSetupHandler(Handler &&handler) {
+        if constexpr (std::is_same_v<std::decay_t<Handler>, TreeSetupHandler>)
             return {}; // When user passed {} for the setup handler.
         // V, T stands for: [V]oid, [T]askTree
         static constexpr bool isVT = isInvocable<void, Handler, TaskTree &>();
@@ -60,7 +50,7 @@ private:
         static_assert(isVT || isV,
             "Tree setup handler needs to take (TaskTree &) or (void) as an argument and has to "
             "return void. The passed handler doesn't fulfill these requirements.");
-        return [handler = std::move(handler)](TaskTree &taskTree) {
+        return [handler = std::forward<Handler>(handler)](TaskTree &taskTree) {
             if constexpr (isVT)
                 std::invoke(handler, taskTree);
             else if constexpr (isV)
@@ -69,8 +59,8 @@ private:
     }
 
     template <typename Handler>
-    static TreeDoneHandler wrapDone(Handler &&handler) {
-        if constexpr (std::is_same_v<Handler, TreeDoneHandler>)
+    static TreeDoneHandler wrapTreeDoneHandler(Handler &&handler) {
+        if constexpr (std::is_same_v<std::decay_t<Handler>, TreeDoneHandler>)
             return {}; // User passed {} for the done handler.
         // V, T, D stands for: [V]oid, [T]askTree, [D]oneWith
         static constexpr bool isVTD = isInvocable<void, Handler, const TaskTree &, DoneWith>();
@@ -81,7 +71,7 @@ private:
             "Task done handler needs to take (const TaskTree &, DoneWith), (const Task &), "
             "(DoneWith) or (void) as arguments and has to return void. "
             "The passed handler doesn't fulfill these requirements.");
-        return [handler = std::move(handler)](const TaskTree &taskTree, DoneWith result) {
+        return [handler = std::forward<Handler>(handler)](const TaskTree &taskTree, DoneWith result) {
             if constexpr (isVTD)
                 std::invoke(handler, taskTree, result);
             else if constexpr (isVT)
@@ -92,7 +82,37 @@ private:
                 std::invoke(handler);
         };
     }
+};
 
+class TASKING_EXPORT SingleTaskTreeRunner : public AbstractTaskTreeRunner
+{
+    Q_OBJECT
+
+public:
+    ~SingleTaskTreeRunner();
+
+    bool isRunning() const override { return bool(m_taskTree); }
+
+    // When task tree is running it resets the old task tree.
+    template <typename SetupHandler = TreeSetupHandler, typename DoneHandler = TreeDoneHandler>
+    void start(const Group &recipe,
+               SetupHandler &&setupHandler = {},
+               DoneHandler &&doneHandler = {},
+               CallDoneFlags callDone = CallDone::Always)
+    {
+        startImpl(recipe,
+                  wrapTreeSetupHandler(std::forward<SetupHandler>(setupHandler)),
+                  wrapTreeDoneHandler(std::forward<DoneHandler>(doneHandler)),
+                  callDone);
+    }
+
+    // When task tree is running it emits done(DoneWith::Cancel) synchronously.
+    void cancel() override;
+
+    // No done() signal is emitted.
+    void reset() override;
+
+private:
     void startImpl(const Group &recipe,
                    const TreeSetupHandler &setupHandler = {},
                    const TreeDoneHandler &doneHandler = {},

@@ -37,7 +37,7 @@ public:
 
 private:
     FutureSynchronizer m_futureSynchronizer;
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,

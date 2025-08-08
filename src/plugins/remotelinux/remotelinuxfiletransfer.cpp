@@ -333,7 +333,7 @@ static void copyFile(QPromise<Result<>> &promise, const FileToTransfer &file)
 
 class GenericTransferImpl : public FileTransferInterface
 {
-    Tasking::TaskTreeRunner m_taskTree;
+    Tasking::SingleTaskTreeRunner m_taskTree;
 
 public:
     GenericTransferImpl(const FileTransferSetupData &setup)

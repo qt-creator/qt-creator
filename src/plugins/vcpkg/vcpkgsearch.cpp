@@ -75,7 +75,7 @@ private:
     InfoLabel *m_infoLabel;
     QDialogButtonBox *m_buttonBox;
     SpinnerSolution::Spinner *m_spinner;
-    Tasking::TaskTreeRunner m_taskTreeRunner;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(const VcpkgManifest &preexistingPackages,

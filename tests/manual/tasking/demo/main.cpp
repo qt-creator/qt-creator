@@ -234,9 +234,9 @@ int main(int argc, char *argv[])
         mainLayout->addLayout(footerLayout);
     }
 
-    TaskTreeRunner taskTreeRunner;
+    SingleTaskTreeRunner taskTreeRunner;
 
-    QObject::connect(&taskTreeRunner, &TaskTreeRunner::aboutToStart,
+    QObject::connect(&taskTreeRunner, &SingleTaskTreeRunner::aboutToStart,
                      progressBar, [progressBar](TaskTree *taskTree) {
         progressBar->setMaximum(taskTree->progressMaximum());
         QObject::connect(taskTree, &TaskTree::progressValueChanged,

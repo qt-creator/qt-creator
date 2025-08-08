@@ -73,7 +73,7 @@ private:
 
     Internal::DiffEditorDocument *const m_document;
     QString m_displayName;
-    Tasking::TaskTreeRunner m_taskTreeRunner;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
     Tasking::Group m_reloadRecipe;
 };
 

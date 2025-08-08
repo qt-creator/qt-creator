@@ -58,7 +58,7 @@ public:
     qint64 ownPid = -1;
     const IDevice::ConstPtr device;
     State state = Inactive;
-    Tasking::TaskTreeRunner m_taskTree;
+    Tasking::SingleTaskTreeRunner m_taskTree;
     TreeModel<TypedTreeItem<DeviceProcessTreeItem>, DeviceProcessTreeItem> model;
     DeviceProcessSignalOperation::Ptr signalOperation;
 };

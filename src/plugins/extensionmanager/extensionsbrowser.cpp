@@ -510,7 +510,7 @@ public:
     QSortFilterProxyModel *searchProxyModel;
     SortFilterProxyModel *sortFilterProxyModel;
     int columnsCount = 2;
-    Tasking::TaskTreeRunner taskTreeRunner;
+    Tasking::SingleTaskTreeRunner taskTreeRunner;
     SpinnerSolution::Spinner *m_spinner;
 };
 

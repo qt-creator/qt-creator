@@ -121,7 +121,7 @@ public:
     QmlPreviewRunnerSetting m_settings;
     QmlPreviewRunWorkerFactory runWorkerFactory;
 
-    TaskTreeRunner m_parseRunner;
+    SingleTaskTreeRunner m_parseRunner;
 };
 
 QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)

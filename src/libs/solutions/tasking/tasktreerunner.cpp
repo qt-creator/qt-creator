@@ -10,9 +10,9 @@ QT_BEGIN_NAMESPACE
 
 namespace Tasking {
 
-TaskTreeRunner::~TaskTreeRunner() = default;
+SingleTaskTreeRunner::~SingleTaskTreeRunner() = default;
 
-void TaskTreeRunner::startImpl(const Group &recipe,
+void SingleTaskTreeRunner::startImpl(const Group &recipe,
                                const TreeSetupHandler &setupHandler,
                                const TreeDoneHandler &doneHandler,
                                CallDoneFlags callDone)
@@ -31,13 +31,13 @@ void TaskTreeRunner::startImpl(const Group &recipe,
     m_taskTree->start();
 }
 
-void TaskTreeRunner::cancel()
+void SingleTaskTreeRunner::cancel()
 {
     if (m_taskTree)
         m_taskTree->cancel();
 }
 
-void TaskTreeRunner::reset()
+void SingleTaskTreeRunner::reset()
 {
     m_taskTree.reset();
 }

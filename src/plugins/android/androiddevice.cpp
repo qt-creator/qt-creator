@@ -102,8 +102,8 @@ public:
     void eraseAvd(const IDevice::Ptr &device);
 
     Group m_avdListRecipe{};
-    TaskTreeRunner m_avdListRunner;
-    TaskTreeRunner m_avdDeviceWatcherRunner;
+    SingleTaskTreeRunner m_avdListRunner;
+    SingleTaskTreeRunner m_avdDeviceWatcherRunner;
     std::unique_ptr<Process> m_removeAvdProcess;
     QFileSystemWatcher m_avdFileSystemWatcher;
     Guard m_avdPathGuard;

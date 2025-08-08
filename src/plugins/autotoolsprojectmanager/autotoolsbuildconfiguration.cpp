@@ -54,7 +54,7 @@ private:
     FilePaths m_files;
 
     /// Responsible for parsing the makefiles asynchronously in a thread
-    Tasking::TaskTreeRunner m_parserRunner;
+    Tasking::SingleTaskTreeRunner m_parserRunner;
 
     std::unique_ptr<ProjectUpdater> m_cppCodeModelUpdater;
 };

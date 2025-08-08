@@ -72,7 +72,7 @@ class UpdateInfoPluginPrivate
 {
 public:
     FilePath m_maintenanceTool;
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
     QPointer<TaskProgress> m_progress;
     QString m_updateOutput;
     QString m_packagesOutput;
@@ -173,7 +173,7 @@ bool ServiceImpl::installPackages(const QString &filterRegex)
     }
     // clang-format on
 
-    TaskTreeRunner runner;
+    SingleTaskTreeRunner runner;
     QList<Package> packages;
     const auto startInstallation = [&dialog,
                                     stackWidget,

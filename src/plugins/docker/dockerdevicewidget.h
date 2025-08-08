@@ -33,7 +33,7 @@ public:
 private:
     QLabel *m_daemonState;
     QToolButton *m_daemonReset;
-    Tasking::TaskTreeRunner m_detectionRunner;
+    Tasking::SingleTaskTreeRunner m_detectionRunner;
 };
 
 } // Docker::Internal

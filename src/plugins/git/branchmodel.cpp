@@ -294,7 +294,7 @@ public:
     QString currentHash;
     QDateTime currentDateTime;
     QStringList obsoleteLocalBranches;
-    TaskTreeRunner taskTreeRunner;
+    SingleTaskTreeRunner taskTreeRunner;
     bool oldBranchesIncluded = false;
 
     struct OldEntry
@@ -321,7 +321,7 @@ BranchModel::BranchModel(QObject *parent) :
     // Abuse the hash field for ref prefix
     d->rootNode->append(new BranchNode(Tr::tr("Local Branches"), "refs/heads"));
     d->rootNode->append(new BranchNode(Tr::tr("Remote Branches"), "refs/remotes"));
-    connect(&d->taskTreeRunner, &TaskTreeRunner::done, this, &BranchModel::endResetModel);
+    connect(&d->taskTreeRunner, &SingleTaskTreeRunner::done, this, &BranchModel::endResetModel);
 }
 
 BranchModel::~BranchModel()

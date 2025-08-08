@@ -44,7 +44,7 @@ public:
     Guard lock;
     bool dirty = false;
     QTimer timer;
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 ExtraCompiler::ExtraCompiler(const Project *project, const FilePath &source,

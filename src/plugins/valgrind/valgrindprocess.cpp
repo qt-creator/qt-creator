@@ -67,7 +67,7 @@ public:
     ValgrindProcessPrivate(ValgrindProcess *owner)
         : q(owner)
     {
-        connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
+        connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done, this, [this](DoneWith result) {
             emit q->done(toDoneResult(result == DoneWith::Success));
         });
     }
@@ -84,7 +84,7 @@ public:
     QHostAddress m_localServerAddress;
     bool m_useTerminal = false;
 
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
 
 signals:
     void stopRequested();

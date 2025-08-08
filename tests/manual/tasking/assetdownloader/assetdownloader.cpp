@@ -37,7 +37,7 @@ public:
     AssetDownloaderPrivate(AssetDownloader *q) : m_q(q) {}
 
     AssetDownloader *m_q = nullptr;
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
     QString m_lastProgressText;
 
     QNetworkAccessManager *m_manager = nullptr;

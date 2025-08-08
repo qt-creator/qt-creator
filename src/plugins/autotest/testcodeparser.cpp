@@ -59,7 +59,7 @@ TestCodeParser::TestCodeParser()
     m_reparseTimer.setSingleShot(true);
     m_reparseTimer.setInterval(1000);
     connect(&m_reparseTimer, &QTimer::timeout, this, &TestCodeParser::parsePostponedFiles);
-    connect(&m_taskTreeRunner, &TaskTreeRunner::aboutToStart, this, [this](TaskTree *taskTree) {
+    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::aboutToStart, this, [this](TaskTree *taskTree) {
         if (m_withTaskProgress) {
             auto progress = new TaskProgress(taskTree);
             progress->setDisplayName(Tr::tr("Scanning for Tests"));
@@ -67,7 +67,7 @@ TestCodeParser::TestCodeParser()
         }
         emit parsingStarted();
     });
-    connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
+    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done, this, [this](DoneWith result) {
         onFinished(result == DoneWith::Success);
     });
 }

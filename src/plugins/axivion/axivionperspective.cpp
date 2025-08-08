@@ -353,7 +353,7 @@ private:
     int m_totalRowCount = 0;
     QStringList m_userNames;
     QStringList m_versionDates;
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
     OverlayWidget *m_overlay = nullptr;
     bool m_dashboardListUninitialized = true;
 
@@ -1438,7 +1438,7 @@ private:
     }
 
     QList<QUrl> m_loadingQueue;
-    TaskTreeRunner m_loaderTaskTree;
+    SingleTaskTreeRunner m_loaderTaskTree;
     unsigned int m_cachedImagesSize = 0;
 };
 

@@ -244,7 +244,7 @@ public:
     RunControl *q;
     RunControlPrivateData data;
     Id runMode;
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // Internal

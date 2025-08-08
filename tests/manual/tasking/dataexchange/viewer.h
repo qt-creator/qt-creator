@@ -28,7 +28,7 @@ private:
     QNetworkAccessManager m_nam;
     const Tasking::Storage<ExternalData> m_storage;
     const Tasking::Group m_recipe;
-    Tasking::TaskTreeRunner m_taskTreeRunner;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 #endif // VIEWER_H

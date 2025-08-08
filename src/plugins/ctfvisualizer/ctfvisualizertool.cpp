@@ -79,11 +79,11 @@ CtfVisualizerTool::CtfVisualizerTool(QObject *parent)
 
     m_perspective.addToolBarWidget(m_restrictToThreadsButton);
 
-    connect(&m_taskTreeRunner, &TaskTreeRunner::aboutToStart, this, [](TaskTree *taskTree) {
+    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::aboutToStart, this, [](TaskTree *taskTree) {
         auto progress = new TaskProgress(taskTree);
         progress->setDisplayName(Tr::tr("Loading CTF File"));
     });
-    connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
+    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done, this, [this](DoneWith result) {
         if (result == DoneWith::Success) {
             m_traceManager->updateStatistics();
             if (m_traceManager->isEmpty()) {

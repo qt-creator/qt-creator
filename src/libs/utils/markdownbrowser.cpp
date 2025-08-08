@@ -602,7 +602,7 @@ private:
     QSet<QUrl> m_urlsToLoad;
     bool m_needsToRestartLoading = false;
     bool m_loadRemoteImages = false;
-    Tasking::TaskTreeRunner m_imageLoaderTree;
+    Tasking::SingleTaskTreeRunner m_imageLoaderTree;
     FilePath m_basePath;
     std::function<void(QNetworkRequest *)> m_requestHook;
     QNetworkAccessManager *m_networkAccessManager = NetworkAccessManager::instance();

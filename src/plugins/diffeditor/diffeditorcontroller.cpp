@@ -25,11 +25,11 @@ DiffEditorController::DiffEditorController(IDocument *document)
 {
     QTC_ASSERT(m_document, return);
     m_document->setController(this);
-    connect(&m_taskTreeRunner, &TaskTreeRunner::aboutToStart, this, [this](TaskTree *taskTree) {
+    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::aboutToStart, this, [this](TaskTree *taskTree) {
         auto progress = new TaskProgress(taskTree);
         progress->setDisplayName(m_displayName);
     });
-    connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
+    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done, this, [this](DoneWith result) {
         m_document->endReload(result == DoneWith::Success);
     });
 }

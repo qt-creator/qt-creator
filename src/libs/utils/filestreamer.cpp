@@ -32,7 +32,7 @@ class FileStreamBase : public QObject
 public:
     FileStreamBase()
     {
-        connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
+        connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done, this, [this](DoneWith result) {
             emit done(toDoneResult(result == DoneWith::Success));
         });
     }
@@ -47,7 +47,7 @@ signals:
 
 protected:
     FilePath m_filePath;
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
 
 private:
     virtual GroupItem remoteTask() = 0;
@@ -383,7 +383,7 @@ public:
     QByteArray m_readBuffer;
     QByteArray m_writeBuffer;
     DoneResult m_streamResult = DoneResult::Error;
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
 
     GroupItem task() {
         if (m_streamerMode == StreamMode::Reader)
@@ -423,7 +423,7 @@ FileStreamer::FileStreamer(QObject *parent)
     : QObject(parent)
     , d(new FileStreamerPrivate)
 {
-    connect(&d->m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
+    connect(&d->m_taskTreeRunner, &SingleTaskTreeRunner::done, this, [this](DoneWith result) {
         d->m_streamResult = toDoneResult(result == DoneWith::Success);
         emit done(d->m_streamResult);
     });

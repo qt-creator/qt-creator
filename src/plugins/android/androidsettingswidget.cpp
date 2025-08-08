@@ -80,7 +80,7 @@ private:
     bool isDefaultNdkSelected() const;
     void validateOpenSsl();
 
-    Tasking::TaskTreeRunner m_sdkDownloader;
+    Tasking::SingleTaskTreeRunner m_sdkDownloader;
     bool m_isInitialReloadDone = false;
 
     SummaryWidget *m_androidSummary = nullptr;
@@ -376,7 +376,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     connect(sdkManagerToolButton, &QAbstractButton::clicked, this, &executeAndroidSdkManagerDialog);
     connect(sdkToolsAutoDownloadButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::downloadSdk);
-    connect(&m_sdkDownloader, &Tasking::TaskTreeRunner::done, this, [this](Tasking::DoneWith result) {
+    connect(&m_sdkDownloader, &Tasking::SingleTaskTreeRunner::done, this, [this](Tasking::DoneWith result) {
         if (result != Tasking::DoneWith::Success)
             return;
         // Make sure the sdk path is created before installing packages

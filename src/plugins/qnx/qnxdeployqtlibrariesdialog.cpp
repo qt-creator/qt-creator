@@ -97,7 +97,7 @@ private:
     enum class CheckResult { RemoveDir, SkipRemoveDir, Abort };
     CheckResult m_checkResult = CheckResult::Abort;
     mutable QList<DeployableFile> m_deployableFiles;
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployable)
@@ -323,7 +323,7 @@ QnxDeployQtLibrariesDialogPrivate::QnxDeployQtLibrariesDialogPrivate(
             this, &QnxDeployQtLibrariesDialogPrivate::start);
     connect(m_closeButton, &QAbstractButton::clicked,
             q, &QWidget::close);
-    connect(&m_taskTreeRunner, &TaskTreeRunner::done,
+    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done,
             this, &QnxDeployQtLibrariesDialogPrivate::handleUploadFinished);
 }
 

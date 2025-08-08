@@ -67,7 +67,7 @@ private:
     void initAvdSettings();
 
     std::unique_ptr<QSettings> m_avdSettings;
-    Tasking::TaskTreeRunner m_taskTreeRunner;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 void setupDevicesWatcher();

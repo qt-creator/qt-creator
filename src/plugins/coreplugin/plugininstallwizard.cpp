@@ -319,7 +319,7 @@ public:
     }
 
     std::unique_ptr<QTemporaryDir> m_tempDir;
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
     InfoLabel *m_label = nullptr;
     QPushButton *m_cancelButton = nullptr;
     QTextEdit *m_output = nullptr;

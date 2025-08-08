@@ -295,10 +295,10 @@ public:
     QList<Dto::NamedFilterInfoDto> m_userNamedFilters;
     Project *m_project = nullptr;
     bool m_runningQuery = false;
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
     std::unordered_map<IDocument *, std::unique_ptr<TaskTree>> m_docMarksTrees;
-    TaskTreeRunner m_issueInfoRunner;
-    TaskTreeRunner m_namedFilterRunner;
+    SingleTaskTreeRunner m_issueInfoRunner;
+    SingleTaskTreeRunner m_namedFilterRunner;
     FileInProjectFinder m_fileFinder; // FIXME maybe obsolete when path mapping is implemented
     QMetaObject::Connection m_fileFinderConnection;
     QHash<FilePath, QSet<TextMark *>> m_allMarks;

@@ -22,7 +22,7 @@ protected:
 private:
     void signalOperationViaADB(qint64 pid, int signal);
 
-    Tasking::TaskTreeRunner m_taskTreeRunner;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
 
     friend class AndroidDevice;
 };

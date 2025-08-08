@@ -102,7 +102,7 @@ private:
     void startNextTask();
 
     VcsBaseSettings *m_baseSettings = nullptr; // Aspect based.
-    Tasking::TaskTreeRunner m_taskTreeRunner;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
     QList<Tasking::ExecutableItem> m_taskQueue;
 };
 

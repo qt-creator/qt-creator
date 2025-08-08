@@ -42,7 +42,7 @@ public:
 
     GenericLinuxDeviceTester *q = nullptr;
     LinuxDevice::Ptr m_device;
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
     QStringList m_extraCommands;
     GroupItems m_extraTests;
 };
@@ -299,7 +299,7 @@ using namespace Internal;
 GenericLinuxDeviceTester::GenericLinuxDeviceTester(const IDevice::Ptr &device, QObject *parent)
     : DeviceTester(device, parent), d(new GenericLinuxDeviceTesterPrivate(this))
 {
-    connect(&d->m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
+    connect(&d->m_taskTreeRunner, &SingleTaskTreeRunner::done, this, [this](DoneWith result) {
         emit finished(result == DoneWith::Success ? TestSuccess : TestFailure);
     });
 }

@@ -28,7 +28,7 @@ private:
     DownloadDialog *downloadDialog;
 
     QNetworkAccessManager qnam;
-    Tasking::TaskTreeRunner taskTreeRunner;
+    Tasking::SingleTaskTreeRunner taskTreeRunner;
 };
 
 #endif // IMAGESCALING_H

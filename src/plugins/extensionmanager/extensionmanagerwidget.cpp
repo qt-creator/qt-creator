@@ -200,7 +200,7 @@ signals:
 private:
     std::vector<std::unique_ptr<RemoteSpec>> m_versions;
     QComboBox *m_versionSelector;
-    Tasking::TaskTreeRunner m_fetchVersionsRunner;
+    Tasking::SingleTaskTreeRunner m_fetchVersionsRunner;
 };
 
 class HeadingWidget : public QWidget
@@ -565,7 +565,7 @@ private:
     PluginStatusWidget *m_pluginStatus;
     QString m_currentDownloadUrl;
     QString m_currentId;
-    Tasking::TaskTreeRunner m_dlTaskTreeRunner;
+    Tasking::SingleTaskTreeRunner m_dlTaskTreeRunner;
 };
 
 static QWidget *descriptionPlaceHolder()

@@ -46,7 +46,7 @@ Viewer::Viewer(QWidget *parent)
         m_progressBar->setValue(0);
     };
 
-    connect(&m_taskTreeRunner, &TaskTreeRunner::aboutToStart, this, [this](TaskTree *taskTree) {
+    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::aboutToStart, this, [this](TaskTree *taskTree) {
         taskTree->onStorageSetup(m_storage, [this](ExternalData &data) {
             data.inputNam = &m_nam;
             data.inputUrl = m_lineEdit->text();

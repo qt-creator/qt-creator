@@ -408,7 +408,7 @@ public:
     QFutureWatcher<void> m_progressWatcher;
     QPointer<FutureProgress> m_futureProgress;
 
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
     QElapsedTimer m_elapsed;
 };
 
@@ -442,7 +442,7 @@ BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
     connect(&d->m_progressWatcher, &QFutureWatcherBase::finished,
             this, &BuildManager::finish);
 
-    connect(&d->m_taskTreeRunner, &TaskTreeRunner::done, this, [](DoneWith result) {
+    connect(&d->m_taskTreeRunner, &SingleTaskTreeRunner::done, this, [](DoneWith result) {
         const bool success = result == DoneWith::Success;
 
         if (!success && d->m_progressFutureInterface)

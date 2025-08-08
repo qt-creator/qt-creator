@@ -125,7 +125,7 @@ private:
     PathChooser *m_nugetPathChooser;
     PathChooser *m_winAppSdkPathChooser;
     QNetworkAccessManager manager;
-    Tasking::TaskTreeRunner m_nugetDownloader;
+    Tasking::SingleTaskTreeRunner m_nugetDownloader;
 };
 
 enum WindowsAppSdkValidation {
@@ -231,7 +231,7 @@ WindowsSettingsWidget::WindowsSettingsWidget()
             this, &WindowsSettingsWidget::downloadNuget);
     connect(downloadWindowsAppSdk, &QAbstractButton::clicked,
             this, &WindowsSettingsWidget::downloadWindowsAppSdk);
-    connect(&m_nugetDownloader, &Tasking::TaskTreeRunner::done, this,
+    connect(&m_nugetDownloader, &Tasking::SingleTaskTreeRunner::done, this,
         [this](Tasking::DoneWith result) {
             if (result != Tasking::DoneWith::Success)
                 return;

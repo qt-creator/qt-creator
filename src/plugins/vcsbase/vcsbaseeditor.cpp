@@ -569,7 +569,7 @@ public:
     bool m_fileLogAnnotateEnabled = false;
     bool m_mouseDragging = false;
 
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
 
 private:
     QComboBox *m_entriesComboBox = nullptr;

@@ -640,7 +640,7 @@ private:
     bool m_dataFetched = false;
     QSet<QString> m_pendingImages;
     bool m_isDownloadingImage = false;
-    Tasking::TaskTreeRunner taskTreeRunner;
+    Tasking::SingleTaskTreeRunner taskTreeRunner;
     SpinnerSolution::Spinner *m_spinner;
     const CourseItem *m_selectedCourse = nullptr;
 };

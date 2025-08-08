@@ -10,6 +10,7 @@
 #include <tasking/tasktreerunner.h>
 
 #include <QHash>
+#include <QSignalSpy>
 #include <QTest>
 
 using namespace Tasking;
@@ -117,6 +118,8 @@ class tst_Tasking : public QObject
 private slots:
     void validConstructs(); // compile test
     void runtimeCheck(); // checks done on runtime
+    void taskTreeRunner_data();
+    void taskTreeRunner();
     void testTree_data();
     void testTree();
 #if QT_CONFIG(concurrent)
@@ -358,6 +361,163 @@ void tst_Tasking::runtimeCheck()
     }
 }
 
+struct RunnerData
+{
+    QList<QPair<QString, Group>> recipes;
+    Log singleLog;
+};
+
+static Handler resultToGroupHandler(DoneWith doneWith)
+{
+    switch (doneWith) {
+    case DoneWith::Success: return Handler::GroupSuccess;
+    case DoneWith::Error: return Handler::GroupError;
+    case DoneWith::Cancel: return Handler::GroupCanceled;
+    }
+    return Handler::GroupCanceled;
+}
+
+static int doneCount(const Log &log)
+{
+    int count = 0;
+    for (const QPair<int, Handler> &result : log) {
+        if (result.second == Handler::GroupSuccess ||
+            result.second == Handler::GroupError ||
+            result.second == Handler::GroupCanceled) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+class DoneEmitter : public QObject
+{
+    Q_OBJECT
+
+public:
+    DoneEmitter(AbstractTaskTreeRunner *runner, int expectedDoneCount)
+        : m_expectedDoneCount(expectedDoneCount)
+    {
+        connect(runner, &AbstractTaskTreeRunner::done, this, [this] {
+            ++m_doneCount;
+            if (m_doneCount == m_expectedDoneCount)
+                Q_EMIT done();
+        });
+    }
+
+Q_SIGNALS:
+    void done();
+
+private:
+    const int m_expectedDoneCount = 0;
+    int m_doneCount = 0;
+};
+
+static Log s_globalLog = {};
+
+void tst_Tasking::taskTreeRunner_data()
+{
+    QTest::addColumn<RunnerData>("runnerData");
+
+    const auto setupTask = [](int taskId, milliseconds timeout) {
+        return [taskId, timeout](TaskObject &taskObject) {
+            taskObject = timeout;
+            s_globalLog.append({taskId, Handler::Setup});
+        };
+    };
+
+    const auto setupDone = [](int taskId, DoneResult result = DoneResult::Success) {
+        return [taskId, result](DoneWith doneWith) {
+            const Handler handler = doneWith == DoneWith::Cancel ? Handler::Canceled
+                                    : result == DoneResult::Success ? Handler::Success : Handler::Error;
+            s_globalLog.append({taskId, handler});
+            return doneWith != DoneWith::Cancel && result == DoneResult::Success;
+        };
+    };
+
+    const auto createTask = [setupTask, setupDone](
+            int taskId, DoneResult result, milliseconds timeout = 0ms) {
+        return TestTask(setupTask(taskId, timeout), setupDone(taskId, result));
+    };
+
+    const auto createSuccessTask = [createTask](int taskId, milliseconds timeout = 0ms) {
+        return createTask(taskId, DoneResult::Success, timeout);
+    };
+
+    const auto createFailingTask = [createTask](int taskId, milliseconds timeout = 0ms) {
+        return createTask(taskId, DoneResult::Error, timeout);
+    };
+
+    const auto groupSetup = [](int taskId) {
+        return onGroupSetup([taskId] {
+            s_globalLog.append({taskId, Handler::GroupSetup});
+        });
+    };
+    const auto groupDone = [](int taskId, CallDoneFlags calldone = CallDone::Always) {
+        return onGroupDone([taskId](DoneWith result) {
+            s_globalLog.append({taskId, resultToGroupHandler(result)});
+        }, calldone);
+    };
+
+    {
+        const Group recipe_A {
+            groupSetup(1),
+            createSuccessTask(11),
+            createFailingTask(12),
+            groupDone(1)
+        };
+
+        const Group recipe_B {
+            groupSetup(2),
+            createSuccessTask(21),
+            groupDone(2)
+        };
+
+        const Group recipe_C {
+            groupSetup(3),
+            createFailingTask(31),
+            createSuccessTask(32),
+            groupDone(3)
+        };
+
+        const Log singleLog {
+            {1, Handler::GroupSetup},
+            {11, Handler::Setup},
+            {2, Handler::GroupSetup},
+            {21, Handler::Setup},
+            {3, Handler::GroupSetup},
+            {31, Handler::Setup},
+            {31, Handler::Error},
+            {3, Handler::GroupError}
+        };
+        QTest::newRow("TaskTreeRunner")
+                << RunnerData{{{"keyA", recipe_A}, {"keyB", recipe_B}, {"keyA", recipe_C}},
+                              singleLog};
+    }
+}
+
+void tst_Tasking::taskTreeRunner()
+{
+    QFETCH(RunnerData, runnerData);
+
+    {
+        s_globalLog = {};
+        const Log expectedLog = runnerData.singleLog;
+        SingleTaskTreeRunner taskTreeRunner;
+        DoneEmitter emitter(&taskTreeRunner, doneCount(expectedLog));
+        QSignalSpy doneSpy(&emitter, &DoneEmitter::done);
+        for (const QPair<QString, Group> &recipe : runnerData.recipes)
+            taskTreeRunner.start(recipe.second);
+
+        doneSpy.wait(1s);
+
+        QVERIFY(!taskTreeRunner.isRunning());
+        QCOMPARE(s_globalLog, expectedLog);
+    }
+
+    s_globalLog = {};
+}
+
 class TickAndDone final : public QObject
 {
     Q_OBJECT
@@ -397,16 +557,6 @@ ExecutableItem createBarrierAdvance(const Storage<CustomStorage> &storage,
             activeBarrier->advance();
         });
     });
-}
-
-static Handler resultToGroupHandler(DoneWith doneWith)
-{
-    switch (doneWith) {
-    case DoneWith::Success: return Handler::GroupSuccess;
-    case DoneWith::Error: return Handler::GroupError;
-    case DoneWith::Cancel: return Handler::GroupCanceled;
-    }
-    return Handler::GroupCanceled;
 }
 
 static Handler toTweakSetupHandler(SetupResult result)
@@ -4458,7 +4608,7 @@ void tst_Tasking::destructorOfTaskEmittingDone()
 
 void tst_Tasking::restartTaskTreeRunnerFromDoneHandler()
 {
-    TaskTreeRunner runner;
+    SingleTaskTreeRunner runner;
     QStringList log;
     QStringList expectedLog{"1", "2"};
 

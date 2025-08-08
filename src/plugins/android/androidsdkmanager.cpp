@@ -355,7 +355,7 @@ public:
     AndroidSdkPackageList m_allPackages;
     FilePath lastSdkManagerPath;
     bool m_packageListingSuccessful = false;
-    TaskTreeRunner m_taskTreeRunner;
+    SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 AndroidSdkManager::AndroidSdkManager() : m_d(new AndroidSdkManagerPrivate(*this)) {}
