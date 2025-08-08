@@ -74,7 +74,7 @@ public:
     ~LocalBuild()
     {
         QTC_CHECK(m_startedDashboards.isEmpty()); // shutdownAll() must be done already
-        QTC_ASSERT(m_runningLocalBuilds.isEmpty(), qDeleteAll(m_runningLocalBuilds));
+        QTC_CHECK(!m_localBuildInfosRunner.isRunning());
         QTC_CHECK(!m_startedDashboardsRunner.isRunning());
     }
 
@@ -90,7 +90,7 @@ public:
 
     bool hasRunningBuildFor(const QString &projectName)
     {
-        return m_runningLocalBuilds.contains(projectName);
+        return m_localBuildInfosRunner.isKeyRunning(projectName);
     }
 
     LocalBuildInfo localBuildInfoFor(const QString &projectName)
@@ -112,8 +112,9 @@ private:
     QHash<QString, LocalDashboard> m_startedDashboards;
     MappedTaskTreeRunner<QString> m_startedDashboardsRunner;
 
-    QHash<QString, TaskTree *> m_runningLocalBuilds;
     QHash<QString, LocalBuildInfo> m_localBuildInfos;
+    MappedTaskTreeRunner<QString> m_localBuildInfosRunner;
+
     FilePath m_lastBauhausFromDB;
 };
 
@@ -169,9 +170,7 @@ void LocalBuild::startDashboard(const QString &projectName, const LocalDashboard
 
 bool LocalBuild::shutdownAll(const std::function<void()> &callback)
 {
-    for (auto it : std::as_const(m_runningLocalBuilds)) // runners that perform a local build
-        it->cancel();
-
+    m_localBuildInfosRunner.cancel();
     m_startedDashboardsRunner.cancel();
     if (m_startedDashboards.isEmpty())
         return false;
@@ -606,26 +605,19 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
                                                process.cleanedStdErr()});
         qCDebug(localBuildLog) << "buildState changed >" << state << projectName;
         updateLocalBuildStateFor(projectName, state, 100);
-        TaskTree *taskTree = m_runningLocalBuilds.take(projectName);
-        if (taskTree)
-            taskTree->deleteLater();
     };
 
     m_localBuildInfos.insert(projectName, {LocalBuildState::None});
     updateLocalBuildStateFor(projectName, Tr::tr("Starting"), 1);
     qCDebug(localBuildLog) << "starting local build (" << projectName << "):"
                            << cmdLine.toUserOutput();
-    TaskTree *taskTree = new TaskTree({ProcessTask(onSetup, onDone)});
-    m_runningLocalBuilds.insert(projectName, taskTree);
-    taskTree->start();
+    m_localBuildInfosRunner.start(projectName, {ProcessTask(onSetup, onDone)});
     return true;
 }
 
 void LocalBuild::cancelLocalBuildFor(const QString &projectName)
 {
-    TaskTree *taskTree = m_runningLocalBuilds.value(projectName);
-    if (taskTree)
-        taskTree->cancel();
+    m_localBuildInfosRunner.cancelKey(projectName);
 }
 
 void LocalBuild::removeFinishedLocalBuilds()
