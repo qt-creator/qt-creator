@@ -127,8 +127,6 @@ void LocalBuild::startDashboard(const QString &projectName, const LocalDashboard
         process.setEnvironment(dash.environment);
     };
 
-    TaskTree *taskTree = new TaskTree;
-    m_startedDashboardTrees.insert_or_assign(projectName, std::unique_ptr<TaskTree>(taskTree));
     const auto onDone = [this, callback, dash = dashboard, projectName] (const Process &process) {
         const auto onFinish = qScopeGuard([this, projectName] {
             auto it = m_startedDashboardTrees.find(projectName);
@@ -167,7 +165,8 @@ void LocalBuild::startDashboard(const QString &projectName, const LocalDashboard
 
     m_startedDashboards.insert(dashboard.id, dashboard);
     qCDebug(localDashLog) << "Dashboard [start]" << dashboard.startCommandLine.toUserOutput();
-    taskTree->setRecipe({ProcessTask(onSetup, onDone)});
+    TaskTree *taskTree = new TaskTree({ProcessTask(onSetup, onDone)});
+    m_startedDashboardTrees.insert_or_assign(projectName, std::unique_ptr<TaskTree>(taskTree));
     taskTree->start();
 }
 
