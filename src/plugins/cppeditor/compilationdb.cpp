@@ -170,7 +170,8 @@ void generateCompilationDB(
     compileCommandsFile.write("[");
 
     const QJsonArray jsonProjectOptions = QJsonArray::fromStringList(projectOptions);
-    for (const ProjectInfo::ConstPtr &projectInfo : std::as_const(projectInfoList)) {
+    for (bool hasEntries = false;
+         const ProjectInfo::ConstPtr &projectInfo : std::as_const(projectInfoList)) {
         QTC_ASSERT(projectInfo, continue);
         for (ProjectPart::ConstPtr projectPart : projectInfo->projectParts()) {
             QTC_ASSERT(projectPart, continue);
@@ -183,8 +184,7 @@ void generateCompilationDB(
                 ppOptions = fullProjectPartOptions(projectPartOptions(optionsBuilder),
                                                    jsonProjectOptions);
             }
-            for (qsizetype i = 0; i < projectPart->files.size(); ++i) {
-                const ProjectFile &projFile = projectPart->files.at(i);
+            for (const ProjectFile &projFile : projectPart->files) {
                 if (promise.isCanceled())
                     return;
                 const QJsonObject json
@@ -196,9 +196,10 @@ void generateCompilationDB(
                                        ppOptions,
                                        projectInfo->settings().usePrecompiledHeaders(),
                                        optionsBuilder.isClStyle());
-                if (i > 0)
+                if (hasEntries)
                     compileCommandsFile.write(",");
                 compileCommandsFile.write(QJsonDocument(json).toJson(QJsonDocument::Compact));
+                hasEntries = true;
             }
         }
     }
