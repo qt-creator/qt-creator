@@ -296,7 +296,7 @@ public:
     Project *m_project = nullptr;
     bool m_runningQuery = false;
     SingleTaskTreeRunner m_taskTreeRunner;
-    std::unordered_map<IDocument *, std::unique_ptr<TaskTree>> m_docMarksTrees;
+    MappedTaskTreeRunner<IDocument *> m_docMarksRunner;
     SingleTaskTreeRunner m_issueInfoRunner;
     SingleTaskTreeRunner m_namedFilterRunner;
     FileInProjectFinder m_fileFinder; // FIXME maybe obsolete when path mapping is implemented
@@ -1268,19 +1268,12 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
             return;
         handleIssuesForFile(data, docFilePath);
     };
-    TaskTree *taskTree = new TaskTree;
+
     const bool useGlobal = m_dashboardMode == DashboardMode::Global
             || !currentIssueHasValidPathMapping();
-    taskTree->setRecipe(lineMarkerRecipe(useGlobal ? DashboardMode::Global
-                                                   : DashboardMode::Local, filePath, handler));
-    m_docMarksTrees.insert_or_assign(doc, std::unique_ptr<TaskTree>(taskTree));
-    connect(taskTree, &TaskTree::done, this, [this, doc] {
-        const auto it = m_docMarksTrees.find(doc);
-        QTC_ASSERT(it != m_docMarksTrees.end(), return);
-        it->second.release()->deleteLater();
-        m_docMarksTrees.erase(it);
-    });
-    taskTree->start();
+    const Group recipe = lineMarkerRecipe(useGlobal ? DashboardMode::Global
+                                                    : DashboardMode::Local, filePath, handler);
+    m_docMarksRunner.start(doc, recipe);
 }
 
 void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
@@ -1289,10 +1282,7 @@ void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
     if (!document)
         return;
 
-    const auto it = m_docMarksTrees.find(doc);
-    if (it != m_docMarksTrees.end())
-        m_docMarksTrees.erase(it);
-
+    m_docMarksRunner.resetKey(doc);
     qDeleteAll(m_allMarks.take(document->filePath()));
 }
 
