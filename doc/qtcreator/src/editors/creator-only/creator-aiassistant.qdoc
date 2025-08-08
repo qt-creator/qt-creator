@@ -261,5 +261,112 @@
 
     Qt AI Assistant adds inline comments that you can apply to your code.
 
+    \section1 Custom model information
+
+    Use custom model, provide header, body and prompts for the request and
+    choose proper response format (for custom model for prompts) or response
+    structure (for custom model for completion).
+
+    \section2 Body
+
+    Custom model for prompts:
+
+    \list
+        \li \c The "{prompt}" placeholder is automatically replaced with your
+        actual request.
+    \endlist
+
+    Custom model for completions:
+
+    \list
+        \li \c The "{prompt}" placeholder is automatically replaced with your
+        actual requests.
+        \li \c The "{prefix}" placeholder is automatically replaced with the
+        code before the cursor.
+        \li \c The "{suffix}" placeholder is automatically replaced with the
+        code after the cursor.
+    \endlist
+
+    \note Wrap  placeholders in quotation marks, for example: "prompt" :
+    "{prompt}".
+
+    \section2 Select the response format (for custom model for prompts)
+
+    In the \uicontrol {Qt AI Assistant-specific response parser format}
+    drop-down selection:
+
+    \list
+        \li Select \uicontrol {Anthropic SSE} to turn on text streaming handling
+        for Anthropic's models.
+        \li Select \uicontrol {OpenAi SSE} to turn on text streaming handling
+        for most models.
+    \endlist
+
+    \section2 Prompts (for custom model for prompts)
+
+    Use the following placeholders in prompt templates. They are replaced with
+    contextual information in the request input to the LLM.
+
+    \list
+        \li \c {prefix}             - Code content before the selected
+        text  or range.
+        \li \c {suffix}             - Code content after the selected
+        text  or range.
+        \li \c {selection}          - The currently selected text or code.
+        \li \c {chat}               - Human language prompt from the user.
+        \li \c {filename}           - Name of the file being processed (for
+        example \c main.qml).
+        \li \c {file_extension}     - File extension (for example \c .qml,
+        \c .cpp, \c .js).
+        \li \c {codeblock_language} - Programming language for markdown code
+        blocks (for example \c qml, \c cpp).
+        \li \c {linter}             - Raw output from QML linter \l qmllint.
+        \li \c {filtered_linter}    - Filtered linter output adjusted for code
+        refactoring context.
+        \li \c {code_to_lint}       - Specific code content to be linted (used
+        in \c lintAndFix mode).
+    \endlist
+
+    \section2 Qt AI Assistant response structure variant (for custom model for completions)
+
+    Choose the structure of your LLM responses:
+
+    response
+    \code
+    response = response
+    \endcode
+
+    content[] → text
+    \code
+    response = {
+        content = [ { text = response } ]
+    }
+    \endcode
+
+    choices[] → text
+    \code
+    response = {
+        choices = [ { text = response } ]
+    }
+    \endcode
+
+    choices[] → message → content
+    \code
+    response = {
+        choices = [ { message = { content = response } } ]
+    }
+    \endcode
+
+    \section2 Prompts (for custom model for completions)
+
+    Use the following placeholders in prompt templates. They are replaced with
+    contextual information in the request input to the LLM.
+
+    \list
+        \li \c {prefix} - Code content before the cursor.
+        \li \c {suffix} - Code content after the cursor.
+
+    \endlist
+
     \sa {Install extensions}, {Load extensions}
 */
