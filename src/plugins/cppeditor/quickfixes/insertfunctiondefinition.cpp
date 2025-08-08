@@ -176,16 +176,9 @@ public:
 
             const QString prettyType = oo.prettyType(tn, name);
 
-            QString input = prettyType;
             int index = 0;
-            while (input.startsWith("template")) {
-                static const QRegularExpression templateRegex("template\\s*<[^>]*>");
-                QRegularExpressionMatch match = templateRegex.match(input);
-                if (match.hasMatch()) {
-                    index += match.captured().size() + 1;
-                    input = input.mid(match.captured().size() + 1);
-                }
-            }
+            if (prettyType.startsWith("template"))
+                index = prettyType.lastIndexOf(">\n") + 2;
 
             QString defText = prettyType;
             defText.insert(index, inlinePref);
@@ -2124,6 +2117,30 @@ foo::foo2::MyType<int> foo::foo2::bar()
         InsertDefFromDecl factory;
         factory.setOutside();
         QuickFixOperationTest(singleDocument(original, expected), &factory);
+    }
+
+    void testTemplateTemplateParameters()
+    {
+        QByteArray original =
+            "namespace N {\n"
+            "template <typename T, template <int, typename> class TT> struct S {\n"
+            "  void s@tart();\n"
+            "};\n"
+            "}\n";
+        QByteArray expected =
+            "namespace N {\n"
+            "template <typename T, template <int, typename> class TT> struct S {\n"
+            "  void start();\n"
+            "};\n\n"
+            "template<typename T, template<int, typename> class TT>\n"
+            "inline void S<T, TT>::start()\n"
+            "{\n\n"
+            "}\n\n"
+            "}\n";
+
+        InsertDefFromDecl factory;
+        factory.setOutside();
+        QuickFixOperationTest(singleHeader(original, expected), &factory);
     }
 };
 

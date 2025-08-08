@@ -2494,7 +2494,6 @@ bool Bind::visit(TemplateDeclarationAST *ast)
 bool Bind::visit(TypenameTypeParameterAST *ast)
 {
     int sourceLocation = location(ast->name, ast->firstToken());
-    // int classkey_token = ast->classkey_token;
     // int dot_dot_dot_token = ast->dot_dot_dot_token;
     const Name *name = this->name(ast->name);
     ExpressionTy type_id = this->expression(ast->type_id);
@@ -2515,13 +2514,8 @@ bool Bind::visit(TemplateTypeParameterAST *ast)
     // int template_token = ast->template_token;
     // int less_token = ast->less_token;
     // ### process the template prototype
-#if 0
-    for (DeclarationListAST *it = ast->template_parameter_list; it; it = it->next) {
-        this->declaration(it->value);
-    }
-#endif
+
     // int greater_token = ast->greater_token;
-    // int class_token = ast->class_token;
     // int dot_dot_dot_token = ast->dot_dot_dot_token;
 
     const Name *name = this->name(ast->name);
@@ -2531,7 +2525,14 @@ bool Bind::visit(TemplateTypeParameterAST *ast)
     arg->setType(type_id);
     if (ast->typeConstraint && ast->typeConstraint->conceptName)
             arg->setConceptName(this->name(ast->typeConstraint->conceptName));
+    arg->setClassDeclarator(translationUnit()->tokenKind(ast->class_token) == T_CLASS);
     ast->symbol = arg;
+
+    Scope *previousScope = switchScope(arg);
+    for (DeclarationListAST *it = ast->template_parameter_list; it; it = it->next)
+        declaration(it->value);
+    (void) switchScope(previousScope);
+
     _scope->addMember(arg);
 
     return false;

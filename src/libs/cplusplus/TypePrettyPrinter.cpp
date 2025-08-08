@@ -301,6 +301,38 @@ void TypePrettyPrinter::prependSpaceBeforeIndirection(const FullySpecifiedType &
         _text.prepend(QLatin1Char(' '));
 }
 
+QString TypePrettyPrinter::visitTemplateParameterList(Scope *scope, int paramCount, bool forceNames)
+{
+    QString text = "template<";
+    for (int i = 0; i < paramCount; ++i) {
+        Symbol * const param = scope->memberAt(i);
+        if (!param)
+            continue;
+        if (i > 0)
+            text.append(", ");
+        if (TypenameArgument *arg = param->asTypenameArgument()) {
+            text.append(arg->isClassDeclarator() ? "class" : "typename");
+            QString name = _overview->prettyName(arg->name());
+            if (name.isEmpty() && forceNames)
+                name.append('T').append(QString::number(i + 1));
+            if (!name.isEmpty())
+                text.append(' ').append(name);
+        } else if (TemplateTypeArgument *arg = param->asTemplateTypeArgument()) {
+            if (arg->conceptName()) {
+                text.append(_overview->prettyName(arg->conceptName()));
+            } else if (arg->memberCount()) {
+                text.append(visitTemplateParameterList(arg, arg->memberCount(), false));
+                text.append(arg->isClassDeclarator() ? " class" : " typename");
+            }
+            if (arg->name())
+                text.append(' ').append(_overview->prettyName(arg->name()));
+        } else if (param->asArgument()) {
+            text.append(_overview->prettyType(param->type(), param->name()));
+        }
+    }
+    return text.append(">");
+}
+
 void TypePrettyPrinter::prependSpaceAfterIndirection(bool hasName)
 {
     const bool hasCvSpecifier = _fullySpecifiedType.isConst() || _fullySpecifiedType.isVolatile();
@@ -437,31 +469,9 @@ void TypePrettyPrinter::visit(Function *type)
     if (_overview->showEnclosingTemplate) {
         for (auto [s, i] = std::tuple{type->enclosingScope(), nameParts.length() - 1}; s && i >= 0;
              s = s->enclosingScope()) {
-            if (Template *templ = s->asTemplate()) {
-                QString templateScope = "template<";
-                const int paramCount = templ->templateParameterCount();
-                for (int i = 0; i < paramCount; ++i) {
-                    if (Symbol *param = templ->templateParameterAt(i)) {
-                        if (i > 0)
-                            templateScope.append(", ");
-                        if (TypenameArgument *typenameArg = param->asTypenameArgument()) {
-                            templateScope.append(QLatin1String(
-                                typenameArg->isClassDeclarator() ? "class " : "typename "));
-                            QString name = _overview->prettyName(typenameArg->name());
-                            if (name.isEmpty())
-                                name.append('T').append(QString::number(i + 1));
-                            templateScope.append(name);
-                        } else if (TemplateTypeArgument *arg = param->asTemplateTypeArgument()) {
-                            templateScope.append(_overview->prettyName(arg->conceptName()))
-                                    .append(' ').append(_overview->prettyName(arg->name()));
-                        } else if (Argument *arg = param->asArgument()) {
-                            templateScope.append(operator()(arg->type(),
-                                                            _overview->prettyName(arg->name())));
-                        }
-                    }
-                }
-                if (paramCount > 0)
-                    _text.prepend(templateScope + ">\n");
+            if (Template *templ = s->asTemplate(); templ && templ->templateParameterCount()) {
+                _text.prepend(
+                    visitTemplateParameterList(templ, templ->templateParameterCount(), true) + '\n');
             }
         }
     }

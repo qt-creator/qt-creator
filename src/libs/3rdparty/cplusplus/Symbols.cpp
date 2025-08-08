@@ -231,15 +231,16 @@ void TypenameArgument::visitSymbol0(SymbolVisitor *visitor)
 
 
 TemplateTypeArgument::TemplateTypeArgument(TranslationUnit *translationUnit, int sourceLocation, const Name *name)
-    : Symbol(translationUnit, sourceLocation, name)
+    : Scope(translationUnit, sourceLocation, name)
 { }
 
 TemplateTypeArgument::TemplateTypeArgument(Clone *clone, Subst *subst, TemplateTypeArgument *original)
-    : Symbol(clone, subst, original)
+    : Scope(clone, subst, original)
 { }
 
 void TemplateTypeArgument::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
+
 
 Function::Function(TranslationUnit *translationUnit, int sourceLocation, const Name *name)
     : Scope(translationUnit, sourceLocation, name),
