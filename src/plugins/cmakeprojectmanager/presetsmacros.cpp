@@ -227,9 +227,6 @@ void updateToolchainFile(
         }
     }
 
-    if (!toolchainFile.exists())
-        return;
-
     const QString toolchainFileString = toolchainFile.cleanPath().path();
 
     // toolchainFile takes precedence to CMAKE_TOOLCHAIN_FILE
