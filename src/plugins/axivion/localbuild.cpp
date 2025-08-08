@@ -123,7 +123,6 @@ void LocalBuild::startDashboard(const QString &projectName, const LocalDashboard
     if (ExtensionSystem::PluginManager::isShuttingDown())
         return;
 
-    const Storage<LocalDashboard> storage;
     const auto onSetup = [dash = dashboard](Process &process) {
         process.setCommand(dash.startCommandLine);
         process.setEnvironment(dash.environment);
