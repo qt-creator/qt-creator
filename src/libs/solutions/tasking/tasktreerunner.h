@@ -200,6 +200,73 @@ private:
     std::unordered_map<TaskTree *, std::unique_ptr<TaskTree>> m_taskTrees;
 };
 
+template <typename Key>
+class MappedTaskTreeRunner : public AbstractTaskTreeRunner
+{
+public:
+    bool isRunning() const override { return !m_taskTrees.empty(); }
+    bool isKeyRunning(const Key &key) const { return m_taskTrees.find(key) != m_taskTrees.end(); }
+
+    // When task tree is running it resets the old task tree.
+    template <typename SetupHandler = TreeSetupHandler, typename DoneHandler = TreeDoneHandler>
+    void start(const Key &key, const Group &recipe,
+               SetupHandler &&setupHandler = {},
+               DoneHandler &&doneHandler = {},
+               CallDoneFlags callDone = CallDone::Always)
+    {
+        startImpl(key, recipe,
+                  wrapTreeSetupHandler(std::forward<SetupHandler>(setupHandler)),
+                  wrapTreeDoneHandler(std::forward<DoneHandler>(doneHandler)),
+                  callDone);
+    }
+
+    // All running task trees are canceled. Emits done(DoneWith::Cancel) signals synchronously.
+    // The order of cancellations is not specified.
+    void cancel() override
+    {
+        while (!m_taskTrees.empty())
+            m_taskTrees.begin()->second->cancel();
+    }
+    void cancelKey(const Key &key)
+    {
+        if (const auto it = m_taskTrees.find(key); it != m_taskTrees.end())
+            it->second->cancel();
+    }
+
+    // All running task trees are deleted. No done() signal is emitted.
+    void reset() override { m_taskTrees.clear(); }
+    void resetKey(const Key &key)
+    {
+        if (const auto it = m_taskTrees.find(key); it != m_taskTrees.end())
+            m_taskTrees.erase(it);
+    }
+
+private:
+    void startImpl(const Key &key, const Group &recipe,
+                   const TreeSetupHandler &setupHandler = {},
+                   const TreeDoneHandler &doneHandler = {},
+                   CallDoneFlags callDone = CallDone::Always)
+    {
+        TaskTree *taskTree = new TaskTree(recipe);
+        connect(taskTree, &TaskTree::done, this, [this, key, doneHandler, callDone](DoneWith result) {
+            const auto it = m_taskTrees.find(key);
+            TaskTree *taskTree = it->second.release();
+            taskTree->deleteLater();
+            m_taskTrees.erase(it);
+            if (doneHandler && shouldCallDone(callDone, result))
+                doneHandler(*taskTree, result);
+            emit done(result, taskTree);
+        });
+        m_taskTrees[key].reset(taskTree);
+        if (setupHandler)
+            setupHandler(*taskTree);
+        emit aboutToStart(taskTree);
+        taskTree->start();
+    }
+
+    std::unordered_map<Key, std::unique_ptr<TaskTree>> m_taskTrees;
+};
+
 } // namespace Tasking
 
 QT_END_NAMESPACE
