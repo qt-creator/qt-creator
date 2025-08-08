@@ -3,6 +3,10 @@
 
 #pragma once
 
+#include <studioquickwidget.h>
+
+#include <utils/uniqueobjectptr.h>
+
 #include <QFrame>
 #include <QNetworkAccessManager>
 #include <QPointer>
@@ -26,25 +30,23 @@ public:
     AiAssistantWidget();
     ~AiAssistantWidget() = default;
 
-    QList<QToolButton *> createToolBarWidgets();
-
-    static QString qmlSourcesPath();
-    void clearSearchFilter();
-
     QSize sizeHint() const override;
 
-protected:
-    bool eventFilter(QObject *obj, QEvent *event) override;
+    Q_INVOKABLE QStringList imageAssetsModel() const;
+    Q_INVOKABLE void handleMessage(const QString &prompt);
+    Q_INVOKABLE QString getPreviousCommand();
+    Q_INVOKABLE QString getNextCommand();
 
-private:
-    void handleMessage();
+private: // functions
+    void reloadQmlSource();
 
-    QPointer<QTextEdit> m_textInput;
-    QPointer<QLabel> m_imageLabel;
-    QStringList m_imagePaths;
+    QString attachedImage() const;
 
+private: // variables
     std::unique_ptr<QNetworkAccessManager> m_manager;
     QPointer<QNetworkReply> m_reply;
+
+    Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
 
     QStringList m_inputHistory;
     int m_historyIndex = -1;

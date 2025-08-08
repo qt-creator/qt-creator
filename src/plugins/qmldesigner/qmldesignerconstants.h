@@ -195,6 +195,7 @@ inline constexpr char OBJECT_NAME_SPLASH_SCREEN[] = "QQuickWidgetSplashScreen";
 inline constexpr char OBJECT_NAME_WELCOME_PAGE[] = "QQuickWidgetQDSWelcomePage";
 inline constexpr char OBJECT_NAME_CONNECTION_EDITOR[] = "QQuickWidgetConnectionEditor";
 inline constexpr char OBJECT_NAME_DEVICE_MANAGER[] = "QQuickWidgetDeviceManager";
+inline constexpr char OBJECT_NAME_AI_ASSISTANT[] = "QQuickWidgetAiAssistant";
 
 inline constexpr char ENVIRONMENT_SHOW_QML_ERRORS[] = "QMLDESIGNER_SHOW_QML_ERRORS";
 

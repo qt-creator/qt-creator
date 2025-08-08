@@ -1,7 +1,9 @@
 add_qtc_plugin(QmlDesignerAi
   CONDITION TARGET QtCreator::QmlDesigner
   PLUGIN_DEPENDS
-    QtCreator::QmlDesigner
+    QtCreator::QmlDesigner QtCreator::QmlDesignerBase
+  DEPENDS
+    Qt6::Qml
   SOURCES
     qmldesigneraiplugin.cpp qmldesigneraiplugin.h
     aiassistantview.cpp aiassistantview.h

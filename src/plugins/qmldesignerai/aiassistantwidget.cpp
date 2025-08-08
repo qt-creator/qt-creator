@@ -5,8 +5,10 @@
 
 #include <asset.h>
 #include <designersettings.h>
+#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
+#include <coreplugin/icore.h>
 #include <utils/filepath.h>
 
 #include <QApplication>
@@ -19,7 +21,10 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QPushButton>
+#include <QQmlContext>
+#include <QQmlEngine>
 #include <QTextEdit>
+#include <QtQuick/QQuickItem>
 
 namespace QmlDesigner {
 
@@ -36,6 +41,24 @@ QStringList getImageAssetsPaths()
         imagePaths << Utils::FilePath::fromString(it.next()).relativePathFrom(resourePath).toFSPathString();
 
     return imagePaths;
+}
+
+QString propertyEditorResourcesPath()
+{
+#ifdef SHARE_QML_PATH
+    if (::Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+        return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
+#endif
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toUrlishString();
+}
+
+QString qmlSourcesPath()
+{
+#ifdef SHARE_QML_PATH
+    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+        return QLatin1String(SHARE_QML_PATH) + "/aiAssistantQmlSources";
+#endif
+    return Core::ICore::resourcePath("qmldesigner/aiAssistantQmlSources").toUrlishString();
 }
 
 QString getContent(const QJsonObject &responseObject)
@@ -68,37 +91,9 @@ QString getContent(const QJsonObject &responseObject)
 
 } // namespace
 
-bool AiAssistantWidget::eventFilter(QObject *obj, QEvent *event)
-{
-    if (event->type() == QEvent::EnabledChange) {
-        // Only focus m_textInput if no other view has taken focus through user interaction
-        if (m_textInput->isEnabled() && !QApplication::focusWidget())
-            m_textInput->setFocus();
-    } else if (event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        if (keyEvent->key() == Qt::Key_Return && !(keyEvent->modifiers() & Qt::ShiftModifier)) {
-            handleMessage();
-            return true;
-        } else if (keyEvent->key() == Qt::Key_Up) {
-            if (m_historyIndex > 0)
-                m_textInput->setText(m_inputHistory.at(--m_historyIndex));
-            return true;
-        } else if (keyEvent->key() == Qt::Key_Down) {
-            if (m_historyIndex < m_inputHistory.size() - 1) {
-                m_textInput->setText(m_inputHistory.at(++m_historyIndex));
-            } else {
-                m_historyIndex = m_inputHistory.size();
-                m_textInput->clear();
-            }
-            return true;
-        }
-    }
-
-    return QWidget::eventFilter(obj, event);
-}
-
 AiAssistantWidget::AiAssistantWidget()
     : m_manager(std::make_unique<QNetworkAccessManager>())
+    , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>())
 {
     setWindowTitle(tr("AI Assistant", "Title of Ai Assistant widget"));
     setMinimumWidth(220);
@@ -107,65 +102,20 @@ AiAssistantWidget::AiAssistantWidget()
     auto vLayout = new QVBoxLayout(this);
     vLayout->setContentsMargins(5, 5, 5, 5);
 
-    QHBoxLayout *hLayout = new QHBoxLayout();
-    hLayout->setSpacing(5);
+    m_quickWidget->setContentsMargins({0, 0, 0, 0});
+    m_quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_AI_ASSISTANT);
+    m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
 
-    m_textInput = new QTextEdit(this);
-    m_textInput->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_textInput->setStyleSheet("padding: 4px; font-size: 16px;");
-    m_textInput->setPlaceholderText("Type your message...");
-    m_textInput->installEventFilter(this);
-
-    QPushButton *sendButton = new QPushButton(this);
-    sendButton->setStyleSheet("font-size: 12px;");
-    sendButton->setFixedWidth(32);
-    sendButton->setFixedHeight(32);
-
-    QIcon buttonIcon(":/AiAssistant/images/ai.png");
-    sendButton->setIcon(buttonIcon);
-    sendButton->setIconSize(QSize(20, 20));
-
-    hLayout->addWidget(m_textInput.data());
-    hLayout->addWidget(sendButton);
-    hLayout->setAlignment(sendButton, Qt::AlignTop);
-
-    hLayout->setStretch(0, 1);
-
-    QPushButton *selectButton = new QPushButton("Attach", this);
-    selectButton->setStyleSheet("padding: 4px; font-size: 14px;");
-
-    m_imageLabel = new QLabel("", this);
-    m_imageLabel->setStyleSheet("padding: 4px; font-size: 14px; color: gray;");
-    m_imageLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-
-    // Create a popup menu
-    QMenu *imageMenu = new QMenu(this);
-
-    connect(imageMenu, &QMenu::aboutToShow, this, [imageMenu, this]() {
-        imageMenu->clear();
-        m_imagePaths = QStringList("") << getImageAssetsPaths();
-        for (const QString &option : std::as_const(m_imagePaths)) {
-            QAction *action = imageMenu->addAction(option);
-            connect(action, &QAction::triggered, m_imageLabel.data(), [option, this]() {
-                m_imageLabel->setText(option);
-            });
-        }
+    auto map = m_quickWidget->registerPropertyMap("AiAssistantBackend");
+    map->setProperties({
+        {"rootView", QVariant::fromValue(this)},
     });
 
-    // Connect the button to show the popup
-    connect(selectButton, &QPushButton::clicked, this, [selectButton, imageMenu]() {
-        imageMenu->exec(selectButton->mapToGlobal(QPoint(0, selectButton->height())));
-    });
+    m_quickWidget->rootContext()->setContextProperty("rootView", QVariant::fromValue(this));
 
-    QHBoxLayout *selectLayout = new QHBoxLayout();
-    selectLayout->addWidget(selectButton);
-    selectLayout->addWidget(m_imageLabel.data());
-    selectLayout->addStretch();
-
-    vLayout->addLayout(hLayout);
-    vLayout->addLayout(selectLayout);
-
-    connect(sendButton, &QPushButton::clicked, this, &AiAssistantWidget::handleMessage);
+    vLayout->addWidget(m_quickWidget.get());
+    reloadQmlSource();
 }
 
 QSize AiAssistantWidget::sizeHint() const
@@ -173,15 +123,18 @@ QSize AiAssistantWidget::sizeHint() const
     return {420, 20};
 }
 
-void AiAssistantWidget::handleMessage()
+QStringList AiAssistantWidget::imageAssetsModel() const
 {
-    QString prompt = m_textInput->toPlainText();
+    return QStringList{""} << getImageAssetsPaths();
+}
+
+void AiAssistantWidget::handleMessage(const QString &prompt)
+{
     if (prompt.isEmpty())
         return;
 
     m_inputHistory.append(prompt);
     m_historyIndex = m_inputHistory.size();
-    m_textInput->clear();
 
     QString currentQml = QmlDesignerPlugin::instance()->currentDesignDocument()
                              ->plainTextEdit()->toPlainText();
@@ -228,8 +181,9 @@ Request: %2
 )";
 
     QJsonObject userJson;
-    if (!m_imageLabel->text().isEmpty()) {
-        Utils::FilePath imagePath = DocumentManager::currentResourcePath().pathAppended(m_imageLabel->text());
+    if (const QString &attachedImage = this->attachedImage(); !attachedImage.isEmpty()) {
+        Utils::FilePath imagePath = DocumentManager::currentResourcePath().pathAppended(
+            attachedImage);
         if (imagePath.exists()) {
             QImage image(imagePath.toFSPathString());
             QByteArray byteArray;
@@ -302,6 +256,40 @@ Request: %2
         }
         m_reply->deleteLater();
     });
+}
+
+QString AiAssistantWidget::getPreviousCommand()
+{
+    if (m_historyIndex > 0)
+        --m_historyIndex;
+
+    if (m_inputHistory.size() > m_historyIndex)
+        return m_inputHistory.at(m_historyIndex);
+
+    return {};
+}
+
+QString AiAssistantWidget::getNextCommand()
+{
+    if (int newIdx = m_historyIndex + 1; newIdx < m_inputHistory.size())
+        m_historyIndex = newIdx;
+
+    if (m_inputHistory.size() > m_historyIndex)
+        return m_inputHistory.at(m_historyIndex);
+
+    return {};
+}
+
+void AiAssistantWidget::reloadQmlSource()
+{
+    const QString itemLibraryQmlPath = qmlSourcesPath() + "/AiAssistantView.qml";
+    QTC_ASSERT(QFileInfo::exists(itemLibraryQmlPath), return);
+    m_quickWidget->setSource(QUrl::fromLocalFile(itemLibraryQmlPath));
+}
+
+QString AiAssistantWidget::attachedImage() const
+{
+    return m_quickWidget->rootObject()->property("attachedImage").toString();
 }
 
 } // namespace QmlDesigner
