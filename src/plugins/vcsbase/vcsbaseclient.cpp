@@ -59,7 +59,6 @@ VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseSettings *baseSettings)
 {
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &VcsBaseClientImpl::saveSettings);
-    connect(&m_taskTreeRunner, &SingleTaskTreeRunner::done, this, &VcsBaseClientImpl::startNextTask);
 }
 
 FilePath VcsBaseClientImpl::vcsBinary(const Utils::FilePath &forDirectory) const
@@ -163,9 +162,7 @@ void VcsBaseClientImpl::executeInEditor(const Utils::FilePath &workingDirectory,
 
 void VcsBaseClientImpl::enqueueTask(const ExecutableItem &task)
 {
-    m_taskQueue.append(task);
-    if (!m_taskTreeRunner.isRunning())
-        startNextTask();
+    m_taskTreeRunner.enqueue({task});
 }
 
 ExecutableItem VcsBaseClientImpl::commandTask(const VcsCommandData &data) const
@@ -200,12 +197,6 @@ ExecutableItem VcsBaseClientImpl::commandTask(const VcsCommandData &data) const
 void VcsBaseClientImpl::enqueueCommand(const VcsCommandData &data)
 {
     enqueueTask(commandTask(data));
-}
-
-void VcsBaseClientImpl::startNextTask()
-{
-    if (!m_taskQueue.isEmpty())
-        m_taskTreeRunner.start({m_taskQueue.takeFirst()});
 }
 
 int VcsBaseClientImpl::vcsTimeoutS() const

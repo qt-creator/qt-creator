@@ -99,11 +99,9 @@ protected:
 
 private:
     void saveSettings();
-    void startNextTask();
 
     VcsBaseSettings *m_baseSettings = nullptr; // Aspect based.
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
-    QList<Tasking::ExecutableItem> m_taskQueue;
+    Tasking::SequentialTaskTreeRunner m_taskTreeRunner;
 };
 
 class VCSBASE_EXPORT VcsBaseClient : public VcsBaseClientImpl
