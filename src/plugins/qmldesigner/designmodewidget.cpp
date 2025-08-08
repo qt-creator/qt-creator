@@ -602,9 +602,9 @@ void DesignModeWidget::aboutToShowWorkspaces()
 
 void DesignModeWidget::showExtraWidget(WidgetInfo widgetInfo)
 {
-    ADS::DockWidget *parentDockWidget = m_dockManager->findDockWidget(widgetInfo.parentId);
     ensureMinimumSize(widgetInfo.widget);
     ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(widgetInfo.uniqueId);
+    bool justCreated = false;
     if (!dockWidget) {
         dockWidget = createDockWidget(widgetInfo.widget,
                                       widgetInfo.uniqueId,
@@ -616,15 +616,21 @@ void DesignModeWidget::showExtraWidget(WidgetInfo widgetInfo)
                     this,
                     [widgetInfo, this]() { viewManager().removeExtraView(widgetInfo); });
         }
+        justCreated = true;
     }
 
-    if (parentDockWidget) {
-        auto parentArea = parentDockWidget->dockAreaWidget();
-        m_dockManager->addDockWidget(ADS::TopDockWidgetArea, dockWidget, parentArea, 0);
-        parentArea->setDockAreaFlag(ADS::DockAreaWidget::HideSingleWidgetTitleBar, true);
+    if (justCreated) {
+        ADS::DockWidget *parentDockWidget = m_dockManager->findDockWidget(widgetInfo.parentId);
+        if (parentDockWidget) {
+            auto parentArea = parentDockWidget->dockAreaWidget();
+            m_dockManager->addDockWidgetTabToArea(dockWidget, parentArea);
+            parentArea->setDockAreaFlag(ADS::DockAreaWidget::HideSingleWidgetTitleBar, true);
+        } else {
+            m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
+            dockWidget->setFloating();
+        }
     } else {
-        m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
-        dockWidget->setFloating();
+        dockWidget->toggleView(true);
     }
 
     dockWidget->setFeature(ADS::DockWidget::DockWidgetAlwaysCloseAndDelete, false);
