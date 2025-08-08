@@ -99,6 +99,40 @@ void SequentialTaskTreeRunner::startNext()
     m_taskTreeRunner.start(data.recipe, data.setupHandler, data.doneHandler, data.callDone);
 }
 
+ParallelTaskTreeRunner::~ParallelTaskTreeRunner() = default;
+
+void ParallelTaskTreeRunner::cancel()
+{
+    while (!m_taskTrees.empty())
+        m_taskTrees.begin()->second->cancel();
+}
+
+void ParallelTaskTreeRunner::reset()
+{
+    m_taskTrees.clear();
+}
+
+void ParallelTaskTreeRunner::startImpl(const Group &recipe,
+                                       const TreeSetupHandler &setupHandler,
+                                       const TreeDoneHandler &doneHandler,
+                                       CallDoneFlags callDone)
+{
+    TaskTree *taskTree = new TaskTree(recipe);
+    connect(taskTree, &TaskTree::done, this, [this, taskTree, doneHandler, callDone](DoneWith result) {
+        const auto it = m_taskTrees.find(taskTree);
+        it->second.release()->deleteLater();
+        m_taskTrees.erase(it);
+        if (doneHandler && shouldCallDone(callDone, result))
+            doneHandler(*taskTree, result);
+        emit done(result, taskTree);
+    });
+    m_taskTrees.emplace(taskTree, taskTree);
+    if (setupHandler)
+        setupHandler(*taskTree);
+    emit aboutToStart(taskTree);
+    taskTree->start();
+}
+
 } // namespace Tasking
 
 QT_END_NAMESPACE
