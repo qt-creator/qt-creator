@@ -16,9 +16,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
-namespace QTestUtils {
+namespace Autotest::Internal::QTestUtils {
 
 static const QByteArrayList valid = {"QTEST_MAIN", "QTEST_APPLESS_MAIN", "QTEST_GUILESS_MAIN"};
 
@@ -74,14 +72,15 @@ QMultiHash<FilePath, FilePath> alternativeFiles(ITestFramework *framework,
 QStringList filterInterfering(const QStringList &provided, QStringList *omitted, bool isQuickTest)
 {
     static const QSet<QString> knownInterferingSingleOptions {
-        "-txt", "-xml", "-csv", "-xunitxml", "-lightxml", "-silent", "-v1", "-v2", "-vs", "-vb",
+        "-txt", "-xml", "-csv", "-xunitxml", "-lightxml", "-junitxml", "-teamcity", "-tap",
+        "-silent", "-v1", "-v2", "-vs", "-vb",
         "-functions", "-datatags", "-nocrashhandler", "-callgrind", "-perf", "-perfcounterlist",
         "-tickcounter", "-eventcounter", "-help"
     };
     static const QSet<QString> knownInterferingOptionWithParameter = { "-o", "-maxwarnings" };
     static const QSet<QString> knownAllowedOptionsWithParameter {
         "-eventdelay", "-keydelay", "-mousedelay", "-perfcounter",
-        "-minimumvalue", "-minimumtotal", "-iterations", "-median"
+        "-minimumvalue", "-minimumtotal", "-iterations", "-median", "-repeat"
     };
 
     // handle Quick options as well
@@ -145,6 +144,4 @@ Environment prepareBasicEnvironment(const Environment &env)
     return result;
 }
 
-} // namespace QTestUtils
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal::QTestUtils
