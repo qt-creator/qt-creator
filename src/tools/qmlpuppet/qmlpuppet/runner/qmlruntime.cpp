@@ -188,8 +188,10 @@ void QmlRuntime::initQmlRunner()
     }
 
 #if QT_CONFIG(qml_animation)
+#if QT_VERSION < QT_VERSION_CHECK(6, 11, 0)
     if (m_argParser.isSet("slow-animations"))
         QUnifiedTimer::instance()->setSlowModeEnabled(true);
+#endif // QT_VERSION < QT_VERSION_CHECK(6, 11, 0)
     if (m_argParser.isSet("fixed-animations"))
         QUnifiedTimer::instance()->setConsistentTiming(true);
 #endif

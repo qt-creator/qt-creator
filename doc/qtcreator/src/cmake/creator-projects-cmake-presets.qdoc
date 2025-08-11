@@ -145,8 +145,8 @@
           "generator": "Ninja Multi-Config",
           "binaryDir": "${sourceDir}/build",
           "cacheVariables": {
-            "CMAKE_BUILD_TYPE": "Debug;Release",
-            "CMAKE_PREFIX_PATH": "C:/Qt/6.4.0/mingw_64"
+            "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
+            "CMAKE_PREFIX_PATH": "C:/Qt/6.4.0/mingw_64",
             "CMAKE_MAKE_PROGRAM": "C:/Qt/Tools/Ninja/ninja.exe"
           },
           "environment": {

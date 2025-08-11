@@ -816,7 +816,9 @@ public:
         });
 
         connect(m_reply, &QNetworkReply::downloadProgress, this, &Downloader::downloadProgress);
+#ifndef QT_NO_SSL
         connect(m_reply, &QNetworkReply::sslErrors, this, &Downloader::sslErrors);
+#endif
         connect(m_reply, &QNetworkReply::finished, this, [this] {
             m_file->close();
             if (m_reply->error() == QNetworkReply::NoError)
@@ -832,7 +834,9 @@ public:
 signals:
     void started();
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+#ifndef QT_NO_SSL
     void sslErrors(const QList<QSslError> &errors);
+#endif
     void done(Tasking::DoneResult result);
 
 private:

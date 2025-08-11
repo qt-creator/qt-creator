@@ -513,6 +513,13 @@ void setupTextEditorModule()
                     throw sol::error("TextEditor is not valid"));
                 return textEditor->editorWidget()->hasFocus();
             },
+            "setFocus",
+            [](const TextEditorPtr &textEditor) {
+                QTC_ASSERT(
+                    textEditor && textEditor->editorWidget(),
+                    throw sol::error("TextEditor is not valid"));
+                textEditor->editorWidget()->setFocus();
+            },
             "firstVisibleBlockNumber",
             [](const TextEditorPtr &textEditor) -> int {
                 QTC_ASSERT(
