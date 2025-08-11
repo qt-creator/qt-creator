@@ -241,7 +241,7 @@ void BundleHelper::exportBundle(const QList<ModelNode> &nodes, const QPixmap &ic
     m_remainingFiles = nodesToExport.size() + 1;
 
     for (const ModelNode &node : std::as_const(nodesToExport)) {
-        if (node.isComponent())
+        if (isProjectComponent(node))
             itemsArr.append(exportComponent(node));
         else
             itemsArr.append(exportNode(node, iconPixmap));
@@ -572,7 +572,7 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
 
     qml += indent + "}\n";
 
-    if (node.isComponent()) {
+    if (isProjectComponent(node)) {
         auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
         bool isBundle = nodeTypeName(node, node.model())
                             .startsWith(compUtils.componentBundlesTypePrefix() + ".");
@@ -893,5 +893,15 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
 
     return depList;
 }
+
+bool BundleHelper::isProjectComponent(const ModelNode &node) const
+{
+    if (node.isComponent()) {
+        const QString projPath = m_view->externalDependencies().currentProjectDirPath();
+        const QString compFilePath = ModelUtils::componentFilePath(node);
+        return compFilePath.startsWith(projPath);
+    }
+    return false;
+};
 
 } // namespace QmlDesigner

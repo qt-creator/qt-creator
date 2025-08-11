@@ -480,7 +480,7 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         const QList<ModelNode> selectedNodes = selectedModelNodes();
 
         for (const ModelNode &node : selectedNodes) {
-            if (node.isComponent())
+            if (m_bundleHelper->isProjectComponent(node))
                 addLibComponent(node);
             else
                 addLibItem(node);
@@ -868,14 +868,14 @@ void ContentLibraryView::decodeAndDropToContentLib(const QByteArray &data)
         ModelNode node = QmlDesignerPlugin::instance()->viewManager()
                                .view()->modelNodeForInternalId(internalId);
 
-        if (node.isComponent())
+        if (m_bundleHelper->isProjectComponent(node))
             addLibComponent(node);
         else
             addLibItem(node);
     }
 
     model()->endDrag();
-};
+}
 
 void ContentLibraryView::importBundleToContentLib()
 {
