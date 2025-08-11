@@ -38,7 +38,10 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
 
     QtTestFramework &qtSettings = theQtTestFramework();
     if (qtSettings.useXMLOutput())
-        arguments << "-xml";
+        arguments << QString{"-o -,xml"};
+    else
+        arguments << QString{"-o -,txt"};
+
     if (!testCases().isEmpty())
         arguments << testCases();
 

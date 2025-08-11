@@ -77,7 +77,7 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted,
         "-functions", "-datatags", "-nocrashhandler", "-callgrind", "-perf", "-perfcounterlist",
         "-tickcounter", "-eventcounter", "-help"
     };
-    static const QSet<QString> knownInterferingOptionWithParameter = { "-o", "-maxwarnings" };
+    static const QSet<QString> knownInterferingOptionWithParameter = { "-maxwarnings" };
     static const QSet<QString> knownAllowedOptionsWithParameter {
         "-eventdelay", "-keydelay", "-mousedelay", "-perfcounter",
         "-minimumvalue", "-minimumtotal", "-iterations", "-median", "-repeat"
@@ -110,6 +110,28 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted,
         } else if (knownInterferingSingleOptions.contains(currentOpt)) {
             if (omitted)
                 omitted->append(currentOpt);
+        } else if (currentOpt == "-o") { // more complex check
+            QTC_ASSERT(it + 1 != end, return {});
+            const QString next = *(++it);
+            const QStringList formats{",txt", ",xml", ",csv", ",lightxml", ",junitxml",
+                                      ",teamcity", ",tap"};
+            bool notAllowed = true;
+            if (Utils::anyOf(formats, [next](const QString &format) {
+                    return next.endsWith(format);
+                })) {
+                const QString file = next.left(next.lastIndexOf(','));
+                if (file != "-") // allow non-stdout for new style output format
+                    notAllowed = false;
+            }
+            if (notAllowed) {
+                if (omitted) {
+                    omitted->append(currentOpt);
+                    omitted->append(next);
+                }
+            } else {
+                allowed.append(currentOpt);
+                allowed.append(next);
+            }
         } else if (isQuickTest) {
             if (knownAllowedQuickOptionsWithParameter.contains(currentOpt)) {
                 allowed.append(currentOpt);
