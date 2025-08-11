@@ -5,6 +5,8 @@
 
 #include <devcontainer/devcontainer.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/qtcprocess.h>
 
 namespace CmdBridge {
@@ -45,6 +47,7 @@ private:
     std::unique_ptr<CmdBridge::FileAccess> m_fileAccess;
     std::optional<Utils::Environment> m_systemEnvironment;
     std::optional<Tasking::ExecutableItem> m_downRecipe;
+    Tasking::ParallelTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace DevContainer

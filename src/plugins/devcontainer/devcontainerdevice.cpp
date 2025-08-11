@@ -30,8 +30,9 @@
 
 Q_LOGGING_CATEGORY(devContainerDeviceLog, "qtc.devcontainer.device", QtWarningMsg)
 
-using namespace Utils;
 using namespace ProjectExplorer;
+using namespace Tasking;
+using namespace Utils;
 
 namespace DevContainer {
 
@@ -42,7 +43,7 @@ Device::Device()
     setupId(IDevice::AutoDetected, Id::generate());
     setType(Constants::DEVCONTAINER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
-    setFileAccessFactory([this]() { return m_fileAccess.get(); });
+    setFileAccessFactory([this] { return m_fileAccess.get(); });
 }
 
 Device::~Device() {} // Necessary for forward declared unique_ptr
@@ -73,20 +74,19 @@ public:
         }
     };
 
-    ProgressPromise(Tasking::TaskTree &tree, const QString title, Utils::Id id)
+    ProgressPromise(TaskTree &tree, const QString title, Id id)
     {
         Core::FutureProgress *futureProgress = Core::ProgressManager::addTask(future(), title, id);
         QObject::connect(
-            futureProgress, &Core::FutureProgress::canceled, &tree, &Tasking::TaskTree::cancel);
-        QObject::connect(&tree, &Tasking::TaskTree::destroyed, &tree, [this]() { delete this; });
+            futureProgress, &Core::FutureProgress::canceled, &tree, &TaskTree::cancel);
 
         addSource(tree);
         start();
     }
 
-    void addSource(Tasking::TaskTree &taskTree)
+    void addSource(TaskTree &taskTree)
     {
-        sources = [tt = QPointer<Tasking::TaskTree>(&taskTree),
+        sources = [tt = QPointer<TaskTree>(&taskTree),
                    max = taskTree.progressMaximum(),
                    lastSource = sources]() -> Progress {
             Progress last = lastSource();
@@ -95,7 +95,7 @@ public:
             return last + Progress{max, max};
         };
         update();
-        QObject::connect(&taskTree, &Tasking::TaskTree::progressValueChanged, &taskTree, [this]() {
+        QObject::connect(&taskTree, &TaskTree::progressValueChanged, &taskTree, [this] {
             update();
         });
     }
@@ -137,6 +137,20 @@ private:
     const FilePath m_workspaceFolderMountPoint;
 };
 
+using ProgressPtr = std::unique_ptr<ProgressPromise>;
+
+static auto setupProgress(const Storage<ProgressPtr> &progressStorage, const QString &title, Id id)
+{
+    return [progressStorage, title, id](TaskTree &taskTree) {
+        taskTree.onStorageSetup(progressStorage, [&taskTree, title, id](ProgressPtr &promise) {
+            promise.reset(new ProgressPromise(taskTree, title, id));
+        });
+        taskTree.onStorageDone(progressStorage, [](const ProgressPtr &promise) {
+            promise->finish();
+        });
+    };
+}
+
 Result<> Device::up(
     const FilePath &path, InstanceConfig instanceConfig, std::function<void(Result<>)> callback)
 {
@@ -145,24 +159,6 @@ Result<> Device::up(
     m_fileAccess.reset();
     m_systemEnvironment.reset();
     m_downRecipe.reset();
-
-    using namespace Tasking;
-
-    TaskTree *tree = new TaskTree(this);
-    ProgressPromise *progress
-        = new ProgressPromise(*tree, Tr::tr("Starting DevContainer"), "DevContainer.Startup");
-
-    connect(tree, &TaskTree::done, this, [progress, callback](DoneWith doneWith) {
-        progress->finish();
-        if (doneWith == DoneWith::Error) {
-            callback(ResultError(
-                Tr::tr("Failed to start DevContainer, check General Messages for details")));
-        } else {
-            callback(ResultOk);
-        }
-    });
-
-    connect(tree, &TaskTree::done, tree, &TaskTree::deleteLater);
 
     struct Options
     {
@@ -174,8 +170,9 @@ Result<> Device::up(
         bool autoDetectKits = true;
     };
 
-    Storage<std::shared_ptr<Instance>> instance;
-    Storage<Options> options;
+    const Storage<std::shared_ptr<Instance>> instance;
+    const Storage<Options> options;
+    const Storage<ProgressPtr> progressStorage;
 
     auto runningInstance = std::make_shared<DevContainer::RunningInstanceData>();
 
@@ -244,7 +241,7 @@ Result<> Device::up(
         return DoneResult::Success;
     };
 
-    const auto setupProcessInterfaceCreator = [this, instance, runningInstance]() {
+    const auto setupProcessInterfaceCreator = [this, instance, runningInstance] {
         m_processInterfaceCreator = [inst = *instance, runningInstance] {
             return inst->createProcessInterface(runningInstance);
         };
@@ -293,15 +290,15 @@ Result<> Device::up(
     };
 
     const auto startDeviceTree =
-        [instance, instanceConfig, runningInstance, progress](TaskTree &taskTree) -> SetupResult {
-        const Result<Tasking::Group> devcontainerRecipe = (*instance)->upRecipe(runningInstance);
+        [instance, instanceConfig, runningInstance, progressStorage](TaskTree &taskTree) -> SetupResult {
+        const Result<Group> devcontainerRecipe = (*instance)->upRecipe(runningInstance);
         if (!devcontainerRecipe) {
             instanceConfig.logFunction(
                 Tr::tr("Failed to create DevContainer recipe: %1").arg(devcontainerRecipe.error()));
             return SetupResult::StopWithError;
         }
         taskTree.setRecipe(std::move(*devcontainerRecipe));
-        progress->addSource(taskTree);
+        progressStorage->get()->addSource(taskTree);
         return SetupResult::Continue;
     };
 
@@ -349,7 +346,7 @@ Result<> Device::up(
 
                 const auto factory = Utils::findOrDefault(
                     KitAspectFactory::kitAspectFactories(),
-                    Utils::equal(&KitAspectFactory::id, Utils::Id::fromString(it.key())));
+                    Utils::equal(&KitAspectFactory::id, Id::fromString(it.key())));
 
                 if (!factory) {
                     instanceConfig.logFunction(
@@ -382,8 +379,9 @@ Result<> Device::up(
     const auto autoDetectKitsEnabled = [options] { return options->autoDetectKits; };
 
     // clang-format off
-    Group recipe {
+    const Group recipe {
         instance, options,
+        progressStorage,
         Sync(loadConfig),
         TaskTreeTask(startDeviceTree, onDeviceStarted),
         Sync(setupProcessInterfaceCreator),
@@ -391,12 +389,18 @@ Result<> Device::up(
         TaskTreeTask(setupManualKits),
         If (autoDetectKitsEnabled) >> Then {
             kitDetectionRecipe(shared_from_this(), DetectionSource::Temporary, instanceConfig.logFunction)
-        },
+        }
     };
     // clang-format on
 
-    tree->setRecipe(recipe);
-    tree->start();
+    const auto onDone = [callback](DoneWith doneWith) {
+        const Result<> result = (doneWith != DoneWith::Error) ? ResultOk
+            : ResultError(Tr::tr("Failed to start DevContainer, check General Messages for details"));
+        callback(result);
+    };
+
+    m_taskTreeRunner.start(recipe, setupProgress(progressStorage, Tr::tr("Starting DevContainer"),
+                                                 "DevContainer.Startup"), onDone);
     return ResultOk;
 }
 
@@ -409,28 +413,18 @@ Result<> Device::down()
     m_fileAccess.reset();
     m_systemEnvironment.reset();
 
-    using namespace Tasking;
-
-    TaskTree *tree = new TaskTree(this);
-    ProgressPromise *progress
-        = new ProgressPromise(*tree, Tr::tr("Stopping DevContainer"), "DevContainer.Shutdown");
-
-    connect(tree, &TaskTree::done, this, [progress](DoneWith /*doneWith*/) {
-        progress->finish();
-    });
-
-    connect(tree, &TaskTree::done, tree, &TaskTree::deleteLater);
+    const Storage<ProgressPtr> progressStorage;
 
     // clang-format off
-    Group recipe {
+    const Group recipe {
+        progressStorage,
         removeDetectedKitsRecipe(shared_from_this(), m_instanceConfig.logFunction),
         *m_downRecipe
     };
     // clang-format on
 
-    tree->setRecipe(recipe);
-    tree->start();
-
+    m_taskTreeRunner.start(recipe, setupProgress(progressStorage, Tr::tr("Stopping DevContainer"),
+                                                 "DevContainer.Shutdown"));
     return ResultOk;
 }
 
