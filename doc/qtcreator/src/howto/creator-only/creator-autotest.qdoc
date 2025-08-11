@@ -13,6 +13,8 @@
     \QC integrates the \l{Qt Test} framework for unit testing Qt applications and
     libraries.
 
+    \note Running Qt tests and displaying their results is supported in Qt 5 or later.
+
     To create a Qt test:
 
     \list 1
@@ -44,8 +46,13 @@
     and get linked against \c QTestLib when building the project.
     Files that currently will not be built will be ignored.
 
+    \note If \uicontrol General > \uicontrol {Process arguments} is enabled, you can
+    execute tests and write one or more additional log files in parallel.
+    Use the output format option \c {-o filename,format} to do so. Using standard out for
+    \c filename is not allowed as \QC is using this output channel.
+
     \sa {Test}{How To: Test}, {Select the build system}, {Testing},
-    {Test Results}
+    {Test Results}, {Qt Test Overview#Logging Options}{Logging Options}
 */
 
 /*!
@@ -90,6 +97,11 @@
     and if it can find any it will parse respective QML files. If the C++ part will not
     be built with the current configuration, there will be no automatic scanning of QML
     files.
+
+    \note If \uicontrol General > \uicontrol {Process arguments} is enabled, you can
+    execute tests and write one or more additional log files in parallel.
+    Use the output format option \c {-o filename,format} to do so. Using standard out for
+    \c filename is not supported as \QC is using this output channel.
 
     \sa {Test}{How To: Test}, {Select the build system}, {Testing},
     {Test Results}
@@ -503,7 +515,7 @@
         \li Show test results automatically when testing ends.
     \row
         \li \uicontrol {Open results only for unsuccesfull test runs}
-        \li Show test results only if thy contain failed, fatal, or
+        \li Show test results only if they contain failed, fatal, or
             unexpectedly passed tests.
     \row
         \li \uicontrol {Automatically scroll results}
@@ -518,7 +530,8 @@
         \li Pass arguments to the test executable that you specify in the
             \l {Configure projects for running}{run configuration}. This is an
             experimental feature that might cause the execution of the test
-            executable to fail.
+            executable to fail. Options known to interfere with the used
+            test framework are filtered out.
     \row
         \li \uicontrol {Automatically run}
         \li Automatically run all or selected tests after successfully building
