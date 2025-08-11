@@ -991,10 +991,12 @@ void extractComponent(const SelectionContext &selectionContext)
 
 void addNodeToContentLibrary(const SelectionContext &selectionContext)
 {
-    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
     ModelNode node = selectionContext.currentSingleSelectedNode();
 
-    selectionContext.view()->emitCustomNotification("add_node_to_content_lib", {node});
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
+
+    QmlDesignerPlugin::viewManager().view()->emitCustomNotification("add_node_to_content_lib",
+                                                                    {node});
 }
 
 void goImplementation(const SelectionContext &selectionState)
