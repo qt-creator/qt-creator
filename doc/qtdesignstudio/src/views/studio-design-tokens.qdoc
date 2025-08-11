@@ -273,19 +273,9 @@
 
     \list 1
         \li Create or open a \QDS project.
-        \li Create a \DT collection and variable. This adds the necessary \DT files to
-            your project.
         \li Drag the \c .qtbridge file with your variable and design from Figma to the
-            \uicontrol 2D view.
-        \li Go to the file that has your imported design, and in the \uicontrol Code view, include
-            this:
-            \code
-                import Generated.DesignSystem
-            \endcode
-        \li Go to the \DT view, and select your imported collection from the \uicontrol Collections
-            dropdown. You can now bind these variables to locally created \QDS components as well.
+            \uicontrol 2D view. That imports the design and the \DT from Figma to
+            your \QDS project.
     \endlist
-
-
 
 */
