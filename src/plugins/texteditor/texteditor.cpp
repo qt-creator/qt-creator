@@ -3041,6 +3041,12 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
             if (suggestion->apply())
                 d->clearCurrentSuggestion();
             return;
+        } else if ((e->modifiers() & Qt::ShiftModifier)
+                   && (e->key() == Qt::Key_Tab || e->key() == Qt::Key_Backtab)) {
+            e->accept();
+            if (suggestion->applyLine(this))
+                d->clearCurrentSuggestion();
+            return;
         }
     }
 
