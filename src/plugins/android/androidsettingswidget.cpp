@@ -290,7 +290,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     using namespace Layouting;
 
     Column {
-        Tr::tr("All changes on this page take effect immediately."),
         Group {
             title(Tr::tr("Android Settings")),
             Grid {
@@ -334,7 +333,8 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                 Span(4, openSslDetailsWidget)
             }
         },
-        st
+        st,
+        Tr::tr("All changes on this page take effect immediately.")
     }.attachTo(this);
 
     connect(m_sdkLocationPathChooser, &PathChooser::rawPathChanged,
