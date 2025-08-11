@@ -1443,7 +1443,8 @@ void AndroidConfigurations::updateAutomaticKitList()
                 k->setSticky(RunDeviceTypeKitAspect::id(), true);
 
                 const QStringList abis = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
-                k->setUnexpandedDisplayName(Tr::tr("Android %1 %2")
+
+                k->setUnexpandedDisplayName(Tr::tr("%1 for Android %2")
                         .arg(QLatin1String("Qt %{Qt:Version}"), getMultiOrSingleAbiString(abis)));
                 k->setValueSilently(
                     Constants::ANDROID_KIT_NDK, AndroidConfig::ndkLocation(qt).toSettings());
