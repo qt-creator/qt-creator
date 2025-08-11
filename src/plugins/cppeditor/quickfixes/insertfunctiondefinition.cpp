@@ -2142,6 +2142,30 @@ foo::foo2::MyType<int> foo::foo2::bar()
         factory.setOutside();
         QuickFixOperationTest(singleHeader(original, expected), &factory);
     }
+
+    void testInlineNamespace()
+    {
+        QByteArray original =
+            "namespace A { inline namespace X {}}\n"
+            "namespace A { namespace B { namespace X { class Bar{}; }}}\n"
+            "class Foo\n"
+            "{\n"
+            "    void fu@nc(A::B::Bar b);\n"
+            "};\n";
+        QByteArray expected =
+            "namespace A { inline namespace X {}}\n"
+            "namespace A { namespace B { namespace X { class Bar{}; }}}\n"
+            "class Foo\n"
+            "{\n"
+            "    void fu@nc(A::B::Bar b);\n"
+            "};\n\n"
+            "void Foo::func(A::B::Bar b)\n"
+            "{\n\n"
+            "}\n";
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(singleDocument(original, expected), &factory);
+    }
 };
 
 class InsertDefsFromDeclsTest : public QObject

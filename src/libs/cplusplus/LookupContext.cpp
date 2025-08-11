@@ -214,13 +214,12 @@ static bool symbolIdentical(Symbol *s1, Symbol *s2)
 static bool isInlineNamespace(ClassOrNamespace *con, const Name *name)
 {
     const QList<LookupItem> items = con->find(name);
-    if (!items.isEmpty()) {
-        if (const Symbol *declaration = items.first().declaration() ) {
-            if (const Namespace *ns = declaration->asNamespace())
-                return ns->isInline();
+    for (const LookupItem &item : items) {
+        if (const Symbol * const declaration = item.declaration()) {
+            if (const Namespace *ns = declaration->asNamespace(); ns && ns->isInline())
+                return true;
         }
     }
-
     return false;
 }
 
