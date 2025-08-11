@@ -653,7 +653,7 @@ void BundleHelper::getImageFromCache(const QString &qmlPath,
     QmlDesignerPlugin::imageCache().requestSmallImage(
         Utils::PathString{qmlPath},
         successCallback,
-        [&](ImageCache::AbortReason abortReason) {
+        [qmlPath](ImageCache::AbortReason abortReason) {
             if (abortReason == ImageCache::AbortReason::Abort) {
                 qWarning() << QLatin1String("ContentLibraryView::getImageFromCache(): icon generation "
                                             "failed for path %1, reason: Abort").arg(qmlPath);
