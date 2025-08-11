@@ -3018,7 +3018,7 @@ void EditorManagerPrivate::addSaveAndCloseEditorActions(
         contextMenu,
         entry ? ::Core::Tr::tr("Close All Except \"%1\"").arg(quotedDisplayName)
               : ::Core::Tr::tr("Close Other Editors"),
-        contextDocument != nullptr,
+        contextDocument != nullptr && DocumentModel::entryCount() > 1,
         d,
         [contextDocument] {
             if (contextDocument)
