@@ -1826,6 +1826,8 @@ void ICorePrivate::registerDefaultActions()
     openAction.addToContainer(Constants::M_FILE, Constants::G_FILE_OPEN);
     openAction.addOnTriggered(this, [] { openFile(); });
 
+    ActionManager::createCommand(Constants::OPEN_PROJECT);
+
     // Open With Action
     ActionBuilder openWithAction(this, Constants::OPEN_WITH);
     openWithAction.setText(Tr::tr("Open File &With..."));

@@ -84,7 +84,7 @@ public:
         }.attachTo(this);
 
         connect(openButton, &QtcButton::clicked, this, [] {
-            QAction *openAction = ActionManager::command(Core::Constants::OPEN)->action();
+            QAction *openAction = ActionManager::command(Constants::OPEN_PROJECT)->action();
             openAction->trigger();
         });
         connect(newButton, &QtcButton::clicked, this, [] {

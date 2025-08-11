@@ -173,16 +173,6 @@ void ProjectWelcomePage::reloadWelcomeScreenData() const
         m_projectModel->resetProjects();
 }
 
-void ProjectWelcomePage::newProject()
-{
-    ProjectExplorerPlugin::openNewProjectDialog();
-}
-
-void ProjectWelcomePage::openProject()
-{
-    ProjectExplorerPlugin::openOpenProjectDialog();
-}
-
 void ProjectWelcomePage::openSessionAt(int index)
 {
     QTC_ASSERT(m_sessionModel, return);

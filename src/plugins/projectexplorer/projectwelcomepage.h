@@ -31,10 +31,6 @@ public:
 
     static QWidget *createRecentProjectsView();
 
-public slots:
-    void newProject();
-    void openProject();
-
 signals:
     void requestProject(const Utils::FilePath &project);
 

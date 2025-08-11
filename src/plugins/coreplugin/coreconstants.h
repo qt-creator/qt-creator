@@ -73,6 +73,7 @@ const char ZOOM_RESET[]            = "QtCreator.ZoomReset";
 const char NEW[]                   = "QtCreator.New";
 const char NEW_FILE[]              = "QtCreator.NewFile";
 const char OPEN[]                  = "QtCreator.Open";
+const char OPEN_PROJECT[]          = "ProjectExplorer.Load";
 const char OPEN_WITH[]             = "QtCreator.OpenWith";
 const char OPEN_FROM_DEVICE[]      = "QtCreator.OpenFromDevice";
 const char REVERTTOSAVED[]         = "QtCreator.RevertToSaved";

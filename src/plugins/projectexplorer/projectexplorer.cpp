@@ -204,7 +204,6 @@ namespace Constants {
 const int  P_MODE_SESSION         = 85;
 
 // Actions
-const char LOAD[]                 = "ProjectExplorer.Load";
 const char LOADWORKSPACE[]        = "ProjectExplorer.LoadWorkspace";
 const char UNLOAD[]               = "ProjectExplorer.Unload";
 const char UNLOADCM[]             = "ProjectExplorer.UnloadCM";
@@ -1162,7 +1161,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
 
     // open action
     dd->m_loadAction = new QAction(Tr::tr("Load Project..."), this);
-    cmd = ActionManager::registerAction(dd->m_loadAction, Constants::LOAD);
+    cmd = ActionManager::registerAction(dd->m_loadAction, Core::Constants::OPEN_PROJECT);
     if (!HostOsInfo::isMacHost())
         cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+O")));
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
@@ -2022,19 +2021,21 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
 
 void ProjectExplorerPluginPrivate::loadAction()
 {
-    FilePath dir = dd->m_lastOpenDirectory;
+    FilePath dir = m_lastOpenDirectory;
 
     // for your special convenience, we preselect a pro file if it is
     // the current file
     if (const IDocument *document = EditorManager::currentDocument()) {
         const FilePath fn = document->filePath();
-        const bool isProject = dd->m_profileMimeTypes.contains(document->mimeType());
+        const bool isProject = m_profileMimeTypes.contains(document->mimeType());
         dir = isProject ? fn : fn.absolutePath();
     }
 
-    FilePath filePath = Utils::FileUtils::getOpenFilePath(Tr::tr("Load Project"),
-                                                          dir,
-                                                          dd->projectFilterString());
+    if (dir.isEmpty() && DocumentManager::useProjectsDirectory())
+        dir = DocumentManager::projectsDirectory();
+
+    FilePath filePath
+        = Utils::FileUtils::getOpenFilePath(Tr::tr("Open Project"), dir, projectFilterString());
     if (filePath.isEmpty())
         return;
 
@@ -4099,12 +4100,7 @@ bool ProjectExplorerPlugin::isProjectFile(const FilePath &filePath)
 
 void ProjectExplorerPlugin::openOpenProjectDialog()
 {
-    const FilePath path = DocumentManager::useProjectsDirectory()
-                             ? DocumentManager::projectsDirectory()
-                             : FilePath();
-    const FilePaths files = DocumentManager::getOpenFileNames(dd->projectFilterString(), path);
-    if (!files.isEmpty())
-        ICore::openFiles(files, ICore::SwitchMode);
+    dd->loadAction();
 }
 
 void ProjectExplorerPlugin::updateActions()
