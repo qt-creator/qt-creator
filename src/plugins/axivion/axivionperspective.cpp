@@ -434,10 +434,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     localLayout->addWidget(m_localBuild);
     localLayout->addWidget(m_localDashBoard);
     connect(&settings(), &AxivionSettings::suitePathValidated, this, [this] {
-        const auto info = settings().versionInfo();
-        const bool enable = info && !info->versionNumber.isEmpty()
-                && !hasRunningLocalBuild(m_currentProject);
-        m_localBuild->setEnabled(enable);
+        m_localBuild->setEnabled(!hasRunningLocalBuild(m_currentProject));
         checkForLocalBuildAndUpdate();
     });
     connect(m_localDashBoard, &QToolButton::clicked, this, &IssuesWidget::switchDashboard);
@@ -1047,8 +1044,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     updateVersionsFromProjectInfo(info);
     m_showFilterHelp->setEnabled(info->issueFilterHelp.has_value());
     std::optional<AxivionVersionInfo> suiteVersionInfo = settings().versionInfo();
-    m_localBuild->setEnabled(!m_currentProject.isEmpty()
-                             && suiteVersionInfo && !suiteVersionInfo->versionNumber.isEmpty());
+    m_localBuild->setEnabled(!hasRunningLocalBuild(m_currentProject));
     checkForLocalBuildAndUpdate();
 }
 
@@ -1340,7 +1336,7 @@ void IssuesWidget::openFilterHelp()
 void IssuesWidget::checkForLocalBuildAndUpdate()
 {
     checkForLocalBuildResults(m_currentProject, [this] {
-        m_localBuild->setEnabled(true);
+        m_localBuild->setEnabled(!hasRunningLocalBuild(m_currentProject));
         m_localDashBoard->setEnabled(true);
     });
 }

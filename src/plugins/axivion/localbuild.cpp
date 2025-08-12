@@ -546,6 +546,8 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
     if (ExtensionSystem::PluginManager::isShuttingDown())
         return false;
 
+    QTC_ASSERT(!projectName.isEmpty(), return false);
+
     LocalBuildDialog dia(projectName);
     if (dia.exec() != QDialog::Accepted)
         return false;
@@ -605,10 +607,10 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
         m_localBuildInfos.insert(projectName, {LocalBuildState::Finished, process.cleanedStdOut(),
                                                process.cleanedStdErr()});
         qCDebug(localBuildLog) << "buildState changed >" << state << projectName;
-        updateLocalBuildStateFor(projectName, state, 100);
         TaskTreeRunner *runner = m_runningLocalBuilds.take(projectName);
         if (runner)
             runner->deleteLater();
+        updateLocalBuildStateFor(projectName, state, 100);
     };
 
     m_localBuildInfos.insert(projectName, {LocalBuildState::None});
