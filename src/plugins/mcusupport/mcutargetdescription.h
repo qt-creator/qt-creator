@@ -24,18 +24,18 @@ struct VersionDetection
 
 struct PackageDescription
 {
-    QString label;
-    QString envVar;
-    QString cmakeVar;
-    QString description;
-    Utils::Key setting;
-    Utils::FilePath defaultPath;
-    Utils::FilePaths detectionPaths;
-    QStringList versions;
-    VersionDetection versionDetection;
-    bool optional;
-    bool shouldAddToSystemPath;
-    Utils::PathChooser::Kind type;
+    QString label = {};
+    QString envVar = {};
+    QString cmakeVar = {};
+    QString description = {};
+    Utils::Key setting = {};
+    Utils::FilePath defaultPath = {};
+    Utils::FilePaths detectionPaths = {};
+    QStringList versions = {};
+    VersionDetection versionDetection = {};
+    bool optional = false;
+    bool shouldAddToSystemPath = false;
+    Utils::PathChooser::Kind type = Utils::PathChooser::Kind::Any;
 }; //struct PackageDescription
 
 struct McuTargetDescription

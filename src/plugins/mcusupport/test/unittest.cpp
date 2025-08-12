@@ -394,8 +394,8 @@ bool createFakePath(const FilePath& path, const bool is_file = false)
 
 McuSupportTest::McuSupportTest()
     : targetFactory{settingsMockPtr}
-    , compilerDescription{armGccLabel, armGccEnvVar, TOOLCHAIN_DIR_CMAKE_VARIABLE, armGccLabel, armGccDirectorySetting, {}, {}, {}, {}, false, Utils::PathChooser::Kind::ExistingDirectory }
-     , toochainFileDescription{armGccLabel, armGccEnvVar, TOOLCHAIN_FILE_CMAKE_VARIABLE, armGccLabel, armGccDirectorySetting, {}, {}, {}, {}, false, Utils::PathChooser::Kind::ExistingDirectory }
+    , compilerDescription{.label=armGccLabel, .envVar=armGccEnvVar, .cmakeVar=TOOLCHAIN_DIR_CMAKE_VARIABLE, .description=armGccLabel, .setting=armGccDirectorySetting, .type=Utils::PathChooser::Kind::ExistingDirectory}
+    , toochainFileDescription{.label=armGccLabel, .envVar=armGccEnvVar, .cmakeVar=TOOLCHAIN_DIR_CMAKE_VARIABLE, .description=armGccLabel, .setting=armGccDirectorySetting, .type=Utils::PathChooser::Kind::ExistingDirectory }
     , targetDescription {
         "autotest-sourceFile",
         "2.0.1",
@@ -743,17 +743,15 @@ void McuSupportTest::test_legacy_createPackagesWithCorrespondingSettings()
 
 void McuSupportTest::test_createTargets()
 {
-    targetDescription.freeRTOS.package = {id,
-                                          nxp1064FreeRtosEnvVar,
-                                          freeRtosCMakeVar,
-                                          freeRtosSetting,
-                                          freeRtosLabel,
-                                          freeRtosPath,
-                                          {freeRtosDetectionPath},
-                                          {},
-                                          VersionDetection{},
-                                          true,
-                                          Utils::PathChooser::Kind::ExistingDirectory};
+    targetDescription.freeRTOS.package = {.label = id,
+                                          .envVar = nxp1064FreeRtosEnvVar,
+                                          .cmakeVar = freeRtosCMakeVar,
+                                          .description = freeRtosSetting,
+                                          .setting = freeRtosLabel,
+                                          .defaultPath = freeRtosPath,
+                                          .detectionPaths = {freeRtosDetectionPath},
+                                          .shouldAddToSystemPath = true,
+                                          .type = Utils::PathChooser::Kind::ExistingDirectory};
     targetDescription.toolchain.id = armGcc;
 
     auto [targets, packages]{targetFactory.createTargets(targetDescription, sdkPackagePtr)};
@@ -796,17 +794,15 @@ void McuSupportTest::test_createTargets()
 
 void McuSupportTest::test_createPackages()
 {
-    targetDescription.freeRTOS.package = {id,
-                                          nxp1064FreeRtosEnvVar,
-                                          freeRtosCMakeVar,
-                                          freeRtosLabel,
-                                          freeRtosSetting,
-                                          freeRtosPath,
-                                          {freeRtosDetectionPath},
-                                          {},
-                                          VersionDetection{},
-                                          true,
-                                          Utils::PathChooser::Kind::ExistingDirectory};
+    targetDescription.freeRTOS.package = {.label = id,
+                                          .envVar = nxp1064FreeRtosEnvVar,
+                                          .cmakeVar = freeRtosCMakeVar,
+                                          .description = freeRtosLabel,
+                                          .setting = freeRtosSetting,
+                                          .defaultPath = freeRtosPath,
+                                          .detectionPaths = {freeRtosDetectionPath},
+                                          .shouldAddToSystemPath = true,
+                                          .type = Utils::PathChooser::Kind::ExistingDirectory};
 
     const auto packages{targetFactory.createPackages(targetDescription)};
     QVERIFY(!packages.empty());
