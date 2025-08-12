@@ -24,10 +24,14 @@ bool BuildableHelperLibrary::isQtChooser(const FilePath &filePath)
 
 FilePath BuildableHelperLibrary::qtChooserToQmakePath(const FilePath &qtChooser)
 {
+    FilePath resolvedQtChooser = qtChooser;
+    if (qtChooser.isSymLink())
+        resolvedQtChooser = qtChooser.resolveSymlinks();
+
     const QString toolDir = QLatin1String("QTTOOLDIR=\"");
     Process proc;
-    proc.setEnvironment(qtChooser.deviceEnvironment());
-    proc.setCommand({qtChooser, {"-print-env"}});
+    proc.setEnvironment(resolvedQtChooser.deviceEnvironment());
+    proc.setCommand({resolvedQtChooser, {"-print-env"}});
     proc.runBlocking(1s);
     if (proc.result() != ProcessResult::FinishedWithSuccess)
         return {};
@@ -40,7 +44,7 @@ FilePath BuildableHelperLibrary::qtChooserToQmakePath(const FilePath &qtChooser)
     if (end == -1)
         return {};
 
-    return qtChooser.withNewPath(output.mid(pos, end - pos) + "/qmake");
+    return resolvedQtChooser.withNewPath(output.mid(pos, end - pos) + "/qmake");
 }
 
 static bool isQmake(FilePath path)
