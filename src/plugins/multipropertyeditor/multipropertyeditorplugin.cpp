@@ -28,7 +28,6 @@ bool MultiPropertyEditorPlugin::delayedInitialize()
 
     auto standardPropertyEditorView = viewManager.propertyEditorView();
     view->unifiedAction()->registerView(standardPropertyEditorView);
-    standardPropertyEditorView->demoteCustomManagerRole();
 
     return true;
 }

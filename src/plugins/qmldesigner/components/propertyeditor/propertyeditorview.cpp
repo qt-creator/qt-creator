@@ -105,6 +105,9 @@ PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
     m_stackedWidget->insertWidget(0, new QWidget(m_stackedWidget));
 
     m_stackedWidget->setWindowTitle(tr("Properties"));
+
+    m_extraPropertyViewsCallbacks.setTargetNode = std::bind_front(&PropertyEditorView::setTargetNode,
+                                                                  this);
 }
 
 PropertyEditorView::~PropertyEditorView()
@@ -321,6 +324,11 @@ void PropertyEditorView::demoteCustomManagerRole()
     m_manageNotifications = ManageCustomNotifications::No;
 }
 
+void PropertyEditorView::setExtraPropertyViewsCallbacks(const ExtraPropertyViewsCallbacks &callbacks)
+{
+    m_extraPropertyViewsCallbacks = callbacks;
+}
+
 bool PropertyEditorView::locked() const
 {
     NanotraceHR::Tracer tracer{"property editor view locked", category()};
@@ -368,7 +376,7 @@ void PropertyEditorView::registerWidgetInfo()
     NanotraceHR::Tracer tracer{"property editor register widget info", category()};
 
     AbstractView::registerWidgetInfo();
-    emitCustomNotification("register_property_editor", {}, {QVariant::fromValue(this)});
+    m_extraPropertyViewsCallbacks.registerEditor(this);
 }
 
 void PropertyEditorView::deregisterWidgetInfo()
@@ -376,7 +384,19 @@ void PropertyEditorView::deregisterWidgetInfo()
     NanotraceHR::Tracer tracer{"property editor deregister widget info", category()};
 
     AbstractView::deregisterWidgetInfo();
-    emitCustomNotification("unregister_property_editor", {}, {QVariant::fromValue(this)});
+    m_extraPropertyViewsCallbacks.unregisterEditor(this);
+}
+
+void PropertyEditorView::showExtraWidget()
+{
+    if (auto wr = widgetRegistration())
+        wr->showExtraWidget(widgetInfo());
+}
+
+void PropertyEditorView::closeExtraWidget()
+{
+    if (auto wr = widgetRegistration())
+        wr->hideExtraWidget(widgetInfo());
 }
 
 void PropertyEditorView::setExpressionOnObjectNode(const QmlObjectNode &constObjectNode,
@@ -742,7 +762,7 @@ void PropertyEditorView::handleToolBarAction(int action)
         break;
     }
     case PropertyEditorContextObject::AddExtraWidget: {
-        emitCustomNotification("add_extra_property_editor_widget", {}, {widgetInfo().uniqueId});
+        m_extraPropertyViewsCallbacks.addEditor(widgetInfo().uniqueId);
         break;
     }
     }
@@ -918,6 +938,22 @@ void PropertyEditorView::setActiveNode(const ModelNode &node)
     NanotraceHR::Tracer tracer{"property editor view set active node", category()};
 
     m_activeNode = node;
+}
+
+/*!
+ * \brief PropertyEditorView::setTargetNode forces the node on the editor and sets the focus
+ * on the editor.
+ */
+void PropertyEditorView::setTargetNode(const ModelNode &node)
+{
+    NanotraceHR::Tracer tracer{"property set target node", category()};
+
+    if (node != activeNode()) {
+        setSelectionUnlocked();
+        setSelectedModelNode(node);
+    }
+
+    m_stackedWidget->setFocus();
 }
 
 QList<ModelNode> PropertyEditorView::currentNodes() const
@@ -1534,13 +1570,7 @@ void PropertyEditorView::customNotification([[maybe_unused]] const AbstractView 
         if (nodeList.isEmpty())
             return;
 
-        const ModelNode &node = nodeList.first();
-        if (node != activeNode()) {
-            setSelectionUnlocked();
-            setSelectedModelNode(node);
-        }
-
-        m_stackedWidget->setFocus();
+        m_extraPropertyViewsCallbacks.setTargetNode(nodeList.first());
     }
 }
 

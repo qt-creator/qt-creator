@@ -34,6 +34,18 @@ class QMLDESIGNER_EXPORT PropertyEditorView : public AbstractView
     Q_OBJECT
 
 public:
+    struct ExtraPropertyViewsCallbacks
+    {
+        using RegistrationFunc = std::function<void(PropertyEditorView *editor)>;
+        using AddFunc = std::function<void(const QString &parentName)>;
+        using TargetSelectionFunc = std::function<void(const ModelNode &node)>;
+
+        AddFunc addEditor = [](...) {};
+        RegistrationFunc registerEditor = [](...) {};
+        RegistrationFunc unregisterEditor = [](...) {};
+        TargetSelectionFunc setTargetNode = [](...) {};
+    };
+
     PropertyEditorView(class AsynchronousImageCache &imageCache,
                        ExternalDependenciesInterface &externalDependencies);
     ~PropertyEditorView() override;
@@ -97,6 +109,7 @@ public:
     void exportPropertyAsAlias(const QString &name);
     void removeAliasExport(const QString &name);
     void demoteCustomManagerRole();
+    void setExtraPropertyViewsCallbacks(const ExtraPropertyViewsCallbacks &callbacks);
 
     bool locked() const;
     bool isSelectionLocked() const { return m_isSelectionLocked; }
@@ -110,8 +123,14 @@ public:
     void setUnifiedAction(QAction *unifiedAction);
     QAction *unifiedAction() const;
 
+    ModelNode activeNode() const;
+    void setTargetNode(const ModelNode &node);
+
     virtual void registerWidgetInfo() override;
     virtual void deregisterWidgetInfo() override;
+
+    void showExtraWidget();
+    void closeExtraWidget();
 
     static void setExpressionOnObjectNode(const QmlObjectNode &objectNode,
                                           PropertyNameView name,
@@ -149,7 +168,6 @@ private: //functions
     bool noValidSelection() const;
     void highlightTextureProperties(bool highlight = true);
 
-    ModelNode activeNode() const;
     void setActiveNode(const ModelNode &node);
     QList<ModelNode> currentNodes() const;
 
@@ -186,10 +204,9 @@ private: //variables
     QString m_uniqueWidgetId = "Properties";
     QString m_widgetTabName = tr("Properties");
     ManageCustomNotifications m_manageNotifications;
+    ExtraPropertyViewsCallbacks m_extraPropertyViewsCallbacks;
 
     friend class PropertyEditorDynamicPropertiesProxyModel;
-    friend class MultiPropertyEditorAction;
-    friend class MultiPropertyEditorView;
 };
 
 } //QmlDesigner

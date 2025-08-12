@@ -570,7 +570,11 @@ void openNodeInPropertyEditor(const ModelNode &node)
     using namespace Qt::StringLiterals;
     QTC_ASSERT(node, return);
     const auto mainWidget = QmlDesignerPlugin::instance()->mainWidget();
-    mainWidget->showDockWidget("Properties"_L1);
+    AbstractView *mainPropertyEditor = QmlDesignerPlugin::instance()->viewManager().findView(
+        "Properties"_L1);
+
+    if (!mainPropertyEditor->isAttached())
+        mainWidget->showDockWidget("Properties"_L1);
     mainWidget->viewManager().emitCustomNotification("set_property_editor_target_node", {node}, {});
 }
 

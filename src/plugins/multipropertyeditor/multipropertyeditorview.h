@@ -19,15 +19,12 @@ public:
         ExternalDependenciesInterface &externalDependencies);
     ~MultiPropertyEditorView() override;
 
-    void customNotification(const AbstractView *view,
-                            const QString &identifier,
-                            const QList<ModelNode> &nodeList,
-                            const QList<QVariant> &data) override;
-
     MultiPropertyEditorAction *unifiedAction() const;
 
 private: // functions
     PropertyEditorView *createView(const QString &parentId);
+    void setTargetNode(const ModelNode &node);
+    void setCallbacks(PropertyEditorView *view);
 
 private: // variables
     AsynchronousImageCache &m_imageCache;

@@ -134,9 +134,9 @@ void MultiPropertyEditorAction::checkAll(bool value)
 
             if (value) {
                 ensureParentId(view);
-                showExtraWidget(view);
+                view->showExtraWidget();
             } else {
-                closeExtraWidget(view);
+                view->closeExtraWidget();
             }
         }
     }
@@ -171,7 +171,7 @@ void MultiPropertyEditorAction::setCheckedIfWidgetRegistered(QObject *widgetObje
 
 void MultiPropertyEditorAction::ensureParentId(PropertyEditorView *view)
 {
-    if (!view || view == PropertyEditorView::instance())
+    if (!view || view == QmlDesignerPlugin::viewManager().propertyEditorView())
         return;
 
     auto widgetInfo = view->widgetInfo();
@@ -181,18 +181,6 @@ void MultiPropertyEditorAction::ensureParentId(PropertyEditorView *view)
 
     widgetInfo.parentId = mainPropertyEditorId;
     view->setWidgetInfo(widgetInfo);
-}
-
-void MultiPropertyEditorAction::showExtraWidget(PropertyEditorView *view)
-{
-    if (auto wr = view->widgetRegistration())
-        wr->showExtraWidget(view->widgetInfo());
-}
-
-void MultiPropertyEditorAction::closeExtraWidget(PropertyEditorView *view)
-{
-    if (auto wr = view->widgetRegistration())
-        wr->hideExtraWidget(view->widgetInfo());
 }
 
 } // namespace QmlDesigner
