@@ -90,6 +90,8 @@ int main() {
             qWarning().noquote() << "Log:\n\n" << logMessages;
     }
 
+    void parseUserFromPasswd_data();
+    void parseUserFromPasswd();
     void dockerCompose();
     void processInterface();
     void instanceConfigToString_data();
@@ -102,6 +104,50 @@ int main() {
     void containerWorkspaceReplacers();
     void readLocalFeature();
 };
+
+void tst_DevContainer::parseUserFromPasswd_data()
+{
+    QTest::addColumn<QString>("passwdLine");
+    QTest::addColumn<DevContainer::UserFromPasswd>("expectedUser");
+
+    QTest::newRow("root") << "root:x:0:0:root:/root:/bin/sh"
+                          << DevContainer::UserFromPasswd{"root", "0", "0", "/root", "/bin/sh"};
+
+    QTest::newRow("macuser")
+        << R"(_swtransparencyd:*:303:303:Software Transparency Services:/var/db/swtransparencyd:/usr/bin/false)"
+        << DevContainer::UserFromPasswd{
+               "_swtransparencyd", "303", "303", "/var/db/swtransparencyd", "/usr/bin/false"};
+
+    QTest::newRow("macroot") << R"(root:*:0:0:System Administrator:/var/root:/bin/sh)"
+                             << DevContainer::UserFromPasswd{"root", "0", "0", "/var/root", "/bin/sh"};
+
+    QTest::newRow("rtkit") << R"(rtkit:x:120:125:RealtimeKit,,,:/proc:/usr/sbin/nologin)"
+                           << DevContainer::UserFromPasswd{
+                                  "rtkit", "120", "125", "/proc", "/usr/sbin/nologin"};
+
+    QTest::newRow("umlautuser")
+        << R"(mürta:x:1002:1002:Müggelmann,443,+49172423222,,Ööööhhh:/home/mürta:/bin/bash)"
+        << DevContainer::UserFromPasswd{"mürta", "1002", "1002", "/home/mürta", "/bin/bash"};
+
+    QTest::newRow("wsl")
+        << R"(systemd-timesync:x:103:106:systemd Time Synchronization,,,:/run/systemd:/usr/sbin/nologin)"
+        << DevContainer::UserFromPasswd{
+               "systemd-timesync", "103", "106", "/run/systemd", "/usr/sbin/nologin"};
+}
+
+void tst_DevContainer::parseUserFromPasswd()
+{
+    QFETCH(QString, passwdLine);
+    QFETCH(DevContainer::UserFromPasswd, expectedUser);
+
+    const auto res = DevContainer::parseUserFromPasswd(passwdLine);
+    QVERIFY(res);
+    QCOMPARE(res->name, expectedUser.name);
+    QCOMPARE(res->uid, expectedUser.uid);
+    QCOMPARE(res->gid, expectedUser.gid);
+    QCOMPARE(res->home, expectedUser.home);
+    QCOMPARE(res->shell, expectedUser.shell);
+}
 
 void tst_DevContainer::instanceConfigToString_data()
 {

@@ -73,4 +73,17 @@ private:
     std::unique_ptr<InstancePrivate> d;
 };
 
+struct UserFromPasswd
+{
+    QString name;
+    QString uid;
+    QString gid;
+    QString home;
+    QString shell;
+};
+
+#ifdef WITH_TESTS
+DEVCONTAINER_EXPORT Utils::Result<UserFromPasswd> parseUserFromPasswd(const QString &passwdLine);
+#endif
+
 } // namespace DevContainer

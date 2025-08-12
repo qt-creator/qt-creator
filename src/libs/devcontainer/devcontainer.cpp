@@ -802,8 +802,7 @@ static ExecutableItem execInContainerTask(
     const QString &logPrefix,
     const InstanceConfig &instanceConfig,
     const DynamicString &containerId,
-    const std::variant<std::function<QString()>, std::function<CommandLine()>, CommandLine, QString>
-        &cmdLine,
+    const std::variant<std::function<CommandLine()>, CommandLine, QString> &cmdLine,
     const ProcessTask::TaskDoneHandler &doneHandler)
 {
     const auto setupExec = [instanceConfig, containerId, cmdLine, logPrefix](Process &process) {
@@ -815,17 +814,11 @@ static ExecutableItem execInContainerTask(
             execCmdLine.addCommandLineAsArgs(std::get<CommandLine>(cmdLine));
         } else if (std::holds_alternative<QString>(cmdLine)) {
             execCmdLine.addArgs({std::get<QString>(cmdLine)}, CommandLine::Raw);
-        } else if (std::holds_alternative<std::function<QString()>>(cmdLine)) {
-            const QString cmd = std::get<std::function<QString()>>(cmdLine)();
-            if (cmd.isEmpty()) {
-                qCWarning(devcontainerlog) << "Empty command provided for execInContainerTask.";
-                return;
-            }
-            execCmdLine.addArgs({cmd}, CommandLine::Raw);
         } else if (std::holds_alternative<std::function<CommandLine()>>(cmdLine)) {
             const CommandLine cmd = std::get<std::function<CommandLine()>>(cmdLine)();
             if (cmd.isEmpty()) {
-                qCWarning(devcontainerlog) << "Empty command provided for execInContainerTask.";
+                qCWarning(devcontainerlog)
+                    << "Empty command provided for execInContainerTask." << cmd.toUserOutput();
                 return;
             }
             execCmdLine.addCommandLineAsArgs(cmd);
@@ -895,15 +888,6 @@ static ExecutableItem probeUserEnvTask(
         });
 }
 
-struct UserFromPasswd
-{
-    QString name;
-    QString uid;
-    QString gid;
-    QString home;
-    QString shell;
-};
-
 Result<UserFromPasswd> parseUserFromPasswd(const QString &passwdLine)
 {
     QStringList row = passwdLine.trimmed().split(QLatin1Char(':'));
@@ -971,12 +955,14 @@ static ExecutableItem runningContainerDetailsTask(
             getShellCmd.addCommandLineAsSingleArg(testGetEnt);
             return getShellCmd;
         },
-        [containerDetails, runningDetails](const Process &process, DoneWith doneWith) -> DoneResult {
+        [instanceConfig,
+         containerDetails,
+         runningDetails](const Process &process, DoneWith doneWith) -> DoneResult {
             const QString output = process.cleanedStdOut().trimmed();
 
             runningDetails->userShell = containerDetails->Config.Env.value("SHELL", "/bin/sh");
-            qCDebug(devcontainerlog)
-                << "Running container user shell (default):" << runningDetails->userShell;
+            instanceConfig.logFunction(
+                "Running container user shell (default): " + runningDetails->userShell);
 
             if (output.isEmpty() || doneWith == DoneWith::Error) {
                 qCWarning(devcontainerlog) << "Failed to get running container user shell:"
@@ -990,9 +976,9 @@ static ExecutableItem runningContainerDetailsTask(
                 return DoneResult::Error;
             }
 
-            qCDebug(devcontainerlog)
-                << "Running container user:" << user->name << "UID:" << user->uid
-                << "GID:" << user->gid << "Home:" << user->home << "Shell:" << user->shell;
+            instanceConfig.logFunction(
+                QString("Running container user: %1 UID: %2 GID: %3 Home: %4 Shell: %5")
+                    .arg(user->name, user->uid, user->gid, user->home, user->shell));
 
             runningDetails->userShell = user->shell;
 
