@@ -499,8 +499,8 @@ std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths)
 
 std::ostream &operator<<(std::ostream &out, const WatcherEntry &entry)
 {
-    return out << "(" << entry.sourceId << ", " << entry.directoryPathId << ", " << entry.id << ", "
-               << entry.lastModified << ")";
+    return out << "\n\t(source " << entry.sourceId << ", directory path " << entry.directoryPathId
+               << ", project chunk" << entry.id << ", last modified: " << entry.lastModified << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const ModelNode &node)

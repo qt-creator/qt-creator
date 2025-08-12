@@ -132,4 +132,10 @@ private:
 using SourcePaths = std::vector<SourcePath>;
 template<std::size_t size>
 using SmallSourcePaths = QVarLengthArray<SourcePath, size>;
+
+inline QDebug &operator<<(QDebug &debug, const SourcePath &path)
+{
+    return debug << path.toStringView();
+}
+
 } // namespace QmlDesigner

@@ -28,10 +28,14 @@ protected:
             .WillByDefault(Return(createFileStatus(header, headerFileSize, headerLastModifiedTime)));
         ON_CALL(fileSystem, fileStatus(Eq(source)))
             .WillByDefault(Return(createFileStatus(source, sourceFileSize, sourceLastModifiedTime)));
+        ON_CALL(fileSystem, fileStatus(Eq(directory)))
+            .WillByDefault(Return(createFileStatus(directory, 0, directoryLastModifiedTime)));
         ON_CALL(fileSystem, fileStatus(Eq(header2)))
             .WillByDefault(Return(createFileStatus(header2, header2FileSize, header2LastModifiedTime)));
         ON_CALL(fileSystem, fileStatus(Eq(source2)))
             .WillByDefault(Return(createFileStatus(source2, source2FileSize, source2LastModifiedTime)));
+        ON_CALL(fileSystem, fileStatus(Eq(directory2)))
+            .WillByDefault(Return(createFileStatus(directory2, 0, directory2LastModifiedTime)));
     }
 
     static QmlDesigner::FileStatus createFileStatus(SourceId sourceId,
@@ -60,10 +64,16 @@ protected:
 protected:
     NiceMock<FileSystemMock> fileSystem;
     QmlDesigner::FileStatusCache cache{fileSystem};
-    SourceId header{SourceId::create(1)};
-    SourceId source{SourceId::create(2)};
-    SourceId header2{SourceId::create(3)};
-    SourceId source2{SourceId::create(4)};
+    QmlDesigner::FileNameId headerFileNameId = QmlDesigner::FileNameId::create(1);
+    QmlDesigner::FileNameId sourceFileNameId = QmlDesigner::FileNameId::create(2);
+    QmlDesigner::DirectoryPathId directoryOneId = QmlDesigner::DirectoryPathId::create(1);
+    QmlDesigner::DirectoryPathId directoryTwoId = QmlDesigner::DirectoryPathId::create(2);
+    SourceId header{SourceId::create(directoryOneId, headerFileNameId)};
+    SourceId source{SourceId::create(directoryOneId, sourceFileNameId)};
+    SourceId directory{SourceId::create(directoryOneId)};
+    SourceId header2{SourceId::create(directoryTwoId, headerFileNameId)};
+    SourceId source2{SourceId::create(directoryTwoId, sourceFileNameId)};
+    SourceId directory2{SourceId::create(directoryTwoId)};
     SourceIds entries{header, source, header2, source2};
     file_time_type headerLastModifiedTime = createFileTimeType(100);
     file_time_type headerLastModifiedTime2 = createFileTimeType(110);
@@ -77,18 +87,34 @@ protected:
     file_time_type source2LastModifiedTime = createFileTimeType(400);
     long long sourceFileSize = 2000;
     long long source2FileSize = 4000;
+    file_time_type directoryLastModifiedTime = createFileTimeType(500);
+    file_time_type directory2LastModifiedTime = createFileTimeType(600);
 };
 
-TEST_F(FileStatusCache, create_entry)
+TEST_F(FileStatusCache, create_entry_with_find)
 {
     cache.find(header);
 
     ASSERT_THAT(cache, SizeIs(1));
 }
 
-TEST_F(FileStatusCache, ask_created_entry_for_last_modified_time)
+TEST_F(FileStatusCache, create_entry_with_update_and_find)
+{
+    cache.updateAndFind(header);
+
+    ASSERT_THAT(cache, SizeIs(1));
+}
+
+TEST_F(FileStatusCache, ask_created_entry_with_find_for_last_modified_time)
 {
     auto fileStatus = cache.find(header);
+
+    ASSERT_THAT(fileStatus, (createFileStatus(header, headerFileSize, headerLastModifiedTime)));
+}
+
+TEST_F(FileStatusCache, ask_created_entry_with_update_and_find_for_last_modified_time)
+{
+    auto fileStatus = cache.updateAndFind(header);
 
     ASSERT_THAT(fileStatus, (createFileStatus(header, headerFileSize, headerLastModifiedTime)));
 }
@@ -102,25 +128,16 @@ TEST_F(FileStatusCache, find_cached_entry)
     ASSERT_THAT(fileStatus, (createFileStatus(header, headerFileSize, headerLastModifiedTime)));
 }
 
-TEST_F(FileStatusCache, last_modified_time)
+TEST_F(FileStatusCache, find_cached_entry_with_update_and_find)
 {
     cache.find(header);
 
-    auto lastModifiedTime = cache.find(header).lastModified;
+    auto fileStatus = cache.updateAndFind(header);
 
-    ASSERT_THAT(lastModifiedTime, headerLastModifiedTime);
+    ASSERT_THAT(fileStatus, (createFileStatus(header, headerFileSize, headerLastModifiedTime)));
 }
 
-TEST_F(FileStatusCache, file_size)
-{
-    cache.find(header);
-
-    auto fileSize = cache.find(header).size;
-
-    ASSERT_THAT(fileSize, headerFileSize);
-}
-
-TEST_F(FileStatusCache, dont_add_entry_twice)
+TEST_F(FileStatusCache, dont_add_entry_twice_with_find)
 {
     cache.find(header);
 
@@ -129,7 +146,16 @@ TEST_F(FileStatusCache, dont_add_entry_twice)
     ASSERT_THAT(cache, SizeIs(1));
 }
 
-TEST_F(FileStatusCache, add_new_entry)
+TEST_F(FileStatusCache, dont_add_entry_twice_with_update_and_find)
+{
+    cache.find(header);
+
+    cache.updateAndFind(header);
+
+    ASSERT_THAT(cache, SizeIs(1));
+}
+
+TEST_F(FileStatusCache, add_new_entry_with_find)
 {
     cache.find(header);
 
@@ -138,7 +164,16 @@ TEST_F(FileStatusCache, add_new_entry)
     ASSERT_THAT(cache, SizeIs(2));
 }
 
-TEST_F(FileStatusCache, ask_new_entry_for_last_modified_time)
+TEST_F(FileStatusCache, add_new_entry_with_update_and_find)
+{
+    cache.find(header);
+
+    cache.updateAndFind(source);
+
+    ASSERT_THAT(cache, SizeIs(2));
+}
+
+TEST_F(FileStatusCache, ask_new_entry_with_find_for_last_modified_time)
 {
     cache.find(header);
 
@@ -147,7 +182,16 @@ TEST_F(FileStatusCache, ask_new_entry_for_last_modified_time)
     ASSERT_THAT(fileStatus, (createFileStatus(source, sourceFileSize, sourceLastModifiedTime)));
 }
 
-TEST_F(FileStatusCache, add_new_entry_reverse_order)
+TEST_F(FileStatusCache, ask_new_entry_with_update_and_find_for_last_modified_time)
+{
+    cache.find(header);
+
+    auto fileStatus = cache.updateAndFind(source);
+
+    ASSERT_THAT(fileStatus, (createFileStatus(source, sourceFileSize, sourceLastModifiedTime)));
+}
+
+TEST_F(FileStatusCache, add_new_entry_with_find_reverse_order)
 {
     cache.find(source);
 
@@ -156,7 +200,16 @@ TEST_F(FileStatusCache, add_new_entry_reverse_order)
     ASSERT_THAT(cache, SizeIs(2));
 }
 
-TEST_F(FileStatusCache, ask_new_entry_reverse_order_added_for_last_modified_time)
+TEST_F(FileStatusCache, add_new_entry_with_update_and_find_reverse_order)
+{
+    cache.find(source);
+
+    cache.updateAndFind(header);
+
+    ASSERT_THAT(cache, SizeIs(2));
+}
+
+TEST_F(FileStatusCache, ask_new_entry_with_find_reverse_order_added_for_last_modified_time)
 {
     cache.find(source);
 
@@ -165,7 +218,16 @@ TEST_F(FileStatusCache, ask_new_entry_reverse_order_added_for_last_modified_time
     ASSERT_THAT(fileStatus, (createFileStatus(header, headerFileSize, headerLastModifiedTime)));
 }
 
-TEST_F(FileStatusCache, update_file)
+TEST_F(FileStatusCache, ask_new_entry_with_update_and_find_reverse_order_added_for_last_modified_time)
+{
+    cache.find(source);
+
+    auto fileStatus = cache.updateAndFind(header);
+
+    ASSERT_THAT(fileStatus, (createFileStatus(header, headerFileSize, headerLastModifiedTime)));
+}
+
+TEST_F(FileStatusCache, update_and_find_file)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)
@@ -173,13 +235,12 @@ TEST_F(FileStatusCache, update_file)
         .WillOnce(Return(createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
     cache.find(header);
 
-    cache.update(header);
+    auto found = cache.updateAndFind(header);
 
-    ASSERT_THAT(cache.find(header),
-                (createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
+    ASSERT_THAT(found, (createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
 }
 
-TEST_F(FileStatusCache, update_file_does_not_change_entry_count)
+TEST_F(FileStatusCache, update_and_find_file_does_not_change_entry_count)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)
@@ -187,62 +248,42 @@ TEST_F(FileStatusCache, update_file_does_not_change_entry_count)
         .WillOnce(Return(createFileStatus(header, headerFileSize, headerLastModifiedTime2)));
     cache.find(header);
 
-    cache.update(header);
+    cache.updateAndFind(header);
 
     ASSERT_THAT(cache, SizeIs(1));
 }
 
-TEST_F(FileStatusCache, update_file_for_non_existing_entry)
+TEST_F(FileStatusCache, update_and_find_file_for_non_existing_entry)
 {
-    cache.update(header);
+    cache.updateAndFind(header);
 
-    ASSERT_THAT(cache, SizeIs(0));
+    ASSERT_THAT(cache, SizeIs(1));
 }
 
-TEST_F(FileStatusCache, update_file_stats)
+TEST_F(FileStatusCache, update_and_find_file_stats)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)
         .WillOnce(Return(createFileStatus(header, headerFileSize, headerLastModifiedTime)))
         .WillOnce(Return(createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
-    EXPECT_CALL(fileSystem, fileStatus(Eq(header2)))
-        .Times(2)
-        .WillOnce(Return(createFileStatus(header2, header2FileSize, header2LastModifiedTime)))
-        .WillOnce(Return(createFileStatus(header2, header2FileSize2, header2LastModifiedTime2)));
     cache.find(header);
-    cache.find(header2);
 
-    cache.update(entries);
+    auto found = cache.updateAndFind(header);
 
-    ASSERT_THAT(cache.find(header),
-                (createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
-    ASSERT_THAT(cache.find(header2),
-                (createFileStatus(header2, header2FileSize2, header2LastModifiedTime2)));
+    ASSERT_THAT(found, (createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
 }
 
-TEST_F(FileStatusCache, update_files_does_not_change_entry_count)
+TEST_F(FileStatusCache, update_and_find_files_does_not_change_entry_count)
 {
     EXPECT_CALL(fileSystem, fileStatus(Eq(header)))
         .Times(2)
         .WillOnce(Return(createFileStatus(header, headerFileSize, headerLastModifiedTime)))
         .WillOnce(Return(createFileStatus(header, headerFileSize2, headerLastModifiedTime)));
-    EXPECT_CALL(fileSystem, fileStatus(Eq(header2)))
-        .Times(2)
-        .WillOnce(Return(createFileStatus(header2, header2FileSize, header2LastModifiedTime)))
-        .WillOnce(Return(createFileStatus(header2, header2FileSize2, header2LastModifiedTime)));
     cache.find(header);
-    cache.find(header2);
 
-    cache.update(entries);
+    cache.updateAndFind(header);
 
-    ASSERT_THAT(cache, SizeIs(2));
-}
-
-TEST_F(FileStatusCache, update_files_for_non_existing_entry)
-{
-    cache.update(entries);
-
-    ASSERT_THAT(cache, SizeIs(0));
+    ASSERT_THAT(cache, SizeIs(1));
 }
 
 TEST_F(FileStatusCache, new_modified_entries)
@@ -335,6 +376,19 @@ TEST_F(FileStatusCache, time_is_updated_for_some_already_existing_modified_entri
 
     ASSERT_THAT(cache.find(header),
                 (createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
+}
+
+TEST_F(FileStatusCache, remove_entry_wth_directory_id)
+{
+    cache.find(header);
+    cache.find(source);
+    cache.find(directory);
+    cache.find(header2);
+    cache.find(directory2);
+
+    cache.remove({header.directoryPathId()});
+
+    ASSERT_THAT(cache, SizeIs(2));
 }
 
 } // namespace

@@ -108,7 +108,9 @@ public:
         if (!sourceId) [[unlikely]]
             throw NoSourcePathForInvalidSourceId();
 
-        auto fileName = m_fileNameCache.value(sourceId.fileNameId());
+        Utils::SmallString fileName;
+        if (auto fileNameId = sourceId.fileNameId())
+            fileName = m_fileNameCache.value(fileNameId);
 
         Utils::PathString directoryPath = m_directoryPathCache.value(sourceId.directoryPathId());
 

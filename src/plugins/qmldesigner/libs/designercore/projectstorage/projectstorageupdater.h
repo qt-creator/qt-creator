@@ -166,13 +166,15 @@ private:
                            Storage::Synchronization::SynchronizationPackage &package,
                            NotUpdatedSourceIds &notUpdatedSourceIds,
                            WatchedSourceIds &watchedSourceIds,
-                           ParsedTypeInfoSourceIds &parsedTypeInfos);
+                           ParsedTypeInfoSourceIds &parsedTypeInfos,
+                           DirectoryPathIds &removedDirectoryIds);
     void updateDirectory(Utils::SmallStringView,
                          const DirectoryPathIds &subdirecoriesToIgnore,
                          Storage::Synchronization::SynchronizationPackage &package,
                          NotUpdatedSourceIds &notUpdatedSourceIds,
                          WatchedSourceIds &watchedSourceIds,
                          ParsedTypeInfoSourceIds &parsedTypeInfos,
+                         DirectoryPathIds &removedDirectoryIds,
                          IsInsideProject isInsideProject);
     void updateQmldir(DirectoryPathId directoryId,
                       Utils::SmallStringView directoryPath,
@@ -189,6 +191,7 @@ private:
                               NotUpdatedSourceIds &notUpdatedSourceIds,
                               WatchedSourceIds &watchedSourceIds,
                               ParsedTypeInfoSourceIds &parsedTypeInfos,
+                              DirectoryPathIds &removedDirectoryIds,
                               IsInsideProject isInsideProject);
     void updateDirectoryChanged(Utils::SmallStringView directoryPath,
                                 FileState directoryState,

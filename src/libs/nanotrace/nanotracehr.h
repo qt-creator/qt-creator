@@ -229,6 +229,19 @@ void convertToString(String &string, const std::tuple<IsArray, Arguments...> &li
     std::apply([&](auto &&...entries) { convertArrayToString(string, entries...); }, list);
 }
 
+template<typename String, typename Type>
+void convertToString(String &string, const QList<Type> &list)
+{
+    string.append('[');
+    for (const Type &entry : list) {
+        convertToString(string, entry);
+        string.append(",");
+    }
+    if (list.size())
+        string.pop_back();
+    string.append(']');
+}
+
 template<typename String, typename Key, typename Value>
 void convertDictonaryEntryToString(String &string, const std::tuple<Key, Value> &argument)
 {

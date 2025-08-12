@@ -363,9 +363,15 @@ void ProjectStorageUpdater::update(Update update)
     WatchedSourceIds watchedQtSourceIds{32};
     WatchedSourceIds watchedProjectSourceIds{32};
     NotUpdatedSourceIds notUpdatedSourceIds{1024};
+    DirectoryPathIds removedDirectoryIds;
 
     ParsedTypeInfoSourceIds parsedTypeInfos;
-    updateDirectories(qtDirectories, package, notUpdatedSourceIds, watchedQtSourceIds, parsedTypeInfos);
+    updateDirectories(qtDirectories,
+                      package,
+                      notUpdatedSourceIds,
+                      watchedQtSourceIds,
+                      parsedTypeInfos,
+                      removedDirectoryIds);
     if (projectDirectory.size()) {
         updateDirectory(projectDirectory,
                         {},
@@ -373,6 +379,7 @@ void ProjectStorageUpdater::update(Update update)
                         notUpdatedSourceIds,
                         watchedProjectSourceIds,
                         parsedTypeInfos,
+                        removedDirectoryIds,
                         IsInsideProject::Yes);
     }
     updatePropertyEditorPaths(propertyEditorResourcesPath, package, notUpdatedSourceIds);
@@ -391,6 +398,9 @@ void ProjectStorageUpdater::update(Update update)
     appendIdPaths(std::move(watchedQtSourceIds), m_qtPartId, idPaths);
     appendIdPaths(std::move(watchedProjectSourceIds), m_projectPartId, idPaths);
     m_pathWatcher.updateIdPaths(idPaths);
+
+    std::ranges::sort(removedDirectoryIds);
+    m_fileStatusCache.remove(removedDirectoryIds);
 }
 
 namespace {
@@ -564,7 +574,8 @@ void ProjectStorageUpdater::updateDirectories(const QStringList &directories,
                                               Storage::Synchronization::SynchronizationPackage &package,
                                               NotUpdatedSourceIds &notUpdatedSourceIds,
                                               WatchedSourceIds &watchedSourceIds,
-                                              ParsedTypeInfoSourceIds &parsedTypeInfos)
+                                              ParsedTypeInfoSourceIds &parsedTypeInfos,
+                                              DirectoryPathIds &removedDirectoryIds)
 {
     NanotraceHR::Tracer tracer{"update directories", category()};
 
@@ -575,6 +586,7 @@ void ProjectStorageUpdater::updateDirectories(const QStringList &directories,
                         notUpdatedSourceIds,
                         watchedSourceIds,
                         parsedTypeInfos,
+                        removedDirectoryIds,
                         IsInsideProject::No);
     }
 }
@@ -587,6 +599,7 @@ void ProjectStorageUpdater::updateSubdirectories(Utils::SmallStringView director
                                                  NotUpdatedSourceIds &notUpdatedSourceIds,
                                                  WatchedSourceIds &watchedSourceIds,
                                                  ParsedTypeInfoSourceIds &parsedTypeInfos,
+                                                 DirectoryPathIds &removedDirectoryIds,
                                                  IsInsideProject isInsideProject)
 {
     struct Directory
@@ -655,6 +668,7 @@ void ProjectStorageUpdater::updateSubdirectories(Utils::SmallStringView director
                               notUpdatedSourceIds,
                               watchedSourceIds,
                               parsedTypeInfos,
+                              removedDirectoryIds,
                               isInsideProject);
     };
 
@@ -747,6 +761,7 @@ void ProjectStorageUpdater::updateDirectory(Utils::SmallStringView directoryPath
                                             NotUpdatedSourceIds &notUpdatedSourceIds,
                                             WatchedSourceIds &watchedSourceIds,
                                             ParsedTypeInfoSourceIds &parsedTypeInfos,
+                                            DirectoryPathIds &removedDirectoryIds,
                                             IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"update directory", category(), keyValue("directory", directoryPath)};
@@ -785,6 +800,8 @@ void ProjectStorageUpdater::updateDirectory(Utils::SmallStringView directoryPath
     case FileState::Removed: {
         tracer.tick("update directory don't exits");
 
+        removedDirectoryIds.push_back(directoryId);
+
         package.updatedExportedTypeSourceIds.push_back(SourceId::create(directoryId));
         package.updatedProjectEntryInfoSourceIds.push_back(SourceId::create(directoryId));
         auto qmlDocumentProjectEntryInfos = m_projectStorage.fetchProjectEntryInfos(
@@ -814,6 +831,7 @@ void ProjectStorageUpdater::updateDirectory(Utils::SmallStringView directoryPath
                          notUpdatedSourceIds,
                          watchedSourceIds,
                          parsedTypeInfos,
+                         removedDirectoryIds,
                          isInsideProject);
 
     tracer.end(keyValue("directory state", directoryState));
@@ -1252,6 +1270,9 @@ void appendProjectChunkSourceIds(ProjectStorageUpdater::ProjectChunkSourceIds &i
                                  SourceIds sourceIds)
 {
     std::ranges::sort(sourceIds);
+    auto removed = std::ranges::unique(sourceIds);
+    sourceIds.erase(removed.begin(), removed.end());
+
     switch (projectChunkId.sourceType) {
     case SourceType::Directory:
         ids.directory = mergedSourceIds<SourceIds>(ids.directory, sourceIds);
@@ -1282,6 +1303,7 @@ void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &chan
         WatchedSourceIds watchedQtSourceIds{10};
         WatchedSourceIds watchedProjectSourceIds{10};
         NotUpdatedSourceIds notUpdatedSourceIds{10};
+        DirectoryPathIds removedDirectoryIds;
         std::vector<IdPaths> idPaths;
         idPaths.reserve(4);
 
@@ -1310,6 +1332,7 @@ void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &chan
                                       notUpdatedSourceIds,
                                       watchedSourceIds,
                                       parsedTypeInfos,
+                                      removedDirectoryIds,
                                       isInsideProject);
             }
 
@@ -1406,6 +1429,9 @@ void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &chan
         std::ranges::merge(projectDirectoryIds, qtDirectoryIds, std::back_inserter(directoryIds));
         if (directoryIdsSize > 0 or newIdPaths.size() > 0)
             m_pathWatcher.updateContextIdPaths(newIdPaths, directoryIds);
+
+        std::ranges::sort(removedDirectoryIds);
+        m_fileStatusCache.remove(removedDirectoryIds);
 
         m_projectSourceIds.clear();
         m_qtSourceIds.clear();

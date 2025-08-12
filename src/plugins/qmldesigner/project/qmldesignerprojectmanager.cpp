@@ -640,12 +640,8 @@ void QmlDesignerProjectManager::activeTargetChanged(ProjectExplorer::Target *tar
 
     m_projectData->activeTarget = target;
 
-    if (target) {
+    if (target)
         QObject::connect(target, &::ProjectExplorer::Target::kitChanged, [&]() { kitChanged(); });
-        QObject::connect(getQmlBuildSystem(target),
-                         &::QmlProjectManager::QmlBuildSystem::projectChanged,
-                         [&]() { projectChanged(); });
-    }
 
     update();
 }

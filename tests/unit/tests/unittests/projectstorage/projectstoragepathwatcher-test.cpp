@@ -17,6 +17,7 @@
 #include <utils/smallstring.h>
 
 namespace {
+
 using SourcePathCache = QmlDesigner::SourcePathCache<QmlDesigner::SourcePathStorage>;
 using Watcher = QmlDesigner::ProjectStoragePathWatcher<NiceMock<MockQFileSytemWatcher>,
                                                        NiceMock<MockTimer>,
@@ -117,6 +118,7 @@ protected:
     QString directoryPath = "/path";
     QString directoryPath2 = "/path2";
     QString directoryPath3 = "/path3";
+    Utils::PathString subDirectoryPath = "/path/sub";
     Utils::PathString directoryPathString = directoryPath;
     Utils::PathString directoryPathString2 = directoryPath2;
     SourceIds sourceIds = {pathCache.sourceId(path1),
@@ -127,6 +129,8 @@ protected:
     DirectoryPathIds directoryPathIds = {sourceIds[0].directoryPathId(),
                                          sourceIds[2].directoryPathId(),
                                          sourceIds[4].directoryPathId()};
+    DirectoryPathId subDirectoryPathId = pathCache.directoryPathId(subDirectoryPath);
+    SourceId subDirectoryPathSourceId = SourceId::create(subDirectoryPathId);
     ProjectChunkIds ids{projectChunkId1, projectChunkId2, projectChunkId3};
     WatcherEntry watcherEntry1{projectChunkId1, directoryPathIds[0], sourceIds[0]};
     WatcherEntry watcherEntry2{projectChunkId2, directoryPathIds[0], sourceIds[0]};
@@ -151,6 +155,14 @@ TEST_F(ProjectStoragePathWatcher, add_id_paths)
 
     watcher.updateIdPaths({{projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
                            {projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}}});
+}
+
+TEST_F(ProjectStoragePathWatcher, add_directory_id_paths)
+{
+    EXPECT_CALL(mockQFileSytemWatcher,
+                addPaths(UnorderedElementsAre(QString(directoryPath), QString(subDirectoryPath))));
+
+    watcher.updateIdPaths({{projectChunkId1, {subDirectoryPathSourceId}}});
 }
 
 TEST_F(ProjectStoragePathWatcher, update_id_paths_calls_add_path_in_file_watcher)
@@ -350,14 +362,14 @@ TEST_F(ProjectStoragePathWatcher, remove_one_path_for_two_id)
 
 TEST_F(ProjectStoragePathWatcher, not_anymore_watched_entries_with_id)
 {
-    auto notContainsdId = [&](WatcherEntry entry) {
-        return entry.id != ids[0] && entry.id != ids[1];
+    auto containsdId = [&](const WatcherEntry &entry) {
+        return entry.id == ids[0] or entry.id == ids[1];
     };
     watcher.addEntries(
         sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
 
     auto oldEntries = watcher.notAnymoreWatchedEntriesWithIds({watcherEntry1, watcherEntry4},
-                                                              notContainsdId);
+                                                              containsdId);
 
     ASSERT_THAT(oldEntries, ElementsAre(watcherEntry2, watcherEntry3));
 }
@@ -529,18 +541,12 @@ TEST_F(ProjectStoragePathWatcher, update_context_id_paths_adds_entry_to_director
         {projectChunkId4, {sourceIds[1], sourceIds[3]}},
     });
 
-    watcher.updateContextIdPaths({{projectChunkId4,
-                                   {sourceIds[0], sourceIds[1], sourceIds[2], sourceIds[3]}}},
+    watcher.updateContextIdPaths({{projectChunkId4, {sourceIds[2], sourceIds[3]}}},
                                  {directoryPathIds[1]});
 
     ASSERT_THAT(watcher.watchedEntries(),
-                UnorderedElementsAre(watcherEntry1,
-                                     watcherEntry3,
-                                     watcherEntry6,
-                                     watcherEntry9,
-                                     watcherEntry10,
-                                     watcherEntry11,
-                                     watcherEntry12));
+                UnorderedElementsAre(
+                    watcherEntry1, watcherEntry3, watcherEntry10, watcherEntry11, watcherEntry12));
 }
 
 TEST_F(ProjectStoragePathWatcher, update_context_id_paths_removes_entry)
@@ -555,7 +561,6 @@ TEST_F(ProjectStoragePathWatcher, update_context_id_paths_removes_entry)
     ASSERT_THAT(watcher.watchedEntries(),
                 UnorderedElementsAre(watcherEntry1,
                                      watcherEntry3,
-                                     watcherEntry6,
                                      watcherEntry9,
                                      watcherEntry10,
                                      watcherEntry12));
