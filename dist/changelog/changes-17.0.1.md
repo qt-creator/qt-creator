@@ -28,6 +28,7 @@ Help
 Editing
 -------
 
+* Improved the performance of painting annotations
 * Fixed a crash when closing an editor while the completion popup is shown
   ([QTCREATORBUG-33079](https://bugreports.qt.io/browse/QTCREATORBUG-33079))
 * Fixed a crash when trying to open a file from history that has vanished
@@ -48,6 +49,11 @@ Editing
 * Fixed that selecting a file from the toolbar did not jump to the file in the
   diff
 
+### FakeVim
+
+* Fixed that `Cmd+S` could act as `S` on macOS
+  ([QTCREATORBUG-13392](https://bugreports.qt.io/browse/QTCREATORBUG-13392))
+
 ### EmacsKeys
 
 * Fixed that the added text editor based actions no longer worked
@@ -67,11 +73,21 @@ Projects
 
 ### CMake
 
+* Improved the order of targets in the `cm` locator filter
+  ([QTCREATORBUG-33210](https://bugreports.qt.io/browse/QTCREATORBUG-33210))
 * Fixed that too many files were filtered out of the project files list
   ([QTCREATORBUG-32095](https://bugreports.qt.io/browse/QTCREATORBUG-32095),
    [QTCREATORBUG-33152](https://bugreports.qt.io/browse/QTCREATORBUG-33152),
    [QTCREATORBUG-33163](https://bugreports.qt.io/browse/QTCREATORBUG-33163),
    [QTCREATORBUG-33180](https://bugreports.qt.io/browse/QTCREATORBUG-33180))
+* Fixed that setting a non-existing toolchain file resulted in a successful
+  configuration instead of the expected error
+  ([QTCREATORBUG-33290](https://bugreports.qt.io/browse/QTCREATORBUG-33290))
+
+### qmake
+
+* Fixed that it was not possible to provide an absolute path for the `mkspec`
+  ([QTCREATORBUG-33155](https://bugreports.qt.io/browse/QTCREATORBUG-33155))
 
 Debugging
 ---------
@@ -133,10 +149,12 @@ Cristian Adam
 David Schulz  
 Eike Ziller  
 Jaroslaw Kobus  
+Krzysztof Chrusciel  
 Leena Miettinen  
 Lukasz Papierkowski  
 Marc Mutz  
 Marcus Tillmanns  
 Nicholas Bennett  
 Orgad Shaneh  
+Prashant Vaibhav  
 Sami Shalayel  
