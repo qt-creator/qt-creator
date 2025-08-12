@@ -1093,6 +1093,8 @@ public:
     void insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion);
     void updateSuggestion();
     void clearCurrentSuggestion();
+    void updateSuggestionActions();
+
     QTextBlock m_suggestionBlock;
     int m_numEmbeddedWidgets = 0;
 
@@ -1120,6 +1122,7 @@ public:
     QAction *m_jumpToFileAction = nullptr;
     QAction *m_jumpToFileInNextSplitAction = nullptr;
     QList<QAction *> m_modifyingActions;
+    QList<QAction *> m_suggestionActions;
     bool m_updatePasteActionScheduled = false;
 };
 
@@ -2015,6 +2018,7 @@ void TextEditorWidgetPrivate::insertSuggestion(std::unique_ptr<TextSuggestion> &
     m_document->updateLayout();
 
     forceUpdateScrollbarSize();
+    updateSuggestionActions();
 }
 
 void TextEditorWidgetPrivate::updateSuggestion()
@@ -2046,6 +2050,15 @@ void TextEditorWidgetPrivate::clearCurrentSuggestion()
     TextBlockUserData::clearSuggestion(m_suggestionBlock);
     m_document->updateLayout();
     m_suggestionBlock = QTextBlock();
+
+    updateSuggestionActions();
+}
+
+void TextEditorWidgetPrivate::updateSuggestionActions()
+{
+    const bool hasSuggestion = m_suggestionBlock.isValid();
+    for (QAction *action : m_suggestionActions)
+        action->setEnabled(hasSuggestion);
 }
 
 void TextEditorWidget::selectEncoding()
@@ -3052,27 +3065,6 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     const bool ro = isReadOnly();
     const bool inOverwriteMode = overwriteMode();
     const bool hasMultipleCursors = cursor.hasMultipleCursors();
-
-    if (TextSuggestion *suggestion = TextBlockUserData::suggestion(d->m_suggestionBlock)) {
-        if (e->matches(QKeySequence::MoveToNextWord)) {
-            e->accept();
-            if (suggestion->applyWord(this))
-                d->clearCurrentSuggestion();
-            return;
-        } else if (e->modifiers() == Qt::NoModifier
-                   && (e->key() == Qt::Key_Tab || e->key() == Qt::Key_Backtab)) {
-            e->accept();
-            if (suggestion->apply())
-                d->clearCurrentSuggestion();
-            return;
-        } else if ((e->modifiers() & Qt::ShiftModifier)
-                   && (e->key() == Qt::Key_Tab || e->key() == Qt::Key_Backtab)) {
-            e->accept();
-            if (suggestion->applyLine(this))
-                d->clearCurrentSuggestion();
-            return;
-        }
-    }
 
     if (!ro
         && (e == QKeySequence::InsertParagraphSeparator
@@ -4738,6 +4730,49 @@ void TextEditorWidgetPrivate::registerActions()
         .setContext(m_editorContext)
         .addOnTriggered([this] { q->gotoNextWordCamelCaseWithSelection(); })
         .setScriptable(true);
+
+    m_suggestionActions <<
+        ActionBuilder(this, SUGGESTION_APPLY)
+            .setContext(m_editorContext)
+            .setText(Tr::tr("Apply"))
+            .setToolTip(Tr::tr("Apply the current suggestion"))
+            .addOnTriggered([this] {
+                if (TextSuggestion *s = q->currentSuggestion())
+                    s->apply();
+            })
+            .setScriptable(true)
+            .setDefaultKeySequence(QKeySequence(Qt::Key_Tab))
+            .setEnabled(false)
+            .contextAction();
+
+    m_suggestionActions <<
+        ActionBuilder(this, SUGGESTION_APPLY_WORD)
+            .setContext(m_editorContext)
+            .setText(Tr::tr("Apply one Word"))
+            .setToolTip(Tr::tr("Apply one word of the current suggestion"))
+            .addOnTriggered([this] {
+                if (TextSuggestion *s = q->currentSuggestion())
+                    s->applyWord(q);
+            })
+            .setScriptable(true)
+            .setDefaultKeySequence(QKeySequence(QKeySequence::MoveToNextWord))
+            .setEnabled(false)
+            .contextAction();
+
+    m_suggestionActions <<
+        ActionBuilder(this, SUGGESTION_APPLY_LINE)
+            .setContext(m_editorContext)
+            .setText(Tr::tr("Apply Line"))
+            .setToolTip(Tr::tr("Apply one line of the current suggestion"))
+            .addOnTriggered([this] {
+                if (TextSuggestion *s = q->currentSuggestion())
+                    s->applyLine(q);
+            })
+            .setScriptable(true)
+            .setDefaultKeySequence(
+                QKeyCombination(Qt::ShiftModifier, Qt::Key_Tab))
+            .setEnabled(false)
+            .contextAction();
 
     // Collect additional modifying actions so we can check for them inside a readonly file
     // and disable them

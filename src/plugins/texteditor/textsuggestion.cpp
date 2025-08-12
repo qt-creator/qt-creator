@@ -5,7 +5,10 @@
 
 #include "textdocumentlayout.h"
 #include "texteditor.h"
+#include "texteditorconstants.h"
 #include "texteditortr.h"
+
+#include <coreplugin/actionmanager/actionmanager.h>
 
 #include <QToolBar>
 #include <utils/qtcassert.h>
@@ -151,16 +154,10 @@ public:
             connect(m_next, &QAction::triggered, this, &SuggestionToolTip::selectNext);
         }
 
-        auto apply = addAction(
-            Tr::tr("Apply (%1)").arg(QKeySequence(Qt::Key_Tab).toString(QKeySequence::NativeText)));
-        auto applyWord = addAction(
-            Tr::tr("Apply Word (%1)")
-                .arg(QKeySequence(QKeySequence::MoveToNextWord).toString(QKeySequence::NativeText)));
-        auto applyLine = addAction(Tr::tr("Apply Line"));
+        addAction(Core::ActionManager::command(Constants::SUGGESTION_APPLY)->action());
+        addAction(Core::ActionManager::command(Constants::SUGGESTION_APPLY_WORD)->action());
+        addAction(Core::ActionManager::command(Constants::SUGGESTION_APPLY_LINE)->action());
 
-        connect(apply, &QAction::triggered, this, &SuggestionToolTip::apply);
-        connect(applyWord, &QAction::triggered, this, &SuggestionToolTip::applyWord);
-        connect(applyLine, &QAction::triggered, this, &SuggestionToolTip::applyLine);
         connect(editor->document(), &QTextDocument::contentsChange, this, &SuggestionToolTip::contentsChanged);
 
         updateSuggestionSelector();
