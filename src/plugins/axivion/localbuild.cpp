@@ -433,20 +433,14 @@ public:
         layout->addWidget(widget);
         layout->addWidget(buttons);
 
-        const auto updateOkButton = [this, okButton] {
-            bool enable = bauhausSuite().pathAppended("bin/axivion_suite_info")
-                    .withExecutableSuffix().exists();
-            enable &= !fileOrCommand().isEmpty();
-            okButton->setEnabled(enable);
-        };
-        connect(&bauhausSuite, &FilePathAspect::changed, this, updateOkButton);
-        connect(&fileOrCommand, &FilePathAspect::changed, this, updateOkButton);
+        connect(&fileOrCommand, &FilePathAspect::changed,
+                this, [this, okButton] { okButton->setEnabled(!fileOrCommand().isEmpty()); });
         connect(okButton, &QPushButton::clicked,
                 this, &QDialog::accept);
         connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked,
                 this, &QDialog::reject);
         setWindowTitle(Tr::tr("Local Build Command: %1").arg(projectName));
-        updateOkButton();
+        okButton->setEnabled(!fileOrCommand().isEmpty());
     }
 
     FilePathAspect bauhausSuite;
