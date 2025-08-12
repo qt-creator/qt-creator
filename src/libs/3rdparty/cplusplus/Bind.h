@@ -220,6 +220,7 @@ protected:
     bool visit(QtInterfacesDeclarationAST *ast) override;
     bool visit(AliasDeclarationAST *ast) override;
     bool visit(AsmDefinitionAST *ast) override;
+    bool visit(ConceptDeclarationAST *ast) override;
     bool visit(ExceptionDeclarationAST *ast) override;
     bool visit(FunctionDefinitionAST *ast) override;
     bool visit(LinkageBodyAST *ast) override;

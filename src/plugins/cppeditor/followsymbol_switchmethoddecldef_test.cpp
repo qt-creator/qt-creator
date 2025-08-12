@@ -1331,6 +1331,9 @@ void FollowSymbolTest::testFollowSymbol_data()
     QTest::newRow("baseClassViaDecltype")
         << _("struct Foo { static const int $_foo = 0; };\n"
              "struct Bar : public decltype(Foo()) { static const int _bar = @_foo; };\n");
+    QTest::newRow("concept")
+        << _("namespace N { template<typename T> concept $C1 = true; }\n"
+             "static void func(N::@C1 auto p);\n");
 }
 
 void FollowSymbolTest::testFollowSymbol()

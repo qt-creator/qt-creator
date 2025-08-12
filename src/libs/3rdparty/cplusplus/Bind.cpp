@@ -2309,6 +2309,18 @@ bool Bind::visit(AsmDefinitionAST *ast)
     return false;
 }
 
+bool Bind::visit(ConceptDeclarationAST *ast)
+{
+    if (!ast->name)
+        return false;
+
+    const Name *name = this->name(ast->name);
+    Declaration *decl = control()->newDeclaration(ast->name->firstToken(), name);
+    _scope->addMember(decl);
+
+    return false;
+}
+
 bool Bind::visit(ExceptionDeclarationAST *ast)
 {
     FullySpecifiedType type;
