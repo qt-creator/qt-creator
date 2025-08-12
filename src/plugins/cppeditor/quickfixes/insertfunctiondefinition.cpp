@@ -102,12 +102,7 @@ public:
         oo.showReturnTypes = true;
         oo.showArgumentNames = true;
         oo.showEnclosingTemplate = true;
-
-        // What we really want is to show template parameters for the class, but not for the
-        // function, but we cannot express that. This is an approximation that will work
-        // as long as either the surrounding class or the function is not a template.
-        oo.showTemplateParameters = decl->enclosingClass()
-                                    && decl->enclosingClass()->enclosingTemplate();
+        oo.showTemplateParameters = true;
 
         if (defPos == DefPosInsideClass) {
             const int targetPos = targetFile->position(loc.line(), loc.column());

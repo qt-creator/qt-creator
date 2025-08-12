@@ -111,7 +111,6 @@ static QString definitionSignature(
         oo.includeWhiteSpaceInOperatorName = operatorNameText.contains(QLatin1Char(' '));
     }
     const QString nameText = oo.prettyName(LookupContext::minimalName(func, cppCoN, control));
-    oo.showTemplateParameters = false;
     const FullySpecifiedType tn = rewriteType(func->type(), &env, control);
 
     return oo.prettyType(tn, nameText);
