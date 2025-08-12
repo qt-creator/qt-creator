@@ -12,6 +12,7 @@
 #include <projectexplorer/sysrootkitaspect.h>
 
 #include <utils/algorithm.h>
+#include <utils/buildablehelperlibrary.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeconstants.h>
@@ -68,7 +69,11 @@ QtProjectImporter::QtVersionData
 QtProjectImporter::findOrCreateQtVersion(const Utils::FilePath &qmakePath) const
 {
     QtVersionData result;
-    result.qt = QtVersionManager::version(Utils::equal(&QtVersion::qmakeFilePath, qmakePath));
+    result.qt = QtVersionManager::version(
+                Utils::equal(&QtVersion::qmakeFilePath,
+                             Utils::BuildableHelperLibrary::isQtChooser(qmakePath)
+                             ? Utils::BuildableHelperLibrary::qtChooserToQmakePath(qmakePath)
+                             : qmakePath));
     if (result.qt) {
         // Check if version is a temporary qt
         const int qtId = result.qt->uniqueId();
