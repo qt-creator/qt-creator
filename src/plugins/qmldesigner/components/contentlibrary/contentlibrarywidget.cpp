@@ -79,7 +79,10 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 auto mimeData = std::make_unique<QMimeData>();
                 QDataStream stream(&data, QIODevice::WriteOnly);
                 stream << m_itemToDrag->type();
-                mimeData->setData(Constants::MIME_TYPE_BUNDLE_ITEM, data);
+                if (m_itemToDrag->bundleId() == m_compUtils.user2DBundleId())
+                    mimeData->setData(Constants::MIME_TYPE_BUNDLE_ITEM_2D, data);
+                else
+                    mimeData->setData(Constants::MIME_TYPE_BUNDLE_ITEM_3D, data);
 
                 emit bundleItemDragStarted(m_itemToDrag);
                 const QString iconPath = m_itemToDrag->icon().toLocalFile();
@@ -129,7 +132,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-ContentLibraryWidget::ContentLibraryWidget()
+ContentLibraryWidget::ContentLibraryWidget(const GeneratedComponentUtils &compUtils)
     : m_iconProvider(Utils::makeUniqueObjectPtr<ContentLibraryIconProvider>())
     , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>(this))
     , m_materialsModel(new ContentLibraryMaterialsModel(this))
@@ -137,6 +140,7 @@ ContentLibraryWidget::ContentLibraryWidget()
     , m_effectsModel(new ContentLibraryEffectsModel(this))
     , m_userModel(new ContentLibraryUserModel(this))
     , m_showInGraphicalShellMsg(Core::FileUtils::msgGraphicalShellAction())
+    , m_compUtils(compUtils)
 {
     qmlRegisterType<QmlDesigner::FileDownloader>("WebFetcher", 1, 0, "FileDownloader");
     qmlRegisterType<QmlDesigner::FileExtractor>("WebFetcher", 1, 0, "FileExtractor");
@@ -261,10 +265,9 @@ void ContentLibraryWidget::updateImportedState(const QString &bundleId)
                                   [](const Utils::FilePath &f) { return f.baseName(); });
     }
 
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-    if (bundleId == compUtils.materialsBundleId())
+    if (bundleId == m_compUtils.materialsBundleId())
         m_materialsModel->updateImportedState(importedItems);
-    else if (bundleId == compUtils.effectsBundleId())
+    else if (bundleId == m_compUtils.effectsBundleId())
         m_effectsModel->updateImportedState(importedItems);
     else
         m_userModel->updateImportedState(importedItems, bundleId);

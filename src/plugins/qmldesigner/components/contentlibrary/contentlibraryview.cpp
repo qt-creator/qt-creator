@@ -79,7 +79,7 @@ void ContentLibraryView::registerWidgetInfo()
 WidgetInfo ContentLibraryView::widgetInfo()
 {
     if (m_widget.isNull()) {
-        m_widget = new ContentLibraryWidget();
+        m_widget = new ContentLibraryWidget(m_compUtils);
 
         m_bundleHelper = std::make_unique<BundleHelper>(this, m_widget);
 
@@ -465,7 +465,8 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         } else {
             m_widget->effectsModel()->addInstance(m_draggedBundleItem);
         }
-        m_bundleItemTarget = nodeList.first() ? nodeList.first() : Utils3D::active3DSceneNode(this);
+        m_bundleItemTarget = nodeList.first() ? nodeList.first()
+                             : isUser2D ? rootModelNode() : Utils3D::active3DSceneNode(this);
     } else if (identifier == "add_material_to_content_lib") {
         QTC_ASSERT(nodeList.size() == 1 && data.size() == 1, return);
 

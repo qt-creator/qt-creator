@@ -84,7 +84,8 @@ inline constexpr char MIME_TYPE_ITEM_LIBRARY_INFO[]
 inline constexpr char MIME_TYPE_ASSETS[] = "application/vnd.qtdesignstudio.assets";
 inline constexpr char MIME_TYPE_MATERIAL[] = "application/vnd.qtdesignstudio.material";
 inline constexpr char MIME_TYPE_TEXTURE[] = "application/vnd.qtdesignstudio.texture";
-inline constexpr char MIME_TYPE_BUNDLE_ITEM[] = "application/vnd.qtdesignstudio.bundleitem";
+inline constexpr char MIME_TYPE_BUNDLE_ITEM_2D[] = "application/vnd.qtdesignstudio.bundleitem.2d";
+inline constexpr char MIME_TYPE_BUNDLE_ITEM_3D[] = "application/vnd.qtdesignstudio.bundleitem.3d";
 inline constexpr char MIME_TYPE_BUNDLE_MATERIAL[] = "application/vnd.qtdesignstudio.bundlematerial";
 inline constexpr char MIME_TYPE_BUNDLE_TEXTURE[] = "application/vnd.qtdesignstudio.bundletexture";
 inline constexpr char MIME_TYPE_ASSET_IMAGE[] = "application/vnd.qtdesignstudio.asset.image";

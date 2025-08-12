@@ -77,6 +77,7 @@ private:
     QList<QmlItemNode> m_dragNodes;
     bool m_blockMove;
     QPointF m_startPoint;
+    QPointF m_lastPoint;
     bool m_isAborted = false;
 };
 

@@ -22,9 +22,11 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QLoggingCategory>
 #include <QMimeData>
-#include <QTimer>
-#include <QWidget>
 #include <QMessageBox>
+#include <QTimer>
+#include <QTransform>
+#include <QVector3D>
+#include <QWidget>
 
 static Q_LOGGING_CATEGORY(dragToolInfo, "qtc.qmldesigner.formeditor", QtWarningMsg);
 
@@ -223,8 +225,10 @@ static ItemLibraryEntry itemLibraryEntryFromMimeData(const QMimeData *mimeData)
 
 static bool canBeDropped(const QMimeData *mimeData, Model *model)
 {
-    if (AbstractFormEditorTool::hasDroppableAsset(mimeData))
+    if (AbstractFormEditorTool::hasDroppableAsset(mimeData)
+        || mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_2D)) {
         return true;
+    }
 #ifdef QDS_USE_PROJECTSTORAGE
     auto itemLibraryEntry = itemLibraryEntryFromMimeData(mimeData);
     NodeMetaInfo metaInfo{itemLibraryEntry.typeId(), model->projectStorage()};
@@ -247,6 +251,23 @@ void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneD
     if (canBeDropped(event->mimeData(), view()->model())) {
         event->accept();
         end(generateUseSnapping(event->modifiers()));
+
+        if (event->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_2D)) {
+            view()->changeToSelectionTool();
+            view()->model()->endDrag();
+            FormEditorItem *target = targetContainerOrRootItem(itemList);
+
+            ModelNode targetNode = target->qmlItemNode().modelNode();
+            QTransform sceneTransform = QmlItemNode(targetNode).instanceSceneTransform().inverted();
+            QPointF targetPoint = sceneTransform.map(m_lastPoint);
+
+            view()->emitCustomNotification("drop_bundle_item",
+                                           {targetNode},
+                                           {QVector3D{float(targetPoint.x()),
+                                                      float(targetPoint.y()),
+                                                      .0f}}); // To ContentLibraryView
+            return;
+        }
 
         QString effectPath;
         const QStringList assetPaths = QString::fromUtf8(event->mimeData()
@@ -399,7 +420,14 @@ void DragTool::dragMoveEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSc
 {
     NanotraceHR::Tracer tracer{"drag tool drag move event", category()};
 
+    if (event->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_2D)) {
+        event->accept();
+        m_lastPoint = event->scenePos();
+        return;
+    }
+
     FormEditorItem *targetContainerItem = targetContainerOrRootItem(itemList);
+
     const QStringList assetPaths = QString::fromUtf8(event->mimeData()
                                                      ->data(Constants::MIME_TYPE_ASSETS)).split(',');
     QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPaths[0]).first;

@@ -31,6 +31,7 @@ class ContentLibraryMaterialsModel;
 class ContentLibraryTexture;
 class ContentLibraryTexturesModel;
 class ContentLibraryUserModel;
+class GeneratedComponentUtils;
 
 class ContentLibraryWidget : public QFrame
 {
@@ -57,7 +58,7 @@ public:
     };
     Q_ENUM(TabIndex)
 
-    ContentLibraryWidget();
+    ContentLibraryWidget(const GeneratedComponentUtils &compUtils);
     ~ContentLibraryWidget();
 
     QList<QToolButton *> createToolBarWidgets();
@@ -181,6 +182,8 @@ private:
     QString m_textureBundleUrl;
     QString m_bundlePath;
     QString m_showInGraphicalShellMsg;
+
+    const GeneratedComponentUtils &m_compUtils;
 };
 
 } // namespace QmlDesigner

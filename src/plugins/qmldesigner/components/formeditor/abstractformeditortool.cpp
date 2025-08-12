@@ -269,6 +269,7 @@ void AbstractFormEditorTool::dragEnterEvent(const QList<QGraphicsItem*> &itemLis
     NanotraceHR::Tracer tracer{"abstract form editor tool drag enter event", category()};
 
     if (event->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)
+        || event->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_2D)
         || hasDroppableAsset(event->mimeData())) {
         event->accept();
         view()->changeToDragTool();

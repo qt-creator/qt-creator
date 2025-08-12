@@ -331,16 +331,20 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
         m_widget->setDragType(matNode.metaInfo().typeName());
 #endif
         m_widget->update();
-    } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM)) {
-        QByteArray data = mimeData->data(Constants::MIME_TYPE_BUNDLE_ITEM);
+    } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_2D)) {
+        m_widget->setDragType(Constants::MIME_TYPE_BUNDLE_ITEM_2D);
+        m_widget->update();
+    } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_3D)) {
+        QByteArray data = mimeData->data(Constants::MIME_TYPE_BUNDLE_ITEM_3D);
         QDataStream stream(data);
         TypeName bundleItemType;
         stream >> bundleItemType;
 
-        if (bundleItemType.contains("UserMaterials")) {
+        if (bundleItemType.contains("UserMaterials"))
             m_widget->setDragType(Constants::MIME_TYPE_BUNDLE_MATERIAL);
-            m_widget->update();
-        }
+        else
+            m_widget->setDragType(Constants::MIME_TYPE_BUNDLE_ITEM_3D);
+        m_widget->update();
     } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
         m_widget->setDragType(Constants::MIME_TYPE_BUNDLE_TEXTURE);
         m_widget->update();

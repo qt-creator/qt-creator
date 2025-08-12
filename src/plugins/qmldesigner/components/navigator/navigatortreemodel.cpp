@@ -565,7 +565,8 @@ QStringList NavigatorTreeModel::mimeTypes() const
                                     Constants::MIME_TYPE_MATERIAL,
                                     Constants::MIME_TYPE_BUNDLE_TEXTURE,
                                     Constants::MIME_TYPE_BUNDLE_MATERIAL,
-                                    Constants::MIME_TYPE_BUNDLE_ITEM,
+                                    Constants::MIME_TYPE_BUNDLE_ITEM_3D,
+                                    Constants::MIME_TYPE_BUNDLE_ITEM_2D,
                                     Constants::MIME_TYPE_ASSETS});
 
     return types;
@@ -709,7 +710,8 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
             if (targetNode.isValid())
                 m_view->emitCustomNotification("drop_bundle_material", {targetNode}); // To ContentLibraryView
-        } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM)) {
+        } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_2D)
+                   || mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_3D)) {
             if (targetNode.isValid())
                 m_view->emitCustomNotification("drop_bundle_item", {targetNode}); // To ContentLibraryView
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
