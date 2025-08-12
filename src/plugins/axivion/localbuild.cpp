@@ -115,6 +115,7 @@ private:
     QHash<QString, LocalBuildInfo> m_localBuildInfos;
     MappedTaskTreeRunner<QString> m_localBuildInfosRunner;
 
+    SingleTaskTreeRunner m_shutdownRunner;
     FilePath m_lastBauhausFromDB;
 };
 
@@ -195,14 +196,12 @@ bool LocalBuild::shutdownAll(const std::function<void()> &callback)
         }
     }.withTimeout(std::chrono::seconds(5));
 
-    TaskTree *taskTree = new TaskTree(recipe);
-    QObject::connect(taskTree, &TaskTree::done, taskTree, [taskTree, callback] {
-        taskTree->deleteLater();
+    const auto onShutdownDone = [callback] {
         if (callback)
             callback();
-    });
-    taskTree->start();
+    };
 
+    m_shutdownRunner.start(recipe, {}, onShutdownDone);
     return true;
 }
 
