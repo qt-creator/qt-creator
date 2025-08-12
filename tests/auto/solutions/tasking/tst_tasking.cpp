@@ -560,7 +560,7 @@ void tst_Tasking::taskTreeRunner()
         for (const QPair<QString, Group> &recipe : runnerData.recipes)
             taskTreeRunner.start(recipe.second);
 
-        doneSpy.wait(1000);
+        QVERIFY(doneSpy.wait(1000));
 
         QVERIFY(!taskTreeRunner.isRunning());
         QCOMPARE(s_globalLog, expectedLog);
@@ -575,7 +575,7 @@ void tst_Tasking::taskTreeRunner()
         for (const QPair<QString, Group> &recipe : runnerData.recipes)
             taskTreeRunner.enqueue(recipe.second);
 
-        doneSpy.wait(1000);
+        QVERIFY(doneSpy.wait(1000));
 
         QVERIFY(!taskTreeRunner.isRunning());
         QCOMPARE(s_globalLog, expectedLog);
@@ -590,7 +590,7 @@ void tst_Tasking::taskTreeRunner()
         for (const QPair<QString, Group> &recipe : runnerData.recipes)
             taskTreeRunner.start(recipe.second);
 
-        doneSpy.wait(1000);
+        QVERIFY(doneSpy.wait(1000));
 
         QVERIFY(!taskTreeRunner.isRunning());
         QCOMPARE(s_globalLog, expectedLog);
@@ -605,7 +605,7 @@ void tst_Tasking::taskTreeRunner()
         for (const QPair<QString, Group> &recipe : runnerData.recipes)
             taskTreeRunner.start(recipe.first, recipe.second);
 
-        doneSpy.wait(1000);
+        QVERIFY(doneSpy.wait(1000));
 
         QVERIFY(!taskTreeRunner.isRunning());
         QCOMPARE(s_globalLog, expectedLog);
