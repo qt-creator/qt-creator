@@ -357,9 +357,9 @@ void SquishFileHandler::closeAllInternal()
     // TODO remove file watcher
     for (auto suiteConfFilePath : m_suites)
         closeOpenedEditorsFor(suiteConfFilePath.parentDir(), true);
-    m_suites.clear();
     for (auto it = m_suites.cbegin(); it != m_suites.cend(); ++it)
         emit suiteTreeItemRemoved(it.key());
+    m_suites.clear();
 }
 
 void SquishFileHandler::runTestCase(const QString &suiteName, const QString &testCaseName)
