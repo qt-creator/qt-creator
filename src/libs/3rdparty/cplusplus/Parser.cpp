@@ -3370,9 +3370,16 @@ bool Parser::parseBaseSpecifier(BaseSpecifierListAST *&node)
             ast->virtual_token = consumeToken();
     }
 
-    parseName(ast->name);
-    if (! ast->name)
-        error(cursor(), "expected class-name");
+    if (_languageFeatures.cxx11Enabled && LA() == T_DECLTYPE) {
+        SpecifierListAST *node = nullptr;
+        if (!parseBuiltinTypeSpecifier(node))
+            return false;
+        ast->decltype_specifier = node->value->asDecltypeSpecifier();
+    } else {
+        parseName(ast->name);
+        if (! ast->name)
+            error(cursor(), "expected class-name");
+    }
 
     // a name can have ellipsis in case of C++11
     // note: the id must be unqualified then - TODO

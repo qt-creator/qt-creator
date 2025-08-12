@@ -153,6 +153,8 @@ private Q_SLOTS:
     void ifStatementWithInitialization();
     void rangeBasedForWithoutInitialization();
     void rangeBasedForWithInitialization();
+    void decltypeInBaseClause();
+    void decltypeInTemplateBaseClause();
 };
 
 
@@ -615,6 +617,41 @@ int main()
         return 0;
 }
 )";
+    QByteArray errors;
+    Document::Ptr doc = Document::create(FilePath::fromPathPart(u"testFile"));
+    processDocument(doc, source.toUtf8(), features, &errors);
+    const bool hasErrors = !errors.isEmpty();
+    if (hasErrors)
+        qDebug().noquote() << errors;
+    QVERIFY(!hasErrors);
+}
+
+void tst_cxx11::decltypeInBaseClause()
+{
+    LanguageFeatures features;
+    features.cxxEnabled = true;
+    features.cxx11Enabled = true;
+
+    const QString source = R"(
+struct Bar{};
+struct Foo : public decltype(Bar()) {};
+)";
+    QByteArray errors;
+    Document::Ptr doc = Document::create(FilePath::fromPathPart(u"testFile"));
+    processDocument(doc, source.toUtf8(), features, &errors);
+    const bool hasErrors = !errors.isEmpty();
+    if (hasErrors)
+        qDebug().noquote() << errors;
+    QVERIFY(!hasErrors);
+}
+
+void tst_cxx11::decltypeInTemplateBaseClause()
+{
+    LanguageFeatures features;
+    features.cxxEnabled = true;
+    features.cxx11Enabled = true;
+
+    const QString source = "template<typename T> struct X : decltype(T()) {};\n";
     QByteArray errors;
     Document::Ptr doc = Document::create(FilePath::fromPathPart(u"testFile"));
     processDocument(doc, source.toUtf8(), features, &errors);

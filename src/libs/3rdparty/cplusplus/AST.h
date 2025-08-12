@@ -972,6 +972,7 @@ public:
     int virtual_token = 0;
     int access_specifier_token = 0;
     NameAST *name = nullptr;
+    DecltypeSpecifierAST *decltype_specifier = nullptr;
     int ellipsis_token = 0;
 
 public: // annotations

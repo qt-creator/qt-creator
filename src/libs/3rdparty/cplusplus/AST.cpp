@@ -91,6 +91,8 @@ int BaseSpecifierAST::firstToken() const
         return virtual_token;
     if (access_specifier_token)
         return access_specifier_token;
+    if (decltype_specifier)
+        return decltype_specifier->firstToken();
     if (name)
         return name->firstToken();
     // assert?
@@ -101,13 +103,15 @@ int BaseSpecifierAST::lastToken() const
 {
     if (ellipsis_token)
         return ellipsis_token;
-    else if (name)
+    if (name)
         return name->lastToken();
-    else if (virtual_token && access_specifier_token)
+    if (decltype_specifier)
+        return decltype_specifier->lastToken();
+    if (virtual_token && access_specifier_token)
         return std::max(virtual_token, access_specifier_token) + 1;
-    else if (virtual_token)
+    if (virtual_token)
         return virtual_token + 1;
-    else if (access_specifier_token)
+    if (access_specifier_token)
         return access_specifier_token + 1;
     // assert?
     return 0;

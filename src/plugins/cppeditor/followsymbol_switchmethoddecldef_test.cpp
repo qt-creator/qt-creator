@@ -431,6 +431,8 @@ F2TestCase::F2TestCase(CppEditorAction action,
         QEXPECT_FAIL("matchFunctionSignature_Follow_5", "foo(int) resolved as CallAST", Abort);
         if (tag.contains("SLOT") && tag.contains("no 2nd QObject"))
             QEXPECT_FAIL("", "FIXME", Abort);
+        QEXPECT_FAIL(
+            "baseClassViaDecltype", "we cannot properly evaluate decltype at bind time", Abort);
     }
 
     QCOMPARE(currentTextEditor->currentLine(), expectedLine);
@@ -1326,6 +1328,9 @@ void FollowSymbolTest::testFollowSymbol_data()
              "    Foo& $operator=(const Foo &);\n"
              "};\n"
              "Foo& Foo::op@erator=(const Foo &) = default;\n");
+    QTest::newRow("baseClassViaDecltype")
+        << _("struct Foo { static const int $_foo = 0; };\n"
+             "struct Bar : public decltype(Foo()) { static const int _bar = @_foo; };\n");
 }
 
 void FollowSymbolTest::testFollowSymbol()

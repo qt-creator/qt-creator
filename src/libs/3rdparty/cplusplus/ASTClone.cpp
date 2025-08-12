@@ -335,6 +335,8 @@ BaseSpecifierAST *BaseSpecifierAST::clone(MemoryPool *pool) const
     BaseSpecifierAST *ast = new (pool) BaseSpecifierAST;
     ast->virtual_token = virtual_token;
     ast->access_specifier_token = access_specifier_token;
+    if (decltype_specifier)
+        ast->decltype_specifier = decltype_specifier->clone(pool);
     if (name)
         ast->name = name->clone(pool);
     ast->ellipsis_token = ellipsis_token;

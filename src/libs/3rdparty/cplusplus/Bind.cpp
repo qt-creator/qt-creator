@@ -446,7 +446,17 @@ void Bind::baseSpecifier(BaseSpecifierAST *ast, int colon_token, Class *klass)
     if (! sourceLocation)
         sourceLocation = std::max(colon_token, klass->sourceLocation());
 
-    const Name *baseClassName = this->name(ast->name);
+    const Name *baseClassName = nullptr;
+    if (ast->decltype_specifier) {
+        // Note that the type will usually be undefined, as we cannot properly analyze
+        // e.g. function calls here.
+        FullySpecifiedType t = expression(ast->decltype_specifier->expression);
+        if (auto namedType = t->asNamedType())
+            baseClassName = namedType->name();
+    } else {
+        baseClassName = this->name(ast->name);
+    }
+
     BaseClass *baseClass = control()->newBaseClass(sourceLocation, baseClassName);
     if (ast->virtual_token)
         baseClass->setVirtual(true);
