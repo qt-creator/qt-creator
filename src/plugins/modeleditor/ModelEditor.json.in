@@ -33,5 +33,6 @@
         "        <glob pattern='*.qmodel'/>",
         "    </mime-type>",
         "</mime-info>"
-    ]
+    ],
+    "JsonWizardPaths" : [":/modeleditor/wizards/"]
 }

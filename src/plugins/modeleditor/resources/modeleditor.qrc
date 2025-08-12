@@ -1,5 +1,9 @@
 <RCC>
-    <qresource prefix="/modeleditor">
-        <file>up.png</file>
-    </qresource>
+  <qresource prefix="/modeleditor">
+    <file>up.png</file>
+    <file>wizards/modeling/model/file.qmodel</file>
+    <file>wizards/modeling/model/wizard.json</file>
+    <file>wizards/modeling/scratch/file.qmodel</file>
+    <file>wizards/modeling/scratch/wizard.json</file>
+  </qresource>
 </RCC>
