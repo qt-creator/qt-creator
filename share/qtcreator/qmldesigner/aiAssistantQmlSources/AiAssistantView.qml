@@ -27,26 +27,30 @@ Rectangle {
 
             Layout.fillHeight: true
             Layout.fillWidth: true
-            Layout.minimumHeight: 100
         }
 
-        Text {
-            id: attachedImageText
-
-            color: StudioTheme.Values.themeTextColor
-        }
-
-        HelperWidgets.AbstractButton {
-            id: attachImageButton
-            objectName: "AttachImageButton"
-
+        Row {
+            spacing: 5
             Layout.alignment: Qt.AlignRight
 
-            style: StudioTheme.Values.viewBarButtonStyle
-            buttonIcon: StudioTheme.Constants.attach_medium
-            tooltip: qsTr("Attach an image.\nThe attached image will be analyzed and integrated into the response by the AI.")
+            Text {
+                id: attachedImageText
 
-            onClicked: attachMenu.show()
+                anchors.verticalCenter: attachImageButton.verticalCenter
+
+                color: StudioTheme.Values.themeTextColor
+            }
+
+            HelperWidgets.AbstractButton {
+                id: attachImageButton
+                objectName: "AttachImageButton"
+
+                style: StudioTheme.Values.viewBarButtonStyle
+                buttonIcon: StudioTheme.Constants.attach_medium
+                tooltip: qsTr("Attach an image.\nThe attached image will be analyzed and integrated into the response by the AI.")
+
+                onClicked: attachMenu.show()
+            }
         }
     }
 

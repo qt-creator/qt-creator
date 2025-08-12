@@ -97,7 +97,7 @@ AiAssistantWidget::AiAssistantWidget()
 {
     setWindowTitle(tr("AI Assistant", "Title of Ai Assistant widget"));
     setMinimumWidth(220);
-    setMinimumHeight(90);
+    setMinimumHeight(82);
 
     auto vLayout = new QVBoxLayout(this);
     vLayout->setContentsMargins(5, 5, 5, 5);
@@ -105,6 +105,7 @@ AiAssistantWidget::AiAssistantWidget()
     m_quickWidget->setContentsMargins({0, 0, 0, 0});
     m_quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_AI_ASSISTANT);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    m_quickWidget->setMinimumHeight(minimumHeight() - 5);
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
 
     auto map = m_quickWidget->registerPropertyMap("AiAssistantBackend");

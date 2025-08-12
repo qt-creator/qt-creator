@@ -43,7 +43,7 @@ Rectangle {
             color: root.style.text.idle
             wrapMode: TextEdit.WordWrap
 
-            placeholderText: qsTr("Type your message...")
+            placeholderText: qsTr("Describe what you want to generate...")
             placeholderTextColor: root.style.text.placeholder
 
             Keys.onPressed: function(event) {
