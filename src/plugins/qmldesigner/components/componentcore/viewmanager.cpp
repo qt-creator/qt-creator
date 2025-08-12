@@ -732,7 +732,7 @@ void ViewManager::removeExtraView(WidgetInfo info)
     if (auto view = findView(info.uniqueId)) {
         removeExtraWidget(info);
         removeView(*view);
-    };
+    }
 }
 
 void ViewManager::addView(std::unique_ptr<AbstractView> &&view)

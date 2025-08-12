@@ -84,17 +84,16 @@ PropertyEditorView *MultiPropertyEditorView::createView(const QString &parentId)
 {
     auto &viewManager = QmlDesignerPlugin::instance()->viewManager();
     auto newView = std::make_unique<PropertyEditorView>(m_imageCache, m_externalDependencies);
+
     WidgetInfo info = newView->widgetInfo();
     info.tabName = tr("Properties");
     info.parentId = parentId;
     newView->setWidgetInfo(info);
+    newView->demoteCustomManagerRole();
+
     PropertyEditorView *propertyEditorView = viewManager.registerView(std::move(newView));
-    propertyEditorView->setUnifiedAction(unifiedAction());
     unifiedAction()->registerView(propertyEditorView);
-    propertyEditorView->registerWidgetInfo();
-    propertyEditorView->demoteCustomManagerRole();
     propertyEditorView->action()->setChecked(true);
-    viewManager.showView(*propertyEditorView);
     return propertyEditorView;
 }
 
