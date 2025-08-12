@@ -79,7 +79,7 @@ void ContentLibraryView::registerWidgetInfo()
 WidgetInfo ContentLibraryView::widgetInfo()
 {
     if (m_widget.isNull()) {
-        m_widget = new ContentLibraryWidget(m_compUtils);
+        m_widget = new ContentLibraryWidget(m_compUtils, m_imageCache);
 
         m_bundleHelper = std::make_unique<BundleHelper>(this, m_widget);
 

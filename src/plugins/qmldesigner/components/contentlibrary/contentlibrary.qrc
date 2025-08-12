@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/contentlibrary">
-        <file>images/texture_ktx.png</file>
+        <file>images/texture_default.png</file>
     </qresource>
 </RCC>

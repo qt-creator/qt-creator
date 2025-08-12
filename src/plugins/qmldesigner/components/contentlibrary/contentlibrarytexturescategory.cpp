@@ -21,7 +21,7 @@ void ContentLibraryTexturesCategory::addTexture(const QFileInfo &texIcon, const 
                                                 bool hasUpdate, bool isNew)
 {
     m_categoryTextures.append(new ContentLibraryTexture(
-        this, texIcon, downloadPath, suffix, dimensions, sizeInBytes,
+        this, texIcon, texIcon.baseName(), downloadPath, suffix, dimensions, sizeInBytes,
         key, webTextureUrl, iconUrl, hasUpdate, isNew));
 }
 

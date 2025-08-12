@@ -22,6 +22,8 @@ class StudioQuickWidget;
 
 namespace QmlDesigner {
 
+class AssetImageProvider;
+class AsynchronousImageCache;
 class BundleImporter;
 class ContentLibraryEffectsModel;
 class ContentLibraryIconProvider;
@@ -58,7 +60,8 @@ public:
     };
     Q_ENUM(TabIndex)
 
-    ContentLibraryWidget(const GeneratedComponentUtils &compUtils);
+    ContentLibraryWidget(const GeneratedComponentUtils &compUtils,
+                         AsynchronousImageCache &imageCache);
     ~ContentLibraryWidget();
 
     QList<QToolButton *> createToolBarWidgets();
@@ -156,6 +159,7 @@ private:
     void createImporter();
 
     Utils::UniqueObjectPtr<ContentLibraryIconProvider> m_iconProvider;
+    Utils::UniqueObjectPtr<AssetImageProvider> m_textureIconProvider;
     Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
     QPointer<ContentLibraryMaterialsModel> m_materialsModel;
     QPointer<ContentLibraryTexturesModel> m_texturesModel;

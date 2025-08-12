@@ -8,6 +8,9 @@
 #include <asset.h>
 #include <imageutils.h>
 
+#include <utils/expected.h>
+#include <utils/filepath.h>
+
 #include <QPixmap>
 
 namespace QmlDesigner {
@@ -27,7 +30,6 @@ void UserTextureCategory::loadBundle(bool force)
     m_items.clear();
 
     m_bundlePath.ensureWritableDir();
-    m_bundlePath.pathAppended("icons").ensureWritableDir();
 
     const QStringList supportedExtensions = Asset::supportedImageSuffixes()
                                           + Asset::supportedTexture3DSuffixes();
@@ -53,27 +55,13 @@ void UserTextureCategory::addItems(const Utils::FilePaths &paths)
     for (const Utils::FilePath &filePath : paths) {
         QString completeSuffix = "." + filePath.completeSuffix();
 
-        QFileInfo iconFileInfo = filePath.parentDir().pathAppended("icons/" + filePath.baseName() + ".png")
-                                     .toFileInfo();
-
         QPair<QSize, qint64> info = ImageUtils::imageInfo(filePath.path());
         QString dirPath = filePath.parentDir().toFSPathString();
         QSize imgDims = info.first;
         qint64 imgFileSize = info.second;
 
-        if (!iconFileInfo.exists()) { // generate an icon if one doesn't exist
-            if (completeSuffix.endsWith(".ktx")) {
-                QFile::copy(":/contentlibrary/images/texture_ktx.png", iconFileInfo.absoluteFilePath());
-            } else {
-                Asset asset{filePath.toFSPathString()};
-                QPixmap icon = asset.pixmap({120, 120});
-                bool iconSaved = icon.save(iconFileInfo.filePath());
-                if (!iconSaved)
-                    qWarning() << __FUNCTION__ << "icon save failed";
-            }
-        }
-
-        auto tex = new ContentLibraryTexture(this, iconFileInfo, dirPath, completeSuffix, imgDims, imgFileSize);
+        auto tex = new ContentLibraryTexture(this, {}, filePath.baseName(),
+                                             dirPath, completeSuffix, imgDims, imgFileSize);
         m_items.append(tex);
     }
 

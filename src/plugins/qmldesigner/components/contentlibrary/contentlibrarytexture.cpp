@@ -12,6 +12,7 @@
 namespace QmlDesigner {
 
 ContentLibraryTexture::ContentLibraryTexture(QObject *parent, const QFileInfo &iconFileInfo,
+                                             const QString &baseName,
                                              const QString &dirPath, const QString &completeSuffix,
                                              const QSize &dimensions, const qint64 sizeInBytes,
                                              const QString &key, const QString &textureUrl,
@@ -21,7 +22,7 @@ ContentLibraryTexture::ContentLibraryTexture(QObject *parent, const QFileInfo &i
     , m_dirPath(dirPath)
     , m_textureUrl(textureUrl)
     , m_iconUrl(iconUrl)
-    , m_baseName{iconFileInfo.baseName()}
+    , m_baseName{baseName}
     , m_completeSuffix(completeSuffix)
     , m_textureKey(key)
     , m_icon(QUrl::fromLocalFile(iconFileInfo.absoluteFilePath()))

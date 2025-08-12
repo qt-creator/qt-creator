@@ -25,10 +25,12 @@ class ContentLibraryTexture : public QObject
     Q_PROPERTY(bool textureIsNew MEMBER m_isNew CONSTANT)
     Q_PROPERTY(QString textureKey MEMBER m_textureKey CONSTANT)
     Q_PROPERTY(QString bundleId MEMBER m_bundleId CONSTANT)
+    Q_PROPERTY(QString texturePath READ texturePath CONSTANT)
 
 public:
-    ContentLibraryTexture(QObject *parent, const QFileInfo &iconFileInfo, const QString &dirPath,
-                          const QString &completeSuffix, const QSize &dimensions, const qint64 sizeInBytes,
+    ContentLibraryTexture(QObject *parent, const QFileInfo &iconFileInfo, const QString &baseName,
+                          const QString &dirPath, const QString &completeSuffix,
+                          const QSize &dimensions, const qint64 sizeInBytes,
                           const QString &key = {}, const QString &textureUrl = {},
                           const QString &iconUrl = {}, bool hasUpdate = false, bool isNew = false);
 

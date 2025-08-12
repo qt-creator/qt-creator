@@ -144,11 +144,21 @@ Item {
         id: image
         anchors.fill: parent
         fillMode: Image.PreserveAspectFit
-        source: modelData.textureIcon
+        source: modelData.textureIconUrl === ""
+                ? "image://contentlibrarytextureicon/" + modelData.texturePath
+                : modelData.textureIcon
         visible: root.delegateVisible && root.downloadState != "downloading"
         cache: false
 
         property string textureUrl: modelData.textureUrl
+
+        Image {
+            id: defaultImage
+            anchors.fill: parent
+            fillMode: Image.PreserveAspectFit
+            source: "qrc:/contentlibrary/images/texture_default.png"
+            visible: image.status !== Image.Ready
+        }
 
         IconButton {
             id: downloadIcon

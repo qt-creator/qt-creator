@@ -12,6 +12,8 @@
 #include "contentlibrarytexturesmodel.h"
 #include "contentlibraryusermodel.h"
 
+#include <assetimageprovider.h>
+#include <asynchronousimagecache.h>
 #include <bundleimporter.h>
 #include <designerpaths.h>
 #include <nodemetainfo.h>
@@ -33,6 +35,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <QDir>
 #include <QJsonArray>
@@ -132,7 +135,8 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-ContentLibraryWidget::ContentLibraryWidget(const GeneratedComponentUtils &compUtils)
+ContentLibraryWidget::ContentLibraryWidget(const GeneratedComponentUtils &compUtils,
+                                           AsynchronousImageCache &imageCache)
     : m_iconProvider(Utils::makeUniqueObjectPtr<ContentLibraryIconProvider>())
     , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>(this))
     , m_materialsModel(new ContentLibraryMaterialsModel(this))
@@ -148,9 +152,14 @@ ContentLibraryWidget::ContentLibraryWidget(const GeneratedComponentUtils &compUt
     setWindowTitle(tr("Content Library", "Title of content library widget"));
     setMinimumWidth(120);
 
+    QImage defaultImage;
+    defaultImage.load(Utils::StyleHelper::dpiSpecificImageFile(":/contentlibrary/images/texture_default.png"));
+    m_textureIconProvider = Utils::makeUniqueObjectPtr<AssetImageProvider>(imageCache, defaultImage);
+
     m_quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_CONTENT_LIBRARY);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_quickWidget->engine()->addImageProvider("contentlibrary", m_iconProvider.get());
+    m_quickWidget->engine()->addImageProvider("contentlibrarytextureicon", m_textureIconProvider.get());
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_quickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
 
