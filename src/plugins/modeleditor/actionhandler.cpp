@@ -129,11 +129,13 @@ void ActionHandler::createActions()
     Core::Command *removeCommand = registerCommand(
                 Constants::REMOVE_SELECTED_ELEMENTS, &ModelEditor::removeSelectedElements, d->context,
                 Tr::tr("&Remove"), QKeySequence::Delete);
+    removeCommand->setAttribute(Core::Command::CA_Hide);
     medit->addAction(removeCommand, Core::Constants::G_EDIT_COPYPASTE);
     d->removeAction = removeCommand->action();
     Core::Command *deleteCommand = registerCommand(
                 Constants::DELETE_SELECTED_ELEMENTS, &ModelEditor::deleteSelectedElements, d->context,
                 Tr::tr("&Delete"), QKeySequence("Ctrl+D"));
+    deleteCommand->setAttribute(Core::Command::CA_Hide);
     medit->addAction(deleteCommand, Core::Constants::G_EDIT_COPYPASTE);
     d->deleteAction = deleteCommand->action();
     d->selectAllAction = registerCommand(Core::Constants::SELECTALL, &ModelEditor::selectAll, d->context)->action();
