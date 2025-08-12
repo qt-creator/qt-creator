@@ -56,6 +56,7 @@ private:
     void prependSpaceAfterIndirection(bool hasName);
     void prependSpaceBeforeIndirection(const FullySpecifiedType &type);
 
+    QString visitTemplateArgumentList(Scope *scope, int paramCount, bool forceNames);
     QString visitTemplateParameterList(Scope *scope, int paramCount, bool forceNames);
 
     enum IndirectionType { aPointerType, aReferenceType, aRvalueReferenceType };

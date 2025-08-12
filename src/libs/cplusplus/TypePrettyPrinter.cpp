@@ -301,9 +301,9 @@ void TypePrettyPrinter::prependSpaceBeforeIndirection(const FullySpecifiedType &
         _text.prepend(QLatin1Char(' '));
 }
 
-QString TypePrettyPrinter::visitTemplateParameterList(Scope *scope, int paramCount, bool forceNames)
+QString TypePrettyPrinter::visitTemplateArgumentList(Scope *scope, int paramCount, bool forceNames)
 {
-    QString text = "template<";
+    QString text = "<";
     for (int i = 0; i < paramCount; ++i) {
         Symbol * const param = scope->memberAt(i);
         if (!param)
@@ -320,6 +320,8 @@ QString TypePrettyPrinter::visitTemplateParameterList(Scope *scope, int paramCou
         } else if (TemplateTypeArgument *arg = param->asTemplateTypeArgument()) {
             if (arg->conceptName()) {
                 text.append(_overview->prettyName(arg->conceptName()));
+                if (arg->memberCount())
+                    text.append(visitTemplateArgumentList(arg, arg->memberCount(), false));
             } else if (arg->memberCount()) {
                 text.append(visitTemplateParameterList(arg, arg->memberCount(), false));
                 text.append(arg->isClassDeclarator() ? " class" : " typename");
@@ -330,7 +332,13 @@ QString TypePrettyPrinter::visitTemplateParameterList(Scope *scope, int paramCou
             text.append(_overview->prettyType(param->type(), param->name()));
         }
     }
-    return text.append(">");
+    return text.append('>');
+
+}
+
+QString TypePrettyPrinter::visitTemplateParameterList(Scope *scope, int paramCount, bool forceNames)
+{
+    return "template" + visitTemplateArgumentList(scope, paramCount, forceNames);
 }
 
 void TypePrettyPrinter::prependSpaceAfterIndirection(bool hasName)

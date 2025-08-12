@@ -2161,6 +2161,34 @@ foo::foo2::MyType<int> foo::foo2::bar()
         InsertDefFromDecl factory;
         QuickFixOperationTest(singleDocument(original, expected), &factory);
     }
+
+    void testFunctionWithSfinae()
+    {
+        const QByteArray original =
+            "namespace std {\n"
+            "template<bool B, class T = void> struct enable_if {};\n"
+            "template<class T> struct enable_if<true, T> { typedef T type; };\n"
+            "template<bool B, class T = void> using enable_if_t = typename enable_if<B,T>::type;\n"
+            "}\n"
+            "struct S {\n"
+            "    template<typename T, std::enable_if_t<true, T>> void f@unc();\n"
+            "};\n";
+        const QByteArray expected =
+            "namespace std {\n"
+            "template<bool B, class T = void> struct enable_if {};\n"
+            "template<class T> struct enable_if<true, T> { typedef T type; };\n"
+            "template<bool B, class T = void> using enable_if_t = typename enable_if<B,T>::type;\n"
+            "}\n"
+            "struct S {\n"
+            "    template<typename T, std::enable_if_t<true, T>> void func();\n"
+            "};\n\n"
+            "template<typename T, std::enable_if_t<true, T>>\n"
+            "void S::func()\n{\n\n"
+            "}\n";
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(singleDocument(original, expected), &factory);
+    }
 };
 
 class InsertDefsFromDeclsTest : public QObject

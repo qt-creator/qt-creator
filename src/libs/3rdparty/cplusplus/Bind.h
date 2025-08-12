@@ -291,6 +291,7 @@ private:
     static const int kMaxDepth;
 
     void ensureValidClassName(const Name **name, int sourceLocation);
+    std::vector<TemplateArgument> visitTemplateArgs(ExpressionListAST *ast);
 
     Scope *_scope;
     ExpressionTy _expression;

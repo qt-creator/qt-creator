@@ -2545,14 +2545,26 @@ bool Bind::visit(TemplateTypeParameterAST *ast)
 
     TemplateTypeArgument *arg = control()->newTemplateTypeArgument(sourceLocation, name);
     arg->setType(type_id);
-    if (ast->typeConstraint && ast->typeConstraint->conceptName)
-            arg->setConceptName(this->name(ast->typeConstraint->conceptName));
+    Scope *previousScope = switchScope(arg);
+    if (ast->typeConstraint && ast->typeConstraint->conceptName) {
+        arg->setConceptName(this->name(ast->typeConstraint->conceptName));
+        const std::vector<TemplateArgument> templateArgs = visitTemplateArgs(
+                    ast->typeConstraint->templateArgs);
+        for (const TemplateArgument &ta : templateArgs) {
+            const Identifier *id = nullptr;
+            if (const NumericLiteral * const l = ta.numericLiteral())
+                id = control()->identifier(l->chars(), l->size());
+            auto a = control()->newArgument(0, id);
+            a->setType(ta.type());
+            arg->addMember(a);
+        }
+    } else {
+        for (DeclarationListAST *it = ast->template_parameter_list; it; it = it->next)
+            declaration(it->value);
+    }
     arg->setClassDeclarator(translationUnit()->tokenKind(ast->class_token) == T_CLASS);
     ast->symbol = arg;
 
-    Scope *previousScope = switchScope(arg);
-    for (DeclarationListAST *it = ast->template_parameter_list; it; it = it->next)
-        declaration(it->value);
     (void) switchScope(previousScope);
 
     _scope->addMember(arg);
@@ -2906,29 +2918,8 @@ bool Bind::visit(DestructorNameAST *ast)
 bool Bind::visit(TemplateIdAST *ast)
 {
     // collect the template parameters
-    std::vector<TemplateArgument> templateArguments;
-    for (ExpressionListAST *it = ast->template_argument_list; it; it = it->next) {
-        ExpressionTy value = this->expression(it->value);
-        if (value.isValid()) {
-            templateArguments.emplace_back(value);
-        } else {
-            // special case for numeric values
-            if (it->value->asNumericLiteral()) {
-                templateArguments
-                    .emplace_back(value,
-                                  tokenAt(it->value->asNumericLiteral()->literal_token).number);
-            } else if (it->value->asBoolLiteral()) {
-                templateArguments
-                    .emplace_back(value, tokenAt(it->value->asBoolLiteral()->literal_token).number);
-            } else {
-                // fall back to non-valid type in templateArguments
-                // for ast->template_argument_list and templateArguments sizes match
-                // TODO support other literals/expressions as default arguments
-                templateArguments.emplace_back(value);
-            }
-        }
-    }
-
+    const std::vector<TemplateArgument> templateArguments = visitTemplateArgs(
+                ast->template_argument_list);
     const Identifier *id = identifier(ast->identifier_token);
     const int tokenKindBeforeIdentifier(translationUnit()->tokenKind(ast->identifier_token - 1));
     const bool isSpecialization = (tokenKindBeforeIdentifier == T_CLASS ||
@@ -3500,6 +3491,35 @@ void Bind::ensureValidClassName(const Name **name, int sourceLocation)
         if (qName)
             *name = control()->qualifiedNameId(qName->base(), *name);
     }
+}
+
+std::vector<TemplateArgument> Bind::visitTemplateArgs(ExpressionListAST *ast)
+{
+    std::vector<TemplateArgument> args;
+
+    for (ExpressionListAST *it = ast; it; it = it->next) {
+        ExpressionTy value = this->expression(it->value);
+        if (value.isValid()) {
+            args.emplace_back(value);
+        } else {
+            // special case for numeric values
+            if (it->value->asNumericLiteral()) {
+                args
+                    .emplace_back(value,
+                                  tokenAt(it->value->asNumericLiteral()->literal_token).number);
+            } else if (it->value->asBoolLiteral()) {
+                args
+                    .emplace_back(value, tokenAt(it->value->asBoolLiteral()->literal_token).number);
+            } else {
+                // fall back to non-valid type in templateArguments
+                // for ast->template_argument_list and templateArguments sizes match
+                // TODO support other literals/expressions as default arguments
+                args.emplace_back(value);
+            }
+        }
+    }
+
+    return args;
 }
 
 int Bind::visibilityForAccessSpecifier(int tokenKind)
