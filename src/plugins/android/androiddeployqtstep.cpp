@@ -126,6 +126,7 @@ private:
     FilePath m_workingDirectory;
     Environment m_environment;
     Task m_installApkError;
+    SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Id id)
@@ -530,8 +531,7 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
             ProcessTask(onAdbSetup, onAdbDone)
         };
 
-        TaskTree *taskTree = new TaskTree(recipe, target());
-        taskTree->start();
+        m_taskTreeRunner.start(recipe);
     });
 
     using namespace Layouting;
