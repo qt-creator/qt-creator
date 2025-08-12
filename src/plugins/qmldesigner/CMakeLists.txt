@@ -37,7 +37,7 @@ endif()
 
 add_subdirectory(libs)
 
-find_package(Qt6 QUIET COMPONENTS NetworkAuth)
+find_package(Qt6 QUIET COMPONENTS NetworkAuth WebSockets)
 
 add_qtc_plugin(QmlDesigner
   PLUGIN_RECOMMENDS QmlPreview
