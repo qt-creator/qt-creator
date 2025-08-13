@@ -863,8 +863,10 @@ bool Parser::parseStaticAssertDeclaration(DeclarationAST *&node)
     ast->static_assert_token = consumeToken();
     match(T_LPAREN, &ast->lparen_token);
     parseConstantExpression(ast->expression);
-    match(T_COMMA, &ast->comma_token);
-    parseStringLiteral(ast->string_literal);
+    if (!_languageFeatures.cxx17Enabled || LA() == T_COMMA) {
+        match(T_COMMA, &ast->comma_token);
+        parseStringLiteral(ast->string_literal);
+    }
     match(T_RPAREN, &ast->rparen_token);
     match(T_SEMICOLON, &ast->semicolon_token);
 

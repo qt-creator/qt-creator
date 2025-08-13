@@ -333,7 +333,8 @@ void tst_cxx11::complexConcepts()
 {
     LanguageFeatures features;
     features.cxxEnabled = true;
-    features.cxx11Enabled = features.cxx14Enabled = features.cxx20Enabled = true;
+    features.cxx11Enabled = features.cxx14Enabled = features.cxx17Enabled = features.cxx20Enabled
+        = true;
 
     // Extend as needed.
     const QString source = R"(
@@ -619,7 +620,7 @@ public:
     constexpr __box &operator=(const __box &__that) noexcept
         requires(!copyable<_Tp>) && copy_constructible<_Tp>
     {
-//        static_assert(is_nothrow_copy_constructible_v<_Tp>);
+        static_assert(is_nothrow_copy_constructible_v<_Tp>);
         if (this != std::__addressof(__that)) {
             _M_value.~_Tp();
             std::construct_at(std::__addressof(_M_value), *__that);
@@ -630,7 +631,7 @@ public:
     constexpr __box &operator=(__box &&__that) noexcept
         requires(!movable<_Tp>)
     {
-//        static_assert(is_nothrow_move_constructible_v<_Tp>);
+        static_assert(is_nothrow_move_constructible_v<_Tp>);
         if (this != std::__addressof(__that)) {
             _M_value.~_Tp();
             std::construct_at(std::__addressof(_M_value), std::move(*__that));
