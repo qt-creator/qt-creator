@@ -1383,6 +1383,9 @@ bool Parser::parseRequirement()
             consumeToken();
             return true;
         }
+        if (LA() != T_ARROW)
+            return false;
+        consumeToken();
         TypeConstraintAST *typeConstraint = nullptr;
         if (!parseTypeConstraint(typeConstraint))
             return false;

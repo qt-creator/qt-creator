@@ -147,6 +147,7 @@ private Q_SLOTS:
     void lambdaType();
 
     void concepts();
+    void complexConcepts();
     void requiresClause();
     void coroutines();
     void genericLambdas();
@@ -317,6 +318,114 @@ void *func2(IsPointer auto p)
 {
     return p;
 }
+)";
+    QByteArray errors;
+    Document::Ptr doc = Document::create(FilePath::fromPathPart(u"testFile"));
+    processDocument(doc, source.toUtf8(), features, &errors);
+    const bool hasErrors = !errors.isEmpty();
+    if (hasErrors)
+        qDebug().noquote() << errors;
+    QVERIFY(!hasErrors);
+}
+
+void tst_cxx11::complexConcepts()
+{
+    LanguageFeatures features;
+    features.cxxEnabled = true;
+    features.cxx11Enabled = features.cxx14Enabled = features.cxx20Enabled = true;
+
+    // Extend as needed.
+    const QString source = R"(
+template <typename _Tp, _Tp __v> struct integral_constant {
+    static constexpr _Tp value = __v;
+    using value_type = _Tp;
+    using type = integral_constant<_Tp, __v>;
+    constexpr operator value_type() const noexcept { return value; }
+    constexpr value_type operator()() const noexcept { return value; }
+};
+template<bool __v> using __bool_constant = integral_constant<bool, __v>;
+using true_type =  __bool_constant<true>;
+using false_type = __bool_constant<false>;
+template<typename _Tp> struct is_void : public false_type { };
+template<> struct is_void<void> : public true_type { };
+template<> struct is_void<const void> : public true_type { };
+template<> struct is_void<volatile void> : public true_type { };
+template<> struct is_void<const volatile void> : public true_type { };
+template<typename> struct is_array : public false_type { };
+template<typename _Tp, unsigned long long _Size>
+struct is_array<_Tp[_Size]> : public true_type { };
+template<typename _Tp> struct is_array<_Tp[]> : public true_type { };
+template<typename> struct is_const : public false_type { };
+template<typename _Tp> struct is_const<_Tp const> : public true_type { };
+template<typename _Tp>
+struct is_function : public __bool_constant<!is_const<const _Tp>::value> { };
+template<typename _Tp> struct is_function<_Tp&> : public false_type { };
+template<typename _Tp> struct is_function<_Tp&&> : public false_type { };
+template <typename _Tp> inline constexpr bool is_array_v = false;
+template <typename _Tp> inline constexpr bool is_array_v<_Tp[]> = true;
+template <typename _Tp, unsigned long long _Num>
+inline constexpr bool is_array_v<_Tp[_Num]> = true;
+template <typename> struct is_lvalue_reference : public false_type {};
+template <typename _Tp> struct is_lvalue_reference<_Tp &> : public true_type {};
+template <typename _Tp> inline constexpr bool is_lvalue_reference_v = false;
+template <typename _Tp> inline constexpr bool is_lvalue_reference_v<_Tp &> = true;
+template <typename _Tp, typename _Up> inline constexpr bool is_same_v = false;
+template <typename _Tp> inline constexpr bool is_same_v<_Tp, _Tp> = true;
+template<bool, typename _Tp = void> struct enable_if {};
+template<typename _Tp> struct enable_if<true, _Tp> { using type = _Tp; };
+template<bool _Cond, typename _Tp = void>
+using __enable_if_t = typename enable_if<_Cond, _Tp>::type;
+template<typename _Tp, typename...> using __first_t = _Tp;
+template<typename... _Bn> auto __or_fn(int) -> __first_t<false_type,
+__enable_if_t<!bool(_Bn::value)>...>;
+template<typename... _Bn> auto __or_fn(...) -> true_type;
+template<typename... _Bn> struct __or_ : decltype(__or_fn<_Bn...>(0)) { };
+template<typename... _Tp> struct common_reference;
+template<typename... _Tp> using common_reference_t = typename common_reference<_Tp...>::type;
+template<> struct common_reference<> { };
+template<typename _Tp> struct __declval_protector {
+    static const bool __stop = false;
+};
+template<typename _Tp>
+auto declval() noexcept -> decltype(__declval<_Tp>(0))
+{
+    static_assert(__declval_protector<_Tp>::__stop,
+                  "declval() must not be used!");
+    return __declval<_Tp>(0);
+}
+template<typename _Tp0> struct common_reference<_Tp0> { using type = _Tp0; };
+template<typename _Tp, typename _Up> concept __same_as = is_same_v<_Tp, _Up>;
+template<typename _Tp, typename _Up> concept same_as = __same_as<_Tp, _Up> && __same_as<_Up, _Tp>;
+template<typename _From,
+         typename _To,
+         bool = __or_<is_void<_From>, is_function<_To>, is_array<_To>>::value>
+struct __is_convertible_helper
+{
+    using type = typename is_void<_To>::type;
+};
+template<typename _From, typename _To>
+struct is_convertible : public __is_convertible_helper<_From, _To>::type
+{};
+template<typename _From, typename _To>
+inline constexpr bool is_convertible_v = is_convertible<_From, _To>::value;
+template<typename _From, typename _To>
+concept convertible_to = is_convertible_v<_From, _To>
+                         && requires { static_cast<_To>(declval<_From>()); };
+template<typename _Tp> struct remove_reference { using type = _Tp; };
+template<typename _Tp> struct remove_reference<_Tp &> { using type = _Tp; };
+template<typename _Tp> struct remove_reference<_Tp &&> { using type = _Tp; };
+template<typename _Tp> using remove_reference_t = typename remove_reference<_Tp>::type;
+template<typename _Tp> using __cref = const remove_reference_t<_Tp> &;
+template<typename _Tp, typename _Up>
+concept common_reference_with = same_as<common_reference_t<_Tp, _Up>, common_reference_t<_Up, _Tp>>
+                                && convertible_to<_Tp, common_reference_t<_Tp, _Up>>
+                                && convertible_to<_Up, common_reference_t<_Tp, _Up>>;
+template<typename _Lhs, typename _Rhs>
+concept assignable_from = is_lvalue_reference_v<_Lhs>
+                          && common_reference_with<__cref<_Lhs>, __cref<_Rhs>>
+                          && requires(_Lhs __lhs, _Rhs &&__rhs) {
+                                 { __lhs = static_cast<_Rhs &&>(__rhs) } -> same_as<_Lhs>;
+                             };
 )";
     QByteArray errors;
     Document::Ptr doc = Document::create(FilePath::fromPathPart(u"testFile"));
