@@ -497,10 +497,9 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
             *serialNumberStorage = info.serialNumber;
             return SetupResult::StopWithSuccess;
         };
-        const auto onDone = [serialNumberStorage, info, self = QPointer(this)](DoneWith result) {
+        const auto onDone = [serialNumberStorage, info, this](DoneWith result) {
             if (info.type == IDevice::Emulator && serialNumberStorage->isEmpty()) {
-                if (self)
-                    self->setInstallApkError(Tr::tr("Starting Android virtual device failed."));
+                setInstallApkError(Tr::tr("Starting Android virtual device failed."));
                 return false;
             }
             return result == DoneWith::Success;
@@ -512,12 +511,12 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
                                    "install", "-r", packagePath.path()}};
             process.setCommand(cmd);
         };
-        const auto onAdbDone = [self = QPointer(this)](const Process &process, DoneWith result) {
+        const auto onAdbDone = [this](const Process &process, DoneWith result) {
             if (result == DoneWith::Success) {
                 Core::MessageManager::writeSilently(
                     Tr::tr("Android package installation finished with success."));
-            } else if (self) {
-                self->setInstallApkError(process.exitMessage());
+            } else {
+                setInstallApkError(process.exitMessage());
             }
         };
 
