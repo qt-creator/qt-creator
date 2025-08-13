@@ -156,6 +156,7 @@ private Q_SLOTS:
     void rangeBasedForWithInitialization();
     void decltypeInBaseClause();
     void decltypeInTemplateBaseClause();
+    void namedConstantTemplateParameter();
 };
 
 
@@ -761,6 +762,25 @@ void tst_cxx11::decltypeInTemplateBaseClause()
     features.cxx11Enabled = true;
 
     const QString source = "template<typename T> struct X : decltype(T()) {};\n";
+    QByteArray errors;
+    Document::Ptr doc = Document::create(FilePath::fromPathPart(u"testFile"));
+    processDocument(doc, source.toUtf8(), features, &errors);
+    const bool hasErrors = !errors.isEmpty();
+    if (hasErrors)
+        qDebug().noquote() << errors;
+    QVERIFY(!hasErrors);
+}
+
+void tst_cxx11::namedConstantTemplateParameter()
+{
+    LanguageFeatures features;
+    features.cxxEnabled = true;
+    features.cxx11Enabled = features.cxx14Enabled = features.cxx17Enabled = features.cxx20Enabled
+        = true;
+    const QString source = R"(
+using size_t = unsigned long;
+template <typename _Tp, size_t = sizeof(_Tp)> struct S {};
+)";
     QByteArray errors;
     Document::Ptr doc = Document::create(FilePath::fromPathPart(u"testFile"));
     processDocument(doc, source.toUtf8(), features, &errors);

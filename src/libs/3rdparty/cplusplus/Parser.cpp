@@ -2206,8 +2206,10 @@ bool Parser::parseTemplateParameterList(DeclarationListAST *&node)
 bool Parser::parseTemplateParameter(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
+    const int startTok = cursor();
     if (parseTypeParameter(node))
         return true;
+    rewind(startTok);
     bool previousTemplateArguments = switchTemplateArguments(true);
     ParameterDeclarationAST *ast = nullptr;
     bool parsed = parseParameterDeclaration(ast);
@@ -2259,7 +2261,8 @@ bool Parser::parseTemplateTypeParameter(DeclarationAST *&node)
 
     if (LA() == T_EQUAL) {
         ast->equal_token = consumeToken();
-        parseTypeId(ast->type_id);
+        if (!parseTypeId(ast->type_id))
+            return false;
     }
     node = ast;
     return true;
