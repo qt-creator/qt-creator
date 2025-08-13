@@ -568,6 +568,84 @@ struct __box : std::optional<_Tp>
         return *this;
     }
 };
+template<typename _Tp>
+concept __boxable_copyable = copy_constructible<_Tp>
+                             && (copyable<_Tp>
+                                 || (is_nothrow_move_constructible_v<_Tp>
+                                     && is_nothrow_copy_constructible_v<_Tp>) );
+template<typename _Tp>
+concept __boxable_movable = (!copy_constructible<_Tp>)
+                            && (movable<_Tp> || is_nothrow_move_constructible_v<_Tp>);
+
+template<__boxable _Tp>
+    requires __boxable_copyable<_Tp> || __boxable_movable<_Tp>
+struct __box<_Tp>
+{
+private:
+    [[no_unique_address]] _Tp _M_value = _Tp();
+
+public:
+    __box()
+        requires default_initializable<_Tp>
+    = default;
+
+    constexpr explicit __box(const _Tp &__t) noexcept(is_nothrow_copy_constructible_v<_Tp>)
+        requires copy_constructible<_Tp>
+        : _M_value(__t)
+    {}
+
+    constexpr explicit __box(_Tp &&__t) noexcept(is_nothrow_move_constructible_v<_Tp>)
+        : _M_value(std::move(__t))
+    {}
+
+    template<typename... _Args>
+        requires constructible_from<_Tp, _Args...>
+    constexpr explicit __box(in_place_t,
+                             _Args &&...__args) noexcept(is_nothrow_constructible_v<_Tp, _Args...>)
+        : _M_value(std::forward<_Args>(__args)...)
+    {}
+
+    __box(const __box &) = default;
+    __box(__box &&) = default;
+    __box &operator=(const __box &)
+        requires copyable<_Tp>
+    = default;
+    __box &operator=(__box &&)
+        requires movable<_Tp>
+    = default;
+
+    // When _Tp is nothrow_copy_constructible but not copy_assignable,
+    // copy assignment is implemented via destroy-then-copy-construct.
+    constexpr __box &operator=(const __box &__that) noexcept
+        requires(!copyable<_Tp>) && copy_constructible<_Tp>
+    {
+//        static_assert(is_nothrow_copy_constructible_v<_Tp>);
+        if (this != std::__addressof(__that)) {
+            _M_value.~_Tp();
+            std::construct_at(std::__addressof(_M_value), *__that);
+        }
+        return *this;
+    }
+
+    constexpr __box &operator=(__box &&__that) noexcept
+        requires(!movable<_Tp>)
+    {
+//        static_assert(is_nothrow_move_constructible_v<_Tp>);
+        if (this != std::__addressof(__that)) {
+            _M_value.~_Tp();
+            std::construct_at(std::__addressof(_M_value), std::move(*__that));
+        }
+        return *this;
+    }
+
+    constexpr bool has_value() const noexcept { return true; }
+    constexpr _Tp &operator*() & noexcept { return _M_value; }
+    constexpr const _Tp &operator*() const & noexcept { return _M_value; }
+    constexpr _Tp &&operator*() && noexcept { return std::move(_M_value); }
+    constexpr const _Tp &&operator*() const && noexcept { return std::move(_M_value); }
+    constexpr _Tp *operator->() noexcept { return std::__addressof(_M_value); }
+    constexpr const _Tp *operator->() const noexcept { return std::__addressof(_M_value); }
+};
 )";
     QByteArray errors;
     Document::Ptr doc = Document::create(FilePath::fromPathPart(u"testFile"));

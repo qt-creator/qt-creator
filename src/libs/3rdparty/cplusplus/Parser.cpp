@@ -3018,6 +3018,8 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
             && node->postfix_declarator_list
             && node->postfix_declarator_list->lastValue()
             && node->postfix_declarator_list->lastValue()->asFunctionDeclarator();
+    if (!parseRequiresClauseOpt(node->requiresClause))
+        return false;
     if (declaringClass && LA() == T_COLON
             && (! node || ! node->postfix_declarator_list)) {
         int colon_token = consumeToken();
@@ -3053,8 +3055,6 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
         parseInitializer(node->initializer, &node->equal_token);
     } else if (node->core_declarator && node->core_declarator->asDecompositionDeclarator()) {
         error(cursor(), "structured binding needs initializer");
-        return false;
-    } else if (!parseRequiresClauseOpt(node->requiresClause)) {
         return false;
     }
     return true;
