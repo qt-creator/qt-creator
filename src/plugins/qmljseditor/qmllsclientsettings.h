@@ -36,6 +36,8 @@ public:
     bool m_useQmllsSemanticHighlighting = false;
     bool m_disableBuiltinCodemodel = false;
     bool m_generateQmllsIniFiles = false;
+    bool m_overrideExecutable = {};
+    Utils::FilePath m_executable = {};
 
 protected:
     LanguageClient::BaseClientInterface *createInterface(
