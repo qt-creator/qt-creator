@@ -590,8 +590,10 @@ private:
 
     template <typename Handler>
     static TaskAdapterSetupHandler wrapSetup(Handler &&handler) {
-        if constexpr (std::is_same_v<std::decay_t<Handler>, TaskSetupHandler>)
-            return {}; // When user passed {} for the setup handler.
+        if constexpr (std::is_same_v<std::decay_t<Handler>, TaskSetupHandler>) {
+            if (!handler)
+                return {}; // When user passed {} for the setup handler.
+        }
         // R, V stands for: Setup[R]esult, [V]oid
         static constexpr bool isR = isInvocable<SetupResult, Handler, Task &>();
         static constexpr bool isV = isInvocable<void, Handler, Task &>();
@@ -609,8 +611,10 @@ private:
 
     template <typename Handler>
     static TaskAdapterDoneHandler wrapDone(Handler &&handler) {
-        if constexpr (std::is_same_v<std::decay_t<Handler>, TaskDoneHandler>)
-            return {}; // User passed {} for the done handler.
+        if constexpr (std::is_same_v<std::decay_t<Handler>, TaskDoneHandler>) {
+            if (!handler)
+                return {}; // User passed {} for the done handler.
+        }
         static constexpr bool isDoneResultType = std::is_same_v<std::decay_t<Handler>, DoneResult>;
         // R, B, V, T, D stands for: Done[R]esult, [B]ool, [V]oid, [T]ask, [D]oneWith
         static constexpr bool isRTD = isInvocable<DoneResult, Handler, const Task &, DoneWith>();

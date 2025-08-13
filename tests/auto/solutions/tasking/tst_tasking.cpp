@@ -137,6 +137,7 @@ private slots:
     void destructorOfTaskEmittingDone();
     void restartTaskTreeRunnerFromDoneHandler();
     void validConditionalConstructs();
+    void exactHandlers();
 };
 
 void tst_Tasking::validConstructs()
@@ -4836,6 +4837,28 @@ void tst_Tasking::validConditionalConstructs()
     };
 
 #endif
+}
+
+void tst_Tasking::exactHandlers()
+{
+    bool calledSetup = false;
+    bool calledDone = false;
+
+    const TestTask::TaskSetupHandler setup = [&calledSetup](TaskObject &) {
+        calledSetup = true;
+        return SetupResult::Continue;
+    };
+
+    const TestTask::TaskDoneHandler done = [&calledDone](const TaskObject &, DoneWith) {
+        calledDone = true;
+        return DoneResult::Success;
+    };
+
+    TaskTree taskTree({TestTask(setup, done)});
+    taskTree.runBlocking();
+
+    QVERIFY(calledSetup);
+    QVERIFY(calledDone);
 }
 
 QTEST_GUILESS_MAIN(tst_Tasking)
