@@ -1426,6 +1426,7 @@ bool Parser::parseRequiresClauseOpt(RequiresClauseAST *&node)
     while (true) {
         if (LA() != T_PIPE_PIPE && LA() != T_AMPER_AMPER)
             break;
+        const int binTok = consumeToken();
         ExpressionAST *next = nullptr;
         if (!parsePrimaryExpression(next))
             return false;
@@ -1433,7 +1434,7 @@ bool Parser::parseRequiresClauseOpt(RequiresClauseAST *&node)
         // This won't yield the right precedence, but I don't care.
         BinaryExpressionAST *expr = new (_pool) BinaryExpressionAST;
         expr->left_expression = ast->constraint;
-        expr->binary_op_token = consumeToken();
+        expr->binary_op_token = binTok;
         expr->right_expression = next;
         ast->constraint = expr;
     }

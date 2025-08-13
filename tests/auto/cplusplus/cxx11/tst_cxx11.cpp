@@ -427,6 +427,147 @@ concept assignable_from = is_lvalue_reference_v<_Lhs>
                           && requires(_Lhs __lhs, _Rhs &&__rhs) {
                                  { __lhs = static_cast<_Rhs &&>(__rhs) } -> same_as<_Lhs>;
                              };
+using size_t = unsigned long;
+template<typename _Type>
+struct __type_identity
+{
+    using type = _Type;
+};
+template<typename _Tp>
+using __type_identity_t = typename __type_identity<_Tp>::type;
+template<typename _Tp, size_t = sizeof(_Tp)>
+constexpr true_type __is_complete_or_unbounded(__type_identity<_Tp>)
+{
+    return {};
+}
+
+template<typename _TypeIdentity, typename _NestedType = typename _TypeIdentity::type>
+constexpr typename __or_<is_reference<_NestedType>,
+                         is_function<_NestedType>,
+                         is_void<_NestedType>,
+                         __is_array_unknown_bounds<_NestedType>>::type
+__is_complete_or_unbounded(_TypeIdentity)
+{
+    return {};
+}
+
+template<typename _Tp, typename = void>
+struct __add_lvalue_reference_helper
+{
+    using type = _Tp;
+};
+
+template<typename _Tp>
+struct __add_lvalue_reference_helper<_Tp, __void_t<_Tp &>>
+{
+    using type = _Tp &;
+};
+
+template<typename _Tp>
+using __add_lval_ref_t = typename __add_lvalue_reference_helper<_Tp>::type;
+
+template<typename _Tp, typename... _Args>
+using __is_nothrow_constructible_impl = __bool_constant<__is_nothrow_constructible(_Tp, _Args...)>;
+template<typename _Tp>
+struct is_nothrow_copy_constructible
+    : public __is_nothrow_constructible_impl<_Tp, __add_lval_ref_t<const _Tp>>
+{
+    static_assert(__is_complete_or_unbounded(__type_identity<_Tp>{}),
+                  "template argument must be a complete class or an unbounded array");
+};
+
+template<typename _Tp, typename... _Args>
+using __is_constructible_impl = __bool_constant<__is_constructible(_Tp, _Args...)>;
+/// @endcond
+
+/// is_constructible
+template<typename _Tp, typename... _Args>
+struct is_constructible : public __is_constructible_impl<_Tp, _Args...>
+{
+    static_assert(__is_complete_or_unbounded(__type_identity<_Tp>{}),
+                  "template argument must be a complete class or an unbounded array");
+};
+
+template<typename _Tp>
+inline constexpr bool is_copy_constructible_v = __is_constructible(_Tp, __add_lval_ref_t<const _Tp>);
+template<typename _Tp>
+inline constexpr bool is_nothrow_copy_constructible_v
+    = __is_nothrow_constructible(_Tp, __add_lval_ref_t<const _Tp>);
+
+template<typename _Tp, typename... _Args>
+inline constexpr bool is_constructible_v = __is_constructible(_Tp, _Args...);
+
+template<typename _Tp>
+constexpr bool __destructible_impl = false;
+template<typename _Tp>
+    requires requires(_Tp &__t) {
+        { __t.~_Tp() } noexcept;
+    }
+constexpr bool __destructible_impl<_Tp> = true;
+
+template<typename _Tp>
+constexpr bool __destructible = __destructible_impl<_Tp>;
+template<typename _Tp>
+constexpr bool __destructible<_Tp &> = true;
+template<typename _Tp>
+constexpr bool __destructible<_Tp &&> = true;
+template<typename _Tp, size_t _Nm>
+constexpr bool __destructible<_Tp[_Nm]> = __destructible<_Tp>;
+
+template<typename _Tp>
+concept destructible = __destructible<_Tp>;
+
+/// [concept.constructible], concept constructible_from
+template<typename _Tp, typename... _Args>
+concept constructible_from = destructible<_Tp> && is_constructible_v<_Tp, _Args...>;
+
+template<typename _Tp>
+concept move_constructible = constructible_from<_Tp, _Tp> && convertible_to<_Tp, _Tp>;
+
+template<typename _Tp>
+concept movable = is_object_v<_Tp> && move_constructible<_Tp> && assignable_from<_Tp &, _Tp>
+                  && swappable<_Tp>;
+
+template<typename _Tp>
+concept copy_constructible = move_constructible<_Tp> && constructible_from<_Tp, _Tp &>
+                             && convertible_to<_Tp &, _Tp> && constructible_from<_Tp, const _Tp &>
+                             && convertible_to<const _Tp &, _Tp>
+                             && constructible_from<_Tp, const _Tp>
+                             && convertible_to<const _Tp, _Tp>;
+
+template<typename _Tp>
+concept copyable = copy_constructible<_Tp> && movable<_Tp> && assignable_from<_Tp &, _Tp &>
+                   && assignable_from<_Tp &, const _Tp &> && assignable_from<_Tp &, const _Tp>;
+
+template<typename _Tp>
+concept __boxable = copy_constructible<_Tp> && is_object_v<_Tp>;
+template<__boxable _Tp>
+struct __box : std::optional<_Tp>
+{
+    using std::optional<_Tp>::optional;
+
+    constexpr __box() noexcept(is_nothrow_default_constructible_v<_Tp>)
+        requires default_initializable<_Tp>
+        : std::optional<_Tp>{std::in_place}
+    {}
+
+    __box(const __box &) = default;
+    __box(__box &&) = default;
+
+    using std::optional<_Tp>::operator=;
+
+    constexpr __box &operator=(const __box &__that) noexcept(is_nothrow_copy_constructible_v<_Tp>)
+        requires(!copyable<_Tp>) && copy_constructible<_Tp>
+    {
+        if (this != std::__addressof(__that)) {
+            if ((bool) __that)
+                this->emplace(*__that);
+            else
+                this->reset();
+        }
+        return *this;
+    }
+};
 )";
     QByteArray errors;
     Document::Ptr doc = Document::create(FilePath::fromPathPart(u"testFile"));
