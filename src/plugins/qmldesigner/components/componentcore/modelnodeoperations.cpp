@@ -2155,28 +2155,35 @@ ModelNode handleItemLibraryImageDrop(const QString &imagePath,
     QTC_ASSERT(view, return {});
 
     ModelNode newModelNode;
+    Utils::FilePath origImagePath = Utils::FilePath::fromString(imagePath);
+    Utils::FilePath newImagePath;
 
-    if (!dropAsImage3dTexture(targetNode, imagePath, newModelNode, outMoveNodesAfter)) {
+    if (!origImagePath.isChildOf(DocumentManager::currentResourcePath())) {
+        AddFilesResult result = addImageToProject(
+            {imagePath}, getImagesDefaultDirectory().toUrlishString(), false);
+
+        if (result.status() == AddFilesResult::Failed) {
+            Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Image"),
+                                                  Tr::tr("Could not add %1 to project.").arg(imagePath));
+            return {};
+        }
+
+        newImagePath = getImagesDefaultDirectory().pathAppended(origImagePath.fileName());
+    } else {
+        newImagePath = origImagePath.relativePathFrom(DocumentManager::currentResourcePath());
+    }
+
+    if (!dropAsImage3dTexture(targetNode, newImagePath.toUrlishString(), newModelNode, outMoveNodesAfter)) {
         if (targetNode.metaInfo().isBasedOn(targetNode.model()->qtQuickImageMetaInfo(),
                                             targetNode.model()->qtQuickBorderImageMetaInfo())) {
-            // if dropping an image on an existing image, set the source
-            AddFilesResult result = addImageToProject(
-                {imagePath}, getImagesDefaultDirectory().toUrlishString(), false);
 
-            if (result.status() == AddFilesResult::Failed) {
-                Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Image"),
-                                                      Tr::tr("Could not add %1 to project.").arg(imagePath));
-                return {};
-            }
+            QString relImagePath = relativePathToQmlFile(newImagePath.toFSPathString());
 
-            Utils::FilePath oldPath = Utils::FilePath::fromString(imagePath);
-            Utils::FilePath newPath = getImagesDefaultDirectory().pathAppended(oldPath.fileName());
-
-            targetNode.variantProperty("source").setValue(newPath.toFSPathString());
+            targetNode.variantProperty("source").setValue(relImagePath);
         } else {
             // create an image
             QmlItemNode newItemNode = QmlItemNode::createQmlItemNodeFromImage(view,
-                                                                              imagePath,
+                                                                              newImagePath.toUrlishString(),
                                                                               QPointF(),
                                                                               targetProperty,
                                                                               false);
