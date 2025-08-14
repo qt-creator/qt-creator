@@ -79,11 +79,11 @@ class tst_c99: public QObject
             LanguageFeatures features;
             features.c99Enabled = true;
             Client client(errors);
-            doc->control()->setDiagnosticClient(&client);
+            doc->control()->setDiagnosticClient(&client, true);
             doc->setUtf8Source(QTextStream(&file).readAll().toUtf8());
             doc->translationUnit()->setLanguageFeatures(features);
             doc->check();
-            doc->control()->setDiagnosticClient(0);
+            doc->control()->setDiagnosticClient(0, false);
         } else {
             qWarning() << "could not read file" << fileName;
         }

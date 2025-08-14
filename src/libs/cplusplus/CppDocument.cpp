@@ -259,7 +259,7 @@ Document::Document(const FilePath &filePath)
 {
     _control = new Control();
 
-    _control->setDiagnosticClient(new DocumentDiagnosticClient(this, &_diagnosticMessages));
+    _control->setDiagnosticClient(new DocumentDiagnosticClient(this, &_diagnosticMessages), true);
 
     const QByteArray localFileName = filePath.path().toUtf8();
     const StringLiteral *fileId = _control->stringLiteral(localFileName.constData(),

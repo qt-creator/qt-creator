@@ -574,8 +574,12 @@ TranslationUnit *Control::switchTranslationUnit(TranslationUnit *unit)
 DiagnosticClient *Control::diagnosticClient() const
 { return d->diagnosticClient; }
 
-void Control::setDiagnosticClient(DiagnosticClient *diagnosticClient)
-{ d->diagnosticClient = diagnosticClient; }
+void Control::setDiagnosticClient(DiagnosticClient *diagnosticClient, bool deleteExisting)
+{
+    if (deleteExisting)
+        delete d->diagnosticClient;
+    d->diagnosticClient = diagnosticClient;
+}
 
 const AnonymousNameId *Control::anonymousNameId(unsigned classTokenIndex)
 { return d->findOrInsertAnonymousNameId(classTokenIndex); }

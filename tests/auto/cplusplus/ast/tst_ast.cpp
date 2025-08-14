@@ -2082,7 +2082,7 @@ void tst_AST::placementNewWithEmptyConstructorArgs()
 
 void tst_AST::initTestCase()
 {
-    control.setDiagnosticClient(&diag);
+    control.setDiagnosticClient(&diag, true);
 }
 
 void tst_AST::cleanup()

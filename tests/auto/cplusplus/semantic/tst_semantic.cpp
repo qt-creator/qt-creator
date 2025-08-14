@@ -40,7 +40,7 @@ class tst_Semantic: public QObject
 public:
     tst_Semantic()
         : control(new Control)
-    { control->setDiagnosticClient(&diag); }
+    { control->setDiagnosticClient(&diag, true); }
 
     TranslationUnit *parse(const QByteArray &source,
                            TranslationUnit::ParseMode mode,

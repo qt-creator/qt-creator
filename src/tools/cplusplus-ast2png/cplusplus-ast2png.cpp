@@ -428,7 +428,7 @@ static Document::Ptr parse(const QString &fileName, const QByteArray &source,
             std::cout << "Parsing as " << qPrintable(parseModeToString(parseMode)) << "...";
 
         Document::Ptr doc = Document::create(Utils::FilePath::fromUserInput(fileName));
-        doc->control()->setDiagnosticClient(errorHandler);
+        doc->control()->setDiagnosticClient(errorHandler, true);
         doc->setUtf8Source(source);
         const bool parsed = doc->parse(parseMode);
         if (parsed && errorHandler->m_errorCount == 0) {

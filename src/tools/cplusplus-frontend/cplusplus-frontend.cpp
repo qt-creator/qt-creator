@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
         file.close();
 
         Document::Ptr doc = Document::create(Utils::FilePath::fromString(fileName));
-        doc->control()->setDiagnosticClient(0);
+        doc->control()->setDiagnosticClient(0, true);
         doc->setUtf8Source(source);
         doc->parse();
     }

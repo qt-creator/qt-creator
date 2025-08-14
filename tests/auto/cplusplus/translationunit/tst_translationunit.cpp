@@ -73,7 +73,7 @@ private:
         Document()
             : m_translationUnit(&m_control, m_control.stringLiteral("testFile"))
         {
-            m_control.setDiagnosticClient(&m_diagnosticClient);
+            m_control.setDiagnosticClient(&m_diagnosticClient, true);
         }
 
         TranslationUnit *translationUnit()

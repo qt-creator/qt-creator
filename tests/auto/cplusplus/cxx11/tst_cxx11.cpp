@@ -105,11 +105,11 @@ class tst_cxx11: public QObject
                                 LanguageFeatures languageFeatures, QByteArray *errors)
     {
         Client client(errors);
-        doc->control()->setDiagnosticClient(&client);
+        doc->control()->setDiagnosticClient(&client, true);
         doc->setUtf8Source(source);
         doc->translationUnit()->setLanguageFeatures(languageFeatures);
         doc->check();
-        doc->control()->setDiagnosticClient(0);
+        doc->control()->setDiagnosticClient(0, false);
     }
 
     Document::Ptr document(const QString &fileName, QByteArray *errors = 0, bool c99Enabled = false)
