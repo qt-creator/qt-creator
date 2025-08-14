@@ -7,8 +7,12 @@
 #include "qmllsclient.h"
 
 #include <utils/mimeconstants.h>
+#include <utils/networkaccessmanager.h>
+#include <utils/progressdialog.h>
 #include <utils/qtcsettings.h>
+#include <utils/unarchiver.h>
 
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <languageclient/languageclientinterface.h>
@@ -26,13 +30,23 @@
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 
+#include <tasking/networkquery.h>
+#include <tasking/tasktreerunner.h>
+
 #include <QCheckBox>
+#include <QJsonDocument>
+#include <QMessageBox>
+#include <QPushButton>
 #include <QRadioButton>
+#include <QStandardPaths>
+#include <QTimer>
 
 using namespace LanguageClient;
 using namespace QtSupport;
 using namespace Utils;
 using namespace ProjectExplorer;
+using namespace Qt::StringLiterals;
+using namespace Tasking;
 
 namespace QmlJSEditor {
 
@@ -63,6 +77,37 @@ static const QStringList &supportedMimeTypes()
            QMLTYPES_MIMETYPE,
            JS_MIMETYPE};
     return mimeTypes;
+}
+
+static FilePath downloadedQmllsPath()
+{
+    return FilePath::fromUserInput(
+               QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation))
+           / "standalone-qmlls";
+}
+
+static std::pair<FilePath, QVersionNumber> evaluateGithubQmlls()
+{
+    QVersionNumber lastVersion;
+    FilePath path = downloadedQmllsPath();
+    if (!path.exists())
+        return {};
+
+    path.iterateDirectory(
+        [&lastVersion](const FilePath &path) {
+            if (auto version = QVersionNumber::fromString(path.fileName());
+                !version.isNull() && version > lastVersion) {
+                lastVersion = version;
+            }
+            return IterationPolicy::Continue;
+        },
+        {{"*"}, QDir::Dirs | QDir::NoDotAndDotDot});
+    if (lastVersion.isNull())
+        return {};
+
+    path /= lastVersion.toString();
+    path /= "qmlls";
+    return {path.withExecutableSuffix(), lastVersion};
 }
 
 QmllsClientSettings::QmllsClientSettings()
@@ -110,17 +155,9 @@ static std::pair<FilePath, QVersionNumber> evaluateLatestQmlls()
     return std::make_pair(latestQmlls, latestVersion);
 }
 
-static QVersionNumber mapStandaloneVersions(const QVersionNumber &standaloneVersion)
-{
-    // standalone qmlls 0.2 supports the same command line arguments as qmlls 6.10
-    if (standaloneVersion >= QVersionNumber(0, 2)) {
-        return QVersionNumber(6, 10);
-    }
-    // fallback
-    return QVersionNumber(6, 9);
-}
-
-static std::pair<FilePath, QVersionNumber> evaluateOverridenQmlls()
+// Estimates the version of qmlls to avoid passing unknown options to qmlls in
+// commandLineForQmlls().
+static QVersionNumber estimateVersionOfOverridenQmlls()
 {
     if (!qmllsSettings()->m_executable.exists()) {
         Core::MessageManager::writeFlashing(
@@ -129,16 +166,17 @@ static std::pair<FilePath, QVersionNumber> evaluateOverridenQmlls()
         return {};
     }
     Process qmlls;
-    qmlls.setCommand({qmllsSettings()->m_executable, {"--version"}});
+    // qmlls versions < 6.9 don't have --version, so search their --help instead
+    qmlls.setCommand({qmllsSettings()->m_executable, {"--help"}});
     qmlls.start();
     qmlls.waitForFinished();
     if (qmlls.exitStatus() != QProcess::NormalExit || qmlls.exitCode() != EXIT_SUCCESS) {
         Core::MessageManager::writeFlashing(
-                    Tr::tr(
-                        "Custom qmlls executable \"%1\" exited abnormally and was disabled. Note that "
-                        "qmlls versions < 6.10 are not supported this way. The custom executable output "
-                        "was:\n %2")
-                    .arg(qmllsSettings()->m_executable.path(), qmlls.readAllStandardError()));
+            Tr::tr(
+                "Custom qmlls executable \"%1\" exited abnormally and was disabled. The custom "
+                "executable output "
+                "was:\n%2")
+                .arg(qmllsSettings()->m_executable.path(), qmlls.readAllStandardError()));
         return {};
     }
 
@@ -153,18 +191,14 @@ static std::pair<FilePath, QVersionNumber> evaluateOverridenQmlls()
         return {};
     }
 
-    const bool isStandaloneQmlls = output.contains("(standalone)");
-    const std::size_t versionBegin = isStandaloneQmlls
-            ? std::char_traits<char>::length("qmlls (standalone) ")
-            : std::char_traits<char>::length("qmlls ");
+    if (output.contains("-d"))
+        return QVersionNumber(6, 8, 1);
 
-    std::pair<FilePath, QVersionNumber> result{
-        qmllsSettings()->m_executable,
-        QVersionNumber::fromString(QStringView(output).sliced(versionBegin)),
-    };
-    if (isStandaloneQmlls)
-        result.second = mapStandaloneVersions(result.second);
-    return result;
+    if (output.contains("-I"))
+        return QVersionNumber(6, 8, 0);
+
+    // fallback
+    return QVersionNumber(6, 5, 0);
 }
 
 static std::pair<FilePath, QVersionNumber> evaluateQmlls(const QtVersion *qtVersion)
@@ -178,9 +212,9 @@ static std::pair<FilePath, QVersionNumber> evaluateQmlls(const QtVersion *qtVers
     case QmllsClientSettings::FromLatestQtKit:
         return evaluateLatestQmlls();
     case QmllsClientSettings::FromUser:
-        return evaluateOverridenQmlls();
+        return {qmllsSettings()->m_executable, estimateVersionOfOverridenQmlls()};
     }
-    Q_UNREACHABLE_RETURN({});
+    QTC_ASSERT(false, return {});
 }
 
 static CommandLine commandLineForQmlls(BuildConfiguration *bc)
@@ -237,7 +271,7 @@ bool QmllsClientSettings::isValidOnBuildConfiguration(BuildConfiguration *bc) co
 
     const auto &[filePath, version] = evaluateQmlls(qtVersion);
 
-    if (filePath.isEmpty())
+    if (filePath.isEmpty() || version.isNull())
         return false;
     if (!m_ignoreMinimumQmllsVersion && version < QmllsClientSettings::mininumQmllsVersion)
         return false;
@@ -295,6 +329,7 @@ private:
     QRadioButton *m_overrideExecutable;
 
     Utils::PathChooser *m_executable;
+    SingleTaskTreeRunner m_qmllsDownloader;
 };
 
 QWidget *QmllsClientSettings::createSettingsWidget(QWidget *parent) const
@@ -454,6 +489,186 @@ void setupQmllsClient()
     }
 }
 
+static QString githubQmllsMetadataUrl()
+{
+    return "https://qtccache.qt.io/QMLLS/LatestRelease";
+}
+
+static QString dialogTitle()
+{
+    return Tr::tr("Download standalone qmlls");
+}
+
+static GroupItem downloadGithubQmlls()
+{
+    struct StorageStruct
+    {
+        StorageStruct()
+        {
+            progressDialog.reset(
+                createProgressDialog(100, dialogTitle(), Tr::tr("Downloading standalone qmlls...")));
+        }
+
+        void logWarning(const QString &error)
+        {
+            progressDialog->close();
+            // note: QTimer::singleShot is needed here to avoid spawning QMessageBox::warning()'s nested eventloop during the TaskTree execution
+            QTimer::singleShot(0, Core::ICore::dialogParent(), [error] {
+                QMessageBox::warning(Core::ICore::dialogParent(), dialogTitle(), error);
+            });
+        };
+        void logInformation(const QString &info)
+        {
+            progressDialog->close();
+            // note: see comment above about need of QTimer::singleShot
+            QTimer::singleShot(0, Core::ICore::dialogParent(), [info] {
+                QMessageBox::information(Core::ICore::dialogParent(), dialogTitle(), info);
+            });
+        };
+        std::unique_ptr<QProgressDialog> progressDialog;
+        std::optional<FilePath> fileName;
+        std::optional<QString> downloadUrl;
+        FilePath downloadPath;
+        std::optional<QVersionNumber> latestVersion;
+    };
+
+    const Storage<StorageStruct> storage;
+
+    auto setupNetworkQuery = [storage](NetworkQuery *query) {
+        QObject::connect(
+            query,
+            &NetworkQuery::downloadProgress,
+            storage->progressDialog.get(),
+            [storage = storage.activeStorage()](qint64 received, qint64 max) {
+                storage->progressDialog->setRange(0, max);
+                storage->progressDialog->setValue(received);
+            });
+#if QT_CONFIG(ssl)
+        QObject::connect(
+            query,
+            &NetworkQuery::sslErrors,
+            storage->progressDialog.get(),
+            [query, storage = storage.activeStorage()](const QList<QSslError> &sslErrors) {
+                for (const QSslError &error : sslErrors)
+                    Core::MessageManager::writeDisrupting(
+                        Tr::tr("SSL error: %1\n").arg(error.errorString()));
+
+                storage->logWarning(Tr::tr("Encountered SSL errors, download is aborted."));
+                query->reply()->abort();
+            });
+#endif
+    };
+
+    const auto onMetadataQuerySetup = [storage, setupNetworkQuery](NetworkQuery &query) {
+        query.setRequest(QNetworkRequest(githubQmllsMetadataUrl()));
+        query.setNetworkAccessManager(NetworkAccessManager::instance());
+        setupNetworkQuery(&query);
+    };
+
+    const auto onMetadataQueryDone = [storage](const NetworkQuery &query, DoneWith result) {
+        if (result == DoneWith::Cancel)
+            return;
+
+        QNetworkReply *reply = query.reply();
+        QTC_ASSERT(reply, return);
+        const QUrl url = reply->url();
+        if (result != DoneWith::Success) {
+            storage->logWarning(
+                Tr::tr("Downloading from %1 failed: %2.").arg(url.toString(), reply->errorString()));
+            return;
+        }
+        QJsonDocument metadata = QJsonDocument::fromJson(reply->readAll());
+
+        if (metadata["tag_name"].isString())
+            storage->latestVersion = QVersionNumber::fromString(metadata["tag_name"].toString());
+
+        static constexpr QLatin1StringView name = HostOsInfo::isWindowsHost() ? "qmlls-windows"_L1
+                                                  : HostOsInfo::isMacHost()   ? "qmlls-macos"_L1
+                                                                              : "qmlls-ubuntu"_L1;
+        for (const auto asset : metadata[u"assets"].toArray()) {
+            const QString currentName = asset[u"name"].toString();
+            if (currentName.contains(name) && !currentName.contains("debug")) {
+                storage->downloadUrl = asset[u"browser_download_url"].toString();
+                break;
+            }
+        }
+    };
+
+    const auto onQuerySetup = [storage, setupNetworkQuery](NetworkQuery &query) {
+        if (!storage->latestVersion || !storage->downloadUrl)
+            return SetupResult::StopWithError;
+
+        if (auto [qmllsPath, lastVersion] = evaluateGithubQmlls();
+            storage->latestVersion <= lastVersion) {
+            storage->logWarning(
+                Tr::tr("Latest Standalone qmlls already exists at %1").arg(qmllsPath.path()));
+            return SetupResult::StopWithError;
+        }
+
+        const FilePath qmllsDirectory = downloadedQmllsPath() / storage->latestVersion->toString();
+        qmllsDirectory.createDir();
+        storage->downloadPath = qmllsDirectory / "archive.zip";
+
+        query.setRequest(QNetworkRequest(*storage->downloadUrl));
+        query.setNetworkAccessManager(NetworkAccessManager::instance());
+        setupNetworkQuery(&query);
+        return SetupResult::Continue;
+    };
+    const auto onQueryDone = [storage](const NetworkQuery &query, DoneWith result) {
+        if (result == DoneWith::Cancel)
+            return;
+
+        QNetworkReply *reply = query.reply();
+        QTC_ASSERT(reply, return);
+        const QUrl url = reply->url();
+        if (result != DoneWith::Success) {
+            storage->logWarning(
+                Tr::tr("Downloading from %1 failed: %2.").arg(url.toString(), reply->errorString()));
+            return;
+        }
+        if (const auto result = storage->downloadPath.writeFileContents(reply->readAll()); !result) {
+            storage->logWarning(
+                Tr::tr("Could not open \"%1\" for writing: %2.")
+                    .arg(storage->downloadPath.toUserOutput(), result.error()));
+        }
+    };
+
+    const auto onUnarchiveSetup = [storage](Unarchiver &task) {
+        storage->progressDialog->setRange(0, 0);
+        storage->progressDialog->setValue(0);
+        storage->progressDialog->setLabelText(Tr::tr("Unarchiving qmlls..."));
+        task.setArchive(storage->downloadPath);
+        task.setDestination(storage->downloadPath.parentDir());
+    };
+    const auto onUnarchiverDone = [storage](const Unarchiver &task) {
+        const Result<> unarchiveResult = task.result();
+
+        if (!unarchiveResult) {
+            storage->logWarning(Tr::tr("Unarchiving error: %1").arg(unarchiveResult.error()));
+            return;
+        }
+        const FilePath qmllsDirectory = storage->downloadPath.parentDir();
+        const FilePath expectedQmllsLocation = evaluateGithubQmlls().first;
+        if (!expectedQmllsLocation.exists() || expectedQmllsLocation.parentDir() != qmllsDirectory) {
+            storage->logWarning(
+                Tr::tr("Could not find qmlls from the extracted archive. Please open a bugreport."));
+            return;
+        }
+
+        storage->logInformation(
+            Tr::tr("Standalone qmlls succesfully downloaded in %1").arg(qmllsDirectory.path()));
+    };
+
+    // clang-format off
+    return Group {
+        storage,
+        NetworkQueryTask(onMetadataQuerySetup, onMetadataQueryDone),
+        NetworkQueryTask(onQuerySetup, onQueryDone),
+        UnarchiverTask(onUnarchiveSetup, onUnarchiverDone),
+    };
+    // clang-format on
+}
+
 QmllsClientSettingsWidget::QmllsClientSettingsWidget(
     const QmllsClientSettings *settings, QWidget *parent)
     : QWidget(parent)
@@ -491,11 +706,20 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
     m_executable->setFilePath(settings->m_executable);
     m_executable->setExpectedKind(Utils::PathChooser::File);
     m_executable->setEnabled(m_overrideExecutable->isChecked());
+    m_executable->setHistoryCompleter("Qmlls.Executable.History");
+    m_executable->addButton(Tr::tr("Download latest standalone qmlls"), this, [this] {
+        m_qmllsDownloader.start({downloadGithubQmlls()});
+    });
+
+    QObject::connect(&m_qmllsDownloader, &SingleTaskTreeRunner::done, this, [this] {
+        if (const Utils::FilePath path = evaluateGithubQmlls().first; !path.isEmpty())
+            m_executable->setFilePath(path);
+    });
 
     using namespace Layouting;
     // clang-format off
     auto form = Column {
-        Group {
+        Layouting::Group {
             title(Tr::tr("Options")),
             Form {
                 m_ignoreMinimumQmllsVersion, br,
@@ -504,12 +728,15 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
                 m_generateQmllsIniFiles, br,
             }
         },
-        Group {
+        Layouting::Group {
             title(Tr::tr("Executable selection for qmlls")),
             Column {
                 Row { m_useDefaultQmlls },
                 Row { m_useLatestQmlls },
-                Row { m_overrideExecutable, m_executable },
+                Row {
+                    Column { m_overrideExecutable },
+                    Column { m_executable },
+                },
             }
         },
     };
