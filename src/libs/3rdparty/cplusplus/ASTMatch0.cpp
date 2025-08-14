@@ -1307,3 +1307,10 @@ bool DesignatedInitializerAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool DeductionGuideAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (DeductionGuideAST *_other = pattern->asDeductionGuide())
+        return matcher->match(this, _other);
+
+    return false;
+}

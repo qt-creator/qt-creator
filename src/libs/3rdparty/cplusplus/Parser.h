@@ -144,6 +144,7 @@ public:
     bool parseTemplateArgumentList(ExpressionListAST *&node);
     bool parseTemplateDeclaration(DeclarationAST *&node);
     bool parseConceptDeclaration(DeclarationAST *&node);
+    bool parseDeductionGuide(DeclarationAST *&node);
     bool parsePlaceholderTypeSpecifier(PlaceholderTypeSpecifierAST *&node);
     bool parseTypeConstraint(TypeConstraintAST *&node);
     bool parseRequirement();
@@ -339,6 +340,17 @@ private:
 private:
     Parser(const Parser& source);
     void operator =(const Parser& source);
+
+    class Rewinder {
+    public:
+        Rewinder(Parser &p) : m_parser(p), m_savedCursor(p.cursor()) {}
+        ~Rewinder() { if (m_savedCursor != -1) m_parser.rewind(m_savedCursor); }
+        void invalidate() { m_savedCursor = -1; }
+
+    private:
+        Parser &m_parser;
+        int m_savedCursor;
+    };
 
     bool isNestedNamespace() const;
 };

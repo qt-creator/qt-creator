@@ -216,6 +216,36 @@ bool ASTMatcher::match(DecltypeSpecifierAST *node, DecltypeSpecifierAST *pattern
     return true;
 }
 
+bool ASTMatcher::match(DeductionGuideAST *node, DeductionGuideAST *pattern)
+{
+    pattern->explicit_token = node->explicit_token;
+    pattern->lparen_token = node->lparen_token;
+    pattern->rparen_token = node->rparen_token;
+    pattern->arrow_token = node->arrow_token;
+
+    if (!pattern->template_name)
+        pattern->template_name = node->template_name;
+    else if (!AST::match(node->template_name, pattern->template_name, this))
+        return false;
+
+    if (!pattern->parameter_list)
+        pattern->parameter_list = node->parameter_list;
+    else if (!AST::match(node->parameter_list, pattern->parameter_list, this))
+        return false;
+
+    if (!pattern->template_id)
+        pattern->template_id = node->template_id;
+    else if (!AST::match(node->template_id, pattern->template_id, this))
+        return false;
+
+    if (!pattern->requires_clause)
+        pattern->requires_clause = node->requires_clause;
+    else if (!AST::match(node->requires_clause, pattern->requires_clause, this))
+        return false;
+
+    return true;
+}
+
 bool ASTMatcher::match(TypeConstraintAST *node, TypeConstraintAST *pattern)
 {
     if (!pattern->conceptName)

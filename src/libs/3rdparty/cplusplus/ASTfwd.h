@@ -69,6 +69,7 @@ class DeclaratorAST;
 class DeclaratorIdAST;
 class DecompositionDeclaratorAST;
 class DecltypeSpecifierAST;
+class DeductionGuideAST;
 class DeleteExpressionAST;
 class DesignatedInitializerAST;
 class DesignatorAST;

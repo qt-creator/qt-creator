@@ -213,6 +213,7 @@ public:
     virtual DeclaratorIdAST *asDeclaratorId() { return nullptr; }
     virtual DecompositionDeclaratorAST *asDecompositionDeclarator() { return nullptr; }
     virtual DecltypeSpecifierAST *asDecltypeSpecifier() { return nullptr; }
+    virtual DeductionGuideAST *asDeductionGuide() { return nullptr; }
     virtual DeleteExpressionAST *asDeleteExpression() { return nullptr; }
     virtual DesignatedInitializerAST *asDesignatedInitializer() { return nullptr; }
     virtual DesignatorAST *asDesignator() { return nullptr; }
@@ -1679,6 +1680,31 @@ public:
     int lastToken() const override;
 
     FunctionDefinitionAST *clone(MemoryPool *pool) const override;
+
+protected:
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
+};
+
+class CPLUSPLUS_EXPORT DeductionGuideAST: public DeclarationAST
+{
+public:
+    int explicit_token = 0; // FIXME: Introduce ExplicitSpecifierAST
+    NameAST *template_name = nullptr;
+    int lparen_token = 0;
+    ParameterDeclarationListAST *parameter_list = nullptr;
+    int rparen_token = 0;
+    int arrow_token = 0;
+    TemplateIdAST *template_id = nullptr;
+    RequiresClauseAST *requires_clause = nullptr;
+    int semicolon_token = 0;
+
+    DeductionGuideAST *asDeductionGuide() override { return this; }
+
+    int firstToken() const override;
+    int lastToken() const override;
+
+    DeductionGuideAST *clone(MemoryPool *pool) const override;
 
 protected:
     void accept0(ASTVisitor *visitor) override;

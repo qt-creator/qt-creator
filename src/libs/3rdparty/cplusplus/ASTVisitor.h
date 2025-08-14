@@ -109,6 +109,7 @@ public:
     virtual bool visit(DeclaratorIdAST *) { return true; }
     virtual bool visit(DecompositionDeclaratorAST *) { return true; }
     virtual bool visit(DecltypeSpecifierAST *) { return true; }
+    virtual bool visit(DeductionGuideAST *) { return true; }
     virtual bool visit(DeleteExpressionAST *) { return true; }
     virtual bool visit(DesignatedInitializerAST *) { return true; }
     virtual bool visit(DestructorNameAST *) { return true; }
@@ -270,6 +271,7 @@ public:
     virtual void endVisit(DeclaratorIdAST *) {}
     virtual void endVisit(DecompositionDeclaratorAST *) {}
     virtual void endVisit(DecltypeSpecifierAST *) {}
+    virtual void endVisit(DeductionGuideAST *) {}
     virtual void endVisit(DeleteExpressionAST *) {}
     virtual void endVisit(DesignatedInitializerAST *) {}
     virtual void endVisit(DestructorNameAST *) {}

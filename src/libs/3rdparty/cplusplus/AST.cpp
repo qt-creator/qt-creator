@@ -4700,3 +4700,21 @@ int PlaceholderTypeSpecifierAST::lastToken() const
         return rparenToken + 1;
     return autoToken + 1;
 }
+
+int DeductionGuideAST::firstToken() const
+{
+    if (explicit_token)
+        return explicit_token;
+    if (template_name)
+        return template_name->firstToken();
+    CPP_ASSERT(false, return 0);
+}
+
+int DeductionGuideAST::lastToken() const
+{
+    if (requires_clause)
+        return requires_clause->lastToken();
+    CPP_ASSERT(template_id, return 0);
+    return template_id->lastToken();
+}
+

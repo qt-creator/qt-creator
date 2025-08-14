@@ -711,7 +711,6 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
     case T_ASM:
         return parseAsmDefinition(node);
 
-
     case T_TEMPLATE:
     case T_EXPORT:
         return parseTemplateDeclaration(node);
@@ -789,10 +788,11 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
 
         if (LA() == T_EXTERN && LA(2) == T_TEMPLATE)
             return parseTemplateDeclaration(node);
-        else if (LA() == T_EXTERN && LA(2) == T_STRING_LITERAL)
+        if (LA() == T_EXTERN && LA(2) == T_STRING_LITERAL)
             return parseLinkageSpecification(node);
-        else
-            return parseSimpleDeclaration(node);
+        if (parseDeductionGuide(node))
+            return true;
+        return parseSimpleDeclaration(node);
     }   break; // default
 
     } // end switch
@@ -1292,6 +1292,53 @@ bool Parser::parseConceptDeclaration(DeclarationAST *&node)
     if (LA() != T_SEMICOLON)
         return false;
     ast->semicolon_token = consumeToken();
+    node = ast;
+    return true;
+}
+
+bool Parser::parseDeductionGuide(DeclarationAST *&node)
+{
+    if (!_languageFeatures.cxx17Enabled)
+        return false;
+    Rewinder rewinder(*this);
+    int explicitTok = 0;
+    if (LA() == T_EXPLICIT)
+        explicitTok = consumeToken();
+    NameAST *templName = nullptr;
+    if (!parseName(templName))
+        return false;
+    if (LA() != T_LPAREN)
+        return false;
+    const int lparen = consumeToken();
+    ParameterDeclarationListAST *params = nullptr;
+    if (!parseParameterDeclarationList(params))
+        return false;
+    if (LA() != T_RPAREN)
+        return false;
+    const int rparen = consumeToken();
+    if (LA() != T_ARROW)
+        return false;
+    const int arrow = consumeToken();
+    NameAST *templateId = nullptr;
+    if (!parseTemplateId(templateId))
+        return false;
+    RequiresClauseAST *requires_clause = nullptr;
+    parseRequiresClauseOpt(requires_clause);
+    if (LA() != T_SEMICOLON)
+        return false;
+
+    const auto ast = new (_pool) DeductionGuideAST;
+    ast->explicit_token = explicitTok;
+    ast->template_name = templName;
+    ast->lparen_token = lparen;
+    ast->parameter_list = params;
+    ast->rparen_token = rparen;
+    ast->arrow_token = arrow;
+    ast->template_id = templateId->asTemplateId();
+    ast->requires_clause = requires_clause;
+    ast->semicolon_token = consumeToken();
+
+    rewinder.invalidate();
     node = ast;
     return true;
 }

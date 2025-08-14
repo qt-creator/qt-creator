@@ -1951,3 +1951,20 @@ DecompositionDeclaratorAST *DecompositionDeclaratorAST::clone(MemoryPool *pool) 
         *ast_iter = new (pool) NameListAST((iter->value) ? iter->value->clone(pool) : nullptr);
     return theClone;
 }
+
+DeductionGuideAST *DeductionGuideAST::clone(MemoryPool *pool) const
+{
+    const auto theClone = new (pool) DeductionGuideAST;
+    theClone->explicit_token = explicit_token;
+    theClone->template_name = template_name->clone(pool);
+    theClone->lparen_token = lparen_token;
+    for (ParameterDeclarationListAST *it = parameter_list, **cloneIt = &theClone->parameter_list;
+         it; it = it->next, cloneIt = &(*cloneIt)->next)
+        *cloneIt = new (pool) ParameterDeclarationListAST((it->value) ? it->value->clone(pool) : nullptr);
+    theClone->rparen_token = rparen_token;
+    theClone->arrow_token = arrow_token;
+    theClone->template_id = template_id->clone(pool);
+    if (requires_clause)
+        theClone->requires_clause = requires_clause->clone(pool);
+    return theClone;
+}

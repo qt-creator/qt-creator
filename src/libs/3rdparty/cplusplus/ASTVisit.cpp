@@ -1406,3 +1406,13 @@ void DesignatedInitializerAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void DeductionGuideAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(template_name, visitor);
+        accept(parameter_list, visitor);
+        accept(template_id, visitor);
+        accept(requires_clause, visitor);
+    }
+    visitor->endVisit(this);
+}

@@ -646,6 +646,45 @@ public:
     constexpr const _Tp &&operator*() const && noexcept { return std::move(_M_value); }
     constexpr _Tp *operator->() noexcept { return std::__addressof(_M_value); }
     constexpr const _Tp *operator->() const noexcept { return std::__addressof(_M_value); }
+template<copy_constructible _Tp>
+    requires is_object_v<_Tp>
+class single_view : public view_interface<single_view<_Tp>>
+{
+public:
+    single_view()
+        requires default_initializable<_Tp>
+    = default;
+
+    constexpr explicit single_view(const _Tp &__t) noexcept(is_nothrow_copy_constructible_v<_Tp>)
+        requires copy_constructible<_Tp>
+        : _M_value(__t)
+    {}
+
+    constexpr explicit single_view(_Tp &&__t) noexcept(is_nothrow_move_constructible_v<_Tp>)
+        : _M_value(std::move(__t))
+    {}
+
+    template<typename... _Args>
+        requires constructible_from<_Tp, _Args...>
+    constexpr explicit single_view(in_place_t, _Args &&...__args) noexcept(
+        is_nothrow_constructible_v<_Tp, _Args...>)
+        : _M_value{in_place, std::forward<_Args>(__args)...}
+    {}
+
+    constexpr _Tp *begin() noexcept { return data(); }
+    constexpr const _Tp *begin() const noexcept { return data(); }
+    constexpr _Tp *end() noexcept { return data() + 1; }
+    constexpr const _Tp *end() const noexcept { return data() + 1; }
+    static constexpr bool empty() noexcept { return false; }
+    static constexpr size_t size() noexcept { return 1; }
+    constexpr _Tp *data() noexcept { return _M_value.operator->(); }
+    constexpr const _Tp *data() const noexcept { return _M_value.operator->(); }
+private:
+    [[no_unique_address]] __detail::__box<_Tp> _M_value;
+};
+
+template<typename _Tp>
+single_view(_Tp) -> single_view<_Tp>;
 };
 )";
     QByteArray errors;
