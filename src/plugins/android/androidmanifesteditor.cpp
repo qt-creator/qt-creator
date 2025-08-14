@@ -1996,7 +1996,7 @@ AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editor
     m_actionGroup->addAction(sourceAction);
     sourceAction->setChecked(true);
 
-    QAction *generalAction = m_toolBar->addAction(Tr::tr("General"));
+    QAction *generalAction = m_toolBar->addAction(Tr::tr("Graphical Editor"));
     generalAction->setData(AndroidManifestEditorWidget::General);
     generalAction->setCheckable(true);
     m_actionGroup->addAction(generalAction);
