@@ -21,11 +21,13 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <QtWidgets/qcheckbox.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
+
+#include <QCheckBox>
+#include <QRadioButton>
 
 using namespace LanguageClient;
 using namespace QtSupport;
@@ -35,11 +37,11 @@ using namespace ProjectExplorer;
 namespace QmlJSEditor {
 
 constexpr char useLatestQmllsKey[] = "useLatestQmlls";
+constexpr char executableSelectionKey[] = "executableSelection";
 constexpr char disableBuiltinCodemodelKey[] = "disableBuiltinCodemodel";
 constexpr char generateQmllsIniFilesKey[] = "generateQmllsIniFiles";
 constexpr char ignoreMinimumQmllsVersionKey[] = "ignoreMinimumQmllsVersion";
 constexpr char useQmllsSemanticHighlightingKey[] = "enableQmllsSemanticHighlighting";
-constexpr char overrideExecutableKey[] = "overrideExecutable";
 constexpr char executableKey[] = "executable";
 
 QmllsClientSettings *qmllsSettings()
@@ -164,15 +166,18 @@ static std::pair<FilePath, QVersionNumber> evaluateOverridenQmlls()
 
 static std::pair<FilePath, QVersionNumber> evaluateQmlls(const QtVersion *qtVersion)
 {
-    if (qmllsSettings()->m_overrideExecutable)
+    switch (qmllsSettings()->m_executableSelection) {
+    case QmllsClientSettings::FromQtKit:
+        return std::make_pair(
+            QmlJS::ModelManagerInterface::qmllsForBinPath(
+                qtVersion->hostBinPath(), qtVersion->qtVersion()),
+            qtVersion->qtVersion());
+    case QmllsClientSettings::FromLatestQtKit:
+        return evaluateLatestQmlls();
+    case QmllsClientSettings::FromUser:
         return evaluateOverridenQmlls();
-
-    return qmllsSettings()->m_useLatestQmlls
-               ? evaluateLatestQmlls()
-               : std::make_pair(
-                     QmlJS::ModelManagerInterface::qmllsForBinPath(
-                         qtVersion->hostBinPath(), qtVersion->qtVersion()),
-                     qtVersion->qtVersion());
+    }
+    Q_UNREACHABLE_RETURN({});
 }
 
 static CommandLine commandLineForQmlls(BuildConfiguration *bc)
@@ -274,20 +279,36 @@ public:
     bool useQmllsSemanticHighlighting() const;
     bool overrideExecutable() const;
     Utils::FilePath executable() const;
+    QmllsClientSettings::ExecutableSelection executableSelection() const;
 
 private:
-    QCheckBox *m_useLatestQmlls;
     QCheckBox *m_disableBuiltinCodemodel;
     QCheckBox *m_generateQmllsIniFiles;
     QCheckBox *m_ignoreMinimumQmllsVersion;
     QCheckBox *m_useQmllsSemanticHighlighting;
-    QCheckBox *m_overrideExecutable;
+
+    QRadioButton *m_useDefaultQmlls;
+    QRadioButton *m_useLatestQmlls;
+    QRadioButton *m_overrideExecutable;
+
     Utils::PathChooser *m_executable;
 };
 
 QWidget *QmllsClientSettings::createSettingsWidget(QWidget *parent) const
 {
     return new QmllsClientSettingsWidget(this, parent);
+}
+
+QmllsClientSettings::ExecutableSelection QmllsClientSettingsWidget::executableSelection() const
+{
+    if (m_useDefaultQmlls->isChecked())
+        return QmllsClientSettings::FromQtKit;
+    if (m_useLatestQmlls->isChecked())
+        return QmllsClientSettings::FromLatestQtKit;
+    if (m_overrideExecutable->isChecked())
+        return QmllsClientSettings::FromUser;
+
+    QTC_ASSERT(false, return QmllsClientSettings::FromQtKit);
 }
 
 bool QmllsClientSettings::applyFromSettingsWidget(QWidget *widget)
@@ -298,8 +319,8 @@ bool QmllsClientSettings::applyFromSettingsWidget(QWidget *widget)
     if (!qmllsWidget)
         return changed;
 
-    if (m_useLatestQmlls != qmllsWidget->useLatestQmlls()) {
-        m_useLatestQmlls = qmllsWidget->useLatestQmlls();
+    if (m_executableSelection != qmllsWidget->executableSelection()) {
+        m_executableSelection = qmllsWidget->executableSelection();
         changed = true;
     }
 
@@ -323,11 +344,6 @@ bool QmllsClientSettings::applyFromSettingsWidget(QWidget *widget)
         changed = true;
     }
 
-    if (m_overrideExecutable != qmllsWidget->overrideExecutable()) {
-        m_overrideExecutable = qmllsWidget->overrideExecutable();
-        changed = true;
-    }
-
     if (m_executable != qmllsWidget->executable()) {
         m_executable = qmllsWidget->executable();
         changed = true;
@@ -340,12 +356,11 @@ void QmllsClientSettings::toMap(Store &map) const
 {
     BaseSettings::toMap(map);
 
-    map.insert(useLatestQmllsKey, m_useLatestQmlls);
+    map.insert(executableSelectionKey, static_cast<int>(m_executableSelection));
     map.insert(disableBuiltinCodemodelKey, m_disableBuiltinCodemodel);
     map.insert(generateQmllsIniFilesKey, m_generateQmllsIniFiles);
     map.insert(ignoreMinimumQmllsVersionKey, m_ignoreMinimumQmllsVersion);
     map.insert(useQmllsSemanticHighlightingKey, m_useQmllsSemanticHighlighting);
-    map.insert(overrideExecutableKey, m_overrideExecutable);
     map.insert(executableKey, m_executable.toSettings());
 }
 
@@ -354,12 +369,19 @@ void QmllsClientSettings::fromMap(const Store &map)
     BaseSettings::fromMap(map);
     m_languageFilter.mimeTypes = supportedMimeTypes();
 
-    m_useLatestQmlls = map[useLatestQmllsKey].toBool();
+    // port from previous settings
+    if (map.contains(useLatestQmllsKey))
+        m_executableSelection = map[useLatestQmllsKey].toBool() ? FromLatestQtKit : FromQtKit;
+
+    // don't overwrite ported settings if the new key is not in use yet.
+    if (map.contains(executableSelectionKey))
+        m_executableSelection = static_cast<ExecutableSelection>(
+            map[executableSelectionKey].toInt());
+
     m_disableBuiltinCodemodel = map[disableBuiltinCodemodelKey].toBool();
     m_generateQmllsIniFiles = map[generateQmllsIniFilesKey].toBool();
     m_ignoreMinimumQmllsVersion = map[ignoreMinimumQmllsVersionKey].toBool();
     m_useQmllsSemanticHighlighting = map[useQmllsSemanticHighlightingKey].toBool();
-    m_overrideExecutable = map[overrideExecutableKey].toBool();
     m_executable = Utils::FilePath::fromSettings(map[executableKey]);
 }
 
@@ -400,7 +422,8 @@ static void portFromOldSettings(QmllsClientSettings* qmllsClientSettings)
         = "QmlJSEditor.EnableQmllsSemanticHighlighting";
 
     portSetting(baseKey + USE_QMLLS, &qmllsClientSettings->m_enabled);
-    portSetting(baseKey + USE_LATEST_QMLLS, &qmllsClientSettings->m_useLatestQmlls);
+    if (settings->contains(baseKey + USE_LATEST_QMLLS))
+        qmllsClientSettings->m_executableSelection = QmllsClientSettings::FromLatestQtKit;
     portSetting(baseKey + DISABLE_BUILTIN_CODEMODEL, &qmllsClientSettings->m_disableBuiltinCodemodel);
     portSetting(baseKey + GENERATE_QMLLS_INI_FILES, &qmllsClientSettings->m_generateQmllsIniFiles);
     portSetting(baseKey + IGNORE_MINIMUM_QMLLS_VERSION, &qmllsClientSettings->m_ignoreMinimumQmllsVersion);
@@ -431,7 +454,6 @@ void setupQmllsClient()
 QmllsClientSettingsWidget::QmllsClientSettingsWidget(
     const QmllsClientSettings *settings, QWidget *parent)
     : QWidget(parent)
-    , m_useLatestQmlls(new QCheckBox(Tr::tr("Use from latest Qt version"), this))
     , m_disableBuiltinCodemodel(new QCheckBox(
           Tr::tr("Use advanced features (renaming, find usages, and so on) (experimental)"), this))
     , m_generateQmllsIniFiles(
@@ -442,10 +464,20 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
           this))
     , m_useQmllsSemanticHighlighting(
           new QCheckBox(Tr::tr("Enable semantic highlighting (experimental)"), this))
-    , m_overrideExecutable(new QCheckBox(Tr::tr("Override qmlls executable:"), this))
+    , m_useDefaultQmlls(new QRadioButton(Tr::tr("Use qmlls from project Qt kit"), this))
+    , m_useLatestQmlls(new QRadioButton(
+          Tr::tr("Use qmlls from latest Qt kit (located at %1)")
+              .arg(evaluateLatestQmlls().first.path()),
+          this))
+    , m_overrideExecutable(new QRadioButton(Tr::tr("Use custom qmlls executable:"), this))
     , m_executable(new Utils::PathChooser(this))
 {
-    m_useLatestQmlls->setChecked(settings->m_useLatestQmlls);
+    m_useDefaultQmlls->setChecked(settings->m_executableSelection == QmllsClientSettings::FromQtKit);
+    m_useLatestQmlls->setChecked(
+        settings->m_executableSelection == QmllsClientSettings::FromLatestQtKit);
+    m_overrideExecutable->setChecked(
+        settings->m_executableSelection == QmllsClientSettings::FromUser);
+
     m_disableBuiltinCodemodel->setChecked(settings->m_disableBuiltinCodemodel);
     m_generateQmllsIniFiles->setChecked(settings->m_generateQmllsIniFiles);
     m_ignoreMinimumQmllsVersion->setChecked(settings->m_ignoreMinimumQmllsVersion);
@@ -454,28 +486,29 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
     QObject::connect(m_overrideExecutable, &QCheckBox::toggled, m_executable, [this](bool checked) {
         m_executable->setEnabled(checked);
     });
-    m_overrideExecutable->setChecked(settings->m_overrideExecutable);
 
     m_executable->setFilePath(settings->m_executable);
     m_executable->setExpectedKind(Utils::PathChooser::File);
-    m_executable->setEnabled(settings->m_overrideExecutable);
+    m_executable->setEnabled(m_overrideExecutable->isChecked());
 
     using namespace Layouting;
     // clang-format off
     auto form = Column {
         Group {
+            title(Tr::tr("Options")),
             Form {
                 m_ignoreMinimumQmllsVersion, br,
                 m_disableBuiltinCodemodel, br,
                 m_useQmllsSemanticHighlighting, br,
-                m_useLatestQmlls, br,
                 m_generateQmllsIniFiles, br,
             }
         },
         Group {
+            title(Tr::tr("Executable selection for qmlls")),
             Column {
-                Row { m_overrideExecutable },
-                Row { m_executable }
+                Row { m_useDefaultQmlls },
+                Row { m_useLatestQmlls },
+                Row { m_overrideExecutable, m_executable },
             }
         },
     };

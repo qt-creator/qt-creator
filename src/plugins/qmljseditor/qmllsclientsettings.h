@@ -13,6 +13,7 @@ namespace QmlJSEditor {
 class QmllsClientSettings : public LanguageClient::BaseSettings
 {
 public:
+    enum ExecutableSelection { FromQtKit, FromLatestQtKit, FromUser };
     static const inline QVersionNumber mininumQmllsVersion = QVersionNumber(6, 8);
 
     QmllsClientSettings();
@@ -31,12 +32,12 @@ public:
     bool useQmllsWithBuiltinCodemodelOnProject(ProjectExplorer::Project *project,
                                                const Utils::FilePath &file) const;
 
+    ExecutableSelection m_executableSelection = FromQtKit;
     bool m_useLatestQmlls = false;
     bool m_ignoreMinimumQmllsVersion = false;
     bool m_useQmllsSemanticHighlighting = false;
     bool m_disableBuiltinCodemodel = false;
     bool m_generateQmllsIniFiles = false;
-    bool m_overrideExecutable = {};
     Utils::FilePath m_executable = {};
 
 protected:
