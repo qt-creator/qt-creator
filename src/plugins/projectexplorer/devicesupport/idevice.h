@@ -9,7 +9,6 @@
 #include <solutions/tasking/tasktree.h>
 
 #include <utils/aspects.h>
-#include <utils/fancylineedit.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/id.h>
@@ -73,21 +72,26 @@ public:
 
     DeviceToolAspect *createAspect() const;
 
+    static void autoDetectAll(const IDevicePtr &device, const Utils::FilePaths &searchPaths);
+
 protected:
+    using Checker = std::function<Utils::Result<>(const Utils::FilePath &)>;
     void setToolId(const Utils::Id &toolId);
     void setFilePattern(const QStringList &filePattern);
     void setLabelText(const QString &labelText);
     void setToolTip(const QString &toolTip);
     void setVariablePrefix(const QByteArray &variablePrefix);
-    void setValidationFunction(const Utils::FancyLineEdit::ValidationFunction &validationFunction);
+    void setChecker(const Checker &checker);
 
 private:
+    void autoDetect(const IDevicePtr &device, const Utils::FilePaths &searchPaths);
+
     Utils::Id m_toolId;
     QString m_labelText;
     QString m_toolTip;
     QStringList m_filePattern;
     QByteArray m_variablePrefix;
-    Utils::FancyLineEdit::ValidationFunction m_validationFunction;
+    Checker m_checker;
 };
 
 class PROJECTEXPLORER_EXPORT DeviceProcessSignalOperation : public QObject

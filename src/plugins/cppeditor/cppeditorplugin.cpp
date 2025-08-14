@@ -158,15 +158,7 @@ public:
         setToolId(Constants::CLANGD_TOOL_ID);
         setFilePattern({"clangd"});
         setLabelText(Tr::tr("Clangd executable:"));
-        setValidationFunction([](const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
-            return asyncRun([newValue]() -> Result<QString> {
-                FilePath path = FilePath::fromUserInput(newValue);
-                Result<> result = checkClangdVersion(path);
-                if (!result)
-                    return result.error();
-                return newValue;
-            });
-        });
+        setChecker(&checkClangdVersion);
     }
 };
 

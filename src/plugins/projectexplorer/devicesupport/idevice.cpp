@@ -13,6 +13,7 @@
 #include "../projectexplorertr.h"
 #include "../target.h"
 
+#include <utils/async.h>
 #include <utils/commandline.h>
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
@@ -174,6 +175,28 @@ Id DeviceToolAspectFactory::toolId() const
     return m_toolId;
 }
 
+void DeviceToolAspectFactory::autoDetectAll(const IDevicePtr &device, const FilePaths &searchPaths)
+{
+    for (DeviceToolAspectFactory *factory : theDeviceToolFactories)
+        factory->autoDetect(device, searchPaths);
+}
+
+void DeviceToolAspectFactory::autoDetect(const IDevicePtr &device, const FilePaths &searchPaths)
+{
+    FilePaths toolPaths;
+
+    for (const QString &filePattern : m_filePattern)
+        toolPaths.append(device->filePath(filePattern).searchAllInPath(searchPaths, FilePath::AppendToPath));
+
+    // FIXME: Make all values available somehow.
+    for (const FilePath &toolPath : std::as_const(toolPaths)) {
+        if (!m_checker || m_checker(toolPath)) {
+            device->setDeviceToolPath(m_toolId, toolPath);
+            break;
+        }
+    }
+}
+
 DeviceToolAspect *DeviceToolAspectFactory::createAspect() const
 {
     auto toolAspect = new DeviceToolAspect;
@@ -182,7 +205,16 @@ DeviceToolAspect *DeviceToolAspectFactory::createAspect() const
     toolAspect->setToolTip(m_toolTip);
     toolAspect->setPlaceHolderText(Tr::tr("Leave empty to look up executable in $PATH"));
     toolAspect->setHistoryCompleter(m_toolId.name());
-    toolAspect->setValidationFunction(m_validationFunction);
+    toolAspect->setValidationFunction(
+        [checker = m_checker](const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
+            return asyncRun([checker, newValue]() -> Result<QString> {
+                if (!checker)
+                    return newValue;
+                FilePath path = FilePath::fromUserInput(newValue);
+                Result<> result = checker(path);
+                return result ? newValue : result.error();
+            });
+        });
     toolAspect->setAllowPathFromDevice(true);
     toolAspect->setExpectedKind(PathChooser::ExistingCommand);
     return toolAspect;
@@ -208,10 +240,9 @@ void DeviceToolAspectFactory::setVariablePrefix(const QByteArray &variablePrefix
     m_variablePrefix = variablePrefix;
 }
 
-void DeviceToolAspectFactory::setValidationFunction(
-    const FancyLineEdit::ValidationFunction &validationFunction)
+void DeviceToolAspectFactory::setChecker(const Checker &checker)
 {
-    m_validationFunction = validationFunction;
+    m_checker = checker;
 }
 
 void DeviceToolAspectFactory::setFilePattern(const QStringList &filePattern)
