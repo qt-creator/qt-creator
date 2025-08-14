@@ -1875,6 +1875,16 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
             ast->attribute_list = attributes;
             ast->ptr_operator_list = ptr_operators;
             ast->core_declarator = declarator_id;
+            SpecifierListAST *additionalAttributes = nullptr;
+            parseOptionalAttributeSpecifierSequence(additionalAttributes);
+            if (!ast->attribute_list) {
+                ast->attribute_list = additionalAttributes;
+            } else {
+                SpecifierListAST *prev = ast->attribute_list;
+                for (SpecifierListAST *l = ast->attribute_list; l; l = l->next)
+                    prev = l;
+                prev->next = additionalAttributes;
+            }
             node = ast;
             return true;
         }

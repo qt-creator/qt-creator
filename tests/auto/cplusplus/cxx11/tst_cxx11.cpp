@@ -188,6 +188,7 @@ void tst_cxx11::parse_data()
     QTest::newRow("userDefinedLiterals.2") << "userDefinedLiterals.2.cpp" << "";
     QTest::newRow("rawstringliterals") << "rawstringliterals.cpp" << "";
     QTest::newRow("friends") << "friends.cpp" << "";
+    QTest::newRow("attributes") << "attributes.cpp" << "";
 }
 
 void tst_cxx11::parse()
