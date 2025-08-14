@@ -27,6 +27,8 @@
 #include <projectexplorer/devicesupport/sshsettings.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <tasking/tasktreerunner.h>
+
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/devicefileaccess.h>
@@ -65,7 +67,9 @@
 #include <QRegularExpression>
 #include <QSpacerItem>
 #include <QSpinBox>
+#include <QStackedWidget>
 #include <QTemporaryDir>
+#include <QTextBrowser>
 #include <QThread>
 #include <QTimer>
 
@@ -289,6 +293,8 @@ public:
 private:
     void createNewKey();
     void updateDeviceFromUi() override {}
+
+    Tasking::SingleTaskTreeRunner m_detectionRunner;
 };
 
 LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
@@ -314,9 +320,72 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
 
     updatePortWarningLabel();
 
-    // clang-format off
     connect(&device->freePortsAspect, &PortListAspect::volatileValueChanged, this, updatePortWarningLabel);
 
+    auto searchDirsComboBox = new QComboBox;
+    searchDirsComboBox->addItem(Tr::tr("Search in PATH"));
+    searchDirsComboBox->addItem(Tr::tr("Search in Selected Directories"));
+    searchDirsComboBox->addItem(Tr::tr("Search in PATH and Selected Directories"));
+
+    auto searchDirsLineEdit = new FancyLineEdit;
+    auto searchDirsDummy = new QLabel;
+    auto searchDirsStack = new QStackedWidget;
+    searchDirsStack->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+    searchDirsStack->addWidget(searchDirsLineEdit);
+    searchDirsStack->addWidget(searchDirsDummy);
+
+    searchDirsLineEdit->setPlaceholderText(Tr::tr("Semicolon-separated list of directories"));
+    searchDirsLineEdit->setToolTip(
+        Tr::tr("Select the paths on the device that should be scanned for binaries."));
+    searchDirsLineEdit->setHistoryCompleter("Directories", true);
+
+    auto searchPaths = [searchDirsComboBox, searchDirsLineEdit, device] {
+        FilePaths paths;
+        const int idx = searchDirsComboBox->currentIndex();
+        if (idx == 0 || idx == 2)
+            paths += device->systemEnvironment().path();
+        if (idx == 1 || idx == 2) {
+            for (const QString &path : searchDirsLineEdit->text().split(';'))
+                paths.append(FilePath::fromString(path.trimmed()));
+        }
+        paths = Utils::transform(paths, [device](const FilePath &path) {
+            return device->filePath(path.path());
+        });
+        return paths;
+    };
+
+    auto autoDetectButton = new QPushButton(Tr::tr("Auto-detect Tools on Device"));
+
+    connect(&m_detectionRunner, &Tasking::SingleTaskTreeRunner::aboutToStart, [=] {
+        autoDetectButton->setEnabled(false);
+    });
+    connect(&m_detectionRunner, &Tasking::SingleTaskTreeRunner::done, [=] {
+        autoDetectButton->setEnabled(true);
+    });
+
+    connect(autoDetectButton,
+            &QPushButton::clicked,
+            this,
+            [linuxDevice, searchPaths] {
+                linuxDevice->tryToConnect({linuxDevice.get(), [linuxDevice, searchPaths](const Result<> &res) {
+                    if (res)
+                        DeviceToolAspectFactory::autoDetectAll(linuxDevice, searchPaths());
+                }});
+            });
+
+
+    searchDirsStack->setCurrentWidget(searchDirsDummy);
+    auto updateDirectoriesLineEdit = [searchDirsStack, searchDirsLineEdit, searchDirsDummy](int index) {
+        if (index == 0) {
+            searchDirsStack->setCurrentWidget(searchDirsDummy);
+        } else {
+            searchDirsStack->setCurrentWidget(searchDirsLineEdit);
+            searchDirsLineEdit->setFocus();
+        }
+    };
+    QObject::connect(searchDirsComboBox, &QComboBox::activated, this, updateDirectoriesLineEdit);
+
+    // clang-format off
     Form {
         Tr::tr("Machine type:"), machineType, st, br,
         device->sshParametersAspectContainer().host, device->sshParametersAspectContainer().port,
@@ -327,9 +396,11 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
         device->sshParametersAspectContainer().privateKeyFile, createKeyButton, br,
         linuxDevice->autoConnectOnStartup, br,
         linuxDevice->sourceProfile, br,
-        device->deviceToolAspects(), br,
         device->sshForwardDebugServerPort, br,
         device->linkDevice, br,
+        Column { Space(20) }, br,
+        device->deviceToolAspects(), br,
+        Tr::tr("Auto-detection:"), searchDirsComboBox, searchDirsStack, autoDetectButton, br,
     }.attachTo(this);
     // clang-format on
 
