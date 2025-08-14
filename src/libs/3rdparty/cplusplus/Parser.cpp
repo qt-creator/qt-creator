@@ -4719,7 +4719,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
     // if there is no valid declarator
     // and it doesn't look like a fwd or a class declaration
     // then it's not a declarations
-    if (! declarator && ! maybeForwardOrClassDeclaration(decl_specifier_seq))
+    if (! declarator && ! maybeForwardOrClassOrFriendDeclaration(decl_specifier_seq))
         CACHE_AND_RETURN(cacheKey, false);
 
     DeclaratorAST *firstDeclarator = declarator;
@@ -4815,16 +4815,19 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
     CACHE_AND_RETURN(cacheKey, false);
 }
 
-bool Parser::maybeForwardOrClassDeclaration(SpecifierListAST *decl_specifier_seq) const
+bool Parser::maybeForwardOrClassOrFriendDeclaration(SpecifierListAST *decl_specifier_seq) const
 {
     // look at the decl_specifier for possible fwd or class declarations.
+    bool hasFriend = false;
     if (SpecifierListAST *it = decl_specifier_seq) {
         while (it) {
             SimpleSpecifierAST *spec = it->value->asSimpleSpecifier();
-            if (spec && _translationUnit->tokenKind(spec->specifier_token) == T_FRIEND)
+            if (spec && _translationUnit->tokenKind(spec->specifier_token) == T_FRIEND) {
+                hasFriend = true;
                 it = it->next;
-            else
+            } else {
                 break;
+            }
         }
 
         if (it) {
@@ -4832,7 +4835,8 @@ bool Parser::maybeForwardOrClassDeclaration(SpecifierListAST *decl_specifier_seq
 
             if (spec->asElaboratedTypeSpecifier() ||
                     spec->asEnumSpecifier() ||
-                    spec->asClassSpecifier()) {
+                    spec->asClassSpecifier() ||
+                    (hasFriend && spec->asNamedTypeSpecifier())) {
                 for (it = it->next; it; it = it->next)
                     if (it->value->asAttributeSpecifier() == nullptr)
                         return false;

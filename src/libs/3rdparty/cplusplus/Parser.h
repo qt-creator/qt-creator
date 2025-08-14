@@ -277,7 +277,7 @@ public:
     bool match(int kind, int *token);
 
     bool maybeAmbiguousStatement(DeclarationStatementAST *ast, StatementAST *&node);
-    bool maybeForwardOrClassDeclaration(SpecifierListAST *decl_specifier_seq) const;
+    bool maybeForwardOrClassOrFriendDeclaration(SpecifierListAST *decl_specifier_seq) const;
 
     int peekAtQtContextKeyword() const;
 
