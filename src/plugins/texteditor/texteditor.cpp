@@ -4607,15 +4607,15 @@ void TextEditorWidgetPrivate::registerActions()
                             .addOnTriggered([this] { q->toggleFoldAll(); })
                             .setScriptable(true)
                             .contextAction();
-    ActionBuilder(this, INCREASE_FONT_SIZE).setContext(m_editorContext).addOnTriggered([this] {
+    ActionBuilder(this, Core::Constants::ZOOM_IN).setContext(m_editorContext).addOnTriggered([this] {
         q->increaseFontZoom();
     });
-    ActionBuilder(this, DECREASE_FONT_SIZE).setContext(m_editorContext).addOnTriggered([this] {
+    ActionBuilder(this, Core::Constants::ZOOM_OUT).setContext(m_editorContext).addOnTriggered([this] {
         q->decreaseFontZoom();
     });
-    ActionBuilder(this, RESET_FONT_SIZE).setContext(m_editorContext).addOnTriggered([this] {
-        q->zoomReset();
-    });
+    ActionBuilder(this, Core::Constants::ZOOM_RESET)
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->zoomReset(); });
     ActionBuilder(this, GOTO_BLOCK_START)
         .setContext(m_editorContext)
         .addOnTriggered([this] { q->gotoBlockStart(); })

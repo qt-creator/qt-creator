@@ -540,18 +540,6 @@ void TextEditorPlugin::createEditorCommands()
     TextActionBuilder(this, UNFOLD_ALL)
         .setText(Tr::tr("Toggle &Fold All"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_COLLAPSING);
-    TextActionBuilder(this, INCREASE_FONT_SIZE)
-        .setText(Tr::tr("Increase Font Size"))
-        .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl++")))
-        .addToContainer(M_EDIT_ADVANCED, G_EDIT_FONT);
-    TextActionBuilder(this, DECREASE_FONT_SIZE)
-        .setText(Tr::tr("Decrease Font Size"))
-        .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+-")))
-        .addToContainer(M_EDIT_ADVANCED, G_EDIT_FONT);
-    TextActionBuilder(this, RESET_FONT_SIZE)
-        .setText(Tr::tr("Reset Font Size"))
-        .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+0")))
-        .addToContainer(M_EDIT_ADVANCED, G_EDIT_FONT);
     TextActionBuilder(this, GOTO_BLOCK_START)
         .setText(Tr::tr("Go to Block Start"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+[")))

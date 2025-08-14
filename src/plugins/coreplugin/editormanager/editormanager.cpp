@@ -690,24 +690,6 @@ void EditorManagerPrivate::init()
     gotoNextSplit.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SPLIT);
     gotoNextSplit.addOnTriggered(this, &EditorManagerPrivate::gotoNextSplit);
 
-    ActionContainer *medit = ActionManager::actionContainer(Constants::M_EDIT);
-    ActionContainer *advancedMenu = ActionManager::createMenu(Constants::M_EDIT_ADVANCED);
-    medit->addMenu(advancedMenu, Constants::G_EDIT_ADVANCED);
-    advancedMenu->menu()->setTitle(::Core::Tr::tr("Ad&vanced"));
-    advancedMenu->appendGroup(Constants::G_EDIT_FORMAT);
-    advancedMenu->appendGroup(Constants::G_EDIT_TEXT);
-    advancedMenu->appendGroup(Constants::G_EDIT_COLLAPSING);
-    advancedMenu->appendGroup(Constants::G_EDIT_BLOCKS);
-    advancedMenu->appendGroup(Constants::G_EDIT_FONT);
-    advancedMenu->appendGroup(Constants::G_EDIT_EDITOR);
-
-    // Advanced menu separators
-    advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_TEXT);
-    advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_COLLAPSING);
-    advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_BLOCKS);
-    advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_FONT);
-    advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_EDITOR);
-
     // other setup
     auto mainEditorArea = new EditorArea();
     // assign parent to avoid failing updates (e.g. windowTitle) before it is displayed first time

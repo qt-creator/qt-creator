@@ -414,20 +414,17 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     if (QTC_GUARD(advancedMenu)) {
         // reuse TextEditor constants to avoid a second pair of menu actions
         m_scaleUp = new QAction(Tr::tr("Increase Font Size"), this);
-        cmd = Core::ActionManager::registerAction(m_scaleUp, TextEditor::Constants::INCREASE_FONT_SIZE,
-                                                  context);
+        cmd = Core::ActionManager::registerAction(m_scaleUp, Core::Constants::ZOOM_IN, context);
         connect(m_scaleUp, &QAction::triggered, this, &HelpWidget::scaleUp);
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
 
         m_scaleDown = new QAction(Tr::tr("Decrease Font Size"), this);
-        cmd = Core::ActionManager::registerAction(m_scaleDown, TextEditor::Constants::DECREASE_FONT_SIZE,
-                                                  context);
+        cmd = Core::ActionManager::registerAction(m_scaleDown, Core::Constants::ZOOM_OUT, context);
         connect(m_scaleDown, &QAction::triggered, this, &HelpWidget::scaleDown);
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
 
         m_resetScale = new QAction(Tr::tr("Reset Font Size"), this);
-        cmd = Core::ActionManager::registerAction(m_resetScale, TextEditor::Constants::RESET_FONT_SIZE,
-                                                  context);
+        cmd = Core::ActionManager::registerAction(m_resetScale, Core::Constants::ZOOM_RESET, context);
         connect(m_resetScale, &QAction::triggered, this, &HelpWidget::resetScale);
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
     }
@@ -544,11 +541,11 @@ HelpWidget::~HelpWidget()
     Core::ActionManager::unregisterAction(m_backAction, Constants::HELP_PREVIOUS);
     Core::ActionManager::unregisterAction(m_addBookmarkAction, Constants::HELP_ADDBOOKMARK);
     if (m_scaleUp)
-        Core::ActionManager::unregisterAction(m_scaleUp, TextEditor::Constants::INCREASE_FONT_SIZE);
+        Core::ActionManager::unregisterAction(m_scaleUp, Core::Constants::ZOOM_IN);
     if (m_scaleDown)
-        Core::ActionManager::unregisterAction(m_scaleDown, TextEditor::Constants::DECREASE_FONT_SIZE);
+        Core::ActionManager::unregisterAction(m_scaleDown, Core::Constants::ZOOM_OUT);
     if (m_resetScale)
-        Core::ActionManager::unregisterAction(m_resetScale, TextEditor::Constants::RESET_FONT_SIZE);
+        Core::ActionManager::unregisterAction(m_resetScale, Core::Constants::ZOOM_RESET);
     delete m_openPagesManager;
 }
 

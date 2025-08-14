@@ -1705,6 +1705,23 @@ void ICorePrivate::registerDefaultContainers()
     medit->appendGroup(Constants::G_EDIT_FIND);
     medit->appendGroup(Constants::G_EDIT_OTHER);
 
+    ActionContainer *advancedMenu = ActionManager::createMenu(Constants::M_EDIT_ADVANCED);
+    medit->addMenu(advancedMenu, Constants::G_EDIT_ADVANCED);
+    advancedMenu->menu()->setTitle(::Core::Tr::tr("Ad&vanced"));
+    advancedMenu->appendGroup(Constants::G_EDIT_FORMAT);
+    advancedMenu->appendGroup(Constants::G_EDIT_TEXT);
+    advancedMenu->appendGroup(Constants::G_EDIT_COLLAPSING);
+    advancedMenu->appendGroup(Constants::G_EDIT_BLOCKS);
+    advancedMenu->appendGroup(Constants::G_EDIT_FONT);
+    advancedMenu->appendGroup(Constants::G_EDIT_EDITOR);
+
+    advancedMenu->addSeparator(Constants::G_EDIT_TEXT);
+    advancedMenu->addSeparator(Constants::G_EDIT_COLLAPSING);
+    advancedMenu->addSeparator(Constants::G_EDIT_BLOCKS);
+    advancedMenu->addSeparator(Constants::G_EDIT_FONT);
+    advancedMenu->addSeparator(Constants::G_EDIT_EDITOR);
+
+    // View Menu
     ActionContainer *mview = ActionManager::createMenu(Constants::M_VIEW);
     menubar->addMenu(mview, Constants::G_VIEW);
     mview->menu()->setTitle(Tr::tr("&View"));
@@ -1953,6 +1970,7 @@ void ICorePrivate::registerDefaultActions()
     zoomInAction.setText(Tr::tr("Zoom In"));
     zoomInAction.setIcon(Icon::fromTheme("zoom-in"));
     zoomInAction.setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl++")));
+    zoomInAction.addToContainer(Constants::M_EDIT_ADVANCED, Constants::G_EDIT_FONT);
     zoomInAction.setEnabled(false);
 
     // Zoom Out Action
@@ -1963,6 +1981,7 @@ void ICorePrivate::registerDefaultActions()
         zoomOutAction.setDefaultKeySequences({QKeySequence(Tr::tr("Ctrl+-")), QKeySequence(Tr::tr("Ctrl+Shift+-"))});
     else
         zoomOutAction.setDefaultKeySequence(Tr::tr("Ctrl+-"));
+    zoomOutAction.addToContainer(Constants::M_EDIT_ADVANCED, Constants::G_EDIT_FONT);
     zoomOutAction.setEnabled(false);
 
     // Zoom Reset Action
@@ -1970,6 +1989,7 @@ void ICorePrivate::registerDefaultActions()
     zoomOriginalAction.setText(Tr::tr("Original Size"));
     zoomOriginalAction.setIcon(Icon::fromTheme("zoom-original"));
     zoomOriginalAction.setDefaultKeySequence(Tr::tr("Meta+0"), Tr::tr("Ctrl+0"));
+    zoomOriginalAction.addToContainer(Constants::M_EDIT_ADVANCED, Constants::G_EDIT_FONT);
     zoomOriginalAction.setEnabled(false);
 
     // Debug Qt Creator menu
