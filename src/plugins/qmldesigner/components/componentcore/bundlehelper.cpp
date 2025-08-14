@@ -69,6 +69,7 @@ void BundleHelper::createImporter()
             if (isMaterialBundle(bundleId)) {
                 m_view->executeInTransaction("BundleHelper::createImporter", [&] {
                     Utils3D::createMaterial(m_view, typeName);
+                    m_view->resetPuppet();
                 });
             } else if (isItemBundle(bundleId)) {
                 ModelNode target = Utils3D::active3DSceneNode(m_view);

@@ -213,6 +213,7 @@ void ContentLibraryView::connectImporter()
                 QTC_ASSERT(typeName.size(), return);
                 if (isMaterialBundle(bundleId)) {
                     applyBundleMaterialToDropTarget({}, typeName);
+                    resetPuppet();
                 } else if (isItemBundle(bundleId)) {
                     if (!m_bundleItemTarget) {
                         bool isUser2DBundle = (bundleId == m_compUtils.user2DBundleId());
@@ -231,6 +232,7 @@ void ContentLibraryView::connectImporter()
                             newNode.simplifiedTypeName(), "node"));
                         clearSelectedModelNodes();
                         selectModelNode(newNode);
+                        resetPuppet();
                     });
 
                     m_bundleItemTarget = {};

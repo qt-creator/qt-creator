@@ -443,16 +443,10 @@ void MaterialBrowserView::nodeReparented(const ModelNode &node,
 
     refreshModel(removed);
 
-    if (isMaterial(node)) {
-        if (added && !m_puppetResetPending) {
-            // Workaround to fix various material issues all likely caused by QTBUG-103316
-            resetPuppet();
-            m_puppetResetPending = true;
-        }
+    if (isMaterial(node))
         m_widget->materialBrowserModel()->refreshSearch();
-    } else { // is texture
+    else // is texture
         m_widget->materialBrowserTexturesModel()->refreshSearch();
-    }
 }
 
 void MaterialBrowserView::nodeAboutToBeRemoved(const ModelNode &removedNode)
@@ -560,7 +554,6 @@ void MaterialBrowserView::instancesCompleted(const QVector<ModelNode> &completed
     for (const ModelNode &node : completedNodeList) {
         // We use root node completion as indication of QML Puppet reset
         if (node.isRootNode()) {
-            m_puppetResetPending  = false;
             QTimer::singleShot(1000, this, [this] {
                 if (!model() || !model()->nodeInstanceView())
                     return;

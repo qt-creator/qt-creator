@@ -1764,7 +1764,12 @@ void NodeInstanceView::token(const TokenCommand &command)
 
 void NodeInstanceView::debugOutput(const DebugOutputCommand & command)
 {
-    DocumentMessage error(crashErrorMessage());
+    if (m_restartProcessTimerId) {
+        // Debug output/errors from puppet are likely invalid if puppet reset has been requested,
+        // so ignore them to avoid unnecessary warnings showing in UI
+        return;
+    }
+
     if (command.instanceIds().isEmpty() && isAttached()) {
         model()->emitDocumentMessage(command.text());
     } else {

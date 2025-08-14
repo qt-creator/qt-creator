@@ -89,7 +89,6 @@ private:
     QPointer<MaterialBrowserWidget> m_widget;
 
     bool m_hasQuick3DImport = false;
-    bool m_puppetResetPending = false;
     bool m_propertyGroupsLoaded = false;
 
     QTimer m_previewTimer;
