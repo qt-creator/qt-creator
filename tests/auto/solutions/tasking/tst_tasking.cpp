@@ -4841,24 +4841,40 @@ void tst_Tasking::validConditionalConstructs()
 
 void tst_Tasking::exactHandlers()
 {
-    bool calledSetup = false;
-    bool calledDone = false;
+    bool taskSetupCalled = false;
+    bool taskDoneCalled = false;
+    bool treeSetupCalled = false;
+    bool treeDoneCalled = false;
 
-    const TestTask::TaskSetupHandler setup = [&calledSetup](TaskObject &) {
-        calledSetup = true;
+    const TestTask::TaskSetupHandler onTaskSetup = [&taskSetupCalled](TaskObject &) {
+        taskSetupCalled = true;
         return SetupResult::Continue;
     };
 
-    const TestTask::TaskDoneHandler done = [&calledDone](const TaskObject &, DoneWith) {
-        calledDone = true;
+    const TestTask::TaskDoneHandler onTaskDone = [&taskDoneCalled](const TaskObject &, DoneWith) {
+        taskDoneCalled = true;
         return DoneResult::Success;
     };
 
-    TaskTree taskTree({TestTask(setup, done)});
-    taskTree.runBlocking();
+    const AbstractTaskTreeRunner::TreeSetupHandler onTreeSetup = [&treeSetupCalled](TaskTree &) {
+        treeSetupCalled = true;
+    };
 
-    QVERIFY(calledSetup);
-    QVERIFY(calledDone);
+    const AbstractTaskTreeRunner::TreeDoneHandler onTreeDone
+            = [&treeDoneCalled](const TaskTree &, DoneWith) {
+        treeDoneCalled = true;
+    };
+
+    SingleTaskTreeRunner taskTreeRunner;
+    QSignalSpy doneSpy(&taskTreeRunner, &AbstractTaskTreeRunner::done);
+    taskTreeRunner.start({TestTask(onTaskSetup, onTaskDone)}, onTreeSetup, onTreeDone);
+
+    QVERIFY(doneSpy.wait(1s));
+
+    QVERIFY(taskSetupCalled);
+    QVERIFY(taskDoneCalled);
+    QVERIFY(treeSetupCalled);
+    QVERIFY(treeDoneCalled);
 }
 
 QTEST_GUILESS_MAIN(tst_Tasking)

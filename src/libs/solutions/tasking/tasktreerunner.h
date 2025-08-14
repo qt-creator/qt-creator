@@ -42,8 +42,10 @@ protected:
 
     template <typename Handler>
     static TreeSetupHandler wrapTreeSetupHandler(Handler &&handler) {
-        if constexpr (std::is_same_v<std::decay_t<Handler>, TreeSetupHandler>)
-            return {}; // When user passed {} for the setup handler.
+        if constexpr (std::is_same_v<std::decay_t<Handler>, TreeSetupHandler>) {
+            if (!handler)
+                return {}; // When user passed {} for the setup handler.
+        }
         // V, T stands for: [V]oid, [T]askTree
         static constexpr bool isVT = isInvocable<void, Handler, TaskTree &>();
         static constexpr bool isV = isInvocable<void, Handler>();
@@ -60,8 +62,10 @@ protected:
 
     template <typename Handler>
     static TreeDoneHandler wrapTreeDoneHandler(Handler &&handler) {
-        if constexpr (std::is_same_v<std::decay_t<Handler>, TreeDoneHandler>)
-            return {}; // User passed {} for the done handler.
+        if constexpr (std::is_same_v<std::decay_t<Handler>, TreeDoneHandler>) {
+            if (!handler)
+                return {}; // User passed {} for the done handler.
+        }
         // V, T, D stands for: [V]oid, [T]askTree, [D]oneWith
         static constexpr bool isVTD = isInvocable<void, Handler, const TaskTree &, DoneWith>();
         static constexpr bool isVT = isInvocable<void, Handler, const TaskTree &>();
