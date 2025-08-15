@@ -10,6 +10,54 @@ QT_BEGIN_NAMESPACE
 
 namespace Tasking {
 
+/*!
+    \class AbstractTaskTreeRunner
+    \inheaderfile solutions/tasking/tasktreerunner.h
+    \inmodule TaskingSolution
+    \brief An abstract base class for various task tree controllers.
+    \reentrant
+
+    The task tree runner manages the lifetime
+    of the underlying TaskTree used to execute the given recipe.
+
+    The following table summarizes the differences between various
+    AbstractTaskTreeRunner subclasses:
+
+    \table
+    \header
+        \li Class name
+        \li Description
+    \row
+        \li SingleTaskTreeRunner
+        \li Manages single task tree execution.
+            The SingleTaskTreeRunner::start() method unconditionally starts
+            the passed recipe, resetting any task tree that might be
+            running. Only one task tree can be executing at a time.
+    \row
+        \li SequentialTaskTreeRunner
+        \li Manages sequential task tree executions.
+            The SequentialTaskTreeRunner::enqueue() method starts
+            the passed recipe if the task tree runner is idle.
+            Otherwise, the recipe is enqueued. When the current
+            task finishes, the runner executes the dequeued recipe
+            sequentially. Only one task tree can be executing at a time.
+    \row
+        \li ParallelTaskTreeRunner
+        \li Manages parallel task tree executions.
+            The ParallelTaskTreeRunner::start() method unconditionally starts
+            the passed recipe and keeps any possibly
+            running task trees in parallel.
+    \row
+        \li MappedTaskTreeRunner
+        \li Manages mapped task tree executions.
+            The MappedTaskTreeRunner::start() method unconditionally starts
+            the passed recipe for a given key,
+            resetting any possibly running task tree with the same key.
+            Task trees with different keys are unaffected and continue
+            their execution.
+    \endtable
+*/
+
 SingleTaskTreeRunner::~SingleTaskTreeRunner() = default;
 
 void SingleTaskTreeRunner::startImpl(const Group &recipe,
