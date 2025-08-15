@@ -32,6 +32,8 @@ public:
     AiAssistantWidget();
     ~AiAssistantWidget() = default;
 
+    void clearAttachedImage();
+
     QSize sizeHint() const override;
 
     Q_INVOKABLE QStringList getImageAssetsPaths() const;

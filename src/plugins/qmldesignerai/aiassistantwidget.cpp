@@ -104,6 +104,11 @@ AiAssistantWidget::AiAssistantWidget()
     reloadQmlSource();
 }
 
+void AiAssistantWidget::clearAttachedImage()
+{
+    m_quickWidget->rootObject()->setProperty("attachedImage", "");
+}
+
 QSize AiAssistantWidget::sizeHint() const
 {
     return {420, 20};

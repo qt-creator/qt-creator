@@ -22,6 +22,9 @@ public:
     bool hasWidget() const override;
     WidgetInfo widgetInfo() override;
 
+    // AbstractView
+    void modelAttached(Model *model) override;
+
 private:
     Utils::UniqueObjectPtr<AiAssistantWidget> m_widget;
 };

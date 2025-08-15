@@ -31,4 +31,11 @@ WidgetInfo AiAssistantView::widgetInfo()
                             tr("AI Assistant view"));
 }
 
+void AiAssistantView::modelAttached(Model *model)
+{
+    AbstractView::modelAttached(model);
+
+    m_widget->clearAttachedImage();
+}
+
 } // namespace QmlDesigner
