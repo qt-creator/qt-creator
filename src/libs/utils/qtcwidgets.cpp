@@ -208,7 +208,8 @@ void QtcButton::paintEvent(QPaintEvent *event)
         break;
     }
     case SmallList: {
-        if (isChecked() || hovered) {
+        const bool filled = hovered || isDown() || isChecked();
+        if (filled) {
             const QBrush fill(creatorColor(isChecked() ? Theme::Token_Foreground_Muted
                                                        : Theme::Token_Foreground_Subtle));
             StyleHelper::drawCardBg(&p, bgR, fill, QPen(Qt::NoPen), brRectRounding);
@@ -218,8 +219,9 @@ void QtcButton::paintEvent(QPaintEvent *event)
     case SmallLink:
         break;
     case Tag: {
-        const QBrush fill(hovered ? creatorColor(Theme::Token_Foreground_Subtle)
-                                  : QBrush(Qt::NoBrush));
+        const bool filled = hovered || isDown() || isChecked();
+        const QBrush fill(filled ? creatorColor(Theme::Token_Foreground_Subtle)
+                                 : QBrush(Qt::NoBrush));
         const QPen outline(hovered ? QPen(Qt::NoPen) : creatorColor(Theme::Token_Stroke_Subtle));
         StyleHelper::drawCardBg(&p, bgR, fill, outline, brRectRounding);
         break;
