@@ -102,7 +102,7 @@ QString Utils::toString(::Utils::LanguageVersion languageVersion)
         CASE_LANGUAGEVERSION(CXX14);
         CASE_LANGUAGEVERSION(CXX17);
         CASE_LANGUAGEVERSION(CXX20);
-        CASE_LANGUAGEVERSION(CXX2b);
+        CASE_LANGUAGEVERSION(CXX23);
         // no default to get a compiler warning if anything is added
     }
 #undef CASE_LANGUAGEVERSION

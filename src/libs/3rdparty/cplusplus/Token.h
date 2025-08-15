@@ -460,6 +460,7 @@ struct LanguageFeatures
             unsigned int cxx14Enabled : 1;
             unsigned int cxx17Enabled : 1;
             unsigned int cxx20Enabled : 1;
+            unsigned int cxx23Enabled : 1; // TODO: Use a single version number instead.
             unsigned int objCEnabled : 1;
             unsigned int c99Enabled : 1;
         };

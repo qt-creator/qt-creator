@@ -92,8 +92,8 @@ const char * toText(Utils::LanguageVersion languageVersion)
         return "CXX17";
     case LanguageVersion::CXX20:
         return "CXX20";
-    case LanguageVersion::CXX2b:
-        return "CXX2b";
+    case LanguageVersion::CXX23:
+        return "CXX23";
     case LanguageVersion::CXX98:
         return "CXX98";
     case LanguageVersion::None:

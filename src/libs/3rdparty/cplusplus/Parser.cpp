@@ -2456,6 +2456,10 @@ bool Parser::parseParameterDeclaration(ParameterDeclarationAST *&node)
         while (parseStdAttributeSpecifier(attr_specifier_seq))
             ;
     }
+
+    if (_languageFeatures.cxx23Enabled && LA() == T_THIS)
+        consumeToken();
+
     SpecifierListAST *decl_specifier_seq = nullptr;
     if (parseDeclSpecifierSeq(decl_specifier_seq)) {
         ParameterDeclarationAST *ast = new (_pool) ParameterDeclarationAST;

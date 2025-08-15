@@ -497,7 +497,7 @@ void CompilerOptionsBuilder::addLanguageVersionAndExtensions()
         case LanguageVersion::CXX20:
             option = "-clang:-std=c++20";
             break;
-        case LanguageVersion::CXX2b:
+        case LanguageVersion::CXX23:
             option = "-clang:-std=c++2b";
             break;
         }
@@ -550,7 +550,7 @@ void CompilerOptionsBuilder::addLanguageVersionAndExtensions()
     case LanguageVersion::CXX20:
         option = (gnuExtensions ? QLatin1String("-std=gnu++20") : QLatin1String("-std=c++20"));
         break;
-    case LanguageVersion::CXX2b:
+    case LanguageVersion::CXX23:
         option = (gnuExtensions ? QLatin1String("-std=gnu++2b") : QLatin1String("-std=c++2b"));
         break;
     case LanguageVersion::None:

@@ -143,7 +143,7 @@ QStringList CppcheckTool::additionalArguments(const CppEditor::ProjectPart &part
     case Version::CXX98:
     case Version::CXX17:
     case Version::CXX20:
-    case Version::CXX2b:
+    case Version::CXX23:
         result.push_back("--language=c++");
         break;
     case Version::None:

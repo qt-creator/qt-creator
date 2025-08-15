@@ -195,6 +195,7 @@ CPlusPlus::LanguageFeatures ProjectPart::deriveLanguageFeatures() const
     features.cxx14Enabled = languageVersion >= Utils::LanguageVersion::CXX14;
     features.cxx17Enabled = languageVersion >= Utils::LanguageVersion::CXX17;
     features.cxx20Enabled = languageVersion >= Utils::LanguageVersion::CXX20;
+    features.cxx23Enabled = languageVersion >= Utils::LanguageVersion::CXX23;
     features.cxxEnabled = hasCxx;
     features.c99Enabled = languageVersion >= Utils::LanguageVersion::C99;
     features.objCEnabled = languageExtensions.testFlag(Utils::LanguageExtension::ObjectiveC);

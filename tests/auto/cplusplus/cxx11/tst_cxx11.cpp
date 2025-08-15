@@ -130,6 +130,8 @@ class tst_cxx11: public QObject
                 features.cxx17Enabled = true;
             if (cxxVersion >= 2020)
                 features.cxx20Enabled = true;
+            if (cxxVersion >= 2023)
+                features.cxx23Enabled = true;
             features.c99Enabled = c99Enabled;
             processDocument(doc, QTextStream(&file).readAll().toUtf8(), features, errors);
         } else {
@@ -201,6 +203,7 @@ void tst_cxx11::parse_data()
     QTest::newRow("friends") << "friends.cpp" << 2011 << "";
     QTest::newRow("attributes") << "attributes.cpp" << 2011 << "";
     QTest::newRow("foldExpressions") << "foldExpressions.cpp" << 2017 << "";
+    QTest::newRow("explicitObjectParameters") << "explicitObjParam.cpp" << 2023 << "";
 }
 
 void tst_cxx11::parse()
