@@ -256,6 +256,7 @@ public:
     bool isAnyUnixDevice() const;
 
     Utils::DeviceFileAccess *fileAccess() const;
+    virtual void tryToConnect(const Utils::Continuation<> &cont) const;
     virtual bool handlesFile(const Utils::FilePath &filePath) const;
 
     virtual Utils::FilePath searchExecutableInPath(const QString &fileName) const;

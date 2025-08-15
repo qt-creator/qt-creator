@@ -409,7 +409,12 @@ void IDevice::openTerminal(const Environment &env,
 {
     QTC_ASSERT(canOpenTerminal(),
                cont(ResultError(Tr::tr("Opening a terminal is not supported."))); return);
-    d->openTerminal(env, workingDir, cont);
+    tryToConnect(Continuation<>([=, this](const Result<> &res) {
+        if (res)
+            d->openTerminal(env, workingDir, cont);
+        else
+            cont(ResultError(res.error()));
+    }));
 }
 
 bool IDevice::isAnyUnixDevice() const
@@ -423,6 +428,11 @@ DeviceFileAccess *IDevice::fileAccess() const
         return d->fileAccessFactory();
 
     return d->fileAccess;
+}
+
+void IDevice::tryToConnect(const Continuation<> &cont) const
+{
+    cont(ResultOk);
 }
 
 FilePath IDevice::filePath(const QString &pathOnDevice) const
