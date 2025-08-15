@@ -187,6 +187,7 @@ public:
     virtual AwaitExpressionAST *asAwaitExpression() { return nullptr; }
     virtual BaseSpecifierAST *asBaseSpecifier() { return nullptr; }
     virtual BinaryExpressionAST *asBinaryExpression() { return nullptr; }
+    virtual BinaryFoldExpressionAST *asBinaryFoldExpression() { return nullptr; }
     virtual BoolLiteralAST *asBoolLiteral() { return nullptr; }
     virtual BracedInitializerAST *asBracedInitializer() { return nullptr; }
     virtual BracketDesignatorAST *asBracketDesignator() { return nullptr; }
@@ -340,6 +341,7 @@ public:
     virtual TypenameCallExpressionAST *asTypenameCallExpression() { return nullptr; }
     virtual TypenameTypeParameterAST *asTypenameTypeParameter() { return nullptr; }
     virtual TypeofSpecifierAST *asTypeofSpecifier() { return nullptr; }
+    virtual UnaryFoldExpressionAST *asUnaryFoldExpression() { return nullptr; }
     virtual UnaryExpressionAST *asUnaryExpression() { return nullptr; }
     virtual RequiresExpressionAST *asRequiresExpression() { return nullptr; }
     virtual RequiresClauseAST *asRequiresClause() { return nullptr; }
@@ -2893,6 +2895,52 @@ public:
     int lastToken() const override { return castExpression->lastToken(); }
 
     AwaitExpressionAST *clone(MemoryPool *pool) const override;
+
+protected:
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
+};
+
+class CPLUSPLUS_EXPORT UnaryFoldExpressionAST: public ExpressionAST
+{
+public:
+    int lparen_token = 0;
+    int pack_token = 0;
+    int fold_op_token = 0;
+    ExpressionAST *cast_expression = nullptr;
+    int rparen_token = 0;
+
+public:
+    UnaryFoldExpressionAST *asUnaryFoldExpression() override { return this; }
+
+    int firstToken() const override { return lparen_token; }
+    int lastToken() const override { return rparen_token; }
+
+    UnaryFoldExpressionAST *clone(MemoryPool *pool) const override;
+
+protected:
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
+};
+
+class CPLUSPLUS_EXPORT BinaryFoldExpressionAST: public ExpressionAST
+{
+public:
+    int lparen_token = 0;
+    ExpressionAST *cast_expression1 = nullptr;
+    int fold_op_token1 = 0;
+    int pack_token = 0;
+    int fold_op_token2 = 0;
+    ExpressionAST *cast_expression2 = nullptr;
+    int rparen_token = 0;
+
+public:
+    BinaryFoldExpressionAST *asBinaryFoldExpression() override { return this; }
+
+    int firstToken() const override { return lparen_token; }
+    int lastToken() const override { return rparen_token; }
+
+    BinaryFoldExpressionAST *clone(MemoryPool *pool) const override;
 
 protected:
     void accept0(ASTVisitor *visitor) override;

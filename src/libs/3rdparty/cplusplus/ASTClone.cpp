@@ -1968,3 +1968,27 @@ DeductionGuideAST *DeductionGuideAST::clone(MemoryPool *pool) const
         theClone->requires_clause = requires_clause->clone(pool);
     return theClone;
 }
+
+UnaryFoldExpressionAST *UnaryFoldExpressionAST::clone(MemoryPool *pool) const
+{
+    const auto theClone = new (pool) UnaryFoldExpressionAST;
+    theClone->lparen_token = lparen_token;
+    theClone->pack_token = pack_token;
+    theClone->fold_op_token = fold_op_token;
+    theClone->cast_expression = cast_expression->clone(pool);
+    theClone->rparen_token = rparen_token;
+    return theClone;
+}
+
+BinaryFoldExpressionAST *BinaryFoldExpressionAST::clone(MemoryPool *pool) const
+{
+    const auto theClone = new (pool) BinaryFoldExpressionAST;
+    theClone->lparen_token = lparen_token;
+    theClone->cast_expression1 = cast_expression1->clone(pool);
+    theClone->fold_op_token1 = fold_op_token1;
+    theClone->pack_token = pack_token;
+    theClone->fold_op_token2 = fold_op_token2;
+    theClone->rparen_token = rparen_token;
+    theClone->cast_expression2 = cast_expression2->clone(pool);
+    return theClone;
+}

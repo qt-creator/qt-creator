@@ -3622,6 +3622,83 @@ bool Parser::parseExpressionStatement(StatementAST *&node)
     return parsed;
 }
 
+bool Parser::parseFoldExpression(ExpressionAST *&node)
+{
+    if (!_languageFeatures.cxx17Enabled)
+        return false;
+    if (LA() != T_LPAREN)
+        return false;
+
+    Rewinder rewinder(*this);
+    const int lparenTok = consumeToken();
+    if (LA() == T_DOT_DOT_DOT) {
+        const int packTok = consumeToken();
+        if (!lookAtFoldOperator())
+            return false;
+        const int foldOpTok = consumeToken();
+        ExpressionAST *castExpression = nullptr;
+        if (!parseCastExpression(castExpression))
+            return false;
+        if (LA() != T_RPAREN)
+            return false;
+
+        const auto ast = new (_pool) UnaryFoldExpressionAST;
+        ast->lparen_token = lparenTok;
+        ast->pack_token = packTok;
+        ast->fold_op_token = foldOpTok;
+        ast->cast_expression = castExpression;
+        ast->rparen_token = consumeToken();
+        node = ast;
+        rewinder.invalidate();
+
+        return true;
+    }
+
+    ExpressionAST *castExpression = nullptr;
+    if (!parseCastExpression(castExpression))
+        return false;
+    if (!lookAtFoldOperator())
+        return false;
+    const int foldOpTok = consumeToken();
+    if (LA() != T_DOT_DOT_DOT)
+        return false;
+    const int packTok = consumeToken();
+    if (LA() == T_RPAREN) {
+        const auto ast = new (_pool) UnaryFoldExpressionAST;
+        ast->lparen_token = lparenTok;
+        ast->cast_expression = castExpression;
+        ast->fold_op_token = foldOpTok;
+        ast->pack_token = packTok;
+        ast->rparen_token = consumeToken();
+        node = ast;
+        rewinder.invalidate();
+
+        return true;
+    }
+
+    if (!lookAtFoldOperator())
+        return false;
+    const int foldOpTok2 = consumeToken();
+    ExpressionAST *castExpression2 = nullptr;
+    if (!parseCastExpression(castExpression2))
+        return false;
+    if (LA() != T_RPAREN)
+        return false;
+
+    const auto ast = new (_pool) BinaryFoldExpressionAST;
+    ast->lparen_token = lparenTok;
+    ast->cast_expression1 = castExpression;
+    ast->fold_op_token1 = foldOpTok;
+    ast->pack_token = packTok;
+    ast->fold_op_token2 = foldOpTok2;
+    ast->cast_expression2 = castExpression2;
+    ast->rparen_token = consumeToken();
+    node = ast;
+    rewinder.invalidate();
+
+    return true;
+}
+
 bool Parser::parseStatement(StatementAST *&node, bool blockLabeledStatement)
 {
     DEBUG_THIS_RULE();
@@ -5069,10 +5146,10 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
             match(T_RPAREN, &ast->rparen_token);
             node = ast;
             return true;
-        } else {
-            return parseNestedExpression(node);
         }
-
+        if (parseFoldExpression(node))
+            return true;
+        return parseNestedExpression(node);
     case T_SIGNAL:
     case T_SLOT:
         return parseQtMethod(node);
@@ -6243,6 +6320,50 @@ bool Parser::parseNoExceptOperatorExpression(ExpressionAST *&node)
 bool Parser::lookAtStdAttribute() const
 {
     return _languageFeatures.cxx11Enabled && LA() == T_LBRACKET && LA(2) == T_LBRACKET;
+}
+
+bool Parser::lookAtFoldOperator() const
+{
+    if (!_languageFeatures.cxx17Enabled)
+        return false;
+    switch (LA()) {
+    case T_PLUS:
+    case T_MINUS:
+    case T_STAR:
+    case T_SLASH:
+    case T_PERCENT:
+    case T_CARET:
+    case T_AMPER:
+    case T_PIPE:
+    case T_LESS_LESS:
+    case T_GREATER_GREATER:
+    case T_PLUS_EQUAL:
+    case T_MINUS_EQUAL:
+    case T_STAR_EQUAL:
+    case T_SLASH_EQUAL:
+    case T_PERCENT_EQUAL:
+    case T_CARET_EQUAL:
+    case T_AMPER_EQUAL:
+    case T_PIPE_EQUAL:
+    case T_LESS_LESS_EQUAL:
+    case T_GREATER_GREATER_EQUAL:
+    case T_EQUAL:
+    case T_EQUAL_EQUAL:
+    case T_EXCLAIM_EQUAL:
+    case T_LESS:
+    case T_GREATER:
+    case T_LESS_EQUAL:
+    case T_GREATER_EQUAL:
+    case T_AMPER_AMPER:
+    case T_PIPE_PIPE:
+    case T_COMMA:
+    case T_DOT_STAR:
+    case T_ARROW_STAR:
+        return true;
+    default:
+        break;
+    }
+    return false;
 }
 
 bool Parser::lookAtObjCSelector() const

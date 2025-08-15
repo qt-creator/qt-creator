@@ -112,14 +112,24 @@ class tst_cxx11: public QObject
         doc->control()->setDiagnosticClient(0, false);
     }
 
-    Document::Ptr document(const QString &fileName, QByteArray *errors = 0, bool c99Enabled = false)
+    Document::Ptr document(
+        const QString &fileName,
+        int cxxVersion = 2011,
+        QByteArray *errors = 0,
+        bool c99Enabled = false)
     {
         Document::Ptr doc = Document::create(FilePath::fromString(fileName));
         QFile file(testdata(fileName));
         if (file.open(QFile::ReadOnly)) {
             LanguageFeatures features;
-            features.cxx11Enabled = true;
             features.cxxEnabled = true;
+            features.cxx11Enabled = true;
+            if (cxxVersion >= 2014)
+                features.cxx14Enabled = true;
+            if (cxxVersion >= 2017)
+                features.cxx17Enabled = true;
+            if (cxxVersion >= 2020)
+                features.cxx20Enabled = true;
             features.c99Enabled = c99Enabled;
             processDocument(doc, QTextStream(&file).readAll().toUtf8(), features, errors);
         } else {
@@ -163,41 +173,44 @@ private Q_SLOTS:
 void tst_cxx11::parse_data()
 {
     QTest::addColumn<QString>("file");
+    QTest::addColumn<int>("cxxVersion");
     QTest::addColumn<QString>("errorFile");
 
-    QTest::newRow("inlineNamespace.1") << "inlineNamespace.1.cpp" << "inlineNamespace.1.errors.txt";
-    QTest::newRow("nestedNamespace.1") << "nestedNamespace.1.cpp" << "nestedNamespace.1.errors.txt";
-    QTest::newRow("staticAssert.1") << "staticAssert.1.cpp" << "staticAssert.1.errors.txt";
-    QTest::newRow("noExcept.1") << "noExcept.1.cpp" << "noExcept.1.errors.txt";
-    QTest::newRow("braceInitializers.1") << "braceInitializers.1.cpp" << "braceInitializers.1.errors.txt";
-    QTest::newRow("braceInitializers.2") << "braceInitializers.2.cpp" << "";
-    QTest::newRow("braceInitializers.3") << "braceInitializers.3.cpp" << "";
-    QTest::newRow("defaultdeleteInitializer.1") << "defaultdeleteInitializer.1.cpp" << "";
-    QTest::newRow("refQualifier.1") << "refQualifier.1.cpp" << "";
-    QTest::newRow("alignofAlignas.1") << "alignofAlignas.1.cpp" << "";
-    QTest::newRow("rangeFor.1") << "rangeFor.1.cpp" << "";
-    QTest::newRow("aliasDecl.1") << "aliasDecl.1.cpp" << "";
-    QTest::newRow("enums.1") << "enums.1.cpp" << "";
-    QTest::newRow("templateGreaterGreater.1") << "templateGreaterGreater.1.cpp" << "";
-    QTest::newRow("packExpansion.1") << "packExpansion.1.cpp" << "";
-    QTest::newRow("declType.1") << "declType.1.cpp" << "";
-    QTest::newRow("threadLocal.1") << "threadLocal.1.cpp" << "";
-    QTest::newRow("trailingtypespec.1") << "trailingtypespec.1.cpp" << "";
-    QTest::newRow("lambda.2") << "lambda.2.cpp" << "";
-    QTest::newRow("userDefinedLiterals.1") << "userDefinedLiterals.1.cpp" << "";
-    QTest::newRow("userDefinedLiterals.2") << "userDefinedLiterals.2.cpp" << "";
-    QTest::newRow("rawstringliterals") << "rawstringliterals.cpp" << "";
-    QTest::newRow("friends") << "friends.cpp" << "";
-    QTest::newRow("attributes") << "attributes.cpp" << "";
+    QTest::newRow("inlineNamespace.1") << "inlineNamespace.1.cpp" << 2011 << "inlineNamespace.1.errors.txt";
+    QTest::newRow("nestedNamespace.1") << "nestedNamespace.1.cpp" << 2011 << "nestedNamespace.1.errors.txt";
+    QTest::newRow("staticAssert.1") << "staticAssert.1.cpp" << 2011 << "staticAssert.1.errors.txt";
+    QTest::newRow("noExcept.1") << "noExcept.1.cpp" << 2011 << "noExcept.1.errors.txt";
+    QTest::newRow("braceInitializers.1") << "braceInitializers.1.cpp" << 2011 << "braceInitializers.1.errors.txt";
+    QTest::newRow("braceInitializers.2") << "braceInitializers.2.cpp" << 2011 << "";
+    QTest::newRow("braceInitializers.3") << "braceInitializers.3.cpp" << 2011 << "";
+    QTest::newRow("defaultdeleteInitializer.1") << "defaultdeleteInitializer.1.cpp" << 2011 << "";
+    QTest::newRow("refQualifier.1") << "refQualifier.1.cpp" << 2011 << "";
+    QTest::newRow("alignofAlignas.1") << "alignofAlignas.1.cpp" << 2011 << "";
+    QTest::newRow("rangeFor.1") << "rangeFor.1.cpp" << 2011 << "";
+    QTest::newRow("aliasDecl.1") << "aliasDecl.1.cpp" << 2011 << "";
+    QTest::newRow("enums.1") << "enums.1.cpp" << 2011 << "";
+    QTest::newRow("templateGreaterGreater.1") << "templateGreaterGreater.1.cpp" << 2011 << "";
+    QTest::newRow("packExpansion.1") << "packExpansion.1.cpp" << 2011 << "";
+    QTest::newRow("declType.1") << "declType.1.cpp" << 2011 << "";
+    QTest::newRow("threadLocal.1") << "threadLocal.1.cpp" << 2011 << "";
+    QTest::newRow("trailingtypespec.1") << "trailingtypespec.1.cpp" << 2011 << "";
+    QTest::newRow("lambda.2") << "lambda.2.cpp" << 2011 << "";
+    QTest::newRow("userDefinedLiterals.1") << "userDefinedLiterals.1.cpp" << 2011 << "";
+    QTest::newRow("userDefinedLiterals.2") << "userDefinedLiterals.2.cpp" << 2011 << "";
+    QTest::newRow("rawstringliterals") << "rawstringliterals.cpp" << 2011 << "";
+    QTest::newRow("friends") << "friends.cpp" << 2011 << "";
+    QTest::newRow("attributes") << "attributes.cpp" << 2011 << "";
+    QTest::newRow("foldExpressions") << "foldExpressions.cpp" << 2017 << "";
 }
 
 void tst_cxx11::parse()
 {
     QFETCH(QString, file);
+    QFETCH(int, cxxVersion);
     QFETCH(QString, errorFile);
 
     QByteArray errors;
-    Document::Ptr doc = document(file, &errors);
+    Document::Ptr doc = document(file, cxxVersion, &errors);
 
     if (! qgetenv("DEBUG").isNull())
         printf("%s\n", errors.constData());
@@ -220,7 +233,7 @@ void tst_cxx11::parseWithC99Enabled()
 
     const bool c99Enabled = true;
     QByteArray errors;
-    Document::Ptr doc = document(file, &errors, c99Enabled);
+    Document::Ptr doc = document(file, 2011, &errors, c99Enabled);
 
     if (! qgetenv("DEBUG").isNull())
         printf("%s\n", errors.constData());

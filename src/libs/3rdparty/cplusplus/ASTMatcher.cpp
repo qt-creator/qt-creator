@@ -3304,3 +3304,38 @@ bool ASTMatcher::match(DesignatedInitializerAST *node, DesignatedInitializerAST 
     return true;
 }
 
+bool ASTMatcher::match(UnaryFoldExpressionAST *node, UnaryFoldExpressionAST *pattern)
+{
+    pattern->lparen_token = node->lparen_token;
+    pattern->pack_token = node->pack_token;
+    pattern->fold_op_token = node->fold_op_token;
+    pattern->rparen_token = node->rparen_token;
+
+    if (!pattern->cast_expression)
+        pattern->cast_expression = node->cast_expression;
+    else if (!AST::match(node->cast_expression, pattern->cast_expression, this))
+        return false;
+
+    return true;
+}
+
+bool ASTMatcher::match(BinaryFoldExpressionAST *node, BinaryFoldExpressionAST *pattern)
+{
+    pattern->lparen_token = node->lparen_token;
+    pattern->fold_op_token1 = node->fold_op_token1;
+    pattern->pack_token = node->pack_token;
+    pattern->fold_op_token2 = node->fold_op_token2;
+    pattern->rparen_token = node->rparen_token;
+
+    if (!pattern->cast_expression1)
+        pattern->cast_expression1 = node->cast_expression1;
+    else if (!AST::match(node->cast_expression1, pattern->cast_expression1, this))
+        return false;
+
+    if (!pattern->cast_expression2)
+        pattern->cast_expression2 = node->cast_expression2;
+    else if (!AST::match(node->cast_expression2, pattern->cast_expression2, this))
+        return false;
+
+    return true;
+}

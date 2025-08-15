@@ -89,6 +89,7 @@ public:
     bool parseExpression(ExpressionAST *&node);
     bool parseExpressionOrDeclarationStatement(StatementAST *&node);
     bool parseExpressionStatement(StatementAST *&node);
+    bool parseFoldExpression(ExpressionAST *&node);
     bool parseForInitStatement(StatementAST *&node);
     bool parseForeachStatement(StatementAST *&node);
     bool parseForStatement(StatementAST *&node);
@@ -251,7 +252,7 @@ public:
     bool parseObjCContextKeyword(int kind, int &in_token);
 
     bool lookAtStdAttribute() const;
-
+    bool lookAtFoldOperator() const;
     bool lookAtObjCSelector() const;
 
     // c99

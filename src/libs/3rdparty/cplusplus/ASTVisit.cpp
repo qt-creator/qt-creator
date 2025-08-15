@@ -1416,3 +1416,19 @@ void DeductionGuideAST::accept0(ASTVisitor *visitor)
     }
     visitor->endVisit(this);
 }
+
+void UnaryFoldExpressionAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this))
+        accept(cast_expression, visitor);
+    visitor->endVisit(this);
+}
+
+void BinaryFoldExpressionAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(cast_expression1, visitor);
+        accept(cast_expression2, visitor);
+    }
+    visitor->endVisit(this);
+}

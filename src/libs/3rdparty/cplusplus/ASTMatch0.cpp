@@ -1314,3 +1314,17 @@ bool DeductionGuideAST::match0(AST *pattern, ASTMatcher *matcher)
 
     return false;
 }
+
+bool UnaryFoldExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (UnaryFoldExpressionAST *_other = pattern->asUnaryFoldExpression())
+        return matcher->match(this, _other);
+    return false;
+}
+
+bool BinaryFoldExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (BinaryFoldExpressionAST *_other = pattern->asBinaryFoldExpression())
+        return matcher->match(this, _other);
+    return false;
+}
