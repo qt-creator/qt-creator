@@ -128,14 +128,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                     return;
                 }
 
-                const FilePath clangdPath
-                    = dockerDevice->filePath("clangd")
-                          .searchInPath({}, FilePath::AppendToPath, [](const FilePath &clangd) {
-                              return Utils::checkClangdVersion(clangd).has_value();
-                          });
-
-                if (!clangdPath.isEmpty())
-                    dockerDevice->setDeviceToolPath(CppEditor::Constants::CLANGD_TOOL_ID, clangdPath);
+                DeviceToolAspectFactory::autoDetectAll(dockerDevice, searchPaths());
 
                 const auto log = [logView](const QString &msg) { logView->append(msg); };
                 // clang-format off
