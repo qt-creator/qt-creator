@@ -186,7 +186,7 @@ void DeviceToolAspectFactory::autoDetect(const IDevicePtr &device, const FilePat
     FilePaths toolPaths;
 
     for (const QString &filePattern : m_filePattern)
-        toolPaths.append(device->filePath(filePattern).searchAllInPath(searchPaths, FilePath::AppendToPath));
+        toolPaths.append(device->filePath(filePattern).searchInDirectories(searchPaths));
 
     // FIXME: Make all values available somehow.
     for (const FilePath &toolPath : std::as_const(toolPaths)) {
