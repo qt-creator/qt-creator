@@ -1510,7 +1510,10 @@ bool LinuxDevice::isDisconnected() const
 
 void LinuxDevice::tryToConnect(const Continuation<> &cont) const
 {
-    d->setupShell(sshParameters(), cont);
+    if (isDisconnected())
+        d->setupShell(sshParameters(), cont);
+    else
+        cont(ResultOk);
 }
 
 void LinuxDevice::closeConnection() const
