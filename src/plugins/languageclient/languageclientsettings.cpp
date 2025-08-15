@@ -587,6 +587,15 @@ QWidget *BaseSettings::createSettingsWidget(QWidget *parent) const
     return new BaseSettingsWidget(this, parent);
 }
 
+BaseSettings *BaseSettings::copy() const
+{
+    BaseSettings *other = create();
+    Store store;
+    toMap(store);
+    other->fromMap(store);
+    return other;
+}
+
 bool BaseSettings::isValid() const
 {
     return !m_name.isEmpty();

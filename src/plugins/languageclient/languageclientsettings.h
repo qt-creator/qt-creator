@@ -85,7 +85,8 @@ public:
 
     virtual bool applyFromSettingsWidget(QWidget *widget);
     virtual QWidget *createSettingsWidget(QWidget *parent = nullptr) const;
-    virtual BaseSettings *copy() const = 0;
+    virtual BaseSettings *copy() const;
+    virtual BaseSettings *create() const = 0;
     virtual bool isValid() const;
     virtual bool isValidOnBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const;
     Client *createClient() const;
@@ -116,7 +117,7 @@ public:
 
     bool applyFromSettingsWidget(QWidget *widget) override;
     QWidget *createSettingsWidget(QWidget *parent = nullptr) const override;
-    BaseSettings *copy() const override { return new StdIOSettings(*this); }
+    BaseSettings *create() const override { return new StdIOSettings; }
     bool isValid() const override;
     void toMap(Utils::Store &map) const override;
     void fromMap(const Utils::Store &map) override;

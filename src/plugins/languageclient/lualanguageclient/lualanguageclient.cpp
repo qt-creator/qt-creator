@@ -181,11 +181,8 @@ class LuaClientWrapper;
 
 class LuaClientSettings : public BaseSettings
 {
-    std::weak_ptr<LuaClientWrapper> m_wrapper;
-    QObject guard;
-
 public:
-    LuaClientSettings(const LuaClientSettings &wrapper);
+    LuaClientSettings() {}
     LuaClientSettings(const std::weak_ptr<LuaClientWrapper> &wrapper);
     ~LuaClientSettings() override = default;
 
@@ -196,13 +193,19 @@ public:
 
     QWidget *createSettingsWidget(QWidget *parent = nullptr) const override;
 
-    BaseSettings *copy() const override { return new LuaClientSettings(*this); }
+    BaseSettings *create() const override { return new LuaClientSettings; }
+    BaseSettings *copy() const override;
 
 protected:
     Client *createClient(BaseClientInterface *interface) const final;
 
     BaseClientInterface *createInterface(ProjectExplorer::BuildConfiguration *bc) const override;
+
+private:
+    std::weak_ptr<LuaClientWrapper> m_wrapper;
+    QObject guard;
 };
+
 enum class TransportType { StdIO, LocalSocket };
 
 class LuaClientWrapper : public QObject
@@ -622,16 +625,19 @@ signals:
     void optionsChanged();
 };
 
-LuaClientSettings::LuaClientSettings(const LuaClientSettings &other)
-    : BaseSettings::BaseSettings(other)
-    , m_wrapper(other.m_wrapper)
+BaseSettings *LuaClientSettings::copy() const
 {
-    if (auto w = m_wrapper.lock()) {
-        QObject::connect(w.get(), &LuaClientWrapper::optionsChanged, &guard, [this] {
-            if (auto w = m_wrapper.lock())
-                m_initializationOptions = w->m_initializationOptions;
+    auto other = static_cast<LuaClientSettings *>(BaseSettings::copy());
+
+    other->m_wrapper = m_wrapper;
+    if (auto w = other->m_wrapper.lock()) {
+        QObject::connect(w.get(), &LuaClientWrapper::optionsChanged, &other->guard, [other] {
+            if (auto w = other->m_wrapper.lock())
+                other->m_initializationOptions = w->m_initializationOptions;
         });
     }
+
+    return other;
 }
 
 LuaClientSettings::LuaClientSettings(const std::weak_ptr<LuaClientWrapper> &wrapper)

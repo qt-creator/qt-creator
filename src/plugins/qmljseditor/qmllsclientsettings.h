@@ -16,7 +16,7 @@ public:
     static const inline QVersionNumber mininumQmllsVersion = QVersionNumber(6, 8);
 
     QmllsClientSettings();
-    BaseSettings *copy() const override { return new QmllsClientSettings(*this); }
+    BaseSettings *create() const override { return new QmllsClientSettings; }
 
     QWidget *createSettingsWidget(QWidget *parent = nullptr) const override;
     bool applyFromSettingsWidget(QWidget *widget) override;
