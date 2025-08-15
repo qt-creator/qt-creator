@@ -465,15 +465,12 @@ func exit(exitCode int, deleteOnExit bool) {
 	os.Exit(0)
 }
 
-func processCommand(watcher *WatcherHandler, watchDogChannel chan struct{} ,cmd command, out chan<- []byte, deleteOnExit bool) {
+func processCommand(watcher *WatcherHandler, cmd command, out chan<- []byte, deleteOnExit bool) {
 	defer globalWaitGroup.Done()
 
 	switch cmd.Type {
 	case "ping":
-		select {
-			case watchDogChannel <- struct{}{}:
-			default:
-		}
+		// just a keepalive
 	case "copyfile":
 		processCopyFile(cmd, out)
         case "createsymlink":
@@ -538,10 +535,10 @@ func processCommand(watcher *WatcherHandler, watchDogChannel chan struct{} ,cmd 
 	}
 }
 
-func executor(watcher *WatcherHandler, watchDogChannel chan struct {}, commands <-chan command, out chan<- []byte, deleteOnExit bool) {
+func executor(watcher *WatcherHandler, commands <-chan command, out chan<- []byte, deleteOnExit bool) {
 	for cmd := range commands {
 		globalWaitGroup.Add(1)
-		go processCommand(watcher, watchDogChannel, cmd, out, deleteOnExit)
+		go processCommand(watcher, cmd, out, deleteOnExit)
 	}
 }
 
@@ -611,14 +608,18 @@ func writeMain(out *bufio.Writer) {
 	out.Flush()
 }
 
-func watchDogLoop(channel chan struct {}, deleteOnExit bool) {
-	watchDogTimeOut := 60 * time.Minute
+func watchDogLoop(channel chan bool, deleteOnExit bool) {
+	watchDogTimeOut := 60 * time.Second
 	timer := time.NewTimer(watchDogTimeOut)
 
 	for {
 		select {
-		case <-channel:
-			timer.Reset(watchDogTimeOut)
+		case turnOn := <-channel:
+		    if turnOn {
+				timer.Reset(watchDogTimeOut)
+			} else {
+				timer.Stop()
+			}
 		case <-timer.C:
 			// If we don't get a signal for one minute, we assume that the connection is dead.
 			fmt.Println("Watchdog timeout, exiting.")
@@ -631,7 +632,7 @@ func readMain(test bool, deleteOnExit bool) {
 	commandChannel := make(chan command)
 	outputChannel := make(chan []byte)
 
-	watchDogChannel := make(chan struct {}, 1)
+	watchDogChannel := make(chan bool)
 	go watchDogLoop(watchDogChannel, deleteOnExit)
 
 	watcher := NewWatcherHandler()
@@ -650,7 +651,7 @@ func readMain(test bool, deleteOnExit bool) {
 	globalWaitGroup.Add(1)
 	go func() {
 		defer globalWaitGroup.Done()
-		executor(watcher, watchDogChannel, commandChannel, outputChannel, deleteOnExit)
+		executor(watcher, commandChannel, outputChannel, deleteOnExit)
 	}()
 
 	globalWaitGroup.Add(1)
@@ -672,8 +673,14 @@ func readMain(test bool, deleteOnExit bool) {
 	}
 	decoder := cbor.NewDecoder(in)
 	for {
+		_, err := in.Peek(1)
+		if err == io.EOF {
+		    time.Sleep(50*time.Millisecond)
+			continue
+		}
+		// disable watchdog while we are busy processing data
+		watchDogChannel <- false
 		cmd, err := readPacket(decoder)
-
 		if err == io.EOF {
 			close(commandChannel)
 			break
@@ -682,6 +689,8 @@ func readMain(test bool, deleteOnExit bool) {
 		} else {
 			commandChannel <- *cmd
 		}
+		// reset watchdog timer
+		watchDogChannel <- true
 	}
 
 	globalWaitGroup.Wait()
