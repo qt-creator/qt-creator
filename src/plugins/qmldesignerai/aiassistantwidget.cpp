@@ -29,19 +29,6 @@
 namespace QmlDesigner {
 
 namespace {
-QStringList getImageAssetsPaths()
-{
-    Utils::FilePath resourePath = DocumentManager::currentResourcePath();
-
-    QStringList imagePaths;
-    QStringList filters = Asset::supportedImageSuffixes();
-
-    QDirIterator it(resourePath.toFSPathString(), filters, QDir::Files, QDirIterator::Subdirectories);
-    while (it.hasNext())
-        imagePaths << Utils::FilePath::fromString(it.next()).relativePathFrom(resourePath).toFSPathString();
-
-    return imagePaths;
-}
 
 QString propertyEditorResourcesPath()
 {
@@ -113,8 +100,6 @@ AiAssistantWidget::AiAssistantWidget()
         {"rootView", QVariant::fromValue(this)},
     });
 
-    m_quickWidget->rootContext()->setContextProperty("rootView", QVariant::fromValue(this));
-
     vLayout->addWidget(m_quickWidget.get());
     reloadQmlSource();
 }
@@ -124,9 +109,18 @@ QSize AiAssistantWidget::sizeHint() const
     return {420, 20};
 }
 
-QStringList AiAssistantWidget::imageAssetsModel() const
+QStringList AiAssistantWidget::getImageAssetsPaths() const
 {
-    return QStringList{""} << getImageAssetsPaths();
+    Utils::FilePath resourePath = DocumentManager::currentResourcePath();
+
+    QStringList imagePaths;
+    QStringList filters = Asset::supportedImageSuffixes();
+
+    QDirIterator it(resourePath.toFSPathString(), filters, QDir::Files, QDirIterator::Subdirectories);
+    while (it.hasNext())
+        imagePaths << Utils::FilePath::fromString(it.next()).relativePathFrom(resourePath).toFSPathString();
+
+    return imagePaths;
 }
 
 void AiAssistantWidget::handleMessage(const QString &prompt)
@@ -220,8 +214,10 @@ Request: %2
     };
 
     m_reply = m_manager->post(request, QJsonDocument(json).toJson());
+    setIsGenerating(true);
 
     connect(m_reply, &QNetworkReply::finished, this, [&]() {
+        setIsGenerating(false);
         if (m_reply->error() != QNetworkReply::NoError) {
             qWarning() << "AI Assistant Request failed: " << m_reply->errorString();
             // TODO: notify the user that the request failed (+ maybe show the error message)
@@ -281,11 +277,26 @@ QString AiAssistantWidget::getNextCommand()
     return {};
 }
 
+QUrl AiAssistantWidget::fullAttachedImageUrl() const
+{
+    QString path = attachedImage();
+    return path.isEmpty() ? QUrl()
+                          : DocumentManager::currentResourcePath().pathAppended(path).toUrl();
+}
+
 void AiAssistantWidget::reloadQmlSource()
 {
     const QString itemLibraryQmlPath = qmlSourcesPath() + "/AiAssistantView.qml";
     QTC_ASSERT(QFileInfo::exists(itemLibraryQmlPath), return);
     m_quickWidget->setSource(QUrl::fromLocalFile(itemLibraryQmlPath));
+}
+
+void AiAssistantWidget::setIsGenerating(bool val)
+{
+    if (m_isGenerating != val) {
+        m_isGenerating = val;
+        emit isGeneratingChanged();
+    }
 }
 
 QString AiAssistantWidget::attachedImage() const

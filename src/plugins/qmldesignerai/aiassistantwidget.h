@@ -26,20 +26,26 @@ class AiAssistantWidget : public QFrame
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool isGenerating MEMBER m_isGenerating NOTIFY isGeneratingChanged FINAL)
+
 public:
     AiAssistantWidget();
     ~AiAssistantWidget() = default;
 
     QSize sizeHint() const override;
 
-    Q_INVOKABLE QStringList imageAssetsModel() const;
+    Q_INVOKABLE QStringList getImageAssetsPaths() const;
     Q_INVOKABLE void handleMessage(const QString &prompt);
     Q_INVOKABLE QString getPreviousCommand();
     Q_INVOKABLE QString getNextCommand();
+    Q_INVOKABLE QUrl fullAttachedImageUrl() const;
+
+signals:
+    void isGeneratingChanged();
 
 private: // functions
     void reloadQmlSource();
-
+    void setIsGenerating(bool val);
     QString attachedImage() const;
 
 private: // variables
@@ -50,6 +56,7 @@ private: // variables
 
     QStringList m_inputHistory;
     int m_historyIndex = -1;
+    bool m_isGenerating = false;
 };
 
 } // namespace QmlDesigner

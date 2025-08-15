@@ -6,6 +6,7 @@ import QtQuick.Layouts
 import HelperWidgets as HelperWidgets
 import StudioTheme as StudioTheme
 import QtQuick.Controls.Basic as Basic
+import AiAssistantBackend
 
 Rectangle {
     id: root
@@ -62,14 +63,16 @@ Rectangle {
                         event.accepted = false
                     }
                 } break
-                case Qt.Key_Up: {
-                    textEdit.text = root.rootView.getPreviousCommand()
-                    event.accepted = true
-                } break
-                case Qt.Key_Down: {
-                    textEdit.text = root.rootView.getNextCommand()
-                    event.accepted = true
-                } break
+                // TODO: Up/Down keys navigate between lines in the multiline text field.
+                // This should be replaced with a new history navigation method.
+                // case Qt.Key_Up: {
+                //     textEdit.text = root.rootView.getPreviousCommand()
+                //     event.accepted = true
+                // } break
+                // case Qt.Key_Down: {
+                //     textEdit.text = root.rootView.getNextCommand()
+                //     event.accepted = true
+                // } break
                 default:
                     event.accepted = false
                 }
@@ -83,7 +86,9 @@ Rectangle {
             Layout.alignment: Qt.AlignBottom | Qt.AlignHCenter
             Layout.margins: StudioTheme.Values.marginTopBottom
 
-            icon: StudioTheme.Constants.selectFill_medium
+            icon: AiAssistantBackend.rootView.isGenerating && !sendButton.enabled
+                  ? StudioTheme.Constants.more_medium
+                  : StudioTheme.Constants.selectFill_medium
 
             iconColor: {
                 return sendButton.enabled

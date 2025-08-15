@@ -14,7 +14,7 @@ Rectangle {
     id: root
 
     property var rootView: AiAssistantBackend.rootView
-    property alias attachedImage: attachedImageText.text
+    property string attachedImage
 
     color: StudioTheme.Values.themeBackgroundColorNormal
 
@@ -33,12 +33,45 @@ Rectangle {
             spacing: 5
             Layout.alignment: Qt.AlignRight
 
-            Text {
-                id: attachedImageText
+            Rectangle {
+                width: 60
+                height: 40
+                color: StudioTheme.Values.themeToolTipBackground
 
-                anchors.verticalCenter: attachImageButton.verticalCenter
+                visible: root.attachedImage !== ""
 
-                color: StudioTheme.Values.themeTextColor
+                Image {
+                    id: attachedImageImage
+
+                    anchors.fill: parent
+                    fillMode: Image.PreserveAspectFit
+
+                    StudioControls.ToolTipArea {
+                        text: root.attachedImage
+                        anchors.fill: parent
+                    }
+
+                    HelperWidgets.AbstractButton {
+                        id: removeImageButton
+                        objectName: "RemoveImageButton"
+
+                        width: 12
+                        height: 12
+                        iconSize: 10
+
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+
+                        style: StudioTheme.Values.viewBarButtonStyle
+                        buttonIcon: StudioTheme.Constants.close_small
+                        tooltip: qsTr("Remove the attached image.")
+
+                        onClicked: {
+                            root.attachedImage = ""
+                            attachedImageImage.source = ""
+                        }
+                    }
+                }
             }
 
             HelperWidgets.AbstractButton {
@@ -70,7 +103,7 @@ Rectangle {
         }
 
         function updateModel() {
-            let imagesModel = root.rootView.imageAssetsModel()
+            let imagesModel = root.rootView.getImageAssetsPaths()
             attachRepeater.model = imagesModel
             if (!imagesModel.includes(root.attachedImage))
                 root.attachedImage = ""
@@ -84,7 +117,10 @@ Rectangle {
 
                 required property string modelData
                 text: modelData
-                onTriggered: root.attachedImage = menuItem.text
+                onTriggered: {
+                    root.attachedImage = menuItem.text
+                    attachedImageImage.source = root.rootView.fullAttachedImageUrl()
+                }
             }
         }
     }
