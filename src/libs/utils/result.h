@@ -27,8 +27,16 @@ template<typename T = void>
 class Continuation
 {
 public:
+    Continuation() = default;
+
+    Continuation(const std::function<void(const Result<T> &)> &callback)
+        : m_unguarded(true), m_callback(callback)
+    {
+        QTC_CHECK(callback);
+    }
+
     Continuation(QObject *guard, const std::function<void(const Result<T> &)> &callback)
-        : m_guard(guard), m_callback(callback)
+        : m_guarded(true), m_guard(guard), m_callback(callback)
     {
         QTC_CHECK(guard);
         QTC_CHECK(callback);
@@ -36,8 +44,10 @@ public:
 
     void operator()(const Result<T> &result) const
     {
-        if (m_guard)
+        if (m_unguarded || (m_guarded && m_guard)) {
+            QTC_ASSERT(m_callback, return);
             m_callback(result);
+        }
     }
 
     QObject *guard() const
@@ -46,6 +56,8 @@ public:
     }
 
 private:
+    bool m_guarded = false;
+    bool m_unguarded = false;
     QPointer<QObject> m_guard;
     std::function<void(const Result<T> &)> m_callback;
 };
