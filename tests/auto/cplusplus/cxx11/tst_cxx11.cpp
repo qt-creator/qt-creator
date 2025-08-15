@@ -204,6 +204,7 @@ void tst_cxx11::parse_data()
     QTest::newRow("attributes") << "attributes.cpp" << 2011 << "";
     QTest::newRow("foldExpressions") << "foldExpressions.cpp" << 2017 << "";
     QTest::newRow("explicitObjectParameters") << "explicitObjParam.cpp" << 2023 << "";
+    QTest::newRow("placeholderReturnType") << "placeholderReturnType.cpp" << 2014 << "";
 }
 
 void tst_cxx11::parse()

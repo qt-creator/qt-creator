@@ -1353,7 +1353,8 @@ bool Parser::parsePlaceholderTypeSpecifier(PlaceholderTypeSpecifierAST *&node)
     TypeConstraintAST *typeConstraint = nullptr;
     const int savedCursor = cursor();
     parseTypeConstraint(typeConstraint);
-    if (LA() != T_AUTO && (LA() != T_DECLTYPE || LA(1) != T_LPAREN || LA(2) != T_AUTO)) {
+    if (LA() != T_AUTO
+            && (LA() != T_DECLTYPE || LA(2) != T_LPAREN || LA(3) != T_AUTO || LA(4) != T_RPAREN)) {
         rewind(savedCursor);
         return false;
     }
@@ -1361,14 +1362,8 @@ bool Parser::parsePlaceholderTypeSpecifier(PlaceholderTypeSpecifierAST *&node)
     spec->typeConstraint = typeConstraint;
     if (LA() == T_DECLTYPE) {
         spec->declTypetoken = consumeToken();
-        if (LA() != T_LPAREN)
-            return false;
         spec->lparenToken = consumeToken();
-        if (LA() != T_AUTO)
-            return false;
         spec->autoToken = consumeToken();
-        if (LA() != T_RPAREN)
-            return false;
         spec->rparenToken = consumeToken();
     } else {
         spec->autoToken = consumeToken();
@@ -1787,7 +1782,10 @@ bool Parser::parseDeclSpecifierSeq(SpecifierListAST *&decl_specifier_seq,
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
         } else if (! named_type_specifier && lookAtBuiltinTypeSpecifier()) {
             // parts of simple-type-specifier
-            parseBuiltinTypeSpecifier(*decl_specifier_seq_ptr);
+            if (!parseBuiltinTypeSpecifier(*decl_specifier_seq_ptr)) {
+                error(cursor(), "expected built-in type specifier");
+                break;
+            }
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
             has_type_specifier = true;
         } else if (! has_type_specifier && (LA() == T_COLON_COLON ||
@@ -4667,12 +4665,17 @@ bool Parser::parseBuiltinTypeSpecifier(SpecifierListAST *&node)
         node = new (_pool) SpecifierListAST(ast);
         return true;
     } else if (LA() == T_DECLTYPE) {
+        Rewinder rewinder(*this);
         DecltypeSpecifierAST *ast = new (_pool) DecltypeSpecifierAST;
         ast->decltype_token = consumeToken();
-        match(T_LPAREN, &ast->lparen_token);
-        if (parseExpression(ast->expression))
-            match(T_RPAREN, &ast->rparen_token);
+        if (!match(T_LPAREN, &ast->lparen_token))
+            return false;
+        if (!parseExpression(ast->expression))
+            return false;
+        if (!match(T_RPAREN, &ast->rparen_token))
+            return false;
         node = new (_pool) SpecifierListAST(ast);
+        rewinder.invalidate();
         return true;
     } else if (lookAtBuiltinTypeSpecifier()) {
         SimpleSpecifierAST *ast = new (_pool) SimpleSpecifierAST;
@@ -4710,12 +4713,20 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
         } else if (parseAttributeSpecifier(*decl_specifier_seq_ptr)) {
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
-        } else if (! named_type_specifier && ! has_complex_type_specifier && lookAtBuiltinTypeSpecifier()) {
-            parseBuiltinTypeSpecifier(*decl_specifier_seq_ptr);
-            decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
-            has_type_specifier = true;
-        } else if (! has_type_specifier && (LA() == T_COLON_COLON ||
-                                            LA() == T_IDENTIFIER)) {
+        } else if (!named_type_specifier && !has_complex_type_specifier && lookAtBuiltinTypeSpecifier()) {
+            PlaceholderTypeSpecifierAST *placeholderSpec = nullptr;
+            if (parseBuiltinTypeSpecifier(*decl_specifier_seq_ptr)) {
+                decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
+                has_type_specifier = true;
+            } else if (_languageFeatures.cxx14Enabled && parsePlaceholderTypeSpecifier(placeholderSpec)) {
+                *decl_specifier_seq_ptr = new (_pool) SpecifierListAST(placeholderSpec);
+                decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
+                has_type_specifier = true;
+            } else {
+                error(cursor(), "expected decltype or placeholder specifier");
+                break;
+            }
+        } else if (!has_type_specifier && (LA() == T_COLON_COLON || LA() == T_IDENTIFIER)) {
             startOfNamedTypeSpecifier = cursor();
             if (parseName(named_type_specifier)) {
 
