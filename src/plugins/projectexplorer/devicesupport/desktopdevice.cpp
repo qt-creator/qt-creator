@@ -61,12 +61,12 @@ DesktopDevice::DesktopDevice()
         = QString::fromLatin1("%1-%2").arg(DESKTOP_PORT_START).arg(DESKTOP_PORT_END);
     setFreePorts(Utils::PortList::fromString(portRange));
 
-    setOpenTerminal([](const Environment &env, const FilePath &path) -> Result<> {
+    setOpenTerminal([](const Environment &env, const FilePath &path, const Continuation<> &cont) {
         const Environment realEnv = env.hasChanges() ? env : Environment::systemEnvironment();
 
         const Result<FilePath> shell = Terminal::defaultShellForDevice(path);
         if (!shell)
-            return make_unexpected(shell.error());
+            return cont(ResultError(shell.error()));
 
         Process process;
         process.setTerminalMode(TerminalMode::Detached);
@@ -79,7 +79,7 @@ DesktopDevice::DesktopDevice()
             process.setWorkingDirectory(workingDir);
         process.start();
 
-        return {};
+        cont(ResultOk);
     });
 
     struct DeployToolsAvailability

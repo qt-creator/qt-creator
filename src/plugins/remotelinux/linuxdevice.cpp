@@ -1246,7 +1246,8 @@ LinuxDevice::LinuxDevice()
     });
 
     setOpenTerminal([this](const Environment &env,
-                           const FilePath &workingDir) -> Result<> {
+                           const FilePath &workingDir,
+                           const Continuation<> &cont) {
         Process *proc = new Process;
 
         // If we will not set any environment variables, we can leave out the shell executable
@@ -1269,15 +1270,19 @@ LinuxDevice::LinuxDevice()
             proc->deleteLater();
         });
 
-        return {};
+        cont(ResultOk);
     });
 
     addDeviceAction({Tr::tr("Open Remote Shell"), [](const IDevice::Ptr &device) {
-                         Result<> result = device->openTerminal(Environment(), FilePath());
-
-                         if (!result)
-                             QMessageBox::warning(nullptr, Tr::tr("Error"), result.error());
-                     }});
+         device->openTerminal(
+             Environment(),
+             FilePath(),
+             Continuation<>([](const Result<> &result) {
+                 if (!result)
+                     QMessageBox::warning(dialogParent(), Tr::tr("Error"), result.error());
+             })
+          );
+     }});
 }
 
 LinuxDevice::~LinuxDevice()

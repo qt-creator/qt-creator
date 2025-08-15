@@ -403,11 +403,13 @@ bool IDevice::canOpenTerminal() const
     return bool(d->openTerminal);
 }
 
-Result<> IDevice::openTerminal(const Environment &env, const FilePath &workingDir) const
+void IDevice::openTerminal(const Environment &env,
+                           const FilePath &workingDir,
+                           const Continuation<> &cont) const
 {
     QTC_ASSERT(canOpenTerminal(),
-               return make_unexpected(Tr::tr("Opening a terminal is not supported.")));
-    return d->openTerminal(env, workingDir);
+               cont(ResultError(Tr::tr("Opening a terminal is not supported."))); return);
+    d->openTerminal(env, workingDir, cont);
 }
 
 bool IDevice::isAnyUnixDevice() const

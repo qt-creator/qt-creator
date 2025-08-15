@@ -526,15 +526,19 @@ DockerDevice::DockerDevice()
 
     setFileAccessFactory([this] { return d->createFileAccess(); });
 
-    setOpenTerminal([this](const Environment &env, const FilePath &workingDir) -> Result<> {
+    setOpenTerminal([this](const Environment &env, const FilePath &workingDir, const Continuation<> &cont) {
         Result<QString> result = d->updateContainerAccess();
 
-        if (!result)
-            return make_unexpected(result.error());
+        if (!result) {
+            cont(ResultError(result.error()));
+            return;
+        }
 
         Result<FilePath> shell = Terminal::defaultShellForDevice(rootPath());
-        if (!shell)
-            return make_unexpected(shell.error());
+        if (!shell) {
+            cont(ResultError(shell.error()));
+            return;
+        }
 
         Process proc;
         proc.setTerminalMode(TerminalMode::Detached);
@@ -543,7 +547,7 @@ DockerDevice::DockerDevice()
         proc.setCommand(CommandLine{*shell});
         proc.start();
 
-        return {};
+        cont(ResultOk);
     });
 
     addDeviceAction(
@@ -553,9 +557,14 @@ DockerDevice::DockerDevice()
                  QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error"), env.error());
                  return;
              }
-             Result<> result = device->openTerminal(*env, FilePath());
-             if (!result)
-                 QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error"), result.error());
+             device->openTerminal(
+                *env,
+                FilePath(),
+                Continuation<>(dialogParent(), [](const Result<> &result) {
+                     if (!result)
+                         QMessageBox::warning(dialogParent(), Tr::tr("Error"), result.error());
+                })
+             );
          }});
 }
 

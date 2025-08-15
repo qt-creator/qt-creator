@@ -246,8 +246,9 @@ public:
     void setupId(Origin origin, Utils::Id id = Utils::Id());
 
     bool canOpenTerminal() const;
-    Utils::Result<> openTerminal(const Utils::Environment &env,
-                                           const Utils::FilePath &workingDir) const;
+    void openTerminal(const Utils::Environment &env,
+                      const Utils::FilePath &workingDir,
+                      const Utils::Continuation<> &cont = {}) const;
 
     bool isWindowsDevice() const { return osType() == Utils::OsTypeWindows; }
     bool isLinuxDevice() const { return osType() == Utils::OsTypeLinux; }
@@ -294,8 +295,9 @@ protected:
     virtual void toMap(Utils::Store &map) const;
     virtual void postLoad() {}
 
-    using OpenTerminal = std::function<Utils::Result<>(const Utils::Environment &,
-                                                                 const Utils::FilePath &)>;
+    using OpenTerminal = std::function<void(const Utils::Environment &,
+                                            const Utils::FilePath &,
+                                            const Utils::Continuation<> &)>;
     void setOpenTerminal(const OpenTerminal &openTerminal);
     void setDisplayType(const QString &type);
     void setOsType(Utils::OsType osType);
