@@ -52,6 +52,7 @@ void MultiPropertyEditorAction::registerView(PropertyEditorView *view)
     bool actionIsChecked = view->action()->isChecked();
     m_viewsStatus.insert(view, actionIsChecked);
     m_views.append(view);
+    updateViewsCount();
 
     auto widget = view->widgetInfo().widget;
     widget->installEventFilter(this);
@@ -81,6 +82,7 @@ void MultiPropertyEditorAction::unregisterView(PropertyEditorView *view)
         return;
 
     m_views.removeOne(view);
+    updateViewsCount();
 
     auto widget = view->widgetInfo().widget;
     widget->removeEventFilter(this);
@@ -181,6 +183,13 @@ void MultiPropertyEditorAction::ensureParentId(PropertyEditorView *view)
 
     widgetInfo.parentId = mainPropertyEditorId;
     view->setWidgetInfo(widgetInfo);
+}
+
+void MultiPropertyEditorAction::updateViewsCount()
+{
+    const int instancesCount = m_views.count();
+    for (PropertyEditorView *view : std::as_const(m_views))
+        view->setInstancesCount(instancesCount);
 }
 
 } // namespace QmlDesigner

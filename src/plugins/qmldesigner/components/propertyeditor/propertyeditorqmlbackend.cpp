@@ -684,6 +684,9 @@ void PropertyEditorQmlBackend::setup(const ModelNodes &editorNodes,
     contextObject()->setMajorQtQuickVersion(qmlObjectNode.view()->majorQtQuickVersion());
     contextObject()->setMinorQtQuickVersion(qmlObjectNode.view()->minorQtQuickVersion());
 #endif
+
+    contextObject()->setEditorInstancesCount(propertyEditor->instancesCount());
+
     contextObject()->setHasMaterialLibrary(Utils3D::materialLibraryNode(propertyEditor).isValid());
     contextObject()->setIsQt6Project(propertyEditor->externalDependencies().isQt6Project());
     contextObject()->setEditorNodes(editorNodes);

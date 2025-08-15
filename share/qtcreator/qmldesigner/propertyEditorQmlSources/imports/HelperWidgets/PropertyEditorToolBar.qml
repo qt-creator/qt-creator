@@ -43,13 +43,18 @@ Rectangle {
 
     HelperWidgets.AbstractButton {
         id: addExtraViewButton
+
+        readonly property bool maxReached: editorInstancesCount >= maxEditorInstancesCount
+
         anchors.right: lockButton.left
         anchors.verticalCenter: parent.verticalCenter
         visible: has3DScene && isMultiPropertyEditorPluginEnabled
         buttonIcon: StudioTheme.Constants.add_medium
         style: StudioTheme.Values.viewBarButtonStyle
-        enabled: true
-        tooltip: qsTr("Add extra property editor")
+        enabled: !maxReached
+        tooltip: maxReached
+                 ? qsTr("Maximum number of property editors reached (%1)").arg(maxEditorInstancesCount)
+                 : qsTr("Add property editor")
         onClicked: root.toolBarAction(ToolBarAction.AddExtraWidget)
     }
 }

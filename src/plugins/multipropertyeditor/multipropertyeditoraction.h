@@ -30,6 +30,7 @@ private:
     void uncheckIfAllWidgetsHidden();
     void setCheckedIfWidgetRegistered(QObject *widgetObject);
     void ensureParentId(PropertyEditorView *view);
+    void updateViewsCount();
 
     QHash<PropertyEditorView *, bool> m_viewsStatus;
     QList<PropertyEditorView *> m_views;

@@ -956,6 +956,26 @@ void PropertyEditorView::setTargetNode(const ModelNode &node)
     m_stackedWidget->setFocus();
 }
 
+void PropertyEditorView::setInstancesCount(int n)
+{
+    NanotraceHR::Tracer tracer{"property editor view set instances count", category()};
+
+    if (m_instancesCount == n)
+        return;
+
+    m_instancesCount = n;
+
+    if (m_qmlBackEndForCurrentType)
+        m_qmlBackEndForCurrentType->contextObject()->setEditorInstancesCount(instancesCount());
+}
+
+int PropertyEditorView::instancesCount() const
+{
+    NanotraceHR::Tracer tracer{"property editor view instances count", category()};
+
+    return m_instancesCount;
+}
+
 QList<ModelNode> PropertyEditorView::currentNodes() const
 {
     NanotraceHR::Tracer tracer{"property editor view current nodes", category()};

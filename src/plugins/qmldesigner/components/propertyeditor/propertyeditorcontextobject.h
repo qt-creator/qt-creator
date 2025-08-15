@@ -35,6 +35,8 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(int minorVersion READ minorVersion WRITE setMinorVersion NOTIFY minorVersionChanged)
     Q_PROPERTY(int majorQtQuickVersion READ majorQtQuickVersion WRITE setMajorQtQuickVersion NOTIFY majorQtQuickVersionChanged)
     Q_PROPERTY(int minorQtQuickVersion READ minorQtQuickVersion WRITE setMinorQtQuickVersion NOTIFY minorQtQuickVersionChanged)
+    Q_PROPERTY(int editorInstancesCount READ editorInstancesCount NOTIFY editorInstancesCountChanged)
+    Q_PROPERTY(int maxEditorInstancesCount READ maxEditorInstancesCount CONSTANT)
 
     Q_PROPERTY(QString activeDragSuffix READ activeDragSuffix NOTIFY activeDragSuffixChanged)
 
@@ -123,6 +125,10 @@ public:
     void setMinorQtQuickVersion(int minorVersion);
     int minorVersion() const;
     void setMinorVersion(int minorVersion);
+    void setEditorInstancesCount(int n);
+    int editorInstancesCount() const;
+
+    int maxEditorInstancesCount() const { return 10; }
 
     bool hasActiveTimeline() const;
     void setHasActiveTimeline(bool b);
@@ -173,6 +179,7 @@ signals:
     void minorVersionChanged();
     void majorQtQuickVersionChanged();
     void minorQtQuickVersionChanged();
+    void editorInstancesCountChanged();
     void specificQmlComponentChanged();
     void hasAliasExportChanged();
     void hasActiveTimelineChanged();
@@ -227,6 +234,8 @@ private:
     int m_minorVersion = 1;
     int m_majorQtQuickVersion = 1;
     int m_minorQtQuickVersion = -1;
+
+    int m_editorInstancesCount = 0;
 
     bool m_hasQuick3DImport = false;
     bool m_hasMaterialLibrary = false;

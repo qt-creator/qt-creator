@@ -126,6 +126,9 @@ public:
     ModelNode activeNode() const;
     void setTargetNode(const ModelNode &node);
 
+    void setInstancesCount(int n);
+    int instancesCount() const;
+
     virtual void registerWidgetInfo() override;
     virtual void deregisterWidgetInfo() override;
 
@@ -200,6 +203,7 @@ private: //variables
     bool m_locked;
     bool m_textureAboutToBeRemoved = false;
     bool m_isSelectionLocked = false;
+    int m_instancesCount = 0;
     QString m_parentWidgetId = "";
     QString m_uniqueWidgetId = "Properties";
     QString m_widgetTabName = tr("Properties");

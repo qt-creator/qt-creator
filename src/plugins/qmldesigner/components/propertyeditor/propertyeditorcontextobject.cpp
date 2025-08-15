@@ -412,6 +412,25 @@ void PropertyEditorContextObject::setMinorVersion(int minorVersion)
     emit minorVersionChanged();
 }
 
+void PropertyEditorContextObject::setEditorInstancesCount(int n)
+{
+    NanotraceHR::Tracer tracer{"property editor context object set editor instances count",
+                               category()};
+
+    if (m_editorInstancesCount == n)
+        return;
+
+    m_editorInstancesCount = n;
+    emit editorInstancesCountChanged();
+}
+
+int PropertyEditorContextObject::editorInstancesCount() const
+{
+    NanotraceHR::Tracer tracer{"property editor context object editor instances count", category()};
+
+    return m_editorInstancesCount;
+}
+
 bool PropertyEditorContextObject::hasActiveTimeline() const
 {
     NanotraceHR::Tracer tracer{"property editor context object has active timeline", category()};
