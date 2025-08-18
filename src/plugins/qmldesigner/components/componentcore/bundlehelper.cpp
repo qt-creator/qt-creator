@@ -64,12 +64,13 @@ void BundleHelper::createImporter()
         m_importer.get(),
         &BundleImporter::importFinished,
         m_view,
-        [&](const QmlDesigner::TypeName &typeName, const QString &bundleId) {
+        [&](const QmlDesigner::TypeName &typeName, const QString &bundleId, bool typeAdded) {
             QTC_ASSERT(typeName.size(), return);
             if (isMaterialBundle(bundleId)) {
                 m_view->executeInTransaction("BundleHelper::createImporter", [&] {
                     Utils3D::createMaterial(m_view, typeName);
-                    m_view->resetPuppet();
+                    if (typeAdded)
+                        m_view->resetPuppet();
                 });
             } else if (isItemBundle(bundleId)) {
                 ModelNode target = Utils3D::active3DSceneNode(m_view);
@@ -84,17 +85,20 @@ void BundleHelper::createImporter()
                         newNode.simplifiedTypeName(), "node"));
                     m_view->clearSelectedModelNodes();
                     m_view->selectModelNode(newNode);
-                    m_view->resetPuppet();
+                    if (typeAdded)
+                        m_view->resetPuppet();
                 });
             }
         });
 #else
     QObject::connect(m_importer.get(), &BundleImporter::importFinished, m_view,
-        [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
+        [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId, bool typeAdded) {
             QTC_ASSERT(metaInfo.isValid(), return);
             if (isMaterialBundle(bundleId)) {
                 m_view->executeInTransaction("BundleHelper::createImporter", [&] {
                     Utils3D::createMaterial(m_view, metaInfo);
+                    if (typeAdded)
+                        m_view->resetPuppet();
                 });
             } else if (isItemBundle(bundleId)) {
 
@@ -112,7 +116,8 @@ void BundleHelper::createImporter()
                         newNode.simplifiedTypeName(), "node"));
                     m_view->clearSelectedModelNodes();
                     m_view->selectModelNode(newNode);
-                    m_view->resetPuppet();
+                    if (typeAdded)
+                        m_view->resetPuppet();
                 });
             }
         });

@@ -209,11 +209,12 @@ void ContentLibraryView::connectImporter()
     connect(m_widget->importer(),
             &BundleImporter::importFinished,
             this,
-            [&](const QmlDesigner::TypeName &typeName, const QString &bundleId) {
+            [&](const QmlDesigner::TypeName &typeName, const QString &bundleId, bool typeAdded) {
                 QTC_ASSERT(typeName.size(), return);
                 if (isMaterialBundle(bundleId)) {
                     applyBundleMaterialToDropTarget({}, typeName);
-                    resetPuppet();
+                    if (typeAdded)
+                        resetPuppet();
                 } else if (isItemBundle(bundleId)) {
                     if (!m_bundleItemTarget) {
                         bool isUser2DBundle = (bundleId == m_compUtils.user2DBundleId());
@@ -232,7 +233,8 @@ void ContentLibraryView::connectImporter()
                             newNode.simplifiedTypeName(), "node"));
                         clearSelectedModelNodes();
                         selectModelNode(newNode);
-                        resetPuppet();
+                        if (typeAdded)
+                            resetPuppet();
                     });
 
                     m_bundleItemTarget = {};
@@ -243,10 +245,12 @@ void ContentLibraryView::connectImporter()
     connect(m_widget->importer(),
             &BundleImporter::importFinished,
             this,
-            [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
+            [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId, bool typeAdded) {
                 QTC_ASSERT(metaInfo.isValid(), return);
                 if (isMaterialBundle(bundleId)) {
                     applyBundleMaterialToDropTarget({}, metaInfo);
+                    if (typeAdded)
+                        resetPuppet();
                 } else if (isItemBundle(bundleId)) {
                     if (!m_bundleItemTarget)
                         m_bundleItemTarget = Utils3D::active3DSceneNode(this);
@@ -268,6 +272,8 @@ void ContentLibraryView::connectImporter()
                             newNode.simplifiedTypeName(), "node"));
                         clearSelectedModelNodes();
                         selectModelNode(newNode);
+                        if (typeAdded)
+                            resetPuppet();
                     });
 
                     m_bundleItemTarget = {};

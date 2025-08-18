@@ -228,7 +228,7 @@ void ContentLibraryWidget::createImporter()
     connect(m_importer,
             &BundleImporter::importFinished,
             this,
-            [&](const QmlDesigner::TypeName &typeName, const QString &bundleId) {
+            [&](const QmlDesigner::TypeName &typeName, const QString &bundleId, bool) {
                 setImporterRunning(false);
                 if (typeName.size())
                     updateImportedState(bundleId);
@@ -237,7 +237,7 @@ void ContentLibraryWidget::createImporter()
     connect(m_importer,
             &BundleImporter::importFinished,
             this,
-            [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
+            [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId, bool) {
                 setImporterRunning(false);
                 if (metaInfo.isValid())
                     updateImportedState(bundleId);

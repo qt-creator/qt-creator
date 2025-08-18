@@ -36,9 +36,11 @@ signals:
     // asynchronous part of the import. In this case all remaining pending imports have been
     // terminated, and will not receive separate importFinished notifications.
 #ifdef QDS_USE_PROJECTSTORAGE
-    void importFinished(const QmlDesigner::TypeName &typeName, const QString &bundleId);
+    void importFinished(const QmlDesigner::TypeName &typeName, const QString &bundleId,
+                        bool typeAdded);
 #else
-    void importFinished(const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId);
+    void importFinished(const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId,
+                        bool typeAdded);
 #endif
     void unimportFinished(const QString &bundleId);
     void aboutToUnimport(const TypeName &type, const QString &bundleId);
@@ -58,6 +60,7 @@ private:
         TypeName simpleType;
         QString moduleName;
         Module module;
+        bool typeAdded = false;
     };
     bool m_pendingFullReset = false; // Reset old QMLJS code model (it's used for code view warnings)
 #else
@@ -77,6 +80,7 @@ private:
         QString importToAdd; // If set, add import to model
         bool fullReset = false; // If true, reset the entire code model.
         State state = Starting;
+        bool typeAdded = false;
     };
 
     QMetaObject::Connection m_libInfoConnection;

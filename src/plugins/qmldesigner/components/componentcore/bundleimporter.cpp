@@ -76,15 +76,13 @@ QString BundleImporter::importComponent(const QString &bundleDir,
     bool typeAdded = false;
     auto addTypeToQmldir = [&qmldirContent, &typeAdded](const QString &qmlType,
                                                         const QString &qmlFile) {
-        const QString pattern = QString{"^%1 %2 %3$"}.arg(QRegularExpression::escape(qmlType),
-                                                          QRegularExpression::escape("1.0"),
-                                                          QRegularExpression::escape(qmlFile));
-        const QRegularExpression regex{pattern};
+        const QString pattern = QString{"^\\s*%1\\s+1\\.0\\s+%2\\s*$"}
+                                    .arg(QRegularExpression::escape(qmlType),
+                                         QRegularExpression::escape(qmlFile));
+        const QRegularExpression regex{pattern, QRegularExpression::MultilineOption};
+
         if (!qmldirContent.contains(regex)) {
-            qmldirContent.append(qmlType);
-            qmldirContent.append(" 1.0 ");
-            qmldirContent.append(qmlFile);
-            qmldirContent.append('\n');
+            qmldirContent.append(QString{"%1 1.0 %2\n"}.arg(qmlType, qmlFile));
             typeAdded = true;
         }
     };
@@ -140,6 +138,7 @@ QString BundleImporter::importComponent(const QString &bundleDir,
 
     ImportData data;
     data.isImport = true;
+    data.typeAdded = typeAdded;
 #ifdef QDS_USE_PROJECTSTORAGE
     m_pendingFullReset = doReset;
     data.simpleType = type.split('.').constLast();
@@ -188,7 +187,7 @@ void BundleImporter::handleImportTimer()
         for (const TypeName &pendingType : pendingTypes) {
             ImportData data = m_pendingImports.take(pendingType);
             if (data.isImport)
-                emit importFinished({}, m_bundleId);
+                emit importFinished({}, m_bundleId, false);
             else
                 emit unimportFinished(m_bundleId);
         }
@@ -212,7 +211,7 @@ void BundleImporter::handleImportTimer()
             if (data.isImport) {
                 Import import = Import::createLibraryImport(data.moduleName);
                 model->changeImports({import}, {});
-                emit importFinished(type, m_bundleId);
+                emit importFinished(type, m_bundleId, data.typeAdded);
             } else {
                 emit unimportFinished(m_bundleId);
             }
@@ -247,7 +246,7 @@ void BundleImporter::handleImportTimer()
         for (const TypeName &pendingType : pendingTypes) {
             ImportData data = m_pendingImports.take(pendingType);
             if (data.isImport)
-                emit importFinished({}, m_bundleId);
+                emit importFinished({}, m_bundleId, false);
             else
                 emit unimportFinished(m_bundleId);
         }
@@ -362,7 +361,7 @@ void BundleImporter::handleImportTimer()
                     if (data.isImport == typeComplete) {
                         m_pendingImports.remove(type);
                         if (data.isImport)
-                            emit importFinished(metaInfo, m_bundleId);
+                            emit importFinished(metaInfo, m_bundleId, data.typeAdded);
                         else
                             emit unimportFinished(m_bundleId);
                     }
@@ -430,7 +429,6 @@ QString BundleImporter::unimportComponent(const TypeName &type, const QString &q
 
     FilePath qmldirPath = bundleImportPath.resolvePath(QStringLiteral("qmldir"));
     const expected_str<QByteArray> qmldirContent = qmldirPath.fileContents();
-    QByteArray newContent;
 
     QString qmlType = qmlFilePath.baseName();
     if (m_pendingImports.contains(type) && m_pendingImports[type].isImport) {
@@ -439,15 +437,14 @@ QString BundleImporter::unimportComponent(const TypeName &type, const QString &q
     }
 
     if (qmldirContent) {
-        int typeIndex = qmldirContent->indexOf(qmlType.toUtf8());
-        if (typeIndex != -1) {
-            int newLineIndex = qmldirContent->indexOf('\n', typeIndex);
-            newContent = qmldirContent->left(typeIndex);
-            if (newLineIndex != -1)
-                newContent.append(qmldirContent->mid(newLineIndex + 1));
-        }
-        if (newContent != qmldirContent) {
-            if (!qmldirPath.writeFileContents(newContent))
+        QString qmldirStr = QString::fromUtf8(*qmldirContent);
+        const QString pattern = QString{"^\\s*%1\\s+.*\\.qml\\s*\\r?\\n"}
+                                    .arg(QRegularExpression::escape(qmlType));
+        const QRegularExpression regex{pattern, QRegularExpression::MultilineOption};
+        QString newQmldirStr = qmldirStr;
+        newQmldirStr.remove(regex);
+        if (newQmldirStr != qmldirStr) {
+            if (!qmldirPath.writeFileContents(newQmldirStr.toUtf8()))
                 return QStringLiteral("Failed to write qmldir file: '%1'").arg(qmldirPath.toUrlishString());
         }
     }
