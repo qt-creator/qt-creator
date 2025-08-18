@@ -358,41 +358,26 @@ bool TextEditorLayout::moveCursorImpl(QTextCursor &cursor, QTextCursor::MoveOper
         cursor.setPosition(newPosition, mode);
         return true;
     }
-    case QTextCursor::MoveOperation::Up: {
-        int i = line.lineNumber() - 1;
-        if (i == -1) {
-            block = block.previous();
-            if (!block.isValid())
-                return false;
-            ensureBlockLayout(block);
-            layout = blockLayout(block);
-            QTC_ASSERT(layout, return false);
-            i = layout->lineCount() - 1;
-        }
-        int x = cursor.verticalMovementX();
-        if (x < 0)
-            x = line.cursorToX(cursor.positionInBlock());
-        line = layout->lineAt(i);
-        QTC_ASSERT(line.isValid(), return false);
-        cursor.setPosition(line.xToCursor(x) + block.position(), mode);
-        cursor.setVerticalMovementX(x);
-        return true;
-    }
+    case QTextCursor::MoveOperation::Up:
     case QTextCursor::MoveOperation::Down: {
-        int i = line.lineNumber() + 1;
-        if (i >= layout->lineCount()) {
-            block = block.next();
+        const bool down = operation == QTextCursor::MoveOperation::Down;
+        int lineNumber = down ? line.lineNumber() + 1 : line.lineNumber() - 1;
+
+        if (lineNumber >= layout->lineCount() || lineNumber == -1) {
+            block = down ? block.next() : block.previous();
+
             if (!block.isValid())
                 return false;
             ensureBlockLayout(block);
             layout = blockLayout(block);
             QTC_ASSERT(layout, return false);
-            i = 0;
+            lineNumber = down ? 0 : layout->lineCount() - 1;
         }
+
         int x = cursor.verticalMovementX();
         if (x < 0)
             x = line.cursorToX(cursor.positionInBlock());
-        line = layout->lineAt(i);
+        line = layout->lineAt(lineNumber);
         QTC_ASSERT(line.isValid(), return false);
         cursor.setPosition(line.xToCursor(x) + block.position(), mode);
         cursor.setVerticalMovementX(x);
