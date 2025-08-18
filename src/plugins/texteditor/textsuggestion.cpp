@@ -151,9 +151,11 @@ public:
             connect(m_next, &QAction::triggered, this, &SuggestionToolTip::selectNext);
         }
 
-        auto apply = addAction(Tr::tr("Apply (%1)").arg(QKeySequence(Qt::Key_Tab).toString()));
+        auto apply = addAction(
+            Tr::tr("Apply (%1)").arg(QKeySequence(Qt::Key_Tab).toString(QKeySequence::NativeText)));
         auto applyWord = addAction(
-            Tr::tr("Apply Word (%1)").arg(QKeySequence(QKeySequence::MoveToNextWord).toString()));
+            Tr::tr("Apply Word (%1)")
+                .arg(QKeySequence(QKeySequence::MoveToNextWord).toString(QKeySequence::NativeText)));
         auto applyLine = addAction(Tr::tr("Apply Line"));
 
         connect(apply, &QAction::triggered, this, &SuggestionToolTip::apply);

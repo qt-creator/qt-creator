@@ -141,6 +141,7 @@ class PresetsData
 public:
     int version = 0;
     bool havePresets = false;
+    bool hasValidPresets = true;
     QVersionNumber cmakeMinimimRequired;
     std::optional<QVariantMap> vendor;
     std::optional<QStringList> include;

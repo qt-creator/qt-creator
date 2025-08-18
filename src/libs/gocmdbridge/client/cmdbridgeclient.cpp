@@ -320,7 +320,7 @@ Result<> Client::start(bool deleteOnExit)
 
             auto stateMachine =
                 [markerOffset = 0, state = int(0), packetSize(0), packetData = QByteArray(), this](
-                    QByteArray &buffer) mutable {
+                    QByteArray &buffer) mutable -> bool {
                     static const QByteArray MagicCode{GOBRIDGE_MAGIC_PACKET_MARKER};
 
                     if (state == 0) {
@@ -332,7 +332,7 @@ Result<> Client::start(bool deleteOnExit)
                                 // Partial magic marker?
                                 markerOffset += buffer.size();
                                 buffer.clear();
-                                return;
+                                return false;
                             }
                             // Broken package, search for next magic marker
                             qCWarning(clientLog)
@@ -347,6 +347,8 @@ Result<> Client::start(bool deleteOnExit)
                     }
 
                     if (state == 1) {
+                        if (buffer.size() < 4)
+                            return false; // wait for more data
                         QDataStream ds(buffer);
                         ds >> packetSize;
                         // TODO: Enforce max size in bridge.
@@ -376,6 +378,7 @@ Result<> Client::start(bool deleteOnExit)
                             QTC_CHECK_RESULT(result);
                         }
                     }
+                    return !buffer.isEmpty();
                 };
 
             connect(
@@ -384,8 +387,7 @@ Result<> Client::start(bool deleteOnExit)
                 d->process,
                 [this, buffer = QByteArray(), stateMachine]() mutable {
                     buffer.append(d->process->readAllRawStandardError());
-                    while (!buffer.isEmpty())
-                        stateMachine(buffer);
+                    while (stateMachine(buffer)) {}
                 });
 
             connect(d->process, &Process::readyReadStandardOutput, d->process, [this] {

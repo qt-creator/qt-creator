@@ -72,6 +72,7 @@ using PlainTextEdit = QPlainTextEdit;
 #else
 #include <utils/plaintextedit/plaintextedit.h>
 #endif
+#include <utils/hostosinfo.h>
 
 //#define DEBUG_KEY  1
 #if DEBUG_KEY
@@ -111,12 +112,6 @@ namespace Internal {
 #define ParagraphSeparator QChar::ParagraphSeparator
 
 #define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit ? m_plaintextedit->s : m_qcPlainTextEdit->s)
-
-#ifdef Q_OS_DARWIN
-#define ControlModifier Qt::MetaModifier
-#else
-#define ControlModifier Qt::ControlModifier
-#endif
 
 /* Clipboard MIME types used by Vim. */
 static const QString vimMimeText = "_VIM_TEXT";
@@ -934,12 +929,18 @@ static const QMap<QString, int> &vimKeyNames()
 
 static bool isOnlyControlModifier(const Qt::KeyboardModifiers &mods)
 {
-    return (mods ^ ControlModifier) == Qt::NoModifier;
+    return (mods ^ Utils::HostOsInfo::controlModifier()) == Qt::NoModifier;
 }
 
 static bool isAcceptableModifier(const Qt::KeyboardModifiers &mods)
 {
-    if (mods & ControlModifier) {
+    if (Utils::HostOsInfo::isMacHost() && (mods & Qt::ControlModifier)) {
+        // We want to have Cmd+S as save and not as 's' action
+        // See QTCREATORBUG-13392
+        return false;
+    }
+
+    if (mods & Utils::HostOsInfo::controlModifier()) {
         // Generally, CTRL is not fine, except in combination with ALT.
         // See QTCREATORBUG-24673
         return mods & AltModifier;
@@ -1044,7 +1045,7 @@ public:
         }
 
         // Set text only if input is ascii key without control modifier.
-        if (m_text.isEmpty() && k >= 0 && k <= 0x7f && (m & ControlModifier) == 0) {
+        if (m_text.isEmpty() && k >= 0 && k <= 0x7f && (m & Utils::HostOsInfo::controlModifier()) == 0) {
             QChar c = QChar(k);
             if (c.isLetter())
                 m_text = isShift() ? c.toUpper() : c;
@@ -1341,7 +1342,7 @@ static Input parseVimKeyName(const QString &keyName)
         if (key == "S")
             mods |= Qt::ShiftModifier;
         else if (key == "C")
-            mods |= ControlModifier;
+            mods |= Utils::HostOsInfo::controlModifier();
         else
             return Input();
     }
