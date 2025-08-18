@@ -366,8 +366,14 @@ bool TextEditorLayout::moveCursorImpl(QTextCursor &cursor, QTextCursor::MoveOper
         if (lineNumber >= layout->lineCount() || lineNumber == -1) {
             block = down ? block.next() : block.previous();
 
-            if (!block.isValid())
-                return false;
+            if (!block.isValid()) {
+                if (mode == QTextCursor::KeepAnchor)
+                    cursor.movePosition(down ? QTextCursor::End : QTextCursor::Start, mode);
+                else if (cursor.hasSelection())
+                    cursor.clearSelection();
+
+                return true;
+            }
             ensureBlockLayout(block);
             layout = blockLayout(block);
             QTC_ASSERT(layout, return false);

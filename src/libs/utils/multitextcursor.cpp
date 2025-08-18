@@ -452,13 +452,6 @@ bool MultiTextCursor::handleMoveKeyEvent(
         } else if (e == QKeySequence::SelectNextLine) {
             op = QTextCursor::Down;
             mode = QTextCursor::KeepAnchor;
-            {
-                QTextBlock block = cursor.block();
-                QTextLine line = currentTextLine(cursor);
-                if (!block.next().isValid() && line.isValid()
-                    && line.lineNumber() == block.layout()->lineCount() - 1)
-                    op = QTextCursor::End;
-            }
         } else if (e == QKeySequence::MoveToNextWord) {
             op = QTextCursor::WordRight;
         } else if (e == QKeySequence::MoveToPreviousWord) {
