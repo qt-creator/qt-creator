@@ -746,13 +746,14 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         }
 
         menu.addAction(ActionManager::command(ADDNEWFILE)->action());
-        if (!isDir)
-            menu.addAction(ActionManager::command(REMOVEFILE)->action());
+        newFolder = menu.addAction(Tr::tr("New Folder"));
         if (m_fileSystemModel->flags(current) & Qt::ItemIsEditable)
             menu.addAction(ActionManager::command(RENAMEFILE)->action());
-        newFolder = menu.addAction(Tr::tr("New Folder"));
         if (isDir)
-            removeFolder = menu.addAction(Tr::tr("Remove Folder"));
+            removeFolder = menu.addAction(Tr::tr("Remove Folder..."));
+        else
+            menu.addAction(ActionManager::command(REMOVEFILE)->action());
+
     }
 
     menu.addSeparator();
@@ -975,7 +976,7 @@ void FolderNavigationWidgetFactory::registerActions()
     const Context context(C_FOLDERNAVIGATIONWIDGET);
 
     ActionBuilder(this, ADDNEWFILE)
-        .setText(Tr::tr("Add New..."))
+        .setText(Tr::tr("New File..."))
         .setContext(context)
         .addOnTriggered([] {
             if (auto navWidget = currentFolderNavigationWidget())
