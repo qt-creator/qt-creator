@@ -369,10 +369,13 @@ bool TextEditorLayout::moveCursorImpl(QTextCursor &cursor, QTextCursor::MoveOper
             QTC_ASSERT(layout, return false);
             i = layout->lineCount() - 1;
         }
-        int x = line.cursorToX(cursor.positionInBlock());
+        int x = cursor.verticalMovementX();
+        if (x < 0)
+            x = line.cursorToX(cursor.positionInBlock());
         line = layout->lineAt(i);
         QTC_ASSERT(line.isValid(), return false);
         cursor.setPosition(line.xToCursor(x) + block.position(), mode);
+        cursor.setVerticalMovementX(x);
         return true;
     }
     case QTextCursor::MoveOperation::Down: {
@@ -386,10 +389,13 @@ bool TextEditorLayout::moveCursorImpl(QTextCursor &cursor, QTextCursor::MoveOper
             QTC_ASSERT(layout, return false);
             i = 0;
         }
-        int x = line.cursorToX(cursor.positionInBlock());
+        int x = cursor.verticalMovementX();
+        if (x < 0)
+            x = line.cursorToX(cursor.positionInBlock());
         line = layout->lineAt(i);
         QTC_ASSERT(line.isValid(), return false);
         cursor.setPosition(line.xToCursor(x) + block.position(), mode);
+        cursor.setVerticalMovementX(x);
         return true;
     }
     default:
