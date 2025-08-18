@@ -54,7 +54,7 @@ public:
     bool operator!=(const LanguageFilter &other) const;
 };
 
-class LANGUAGECLIENT_EXPORT BaseSettings
+class LANGUAGECLIENT_EXPORT BaseSettings : public Utils::AspectContainer
 {
 public:
     BaseSettings() = default;
@@ -99,11 +99,6 @@ public:
 protected:
     virtual BaseClientInterface *createInterface(ProjectExplorer::BuildConfiguration *) const = 0;
     virtual Client *createClient(BaseClientInterface *interface) const;
-
-    BaseSettings(const BaseSettings &other) = default;
-    BaseSettings(BaseSettings &&other) = default;
-    BaseSettings &operator=(const BaseSettings &other) = default;
-    BaseSettings &operator=(BaseSettings &&other) = default;
 };
 
 class LANGUAGECLIENT_EXPORT StdIOSettings : public BaseSettings
@@ -126,11 +121,6 @@ public:
 
 protected:
     BaseClientInterface *createInterface(ProjectExplorer::BuildConfiguration *bc) const override;
-
-    StdIOSettings(const StdIOSettings &other) = default;
-    StdIOSettings(StdIOSettings &&other) = default;
-    StdIOSettings &operator=(const StdIOSettings &other) = default;
-    StdIOSettings &operator=(StdIOSettings &&other) = default;
 };
 
 struct ClientType {

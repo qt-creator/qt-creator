@@ -48,14 +48,10 @@ public:
     bool isValid() const final;
     void toMap(Store &map) const final;
     void fromMap(const Store &map) final;
-    BaseSettings *copy() const final;
     Client *createClient(BaseClientInterface *interface) const final;
     BaseClientInterface *createInterface(BuildConfiguration *) const final;
 
     FilePath m_languageServer;
-
-private:
-    JLSSettings(const JLSSettings &other) = default;
 };
 
 class JLSSettingsWidget : public QWidget
@@ -169,11 +165,6 @@ void JLSSettings::fromMap(const Store &map)
 {
     StdIOSettings::fromMap(map);
     m_languageServer = FilePath::fromSettings(map[languageServerKey]);
-}
-
-BaseSettings *JLSSettings::copy() const
-{
-    return new JLSSettings(*this);
 }
 
 class JLSInterface : public StdIOClientInterface
