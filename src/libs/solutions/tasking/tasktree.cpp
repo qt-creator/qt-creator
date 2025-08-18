@@ -2296,33 +2296,27 @@ void TaskTreePrivate::startChildren(RuntimeContainer *container)
     const ContainerNode &containerNode = container->m_containerNode;
     const int childCount = int(containerNode.m_children.size());
 
-    if (container->m_iterationCount == 0) {
-        if (container->m_shouldIterate && !invokeLoopHandler(container)) {
-            if (isProgressive(container))
-                advanceProgress(containerNode.m_taskCount);
-            container->m_parentTask->m_setupResult = toSetupResult(container->m_successBit);
-            return;
-        }
-        container->m_iterations.emplace_back(
-            std::make_unique<RuntimeIteration>(container->m_iterationCount, container));
-        ++container->m_iterationCount;
-    }
-
     GuardLocker locker(container->m_startGuard);
 
     while (containerNode.m_parallelLimit == 0
            || container->m_runningChildren < containerNode.m_parallelLimit) {
         container->deleteFinishedIterations();
-        if (container->m_nextToStart == childCount) {
-            if (invokeLoopHandler(container)) {
+        const bool firstIteration = container->m_iterationCount == 0;
+        if (firstIteration || container->m_nextToStart == childCount) {
+            const bool skipHandler = firstIteration && !container->m_shouldIterate;
+            if (skipHandler || invokeLoopHandler(container)) {
                 container->m_nextToStart = 0;
-                container->m_iterations.emplace_back(
-                    std::make_unique<RuntimeIteration>(container->m_iterationCount, container));
+                if (containerNode.m_children.size() > 0) {
+                    container->m_iterations.emplace_back(
+                        std::make_unique<RuntimeIteration>(container->m_iterationCount, container));
+                }
                 ++container->m_iterationCount;
-            } else if (container->m_iterations.empty()) {
-                container->m_parentTask->m_setupResult = toSetupResult(container->m_successBit);
-                return;
             } else {
+                if (container->m_iterations.empty()) {
+                    if (firstIteration && isProgressive(container))
+                        advanceProgress(containerNode.m_taskCount);
+                    container->m_parentTask->m_setupResult = toSetupResult(container->m_successBit);
+                }
                 return;
             }
         }
