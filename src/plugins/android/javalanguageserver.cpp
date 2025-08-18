@@ -59,25 +59,19 @@ class JLSSettingsWidget : public QWidget
 public:
     JLSSettingsWidget(const JLSSettings *settings, QWidget *parent);
 
-    QString name() const { return m_name->text(); }
     FilePath java() const { return m_java->filePath(); }
     FilePath languageServer() const { return m_ls->filePath(); }
 
 private:
-    QLineEdit *m_name = nullptr;
     PathChooser *m_java = nullptr;
     PathChooser *m_ls = nullptr;
 };
 
 JLSSettingsWidget::JLSSettingsWidget(const JLSSettings *settings, QWidget *parent)
     : QWidget(parent)
-    , m_name(new QLineEdit(settings->m_name, this))
     , m_java(new PathChooser(this))
     , m_ls(new PathChooser(this))
 {
-    auto chooser = new VariableChooser(this);
-    chooser->addSupportedWidget(m_name);
-
     m_java->setExpectedKind(PathChooser::ExistingCommand);
     m_java->setFilePath(settings->m_executable);
 
@@ -88,7 +82,7 @@ JLSSettingsWidget::JLSSettingsWidget(const JLSSettings *settings, QWidget *paren
 
     using namespace Layouting;
     Form {
-        Tr::tr("Name:"), m_name, br,
+        settings->name, br,
         Tr::tr("Java:"), m_java, br,
         Tr::tr("Java Language Server:"), m_ls, br,
     }.attachTo(this);
@@ -97,7 +91,7 @@ JLSSettingsWidget::JLSSettingsWidget(const JLSSettings *settings, QWidget *paren
 JLSSettings::JLSSettings()
 {
     m_settingsTypeId = Constants::JLS_SETTINGS_ID;
-    m_name = "Java Language Server";
+    name.setValue("Java Language Server");
     m_startBehavior = RequiresProject;
     m_languageFilter.mimeTypes = QStringList(Utils::Constants::JAVA_MIMETYPE);
     const FilePath &javaPath = Environment::systemEnvironment().searchInPath("java");
@@ -109,8 +103,8 @@ bool JLSSettings::applyFromSettingsWidget(QWidget *widget)
 {
     bool changed = false;
     auto jlswidget = static_cast<JLSSettingsWidget *>(widget);
-    changed |= m_name != jlswidget->name();
-    m_name = jlswidget->name();
+    changed |= name.isDirty();
+    name.apply();
 
     changed |= m_languageServer != jlswidget->languageServer();
     m_languageServer = jlswidget->languageServer();

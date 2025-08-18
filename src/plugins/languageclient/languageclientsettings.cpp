@@ -57,7 +57,6 @@
 #include <QTreeWidget>
 
 constexpr char typeIdKey[] = "typeId";
-constexpr char nameKey[] = "name";
 constexpr char idKey[] = "id";
 constexpr char enabledKey[] = "enabled";
 constexpr char startupBehaviorKey[] = "startupBehavior";
@@ -402,7 +401,7 @@ QVariant LanguageClientSettingsModel::data(const QModelIndex &index, int role) c
     if (!setting)
         return QVariant();
     if (role == Qt::DisplayRole)
-        return Utils::globalMacroExpander()->expand(setting->m_name);
+        return setting->name();
     else if (role == Qt::CheckStateRole)
         return setting->m_enabled ? Qt::Checked : Qt::Unchecked;
     else if (role == idRole)
@@ -542,6 +541,16 @@ QModelIndex LanguageClientSettingsModel::indexForSetting(BaseSettings *setting) 
     return index < 0 ? QModelIndex() : createIndex(index, 0, setting);
 }
 
+// BaseSettings
+
+BaseSettings::BaseSettings()
+{
+    name.setSettingsKey("name");
+    name.setDefaultValue("New Language Server");
+    name.setLabelText(Tr::tr("Name:"));
+    name.setDisplayStyle(StringAspect::LineEditDisplay);
+}
+
 QJsonObject BaseSettings::initializationOptions() const
 {
     return QJsonDocument::fromJson(Utils::globalMacroExpander()->
@@ -562,8 +571,8 @@ bool BaseSettings::applyFromSettingsWidget(QWidget *widget)
 {
     bool changed = false;
     if (auto settingsWidget = qobject_cast<BaseSettingsWidget *>(widget)) {
-        if (m_name != settingsWidget->name()) {
-            m_name = settingsWidget->name();
+        if (name.isDirty()) {
+            name.apply();
             changed = true;
         }
         if (m_languageFilter != settingsWidget->filter()) {
@@ -598,7 +607,7 @@ BaseSettings *BaseSettings::copy() const
 
 bool BaseSettings::isValid() const
 {
-    return !m_name.isEmpty();
+    return !name().isEmpty();
 }
 
 bool BaseSettings::isValidOnBuildConfiguration(BuildConfiguration *) const
@@ -635,7 +644,7 @@ Client *BaseSettings::createClient(BuildConfiguration *bc) const
     QTC_ASSERT(client, return nullptr);
 
     if (client->name().isEmpty())
-        client->setName(Utils::globalMacroExpander()->expand(m_name));
+        client->setName(name());
 
     client->setSupportedLanguage(m_languageFilter);
     client->setInitializationOptions(initializationOptions());
@@ -652,8 +661,8 @@ Client *BaseSettings::createClient(BaseClientInterface *interface) const
 
 void BaseSettings::toMap(Store &map) const
 {
+    AspectContainer::toMap(map);
     map.insert(typeIdKey, m_settingsTypeId.toSetting());
-    map.insert(nameKey, m_name);
     map.insert(idKey, m_id);
     map.insert(enabledKey, m_enabled);
     map.insert(startupBehaviorKey, m_startBehavior);
@@ -665,7 +674,7 @@ void BaseSettings::toMap(Store &map) const
 
 void BaseSettings::fromMap(const Store &map)
 {
-    m_name = map[nameKey].toString();
+    AspectContainer::fromMap(map);
     m_id = map.value(idKey, QUuid::createUuid().toString()).toString();
     m_enabled = map[enabledKey].toBool();
     m_startBehavior = BaseSettings::StartBehavior(
@@ -912,7 +921,6 @@ static QString startupBehaviorString(BaseSettings::StartBehavior behavior)
 BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *parent,
                                        Layouting::LayoutModifier additionalItems)
     : QWidget(parent)
-    , m_name(new QLineEdit(settings->m_name, this))
     , m_mimeTypes(new QLabel(settings->m_languageFilter.mimeTypes.join(filterSeparator), this))
     , m_filePattern(
           new QLineEdit(settings->m_languageFilter.filePattern.join(filterSeparator), this))
@@ -922,7 +930,6 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
     using namespace Layouting;
 
     auto chooser = new Utils::VariableChooser(this);
-    chooser->addSupportedWidget(m_name);
     chooser->addSupportedWidget(m_initializationOptions);
 
     auto addMimeTypeButton = new QPushButton(Tr::tr("Set MIME Types..."), this);
@@ -960,7 +967,7 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
 
     // clang-format off
     auto form = Form {
-        Tr::tr("Name:"), m_name, br,
+        settings->name, br,
         Tr::tr("Language:"), Row { m_mimeTypes, st, addMimeTypeButton }, br,
         Tr::tr("File pattern:"), m_filePattern, br,
         Tr::tr("Startup behavior:"), m_startupBehavior, br,
@@ -973,11 +980,6 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
 
     form.attachTo(this);
     // clang-format on
-}
-
-QString BaseSettingsWidget::name() const
-{
-    return m_name->text();
 }
 
 LanguageFilter BaseSettingsWidget::filter() const
@@ -1344,7 +1346,7 @@ public:
                     else if (index == 2)
                         m_settings.disableSetting(id);
                 });
-            settingsLayout->addRow(settings->m_name, comboBox);
+            settingsLayout->addRow(settings->name(), comboBox);
         }
 
         auto group = new QGroupBox(Tr::tr("Workspace Configuration"));

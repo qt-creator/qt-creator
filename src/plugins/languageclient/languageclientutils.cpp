@@ -530,7 +530,7 @@ static void setupNpmServer(TextDocument *document,
 
             settings->m_executable = executable;
             settings->m_arguments = languageServerArgs;
-            settings->m_name = Tr::tr("%1 Language Server").arg(language);
+            settings->name.setValue(Tr::tr("%1 Language Server").arg(language));
             settings->m_languageFilter.mimeTypes = serverMimeTypes;
             LanguageClientSettings::addSettings(settings);
             LanguageClientManager::applySettings();

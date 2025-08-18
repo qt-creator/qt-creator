@@ -57,7 +57,7 @@ public:
 class LANGUAGECLIENT_EXPORT BaseSettings : public Utils::AspectContainer
 {
 public:
-    BaseSettings() = default;
+    BaseSettings();
 
     virtual ~BaseSettings() = default;
 
@@ -68,7 +68,8 @@ public:
         LastSentinel
     };
 
-    QString m_name = QString("New Language Server");
+    Utils::StringAspect name{this};
+
     QString m_id = QUuid::createUuid().toString();
     Utils::Id m_settingsTypeId;
     bool m_enabled = true;
@@ -167,7 +168,6 @@ public:
 
     ~BaseSettingsWidget() override = default;
 
-    QString name() const;
     LanguageFilter filter() const;
     BaseSettings::StartBehavior startupBehavior() const;
     bool alwaysOn() const;
@@ -177,7 +177,6 @@ public:
 private:
     void showAddMimeTypeDialog();
 
-    QLineEdit *m_name = nullptr;
     QLabel *m_mimeTypes = nullptr;
     QLineEdit *m_filePattern = nullptr;
     QComboBox *m_startupBehavior = nullptr;
