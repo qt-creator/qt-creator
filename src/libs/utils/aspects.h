@@ -360,12 +360,12 @@ public:
         announceChanges(changes, howToAnnounce);
     }
 
-protected:
     bool isDirty() override
     {
         return m_internal != m_buffer;
     }
 
+protected:
     bool internalToBuffer() override
     {
         return updateStorage(m_buffer, m_internal);
