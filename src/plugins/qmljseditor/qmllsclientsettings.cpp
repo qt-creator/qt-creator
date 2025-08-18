@@ -7,6 +7,7 @@
 #include "qmllsclient.h"
 
 #include <utils/mimeconstants.h>
+#include <utils/qtcsettings.h>
 
 #include <coreplugin/messagemanager.h>
 

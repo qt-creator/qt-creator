@@ -8,7 +8,6 @@
 #include "id.h"
 #include "infolabel.h"
 #include "pathchooser.h"
-#include "qtcsettings.h"
 #include "store.h"
 
 #include <functional>

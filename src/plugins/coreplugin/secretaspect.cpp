@@ -15,6 +15,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/passworddialog.h>
+#include <utils/qtcsettings.h>
 #include <utils/utilsicons.h>
 
 #include <QIcon>
