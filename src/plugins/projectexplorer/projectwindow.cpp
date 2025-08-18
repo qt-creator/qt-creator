@@ -817,6 +817,17 @@ public:
     {
         m_kitWarningForProject = containsType(m_kitIssues, Task::TaskType::Warning);
         m_kitErrorsForProject = containsType(m_kitIssues, Task::TaskType::Error);
+
+        QObject::connect(
+            project,
+            &ProjectExplorer::Project::removedTarget,
+            [this, t = target()](ProjectExplorer::Target *rt) {
+                if (t == rt) {
+                    m_buildSettingsWidget.clear();
+                    m_deploySettingsWidget.clear();
+                    m_runSettingsWidget.clear();
+                }
+            });
     }
 
     ~TargetItem()
