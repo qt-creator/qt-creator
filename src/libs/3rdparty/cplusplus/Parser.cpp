@@ -30,6 +30,7 @@
 #include <utility>
 
 #include <cstdio> // for putchar
+#include <cstring>
 
 #if defined(__INTEL_COMPILER) && !defined(va_copy)
 #    define va_copy __va_copy
@@ -295,6 +296,7 @@ Parser::Parser(TranslationUnit *unit)
       _tokenIndex(1),
       _templateArguments(0),
       _inFunctionBody(false),
+      _inRequiresClause(false),
       _inExpressionStatement(false),
       _expressionDepth(0),
       _statementDepth(0),
@@ -1465,15 +1467,20 @@ bool Parser::parseRequiresClauseOpt(RequiresClauseAST *&node)
         return true;
     const auto ast = new (_pool) RequiresClauseAST;
     ast->requires_token = consumeToken();
-    if (!parsePrimaryExpression(ast->constraint))
+    _inRequiresClause = true;
+    if (!parsePrimaryExpression(ast->constraint)) {
+        _inRequiresClause = false;
         return false;
+    }
     while (true) {
         if (LA() != T_PIPE_PIPE && LA() != T_AMPER_AMPER)
             break;
         const int binTok = consumeToken();
         ExpressionAST *next = nullptr;
-        if (!parsePrimaryExpression(next))
+        if (!parsePrimaryExpression(next)) {
+            _inRequiresClause = false;
             return false;
+        }
 
         // This won't yield the right precedence, but I don't care.
         BinaryExpressionAST *expr = new (_pool) BinaryExpressionAST;
@@ -1483,6 +1490,7 @@ bool Parser::parseRequiresClauseOpt(RequiresClauseAST *&node)
         ast->constraint = expr;
     }
     node = ast;
+    _inRequiresClause = false;
     return true;
 }
 
@@ -5195,8 +5203,25 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
         return parseRequiresExpression(node);
 
     default: {
+        bool isBuiltinTypeTrait = false;
+        const Token &t = tok();
+        if (_inRequiresClause && LA() == T_IDENTIFIER && LA(2) == T_LPAREN && t.identifier
+                && t.identifier->size() > 6 && t.identifier->at(0) == '_'
+                && t.identifier->at(1) == '_') {
+            isBuiltinTypeTrait = std::strncmp(t.identifier->chars() + 2, "is_", 3) == 0
+                    || std::strncmp(t.identifier->chars() + 2, "has_", 4) == 0;
+        }
         NameAST *name = nullptr;
         if (parseNameId(name)) {
+            if (isBuiltinTypeTrait) {
+                consumeToken();
+                ExpressionListAST *ast = nullptr;
+                if (!parseTemplateArgumentList(ast))
+                    return false;
+                int rparenToken = 0;
+                if (!match(T_RPAREN, &rparenToken))
+                    return false;
+            }
             IdExpressionAST *ast = new (_pool) IdExpressionAST;
             ast->name = name;
             node = ast;
