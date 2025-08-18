@@ -6324,10 +6324,13 @@ bool Parser::parseAwaitExpression(ExpressionAST *&node)
 bool Parser::parseNoExceptOperatorExpression(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
-    if (_languageFeatures.cxx11Enabled && LA() == T_NOEXCEPT) {
+    if (_languageFeatures.cxx11Enabled && LA() == T_NOEXCEPT && LA(2) == T_LPAREN) {
         NoExceptOperatorExpressionAST *ast = new (_pool) NoExceptOperatorExpressionAST;
         ast->noexcept_token = consumeToken();
+        ast->lparen_token = consumeToken();
         parseExpression(ast->expression);
+        if (!match(T_RPAREN, &ast->rparen_token))
+            return false;
         node = ast;
         return true;
     }

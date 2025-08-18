@@ -1388,6 +1388,8 @@ NoExceptOperatorExpressionAST *NoExceptOperatorExpressionAST::clone(MemoryPool *
 {
     NoExceptOperatorExpressionAST *ast = new (pool) NoExceptOperatorExpressionAST;
     ast->noexcept_token = noexcept_token;
+    ast->lparen_token = lparen_token;
+    ast->rparen_token = rparen_token;
     if (expression)
         ast->expression = expression->clone(pool);
     return ast;

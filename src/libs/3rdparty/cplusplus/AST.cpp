@@ -4656,18 +4656,26 @@ int NoExceptOperatorExpressionAST::firstToken() const
 {
     if (noexcept_token)
         return noexcept_token;
+    if (lparen_token)
+        return lparen_token + 1;
     if (expression)
         if (int candidate = expression->firstToken())
             return candidate;
+    if (rparen_token)
+        return rparen_token + 1;
     return 0;
 }
 
 /** \generated */
 int NoExceptOperatorExpressionAST::lastToken() const
 {
+    if (rparen_token)
+        return rparen_token + 1;
     if (expression)
         if (int candidate = expression->lastToken())
             return candidate;
+    if (lparen_token)
+        return lparen_token + 1;
     if (noexcept_token)
         return noexcept_token + 1;
     return 1;

@@ -8,6 +8,12 @@ void h() noexcept(noexcept(f())) {
 
 }
 
-int main() {
+template<typename T, bool _Nothrow = noexcept(h()), typename = decltype(T())>
+struct S
+{
+};
+
+int main()
+{
     bool noExcept_hf = noexcept(h()) && noexcept(f());
 }

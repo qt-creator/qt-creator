@@ -2344,6 +2344,8 @@ bool ASTMatcher::match(NoExceptOperatorExpressionAST *node, NoExceptOperatorExpr
     (void) pattern;
 
     pattern->noexcept_token = node->noexcept_token;
+    pattern->lparen_token = node->lparen_token;
+    pattern->rparen_token = node->rparen_token;
 
     if (! pattern->expression)
         pattern->expression = node->expression;

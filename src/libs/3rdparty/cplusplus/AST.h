@@ -2951,7 +2951,9 @@ class CPLUSPLUS_EXPORT NoExceptOperatorExpressionAST: public ExpressionAST
 {
 public:
     int noexcept_token = 0;
+    int lparen_token = 0;
     ExpressionAST *expression = nullptr;
+    int rparen_token = 0;
 
 public:
     NoExceptOperatorExpressionAST *asNoExceptOperatorExpression() override { return this; }
