@@ -83,6 +83,9 @@ Projects
 * Fixed that setting a non-existing toolchain file resulted in a successful
   configuration instead of the expected error
   ([QTCREATORBUG-33290](https://bugreports.qt.io/browse/QTCREATORBUG-33290))
+* Fixed adding the new file to the project after
+  `Move Component into Separate File`
+  ([QTCREATORBUG-33298](https://bugreports.qt.io/browse/QTCREATORBUG-33298))
 
 ### qmake
 
@@ -106,6 +109,7 @@ Analyzer
 * Fixed the display of freshly fetched issues from a local dashboard
   ([QTCREATORBUG-33012](https://bugreports.qt.io/browse/QTCREATORBUG-33012))
 * Fixed the handling of path mappings
+* Fixed that starting a local build was not possible in some configurations
 
 Platforms
 ---------
@@ -138,6 +142,9 @@ Platforms
 
 * Improved the error message when device tests fail
   ([QTCREATORBUG-32933](https://bugreports.qt.io/browse/QTCREATORBUG-32933))
+* Fixed an issue with deployed files becoming corrupted
+  ([QTCREATORBUG-33317](https://bugreports.qt.io/browse/QTCREATORBUG-33317))
+* Fixed that the command bridge could be killed when operations take a long time
 
 Credits for these changes go to:
 --------------------------------
