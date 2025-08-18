@@ -373,7 +373,7 @@ template<> struct is_void<const void> : public true_type { };
 template<> struct is_void<volatile void> : public true_type { };
 template<> struct is_void<const volatile void> : public true_type { };
 template<typename> struct is_array : public false_type { };
-template<typename _Tp, unsigned long long _Size>
+template<typename _Tp, char8_t _Size>
 struct is_array<_Tp[_Size]> : public true_type { };
 template<typename _Tp> struct is_array<_Tp[]> : public true_type { };
 template<typename> struct is_const : public false_type { };

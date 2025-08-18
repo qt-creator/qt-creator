@@ -4478,6 +4478,8 @@ bool Parser::lookAtBuiltinTypeSpecifier() const
     // [msvc] extensions
     case T___DECLSPEC:
         return true;
+    case T_CHAR8_T:
+        return _languageFeatures.cxx20Enabled;
     default:
         return false;
     }
