@@ -4869,7 +4869,7 @@ void tst_Tasking::exactHandlers()
     QSignalSpy doneSpy(&taskTreeRunner, &AbstractTaskTreeRunner::done);
     taskTreeRunner.start({TestTask(onTaskSetup, onTaskDone)}, onTreeSetup, onTreeDone);
 
-    QVERIFY(doneSpy.wait(1s));
+    QVERIFY(doneSpy.wait(1000));
 
     QVERIFY(taskSetupCalled);
     QVERIFY(taskDoneCalled);
