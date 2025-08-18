@@ -122,9 +122,8 @@ static std::pair<FilePath, QVersionNumber> evaluateOverridenQmlls()
                     .arg(qmllsSettings()->m_executable.path()));
         return {};
     }
-    QProcess qmlls;
-    qmlls.setProgram(qmllsSettings()->m_executable.path());
-    qmlls.setArguments({"--version"});
+    Process qmlls;
+    qmlls.setCommand({qmllsSettings()->m_executable, {"--version"}});
     qmlls.start();
     qmlls.waitForFinished();
     if (qmlls.exitStatus() != QProcess::NormalExit || qmlls.exitCode() != EXIT_SUCCESS) {
@@ -137,7 +136,7 @@ static std::pair<FilePath, QVersionNumber> evaluateOverridenQmlls()
         return {};
     }
 
-    const QString output = QString::fromUtf8(qmlls.readAllStandardOutput());
+    const QString output = qmlls.readAllStandardOutput();
 
     if (!output.contains("qmlls")) {
         Core::MessageManager::writeFlashing(
