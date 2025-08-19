@@ -5,9 +5,9 @@
 
 #include "cpprefactoringchanges.h"
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <QString>
-#include <QCoreApplication>
-#include <QFutureWatcher>
 #include <QTextCursor>
 
 namespace CppEditor {
@@ -32,11 +32,9 @@ signals:
     void foundLink(std::shared_ptr<FunctionDeclDefLink> link);
 
 private:
-    void onFutureDone();
-
     QTextCursor m_scannedSelection;
     QTextCursor m_nameSelection;
-    std::unique_ptr<QFutureWatcher<std::shared_ptr<FunctionDeclDefLink>>> m_watcher;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 class FunctionDeclDefLink

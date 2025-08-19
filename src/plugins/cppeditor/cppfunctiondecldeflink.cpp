@@ -25,7 +25,6 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/async.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>
@@ -35,31 +34,15 @@
 #include <QVarLengthArray>
 
 using namespace CPlusPlus;
+using namespace Tasking;
 using namespace TextEditor;
 using namespace Utils;
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 FunctionDeclDefLinkFinder::FunctionDeclDefLinkFinder(QObject *parent)
     : QObject(parent)
 {}
-
-void FunctionDeclDefLinkFinder::onFutureDone()
-{
-    std::shared_ptr<FunctionDeclDefLink> link = m_watcher->result();
-    m_watcher.release()->deleteLater();
-    if (link) {
-        link->linkSelection = m_scannedSelection;
-        link->nameSelection = m_nameSelection;
-        if (m_nameSelection.selectedText() != link->nameInitial)
-            link.reset();
-    }
-    m_scannedSelection = {};
-    m_nameSelection = {};
-    if (link)
-        emit foundLink(link);
-}
 
 QTextCursor FunctionDeclDefLinkFinder::scannedSelection() const
 {
@@ -225,8 +208,9 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     m_nameSelection.setPosition(sourceFile->startOf(declId), QTextCursor::KeepAnchor);
     m_nameSelection.setKeepPositionOnInsert(true);
 
+    using ResultType = std::shared_ptr<FunctionDeclDefLink>;
     // set up a base result
-    std::shared_ptr<FunctionDeclDefLink> result(new FunctionDeclDefLink);
+    ResultType result(new FunctionDeclDefLink);
     result->nameInitial = m_nameSelection.selectedText();
     result->sourceDocument = doc;
     result->sourceFunction = funcDecl->symbol;
@@ -234,10 +218,25 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     result->sourceFunctionDeclarator = funcDecl;
 
     // handle the rest in a thread
-    m_watcher.reset(new QFutureWatcher<std::shared_ptr<FunctionDeclDefLink> >());
-    connect(m_watcher.get(), &QFutureWatcherBase::finished, this, &FunctionDeclDefLinkFinder::onFutureDone);
-    m_watcher->setFuture(Utils::asyncRun(findLinkHelper, result, refactoringChanges));
-    Utils::futureSynchronizer()->addFuture(m_watcher->future());
+    const auto onSetup = [result, refactoringChanges](Async<ResultType> &task) {
+        task.setConcurrentCallData(findLinkHelper, result, refactoringChanges);
+    };
+    const auto onDone = [this](const Async<ResultType> &task) {
+        ResultType link = task.result();
+        if (link) {
+            link->linkSelection = m_scannedSelection;
+            link->nameSelection = m_nameSelection;
+            if (m_nameSelection.selectedText() != link->nameInitial)
+                link.reset();
+        }
+        m_scannedSelection = {};
+        m_nameSelection = {};
+        if (link)
+            emit foundLink(link);
+    };
+    m_taskTreeRunner.start({
+        AsyncTask<ResultType>(onSetup, onDone, CallDone::OnSuccess)
+    });
 }
 
 bool FunctionDeclDefLink::isValid() const
@@ -1046,5 +1045,4 @@ QString FunctionDeclDefLink::normalizedInitialName() const
     return n;
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal
