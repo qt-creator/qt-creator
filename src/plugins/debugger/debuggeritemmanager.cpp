@@ -9,11 +9,15 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
+
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -29,13 +33,10 @@
 #include <utils/qtcassert.h>
 #include <utils/winutils.h>
 
-#include <nanotrace/nanotrace.h>
-
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QFormLayout>
-#include <QFutureWatcher>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
@@ -46,10 +47,11 @@
 #include <QTreeView>
 #include <QWidget>
 
+using namespace Core;
 using namespace Debugger;
 using namespace Debugger::Internal;
-using namespace Core;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 static DebuggerItem makeAutoDetectedDebuggerItem(
@@ -131,7 +133,7 @@ private:
     QLabel *m_type;
 
     PathChooser *m_workingDirectoryChooser;
-    QFutureWatcher<DebuggerItem> m_updateWatcher;
+    SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 // --------------------------------------------------------------------------
@@ -404,16 +406,6 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
     connect(m_displayNameLineEdit, &QLineEdit::textChanged,
             this, &DebuggerItemConfigWidget::store);
 
-    connect(&m_updateWatcher, &QFutureWatcher<DebuggerItem>::finished, this, [this] {
-        if (m_updateWatcher.future().resultCount() > 0) {
-            DebuggerItem tmp = m_updateWatcher.result();
-            setAbis(tmp.abiNames());
-            m_version->setText(tmp.version());
-            m_engineType = tmp.engineType();
-            m_type->setText(tmp.engineTypeName());
-        }
-    });
-
     // clang-format off
     using namespace Layouting;
     Form {
@@ -516,14 +508,26 @@ void DebuggerItemConfigWidget::binaryPathHasChanged()
         return;
 
     if (m_detectionSource != DebuggerItem::genericDetectionSource) {
-        m_updateWatcher.cancel();
+        m_taskTreeRunner.reset();
 
         if (m_binaryChooser->filePath().isExecutableFile()) {
-            m_updateWatcher.setFuture(Utils::asyncRun([tmp = item()]() mutable {
-                tmp.reinitializeFromFile();
-                return tmp;
-            }));
-            Utils::futureSynchronizer()->addFuture(m_updateWatcher.future());
+            const auto onSetup = [this](Async<DebuggerItem> &task) {
+                task.setConcurrentCallData([tmp = item()]() mutable {
+                    tmp.reinitializeFromFile();
+                    return tmp;
+                });
+            };
+            const auto onDone = [this](const Async<DebuggerItem> &task) {
+                if (!task.isResultAvailable())
+                    return;
+
+                const DebuggerItem tmp = task.result();
+                setAbis(tmp.abiNames());
+                m_version->setText(tmp.version());
+                m_engineType = tmp.engineType();
+                m_type->setText(tmp.engineTypeName());
+            };
+            m_taskTreeRunner.start({AsyncTask<DebuggerItem>(onSetup, onDone)});
         } else {
             const DebuggerItem tmp;
             setAbis(tmp.abiNames());
