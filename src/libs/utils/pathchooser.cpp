@@ -17,7 +17,6 @@
 #include "utilstr.h"
 
 #include <QFileDialog>
-#include <QFuture>
 #include <QGuiApplication>
 #include <QHelpEvent>
 #include <QHBoxLayout>

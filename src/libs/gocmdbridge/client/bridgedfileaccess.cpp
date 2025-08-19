@@ -7,7 +7,6 @@
 #include "cmdbridgetr.h"
 
 #include <QElapsedTimer>
-#include <QFutureWatcher>
 #include <QLoggingCategory>
 
 Q_LOGGING_CATEGORY(faLog, "qtc.cmdbridge.fileaccess", QtWarningMsg);

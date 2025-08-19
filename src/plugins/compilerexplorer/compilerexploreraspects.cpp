@@ -11,7 +11,6 @@
 
 #include <QComboBox>
 #include <QCompleter>
-#include <QFutureWatcher>
 #include <QPushButton>
 #include <QStackedWidget>
 

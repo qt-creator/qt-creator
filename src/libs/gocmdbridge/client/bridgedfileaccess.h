@@ -11,8 +11,6 @@
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 
-#include <QFuture>
-
 class tst_CmdBridge;
 
 namespace CmdBridge {

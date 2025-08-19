@@ -6,7 +6,6 @@
 #include <utils/algorithm.h>
 #include <utils/differ.h>
 
-#include <QFuture>
 #include <QPromise>
 #include <QRegularExpression>
 #include <QStringList>

@@ -15,7 +15,6 @@
 #include <QCheckBox>
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QFutureWatcher>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>

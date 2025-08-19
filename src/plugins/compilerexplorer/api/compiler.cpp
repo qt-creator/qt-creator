@@ -5,7 +5,6 @@
 
 #include "request.h"
 
-#include <QFutureWatcher>
 #include <QUrlQuery>
 
 namespace CompilerExplorer::Api {

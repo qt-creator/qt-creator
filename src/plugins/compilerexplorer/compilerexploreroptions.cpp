@@ -7,7 +7,6 @@
 
 #include <utils/layoutbuilder.h>
 
-#include <QFutureWatcher>
 #include <QScrollArea>
 #include <QStandardItemModel>
 

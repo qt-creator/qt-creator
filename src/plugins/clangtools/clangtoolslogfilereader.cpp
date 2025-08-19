@@ -10,8 +10,6 @@
 #include <utils/fileutils.h>
 #include <utils/textutils.h>
 
-#include <QFuture>
-
 #include <yaml-cpp/yaml.h>
 
 using namespace Utils;
