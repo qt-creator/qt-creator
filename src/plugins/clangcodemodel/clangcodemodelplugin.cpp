@@ -15,7 +15,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/taskprogress.h>
 
 #include <cppeditor/clangdiagnosticconfig.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -32,17 +32,18 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <texteditor/textmark.h>
 
 #include <utils/action.h>
 #include <utils/async.h>
 #include <utils/temporarydirectory.h>
 
-#include <QFutureWatcher>
-
 using namespace Core;
 using namespace CppEditor;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace ClangCodeModel::Internal {
@@ -53,7 +54,6 @@ class ClangCodeModelPlugin final: public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangCodeModel.json")
 
 public:
-    ~ClangCodeModelPlugin() final;
     void initialize() final;
 
 private:
@@ -62,14 +62,8 @@ private:
 
     Utils::Action *m_generateCompilationDBAction = nullptr;
     Task m_generateCompilationDBError;
-    QFutureWatcher<GenerateCompilationDbResult> m_generatorWatcher;
+    SingleTaskTreeRunner m_taskTreeRunner;
 };
-
-ClangCodeModelPlugin::~ClangCodeModelPlugin()
-{
-    m_generatorWatcher.cancel();
-    m_generatorWatcher.waitForFinished();
-}
 
 void ClangCodeModelPlugin::initialize()
 {
@@ -101,7 +95,7 @@ void ClangCodeModelPlugin::initialize()
 
 void ClangCodeModelPlugin::generateCompilationDB()
 {
-    Project * project = ProjectManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     if (!project || !project->activeKit())
         return;
 
@@ -112,14 +106,39 @@ void ClangCodeModelPlugin::generateCompilationDB()
     if (baseDir == project->projectDirectory())
         baseDir = TemporaryDirectory::masterDirectoryFilePath();
 
-    QFuture<GenerateCompilationDbResult> task
-            = Utils::asyncRun(&Internal::generateCompilationDB, ProjectInfoList{projectInfo},
-                              baseDir, CompilationDbPurpose::Project,
-                              warningsConfigForProject(project),
-                              globalClangOptions(),
-                              FilePath());
-    ProgressManager::addTask(task, Tr::tr("Generating Compilation DB"), "generate compilation db");
-    m_generatorWatcher.setFuture(task);
+    const auto onSetup = [projectInfo, baseDir, project](
+                             Async<GenerateCompilationDbResult> &task) {
+        task.setConcurrentCallData(&Internal::generateCompilationDB,
+                                   ProjectInfoList{projectInfo}, baseDir,
+                                   CompilationDbPurpose::Project,
+                                   warningsConfigForProject(project),
+                                   globalClangOptions(), FilePath());
+    };
+    const auto onDone = [this](const Async<GenerateCompilationDbResult> &task) {
+        QString message;
+        if (task.isResultAvailable()) {
+            const GenerateCompilationDbResult result = task.result();
+            if (result) {
+                message = Tr::tr("Clang compilation database generated at \"%1\".")
+                              .arg(result->toUserOutput());
+            } else {
+                message = Tr::tr("Generating Clang compilation database failed: %1")
+                              .arg(result.error());
+            }
+        } else {
+            message = Tr::tr("Generating Clang compilation database canceled.");
+        }
+        MessageManager::writeFlashing(message);
+        m_generateCompilationDBAction->setEnabled(true);
+    };
+
+    const auto onTreeSetup = [](TaskTree &taskTree) {
+        auto progress = new TaskProgress(&taskTree);
+        progress->setDisplayName(Tr::tr("Generating Compilation DB"));
+        progress->setId("generate compilation db");
+    };
+    m_taskTreeRunner.start(
+        {AsyncTask<GenerateCompilationDbResult>(onSetup, onDone)}, onTreeSetup);
 }
 
 void ClangCodeModelPlugin::createCompilationDBAction()
@@ -137,24 +156,6 @@ void ClangCodeModelPlugin::createCompilationDBAction()
     if (Project *startupProject = ProjectManager::startupProject())
         m_generateCompilationDBAction->setParameter(startupProject->displayName());
 
-    connect(&m_generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
-            this, [this] {
-        QString message;
-        if (m_generatorWatcher.future().resultCount()) {
-            const GenerateCompilationDbResult result = m_generatorWatcher.result();
-            if (result) {
-                message = Tr::tr("Clang compilation database generated at \"%1\".")
-                              .arg(result->toUserOutput());
-            } else {
-                message
-                    = Tr::tr("Generating Clang compilation database failed: %1").arg(result.error());
-            }
-        } else {
-            message = Tr::tr("Generating Clang compilation database canceled.");
-        }
-        MessageManager::writeFlashing(message);
-        m_generateCompilationDBAction->setEnabled(true);
-    });
     connect(m_generateCompilationDBAction, &QAction::triggered, this, [this] {
         TaskHub::clearAndRemoveTask(m_generateCompilationDBError);
         const auto setError = [this](const QString &reason) {
