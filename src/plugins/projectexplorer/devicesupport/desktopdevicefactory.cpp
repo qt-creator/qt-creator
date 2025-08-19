@@ -13,10 +13,10 @@
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
 
+#include <QApplication>
 #include <QStyle>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 DesktopDeviceFactory::DesktopDeviceFactory()
     : IDeviceFactory(Constants::DESKTOP_DEVICE_TYPE)
@@ -29,5 +29,4 @@ DesktopDeviceFactory::DesktopDeviceFactory()
                 : QApplication::style()->standardIcon(QStyle::SP_ComputerIcon));
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

@@ -10,6 +10,8 @@
 
 #include <coreplugin/fileutils.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/async.h>
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
@@ -30,15 +32,19 @@
 #endif
 
 using namespace ProjectExplorer::Constants;
+using namespace Tasking;
 using namespace Utils;
 
 namespace ProjectExplorer {
 
-class DesktopDevicePrivate : public QObject
-{};
+class DesktopDevicePrivate
+{
+public:
+    SingleTaskTreeRunner taskTreeRunner;
+};
 
 DesktopDevice::DesktopDevice()
-    : d(new DesktopDevicePrivate())
+    : d(new DesktopDevicePrivate)
 {
     setFileAccess(DesktopDeviceFileAccess::instance());
 
@@ -96,12 +102,13 @@ DesktopDevice::DesktopDevice()
     };
 
     if (HostOsInfo::isWindowsHost()) {
-        QFutureWatcher<DeployToolsAvailability> *w = new QFutureWatcher<DeployToolsAvailability>(this);
-        connect(w, &QFutureWatcher<DeployToolsAvailability>::finished, this, [w, updateExtraData]() {
-            updateExtraData(w->result());
-            w->deleteLater();
-        });
-        w->setFuture(Utils::asyncRun([]() { return hostDeployTools(); }));
+        const auto onSetup = [](Async<DeployToolsAvailability> &task) {
+            task.setConcurrentCallData(hostDeployTools);
+        };
+        const auto onDone = [updateExtraData](const Async<DeployToolsAvailability> &task) {
+            updateExtraData(task.result());
+        };
+        d->taskTreeRunner.start({AsyncTask<DeployToolsAvailability>(onSetup, onDone)});
     } else {
         updateExtraData(hostDeployTools());
     }

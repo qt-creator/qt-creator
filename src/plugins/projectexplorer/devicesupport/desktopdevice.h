@@ -7,8 +7,6 @@
 
 #include "idevice.h"
 
-#include <QApplication>
-
 #include <memory>
 
 namespace ProjectExplorer {
