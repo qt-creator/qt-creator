@@ -4255,6 +4255,35 @@ bool Parser::parseIfStatement(StatementAST *&node)
     if (LA() == T_IF) {
         IfStatementAST *ast = new (_pool) IfStatementAST;
         ast->if_token = consumeToken();
+
+        if (_languageFeatures.cxx23Enabled) {
+            if (LA() == T_EXCLAIM) {
+                ast->exclam_token = consumeToken();
+                if (LA() != T_CONSTEVAL) {
+                    error(cursor(), "consteval expected");
+                    return false;
+                }
+            }
+            if (LA() == T_CONSTEVAL)
+                ast->consteval_token = consumeToken();
+        }
+
+        if (ast->consteval_token) {
+            if (!parseCompoundStatement(ast->statement)) {
+                error(cursor(), "expected compound statement");
+                return false;
+            }
+            if (LA() == T_ELSE) {
+                ast->else_token = consumeToken();
+                if (!parseCompoundStatement(ast->else_statement)) {
+                    error(cursor(), "expected compound statement");
+                    return false;
+                }
+            }
+            node = ast;
+            return true;
+        }
+
         if (LA() == T_CONSTEXPR) {
             // "if constexpr" added in cxx17, but we don't check cxx version here
             // because msvc 2019 compiler uses "if constexpr" in headers despite cxx version set for the project

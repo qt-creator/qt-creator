@@ -1811,6 +1811,8 @@ class CPLUSPLUS_EXPORT IfStatementAST: public StatementAST
 {
 public:
     int if_token = 0;
+    int exclam_token = 0;
+    int consteval_token = 0;
     int constexpr_token = 0;
     int lparen_token = 0;
     StatementAST *initStmt = nullptr;

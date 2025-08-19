@@ -1349,9 +1349,9 @@ bool ASTMatcher::match(IfStatementAST *node, IfStatementAST *pattern)
     (void) pattern;
 
     pattern->if_token = node->if_token;
-
+    pattern->exclam_token = node->exclam_token;
+    pattern->consteval_token = node->consteval_token;
     pattern->constexpr_token = node->constexpr_token;
-
     pattern->lparen_token = node->lparen_token;
 
     if (!pattern->initStmt)
