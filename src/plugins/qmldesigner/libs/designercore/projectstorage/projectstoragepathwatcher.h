@@ -468,13 +468,13 @@ public:
         idPaths.reserve(foundEntries.size());
 
         if (foundEntries.size()) {
-            auto &lastEntry = idPaths.emplace_back(foundEntries.front().id, SourceIds{});
+            auto *lastEntry = &idPaths.emplace_back(foundEntries.front().id, SourceIds{});
 
             for (WatcherEntry entry : foundEntries) {
-                if (lastEntry.id != entry.id)
-                    lastEntry = idPaths.emplace_back(entry.id, SourceIds{});
+                if (lastEntry->id != entry.id)
+                    lastEntry = &idPaths.emplace_back(entry.id, SourceIds{});
 
-                lastEntry.sourceIds.push_back(entry.sourceId);
+                lastEntry->sourceIds.push_back(entry.sourceId);
             }
         }
 
