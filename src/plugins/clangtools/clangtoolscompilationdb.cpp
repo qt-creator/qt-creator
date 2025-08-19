@@ -13,18 +13,22 @@
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/compilationdb.h>
 #include <cppeditor/cppmodelmanager.h>
+
 #include <projectexplorer/buildconfiguration.h>
+
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/async.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/temporarydirectory.h>
 
-#include <QFutureWatcher>
 #include <QHash>
 
 #include <utility>
 
 using namespace CppEditor;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace ClangTools::Internal {
@@ -43,9 +47,9 @@ public:
     ClangToolsCompilationDb * const q;
     const ClangToolType toolType;
     TemporaryDirectory dir{toolName() + "XXXXXX"};
-    QFutureWatcher<GenerateCompilationDbResult> generatorWatcher;
-    FutureSynchronizer generatorSynchronizer;
     bool readyAndUpToDate = false;
+    FutureSynchronizer generatorSynchronizer;
+    SingleTaskTreeRunner taskTreeRunner;
 };
 
 ClangToolsCompilationDb::ClangToolsCompilationDb(ClangToolType toolType, BuildConfiguration *bc)
@@ -54,25 +58,6 @@ ClangToolsCompilationDb::ClangToolsCompilationDb(ClangToolType toolType, BuildCo
     connect(bc, &BuildConfiguration::destroyed, [bc, toolType] {
         dbs.remove(std::make_pair(toolType, bc));
     });
-
-    connect(&d->generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
-            this, [this] {
-        const auto result = d->generatorWatcher.result();
-        const bool success = result.has_value();
-        QTC_CHECK(!d->readyAndUpToDate);
-        d->readyAndUpToDate = success;
-        if (success) {
-            Core::MessageManager::writeSilently(
-                Tr::tr("Compilation database for %1 successfully generated at \"%2\".")
-                    .arg(d->toolName(), d->dir.path().toUserOutput()));
-        } else {
-            Core::MessageManager::writeDisrupting(
-                Tr::tr("Generating compilation database for %1 failed: %2")
-                    .arg(d->toolName(), result.error()));
-        }
-        emit generated(success);
-    });
-
     connect(ClangToolsProjectSettings::getSettings(bc->project()).get(),
             &ClangToolsProjectSettings::changed,
             this, &ClangToolsCompilationDb::invalidate);
@@ -111,9 +96,6 @@ ClangToolsCompilationDb &ClangToolsCompilationDb::getDb(
 void ClangToolsCompilationDb::Private::generate()
 {
     QTC_CHECK(!readyAndUpToDate);
-
-    if (generatorWatcher.isRunning())
-        generatorWatcher.cancel();
 
     Core::MessageManager::writeSilently(
         Tr::tr("Generating compilation database for %1 at \"%2\" ...")
@@ -154,15 +136,36 @@ void ClangToolsCompilationDb::Private::generate()
         return optionsBuilder;
     };
 
-    generatorWatcher.setFuture(
-        Utils::asyncRun(
+    const auto onSetup = [this, bc, getCompilerOptionsBuilder](
+                             Async<GenerateCompilationDbResult> &task) {
+        task.setFutureSynchronizer(&generatorSynchronizer);
+        task.setConcurrentCallData(
             &generateCompilationDB,
             QList<ProjectInfo::ConstPtr>{CppModelManager::projectInfo(bc->project())},
             dir.path(),
             CompilationDbPurpose::Analysis,
             ClangDiagnosticConfigsModel::globalDiagnosticOptions(),
-            getCompilerOptionsBuilder));
-    generatorSynchronizer.addFuture(generatorWatcher.future());
+            getCompilerOptionsBuilder);
+    };
+    const auto onDone = [this](const Async<GenerateCompilationDbResult> &task) {
+        const auto result = task.result();
+        const bool success = result.has_value();
+        QTC_CHECK(!readyAndUpToDate);
+        readyAndUpToDate = success;
+        if (success) {
+            Core::MessageManager::writeSilently(
+                Tr::tr("Compilation database for %1 successfully generated at \"%2\".")
+                    .arg(toolName(), dir.path().toUserOutput()));
+        } else {
+            Core::MessageManager::writeDisrupting(
+                Tr::tr("Generating compilation database for %1 failed: %2")
+                    .arg(toolName(), result.error()));
+        }
+        emit q->generated(success);
+    };
+    taskTreeRunner.start({
+        AsyncTask<GenerateCompilationDbResult>(onSetup, onDone)
+    });
 }
 
 } // namespace ClangTools::Internal
