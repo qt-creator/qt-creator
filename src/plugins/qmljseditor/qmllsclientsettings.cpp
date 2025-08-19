@@ -483,10 +483,8 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
     m_ignoreMinimumQmllsVersion->setChecked(settings->m_ignoreMinimumQmllsVersion);
     m_useQmllsSemanticHighlighting->setChecked(settings->m_useQmllsSemanticHighlighting);
 
-    QObject::connect(m_overrideExecutable, &QCheckBox::toggled, m_executable, [this](bool checked) {
-        m_executable->setEnabled(checked);
-    });
-
+    QObject::connect(
+        m_overrideExecutable, &QCheckBox::toggled, m_executable, &PathChooser::setEnabled);
     m_executable->setFilePath(settings->m_executable);
     m_executable->setExpectedKind(Utils::PathChooser::File);
     m_executable->setEnabled(m_overrideExecutable->isChecked());
