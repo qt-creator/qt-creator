@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "algorithm.h"
+#include "hostosinfo.h"
 #include "icon.h"
 #include "qtcassert.h"
-#include "theme/theme.h"
 #include "stylehelper.h"
+#include "theme/theme.h"
 #include "utilsicons.h"
 
 #include <QApplication>
@@ -263,39 +264,44 @@ QIcon Icon::fromTheme(const QString &name)
     if (found != cache.end())
         return *found;
 
-    QIcon icon = QIcon::fromTheme(name);
+    QIcon icon;
+    const bool avoidIconFromTheme = HostOsInfo::isLinuxHost() &&
+                                    creatorTheme()->colorScheme() != Theme::systemColorScheme();
+    if (!avoidIconFromTheme)
+        icon = QIcon::fromTheme(name);
+    const bool useIconFromTheme = !avoidIconFromTheme && !icon.isNull();
     if (name == "go-next") {
-        cache.insert(name, !icon.isNull() ? icon : QIcon(":/utils/images/arrow.png"));
+        cache.insert(name, useIconFromTheme ? icon : QIcon(":/utils/images/arrow.png"));
     } else if (name == "document-open") {
-        cache.insert(name, !icon.isNull() ? icon : Icons::OPENFILE.icon());
+        cache.insert(name, useIconFromTheme ? icon : Icons::OPENFILE.icon());
     } else if (name == "edit-copy") {
-        cache.insert(name, !icon.isNull() ? icon : Icons::COPY.icon());
+        cache.insert(name, useIconFromTheme ? icon : Icons::COPY.icon());
     } else if (name == "document-new") {
-        cache.insert(name, !icon.isNull() ? icon : Icons::NEWFILE.icon());
+        cache.insert(name, useIconFromTheme ? icon : Icons::NEWFILE.icon());
     } else if (name == "document-save") {
-        cache.insert(name, !icon.isNull() ? icon : Icons::SAVEFILE.icon());
+        cache.insert(name, useIconFromTheme ? icon : Icons::SAVEFILE.icon());
     } else if (name == "edit-undo") {
-        cache.insert(name, !icon.isNull() ? icon : Icons::UNDO.icon());
+        cache.insert(name, useIconFromTheme ? icon : Icons::UNDO.icon());
     } else if (name == "edit-redo") {
-        cache.insert(name, !icon.isNull() ? icon : Icons::REDO.icon());
+        cache.insert(name, useIconFromTheme ? icon : Icons::REDO.icon());
     } else if (name == "edit-cut") {
-        cache.insert(name, !icon.isNull() ? icon : Icons::CUT.icon());
+        cache.insert(name, useIconFromTheme ? icon : Icons::CUT.icon());
     } else if (name == "edit-paste") {
-        cache.insert(name, !icon.isNull() ? icon : Icons::PASTE.icon());
+        cache.insert(name, useIconFromTheme ? icon : Icons::PASTE.icon());
     } else if (name == "zoom-in") {
-        cache.insert(name, !icon.isNull() ? icon : Icons::ZOOMIN_TOOLBAR.icon());
+        cache.insert(name, useIconFromTheme ? icon : Icons::ZOOMIN_TOOLBAR.icon());
     } else if (name == "zoom-out") {
-        cache.insert(name, !icon.isNull() ? icon : Icons::ZOOMOUT_TOOLBAR.icon());
+        cache.insert(name, useIconFromTheme ? icon : Icons::ZOOMOUT_TOOLBAR.icon());
     } else if (name == "zoom-original") {
-        cache.insert(name, !icon.isNull() ? icon : Icons::EYE_OPEN_TOOLBAR.icon());
+        cache.insert(name, useIconFromTheme ? icon : Icons::EYE_OPEN_TOOLBAR.icon());
     } else if (name == "edit-clear") {
-        cache.insert(name, !icon.isNull() ? icon : Icons::EDIT_CLEAR.icon());
+        cache.insert(name, useIconFromTheme ? icon : Icons::EDIT_CLEAR.icon());
     } else if (name == "edit-clear-locationbar-rtl") {
         // KDE has custom icons for this. If these icons are not available we use the freedesktop
         // standard name "edit-clear" before falling back to a bundled resource.
-        cache.insert(name, !icon.isNull() ? icon : fromTheme("edit-clear"));
+        cache.insert(name, useIconFromTheme ? icon : fromTheme("edit-clear"));
     } else if (name == "edit-clear-locationbar-ltr") {
-        cache.insert(name, !icon.isNull() ? icon : fromTheme("edit-clear"));
+        cache.insert(name, useIconFromTheme ? icon : fromTheme("edit-clear"));
     } else {
         cache.insert(name, icon);
     }

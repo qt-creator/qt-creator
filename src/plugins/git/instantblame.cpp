@@ -57,7 +57,7 @@ BlameMark::BlameMark(const FilePath &fileName, int lineNumber, const CommitInfo 
     setSettingsPage(VcsBase::Constants::VCS_ID_GIT);
     setActionsProvider([info] {
         QAction *copyToClipboardAction = new QAction;
-        copyToClipboardAction->setIcon(QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon()));
+        copyToClipboardAction->setIcon(Icon::fromTheme("edit-copy"));
         copyToClipboardAction->setToolTip(TextEditor::Tr::tr("Copy Hash to Clipboard"));
         QObject::connect(copyToClipboardAction, &QAction::triggered, [info] {
             Utils::setClipboardAndSelection(info.hash);
