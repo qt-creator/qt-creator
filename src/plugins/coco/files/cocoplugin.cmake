@@ -22,7 +22,7 @@ set(CMAKE_STATIC_LINKER_FLAGS_INIT "${coverage_flags}"
     CACHE STRING "Coverage flags to link static libraries." FORCE)
 
 if (DEFINED ENV{SQUISHCOCO})
-    set(cocopath $ENV{SQUISHCOCO})
+    cmake_path(SET cocopath $ENV{SQUISHCOCO})
 else()
     find_file(cocopath SquishCoco
       PATHS "$ENV{HOME}" /opt/ "/Applications"
@@ -36,18 +36,27 @@ if(CMAKE_HOST_APPLE)
 elseif(CMAKE_HOST_UNIX)
     set(wrapperdir "${cocopath}/bin/")
 elseif(MINGW)
-    set(wrapperdir "${cocopath}\\bin\\")
+    set(wrapperdir "${cocopath}/")
 else()
-    set(wrapperdir "${cocopath}\\" )
+    set(wrapperdir "${cocopath}/" )
 endif()
 
-get_filename_component(c_compiler ${CMAKE_C_COMPILER} NAME)
+get_filename_component(c_compiler ${CMAKE_C_COMPILER} NAME CACHE)
 find_program(code_coverage_c_compiler cs${c_compiler}
     PATHS ${wrapperdir}
     REQUIRED NO_DEFAULT_PATH)
 set(CMAKE_C_COMPILER "${code_coverage_c_compiler}"
     CACHE FILEPATH "CoverageScanner wrapper for C compiler" FORCE)
 
+if(WIN32) # Windows cannot handle the filename g++.exe correctly.
+    # As a result, we must give the wrapper the profile explicitly as an argument.
+    get_filename_component(cxx_compiler_wle ${CMAKE_CXX_COMPILER} NAME_WLE CACHE)
+    string(JOIN " " new_coverage_flags1
+        --cs-profile="${wrapperdir}${cxx_compiler_wle}.cspro" "${coverage_flags}")
+    string(STRIP ${new_coverage_flags1} new_coverage_flags)
+    set(CMAKE_CXX_FLAGS_INIT "${new_coverage_flags}"
+        CACHE STRING "Coverage flags for the C++ compiler." FORCE)
+endif()
 get_filename_component(cxx_compiler ${CMAKE_CXX_COMPILER} NAME)
 find_program(code_coverage_cxx_compiler cs${cxx_compiler}
     PATHS ${wrapperdir}
@@ -55,7 +64,9 @@ find_program(code_coverage_cxx_compiler cs${cxx_compiler}
 set(CMAKE_CXX_COMPILER "${code_coverage_cxx_compiler}"
     CACHE FILEPATH "CoverageScanner wrapper for C++ compiler" FORCE)
 
-if(DEFINED CMAKE_LINKER)
+if(${c_compiler} MATCHES "(gcc|.*-gcc|.*-gcc-.*|clang|.*-clang|.*-clang-.*).exe")
+    # Do nothing, CMake does not use a separate linker program; it uses the compiler.
+elseif(DEFINED CMAKE_LINKER)
     get_filename_component(linker_prog ${CMAKE_LINKER} NAME)
     find_program(code_coverage_linker cs${linker_prog}
         PATHS ${wrapperdir}
