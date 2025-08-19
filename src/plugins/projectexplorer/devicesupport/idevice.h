@@ -57,9 +57,22 @@ class DeviceTester;
 class PROJECTEXPLORER_EXPORT DeviceToolAspect : public Utils::FilePathAspect
 {
 public:
+    enum ToolType {
+        RunTool = 1,     // Tool used in connection with project running (on target device)
+        BuildTool = 2,   // Tool used in connection with project building (on build device)
+        SourceTool = 4,  // Tool used on project sources (typically, but not necessarily build device)
+        AllTools = RunTool | BuildTool | SourceTool
+    };
+
     using Utils::FilePathAspect::FilePathAspect;
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
+
+    ToolType toolType() const;
+    void setToolType(ToolType toolType);
+
+public:
+    ToolType m_toolType = AllTools;
 };
 
 class PROJECTEXPLORER_EXPORT DeviceToolAspectFactory
@@ -82,6 +95,7 @@ protected:
     void setToolTip(const QString &toolTip);
     void setVariablePrefix(const QByteArray &variablePrefix);
     void setChecker(const Checker &checker);
+    void setToolType(DeviceToolAspect::ToolType toolType);
 
 private:
     void autoDetect(const IDevicePtr &device, const Utils::FilePaths &searchPaths);
@@ -92,6 +106,7 @@ private:
     QStringList m_filePattern;
     QByteArray m_variablePrefix;
     Checker m_checker;
+    DeviceToolAspect::ToolType m_toolType = DeviceToolAspect::AllTools;
 };
 
 class PROJECTEXPLORER_EXPORT DeviceProcessSignalOperation : public QObject
@@ -222,7 +237,7 @@ public:
 
     Utils::FilePath deviceToolPath(Utils::Id toolId) const;
     void setDeviceToolPath(Utils::Id toolId, const Utils::FilePath &filePath);
-    QList<DeviceToolAspect *> deviceToolAspects() const;
+    QList<DeviceToolAspect *> deviceToolAspects(DeviceToolAspect::ToolType supportType) const;
 
     void setExtraData(Utils::Id kind, const QVariant &data);
     QVariant extraData(Utils::Id kind) const;

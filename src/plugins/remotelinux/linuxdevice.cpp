@@ -363,8 +363,19 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
                 autoDetectButton,
             }
         }, br,
-        Column { Space(20) }, br,
-        device->deviceToolAspects(), br,
+        Group {
+            title(Tr::tr("Run tools on this device")),
+            Form {
+                device->deviceToolAspects(DeviceToolAspect::RunTool)
+            }
+        }, br,
+        Group {
+            title(Tr::tr("Source and build tools on this device")),
+            Form {
+                device->deviceToolAspects(DeviceToolAspect::ToolType(
+                    DeviceToolAspect::SourceTool | DeviceToolAspect::BuildTool))
+            }
+        }
     }.attachTo(this);
     // clang-format on
 

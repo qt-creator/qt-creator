@@ -156,6 +156,7 @@ public:
     ClangdToolFactory()
     {
         setToolId(Constants::CLANGD_TOOL_ID);
+        setToolType(DeviceToolAspect::SourceTool);
         setFilePattern({"clangd"});
         setLabelText(Tr::tr("Clangd executable:"));
         setChecker(&checkClangdVersion);

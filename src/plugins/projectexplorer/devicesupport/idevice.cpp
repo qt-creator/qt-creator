@@ -13,6 +13,7 @@
 #include "../projectexplorertr.h"
 #include "../target.h"
 
+#include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/commandline.h>
 #include <utils/devicefileaccess.h>
@@ -156,6 +157,24 @@ public:
 } // namespace Internal
 
 
+// DeviceToolAspect
+
+DeviceToolAspect::ToolType DeviceToolAspect::toolType() const
+{
+    return m_toolType;
+}
+
+void DeviceToolAspect::setToolType(ToolType toolType)
+{
+    m_toolType = toolType;
+}
+
+void DeviceToolAspect::addToLayoutImpl(Layouting::Layout &parent)
+{
+    FilePathAspect::addToLayoutImpl(parent);
+    parent.flush();
+}
+
 // DeviceToolFactory
 
 static QList<DeviceToolAspectFactory *> theDeviceToolFactories;
@@ -217,6 +236,7 @@ DeviceToolAspect *DeviceToolAspectFactory::createAspect() const
         });
     toolAspect->setAllowPathFromDevice(true);
     toolAspect->setExpectedKind(PathChooser::ExistingCommand);
+    toolAspect->setToolType(m_toolType);
     return toolAspect;
 }
 
@@ -248,6 +268,11 @@ void DeviceToolAspectFactory::setChecker(const Checker &checker)
 void DeviceToolAspectFactory::setFilePattern(const QStringList &filePattern)
 {
     m_filePattern = filePattern;
+}
+
+void DeviceToolAspectFactory::setToolType(DeviceToolAspect::ToolType toolType)
+{
+    m_toolType = toolType;
 }
 
 // DeviceTester
@@ -839,15 +864,11 @@ FilePath IDevice::deviceToolPath(Id toolId) const
     return filePath;
 }
 
-QList<DeviceToolAspect *> IDevice::deviceToolAspects() const
+QList<DeviceToolAspect *> IDevice::deviceToolAspects(DeviceToolAspect::ToolType supportType) const
 {
-    return d->deviceToolAspects.values();
-}
-
-void DeviceToolAspect::addToLayoutImpl(Layouting::Layout &parent)
-{
-    FilePathAspect::addToLayoutImpl(parent);
-    parent.flush();
+    return Utils::filtered(d->deviceToolAspects.values(), [supportType](DeviceToolAspect *aspect) {
+        return aspect->toolType() & supportType;
+    });
 }
 
 FilePath IDevice::rootPath() const

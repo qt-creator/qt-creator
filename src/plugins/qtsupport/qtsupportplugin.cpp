@@ -74,6 +74,7 @@ public:
     QmakeToolFactory()
     {
         setToolId(Constants::QMAKE_TOOL_ID);
+        setToolType(DeviceToolAspect::BuildTool);
         setFilePattern({"qmake"});
         setLabelText(Tr::tr("qmake executable:"));
     }

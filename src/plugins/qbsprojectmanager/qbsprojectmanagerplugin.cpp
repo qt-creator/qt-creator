@@ -68,6 +68,7 @@ public:
     QbsToolFactory()
     {
         setToolId(Constants::QBS_TOOL_ID);
+        setToolType(DeviceToolAspect::BuildTool);
         setFilePattern({"qbs"});
         setLabelText(Tr::tr("Qbs executable:"));
     }

@@ -196,7 +196,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             dockerDevice->keepEntryPoint, br,
             dockerDevice->enableLldbFlags, br,
             dockerDevice->mountCmdBridge, br,
-            dockerDevice->deviceToolAspects(), br,
+            dockerDevice->deviceToolAspects(DeviceToolAspect::AllTools), br,
             dockerDevice->network, br,
             dockerDevice->extraArgs, br,
             dockerDevice->environment, br,

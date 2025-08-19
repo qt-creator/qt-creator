@@ -565,6 +565,7 @@ public:
     DebugServerToolFactory()
     {
         setToolId(Constants::DEBUGSERVER_TOOL_ID);
+        setToolType(DeviceToolAspect::RunTool);
         setFilePattern({"gdbserver"});
         setLabelText(Tr::tr("GDB server executable:"));
         setToolTip(Tr::tr("The GDB server executable to use on the device."));
