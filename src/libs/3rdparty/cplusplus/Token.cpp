@@ -220,6 +220,7 @@ const char *token_names[] = {
     ("char8_t"),
     ("char16_t"),
     ("char32_t"),
+    ("__int128"),
     ("double"),
     ("float"),
     ("int"),

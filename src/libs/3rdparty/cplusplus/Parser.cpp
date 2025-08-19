@@ -4503,6 +4503,7 @@ bool Parser::lookAtBuiltinTypeSpecifier() const
     case T_SHORT:
     case T_INT:
     case T_LONG:
+    case T___INT128:
     case T_SIGNED:
     case T_UNSIGNED:
     case T_FLOAT:

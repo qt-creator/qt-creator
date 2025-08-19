@@ -233,6 +233,7 @@ enum Kind {
     T_CHAR8_T,
     T_CHAR16_T,
     T_CHAR32_T,
+    T___INT128,
     T_DOUBLE,
     T_FLOAT,
     T_INT,
@@ -287,6 +288,7 @@ enum Kind {
 
     T___ASM = T_ASM,
     T___ASM__ = T_ASM,
+    T___INT128_T = T___INT128,
 
     T_TYPEOF = T___TYPEOF__,
     T___TYPEOF = T___TYPEOF__,

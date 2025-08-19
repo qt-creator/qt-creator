@@ -84,6 +84,8 @@ volatile
 while
 
 %pre-check=features.cxxEnabled
+__int128
+__int128_t
 __decltype
 auto
 bool

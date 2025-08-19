@@ -821,6 +821,15 @@ static inline int classify8(const char *s, LanguageFeatures features)
               }
             }
           }
+          else if (features.cxxEnabled && s[4] == 't') {
+            if (s[5] == '1') {
+              if (s[6] == '2') {
+                if (s[7] == '8') {
+                  return T___INT128;
+                }
+              }
+            }
+          }
         }
       }
       else if (s[2] == 't') {
@@ -1326,6 +1335,19 @@ static inline int classify10(const char *s, LanguageFeatures features)
                   if (s[8] == '_') {
                     if (s[9] == '_') {
                       return T___INLINE__;
+                    }
+                  }
+                }
+              }
+            }
+          }
+          else if (features.cxxEnabled && s[4] == 't') {
+            if (s[5] == '1') {
+              if (s[6] == '2') {
+                if (s[7] == '8') {
+                  if (s[8] == '_') {
+                    if (s[9] == 't') {
+                      return T___INT128_T;
                     }
                   }
                 }

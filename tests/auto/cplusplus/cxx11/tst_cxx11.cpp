@@ -209,6 +209,7 @@ void tst_cxx11::parse_data()
     QTest::newRow("templateTemplateTypeInDependentName")
         << "templateTemplateTypeInDependentName.cpp" << 2011 << "";
     QTest::newRow("constevalIf") << "constevalIf.cpp" << 2023 << "";
+    QTest::newRow("int128") << "int128.cpp" << 2011 << "";
 }
 
 void tst_cxx11::parse()
