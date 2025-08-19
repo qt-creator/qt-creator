@@ -41,7 +41,6 @@ const char CMAKE_INFORMATION_QCH_FILE_PATH[] = "QchFile";
 const char CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY[] = "AutoCreateBuildDirectory";
 const char CMAKE_INFORMATION_AUTODETECTED[] = "AutoDetected";
 const char CMAKE_INFORMATION_DETECTIONSOURCE[] = "DetectionSource";
-const char CMAKE_INFORMATION_READERTYPE[] = "ReaderType";
 
 bool CMakeTool::Generator::matches(const QString &n) const
 {
@@ -49,26 +48,6 @@ bool CMakeTool::Generator::matches(const QString &n) const
 }
 
 namespace Internal {
-
-const char READER_TYPE_FILEAPI[] = "fileapi";
-
-static std::optional<CMakeTool::ReaderType> readerTypeFromString(const QString &input)
-{
-    // Do not try to be clever here, just use whatever is in the string!
-    if (input == READER_TYPE_FILEAPI)
-        return CMakeTool::FileApi;
-    return {};
-}
-
-static QString readerTypeToString(const CMakeTool::ReaderType &type)
-{
-    switch (type) {
-    case CMakeTool::FileApi:
-        return QString(READER_TYPE_FILEAPI);
-    default:
-        return QString();
-    }
-}
 
 // --------------------------------------------------------------------
 // CMakeIntrospectionData:
@@ -114,8 +93,6 @@ CMakeTool::CMakeTool(const Store &map, bool fromSdk)
 {
     m_displayName = map.value(CMAKE_INFORMATION_DISPLAYNAME).toString();
     m_autoCreateBuildDirectory = map.value(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, false).toBool();
-    m_readerType = Internal::readerTypeFromString(
-        map.value(CMAKE_INFORMATION_READERTYPE).toString());
 
     const DetectionSource::DetectionType type = [&] {
         if (fromSdk)
@@ -190,8 +167,6 @@ Store CMakeTool::toMap() const
     data.insert(CMAKE_INFORMATION_COMMAND, m_executable.toSettings());
     data.insert(CMAKE_INFORMATION_QCH_FILE_PATH, m_qchFilePath.toSettings());
     data.insert(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, m_autoCreateBuildDirectory);
-    if (m_readerType)
-        data.insert(CMAKE_INFORMATION_READERTYPE, Internal::readerTypeToString(*m_readerType));
     data.insert(CMAKE_INFORMATION_AUTODETECTED, m_detectionSource.isAutoDetected());
     data.insert(CMAKE_INFORMATION_DETECTIONSOURCE, m_detectionSource.id);
     return data;
@@ -378,17 +353,6 @@ CMakeTool::PathMapper CMakeTool::pathMapper() const
     if (m_pathMapper)
         return m_pathMapper;
     return [](const FilePath &fn) { return fn; };
-}
-
-std::optional<CMakeTool::ReaderType> CMakeTool::readerType() const
-{
-    if (m_readerType)
-        return m_readerType; // Allow overriding the auto-detected value via .user files
-
-    // Find best possible reader type:
-    if (hasFileApi())
-        return FileApi;
-    return {};
 }
 
 FilePath CMakeTool::searchQchFile(const FilePath &executable)

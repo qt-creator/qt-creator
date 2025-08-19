@@ -46,8 +46,6 @@ public:
         AutoDetection
     };
 
-    enum ReaderType { FileApi };
-
     struct Version
     {
         int major = 0;
@@ -107,8 +105,6 @@ public:
     void setPathMapper(const PathMapper &includePathMapper);
     PathMapper pathMapper() const;
 
-    std::optional<ReaderType> readerType() const;
-
     static Utils::FilePath searchQchFile(const Utils::FilePath &executable);
 
     [[deprecated("Use setDetectionSource(DetectionSource) instead")]] void setDetectionSource(
@@ -141,8 +137,6 @@ private:
 
     ProjectExplorer::DetectionSource m_detectionSource;
     bool m_autoCreateBuildDirectory = false;
-
-    std::optional<ReaderType> m_readerType;
 
     std::unique_ptr<Internal::IntrospectionData> m_introspection;
 
