@@ -456,7 +456,7 @@ static void showUpdateInfo(const QList<Update> &updates,
             return scrollArea;
         });
     }
-    InfoBar *infoBar = ICore::infoBar();
+    InfoBar *infoBar = ICore::popupInfoBar();
     infoBar->removeInfo(InstallUpdates); // remove any existing notifications
     infoBar->unsuppressInfo(InstallUpdates);
     infoBar->addInfo(info);

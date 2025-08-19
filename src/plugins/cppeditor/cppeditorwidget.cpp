@@ -789,7 +789,7 @@ void CppEditorWidget::showRenameWarningIfFileIsGenerated(const Utils::FilePath &
                 {},
                 InfoBarEntry::ButtonAction::Hide);
         }
-        ICore::infoBar()->addInfo(info);
+        ICore::popupInfoBar()->addInfo(info);
         return;
     }
 }

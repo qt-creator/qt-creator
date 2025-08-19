@@ -1449,7 +1449,7 @@ void LinuxDevicePrivate::announceConnectionAttempt()
     InfoBarEntry info(announceId(), message);
     info.setTitle(Tr::tr("Establishing a Connection"));
     info.setInfoType(InfoLabel::Ok);
-    Core::ICore::infoBar()->addInfo(info);
+    Core::ICore::popupInfoBar()->addInfo(info);
     Core::MessageManager::writeSilently(message);
 }
 
@@ -1481,10 +1481,11 @@ void LinuxDevicePrivate::unannounceConnectionAttempt()
     InfoBarEntry info(announceId(), message);
     info.setTitle(Tr::tr("Connection Attempt Finished"));
     info.setInfoType(infoType);
-    Core::ICore::infoBar()->addInfo(info);
+    InfoBar *infoBar = Core::ICore::popupInfoBar();
+    infoBar->addInfo(info);
     Core::MessageManager::writeSilently(message);
 
-    QTimer::singleShot(5000, q, [id=announceId()] { Core::ICore::infoBar()->removeInfo(id); });
+    QTimer::singleShot(5000, q, [id=announceId(), infoBar] { infoBar->removeInfo(id); });
 }
 
 bool LinuxDevicePrivate::checkDisconnectedWithWarning()
@@ -1492,7 +1493,7 @@ bool LinuxDevicePrivate::checkDisconnectedWithWarning()
     if (m_deviceState != IDevice::DeviceDisconnected)
         return false;
 
-    InfoBar *infoBar = Core::ICore::infoBar();
+    InfoBar *infoBar = Core::ICore::popupInfoBar();
     QMetaObject::invokeMethod(infoBar, [id = q->id(), name = q->displayName(), infoBar] {
         const Id errorId = id.withPrefix("error_");
         if (!infoBar->canInfoBeAdded(errorId))
@@ -1679,7 +1680,7 @@ void LinuxDevice::postLoad()
         InfoBarEntry info(d->announceId(), message);
         info.setTitle(Tr::tr("Establishing a Connection"));
         info.setInfoType(InfoLabel::Warning);
-        Core::ICore::infoBar()->addInfo(info);
+        Core::ICore::popupInfoBar()->addInfo(info);
         Core::MessageManager::writeSilently(message);
     }});
 }

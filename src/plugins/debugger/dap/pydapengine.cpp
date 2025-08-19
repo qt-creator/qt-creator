@@ -252,7 +252,7 @@ void PyDapEngine::setupEngine()
             },
             {},
             InfoBarEntry::ButtonAction::SuppressPersistently);
-        Core::ICore::infoBar()->addInfo(info);
+        Core::ICore::popupInfoBar()->addInfo(info);
 
         notifyEngineSetupFailed();
         return;

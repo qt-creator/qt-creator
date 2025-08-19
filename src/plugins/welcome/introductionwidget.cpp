@@ -417,7 +417,7 @@ void runUiTour()
 
 void askUserAboutIntroduction()
 {
-    InfoBar *infoBar = ICore::infoBar();
+    InfoBar *infoBar = ICore::popupInfoBar();
 
     // CheckableMessageBox for compatibility with Qt Creator < 4.11
     if (!CheckableDecider(Key(kTakeTourSetting)).shouldAskAgain()

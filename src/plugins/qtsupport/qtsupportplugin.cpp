@@ -175,7 +175,7 @@ const char kLinkWithQtInstallationSetting[] = "LinkWithQtInstallation";
 
 static void askAboutQtInstallation()
 {
-    InfoBar *infoBar = ICore::infoBar();
+    InfoBar *infoBar = ICore::popupInfoBar();
     // if the install settings exist, the Qt Creator installation is (probably) already linked to
     // a Qt installation, so don't ask
     if (!LinkWithQtSupport::canLinkWithQt() || LinkWithQtSupport::isLinkedWithQt()

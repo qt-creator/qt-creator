@@ -261,7 +261,7 @@ void McuSupportOptions::displayKitCreationMessages(const MessagesList messages,
     if (messages.isEmpty() || !qtMCUsPackage->isValidStatus())
         return;
     static const char mcuKitCreationErrorInfoId[] = "ErrorWhileCreatingMCUKits";
-    InfoBar *infoBar = Core::ICore::infoBar();
+    InfoBar *infoBar = Core::ICore::popupInfoBar();
     if (!infoBar->canInfoBeAdded(mcuKitCreationErrorInfoId))
         return;
 

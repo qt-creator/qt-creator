@@ -102,7 +102,7 @@ const char kRestartSetting[] = "RestartAfterPluginEnabledChanged";
 
 static void requestRestart()
 {
-    InfoBar *infoBar = ICore::infoBar();
+    InfoBar *infoBar = ICore::popupInfoBar();
     if (infoBar->canInfoBeAdded(kRestartSetting)) {
         Utils::InfoBarEntry
             info(kRestartSetting, Core::Tr::tr("Plugin changes will take effect after restart."));

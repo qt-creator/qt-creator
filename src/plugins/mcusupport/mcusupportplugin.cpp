@@ -123,7 +123,7 @@ static bool isQtMCUsProject(ProjectExplorer::Project *p)
 
 static void askUserAboutMcuSupportKitsSetup()
 {
-    InfoBar *infoBar = ICore::infoBar();
+    InfoBar *infoBar = ICore::popupInfoBar();
     if (!infoBar->canInfoBeAdded(setupMcuSupportKits)
         || dd->m_options.qulDirFromSettings().isEmpty()
         || !McuKitManager::existingKits(nullptr).isEmpty())
@@ -147,7 +147,7 @@ static void askUserAboutRemovingUninstalledTargetsKits()
     const char removeUninstalledKits[] = "RemoveUninstalledKits";
     QList<Kit *> uninstalledTargetsKits;
 
-    InfoBar *infoBar = ICore::infoBar();
+    InfoBar *infoBar = ICore::popupInfoBar();
     if (!infoBar->canInfoBeAdded(removeUninstalledKits)
         || (uninstalledTargetsKits = McuKitManager::findUninstalledTargetsKits()).isEmpty())
         return;
@@ -243,7 +243,7 @@ void McuSupportPlugin::initialize()
         connect(ProjectManager::instance(),
                 &ProjectManager::projectFinishedParsing,
                 [&](ProjectExplorer::Project *p) {
-                    InfoBar *infoBar = ICore::infoBar();
+                    InfoBar *infoBar = ICore::popupInfoBar();
                     if (!isQtMCUsProject(p) || !infoBar->canInfoBeAdded(qdsMcuDocInfoEntry))
                         return;
                     Utils::InfoBarEntry docInfo(

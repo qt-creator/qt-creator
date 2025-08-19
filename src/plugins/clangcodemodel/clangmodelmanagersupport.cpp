@@ -192,7 +192,7 @@ static void checkSystemForClangdSuitability()
         [] { ClangdSettings::setUseClangdAndSave(true); },
         {},
         InfoBarEntry::ButtonAction::Hide);
-    ICore::infoBar()->addInfo(info);
+    ICore::popupInfoBar()->addInfo(info);
 }
 
 static void updateParserConfig(ClangdClient *client)

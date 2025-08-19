@@ -136,7 +136,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
     void askUserAboutAndroidSetup()
     {
         NANOTRACE_SCOPE("Android", "AndroidPlugin::askUserAboutAndroidSetup");
-        Utils::InfoBar *infoBar = Core::ICore::infoBar();
+        Utils::InfoBar *infoBar = Core::ICore::popupInfoBar();
         if (!infoBar->canInfoBeAdded(kSetupAndroidSetting))
             return;
 

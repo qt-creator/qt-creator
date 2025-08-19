@@ -130,17 +130,18 @@ void DevContainerPlugin::onProjectAdded(Project *project)
             Tr::tr("Found devcontainers in project, would you like to start them?"),
             InfoBarEntry::GlobalSuppression::Enabled);
 
+        InfoBar *infoBar = Core::ICore::popupInfoBar();
         entry.setTitle(Tr::tr("Configure devcontainer?"));
         entry.setInfoType(InfoLabel::Information);
         entry.addCustomButton(
             Tr::tr("Yes"),
-            [this, project, path, instanceConfig, infoBarId] {
-                Core::ICore::infoBar()->removeInfo(infoBarId);
+            [this, project, path, instanceConfig, infoBarId, infoBar] {
+                infoBar->removeInfo(infoBarId);
                 startDeviceForProject(path, project, instanceConfig);
             },
             Tr::tr("Start DevContainer"));
 
-        Core::ICore::infoBar()->addInfo(entry);
+        infoBar->addInfo(entry);
     };
 }
 

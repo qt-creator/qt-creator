@@ -212,7 +212,7 @@ static void askForDisabledVcsPlugins(const FilePath &inputDirectory)
         return;
 
     const Id vcsSuggestion = Id("VcsManager.Suggestion.").withSuffix(spec->id());
-    InfoBar *infoBar = ICore::infoBar();
+    InfoBar *infoBar = ICore::popupInfoBar();
     if (!infoBar->canInfoBeAdded(vcsSuggestion))
         return;
 

@@ -507,7 +507,7 @@ static void askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::Ptr &settin
 {
     const char upgradeMcuSupportKits[] = "UpgradeMcuSupportKits";
 
-    InfoBar *infoBar = ICore::infoBar();
+    InfoBar *infoBar = ICore::popupInfoBar();
     if (!infoBar->canInfoBeAdded(upgradeMcuSupportKits))
         return;
 

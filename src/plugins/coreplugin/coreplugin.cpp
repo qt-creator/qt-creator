@@ -544,7 +544,7 @@ void CorePlugin::checkSettings()
 
 void CorePlugin::warnAboutCrashReporing()
 {
-    InfoBar *infoBar = ICore::infoBar();
+    InfoBar *infoBar = ICore::popupInfoBar();
     if (!infoBar->canInfoBeAdded(kWarnCrashReportingSetting))
         return;
 

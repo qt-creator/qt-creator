@@ -53,7 +53,7 @@ static void askUserAboutEmSdkSetup()
 {
     const char setupWebAssemblyEmSdk[] = "SetupWebAssemblyEmSdk";
 
-    InfoBar *infoBar = ICore::infoBar();
+    InfoBar *infoBar = ICore::popupInfoBar();
     if (!infoBar->canInfoBeAdded(setupWebAssemblyEmSdk)
             || !WebAssemblyQtVersion::isQtVersionInstalled()
             || areToolChainsRegistered())
