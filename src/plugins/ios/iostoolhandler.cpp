@@ -12,6 +12,8 @@
 
 #include <debugger/debuggerconstants.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/async.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/qtcprocess.h>
@@ -27,6 +29,7 @@
 
 static Q_LOGGING_CATEGORY(toolHandlerLog, "qtc.ios.toolhandler", QtWarningMsg)
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace Ios {
@@ -44,49 +47,6 @@ using namespace std::placeholders;
 // app exit any leftovers shall be removed on simulator restart.
 static QString CONSOLE_PATH_TEMPLATE = QDir::homePath() +
         "/Library/Developer/CoreSimulator/Devices/%1/data/tmp/%2";
-
-class LogTailFiles : public QObject
-{
-    Q_OBJECT
-
-public:
-    void exec(QPromise<void> &promise, std::shared_ptr<QTemporaryFile> stdoutFile,
-              std::shared_ptr<QTemporaryFile> stderrFile)
-    {
-        if (promise.isCanceled())
-            return;
-
-        // The future is canceled when app on simulator is stopped.
-        QEventLoop loop;
-        QFutureWatcher<void> watcher;
-        connect(&watcher, &QFutureWatcher<void>::canceled, &loop, [&] { loop.quit(); });
-        watcher.setFuture(promise.future());
-
-        // Process to print the console output while app is running.
-        auto logProcess = [&](Process *tailProcess, std::shared_ptr<QTemporaryFile> file) {
-            QObject::connect(tailProcess, &Process::readyReadStandardOutput, &loop, [&, tailProcess] {
-                if (!promise.isCanceled())
-                    emit logMessage(tailProcess->readAllStandardOutput());
-            });
-            tailProcess->setCommand({"tail", {"-f", file->fileName()}});
-            tailProcess->start();
-        };
-
-        Process tailStdout;
-        if (stdoutFile)
-            logProcess(&tailStdout, stdoutFile);
-
-        Process tailStderr;
-        if (stderrFile)
-            logProcess(&tailStderr, stderrFile);
-
-        // Blocks untill tool is deleted or toolexited is called.
-        loop.exec();
-    }
-
-signals:
-    void logMessage(const QString &message);
-};
 
 struct ParserState {
     enum Kind {
@@ -291,8 +251,8 @@ private:
 
 private:
     qint64 m_pid = -1;
-    LogTailFiles outputLogger;
     FutureSynchronizer futureSynchronizer;
+    ParallelTaskTreeRunner taskTreeRunner;
 };
 
 IosToolHandlerPrivate::IosToolHandlerPrivate(const IosDeviceType &devType,
@@ -731,10 +691,7 @@ void IosDeviceToolHandlerPrivate::stop(int errorCode)
 IosSimulatorToolHandlerPrivate::IosSimulatorToolHandlerPrivate(const IosDeviceType &devType,
                                                                IosToolHandler *q)
     : IosToolHandlerPrivate(devType, q)
-{
-    QObject::connect(&outputLogger, &LogTailFiles::logMessage,
-                     q, [q](const QString &message) { q->appOutput(message); });
-}
+{}
 
 void IosSimulatorToolHandlerPrivate::requestTransferApp(const FilePath &appBundlePath,
                                                         const QString &deviceIdentifier, int timeout)
@@ -826,6 +783,7 @@ void IosSimulatorToolHandlerPrivate::stop(int errorCode)
         kill(m_pid, SIGKILL);
 #endif
     m_pid = -1;
+    taskTreeRunner.reset();
     futureSynchronizer.cancelAllFutures();
     futureSynchronizer.flushFinishedFutures();
 
@@ -903,9 +861,31 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
                         stop(0);
                 }));
 #endif
-            if (captureConsole)
-                futureSynchronizer.addFuture(Utils::asyncRun(&LogTailFiles::exec, &outputLogger,
-                                                             stdoutFile, stderrFile));
+            if (captureConsole) {
+                const auto onSetup = [this](Process &process,
+                            const std::shared_ptr<QTemporaryFile> &file) {
+                    if (!file)
+                        return SetupResult::StopWithSuccess;
+                    process.setCommand({"tail", {"-f", file->fileName()}});
+                    QObject::connect(&process, &Process::readyReadStandardOutput,
+                                     q, [this, process = &process] {
+                        q->appOutput(process->readAllStandardOutput());
+                    });
+                    return SetupResult::Continue;
+                };
+                const auto onStdOutSetup = [stdoutFile, onSetup](Process &process) {
+                    return onSetup(process, stdoutFile);
+                };
+                const auto onStdErrSetup = [stderrFile, onSetup](Process &process) {
+                    return onSetup(process, stderrFile);
+                };
+                const Group recipe {
+                    parallel,
+                    ProcessTask(onStdOutSetup),
+                    ProcessTask(onStdErrSetup)
+                };
+                taskTreeRunner.start(recipe);
+            }
         } else {
             m_pid = -1;
             errorMsg(Tr::tr("Application launch on simulator failed. %1").arg(response.error()));
@@ -1010,5 +990,3 @@ void IosToolTaskAdapter::operator()(IosToolRunner *task, Tasking::TaskInterface 
 }
 
 } // namespace Ios
-
-#include "iostoolhandler.moc"
