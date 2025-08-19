@@ -129,6 +129,8 @@ public:
     static void setCamelCaseNavigationEnabled(bool enabled);
     static void setCompletionShortcut(const QKeySequence &shortcut);
 
+    void setValueAlternatives(const QStringList &values);
+
 protected:
     // Custom behaviour can be added here.
     virtual void handleChanged(const QString &) {}

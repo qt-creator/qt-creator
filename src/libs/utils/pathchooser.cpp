@@ -18,8 +18,8 @@
 
 #include <QFileDialog>
 #include <QGuiApplication>
-#include <QHelpEvent>
 #include <QHBoxLayout>
+#include <QHelpEvent>
 #include <QMenu>
 #include <QPushButton>
 #include <QStandardPaths>
@@ -183,6 +183,7 @@ public:
 
     QMenu *m_contextMenu = nullptr;
     OptionPushButton *m_browseButton = nullptr;
+    QPushButton *m_alternativesButton = nullptr;
     Guard m_callGuard;
 };
 
@@ -732,6 +733,36 @@ void PathChooser::installLineEditVersionToolTip(QLineEdit *le, const QStringList
 void PathChooser::setHistoryCompleter(const Key &historyKey, bool restoreLastItemFromHistory)
 {
     d->m_lineEdit->setHistoryCompleter(historyKey, restoreLastItemFromHistory);
+}
+
+void PathChooser::setValueAlternatives(const FilePaths &candidates)
+{
+    // FIXME: Think about UI. For now:
+
+    // 1. put the alternatives in the line edit's history
+    d->m_lineEdit->setValueAlternatives(Utils::transform(candidates, &FilePath::toUserOutput));
+
+    // 2. add them to a (temporary) button next to the line edit for better visibility.
+    if (candidates.size() <= 1) {
+        delete d->m_alternativesButton;
+        d->m_alternativesButton = nullptr;
+        return;
+    }
+
+    if (!d->m_alternativesButton)
+        d->m_alternativesButton = new QPushButton(Tr::tr("Alternatives"), this);
+
+    auto menu = new QMenu;
+    for (const FilePath &candidate : candidates) {
+        QAction *action = menu->addAction(candidate.toUserOutput());
+        connect(action, &QAction::triggered, this, [this, candidate] {
+            setFilePath(candidate);
+        });
+    }
+    delete d->m_alternativesButton->menu();
+    d->m_alternativesButton->setMenu(menu);
+
+    d->m_hLayout->insertWidget(1, d->m_alternativesButton);
 }
 
 void PathChooser::setMacroExpander(const MacroExpander *macroExpander)

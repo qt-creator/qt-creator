@@ -237,6 +237,7 @@ public:
 
     Utils::FilePath deviceToolPath(Utils::Id toolId) const;
     void setDeviceToolPath(Utils::Id toolId, const Utils::FilePath &filePath);
+    void setDeviceToolPathAlternatives(Utils::Id toolId, const Utils::FilePaths &candidates);
     QList<DeviceToolAspect *> deviceToolAspects(DeviceToolAspect::ToolType supportType) const;
 
     void setExtraData(Utils::Id kind, const QVariant &data);

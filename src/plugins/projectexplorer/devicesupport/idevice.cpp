@@ -202,18 +202,20 @@ void DeviceToolAspectFactory::autoDetectAll(const IDevicePtr &device, const File
 
 void DeviceToolAspectFactory::autoDetect(const IDevicePtr &device, const FilePaths &searchPaths)
 {
-    FilePaths toolPaths;
+    FilePaths result;
 
-    for (const QString &filePattern : m_filePattern)
-        toolPaths.append(device->filePath(filePattern).searchInDirectories(searchPaths));
-
-    // FIXME: Make all values available somehow.
-    for (const FilePath &toolPath : std::as_const(toolPaths)) {
-        if (!m_checker || m_checker(toolPath)) {
-            device->setDeviceToolPath(m_toolId, toolPath);
-            break;
+    for (const QString &filePattern : m_filePattern) {
+        const FilePaths toolPaths = device->filePath(filePattern).searchAllInDirectories(searchPaths);
+        for (const FilePath &toolPath : toolPaths) {
+            if (!m_checker || m_checker(toolPath))
+                result.append(toolPath);
         }
     }
+
+    device->setDeviceToolPathAlternatives(m_toolId, result);
+
+    if (!result.isEmpty())
+        device->setDeviceToolPath(m_toolId, result.front());
 }
 
 DeviceToolAspect *DeviceToolAspectFactory::createAspect() const
@@ -845,13 +847,6 @@ void IDevice::setMachineType(MachineType machineType)
     d->machineType = machineType;
 }
 
-void IDevice::setDeviceToolPath(Id toolId, const FilePath &filePath)
-{
-    DeviceToolAspect *toolAspect = d->deviceToolAspects.value(toolId);
-    QTC_ASSERT(toolAspect, return);
-    toolAspect->setValue(filePath);
-}
-
 FilePath IDevice::deviceToolPath(Id toolId) const
 {
     DeviceToolAspect *toolAspect = d->deviceToolAspects.value(toolId);
@@ -862,6 +857,20 @@ FilePath IDevice::deviceToolPath(Id toolId) const
     if (filePath.isLocal())
         return rootPath().withNewMappedPath(filePath);
     return filePath;
+}
+
+void IDevice::setDeviceToolPath(Id toolId, const FilePath &filePath)
+{
+    DeviceToolAspect *toolAspect = d->deviceToolAspects.value(toolId);
+    QTC_ASSERT(toolAspect, return);
+    toolAspect->setValue(filePath);
+}
+
+void IDevice::setDeviceToolPathAlternatives(Id toolId, const FilePaths &candidates)
+{
+    DeviceToolAspect *toolAspect = d->deviceToolAspects.value(toolId);
+    QTC_ASSERT(toolAspect, return);
+    toolAspect->setValueAlternatives(candidates);
 }
 
 QList<DeviceToolAspect *> IDevice::deviceToolAspects(DeviceToolAspect::ToolType supportType) const

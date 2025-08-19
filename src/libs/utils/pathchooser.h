@@ -134,6 +134,8 @@ public:
     void setAllowPathFromDevice(bool allow);
     bool allowPathFromDevice() const;
 
+    void setValueAlternatives(const FilePaths &candidates);
+
 public slots:
     void setPath(const QString &);
     void setFilePath(const FilePath &);

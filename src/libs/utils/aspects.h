@@ -714,6 +714,7 @@ public:
     QString value() const;
     void setValue(const FilePath &filePath, Announcement howToAnnounce = DoEmit);
     void setValue(const QString &filePath, Announcement howToAnnounce = DoEmit);
+    void setValueAlternatives(const FilePaths &candidate);
     void setDefaultValue(const QString &filePath);
     void setDefaultPathValue(const FilePath &filePath);
 

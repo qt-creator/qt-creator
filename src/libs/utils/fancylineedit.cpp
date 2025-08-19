@@ -404,6 +404,12 @@ void FancyLineEdit::setCompletionShortcut(const QKeySequence &shortcut)
     completionShortcut()->setKeySequence(shortcut);
 }
 
+void FancyLineEdit::setValueAlternatives(const QStringList &values)
+{
+    for (const QString &value : values)
+        d->m_historyCompleter->addEntry(value);
+}
+
 void FancyLineEdit::setSpecialCompleter(QCompleter *completer)
 {
     QTC_ASSERT(!d->m_historyCompleter, return);

@@ -1538,6 +1538,7 @@ public:
     bool m_autoApplyOnEditingFinished = false;
     bool m_allowPathFromDevice = true;
     bool m_validatePlaceHolder = false;
+    FilePaths m_valueAlternatives;
 
     Guard m_editFinishedGuard;
 };
@@ -1725,6 +1726,7 @@ void FilePathAspect::addToLayoutImpl(Layouting::Layout &parent)
     d->m_pathChooserDisplay->setAllowPathFromDevice(d->m_allowPathFromDevice);
     d->m_pathChooserDisplay->setReadOnly(isReadOnly());
     d->m_pathChooserDisplay->lineEdit()->setValidatePlaceHolder(d->m_validatePlaceHolder);
+    d->m_pathChooserDisplay->setValueAlternatives(d->m_valueAlternatives);
     if (defaultValue() == value())
         d->m_pathChooserDisplay->setDefaultValue(defaultValue());
     else
@@ -1822,6 +1824,13 @@ void FilePathAspect::setShowToolTipOnLabel(bool show)
 void FilePathAspect::setAutoApplyOnEditingFinished(bool applyOnEditingFinished)
 {
     d->m_autoApplyOnEditingFinished = applyOnEditingFinished;
+}
+
+void FilePathAspect::setValueAlternatives(const FilePaths &candidates)
+{
+    d->m_valueAlternatives = candidates;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setValueAlternatives(candidates);
 }
 
 /*!
