@@ -23,6 +23,7 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -35,13 +36,14 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Qnx::Internal {
 
 class QnxDeployStepFactory : public BuildStepFactory
 {
 public:
-    QnxDeployStepFactory(Utils::Id existingStepId, Utils::Id overrideId = {})
+    QnxDeployStepFactory(Id existingStepId, Id overrideId = {})
     {
         cloneStepCreator(existingStepId, overrideId);
         setSupportedConfiguration(Constants::QNX_QNX_DEPLOYCONFIGURATION_ID);
@@ -77,6 +79,32 @@ void setupQnxDeployment()
     static QnxDeployStepFactory makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
 }
 
+class QnxSdpEnvFileToolAspectFactory : public DeviceToolAspectFactory
+{
+public:
+    QnxSdpEnvFileToolAspectFactory()
+    {
+        setToolId(Constants::QNX_SDPENVFILE_TOOL_ID);
+        setToolType(DeviceToolAspect::BuildTool);
+        setFilePattern({"/opt/qnx710/qnxsdp-env.sh", "/opt/qnx710/qnxsdp-env.bat",
+                        "/opt/qnx800/qnxsdp-env.sh", "/opt/qnx800/qnxsdp-env.bat"});
+        setLabelText(Tr::tr("QNX sdpenv.sh:"));
+        setToolTip(Tr::tr("QNX Software Development Platform environment file."));
+        setChecker([](const IDevicePtr &device, const FilePath &candidate) -> Result<> {
+            if (device->osType() == OsTypeWindows && candidate.suffix() == "bat")
+                return ResultOk;
+            if (device->osType() != OsTypeWindows && candidate.suffix() == "sh")
+                return ResultOk;
+            return ResultError(Tr::tr("File suffix does not match OS type."));
+        });
+    }
+};
+
+void setupQnxSdpEnvFileToolAspect()
+{
+    static QnxSdpEnvFileToolAspectFactory theQnxSdpEnvFileToolAspectFactory;
+}
+
 class QnxPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -91,6 +119,7 @@ class QnxPlugin final : public ExtensionSystem::IPlugin
         setupQnxRunnning();
         setupQnxDebugging();
         setupQnxQmlProfiler();
+        setupQnxSdpEnvFileToolAspect();
         setupQnxSettingsPage(this);
     }
 

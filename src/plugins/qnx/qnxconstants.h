@@ -15,6 +15,8 @@ const char QNX_QNX_OS_TYPE[] = "QnxOsType"; // Also used for device type.
 const char QNX_TOOLCHAIN_ID[] = "Qnx.QccToolChain";
 
 const char QNX_TMP_DIR[] = "/tmp"; // /var/run is root:root drwxr-xr-x
-const char QNX_DIRECT_UPLOAD_STEP_ID[] ="Qnx.DirectUploadStep";
+const char QNX_DIRECT_UPLOAD_STEP_ID[] = "Qnx.DirectUploadStep";
+
+const char QNX_SDPENVFILE_TOOL_ID[] = "Qnx.SdpEnvFileTool";
 
 } // Qnx::Constants
