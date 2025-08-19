@@ -206,6 +206,8 @@ void tst_cxx11::parse_data()
     QTest::newRow("explicitObjectParameters") << "explicitObjParam.cpp" << 2023 << "";
     QTest::newRow("placeholderReturnType") << "placeholderReturnType.cpp" << 2014 << "";
     QTest::newRow("builtinTypeTraits") << "builtinTypeTraits.cpp" << 2020 << "";
+    QTest::newRow("templateTemplateTypeInDependentName")
+        << "templateTemplateTypeInDependentName.cpp" << 2011 << "";
 }
 
 void tst_cxx11::parse()

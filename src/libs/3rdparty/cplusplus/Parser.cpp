@@ -3544,6 +3544,8 @@ bool Parser::parseUnqualifiedName(NameAST *&node, bool acceptTemplateId)
         int template_token = consumeToken();
         if (parseTemplateId(node, template_token))
             return true;
+        if (parseUnqualifiedName(node, false))
+            return true;
         rewind(template_token);
     }
     return false;
