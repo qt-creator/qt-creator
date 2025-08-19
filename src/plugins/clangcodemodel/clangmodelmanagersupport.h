@@ -6,6 +6,8 @@
 #include <cppeditor/cppmodelmanagersupport.h>
 #include <cppeditor/projectinfo.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/filepath.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/id.h>
@@ -100,7 +102,8 @@ private:
     QList<QPointer<ClangdClient>> m_clientsToRestart;
     QTimer * const m_clientRestartTimer;
     QHash<Utils::FilePath, QString> m_potentialShadowDocuments;
-    Utils::FutureSynchronizer m_generatorSynchronizer; // Keep me last
+    Utils::FutureSynchronizer m_generatorSynchronizer; // Sync after task tree.
+    Tasking::ParallelTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace Internal

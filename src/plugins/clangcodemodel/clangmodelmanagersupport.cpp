@@ -540,18 +540,27 @@ void ClangModelManagerSupport::updateLanguageClient(Project *project)
     const FilePath jsonDbDir = getJsonDbDir(project);
     if (jsonDbDir.isEmpty())
         return;
-    const auto generatorWatcher = new QFutureWatcher<GenerateCompilationDbResult>;
-    connect(generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
-            this, [this, project, projectInfo, jsonDbDir, generatorWatcher] {
-        generatorWatcher->deleteLater();
+
+    const FilePath includeDir = settings.clangdIncludePath();
+    const auto onSetup = [this, projectInfo, jsonDbDir, project, includeDir](
+                             Async<GenerateCompilationDbResult> &task) {
+        task.setFutureSynchronizer(&m_generatorSynchronizer);
+        task.setConcurrentCallData(&Internal::generateCompilationDB, projectInfo,
+                                   jsonDbDir, CompilationDbPurpose::CodeModel,
+                                   warningsConfigForProject(project),
+                                   globalClangOptions(), includeDir);
+    };
+
+    const auto onDone = [this, project, projectInfo, jsonDbDir](
+                            const Async<GenerateCompilationDbResult> &task) {
         if (!isProjectDataUpToDate(project, projectInfo, jsonDbDir))
             return;
-        if (generatorWatcher->future().resultCount() == 0) {
+        if (!task.isResultAvailable()) {
             MessageManager::writeDisrupting(
                 Tr::tr("Cannot use clangd: Generating compilation database canceled."));
             return;
         }
-        const GenerateCompilationDbResult result = generatorWatcher->result();
+        const GenerateCompilationDbResult result = task.result();
         if (!result) {
             MessageManager::writeDisrupting(Tr::tr("Cannot use clangd: "
                 "Failed to generate compilation database:\n%1").arg(result.error()));
@@ -652,15 +661,10 @@ void ClangModelManagerSupport::updateLanguageClient(Project *project)
             client->openExtraFile(cxxNode->filePath());
             client->closeExtraFile(cxxNode->filePath());
         });
-
+    };
+    m_taskTreeRunner.start({
+        AsyncTask<GenerateCompilationDbResult>(onSetup, onDone)
     });
-    const FilePath includeDir = settings.clangdIncludePath();
-    auto future = Utils::asyncRun(&Internal::generateCompilationDB, projectInfo,
-                                  jsonDbDir, CompilationDbPurpose::CodeModel,
-                                  warningsConfigForProject(project),
-                                  globalClangOptions(), includeDir);
-    generatorWatcher->setFuture(future);
-    m_generatorSynchronizer.addFuture(future);
 }
 
 QList<Client *> ClangModelManagerSupport::clientsForOpenProjects()
