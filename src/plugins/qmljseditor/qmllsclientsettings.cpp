@@ -154,7 +154,7 @@ static std::pair<FilePath, QVersionNumber> evaluateOverridenQmlls()
 
     std::pair<FilePath, QVersionNumber> result{
         qmllsSettings()->m_executable,
-                QVersionNumber::fromString(QStringView(output).slice(versionBegin)),
+        QVersionNumber::fromString(QStringView(output).sliced(versionBegin)),
     };
     if (isStandaloneQmlls)
         result.second = mapStandaloneVersions(result.second);
@@ -450,11 +450,9 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
     m_ignoreMinimumQmllsVersion->setChecked(settings->m_ignoreMinimumQmllsVersion);
     m_useQmllsSemanticHighlighting->setChecked(settings->m_useQmllsSemanticHighlighting);
 
-    QObject::connect(
-                m_overrideExecutable,
-                &QCheckBox::checkStateChanged,
-                m_executable,
-                [this](Qt::CheckState state) { m_executable->setEnabled(state == Qt::Checked); });
+    QObject::connect(m_overrideExecutable, &QCheckBox::toggled, m_executable, [this](bool checked) {
+        m_executable->setEnabled(checked);
+    });
     m_overrideExecutable->setChecked(settings->m_overrideExecutable);
 
     m_executable->setFilePath(settings->m_executable);
