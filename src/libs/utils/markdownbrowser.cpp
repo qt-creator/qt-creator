@@ -297,13 +297,10 @@ public:
         return std::make_shared<Entry>(data);
     }
 
-    virtual QSizeF intrinsicSize(
-        QTextDocument *doc, int posInDocument, const QTextFormat &format) override
+    QSize getImageSize(const QTextImageFormat &format)
     {
-        Q_UNUSED(doc)
-        Q_UNUSED(posInDocument)
         QSize result = Utils::Icons::UNKNOWN_FILE.icon().actualSize(QSize(16, 16));
-        QString name = format.toImageFormat().name();
+        QString name = format.name();
 
         Entry::Pointer *entryPtr = m_entries.object(name);
         if (!entryPtr) {
@@ -322,6 +319,26 @@ public:
         return result;
     }
 
+    QSize getSize(QTextDocument *doc, const QTextImageFormat &format)
+    {
+        QSize size = getImageSize(format);
+        int effectiveMaxWidth = (doc->pageSize().width() - 2 * doc->documentMargin());
+
+        if (size.width() > effectiveMaxWidth) {
+            // image is bigger than effectiveMaxWidth, scale it down
+            size.setHeight(effectiveMaxWidth * (size.height() / qreal(size.width())));
+            size.setWidth(effectiveMaxWidth);
+        }
+
+        return size;
+    }
+
+    QSizeF intrinsicSize(QTextDocument *doc, int pos, const QTextFormat &format) override
+    {
+        Q_UNUSED(pos);
+        return getSize(doc, format.toImageFormat());
+    }
+
     void drawObject(
         QPainter *painter,
         const QRectF &rect,
@@ -334,6 +351,8 @@ public:
 
         const QString name = format.toImageFormat().name();
         Entry::Pointer *entryPtr = m_entries.object(name);
+
+        painter->setRenderHints(QPainter::SmoothPixmapTransform);
 
         if (!entryPtr) {
             constexpr QStringView themeScheme(u"theme://");
