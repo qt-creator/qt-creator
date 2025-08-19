@@ -467,6 +467,9 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
     QString qml;
     QSet<AssetPath> assets;
 
+    if (node.metaInfo().isQtQmlConnections())
+        return {qml, assets};
+
     if (depth == 0) {
         // add imports
         Model *model = m_view->model();
@@ -505,7 +508,10 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
 
     indent = QString(" ").repeated((depth + 1) * 4);
 
-    qml += indent + "id: " + (depth == 0 ? "root" : node.id()) + " \n\n";
+    if (!node.id().isEmpty()) {
+        depListIds.append(node.id());
+        qml += indent + "id: " + node.id() + " \n\n";
+    }
 
     const QList<PropertyName> excludedProps = {"x", "y", "z", "eulerRotation.x", "eulerRotation.y",
                                                "eulerRotation.z", "scale.x", "scale.y", "scale.z",
@@ -554,7 +560,6 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
                 QTC_ASSERT(depNode.isValid(), continue);
 
                 if (depNode && !depListIds.contains(depNode.id())) {
-                    depListIds.append(depNode.id());
                     auto [depQml, depAssets] = modelNodeToQmlString(depNode, depth + 1);
                     qml += "\n" + depQml + "\n";
                     assets.unite(depAssets);
@@ -567,7 +572,6 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
     const ModelNodes nodeChildren = node.directSubModelNodes();
     for (const ModelNode &childNode : nodeChildren) {
         if (childNode && !depListIds.contains(childNode.id())) {
-            depListIds.append(childNode.id());
             auto [depQml, depAssets] = modelNodeToQmlString(childNode, depth + 1);
             qml += "\n" + depQml + "\n";
             assets.unite(depAssets);
