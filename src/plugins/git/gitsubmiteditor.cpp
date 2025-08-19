@@ -11,7 +11,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/iversioncontrol.h>
-#include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/taskprogress.h>
 
 #include <utils/async.h>
 #include <utils/environment.h>
@@ -29,6 +29,8 @@
 #include <QStringList>
 #include <QTimer>
 
+using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 using namespace VcsBase;
 
@@ -71,7 +73,7 @@ private:
     }
 };
 
-Result<CommitData> fetchCommitData(CommitType commitType, const FilePath &workingDirectory)
+static Result<CommitData> fetchCommitData(CommitType commitType, const FilePath &workingDirectory)
 {
     return gitClient().getCommitData(commitType, workingDirectory);
 }
@@ -89,10 +91,8 @@ GitSubmitEditor::GitSubmitEditor() :
     connect(submitEditorWidget(), &GitSubmitEditorWidget::logRequested, this, &GitSubmitEditor::showLog);
     connect(submitEditorWidget(), &GitSubmitEditorWidget::fileActionRequested,
             this, &GitSubmitEditor::performFileAction);
-    connect(versionControl(), &Core::IVersionControl::repositoryChanged,
+    connect(versionControl(), &IVersionControl::repositoryChanged,
             this, &GitSubmitEditor::forceUpdateFileModel);
-    connect(&m_fetchWatcher, &QFutureWatcher<Result<CommitData>>::finished,
-            this, &GitSubmitEditor::commitDataRetrieved);
 }
 
 GitSubmitEditor::~GitSubmitEditor() = default;
@@ -109,7 +109,7 @@ const GitSubmitEditorWidget *GitSubmitEditor::submitEditorWidget() const
 
 void GitSubmitEditor::setCommitData(const CommitData &d)
 {
-    using IVCF = Core::IVersionControl::FileState;
+    using IVCF = IVersionControl::FileState;
 
     m_commitEncoding = d.commitEncoding;
     m_workingDirectory = d.panelInfo.repository;
@@ -184,7 +184,7 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
             }
             stagedFiles.push_back(fileName);
         } else if (state == UntrackedFile) {
-            Core::EditorManager::openEditor(m_workingDirectory.pathAppended(fileName));
+            EditorManager::openEditor(m_workingDirectory.pathAppended(fileName));
         } else {
             unstagedFiles.push_back(fileName);
         }
@@ -292,7 +292,7 @@ void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAct
         break;
 
     case FileOpenEditor:
-        Core::EditorManager::openEditor(fullPath);
+        EditorManager::openEditor(fullPath);
         break;
 
     case FileStage:
@@ -352,13 +352,36 @@ void GitSubmitEditor::updateFileModel()
     if (w->updateInProgress() || m_workingDirectory.isEmpty())
         return;
     w->setUpdateInProgress(true);
-    // TODO: Check if fetch works OK from separate thread, refactor otherwise
-    m_fetchWatcher.setFuture(Utils::asyncRun(&fetchCommitData,
-                                             m_commitType, m_workingDirectory));
-    Core::ProgressManager::addTask(m_fetchWatcher.future(), Tr::tr("Refreshing Commit Data"),
-                                   TASK_UPDATE_COMMIT);
 
-    Utils::futureSynchronizer()->addFuture(m_fetchWatcher.future());
+    using ResultType = Result<CommitData>;
+    // TODO: Check if fetch works OK from separate thread, refactor otherwise
+    const auto onSetup = [this](Async<ResultType> &task) {
+        task.setConcurrentCallData(&fetchCommitData,m_commitType,
+                                   m_workingDirectory);
+    };
+    const auto onDone = [this](const Async<ResultType> &task) {
+        const ResultType result = task.result();
+        GitSubmitEditorWidget *w = submitEditorWidget();
+        if (result) {
+            setCommitData(result.value());
+            w->refreshLog(m_workingDirectory);
+            w->setEnabled(true);
+        } else {
+            // Nothing to commit left!
+            VcsOutputWindow::appendError(m_workingDirectory, result.error());
+            m_model->clear();
+            w->setEnabled(false);
+        }
+        w->setUpdateInProgress(false);
+    };
+    const auto onTreeSetup = [](TaskTree &taskTree) {
+        auto progress = new TaskProgress(&taskTree);
+        progress->setDisplayName(Tr::tr("Refreshing Commit Data"));
+        progress->setId(TASK_UPDATE_COMMIT);
+    };
+    m_taskTreeRunner.start(
+        {AsyncTask<ResultType>(onSetup, onDone, CallDone::OnSuccess)},
+        onTreeSetup);
 }
 
 void GitSubmitEditor::forceUpdateFileModel()
@@ -368,23 +391,6 @@ void GitSubmitEditor::forceUpdateFileModel()
         QTimer::singleShot(10, this, [this] { forceUpdateFileModel(); });
     else
         updateFileModel();
-}
-
-void GitSubmitEditor::commitDataRetrieved()
-{
-    const Result<CommitData> result = m_fetchWatcher.result();
-    GitSubmitEditorWidget *w = submitEditorWidget();
-    if (result) {
-        setCommitData(result.value());
-        w->refreshLog(m_workingDirectory);
-        w->setEnabled(true);
-    } else {
-        // Nothing to commit left!
-        VcsOutputWindow::appendError(m_workingDirectory, result.error());
-        m_model->clear();
-        w->setEnabled(false);
-    }
-    w->setUpdateInProgress(false);
 }
 
 GitSubmitEditorPanelData GitSubmitEditor::panelData() const

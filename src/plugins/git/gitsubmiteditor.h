@@ -5,11 +5,12 @@
 
 #include "commitdata.h"
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/filepath.h>
 
 #include <vcsbase/vcsbasesubmiteditor.h>
 
-#include <QFutureWatcher>
 #include <QStringList>
 
 namespace VcsBase { class SubmitFileModel; }
@@ -42,7 +43,6 @@ private:
     void showCommit(const QString &commit);
     void showLog(const QStringList &range);
     void performFileAction(const Utils::FilePath &filePath, FileAction action);
-    void commitDataRetrieved();
     void addToGitignore(const Utils::FilePath &relativePath);
 
     inline GitSubmitEditorWidget *submitEditorWidget();
@@ -54,7 +54,7 @@ private:
     QString m_amenHash;
     Utils::FilePath m_workingDirectory;
     bool m_firstUpdate = true;
-    QFutureWatcher<Utils::Result<CommitData>> m_fetchWatcher;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // Git::Internal
