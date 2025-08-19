@@ -125,13 +125,15 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
         // Re-read the settings. Reading in constructor is too early
         connect(project, &Project::settingsLoaded, this, [this] { readSettings(); });
 
-        connect(project->projectImporter(), &ProjectImporter::cmakePresetsUpdated, this, [this] {
-            // clear settings first
-            Store data;
-            project->setNamedSettings(Constants::Settings::GENERAL_ID, variantFromStore(data));
+        if (CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(project)) {
+            connect(cmakeProject, &CMakeProject::cmakePresetsUpdated, this, [this] {
+                // clear settings first
+                Store data;
+                project->setNamedSettings(Constants::Settings::GENERAL_ID, variantFromStore(data));
 
-            readSettings();
-        });
+                readSettings();
+            });
+        }
     }
 }
 

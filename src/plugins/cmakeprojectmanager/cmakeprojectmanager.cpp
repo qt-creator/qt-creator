@@ -490,7 +490,7 @@ void CMakeManager::reloadCMakePresets()
 
     project->setOldPresetKits(oldKits);
 
-    emit project->projectImporter()->cmakePresetsUpdated();
+    emit project->cmakePresetsUpdated();
 
     Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
     Core::ModeManager::setFocusToCurrentMode();

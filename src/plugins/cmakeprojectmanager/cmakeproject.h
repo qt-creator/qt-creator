@@ -39,6 +39,9 @@ public:
     Internal::CMakeSpecificSettings &settings();
     static QString projectDisplayName(const Utils::FilePath &projectFilePath);
 
+signals:
+    void cmakePresetsUpdated();
+
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
     void configureAsExampleProject(ProjectExplorer::Kit *kit) override;
