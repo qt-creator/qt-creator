@@ -143,7 +143,7 @@ public:
 
     bool isEffectItem() const;
 
-    friend auto qHash(const QmlItemNode &node) { return qHash(node.modelNode()); }
+    friend size_t qHash(const QmlItemNode &node) { return qHash(node.modelNode()); }
 };
 
 class QmlFlowItemNode;

@@ -29,7 +29,7 @@ public:
     QString toString() const { return m_uuid.toString(); }
     void fromString(const QString &s) { m_uuid = QUuid(s); }
 
-    friend auto qHash(const Uid &uid) { return qHash(uid.get()); }
+    friend size_t qHash(const Uid &uid) { return qHash(uid.get()); }
 
     friend bool operator==(const Uid &lhs, const Uid &rhs) { return lhs.get() == rhs.get(); }
     friend bool operator!=(const Uid &lhs, const Uid &rhs) { return !operator==(lhs, rhs); }

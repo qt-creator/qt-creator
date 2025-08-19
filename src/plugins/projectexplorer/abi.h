@@ -168,7 +168,7 @@ public:
     static Abi hostAbi();
     static Abis abisOfBinary(const Utils::FilePath &path);
 
-    friend auto qHash(const ProjectExplorer::Abi &abi)
+    friend size_t qHash(const ProjectExplorer::Abi &abi)
     {
         int h = abi.architecture()
                 + (abi.os() << 3)

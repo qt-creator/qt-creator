@@ -33,7 +33,7 @@ public:
     QList<ModelNode> allSubNodes();
     QList<ModelNode> directSubNodes() const;
 
-    friend auto qHash(const NodeAbstractProperty &property) { qHash(AbstractProperty(property)); }
+    friend size_t qHash(const NodeAbstractProperty &property) { return qHash(AbstractProperty(property)); }
 
     NodeAbstractProperty(PropertyNameView propertyName,
                          const Internal::InternalNodePointer &internalNode,

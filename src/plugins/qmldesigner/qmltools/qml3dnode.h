@@ -33,7 +33,7 @@ public:
     bool handleEulerRotation(PropertyNameView name);
     bool isBlocked(PropertyNameView propName) const;
 
-    friend auto qHash(const Qml3DNode &node) { return qHash(node.modelNode()); }
+    friend size_t qHash(const Qml3DNode &node) { return qHash(node.modelNode()); }
 
 private:
     void handleEulerRotationSet();

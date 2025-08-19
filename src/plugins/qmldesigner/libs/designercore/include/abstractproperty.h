@@ -106,7 +106,7 @@ public:
     Model *model() const;
     AbstractView *view() const;
 
-    friend auto qHash(const AbstractProperty &property)
+    friend size_t qHash(const AbstractProperty &property)
     {
         return ::qHash(property.m_internalNode.get()) ^ ::qHash(property.m_propertyName);
     }

@@ -199,9 +199,9 @@ using SubBreakpoints = const QList<SubBreakpoint>;
 using BreakHandlerModel = Utils::TreeModel<Utils::TypedTreeItem<BreakpointItem>, BreakpointItem, SubBreakpointItem>;
 using BreakpointManagerModel = Utils::TreeModel<Utils::TypedTreeItem<GlobalBreakpointItem>, GlobalBreakpointItem>;
 
-inline auto qHash(const Debugger::Internal::SubBreakpoint &b) { return qHash(b.data()); }
-inline auto qHash(const Debugger::Internal::Breakpoint &b) { return qHash(b.data()); }
-inline auto qHash(const Debugger::Internal::GlobalBreakpoint &b) { return qHash(b.data()); }
+inline size_t qHash(const Debugger::Internal::SubBreakpoint &b) { return qHash(b.data()); }
+inline size_t qHash(const Debugger::Internal::Breakpoint &b) { return qHash(b.data()); }
+inline size_t qHash(const Debugger::Internal::GlobalBreakpoint &b) { return qHash(b.data()); }
 
 class BreakHandler : public BreakHandlerModel
 {

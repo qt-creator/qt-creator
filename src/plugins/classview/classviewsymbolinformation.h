@@ -8,8 +8,7 @@
 
 #include <limits.h>
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 class SymbolInformation
 {
@@ -31,16 +30,15 @@ public:
 
     int iconTypeSortOrder() const;
 
-    friend auto qHash(const SymbolInformation &information) { return information.hash(); }
+    friend size_t qHash(const SymbolInformation &information) { return information.hash(); }
 
 private:
     const int m_iconType;
-    const size_t m_hash; // precalculated hash value - to speed up qHash
-    const QString m_name;               // symbol name (e.g. SymbolInformation)
-    const QString m_type;               // symbol type (e.g. (int char))
+    const size_t m_hash;    // precalculated hash value - to speed up qHash
+    const QString m_name;   // symbol name (e.g. SymbolInformation)
+    const QString m_type;   // symbol type (e.g. (int char))
 };
 
-} // namespace Internal
-} // namespace ClassView
+} // namespace ClassView::Internal
 
 Q_DECLARE_METATYPE(ClassView::Internal::SymbolInformation)

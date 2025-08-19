@@ -57,9 +57,9 @@ static inline bool isTestMessage(const ResultType &result)
     return result >= ResultType::MessageDebug && result <= ResultType::MessageError;
 }
 
-inline auto qHash(const ResultType &result)
+inline size_t qHash(const ResultType &result)
 {
-    return QT_PREPEND_NAMESPACE(qHash(int(result)));
+    return QT_PREPEND_NAMESPACE(qHash)(int(result));
 }
 
 class TestResult;

@@ -16,7 +16,7 @@
 
 namespace QmlProfiler {
 
-inline auto qHash(const QmlEventType &type)
+inline size_t qHash(const QmlEventType &type)
 {
     return qHash(type.location()) ^ qHash(type.data())
             ^ (((type.message() << 12) & 0xf000)             // 4 bits of message

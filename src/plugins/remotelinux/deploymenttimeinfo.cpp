@@ -32,7 +32,7 @@ public:
     bool operator==(const DeployParameters &other) const {
         return file == other.file &&  host == other.host &&  sysroot == other.sysroot;
     }
-    friend auto qHash(const DeployParameters &p) {
+    friend size_t qHash(const DeployParameters &p) {
         return qHash(qMakePair(qMakePair(p.file, p.host), p.sysroot));
     }
 

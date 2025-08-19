@@ -56,9 +56,9 @@ public:
         return {fp, HeaderPathType::Framework};
     }
 
-    friend auto qHash(const HeaderPath &key, uint seed = 0)
+    friend size_t qHash(const HeaderPath &key, size_t seed = 0)
     {
-        return ((qHash(key.path) << 2) | uint(key.type)) ^ seed;
+        return ((qHash(key.path) << 2) | size_t(key.type)) ^ seed;
     }
 
     Utils::FilePath path;

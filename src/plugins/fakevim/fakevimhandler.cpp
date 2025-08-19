@@ -1215,7 +1215,7 @@ public:
             << quoteUnprintable(m_text);
     }
 
-    friend auto qHash(const Input &i)
+    friend size_t qHash(const Input &i)
     {
         return ::qHash(i.m_key);
     }

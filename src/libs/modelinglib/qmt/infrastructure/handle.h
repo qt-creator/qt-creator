@@ -46,7 +46,7 @@ public:
 
     void clearTarget() { m_target = nullptr; }
 
-    friend auto qHash(const Handle<T> &handle) { return qHash(handle.uid()); }
+    friend size_t qHash(const Handle<T> &handle) { return qHash(handle.uid()); }
 
 private:
     Uid m_uid;

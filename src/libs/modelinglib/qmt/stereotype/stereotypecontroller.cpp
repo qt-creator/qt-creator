@@ -50,7 +50,7 @@ struct IconKey {
                 && lhs.m_lineWidth == rhs.m_lineWidth;
     }
 
-    friend auto qHash(const IconKey &key) {
+    friend size_t qHash(const IconKey &key) {
         return ::qHash(key.m_element) + qHash(key.m_stereotypes) + qHash(key.m_defaultIconPath)
                 + qHash(key.m_styleUid) + ::qHash(key.m_size.width()) + ::qHash(key.m_size.height());
     }

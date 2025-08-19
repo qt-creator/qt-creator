@@ -45,7 +45,7 @@ public:
         return !(location1 == location2);
     }
 
-    friend auto qHash(const QmlEventLocation &location)
+    friend size_t qHash(const QmlEventLocation &location)
     {
         return qHash(location.filename())
                 ^ ((location.line() & 0xfff)                   // 12 bits of line number

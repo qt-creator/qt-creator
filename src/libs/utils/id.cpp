@@ -51,7 +51,7 @@ public:
         }
     }
 
-    friend auto qHash(const StringHolder &sh)
+    friend size_t qHash(const StringHolder &sh)
     {
         return QT_PREPEND_NAMESPACE(qHash)(sh.h, 0);
     }

@@ -262,7 +262,7 @@ public:
         swap(first.m_view, second.m_view);
     }
 
-    friend auto qHash(const ModelNode &node) { return ::qHash(node.m_internalNode.get()); }
+    friend size_t qHash(const ModelNode &node) { return ::qHash(node.m_internalNode.get()); }
 
     friend bool operator==(const ModelNode &firstNode, const ModelNode &secondNode)
     {

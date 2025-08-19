@@ -46,7 +46,7 @@ public:
     static Macro fromKeyValue(const QByteArray &text);
     QByteArray toKeyValue(const QByteArray &prefix) const;
 
-    friend auto qHash(const Macro &macro)
+    friend size_t qHash(const Macro &macro)
     {
         using QT_PREPEND_NAMESPACE(qHash);
         return qHash(macro.key) ^ qHash(macro.value) ^ qHash(int(macro.type));

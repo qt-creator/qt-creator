@@ -119,15 +119,15 @@ public:
     bool emphasized() const { return m_emphasized; }
     void setEmphasized(bool emphasized);
 
-    friend auto qHash(CustomRelation::Relationship relationship) {
+    friend size_t qHash(CustomRelation::Relationship relationship) {
         return ::qHash(static_cast<int>(relationship));
     }
 
-    friend auto qHash(CustomRelation::ShaftPattern pattern) {
+    friend size_t qHash(CustomRelation::ShaftPattern pattern) {
         return ::qHash(static_cast<int>(pattern));
     }
 
-    friend auto qHash(CustomRelation::Head head) {
+    friend size_t qHash(CustomRelation::Head head) {
         return ::qHash(static_cast<int>(head));
     }
 

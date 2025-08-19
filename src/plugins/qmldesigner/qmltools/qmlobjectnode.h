@@ -113,7 +113,7 @@ public:
 
     QStringList allStateNames() const;
 
-    friend auto qHash(const QmlObjectNode &node) { return qHash(node.modelNode()); }
+    friend size_t qHash(const QmlObjectNode &node) { return qHash(node.modelNode()); }
     QList<QmlModelState> allDefinedStates() const;
     QList<QmlModelStateOperation> allInvalidStateOperations() const;
 
