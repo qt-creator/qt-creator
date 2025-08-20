@@ -3,16 +3,12 @@
 
 #pragma once
 
-#include <utils/filepath.h>
+#include <solutions/tasking/tasktreerunner.h>
 
-#include <QCoreApplication>
-#include <QFutureWatcher>
-#include <QPointer>
-#include <QTextDocument>
+#include <utils/filepath.h>
 
 namespace Core { class IDocument; }
 namespace TextEditor { class TextDocument; }
-namespace ProjectExplorer { class RunConfiguration; }
 
 namespace Python::Internal {
 
@@ -36,7 +32,7 @@ public slots:
     void installPySide(const QUrl &url);
 
 signals:
-    void pySideInstalled(const Utils::FilePath &python, const QString &pySide);
+    void pySideInstalled(const Utils::FilePath &pythonPath, const QString &pySide);
 
 private:
     PySideInstaller();
@@ -50,11 +46,10 @@ private:
     void runPySideChecker(const Utils::FilePath &python,
                           const QString &pySide,
                           TextEditor::TextDocument *document);
-    static bool missingPySideInstallation(const Utils::FilePath &python, const QString &pySide);
     static QString usedPySide(const QString &text, const QString &mimeType);
 
     QHash<Utils::FilePath, QList<TextEditor::TextDocument *>> m_infoBarEntries;
-    QHash<TextEditor::TextDocument *, QPointer<QFutureWatcher<bool>>> m_futureWatchers;
+    Tasking::MappedTaskTreeRunner<TextEditor::TextDocument *> m_taskTreeRunner;
 };
 
 } // Python::Internal
