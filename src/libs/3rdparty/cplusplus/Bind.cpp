@@ -3420,7 +3420,7 @@ bool Bind::visit(FunctionDeclaratorAST *ast)
     fun->setStartOffset(tokenAt(ast->firstToken()).utf16charsBegin());
     fun->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
     if (ast->trailing_return_type)
-        _type = this->trailingReturnType(ast->trailing_return_type, _type);
+        _type = this->trailingReturnType(ast->trailing_return_type, {});
     fun->setReturnType(_type);
 
     // "static", "virtual" etc.

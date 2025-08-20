@@ -104,6 +104,16 @@ public:
         oo.showEnclosingTemplate = true;
         oo.showTemplateParameters = true;
 
+        // TODO: Record this with the function instead? Then it would also work
+        // for e.g. function pointer parameters with different syntax.
+        oo.trailingReturnType = declAST->declarator_list && declAST->declarator_list->value
+                                && declAST->declarator_list->value->postfix_declarator_list
+                                && declAST->declarator_list->value->postfix_declarator_list->value
+                                && declAST->declarator_list->value->postfix_declarator_list
+                                       ->value->asFunctionDeclarator()
+                                && declAST->declarator_list->value->postfix_declarator_list
+                                       ->value->asFunctionDeclarator()->trailing_return_type;
+
         if (defPos == DefPosInsideClass) {
             const int targetPos = targetFile->position(loc.line(), loc.column());
             ChangeSet localChangeSet;
@@ -2185,6 +2195,25 @@ foo::foo2::MyType<int> foo::foo2::bar()
             "template<typename T, std::enable_if_t<true, T>>\n"
             "void S::func()\n{\n\n"
             "}\n";
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(singleDocument(original, expected), &factory);
+    }
+
+    void testTrailingReturnType()
+    {
+        const QByteArray original =
+            "class Foo\n"
+            "{\n"
+            "    auto fu@nc() -> Foo *;\n"
+            "};\n";
+        const QByteArray expected =
+            "class Foo\n"
+            "{\n"
+            "    auto fu@nc() -> Foo *;\n"
+            "};\n\n"
+            "auto Foo::func() -> Foo *\n"
+            "{\n\n}\n";
 
         InsertDefFromDecl factory;
         QuickFixOperationTest(singleDocument(original, expected), &factory);
