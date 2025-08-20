@@ -28,6 +28,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPainter>
 #include <QPixmap>

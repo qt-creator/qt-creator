@@ -21,6 +21,7 @@
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QStandardItem>
+#include <QTreeView>
 
 using namespace CppEditor;
 using namespace Utils;

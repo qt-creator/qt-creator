@@ -12,15 +12,19 @@
 
 #include <QAbstractItemModel>
 #include <QDialog>
-#include <QLabel>
 #include <QRegularExpression>
 #include <QSet>
-#include <QTreeView>
 
 namespace Utils {
 class FancyLineEdit;
 class PathChooser;
 }
+
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QPushButton;
+class QTreeView;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
@@ -67,7 +71,7 @@ public:
         return false;
     }
 
-    bool operator == (const Glob &other) const
+    bool operator==(const Glob &other) const
     {
         return (mode == other.mode)
                 && (matchString == other.matchString)
@@ -81,7 +85,6 @@ class PROJECTEXPLORER_EXPORT SelectableFilesModel : public QAbstractItemModel
 
 public:
     SelectableFilesModel(QObject *parent);
-    ~SelectableFilesModel() override;
 
     void setInitialMarkedFiles(const Utils::FilePaths &files);
 
@@ -147,7 +150,6 @@ class PROJECTEXPLORER_EXPORT SelectableFilesFromDirModel : public SelectableFile
 
 public:
     SelectableFilesFromDirModel(QObject *parent);
-    ~SelectableFilesFromDirModel() override;
 
     void startParsing(const Utils::FilePath &baseDir);
     void cancel();

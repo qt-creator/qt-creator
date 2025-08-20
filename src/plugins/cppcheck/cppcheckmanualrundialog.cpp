@@ -16,6 +16,7 @@
 #include <QBoxLayout>
 #include <QDialogButtonBox>
 #include <QPushButton>
+#include <QTreeView>
 
 namespace Cppcheck::Internal {
 
@@ -23,7 +24,7 @@ ManualRunDialog::ManualRunDialog(const ProjectExplorer::Project *project,
                                  CppcheckSettings *settings)
     : m_model(new ProjectExplorer::SelectableFilesFromDirModel(this))
 {
-    QTC_ASSERT(project, return );
+    QTC_ASSERT(project, return);
     QTC_ASSERT(settings, return);
 
     setWindowTitle(Tr::tr("Cppcheck Run Configuration"));
