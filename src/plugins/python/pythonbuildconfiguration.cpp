@@ -33,12 +33,12 @@
 #include <utils/commandline.h>
 #include <utils/detailswidget.h>
 #include <utils/fileutils.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Python::Internal {
@@ -97,18 +97,36 @@ void PySideBuildStep::checkForPySide(const FilePath &python)
     }
 }
 
-void PySideBuildStep::checkForPySide(const FilePath &python, const QString &pySidePackageName)
+void PySideBuildStep::checkForPySide(const FilePath &pythonPath, const QString &pySidePackageName)
 {
-    const PipPackage package(pySidePackageName);
-    QObject::disconnect(m_watcherConnection);
-    m_watcher.reset(new QFutureWatcher<PipPackageInfo>());
-    m_watcherConnection = QObject::connect(m_watcher.get(), &QFutureWatcherBase::finished, this,
-                                           [this, python, pySidePackageName] {
-        handlePySidePackageInfo(m_watcher->result(), python, pySidePackageName);
-    });
-    const auto future = Pip::instance(python)->info(package);
-    m_watcher->setFuture(future);
-    Utils::futureSynchronizer()->addFuture(future);
+    const auto onSetup = [pythonPath, pySidePackageName](Process &process) {
+        process.setCommand({pythonPath, {"-m", "pip", "show", "-f", pySidePackageName}});
+    };
+    const auto onDone = [this, pythonPath, pySidePackageName](const Process &process) {
+        PipPackageInfo result;
+        QString fieldName;
+        QStringList data;
+        const QString pipOutput = process.allOutput();
+        for (const QString &line : pipOutput.split('\n')) {
+            if (line.isEmpty())
+                continue;
+            if (line.front().isSpace()) {
+                data.append(line.trimmed());
+            } else {
+                result.parseField(fieldName, data);
+                if (auto colonPos = line.indexOf(':'); colonPos >= 0) {
+                    fieldName = line.left(colonPos);
+                    data = QStringList(line.mid(colonPos + 1).trimmed());
+                } else {
+                    fieldName.clear();
+                    data.clear();
+                }
+            }
+        }
+        result.parseField(fieldName, data);
+        handlePySidePackageInfo(result, pythonPath, pySidePackageName);
+    };
+    m_taskTreeRunner.start({ProcessTask(onSetup, onDone, CallDone::OnSuccess)});
 }
 
 void PySideBuildStep::handlePySidePackageInfo(const PipPackageInfo &pySideInfo,

@@ -5,10 +5,11 @@
 
 #include "pythonbuildsystem.h"
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildstep.h>
-
 
 namespace ProjectExplorer { class Interpreter; }
 namespace Python::Internal {
@@ -38,8 +39,7 @@ private:
     Tasking::GroupItem runRecipe() final;
     void updateExtraCompilers();
 
-    std::unique_ptr<QFutureWatcher<PipPackageInfo>> m_watcher;
-    QMetaObject::Connection m_watcherConnection;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
 
     Utils::FilePathAspect m_pysideProject{this};
     Utils::FilePathAspect m_pysideUic{this};

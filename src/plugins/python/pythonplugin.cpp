@@ -97,8 +97,6 @@ class PythonPlugin final : public ExtensionSystem::IPlugin
         setupPythonSettings();
         setupPythonWizard();
 
-        setupPipSupport(this);
-
         KitManager::setIrrelevantAspects(
             KitManager::irrelevantAspects() + QSet<Id>{PythonKitAspect::id()});
 

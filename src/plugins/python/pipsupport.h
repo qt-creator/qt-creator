@@ -45,19 +45,6 @@ public:
     QString version;
 };
 
-class Pip : public QObject
-{
-public:
-    static Pip *instance(const Utils::FilePath &python);
-
-    QFuture<PipPackageInfo> info(const PipPackage &package);
-
-private:
-    Pip(const Utils::FilePath &python);
-
-    Utils::FilePath m_python;
-};
-
 class PipInstallTask : public QObject
 {
     Q_OBJECT
@@ -94,7 +81,5 @@ private:
     QFutureWatcher<void> m_watcher;
     QTimer m_killTimer;
 };
-
-void setupPipSupport(QObject *guard);
 
 } // Python::Internal
