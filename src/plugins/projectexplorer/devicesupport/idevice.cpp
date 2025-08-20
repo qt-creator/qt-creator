@@ -5,6 +5,7 @@
 
 #include "devicekitaspects.h"
 #include "devicemanager.h"
+#include "idevice.h"
 #include "idevicefactory.h"
 #include "sshparameters.h"
 
@@ -207,7 +208,7 @@ void DeviceToolAspectFactory::autoDetect(const IDevicePtr &device, const FilePat
     for (const QString &filePattern : m_filePattern) {
         const FilePaths toolPaths = device->filePath(filePattern).searchAllInDirectories(searchPaths);
         for (const FilePath &toolPath : toolPaths) {
-            if (!m_checker || m_checker(toolPath))
+            if (!m_checker || m_checker(device, toolPath))
                 result.append(toolPath);
         }
     }
@@ -218,7 +219,7 @@ void DeviceToolAspectFactory::autoDetect(const IDevicePtr &device, const FilePat
         device->setDeviceToolPath(m_toolId, result.front());
 }
 
-DeviceToolAspect *DeviceToolAspectFactory::createAspect() const
+DeviceToolAspect *DeviceToolAspectFactory::createAspect(const IDevicePtr &device) const
 {
     auto toolAspect = new DeviceToolAspect;
     toolAspect->setSettingsKey(m_toolId.name());
@@ -227,12 +228,12 @@ DeviceToolAspect *DeviceToolAspectFactory::createAspect() const
     toolAspect->setPlaceHolderText(Tr::tr("Leave empty to look up executable in $PATH"));
     toolAspect->setHistoryCompleter(m_toolId.name());
     toolAspect->setValidationFunction(
-        [checker = m_checker](const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
-            return asyncRun([checker, newValue]() -> Result<QString> {
+        [device, checker = m_checker](const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
+            return asyncRun([device, checker, newValue]() -> Result<QString> {
                 if (!checker)
                     return newValue;
                 FilePath path = FilePath::fromUserInput(newValue);
-                Result<> result = checker(path);
+                Result<> result = checker(device, path);
                 return result ? newValue : result.error();
             });
         });
@@ -365,13 +366,6 @@ IDevice::IDevice()
             return newValue;
         });
 
-    for (const DeviceToolAspectFactory *factory : theDeviceToolFactories) {
-        DeviceToolAspect *toolAspect = factory->createAspect();
-        registerAspect(toolAspect, true);
-        toolAspect->setBaseDirectory([this] { return rootPath(); });
-        d->deviceToolAspects.insert(factory->toolId(), toolAspect);
-    }
-
     freePortsAspect.setSettingsKey(PortsSpecKey);
     freePortsAspect.setLabelText(Tr::tr("Free ports:"));
     freePortsAspect.setToolTip(
@@ -380,6 +374,17 @@ IDevice::IDevice()
 }
 
 IDevice::~IDevice() = default;
+
+void IDevice::init()
+{
+    // shared_from_this doesn't work in the ctor.
+    for (const DeviceToolAspectFactory *factory : theDeviceToolFactories) {
+        DeviceToolAspect *toolAspect = factory->createAspect(shared_from_this());
+        registerAspect(toolAspect, true);
+        toolAspect->setBaseDirectory([this] { return rootPath(); });
+        d->deviceToolAspects.insert(factory->toolId(), toolAspect);
+    }
+}
 
 void IDevice::setOpenTerminal(const IDevice::OpenTerminal &openTerminal)
 {

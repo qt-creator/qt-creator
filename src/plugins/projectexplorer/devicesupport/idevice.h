@@ -83,12 +83,12 @@ public:
 
     Utils::Id toolId() const;
 
-    DeviceToolAspect *createAspect() const;
+    DeviceToolAspect *createAspect(const IDevicePtr &device) const;
 
     static void autoDetectAll(const IDevicePtr &device, const Utils::FilePaths &searchPaths);
 
 protected:
-    using Checker = std::function<Utils::Result<>(const Utils::FilePath &)>;
+    using Checker = std::function<Utils::Result<>(const IDevicePtr &device, const Utils::FilePath &)>;
     void setToolId(const Utils::Id &toolId);
     void setFilePattern(const QStringList &filePattern);
     void setLabelText(const QString &labelText);
@@ -306,11 +306,14 @@ private:
     IDevice(const IDevice &) = delete;
     IDevice &operator=(const IDevice &) = delete;
 
+    void init();
+
     int version() const;
     void setFromSdk();
 
     const std::unique_ptr<Internal::IDevicePrivate> d;
     friend class DeviceManager;
+    friend class IDeviceFactory;
 };
 
 class PROJECTEXPLORER_EXPORT DeviceConstRef
