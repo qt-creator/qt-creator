@@ -366,7 +366,7 @@ public:
     }
 
     void apply() final;
-    void finish() final;
+    void cancel() final;
 
 private:
     void updateButtonStates();
@@ -413,7 +413,7 @@ void LocatorSettingsWidget::apply()
     saveFilterStates();
 }
 
-void LocatorSettingsWidget::finish()
+void LocatorSettingsWidget::cancel()
 {
     // If settings were applied, this shouldn't change anything. Otherwise it
     // makes sure the filter states aren't changed permanently.

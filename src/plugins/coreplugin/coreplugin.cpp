@@ -2,15 +2,23 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "coreplugin.h"
+
+#include "actionmanager/actionmanager.h"
+#include "coreconstants.h"
 #include "coreplugintr.h"
 #include "customlanguagemodels.h"
 #include "designmode.h"
 #include "dialogs/ioptionspage.h"
+#include "documentmanager.h"
 #include "editmode.h"
+#include "editormanager/editormanager_p.h"
+#include "fileutils.h"
+#include "find/findplugin.h"
 #include "foldernavigationwidget.h"
 #include "icore.h"
 #include "idocument.h"
 #include "iwizardfactory.h"
+#include "locator/locator.h"
 #include "loggingviewer.h"
 #include "modemanager.h"
 #include "session.h"
@@ -18,14 +26,6 @@
 #include "systemsettings.h"
 #include "themechooser.h"
 #include "vcsmanager.h"
-
-#include "actionmanager/actionmanager.h"
-#include "coreconstants.h"
-#include "documentmanager.h"
-#include "editormanager/editormanager_p.h"
-#include "fileutils.h"
-#include "find/findplugin.h"
-#include "locator/locator.h"
 
 #include <extensionsystem/pluginerroroverview.h>
 #include <extensionsystem/pluginmanager.h>

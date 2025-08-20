@@ -5,14 +5,22 @@
 
 #include <utils/id.h>
 
-QT_BEGIN_NAMESPACE
-class QWidget;
-QT_END_NAMESPACE
+#include <imode.h>
 
 namespace Core::Internal {
 
-// Run the settings dialog and wait for it to finish.
-// Returns whether the changes have been applied.
-bool executeSettingsDialog(QWidget *parent, Utils::Id initialPage);
+class SettingsModeWidget;
+
+class SettingsMode final : public IMode
+{
+public:
+    SettingsMode();
+    ~SettingsMode() final;
+
+    void open(Utils::Id initialPage);
+
+private:
+    SettingsModeWidget *m_settingsModeWidget = nullptr;
+};
 
 } // namespace Core::Internal

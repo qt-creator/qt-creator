@@ -286,7 +286,7 @@ public:
         d->writeUserModifiedMimeTypes();
     }
 
-    void finish() final
+    void cancel() final
     {
         d->m_pendingModifiedMimeTypes.clear();
     }

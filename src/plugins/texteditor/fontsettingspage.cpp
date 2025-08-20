@@ -209,7 +209,7 @@ public:
     }
 
     void apply() final;
-    void finish() final;
+    void cancel() final;
 
     void saveSettings();
     void fontSelected(const QFont &font);
@@ -751,7 +751,7 @@ void FontSettingsPageWidget::saveSettings()
     emit TextEditorSettings::instance()->fontSettingsChanged(m_value);
 }
 
-void FontSettingsPageWidget::finish()
+void FontSettingsPageWidget::cancel()
 {
     // If changes were applied, these are equal. Otherwise restores last value.
     m_value = m_lastValue;

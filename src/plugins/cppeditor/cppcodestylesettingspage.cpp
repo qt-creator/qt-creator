@@ -380,7 +380,7 @@ public:
         m_codeStyleEditor->apply();
     }
 
-    void finish() final
+    void cancel() final
     {
         m_codeStyleEditor->finish();
         const auto codeStyle = CppToolsSettings::cppCodeStyle();

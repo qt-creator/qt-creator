@@ -14,17 +14,7 @@
 
     \title Find preferences
 
-    \QC uses standard names and locations on Linux, \macos, and Windows for
-    standard features, such as \e preferences.
-
-    \table
-        \header
-            \li Linux and Windows
-            \li \macos
-        \row
-            \li \uicontrol Edit > \uicontrol Preferences
-            \li \uicontrol {\QC} > \uicontrol Preferences
-    \endtable
+    \uicontrol Preferences mode contains user-controlled settings.
 
     \section1 Sort preference categories
 

@@ -12,9 +12,11 @@ namespace Constants {
 const char MODE_WELCOME[]          = "Welcome";
 const char MODE_EDIT[]             = "Edit";
 const char MODE_DESIGN[]           = "Design";
+const char MODE_SETTINGS[]         = "Settings";
 const int  P_MODE_WELCOME          = 100;
 const int  P_MODE_EDIT             = 90;
 const int  P_MODE_DESIGN           = 89;
+const int  P_MODE_SETIINGS         = 20;
 
 // TouchBar
 const char TOUCH_BAR[]             = "QtCreator.TouchBar";
@@ -44,6 +46,7 @@ const char C_EDIT_MODE[]           = "Core.EditMode";
 const char C_DESIGN_MODE[]         = "Core.DesignMode";
 const char C_EDITORMANAGER[]       = "Core.EditorManager";
 const char C_NAVIGATION_PANE[]     = "Core.NavigationPane";
+const char C_SETTINGS_MODE[]       = "Core.SettingsMode";
 const char C_PROBLEM_PANE[]        = "Core.ProblemPane";
 const char C_GENERAL_OUTPUT_PANE[] = "Core.GeneralOutputPane";
 // Special context that leads to all "more specific" contexts to be ignored.

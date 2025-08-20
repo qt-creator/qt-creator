@@ -1198,7 +1198,7 @@ public:
         itemModel().apply();
     }
 
-    void finish() final
+    void cancel() final
     {
         itemModel().cancel();
     }

@@ -157,7 +157,7 @@ public:
 
 private:
     void apply() final;
-    void finish() final;
+    void cancel() final;
 
     Utils::AspectContainer &m_group = settings().page5;
     CdbBreakEventWidget *m_breakEventWidget;
@@ -221,10 +221,10 @@ void CdbOptionsPageWidget::apply()
     settings().cdbBreakEvents.setValue(m_breakEventWidget->breakEvents());
 }
 
-void CdbOptionsPageWidget::finish()
+void CdbOptionsPageWidget::cancel()
 {
     m_breakEventWidget->setBreakEvents(settings().cdbBreakEvents());
-    m_group.finish();
+    m_group.cancel();
 }
 
 CdbOptionsPage::CdbOptionsPage()
@@ -244,7 +244,7 @@ public:
     CdbPathsPageWidget();
 
     void apply() final;
-    void finish() final;
+    void cancel() final;
 
     AspectContainer &m_group = settings().page6;
 
@@ -259,7 +259,7 @@ CdbPathsPageWidget::CdbPathsPageWidget()
 {
     using namespace Layouting;
 
-    finish();
+    cancel();
     Column {
         Group { title(Tr::tr("Symbol Paths")), Column { m_symbolPaths } },
         Group { title(Tr::tr("Source Paths")), Column { m_sourcePaths } },
@@ -274,7 +274,7 @@ void CdbPathsPageWidget::apply()
     m_group.writeSettings();
 }
 
-void CdbPathsPageWidget::finish()
+void CdbPathsPageWidget::cancel()
 {
     m_symbolPaths->setPathList(settings().cdbSymbolPaths());
     m_sourcePaths->setPathList(settings().cdbSourcePaths());

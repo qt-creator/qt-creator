@@ -17,6 +17,7 @@ namespace Internal {
 class IOptionsPageWidgetPrivate;
 class IOptionsPagePrivate;
 class IOptionsPageProviderPrivate;
+class SettingsMode;
 } // namespace Internal
 
 class CORE_EXPORT IOptionsPageWidget : public QWidget
@@ -26,15 +27,14 @@ class CORE_EXPORT IOptionsPageWidget : public QWidget
 public:
     IOptionsPageWidget();
     ~IOptionsPageWidget();
+
     void setOnApply(const std::function<void()> &func);
     void setOnCancel(const std::function<void()> &func);
-    void setOnFinish(const std::function<void()> &func);
 
 protected:
     friend class IOptionsPage;
     virtual void apply();
     virtual void cancel();
-    virtual void finish();
 
 private:
     std::unique_ptr<Internal::IOptionsPageWidgetPrivate> d;
@@ -65,7 +65,6 @@ public:
     virtual QWidget *widget();
     virtual void apply();
     virtual void cancel();
-    virtual void finish();
 
     virtual bool matches(const QRegularExpression &regexp) const;
 
@@ -78,6 +77,9 @@ protected:
     void setSettingsProvider(const std::function<Utils::AspectContainer *()> &provider);
 
 private:
+    friend class Core::Internal::SettingsMode; // for deleteWidget
+    void deleteWidget();
+
     std::unique_ptr<Internal::IOptionsPagePrivate> d;
 };
 

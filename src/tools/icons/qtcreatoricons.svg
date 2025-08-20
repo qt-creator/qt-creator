@@ -8476,6 +8476,77 @@
          d="m 55,64 v -7 h 6 v 7 M 50,52.5 V 64 H 66 V 52.5 l -8,-6 z" />
     </g>
     <g
+       id="src/plugins/coreplugin/images/mode_settings">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use153"
+         transform="matrix(2.125,0,0,2.125,249,-624.5)"
+         width="100%"
+         height="100%"
+         inkscape:transform-center-x="-2.4976797"
+         inkscape:transform-center-y="0.5143354" />
+      <g
+         id="g165"
+         transform="translate(2.5)">
+        <circle
+           style="fill:none;stroke:#000000;stroke-width:2"
+           id="circle156"
+           cx="229.5"
+           cy="319"
+           r="3" />
+        <path
+           d="M 227.5,325.76562 V 328 h 4 v -2.24432 c 0,0 1.63286,-0.56688 2.86719,-1.63459"
+           id="path156"
+           inkscape:connector-curvature="0"
+           inkscape:transform-center-y="7.078125"
+           sodipodi:nodetypes="ccccc"
+           style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+           inkscape:transform-center-x="-1.078125" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#path156"
+           inkscape:transform-center-x="5.5907736"
+           inkscape:transform-center-y="3.952515"
+           id="use169"
+           transform="rotate(60,229.5,319)" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#path156"
+           inkscape:transform-center-x="6.8459568"
+           inkscape:transform-center-y="-2.6053789"
+           id="use170"
+           transform="rotate(120,229.5,319)" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#path156"
+           inkscape:transform-center-x="1.078125"
+           inkscape:transform-center-y="-7.078125"
+           id="use171"
+           transform="rotate(180,229.5,319)" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#path156"
+           inkscape:transform-center-x="-5.5907736"
+           inkscape:transform-center-y="-3.952515"
+           id="use172"
+           transform="rotate(-120,229.5,319)" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#path156"
+           inkscape:transform-center-x="-6.8459568"
+           inkscape:transform-center-y="2.6053789"
+           id="use173"
+           transform="rotate(-60,229.5,319)" />
+      </g>
+    </g>
+    <g
        transform="translate(-55,264)"
        style="display:inline;fill:#000000"
        id="src/plugins/coreplugin/images/mode_edit_mask">

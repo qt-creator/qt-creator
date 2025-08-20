@@ -2,6 +2,8 @@
     <qresource prefix="/core">
         <file>images/expandarrow.png</file>
         <file>images/expandarrow@2x.png</file>
+        <file>images/mode_settings.png</file>
+        <file>images/mode_settings@2x.png</file>
         <file>images/search.png</file>
         <file>images/search@2x.png</file>
         <file>images/settingscategory_core.png</file>

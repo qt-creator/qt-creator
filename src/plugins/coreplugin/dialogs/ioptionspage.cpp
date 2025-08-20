@@ -112,14 +112,6 @@ void IOptionsPageWidget::setOnCancel(const std::function<void()> &func)
 }
 
 /*!
-    Sets the function that is called by default on finish to \a func.
-*/
-void IOptionsPageWidget::setOnFinish(const std::function<void()> &func)
-{
-    d->m_onFinish = func;
-}
-
-/*!
     Calls the apply function, if set.
     \sa setOnApply
 */
@@ -133,16 +125,6 @@ void IOptionsPageWidget::cancel()
 {
     if (d->m_onCancel)
         d->m_onCancel();
-}
-
-/*!
-    Calls the finish function, if set.
-    \sa setOnFinish
-*/
-void IOptionsPageWidget::finish()
-{
-    if (d->m_onFinish)
-        d->m_onFinish();
 }
 
 /*!
@@ -161,7 +143,7 @@ std::optional<AspectContainer *> IOptionsPage::aspects() const
 
 /*!
     Sets the \a widgetCreator callback to create page widgets on demand. The
-    widget will be destroyed on finish().
+    widget will be owned by the settings mode.
  */
 void IOptionsPage::setWidgetCreator(const WidgetCreator &widgetCreator)
 {
@@ -209,6 +191,11 @@ void IOptionsPage::setDisplayName(const QString &displayName)
 void IOptionsPage::setCategory(Id category)
 {
     d->m_category = category;
+}
+
+void IOptionsPage::deleteWidget()
+{
+    delete d->m_widget;
 }
 
 /*!
@@ -286,28 +273,6 @@ void IOptionsPage::cancel()
     }
 }
 
-/*!
-    Called directly before the \uicontrol Options dialog closes. Here you should
-    delete the widget that was created in widget() to free resources.
-
-    Either override this function in a derived class, or set a widget creator.
-
-    \sa setWidgetCreator()
-*/
-
-void IOptionsPage::finish()
-{
-    if (auto widget = qobject_cast<IOptionsPageWidget *>(d->m_widget))
-        widget->finish();
-
-    if (d->m_settingsProvider) {
-        AspectContainer *container = d->m_settingsProvider();
-        container->finish();
-    }
-
-    delete d->m_widget;
-}
-
 void IOptionsPage::setSettingsProvider(const std::function<AspectContainer *()> &provider)
 {
     d->m_settingsProvider = provider;
@@ -335,6 +300,7 @@ IOptionsPage::IOptionsPage(bool registerGlobally)
  */
 IOptionsPage::~IOptionsPage()
 {
+    QTC_ASSERT(!d->m_widget, delete d->m_widget);
     optionsPages().removeOne(this);
 }
 

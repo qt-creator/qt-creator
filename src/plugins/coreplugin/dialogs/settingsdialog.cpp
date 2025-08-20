@@ -3,10 +3,15 @@
 
 #include "settingsdialog.h"
 
-#include "ioptionspage.h"
 #include "../coreplugintr.h"
 #include "../icore.h"
 #include "../iwizardfactory.h"
+#include "coreconstants.h"
+#include "coreicons.h"
+#include "ioptionspage.h"
+#include "modemanager.h"
+
+#include <projectexplorer/projectexplorerconstants.h> // Soft. For KITS_SETTINGS_PAGE_ID
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
@@ -14,14 +19,17 @@
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcwidgets.h>
+#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <QAbstractSpinBox>
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDialog>
-#include <QDialogButtonBox>
 #include <QEventLoop>
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -40,14 +48,10 @@
 #include <QStyle>
 #include <QStyledItemDelegate>
 
-#include <extensionsystem/pluginmanager.h>
-
 using namespace Utils;
 
 namespace Core::Internal {
 
-const int kInitialWidth = 800;
-const int kInitialHeight = 500;
 const int kMaxMinimumWidth = 250;
 const int kMaxMinimumHeight = 250;
 
@@ -433,21 +437,17 @@ private:
 
 // ----------- SettingsDialog
 
-class SettingsDialog : public QDialog
+class SettingsDialog : public QWidget
 {
 public:
-    explicit SettingsDialog(QWidget *parent);
+    SettingsDialog();
 
     void showPage(Id pageId);
     bool execDialog();
 
 private:
-    // Make sure the settings dialog starts up as small as possible.
-    QSize sizeHint() const final { return minimumSize(); }
-
-    void done(int) final;
-
     void apply();
+    void cancel();
     void currentChanged(const QModelIndex &current);
     void currentTabChanged(int);
     void filter(const QString &text);
@@ -456,7 +456,6 @@ private:
     void showCategory(int index);
     static void updateEnabledTabs(Category *category, const QString &searchText);
     void ensureCategoryWidget(Category *category);
-    void disconnectTabWidgets();
 
     const QList<IOptionsPage *> m_pages;
 
@@ -470,18 +469,12 @@ private:
     QCheckBox *m_sortCheckBox;
     QListView *m_categoryList;
     QLabel *m_headerLabel;
-    bool m_running = false;
-    bool m_applied = false;
-    bool m_finished = false;
 };
 
-static QPointer<SettingsDialog> m_instance = nullptr;
-
-SettingsDialog::SettingsDialog(QWidget *parent)
-    : QDialog(parent)
-    , m_pages(sortedOptionsPages())
+SettingsDialog::SettingsDialog()
+    : m_pages(sortedOptionsPages())
     , m_stackedLayout(new QStackedLayout)
-    , m_filterLineEdit(new Utils::FancyLineEdit)
+    , m_filterLineEdit(new QtcSearchBox)
     , m_sortCheckBox(new QCheckBox(Tr::tr("Sort categories")))
     , m_categoryList(new CategoryListView)
     , m_headerLabel(new QLabel)
@@ -533,6 +526,18 @@ void SettingsDialog::showPage(const Id pageId)
         QtcSettings *settings = ICore::settings();
         initialPageId = Id::fromSetting(settings->value(pageKeyC));
     }
+    // If nothing is saved, use "Kits" when the ProjectExplorer is present:
+    if (!initialPageId.isValid()) {
+        for (const Category *category : std::as_const(m_model.categories())) {
+            if (category->id == ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY) {
+                initialPageId = ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID;
+                break;
+            }
+        }
+    }
+    // otherwise prefer Environment->Interface
+    if (!initialPageId.isValid())
+        initialPageId = Constants::SETTINGS_ID_INTERFACE;
 
     int initialCategoryIndex = -1;
     int initialPageIndex = -1;
@@ -586,25 +591,23 @@ void SettingsDialog::createGui()
 {
     m_headerLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
 
+    auto applyButton = new QtcButton(Tr::tr("Apply"), QtcButton::LargePrimary);
+    auto cancelButton = new QtcButton(Tr::tr("Cancel"),  QtcButton::LargeSecondary);
+
     auto headerHLayout = new QHBoxLayout;
     const int leftMargin = QApplication::style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
     headerHLayout->addSpacerItem(new QSpacerItem(leftMargin, 0, QSizePolicy::Fixed, QSizePolicy::Ignored));
     headerHLayout->addWidget(m_headerLabel);
+    headerHLayout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
+    headerHLayout->addWidget(applyButton);
+    headerHLayout->addWidget(cancelButton);
 
     m_stackedLayout->setContentsMargins(0, 0, 0, 0);
     QWidget *emptyWidget = new QWidget(this);
     m_stackedLayout->addWidget(emptyWidget); // no category selected, for example when filtering
 
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(
-        QDialogButtonBox::Ok | QDialogButtonBox::Apply | QDialogButtonBox::Cancel);
-    connect(
-        buttonBox->button(QDialogButtonBox::Apply),
-        &QAbstractButton::clicked,
-        this,
-        &SettingsDialog::apply);
-
-    connect(buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::accept);
-    connect(buttonBox, &QDialogButtonBox::rejected, this, &SettingsDialog::reject);
+    connect(applyButton, &QAbstractButton::clicked, this, &SettingsDialog::apply);
+    connect(cancelButton, &QAbstractButton::clicked, this, &SettingsDialog::cancel);
 
     auto mainGridLayout = new QGridLayout;
     mainGridLayout->addWidget(m_filterLineEdit, 0, 0, 1, 1);
@@ -612,13 +615,8 @@ void SettingsDialog::createGui()
     mainGridLayout->addWidget(m_categoryList,   1, 0, 1, 1);
     mainGridLayout->addWidget(m_sortCheckBox,   2, 0, 1, 1);
     mainGridLayout->addLayout(m_stackedLayout,  1, 1, 2, 1);
-    mainGridLayout->addWidget(buttonBox,        3, 0, 1, 2);
     mainGridLayout->setColumnStretch(1, 4);
     setLayout(mainGridLayout);
-
-    buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
-
-    mainGridLayout->setSizeConstraint(QLayout::SetMinimumSize);
 }
 
 void SettingsDialog::showCategory(int index)
@@ -656,15 +654,6 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
 
     category->tabWidget = tabWidget;
     category->index = m_stackedLayout->addWidget(tabWidget);
-}
-
-void SettingsDialog::disconnectTabWidgets()
-{
-    for (Category *category : m_model.categories()) {
-        if (category->tabWidget)
-            disconnect(category->tabWidget, &QTabWidget::currentChanged,
-                       this, &SettingsDialog::currentTabChanged);
-    }
 }
 
 void SettingsDialog::updateEnabledTabs(Category *category, const QString &searchText)
@@ -731,92 +720,93 @@ void SettingsDialog::apply()
 {
     for (IOptionsPage *page : std::as_const(m_visitedPages))
         page->apply();
-    m_applied = true;
-}
 
-void SettingsDialog::done(int val)
-{
-    if (m_finished)
-        return;
+    // disconnectTabWidgets();
 
-    m_finished = true;
-
-    disconnectTabWidgets();
-
-    if (val == QDialog::Accepted) {
-        m_applied = true;
-        for (IOptionsPage *page : std::as_const(m_visitedPages))
-            page->apply();
-    } else {
-        for (IOptionsPage *page : std::as_const(m_pages))
-            page->cancel();
-    }
-
-    for (IOptionsPage *page : std::as_const(m_pages))
-        page->finish();
-
-    QtcSettings *settings = ICore::settings();
-    settings->setValue(pageKeyC, m_currentPage.toSetting());
-    settings->setValue(sortKeyC, m_sortCheckBox->isChecked());
+    // for (IOptionsPage *page : std::as_const(m_pages))
+    //     page->finish();
 
     ICore::saveSettings(ICore::SettingsDialogDone); // save all settings
-
-    QDialog::done(val);
 }
 
-bool SettingsDialog::execDialog()
+void SettingsDialog::cancel()
 {
-    if (!m_running) {
-        m_running = true;
-        m_finished = false;
-        static const char kPreferenceDialogSize[] = "Core/PreferenceDialogSize";
-        const QSize initialSize(kInitialWidth, kInitialHeight);
-        resize(ICore::settings()->value(kPreferenceDialogSize, initialSize).toSize());
+    for (IOptionsPage *page : std::as_const(m_pages))
+        page->cancel();
 
-        // We call open here as exec is no longer the preferred method of displaying
-        // modal dialogs. The issue that triggered the change here was QTBUG-117814
-        // (on macOS: Caps Lock indicator does not update)
-        open();
-        connect(this, &QDialog::finished, this, [this, initialSize] {
-            m_running = false;
-            m_instance = nullptr;
-            ICore::settings()->setValueWithDefault(kPreferenceDialogSize, size(), initialSize);
-            // make sure that the current "single" instance is deleted
-            // we can't delete right away, since we still access the m_applied member
-            QMetaObject::invokeMethod(this, [this] { deleteLater(); }, Qt::QueuedConnection);
-        });
-    }
+    // for (IOptionsPage *page : std::as_const(m_pages))
+    //     page->finish();
 
-    // This function needs to be blocking, so we need to wait for the dialog to finish.
-    // We cannot use QDialog::exec due to the issue described above at "open()".
-    // Since execDialog can be called multiple times, we need to run potentially multiple
-    // loops here, to have every invocation of execDialog() wait for the dialog to finish.
-    while (m_running)
-        QApplication::processEvents(QEventLoop::WaitForMoreEvents);
-
-    return m_applied;
+    ICore::saveSettings(ICore::SettingsDialogDone); // save all settings
 }
 
 } // namespace
 
-bool executeSettingsDialog(QWidget *parent, Id initialPage)
+class SettingsModeWidget final : public QWidget
 {
-    if (!ExtensionSystem::PluginManager::isInitializationDone()) {
-        QObject::connect(ExtensionSystem::PluginManager::instance(),
-                         &ExtensionSystem::PluginManager::initializationDone,
-                         parent,
-                         [parent, initialPage]() { executeSettingsDialog(parent, initialPage); });
-        return false;
+public:
+    SettingsModeWidget()
+    {
+        connect(ModeManager::instance(), &ModeManager::currentModeChanged, this, [this](Id mode, Id oldMode) {
+            QTC_ASSERT(mode != oldMode, return);
+            if (mode == Constants::MODE_SETTINGS)
+                open();
+        });
     }
 
-    // Make sure all wizards are there when the user might access the keyboard shortcuts:
-    (void) IWizardFactory::allWizardFactories();
+    ~SettingsModeWidget() = default;
 
-    if (!m_instance)
-        m_instance = new SettingsDialog(parent);
+    void open()
+    {
+        // Make sure all wizards are there when the user might access the keyboard shortcuts:
+        (void) IWizardFactory::allWizardFactories();
 
-    m_instance->showPage(initialPage);
-    return m_instance->execDialog();
+        if (!inner) {
+            inner = new SettingsDialog;
+            auto layout = new QVBoxLayout(this);
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->addWidget(new StyledBar);
+            layout->addWidget(inner);
+        }
+
+        inner->showPage(targetPage);
+    }
+
+    Id targetPage;
+    SettingsDialog *inner = nullptr;
+};
+
+SettingsMode::SettingsMode()
+{
+    setObjectName(QLatin1String("SettingsMode"));
+    setDisplayName(Tr::tr("Preferences"));
+    setIcon(Core::Icons::MODE_SETTINGS.icon());
+    setPriority(Constants::P_MODE_SETIINGS);
+    setId(Constants::MODE_SETTINGS);
+    setContext(Context(Constants::C_SETTINGS_MODE, Constants::C_NAVIGATION_PANE));
+    setWidgetCreator([this]() -> QWidget * {
+        m_settingsModeWidget = new SettingsModeWidget;
+        return m_settingsModeWidget;
+    });
+}
+
+SettingsMode::~SettingsMode()
+{
+    delete m_settingsModeWidget;
+    // Delete any widgets that have been created e.g. for IOptionsPage::keywords, but
+    // were never parent of the mode.
+    // Otherwise these would only be deleted when the corresponding static IOptionsPage
+    // is deleted, which is too late and can lead to crashes.
+    for (IOptionsPage *page : IOptionsPage::allOptionsPages())
+        page->deleteWidget();
+}
+
+void SettingsMode::open(Id initialPage)
+{
+    QTC_ASSERT(m_settingsModeWidget, return);
+    m_settingsModeWidget->targetPage = initialPage;
+
+    ModeManager::activateMode(Constants::MODE_SETTINGS);
 }
 
 } // namespace Core::Internal

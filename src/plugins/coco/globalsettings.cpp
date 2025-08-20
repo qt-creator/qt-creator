@@ -244,7 +244,6 @@ public:
     GlobalSettingsWidget *widget() override;
     void apply() override;
     void cancel() override;
-    void finish() override;
 
     GlobalSettingsPage();
 
@@ -276,11 +275,6 @@ void GlobalSettingsPage::cancel()
 {
     if (m_widget)
         m_widget->cancel();
-}
-
-void GlobalSettingsPage::finish()
-{
-    delete m_widget;
 }
 
 void setupCocoSettings()

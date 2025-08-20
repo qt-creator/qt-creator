@@ -46,9 +46,9 @@ public:
                 onChanged();
             widget->readSettings(LocalHelpManager::filterEngine());
         });
-
-        setOnFinish([connection] {  disconnect(connection); });
     }
+
+    ~FilterSettingsPageWidget() = default;
 };
 
 FilterSettingsPage::FilterSettingsPage(const std::function<void ()> &onChanged)

@@ -251,7 +251,7 @@ public:
     SnippetsSettingsWidget();
 
     void apply() final;
-    void finish() final;
+    void cancel() final;
 
 private:
     void loadSnippetGroup(int index);
@@ -397,14 +397,12 @@ void SnippetsSettingsWidget::apply()
     }
 }
 
-void SnippetsSettingsWidget::finish()
+void SnippetsSettingsWidget::cancel()
 {
     if (m_snippetsCollectionChanged) {
         SnippetsCollection::instance()->reload();
         m_snippetsCollectionChanged = false;
     }
-
-    disconnect(TextEditorSettings::instance(), nullptr, this, nullptr);
 }
 
 void SnippetsSettingsWidget::loadSettings()

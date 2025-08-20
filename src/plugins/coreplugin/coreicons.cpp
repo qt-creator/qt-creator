@@ -29,6 +29,8 @@ const Icon MODE_DESIGN_CLASSIC(
         ":/fancyactionbar/images/mode_Design.png");
 const Icon MODE_DESIGN_FLAT({
         {":/fancyactionbar/images/mode_design_mask.png", Theme::IconsBaseColor}});
+const Icon MODE_SETTINGS({
+        {":/core/images/mode_settings.png", Theme::IconsBaseColor}});
 
 const Icon DESKTOP_DEVICE_SMALL({{":/utils/images/desktopdevicesmall.png",
                                   Theme::PanelTextColorDark}},

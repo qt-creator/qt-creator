@@ -646,10 +646,6 @@ public:
 
     ~HelpPlugin() final
     {
-        delete dd;
-        dd = nullptr;
-        delete m_helpManager;
-        m_helpManager = nullptr;
     }
 
 private:
@@ -687,6 +683,11 @@ private:
 
         delete dd->m_rightPaneSideBarWidget;
         dd->m_rightPaneSideBarWidget = nullptr;
+
+        delete dd;
+        dd = nullptr;
+        delete m_helpManager;
+        m_helpManager = nullptr;
 
         return SynchronousShutdown;
     }
