@@ -41,12 +41,6 @@ Q_LOGGING_CATEGORY(qmllsLog, "qtc.qmlls.client", QtWarningMsg);
 
 namespace QmlJSEditor {
 
-static QHash<FilePath, QmllsClient *> &qmllsClients()
-{
-    static QHash<FilePath, QmllsClient *> clients;
-    return clients;
-}
-
 QMap<QString, int> QmllsClient::semanticTokenTypesMap()
 {
     QMap<QString, int> result;
@@ -209,10 +203,7 @@ QmllsClient::QmllsClient(StdIOClientInterface *interface)
     setQuickFixAssistProvider(new QmllsQuickFixAssistProvider(this));
 }
 
-QmllsClient::~QmllsClient()
-{
-    qmllsClients().remove(qmllsClients().key(this));
-}
+QmllsClient::~QmllsClient() {}
 
 void QmllsClient::startImpl()
 {
