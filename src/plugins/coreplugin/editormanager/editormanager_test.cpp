@@ -161,13 +161,16 @@ void TabbedEditorTest::testKeepTabForMovedEditors()
 }
 
 /*
-    When suspending documents, the tab should stay (as a suspended tab)
+    When suspending documents, the tab should stay (as a suspended tab).
+    And when closing the only tab for a suspended entry, that should be removed.
 */
 void TabbedEditorTest::testKeepTabForSuspendedDocuments()
 {
     // A and B! in view
     // explicitly suspend A
-    // A(s) and B! view
+    // A(s) and B! in view
+    // close tab for A
+    // B! in view, entry for A is removed
     TestFile a;
     TestFile b;
     const QList<EditorView *> views = mainAreaViews();
@@ -185,6 +188,13 @@ void TabbedEditorTest::testKeepTabForSuspendedDocuments()
     QCOMPARE(view0Tabs.at(0).editor, nullptr);
     QCOMPARE(view0Tabs.at(0).entry->filePath(), a.filePath());
     QCOMPARE(view0Tabs.at(1).editor, editorB);
+    DocumentModel::Entry *entryA = DocumentModel::entryForFilePath(a.filePath());
+    QVERIFY(entryA != nullptr);
+
+    views.at(0)->closeTab(entryA);
+
+    QCOMPARE(views.at(0)->tabs().size(), 1);
+    QVERIFY(DocumentModel::entryForFilePath(a.filePath()) == nullptr);
 }
 
 /*

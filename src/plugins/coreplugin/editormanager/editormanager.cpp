@@ -1747,7 +1747,7 @@ void EditorManagerPrivate::tabClosed(DocumentModel::Entry *entry)
         })) {
         return;
     }
-    EditorManager::closeDocuments({entry->document});
+    EditorManager::closeDocuments({entry});
 }
 
 // Collects all tabs from the given viewsToClose for which no other tab is shown anywhere.
