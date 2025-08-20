@@ -483,16 +483,32 @@ bool ExamplesViewController::isVisible() const
     return m_isVisible;
 }
 
+static bool hasExamplesOrDemosAndDocumentation(const QtVersion *v)
+{
+    if ((!v->hasDemos() && !v->hasExamples()) || !v->hasDocs())
+        return false;
+    // Check if some documentation is there.
+    // This is done to exclude the Boot2Qt Qt version that has QT_INSTALL_DOCS and
+    // QT_INSTALL_EXAMPLES set to the toolchain sysroot, which doesn't actually contain
+    // documentation or examples, but the directories exist and contain some other things.
+    // The reasons is that e.g. the examples path is used as the base for example deployment to the
+    // device. See QTBUG-126753
+    if (v->docsPath().dirEntries(Utils::FileFilter({"*.qch"}, QDir::Files)).isEmpty())
+        return false;
+    return true;
+}
+
 void ExampleSetModel::updateQtVersionList()
 {
     QtVersions versions = QtVersionManager::sortVersions(
         QtVersionManager::versions([](const QtVersion *v) {
             const bool consider = v->qmakeFilePath().isLocal()
-                                  && (v->hasExamples() || v->hasDemos());
+                                  && hasExamplesOrDemosAndDocumentation(v);
             if (!consider)
                 qCDebug(log) << "Skipping" << v->displayName()
                              << "because it either is remote, or its QT_INSTALL_EXAMPLES and "
-                                "QT_INSTALL_DEMOS paths are not readable directories.";
+                                "QT_INSTALL_DEMOS, or QT_INSTALL_DOCS paths are not readable "
+                                "directories, or there are no documentation files.";
             return consider;
         }));
 
