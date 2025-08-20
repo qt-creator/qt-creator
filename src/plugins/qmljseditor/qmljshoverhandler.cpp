@@ -16,6 +16,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <languageclient/languageclientmanager.h>
+
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljsinterpreter.h>
@@ -258,6 +260,10 @@ void QmlJSHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, R
 
 bool QmlJSHoverHandler::matchDiagnosticMessage(QmlJSEditorWidget *qmlEditor, int pos)
 {
+    // don't show diagnostic message in the tooltip when qmlls is running
+    if (LanguageClient::LanguageClientManager::clientForDocument(qmlEditor->textDocument()))
+        return false;
+
     const QList<QTextEdit::ExtraSelection> selections =
         qmlEditor->extraSelections(TextEditorWidget::CodeWarningsSelection);
     for (const QTextEdit::ExtraSelection &sel : selections) {
