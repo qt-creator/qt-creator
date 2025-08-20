@@ -17,6 +17,7 @@ set(APPSTATISTICSMONITOR_DISABLEDBYDEFAULT "true")
 
 if (NOT QT_CREATOR_API_DEFINED)
   # standalone build
+  set(QTC_SBOM_READY ON)
   set(DESTINATION DESTINATION .)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)

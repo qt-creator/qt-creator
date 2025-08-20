@@ -11,8 +11,7 @@ function(qtc_setup_sbom)
 
   # Just-in-case opt-in to stop running any kind of SBOM code.
   if(QTC_NO_GENERATE_SBOM)
-    set(QT_GENERATE_SBOM "OFF" CACHE BOOL "Generate SBOM documents in SPDX v2.3 tag:value format."
-      FORCE)
+    qtc_force_disable_sbom()
     return()
   endif()
 
@@ -51,6 +50,32 @@ function(qtc_setup_sbom)
   )
 
   add_feature_info("Build SBOMs" "${QT_GENERATE_SBOM}" "")
+endfunction()
+
+function(qtc_force_disable_sbom)
+  set(QT_GENERATE_SBOM "OFF" CACHE BOOL "Generate SBOM documents in SPDX v2.3 tag:value format."
+    FORCE)
+endfunction()
+
+# For each Qt Creator repo that wants to ship an SBOM, a set(QTC_SBOM_READY ON) assignment
+# needs to be added before the find_package(QtCreator) call, to ensure SBOM generation doesn't
+# get disabled even if QT_GENERATE_SBOM is ON.
+# This assumes the repo is actually SBOM ready, so has calls to qtc_setup_sbom,
+# qtc_sbom_begin_project, etc.
+# Otherwise SBOM generation is force disabled.
+# This prevents CMake errors in calls like add_qtc_library which will try to add SBOM info to a
+# target, in a repo that is not SBOM-ready, but has QT_GENERATE_SBOM enabled.
+function(qtc_check_if_project_is_sbom_ready)
+  if(NOT QTC_SBOM_READY AND QT_GENERATE_SBOM)
+    qtc_force_disable_sbom()
+    if(NOT QT_HIDE_SBOM_READY_WARNING)
+      message(STATUS "QT_GENERATE_SBOM is ON, but the project is not marked as SBOM-ready. "
+        "Skipping SBOM generation.\n"
+        "Pass -DQT_HIDE_SBOM_READY_WARNING=ON to hide this message.\n"
+        "Or add set(QTC_SBOM_READY ON) to the project before find_package(QtCreator) to mark the "
+        "project as SBOM-ready.")
+    endif()
+  endif()
 endfunction()
 
 # This function should be called to set up the SBOM generation for a project.
