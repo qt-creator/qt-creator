@@ -76,7 +76,7 @@ Result<> FormWindowFile::open(const FilePath &filePath, const FilePath &realFile
     return ResultOk;
 }
 
-Result<> FormWindowFile::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> FormWindowFile::saveImpl(const FilePath &filePath, SaveOption option)
 {
     if (!m_formWindow)
         return ResultError("ASSERT: FormWindoFile: !m_formWindow");
@@ -84,12 +84,12 @@ Result<> FormWindowFile::saveImpl(const FilePath &filePath, bool autoSave)
         return ResultError("ASSERT: FormWindowFile: filePath.isEmpty()");
 
     const QString oldFormName = m_formWindow->fileName();
-    if (!autoSave)
+    if (option != SaveOption::AutoSave)
         m_formWindow->setFileName(filePath.toUrlishString());
 
     const Result<> res = writeFile(filePath);
     m_shouldAutoSave = false;
-    if (autoSave)
+    if (option == SaveOption::AutoSave)
         return res;
 
     if (!res) {

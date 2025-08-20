@@ -308,9 +308,12 @@ Result<> IDocument::open(const FilePath &filePath, const FilePath &realFilePath)
     Saves the contents of the document to the \a filePath on disk.
     If \a filePath is empty filePath() is used.
 
-    If \a autoSave is \c true, the saving is done for an auto-save, so the
+    If \a option is \c SaveOption::AutoSave, the saving is done for an auto-save, so the
     document should avoid cleanups or other operations that it does for
     user-requested saves.
+
+    If \a option is \c SaveOption::DisableFormatOnSave, the document should be saved
+    normally, but no "Format on Save" kind of activity should be performed.
 
     Returns whether saving was successful.
 
@@ -321,31 +324,34 @@ Result<> IDocument::open(const FilePath &filePath, const FilePath &realFilePath)
     \sa saved()
     \sa filePath()
 */
-Result<> IDocument::save(const FilePath &filePath, bool autoSave)
+Result<> IDocument::save(const FilePath &filePath, SaveOption option)
 {
     const FilePath savePath = filePath.isEmpty() ? this->filePath() : filePath;
-    emit aboutToSave(savePath, autoSave);
-    const Result<> res = saveImpl(savePath, autoSave);
+    emit aboutToSave(savePath, option);
+    const Result<> res = saveImpl(savePath, option);
     if (res)
-        emit saved(savePath, autoSave);
+        emit saved(savePath, option);
     return res;
 }
 
 /*!
     Implementation of saving the contents of the document to the \a filePath on disk.
 
-    If \a autoSave is \c true, the saving is done for an auto-save, so the
+    If \a option is \c SaveOption::AutoSave, the saving is done for an auto-save, so the
     document should avoid cleanups or other operations that it does for
     user-requested saves.
+
+    If \a option is \c SaveOption::DisableFormatOnSave, the document should be saved
+    normally, but no "Format on Save" kind of activity should be performed.
 
     Returns whether saving was successful, including an error message when it was not.
 
     The default implementation does nothing and returns \c false.
 */
-Result<> IDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Utils::Result<> IDocument::saveImpl(const Utils::FilePath &filePath, SaveOption option)
 {
     Q_UNUSED(filePath)
-    Q_UNUSED(autoSave)
+    Q_UNUSED(option)
     return ResultError(Tr::tr("Not implemented"));
 }
 
@@ -624,7 +630,7 @@ void IDocument::setMimeType(const QString &mimeType)
 */
 Result<> IDocument::autoSave(const FilePath &filePath)
 {
-    if (const Result<> res = save(filePath, true); !res)
+    if (const Result<> res = save(filePath, SaveOption::AutoSave); !res)
         return res;
 
     d->autoSavePath = filePath;

@@ -54,6 +54,8 @@ public:
         FlagIgnore
     };
 
+    enum class SaveOption { AutoSave, DisableFormatOnSave, None };
+
     IDocument(QObject *parent = nullptr);
     ~IDocument() override;
 
@@ -62,7 +64,7 @@ public:
 
     virtual Utils::Result<> open(const Utils::FilePath &filePath, const Utils::FilePath &realFilePath);
 
-    Utils::Result<> save(const Utils::FilePath &filePath = {}, bool autoSave = false);
+    Utils::Result<> save(const Utils::FilePath &filePath = {}, SaveOption option = SaveOption::None);
 
     virtual QByteArray contents() const;
     virtual Utils::Result<> setContents(const QByteArray &contents);
@@ -121,13 +123,14 @@ signals:
 
     void aboutToReload();
     void reloadFinished(bool success);
-    void aboutToSave(const Utils::FilePath &filePath, bool autoSave);
-    void saved(const Utils::FilePath &filePath, bool autoSave);
+    void aboutToSave(const Utils::FilePath &filePath, SaveOption option);
+    void saved(const Utils::FilePath &filePath, SaveOption option);
 
     void filePathChanged(const Utils::FilePath &oldName, const Utils::FilePath &newName);
 
 protected:
-    virtual Utils::Result<> saveImpl(const Utils::FilePath &filePath = {}, bool autoSave = false);
+    virtual Utils::Result<> saveImpl(
+        const Utils::FilePath &filePath = {}, SaveOption option = SaveOption::None);
 
 private:
     Internal::IDocumentPrivate *d;

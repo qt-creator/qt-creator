@@ -14,7 +14,6 @@
 #include "editormanager/editormanager_p.h"
 #include "editormanager/ieditorfactory.h"
 #include "icore.h"
-#include "idocument.h"
 #include "idocumentfactory.h"
 #include "systemsettings.h"
 
@@ -705,16 +704,18 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
     return notSaved.isEmpty();
 }
 
-bool DocumentManager::saveDocument(IDocument *document,
-                                   const Utils::FilePath &filePath,
-                                   bool *isReadOnly)
+bool DocumentManager::saveDocument(
+    IDocument *document,
+    const Utils::FilePath &filePath,
+    IDocument::SaveOption option,
+    bool *isReadOnly)
 {
     bool ret = true;
     const Utils::FilePath &savePath = filePath.isEmpty() ? document->filePath() : filePath;
     expectFileChange(savePath); // This only matters to other IDocuments which refer to this file
     bool addWatcher = removeDocument(document); // So that our own IDocument gets no notification at all
 
-    if (const Result<> res = document->save(savePath, false); !res) {
+    if (const Result<> res = document->save(savePath, option); !res) {
         if (isReadOnly) {
             QFile ofi(savePath.toFSPathString());
             // Check whether the existing file is writable

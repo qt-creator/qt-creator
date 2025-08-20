@@ -79,6 +79,7 @@ const char OPEN_FROM_DEVICE[]      = "QtCreator.OpenFromDevice";
 const char REVERTTOSAVED[]         = "QtCreator.RevertToSaved";
 const char SAVE[]                  = "QtCreator.Save";
 const char SAVEAS[]                = "QtCreator.SaveAs";
+const char SAVE_WITHOUT_FORMATTING[] = "QtCreator.SaveWithoutFormatting";
 const char SAVEALL[]               = "QtCreator.SaveAll";
 const char PRINT[]                 = "QtCreator.Print";
 const char EXIT[]                  = "QtCreator.Exit";

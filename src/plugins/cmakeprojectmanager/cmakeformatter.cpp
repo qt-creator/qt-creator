@@ -136,7 +136,7 @@ public:
 
     bool isApplicable(const IDocument *document) const;
 
-    void applyIfNecessary(IDocument *document) const;
+    void applyIfNecessary(IDocument *document, IDocument::SaveOption option) const;
 
     TextEditor::Command formatCommand() const
     {
@@ -214,9 +214,9 @@ bool CMakeFormatterSettings::isApplicable(const IDocument *document) const
     });
 }
 
-void CMakeFormatterSettings::applyIfNecessary(IDocument *document) const
+void CMakeFormatterSettings::applyIfNecessary(IDocument *document, IDocument::SaveOption option) const
 {
-    if (!autoFormatOnSave())
+    if (!autoFormatOnSave() || option != IDocument::SaveOption::None)
         return;
 
     if (!document)

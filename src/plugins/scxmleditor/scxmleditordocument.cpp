@@ -54,7 +54,7 @@ Result<> ScxmlEditorDocument::open(const FilePath &filePath, const FilePath &rea
     return ResultOk;
 }
 
-Result<> ScxmlEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> ScxmlEditorDocument::saveImpl(const FilePath &filePath, SaveOption option)
 {
     if (filePath.isEmpty())
         return ResultError("ASSERT: ScxmlEditorDocument: filePath.isEmpty()");
@@ -67,7 +67,7 @@ Result<> ScxmlEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
         return ResultError(m_designWidget->errorMessage());
     }
 
-    if (autoSave) {
+    if (option == SaveOption::AutoSave) {
         m_designWidget->setFilePath(this->filePath());
         m_designWidget->save();
         return ResultOk;

@@ -226,9 +226,9 @@ bool DiffEditorDocument::isSaveAsAllowed() const
     return state() == LoadOK;
 }
 
-Result<> DiffEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> DiffEditorDocument::saveImpl(const FilePath &filePath, SaveOption option)
 {
-    Q_UNUSED(autoSave)
+    Q_UNUSED(option)
 
     if (state() != LoadOK)
         return ResultError(QString());

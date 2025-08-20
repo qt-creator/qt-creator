@@ -78,7 +78,7 @@ signals:
 
 protected:
     void applyFontSettings() override;
-    Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result<> saveImpl(const Utils::FilePath &filePath, SaveOption option) override;
     void slotCodeStyleSettingsChanged() override;
     void removeTrailingWhitespace(const QTextBlock &block) override;
 

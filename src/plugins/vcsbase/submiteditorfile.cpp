@@ -64,13 +64,13 @@ void SubmitEditorFile::setModified(bool modified)
     emit changed();
 }
 
-Result<> SubmitEditorFile::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> SubmitEditorFile::saveImpl(const FilePath &filePath, SaveOption option)
 {
     FileSaver saver(filePath, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
     saver.write(m_editor->fileContents());
     if (const Result<> res = saver.finalize(); !res)
         return res;
-    if (autoSave)
+    if (option == SaveOption::AutoSave)
         return ResultOk;
     setFilePath(filePath.absoluteFilePath());
     setModified(false);

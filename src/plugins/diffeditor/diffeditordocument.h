@@ -75,7 +75,7 @@ signals:
     void descriptionChanged();
 
 protected:
-    Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result<> saveImpl(const Utils::FilePath &filePath, SaveOption option) override;
 
 private:
     void beginReload();

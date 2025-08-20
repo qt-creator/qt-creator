@@ -70,7 +70,7 @@ public:
     void currentEditorChanged(IEditor *editor);
     void runSemanticScan();
     void checkCurrentEditorSemanticInfoUpToDate();
-    void autoFormatOnSave(IDocument *document);
+    void autoFormatOnSave(IDocument *document, IDocument::SaveOption option);
 
     Command *addToolAction(QAction *a, Context &context, Id id,
                            ActionContainer *c1, const QString &keySequence);
@@ -445,9 +445,9 @@ void QmlJSEditorPluginPrivate::checkCurrentEditorSemanticInfoUpToDate()
     m_reformatFileAction->setEnabled(semanticInfoUpToDate);
 }
 
-void QmlJSEditorPluginPrivate::autoFormatOnSave(IDocument *document)
+void QmlJSEditorPluginPrivate::autoFormatOnSave(IDocument *document, IDocument::SaveOption option)
 {
-    if (!settings().autoFormatOnSave())
+    if (!settings().autoFormatOnSave() || option == IDocument::SaveOption::DisableFormatOnSave)
         return;
 
     // Check that we are dealing with a QML/JS editor

@@ -37,7 +37,7 @@ public:
     Utils::Result<> load(const Utils::FilePath &fileName);
 
 protected:
-    Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result<> saveImpl(const Utils::FilePath &filePath, SaveOption option) override;
 
 private:
     ModelDocumentPrivate *d;

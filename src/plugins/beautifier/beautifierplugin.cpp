@@ -97,9 +97,9 @@ class BeautifierPlugin final : public ExtensionSystem::IPlugin
             tool->updateActions(editor);
     }
 
-    void autoFormatOnSave(IDocument *document)
+    void autoFormatOnSave(IDocument *document, IDocument::SaveOption option)
     {
-        if (!generalSettings().autoFormatOnSave())
+        if (!generalSettings().autoFormatOnSave() || option != IDocument::SaveOption::None)
             return;
 
         if (!isAutoFormatApplicable(document, generalSettings().allowedMimeTypes()))

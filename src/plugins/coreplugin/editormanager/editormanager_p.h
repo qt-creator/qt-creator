@@ -150,7 +150,9 @@ public:
         EditorView *view = nullptr);
 
 public slots:
-    static bool saveDocument(Core::IDocument *document);
+    static bool saveDocument(
+        Core::IDocument *document,
+        Core::IDocument::SaveOption option = Core::IDocument::SaveOption::None);
     static bool saveDocumentAs(Core::IDocument *document);
 
     static void split(Qt::Orientation orientation);
@@ -202,8 +204,12 @@ private:
     static IEditor *pickUnusedEditor(Internal::EditorView **foundView = nullptr);
     static void addDocumentToRecentFiles(IDocument *document);
     static void updateMakeWritableWarning();
-    static void setupSaveActions(IDocument *document, QAction *saveAction,
-                                 QAction *saveAsAction, QAction *revertToSavedAction);
+    static void setupSaveActions(
+        IDocument *document,
+        QAction *saveAction,
+        QAction *saveAsAction,
+        QAction *saveWithoutFormattingAction,
+        QAction *revertToSavedAction);
     static void updateWindowTitle();
     static bool skipOpeningBigTextFile(const Utils::FilePath &filePath);
 
@@ -236,6 +242,7 @@ private:
     QAction *m_revertToSavedAction = nullptr;
     QAction *m_saveAction = nullptr;
     QAction *m_saveAsAction = nullptr;
+    QAction *m_saveWithoutFormattingAction = nullptr;
     QAction *m_closeCurrentEditorAction = nullptr;
     QAction *m_closeAllEditorsAction = nullptr;
     QAction *m_closeOtherDocumentsAction = nullptr;

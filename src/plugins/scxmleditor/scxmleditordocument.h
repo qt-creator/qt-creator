@@ -43,7 +43,7 @@ signals:
     void reloadRequested(QString *errorString, const Utils::FilePath &);
 
 protected:
-    Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result<> saveImpl(const Utils::FilePath &filePath, SaveOption option) override;
 
 private:
     QPointer<Common::MainWidget> m_designWidget;

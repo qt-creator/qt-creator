@@ -48,7 +48,7 @@ Result<> ModelDocument::open(const FilePath &filePath, const FilePath &realFileP
     return load(realFilePath);
 }
 
-Result<> ModelDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> ModelDocument::saveImpl(const FilePath &filePath, SaveOption option)
 {
     if (!d->documentController)
         return ResultError(Tr::tr("No model loaded. Cannot save."));
@@ -60,7 +60,7 @@ Result<> ModelDocument::saveImpl(const FilePath &filePath, bool autoSave)
         return ResultError(ex.errorMessage());
     }
 
-    if (autoSave) {
+    if (option == SaveOption::AutoSave) {
         d->documentController->projectController()->setModified();
     } else {
         setFilePath(d->documentController->projectController()->project()->fileName());

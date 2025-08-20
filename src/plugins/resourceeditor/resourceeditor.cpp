@@ -65,7 +65,7 @@ signals:
     void loaded(bool success);
 
 private:
-    Result<> saveImpl(const FilePath &filePath, bool autoSave) final;
+    Result<> saveImpl(const FilePath &filePath, SaveOption option) final;
     void dirtyChanged(bool);
 
     RelativeResourceModel m_model;
@@ -204,7 +204,7 @@ Result<> ResourceEditorDocument::open(const FilePath &filePath, const FilePath &
     return ResultOk;
 }
 
-Result<> ResourceEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> ResourceEditorDocument::saveImpl(const FilePath &filePath, SaveOption option)
 {
     if (debugResourceEditorW)
         qDebug() << ">ResourceEditorW::saveImpl: " << filePath;
@@ -221,7 +221,7 @@ Result<> ResourceEditorDocument::saveImpl(const FilePath &filePath, bool autoSav
     }
 
     m_shouldAutoSave = false;
-    if (autoSave) {
+    if (option == SaveOption::AutoSave) {
         m_model.setFilePath(this->filePath());
         m_model.setDirty(true);
         m_blockDirtyChanged = false;

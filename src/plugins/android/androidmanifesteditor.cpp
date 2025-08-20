@@ -1940,10 +1940,10 @@ private:
 
     bool isSaveAsAllowed() const override { return false; }
 
-    Result<> saveImpl(const FilePath &filePath, bool autoSave) override
+    Result<> saveImpl(const FilePath &filePath, SaveOption option) override
     {
         m_editorWidget->preSave();
-        Result<> result = TextDocument::saveImpl(filePath, autoSave);
+        Result<> result = TextDocument::saveImpl(filePath, option);
         m_editorWidget->postSave();
         return result;
     }

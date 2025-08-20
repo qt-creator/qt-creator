@@ -119,7 +119,7 @@ public:
     bool isSaveAsAllowed() const final { return true; }
 
     Utils::Result<> reload(ReloadFlag flag, ChangeType type) final;
-    Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) final;
+    Utils::Result<> saveImpl(const Utils::FilePath &filePath, SaveOption option) final;
 
     void fetchData(quint64 address) const { if (m_fetchDataHandler) m_fetchDataHandler(address); }
     void requestNewWindow(quint64 address) { if (m_newWindowRequestHandler) m_newWindowRequestHandler(address); }
@@ -2175,9 +2175,11 @@ Result<> BinEditorDocument::reload(ReloadFlag flag, ChangeType type)
     return result;
 }
 
-Result<> BinEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> BinEditorDocument::saveImpl(const FilePath &filePath, SaveOption option)
 {
-    QTC_ASSERT(!autoSave, return ResultOk); // bineditor does not support autosave - it would be a bit expensive
+    QTC_ASSERT(
+        option != SaveOption::AutoSave,
+        return ResultOk); // bineditor does not support autosave - it would be a bit expensive
     if (Result<> res = save(this->filePath(), filePath); !res)
         return res;
     setFilePath(filePath);

@@ -51,7 +51,7 @@ public:
     void updateIsModified();
 
 protected:
-    Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result<> saveImpl(const Utils::FilePath &filePath, SaveOption option) override;
 
 private:
     void slotFormWindowRemoved(QDesignerFormWindowInterface *w);

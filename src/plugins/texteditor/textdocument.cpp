@@ -614,12 +614,11 @@ QTextDocument *TextDocument::document() const
 
 /*!
  * Saves the document to the file specified by \a fileName. If errors occur,
- * \a errorString contains their cause.
- * \a autoSave returns whether this function was called by the automatic save routine.
- * If \a autoSave is true, the cursor will be restored and some signals suppressed
+ * the return value will be Result::Error that contains their cause.
+ * If \a option is \c SaveOption::AutoSave, the cursor will be restored and some signals suppressed
  * and we do not clean up the text file (cleanWhitespace(), ensureFinalNewLine()).
  */
-Result<> TextDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> TextDocument::saveImpl(const FilePath &filePath, SaveOption option)
 {
     QTextCursor cursor(&d->m_document);
 
@@ -645,7 +644,7 @@ Result<> TextDocument::saveImpl(const FilePath &filePath, bool autoSave)
         }
     }
 
-    if (!autoSave) {
+    if (option != SaveOption::AutoSave) {
         cursor.beginEditBlock();
         cursor.movePosition(QTextCursor::Start);
 
@@ -677,7 +676,7 @@ Result<> TextDocument::saveImpl(const FilePath &filePath, bool autoSave)
     const Result<> res = write(filePath, saveFormat, plainText());
 
     // restore text cursor and scroll bar positions
-    if (autoSave && undos < d->m_document.availableUndoSteps()) {
+    if (option == SaveOption::AutoSave && undos < d->m_document.availableUndoSteps()) {
         d->m_document.undo();
         if (editorWidget) {
             QTextCursor cur = editorWidget->textCursor();
@@ -693,7 +692,7 @@ Result<> TextDocument::saveImpl(const FilePath &filePath, bool autoSave)
         return res;
 
     d->m_autoSaveRevision = d->m_document.revision();
-    if (autoSave)
+    if (option == SaveOption::AutoSave)
         return ResultOk;
 
     // inform about the new filename

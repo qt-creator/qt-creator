@@ -167,8 +167,8 @@ signals:
     void documentClosed(Core::IDocument *document);
     void findOnFileSystemRequest(const Utils::FilePath &path);
     void openFileProperties(const Utils::FilePath &path);
-    void aboutToSave(IDocument *document);
-    void saved(IDocument *document);
+    void aboutToSave(Core::IDocument *document, Core::IDocument::SaveOption option);
+    void saved(Core::IDocument *document, Core::IDocument::SaveOption option);
     void autoSaved();
     void currentEditorAboutToChange(Core::IEditor *editor);
 
@@ -179,6 +179,7 @@ signals:
 public slots:
     static void saveDocument();
     static void saveDocumentAs();
+    static void saveDocumentWithoutFormatting();
     static void revertToSaved();
     static bool closeAllEditors(bool askAboutModifiedEditors = true);
     static void slotCloseCurrentEditorOrDocument();

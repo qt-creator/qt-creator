@@ -33,7 +33,7 @@ public:
     ObjectsMapModel *model() const { return m_contentModel; }
 
 protected:
-    Utils::Result<> saveImpl(const Utils::FilePath &fileName, bool autoSave) override;
+    Utils::Result<> saveImpl(const Utils::FilePath &fileName, SaveOption option) override;
 
 private:
     Utils::Result<> openImpl(const Utils::FilePath &fileName,

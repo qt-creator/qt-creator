@@ -669,10 +669,10 @@ TextEditor::TabSettings CppEditorDocument::tabSettings() const
     return indenter()->tabSettings().value_or(TextEditor::TextDocument::tabSettings());
 }
 
-Result<> CppEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> CppEditorDocument::saveImpl(const FilePath &filePath, SaveOption option)
 {
-    if (!indenter()->formatOnSave() || autoSave)
-        return TextEditor::TextDocument::saveImpl(filePath, autoSave);
+    if (!indenter()->formatOnSave() || option != SaveOption::None)
+        return TextEditor::TextDocument::saveImpl(filePath, option);
 
     auto *layout = qobject_cast<TextEditor::TextDocumentLayout *>(document()->documentLayout());
     const int documentRevision = layout->lastSaveRevision;
@@ -710,7 +710,7 @@ Result<> CppEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
     settings.m_cleanWhitespace = false;
     setStorageSettings(settings);
 
-    return TextEditor::TextDocument::saveImpl(filePath, autoSave);
+    return TextEditor::TextDocument::saveImpl(filePath, option);
 }
 
 bool CppEditorDocument::usesClangd() const

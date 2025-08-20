@@ -39,7 +39,7 @@ Result<> ObjectsMapDocument::open(const FilePath &fileName, const FilePath &real
     return result;
 }
 
-Result<> ObjectsMapDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> ObjectsMapDocument::saveImpl(const FilePath &filePath, SaveOption option)
 {
     if (filePath.isEmpty())
         return ResultError("ASSERT: ObjectsMapDocument: filePath.isEmpty()");
@@ -48,7 +48,7 @@ Result<> ObjectsMapDocument::saveImpl(const FilePath &filePath, bool autoSave)
     if (!writeOk)
         return ResultError(Tr::tr("Failed to write \"%1\".").arg(filePath.toUserOutput()));
 
-    if (!autoSave) {
+    if (option != SaveOption::AutoSave) {
         setModified(false);
         setFilePath(filePath);
     }

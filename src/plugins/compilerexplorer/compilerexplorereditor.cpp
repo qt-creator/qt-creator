@@ -154,7 +154,7 @@ public:
     Result<> open(const Utils::FilePath &filePath,
                   const Utils::FilePath &realFilePath) override;
 
-    Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    Result<> saveImpl(const Utils::FilePath &filePath, SaveOption) override;
 
     Result<> setContents(const QByteArray &contents) override;
 
@@ -401,11 +401,11 @@ Result<> JsonSettingsDocument::open(const FilePath &filePath,
     return ResultOk;
 }
 
-Result<> JsonSettingsDocument::saveImpl(const FilePath &newFilePath, bool autoSave)
+Result<> JsonSettingsDocument::saveImpl(const FilePath &newFilePath, SaveOption option)
 {
     Store store;
 
-    if (autoSave) {
+    if (option == SaveOption::AutoSave) {
         if (m_windowStateCallback)
             m_ceSettings.windowState.setVolatileValue(m_windowStateCallback());
 
@@ -420,7 +420,7 @@ Result<> JsonSettingsDocument::saveImpl(const FilePath &newFilePath, bool autoSa
 
     FilePath path = newFilePath.isEmpty() ? filePath() : newFilePath;
 
-    if (!newFilePath.isEmpty() && !autoSave) {
+    if (!newFilePath.isEmpty() && option != SaveOption::AutoSave) {
         setPreferredDisplayName({});
         setFilePath(newFilePath);
     }

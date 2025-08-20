@@ -5,6 +5,8 @@
 
 #include "core_global.h"
 
+#include "idocument.h"
+
 #include <utils/filepath.h>
 #include <utils/id.h>
 
@@ -15,8 +17,6 @@
 namespace Utils { class FilePath; }
 
 namespace Core {
-
-class IDocument;
 
 namespace Internal {
 class DocumentManagerPrivate;
@@ -57,9 +57,11 @@ public:
     // helper functions
     static Utils::FilePath filePathKey(const Utils::FilePath &filePath, ResolveMode resolveMode);
 
-    static bool saveDocument(IDocument *document,
-                             const Utils::FilePath &filePath = Utils::FilePath(),
-                             bool *isReadOnly = nullptr);
+    static bool saveDocument(
+        IDocument *document,
+        const Utils::FilePath &filePath = Utils::FilePath(),
+        IDocument::SaveOption option = IDocument::SaveOption::None,
+        bool *isReadOnly = nullptr);
 
     static QString allDocumentFactoryFiltersString(QString *allFilesFilter);
 

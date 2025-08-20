@@ -437,6 +437,17 @@ void EditorManagerPrivate::init()
     // combined context for edit & design modes
     const Context editDesignContext(Constants::C_EDITORMANAGER, Constants::C_DESIGN_MODE);
 
+    // Save Without Formatting Action
+    ActionBuilder saveWithoutFormatting(this, Constants::SAVE_WITHOUT_FORMATTING);
+    saveWithoutFormatting.setContext(editManagerContext);
+    saveWithoutFormatting.bindContextAction(&m_saveWithoutFormattingAction);
+    saveWithoutFormatting.addOnTriggered(this, [] {
+        EditorManager::saveDocumentWithoutFormatting();
+    });
+    saveWithoutFormatting.setCommandAttribute(Command::CA_UpdateText);
+    saveWithoutFormatting.setCommandDescription(Tr::tr("Save Without Formatting"));
+    saveWithoutFormatting.addToContainer(Constants::M_FILE, Constants::G_FILE_SAVE);
+
     // Revert to saved
     ActionBuilder revertToSaved(this, Constants::REVERTTOSAVED);
     revertToSaved.setText(::Core::Tr::tr("Revert to Saved"));
@@ -2146,12 +2157,17 @@ void EditorManagerPrivate::updateMakeWritableWarning()
     }
 }
 
-void EditorManagerPrivate::setupSaveActions(IDocument *document, QAction *saveAction,
-                                            QAction *saveAsAction, QAction *revertToSavedAction)
+void EditorManagerPrivate::setupSaveActions(
+    IDocument *document,
+    QAction *saveAction,
+    QAction *saveAsAction,
+    QAction *saveWithoutFormattingAction,
+    QAction *revertToSavedAction)
 {
     const bool hasFile = document && !document->filePath().isEmpty();
     saveAction->setEnabled(document && (document->isModified() || !hasFile));
     saveAsAction->setEnabled(document && document->isSaveAsAllowed());
+    saveWithoutFormattingAction->setEnabled(document && (document->isModified() || !hasFile));
     revertToSavedAction->setEnabled(hasFile);
 
     if (document && !document->displayName().isEmpty()) {
@@ -2159,12 +2175,15 @@ void EditorManagerPrivate::setupSaveActions(IDocument *document, QAction *saveAc
                 + Utils::quoteAmpersands(document->displayName()) + QLatin1Char('"');
         saveAction->setText(::Core::Tr::tr("&Save %1").arg(quotedName));
         saveAsAction->setText(::Core::Tr::tr("Save %1 &As...").arg(quotedName));
-        revertToSavedAction->setText(document->isModified()
-                                     ? ::Core::Tr::tr("Revert %1 to Saved").arg(quotedName)
-                                     : ::Core::Tr::tr("Reload %1").arg(quotedName));
+        saveWithoutFormattingAction->setText(
+            ::Core::Tr::tr("Save %1 Without Formatting").arg(quotedName));
+        revertToSavedAction->setText(
+            document->isModified() ? ::Core::Tr::tr("Revert %1 to Saved").arg(quotedName)
+                                   : ::Core::Tr::tr("Reload %1").arg(quotedName));
     } else {
         saveAction->setText(::Core::Tr::tr("&Save"));
         saveAsAction->setText(::Core::Tr::tr("Save &As..."));
+        saveWithoutFormattingAction->setText(::Core::Tr::tr("Save Without Formatting"));
         revertToSavedAction->setText(::Core::Tr::tr("Revert to Saved"));
     }
 }
@@ -2182,7 +2201,12 @@ void EditorManagerPrivate::updateActions()
     if (curDocument)
         quotedName = QLatin1Char('"') + Utils::quoteAmpersands(curDocument->displayName())
                 + QLatin1Char('"');
-    setupSaveActions(curDocument, d->m_saveAction, d->m_saveAsAction, d->m_revertToSavedAction);
+    setupSaveActions(
+        curDocument,
+        d->m_saveAction,
+        d->m_saveAsAction,
+        d->m_saveWithoutFormattingAction,
+        d->m_revertToSavedAction);
 
     d->m_closeCurrentEditorAction->setEnabled(curDocument);
     d->m_closeCurrentEditorAction->setText(::Core::Tr::tr("Close %1").arg(quotedName));
@@ -2564,7 +2588,7 @@ void EditorManagerPrivate::handleContextChange(const QList<IContext *> &context)
     }
 }
 
-bool EditorManagerPrivate::saveDocument(IDocument *document)
+bool EditorManagerPrivate::saveDocument(IDocument *document, IDocument::SaveOption option)
 {
     if (!document)
         return false;
@@ -2577,9 +2601,9 @@ bool EditorManagerPrivate::saveDocument(IDocument *document)
     bool success = false;
     bool isReadOnly;
 
-    emit m_instance->aboutToSave(document);
+    emit m_instance->aboutToSave(document, option);
     // try saving, no matter what isReadOnly tells us
-    success = DocumentManager::saveDocument(document, FilePath(), &isReadOnly);
+    success = DocumentManager::saveDocument(document, FilePath(), option, &isReadOnly);
 
     if (!success && isReadOnly) {
         MakeWritableResult answer = makeFileWritable(document);
@@ -2590,12 +2614,12 @@ bool EditorManagerPrivate::saveDocument(IDocument *document)
 
         document->checkPermissions();
 
-        success = DocumentManager::saveDocument(document);
+        success = DocumentManager::saveDocument(document, FilePath(), option);
     }
 
     if (success) {
         addDocumentToRecentFiles(document);
-        emit m_instance->saved(document);
+        emit m_instance->saved(document, IDocument::SaveOption::None);
     }
 
     return success;
@@ -2620,7 +2644,7 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
             EditorManager::closeDocuments({otherDocument}, false);
     }
 
-    emit m_instance->aboutToSave(document);
+    emit m_instance->aboutToSave(document, IDocument::SaveOption::None);
     const bool success = DocumentManager::saveDocument(document, absoluteFilePath);
     document->checkPermissions();
 
@@ -2629,7 +2653,7 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
         document->setTemporary(false);
 
         addDocumentToRecentFiles(document);
-        emit m_instance->saved(document);
+        emit m_instance->saved(document, IDocument::SaveOption::None);
     }
 
     updateActions();
@@ -2998,6 +3022,15 @@ void EditorManagerPrivate::addSaveAndCloseEditorActions(
     });
     assignAction(saveAs, ActionManager::command(Constants::SAVEAS)->action());
 
+    // Save Without Formatting
+    QAction *saveWithoutFormatting
+        = addMenuAction(contextMenu, "" /* set below */, true, d, [contextDocument] {
+              if (contextDocument)
+                  d->saveDocument(contextDocument, IDocument::SaveOption::DisableFormatOnSave);
+          });
+    assignAction(
+        saveWithoutFormatting, ActionManager::command(Constants::SAVE_WITHOUT_FORMATTING)->action());
+
     // Save All
     contextMenu->addAction(ActionManager::command(Constants::SAVEALL)->action());
 
@@ -3009,7 +3042,8 @@ void EditorManagerPrivate::addSaveAndCloseEditorActions(
           });
     assignAction(revertToSaved, ActionManager::command(Constants::REVERTTOSAVED)->action());
 
-    EditorManagerPrivate::setupSaveActions(contextDocument, save, saveAs, revertToSaved);
+    EditorManagerPrivate::setupSaveActions(
+        contextDocument, save, saveAs, saveWithoutFormatting, revertToSaved);
 
     contextMenu->addSeparator();
 
@@ -3254,6 +3288,14 @@ void EditorManager::saveDocument()
 void EditorManager::saveDocumentAs()
 {
     EditorManagerPrivate::saveDocumentAs(currentDocument());
+}
+
+/*!
+    Saves the current document without auto formatting.
+*/
+void EditorManager::saveDocumentWithoutFormatting()
+{
+    EditorManagerPrivate::saveDocument(currentDocument(), IDocument::SaveOption::DisableFormatOnSave);
 }
 
 /*!
