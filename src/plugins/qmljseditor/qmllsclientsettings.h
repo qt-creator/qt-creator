@@ -33,7 +33,6 @@ public:
                                                const Utils::FilePath &file) const;
 
     ExecutableSelection m_executableSelection = FromQtKit;
-    bool m_useLatestQmlls = false;
     bool m_ignoreMinimumQmllsVersion = false;
     bool m_useQmllsSemanticHighlighting = false;
     bool m_disableBuiltinCodemodel = false;
