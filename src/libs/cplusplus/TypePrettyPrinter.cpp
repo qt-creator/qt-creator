@@ -136,6 +136,8 @@ void TypePrettyPrinter::visit(NamedType *type)
     prependSpaceUnlessBracket();
     _text.prepend(overview()->prettyName(type->name()));
     prependCv(_fullySpecifiedType);
+    if (_fullySpecifiedType.isAuto() && _overview->combineAutoAndName)
+        _text.append(" auto"); // Constrained function parameters.
 }
 
 void TypePrettyPrinter::visit(Namespace *type)
@@ -452,18 +454,20 @@ void TypePrettyPrinter::visit(Function *type)
         _name.clear();
     }
 
-    Overview retAndArgOverview;
-    retAndArgOverview.starBindFlags = _overview->starBindFlags;
-    retAndArgOverview.showReturnTypes = true;
-    retAndArgOverview.showArgumentNames = false;
-    retAndArgOverview.showFunctionSignatures = true;
-    retAndArgOverview.showTemplateParameters = true;
+    Overview argOverview;
+    argOverview.starBindFlags = _overview->starBindFlags;
+    argOverview.showReturnTypes = true;
+    argOverview.showArgumentNames = false;
+    argOverview.showFunctionSignatures = true;
+    argOverview.showTemplateParameters = true;
+    const Overview retOverview = argOverview;
+    argOverview.combineAutoAndName = true;
 
     if (_overview->showReturnTypes) {
         if (_overview->trailingReturnType) {
             _text.prepend("auto ");
         } else {
-            const QString returnType = retAndArgOverview.prettyType(type->returnType());
+            const QString returnType = retOverview.prettyType(type->returnType());
             if (!returnType.isEmpty()) {
                 if (!endsWithPtrOrRef(returnType)
                         || !(_overview->starBindFlags & Overview::BindToIdentifier)) {
@@ -500,7 +504,7 @@ void TypePrettyPrinter::visit(Function *type)
                 if (_overview->showArgumentNames)
                     name = arg->name();
 
-                _text += retAndArgOverview.prettyType(arg->type(), name);
+                _text += argOverview.prettyType(arg->type(), name);
 
                 if (_overview->showDefaultArguments) {
                     if (const StringLiteral *initializer = arg->initializer()) {
@@ -549,7 +553,7 @@ void TypePrettyPrinter::visit(Function *type)
     }
 
     if (_overview->showReturnTypes && _overview->trailingReturnType) {
-        const QString returnType = retAndArgOverview.prettyType(type->returnType());
+        const QString returnType = retOverview.prettyType(type->returnType());
         if (!returnType.isEmpty())
             _text.append(" -> ").append(returnType);
     }

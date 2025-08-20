@@ -266,6 +266,7 @@ protected:
     bool visit(NamedTypeSpecifierAST *ast) override;
     bool visit(ElaboratedTypeSpecifierAST *ast) override;
     bool visit(EnumSpecifierAST *ast) override;
+    bool visit(PlaceholderTypeSpecifierAST *ast) override;
 
     // PtrOperatorAST
     bool visit(PointerToMemberAST *ast) override;

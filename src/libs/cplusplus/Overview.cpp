@@ -65,6 +65,7 @@ Overview::Overview()
       showEnclosingTemplate(false),
       includeWhiteSpaceInOperatorName(true),
       trailingReturnType(false),
+      combineAutoAndName(false),
       markedArgument(0),
       markedArgumentBegin(0),
       markedArgumentEnd(0)

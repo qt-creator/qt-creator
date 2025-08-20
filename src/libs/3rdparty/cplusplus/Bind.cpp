@@ -395,7 +395,8 @@ FullySpecifiedType Bind::declarator(DeclaratorAST *ast, const FullySpecifiedType
     if (!type->asFunctionType()) {
         ExpressionTy initializer = this->expression(ast->initializer);
         if (cxx11Enabled && isAuto) {
-            type = initializer;
+            if (initializer.type() && !initializer.type()->isUndefinedType())
+                type = initializer;
             type.setAuto(true);
         }
     }
@@ -2489,6 +2490,17 @@ bool Bind::visit(ParameterDeclarationAST *ast)
     return false;
 }
 
+bool Bind::visit(PlaceholderTypeSpecifierAST *ast)
+{
+    FullySpecifiedType type;
+    std::swap(_type, type);
+    accept(ast->typeConstraint);
+    _type.setFlags(type.flags());
+    if (ast->autoToken != 0)
+        _type.setAuto(true);
+    return false;
+}
+
 bool Bind::visit(TemplateDeclarationAST *ast)
 {
     Template *templ = control()->newTemplate(ast->firstToken(), nullptr);
@@ -2572,8 +2584,46 @@ bool Bind::visit(TemplateTypeParameterAST *ast)
     return false;
 }
 
-bool Bind::visit(TypeConstraintAST *)
+static void split(const Name *name, std::vector<const Identifier *> &names)
 {
+    if (const QualifiedNameId * const q = name->asQualifiedNameId()) {
+        split(q->base(), names);
+        split(q->name(), names);
+    } else {
+        const Identifier * const id = name->asNameId();
+        CPP_ASSERT(id, return);
+        names.push_back(id);
+    }
+}
+
+static const Name *join(const Name *name, std::vector<const Identifier *> &bases, Control *control)
+{
+    if (bases.empty())
+        return name;
+    const QualifiedNameId * const q = control->qualifiedNameId(bases.back(), name);
+    bases.pop_back();
+    return join(q, bases, control);
+}
+
+bool Bind::visit(TypeConstraintAST *ast)
+{
+    const Name *n = name(ast->conceptName);
+
+    if (ast->templateArgs) {
+        // Hack: Split up the possibly qualified name and exchange the leaf identifier
+        // with a TemplateNameId. Otherwise, we'd have to invent a new type that
+        // can carry the template arguments.
+        const std::vector<TemplateArgument> templateArgs = visitTemplateArgs(ast->templateArgs);
+        std::vector<const Identifier *> unqualifiedNames;
+        split(n, unqualifiedNames);
+        CPP_ASSERT(!unqualifiedNames.empty(), return false);
+        const TemplateNameId * const templId = control()->templateNameId(
+                    unqualifiedNames.back(), false, &templateArgs[0], int(templateArgs.size()));
+        unqualifiedNames.pop_back();
+        n = join(templId, unqualifiedNames, control());
+    }
+
+    _type = control()->namedType(n);
     return false;
 }
 

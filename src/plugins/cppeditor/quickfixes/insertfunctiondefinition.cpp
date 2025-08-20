@@ -2218,6 +2218,52 @@ foo::foo2::MyType<int> foo::foo2::bar()
         InsertDefFromDecl factory;
         QuickFixOperationTest(singleDocument(original, expected), &factory);
     }
+
+    void testConstrainedFunctionParameter()
+    {
+        const QByteArray original =
+            "namespace N { template<typename T> concept C = true; }\n"
+            "struct S { S& @assign(N::C auto p); };\n";
+        const QByteArray expected =
+            "namespace N { template<typename T> concept C = true; }\n"
+            "struct S { S& @assign(N::C auto p); };\n\n"
+            "S &S::assign(N::C auto p)\n{\n\n}\n";
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(singleDocument(original, expected), &factory);
+    }
+
+    void testConstrainedFunctionParameterMinimized()
+    {
+        const QByteArray original =
+            "namespace N {\n"
+            "template<typename T> concept C = true;\n"
+            "struct S { S& @assign(const N::C auto p); };\n"
+            "}\n";
+        const QByteArray expected =
+            "namespace N {\n"
+            "template<typename T> concept C = true;\n"
+            "struct S { S& @assign(const N::C auto p); };\n\n"
+            "S &S::assign(const C auto p)\n{\n\n}\n\n"
+            "}\n";
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(singleDocument(original, expected), &factory);
+    }
+
+    void testConstrainedFunctionParameterWithTemplateArgs()
+    {
+        const QByteArray original =
+            "namespace N { template<typename T, typename U> concept C = true; }\n"
+            "struct S { S& @assign(const N::C<int> auto p); };\n";
+        const QByteArray expected =
+            "namespace N { template<typename T, typename U> concept C = true; }\n"
+            "struct S { S& @assign(const N::C<int> auto p); };\n\n"
+            "S &S::assign(const N::C<int> auto p)\n{\n\n}\n";
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(singleDocument(original, expected), &factory);
+    }
 };
 
 class InsertDefsFromDeclsTest : public QObject

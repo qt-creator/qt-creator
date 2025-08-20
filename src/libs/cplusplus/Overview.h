@@ -39,6 +39,7 @@ public:
     bool showEnclosingTemplate: 1;
     bool includeWhiteSpaceInOperatorName: 1; /// "operator =()" vs "operator=()"
     bool trailingReturnType: 1;
+    bool combineAutoAndName: 1;
 
     int markedArgument;
     int markedArgumentBegin;

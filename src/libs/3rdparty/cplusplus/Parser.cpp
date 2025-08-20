@@ -1774,6 +1774,7 @@ bool Parser::parseDeclSpecifierSeq(SpecifierListAST *&decl_specifier_seq,
         if (LA() != T_AUTO && parsePlaceholderTypeSpecifier(placeholderSpec)) {
             *decl_specifier_seq_ptr = new (_pool) SpecifierListAST(placeholderSpec);
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
+            has_type_specifier = true;
             continue;
         }
         if (! noStorageSpecifiers && ! onlySimpleTypeSpecifiers && lookAtStorageClassSpecifier()) {
