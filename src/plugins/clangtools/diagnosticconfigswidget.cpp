@@ -566,13 +566,13 @@ class TidyChecksTreeModel final : public BaseChecksTreeModel
 public:
     TidyChecksTreeModel(const QStringList &supportedChecks)
     {
-        buildTree(nullptr, m_root, ClangTidyPrefixTree::Node::fromCheckList(supportedChecks));
+        buildTree(nullptr, m_root.get(), ClangTidyPrefixTree::Node::fromCheckList(supportedChecks));
     }
 
     QString selectedChecks() const override
     {
         QString checks;
-        collectChecks(m_root, checks);
+        collectChecks(m_root.get(), checks);
         return "-*" + checks;
     }
 
@@ -685,7 +685,7 @@ public:
     ClazyChecksTreeModel(const ClazyChecks &supportedClazyChecks)
     {
         // Top level node
-        m_root = new ClazyChecksTree("*", ClazyChecksTree::TopLevelNode);
+        m_root.reset(new ClazyChecksTree("*", ClazyChecksTree::TopLevelNode));
 
         for (const ClazyCheck &check : supportedClazyChecks) {
             // Level node
@@ -693,7 +693,7 @@ public:
             if (!levelNode) {
                 levelNode = new ClazyChecksTree(levelDescription(check.level),
                                                 ClazyChecksTree::LevelNode);
-                levelNode->parent = m_root;
+                levelNode->parent = m_root.get();
                 levelNode->check.level = check.level; // Pass on the level for sorting
                 m_root->childDirectories << levelNode;
             }
@@ -712,7 +712,7 @@ public:
     QStringList enabledChecks() const
     {
         QStringList checks;
-        collectChecks(m_root, checks);
+        collectChecks(m_root.get(), checks);
         return checks;
     }
 

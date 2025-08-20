@@ -95,17 +95,16 @@ public:
             projectDirTree->fullPath = m_root->fullPath;
             projectDirTree->parent = m_root->parent;
 
-            delete m_root; // OK, it has no files / child dirs.
-
-            m_root = projectDirTree;
+            // The m_root has no files / child dirs, so we delete it.
+            m_root.reset(projectDirTree);
         } else {
             // Set up project dir node as sub node of the project file node
-            linkDirNode(m_root, projectDirTree);
+            linkDirNode(m_root.get(), projectDirTree);
 
             // Add files outside of the base directory to a separate node
             Tree *externalFilesNode = createDirNode(Tr::tr("Files outside of the base directory"),
                                                     "/");
-            linkDirNode(m_root, externalFilesNode);
+            linkDirNode(m_root.get(), externalFilesNode);
             for (const FileInfo &fileInfo : outOfBaseDirFiles)
                 linkFileNode(externalFilesNode, createFileNode(fileInfo, true));
         }

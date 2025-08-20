@@ -104,7 +104,17 @@ public:
     void selectAllFiles();
 
     enum class FilterState { HIDDEN, SHOWN, CHECKED };
-    FilterState filter(Tree *t);
+
+    struct FilterData
+    {
+        QSet<Utils::FilePath> files;
+        QList<Glob> hideFilesFilter;
+        QList<Glob> selectFilesFilter;
+    };
+
+    FilterData filterData() const { return {m_files, m_hideFilesFilter, m_selectFilesFilter}; }
+    static FilterState filter(const FilterData &filterData, Tree *t);
+    FilterState filter(Tree *t) const;
 
 signals:
     void checkedFilesChanged();
@@ -123,7 +133,7 @@ private:
 protected:
     QSet<Utils::FilePath> m_outOfBaseDirFiles;
     QSet<Utils::FilePath> m_files;
-    Tree *m_root = nullptr;
+    std::shared_ptr<Tree> m_root;
 
 private:
     QList<Glob> m_hideFilesFilter;
@@ -143,19 +153,14 @@ public:
 
 signals:
     void parsingFinished();
-    void parsingProgress(const Utils::FilePath &fileName);
+    void parsingProgress(const QString &progress);
 
 private:
-    void buildTree(const Utils::FilePath &baseDir, Tree *tree, QPromise<void> &promise,
-                   int symlinkDepth);
-    void run(QPromise<void> &promise);
     void buildTreeFinished();
 
     // Used in the future thread need to all not used after calling startParsing
     Utils::FilePath m_baseDir;
-    QFutureWatcher<void> m_watcher;
-    Tree *m_rootForFuture = nullptr;
-    int m_futureCount = 0;
+    QFutureWatcher<std::shared_ptr<Tree>> m_watcher;
 };
 
 class PROJECTEXPLORER_EXPORT SelectableFilesWidget : public QWidget
@@ -189,7 +194,7 @@ private:
     void baseDirectoryChanged(bool validState);
 
     void startParsing(const Utils::FilePath &baseDir);
-    void parsingProgress(const Utils::FilePath &fileName);
+    void parsingProgress(const QString &progress);
     void parsingFinished();
 
     void smartExpand(const QModelIndex &idx);

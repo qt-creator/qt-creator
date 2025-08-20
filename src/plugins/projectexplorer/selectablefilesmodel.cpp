@@ -32,90 +32,34 @@ const char SELECT_FILE_FILTER_DEFAULT[] = "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++;
 
 SelectableFilesModel::SelectableFilesModel(QObject *parent) : QAbstractItemModel(parent)
 {
-    m_root = new Tree;
+    m_root.reset(new Tree);
 }
 
-void SelectableFilesModel::setInitialMarkedFiles(const Utils::FilePaths &files)
+void SelectableFilesModel::setInitialMarkedFiles(const FilePaths &files)
 {
     m_files = Utils::toSet(files);
 }
 
-void SelectableFilesFromDirModel::startParsing(const Utils::FilePath &baseDir)
-{
-    m_watcher.cancel();
-    m_watcher.waitForFinished();
-
-    m_baseDir = baseDir;
-    // Build a tree in a future
-    m_rootForFuture = new Tree;
-    m_rootForFuture->name = baseDir.toUserOutput();
-    m_rootForFuture->fullPath = baseDir;
-    m_rootForFuture->isDir = true;
-
-    m_watcher.setFuture(Utils::asyncRun(&SelectableFilesFromDirModel::run, this));
-}
-
-void SelectableFilesFromDirModel::run(QPromise<void> &promise)
-{
-    m_futureCount = 0;
-    buildTree(m_baseDir, m_rootForFuture, promise, 5);
-}
-
-void SelectableFilesFromDirModel::buildTreeFinished()
-{
-    beginResetModel();
-    delete m_root;
-    m_root = m_rootForFuture;
-    m_rootForFuture = nullptr;
-    m_outOfBaseDirFiles
-            = Utils::filtered(m_files, [this](const Utils::FilePath &fn) { return !fn.isChildOf(m_baseDir); });
-
-    endResetModel();
-    emit parsingFinished();
-}
-
-void SelectableFilesFromDirModel::cancel()
-{
-    m_watcher.cancel();
-    m_watcher.waitForFinished();
-}
-
-SelectableFilesModel::FilterState SelectableFilesModel::filter(Tree *t)
-{
-    if (t->isDir)
-        return FilterState::SHOWN;
-    if (m_files.contains(t->fullPath))
-        return FilterState::CHECKED;
-
-    auto matchesTreeName = [t](const Glob &g) {
-        return g.isMatch(t->name);
-    };
-
-    if (Utils::anyOf(m_selectFilesFilter, matchesTreeName))
-        return FilterState::CHECKED;
-
-    return Utils::anyOf(m_hideFilesFilter, matchesTreeName) ? FilterState::HIDDEN : FilterState::SHOWN;
-}
-
-void SelectableFilesFromDirModel::buildTree(const Utils::FilePath &baseDir, Tree *tree,
-                                            QPromise<void> &promise, int symlinkDepth)
+static void buildTree(QPromise<std::shared_ptr<Tree>> &promise, const FilePath &baseDir,
+                      const SelectableFilesModel::FilterData &filterData, Tree *tree,
+                      int symlinkDepth, int &futureCount)
 {
     if (symlinkDepth == 0)
         return;
 
-    const QFileInfoList fileInfoList = QDir(baseDir.toUrlishString()).entryInfoList(QDir::Files |
-                                                                              QDir::Dirs |
-                                                                              QDir::NoDotAndDotDot);
+    const QFileInfoList fileInfoList = QDir(baseDir.toUrlishString())
+                       .entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
     bool allChecked = true;
     bool allUnchecked = true;
     for (const QFileInfo &fileInfo : fileInfoList) {
-        Utils::FilePath fn = Utils::FilePath::fromFileInfo(fileInfo);
-        if ((m_futureCount % 100) == 0) {
-            emit parsingProgress(fn);
+        const FilePath fn = FilePath::fromFileInfo(fileInfo);
+        if ((futureCount % 100) == 0) {
+            promise.setProgressRange(0, futureCount);
+            promise.setProgressValueAndText(futureCount, fn.toUserOutput());
             if (promise.isCanceled())
                 return;
         }
-        ++m_futureCount;
+        ++futureCount;
         if (fileInfo.isDir()) {
             if (fileInfo.isSymLink()) {
                 const FilePath target = FilePath::fromString(fileInfo.symLinkTarget());
@@ -127,7 +71,7 @@ void SelectableFilesFromDirModel::buildTree(const Utils::FilePath &baseDir, Tree
             t->name = fileInfo.fileName();
             t->fullPath = fn;
             t->isDir = true;
-            buildTree(fn, t, promise, symlinkDepth - fileInfo.isSymLink());
+            buildTree(promise, fn, filterData, t, symlinkDepth - fileInfo.isSymLink(), futureCount);
             allChecked &= t->checked == Qt::Checked;
             allUnchecked &= t->checked == Qt::Unchecked;
             tree->childDirectories.append(t);
@@ -135,15 +79,15 @@ void SelectableFilesFromDirModel::buildTree(const Utils::FilePath &baseDir, Tree
             auto t = new Tree;
             t->parent = tree;
             t->name = fileInfo.fileName();
-            const FilterState state = filter(t);
-            t->checked = ((m_files.isEmpty() && state == FilterState::CHECKED)
-                          || m_files.contains(fn)) ? Qt::Checked : Qt::Unchecked;
+            const SelectableFilesModel::FilterState state = SelectableFilesModel::filter(filterData, t);
+            t->checked = ((filterData.files.isEmpty() && state == SelectableFilesModel::FilterState::CHECKED)
+                          || filterData.files.contains(fn)) ? Qt::Checked : Qt::Unchecked;
             t->fullPath = fn;
             t->isDir = false;
             allChecked &= t->checked == Qt::Checked;
             allUnchecked &= t->checked == Qt::Unchecked;
             tree->files.append(t);
-            if (state != FilterState::HIDDEN)
+            if (state != SelectableFilesModel::FilterState::HIDDEN)
                 tree->visibleFiles.append(t);
         }
     }
@@ -157,10 +101,64 @@ void SelectableFilesFromDirModel::buildTree(const Utils::FilePath &baseDir, Tree
         tree->checked = Qt::PartiallyChecked;
 }
 
-SelectableFilesModel::~SelectableFilesModel()
+static void buildTreeRoot(QPromise<std::shared_ptr<Tree>> &promise, const FilePath &baseDir,
+                          const SelectableFilesModel::FilterData &filterData)
 {
-    delete m_root;
+    int futureCount = 0;
+    std::shared_ptr<Tree> root(new Tree);
+    root->name = baseDir.toUserOutput();
+    root->fullPath = baseDir;
+    root->isDir = true;
+    buildTree(promise, baseDir, filterData, root.get(), 5, futureCount);
+    promise.addResult(root);
 }
+
+void SelectableFilesFromDirModel::startParsing(const Utils::FilePath &baseDir)
+{
+    m_watcher.cancel();
+    m_watcher.waitForFinished();
+    m_baseDir = baseDir;
+    m_watcher.setFuture(Utils::asyncRun(buildTreeRoot, baseDir, filterData()));
+}
+
+void SelectableFilesFromDirModel::buildTreeFinished()
+{
+    beginResetModel();
+    m_root = m_watcher.result();
+    m_outOfBaseDirFiles
+            = Utils::filtered(m_files, [this](const Utils::FilePath &fn) { return !fn.isChildOf(m_baseDir); });
+
+    endResetModel();
+    emit parsingFinished();
+}
+
+void SelectableFilesFromDirModel::cancel()
+{
+    m_watcher.cancel();
+    m_watcher.waitForFinished();
+}
+
+SelectableFilesModel::FilterState SelectableFilesModel::filter(const FilterData &filterData, Tree *t)
+{
+    if (t->isDir)
+        return FilterState::SHOWN;
+    if (filterData.files.contains(t->fullPath))
+        return FilterState::CHECKED;
+
+    const auto matchesTreeName = [name = t->name](const Glob &g) { return g.isMatch(name); };
+
+    if (Utils::anyOf(filterData.selectFilesFilter, matchesTreeName))
+        return FilterState::CHECKED;
+
+    return Utils::anyOf(filterData.hideFilesFilter, matchesTreeName) ? FilterState::HIDDEN : FilterState::SHOWN;
+}
+
+SelectableFilesModel::FilterState SelectableFilesModel::filter(Tree *t) const
+{
+    return filter(filterData(), t);
+}
+
+SelectableFilesModel::~SelectableFilesModel() = default;
 
 int SelectableFilesModel::columnCount(const QModelIndex &parent) const
 {
@@ -179,7 +177,7 @@ int SelectableFilesModel::rowCount(const QModelIndex &parent) const
 QModelIndex SelectableFilesModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!parent.isValid())
-        return createIndex(row, column, m_root);
+        return createIndex(row, column, m_root.get());
     auto parentT = static_cast<Tree *>(parent.internalPointer());
     if (row < parentT->childDirectories.size())
         return createIndex(row, column, parentT->childDirectories.at(row));
@@ -291,7 +289,7 @@ Qt::ItemFlags SelectableFilesModel::flags(const QModelIndex &index) const
 Utils::FilePaths SelectableFilesModel::selectedPaths() const
 {
     Utils::FilePaths result;
-    collectPaths(m_root, &result);
+    collectPaths(m_root.get(), &result);
     return result;
 }
 
@@ -307,7 +305,7 @@ void SelectableFilesModel::collectPaths(Tree *root, Utils::FilePaths *result)  c
 Utils::FilePaths SelectableFilesModel::selectedFiles() const
 {
     Utils::FilePaths result = Utils::toList(m_outOfBaseDirFiles);
-    collectFiles(m_root, &result);
+    collectFiles(m_root.get(), &result);
     return result;
 }
 
@@ -367,12 +365,12 @@ void SelectableFilesModel::applyFilter(const QString &selectFilesfilter, const Q
     m_hideFilesFilter = filter;
 
     if (mustApply)
-        applyFilter(createIndex(0, 0, m_root));
+        applyFilter(createIndex(0, 0, m_root.get()));
 }
 
 void SelectableFilesModel::selectAllFiles()
 {
-    selectAllFiles(m_root);
+    selectAllFiles(m_root.get());
 }
 
 void SelectableFilesModel::selectAllFiles(Tree *root)
@@ -686,9 +684,9 @@ void SelectableFilesWidget::startParsing(const Utils::FilePath &baseDir)
     m_model->startParsing(baseDir);
 }
 
-void SelectableFilesWidget::parsingProgress(const Utils::FilePath &fileName)
+void SelectableFilesWidget::parsingProgress(const QString &progress)
 {
-    m_progressLabel->setText(Tr::tr("Generating file list...\n\n%1").arg(fileName.toUserOutput()));
+    m_progressLabel->setText(Tr::tr("Generating file list...\n\n%1").arg(progress));
 }
 
 void SelectableFilesWidget::parsingFinished()
@@ -770,6 +768,8 @@ SelectableFilesDialogAddDirectory::SelectableFilesDialogAddDirectory(const Utils
 SelectableFilesFromDirModel::SelectableFilesFromDirModel(QObject *parent)
     : SelectableFilesModel(parent)
 {
+    connect(&m_watcher, &QFutureWatcherBase::progressTextChanged,
+            this, &SelectableFilesFromDirModel::parsingProgress);
     connect(&m_watcher, &QFutureWatcherBase::finished,
             this, &SelectableFilesFromDirModel::buildTreeFinished);
 
