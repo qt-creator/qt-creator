@@ -339,21 +339,6 @@ void MultiTextCursor::mergeCursors()
     setCursors(cursors);
 }
 
-// could go into QTextCursor...
-static QTextLine currentTextLine(const QTextCursor &cursor)
-{
-    const QTextBlock block = cursor.block();
-    if (!block.isValid())
-        return {};
-
-    const QTextLayout *layout = block.layout();
-    if (!layout)
-        return {};
-
-    const int relativePos = cursor.position() - block.position();
-    return layout->lineForTextPosition(relativePos);
-}
-
 bool MultiTextCursor::multiCursorEvent(
     QKeyEvent *e, QKeySequence::StandardKey matchKey, Qt::KeyboardModifiers filterModifiers)
 {
