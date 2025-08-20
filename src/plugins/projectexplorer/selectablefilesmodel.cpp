@@ -22,6 +22,7 @@
 #include <QPushButton>
 #include <QTreeView>
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -29,6 +30,8 @@ namespace ProjectExplorer {
 const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.lo; *.la; *.obj; *~; *.files;"
                                         " *.config; *.creator; *.user*; *.includes; *.autosave";
 const char SELECT_FILE_FILTER_DEFAULT[] = "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++; *.h; *.hh; *.hpp; *.hxx;";
+
+using ResultType = std::shared_ptr<Tree>;
 
 SelectableFilesModel::SelectableFilesModel(QObject *parent) : QAbstractItemModel(parent)
 {
@@ -40,7 +43,7 @@ void SelectableFilesModel::setInitialMarkedFiles(const FilePaths &files)
     m_files = Utils::toSet(files);
 }
 
-static void buildTree(QPromise<std::shared_ptr<Tree>> &promise, const FilePath &baseDir,
+static void buildTree(QPromise<ResultType> &promise, const FilePath &baseDir,
                       const SelectableFilesModel::FilterData &filterData, Tree *tree,
                       int symlinkDepth, int &futureCount)
 {
@@ -101,11 +104,11 @@ static void buildTree(QPromise<std::shared_ptr<Tree>> &promise, const FilePath &
         tree->checked = Qt::PartiallyChecked;
 }
 
-static void buildTreeRoot(QPromise<std::shared_ptr<Tree>> &promise, const FilePath &baseDir,
+static void buildTreeRoot(QPromise<ResultType> &promise, const FilePath &baseDir,
                           const SelectableFilesModel::FilterData &filterData)
 {
     int futureCount = 0;
-    std::shared_ptr<Tree> root(new Tree);
+    const ResultType root(new Tree);
     root->name = baseDir.toUserOutput();
     root->fullPath = baseDir;
     root->isDir = true;
@@ -115,27 +118,26 @@ static void buildTreeRoot(QPromise<std::shared_ptr<Tree>> &promise, const FilePa
 
 void SelectableFilesFromDirModel::startParsing(const Utils::FilePath &baseDir)
 {
-    m_watcher.cancel();
-    m_watcher.waitForFinished();
-    m_baseDir = baseDir;
-    m_watcher.setFuture(Utils::asyncRun(buildTreeRoot, baseDir, filterData()));
-}
-
-void SelectableFilesFromDirModel::buildTreeFinished()
-{
-    beginResetModel();
-    m_root = m_watcher.result();
-    m_outOfBaseDirFiles
-            = Utils::filtered(m_files, [this](const Utils::FilePath &fn) { return !fn.isChildOf(m_baseDir); });
-
-    endResetModel();
-    emit parsingFinished();
+    const auto onSetup = [this, baseDir, filterData = filterData()](Async<ResultType> &task) {
+        task.setConcurrentCallData(buildTreeRoot, baseDir, filterData);
+        connect(&task, &AsyncBase::progressTextChanged,
+                this, &SelectableFilesFromDirModel::parsingProgress);
+    };
+    const auto onDone = [this, baseDir](const Async<ResultType> &task) {
+        beginResetModel();
+        m_root = task.result();
+        m_outOfBaseDirFiles = Utils::filtered(m_files, [this, baseDir](const Utils::FilePath &fn) {
+            return !fn.isChildOf(baseDir);
+        });
+        endResetModel();
+        emit parsingFinished();
+    };
+    m_taskTreeRunner.start({AsyncTask<ResultType>(onSetup, onDone, CallDone::OnSuccess)});
 }
 
 void SelectableFilesFromDirModel::cancel()
 {
-    m_watcher.cancel();
-    m_watcher.waitForFinished();
+    m_taskTreeRunner.reset();
 }
 
 SelectableFilesModel::FilterState SelectableFilesModel::filter(const FilterData &filterData, Tree *t)
@@ -768,21 +770,13 @@ SelectableFilesDialogAddDirectory::SelectableFilesDialogAddDirectory(const Utils
 SelectableFilesFromDirModel::SelectableFilesFromDirModel(QObject *parent)
     : SelectableFilesModel(parent)
 {
-    connect(&m_watcher, &QFutureWatcherBase::progressTextChanged,
-            this, &SelectableFilesFromDirModel::parsingProgress);
-    connect(&m_watcher, &QFutureWatcherBase::finished,
-            this, &SelectableFilesFromDirModel::buildTreeFinished);
-
     connect(this, &SelectableFilesFromDirModel::dataChanged,
             this, [this] { emit checkedFilesChanged(); });
     connect(this, &SelectableFilesFromDirModel::modelReset,
             this, [this] { emit checkedFilesChanged(); });
 }
 
-SelectableFilesFromDirModel::~SelectableFilesFromDirModel()
-{
-    cancel();
-}
+SelectableFilesFromDirModel::~SelectableFilesFromDirModel() = default;
 
 } // namespace ProjectExplorer
 

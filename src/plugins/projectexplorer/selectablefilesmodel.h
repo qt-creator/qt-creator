@@ -5,12 +5,13 @@
 
 #include "projectexplorer_export.h"
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/filepath.h>
 #include <utils/storekey.h>
 
 #include <QAbstractItemModel>
 #include <QDialog>
-#include <QFutureWatcher>
 #include <QLabel>
 #include <QRegularExpression>
 #include <QSet>
@@ -156,11 +157,7 @@ signals:
     void parsingProgress(const QString &progress);
 
 private:
-    void buildTreeFinished();
-
-    // Used in the future thread need to all not used after calling startParsing
-    Utils::FilePath m_baseDir;
-    QFutureWatcher<std::shared_ptr<Tree>> m_watcher;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 class PROJECTEXPLORER_EXPORT SelectableFilesWidget : public QWidget
