@@ -49,6 +49,7 @@ private:
     Internal::PresetsData combinePresets(Internal::PresetsData &cmakePresetsData,
                                          Internal::PresetsData &cmakeUserPresetsData);
     void setupBuildPresets(Internal::PresetsData &presetsData);
+    void setupTestPresets(Internal::PresetsData &presetsData);
 
     mutable Internal::CMakeProjectImporter *m_projectImporter = nullptr;
     mutable QList<ProjectExplorer::Kit*> m_oldPresetKits;

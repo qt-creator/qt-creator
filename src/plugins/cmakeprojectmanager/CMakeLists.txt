@@ -58,6 +58,15 @@ add_qtc_plugin(CMakeProjectManager
       vitaut-rstparser
 )
 
+add_qtc_test(tst_cmake_test_presets
+  CONDITION WITH_TESTS
+  DEPENDS Utils ProjectExplorer CMakeProjectManager
+  SOURCES
+    tests/tst_cmake_test_presets.cpp
+    presetsparser.cpp
+    presetsmacros.cpp
+)
+
 file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testcases/*)
 qtc_add_resources(CMakeProjectManager "testcases"
   CONDITION WITH_TESTS

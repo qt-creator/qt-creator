@@ -467,6 +467,233 @@ static bool parseBuildPresets(const QJsonValue &jsonValue,
     return true;
 }
 
+static std::optional<PresetsDetails::Output> parseOutput(const QJsonValue &jsonValue)
+{
+    if (jsonValue.isUndefined())
+        return std::nullopt;
+
+    PresetsDetails::Output output;
+
+    QJsonObject object = jsonValue.toObject();
+    if (object.contains("shortProgress"))
+        output.shortProgress = object.value("shortProgress").toBool();
+    if (object.contains("verbosity"))
+        output.verbosity = object.value("verbosity").toString();
+    if (object.contains("debug"))
+        output.debug = object.value("debug").toBool();
+    if (object.contains("outputOnFailure"))
+        output.outputOnFailure = object.value("outputOnFailure").toBool();
+    if (object.contains("quiet"))
+        output.quiet = object.value("quiet").toBool();
+    if (object.contains("oputputLogFile"))
+        output.outputLogFile = Utils::FilePath::fromUserInput(
+            object.value("oputputLogFile").toString());
+    if (object.contains("outputJUnitFile"))
+        output.outputJUnitFile = Utils::FilePath::fromUserInput(
+            object.value("outputJUnitFile").toString());
+    if (object.contains("labelSummary"))
+        output.labelSummary = object.value("labelSummary").toBool();
+    if (object.contains("subprojectSummary"))
+        output.subprojectSummary = object.value("subprojectSummary").toBool();
+    if (object.contains("maxPassedTestOutputSize"))
+        output.maxPassedTestOutputSize = object.value("maxPassedTestOutputSize").toInt();
+    if (object.contains("maxFailedTestOutputSize"))
+        output.maxFailedTestOutputSize = object.value("maxFailedTestOutputSize").toInt();
+    if (object.contains("testOutputTruncation"))
+        output.testOutputTruncation = object.value("testOutputTruncation").toString();
+    if (object.contains("maxTestNameWidth"))
+        output.maxTestNameWidth = object.value("maxTestNameWidth").toInt();
+
+    return output;
+}
+
+static std::optional<PresetsDetails::Filter> parseFilter(const QJsonValue &jsonValue)
+{
+    if (jsonValue.isUndefined())
+        return std::nullopt;
+
+    PresetsDetails::Filter filter;
+
+    QJsonObject object = jsonValue.toObject();
+    if (object.contains("include")) {
+        QJsonObject includeObj = object.value("include").toObject();
+        if (!includeObj.isEmpty()) {
+            filter.include = PresetsDetails::Filter::Include();
+            if (includeObj.contains("name"))
+                filter.include->name = includeObj.value("name").toString();
+            if (includeObj.contains("label"))
+                filter.include->label = includeObj.value("label").toString();
+            if (includeObj.contains("useUnion"))
+                filter.include->useUnion = includeObj.value("useUnion").toBool();
+
+            if (includeObj.contains("index")) {
+                QJsonObject indexObj = includeObj.value("index").toObject();
+                if (!indexObj.isEmpty()) {
+                    filter.include->index = PresetsDetails::Filter::Include::Index();
+                    if (indexObj.contains("start"))
+                        filter.include->index->start = indexObj.value("start").toInt();
+                    if (indexObj.contains("end"))
+                        filter.include->index->end = indexObj.value("end").toInt();
+                    if (indexObj.contains("stride"))
+                        filter.include->index->stride = indexObj.value("stride").toInt();
+                    if (indexObj.contains("specificTests")) {
+                        QJsonValue specificTestsValue = indexObj.value("specificTests");
+                        if (specificTestsValue.isArray()) {
+                            filter.include->index->specificTests = QList<int>();
+                            const QJsonArray specificTestsArray = specificTestsValue.toArray();
+                            for (const auto &arrayVal : specificTestsArray)
+                                filter.include->index->specificTests.value() << arrayVal.toInt();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (object.contains("exclude")) {
+        QJsonObject excludeObj = object.value("exclude").toObject();
+        if (!excludeObj.isEmpty()) {
+            filter.exclude = PresetsDetails::Filter::Exclude();
+            if (excludeObj.contains("name"))
+                filter.exclude->name = excludeObj.value("name").toString();
+            if (excludeObj.contains("label"))
+                filter.exclude->label = excludeObj.value("label").toString();
+
+            if (excludeObj.contains("fixtures")) {
+                QJsonObject fixturesObj = excludeObj.value("fixtures").toObject();
+                if (!fixturesObj.isEmpty()) {
+                    filter.exclude->fixtures = PresetsDetails::Filter::Exclude::Fixtures();
+                    if (fixturesObj.contains("any"))
+                        filter.exclude->fixtures->any = fixturesObj.value("any").toString();
+                    if (fixturesObj.contains("setup"))
+                        filter.exclude->fixtures->setup = fixturesObj.value("setup").toString();
+                    if (fixturesObj.contains("cleanup"))
+                        filter.exclude->fixtures->cleanup = fixturesObj.value("cleanup").toString();
+                }
+            }
+        }
+    }
+
+    return filter;
+}
+
+static std::optional<PresetsDetails::Execution> parseExecution(const QJsonValue &jsonValue)
+{
+    if (jsonValue.isUndefined())
+        return std::nullopt;
+    PresetsDetails::Execution execution;
+
+    QJsonObject object = jsonValue.toObject();
+    if (object.contains("stopOnFailure"))
+        execution.stopOnFailure = object.value("stopOnFailure").toBool();
+    if (object.contains("enableFailover"))
+        execution.enableFailover = object.value("enableFailover").toBool();
+    if (object.contains("jobs"))
+        execution.jobs = object.value("jobs").toInt();
+    if (object.contains("resourceSpecFile"))
+        execution.resourceSpecFile = Utils::FilePath::fromUserInput(
+            object.value("resourceSpecFile").toString());
+    if (object.contains("testLoad"))
+        execution.testLoad = object.value("testLoad").toInt();
+    if (object.contains("showOnly"))
+        execution.showOnly = object.value("showOnly").toString();
+    if (object.contains("repeat")) {
+        QJsonObject repeatObj = object.value("repeat").toObject();
+        if (!repeatObj.isEmpty()) {
+            execution.repeat = PresetsDetails::Execution::Repeat();
+            execution.repeat->mode = repeatObj.value("mode").toString();
+            execution.repeat->count = repeatObj.value("count").toInt();
+        }
+    }
+    if (object.contains("interactiveDebugging"))
+        execution.interactiveDebugging = object.value("interactiveDebugging").toBool();
+    if (object.contains("scheduleRandom"))
+        execution.scheduleRandom = object.value("scheduleRandom").toBool();
+    if (object.contains("timeout"))
+        execution.timeout = object.value("timeout").toInt();
+    if (object.contains("noTestsAction"))
+        execution.noTestsAction = object.value("noTestsAction").toString();
+
+    return execution;
+}
+
+static bool parseTestPresets(const QJsonValue &jsonValue,
+                             QList<PresetsDetails::TestPreset> &testPresets,
+                             const FilePath &fileDir)
+{
+    // The whole section is optional
+    if (jsonValue.isUndefined())
+        return true;
+
+    if (!jsonValue.isArray())
+        return false;
+
+    const QJsonArray testPresetsArray = jsonValue.toArray();
+    for (const auto &presetJson : testPresetsArray) {
+        if (!presetJson.isObject())
+            continue;
+
+        QJsonObject object = presetJson.toObject();
+        PresetsDetails::TestPreset preset;
+
+        preset.name = object.value("name").toString();
+        preset.hidden = object.value("hidden").toBool();
+        preset.fileDir = fileDir;
+
+        QJsonValue inherits = object.value("inherits");
+        if (!inherits.isUndefined()) {
+            preset.inherits = QStringList();
+            if (inherits.isArray()) {
+                const QJsonArray inheritsArray = inherits.toArray();
+                for (const auto &inheritsValue : inheritsArray)
+                    preset.inherits.value() << inheritsValue.toString();
+            } else {
+                QString inheritsValue = inherits.toString();
+                if (!inheritsValue.isEmpty())
+                    preset.inherits.value() << inheritsValue;
+            }
+        }
+        if (object.contains("condition"))
+            preset.condition = parseCondition(object.value("condition"));
+        if (object.contains("vendor"))
+            parseVendor(object.value("vendor"), preset.vendor);
+        if (object.contains("displayName"))
+            preset.displayName = object.value("displayName").toString();
+        if (object.contains("description"))
+            preset.description = object.value("description").toString();
+        const QJsonObject environmentObj = object.value("environment").toObject();
+        for (const QString &envKey : environmentObj.keys()) {
+            if (!preset.environment)
+                preset.environment = Utils::Environment();
+            QJsonValue envValue = environmentObj.value(envKey);
+            preset.environment.value().set(envKey, envValue.toString());
+        }
+        if (object.contains("configurePreset"))
+            preset.configurePreset = object.value("configurePreset").toString();
+        if (object.contains("inheritConfigureEnvironment"))
+            preset.inheritConfigureEnvironment = object.value("inheritConfigureEnvironment").toBool();
+        if (object.contains("configuration"))
+            preset.configuration = object.value("configuration").toString();
+        if (object.contains("overwriteConfigurationFile")) {
+            preset.overwriteConfigurationFile = QStringList();
+            if (object.value("overwriteConfigurationFile").isArray()) {
+                const QJsonArray overwriteArray = object.value("overwriteConfigurationFile").toArray();
+                for (const auto &overwriteValue : overwriteArray)
+                    preset.overwriteConfigurationFile.value() << overwriteValue.toString();
+            }
+        }
+        if (object.contains("output"))
+            preset.output = parseOutput(object.value("output"));
+        if (object.contains("filter"))
+            preset.filter = parseFilter(object.value("filter"));
+        if (object.contains("execution"))
+            preset.execution = parseExecution(object.value("execution"));
+        testPresets.emplace_back(preset);
+    }
+    return true;
+}
+
+
 const PresetsData &PresetsParser::presetsData() const
 {
     return m_presetsData;
@@ -531,6 +758,16 @@ bool PresetsParser::parse(const FilePath &jsonFile, QString &errorMessage, int &
                            jsonFile.parentDir())) {
         errorMessage = ::CMakeProjectManager::Tr::tr(
                            "Invalid \"buildPresets\" section in file \"%1\".")
+                           .arg(jsonFile.fileName());
+        return false;
+    }
+
+    // optional
+    if (!parseTestPresets(root.value("testPresets"),
+                          m_presetsData.testPresets,
+                          jsonFile.parentDir())) {
+        errorMessage = ::CMakeProjectManager::Tr::tr(
+                           "Invalid \"testPresets\" section in file \"%1\".")
                            .arg(jsonFile.fileName());
         return false;
     }
@@ -708,6 +945,38 @@ bool PresetsDetails::Condition::evaluate() const
         return !(*condition)->evaluate();
 
     return false;
+}
+
+void PresetsDetails::TestPreset::inheritFrom(const TestPreset &other)
+{
+    if (!condition && other.condition && !other.condition->isNull())
+        condition = other.condition;
+
+    if (!vendor && other.vendor)
+        vendor = other.vendor;
+    else if (vendor && other.vendor)
+        vendor = merge(*other.vendor, *vendor);
+
+    if (!environment && other.environment)
+        environment = other.environment;
+    else if (environment && other.environment)
+        environment = environment->appliedToEnvironment(*other.environment);
+
+    if (!configurePreset && other.configurePreset)
+        configurePreset = other.configurePreset;
+    if (!inheritConfigureEnvironment && other.inheritConfigureEnvironment)
+        inheritConfigureEnvironment = other.inheritConfigureEnvironment;
+
+    if (!configuration && other.configuration)
+        configuration = other.configuration;
+    if (!overwriteConfigurationFile && other.overwriteConfigurationFile)
+        overwriteConfigurationFile = other.overwriteConfigurationFile;
+    if (!output && other.output)
+        output = other.output;
+    if (!filter && other.filter)
+        filter = other.filter;
+    if (!execution && other.execution)
+        execution = other.execution;
 }
 
 } // CMakeProjectManager::Internal

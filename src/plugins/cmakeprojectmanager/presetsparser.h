@@ -85,6 +85,74 @@ public:
     std::optional<ConditionPtr> condition;
 };
 
+struct Output
+{
+    std::optional<bool> shortProgress;
+    std::optional<QString> verbosity;
+    std::optional<bool> debug;
+    std::optional<bool> outputOnFailure;
+    std::optional<bool> quiet;
+    std::optional<Utils::FilePath> outputLogFile;
+    std::optional<Utils::FilePath> outputJUnitFile;
+    std::optional<bool> labelSummary;
+    std::optional<bool> subprojectSummary;
+    std::optional<int> maxPassedTestOutputSize;
+    std::optional<int> maxFailedTestOutputSize;
+    std::optional<QString> testOutputTruncation;
+    std::optional<int> maxTestNameWidth;
+};
+
+struct Filter
+{
+    struct Include
+    {
+        std::optional<QString> name;
+        std::optional<QString> label;
+        std::optional<bool> useUnion;
+        struct Index {
+            std::optional<int> start;
+            std::optional<int> end;
+            std::optional<int> stride;
+            std::optional<QList<int>> specificTests;
+        };
+        std::optional<Index> index;
+    };
+    struct Exclude
+    {
+        std::optional<QString> name;
+        std::optional<QString> label;
+        struct Fixtures
+        {
+            std::optional<QString> any;
+            std::optional<QString> setup;
+            std::optional<QString> cleanup;
+        };
+        std::optional<Fixtures> fixtures;
+    };
+
+    std::optional<Include> include;
+    std::optional<Exclude> exclude;
+};
+
+struct Execution {
+    std::optional<bool> stopOnFailure;
+    std::optional<bool> enableFailover;
+    std::optional<int> jobs;
+    std::optional<Utils::FilePath> resourceSpecFile;
+    std::optional<int> testLoad;
+    std::optional<QString> showOnly;
+    struct Repeat
+    {
+        QString mode;
+        int count;
+    };
+    std::optional<Repeat> repeat;
+    std::optional<bool> interactiveDebugging;
+    std::optional<bool> scheduleRandom;
+    std::optional<int> timeout;
+    std::optional<QString> noTestsAction;
+};
+
 class ConfigurePreset {
 public:
     void inheritFrom(const ConfigurePreset &other);
@@ -134,6 +202,28 @@ public:
     std::optional<QStringList> nativeToolOptions;
 };
 
+class TestPreset {
+public:
+    void inheritFrom(const TestPreset &other);
+
+    QString name;
+    bool hidden = false;
+    Utils::FilePath fileDir;
+    std::optional<QStringList> inherits;
+    std::optional<Condition> condition;
+    std::optional<QVariantMap> vendor;
+    std::optional<QString> displayName;
+    std::optional<QString> description;
+    std::optional<Utils::Environment> environment;
+    std::optional<QString> configurePreset;
+    bool inheritConfigureEnvironment = true;
+    std::optional<QString> configuration;
+    std::optional<QStringList> overwriteConfigurationFile;
+    std::optional<Output> output;
+    std::optional<Filter> filter;
+    std::optional<Execution> execution;
+};
+
 } // namespace PresetsDetails
 
 class PresetsData
@@ -148,6 +238,7 @@ public:
     Utils::FilePath fileDir;
     QList<PresetsDetails::ConfigurePreset> configurePresets;
     QList<PresetsDetails::BuildPreset> buildPresets;
+    QList<PresetsDetails::TestPreset> testPresets;
 };
 
 class PresetsParser
