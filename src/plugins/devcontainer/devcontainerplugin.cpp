@@ -20,6 +20,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/fsengine/fsengine.h>
 #include <utils/guardedcallback.h>
 #include <utils/infobar.h>
@@ -114,31 +115,113 @@ void DevContainerPlugin::onProjectRemoved(Project *project)
 
 void DevContainerPlugin::onProjectAdded(Project *project)
 {
-    const FilePath path = project->projectDirectory() / ".devcontainer" / "devcontainer.json";
-    if (path.exists()) {
-        DevContainer::InstanceConfig instanceConfig = {
-            .dockerCli = "docker",
-            .workspaceFolder = project->projectDirectory(),
-            .configFilePath = path,
-            .mounts = {},
-        };
+    /*
+    Possible locations:
+        .devcontainer/devcontainer.json
+        .devcontainer.json
+        .devcontainer/<folder>/devcontainer.json (where <folder> is a sub-folder, one level deep)
+*/
+    const FilePath containerFolder = project->projectDirectory() / ".devcontainer";
+    const FilePath rootDevcontainer = project->projectDirectory() / ".devcontainer.json";
+
+    const FilePaths paths{rootDevcontainer, containerFolder / ".devcontainer"};
+    const FilePaths devContainerFiles = filtered(
+        transform(
+            containerFolder.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot),
+            [](const FilePath &path) { return path / "devcontainer.json"; })
+            << rootDevcontainer << containerFolder / "devcontainer.json",
+        &FilePath::isFile);
+
+    if (!devContainerFiles.isEmpty()) {
+        const QList<DevContainer::InstanceConfig> instanceConfigs
+            = transform(devContainerFiles, [project](const FilePath &path) {
+                  return DevContainer::InstanceConfig{
+                      .dockerCli = "docker",
+                      .workspaceFolder = project->projectDirectory(),
+                      .configFilePath = path,
+                      .mounts = {},
+                  };
+              });
+
+        if (instanceConfigs.isEmpty())
+            return;
 
         const Id infoBarId = Id("DevContainer.Instantiate.InfoBar.")
-            .withSuffix(instanceConfig.devContainerId());
+                                 .withSuffix(project->projectDirectory().toUrlishString());
+
+        if (instanceConfigs.size() == 1) {
+            InfoBarEntry entry(
+                infoBarId,
+                Tr::tr("Found Devcontainer in project, would you like to start it?"),
+                InfoBarEntry::GlobalSuppression::Enabled);
+
+            InfoBar *infoBar = Core::ICore::popupInfoBar();
+            entry.setTitle(Tr::tr("Configure devcontainer?"));
+            entry.setInfoType(InfoLabel::Information);
+            entry.addCustomButton(
+                Tr::tr("Yes"),
+                [this, project, instanceConfig = instanceConfigs.first(), infoBarId, infoBar] {
+                    infoBar->removeInfo(infoBarId);
+                    startDeviceForProject(project, instanceConfig);
+                },
+                Tr::tr("Start DevContainer"));
+
+            infoBar->addInfo(entry);
+            return;
+        }
 
         InfoBarEntry entry(
             infoBarId,
-            Tr::tr("Found devcontainers in project, would you like to start them?"),
+            Tr::tr("Found Devcontainers in project, would you like to start one of them?"),
             InfoBarEntry::GlobalSuppression::Enabled);
+
+        const auto toComboInfo = [](const DevContainer::InstanceConfig &config) {
+            Result<std::unique_ptr<Instance>> instance = DevContainer::Instance::fromFile(config);
+            if (!instance) {
+                return InfoBarEntry::ComboInfo{
+                    .displayText = instance.error(),
+                    .data = QVariant(),
+                };
+            }
+            const QString relativeDisplayPath
+                = config.configFilePath.relativeChildPath(config.workspaceFolder).toUrlishString();
+            QString displayName = relativeDisplayPath;
+            if ((*instance)->config().common.name) {
+                displayName = (*(*instance)->config().common.name) + "(" + relativeDisplayPath
+                              + ")";
+            }
+
+            return InfoBarEntry::ComboInfo{
+                .displayText = displayName,
+                .data = QVariant::fromValue(config),
+            };
+        };
+
+        const QList<InfoBarEntry::ComboInfo> comboInfos
+            = transform(instanceConfigs, toComboInfo)
+              << InfoBarEntry::ComboInfo{"All", QVariant::fromValue(InstanceConfig())};
+
+        std::shared_ptr<InstanceConfig> selectedConfig = std::make_shared<InstanceConfig>(instanceConfigs.first());
 
         InfoBar *infoBar = Core::ICore::popupInfoBar();
         entry.setTitle(Tr::tr("Configure devcontainer?"));
         entry.setInfoType(InfoLabel::Information);
+        entry.setComboInfo(comboInfos, [selectedConfig](const InfoBarEntry::ComboInfo &comboInfo) {
+            *selectedConfig = comboInfo.data.value<InstanceConfig>();
+        });
+
         entry.addCustomButton(
             Tr::tr("Yes"),
-            [this, project, instanceConfig, infoBarId, infoBar] {
+            [selectedConfig, this, project, instanceConfigs, infoBarId, infoBar] {
                 infoBar->removeInfo(infoBarId);
-                startDeviceForProject(project, instanceConfig);
+
+                if (selectedConfig->configFilePath.isEmpty()) {
+                    for (const auto &instanceConfig : instanceConfigs)
+                        startDeviceForProject(project, instanceConfig);
+                    return;
+                }
+
+                startDeviceForProject(project, *selectedConfig);
             },
             Tr::tr("Start DevContainer"));
 
@@ -158,33 +241,34 @@ void DevContainerPlugin::startDeviceForProject(
     std::shared_ptr<Device> device = std::make_shared<DevContainer::Device>();
     device->setDisplayName(Tr::tr("DevContainer for %1").arg(project->displayName()));
     DeviceManager::addDevice(device);
-    Result<> result = device->up(
-        instanceConfig,
-        Utils::guardedCallback(&guard, [this, project, log, device](Result<> result) {
-            if (result) {
-                devices.insert({project, device});
-                log->clear();
-#ifdef WITH_TESTS
-                emit deviceUpDone();
-#endif
-                return;
-            }
 
-            DeviceManager::removeDevice(device->id());
-
-            QMessageBox box(Core::ICore::dialogParent());
-            box.setWindowTitle(Tr::tr("DevContainer Error"));
-            box.setIcon(QMessageBox::Critical);
-            box.setText(result.error());
-            box.setDetailedText(*log);
-            box.exec();
-
+    const auto onDone = Utils::guardedCallback(&guard, [this, project, log, device](Result<> result) {
+        if (result) {
+            devices.insert({project, device});
+            log->clear();
 #ifdef WITH_TESTS
             emit deviceUpDone();
 #endif
+            return;
+        }
 
-            log->clear();
-        }));
+        DeviceManager::removeDevice(device->id());
+
+        QMessageBox box(Core::ICore::dialogParent());
+        box.setWindowTitle(Tr::tr("DevContainer Error"));
+        box.setIcon(QMessageBox::Critical);
+        box.setText(result.error());
+        box.setDetailedText(*log);
+        box.exec();
+
+#ifdef WITH_TESTS
+        emit deviceUpDone();
+#endif
+
+        log->clear();
+    });
+
+    Result<> result = device->up(instanceConfig, onDone);
 
     if (!result) {
         QMessageBox::critical(
