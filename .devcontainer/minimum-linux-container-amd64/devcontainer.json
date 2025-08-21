@@ -6,6 +6,12 @@
             "--platform=linux/amd64"
         ]
     },
+    "securityOpt": [
+        "seccomp=unconfined"
+    ],
+    "capAdd": [
+        "SYS_PTRACE"
+    ],
     "customizations": {
         "vscode": {
             "extensions": [
