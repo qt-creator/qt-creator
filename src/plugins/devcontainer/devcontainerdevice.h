@@ -23,10 +23,7 @@ public:
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
 
-    Utils::Result<> up(
-        const Utils::FilePath &path,
-        InstanceConfig instanceConfig,
-        std::function<void(Utils::Result<>)> callback);
+    Utils::Result<> up(InstanceConfig instanceConfig, std::function<void(Utils::Result<>)> callback);
 
     Utils::Result<> down();
 

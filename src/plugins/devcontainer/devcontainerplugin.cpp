@@ -86,8 +86,7 @@ public:
     void onProjectAdded(Project *project);
     void onProjectRemoved(Project *project);
 
-    void startDeviceForProject(
-        const FilePath &path, Project *project, DevContainer::InstanceConfig instanceConfig);
+    void startDeviceForProject(Project *project, DevContainer::InstanceConfig instanceConfig);
 
 #ifdef WITH_TESTS
 signals:
@@ -137,9 +136,9 @@ void DevContainerPlugin::onProjectAdded(Project *project)
         entry.setInfoType(InfoLabel::Information);
         entry.addCustomButton(
             Tr::tr("Yes"),
-            [this, project, path, instanceConfig, infoBarId, infoBar] {
+            [this, project, instanceConfig, infoBarId, infoBar] {
                 infoBar->removeInfo(infoBarId);
-                startDeviceForProject(path, project, instanceConfig);
+                startDeviceForProject(project, instanceConfig);
             },
             Tr::tr("Start DevContainer"));
 
@@ -148,9 +147,7 @@ void DevContainerPlugin::onProjectAdded(Project *project)
 }
 
 void DevContainerPlugin::startDeviceForProject(
-    const FilePath &path,
-    Project *project,
-    DevContainer::InstanceConfig instanceConfig)
+    Project *project, DevContainer::InstanceConfig instanceConfig)
 {
     std::shared_ptr<QString> log = std::make_shared<QString>();
     instanceConfig.logFunction = [log](const QString &message) {
@@ -162,7 +159,6 @@ void DevContainerPlugin::startDeviceForProject(
     device->setDisplayName(Tr::tr("DevContainer for %1").arg(project->displayName()));
     DeviceManager::addDevice(device);
     Result<> result = device->up(
-        path,
         instanceConfig,
         Utils::guardedCallback(&guard, [this, project, log, device](Result<> result) {
             if (result) {

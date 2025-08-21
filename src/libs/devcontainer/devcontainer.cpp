@@ -86,20 +86,18 @@ Instance::Instance(Config config, InstanceConfig instanceConfig)
     d->instanceConfig = std::move(instanceConfig);
 }
 
-Result<std::unique_ptr<Instance>> Instance::fromFile(
-    const FilePath &filePath, InstanceConfig instanceConfig)
+Result<std::unique_ptr<Instance>> Instance::fromFile(InstanceConfig instanceConfig)
 {
-    const Result<Config> config = configFromFile(filePath, instanceConfig);
+    const Result<Config> config = configFromFile(instanceConfig);
     if (!config)
         return ResultError(config.error());
 
     return std::make_unique<Instance>(*config, instanceConfig);
 }
 
-Result<Config> Instance::configFromFile(
-    const Utils::FilePath &filePath, InstanceConfig instanceConfig)
+Result<Config> Instance::configFromFile(InstanceConfig instanceConfig)
 {
-    const Result<QByteArray> contents = filePath.fileContents();
+    const Result<QByteArray> contents = instanceConfig.configFilePath.fileContents();
     if (!contents)
         return ResultError(contents.error());
 

@@ -51,13 +51,11 @@ class DEVCONTAINER_EXPORT Instance
 {
 public:
     explicit Instance(Config config, InstanceConfig instanceConfig);
-    static Utils::Result<std::unique_ptr<Instance>> fromFile(
-        const Utils::FilePath &filePath, InstanceConfig instanceConfig);
+    static Utils::Result<std::unique_ptr<Instance>> fromFile(InstanceConfig instanceConfig);
     static std::unique_ptr<Instance> fromConfig(
         const Config &config, InstanceConfig instanceConfig = {});
 
-    static Utils::Result<Config> configFromFile(
-        const Utils::FilePath &filePath, InstanceConfig instanceConfig);
+    static Utils::Result<Config> configFromFile(InstanceConfig instanceConfig);
 
     ~Instance();
 

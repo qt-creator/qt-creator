@@ -152,8 +152,7 @@ static auto setupProgress(const Storage<ProgressPtr> &progressStorage, const QSt
     };
 }
 
-Result<> Device::up(
-    const FilePath &path, InstanceConfig instanceConfig, std::function<void(Result<>)> callback)
+Result<> Device::up(InstanceConfig instanceConfig, std::function<void(Result<>)> callback)
 {
     m_instanceConfig = instanceConfig;
     m_processInterfaceCreator = nullptr;
@@ -177,9 +176,9 @@ Result<> Device::up(
 
     auto runningInstance = std::make_shared<DevContainer::RunningInstanceData>();
 
-    const auto loadConfig = [&path, &instanceConfig, instance, options, this]() -> DoneResult {
+    const auto loadConfig = [&instanceConfig, instance, options, this]() -> DoneResult {
         const auto result = [&]() -> Result<> {
-            Result<Config> config = Instance::configFromFile(path, instanceConfig);
+            Result<Config> config = Instance::configFromFile(instanceConfig);
             if (!config)
                 return ResultError(config.error());
 
