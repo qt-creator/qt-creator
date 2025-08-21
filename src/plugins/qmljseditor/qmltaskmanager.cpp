@@ -30,12 +30,6 @@ namespace QmlJSEditor::Internal {
 
 QmlTaskManager::QmlTaskManager()
 {
-    // displaying results incrementally leads to flickering
-//    connect(&m_messageCollector, &QFutureWatcherBase::resultsReadyAt,
-//            this, &QmlTaskManager::displayResults);
-    connect(&m_messageCollector, &QFutureWatcherBase::finished,
-            this, &QmlTaskManager::displayAllResults);
-
     m_updateDelay.setInterval(500);
     m_updateDelay.setSingleShot(true);
     connect(&m_updateDelay, &QTimer::timeout, this, [this] { updateMessagesNow(); });
@@ -122,7 +116,7 @@ void QmlTaskManager::updateSemanticMessagesNow()
     // heuristic: qmllint will output meaningful warnings if qmlls is enabled
     if (isCMake && qmllsSettings()->isEnabledOnProject(buildSystem->project())) {
         // abort any update that's going on already, and remove old codemodel warnings
-        m_messageCollector.cancel();
+        m_taskTreeRunner.reset();
         removeAllTasks(true);
         buildSystem->buildNamedTarget(Constants::QMLLINT_BUILD_TARGET);
         return;
@@ -139,38 +133,35 @@ void QmlTaskManager::updateMessagesNow(bool updateSemantic)
     m_updatingSemantic = updateSemantic;
 
     // abort any update that's going on already
-    m_messageCollector.cancel();
     removeAllTasks(updateSemantic);
 
-    ModelManagerInterface *modelManager = ModelManagerInterface::instance();
-
-    // process them
-    QFuture<FileErrorMessages> future = Utils::asyncRun(
-                &collectMessages, modelManager->newestSnapshot(), modelManager->projectInfos(),
-                modelManager->defaultVContext(Dialect::AnyLanguage), updateSemantic);
-    m_messageCollector.setFuture(future);
+    const auto onSetup = [updateSemantic](Async<FileErrorMessages> &task) {
+        ModelManagerInterface *modelManager = ModelManagerInterface::instance();
+        task.setConcurrentCallData(&collectMessages,
+                                   modelManager->newestSnapshot(),
+                                   modelManager->projectInfos(),
+                                   modelManager->defaultVContext(Dialect::AnyLanguage),
+                                   updateSemantic);
+    };
+    // displaying results incrementally leads to flickering
+    const auto onDone = [this](const Async<FileErrorMessages> &task) {
+        if (task.isResultAvailable()) {
+            const auto results = task.results();
+            for (const FileErrorMessages &result : results) {
+                const Tasks tasks = result.tasks;
+                for (const Task &task : tasks)
+                    insertTask(task);
+            }
+        }
+        m_updatingSemantic = false;
+    };
+    m_taskTreeRunner.start({AsyncTask<FileErrorMessages>(onSetup, onDone)});
 }
 
 void QmlTaskManager::documentsRemoved(const FilePaths &paths)
 {
     for (const FilePath &path : paths)
         removeTasksForFile(path);
-}
-
-void QmlTaskManager::displayResults(int begin, int end)
-{
-    for (int i = begin; i < end; ++i) {
-        const Tasks tasks = m_messageCollector.resultAt(i).tasks;
-        for (const Task &task : tasks) {
-            insertTask(task);
-        }
-    }
-}
-
-void QmlTaskManager::displayAllResults()
-{
-    displayResults(0, m_messageCollector.future().resultCount());
-    m_updatingSemantic = false;
 }
 
 void QmlTaskManager::insertTask(const Task &task)

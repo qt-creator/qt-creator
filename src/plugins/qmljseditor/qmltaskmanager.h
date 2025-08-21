@@ -8,7 +8,8 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <QFutureWatcher>
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <QHash>
 #include <QList>
 #include <QObject>
@@ -29,8 +30,6 @@ public:
     void documentsRemoved(const Utils::FilePaths &paths);
 
 private:
-    void displayResults(int begin, int end);
-    void displayAllResults();
     void updateMessagesNow(bool updateSemantic = false);
 
     void insertTask(const ProjectExplorer::Task &task);
@@ -52,9 +51,9 @@ private:
 
 private:
     QHash<Utils::FilePath, ProjectExplorer::Tasks> m_docsWithTasks;
-    QFutureWatcher<FileErrorMessages> m_messageCollector;
     QTimer m_updateDelay;
     bool m_updatingSemantic = false;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // QmlJSEditor::Internal
