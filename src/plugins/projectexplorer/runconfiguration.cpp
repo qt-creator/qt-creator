@@ -700,18 +700,16 @@ QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, 
 {
     QString displayName = targetName;
     Id devType = RunDeviceTypeKitAspect::deviceTypeId(kit);
-    if (devType != Constants::DESKTOP_DEVICE_TYPE) {
-        if (IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit)) {
-            if (displayName.isEmpty()) {
-                //: Shown in Run configuration if no executable is given, %1 is device name
-                displayName = Tr::tr("Run on %{Device:Name}");
-            } else {
-                //: Shown in Run configuration, Add menu: "name of runnable (on device name)"
-                displayName = Tr::tr("%1 (on %{Device:Name})").arg(displayName);
-            }
-        }
-    }
-    return displayName;
+
+    if (devType == Constants::DESKTOP_DEVICE_TYPE)
+        return displayName;
+
+    //: Shown in Run configuration if no executable is given
+    if (displayName.isEmpty())
+        return Tr::tr("Run on %{Device:Name}");
+
+    //: Shown in Run configuration, Add menu: "name of runnable (on device name)"
+    return Tr::tr("%1 (on %{Device:Name})").arg(displayName);
 }
 
 QList<RunConfigurationCreationInfo>

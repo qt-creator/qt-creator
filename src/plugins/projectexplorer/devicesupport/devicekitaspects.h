@@ -20,6 +20,7 @@ public:
     static const Utils::Id deviceTypeId(const Kit *k);
     static void setDeviceTypeId(Kit *k, Utils::Id type);
     static Utils::Id executionTypeId(const Kit *k);
+    static QString displayName(const Kit *k);
 };
 
 class PROJECTEXPLORER_EXPORT RunDeviceKitAspect
@@ -38,6 +39,7 @@ class PROJECTEXPLORER_EXPORT BuildDeviceTypeKitAspect
 public:
     static Utils::Id id();
     static Utils::Id deviceTypeId(const Kit *k);
+    static QString displayName(const Kit *k);
     static void setDeviceTypeId(Kit *k, Utils::Id type);
 };
 

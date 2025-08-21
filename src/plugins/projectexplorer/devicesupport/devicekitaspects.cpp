@@ -162,7 +162,7 @@ public:
     Tasks validate(const Kit *) const override { return {}; }
 };
 
-template <typename TypeAspect, typename DeviceAspect>
+template<typename TypeAspect, typename DeviceAspect>
 class DeviceKitAspectFactory : public KitAspectFactory
 {
 public:
@@ -280,7 +280,7 @@ private:
         expander
             ->registerVariable(varName("Name"), varDescription(Tr::tr("Device name (%1)")), [kit] {
                 const IDevice::ConstPtr device = DeviceAspect::device(kit);
-                return device ? device->displayName() : QString();
+                return device ? device->displayName() : TypeAspect::displayName(kit);
             });
         expander->registerFileVariables(
             varName("Root"), varDescription(Tr::tr("Device root directory (%1)")), [kit] {
@@ -361,6 +361,18 @@ Utils::Id RunDeviceTypeKitAspect::executionTypeId(const Kit *k)
     if (const Id theId = Id::fromSetting(k->value(id())); theId.isValid()) {
         if (IDeviceFactory *factory = IDeviceFactory::find(theId))
             return factory->executionTypeId();
+    }
+
+    return {};
+}
+
+QString RunDeviceTypeKitAspect::displayName(const Kit *k)
+{
+    if (!k)
+        return {};
+    if (const Id theId = Id::fromSetting(k->value(id())); theId.isValid()) {
+        if (IDeviceFactory *factory = IDeviceFactory::find(theId))
+            return factory->displayName();
     }
 
     return {};
@@ -474,6 +486,18 @@ Id BuildDeviceTypeKitAspect::deviceTypeId(const Kit *k)
     if (const Id theId = Id::fromSetting(k->value(id())); theId.isValid())
         return theId;
     return Constants::DESKTOP_DEVICE_TYPE;
+}
+
+QString BuildDeviceTypeKitAspect::displayName(const Kit *k)
+{
+    if (!k)
+        return {};
+    if (const Id theId = Id::fromSetting(k->value(id())); theId.isValid()) {
+        if (IDeviceFactory *factory = IDeviceFactory::find(theId))
+            return factory->displayName();
+    }
+
+    return {};
 }
 
 void BuildDeviceTypeKitAspect::setDeviceTypeId(Kit *k, Utils::Id type)
