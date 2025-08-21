@@ -167,6 +167,7 @@ def build_qtcreator(args, paths):
                   '-DWITH_DOCS=' + cmake_option(not args.no_docs),
                   '-DBUILD_QBS=' + cmake_option(build_qbs),
                   '-DBUILD_DEVELOPER_DOCS=' + cmake_option(not args.no_docs),
+                  '-DBUILD_LIBRARY_SDKTOOLLIB=' + cmake_option(args.with_sdk_tool),
                   '-DBUILD_EXECUTABLE_SDKTOOL=' + cmake_option(args.with_sdk_tool),
                   '-DQTC_FORCE_XCB=ON',
                   '-DQTC_USE_SYSTEM_LIBARCHIVE=OFF',
