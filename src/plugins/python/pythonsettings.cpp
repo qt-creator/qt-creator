@@ -1022,9 +1022,21 @@ void PythonSettings::initFromSettings(QtcSettings *settings)
     settings->beginGroup(settingsGroupKey);
     const QVariantList interpreterList = settings->value(interpreterKey).toList();
     for (const QVariant &interpreterVariant : interpreterList) {
+        if (isStore(interpreterVariant)) {
+            Interpreter interpreter;
+            interpreter.fromMap(Utils::storeFromVariant(interpreterVariant));
+            Utils::erase(m_interpreters, Utils::equal(&Interpreter::id, interpreter.id));
+            m_interpreters << interpreter;
+            continue;
+        }
+
         auto interpreterMembers = interpreterVariant.toList();
         if (interpreterMembers.size() <= 3)
             continue; // old settings, skip
+
+        const auto id = interpreterMembers.value(0).toString();
+        if (Utils::contains(m_interpreters, Utils::equal(&Interpreter::id, id)))
+            continue; // already exists
 
         const bool isAutoDetected = interpreterMembers.value(3, true).toBool();
         const QString detectionSourceId = interpreterMembers.value(4, QString()).toString();
@@ -1033,7 +1045,7 @@ void PythonSettings::initFromSettings(QtcSettings *settings)
             detectionSourceId};
 
         m_interpreters << Interpreter{
-            interpreterMembers.value(0).toString(),
+            id,
             interpreterMembers.value(1).toString(),
             FilePath::fromSettings(interpreterMembers.value(2)),
             detectionSource};
@@ -1089,15 +1101,17 @@ void PythonSettings::writeToSettings(QtcSettings *settings)
         if (interpreter.detectionSource.isTemporary())
             continue;
 
-        const QVariantList members{
+        QVariantList members{
             interpreter.id,
             interpreter.name,
             interpreter.command.toSettings(),
-            interpreter.detectionSource.isAutoDetected(),
-            interpreter.detectionSource.id};
+            interpreter.detectionSource.isAutoDetected()};
         // We need to cast to QVariant() here, otherwise interpretersList will simply append each
         // member as a separate item.
-        interpretersList.append(QVariant(members)); // new settings
+        interpretersList.append(QVariant(members)); // old settings
+        Store newSettings;
+        interpreter.toMap(newSettings);
+        interpretersList.append(variantFromStore(newSettings)); // new settings
     }
     settings->setValue(interpreterKey, interpretersList);
     settings->setValue(defaultKey, m_defaultInterpreterId);

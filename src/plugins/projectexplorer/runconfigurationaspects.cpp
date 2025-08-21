@@ -800,6 +800,22 @@ Interpreter::Interpreter(const QString &_id,
     , detectionSource(_detectionSource)
 {}
 
+void Interpreter::fromMap(const Utils::Store &store)
+{
+    id = store.value("Interpreter.id").toString();
+    name = store.value("Interpreter.name").toString();
+    command = FilePath::fromSettings(store.value("Interpreter.command"));
+    detectionSource.fromMap(store);
+}
+
+void Interpreter::toMap(Utils::Store &store) const
+{
+    store.insert("Interpreter.id", id);
+    store.insert("Interpreter.name", name);
+    store.insert("Interpreter.command", command.toSettings());
+    detectionSource.toMap(store);
+}
+
 static QString launcherType2UiString(const QString &type)
 {
     if (type == "test")

@@ -74,6 +74,9 @@ public:
         return type == other.type && id == other.id;
     }
 
+    void fromMap(const Utils::Store &);
+    void toMap(Utils::Store &) const;
+
     DetectionType type = Uninitialized;
     QString id;
 

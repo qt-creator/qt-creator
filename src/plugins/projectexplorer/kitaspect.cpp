@@ -28,6 +28,18 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
+void ProjectExplorer::DetectionSource::fromMap(const Utils::Store &store)
+{
+    type = static_cast<DetectionType>(store.value("DetectionSource.type").toInt());
+    id = store.value("DetectionSource.id").toString();
+}
+
+void DetectionSource::toMap(Utils::Store &store) const
+{
+    store.insert("DetectionSource.type", static_cast<int>(type));
+    store.insert("DetectionSource.id", id);
+}
+
 namespace {
 class KitAspectSortModel : public SortModel
 {

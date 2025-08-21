@@ -216,6 +216,9 @@ public:
                && detectionSource == other.detectionSource;
     }
 
+    void fromMap(const Utils::Store &);
+    void toMap(Utils::Store &) const;
+
     QString id;
     QString name;
     Utils::FilePath command;
