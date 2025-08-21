@@ -83,11 +83,11 @@ public:
     DeviceToolAspectFactory();
     ~DeviceToolAspectFactory();
 
-    Utils::Id toolId() const;
-
     DeviceToolAspect *createAspect(const IDevicePtr &device) const;
 
-    static void autoDetectAll(const IDevicePtr &device, const Utils::FilePaths &searchPaths);
+    Utils::Id toolId() const;
+    QStringList filePattern() const;
+    Utils::Result<> check(const IDevicePtr &device, const Utils::FilePath &) const;
 
 protected:
     using Checker = std::function<Utils::Result<>(const IDevicePtr &device, const Utils::FilePath &)>;
@@ -238,8 +238,6 @@ public:
     virtual Utils::FilePath filePath(const QString &pathOnDevice) const;
 
     Utils::FilePath deviceToolPath(Utils::Id toolId) const;
-    void setDeviceToolPath(Utils::Id toolId, const Utils::FilePath &filePath);
-    void setDeviceToolPathAlternatives(Utils::Id toolId, const Utils::FilePaths &candidates);
     QList<DeviceToolAspect *> deviceToolAspects(DeviceToolAspect::ToolType supportType) const;
 
     std::function<void(Layouting::Layout *)> deviceToolsGui();
@@ -287,7 +285,7 @@ public:
 
     virtual bool supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const;
 
-    Utils::FilePaths autoDetectionPaths() const;
+    void autoDetectDeviceTools();
 
 public:
     Utils::BoolAspect allowEmptyCommand{this};

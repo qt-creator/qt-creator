@@ -76,7 +76,7 @@ private:
 class PROJECTEXPLORER_EXPORT SshParametersAspectContainer : public Utils::AspectContainer
 {
 public:
-    SshParametersAspectContainer();
+    explicit SshParametersAspectContainer(Utils::AspectContainer *container = nullptr);
 
     SshParameters sshParameters() const;
     void setSshParameters(const SshParameters &params);

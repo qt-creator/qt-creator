@@ -101,8 +101,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                     return;
                 }
 
-                DeviceToolAspectFactory::autoDetectAll(dockerDevice,
-                                                       dockerDevice->autoDetectionPaths());
+                dockerDevice->autoDetectDeviceTools();
 
                 const auto log = [logView](const QString &msg) { logView->append(msg); };
                 // clang-format off

@@ -335,7 +335,7 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
         autoDetectButton->setEnabled(false);
         linuxDevice->tryToConnect({linuxDevice.get(), [linuxDevice, autoDetectButton](const Result<> &res) {
             if (res)
-                DeviceToolAspectFactory::autoDetectAll(linuxDevice, linuxDevice->autoDetectionPaths());
+                linuxDevice->autoDetectDeviceTools();
             autoDetectButton->setEnabled(true);
         }});
     });

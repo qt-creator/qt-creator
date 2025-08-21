@@ -95,7 +95,6 @@ static Id newId()
     return Id::generate();
 }
 
-const char DisplayNameKey[] = "Name";
 const char TypeKey[] = "OsType";
 const char ClientOsTypeKey[] = "ClientOsType";
 const char IdKey[] = "InternalId";
@@ -129,12 +128,18 @@ class IDevicePrivate
 {
 public:
     IDevicePrivate(IDevice *q)
-        : autoDetectInPath(q),
+        : q(q),
+          displayName(q),
+          sshParametersAspectContainer(q),
+          autoDetectInPath(q),
           autoDetectInQtInstallation(q),
           autoDetectQtInstallation(q),
           autoDetectInDirectories(q),
           autoDetectDirectories(q)
     {
+        displayName.setSettingsKey("Name");
+        displayName.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
+
         autoDetectInPath.setSettingsKey("AutoDetectInPath");
         autoDetectInPath.setDefaultValue(true);
         autoDetectInPath.setLabelText(Tr::tr("Search in PATH"));
@@ -163,7 +168,15 @@ public:
             Tr::tr("Select the paths on the device that should be scanned for binaries."));
         autoDetectDirectories.setHistoryCompleter("Directories");
         autoDetectDirectories.setEnabler(&autoDetectInDirectories);
+
+        QObject::connect(&sshParametersAspectContainer, &AspectContainer::applied, q, [this] {
+            *sshParameters.writeLocked() = sshParametersAspectContainer.sshParameters();
+        });
     }
+
+    FilePaths autoDetectionPaths() const;
+
+    IDevice *q;
 
     QString displayType;
     Id type;
@@ -238,28 +251,41 @@ Id DeviceToolAspectFactory::toolId() const
     return m_toolId;
 }
 
-void DeviceToolAspectFactory::autoDetectAll(const IDevicePtr &device, const FilePaths &searchPaths)
+QStringList DeviceToolAspectFactory::filePattern() const
 {
-    for (DeviceToolAspectFactory *factory : theDeviceToolFactories)
-        factory->autoDetect(device, searchPaths);
+    return m_filePattern;
 }
 
-void DeviceToolAspectFactory::autoDetect(const IDevicePtr &device, const FilePaths &searchPaths)
+Result<> DeviceToolAspectFactory::check(const IDevicePtr &device, const FilePath &candidate) const
 {
-    FilePaths result;
+    if (!m_checker)
+        return ResultOk;
 
-    for (const QString &filePattern : m_filePattern) {
-        const FilePaths toolPaths = device->filePath(filePattern).searchAllInDirectories(searchPaths);
-        for (const FilePath &toolPath : toolPaths) {
-            if (!m_checker || m_checker(device, toolPath))
-                result.append(toolPath);
+    return m_checker(device, candidate);
+}
+
+void IDevice::autoDetectDeviceTools()
+{
+    const FilePaths searchPaths = d->autoDetectionPaths();
+
+    for (DeviceToolAspectFactory *factory : theDeviceToolFactories) {
+        FilePaths candidates;
+
+        for (const QString &filePattern : factory->filePattern()) {
+            const FilePaths toolPaths = filePath(filePattern).searchAllInDirectories(searchPaths);
+            for (const FilePath &toolPath : toolPaths) {
+                if (factory->check(shared_from_this(), toolPath))
+                    candidates.append(toolPath);
+            }
         }
+
+        DeviceToolAspect *toolAspect = d->deviceToolAspects.value(factory->toolId());
+        QTC_ASSERT(toolAspect, continue);
+        toolAspect->setValueAlternatives(candidates);
+
+        if (!candidates.isEmpty())
+            toolAspect->setValue(candidates.front());
     }
-
-    device->setDeviceToolPathAlternatives(m_toolId, result);
-
-    if (!result.isEmpty())
-        device->setDeviceToolPath(m_toolId, result.front());
 }
 
 DeviceToolAspect *DeviceToolAspectFactory::createAspect(const IDevicePtr &device) const
@@ -280,6 +306,7 @@ DeviceToolAspect *DeviceToolAspectFactory::createAspect(const IDevicePtr &device
                 return result ? newValue : result.error();
             });
         });
+
     toolAspect->setAllowPathFromDevice(true);
     toolAspect->setExpectedKind(PathChooser::ExistingCommand);
     toolAspect->setToolType(m_toolType);
@@ -339,16 +366,6 @@ IDevice::IDevice()
     : d(new Internal::IDevicePrivate(this))
 {
     setAutoApply(false);
-
-    registerAspect(&d->sshParametersAspectContainer);
-
-    connect(&d->sshParametersAspectContainer, &AspectContainer::applied, this, [this]() {
-        *d->sshParameters.writeLocked() = d->sshParametersAspectContainer.sshParameters();
-    });
-
-    registerAspect(&d->displayName);
-    d->displayName.setSettingsKey(DisplayNameKey);
-    d->displayName.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
 
     // allowEmptyCommand.setSettingsKey() intentionally omitted, this is not persisted.
 
@@ -919,20 +936,6 @@ FilePath IDevice::deviceToolPath(Id toolId) const
     return filePath;
 }
 
-void IDevice::setDeviceToolPath(Id toolId, const FilePath &filePath)
-{
-    DeviceToolAspect *toolAspect = d->deviceToolAspects.value(toolId);
-    QTC_ASSERT(toolAspect, return);
-    toolAspect->setValue(filePath);
-}
-
-void IDevice::setDeviceToolPathAlternatives(Id toolId, const FilePaths &candidates)
-{
-    DeviceToolAspect *toolAspect = d->deviceToolAspects.value(toolId);
-    QTC_ASSERT(toolAspect, return);
-    toolAspect->setValueAlternatives(candidates);
-}
-
 QList<DeviceToolAspect *> IDevice::deviceToolAspects(DeviceToolAspect::ToolType supportType) const
 {
     return Utils::filtered(d->deviceToolAspects.values(), [supportType](DeviceToolAspect *aspect) {
@@ -1163,22 +1166,22 @@ bool IDevice::supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceType
     return targetDeviceTypes.contains(type());
 }
 
-FilePaths IDevice::autoDetectionPaths() const
+FilePaths Internal::IDevicePrivate::autoDetectionPaths() const
 {
     FilePaths paths;
-    if (d->autoDetectInPath.volatileValue())
-        paths += systemEnvironment().path();
+    if (autoDetectInPath.volatileValue())
+        paths += q->systemEnvironment().path();
 
-    if (d->autoDetectInQtInstallation.volatileValue()) {
-        QString qtPath = d->autoDetectQtInstallation.volatileValue();
+    if (autoDetectInQtInstallation.volatileValue()) {
+        QString qtPath = autoDetectQtInstallation.volatileValue();
         if (qtPath.isEmpty())
-            qtPath = systemEnvironment().value("HOME") + "/Qt";
+            qtPath = q->systemEnvironment().value("HOME") + "/Qt";
 
         using VersionAndPath = QPair<QVersionNumber, FilePath>;
         QList<VersionAndPath> qtBinPaths;
 
         // We are looking for something like ~/Qt/6.6.3/gcc_64/bin/
-        const FilePath qtInstallation = filePath(qtPath);
+        const FilePath qtInstallation = q->filePath(qtPath);
         for (const FilePath &qtVersion : qtInstallation.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot)) {
             if (qtVersion.fileName().count(".") == 2) {
                 const QVersionNumber qtVersionNumber = QVersionNumber::fromString(qtVersion.fileName());
@@ -1199,13 +1202,13 @@ FilePaths IDevice::autoDetectionPaths() const
             paths += vp.second;
     }
 
-    if (d->autoDetectInDirectories.volatileValue()) {
-        for (const QString &path : d->autoDetectDirectories.volatileValue().split(';'))
+    if (autoDetectInDirectories.volatileValue()) {
+        for (const QString &path : autoDetectDirectories.volatileValue().split(';'))
             paths.append(FilePath::fromString(path.trimmed()));
     }
 
     paths = Utils::transform(paths, [this](const FilePath &path) {
-        return filePath(path.path());
+        return q->filePath(path.path());
     });
 
     return paths;

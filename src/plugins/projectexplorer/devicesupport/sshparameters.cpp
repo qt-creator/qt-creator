@@ -249,7 +249,8 @@ SshParameters SshParametersAspectContainer::sshParameters() const
     return params;
 }
 
-SshParametersAspectContainer::SshParametersAspectContainer()
+SshParametersAspectContainer::SshParametersAspectContainer(AspectContainer *container)
+    : AspectContainer(container)
 {
     useKeyFile.setDefaultValue(SshParameters::AuthenticationTypeAll);
     useKeyFile.setToolTip(Tr::tr("Enable to specify a private key file to use for authentication, "
