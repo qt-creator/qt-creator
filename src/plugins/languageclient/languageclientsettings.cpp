@@ -675,6 +675,7 @@ void BaseSettings::fromMap(const Store &map)
     m_languageFilter.filePattern.removeAll(QString()); // remove empty entries
     m_initializationOptions = map[initializationOptionsKey].toString();
     m_configuration = map[configurationKey].toString();
+    m_settingsTypeId = Id::fromSetting(map[typeIdKey]);
 }
 
 static LanguageClientSettingsPage &settingsPage()
