@@ -54,12 +54,12 @@ public:
     bool operator>(Id id) const { return m_id > id.m_id; }
     bool alphabeticallyBefore(Id other) const;
 
-    static Id fromString(QStringView str); // FIXME: avoid.
-    static Id fromName(QByteArrayView ba); // FIXME: avoid.
-    static Id fromSetting(const QVariant &variant); // Good to use.
+    [[nodiscard]] static Id fromString(QStringView str); // FIXME: avoid.
+    [[nodiscard]] static Id fromName(QByteArrayView ba); // FIXME: avoid.
+    [[nodiscard]] static Id fromSetting(const QVariant &variant); // Good to use.
 
-    static QSet<Id> fromStringList(const QStringList &list);
-    static QStringList toStringList(const QSet<Id> &ids);
+    [[nodiscard]] static QSet<Id> fromStringList(const QStringList &list);
+    [[nodiscard]] static QStringList toStringList(const QSet<Id> &ids);
 
     friend size_t qHash(Id id) { return static_cast<size_t>(id.m_id); }
     friend QTCREATOR_UTILS_EXPORT QDataStream &operator<<(QDataStream &ds, Id id);
