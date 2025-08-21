@@ -79,16 +79,9 @@ public:
     void toMap(Utils::Store &map) const override;
     void postLoad() override;
 
-    Utils::FilePaths autoDetectionPaths() const;
-
 public:
     Utils::BoolAspect sourceProfile{this};
     Utils::BoolAspect autoConnectOnStartup{this};
-    Utils::BoolAspect autoDetectInPath{this};
-    Utils::BoolAspect autoDetectInQtInstallation{this};
-    Utils::FilePathAspect autoDetectQtInstallation{this};
-    Utils::BoolAspect autoDetectInDirectories{this};
-    Utils::StringAspect autoDetectDirectories{this};
 
 protected:
     LinuxDevice();

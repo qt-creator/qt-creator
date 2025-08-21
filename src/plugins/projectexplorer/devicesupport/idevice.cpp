@@ -128,6 +128,43 @@ namespace Internal {
 class IDevicePrivate
 {
 public:
+    IDevicePrivate(IDevice *q)
+        : autoDetectInPath(q),
+          autoDetectInQtInstallation(q),
+          autoDetectQtInstallation(q),
+          autoDetectInDirectories(q),
+          autoDetectDirectories(q)
+    {
+        autoDetectInPath.setSettingsKey("AutoDetectInPath");
+        autoDetectInPath.setDefaultValue(true);
+        autoDetectInPath.setLabelText(Tr::tr("Search in PATH"));
+        autoDetectInPath.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+
+        autoDetectInQtInstallation.setSettingsKey("AutoDetectInQtInstallation");
+        autoDetectInQtInstallation.setDefaultValue(true);
+        autoDetectInQtInstallation.setLabelText(Tr::tr("Search in Qt Installation"));
+        autoDetectInQtInstallation.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+
+        autoDetectQtInstallation.setSettingsKey("AutoDetectQtInstallation");
+        autoDetectQtInstallation.setHistoryCompleter("QtInstallation");
+        autoDetectQtInstallation.setPlaceHolderText("Leave empty to search in $HOME/Qt");
+        autoDetectQtInstallation.setExpectedKind(PathChooser::ExistingDirectory);
+        autoDetectQtInstallation.setEnabler(&autoDetectInQtInstallation);
+
+        autoDetectInDirectories.setSettingsKey("AutoDetectInDirectories");
+        autoDetectInDirectories.setDefaultValue(false);
+        autoDetectInDirectories.setLabelText(Tr::tr("Search in Directories"));
+        autoDetectInDirectories.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+
+        autoDetectDirectories.setSettingsKey("AutoDetectDirectories");
+        autoDetectDirectories.setDisplayStyle(StringAspect::LineEditDisplay);
+        autoDetectDirectories.setPlaceHolderText(Tr::tr("Semicolon-separated list of directories"));
+        autoDetectDirectories.setToolTip(
+            Tr::tr("Select the paths on the device that should be scanned for binaries."));
+        autoDetectDirectories.setHistoryCompleter("Directories");
+        autoDetectDirectories.setEnabler(&autoDetectInDirectories);
+    }
+
     QString displayType;
     Id type;
     IDevice::Origin origin = IDevice::AutoDetected;
@@ -153,6 +190,12 @@ public:
     QHash<Id, DeviceToolAspect *> deviceToolAspects;
 
     bool isTesting = false;
+
+    BoolAspect autoDetectInPath;
+    BoolAspect autoDetectInQtInstallation;
+    FilePathAspect autoDetectQtInstallation;
+    BoolAspect autoDetectInDirectories;
+    StringAspect autoDetectDirectories;
 };
 
 } // namespace Internal
@@ -293,7 +336,7 @@ DeviceTester::~DeviceTester()
 }
 
 IDevice::IDevice()
-    : d(new Internal::IDevicePrivate)
+    : d(new Internal::IDevicePrivate(this))
 {
     setAutoApply(false);
 
@@ -897,6 +940,39 @@ QList<DeviceToolAspect *> IDevice::deviceToolAspects(DeviceToolAspect::ToolType 
     });
 }
 
+std::function<void(Layouting::Layout *)> IDevice::deviceToolsGui()
+{
+    using namespace Layouting;
+    return [this](Layout *layout) {
+        layout->addItems({
+            Column { Space(20) }, br,
+            Layouting::Group {
+                title(Tr::tr("Run tools on this device")),
+                Form {
+                    deviceToolAspects(DeviceToolAspect::RunTool)
+                }
+            }, br,
+            Layouting::Group {
+                title(Tr::tr("Source and build tools on this device")),
+                Form {
+                    deviceToolAspects(DeviceToolAspect::ToolType(
+                        DeviceToolAspect::SourceTool | DeviceToolAspect::BuildTool))
+                }
+            }, br,
+            Layouting::Group {
+                title(Tr::tr("Auto-detection")),
+                Column {
+                    Grid {
+                        d->autoDetectInPath, br,
+                        d->autoDetectInQtInstallation, d->autoDetectQtInstallation, br,
+                        d->autoDetectInDirectories, d->autoDetectDirectories, br,
+                    },
+                }
+            }, br,
+        });
+    };
+}
+
 FilePath IDevice::rootPath() const
 {
     // match DeviceManager::deviceForPath
@@ -1085,6 +1161,54 @@ SshParametersAspectContainer &IDevice::sshParametersAspectContainer() const
 bool IDevice::supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const
 {
     return targetDeviceTypes.contains(type());
+}
+
+FilePaths IDevice::autoDetectionPaths() const
+{
+    FilePaths paths;
+    if (d->autoDetectInPath.volatileValue())
+        paths += systemEnvironment().path();
+
+    if (d->autoDetectInQtInstallation.volatileValue()) {
+        QString qtPath = d->autoDetectQtInstallation.volatileValue();
+        if (qtPath.isEmpty())
+            qtPath = systemEnvironment().value("HOME") + "/Qt";
+
+        using VersionAndPath = QPair<QVersionNumber, FilePath>;
+        QList<VersionAndPath> qtBinPaths;
+
+        // We are looking for something like ~/Qt/6.6.3/gcc_64/bin/
+        const FilePath qtInstallation = filePath(qtPath);
+        for (const FilePath &qtVersion : qtInstallation.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot)) {
+            if (qtVersion.fileName().count(".") == 2) {
+                const QVersionNumber qtVersionNumber = QVersionNumber::fromString(qtVersion.fileName());
+                for (const FilePath &qtArch : qtVersion.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot)) {
+                    const FilePath qtBinPath = qtArch.pathAppended("bin");
+                    if (qtBinPath.exists())
+                        qtBinPaths += std::make_pair(qtVersionNumber, qtBinPath);
+                }
+            }
+        }
+
+        // Prefer higher Qt versions.
+        Utils::sort(qtBinPaths, [](const VersionAndPath &a, const VersionAndPath &b) {
+            return a.first > b.first;
+        });
+
+        for (const VersionAndPath &vp : qtBinPaths)
+            paths += vp.second;
+    }
+
+    if (d->autoDetectInDirectories.volatileValue()) {
+        for (const QString &path : d->autoDetectDirectories.volatileValue().split(';'))
+            paths.append(FilePath::fromString(path.trimmed()));
+    }
+
+    paths = Utils::transform(paths, [this](const FilePath &path) {
+        return filePath(path.path());
+    });
+
+    return paths;
 }
 
 } // namespace ProjectExplorer

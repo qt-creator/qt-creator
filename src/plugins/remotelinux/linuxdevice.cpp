@@ -353,29 +353,8 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
         linuxDevice->sourceProfile, br,
         device->sshForwardDebugServerPort, br,
         device->linkDevice, br,
-        Column { Space(20) }, br,
-        Group {
-            title(Tr::tr("Auto-detection")),
-            Grid {
-                linuxDevice->autoDetectInPath, br,
-                linuxDevice->autoDetectInQtInstallation, linuxDevice->autoDetectQtInstallation, br,
-                linuxDevice->autoDetectInDirectories, linuxDevice->autoDetectDirectories, br,
-                autoDetectButton,
-            }
-        }, br,
-        Group {
-            title(Tr::tr("Run tools on this device")),
-            Form {
-                device->deviceToolAspects(DeviceToolAspect::RunTool)
-            }
-        }, br,
-        Group {
-            title(Tr::tr("Source and build tools on this device")),
-            Form {
-                device->deviceToolAspects(DeviceToolAspect::ToolType(
-                    DeviceToolAspect::SourceTool | DeviceToolAspect::BuildTool))
-            }
-        }
+        device->deviceToolsGui(),
+        Row { autoDetectButton, st, },
     }.attachTo(this);
     // clang-format on
 
@@ -1178,35 +1157,6 @@ LinuxDevice::LinuxDevice()
     autoConnectOnStartup.setLabelText(Tr::tr("Auto-connect on startup"));
     autoConnectOnStartup.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
-    autoDetectInPath.setSettingsKey("AutoDetectInPath");
-    autoDetectInPath.setDefaultValue(true);
-    autoDetectInPath.setLabelText(Tr::tr("Search in PATH"));
-    autoDetectInPath.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
-
-    autoDetectInQtInstallation.setSettingsKey("AutoDetectInQtInstallation");
-    autoDetectInQtInstallation.setDefaultValue(true);
-    autoDetectInQtInstallation.setLabelText(Tr::tr("Search in Qt Installation"));
-    autoDetectInQtInstallation.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
-
-    autoDetectQtInstallation.setSettingsKey("AutoDetectQtInstallation");
-    autoDetectQtInstallation.setHistoryCompleter("QtInstallation");
-    autoDetectQtInstallation.setPlaceHolderText("Leave empty to search in $HOME/Qt");
-    autoDetectQtInstallation.setExpectedKind(PathChooser::ExistingDirectory);
-    autoDetectQtInstallation.setEnabler(&autoDetectInQtInstallation);
-
-    autoDetectInDirectories.setSettingsKey("AutoDetectInDirectories");
-    autoDetectInDirectories.setDefaultValue(false);
-    autoDetectInDirectories.setLabelText(Tr::tr("Search in Directories"));
-    autoDetectInDirectories.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
-
-    autoDetectDirectories.setSettingsKey("AutoDetectDirectories");
-    autoDetectDirectories.setDisplayStyle(StringAspect::LineEditDisplay);
-    autoDetectDirectories.setPlaceHolderText(Tr::tr("Semicolon-separated list of directories"));
-    autoDetectDirectories.setToolTip(
-        Tr::tr("Select the paths on the device that should be scanned for binaries."));
-    autoDetectDirectories.setHistoryCompleter("Directories");
-    autoDetectDirectories.setEnabler(&autoDetectInDirectories);
-
     addDeviceAction({
         Tr::tr("Deploy Public Key..."),
         [](const IDevice::Ptr &device) {
@@ -1689,54 +1639,6 @@ void LinuxDevice::postLoad()
         Core::ICore::popupInfoBar()->addInfo(info);
         Core::MessageManager::writeSilently(message);
     }});
-}
-
-FilePaths LinuxDevice::autoDetectionPaths() const
-{
-    FilePaths paths;
-    if (autoDetectInPath.volatileValue())
-        paths += systemEnvironment().path();
-
-    if (autoDetectInQtInstallation.volatileValue()) {
-        QString qtPath = autoDetectQtInstallation.volatileValue();
-        if (qtPath.isEmpty())
-            qtPath = systemEnvironment().value("HOME") + "/Qt";
-
-        using VersionAndPath = QPair<QVersionNumber, FilePath>;
-        QList<VersionAndPath> qtBinPaths;
-
-        // We are looking for something like ~/Qt/6.6.3/gcc_64/bin/
-        const FilePath qtInstallation = filePath(qtPath);
-        for (const FilePath &qtVersion : qtInstallation.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot)) {
-            if (qtVersion.fileName().count(".") == 2) {
-                const QVersionNumber qtVersionNumber = QVersionNumber::fromString(qtVersion.fileName());
-                for (const FilePath &qtArch : qtVersion.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot)) {
-                    const FilePath qtBinPath = qtArch.pathAppended("bin");
-                    if (qtBinPath.exists())
-                        qtBinPaths += std::make_pair(qtVersionNumber, qtBinPath);
-                }
-            }
-        }
-
-        // Prefer higher Qt versions.
-        Utils::sort(qtBinPaths, [](const VersionAndPath &a, const VersionAndPath &b) {
-            return a.first > b.first;
-        });
-
-        for (const VersionAndPath &vp : qtBinPaths)
-            paths += vp.second;
-    }
-
-    if (autoDetectInDirectories.volatileValue()) {
-        for (const QString &path : autoDetectDirectories.volatileValue().split(';'))
-            paths.append(FilePath::fromString(path.trimmed()));
-    }
-
-    paths = Utils::transform(paths, [this](const FilePath &path) {
-        return filePath(path.path());
-    });
-
-    return paths;
 }
 
 } // namespace RemoteLinux

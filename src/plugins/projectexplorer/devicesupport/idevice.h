@@ -39,6 +39,8 @@ class Process;
 class ProcessInterface;
 } // Utils
 
+namespace Layouting { class Layout; }
+
 namespace ProjectExplorer {
 
 class FileTransferInterface;
@@ -240,6 +242,8 @@ public:
     void setDeviceToolPathAlternatives(Utils::Id toolId, const Utils::FilePaths &candidates);
     QList<DeviceToolAspect *> deviceToolAspects(DeviceToolAspect::ToolType supportType) const;
 
+    std::function<void(Layouting::Layout *)> deviceToolsGui();
+
     void setExtraData(Utils::Id kind, const QVariant &data);
     QVariant extraData(Utils::Id kind) const;
 
@@ -282,6 +286,8 @@ public:
     void doApply() const;
 
     virtual bool supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const;
+
+    Utils::FilePaths autoDetectionPaths() const;
 
 public:
     Utils::BoolAspect allowEmptyCommand{this};
