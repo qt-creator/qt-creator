@@ -892,7 +892,7 @@ TEST_F(QmlTypesParser, access_type_is_value)
 
     parser.parse(source, imports, types, exportedTypes, projectEntryInfo, Storage::IsInsideProject::No);
 
-    ASSERT_THAT(types, ElementsAre(IsTypeTrait(Storage::TypeTraitsKind::Value)));
+    ASSERT_THAT(types, Contains(IsTypeTrait(Storage::TypeTraitsKind::Value)));
 }
 
 TEST_F(QmlTypesParser, access_type_is_sequence)
@@ -1011,6 +1011,47 @@ TEST_F(QmlTypesParser, is_not_inside_project)
     parser.parse(source, imports, types, exportedTypes, projectEntryInfo, Storage::IsInsideProject::No);
 
     ASSERT_THAT(types, ElementsAre(IsTypeTrait(IsInsideProject(false))));
+}
+
+TEST_F(QmlTypesParser, value_type_adds_list)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QUrl"
+                                    accessSemantics: "value"}})"};
+
+    parser.parse(source, imports, types, exportedTypes, projectEntryInfo, Storage::IsInsideProject::No);
+
+    ASSERT_THAT(types,
+                Contains(IsType("QList<QUrl>",
+                                Synchronization::ImportedType{},
+                                Synchronization::ImportedType{},
+                                Storage::TypeTraitsKind::Sequence,
+                                qmltypesSourceId)));
+}
+
+TEST_F(QmlTypesParser, value_list_is_inside_project)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QUrl"
+                                    accessSemantics: "value" }})"};
+
+    parser.parse(source, imports, types, exportedTypes, projectEntryInfo, Storage::IsInsideProject::Yes);
+
+    ASSERT_THAT(types, Each(IsTypeTrait(IsInsideProject(true))));
+}
+
+TEST_F(QmlTypesParser, value_list_is_not_inside_project)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QUrl"
+                                    accessSemantics: "value" }})"};
+
+    parser.parse(source, imports, types, exportedTypes, projectEntryInfo, Storage::IsInsideProject::No);
+
+    ASSERT_THAT(types, Each(IsTypeTrait(IsInsideProject(false))));
 }
 
 } // namespace

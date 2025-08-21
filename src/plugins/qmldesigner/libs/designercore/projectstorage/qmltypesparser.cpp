@@ -134,6 +134,15 @@ Storage::TypeTraits createTypeTraits(QQmlJSScope::AccessSemantics accessSematics
     return typeTrait;
 }
 
+Storage::TypeTraits createListTypeTraits(IsInsideProject isInsideProject)
+{
+    Storage::TypeTraits typeTrait = Storage::TypeTraitsKind::Sequence;
+
+    typeTrait.isInsideProject = isInsideProject == IsInsideProject::Yes;
+
+    return typeTrait;
+}
+
 Storage::Version createVersion(QTypeRevision qmlVersion)
 {
     return Storage::Version{qmlVersion.majorVersion(), qmlVersion.minorVersion()};
@@ -513,6 +522,19 @@ void addType(Storage::Synchronization::Types &types,
         std::move(signalDeclarations),
         createEnumeration(enumerations),
         Utils::SmallString{component.ownDefaultPropertyName()});
+
+    if (component.isValueType()) {
+        NanotraceHR::Tracer tracer{"add value list type", category()};
+
+        const auto &type = types.emplace_back(Utils::SmallString::join({"QList<", typeName, ">"}),
+                                              Storage::Synchronization::ImportedType{},
+                                              Storage::Synchronization::ImportedType{},
+                                              createListTypeTraits(isInsideProject),
+                                              sourceId);
+
+        tracer.end(keyValue("type", type));
+    }
+
     tracer.end(keyValue("type", type));
 }
 
