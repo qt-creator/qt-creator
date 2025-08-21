@@ -479,10 +479,10 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
             self->m_nodeAtPosReqType = NodeAtPosReqType::MainScenePick;
             self->m_pickView3dNode = self->modelNodeForInternalId(qint32(data[1].toInt()));
         });
+#ifndef QDS_USE_PROJECTSTORAGE
     } else if (identifier == "asset_import_finished" || identifier == "assets_deleted") {
-        // TODO: These custom notifications should be removed once QDS-15163 is fixed and
-        //       exportedTypeNamesChanged notification is reliable
         onEntriesChanged();
+#endif
     }
 }
 

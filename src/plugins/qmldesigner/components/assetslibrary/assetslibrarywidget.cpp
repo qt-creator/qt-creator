@@ -422,7 +422,9 @@ void AssetsLibraryWidget::handleDeletedGeneratedAssets(const QHash<QString, Util
         document->clearUndoRedoStacks();
 
     m_assetsView->emitCustomNotification("effectcomposer_effects_deleted", {}, {effectNames});
+#ifndef QDS_USE_PROJECTSTORAGE
     m_assetsView->emitCustomNotification("assets_deleted");
+#endif
 }
 
 void AssetsLibraryWidget::updateAssetPreview(const QString &id, const QPixmap &pixmap,

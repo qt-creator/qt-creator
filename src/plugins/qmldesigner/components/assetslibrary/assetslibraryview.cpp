@@ -83,10 +83,10 @@ void AssetsLibraryView::customNotification(const AbstractView * /*view*/,
 {
     if (identifier == "delete_selected_assets") {
         m_widget->deleteSelectedAssets();
+#ifndef QDS_USE_PROJECTSTORAGE
     } else if (identifier == "asset_import_finished") {
-        // TODO: This custom notification should be removed once QDS-15163 is fixed and
-        //       exportedTypeNamesChanged notification is reliable
         m_3dImportsSyncTimer.start();
+#endif
     }
 }
 
