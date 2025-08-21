@@ -18,6 +18,7 @@ if (NOT QT_CREATOR_API_DEFINED)
   set(CMAKE_CXX_EXTENSIONS OFF)
 
   set(DESTINATION DESTINATION .)
+  include(Utils)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
   qtc_handle_compiler_cache_support()
@@ -47,6 +48,8 @@ add_qtc_executable(qmlpuppet
   PROPERTIES
     OUTPUT_NAME qmlpuppet-${IDE_VERSION}
 )
+
+include(AutoInstallDesignerComponents.cmake)
 
 if (IS_STAND_ALONE_PUPPET_BUILD)
     include(../../libs/qmlpuppetcommunication/QmlPuppetCommunication.cmake)
