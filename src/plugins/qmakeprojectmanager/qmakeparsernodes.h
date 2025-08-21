@@ -94,7 +94,7 @@ namespace Internal {
 Q_DECLARE_LOGGING_CATEGORY(qmakeNodesLog)
 class QmakeEvalInput;
 class QmakeEvalResult;
-using QmakeEvalResultPtr = std::shared_ptr<QmakeEvalResult>; // FIXME: Use unique_ptr once we require Qt 6
+using QmakeEvalResultPtr = std::shared_ptr<QmakeEvalResult>;
 class QmakePriFileEvalResult;
 } // namespace Internal;
 
