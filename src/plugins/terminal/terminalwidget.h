@@ -12,11 +12,11 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/terminal/searchableterminal.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/link.h>
 #include <utils/qtcprocess.h>
 #include <utils/terminalhooks.h>
-
-#include <QFutureWatcher>
 
 #include <memory>
 
@@ -112,7 +112,7 @@ private:
 
     Internal::ShortcutMap m_shortcutMap;
 
-    std::unique_ptr<QFutureWatcher<Utils::Result<Utils::FilePath>>> m_findShellWatcher;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace Terminal

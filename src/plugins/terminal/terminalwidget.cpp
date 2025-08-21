@@ -46,9 +46,10 @@
 #include <QTextLayout>
 #include <QToolTip>
 
+using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 using namespace Utils::Terminal;
-using namespace Core;
 
 namespace Terminal {
 
@@ -90,30 +91,30 @@ void TerminalWidget::setupPty()
     if (shellCommand.executable().isRootPath()) {
         writeToTerminal((Tr::tr("Connecting...") + "\r\n").toUtf8(), true);
         // We still have to find the shell to start ...
-        m_findShellWatcher.reset(new QFutureWatcher<Result<FilePath>>());
-        connect(m_findShellWatcher.get(), &QFutureWatcher<FilePath>::finished, this, [this] {
-            const Result<FilePath> result = m_findShellWatcher->result();
+        using ResultType = Result<FilePath>;
+        const auto onSetup = [exec = shellCommand.executable()](Async<ResultType> &task) {
+            task.setConcurrentCallData([exec]() -> Result<FilePath> {
+                const Result<FilePath> result = Utils::Terminal::defaultShellForDevice(exec);
+                if (result && !result->isExecutableFile())
+                    return make_unexpected(
+                        Tr::tr("\"%1\" is not executable.").arg(result->toUserOutput()));
+                return result;
+            });
+        };
+        const auto onDone = [this](const Async<ResultType> &task) {
+            const Result<FilePath> result = task.result();
             if (result) {
                 m_openParameters.shellCommand->setExecutable(*result);
-                restart(m_openParameters);
-                return;
+                return DoneResult::Success;
             }
-
             writeToTerminal(("\r\n\033[31m"
                              + Tr::tr("Failed to start shell: %1").arg(result.error()) + "\r\n")
-                                .toUtf8(),
-                            true);
-        });
-
-        m_findShellWatcher->setFuture(Utils::asyncRun([shellCommand]() -> Result<FilePath> {
-            const Result<FilePath> result = Utils::Terminal::defaultShellForDevice(
-                shellCommand.executable());
-            if (result && !result->isExecutableFile())
-                return make_unexpected(
-                    Tr::tr("\"%1\" is not executable.").arg(result->toUserOutput()));
-            return result;
-        }));
-
+                                .toUtf8(), true);
+            return DoneResult::Error;
+        };
+        const auto onTreeDone = [this] { restart(m_openParameters); };
+        m_taskTreeRunner.start({AsyncTask<ResultType>(onSetup, onDone)}, {},
+                               onTreeDone, CallDone::OnSuccess);
         return;
     }
 
