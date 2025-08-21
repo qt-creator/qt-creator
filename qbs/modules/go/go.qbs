@@ -51,7 +51,7 @@ Module {
             var commands = [];
             var arch = product.go.architecture;
             var plat = product.go.platform;
-            var env = ["GOARCH=" + arch, "GOOS=" + plat];
+            var env = ["GOARCH=" + arch, "GOOS=" + plat, "CGO_ENABLED=0"];
             var args = ['build', '-ldflags',
                         '-s -w -X main.MagicPacketMarker=' + product.go.magicPacketMarker,
                         '-o', output.filePath];
@@ -60,6 +60,7 @@ Module {
             cmd.workingDirectory = product.sourceDirectory;
             cmd.description = "building (with go) " + output.fileName;
             cmd.highlight = "compiler";
+            cmd.relevantEnvironmentVariables = ["GOARCH", "GOOS", "CGO_ENABLED"];
             commands.push(cmd);
             if ((product.go.upxFilePath !== undefined && File.exists(product.go.upxFilePath))
                     && (plat === 'linux' || (plat === 'windows' && arch === 'amd64'))) {
