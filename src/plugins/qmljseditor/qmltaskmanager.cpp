@@ -21,14 +21,12 @@
 #include <utils/async.h>
 
 #include <QDebug>
-#include <QtConcurrentRun>
 
 using namespace ProjectExplorer;
 using namespace QmlJS;
 using namespace Utils;
 
-namespace QmlJSEditor {
-namespace Internal {
+namespace QmlJSEditor::Internal {
 
 QmlTaskManager::QmlTaskManager()
 {
@@ -43,7 +41,7 @@ QmlTaskManager::QmlTaskManager()
     connect(&m_updateDelay, &QTimer::timeout, this, [this] { updateMessagesNow(); });
 }
 
-static Tasks convertToTasks(const QList<DiagnosticMessage> &messages, const FilePath &fileName, Utils::Id category)
+static Tasks convertToTasks(const QList<DiagnosticMessage> &messages, const FilePath &fileName, Id category)
 {
     Tasks result;
     for (const DiagnosticMessage &msg : messages) {
@@ -54,7 +52,7 @@ static Tasks convertToTasks(const QList<DiagnosticMessage> &messages, const File
     return result;
 }
 
-static Tasks convertToTasks(const QList<StaticAnalysis::Message> &messages, const FilePath &fileName, Utils::Id category)
+static Tasks convertToTasks(const QList<StaticAnalysis::Message> &messages, const FilePath &fileName, Id category)
 {
     QList<DiagnosticMessage> diagnostics;
     for (const StaticAnalysis::Message &msg : messages)
@@ -63,20 +61,20 @@ static Tasks convertToTasks(const QList<StaticAnalysis::Message> &messages, cons
 }
 
 void QmlTaskManager::collectMessages(QPromise<FileErrorMessages> &promise,
-                                     Snapshot snapshot,
+                                     const Snapshot &snapshot,
                                      const QList<ModelManagerInterface::ProjectInfo> &projectInfos,
-                                     ViewerContext vContext,
+                                     const ViewerContext &vContext,
                                      bool updateSemantic)
 {
     for (const ModelManagerInterface::ProjectInfo &info : projectInfos) {
-        QHash<Utils::FilePath, QList<DiagnosticMessage>> linkMessages;
+        QHash<FilePath, QList<DiagnosticMessage>> linkMessages;
         ContextPtr context;
         if (updateSemantic) {
-            QmlJS::Link link(snapshot, vContext, QmlJS::LibraryInfo());
+            QmlJS::Link link(snapshot, vContext, LibraryInfo());
             context = link(&linkMessages);
         }
 
-        for (const Utils::FilePath &fileName : std::as_const(info.sourceFiles)) {
+        for (const FilePath &fileName : std::as_const(info.sourceFiles)) {
             Document::Ptr document = snapshot.document(fileName);
             if (!document)
                 continue;
@@ -153,16 +151,16 @@ void QmlTaskManager::updateMessagesNow(bool updateSemantic)
     m_messageCollector.setFuture(future);
 }
 
-void QmlTaskManager::documentsRemoved(const Utils::FilePaths &path)
+void QmlTaskManager::documentsRemoved(const FilePaths &paths)
 {
-    for (const Utils::FilePath &item : path)
-        removeTasksForFile(item);
+    for (const FilePath &path : paths)
+        removeTasksForFile(path);
 }
 
 void QmlTaskManager::displayResults(int begin, int end)
 {
     for (int i = begin; i < end; ++i) {
-        const ProjectExplorer::Tasks tasks = m_messageCollector.resultAt(i).tasks;
+        const Tasks tasks = m_messageCollector.resultAt(i).tasks;
         for (const Task &task : tasks) {
             insertTask(task);
         }
@@ -183,7 +181,7 @@ void QmlTaskManager::insertTask(const Task &task)
     TaskHub::addTask(task);
 }
 
-void QmlTaskManager::removeTasksForFile(const Utils::FilePath &fileName)
+void QmlTaskManager::removeTasksForFile(const FilePath &fileName)
 {
     if (m_docsWithTasks.contains(fileName)) {
         const Tasks tasks = m_docsWithTasks.value(fileName);
@@ -201,5 +199,4 @@ void QmlTaskManager::removeAllTasks(bool clearSemantic)
     m_docsWithTasks.clear();
 }
 
-} // Internal
-} // QmlProjectManager
+} // QmlProjectManager::Internal
