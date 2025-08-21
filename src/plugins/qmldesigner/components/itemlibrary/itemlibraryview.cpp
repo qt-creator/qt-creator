@@ -140,7 +140,7 @@ void ItemLibraryView::customNotification(const AbstractView *view,
 
 void ItemLibraryView::exportedTypeNamesChanged(const ExportedTypeNames &, const ExportedTypeNames &)
 {
-    m_widget->delayedUpdateModel();
+    m_widget->updatePossibleImports(model()->possibleImports());
 }
 
 } // namespace QmlDesigner
