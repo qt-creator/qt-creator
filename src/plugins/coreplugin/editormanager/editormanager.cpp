@@ -592,6 +592,24 @@ void EditorManagerPrivate::init()
     gotoNextTab.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
     gotoNextTab.addOnTriggered(this, &EditorManagerPrivate::gotoNextTab);
 
+    // Close All Tabs Action
+    ActionBuilder closeAllTabs(this, Constants::CLOSEALLTABS);
+    closeAllTabs.setText(::Core::Tr::tr("Close All Tabs"));
+    closeAllTabs.bindContextAction(&m_closeAllTabsAction);
+    closeAllTabs.bindCommand(&m_closeAllTabsCommand);
+    closeAllTabs.setContext(editDesignContext);
+    closeAllTabs.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
+    closeAllTabs.addOnTriggered(this, &EditorManagerPrivate::closeAllTabs);
+
+    // Close Other Tabs Action
+    ActionBuilder closeOtherTabs(this, Constants::CLOSEOTHERTABS);
+    closeOtherTabs.setText(::Core::Tr::tr("Close Other Tabs"));
+    closeOtherTabs.bindContextAction(&m_closeOtherTabsAction);
+    closeOtherTabs.bindCommand(&m_closeOtherTabsCommand);
+    closeOtherTabs.setContext(editDesignContext);
+    closeOtherTabs.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
+    closeOtherTabs.addOnTriggered(this, &EditorManagerPrivate::closeOtherTabs);
+
     // Go back in navigation history
     ActionBuilder goBack(this, Constants::GO_BACK);
     goBack.setIcon(Utils::Icons::PREV.icon());
@@ -1944,12 +1962,18 @@ void EditorManagerPrivate::setShowingTabs(bool visible)
         view->setTabsVisible(visible);
     d->m_gotoNextTabAction->setVisible(visible);
     d->m_gotoPreviousTabAction->setVisible(visible);
+    d->m_closeAllTabsAction->setVisible(visible);
+    d->m_closeOtherTabsAction->setVisible(visible);
     if (visible) {
         d->m_gotoNextTabCommand->removeAttribute(Command::CA_Hide);
         d->m_gotoPreviousTabCommand->removeAttribute(Command::CA_Hide);
+        d->m_closeAllTabsCommand->removeAttribute(Command::CA_Hide);
+        d->m_closeOtherTabsCommand->removeAttribute(Command::CA_Hide);
     } else {
         d->m_gotoNextTabCommand->setAttribute(Command::CA_Hide);
         d->m_gotoPreviousTabCommand->setAttribute(Command::CA_Hide);
+        d->m_closeAllTabsCommand->setAttribute(Command::CA_Hide);
+        d->m_closeOtherTabsCommand->setAttribute(Command::CA_Hide);
     }
 }
 
@@ -2214,9 +2238,12 @@ void EditorManagerPrivate::updateActions()
     d->m_gotoNextDocHistoryAction->setEnabled(openedCount != 0);
     d->m_gotoPreviousDocHistoryAction->setEnabled(openedCount != 0);
     EditorView *view  = currentEditorView();
-    const bool isMultiTab = view ? (view->tabs().size() > 1) : false;
+    const int tabCount = view ? view->tabs().size() : 0;
+    const bool isMultiTab = view ? (tabCount > 1) : false;
     d->m_gotoPreviousTabAction->setEnabled(isMultiTab);
     d->m_gotoNextTabAction->setEnabled(isMultiTab);
+    d->m_closeOtherTabsAction->setEnabled(isMultiTab);
+    d->m_closeAllTabsAction->setEnabled(tabCount > 0);
     d->m_goBackAction->setEnabled(view ? view->canGoBack() : false);
     d->m_goForwardAction->setEnabled(view ? view->canGoForward() : false);
     d->m_nextDocAction->setEnabled(DocumentModel::entryCount() > 1);
@@ -2333,6 +2360,23 @@ void EditorManagerPrivate::gotoPreviousTab()
     EditorView *view = currentEditorView();
     QTC_ASSERT(view, return);
     view->gotoPreviousTab();
+}
+
+void EditorManagerPrivate::closeAllTabs()
+{
+    EditorView *view = currentEditorView();
+    QTC_ASSERT(view, return);
+    view->closeAllTabs();
+}
+
+void EditorManagerPrivate::closeOtherTabs()
+{
+    EditorView *view = currentEditorView();
+    QTC_ASSERT(view, return);
+    IEditor *current = view->currentEditor();
+    QTC_ASSERT(current, return);
+    IDocument *document = current->document();
+    view->closeOtherTabs(DocumentModel::entryForDocument(document));
 }
 
 void EditorManagerPrivate::gotoLastEditLocation()
@@ -3092,6 +3136,24 @@ void EditorManagerPrivate::addSaveAndCloseEditorActions(
 
     // Close All Except Visible
     contextMenu->addAction(ActionManager::command(Constants::CLOSEALLEXCEPTVISIBLE)->action());
+
+    if (contextView && contextView->isShowingTabs()) {
+        contextMenu->addSeparator();
+        addMenuAction(contextMenu, ::Core::Tr::tr("Close All Tabs"), true, d, [contextView] {
+            if (contextView)
+                contextView->closeAllTabs();
+        });
+        addMenuAction(
+            contextMenu,
+            ::Core::Tr::tr("Close Other Tabs"),
+            contextView->tabs().size() > 1,
+            d,
+            [contextView, contextDocument] {
+                DocumentModel::Entry *entry = DocumentModel::entryForDocument(contextDocument);
+                if (contextView && entry)
+                    contextView->closeOtherTabs(entry);
+            });
+    }
 }
 
 /*!

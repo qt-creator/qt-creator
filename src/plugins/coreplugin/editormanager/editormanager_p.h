@@ -177,6 +177,8 @@ private:
 
     static void gotoNextTab();
     static void gotoPreviousTab();
+    static void closeAllTabs();
+    static void closeOtherTabs();
 
     static void gotoLastEditLocation();
 
@@ -253,6 +255,10 @@ private:
     QAction *m_gotoPreviousTabAction = nullptr;
     Command *m_gotoNextTabCommand = nullptr;
     Command *m_gotoPreviousTabCommand = nullptr;
+    QAction *m_closeAllTabsAction = nullptr;
+    QAction *m_closeOtherTabsAction = nullptr;
+    Command *m_closeAllTabsCommand = nullptr;
+    Command *m_closeOtherTabsCommand = nullptr;
     QAction *m_goBackAction = nullptr;
     QAction *m_goForwardAction = nullptr;
     QAction *m_nextDocAction = nullptr;

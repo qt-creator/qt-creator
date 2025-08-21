@@ -742,6 +742,32 @@ void EditorView::closeTab(DocumentModel::Entry *entry)
     closeTab(tabForEntry(entry));
 }
 
+void EditorView::closeAllTabs()
+{
+    closeOtherTabs(nullptr);
+}
+
+void EditorView::closeOtherTabs(DocumentModel::Entry *entry)
+{
+    // Make sure to close current tab last, if included, to avoid unnecessary current editor changes
+    const int indexToKeep = tabForEntry(entry);
+    IEditor *current = currentEditor();
+    bool closeCurrentEditor = false;
+    for (int i = m_tabBar->count() - 1; i >= 0; --i) {
+        if (i != indexToKeep) {
+            if (m_tabBar->tabData(i).value<TabData>().editor == current)
+                closeCurrentEditor = true;
+            else
+                closeTab(i);
+        }
+    }
+    if (closeCurrentEditor) {
+        const int index = tabForEditor(current);
+        if (QTC_GUARD((index == 0 || index == 1) && index < m_tabBar->count()))
+            closeTab(index);
+    }
+}
+
 void EditorView::removeUnpinnedSuspendedTabs()
 {
     for (int i = m_tabBar->count() - 1; i >= 0; --i) {
