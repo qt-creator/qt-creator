@@ -378,7 +378,7 @@ TEST_F(FileStatusCache, time_is_updated_for_some_already_existing_modified_entri
                 (createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
 }
 
-TEST_F(FileStatusCache, remove_entry_wth_directory_id)
+TEST_F(FileStatusCache, remove_entry_with_directory_id)
 {
     cache.find(header);
     cache.find(source);
@@ -389,6 +389,19 @@ TEST_F(FileStatusCache, remove_entry_wth_directory_id)
     cache.remove({header.directoryPathId()});
 
     ASSERT_THAT(cache, SizeIs(2));
+}
+
+TEST_F(FileStatusCache, remove_entry_with_source_idss)
+{
+    cache.find(header);
+    cache.find(source);
+    cache.find(directory);
+    cache.find(header2);
+    cache.find(directory2);
+
+    cache.remove({header, source});
+
+    ASSERT_THAT(cache, SizeIs(3));
 }
 
 } // namespace

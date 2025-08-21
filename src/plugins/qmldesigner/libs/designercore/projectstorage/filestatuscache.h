@@ -25,6 +25,8 @@ public:
     const FileStatus &updateAndFind(SourceId sourceId) const;
 
     void remove(const DirectoryPathIds &directoryPathIds);
+    void remove(const SourceIds &sourceIds);
+
     SourceIds modified(SourceIds sourceIds) const;
 
     size_type size() const;

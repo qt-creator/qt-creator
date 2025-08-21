@@ -405,6 +405,12 @@ public:
                                     std::back_inserter(newWatchedEntries));
 
         m_watchedEntries = std::move(newWatchedEntries);
+
+        if (oldEntries.size()) {
+            SourceIds removedSourceIds = Utils::transform(oldEntries, &WatcherEntry::sourceId);
+            std::ranges::sort(removedSourceIds);
+            m_fileStatusCache.remove(removedSourceIds);
+        }
     }
 
     void compressChangedDirectoryPath(const QString &path)

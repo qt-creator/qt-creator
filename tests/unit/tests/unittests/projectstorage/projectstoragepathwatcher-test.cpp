@@ -38,6 +38,13 @@ using QmlDesigner::SourceType;
 using QmlDesigner::WatcherEntries;
 using QmlDesigner::WatcherEntry;
 
+auto IsNullFileStatus(const auto &sourceIdmatcher)
+{
+    return AllOf(Field("FileStatus::sourceId", &FileStatus::sourceId, sourceIdmatcher),
+                 Field("FileStatus::size", &FileStatus::size, -1),
+                 Field("FileStatus::lastModified", &FileStatus::lastModified, FileStatus::null));
+}
+
 class ProjectStoragePathWatcher : public testing::Test
 {
 protected:
@@ -564,6 +571,21 @@ TEST_F(ProjectStoragePathWatcher, update_context_id_paths_removes_entry)
                                      watcherEntry9,
                                      watcherEntry10,
                                      watcherEntry12));
+}
+
+TEST_F(ProjectStoragePathWatcher, update_context_id_paths_updates_file_status_cache_for_removes_entry)
+{
+    watcher.updateIdPaths({
+        {projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
+        {projectChunkId4, {sourceIds[0], sourceIds[1], sourceIds[2], sourceIds[3]}},
+    });
+    ON_CALL(mockFileSystem, fileStatus(sourceIds[2])).WillByDefault([](auto sourceId) {
+        return QmlDesigner::FileStatus(sourceId);
+    });
+
+    watcher.updateContextIdPaths({{projectChunkId4, {sourceIds[3]}}}, {directoryPathIds[1]});
+
+    ASSERT_THAT(fileStatusCache.find(sourceIds[2]), IsNullFileStatus(sourceIds[2]));
 }
 
 } // namespace

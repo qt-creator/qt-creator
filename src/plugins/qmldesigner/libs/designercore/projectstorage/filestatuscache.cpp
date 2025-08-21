@@ -18,7 +18,7 @@ using ProjectStorageTracing::category;
 
 void FileStatusCache::remove(const DirectoryPathIds &directoryPathIds)
 {
-    NanotraceHR::Tracer tracer{"file status cache remove", category()};
+    NanotraceHR::Tracer tracer{"file status cache remove by directory path ids", category()};
 
     if (directoryPathIds.empty())
         return;
@@ -35,6 +35,23 @@ void FileStatusCache::remove(const DirectoryPathIds &directoryPathIds)
                                  [](const FileStatus &fileStatus) {
                                      return fileStatus.sourceId.directoryPathId();
                                  });
+
+    m_cacheEntries = std::move(notRemovedFileStatuses);
+}
+
+void FileStatusCache::remove(const SourceIds &sourceIds)
+{
+    NanotraceHR::Tracer tracer{"file status cache remove by source ids", category()};
+
+    if (sourceIds.empty())
+        return;
+
+    FileStatuses notRemovedFileStatuses;
+    notRemovedFileStatuses.reserve(m_cacheEntries.size());
+
+    auto append = [&](const FileStatus &fileStatus) { notRemovedFileStatuses.push_back(fileStatus); };
+
+    Utils::set_greedy_difference(m_cacheEntries, sourceIds, append, {}, &FileStatus::sourceId);
 
     m_cacheEntries = std::move(notRemovedFileStatuses);
 }
