@@ -47,6 +47,7 @@ using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 using namespace QMakeInternal;
+using namespace Tasking;
 using namespace Utils;
 
 namespace QmakeProjectManager {
@@ -1151,34 +1152,8 @@ QmakeProFile::QmakeProFile(const FilePath &filePath) : QmakePriFile(filePath) { 
 QmakeProFile::~QmakeProFile()
 {
     qDeleteAll(m_extraCompilers);
-    cleanupFutureWatcher();
+    m_taskTreeRunner.reset();
     cleanupProFileReaders();
-}
-
-void QmakeProFile::cleanupFutureWatcher()
-{
-    if (!m_parseFutureWatcher)
-        return;
-
-    m_parseFutureWatcher->disconnect();
-    m_parseFutureWatcher->cancel();
-    m_parseFutureWatcher->waitForFinished();
-    m_parseFutureWatcher->deleteLater();
-    m_parseFutureWatcher = nullptr;
-    m_buildSystem->decrementPendingEvaluateFutures();
-}
-
-void QmakeProFile::setupFutureWatcher()
-{
-    QTC_ASSERT(!m_parseFutureWatcher, return);
-
-    m_parseFutureWatcher = new QFutureWatcher<Internal::QmakeEvalResultPtr>;
-    QObject::connect(m_parseFutureWatcher, &QFutureWatcherBase::finished, [this] {
-        if (m_parseFutureWatcher->future().resultCount())
-            applyEvaluate(m_parseFutureWatcher->result());
-        cleanupFutureWatcher();
-    });
-    m_buildSystem->incrementPendingEvaluateFutures();
 }
 
 bool QmakeProFile::isParent(QmakeProFile *node)
@@ -1274,16 +1249,35 @@ void QmakeProFile::scheduleUpdate(QmakeProFile::AsyncUpdateDelay delay)
 
 void QmakeProFile::asyncUpdate()
 {
-    cleanupFutureWatcher();
-    setupFutureWatcher();
     setupReader();
     if (!includedInExactParse())
         m_readerExact->setExact(false);
-    QmakeEvalInput input = evalInput();
-    QFuture<QmakeEvalResultPtr> future = Utils::asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
-                                                         QThread::LowestPriority,
-                                                         &QmakeProFile::evaluate, input);
-    m_parseFutureWatcher->setFuture(future);
+
+    struct EvaluationController
+    {
+        EvaluationController(const QPointer<QmakeBuildSystem> &bs)
+            : m_buildSystem(bs)
+        { m_buildSystem->incrementPendingEvaluateFutures(); }
+        ~EvaluationController()
+        { m_buildSystem->decrementPendingEvaluateFutures(); }
+    private:
+        QPointer<QmakeBuildSystem> m_buildSystem;
+    };
+
+    const auto onSetup = [input = evalInput()](Async<QmakeEvalResultPtr> &task) {
+        task.setFutureSynchronizer(nullptr); // Reason: m_readerExact and m_readerCumulative magic.
+        task.setThreadPool(ProjectExplorerPlugin::sharedThreadPool());
+        task.setPriority(QThread::LowestPriority);
+        task.setConcurrentCallData(&QmakeProFile::evaluate, input);
+    };
+    const auto onDone = [this](const Async<QmakeEvalResultPtr> &task) {
+        if (task.isResultAvailable())
+            applyEvaluate(task.result());
+    };
+    m_taskTreeRunner.start({
+        Storage<EvaluationController>(m_buildSystem),
+        AsyncTask<QmakeEvalResultPtr>(onSetup, onDone)
+    });
 }
 
 bool QmakeProFile::isFileFromWildcard(const QString &filePath) const

@@ -8,16 +8,21 @@
 #include "proparser/profileevaluator.h"
 
 #include <coreplugin/idocument.h>
+
 #include <cppeditor/generatedcodemodelsupport.h>
+
 #include <projectexplorer/projectnodes.h>
+
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/textfileformat.h>
 
-#include <QFutureWatcher>
 #include <QHash>
 #include <QLoggingCategory>
 #include <QMap>
 #include <QPair>
 #include <QPointer>
+#include <QPromise>
 #include <QStringList>
 
 #include <memory>
@@ -324,9 +329,6 @@ public:
     bool isFileFromWildcard(const QString &filePath) const;
 
 private:
-    void cleanupFutureWatcher();
-    void setupFutureWatcher();
-
     void setParseInProgress(bool b);
     void setValidParseRecursive(bool b);
 
@@ -375,9 +377,9 @@ private:
     QMap<QString, QStringList> m_wildcardDirectoryContents;
 
     // Async stuff
-    QFutureWatcher<Internal::QmakeEvalResultPtr> *m_parseFutureWatcher = nullptr;
     QtSupport::ProFileReader *m_readerExact = nullptr;
     QtSupport::ProFileReader *m_readerCumulative = nullptr;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace QmakeProjectManager
