@@ -10,9 +10,10 @@
 #include "suppression.h"
 #include "../valgrindtr.h"
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/async.h>
 #include <utils/expected.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 
 #include <QAbstractSocket>
@@ -679,41 +680,17 @@ public:
 
     ~ParserPrivate()
     {
-        if (!m_watcher)
-            return;
-        m_thread->cancel();
-        Utils::futureSynchronizer()->addFuture(m_watcher->future());
+        if (m_taskTreeRunner.isRunning())
+            m_thread->cancel();
     }
 
     void start()
     {
-        QTC_ASSERT(!m_watcher, return);
+        QTC_ASSERT(!m_taskTreeRunner.isRunning(), return);
         QTC_ASSERT(m_socket || !m_data.isEmpty(), return);
 
         m_errorString = {};
         m_thread.reset(new ParserThread);
-        m_watcher.reset(new QFutureWatcher<OutputData>);
-        QObject::connect(m_watcher.get(), &QFutureWatcherBase::resultReadyAt, q, [this](int index) {
-            const OutputData data = m_watcher->resultAt(index);
-            if (data.m_status)
-                emit q->status(*data.m_status);
-            if (data.m_error)
-                emit q->error(*data.m_error);
-            if (data.m_errorCount)
-                emit q->errorCount(data.m_errorCount->first, data.m_errorCount->second);
-            if (data.m_suppressionCount)
-                emit q->suppressionCount(data.m_suppressionCount->first, data.m_suppressionCount->second);
-            if (data.m_announceThread)
-                emit q->announceThread(*data.m_announceThread);
-            if (data.m_internalError)
-                m_errorString = data.m_internalError;
-        });
-        QObject::connect(m_watcher.get(), &QFutureWatcherBase::finished, q, [this] {
-            emit q->done(makeResult(!m_errorString, m_errorString.value_or(QString())));
-            m_watcher.release()->deleteLater();
-            m_thread.reset();
-            m_socket.reset();
-        });
         if (m_socket) {
             QObject::connect(m_socket.get(), &QIODevice::readyRead, q, [this] {
                 if (m_thread)
@@ -728,19 +705,43 @@ public:
             m_thread->addData(m_data);
             m_thread->finalize();
         }
-        auto parse = [](QPromise<OutputData> &promise, const std::shared_ptr<ParserThread> &thread) {
+        const auto parse = [](QPromise<OutputData> &promise,
+                              const std::shared_ptr<ParserThread> &thread) {
             thread->run(promise);
         };
-        m_watcher->setFuture(Utils::asyncRun(parse, m_thread));
+        const auto onSetup = [this, parse](Async<OutputData> &task) {
+            QObject::connect(&task, &AsyncBase::resultReadyAt, q, [this, task = &task](int index) {
+                const OutputData data = task->resultAt(index);
+                if (data.m_status)
+                    emit q->status(*data.m_status);
+                if (data.m_error)
+                    emit q->error(*data.m_error);
+                if (data.m_errorCount)
+                    emit q->errorCount(data.m_errorCount->first, data.m_errorCount->second);
+                if (data.m_suppressionCount)
+                    emit q->suppressionCount(data.m_suppressionCount->first, data.m_suppressionCount->second);
+                if (data.m_announceThread)
+                    emit q->announceThread(*data.m_announceThread);
+                if (data.m_internalError)
+                    m_errorString = data.m_internalError;
+            });
+            task.setConcurrentCallData(parse, m_thread);
+        };
+        const auto onDone = [this] {
+            emit q->done(makeResult(!m_errorString, m_errorString.value_or(QString())));
+            m_thread.reset();
+            m_socket.reset();
+        };
+        m_taskTreeRunner.start({AsyncTask<OutputData>(onSetup, onDone)});
     }
 
     Parser *q = nullptr;
 
     QByteArray m_data;
     std::unique_ptr<QAbstractSocket> m_socket;
-    std::unique_ptr<QFutureWatcher<OutputData>> m_watcher;
     std::shared_ptr<ParserThread> m_thread;
     std::optional<QString> m_errorString;
+    SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 Parser::Parser(QObject *parent)
@@ -777,7 +778,7 @@ void Parser::start()
 
 bool Parser::isRunning() const
 {
-    return d->m_watcher.get();
+    return d->m_taskTreeRunner.isRunning();
 }
 
 Result<> Parser::runBlocking()
