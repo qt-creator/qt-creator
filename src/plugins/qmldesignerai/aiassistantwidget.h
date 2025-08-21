@@ -40,7 +40,7 @@ public:
     Q_INVOKABLE void handleMessage(const QString &prompt);
     Q_INVOKABLE QString getPreviousCommand();
     Q_INVOKABLE QString getNextCommand();
-    Q_INVOKABLE QUrl fullAttachedImageUrl() const;
+    Q_INVOKABLE QUrl fullImageUrl(const QString &path) const;
 
 signals:
     void isGeneratingChanged();
@@ -51,7 +51,7 @@ protected:
 private: // functions
     void reloadQmlSource();
     void setIsGenerating(bool val);
-    QString attachedImage() const;
+    QString attachedImageSource() const;
 
 private: // variables
     std::unique_ptr<QNetworkAccessManager> m_manager;

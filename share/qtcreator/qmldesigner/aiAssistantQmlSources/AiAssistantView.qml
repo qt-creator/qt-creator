@@ -6,7 +6,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import HelperWidgets as HelperWidgets
-import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import AiAssistantBackend
 
@@ -14,7 +13,7 @@ Rectangle {
     id: root
 
     property var rootView: AiAssistantBackend.rootView
-    property string attachedImage
+    property alias attachedImageSource: attachedImage.source
 
     color: StudioTheme.Values.themeBackgroundColorNormal
 
@@ -51,44 +50,14 @@ Rectangle {
             spacing: 5
             Layout.alignment: Qt.AlignRight
 
-            Rectangle {
-                width: 60
-                height: 40
-                color: StudioTheme.Values.themeToolTipBackground
+            AssetImage {
+                id: attachedImage
 
-                visible: root.attachedImage !== ""
+                visible: root.attachedImageSource !== ""
+                closable: true
 
-                Image {
-                    id: attachedImageImage
-
-                    anchors.fill: parent
-                    fillMode: Image.PreserveAspectFit
-
-                    StudioControls.ToolTipArea {
-                        text: root.attachedImage
-                        anchors.fill: parent
-                    }
-
-                    HelperWidgets.AbstractButton {
-                        id: removeImageButton
-                        objectName: "RemoveImageButton"
-
-                        width: 12
-                        height: 12
-                        iconSize: 10
-
-                        anchors.right: parent.right
-                        anchors.top: parent.top
-
-                        style: StudioTheme.Values.viewBarButtonStyle
-                        buttonIcon: StudioTheme.Constants.close_small
-                        tooltip: qsTr("Remove the attached image.")
-
-                        onClicked: {
-                            root.attachedImage = ""
-                            attachedImageImage.source = ""
-                        }
-                    }
+                onCloseRequest: {
+                    root.attachedImageSource = ""
                 }
             }
 
@@ -100,46 +69,21 @@ Rectangle {
                 buttonIcon: StudioTheme.Constants.attach_medium
                 tooltip: qsTr("Attach an image.\nThe attached image will be analyzed and integrated into the response by the AI.")
 
-                onClicked: attachMenu.show()
+                onClicked: assetImagesView.showWindow()
             }
         }
     }
 
-    StudioControls.Menu {
-        id: attachMenu
+    AssetImagesPopup {
+        id: assetImagesView
 
-        closePolicy: StudioControls.Menu.CloseOnEscape | StudioControls.Menu.CloseOnPressOutside
-        implicitWidth: 250
+        snapItem: attachImageButton
 
-        onClosed: {
-            attachRepeater.model = {}
+        onWindowShown: {
+            if (!assetImagesView.model.includes(root.attachedImageSource))
+                root.attachedImageSource = ""
         }
 
-        function show() {
-            updateModel()
-            attachMenu.popup(attachImageButton)
-        }
-
-        function updateModel() {
-            let imagesModel = root.rootView.getImageAssetsPaths()
-            attachRepeater.model = imagesModel
-            if (!imagesModel.includes(root.attachedImage))
-                root.attachedImage = ""
-        }
-
-        Repeater {
-            id: attachRepeater
-
-            delegate: StudioControls.MenuItem {
-                id: menuItem
-
-                required property string modelData
-                text: modelData
-                onTriggered: {
-                    root.attachedImage = menuItem.text
-                    attachedImageImage.source = root.rootView.fullAttachedImageUrl()
-                }
-            }
-        }
+        onImageClicked: (imageSource) => root.attachedImageSource = imageSource
     }
 }

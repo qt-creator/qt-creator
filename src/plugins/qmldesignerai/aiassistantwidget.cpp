@@ -118,7 +118,7 @@ AiAssistantWidget::AiAssistantWidget()
 
 void AiAssistantWidget::clearAttachedImage()
 {
-    m_quickWidget->rootObject()->setProperty("attachedImage", "");
+    m_quickWidget->rootObject()->setProperty("attachedImageSource", "");
 }
 
 QSize AiAssistantWidget::sizeHint() const
@@ -197,9 +197,8 @@ Request: %2
 )";
 
     QJsonObject userJson;
-    if (const QString &attachedImage = this->attachedImage(); !attachedImage.isEmpty()) {
-        Utils::FilePath imagePath = DocumentManager::currentResourcePath().pathAppended(
-            attachedImage);
+    if (const QUrl &imageUrl = fullImageUrl(attachedImageSource()); !imageUrl.isEmpty()) {
+        Utils::FilePath imagePath = Utils::FilePath::fromUrl(imageUrl);
         if (imagePath.exists()) {
             QImage image(imagePath.toFSPathString());
             QByteArray byteArray;
@@ -298,9 +297,8 @@ QString AiAssistantWidget::getNextCommand()
     return {};
 }
 
-QUrl AiAssistantWidget::fullAttachedImageUrl() const
+QUrl AiAssistantWidget::fullImageUrl(const QString &path) const
 {
-    QString path = attachedImage();
     return path.isEmpty() ? QUrl()
                           : DocumentManager::currentResourcePath().pathAppended(path).toUrl();
 }
@@ -320,9 +318,9 @@ void AiAssistantWidget::setIsGenerating(bool val)
     }
 }
 
-QString AiAssistantWidget::attachedImage() const
+QString AiAssistantWidget::attachedImageSource() const
 {
-    return m_quickWidget->rootObject()->property("attachedImage").toString();
+    return m_quickWidget->rootObject()->property("attachedImageSource").toString();
 }
 
 } // namespace QmlDesigner
