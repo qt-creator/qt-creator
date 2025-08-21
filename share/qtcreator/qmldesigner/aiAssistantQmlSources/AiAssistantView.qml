@@ -22,6 +22,24 @@ Rectangle {
         anchors.fill: parent
         anchors.margins: StudioTheme.Values.marginTopBottom
 
+        Flow {
+            spacing: 5
+            Layout.fillWidth: true
+
+            Repeater {
+                model: ["Add a rectangle", "Add a button", "Add a Text", "Create a sample UI", "Remove all objects"]
+
+                delegate: PromptButton {
+                    required property string modelData
+
+                    label: modelData
+                    enabled: !root.rootView.isGenerating
+
+                    onClicked: root.rootView.handleMessage(modelData)
+                }
+            }
+        }
+
         PromptTextBox {
             rootView: root.rootView
 

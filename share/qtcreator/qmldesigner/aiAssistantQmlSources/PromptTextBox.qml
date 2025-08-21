@@ -86,18 +86,15 @@ Rectangle {
             Layout.alignment: Qt.AlignBottom | Qt.AlignHCenter
             Layout.margins: StudioTheme.Values.marginTopBottom
 
-            icon: AiAssistantBackend.rootView.isGenerating && !sendButton.enabled
+            icon: root.rootView.isGenerating && !sendButton.enabled
                   ? StudioTheme.Constants.more_medium
                   : StudioTheme.Constants.selectFill_medium
 
-            iconColor: {
-                return sendButton.enabled
-                    ? root.style.interaction
-                    : root.style.icon.disabled
-            }
+            iconColor: sendButton.enabled ? root.style.interaction
+                                          : root.style.icon.disabled
 
             tooltip: qsTr("Send")
-            enabled: textEdit.text !== ""
+            enabled: textEdit.text !== "" && !root.rootView.isGenerating
 
             onClicked: root.send()
         }
