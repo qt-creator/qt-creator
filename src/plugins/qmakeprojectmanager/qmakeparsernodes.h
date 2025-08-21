@@ -333,11 +333,10 @@ private:
     void setupReader();
     Internal::QmakeEvalInput evalInput() const;
 
-    static Internal::QmakeEvalResultPtr evaluate(const Internal::QmakeEvalInput &input);
+    static void evaluate(QPromise<Internal::QmakeEvalResultPtr> &promise,
+                         const Internal::QmakeEvalInput &input);
     void applyEvaluate(const Internal::QmakeEvalResultPtr &parseResult);
 
-    void asyncEvaluate(QPromise<Internal::QmakeEvalResultPtr> &promise,
-                       Internal::QmakeEvalInput input);
     void cleanupProFileReaders();
 
     void updateGeneratedFiles(const Utils::FilePath &buildDir);

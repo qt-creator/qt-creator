@@ -1174,7 +1174,8 @@ void QmakeProFile::setupFutureWatcher()
 
     m_parseFutureWatcher = new QFutureWatcher<Internal::QmakeEvalResultPtr>;
     QObject::connect(m_parseFutureWatcher, &QFutureWatcherBase::finished, [this] {
-        applyEvaluate(m_parseFutureWatcher->result());
+        if (m_parseFutureWatcher->future().resultCount())
+            applyEvaluate(m_parseFutureWatcher->result());
         cleanupFutureWatcher();
     });
     m_buildSystem->incrementPendingEvaluateFutures();
@@ -1281,7 +1282,7 @@ void QmakeProFile::asyncUpdate()
     QmakeEvalInput input = evalInput();
     QFuture<QmakeEvalResultPtr> future = Utils::asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
                                                          QThread::LowestPriority,
-                                                         &QmakeProFile::asyncEvaluate, this, input);
+                                                         &QmakeProFile::evaluate, input);
     m_parseFutureWatcher->setFuture(future);
 }
 
@@ -1360,8 +1361,10 @@ static bool evaluateOne(const QmakeEvalInput &input, ProFile *pro,
     return true;
 }
 
-QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
+void QmakeProFile::evaluate(QPromise<QmakeEvalResultPtr> &promise, const QmakeEvalInput &input)
 {
+    if (promise.isCanceled())
+        return;
     QmakeEvalResultPtr result(new QmakeEvalResult);
     QtSupport::ProFileReader *exactBuildPassReader = nullptr;
     QtSupport::ProFileReader *cumulativeBuildPassReader = nullptr;
@@ -1376,8 +1379,18 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
         result->state = QmakeEvalResult::EvalFail;
     }
 
-    if (result->state == QmakeEvalResult::EvalFail)
-        return result;
+    const auto cleanup = qScopeGuard([input, exactBuildPassReader, cumulativeBuildPassReader] {
+        if (exactBuildPassReader && exactBuildPassReader != input.readerExact)
+            delete exactBuildPassReader;
+        if (cumulativeBuildPassReader && cumulativeBuildPassReader != input.readerCumulative)
+            delete cumulativeBuildPassReader;
+
+    });
+
+    if (result->state == QmakeEvalResult::EvalFail) {
+        promise.addResult(result);
+        return;
+    }
 
     result->includedFiles.proFile = pro;
     result->includedFiles.name = input.projectFilePath;
@@ -1396,6 +1409,8 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
             result->errors.append(errors);
 
             for (const FilePath &subDirName : subDirs) {
+                if (promise.isCanceled())
+                    return;
                 auto subDir = new QmakeIncludedPriFile;
                 subDir->proFile = nullptr;
                 subDir->name = subDirName;
@@ -1409,11 +1424,15 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
         QHash<ProFile *, QList<ProFile *>> includeFiles = input.readerExact->includeFiles();
         QList<QmakeIncludedPriFile *> toBuild = {&result->includedFiles};
         while (!toBuild.isEmpty()) {
+            if (promise.isCanceled())
+                return;
             QmakeIncludedPriFile *current = toBuild.takeFirst();
             if (!current->proFile)
                 continue;  // Don't attempt to map subdirs here
             const QList<ProFile *> children = includeFiles.value(current->proFile);
             for (ProFile *child : children) {
+                if (promise.isCanceled())
+                    return;
                 const FilePath childName = child->fullName();
                 auto it = current->children.find(childName);
                 if (it == current->children.end()) {
@@ -1428,9 +1447,14 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
         }
     }
 
+    if (promise.isCanceled())
+        return;
+
     if (result->projectType == ProjectType::SubDirsTemplate) {
         const FilePaths subDirs = subDirsPaths(input.readerCumulative, input.projectDir, nullptr, nullptr);
         for (const FilePath &subDirName : subDirs) {
+            if (promise.isCanceled())
+                return;
             auto it = result->includedFiles.children.find(subDirName);
             if (it == result->includedFiles.children.end()) {
                 auto subDir = new QmakeIncludedPriFile;
@@ -1445,11 +1469,15 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
     QHash<ProFile *, QList<ProFile *>> includeFiles = input.readerCumulative->includeFiles();
     QList<QmakeIncludedPriFile *> toBuild = {&result->includedFiles};
     while (!toBuild.isEmpty()) {
+        if (promise.isCanceled())
+            return;
         QmakeIncludedPriFile *current = toBuild.takeFirst();
         if (!current->proFile)
             continue;  // Don't attempt to map subdirs here
         const QList<ProFile *> children = includeFiles.value(current->proFile);
         for (ProFile *child : children) {
+            if (promise.isCanceled())
+                return;
             const FilePath childName = child->fullName();
             auto it = current->children.find(childName);
             if (it == current->children.end()) {
@@ -1464,6 +1492,9 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
         toBuild.append(current->children.values());
     }
 
+    if (promise.isCanceled())
+        return;
+
     auto exactReader = exactBuildPassReader ? exactBuildPassReader : input.readerExact;
     auto cumulativeReader = cumulativeBuildPassReader ? cumulativeBuildPassReader : input.readerCumulative;
 
@@ -1477,9 +1508,13 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
             = baseVPaths(cumulativeReader, input.projectDir.path(), input.buildDirectory.path());
 
     for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
+        if (promise.isCanceled())
+            return;
         const auto type = static_cast<FileType>(i);
         const QStringList qmakeVariables = varNames(type, exactReader);
         for (const QString &qmakeVariable : qmakeVariables) {
+            if (promise.isCanceled())
+                return;
             QHash<ProString, bool> handled;
             if (result->state == QmakeEvalResult::EvalOk) {
                 const QStringList vPathsExact = fullVPaths(
@@ -1508,6 +1543,9 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
                                         input.projectDir.path(),
                                         input.buildDirectory.path());
     extractInstalls(device, proToResult, &result->includedFiles.result, result->installsList);
+
+    if (promise.isCanceled())
+        return;
 
     if (result->state == QmakeEvalResult::EvalOk) {
         result->targetInformation = targetInformation(input.readerExact, exactBuildPassReader,
@@ -1569,28 +1607,31 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
 
         QList<QmakeIncludedPriFile *> toExtract = {&result->includedFiles};
         while (!toExtract.isEmpty()) {
+            if (promise.isCanceled())
+                return;
             QmakeIncludedPriFile *current = toExtract.takeFirst();
             processValues(current->result);
             toExtract.append(current->children.values());
         }
     }
 
-    if (exactBuildPassReader && exactBuildPassReader != input.readerExact)
-        delete exactBuildPassReader;
-    if (cumulativeBuildPassReader && cumulativeBuildPassReader != input.readerCumulative)
-        delete cumulativeBuildPassReader;
-
     QList<QPair<QmakePriFile *, QmakeIncludedPriFile *>>
             toCompare{{nullptr, &result->includedFiles}};
     while (!toCompare.isEmpty()) {
+        if (promise.isCanceled())
+            return;
         QmakePriFile *pn = toCompare.first().first;
         QmakeIncludedPriFile *tree = toCompare.first().second;
         toCompare.pop_front();
 
         // Loop prevention: Make sure that exact same node is not in our parent chain
         for (QmakeIncludedPriFile *priFile : std::as_const(tree->children)) {
+            if (promise.isCanceled())
+                return;
             bool loop = input.parentFilePaths.contains(priFile->name);
             for (const QmakePriFile *n = pn; n && !loop; n = n->parent()) {
+                if (promise.isCanceled())
+                    return;
                 if (n->filePath() == priFile->name)
                     loop = true;
             }
@@ -1620,13 +1661,9 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
             }
         }
     }
-
-    return result;
-}
-
-void QmakeProFile::asyncEvaluate(QPromise<QmakeEvalResultPtr> &promise, QmakeEvalInput input)
-{
-    promise.addResult(evaluate(input));
+    if (promise.isCanceled())
+        return;
+    promise.addResult(result);
 }
 
 bool sortByParserNodes(Node *a, Node *b)
