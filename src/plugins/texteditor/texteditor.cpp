@@ -50,6 +50,8 @@
 #include <coreplugin/manhattanstyle.h>
 #include <coreplugin/navigationwidget.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/camelcasecursor.h>
@@ -80,7 +82,6 @@
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDrag>
-#include <QFutureWatcher>
 #include <QGridLayout>
 #include <QKeyEvent>
 #include <QLoggingCategory>
@@ -137,6 +138,7 @@
 */
 
 using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 
 namespace TextEditor {
@@ -1136,16 +1138,14 @@ public:
         setMultiTextCursorProvider([editor]() { return editor->multiTextCursor(); });
     }
 
-    ~TextEditorWidgetFind() override { cancelCurrentSelectAll(); }
-
     bool supportsSelectAll() const override { return true; }
     void selectAll(const QString &txt, FindFlags findFlags) override;
 
-    static void cancelCurrentSelectAll();
+    void cancelCurrentSelectAll();
 
 private:
     TextEditorWidget * const m_editor;
-    static QFutureWatcher<SearchResultItems> *m_selectWatcher;
+    SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 static QTextCursor selectRange(QTextDocument *textDocument, const Text::Range &range,
@@ -1165,23 +1165,20 @@ static QTextCursor selectRange(QTextDocument *textDocument, const Text::Range &r
     return textCursor;
 }
 
-QFutureWatcher<SearchResultItems> *TextEditorWidgetFind::m_selectWatcher = nullptr;
-
 void TextEditorWidgetFind::selectAll(const QString &txt, FindFlags findFlags)
 {
     if (txt.isEmpty())
         return;
 
-    cancelCurrentSelectAll();
-
-    m_selectWatcher = new QFutureWatcher<SearchResultItems>();
-    connect(m_selectWatcher, &QFutureWatcher<SearchResultItems>::finished, this, [this] {
-        const QFuture<SearchResultItems> future = m_selectWatcher->future();
-        m_selectWatcher->deleteLater();
-        m_selectWatcher = nullptr;
-        if (future.resultCount() <= 0)
+    const auto onSetup = [this, txt, findFlags](Async<SearchResultItems> &task) {
+        task.setConcurrentCallData(Utils::searchInContents, txt, findFlags,
+                                   m_editor->textDocument()->filePath(),
+                                   m_editor->textDocument()->plainText());
+    };
+    const auto onDone = [this](const Async<SearchResultItems> &task) {
+        if (!task.isResultAvailable())
             return;
-        const SearchResultItems &results = future.result();
+        const SearchResultItems &results = task.result();
         if (results.isEmpty())
             return;
         const auto cursorForResult = [this](const SearchResultItem &item) {
@@ -1193,21 +1190,13 @@ void TextEditorWidgetFind::selectAll(const QString &txt, FindFlags findFlags)
         });
         m_editor->setMultiTextCursor(MultiTextCursor(cursors));
         m_editor->setFocus();
-    });
-
-    m_selectWatcher->setFuture(Utils::asyncRun(Utils::searchInContents, txt, findFlags,
-                                               m_editor->textDocument()->filePath(),
-                                               m_editor->textDocument()->plainText()));
+    };
+    m_taskTreeRunner.start({AsyncTask<SearchResultItems>(onSetup, onDone)});
 }
 
 void TextEditorWidgetFind::cancelCurrentSelectAll()
 {
-    if (m_selectWatcher) {
-        m_selectWatcher->disconnect();
-        m_selectWatcher->cancel();
-        m_selectWatcher->deleteLater();
-        m_selectWatcher = nullptr;
-    }
+    m_taskTreeRunner.reset();
 }
 
 TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
@@ -3039,7 +3028,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     } else {
         d->m_maybeFakeTooltipEvent = false;
         if (e->key() == Qt::Key_Escape ) {
-            TextEditorWidgetFind::cancelCurrentSelectAll();
+            d->m_find->cancelCurrentSelectAll();
             if (d->m_suggestionBlock.isValid()) {
                 d->clearCurrentSuggestion();
                 e->accept();
