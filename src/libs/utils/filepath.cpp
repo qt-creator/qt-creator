@@ -1159,7 +1159,21 @@ QString doCleanPath(const QString &input_)
             --prefixLen;
     }
 
-    QString path = normalizePathSegmentHelper(input.mid(prefixLen));
+    // We need to preserve a leading ./ for remote paths.
+    bool reAddDotSlash = false;
+
+    QString path = input.mid(prefixLen);
+    if (shLen > 0 && path.startsWith("./"))
+        reAddDotSlash = true;
+
+    path = normalizePathSegmentHelper(path);
+
+    if (reAddDotSlash) {
+        if (!path.startsWith("./"))
+            path.prepend("./");
+        else
+            QTC_CHECK(false);
+    }
 
     // Strip away last slash except for root directories
     if (path.size() > 1 && path.endsWith(u'/'))

@@ -940,7 +940,7 @@ void tst_filepath::fromUserInput_data()
     QTest::newRow("docker-root-url-special-win")
         << D("c:/__qtc_devices__/docker/1234/", "docker", "1234", "/");
     QTest::newRow("docker-relative-path")
-        << D("docker://1234/./rel", "docker", "1234", "rel", FailEverywhere);
+        << D("docker://1234/./rel", "docker", "1234", "rel");
 
     QTest::newRow("qtc-dev-linux") << D("/__qtc_devices__", "", "", "/__qtc_devices__");
     QTest::newRow("qtc-dev-win") << D("c:/__qtc_devices__", "", "", "c:/__qtc_devices__");
