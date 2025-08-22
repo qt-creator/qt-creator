@@ -3214,8 +3214,9 @@ public:
     std::function<Layouting::Layout()> m_layouter;
 };
 
-AspectContainer::AspectContainer()
-    : d(new Internal::AspectContainerPrivate)
+AspectContainer::AspectContainer(AspectContainer *parentContainer)
+    : BaseAspect(parentContainer)
+    , d(new Internal::AspectContainerPrivate)
 {}
 
 /*!
