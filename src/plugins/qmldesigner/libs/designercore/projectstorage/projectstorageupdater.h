@@ -76,37 +76,6 @@ public:
     void pathsWithIdsChanged(const std::vector<IdPaths> &idPaths) override;
     void pathsChanged(const SourceIds &filePathIds) override;
 
-    struct Component
-    {
-        Utils::SmallString fileName;
-        Utils::SmallString typeName;
-        ModuleId moduleId;
-        int majorVersion = -1;
-        int minorVersion = -1;
-    };
-
-    using Components = std::vector<Component>;
-
-    class ComponentRange
-    {
-    public:
-        using const_iterator = Components::const_iterator;
-
-        ComponentRange(const_iterator begin, const_iterator end)
-            : m_begin{begin}
-            , m_end{end}
-        {}
-
-        std::size_t size() const { return static_cast<std::size_t>(std::distance(m_begin, m_end)); }
-
-        const_iterator begin() const { return m_begin; }
-        const_iterator end() const { return m_end; }
-
-    private:
-        const_iterator m_begin;
-        const_iterator m_end;
-    };
-
     enum class FileState { Unchanged, Changed, NotExists, NotExistsUnchanged, Added, Removed };
 
     struct WatchedSourceIds
