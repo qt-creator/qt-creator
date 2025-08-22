@@ -832,15 +832,18 @@ void PlainTextEditPrivate::setTopBlock(int blockNumber, int lineNumber, int dx, 
     QTextBlock block = doc->findBlockByNumber(blockNumber);
 
     int newTopLine = editorLayout->firstLineNumberOf(block) + lineNumber;
-    int maxTopLine = editorLayout->lineCount();
+    int newScrollbarValue = vScrollbarValueForLine(newTopLine) + dy;
+    int maxScrollbarValue = vbar()->maximum();
 
-    if (newTopLine > maxTopLine) {
-        block = editorLayout->findBlockByLineNumber(maxTopLine);
+    if (newScrollbarValue > maxScrollbarValue) {
+        newScrollbarValue = maxScrollbarValue;
+        newTopLine = editorLayout->lineForOffset(maxScrollbarValue);
+        block = editorLayout->findBlockByLineNumber(newTopLine);
         blockNumber = block.blockNumber();
-        lineNumber = maxTopLine - editorLayout->firstLineNumberOf(block);
+        lineNumber = newTopLine - editorLayout->firstLineNumberOf(block);
     }
 
-    vbar()->setValue(vScrollbarValueForLine(editorLayout->firstLineNumberOf(block) + lineNumber) + dy);
+    vbar()->setValue(newScrollbarValue);
 
     if (!dx && dy == topLineOffset && blockNumber == control->topBlock && lineNumber == topLine)
         return;
