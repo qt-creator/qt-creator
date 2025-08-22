@@ -364,7 +364,9 @@ bool TextEditorLayout::moveCursorImpl(QTextCursor &cursor, QTextCursor::MoveOper
         int lineNumber = down ? line.lineNumber() + 1 : line.lineNumber() - 1;
 
         if (lineNumber >= layout->lineCount() || lineNumber == -1) {
-            block = down ? block.next() : block.previous();
+            do {
+                block = down ? block.next() : block.previous();
+            } while (block.isValid() && !block.isVisible());
 
             if (!block.isValid()) {
                 if (mode == QTextCursor::KeepAnchor)
