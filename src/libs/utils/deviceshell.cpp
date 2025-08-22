@@ -209,6 +209,7 @@ Result<> DeviceShell::start()
                         qCWarning(deviceShellLog) << "Shell exited with error code:"
                                                   << m_shellProcess->resultData().m_exitCode << "("
                                                   << m_shellProcess->exitMessage() << ")";
+                        emit exitedIrregularly();
                     }
                 });
 

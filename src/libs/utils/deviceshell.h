@@ -48,6 +48,7 @@ public:
 
 signals:
     void done(const ProcessResultData &resultData);
+    void exitedIrregularly();
 
 protected:
     RunResult run(const CommandLine &cmd, const QByteArray &stdInData = {});

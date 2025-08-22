@@ -965,6 +965,9 @@ class ShellThreadHandler : public QObject
 {
     Q_OBJECT
 
+signals:
+    void shellExitedIrregularly();
+
 private:
     class LinuxDeviceShell : public DeviceShell
     {
@@ -1023,9 +1026,8 @@ public:
 
         m_shell = new LinuxDeviceShell(cmd,
             FilePath::fromString(QString("ssh://%1/").arg(parameters.userAtHostAndPort())));
-        connect(m_shell.get(), &DeviceShell::done, this, [this] {
-            closeShell();
-        });
+        connect(m_shell.get(), &DeviceShell::exitedIrregularly,
+                this, &ShellThreadHandler::shellExitedIrregularly);
         Result<> result = m_shell->start();
         if (!result) {
             qCDebug(linuxDeviceLog) << "Failed to start shell for:" << parameters.userAtHostAndPort()
@@ -1290,6 +1292,21 @@ LinuxDeviceAccess::LinuxDeviceAccess(LinuxDevicePrivate *devicePrivate)
     m_shellThread.setObjectName("LinuxDeviceShell");
     m_handler = new ShellThreadHandler();
     m_handler->moveToThread(&m_shellThread);
+    QObject::connect(m_handler, &ShellThreadHandler::shellExitedIrregularly,
+                     devicePrivate->q, [devicePrivate] {
+        const QString message = Tr::tr("Device \"%1\" unexpectedly lost connection.")
+            .arg(devicePrivate->q->displayName());
+        const Id id = devicePrivate->announceId();
+        InfoBarEntry info(id, message);
+        info.setTitle(Tr::tr("Connection Lost"));
+        info.setInfoType(InfoLabel::Warning);
+        InfoBar *infoBar = Core::ICore::popupInfoBar();
+        infoBar->addInfo(info);
+        QTimer::singleShot(5000, devicePrivate->q, [id, infoBar] { infoBar->removeInfo(id); });
+        Core::MessageManager::writeSilently(message);
+        devicePrivate->closeConnection();
+        DeviceManager::instance()->deviceUpdated(devicePrivate->q->id());
+    });
     QObject::connect(&m_shellThread, &QThread::finished, m_handler, &QObject::deleteLater);
     m_shellThread.start();
 }
