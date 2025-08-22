@@ -483,11 +483,20 @@ Environment LinuxDevicePrivate::getEnvironment()
     if (m_deviceState == IDevice::DeviceDisconnected)
         return {};
 
+    char separator = '\0';
     Process getEnvProc;
-    getEnvProc.setCommand({q->filePath("env"), {}});
+    getEnvProc.setCommand({q->filePath("env"), {"-0"}});
     using namespace std::chrono;
     getEnvProc.runBlocking(5s);
 
+    if (getEnvProc.result() != ProcessResult::FinishedWithSuccess) {
+        qCWarning(linuxDeviceLog) << "Failed to get environment variables from device:"
+                                  << getEnvProc.verboseExitMessage()
+                                  << "Trying again without -0 option";
+        separator = '\n';
+        getEnvProc.setCommand({q->filePath("env"), {}});
+        getEnvProc.runBlocking(5s);
+    }
     if (getEnvProc.result() != ProcessResult::FinishedWithSuccess) {
         qCWarning(linuxDeviceLog) << "Failed to get environment variables from device:"
                                   << getEnvProc.verboseExitMessage();
@@ -495,7 +504,7 @@ Environment LinuxDevicePrivate::getEnvironment()
     }
 
     const QString remoteOutput = getEnvProc.cleanedStdOut();
-    m_environmentCache = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
+    m_environmentCache = Environment(remoteOutput.split(separator, Qt::SkipEmptyParts), q->osType());
     return m_environmentCache.value();
 }
 
@@ -937,7 +946,7 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
 
     const Environment &env = q->m_setup.m_environment;
     env.forEachEntry([&](const QString &key, const QString &value, bool enabled) {
-        if (enabled && !key.trimmed().isEmpty())
+        if (enabled && !key.trimmed().isEmpty() && !value.contains('\n'))
             inner.addArgs(key + "='" + env.expandVariables(value) + '\'', CommandLine::Raw);
     });
 
