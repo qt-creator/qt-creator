@@ -8,7 +8,10 @@
 #include "cmakeprojectmanagertr.h"
 #include "targethelper.h"
 
+#include <autotest/autotestconstants.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/locator/ilocatorfilter.h>
+#include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
@@ -151,12 +154,94 @@ private:
     LocatorMatcherTasks matchers() final { return cmakeMatchers({}); }
 };
 
+class CMakeRunCTestFilter final : ILocatorFilter
+{
+public:
+    CMakeRunCTestFilter()
+    {
+        setId("Run CTest Test");
+        setDisplayName(Tr::tr("Run CTest Test"));
+        setDescription(Tr::tr("Runs a CTest test of the current active CMake project."));
+        setDefaultShortcutString("ct");
+        setPriority(Medium);
+        setupFilter(this);
+    }
+
+private:
+    LocatorMatcherTasks matchers() final { return CTestMatchers(&runCTest); }
+
+    static void runCTest(BuildSystem *buildSystem, const TestCaseInfo &testInfo)
+    {
+        ActionContainer *testMenu = ActionManager::actionContainer(Autotest::Constants::MENU_ID);
+        // If QC is started without AutoTest plugin
+        if (!testMenu) {
+            Core::MessageManager::writeFlashing(
+                Tr::tr("AutoTest plugin needs to be loaded in order to execute tests."));
+        }
+
+        ProjectExplorer::TestCaseEnvironment testEnv;
+        emit buildSystem->testRunRequested(testInfo, {"--output-on-failure"}, testEnv);
+    }
+
+    using TestAcceptor = std::function<void(BuildSystem *, const TestCaseInfo &)>;
+    static LocatorMatcherTasks CTestMatchers(const TestAcceptor &acceptor)
+    {
+        const auto onSetup = [acceptor] {
+            const LocatorStorage &storage = *LocatorStorage::storage();
+            const QString input = storage.input();
+            const QRegularExpression regexp
+                = ILocatorFilter::createRegExp(input, ILocatorFilter::caseSensitivity(input));
+            if (!regexp.isValid())
+                return;
+            LocatorFilterEntries entries[int(ILocatorFilter::MatchLevel::Count)];
+
+            const auto cmakeProject = qobject_cast<const CMakeProject *>(ProjectManager::startupProject());
+            if (!cmakeProject)
+                return;
+            const auto bs = qobject_cast<CMakeBuildSystem *>(cmakeProject->activeBuildSystem());
+            if (!bs)
+                return;
+
+            for (const TestCaseInfo &testInfo : bs->testcasesInfo()) {
+                const QRegularExpressionMatch match = regexp.match(testInfo.name);
+                if (match.hasMatch()) {
+                    const FilePath projectPath = cmakeProject->projectFilePath();
+                    const QString displayName = testInfo.name;
+                    LocatorFilterEntry entry;
+                    entry.displayName = displayName;
+                    if (acceptor) {
+                        entry.acceptor = [bs, testInfo, acceptor] {
+                            acceptor(bs, testInfo);
+                            return AcceptResult();
+                        };
+                    }
+                    entry.extraInfo = testInfo.path.shortNativePath();
+                    entry.highlightInfo = ILocatorFilter::highlightInfo(match);
+                    entry.filePath = testInfo.path;
+                    entry.linkForEditor = {testInfo.path, testInfo.line};
+
+                    if (match.capturedStart() == 0)
+                        entries[int(ILocatorFilter::MatchLevel::Best)].append(entry);
+                    else if (match.lastCapturedIndex() == 1)
+                        entries[int(ILocatorFilter::MatchLevel::Better)].append(entry);
+                    else
+                        entries[int(ILocatorFilter::MatchLevel::Good)].append(entry);
+                }
+            }
+            storage.reportOutput(
+                std::accumulate(std::begin(entries), std::end(entries), LocatorFilterEntries()));
+        };
+        return {Sync(onSetup)};
+    }
+};
+
 // Setup
 
 void setupCMakeLocatorFilters()
 {
     static CMakeBuildTargetFilter theCMakeBuildTargetFilter;
     static CMakeOpenTargetFilter theCMakeOpenTargetFilter;
+    static CMakeRunCTestFilter theCMakeRunCTestFilter;
 }
 
-} // CMakeProjectManager::Internal
+} // namespace CMakeProjectManager::Internal
