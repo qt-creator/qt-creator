@@ -6,7 +6,6 @@
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 
-#include <QFutureWatcher>
 #include <QTimer>
 #include <QUrl>
 
@@ -77,8 +76,6 @@ private:
     Utils::Process m_process;
     bool m_upgrade = false;
     bool m_silent = false;
-    QFutureInterface<void> m_future;
-    QFutureWatcher<void> m_watcher;
     QTimer m_killTimer;
 };
 

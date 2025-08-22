@@ -7,22 +7,19 @@
 #include "pythonutils.h"
 
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/processprogress.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
-#include <utils/async.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
 
 using namespace Utils;
 
 namespace Python::Internal {
-
-const char pipInstallTaskId[] = "Python::pipInstallTask";
 
 PipInstallTask::PipInstallTask(const FilePath &python)
     : m_python(python)
@@ -31,8 +28,6 @@ PipInstallTask::PipInstallTask(const FilePath &python)
     connect(&m_process, &Process::readyReadStandardError, this, &PipInstallTask::handleError);
     connect(&m_process, &Process::readyReadStandardOutput, this, &PipInstallTask::handleOutput);
     connect(&m_killTimer, &QTimer::timeout, this, &PipInstallTask::cancel);
-    connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &PipInstallTask::cancel);
-    m_watcher.setFuture(m_future.future());
 }
 
 void PipInstallTask::setRequirements(const Utils::FilePath &requirementFile)
@@ -103,9 +98,10 @@ void PipInstallTask::run()
 
     m_process.setCommand({m_python, arguments});
     m_process.setTerminalMode(m_silent ? TerminalMode::Off : TerminalMode::Run);
+    auto progress = new Core::ProcessProgress(&m_process);
+    progress->setDisplayName(operation);
     m_process.start();
 
-    Core::ProgressManager::addTask(m_future.future(), operation, pipInstallTaskId);
     Core::MessageManager::writeSilently(
         Tr::tr("Running \"%1\" to install %2.")
             .arg(m_process.commandLine().toUserOutput(), packagesDisplayName()));
@@ -116,23 +112,18 @@ void PipInstallTask::run()
 
 void PipInstallTask::cancel()
 {
-    m_process.stop();
-    m_process.waitForFinished();
+    m_process.close();
     Core::MessageManager::writeFlashing(
-        m_killTimer.isActive()
-            ? Tr::tr("The installation of \"%1\" was canceled by timeout.").arg(packagesDisplayName())
-            : Tr::tr("The installation of \"%1\" was canceled by the user.")
-                  .arg(packagesDisplayName()));
+        Tr::tr("The installation of \"%1\" was canceled by timeout.").arg(packagesDisplayName()));
 }
 
 void PipInstallTask::handleDone()
 {
-    m_future.reportFinished();
+    m_killTimer.stop();
     const bool success = m_process.result() == ProcessResult::FinishedWithSuccess;
     if (!success) {
-        Core::MessageManager::writeFlashing(Tr::tr("Installing \"%1\" failed:")
-                                                .arg(packagesDisplayName())
-                                                .arg(m_process.exitMessage()));
+        Core::MessageManager::writeFlashing(Tr::tr("Installing \"%1\" failed: %2")
+                             .arg(packagesDisplayName(), m_process.exitMessage()));
     }
     emit finished(success);
 }
