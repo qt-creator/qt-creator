@@ -416,7 +416,8 @@ public:
     void compressChangedDirectoryPath(const QString &path)
     {
         NanotraceHR::Tracer tracer{"project storage path watcher compress changed directory path",
-                                   ProjectStorageTracing::category()};
+                                   ProjectStorageTracing::category(),
+                                   NanotraceHR::keyValue("path", path)};
 
         m_directoryPathCompressor.addDirectoryPathId(
             m_pathCache.directoryPathId(Utils::PathString{path}));
