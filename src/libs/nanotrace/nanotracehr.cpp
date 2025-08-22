@@ -276,6 +276,22 @@ void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
 template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<TraceEventWithArguments> &eventQueue);
 template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<TraceEventWithoutArguments> &eventQueue);
 
+namespace Internal {
+template<typename TraceEvent>
+EventQueueTracker<TraceEvent> &EventQueueTracker<TraceEvent>::get()
+{
+    static EventQueueTracker<TraceEvent> tracker;
+
+    return tracker;
+}
+
+template NANOTRACE_EXPORT_TEMPLATE EventQueueTracker<TraceEventWithArguments> &
+EventQueueTracker<TraceEventWithArguments>::get();
+template NANOTRACE_EXPORT_TEMPLATE EventQueueTracker<TraceEventWithoutArguments> &
+EventQueueTracker<TraceEventWithoutArguments>::get();
+
+} // namespace Internal
+
 template<typename TraceEvent>
 EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile &file)
     : file{file}

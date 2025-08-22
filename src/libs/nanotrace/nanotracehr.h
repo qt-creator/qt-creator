@@ -629,12 +629,7 @@ public:
         queues.erase(std::remove(queues.begin(), queues.end(), queue), queues.end());
     }
 
-    static EventQueueTracker &get()
-    {
-        static EventQueueTracker tracker;
-
-        return tracker;
-    }
+    static EventQueueTracker &get();
 
     void flushAll()
     {
@@ -657,6 +652,11 @@ private:
     std::vector<Queue *> queues;
     std::terminate_handler terminateHandler = nullptr;
 };
+
+extern template NANOTRACE_EXPORT_TEMPLATE EventQueueTracker<TraceEventWithArguments> &
+EventQueueTracker<TraceEventWithArguments>::get();
+extern template NANOTRACE_EXPORT_TEMPLATE EventQueueTracker<TraceEventWithoutArguments> &
+EventQueueTracker<TraceEventWithoutArguments>::get();
 } // namespace Internal
 
 template<typename TraceEvent>
