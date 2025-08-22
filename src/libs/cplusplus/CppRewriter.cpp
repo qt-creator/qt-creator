@@ -433,6 +433,8 @@ UseMinimalNames::~UseMinimalNames()
 
 static bool hasTemplateNameIdComponent(const Name *name)
 {
+    if (!name)
+        return false;
     if (name->asTemplateNameId())
         return true;
     if (const auto qualName = name->asQualifiedNameId()) {
