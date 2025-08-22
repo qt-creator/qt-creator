@@ -20,7 +20,7 @@ if(USE_QML_IMPORT_OVERRIDE)
   include(FetchContent)
   FetchContent_Declare(qds_qml_import_override
       GIT_REPOSITORY https://git.qt.io/design-studio/qds-qml-import-override.git
-      GIT_TAG        dev
+      GIT_TAG        qds-4.8.0-beta1
       SOURCE_DIR     "${PROJECT_BINARY_DIR}/${IDE_DATA_PATH}/qmldesigner/qml-import-override"
   )
   FetchContent_MakeAvailable(qds_qml_import_override)
