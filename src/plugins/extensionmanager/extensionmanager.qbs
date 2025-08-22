@@ -10,11 +10,14 @@ QtcPlugin {
 
     files: [
         "extensionmanager.qrc",
+        "extensionmanager_global.h"
         "extensionmanagerconstants.h",
+        "extensionmanagerlegalnotice.cpp",
+        "extensionmanagerlegalnotice.h",
         "extensionmanagerplugin.cpp",
-        "extensionmanagertr.h",
         "extensionmanagersettings.cpp",
         "extensionmanagersettings.h",
+        "extensionmanagertr.h",
         "extensionmanagerwidget.cpp",
         "extensionmanagerwidget.h",
         "extensionsbrowser.cpp",

@@ -20,6 +20,8 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/welcomepagehelper.h>
 
+#include <extensionmanager/extensionmanagerlegalnotice.h>
+
 #include <projectexplorer/projectexplorer.h>
 
 #include <qtsupport/qtversionmanager.h>
@@ -663,7 +665,14 @@ public:
             initializeUi();
             m_uiInitialized = true;
         }
+        ExtensionManager::setLegalNoticeVisible(true);
         QWidget::showEvent(event);
+    }
+
+    void hideEvent(QHideEvent *event) override
+    {
+        ExtensionManager::setLegalNoticeVisible(false);
+        QWidget::hideEvent(event);
     }
 
 private:

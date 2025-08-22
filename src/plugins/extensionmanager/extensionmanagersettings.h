@@ -17,6 +17,7 @@ public:
 };
 
 QString externalRepoWarningNote();
+void setUseExternalRepo(bool useIt);
 
 ExtensionManagerSettings &settings();
 

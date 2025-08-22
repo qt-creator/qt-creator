@@ -4,10 +4,12 @@ QtcPlugin {
     name: "Learning"
 
     Depends { name: "Core" }
-    Depends { name: "ProjectExplorer" }
-    Depends { name: "QtSupport" }
     Depends { name: "Spinner" }
     Depends { name: "Tasking" }
+
+    Depends { name: "ExtensionManager" }
+    Depends { name: "ProjectExplorer" }
+    Depends { name: "QtSupport" }
 
     Depends { name: "Qt.network" }
 

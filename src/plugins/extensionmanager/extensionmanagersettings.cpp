@@ -126,4 +126,10 @@ QString externalRepoWarningNote()
            "for managing associated risks appropriately.");
 }
 
+void setUseExternalRepo(bool useIt)
+{
+    settings().useExternalRepo.setValue(useIt);
+    settings().writeSettings();
+}
+
 } // ExtensionManager::Internal

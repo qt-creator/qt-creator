@@ -1,5 +1,5 @@
 add_qtc_plugin(Learning
-  PLUGIN_DEPENDS Core ProjectExplorer QtSupport
+  PLUGIN_DEPENDS Core ProjectExplorer QtSupport ExtensionManager
   SOURCES
     learningplugin.cpp
     learningsettings.h learningsettings.cpp
