@@ -25,16 +25,12 @@
 #include <utils/mimeconstants.h>
 #include <utils/pathchooser.h>
 #include <utils/temporarydirectory.h>
-#include <utils/variablechooser.h>
 
-#include <QLineEdit>
 #include <QXmlStreamWriter>
 
 using namespace LanguageClient;
 using namespace ProjectExplorer;
 using namespace Utils;
-
-constexpr char languageServerKey[] = "languageServer";
 
 namespace Android::Internal {
 
@@ -46,82 +42,61 @@ public:
     bool applyFromSettingsWidget(QWidget *widget) final;
     QWidget *createSettingsWidget(QWidget *parent) const final;
     bool isValid() const final;
-    void toMap(Store &map) const final;
-    void fromMap(const Store &map) final;
     Client *createClient(BaseClientInterface *interface) const final;
     BaseClientInterface *createInterface(BuildConfiguration *) const final;
 
-    FilePath m_languageServer;
+    FilePathAspect languageServer{this};
 };
 
 class JLSSettingsWidget : public QWidget
 {
 public:
-    JLSSettingsWidget(const JLSSettings *settings, QWidget *parent);
-
-    FilePath java() const { return m_java->filePath(); }
-    FilePath languageServer() const { return m_ls->filePath(); }
-
-private:
-    PathChooser *m_java = nullptr;
-    PathChooser *m_ls = nullptr;
+    JLSSettingsWidget(const JLSSettings *settings, QWidget *parent)
+        : QWidget(parent)
+    {
+        using namespace Layouting;
+        Form {
+            settings->name, br,
+            settings->executable, br,
+            settings->languageServer
+        }.attachTo(this);
+    }
 };
-
-JLSSettingsWidget::JLSSettingsWidget(const JLSSettings *settings, QWidget *parent)
-    : QWidget(parent)
-    , m_java(new PathChooser(this))
-    , m_ls(new PathChooser(this))
-{
-    m_java->setExpectedKind(PathChooser::ExistingCommand);
-    m_java->setFilePath(settings->m_executable);
-
-    m_ls->setExpectedKind(PathChooser::File);
-    m_ls->lineEdit()->setPlaceholderText(Tr::tr("Path to equinox launcher jar"));
-    m_ls->setPromptDialogFilter("org.eclipse.equinox.launcher_*.jar");
-    m_ls->setFilePath(settings->m_languageServer);
-
-    using namespace Layouting;
-    Form {
-        settings->name, br,
-        Tr::tr("Java:"), m_java, br,
-        Tr::tr("Java Language Server:"), m_ls, br,
-    }.attachTo(this);
-}
 
 JLSSettings::JLSSettings()
 {
     m_settingsTypeId = Constants::JLS_SETTINGS_ID;
     name.setValue("Java Language Server");
+
+    executable.setLabelText(Tr::tr("Java:"));
+
+    languageServer.setSettingsKey("languageServer");
+    languageServer.setExpectedKind(PathChooser::File);
+    languageServer.setLabelText(Tr::tr("Java Language Server:"));
+    languageServer.setPlaceHolderText(Tr::tr("Path to equinox launcher jar"));
+    languageServer.setPromptDialogFilter("org.eclipse.equinox.launcher_*.jar");
+
     m_startBehavior = RequiresProject;
     m_languageFilter.mimeTypes = QStringList(Utils::Constants::JAVA_MIMETYPE);
     const FilePath &javaPath = Environment::systemEnvironment().searchInPath("java");
     if (javaPath.exists())
-        m_executable = javaPath;
+        executable.setValue(javaPath);
 }
 
 bool JLSSettings::applyFromSettingsWidget(QWidget *widget)
 {
-    bool changed = false;
-    auto jlswidget = static_cast<JLSSettingsWidget *>(widget);
-    changed |= name.isDirty();
-    name.apply();
+    bool changed = StdIOSettings::applyFromSettingsWidget(widget);
 
-    changed |= m_languageServer != jlswidget->languageServer();
-    m_languageServer = jlswidget->languageServer();
+    QString args = "-Declipse.application=org.eclipse.jdt.ls.core.id1 "
+                   "-Dosgi.bundles.defaultStartLevel=4 "
+                   "-Declipse.product=org.eclipse.jdt.ls.core.product "
+                   "-Dlog.level=WARNING "
+                   "-noverify "
+                   "-Xmx1G "
+                   "-jar \"%1\" "
+                   "-configuration \"%2\"";
 
-    changed |= m_executable != jlswidget->java();
-    m_executable = jlswidget->java();
-
-    QString arguments = "-Declipse.application=org.eclipse.jdt.ls.core.id1 "
-                        "-Dosgi.bundles.defaultStartLevel=4 "
-                        "-Declipse.product=org.eclipse.jdt.ls.core.product "
-                        "-Dlog.level=WARNING "
-                        "-noverify "
-                        "-Xmx1G "
-                        "-jar \"%1\" "
-                        "-configuration \"%2\"";
-
-    QDir configDir = m_languageServer.toFileInfo().absoluteDir();
+    QDir configDir = languageServer().toFileInfo().absoluteDir();
     if (configDir.exists()) {
         configDir.cdUp();
         if constexpr (HostOsInfo::hostOs() == OsTypeWindows)
@@ -131,11 +106,9 @@ bool JLSSettings::applyFromSettingsWidget(QWidget *widget)
         else if constexpr (HostOsInfo::hostOs() == OsTypeMac)
             configDir.cd("config_mac");
     }
-    if (configDir.exists()) {
-        arguments = arguments.arg(m_languageServer.path(), configDir.absolutePath());
-        changed |= m_arguments != arguments;
-        m_arguments = arguments;
-    }
+    if (configDir.exists())
+        arguments.setValue(args.arg(languageServer().path(), configDir.absolutePath()));
+
     return changed;
 }
 
@@ -146,19 +119,7 @@ QWidget *JLSSettings::createSettingsWidget(QWidget *parent) const
 
 bool JLSSettings::isValid() const
 {
-    return StdIOSettings::isValid() && !m_languageServer.isEmpty();
-}
-
-void JLSSettings::toMap(Store &map) const
-{
-    StdIOSettings::toMap(map);
-    map.insert(languageServerKey, m_languageServer.toSettings());
-}
-
-void JLSSettings::fromMap(const Store &map)
-{
-    StdIOSettings::fromMap(map);
-    m_languageServer = FilePath::fromSettings(map[languageServerKey]);
+    return StdIOSettings::isValid() && !languageServer().isEmpty();
 }
 
 class JLSInterface : public StdIOClientInterface
@@ -173,7 +134,7 @@ private:
 BaseClientInterface *JLSSettings::createInterface(BuildConfiguration *) const
 {
     auto interface = new JLSInterface();
-    CommandLine cmd{m_executable, arguments(), CommandLine::Raw};
+    CommandLine cmd{executable(), arguments(), CommandLine::Raw};
     cmd.addArgs({"-data", interface->workspaceDir()});
     interface->setCommandLine(cmd);
     return interface;

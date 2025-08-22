@@ -17,6 +17,8 @@
 #include <QUuid>
 #include <QWidget>
 
+#include <projectexplorer/runconfigurationaspects.h>
+
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QLineEdit;
@@ -105,20 +107,17 @@ protected:
 class LANGUAGECLIENT_EXPORT StdIOSettings : public BaseSettings
 {
 public:
-    StdIOSettings() = default;
-    ~StdIOSettings() override = default;
+    StdIOSettings();
+    ~StdIOSettings() override;
 
-    Utils::FilePath m_executable;
-    QString m_arguments;
-
-    bool applyFromSettingsWidget(QWidget *widget) override;
     QWidget *createSettingsWidget(QWidget *parent = nullptr) const override;
     BaseSettings *create() const override { return new StdIOSettings; }
     bool isValid() const override;
-    void toMap(Utils::Store &map) const override;
-    void fromMap(const Utils::Store &map) override;
-    QString arguments() const;
+
     Utils::CommandLine command() const;
+
+    Utils::StringAspect arguments{this};
+    Utils::FilePathAspect executable{this};
 
 protected:
     BaseClientInterface *createInterface(ProjectExplorer::BuildConfiguration *bc) const override;
@@ -191,13 +190,6 @@ class LANGUAGECLIENT_EXPORT StdIOSettingsWidget : public BaseSettingsWidget
 public:
     explicit StdIOSettingsWidget(const StdIOSettings* settings, QWidget *parent = nullptr);
     ~StdIOSettingsWidget() override = default;
-
-    Utils::FilePath executable() const;
-    QString arguments() const;
-
-private:
-    Utils::PathChooser *m_executable = nullptr;
-    QLineEdit *m_arguments = nullptr;
 };
 
 class ProjectSettings

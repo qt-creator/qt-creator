@@ -528,8 +528,8 @@ static void setupNpmServer(TextDocument *document,
         auto setupStdIOSettings = [=](const FilePath &executable) {
             auto settings = new StdIOSettings();
 
-            settings->m_executable = executable;
-            settings->m_arguments = languageServerArgs;
+            settings->executable.setValue(executable);
+            settings->arguments.setValue(languageServerArgs);
             settings->name.setValue(Tr::tr("%1 Language Server").arg(language));
             settings->m_languageFilter.mimeTypes = serverMimeTypes;
             LanguageClientSettings::addSettings(settings);
