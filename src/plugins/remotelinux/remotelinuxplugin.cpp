@@ -9,12 +9,16 @@
 #include "remotelinuxdebugsupport.h"
 #include "remotelinuxdeploysupport.h"
 #include "remotelinuxrunconfiguration.h"
+#include "remotelinuxtr.h"
 #include "tarpackagecreationstep.h"
 #include "tarpackagedeploystep.h"
 
 #include <extensionsystem/iplugin.h>
 
 #include <utils/fsengine/fsengine.h>
+
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #ifdef WITH_TESTS
 #include "filesystemaccess_test.h"
@@ -23,6 +27,18 @@
 using namespace Utils;
 
 namespace RemoteLinux::Internal {
+
+class RsyncToolFactory : public ProjectExplorer::DeviceToolAspectFactory
+{
+public:
+    RsyncToolFactory()
+    {
+        setToolId(ProjectExplorer::Constants::RSYNC_TOOL_ID);
+        setToolType(ProjectExplorer::DeviceToolAspect::BuildTool);
+        setFilePattern({"rsync"});
+        setLabelText(Tr::tr("Rsync executable:"));
+    }
+};
 
 class RemoteLinuxPlugin final : public ExtensionSystem::IPlugin
 {
@@ -60,6 +76,7 @@ public:
 
 private:
     std::unique_ptr<LinuxDeviceFactory> m_linuxDeviceFactory;
+    RsyncToolFactory m_rsyncToolFactory;
 };
 
 } // RemoteLinux::Internal

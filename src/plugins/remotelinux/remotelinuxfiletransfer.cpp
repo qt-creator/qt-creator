@@ -245,8 +245,21 @@ private:
     void startImpl() final
     {
         // Note: This assumes that files do not get renamed when transferring.
-        for (auto it = m_setup.m_files.cbegin(); it != m_setup.m_files.cend(); ++it)
+        for (auto it = m_setup.m_files.cbegin(); it != m_setup.m_files.cend(); ++it) {
+            const FilePath source = it->m_source;
+            if (m_rsync.isEmpty()) { // haven't figured out the rsync tool yet, so do it now
+                const IDevice::ConstPtr device = DeviceManager::deviceForPath(source);
+                if (QTC_GUARD(device)) {
+                    const FilePath rsyncDeviceTool = device->deviceToolPath(
+                        ProjectExplorer::Constants::RSYNC_TOOL_ID);
+                    m_rsync = rsyncDeviceTool.isEmpty() ? device->filePath("rsync") // fallback
+                                                        : rsyncDeviceTool;
+                }
+            }
             m_batches[it->m_target.parentDir()] << *it;
+        }
+        if (m_rsync.isEmpty()) // fallback
+            m_rsync = "rsync";
         startNextBatch();
     }
 
@@ -265,11 +278,16 @@ private:
     {
         process().close();
 
-        const QString sshCmdLine = ProcessArgs::joinArgs(
-                    QStringList{SshSettings::sshFilePath().toUserOutput()}
-                    << fullConnectionOptions(), OsTypeLinux);
-        QStringList options{"-e", sshCmdLine};
-        options << ProcessArgs::splitArgs(m_setup.m_rsyncFlags, HostOsInfo::hostOs());
+        QStringList options;
+        // TODO Should we use the ssh device tool if available for remote?
+        //      There is no setting for that yet.
+        if (m_rsync.isLocal()) {
+            const QString sshCmdLine = ProcessArgs::joinArgs(
+                QStringList{SshSettings::sshFilePath().toUserOutput()} << fullConnectionOptions(),
+                OsTypeLinux);
+            options << QStringList{"-e", sshCmdLine};
+        }
+        options << ProcessArgs::splitArgs(m_setup.m_rsyncFlags, m_rsync.osType());
 
         if (!m_batches.isEmpty()) { // NormalRun
             const auto batchIt = m_batches.begin();
@@ -282,15 +300,14 @@ private:
         } else { // TestRun
             options << "-n" << "--exclude=*" << (userAtHost() + ":/tmp");
         }
-        // TODO: Get rsync location from settings?
-        process().setCommand(CommandLine("rsync", options));
+        process().setCommand(CommandLine(m_rsync, options));
         process().start();
     }
 
     // On Windows, rsync is either from msys or cygwin. Neither work with the other's ssh.exe.
     FileToTransfer fixLocalFileOnWindows(const FileToTransfer &file, const QStringList &options) const
     {
-        if (!HostOsInfo::isWindowsHost())
+        if (m_rsync.osType() != OsType::OsTypeWindows)
             return file;
 
         QString localFilePath = file.m_source.path();
@@ -311,6 +328,7 @@ private:
     }
 
     QHash<FilePath, FilesToTransfer> m_batches;
+    FilePath m_rsync;
 };
 
 static void createDir(QPromise<Result<>> &promise, const FilePath &pathToCreate)
@@ -418,18 +436,15 @@ private:
 FileTransferInterface *createRemoteLinuxFileTransferInterface
     (const LinuxDevice &device, const FileTransferSetupData &setup)
 {
-    if (Utils::anyOf(setup.m_files,
-                     [](const FileToTransfer &f) { return !f.m_source.isLocal(); })) {
-        return new GenericTransferImpl(setup);
-    }
+    const bool isLocal = Utils::allOf(setup.m_files, [](const FileToTransfer &f) {
+        return f.m_source.isLocal();
+    });
 
-    switch (setup.m_method) {
-    case FileTransferMethod::Sftp:  return new SftpTransferImpl(setup, device.shared_from_this());
-    case FileTransferMethod::Rsync: return new RsyncTransferImpl(setup, device.shared_from_this());
-    case FileTransferMethod::GenericCopy: return new GenericTransferImpl(setup);
-    }
-    QTC_CHECK(false);
-    return {};
+    if (setup.m_method == FileTransferMethod::Rsync)
+        return new RsyncTransferImpl(setup, device.shared_from_this());
+    if (setup.m_method == FileTransferMethod::Sftp && isLocal /* not supported for remote src */)
+        return new SftpTransferImpl(setup, device.shared_from_this());
+    return new GenericTransferImpl(setup);
 }
 
 } // namespace RemoteLinux::Internal

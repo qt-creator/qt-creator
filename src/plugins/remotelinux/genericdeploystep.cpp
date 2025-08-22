@@ -118,15 +118,14 @@ static FileTransferMethod effectiveTransferMethodFor(const FileToTransfer &fileT
     if (sourceDevice == targetDevice)
         return FileTransferMethod::GenericCopy;
 
-    const auto devicesSupportMethod = [&](Id method) {
-        return sourceDevice->extraData(method).toBool() && targetDevice->extraData(method).toBool();
+    const auto devicesSupportMethod = [&](FileTransferMethod method) {
+        return sourceDevice->supportsFileTransferMethod(method)
+               && targetDevice->supportsFileTransferMethod(method);
     };
-    if (preferred == FileTransferMethod::Rsync
-        && !devicesSupportMethod(ProjectExplorer::Constants::SUPPORTS_RSYNC)) {
+    if (preferred == FileTransferMethod::Rsync && !devicesSupportMethod(preferred)) {
         preferred = FileTransferMethod::Sftp;
     }
-    if (preferred == FileTransferMethod::Sftp
-        && !devicesSupportMethod(ProjectExplorer::Constants::SUPPORTS_SFTP)) {
+    if (preferred == FileTransferMethod::Sftp && !devicesSupportMethod(preferred)) {
         preferred = FileTransferMethod::GenericCopy;
     }
     return preferred;

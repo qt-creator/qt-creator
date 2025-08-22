@@ -229,9 +229,12 @@ const char SESSION_TASKFILE_KEY[] = "TaskList.File";
 const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "ProjectExplorer.BuildConfiguration.ClearSystemEnvironment";
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.BuildConfiguration.UserEnvironmentChanges";
 
+// File Transfer
 // Called "RemoteLinux." for backwards compatibility
 const char SUPPORTS_RSYNC[] = "RemoteLinux.SupportsRSync";
 const char SUPPORTS_SFTP[] = "RemoteLinux.SupportsSftp";
+// Tool implementation is actually in RemoteLinux
+const char RSYNC_TOOL_ID[] = "RsyncExecutable";
 
 // SDKs related ids:
 const char SDK_SETTINGS_CATEGORY[] = "AN.SDKs";

@@ -4,6 +4,7 @@
 #pragma once
 
 #include "../projectexplorer_export.h"
+#include "filetransferinterface.h"
 #include "idevicefwd.h"
 
 #include <solutions/tasking/tasktree.h>
@@ -272,6 +273,7 @@ public:
     virtual Utils::ProcessInterface *createProcessInterface() const;
     virtual FileTransferInterface *createFileTransferInterface(
             const FileTransferSetupData &setup) const;
+    bool supportsFileTransferMethod(FileTransferMethod method) const;
 
     Utils::Environment systemEnvironment() const;
     virtual Utils::Result<Utils::Environment> systemEnvironmentWithError() const;

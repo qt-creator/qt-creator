@@ -10,6 +10,7 @@
 #include "sshparameters.h"
 
 #include "../kit.h"
+#include "../projectexplorerconstants.h"
 #include "../projectexplorericons.h"
 #include "../projectexplorertr.h"
 #include "../target.h"
@@ -273,6 +274,26 @@ Result<> DeviceToolAspectFactory::check(const IDevicePtr &device, const FilePath
         return ResultOk;
 
     return m_checker(device, candidate);
+}
+
+/*!
+    Returns if the device supports the file transfer \a method.
+    The device must set the corresponding SUPPORTS_RSYNC or SUPPORTS_SFTP values, or have a path
+    for the rsync tool set.
+*/
+bool IDevice::supportsFileTransferMethod(FileTransferMethod method) const
+{
+    switch (method) {
+    case FileTransferMethod::Sftp:
+        return extraData(Constants::SUPPORTS_SFTP).toBool();
+    case FileTransferMethod::Rsync:
+        return extraData(Constants::SUPPORTS_RSYNC).toBool()
+               || !deviceToolPath(Constants::RSYNC_TOOL_ID).isEmpty();
+    case FileTransferMethod::GenericCopy:
+        return true;
+    }
+    QTC_CHECK(false);
+    return false;
 }
 
 void IDevice::autoDetectDeviceTools()
