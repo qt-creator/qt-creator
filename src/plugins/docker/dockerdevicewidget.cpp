@@ -88,37 +88,10 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         logView->append(Tr::tr("Done."));
     });
 
-    auto searchDirsComboBox = new QComboBox;
-    searchDirsComboBox->addItem(Tr::tr("Search in PATH"));
-    searchDirsComboBox->addItem(Tr::tr("Search in Selected Directories"));
-    searchDirsComboBox->addItem(Tr::tr("Search in PATH and Additional Directories"));
-
-    auto searchDirsLineEdit = new FancyLineEdit;
-
-    searchDirsLineEdit->setPlaceholderText(Tr::tr("Semicolon-separated list of directories"));
-    searchDirsLineEdit->setToolTip(
-        Tr::tr("Select the paths in the Docker image that should be scanned for kit entries."));
-    searchDirsLineEdit->setHistoryCompleter("DockerMounts", true);
-
-    auto searchPaths = [searchDirsComboBox, searchDirsLineEdit, dockerDevice] {
-        FilePaths paths;
-        const int idx = searchDirsComboBox->currentIndex();
-        if (idx == 0 || idx == 2)
-            paths += dockerDevice->systemEnvironment().path();
-        if (idx == 1 || idx == 2) {
-            for (const QString &path : searchDirsLineEdit->text().split(';'))
-                paths.append(FilePath::fromString(path.trimmed()));
-        }
-        paths = Utils::transform(paths, [dockerDevice](const FilePath &path) {
-            return dockerDevice->filePath(path.path());
-        });
-        return paths;
-    };
-
     connect(autoDetectButton,
             &QPushButton::clicked,
             this,
-            [this, logView, dockerDevice, searchPaths] {
+            [this, logView, dockerDevice] {
                 logView->clear();
                 Result<> startResult = dockerDevice->updateContainerAccess();
 
@@ -128,7 +101,8 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                     return;
                 }
 
-                DeviceToolAspectFactory::autoDetectAll(dockerDevice, searchPaths());
+                DeviceToolAspectFactory::autoDetectAll(dockerDevice,
+                                                       dockerDevice->autoDetectionPaths());
 
                 const auto log = [logView](const QString &msg) { logView->append(msg); };
                 // clang-format off
@@ -167,22 +141,6 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     using namespace Layouting;
 
     // clang-format off
-    Column detectionControls {
-        Space(20),
-        Row {
-            Tr::tr("Search Locations:"),
-            searchDirsComboBox,
-            searchDirsLineEdit
-        },
-        Row {
-            autoDetectButton,
-            undoAutoDetectButton,
-            listAutoDetectedButton,
-            st,
-        },
-        Tr::tr("Detection log:"),
-        logView
-    };
     Column {
         noMargin,
         Form {
@@ -196,27 +154,25 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             dockerDevice->keepEntryPoint, br,
             dockerDevice->enableLldbFlags, br,
             dockerDevice->mountCmdBridge, br,
-            dockerDevice->deviceToolAspects(DeviceToolAspect::AllTools), br,
             dockerDevice->network, br,
             dockerDevice->extraArgs, br,
             dockerDevice->environment, br,
             pathListLabel, dockerDevice->mounts, br,
             Tr::tr("Port mappings:"), dockerDevice->portMappings, br,
+            Tr::tr("Command line:"), createLineLabel, br,
             If (!dockerDevice->isAutoDetected()) >> Then {
-                detectionControls
+                dockerDevice->deviceToolsGui(), br,
+                Span(2, Row {
+                    autoDetectButton,
+                    undoAutoDetectButton,
+                    listAutoDetectedButton,
+                    st,
+                }), br,
+                Tr::tr("Detection log:"), logView
             },
         }, br,
-        Tr::tr("Command line:"), createLineLabel, br,
     }.attachTo(this);
     // clang-format on
-
-    searchDirsLineEdit->setVisible(false);
-    auto updateDirectoriesLineEdit = [searchDirsLineEdit](int index) {
-        searchDirsLineEdit->setVisible(index == 1 || index == 2);
-        if (index == 1 || index == 2)
-            searchDirsLineEdit->setFocus();
-    };
-    QObject::connect(searchDirsComboBox, &QComboBox::activated, this, updateDirectoriesLineEdit);
 
     connect(&*dockerDevice, &AspectContainer::applied, this, [createLineLabel, dockerDevice] {
         createLineLabel->setText(dockerDevice->createCommandLine().toUserOutput());
