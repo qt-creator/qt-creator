@@ -373,6 +373,31 @@ TEST_F(QmlTypesParser, exported_types)
                                                     qmltypesSourceId)));
 }
 
+TEST_F(QmlTypesParser, exported_aliases_types)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                          aliases: ["QBaseObject"]
+                      }})"};
+
+    parser.parse(source, imports, types, exportedTypes, projectEntryInfo, Storage::IsInsideProject::No);
+
+    ASSERT_THAT(exportedTypes,
+                UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
+                                                    "QObject",
+                                                    QmlDesigner::Storage::Version{},
+                                                    qmltypesSourceId,
+                                                    "QObject",
+                                                    qmltypesSourceId),
+                                     IsExportedType(qtQmlNativeModuleId,
+                                                    "QBaseObject",
+                                                    QmlDesigner::Storage::Version{},
+                                                    qmltypesSourceId,
+                                                    "QObject",
+                                                    qmltypesSourceId)));
+}
+
 TEST_F(QmlTypesParser, properties)
 {
     QString source{R"(import QtQuick.tooling 1.2

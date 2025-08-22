@@ -166,6 +166,7 @@ ModuleId getQmlModuleId(const QString &name,
 Storage::Synchronization::ExportedTypes addExports(Storage::Synchronization::ExportedTypes &exportedTypes,
                                                    const QList<QQmlJSScope::Export> &qmlExports,
                                                    Utils::SmallStringView internalName,
+                                                   const QStringList &interanalAliases,
                                                    ModulesStorage &modulesStorage,
                                                    ModuleId cppModuleId,
                                                    SourceId sourceId,
@@ -192,6 +193,15 @@ Storage::Synchronization::ExportedTypes addExports(Storage::Synchronization::Exp
                                Storage::Version{},
                                sourceId,
                                cppExportedTypeName);
+
+    for (QStringView internalAlias : interanalAliases) {
+        exportedTypes.emplace_back(sourceId,
+                                   cppModuleId,
+                                   Utils::SmallString{internalAlias},
+                                   Storage::Version{},
+                                   sourceId,
+                                   cppExportedTypeName);
+    }
 
     return exportedTypes;
 }
@@ -499,8 +509,16 @@ void addType(Storage::Synchronization::Types &types,
 
     TypeNameString typeName{component.internalName()};
     auto exports = exportScope.exports;
+    auto internalAliases = component.aliases();
 
-    addExports(exportedTypes, exports, typeName, modulesStorage, cppModuleId, sourceId, lastQmlModule);
+    addExports(exportedTypes,
+               exports,
+               typeName,
+               internalAliases,
+               modulesStorage,
+               cppModuleId,
+               sourceId,
+               lastQmlModule);
 
     auto [functionsDeclarations, signalDeclarations] = createFunctionAndSignals(
         component.ownMethods(), componentNameWithoutNamespace);
