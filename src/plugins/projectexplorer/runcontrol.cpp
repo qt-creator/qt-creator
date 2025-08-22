@@ -129,7 +129,7 @@ void RunWorkerFactory::cloneProduct(Id exitstingStepId)
 bool RunWorkerFactory::canCreate(
     Id runMode, Id deviceType, Id runConfigId, Utils::Id executionType) const
 {
-    if (executionType.isValid() && executionType != m_executionType)
+    if (executionType.isValid() && m_executionType.isValid() && executionType != m_executionType)
         return false;
 
     if (!m_supportedRunModes.contains(runMode))

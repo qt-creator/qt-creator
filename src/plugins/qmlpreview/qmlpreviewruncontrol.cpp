@@ -152,7 +152,6 @@ LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
     });
     addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
     addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-    setExecutionType(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
 
     addSupportForLocalRunConfigs();
 }
