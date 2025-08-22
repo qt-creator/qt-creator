@@ -69,6 +69,7 @@ IDevice::Ptr IDeviceFactory::create() const
     IDevice::Ptr device = m_creator();
     if (!device) // e.g. Cancel used on the dialog to create a device
         return {};
+    device->init();
     return device;
 }
 
