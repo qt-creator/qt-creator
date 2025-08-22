@@ -474,10 +474,8 @@ namespace {
         auto qmlRootPath = qmlPath(target);
         qmldirPaths.push_back(qmlRootPath + "/QML");
         qmldirPaths.push_back(qmlRootPath + "/Qt");
-        // TODO: Charts plugins.qmltypes needs to be fixed before QtCharts can be added (QTBUG-115358)
-        //qmldirPaths.push_back(qmlRootPath + "/QtCharts");
-        // TODO: Graphs plugins.qmltypes needs to be fixed before QtGraphs can be added (QTBUG-135402)
-        //qmldirPaths.push_back(qmlRootPath + "/QtGraphs");
+        qmldirPaths.push_back(qmlRootPath + "/QtCharts");
+        qmldirPaths.push_back(qmlRootPath + "/QtGraphs");
         qmldirPaths.push_back(qmlRootPath + "/QtCore");
         qmldirPaths.push_back(qmlRootPath + "/QtQml");
         qmldirPaths.push_back(qmlRootPath + "/QtQuick");
