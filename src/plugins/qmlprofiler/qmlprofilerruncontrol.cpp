@@ -151,6 +151,7 @@ public:
     {
         setId(ProjectExplorer::Constants::QML_PROFILER_RUN_FACTORY);
         setRecipeProducer(&localQmlProfilerRecipe);
+        setExecutionType(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 
