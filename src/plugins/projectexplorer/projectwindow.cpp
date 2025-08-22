@@ -899,9 +899,10 @@ public:
             const QString extraText = [this] {
                 if (m_kitErrorsForProject)
                     return QString("<h3>" + Tr::tr("Kit is unsuited for project") + "</h3>");
-                if (!isEnabled())
-                    return QString("<h3>" + Tr::tr("Click to activate") + "</h3>");
-                return QString();
+                if (isEnabled())
+                    return QString();
+                return QString("<h3>"
+                    + Tr::tr("Click to enable target, click again to make active") + "</h3>");
             }();
             return k->toHtml(m_kitIssues, extraText);
         }
