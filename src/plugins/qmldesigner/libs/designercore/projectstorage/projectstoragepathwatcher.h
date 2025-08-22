@@ -100,7 +100,7 @@ public:
 
         if (!filteredPaths.empty()) {
             auto paths = convertWatcherEntriesToDirectoryPathList(filteredPaths);
-            tracer.tick("add paths", NanotraceHR::keyValue("paths", paths));
+            tracer.tick("remove paths", NanotraceHR::keyValue("paths", paths));
             m_fileSystemWatcher.removePaths(paths);
         }
     }
@@ -239,7 +239,7 @@ public:
 
         if (!filteredPaths.empty()) {
             auto paths = convertWatcherEntriesToDirectoryPathList(filteredPaths);
-            tracer.tick("add paths", NanotraceHR::keyValue("paths", paths));
+            tracer.tick("remove paths", NanotraceHR::keyValue("paths", paths));
             m_fileSystemWatcher.removePaths(paths);
         }
     }
