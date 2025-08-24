@@ -72,7 +72,13 @@ private:
 
 Rectangle {
     width: 360
-    height: 360
+    height: myHeight
+    function f() {
+    }
+    function g() {
+    }
+    signal mySignal
+    property int myHeight: 360
     Text {
         anchors.centerIn: parent
         text: "Hello World"
@@ -82,6 +88,9 @@ Rectangle {
         onClicked: {
             Qt.quit();
         }
+    }
+    Component.onCompleted: {
+        console.log("Completed !");
     }
 })";
 
