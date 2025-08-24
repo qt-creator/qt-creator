@@ -2686,8 +2686,8 @@ void CMakeBuildSystem::updateQmlCodeModelInfo(QmlCodeModelInfo &projectInfo)
 void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 {
     const CMakeConfig &cm = configurationFromCMake();
-    const CMakeConfig &initialConfig =
-        cmakeBuildConfiguration()->initialCMakeArguments.cmakeConfiguration();
+    const CMakeConfig &initialConfig = CMakeBuildConfiguration::updateCMakeHelperConfig(
+        cmakeBuildConfiguration()->initialCMakeArguments.cmakeConfiguration());
 
     CMakeConfig config;
 

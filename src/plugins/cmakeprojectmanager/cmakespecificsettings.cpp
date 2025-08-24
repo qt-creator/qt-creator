@@ -46,6 +46,7 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
         return Column {
             autorunCMake,
             packageManagerAutoSetup,
+            maintenanceToolDependencyProvider,
             askBeforeReConfigureInitialParams,
             askBeforePresetsReload,
             showSourceSubFolders,
@@ -81,9 +82,16 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
     packageManagerAutoSetup.setSettingsKey("PackageManagerAutoSetup");
     packageManagerAutoSetup.setDefaultValue(true);
     packageManagerAutoSetup.setLabelText(::CMakeProjectManager::Tr::tr("Package manager auto setup"));
-    packageManagerAutoSetup.setToolTip(::CMakeProjectManager::Tr::tr("Add the CMAKE_PROJECT_INCLUDE_BEFORE variable "
-        "pointing to a CMake script that will install dependencies from the conanfile.txt, "
-        "conanfile.py, or vcpkg.json file from the project source directory."));
+    packageManagerAutoSetup.setToolTip(
+        ::CMakeProjectManager::Tr::tr(
+            "Enables Qt Creator to install dependencies from the conanfile.txt, "
+            "conanfile.py, or vcpkg.json file from the project source directory."));
+
+    maintenanceToolDependencyProvider.setSettingsKey("MaintenanceToolDependencyProvider");
+    maintenanceToolDependencyProvider.setDefaultValue(true);
+    maintenanceToolDependencyProvider.setLabelText(::CMakeProjectManager::Tr::tr("MaintenanceTool dependency provider"));
+    maintenanceToolDependencyProvider.setToolTip(
+        ::CMakeProjectManager::Tr::tr("Use Qt MaintenanceTool to install missing Qt components."));
 
     askBeforeReConfigureInitialParams.setSettingsKey("AskReConfigureInitialParams");
     askBeforeReConfigureInitialParams.setDefaultValue(true);
@@ -245,6 +253,16 @@ public:
             // Only for CMake projects
             setUseGlobalSettingsCheckBoxEnabled(false);
         }
+
+        // "CMake" project settings needs to react on the UI changes
+        m_displayedSettings.packageManagerAutoSetup.addOnChanged(this, [this] {
+            if (m_project)
+                emit m_project->settings().packageManagerAutoSetup.changed();
+        });
+        m_displayedSettings.maintenanceToolDependencyProvider.addOnChanged(this, [this] {
+            if (m_project)
+                emit m_project->settings().maintenanceToolDependencyProvider.changed();
+        });
     }
 
     QWidget *m_widget = nullptr;

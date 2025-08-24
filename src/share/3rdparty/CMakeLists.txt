@@ -1,6 +1,6 @@
 set(resource_directories
   fonts
-  package-manager
+  cmake-helper
 )
 
 # create install rule for resource directories
@@ -17,8 +17,8 @@ qtc_copy_to_builddir(copy_fonts_to_builddir
   CREATE_SUBDIRS
 )
 
-file(GLOB_RECURSE package_manager_files package-manager/*)
-qtc_add_sbom(PackageManagerResources
+file(GLOB_RECURSE cmake_helper_files cmake-helper/*)
+qtc_add_sbom(CMakeHelperResources
   SBOM_ENTITY_TYPE RESOURCES
   LICENSE_EXPRESSION "MIT"
   USE_ATTRIBUTION_FILES
@@ -28,10 +28,10 @@ qtc_add_sbom(PackageManagerResources
     conan.cmake
 )
 
-qtc_sbom_add_files(PackageManagerResources
-  FILES "${package_manager_files}"
+qtc_sbom_add_files(CMakeHelperResources
+  FILES "${cmake_helper_files}"
   FILE_TYPE "RESOURCES"
-  INSTALL_PATH "${IDE_DATA_PATH}/package-manager"
+  INSTALL_PATH "${IDE_DATA_PATH}/cmake-helper"
 )
 
 file(GLOB_RECURSE fonts_files fonts/*)

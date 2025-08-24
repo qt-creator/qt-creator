@@ -34,7 +34,7 @@ const char CMAKEFORMATTER_ACTION_ID[] = "CMakeFormatter.Action";
 const char CMAKEFORMATTER_MENU_ID[] = "CMakeFormatter.Menu";
 const char CMAKE_DEBUGGING_GROUP[] = "Debugger.Group.CMake";
 
-const char PACKAGE_MANAGER_DIR[] = ".qtc/package-manager";
+const char PACKAGE_MANAGER_DIR[] = ".qtcreator/cmake-helper";
 const char VCPKG_ROOT[] = "VCPKG_ROOT";
 
 const char CMAKE_LISTS_TXT[] = "CMakeLists.txt";
@@ -45,6 +45,7 @@ const char CMAKE_CACHE_TXT_PREV[] = "CMakeCache.txt.prev";
 const char CMAKE_PROJECT_ID[] = "CMakeProjectManager.CMakeProject";
 
 const char CMAKE_BUILDCONFIGURATION_ID[] = "CMakeProjectManager.CMakeBuildConfiguration";
+const char CMAKE_IMPORTED_BUILD[] = "CMake.Imported";
 
 // Menu
 const char M_CONTEXT[] = "CMakeEditor.ContextMenu";

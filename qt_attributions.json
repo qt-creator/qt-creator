@@ -411,12 +411,12 @@
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used for the auto setup of package manager dependencies.",
-        "Path": "@SOURCE_DIR@/src/share/3rdparty/package-manager",
+        "Path": "@SOURCE_DIR@/src/share/3rdparty/cmake-helper",
         "Description": "CMake wrapper for the Conan C and C++ package manager.",
         "Homepage": "https://github.com/conan-io/cmake-conan",
         "PURL": "pkg:github/conan-io/cmake-conan",
         "License": "MIT License",
-        "LicenseFile": "@SOURCE_DIR@/src/share/3rdparty/package-manager/LICENSE.conan",
+        "LicenseFile": "@SOURCE_DIR@/src/share/3rdparty/cmake-helper/LICENSE.conan",
         "Copyright": "Copyright (c) 2018 JFrog"
     },
     {

@@ -1436,7 +1436,10 @@ const QList<BuildInfo> CMakeProjectImporter::buildInfoList(void *directoryData) 
                   data->hasQmlDebugging ? TriState::Enabled.toVariant()
                                         : TriState::Default.toVariant());
     if (!data->cmakePreset.isEmpty())
+        // hide the "(imported)" suffix for CMake presets build configurations
         config["hideImportedSuffix"] = true;
+    else
+        config[Constants::CMAKE_IMPORTED_BUILD] = true;
 
     info.extraInfo = config;
 

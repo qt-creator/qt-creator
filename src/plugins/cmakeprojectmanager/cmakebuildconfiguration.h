@@ -93,6 +93,8 @@ public:
 
     QStringList initialCMakeOptions() const;
 
+    static CMakeConfig updateCMakeHelperConfig(const CMakeConfig &config);
+
     void setInitialArgs(const QStringList &args) override;
     QStringList initialArgs() const override;
     QStringList additionalArgs() const override;

@@ -96,24 +96,22 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
         }
     }
 
-    // Copy the "package-manager" CMake code from the ${IDE:ResourcePath} to the build directory
-    if (settings(parameters.project).packageManagerAutoSetup()) {
-        const FilePath idePackageManagerDir = Core::ICore::resourcePath("package-manager");
-        const FilePath localPackageManagerDir = buildDirectory / Constants::PACKAGE_MANAGER_DIR;
+    // Copy the "cmake-helper" CMake code from the ${IDE:ResourcePath} to the build directory
+    const FilePath ideCMakeHelperDir = Core::ICore::resourcePath("cmake-helper");
+    const FilePath localCMakeHelperDir = buildDirectory / Constants::PACKAGE_MANAGER_DIR;
 
-        if (!idePackageManagerDir.isDir()) {
+    if (!ideCMakeHelperDir.isDir()) {
+        BuildSystem::appendBuildSystemOutput(
+            Tr::tr("Qt Creator installation is missing the "
+                   "cmake-helper directory. It was expected here: \"%1\".")
+                .arg(ideCMakeHelperDir.toUserOutput()));
+    } else if (!localCMakeHelperDir.exists()) {
+        const auto result = ideCMakeHelperDir.copyRecursively(localCMakeHelperDir);
+        if (!result) {
             BuildSystem::appendBuildSystemOutput(
-                Tr::tr("Qt Creator installation is missing the "
-                       "package-manager directory. It was expected here: \"%1\".")
-                    .arg(idePackageManagerDir.toUserOutput()));
-        } else if (!localPackageManagerDir.exists()) {
-            const auto result = idePackageManagerDir.copyRecursively(localPackageManagerDir);
-            if (!result) {
-                BuildSystem::appendBuildSystemOutput(
-                    addCMakePrefix(
-                        {Tr::tr("Failed to copy package-manager folder:"), result.error()})
-                        .join('\n'));
-            }
+                addCMakePrefix(
+                    {Tr::tr("Failed to copy cmake-helper folder:"), result.error()})
+                    .join('\n'));
         }
     }
 

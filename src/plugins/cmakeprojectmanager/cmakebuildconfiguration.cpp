@@ -103,12 +103,21 @@ const char CMAKE_CXX_FLAGS_INIT[] = "CMAKE_CXX_FLAGS_INIT";
 const char CMAKE_CXX_FLAGS[] = "CMAKE_CXX_FLAGS";
 const char CMAKE_CXX_FLAGS_DEBUG[] = "CMAKE_CXX_FLAGS_DEBUG";
 const char CMAKE_CXX_FLAGS_RELWITHDEBINFO[] = "CMAKE_CXX_FLAGS_RELWITHDEBINFO";
+const char QT_CREATOR_ENABLE_PACKAGE_MANAGER_SETUP[] = "QT_CREATOR_ENABLE_PACKAGE_MANAGER_SETUP";
+const char QT_CREATOR_ENABLE_MAINTENANCE_TOOL_PROVIDER[] = "QT_CREATOR_ENABLE_MAINTENANCE_TOOL_PROVIDER";
 
 const char CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM[] = "CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM";
 const char CMAKE_XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER[]
     = "CMAKE_XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER";
 
 namespace Internal {
+
+struct AspectToCMakeConfigItem
+{
+    BoolAspect &aspect;
+    CMakeConfigItem configItem;
+};
+using AspectToConfigItemList = QList<AspectToCMakeConfigItem>;
 
 class CMakeBuildSettingsWidget : public QWidget
 {
@@ -128,6 +137,7 @@ private:
     void updateConfigurationStateIndex(int index);
     CMakeConfig getQmlDebugCxxFlags();
     CMakeConfig getSigningFlagsChanges();
+    CMakeConfig getSettingsToCMakeConfigItems();
 
     void updateSelection();
     void updateConfigurationStateSelection();
@@ -142,7 +152,9 @@ private:
     void kitCMakeConfiguration();
     void updateConfigureDetailsWidgetsSummary(
         const QStringList &configurationArguments = QStringList());
-    void updatePackageManagerAutoSetup(CMakeConfig &initialList);
+    void updateSettingsToCMakeConfigItems(CMakeConfig &initialList);
+
+    AspectToConfigItemList getAspectToConfigureItemList();
 
     QPointer<CMakeBuildConfiguration> m_buildConfig;
     QTreeView *m_configView;
@@ -182,14 +194,24 @@ static QModelIndex mapToSource(const QAbstractItemView *view, const QModelIndex 
     return result;
 }
 
-static CMakeConfigItem getPackageManagerAutoSetupParameter()
+static CMakeConfigItem getCMakeHelperParameter()
 {
     const QByteArray key("CMAKE_PROJECT_INCLUDE_BEFORE");
     const QByteArray value = QString(
-                                 "%{BuildConfig:BuildDirectory:NativeFilePath}/%1/auto-setup.cmake")
+                                 "%{BuildConfig:BuildDirectory:NativeFilePath}/%1/qtcreator-project.cmake")
                                  .arg(Constants::PACKAGE_MANAGER_DIR)
                                  .toUtf8();
     return CMakeConfigItem(key, CMakeConfigItem::FILEPATH, value);
+}
+
+static CMakeConfigItem enablePackageManagerAutoSetupParameter()
+{
+    return CMakeConfigItem(QT_CREATOR_ENABLE_PACKAGE_MANAGER_SETUP, CMakeConfigItem::BOOL, "ON");
+}
+
+static CMakeConfigItem enableMaintenanceToolDependencyProvider()
+{
+    return CMakeConfigItem(QT_CREATOR_ENABLE_MAINTENANCE_TOOL_PROVIDER, CMakeConfigItem::BOOL, "ON");
 }
 
 CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) :
@@ -221,6 +243,21 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     auto qmlDebugAspect = bc->aspect<QtSupport::QmlDebuggingAspect>();
     qmlDebugAspect->addOnChanged(this, [this] { updateButtonState(); });
+
+    if (CMakeProject *cmp = qobject_cast<CMakeProject *>(bc->project())) {
+        cmp->settings().packageManagerAutoSetup.addOnChanged(this, [this] {
+            if (m_buildConfig) {
+                updateButtonState();
+                m_buildConfig->cmakeBuildSystem()->runCMakeWithExtraArguments();
+            }
+        });
+        cmp->settings().maintenanceToolDependencyProvider.addOnChanged(this, [this] {
+            if (m_buildConfig) {
+                updateButtonState();
+                m_buildConfig->cmakeBuildSystem()->runCMakeWithExtraArguments();
+            }
+        });
+    }
 
     m_warningMessageLabel = new InfoLabel({}, InfoLabel::Warning);
     m_warningMessageLabel->setVisible(false);
@@ -418,7 +455,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         }
         m_configModel->setConfiguration(config);
         m_configModel->setInitialParametersConfiguration(
-            m_buildConfig->initialCMakeArguments.cmakeConfiguration());
+            CMakeBuildConfiguration::updateCMakeHelperConfig(
+                m_buildConfig->initialCMakeArguments.cmakeConfiguration()));
         m_buildConfig->filterConfigArgumentsFromAdditionalCMakeArguments();
         updateFromKit();
         m_configView->setEnabled(true);
@@ -634,19 +672,46 @@ void CMakeBuildSettingsWidget::reconfigureWithInitialParameters()
         m_buildConfig->cmakeBuildSystem()->runCMake();
 }
 
-void CMakeBuildSettingsWidget::updatePackageManagerAutoSetup(CMakeConfig &initialList)
+static bool haveValidCMakeProjectIncludeBefore(const CMakeConfig &configList)
 {
-    const bool usePackageManagerAutoSetup
-        = settings(m_buildConfig->project()).packageManagerAutoSetup();
+    const FilePath cmakeProjectIncludeBefore = configList.filePathValueOf(
+        "CMAKE_PROJECT_INCLUDE_BEFORE");
+    if (cmakeProjectIncludeBefore.isEmpty()
+        || cmakeProjectIncludeBefore.fileName() != "qtcreator-project.cmake")
+        // These settings only work if cmake-helper/qtcreator-project.cmake is included
+        return false;
 
-    const auto autoSetupParameter = getPackageManagerAutoSetupParameter();
-    if (initialList.contains(autoSetupParameter.key)) {
-        const CMakeConfigItem item = initialList.value(autoSetupParameter.key);
-        if (!usePackageManagerAutoSetup && item.value == autoSetupParameter.value)
-            initialList.remove(item.key);
-    } else if (usePackageManagerAutoSetup) {
-        initialList.insert(autoSetupParameter);
+    return true;
+}
+
+void CMakeBuildSettingsWidget::updateSettingsToCMakeConfigItems(CMakeConfig &initialList)
+{
+    AspectToConfigItemList list = getAspectToConfigureItemList();
+    if (!haveValidCMakeProjectIncludeBefore(initialList))
+        return;
+
+    for (auto &a2c : list) {
+        auto it
+            = std::find_if(initialList.begin(), initialList.end(), [a2c](const CMakeConfigItem &item) {
+                  return item.key == a2c.configItem.key;
+              });
+        if (it != initialList.end()) {
+            if (!a2c.aspect() && it->value == a2c.configItem.value)
+                initialList.erase(it);
+        } else if (a2c.aspect()) {
+            initialList.insert(a2c.configItem);
+        }
     }
+}
+
+AspectToConfigItemList CMakeBuildSettingsWidget::getAspectToConfigureItemList()
+{
+    AspectToConfigItemList list
+        = {{settings(m_buildConfig->project()).packageManagerAutoSetup,
+            enablePackageManagerAutoSetupParameter()},
+           {settings(m_buildConfig->project()).maintenanceToolDependencyProvider,
+            enableMaintenanceToolDependencyProvider()}};
+    return list;
 }
 
 static bool isGenerateQmllsSettingsEnabled()
@@ -697,9 +762,10 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments(bool fromReconfigure)
         }
     }
 
-    updatePackageManagerAutoSetup(initialList);
+    updateSettingsToCMakeConfigItems(initialList);
 
-    m_buildConfig->initialCMakeArguments.setCMakeConfiguration(initialList);
+    m_buildConfig->initialCMakeArguments.setCMakeConfiguration(
+        CMakeBuildConfiguration::updateCMakeHelperConfig(initialList));
 
     if (fromReconfigure) {
         // value() will contain only the unknown arguments (the non -D/-U arguments)
@@ -788,7 +854,7 @@ void CMakeBuildSettingsWidget::updateButtonState()
     const QList<ConfigModel::DataItem> changes = m_configModel->configurationForCMake();
 
     const CMakeConfig configChanges
-        = getQmlDebugCxxFlags() + getSigningFlagsChanges()
+        = getQmlDebugCxxFlags() + getSigningFlagsChanges() + getSettingsToCMakeConfigItems()
           + Utils::transform(changes, [](const ConfigModel::DataItem &i) {
                 CMakeConfigItem ni;
                 ni.key = i.key.toUtf8();
@@ -981,6 +1047,39 @@ CMakeConfig CMakeBuildSettingsWidget::getSigningFlagsChanges()
         if (notInConfig != signingFlag.isUnset || existingFlag.value != signingFlag.value)
             changedConfig.insert(signingFlag);
     }
+    return changedConfig;
+}
+
+CMakeConfig CMakeBuildSettingsWidget::getSettingsToCMakeConfigItems()
+{
+    AspectToConfigItemList aspectsToConfigs = getAspectToConfigureItemList();
+
+    const CMakeConfig configList = m_buildConfig->cmakeBuildSystem()->configurationFromCMake();
+    CMakeConfig changedConfig;
+    if (configList.isEmpty())
+        // we don't have any configuration --> initial configuration takes care of this itself
+        return {};
+
+    if (m_buildConfig->extraData(Constants::CMAKE_IMPORTED_BUILD).toBool())
+        // Don't touch the imported builds
+        return {};
+
+    if (!haveValidCMakeProjectIncludeBefore(configList))
+        return {};
+
+    for (auto &a2c : aspectsToConfigs) {
+        a2c.configItem.value = a2c.aspect() ? "ON" : "OFF";
+        bool hasExistingValue = configList.contains(a2c.configItem.key);
+
+        if (a2c.aspect()) {
+            if (!hasExistingValue)
+                changedConfig.insert(a2c.configItem);
+        } else if (hasExistingValue) {
+            a2c.configItem.isUnset = true;
+            changedConfig.insert(a2c.configItem);
+        }
+    }
+
     return changedConfig;
 }
 
@@ -1191,9 +1290,15 @@ static CommandLine defaultInitialCMakeCommand(
     if (!buildType.isEmpty() && !CMakeGeneratorKitAspect::isMultiConfigGenerator(k))
         cmd.addArg("-DCMAKE_BUILD_TYPE:STRING=" + buildType);
 
+    // CMake-helper
+    cmd.addArg(getCMakeHelperParameter().toArgument());
+
     // Package manager auto setup
     if (settings(project).packageManagerAutoSetup())
-        cmd.addArg(getPackageManagerAutoSetupParameter().toArgument());
+        cmd.addArg(enablePackageManagerAutoSetupParameter().toArgument());
+
+    if (settings(project).maintenanceToolDependencyProvider())
+        cmd.addArg(enableMaintenanceToolDependencyProvider().toArgument());
 
     // Cross-compilation settings:
     if (!CMakeBuildConfiguration::isIos(k)) { // iOS handles this differently
@@ -1597,6 +1702,9 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         if (extraInfoMap.contains(Constants::CMAKE_HOME_DIR))
             sourceDirectory.setValue(FilePath::fromVariant(extraInfoMap.value(Constants::CMAKE_HOME_DIR)));
 
+        if (extraInfoMap.contains(Constants::CMAKE_IMPORTED_BUILD))
+            setExtraData(Constants::CMAKE_IMPORTED_BUILD, true);
+
         qmlDebugging.setValue(extraInfoMap.contains(Constants::QML_DEBUG_SETTING)
                                   ? TriState::fromVariant(extraInfoMap.value(Constants::QML_DEBUG_SETTING))
                                   : TriState::Default);
@@ -1873,6 +1981,21 @@ QWidget *CMakeBuildConfiguration::createConfigWidget()
 QStringList CMakeBuildConfiguration::initialCMakeOptions() const
 {
     return initialCMakeArguments.allValues();
+}
+
+CMakeConfig CMakeBuildConfiguration::updateCMakeHelperConfig(const CMakeConfig &config)
+{
+    CMakeConfig updatedConfig = config;
+
+    // Migrate from "package-manager/auto-setup.cmake" to "cmake-helper/qtcreator-project.cmake"
+    const auto cmakeHelperParameter = getCMakeHelperParameter();
+    if (updatedConfig.contains(cmakeHelperParameter.key)) {
+        CMakeConfigItem &item = updatedConfig[cmakeHelperParameter.key];
+        if (item.value.endsWith("auto-setup.cmake"))
+            item.value = cmakeHelperParameter.value;
+    }
+
+    return updatedConfig;
 }
 
 void CMakeBuildConfiguration::setInitialArgs(const QStringList &args)
