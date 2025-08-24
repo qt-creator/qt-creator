@@ -68,14 +68,20 @@ private:
 
     QString previewText() const final
     {
-        static const QString defaultPreviewText = R"(import QtQuick 1.0
+        static const QString defaultPreviewText = R"(import QtQuick
+import QtQuick.Templates
+import QtQuick.Controls
 
 Rectangle {
     width: 360
     height: myHeight
     function f() {
+        ;;
     }
     function g() {
+        let a = 4;;;
+        [1, 2, 3].forEach(x => console.log(x));
+        let b = a;
     }
     signal mySignal
     property int myHeight: 360
