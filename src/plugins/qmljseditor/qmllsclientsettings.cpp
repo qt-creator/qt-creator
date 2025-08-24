@@ -151,7 +151,7 @@ static std::pair<FilePath, QVersionNumber> evaluateOverridenQmlls()
     }
 
     const bool isStandaloneQmlls = output.contains("(standalone)");
-    const int versionBegin = isStandaloneQmlls
+    const std::size_t versionBegin = isStandaloneQmlls
             ? std::char_traits<char>::length("qmlls (standalone) ")
             : std::char_traits<char>::length("qmlls ");
 
