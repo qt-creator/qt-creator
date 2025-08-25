@@ -10,6 +10,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
+#include <projectstorage/efswfilesystemwatcher.h>
 #include <projectstorage/filestatuscache.h>
 #include <projectstorage/filesystem.h>
 #include <projectstorage/projectstorage.h>
@@ -41,7 +42,6 @@
 #include <coreplugin/icore.h>
 
 #include <QDirIterator>
-#include <QFileSystemWatcher>
 #include <QLibraryInfo>
 #include <QQmlEngine>
 #include <QStandardPaths>
@@ -263,7 +263,7 @@ public:
     FileStatusCache fileStatusCache;
     QmlDocumentParser qmlDocumentParser;
     QmlTypesParser qmlTypesParser;
-    ProjectStoragePathWatcher<QFileSystemWatcher, QTimer, PathCacheType> pathWatcher;
+    ProjectStoragePathWatcher<EfswFileSystemWatcher, QTimer, PathCacheType> pathWatcher;
     ProjectPartId projectPartId;
     ProjectPartId qtPartId;
     ProjectStorageUpdater updater;

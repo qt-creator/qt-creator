@@ -393,6 +393,23 @@ extend_qtc_library(QmlDesignerCore
     PUBLIC_DEFINES QDS_MODEL_USE_PROJECTSTORAGEINTERFACE
 )
 
+FetchContent_Declare(
+  efsw
+  GIT_REPOSITORY https://github.com/SpartanJ/efsw.git
+  GIT_TAG        1.5.0
+)
+
+FetchContent_MakeAvailable(efsw)
+
+
+extend_qtc_library(QmlDesignerCore
+  SOURCES_PREFIX projectstorage
+  DEPENDS efsw-static
+  PUBLIC_INCLUDES projectstorage
+  SOURCES
+    efswfilesystemwatcher.cpp efswfilesystemwatcher.h
+)
+
 extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX projectstorage
   PUBLIC_INCLUDES projectstorage
