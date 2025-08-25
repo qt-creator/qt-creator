@@ -297,11 +297,7 @@ QTCREATOR_UTILS_EXPORT void addToLayout(Layouting::Layout *layout, const BaseAsp
 QTCREATOR_UTILS_EXPORT void addToLayout(Layouting::Layout *layout, const BaseAspect &aspect);
 
 template<typename ValueType>
-class
-#ifndef Q_OS_WIN
-    QTCREATOR_UTILS_EXPORT
-#endif
-        TypedAspect : public BaseAspect
+class TypedAspect : public BaseAspect
 {
 public:
     using valueType = ValueType;
