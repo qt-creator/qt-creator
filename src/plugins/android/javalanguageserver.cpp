@@ -106,8 +106,12 @@ bool JLSSettings::applyFromSettingsWidget(QWidget *widget)
         else if constexpr (HostOsInfo::hostOs() == OsTypeMac)
             configDir.cd("config_mac");
     }
-    if (configDir.exists())
-        arguments.setValue(args.arg(languageServer().path(), configDir.absolutePath()));
+
+    if (configDir.exists()) {
+        args = args.arg(languageServer().path(), configDir.absolutePath());
+        changed |= arguments() != args;
+        arguments.setValue(args);
+    }
 
     return changed;
 }
@@ -125,7 +129,7 @@ bool JLSSettings::isValid() const
 class JLSInterface : public StdIOClientInterface
 {
 public:
-    QString workspaceDir() const { return m_workspaceDir.path().path(); }
+    FilePath workspaceDir() const { return m_workspaceDir.path(); }
 
 private:
     TemporaryDirectory m_workspaceDir = TemporaryDirectory("QtCreator-jls-XXXXXX");
@@ -135,7 +139,7 @@ BaseClientInterface *JLSSettings::createInterface(BuildConfiguration *) const
 {
     auto interface = new JLSInterface();
     CommandLine cmd{executable(), arguments(), CommandLine::Raw};
-    cmd.addArgs({"-data", interface->workspaceDir()});
+    cmd.addArgs({"-data", interface->workspaceDir().path()});
     interface->setCommandLine(cmd);
     return interface;
 }
