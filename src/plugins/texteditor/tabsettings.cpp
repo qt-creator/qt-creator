@@ -29,15 +29,13 @@ TabSettings::TabSettings(TabSettings::TabPolicy tabPolicy,
 {
 }
 
-Store TabSettings::toMap() const
+void TabSettings::toMap(Store &map) const
 {
-    return {
-        {spacesForTabsKey, m_tabPolicy != TabsOnlyTabPolicy},
-        {autoDetectKey, m_autoDetect},
-        {tabSizeKey, m_tabSize},
-        {indentSizeKey, m_indentSize},
-        {paddingModeKey, m_continuationAlignBehavior}
-    };
+    map.insert(spacesForTabsKey, m_tabPolicy != TabsOnlyTabPolicy);
+    map.insert(autoDetectKey, m_autoDetect);
+    map.insert(tabSizeKey, m_tabSize);
+    map.insert(indentSizeKey, m_indentSize);
+    map.insert(paddingModeKey, m_continuationAlignBehavior);
 }
 
 void TabSettings::fromMap(const Store &map)

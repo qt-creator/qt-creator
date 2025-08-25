@@ -64,7 +64,7 @@ public:
     void fromSettings(const Utils::Key &category);
 
     // make below 2 protected?
-    virtual Utils::Store toMap() const;
+    virtual void toMap(Utils::Store &map) const;
     virtual void fromMap(const Utils::Store &map);
 
     Utils::Id globalSettingsCategory();
@@ -126,16 +126,13 @@ public:
         return v.value<T>();
     }
 
-    Utils::Store toMap() const override
+    void toMap(Utils::Store &map) const override
     {
-        Utils::Store map = ICodeStylePreferences::toMap();
-        if (!currentDelegate()) {
-            const Utils::Store dataMap = m_data.toMap();
-            for (auto it = dataMap.begin(), end = dataMap.end(); it != end; ++it)
-                map.insert(it.key(), it.value());
-        }
-        return map;
+        ICodeStylePreferences::toMap(map);
+        if (!currentDelegate())
+            m_data.toMap(map);
     }
+
     void fromMap(const Utils::Store &map) override
     {
         ICodeStylePreferences::fromMap(map);

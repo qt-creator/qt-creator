@@ -66,15 +66,13 @@ const char customFormatterArgumentsKey[] = "CustomFormatterArguments";
 
 QmlJSCodeStyleSettings::QmlJSCodeStyleSettings() = default;
 
-Store QmlJSCodeStyleSettings::toMap() const
+void QmlJSCodeStyleSettings::toMap(Store &map) const
 {
-    return {
-        {formatterKey, formatter},
-        {lineLengthKey, lineLength},
-        {qmlformatIniContentKey, qmlformatIniContent},
-        {customFormatterPathKey, customFormatterPath.toUrlishString()},
-        {customFormatterArgumentsKey, customFormatterArguments}
-    };
+    map.insert(formatterKey, formatter);
+    map.insert(lineLengthKey, lineLength);
+    map.insert(qmlformatIniContentKey, qmlformatIniContent);
+    map.insert(customFormatterPathKey, customFormatterPath.toUrlishString());
+    map.insert(customFormatterArgumentsKey, customFormatterArguments);
 }
 
 void QmlJSCodeStyleSettings::fromMap(const Store &map)

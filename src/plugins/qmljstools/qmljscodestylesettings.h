@@ -43,7 +43,7 @@ public:
     Utils::FilePath customFormatterPath;
     QString customFormatterArguments;
 
-    Utils::Store toMap() const;
+    void toMap(Utils::Store &map) const;
     void fromMap(const Utils::Store &map);
 
     bool equals(const QmlJSCodeStyleSettings &rhs) const;

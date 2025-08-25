@@ -176,15 +176,19 @@ Store EditorConfiguration::toMap() const
     for (auto itCodeStyle = d->m_languageCodeStylePreferences.cbegin(),
                end = d->m_languageCodeStylePreferences.cend();
             itCodeStyle != end; ++itCodeStyle) {
+        Store inner;
+        itCodeStyle.value()->toMap(inner);
         const Store settingsIdMap = {
             {"language", QVariant::fromValue(itCodeStyle.key().toSetting())},
-            {"value", QVariant::fromValue(itCodeStyle.value()->toMap())}
+            {"value", QVariant::fromValue(inner)}
         };
         map.insert(numberedKey(kCodeStylePrefix, i), variantFromStore(settingsIdMap));
         i++;
     }
 
-    toMapWithPrefix(&map, d->m_defaultCodeStyle->tabSettings().toMap());
+    Store inner;
+    d->m_defaultCodeStyle->tabSettings().toMap(inner);
+    toMapWithPrefix(&map, inner);
     toMapWithPrefix(&map, d->m_typingSettings.toMap());
     toMapWithPrefix(&map, d->m_storageSettings.toMap());
     toMapWithPrefix(&map, d->m_behaviorSettings.toMap());

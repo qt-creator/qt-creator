@@ -256,7 +256,8 @@ void CodeStylePool::saveCodeStyle(ICodeStylePreferences *codeStyle) const
 
 void CodeStylePool::exportCodeStyle(const FilePath &fileName, ICodeStylePreferences *codeStyle) const
 {
-    const Store map = codeStyle->toMap();
+    Store map;
+    codeStyle->toMap(map);
     const Store tmp = {
         {displayNameKey, codeStyle->displayName()},
         {codeStyleDataKey, variantFromStore(map)}

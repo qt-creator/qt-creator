@@ -191,7 +191,9 @@ void ICodeStylePreferences::setSettingsSuffix(const Key &suffix)
 
 void ICodeStylePreferences::toSettings(const Key &category) const
 {
-    Utils::storeToSettings(category + d->m_settingsSuffix, Core::ICore::settings(), toMap());
+    Store map;
+    toMap(map);
+    Utils::storeToSettings(category + d->m_settingsSuffix, Core::ICore::settings(), map);
 }
 
 void ICodeStylePreferences::fromSettings(const Key &category)
@@ -199,11 +201,12 @@ void ICodeStylePreferences::fromSettings(const Key &category)
     fromMap(Utils::storeFromSettings(category + d->m_settingsSuffix, Core::ICore::settings()));
 }
 
-Store ICodeStylePreferences::toMap() const
+void ICodeStylePreferences::toMap(Store &map) const
 {
     if (!currentDelegate())
-        return d->m_tabSettings.toMap();
-    return {{currentPreferencesKey, currentDelegateId()}};
+        d->m_tabSettings.toMap(map);
+    else
+        map.insert(currentPreferencesKey, currentDelegateId());
 }
 
 void ICodeStylePreferences::fromMap(const Store &map)

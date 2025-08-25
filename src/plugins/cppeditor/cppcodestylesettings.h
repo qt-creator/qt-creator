@@ -68,7 +68,7 @@ public:
     bool forceFormatting = false;
 #endif
 
-    Utils::Store toMap() const;
+    void toMap(Utils::Store &map) const;
     void fromMap(const Utils::Store &map);
 
     bool equals(const CppCodeStyleSettings &rhs) const;

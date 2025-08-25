@@ -36,7 +36,7 @@ public:
     TabSettings(TabPolicy tabPolicy, int tabSize,
                 int indentSize, ContinuationAlignBehavior continuationAlignBehavior);
 
-    Utils::Store toMap() const;
+    void toMap(Utils::Store &map) const;
     void fromMap(const Utils::Store &map);
 
     TabSettings autoDetect(const QTextDocument *document) const;
