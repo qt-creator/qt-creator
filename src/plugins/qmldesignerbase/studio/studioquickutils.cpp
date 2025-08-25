@@ -4,6 +4,7 @@
 #include "studioquickutils.h"
 
 #include <coreplugin/icore.h>
+#include <QScreen>
 
 namespace QmlDesigner {
 
@@ -24,6 +25,19 @@ void StudioQuickUtils::registerDeclarativeType()
 const QLocale &StudioQuickUtils::locale() const
 {
     return m_locale;
+}
+
+QRect StudioQuickUtils::screenContaining(int x, int y) const
+{
+    const QList<QScreen *> screens = QGuiApplication::screens();
+    for (QScreen *screen : screens) {
+        if (screen->geometry().contains(x, y))
+            return screen->geometry();
+    }
+
+    if (QScreen *primaryScreen = QGuiApplication::primaryScreen())
+        return primaryScreen->geometry();
+    return {};
 }
 
 StudioQuickUtils::~StudioQuickUtils() {}
