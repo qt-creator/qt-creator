@@ -81,7 +81,7 @@ void QmlFormatSettings::evaluateLatestQmlFormat()
     if (m_latestQmlFormat != latestQmlFormat || m_latestVersion != latestVersion) {
         m_latestQmlFormat = latestQmlFormat;
         m_latestVersion = latestVersion;
-        emit versionEvaluated();
+        generateQmlFormatIniContent();
     }
 }
 
@@ -89,7 +89,6 @@ QmlFormatSettings::QmlFormatSettings()
 {
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsLoaded,
             this, &QmlFormatSettings::evaluateLatestQmlFormat);
-    connect(this, &QmlFormatSettings::versionEvaluated, this, &QmlFormatSettings::generateQmlFormatIniContent);
 }
 
 QmlFormatSettings::~QmlFormatSettings() = default;

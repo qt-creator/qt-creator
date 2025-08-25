@@ -30,8 +30,8 @@ public:
     static Utils::FilePath globalQmlFormatIniFile();
 
 signals:
-    void versionEvaluated();
     void qmlformatIniCreated(Utils::FilePath iniFile);
+
 private:
     QmlFormatSettings();
     ~QmlFormatSettings();
