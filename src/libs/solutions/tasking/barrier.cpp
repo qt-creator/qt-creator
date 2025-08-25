@@ -46,7 +46,7 @@ void Barrier::stopWithResult(DoneResult result)
         return;
     m_current = -1;
     m_result = result;
-    emit done(result);
+    emit done(result, QPrivateSignal());
 }
 
 } // namespace Tasking

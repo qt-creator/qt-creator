@@ -30,7 +30,7 @@ public:
     std::optional<DoneResult> result() const { return m_result; }
 
 Q_SIGNALS:
-    void done(DoneResult success);
+    void done(DoneResult success, QPrivateSignal);
 
 private:
     std::optional<DoneResult> m_result = {};

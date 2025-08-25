@@ -534,11 +534,23 @@ class DefaultTaskAdapter
 {
 public:
     void operator()(Task *task, TaskInterface *iface) {
-        // TODO: Add static asserts and if constexpr for done(bool).
         QObject::connect(task, &Task::done, iface, &TaskInterface::reportDone,
                          Qt::SingleShotConnection);
         task->start();
     }
+
+private:
+    template <typename, typename = void>
+    struct has_start : std::false_type {};
+    template <typename T>
+    struct has_start<T, std::void_t<decltype(std::declval<T>().start())>> : std::true_type {};
+    template <typename T>
+    static inline constexpr bool has_start_v = has_start<T>::value;
+
+    static_assert(std::is_base_of_v<QObject, Task>,
+                  "DefaultTaskAdapter<Task>: The Task type needs to be derived from QObject.");
+    static_assert(has_start_v<Task>,
+                  "DefaultTaskAdapter<Task>: The Task type needs to specify public start() method.");
 };
 
 // TODO: Allow Task = void?
@@ -547,16 +559,6 @@ template <typename Task, typename Adapter = DefaultTaskAdapter<Task>,
 class CustomTask final : public ExecutableItem
 {
 public:
-    static_assert(std::is_default_constructible_v<Task>,
-                  "The Task type for the QCustomTask<Type, Adapter, Deleter> needs to "
-                  "be default constructible.");
-    static_assert(std::is_default_constructible_v<Adapter>,
-                  "The Adapter type for the QCustomTask<Type, Adapter, Deleter> needs to "
-                  "be default constructible.");
-    static_assert(std::is_invocable_v<Adapter, Task *, TaskInterface *>,
-                  "The Adapter type for the QCustomTask<Type, Adapter, Deleter> needs to "
-                  "implement public \"void operator()(Task *task, TaskInterface *iface);\" "
-                  "method.");
     using TaskSetupHandler = std::function<SetupResult(Task &)>;
     using TaskDoneHandler = std::function<DoneResult(const Task &, DoneWith)>;
 
@@ -569,6 +571,17 @@ public:
     {}
 
 private:
+    static_assert(std::is_default_constructible_v<Task>,
+                  "CustomTask<Type, Adapter, Deleter>: The Task type needs to "
+                  "be default constructible.");
+    static_assert(std::is_default_constructible_v<Adapter>,
+                  "CustomTask<Type, Adapter, Deleter>: The Adapter type needs to "
+                  "be default constructible.");
+    static_assert(std::is_invocable_v<Adapter, Task *, TaskInterface *>,
+                  "CustomTask<Type, Adapter, Deleter>: The Adapter type needs to "
+                  "implement public \"void operator()(Task *task, QTaskInterface *iface);\" "
+                  "method.");
+
     friend class When;
 
     struct TaskAdapter {
