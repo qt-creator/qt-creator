@@ -77,14 +77,14 @@ public:
     bool m_enabled = true;
     StartBehavior m_startBehavior = RequiresFile;
     LanguageFilter m_languageFilter;
-    QString m_initializationOptions;
-    QString m_configuration;
-    bool m_showInSettings = true;
-    // controlls whether the resulting client can be used for completions/highlight/outline etc.
-    bool m_activatable = true;
+    Utils::StringAspect initializationOptions{this};
+    Utils::StringAspect configuration{this};
+    Utils::BoolAspect showInSettings{this};
+    // controls whether the resulting client can be used for completions/highlight/outline etc.
+    Utils::BoolAspect activatable{this};
 
-    QJsonObject initializationOptions() const;
-    QJsonValue configuration() const;
+    QJsonObject initializationOptionsAsJson() const;
+    QJsonValue configurationAsJson() const;
 
     virtual bool applyFromSettingsWidget(QWidget *widget);
     virtual QWidget *createSettingsWidget(QWidget *parent = nullptr) const;

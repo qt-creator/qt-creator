@@ -633,7 +633,7 @@ BaseSettings *LuaClientSettings::copy() const
     if (auto w = other->m_wrapper.lock()) {
         QObject::connect(w.get(), &LuaClientWrapper::optionsChanged, &other->guard, [other] {
             if (auto w = other->m_wrapper.lock())
-                other->m_initializationOptions = w->m_initializationOptions;
+                other->initializationOptions.setValue(w->m_initializationOptions);
         });
     }
 
@@ -647,13 +647,13 @@ LuaClientSettings::LuaClientSettings(const std::weak_ptr<LuaClientWrapper> &wrap
         name.setValue(w->m_name);
         m_settingsTypeId = w->m_settingsTypeId;
         m_languageFilter = w->m_languageFilter;
-        m_initializationOptions = w->m_initializationOptions;
+        initializationOptions.setValue(w->m_initializationOptions);
         m_startBehavior = w->m_startBehavior;
-        m_showInSettings = w->m_showInSettings;
-        m_activatable = w->m_activatable;
+        showInSettings.setValue(w->m_showInSettings);
+        activatable.setValue(w->m_activatable);
         QObject::connect(w.get(), &LuaClientWrapper::optionsChanged, &guard, [this] {
             if (auto w = m_wrapper.lock())
-                m_initializationOptions = w->m_initializationOptions;
+                initializationOptions.setValue(w->m_initializationOptions);
         });
     }
 }
@@ -665,7 +665,7 @@ bool LuaClientSettings::applyFromSettingsWidget(QWidget *widget)
     if (auto w = m_wrapper.lock()) {
         w->m_name = name();
         if (!w->m_initOptionsCallback)
-            w->m_initializationOptions = m_initializationOptions;
+            w->m_initializationOptions = initializationOptions();
         w->m_languageFilter = m_languageFilter;
         w->m_startBehavior = m_startBehavior;
         w->applySettings();
@@ -687,7 +687,7 @@ void LuaClientSettings::fromMap(const Store &map)
     if (auto w = m_wrapper.lock()) {
         w->m_name = name();
         if (!w->m_initOptionsCallback)
-            w->m_initializationOptions = m_initializationOptions;
+            w->m_initializationOptions = initializationOptions();
         w->m_languageFilter = m_languageFilter;
         w->m_startBehavior = m_startBehavior;
         w->fromMap(map);

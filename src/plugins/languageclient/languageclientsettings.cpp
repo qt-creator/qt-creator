@@ -62,8 +62,6 @@ constexpr char enabledKey[] = "enabled";
 constexpr char startupBehaviorKey[] = "startupBehavior";
 constexpr char mimeTypeKey[] = "mimeType";
 constexpr char filePatternKey[] = "filePattern";
-constexpr char initializationOptionsKey[] = "initializationOptions";
-constexpr char configurationKey[] = "configuration";
 constexpr char settingsGroupKey[] = "LanguageClient";
 constexpr char clientsKey[] = "clients";
 constexpr char typedClientsKey[] = "typedClients";
@@ -126,7 +124,7 @@ public:
         const QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
         const BaseSettings *setting
             = static_cast<LanguageClientSettingsModel *>(sourceModel())->settingForIndex(index);
-        return setting && setting->m_showInSettings;
+        return setting && setting->showInSettings();
     }
 
     void reset(QList<BaseSettings *> settings)
@@ -548,17 +546,24 @@ BaseSettings::BaseSettings()
     name.setDefaultValue("New Language Server");
     name.setLabelText(Tr::tr("Name:"));
     name.setDisplayStyle(StringAspect::LineEditDisplay);
+
+    showInSettings.setDefaultValue(true);
+
+    activatable.setDefaultValue(true);
+
+    initializationOptions.setSettingsKey("initializationOptions");
+
+    configuration.setSettingsKey("configuration");
 }
 
-QJsonObject BaseSettings::initializationOptions() const
+QJsonObject BaseSettings::initializationOptionsAsJson() const
 {
-    return QJsonDocument::fromJson(Utils::globalMacroExpander()->
-                                   expand(m_initializationOptions).toUtf8()).object();
+    return QJsonDocument::fromJson(initializationOptions().toUtf8()).object();
 }
 
-QJsonValue BaseSettings::configuration() const
+QJsonValue BaseSettings::configurationAsJson() const
 {
-    const QJsonDocument document = QJsonDocument::fromJson(m_configuration.toUtf8());
+    const QJsonDocument document = QJsonDocument::fromJson(configuration().toUtf8());
     if (document.isArray())
         return document.array();
     if (document.isObject())
@@ -580,8 +585,8 @@ bool BaseSettings::applyFromSettingsWidget(QWidget *widget)
             m_startBehavior = settingsWidget->startupBehavior();
             changed = true;
         }
-        if (m_initializationOptions != settingsWidget->initializationOptions()) {
-            m_initializationOptions = settingsWidget->initializationOptions();
+        if (initializationOptions.isDirty()) {
+            initializationOptions.apply();
             changed = true;
         }
     }
@@ -644,10 +649,10 @@ Client *BaseSettings::createClient(BuildConfiguration *bc) const
         client->setName(name());
 
     client->setSupportedLanguage(m_languageFilter);
-    client->setInitializationOptions(initializationOptions());
-    client->setActivatable(m_activatable);
+    client->setInitializationOptions(initializationOptionsAsJson());
+    client->setActivatable(activatable());
     client->setCurrentBuildConfiguration(bc);
-    client->updateConfiguration(m_configuration);
+    client->updateConfiguration(configurationAsJson());
     return client;
 }
 
@@ -665,8 +670,6 @@ void BaseSettings::toMap(Store &map) const
     map.insert(startupBehaviorKey, m_startBehavior);
     map.insert(mimeTypeKey, m_languageFilter.mimeTypes);
     map.insert(filePatternKey, m_languageFilter.filePattern);
-    map.insert(initializationOptionsKey, m_initializationOptions);
-    map.insert(configurationKey, m_configuration);
 }
 
 void BaseSettings::fromMap(const Store &map)
@@ -679,8 +682,6 @@ void BaseSettings::fromMap(const Store &map)
     m_languageFilter.mimeTypes = map[mimeTypeKey].toStringList();
     m_languageFilter.filePattern = map[filePatternKey].toStringList();
     m_languageFilter.filePattern.removeAll(QString()); // remove empty entries
-    m_initializationOptions = map[initializationOptionsKey].toString();
-    m_configuration = map[configurationKey].toString();
     m_settingsTypeId = Id::fromSetting(map[typeIdKey]);
 }
 
@@ -936,7 +937,7 @@ BaseSettingsWidget::BaseSettingsWidget(
             }
             return ResultOk;
         });
-    m_initializationOptions->setText(settings->m_initializationOptions);
+    m_initializationOptions->setText(settings->initializationOptions());
     m_initializationOptions->setPlaceholderText(Tr::tr("Language server-specific JSON to pass via "
                                                    "\"initializationOptions\" field of \"initialize\" "
                                                    "request."));

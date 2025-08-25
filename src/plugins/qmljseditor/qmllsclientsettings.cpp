@@ -121,8 +121,8 @@ QmllsClientSettings::QmllsClientSettings()
 
     m_settingsTypeId = Constants::QMLLS_CLIENT_SETTINGS_ID;
     m_startBehavior = RequiresProject;
-    m_initializationOptions = "{\"qtCreatorHighlighting\": true}";
     m_enabled = false; // disabled by default
+    initializationOptions.setValue("{\"qtCreatorHighlighting\": true}");
 }
 
 static std::pair<FilePath, QVersionNumber> evaluateLatestQmlls()
