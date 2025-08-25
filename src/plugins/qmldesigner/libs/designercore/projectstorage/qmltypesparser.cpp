@@ -541,19 +541,20 @@ void addType(Storage::Synchronization::Types &types,
         createEnumeration(enumerations),
         Utils::SmallString{component.ownDefaultPropertyName()});
 
+    tracer.end(keyValue("type", type));
+
     if (component.isValueType()) {
         NanotraceHR::Tracer tracer{"add value list type", category()};
 
-        const auto &type = types.emplace_back(Utils::SmallString::join({"QList<", typeName, ">"}),
-                                              Storage::Synchronization::ImportedType{},
-                                              Storage::Synchronization::ImportedType{},
-                                              createListTypeTraits(isInsideProject),
-                                              sourceId);
+        const auto &listType = types.emplace_back(Utils::SmallString::join({"QList<", typeName, ">"}),
+                                                  Storage::Synchronization::ImportedType{},
+                                                  Storage::Synchronization::ImportedType{},
+                                                  createListTypeTraits(isInsideProject),
+                                                  sourceId);
 
-        tracer.end(keyValue("type", type));
+        tracer.end(keyValue("type", listType));
     }
 
-    tracer.end(keyValue("type", type));
 }
 
 void addTypes(Storage::Synchronization::Types &types,
