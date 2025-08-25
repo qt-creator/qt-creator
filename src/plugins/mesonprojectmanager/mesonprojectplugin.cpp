@@ -16,12 +16,44 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <projectexplorer/devicesupport/idevice.h>
+
 #include <utils/fsengine/fileiconprovider.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace MesonProjectManager::Internal {
+
+class MesonToolAspectFactory : public DeviceToolAspectFactory
+{
+public:
+    MesonToolAspectFactory()
+    {
+        setToolId(Constants::ToolsSettings::TOOL_TYPE_MESON);
+        setToolType(DeviceToolAspect::BuildTool);
+        setFilePattern({"meson"});
+        setLabelText(Tr::tr("Meson executable:"));
+    }
+};
+
+class NinjaToolAspectFactory : public DeviceToolAspectFactory
+{
+public:
+    NinjaToolAspectFactory()
+    {
+        setToolId(Constants::ToolsSettings::TOOL_TYPE_NINJA);
+        setToolType(DeviceToolAspect::BuildTool);
+        setFilePattern({"ninja"});
+        setLabelText(Tr::tr("Ninja executable:"));
+    }
+};
+
+void setupMesonTools()
+{
+    static MesonToolAspectFactory theMesonToolAspectFactory;
+    static NinjaToolAspectFactory theNinjaToolAspectFactory;
+}
 
 class MesonProjectPlugin final : public ExtensionSystem::IPlugin
 {
@@ -32,6 +64,8 @@ class MesonProjectPlugin final : public ExtensionSystem::IPlugin
     {
         Core::IOptionsPage::registerCategory(
             Constants::SettingsPage::CATEGORY, Tr::tr("Meson"), Constants::Icons::MESON_BW);
+
+        setupMesonTools();
 
         setupToolsSettingsPage();
         setupToolsSettingsAccessor();
