@@ -5,11 +5,9 @@
 
 #include "qmljstools_global.h"
 
-#include <qtsupport/qtversionmanager.h>
-
 #include <utils/filepath.h>
 
-#include <QTemporaryDir>
+#include <QVersionNumber>
 
 namespace QmlJSTools {
 
@@ -18,11 +16,10 @@ class QmlFormatProcess;
 class QMLJSTOOLS_EXPORT QmlFormatSettings : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(QmlFormatSettings)
+
 public:
     Utils::FilePath latestQmlFormatPath() const;
     QVersionNumber latestQmlFormatVersion() const;
-    void generateQmlFormatIniContent();
     void evaluateLatestQmlFormat();
 
     static QmlFormatSettings &instance();
@@ -36,10 +33,10 @@ private:
     QmlFormatSettings();
     ~QmlFormatSettings();
 
+    void generateQmlFormatIniContent();
+
     Utils::FilePath m_latestQmlFormat;
     QVersionNumber m_latestVersion;
-    std::unique_ptr<QTemporaryDir> m_tempDir;
-    std::unique_ptr<QmlFormatProcess> m_qmlFormatProcess;
 };
 
 } // namespace QmlJSTools

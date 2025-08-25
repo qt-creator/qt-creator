@@ -8,6 +8,8 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
+#include <qtsupport/qtversionmanager.h>
+
 #include <utils/commandline.h>
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
@@ -15,37 +17,30 @@
 
 #include <QLoggingCategory>
 #include <QStandardPaths>
+#include <QTemporaryDir>
 
 using namespace QtSupport;
 using namespace Utils;
 using namespace ProjectExplorer;
+
 namespace QmlJSTools {
 
 static Q_LOGGING_CATEGORY(qmlformatlog, "qtc.qmljstools.qmlformat", QtWarningMsg)
+
 class QmlFormatProcess : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(QmlFormatProcess)
+
 public:
-    QmlFormatProcess();
-    ~QmlFormatProcess();
-    void setWorkingDirectory(const Utils::FilePath &workingDirectory);
-    Utils::FilePath workingDirectory() const;
-
-    void setCommandLine(const Utils::CommandLine &cmd);
-    Utils::CommandLine cmd() const;
-
-    void run();
-
-private:
+    QmlFormatProcess(const CommandLine &cmd);
 
 signals:
-    void finished(Utils::ProcessResultData);
-private:
-    Utils::Process *m_process = nullptr;
-    Utils::FilePath m_workingDirectory;
-    Utils::CommandLine m_cmd;
-    Utils::TemporaryFile m_logFile;
+    void qmlformatIniCreated(const FilePath &qmlformatIniFile);
+
+public:
+    Process m_process;
+    TemporaryFile m_logFile;
+    QTemporaryDir m_tempDir;
 };
 
 // TODO: Mostly borrowed from qmllsclientsettings.cpp
@@ -102,13 +97,13 @@ QmlFormatSettings& QmlFormatSettings::instance()
     return instance;
 }
 
-Utils::FilePath QmlFormatSettings::globalQmlFormatIniFile()
+FilePath QmlFormatSettings::globalQmlFormatIniFile()
 {
-    return Utils::FilePath::fromString(
+    return FilePath::fromString(
         QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + "/.qmlformat.ini") ;
 }
 
-Utils::FilePath QmlFormatSettings::currentQmlFormatIniFile(const Utils::FilePath &path)
+FilePath QmlFormatSettings::currentQmlFormatIniFile(const FilePath &path)
 {
     const FilePath iniFile = path.searchHereAndInParents(".qmlformat.ini", QDir::Files);
     if (!iniFile.isEmpty())
@@ -116,7 +111,7 @@ Utils::FilePath QmlFormatSettings::currentQmlFormatIniFile(const Utils::FilePath
     return globalQmlFormatIniFile();
 }
 
-Utils::FilePath QmlFormatSettings::latestQmlFormatPath() const
+FilePath QmlFormatSettings::latestQmlFormatPath() const
 {
     return m_latestQmlFormat;
 }
@@ -129,102 +124,61 @@ QVersionNumber QmlFormatSettings::latestQmlFormatVersion() const
 void QmlFormatSettings::generateQmlFormatIniContent()
 {
     if (m_latestQmlFormat.isEmpty() || !m_latestQmlFormat.isExecutableFile()) {
-        Core::MessageManager::writeSilently(
-            Tr::tr("No qmlformat executable found."));
+        Core::MessageManager::writeSilently(Tr::tr("No qmlformat executable found."));
         return;
     }
-    m_tempDir.reset(new QTemporaryDir);
-    Utils::CommandLine cmd(m_latestQmlFormat);
+
+    CommandLine cmd(m_latestQmlFormat);
     cmd.addArg("--write-defaults");
-    m_qmlFormatProcess.reset(new QmlFormatProcess);
-    m_qmlFormatProcess->setWorkingDirectory(Utils::FilePath::fromString(m_tempDir->path()));
-    m_qmlFormatProcess->setCommandLine(cmd);
 
-    connect(
-        m_qmlFormatProcess.get(),
-        &QmlFormatProcess::finished,
-        this,
-        [this](Utils::ProcessResultData result) {
-            QTC_ASSERT(m_tempDir, return);
-            Utils::FilePath qmlformatIniFile = Utils::FilePath::fromString(
-                m_tempDir->filePath(".qmlformat.ini"));
-            if (result.m_exitStatus == QProcess::NormalExit && result.m_exitCode == 0)
-                emit qmlformatIniCreated(qmlformatIniFile);
-            else
-                Core::MessageManager::writeSilently(
-                    Tr::tr("Failed to generate qmlformat.ini file."));
-            m_tempDir.reset();
-            m_qmlFormatProcess.release()->deleteLater();
-        });
+    if (cmd.executable().isEmpty()) {
+        Core::MessageManager::writeSilently(Tr::tr("No qmlformat executable found."));
+        return;
+    }
 
-    m_qmlFormatProcess->run();
+    auto qmlFormatProcess = new QmlFormatProcess(cmd);
+
+    connect(qmlFormatProcess, &QmlFormatProcess::qmlformatIniCreated,
+            this, &QmlFormatSettings::qmlformatIniCreated);
+
+    qmlFormatProcess->m_process.start();
 }
 
-QmlFormatProcess::QmlFormatProcess()
+QmlFormatProcess::QmlFormatProcess(const CommandLine &cmd)
     : m_logFile("qmlformat.qtc.log")
 {
     m_logFile.setAutoRemove(false);
     m_logFile.open();
-    m_process = new Process;
-    m_process->setProcessMode(ProcessMode::Writer);
-    connect (m_process, &Process::done, [this] {
-        emit finished(m_process->resultData());
-    });
 
-    connect(m_process, &Process::readyReadStandardOutput, [this] {
-        const QString output = m_process->readAllStandardOutput();
+    m_process.setCommand(cmd);
+    m_process.setWorkingDirectory(FilePath::fromString(m_tempDir.path()));
+    m_process.setProcessMode(ProcessMode::Writer);
+
+    connect(&m_process, &Process::readyReadStandardOutput, [this] {
+        const QString output = m_process.readAllStandardOutput();
         if (!output.isEmpty()) {
             qCInfo(qmlformatlog) << "qmlformat stdout is written to: " << m_logFile.filePath();
             QTextStream(&m_logFile) << "STDOUT: " << output << '\n';
         }
     });
-    connect(m_process, &Process::readyReadStandardError, [this] {
-        const QString output = m_process->readAllStandardError();
+    connect(&m_process, &Process::readyReadStandardError, [this] {
+        const QString output = m_process.readAllStandardError();
         if (!output.isEmpty()) {
             qCInfo(qmlformatlog) << "qmlformat stderr is written to: " << m_logFile.filePath();
             QTextStream(&m_logFile) << "STDERR: " << output << '\n';
         }
     });
-}
 
-QmlFormatProcess::~QmlFormatProcess()
-{
-    delete m_process;
-}
-
-void QmlFormatProcess::run()
-{
-    if (!m_process)
-        return;
-
-    if (m_cmd.executable().isEmpty()) {
-        Core::MessageManager::writeSilently(
-            Tr::tr("No qmlformat executable found."));
-        return;
-    }
-    m_process->setCommand(m_cmd);
-    m_process->setWorkingDirectory(m_workingDirectory);
-    m_process->start();
-}
-
-void QmlFormatProcess::setWorkingDirectory(const Utils::FilePath &workingDirectory)
-{
-    m_workingDirectory = workingDirectory;
-}
-
-Utils::FilePath QmlFormatProcess::workingDirectory() const
-{
-    return m_workingDirectory;
-}
-
-void QmlFormatProcess::setCommandLine(const Utils::CommandLine &cmd)
-{
-    m_cmd = cmd;
-}
-
-Utils::CommandLine QmlFormatProcess::cmd() const
-{
-    return m_cmd;
+    connect(&m_process, &Process::done, this, [this] {
+        ProcessResultData result = m_process.resultData();
+        FilePath qmlformatIniFile = FilePath::fromString(m_tempDir.filePath(".qmlformat.ini"));
+        if (result.m_exitStatus == QProcess::NormalExit && result.m_exitCode == 0)
+            emit qmlformatIniCreated(qmlformatIniFile);
+        else
+            Core::MessageManager::writeSilently(
+                Tr::tr("Failed to generate qmlformat.ini file."));
+        deleteLater();
+    });
 }
 
 } // namespace QmlJSTools
