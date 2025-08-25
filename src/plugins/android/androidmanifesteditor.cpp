@@ -13,6 +13,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <qtsupport/qtkitaspect.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -504,6 +506,8 @@ public:
     Qt::CheckState guiEnabledState() const { return m_guiEnabled->checkState(); };
     void setGuiEnabledState(Qt::CheckState state) { m_guiEnabled->setCheckState(state); };
 
+    void sendInsights();
+
 protected:
     void focusInEvent(QFocusEvent *event) override;
 
@@ -978,6 +982,14 @@ QGroupBox *AndroidManifestEditorWidget::createAdvancedGroupBox(QWidget *parent)
     otherGroupBox->setLayout(formLayout);
 
     return otherGroupBox;
+}
+
+void AndroidManifestEditorWidget::sendInsights()
+{
+    QObject guiEnabledTracker;
+    guiEnabledTracker.setObjectName("AndroidManifestEditorEnabled");
+    ExtensionSystem::PluginManager::addObject(&guiEnabledTracker);
+    ExtensionSystem::PluginManager::removeObject(&guiEnabledTracker);
 }
 
 QGroupBox *AndroidManifestEditorWidget::createSettingsGroupBox(QWidget *parent)
@@ -2065,6 +2077,7 @@ void AndroidManifestEditor::changeEditorPage(QAction *action)
             }
             return;
         } else {
+            ownWidget()->sendInsights();
             ownWidget()->setGuiEnabledState(Qt::CheckState::Checked);
         }
     }
