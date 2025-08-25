@@ -88,6 +88,9 @@ static std::pair<FilePath, QVersionNumber> evaluateLatestQmlls()
     int latestUniqueId = std::numeric_limits<int>::min();
 
     for (QtVersion *qtVersion : versions) {
+        if (!qtVersion->qmakeFilePath().isLocal())
+            continue;
+
         const QVersionNumber version = qtVersion->qtVersion();
         const int uniqueId = qtVersion->uniqueId();
 
