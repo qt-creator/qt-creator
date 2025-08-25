@@ -13,150 +13,104 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
 
+using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Python::Internal {
 
-PipInstallTask::PipInstallTask(const FilePath &python)
-    : m_python(python)
+QString PipInstallerData::packagesDisplayName() const
 {
-    connect(&m_process, &Process::done, this, &PipInstallTask::handleDone);
-    connect(&m_process, &Process::readyReadStandardError, this, &PipInstallTask::handleError);
-    connect(&m_process, &Process::readyReadStandardOutput, this, &PipInstallTask::handleOutput);
-    connect(&m_killTimer, &QTimer::timeout, this, &PipInstallTask::cancel);
+    return requirementsFile.isEmpty()
+               ? Utils::transform(packages, &PipPackage::displayName).join(", ")
+               : requirementsFile.toUserOutput();
 }
 
-void PipInstallTask::setRequirements(const Utils::FilePath &requirementFile)
+Group pipInstallerTask(const PipInstallerData &data)
 {
-    m_requirementsFile = requirementFile;
-}
+    const auto onSetup = [data](Process &process) {
+        if (data.packages.isEmpty() && data.requirementsFile.isEmpty())
+            return SetupResult::StopWithError;
 
-void PipInstallTask::setWorkingDirectory(const Utils::FilePath &workingDirectory)
-{
-    m_process.setWorkingDirectory(workingDirectory);
-}
-
-void PipInstallTask::addPackage(const PipPackage &package)
-{
-    m_packages << package;
-}
-
-void PipInstallTask::setPackages(const QList<PipPackage> &packages)
-{
-    m_packages = packages;
-}
-
-void PipInstallTask::setTargetPath(const Utils::FilePath &targetPath)
-{
-    m_targetPath = targetPath;
-}
-
-void PipInstallTask::run()
-{
-    if (m_packages.isEmpty() && m_requirementsFile.isEmpty()) {
-        emit finished(false);
-        return;
-    }
-    QStringList arguments = {"-m", "pip", "install"};
-    if (!m_requirementsFile.isEmpty()) {
-        arguments << "-r" << m_requirementsFile.toUrlishString();
-    } else {
-        for (const PipPackage &package : std::as_const(m_packages)) {
-            QString pipPackage = package.packageName;
-            if (!package.version.isEmpty())
-                pipPackage += "==" + package.version;
-            arguments << pipPackage;
+        QStringList arguments = {"-m", "pip", "install"};
+        if (!data.requirementsFile.isEmpty()) {
+            arguments << "-r" << data.requirementsFile.toUrlishString();
+        } else {
+            for (const PipPackage &package : std::as_const(data.packages)) {
+                QString pipPackage = package.packageName;
+                if (!package.version.isEmpty())
+                    pipPackage += "==" + package.version;
+                arguments << pipPackage;
+            }
         }
-    }
 
-    if (!m_targetPath.isEmpty()) {
-        QTC_ASSERT(m_targetPath.isSameDevice(m_python), emit finished(false); return);
-        arguments << "-t" << m_targetPath.path();
-    } else if (!isVenvPython(m_python)) {
-        arguments << "--user"; // add --user to global pythons, but skip it for venv pythons
-    }
+        if (!data.targetPath.isEmpty()) {
+            QTC_ASSERT(data.targetPath.isSameDevice(data.python), return SetupResult::StopWithError);
+            arguments << "-t" << data.targetPath.path();
+        } else if (!isVenvPython(data.python)) {
+            arguments << "--user"; // add --user to global pythons, but skip it for venv pythons
+        }
 
-    if (m_upgrade)
-        arguments << "--upgrade";
+        if (data.upgrade)
+            arguments << "--upgrade";
 
-    QString operation;
-    if (!m_requirementsFile.isEmpty()) {
-        operation = m_upgrade ? Tr::tr("Update Requirements") : Tr::tr("Install Requirements");
-    } else if (m_packages.count() == 1) {
-        //: %1 = package name
-        operation = m_upgrade ? Tr::tr("Update %1")
-                              //: %1 = package name
-                              : Tr::tr("Install %1");
-        operation = operation.arg(m_packages.first().displayName);
-    } else {
-        operation = m_upgrade ? Tr::tr("Update Packages") : Tr::tr("Install Packages");
-    }
+        QString operation;
+        if (!data.requirementsFile.isEmpty()) {
+            operation = data.upgrade ? Tr::tr("Update Requirements") : Tr::tr("Install Requirements");
+        } else if (data.packages.count() == 1) {
+            //: %1 = package name
+            operation = data.upgrade ? Tr::tr("Update %1")
+                                       //: %1 = package name
+                                       : Tr::tr("Install %1");
+            operation = operation.arg(data.packages.first().displayName);
+        } else {
+            operation = data.upgrade ? Tr::tr("Update Packages") : Tr::tr("Install Packages");
+        }
 
-    m_process.setCommand({m_python, arguments});
-    m_process.setTerminalMode(m_silent ? TerminalMode::Off : TerminalMode::Run);
-    auto progress = new Core::ProcessProgress(&m_process);
-    progress->setDisplayName(operation);
-    m_process.start();
+        process.setCommand({data.python, arguments});
+        process.setTerminalMode(data.silent ? TerminalMode::Off : TerminalMode::Run);
+        auto progress = new ProcessProgress(&process);
+        progress->setDisplayName(operation);
 
-    Core::MessageManager::writeSilently(
-        Tr::tr("Running \"%1\" to install %2.")
-            .arg(m_process.commandLine().toUserOutput(), packagesDisplayName()));
+        MessageManager::writeSilently(Tr::tr("Running \"%1\" to install %2.")
+                .arg(process.commandLine().toUserOutput(), data.packagesDisplayName()));
 
-    m_killTimer.setSingleShot(true);
-    m_killTimer.start(5 /*minutes*/ * 60 * 1000);
-}
+        QObject::connect(&process, &Process::readyReadStandardError, &process, [process = &process] {
+            const QString &stdOut = QString::fromLocal8Bit(process->readAllRawStandardOutput().trimmed());
+            if (!stdOut.isEmpty())
+                MessageManager::writeSilently(stdOut);
+        });
+        QObject::connect(&process, &Process::readyReadStandardOutput, &process, [process = &process] {
+            const QString &stdErr = QString::fromLocal8Bit(process->readAllRawStandardError().trimmed());
+            if (!stdErr.isEmpty())
+                MessageManager::writeSilently(stdErr);
+        });
+        return SetupResult::Continue;
+    };
 
-void PipInstallTask::cancel()
-{
-    m_process.close();
-    Core::MessageManager::writeFlashing(
-        Tr::tr("The installation of \"%1\" was canceled by timeout.").arg(packagesDisplayName()));
-}
+    const auto packagesDisplayName = data.packagesDisplayName();
 
-void PipInstallTask::handleDone()
-{
-    m_killTimer.stop();
-    const bool success = m_process.result() == ProcessResult::FinishedWithSuccess;
-    if (!success) {
-        Core::MessageManager::writeFlashing(Tr::tr("Installing \"%1\" failed: %2")
-                             .arg(packagesDisplayName(), m_process.exitMessage()));
-    }
-    emit finished(success);
-}
+    const auto onDone = [packagesDisplayName](const Process &process) {
+        MessageManager::writeFlashing(Tr::tr("Installing \"%1\" failed: %2")
+                                          .arg(packagesDisplayName, process.exitMessage()));
+    };
 
-void PipInstallTask::handleOutput()
-{
-    const QString &stdOut = QString::fromLocal8Bit(m_process.readAllRawStandardOutput().trimmed());
-    if (!stdOut.isEmpty())
-        Core::MessageManager::writeSilently(stdOut);
-}
+    const auto onTimeout = [packagesDisplayName] {
+        MessageManager::writeFlashing(
+            Tr::tr("The installation of \"%1\" was canceled by timeout.").arg(packagesDisplayName));
+    };
 
-void PipInstallTask::handleError()
-{
-    const QString &stdErr = QString::fromLocal8Bit(m_process.readAllRawStandardError().trimmed());
-    if (!stdErr.isEmpty())
-        Core::MessageManager::writeSilently(stdErr);
-}
-
-QString PipInstallTask::packagesDisplayName() const
-{
-    return m_requirementsFile.isEmpty()
-               ? Utils::transform(m_packages, &PipPackage::displayName).join(", ")
-               : m_requirementsFile.toUserOutput();
-}
-
-void PipInstallTask::setUpgrade(bool upgrade)
-{
-    m_upgrade = upgrade;
-}
-
-void PipInstallTask::setSilent(bool silent)
-{
-    m_silent = silent;
+    using namespace std::literals::chrono_literals;
+    return {
+        ProcessTask(onSetup, onDone, CallDone::OnError)
+            .withTimeout(5min, onTimeout)
+    };
 }
 
 void PipPackageInfo::parseField(const QString &field, const QStringList &data)

@@ -9,6 +9,8 @@
 #include <QTimer>
 #include <QUrl>
 
+namespace Tasking { class Group; }
+
 namespace Python::Internal {
 
 class PipPackageInfo
@@ -44,39 +46,20 @@ public:
     QString version;
 };
 
-class PipInstallTask : public QObject
+class PipInstallerData
 {
-    Q_OBJECT
 public:
-    explicit PipInstallTask(const Utils::FilePath &python);
-    void setRequirements(const Utils::FilePath &requirementFile);
-    void setWorkingDirectory(const Utils::FilePath &workingDirectory);
-    void addPackage(const PipPackage &package);
-    void setPackages(const QList<PipPackage> &packages);
-    void setTargetPath(const Utils::FilePath &targetPath);
-    void setUpgrade(bool upgrade);
-    void setSilent(bool silent);
-    void run();
-
-signals:
-    void finished(bool success);
-
-private:
-    void cancel();
-    void handleDone();
-    void handleOutput();
-    void handleError();
-
     QString packagesDisplayName() const;
 
-    const Utils::FilePath m_python;
-    QList<PipPackage> m_packages;
-    Utils::FilePath m_requirementsFile;
-    Utils::FilePath m_targetPath;
-    Utils::Process m_process;
-    bool m_upgrade = false;
-    bool m_silent = false;
-    QTimer m_killTimer;
+    Utils::FilePath python;
+    Utils::FilePath workingDirectory;
+    Utils::FilePath requirementsFile;
+    Utils::FilePath targetPath;
+    QList<PipPackage> packages;
+    bool upgrade = false;
+    bool silent = false;
 };
+
+Tasking::Group pipInstallerTask(const PipInstallerData &data);
 
 } // Python::Internal

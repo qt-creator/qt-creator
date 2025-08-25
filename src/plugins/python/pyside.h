@@ -50,6 +50,7 @@ private:
 
     QHash<Utils::FilePath, QList<TextEditor::TextDocument *>> m_infoBarEntries;
     Tasking::MappedTaskTreeRunner<TextEditor::TextDocument *> m_taskTreeRunner;
+    Tasking::SingleTaskTreeRunner m_pipInstallerRunner;
 };
 
 } // Python::Internal
