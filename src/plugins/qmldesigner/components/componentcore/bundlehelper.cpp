@@ -373,7 +373,7 @@ void BundleHelper::maybeCloseZip()
         m_zipWriter->close();
 }
 
-static QString nodeTypeName(const ModelNode &node, Model *model)
+static QString nodeModuleName(const ModelNode &node, Model *model)
 {
     using Storage::Info::ExportedTypeName;
     using Storage::Module;
@@ -385,7 +385,7 @@ static QString nodeTypeName(const ModelNode &node, Model *model)
         return moduleStorageModule.name.toQString();
     }
 
-    return QString::fromUtf8(node.type());
+    return QString::fromUtf8(node.type()).left(node.type().lastIndexOf('.'));
 }
 
 static Storage::Info::ExportedTypeNames getTypeNamesForNode(const ModelNode &node)
@@ -584,7 +584,7 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
 
     if (isProjectComponent(node)) {
         auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-        bool isBundle = nodeTypeName(node, node.model())
+        bool isBundle = nodeModuleName(node, node.model())
                             .startsWith(compUtils.componentBundlesTypePrefix() + ".");
 
         if (depth > 0) {
@@ -824,12 +824,27 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
 
     std::function<void(const ModelNode &node)> parseNode;
     parseNode = [&](const ModelNode &node) {
+#ifdef QDS_USE_PROJECTSTORAGE
+        if (isProjectComponent(node)) {
+            Utils::FilePath compFilePath = Utils::FilePath::fromString(ModelUtils::componentFilePath(node));
+            if (!compFilePath.isEmpty()) {
+                Utils::FilePath compDir = compFilePath.isChildOf(mainCompDir)
+                                              ? mainCompDir : compFilePath.parentDir();
+                depList.unite(getComponentDependencies(compFilePath, compDir));
+
+                // for sub components, mark their imports to be removed from their parent component
+                // as they will be moved to the same folder as the parent
+                QString import = nodeModuleName(node, node.model());
+                if (model->hasImport(import))
+                    compAssetPath.importsToRemove.append(import);
+
+                return;
+            }
+        }
+#else
         // workaround node.isComponent() as it is not working here
         QString nodeType = QString::fromLatin1(node.type());
 
-#ifdef QDS_USE_PROJECTSTORAGE
-    // TODO
-#else
         if (!nodeType.startsWith("QtQuick")) {
             Utils::FilePath compFilPath = getComponentFilePath(nodeType, mainCompDir);
             if (!compFilPath.isEmpty()) {
