@@ -114,7 +114,7 @@ public:
     void clear() { m_size = 0; }
 
 private:
-    inline static constexpr std::size_t capacity = 3700;
+    inline static constexpr std::size_t capacity = 13700;
     std::array<char, capacity> m_data;
     std::size_t m_size = 0;
 };
