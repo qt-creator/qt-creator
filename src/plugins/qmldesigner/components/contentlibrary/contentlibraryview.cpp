@@ -224,18 +224,19 @@ void ContentLibraryView::connectImporter()
 
                     QTC_ASSERT(m_bundleItemTarget, return);
 
+                    ModelNode newNode;
                     executeInTransaction("ContentLibraryView::widgetInfo", [&] {
                         QVector3D pos = m_bundleItemPos.value<QVector3D>();
-                        ModelNode newNode = createModelNode(
+                        newNode = createModelNode(
                             typeName, -1, -1, {{"x", pos.x()}, {"y", pos.y()}, {"z", pos.z()}});
                         m_bundleItemTarget.defaultNodeListProperty().reparentHere(newNode);
                         newNode.setIdWithoutRefactoring(model()->generateNewId(
                             newNode.simplifiedTypeName(), "node"));
-                        clearSelectedModelNodes();
-                        selectModelNode(newNode);
-                        if (typeAdded)
-                            resetPuppet();
                     });
+                    clearSelectedModelNodes();
+                    selectModelNode(newNode);
+                    if (typeAdded)
+                        resetPuppet();
 
                     m_bundleItemTarget = {};
                     m_bundleItemPos = {};
