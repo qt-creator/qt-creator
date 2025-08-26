@@ -199,7 +199,6 @@ public:
     ModelManagerSupport *m_activeModelManagerSupport = &m_builtinModelManagerSupport;
 
     // Indexing
-    CppIndexingSupport *m_internalIndexingSupport;
     bool m_indexerEnabled;
 
     QMutex m_fallbackProjectPartMutex;
@@ -1041,16 +1040,12 @@ CppModelManager::CppModelManager()
     qRegisterMetaType<QList<Document::DiagnosticMessage>>(
                 "QList<CPlusPlus::Document::DiagnosticMessage>");
 
-    d->m_internalIndexingSupport = new CppIndexingSupport;
-
     initCppTools();
 }
 
 CppModelManager::~CppModelManager()
 {
     ExtensionSystem::PluginManager::removeObject(this);
-
-    delete d->m_internalIndexingSupport;
     delete d;
 }
 
@@ -1369,7 +1364,7 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<FilePath> &sourceFil
     // "ReservedProgressNotification" should be shown if there is more than one source file.
     if (sourceFiles.size() > 1)
         mode = ForcedProgressNotification;
-    return d->m_internalIndexingSupport->refreshSourceFiles(filteredFiles, mode);
+    return Internal::refreshSourceFiles(filteredFiles, mode);
 }
 
 ProjectInfoList CppModelManager::projectInfos()
@@ -1816,7 +1811,7 @@ void CppModelManager::onActiveProjectChanged(Project *project)
 
 void CppModelManager::onSourceFilesRefreshed()
 {
-    if (CppIndexingSupport::isFindErrorsIndexingActive()) {
+    if (Internal::isFindErrorsIndexingActive()) {
         QTimer::singleShot(1, QCoreApplication::instance(), &QCoreApplication::quit);
         qDebug("FindErrorsIndexing: Done, requesting Qt Creator to quit.");
     }

@@ -9,14 +9,16 @@ using namespace Utils;
 
 namespace CppEditor {
 
+using namespace Internal;
+
 enum { MaxPendingDocuments = 10 };
 
 CppLocatorData::CppLocatorData()
 {
-    m_search.setSymbolsToSearchFor(SymbolSearcher::Enums |
-                                   SymbolSearcher::Classes |
-                                   SymbolSearcher::Functions |
-                                   SymbolSearcher::TypeAliases);
+    m_search.setSymbolsToSearchFor(SymbolType::Enums |
+                                   SymbolType::Classes |
+                                   SymbolType::Functions |
+                                   SymbolType::TypeAliases);
     m_pendingDocuments.reserve(MaxPendingDocuments);
 }
 

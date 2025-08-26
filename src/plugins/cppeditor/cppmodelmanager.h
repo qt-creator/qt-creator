@@ -48,7 +48,6 @@ class AbstractEditorSupport;
 class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
 class CppEditorDocumentHandle;
-class CppIndexingSupport;
 class CppLocatorData;
 class FollowSymbolUnderCursor;
 class ModelManagerSupportProvider;

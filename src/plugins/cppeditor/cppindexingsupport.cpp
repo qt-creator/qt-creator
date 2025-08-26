@@ -27,11 +27,9 @@
 
 using namespace Utils;
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
 static Q_LOGGING_CATEGORY(indexerLog, "qtc.cppeditor.indexer", QtWarningMsg)
-
-namespace {
 
 class ParseParams
 {
@@ -213,16 +211,15 @@ static void index(QPromise<void> &promise, const ParseParams params)
     qCDebug(indexerLog) << "Indexing finished.";
 }
 
-static void parse(
-    QPromise<void> &promise,
-    const std::function<QSet<FilePath>()> &sourceFiles,
-    const ProjectExplorer::HeaderPaths &headerPaths,
-    const WorkingCopy &workingCopy)
+static void parse(QPromise<void> &promise,
+                  const std::function<QSet<FilePath>()> &sourceFiles,
+                  const ProjectExplorer::HeaderPaths &headerPaths,
+                  const WorkingCopy &workingCopy)
 {
     ParseParams params{headerPaths, workingCopy, sourceFiles()};
     promise.setProgressRange(0, params.sourceFiles.size());
 
-    if (CppIndexingSupport::isFindErrorsIndexingActive())
+    if (isFindErrorsIndexingActive())
         indexFindErrors(promise, params);
     else
         index(promise, params);
@@ -231,14 +228,10 @@ static void parse(
     CppModelManager::finishedRefreshingSourceFiles(params.sourceFiles);
 }
 
-} // anonymous namespace
-
-namespace SymbolSearcher {
-
-void search(QPromise<SearchResultItem> &promise,
-            const CPlusPlus::Snapshot &snapshot,
-            const Parameters &parameters,
-            const QSet<Utils::FilePath> &filePaths)
+void searchForSymbols(QPromise<SearchResultItem> &promise,
+                      const CPlusPlus::Snapshot &snapshot,
+                      const SearchParameters &parameters,
+                      const QSet<Utils::FilePath> &filePaths)
 {
     promise.setProgressRange(0, snapshot.size());
     promise.setProgressValue(0);
@@ -295,16 +288,13 @@ void search(QPromise<SearchResultItem> &promise,
     promise.suspendIfRequested();
 }
 
-} // namespace SymbolSearcher
-
-bool CppIndexingSupport::isFindErrorsIndexingActive()
+bool isFindErrorsIndexingActive()
 {
     return Utils::qtcEnvironmentVariable("QTC_FIND_ERRORS_INDEXING") == "1";
 }
 
-QFuture<void> CppIndexingSupport::refreshSourceFiles(
-    const std::function<QSet<FilePath>()> &sourceFiles,
-    CppModelManager::ProgressNotificationMode mode)
+QFuture<void> refreshSourceFiles(const std::function<QSet<FilePath>()> &sourceFiles,
+                                 CppModelManager::ProgressNotificationMode mode)
 {
     QFuture<void> result = Utils::asyncRun(
         CppModelManager::sharedThreadPool(),
@@ -312,7 +302,6 @@ QFuture<void> CppIndexingSupport::refreshSourceFiles(
         sourceFiles,
         CppModelManager::headerPaths(),
         CppModelManager::workingCopy());
-    m_synchronizer.addFuture(result);
 
     if (mode == CppModelManager::ForcedProgressNotification) {
         Core::ProgressManager::addTask(result, Tr::tr("Parsing C/C++ Files"),
@@ -322,4 +311,4 @@ QFuture<void> CppIndexingSupport::refreshSourceFiles(
     return result;
 }
 
-} // namespace CppEditor
+} // namespace CppEditor::Internal

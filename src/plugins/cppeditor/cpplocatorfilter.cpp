@@ -24,6 +24,8 @@ using namespace Utils;
 
 namespace CppEditor {
 
+using namespace Internal;
+
 using EntryFromIndex = std::function<LocatorFilterEntry(const IndexItem::Ptr &)>;
 
 static void matchesFor(QPromise<void> &promise, const LocatorStorage &storage,
@@ -172,10 +174,7 @@ static QList<IndexItem::Ptr> itemsOfCurrentDocument(const FilePath &currentFileN
     const Snapshot snapshot = CppModelManager::snapshot();
     if (const Document::Ptr thisDocument = snapshot.document(currentFileName)) {
         SearchSymbols search;
-        search.setSymbolsToSearchFor(SymbolSearcher::Declarations |
-                                     SymbolSearcher::Enums |
-                                     SymbolSearcher::Functions |
-                                     SymbolSearcher::Classes);
+        search.setSymbolsToSearchFor(SymbolType::AllTypes);
         IndexItem::Ptr rootNode = search(thisDocument);
         rootNode->visitAllChildren([&](const IndexItem::Ptr &info) {
             results.append(info);

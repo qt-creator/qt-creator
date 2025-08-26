@@ -15,26 +15,25 @@
 
 namespace Utils { class SearchResultItem; }
 
-namespace CppEditor {
+namespace CppEditor::Internal {
 
-namespace SymbolSearcher {
-
-enum SymbolType {
+enum class SymbolType {
     Classes      = 0x1,
     Functions    = 0x2,
     Enums        = 0x4,
     Declarations = 0x8,
     TypeAliases  = 0x16,
+    AllTypes     = Classes | Functions | Enums | Declarations
 };
-
 Q_DECLARE_FLAGS(SymbolTypes, SymbolType)
+Q_DECLARE_OPERATORS_FOR_FLAGS(SymbolTypes)
 
 enum SearchScope {
     SearchProjectsOnly,
     SearchGlobal
 };
 
-struct Parameters
+struct SearchParameters
 {
     QString text;
     Utils::FindFlags flags;
@@ -42,28 +41,19 @@ struct Parameters
     SearchScope scope;
 };
 
-CPPEDITOR_EXPORT void search(QPromise<Utils::SearchResultItem> &promise,
-                             const CPlusPlus::Snapshot &snapshot,
-                             const Parameters &parameters,
-                             const QSet<Utils::FilePath> &filePaths);
+CPPEDITOR_EXPORT void searchForSymbols(QPromise<Utils::SearchResultItem> &promise,
+                                       const CPlusPlus::Snapshot &snapshot,
+                                       const SearchParameters &parameters,
+                                       const QSet<Utils::FilePath> &filePaths);
 
-} // namespace SymbolSearcher
+CPPEDITOR_EXPORT bool isFindErrorsIndexingActive();
 
-class CPPEDITOR_EXPORT CppIndexingSupport
-{
-public:
-    static bool isFindErrorsIndexingActive();
+CPPEDITOR_EXPORT QFuture<void> refreshSourceFiles(
+    const std::function<QSet<Utils::FilePath>()> &sourceFiles,
+    CppModelManager::ProgressNotificationMode mode);
 
-    QFuture<void> refreshSourceFiles(
-        const std::function<QSet<Utils::FilePath>()> &sourceFiles,
-        CppModelManager::ProgressNotificationMode mode);
+} // namespace CppEditor::Internal
 
-private:
-    Utils::FutureSynchronizer m_synchronizer;
-};
-
-} // namespace CppEditor
-
-Q_DECLARE_METATYPE(CppEditor::SymbolSearcher::SearchScope)
-Q_DECLARE_METATYPE(CppEditor::SymbolSearcher::Parameters)
-Q_DECLARE_METATYPE(CppEditor::SymbolSearcher::SymbolTypes)
+Q_DECLARE_METATYPE(CppEditor::Internal::SearchScope)
+Q_DECLARE_METATYPE(CppEditor::Internal::SearchParameters)
+Q_DECLARE_METATYPE(CppEditor::Internal::SymbolTypes)

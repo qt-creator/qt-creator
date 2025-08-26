@@ -38,8 +38,8 @@ const char SETTINGS_SEARCHSCOPE[] = "SearchScope";
 
 SymbolsFindFilter::SymbolsFindFilter()
     : m_enabled(true),
-      m_symbolsToSearch(SearchSymbols::AllTypes),
-      m_scope(SymbolSearcher::SearchProjectsOnly)
+      m_symbolsToSearch(SymbolType::AllTypes),
+      m_scope(Internal::SearchProjectsOnly)
 {
     // for disabling while parser is running
     connect(ProgressManager::instance(), &ProgressManager::taskStarted,
@@ -77,7 +77,7 @@ void SymbolsFindFilter::findAll(const QString &txt, FindFlags findFlags)
     connect(this, &IFindFilter::enabledChanged, search, &SearchResult::setSearchAgainEnabled);
     window->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 
-    SymbolSearcher::Parameters parameters;
+    SearchParameters parameters;
     parameters.text = txt;
     parameters.flags = findFlags;
     parameters.types = m_symbolsToSearch;
@@ -88,15 +88,15 @@ void SymbolsFindFilter::findAll(const QString &txt, FindFlags findFlags)
 
 void SymbolsFindFilter::startSearch(SearchResult *search)
 {
-    SymbolSearcher::Parameters parameters = search->userData().value<SymbolSearcher::Parameters>();
+    SearchParameters parameters = search->userData().value<SearchParameters>();
     QSet<FilePath> projectFileNames;
-    if (parameters.scope == SymbolSearcher::SearchProjectsOnly) {
+    if (parameters.scope == SearchProjectsOnly) {
         for (ProjectExplorer::Project *project : ProjectExplorer::ProjectManager::projects())
             projectFileNames += Utils::toSet(project->files(ProjectExplorer::Project::AllFiles));
     }
 
     const auto onSetup = [search, parameters, projectFileNames](Async<SearchResultItem> &task) {
-        task.setConcurrentCallData(&SymbolSearcher::search, CppModelManager::snapshot(),
+        task.setConcurrentCallData(&Internal::searchForSymbols, CppModelManager::snapshot(),
                                    parameters, projectFileNames);
         QObject::connect(&task, &AsyncBase::started, search, [taskPtr = &task, search] {
             FutureProgress *progress = ProgressManager::addTask(taskPtr->future(),
@@ -144,9 +144,9 @@ QWidget *SymbolsFindFilter::createConfigWidget()
 Store SymbolsFindFilter::save() const
 {
     Store s;
-    if (m_symbolsToSearch != SearchSymbols::AllTypes)
+    if (m_symbolsToSearch != SymbolType::AllTypes)
         s.insert(SETTINGS_SYMBOLTYPES, int(m_symbolsToSearch));
-    if (m_scope != SymbolSearcher::SearchProjectsOnly)
+    if (m_scope != SearchProjectsOnly)
         s.insert(SETTINGS_SEARCHSCOPE, int(m_scope));
     return s;
 }
@@ -154,9 +154,9 @@ Store SymbolsFindFilter::save() const
 void SymbolsFindFilter::restore(const Utils::Store &s)
 {
     m_symbolsToSearch = static_cast<SearchSymbols::SymbolTypes>(
-        s.value(SETTINGS_SYMBOLTYPES, int(SearchSymbols::AllTypes)).toInt());
+        s.value(SETTINGS_SYMBOLTYPES, int(SymbolType::AllTypes)).toInt());
     m_scope = static_cast<SearchScope>(
-        s.value(SETTINGS_SEARCHSCOPE, int(SymbolSearcher::SearchProjectsOnly)).toInt());
+        s.value(SETTINGS_SEARCHSCOPE, int(SearchProjectsOnly)).toInt());
     emit symbolsToSearchChanged();
 }
 
@@ -189,17 +189,17 @@ QString SymbolsFindFilter::label() const
 QString SymbolsFindFilter::toolTip(FindFlags findFlags) const
 {
     QStringList types;
-    if (m_symbolsToSearch & SymbolSearcher::Classes)
+    if (m_symbolsToSearch & SymbolType::Classes)
         types.append(Tr::tr("Classes"));
-    if (m_symbolsToSearch & SymbolSearcher::Functions)
+    if (m_symbolsToSearch & SymbolType::Functions)
         types.append(Tr::tr("Functions"));
-    if (m_symbolsToSearch & SymbolSearcher::Enums)
+    if (m_symbolsToSearch & SymbolType::Enums)
         types.append(Tr::tr("Enums"));
-    if (m_symbolsToSearch & SymbolSearcher::Declarations)
+    if (m_symbolsToSearch & SymbolType::Declarations)
         types.append(Tr::tr("Declarations"));
     return Tr::tr("Scope: %1\nTypes: %2\nFlags: %3")
         .arg(
-            searchScope() == SymbolSearcher::SearchGlobal ? Tr::tr("All", "Symbol search scope")
+            searchScope() == SearchGlobal ? Tr::tr("All", "Symbol search scope")
                                                           : Tr::tr("Projects"),
             types.join(", "),
             IFindFilter::descriptionForFindFlags(findFlags));
@@ -265,34 +265,34 @@ SymbolsFindFilterConfigWidget::SymbolsFindFilterConfigWidget(SymbolsFindFilter *
 
 void SymbolsFindFilterConfigWidget::getState()
 {
-    SearchSymbols::SymbolTypes symbols = m_filter->symbolsToSearch();
-    m_typeClasses->setChecked(symbols & SymbolSearcher::Classes);
-    m_typeMethods->setChecked(symbols & SymbolSearcher::Functions);
-    m_typeEnums->setChecked(symbols & SymbolSearcher::Enums);
-    m_typeDeclarations->setChecked(symbols & SymbolSearcher::Declarations);
+    const SymbolTypes symbols = m_filter->symbolsToSearch();
+    m_typeClasses->setChecked(symbols & SymbolType::Classes);
+    m_typeMethods->setChecked(symbols & SymbolType::Functions);
+    m_typeEnums->setChecked(symbols & SymbolType::Enums);
+    m_typeDeclarations->setChecked(symbols & SymbolType::Declarations);
 
-    SymbolsFindFilter::SearchScope scope = m_filter->searchScope();
-    m_searchProjectsOnly->setChecked(scope == SymbolSearcher::SearchProjectsOnly);
-    m_searchGlobal->setChecked(scope == SymbolSearcher::SearchGlobal);
+    const SearchScope scope = m_filter->searchScope();
+    m_searchProjectsOnly->setChecked(scope == SearchProjectsOnly);
+    m_searchGlobal->setChecked(scope == SearchGlobal);
 }
 
 void SymbolsFindFilterConfigWidget::setState() const
 {
-    SearchSymbols::SymbolTypes symbols;
+    SymbolTypes symbols;
     if (m_typeClasses->isChecked())
-        symbols |= SymbolSearcher::Classes;
+        symbols |= SymbolType::Classes;
     if (m_typeMethods->isChecked())
-        symbols |= SymbolSearcher::Functions;
+        symbols |= SymbolType::Functions;
     if (m_typeEnums->isChecked())
-        symbols |= SymbolSearcher::Enums;
+        symbols |= SymbolType::Enums;
     if (m_typeDeclarations->isChecked())
-        symbols |= SymbolSearcher::Declarations;
+        symbols |= SymbolType::Declarations;
     m_filter->setSymbolsToSearch(symbols);
 
     if (m_searchProjectsOnly->isChecked())
-        m_filter->setSearchScope(SymbolSearcher::SearchProjectsOnly);
+        m_filter->setSearchScope(SearchProjectsOnly);
     else
-        m_filter->setSearchScope(SymbolSearcher::SearchGlobal);
+        m_filter->setSearchScope(SearchGlobal);
 }
 
 } // namespace CppEditor::Internal

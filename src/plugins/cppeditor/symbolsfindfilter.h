@@ -18,15 +18,11 @@
 namespace Core { class SearchResult; }
 namespace Utils { class SearchResultItem; }
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 class SymbolsFindFilter : public Core::IFindFilter
 {
     Q_OBJECT
-
-public:
-    using SearchScope = SymbolSearcher::SearchScope;
 
 public:
     SymbolsFindFilter();
@@ -41,8 +37,8 @@ public:
     Utils::Store save() const override;
     void restore(const Utils::Store &s) override;
 
-    void setSymbolsToSearch(const SearchSymbols::SymbolTypes &types) { m_symbolsToSearch = types; }
-    SearchSymbols::SymbolTypes symbolsToSearch() const { return m_symbolsToSearch; }
+    void setSymbolsToSearch(const SymbolTypes &types) { m_symbolsToSearch = types; }
+    SymbolTypes symbolsToSearch() const { return m_symbolsToSearch; }
 
     void setSearchScope(SearchScope scope) { m_scope = scope; }
     SearchScope searchScope() const { return m_scope; }
@@ -65,7 +61,7 @@ private:
 
     bool m_enabled;
     QPointer<Core::SearchResult> m_currentSearch;
-    SearchSymbols::SymbolTypes m_symbolsToSearch;
+    SymbolTypes m_symbolsToSearch;
     SearchScope m_scope;
     Tasking::ParallelTaskTreeRunner m_taskTreeRunner;
 };
@@ -73,6 +69,7 @@ private:
 class SymbolsFindFilterConfigWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit SymbolsFindFilterConfigWidget(SymbolsFindFilter *filter);
 
@@ -92,5 +89,4 @@ private:
     QButtonGroup *m_searchGroup;
 };
 
-} // Internal
-} // CppEditor
+} // CppEditor::Internal
