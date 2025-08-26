@@ -1421,6 +1421,19 @@ TEST_F(Model_MetaInfo,
                 IsExportedTypeName(IsFalse(), IsEmpty(), HasNoVersion(), IsFalse()));
 }
 
+TEST_F(Model_MetaInfo, notify_about_removed_exported_type_name)
+{
+    auto node = model.createModelNode("Item");
+    projectStorageMock.removeType(qtQuickModuleId, "Item");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, {});
+    ExportedTypeName itemExportedTypeName{qtQuickModuleId, itemTypeId, "Item"};
+    auto observer = projectStorageMock.observers.front();
+
+    EXPECT_CALL(viewMock, nodeTypeChanged(node, Eq("Item"), -1, -1));
+
+    observer->exportedTypeNamesChanged({}, {itemExportedTypeName});
+}
+
 TEST_F(Model_MetaInfo, null_meta_info_are_refreshed_if_exported_types_are_updated)
 {
     auto node = model.createModelNode("Item");
@@ -1436,6 +1449,23 @@ TEST_F(Model_MetaInfo, null_meta_info_are_refreshed_if_exported_types_are_update
     observer->exportedTypeNamesChanged({item2ExportedTypeName}, {});
 
     ASSERT_THAT(node.metaInfo().id(), itemTypeId2);
+}
+
+TEST_F(Model_MetaInfo, notify_about_added_exported_type_name)
+{
+    auto node = model.createModelNode("Item");
+    projectStorageMock.removeType(qtQuickModuleId, "Item");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, {});
+    auto observer = projectStorageMock.observers.front();
+    observer->removedTypeIds({itemTypeId});
+    auto itemTypeId2 = projectStorageMock.createObject(qtQuickModuleId, "Item");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId,
+                                                 {qtQuickModuleId, itemTypeId2, "Item"});
+    ExportedTypeName item2ExportedTypeName{qtQuickModuleId, itemTypeId2, "Item"};
+
+    EXPECT_CALL(viewMock, nodeTypeChanged(node, Eq("Item"), -1, -1));
+
+    observer->exportedTypeNamesChanged({item2ExportedTypeName}, {});
 }
 
 TEST_F(Model_MetaInfo, empty_exported_type_name_are_refreshed_if_exported_types_are_updated)

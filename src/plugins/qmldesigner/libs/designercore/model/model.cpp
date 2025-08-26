@@ -434,10 +434,17 @@ void ModelPrivate::setTypeId(InternalNode *node,
     }
 }
 
-void ModelPrivate::refreshExportdTypeName(InternalNode *node)
+bool ModelPrivate::refreshExportedTypeName(InternalNode *node)
 {
-    if constexpr (useProjectStorage())
-        node->exportedTypeName = projectStorage->exportedTypeName(node->importedTypeNameId);
+    if constexpr (useProjectStorage()) {
+        auto exportedTypeName = projectStorage->exportedTypeName(node->importedTypeNameId);
+        if (node->exportedTypeName != exportedTypeName) {
+            node->exportedTypeName = projectStorage->exportedTypeName(node->importedTypeNameId);
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
@@ -452,12 +459,35 @@ void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
     setBindingProperties(resourceSet.setExpressions);
 }
 
+namespace {
+
+void removeDuplicates(std::ranges::range auto entries)
+{
+    std::ranges::sort(entries);
+    auto removed = std::ranges::unique(entries);
+    entries.erase(removed.begin(), removed.end());
+}
+
+} // namespace
+
 void ModelPrivate::updateModelNodeTypeIds(const ExportedTypeNames &addedExportedTypeNames,
                                           const ExportedTypeNames &removedExportedTypeNames)
 {
     auto nodes = m_nodes;
     std::ranges::sort(nodes, {}, &InternalNode::exportedTypeName);
-    auto refeshNodeTypeId = [&](auto &node) { refreshExportdTypeName(node.get()); };
+
+    bool rootNodeIsRefreshed = false;
+    QVarLengthArray<InternalNodePointer, 24> refreshedNodes;
+
+    auto refeshNodeTypeId = [&](auto &node) {
+        bool isRefreshed = refreshExportedTypeName(node.get());
+        if (isRefreshed) {
+            if (node == m_rootInternalNode)
+                rootNodeIsRefreshed = true;
+            else
+                refreshedNodes.push_back(node);
+        }
+    };
     Utils::set_greedy_intersection(nodes,
                                    removedExportedTypeNames,
                                    refeshNodeTypeId,
@@ -470,6 +500,21 @@ void ModelPrivate::updateModelNodeTypeIds(const ExportedTypeNames &addedExported
                                    {},
                                    &InternalNode::unqualifiedTypeName,
                                    &Storage::Info::ExportedTypeName::name);
+
+    removeDuplicates(refreshedNodes);
+
+    if (rootNodeIsRefreshed) {
+        notifyRootNodeTypeChanged(QString::fromUtf8(m_rootInternalNode->typeName),
+                                  m_rootInternalNode->exportedTypeName.version.major.toSignedInteger(),
+                                  m_rootInternalNode->exportedTypeName.version.minor.toSignedInteger());
+    }
+
+    for (const auto &node : refreshedNodes) {
+        notifyNodeTypeChanged(node,
+                              node->typeName,
+                              node->exportedTypeName.version.major.toSignedInteger(),
+                              node->exportedTypeName.version.minor.toSignedInteger());
+    }
 }
 
 void ModelPrivate::removedTypeIds(const TypeIds &removedTypeIds)

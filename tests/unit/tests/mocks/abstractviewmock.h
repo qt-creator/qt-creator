@@ -75,5 +75,13 @@ public:
 
     MOCK_METHOD(void, fileUrlChanged, (const QUrl &, const QUrl &), (override));
 
+    MOCK_METHOD(void,
+                nodeTypeChanged,
+                (const QmlDesigner::ModelNode &node,
+                 const QmlDesigner::TypeName &type,
+                 int majorVersion,
+                 int minorVersion),
+                (override));
+
     using AbstractView::setKind;
 };

@@ -270,6 +270,14 @@ public:
         return VersionNumber{number < 0 ? noVersion : static_cast<unsigned int>(number)};
     }
 
+    int toSignedInteger() const
+    {
+        if (value == noVersion)
+            return -1;
+
+        return static_cast<int>(value);
+    }
+
     inline static constexpr unsigned int noVersion = std::numeric_limits<unsigned int>::max();
 
 public:

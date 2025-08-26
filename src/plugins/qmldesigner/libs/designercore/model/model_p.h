@@ -345,7 +345,7 @@ private:
     void setTypeId(InternalNode *node,
                    Utils::SmallStringView moduleName,
                    Utils::SmallStringView unqualifiedTypeName);
-    void refreshExportdTypeName(InternalNode *node);
+    bool refreshExportedTypeName(InternalNode *node);
 
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
