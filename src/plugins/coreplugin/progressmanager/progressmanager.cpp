@@ -127,20 +127,9 @@ void PopupInfoBarDisplay::paintEvent(QPaintEvent *)
                             StyleHelper::SpacingTokens::PaddingHM);
 }
 
-static void disconnectRecursively(QObject *obj)
-{
-    obj->disconnect();
-    for (QObject *child : obj->children())
-        disconnectRecursively(child);
-}
-
 void PopupInfoBarDisplay::update()
 {
     for (QWidget *widget : std::as_const(m_infoWidgets)) {
-        // Make sure that we are no longer connect to anything (especially lambdas).
-        // Otherwise a lambda might live longer than the owner of the lambda.
-        disconnectRecursively(widget);
-
         widget->hide(); // Late deletion can cause duplicate infos. Hide immediately to prevent it.
         widget->deleteLater();
     }
@@ -217,8 +206,10 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
     if (info.hasCancelButton() && QTC_GUARD(infoWidgetCloseButton)) {
         // need to connect to cancelObjectbefore connecting to cancelButtonClicked,
         // because the latter removes the button and with it any connect
-        if (info.cancelButtonCallback())
-            connect(infoWidgetCloseButton, &QAbstractButton::clicked, info.cancelButtonCallback());
+        if (info.cancelButtonCallback()) {
+            connect(
+                infoWidgetCloseButton, &QAbstractButton::clicked, this, info.cancelButtonCallback());
+        }
         connect(infoWidgetCloseButton, &QAbstractButton::clicked, this, [infoBar, id] {
             if (infoBar)
                 infoBar->removeInfo(id);
@@ -640,7 +631,7 @@ void ProgressManagerPrivate::doCancelTasks(Id type)
         found = true;
         if (m_applicationTask == it.key())
             disconnectApplicationTask();
-        it.key()->disconnect();
+        it.key()->disconnect(this);
         it.key()->cancel();
         delete it.key();
         it = m_runningTasks.erase(it);
@@ -682,7 +673,7 @@ void ProgressManagerPrivate::cancelAllRunningTasks()
     for (auto it = m_runningTasks.cbegin(); it != m_runningTasks.cend(); ++it) {
         if (m_applicationTask == it.key())
             disconnectApplicationTask();
-        it.key()->disconnect();
+        it.key()->disconnect(this);
         it.key()->cancel();
         delete it.key();
     }
@@ -765,7 +756,7 @@ void ProgressManagerPrivate::taskFinished(QFutureWatcher<void> *task)
     const Id type = *it;
     if (m_applicationTask == task)
         disconnectApplicationTask();
-    task->disconnect();
+    task->disconnect(this);
     task->deleteLater();
     m_runningTasks.erase(it);
     updateSummaryProgressBar();
