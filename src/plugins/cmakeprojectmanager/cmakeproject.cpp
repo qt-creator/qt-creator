@@ -24,6 +24,7 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/mimeconstants.h>
+#include <utils/textfileformat.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -260,13 +261,12 @@ QString CMakeProject::projectDisplayName(const Utils::FilePath &projectFilePath)
 {
     const QString fallbackDisplayName = projectFilePath.absolutePath().fileName();
 
-    Result<QByteArray> fileContent = projectFilePath.fileContents();
+    QByteArray fileContent;
     cmListFile cmakeListFile;
     std::string errorString;
-    if (fileContent) {
-        fileContent = fileContent->replace("\r\n", "\n");
+    if (TextFileFormat::readFileUtf8(projectFilePath, TextEncoding::Utf8, &fileContent)) {
         if (!cmakeListFile.ParseString(
-                fileContent->toStdString(), projectFilePath.fileName().toStdString(), errorString)) {
+                fileContent.toStdString(), projectFilePath.fileName().toStdString(), errorString)) {
             return fallbackDisplayName;
         }
     }

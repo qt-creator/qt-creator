@@ -316,17 +316,15 @@ static std::optional<cmListFile> getUncachedCMakeListFile(const FilePath &target
     // Have a fresh look at the CMake file, not relying on a cached value
     Core::DocumentManager::saveModifiedDocumentSilently(
         Core::DocumentModel::documentForFilePath(targetCMakeFile));
-    Result<QByteArray> fileContent = targetCMakeFile.fileContents();
+    QByteArray fileContent;
     cmListFile cmakeListFile;
     std::string errorString;
-    if (fileContent) {
-        fileContent = fileContent->replace("\r\n", "\n");
-        if (!cmakeListFile.ParseString(fileContent->toStdString(),
-                                       targetCMakeFile.fileName().toStdString(),
-                                       errorString)) {
-            qCCritical(cmakeBuildSystemLog).noquote() << targetCMakeFile.toUserOutput()
-                                                      << "failed to parse! Error:"
-                                                      << QString::fromStdString(errorString);
+    if (TextFileFormat::readFileUtf8(targetCMakeFile, TextEncoding::Utf8, &fileContent)) {
+        if (!cmakeListFile.ParseString(
+                fileContent.toStdString(), targetCMakeFile.fileName().toStdString(), errorString)) {
+            qCCritical(cmakeBuildSystemLog).noquote()
+                << targetCMakeFile.toUserOutput()
+                << "failed to parse! Error:" << QString::fromStdString(errorString);
             return std::nullopt;
         }
     }
