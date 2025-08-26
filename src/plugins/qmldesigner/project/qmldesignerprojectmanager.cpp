@@ -185,10 +185,8 @@ namespace {
 
 Sqlite::JournalMode projectStorageJournalMode()
 {
-#ifdef QT_NO_DEBUG
     if (qEnvironmentVariableIsEmpty("QDS_STORE_PROJECTSTORAGE_IN_PROJECT"))
         return Sqlite::JournalMode::Memory;
-#endif
 
     return Sqlite::JournalMode::Wal;
 }
