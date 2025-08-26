@@ -2,11 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcukitaspect.h"
+#include "mcusupportconstants.h"
 #include "mcusupporttr.h"
+#include "mcusupportconstants.h"
 
 #include <cmakeprojectmanager/cmakekitaspect.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspect.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
@@ -120,6 +124,15 @@ public:
     }
 
     ItemList toUserOutput(const Kit *) const final { return {}; }
+
+    QSet<Utils::Id> availableFeatures(const Kit *k) const override
+    {
+        if (!k)
+            return {};
+        if (!k->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY))
+            return {};
+        return {"MCU"};
+    }
 };
 
 const McuDependenciesKitAspectFactory theMcuDependenciesKitAspectFactory;
