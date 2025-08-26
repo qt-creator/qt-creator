@@ -1060,7 +1060,6 @@ public:
     CommentDefinition m_commentDefinition;
 
     QFuture<SearchResultItems> m_searchFuture;
-    QFuture<SearchResultItems> m_selectionHighlightFuture;
     QList<SearchResult> m_searchResults;
     QList<SearchResult> m_selectionResults;
     QTimer m_scrollBarUpdateTimer;
@@ -1126,6 +1125,8 @@ public:
     QList<QAction *> m_modifyingActions;
     QList<QAction *> m_suggestionActions;
     bool m_updatePasteActionScheduled = false;
+
+    SingleTaskTreeRunner m_selectionHighlightRunner;
 };
 
 class TextEditorWidgetFind : public BaseTextFind<TextEditorWidget>
@@ -1382,8 +1383,6 @@ TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
     delete m_highlightScrollBarController;
     if (m_searchFuture.isRunning())
         m_searchFuture.cancel();
-    if (m_selectionHighlightFuture.isRunning())
-        m_selectionHighlightFuture.cancel();
 }
 
 static QFrame *createSeparator(const QString &styleSheet)
@@ -5349,45 +5348,41 @@ void TextEditorWidgetPrivate::updateCursorSelections()
     q->setExtraSelections(TextEditorWidget::CursorSelection, selections);
 
     m_selectionHighlightOverlay->clear();
-
-    if (m_selectionHighlightFuture.isRunning())
-        m_selectionHighlightFuture.cancel();
-
+    m_selectionHighlightRunner.reset();
     m_selectionResults.clear();
     if (!m_highlightScrollBarController)
         return;
-    m_highlightScrollBarController->removeHighlights(Constants::SCROLL_BAR_SELECTION);
 
+    m_highlightScrollBarController->removeHighlights(Constants::SCROLL_BAR_SELECTION);
     if (!m_displaySettings.m_highlightSelection || m_cursors.isNull())
         return;
+
     const QString txt = m_cursors.mainCursor().selectedText();
     if (txt.trimmed().isEmpty())
         return;
+
     for (auto cursor : m_cursors) {
         if (cursor.selectedText() != txt)
             return;
     }
 
-    m_selectionHighlightFuture = Utils::asyncRun(Utils::searchInContents,
-                                                 txt,
-                                                 FindFlags{},
-                                                 m_document->filePath(),
-                                                 m_document->plainText());
+    const auto onSetup = [this, txt](Async<SearchResultItems> &task) {
+        task.setConcurrentCallData(Utils::searchInContents, txt, FindFlags{},
+                                   m_document->filePath(), m_document->plainText());
+    };
+    const auto onDone = [this](const Async<SearchResultItems> &task) {
+        if (!task.isResultAvailable())
+            return;
 
-    Utils::onResultReady(m_selectionHighlightFuture,
-                         this,
-                         [this](const SearchResultItems &resultList) {
-                             QList<SearchResult> results;
-                             for (const SearchResultItem &item : resultList) {
-                                 int start = item.mainRange().begin.toPositionInDocument(
-                                     m_document->document());
-                                 int end = item.mainRange().end.toPositionInDocument(
-                                     m_document->document());
-                                 results << SearchResult{start, end - start};
-                             }
-                             m_selectionResults = results;
-                             addSelectionHighlightToScrollBar(results);
-                         });
+        const SearchResultItems result = task.result();
+        for (const SearchResultItem &item : result) {
+            const int start = item.mainRange().begin.toPositionInDocument(m_document->document());
+            const int end = item.mainRange().end.toPositionInDocument(m_document->document());
+            m_selectionResults << SearchResult{start, end - start};
+        }
+        addSelectionHighlightToScrollBar(m_selectionResults);
+    };
+    m_selectionHighlightRunner.start({AsyncTask<SearchResultItems>(onSetup, onDone)});
 }
 
 void TextEditorWidgetPrivate::moveCursor(QTextCursor::MoveOperation operation,
