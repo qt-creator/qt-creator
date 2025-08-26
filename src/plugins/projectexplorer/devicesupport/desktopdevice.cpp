@@ -5,8 +5,9 @@
 
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
-#include "desktopdeviceconfigurationwidget.h"
 #include "desktopprocesssignaloperation.h"
+#include "idevice.h"
+#include "idevicewidget.h"
 
 #include <coreplugin/fileutils.h>
 
@@ -16,14 +17,19 @@
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/infolabel.h>
+#include <utils/layoutbuilder.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/terminalcommand.h>
 #include <utils/terminalhooks.h>
 #include <utils/url.h>
+#include <utils/utilsicons.h>
 
 #include <QCoreApplication>
+#include <QLineEdit>
+#include <QRegularExpressionValidator>
 
 #ifdef Q_OS_WIN
 #include <cstring>
@@ -36,6 +42,55 @@ using namespace Tasking;
 using namespace Utils;
 
 namespace ProjectExplorer {
+
+class DesktopDeviceConfigurationWidget final : public IDeviceWidget
+{
+public:
+    explicit DesktopDeviceConfigurationWidget(const IDevicePtr &device)
+        : IDeviceWidget(device)
+    {
+        m_freePortsLineEdit = new QLineEdit;
+        m_portsWarningLabel = new InfoLabel(
+            Tr::tr("You will need at least one port for QML debugging."),
+            InfoLabel::Warning);
+
+        using namespace Layouting;
+        Form {
+            Tr::tr("Machine type:"), Tr::tr("Physical Device"), br,
+            Tr::tr("Free ports:"), m_freePortsLineEdit, br,
+            empty, m_portsWarningLabel, br,
+            noMargin,
+        }.attachTo(this);
+
+        connect(m_freePortsLineEdit, &QLineEdit::textChanged,
+                this, &DesktopDeviceConfigurationWidget::updateFreePorts);
+
+        QTC_CHECK(device->machineType() == IDevice::Hardware);
+        m_freePortsLineEdit->setPlaceholderText(
+                    QString::fromLatin1("eg: %1-%2").arg(DESKTOP_PORT_START).arg(DESKTOP_PORT_END));
+        const auto portsValidator = new QRegularExpressionValidator(
+            QRegularExpression(PortList::regularExpression()), this);
+        m_freePortsLineEdit->setValidator(portsValidator);
+
+        m_freePortsLineEdit->setText(device->freePorts().toString());
+        updateFreePorts();
+    }
+
+    void updateDeviceFromUi() final
+    {
+        updateFreePorts();
+    }
+
+private:
+    void updateFreePorts()
+    {
+        device()->setFreePorts(PortList::fromString(m_freePortsLineEdit->text()));
+        m_portsWarningLabel->setVisible(!device()->freePorts().hasMore());
+    }
+
+    QLineEdit *m_freePortsLineEdit;
+    QLabel *m_portsWarningLabel;
+};
 
 class DesktopDevicePrivate
 {

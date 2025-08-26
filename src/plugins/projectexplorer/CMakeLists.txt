@@ -45,7 +45,6 @@ add_qtc_plugin(ProjectExplorer
     deploymentdataview.cpp deploymentdataview.h
     desktoprunconfiguration.cpp desktoprunconfiguration.h
     devicesupport/desktopdevice.cpp devicesupport/desktopdevice.h
-    devicesupport/desktopdeviceconfigurationwidget.cpp devicesupport/desktopdeviceconfigurationwidget.h
     devicesupport/desktopdevicefactory.cpp devicesupport/desktopdevicefactory.h
     devicesupport/desktopprocesssignaloperation.cpp devicesupport/desktopprocesssignaloperation.h
     devicesupport/devicecheckbuildstep.cpp devicesupport/devicecheckbuildstep.h
