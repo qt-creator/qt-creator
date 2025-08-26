@@ -159,16 +159,14 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             pathListLabel, dockerDevice->mounts, br,
             Tr::tr("Port mappings:"), dockerDevice->portMappings, br,
             Tr::tr("Command line:"), createLineLabel, br,
-            If (!dockerDevice->isAutoDetected()) >> Then {
-                dockerDevice->deviceToolsGui(), br,
-                Span(2, Row {
-                    autoDetectButton,
-                    undoAutoDetectButton,
-                    listAutoDetectedButton,
-                    st,
-                }), br,
-                Tr::tr("Detection log:"), logView
-            },
+            dockerDevice->deviceToolsGui(), br,
+            Span(2, Row {
+                autoDetectButton,
+                undoAutoDetectButton,
+                listAutoDetectedButton,
+                st,
+            }), br,
+            Tr::tr("Detection log:"), logView
         }, br,
     }.attachTo(this);
     // clang-format on
