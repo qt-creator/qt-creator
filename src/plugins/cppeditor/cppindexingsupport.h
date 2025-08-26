@@ -17,44 +17,37 @@ namespace Utils { class SearchResultItem; }
 
 namespace CppEditor {
 
-class CPPEDITOR_EXPORT SymbolSearcher: public QObject
-{
-    Q_OBJECT
+namespace SymbolSearcher {
 
-public:
-    enum SymbolType {
-        Classes      = 0x1,
-        Functions    = 0x2,
-        Enums        = 0x4,
-        Declarations = 0x8,
-        TypeAliases  = 0x16,
-    };
-
-    Q_DECLARE_FLAGS(SymbolTypes, SymbolType)
-
-    enum SearchScope {
-        SearchProjectsOnly,
-        SearchGlobal
-    };
-
-    struct Parameters
-    {
-        QString text;
-        Utils::FindFlags flags;
-        SymbolTypes types;
-        SearchScope scope;
-    };
-
-    SymbolSearcher(const SymbolSearcher::Parameters &parameters,
-                   const QSet<Utils::FilePath> &filePaths);
-
-    void runSearch(QPromise<Utils::SearchResultItem> &promise);
-
-private:
-    const CPlusPlus::Snapshot m_snapshot;
-    const Parameters m_parameters;
-    const QSet<Utils::FilePath> m_filePaths;
+enum SymbolType {
+    Classes      = 0x1,
+    Functions    = 0x2,
+    Enums        = 0x4,
+    Declarations = 0x8,
+    TypeAliases  = 0x16,
 };
+
+Q_DECLARE_FLAGS(SymbolTypes, SymbolType)
+
+enum SearchScope {
+    SearchProjectsOnly,
+    SearchGlobal
+};
+
+struct Parameters
+{
+    QString text;
+    Utils::FindFlags flags;
+    SymbolTypes types;
+    SearchScope scope;
+};
+
+CPPEDITOR_EXPORT void search(QPromise<Utils::SearchResultItem> &promise,
+                             const CPlusPlus::Snapshot &snapshot,
+                             const Parameters &parameters,
+                             const QSet<Utils::FilePath> &filePaths);
+
+} // namespace SymbolSearcher
 
 class CPPEDITOR_EXPORT CppIndexingSupport
 {

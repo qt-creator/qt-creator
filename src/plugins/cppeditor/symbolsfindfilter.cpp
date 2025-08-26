@@ -118,11 +118,9 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
     connect(watcher, &QFutureWatcherBase::finished, this, [this, watcher] { finish(watcher); });
     connect(watcher, &QFutureWatcherBase::resultsReadyAt, this, [this, watcher]
             (int begin, int end) { addResults(watcher, begin, end); });
-    SymbolSearcher *symbolSearcher = new SymbolSearcher(parameters, projectFileNames);
-    connect(watcher, &QFutureWatcherBase::finished,
-            symbolSearcher, &QObject::deleteLater);
     watcher->setFuture(Utils::asyncRun(CppModelManager::sharedThreadPool(),
-                                       &SymbolSearcher::runSearch, symbolSearcher));
+                                       &SymbolSearcher::search, CppModelManager::snapshot(),
+                                       parameters, projectFileNames));
     FutureProgress *progress = ProgressManager::addTask(watcher->future(), Tr::tr("Searching for Symbol"),
                                                         Core::Constants::TASK_SEARCH);
     connect(progress, &FutureProgress::clicked, search, &SearchResult::popup);

@@ -77,10 +77,9 @@ public:
         QVERIFY(succeededSoFar());
         QVERIFY(parseFiles(testFile));
 
-        const QScopedPointer<SymbolSearcher> symbolSearcher(
-            new SymbolSearcher(searchParameters, QSet<FilePath>{FilePath::fromString(testFile)}));
         QFuture<Utils::SearchResultItem> search
-            = Utils::asyncRun(&SymbolSearcher::runSearch, symbolSearcher.data());
+            = Utils::asyncRun(&SymbolSearcher::search, CppModelManager::snapshot(),
+                              searchParameters, QSet<FilePath>{FilePath::fromString(testFile)});
         search.waitForFinished();
         ResultDataList results = ResultData::fromSearchResultList(search.results());
         QCOMPARE(results, expectedResults);

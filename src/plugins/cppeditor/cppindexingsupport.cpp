@@ -31,13 +31,6 @@ namespace CppEditor {
 
 static Q_LOGGING_CATEGORY(indexerLog, "qtc.cppeditor.indexer", QtWarningMsg)
 
-SymbolSearcher::SymbolSearcher(const SymbolSearcher::Parameters &parameters,
-                               const QSet<FilePath> &filePaths)
-    : m_snapshot(CppModelManager::snapshot())
-    , m_parameters(parameters)
-    , m_filePaths(filePaths)
-{}
-
 namespace {
 
 class ParseParams
@@ -240,29 +233,34 @@ static void parse(
 
 } // anonymous namespace
 
-void SymbolSearcher::runSearch(QPromise<SearchResultItem> &promise)
+namespace SymbolSearcher {
+
+void search(QPromise<SearchResultItem> &promise,
+            const CPlusPlus::Snapshot &snapshot,
+            const Parameters &parameters,
+            const QSet<Utils::FilePath> &filePaths)
 {
-    promise.setProgressRange(0, m_snapshot.size());
+    promise.setProgressRange(0, snapshot.size());
     promise.setProgressValue(0);
     int progress = 0;
 
-    SearchSymbols search;
-    search.setSymbolsToSearchFor(m_parameters.types);
-    CPlusPlus::Snapshot::const_iterator it = m_snapshot.begin();
+    SearchSymbols symbolSearch;
+    symbolSearch.setSymbolsToSearchFor(parameters.types);
+    CPlusPlus::Snapshot::const_iterator it = snapshot.begin();
 
-    QString findString = (m_parameters.flags & FindRegularExpression
-                              ? m_parameters.text : QRegularExpression::escape(m_parameters.text));
-    if (m_parameters.flags & FindWholeWords)
+    QString findString = (parameters.flags & FindRegularExpression
+                              ? parameters.text : QRegularExpression::escape(parameters.text));
+    if (parameters.flags & FindWholeWords)
         findString = QString::fromLatin1("\\b%1\\b").arg(findString);
-    QRegularExpression matcher(findString, (m_parameters.flags & FindCaseSensitively
+    QRegularExpression matcher(findString, (parameters.flags & FindCaseSensitively
                                                 ? QRegularExpression::NoPatternOption
                                                 : QRegularExpression::CaseInsensitiveOption));
     matcher.optimize();
-    while (it != m_snapshot.end()) {
+    while (it != snapshot.end()) {
         promise.suspendIfRequested();
         if (promise.isCanceled())
             break;
-        if (m_filePaths.isEmpty() || m_filePaths.contains(it.value()->filePath())) {
+        if (filePaths.isEmpty() || filePaths.contains(it.value()->filePath())) {
             SearchResultItems resultItems;
             auto filter = [&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
                 if (matcher.match(info->symbolName()).hasMatch()) {
@@ -286,7 +284,7 @@ void SymbolSearcher::runSearch(QPromise<SearchResultItem> &promise)
 
                 return IndexItem::Recurse;
             };
-            search(it.value())->visitAllChildren(filter);
+            symbolSearch(it.value())->visitAllChildren(filter);
             for (const SearchResultItem &item : std::as_const(resultItems))
                 promise.addResult(item);
         }
@@ -296,6 +294,8 @@ void SymbolSearcher::runSearch(QPromise<SearchResultItem> &promise)
     }
     promise.suspendIfRequested();
 }
+
+} // namespace SymbolSearcher
 
 bool CppIndexingSupport::isFindErrorsIndexingActive()
 {
