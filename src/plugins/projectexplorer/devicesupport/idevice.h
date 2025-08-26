@@ -70,10 +70,14 @@ public:
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
 
+    Utils::Id toolId() const;
     ToolType toolType() const;
+
+    void setToolId(const Utils::Id toolId);
     void setToolType(ToolType toolType);
 
 public:
+    Utils::Id m_toolId;
     ToolType m_toolType = AllTools;
 };
 

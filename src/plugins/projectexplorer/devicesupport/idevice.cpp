@@ -216,6 +216,16 @@ public:
 
 // DeviceToolAspect
 
+Id DeviceToolAspect::toolId() const
+{
+    return m_toolId;
+}
+
+void DeviceToolAspect::setToolId(const Id toolId)
+{
+    m_toolId = toolId;
+}
+
 DeviceToolAspect::ToolType DeviceToolAspect::toolType() const
 {
     return m_toolType;
@@ -291,6 +301,7 @@ void IDevice::autoDetectDeviceTools()
 DeviceToolAspect *DeviceToolAspectFactory::createAspect(const IDevicePtr &device) const
 {
     auto toolAspect = new DeviceToolAspect;
+    toolAspect->setToolId(m_toolId);
     toolAspect->setSettingsKey(m_toolId.name());
     toolAspect->setLabelText(m_labelText);
     toolAspect->setToolTip(m_toolTip);
