@@ -6,7 +6,8 @@
 #include "cppsemanticinfo.h"
 
 #include <QObject>
-#include <QScopedPointer>
+
+#include <memory>
 
 namespace CppEditor {
 
@@ -29,7 +30,7 @@ signals:
     void updated(const SemanticInfo &semanticInfo);
 
 private:
-    QScopedPointer<SemanticInfoUpdaterPrivate> d;
+    std::unique_ptr<SemanticInfoUpdaterPrivate> d;
 };
 
 } // namespace CppEditor
