@@ -112,7 +112,7 @@ bool BreakpointParameters::conditionsMatch(const QString &other) const
     return s1 == s2;
 }
 
-void BreakpointParameters::updateLocation(const QString &location)
+void BreakpointParameters::updateLocation(const Utils::FilePath &buildPath, const QString &location)
 {
     if (!location.isEmpty()) {
         int pos = location.indexOf(':');
@@ -120,9 +120,12 @@ void BreakpointParameters::updateLocation(const QString &location)
         QString file = location.left(pos);
         if (file.startsWith('"') && file.endsWith('"'))
             file = file.mid(1, file.size() - 2);
-        QFileInfo fi(file);
-        if (fi.isReadable())
-            fileName = Utils::FilePath::fromFileInfo(fi);
+
+        const Utils::FilePath path = buildPath.withNewPath(
+            Utils::FilePath::fromUserInput(file).path());
+
+        if (path.isReadableFile())
+            fileName = path.localSource().value_or(path);
     }
 }
 
@@ -267,7 +270,7 @@ static QString cleanupFullName(const QString &fileName)
     return cleanFilePath;
 }
 
-void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Utils::FilePath &fileRoot)
+void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Utils::FilePath &buildPath)
 {
     QTC_ASSERT(bkpt.isValid(), return);
 
@@ -361,7 +364,7 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Utils::F
     QString name;
     if (!fullName.isEmpty()) {
         name = cleanupFullName(fullName);
-        fileName = fileRoot.withNewPath(name);
+        fileName = buildPath.withNewPath(name);
         //if (data->markerFileName().isEmpty())
         //    data->setMarkerFileName(name);
     } else {
@@ -370,13 +373,15 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Utils::F
         // gdb's own. No point in assigning markerFileName for now.
     }
     if (!name.isEmpty())
-        fileName = fileRoot.withNewPath(name);
+        fileName = buildPath.withNewPath(name);
 
     if (fileName.isEmpty())
-        updateLocation(reportedLocation);
+        updateLocation(buildPath, reportedLocation);
 
     if (fileName.isEmpty())
-        updateLocation(originalLocation);
+        updateLocation(buildPath, originalLocation);
+
+    fileName = fileName.localSource().value_or(fileName);
 }
 
 } // namespace Internal

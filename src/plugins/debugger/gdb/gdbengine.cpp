@@ -542,7 +542,7 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
         ba.remove(pos1, pos3 - pos1 + 1);
         GdbMi res;
         res.fromString(ba);
-        const FilePath &fileRoot = runParameters().projectSourceDirectory();
+        const FilePath &buildPath = runParameters().buildDirectory();
         BreakHandler *handler = breakHandler();
         Breakpoint bp;
         for (const GdbMi &bkpt : res) {
@@ -551,13 +551,13 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
                 // A sub-breakpoint.
                 QTC_ASSERT(bp, continue);
                 SubBreakpoint loc = bp->findOrCreateSubBreakpoint(nr);
-                loc->params.updateFromGdbOutput(bkpt, fileRoot);
+                loc->params.updateFromGdbOutput(bkpt, buildPath);
                 loc->params.type = bp->type();
             } else {
                 // A primary breakpoint.
                 bp = handler->findBreakpointByResponseId(nr);
                 if (bp)
-                    bp->updateFromGdbOutput(bkpt, fileRoot);
+                    bp->updateFromGdbOutput(bkpt, buildPath);
             }
         }
         if (bp)
@@ -573,7 +573,7 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
             const QString nr = bkpt["number"].data();
             BreakpointParameters br;
             br.type = BreakpointByFileAndLine;
-            br.updateFromGdbOutput(bkpt, runParameters().projectSourceDirectory());
+            br.updateFromGdbOutput(bkpt, runParameters().buildDirectory());
             handler->handleAlienBreakpoint(nr, br);
         }
     } else if (asyncClass == u"breakpoint-deleted") {
@@ -2116,8 +2116,12 @@ QString GdbEngine::breakpointLocation(const BreakpointParameters &data)
         usage = project ? BreakpointUseFullPath : BreakpointUseShortPath;
     }
 
+    const FilePath buildDir = runParameters().buildDirectory();
+
     const QString fileName = usage == BreakpointUseFullPath
-        ? data.fileName.path() : breakLocation(data.fileName);
+                                 ? buildDir.withNewMappedPath(data.fileName).path()
+                                 : breakLocation(data.fileName);
+
     // The argument is simply a C-quoted version of the argument to the
     // non-MI "break" command, including the "original" quoting it wants.
     return "\"\\\"" + GdbMi::escapeCString(fileName) + "\\\":"
@@ -2146,7 +2150,7 @@ void GdbEngine::handleInsertInterpreterBreakpoint(const DebuggerResponse &respon
         notifyBreakpointInsertOk(bp);
     } else {
         bp->setResponseId(response.data["number"].data());
-        bp->updateFromGdbOutput(response.data, runParameters().projectSourceDirectory());
+        bp->updateFromGdbOutput(response.data, runParameters().buildDirectory());
         notifyBreakpointInsertOk(bp);
     }
 }
@@ -2156,7 +2160,7 @@ void GdbEngine::handleInterpreterBreakpointModified(const GdbMi &data)
     int modelId = data["modelid"].toInt();
     Breakpoint bp = breakHandler()->findBreakpointByModelId(modelId);
     QTC_ASSERT(bp, return);
-    bp->updateFromGdbOutput(data, runParameters().projectSourceDirectory());
+    bp->updateFromGdbOutput(data, runParameters().buildDirectory());
 }
 
 void GdbEngine::handleWatchInsert(const DebuggerResponse &response, const Breakpoint &bp)
@@ -2206,7 +2210,7 @@ void GdbEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
         // A sub-breakpoint.
         SubBreakpoint sub = bp->findOrCreateSubBreakpoint(nr);
         QTC_ASSERT(sub, return);
-        sub->params.updateFromGdbOutput(bkpt, runParameters().projectSourceDirectory());
+        sub->params.updateFromGdbOutput(bkpt, runParameters().buildDirectory());
         sub->params.type = bp->type();
         if (usePseudoTracepoints && bp->isTracepoint()) {
             sub->params.tracepoint = true;
@@ -2224,7 +2228,7 @@ void GdbEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
             const QString subnr = location["number"].data();
             SubBreakpoint sub = bp->findOrCreateSubBreakpoint(subnr);
             QTC_ASSERT(sub, return);
-            sub->params.updateFromGdbOutput(location, runParameters().projectSourceDirectory());
+            sub->params.updateFromGdbOutput(location, runParameters().buildDirectory());
             sub->params.type = bp->type();
             if (usePseudoTracepoints && bp->isTracepoint()) {
                 sub->params.tracepoint = true;
@@ -2235,7 +2239,7 @@ void GdbEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
 
     // A (the?) primary breakpoint.
     bp->setResponseId(nr);
-    bp->updateFromGdbOutput(bkpt, runParameters().projectSourceDirectory());
+    bp->updateFromGdbOutput(bkpt, runParameters().buildDirectory());
     if (usePseudoTracepoints && bp->isTracepoint())
         bp->setMessage(bp->requestedParameters().message);
 }
@@ -2542,7 +2546,7 @@ void GdbEngine::handleTracepointModified(const GdbMi &data)
             // A sub-breakpoint.
             QTC_ASSERT(bp, continue);
             SubBreakpoint loc = bp->findOrCreateSubBreakpoint(nr);
-            loc->params.updateFromGdbOutput(bkpt, runParameters().projectSourceDirectory());
+            loc->params.updateFromGdbOutput(bkpt, runParameters().buildDirectory());
             loc->params.type = bp->type();
             if (bp->isTracepoint()) {
                 loc->params.tracepoint = true;
@@ -2552,7 +2556,7 @@ void GdbEngine::handleTracepointModified(const GdbMi &data)
             // A primary breakpoint.
             bp = handler->findBreakpointByResponseId(nr);
             if (bp)
-                bp->updateFromGdbOutput(bkpt, runParameters().projectSourceDirectory());
+                bp->updateFromGdbOutput(bkpt, runParameters().buildDirectory());
         }
     }
     QTC_ASSERT(bp, return);
@@ -2580,7 +2584,7 @@ void GdbEngine::insertBreakpoint(const Breakpoint &bp)
 
     if (!requested.isCppBreakpoint()) {
         DebuggerCommand cmd("insertInterpreterBreakpoint", NeedsTemporaryStop);
-        bp->addToCommand(&cmd);
+        bp->addToCommand(runParameters().buildDirectory(), &cmd);
         cmd.callback = [this, bp](const DebuggerResponse &r) { handleInsertInterpreterBreakpoint(r, bp); };
         runCommand(cmd);
         return;
@@ -2784,7 +2788,7 @@ void GdbEngine::removeBreakpoint(const Breakpoint &bp)
     const BreakpointParameters &requested = bp->requestedParameters();
     if (!requested.isCppBreakpoint()) {
         DebuggerCommand cmd("removeInterpreterBreakpoint");
-        bp->addToCommand(&cmd);
+        bp->addToCommand(runParameters().buildDirectory(), &cmd);
         runCommand(cmd);
         notifyBreakpointRemoveOk(bp);
         return;

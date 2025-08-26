@@ -212,6 +212,7 @@ public:
     void setToolChainAbi(const ProjectExplorer::Abi &abi) { m_toolChainAbi = abi; }
     ProjectExplorer::Abi toolChainAbi() const { return m_toolChainAbi; }
 
+    Utils::FilePath buildDirectory() const { return m_buildDirectory; }
     Utils::FilePath projectSourceDirectory() const { return m_projectSourceDirectory; }
     Utils::FilePaths projectSourceFiles() const { return m_projectSourceFiles; }
 
@@ -344,6 +345,7 @@ private:
 
     Utils::FilePath m_projectSourceDirectory;
     Utils::FilePaths m_projectSourceFiles;
+    Utils::FilePath m_buildDirectory;
 
     qint64 m_applicationPid = 0; // Terminal
     qint64 m_applicationMainThreadId = 0; // Terminal

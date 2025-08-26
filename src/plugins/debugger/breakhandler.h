@@ -107,9 +107,10 @@ public:
     int markerLineNumber() const;
 
     const BreakpointParameters &requestedParameters() const;
-    void addToCommand(DebuggerCommand *cmd,
-                      BreakpointPathUsage defaultPathUsage
-                      = BreakpointPathUsage::BreakpointUseFullPath) const;
+    void addToCommand(
+        const Utils::FilePath &buildPath,
+        DebuggerCommand *cmd,
+        BreakpointPathUsage defaultPathUsage = BreakpointPathUsage::BreakpointUseFullPath) const;
     void updateFromGdbOutput(const GdbMi &bkpt, const Utils::FilePath &fileRoot);
 
     int modelId() const;

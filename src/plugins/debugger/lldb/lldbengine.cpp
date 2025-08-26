@@ -526,7 +526,7 @@ void LldbEngine::insertBreakpoint(const Breakpoint &bp)
         QTC_CHECK(bp && bp->state() == BreakpointInsertionProceeding);
         updateBreakpointData(bp, response.data, true);
     };
-    bp->addToCommand(&cmd);
+    bp->addToCommand(runParameters().buildDirectory(), &cmd);
     notifyBreakpointInsertProceeding(bp);
     runCommand(cmd);
 }
@@ -540,7 +540,7 @@ void LldbEngine::updateBreakpoint(const Breakpoint &bp)
         QTC_CHECK(bp && bp->state() == BreakpointUpdateProceeding);
         updateBreakpointData(bp, response.data, false);
     };
-    bp->addToCommand(&cmd);
+    bp->addToCommand(runParameters().buildDirectory(), &cmd);
     notifyBreakpointChangeProceeding(bp);
     runCommand(cmd);
 }
@@ -595,7 +595,11 @@ void LldbEngine::updateBreakpointData(const Breakpoint &bp, const GdbMi &bkpt, b
     bp->setIgnoreCount(bkpt["ignorecount"].toInt());
     bp->setCondition(fromHex(bkpt["condition"].data()));
     bp->setHitCount(bkpt["hitcount"].toInt());
-    bp->setFileName(FilePath::fromUserInput(bkpt["file"].data()));
+
+    const FilePath file = runParameters().buildDirectory().withNewPath(
+        FilePath::fromUserInput(bkpt["file"].data()).path());
+
+    bp->setFileName(file.localSource().value_or(file));
     bp->setTextPosition({bkpt["line"].toInt(), -1});
 
     GdbMi locations = bkpt["locations"];

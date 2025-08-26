@@ -43,10 +43,11 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 
-#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runcontrol.h>
@@ -176,6 +177,11 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
     const QString envBinary = qtcEnvironmentVariable("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())
         params.m_debugger.command.setExecutable(FilePath::fromString(envBinary));
+
+    if (BuildConfiguration *buildConfig = runControl->buildConfiguration())
+        params.m_buildDirectory = buildConfig->buildDirectory();
+    else
+        params.m_buildDirectory = params.debugger().command.executable();
 
     if (Project *project = runControl->project()) {
         params.m_projectSourceDirectory = project->projectDirectory();
