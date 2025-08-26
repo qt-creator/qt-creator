@@ -719,9 +719,9 @@ Result<FilePath> FilePath::createTempDir() const
 bool FilePath::hasHardLinks() const
 {
     const Result<bool> res = fileAccess()->hasHardLinks(*this);
-    if (!res.has_value())
+    if (!res)
         logError("hasHardlinks", res.error());
-    return res.has_value();
+    return res.has_value() ? res.value() : false;
 }
 
 /*!
