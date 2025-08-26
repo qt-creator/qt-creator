@@ -2240,11 +2240,6 @@ BaseEditorDocumentProcessor *CppModelManager::createEditorDocumentProcessor(
     return d->m_activeModelManagerSupport->createEditorDocumentProcessor(baseTextDocument);
 }
 
-CppIndexingSupport *CppModelManager::indexingSupport()
-{
-    return d->m_internalIndexingSupport;
-}
-
 FilePaths CppModelManager::projectFiles()
 {
     return d->m_lockedProjectData.update<FilePaths>(

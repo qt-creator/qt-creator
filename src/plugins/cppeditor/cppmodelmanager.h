@@ -206,7 +206,6 @@ public:
                                      CPlusPlus::Symbol *symbol,
                                      const CPlusPlus::LookupContext &context,
                                      const Utils::LinkHandler &callback);
-    static CppIndexingSupport *indexingSupport();
 
     static Utils::FilePaths projectFiles();
 
