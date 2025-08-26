@@ -493,4 +493,10 @@ Result<FilePath> Device::localSource(const FilePath &other) const
         Tr::tr("No mapping available for %1 on %2.").arg(other.path(), displayName()));
 }
 
+bool Device::supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const
+{
+    return targetDeviceTypes.contains(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+           || IDevice::supportsQtTargetDeviceType(targetDeviceTypes);
+}
+
 } // namespace DevContainer
