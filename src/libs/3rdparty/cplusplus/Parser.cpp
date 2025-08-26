@@ -3120,9 +3120,9 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
             id_expr->name = simple_name;
             simple_name->identifier_token = consumeToken();
         }
-    } else if (node->core_declarator && (LA() == T_EQUAL || (_languageFeatures.cxx11Enabled && !isFunctionDeclarator && LA() == T_LBRACE) || (! declaringClass && LA() == T_LPAREN))) {
+    } else if (node && node->core_declarator && (LA() == T_EQUAL || (_languageFeatures.cxx11Enabled && !isFunctionDeclarator && LA() == T_LBRACE) || (! declaringClass && LA() == T_LPAREN))) {
         parseInitializer(node->initializer, &node->equal_token);
-    } else if (node->core_declarator && node->core_declarator->asDecompositionDeclarator()) {
+    } else if (node && node->core_declarator && node->core_declarator->asDecompositionDeclarator()) {
         error(cursor(), "structured binding needs initializer");
         return false;
     }
