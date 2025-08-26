@@ -751,7 +751,7 @@ QPair<ProFile *, QStringList> QmakePriFile::readProFile()
     ProFile *includeFile = parser.parsedProBlock(deviceRoot(),
                                                  QStringView(result.content),
                                                  0,
-                                                 filePath().toUrlishString(),
+                                                 filePath().path(),
                                                  1);
 
     return {includeFile, result.content.split('\n')};
