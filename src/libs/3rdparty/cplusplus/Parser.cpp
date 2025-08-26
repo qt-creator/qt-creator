@@ -3020,7 +3020,7 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
             && node->postfix_declarator_list
             && node->postfix_declarator_list->lastValue()
             && node->postfix_declarator_list->lastValue()->asFunctionDeclarator();
-    if (!parseRequiresClauseOpt(node->requiresClause))
+    if (node && !parseRequiresClauseOpt(node->requiresClause))
         return false;
     if (declaringClass && LA() == T_COLON
             && (! node || ! node->postfix_declarator_list)) {
