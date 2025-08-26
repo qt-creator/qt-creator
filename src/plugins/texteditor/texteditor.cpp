@@ -1060,7 +1060,6 @@ public:
     QScopedPointer<AutoCompleter> m_autoCompleter;
     CommentDefinition m_commentDefinition;
 
-    QFuture<SearchResultItems> m_searchFuture;
     QList<SearchResult> m_searchResults;
     QList<SearchResult> m_selectionResults;
     QTimer m_scrollBarUpdateTimer;
@@ -1127,6 +1126,7 @@ public:
     QList<QAction *> m_suggestionActions;
     bool m_updatePasteActionScheduled = false;
 
+    SingleTaskTreeRunner m_searchRunner;
     SingleTaskTreeRunner m_selectionHighlightRunner;
 };
 
@@ -1382,8 +1382,6 @@ TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
     q->disconnect(this);
     delete m_toolBarWidget;
     delete m_highlightScrollBarController;
-    if (m_searchFuture.isRunning())
-        m_searchFuture.cancel();
 }
 
 static QFrame *createSeparator(const QString &styleSheet)
@@ -8265,38 +8263,37 @@ void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()
         return;
     m_highlightScrollBarController->removeHighlights(Constants::SCROLL_BAR_SEARCH_RESULT);
     m_searchResults.clear();
-
-    if (m_searchFuture.isRunning())
-        m_searchFuture.cancel();
-
+    m_searchRunner.reset();
     const QString &txt = m_findText;
     if (txt.isEmpty())
         return;
 
     adjustScrollBarRanges();
 
-    m_searchFuture = Utils::asyncRun(Utils::searchInContents,
-                                     txt,
-                                     m_findFlags,
-                                     m_document->filePath(),
-                                     m_document->plainText());
-    Utils::onResultReady(m_searchFuture, this, [this](const SearchResultItems &resultList) {
-        QList<SearchResult> results;
-        for (const SearchResultItem &result : resultList) {
-            int start = result.mainRange().begin.toPositionInDocument(m_document->document());
+    const auto onSetup = [this, txt](Async<SearchResultItems> &task) {
+        task.setConcurrentCallData(Utils::searchInContents, txt, m_findFlags,
+                                   m_document->filePath(), m_document->plainText());
+    };
+    const auto onDone = [this](const Async<SearchResultItems> &task) {
+        if (!task.isResultAvailable())
+            return;
+
+        const SearchResultItems result = task.result();
+        for (const SearchResultItem &item : result) {
+            int start = item.mainRange().begin.toPositionInDocument(m_document->document());
             if (start < 0)
                 continue;
-            int end = result.mainRange().end.toPositionInDocument(m_document->document());
+            int end = item.mainRange().end.toPositionInDocument(m_document->document());
             if (end < 0)
                 continue;
             if (start > end)
                 std::swap(start, end);
             if (m_find->inScope(start, end))
-                results << SearchResult{start, start - end};
+                m_searchResults << SearchResult{start, start - end};
         }
-        m_searchResults << results;
-        addSearchResultsToScrollBar(results);
-    });
+        addSearchResultsToScrollBar(m_searchResults);
+    };
+    m_searchRunner.start({AsyncTask<SearchResultItems>(onSetup, onDone)});
 }
 
 void TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar()
