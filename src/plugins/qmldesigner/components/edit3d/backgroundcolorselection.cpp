@@ -40,6 +40,14 @@ QColorDialog *BackgroundColorSelection::createColorDialog(QWidget *parent,
 
     QList<QColor> oldColorConfig = Edit3DViewConfig::loadColors(key);
 
+    if (Edit3DViewConfig::colorsValid(oldColorConfig)) {
+        dialog->setCurrentColor(oldColorConfig.first());
+        QObject::connect(dialog, &QColorDialog::rejected, dialog,
+                         [auxProp, oldColorConfig, view]() {
+                             Edit3DViewConfig::setColors(view, auxProp, oldColorConfig);
+                         });
+    }
+
     dialog->show();
 
     QObject::connect(dialog, &QColorDialog::currentColorChanged, dialog,
@@ -54,13 +62,6 @@ QColorDialog *BackgroundColorSelection::createColorDialog(QWidget *parent,
 
                          Edit3DViewConfig::saveColors(key, {color});
                      });
-
-    if (Edit3DViewConfig::colorsValid(oldColorConfig)) {
-        QObject::connect(dialog, &QColorDialog::rejected, dialog,
-                         [auxProp, oldColorConfig, view]() {
-                             Edit3DViewConfig::setColors(view, auxProp, oldColorConfig);
-                         });
-    }
 
     return dialog;
 }
