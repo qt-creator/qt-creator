@@ -126,6 +126,7 @@ signals:
     void started();
     void done();
     void resultReadyAt(int index);
+    void resultsReadyAt(int beginIndex, int endIndex);
     void progressRangeChanged(int min, int max);
     void progressValueChanged(int value);
     void progressTextChanged(const QString &text);
@@ -140,21 +141,13 @@ public:
     {
         connect(&m_watcher, &QFutureWatcherBase::finished, this, &AsyncBase::done);
         connect(&m_watcher, &QFutureWatcherBase::resultReadyAt, this, &AsyncBase::resultReadyAt);
-        connect(
-            &m_watcher,
-            &QFutureWatcherBase::progressValueChanged,
-            this,
-            &AsyncBase::progressValueChanged);
-        connect(
-            &m_watcher,
-            &QFutureWatcherBase::progressRangeChanged,
-            this,
-            &AsyncBase::progressRangeChanged);
-        connect(
-            &m_watcher,
-            &QFutureWatcherBase::progressTextChanged,
-            this,
-            &AsyncBase::progressTextChanged);
+        connect(&m_watcher, &QFutureWatcherBase::resultsReadyAt, this, &AsyncBase::resultsReadyAt);
+        connect(&m_watcher, &QFutureWatcherBase::progressValueChanged,
+                this, &AsyncBase::progressValueChanged);
+        connect(&m_watcher, &QFutureWatcherBase::progressRangeChanged,
+                this, &AsyncBase::progressRangeChanged);
+        connect(&m_watcher, &QFutureWatcherBase::progressTextChanged,
+                this, &AsyncBase::progressTextChanged);
     }
     ~Async()
     {
