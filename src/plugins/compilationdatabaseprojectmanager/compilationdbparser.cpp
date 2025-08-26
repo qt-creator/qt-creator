@@ -22,6 +22,7 @@
 #include <vector>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace CompilationDatabaseProjectManager::Internal {
@@ -123,21 +124,7 @@ CompilationDbParser::CompilationDbParser(const QString &projectName,
     , m_rootPath(rootPath)
     , m_mimeBinaryCache(mimeBinaryCache)
     , m_guard(std::move(guard))
-{
-    connect(&m_parserWatcher, &QFutureWatcher<void>::finished, this, [this] {
-        m_dbContents = m_parserWatcher.result();
-        parserJobFinished();
-    });
-}
-
-CompilationDbParser::~CompilationDbParser()
-{
-    if (m_treeScanner && !m_treeScanner->isFinished()) {
-        auto future = m_treeScanner->future();
-        future.cancel();
-        future.waitForFinished();
-    }
-}
+{}
 
 void CompilationDbParser::start()
 {
@@ -156,82 +143,80 @@ void CompilationDbParser::start()
         return;
     }
     m_projectFileHash = newHash;
-    m_runningParserJobs = 0;
 
-    // Thread 1: Scan disk.
+    GroupItem treeScannerTask = nullItem;
+
     if (!m_rootPath.isEmpty()) {
-        m_treeScanner = new TreeScanner(this);
-        m_treeScanner->setFilter([this](const MimeType &mimeType, const FilePath &fn) {
-            if (fn.isDir())
-                return false;
-            // Mime checks requires more resources, so keep it last in check list
-            bool isIgnored = fn.startsWith(m_projectFilePath.path() + ".user")
-                             || TreeScanner::isWellKnownBinary(mimeType, fn);
+        using ResultType = TreeScanner::Result;
+        const auto onSetup = [this](Async<ResultType> &task) {
+            const auto filter = [this](const MimeType &mimeType, const FilePath &fn) {
+                if (fn.isDir())
+                    return false;
+                // Mime checks requires more resources, so keep it last in check list
+                bool isIgnored = fn.startsWith(m_projectFilePath.path() + ".user")
+                                 || TreeScanner::isWellKnownBinary(mimeType, fn);
 
-            // Cache mime check result for speed up
-            if (!isIgnored) {
-                if (auto it = m_mimeBinaryCache.get<std::optional<bool>>(
-                        [mimeType](const QHash<QString, bool> &cache) -> std::optional<bool> {
-                            const auto cache_it = cache.find(mimeType.name());
-                            if (cache_it != cache.end())
-                                return *cache_it;
-                            return {};
-                        })) {
-                    isIgnored = *it;
-                } else {
-                    isIgnored = TreeScanner::isMimeBinary(mimeType, fn);
-                    m_mimeBinaryCache.writeLocked()->insert(mimeType.name(), isIgnored);
+                // Cache mime check result for speed up
+                if (!isIgnored) {
+                    if (auto it = m_mimeBinaryCache.get<std::optional<bool>>(
+                            [mimeType](const QHash<QString, bool> &cache) -> std::optional<bool> {
+                                const auto cache_it = cache.find(mimeType.name());
+                                if (cache_it != cache.end())
+                                    return *cache_it;
+                                return {};
+                            })) {
+                        isIgnored = *it;
+                    } else {
+                        isIgnored = TreeScanner::isMimeBinary(mimeType, fn);
+                        m_mimeBinaryCache.writeLocked()->insert(mimeType.name(), isIgnored);
+                    }
                 }
-            }
-
-            return isIgnored;
-        });
-        m_treeScanner->setTypeFactory([](const MimeType &mimeType, const FilePath &fn) {
-            return TreeScanner::genericFileType(mimeType, fn);
-        });
-        m_treeScanner->asyncScanForFiles(m_rootPath);
-        Core::ProgressManager::addTask(m_treeScanner->future(),
+                return isIgnored;
+            };
+            task.setConcurrentCallData(&TreeScanner::scanForFiles, m_rootPath, filter,
+                                       QDir::AllEntries | QDir::NoDotAndDotDot,
+                                       &TreeScanner::genericFileType);
+            task.setFutureSynchronizer(nullptr); // Because of m_mimeBinaryCache usage.
+            QObject::connect(&task, &AsyncBase::started, this, [this, taskPtr = &task] {
+                Core::ProgressManager::addTask(taskPtr->future(),
                                        Tr::tr("Scan \"%1\" project tree").arg(m_projectName),
                                        "CompilationDatabase.Scan.Tree");
-        ++m_runningParserJobs;
-        connect(m_treeScanner, &TreeScanner::finished,
-                this, &CompilationDbParser::parserJobFinished);
+            });
+        };
+        const auto onDone = [this](const Async<ResultType> &task) {
+            if (task.isResultAvailable())
+                m_scannedFiles = task.result().takeAllFiles();
+        };
+        treeScannerTask = AsyncTask<ResultType>(onSetup, onDone);
     }
 
-    // Thread 2: Parse the project file.
-    const auto future = Utils::asyncRun(parseProject, m_projectFileContents, m_projectFilePath);
-    Core::ProgressManager::addTask(future,
-                                   Tr::tr("Parse \"%1\" project").arg(m_projectName),
-                                   "CompilationDatabase.Parse");
-    ++m_runningParserJobs;
-    m_parserWatcher.setFuture(future);
-    Utils::futureSynchronizer()->addFuture(future);
+    const auto onSetup = [this](Async<DbContents> &task) {
+        task.setConcurrentCallData(parseProject, m_projectFileContents, m_projectFilePath);
+        QObject::connect(&task, &AsyncBase::started, this, [this, taskPtr = &task] {
+            Core::ProgressManager::addTask(taskPtr->future(),
+                                           Tr::tr("Parse \"%1\" project").arg(m_projectName),
+                                           "CompilationDatabase.Parse");
+        });
+    };
+    const auto onDone = [this](const Async<DbContents> &task) { m_dbContents = task.result(); };
+
+    const auto onTreeDone = [this] { finish(ParseResult::Success); };
+
+    const Group recipe {
+        parallel,
+        finishAllAndSuccess,
+        treeScannerTask,
+        AsyncTask<DbContents>(onSetup, onDone)
+    };
+    m_taskTreeRunner.start(recipe, {}, onTreeDone);
 }
 
 void CompilationDbParser::stop()
 {
     disconnect();
-    m_parserWatcher.disconnect();
-    m_parserWatcher.cancel();
-    if (m_treeScanner) {
-        m_treeScanner->disconnect();
-        m_treeScanner->future().cancel();
-    }
+    m_taskTreeRunner.reset();
     m_guard = {};
     deleteLater();
-}
-
-QList<FileNode *> CompilationDbParser::scannedFiles() const
-{
-    const bool canceled = m_treeScanner->future().isCanceled();
-    TreeScanner::Result result = m_treeScanner->release();
-    return !canceled ? result.takeAllFiles() : QList<FileNode *>();
-}
-
-void CompilationDbParser::parserJobFinished()
-{
-    if (--m_runningParserJobs == 0)
-        finish(ParseResult::Success);
 }
 
 void CompilationDbParser::finish(ParseResult result)

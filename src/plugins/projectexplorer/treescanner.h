@@ -74,15 +74,14 @@ public:
     // Standard file factory
     static ProjectExplorer::FileType genericFileType(const Utils::MimeType &mdb, const Utils::FilePath& fn);
 
+    static void scanForFiles(Promise &fi,
+                             const Utils::FilePath &directory,
+                             const Filter &filter,
+                             QDir::Filters dirFilter,
+                             const FileTypeFactory &factory);
+
 signals:
     void finished();
-
-private:
-    static void scanForFiles(Promise &fi,
-        const Utils::FilePath &directory,
-        const Filter &filter,
-        QDir::Filters dirFilter,
-        const FileTypeFactory &factory);
 
 private:
     Filter m_filter;
