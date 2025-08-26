@@ -15,6 +15,8 @@
 
 #include <devcontainer/devcontainerconfig.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitmanager.h>
@@ -422,6 +424,18 @@ Result<> Device::down()
         *m_downRecipe
     };
     // clang-format on
+
+    if (ExtensionSystem::PluginManager::isShuttingDown()) {
+        TaskTree taskTree;
+        setupProgress(progressStorage, Tr::tr("Stopping DevContainer"), "DevContainer.Shutdown")(
+            taskTree);
+        taskTree.setRecipe(recipe);
+
+        return taskTree.runBlocking() == DoneWith::Success
+                   ? ResultOk
+                   : ResultError(
+                         Tr::tr("Failed to stop DevContainer, check General Messages for details"));
+    }
 
     m_taskTreeRunner.start(recipe, setupProgress(progressStorage, Tr::tr("Stopping DevContainer"),
                                                  "DevContainer.Shutdown"));
