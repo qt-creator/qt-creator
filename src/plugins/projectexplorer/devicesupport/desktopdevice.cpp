@@ -29,6 +29,7 @@
 
 #include <QCoreApplication>
 #include <QLineEdit>
+#include <QPushButton>
 #include <QRegularExpressionValidator>
 
 #ifdef Q_OS_WIN
@@ -54,12 +55,29 @@ public:
             Tr::tr("You will need at least one port for QML debugging."),
             InfoLabel::Warning);
 
+        auto autoDetectButton = new QPushButton(Tr::tr("Run auto-detection now"));
+
+        connect(&m_detectionRunner, &Tasking::SingleTaskTreeRunner::aboutToStart, [=] {
+            autoDetectButton->setEnabled(false);
+        });
+        connect(&m_detectionRunner, &Tasking::SingleTaskTreeRunner::done, [=] {
+            autoDetectButton->setEnabled(true);
+        });
+
+        connect(autoDetectButton, &QPushButton::clicked, this, [device, autoDetectButton] {
+            autoDetectButton->setEnabled(false);
+            device->autoDetectDeviceTools();
+            autoDetectButton->setEnabled(true);
+        });
+
         using namespace Layouting;
         Form {
             Tr::tr("Machine type:"), Tr::tr("Physical Device"), br,
             Tr::tr("Free ports:"), m_freePortsLineEdit, br,
             empty, m_portsWarningLabel, br,
             noMargin,
+            device->deviceToolsGui(),
+            Row { autoDetectButton, st, },
         }.attachTo(this);
 
         connect(m_freePortsLineEdit, &QLineEdit::textChanged,
@@ -90,6 +108,7 @@ private:
 
     QLineEdit *m_freePortsLineEdit;
     QLabel *m_portsWarningLabel;
+    Tasking::SingleTaskTreeRunner m_detectionRunner;
 };
 
 class DesktopDevicePrivate
