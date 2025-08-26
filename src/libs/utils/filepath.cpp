@@ -2235,17 +2235,15 @@ QFile::Permissions FilePath::permissions() const
     return *res;
 }
 
-bool FilePath::setPermissions(QFile::Permissions permissions) const
+Result<> FilePath::setPermissions(QFile::Permissions permissions) const
 {
     const Result<> res = fileAccess()->setPermissions(*this, permissions);
-    if (!res) {
+    if (!res)
         logError("setPermissions", res.error());
-        return false;
-    }
-    return true;
+    return res;
 }
 
-bool FilePath::makeWritable() const
+Result<> FilePath::makeWritable() const
 {
     return setPermissions(permissions() | QFile::WriteUser);
 }

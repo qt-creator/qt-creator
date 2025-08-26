@@ -477,7 +477,7 @@ static bool copyRecursively(const QString &sourceDirPath,
 
         // Copied files from Qt resources are read-only. Make them writable
         // so that their parent directory can be removed without warnings.
-        return targetPath.setPermissions(targetPath.permissions() | QFile::WriteUser);
+        return targetPath.setPermissions(targetPath.permissions() | QFile::WriteUser).has_value();
     };
 
     return Utils::FileUtils::copyRecursively(Utils::FilePath::fromString(sourceDirPath),

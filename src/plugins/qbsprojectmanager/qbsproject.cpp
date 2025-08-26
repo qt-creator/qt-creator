@@ -379,11 +379,12 @@ bool QbsBuildSystem::ensureWriteableQbsFile(const FilePath &file)
         IVersionControl *versionControl =
             VcsManager::findVersionControlForDirectory(file.parentDir());
         if (!versionControl || !versionControl->vcsOpen(file)) {
-            bool makeWritable = file.setPermissions(file.permissions() | QFile::WriteUser);
+            Result<> makeWritable = file.setPermissions(file.permissions() | QFile::WriteUser);
             if (!makeWritable) {
                 QMessageBox::warning(ICore::dialogParent(),
                                      Tr::tr("Failed"),
-                                     Tr::tr("Could not write project file %1.").arg(file.toUserOutput()));
+                                     Tr::tr("Could not write project file %1: %2")
+                                        .arg(file.toUserOutput(), makeWritable.error()));
                 return false;
             }
         }
