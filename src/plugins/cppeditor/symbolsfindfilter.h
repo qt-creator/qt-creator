@@ -8,11 +8,12 @@
 #include <coreplugin/find/ifindfilter.h>
 #include <coreplugin/find/searchresultwindow.h>
 
-#include <QFutureWatcher>
-#include <QPointer>
-#include <QWidget>
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <QCheckBox>
+#include <QPointer>
 #include <QRadioButton>
+#include <QWidget>
 
 namespace Core { class SearchResult; }
 namespace Utils { class SearchResultItem; }
@@ -55,10 +56,6 @@ signals:
 private:
     void openEditor(const Utils::SearchResultItem &item);
 
-    void addResults(QFutureWatcher<Utils::SearchResultItem> *watcher, int begin, int end);
-    void finish(QFutureWatcher<Utils::SearchResultItem> *watcher);
-    void cancel(Core::SearchResult *search);
-    void setPaused(Core::SearchResult *search, bool paused);
     void onTaskStarted(Utils::Id type);
     void onAllTasksFinished(Utils::Id type);
 
@@ -67,10 +64,10 @@ private:
     void startSearch(Core::SearchResult *search);
 
     bool m_enabled;
-    QHash<QFutureWatcher<Utils::SearchResultItem> *, QPointer<Core::SearchResult>> m_watchers;
     QPointer<Core::SearchResult> m_currentSearch;
     SearchSymbols::SymbolTypes m_symbolsToSearch;
     SearchScope m_scope;
+    Tasking::ParallelTaskTreeRunner m_taskTreeRunner;
 };
 
 class SymbolsFindFilterConfigWidget : public QWidget

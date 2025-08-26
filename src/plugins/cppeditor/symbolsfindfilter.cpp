@@ -63,21 +63,6 @@ bool SymbolsFindFilter::isEnabled() const
     return m_enabled;
 }
 
-void SymbolsFindFilter::cancel(SearchResult *search)
-{
-    QFutureWatcher<SearchResultItem> *watcher = m_watchers.key(search);
-    QTC_ASSERT(watcher, return);
-    watcher->cancel();
-}
-
-void SymbolsFindFilter::setPaused(SearchResult *search, bool paused)
-{
-    QFutureWatcher<SearchResultItem> *watcher = m_watchers.key(search);
-    QTC_ASSERT(watcher, return);
-    if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
-        watcher->setSuspended(paused);
-}
-
 void SymbolsFindFilter::findAll(const QString &txt, FindFlags findFlags)
 {
     SearchResultWindow *window = SearchResultWindow::instance();
@@ -85,9 +70,6 @@ void SymbolsFindFilter::findAll(const QString &txt, FindFlags findFlags)
     search->setSearchAgainSupported(true);
     connect(search, &SearchResult::activated,
             this, &SymbolsFindFilter::openEditor);
-    connect(search, &SearchResult::canceled, this, [this, search] { cancel(search); });
-    connect(search, &SearchResult::paused,
-            this, [this, search](bool paused) { setPaused(search, paused); });
     connect(search, &SearchResult::searchAgainRequested, this, [this, search] {
         search->restart();
         startSearch(search);
@@ -113,40 +95,35 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
             projectFileNames += Utils::toSet(project->files(ProjectExplorer::Project::AllFiles));
     }
 
-    auto watcher = new QFutureWatcher<SearchResultItem>;
-    m_watchers.insert(watcher, search);
-    connect(watcher, &QFutureWatcherBase::finished, this, [this, watcher] { finish(watcher); });
-    connect(watcher, &QFutureWatcherBase::resultsReadyAt, this, [this, watcher]
-            (int begin, int end) { addResults(watcher, begin, end); });
-    watcher->setFuture(Utils::asyncRun(CppModelManager::sharedThreadPool(),
-                                       &SymbolSearcher::search, CppModelManager::snapshot(),
-                                       parameters, projectFileNames));
-    FutureProgress *progress = ProgressManager::addTask(watcher->future(), Tr::tr("Searching for Symbol"),
-                                                        Core::Constants::TASK_SEARCH);
-    connect(progress, &FutureProgress::clicked, search, &SearchResult::popup);
-}
-
-void SymbolsFindFilter::addResults(QFutureWatcher<SearchResultItem> *watcher, int begin, int end)
-{
-    SearchResult *search = m_watchers.value(watcher);
-    if (!search) {
-        // search was removed from search history while the search is running
-        watcher->cancel();
-        return;
-    }
-    SearchResultItems items;
-    for (int i = begin; i < end; ++i)
-        items << watcher->resultAt(i);
-    search->addResults(items, SearchResult::AddSortedByContent);
-}
-
-void SymbolsFindFilter::finish(QFutureWatcher<SearchResultItem> *watcher)
-{
-    SearchResult *search = m_watchers.value(watcher);
-    if (search)
-        search->finishSearch(watcher->isCanceled());
-    m_watchers.remove(watcher);
-    watcher->deleteLater();
+    const auto onSetup = [search, parameters, projectFileNames](Async<SearchResultItem> &task) {
+        task.setConcurrentCallData(&SymbolSearcher::search, CppModelManager::snapshot(),
+                                   parameters, projectFileNames);
+        QObject::connect(&task, &AsyncBase::started, search, [taskPtr = &task, search] {
+            FutureProgress *progress = ProgressManager::addTask(taskPtr->future(),
+                                                                Tr::tr("Searching for Symbol"),
+                                                                Core::Constants::TASK_SEARCH);
+            QObject::connect(progress, &FutureProgress::clicked, search, &SearchResult::popup);
+            QObject::connect(search, &SearchResult::paused, taskPtr, [taskPtr](bool paused) {
+                auto future = taskPtr->future();
+                if (!paused || future.isRunning()) // guard against pausing when the search is finished
+                    future.setSuspended(paused);
+            });
+            QObject::connect(search, &SearchResult::canceled, taskPtr, [taskPtr] {
+                taskPtr->future().cancel();
+            });
+        });
+        QObject::connect(&task, &AsyncBase::resultsReadyAt, search,
+                         [taskPtr = &task, search](int begin, int end) {
+            SearchResultItems items;
+            for (int i = begin; i < end; ++i)
+                items << taskPtr->resultAt(i);
+            search->addResults(items, SearchResult::AddSortedByContent);
+        });
+    };
+    const auto onDone = [search](const Async<SearchResultItem> &task) {
+        search->finishSearch(task.future().isCanceled());
+    };
+    m_taskTreeRunner.start({AsyncTask<SearchResultItem>(onSetup, onDone)});
 }
 
 void SymbolsFindFilter::openEditor(const SearchResultItem &item)
