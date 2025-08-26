@@ -73,7 +73,7 @@ public:
             &DevContainerPlugin::onProjectAdded);
         connect(
             ProjectManager::instance(),
-            &ProjectManager::projectRemoved,
+            &ProjectManager::aboutToRemoveProject,
             this,
             &DevContainerPlugin::onProjectRemoved);
 
