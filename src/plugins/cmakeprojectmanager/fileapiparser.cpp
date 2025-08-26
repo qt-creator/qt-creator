@@ -33,8 +33,6 @@ const char CMAKE_RELATIVE_QUERY_PATH[] = ".cmake/api/v1/query";
 
 static Q_LOGGING_CATEGORY(cmakeFileApi, "qtc.cmake.fileApi", QtWarningMsg);
 
-const QStringList CMAKE_QUERY_FILENAMES = {"cache-v2", "codemodel-v2", "cmakeFiles-v1"};
-
 // --------------------------------------------------------------------
 // Helper:
 // --------------------------------------------------------------------
@@ -953,9 +951,11 @@ FilePath FileApiParser::scanForCMakeReplyFile(const FilePath &buildDirectory)
 FilePaths FileApiParser::cmakeQueryFilePaths(const FilePath &buildDirectory)
 {
     const FilePath queryDir = buildDirectory / CMAKE_RELATIVE_QUERY_PATH;
-    return transform(CMAKE_QUERY_FILENAMES, [&queryDir](const QString &name) {
-        return queryDir.resolvePath(name);
-    });
+    return {
+        queryDir / "cache-v2",
+        queryDir / "codemodel-v2",
+        queryDir / "cmakeFiles-v1"
+    };
 }
 
 } // CMakeProjectManager::Internal
