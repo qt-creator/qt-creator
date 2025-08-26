@@ -29,7 +29,9 @@ QT_END_NAMESPACE
 namespace Utils {
 namespace FileUtils {
 
-using CopyHelper = std::function<bool(const FilePath &, const FilePath &, QString *)>;
+enum class CopyResult { Done, Canceled };
+using CopyHelper = std::function<Result<CopyResult>(const FilePath &, const FilePath &)>;
+
 #ifdef QT_GUI_LIB
 class QTCREATOR_UTILS_EXPORT CopyAskingForOverwrite
 {
@@ -46,11 +48,9 @@ private:
 };
 #endif // QT_GUI_LIB
 
-QTCREATOR_UTILS_EXPORT bool copyRecursively(
-    const FilePath &srcFilePath,
-    const FilePath &tgtFilePath,
-    QString *error,
-    CopyHelper helper);
+QTCREATOR_UTILS_EXPORT Result<CopyResult> copyRecursively(const FilePath &srcFilePath,
+                                                          const FilePath &tgtFilePath,
+                                                          const CopyHelper &helper);
 
 QTCREATOR_UTILS_EXPORT Result<> copyIfDifferent(const FilePath &srcFilePath,
                                                 const FilePath &tgtFilePath);

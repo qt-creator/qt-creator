@@ -261,13 +261,12 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
         return;
     FileUtils::copyRecursively(version->prefix() / "src/android/templates",
                                m_directory,
-                               nullptr,
                                copy());
 
     if (copyGradleTemplates()) {
         FilePath gradlePath = version->prefix() / "src/3rdparty/gradle";
         QTC_ASSERT(gradlePath.exists(), return);
-        FileUtils::copyRecursively(gradlePath, m_directory, nullptr, copy());
+        FileUtils::copyRecursively(gradlePath, m_directory, copy());
     }
 
     ProjectNode *node = m_buildSystem->project()->findNodeForBuildKey(m_buildKey);

@@ -558,13 +558,14 @@ InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareFo
                     return true;
                 };
 
-                QString error;
                 FileUtils::CopyAskingForOverwrite copy(updateProgress);
-                if (!FileUtils::copyRecursively(data.extractedPath, installPath, &error, copy())) {
-                    if (!error.isEmpty()) {
-                        QMessageBox::warning(
-                            ICore::dialogParent(), Tr::tr("Failed to Copy Plugin Files"), error);
-                    }
+                const Result<FileUtils::CopyResult> res =
+                    FileUtils::copyRecursively(data.extractedPath, installPath, copy());
+                if (!res) {
+                    QMessageBox::warning(
+                        ICore::dialogParent(), Tr::tr("Failed to Copy Plugin Files"), res.error());
+                }
+                if (!res || *res == FileUtils::CopyResult::Canceled) {
                     // If the copy failed, we remove the install path to avoid leaving
                     // a broken plugin behind.
                     installPath.removeRecursively();

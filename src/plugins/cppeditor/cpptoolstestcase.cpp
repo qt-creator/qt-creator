@@ -462,28 +462,21 @@ FilePath TemporaryDir::createFile(const QByteArray &relativePath, const QByteArr
     return filePath;
 }
 
-static bool copyRecursively(const QString &sourceDirPath,
-                            const QString &targetDirPath,
-                            QString *error)
+static Result<FileUtils::CopyResult> copyHelper(const FilePath &sourcePath,
+                                                const FilePath &targetPath)
 {
-    auto copyHelper = [](const FilePath &sourcePath, const FilePath &targetPath, QString *error) -> bool {
-        if (!sourcePath.copyFile(targetPath)) {
-            if (error) {
-                *error = QString::fromLatin1("copyRecursively() failed: \"%1\" to \"%2\".")
-                            .arg(sourcePath.toUserOutput(), targetPath.toUserOutput());
-            }
-            return false;
-        }
+    if (!sourcePath.copyFile(targetPath)) {
+        return ResultError(QString("copyRecursively() failed: \"%1\" to \"%2\".")
+                               .arg(sourcePath.toUserOutput(), targetPath.toUserOutput()));
+    }
 
-        // Copied files from Qt resources are read-only. Make them writable
-        // so that their parent directory can be removed without warnings.
-        return targetPath.setPermissions(targetPath.permissions() | QFile::WriteUser).has_value();
-    };
+    // Copied files from Qt resources are read-only. Make them writable
+    // so that their parent directory can be removed without warnings.
+    Result<> res = targetPath.setPermissions(targetPath.permissions() | QFile::WriteUser);
+    if (!res)
+        return ResultError(res.error());
 
-    return Utils::FileUtils::copyRecursively(Utils::FilePath::fromString(sourceDirPath),
-                                             Utils::FilePath::fromString(targetDirPath),
-                                             error,
-                                             copyHelper);
+    return FileUtils::CopyResult::Done;
 }
 
 TemporaryCopiedDir::TemporaryCopiedDir(const QString &sourceDirPath)
@@ -500,9 +493,11 @@ TemporaryCopiedDir::TemporaryCopiedDir(const QString &sourceDirPath)
         return;
     }
 
-    QString errorMessage;
-    if (!copyRecursively(sourceDirPath, path(), &errorMessage)) {
-        qWarning() << qPrintable(errorMessage);
+    const Result<FileUtils::CopyResult> res =
+        FileUtils::copyRecursively(FilePath::fromString(sourceDirPath), filePath(), copyHelper);
+
+    if (!res) {
+        qWarning() << qPrintable(res.error());
         m_isValid = false;
     }
 }
