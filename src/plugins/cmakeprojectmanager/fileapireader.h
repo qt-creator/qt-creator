@@ -11,21 +11,15 @@
 #include <projectexplorer/rawprojectpart.h>
 #include <projectexplorer/treescanner.h>
 
-#include <utils/filesystemwatcher.h>
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <QDateTime>
-#include <QFuture>
-#include <QObject>
-
-#include <memory>
-#include <optional>
 
 namespace ProjectExplorer { class ProjectNode; }
 
 namespace CMakeProjectManager::Internal {
 
 class CMakeProcess;
-class FileApiQtcData;
 
 class FileApiReader final : public QObject
 {
@@ -98,8 +92,6 @@ private:
     bool m_usesAllCapsTargets = false;
     int m_lastCMakeExitCode = 0;
 
-    std::optional<QFuture<std::shared_ptr<FileApiQtcData>>> m_future;
-
     // Update related:
     bool m_isParsing = false;
     BuildDirParameters m_parameters;
@@ -107,6 +99,7 @@ private:
     // Notification on changes outside of creator:
     std::unique_ptr<Utils::FilePathWatcher> m_watcher;
     QDateTime m_lastReplyTimestamp;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
 };
 
 } // CMakeProjectManager::Internal

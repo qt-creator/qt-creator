@@ -17,7 +17,6 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/fileutils.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
@@ -162,11 +161,7 @@ void FileApiReader::stop()
         disconnect(m_cmakeProcess.get(), nullptr, this, nullptr);
     m_cmakeProcess.reset();
 
-    if (m_future) {
-        m_future->cancel();
-        Utils::futureSynchronizer()->addFuture(*m_future);
-    }
-    m_future = {};
+    m_taskTreeRunner.reset();
     m_isParsing = false;
 }
 
@@ -228,8 +223,8 @@ RawProjectParts FileApiReader::createRawProjectParts(QString &errorMessage)
 void FileApiReader::startState()
 {
     qCDebug(cmakeFileApiMode) << "FileApiReader: START STATE.";
-    QTC_ASSERT(!m_isParsing, return );
-    QTC_ASSERT(!m_future.has_value(), return );
+    QTC_ASSERT(!m_isParsing, return);
+    QTC_ASSERT(!m_taskTreeRunner.isRunning(), return);
 
     m_isParsing = true;
 
@@ -237,11 +232,33 @@ void FileApiReader::startState()
     emit configurationStarted();
 }
 
+using ResultType = std::shared_ptr<FileApiQtcData>;
+
+static void doParse(QPromise<ResultType> &promise, const FilePath &replyFilePath,
+                    const FilePath &sourceDirectory, const FilePath &buildDirectory,
+                    const QString &cmakeBuildType)
+{
+    auto result = std::make_shared<FileApiQtcData>();
+    FileApiData data = FileApiParser::parseData(promise,
+                                                replyFilePath,
+                                                buildDirectory,
+                                                cmakeBuildType,
+                                                result->errorMessage);
+    if (result->errorMessage.isEmpty()) {
+        *result = extractData(QFuture<void>(promise.future()), data,
+                              sourceDirectory, buildDirectory);
+    } else {
+        qWarning() << result->errorMessage;
+        result->cache = std::move(data.cache);
+    }
+    promise.addResult(result);
+}
+
 void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBackup)
 {
     qCDebug(cmakeFileApiMode) << "FileApiReader: END STATE.";
-    QTC_ASSERT(m_isParsing, return );
-    QTC_ASSERT(!m_future.has_value(), return );
+    QTC_ASSERT(m_isParsing, return);
+    QTC_ASSERT(!m_taskTreeRunner.isRunning(), return);
 
     const FilePath sourceDirectory = m_parameters.sourceDirectory;
     const FilePath buildDirectory = m_parameters.buildDirectory;
@@ -250,47 +267,34 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
 
     m_lastReplyTimestamp = replyFilePath.lastModified();
 
-    m_future = Utils::asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
-                        [replyFilePath, sourceDirectory, buildDirectory, cmakeBuildType](
-                            QPromise<std::shared_ptr<FileApiQtcData>> &promise) {
-                            auto result = std::make_shared<FileApiQtcData>();
-                            FileApiData data = FileApiParser::parseData(promise,
-                                                                        replyFilePath,
-                                                                        buildDirectory,
-                                                                        cmakeBuildType,
-                                                                        result->errorMessage);
-                            if (result->errorMessage.isEmpty()) {
-                                *result = extractData(QFuture<void>(promise.future()), data,
-                                                      sourceDirectory, buildDirectory);
-                            } else {
-                                qWarning() << result->errorMessage;
-                                result->cache = std::move(data.cache);
-                            }
+    const auto onSetup = [replyFilePath, sourceDirectory, buildDirectory, cmakeBuildType](
+                             Async<ResultType> &task) {
+        task.setConcurrentCallData(doParse, replyFilePath, sourceDirectory, buildDirectory,
+                                   cmakeBuildType);
+        task.setThreadPool(ProjectExplorerPlugin::sharedThreadPool());
+    };
+    const auto onDone = [this, restoredFromBackup](const Async<ResultType> &task) {
+        m_isParsing = false;
+        if (!task.isResultAvailable())
+            return;
 
-                            promise.addResult(result);
-                        });
-    onResultReady(m_future.value(),
-                  this,
-                  [this, sourceDirectory, buildDirectory, restoredFromBackup](
-                      const std::shared_ptr<FileApiQtcData> &value) {
-                      m_isParsing = false;
-                      m_cache = std::move(value->cache);
-                      m_cmakeFiles = std::move(value->cmakeFiles);
-                      m_buildTargets = std::move(value->buildTargets);
-                      m_projectParts = std::move(value->projectParts);
-                      m_rootProjectNode = std::move(value->rootProjectNode);
-                      m_ctestPath = std::move(value->ctestPath);
-                      m_isMultiConfig = value->isMultiConfig;
-                      m_usesAllCapsTargets = value->usesAllCapsTargets;
-                      m_cmakeGenerator = value->cmakeGenerator;
+        const ResultType result = task.result();
+        m_cache = std::move(result->cache);
+        m_cmakeFiles = std::move(result->cmakeFiles);
+        m_buildTargets = std::move(result->buildTargets);
+        m_projectParts = std::move(result->projectParts);
+        m_rootProjectNode = std::move(result->rootProjectNode);
+        m_ctestPath = std::move(result->ctestPath);
+        m_isMultiConfig = result->isMultiConfig;
+        m_usesAllCapsTargets = result->usesAllCapsTargets;
+        m_cmakeGenerator = result->cmakeGenerator;
 
-                      if (value->errorMessage.isEmpty()) {
-                          emit this->dataAvailable(restoredFromBackup);
-                      } else {
-                          emit this->errorOccurred(value->errorMessage);
-                      }
-                      m_future = {};
-                  });
+        if (result->errorMessage.isEmpty())
+            emit dataAvailable(restoredFromBackup);
+        else
+            emit errorOccurred(result->errorMessage);
+    };
+    m_taskTreeRunner.start({AsyncTask<ResultType>(onSetup, onDone)});
 }
 
 void FileApiReader::makeBackupConfiguration(bool store)
