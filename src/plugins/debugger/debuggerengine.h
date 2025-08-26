@@ -618,6 +618,10 @@ public:
     void updateToolTips();
     DebuggerToolTipManager *toolTipManager();
 
+    virtual void pipeInDebuggerHelpers(
+        const QString &bridgeModuleName, std::function<void(const DebuggerResponse &)> callback);
+    virtual void runPythonCommand(DebuggerCommand pythonCmd);
+
 signals:
     void engineStarted();
     void engineFinished();

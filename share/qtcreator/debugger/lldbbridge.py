@@ -17,9 +17,10 @@ from contextlib import contextmanager
 sys.path.insert(1, os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
 
 # Simplify development of this module by reloading deps
-if 'dumper' in sys.modules:
-    from importlib import reload
-    reload(sys.modules['dumper'])
+# Does not work when the module is injected via stdio
+# if 'dumper' in sys.modules:
+#     from importlib import reload
+#     reload(sys.modules['dumper'])
 
 from dumper import DumperBase, SubItem, Children, TopLevelItem
 

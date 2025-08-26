@@ -4016,48 +4016,7 @@ void GdbEngine::handleGdbStarted()
     const FilePath dumperPath = ICore::resourcePath("debugger");
     if (!rp.debugger().command.executable().isLocal()) {
         // Gdb itself running remotely.
-        const FilePath loadOrderFile = dumperPath / "loadorder.txt";
-        const Result<QByteArray> toLoad = loadOrderFile.fileContents();
-        if (!toLoad) {
-            AsynchronousMessageBox::critical(Tr::tr("Cannot Find Debugger Initialization Script"),
-                                             Tr::tr("Cannot read \"%1\": %2")
-                                                 .arg(loadOrderFile.toUserOutput(), toLoad.error()));
-            notifyEngineSetupFailed();
-            return;
-        }
-
-        runCommand({"python import sys, types"});
-        QStringList moduleList;
-        for (const QByteArray &rawModuleName : toLoad->split('\n')) {
-            QString module = QString::fromUtf8(rawModuleName).trimmed();
-            if (module.startsWith('#') || module.isEmpty())
-                continue;
-            if (module == "***bridge***")
-                module = "gdbbridge";
-
-            const FilePath codeFile = dumperPath / (module + ".py");
-            const Result<QByteArray> code = codeFile.fileContents();
-            if (!code) {
-                qDebug() << Tr::tr("Cannot read \"%1\": %2")
-                                .arg(codeFile.toUserOutput(), code.error());
-                continue;
-            }
-
-            showMessage("Reading " + codeFile.toUserOutput(), LogInput);
-            runCommand({QString("python module = types.ModuleType('%1')").arg(module)});
-            runCommand({QString("python code = bytes.fromhex('%1').decode('utf-8')")
-                            .arg(QString::fromUtf8(code->toHex()))});
-            runCommand({QString("python exec(code, module.__dict__)")});
-            runCommand({QString("python sys.modules['%1'] = module").arg(module)});
-            runCommand({QString("python import %1").arg(module)});
-
-            if (module.endsWith("types"))
-                moduleList.append('"' + module + '"');
-        }
-
-        runCommand({"python from gdbbridge import *", CB(handleDumperSetup)});
-        runCommand(QString("python theDumper.dumpermodules = [%1]").arg(moduleList.join(',')));
-
+        pipeInDebuggerHelpers("gdbbridge", CB(handleDumperSetup));
     } else {
         // Gdb on local host
         // This is useful (only) in custom gdb builds that did not run 'make install'

@@ -226,10 +226,14 @@ void LldbEngine::handleLldbStarted()
 
     const DebuggerRunParameters &rp = runParameters();
 
-    QString dumperPath = ICore::resourcePath("debugger").path();
-    executeCommand("script sys.path.insert(1, '" + dumperPath + "')");
-    // This triggers reportState("enginesetupok") or "enginesetupfailed":
-    executeCommand("script from lldbbridge import *");
+    if (!rp.debugger().command.executable().isLocal()) {
+        pipeInDebuggerHelpers("lldbbridge", {});
+    } else {
+        QString dumperPath = ICore::resourcePath("debugger").path();
+        executeCommand("script sys.path.insert(1, '" + dumperPath + "')");
+        // This triggers reportState("enginesetupok") or "enginesetupfailed":
+        executeCommand("script from lldbbridge import *");
+    }
 
     QString commands = nativeStartupCommands();
     if (!commands.isEmpty())
@@ -1139,9 +1143,51 @@ bool LldbEngine::hasCapability(unsigned cap) const
     return false;
 }
 
+void LldbEngine::runPythonCommand(DebuggerCommand command)
+{
+    command.function.prepend("script ");
+    if (!m_lldbProc.isRunning()) {
+        // This can legally happen e.g. through a reloadModule()
+        // triggered by changes in view visibility.
+        showMessage(QString("NO LLDB PROCESS RUNNING, CMD IGNORED: %1 %2")
+                        .arg(command.function)
+                        .arg(state()));
+        return;
+    }
+    const int tok = ++currentToken();
+    DebuggerCommand cmd = command;
+    QString token = QString::number(tok);
+    QString function = cmd.function;
+    QString msg = token + function + '\n';
+    if (cmd.flags == Silent) {
+        static const QRegularExpression regexp("\"environment\":.[^]]*.");
+        msg.replace(regexp, "<environment suppressed>");
+    }
+    if (cmd.flags == NeedsFullStop) {
+        cmd.flags &= ~NeedsFullStop;
+        if (state() == InferiorRunOk) {
+            showStatusMessage(Tr::tr("Stopping temporarily"), 1000);
+            m_onStop.append(cmd, false);
+            interruptInferior();
+            return;
+        }
+    }
+    showMessage(msg, LogInput);
+    m_commandForToken[currentToken()] = cmd;
+
+    /*
+self.report('token(\"%s\")' % args["token"])
+sys.stdout.write("@\n" + stuff + "@\n")
+sys.stdout.flush()
+*/
+    static const QString withReport(
+        R"(%1;sys.stdout.write("@\ntoken(\"%2\")@\n");sys.stdout.flush())");
+    executeCommand(withReport.arg(function).arg(token));
+}
+
 DebuggerEngine *createLldbEngine()
 {
     return new LldbEngine;
 }
 
-} // Debugger::Internal
+} // namespace Debugger::Internal

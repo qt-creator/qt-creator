@@ -1,0 +1,12 @@
+utils
+dumper
+***bridge***
+boosttypes
+creatortypes
+misctypes
+opencvtypes
+personaltypes
+stdtypes
+libcpp_stdtypes
+android_stdtypes
+qttypes

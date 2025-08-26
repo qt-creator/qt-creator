@@ -3214,6 +3214,58 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
     }
 }
 
+void DebuggerEngine::runPythonCommand(DebuggerCommand pythonCmd)
+{
+    pythonCmd.function.prepend("python ");
+    runCommand(pythonCmd);
+}
+
+void DebuggerEngine::pipeInDebuggerHelpers(
+    const QString &bridgeModuleName, std::function<void(const DebuggerResponse &)> callback)
+{
+    const FilePath dumperPath = ICore::resourcePath("debugger");
+    const FilePath loadOrderFile = dumperPath / QString("loadorder_%1.txt").arg(bridgeModuleName);
+    const Result<QByteArray> toLoad = loadOrderFile.fileContents();
+    if (!toLoad) {
+        AsynchronousMessageBox::critical(
+            Tr::tr("Cannot Find Debugger Initialization Script"),
+            Tr::tr("Cannot read \"%1\": %2").arg(loadOrderFile.toUserOutput(), toLoad.error()));
+        notifyEngineSetupFailed();
+        return;
+    }
+
+    runPythonCommand({"import sys, types"});
+    QStringList moduleList;
+    for (const QByteArray &rawModuleName : toLoad->split('\n')) {
+        QString module = QString::fromUtf8(rawModuleName).trimmed();
+        if (module.startsWith('#') || module.isEmpty())
+            continue;
+        if (module == "***bridge***")
+            module = bridgeModuleName;
+
+        const FilePath codeFile = dumperPath / (module + ".py");
+        const Result<QByteArray> code = codeFile.fileContents();
+        if (!code) {
+            qDebug() << Tr::tr("Cannot read \"%1\": %2").arg(codeFile.toUserOutput(), code.error());
+            continue;
+        }
+
+        showMessage("Reading " + codeFile.toUserOutput(), LogInput);
+        runPythonCommand({QString("module = types.ModuleType('%1')").arg(module)});
+        runPythonCommand({QString("code = bytes.fromhex('%1').decode('utf-8')")
+                              .arg(QString::fromUtf8(code->toHex()))});
+        runPythonCommand({QString("exec(code, module.__dict__)")});
+        runPythonCommand({QString("sys.modules['%1'] = module").arg(module)});
+        if (module != bridgeModuleName)
+            runPythonCommand({QString("import %1").arg(module)});
+
+        if (module.endsWith("types"))
+            moduleList.append('"' + module + '"');
+    }
+
+    runPythonCommand({QString("from %1 import *").arg(bridgeModuleName), callback});
+    runPythonCommand(QString("theDumper.dumpermodules = [%1]").arg(moduleList.join(',')));
+}
 } // namespace Internal
 } // namespace Debugger
 

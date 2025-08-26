@@ -39,7 +39,8 @@ set(resource_files
   debugger/libcpp_stdtypes.py
   debugger/stdtypes.py
   debugger/utils.py
-  debugger/loadorder.txt
+  debugger/loadorder_gdbbridge.txt
+  debugger/loadorder_lldbbridge.txt
   debugger/visualize.py
 
   debugger-with-python2/qttypes.py
