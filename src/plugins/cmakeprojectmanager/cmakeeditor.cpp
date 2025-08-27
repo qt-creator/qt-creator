@@ -50,14 +50,12 @@ public:
     CMakeEditor();
 
 private:
-    CMakeKeywords m_keywords;
+    const CMakeKeywords m_keywords;
 };
 
 CMakeEditor::CMakeEditor()
+    : m_keywords(CMakeToolManager::defaultProjectOrDefaultCMakeKeyWords())
 {
-    if (auto tool = CMakeToolManager::defaultProjectOrDefaultCMakeTool())
-        m_keywords = tool->keywords();
-
     setContextHelpProvider([this](const HelpCallback &callback) {
         auto helpPrefix = [this](const QString &word) {
             if (m_keywords.includeStandardModules.contains(word))
@@ -445,8 +443,7 @@ public:
 const CMakeKeywords &CMakeHoverHandler::keywords() const
 {
     if (m_keywords.functions.isEmpty())
-        if (auto tool = CMakeToolManager::defaultProjectOrDefaultCMakeTool())
-            m_keywords = tool->keywords();
+        m_keywords = CMakeToolManager::defaultProjectOrDefaultCMakeKeyWords();
 
     return m_keywords;
 }

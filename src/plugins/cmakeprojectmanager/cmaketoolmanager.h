@@ -22,6 +22,8 @@ class Project;
 
 namespace CMakeProjectManager {
 
+class CMakeKeywords;
+
 class CMAKE_EXPORT CMakeToolManager : public QObject
 {
     Q_OBJECT
@@ -36,7 +38,7 @@ public:
     static bool registerCMakeTool(std::unique_ptr<CMakeTool> &&tool);
     static void deregisterCMakeTool(const Utils::Id &id);
 
-    static CMakeTool *defaultProjectOrDefaultCMakeTool();
+    static CMakeKeywords defaultProjectOrDefaultCMakeKeyWords();
 
     static CMakeTool *defaultCMakeTool();
     static void setDefaultCMakeTool(const Utils::Id &id);

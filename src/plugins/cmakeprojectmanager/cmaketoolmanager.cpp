@@ -294,7 +294,7 @@ void CMakeToolManager::deregisterCMakeTool(const Id &id)
     }
 }
 
-CMakeTool *CMakeToolManager::defaultProjectOrDefaultCMakeTool()
+CMakeKeywords CMakeToolManager::defaultProjectOrDefaultCMakeKeyWords()
 {
     CMakeTool *tool = nullptr;
 
@@ -303,7 +303,9 @@ CMakeTool *CMakeToolManager::defaultProjectOrDefaultCMakeTool()
     if (!tool)
         tool = CMakeToolManager::defaultCMakeTool();
 
-    return tool;
+    if (tool)
+        return tool->keywords();
+    return {};
 }
 
 CMakeTool *CMakeToolManager::defaultCMakeTool()

@@ -13,16 +13,15 @@
 #include <utils/id.h>
 #include <utils/store.h>
 
-#include <optional>
-
 namespace Utils { class Process; }
 
 namespace CMakeProjectManager {
 
 namespace Internal {  class IntrospectionData;  }
 
-struct CMAKE_EXPORT CMakeKeywords
+class CMAKE_EXPORT CMakeKeywords
 {
+public:
     QMap<QString, Utils::FilePath> variables;
     QMap<QString, Utils::FilePath> functions;
     QMap<QString, Utils::FilePath> properties;

@@ -451,11 +451,8 @@ PerformInputDataPtr CMakeFileCompletionAssist::generatePerformInputData() const
 {
     PerformInputDataPtr data = PerformInputDataPtr(new PerformInputData);
 
-    const FilePath &filePath = interface()->filePath();
-    if (!filePath.isEmpty() && filePath.isFile()) {
-        if (auto tool = CMakeToolManager::defaultProjectOrDefaultCMakeTool())
-            data->keywords = tool->keywords();
-    }
+    if (interface()->filePath().isFile())
+        data->keywords = CMakeToolManager::defaultProjectOrDefaultCMakeKeyWords();
 
     if (auto bs = qobject_cast<CMakeBuildSystem *>(activeBuildSystemForCurrentProject())) {
         for (const auto &target : std::as_const(bs->buildTargets()))
