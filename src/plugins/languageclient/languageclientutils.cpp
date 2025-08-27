@@ -20,6 +20,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/environment.h>
+#include <utils/globaltasktree.h>
 #include <utils/infobar.h>
 #include <utils/qtcprocess.h>
 #include <utils/textutils.h>
@@ -27,16 +28,15 @@
 #include <utils/utilsicons.h>
 
 #include <QActionGroup>
-#include <QFile>
 #include <QMenu>
 #include <QTextDocument>
-#include <QTimer>
 #include <QToolBar>
-#include <QToolButton>
 
+using namespace Core;
 using namespace LanguageServerProtocol;
-using namespace Utils;
+using namespace Tasking;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace LanguageClient {
 
@@ -404,70 +404,16 @@ constexpr char installJsonLsInfoBarId[] = "LanguageClient::InstallJsonLs";
 constexpr char installYamlLsInfoBarId[] = "LanguageClient::InstallYamlLs";
 constexpr char installBashLsInfoBarId[] = "LanguageClient::InstallBashLs";
 
-class NpmInstallTask : public QObject
-{
-    Q_OBJECT
-public:
-    NpmInstallTask(const FilePath &npm,
-                   const FilePath &workingDir,
-                   const QString &package,
-                   QObject *parent = nullptr)
-        : QObject(parent)
-        , m_package(package)
-    {
-        m_process.setCommand(CommandLine(npm, {"install", package}));
-        m_process.setWorkingDirectory(workingDir);
-        m_process.setTerminalMode(TerminalMode::Run);
-        connect(&m_process, &Process::done, this, &NpmInstallTask::handleDone);
-        connect(&m_killTimer, &QTimer::timeout, this, &NpmInstallTask::cancel);
-    }
-    void run()
-    {
-        auto progress = new Core::ProcessProgress(&m_process);
-        progress->setDisplayName(Tr::tr("Install npm Package"));
-        m_process.start();
-
-        Core::MessageManager::writeSilently(
-            Tr::tr("Running \"%1\" to install %2.")
-                .arg(m_process.commandLine().toUserOutput(), m_package));
-
-        m_killTimer.setSingleShot(true);
-        m_killTimer.start(5 /*minutes*/ * 60 * 1000);
-    }
-
-signals:
-    void finished(bool success);
-
-private:
-    void cancel()
-    {
-        m_process.stop();
-        m_process.waitForFinished();
-        Core::MessageManager::writeFlashing(
-            m_killTimer.isActive()
-                ? Tr::tr("The installation of \"%1\" was canceled by timeout.").arg(m_package)
-                : Tr::tr("The installation of \"%1\" was canceled by the user.")
-                      .arg(m_package));
-    }
-    void handleDone()
-    {
-        const bool success = m_process.result() == ProcessResult::FinishedWithSuccess;
-        if (!success) {
-            Core::MessageManager::writeFlashing(Tr::tr("Installing \"%1\" failed with exit code %2.")
-                                                    .arg(m_package)
-                                                    .arg(m_process.exitCode()));
-        }
-        emit finished(success);
-    }
-
-    QString m_package;
-    Utils::Process m_process;
-    QTimer m_killTimer;
-};
-
 constexpr char YAML_MIME_TYPE[]{"application/x-yaml"};
 constexpr char SHELLSCRIPT_MIME_TYPE[]{"application/x-shellscript"};
 constexpr char JSON_MIME_TYPE[]{"application/json"};
+
+static FilePath relativePathForServer(const QString &languageServer)
+{
+    const FilePath relativePath = FilePath::fromPathPart(
+        QString("node_modules/.bin/" + languageServer));
+    return HostOsInfo::isWindowsHost() ? relativePath.withSuffix(".cmd") : relativePath;
+}
 
 static void setupNpmServer(TextDocument *document,
                            const Id &infoBarId,
@@ -513,8 +459,8 @@ static void setupNpmServer(TextDocument *document,
                                           .arg(lsExecutable.toUserOutput());
     InfoBarEntry info(infoBarId, message, InfoBarEntry::GlobalSuppression::Enabled);
     info.addCustomButton(install ? Tr::tr("Install") : Tr::tr("Setup"), [=]() {
-        const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
-        for (Core::IDocument *doc : openedDocuments)
+        const QList<IDocument *> &openedDocuments = DocumentModel::openedDocuments();
+        for (IDocument *doc : openedDocuments)
             doc->infoBar()->removeInfo(infoBarId);
 
         auto setupStdIOSettings = [=](const FilePath &executable) {
@@ -529,32 +475,39 @@ static void setupNpmServer(TextDocument *document,
         };
 
         if (install) {
-            const FilePath lsPath = Core::ICore::userResourcePath(languageServer);
+            const FilePath lsPath = ICore::userResourcePath(languageServer);
             if (!lsPath.ensureWritableDir())
                 return;
-            auto install = new NpmInstallTask(npm,
-                                              lsPath,
-                                              languageServer,
-                                              LanguageClientManager::instance());
 
-            auto handleInstall = [=](const bool success) {
-                install->deleteLater();
-                if (!success)
-                    return;
-                FilePath relativePath = FilePath::fromPathPart(
-                    QString("node_modules/.bin/" + languageServer));
-                if (HostOsInfo::isWindowsHost())
-                    relativePath = relativePath.withSuffix(".cmd");
-                FilePath lsExecutable = lsPath.resolvePath(relativePath);
+            const auto onInstallSetup = [npm, lsPath, languageServer](Process &process) {
+                process.setCommand({npm, {"install", languageServer}});
+                process.setWorkingDirectory(lsPath);
+                process.setTerminalMode(TerminalMode::Run);
+                auto progress = new ProcessProgress(&process);
+                progress->setDisplayName(Tr::tr("Install npm Package"));
+                MessageManager::writeSilently(Tr::tr("Running \"%1\" to install %2.")
+                    .arg(process.commandLine().toUserOutput(), languageServer));
+            };
+            const auto onInstallDone = [languageServer](const Process &process) {
+                MessageManager::writeFlashing(Tr::tr("Installing \"%1\" failed with exit code %2.")
+                    .arg(languageServer).arg(process.exitCode()));
+            };
+            const auto onInstallTimeout = [languageServer] {
+                MessageManager::writeFlashing(
+                    Tr::tr("The installation of \"%1\" was canceled by timeout.").arg(languageServer));
+            };
+
+            const auto onListSetup = [npm, lsPath, languageServer, setupStdIOSettings](Process &process) {
+                const FilePath lsExecutable = lsPath.resolvePath(relativePathForServer(languageServer));
                 if (lsExecutable.isExecutableFile()) {
                     setupStdIOSettings(lsExecutable);
-                    return;
+                    return SetupResult::StopWithSuccess;
                 }
-                Process process;
                 process.setCommand(CommandLine(npm, {"list", languageServer}));
                 process.setWorkingDirectory(lsPath);
-                process.start();
-                process.waitForFinished();
+                return SetupResult::Continue;
+            };
+            const auto onListDone = [languageServer, setupStdIOSettings](const Process &process) {
                 const QStringList output = process.stdOutLines();
                 // we are expecting output in the form of:
                 // tst@ C:\tmp\tst
@@ -563,8 +516,9 @@ static void setupNpmServer(TextDocument *document,
                     const qsizetype splitIndex = line.indexOf('@');
                     if (splitIndex == -1)
                         continue;
-                    lsExecutable = FilePath::fromUserInput(line.mid(splitIndex + 1).trimmed())
-                                       .resolvePath(relativePath);
+                    const FilePath lsExecutable
+                        = FilePath::fromUserInput(line.mid(splitIndex + 1).trimmed())
+                              .resolvePath(relativePathForServer(languageServer));
                     if (lsExecutable.isExecutableFile()) {
                         setupStdIOSettings(lsExecutable);
                         return;
@@ -572,12 +526,13 @@ static void setupNpmServer(TextDocument *document,
                 }
             };
 
-            QObject::connect(install,
-                             &NpmInstallTask::finished,
-                             LanguageClientManager::instance(),
-                             handleInstall);
-
-            install->run();
+            using namespace std::literals::chrono_literals;
+            const Group recipe {
+                ProcessTask(onInstallSetup, onInstallDone, CallDone::OnError)
+                    .withTimeout(5min, onInstallTimeout),
+                ProcessTask(onListSetup, onListDone)
+            };
+            GlobalTaskTree::start(recipe);
         } else {
             setupStdIOSettings(lsExecutable);
         }
@@ -614,5 +569,3 @@ void autoSetupLanguageServer(TextDocument *document)
 }
 
 } // namespace LanguageClient
-
-#include "languageclientutils.moc"
