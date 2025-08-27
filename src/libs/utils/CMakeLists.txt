@@ -71,6 +71,7 @@ add_qtc_library(Utils
     fuzzymatcher.cpp fuzzymatcher.h
     genericconstants.h
     globalfilechangeblocker.cpp globalfilechangeblocker.h
+    globaltasktree.cpp globaltasktree.h
     guard.cpp guard.h
     guardedcallback.h
     guiutils.cpp guiutils.h

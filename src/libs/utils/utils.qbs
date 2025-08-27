@@ -154,6 +154,8 @@ QtcLibrary {
         "fuzzymatcher.h",
         "globalfilechangeblocker.cpp",
         "globalfilechangeblocker.h",
+        "globaltasktree.cpp",
+        "globaltasktree.h",
         "guard.cpp",
         "guard.h",
         "guardedcallback.h",
