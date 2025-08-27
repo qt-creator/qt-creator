@@ -373,11 +373,6 @@ FilePath FileApiReader::topCmakeFile() const
     return m_cmakeFiles.size() == 1 ? (*m_cmakeFiles.begin()).path : FilePath{};
 }
 
-int FileApiReader::lastCMakeExitCode() const
-{
-    return m_lastCMakeExitCode;
-}
-
 void FileApiReader::startCMakeState(const QStringList &configurationArguments)
 {
     qCDebug(cmakeFileApiMode) << "FileApiReader: START CMAKE STATE.";

@@ -51,8 +51,6 @@ public:
     bool isMultiConfig() const;
     bool usesAllCapsTargets() const;
 
-    int lastCMakeExitCode() const;
-
     std::unique_ptr<CMakeProjectNode> rootProjectNode();
 
     Utils::FilePath topCmakeFile() const;
