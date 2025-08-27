@@ -2041,9 +2041,7 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
     m_projectFindPackageVariables.clear();
 
     const std::string fphsFunctionName = "find_package_handle_standard_args";
-    CMakeKeywords keywords;
-    if (auto tool = CMakeKitAspect::cmakeTool(kit()))
-        keywords = tool->keywords();
+    CMakeKeywords keywords = CMakeKitAspect::cmakeKeywords(kit());
     QSet<std::string> fphsFunctionArgs;
     if (keywords.functionArgs.contains(QString::fromStdString(fphsFunctionName))) {
         const QList<std::string> args

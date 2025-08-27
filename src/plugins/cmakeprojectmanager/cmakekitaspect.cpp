@@ -254,6 +254,12 @@ CMakeTool *CMakeKitAspect::cmakeTool(const Kit *k)
     return k->isAspectRelevant(id()) ? CMakeToolManager::findById(cmakeToolId(k)) : nullptr;
 }
 
+CMakeKeywords CMakeKitAspect::cmakeKeywords(const Kit *k)
+{
+    CMakeTool *tool = cmakeTool(k);
+    return tool ? tool->keywords() : CMakeKeywords();
+}
+
 void CMakeKitAspect::setCMakeTool(Kit *k, const Id id)
 {
     QTC_ASSERT(!id.isValid() || CMakeToolManager::findById(id), return);

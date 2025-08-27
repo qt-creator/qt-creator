@@ -296,15 +296,15 @@ void CMakeToolManager::deregisterCMakeTool(const Id &id)
 
 CMakeKeywords CMakeToolManager::defaultProjectOrDefaultCMakeKeyWords()
 {
-    CMakeTool *tool = nullptr;
+    if (auto bs = activeBuildSystemForCurrentProject()) {
+        CMakeKeywords keywords = CMakeKitAspect::cmakeKeywords(bs->kit());
+        if (!keywords.variables.isEmpty())
+            return keywords;
+    }
 
-    if (auto bs = activeBuildSystemForCurrentProject())
-        tool = CMakeKitAspect::cmakeTool(bs->kit());
-    if (!tool)
-        tool = CMakeToolManager::defaultCMakeTool();
-
-    if (tool)
+    if (auto tool = CMakeToolManager::defaultCMakeTool())
         return tool->keywords();
+
     return {};
 }
 
