@@ -527,13 +527,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             &Utils::BaseAspect::labelLinkActivated,
             this,
             [this](const QString &) {
-                const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->kit());
-                CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
+                CMakeKitAspect::openCMakeHelpUrl(m_buildConfig->kit(), "%1/manual/cmake.1.html#options");
             });
     connect(&bc->additionalCMakeOptions,
             &Utils::BaseAspect::labelLinkActivated, this, [this](const QString &) {
-                const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->kit());
-                CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
+                CMakeKitAspect::openCMakeHelpUrl(m_buildConfig->kit(), "%1/manual/cmake.1.html#options");
             });
 
     if (HostOsInfo::isMacHost())
@@ -565,8 +563,7 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
        "&lt;type&gt; can have one of the following values: FILEPATH, PATH, BOOL, INTERNAL, or STRING.<br/>"
                       "To unset a variable, use -U&lt;variable&gt;.<br/>"));
     connect(label, &QLabel::linkActivated, this, [this](const QString &) {
-        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->kit());
-        CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-variables.7.html");
+        CMakeKitAspect::openCMakeHelpUrl(m_buildConfig->kit(), "%1/manual/cmake-variables.7.html");
     });
     editor->setMinimumSize(800, 200);
 
@@ -1096,10 +1093,8 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
     menu->addAction(help);
     connect(help, &QAction::triggered, this, [this, idx] {
         const CMakeConfigItem item = ConfigModel::dataItemFromIndex(idx).toCMakeConfigItem();
-
-        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->kit());
         const QString linkUrl = "%1/variable/" + QString::fromUtf8(item.key) + ".html";
-        CMakeTool::openCMakeHelpUrl(tool, linkUrl);
+        CMakeKitAspect::openCMakeHelpUrl(m_buildConfig->kit(), linkUrl);
     });
 
     menu->addSeparator();

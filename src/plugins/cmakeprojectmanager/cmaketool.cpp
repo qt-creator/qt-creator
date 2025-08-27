@@ -7,7 +7,6 @@
 #include "cmaketoolmanager.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/helpmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -15,7 +14,6 @@
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
-#include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
@@ -377,34 +375,6 @@ FilePath CMakeTool::searchQchFile(const FilePath &executable)
     return {};
 }
 
-QString CMakeTool::documentationUrl(const Version &version, bool online)
-{
-    if (online) {
-        QString helpVersion = "latest";
-        if (!(version.major == 0 && version.minor == 0))
-            helpVersion = QString("v%1.%2").arg(version.major).arg(version.minor);
-
-        return QString("https://cmake.org/cmake/help/%1").arg(helpVersion);
-    }
-
-    return QString("qthelp://org.cmake.%1.%2.%3/doc")
-        .arg(version.major)
-        .arg(version.minor)
-        .arg(version.patch);
-}
-
-void CMakeTool::openCMakeHelpUrl(const CMakeTool *tool, const QString &linkUrl)
-{
-    bool online = true;
-    Version version;
-    if (tool && tool->isValid()) {
-        online = tool->qchFilePath().isEmpty();
-        version = tool->version();
-    }
-
-    Core::HelpManager::showHelpUrl(linkUrl.arg(documentationUrl(version, online)));
-}
-
 void CMakeTool::readInformation() const
 {
     QTC_ASSERT(m_introspection, return );
@@ -415,7 +385,6 @@ void CMakeTool::readInformation() const
 
     fetchFromCapabilities();
 }
-
 
 static QStringList parseDefinition(const QString &definition)
 {

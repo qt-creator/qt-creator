@@ -11,6 +11,7 @@
 #include "cmaketool.h"
 #include "cmaketoolmanager.h"
 
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
 #include <ios/iosconstants.h>
@@ -485,6 +486,34 @@ QString CMakeKitAspect::msgUnsupportedVersion(const QByteArray &versionString)
         .arg(QString::fromUtf8(versionString));
 }
 
+static QString documentationUrl(const CMakeTool::Version &version, bool online)
+{
+    if (online) {
+        QString helpVersion = "latest";
+        if (!(version.major == 0 && version.minor == 0))
+            helpVersion = QString("v%1.%2").arg(version.major).arg(version.minor);
+
+        return QString("https://cmake.org/cmake/help/%1").arg(helpVersion);
+    }
+
+    return QString("qthelp://org.cmake.%1.%2.%3/doc")
+        .arg(version.major)
+        .arg(version.minor)
+        .arg(version.patch);
+}
+
+void CMakeKitAspect::openCMakeHelpUrl(Kit *k, const QString &target)
+{
+    const CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
+    if (!tool)
+        return;
+    if (!tool->isValid())
+        return;
+
+    bool online = tool->qchFilePath().isEmpty();
+    Core::HelpManager::showHelpUrl(target.arg(documentationUrl(tool->version(), online)));
+}
+
 // --------------------------------------------------------------------
 // CMakeGeneratorKitAspect:
 // --------------------------------------------------------------------
@@ -504,9 +533,8 @@ public:
           m_label(createSubWidget<ElidingLabel>()),
           m_changeButton(createSubWidget<QPushButton>())
     {
-        const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit);
-        connect(this, &KitAspect::labelLinkActivated, this, [=](const QString &) {
-            CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-generators.7.html");
+        connect(this, &KitAspect::labelLinkActivated, this, [kit](const QString &) {
+            CMakeKitAspect::openCMakeHelpUrl(kit, "%1/manual/cmake-generators.7.html");
         });
 
         m_label->setToolTip(factory->description());
@@ -1087,8 +1115,6 @@ private:
 
         QTC_ASSERT(!m_editor, return);
 
-        const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
-
         m_dialog = new QDialog(m_summaryLabel->window());
         m_dialog->setWindowTitle(Tr::tr("Edit CMake Configuration"));
         auto layout = new QVBoxLayout(m_dialog);
@@ -1098,8 +1124,8 @@ private:
                                 "To set a variable, use -D&lt;variable&gt;:&lt;type&gt;=&lt;value&gt;.<br/>"
                                 "&lt;type&gt; can have one of the following values: FILEPATH, PATH, "
                                 "BOOL, INTERNAL, or STRING."));
-        connect(editorLabel, &QLabel::linkActivated, this, [=](const QString &) {
-            CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-variables.7.html");
+        connect(editorLabel, &QLabel::linkActivated, this, [this](const QString &) {
+            CMakeKitAspect::openCMakeHelpUrl(kit(), "%1/manual/cmake-variables.7.html");
         });
         m_editor->setMinimumSize(800, 200);
 
@@ -1110,8 +1136,8 @@ private:
         m_additionalEditor = new QLineEdit;
         auto additionalLabel = new QLabel(m_dialog);
         additionalLabel->setText(Tr::tr("Additional CMake <a href=\"options\">options</a>:"));
-        connect(additionalLabel, &QLabel::linkActivated, this, [=](const QString &) {
-            CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
+        connect(additionalLabel, &QLabel::linkActivated, this, [this](const QString &) {
+            CMakeKitAspect::openCMakeHelpUrl(kit(), "%1/manual/cmake.1.html#options");
         });
 
         auto additionalChooser = new VariableChooser(m_dialog);

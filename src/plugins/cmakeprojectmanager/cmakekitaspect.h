@@ -27,6 +27,7 @@ public:
     static QString msgUnsupportedVersion(const QByteArray &versionString);
 
     static ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *k);
+    static void openCMakeHelpUrl(ProjectExplorer::Kit *k, const QString &target);
 
 private:
     friend class CMakeToolManager;

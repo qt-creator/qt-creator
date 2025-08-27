@@ -113,9 +113,6 @@ public:
     ProjectExplorer::DetectionSource detectionSource() const;
     void setDetectionSource(const ProjectExplorer::DetectionSource &source);
 
-    static QString documentationUrl(const Version &version, bool online);
-    static void openCMakeHelpUrl(const CMakeTool *tool, const QString &linkUrl);
-
 private:
     void readInformation() const;
 
