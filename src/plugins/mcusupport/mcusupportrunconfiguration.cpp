@@ -13,7 +13,6 @@
 #include <projectexplorer/target.h>
 
 #include <cmakeprojectmanager/cmakekitaspect.h>
-#include <cmakeprojectmanager/cmaketool.h>
 
 #include <utils/aspects.h>
 #include <utils/qtcprocess.h>
@@ -22,12 +21,6 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace McuSupport::Internal {
-
-static FilePath cmakeFilePath(const Kit *k)
-{
-    const CMakeProjectManager::CMakeTool *tool = CMakeProjectManager::CMakeKitAspect::cmakeTool(k);
-    return tool->filePath();
-}
 
 static QStringList flashAndRunArgs(const RunConfiguration *rc)
 {
@@ -82,9 +75,11 @@ FlashRunWorkerFactory::FlashRunWorkerFactory()
     setId("FlashRunWorkerFactory");
     setRecipeProducer([](RunControl *runControl) {
         const auto modifier = [runControl](Process &process) {
+            process.setCommand({
+                CMakeProjectManager::CMakeKitAspect::cmakeExecutable(runControl->kit()),
+                runControl->aspectData<StringAspect>()->value,
+                CommandLine::Raw});
             const BuildConfiguration *bc = runControl->buildConfiguration();
-            process.setCommand({cmakeFilePath(bc->kit()),
-                                runControl->aspectData<StringAspect>()->value, CommandLine::Raw});
             process.setWorkingDirectory(bc->buildDirectory());
             process.setEnvironment(bc->environment());
         };
