@@ -81,7 +81,11 @@ public:
             onProjectAdded(project);
 
 #ifdef WITH_TESTS
-        addTestCreator(&createDevcontainerTest);
+        addTestCreator([this]() {
+            QObject *tests = createDevcontainerTest();
+            QObject::connect(this, SIGNAL(deviceUpDone()), tests, SIGNAL(deviceUpDone()));
+            return tests;
+        });
 #endif
     }
     void onProjectAdded(Project *project);

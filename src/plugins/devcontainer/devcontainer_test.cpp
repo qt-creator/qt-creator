@@ -7,6 +7,7 @@
 
 #include <devcontainer/devcontainer.h>
 
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
@@ -91,10 +92,10 @@ private slots:
                                         / "devcontainer.json";
         instanceConfig.workspaceFolder = opr.project()->projectDirectory();
 
-        const auto infoBarEntryId = Utils::Id::fromString(
-            QString("DevContainer.Instantiate.InfoBar." + instanceConfig.devContainerId()));
+        const auto infoBarEntryId = Utils::Id::fromString(QString(
+            "DevContainer.Instantiate.InfoBar." + instanceConfig.workspaceFolder.toUrlishString()));
 
-        Utils::InfoBar *infoBar = Core::ICore::infoBar();
+        Utils::InfoBar *infoBar = Core::ICore::popupInfoBar();
         QVERIFY(infoBar->containsInfo(infoBarEntryId));
         Utils::InfoBarEntry entry
             = Utils::findOrDefault(infoBar->entries(), [infoBarEntryId](const Utils::InfoBarEntry &e) {
@@ -160,10 +161,10 @@ private slots:
                                         / "devcontainer.json";
         instanceConfig.workspaceFolder = opr.project()->projectDirectory();
 
-        const auto infoBarEntryId = Utils::Id::fromString(
-            QString("DevContainer.Instantiate.InfoBar." + instanceConfig.devContainerId()));
+        const auto infoBarEntryId = Utils::Id::fromString(QString(
+            "DevContainer.Instantiate.InfoBar." + instanceConfig.workspaceFolder.toUrlishString()));
 
-        Utils::InfoBar *infoBar = Core::ICore::infoBar();
+        Utils::InfoBar *infoBar = Core::ICore::popupInfoBar();
         QVERIFY(infoBar->containsInfo(infoBarEntryId));
         Utils::InfoBarEntry entry
             = Utils::findOrDefault(infoBar->entries(), [infoBarEntryId](const Utils::InfoBarEntry &e) {
@@ -185,6 +186,15 @@ private slots:
             = FilePath::fromParts(u"devcontainer", instanceConfig.devContainerId(), u"/");
         QVERIFY(expectedRootPath.exists());
         QVERIFY(!infoBar->containsInfo(infoBarEntryId));
+
+        auto kit1 = Utils::findOrDefault(
+            ProjectExplorer::KitManager::instance()->kits(),
+            [](ProjectExplorer::Kit *k) { return k->displayName() == QLatin1String("DevKit1"); });
+        QVERIFY(kit1);
+        auto kit2 = Utils::findOrDefault(
+            ProjectExplorer::KitManager::instance()->kits(),
+            [](ProjectExplorer::Kit *k) { return k->displayName() == QLatin1String("DevKit2"); });
+        QVERIFY(kit2);
     }
 };
 
