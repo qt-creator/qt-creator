@@ -44,6 +44,7 @@ EventListPluginView::EventListPluginView(ExternalDependenciesInterface &external
 
 void EventListPluginView::registerActions()
 {
+    return;
     DesignerActionManager &designerActionManager = QmlDesignerPlugin::instance()->designerActionManager();
 
     designerActionManager.addDesignerAction(new ActionGroup(tr("Event List"),
