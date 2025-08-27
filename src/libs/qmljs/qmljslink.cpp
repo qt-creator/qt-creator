@@ -529,7 +529,8 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
         const FilePaths libraryPaths = modulePaths(importName, vNow.toString(), m_importPaths);
         subImport.libraryPath = libraryPaths.value(0); // first is the best match
 
-        bool subImportFound = importLibrary(doc, subImport.libraryPath, &subImport, targetObject, importPath, true);
+        bool subImportFound = subImport.libraryPath != libraryPath
+                && importLibrary(doc, subImport.libraryPath, &subImport, targetObject, importPath, true);
 
         if (!subImportFound && errorLoc.isValid()) {
             if (!(optional || (toImport.flags & QmlDirParser::Import::Optional))) {
