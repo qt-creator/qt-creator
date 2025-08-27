@@ -179,6 +179,13 @@ private:
 
 // Implementations
 
+static Id cmakeToolId(const Kit *k)
+{
+    if (!k)
+        return {};
+    return Id::fromSetting(k->value(Constants::TOOL_ID));
+}
+
 class CMakeKitAspectImpl final : public KitAspect
 {
 public:
@@ -188,7 +195,7 @@ public:
         setManagingPage(Constants::Settings::TOOLS_ID);
 
         const auto model = new CMakeToolListModel(*kit, this);
-        auto getter = [](const Kit &k) { return CMakeKitAspect::cmakeToolId(&k).toSetting(); };
+        auto getter = [](const Kit &k) { return cmakeToolId(&k).toSetting(); };
         auto setter = [](Kit &k, const QVariant &id) {
             CMakeKitAspect::setCMakeTool(&k, Id::fromSetting(id));
         };
@@ -229,29 +236,24 @@ CMakeKitAspectFactory::CMakeKitAspectFactory()
 
 using namespace Internal;
 
+static CMakeTool *cmakeTool(const Kit *k)
+{
+    if (!k)
+        return nullptr;
+    if (!k->isAspectRelevant(CMakeKitAspect::id()))
+        return nullptr;
+    return CMakeToolManager::findById(cmakeToolId(k));
+}
+
 Id CMakeKitAspect::id()
 {
     return Constants::TOOL_ID;
-}
-
-Id CMakeKitAspect::cmakeToolId(const Kit *k)
-{
-    if (!k)
-        return {};
-    return Id::fromSetting(k->value(Constants::TOOL_ID));
 }
 
 FilePath CMakeKitAspect::cmakeExecutable(const Kit *k)
 {
     CMakeTool *tool = cmakeTool(k);
     return tool ? tool->cmakeExecutable() : FilePath();
-}
-
-CMakeTool *CMakeKitAspect::cmakeTool(const Kit *k)
-{
-    if (!k)
-        return nullptr;
-    return k->isAspectRelevant(id()) ? CMakeToolManager::findById(cmakeToolId(k)) : nullptr;
 }
 
 CMakeKeywords CMakeKitAspect::cmakeKeywords(const Kit *k)
@@ -270,7 +272,7 @@ void CMakeKitAspect::setCMakeTool(Kit *k, const Id id)
 Tasks CMakeKitAspectFactory::validate(const Kit *k) const
 {
     Tasks result;
-    CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
+    CMakeTool *tool = cmakeTool(k);
     if (tool && tool->isValid()) {
         CMakeTool::Version version = tool->version();
         if (version.major < 3 || (version.major == 3 && version.minor < 14)) {
@@ -283,8 +285,7 @@ Tasks CMakeKitAspectFactory::validate(const Kit *k) const
 
 void CMakeKitAspectFactory::setup(Kit *k)
 {
-    CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
-    if (tool)
+    if (cmakeTool(k))
         return;
 
     // Look for a suitable auto-detected one:
@@ -303,15 +304,14 @@ void CMakeKitAspectFactory::setup(Kit *k)
 void CMakeKitAspectFactory::fix(Kit *k)
 {
     // TODO: Differentiate (centrally?) between "nothing set" and "actively set to nothing".
-    if (const Id id = CMakeKitAspect::cmakeToolId(k);
-        id.isValid() && !CMakeToolManager::findById(id)) {
+    const Id id = cmakeToolId(k);
+    if (id.isValid() && !CMakeToolManager::findById(id))
         setup(k);
-    }
 }
 
 KitAspectFactory::ItemList CMakeKitAspectFactory::toUserOutput(const Kit *k) const
 {
-    const CMakeTool *const tool = CMakeKitAspect::cmakeTool(k);
+    const CMakeTool *const tool = cmakeTool(k);
     return {{Tr::tr("CMake"), tool ? tool->displayName() : Tr::tr("Unconfigured")}};
 }
 
@@ -326,14 +326,13 @@ void CMakeKitAspectFactory::addToMacroExpander(Kit *k, MacroExpander *expander) 
     QTC_ASSERT(k, return);
     expander->registerFileVariables("CMake:Executable", Tr::tr("Path to the cmake executable"),
         [k] {
-            CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
-            return tool ? tool->cmakeExecutable() : FilePath();
+            return CMakeKitAspect::cmakeExecutable(k);
         });
 }
 
 QSet<Id> CMakeKitAspectFactory::availableFeatures(const Kit *k) const
 {
-    if (CMakeKitAspect::cmakeTool(k))
+    if (cmakeTool(k))
         return { CMakeProjectManager::Constants::CMAKE_FEATURE_ID };
     return {};
 }
@@ -510,7 +509,7 @@ static QString documentationUrl(const CMakeTool::Version &version, bool online)
 
 void CMakeKitAspect::openCMakeHelpUrl(Kit *k, const QString &target)
 {
-    const CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
+    const CMakeTool *tool = cmakeTool(k);
     if (!tool)
         return;
     if (!tool->isValid())
@@ -569,7 +568,7 @@ private:
 
     void refresh() override
     {
-        CMakeTool *const tool = CMakeKitAspect::cmakeTool(kit());
+        CMakeTool *const tool = cmakeTool(kit());
         if (tool != m_currentTool)
             m_currentTool = tool;
 
@@ -847,7 +846,7 @@ QVariant CMakeGeneratorKitAspectFactory::defaultValue(const Kit *k) const
 {
     QTC_ASSERT(k, return QVariant());
 
-    CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
+    CMakeTool *tool = cmakeTool(k);
     if (!tool)
         return QVariant();
 
@@ -932,7 +931,7 @@ bool CMakeGeneratorKitAspectFactory::isNinjaPresent(const Kit *k, const CMakeToo
 
 Tasks CMakeGeneratorKitAspectFactory::validate(const Kit *k) const
 {
-    CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
+    CMakeTool *tool = cmakeTool(k);
     if (!tool)
         return {};
 
@@ -978,7 +977,7 @@ void CMakeGeneratorKitAspectFactory::setup(Kit *k)
 
 void CMakeGeneratorKitAspectFactory::fix(Kit *k)
 {
-    const CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
+    const CMakeTool *tool = cmakeTool(k);
     const GeneratorInfo info = generatorInfo(k);
 
     if (!tool)
@@ -1333,8 +1332,8 @@ Tasks CMakeConfigurationKitAspectFactory::validate(const Kit *k) const
 {
     QTC_ASSERT(k, return Tasks());
 
-    const CMakeTool *const cmake = CMakeKitAspect::cmakeTool(k);
-    if (!cmake)
+    const FilePath cmakeExecutable = CMakeKitAspect::cmakeExecutable(k);
+    if (cmakeExecutable.isEmpty())
         return Tasks();
 
     const QtSupport::QtVersion *const version = QtSupport::QtKitAspect::qtVersion(k);
@@ -1351,11 +1350,11 @@ Tasks CMakeConfigurationKitAspectFactory::validate(const Kit *k) const
         // Do not use expand(QByteArray) as we cannot be sure the input is latin1
         const QString expandedValue = k->macroExpander()->expand(QString::fromUtf8(i.value));
         if (i.key == CMAKE_QMAKE_KEY)
-            qmakePath = cmake->cmakeExecutable().withNewPath(expandedValue);
+            qmakePath = cmakeExecutable.withNewPath(expandedValue);
         else if (i.key == CMAKE_C_TOOLCHAIN_KEY)
-            tcCPath = cmake->cmakeExecutable().withNewPath(expandedValue);
+            tcCPath = cmakeExecutable.withNewPath(expandedValue);
         else if (i.key == CMAKE_CXX_TOOLCHAIN_KEY)
-            tcCxxPath = cmake->cmakeExecutable().withNewPath(expandedValue);
+            tcCxxPath = cmakeExecutable.withNewPath(expandedValue);
         else if (i.key == CMAKE_PREFIX_PATH_KEY)
             qtInstallDirs = CMakeConfigItem::cmakeSplitValue(expandedValue);
     }

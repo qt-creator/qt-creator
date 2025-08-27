@@ -1101,7 +1101,8 @@ void CMakeProjectImporter::ensureBuildDirectory(DirectoryData &data, const Kit *
 
     const auto cmakeBuildType = CMakeBuildConfigurationFactory::buildTypeFromByteArray(
         data.cmakeBuildType);
-    auto buildInfo = CMakeBuildConfigurationFactory::createBuildInfo(cmakeBuildType);
+
+    BuildInfo buildInfo = CMakeBuildConfigurationFactory::createBuildInfo(cmakeBuildType);
 
     data.buildDirectory = CMakeBuildConfiguration::shadowBuildDirectory(projectFilePath(),
                                                                         k,
@@ -1113,8 +1114,8 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 {
     DirectoryData *data = static_cast<DirectoryData *>(directoryData);
 
-    CMakeTool *cm = CMakeKitAspect::cmakeTool(k);
-    if (!cm || cm->cmakeExecutable() != data->cmakeBinary)
+    const FilePath cmakeExecutable = CMakeKitAspect::cmakeExecutable(k);
+    if (cmakeExecutable.isEmpty() || cmakeExecutable != data->cmakeBinary)
         return false;
 
     if (CMakeGeneratorKitAspect::generator(k) != data->generator
@@ -1329,10 +1330,10 @@ void CMakeProjectImporter::persistTemporaryCMake(Kit *k, const QVariantList &vl)
     QTC_ASSERT(vl.count() == 1, return);
     const QVariant &data = vl.at(0);
     CMakeTool *tmpCmake = CMakeToolManager::findById(Id::fromSetting(data));
-    CMakeTool *actualCmake = CMakeKitAspect::cmakeTool(k);
+    FilePath actualCmake = CMakeKitAspect::cmakeExecutable(k);
 
     // User changed Kit away from temporary CMake that was set up:
-    if (tmpCmake && actualCmake != tmpCmake)
+    if (tmpCmake && actualCmake != tmpCmake->cmakeExecutable())
         CMakeToolManager::deregisterCMakeTool(tmpCmake->id());
 
     qCDebug(cmInputLog) << "Temporary CMake tool made persistent.";
