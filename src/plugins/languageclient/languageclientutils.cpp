@@ -13,7 +13,7 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/processprogress.h>
 
 #include <texteditor/refactoringchanges.h>
 #include <texteditor/textdocument.h>
@@ -404,8 +404,6 @@ constexpr char installJsonLsInfoBarId[] = "LanguageClient::InstallJsonLs";
 constexpr char installYamlLsInfoBarId[] = "LanguageClient::InstallYamlLs";
 constexpr char installBashLsInfoBarId[] = "LanguageClient::InstallBashLs";
 
-const char npmInstallTaskId[] = "LanguageClient::npmInstallTask";
-
 class NpmInstallTask : public QObject
 {
     Q_OBJECT
@@ -422,14 +420,11 @@ public:
         m_process.setTerminalMode(TerminalMode::Run);
         connect(&m_process, &Process::done, this, &NpmInstallTask::handleDone);
         connect(&m_killTimer, &QTimer::timeout, this, &NpmInstallTask::cancel);
-        connect(&m_watcher, &QFutureWatcher<void>::canceled, this, &NpmInstallTask::cancel);
-        m_watcher.setFuture(m_future.future());
     }
     void run()
     {
-        const QString taskTitle = Tr::tr("Install npm Package");
-        Core::ProgressManager::addTask(m_future.future(), taskTitle, npmInstallTaskId);
-
+        auto progress = new Core::ProcessProgress(&m_process);
+        progress->setDisplayName(Tr::tr("Install npm Package"));
         m_process.start();
 
         Core::MessageManager::writeSilently(
@@ -456,7 +451,6 @@ private:
     }
     void handleDone()
     {
-        m_future.reportFinished();
         const bool success = m_process.result() == ProcessResult::FinishedWithSuccess;
         if (!success) {
             Core::MessageManager::writeFlashing(Tr::tr("Installing \"%1\" failed with exit code %2.")
@@ -468,8 +462,6 @@ private:
 
     QString m_package;
     Utils::Process m_process;
-    QFutureInterface<void> m_future;
-    QFutureWatcher<void> m_watcher;
     QTimer m_killTimer;
 };
 
