@@ -13,7 +13,11 @@
 
 #include <QSortFilterProxyModel>
 
-namespace ProjectExplorer { class BuildConfiguration; }
+namespace ProjectExplorer {
+class BuildConfiguration;
+struct TestCaseEnvironment;
+struct TestCaseInfo;
+}
 
 namespace Autotest {
 namespace Internal {
@@ -90,6 +94,9 @@ private:
     void filterAndInsert(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled);
     void onBuildConfigChanged(ProjectExplorer::BuildConfiguration *bc);
     void onBuildSystemTestsUpdated();
+    void onTestRunRequested(const ProjectExplorer::TestCaseInfo &testInfo,
+                            const QStringList &additionalOptions,
+                            const ProjectExplorer::TestCaseEnvironment &testEnvironment);
     const QList<TestTreeItem *> frameworkRootNodes() const;
     const QList<ITestTreeItem *> testToolRootNodes() const;
 

@@ -30,6 +30,12 @@ struct TestCaseInfo
     int line = 0;
 };
 
+struct TestCaseEnvironment
+{
+    Utils::FilePath workingDirectory;
+    Utils::Environment environment;
+};
+
 // Extra infomation needed by QmlJS tools and editor.
 class QmlCodeModelInfo
 {
@@ -177,6 +183,8 @@ signals:
     void parsingFinished(bool success);
     void updated(); // FIXME: Redundant with parsingFinished()?
     void testInformationUpdated();
+    void testRunRequested(const TestCaseInfo &testInfo, const QStringList &additionalOptions,
+                          const TestCaseEnvironment &env);
     void debuggingStarted();
     void errorOccurred(const QString &message);
     void warningOccurred(const QString &message);

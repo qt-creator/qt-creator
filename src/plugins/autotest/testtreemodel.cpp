@@ -5,13 +5,19 @@
 
 #include "autotestconstants.h"
 #include "autotestplugin.h"
+#include "autotesttr.h"
 #include "testcodeparser.h"
+#include "testconfiguration.h"
 #include "testframeworkmanager.h"
 #include "testprojectsettings.h"
+#include "testrunner.h"
+
+#include <coreplugin/messagemanager.h>
 
 #include <cppeditor/cppmodelmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -81,9 +87,11 @@ void TestTreeModel::setupParsingConnections()
         onBuildSystemTestsUpdated(); // we may have old results if project was open before switching
         m_failedStateCache.clear();
         if (project) {
-            if (activeBuildSystemForActiveProject()) {
-                connect(activeBuildSystemForActiveProject(), &BuildSystem::testInformationUpdated,
+            if (auto buildSystem = activeBuildSystemForActiveProject()) {
+                connect(buildSystem, &BuildSystem::testInformationUpdated,
                         this, &TestTreeModel::onBuildSystemTestsUpdated, Qt::UniqueConnection);
+                connect(buildSystem, &BuildSystem::testRunRequested,
+                        this, &TestTreeModel::onTestRunRequested, Qt::UniqueConnection);
             } else {
                 connect(project, &Project::activeBuildConfigurationChanged,
                         this, &TestTreeModel::onBuildConfigChanged);
@@ -228,6 +236,8 @@ void TestTreeModel::onBuildConfigChanged(BuildConfiguration *bc)
     if (bc) {
         connect(bc->buildSystem(), &BuildSystem::testInformationUpdated,
                 this, &TestTreeModel::onBuildSystemTestsUpdated, Qt::UniqueConnection);
+        connect(bc->buildSystem(), &BuildSystem::testRunRequested,
+                this, &TestTreeModel::onTestRunRequested, Qt::UniqueConnection);
         disconnect(bc->project(), &Project::activeBuildConfigurationChanged,
                    this, &TestTreeModel::onBuildConfigChanged);
     }
@@ -265,6 +275,40 @@ void TestTreeModel::onBuildSystemTestsUpdated()
     }
     revalidateCheckState(rootNode);
     emit testTreeModelChanged();
+}
+
+void TestTreeModel::onTestRunRequested(const TestCaseInfo &testInfo,
+                                       const QStringList &additionalOptions,
+                                       const TestCaseEnvironment &testEnvironment)
+{
+    // this should be avoided already on the caller side, but we need to ensure this anyway
+    if (BuildManager::isBuilding()  || TestRunner::instance()->isTestRunning()) {
+        Core::MessageManager::writeFlashing(
+                    Tr::tr("Test run requests from the build system get processed only if there "
+                           "is no running build or test run."));
+        return;
+    }
+
+    BuildSystem *bs = qobject_cast<BuildSystem *>(sender());
+    QTC_ASSERT(bs, return);
+    QTC_ASSERT(bs->project(), return);
+    ITestTool *testTool = TestFrameworkManager::testToolForBuildSystemId(bs->project()->type());
+    if (!testTool)
+        return;
+
+    ITestTreeItem *tmpItem = testTool->createItemFromTestCaseInfo(testInfo);
+    QTC_ASSERT(tmpItem, return);
+    ITestConfiguration *config = tmpItem->testConfiguration();
+    delete tmpItem;
+    QTC_ASSERT(config, return);
+    // apply options, working directory and environment changes requested by the build system
+    if (!testEnvironment.workingDirectory.isEmpty())
+        config->setWorkingDirectory(testEnvironment.workingDirectory);
+    if (!additionalOptions.isEmpty())
+        config->runnable().command.addArgs(additionalOptions);
+    config->setEnvironment(
+                testEnvironment.environment.appliedToEnvironment(config->runnable().environment));
+    TestRunner::instance()->runTests(TestRunMode::Run, {config});
 }
 
 const QList<TestTreeItem *> TestTreeModel::frameworkRootNodes() const
