@@ -32,6 +32,7 @@
 #include <QtConcurrentMap>
 #include <QCheckBox>
 #include <QFutureWatcher>
+#include <QScopeGuard>
 #include <QVBoxLayout>
 
 #include <functional>
@@ -803,12 +804,13 @@ void CppFindReferences::checkUnused(Core::SearchResult *search, const Link &link
     const auto watcher = new QFutureWatcher<CPlusPlus::Usage>();
     connect(watcher, &QFutureWatcherBase::finished, watcher,
             [watcher, link, callback, search, isProperUsage] {
+        const QScopeGuard cleanup([callback, link] { callback(link); });
         watcher->deleteLater();
         if (watcher->isCanceled())
-            return callback(link);
+            return;
         for (int i = 0; i < watcher->future().resultCount(); ++i) {
             if (isProperUsage(watcher->resultAt(i)))
-                return callback(link);
+                return;
         }
         for (int i = 0; i < watcher->future().resultCount(); ++i) {
             const CPlusPlus::Usage usage = watcher->resultAt(i);
@@ -819,7 +821,6 @@ void CppFindReferences::checkUnused(Core::SearchResult *search, const Link &link
             item.setUseTextEditorFont(true);
             search->addResult(item);
         }
-        callback(link);
     });
     connect(watcher, &QFutureWatcherBase::resultsReadyAt, search,
             [watcher, isProperUsage](int first, int end) {
