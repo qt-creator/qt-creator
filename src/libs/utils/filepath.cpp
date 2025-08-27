@@ -2493,10 +2493,22 @@ FilePath FilePath::resolveSymlinks() const
     FilePath current = *this;
     int links = 16;
     while (links--) {
-        const FilePath target = current.symLinkTarget();
-        if (target.isEmpty())
+        const QList<QStringView> components = current.pathComponents();
+        FilePath pathToTest = current.withNewPath("");
+        bool resolved = false;
+        for (const QStringView &path : components) {
+            pathToTest = pathToTest / QString(path);
+            if (!resolved) {
+                const FilePath target = pathToTest.symLinkTarget();
+                if (!target.isEmpty()) {
+                    resolved = true;
+                    pathToTest = target;
+                }
+            }
+        }
+        if (!resolved)
             return current;
-        current = target;
+        current = pathToTest;
     }
     return current;
 }
