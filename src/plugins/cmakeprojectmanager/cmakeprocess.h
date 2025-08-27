@@ -4,17 +4,11 @@
 #pragma once
 
 #include <utils/outputformatter.h>
+#include <utils/qtcprocess.h>
 
 #include <QElapsedTimer>
 #include <QObject>
 #include <QStringList>
-
-#include <memory>
-
-namespace Utils {
-class ProcessResultData;
-class Process;
-}
 
 namespace CMakeProjectManager::Internal {
 
@@ -36,7 +30,7 @@ signals:
     void stdOutReady(const QString &s);
 
 private:
-    std::unique_ptr<Utils::Process> m_process;
+    Utils::Process m_process;
     Utils::OutputFormatter m_parser;
     QElapsedTimer m_elapsed;
 };

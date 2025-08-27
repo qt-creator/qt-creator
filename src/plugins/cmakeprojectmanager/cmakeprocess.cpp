@@ -48,7 +48,6 @@ static const int failedToStartExitCode = 0xFF; // See ProcessPrivate::handleDone
 
 void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &arguments)
 {
-    QTC_ASSERT(!m_process, return);
     QTC_ASSERT(parameters.isValid(), return);
 
     const FilePath cmakeExecutable = parameters.cmakeExecutable;
@@ -126,36 +125,33 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     // Always use the sourceDir: If we are triggered because the build directory is getting deleted
     // then we are racing against CMakeCache.txt also getting deleted.
 
-    m_process.reset(new Process);
+    m_process.setWorkingDirectory(buildDirectory);
+    m_process.setEnvironment(parameters.environment);
 
-    m_process->setWorkingDirectory(buildDirectory);
-    m_process->setEnvironment(parameters.environment);
-
-    m_process->setStdOutLineCallback([this](const QString &s) {
+    m_process.setStdOutLineCallback([this](const QString &s) {
         BuildSystem::appendBuildSystemOutput(addCMakePrefix(stripTrailingNewline(s)));
         emit stdOutReady(s);
     });
 
-    m_process->setStdErrLineCallback([this](const QString &s) {
+    m_process.setStdErrLineCallback([this](const QString &s) {
         m_parser.appendMessage(s, StdErrFormat);
         BuildSystem::appendBuildSystemOutput(addCMakePrefix(stripTrailingNewline(s)));
     });
 
-    connect(m_process.get(), &Process::done, this, [this] {
-        if (m_process->result() != ProcessResult::FinishedWithSuccess) {
-            const QString message = m_process->exitMessage();
+    connect(&m_process, &Process::done, this, [this] {
+        if (m_process.result() != ProcessResult::FinishedWithSuccess) {
+            const QString message = m_process.exitMessage();
             BuildSystem::appendBuildSystemOutput(addCMakePrefix({{}, message}).join('\n'));
             TaskHub::addTask<CMakeTask>(Task::Error, message);
         }
 
-        emit finished(m_process->exitCode());
+        emit finished(m_process.exitCode());
 
         const QString elapsedTime = Utils::formatElapsedTime(m_elapsed.elapsed());
         BuildSystem::appendBuildSystemOutput(addCMakePrefix({{}, elapsedTime}).join('\n'));
     });
 
-    CommandLine commandLine(cmakeExecutable);
-    commandLine.addArgs(
+    CommandLine commandLine(cmakeExecutable,
         {"-S",
          CMakeToolManager::mappedFilePath(parameters.project, sourceDirectory).path(),
          "-B",
@@ -168,18 +164,17 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
         addCMakePrefix(::CMakeProjectManager::Tr::tr("Running %1 in %2.")
                            .arg(commandLine.toUserOutput(), buildDirectory.toUserOutput())));
 
-    ProcessProgress *progress = new ProcessProgress(m_process.get());
+    ProcessProgress *progress = new ProcessProgress(&m_process);
     progress->setDisplayName(::CMakeProjectManager::Tr::tr("Configuring \"%1\"")
                              .arg(parameters.projectName));
-    m_process->setCommand(commandLine);
+    m_process.setCommand(commandLine);
     m_elapsed.start();
-    m_process->start();
+    m_process.start();
 }
 
 void CMakeProcess::stop()
 {
-    if (m_process)
-        m_process->stop();
+    m_process.stop();
 }
 
 QString addCMakePrefix(const QString &str)
