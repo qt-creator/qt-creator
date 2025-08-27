@@ -1204,11 +1204,22 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
     DirectoryData *data = static_cast<DirectoryData *>(directoryData);
 
     return QtProjectImporter::createTemporaryKit(data->qt, [&data, this](Kit *k) {
-        const CMakeToolData cmtd = findOrCreateCMakeTool(data->cmakeBinary);
-        QTC_ASSERT(cmtd.cmakeTool, return);
-        if (cmtd.isTemporary)
-            addTemporaryData(CMakeKitAspect::id(), cmtd.cmakeTool->id().toSetting(), k);
-        CMakeKitAspect::setCMakeTool(k, cmtd.cmakeTool->id());
+        CMakeTool *cmakeTool = CMakeToolManager::findByCommand(data->cmakeBinary);
+        if (!cmakeTool) {
+            qCDebug(cmInputLog) << "Creating temporary CMakeTool for" << data->cmakeBinary.toUserOutput();
+
+            UpdateGuard guard(*this);
+
+            auto newTool = std::make_unique<CMakeTool>(DetectionSource::Manual, CMakeTool::createId());
+            newTool->setFilePath(data->cmakeBinary);
+            newTool->setDisplayName(uniqueCMakeToolDisplayName(*newTool));
+
+            cmakeTool = newTool.get();
+            CMakeToolManager::registerCMakeTool(std::move(newTool));
+            addTemporaryData(CMakeKitAspect::id(), cmakeTool->id().toSetting(), k);
+        }
+
+        CMakeKitAspect::setCMakeTool(k, cmakeTool->id());
 
         CMakeGeneratorKitAspect::setGenerator(k, data->generator);
         CMakeGeneratorKitAspect::setPlatform(k, data->platform);
@@ -1285,27 +1296,6 @@ const QList<BuildInfo> CMakeProjectImporter::buildInfoList(void *directoryData) 
 
     qCDebug(cmInputLog) << "BuildInfo configured.";
     return {info};
-}
-
-CMakeProjectImporter::CMakeToolData
-CMakeProjectImporter::findOrCreateCMakeTool(const FilePath &cmakeToolPath) const
-{
-    CMakeToolData result;
-    result.cmakeTool = CMakeToolManager::findByCommand(cmakeToolPath);
-    if (!result.cmakeTool) {
-        qCDebug(cmInputLog) << "Creating temporary CMakeTool for" << cmakeToolPath.toUserOutput();
-
-        UpdateGuard guard(*this);
-
-        auto newTool = std::make_unique<CMakeTool>(DetectionSource::Manual, CMakeTool::createId());
-        newTool->setFilePath(cmakeToolPath);
-        newTool->setDisplayName(uniqueCMakeToolDisplayName(*newTool));
-
-        result.cmakeTool = newTool.get();
-        result.isTemporary = true;
-        CMakeToolManager::registerCMakeTool(std::move(newTool));
-    }
-    return result;
 }
 
 void CMakeProjectImporter::deleteDirectoryData(void *directoryData) const

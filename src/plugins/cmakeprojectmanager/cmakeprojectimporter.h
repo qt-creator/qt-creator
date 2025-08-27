@@ -10,7 +10,6 @@
 namespace CMakeProjectManager {
 
 class CMakeProject;
-class CMakeTool;
 
 namespace Internal {
 
@@ -27,18 +26,13 @@ public:
     bool filter(ProjectExplorer::Kit *k) const final;
 
     Utils::FilePaths presetCandidates();
+
 private:
     QList<void *> examineDirectory(const Utils::FilePath &importPath,
                                    QString *warningMessage) const final;
     bool matchKit(void *directoryData, const ProjectExplorer::Kit *k) const final;
     ProjectExplorer::Kit *createKit(void *directoryData) const final;
     const QList<ProjectExplorer::BuildInfo> buildInfoList(void *directoryData) const final;
-
-    struct CMakeToolData {
-        bool isTemporary = false;
-        CMakeTool *cmakeTool = nullptr;
-    };
-    CMakeToolData findOrCreateCMakeTool(const Utils::FilePath &cmakeToolPath) const;
 
     void deleteDirectoryData(void *directoryData) const final;
 
