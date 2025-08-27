@@ -240,6 +240,12 @@ Id CMakeKitAspect::cmakeToolId(const Kit *k)
     return Id::fromSetting(k->value(Constants::TOOL_ID));
 }
 
+FilePath CMakeKitAspect::cmakeExecutable(const Kit *k)
+{
+    CMakeTool *tool = cmakeTool(k);
+    return tool ? tool->cmakeExecutable() : FilePath();
+}
+
 CMakeTool *CMakeKitAspect::cmakeTool(const Kit *k)
 {
     if (!k)

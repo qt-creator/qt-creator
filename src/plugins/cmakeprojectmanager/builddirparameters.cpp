@@ -113,7 +113,7 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
     environment.set("QTC_RUN", "1");
     environment.setFallback("CLICOLOR_FORCE", "1");
 
-    cmakeToolId = CMakeKitAspect::cmakeToolId(k);
+    cmakeExecutable = CMakeKitAspect::cmakeExecutable(k);
 
     outputParserGenerator = [k, bc]() {
         QList<OutputLineParser *> outputParsers = k->createOutputParsers();
@@ -127,12 +127,7 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
 
 bool BuildDirParameters::isValid() const
 {
-    return cmakeTool();
-}
-
-CMakeTool *BuildDirParameters::cmakeTool() const
-{
-    return CMakeToolManager::findById(cmakeToolId);
+    return !cmakeExecutable.isEmpty();
 }
 
 QList<OutputLineParser *> BuildDirParameters::outputParsers() const

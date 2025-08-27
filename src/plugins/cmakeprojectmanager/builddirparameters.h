@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "cmaketool.h"
-
 #include <utils/environment.h>
 #include <utils/filepath.h>
 
@@ -28,7 +26,8 @@ public:
     explicit BuildDirParameters(CMakeBuildSystem *buildSystem);
 
     bool isValid() const;
-    CMakeTool *cmakeTool() const;
+
+    Utils::FilePath cmakeExecutable;
 
     QString projectName;
     ProjectExplorer::Project *project = nullptr;
@@ -38,8 +37,6 @@ public:
     QString cmakeBuildType;
 
     Utils::Environment environment;
-
-    Utils::Id cmakeToolId;
 
     QStringList initialCMakeArguments;
     QStringList configurationChangesArguments;

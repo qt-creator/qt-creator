@@ -202,7 +202,7 @@ void CMakeBuildSystem::triggerParsing()
     // active code model updater when the next one will be triggered.
     m_cppCodeModelUpdater->cancel();
 
-    const CMakeTool *tool = m_parameters.cmakeTool();
+    const CMakeTool *tool = CMakeToolManager::findByCommand(m_parameters.cmakeExecutable);
     CMakeTool::Version version = tool ? tool->version() : CMakeTool::Version();
     const bool isDebuggable = (version.major == 3 && version.minor >= 27) || version.major > 3;
 
@@ -1325,7 +1325,7 @@ void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &pa
                                  << "setting parameters and requesting reparse"
                                  << reparseParametersString(reparseParameters);
 
-    const CMakeTool *tool = parameters.cmakeTool();
+    const CMakeTool *tool = CMakeToolManager::findByCommand(parameters.cmakeExecutable);
     if (!tool || !tool->isValid()) {
         TaskHub::addTask<BuildSystemTask>(
                     Task::Error, Tr::tr("The kit needs to define a CMake tool to parse this project."));
@@ -1854,8 +1854,7 @@ void CMakeBuildSystem::handleParsingSucceeded(bool restoredFromBackup)
         checkAndReportError(errorMessage);
     }
 
-    if (const CMakeTool *tool = m_parameters.cmakeTool())
-        m_ctestPath = tool->cmakeExecutable().withNewPath(m_reader.ctestPath());
+    m_ctestPath = m_parameters.cmakeExecutable.withNewPath(m_reader.ctestPath());
 
     setApplicationTargets(appTargets());
 
@@ -2151,14 +2150,13 @@ void CMakeBuildSystem::ensureBuildDirectory(const BuildDirParameters &parameters
         return;
     }
 
-    const CMakeTool *tool = parameters.cmakeTool();
-    if (!tool) {
+    if (parameters.cmakeExecutable.isEmpty()) {
         handleParsingFailed(Tr::tr("No CMake tool set up in kit."));
         return;
     }
 
-    if (!tool->cmakeExecutable().isLocal()) {
-        if (!tool->cmakeExecutable().ensureReachable(bdir)) {
+    if (!parameters.cmakeExecutable.isLocal()) {
+        if (!parameters.cmakeExecutable.ensureReachable(bdir)) {
             // Make sure that the build directory is available on the device.
             handleParsingFailed(
                 Tr::tr("The remote CMake executable cannot write to the local build directory."));
@@ -2676,7 +2674,8 @@ QList<QPair<Id, QString>> CMakeBuildSystem::generators() const
 {
     if (!buildConfiguration())
         return {};
-    const CMakeTool * const cmakeTool = CMakeKitAspect::cmakeTool(kit());
+    const CMakeTool * const cmakeTool =
+        CMakeToolManager::findByCommand(m_parameters.cmakeExecutable);
     if (!cmakeTool)
         return {};
     QList<QPair<Id, QString>> result;
@@ -2697,9 +2696,13 @@ void CMakeBuildSystem::runGenerator(Id id)
                                      Tr::tr("cmake generator failed.").append('\n').append(detail));
         TaskHub::addTask(m_generatorError);
     };
-    const CMakeTool * const cmakeTool = CMakeKitAspect::cmakeTool(kit());
-    if (!cmakeTool) {
+    const FilePath cmakeExecutable = CMakeKitAspect::cmakeExecutable(kit());
+    if (cmakeExecutable.isEmpty()) {
         showError(Tr::tr("Kit does not have a cmake binary set."));
+        return;
+    }
+    if (!cmakeExecutable.isExecutableFile()) {
+        showError(Tr::tr("No valid cmake executable."));
         return;
     }
     const QString generator = id.toSetting().toString();
@@ -2709,12 +2712,8 @@ void CMakeBuildSystem::runGenerator(Id id)
         showError(Tr::tr("Cannot create output directory \"%1\".").arg(outDir.toFSPathString()));
         return;
     }
-    CommandLine cmdLine(cmakeTool->cmakeExecutable(), {"-S", buildConfiguration()
+    CommandLine cmdLine(cmakeExecutable, {"-S", buildConfiguration()
                         ->project()->projectDirectory().toUserOutput(), "-G", generator});
-    if (!cmdLine.executable().isExecutableFile()) {
-        showError(Tr::tr("No valid cmake executable."));
-        return;
-    }
     const auto itemFilter = [](const CMakeConfigItem &item) {
         return !item.isNull()
                 && item.type != CMakeConfigItem::STATIC

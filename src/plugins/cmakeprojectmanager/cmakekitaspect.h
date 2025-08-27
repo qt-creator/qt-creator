@@ -21,6 +21,7 @@ public:
     static Utils::Id id();
 
     static Utils::Id cmakeToolId(const ProjectExplorer::Kit *k);
+    static Utils::FilePath cmakeExecutable(const ProjectExplorer::Kit *k);
     static CMakeTool *cmakeTool(const ProjectExplorer::Kit *k);
     static void setCMakeTool(ProjectExplorer::Kit *k, const Utils::Id id);
     static QString msgUnsupportedVersion(const QByteArray &versionString);

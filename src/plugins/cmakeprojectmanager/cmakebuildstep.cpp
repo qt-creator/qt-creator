@@ -11,7 +11,6 @@
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
-#include "cmaketool.h"
 #include "cmaketoolmanager.h"
 
 #include <android/androidconstants.h>
@@ -804,8 +803,7 @@ QString CMakeBuildStep::currentInstallPrefix() const
 
 FilePath CMakeBuildStep::cmakeExecutable() const
 {
-    CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
-    return tool ? tool->cmakeExecutable() : FilePath();
+    return CMakeKitAspect::cmakeExecutable(kit());
 }
 
 void CMakeBuildStep::updateDeploymentData()

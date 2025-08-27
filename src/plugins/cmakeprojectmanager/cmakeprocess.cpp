@@ -49,11 +49,9 @@ static const int failedToStartExitCode = 0xFF; // See ProcessPrivate::handleDone
 void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &arguments)
 {
     QTC_ASSERT(!m_process, return);
+    QTC_ASSERT(parameters.isValid(), return);
 
-    CMakeTool *cmake = parameters.cmakeTool();
-    QTC_ASSERT(parameters.isValid() && cmake, return);
-
-    const FilePath cmakeExecutable = cmake->cmakeExecutable();
+    const FilePath cmakeExecutable = parameters.cmakeExecutable;
 
     const QString mountHint = ::CMakeProjectManager::Tr::tr(
         "You may need to add the project directory to the list of directories that are mounted by "
@@ -89,10 +87,10 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     }
 
     if (!buildDirectory.isLocal()) {
-        if (!cmake->cmakeExecutable().isSameDevice(buildDirectory)) {
+        if (!cmakeExecutable.isSameDevice(buildDirectory)) {
             const QString msg = ::CMakeProjectManager::Tr::tr(
                   "CMake executable \"%1\" and build directory \"%2\" must be on the same device.")
-                    .arg(cmake->cmakeExecutable().toUserOutput(), buildDirectory.toUserOutput());
+                    .arg(cmakeExecutable.toUserOutput(), buildDirectory.toUserOutput());
             BuildSystem::appendBuildSystemOutput(addCMakePrefix({QString(), msg}).join('\n'));
             emit finished(failedToStartExitCode);
             return;

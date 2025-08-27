@@ -5,6 +5,7 @@
 
 #include "builddirparameters.h"
 #include "cmakebuildtarget.h"
+#include "cmaketool.h"
 #include "fileapireader.h"
 
 #include <projectexplorer/buildconfiguration.h>

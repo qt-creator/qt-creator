@@ -13,6 +13,7 @@
 #include "cmakeprojectmanagertr.h"
 #include "cmakeprojectnodes.h"
 #include "cmakespecificsettings.h"
+#include "cmaketoolmanager.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -283,11 +284,9 @@ CMakeManager::CMakeManager()
         });
 
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this, [this] {
-        auto cmakeBuildSystem = qobject_cast<CMakeBuildSystem *>(
-            activeBuildSystemForActiveProject());
-        if (cmakeBuildSystem) {
-            const BuildDirParameters parameters(cmakeBuildSystem);
-            const auto tool = parameters.cmakeTool();
+        if (BuildSystem *buildSystem = activeBuildSystemForActiveProject()) {
+            FilePath cmakeExecutable = CMakeKitAspect::cmakeExecutable(buildSystem->kit());
+            const CMakeTool *tool = CMakeToolManager::findByCommand(cmakeExecutable);
             CMakeTool::Version version = tool ? tool->version() : CMakeTool::Version();
             m_canDebugCMake = (version.major == 3 && version.minor >= 27) || version.major > 3;
         }
