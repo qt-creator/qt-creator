@@ -480,6 +480,9 @@ void CppEditorPlugin::addPerFileActions()
 
 void CppEditorPlugin::addGlobalActions()
 {
+    if (ICore::isQtDesignStudio())
+        return;
+
     const QList<Id> menus{Constants::M_TOOLS_CPP, Constants::M_CONTEXT};
 
     ActionBuilder findUnusedFunctions(this, "CppTools.FindUnusedFunctions");
