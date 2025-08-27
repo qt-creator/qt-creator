@@ -11,7 +11,7 @@
             "auto-detect-kits": false,
             "kits": [
                 {
-                    "name": "My DevContainer Kit",
+                    "name": "DevKit1",
                     "QtSupport.QtInformation": "/6.7.0/gcc_64/bin/qmake6",
                     "PE.Profile.ToolChainsV3": {
                         "Cxx": "/usr/bin/c++",
@@ -22,6 +22,19 @@
                         "generator": "Unix Makefiles"
                     },
                     "Debugger.Information": "/usr/bin/lldb"
+                },
+                {
+                    "name": "DevKit2",
+                    "qt": "/6.7.0/gcc_64/bin/qmake6",
+                    "compiler": {
+                        "Cxx": "/usr/bin/c++",
+                        "C": "/usr/bin/gcc"
+                    },
+                    "cmake": {
+                        "binary": "/usr/bin/cmake",
+                        "generator": "Unix Makefiles"
+                    },
+                    "debugger": "/usr/bin/lldb"
                 }
             ]
         }

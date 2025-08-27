@@ -110,6 +110,7 @@ public:
     using ItemList = QList<Item>;
 
     Utils::Id id() const { return m_id; }
+    QList<Utils::Id> jsonKeys() const { return m_jsonKeys; }
     int priority() const { return m_priority; }
     QString displayName() const { return m_displayName; }
     QString description() const { return m_description; }
@@ -175,6 +176,7 @@ protected:
     ~KitAspectFactory();
 
     void setId(Utils::Id id) { m_id = id; }
+    void setJsonKeys(const QList<Utils::Id> &ids) { m_jsonKeys = ids; }
     void setDisplayName(const QString &name) { m_displayName = name; }
     void setDescription(const QString &desc) { m_description = desc; }
     void makeEssential() { m_essential = true; }
@@ -186,6 +188,7 @@ private:
     QString m_displayName;
     QString m_description;
     Utils::Id m_id;
+    QList<Utils::Id> m_jsonKeys;
     QList<Utils::Id> m_embeddableAspects;
     int m_priority = 0; // The higher the closer to the top.
     bool m_essential = false;

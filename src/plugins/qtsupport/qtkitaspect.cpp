@@ -165,6 +165,7 @@ const QtKitAspectFactory theQtKitAspectFactory;
 QtKitAspectFactory::QtKitAspectFactory()
 {
     setId(QtKitAspect::id());
+    setJsonKeys({"qt", "qmake"});
     setDisplayName(Tr::tr("Qt version"));
     setDescription(Tr::tr("The Qt library to use for all projects using this kit.<br>"
                           "A Qt version is required for qmake-based projects "

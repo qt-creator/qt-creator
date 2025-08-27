@@ -351,7 +351,11 @@ Result<> Device::up(InstanceConfig instanceConfig, std::function<void(Result<>)>
 
                 const auto factory = Utils::findOrDefault(
                     KitAspectFactory::kitAspectFactories(),
-                    Utils::equal(&KitAspectFactory::id, Id::fromString(it.key())));
+                    [key = Id::fromString(it.key())](KitAspectFactory *factory) {
+                        if (factory->id() == key || factory->jsonKeys().contains(key))
+                            return true;
+                        return false;
+                    });
 
                 if (!factory) {
                     instanceConfig.logFunction(

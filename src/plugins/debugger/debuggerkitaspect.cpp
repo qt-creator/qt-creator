@@ -239,6 +239,7 @@ public:
     DebuggerKitAspectFactory()
     {
         setId(DebuggerKitAspect::id());
+        setJsonKeys({"debugger"});
         setDisplayName(Tr::tr("Debugger"));
         setDescription(Tr::tr("The debugger to use for this kit."));
         setPriority(28000);

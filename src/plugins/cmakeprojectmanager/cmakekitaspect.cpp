@@ -212,6 +212,7 @@ public:
 CMakeKitAspectFactory::CMakeKitAspectFactory()
 {
     setId(Constants::TOOL_ID);
+    setJsonKeys({"cmake", "cmake-tool"});
     setDisplayName(Tr::tr("CMake Tool"));
     setDescription(Tr::tr("The CMake Tool to use when building a project with CMake.<br>"
                       "This setting is ignored when using other build systems."));

@@ -186,6 +186,7 @@ private:
 ToolchainKitAspectFactory::ToolchainKitAspectFactory()
 {
     setId(ToolchainKitAspect::id());
+    setJsonKeys({"compiler"});
     setDisplayName(Tr::tr("Compiler"));
     setDescription(Tr::tr("The compiler to use for building.<br>"
                           "Make sure the compiler will produce binaries compatible "
