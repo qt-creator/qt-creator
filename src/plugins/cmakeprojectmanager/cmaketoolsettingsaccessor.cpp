@@ -4,7 +4,6 @@
 #include "cmaketoolsettingsaccessor.h"
 
 #include "cmakeprojectmanagertr.h"
-#include "cmakespecificsettings.h"
 #include "cmaketool.h"
 
 #include <coreplugin/icore.h>
@@ -145,16 +144,16 @@ CMakeToolSettingsAccessor::CMakeToolSettingsAccessor()
     addVersionUpgrader(std::make_unique<CMakeToolSettingsUpgraderV0>());
 }
 
-CMakeToolSettingsAccessor::CMakeTools CMakeToolSettingsAccessor::restoreCMakeTools(QWidget *parent) const
+CMakeToolSettingsAccessor::CMakeTools CMakeToolSettingsAccessor::restoreCMakeTools() const
 {
     CMakeTools result;
 
     const FilePath sdkSettingsFile = Core::ICore::installerResourcePath(CMAKE_TOOL_FILENAME);
 
-    CMakeTools sdkTools = cmakeTools(restoreSettings(sdkSettingsFile, parent), true);
+    CMakeTools sdkTools = cmakeTools(restoreSettings(sdkSettingsFile), true);
 
     //read the tools from the user settings file
-    CMakeTools userTools = cmakeTools(restoreSettings(parent), false);
+    CMakeTools userTools = cmakeTools(restoreSettings(), false);
 
     //autodetect tools
     std::vector<std::unique_ptr<CMakeTool>> autoDetectedTools = autoDetectCMakeTools();
@@ -175,8 +174,7 @@ CMakeToolSettingsAccessor::CMakeTools CMakeToolSettingsAccessor::restoreCMakeToo
 }
 
 void CMakeToolSettingsAccessor::saveCMakeTools(const QList<CMakeTool *> &cmakeTools,
-                                               const Id &defaultId,
-                                               QWidget *parent)
+                                               const Id &defaultId)
 {
     Store data;
     data.insert(CMAKE_TOOL_DEFAULT_KEY, defaultId.toSetting());
@@ -197,7 +195,7 @@ void CMakeToolSettingsAccessor::saveCMakeTools(const QList<CMakeTool *> &cmakeTo
     }
     data.insert(CMAKE_TOOL_COUNT_KEY, count);
 
-    saveSettings(data, parent);
+    saveSettings(data);
 }
 
 CMakeToolSettingsAccessor::CMakeTools

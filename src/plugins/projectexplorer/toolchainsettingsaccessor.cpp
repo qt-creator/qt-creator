@@ -201,17 +201,17 @@ ToolchainSettingsAccessor::ToolchainSettingsAccessor()
     addVersionUpgrader(std::make_unique<ToolChainSettingsUpgraderV0>());
 }
 
-Toolchains ToolchainSettingsAccessor::restoreToolchains(QWidget *parent) const
+Toolchains ToolchainSettingsAccessor::restoreToolchains() const
 {
     NANOTRACE_SCOPE("ProjectExplorer", "ToolChainSettingsAccessor::restoreToolChains");
     // read all tool chains from SDK
     const Toolchains systemFileTcs = toolChains(
-        restoreSettings(Core::ICore::installerResourcePath(TOOLCHAIN_FILENAME), parent));
+        restoreSettings(Core::ICore::installerResourcePath(TOOLCHAIN_FILENAME)));
     for (Toolchain * const systemTc : systemFileTcs)
         systemTc->setDetectionSource(DetectionSource::FromSdk);
 
     // read all tool chains from user file.
-    const Toolchains userFileTcs = toolChains(restoreSettings(parent));
+    const Toolchains userFileTcs = toolChains(restoreSettings());
 
     // Autodetect: Pass autodetected toolchains from user file so the information can be reused:
     const Toolchains autodetectedUserFileTcs
@@ -239,7 +239,7 @@ Toolchains ToolchainSettingsAccessor::restoreToolchains(QWidget *parent) const
     return ops.toRegister;
 }
 
-void ToolchainSettingsAccessor::saveToolchains(const Toolchains &toolchains, QWidget *parent)
+void ToolchainSettingsAccessor::saveToolchains(const Toolchains &toolchains)
 {
     Store data;
 
@@ -261,7 +261,7 @@ void ToolchainSettingsAccessor::saveToolchains(const Toolchains &toolchains, QWi
 
     // Do not save default debuggers! Those are set by the SDK!
 
-    saveSettings(data, parent);
+    saveSettings(data);
 }
 
 Toolchains ToolchainSettingsAccessor::toolChains(const Store &data) const

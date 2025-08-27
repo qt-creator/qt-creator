@@ -108,7 +108,7 @@ void ToolchainManager::restoreToolchains()
     QTC_ASSERT(!d->m_accessor, return);
     d->m_accessor = std::make_unique<Internal::ToolchainSettingsAccessor>();
 
-    registerToolchains(d->m_accessor->restoreToolchains(Core::ICore::dialogParent()));
+    registerToolchains(d->m_accessor->restoreToolchains());
 
     d->m_loaded = true;
     emit m_instance->toolchainsLoaded();
@@ -118,7 +118,7 @@ void ToolchainManager::saveToolchains()
 {
     QTC_ASSERT(d->m_accessor, return);
 
-    d->m_accessor->saveToolchains(d->m_toolChains, Core::ICore::dialogParent());
+    d->m_accessor->saveToolchains(d->m_toolChains);
     QtcSettings *const s = Core::ICore::settings();
     s->setValueWithDefault(DETECT_X64_AS_X32_KEY,
                            d->m_detectionSettings.detectX64AsX32,

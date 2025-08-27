@@ -4,21 +4,16 @@
 #include "settingsaccessor.h"
 
 #include "algorithm.h"
+#include "guiutils.h"
 #include "persistentsettings.h"
 #include "qtcassert.h"
 #include "utilstr.h"
 
-#include <QDir>
-
-namespace {
+namespace Utils {
 
 const char ORIGINAL_VERSION_KEY[] = "OriginalVersion";
 const char SETTINGS_ID_KEY[] = "EnvironmentId";
 const char VERSION_KEY[] = "Version";
-
-} // namespace
-
-namespace Utils {
 
 // --------------------------------------------------------------------
 // SettingsAccessor::Issue:
@@ -44,26 +39,26 @@ SettingsAccessor::SettingsAccessor() = default;
 SettingsAccessor::~SettingsAccessor() = default;
 
 /*!
- * Restore settings from disk and report any issues in a message box centered on \a parent.
+ * Restore settings from disk and report any issues in a message box.
  */
-Store SettingsAccessor::restoreSettings(QWidget *parent) const
+Store SettingsAccessor::restoreSettings() const
 {
     QTC_ASSERT(!m_baseFilePath.isEmpty(), return Store());
 
-    return restoreSettings(m_baseFilePath, parent);
+    return restoreSettings(m_baseFilePath);
 }
 
 /*!
- * Save \a data to disk and report any issues in a message box centered on \a parent.
+ * Save \a data to disk and report any issues in a message box.
  */
-bool SettingsAccessor::saveSettings(const Store &data, QWidget *parent) const
+bool SettingsAccessor::saveSettings(const Store &data) const
 {
     QTC_CHECK(!m_docType.isEmpty());
     QTC_CHECK(!m_applicationDisplayName.isEmpty());
 
-    const std::optional<Issue> result = writeData(m_baseFilePath, data, parent);
+    const std::optional<Issue> result = writeData(m_baseFilePath, data);
 
-    const ProceedInfo pi = result ? reportIssues(*result, m_baseFilePath, parent)
+    const ProceedInfo pi = result ? reportIssues(*result, m_baseFilePath)
                                   : ProceedInfo::Continue;
     return pi == ProceedInfo::Continue;
 }
@@ -71,9 +66,8 @@ bool SettingsAccessor::saveSettings(const Store &data, QWidget *parent) const
 /*!
  * Read data from \a path. Do all the necessary postprocessing of the data.
  */
-SettingsAccessor::RestoreData SettingsAccessor::readData(const FilePath &path, QWidget *parent) const
+SettingsAccessor::RestoreData SettingsAccessor::readData(const FilePath &path) const
 {
-    Q_UNUSED(parent)
     RestoreData result = readFile(path);
     if (!result.data.isEmpty())
         result.data = preprocessReadSettings(result.data);
@@ -84,21 +78,19 @@ SettingsAccessor::RestoreData SettingsAccessor::readData(const FilePath &path, Q
  * Store the \a data in \a path on disk. Do all the necessary preprocessing of the data.
  */
 std::optional<SettingsAccessor::Issue> SettingsAccessor::writeData(const FilePath &path,
-                                                                   const Store &data,
-                                                                   QWidget *parent) const
+                                                                   const Store &data) const
 {
-    Q_UNUSED(parent)
     return writeFile(path, prepareToWriteSettings(data));
 }
 
-Store SettingsAccessor::restoreSettings(const FilePath &settingsPath, QWidget *parent) const
+Store SettingsAccessor::restoreSettings(const FilePath &settingsPath) const
 {
     QTC_CHECK(!m_docType.isEmpty());
     QTC_CHECK(!m_applicationDisplayName.isEmpty());
 
-    const RestoreData result = readData(settingsPath, parent);
+    const RestoreData result = readData(settingsPath);
 
-    const ProceedInfo pi = result.hasIssue() ? reportIssues(*result.issue, result.path, parent)
+    const ProceedInfo pi = result.hasIssue() ? reportIssues(*result.issue, result.path)
                                              : ProceedInfo::Continue;
     return pi == ProceedInfo::DiscardAndContinue ? Store() : result.data;
 }
@@ -153,7 +145,7 @@ std::optional<SettingsAccessor::Issue> SettingsAccessor::writeFile(const FilePat
 }
 
 SettingsAccessor::ProceedInfo
-SettingsAccessor::reportIssues(const Issue &issue, const FilePath &path, QWidget *parent)
+SettingsAccessor::reportIssues(const Issue &issue, const FilePath &path)
 {
     if (!path.exists())
         return Continue;
@@ -163,7 +155,7 @@ SettingsAccessor::reportIssues(const Issue &issue, const FilePath &path, QWidget
     const QMessageBox::StandardButtons buttons = issue.allButtons();
     QTC_ASSERT(buttons != QMessageBox::NoButton, return Continue);
 
-    QMessageBox msgBox(icon, issue.title, issue.message, buttons, parent);
+    QMessageBox msgBox(icon, issue.title, issue.message, buttons, Utils::dialogParent());
     if (issue.defaultButton != QMessageBox::NoButton)
         msgBox.setDefaultButton(issue.defaultButton);
     if (issue.escapeButton != QMessageBox::NoButton)
@@ -227,13 +219,13 @@ BackingUpSettingsAccessor::BackingUpSettingsAccessor()
 { }
 
 SettingsAccessor::RestoreData
-BackingUpSettingsAccessor::readData(const FilePath &path, QWidget *parent) const
+BackingUpSettingsAccessor::readData(const FilePath &path) const
 {
     const FilePaths fileList = readFileCandidates(path);
     if (fileList.isEmpty()) // No settings found at all.
         return RestoreData(path, Store());
 
-    RestoreData result = bestReadFileData(fileList, parent);
+    RestoreData result = bestReadFileData(fileList);
     if (result.path.isEmpty())
         result.path = baseFilePath().parentDir();
 
@@ -254,15 +246,14 @@ BackingUpSettingsAccessor::readData(const FilePath &path, QWidget *parent) const
 }
 
 std::optional<SettingsAccessor::Issue> BackingUpSettingsAccessor::writeData(const FilePath &path,
-                                                                            const Store &data,
-                                                                            QWidget *parent) const
+                                                                            const Store &data) const
 {
     if (data.isEmpty())
         return {};
 
-    backupFile(path, data, parent);
+    backupFile(path, data);
 
-    return SettingsAccessor::writeData(path, data, parent);
+    return SettingsAccessor::writeData(path, data);
 }
 
 void BackingUpSettingsAccessor::setStrategy(std::unique_ptr<BackUpStrategy> &&strategy)
@@ -280,28 +271,26 @@ FilePaths BackingUpSettingsAccessor::readFileCandidates(const FilePath &path) co
 }
 
 SettingsAccessor::RestoreData
-BackingUpSettingsAccessor::bestReadFileData(const FilePaths &candidates, QWidget *parent) const
+BackingUpSettingsAccessor::bestReadFileData(const FilePaths &candidates) const
 {
     SettingsAccessor::RestoreData bestMatch;
     for (const FilePath &c : candidates) {
-        RestoreData cData = SettingsAccessor::readData(c, parent);
+        RestoreData cData = SettingsAccessor::readData(c);
         if (m_strategy->compare(bestMatch, cData) > 0)
             bestMatch = cData;
     }
     return bestMatch;
 }
 
-void BackingUpSettingsAccessor::backupFile(const FilePath &path, const Store &data,
-                                           QWidget *parent) const
+void BackingUpSettingsAccessor::backupFile(const FilePath &path, const Store &data) const
 {
-    RestoreData oldSettings = SettingsAccessor::readData(path, parent);
+    RestoreData oldSettings = SettingsAccessor::readData(path);
     if (oldSettings.data.isEmpty())
         return;
 
     // Do we need to do a backup?
-    if (std::optional<FilePath> backupFileName = m_strategy->backupName(oldSettings.data,
-                                                                        path,
-                                                                        data)) {
+    if (std::optional<FilePath> backupFileName
+            = m_strategy->backupName(oldSettings.data, path, data)) {
         path.copyFile(backupFileName.value());
     }
 }
@@ -428,10 +417,9 @@ bool UpgradingSettingsAccessor::isValidVersionAndId(const int version, const QBy
             && (id.isEmpty() || id == m_id || m_id.isEmpty());
 }
 
-SettingsAccessor::RestoreData UpgradingSettingsAccessor::readData(const FilePath &path,
-                                                                  QWidget *parent) const
+SettingsAccessor::RestoreData UpgradingSettingsAccessor::readData(const FilePath &path) const
 {
-    return upgradeSettings(BackingUpSettingsAccessor::readData(path, parent), currentVersion());
+    return upgradeSettings(BackingUpSettingsAccessor::readData(path), currentVersion());
 }
 
 Store UpgradingSettingsAccessor::prepareToWriteSettings(const Store &data) const
@@ -561,18 +549,17 @@ UpgradingSettingsAccessor::validateVersionRange(const RestoreData &data) const
  */
 MergingSettingsAccessor::MergingSettingsAccessor() = default;
 
-SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FilePath &path,
-                                                                QWidget *parent) const
+SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FilePath &path) const
 {
-    RestoreData mainData = UpgradingSettingsAccessor::readData(path, parent); // FULLY upgraded!
+    RestoreData mainData = UpgradingSettingsAccessor::readData(path); // FULLY upgraded!
     if (mainData.hasIssue()) {
-        if (reportIssues(mainData.issue.value(), mainData.path, parent) == DiscardAndContinue)
+        if (reportIssues(mainData.issue.value(), mainData.path) == DiscardAndContinue)
             mainData.data.clear();
         mainData.issue = std::nullopt;
     }
 
     RestoreData secondaryData
-            = m_secondaryAccessor ? m_secondaryAccessor->readData(m_secondaryAccessor->baseFilePath(), parent)
+            = m_secondaryAccessor ? m_secondaryAccessor->readData(m_secondaryAccessor->baseFilePath())
                                   : RestoreData();
     secondaryData.data = preprocessReadSettings(secondaryData.data);
     int secondaryVersion = versionFromMap(secondaryData.data);
@@ -602,7 +589,7 @@ SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FilePath &
     }
 
     if (secondaryData.hasIssue()) {
-        if (reportIssues(secondaryData.issue.value(), secondaryData.path, parent) == DiscardAndContinue)
+        if (reportIssues(secondaryData.issue.value(), secondaryData.path) == DiscardAndContinue)
             secondaryData.data.clear();
         secondaryData.issue = std::nullopt;
     }

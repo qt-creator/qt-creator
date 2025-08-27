@@ -335,8 +335,7 @@ CMakeTool *CMakeToolManager::findById(const Id &id)
 void CMakeToolManager::restoreCMakeTools()
 {
     NANOTRACE_SCOPE("CMakeProjectManager", "CMakeToolManager::restoreCMakeTools");
-    Internal::CMakeToolSettingsAccessor::CMakeTools tools
-            = d->m_accessor.restoreCMakeTools(ICore::dialogParent());
+    Internal::CMakeToolSettingsAccessor::CMakeTools tools = d->m_accessor.restoreCMakeTools();
     d->m_cmakeTools = std::move(tools.cmakeTools);
     setDefaultCMakeTool(tools.defaultToolId);
 
@@ -544,7 +543,7 @@ void CMakeToolManager::notifyAboutUpdate(CMakeTool *tool)
 
 void CMakeToolManager::saveCMakeTools()
 {
-    d->m_accessor.saveCMakeTools(cmakeTools(), d->m_defaultCMake, ICore::dialogParent());
+    d->m_accessor.saveCMakeTools(cmakeTools(), d->m_defaultCMake);
 }
 
 void CMakeToolManager::ensureDefaultCMakeToolIsValid()

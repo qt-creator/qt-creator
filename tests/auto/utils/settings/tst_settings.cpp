@@ -647,7 +647,7 @@ void tst_SettingsAccessor::saveSettings()
     const TestSettingsAccessor accessor(baseFile);
     const Store data = versionedMap(6, TESTACCESSOR_DEFAULT_ID);
 
-    QVERIFY(accessor.saveSettings(data, nullptr));
+    QVERIFY(accessor.saveSettings(data));
 
     QCOMPARE(accessor.files().count(), 1);
     const Store read = accessor.fileContents(baseFile);
@@ -672,7 +672,7 @@ void tst_SettingsAccessor::loadSettings()
     accessor.addFile(path, data);
     QCOMPARE(accessor.files().count(), 1); // Catch changes early:-)
 
-    const Store read = accessor.restoreSettings(nullptr);
+    const Store read = accessor.restoreSettings();
     QCOMPARE(accessor.files().count(), 1); // no files were created
 
     QVERIFY(!read.isEmpty());
@@ -709,7 +709,7 @@ void tst_SettingsAccessor::loadSettings_pickBest()
                      versionedMap(1, "loadSettings", generateExtraData())); // much too old
     QCOMPARE(accessor.files().count(), 5); // Catch changes early:-)
 
-    const Store read = accessor.restoreSettings(nullptr);
+    const Store read = accessor.restoreSettings();
     QCOMPARE(accessor.files().count(), 5); // no new files
 
     QVERIFY(!read.isEmpty());

@@ -91,25 +91,24 @@ public:
         std::optional<Issue> issue;
     };
 
-    Store restoreSettings(QWidget *parent) const;
-    bool saveSettings(const Store &data, QWidget *parent) const;
+    Store restoreSettings() const;
+    bool saveSettings(const Store &data) const;
 
     void setBaseFilePath(const FilePath &baseFilePath) { m_baseFilePath = baseFilePath; }
     void setReadOnly() { m_readOnly = true; }
     FilePath baseFilePath() const { return m_baseFilePath; }
 
-    virtual RestoreData readData(const FilePath &path, QWidget *parent) const;
+    virtual RestoreData readData(const FilePath &path) const;
     virtual std::optional<Issue> writeData(const FilePath &path,
-                                           const Store &data,
-                                           QWidget *parent) const;
+                                           const Store &data) const;
 
     void setDocType(const QString &docType) { m_docType = docType; }
     void setApplicationDisplayName(const QString &name) { m_applicationDisplayName = name; }
 
 protected:
     // Report errors:
-    Store restoreSettings(const FilePath &settingsPath, QWidget *parent) const;
-    static ProceedInfo reportIssues(const Issue &issue, const FilePath &path, QWidget *parent);
+    Store restoreSettings(const FilePath &settingsPath) const;
+    static ProceedInfo reportIssues(const Issue &issue, const FilePath &path);
 
     virtual Store preprocessReadSettings(const Store &data) const;
     virtual Store prepareToWriteSettings(const Store &data) const;
@@ -151,18 +150,17 @@ class QTCREATOR_UTILS_EXPORT BackingUpSettingsAccessor : public SettingsAccessor
 public:
     BackingUpSettingsAccessor();
 
-    RestoreData readData(const FilePath &path, QWidget *parent) const override;
+    RestoreData readData(const FilePath &path) const override;
     std::optional<Issue> writeData(const FilePath &path,
-                                   const Store &data,
-                                   QWidget *parent) const override;
+                                   const Store &data) const override;
 
     BackUpStrategy *strategy() const { return m_strategy.get(); }
     void setStrategy(std::unique_ptr<BackUpStrategy> &&strategy);
 
 private:
     FilePaths readFileCandidates(const FilePath &path) const;
-    RestoreData bestReadFileData(const FilePaths &candidates, QWidget *parent) const;
-    void backupFile(const FilePath &path, const Store &data, QWidget *parent) const;
+    RestoreData bestReadFileData(const FilePaths &candidates) const;
+    void backupFile(const FilePath &path, const Store &data) const;
 
     std::unique_ptr<BackUpStrategy> m_strategy;
 };
@@ -230,7 +228,7 @@ public:
     bool isValidVersionAndId(const int version, const QByteArray &id) const;
     VersionUpgrader *upgrader(const int version) const;
 
-    RestoreData readData(const FilePath &path, QWidget *parent) const override;
+    RestoreData readData(const FilePath &path) const override;
 
 protected:
     Store prepareToWriteSettings(const Store &data) const override;
@@ -261,7 +259,7 @@ public:
 
     MergingSettingsAccessor();
 
-    RestoreData readData(const FilePath &path, QWidget *parent) const final;
+    RestoreData readData(const FilePath &path) const final;
 
     void setSecondaryAccessor(std::unique_ptr<SettingsAccessor> &&secondary);
 

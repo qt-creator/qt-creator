@@ -17,8 +17,7 @@
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 // --------------------------------------------------------------------
 // Helpers:
@@ -52,7 +51,7 @@ public:
 void ExtraAbi::load()
 {
     AbiFlavorAccessor accessor;
-    const Store data = storeFromVariant(accessor.restoreSettings(Core::ICore::dialogParent()).value("Flavors"));
+    const Store data = storeFromVariant(accessor.restoreSettings().value("Flavors"));
     for (auto it = data.constBegin(); it != data.constEnd(); ++it) {
         const Key flavor = it.key();
         if (flavor.isEmpty())
@@ -74,5 +73,4 @@ void ExtraAbi::load()
     }
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

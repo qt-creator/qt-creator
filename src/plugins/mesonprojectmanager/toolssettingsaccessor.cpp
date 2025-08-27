@@ -58,14 +58,14 @@ void ToolsSettingsAccessor::saveMesonTools()
         ++entry_count;
     }
     data.insert(ToolsSettings::ENTRY_COUNT, entry_count);
-    saveSettings(data, ICore::dialogParent());
+    saveSettings(data);
 }
 
 void ToolsSettingsAccessor::loadMesonTools()
 {
     using namespace Constants;
-    auto data = restoreSettings(ICore::dialogParent());
-    auto entry_count = data.value(ToolsSettings::ENTRY_COUNT, 0).toInt();
+    Store data = restoreSettings();
+    int entry_count = data.value(ToolsSettings::ENTRY_COUNT, 0).toInt();
     std::vector<MesonTools::Tool_t> result;
     for (auto toolIndex = 0; toolIndex < entry_count; toolIndex++) {
         Key name = entryName(toolIndex);

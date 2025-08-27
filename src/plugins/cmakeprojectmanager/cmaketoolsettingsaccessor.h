@@ -23,11 +23,10 @@ public:
         std::vector<std::unique_ptr<CMakeTool>> cmakeTools;
     };
 
-    CMakeTools restoreCMakeTools(QWidget *parent) const;
+    CMakeTools restoreCMakeTools() const;
 
     void saveCMakeTools(const QList<CMakeTool *> &cmakeTools,
-                        const Utils::Id &defaultId,
-                        QWidget *parent);
+                        const Utils::Id &defaultId);
 
 private:
     CMakeTools cmakeTools(const Utils::Store &data, bool fromSdk) const;

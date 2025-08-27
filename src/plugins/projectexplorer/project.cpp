@@ -875,7 +875,7 @@ void Project::saveSettings()
     if (!targets().isEmpty()) {
         Store map;
         toMap(map);
-        d->m_accessor->saveSettings(map, ICore::dialogParent());
+        d->m_accessor->saveSettings(map);
     }
 }
 
@@ -889,7 +889,7 @@ Project::RestoreResult Project::restoreSettings(QString *errorMessage)
 
     if (!d->m_accessor)
         d->m_accessor = std::make_unique<Internal::UserFileAccessor>(this);
-    Store map(d->m_accessor->restoreSettings(ICore::dialogParent()));
+    Store map = d->m_accessor->restoreSettings();
     RestoreResult result = fromMap(map, errorMessage);
     if (result == RestoreResult::Ok)
         emit settingsLoaded();
