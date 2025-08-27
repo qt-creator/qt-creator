@@ -135,6 +135,9 @@ static bool isQtMCUsProject(ProjectExplorer::Project *p)
 
 static void askUserAboutMcuSupportKitsSetup()
 {
+    if (ICore::isQtDesignStudio())
+        return;
+
     if (!ICore::infoBar()->canInfoBeAdded(setupMcuSupportKits)
         || dd->m_options.qulDirFromSettings().isEmpty()
         || !McuKitManager::existingKits(nullptr).isEmpty())
