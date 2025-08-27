@@ -47,6 +47,8 @@ const char CMAKE_BUILDCONFIGURATION_ID[] = "CMakeProjectManager.CMakeBuildConfig
 // Menu
 const char M_CONTEXT[] = "CMakeEditor.ContextMenu";
 
+const char TOOL_TYPE_CMAKE[]= "cmake";
+
 namespace Settings {
 const char GENERAL_ID[] = "CMakeSpecificSettings";
 const char TOOLS_ID[] = "K.CMake.Tools";

@@ -49,6 +49,23 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
+class CMakeToolAspectFactory : public DeviceToolAspectFactory
+{
+public:
+    CMakeToolAspectFactory()
+    {
+        setToolId(Constants::TOOL_TYPE_CMAKE);
+        setToolType(DeviceToolAspect::BuildTool);
+        setFilePattern({"cmake"});
+        setLabelText(Tr::tr("CMake executable:"));
+    }
+};
+
+void setupCMakeTool()
+{
+    static CMakeToolAspectFactory theCMakeToolAspectFactory;
+}
+
 class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -59,6 +76,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         IOptionsPage::registerCategory(
             Constants::Settings::CATEGORY, Tr::tr("CMake"), Constants::Icons::SETTINGS_CATEGORY);
 
+        setupCMakeTool();
         setupCMakeToolManager(this);
 
         setupCMakeSettingsPage();
