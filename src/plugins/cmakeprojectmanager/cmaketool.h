@@ -40,11 +40,6 @@ public:
 class CMAKE_EXPORT CMakeTool
 {
 public:
-    enum [[deprecated("Use DetectionSource::Type instead")]] Detection {
-        ManualDetection,
-        AutoDetection
-    };
-
     struct Version
     {
         int major = 0;
@@ -96,8 +91,6 @@ public:
     Version version() const;
     QString versionDisplay() const;
 
-    [[deprecated("Use detectionSource().isAutoDetected() instead")]] bool isAutoDetected() const;
-    [[deprecated("Use setDetectionSource() instead")]] void setAutoDetected(bool autoDetected);
     QString displayName() const;
     void setDisplayName(const QString &displayName);
 
@@ -105,9 +98,6 @@ public:
     PathMapper pathMapper() const;
 
     static Utils::FilePath searchQchFile(const Utils::FilePath &executable);
-
-    [[deprecated("Use setDetectionSource(DetectionSource) instead")]] void setDetectionSource(
-        const QString &source);
 
     // Note: the earlier returned QString is the same as DetectionSource::id now
     ProjectExplorer::DetectionSource detectionSource() const;

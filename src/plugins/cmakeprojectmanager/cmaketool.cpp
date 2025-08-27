@@ -320,16 +320,6 @@ QString CMakeTool::versionDisplay() const
     return QString("%1.%2.%3").arg(version.major).arg(version.minor).arg(version.patch);
 }
 
-bool CMakeTool::isAutoDetected() const
-{
-    return m_detectionSource.isAutoDetected();
-}
-
-void CMakeTool::setAutoDetected(bool autoDetected)
-{
-    m_detectionSource.type = autoDetected ? DetectionSource::FromSystem : DetectionSource::Manual;
-}
-
 QString CMakeTool::displayName() const
 {
     return m_displayName;
@@ -629,11 +619,6 @@ void CMakeTool::parseFromCapabilities(const QString &input) const
     m_introspection->m_version.minor = versionInfo.value("minor").toInt();
     m_introspection->m_version.patch = versionInfo.value("patch").toInt();
     m_introspection->m_version.fullVersion = versionInfo.value("string").toByteArray();
-}
-
-void CMakeTool::setDetectionSource(const QString &source)
-{
-    m_detectionSource.id = source;
 }
 
 void CMakeTool::setDetectionSource(const DetectionSource &source)
