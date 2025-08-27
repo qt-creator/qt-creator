@@ -754,19 +754,19 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
 void CMakeBuildSettingsWidget::updateConfigureDetailsWidgetsSummary(
     const QStringList &configurationArguments)
 {
-    ProjectExplorer::ProcessParameters params;
+    FilePath cmakeExecutable = CMakeKitAspect::cmakeExecutable(m_buildConfig->kit());
+    if (cmakeExecutable.isEmpty())
+        cmakeExecutable = "cmake";
 
     CommandLine cmd;
-    const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->kit());
-    cmd.setExecutable(tool ? tool->cmakeExecutable() : "cmake");
-
-    const FilePath buildDirectory = m_buildConfig->buildDirectory();
-
+    cmd.setExecutable(cmakeExecutable);
     cmd.addArgs({"-S", m_buildConfig->project()->projectDirectory().path()});
-    cmd.addArgs({"-B", buildDirectory.path()});
+    cmd.addArgs({"-B", m_buildConfig->buildDirectory().path()});
     cmd.addArgs(configurationArguments);
 
+    ProcessParameters params;
     params.setCommandLine(cmd);
+
     m_configureDetailsWidget->setSummaryText(params.summary(Tr::tr("Configure")));
     m_configureDetailsWidget->setState(DetailsWidget::Expanded);
 }
