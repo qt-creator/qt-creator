@@ -2309,8 +2309,8 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
             appTargetList.append(bti);
         } else if (ct.targetType == UtilityType && ct.qtcRunnable) {
             const QString buildKey = ct.title;
-            CMakeTool *cmakeTool = CMakeKitAspect::cmakeTool(kit());
-            if (!cmakeTool)
+            const FilePath cmakeExecutable = CMakeKitAspect::cmakeExecutable(kit());
+            if (cmakeExecutable.isEmpty())
                 continue;
 
             // Skip the "all", "clean", "install" special targets.
@@ -2327,7 +2327,7 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
                       return bt.title == "clean";
                   }).workingDirectory;
 
-            bti.targetFilePath = cmakeTool->cmakeExecutable();
+            bti.targetFilePath = cmakeExecutable;
             bti.projectFilePath = ct.sourceDirectory.cleanPath();
             bti.workingDirectory = workingDirectory;
             bti.buildKey = buildKey;
@@ -2644,8 +2644,7 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 MakeInstallCommand CMakeBuildSystem::makeInstallCommand(const FilePath &installRoot) const
 {
     MakeInstallCommand cmd;
-    if (CMakeTool *tool = CMakeKitAspect::cmakeTool(kit()))
-        cmd.command.setExecutable(tool->cmakeExecutable());
+    cmd.command.setExecutable(CMakeKitAspect::cmakeExecutable(kit()));
 
     QString installTarget = "install";
     if (usesAllCapsTargets())

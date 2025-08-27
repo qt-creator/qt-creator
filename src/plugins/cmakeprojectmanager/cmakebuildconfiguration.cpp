@@ -1191,10 +1191,10 @@ static CommandLine defaultInitialCMakeCommand(
     const Kit *k, Project *project, const QString &buildType)
 {
     // Generator:
-    CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
-    QTC_ASSERT(tool, return {});
+    const FilePath cmakeExecutable = CMakeKitAspect::cmakeExecutable(k);
+    QTC_ASSERT(!cmakeExecutable.isEmpty(), return {});
 
-    CommandLine cmd{tool->cmakeExecutable()};
+    CommandLine cmd{cmakeExecutable};
     cmd.addArgs(CMakeGeneratorKitAspect::generatorArguments(k));
 
     // CMAKE_BUILD_TYPE:
@@ -2169,7 +2169,7 @@ CMakeBuildSystem *CMakeBuildConfiguration::cmakeBuildSystem() const
     return qobject_cast<CMakeBuildSystem *>(buildSystem());
 }
 
-void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
+void CMakeBuildConfiguration::addToEnvironment(Environment &env) const
 {
     // Use the user provided VCPKG_ROOT if existing
     // Visual C++ 2022 (and newer) come with their own VCPKG_ROOT
@@ -2178,9 +2178,9 @@ void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
     if (!vcpkgRoot.isEmpty())
         env.set(Constants::VCPKG_ROOT, vcpkgRoot);
 
-    const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
+    const FilePath cmakeExecutable = CMakeKitAspect::cmakeExecutable(kit());
     // The hack further down is only relevant for desktop
-    if (tool && !tool->cmakeExecutable().isLocal())
+    if (!cmakeExecutable.isEmpty() && !cmakeExecutable.isLocal())
         return;
 
     const FilePath ninja = settings(nullptr).ninjaPath();

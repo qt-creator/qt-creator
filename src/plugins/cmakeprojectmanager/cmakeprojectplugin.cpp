@@ -109,7 +109,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
                                                    Tr::tr("CMake", "SnippetProvider"));
         const auto issuesGenerator = [](const Kit *k) {
             Tasks result;
-            if (!CMakeKitAspect::cmakeTool(k)) {
+            if (CMakeKitAspect::cmakeExecutable(k).isEmpty()) {
                 result.append(
                     Project::createTask(Task::TaskType::Error, Tr::tr("No cmake tool set.")));
             }

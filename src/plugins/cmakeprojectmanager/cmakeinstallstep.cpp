@@ -64,8 +64,7 @@ void CMakeInstallStep::setupOutputFormatter(OutputFormatter *formatter)
 CommandLine CMakeInstallStep::cmakeCommand() const
 {
     CommandLine cmd;
-    if (CMakeTool *tool = CMakeKitAspect::cmakeTool(kit()))
-        cmd.setExecutable(tool->cmakeExecutable());
+    cmd.setExecutable(CMakeKitAspect::cmakeExecutable(kit()));
 
     FilePath buildDirectory = ".";
     if (buildConfiguration())

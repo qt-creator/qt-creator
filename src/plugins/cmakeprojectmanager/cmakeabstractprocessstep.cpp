@@ -6,7 +6,6 @@
 #include "cmakekitaspect.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
-#include "cmaketool.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/project.h>
@@ -20,7 +19,7 @@ namespace CMakeProjectManager::Internal {
 
 // CMakeAbstractProcessStep
 
-CMakeAbstractProcessStep::CMakeAbstractProcessStep(BuildStepList *bsl, Utils::Id id)
+CMakeAbstractProcessStep::CMakeAbstractProcessStep(BuildStepList *bsl, Id id)
     : AbstractProcessStep(bsl, id)
 {}
 
@@ -32,8 +31,8 @@ bool CMakeAbstractProcessStep::init()
     BuildConfiguration *bc = buildConfiguration();
     QTC_ASSERT(bc, return false);
 
-    CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
-    if (!tool || !tool->isValid()) {
+    FilePath cmakeExecutable = CMakeKitAspect::cmakeExecutable(kit());
+    if (cmakeExecutable.isEmpty()) {
         emit addTask(BuildSystemTask(Task::Error,
                                      Tr::tr("A CMake tool must be set up for building. "
                                             "Configure a CMake tool in the kit options.")));
