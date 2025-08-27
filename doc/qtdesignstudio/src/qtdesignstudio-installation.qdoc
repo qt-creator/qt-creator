@@ -25,7 +25,8 @@
 
     \list 1
         \li Open \QOI.
-        \li Select \uicontrol {\QDS}.
+        \li Log in with your Qt Account.
+        \li On the \uicontrol {Installation options} page, select \uicontrol {\QDS}.
             \image studio-installation.webp "Qt Design Studio selected in Qt Online Installer"
         \li Select \uicontrol Next and follow the instructions of the
             installer to complete the installation.
