@@ -1178,6 +1178,9 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     auto [info, typeName] = context->lookup(astObjectType);
     if (!info.isValid()) {
         qWarning() << "Skipping node with unknown type" << toString(astObjectType);
+        // We need to remove the invalid node so it doesn't corrupt the internal model
+        if (differenceHandler.isAmender())
+            removeModelNode(modelNode);
         return;
     }
 
