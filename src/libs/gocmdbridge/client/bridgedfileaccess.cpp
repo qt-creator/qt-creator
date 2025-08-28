@@ -420,7 +420,7 @@ Result<FilePath> FileAccess::symLinkTarget(const FilePath &filePath) const
         if (e.code().value() == ENOENT)
             return exceptionError("No such file: %1", filePath, e);
         if (e.code().value() == EINVAL)
-            return exceptionError("Path %1 is not a symlink", filePath, e);
+            return ResultError(Tr::tr("Path %1 is not a symlink").arg(filePath.toUserOutput()));
         return exceptionError("Error getting symlink target for %1", filePath, e);
     } catch (const std::exception &e) {
         return exceptionError("Error getting symlink target for %1", filePath, e);
@@ -522,6 +522,10 @@ Result<QByteArray> FileAccess::fileContents(const FilePath &filePath,
             data.append(result);
         }
         return data;
+    } catch (const std::system_error &e) {
+        if (e.code().value() == ENOENT)
+            return ResultError(Tr::tr("File does not exist: %1").arg(filePath.toUserOutput()));
+        return exceptionError("Error reading file %1", filePath, e);
     } catch (const std::exception &e) {
         return exceptionError("Error reading file %1", filePath, e);
     }
