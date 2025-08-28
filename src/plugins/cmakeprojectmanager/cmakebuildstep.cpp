@@ -87,7 +87,7 @@ class CMakeProgressParser : public Utils::OutputLineParser
     Q_OBJECT
 
 signals:
-    void progress(int percentage);
+    void progress(int percentage, const QString &message);
 
 private:
     Result handleLine(const QString &line, Utils::OutputFormat format) override
@@ -95,27 +95,27 @@ private:
         if (format != Utils::StdOutFormat)
             return Status::NotHandled;
 
-        static const QRegularExpression percentProgress("^\\[\\s*(\\d*)%\\]");
-        static const QRegularExpression ninjaProgress("^\\[\\s*(\\d*)/\\s*(\\d*)");
+        static const QRegularExpression percentProgress("(^\\[\\s*(\\d*)%\\])");
+        static const QRegularExpression ninjaProgress("^(\\[\\s*(\\d*)/\\s*(\\d*).*\\])");
 
         QRegularExpressionMatch match = percentProgress.match(line);
         if (match.hasMatch()) {
             bool ok = false;
-            const int percent = match.captured(1).toInt(&ok);
+            const int percent = match.captured(2).toInt(&ok);
             if (ok)
-                emit progress(percent);
+                emit progress(percent, match.captured(1));
             return Status::Done;
         }
         match = ninjaProgress.match(line);
         if (match.hasMatch()) {
             m_useNinja = true;
             bool ok = false;
-            const int done = match.captured(1).toInt(&ok);
+            const int done = match.captured(2).toInt(&ok);
             if (ok) {
-                const int all = match.captured(2).toInt(&ok);
+                const int all = match.captured(3).toInt(&ok);
                 if (ok && all != 0) {
                     const int percent = static_cast<int>(100.0 * done / all);
-                    emit progress(percent);
+                    emit progress(percent, match.captured(1));
                 }
             }
             return Status::Done;
@@ -334,9 +334,7 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
 {
     CMakeOutputParser *cmakeOutputParser = new CMakeOutputParser;
     CMakeProgressParser * const progressParser = new CMakeProgressParser;
-    connect(progressParser, &CMakeProgressParser::progress, this, [this](int percent) {
-        emit progress(percent, {});
-    });
+    connect(progressParser, &CMakeProgressParser::progress, this, &CMakeBuildStep::progress);
     formatter->addLineParser(progressParser);
     cmakeOutputParser->setSourceDirectories(
         {project()->projectDirectory(), buildConfiguration()->buildDirectory()});
