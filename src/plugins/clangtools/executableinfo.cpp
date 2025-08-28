@@ -216,7 +216,8 @@ static QPair<FilePath, QString> clangIncludeDirAndVersion(const FilePath &clangT
 
 QPair<FilePath, QString> getClangIncludeDirAndVersion(const FilePath &clangToolPath)
 {
-    QTC_CHECK(!clangToolPath.isEmpty());
+    if (clangToolPath.isEmpty())
+        return {};
     static QMap<FilePath, QPair<FilePath, QString>> cache;
     auto it = cache.find(clangToolPath);
     if (it == cache.end())
