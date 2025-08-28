@@ -275,6 +275,24 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
 endfunction()
 
 macro(qt_maintenance_tool_dependency method package_name)
+  # Work around upstream cmake issue: https://gitlab.kitware.com/cmake/cmake/-/issues/27169
+  if(ANDROID
+      AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.29
+      AND NOT ANDROID_USE_LEGACY_TOOLCHAIN_FILE
+      AND NOT CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS
+      AND NOT QT_NO_SET_MAINTENANCE_TOOL_PROVIDER_POLICY_CMP0155
+    )
+    message(DEBUG
+      "Setting policy CMP0155 to OLD inside qt_maintenance_tool_dependency to avoid "
+      "issues with not being able to find the Threads package when targeting Android with "
+      "cmake_minimum_required(3.29) and CMAKE_CXX_STANDARD >= 20."
+    )
+    # We don't create an explicit policy stack entry before changing the policy, because setting
+    # the policy value bubbles it up to the parent find_package() scope, which is fine, that's
+    # exactly the scope we want to modify.
+    cmake_policy(SET CMP0155 OLD)
+  endif()
+
   if (${package_name} MATCHES "^Qt([0-9])(.*)$")
     set(__qt_dependency_qt_major_version ${CMAKE_MATCH_1})
     set(__qt_dependency_qt_package_name ${CMAKE_MATCH_2})
