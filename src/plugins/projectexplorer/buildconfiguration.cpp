@@ -641,7 +641,9 @@ void BuildConfiguration::updateDefaultDeployConfigurations()
 {
     const QList<DeployConfigurationFactory *> dcFactories = DeployConfigurationFactory::find(
         target());
-    QTC_ASSERT(!dcFactories.isEmpty(), qDebug() << target()->id(); return);
+    QTC_ASSERT(!dcFactories.isEmpty(),
+               qDebug() << "No deploy configuration factories found for target:" << target()->id();
+               return);
 
     QList<Utils::Id> dcIds;
     for (const DeployConfigurationFactory *dcFactory : dcFactories)
