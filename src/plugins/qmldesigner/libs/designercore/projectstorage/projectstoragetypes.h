@@ -434,7 +434,10 @@ public:
         using NanotraceHR::keyValue;
         auto dict = dictonary(keyValue("name", exportedType.name),
                               keyValue("module id", exportedType.moduleId),
-                              keyValue("version", exportedType.version));
+                              keyValue("version", exportedType.version),
+                              keyValue("context source id", exportedType.contextSourceId),
+                              keyValue("type id name", exportedType.typeIdName),
+                              keyValue("type source name", exportedType.typeSourceId));
 
         convertToString(string, dict);
     }
