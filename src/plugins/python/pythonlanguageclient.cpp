@@ -36,9 +36,7 @@
 #include <utils/infobar.h>
 #include <utils/qtcprocess.h>
 
-#include <QFutureWatcher>
 #include <QJsonDocument>
-#include <QTimer>
 
 using namespace LanguageClient;
 using namespace LanguageServerProtocol;
@@ -314,7 +312,7 @@ public:
     void openDocument(const FilePath &python, TextDocument *document);
 
     QHash<FilePath, QList<TextDocument *>> m_infoBarEntries;
-    QHash<TextDocument *, QPointer<QFutureWatcher<PythonLanguageServerState>>> m_runningChecks;
+    MappedTaskTreeRunner<TextDocument *> m_documentRunner;
     SingleTaskTreeRunner m_pipInstallerRunner;
 };
 
@@ -364,29 +362,19 @@ void PyLSConfigureAssistant::openDocument(const FilePath &python, TextDocument *
         return;
     }
 
-    using CheckPylsWatcher = QFutureWatcher<PythonLanguageServerState>;
-    QPointer<CheckPylsWatcher> watcher = new CheckPylsWatcher();
+    const auto onSetup = [python](Async<PythonLanguageServerState> &task) {
+        task.setConcurrentCallData(&checkPythonLanguageServer, python);
+    };
+    const auto onDone = [this, python, document = QPointer<TextDocument>(document)](
+                            const Async<PythonLanguageServerState> &task) {
+        if (!document || !task.isResultAvailable())
+            return;
+        handlePyLSState(python, task.result(), document);
+    };
 
-    // cancel and delete watcher after a 10 second timeout
-    QTimer::singleShot(10000, this, [watcher]() {
-        if (watcher) {
-            watcher->cancel();
-            watcher->deleteLater();
-        }
-    });
-
-    connect(watcher, &CheckPylsWatcher::resultReadyAt, this,
-            [this, watcher, python, document = QPointer<TextDocument>(document)] {
-                if (!document || !watcher)
-                    return;
-                handlePyLSState(python, watcher->result(), document);
-            });
-    connect(watcher, &CheckPylsWatcher::finished, watcher, &CheckPylsWatcher::deleteLater);
-    connect(watcher, &CheckPylsWatcher::finished, this, [this, document] {
-        m_runningChecks.remove(document);
-    });
-    watcher->setFuture(Utils::asyncRun(&checkPythonLanguageServer, python));
-    m_runningChecks[document] = watcher;
+    using namespace std::literals::chrono_literals;
+    const Group recipe { AsyncTask<PythonLanguageServerState>(onSetup, onDone).withTimeout(10s) };
+    m_documentRunner.start(document, recipe);
 }
 
 void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
@@ -459,8 +447,7 @@ void PyLSConfigureAssistant::resetEditorInfoBar(TextDocument *document)
     for (QList<TextDocument *> &documents : m_infoBarEntries)
         documents.removeAll(document);
     document->infoBar()->removeInfo(installPylsInfoBarId);
-    if (auto watcher = m_runningChecks.value(document))
-        watcher->cancel();
+    m_documentRunner.resetKey(document);
 }
 
 PyLSConfigureAssistant::PyLSConfigureAssistant()
