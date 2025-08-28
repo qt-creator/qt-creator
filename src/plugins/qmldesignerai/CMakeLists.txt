@@ -9,4 +9,6 @@ add_qtc_plugin(QmlDesignerAi
     aiassistantview.cpp aiassistantview.h
     aiassistantwidget.cpp aiassistantwidget.h
     aiassistant.qrc
+    airesponse.h airesponse.cpp
+    manifest.cpp manifest.h
 )

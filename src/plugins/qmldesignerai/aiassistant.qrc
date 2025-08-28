@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/AiAssistant">
         <file>images/ai.png</file>
+        <file>manifests/ai.manifest.json</file>
+        <file>manifests/ai_ui.manifest.json</file>
     </qresource>
 </RCC>

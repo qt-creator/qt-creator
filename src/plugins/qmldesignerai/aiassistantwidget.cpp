@@ -3,6 +3,8 @@
 
 #include "aiassistantwidget.h"
 
+#include "airesponse.h"
+
 #include <asset.h>
 #include <designersettings.h>
 #include <qmldesignerconstants.h>
@@ -13,17 +15,14 @@
 
 #include <QApplication>
 #include <QBuffer>
-#include <QHBoxLayout>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QMenu>
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QPushButton>
 #include <QQmlContext>
 #include <QQmlEngine>
-#include <QTextEdit>
+#include <QVBoxLayout>
 #include <QtQuick/QQuickItem>
 
 namespace QmlDesigner {
@@ -48,32 +47,102 @@ QString qmlSourcesPath()
     return Core::ICore::resourcePath("qmldesigner/aiAssistantQmlSources").toUrlishString();
 }
 
-QString getContent(const QJsonObject &responseObject)
+QString toBase64Image(const Utils::FilePath &imagePath)
 {
-    if (!responseObject.contains("choices") || !responseObject["choices"].isArray()) {
-        qWarning() << __FUNCTION__ << "Missing or invalid 'choices' array";
-        return {};
+    using namespace Qt::StringLiterals;
+    QImage image(imagePath.toFSPathString());
+    QByteArray byteArray;
+    QBuffer buffer(&byteArray);
+
+    image.save(&buffer, imagePath.suffix().toLatin1());
+
+    return "data:image/%1;base64,%2"_L1.arg(imagePath.suffix(), byteArray.toBase64());
+}
+
+QJsonObject getUserJson(
+    const QUrl &imageUrl, const QString &filePath, const QString &currentQml, const QString &prompt)
+{
+    using namespace Qt::StringLiterals;
+    using Utils::FilePath;
+
+    QJsonArray jsonContent;
+
+    jsonContent << QJsonObject{
+        {"type", "text"},
+        {"text", "filePath: %1"_L1.arg(filePath)},
+    };
+
+    jsonContent << QJsonObject{
+        {"type", "text"},
+        {"text", "currentQml:\n```qml\n%1\n```"_L1.arg(currentQml)},
+    };
+
+    jsonContent << QJsonObject{
+        {"type", "text"},
+        {"text", "request: %1"_L1.arg(prompt)},
+    };
+
+    if (!imageUrl.isEmpty()) {
+        FilePath imagePath = FilePath::fromUrl(imageUrl);
+        if (imagePath.exists()) {
+            jsonContent << QJsonObject{
+                {"type", "image_url"},
+                {"image_url", QJsonObject{{"url", toBase64Image(imagePath)}}},
+            };
+        }
     }
 
-    QJsonArray choicesArray = responseObject["choices"].toArray();
-    if (choicesArray.isEmpty()) {
-        qWarning() << __FUNCTION__ << "'choices' array is empty";
-        return {};
-    }
+    return {
+        {"role", "user"},
+        {"content", jsonContent},
+    };
+}
 
-    QJsonObject firstChoice = choicesArray.first().toObject();
-    if (!firstChoice.contains("message") || !firstChoice["message"].isObject()) {
-        qWarning() << __FUNCTION__ << "Missing or invalid 'message' object in first choice";
-        return {};
-    }
+DesignDocument *currentDesignDocument()
+{
+    return QmlDesignerPlugin::instance()->currentDesignDocument();
+}
 
-    QJsonObject messageObject = firstChoice["message"].toObject();
-    if (!messageObject.contains("content") || !messageObject["content"].isString()) {
-        qWarning() << __FUNCTION__ << "Missing or invalid 'content' string in message";
-        return {};
-    }
+RewriterView *rewriterView()
+{
+    return currentDesignDocument()->rewriterView();
+}
 
-    return messageObject["content"].toString();
+// AUX data excluded
+QString currentQmlText()
+{
+    constexpr QStringView annotationsStart{u"/*##^##"};
+    constexpr QStringView annotationsEnd{u"##^##*/"};
+
+    QString pureQml = currentDesignDocument()->plainTextEdit()->toPlainText();
+    int startIndex = pureQml.indexOf(annotationsStart);
+    int endIndex = pureQml.indexOf(annotationsEnd, startIndex);
+    if (startIndex != -1 && endIndex != -1) {
+        int lengthToRemove = (endIndex + annotationsEnd.length()) - startIndex;
+        pureQml.remove(startIndex, lengthToRemove);
+    }
+    return pureQml;
+}
+
+QString relativePathFromProject(const Utils::FilePath &file)
+{
+    return file.relativePathFromDir(DocumentManager::currentProjectDirPath()).toFSPathString();
+}
+
+void selectIds(const QStringList &ids)
+{
+    if (ids.isEmpty())
+        return;
+
+    Model *model = rewriterView()->model();
+    ModelNodes selectedNodes;
+    selectedNodes.reserve(ids.size());
+
+    for (const QString &id : ids)
+        selectedNodes.append(rewriterView()->modelNodeForId(id));
+
+    if (!selectedNodes.isEmpty())
+        model->setSelectedModelNodes(selectedNodes);
 }
 
 } // namespace
@@ -121,6 +190,17 @@ void AiAssistantWidget::clearAttachedImage()
     m_quickWidget->rootObject()->setProperty("attachedImageSource", "");
 }
 
+void AiAssistantWidget::initManifest()
+{
+    const QString extension = currentDesignDocument()->fileName().suffix().toLower();
+    if (extension == "qml")
+        m_manifest = Manifest::fromJsonResource(":/AiAssistant/manifests/ai.manifest.json");
+    else if (extension == "ui.qml")
+        m_manifest = Manifest::fromJsonResource(":/AiAssistant/manifests/ai_ui.manifest.json");
+    else
+        m_manifest = {};
+}
+
 QSize AiAssistantWidget::sizeHint() const
 {
     return {420, 20};
@@ -147,21 +227,13 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
     if (prompt.isEmpty())
         return;
 
+    if (m_manifest.hasNoRules()) {
+        qWarning() << __FUNCTION__ << "Manifest has no rules";
+        return;
+    }
+
     m_inputHistory.append(prompt);
     m_historyIndex = m_inputHistory.size();
-
-    QString currentQml = QmlDesignerPlugin::instance()->currentDesignDocument()
-                             ->plainTextEdit()->toPlainText();
-
-    // Remove aux data (it seems to affect the result and make it generate 3D content)
-    QString startMarker = "/*##^##";
-    QString endMarker = "##^##*/";
-    int startIndex = currentQml.indexOf(startMarker);
-    int endIndex = currentQml.indexOf(endMarker, startIndex);
-    if (startIndex != -1 && endIndex != -1) {
-        int lengthToRemove = (endIndex + endMarker.length()) - startIndex;
-        currentQml.remove(startIndex, lengthToRemove);
-    }
 
     QByteArray groqApiKey = QmlDesignerPlugin::settings().value("GroqApiKey", "").toByteArray();
 
@@ -169,109 +241,37 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Authorization", QByteArray("Bearer ").append(groqApiKey));
 
-    QString systemTemplate = R"(
-You are a QML expert assistant specializing in Qt 6.4+ code generation. Follow these rules strictly:
-1. **Output Format**: Reply ONLY with raw, runnable QML code. No explanations, markdown, or extra text.
-2. **Imports**: Do not remove any `import` statement. Add missing ones if needed (e.g., `QtQuick`, `QtQuick3D`).
-3. **Identifiers**: IDs must start with lowercase and avoid reserved words (e.g., `text1` instead of `text`).
-4. **Property Binding**: Don't modify any assigmed property bindings (e.g. color: Constants.backgroundColor).
-5. **Scope**: Generate a SINGLE QML file. Use inline `Component` blocks if reusable parts are needed.
-6. **QtQuick**: Only use built-in QtQuick/QtQuick3D components. No custom components, external images, or C++ integrations.
-7. **Completeness**: Ensure the code is runnable. Include required properties (e.g., `width`, `height`) for root objects.
-8. **Modifications**: If the user requests changes to existing code, retain the original structure and only modify requested parts.
-9. **Root Item**: Never change the root item type, always keep it as is, in the current QML.
-10. **Image Assets**: You have access to the following project image assets: %1. Use them in your generations when appropriate.
-)";
-
-    bool isUiQml = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName().endsWith(".ui.qml");
-    if (isUiQml) {
-        systemTemplate += "11. **Declarative Only**: Write only declarative QML components. Do not include any JavaScript logic, signal handlers (like onClicked), or imperative code. Just define static UI structure, properties, and bindings—no behaviors or event handling.";
-        systemTemplate += "12. **States**: The `states` property must ALWAYS be declared on the root object only. If the user requests states for a child object, define the state on the root and use the `PropertyChanges { target: <childId> ... }` pattern to apply changes to that object.";
-    }
-
-    QString userTemplate = R"(
-Current QML:
-%1
-
-Request: %2
-)";
-
-    QJsonObject userJson;
-    if (const QUrl &imageUrl = fullImageUrl(attachedImageSource()); !imageUrl.isEmpty()) {
-        Utils::FilePath imagePath = Utils::FilePath::fromUrl(imageUrl);
-        if (imagePath.exists()) {
-            QImage image(imagePath.toFSPathString());
-            QByteArray byteArray;
-            QBuffer buffer(&byteArray);
-
-            image.save(&buffer, imagePath.suffix().toLatin1());
-
-            QString base64Image = "data:image/" + imagePath.suffix() + ";base64,"
-                                  + QString::fromLatin1(byteArray.toBase64());
-            userJson  = {
-                {"role", "user"},
-                {"content", QJsonArray{
-                    QJsonObject{{"type", "text"}, {"text", userTemplate.arg(currentQml, prompt)}},
-                    QJsonObject{
-                        {"type", "image_url"},
-                        {"image_url", QJsonObject{{"url", base64Image}}}
-                    }
-                }}
-            };
-        }
-    }
-
-    if (userJson.isEmpty())
-        userJson = QJsonObject{{"role", "user"}, {"content", userTemplate.arg(currentQml, prompt)}};
-
+    const Utils::FilePath qmlFile = currentDesignDocument()->fileName();
     const QString imagePaths = getImageAssetsPaths().join('\n');
+    m_manifest.setTagsMap({
+        {"image_assets", imagePaths},
+    });
+
+    QJsonObject userJson = getUserJson(
+        fullImageUrl(attachedImageSource()),
+        relativePathFromProject(qmlFile),
+        currentQmlText(),
+        prompt);
 
     QJsonObject json;
     json["model"] = "meta-llama/llama-4-maverick-17b-128e-instruct";
-    json["messages"] = QJsonArray {
-        QJsonObject{{"role", "system"}, {"content", systemTemplate.arg(imagePaths)}},
+    json["messages"] = QJsonArray{
+        QJsonObject{{"role", "system"}, {"content", m_manifest.toJsonContent()}},
         userJson,
     };
 
-    m_reply = m_manager->post(request, QJsonDocument(json).toJson());
+    QNetworkReply *reply = m_manager->post(request, QJsonDocument(json).toJson());
     setIsGenerating(true);
 
-    connect(m_reply, &QNetworkReply::finished, this, [&]() {
+    connect(reply, &QNetworkReply::finished, this, [reply, this] {
         setIsGenerating(false);
-        if (m_reply->error() != QNetworkReply::NoError) {
-            qWarning() << "AI Assistant Request failed: " << m_reply->errorString();
+        if (reply->error() != QNetworkReply::NoError) {
+            qWarning() << "AI Assistant Request failed: " << reply->errorString() << reply->error();
             // TODO: notify the user that the request failed (+ maybe show the error message)
         } else {
-            QJsonDocument doc = QJsonDocument::fromJson(m_reply->readAll());
-            QJsonObject responseObject = doc.object();
-            QString content = getContent(responseObject);
-
-            QTC_ASSERT(!content.isEmpty(), m_reply->deleteLater(); return);
-
-            // remove <think> block if exists
-            if (content.startsWith("<think>")) {
-                int endPos = content.indexOf("</think>");
-                if (endPos != -1)
-                    content.remove(0, endPos + 8);
-                else // If no closing tag, remove the opening tag only
-                    content.remove(0, 7); // 7 is length of "<think>"
-            }
-
-            content = content.trimmed();
-
-            // remove the start/end sentence and ``` if exists
-            if (content.startsWith("```qml"))
-                content.remove(0, 6);
-            else if (content.startsWith("```"))
-                content.remove(0, 3);
-            if (content.endsWith("```"))
-                content.chop(3);
-
-            auto textModifier = QmlDesignerPlugin::instance()->currentDesignDocument()
-                                    ->rewriterView()->textModifier();
-            textModifier->replace(0, textModifier->text().size(), content);
+            handleAiResponse(reply->readAll());
         }
-        m_reply->deleteLater();
+        reply->deleteLater();
     });
 }
 
@@ -321,6 +321,39 @@ void AiAssistantWidget::setIsGenerating(bool val)
 QString AiAssistantWidget::attachedImageSource() const
 {
     return m_quickWidget->rootObject()->property("attachedImageSource").toString();
+}
+
+void AiAssistantWidget::handleAiResponse(const AiResponse &response)
+{
+    using namespace Qt::StringLiterals;
+    using Utils::FilePath;
+
+    if (response.error() != AiResponse::Error::NoError) {
+        qWarning() << __FUNCTION__ << "Response Error:" << response.errorString();
+        return;
+    }
+
+    const AiResponseFile file = response.file();
+    if (file.isValid()) {
+        const FilePath currentFile = currentDesignDocument()->fileName();
+        const QString currentRelativeFilePath = relativePathFromProject(currentFile);
+        if (currentRelativeFilePath != file.filePath()
+            && currentFile.fileName() != file.filePath()) {
+            qWarning() << __FUNCTION__
+                       << "Invalid file path '%1' Current filePath is '%2'"_L1
+                              .arg(file.filePath(), currentRelativeFilePath);
+            return;
+        }
+
+        const QString aiFileContent = file.content();
+        const QString currentQml = currentQmlText();
+        if (!aiFileContent.isEmpty() && currentQml != aiFileContent) {
+            auto textModifier = rewriterView()->textModifier();
+            textModifier->replace(0, textModifier->text().size(), aiFileContent);
+        }
+    }
+
+    selectIds(response.selectedIds());
 }
 
 } // namespace QmlDesigner

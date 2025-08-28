@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "manifest.h"
+
 #include <studioquickwidget.h>
 
 #include <utils/uniqueobjectptr.h>
@@ -22,6 +24,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
+class AiResponse;
 class AiAssistantWidget : public QFrame
 {
     Q_OBJECT
@@ -33,6 +36,7 @@ public:
     ~AiAssistantWidget() = default;
 
     void clearAttachedImage();
+    void initManifest();
 
     QSize sizeHint() const override;
 
@@ -52,14 +56,14 @@ private: // functions
     void reloadQmlSource();
     void setIsGenerating(bool val);
     QString attachedImageSource() const;
+    void handleAiResponse(const AiResponse &response);
 
 private: // variables
     std::unique_ptr<QNetworkAccessManager> m_manager;
-    QPointer<QNetworkReply> m_reply;
-
     Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
 
     QStringList m_inputHistory;
+    Manifest m_manifest;
     int m_historyIndex = -1;
     bool m_isGenerating = false;
 };
