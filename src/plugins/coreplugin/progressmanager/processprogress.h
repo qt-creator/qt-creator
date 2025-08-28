@@ -19,14 +19,20 @@ class ProcessProgressPrivate;
 
 class CORE_EXPORT ProcessProgress : public QObject
 {
+    Q_OBJECT
+
 public:
     ProcessProgress(Utils::Process *process); // Makes ProcessProgress a child of process
     ~ProcessProgress() override;
 
+    void setAutoStopOnCancel(bool enable);
     void setDisplayName(const QString &name);
     void setKeepOnFinish(FutureProgress::KeepOnFinishType keepType);
     void setProgressParser(const ProgressParser &parser);
     void setExpectedDuration(std::chrono::seconds duration); // 2s by default
+
+signals:
+    void canceled();
 
 private:
     std::unique_ptr<ProcessProgressPrivate> d;
