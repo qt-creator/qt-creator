@@ -47,6 +47,7 @@ namespace ProjectExplorer {
 class FileTransferInterface;
 class FileTransferSetupData;
 class Kit;
+class Project;
 class SshParameters;
 class SshParametersAspectContainer;
 class Target;
@@ -292,6 +293,8 @@ public:
     virtual bool supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const;
 
     void autoDetectDeviceTools();
+
+    virtual bool supportsProject(Project *project) const;
 
 public:
     Utils::BoolAspect allowEmptyCommand{this};

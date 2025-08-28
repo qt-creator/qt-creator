@@ -13,6 +13,10 @@ namespace CmdBridge {
 class FileAccess;
 }
 
+namespace ProjectExplorer {
+class Project;
+}
+
 namespace DevContainer {
 
 class Device : public ProjectExplorer::IDevice
@@ -37,6 +41,8 @@ public:
     bool supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const override;
 
     void toMap(Utils::Store &map) const override;
+
+    bool supportsProject(ProjectExplorer::Project *project) const override;
 
 public: // FilePath stuff
     bool handlesFile(const Utils::FilePath &filePath) const override;

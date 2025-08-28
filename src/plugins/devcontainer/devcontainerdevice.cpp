@@ -20,6 +20,7 @@
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <tasking/conditional.h>
@@ -349,7 +350,7 @@ Result<> Device::up(InstanceConfig instanceConfig, std::function<void(Result<>)>
                     continue;
                 }
 
-                const auto factory = Utils::findOrDefault(
+                const auto factory = findOrDefault(
                     KitAspectFactory::kitAspectFactories(),
                     [key = Id::fromString(it.key())](KitAspectFactory *factory) {
                         if (factory->id() == key || factory->jsonKeys().contains(key))
@@ -500,10 +501,15 @@ Result<FilePath> Device::localSource(const FilePath &other) const
         Tr::tr("No mapping available for %1 on %2.").arg(other.path(), displayName()));
 }
 
-bool Device::supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const
+bool Device::supportsQtTargetDeviceType(const QSet<Id> &targetDeviceTypes) const
 {
     return targetDeviceTypes.contains(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
            || IDevice::supportsQtTargetDeviceType(targetDeviceTypes);
+}
+
+bool Device::supportsProject(Project *project) const
+{
+    return project && project->projectDirectory() == m_instanceConfig.workspaceFolder;
 }
 
 void Device::toMap(Store &map) const

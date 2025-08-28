@@ -354,7 +354,7 @@ const Id RunDeviceTypeKitAspect::deviceTypeId(const Kit *k)
     return Constants::DESKTOP_DEVICE_TYPE;
 }
 
-Utils::Id RunDeviceTypeKitAspect::executionTypeId(const Kit *k)
+Id RunDeviceTypeKitAspect::executionTypeId(const Kit *k)
 {
     if (!k)
         return {};
@@ -500,7 +500,7 @@ QString BuildDeviceTypeKitAspect::displayName(const Kit *k)
     return {};
 }
 
-void BuildDeviceTypeKitAspect::setDeviceTypeId(Kit *k, Utils::Id type)
+void BuildDeviceTypeKitAspect::setDeviceTypeId(Kit *k, Id type)
 {
     QTC_ASSERT(k, return);
     k->setValue(id(), type.toSetting());
@@ -522,7 +522,7 @@ public:
     }
 
 private:
-    void addToBuildEnvironment(const Kit *k, Utils::Environment &env) const override
+    void addToBuildEnvironment(const Kit *k, Environment &env) const override
     {
         IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
         if (!dev)
@@ -570,6 +570,14 @@ void BuildDeviceKitAspect::setDeviceId(Kit *k, Id id)
 {
     QTC_ASSERT(k, return);
     k->setValue(BuildDeviceKitAspect::id(), id.toSetting());
+}
+
+bool BuildDeviceKitAspect::supportsProject(Kit *k, Project *project)
+{
+    if (IDevice::ConstPtr dev = device(k))
+        return dev->supportsProject(project);
+
+    return true;
 }
 
 } // namespace ProjectExplorer

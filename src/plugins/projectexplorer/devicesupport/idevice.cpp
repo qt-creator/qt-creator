@@ -721,7 +721,7 @@ bool IDevice::isTesting() const
     return d->isTesting;
 }
 
-bool IDevice::canMount(const Utils::FilePath &) const
+bool IDevice::canMount(const FilePath &) const
 {
     return false;
 }
@@ -971,7 +971,7 @@ FilePath IDevice::deviceToolPath(Id toolId) const
 
 QList<DeviceToolAspect *> IDevice::deviceToolAspects(DeviceToolAspect::ToolType supportType) const
 {
-    return Utils::filtered(d->deviceToolAspects.values(), [supportType](DeviceToolAspect *aspect) {
+    return filtered(d->deviceToolAspects.values(), [supportType](DeviceToolAspect *aspect) {
         return aspect->toolType() & supportType;
     });
 }
@@ -1051,7 +1051,7 @@ bool IDevice::ensureReachable(const FilePath &other) const
     return handlesFile(other); // Some first approximation.
 }
 
-Result<FilePath> IDevice::localSource(const Utils::FilePath &other) const
+Result<FilePath> IDevice::localSource(const FilePath &other) const
 {
     Q_UNUSED(other)
     return make_unexpected(Tr::tr("localSource() not implemented for this device type."));
@@ -1194,7 +1194,7 @@ SshParametersAspectContainer &IDevice::sshParametersAspectContainer() const
     return d->sshParametersAspectContainer;
 }
 
-bool IDevice::supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const
+bool IDevice::supportsQtTargetDeviceType(const QSet<Id> &targetDeviceTypes) const
 {
     return targetDeviceTypes.contains(type());
 }
@@ -1227,7 +1227,7 @@ FilePaths Internal::IDevicePrivate::autoDetectionPaths() const
         }
 
         // Prefer higher Qt versions.
-        Utils::sort(qtBinPaths, [](const VersionAndPath &a, const VersionAndPath &b) {
+        sort(qtBinPaths, [](const VersionAndPath &a, const VersionAndPath &b) {
             return a.first > b.first;
         });
 
@@ -1240,11 +1240,15 @@ FilePaths Internal::IDevicePrivate::autoDetectionPaths() const
             paths.append(FilePath::fromString(path.trimmed()));
     }
 
-    paths = Utils::transform(paths, [this](const FilePath &path) {
-        return q->filePath(path.path());
-    });
+    paths = transform(paths, [this](const FilePath &path) { return q->filePath(path.path()); });
 
     return paths;
+}
+
+bool IDevice::supportsProject(Project *project) const
+{
+    Q_UNUSED(project);
+    return true;
 }
 
 } // namespace ProjectExplorer
