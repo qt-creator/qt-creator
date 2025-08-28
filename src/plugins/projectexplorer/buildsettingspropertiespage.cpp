@@ -88,6 +88,7 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target)
 
     { // Edit Build Configuration row
         m_buildConfigurationComboBox = new QComboBox(this);
+        m_buildConfigurationComboBox->setObjectName("buildConfigCombo"); // used by Squish
         m_buildConfigurationComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         m_buildConfigurationComboBox->setModel(m_target->buildConfigurationModel());
         setWheelScrollingWithoutFocusBlocked(m_buildConfigurationComboBox);

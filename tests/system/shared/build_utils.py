@@ -140,8 +140,7 @@ def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShad
                       "type='QCheckBox' unnamed='1' visible='1' "
                       "window=':Qt Creator_Core::Internal::MainWindow'}", enableShadowBuild)
 
-    buildCfCombo = waitForObject("{leftWidget=':scrollArea.Edit build configuration:_QLabel' "
-                                 "type='QComboBox' unnamed='1' visible='1'}")
+    buildCfCombo = waitForObject(":scrollArea.Edit build configuration:_QComboBox")
     buildType = "Debug" if shouldBeDebug else "Release"
     test.compare(buildCfCombo.currentText, buildType,
                  "Verifying whether it's a %s build" % buildType)

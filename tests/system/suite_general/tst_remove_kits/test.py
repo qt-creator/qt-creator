@@ -12,7 +12,7 @@ def verifyProjectsMode(expectedKits):
     test.compare(len(relevantKits), len(expectedKits), "Verify number of listed kits.")
     test.compare(set(relevantKits), set(expectedKits), "Verify if expected kits are listed.")
     hasKits = len(expectedKits) > 0
-    test.verify(checkIfObjectExists(":scrollArea.Edit build configuration:_QLabel", hasKits),
+    test.verify(checkIfObjectExists(":scrollArea.Edit build configuration:_QComboBox", hasKits),
                 "Verify if build settings are being displayed.")
     test.verify(checkIfObjectExists(":No valid kits found._QLabel", not hasKits),
                 "Verify if Creator reports missing kits.")
