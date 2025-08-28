@@ -506,4 +506,9 @@ bool Device::supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes
            || IDevice::supportsQtTargetDeviceType(targetDeviceTypes);
 }
 
+void Device::toMap(Store &map) const
+{
+    Q_UNUSED(map);
+}
+
 } // namespace DevContainer

@@ -211,6 +211,8 @@ Store DeviceManager::toMap()
     for (const IDevice::Ptr &device : std::as_const(d->devices)) {
         Store store;
         device->toMap(store);
+        if (store.isEmpty())
+            continue;
         deviceList << variantFromStore(store);
     }
     map.insert(DeviceListKey, deviceList);

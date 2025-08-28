@@ -36,6 +36,8 @@ public:
 
     bool supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const override;
 
+    void toMap(Utils::Store &map) const override;
+
 public: // FilePath stuff
     bool handlesFile(const Utils::FilePath &filePath) const override;
     Utils::FilePath rootPath() const override;
