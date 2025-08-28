@@ -110,16 +110,27 @@ QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
     return importedTypeNameId;
 }
 
+static ImportId globalImportId;
+
 QmlDesigner::ImportId ProjectStorageMock::createImportId(QmlDesigner::ModuleId moduleId,
                                                          QmlDesigner::SourceId sourceId,
                                                          QmlDesigner::Storage::Version version)
 {
-    static ImportId importId;
-    incrementBasicId(importId);
+    incrementBasicId(globalImportId);
 
-    ON_CALL(*this, importId(IsImport(moduleId, sourceId, version))).WillByDefault(Return(importId));
+    ON_CALL(*this, importId(IsImport(moduleId, sourceId, version))).WillByDefault(Return(globalImportId));
 
-    return importId;
+    return globalImportId;
+}
+
+QmlDesigner::ImportId ProjectStorageMock::createImportIdWithAlias(QmlDesigner::SourceId sourceId,
+                                                                  Utils::SmallStringView alias)
+{
+    incrementBasicId(globalImportId);
+
+    ON_CALL(*this, importId(sourceId, alias)).WillByDefault(Return(globalImportId));
+
+    return globalImportId;
 }
 
 void ProjectStorageMock::addExportedTypeName(QmlDesigner::TypeId typeId,

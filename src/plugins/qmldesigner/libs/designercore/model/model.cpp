@@ -64,7 +64,7 @@ ModelPrivate::ModelPrivate(Model *model,
 {
     m_metaInfoProxyModel = metaInfoProxyModel;
 
-    changeImports({Import::createLibraryImport({"QtQuick"})}, {});
+    m_imports = {Import::createLibraryImport({"QtQuick"})};
 
     m_rootInternalNode = createNode(
         typeName, major, minor, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
@@ -90,7 +90,7 @@ ModelPrivate::ModelPrivate(Model *model,
     , m_resourceManagement{std::move(resourceManagement)}
 {
     setFileUrl(fileUrl);
-    changeImports(std::move(imports), {});
+    m_imports = std::move(imports);
 
     m_rootInternalNode = createNode(typeName, -1, -1, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
 
@@ -168,6 +168,17 @@ auto createModuleId(const Import &import,
     return modulesStorage.moduleId(modulePath, moduleKind);
 }
 
+namespace {
+
+void removeDuplicates(std::ranges::range auto &entries)
+{
+    std::ranges::sort(entries);
+    auto removed = std::ranges::unique(entries);
+    entries.erase(removed.begin(), removed.end());
+}
+
+} // namespace
+
 Storage::Imports createStorageImports(const Imports &imports,
                                       Utils::SmallStringView localDirectoryPath,
                                       ModulesStorage &modulesStorage,
@@ -179,12 +190,21 @@ Storage::Imports createStorageImports(const Imports &imports,
 
     for (const Import &import : imports) {
         ModuleId moduleId = createModuleId(import, localDirectoryPath, modulesStorage);
-        storageImports.emplace_back(moduleId, import.majorVersion(), import.minorVersion(), fileId, fileId);
+        storageImports.emplace_back(moduleId,
+                                    Storage::Version::convertFromSignedInteger(import.majorVersion(),
+                                                                               import.minorVersion()),
+                                    fileId,
+                                    fileId,
+                                    import.alias());
     }
 
     auto localDirectoryModuleId = modulesStorage.moduleId(localDirectoryPath, ModuleKind::PathLibrary);
-
     storageImports.emplace_back(localDirectoryModuleId, Storage::Version{}, fileId, fileId);
+
+    auto qmlModuleId = modulesStorage.moduleId("QML", ModuleKind::QmlLibrary);
+    storageImports.emplace_back(qmlModuleId, Storage::Version{}, fileId, fileId);
+
+    removeDuplicates(storageImports);
 
     return storageImports;
 }
@@ -193,10 +213,13 @@ Storage::Imports createStorageImports(const Imports &imports,
 
 void ModelPrivate::changeImports(Imports toBeAddedImports, Imports toBeRemovedImports)
 {
-    auto tracer = traceToken.begin("change imports");
+    NanotraceHR::Tracer tracer{"model private change imports",
+                               ModelTracing::category(),
+                               keyValue("added imports", toBeAddedImports),
+                               keyValue("removed imports", toBeRemovedImports)};
 
-    std::sort(toBeAddedImports.begin(), toBeAddedImports.end());
-    std::sort(toBeRemovedImports.begin(), toBeRemovedImports.end());
+    std::ranges::sort(toBeAddedImports);
+    std::ranges::sort(toBeRemovedImports);
 
     Imports removedImports = set_intersection(m_imports, toBeRemovedImports);
     m_imports = set_difference(m_imports, removedImports);
@@ -212,6 +235,29 @@ void ModelPrivate::changeImports(Imports toBeAddedImports, Imports toBeRemovedIm
             projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
         }
         notifyImportsChanged(allNewAddedImports, removedImports);
+    }
+}
+
+void ModelPrivate::setImports(Imports imports)
+{
+    NanotraceHR::Tracer tracer{"model private set imports",
+                               ModelTracing::category(),
+                               keyValue("imports", imports),
+                               keyValue("source id", m_sourceId)};
+
+    std::ranges::sort(imports);
+
+    Imports removedImports = set_strict_difference(m_imports, imports);
+    Imports addedImports = set_strict_difference(imports, m_imports);
+
+    m_imports = imports;
+
+    if (!removedImports.isEmpty() || !addedImports.isEmpty()) {
+        if (useProjectStorage()) {
+            auto imports = createStorageImports(m_imports, m_localPath, *modulesStorage, m_sourceId);
+            projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
+        }
+        notifyImportsChanged(addedImports, removedImports);
     }
 }
 
@@ -281,8 +327,6 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
             m_sourceId = pathCache->sourceId(SourcePath{path});
             auto found = std::find(path.rbegin(), path.rend(), u'/').base();
             m_localPath = Utils::PathString{QStringView{path.begin(), std::prev(found)}};
-            auto imports = createStorageImports(m_imports, m_localPath, *modulesStorage, m_sourceId);
-            projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
         }
 
         for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
@@ -309,13 +353,13 @@ void ModelPrivate::changeNodeType(const InternalNodePointer &node,
                                   int majorVersion,
                                   int minorVersion)
 {
-    auto [moduleName, unqualifiedTypeName] = decomposeTypePath(typeName);
+    auto [alias, unqualifiedTypeName] = decomposeTypePath(typeName);
 
     node->typeName = typeName;
     node->unqualifiedTypeName = unqualifiedTypeName;
     node->majorVersion = majorVersion;
     node->minorVersion = minorVersion;
-    setTypeId(node.get(), moduleName, unqualifiedTypeName);
+    setTypeId(node.get(), alias, unqualifiedTypeName);
 
     try {
         notifyNodeTypeChanged(node, typeName, majorVersion, minorVersion);
@@ -341,7 +385,7 @@ InternalNodePointer ModelPrivate::createNode(TypeNameView typeName,
     if (!isRootNode)
         internalId = m_internalIdCounter++;
 
-    auto [moduleName, unqualifiedTypeName] = decomposeTypePath(typeName);
+    auto [alias, unqualifiedTypeName] = decomposeTypePath(typeName);
 
     auto newNode = std::make_shared<InternalNode>(typeName,
                                                   unqualifiedTypeName,
@@ -350,7 +394,7 @@ InternalNodePointer ModelPrivate::createNode(TypeNameView typeName,
                                                   internalId,
                                                   traceToken.tickWithFlow("create node"));
 
-    setTypeId(newNode.get(), moduleName, unqualifiedTypeName);
+    setTypeId(newNode.get(), alias, unqualifiedTypeName);
 
     newNode->nodeSourceType = nodeSourceType;
 
@@ -404,32 +448,23 @@ ImportedTypeNameId ModelPrivate::importedTypeNameId(Utils::SmallStringView typeN
     return importedTypeNameId(moduleName, unqualifiedTypeName);
 }
 
-ImportedTypeNameId ModelPrivate::importedTypeNameId(Utils::SmallStringView moduleName,
+ImportedTypeNameId ModelPrivate::importedTypeNameId(Utils::SmallStringView alias,
                                                     Utils::SmallStringView unqualifiedTypeName)
 {
-    if (moduleName.size()) {
-        QString aliasName = QString{moduleName};
-        auto found = std::ranges::find(m_imports, aliasName, &Import::alias);
-        if (found != m_imports.end()) {
-            using Storage::ModuleKind;
-            auto moduleKind = found->isLibraryImport() ? ModuleKind::QmlLibrary
-                                                       : ModuleKind::PathLibrary;
-            ModuleId moduleId = modulesStorage->moduleId(Utils::PathString{found->url()}, moduleKind);
-            ImportId importId = projectStorage->importId(Storage::Import::fromSignedInteger(
-                moduleId, found->majorVersion(), found->minorVersion(), m_sourceId, m_sourceId));
-            return projectStorage->importedTypeNameId(importId, unqualifiedTypeName);
-        }
+    if (alias.size()) {
+        ImportId importId = projectStorage->importId(m_sourceId, alias);
+        return projectStorage->importedTypeNameId(importId, unqualifiedTypeName);
     }
 
     return projectStorage->importedTypeNameId(m_sourceId, unqualifiedTypeName);
 }
 
 void ModelPrivate::setTypeId(InternalNode *node,
-                             Utils::SmallStringView moduleName,
+                             Utils::SmallStringView alias,
                              Utils::SmallStringView unqualifiedTypeName)
 {
     if constexpr (useProjectStorage()) {
-        node->importedTypeNameId = importedTypeNameId(moduleName, unqualifiedTypeName);
+        node->importedTypeNameId = importedTypeNameId(alias, unqualifiedTypeName);
         node->exportedTypeName = projectStorage->exportedTypeName(node->importedTypeNameId);
     }
 }
@@ -458,17 +493,6 @@ void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
 
     setBindingProperties(resourceSet.setExpressions);
 }
-
-namespace {
-
-void removeDuplicates(std::ranges::range auto entries)
-{
-    std::ranges::sort(entries);
-    auto removed = std::ranges::unique(entries);
-    entries.erase(removed.begin(), removed.end());
-}
-
-} // namespace
 
 void ModelPrivate::updateModelNodeTypeIds(const ExportedTypeNames &addedExportedTypeNames,
                                           const ExportedTypeNames &removedExportedTypeNames)
@@ -1700,13 +1724,13 @@ void ModelPrivate::changeRootNodeType(const TypeName &typeName, int majorVersion
 
     m_rootInternalNode->traceToken.tick("type name", keyValue("type name", typeName));
 
-    auto [moduleName, unqualifiedTypeName] = decomposeTypePath(typeName);
+    auto [alias, unqualifiedTypeName] = decomposeTypePath(typeName);
 
     m_rootInternalNode->typeName = typeName;
     m_rootInternalNode->unqualifiedTypeName = unqualifiedTypeName;
     m_rootInternalNode->majorVersion = majorVersion;
     m_rootInternalNode->minorVersion = minorVersion;
-    setTypeId(m_rootInternalNode.get(), moduleName, unqualifiedTypeName);
+    setTypeId(m_rootInternalNode.get(), alias, unqualifiedTypeName);
     notifyRootNodeTypeChanged(QString::fromUtf8(typeName), majorVersion, minorVersion);
 }
 
@@ -2106,6 +2130,15 @@ void Model::changeImports(Imports importsToBeAdded, Imports importsToBeRemoved, 
                                keyValue("caller location", sl)};
 
     d->changeImports(std::move(importsToBeAdded), std::move(importsToBeRemoved));
+}
+
+void Model::setImports(Imports imports, SL sl)
+{
+    NanotraceHR::Tracer tracer{"model set imports",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
+    d->setImports(std::move(imports));
 }
 
 #ifndef QDS_USE_PROJECTSTORAGE

@@ -912,7 +912,7 @@ std::ostream &operator<<(std::ostream &out, const ImportedType &importedType)
 }
 std::ostream &operator<<(std::ostream &out, const QualifiedImportedType &importedType)
 {
-    return out << "(\"" << importedType.name << "\", " << importedType.import << ")";
+    return out << "(\"" << importedType.alias << "." << importedType.name << "\")";
 }
 
 std::ostream &operator<<(std::ostream &out, const Type &type)

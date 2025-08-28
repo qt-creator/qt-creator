@@ -128,21 +128,23 @@ MATCHER_P2(IsEnumerator,
 auto IsImport(const auto &moduleIdMatcher,
               const auto &versionMatcher,
               const auto &sourceIdMatcher,
-              const auto &contextSourceIdMatcher)
+              const auto &contextSourceIdMatcher,
+              const auto &aliasMatcher)
 {
     using QmlDesigner::Storage::Import;
     return AllOf(Field("Import::sourceId", &Import::sourceId, sourceIdMatcher),
                  Field("Import::moduleId", &Import::moduleId, moduleIdMatcher),
                  Field("Import::version", &Import::version, versionMatcher),
-                 Field("Import::contextSourceId", &Import::contextSourceId, contextSourceIdMatcher));
+                 Field("Import::contextSourceId", &Import::contextSourceId, contextSourceIdMatcher),
+                 Field("Import::alias", &Import::alias, aliasMatcher));
 }
 
-auto IsQualifiedImportedType(const auto &nameMatcher, const auto &importMatcher)
+auto IsQualifiedImportedType(const auto &nameMatcher, const auto &aliasMatcher)
 {
     using Synchronization::QualifiedImportedType;
     return VariantWith<QualifiedImportedType>(
         AllOf(Field("QualifiedImportedType::name", &QualifiedImportedType::name, nameMatcher),
-              Field("QualifiedImportedType::import", &QualifiedImportedType::import, importMatcher)));
+              Field("QualifiedImportedType::alias", &QualifiedImportedType::alias, aliasMatcher)));
 };
 
 auto IsImportedType(const auto &nameMatcher)
@@ -195,9 +197,8 @@ TEST_F(QmlDocumentParser, prototype)
 
 TEST_F(QmlDocumentParser, qualified_prototype)
 {
-    auto exampleModuleId = modulesStorage.moduleId("Example", ModuleKind::QmlLibrary);
     QString component = R"(import Example 2.1 as Example
-                      Example.Item{})";
+                           Example.Item{})";
 
     auto type = parser.parse(component,
                              imports,
@@ -205,9 +206,7 @@ TEST_F(QmlDocumentParser, qualified_prototype)
                              directoryPath,
                              Storage::IsInsideProject::No);
 
-    ASSERT_THAT(type,
-                HasPrototype(IsQualifiedImportedType(
-                    "Item", IsImport(exampleModuleId, Storage::Version{2, 1}, qmlFileSourceId, _))));
+    ASSERT_THAT(type, HasPrototype(IsQualifiedImportedType("Item", "Example")));
 }
 
 TEST_F(QmlDocumentParser, properties)
@@ -228,9 +227,8 @@ TEST_F(QmlDocumentParser, properties)
 
 TEST_F(QmlDocumentParser, qualified_properties)
 {
-    auto exampleModuleId = modulesStorage.moduleId("Example", ModuleKind::QmlLibrary);
     QString component = R"(import Example 2.1 as Example
-                       Item{ property Example.Foo foo})";
+                           Item{ property Example.Foo foo})";
 
     auto type = parser.parse(component,
                              imports,
@@ -239,11 +237,9 @@ TEST_F(QmlDocumentParser, qualified_properties)
                              Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.propertyDeclarations,
-                UnorderedElementsAre(IsPropertyDeclaration(
-                    "foo",
-                    IsQualifiedImportedType(
-                        "Foo", IsImport(exampleModuleId, Storage::Version{2, 1}, qmlFileSourceId, _)),
-                    Storage::PropertyDeclarationTraits::None)));
+                UnorderedElementsAre(IsPropertyDeclaration("foo",
+                                                           IsQualifiedImportedType("Foo", "Example"),
+                                                           Storage::PropertyDeclarationTraits::None)));
 }
 
 TEST_F(QmlDocumentParser, enumeration_in_properties)
@@ -265,7 +261,6 @@ TEST_F(QmlDocumentParser, enumeration_in_properties)
 
 TEST_F(QmlDocumentParser, qualified_enumeration_in_properties)
 {
-    auto exampleModuleId = modulesStorage.moduleId("Example", ModuleKind::QmlLibrary);
     QString component = R"(import Example 2.1 as Example
                            Item{ property Example.Enumeration.Foo foo})";
 
@@ -278,11 +273,7 @@ TEST_F(QmlDocumentParser, qualified_enumeration_in_properties)
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
                     IsPropertyDeclaration("foo",
-                                          IsQualifiedImportedType("Enumeration.Foo",
-                                                                  IsImport(exampleModuleId,
-                                                                           Storage::Version{2, 1},
-                                                                           qmlFileSourceId,
-                                                                           _)),
+                                          IsQualifiedImportedType("Enumeration.Foo", "Example"),
                                           Storage::PropertyDeclarationTraits::None)));
 }
 
@@ -301,12 +292,13 @@ TEST_F(QmlDocumentParser, imports)
                              directoryPath,
                              Storage::IsInsideProject::No);
 
-    ASSERT_THAT(imports,
-                UnorderedElementsAre(
-                    IsImport(directoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId),
-                    IsImport(fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId),
-                    IsImport(qmlModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId),
-                    IsImport(qtQuickModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId)));
+    ASSERT_THAT(
+        imports,
+        UnorderedElementsAre(
+            IsImport(directoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, IsEmpty()),
+            IsImport(fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, IsEmpty()),
+            IsImport(qmlModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, IsEmpty()),
+            IsImport(qtQuickModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, IsEmpty())));
 }
 
 TEST_F(QmlDocumentParser, imports_with_version)
@@ -327,10 +319,10 @@ TEST_F(QmlDocumentParser, imports_with_version)
     ASSERT_THAT(
         imports,
         UnorderedElementsAre(
-            IsImport(directoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId),
-            IsImport(fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId),
-            IsImport(qmlModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId),
-            IsImport(qtQuickModuleId, Storage::Version{2, 1}, qmlFileSourceId, qmlFileSourceId)));
+            IsImport(directoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, IsEmpty()),
+            IsImport(fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, IsEmpty()),
+            IsImport(qmlModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, IsEmpty()),
+            IsImport(qtQuickModuleId, Storage::Version{2, 1}, qmlFileSourceId, qmlFileSourceId, IsEmpty())));
 }
 
 TEST_F(QmlDocumentParser, imports_with_explict_directory)
@@ -348,11 +340,36 @@ TEST_F(QmlDocumentParser, imports_with_explict_directory)
                              directoryPath,
                              Storage::IsInsideProject::No);
 
-    ASSERT_THAT(imports,
-                UnorderedElementsAre(
-                    IsImport(directoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId),
-                    IsImport(qmlModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId),
-                    IsImport(qtQuickModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId)));
+    ASSERT_THAT(
+        imports,
+        UnorderedElementsAre(
+            IsImport(directoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, IsEmpty()),
+            IsImport(qmlModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, IsEmpty()),
+            IsImport(qtQuickModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, IsEmpty())));
+}
+
+TEST_F(QmlDocumentParser, imports_with_alias)
+{
+    ModuleId fooDirectoryModuleId = modulesStorage.moduleId("/path/foo", ModuleKind::PathLibrary);
+    ModuleId qmlModuleId = modulesStorage.moduleId("QML", ModuleKind::QmlLibrary);
+    ModuleId qtQuickModuleId = modulesStorage.moduleId("QtQuick", ModuleKind::QmlLibrary);
+    QString component = R"(import QtQuick as Quick
+                           import "../foo" as Foo
+                           Example{})";
+
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
+
+    ASSERT_THAT(
+        imports,
+        UnorderedElementsAre(
+            IsImport(directoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, IsEmpty()),
+            IsImport(fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, Eq("Foo")),
+            IsImport(qmlModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, IsEmpty()),
+            IsImport(qtQuickModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, Eq("Quick"))));
 }
 
 TEST_F(QmlDocumentParser, functions)
@@ -437,6 +454,7 @@ TEST_F(QmlDocumentParser, DISABLED_duplicate_imports_are_removed)
                            import QtQuick
                            import "../foo"
                            import "/path/foo"
+                           import QtQuick as Quick
                            import "."
  
                            Example{})";
@@ -447,13 +465,15 @@ TEST_F(QmlDocumentParser, DISABLED_duplicate_imports_are_removed)
                              directoryPath,
                              Storage::IsInsideProject::No);
 
-    ASSERT_THAT(imports,
-                UnorderedElementsAre(
-                    IsImport(directoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId),
-                    IsImport(fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId),
-                    IsImport(qmlModuleId, Storage::Version{1, 0}, qmlFileSourceId, qmlFileSourceId),
-                    IsImport(qtQmlModuleId, Storage::Version{6, 0}, qmlFileSourceId, qmlFileSourceId),
-                    IsImport(qtQuickModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId)));
+    ASSERT_THAT(
+        imports,
+        UnorderedElementsAre(
+            IsImport(directoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, _),
+            IsImport(fooDirectoryModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, _),
+            IsImport(qmlModuleId, Storage::Version{1, 0}, qmlFileSourceId, qmlFileSourceId, _),
+            IsImport(qtQmlModuleId, Storage::Version{6, 0}, qmlFileSourceId, qmlFileSourceId, _),
+            IsImport(qtQuickModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, IsEmpty()),
+            IsImport(qtQuickModuleId, Storage::Version{}, qmlFileSourceId, qmlFileSourceId, Eq("QtQuick"))));
 }
 
 TEST_F(QmlDocumentParser, alias_item_properties)
@@ -587,7 +607,6 @@ TEST_F(QmlDocumentParser, alias_on_list_property)
 
 TEST_F(QmlDocumentParser, qualified_list_property)
 {
-    auto exampleModuleId = modulesStorage.moduleId("Example", ModuleKind::QmlLibrary);
     QString component = R"(import Example 2.1 as Example
                            Item{
                              property list<Example.Foo> foos
@@ -600,11 +619,10 @@ TEST_F(QmlDocumentParser, qualified_list_property)
                              Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.propertyDeclarations,
-                UnorderedElementsAre(IsPropertyDeclaration(
-                    "foos",
-                    IsQualifiedImportedType(
-                        "Foo", IsImport(exampleModuleId, Storage::Version{2, 1}, qmlFileSourceId, _)),
-                    Storage::PropertyDeclarationTraits::IsList)));
+                UnorderedElementsAre(
+                    IsPropertyDeclaration("foos",
+                                          IsQualifiedImportedType("Foo", "Example"),
+                                          Storage::PropertyDeclarationTraits::IsList)));
 }
 
 TEST_F(QmlDocumentParser, default_property)

@@ -260,6 +260,8 @@ public:
     Imports possibleImports(SL sl = {}) const;
     Imports usedImports() const;
     void changeImports(Imports importsToBeAdded, Imports importsToBeRemoved, SL sl = {});
+    void setImports(Imports imports, SL sl = {});
+
 #ifndef QDS_USE_PROJECTSTORAGE
     void setPossibleImports(Imports possibleImports);
     void setUsedImports(Imports usedImports);

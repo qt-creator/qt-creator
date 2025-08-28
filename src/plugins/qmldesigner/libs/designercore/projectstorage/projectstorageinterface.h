@@ -45,6 +45,7 @@ public:
                                                                SourceId sourceId) const
         = 0;
     virtual ImportId importId(const Storage::Import &import) const = 0;
+    virtual ImportId importId(SourceId sourceId, Utils::SmallStringView alias) const = 0;
     virtual ImportedTypeNameId importedTypeNameId(ImportId sourceId, Utils::SmallStringView typeName)
         = 0;
     virtual ImportedTypeNameId importedTypeNameId(SourceId sourceId, Utils::SmallStringView typeName)

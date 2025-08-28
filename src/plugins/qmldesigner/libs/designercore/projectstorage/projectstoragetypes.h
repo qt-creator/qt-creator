@@ -23,11 +23,16 @@ class Import
 public:
     Import() = default;
 
-    Import(ModuleId moduleId, Storage::Version version, SourceId sourceId, SourceId contextSourceId)
+    Import(ModuleId moduleId,
+           Storage::Version version,
+           SourceId sourceId,
+           SourceId contextSourceId,
+           Utils::SmallString alias = {})
         : version{version}
         , moduleId{moduleId}
         , sourceId{sourceId}
         , contextSourceId{contextSourceId}
+        , alias{std::move(alias)}
     {}
 
     Import(SourceId sourceId, ModuleId moduleId, Storage::Version version)
@@ -62,13 +67,13 @@ public:
     friend bool operator==(const Import &first, const Import &second)
     {
         return first.moduleId == second.moduleId && first.version == second.version
-               && first.sourceId == second.sourceId;
+               && first.sourceId == second.sourceId && first.alias == second.alias;
     }
 
-    friend bool operator<(const Import &first, const Import &second)
+    friend auto operator<=>(const Import &first, const Import &second)
     {
-        return std::tie(first.sourceId, first.moduleId, first.version)
-               < std::tie(second.sourceId, second.moduleId, second.version);
+        return std::tie(first.sourceId, first.moduleId, first.version, first.alias)
+               <=> std::tie(second.sourceId, second.moduleId, second.version, second.alias);
     }
 
     template<typename String>
@@ -78,7 +83,9 @@ public:
         using NanotraceHR::keyValue;
         auto dict = dictonary(keyValue("module id", import.moduleId),
                               keyValue("source id", import.sourceId),
-                              keyValue("version", import.version));
+                              keyValue("version", import.version),
+                              keyValue("context source id", import.contextSourceId),
+                              keyValue("alias", import.alias));
         convertToString(string, dict);
     }
 
@@ -87,6 +94,7 @@ public:
     ModuleId moduleId;
     SourceId sourceId;
     SourceId contextSourceId;
+    Utils::SmallString alias;
 };
 
 using Imports = std::vector<Import>;
@@ -187,18 +195,21 @@ public:
                         ModuleId moduleId,
                         unsigned int majorVersion,
                         unsigned int minorVersion,
-                        SourceId contextSourceId)
+                        SourceId contextSourceId,
+                        Utils::SmallStringView alias)
         : importId{importId}
         , sourceId{sourceId}
         , moduleId{moduleId}
         , version{majorVersion, minorVersion}
         , contextSourceId{contextSourceId}
+        , alias{alias}
     {}
 
     friend bool operator==(const ImportView &first, const ImportView &second)
     {
         return first.sourceId == second.sourceId && first.moduleId == second.moduleId
-               && first.version == second.version && first.contextSourceId == second.contextSourceId;
+               && first.version == second.version && first.contextSourceId == second.contextSourceId
+               && first.alias == second.alias;
     }
 
     template<typename String>
@@ -209,7 +220,9 @@ public:
         auto dict = dictonary(keyValue("import id", import.importId),
                               keyValue("source id", import.sourceId),
                               keyValue("module id", import.moduleId),
-                              keyValue("version", import.version));
+                              keyValue("version", import.version),
+                              keyValue("context source id", import.contextSourceId),
+                              keyValue("alias", import.alias));
 
         convertToString(string, dict);
     }
@@ -220,6 +233,7 @@ public:
     ModuleId moduleId;
     Storage::Version version;
     SourceId contextSourceId;
+    Utils::SmallStringView alias;
 };
 
 enum class IsAutoVersion : char { No, Yes };
@@ -341,8 +355,9 @@ class ImportedType
 {
 public:
     explicit ImportedType() = default;
-    explicit ImportedType(::Utils::SmallStringView name)
-        : name{name}
+
+    explicit ImportedType(TypeNameString name)
+        : name{std::move(name)}
     {}
 
     friend bool operator==(const ImportedType &first, const ImportedType &second)
@@ -368,14 +383,15 @@ class QualifiedImportedType
 {
 public:
     explicit QualifiedImportedType() = default;
-    explicit QualifiedImportedType(::Utils::SmallStringView name, Import import)
-        : name{name}
-        , import{std::move(import)}
+
+    explicit QualifiedImportedType(TypeNameString name, Utils::SmallString alias)
+        : name{std::move(name)}
+        , alias{std::move(alias)}
     {}
 
     friend bool operator==(const QualifiedImportedType &first, const QualifiedImportedType &second)
     {
-        return first.name == second.name && first.import == second.import;
+        return first.name == second.name && first.alias == second.alias;
     }
 
     template<typename String>
@@ -384,14 +400,14 @@ public:
         using NanotraceHR::dictonary;
         using NanotraceHR::keyValue;
         auto dict = dictonary(keyValue("name", importedType.name),
-                              keyValue("import", importedType.import));
+                              keyValue("alias", importedType.alias));
 
         convertToString(string, dict);
     }
 
 public:
     TypeNameString name;
-    Import import;
+    Utils::SmallString alias;
 };
 
 using ImportedTypes = std::vector<ImportedType>;
@@ -517,18 +533,13 @@ void convertToString(String &string, const ImportedTypeName &typeName)
 
         void operator()(const QmlDesigner::Storage::Synchronization::ImportedType &importedType) const
         {
-            auto dict = dictonary(keyValue("name", importedType.name));
-
-            convertToString(string, dict);
+            convertToString(string, importedType);
         }
 
         void operator()(
             const QmlDesigner::Storage::Synchronization::QualifiedImportedType &qualifiedImportedType) const
         {
-            auto dict = dictonary(keyValue("name", qualifiedImportedType.name),
-                                  keyValue("import", qualifiedImportedType.import));
-
-            convertToString(string, dict);
+            convertToString(string, qualifiedImportedType);
         }
 
         String &string;

@@ -671,9 +671,14 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc, DifferenceHandler
 {
     NanotraceHR::Tracer tracer{"text to model merger setup imports", category()};
 
+    if (!differenceHandler.isAmender())
+        return;
+
     Imports existingImports = m_rewriterView->model()->imports();
 
     m_hasVersionlessImport = false;
+
+    Imports imports;
 
     for (AST::UiHeaderItemList *iter = doc->qmlProgram()->headers; iter; iter = iter->next) {
         auto import = AST::cast<AST::UiImport *>(iter->headerItem);
@@ -687,30 +692,23 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc, DifferenceHandler
 
         if (!import->fileName.isEmpty()) {
             const QString strippedFileName = stripQuotes(import->fileName.toString());
-            const Import newImport = Import::createFileImport(strippedFileName,
-                                                              version, as, m_rewriterView->importDirectories());
-
-            if (!existingImports.removeOne(newImport))
-                differenceHandler.modelMissesImport(newImport);
+            imports.push_back(Import::createFileImport(strippedFileName,
+                                                       version,
+                                                       as,
+                                                       m_rewriterView->importDirectories()));
         } else {
             QString importUri = toString(import->importUri);
             if (version.isEmpty())
                 m_hasVersionlessImport = true;
 
-            const Import newImport = Import::createLibraryImport(importUri,
-                                                                 version,
-                                                                 as,
-                                                                 m_rewriterView->importDirectories());
-
-            if (!existingImports.removeOne(newImport))
-                differenceHandler.modelMissesImport(newImport);
+            imports.push_back(Import::createLibraryImport(importUri,
+                                                          version,
+                                                          as,
+                                                          m_rewriterView->importDirectories()));
         }
     }
 
-    if (m_removeImports) {
-        for (const Import &import : std::as_const(existingImports))
-            differenceHandler.importAbsentInQMl(import);
-    }
+    m_rewriterView->model()->setImports(imports);
 }
 
 namespace {
@@ -1972,15 +1970,9 @@ void ModelValidator::idsDiffer([[maybe_unused]] ModelNode &modelNode,
     QTC_ASSERT(0, return);
 }
 
-void ModelAmender::modelMissesImport(const QmlDesigner::Import &import)
-{
-    m_merger->view()->model()->changeImports({import}, {});
-}
+void ModelAmender::modelMissesImport(const QmlDesigner::Import &) {}
 
-void ModelAmender::importAbsentInQMl(const QmlDesigner::Import &import)
-{
-    m_merger->view()->model()->changeImports({}, {import});
-}
+void ModelAmender::importAbsentInQMl(const QmlDesigner::Import &) {}
 
 void ModelAmender::bindingExpressionsDiffer(BindingProperty &modelProperty,
                                             const QString &javascript,

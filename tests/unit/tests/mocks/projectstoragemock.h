@@ -46,6 +46,9 @@ public:
         QmlDesigner::SourceId sourceId,
         QmlDesigner::Storage::Version version = QmlDesigner::Storage::Version{});
 
+    QmlDesigner::ImportId createImportIdWithAlias(QmlDesigner::SourceId sourceId,
+                                                  Utils::SmallStringView alias);
+
     void addExportedTypeName(QmlDesigner::TypeId typeId,
                              QmlDesigner::ModuleId moduleId,
                              Utils::SmallStringView typeName);
@@ -174,6 +177,10 @@ public:
     MOCK_METHOD(QmlDesigner::ImportId,
                 importId,
                 (const QmlDesigner::Storage::Import &import),
+                (const, override));
+    MOCK_METHOD(QmlDesigner::ImportId,
+                importId,
+                (QmlDesigner::SourceId sourceId, Utils::SmallStringView moduleName),
                 (const, override));
     MOCK_METHOD(QmlDesigner::ImportedTypeNameId,
                 importedTypeNameId,

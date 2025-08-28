@@ -244,6 +244,7 @@ public:
     // Imports:
     const Imports &imports() const { return m_imports; }
     void changeImports(Imports importsToBeAdded, Imports importToBeRemoved);
+    void setImports(Imports imports);
     void notifyImportsChanged(const Imports &addedImports, const Imports &removedImports);
     void notifyPossibleImportsChanged(const Imports &possibleImports);
     void notifyUsedImportsChanged(const Imports &usedImportsChanged);

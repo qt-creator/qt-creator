@@ -74,6 +74,7 @@ public:
     Storage::Info::ExportedTypeNames exportedTypeNames(TypeId typeId, SourceId sourceId) const override;
 
     ImportId importId(const Storage::Import &import) const override;
+    ImportId importId(SourceId sourceId, Utils::SmallStringView alias) const override;
 
     ImportedTypeNameId importedTypeNameId(ImportId importId, Utils::SmallStringView typeName) override;
 
@@ -830,6 +831,7 @@ private:
                                      SmallTypeIds<256> &updatedPrototypeIds);
 
     ImportId fetchImportId(SourceId sourceId, const Storage::Import &import) const;
+    ImportId fetchImportId(SourceId sourceId, Utils::SmallStringView alias) const;
 
     std::tuple<ImportedTypeNameId, Storage::Synchronization::TypeNameKind> fetchImportedTypeNameId(
         const Storage::Synchronization::ImportedTypeName &name, SourceId sourceId);

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <nanotrace/nanotracehr.h>
 #include <utils/set_algorithm.h>
 
 #include <QDebug>
@@ -70,6 +71,17 @@ public:
     {
         debug << import.toString();
         return debug;
+    }
+
+    template<typename String>
+    friend void convertToString(String &string, const Import &import)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("url", import.m_url),
+                              keyValue("version", import.m_version),
+                              keyValue("alias", import.m_alias));
+        convertToString(string, dict);
     }
 
 private:

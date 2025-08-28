@@ -414,36 +414,22 @@ struct ProjectStorage::Statements
         "SELECT moduleId, majorVersion, minorVersion, sourceId, contextSourceId "
         "FROM documentImports ",
         database};
-    mutable Sqlite::ReadStatement<6, 2> selectDocumentImportForContextSourceIdStatement{
-        "SELECT importId, sourceId, moduleId, majorVersion, minorVersion, contextSourceId "
+    mutable Sqlite::ReadStatement<7, 2> selectDocumentImportForContextSourceIdStatement{
+        "SELECT importId, sourceId, moduleId, majorVersion, minorVersion, contextSourceId, alias "
         "FROM documentImports "
         "WHERE contextSourceId IN carray(?1) AND kind=?2 "
-        "ORDER BY contextSourceId, moduleId, majorVersion, minorVersion",
+        "ORDER BY sourceId, moduleId, alias, majorVersion, minorVersion",
         database};
-    Sqlite::ReadWriteStatement<1, 6> insertDocumentImportWithoutVersionStatement{
-        "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind, "
-        "  parentImportId, contextSourceId) "
-        "VALUES (?1, ?2, ?3, ?4, ?5, ?6) "
-        "RETURNING importId",
-        database};
-    Sqlite::ReadWriteStatement<1, 7> insertDocumentImportWithMajorVersionStatement{
+    Sqlite::ReadWriteStatement<1, 9> insertDocumentImportWithVersionStatement{
         "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind, majorVersion, "
-        "  parentImportId, contextSourceId) "
-        "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) "
-        "RETURNING importId",
-        database};
-    Sqlite::ReadWriteStatement<1, 8> insertDocumentImportWithVersionStatement{
-        "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind, majorVersion, "
-        "  minorVersion, parentImportId, contextSourceId) "
-        "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8) "
+        "  minorVersion, parentImportId, contextSourceId, alias) "
+        "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, nullif(?9, '')) "
         "RETURNING importId",
         database};
     Sqlite::WriteStatement<1> deleteDocumentImportStatement{
         "DELETE FROM documentImports WHERE importId=?1", database};
     Sqlite::WriteStatement<2> deleteDocumentImportsWithParentImportIdStatement{
         "DELETE FROM documentImports WHERE sourceId=?1 AND parentImportId=?2", database};
-    Sqlite::WriteStatement<1> deleteDocumentImportsWithSourceIdsStatement{
-        "DELETE FROM documentImports WHERE sourceId IN carray(?1)", database};
     mutable Sqlite::ReadStatement<1, 2> selectPropertyDeclarationIdByTypeIdAndNameStatement{
         "SELECT propertyDeclarationId "
         "FROM propertyDeclarations "
@@ -648,21 +634,21 @@ struct ProjectStorage::Statements
         "VALUES (?1, ?2, ?3) "
         "RETURNING importedTypeNameId",
         database};
-    mutable Sqlite::ReadStatement<1, 2> selectImportIdBySourceIdAndModuleIdStatement{
+    mutable Sqlite::ReadStatement<1, 2> selectImportIdBySourceIdAndAliasStatement{
         "SELECT importId "
         "FROM documentImports "
-        "WHERE sourceId=?1 AND moduleId=?2 AND majorVersion=0xFFFFFFFF AND minorVersion=0xFFFFFFFF "
+        "WHERE sourceId=?1 AND alias=?2 "
         "LIMIT 1",
         database};
-    mutable Sqlite::ReadStatement<1, 3> selectImportIdBySourceIdAndModuleIdAndMajorVersionStatement{
+    mutable Sqlite::ReadStatement<1, 5> selectImportIdBySourceIdAndModuleIdAndVersionAndAliasStatement{
         "SELECT importId "
         "FROM documentImports "
-        "WHERE sourceId=?1 AND moduleId=?2 AND majorVersion=?3 AND minorVersion=0xFFFFFFFF "
+        "WHERE sourceId=?1 "
+        "  AND moduleId=?2 "
+        "  AND alias IS nullif(?5, '') "
+        "  AND majorVersion=?3 "
+        "  AND minorVersion=?4 "
         "LIMIT 1",
-        database};
-    mutable Sqlite::ReadStatement<1, 4> selectImportIdBySourceIdAndModuleIdAndVersionStatement{
-        "SELECT importId FROM documentImports WHERE sourceId=?1 AND moduleId=?2 AND "
-        "majorVersion=?3 AND minorVersion=?4 LIMIT 1",
         database};
     mutable Sqlite::ReadStatement<1, 1> selectKindFromImportedTypeNamesStatement{
         "SELECT kind FROM importedTypeNames WHERE importedTypeNameId=?1", database};
@@ -691,6 +677,7 @@ struct ProjectStorage::Statements
         "WHERE  importedTypeNameId=?1 "
         "  AND itn.kind=1 "
         "  AND etn.moduleId=di.moduleId "
+        "  AND di.alias IS NULL "
         "  AND (di.majorVersion=0xFFFFFFFF "
         "    OR (di.majorVersion=etn.majorVersion "
         "      AND (di.minorVersion=0xFFFFFFFF OR di.minorVersion>=etn.minorVersion))) "
@@ -1268,14 +1255,18 @@ public:
         auto &minorVersionColumn = table.addColumn("minorVersion", Sqlite::StrictColumnType::Integer);
         auto &parentImportIdColumn = table.addColumn("parentImportId",
                                                      Sqlite::StrictColumnType::Integer);
+        auto &aliasColumn = table.addColumn("alias", Sqlite::StrictColumnType::Text);
 
         table.addUniqueIndex({sourceIdColumn,
                               moduleIdColumn,
+                              aliasColumn,
                               kindColumn,
                               sourceModuleIdColumn,
                               majorVersionColumn,
                               minorVersionColumn,
                               parentImportIdColumn});
+
+        table.addUniqueIndex({sourceIdColumn, aliasColumn}, "alias IS NOT NULL");
 
         table.addIndex({contextSourceIdColumn, kindColumn});
 
@@ -1605,6 +1596,21 @@ ImportId ProjectStorage::importId(const Storage::Import &import) const
     auto importId = Sqlite::withDeferredTransaction(database, [&] {
         return fetchImportId(import.sourceId, import);
     });
+
+    tracer.end(keyValue("import id", importId));
+
+    return importId;
+}
+
+ImportId ProjectStorage::importId(SourceId sourceId, Utils::SmallStringView alias) const
+{
+    NanotraceHR::Tracer tracer{"get import id by alias",
+                               category(),
+                               keyValue("source id", sourceId),
+                               keyValue("alias", alias)};
+
+    auto importId = Sqlite::withDeferredTransaction(database,
+                                                    [&] { return fetchImportId(sourceId, alias); });
 
     tracer.end(keyValue("import id", importId));
 
@@ -3759,7 +3765,8 @@ ImportId ProjectStorage::insertDocumentImport(const Storage::Import &import,
                                                                        import.version.major.value,
                                                                        import.version.minor.value,
                                                                        parentImportId,
-                                                                       import.contextSourceId);
+                                                                       import.contextSourceId,
+                                                                       import.alias);
 }
 
 void ProjectStorage::synchronizeDocumentImports(Storage::Imports &imports,
@@ -3769,8 +3776,8 @@ void ProjectStorage::synchronizeDocumentImports(Storage::Imports &imports,
                                                 Bases &relinkableBases)
 {
     std::ranges::sort(imports, [](auto &&first, auto &&second) {
-        return std::tie(first.contextSourceId, first.moduleId, first.version)
-               < std::tie(second.contextSourceId, second.moduleId, second.version);
+        return std::tie(first.sourceId, first.moduleId, first.alias, first.version)
+               < std::tie(second.sourceId, second.moduleId, second.alias, second.version);
     });
 
     auto range = s->selectDocumentImportForContextSourceIdStatement
@@ -3779,12 +3786,14 @@ void ProjectStorage::synchronizeDocumentImports(Storage::Imports &imports,
 
     auto compareKey = [](const Storage::Synchronization::ImportView &view,
                          const Storage::Import &import) {
-        return std::tie(view.contextSourceId,
+        return std::tie(view.sourceId,
                         view.moduleId,
+                        view.alias,
                         view.version.major.value,
                         view.version.minor.value)
-               <=> std::tie(import.contextSourceId,
+               <=> std::tie(import.sourceId,
                             import.moduleId,
+                            import.alias,
                             import.version.major.value,
                             import.version.minor.value);
     };
@@ -3802,10 +3811,10 @@ void ProjectStorage::synchronizeDocumentImports(Storage::Imports &imports,
         auto callback = [&](ModuleId exportedModuleId,
                             unsigned int majorVersion,
                             unsigned int minorVersion) {
-            Storage::Import additionImport{exportedModuleId,
-                                           Storage::Version{majorVersion, minorVersion},
-                                           import.sourceId,
-                                           import.contextSourceId};
+            Storage::Import additionalImport{exportedModuleId,
+                                             Storage::Version{majorVersion, minorVersion},
+                                             import.sourceId,
+                                             import.contextSourceId};
 
             auto exportedImportKind = importKind == Storage::Synchronization::ImportKind::Import
                                           ? Storage::Synchronization::ImportKind::ModuleExportedImport
@@ -3813,12 +3822,12 @@ void ProjectStorage::synchronizeDocumentImports(Storage::Imports &imports,
 
             NanotraceHR::Tracer tracer{"insert indirect import",
                                        category(),
-                                       keyValue("import", import),
+                                       keyValue("import", additionalImport),
                                        keyValue("import kind", exportedImportKind),
-                                       keyValue("source id", import.sourceId),
-                                       keyValue("module id", import.moduleId)};
+                                       keyValue("source id", additionalImport.sourceId),
+                                       keyValue("module id", additionalImport.moduleId)};
 
-            auto indirectImportId = insertDocumentImport(additionImport,
+            auto indirectImportId = insertDocumentImport(additionalImport,
                                                          exportedImportKind,
                                                          import.moduleId,
                                                          importId,
@@ -4195,9 +4204,9 @@ TypeId ProjectStorage::declareType(std::string_view typeName, SourceId sourceId)
         return typeId;
     }
 
-    NanotraceHR::Tracer insertTracer{"insert type", category()};
-
     auto typeId = s->selectTypeIdBySourceIdAndNameStatement.value<TypeId>(sourceId, typeName);
+
+    NanotraceHR::Tracer insertTracer{"insert type", category()};
 
     if (!typeId)
         typeId = s->insertTypeStatement.value<TypeId>(sourceId, typeName);
@@ -4546,17 +4555,26 @@ ImportId ProjectStorage::fetchImportId(SourceId sourceId, const Storage::Import 
                                keyValue("import", import),
                                keyValue("source id", sourceId)};
 
-    ImportId importId;
-    if (import.version) {
-        importId = s->selectImportIdBySourceIdAndModuleIdAndVersionStatement.value<ImportId>(
-            sourceId, import.moduleId, import.version.major.value, import.version.minor.value);
-    } else if (import.version.major) {
-        importId = s->selectImportIdBySourceIdAndModuleIdAndMajorVersionStatement
-                       .value<ImportId>(sourceId, import.moduleId, import.version.major.value);
-    } else {
-        importId = s->selectImportIdBySourceIdAndModuleIdStatement.value<ImportId>(sourceId,
-                                                                                   import.moduleId);
-    }
+    ImportId importId = s->selectImportIdBySourceIdAndModuleIdAndVersionAndAliasStatement
+                            .value<ImportId>(sourceId,
+                                             import.moduleId,
+                                             import.version.major.value,
+                                             import.version.minor.value,
+                                             import.alias);
+
+    tracer.end(keyValue("import id", importId));
+
+    return importId;
+}
+
+ImportId ProjectStorage::fetchImportId(SourceId sourceId, Utils::SmallStringView alias) const
+{
+    NanotraceHR::Tracer tracer{"fetch imported type name id",
+                               category(),
+                               keyValue("alias", alias),
+                               keyValue("source id", sourceId)};
+
+    ImportId importId = s->selectImportIdBySourceIdAndAliasStatement.value<ImportId>(sourceId, alias);
 
     tracer.end(keyValue("import id", importId));
 
@@ -4589,10 +4607,10 @@ std::tuple<ImportedTypeNameId, Storage::Synchronization::TypeNameKind> ProjectSt
             NanotraceHR::Tracer tracer{"fetch imported type name id",
                                        category(),
                                        keyValue("imported type name", importedType.name),
-                                       keyValue("import", importedType.import),
+                                       keyValue("alias", importedType.alias),
                                        keyValue("type name kind", "qualified exported"sv)};
 
-            ImportId importId = storage.fetchImportId(sourceId, importedType.import);
+            ImportId importId = storage.fetchImportId(sourceId, importedType.alias);
 
             auto importedTypeNameId = storage.fetchImportedTypeNameId(TypeNameKind::QualifiedExported,
                                                                       importId,
