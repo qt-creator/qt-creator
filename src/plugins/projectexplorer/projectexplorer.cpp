@@ -472,7 +472,6 @@ public:
     DefaultDeployConfigurationFactory()
     {
         setConfigBaseId("ProjectExplorer.DefaultDeployConfiguration");
-        addSupportedTargetDeviceType(Constants::DESKTOP_DEVICE_TYPE);
         //: Display name of the default deploy configuration
         setDefaultDisplayName(Tr::tr("Deploy Configuration"));
     }
