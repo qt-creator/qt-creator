@@ -818,7 +818,7 @@ public:
         m_kitWarningForProject = containsType(m_kitIssues, Task::TaskType::Warning);
         m_kitErrorsForProject = containsType(m_kitIssues, Task::TaskType::Error);
 
-        QObject::connect(
+        m_targetRemovedConnection = QObject::connect(
             project,
             &ProjectExplorer::Project::removedTarget,
             [this, t = target()](ProjectExplorer::Target *rt) {
@@ -832,6 +832,7 @@ public:
 
     ~TargetItem()
     {
+        m_project->disconnect(m_targetRemovedConnection);
         delete m_buildSettingsWidget;
         delete m_deploySettingsWidget;
         delete m_runSettingsWidget;
@@ -1081,6 +1082,7 @@ public:
     mutable QPointer<QWidget> m_buildSettingsWidget;
     mutable QPointer<QWidget> m_deploySettingsWidget;
     mutable QPointer<QWidget> m_runSettingsWidget;
+    QMetaObject::Connection m_targetRemovedConnection;
 };
 
 //
