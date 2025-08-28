@@ -44,6 +44,7 @@ using namespace LanguageClient;
 using namespace LanguageServerProtocol;
 using namespace ProjectExplorer;
 using namespace Tasking;
+using namespace TextEditor;
 using namespace Utils;
 
 namespace Python::Internal {
@@ -210,7 +211,7 @@ void PyLSClient::updateConfiguration()
         Client::updateConfiguration(doc.object());
 }
 
-void PyLSClient::openDocument(TextEditor::TextDocument *document)
+void PyLSClient::openDocument(TextDocument *document)
 {
     using namespace LanguageServerProtocol;
     if (reachable()) {
@@ -287,7 +288,7 @@ void PyLSClient::updateExtraCompilerContents(ExtraCompiler *compiler, const File
     target.writeFileContents(compiler->content(file));
 }
 
-void PyLSClient::closeExtraCompiler(ProjectExplorer::ExtraCompiler *compiler, const FilePath &file)
+void PyLSClient::closeExtraCompiler(ExtraCompiler *compiler, const FilePath &file)
 {
     m_extraCompilerOutputDir.pathAppended(file.fileName()).removeFile();
     compiler->disconnect(this);
@@ -305,21 +306,20 @@ public:
 
     void handlePyLSState(const FilePath &python,
                          const PythonLanguageServerState &state,
-                         TextEditor::TextDocument *document);
-    void resetEditorInfoBar(TextEditor::TextDocument *document);
+                         TextDocument *document);
+    void resetEditorInfoBar(TextDocument *document);
     void installPythonLanguageServer(const FilePath &python,
-                                     QPointer<TextEditor::TextDocument> document,
+                                     QPointer<TextDocument> document,
                                      const FilePath &pylsPath, bool silent, bool upgrade);
-    void openDocument(const FilePath &python, TextEditor::TextDocument *document);
+    void openDocument(const FilePath &python, TextDocument *document);
 
-    QHash<FilePath, QList<TextEditor::TextDocument *>> m_infoBarEntries;
-    QHash<TextEditor::TextDocument *, QPointer<QFutureWatcher<PythonLanguageServerState>>>
-        m_runningChecks;
+    QHash<FilePath, QList<TextDocument *>> m_infoBarEntries;
+    QHash<TextDocument *, QPointer<QFutureWatcher<PythonLanguageServerState>>> m_runningChecks;
     SingleTaskTreeRunner m_pipInstallerRunner;
 };
 
 void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
-                                                         QPointer<TextEditor::TextDocument> document,
+                                                         QPointer<TextDocument> document,
                                                          const FilePath &pylsPath,
                                                          bool silent,
                                                          bool upgrade)
@@ -328,7 +328,7 @@ void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
 
     // Hide all install info bar entries for this python, but keep them in the list
     // so the language server will be setup properly after the installation is done.
-    for (TextEditor::TextDocument *additionalDocument : m_infoBarEntries[python])
+    for (TextDocument *additionalDocument : m_infoBarEntries[python])
         additionalDocument->infoBar()->removeInfo(installPylsInfoBarId);
 
     PipInstallerData data;
@@ -339,12 +339,12 @@ void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
     data.silent = silent;
 
     const auto onDone = [this, python, document](DoneWith result) {
-        const QList<TextEditor::TextDocument *> additionalDocuments = m_infoBarEntries.take(python);
+        const QList<TextDocument *> additionalDocuments = m_infoBarEntries.take(python);
         if (result == DoneWith::Success) {
             if (PyLSClient *client = clientForPython(python)) {
                 if (document)
                     LanguageClientManager::openDocumentWithClient(document, client);
-                for (TextEditor::TextDocument *additionalDocument : additionalDocuments)
+                for (TextDocument *additionalDocument : additionalDocuments)
                     LanguageClientManager::openDocumentWithClient(additionalDocument, client);
             }
         }
@@ -353,7 +353,7 @@ void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
     m_pipInstallerRunner.start(pipInstallerTask(data), {}, onDone);
 }
 
-void PyLSConfigureAssistant::openDocument(const FilePath &python, TextEditor::TextDocument *document)
+void PyLSConfigureAssistant::openDocument(const FilePath &python, TextDocument *document)
 {
     resetEditorInfoBar(document);
     if (!PythonSettings::pylsEnabled() || !python.exists() || document->isTemporary())
@@ -376,7 +376,7 @@ void PyLSConfigureAssistant::openDocument(const FilePath &python, TextEditor::Te
     });
 
     connect(watcher, &CheckPylsWatcher::resultReadyAt, this,
-            [this, watcher, python, document = QPointer<TextEditor::TextDocument>(document)] {
+            [this, watcher, python, document = QPointer<TextDocument>(document)] {
                 if (!document || !watcher)
                     return;
                 handlePyLSState(python, watcher->result(), document);
@@ -391,7 +391,7 @@ void PyLSConfigureAssistant::openDocument(const FilePath &python, TextEditor::Te
 
 void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
                                              const PythonLanguageServerState &state,
-                                             TextEditor::TextDocument *document)
+                                             TextDocument *document)
 {
     if (state.state == PythonLanguageServerState::NotInstallable)
         return;
@@ -454,9 +454,9 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
     }
 }
 
-void PyLSConfigureAssistant::resetEditorInfoBar(TextEditor::TextDocument *document)
+void PyLSConfigureAssistant::resetEditorInfoBar(TextDocument *document)
 {
-    for (QList<TextEditor::TextDocument *> &documents : m_infoBarEntries)
+    for (QList<TextDocument *> &documents : m_infoBarEntries)
         documents.removeAll(document);
     document->infoBar()->removeInfo(installPylsInfoBarId);
     if (auto watcher = m_runningChecks.value(document))
@@ -471,7 +471,7 @@ PyLSConfigureAssistant::PyLSConfigureAssistant()
             &Core::EditorManager::documentClosed,
             this,
             [this](Core::IDocument *document) {
-                if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document))
+                if (auto textDocument = qobject_cast<TextDocument *>(document))
                     resetEditorInfoBar(textDocument);
             });
 }
@@ -482,7 +482,7 @@ static PyLSConfigureAssistant &pyLSConfigureAssistant()
     return thePyLSConfigureAssistant;
 }
 
-void openDocumentWithPython(const FilePath &python, TextEditor::TextDocument *document)
+void openDocumentWithPython(const FilePath &python, TextDocument *document)
 {
     pyLSConfigureAssistant().openDocument(python, document);
 }
