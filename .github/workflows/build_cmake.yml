@@ -9,7 +9,7 @@ on:
 env:
   QT_VERSION: 6.9.1
   MACOS_DEPLOYMENT_TARGET: 11.0
-  CLANG_VERSION: 20.1.3
+  CLANG_VERSION: 21.1.0
   ELFUTILS_VERSION: 0.175
   CMAKE_VERSION: 3.30.3
   NINJA_VERSION: 1.10.2
@@ -395,9 +395,9 @@ jobs:
         set(clang_version "$ENV{CLANG_VERSION}")
 
         if ("${{ runner.os }}" STREQUAL "Windows")
-          set(libclang "libclang-release_${clang_version}-based-windows-vs2019_64.7z")
+          set(libclang "libclang-release_${clang_version}-based-windows-vs2022_64.7z")
         elseif ("${{ runner.os }}" STREQUAL "Linux")
-          set(libclang "libclang-release_${clang_version}-based-linux-Ubuntu22.04-gcc11.4-x86_64.7z")
+          set(libclang "libclang-release_${clang_version}-based-linux-Rhel8.10-gcc10.3-x86_64.7z")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(libclang "libclang-release_${clang_version}-based-macos-universal.7z")
         endif()
