@@ -17,9 +17,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
-#include <utils/qtcassert.h>
-#include <utils/expected.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QCryptographicHash>
 #include <QLoggingCategory>
@@ -40,7 +39,10 @@ clang::format::FormatStyle calculateQtcStyle()
     style.Language = FormatStyle::LK_Cpp;
     style.AccessModifierOffset = -4;
     style.AlignAfterOpenBracket = FormatStyle::BAS_Align;
-#if LLVM_VERSION_MAJOR >= 18
+#if LLVM_VERSION_MAJOR >= 20
+    style.AlignConsecutiveAssignments = {false, false, false, false, false, false, false};
+    style.AlignConsecutiveDeclarations = {false, false, false, false, false, false, false};
+#elif LLVM_VERSION_MAJOR >= 18
     style.AlignConsecutiveAssignments = {false, false, false, false, false, false};
     style.AlignConsecutiveDeclarations = {false, false, false, false, false, false};
 #elif LLVM_VERSION_MAJOR >= 15
@@ -146,7 +148,11 @@ clang::format::FormatStyle calculateQtcStyle()
 #else
     style.ReflowComments = false;
 #endif
+#if LLVM_VERSION_MAJOR > 20
+    style.SortIncludes = {.Enabled = true, .IgnoreCase = false};
+#else
     style.SortIncludes = FormatStyle::SI_CaseSensitive;
+#endif
 #if LLVM_VERSION_MAJOR >= 16
     style.SortUsingDeclarations = FormatStyle::SUD_Lexicographic;
 #else
@@ -254,7 +260,7 @@ void fromTabSettings(clang::format::FormatStyle &style, const TextEditor::TabSet
     }
 }
 
-QString projectUniqueId(ProjectExplorer::Project *project)
+QString projectUniqueId(const ProjectExplorer::Project *project)
 {
     if (!project)
         return QString();
@@ -333,7 +339,7 @@ Utils::FilePath findConfig(const Utils::FilePath &filePath)
     return {};
 }
 
-ICodeStylePreferences *preferencesForFile(const Utils::FilePath &filePath)
+ICodeStylePreferences *preferencesForFile(const FilePath &filePath)
 {
     const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
         filePath);
@@ -343,7 +349,7 @@ ICodeStylePreferences *preferencesForFile(const Utils::FilePath &filePath)
                : TextEditor::TextEditorSettings::codeStyle("Cpp")->currentPreferences();
 }
 
-Utils::FilePath configForFile(const Utils::FilePath &filePath)
+FilePath configForFile(const FilePath &filePath)
 {
     if (!getCurrentCustomSettings(filePath))
         return findConfig(filePath);
@@ -410,16 +416,16 @@ void addQtcStatementMacros(clang::format::FormatStyle &style)
     }
 }
 
-Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreferences *codeStyle)
+FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreferences *codeStyle)
 {
     return Core::ICore::userResourcePath() / "clang-format/"
            / Utils::FileUtils::fileSystemFriendlyName(codeStyle->displayName())
            / QLatin1String(Constants::SETTINGS_FILE_NAME);
 }
 
-Utils::expected_str<void> parseConfigurationContent(const std::string &fileContent,
-                                                    clang::format::FormatStyle &style,
-                                                    bool allowUnknownOptions)
+Result<> parseConfigurationContent(const std::string &fileContent,
+                                   clang::format::FormatStyle &style,
+                                   bool allowUnknownOptions)
 {
     llvm::SourceMgr::DiagHandlerTy diagHandler = [](const llvm::SMDiagnostic &diag, void *context) {
         QString *errorMessage = reinterpret_cast<QString *>(context);
@@ -440,12 +446,11 @@ Utils::expected_str<void> parseConfigurationContent(const std::string &fileConte
     errorMessage = errorMessage.trimmed().isEmpty() ? QString::fromStdString(error.message())
                                                     : errorMessage;
     if (error)
-        return make_unexpected(errorMessage);
-    return {};
+        return ResultError(errorMessage);
+    return ResultOk;
 }
 
-Utils::expected_str<void> parseConfigurationFile(const Utils::FilePath &filePath,
-                                                 clang::format::FormatStyle &style)
+Result<> parseConfigurationFile(const FilePath &filePath, clang::format::FormatStyle &style)
 {
     return parseConfigurationContent(filePath.fileContents().value_or(QByteArray()).toStdString(),
                                      style, true);

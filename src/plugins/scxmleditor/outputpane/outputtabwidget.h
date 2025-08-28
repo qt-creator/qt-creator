@@ -68,8 +68,8 @@ private:
     void buttonClicked(PaneTitleButton *button, bool checked);
     void showAlert(OutputPane *pane);
 
-    QVector<OutputPane *> m_pages;
-    QVector<PaneTitleButton *> m_buttons;
+    QList<OutputPane *> m_pages;
+    QList<PaneTitleButton *> m_buttons;
 
     QToolBar *m_toolBar = nullptr;
     QStackedWidget *m_stackedWidget = nullptr;

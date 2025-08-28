@@ -55,14 +55,10 @@ public:
             emit progressValueChanged(progress * 100 / maxProgress, info);
         });
         connect(m_toolHandler.get(), &IosToolHandler::message, this, &IosTransfer::message);
-        connect(
-            m_toolHandler.get(),
-            &IosToolHandler::errorMsg,
-            this,
-            [this](IosToolHandler *, const QString &message) {
-                TaskHub::addTask(DeploymentTask(Task::Error, message));
-                emit errorMessage(message);
-            });
+        connect(m_toolHandler.get(), &IosToolHandler::errorMsg, this, [this](const QString &message) {
+            TaskHub::addTask(DeploymentTask(Task::Error, message));
+            emit errorMessage(message);
+        });
         connect(m_toolHandler.get(), &IosToolHandler::didTransferApp, this,
                 [this](IosToolHandler *, const FilePath &, const QString &,
                        IosToolHandler::OpStatus status) {
@@ -96,16 +92,7 @@ private:
     std::unique_ptr<IosToolHandler> m_toolHandler;
 };
 
-class IosTransferTaskAdapter : public TaskAdapter<IosTransfer>
-{
-public:
-    IosTransferTaskAdapter() { connect(task(), &IosTransfer::done, this, &TaskInterface::done); }
-
-private:
-    void start() final { task()->start(); }
-};
-
-using IosTransferTask = CustomTask<IosTransferTaskAdapter>;
+using IosTransferTask = SimpleCustomTask<IosTransfer>;
 
 GroupItem createDeviceCtlDeployTask(
     const IosDevice::ConstPtr &device,
@@ -146,7 +133,7 @@ GroupItem createDeviceCtlDeployTask(
                          Task::Error);
             return DoneResult::Error;
         }
-        const Utils::expected_str<QJsonValue> resultValue = parseDevicectlResult(
+        const Utils::Result<QJsonValue> resultValue = parseDevicectlResult(
             process.rawStdOut());
         if (resultValue) {
             // success
@@ -199,7 +186,7 @@ IosDeployStep::IosDeployStep(BuildStepList *parent, Utils::Id id)
     updateDisplayNames();
     connect(DeviceManager::instance(), &DeviceManager::updated,
             this, &IosDeployStep::updateDisplayNames);
-    connect(target(), &Target::kitChanged,
+    connect(buildConfiguration(), &BuildConfiguration::kitChanged,
             this, &IosDeployStep::updateDisplayNames);
 }
 
@@ -214,7 +201,7 @@ bool IosDeployStep::init()
 {
     m_device = RunDeviceKitAspect::device(kit());
     auto runConfig = qobject_cast<const IosRunConfiguration *>(
-        this->target()->activeRunConfiguration());
+        buildConfiguration()->activeRunConfiguration());
     QTC_ASSERT(runConfig, return false);
     m_bundlePath = runConfig->bundleDirectory();
 

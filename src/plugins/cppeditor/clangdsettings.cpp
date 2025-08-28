@@ -14,9 +14,12 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/session.h>
+
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectsettingswidget.h>
+
 #include <utils/clangutils.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
@@ -379,6 +382,10 @@ ClangdProjectSettings::ClangdProjectSettings(Project *project) : m_project(proje
 {
     loadSettings();
 }
+
+ClangdProjectSettings::ClangdProjectSettings(BuildConfiguration *bc)
+    : ClangdProjectSettings(bc ? bc->project() : nullptr)
+{}
 
 ClangdSettings::Data ClangdProjectSettings::settings() const
 {

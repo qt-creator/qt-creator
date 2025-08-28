@@ -57,7 +57,7 @@ public:
     void setDocument(ScxmlDocument *document);
     void unselectAll();
     void unhighlightAll();
-    void highlightItems(const QVector<ScxmlTag*> &lstIds);
+    void highlightItems(const QList<ScxmlTag*> &lstIds);
     void addConnectableItem(ItemType type, const QPointF &pos, BaseItem *parentItem);
     void runAutomaticLayout();
     void runLayoutToSelectedStates();
@@ -112,8 +112,8 @@ private:
     QPointer<OutputPane::WarningModel> m_warningModel;
     QPointer<ScxmlUiFactory> m_uiFactory;
     QPointer<ScxmlDocument> m_document;
-    QVector<BaseItem*> m_baseItems;
-    QVector<WarningItem*> m_allWarnings;
+    QList<BaseItem*> m_baseItems;
+    QList<WarningItem*> m_allWarnings;
     int m_pasteCounter = 0;
     QPointer<BaseItem> m_lastPasteTargetItem;
     SnapLine *m_lineX = nullptr;

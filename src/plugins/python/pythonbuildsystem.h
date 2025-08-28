@@ -7,13 +7,10 @@
 
 namespace Python::Internal {
 
-class PythonBuildConfiguration;
-
 class PythonBuildSystem final : public ProjectExplorer::BuildSystem
 {
 public:
-    explicit PythonBuildSystem(PythonBuildConfiguration *buildConfig);
-    explicit PythonBuildSystem(ProjectExplorer::Target *target);
+    explicit PythonBuildSystem(ProjectExplorer::BuildConfiguration *buildConfig);
 
     bool supportsAction(ProjectExplorer::Node *context,
                         ProjectExplorer::ProjectAction action,
@@ -29,7 +26,6 @@ public:
         ProjectExplorer::Node *,
         const Utils::FilePairs &filesToRename,
         Utils::FilePaths *notRenamed) override;
-    QString name() const override { return QLatin1String("python"); }
 
     void parse();
     bool save();
@@ -48,7 +44,6 @@ private:
 
     QList<FileEntry> m_files;
     QList<FileEntry> m_qmlImportPaths;
-    PythonBuildConfiguration *m_buildConfig = nullptr;
 };
 
 

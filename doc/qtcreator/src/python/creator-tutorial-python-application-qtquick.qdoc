@@ -57,8 +57,8 @@
     The wizard generates the following files:
 
     \list
-        \li \c {hello_world_quick.pyproject}, which lists the files in the Python
-            project.
+        \li \c {pyproject.toml}, which lists the files in the Python
+            project and other configurations.
         \li \c {main.py}, which has some boilerplate code.
         \li \c {main.qml}, which imports Qt Quick controls.
         \li \c {requirements.txt}, which stores the PySide version of the
@@ -190,11 +190,12 @@
     }
     \endcode
 
-    You can also use \l{Qt Design Studio documentation}{\QDS} to design Qt Quick UIs.
+    You can also use \l{\QDS documentation}{\QDS} to design Qt Quick UIs.
 
     \section1 Run the application
 
-    Select \inlineimage icons/run_small.png to run the application.
+    Select \inlineimage {icons/run_small.png} {Run} (\uicontrol {Run}) to run the
+    application.
 
     \sa {Tutorial: Qt Widgets and Python}, {Tutorial: Qt Widgets UI and Python},
     {Develop Qt for Python Applications}

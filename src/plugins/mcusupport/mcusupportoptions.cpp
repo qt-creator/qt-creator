@@ -64,7 +64,7 @@ static const std::pair<Utils::FilePath, int> expandWildcards(
     std::pair<FilePath, int> retPair = {path, patternComponents.size()};
 
     sort(entries, [](const FilePath &a, const FilePath &b) { return a.fileName() < b.fileName(); });
-    for (const auto &entry : entries) {
+    for (const auto &entry : std::as_const(entries)) {
         auto [entry_path, remaining_components] = expandWildcards(entry,
                                                                   {patternComponents.constBegin()
                                                                        + 1,
@@ -177,9 +177,7 @@ void McuSupportOptions::registerQchFiles() const
         return;
 
     const QFileInfoList qchFiles = QDir(docsDir, "*.qch").entryInfoList();
-    Core::HelpManager::registerDocumentation(
-        Utils::transform<QStringList>(qchFiles,
-                                      [](const QFileInfo &fi) { return fi.absoluteFilePath(); }));
+    Core::HelpManager::registerDocumentation(Utils::transform(qchFiles, &QFileInfo::absoluteFilePath));
 }
 
 void McuSupportOptions::registerExamples() const
@@ -270,12 +268,15 @@ void McuSupportOptions::displayKitCreationMessages(const MessagesList messages,
                              Tr::tr("Errors while creating Qt for MCUs kits"),
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
 
-    info.addCustomButton(Tr::tr("Details"), [messages, &settingsHandler, qtMCUsPackage] {
-        auto popup = new McuKitCreationDialog(messages, settingsHandler, qtMCUsPackage);
-        popup->exec();
-        delete popup;
-        Core::ICore::infoBar()->removeInfo(mcuKitCreationErrorInfoId);
-    });
+    info.addCustomButton(
+        Tr::tr("Details"),
+        [messages, &settingsHandler, qtMCUsPackage] {
+            auto popup = new McuKitCreationDialog(messages, settingsHandler, qtMCUsPackage);
+            popup->exec();
+            delete popup;
+        },
+        {},
+        InfoBarEntry::ButtonAction::Hide);
 
     Core::ICore::infoBar()->addInfo(info);
 }

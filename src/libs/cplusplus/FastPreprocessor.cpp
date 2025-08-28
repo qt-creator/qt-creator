@@ -13,10 +13,9 @@
 using namespace Utils;
 using namespace CPlusPlus;
 
-FastPreprocessor::FastPreprocessor(const Snapshot &snapshot)
+FastPreprocessor::FastPreprocessor(const Snapshot &snapshot, bool expandFunctionLikeMacros)
     : _snapshot(snapshot)
-    , _preproc(this, &_env)
-    , _addIncludesToCurrentDoc(false)
+    , _expandFunctionLikeMacros(expandFunctionLikeMacros)
 { }
 
 QByteArray FastPreprocessor::run(Document::Ptr newDoc,
@@ -27,8 +26,8 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc,
     _addIncludesToCurrentDoc = _currentDoc->resolvedIncludes().isEmpty()
             && _currentDoc->unresolvedIncludes().isEmpty();
     const FilePath filePath = _currentDoc->filePath();
-    _preproc.setExpandFunctionlikeMacros(false);
     _preproc.setKeepComments(true);
+    _preproc.setExpandFunctionlikeMacros(_expandFunctionLikeMacros);
 
     if (Document::Ptr doc = _snapshot.document(filePath)) {
         _merged.insert(filePath);
@@ -110,7 +109,7 @@ void FastPreprocessor::passedMacroDefinitionCheck(int bytesOffset, int utf16char
     _currentDoc->addMacroUse(revision(_snapshot, macro),
                              bytesOffset, macro.name().size(),
                              utf16charsOffset, macro.nameToQString().size(),
-                             line, QVector<MacroArgumentReference>());
+                             line, QList<MacroArgumentReference>());
 }
 
 void FastPreprocessor::failedMacroDefinitionCheck(int bytesOffset, int utf16charsOffset,
@@ -130,12 +129,12 @@ void FastPreprocessor::notifyMacroReference(int bytesOffset, int utf16charsOffse
     _currentDoc->addMacroUse(revision(_snapshot, macro),
                              bytesOffset, macro.name().size(),
                              utf16charsOffset, macro.nameToQString().size(),
-                             line, QVector<MacroArgumentReference>());
+                             line, QList<MacroArgumentReference>());
 }
 
 void FastPreprocessor::startExpandingMacro(int bytesOffset, int utf16charsOffset,
                                            int line, const Macro &macro,
-                                           const QVector<MacroArgumentReference> &actuals)
+                                           const QList<MacroArgumentReference> &actuals)
 {
     Q_ASSERT(_currentDoc);
 

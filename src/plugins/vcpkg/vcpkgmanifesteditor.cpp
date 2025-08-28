@@ -17,6 +17,7 @@
 #include <utils/utilsicons.h>
 
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/projecttree.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
@@ -30,6 +31,7 @@
 #include <QPlainTextEdit>
 #include <QToolBar>
 
+using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -39,11 +41,12 @@ static QString cmakeCodeForPackage(const QString &package)
 {
     QString result;
 
-    const FilePath usageFile = settings().vcpkgRoot() / "ports" / package / "usage";
+    Project *currentProject = ProjectTree::currentProject();
+    const FilePath usageFile =
+        settings(currentProject)->vcpkgRoot.expandedValue() / "ports" / package / "usage";
     if (usageFile.exists()) {
-        FileReader reader;
-        if (reader.fetch(usageFile))
-            result = QString::fromUtf8(reader.data());
+        if (const Result<QByteArray> res = usageFile.fileContents())
+            result = QString::fromUtf8(*res);
     } else {
         result = QString(
 R"(The package %1 provides CMake targets:
@@ -116,17 +119,19 @@ public:
         QAction *optionsAction = toolBar()->addAction(Utils::Icons::SETTINGS_TOOLBAR.icon(),
                                                       Core::ICore::msgShowOptionsDialog());
         connect(optionsAction, &QAction::triggered, [] {
-            Core::ICore::showOptionsDialog(Constants::TOOLSSETTINGSPAGE_ID);
+            Core::ICore::showOptionsDialog(Constants::Settings::GENERAL_ID);
         });
 
         updateToolBar();
-        connect(&settings().vcpkgRoot, &Utils::BaseAspect::changed,
+        connect(&settings(ProjectTree::currentProject())->vcpkgRoot, &Utils::BaseAspect::changed,
                 this, &VcpkgManifestEditorWidget::updateToolBar);
     }
 
     void updateToolBar()
     {
-        Utils::FilePath vcpkg = settings().vcpkgRoot().pathAppended("vcpkg").withExecutableSuffix();
+        Utils::FilePath vcpkgRoot =
+            settings(ProjectTree::currentProject())->vcpkgRoot.expandedValue();
+        Utils::FilePath vcpkg = vcpkgRoot.pathAppended("vcpkg").withExecutableSuffix();
         const bool vcpkgEncabled = vcpkg.isExecutableFile();
         m_searchPkgAction->setEnabled(vcpkgEncabled);
         m_cmakeCodeAction->setEnabled(vcpkgEncabled);

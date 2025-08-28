@@ -29,7 +29,7 @@ public:
 
     virtual TestTreeItem *createTestTreeItem() const = 0;
 
-    QVector<TestParseResult *> children;
+    QList<TestParseResult *> children;
     ITestFramework *framework;
     TestTreeItem::Type itemType = TestTreeItem::Root;
     QString displayName;

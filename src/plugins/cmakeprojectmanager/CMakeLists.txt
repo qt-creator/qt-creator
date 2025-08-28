@@ -50,3 +50,11 @@ add_qtc_plugin(CMakeProjectManager
     3rdparty/cmake/cmListFileCache.h
     3rdparty/rstparser/rstparser.cc 3rdparty/rstparser/rstparser.h
 )
+
+file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testcases/*)
+qtc_add_resources(CMakeProjectManager "testcases"
+  CONDITION WITH_TESTS
+  PREFIX "/cmakeprojectmanager"
+  BASE "."
+  FILES ${test_cases}
+)

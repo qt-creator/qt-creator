@@ -12,11 +12,4 @@ QmlDesignerLitePlugin::QmlDesignerLitePlugin()
     QmlDesignerBasePlugin::enableLiteMode();
 }
 
-QmlDesignerLitePlugin::~QmlDesignerLitePlugin() = default;
-
-bool QmlDesignerLitePlugin::initialize(const QStringList &, QString *)
-{
-    return true;
-}
-
 } // namespace QmlDesigner

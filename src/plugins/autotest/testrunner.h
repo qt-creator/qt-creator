@@ -9,16 +9,8 @@
 
 #include <solutions/tasking/tasktreerunner.h>
 
-#include <QDialog>
 #include <QList>
 #include <QTimer>
-
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-class QComboBox;
-class QDialogButtonBox;
-class QLabel;
-QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
 
@@ -88,26 +80,6 @@ private:
     QMetaObject::Connection m_targetConnect;
     QTimer m_cancelTimer;
     bool m_skipTargetsCheck = false;
-};
-
-class RunConfigurationSelectionDialog : public QDialog
-{
-    Q_OBJECT
-public:
-    explicit RunConfigurationSelectionDialog(const QString &buildTargetKey, QWidget *parent = nullptr);
-    QString displayName() const;
-    QString executable() const;
-    bool rememberChoice() const;
-private:
-    void populate();
-    void updateLabels();
-    QLabel *m_details;
-    QLabel *m_executable;
-    QLabel *m_arguments;
-    QLabel *m_workingDir;
-    QComboBox *m_rcCombo;
-    QCheckBox *m_rememberCB;
-    QDialogButtonBox *m_buttonBox;
 };
 
 } // namespace Internal

@@ -179,7 +179,7 @@ void GraphicsScene::cut()
 
 void GraphicsScene::removeSelectedItems()
 {
-    QVector<ScxmlTag*> tags = SceneUtils::findRemovedTags(m_baseItems);
+    QList<ScxmlTag*> tags = SceneUtils::findRemovedTags(m_baseItems);
     if (!tags.isEmpty()) {
         m_document->undoStack()->beginMacro(Tr::tr("Remove items"));
 
@@ -199,9 +199,9 @@ void GraphicsScene::copy()
         return;
 
     QPointF minPos;
-    QVector<ScxmlTag*> tags;
+    QList<ScxmlTag*> tags;
     if (m_document->currentTag()->tagType() == Scxml) {
-        QVector<BaseItem*> items;
+        QList<BaseItem*> items;
         for (BaseItem *item : std::as_const(m_baseItems)) {
             if (!item->parentItem())
                 items << item;
@@ -349,7 +349,7 @@ void GraphicsScene::runLayoutToSelectedStates()
 {
     m_document->undoStack()->beginMacro(Tr::tr("Re-layout"));
 
-    QVector<BaseItem*> selectedItems;
+    QList<BaseItem*> selectedItems;
     for (BaseItem *node : std::as_const(m_baseItems)) {
         if (node->isSelected()) {
             int index = 0;
@@ -514,7 +514,7 @@ void GraphicsScene::endTagChange(ScxmlDocument::TagChange change, ScxmlTag *tag,
         if (!tag)
             break;
 
-        QVector<ScxmlTag*> childTransitionTags;
+        QList<ScxmlTag*> childTransitionTags;
         if (tag->tagName(false) == "transition")
             childTransitionTags << tag;
 
@@ -721,7 +721,7 @@ void GraphicsScene::removeItems(const ScxmlTag *tag)
 {
     if (tag) {
         // Find right items
-        QVector<BaseItem*> items;
+        QList<BaseItem*> items;
         for (BaseItem *it : std::as_const(m_baseItems)) {
             if (it->tag() == tag)
                 items << it;

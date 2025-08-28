@@ -9,13 +9,11 @@
 
 #include <utils/changeset.h>
 
-#include <QVector>
 #include <QSharedPointer>
 
 namespace TextEditor { class RefactoringFile; }
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 class ClangFixItOperation : public TextEditor::QuickFixOperation
 {
@@ -36,9 +34,8 @@ private:
 
 private:
     QString fixItText;
-    QVector<QSharedPointer<TextEditor::RefactoringFile>> refactoringFiles;
+    QList<QSharedPointer<TextEditor::RefactoringFile>> refactoringFiles;
     QList<ClangFixIt> fixIts;
 };
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

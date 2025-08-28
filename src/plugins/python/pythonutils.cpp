@@ -44,7 +44,8 @@ FilePath detectPython(const FilePath &documentPath)
 
     FilePaths dirs = Environment::systemEnvironment().path();
 
-    if (project && project->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE) {
+    if (project && (project->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE
+            || project->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE_TOML)) {
         if (auto bc = qobject_cast<PythonBuildConfiguration *>(project->activeBuildConfiguration()))
             return bc->python();
         if (const std::optional<Interpreter> python = PythonKitAspect::python(project->activeKit()))
@@ -248,4 +249,4 @@ QString pythonVersion(const FilePath &python)
     return QString();
 }
 
-} // Python::Internal
+} // namespace Python::Internal

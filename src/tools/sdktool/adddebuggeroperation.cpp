@@ -49,7 +49,7 @@ QString AddDebuggerOperation::argumentsHelpText() const
                          "    --engine <ENGINE>                          the debugger engine to use.\n"
                          "    --binary <PATH>                            path to the debugger binary.\n"
                          "    --abis <ABI,ABI>                           list of ABI strings (comma separated).\n"
-                         "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
+                         "    <KEY> <TYPE:VALUE>                         extra key value pairs, key can be hierarchical with '/' as the separator\n");
 }
 
 bool AddDebuggerOperation::setArguments(const QStringList &args)

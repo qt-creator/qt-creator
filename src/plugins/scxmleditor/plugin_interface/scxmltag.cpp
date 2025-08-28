@@ -476,14 +476,14 @@ ScxmlTag *ScxmlTag::tagForId(const QString &id) const
     return nullptr;
 }
 
-QVector<ScxmlTag*> ScxmlTag::allChildren() const
+QList<ScxmlTag*> ScxmlTag::allChildren() const
 {
     return m_childTags;
 }
 
-QVector<ScxmlTag*> ScxmlTag::children(const QString &name) const
+QList<ScxmlTag*> ScxmlTag::children(const QString &name) const
 {
-    QVector<ScxmlTag*> children;
+    QList<ScxmlTag*> children;
     for (ScxmlTag *tag : std::as_const(m_childTags)) {
         if (tag->tagName() == name)
             children << tag;

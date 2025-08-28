@@ -9,9 +9,7 @@
 
 #include <QFutureWatcher>
 #include <QTextCharFormat>
-#include <QVector>
 
-#include <functional>
 #include <memory>
 #include <set>
 
@@ -73,7 +71,7 @@ private:
     void onHighlighterFinished();
 
     unsigned documentRevision() const;
-    QVector<TextEditor::Parenthesis> getClearedParentheses(const QTextBlock &block);
+    QList<TextEditor::Parenthesis> getClearedParentheses(const QTextBlock &block);
 
 private:
     TextEditor::TextDocument *m_baseTextDocument;

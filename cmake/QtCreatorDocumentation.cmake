@@ -285,6 +285,55 @@ function(add_qtc_documentation qdocconf_file)
   )
 endfunction()
 
+function(qtc_prepare_attribution_file attribution_file_src attribution_file_dest)
+  if(NOT EXISTS "${attribution_file_src}")
+    message(FATAL_ERROR "Attribution file ${attribution_file_src} not found.")
+  endif()
+
+  # Replace @SOURCE_DIR@ in the json file with the absolute path of the json file parent directory.
+  # We do this, so that the attribution scanner can find the license files and paths even when
+  # the attribution file is in the build dir, not the source dir.
+  get_filename_component(SOURCE_DIR ${attribution_file_src} DIRECTORY)
+
+  if(Qt6_VERSION VERSION_GREATER_EQUAL 6.8.0)
+    # The attribution scanner is new enough, just copy the file.
+    configure_file("${attribution_file_src}" "${attribution_file_dest}" @ONLY)
+    return()
+  endif()
+
+  # Otherwise remove unsupported keys.
+  # Read the file
+  file(READ "${attribution_file_src}" file_content)
+
+  # Replace square brackets, to avoid issue with unbalanced square brackets when iterating lists.
+  # https://gitlab.kitware.com/cmake/cmake/-/issues/9317
+  string(REPLACE "[" "QT_ATTRIBUTION_LEFT_SQUARE" lines "${file_content}")
+  string(REPLACE "]" "QT_ATTRIBUTION_RIGHT_SQUARE" lines "${lines}")
+
+  # Transform newlines into semicolons to get a list.
+  string(REPLACE "\n" ";" lines "${lines}")
+
+  # Remove all CPE and PURL entries of the form "PURL": "foo", so that the attribution scanner of
+  # older Qts does not complain about them.
+  set(result_lines "")
+  foreach(one_line IN ITEMS ${lines})
+    if(one_line MATCHES "\"PURL\":.+\"," OR one_line MATCHES "\"CPE\":.+\",")
+      continue()
+    else()
+      list(APPEND result_lines "${one_line}")
+    endif()
+  endforeach()
+
+  # Turn the list back into a string.
+  list(JOIN result_lines "\n" content)
+
+  # Reverse the transformation.
+  string(REPLACE "QT_ATTRIBUTION_LEFT_SQUARE" "[" content "${content}")
+  string(REPLACE "QT_ATTRIBUTION_RIGHT_SQUARE" "]" content "${content}")
+
+  file(CONFIGURE OUTPUT "${attribution_file_dest}" CONTENT "${content}" @ONLY)
+endfunction()
+
 function(add_qtc_doc_attribution target attribution_file output_file qdocconf_file)
   get_filename_component(doc_target "${qdocconf_file}" NAME_WE)
   set(html_target "html_docs_${doc_target}")

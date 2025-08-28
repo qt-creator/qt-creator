@@ -3,6 +3,7 @@
 
 #include "qmlmultilanguageaspect.h"
 
+#include "qmlprojectconstants.h"
 #include "qmlprojectmanagertr.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -21,26 +22,13 @@ namespace QmlProjectManager {
 
 static bool isMultilanguagePresent()
 {
-    const ExtensionSystem::PluginSpecs &specs = ExtensionSystem::PluginManager::plugins();
-    return std::find_if(specs.cbegin(), specs.cend(),
-                        [](ExtensionSystem::PluginSpec *spec) {
-                            return spec->id() == "multilanguage";
-                        })
-           != specs.cend();
+    return ExtensionSystem::PluginManager::specExists("multilanguage");
 }
 
 static QObject *getPlugin(const QString &pluginId)
 {
-    const ExtensionSystem::PluginSpecs &specs = ExtensionSystem::PluginManager::plugins();
-    const auto pluginIt = std::find_if(
-        specs.cbegin(), specs.cend(), [pluginId](const ExtensionSystem::PluginSpec *p) {
-                                           return p->id() == pluginId;
-                                       });
-
-    if (pluginIt != specs.cend())
-        return (*pluginIt)->plugin();
-
-    return nullptr;
+    const auto spec = ExtensionSystem::PluginManager::specById(pluginId);
+    return spec ? spec->plugin() : nullptr;
 }
 
 QmlMultiLanguageAspect::QmlMultiLanguageAspect(AspectContainer *container)
@@ -65,15 +53,6 @@ QmlMultiLanguageAspect::QmlMultiLanguageAspect(AspectContainer *container)
             }
         }
     });
-}
-
-QmlMultiLanguageAspect::~QmlMultiLanguageAspect()
-{
-}
-
-void QmlMultiLanguageAspect::setTarget(Target *target)
-{
-    m_target = target;
 }
 
 void QmlMultiLanguageAspect::setCurrentLocale(const QString &locale)

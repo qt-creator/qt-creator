@@ -89,7 +89,7 @@ GitLabServer GitLabServer::fromJson(const QJsonObject &json)
 QStringList GitLabServer::curlArguments() const
 {
     // credentials from .netrc (?), no progress
-    QStringList args = { "-nsS" };
+    QStringList args = { "-sS", "--netrc-optional" };
     if (secure && !validateCert)
         args << "-k";
     return args;
@@ -140,7 +140,7 @@ static QList<GitLabServer> readTokensFile(const Utils::FilePath &filePath)
 {
     if (!filePath.exists())
         return {};
-    const Utils::expected_str<QByteArray> contents = filePath.fileContents();
+    const Utils::Result<QByteArray> contents = filePath.fileContents();
     if (!contents)
         return {};
     const QByteArray content = *contents;

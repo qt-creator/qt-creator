@@ -811,7 +811,8 @@ bool RegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
     addFormatAction(Tr::tr("Octal"), OctalFormat);
     addFormatAction(Tr::tr("Binary"), BinaryFormat);
 
-    menu->addAction(settings().settingsDialog.action());
+    addStandardActions(ev.view(), menu);
+
     connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
     return true;

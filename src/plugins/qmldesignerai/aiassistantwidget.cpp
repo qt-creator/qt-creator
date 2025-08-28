@@ -123,7 +123,9 @@ QStringList AiAssistantWidget::getImageAssetsPaths() const
 
     QDirIterator it(resourePath.toFSPathString(), filters, QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext())
-        imagePaths << Utils::FilePath::fromString(it.next()).relativePathFrom(resourePath).toFSPathString();
+        imagePaths << Utils::FilePath::fromString(it.next())
+                          .relativePathFromDir(resourePath)
+                          .toFSPathString();
 
     return imagePaths;
 }

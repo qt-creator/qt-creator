@@ -24,9 +24,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <languageserverprotocol/completion.h>
 #include <languageserverprotocol/diagnostics.h>
@@ -39,14 +36,13 @@
 #include <languageserverprotocol/shutdownmessages.h>
 #include <languageserverprotocol/workspace.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
-#include <texteditor/codeassist/documentcontentcompletion.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/ioutlinewidget.h>
 #include <texteditor/syntaxhighlighter.h>
-#include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
@@ -68,6 +64,7 @@
 #include <QThread>
 #include <QTimer>
 
+using namespace ProjectExplorer;
 using namespace LanguageServerProtocol;
 using namespace Utils;
 
@@ -150,8 +147,8 @@ public:
         m_documentUpdateTimer.setInterval(500);
         connect(&m_documentUpdateTimer, &QTimer::timeout, this,
                 [this] { sendPostponedDocumentUpdates(Schedule::Now); });
-        connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
-                q, &Client::projectClosed);
+        connect(ProjectManager::instance(), &ProjectManager::aboutToRemoveBuildConfiguration,
+                q, &Client::buildConfigurationClosed);
 
         QTC_ASSERT(clientInterface, return);
         connect(m_clientInterface, &InterfaceController::messageReceived, q, &Client::handleMessage);
@@ -187,18 +184,9 @@ public:
         // temporary container needed since m_resetAssistProvider is changed in resetAssistProviders
         for (TextDocument *document : m_resetAssistProvider.keys())
             resetAssistProviders(document);
-        if (!ExtensionSystem::PluginManager::isShuttingDown()) {
-            // prevent accessing deleted editors on Creator shutdown
-            const QList<Core::IEditor *> &editors = Core::DocumentModel::editorsForOpenedDocuments();
-            for (Core::IEditor *editor : editors) {
-                if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
-                    TextEditorWidget *widget = textEditor->editorWidget();
-                    widget->clearRefactorMarkers(m_id);
-                    widget->removeHoverHandler(&m_hoverHandler);
-                }
-            }
-            updateOpenedEditorToolBars();
-        }
+        for (auto activeEditor : m_activeEditors)
+            q->deactivateEditor(activeEditor);
+
         for (IAssistProcessor *processor : std::as_const(m_runningAssistProcessors))
             processor->setAsyncProposalAvailable(nullptr);
         qDeleteAll(m_documentHighlightsTimer);
@@ -350,8 +338,9 @@ public:
     DiagnosticManager *m_diagnosticManager = nullptr;
     DocumentSymbolCache m_documentSymbolCache;
     HoverHandler m_hoverHandler;
+    QSet<TextEditor::BaseTextEditor *> m_activeEditors;
     QHash<LanguageServerProtocol::DocumentUri, TextEditor::HighlightingResults> m_highlights;
-    ProjectExplorer::Project *m_project = nullptr;
+    QPointer<BuildConfiguration> m_bc;
     QSet<TextEditor::IAssistProcessor *> m_runningAssistProcessors;
     SymbolSupport m_symbolSupport;
     MessageId m_runningFindLinkRequest;
@@ -368,6 +357,7 @@ public:
     QJsonValue m_configuration;
     int m_completionResultsLimit = -1;
     const Utils::FilePath m_serverDeviceTemplate;
+    bool m_activatable = true;
 };
 
 Client::Client(BaseClientInterface *clientInterface, const Utils::Id &id)
@@ -386,9 +376,13 @@ void Client::setName(const QString &name)
 
 QString Client::name() const
 {
-    if (d->m_project && !d->m_project->displayName().isEmpty())
-        //: <language client> for <project>
-        return Tr::tr("%1 for %2").arg(d->m_displayName, d->m_project->displayName());
+    if (d->m_bc) {
+        const QString projectDisplayName = d->m_bc->project()->displayName();
+        if (!projectDisplayName.isEmpty()) {
+            //: <language client> for <project>
+            return Tr::tr("%1 for %2").arg(d->m_displayName, projectDisplayName);
+        }
+    }
     return d->m_displayName;
 }
 
@@ -552,8 +546,8 @@ void Client::initialize()
     params.setClientInfo(d->m_clientInfo);
     params.setCapabilities(d->m_clientCapabilities);
     params.setInitializationOptions(d->m_initializationOptions);
-    if (d->m_project)
-        params.setRootUri(hostPathToServerUri(d->m_project->projectDirectory()));
+    if (d->m_bc && d->m_bc->project())
+        params.setRootUri(hostPathToServerUri(d->m_bc->project()->projectDirectory()));
 
     auto projectFilter = [this](Project *project) { return canOpenProject(project); };
     auto toWorkSpaceFolder = [this](Project *pro) {
@@ -730,14 +724,26 @@ void Client::openDocument(TextEditor::TextDocument *document)
                             d->m_documentVersions[filePath]);
     handleDocumentOpened(document);
 
-    const Client *currentClient = LanguageClientManager::clientForDocument(document);
-    if (currentClient == this) {
-        // this is the active client for the document so directly activate it
-        activateDocument(document);
-    } else if (d->m_activateDocAutomatically && currentClient == nullptr) {
-        // there is no client for this document so assign it to this server
-        LanguageClientManager::openDocumentWithClient(document, this);
+    if (d->m_activatable) {
+        const Client *currentClient = LanguageClientManager::clientForDocument(document);
+        if (currentClient == this) {
+            // this is the active client for the document so directly activate it
+            activateDocument(document);
+        } else if (currentClient == nullptr) {
+            // there is no client for this document so assign it to this server
+            LanguageClientManager::openDocumentWithClient(document, this);
+        }
     }
+}
+
+bool Client::activatable() const
+{
+    return d->m_activatable;
+}
+
+void Client::setActivatable(bool activatable)
+{
+    d->m_activatable = activatable;
 }
 
 void Client::sendMessage(const JsonRpcMessage &message, SendDocUpdates sendUpdates,
@@ -990,6 +996,7 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
 
 void Client::activateDocument(TextEditor::TextDocument *document)
 {
+    QTC_ASSERT(d->m_activatable, return);
     const FilePath &filePath = document->filePath();
     if (d->m_diagnosticManager)
         d->m_diagnosticManager->showDiagnostics(filePath, d->m_documentVersions.value(filePath));
@@ -1013,6 +1020,7 @@ void Client::activateEditor(Core::IEditor *editor)
         TextEditor::IOutlineWidgetFactory::updateOutline();
     if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
         TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
+        QTC_ASSERT(widget, return);
         widget->addHoverHandler(&d->m_hoverHandler);
         d->requestDocumentHighlights(widget);
         uint optionalActions = widget->optionalActions();
@@ -1029,6 +1037,10 @@ void Client::activateEditor(Core::IEditor *editor)
         if (supportsTypeHierarchy(this, textEditor->document()))
             optionalActions |= TextEditor::OptionalActions::TypeHierarchy;
         widget->setOptionalActions(optionalActions);
+        d->m_activeEditors.insert(textEditor);
+        connect(textEditor, &QObject::destroyed, this, [this, textEditor]() {
+            d->m_activeEditors.remove(textEditor);
+        });
     }
 }
 
@@ -1039,15 +1051,24 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
     d->resetAssistProviders(document);
     document->setFormatter(nullptr);
     d->m_tokenSupport.deactivateDocument(document);
-    for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
-        if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
-            TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
-            widget->removeHoverHandler(&d->m_hoverHandler);
-            widget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, {});
-            widget->clearRefactorMarkers(id());
-            updateEditorToolBar(editor);
-        }
-    }
+    for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document))
+        deactivateEditor(editor);
+}
+
+void Client::deactivateEditor(Core::IEditor *editor)
+{
+    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+    if (!textEditor)
+        return;
+
+    d->m_activeEditors.remove(textEditor);
+
+    TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
+    QTC_ASSERT(widget, return);
+    widget->removeHoverHandler(&d->m_hoverHandler);
+    widget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, {});
+    widget->clearRefactorMarkers(id());
+    updateEditorToolBar(editor);
 }
 
 void ClientPrivate::documentClosed(Core::IDocument *document)
@@ -1485,30 +1506,29 @@ void Client::executeCommand(const Command &command)
         sendMessage(ExecuteCommandRequest(ExecuteCommandParams(command)));
 }
 
-ProjectExplorer::Project *Client::project() const
+Project *Client::project() const
 {
-    return d->m_project;
+    return d->m_bc ? d->m_bc->project() : nullptr;
 }
 
-void Client::setCurrentProject(ProjectExplorer::Project *project)
+BuildConfiguration *Client::buildConfiguration() const
 {
-    QTC_ASSERT(canOpenProject(project), return);
-    if (d->m_project == project)
+    return d->m_bc;
+}
+
+void Client::setCurrentBuildConfiguration(BuildConfiguration *bc)
+{
+    QTC_ASSERT(!bc ||canOpenProject(bc->project()), return);
+    if (d->m_bc == bc)
         return;
-    if (d->m_project)
-        d->m_project->disconnect(this);
-    d->m_project = project;
-    if (d->m_project) {
-        connect(d->m_project, &ProjectExplorer::Project::destroyed, this, [this] {
-            // the project of the client should already be null since we expect the session and
-            // the language client manager to reset it before it gets deleted.
-            QTC_ASSERT(d->m_project == nullptr, projectClosed(d->m_project));
-        });
-    }
+    if (d->m_bc)
+        d->m_bc->disconnect(this);
+    d->m_bc = bc;
 }
 
-void Client::projectOpened(ProjectExplorer::Project *project)
+void Client::buildConfigurationOpened(BuildConfiguration *bc)
 {
+    Project *project = bc->project();
     if (!d->sendWorkspceFolderChanges() || !canOpenProject(project))
         return;
     WorkspaceFoldersChangeEvent event;
@@ -1520,8 +1540,9 @@ void Client::projectOpened(ProjectExplorer::Project *project)
     sendMessage(change);
 }
 
-void Client::projectClosed(ProjectExplorer::Project *project)
+void Client::buildConfigurationClosed(BuildConfiguration *bc)
 {
+    Project *project = bc->project();
     if (d->sendWorkspceFolderChanges() && canOpenProject(project)) {
         WorkspaceFoldersChangeEvent event;
         event.setRemoved({WorkSpaceFolder(hostPathToServerUri(project->projectDirectory()),
@@ -1531,20 +1552,20 @@ void Client::projectClosed(ProjectExplorer::Project *project)
         DidChangeWorkspaceFoldersNotification change(params);
         sendMessage(change);
     }
-    if (project == d->m_project) {
+    if (bc == d->m_bc) {
         if (d->m_state == Initialized) {
             LanguageClientManager::shutdownClient(this);
         } else {
             d->setState(Shutdown); // otherwise the manager would try to restart this server
             emit finished();
         }
-        d->m_project = nullptr;
+        d->m_bc = nullptr;
     }
 }
 
-bool Client::canOpenProject(ProjectExplorer::Project *project)
+bool Client::canOpenProject(Project *project)
 {
-    Q_UNUSED(project);
+    Q_UNUSED(project)
     return true;
 }
 
@@ -1564,11 +1585,6 @@ void Client::updateConfiguration(const QJsonValue &configuration)
 void Client::setSupportedLanguage(const LanguageFilter &filter)
 {
     d->m_languagFilter = filter;
-}
-
-void Client::setActivateDocumentAutomatically(bool enabled)
-{
-    d->m_activateDocAutomatically = enabled;
 }
 
 void Client::setInitializationOptions(const QJsonObject &initializationOptions)
@@ -2251,7 +2267,7 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
     q->updateConfiguration(m_configuration);
 
     m_tokenSupport.clearTokens(); // clear cached tokens from a pre reset run
-    for (TextEditor::TextDocument *doc : m_postponedDocuments)
+    for (TextEditor::TextDocument *doc : std::as_const(m_postponedDocuments))
         q->openDocument(doc);
     m_postponedDocuments.clear();
 

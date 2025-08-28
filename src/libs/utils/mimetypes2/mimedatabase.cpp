@@ -1028,7 +1028,7 @@ void MimeDatabasePrivate::checkInitPhase(const QString &info)
     // the initializers will call other MIME database functions which "checkInitPhase" again,
     // so make sure not to recurse
     if (!m_initialized.exchange(true)) {
-        for (const std::function<void()> &f : m_initializers)
+        for (const std::function<void()> &f : std::as_const(m_initializers))
             f();
         QMutexLocker locker(&mutex);
         providers();

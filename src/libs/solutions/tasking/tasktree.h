@@ -187,8 +187,17 @@ class Storage final : public StorageBase
 {
 public:
     Storage() : StorageBase(Storage::ctor(), Storage::dtor()) {}
-    Storage(const StorageStruct &data)
-        : StorageBase([data] { return new StorageStruct(data); }, Storage::dtor()) {}
+#if __cplusplus >= 201803L // C++20: Allow pack expansion in lambda init-capture.
+    template <typename ...Args>
+    Storage(const Args &...args)
+        : StorageBase([...args = args] { return new StorageStruct{args...}; }, Storage::dtor()) {}
+#else // C++17
+    template <typename ...Args>
+    Storage(const Args &...args)
+        : StorageBase([argsTuple = std::tuple(args...)] {
+            return std::apply([](const Args &...arguments) { return new StorageStruct{arguments...}; }, argsTuple);
+        }, Storage::dtor()) {}
+#endif
     StorageStruct &operator*() const noexcept { return *activeStorage(); }
     StorageStruct *operator->() const noexcept { return activeStorage(); }
     StorageStruct *activeStorage() const {
@@ -300,7 +309,7 @@ public:
                       const std::function<void()> &handler = {}) const;
     Group withLog(const QString &logName) const;
     template <typename SenderSignalPairGetter>
-    Group withCancel(SenderSignalPairGetter &&getter) const;
+    Group withCancel(SenderSignalPairGetter &&getter, std::initializer_list<GroupItem> postCancelRecipe = {}) const;
     template <typename SenderSignalPairGetter>
     Group withAccept(SenderSignalPairGetter &&getter) const;
 
@@ -318,7 +327,8 @@ private:
     TASKING_EXPORT friend Group operator||(const ExecutableItem &item, DoneResult result);
 
     Group withCancelImpl(
-        const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const;
+        const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper,
+        const GroupItems &postCancelRecipe) const;
     Group withAcceptImpl(
         const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const;
 };
@@ -392,7 +402,8 @@ private:
 };
 
 template <typename SenderSignalPairGetter>
-Group ExecutableItem::withCancel(SenderSignalPairGetter &&getter) const
+Group ExecutableItem::withCancel(SenderSignalPairGetter &&getter,
+                                 std::initializer_list<GroupItem> postCancelRecipe) const
 {
     const auto connectWrapper = [getter](QObject *guard, const std::function<void()> &trigger) {
         const auto senderSignalPair = getter();
@@ -400,7 +411,7 @@ Group ExecutableItem::withCancel(SenderSignalPairGetter &&getter) const
             trigger();
         }, static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
     };
-    return withCancelImpl(connectWrapper);
+    return withCancelImpl(connectWrapper, postCancelRecipe);
 }
 
 template <typename SenderSignalPairGetter>
@@ -460,6 +471,8 @@ private:
     Loop m_loop;
 };
 
+class When;
+
 class TASKING_EXPORT Do final
 {
 public:
@@ -468,6 +481,7 @@ public:
 
 private:
     TASKING_EXPORT friend Group operator>>(const For &forItem, const Do &doItem);
+    TASKING_EXPORT friend Group operator>>(const When &whenItem, const Do &doItem);
 
     GroupItem m_children;
 };
@@ -617,6 +631,21 @@ private:
         };
     }
 };
+
+template <typename Task>
+class SimpleTaskAdapter final : public TaskAdapter<Task>
+{
+public:
+    SimpleTaskAdapter() { this->connect(this->task(), &Task::done, this, &TaskInterface::done); }
+    void start() final { this->task()->start(); }
+};
+
+// A convenient helper, when:
+// 1. Task is derived from QObject.
+// 2. Task::start() method starts the task.
+// 3. Task::done(DoneResult) signal is emitted when the task is finished.
+template <typename Task>
+using SimpleCustomTask = CustomTask<SimpleTaskAdapter<Task>>;
 
 class TASKING_EXPORT TaskTree final : public QObject
 {

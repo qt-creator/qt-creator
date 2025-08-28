@@ -9,11 +9,9 @@
 
 #include <QFuture>
 
-QT_FORWARD_DECLARE_CLASS(QTimer)
-QT_FORWARD_DECLARE_CLASS(QLocale)
+namespace ProjectExplorer { class Project; }
 
-namespace QmlJSTools {
-namespace Internal {
+namespace QmlJSTools::Internal {
 
 class QMLJSTOOLS_EXPORT ModelManager: public QmlJS::ModelManagerInterface
 {
@@ -31,13 +29,14 @@ protected:
     void addTaskInternal(const QFuture<void> &result, const QString &msg,
                          const Utils::Id taskId) const override;
     ProjectInfo defaultProjectInfoForProject(
-        ProjectExplorer::Project *project, const Utils::FilePaths &hiddenRccFolders) const override;
+        ProjectBase *project, const Utils::FilePaths &hiddenRccFolders) const override;
 private:
     void updateDefaultProjectInfo();
     void loadDefaultQmlTypeDescriptions();
     QHash<QString, QmlJS::Dialect> initLanguageForSuffix() const;
 };
 
-} // namespace Internal
+QMLJSTOOLS_EXPORT ProjectExplorer::Project *
+    projectFromProjectInfo(const ModelManager::ProjectInfo &projectInfo);
 
-} // namespace QmlJSTools
+} // namespace QmlJSTools::Internal

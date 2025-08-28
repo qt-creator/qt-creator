@@ -480,7 +480,7 @@ void FormEditorScene::clearFormEditorItems()
 
     auto cast = [](QGraphicsItem *item) { return qgraphicsitem_cast<FormEditorItem *>(item); };
 
-    auto formEditorItems = itemList | std::views::transform(cast)
+    auto formEditorItems = Utils::span{itemList} | std::views::transform(cast)
                            | std::views::filter(std::identity{});
 
     for (FormEditorItem *item : formEditorItems)

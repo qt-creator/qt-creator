@@ -2484,7 +2484,7 @@ private:
                                        .toUtf8();
 
             Document::Ptr doc = interface.snapshot().preprocessedDocument(newSource, "___quickfix.h");
-            if (!doc->parse(Document::ParseTranlationUnit))
+            if (!doc->parse(Document::ParseTranslationUnit))
                 return;
             doc->check();
             class TypeFinder : public ASTVisitor

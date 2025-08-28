@@ -8,7 +8,6 @@
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginspec.h>
 
-#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/lua.h>
 
@@ -46,8 +45,8 @@ struct ScriptPluginSpec
 
 using PackageProvider = std::function<sol::object(sol::state_view)>;
 
-LUA_EXPORT Utils::expected_str<LuaPluginSpec *> loadPlugin(const Utils::FilePath &path);
-LUA_EXPORT Utils::expected_str<sol::protected_function> prepareSetup(
+LUA_EXPORT Utils::Result<LuaPluginSpec *> loadPlugin(const Utils::FilePath &path);
+LUA_EXPORT Utils::Result<sol::protected_function> prepareSetup(
     sol::state_view lua, const LuaPluginSpec &pluginSpec);
 
 LUA_EXPORT void registerProvider(const QString &packageName, const PackageProvider &provider);
@@ -78,7 +77,7 @@ void checkKey(const sol::table &table, const QString &key)
 LUA_EXPORT QStringList variadicToStringList(const sol::variadic_args &vargs);
 
 template<typename R, typename... Args>
-static Utils::expected_str<R> safe_call(const sol::protected_function &function, Args &&...args)
+static Utils::Result<R> safe_call(const sol::protected_function &function, Args &&...args)
 {
     sol::protected_function_result result = function(std::forward<Args>(args)...);
     if (!result.valid()) {
@@ -93,7 +92,7 @@ static Utils::expected_str<R> safe_call(const sol::protected_function &function,
 }
 
 template<typename... Args>
-static Utils::expected_str<void> void_safe_call(
+static Utils::Result<> void_safe_call(
     const sol::protected_function &function, Args &&...args)
 {
     sol::protected_function_result result = function(std::forward<Args>(args)...);

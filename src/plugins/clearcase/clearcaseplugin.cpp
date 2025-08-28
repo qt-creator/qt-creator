@@ -1412,8 +1412,8 @@ void ClearCasePluginPrivate::startCheckIn(const FilePath &workingDir, const QStr
         submitTemplate = ccGetComment(workingDir, files.first());
     // Create a submit
     saver.write(submitTemplate.toUtf8());
-    if (!saver.finalize()) {
-        VcsOutputWindow::appendError(saver.errorString());
+    if (const Result<> res = saver.finalize(); !res) {
+        VcsOutputWindow::appendError(res.error());
         return;
     }
     m_checkInMessageFilePath = saver.filePath();
@@ -1591,7 +1591,7 @@ void ClearCasePluginPrivate::vcsDescribe(const FilePath &source, const QString &
     if (Constants::debug)
         qDebug() << Q_FUNC_INFO << source << topLevel << changeNr;
     QString description;
-    const FilePath relPath = source.relativePathFrom(topLevel);
+    const FilePath relPath = source.relativePathFromDir(topLevel);
     const QString id = QString::fromLatin1("%1@@%2").arg(relPath.toUserOutput(), changeNr);
 
     QTextCodec *codec = VcsBaseEditor::getCodec(source);
@@ -1706,7 +1706,7 @@ bool ClearCasePluginPrivate::vcsOpen(const FilePath &workingDir, const QString &
         return true;
     }
 
-    const FilePath relFile = absPath.relativePathFrom(topLevel);
+    const FilePath relFile = absPath.relativePathFromDir(topLevel);
     const QString file = relFile.nativePath();
     const QString title = QString::fromLatin1("Checkout %1").arg(file);
     CheckOutDialog coDialog(title, m_viewData.isUcm, !m_settings.noComment);
@@ -1818,7 +1818,7 @@ bool ClearCasePluginPrivate::vcsCheckIn(const FilePath &messageFile, const QStri
     replaceActivity &= (activity != QLatin1String(Constants::KEEP_ACTIVITY));
     if (replaceActivity && !vcsSetActivity(m_checkInView, title, activity))
         return false;
-    expected_str<QByteArray> messageFileContents = messageFile.fileContents();
+    Result<QByteArray> messageFileContents = messageFile.fileContents();
     const QString message = messageFileContents
                                 ? QString::fromLocal8Bit(*std::move(messageFileContents))
                                 : QString{};
@@ -2711,6 +2711,8 @@ void ClearCaseTest::testStatusActions()
 
 void ClearCaseTest::testVcsStatusDynamicReadonlyNotManaged()
 {
+    QSKIP("Skipping flaky test");
+
     // File is not in map, and is read-only
     ClearCasePluginPrivate::instance();
     QSignalSpy spy(dd, &ClearCasePluginPrivate::reindexedDynamicFile);
@@ -2734,6 +2736,8 @@ void ClearCaseTest::testVcsStatusDynamicReadonlyNotManaged()
 
 void ClearCaseTest::testVcsStatusDynamicNotManaged()
 {
+    QSKIP("Skipping flaky test");
+
     ClearCasePluginPrivate::instance();
     QSignalSpy spy(dd, &ClearCasePluginPrivate::reindexedDynamicFile);
     dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);

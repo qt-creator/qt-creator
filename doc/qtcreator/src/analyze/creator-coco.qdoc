@@ -151,7 +151,7 @@
     \list 1
         \li Go to \uicontrol Analyze > \uicontrol {Squish Coco}.
             \image {qtcreator-coco.png} {Coco CoverageBrowser and CSMes file}
-        \li In \uicontrol CSMes, select the instrumentation database to load.
+        \li In \uicontrol {CSMes file}, select the instrumentation database to load.
         \li Select \uicontrol Open to start CoverageBrowser.
         \li In CoverageBrowser, go to \uicontrol File >
             \uicontrol {Load Execution Report} and select the \c .csexe file for the
@@ -164,6 +164,13 @@
     Open the analyzed files in \QC. You can see the results of the analysis
     after the code in \uicontrol Edit mode. You can change the fonts and colors
     used for different types of results.
+
+    \section1 Disable viewing of code coverage from \QC
+
+    After you have set an instrumentation database in \uicontrol Analyze >
+    \uicontrol {Squish Coco}, CoverageBrowser is automatically started every
+    time you start \QC. To disable this, replace the content of \uicontrol {CSMes file}
+    with an empty string.
 
     \section1 Change fonts and colors
 

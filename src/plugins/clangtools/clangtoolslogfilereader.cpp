@@ -6,7 +6,6 @@
 #include <cppeditor/cppprojectfile.h>
 
 #include <QDir>
-#include <QFileInfo>
 
 #include <utils/fileutils.h>
 #include <utils/textutils.h>
@@ -14,6 +13,8 @@
 #include <QFuture>
 
 #include <yaml-cpp/yaml.h>
+
+using namespace Utils;
 
 namespace ClangTools {
 namespace Internal {
@@ -99,10 +100,9 @@ private:
         if (filePath.isEmpty())
             return {};
 
-        Utils::FileReader reader;
-        // Do not use FileReader::text as we have to deal with byte offsets.
-        if (reader.fetch(Utils::FilePath::fromUserInput(filePath)))
-            return reader.data();
+        // Do not change \r\n as we have to deal with byte offsets.
+        if (Result<QByteArray> contents = FilePath::fromUserInput(filePath).fileContents())
+            return *contents;
 
         return {};
     }
@@ -127,7 +127,7 @@ public:
 
     Utils::FilePath filePath() const { return m_filePath; }
 
-    Debugger::DiagnosticLocation toDiagnosticLocation() const
+    Link toLink() const
     {
         FileCache::Item &cacheItem = m_fileCache.item(m_filePath.toUserOutput());
         const QByteArray fileContents = cacheItem.fileContents();
@@ -155,35 +155,34 @@ public:
         if (data != fileContents.data())
             lineStartOffset += cachedLineInfo.lineStartOffset;
         cachedLineInfo = FileCache::LineInfo{info->line, lineStartOffset};
-        return Debugger::DiagnosticLocation{m_filePath, info->line, info->column};
+        return Link{m_filePath, info->line, info->column};
     }
 
-    static QVector<Debugger::DiagnosticLocation> toRange(const YAML::Node &node,
-                                                         FileCache &fileCache)
+    static Links toRange(const YAML::Node &node, FileCache &fileCache)
     {
         // The Replacements nodes use "Offset" instead of "FileOffset" as the key name.
         auto startLoc = Location(node, fileCache, "Offset");
         auto endLoc = Location(node, fileCache, "Offset", node["Length"].as<int>());
-        return {startLoc.toDiagnosticLocation(), endLoc.toDiagnosticLocation()};
+        return {startLoc.toLink(), endLoc.toLink()};
     }
 
 private:
     const YAML::Node &m_node;
     FileCache &m_fileCache;
-    Utils::FilePath m_filePath;
+    FilePath m_filePath;
     const char *m_fileOffsetKey = nullptr;
     int m_extraOffset = 0;
 };
 
 } // namespace
 
-void parseDiagnostics(QPromise<Utils::expected_str<Diagnostics>> &promise,
-                      const Utils::FilePath &logFilePath,
+void parseDiagnostics(QPromise<Result<Diagnostics>> &promise,
+                      const FilePath &logFilePath,
                       const AcceptDiagsFromFilePath &acceptFromFilePath)
 {
-    const Utils::expected_str<QByteArray> localFileContents = logFilePath.fileContents();
+    const Result<QByteArray> localFileContents = logFilePath.fileContents();
     if (!localFileContents.has_value()) {
-        promise.addResult(Utils::make_unexpected(localFileContents.error()));
+        promise.addResult(ResultError(localFileContents.error()));
         promise.future().cancel();
         return;
     }
@@ -207,7 +206,7 @@ void parseDiagnostics(QPromise<Utils::expected_str<Diagnostics>> &promise,
                 continue;
 
             Diagnostic diag;
-            diag.location = loc.toDiagnosticLocation();
+            diag.location = loc.toLink();
             diag.type = "warning";
             diag.name = asString(diagNode["DiagnosticName"]);
             diag.description = asString(node["Message"]) + " [" + diag.name + "]";
@@ -221,7 +220,7 @@ void parseDiagnostics(QPromise<Utils::expected_str<Diagnostics>> &promise,
                 step.ranges = Location::toRange(replacementNode, fileCache);
                 step.location = step.ranges[0];
 
-                if (step.location.isValid())
+                if (step.location.hasValidTarget())
                     diag.explainingSteps.append(step);
             }
             diag.hasFixits = !diag.explainingSteps.isEmpty();
@@ -239,7 +238,7 @@ void parseDiagnostics(QPromise<Utils::expected_str<Diagnostics>> &promise,
 
                 ExplainingStep step;
                 step.message = asString(noteNode["Message"]);
-                step.location = loc.toDiagnosticLocation();
+                step.location = loc.toLink();
                 diag.explainingSteps.append(step);
             }
 
@@ -256,10 +255,10 @@ void parseDiagnostics(QPromise<Utils::expected_str<Diagnostics>> &promise,
     }
 }
 
-Utils::expected_str<Diagnostics> readExportedDiagnostics(
+Utils::Result<Diagnostics> readExportedDiagnostics(
     const Utils::FilePath &logFilePath, const AcceptDiagsFromFilePath &acceptFromFilePath)
 {
-    QPromise<Utils::expected_str<Diagnostics>> promise;
+    QPromise<Utils::Result<Diagnostics>> promise;
     promise.start();
     parseDiagnostics(promise, logFilePath, acceptFromFilePath);
     return promise.future().result();

@@ -1,7 +1,7 @@
 add_qtc_library(Utils
-  DEPENDS Tasking Qt::Qml Qt::Xml Spinner
+  DEPENDS Tasking Qt::Qml Qt::Xml Spinner QtCLibArchive
   PUBLIC_DEPENDS
-    Qt::Concurrent Qt::Core Qt::Network Qt::Gui Qt::Widgets
+    Qt::Concurrent Qt::Core Qt::Network Qt::Gui Qt::Widgets Qt::PrintSupport
     Qt::Core5Compat
     $<$<BOOL:${QTC_STATIC_BUILD}>:Tasking>
     $<$<BOOL:${QTC_STATIC_BUILD}>:Spinner>
@@ -66,7 +66,7 @@ add_qtc_library(Utils
     filesystemwatcher.cpp filesystemwatcher.h
     fileutils.cpp fileutils.h
     filewizardpage.cpp filewizardpage.h
-    flowlayout.cpp flowlayout.h
+
     fsengine/fsengine.cpp fsengine/fsengine.h
     fsengine/fileiconprovider.cpp fsengine/fileiconprovider.h
     futuresynchronizer.cpp futuresynchronizer.h
@@ -82,7 +82,6 @@ add_qtc_library(Utils
     hostosinfo.cpp hostosinfo.h
     htmldocextractor.cpp htmldocextractor.h
     icon.cpp icon.h
-    iconbutton.cpp iconbutton.h
     icondisplay.h icondisplay.cpp
     id.cpp id.h
     indexedcontainerproxyconstiterator.h
@@ -131,6 +130,7 @@ add_qtc_library(Utils
     processinfo.cpp processinfo.h
     processinterface.cpp processinterface.h
     processreaper.cpp processreaper.h
+    progressdialog.cpp progressdialog.h
     progressindicator.cpp progressindicator.h
     projectintropage.cpp projectintropage.h
     proxyaction.cpp proxyaction.h
@@ -139,6 +139,7 @@ add_qtc_library(Utils
     qtcolorbutton.cpp qtcolorbutton.h
     qtcprocess.cpp qtcprocess.h
     qtcsettings.cpp qtcsettings.h
+    qtcwidgets.cpp qtcwidgets.h
     ranges.h
     reloadpromptutils.cpp reloadpromptutils.h
     removefiledialog.cpp removefiledialog.h
@@ -231,6 +232,20 @@ extend_qtc_library(Utils
     mimetypeparser.cpp
     mimetypeparser_p.h
     mimeutils.cpp
+)
+
+extend_qtc_library(Utils
+  SOURCES_PREFIX plaintextedit
+  PUBLIC_INCLUDES plaintextedit
+  SOURCES
+    inputcontrol.cpp
+    inputcontrol.h
+    plaintextedit.cpp
+    plaintextedit.h
+    widgettextcontrol.cpp
+    widgettextcontrol.h
+    plaintexteditaccessibility.cpp
+    plaintexteditaccessibility.h
 )
 
 if (MSVC)

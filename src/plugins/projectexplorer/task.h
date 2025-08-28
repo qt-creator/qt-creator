@@ -80,7 +80,7 @@ public:
     // But then again, the wording of the text most likely
     // doesn't work if you split it up, nor are our parsers
     // anywhere near being that good
-    QVector<QTextLayout::FormatRange> formats;
+    QList<QTextLayout::FormatRange> formats;
 
 private:
     void setMark(TextEditor::TextMark *mark);

@@ -22,7 +22,8 @@
 #   3. Note that sometimes the size of `std::pmr::polymorphic_allocator` is bizarrely reported
 #      as exactly 0, for example this happens with
 #      `std::__1::pmr::polymorphic_allocator<std::__1::pair<const int, int>>` from `std::pmr::map`,
-#      so dumping pmr containers still may still have some breakages for libcxx
+#      so dumping pmr containers still may still have some breakages for libcxx.
+#      Also see QTCREATORBUG-32455.
 
 from stdtypes import qdump__std__array, qdump__std__complex, qdump__std__once_flag, qdump__std__unique_ptr, qdumpHelper__std__deque__libcxx, qdumpHelper__std__vector__libcxx, qdump__std__forward_list
 from utils import DisplayFormat
@@ -75,6 +76,11 @@ def qdump__std____1__list(d, value):
                 d.putSubItem(i, val)
 
 
+def qdumpHelper_split_tree_node(d, node, data_type):
+    left, right, parent, _is_black, _pad, data = d.split('pppB@{{{}}}'.format(data_type.name), node)
+    return left, right, parent, data
+
+
 def qdump__std____1__set(d, value):
     # see disclaimer #1
     alloc_type = value.type[2]
@@ -92,7 +98,7 @@ def qdump__std____1__set(d, value):
         valueType = value.type[0]
 
         def in_order_traversal(node):
-            (left, right, parent, color, pad, data) = d.split("pppB@{%s}" % (valueType.name), node)
+            left, right, _parent, data = qdumpHelper_split_tree_node(d, node, valueType)
 
             if left:
                 for res in in_order_traversal(left):
@@ -133,8 +139,7 @@ def qdump__std____1__map(d, value):
         pair_type = alloc_type[0]
 
         def in_order_traversal(node):
-            (left, right, _parent, _is_black, _pad, pair) = d.split(
-                'pppB@{{{}}}'.format(pair_type.name), node)
+            left, right, _parent, pair = qdumpHelper_split_tree_node(d, node, pair_type)
 
             if left:
                 for res in in_order_traversal(left):
@@ -161,11 +166,23 @@ def qdump__std____1__multimap(d, value):
 
 def qdump__std____1__map__iterator(d, value):
     d.putEmptyValue()
+    d.putExpandable()
     if d.isExpanded():
         with Children(d):
-            node = value['__i_']['__ptr_'].dereference()['__value_']['__cc']
-            d.putSubItem('first', node['first'])
-            d.putSubItem('second', node['second'])
+            if value.type.name.endswith("::iterator"):
+                tree_type_name = value.type.name[:-len("::iterator")]
+            elif value.type.name.endswith("::const_iterator"):
+                tree_type_name = value.type.name[:-len("::const_iterator")]
+            tree_type = d.lookupType(tree_type_name)
+            key_type = tree_type[0]
+            mapped_type = tree_type[1]
+            alloc_type = tree_type[3]
+            pair_type = alloc_type[0]
+            node = value['__i_']['__ptr_'].dereference()
+            _left, _rigt, _parent, pair = qdumpHelper_split_tree_node(d, node, pair_type)
+            key, _pad, val = d.split('{{{}}}@{{{}}}'.format(key_type.name, mapped_type.name), pair)
+            d.putSubItem('first', key)
+            d.putSubItem('second', val)
 
 
 def qdump__std____1__map__const_iterator(d, value):
@@ -183,9 +200,9 @@ def qdump__std____1__set__iterator(d, value):
     keyType = treeType[0]
     if d.isExpanded():
         with Children(d):
-            node = value['__ptr_'].dereference()['__value_']
-            node = node.cast(keyType)
-            d.putSubItem('value', node)
+            node = value['__ptr_'].dereference()
+            _left, _right, _parent, value = qdumpHelper_split_tree_node(d, node, keyType)
+            d.putSubItem('value', value)
 
 
 def qdump__std____1__set_const_iterator(d, value):
@@ -311,6 +328,25 @@ def qdump__std____1__basic_string(d, value):
     qdump__std____1__string(d, value)
 
 
+def qdump__std____1__basic_string_view(d, value):
+    innerType = value.type[0]
+    qdumpHelper_std__string_view(d, value, innerType, d.currentItemFormat())
+
+
+def qdump__std____1__string_view(d, value):
+    qdumpHelper_std__string_view(d, value, d.createType("char"), d.currentItemFormat())
+
+
+def qdump__std____1__u16string_view(d, value):
+    qdumpHelper_std__string_view(d, value, d.createType("char16_t"), d.currentItemFormat())
+
+
+def qdumpHelper_std__string_view(d, value, charType, format):
+    data = value["__data_"].pointer()
+    size = value["__size_"].integer()
+    d.putCharArrayHelper(data, size, charType, format)
+
+
 def qdump__std____1__shared_ptr(d, value):
     i = value["__ptr_"]
     if i.pointer() == 0:
@@ -363,7 +399,7 @@ def qdump__std____1__unordered_map(d, value):
 
         with Children(d, size, childType=value.type[0], maxNumChild=1000):
             for (i, value) in zip(d.childRange(), traverse_list(curr)):
-                d.putPairItem(i, value, 'key', 'value')
+                d.putPairItem(i, value, 'first', 'second')
 
 
 def qdump__std____1__unordered_multimap(d, value):
@@ -419,16 +455,13 @@ def qdump__std____1__once_flag(d, value):
 
 
 def qdump__std____1__variant(d, value):
-    index = value['__impl']['__index']
-    index_num = int(index)
-    value_type = d.templateArgument(value.type, index_num)
-    d.putValue("<%s:%s>" % (index_num, value_type.name))
+    impl = value['__impl_']
+    which = impl['__index']
+    value_type = d.templateArgument(value.type, which.integer())
+    storage = impl['__data']
 
-    d.putNumChild(2)
-    if d.isExpanded():
-        with Children(d):
-            d.putSubItem("index", index)
-            d.putSubItem("value", value.cast(value_type))
+    d.putItem(storage.cast(value_type))
+    d.putBetterType(value_type)
 
 
 def qdump__std____1__optional(d, value):

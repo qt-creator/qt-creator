@@ -6,10 +6,13 @@
 #include "idevice.h"
 #include "../projectexplorertr.h"
 
+#include <utils/async.h>
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/result.h>
 #include <utils/treemodel.h>
+
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <QTimer>
 
@@ -55,6 +58,7 @@ public:
     qint64 ownPid = -1;
     const IDevice::ConstPtr device;
     State state = Inactive;
+    Tasking::TaskTreeRunner m_taskTree;
     TreeModel<TypedTreeItem<DeviceProcessTreeItem>, DeviceProcessTreeItem> model;
     DeviceProcessSignalOperation::Ptr signalOperation;
 };
@@ -77,13 +81,48 @@ void ProcessList::update()
     QTC_ASSERT(d->device, return);
 
     d->model.clear();
-    d->model.rootItem()->appendChild(
-                new DeviceProcessTreeItem(
-                    {0, Tr::tr("Fetching process list. This might take a while."), ""},
-                    Qt::NoItemFlags));
+    d->model.rootItem()->appendChild(new DeviceProcessTreeItem(
+        {0, {}, Tr::tr("Fetching process list. This might take a while.")}, Qt::NoItemFlags));
     d->state = Listing;
 
-    QTimer::singleShot(0, this, &ProcessList::handleUpdate);
+    using namespace Tasking;
+
+    using ProcessListResult = Result<QList<ProcessInfo>>;
+
+    auto setupListFetcher = [this](Async<ProcessListResult> &async) {
+        async.setConcurrentCallData(&ProcessInfo::processInfoList, d->device->rootPath());
+    };
+
+    auto listFetchDone = [this](const Async<ProcessListResult> &async) {
+        const ProcessListResult result = async.result();
+
+        setFinished();
+        d->model.clear();
+
+        if (result) {
+            for (const ProcessInfo &process : *result) {
+                Qt::ItemFlags fl;
+                if (process.processId != d->ownPid)
+                    fl = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+                d->model.rootItem()->appendChild(new DeviceProcessTreeItem(process, fl));
+            }
+        } else {
+            d->model.rootItem()->appendChild(new DeviceProcessTreeItem(
+                {0, {}, Tr::tr("Failed to fetch process list.")}, Qt::NoItemFlags));
+
+            QStringList errors = result.error().split('\n');
+            for (const QString &error : errors) {
+                d->model.rootItem()->appendChild(
+                    new DeviceProcessTreeItem({1, {}, error}, Qt::NoItemFlags));
+            }
+        }
+
+        emit processListUpdated();
+    };
+
+    d->m_taskTree.start(Group{
+        AsyncTask<ProcessListResult>(setupListFetcher, listFetchDone),
+    });
 }
 
 void ProcessList::killProcess(int row)
@@ -97,7 +136,7 @@ void ProcessList::killProcess(int row)
     const ProcessInfo processInfo = at(row);
     d->signalOperation = d->device->signalOperation();
     connect(d->signalOperation.get(), &DeviceProcessSignalOperation::finished,
-            this, [this](const Result &result) {
+            this, [this](const Result<> &result) {
         if (result) {
             QTC_CHECK(d->state == Killing);
             setFinished();
@@ -136,22 +175,6 @@ QVariant DeviceProcessTreeItem::data(int column, int role) const
 void ProcessList::setFinished()
 {
     d->state = Inactive;
-}
-
-void ProcessList::handleUpdate()
-{
-    const QList<ProcessInfo> processes = ProcessInfo::processInfoList(d->device->rootPath());
-    QTC_ASSERT(d->state == Listing, return);
-    setFinished();
-    d->model.clear();
-    for (const ProcessInfo &process : processes) {
-        Qt::ItemFlags fl;
-        if (process.processId != d->ownPid)
-            fl = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-        d->model.rootItem()->appendChild(new DeviceProcessTreeItem(process, fl));
-    }
-
-    emit processListUpdated();
 }
 
 } // ProjectExplorer

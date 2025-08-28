@@ -1,13 +1,13 @@
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "perfprofilertracemanager.h"
 #include "perftimelinemodel.h"
 #include "perftimelinemodelmanager.h"
 
 #include <utils/qtcassert.h>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 PerfTimelineModelManager::PerfTimelineModelManager()
    : Timeline::TimelineModelAggregator(&traceManager())
@@ -45,7 +45,7 @@ void PerfTimelineModelManager::initialize()
 
 void PerfTimelineModelManager::finalize()
 {
-    QVector<PerfTimelineModel *> finished;
+    QList<PerfTimelineModel *> finished;
     QHash<quint32, PerfProfilerTraceManager::Thread> threads = traceManager().threads();
     for (auto it = m_unfinished.begin(), end = m_unfinished.end(); it != end; ++it) {
         PerfTimelineModel *model = *it;
@@ -118,5 +118,4 @@ PerfTimelineModelManager &modelManager()
     return thePerfTimelineModelManager;
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

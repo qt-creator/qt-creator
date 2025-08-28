@@ -37,8 +37,7 @@ signals:
 private:
     PySideInstaller();
 
-    void installPyside(const Utils::FilePath &python,
-                       const QString &pySide, TextEditor::TextDocument *document);
+    void installPyside(const Utils::FilePath &python, const QString &pySide);
     void handlePySideMissing(const Utils::FilePath &python,
                              const QString &pySide,
                              TextEditor::TextDocument *document);

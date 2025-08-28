@@ -144,7 +144,7 @@ LibraryListModel::LibraryListModel(BuildSystem *buildSystem, QObject *parent)
     connect(buildSystem, &BuildSystem::parsingFinished, this, &LibraryListModel::updateModel);
     // Causes target()->activeBuildKey() result and consequently the node data
     // extracted below to change.
-    connect(buildSystem->target(), &Target::activeRunConfigurationChanged,
+    connect(buildSystem->buildConfiguration(), &BuildConfiguration::activeRunConfigurationChanged,
             this, &LibraryListModel::updateModel);
 }
 
@@ -158,8 +158,8 @@ QVariant LibraryListModel::data(const QModelIndex &index, int role) const
 
 void LibraryListModel::addEntries(const QStringList &list)
 {
-    const QString buildKey = m_buildSystem->target()->activeBuildKey();
-    const ProjectNode *node = m_buildSystem->target()->project()->findNodeForBuildKey(buildKey);
+    const QString buildKey = m_buildSystem->buildConfiguration()->activeBuildKey();
+    const ProjectNode *node = m_buildSystem->project()->findNodeForBuildKey(buildKey);
     QTC_ASSERT(node, return);
 
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size() + list.size());
@@ -198,14 +198,14 @@ void LibraryListModel::removeEntries(QModelIndexList list)
         endRemoveRows();
     }
 
-    const QString buildKey = m_buildSystem->target()->activeBuildKey();
+    const QString buildKey = m_buildSystem->buildConfiguration()->activeBuildKey();
     m_buildSystem->setExtraData(buildKey, Constants::AndroidExtraLibs, m_entries);
 }
 
 void LibraryListModel::updateModel()
 {
-    const QString buildKey = m_buildSystem->target()->activeBuildKey();
-    const ProjectNode *node = m_buildSystem->target()->project()->findNodeForBuildKey(buildKey);
+    const QString buildKey = m_buildSystem->buildConfiguration()->activeBuildKey();
+    const ProjectNode *node = m_buildSystem->project()->findNodeForBuildKey(buildKey);
     if (!node)
         return;
 
@@ -401,7 +401,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
 
     // Application group
 
-    QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_step->target()->kit());
+    QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_step->kit());
     const int minApiSupported = defaultMinimumSDK(qt);
     QStringList targets = AndroidConfig::apiLevelNamesFor(
         sdkManager().filteredSdkPlatforms(minApiSupported));
@@ -530,9 +530,8 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
         removeLibButton->setEnabled(libSelection->hasSelection());
     });
 
-    Target *target = m_step->target();
-    const QString buildKey = target->activeBuildKey();
-    const ProjectNode *node = target->project()->findNodeForBuildKey(buildKey);
+    const QString buildKey = m_step->buildConfiguration()->activeBuildKey();
+    const ProjectNode *node = m_step->project()->findNodeForBuildKey(buildKey);
     additionalLibrariesGroup->setEnabled(node && !node->parseInProgress());
 
     // main layout
@@ -685,7 +684,7 @@ static QString packageSubPath(const AndroidBuildApkStep *step)
 
 static FilePath packagePath(const AndroidBuildApkStep *step)
 {
-    return androidBuildDirectory(step->target()) / "build/outputs" / packageSubPath(step);
+    return androidBuildDirectory(step->buildConfiguration()) / "build/outputs" / packageSubPath(step);
 }
 
 bool AndroidBuildApkStep::init()
@@ -717,7 +716,7 @@ bool AndroidBuildApkStep::init()
     }
 
     const int minSDKForKit = minimumSDK(kit());
-    if (minimumSDK(target()) < minSDKForKit) {
+    if (minimumSDK(buildConfiguration()) < minSDKForKit) {
         const QString error
                 = Tr::tr("The API level set for the APK is less than the minimum required by the kit."
                          "\nThe minimum API level required by the kit is %1.")
@@ -727,18 +726,19 @@ bool AndroidBuildApkStep::init()
     }
 
     m_openPackageLocationForRun = openPackageLocation();
-    const FilePath outputDir = androidBuildDirectory(target());
+    const FilePath outputDir = androidBuildDirectory(buildConfiguration());
     m_packagePath = packagePath(this);
 
     qCDebug(buildapkstepLog).noquote() << "APK or AAB path:" << m_packagePath.toUserOutput();
 
     FilePath command = version->hostBinPath().pathAppended("androiddeployqt").withExecutableSuffix();
 
-    m_inputFile = AndroidQtVersion::androidDeploymentSettings(target());
+    m_inputFile = AndroidQtVersion::androidDeploymentSettings(buildConfiguration());
     if (m_inputFile.isEmpty()) {
         m_skipBuilding = true;
-        reportWarningOrError(Tr::tr("No valid input file for \"%1\".").arg(target()->activeBuildKey()),
-                             Task::Warning);
+        reportWarningOrError(
+            Tr::tr("No valid input file for \"%1\".").arg(buildConfiguration()->activeBuildKey()),
+            Task::Warning);
         return true;
     }
     m_skipBuilding = false;
@@ -805,13 +805,13 @@ void AndroidBuildApkStep::setupOutputFormatter(OutputFormatter *formatter)
     const auto parser = new JavaParser;
     parser->setProjectFileList(project()->files(Project::AllFiles));
 
-    const QString buildKey = target()->activeBuildKey();
+    const QString buildKey = buildConfiguration()->activeBuildKey();
     const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
     FilePath sourceDirPath;
     if (node)
         sourceDirPath = FilePath::fromVariant(node->data(Constants::AndroidPackageSourceDir));
     parser->setSourceDirectory(sourceDirPath.canonicalPath());
-    parser->setBuildDirectory(androidBuildDirectory(target()));
+    parser->setBuildDirectory(androidBuildDirectory(buildConfiguration()));
     formatter->addLineParser(parser);
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
@@ -892,8 +892,8 @@ static bool copyFileIfNewer(const FilePath &sourceFilePath, const FilePath &dest
 
     if (!destinationFilePath.parentDir().ensureWritableDir())
         return false;
-    Result result = sourceFilePath.copyFile(destinationFilePath);
-    QTC_ASSERT_EXPECTED(result, return false);
+    Result<> result = sourceFilePath.copyFile(destinationFilePath);
+    QTC_ASSERT_RESULT(result, return false);
     return true;
 }
 
@@ -909,10 +909,10 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
             return false;
         }
 
-        const auto androidAbis = applicationAbis(target());
-        const QString buildKey = target()->activeBuildKey();
+        const auto androidAbis = applicationAbis(kit());
+        const QString buildKey = buildConfiguration()->activeBuildKey();
         const FilePath buildDir = buildDirectory();
-        const FilePath androidBuildDir = androidBuildDirectory(target());
+        const FilePath androidBuildDir = androidBuildDirectory(buildConfiguration());
         for (const auto &abi : androidAbis) {
             FilePath androidLibsDir = androidBuildDir / "libs" / abi;
             if (!androidLibsDir.exists()) {
@@ -956,7 +956,7 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
         if (targets.isEmpty())
             return inputExists; // qmake does this job for us
 
-        QJsonObject deploySettings = deploymentSettings(target());
+        QJsonObject deploySettings = deploymentSettings(kit());
         QString applicationBinary;
         if (!version->supportsMultipleQtAbis()) {
             QTC_ASSERT(androidAbis.size() == 1, return false);
@@ -1017,10 +1017,10 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
 
         QString qmlRootPath = bs->extraData(buildKey, "QML_ROOT_PATH").toString();
         if (qmlRootPath.isEmpty())
-            qmlRootPath = target()->project()->rootProjectDirectory().path();
+            qmlRootPath = project()->rootProjectDirectory().path();
         deploySettings["qml-root-path"] = qmlRootPath;
 
-        const expected_str<qint64> result = m_inputFile.writeFileContents(QJsonDocument{deploySettings}.toJson());
+        const Result<qint64> result = m_inputFile.writeFileContents(QJsonDocument{deploySettings}.toJson());
         if (!result) {
             reportWarningOrError(
                 Tr::tr("Cannot open androiddeployqt input file \"%1\" for writing.")
@@ -1040,7 +1040,7 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
                                         "not building an APK."), Task::Error);
             return SetupResult::StopWithSuccess;
         }
-        if (skipInstallationAndPackageSteps(target())) {
+        if (skipInstallationAndPackageSteps(buildConfiguration())) {
             reportWarningOrError(Tr::tr("Product type is not an application, not building an APK."),
                                  Task::Warning);
             return SetupResult::StopWithSuccess;
@@ -1073,7 +1073,7 @@ void AndroidBuildApkStep::reportWarningOrError(const QString &message, Task::Tas
 
 void AndroidBuildApkStep::updateBuildToolsVersionInJsonFile()
 {
-    expected_str<QByteArray> contents = m_inputFile.fileContents();
+    Result<QByteArray> contents = m_inputFile.fileContents();
     if (!contents)
         return;
 
@@ -1152,7 +1152,7 @@ QVariant AndroidBuildApkStep::data(Utils::Id id) const
 {
     if (id == Constants::AndroidNdkPlatform) {
         if (auto qtVersion = QtKitAspect::qtVersion(kit()))
-            return AndroidConfig::bestNdkPlatformMatch(minimumSDK(target()), qtVersion);
+            return AndroidConfig::bestNdkPlatformMatch(minimumSDK(buildConfiguration()), qtVersion);
         return {};
     }
     if (id == Constants::NdkLocation) {
@@ -1164,7 +1164,7 @@ QVariant AndroidBuildApkStep::data(Utils::Id id) const
         return QVariant::fromValue(AndroidConfig::sdkLocation());
 
     if (id == Constants::AndroidMkSpecAbis)
-        return applicationAbis(target());
+        return applicationAbis(kit());
 
     return AbstractProcessStep::data(id);
 }

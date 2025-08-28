@@ -22,8 +22,6 @@ using namespace Utils;
 
 namespace Coco::Internal {
 
-static const char DIRECTORY[] = "CocoDirectory";
-
 CocoSettings &cocoSettings()
 {
     static CocoSettings theCocoSettings;
@@ -36,7 +34,7 @@ CocoSettings::CocoSettings()
 
     setAutoApply(false);
 
-    cocoPath.setSettingsKey(Constants::COCO_SETTINGS_GROUP, DIRECTORY);
+    cocoPath.setSettingsKey(Constants::COCO_SETTINGS_GROUP, Constants::COCO_DIR_KEY);
     cocoPath.setExpectedKind(Utils::PathChooser::ExistingDirectory);
     cocoPath.setPromptDialogTitle(Tr::tr("Coco Installation Directory"));
 
@@ -54,8 +52,10 @@ FilePath CocoSettings::coverageBrowserPath() const
 {
     QString browserPath;
 
-    if (HostOsInfo::isAnyUnixHost() || HostOsInfo::isMacHost())
+    if (HostOsInfo::isAnyUnixHost())
         browserPath = "bin/coveragebrowser";
+    else if (HostOsInfo::isMacHost())
+        browserPath = "coveragebrowser";
     else
         browserPath = "coveragebrowser.exe";
 
@@ -130,7 +130,7 @@ bool CocoSettings::verifyCocoDirectory(const FilePath &cocoDir)
 
     QString result = QString::fromLatin1(proc.readAll());
     static const QRegularExpression linebreak("\n|\r\n|\r");
-    QStringList lines = result.split(linebreak, Qt::SkipEmptyParts);
+    const QStringList lines = result.split(linebreak, Qt::SkipEmptyParts);
 
     const qsizetype n = lines.size();
     if (n >= 2 && lines[n - 2].startsWith("Version:") && lines[n - 1].startsWith("Date:")) {
@@ -253,7 +253,7 @@ GlobalSettingsPage::GlobalSettingsPage()
     : m_widget(nullptr)
 {
     setId(Constants::COCO_SETTINGS_PAGE_ID);
-    setDisplayName(QCoreApplication::translate("Coco", "Coco"));
+    setDisplayName(Tr::tr("Coco"));
     setCategory("I.Coco"); // Category I contains also the C++ settings.
 }
 

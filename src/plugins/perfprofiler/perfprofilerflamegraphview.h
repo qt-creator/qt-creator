@@ -5,12 +5,10 @@
 
 #include <QQuickWidget>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class PerfProfilerFlameGraphModel;
-class PerfProfilerTool;
-class PerfTimelineModel;
+
 class PerfProfilerFlameGraphView : public QQuickWidget
 {
     Q_OBJECT
@@ -30,5 +28,4 @@ private:
     PerfProfilerFlameGraphModel *m_model;
 };
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

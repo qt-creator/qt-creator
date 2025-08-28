@@ -3,6 +3,7 @@
 
 #include "projectconfiguration.h"
 
+#include "projectexplorerconstants.h"
 #include "target.h"
 
 #include <utils/algorithm.h>
@@ -11,9 +12,6 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
-
-const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
-const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
 
 // ProjectConfiguration
 
@@ -71,8 +69,8 @@ QString ProjectConfiguration::toolTip() const
 void ProjectConfiguration::toMap(Store &map) const
 {
     QTC_CHECK(m_id.isValid());
-    map.insert(CONFIGURATION_ID_KEY, m_id.toSetting());
-    m_displayName.toMap(map, DISPLAY_NAME_KEY);
+    map.insert(Constants::CONFIGURATION_ID_KEY, m_id.toSetting());
+    m_displayName.toMap(map, Constants::DISPLAY_NAME_KEY);
     AspectContainer::toMap(map);
 }
 
@@ -83,21 +81,21 @@ Target *ProjectConfiguration::target() const
 
 void ProjectConfiguration::fromMap(const Store &map)
 {
-    Id id = Id::fromSetting(map.value(CONFIGURATION_ID_KEY));
+    Id id = Id::fromSetting(map.value(Constants::CONFIGURATION_ID_KEY));
     // Note: This is only "startsWith", not ==, as RunConfigurations currently still
     // mangle in their build keys.
     QTC_ASSERT(id.name().startsWith(m_id.name()), reportError(); return);
 
-    m_displayName.fromMap(map, DISPLAY_NAME_KEY);
+    m_displayName.fromMap(map, Constants::DISPLAY_NAME_KEY);
     AspectContainer::fromMap(map);
 }
 
 Id ProjectExplorer::idFromMap(const Store &map)
 {
-    return Id::fromSetting(map.value(CONFIGURATION_ID_KEY));
+    return Id::fromSetting(map.value(Constants::CONFIGURATION_ID_KEY));
 }
 
 QString ProjectConfiguration::expandedDisplayName() const
 {
-    return m_target->macroExpander()->expand(m_displayName.value());
+    return macroExpander()->expand(m_displayName.value());
 }

@@ -11,14 +11,12 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <utils/fileutils.h>
-#include <utils/qtcassert.h>
-#include <utils/macroexpander.h>
-#include <utils/templateengine.h>
 #include <utils/algorithm.h>
+#include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
+#include <utils/templateengine.h>
 
-#include <QDir>
-#include <QDirIterator>
 #include <QVariant>
 
 using namespace Utils;
@@ -28,14 +26,14 @@ namespace ProjectExplorer::Internal {
 class JsonWizardFileGenerator final : public JsonWizardGenerator
 {
 public:
-    bool setup(const QVariant &data, QString *errorMessage);
+    Result<> setup(const QVariant &data);
 
     Core::GeneratedFiles fileList(MacroExpander *expander,
                                   const FilePath &wizardDir,
                                   const FilePath &projectDir,
                                   QString *errorMessage) final;
 
-    bool writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) final;
+    Result<> writeFile(const JsonWizard *wizard, Core::GeneratedFile *file) final;
 
 private:
     class File {
@@ -53,8 +51,7 @@ private:
         QList<JsonWizard::OptionDefinition> options;
     };
 
-    Core::GeneratedFile generateFile(const File &file, MacroExpander *expander,
-                                     QString *errorMessage);
+    Result<Core::GeneratedFile> generateFile(const File &file, MacroExpander *expander);
 
     QList<File> m_fileList;
 
@@ -70,19 +67,16 @@ private:
     }
 };
 
-bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
+Result<> JsonWizardFileGenerator::setup(const QVariant &data)
 {
-    QTC_ASSERT(errorMessage && errorMessage->isEmpty(), return false);
-
-    const QVariantList list = JsonWizardFactory::objectOrList(data, errorMessage);
+    QString errorMessage;
+    const QVariantList list = JsonWizardFactory::objectOrList(data, &errorMessage);
     if (list.isEmpty())
-        return false;
+        return ResultError(errorMessage);
 
     for (const QVariant &d : list) {
-        if (d.typeId() != QMetaType::QVariantMap) {
-            *errorMessage = Tr::tr("Files data list entry is not an object.");
-            return false;
-        }
+        if (d.typeId() != QMetaType::QVariantMap)
+            return ResultError(Tr::tr("Files data list entry is not an object."));
 
         File f;
 
@@ -96,14 +90,12 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
         f.isTemporary = tmp.value(QLatin1String("temporary"), false);
         f.openAsProject = tmp.value(QLatin1String("openAsProject"), false);
 
-        f.options = JsonWizard::parseOptions(tmp.value(QLatin1String("options")), errorMessage);
-        if (!errorMessage->isEmpty())
-            return false;
+        f.options = JsonWizard::parseOptions(tmp.value(QLatin1String("options")), &errorMessage);
+        if (!errorMessage.isEmpty())
+            return ResultError(errorMessage);
 
-        if (f.source.isEmpty() && f.target.isEmpty()) {
-            *errorMessage = Tr::tr("Source and target are both empty.");
-            return false;
-        }
+        if (f.source.isEmpty() && f.target.isEmpty())
+            return ResultError(Tr::tr("Source and target are both empty."));
 
         if (f.target.isEmpty())
             f.target = f.source;
@@ -111,16 +103,15 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
         m_fileList << f;
     }
 
-    return true;
+    return ResultOk;
 }
 
-Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
-    MacroExpander *expander, QString *errorMessage)
+Result<Core::GeneratedFile> JsonWizardFileGenerator::generateFile(const File &file, MacroExpander *expander)
 {
     // Read contents of source file
-    FileReader reader;
-    if (!reader.fetch(file.source, errorMessage))
-        return Core::GeneratedFile();
+    const Result<QByteArray> contents = file.source.fileContents();
+    if (!contents)
+        return ResultError(contents.error());
 
     // Generate file information:
     Core::GeneratedFile gf;
@@ -129,7 +120,7 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
     if (!file.keepExisting) {
         if (file.isBinary.toBool()) {
             gf.setBinary(true);
-            gf.setBinaryContents(reader.data());
+            gf.setBinaryContents(contents.value());
         } else {
             // TODO: Document that input files are UTF8 encoded!
             gf.setBinary(false);
@@ -152,12 +143,13 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
                 return expander->resolveMacro(n, ret);
             });
 
-            gf.setContents(TemplateEngine::processText(&nested, QString::fromUtf8(reader.text()),
-                                                              errorMessage));
-            if (!errorMessage->isEmpty()) {
-                *errorMessage = Tr::tr("When processing \"%1\":<br>%2")
-                        .arg(file.source.toUserOutput(), *errorMessage);
-                return Core::GeneratedFile();
+            const Result<QString> res =
+                    TemplateEngine::processText(&nested,
+                                    QString::fromUtf8(normalizeNewlines(contents.value())));
+            gf.setContents(res.value_or(QString()));
+            if (!res) {
+                return ResultError(Tr::tr("When processing \"%1\":<br>%2")
+                        .arg(file.source.toUserOutput(), res.error()));
             }
         }
         if (!file.source.isResourceFile()) // resource files mess up permissions, stay with default
@@ -238,11 +230,10 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(MacroExpander *expander,
 
     const Core::GeneratedFiles result
         = Utils::transform(fileList, [this, &expander, &errorMessage](const File &f) {
-              QString generateError;
-              const Core::GeneratedFile file = generateFile(f, expander, &generateError);
-              if (!generateError.isEmpty())
-                  *errorMessage = generateError;
-              return file;
+              const Result<Core::GeneratedFile> file = generateFile(f, expander);
+              if (!file)
+                  *errorMessage = file.error();
+              return file.value_or(Core::GeneratedFile());
           });
 
     if (Utils::contains(result, [](const Core::GeneratedFile &gf) {
@@ -253,14 +244,12 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(MacroExpander *expander,
     return result;
 }
 
-bool JsonWizardFileGenerator::writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage)
+Result<> JsonWizardFileGenerator::writeFile(const JsonWizard *wizard, Core::GeneratedFile *file)
 {
     Q_UNUSED(wizard)
-    if (!(file->attributes() & Core::GeneratedFile::KeepExistingFileAttribute)) {
-        if (!file->write(errorMessage))
-            return false;
-    }
-    return true;
+    if (file->attributes() & Core::GeneratedFile::KeepExistingFileAttribute)
+        return ResultOk;
+    return file->write();
 }
 
 void setupJsonWizardFileGenerator()

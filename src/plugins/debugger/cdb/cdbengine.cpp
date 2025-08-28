@@ -135,7 +135,7 @@ namespace Internal {
 
 static const char localsPrefixC[] = "local.";
 
-// Accessed by DebuggerRunTool
+// Accessed by debuggerRecipe()
 DebuggerEngine *createCdbEngine()
 {
     return new CdbEngine;
@@ -283,7 +283,7 @@ void CdbEngine::setupEngine()
     if (usesTerminal()) {
         m_effectiveStartMode = AttachToLocalProcess;
         sp.setInferior({{}, sp.inferior().workingDirectory, sp.inferior().environment});
-        sp.setAttachPid(applicationPid());
+        sp.setAttachPid(ProcessHandle(applicationPid()));
         sp.setStartMode(AttachToLocalProcess);
         sp.setUseTerminal(false); // Force no terminal.
         showMessage(Tr::tr("Attaching to %1...").arg(sp.attachPid().pid()), LogMisc);
@@ -332,7 +332,7 @@ void CdbEngine::setupEngine()
     m_extensionFileName = extensionFi.fileName();
     const bool isRemote = sp.startMode() == AttachToRemoteServer;
     if (isRemote) // Must be first
-        debugger.addArgs({"-remote", sp.remoteChannel()});
+        debugger.addArgs({"-remote", sp.remoteChannel().toString()});
     else
         debugger.addArg("-a" + m_extensionFileName);
 
@@ -1363,7 +1363,7 @@ void CdbEngine::handleResolveSymbolHelper(const QList<quint64> &addresses, Disas
         // We have an address from the agent, find closest.
         if (const quint64 closest = findClosestFunctionAddress(addresses, agentAddress)) {
             if (closest <= agentAddress) {
-                functionAddress = closest;
+                functionAddress = std::max(closest, agentAddress - DisassemblerRange / 2);
                 endAddress = agentAddress + DisassemblerRange / 2;
             }
         }
@@ -2081,7 +2081,7 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
                 response.data.m_type = GdbMi::Tuple;
             }
         } else {
-            response.resultClass = ResultError;
+            response.resultClass = ResultFail;
             GdbMi msg;
             msg.m_name = "msg";
             msg.m_data = message;
@@ -2750,7 +2750,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
     if (runParameters().startMode() == AttachToRemoteServer) {
         FilePath dumperPath = Core::ICore::resourcePath("debugger");
         const FilePath loadOrderFile = dumperPath / "loadorder.txt";
-        const expected_str<QByteArray> toLoad = loadOrderFile.fileContents();
+        const Result<QByteArray> toLoad = loadOrderFile.fileContents();
         if (!toLoad) {
             Core::AsynchronousMessageBox::critical(
                 Tr::tr("Cannot Find Debugger Initialization Script"),
@@ -2769,7 +2769,7 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
                 module = "cdbbridge";
 
             const FilePath codeFile = dumperPath / (module + ".py");
-            const expected_str<QByteArray> code = codeFile.fileContents();
+            const Result<QByteArray> code = codeFile.fileContents();
             if (!code) {
                 qDebug() << Tr::tr("Cannot read \"%1\": %2")
                                 .arg(codeFile.toUserOutput(), code.error());

@@ -17,12 +17,14 @@
 #include <utils/fileutils.h>
 #include <utils/fsengine/fsengine.h>
 #include <utils/hostosinfo.h>
+#include <utils/plaintextedit/plaintexteditaccessibility.h>
 #include <utils/processreaper.h>
 #include <utils/qtcsettings.h>
 #include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
 #include <utils/terminalcommand.h>
 
+#include <QAccessible>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
@@ -274,6 +276,11 @@ static void setupInstallSettings(QString &installSettingspath, bool redirect = t
     } while (containsInstallSettingsKey && count < 3);
 }
 
+static void setupAccessibility()
+{
+    QAccessible::installFactory(&accessiblePlainTextEditFactory);
+}
+
 static QtcSettings *createUserSettings()
 {
     return new QtcSettings(QSettings::IniFormat,
@@ -433,9 +440,7 @@ private:
 QStringList lastSessionArgument()
 {
     // using insider information here is not particularly beautiful, anyhow
-    const bool hasProjectExplorer = Utils::anyOf(PluginManager::plugins(),
-                                                 Utils::equal(&PluginSpec::id,
-                                                              QString("projectexplorer")));
+    const bool hasProjectExplorer = PluginManager::specExists("projectexplorer");
     return hasProjectExplorer ? QStringList({"-lastsession"}) : QStringList();
 }
 
@@ -736,6 +741,7 @@ int main(int argc, char **argv)
     // Since we do not have a QApplication yet, we cannot rely on QApplication::applicationDirPath()
     // though. So we set up install settings with a educated guess here, and re-setup it later.
     setupInstallSettings(options.installSettingsPath);
+    setupAccessibility();
     setHighDpiEnvironmentVariable();
     setRHIOpenGLVariable();
 
@@ -912,9 +918,8 @@ int main(int argc, char **argv)
         appOptions.insert(QLatin1String(CLIENT_OPTION), false);
         appOptions.insert(QLatin1String(PID_OPTION), true);
         appOptions.insert(QLatin1String(BLOCK_OPTION), false);
-        QString errorMessage;
-        if (!PluginManager::parseOptions(pluginArguments, appOptions, &foundAppOptions, &errorMessage)) {
-            displayError(errorMessage);
+        if (Result<> res = PluginManager::parseOptions(pluginArguments, appOptions, &foundAppOptions); !res) {
+            displayError(res.error());
             printHelp(QFileInfo(app.applicationFilePath()).baseName());
             return -1;
         }
@@ -929,14 +934,7 @@ int main(int argc, char **argv)
             settingspath};
     PluginManager::setCreatorProcessData(processData);
 
-    const PluginSpecs plugins = PluginManager::plugins();
-    PluginSpec *coreplugin = nullptr;
-    for (PluginSpec *spec : plugins) {
-        if (spec->id() == QLatin1String(corePluginIdC)) {
-            coreplugin = spec;
-            break;
-        }
-    }
+    PluginSpec *coreplugin = PluginManager::specById(QLatin1String(corePluginIdC));
     if (!coreplugin) {
         QString nativePaths = QDir::toNativeSeparators(pluginPaths.join(QLatin1Char(',')));
         const QString reason = QCoreApplication::translate("Application", "Could not find Core plugin in %1").arg(nativePaths);
@@ -1008,9 +1006,6 @@ int main(int argc, char **argv)
     // Set up remote arguments.
     QObject::connect(&app, &SharedTools::QtSingleApplication::messageReceived,
                      &pluginManager, &PluginManager::remoteArguments);
-
-    QObject::connect(&app, SIGNAL(fileOpenRequest(QString)), coreplugin->plugin(),
-                     SLOT(fileOpenRequest(QString)));
 
     // shutdown plugin manager on the exit
     QObject::connect(&app, &QCoreApplication::aboutToQuit, &pluginManager, &PluginManager::shutdown);

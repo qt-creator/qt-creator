@@ -12,7 +12,6 @@
 
 #include <utils/async.h>
 #include <utils/differ.h>
-#include <utils/expected.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -38,7 +37,7 @@ struct FormatInput
     int endPos = 0;
 };
 
-using FormatOutput = expected_str<QString>;
+using FormatOutput = Result<QString>;
 
 void formatCurrentFile(const Command &command, int startPos, int endPos)
 {
@@ -67,9 +66,9 @@ static FormatOutput format(const FormatInput &input)
             / (input.filePath.fileName() + "_format_XXXXXXXX." + input.filePath.suffix()));
         sourceFile.setAutoRemove(true);
         sourceFile.write(input.sourceData.toUtf8());
-        if (!sourceFile.finalize()) {
+        if (const Result<> res = sourceFile.finalize(); !res) {
             return Utils::make_unexpected(Tr::tr("Cannot create temporary file \"%1\": %2.")
-                         .arg(sourceFile.filePath().toUserOutput(), sourceFile.errorString()));
+                         .arg(sourceFile.filePath().toUserOutput(), res.error()));
         }
 
         // Format temporary file
@@ -88,12 +87,12 @@ static FormatOutput format(const FormatInput &input)
             return Utils::make_unexpected(executable.toUserOutput() + ": " + output);
 
         // Read text back
-        Utils::FileReader reader;
-        if (!reader.fetch(sourceFile.filePath())) {
+        const Result<QByteArray> contents = sourceFile.filePath().fileContents();
+        if (!contents) {
             return Utils::make_unexpected(Tr::tr("Cannot read file \"%1\": %2.")
-                         .arg(sourceFile.filePath().toUserOutput(), reader.errorString()));
+                         .arg(sourceFile.filePath().toUserOutput(), contents.error()));
         }
-        return QString::fromUtf8(reader.text());
+        return QString::fromUtf8(*contents);
     }
 
     case Command::PipeProcessing: {
@@ -137,7 +136,7 @@ static FormatOutput format(const FormatInput &input)
  * actually changed parts are updated while preserving the cursor position, the folded
  * blocks, and the scroll bar position.
  */
-void updateEditorText(QPlainTextEdit *editor, const QString &text)
+void updateEditorText(PlainTextEdit *editor, const QString &text)
 {
     const QString editorText = editor->toPlainText();
     if (editorText == text)
@@ -152,11 +151,9 @@ void updateEditorText(QPlainTextEdit *editor, const QString &text)
     QList<int> foldedBlocks;
     QTextBlock block = editor->document()->firstBlock();
     while (block.isValid()) {
-        if (const TextBlockUserData *userdata = static_cast<TextBlockUserData *>(block.userData())) {
-            if (userdata->folded()) {
-                foldedBlocks << block.blockNumber();
-                TextDocumentLayout::doFoldOrUnfold(block, true);
-            }
+        if (TextBlockUserData::isFolded(block)) {
+            foldedBlocks << block.blockNumber();
+            TextBlockUserData::doFoldOrUnfold(block, true);
         }
         block = block.next();
     }
@@ -248,7 +245,7 @@ void updateEditorText(QPlainTextEdit *editor, const QString &text)
     for (int blockId : std::as_const(foldedBlocks)) {
         const QTextBlock block = doc->findBlockByNumber(qMax(0, blockId));
         if (block.isValid())
-            TextDocumentLayout::doFoldOrUnfold(block, false);
+            TextBlockUserData::doFoldOrUnfold(block, false);
     }
 
     editor->document()->setModified(true);
@@ -263,7 +260,7 @@ static void showError(const QString &error)
  * Checks the state of @a task and if the formatting was successful calls updateEditorText() with
  * the respective members of @a task.
  */
-static void checkAndApplyTask(const QPointer<QPlainTextEdit> &textEditor, const FormatInput &input,
+static void checkAndApplyTask(const QPointer<PlainTextEdit> &textEditor, const FormatInput &input,
                               const FormatOutput &output)
 {
     if (!output.has_value()) {
@@ -321,7 +318,7 @@ void formatEditorAsync(TextEditorWidget *editor, const Command &command, int sta
     QObject::connect(doc, &TextDocument::contentsChanged, watcher,
                      &QFutureWatcher<FormatOutput>::cancel);
     QObject::connect(watcher, &QFutureWatcherBase::finished, watcher,
-                     [watcher, editor = QPointer<QPlainTextEdit>(editor), input] {
+                     [watcher, editor = QPointer<PlainTextEdit>(editor), input] {
         if (watcher->isCanceled())
             showError(Tr::tr("File was modified."));
         else

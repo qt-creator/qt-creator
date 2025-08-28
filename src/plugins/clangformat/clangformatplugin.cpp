@@ -1,8 +1,8 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "clangformatcodestylepreferencesfactory.h"
 #include "clangformatconstants.h"
-#include "clangformatglobalconfigwidget.h"
 #include "clangformattr.h"
 #include "tests/clangformat-test.h"
 
@@ -11,9 +11,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
-
 #include <cppeditor/cppeditorconstants.h>
-
 #include <extensionsystem/iplugin.h>
 
 using namespace Core;
@@ -34,7 +32,8 @@ class ClangFormatPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
-        setupClangFormatStyleFactory(this); // This overrides the default, see implementation.
+        // This overrides the default, see implementation.
+        setupCodeStyleFactory(this);
 
         ActionContainer *contextMenu = ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT);
         if (contextMenu) {

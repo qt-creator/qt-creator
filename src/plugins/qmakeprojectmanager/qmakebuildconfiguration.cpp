@@ -88,18 +88,16 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
     setConfigWidgetDisplayName(Tr::tr("General"));
     setConfigWidgetHasFrame(true);
 
-    m_buildSystem = new QmakeBuildSystem(this);
-
     appendInitialBuildStep(Constants::QMAKE_BS_ID);
     appendInitialBuildStep(Constants::MAKESTEP_BS_ID);
     appendInitialCleanStep(Constants::MAKESTEP_BS_ID);
 
-    setInitializer([this, target](const BuildInfo &info) {
+    setInitializer([this](const BuildInfo &info) {
         QMakeStep *qmakeStep = buildSteps()->firstOfType<QMakeStep>();
         QTC_ASSERT(qmakeStep, return);
 
         const QmakeExtraBuildInfo qmakeExtra = info.extraInfo.value<QmakeExtraBuildInfo>();
-        QtVersion *version = QtKitAspect::qtVersion(target->kit());
+        QtVersion *version = QtKitAspect::qtVersion(kit());
 
         QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
         if (info.buildType == BuildConfiguration::Debug)
@@ -119,14 +117,14 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
 
         FilePath directory = info.buildDirectory;
         if (directory.isEmpty()) {
-            directory = shadowBuildDirectory(target->project()->projectFilePath(),
-                                             target->kit(), info.displayName,
+            directory = shadowBuildDirectory(project()->projectFilePath(),
+                                             kit(), info.displayName,
                                              info.buildType);
         }
 
         setBuildDirectory(directory);
 
-        if (RunDeviceTypeKitAspect::deviceTypeId(target->kit())
+        if (RunDeviceTypeKitAspect::deviceTypeId(kit())
                         == Android::Constants::ANDROID_DEVICE_TYPE) {
             buildSteps()->appendStep(Android::Constants::ANDROID_PACKAGE_INSTALL_STEP_ID);
             buildSteps()->appendStep(Android::Constants::ANDROID_BUILD_APK_ID);
@@ -135,8 +133,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
         updateCacheAndEmitEnvironmentChanged();
     });
 
-    connect(target, &Target::kitChanged,
-            this, &QmakeBuildConfiguration::kitChanged);
+    connect(this, &BuildConfiguration::kitChanged, this, &QmakeBuildConfiguration::kitChanged);
     MacroExpander *expander = macroExpander();
     expander->registerVariable("Qmake:Makefile", "Qmake makefile", [this]() -> QString {
         const FilePath file = makefile();
@@ -145,7 +142,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
         return QLatin1String("Makefile");
     });
 
-    buildDirectoryAspect()->allowInSourceBuilds(target->project()->projectDirectory());
+    buildDirectoryAspect()->allowInSourceBuilds(project()->projectDirectory());
     connect(this, &BuildConfiguration::buildDirectoryInitialized,
             this, &QmakeBuildConfiguration::updateProblemLabel);
     connect(this, &BuildConfiguration::buildDirectoryChanged,
@@ -154,8 +151,10 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
             this, &QmakeBuildConfiguration::updateProblemLabel);
     connect(&settings(), &AspectContainer::changed,
             this, &QmakeBuildConfiguration::updateProblemLabel);
-    connect(target, &Target::parsingFinished, this, &QmakeBuildConfiguration::updateProblemLabel);
-    connect(target, &Target::kitChanged, this, &QmakeBuildConfiguration::updateProblemLabel);
+    connect(buildSystem(), &BuildSystem::parsingFinished,
+            this, &QmakeBuildConfiguration::updateProblemLabel);
+    connect(this, &BuildConfiguration::kitChanged,
+            this, &QmakeBuildConfiguration::updateProblemLabel);
 
     connect(&separateDebugInfo, &BaseAspect::changed, this, [this] {
         emit separateDebugInfoChanged();
@@ -186,11 +185,6 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
     runSystemFunctions.setDefaultValue(2);
 }
 
-QmakeBuildConfiguration::~QmakeBuildConfiguration()
-{
-    delete m_buildSystem;
-}
-
 void QmakeBuildConfiguration::toMap(Store &map) const
 {
     BuildConfiguration::toMap(map);
@@ -215,7 +209,7 @@ void QmakeBuildConfiguration::kitChanged()
         // This only checks if the ids have changed!
         // For that reason the QmakeBuildConfiguration is also connected
         // to the toolchain and qtversion managers
-        m_buildSystem->scheduleUpdateAllNowOrLater();
+        qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
         m_lastKitState = newState;
     }
 }
@@ -320,11 +314,6 @@ void QmakeBuildConfiguration::updateProblemLabel()
     buildDirectoryAspect()->setProblem({});
 }
 
-BuildSystem *QmakeBuildConfiguration::buildSystem() const
-{
-    return m_buildSystem;
-}
-
 /// If only a sub tree should be build this function returns which sub node
 /// should be build
 /// \see QMakeBuildConfiguration::setSubNodeBuild
@@ -356,7 +345,7 @@ void QmakeBuildConfiguration::setFileNodeBuild(FileNode *node)
 
 FilePath QmakeBuildConfiguration::makefile() const
 {
-    return FilePath::fromString(m_buildSystem->rootProFile()->singleVariableValue(Variable::Makefile));
+    return FilePath::fromString(qmakeBuildSystem()->rootProFile()->singleVariableValue(Variable::Makefile));
 }
 
 QtVersion::QmakeBuildConfigs QmakeBuildConfiguration::qmakeBuildConfiguration() const
@@ -371,7 +360,7 @@ void QmakeBuildConfiguration::setQMakeBuildConfiguration(QtVersion::QmakeBuildCo
     m_qmakeBuildConfiguration = config;
 
     emit qmakeBuildConfigurationChanged();
-    m_buildSystem->scheduleUpdateAllNowOrLater();
+    qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
     emit buildTypeChanged();
 }
 
@@ -429,16 +418,8 @@ QStringList QmakeBuildConfiguration::initialArgs() const
 {
     if (BuildStepList *buildSteps = this->buildSteps()) {
         if (auto qmakeStep = buildSteps->firstOfType<QmakeProjectManager::QMakeStep>()) {
-            QString arg = qmakeStep->userArguments.unexpandedArguments();
-            ProcessArgs::ConstArgIterator it{arg};
-            QStringList result;
-
-            while (it.next()) {
-                if (it.isSimple())
-                    result << it.value();
-            }
-
-            return result;
+            return ProcessArgs::splitArgs(qmakeStep->userArguments.arguments(),
+                                          project()->projectFilePath().osType());
         }
     }
     return {};
@@ -485,7 +466,7 @@ MakeStep *QmakeBuildConfiguration::makeStep() const
 
 QmakeBuildSystem *QmakeBuildConfiguration::qmakeBuildSystem() const
 {
-    return m_buildSystem;
+    return qobject_cast<QmakeBuildSystem *>(buildSystem());
 }
 
 // Returns true if both are equal.
@@ -553,8 +534,8 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     // and compare that on its own
     FilePath workingDirectory = makefile.parentDir();
     QStringList actualArgs;
-    expected_str<QString> expandResult = macroExpander()->expandProcessArgs(
-        qs->allArguments(QtKitAspect::qtVersion(target()->kit()), QMakeStep::ArgumentFlag::Expand));
+    Result<QString> expandResult = macroExpander()->expandProcessArgs(
+        qs->allArguments(QtKitAspect::qtVersion(kit()), QMakeStep::ArgumentFlag::Expand));
 
     if (!expandResult) {
         if (errorString)
@@ -708,6 +689,7 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
     QmakeExtraBuildInfo extraInfo;
     BuildInfo info;
     QString suffix;
+    info.enabledByDefault = type == BuildConfiguration::Debug;
 
     if (type == BuildConfiguration::Release) {
         //: The name of the release build configuration created by default for a qmake project.

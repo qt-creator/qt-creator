@@ -47,7 +47,7 @@ TestLinuxDeviceFactory::TestLinuxDeviceFactory()
         device->setupId(IDevice::ManuallyAdded);
         device->setType("test");
         qDebug() << "device : " << device->type();
-        device->setSshParameters(SshTest::getParameters());
+        device->sshParametersAspectContainer().setSshParameters(SshTest::getParameters());
         return device;
     });
 }
@@ -67,7 +67,7 @@ void FileSystemAccessTest::initTestCase()
              << "\nHost:" << params.host()
              << "\nPort:" << params.port()
              << "\nUser:" << params.userName()
-             << "\nSSHKey:" << params.privateKeyFile;
+             << "\nSSHKey:" << params.privateKeyFile();
     if (!SshTest::checkParameters(params)) {
         m_skippedAtWhole = true;
         SshTest::printSetupHelp();
@@ -80,9 +80,8 @@ void FileSystemAccessTest::initTestCase()
     if (DeviceManager::deviceForPath(filePath) == nullptr) {
         const IDevice::Ptr device = m_testLinuxDeviceFactory.create();
         QVERIFY(device);
-        DeviceManager *deviceManager = DeviceManager::instance();
-        deviceManager->addDevice(device);
-        m_device = deviceManager->find(device->id());
+        DeviceManager::addDevice(device);
+        m_device = DeviceManager::find(device->id());
         QVERIFY(m_device);
     }
     if (filePath.exists()) // Do initial cleanup after possible leftovers from previously failed test
@@ -367,8 +366,8 @@ void FileSystemAccessTest::testFileTransfer()
 
     // Cleanup remote
     const FilePath remoteDir = m_device->filePath(QString("/tmp/foo/"));
-    Result removeResult = remoteDir.removeRecursively();
-    QVERIFY2(removeResult, qPrintable(removeResult.error()));
+    Result<> removeResult = remoteDir.removeRecursively();
+    QVERIFY2(removeResult, qPrintable(!removeResult ? removeResult.error() : QString()));
 }
 
 void FileSystemAccessTest::testFileStreamer_data()
@@ -589,10 +588,10 @@ void FileSystemAccessTest::testFileStreamerManager()
     const auto writeAndRead = [hitCount, loop, data](const FilePath &destination,
                                                      std::optional<QByteArray> *result) {
         const auto onWrite = [hitCount, loop, destination, result]
-            (const expected_str<qint64> &writeResult) {
+            (const Result<qint64> &writeResult) {
             QVERIFY(writeResult);
             const auto onRead = [hitCount, loop, result]
-                (const expected_str<QByteArray> &readResult) {
+                (const Result<QByteArray> &readResult) {
                 QVERIFY(readResult);
                 *result = *readResult;
                 ++(*hitCount);
@@ -621,10 +620,10 @@ void FileSystemAccessTest::testFileStreamerManager()
                                                         const FilePath &destination,
                                                         std::optional<QByteArray> *result) {
         const auto onTransfer = [hitCount, loop, destination, result]
-            (const expected_str<void> &transferResult) {
+            (const Result<> &transferResult) {
                 QVERIFY(transferResult);
                 const auto onRead = [hitCount, loop, result]
-                    (const expected_str<QByteArray> &readResult) {
+                    (const Result<QByteArray> &readResult) {
                     QVERIFY(readResult);
                     *result = *readResult;
                     ++(*hitCount);

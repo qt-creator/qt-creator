@@ -55,17 +55,17 @@
         \li Name
         \li Description
     \row
-        \li \inlineimage icons/snapshot.png
+        \li \inlineimage {icons/snapshot.png} {Save Screenshot}
         \li \uicontrol {Save Screenshot}
         \li Saves the currently visible part of the state chart as an image.
     \row
-        \li \inlineimage icons/icon-export-canvas.png
+        \li \inlineimage {icons/icon-export-canvas.png} {Export Canvas to Image}
         \li \uicontrol {Export Canvas to Image}
         \li Saves the whole state chart as an image.
     \row
-        \li \inlineimage icons/zoom-in.png
+        \li \inlineimage {icons/zoom-in.png} {Zoom In}
 
-            \inlineimage icons/zoom-out.png
+            \inlineimage {icons/zoom-out.png} {Zoom Out}
         \li \uicontrol {Zoom In}
 
             \uicontrol {Zoom Out}
@@ -73,26 +73,26 @@
 
             You can also select \key Ctrl and use the mouse wheel.
     \row
-        \li \inlineimage icons/pan.png
+        \li \inlineimage {icons/pan.png} {Panning}
         \li \uicontrol Panning
         \li Pans the state chart. To increase the pace of panning, select
             \key {Shift}.
     \row
-        \li \inlineimage icons/fittoview.png
+        \li \inlineimage {icons/fittoview.png} {Fit to View}
         \li \uicontrol {Fit to View}
         \li Makes the whole state chart visible in the state editor at a time.
     \row
-        \li \inlineimage icons/zoom.png
+        \li \inlineimage {icons/zoom.png} {Magnifier Tool}
         \li \uicontrol {Magnifier Tool}
         \li Zooms into a part of the state chart. To move the magnifier tool
             faster, select and hold \key {Alt}.
     \row
-        \li \inlineimage icons/navigator.png
+        \li \inlineimage {icons/navigator.png} {Navigator}
         \li \uicontrol {Navigator}
         \li Shows a particular part of a large state chart in the state editor.
             Move the navigator frame on the part you want to view.
     \row
-        \li \inlineimage icons/statistics.png
+        \li \inlineimage {icons/statistics.png} {View Statistics}
         \li \uicontrol {View Statistics}
         \li Shows statistics about the numbers of states and transitions in the
             state chart.
@@ -118,21 +118,21 @@
         \li Name
         \li Description
     \row
-        \li \inlineimage icons/recordfill.png
+        \li \inlineimage {icons/recordfill.png} {Initial state}
         \li \uicontrol Initial
         \li The state that the state machine enters when it starts.
     \row
-        \li \inlineimage icons/state.png
+        \li \inlineimage {icons/state.png} {Basic state}
         \li \uicontrol State
         \li The basic state.
     \row
-        \li \inlineimage icons/parallel.png
+        \li \inlineimage {icons/parallel.png} {Parallel states}
         \li \uicontrol Parallel
         \li Has child states that execute in parallel and are all active
             simultaneously. Each child state processes events independently,
             and the events may trigger different transitions for each child.
     \row
-        \li \inlineimage icons/final.png
+        \li \inlineimage {icons/final.png} {Final state}
         \li \uicontrol Final
         \li Lets a state machine finish. When the state
             machine enters a top-level final state, it emits the finished signal
@@ -142,7 +142,7 @@
             A parallel state finishes when all its child states reach final
             states.
     \row
-        \li \inlineimage icons/history.png
+        \li \inlineimage {icons/history.png} {History}
         \li \uicontrol History
         \li A pseudo-state that represents the child state
             the parent state was in the last time the parent state was exited.
@@ -158,7 +158,7 @@
     \endtable
 
     To create transitions between states, select
-    \inlineimage icons/transition.png.
+    \inlineimage {icons/transition.png} {Transition}.
 
     \section1 Adding States
 
@@ -200,7 +200,7 @@
     select \uicontrol {Zoom to State}.
 
     To ensure that the state ids are unique within a compound state machine,
-    select \inlineimage icons/namespace.png
+    select \inlineimage {icons/namespace.png} {Toggle Full Namespace}
     (\uicontrol {Toggle Full Namespace}). The name of the parent state is
     added to the names of the child states, separated by two colons (::).
     For example:
@@ -242,7 +242,7 @@
     \uicontrol {Remove Point} in the context menu.
 
     To add new edge points with a mouse click, select
-    \inlineimage icons/transition.png.
+    \inlineimage {icons/transition.png} {Transition}.
 
     To remove the selected transition, select \uicontrol Remove in the context
     menu.

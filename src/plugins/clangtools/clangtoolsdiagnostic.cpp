@@ -10,7 +10,7 @@ namespace Internal {
 
 bool ExplainingStep::isValid() const
 {
-    return location.isValid() && !ranges.isEmpty() && !message.isEmpty();
+    return location.hasValidTarget() && !ranges.isEmpty() && !message.isEmpty();
 }
 
 bool operator==(const ExplainingStep &lhs, const ExplainingStep &rhs)
@@ -44,9 +44,9 @@ size_t qHash(const Diagnostic &diagnostic)
 {
     return qHash(diagnostic.name)
          ^ qHash(diagnostic.description)
-         ^ qHash(diagnostic.location.filePath)
-         ^ diagnostic.location.line
-         ^ diagnostic.location.column;
+         ^ qHash(diagnostic.location.targetFilePath)
+         ^ diagnostic.location.targetLine
+         ^ diagnostic.location.targetColumn;
 }
 
 bool operator==(const Diagnostic &lhs, const Diagnostic &rhs)

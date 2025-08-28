@@ -16,6 +16,7 @@ return {
 This plugin provides the Lua Language Server.
 It will try to install it if it is not found.
     ]],
+    Type = "Script",
     Dependencies = {
         { Id = "lua",               Version = "15.0.0" },
         { Id = "lualanguageclient", Version = "15.0.0" }

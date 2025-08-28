@@ -17,7 +17,7 @@
             and add a QNX device.
             \image {qtcreator-devices-qnx.webp} {QNX device in the Devices tab in Devices preferences}
         \li Make sure that your kit has your QNX device set.
-        \li Select \inlineimage icons/run_small.png (\uicontrol Run).
+        \li Select \inlineimage {icons/run_small.png} {Run} (\uicontrol Run).
     \endlist
 
     \QC uses the compiler specified in the QNX toolchain to build the

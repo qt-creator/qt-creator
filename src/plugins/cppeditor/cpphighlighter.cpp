@@ -56,7 +56,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     int lexerState = 0, initialBraceDepth = 0;
     if (previousBlockState_ != -1) {
         lexerState = previousBlockState_;
-        initialBraceDepth = TextDocumentLayout::braceDepth(currentBlock().previous());
+        initialBraceDepth = TextBlockUserData::braceDepth(currentBlock().previous());
         qCDebug(highlighterLog) << "initial brace depth carried over from previous block"
                                 << initialBraceDepth;
     } else {
@@ -70,7 +70,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     const QTextBlock prevBlock = currentBlock().previous();
     QByteArray inheritedRawStringSuffix;
     if (prevBlock.isValid()) {
-        inheritedRawStringSuffix = TextDocumentLayout::expectedRawStringSuffix(prevBlock);
+        inheritedRawStringSuffix = TextBlockUserData::expectedRawStringSuffix(prevBlock);
         tokenize.setExpectedRawStringSuffix(inheritedRawStringSuffix);
     }
 
@@ -82,19 +82,17 @@ void CppHighlighter::highlightBlock(const QString &text)
     initialLexerState = lexerStateWithoutNewLineExpectedBit(initialLexerState);
     int foldingIndent = initialBraceDepth;
     qCDebug(highlighterLog) << "folding indent initialized to brace depth" << foldingIndent;
-    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(currentBlock())) {
-        qCDebug(highlighterLog) << "resetting stored folding data for current block";
-        userData->setFoldingIndent(0);
-        userData->setFoldingStartIncluded(false);
-        userData->setFoldingEndIncluded(false);
-    }
+    qCDebug(highlighterLog) << "resetting stored folding data for current block";
+    TextBlockUserData::setFoldingIndent(currentBlock(), 0);
+    TextBlockUserData::setFoldingStartIncluded(currentBlock(), false);
+    TextBlockUserData::setFoldingEndIncluded(currentBlock(), false);
     AttributeState attrState;
-    attrState.state = TextDocumentLayout::attributeState(prevBlock);
+    attrState.state = TextBlockUserData::attributeState(prevBlock);
 
     if (tokens.isEmpty()) {
         setCurrentBlockState(lexerState);
-        TextDocumentLayout::setBraceDepth(currentBlock(), braceDepth);
-        TextDocumentLayout::clearParentheses(currentBlock());
+        TextBlockUserData::setBraceDepth(currentBlock(), braceDepth);
+        TextBlockUserData::clearParentheses(currentBlock());
         if (!text.isEmpty())  {// the empty line can still contain whitespace
             if (initialLexerState == T_COMMENT)
                 setFormatWithSpaces(text, 0, text.length(), formatForCategory(C_COMMENT));
@@ -103,21 +101,19 @@ void CppHighlighter::highlightBlock(const QString &text)
             else
                 setFormat(0, text.length(), formatForCategory(C_VISUAL_WHITESPACE));
         }
-        TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
-        TextDocumentLayout::setExpectedRawStringSuffix(currentBlock(), inheritedRawStringSuffix);
-        TextDocumentLayout::setAttributeState(currentBlock(), attrState.state);
+        TextBlockUserData::setFoldingIndent(currentBlock(), foldingIndent);
+        TextBlockUserData::setExpectedRawStringSuffix(currentBlock(), inheritedRawStringSuffix);
+        TextBlockUserData::setAttributeState(currentBlock(), attrState.state);
         qCDebug(highlighterLog) << "no tokens, storing brace depth" << braceDepth << "and foldingIndent"
                      << foldingIndent;
         return;
     }
 
     // Keep "semantic parentheses".
-    Parentheses parentheses;
-    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(currentBlock())) {
-        parentheses = Utils::filtered(userData->parentheses(), [](const Parenthesis &p) {
-            return p.source.isValid();
-        });
-    }
+    Parentheses parentheses
+        = Utils::filtered(TextBlockUserData::parentheses(currentBlock()), [](const Parenthesis &p) {
+              return p.source.isValid();
+          });
 
     const auto insertParen = [&parentheses](const Parenthesis &p) { insertSorted(parentheses, p); };
     parentheses.reserve(5);
@@ -162,7 +158,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                     && !prevBlockText.endsWith("*/") && !prevBlockText.endsWith(";")
                     && tk.utf16charsBegin() == firstNonSpace) {
                     ++foldingIndent;
-                    TextDocumentLayout::userData(currentBlock())->setFoldingStartIncluded(true);
+                    TextBlockUserData::setFoldingStartIncluded(currentBlock(), true);
                     qCDebug(highlighterLog)
                         << "folding character is first on one line, increase folding indent to"
                         << foldingIndent << "and set foldingStartIncluded in stored data";
@@ -179,7 +175,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                     if (isLastToken || tokens.at(i + 1).is(T_SEMICOLON)) {
                         qCDebug(highlighterLog) << "token is last token in statement or line, setting "
                                         "foldingEndIncluded in stored data";
-                        TextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
+                        TextBlockUserData::setFoldingEndIncluded(currentBlock(), true);
                     } else {
                         foldingIndent = qMin(braceDepth, foldingIndent);
                         qCDebug(highlighterLog) << "setting folding indent to minimum of current value and "
@@ -209,6 +205,8 @@ void CppHighlighter::highlightBlock(const QString &text)
             attrState.rbrackets = !attrState.rbrackets;
             if (attrState.rbrackets == 0 && attrState.opened > 0)
                 --attrState.opened;
+            if (attrState.lbrackets)
+                attrState.lbrackets = 0;
             continue;
         }
         attrState.lbrackets = attrState.rbrackets = 0;
@@ -260,7 +258,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                 if (isLastToken) {
                     qCDebug(highlighterLog) << "token is last token on line, setting "
                                     "foldingEndIncluded in stored data";
-                    TextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
+                    TextBlockUserData::setFoldingEndIncluded(currentBlock(), true);
                 } else {
                     foldingIndent = qMin(braceDepth, foldingIndent);
                     qCDebug(highlighterLog) << "setting folding indent to minimum of current value and "
@@ -300,14 +298,11 @@ void CppHighlighter::highlightBlock(const QString &text)
     // marker in some cases and we need to rehighlight the next block to update this floding indent
     int rehighlightNextBlock = 0;
     if (const QTextBlock nextBlock = currentBlock().next(); nextBlock.isValid()) {
-        if (const auto nextData = TextDocumentLayout::textUserData(nextBlock)) {
-            if (const auto foldingCheckData = TextDocumentLayout::textUserData(nextBlock.next())) {
-                if (foldingCheckData->foldingIndent() > nextData->foldingIndent()) {
-                    static const int rehighlightNextBlockMask = 1 << 24;
-                    if (!(currentBlockState() & rehighlightNextBlockMask))
-                        rehighlightNextBlock = rehighlightNextBlockMask;
-                }
-            }
+        if (TextBlockUserData::foldingIndent(nextBlock.next())
+            > TextBlockUserData::foldingIndent(nextBlock)) {
+            static const int rehighlightNextBlockMask = 1 << 24;
+            if (!(currentBlockState() & rehighlightNextBlockMask))
+                rehighlightNextBlock = rehighlightNextBlockMask;
         }
     }
 
@@ -328,15 +323,15 @@ void CppHighlighter::highlightBlock(const QString &text)
         }
     }
 
-    TextDocumentLayout::setParentheses(currentBlock(), parentheses);
-    TextDocumentLayout::setAttributeState(currentBlock(), attrState.state);
+    TextBlockUserData::setParentheses(currentBlock(), parentheses);
+    TextBlockUserData::setAttributeState(currentBlock(), attrState.state);
 
-    TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
-    TextDocumentLayout::setBraceDepth(currentBlock(), braceDepth);
+    TextBlockUserData::setFoldingIndent(currentBlock(), foldingIndent);
+    TextBlockUserData::setBraceDepth(currentBlock(), braceDepth);
     setCurrentBlockState(rehighlightNextBlock | tokenize.state());
     qCDebug(highlighterLog) << "storing brace depth" << braceDepth << "and folding indent" << foldingIndent;
 
-    TextDocumentLayout::setExpectedRawStringSuffix(currentBlock(),
+    TextBlockUserData::setExpectedRawStringSuffix(currentBlock(),
                                                    tokenize.expectedRawStringSuffix());
 }
 
@@ -729,6 +724,8 @@ private slots:
             << 79 << 9 << 76 << 11 << C_ATTRIBUTE;
         QTest::newRow("attribute with line split, attr")
             << 79 << 14 << 76 << 26 << C_ATTRIBUTE;
+        QTest::newRow("array with implicit first dimension")
+            << 83 << 26 << 83 << 26 << C_TEXT;
     }
 
     void test()
@@ -762,8 +759,10 @@ private slots:
             const QChar c = m_doc.characterAt(pos);
             if (c == QChar::ParagraphSeparator)
                 continue;
-            const QTextCharFormat expectedFormat = asSyntaxHighlight(
-                c.isSpace() ? whitespacified(formatForStyle) : formatForStyle);
+            QTextCharFormat expectedFormat = c.isSpace() ? whitespacified(formatForStyle)
+                                                         : formatForStyle;
+            if (style != C_TEXT)
+                expectedFormat = asSyntaxHighlight(expectedFormat);
 
             const QTextCharFormat actualFormat = getActualFormat(pos);
             if (actualFormat != expectedFormat) {
@@ -772,7 +771,8 @@ private slots:
                 Utils::Text::convertPosition(&m_doc, pos, &posLine, &posCol);
                 qDebug() << posLine << posCol << c
                          << actualFormat.foreground() << expectedFormat.foreground()
-                         << actualFormat.background() << expectedFormat.background();
+                         << actualFormat.background() << expectedFormat.background()
+                         << actualFormat.properties() << expectedFormat.properties();
             }
             QCOMPARE(actualFormat, expectedFormat);
         }
@@ -798,7 +798,7 @@ private slots:
 
         QTextBlock block = m_doc.findBlockByNumber(line - 1);
         QVERIFY(block.isValid());
-        QCOMPARE(TextDocumentLayout::parentheses(block).count(), expectedParenCount);
+        QCOMPARE(TextBlockUserData::parentheses(block).count(), expectedParenCount);
     }
 
     void testFoldingIndent_data()
@@ -820,11 +820,11 @@ private slots:
 
         QTextBlock block = m_doc.findBlockByNumber(line - 1);
         QVERIFY(block.isValid());
-        QCOMPARE(TextDocumentLayout::foldingIndent(block), expectedFoldingIndent);
+        QCOMPARE(TextBlockUserData::foldingIndent(block), expectedFoldingIndent);
 
         QTextBlock nextBlock = m_doc.findBlockByNumber(line);
         QVERIFY(nextBlock.isValid());
-        QCOMPARE(TextDocumentLayout::foldingIndent(nextBlock), expectedFoldingIndentNextLine);
+        QCOMPARE(TextBlockUserData::foldingIndent(nextBlock), expectedFoldingIndentNextLine);
     }
 
 private:
@@ -891,8 +891,8 @@ int main() {                              // 1,0
                 return std::make_pair(braceDepth, foldingIndent);
             };
             const auto getActualBraceDepthAndFoldingIndent = [](const QTextBlock &block) {
-                const int braceDepth = TextDocumentLayout::braceDepth(block);
-                const int foldingIndent = TextDocumentLayout::foldingIndent(block);
+                const int braceDepth = TextBlockUserData::braceDepth(block);
+                const int foldingIndent = TextBlockUserData::foldingIndent(block);
                 return std::make_pair(braceDepth, foldingIndent);
             };
             TextDocument * const doc = testDocument.m_editorWidget->textDocument();

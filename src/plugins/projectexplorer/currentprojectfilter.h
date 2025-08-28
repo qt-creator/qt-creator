@@ -9,7 +9,7 @@ namespace ProjectExplorer { class Project; }
 
 namespace ProjectExplorer::Internal {
 
-class CurrentProjectFilter : public Core::ILocatorFilter
+class CurrentProjectFilter final : public Core::ILocatorFilter
 {
 public:
     CurrentProjectFilter();

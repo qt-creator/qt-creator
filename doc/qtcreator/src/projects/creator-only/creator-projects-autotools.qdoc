@@ -34,8 +34,8 @@
 
             \image {qtcreator-autotools-buildrun.png} {An autotools project open in the Projects and File System sidebar views and in the editor}
 
-        \li Select \inlineimage icons/run_small.png (\uicontrol Run) to execute
-            the predefined build steps (\c autogen.sh or \c autoreconf,
+        \li Select \inlineimage {icons/run_small.png} {Run} (\uicontrol Run) to
+            execute the predefined build steps (\c autogen.sh or \c autoreconf,
             \c configure, and \c make).
 
             The first time you run the application you must choose the

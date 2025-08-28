@@ -6,6 +6,7 @@
 #include "core_global.h"
 
 #include <utils/id.h>
+#include <utils/result.h>
 
 #include <QFile>
 #include <QList>
@@ -63,7 +64,7 @@ public:
     Utils::Id editorId() const;
     void setEditorId(Utils::Id id);
 
-    bool write(QString *errorMessage) const;
+    Utils::Result<> write() const;
 
     Attributes attributes() const;
     void setAttributes(Attributes a);

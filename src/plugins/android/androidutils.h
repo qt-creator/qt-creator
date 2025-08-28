@@ -6,6 +6,7 @@
 #include <QStringList>
 
 namespace ProjectExplorer {
+class BuildConfiguration;
 class Abi;
 class Kit;
 class Target;
@@ -30,40 +31,40 @@ QT_END_NAMESPACE
 
 namespace Android::Internal {
 
-QString packageName(const ProjectExplorer::Target *target);
-QString activityName(const ProjectExplorer::Target *target);
+QString packageName(const ProjectExplorer::BuildConfiguration *bc);
+QString activityName(const ProjectExplorer::BuildConfiguration *bc);
 
-QString deviceSerialNumber(const ProjectExplorer::Target *target);
-void setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber);
+QString deviceSerialNumber(const ProjectExplorer::BuildConfiguration *bc);
+void setDeviceSerialNumber(ProjectExplorer::BuildConfiguration *bc,
+                           const QString &deviceSerialNumber);
 
-QString apkDevicePreferredAbi(const ProjectExplorer::Target *target);
-void setDeviceAbis(ProjectExplorer::Target *target, const QStringList &deviceAbis);
+QString apkDevicePreferredAbi(const ProjectExplorer::BuildConfiguration *bc);
+void setDeviceAbis(ProjectExplorer::BuildConfiguration *bc, const QStringList &deviceAbis);
 
-int deviceApiLevel(const ProjectExplorer::Target *target);
-void setDeviceApiLevel(ProjectExplorer::Target *target, int level);
+int deviceApiLevel(const ProjectExplorer::BuildConfiguration *bc);
+void setDeviceApiLevel(ProjectExplorer::BuildConfiguration *bc, int level);
 
-QString buildTargetSDK(const ProjectExplorer::Target *target);
+QString buildTargetSDK(const ProjectExplorer::BuildConfiguration *bc);
 
-int minimumSDK(const ProjectExplorer::Target *target);
+int minimumSDK(const ProjectExplorer::BuildConfiguration *bc);
 int minimumSDK(const ProjectExplorer::Kit *kit);
 int defaultMinimumSDK(const QtSupport::QtVersion *qtVersion);
 
-QStringList applicationAbis(const ProjectExplorer::Target *target);
+QStringList applicationAbis(const ProjectExplorer::Kit *k);
 QString archTriplet(const QString &abi);
 
 bool isQt5CmakeProject(const ProjectExplorer::Target *target);
 
-Utils::FilePath androidBuildDirectory(const ProjectExplorer::Target *target);
-Utils::FilePath androidAppProcessDir(const ProjectExplorer::Target *target);
-Utils::FilePath buildDirectory(const ProjectExplorer::Target *target);
-Utils::FilePath manifestPath(const ProjectExplorer::Target *target);
-void setManifestPath(ProjectExplorer::Target *target, const Utils::FilePath &path);
+Utils::FilePath androidBuildDirectory(const ProjectExplorer::BuildConfiguration *bc);
+Utils::FilePath buildDirectory(const ProjectExplorer::BuildConfiguration *bc);
+Utils::FilePath manifestPath(const ProjectExplorer::BuildConfiguration *bc);
+void setManifestPath(ProjectExplorer::BuildConfiguration *bc, const Utils::FilePath &path);
 ProjectExplorer::Abi androidAbi2Abi(const QString &androidAbi);
-bool skipInstallationAndPackageSteps(const ProjectExplorer::Target *target);
+bool skipInstallationAndPackageSteps(const ProjectExplorer::BuildConfiguration *bc);
 
 QString androidNameForApiLevel(int x);
 
-QJsonObject deploymentSettings(const ProjectExplorer::Target *target);
+QJsonObject deploymentSettings(const ProjectExplorer::Kit *k);
 bool isQtCreatorGenerated(const Utils::FilePath &deploymentFile);
 
 QStringList adbSelector(const QString &serialNumber);

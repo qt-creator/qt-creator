@@ -19,7 +19,6 @@
 
 #include <utils3d.h>
 
-#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
 

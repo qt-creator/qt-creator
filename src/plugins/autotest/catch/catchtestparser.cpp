@@ -86,7 +86,7 @@ static bool hasCatchNames(const CPlusPlus::Document::Ptr &document)
             continue;
 
         if (isCatchMacro(QLatin1String(macro.macro().name()))) {
-            const QVector<CPlusPlus::Document::Block> args = macro.arguments();
+            const QList<CPlusPlus::Document::Block> args = macro.arguments();
             if (args.size() < 1)
                 continue;
             return true;

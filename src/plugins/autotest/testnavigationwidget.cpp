@@ -191,11 +191,26 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
     QAction *runSelectedNoDeploy = ActionManager::command(Constants::ACTION_RUN_SELECTED_NODEPLOY_ID)->action();
     QAction *selectAll = new QAction(Tr::tr("Select All"), &menu);
     QAction *deselectAll = new QAction(Tr::tr("Deselect All"), &menu);
+    QAction *expandAll = new QAction(Tr::tr("Expand All"), &menu);
+    QAction *collapseAll = new QAction(Tr::tr("Collapse All"), &menu);
     QAction *rescan = ActionManager::command(Constants::ACTION_SCAN_ID)->action();
     QAction *disable = ActionManager::command(Constants::ACTION_DISABLE_TMP)->action();
 
     connect(selectAll, &QAction::triggered, m_view, &TestTreeView::selectAll);
     connect(deselectAll, &QAction::triggered, m_view, &TestTreeView::deselectAll);
+
+    connect(expandAll, &QAction::triggered, m_view, [this] {
+        m_view->blockSignals(true);
+        m_view->expandAll();
+        m_view->blockSignals(false);
+        updateExpandedStateCache();
+    });
+    connect(collapseAll, &QAction::triggered, m_view, [this] {
+        m_view->blockSignals(true);
+        m_view->collapseAll();
+        m_view->blockSignals(false);
+        updateExpandedStateCache();
+    });
 
     if (runThisTest) {
         menu.addAction(runThisTest);
@@ -215,6 +230,8 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
     menu.addSeparator();
     menu.addAction(selectAll);
     menu.addAction(deselectAll);
+    menu.addAction(expandAll);
+    menu.addAction(collapseAll);
     menu.addSeparator();
     menu.addAction(rescan);
     menu.addSeparator();
@@ -242,29 +259,9 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
     m_sort->setIcon(Icons::SORT_NATURALLY.icon());
     m_sort->setToolTip(Tr::tr("Sort Naturally"));
 
-    QToolButton *expand = new QToolButton(this);
-    expand->setIcon(Utils::Icons::EXPAND_TOOLBAR.icon());
-    expand->setToolTip(Tr::tr("Expand All"));
-
-    QToolButton *collapse = new QToolButton(this);
-    collapse->setIcon(Utils::Icons::COLLAPSE_TOOLBAR.icon());
-    collapse->setToolTip(Tr::tr("Collapse All"));
-
-    connect(expand, &QToolButton::clicked, m_view, [this] {
-        m_view->blockSignals(true);
-        m_view->expandAll();
-        m_view->blockSignals(false);
-        updateExpandedStateCache();
-    });
-    connect(collapse, &QToolButton::clicked, m_view, [this] {
-        m_view->blockSignals(true);
-        m_view->collapseAll();
-        m_view->blockSignals(false);
-        updateExpandedStateCache();
-    });
     connect(m_sort, &QToolButton::clicked, this, &TestNavigationWidget::onSortClicked);
 
-    list << m_filterButton << m_sort << expand << collapse;
+    list << m_filterButton << m_sort;
     return list;
 }
 

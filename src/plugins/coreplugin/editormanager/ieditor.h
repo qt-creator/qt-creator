@@ -45,5 +45,3 @@ private:
 };
 
 } // namespace Core
-
-Q_DECLARE_METATYPE(Core::IEditor*)

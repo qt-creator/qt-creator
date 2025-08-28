@@ -37,7 +37,7 @@ public:
     QByteArray expand(const QByteArray &stringWithVariables) const;
     QVariant expandVariant(const QVariant &v) const;
 
-    expected_str<QString> expandProcessArgs(
+    Result<QString> expandProcessArgs(
         const QString &argsWithVariables, Utils::OsType osType = Utils::HostOsInfo::hostOs()) const;
 
     using PrefixFunction = std::function<QString(QString)>;
@@ -51,14 +51,14 @@ public:
 
     void registerVariable(const QByteArray &variable,
         const QString &description, const StringFunction &value,
-        bool visibleInChooser = true);
+        bool visibleInChooser = true, bool availableForExpansion = true);
 
     void registerIntVariable(const QByteArray &variable,
         const QString &description, const IntFunction &value);
 
     void registerFileVariables(const QByteArray &prefix,
         const QString &heading, const FileFunction &value,
-        bool visibleInChooser = true);
+        bool visibleInChooser = true, bool availableForExpansion = true);
 
     void registerExtraResolver(const ResolverFunction &value);
 

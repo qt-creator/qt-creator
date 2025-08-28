@@ -22,6 +22,8 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/session.h>
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -33,6 +35,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/filesystemwatcher.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 
 #include <texteditor/textdocument.h>
@@ -41,28 +44,30 @@
 #include <QtCore5Compat/qtextcodec.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
+using namespace ExtensionSystem;
+
 namespace QmlProjectManager {
 
 namespace {
 Q_LOGGING_CATEGORY(infoLogger, "QmlProjectManager.QmlBuildSystem", QtInfoMsg)
 }
 
-void updateMcuBuildStep(Target *target, bool mcuEnabled)
+void updateMcuBuildStep(BuildConfiguration *bc, bool mcuEnabled)
 {
     if (auto plugin = findMcuSupportPlugin()) {
-        QMetaObject::invokeMethod(
-            plugin,
-            "updateDeployStep",
-            Qt::DirectConnection,
-            Q_ARG(ProjectExplorer::Target*, target),
-            Q_ARG(bool, mcuEnabled));
+        QMetaObject::invokeMethod(plugin,
+                                  "updateDeployStep",
+                                  Qt::DirectConnection,
+                                  Q_ARG(ProjectExplorer::BuildConfiguration *, bc),
+                                  Q_ARG(bool, mcuEnabled));
     } else if (mcuEnabled) {
         qWarning() << "Failed to find McuSupport plugin but qtForMCUs is enabled in the project";
     }
 }
 
-QmlBuildSystem::QmlBuildSystem(Target *target)
-    : BuildSystem(target)
+QmlBuildSystem::QmlBuildSystem(BuildConfiguration *bc)
+    : BuildSystem(bc)
     , m_fileGen(new QmlProjectExporter::Exporter(this))
 {
     // refresh first - project information is used e.g. to decide the default RC's
@@ -71,16 +76,16 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
     updateDeploymentData();
 //    registerMenuButtons(); //is wip
 
-    connect(target->project(), &Project::activeTargetChanged, this, [this](Target *target) {
+    connect(project(), &Project::activeBuildConfigurationChanged, this, [this](BuildConfiguration *bc) {
         refresh(RefreshOptions::NoFileRefresh);
         m_fileGen->updateProject(qmlProject());
-        updateMcuBuildStep(target, qtForMCUs());
+        updateMcuBuildStep(bc, qtForMCUs());
     });
-    connect(target->project(), &Project::projectFileIsDirty, this, [this] {
+    connect(project(), &Project::projectFileIsDirty, this, [this] {
         refresh(RefreshOptions::Project);
         m_fileGen->updateProject(qmlProject());
         m_fileGen->updateMenuAction();
-        updateMcuBuildStep(project()->activeTarget(), qtForMCUs());
+        updateMcuBuildStep(project()->activeBuildConfiguration(), qtForMCUs());
     });
 
     // FIXME: Check. Probably bogus after the BuildSystem move.
@@ -238,12 +243,12 @@ void QmlBuildSystem::initMcuProjectItems()
         connect(qmlProjectItem.data(), &QmlProjectItem::filesChanged, this, &QmlBuildSystem::refreshFiles);
         m_fileGen->updateProjectItem(m_projectItem.data(), false);
 
-        m_mcuProjectFilesWatcher.addFile(mcuProjectFile, Utils::FileSystemWatcher::WatchModifiedDate);
+        m_mcuProjectFilesWatcher.addFile(mcuProjectFilePath, FileSystemWatcher::WatchModifiedDate);
 
         connect(&m_mcuProjectFilesWatcher,
                 &Utils::FileSystemWatcher::fileChanged,
                 this,
-                [this](const QString &file) {
+                [this](const FilePath &file) {
                     Q_UNUSED(file)
                     initMcuProjectItems();
                     refresh(RefreshOptions::Files);
@@ -259,13 +264,12 @@ void QmlBuildSystem::parseProjectFiles()
 
     const QString mainFileName = m_projectItem->mainFile();
     if (!mainFileName.isEmpty()) {
-        Utils::FilePath mainFilePath = canonicalProjectDir().resolvePath(mainFileName);
-        Utils::FileReader reader;
-        QString errorMessage;
-        if (!reader.fetch(mainFilePath, &errorMessage)) {
+        const FilePath mainFilePath = canonicalProjectDir().resolvePath(mainFileName);
+        const Result<QByteArray> res = mainFilePath.fileContents();
+        if (!res) {
             Core::MessageManager::writeFlashing(
                 Tr::tr("Warning while loading project file %1.").arg(projectFilePath().toUserOutput()));
-            Core::MessageManager::writeSilently(errorMessage);
+            Core::MessageManager::writeSilently(res.error());
         }
     }
 
@@ -317,17 +321,14 @@ bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting,
     }
 
     QString fileContent;
-    QString error;
-    Utils::TextFileFormat textFileFormat;
+    TextFileFormat textFileFormat;
     const QTextCodec *codec = QTextCodec::codecForName("UTF-8"); // qml files are defined to be utf-8
-    Utils::TextFileFormat::ReadResult readResult = Utils::TextFileFormat::readFile(qmlProjectFilePath,
-                                                                                   codec,
-                                                                                   &fileContent,
-                                                                                   &textFileFormat,
-                                                                                   &error);
-    if (readResult != Utils::TextFileFormat::ReadSuccess) {
-        qWarning() << "Failed to read file" << qmlProjectFilePath << ":" << error;
-    }
+    TextFileFormat::ReadResult readResult = TextFileFormat::readFile(qmlProjectFilePath,
+                                                                     codec,
+                                                                     &fileContent,
+                                                                     &textFileFormat);
+    if (readResult.code != TextFileFormat::ReadSuccess)
+        qWarning() << "Failed to read file" << qmlProjectFilePath << ":" << readResult.error;
 
     const QString settingQmlCode = setting + ":";
 
@@ -349,8 +350,8 @@ bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting,
         fileContent.replace(match.capturedStart(1), match.capturedLength(1), relativePath);
     }
 
-    if (!textFileFormat.writeFile(qmlProjectFilePath, fileContent, &error))
-        qWarning() << "Failed to write file" << qmlProjectFilePath << ":" << error;
+    if (const Result<> res = textFileFormat.writeFile(qmlProjectFilePath, fileContent); !res)
+        qWarning() << "Failed to write file" << qmlProjectFilePath << ":" << res.error();
 
     refresh(RefreshOptions::Project);
     return true;
@@ -488,13 +489,12 @@ bool QmlBuildSystem::setMainUiFileInMainFile(const Utils::FilePath &newMainUiFil
     }
 
     QString fileContent;
-    QString error;
-    Utils::TextFileFormat textFileFormat;
+    TextFileFormat textFileFormat;
     const QTextCodec *codec = QTextCodec::codecForName("UTF-8"); // qml files are defined to be utf-8
-    if (Utils::TextFileFormat::readFile(mainFilePath(), codec, &fileContent, &textFileFormat, &error)
-            != Utils::TextFileFormat::ReadSuccess) {
-        qWarning() << "Failed to read file" << mainFilePath() << ":" << error;
-    }
+    const TextFileFormat::ReadResult res =
+            TextFileFormat::readFile(mainFilePath(), codec, &fileContent, &textFileFormat);
+    if (res.code != TextFileFormat::ReadSuccess)
+        qWarning() << "Failed to read file" << mainFilePath() << ":" << res.error;
 
     const QString currentMain = QString("%1 {").arg(mainUiFilePath().baseName());
     const QString newMain = QString("%1 {").arg(newMainUiFilePath.baseName());
@@ -502,8 +502,8 @@ bool QmlBuildSystem::setMainUiFileInMainFile(const Utils::FilePath &newMainUiFil
     if (fileContent.contains(currentMain))
         fileContent.replace(currentMain, newMain);
 
-    if (!textFileFormat.writeFile(mainFilePath(), fileContent, &error))
-        qWarning() << "Failed to write file" << mainFilePath() << ":" << error;
+    if (const Result<> res = textFileFormat.writeFile(mainFilePath(), fileContent); !res)
+        qWarning() << "Failed to write file" << mainFilePath() << ":" << res.error();
 
     return true;
 }
@@ -522,9 +522,9 @@ Utils::FilePath QmlBuildSystem::targetDirectory() const
 
 Utils::FilePath QmlBuildSystem::targetFile(const Utils::FilePath &sourceFile) const
 {
-    const Utils::FilePath sourceDir = m_projectItem ? m_projectItem->sourceDirectory()
+    const FilePath sourceDir = m_projectItem ? m_projectItem->sourceDirectory()
                                              : canonicalProjectDir();
-    const Utils::FilePath relative = sourceFile.relativePathFrom(sourceDir);
+    const FilePath relative = sourceFile.relativePathFromDir(sourceDir);
     return targetDirectory().resolvePath(relative);
 }
 
@@ -711,7 +711,7 @@ Utils::EnvironmentItems QmlBuildSystem::environment() const
                                                 .parentDir();
         env.append({Constants::QMLPUPPET_ENV_PROJECT_ROOT, projectRoot.toUserOutput()});
 
-        Utils::expected_str<Utils::FilePath> fontsDir = mcuFontsDir();
+        Utils::Result<Utils::FilePath> fontsDir = mcuFontsDir();
         if (!fontsDir) {
             qWarning() << "Failed to locate MCU installation." << fontsDir.error();
             return env;
@@ -818,6 +818,30 @@ QString QmlBuildSystem::versionQtQuick() const
 QString QmlBuildSystem::versionDesignStudio() const
 {
     return m_projectItem->versionDesignStudio();
+}
+
+class QmlBuildConfigurationFactory final : public BuildConfigurationFactory
+{
+public:
+    QmlBuildConfigurationFactory()
+    {
+        registerBuildConfiguration<BuildConfiguration>("QmlBuildConfiguration");
+        setSupportedProjectType(QmlProjectManager::Constants::QML_PROJECT_ID);
+        setSupportedProjectMimeTypeName(Utils::Constants::QMLPROJECT_MIMETYPE);
+        setBuildGenerator(
+            [](const Kit *, const FilePath &projectPath, bool /* forSetup */) -> QList<BuildInfo> {
+                BuildInfo bi;
+                bi.buildDirectory = projectPath;
+                bi.displayName = bi.typeName = Tr::tr("Default");
+                bi.showBuildConfigs = bi.showBuildDirConfigWidget = false;
+                return {bi};
+            });
+    }
+};
+
+void setupQmlBuildConfiguration()
+{
+    static const QmlBuildConfigurationFactory theQmlBuildConfigurationFactory;
 }
 
 } // namespace QmlProjectManager

@@ -7,7 +7,7 @@
 
 namespace Core::Internal {
 
-class ExternalToolsFilter : public ILocatorFilter
+class ExternalToolsFilter final : public ILocatorFilter
 {
 public:
     ExternalToolsFilter();

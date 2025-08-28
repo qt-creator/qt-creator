@@ -31,7 +31,7 @@ public:
     {
         setWidgetExpandedByDefault(false);
 
-        setInternalInitializer([this]() -> expected_str<void> {
+        setInternalInitializer([this]() -> Result<> {
             const BuildStep *tarCreationStep = nullptr;
 
             for (BuildStep *step : deployConfiguration()->stepList()->steps()) {

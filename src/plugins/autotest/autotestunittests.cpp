@@ -4,7 +4,6 @@
 #include "autotestunittests.h"
 
 #include "testcodeparser.h"
-#include "testframeworkmanager.h"
 #include "testtreemodel.h"
 
 #include "qtest/qttestframework.h"
@@ -213,8 +212,18 @@ void AutotestUnitTests::testCodeParserSwitchStartup_data()
 
 void AutotestUnitTests::testCodeParserGTest()
 {
-    if (qtcEnvironmentVariableIsEmpty("GOOGLETEST_DIR"))
-        QSKIP("This test needs googletest - set GOOGLETEST_DIR (point to googletest repository)");
+    if (qtcEnvironmentVariableIsEmpty("GOOGLETEST_DIR")) {
+        const QString qcSource = QString(QTCREATORDIR);
+        const FilePath gtestSrc = FilePath::fromUserInput(qcSource)
+                                      .pathAppended("src/libs/3rdparty/googletest");
+        if (gtestSrc.exists()) {
+            qDebug() << "Trying to use googletest submodule in" << gtestSrc.toUserOutput() << ".";
+            Environment::modifySystemEnvironment({EnvironmentItem{"GOOGLETEST_DIR",
+                                                                  gtestSrc.toUserOutput()}});
+        } else {
+            QSKIP("This test needs googletest - set GOOGLETEST_DIR (point to googletest repository)");
+        }
+    }
 
     QFETCH(FilePath, projectFilePath);
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;

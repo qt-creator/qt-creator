@@ -115,7 +115,7 @@ GdbSettings::GdbSettings()
 
     targetAsync.setSettingsKey(debugModeGroup, "TargetAsync");
     targetAsync.setLabelText(Tr::tr(
-        "Use asynchronous mode to control the inferior"));
+        "Use asynchronous mode to control the debugged process"));
 
     QString howToUsePython = Tr::tr(
         "<p>To execute simple Python commands, prefix them with \"python\".</p>"

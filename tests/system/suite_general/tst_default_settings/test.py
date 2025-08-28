@@ -69,7 +69,7 @@ def __checkKits__():
     if not test.compare(len(genericDebuggers), 2, "Verifying generic debugger count."):
         test.log(str(genericDebuggers))
     # check Qt versions
-    qmakePath = which("qmake")
+    qmakePath = shutil.which("qmake")
     if qmakePath and (not "Using Qt version" in
                       getOutputFromCmdline([qmakePath, "--version"], acceptedError=1)):
         # ignore dysfunctional qmake, e.g. incomplete qtchooser
@@ -250,7 +250,7 @@ def __getExpectedCompilers__():
             expected.append({'^LLVM \d{2} bit based on MSVC\d{4}$' : ''})
 
     for compiler in compilers:
-        compilerPath = which(compiler)
+        compilerPath = shutil.which(compiler)
         if compilerPath:
             if compiler.endswith('clang++') or compiler.endswith('clang'):
                 if subprocess.call([compiler, '-dumpmachine']) != 0:

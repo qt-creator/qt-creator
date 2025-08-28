@@ -1185,7 +1185,7 @@ bool DockManager::isWorkspaceLocked() const
     return d->m_workspaceLocked;
 }
 
-expected_str<QString> DockManager::createWorkspace(const QString &workspaceName)
+Result<QString> DockManager::createWorkspace(const QString &workspaceName)
 {
     qCInfo(adsLog) << "Create workspace" << workspaceName;
 
@@ -1193,9 +1193,9 @@ expected_str<QString> DockManager::createWorkspace(const QString &workspaceName)
     uniqueWorkspaceFileName(fileName);
     const FilePath filePath = userDirectory().pathAppended(fileName);
 
-    expected_str<void> result = write(filePath, saveState(workspaceName)); // TODO utils
+    Result<> result = write(filePath, saveState(workspaceName)); // TODO utils
     if (!result)
-        return make_unexpected(result.error());
+        return ResultError(result.error());
 
     Workspace workspace(filePath, false);
 
@@ -1204,13 +1204,13 @@ expected_str<QString> DockManager::createWorkspace(const QString &workspaceName)
     return workspace.fileName();
 }
 
-expected_str<void> DockManager::openWorkspace(const QString &fileName)
+Result<> DockManager::openWorkspace(const QString &fileName)
 {
     qCInfo(adsLog) << "Open workspace" << fileName;
 
     Workspace *wrk = workspace(fileName);
     if (!wrk)
-        return make_unexpected(Tr::tr("Workspace \"%1\" does not exist.").arg(fileName));
+        return ResultError(Tr::tr("Workspace \"%1\" does not exist.").arg(fileName));
 
     // Do nothing if workspace is already loaded, exception if it is a preset workspace. In this
     // case we still want to be able to load the default workspace to undo potential user changes.
@@ -1220,20 +1220,20 @@ expected_str<void> DockManager::openWorkspace(const QString &fileName)
     if (activeWorkspace()->isValid()) {
         // Allow everyone to set something in the workspace and before saving
         emit aboutToUnloadWorkspace(activeWorkspace()->fileName());
-        expected_str<void> saveResult = save();
+        Result<> saveResult = save();
         if (!saveResult)
             return saveResult;
     }
 
     // Try loading the file
-    const expected_str<QByteArray> data = loadWorkspace(*wrk);
+    const Result<QByteArray> data = loadWorkspace(*wrk);
     if (!data)
-        return make_unexpected(data.error());
+        return ResultError(data.error());
 
     emit openingWorkspace(wrk->fileName());
     // If data was loaded from file try to restore its state
     if (!data->isNull() && !restoreState(*data))
-        return make_unexpected(Tr::tr("Cannot restore \"%1\".").arg(wrk->filePath().toUserOutput()));
+        return ResultError(Tr::tr("Cannot restore \"%1\".").arg(wrk->filePath().toUserOutput()));
 
     d->m_workspace = *wrk;
     emit workspaceLoaded(wrk->fileName());
@@ -1241,23 +1241,23 @@ expected_str<void> DockManager::openWorkspace(const QString &fileName)
     return {};
 }
 
-expected_str<void> DockManager::reloadActiveWorkspace()
+Result<> DockManager::reloadActiveWorkspace()
 {
     qCInfo(adsLog) << "Reload active workspace";
 
     Workspace *wrk = activeWorkspace();
 
     if (!workspaces().contains(*wrk))
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Cannot reload \"%1\". It is not in the list of workspaces.")
                 .arg(wrk->filePath().toUserOutput()));
 
-    const expected_str<QByteArray> data = loadWorkspace(*wrk);
+    const Result<QByteArray> data = loadWorkspace(*wrk);
     if (!data)
-        return make_unexpected(data.error());
+        return ResultError(data.error());
 
     if (!data->isNull() && !restoreState(*data))
-        return make_unexpected(Tr::tr("Cannot restore \"%1\".").arg(wrk->filePath().toUserOutput()));
+        return ResultError(Tr::tr("Cannot restore \"%1\".").arg(wrk->filePath().toUserOutput()));
 
     emit workspaceReloaded(wrk->fileName());
 
@@ -1294,26 +1294,26 @@ void DockManager::deleteWorkspaces(const QStringList &fileNames)
         deleteWorkspace(fileName);
 }
 
-expected_str<QString> DockManager::cloneWorkspace(const QString &originalFileName,
+Result<QString> DockManager::cloneWorkspace(const QString &originalFileName,
                                                   const QString &cloneName)
 {
     qCInfo(adsLog) << "Clone workspace" << originalFileName << cloneName;
 
     Workspace *w = workspace(originalFileName);
     if (!w)
-        return make_unexpected(Tr::tr("Workspace \"%1\" does not exist.").arg(originalFileName));
+        return ResultError(Tr::tr("Workspace \"%1\" does not exist.").arg(originalFileName));
 
     const FilePath originalPath = w->filePath();
 
     if (!originalPath.exists())
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Workspace \"%1\" does not exist.").arg(originalPath.toUserOutput()));
 
     const FilePath clonePath = workspaceNameToFilePath(cloneName);
 
-    const Result copyResult = originalPath.copyFile(clonePath);
+    const Result<> copyResult = originalPath.copyFile(clonePath);
     if (!copyResult)
-        return make_unexpected(Tr::tr("Could not clone \"%1\" due to: %2")
+        return ResultError(Tr::tr("Could not clone \"%1\" due to: %2")
                                    .arg(originalPath.toUserOutput(), copyResult.error()));
 
     writeDisplayName(clonePath, cloneName);
@@ -1322,14 +1322,14 @@ expected_str<QString> DockManager::cloneWorkspace(const QString &originalFileNam
     return clonePath.fileName();
 }
 
-expected_str<QString> DockManager::renameWorkspace(const QString &originalFileName,
+Result<QString> DockManager::renameWorkspace(const QString &originalFileName,
                                                    const QString &newName)
 {
     qCInfo(adsLog) << "Rename workspace" << originalFileName << newName;
 
     Workspace *w = workspace(originalFileName);
     if (!w)
-        return make_unexpected(Tr::tr("Workspace \"%1\" does not exist.").arg(originalFileName));
+        return ResultError(Tr::tr("Workspace \"%1\" does not exist.").arg(originalFileName));
 
     w->setName(newName);
 
@@ -1337,29 +1337,29 @@ expected_str<QString> DockManager::renameWorkspace(const QString &originalFileNa
     return originalFileName;
 }
 
-Result DockManager::resetWorkspacePreset(const QString &fileName)
+Result<> DockManager::resetWorkspacePreset(const QString &fileName)
 {
     qCInfo(adsLog) << "Reset workspace" << fileName;
 
     Workspace *w = workspace(fileName);
     if (!w)
-        return Result::Error(Tr::tr("Workspace \"%1\" does not exist.").arg(fileName));
+        return ResultError(Tr::tr("Workspace \"%1\" does not exist.").arg(fileName));
 
     if (!w->isPreset())
-        return Result::Error(Tr::tr("Workspace \"%1\" is not a preset.").arg(fileName));
+        return ResultError(Tr::tr("Workspace \"%1\" is not a preset.").arg(fileName));
 
     const FilePath filePath = w->filePath();
 
     if (!filePath.removeFile())
-        return Result::Error(Tr::tr("Cannot remove \"%1\".").arg(filePath.toUserOutput()));
+        return ResultError(Tr::tr("Cannot remove \"%1\".").arg(filePath.toUserOutput()));
 
     return presetDirectory().pathAppended(fileName).copyFile(filePath);
 }
 
-expected_str<void> DockManager::save()
+Result<> DockManager::save()
 {
     if (isModeChangeState())
-        return make_unexpected(Tr::tr("Cannot save workspace while in mode change state."));
+        return ResultError(Tr::tr("Cannot save workspace while in mode change state."));
 
     emit aboutToSaveWorkspace();
 
@@ -1383,14 +1383,14 @@ void DockManager::aboutToShow()
     d->m_wasShown = true;
 }
 
-expected_str<QString> DockManager::importWorkspace(const QString &filePath)
+Result<QString> DockManager::importWorkspace(const QString &filePath)
 {
     qCInfo(adsLog) << "Import workspace" << filePath;
 
     const FilePath sourceFilePath = FilePath::fromUserInput(filePath);
 
     if (!sourceFilePath.exists())
-        return make_unexpected(
+        return ResultError(
             Tr::tr("File \"%1\" does not exist.").arg(sourceFilePath.toUserOutput()));
 
     // Extract workspace file name. Check if the workspace is already contained in the list of
@@ -1400,9 +1400,9 @@ expected_str<QString> DockManager::importWorkspace(const QString &filePath)
 
     const FilePath targetFilePath = userDirectory().pathAppended(fileName);
 
-    const Result copyResult = sourceFilePath.copyFile(targetFilePath);
+    const Result<> copyResult = sourceFilePath.copyFile(targetFilePath);
     if (!copyResult)
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Could not copy \"%1\" to \"%2\" due to: %3")
                 .arg(filePath, targetFilePath.toUserOutput(), copyResult.error()));
 
@@ -1412,7 +1412,7 @@ expected_str<QString> DockManager::importWorkspace(const QString &filePath)
     return targetFilePath.fileName();
 }
 
-expected_str<QString> DockManager::exportWorkspace(const QString &targetFilePath,
+Result<QString> DockManager::exportWorkspace(const QString &targetFilePath,
                                                    const QString &sourceFileName)
 {
     qCInfo(adsLog) << "Export workspace" << targetFilePath << sourceFileName;
@@ -1424,26 +1424,26 @@ expected_str<QString> DockManager::exportWorkspace(const QString &targetFilePath
     // Remove the file which supposed to be overwritten
     if (targetFile.exists()) {
         if (!targetFile.removeFile()) {
-            return make_unexpected(
+            return ResultError(
                 Tr::tr("Could not remove \"%1\".").arg(targetFile.toUserOutput()));
         }
     }
 
     // Check if the target directory exists
     if (!targetFile.parentDir().exists())
-        return make_unexpected(
+        return ResultError(
             Tr::tr("The directory \"%1\" does not exist.").arg(targetFile.parentDir().toUserOutput()));
 
     // Check if the workspace exists
     const FilePath workspaceFile = userDirectory().pathAppended(sourceFileName);
     if (!workspaceFile.exists())
-        return make_unexpected(
+        return ResultError(
             Tr::tr("The workspace \"%1\" does not exist ").arg(workspaceFile.toUserOutput()));
 
     // Finally copy the workspace to the target
-    const Result copyResult = workspaceFile.copyFile(targetFile);
+    const Result<> copyResult = workspaceFile.copyFile(targetFile);
     if (!copyResult)
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Could not copy \"%1\" to \"%2\" due to: %3")
                 .arg(sourceFileName, workspaceFile.toUserOutput(), copyResult.error()));
 
@@ -1533,7 +1533,7 @@ QByteArray DockManager::loadFile(const FilePath &filePath)
         return {};
     }
 
-    const expected_str<QByteArray> data = filePath.fileContents();
+    const Result<QByteArray> data = filePath.fileContents();
 
     if (!data) {
         qWarning() << "Could not open" << filePath.toUserOutput() << data.error();
@@ -1582,8 +1582,8 @@ QString DockManager::readAttribute(const FilePath &filePath, QStringView key)
 
 bool DockManager::writeAttribute(const FilePath &filePath, QStringView key, const QString &value)
 {
-    const expected_str<QByteArray> content = filePath.fileContents();
-    QTC_ASSERT_EXPECTED(content, return false);
+    const Result<QByteArray> content = filePath.fileContents();
+    QTC_ASSERT_RESULT(content, return false);
 
     QDomDocument doc;
     QString error_msg;
@@ -1597,7 +1597,7 @@ bool DockManager::writeAttribute(const FilePath &filePath, QStringView key, cons
     QDomElement docElem = doc.documentElement();
     docElem.setAttribute(key.toString(), value);
 
-    const expected_str<void> result = write(filePath, doc.toByteArray(workspaceXmlFormattingIndent));
+    const Result<> result = write(filePath, doc.toByteArray(workspaceXmlFormattingIndent));
     if (result)
         return true;
 
@@ -1605,30 +1605,30 @@ bool DockManager::writeAttribute(const FilePath &filePath, QStringView key, cons
     return false;
 }
 
-expected_str<void> DockManager::write(const FilePath &filePath, const QByteArray &data)
+Result<> DockManager::write(const FilePath &filePath, const QByteArray &data)
 {
     qCInfo(adsLog) << "Write" << filePath;
 
     if (!filePath.parentDir().ensureWritableDir())
-        return make_unexpected(Tr::tr("Cannot write to \"%1\".").arg(filePath.toUserOutput()));
+        return ResultError(Tr::tr("Cannot write to \"%1\".").arg(filePath.toUserOutput()));
 
     FileSaver fileSaver(filePath, QIODevice::Text);
     if (!fileSaver.hasError())
         fileSaver.write(data);
 
-    if (!fileSaver.finalize())
-        return make_unexpected(Tr::tr("Cannot write to \"%1\" due to: %2")
-                                   .arg(filePath.toUserOutput(), fileSaver.errorString()));
+    if (const Result<> res = fileSaver.finalize(); !res)
+        return ResultError(Tr::tr("Cannot write to \"%1\" due to: %2")
+                                   .arg(filePath.toUserOutput(), res.error()));
 
-    return {};
+    return ResultOk;
 }
 
-expected_str<QByteArray> DockManager::loadWorkspace(const Workspace &workspace) const
+Result<QByteArray> DockManager::loadWorkspace(const Workspace &workspace) const
 {
     qCInfo(adsLog) << "Load workspace" << workspace.fileName();
 
     if (!workspace.exists())
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Workspace \"%1\" does not exist.").arg(workspace.filePath().toUserOutput()));
 
     return workspace.filePath().fileContents();
@@ -1675,7 +1675,7 @@ void DockManager::syncWorkspacePresets()
             continue;
         }
 
-        const Result copyResult = filePath.copyFile(
+        const Result<> copyResult = filePath.copyFile(
             userDirectory().pathAppended(filePath.fileName()));
         if (!copyResult)
             qWarning() << QString("Could not copy '%1' to '%2' due to %3")

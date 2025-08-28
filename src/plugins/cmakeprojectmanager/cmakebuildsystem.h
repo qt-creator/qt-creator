@@ -40,7 +40,7 @@ class CMakeBuildSystem final : public ProjectExplorer::BuildSystem
     Q_OBJECT
 
 public:
-    explicit CMakeBuildSystem(CMakeBuildConfiguration *bc);
+    explicit CMakeBuildSystem(ProjectExplorer::BuildConfiguration *bc);
     ~CMakeBuildSystem() final;
 
     void triggerParsing() final;
@@ -67,7 +67,8 @@ public:
     void buildNamedTarget(const QString &target) final;
 
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
-    QString name() const final { return QLatin1String("cmake"); }
+
+    bool addDependencies(ProjectExplorer::Node *context, const QStringList &dependencies) final;
 
     // Actions:
     void runCMake();
@@ -269,6 +270,10 @@ private:
     QString m_error;
     QString m_warning;
 };
+
+#ifdef WITH_TESTS
+QObject *createAddDependenciesTest();
+#endif
 
 } // namespace Internal
 } // namespace CMakeProjectManager

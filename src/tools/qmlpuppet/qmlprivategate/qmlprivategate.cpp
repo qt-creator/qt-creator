@@ -558,8 +558,8 @@ void DesignerCustomObjectDataFork::keepBindingFromGettingDeleted(QQmlContext *co
                                                              const QQuickDesignerSupport::PropertyName &propertyName)
 {
     //Refcounting is taking care
-    Q_UNUSED(context);
-    Q_UNUSED(propertyName);
+    Q_UNUSED(context)
+    Q_UNUSED(propertyName)
 }
 
 void DesignerCustomObjectDataFork::handleDestroyed()
@@ -990,7 +990,7 @@ bool isSubclassOf(QObject *object, const QByteArray &superTypeName)
 
 void getPropertyCache(QObject *object, QQmlEngine *engine)
 {
-    Q_UNUSED(engine);
+    Q_UNUSED(engine)
     QQuickDesignerSupportProperties::getPropertyCache(object);
 }
 

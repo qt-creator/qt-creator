@@ -1045,7 +1045,7 @@ QStringList generateImports(ModuleIds moduleIds, const QUrl &docUrl, const Modul
         case ModuleKind::PathLibrary: {
             const Utils::FilePath modulePath = Utils::FilePath::fromString(module.name.toQString());
             const Utils::FilePath docFile = Utils::FilePath::fromUrl(docUrl);
-            const QString relPathStr = modulePath.relativePathFrom(docFile).toFSPathString();
+            const QString relPathStr = modulePath.relativePathFromDir(docFile).toFSPathString();
             if (relPathStr != ".")
                 imports.push_back("import \"" + relPathStr + "\"");
             break;

@@ -176,7 +176,7 @@ public:
         button->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerLink);
         m_markDownButtons.append(button);
-        for (auto button : m_markDownButtons) {
+        for (auto button : std::as_const(m_markDownButtons)) {
             // do not call setVisible(true) at this point, this destroys the hover effect on macOS
             if (!showEditor)
                 button->setVisible(false);
@@ -265,7 +265,7 @@ public:
                                 visible,
                                 m_previewWidget,
                                 m_togglePreviewVisible);
-                    for (auto button : m_markDownButtons)
+                    for (auto button : std::as_const(m_markDownButtons))
                         button->setVisible(visible);
                     saveViewSettings();
                 });
@@ -305,6 +305,8 @@ public:
             m_previewTimer.start();
         });
     }
+
+    ~MarkdownEditor() { delete widget(); }
 
     void triggerEmphasis()
     {

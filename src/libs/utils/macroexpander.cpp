@@ -6,12 +6,10 @@
 #include "algorithm.h"
 #include "commandline.h"
 #include "environment.h"
-#include "qtcassert.h"
 #include "stringutils.h"
 #include "utilstr.h"
 
 #include <QDir>
-#include <QFileInfo>
 #include <QLoggingCategory>
 #include <QMap>
 #include <QRegularExpression>
@@ -234,7 +232,7 @@ using namespace Internal;
     A typical setup is to register variables in the Plugin::initialize() function.
 
     \code
-    bool MyPlugin::initialize(const QStringList &arguments, QString *errorString)
+    void MyPlugin::initialize()
     {
         [...]
         MacroExpander::registerVariable(
@@ -417,8 +415,7 @@ QVariant MacroExpander::expandVariant(const QVariant &v) const
     return v;
 }
 
-expected_str<QString> MacroExpander::expandProcessArgs(
-    const QString &argsWithVariables, Utils::OsType osType) const
+Result<QString> MacroExpander::expandProcessArgs(const QString &argsWithVariables, OsType osType) const
 {
     QString result = argsWithVariables;
     const bool ok = ProcessArgs::expandMacros(
@@ -427,7 +424,7 @@ expected_str<QString> MacroExpander::expandProcessArgs(
         osType);
 
     if (!ok) {
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Failed to expand macros in process arguments: %1").arg(argsWithVariables));
     }
     return result;
@@ -466,15 +463,22 @@ void MacroExpander::registerPrefix(const QByteArray &prefix, const QString &desc
  *
  * The \a value \c StringFunction is called to retrieve the current value of the
  * variable. It is displayed to users if \a visibleInChooser is \c true.
+ * Set \a availableForExpansion to \c false if the variable should only be documented,
+ * but not actually get expanded.
  *
  * \sa registerFileVariables(), registerIntVariable(), registerPrefix()
  */
-void MacroExpander::registerVariable(const QByteArray &variable,
-    const QString &description, const StringFunction &value, bool visibleInChooser)
+void MacroExpander::registerVariable(
+    const QByteArray &variable,
+    const QString &description,
+    const StringFunction &value,
+    bool visibleInChooser,
+    bool availableForExpansion)
 {
     if (visibleInChooser)
         d->m_descriptions.insert(variable, description);
-    d->m_map.insert(variable, value);
+    if (availableForExpansion)
+        d->m_map.insert(variable, value);
 }
 
 /*!
@@ -505,23 +509,29 @@ void MacroExpander::registerIntVariable(const QByteArray &variable,
  * Takes a function that returns a FilePath as a \a base.
  *
  * The variable is displayed to users if \a visibleInChooser is \c true.
+ * Set \a availableForExpansion to \c false if the variable should only be documented,
+ * but not actually get expanded.
  *
  * \sa registerVariable(), registerIntVariable(), registerPrefix()
  */
-void MacroExpander::registerFileVariables(const QByteArray &prefix,
-    const QString &heading, const FileFunction &base, bool visibleInChooser)
+void MacroExpander::registerFileVariables(
+    const QByteArray &prefix,
+    const QString &heading,
+    const FileFunction &base,
+    bool visibleInChooser,
+    bool availableForExpansion)
 {
     registerVariable(
         prefix + kFilePathPostfix,
         Tr::tr("%1: Full path including file name.").arg(heading),
         [base] { return base().toFSPathString(); },
-        visibleInChooser);
+        visibleInChooser, availableForExpansion);
 
     registerVariable(
         prefix + kPathPostfix,
         Tr::tr("%1: Full path excluding file name.").arg(heading),
         [base] { return base().parentDir().toFSPathString(); },
-        visibleInChooser);
+        visibleInChooser, availableForExpansion);
 
     registerVariable(
         prefix + kNativeFilePathPostfix,
@@ -529,7 +539,7 @@ void MacroExpander::registerFileVariables(const QByteArray &prefix,
             "%1: Full path including file name, with native path separator (backslash on Windows).")
             .arg(heading),
         [base] { return base().nativePath(); },
-        visibleInChooser);
+        visibleInChooser, availableForExpansion);
 
     registerVariable(
         prefix + kNativePathPostfix,
@@ -537,19 +547,19 @@ void MacroExpander::registerFileVariables(const QByteArray &prefix,
             "%1: Full path excluding file name, with native path separator (backslash on Windows).")
             .arg(heading),
         [base] { return base().parentDir().nativePath(); },
-        visibleInChooser);
+        visibleInChooser, availableForExpansion);
 
     registerVariable(
         prefix + kFileNamePostfix,
         Tr::tr("%1: File name without path.").arg(heading),
         [base] { return base().fileName(); },
-        visibleInChooser);
+        visibleInChooser, availableForExpansion);
 
     registerVariable(
         prefix + kFileBaseNamePostfix,
         Tr::tr("%1: File base name without path and suffix.").arg(heading),
         [base] { return base().baseName(); },
-        visibleInChooser);
+        visibleInChooser, availableForExpansion);
 }
 
 void MacroExpander::registerExtraResolver(const MacroExpander::ResolverFunction &value)

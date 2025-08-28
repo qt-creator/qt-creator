@@ -27,7 +27,7 @@ namespace TextEditor {
 class PlainRefactoringFileFactory;
 class RefactoringFile;
 using RefactoringFilePtr = QSharedPointer<RefactoringFile>;
-using RefactoringSelections = QVector<QPair<QTextCursor, QTextCursor>>;
+using RefactoringSelections = QList<QPair<QTextCursor, QTextCursor>>;
 class TextDocument;
 class TextEditorWidget;
 

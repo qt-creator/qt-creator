@@ -29,7 +29,6 @@ add_qtc_plugin(Designer
   CONDITION TARGET Qt::DesignerComponentsPrivate AND TARGET Qt::Designer
   DEPENDS designerintegrationv2
     Qt::Designer Qt::PrintSupport Qt::DesignerComponentsPrivate
-  DEFINES CPP_ENABLED
   PLUGIN_DEPENDS Core CppEditor ProjectExplorer QtSupport ResourceEditor TextEditor
   PLUGIN_TEST_DEPENDS CppEditor
   SOURCES

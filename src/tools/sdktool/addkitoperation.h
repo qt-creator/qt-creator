@@ -36,7 +36,8 @@ public:
     QString m_cmakeGeneratorToolset;
     QString m_cmakeGeneratorPlatform;
     QStringList m_cmakeConfiguration;
-    QStringList m_env;
+    QStringList m_buildEnv;
+    QStringList m_runEnv;
     KeyValuePairList m_extra;
 };
 

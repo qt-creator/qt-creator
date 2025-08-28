@@ -22,6 +22,11 @@ int main() {
 * [Is this a link to the Qt website?](https://www.qt.io)
 * [Is this an anchor link that scrolls up to the top?](#markdown-browser-test)
 
+## Icons
+
+* Is the Home icon visible? ![You should see the home icon here](icon://HOME "Home Icon")
+* Is this seek forward theme icon visible? ![You should see a seek forward icon here](theme://media-seek-forward "Seek Forward Icon")
+
 ]]
 
     local mb = G.MarkdownBrowser {

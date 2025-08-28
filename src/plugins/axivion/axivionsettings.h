@@ -49,6 +49,12 @@ public:
     Utils::FilePath localPath;
 };
 
+struct AxivionVersionInfo
+{
+    QString versionNumber;
+    QString dateTime;
+};
+
 class AxivionSettings : public Utils::AspectContainer
 {
     Q_OBJECT
@@ -64,11 +70,24 @@ public:
     const QList<AxivionServer> allAvailableServers() const { return m_allServers; };
     bool updateDashboardServers(const QList<AxivionServer> &other, const Utils::Id &selected);
     const QList<PathMapping> validPathMappings() const;
+    Utils::FilePath mappedFilePath(const Utils::FilePath &filePath,
+                                   const QString &projectName) const;
+    Utils::FilePath localProjectForProjectName(const QString &projectName) const;
+    void validatePath();
+    std::optional<AxivionVersionInfo> versionInfo() const { return m_versionInfo; }
 
     Utils::BoolAspect highlightMarks{this};
+    Utils::BoolAspect saveOpenFiles{this};
+    Utils::FilePathAspect axivionSuitePath{this};
+    Utils::FilePathAspect bauhausPython{this};
+    Utils::FilePathAspect javaHome{this};
+    Utils::FilePathAspect lastLocalBuildCommand{this};
+
 signals:
     void serversChanged();
+    void suitePathValidated();
 private:
+    std::optional<AxivionVersionInfo> m_versionInfo = std::nullopt;
     Utils::StringAspect m_defaultServerId{this};
     QList<AxivionServer> m_allServers;
     Tasking::TaskTreeRunner m_taskTreeRunner;

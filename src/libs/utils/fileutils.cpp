@@ -45,102 +45,39 @@
 
 namespace Utils {
 
-// FileReader
-
-QByteArray FileReader::fetchQrc(const QString &fileName)
-{
-    QTC_ASSERT(fileName.startsWith(':'), return QByteArray());
-    QFile file(fileName);
-    bool ok = file.open(QIODevice::ReadOnly);
-    QTC_ASSERT(ok, qWarning() << fileName << "not there!"; return QByteArray());
-    return file.readAll();
-}
-
-bool FileReader::fetch(const FilePath &filePath)
-{
-    const expected_str<QByteArray> contents = filePath.fileContents();
-    if (!contents) {
-        m_errorString = contents.error();
-        return false;
-    }
-    m_data = *contents;
-    return true;
-}
-
-QByteArray FileReader::text() const
-{
-    QByteArray res = m_data;
-    res = res.replace("\r\n", "\n");
-    return res;
-}
-
-bool FileReader::fetch(const FilePath &filePath, QString *errorString)
-{
-    if (fetch(filePath))
-        return true;
-    if (errorString)
-        *errorString = m_errorString;
-    return false;
-}
-
 // FileSaver
 
-FileSaverBase::FileSaverBase() = default;
+FileSaverBase::FileSaverBase()
+    : m_result(ResultOk)
+{}
 
 FileSaverBase::~FileSaverBase() = default;
 
-bool FileSaverBase::finalize()
+Result<> FileSaverBase::finalize()
 {
     m_file->close();
     setResult(m_file->error() == QFile::NoError);
     m_file.reset();
-    return !m_hasError;
+    return m_result;
 }
 
-bool FileSaverBase::finalize(QString *errStr)
+bool FileSaverBase::write(const QByteArrayView bytes)
 {
-    if (finalize())
-        return true;
-    if (errStr)
-        *errStr = errorString();
-    return false;
-}
-
-#ifdef QT_GUI_LIB
-bool FileSaverBase::finalize(QWidget *parent)
-{
-    if (finalize())
-        return true;
-    QMessageBox::critical(parent, Tr::tr("File Error"), errorString());
-    return false;
-}
-#endif // QT_GUI_LIB
-
-bool FileSaverBase::write(const char *data, int len)
-{
-    if (m_hasError)
+    if (!m_result)
         return false;
-    return setResult(m_file->write(data, len) == len);
-}
-
-bool FileSaverBase::write(const QByteArray &bytes)
-{
-    if (m_hasError)
-        return false;
-    return setResult(m_file->write(bytes) == bytes.size());
+    return setResult(m_file->write(bytes.data(), bytes.size()) == bytes.size());
 }
 
 bool FileSaverBase::setResult(bool ok)
 {
-    if (!ok && !m_hasError) {
+    if (!ok && m_result) {
         if (!m_file->errorString().isEmpty()) {
-            m_errorString = Tr::tr("Cannot write file %1: %2")
-                                .arg(m_filePath.toUserOutput(), m_file->errorString());
+            m_result = ResultError(Tr::tr("Cannot write file %1: %2")
+                                     .arg(m_filePath.toUserOutput(), m_file->errorString()));
         } else {
-            m_errorString = Tr::tr("Cannot write file %1. Disk full?")
-                                .arg(m_filePath.toUserOutput());
+            m_result = ResultError(Tr::tr("Cannot write file %1. Disk full?")
+                                     .arg(m_filePath.toUserOutput()));
         }
-        m_hasError = true;
     }
     return ok;
 }
@@ -192,7 +129,7 @@ static bool saveFileSupportedFileSystem(const FilePath &path)
         }
     }
 #else
-    Q_UNUSED(path);
+    Q_UNUSED(path)
 #endif
     return true;
 }
@@ -209,9 +146,8 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
                    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
         const QString fn = filePath.baseName().toUpper();
         if (reservedNames.contains(fn)) {
-            m_errorString = Tr::tr("%1: Is a reserved filename on Windows. Cannot save.")
-                                .arg(filePath.toUserOutput());
-            m_hasError = true;
+            m_result = ResultError(Tr::tr("%1: Is a reserved filename on Windows. Cannot save.")
+                                     .arg(filePath.toUserOutput()));
             return;
         }
     }
@@ -228,25 +164,24 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
     if (!m_file->open(QIODevice::WriteOnly | mode)) {
         QString err = filePath.exists() ?
                 Tr::tr("Cannot overwrite file %1: %2") : Tr::tr("Cannot create file %1: %2");
-        m_errorString = err.arg(filePath.toUserOutput(), m_file->errorString());
-        m_hasError = true;
+        m_result = ResultError(err.arg(filePath.toUserOutput(), m_file->errorString()));
     }
 }
 
-bool FileSaver::finalize()
+Result<> FileSaver::finalize()
 {
     if (!m_isSafe)
         return FileSaverBase::finalize();
 
     auto sf = static_cast<SaveFile *>(m_file.get());
-    if (m_hasError) {
+    if (!m_result) {
         if (sf->isOpen())
             sf->rollback();
     } else {
         setResult(sf->commit());
     }
     m_file.reset();
-    return !m_hasError;
+    return m_result;
 }
 
 TempFileSaver::TempFileSaver(const QString &templ)
@@ -262,10 +197,9 @@ void TempFileSaver::initFromString(const QString &templ)
         tempFile->setFileTemplate(templ);
     tempFile->setAutoRemove(false);
     if (!tempFile->open()) {
-        m_errorString = Tr::tr("Cannot create temporary file in %1: %2").arg(
+        m_result = ResultError(Tr::tr("Cannot create temporary file in %1: %2").arg(
                 QDir::toNativeSeparators(QFileInfo(tempFile->fileTemplate()).absolutePath()),
-                tempFile->errorString());
-        m_hasError = true;
+                tempFile->errorString()));
     }
     m_filePath = FilePath::fromString(tempFile->fileName());
 }
@@ -275,19 +209,17 @@ TempFileSaver::TempFileSaver(const FilePath &templ)
     if (templ.isEmpty() || templ.isLocal()) {
         initFromString(templ.path());
     } else {
-        expected_str<FilePath> result = templ.createTempFile();
+        Result<FilePath> result = templ.createTempFile();
         if (!result) {
-            m_errorString = Tr::tr("Cannot create temporary file %1: %2")
-                                .arg(templ.toUserOutput(), result.error());
-            m_hasError = true;
+            m_result = ResultError(Tr::tr("Cannot create temporary file %1: %2")
+                                .arg(templ.toUserOutput(), result.error()));
             return;
         }
 
         m_file.reset(new QFile(result->toFSPathString()));
         if (!m_file->open(QIODevice::WriteOnly)) {
-            m_errorString = Tr::tr("Cannot create temporary file %1: %2")
-                                .arg(result->toUserOutput(), m_file->errorString());
-            m_hasError = true;
+            m_result = ResultError(Tr::tr("Cannot create temporary file %1: %2")
+                                .arg(result->toUserOutput(), m_file->errorString()));
         }
         m_filePath = *result;
     }
@@ -297,7 +229,7 @@ TempFileSaver::~TempFileSaver()
 {
     m_file.reset();
     if (m_autoRemove)
-        QFile::remove(m_filePath.toUrlishString());
+        m_filePath.removeFile();
 }
 
 /*!
@@ -416,6 +348,15 @@ FilePath commonPath(const FilePaths &paths)
 }
 
 #ifdef QT_WIDGETS_LIB
+
+QString fetchQrc(const QString &fileName)
+{
+    QTC_ASSERT(fileName.startsWith(':'), return QString());
+    QFile file(fileName);
+    bool ok = file.open(QIODevice::ReadOnly);
+    QTC_ASSERT(ok, qWarning() << fileName << "not there!"; return QString());
+    return QString::fromUtf8(file.readAll());
+}
 
 static QUrl filePathToQUrl(const FilePath &filePath)
 {
@@ -700,7 +641,7 @@ bool copyRecursively(const FilePath &srcFilePath,
             }
             return false;
         }
-        const QDir sourceDir(srcFilePath.toUrlishString());
+        const QDir sourceDir(srcFilePath.toFSPathString());
         const QStringList fileNames = sourceDir.entryList(
             QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
         for (const QString &fileName : fileNames) {
@@ -723,10 +664,10 @@ bool copyRecursively(const FilePath &srcFilePath,
   Returns whether the operation succeeded.
 */
 
-Result copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgtFilePath)
+Result<> copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgtFilePath)
 {
     if (!srcFilePath.exists())
-        return Result::Error(Tr::tr("File %1 does not exist.").arg(srcFilePath.toUserOutput()));
+        return ResultError(Tr::tr("File %1 does not exist.").arg(srcFilePath.toUserOutput()));
 
     if (!srcFilePath.isLocal() || !tgtFilePath.isLocal())
         return srcFilePath.copyFile(tgtFilePath);
@@ -736,13 +677,13 @@ Result copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgtFilePath)
         const QDateTime tgtModified = tgtFilePath.lastModified();
         if (srcModified == tgtModified) {
             // TODO: Create FilePath::hashFromContents() and compare hashes.
-            const expected_str<QByteArray> srcContents = srcFilePath.fileContents();
-            const expected_str<QByteArray> tgtContents = tgtFilePath.fileContents();
+            const Result<QByteArray> srcContents = srcFilePath.fileContents();
+            const Result<QByteArray> tgtContents = tgtFilePath.fileContents();
             if (srcContents && srcContents == tgtContents)
-                return Result::Ok;
+                return ResultOk;
         }
 
-        if (Result res = tgtFilePath.removeFile(); !res)
+        if (Result<> res = tgtFilePath.removeFile(); !res)
             return res;
     }
 
@@ -825,7 +766,7 @@ FilePath homePath()
     return FilePath::fromUserInput(QDir::homePath());
 }
 
-expected_str<FilePath> scratchBufferFilePath(const QString &pattern)
+Result<FilePath> scratchBufferFilePath(const QString &pattern)
 {
     QString tmp = pattern;
     QFileInfo fi(tmp);
@@ -839,7 +780,7 @@ expected_str<FilePath> scratchBufferFilePath(const QString &pattern)
     QTemporaryFile file(tmp);
     file.setAutoRemove(false);
     if (!file.open()) {
-        return make_unexpected(Tr::tr("Failed to set up scratch buffer in \"%1\".")
+        return ResultError(Tr::tr("Failed to set up scratch buffer in \"%1\".")
                                    .arg(FilePath::fromString(tmp).parentDir().toUserOutput()));
     }
     file.close();
@@ -885,6 +826,11 @@ FilePaths usefulExtraSearchPaths()
     }
 
     return {};
+}
+
+void showError(const QString &errorMessage)
+{
+    QMessageBox::critical(dialogParent(), Tr::tr("File Error"), errorMessage);
 }
 
 } // namespace FileUtils

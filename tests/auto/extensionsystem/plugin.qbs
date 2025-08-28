@@ -5,6 +5,7 @@ import QtcFunctions
 DynamicLibrary {
     Depends { name: "Aggregation" }
     Depends { name: "ExtensionSystem" }
+    Depends { name: "Utils" }
     Depends { name: "cpp" }
     Depends { name: "Qt.core" }
     Depends { name: "copyable_resource" }

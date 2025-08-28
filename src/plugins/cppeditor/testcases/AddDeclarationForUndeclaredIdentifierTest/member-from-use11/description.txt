@@ -1,0 +1,1 @@
+add static member struct from use in out-of-line function

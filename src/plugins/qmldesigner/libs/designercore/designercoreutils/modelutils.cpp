@@ -12,6 +12,7 @@
 
 #include <utils/expected.h>
 #include <utils/ranges.h>
+#include <utils/result.h>
 
 #include <algorithm>
 #include <array>

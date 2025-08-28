@@ -1,0 +1,1 @@
+if-else chain without final else, partially braced 1

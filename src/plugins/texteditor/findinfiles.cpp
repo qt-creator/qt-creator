@@ -129,7 +129,7 @@ QWidget *FindInFiles::createConfigWidget()
         gridLayout->addWidget(m_searchEngineCombo, row, 1);
 
         m_searchEngineWidget = new QStackedWidget(m_configWidget);
-        const QVector<SearchEngine *> searchEngineVector = searchEngines();
+        const QList<SearchEngine *> searchEngineVector = searchEngines();
         for (const SearchEngine *searchEngine : searchEngineVector) {
             m_searchEngineWidget->addWidget(searchEngine->widget());
             m_searchEngineCombo->addItem(searchEngine->title());

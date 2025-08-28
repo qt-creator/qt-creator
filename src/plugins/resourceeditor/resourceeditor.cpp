@@ -14,7 +14,6 @@
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
 #include <utils/fileutils.h>
@@ -48,15 +47,14 @@ class ResourceEditorDocument final : public IDocument
 public:
     ResourceEditorDocument(QObject *parent = nullptr);
 
-    OpenResult open(QString *errorString, const FilePath &filePath,
-                    const FilePath &realFilePath) final;
+    Result<> open(const FilePath &filePath, const FilePath &realFilePath) final;
     QString plainText() const { return m_model.contents(); }
     QByteArray contents() const final { return m_model.contents().toUtf8(); }
-    bool setContents(const QByteArray &contents) final;
+    Result<> setContents(const QByteArray &contents) final;
     bool shouldAutoSave() const final { return m_shouldAutoSave; }
     bool isModified() const final { return m_model.dirty(); }
     bool isSaveAsAllowed() const final { return true; }
-    Result reload(ReloadFlag flag, ChangeType type) final;
+    Result<> reload(ReloadFlag flag, ChangeType type) final;
     void setFilePath(const FilePath &newName) final;
     void setBlockDirtyChanged(bool value) { m_blockDirtyChanged = value; }
 
@@ -67,7 +65,7 @@ signals:
     void loaded(bool success);
 
 private:
-    Result saveImpl(const FilePath &filePath, bool autoSave) final;
+    Result<> saveImpl(const FilePath &filePath, bool autoSave) final;
     void dirtyChanged(bool);
 
     RelativeResourceModel m_model;
@@ -180,9 +178,7 @@ ResourceEditorImpl::~ResourceEditorImpl()
     delete m_toolBar;
 }
 
-IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
-                                                   const FilePath &filePath,
-                                                   const FilePath &realFilePath)
+Result<> ResourceEditorDocument::open(const FilePath &filePath, const FilePath &realFilePath)
 {
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::open: " << filePath;
@@ -191,10 +187,9 @@ IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
 
     m_model.setFilePath(realFilePath);
 
-    OpenResult openResult = m_model.reload();
-    if (openResult != OpenResult::Success) {
-        if (errorString)
-            *errorString = m_model.errorMessage();
+    Result<> openResult = m_model.reload();
+    if (!openResult) {
+        openResult = ResultError(m_model.errorMessage()); // FIXME: Move to m_model
         setBlockDirtyChanged(false);
         emit loaded(false);
         return openResult;
@@ -206,23 +201,23 @@ IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
     m_shouldAutoSave = false;
 
     emit loaded(true);
-    return OpenResult::Success;
+    return ResultOk;
 }
 
-Result ResourceEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> ResourceEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (debugResourceEditorW)
         qDebug() << ">ResourceEditorW::saveImpl: " << filePath;
 
     if (filePath.isEmpty())
-        return Result::Error("ASSERT: ResourceEditorDocument: filePath.isEmpty()");
+        return ResultError("ASSERT: ResourceEditorDocument: filePath.isEmpty()");
 
     m_blockDirtyChanged = true;
     m_model.setFilePath(filePath);
     if (!m_model.save()) {
         m_model.setFilePath(this->filePath());
         m_blockDirtyChanged = false;
-        return Result::Error(m_model.errorMessage());
+        return ResultError(m_model.errorMessage());
     }
 
     m_shouldAutoSave = false;
@@ -230,32 +225,35 @@ Result ResourceEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
         m_model.setFilePath(this->filePath());
         m_model.setDirty(true);
         m_blockDirtyChanged = false;
-        return Result::Ok;
+        return ResultOk;
     }
 
     setFilePath(filePath);
     m_blockDirtyChanged = false;
 
     emit changed();
-    return Result::Ok;
+    return ResultOk;
 }
 
-bool ResourceEditorDocument::setContents(const QByteArray &contents)
+Result<> ResourceEditorDocument::setContents(const QByteArray &contents)
 {
     TempFileSaver saver;
     saver.write(contents);
-    if (!saver.finalize(ICore::dialogParent()))
-        return false;
+    if (const Result<> res = saver.finalize(); !res) {
+        FileUtils::showError(res.error());
+        return res;
+    }
 
     const FilePath originalFileName = m_model.filePath();
     m_model.setFilePath(saver.filePath());
-    const bool success = (m_model.reload() == OpenResult::Success);
+    const Result<> result = m_model.reload();
+    const bool success = result.has_value();
     m_model.setFilePath(originalFileName);
     m_shouldAutoSave = false;
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::createNew: " << contents << " (" << saver.filePath() << ") returns " << success;
     emit loaded(success);
-    return success;
+    return result;
 }
 
 void ResourceEditorDocument::setFilePath(const FilePath &newName)
@@ -280,16 +278,15 @@ void ResourceEditorImpl::restoreState(const QByteArray &state)
     m_resourceEditor->restoreState(splitterState);
 }
 
-Result ResourceEditorDocument::reload(ReloadFlag flag, ChangeType type)
+Result<> ResourceEditorDocument::reload(ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return Result::Ok;
+        return ResultOk;
     emit aboutToReload();
-    QString errorString;
-    const bool success = (open(&errorString, filePath(), filePath()) == OpenResult::Success);
-    emit reloadFinished(success);
-    return Result(success, errorString);
+    const Result<> result = open(filePath(), filePath());
+    emit reloadFinished(result.has_value());
+    return result;
 }
 
 void ResourceEditorDocument::dirtyChanged(bool dirty)

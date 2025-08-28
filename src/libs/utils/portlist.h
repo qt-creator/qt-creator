@@ -5,6 +5,7 @@
 
 #include "utils_global.h"
 
+#include "aspects.h"
 #include "commandline.h"
 #include "port.h"
 
@@ -53,9 +54,20 @@ public:
     std::function<QList<Port>(const QByteArray &)> portsParser = &Port::parseFromCommandOutput;
 };
 
-using PortsOutputData = expected_str<QList<Port>>;
+using PortsOutputData = Result<QList<Port>>;
 
 QTCREATOR_UTILS_EXPORT Tasking::ExecutableItem portsFromProcessRecipe(
     const Tasking::Storage<PortsInputData> &input, const Tasking::Storage<PortsOutputData> &output);
+
+class QTCREATOR_UTILS_EXPORT PortListAspect : public Utils::StringAspect
+{
+public:
+    PortListAspect(Utils::AspectContainer *container = nullptr);
+
+    void addToLayoutImpl(Layouting::Layout &parent) override;
+
+    void setPortList(const PortList &ports);
+    PortList portList() const;
+};
 
 } // namespace Utils

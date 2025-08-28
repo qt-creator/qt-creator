@@ -26,7 +26,6 @@
 
 #include <QAction>
 #include <QElapsedTimer>
-#include <QFileInfo>
 #include <QLoggingCategory>
 #include <QRegularExpression>
 

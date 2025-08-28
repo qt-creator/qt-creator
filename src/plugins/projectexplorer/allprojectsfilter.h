@@ -7,7 +7,7 @@
 
 namespace ProjectExplorer::Internal {
 
-class AllProjectsFilter : public Core::ILocatorFilter
+class AllProjectsFilter final : public Core::ILocatorFilter
 {
 public:
     AllProjectsFilter();

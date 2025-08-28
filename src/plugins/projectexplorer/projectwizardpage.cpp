@@ -428,36 +428,34 @@ void ProjectWizardPage::initializeVersionControls()
             this, &ProjectWizardPage::versionControlChanged);
 }
 
-bool ProjectWizardPage::runVersionControl(const QList<GeneratedFile> &files, QString *errorMessage)
+Result<> ProjectWizardPage::runVersionControl(const QList<GeneratedFile> &files)
 {
     // Add files to  version control (Entry at 0 is 'None').
     const int vcsIndex = versionControlIndex() - 1;
     if (vcsIndex < 0 || vcsIndex >= m_activeVersionControls.size())
-        return true;
-    QTC_ASSERT(!m_commonDirectory.isEmpty(), return false);
+        return ResultOk;
+    QTC_ASSERT(!m_commonDirectory.isEmpty(), return ResultError(ResultAssert));
 
     IVersionControl *versionControl = m_activeVersionControls.at(vcsIndex);
     // Create repository?
     if (!m_repositoryExists) {
-        QTC_ASSERT(versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation), return false);
+        QTC_ASSERT(versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation),
+                   return ResultError(ResultAssert));
         if (!versionControl->vcsCreateRepository(m_commonDirectory)) {
-            *errorMessage =
-                    Tr::tr("A version control system repository could not be created in \"%1\".").
-                    arg(m_commonDirectory.toUserOutput());
-            return false;
+            return ResultError(Tr::tr("A version control system repository could not be created in \"%1\".").
+                               arg(m_commonDirectory.toUserOutput()));
         }
     }
     // Add files if supported.
     if (versionControl->supportsOperation(IVersionControl::AddOperation)) {
         for (const GeneratedFile &generatedFile : files) {
             if (!versionControl->vcsAdd(generatedFile.filePath())) {
-                *errorMessage = Tr::tr("Failed to add \"%1\" to the version control system.").
-                        arg(generatedFile.filePath().toUserOutput());
-                return false;
+                return ResultError(Tr::tr("Failed to add \"%1\" to the version control system.").
+                        arg(generatedFile.filePath().toUserOutput()));
             }
         }
     }
-    return true;
+    return ResultOk;
 }
 
 void ProjectWizardPage::initializeProjectTree(Node *context, const FilePaths &paths,

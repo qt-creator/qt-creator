@@ -9,7 +9,6 @@
 #include "simulatorcontrol.h"
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -25,7 +24,6 @@
 #include <utils/async.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QAction>
@@ -59,13 +57,13 @@ static IosDeviceType toIosDeviceType(const SimulatorInfo &device)
     return iosDeviceType;
 }
 
-IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
-    : RunConfiguration(target, id), iosDeviceType(this, this)
+IosRunConfiguration::IosRunConfiguration(BuildConfiguration *bc, Id id)
+    : RunConfiguration(bc, id), iosDeviceType(this, this)
 {
-    executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+    executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
 
-    setUpdater([this, target] {
-        IDevice::ConstPtr dev = RunDeviceKitAspect::device(target->kit());
+    setUpdater([this] {
+        IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit());
         const QString devName = dev ? dev->displayName() : IosDevice::name();
         setDefaultDisplayName(Tr::tr("Run on %1").arg(devName));
         setDisplayName(Tr::tr("Run %1 on %2").arg(applicationName()).arg(devName));
@@ -129,84 +127,81 @@ FilePath IosRunConfiguration::bundleDirectory() const
     }
     FilePath res;
     bool shouldAppendBuildTypeAndPlatform = true;
-    if (BuildConfiguration *bc = target()->activeBuildConfiguration()) {
-        Project *project = target()->project();
-        if (ProjectNode *node = project->findNodeForBuildKey(buildKey())) {
-            QString pathStr = node->data(Constants::IosBuildDir).toString();
-            const QString cmakeGenerator = node->data(Constants::IosCmakeGenerator).toString();
+    if (ProjectNode *node = project()->findNodeForBuildKey(buildKey())) {
+        QString pathStr = node->data(Constants::IosBuildDir).toString();
+        const QString cmakeGenerator = node->data(Constants::IosCmakeGenerator).toString();
 
-            if (cmakeGenerator.isEmpty()) {
-                // qmake node gives absolute IosBuildDir
-                res = FilePath::fromString(pathStr);
-            } else {
-                // CMake node gives IosBuildDir relative to root build directory
+        if (cmakeGenerator.isEmpty()) {
+            // qmake node gives absolute IosBuildDir
+            res = FilePath::fromString(pathStr);
+        } else {
+            // CMake node gives IosBuildDir relative to root build directory
 
-                bool useCmakePath = true;
+            bool useCmakePath = true;
 
-                if (pathStr.isEmpty())
+            if (pathStr.isEmpty())
+                useCmakePath = false;
+
+            if (useCmakePath && cmakeGenerator == "Xcode") {
+                // When generating Xcode project, CMake may put a "${EFFECTIVE_PLATFORM_NAME}" macro,
+                // which is expanded by Xcode at build time.
+                // To get an actual executable path at configure time, replace this macro here
+                // depending on the device type.
+
+                const QString before = "${EFFECTIVE_PLATFORM_NAME}";
+
+                int idx = pathStr.indexOf(before);
+
+                if (idx == -1) {
                     useCmakePath = false;
-
-                if (useCmakePath && cmakeGenerator == "Xcode") {
-                    // When generating Xcode project, CMake may put a "${EFFECTIVE_PLATFORM_NAME}" macro,
-                    // which is expanded by Xcode at build time.
-                    // To get an actual executable path at configure time, replace this macro here
-                    // depending on the device type.
-
-                    const QString before = "${EFFECTIVE_PLATFORM_NAME}";
-
-                    int idx = pathStr.indexOf(before);
-
-                    if (idx == -1) {
-                        useCmakePath = false;
-                    } else {
-                        QString after;
-                        if (isDevice)
-                            after = "-iphoneos";
-                        else
-                            after = "-iphonesimulator";
-
-                        pathStr.replace(idx, before.length(), after);
-                    }
-                }
-
-                if (useCmakePath) {
-                    // With Ninja generator IosBuildDir may be just "." when executable is in the root directory,
-                    // so use canonical path to ensure that redundand dot is removed.
-                    res = bc->buildDirectory().pathAppended(pathStr).canonicalPath();
-                    // All done with path provided by CMake
-                    shouldAppendBuildTypeAndPlatform = false;
                 } else {
-                    res = bc->buildDirectory();
+                    QString after;
+                    if (isDevice)
+                        after = "-iphoneos";
+                    else
+                        after = "-iphonesimulator";
+
+                    pathStr.replace(idx, before.length(), after);
                 }
             }
-        }
 
-        if (res.isEmpty()) {
-            // Fallback
-            res = bc->buildDirectory();
-            shouldAppendBuildTypeAndPlatform = true;
-        }
-
-        if (shouldAppendBuildTypeAndPlatform) {
-            switch (bc->buildType()) {
-            case BuildConfiguration::Debug :
-            case BuildConfiguration::Unknown :
-                if (isDevice)
-                    res = res / "Debug-iphoneos";
-                else
-                    res = res.pathAppended("Debug-iphonesimulator");
-                break;
-            case BuildConfiguration::Profile :
-            case BuildConfiguration::Release :
-                if (isDevice)
-                    res = res.pathAppended("Release-iphoneos");
-                else
-                    res = res.pathAppended("Release-iphonesimulator");
-                break;
-            default:
-                qCWarning(iosLog) << "IosBuildStep had an unknown buildType "
-                         << target()->activeBuildConfiguration()->buildType();
+            if (useCmakePath) {
+                // With Ninja generator IosBuildDir may be just "." when executable is in the root directory,
+                // so use canonical path to ensure that redundand dot is removed.
+                res = buildConfiguration()->buildDirectory().pathAppended(pathStr).canonicalPath();
+                // All done with path provided by CMake
+                shouldAppendBuildTypeAndPlatform = false;
+            } else {
+                res = buildConfiguration()->buildDirectory();
             }
+        }
+    }
+
+    if (res.isEmpty()) {
+        // Fallback
+        res = buildConfiguration()->buildDirectory();
+        shouldAppendBuildTypeAndPlatform = true;
+    }
+
+    if (shouldAppendBuildTypeAndPlatform) {
+        switch (buildConfiguration()->buildType()) {
+        case BuildConfiguration::Debug :
+        case BuildConfiguration::Unknown :
+            if (isDevice)
+                res = res / "Debug-iphoneos";
+            else
+                res = res.pathAppended("Debug-iphonesimulator");
+            break;
+        case BuildConfiguration::Profile :
+        case BuildConfiguration::Release :
+            if (isDevice)
+                res = res.pathAppended("Release-iphoneos");
+            else
+                res = res.pathAppended("Release-iphonesimulator");
+            break;
+        default:
+            qCWarning(iosLog) << "IosBuildStep had an unknown buildType "
+                              << buildConfiguration()->buildType();
         }
     }
     return res.pathAppended(applicationName() + ".app");
@@ -241,9 +236,8 @@ QString IosRunConfiguration::disabledReason(Id runMode) const
     QString validDevName;
     bool hasConncetedDev = false;
     if (devType == Constants::IOS_DEVICE_TYPE) {
-        DeviceManager *dm = DeviceManager::instance();
-        for (int idev = 0; idev < dm->deviceCount(); ++idev) {
-            IDevice::ConstPtr availDev = dm->deviceAt(idev);
+        for (int idev = 0; idev < DeviceManager::deviceCount(); ++idev) {
+            IDevice::ConstPtr availDev = DeviceManager::deviceAt(idev);
             if (availDev && availDev->type() == Constants::IOS_DEVICE_TYPE) {
                 if (availDev->deviceState() == IDevice::DeviceReadyToUse) {
                     validDevName += QLatin1Char(' ');

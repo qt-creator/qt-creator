@@ -15,7 +15,7 @@ using namespace Utils;
 namespace CppEditor {
 
 ProjectInfo::ConstPtr ProjectInfo::create(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
-                                     const QVector<ProjectPart::ConstPtr> &projectParts)
+                                     const QList<ProjectPart::ConstPtr> &projectParts)
 {
     return ConstPtr(new ProjectInfo(updateInfo, projectParts));
 }
@@ -64,7 +64,7 @@ bool ProjectInfo::configurationOrFilesChanged(const ProjectInfo &other) const
     return configurationChanged(other) || m_sourceFiles != other.m_sourceFiles;
 }
 
-static QSet<FilePath> getSourceFiles(const QVector<ProjectPart::ConstPtr> &projectParts)
+static QSet<FilePath> getSourceFiles(const QList<ProjectPart::ConstPtr> &projectParts)
 {
     QSet<FilePath> sourceFiles;
     for (const ProjectPart::ConstPtr &part : projectParts) {
@@ -74,7 +74,7 @@ static QSet<FilePath> getSourceFiles(const QVector<ProjectPart::ConstPtr> &proje
     return sourceFiles;
 }
 
-static ProjectExplorer::Macros getDefines(const QVector<ProjectPart::ConstPtr> &projectParts)
+static ProjectExplorer::Macros getDefines(const QList<ProjectPart::ConstPtr> &projectParts)
 {
     ProjectExplorer::Macros defines;
     for (const ProjectPart::ConstPtr &part : projectParts) {
@@ -85,7 +85,7 @@ static ProjectExplorer::Macros getDefines(const QVector<ProjectPart::ConstPtr> &
 }
 
 static ProjectExplorer::HeaderPaths getHeaderPaths(
-        const QVector<ProjectPart::ConstPtr> &projectParts)
+        const QList<ProjectPart::ConstPtr> &projectParts)
 {
     QSet<ProjectExplorer::HeaderPath> uniqueHeaderPaths;
     for (const ProjectPart::ConstPtr &part : projectParts) {
@@ -96,7 +96,7 @@ static ProjectExplorer::HeaderPaths getHeaderPaths(
 }
 
 ProjectInfo::ProjectInfo(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
-                         const QVector<ProjectPart::ConstPtr> &projectParts)
+                         const QList<ProjectPart::ConstPtr> &projectParts)
     : m_projectParts(projectParts),
       m_projectName(updateInfo.projectName),
       m_projectFilePath(updateInfo.projectFilePath),

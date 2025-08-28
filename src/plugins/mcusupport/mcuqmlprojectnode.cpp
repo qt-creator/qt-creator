@@ -20,7 +20,7 @@ McuQmlProjectNode::McuQmlProjectNode(const FilePath &projectFolder, const FilePa
     setFilePath(projectFolder);
     setListInProject(true);
 
-    const expected_str<QByteArray> expectedJsonContent = inputsJsonFile.fileContents();
+    const Result<QByteArray> expectedJsonContent = inputsJsonFile.fileContents();
     if (!expectedJsonContent)
         return;
 

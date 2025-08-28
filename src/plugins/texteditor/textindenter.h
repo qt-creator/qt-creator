@@ -26,7 +26,7 @@ public:
                   const TabSettings &tabSettings,
                   int cursorPositionInEditor = -1) override;
 
-    IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
+    IndentationForBlock indentationForBlocks(const QList<QTextBlock> &blocks,
                                              const TabSettings &tabSettings,
                                              int cursorPositionInEditor = -1) override;
     void indentBlock(const QTextBlock &block,

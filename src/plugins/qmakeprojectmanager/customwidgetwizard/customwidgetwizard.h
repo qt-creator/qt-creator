@@ -10,8 +10,6 @@ namespace Internal {
 
 class CustomWidgetWizard : public QtWizard
 {
-    Q_OBJECT
-
 public:
     CustomWidgetWizard();
 

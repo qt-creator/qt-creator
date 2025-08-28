@@ -5,16 +5,17 @@
 
 #include <qmlprofiler/memoryusagemodel.h>
 #include <qmlprofiler/qmlprofilermodelmanager.h>
+
 #include <QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class MemoryUsageModelTest : public QObject
 {
     Q_OBJECT
+
 public:
-    MemoryUsageModelTest(QObject *parent = 0);
+    MemoryUsageModelTest();
 
 private slots:
     void initTestCase();
@@ -40,5 +41,4 @@ private:
     int rangeTypeId = -1;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

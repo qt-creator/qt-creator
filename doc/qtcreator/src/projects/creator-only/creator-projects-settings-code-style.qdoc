@@ -61,5 +61,5 @@
     the bug and attach the code that triggers the crash to the bug report.
 
     \sa {Indent text or code}, {Edit MIME types}, {C++ Code Style},
-    {Qt Quick Code Style}, {Nim}
+    {Specify Qt Quick code style}, {Nim}
 */

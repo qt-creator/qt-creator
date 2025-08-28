@@ -45,6 +45,9 @@ public:
 
     static QString name();
 
+    static IosDevice::Ptr make() { return IosDevice::Ptr(new IosDevice()); }
+    static IosDevice::Ptr make(const QString &uid) { return IosDevice::Ptr(new IosDevice(uid)); }
+
 private:
     void fromMap(const Utils::Store &map) final;
     void toMap(Utils::Store &map) const final;

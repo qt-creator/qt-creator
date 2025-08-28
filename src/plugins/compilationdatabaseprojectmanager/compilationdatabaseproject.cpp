@@ -307,11 +307,10 @@ static void createTree(
 class CompilationDatabaseBuildSystem final : public BuildSystem
 {
 public:
-    explicit CompilationDatabaseBuildSystem(Target *target);
+    explicit CompilationDatabaseBuildSystem(BuildConfiguration *bc);
     ~CompilationDatabaseBuildSystem();
 
     void triggerParsing() final;
-    QString name() const final { return QLatin1String("compilationdb"); }
 
     void reparseProject();
     void updateDeploymentData();
@@ -324,34 +323,26 @@ public:
     FileSystemWatcher *const m_deployFileWatcher;
 };
 
-CompilationDatabaseBuildSystem::CompilationDatabaseBuildSystem(Target *target)
-    : BuildSystem(target)
+CompilationDatabaseBuildSystem::CompilationDatabaseBuildSystem(BuildConfiguration *bc)
+    : BuildSystem(bc)
     , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
     , m_deployFileWatcher(new FileSystemWatcher(this))
 {
-    connect(target->project(), &CompilationDatabaseProject::rootProjectDirectoryChanged, this, [this] {
+    connect(project(), &CompilationDatabaseProject::rootProjectDirectoryChanged, this, [this] {
         m_projectFileHash.clear();
         requestDelayedParse();
     });
 
     requestDelayedParse();
 
-    connect(
-        project(),
-        &Project::projectFileIsDirty,
-        this,
-        &CompilationDatabaseBuildSystem::reparseProject);
-
-    connect(
-        m_deployFileWatcher,
-        &FileSystemWatcher::fileChanged,
-        this,
-        &CompilationDatabaseBuildSystem::updateDeploymentData);
-    connect(
-        target->project(),
-        &Project::activeTargetChanged,
-        this,
-        &CompilationDatabaseBuildSystem::updateDeploymentData);
+    connect(project(), &Project::projectFileIsDirty,
+            this, &CompilationDatabaseBuildSystem::reparseProject);
+    connect(m_deployFileWatcher, &FileSystemWatcher::fileChanged,
+            this, &CompilationDatabaseBuildSystem::updateDeploymentData);
+    connect(project(), &Project::activeTargetChanged,
+            this, &CompilationDatabaseBuildSystem::updateDeploymentData);
+    connect(target(), &Target::activeBuildConfigurationChanged,
+            this, &CompilationDatabaseBuildSystem::updateDeploymentData);
 }
 
 CompilationDatabaseBuildSystem::~CompilationDatabaseBuildSystem()
@@ -427,7 +418,7 @@ CompilationDatabaseProject::CompilationDatabaseProject(const FilePath &projectFi
     setId(Constants::COMPILATIONDATABASEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
-    setBuildSystemCreator<CompilationDatabaseBuildSystem>();
+    setBuildSystemCreator<CompilationDatabaseBuildSystem>("compilationdb");
     setExtraProjectFiles(
         {projectFile.stringAppended(Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX)});
 }
@@ -454,6 +445,9 @@ void CompilationDatabaseProject::configureAsExampleProject(Kit *kit)
 
 void CompilationDatabaseBuildSystem::reparseProject()
 {
+    if (project()->activeBuildSystem() != this)
+        return;
+
     if (m_parser) {
         QTC_CHECK(isParsing());
         m_parser->stop();
@@ -478,13 +472,16 @@ void CompilationDatabaseBuildSystem::reparseProject()
 
 void CompilationDatabaseBuildSystem::updateDeploymentData()
 {
+    if (project()->activeBuildSystem() != this)
+        return;
+
     const FilePath deploymentFilePath = projectDirectory().pathAppended("QtCreatorDeployment.txt");
     DeploymentData deploymentData;
     deploymentData.addFilesFromDeploymentFile(deploymentFilePath, projectDirectory());
     setDeploymentData(deploymentData);
-    if (m_deployFileWatcher->files() != QStringList(deploymentFilePath.path())) {
+    if (m_deployFileWatcher->files() != FilePaths{deploymentFilePath}) {
         m_deployFileWatcher->clear();
-        m_deployFileWatcher->addFile(deploymentFilePath.path(), FileSystemWatcher::WatchModifiedDate);
+        m_deployFileWatcher->addFile(deploymentFilePath, FileSystemWatcher::WatchModifiedDate);
     }
 
     emitBuildSystemUpdated();

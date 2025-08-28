@@ -37,7 +37,6 @@ add_qtc_plugin(MesonProjectManager
   mesontools.h
   ninjaparser.cpp
   ninjaparser.h
-  resources_meson.qrc
   settings.cpp
   settings.h
   target.h
@@ -49,6 +48,15 @@ add_qtc_plugin(MesonProjectManager
   toolssettingsaccessor.h
   toolssettingspage.cpp
   toolssettingspage.h
+)
+
+qtc_add_resources(MesonProjectManager "images"
+  PREFIX "/mesonproject"
+  BASE "."
+  FILES
+    icons/meson_logo.png
+    icons/meson_bw_logo.png
+    icons/meson_bw_logo@2x.png
 )
 
 file(RELATIVE_PATH RELATIVE_TEST_PATH "${PROJECT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")

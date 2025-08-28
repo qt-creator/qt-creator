@@ -87,8 +87,6 @@
 
 #include <modelnodecontextmenu_helper.h>
 
-#include <mutex>
-
 static Q_LOGGING_CATEGORY(qmldesignerLog, "qtc.qmldesigner", QtWarningMsg)
 
 using namespace Core;
@@ -265,7 +263,7 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
 // INHERITED FROM ExtensionSystem::Plugin
 //
 ////////////////////////////////////////////////////
-bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorMessage*/)
+Utils::Result<> QmlDesignerPlugin::initialize(const QStringList &)
 {
     NanotraceHR::Tracer tracer{"qml designer plugin initialize", category()};
 
@@ -274,7 +272,8 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString * 
             QMessageBox::warning(Core::ICore::dialogParent(),
                                  tr("Qml Designer Lite"),
                                  tr("The Qml Designer Lite plugin is not enabled."));
-            return false;
+            return Utils::ResultError(tr("Qml Designer Lite initialization error: "
+                                         "The Qml Designer Lite plugin is not enabled."));
         }
     }
 
@@ -324,7 +323,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString * 
         d->statusBar = ToolBar::createStatusBar();
     }
 
-    return true;
+    return Utils::ResultOk;
 }
 
 bool QmlDesignerPlugin::delayedInitialize()

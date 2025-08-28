@@ -4,6 +4,7 @@
 #include "threadshandler.h"
 
 #include "debuggeractions.h"
+#include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggericons.h"
 #include "debuggerprotocol.h"
@@ -227,7 +228,7 @@ bool ThreadsHandler::setData(const QModelIndex &idx, const QVariant &data, int r
 
         if (ev.as<QContextMenuEvent>()) {
             auto menu = new QMenu;
-            menu->addAction(settings().settingsDialog.action());
+            addStandardActions(ev.view(), menu);
             menu->popup(ev.globalPos());
             return true;
         }

@@ -481,15 +481,15 @@ FancyLineEdit::ValidationFunction FancyLineEdit::defaultValidationFunction()
     return &FancyLineEdit::validateWithValidator;
 }
 
-bool FancyLineEdit::validateWithValidator(FancyLineEdit *edit, QString *errorMessage)
+Result<> FancyLineEdit::validateWithValidator(FancyLineEdit &edit)
 {
-    Q_UNUSED(errorMessage)
-    if (const QValidator *v = edit->validator()) {
-        QString tmp = edit->text();
-        int pos = edit->cursorPosition();
-        return v->validate(tmp, pos) == QValidator::Acceptable;
+    if (const QValidator *v = edit.validator()) {
+        QString tmp = edit.text();
+        int pos = edit.cursorPosition();
+        if (v->validate(tmp, pos) != QValidator::Acceptable)
+            return ResultError(QString());
     }
-    return true;
+    return ResultOk;
 }
 
 FancyLineEdit::State FancyLineEdit::state() const
@@ -611,7 +611,7 @@ void FancyLineEdit::validate()
     }
 
     if (d->m_validationFunction.index() == 1) {
-        auto &validationFunction = std::get<1>(d->m_validationFunction);
+        SynchronousValidationFunction &validationFunction = std::get<1>(d->m_validationFunction);
         if (!validationFunction)
             return;
 
@@ -624,14 +624,36 @@ void FancyLineEdit::validate()
             }
         }
 
-        QString error;
-        const bool validates = validationFunction(this, &error);
-        expected_str<QString> result;
+        Result<QString> result;
 
-        if (validates)
+        if (const Result<> validates = validationFunction(*this))
             result = t;
         else
-            result = make_unexpected(error);
+            result = ResultError(validates.error());
+
+        handleValidationResult(result, t);
+    }
+
+    if (d->m_validationFunction.index() == 2) {
+        SimpleSynchronousValidationFunction &validationFunction = std::get<2>(d->m_validationFunction);
+        if (!validationFunction)
+            return;
+
+        const QString t = text();
+
+        if (d->m_isFiltering) {
+            if (t != d->m_lastFilterText) {
+                d->m_lastFilterText = t;
+                emit filterChanged(t);
+            }
+        }
+
+        Result<QString> result;
+
+        if (const Result<> validates = validationFunction(t))
+            result = t;
+        else
+            result = ResultError(validates.error());
 
         handleValidationResult(result, t);
     }

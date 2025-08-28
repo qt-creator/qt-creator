@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "parallelitem.h"
-#include "scxmldocument.h"
-#include "scxmltagutils.h"
+
+#include <utils/icon.h>
+
 #include <QPainter>
 
 using namespace ScxmlEditor::PluginInterface;
@@ -11,7 +12,11 @@ using namespace ScxmlEditor::PluginInterface;
 ParallelItem::ParallelItem(const QPointF &pos, BaseItem *parent)
     : StateItem(pos, parent)
 {
-    m_pixmap = QPixmap(":/scxmleditor/images/parallel_icon.png");
+
+    const QPixmap pixmap = Utils::Icon({{":/scxmleditor/images/parallel_icon.png",
+                                         Utils::Theme::TextColorNormal}}).pixmap();
+    m_pixmap = pixmap.copy(QRect(pixmap.width() / 4, pixmap.height() / 4,
+                                 pixmap.width() / 2, pixmap.height() / 2));
     updatePolygon();
 }
 
@@ -40,7 +45,7 @@ void ParallelItem::doLayout(int d)
         return;
 
     // 1. Find children items
-    QVector<StateItem*> children;
+    QList<StateItem*> children;
     const QList<QGraphicsItem *> items = childItems();
     for (QGraphicsItem *it : items) {
         if (it->type() >= StateType) {
@@ -69,7 +74,7 @@ void ParallelItem::doLayout(int d)
 
     // 3. Relocate children-states
     // a) sort list
-    QVector<StateItem*> sortedList;
+    QList<StateItem*> sortedList;
     while (!children.isEmpty()) {
         qreal minTop = children.first()->boundingRect().top();
         int minTopIndex = 0;

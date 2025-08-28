@@ -272,7 +272,7 @@ struct CompileResult : CompilerResult
         {
             AssemblyLine line;
             line.text = object["text"].toString();
-            auto opcodes = object["opcodes"].toArray();
+            const QJsonArray opcodes = object["opcodes"].toArray();
             for (const auto &opcode : opcodes)
                 line.opcodes.append(opcode.toString());
 

@@ -1,0 +1,12 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+
+/*!
+    \externalpage https://doc.qt.io/qtcreator/creator-how-to-add-wizards.html
+    \title Add wizards
+*/
+/*!
+    \externalpage https://doc.qt.io/qtcreator/creator-project-wizards.html
+    \title Custom Wizards
+*/

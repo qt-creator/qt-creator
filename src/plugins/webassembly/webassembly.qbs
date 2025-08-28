@@ -12,7 +12,6 @@ QtcPlugin {
     Depends { name: "QtSupport" }
 
     files: [
-        "webassembly.qrc",
         "webassembly_global.h",
         "webassemblyconstants.h",
         "webassemblydevice.cpp",
@@ -36,5 +35,17 @@ QtcPlugin {
             "webassembly_test.cpp",
             "webassembly_test.h",
         ]
+    }
+
+    Group {
+        name: "images"
+        prefix: "images/"
+        files: [
+            "webassemblydevice.png",
+            "webassemblydevice@2x.png",
+            "webassemblydevicesmall.png",
+            "webassemblydevicesmall@2x.png",
+        ]
+        fileTags: "qt.core.resource_data"
     }
 }

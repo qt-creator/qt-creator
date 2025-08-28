@@ -21,7 +21,7 @@ public:
     ~Parser() override;
 
     void requestCurrentState();
-    void removeFiles(const QStringList &fileList);
+    void removeFiles(const Utils::FilePaths &fileList);
     void resetData(const QHash<Utils::FilePath, QPair<QString, Utils::FilePaths>> &projects);
     void addProject(const Utils::FilePath &projectPath, const QString &projectName,
                     const Utils::FilePaths &filesInProject);

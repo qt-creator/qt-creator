@@ -3,18 +3,16 @@
 
 #pragma once
 
-#include "perfprofiler_global.h"
 #include "perfeventtype.h"
 
 #include <tracing/traceevent.h>
+
 #include <utils/qtcassert.h>
 
-#include <QVariant>
-#include <QVector>
 #include <QDataStream>
+#include <QVariant>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class PerfEvent : public Timeline::TraceEvent
 {
@@ -37,11 +35,11 @@ public:
     qint32 attributeId(int i) const { return i == 0 ? typeIndex() : m_values[i - 1].first; }
     quint64 attributeValue(int i) const { return i == 0 ? m_value : m_values[i - 1].second; }
 
-    const QVector<qint32> &origFrames() const { return m_origFrames; }
+    const QList<qint32> &origFrames() const { return m_origFrames; }
     quint8 origNumGuessedFrames() const { return m_origNumGuessedFrames; }
 
-    const QVector<qint32> &frames() const { return m_frames; }
-    void setFrames(const QVector<qint32> &frames) { m_frames = frames; }
+    const QList<qint32> &frames() const { return m_frames; }
+    void setFrames(const QList<qint32> &frames) { m_frames = frames; }
 
     const QHash<qint32, QVariant> &traceData() const { return m_traceData; }
 
@@ -60,9 +58,9 @@ private:
     friend QDataStream &operator>>(QDataStream &stream, PerfEvent &event);
     friend QDataStream &operator<<(QDataStream &stream, const PerfEvent &event);
 
-    QVector<QPair<qint32, quint64>> m_values;
-    QVector<qint32> m_origFrames;
-    QVector<qint32> m_frames;
+    QList<QPair<qint32, quint64>> m_values;
+    QList<qint32> m_origFrames;
+    QList<qint32> m_frames;
     QHash<qint32, QVariant> m_traceData;
     quint32 m_pid = 0;
     quint32 m_tid = 0;
@@ -125,7 +123,7 @@ inline QDataStream &operator>>(QDataStream &stream, PerfEvent &event)
     default: {
         qint32 firstAttributeId;
         stream >> event.m_origFrames >> event.m_origNumGuessedFrames;
-        QVector<QPair<qint32, quint64>> values;
+        QList<QPair<qint32, quint64>> values;
         stream >> values;
         if (values.isEmpty()) {
             firstAttributeId = PerfEvent::LastSpecialTypeId;
@@ -164,7 +162,7 @@ inline QDataStream &operator<<(QDataStream &stream, const PerfEvent &event)
     case PerfEventType::TracePointSample: {
         stream << event.m_origFrames << event.m_origNumGuessedFrames;
 
-        QVector<QPair<qint32, quint64>> values;
+        QList<QPair<qint32, quint64>> values;
         for (int i = 0, end = event.numAttributes(); i < end; ++i) {
             values.push_back({ PerfEvent::LastSpecialTypeId - event.attributeId(i),
                                event.attributeValue(i) });
@@ -182,5 +180,4 @@ inline QDataStream &operator<<(QDataStream &stream, const PerfEvent &event)
     return stream;
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

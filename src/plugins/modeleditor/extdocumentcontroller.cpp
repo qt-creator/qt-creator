@@ -53,7 +53,7 @@ PxNodeController *ExtDocumentController::pxNodeController() const
 
 void ExtDocumentController::onProjectFileNameChanged(const FilePath &fileName)
 {
-    d->pxNodeController->setAnchorFolder(fileName.path());
+    d->pxNodeController->setAnchorFolder(fileName);
 }
 
 } // namespace Internal

@@ -43,10 +43,11 @@ PreprocessStackEntry::PreprocessStackEntry(PreprocessorSection s, bool p, bool c
 { }
 
 // Context for preprocessing.
-class PreprocessContext {
+class PreprocessContext
+{
 public:
     PreprocessContext();
-    bool process(QStringView in, QString *out, QString *errorMessage);
+    Result<QString> process(QStringView in);
 
 private:
     void reset();
@@ -111,13 +112,13 @@ static inline QString msgEmptyStack(int line)
     return QString::fromLatin1("Unmatched '@endif' at line %1.").arg(line);
 }
 
-bool PreprocessContext::process(QStringView in, QString *out, QString *errorMessage)
+Result<QString> PreprocessContext::process(QStringView in)
 {
-    out->clear();
     if (in.isEmpty())
-        return true;
+        return QString();
 
-    out->reserve(in.size());
+    QString out;
+    out.reserve(in.size());
     reset();
 
     const QChar newLine = QLatin1Char('\n');
@@ -126,11 +127,9 @@ bool PreprocessContext::process(QStringView in, QString *out, QString *errorMess
     bool first = true;
     for (int l = 0; l < lineCount; l++) {
         // Check for element of the stack (be it dummy, else something is wrong).
-        if (m_sectionStack.isEmpty()) {
-            if (errorMessage)
-                *errorMessage = msgEmptyStack(l);
-            return false;
-        }
+        if (m_sectionStack.isEmpty())
+            return ResultError(msgEmptyStack(l));
+
         QString expression;
         bool expressionValue = false;
         PreprocessStackEntry &top = m_sectionStack.back();
@@ -139,32 +138,27 @@ bool PreprocessContext::process(QStringView in, QString *out, QString *errorMess
         case IfSection:
             // '@If': Push new section
             if (top.condition) {
-                if (!TemplateEngine::evaluateBooleanJavaScriptExpression(m_scriptEngine, expression,
-                                                                         &expressionValue, errorMessage)) {
-                    if (errorMessage)
-                        *errorMessage = QString::fromLatin1("Error in @if at %1: %2")
-                            .arg(l + 1).arg(*errorMessage);
-                    return false;
+                const Result<bool> res =
+                        TemplateEngine::evaluateBooleanJavaScriptExpression(m_scriptEngine, expression);
+                if (!res) {
+                    return ResultError(QString::fromLatin1("Error in @if at %1: %2")
+                            .arg(l + 1).arg(res.error()));
                 }
+                expressionValue = *res;
             }
             m_sectionStack.push(PreprocessStackEntry(IfSection,
                                                      top.condition, expressionValue, expressionValue));
             break;
         case ElsifSection: // '@elsif': Check condition.
-            if (top.section != IfSection && top.section != ElsifSection) {
-                if (errorMessage)
-                    *errorMessage = QString::fromLatin1("No preceding @if found for @elsif at %1")
-                        .arg(l + 1);
-                return false;
-            }
+            if (top.section != IfSection && top.section != ElsifSection)
+                return ResultError(QString("No preceding @if found for @elsif at %1").arg(l + 1));
+
             if (top.parentEnabled) {
-                if (!TemplateEngine::evaluateBooleanJavaScriptExpression(m_scriptEngine, expression,
-                                                                         &expressionValue, errorMessage)) {
-                    if (errorMessage)
-                        *errorMessage = QString::fromLatin1("Error in @elsif at %1: %2")
-                            .arg(l + 1).arg(*errorMessage);
-                    return false;
-                }
+                const Result<bool> res =
+                        TemplateEngine::evaluateBooleanJavaScriptExpression(m_scriptEngine, expression);
+                if (!res)
+                    return ResultError(QString("Error in @elsif at %1: %2").arg(l + 1).arg(res.error()));
+                expressionValue = *res;
             }
             top.section = ElsifSection;
             // ignore consecutive '@elsifs' once something matched
@@ -176,12 +170,9 @@ bool PreprocessContext::process(QStringView in, QString *out, QString *errorMess
             }
             break;
         case ElseSection: // '@else': Check condition.
-            if (top.section != IfSection && top.section != ElsifSection) {
-                if (errorMessage)
-                    *errorMessage = QString::fromLatin1("No preceding @if/@elsif found for @else at %1")
-                        .arg(l + 1);
-                return false;
-            }
+            if (top.section != IfSection && top.section != ElsifSection)
+                return ResultError(QString("No preceding @if/@elsif found for @else at %1").arg(l + 1));
+
             expressionValue = top.parentEnabled && !top.anyIfClauseMatched;
             top.section = ElseSection;
             top.condition = expressionValue;
@@ -194,30 +185,26 @@ bool PreprocessContext::process(QStringView in, QString *out, QString *errorMess
                 if (first)
                     first = false;
                 else
-                    out->append(newLine);
-                out->append(lines.at(l));
+                    out.append(newLine);
+                out.append(lines.at(l));
             }
             break;
         } // switch section
 
     } // for lines
-    return true;
+    return out;
 }
 
 } // namespace Internal
 
-bool TemplateEngine::preprocessText(const QString &in, QString *out, QString *errorMessage)
+Result<QString> TemplateEngine::preprocessText(const QString &in)
 {
     Internal::PreprocessContext context;
-    return context.process(in, out, errorMessage);
+    return context.process(in);
 }
 
-QString TemplateEngine::processText(MacroExpander *expander, const QString &input,
-                                    QString *errorMessage)
+Result<QString> TemplateEngine::processText(MacroExpander *expander, const QString &input)
 {
-    if (errorMessage)
-        errorMessage->clear();
-
     if (input.isEmpty())
         return input;
 
@@ -229,9 +216,11 @@ QString TemplateEngine::processText(MacroExpander *expander, const QString &inpu
         in = expander->expand(oldIn);
     }
 
-    QString out;
-    if (!preprocessText(in, &out, errorMessage))
+    const Result<QString> res = preprocessText(in);
+    if (!res)
         return QString();
+
+    const QString out = res.value();
 
     // Expand \n, \t and handle line continuation:
     QString result;
@@ -258,42 +247,27 @@ QString TemplateEngine::processText(MacroExpander *expander, const QString &inpu
     return result;
 }
 
-bool TemplateEngine::evaluateBooleanJavaScriptExpression(QJSEngine &engine,
-                                                         const QString &expression, bool *result,
-                                                         QString *errorMessage)
+Result<bool> TemplateEngine::evaluateBooleanJavaScriptExpression(QJSEngine &engine,
+                                                                 const QString &expression)
 {
-    if (errorMessage)
-        errorMessage->clear();
-    if (result)
-        *result = false;
     const QJSValue value = engine.evaluate(expression);
     if (value.isError()) {
-        if (errorMessage)
-            *errorMessage = QString::fromLatin1("Error in \"%1\": %2")
-                .arg(expression, value.toString());
-        return false;
+        return ResultError(QString::fromLatin1("Error in \"%1\": %2")
+                .arg(expression, value.toString()));
     }
-    // Try to convert to bool, be that an int or whatever.
-    if (value.isBool()) {
-        if (result)
-            *result = value.toBool();
-        return true;
-    }
-    if (value.isNumber()) {
-        if (result)
-            *result = !qFuzzyCompare(value.toNumber(), 0);
-        return true;
-    }
-    if (value.isString()) {
-        if (result)
-            *result = !value.toString().isEmpty();
-        return true;
-    }
-    if (errorMessage)
-        *errorMessage = QString::fromLatin1("Cannot convert result of \"%1\" (\"%2\"to bool.")
-            .arg(expression, value.toString());
 
-    return false;
+    // Try to convert to bool, be that an int or whatever.
+    if (value.isBool())
+        return value.toBool();
+
+    if (value.isNumber())
+        return !qFuzzyCompare(value.toNumber(), 0);
+
+    if (value.isString())
+        return !value.toString().isEmpty();
+
+    return ResultError(QString::fromLatin1("Cannot convert result of \"%1\" (\"%2\"to bool.")
+            .arg(expression, value.toString()));
 }
 
 } // namespace Utils

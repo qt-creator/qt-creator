@@ -191,7 +191,7 @@ bool QmakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
         FilePath::removeDuplicates(alreadyPresentFiles);
 
         FilePaths actualFilePaths = filePaths;
-        for (const FilePath &e : alreadyPresentFiles)
+        for (const FilePath &e : std::as_const(alreadyPresentFiles))
             actualFilePaths.removeOne(e);
         if (notAdded)
             *notAdded = alreadyPresentFiles;
@@ -411,14 +411,13 @@ bool QmakeProFileNode::setData(Id role, const QVariant &value) const
         return false;
     QString scope;
     int flags = QmakeProjectManager::Internal::ProWriter::ReplaceValues;
-    if (Target *target = m_buildSystem->target()) {
-        QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
-        if (version && !version->supportsMultipleQtAbis()) {
-            const QString arch = pro->singleVariableValue(Variable::AndroidAbi);
-            scope = QString("contains(%1,%2)").arg(Android::Constants::ANDROID_TARGET_ARCH)
-                                              .arg(arch);
-            flags |= QmakeProjectManager::Internal::ProWriter::MultiLine;
-        }
+    const QtSupport::QtVersion * const version = QtSupport::QtKitAspect::qtVersion(
+        m_buildSystem->kit());
+    if (version && !version->supportsMultipleQtAbis()) {
+        const QString arch = pro->singleVariableValue(Variable::AndroidAbi);
+        scope = QString("contains(%1,%2)").arg(Android::Constants::ANDROID_TARGET_ARCH)
+                    .arg(arch);
+        flags |= QmakeProjectManager::Internal::ProWriter::MultiLine;
     }
 
     if (role == Android::Constants::AndroidExtraLibs)

@@ -29,7 +29,7 @@ class QTCREATOR_UTILS_EXPORT AnsiEscapeCodeHandler
 public:
     QList<FormattedText> parseText(const FormattedText &input);
     void endFormatScope();
-    static void setTextInEditor(QPlainTextEdit *editor, const QString &text);
+    static void setTextInDocument(QTextDocument *doc, const QString &text);
     static QString ansiFromColor(const QColor &color);
     static QString noColor();
 

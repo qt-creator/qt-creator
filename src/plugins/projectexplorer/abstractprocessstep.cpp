@@ -214,25 +214,10 @@ bool AbstractProcessStep::setupProcess(Process &process)
 
 void AbstractProcessStep::handleProcessDone(const Process &process)
 {
-    const QString command = d->m_displayedParams->effectiveCommand().toUserOutput();
-    if (process.result() == ProcessResult::FinishedWithSuccess) {
-        emit addOutput(Tr::tr("The process \"%1\" exited normally.").arg(command),
-                       OutputFormat::NormalMessage);
-    } else if (process.result() == ProcessResult::FinishedWithError) {
-        emit addOutput(Tr::tr("The process \"%1\" exited with code %2.")
-                           .arg(command, QString::number(process.exitCode())),
-                       OutputFormat::ErrorMessage);
-    } else if (process.result() == ProcessResult::StartFailed) {
-        emit addOutput(Tr::tr("Could not start process \"%1\" %2.")
-                           .arg(command, d->m_displayedParams->prettyArguments()),
-                       OutputFormat::ErrorMessage);
-        const QString errorString = process.errorString();
-        if (!errorString.isEmpty())
-            emit addOutput(errorString, OutputFormat::ErrorMessage);
-    } else {
-        emit addOutput(Tr::tr("The process \"%1\" crashed.").arg(command),
-                       OutputFormat::ErrorMessage);
-    }
+    const OutputFormat format = process.result() == ProcessResult::FinishedWithSuccess
+        ? OutputFormat::NormalMessage
+        : OutputFormat::ErrorMessage;
+    emit addOutput(process.exitMessage(), format);
 }
 
 void AbstractProcessStep::setLowPriority()

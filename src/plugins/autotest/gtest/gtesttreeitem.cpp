@@ -496,7 +496,7 @@ QSet<QString> internalTargets(const TestTreeItem &item)
     if (!projectInfo)
         return {};
     const FilePath filePath = item.filePath();
-    const QVector<CppEditor::ProjectPart::ConstPtr> projectParts = projectInfo->projectParts();
+    const QList<CppEditor::ProjectPart::ConstPtr> projectParts = projectInfo->projectParts();
     if (projectParts.isEmpty())
         return CppEditor::CppModelManager::dependingInternalTargets(item.filePath());
     for (const CppEditor::ProjectPart::ConstPtr &projectPart : projectParts) {

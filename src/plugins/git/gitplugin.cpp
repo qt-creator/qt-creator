@@ -47,6 +47,7 @@
 #include <utils/commandline.h>
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
+#include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -216,8 +217,12 @@ public:
     bool activateCommit() override;
     void discardCommit() override { cleanCommitMessageFile(); }
 
-    void diffCurrentFile();
-    void diffProjectDirectory();
+    void diffCurrentFile(GitClient::DiffMode diffMode);
+    void diffUnstagedCurrentFile() { diffCurrentFile(GitClient::Unstaged); }
+    void diffStagedCurrentFile() { diffCurrentFile(GitClient::Staged); }
+    void diffProjectDirectory(GitClient::DiffMode diffMode);
+    void diffUnstagedProjectDirectory() { diffProjectDirectory(GitClient::Unstaged); }
+    void diffStagedProjectDirectory() { diffProjectDirectory(GitClient::Staged); }
     void logFile();
     void logSelection();
     void blameFile();
@@ -400,7 +405,7 @@ void GitPluginPrivate::onApplySettings()
 {
     emit configurationChanged();
     updateRepositoryBrowserAction();
-    const expected_str<FilePath> result = settings().gitExecutable();
+    const Result<FilePath> result = settings().gitExecutable();
     if (!result) {
         QTimer::singleShot(0, this, [errorMessage = result.error()] {
             AsynchronousMessageBox::warning(Tr::tr("Git Settings"), errorMessage);
@@ -550,6 +555,13 @@ GitPluginPrivate::GitPluginPrivate()
 {
     dd = this;
 
+    Utils::globalMacroExpander()->registerPrefix(
+        "Git:Config",
+        Tr::tr("Access git config variables."),
+        [this](const QString &value) {
+            return gitClient().readConfigValue(currentState().topLevel(), value);
+        },
+        true);
     setTopicFileTracker([](const FilePath &repository) {
         const FilePath gitDir = gitClient().findGitDirForRepository(repository);
         return gitDir.isEmpty() ? FilePath() : gitDir / "HEAD";
@@ -588,8 +600,17 @@ GitPluginPrivate::GitPluginPrivate()
                      Tr::tr("Diff Current File"),
                      //: Avoid translating "Diff"
                      Tr::tr("Diff of \"%1\""),
-                     "Git.Diff", context, true, std::bind(&GitPluginPrivate::diffCurrentFile, this),
-                      QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+D") : Tr::tr("Alt+G,Alt+D")));
+                     "Git.Diff", context, true,
+                     std::bind(&GitPluginPrivate::diffUnstagedCurrentFile, this),
+                     QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+D") : Tr::tr("Alt+G,Alt+D")));
+
+    createFileAction(currentFileMenu,
+                     //: Avoid translating "Diff"
+                     Tr::tr("Diff Staged Current File Changes"),
+                     //: Avoid translating "Diff"
+                     Tr::tr("Diff Staged Changes in \"%1\""),
+                     "Git.DiffStaged", context, true,
+                     std::bind(&GitPluginPrivate::diffStagedCurrentFile, this));
 
     createFileAction(currentFileMenu,
                      //: Avoid translating "Log"
@@ -653,7 +674,15 @@ GitPluginPrivate::GitPluginPrivate()
                         //: Avoid translating "Diff"
                         Tr::tr("Diff Directory of Project \"%1\""),
                         "Git.DiffProjectDirectory", context, true,
-                        &GitPluginPrivate::diffProjectDirectory);
+                        &GitPluginPrivate::diffUnstagedProjectDirectory);
+
+    createProjectAction(currentProjectDirectoryMenu,
+                        //: Avoid translating "Diff"
+                        Tr::tr("Diff Staged Project Directory Changes"),
+                        //: Avoid translating "Diff"
+                        Tr::tr("Diff Staged Directory of Project \"%1\" Changes"),
+                        "Git.DiffStagedProjectDirectory", context, true,
+                        &GitPluginPrivate::diffStagedProjectDirectory);
 
     createProjectAction(currentProjectDirectoryMenu,
                         //: Avoid translating "Log"
@@ -663,14 +692,16 @@ GitPluginPrivate::GitPluginPrivate()
                         "Git.LogProjectDirectory", context, true,
                         &GitPluginPrivate::logProjectDirectory);
 
-    createProjectAction(currentProjectDirectoryMenu,
-                        //: Avoid translating "Clean"
-                        Tr::tr("Clean Project  Directory..."),
-                        //: Avoid translating "Clean"
-                        Tr::tr("Clean Directory of Project \"%1\"..."),
-                        "Git.CleanProjectDirectory", context, true,
-                        &GitPluginPrivate::cleanProjectDirectory);
-
+    createProjectAction(
+        currentProjectDirectoryMenu,
+        //: Avoid translating "Clean"
+        Tr::tr("Clean Project Directory..."),
+        //: Avoid translating "Clean"
+        Tr::tr("Clean Directory of Project \"%1\"..."),
+        "Git.CleanProjectDirectory",
+        context,
+        true,
+        &GitPluginPrivate::cleanProjectDirectory);
 
     /*  "Local Repository" menu */
     ActionContainer *localRepositoryMenu = ActionManager::createMenu("Git.LocalRepositoryMenu");
@@ -678,8 +709,11 @@ GitPluginPrivate::GitPluginPrivate()
     gitContainer->addMenu(localRepositoryMenu);
 
     createRepositoryAction(localRepositoryMenu, "Diff", "Git.DiffRepository",
-                           context, true, &GitClient::diffRepository,
+                           context, true, &GitClient::diffUnstagedRepository,
                            QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+Shift+D") : Tr::tr("Alt+G,Alt+Shift+D")));
+
+    createRepositoryAction(localRepositoryMenu, "Diff Staged", "Git.DiffStagedRepository",
+                           context, true, &GitClient::diffStagedRepository);
 
     createRepositoryAction(localRepositoryMenu, "Log", "Git.LogRepository",
                            context, true, std::bind(&GitPluginPrivate::logRepository, this),
@@ -959,7 +993,7 @@ GitPluginPrivate::GitPluginPrivate()
     QAction *createRepositoryAction = new QAction(Tr::tr("Create Repository..."), this);
     Command *createRepositoryCommand = ActionManager::registerAction(
                 createRepositoryAction, "Git.CreateRepository");
-    connect(createRepositoryAction, &QAction::triggered, this, &GitPluginPrivate::createRepository);
+    connect(createRepositoryAction, &QAction::triggered, this, [this] { initRepository(); });
     gitContainer->addAction(createRepositoryCommand);
 
     connect(VcsManager::instance(), &VcsManager::repositoryChanged,
@@ -985,22 +1019,22 @@ GitPluginPrivate::GitPluginPrivate()
     });
 }
 
-void GitPluginPrivate::diffCurrentFile()
+void GitPluginPrivate::diffCurrentFile(GitClient::DiffMode diffMode)
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    gitClient().diffFile(state.currentFileTopLevel(), state.relativeCurrentFile());
+    gitClient().diffFile(state.currentFileTopLevel(), state.relativeCurrentFile(), diffMode);
 }
 
-void GitPluginPrivate::diffProjectDirectory()
+void GitPluginPrivate::diffProjectDirectory(GitClient::DiffMode diffMode)
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
     const QString relativeProject = state.relativeCurrentProject();
     if (relativeProject.isEmpty())
-        gitClient().diffRepository(state.currentProjectTopLevel());
+        gitClient().diffRepository(state.currentProjectTopLevel(), {}, {}, diffMode);
     else
-        gitClient().diffProject(state.currentProjectTopLevel(), relativeProject);
+        gitClient().diffProject(state.currentProjectTopLevel(), relativeProject, diffMode);
 }
 
 void GitPluginPrivate::logFile()
@@ -1344,12 +1378,12 @@ void GitPluginPrivate::startCommit(CommitType commitType)
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    QString errorMessage, commitTemplate;
-    CommitData data(commitType);
-    if (!gitClient().getCommitData(state.topLevel(), &commitTemplate, data, &errorMessage)) {
-        VcsOutputWindow::appendError(errorMessage);
+    const Result<CommitData> res = gitClient().getCommitData(commitType, state.topLevel());
+    if (!res) {
+        VcsOutputWindow::appendError(res.error());
         return;
     }
+    const CommitData data = res.value();
 
     // Store repository for diff and the original list of
     // files to be able to unstage files the user unchecks
@@ -1361,9 +1395,9 @@ void GitPluginPrivate::startCommit(CommitType commitType)
         / "commit-msg.XXXXXX");
     // Keep the file alive, else it removes self and forgets its name
     saver.setAutoRemove(false);
-    saver.write(commitTemplate.toLocal8Bit());
-    if (!saver.finalize()) {
-        VcsOutputWindow::appendError(saver.errorString());
+    saver.write(data.commitTemplate.toLocal8Bit());
+    if (const Result<> res = saver.finalize(); !res) {
+        VcsOutputWindow::appendError(res.error());
         return;
     }
     m_commitMessageFileName = saver.filePath();
@@ -1660,7 +1694,9 @@ void GitPluginPrivate::manageRemotes()
 
 void GitPluginPrivate::initRepository()
 {
-    createRepository();
+    Utils::FilePath topLevel;
+    createRepository(&topLevel);
+    gitClient().synchronousAddGitignore(topLevel);
 }
 
 void GitPluginPrivate::stashList()
@@ -2220,10 +2256,8 @@ class GITSHARED_EXPORT GitPlugin final : public ExtensionSystem::IPlugin
         dd = nullptr;
     }
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final
+    Result<> initialize(const QStringList &arguments) final
     {
-        Q_UNUSED(errorMessage)
-
 #ifdef WITH_TESTS
         addTest<GitTest>();
 #endif
@@ -2236,8 +2270,7 @@ class GITSHARED_EXPORT GitPlugin final : public ExtensionSystem::IPlugin
             remoteCommand(arguments, QDir::currentPath(), {});
             cmdContext->deleteLater();
         });
-
-        return true;
+        return ResultOk;
     }
 
     void extensionsInitialized() final

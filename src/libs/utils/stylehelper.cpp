@@ -3,6 +3,7 @@
 
 #include "stylehelper.h"
 
+#include "algorithm.h"
 #include "theme/theme.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
@@ -497,6 +498,25 @@ void StyleHelper::drawPanelBgRect(QPainter *painter, const QRectF &rect, const Q
     }
 }
 
+void StyleHelper::drawCardBg(QPainter *painter, const QRectF &rect,
+                             const QBrush &fill, const QPen &pen, qreal rounding)
+{
+    const qreal strokeWidth = pen.style() == Qt::NoPen ? 0 : pen.widthF();
+    const qreal strokeShrink = strokeWidth / 2;
+    const QRectF itemRectAdjusted = rect.adjusted(strokeShrink, strokeShrink,
+                                                  -strokeShrink, -strokeShrink);
+    const qreal roundingAdjusted = rounding - strokeShrink;
+    QPainterPath itemOutlinePath;
+    itemOutlinePath.addRoundedRect(itemRectAdjusted, roundingAdjusted, roundingAdjusted);
+
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->setBrush(fill);
+    painter->setPen(pen);
+    painter->drawPath(itemOutlinePath);
+    painter->restore();
+}
+
 void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect)
 {
     if (StyleHelper::usePixmapCache()) {
@@ -917,9 +937,10 @@ QColor StyleHelper::ensureReadableOn(const QColor &background, const QColor &des
 static const QStringList &applicationFontFamilies()
 {
     const static QStringList families = [] {
-        const QLatin1String familyName("Inter");
         // Font is either installed in the system, or was loaded from share/qtcreator/fonts/
-        return QFontDatabase::hasFamily(familyName) ? QStringList(familyName) : QStringList();
+        const QStringList candidates = {"Inter", "Inter Variable"};
+        const QString family = Utils::findOrDefault(candidates, &QFontDatabase::hasFamily);
+        return family.isEmpty() ? QStringList() : QStringList(family);
     }();
     return families;
 }

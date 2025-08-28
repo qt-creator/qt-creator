@@ -5,6 +5,7 @@
 #include "tasktree.h"
 
 #include "barrier.h"
+#include "conditional.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QEventLoop>
@@ -1295,6 +1296,21 @@ Group operator>>(const For &forItem, const Do &doItem)
     return {forItem.m_loop, doItem.m_children};
 }
 
+Group operator>>(const When &whenItem, const Do &doItem)
+{
+    const SingleBarrier barrier;
+
+    return {
+        barrier,
+        parallel,
+        whenItem.m_barrierKicker(barrier),
+        Group {
+            waitForBarrierTask(barrier),
+            doItem.m_children
+        }
+    };
+}
+
 // Please note the thread_local keyword below guarantees a separate instance per thread.
 // The s_activeTaskTrees is currently used internally only and is not exposed in the public API.
 // It serves for withLog() implementation now. Add a note here when a new usage is introduced.
@@ -1726,16 +1742,32 @@ Group operator||(const ExecutableItem &item, DoneResult result)
 }
 
 Group ExecutableItem::withCancelImpl(
-    const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const
+    const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper,
+    const GroupItems &postCancelRecipe) const
 {
-    const auto onSetup = [connectWrapper](Barrier &barrier) {
-        connectWrapper(&barrier, [barrierPtr = &barrier] { barrierPtr->advance(); });
+    const Storage<bool> canceledStorage(false);
+
+    const auto onSetup = [connectWrapper, canceledStorage](Barrier &barrier) {
+        connectWrapper(&barrier, [barrierPtr = &barrier, canceled = canceledStorage.activeStorage()] {
+            *canceled = true;
+            barrierPtr->advance();
+        });
     };
-    return Group {
-        parallel,
-        stopOnSuccessOrError,
-        BarrierTask(onSetup) && errorItem,
-        *this
+
+    const auto wasCanceled = [canceledStorage] { return *canceledStorage; };
+
+    return {
+        continueOnError,
+        canceledStorage,
+        Group {
+            parallel,
+            stopOnSuccessOrError,
+            BarrierTask(onSetup) && errorItem,
+            *this
+        },
+        If (wasCanceled) >> Then {
+            postCancelRecipe
+        }
     };
 }
 
@@ -1829,8 +1861,8 @@ class TaskTreePrivate
     Q_DISABLE_COPY_MOVE(TaskTreePrivate)
 
 public:
-    TaskTreePrivate(TaskTree *taskTree)
-        : q(taskTree) {}
+    explicit TaskTreePrivate(TaskTree *taskTree);
+    ~TaskTreePrivate();
 
     void start();
     void stop();
@@ -1936,6 +1968,7 @@ class RuntimeIteration
 
 public:
     RuntimeIteration(int index, RuntimeContainer *container);
+    ~RuntimeIteration();
     std::optional<Loop> loop() const;
     void removeChild(RuntimeTask *node);
 
@@ -2012,6 +2045,13 @@ public:
     std::unique_ptr<TaskInterface> m_task = {}; // Owning.
     SetupResult m_setupResult = SetupResult::Continue;
 };
+
+RuntimeIteration::~RuntimeIteration() = default;
+
+TaskTreePrivate::TaskTreePrivate(TaskTree *taskTree)
+    : q(taskTree) {}
+
+TaskTreePrivate::~TaskTreePrivate() = default;
 
 static bool isProgressive(RuntimeContainer *container)
 {
@@ -3622,6 +3662,12 @@ void TimeoutTaskAdapter::start()
     });
 }
 
+/*!
+    Returns the ExecutableItem of TimeoutTask type, initially set up with \a timeout.
+    The returned task, when finished, reports \a result.
+
+    \sa TimeoutTask
+*/
 ExecutableItem timeoutTask(const std::chrono::milliseconds &timeout, DoneResult result)
 {
     return TimeoutTask([timeout](std::chrono::milliseconds &t) { t = timeout; }, result);
@@ -3654,6 +3700,8 @@ ExecutableItem timeoutTask(const std::chrono::milliseconds &timeout, DoneResult 
             Timeout(onSetup, onDone)
         };
     \endcode
+
+    \sa timeoutTask
 */
 
 } // namespace Tasking

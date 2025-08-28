@@ -170,6 +170,14 @@
             \li Quick Fix
             \li Description
         \row
+            \li Add #include
+            \li Adds an \c {#include} directive to the project file to make a
+                class available.
+        \row
+            \li Add #include and Project Dependency
+            \li Adds an \c {#include} directive and package dependency to the
+                project file to make an unknown Qt class available.
+        \row
             \li Create Implementations for Member Functions
             \li Creates implementations for all member functions in one go.
                 In the \uicontrol {Member Function Implementations} dialog,
@@ -458,7 +466,7 @@
                 matching code.
 
                 When this fix is available, a light bulb icon appears:
-                \inlineimage icons/refactormarker.png
+                \inlineimage {icons/refactormarker.png} {Light bulb icon}
         \row
             \li Convert Function Call to Qt Meta-Method Invocation
             \li Converts an invocable function call into a meta method
@@ -715,6 +723,31 @@
             \li Quick Fix
             \li Description
         \row
+            \li Append Operator
+            \li Adds a string literal operator (\c {QByteArrayLiteral},
+                \c {QLatin1Char}, \c {QLatin1String}, or \c {QStringLiteral}),
+                such as \c {"_ba"} or \c {"_L1"} to a string literal.
+        \row
+            \li Convert to Character Literal
+            \li Converts a single-character string literal into a character
+                literal, with some special cases. For example,
+
+    \code
+    "a"
+    "'"
+    "\n"
+    "\""
+    \endcode
+
+                are converted to
+
+    \code
+    'a'
+    '\''
+    '\n'
+    '"'
+    \endcode
+        \row
             \li Convert to Objective-C String Literal
             \li Converts a string literal to an Objective-C string literal if
                 the file type is Objective-C(++). For example, rewrites the
@@ -730,6 +763,26 @@
 
     \code
     @"abcd"
+    \endcode
+        \row
+            \li Convert to String Literal
+            \li Converts a character literal into a string literal, with some
+                special cases. For example,
+
+    \code
+    'a'
+    '\''
+    '\n'
+    '"'
+    \endcode
+
+                are converted to
+
+    \code
+    "a"
+    "'"
+    "\n"
+    "\""
     \endcode
         \row
             \li Enclose in QByteArrayLiteral()
@@ -837,6 +890,11 @@
                 where Type is the return type of \c {foo()}
 
             \li Assignee
+        \row
+            \li Add Project Dependency
+            \li Adds the missing package dependency for a missing included Qt
+                file to the project file.
+            \li #include statements for Qt classes
         \row
             \li Convert connect() to Qt 5 Style
             \li Converts a Qt 4 QObject::connect() to Qt 5 style.

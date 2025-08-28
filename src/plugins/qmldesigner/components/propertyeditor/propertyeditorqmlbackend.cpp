@@ -497,7 +497,7 @@ void PropertyEditorQmlBackend::setSource(const QUrl &url)
 
     if (showError && !m_view->errors().isEmpty()) {
         const QString errMsg = m_view->errors().constFirst().toString();
-        Core::AsynchronousMessageBox::warning(Tr::tr("Invalid QML source"), errMsg);
+        Core::AsynchronousMessageBox::warning(Tr::tr("Invalid QML Source"), errMsg);
     }
 }
 

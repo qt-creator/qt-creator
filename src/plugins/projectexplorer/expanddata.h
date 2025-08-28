@@ -14,13 +14,14 @@ class ExpandData
 {
 public:
     ExpandData() = default;
-    ExpandData(const QString &path, int priority);
+    ExpandData(const QString &path, const QString &rawDisplayName, int priority);
     bool operator==(const ExpandData &other) const;
 
     static ExpandData fromSettings(const QVariant &v);
     QVariant toSettings() const;
 
     QString path;
+    QString rawDisplayName;
     int priority = 0;
 };
 

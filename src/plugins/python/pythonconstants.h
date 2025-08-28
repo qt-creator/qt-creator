@@ -34,7 +34,7 @@ const char C_PY3_MIMETYPE[] = "text/x-python3";
 const char C_PY_MIME_ICON[] = "text-x-python";
 const char C_PY_PROJECT_MIME_TYPE[] = "text/x-python-project";
 const char C_PY_PROJECT_MIME_TYPE_LEGACY[] = "text/x-pyqt-project";
-
+const char C_PY_PROJECT_MIME_TYPE_TOML[] = "text/x-python-pyproject-toml";
 
 } // namespace Constants
 } // namespace Python

@@ -33,7 +33,7 @@ public:
     ~UpdateInfoPlugin() override;
 
     void extensionsInitialized() override;
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    Utils::Result<> initialize(const QStringList &arguments) final;
 
     bool isAutomaticCheck() const;
     void setAutomaticCheck(bool on);

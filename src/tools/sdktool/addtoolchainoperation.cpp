@@ -56,7 +56,7 @@ QString AddToolChainOperation::argumentsHelpText() const
         "    --path <PATH>                              path to the compiler (required).\n"
         "    --abi <ABI STRING>                         ABI of the compiler (required).\n"
         "    --supportedAbis <ABI STRING>,<ABI STRING>  list of ABIs supported by the compiler.\n"
-        "    <KEY> <TYPE:VALUE>                         extra key value pairs\n"
+        "    <KEY> <TYPE:VALUE>                         extra key value pairs, key can be hierarchical with '/' as the separator\n"
     );
 }
 

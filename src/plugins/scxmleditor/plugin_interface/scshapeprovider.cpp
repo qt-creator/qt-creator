@@ -3,6 +3,7 @@
 
 #include "scshapeprovider.h"
 #include "scxmleditortr.h"
+#include "scxmleditoricons.h"
 #include "scxmltag.h"
 
 #include <QDebug>
@@ -34,25 +35,16 @@ void SCShapeProvider::initGroups()
 void SCShapeProvider::init()
 {
     ShapeGroup *group = addGroup(Tr::tr("Common States"));
-    group->addShape(createShape(Tr::tr("Initial"), QIcon(":/scxmleditor/images/initial.png"), QStringList() << "scxml"
-                                                                                                        << "state"
-                                                                                                        << "parallel",
-        "<initial/>"));
-    group->addShape(createShape(Tr::tr("Final"), QIcon(":/scxmleditor/images/final.png"), QStringList() << "scxml"
-                                                                                                    << "state"
-                                                                                                    << "parallel",
-        "<final/>"));
-    group->addShape(createShape(Tr::tr("State"), QIcon(":/scxmleditor/images/state.png"), QStringList() << "scxml"
-                                                                                                    << "state"
-                                                                                                    << "parallel",
-        "<state/>"));
-    group->addShape(createShape(Tr::tr("Parallel"), QIcon(":/scxmleditor/images/parallel.png"), QStringList() << "scxml"
-                                                                                                          << "state"
-                                                                                                          << "parallel",
-        "<parallel/>"));
-    group->addShape(createShape(Tr::tr("History"), QIcon(":/scxmleditor/images/history.png"), QStringList() << "state"
-                                                                                                        << "parallel",
-        "<history/>"));
+    group->addShape(createShape(Tr::tr("Initial"), Icons::INITIAL.icon(),
+                                {"scxml", "state", "parallel"}, "<initial/>"));
+    group->addShape(createShape(Tr::tr("Final"), Icons::FINAL.icon(),
+                                {"scxml", "state", "parallel"}, "<final/>"));
+    group->addShape(createShape(Tr::tr("State"), Icons::STATE.icon(),
+                                {"scxml", "state", "parallel"}, "<state/>"));
+    group->addShape(createShape(Tr::tr("Parallel"), Icons::PARALLEL.icon(),
+                                {"scxml", "state", "parallel"}, "<parallel/>"));
+    group->addShape(createShape(Tr::tr("History"), Icons::HISTORY.icon(),
+                                {"state", "parallel"}, "<history/>"));
 }
 
 ShapeProvider::Shape *SCShapeProvider::shape(int groupIndex, int shapeIndex)

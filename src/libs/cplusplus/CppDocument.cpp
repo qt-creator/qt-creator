@@ -331,7 +331,7 @@ void Document::addMacroUse(const Macro &macro,
                            int bytesOffset, int bytesLength,
                            int utf16charsOffset, int utf16charLength,
                            int beginLine,
-                           const QVector<MacroArgumentReference> &actuals)
+                           const QList<MacroArgumentReference> &actuals)
 {
     MacroUse use(macro,
                  bytesOffset, bytesOffset + bytesLength,
@@ -593,10 +593,10 @@ bool Document::isParsed() const
 
 bool Document::parse(ParseMode mode)
 {
-    TranslationUnit::ParseMode m = TranslationUnit::ParseTranlationUnit;
+    TranslationUnit::ParseMode m = TranslationUnit::ParseTranslationUnit;
     switch (mode) {
-    case ParseTranlationUnit:
-        m = TranslationUnit::ParseTranlationUnit;
+    case ParseTranslationUnit:
+        m = TranslationUnit::ParseTranslationUnit;
         break;
 
     case ParseDeclaration:
@@ -735,6 +735,7 @@ static QList<Macro> macrosDefinedUntilLine(const QList<Macro> &macros, int line)
 
 Document::Ptr Snapshot::preprocessedDocument(const QByteArray &source,
                                              const FilePath &filePath,
+                                             bool expandFunctionLikeMacros,
                                              int withDefinedMacrosFromDocumentUntilLine) const
 {
     Document::Ptr newDoc = Document::create(filePath);
@@ -751,7 +752,7 @@ Document::Ptr Snapshot::preprocessedDocument(const QByteArray &source,
         }
     }
 
-    FastPreprocessor pp(*this);
+    FastPreprocessor pp(*this, expandFunctionLikeMacros);
     const bool mergeDefinedMacrosOfDocument = !newDoc->_definedMacros.isEmpty();
     const QByteArray preprocessedCode = pp.run(newDoc, source, mergeDefinedMacrosOfDocument);
     newDoc->setUtf8Source(preprocessedCode);

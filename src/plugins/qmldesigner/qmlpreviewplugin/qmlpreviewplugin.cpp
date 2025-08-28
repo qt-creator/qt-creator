@@ -167,16 +167,9 @@ void QmlPreviewWidgetPlugin::setLanguageLocale(const QString &locale)
 
 QObject *QmlPreviewWidgetPlugin::getPreviewPlugin()
 {
-    const ExtensionSystem::PluginSpecs &specs = ExtensionSystem::PluginManager::plugins();
-    const auto pluginIt = std::find_if(specs.cbegin(), specs.cend(),
-                                 [](const ExtensionSystem::PluginSpec *p) {
-        return p->id() == "qmlpreview";
-    });
-
-    if (pluginIt != specs.cend())
-        return (*pluginIt)->plugin();
-
-    return nullptr;
+    using namespace ExtensionSystem;
+    const PluginSpec *spec = PluginManager::specById("qmlpreview");
+    return spec ? spec->plugin() : nullptr;
 }
 
 } // namespace QmlDesigner

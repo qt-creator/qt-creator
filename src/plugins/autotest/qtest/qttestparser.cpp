@@ -312,7 +312,7 @@ bool QtTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     // we might be in a reparse without the original entry point with the QTest::qExec()
     if (testCaseList.isEmpty() && !oldTestCases.empty())
         testCaseList.append(oldTestCases);
-    for (const TestCase &testCase : testCaseList) {
+    for (const TestCase &testCase : std::as_const(testCaseList)) {
         if (!testCase.name.isEmpty()) {
             TestCaseData data;
             std::optional<bool> earlyReturn = fillTestCaseData(testCase.name, doc, data);

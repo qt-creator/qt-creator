@@ -1,0 +1,4 @@
+[project]
+
+[tool.pyside6-project]
+files = []

@@ -158,24 +158,6 @@ function(qtc_handle_llvm_linker)
   endif()
 endfunction()
 
-function(qtc_link_with_qt)
-  # When building with Qt Creator 4.15+ do the "Link with Qt..." automatically
-  if (BUILD_LINK_WITH_QT AND DEFINED CMAKE_PROJECT_INCLUDE_BEFORE)
-    get_filename_component(auto_setup_dir "${CMAKE_PROJECT_INCLUDE_BEFORE}" DIRECTORY)
-    set(qt_creator_ini "${auto_setup_dir}/../QtProject/QtCreator.ini")
-    if (EXISTS "${qt_creator_ini}")
-      file(STRINGS "${qt_creator_ini}" install_settings REGEX "^InstallSettings=.*$")
-      if (install_settings)
-        string(REPLACE "InstallSettings=" "" install_settings "${install_settings}")
-      else()
-        file(TO_CMAKE_PATH "${auto_setup_dir}/.." install_settings)
-      endif()
-      file(WRITE ${CMAKE_BINARY_DIR}/${_IDE_DATA_PATH}/QtProject/QtCreator.ini
-                 "[Settings]\nInstallSettings=${install_settings}")
-    endif()
-  endif()
-endfunction()
-
 function(qtc_enable_release_for_debug_configuration)
   if (MSVC)
     string(REPLACE "/Od" "/O2" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
@@ -407,6 +389,10 @@ function(enable_pch target)
             POSITION_INDEPENDENT_CODE ON
           )
           target_link_libraries(${pch_target} PRIVATE ${pch_dependency})
+
+          if (WITH_SANITIZE)
+            qtc_enable_sanitize("${pch_target}" ${SANITIZE_FLAGS})
+          endif()
         endif()
       endfunction()
 
@@ -453,12 +439,33 @@ function(condition_info varName condition)
 endfunction()
 
 function(extend_qtc_target target_name)
-  cmake_parse_arguments(_arg
-    ""
-    "SOURCES_PREFIX;SOURCES_PREFIX_FROM_TARGET;FEATURE_INFO"
-    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;SYSTEM_INCLUDES;PUBLIC_INCLUDES;PUBLIC_SYSTEM_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES;SOURCES_PROPERTIES;PRIVATE_COMPILE_OPTIONS;PUBLIC_COMPILE_OPTIONS"
-    ${ARGN}
+  set(opt_args "")
+  set(single_args
+    SOURCES_PREFIX
+    SOURCES_PREFIX_FROM_TARGET
+    FEATURE_INFO
   )
+  set(multi_args
+    CONDITION
+    DEPENDS
+    PUBLIC_DEPENDS
+    DEFINES
+    PUBLIC_DEFINES
+    INCLUDES
+    SYSTEM_INCLUDES
+    PUBLIC_INCLUDES
+    PUBLIC_SYSTEM_INCLUDES
+    SOURCES
+    EXPLICIT_MOC
+    SKIP_AUTOMOC
+    EXTRA_TRANSLATIONS
+    PROPERTIES
+    SOURCES_PROPERTIES
+    PRIVATE_COMPILE_OPTIONS
+    PUBLIC_COMPILE_OPTIONS
+  )
+
+  cmake_parse_arguments(_arg "${opt_args}" "${single_args}" "${multi_args}" ${ARGN})
 
   if (${_arg_UNPARSED_ARGUMENTS})
     message(FATAL_ERROR "extend_qtc_target had unparsed arguments")

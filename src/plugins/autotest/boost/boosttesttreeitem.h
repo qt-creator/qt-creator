@@ -5,8 +5,7 @@
 
 #include "../testtreeitem.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class BoostTestParseResult;
 
@@ -75,7 +74,7 @@ struct BoostTestInfo
     int line;
 };
 
-typedef QVector<BoostTestInfo> BoostTestInfoList;
+using BoostTestInfoList = QList<BoostTestInfo>;
 
 class BoostTestCodeLocationAndType : public TestCodeLocationAndType
 {
@@ -84,8 +83,7 @@ public:
     BoostTestInfoList m_suitesState;
 };
 
-typedef QVector<BoostTestCodeLocationAndType> BoostTestCodeLocationList;
+using BoostTestCodeLocationList = QList<BoostTestCodeLocationAndType>;
 
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

@@ -38,14 +38,13 @@
 #include <utils/icon.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
 #include <utils/theme/theme.h>
 
 #include <QAction>
 #include <QApplication>
 #include <QCompleter>
-#include <QDir>
-#include <QFileInfo>
 #include <QMessageBox>
 #include <QPointer>
 #include <QProcess>
@@ -241,14 +240,14 @@ static inline QStringList fieldTexts(const QString &fileContents)
 
 void VcsBaseSubmitEditor::createUserFields(const FilePath &fieldConfigFile)
 {
-    FileReader reader;
-    if (!reader.fetch(fieldConfigFile)) {
-        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), reader.errorString());
+    const Result<QByteArray> config = fieldConfigFile.fileContents();
+    if (!config) {
+        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), config.error());
         return;
     }
 
     // Parse into fields
-    const QStringList fields = fieldTexts(QString::fromUtf8(reader.text()));
+    const QStringList fields = fieldTexts(QString::fromUtf8(normalizeNewlines(config.value())));
     if (fields.empty())
         return;
     // Create a completer on user names
@@ -398,10 +397,10 @@ QByteArray VcsBaseSubmitEditor::fileContents() const
     return description().toLocal8Bit();
 }
 
-bool VcsBaseSubmitEditor::setFileContents(const QByteArray &contents)
+Result<> VcsBaseSubmitEditor::setFileContents(const QByteArray &contents)
 {
     setDescription(QString::fromUtf8(contents));
-    return true;
+    return ResultOk;
 }
 
 QString VcsBaseSubmitEditor::description() const
@@ -531,8 +530,11 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const FilePath &checkScrip
     // Write out message
     TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/msgXXXXXX.txt");
     saver.write(fileContents());
-    if (!saver.finalize(errorMessage))
+    if (const Result<> res = saver.finalize(); !res) {
+        if (errorMessage)
+            *errorMessage = res.error();
         return false;
+    }
     // Run check process
     VcsOutputWindow::appendShellCommandLine(msgCheckScript(d->m_checkScriptWorkingDirectory,
                                                            checkScript));

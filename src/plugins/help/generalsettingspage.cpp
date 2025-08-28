@@ -388,9 +388,9 @@ void GeneralSettingsPageWidget::exportBookmarks()
         writer.writeToFile(saver.file());
         saver.setResult(&writer);
     }
-    if (!saver.finalize()) {
+    if (const Result<> res = saver.finalize(); !res) {
         errorLabel->setVisible(true);
-        errorLabel->setText(saver.errorString());
+        errorLabel->setText(res.error());
     }
 }
 

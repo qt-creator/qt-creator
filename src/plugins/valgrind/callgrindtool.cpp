@@ -13,42 +13,57 @@
 #include "callgrind/callgrindstackbrowser.h"
 #include "callgrindcostdelegate.h"
 #include "callgrindcostview.h"
-#include "callgrindengine.h"
 #include "callgrindtextmark.h"
 #include "callgrindvisualisation.h"
+#include "startremotedialog.h"
+#include "valgrindprocess.h"
 #include "valgrindsettings.h"
 #include "valgrindtr.h"
+#include "valgrindutils.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
+#include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/Symbols.h>
+#include <cplusplus/TypeOfExpression.h>
 
 #include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppmodelmanager.h>
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/analyzer/analyzerutils.h>
-#include <debugger/analyzer/startremotedialog.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/taskhub.h>
+
+#include <solutions/tasking/tasktreerunner.h>
+
+#include <remotelinux/remotelinux_constants.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
+#include <utils/async.h>
+#include <utils/filestreamer.h>
 #include <utils/fileutils.h>
+#include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/temporaryfile.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -62,50 +77,136 @@
 #include <QTimer>
 #include <QToolButton>
 
-using namespace Debugger;
 using namespace Core;
-using namespace Valgrind::Callgrind;
-using namespace TextEditor;
+using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace Tasking;
+using namespace TextEditor;
 using namespace Utils;
+using namespace Valgrind::Callgrind;
 
 namespace Valgrind::Internal {
 
 const char CallgrindLocalActionId[]       = "Callgrind.Local.Action";
 const char CallgrindRemoteActionId[]      = "Callgrind.Remote.Action";
 const char CALLGRIND_RUN_MODE[]           = "CallgrindTool.CallgrindRunMode";
+const char CALLGRIND_CONTROL_BINARY[]     = "callgrind_control";
+
+static bool isPaused();
+static QString fetchAndResetToggleCollectFunction();
+static Utils::FilePath remoteOutputFile();
+static void setupPid(qint64 pid);
+static void setupRunControl(ProjectExplorer::RunControl *runControl);
+static void startParser();
+
+static CommandLine callgrindCommand(RunControl *runControl, const ValgrindSettings &settings)
+{
+    CommandLine cmd = defaultValgrindCommand(runControl, settings);
+    cmd << "--tool=callgrind";
+
+    if (settings.enableCacheSim())
+        cmd << "--cache-sim=yes";
+
+    if (settings.enableBranchSim())
+        cmd << "--branch-sim=yes";
+
+    if (settings.collectBusEvents())
+        cmd << "--collect-bus=yes";
+
+    if (settings.collectSystime())
+        cmd << "--collect-systime=yes";
+
+    if (isPaused())
+        cmd << "--instr-atstart=no";
+
+    const QString toggleCollectFunction = fetchAndResetToggleCollectFunction();
+    if (!toggleCollectFunction.isEmpty())
+        cmd << "--toggle-collect=" + toggleCollectFunction;
+
+    cmd << "--callgrind-out-file=" + remoteOutputFile().path();
+
+    cmd.addArgs(settings.callgrindArguments(), CommandLine::Raw);
+    return cmd;
+}
+
+static Group callgrindRecipe(RunControl *runControl)
+{
+    setupRunControl(runControl); // Intentionally here, to enable re-run.
+
+    const Storage<ValgrindSettings> storage(false);
+
+    const auto onValgrindSetup = [storage, runControl](ValgrindProcess &process) {
+        QObject::connect(&process, &ValgrindProcess::valgrindStarted,
+                         &process, [](qint64 pid) { setupPid(pid); });
+        QObject::connect(runControl, &RunControl::aboutToStart, runControl, [runControl] {
+            const FilePath executable = runControl->commandLine().executable();
+            runControl->postMessage(Tr::tr("Profiling %1").arg(executable.toUserOutput()),
+                                    NormalMessageFormat);
+        });
+        setupValgrindProcess(&process, runControl, callgrindCommand(runControl, *storage));
+    };
+
+    const auto onDone = [runControl] {
+        runControl->postMessage(Tr::tr("Analyzing finished."), NormalMessageFormat);
+        startParser();
+    };
+
+    return Group {
+        storage,
+        initValgrindRecipe(storage, runControl),
+        ValgrindProcessTask(onValgrindSetup),
+        onGroupDone(onDone)
+    };
+}
 
 class CallgrindToolRunnerFactory final : public RunWorkerFactory
 {
 public:
     CallgrindToolRunnerFactory()
     {
-        setProduct<CallgrindToolRunner>();
+        setRecipeProducer(callgrindRecipe);
         addSupportedRunMode(CALLGRIND_RUN_MODE);
+
+        addSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+        addSupportedDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
+        // https://github.com/nihui/valgrind-android suggests this could work for android, too.
     }
+};
+
+enum class Option
+{
+    Dump,
+    ResetEventCounters,
+    Pause,
+    UnPause
 };
 
 class CallgrindTool final : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit CallgrindTool(QObject *parent);
     ~CallgrindTool() final;
 
-    void setupRunner(CallgrindToolRunner *runner);
+    void setupPid(qint64 pid) { m_pid = pid; } // TODO: Enable dump/reset actions?
+    void setupRunControl(RunControl *runControl);
 
     CostDelegate::CostFormat costFormat() const;
 
     void doClear();
     void updateEventCombo();
 
-signals:
-    void dumpRequested();
-    void resetRequested();
-    void pauseToggled(bool checked);
+    void dump();
+    void reset();
+    void pause();
+    void unpause();
 
-public:
+    void setPaused(bool paused);
+
+    ExecutableItem optionRecipe(Option option) const;
+    ExecutableItem parseRecipe();
+    void executeController(const Group &recipe);
+
     void slotRequestDump();
     void loadExternalLogFile();
 
@@ -145,7 +246,12 @@ public:
     void requestContextMenu(TextEditorWidget *widget, int line, QMenu *menu);
     void updateRunActions();
 
-public:
+    qint64 m_pid = 0;
+    TaskTreeRunner m_controllerRunner;
+    bool m_markAsPaused = false;
+    RunControl *m_runControl = nullptr;
+    FilePath m_remoteOutputFile; // On the device that runs valgrind
+
     DataModel m_dataModel;
     DataProxyModel m_proxyModel;
     StackBrowser m_stackBrowser;
@@ -244,23 +350,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, CallgrindRemoteActionId),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
-    QObject::connect(action, &QAction::triggered, this, [this, action] {
-        auto runConfig = activeRunConfigForActiveProject();
-        if (!runConfig) {
-            showCannotStartDialog(action->text());
-            return;
-        }
-        StartRemoteDialog dlg;
-        if (dlg.exec() != QDialog::Accepted)
-            return;
-        m_perspective.select();
-        auto runControl = new RunControl(CALLGRIND_RUN_MODE);
-        runControl->copyDataFromRunConfiguration(runConfig);
-        runControl->createMainWorker();
-        runControl->setCommandLine(dlg.commandLine());
-        runControl->setWorkingDirectory(dlg.workingDirectory());
-        runControl->start();
-    });
+    setupExternalAnalyzer(action, &m_perspective, CALLGRIND_RUN_MODE);
 
     // If there is a CppEditor context menu add our own context menu actions.
     if (ActionContainer *editorContextMenu =
@@ -365,7 +455,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     action->setIcon(Utils::Icons::RELOAD_TOOLBAR.icon());
     //action->setText(Tr::tr("Reset"));
     action->setToolTip(Tr::tr("Reset all event counters."));
-    connect(action, &QAction::triggered, this, &CallgrindTool::resetRequested);
+    connect(action, &QAction::triggered, this, &CallgrindTool::reset);
 
     // pause action
     m_pauseAction = action = new QAction(this);
@@ -373,7 +463,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     action->setIcon(Utils::Icons::INTERRUPT_SMALL_TOOLBAR.icon());
     //action->setText(Tr::tr("Ignore"));
     action->setToolTip(Tr::tr("Pause event logging. No events are counted which will speed up program execution during profiling."));
-    connect(action, &QAction::toggled, this, &CallgrindTool::pauseToggled);
+    connect(action, &QAction::toggled, this, &CallgrindTool::setPaused);
 
     // discard data action
     m_discardAction = action = new QAction(this);
@@ -483,6 +573,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
 
 CallgrindTool::~CallgrindTool()
 {
+    m_controllerRunner.cancel();
     qDeleteAll(m_textMarks);
     delete m_flatView;
     delete m_callersView;
@@ -702,17 +793,17 @@ void CallgrindTool::updateEventCombo()
         m_eventCombo->addItem(ParseData::prettyStringForEvent(event));
 }
 
-void CallgrindTool::setupRunner(CallgrindToolRunner *toolRunner)
+void CallgrindTool::setupRunControl(RunControl *runControl)
 {
-    RunControl *runControl = toolRunner->runControl();
+    m_controllerRunner.cancel();
+    setupPid(0);
+    m_runControl = runControl;
+    static int fileCount = 100;
+    m_remoteOutputFile = m_runControl->workingDirectory() / QString("callgrind.out.f%1").arg(++fileCount);
 
-    connect(toolRunner, &CallgrindToolRunner::parserDataReady, this, &CallgrindTool::setParserData);
-    connect(runControl, &RunControl::stopped, this, &CallgrindTool::engineFinished);
-    connect(runControl, &RunControl::aboutToStart, this, [this, toolRunner] {
-        toolRunner->setPaused(m_pauseAction->isChecked());
-        // we may want to toggle collect for one function only in this run
-        toolRunner->setToggleCollectFunction(m_toggleCollectFunction);
-        m_toggleCollectFunction.clear();
+    connect(m_runControl, &RunControl::stopped, this, &CallgrindTool::engineFinished);
+    connect(m_runControl, &RunControl::aboutToStart, this, [this] {
+        setPaused(m_pauseAction->isChecked());
 
         m_toolBusy = true;
         updateRunActions();
@@ -725,24 +816,190 @@ void CallgrindTool::setupRunner(CallgrindToolRunner *toolRunner)
         doClear();
         Debugger::showPermanentStatusMessage(Tr::tr("Starting Function Profiler..."));
     });
-    connect(runControl, &RunControl::started, this, [] {
+    connect(m_runControl, &RunControl::started, this, [] {
         Debugger::showPermanentStatusMessage(Tr::tr("Function Profiler running..."));
     });
 
-    connect(this, &CallgrindTool::dumpRequested, toolRunner, &CallgrindToolRunner::dump);
-    connect(this, &CallgrindTool::resetRequested, toolRunner, &CallgrindToolRunner::reset);
-    connect(this, &CallgrindTool::pauseToggled, toolRunner, &CallgrindToolRunner::setPaused);
-
-    connect(m_stopAction, &QAction::triggered, toolRunner, [runControl] { runControl->initiateStop(); });
+    connect(m_stopAction, &QAction::triggered, this, [this] { m_runControl->initiateStop(); });
 
     QTC_ASSERT(m_visualization, return);
 
     // apply project settings
     ValgrindSettings settings{false};
-    settings.fromMap(runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
+    settings.fromMap(m_runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
     m_visualization->setMinimumInclusiveCostRatio(settings.visualizationMinimumInclusiveCostRatio() / 100.0);
     m_proxyModel.setMinimumInclusiveCostRatio(settings.minimumInclusiveCostRatio() / 100.0);
     m_dataModel.setVerboseToolTipsEnabled(settings.enableEventToolTips());
+}
+
+static QString statusMessage(Option option)
+{
+    switch (option) {
+    case Option::Dump:
+        return Tr::tr("Dumping profile data...");
+    case Option::ResetEventCounters:
+        return Tr::tr("Resetting event counters...");
+    case Option::Pause:
+        return Tr::tr("Pausing instrumentation...");
+    case Option::UnPause:
+        return Tr::tr("Unpausing instrumentation...");
+    }
+    return {};
+}
+
+static QString toOptionString(Option option)
+{
+    /* callgrind_control help from v3.9.0
+
+    Options:
+    -h --help        Show this help text
+    --version        Show version
+    -s --stat        Show statistics
+    -b --back        Show stack/back trace
+    -e [<A>,...]     Show event counters for <A>,... (default: all)
+    --dump[=<s>]     Request a dump optionally using <s> as description
+    -z --zero        Zero all event counters
+    -k --kill        Kill
+    --instr=<on|off> Switch instrumentation state on/off
+    */
+
+    switch (option) {
+    case Option::Dump:
+        return QLatin1String("--dump");
+    case Option::ResetEventCounters:
+        return QLatin1String("--zero");
+    case Option::Pause:
+        return QLatin1String("--instr=off");
+    case Option::UnPause:
+        return QLatin1String("--instr=on");
+    default:
+        return QString(); // never reached
+    }
+}
+
+ExecutableItem CallgrindTool::optionRecipe(Option option) const
+{
+    const auto onSetup = [this, option](Process &process) {
+        Debugger::showPermanentStatusMessage(statusMessage(option));
+        const ProcessRunData runnable = m_runControl->runnable();
+        const FilePath control = runnable.command.executable().withNewPath(CALLGRIND_CONTROL_BINARY);
+        process.setCommand({control, {toOptionString(option), QString::number(m_pid)}});
+        process.setWorkingDirectory(runnable.workingDirectory);
+        process.setEnvironment(runnable.environment);
+#if CALLGRIND_CONTROL_DEBUG
+        process.setProcessChannelMode(QProcess::ForwardedChannels);
+#endif
+    };
+    const auto onDone = [option](const Process &process, DoneWith result) {
+        if (result != DoneWith::Success) {
+            Debugger::showPermanentStatusMessage(Tr::tr("An error occurred while trying to run %1: %2")
+                                                     .arg(CALLGRIND_CONTROL_BINARY)
+                                                     .arg(process.errorString()));
+            return;
+        }
+        switch (option) {
+        case Option::Pause:
+            Debugger::showPermanentStatusMessage(Tr::tr("Callgrind paused."));
+            break;
+        case Option::UnPause:
+            Debugger::showPermanentStatusMessage(Tr::tr("Callgrind unpaused."));
+            break;
+        case Option::Dump:
+            Debugger::showPermanentStatusMessage(Tr::tr("Callgrind dumped profiling info."));
+            break;
+        default:
+            break;
+        }
+    };
+    return ProcessTask(onSetup, onDone);
+}
+
+ExecutableItem CallgrindTool::parseRecipe()
+{
+    const Storage<FilePath> storage; // host output path
+
+    const auto onTransferSetup = [this, storage](FileStreamer &streamer) {
+        TemporaryFile dataFile("callgrind.out");
+        if (!dataFile.open()) {
+            Debugger::showPermanentStatusMessage(Tr::tr("Failed opening temp file..."));
+            return;
+        }
+        const FilePath hostOutputFile = FilePath::fromString(dataFile.fileName());
+        *storage = hostOutputFile;
+        streamer.setSource(m_remoteOutputFile);
+        streamer.setDestination(hostOutputFile);
+    };
+
+    const auto onParserSetup = [storage](Async<ParseDataPtr> &async) {
+        async.setConcurrentCallData(parseDataFile, *storage);
+        Debugger::showPermanentStatusMessage(Tr::tr("Parsing Profile Data..."));
+    };
+    const auto onParserDone = [this](const Async<ParseDataPtr> &async) {
+        setParserData(async.result());
+    };
+
+    const auto onDone = [storage] {
+        const FilePath hostOutputFile = *storage;
+        if (!hostOutputFile.isEmpty() && hostOutputFile.exists())
+            hostOutputFile.removeFile();
+    };
+
+    return Group {
+        storage,
+        FileStreamerTask(onTransferSetup),
+        AsyncTask<ParseDataPtr>(onParserSetup, onParserDone, CallDoneIf::Success),
+        onGroupDone(onDone)
+    };
+}
+
+void CallgrindTool::dump()
+{
+    executeController({
+        optionRecipe(Option::Dump),
+        parseRecipe()
+    });
+}
+
+void CallgrindTool::reset()
+{
+    executeController({
+        optionRecipe(Option::ResetEventCounters),
+        optionRecipe(Option::Dump)
+    });
+}
+
+void CallgrindTool::pause()
+{
+    executeController({ optionRecipe(Option::Pause) });
+}
+
+void CallgrindTool::unpause()
+{
+    executeController({ optionRecipe(Option::UnPause) });
+}
+
+void CallgrindTool::executeController(const Tasking::Group &recipe)
+{
+    if (m_controllerRunner.isRunning())
+        Debugger::showPermanentStatusMessage(Tr::tr("Previous command has not yet finished."));
+    else
+        m_controllerRunner.start(recipe);
+}
+
+void CallgrindTool::setPaused(bool paused)
+{
+    if (m_markAsPaused == paused)
+        return;
+
+    m_markAsPaused = paused;
+    if (m_pid == 0)
+        return;
+
+    // call controller only if it is attached to a valgrind process
+    if (paused)
+        pause();
+    else
+        unpause();
 }
 
 void CallgrindTool::updateRunActions()
@@ -756,7 +1013,7 @@ void CallgrindTool::updateRunActions()
         const auto canRun = ProjectExplorerPlugin::canRunStartupProject(CALLGRIND_RUN_MODE);
         m_startAction->setToolTip(canRun ? Tr::tr("Start a Valgrind Callgrind analysis.")
                                          : canRun.error());
-        m_startAction->setEnabled(canRun);
+        m_startAction->setEnabled(canRun.has_value());
         m_stopAction->setEnabled(false);
     }
 }
@@ -827,9 +1084,57 @@ void CallgrindTool::requestContextMenu(TextEditorWidget *widget, int line, QMenu
     }
 }
 
+static void moveCursorToEndOfName(QTextCursor *tc)
+{
+    QTextDocument *doc = tc->document();
+    if (!doc)
+        return;
+
+    QChar ch = doc->characterAt(tc->position());
+    while (ch.isLetterOrNumber() || ch == '_') {
+        tc->movePosition(QTextCursor::NextCharacter);
+        ch = doc->characterAt(tc->position());
+    }
+}
+
+// TODO: Can this be improved? This code is ripped from CppEditor, especially CppElementEvaluater
+// We cannot depend on this since CppEditor plugin code is internal
+// and requires building the implementation files ourselves
+static CPlusPlus::Symbol *findSymbolUnderCursor()
+{
+    TextEditor::TextEditorWidget *widget = TextEditor::TextEditorWidget::currentTextEditorWidget();
+    if (!widget)
+        return nullptr;
+
+    QTextCursor tc = widget->textCursor();
+    int line = 0;
+    int column = 0;
+    const int pos = tc.position();
+    widget->convertPosition(pos, &line, &column);
+
+    const CPlusPlus::Snapshot &snapshot = CppEditor::CppModelManager::snapshot();
+    CPlusPlus::Document::Ptr doc = snapshot.document(widget->textDocument()->filePath());
+    QTC_ASSERT(doc, return nullptr);
+
+    // fetch the expression's code
+    CPlusPlus::ExpressionUnderCursor expressionUnderCursor(doc->languageFeatures());
+    moveCursorToEndOfName(&tc);
+    const QString &expression = expressionUnderCursor(tc);
+    CPlusPlus::Scope *scope = doc->scopeAt(line, column);
+
+    CPlusPlus::TypeOfExpression typeOfExpression;
+    typeOfExpression.init(doc, snapshot);
+    const QList<CPlusPlus::LookupItem> &lookupItems = typeOfExpression(expression.toUtf8(), scope);
+    if (lookupItems.isEmpty())
+        return nullptr;
+
+    const CPlusPlus::LookupItem &lookupItem = lookupItems.first(); // ### TODO: select best candidate.
+    return lookupItem.declaration();
+}
+
 void CallgrindTool::handleShowCostsOfFunction()
 {
-    CPlusPlus::Symbol *symbol = Debugger::findSymbolUnderCursor();
+    CPlusPlus::Symbol *symbol = findSymbolUnderCursor();
     if (!symbol)
         return;
 
@@ -847,15 +1152,16 @@ void CallgrindTool::slotRequestDump()
 {
     //setBusy(true);
     m_visualization->setText(Tr::tr("Populating..."));
-    emit dumpRequested();
+    dump();
 }
 
 void CallgrindTool::loadExternalLogFile()
 {
     const FilePath filePath = FileUtils::getOpenFilePath(
-                Tr::tr("Open Callgrind Log File"),
-                {},
-                Tr::tr("Callgrind Output (callgrind.out*);;All Files (*)"));
+        Tr::tr("Open Callgrind Log File"),
+        {},
+        Tr::tr("Callgrind Output (callgrind.out*)") + ";;"
+            + Core::DocumentManager::allFilesFilterString());
     if (filePath.isEmpty())
         return;
 
@@ -927,14 +1233,40 @@ void CallgrindTool::createTextMarks()
     }
 }
 
-
 // CallgrindTool
 
 static CallgrindTool *dd = nullptr;
 
-void setupCallgrindRunner(CallgrindToolRunner *toolRunner)
+static bool isPaused()
 {
-    dd->setupRunner(toolRunner);
+    return dd->m_markAsPaused;
+}
+
+// we may want to toggle collect for one function only in this run
+static QString fetchAndResetToggleCollectFunction()
+{
+    return std::exchange(dd->m_toggleCollectFunction, {});
+}
+
+static FilePath remoteOutputFile()
+{
+    return dd->m_remoteOutputFile;
+}
+
+static void setupPid(qint64 pid)
+{
+    dd->setupPid(pid);
+}
+
+static void setupRunControl(RunControl *runControl)
+{
+    dd->setupRunControl(runControl);
+}
+
+static void startParser()
+{
+    dd->m_controllerRunner.cancel();
+    dd->executeController({ dd->parseRecipe() });
 }
 
 void setupCallgrindTool(QObject *guard)
@@ -943,5 +1275,3 @@ void setupCallgrindTool(QObject *guard)
 }
 
 } // Valgrind::Internal
-
-#include "callgrindtool.moc"

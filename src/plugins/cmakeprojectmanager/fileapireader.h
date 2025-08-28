@@ -78,7 +78,7 @@ private:
     void startCMakeState(const QStringList &configurationArguments);
     void cmakeFinishedState(int exitCode);
 
-    void handleReplyIndexFileChange(const QString &indexFile);
+    void handleReplyIndexFileChange(const Utils::FilePath &indexFile);
     void makeBackupConfiguration(bool store);
 
     void writeConfigurationIntoBuildDirectory(const QStringList &configuration);
@@ -105,7 +105,7 @@ private:
     BuildDirParameters m_parameters;
 
     // Notification on changes outside of creator:
-    Utils::FileSystemWatcher m_watcher;
+    std::unique_ptr<Utils::FilePathWatcher> m_watcher;
     QDateTime m_lastReplyTimestamp;
 };
 

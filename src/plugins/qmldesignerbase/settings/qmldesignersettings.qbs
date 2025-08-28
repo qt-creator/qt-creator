@@ -1,6 +1,7 @@
 QtcLibrary {
     name: "QmlDesignerSettings"
     type: "staticlibrary"
+    hasCMakeProjectFile: false
 
     Depends { name: "Utils" }
 

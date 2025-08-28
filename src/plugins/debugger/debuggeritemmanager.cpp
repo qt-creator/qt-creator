@@ -71,10 +71,10 @@ static DebuggerItem makeAutoDetectedDebuggerItem(
     return item;
 }
 
-static expected_str<DebuggerItem> makeAutoDetectedDebuggerItem(
+static Result<DebuggerItem> makeAutoDetectedDebuggerItem(
     const FilePath &command, const QString &detectionSource)
 {
-    expected_str<DebuggerItem::TechnicalData> technicalData
+    Result<DebuggerItem::TechnicalData> technicalData
         = DebuggerItem::TechnicalData::extract(command, {});
 
     if (!technicalData)
@@ -587,7 +587,7 @@ void DebuggerItemModel::autoDetectCdbDebuggers()
         QStringList abis = {"x86", "x64"};
         if (HostOsInfo::hostArchitecture() == Utils::OsArchArm64)
             abis << "arm64";
-        for (const QString &abi: abis) {
+        for (const QString &abi: std::as_const(abis)) {
             const QFileInfo cdbBinary(path + "/Debuggers/" + abi + "/cdb.exe");
             if (cdbBinary.isExecutable())
                 cdbs.append(FilePath::fromString(cdbBinary.absoluteFilePath()));
@@ -689,7 +689,7 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
     if (searchPaths.front().isLocal()) {
         paths.append(searchGdbPathsFromRegistry());
 
-        const expected_str<FilePath> lldb = Core::ICore::lldbExecutable(CLANG_BINDIR);
+        const Result<FilePath> lldb = Core::ICore::lldbExecutable(CLANG_BINDIR);
         if (lldb)
             suspects.append(*lldb);
     }
@@ -700,7 +700,7 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
         suspects.append(entry);
         return IterationPolicy::Continue;
     };
-    for (const FilePath &path : paths)
+    for (const FilePath &path : std::as_const(paths))
         path.iterateDirectory(addSuspect, {filters, QDir::Files | QDir::Executable});
 
     QStringList logMessages{Tr::tr("Searching debuggers...")};
@@ -749,7 +749,7 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
             continue;
         }
 
-        const expected_str<DebuggerItem> item
+        const Result<DebuggerItem> item
             = makeAutoDetectedDebuggerItem(command, detectionSource);
         if (!item) {
             logMessages.append(item.error());
@@ -934,7 +934,7 @@ void DebuggerItemModel::saveDebuggers()
         }
     });
     data.insert(DEBUGGER_COUNT_KEY, count);
-    m_writer.save(data, ICore::dialogParent());
+    m_writer.save(data);
 
     // Do not save default debuggers as they are set by the SDK.
 }

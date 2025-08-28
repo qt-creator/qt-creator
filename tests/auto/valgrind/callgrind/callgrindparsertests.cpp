@@ -282,11 +282,11 @@ void CallgrindParserTests::testMultiCost()
     QCOMPARE(data->totalCost(1), quint64(400));
 
     const Function *main = data->functions().at(0);
-    QCOMPARE(main->costItems().first()->costs(), QVector<quint64>() << 1 << 100);
-    QCOMPARE(main->costItems().first()->positions(), QVector<quint64>() << 1);
+    QCOMPARE(main->costItems().first()->costs(), QList<quint64>() << 1 << 100);
+    QCOMPARE(main->costItems().first()->positions(), QList<quint64>() << 1);
 
     QVERIFY(main->costItems().last()->call());
-    QCOMPARE(main->costItems().last()->call()->destinations(), QVector<quint64>() << 1);
+    QCOMPARE(main->costItems().last()->call()->destinations(), QList<quint64>() << 1);
 }
 
 void CallgrindParserTests::testMultiPos()
@@ -300,11 +300,11 @@ void CallgrindParserTests::testMultiPos()
     QCOMPARE(data->totalCost(0), quint64(4));
 
     const Function *main = data->functions().at(0);
-    QCOMPARE(main->costItems().first()->costs(), QVector<quint64>() << 1);
-    QCOMPARE(main->costItems().first()->positions(), QVector<quint64>() << 1 << 0x01);
+    QCOMPARE(main->costItems().first()->costs(), QList<quint64>() << 1);
+    QCOMPARE(main->costItems().first()->positions(), QList<quint64>() << 1 << 0x01);
 
     QVERIFY(main->costItems().last()->call());
-    QCOMPARE(main->costItems().last()->call()->destinations(), QVector<quint64>() << 1 << 0x04);
+    QCOMPARE(main->costItems().last()->call()->destinations(), QList<quint64>() << 1 << 0x04);
 }
 
 void CallgrindParserTests::testMultiPosAndCost()
@@ -319,14 +319,14 @@ void CallgrindParserTests::testMultiPosAndCost()
     QCOMPARE(data->totalCost(1), quint64(400));
 
     const Function *main = data->functions().at(0);
-    QCOMPARE(main->costItems().first()->costs(), QVector<quint64>() << 1 << 100);
-    QCOMPARE(main->costItems().first()->positions(), QVector<quint64>() << 1 << 0x01);
+    QCOMPARE(main->costItems().first()->costs(), QList<quint64>() << 1 << 100);
+    QCOMPARE(main->costItems().first()->positions(), QList<quint64>() << 1 << 0x01);
 
     QVERIFY(main->costItems().last()->call());
-    QCOMPARE(main->costItems().last()->call()->destinations(), QVector<quint64>() << 1 << 0x04);
+    QCOMPARE(main->costItems().last()->call()->destinations(), QList<quint64>() << 1 << 0x04);
 }
 
-const Function *findFunction(const QString &needle, const QVector<const Function *> &haystack)
+const Function *findFunction(const QString &needle, const QList<const Function *> &haystack)
 {
     for (const Function *function : haystack) {
         if (function->name() == needle) {

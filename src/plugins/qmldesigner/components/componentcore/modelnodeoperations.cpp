@@ -63,8 +63,9 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
-#include <utils/qtcprocess.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/smallstring.h>
 
 #include <QComboBox>
@@ -888,12 +889,12 @@ void extractComponent(const SelectionContext &selectionContext)
 
     // Read the content of the qml component
     QString componentText;
-    Utils::FileReader reader;
-    if (!reader.fetch(filePath)) {
+    const Result<QByteArray> res = filePath.fileContents();
+    if (!res) {
         qWarning() << "Cannot open component file " << filePath;
         return;
     }
-    componentText = QString::fromUtf8(reader.data());
+    componentText = QString::fromUtf8(*res);
 
     Model *model = contextView->model();
     ModulesStorage &modulesStorage = model->projectStorageDependencies().modulesStorage;
@@ -949,7 +950,9 @@ void extractComponent(const SelectionContext &selectionContext)
             QString sourceValue = node.variantProperty("source").value().toString();
             if (!sourceValue.isEmpty() && !sourceValue.startsWith("#")) {
                 Utils::FilePath assetPath = compDir.pathAppended(sourceValue); // full asset path
-                QString assetPathRelative = assetPath.relativePathFrom(DocumentManager::currentFilePath()).toFSPathString();
+                QString assetPathRelative = assetPath
+                                                .relativePathFromDir(DocumentManager::currentFilePath())
+                                                .toFSPathString();
                 node.variantProperty("source").setValue(assetPathRelative);
             }
 
@@ -1519,7 +1522,7 @@ QString getTemplateDialog(const Utils::FilePath &projectPath)
     dialog->setMinimumWidth(480);
     dialog->setModal(true);
 
-    dialog->setWindowTitle(Tr::tr("TemplateMerge", "Merge With Template"));
+    dialog->setWindowTitle(Tr::tr("Merge With Template"));
 
     auto mainLayout = new QGridLayout(dialog);
 
@@ -1540,9 +1543,9 @@ QString getTemplateDialog(const Utils::FilePath &projectPath)
         templateFile = newFile;
     };
 
-    QPushButton *browseButton = new QPushButton(Tr::tr("TemplateMerge", "&Browse..."), dialog);
+    QPushButton *browseButton = new QPushButton(Utils::PathChooser::browseButtonLabel(), dialog);
 
-    mainLayout->addWidget(new QLabel(Tr::tr("TemplateMerge", "Template:")), 0, 0);
+    mainLayout->addWidget(new QLabel(Tr::tr("Template:")), 0, 0);
     mainLayout->addWidget(comboBox, 1, 0, 1, 3);
     mainLayout->addWidget(browseButton, 1, 3, 1 , 1);
 
@@ -1552,7 +1555,7 @@ QString getTemplateDialog(const Utils::FilePath &projectPath)
 
     QObject::connect(browseButton, &QPushButton::clicked, dialog, [setTemplate, &projectPath]() {
         const QString newFile = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
-                                                             Tr::tr("TemplateMerge", "Browse Template"),
+                                                             Tr::tr("Browse Template"),
                                                              projectPath.toUrlishString(),
                                                              "*.qml");
         if (!newFile.isEmpty())
@@ -1766,7 +1769,7 @@ Utils::FilePath findEffectFile(const ModelNode &effectNode)
         if (matches.isEmpty()) {
             QMessageBox msgBox;
             msgBox.setText(
-                ::QmlDesigner::Tr::tr("Effect file %1 not found in the project.").arg(effectFile));
+                ::QmlDesigner::Tr::tr("Effect file \"%1\" not found in the project.").arg(effectFile));
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.setDefaultButton(QMessageBox::Ok);
             msgBox.setIcon(QMessageBox::Warning);
@@ -1801,10 +1804,7 @@ void editInEffectComposer(const SelectionContext &selectionContext)
 
 bool isEffectComposerActivated()
 {
-    using namespace ExtensionSystem;
-    return Utils::anyOf(PluginManager::plugins(), [](PluginSpec *spec) {
-        return spec->id() == "effectcomposer" && spec->isEffectivelyEnabled();
-    });
+    return ExtensionSystem::PluginManager::specExistsAndIsEnabled("effectcomposer");
 }
 
 void openEffectComposer(const QString &filePath)
@@ -2170,7 +2170,7 @@ ModelNode handleItemLibraryImageDrop(const QString &imagePath,
 
         newImagePath = getImagesDefaultDirectory().pathAppended(origImagePath.fileName());
     } else {
-        newImagePath = origImagePath.relativePathFrom(DocumentManager::currentResourcePath());
+        newImagePath = origImagePath.relativePathFromDir(DocumentManager::currentResourcePath());
     }
 
     if (!dropAsImage3dTexture(targetNode, newImagePath.toUrlishString(), newModelNode, outMoveNodesAfter)) {

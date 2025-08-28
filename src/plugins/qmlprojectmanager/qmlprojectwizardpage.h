@@ -36,17 +36,15 @@ public:
 class QmlModuleWizardGenerator final : public JsonWizardGenerator
 {
 public:
-    bool setup(const QVariant &data, QString *errorMessage);
+    Utils::Result<> setup(const QVariant &data);
 
     Core::GeneratedFiles fileList(
         Utils::MacroExpander *expander,
         const Utils::FilePath &wizardDir, const Utils::FilePath &projectDir,
         QString *errorMessage) override;
 
-    bool writeFile(
-        const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) override;
-    bool allDone(
-        const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) override;
+    Utils::Result<> writeFile(const JsonWizard *wizard, Core::GeneratedFile *file) override;
+    Utils::Result<> allDone(const JsonWizard *wizard, Core::GeneratedFile *file) override;
 
 private:
     Utils::FilePath m_source;

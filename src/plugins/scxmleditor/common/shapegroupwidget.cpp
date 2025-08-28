@@ -5,11 +5,12 @@
 #include "dragshapebutton.h"
 #include "shapeprovider.h"
 
-#include <utils/flowlayout.h>
+#include <utils/layoutbuilder.h>
 #include <utils/utilsicons.h>
 
 #include <QLabel>
 #include <QToolBar>
+#include <QVBoxLayout>
 
 using namespace ScxmlEditor::PluginInterface;
 using namespace ScxmlEditor::Common;
@@ -51,7 +52,7 @@ void ShapeGroupWidget::createUi()
     toolBar->addWidget(m_closeButton);
 
     m_content = new QWidget;
-    m_content->setLayout(new Utils::FlowLayout);
+    Layouting::Flow{}.attachTo(m_content);
 
     setLayout(new QVBoxLayout);
     layout()->setContentsMargins(0, 0, 0, 0);

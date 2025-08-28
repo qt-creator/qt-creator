@@ -72,27 +72,16 @@ MesonBuildConfiguration::MesonBuildConfiguration(ProjectExplorer::Target *target
     setConfigWidgetDisplayName(Tr::tr("Meson"));
     appendInitialBuildStep(Constants::MESON_BUILD_STEP_ID);
     appendInitialCleanStep(Constants::MESON_BUILD_STEP_ID);
-    setInitializer([this, target](const ProjectExplorer::BuildInfo &info) {
+    setInitializer([this](const ProjectExplorer::BuildInfo &info) {
         m_buildType = mesonBuildType(info.typeName);
-        auto k = target->kit();
+        auto k = kit();
         if (info.buildDirectory.isEmpty()) {
-            setBuildDirectory(shadowBuildDirectory(target->project()->projectFilePath(),
+            setBuildDirectory(shadowBuildDirectory(project()->projectFilePath(),
                                                    k,
                                                    info.displayName,
                                                    info.buildType));
         }
-        m_buildSystem = new MesonBuildSystem{this};
     });
-}
-
-MesonBuildConfiguration::~MesonBuildConfiguration()
-{
-    delete m_buildSystem;
-}
-
-ProjectExplorer::BuildSystem *MesonBuildConfiguration::buildSystem() const
-{
-    return m_buildSystem;
 }
 
 void MesonBuildConfiguration::build(const QString &target)
@@ -146,7 +135,6 @@ void MesonBuildConfiguration::toMap(Store &map) const
 void MesonBuildConfiguration::fromMap(const Store &map)
 {
     ProjectExplorer::BuildConfiguration::fromMap(map);
-    m_buildSystem = new MesonBuildSystem{this};
     m_buildType = mesonBuildType(
         map.value(Constants::BuildConfiguration::BUILD_TYPE_KEY).toString());
     m_parameters = map.value(Constants::BuildConfiguration::PARAMETERS_KEY).toString();
@@ -232,7 +220,7 @@ public:
         optionsTreeView->setItemDelegate(new BuildOptionDelegate{optionsTreeView});
 
         MesonBuildSystem *bs = static_cast<MesonBuildSystem *>(buildCfg->buildSystem());
-        connect(buildCfg->target(), &ProjectExplorer::Target::parsingFinished,
+        connect(bs, &BuildSystem::parsingFinished,
                 this, [this, bs, optionsTreeView](bool success) {
             if (success) {
                 m_optionsModel.setConfiguration(bs->buildOptions());
@@ -373,6 +361,7 @@ public:
                                                                     k,
                                                                     bInfo.typeName,
                                                                     bInfo.buildType);
+                    bInfo.enabledByDefault = bType == MesonBuildType::debug;
                     result << bInfo;
                 }
                 return result;

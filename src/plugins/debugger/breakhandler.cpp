@@ -1019,7 +1019,7 @@ static QString trimmedFileName(const FilePath &fullPath)
     const Project *project = ProjectTree::currentProject();
     const FilePath projectDirectory = project ? project->projectDirectory() : FilePath();
     if (projectDirectory.exists())
-        return fullPath.relativePathFrom(projectDirectory).toUserOutput();
+        return fullPath.relativePathFromDir(projectDirectory).toUserOutput();
 
     return fullPath.toUserOutput();
 }
@@ -1751,7 +1751,8 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
     menu->addSeparator();
 
     menu->addAction(settings().useToolTipsInBreakpointsView.action());
-    menu->addAction(settings().settingsDialog.action());
+
+    addStandardActions(qobject_cast<BaseTreeView *>(ev.view()), menu);
 
     connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
@@ -2776,7 +2777,8 @@ bool BreakpointManager::contextMenuEvent(const ItemViewEvent &ev)
     menu->addSeparator();
 
     menu->addAction(settings().useToolTipsInBreakpointsView.action());
-    menu->addAction(settings().settingsDialog.action());
+
+    addStandardActions(ev.view(), menu);
 
     connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());

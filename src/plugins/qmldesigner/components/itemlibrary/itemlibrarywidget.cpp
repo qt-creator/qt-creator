@@ -36,7 +36,6 @@
 #include <utils/environment.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
-#include <utils/flowlayout.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
@@ -175,7 +174,7 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
     updateSearch();
 
     setStyleSheet(Theme::replaceCssColors(
-        QString::fromUtf8(::Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
+        ::Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css")));
 
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F5), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &ItemLibraryWidget::reloadQmlSource);

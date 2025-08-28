@@ -556,6 +556,15 @@ void Kit::addToRunEnvironment(Environment &env) const
         factory->addToRunEnvironment(this, env);
 }
 
+QString Kit::moduleForHeader(const QString &headerFileName) const
+{
+    for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
+        if (const QString module = factory->moduleForHeader(this, headerFileName); !module.isEmpty())
+            return module;
+    }
+    return {};
+}
+
 Environment Kit::buildEnvironment() const
 {
     IDevice::ConstPtr device = BuildDeviceKitAspect::device(this);

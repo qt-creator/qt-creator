@@ -676,10 +676,8 @@ void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
         return t.runControl == runControl; });
     if (runControl) {
         if (runControl->isRunning()) {
-            QMetaObject::invokeMethod(runControl, [runControl] {
-                runControl->setAutoDeleteOnStop(true);
-                runControl->initiateStop();
-            }, Qt::QueuedConnection);
+            connect(runControl, &RunControl::stopped, runControl, &QObject::deleteLater);
+            runControl->initiateStop();
         } else {
             delete runControl;
         }
@@ -737,9 +735,7 @@ void AppOutputPane::enableButtons(const RunControl *rc)
         m_stopAction->setEnabled(isRunning);
         if (isRunning && debuggerPlugin() && rc->applicationProcessHandle().isValid()) {
             m_attachButton->setEnabled(true);
-            ProcessHandle h = rc->applicationProcessHandle();
-            QString tip = h.isValid() ? Tr::tr("PID %1").arg(h.pid())
-                                      : Tr::tr("Invalid");
+            const QString tip = Tr::tr("PID %1").arg(rc->applicationProcessHandle().pid());
             m_attachButton->setToolTip(msgAttachDebuggerTooltip(tip));
         } else {
             m_attachButton->setEnabled(false);

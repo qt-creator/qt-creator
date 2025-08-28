@@ -19,8 +19,6 @@ const char GenericDeployStepId[] = "RemoteLinux.RsyncDeployStep";
 const char CustomCommandDeployStepId[] = "RemoteLinux.GenericRemoteLinuxCustomCommandDeploymentStep";
 const char KillAppStepId[] = "RemoteLinux.KillAppStep";
 
-const char SourceProfile[] = "RemoteLinux.SourceProfile";
-const char LinkDevice[] = "RemoteLinux.LinkDevice";
 const char SshForwardPort[] = "RemoteLinux.SshForwardPort";
 const char DisableSharing[] = "RemoteLinux.DisableSharing";
 

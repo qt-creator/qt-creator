@@ -18,14 +18,12 @@
 
     To select the languages to debug, select \uicontrol Automatic
     or \uicontrol Enabled in \uicontrol {Debugger Settings} >
-    \uicontrol {C++ debugger} and \uicontrol {QML debugger}.
+    \uicontrol {C++ debugger}, \uicontrol {QML debugger}, or
+    \uicontrol {Python debugger}.
 
-    \note Opening a socket at a well-known port presents a security risk. Anyone
-    on the Internet could connect to the application that you are debugging and
-    execute any JavaScript functions. Therefore, you must make sure that the
-    port is properly protected by a firewall.
+    \section1 Debug C++
 
-    Optionally, in \uicontrol {Additional startup commands}, you can enter
+    In \uicontrol {Additional startup commands}, you can enter
     additional settings for debugging C++:
 
     \list
@@ -37,10 +35,18 @@
 
     However, you can usually leave this field empty.
 
-    \note To create a build configuration that supports debugging for a
+    \section1 Debug Qt Quick
+
+    Opening a socket at a well-known port presents a security risk. Anyone
+    on the Internet could connect to the application that you are debugging and
+    execute any JavaScript functions. Therefore, make sure that the
+    port is properly protected by a firewall.
+
+    To create a build configuration that supports debugging for a
     Qt Quick application project, you also need to \l {Using default values}
     {enable QML debugging} either globally or in the \uicontrol {Build Settings}
     of the project.
 
-    \sa {Configuring Projects}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Configuring Projects}, {Debug}{How To: Debug}, {Debugging},
+    {Debuggers}, {Debugger}
 */

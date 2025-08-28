@@ -25,6 +25,7 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 
@@ -37,15 +38,12 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/basetreeview.h>
-#include <utils/fileinprojectfinder.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 
 #include <QDebug>
-#include <QDir>
 #include <QDockWidget>
-#include <QFileInfo>
 #include <QGuiApplication>
 #include <QHostAddress>
 #include <QJsonArray>
@@ -213,8 +211,6 @@ public:
     QmlDebug::QDebugMessageClient *msgClient = nullptr;
 
     QHash<int, QmlCallback> callbackForToken;
-
-    FileInProjectFinder fileFinder;
 
     bool skipFocusOnNextHandleFrame = false;
 
@@ -1683,12 +1679,12 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
 
                 memorizeRefs(resp.value(REFS));
 
-                bool success = resp.value("success").toBool();
+                const bool success = resp.value("success").toBool();
                 if (!success) {
                     SDEBUG("Request was unsuccessful");
                 }
 
-                int requestSeq = resp.value("request_seq").toInt();
+                const int requestSeq = resp.value("request_seq").toInt();
                 if (callbackForToken.contains(requestSeq)) {
                     callbackForToken[requestSeq](resp);
 
@@ -1710,12 +1706,12 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                     //                  "success"     : true
                     //                }
 
-                    int seq = resp.value("request_seq").toInt();
+                    const int seq = resp.value("request_seq").toInt();
                     const QVariantMap breakpointData = resp.value(BODY).toMap();
                     const QString index = QString::number(breakpointData.value("breakpoint").toInt());
 
                     if (breakpointsSync.contains(seq)) {
-                        Breakpoint bp = breakpointsSync.take(seq);
+                        const Breakpoint bp = breakpointsSync.take(seq);
                         QTC_ASSERT(bp, return);
                         bp->setParameters(bp->requestedParameters()); // Assume it worked.
                         bp->setResponseId(index);
@@ -2459,14 +2455,8 @@ void QmlEnginePrivate::flushSendBuffer()
 
 FilePath QmlEngine::toFileInProject(const QUrl &fileUrl)
 {
-    // make sure file finder is properly initialized
-    const DebuggerRunParameters &rp = runParameters();
-    d->fileFinder.setProjectDirectory(rp.projectSourceDirectory());
-    d->fileFinder.setProjectFiles(rp.projectSourceFiles());
-    d->fileFinder.setAdditionalSearchDirectories(rp.additionalSearchDirectories());
-    d->fileFinder.setSysroot(rp.sysRoot());
-
-    return d->fileFinder.findFile(fileUrl).constFirst();
+    const FilePaths paths = runParameters().findQmlFile(fileUrl);
+    return paths.isEmpty() ? FilePath() : paths.first();
 }
 
 DebuggerEngine *createQmlEngine()

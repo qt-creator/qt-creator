@@ -5,9 +5,15 @@
 
 #include "qmlprojectmanager_global.h"
 
-#include <qmlprojectmanager/qmlprojectconstants.h>
+#include <utils/aspects.h>
+#include <utils/filepath.h>
 
-#include <projectexplorer/runconfigurationaspects.h>
+#include <QString>
+
+namespace ProjectExplorer {
+class Project;
+class Target;
+}
 
 namespace QmlProjectManager {
 
@@ -16,9 +22,6 @@ class QMLPROJECTMANAGER_EXPORT QmlMultiLanguageAspect : public Utils::BoolAspect
     Q_OBJECT
 public:
     explicit QmlMultiLanguageAspect(Utils::AspectContainer *container = nullptr);
-    ~QmlMultiLanguageAspect() override;
-
-    void setTarget(ProjectExplorer::Target *target);
 
     QString currentLocale() const;
     void setCurrentLocale(const QString &locale);
@@ -35,13 +38,9 @@ public:
         const void *origin = nullptr;
     };
 
-signals:
-    void currentLocaleChanged(const QString &locale);
-
 private:
     const void *origin() const { return this; }
 
-    ProjectExplorer::Target *m_target = nullptr;
     QString m_currentLocale;
 };
 

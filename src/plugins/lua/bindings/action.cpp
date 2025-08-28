@@ -42,6 +42,10 @@ void setupActionModule()
             sol::property(
                 [](ScriptCommand *cmd) { return cmd->m_contextAction->isEnabled(); },
                 [](ScriptCommand *cmd, bool enabled) { cmd->m_contextAction->setEnabled(enabled); }),
+            "keySequences",
+            sol::property([](ScriptCommand* cmd) -> QList<QKeySequence> {
+                return cmd->m_cmd->keySequences();
+            }),
             "toolTip",
             sol::property(
                 [](ScriptCommand *cmd) { return cmd->m_contextAction->toolTip(); },
@@ -71,7 +75,7 @@ void setupActionModule()
                 else if (key == "onTrigger")
                     b.addOnTriggered([f = v.as<sol::main_function>()]() {
                         auto res = void_safe_call(f);
-                        QTC_CHECK_EXPECTED(res);
+                        QTC_CHECK_RESULT(res);
                     });
                 else if (key == "text")
                     b.setText(v.as<QString>());

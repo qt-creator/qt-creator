@@ -55,7 +55,7 @@ QbsLanguageClient::QbsLanguageClient(const QString &serverPath, QbsBuildSystem *
 {
     d->buildSystem = buildSystem;
     setName(QString::fromLatin1("qbs@%1").arg(serverPath));
-    setCurrentProject(buildSystem->project());
+    setCurrentBuildConfiguration(buildSystem->buildConfiguration());
     LanguageFilter langFilter;
     langFilter.mimeTypes << Utils::Constants::QBS_MIMETYPE;
     setSupportedLanguage(langFilter);
@@ -74,8 +74,6 @@ bool QbsLanguageClient::isActive() const
     if (!d->buildSystem)
         return false;
     if (!d->buildSystem->project()->activeBuildConfiguration())
-        return false;
-    if (d->buildSystem->project()->activeBuildConfiguration()->buildSystem() != d->buildSystem)
         return false;
     if (d->buildSystem->project()->activeBuildSystem() != d->buildSystem)
         return false;

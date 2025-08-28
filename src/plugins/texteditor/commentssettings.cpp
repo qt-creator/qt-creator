@@ -8,7 +8,6 @@
 #include "texteditortr.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/project.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>

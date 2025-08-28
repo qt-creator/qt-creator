@@ -117,7 +117,7 @@ private:
 private:
     static ProjectTree *s_instance;
     QList<QPointer<Internal::ProjectTreeWidget>> m_projectTreeWidgets;
-    QVector<TreeManagerFunction> m_treeManagers;
+    QList<TreeManagerFunction> m_treeManagers;
     Node *m_currentNode = nullptr;
     Project *m_currentProject = nullptr;
     Internal::ProjectTreeWidget *m_focusForContextMenu = nullptr;

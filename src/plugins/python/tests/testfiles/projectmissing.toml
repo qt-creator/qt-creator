@@ -1,0 +1,4 @@
+name = "ProjectMissingTest"
+
+[tool.pyside6-project]
+files = []

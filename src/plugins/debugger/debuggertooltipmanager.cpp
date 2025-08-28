@@ -90,7 +90,7 @@ public:
 
     void onModeChanged(Id mode)
     {
-        Q_UNUSED(mode);
+        Q_UNUSED(mode)
         // if (mode == Constants::MODE_DEBUG)
         updateVisibleToolTips();
     }
@@ -735,7 +735,7 @@ DebuggerToolTipManager::~DebuggerToolTipManager()
 void DebuggerToolTipManagerPrivate::hideAllToolTips()
 {
     purgeClosedToolTips();
-    for (const auto &tooltip : m_tooltips) {
+    for (const auto &tooltip : std::as_const(m_tooltips)) {
         if (tooltip)
             tooltip->hide();
     }
@@ -754,7 +754,7 @@ void DebuggerToolTipManagerPrivate::updateVisibleToolTips()
 
     const QList<IEditor *> visibleEditors = EditorManager::visibleEditors();
 
-    for (const auto &tooltip : m_tooltips) {
+    for (const auto &tooltip : std::as_const(m_tooltips)) {
         QTC_ASSERT(tooltip, continue);
         bool found = false;
         for (const IEditor *editor : visibleEditors) {
@@ -780,7 +780,7 @@ void DebuggerToolTipManager::updateToolTips()
 
     // Stack frame changed: All tooltips of that file acquire the engine,
     // all others release (arguable, this could be more precise?)
-    for (const auto &tooltip : d->m_tooltips) {
+    for (const auto &tooltip : std::as_const(d->m_tooltips)) {
         if (tooltip)
             tooltip->updateTooltip();
     }
@@ -793,13 +793,13 @@ void DebuggerToolTipManager::deregisterEngine()
 
     d->purgeClosedToolTips();
 
-    for (const auto &tooltip : d->m_tooltips) {
+    for (const auto &tooltip : std::as_const(d->m_tooltips)) {
         if (tooltip && tooltip->context.engineType == d->m_engine->objectName())
             tooltip->close();
     }
 
     // FIXME: For now remove all.
-    for (const auto &tooltip : d->m_tooltips) {
+    for (const auto &tooltip : std::as_const(d->m_tooltips)) {
         if (tooltip)
             tooltip->close();
     }
@@ -823,7 +823,7 @@ void DebuggerToolTipManager::closeAllToolTips()
 
 void DebuggerToolTipManagerPrivate::closeAllToolTips()
 {
-    for (const auto &tooltip : m_tooltips) {
+    for (const auto &tooltip : std::as_const(m_tooltips)) {
         if (tooltip)
             tooltip->close();
     }
@@ -833,7 +833,7 @@ void DebuggerToolTipManagerPrivate::closeAllToolTips()
 void DebuggerToolTipManager::resetLocation()
 {
     d->purgeClosedToolTips();
-    for (const auto &tooltip : d->m_tooltips) {
+    for (const auto &tooltip : std::as_const(d->m_tooltips)) {
         if (tooltip)
             tooltip->pin();
     }
@@ -949,7 +949,7 @@ DebuggerToolTipContexts DebuggerToolTipManager::pendingTooltips() const
     StackFrame frame = d->m_engine->stackHandler()->currentFrame();
     DebuggerToolTipContexts rc;
     d->purgeClosedToolTips();
-    for (const auto &tooltip : d->m_tooltips) {
+    for (const auto &tooltip : std::as_const(d->m_tooltips)) {
         if (tooltip && tooltip->context.iname.startsWith("tooltip") && tooltip->context.matchesFrame(frame))
             rc.push_back(tooltip->context);
     }
@@ -1001,7 +1001,7 @@ bool DebuggerToolTipManagerPrivate::eventFilter(QObject *o, QEvent *e)
 DebuggerToolTip *DebuggerToolTipManagerPrivate::findToolTip(TextEditorWidget *editorWidget,
                                                             const DebuggerToolTipContext &context)
 {
-    for (const auto &tooltip : m_tooltips) {
+    for (const auto &tooltip : std::as_const(m_tooltips)) {
         if (tooltip && tooltip->editorWidget == editorWidget && tooltip->context.isSame(context))
             return tooltip;
     }

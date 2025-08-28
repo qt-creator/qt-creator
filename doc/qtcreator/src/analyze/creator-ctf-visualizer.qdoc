@@ -77,7 +77,7 @@
     To reset the default zoom level, right-click the timeline to open the
     context menu, and select \uicontrol {Reset Zoom}.
 
-    Select the \inlineimage icons/filtericon.png
+    Select the \inlineimage {icons/filtericon.png} {Restrict to Threads}
     (\uicontrol {Restrict to Threads}) button (6) to select the threads to
     show.
 

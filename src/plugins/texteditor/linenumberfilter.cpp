@@ -53,6 +53,7 @@ private:
                     text = Tr::tr("Column %1").arg(column);
                 LocatorFilterEntry entry;
                 entry.displayName = text;
+                entry.completer = [] { return AcceptResult(); }; // do not complete
                 entry.acceptor = [line, targetColumn = column - 1] {
                     IEditor *editor = EditorManager::currentEditor();
                     if (!editor)

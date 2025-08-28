@@ -45,10 +45,12 @@ bool DockerApi::canConnect()
     process.runBlocking();
 
     const bool success = process.result() == ProcessResult::FinishedWithSuccess;
-    if (!success)
-        qCWarning(dockerApiLog) << "Failed to connect to docker daemon:" << process.allOutput();
-    else
+    if (!success) {
+        qCWarning(dockerApiLog) << "Failed to connect to docker daemon:"
+                                << process.verboseExitMessage();
+    } else {
         qCInfo(dockerApiLog) << "'docker info' result:\n" << qPrintable(process.allOutput());
+    }
 
     return process.result() == ProcessResult::FinishedWithSuccess;
 }
@@ -69,6 +71,23 @@ bool DockerApi::isContainerRunning(const QString &containerId)
         if (output == "true")
             return true;
     }
+
+    return false;
+}
+
+bool DockerApi::imageExists(const QString &imageId)
+{
+    Process process;
+    FilePath dockerExe = dockerClient();
+    if (dockerExe.isEmpty() || !dockerExe.isExecutableFile())
+        return false;
+
+    process.setCommand(
+        CommandLine(dockerExe, QStringList{"image", "inspect", imageId, "--format", "{{.Id}}"}));
+    process.runBlocking();
+
+    if (process.exitCode() == 0)
+        return true;
 
     return false;
 }
@@ -124,9 +143,9 @@ FilePath DockerApi::dockerClient()
     return settings().dockerBinaryPath.effectiveBinary();
 }
 
-QFuture<Utils::expected_str<QList<Network>>> DockerApi::networks()
+QFuture<Utils::Result<QList<Network>>> DockerApi::networks()
 {
-    return Utils::asyncRun([this]() -> Utils::expected_str<QList<Network>> {
+    return Utils::asyncRun([this]() -> Utils::Result<QList<Network>> {
         QList<Network> result;
 
         Process process;
@@ -139,9 +158,7 @@ QFuture<Utils::expected_str<QList<Network>>> DockerApi::networks()
 
         if (process.result() != ProcessResult::FinishedWithSuccess) {
             return make_unexpected(
-                Tr::tr("Failed to retrieve docker networks. Exit code: %1. Error: %2")
-                    .arg(process.exitCode())
-                    .arg(process.allOutput()));
+                Tr::tr("Failed to retrieve docker networks: %1").arg(process.verboseExitMessage()));
         }
 
         for (const auto &line : process.readAllStandardOutput().split('\n')) {

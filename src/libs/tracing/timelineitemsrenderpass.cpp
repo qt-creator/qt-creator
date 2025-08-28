@@ -17,8 +17,8 @@ public:
     QSGNode *expandedRow(int row) const { return m_expandedRows[row]; }
     QSGNode *collapsedRow(int row) const { return m_collapsedRows[row]; }
 
-    const QVector<QSGNode *> &expandedRows() const final { return m_expandedRows; }
-    const QVector<QSGNode *> &collapsedRows() const final { return m_collapsedRows; }
+    const QList<QSGNode *> &expandedRows() const final { return m_expandedRows; }
+    const QList<QSGNode *> &collapsedRows() const final { return m_collapsedRows; }
     TimelineItemsMaterial *collapsedRowMaterial() { return &m_collapsedRowMaterial; }
 
     int indexFrom() const { return m_indexFrom; }
@@ -31,8 +31,8 @@ private:
     int m_indexTo;
     TimelineItemsMaterial m_collapsedRowMaterial;
 
-    QVector<QSGNode *> m_expandedRows;
-    QVector<QSGNode *> m_collapsedRows;
+    QList<QSGNode *> m_expandedRows;
+    QList<QSGNode *> m_collapsedRows;
 };
 
 struct TimelineItemsGeometry {
@@ -633,8 +633,8 @@ int NodeUpdater::updateNodes(const int from, const int to) const
 {
     float defaultRowHeight = TimelineModel::defaultRowHeight();
 
-    QVector<TimelineItemsGeometry> expandedPerRow(m_model->expandedRowCount());
-    QVector<TimelineItemsGeometry> collapsedPerRow(m_model->collapsedRowCount());
+    QList<TimelineItemsGeometry> expandedPerRow(m_model->expandedRowCount());
+    QList<TimelineItemsGeometry> collapsedPerRow(m_model->collapsedRowCount());
 
     int collapsedVertices = 0;
     int expandedVertices = 0;

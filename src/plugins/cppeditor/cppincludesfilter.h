@@ -7,7 +7,7 @@
 
 namespace CppEditor::Internal {
 
-class CppIncludesFilter : public Core::ILocatorFilter
+class CppIncludesFilter final : public Core::ILocatorFilter
 {
 public:
     CppIncludesFilter();

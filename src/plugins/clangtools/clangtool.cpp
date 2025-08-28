@@ -17,6 +17,7 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -57,6 +58,7 @@
 #include <QAction>
 #include <QCheckBox>
 #include <QDesktopServices>
+#include <QElapsedTimer>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLoggingCategory>
@@ -83,10 +85,10 @@ public:
         });
         RunControl *runControl = *task();
         QTC_ASSERT(runControl, emit done(DoneResult::Error); return);
-        Target *target = runControl->target();
-        QTC_ASSERT(target, emit done(DoneResult::Error); return);
-        if (!BuildManager::isBuilding(target)) {
-            BuildManager::buildProjectWithDependencies(target->project(), ConfigSelection::Active,
+        BuildConfiguration *bc = runControl->buildConfiguration();
+        QTC_ASSERT(bc, emit done(DoneResult::Error); return);
+        if (!BuildManager::isBuilding(bc->target())) {
+            BuildManager::buildProjectWithDependencies(runControl->project(), ConfigSelection::Active,
                                                        runControl);
         }
     }
@@ -221,14 +223,14 @@ public:
     {
     public:
         FixitsRefactoringFile file;
-        QVector<DiagnosticItem *> diagnosticItems;
+        QList<DiagnosticItem *> diagnosticItems;
         bool hasScheduledFixits = false;
     };
 
-    ApplyFixIts(const QVector<DiagnosticItem *> &diagnosticItems)
+    ApplyFixIts(const QList<DiagnosticItem *> &diagnosticItems)
     {
         for (DiagnosticItem *diagnosticItem : diagnosticItems) {
-            const FilePath &filePath = diagnosticItem->diagnostic().location.filePath;
+            const FilePath &filePath = diagnosticItem->diagnostic().location.targetFilePath;
             QTC_ASSERT(!filePath.isEmpty(), continue);
 
             // Get or create refactoring file
@@ -262,16 +264,20 @@ public:
             if (!step.isFixIt)
                 continue;
 
-            const DiagnosticLocation start = step.ranges.first();
-            const DiagnosticLocation end = step.ranges.last();
-            const int startPos = file.position(start.filePath, start.line, start.column);
-            const int endPos = file.position(start.filePath, end.line, end.column);
+            const Link start = step.ranges.first();
+            const Link end = step.ranges.last();
+            const int startPos = file.position(start.targetFilePath,
+                                               start.targetLine,
+                                               start.targetColumn);
+            const int endPos = file.position(start.targetFilePath,
+                                             end.targetLine,
+                                             end.targetColumn);
 
             auto op = new ReplacementOperation;
             op->pos = startPos;
             op->length = endPos - startPos;
             op->text = step.message;
-            op->filePath = start.filePath;
+            op->filePath = start.targetFilePath;
             op->apply = apply;
 
             replacements += op;
@@ -285,9 +291,9 @@ public:
         for (auto it = m_refactoringFileInfos.begin(); it != m_refactoringFileInfos.end(); ++it) {
             RefactoringFileInfo &fileInfo = it.value();
 
-            QVector<DiagnosticItem *> itemsScheduledOrSchedulable;
-            QVector<DiagnosticItem *> itemsScheduled;
-            QVector<DiagnosticItem *> itemsSchedulable;
+            QList<DiagnosticItem *> itemsScheduledOrSchedulable;
+            QList<DiagnosticItem *> itemsScheduled;
+            QList<DiagnosticItem *> itemsSchedulable;
 
             // Construct refactoring operations
             for (DiagnosticItem *diagnosticItem : std::as_const(fileInfo.diagnosticItems)) {
@@ -316,9 +322,9 @@ public:
                 continue;
 
             // Apply file
-            QVector<DiagnosticItem *> itemsApplied;
-            QVector<DiagnosticItem *> itemsFailedToApply;
-            QVector<DiagnosticItem *> itemsInvalidated;
+            QList<DiagnosticItem *> itemsApplied;
+            QList<DiagnosticItem *> itemsFailedToApply;
+            QList<DiagnosticItem *> itemsInvalidated;
 
             fileInfo.file.setReplacements(ops);
             if (fileInfo.file.apply()) {
@@ -343,7 +349,7 @@ private:
 };
 
 static FileInfos sortedFileInfos(const CppCodeModelSettings &settings,
-                                 const QVector<ProjectPart::ConstPtr> &projectParts)
+                                 const QList<ProjectPart::ConstPtr> &projectParts)
 {
     FileInfos fileInfos;
 
@@ -531,7 +537,7 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
                 updateForCurrentState();
             });
     connect(m_applyFixitsButton, &QToolButton::clicked, this, [this] {
-        QVector<DiagnosticItem *> diagnosticItems;
+        QList<DiagnosticItem *> diagnosticItems;
         m_diagnosticModel->forItemsAtLevel<2>([&](DiagnosticItem *item){
             diagnosticItems += item;
         });
@@ -665,8 +671,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
     std::shared_ptr<TemporaryDirectory> tempDir(new TemporaryDirectory("clangtools-XXXXXX"));
     tempDir->setAutoRemove(qtcEnvironmentVariable("QTC_CLANG_DONT_DELETE_OUTPUT_FILES") != "1");
 
-    Target *target = m_runControl->target();
-    BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();
+    BuildConfiguration *buildConfiguration = m_runControl->buildConfiguration();
     QTC_ASSERT(buildConfiguration, return {});
     const Environment environment = buildConfiguration->environment();
 
@@ -700,7 +705,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
     }
 
     const ProjectInfo::ConstPtr projectInfoBeforeBuild
-        = CppModelManager::projectInfo(target->project());
+        = CppModelManager::projectInfo(buildConfiguration->project());
 
     const auto onTreeSetup = [this, storage, runSettings, diagnosticConfig, fileInfos, tempDir,
                               environment, projectInfoBeforeBuild](TaskTree &taskTree) {
@@ -807,12 +812,12 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
         return SetupResult::Continue;
     };
 
-    const auto onTreeDone = [this, target, runSettings] {
+    const auto onTreeDone = [this, buildConfiguration, runSettings] {
         if (m_filesFailed != 0) {
             m_runControl->postMessage(Tr::tr("Error: Failed to analyze %n files.", nullptr,
                                              m_filesFailed), ErrorMessageFormat);
-            if (target && target->activeBuildConfiguration()
-                && !target->activeBuildConfiguration()->buildDirectory().exists()
+            if (buildConfiguration
+                && !buildConfiguration->buildDirectory().exists()
                 && !runSettings.buildBeforeAnalysis()) {
                 m_runControl->postMessage(
                     Tr::tr("Note: You might need to build the project to generate or update "
@@ -869,7 +874,7 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSet
     m_runControl = new RunControl(Constants::CLANGTIDYCLAZY_RUN_MODE);
     m_runControl->setDisplayName(m_name);
     m_runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
-    m_runControl->setTarget(project->activeTarget());
+    m_runControl->setBuildConfiguration(project->activeBuildConfiguration());
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, m_runControl, [this] {
         m_runControl->postMessage(Tr::tr("%1 tool stopped by user.").arg(m_name),
@@ -966,10 +971,10 @@ void ClangTool::initDiagnosticView()
 void ClangTool::loadDiagnosticsFromFiles()
 {
     // Ask user for files
-    const FilePaths filePaths
-        = FileUtils::getOpenFilePaths(Tr::tr("Select YAML Files with Diagnostics"),
-                                      FileUtils::homePath(),
-                                      Tr::tr("YAML Files (*.yml *.yaml);;All Files (*)"));
+    const FilePaths filePaths = FileUtils::getOpenFilePaths(
+        Tr::tr("Select YAML Files with Diagnostics"),
+        FileUtils::homePath(),
+        Tr::tr("YAML Files (*.yml *.yaml)") + ";;" + DocumentManager::allFilesFilterString());
     if (filePaths.isEmpty())
         return;
 
@@ -977,7 +982,7 @@ void ClangTool::loadDiagnosticsFromFiles()
     Diagnostics diagnostics;
     QStringList errors;
     for (const FilePath &filePath : filePaths) {
-        if (expected_str<Diagnostics> expectedDiagnostics = readExportedDiagnostics(filePath))
+        if (Result<Diagnostics> expectedDiagnostics = readExportedDiagnostics(filePath))
             diagnostics << *expectedDiagnostics;
         else
             errors.append(expectedDiagnostics.error());
@@ -1244,7 +1249,7 @@ void ClangTool::setState(State state)
 QSet<Diagnostic> ClangTool::diagnostics() const
 {
     return Utils::filtered(m_diagnosticModel->diagnostics(), [](const Diagnostic &diagnostic) {
-        return ProjectFile::isSource(ProjectFile::classify(diagnostic.location.filePath));
+        return ProjectFile::isSource(ProjectFile::classify(diagnostic.location.targetFilePath));
     });
 }
 

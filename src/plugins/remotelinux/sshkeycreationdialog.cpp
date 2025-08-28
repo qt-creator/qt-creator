@@ -114,11 +114,11 @@ void SshKeyCreationDialog::generateKeys()
         {"-t", keyTypeString, "-b", m_comboBox->currentText(), "-N", QString(), "-f",
          privateKeyFilePath().path()}});
     keygen.start();
-    Result result = Result::Ok;
+    Result<> result = ResultOk;
     if (!keygen.waitForFinished())
-        result = Result::Error(keygen.errorString().isEmpty() ? Tr::tr("Unknown error") : keygen.errorString());
+        result = ResultError(keygen.errorString().isEmpty() ? Tr::tr("Unknown error") : keygen.errorString());
     else if (keygen.exitCode() != 0)
-        result = Result::Error(QString::fromLocal8Bit(keygen.rawStdErr()));
+        result = ResultError(QString::fromLocal8Bit(keygen.rawStdErr()));
     if (!result) {
         showError(Tr::tr("The ssh-keygen tool at \"%1\" failed: %2")
                   .arg(SshSettings::keygenFilePath().toUserOutput(), result.error()));

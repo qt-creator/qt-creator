@@ -9,6 +9,7 @@ QtcPlugin {
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
+    Depends { name: "CppEditor" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
@@ -20,7 +21,6 @@ QtcPlugin {
         files: [
             "callgrindcostdelegate.cpp", "callgrindcostdelegate.h",
             "callgrindcostview.cpp", "callgrindcostview.h",
-            "callgrindengine.cpp", "callgrindengine.h",
             "callgrindhelper.cpp", "callgrindhelper.h",
             "callgrindnamedelegate.cpp", "callgrindnamedelegate.h",
             "callgrindtextmark.cpp", "callgrindtextmark.h",
@@ -28,12 +28,13 @@ QtcPlugin {
             "callgrindvisualisation.cpp", "callgrindvisualisation.h",
             "memcheckerrorview.cpp", "memcheckerrorview.h",
             "memchecktool.cpp", "memchecktool.h",
+            "startremotedialog.cpp", "startremotedialog.h",
             "valgrind.qrc",
-            "valgrindengine.cpp", "valgrindengine.h",
             "valgrindplugin.cpp",
             "valgrindprocess.cpp", "valgrindprocess.h",
             "valgrindsettings.cpp", "valgrindsettings.h",
             "valgrindtr.h",
+            "valgrindutils.cpp", "valgrindutils.h",
         ]
     }
 

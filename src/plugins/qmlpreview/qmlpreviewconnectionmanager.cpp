@@ -5,27 +5,30 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
+#include <projectexplorer/buildconfiguration.h>
+
 #include <qtsupport/baseqtversion.h>
 
-#include <QFileInfo>
-#include <QDir>
 #include <QMessageBox>
+
+using namespace Utils;
 
 namespace QmlPreview {
 
 QmlPreviewConnectionManager::QmlPreviewConnectionManager(QObject *parent) :
     QmlDebug::QmlDebugConnectionManager(parent)
 {
-    setTarget(nullptr);
+    setBuildConfiguration(nullptr);
 }
 
 QmlPreviewConnectionManager::~QmlPreviewConnectionManager() = default;
 
-void QmlPreviewConnectionManager::setTarget(ProjectExplorer::Target *target)
+void QmlPreviewConnectionManager::setBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
 {
-    QtSupport::QtVersion::populateQmlFileFinder(&m_projectFileFinder, target);
+    QtSupport::QtVersion::populateQmlFileFinder(&m_projectFileFinder, bc);
     m_projectFileFinder.setAdditionalSearchDirectories(Utils::FilePaths());
-    m_targetFileFinder.setTarget(target);
+    m_targetFileFinder.setBuildConfiguration(bc);
 }
 
 void QmlPreviewConnectionManager::setFileLoader(QmlPreviewFileLoader fileLoader)
@@ -205,23 +208,23 @@ void QmlPreviewConnectionManager::createPreviewClient()
                              "QML Live Preview is not available for this version of Qt.");
     }, Qt::QueuedConnection); // Queue it, so that it interfere with the connection timer
 
-    connect(&m_fileSystemWatcher, &Utils::FileSystemWatcher::fileChanged,
-                     m_qmlPreviewClient.data(), [this](const QString &changedFile) {
+    connect(&m_fileSystemWatcher, &FileSystemWatcher::fileChanged,
+                     m_qmlPreviewClient.data(), [this](const FilePath &changedFile) {
         if (!m_fileLoader || !m_lastLoadedUrl.isValid())
             return;
 
         bool success = false;
 
-        const QByteArray contents = m_fileLoader(changedFile, &success);
+        const QByteArray contents = m_fileLoader(changedFile.toFSPathString(), &success);
         if (!success)
             return;
 
-        if (!m_fileClassifier(changedFile)) {
+        if (!m_fileClassifier(changedFile.toFSPathString())) {
             emit restart();
             return;
         }
 
-        const QString remoteChangedFile = m_targetFileFinder.findPath(changedFile, &success);
+        const QString remoteChangedFile = m_targetFileFinder.findPath(changedFile.toFSPathString(), &success);
         if (success)
             m_qmlPreviewClient->announceFile(remoteChangedFile, contents);
         else

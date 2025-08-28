@@ -36,7 +36,6 @@ public:
 
     void setupInitialPages();
 
-    void closeCurrentPage();
     void closePage(const QModelIndex &index);
     void closePagesExcept(const QModelIndex &index);
 

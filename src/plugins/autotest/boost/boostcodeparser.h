@@ -12,8 +12,7 @@
 
 #include <QByteArray>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class BoostCodeParser
 {
@@ -21,7 +20,9 @@ public:
     BoostCodeParser(const QByteArray &source, const CPlusPlus::LanguageFeatures &features,
                     const CPlusPlus::Document::Ptr &doc, const CPlusPlus::Snapshot &snapshot);
     virtual ~BoostCodeParser() = default;
+
     BoostTestCodeLocationList findTests();
+
 private:
     enum class TestCaseType {Auto, Functions, Parameter, Fixture, Data};
 
@@ -50,11 +51,10 @@ private:
     CPlusPlus::Tokens m_tokens;
     int m_currentIndex = 0;
     BoostTestCodeLocationList m_testCases;
-    QVector<BoostTestInfo> m_suites;
+    QList<BoostTestInfo> m_suites;
     QString m_currentSuite;
     BoostTestTreeItem::TestStates m_currentState = BoostTestTreeItem::Enabled;
     int m_lineNo = 0;
 };
 
-} // Internal
-} // Autotest
+} // Autotest::Internal

@@ -57,12 +57,10 @@ struct HelpManagerPrivate
     QSet<QString> m_filesToRegister;
     QSet<QString> m_blockedDocumentation;
     QSet<QString> m_filesToUnregister;
-    QHash<QString, QVariant> m_customValues;
 
     QSet<QString> m_userRegisteredFiles;
 
     QMutex m_helpengineMutex;
-    QFuture<bool> m_registerFuture;
 };
 
 static HelpManager *m_instance = nullptr;
@@ -306,30 +304,6 @@ QString HelpManager::fileFromNamespace(const QString &nameSpace)
     return d->m_helpEngine->documentationFileName(nameSpace);
 }
 
-void HelpManager::setCustomValue(const QString &key, const QVariant &value)
-{
-    if (d->m_needsSetup) {
-        d->m_customValues.insert(key, value);
-        return;
-    }
-    if (d->m_helpEngine->setCustomValue(key, value))
-        emit m_instance->collectionFileChanged();
-}
-
-QVariant HelpManager::customValue(const QString &key, const QVariant &value)
-{
-    QTC_ASSERT(!d->m_needsSetup, return {});
-    return d->m_helpEngine->customValue(key, value);
-}
-
-void HelpManager::aboutToShutdown()
-{
-    if (d && d->m_registerFuture.isRunning()) {
-        d->m_registerFuture.cancel();
-        d->m_registerFuture.waitForFinished();
-    }
-}
-
 // -- private
 
 void HelpManager::setupHelpManager()
@@ -366,10 +340,6 @@ void HelpManager::setupHelpManager()
         m_instance->registerDocumentation(Utils::toList(d->m_filesToRegister));
         d->m_filesToRegister.clear();
     }
-
-    QHash<QString, QVariant>::const_iterator it;
-    for (it = d->m_customValues.constBegin(); it != d->m_customValues.constEnd(); ++it)
-        setCustomValue(it.key(), it.value());
 
     emit Core::HelpManager::Signals::instance()->setupFinished();
 }

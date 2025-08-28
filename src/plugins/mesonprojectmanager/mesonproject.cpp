@@ -3,6 +3,7 @@
 
 #include "mesonproject.h"
 
+#include "mesonbuildsystem.h"
 #include "mesonpluginconstants.h"
 #include "mesonprojectimporter.h"
 #include "mesonprojectmanagertr.h"
@@ -30,19 +31,7 @@ public:
         setDisplayName(projectDirectory().fileName());
         setCanBuildProducts();
         setHasMakeInstallEquivalent(true);
-    }
-
-    Tasks projectIssues(const Kit *k) const final
-    {
-        Tasks result = Project::projectIssues(k);
-
-        if (!MesonToolKitAspect::isValid(k))
-            result.append(
-                createProjectTask(Task::TaskType::Error, Tr::tr("No Meson tool set.")));
-        if (ToolchainKitAspect::toolChains(k).isEmpty())
-            result.append(createProjectTask(Task::TaskType::Warning,
-                                            Tr::tr("No compilers set in kit.")));
-        return result;
+        setBuildSystemCreator<MesonBuildSystem>("meson");
     }
 
     ProjectImporter *projectImporter() const final
@@ -53,18 +42,21 @@ public:
     }
 
 private:
-    DeploymentKnowledge deploymentKnowledge() const final
-    {
-        // TODO in next releases
-        return DeploymentKnowledge::Bad;
-    }
-
     mutable std::unique_ptr<MesonProjectImporter> m_projectImporter;
 };
 
 void setupMesonProject()
 {
-    ProjectManager::registerProjectType<MesonProject>(Constants::Project::MIMETYPE);
+    const auto issuesGenerator = [](const Kit *k) {
+        Tasks result;
+        if (!MesonToolKitAspect::isValid(k))
+            result.append(Project::createTask(Task::TaskType::Error, Tr::tr("No Meson tool set.")));
+        if (ToolchainKitAspect::toolChains(k).isEmpty())
+            result.append(
+                Project::createTask(Task::TaskType::Warning, Tr::tr("No compilers set in kit.")));
+        return result;
+    };
+    ProjectManager::registerProjectType<MesonProject>(Constants::Project::MIMETYPE, issuesGenerator);
 }
 
 } // namespace MesonProjectManager::Internal

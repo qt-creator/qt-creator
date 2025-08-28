@@ -102,6 +102,7 @@ public:
     Utils::Environment runEnvironment() const;
 
     QList<Utils::OutputLineParser *> createOutputParsers() const;
+    QString moduleForHeader(const QString &className) const;
 
     QString toHtml(const Tasks &additional = Tasks(), const QString &extraText = QString()) const;
     Kit *clone(bool keepName = false) const;

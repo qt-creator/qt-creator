@@ -28,13 +28,6 @@ struct NimbleMetadata
     QStringList bin;
     QString binDir;
     QString srcDir;
-
-    bool operator==(const NimbleMetadata &o) const {
-        return bin == o.bin && binDir == o.binDir && srcDir == o.srcDir;
-    }
-    bool operator!=(const NimbleMetadata &o) const {
-        return  !operator==(o);
-    }
 };
 
 const char C_NIMBLEPROJECT_TASKS[] = "Nim.NimbleProject.Tasks";
@@ -122,8 +115,8 @@ NimbleBuildSystem::NimbleBuildSystem(BuildConfiguration *bc)
 {
     m_projectScanner.watchProjectFilePath();
 
-    connect(&m_projectScanner, &NimProjectScanner::fileChanged, this, [this](const QString &path) {
-        if (path == projectFilePath().toUrlishString())
+    connect(&m_projectScanner, &NimProjectScanner::fileChanged, this, [this](const FilePath &path) {
+        if (path == projectFilePath())
             requestDelayedParse();
     });
 
@@ -132,11 +125,11 @@ NimbleBuildSystem::NimbleBuildSystem(BuildConfiguration *bc)
 
     connect(&m_projectScanner, &NimProjectScanner::finished, this, &NimbleBuildSystem::updateProject);
 
-    connect(&m_projectScanner, &NimProjectScanner::directoryChanged, this, [this] (const QString &directory){
+    connect(&m_projectScanner, &NimProjectScanner::directoryChanged, this, [this] (const FilePath &directory) {
         // Workaround for nimble creating temporary files in project root directory
         // when querying the list of tasks.
         // See https://github.com/nim-lang/nimble/issues/720
-        if (FilePath::fromString(directory) != projectDirectory())
+        if (directory != projectDirectory())
             requestDelayedParse();
     });
 
@@ -145,6 +138,12 @@ NimbleBuildSystem::NimbleBuildSystem(BuildConfiguration *bc)
     connect(bc->project(), &ProjectExplorer::Project::aboutToSaveSettings,
             this, &NimbleBuildSystem::saveSettings);
     requestDelayedParse();
+}
+
+NimbleBuildSystem::~NimbleBuildSystem()
+{
+    // Trigger any pending parsingFinished signals before destroying any other build system part:
+    m_guard = {};
 }
 
 void NimbleBuildSystem::triggerParsing()
@@ -286,10 +285,7 @@ class NimbleBuildConfiguration : public ProjectExplorer::BuildConfiguration
         });
     }
 
-    ~NimbleBuildConfiguration() { delete m_buildSystem; }
-
     BuildType buildType() const override { return m_buildType; }
-    BuildSystem *buildSystem() const override { return m_buildSystem; }
 
     void fromMap(const Utils::Store &map) override
     {
@@ -313,7 +309,6 @@ private:
         emit buildTypeChanged();
     }
 
-    NimbleBuildSystem * const m_buildSystem{new NimbleBuildSystem(this)};
     BuildType m_buildType = ProjectExplorer::BuildConfiguration::Unknown;
 };
 
@@ -335,6 +330,7 @@ public:
                     info.displayName = info.typeName;
                     info.buildDirectory = projectPath.parentDir();
                 }
+                info.enabledByDefault = buildType == BuildConfiguration::Debug;
                 return info;
             };
             return QList<BuildInfo>{
@@ -352,6 +348,7 @@ NimbleProject::NimbleProject(const FilePath &fileName)
     setDisplayName(fileName.completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+    setBuildSystemCreator<NimbleBuildSystem>("nimble");
 }
 
 void NimbleProject::toMap(Store &map) const

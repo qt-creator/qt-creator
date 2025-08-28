@@ -18,18 +18,7 @@ Project {
     ]
 
     Product {
-        name: "cmake project files"
-        files: {
-            var patterns = ["**/CMakeLists.txt", "**/*.cmake", "**/*.cmake.in"];
-            var list = [].concat(patterns);
-            var props = [additionalPlugins, additionalLibs, additionalTools, additionalAutotests];
-            for (var i = 0; i < props.length; ++i) {
-                for (var j = 0; j < props[i].length; ++j) {
-                    for (var k = 0; k < patterns.length; ++k)
-                        list.push(props[i][j] + "/" + patterns[k]);
-                }
-            }
-            return list;
-        }
+        name: "CMake helpers"
+        files: "cmake/*"
     }
 }

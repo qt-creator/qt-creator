@@ -19,6 +19,7 @@
 
 #include <utils/async.h>
 #include <utils/detailswidget.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -110,17 +111,17 @@ enum OpenSslValidation {
     OpenSslCmakeListsPathExists
 };
 
-static expected_str<void> testJavaC(const FilePath &jdkPath)
+static Result<> testJavaC(const FilePath &jdkPath)
 {
     if (!jdkPath.isReadableDir())
-        return make_unexpected(Tr::tr("The selected path does not exist or is not readable."));
+        return ResultError(Tr::tr("The selected path does not exist or is not readable."));
 
     const QString javacCommand("javac");
     const QString versionParameter("-version");
     const FilePath bin = jdkPath / "bin" / (javacCommand + QTC_HOST_EXE_SUFFIX);
 
     if (!bin.isExecutableFile())
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Could not find \"%1\" in the selected path.")
                 .arg(bin.toUserOutput()));
 
@@ -135,20 +136,20 @@ static expected_str<void> testJavaC(const FilePath &jdkPath)
     const QString stdOut = javacProcess.stdOut().trimmed();
 
     if (javacProcess.exitCode() != 0)
-        return make_unexpected(
+        return ResultError(
             Tr::tr("The selected path does not contain a valid JDK. (%1 failed: %2)")
                 .arg(cmd.toUserOutput(), stdOut));
 
     // We expect "javac <version>" where <version> is "major.minor.patch"
     const QString outputPrefix = javacCommand + " ";
     if (!stdOut.startsWith(outputPrefix))
-        return make_unexpected(Tr::tr("Unexpected output from \"%1\": %2")
+        return ResultError(Tr::tr("Unexpected output from \"%1\": %2")
                                    .arg(cmd.toUserOutput(), stdOut));
 
     jdkVersion = QVersionNumber::fromString(stdOut.mid(outputPrefix.length()).split('\n').first());
 
     if (jdkVersion.isNull() /* || jdkVersion.majorVersion() != requiredJavaMajorVersion */ ) {
-        return make_unexpected(Tr::tr("Unsupported JDK version (needs to be %1): %2 (parsed: %3)")
+        return ResultError(Tr::tr("Unsupported JDK version (needs to be %1): %2 (parsed: %3)")
                                    .arg(requiredJavaMajorVersion)
                                    .arg(stdOut, jdkVersion.toString()));
     }
@@ -255,11 +256,11 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                                          openSslDetailsWidget);
 
     m_openJdkLocationPathChooser->setValidationFunction([](const QString &s) {
-        return Utils::asyncRun([s]() -> expected_str<QString> {
-            expected_str<void> test = testJavaC(FilePath::fromUserInput(s));
+        return Utils::asyncRun([s]() -> Result<QString> {
+            Result<> test = testJavaC(FilePath::fromUserInput(s));
             if (!test) {
                 Core::MessageManager::writeSilently(test.error());
-                return make_unexpected(test.error());
+                return ResultError(test.error());
             }
             return s;
         });
@@ -342,14 +343,14 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     connect(m_ndkListWidget, &QListWidget::currentTextChanged,
             this, [this, removeCustomNdkButton](const QString &ndk) {
         updateUI();
-        removeCustomNdkButton->setEnabled(AndroidConfig::getCustomNdkList().contains(ndk));
+        removeCustomNdkButton->setEnabled(AndroidConfig::getCustomNdkList().contains(FilePath::fromUserInput(ndk)));
     });
     connect(addCustomNdkButton, &QPushButton::clicked, this,
             &AndroidSettingsWidget::addCustomNdkItem);
     connect(removeCustomNdkButton, &QPushButton::clicked, this, [this] {
         if (isDefaultNdkSelected())
             AndroidConfig::setDefaultNdk({});
-        AndroidConfig::removeCustomNdk(m_ndkListWidget->currentItem()->text());
+        AndroidConfig::removeCustomNdk(FilePath::fromUserInput(m_ndkListWidget->currentItem()->text()));
         m_ndkListWidget->takeItem(m_ndkListWidget->currentRow());
     });
     connect(m_makeDefaultNdkButton, &QPushButton::clicked, this, [this] {
@@ -431,10 +432,10 @@ void AndroidSettingsWidget::updateNdkList()
                                                         ndk->installedLocation().toUserOutput()));
     }
 
-    const auto customNdks = AndroidConfig::getCustomNdkList();
-    for (const QString &ndk : customNdks) {
+    const FilePaths customNdks = AndroidConfig::getCustomNdkList();
+    for (const FilePath &ndk : customNdks) {
         if (AndroidConfig::isValidNdk(ndk)) {
-            m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndk));
+            m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndk.toUrlishString()));
         } else {
             AndroidConfig::removeCustomNdk(ndk);
         }
@@ -445,14 +446,14 @@ void AndroidSettingsWidget::updateNdkList()
 
 void AndroidSettingsWidget::addCustomNdkItem()
 {
-    const QString homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation)
-            .constFirst();
-    const QString ndkPath = QFileDialog::getExistingDirectory(this, Tr::tr("Select an NDK"), homePath);
+    const FilePath homePath = FilePath::fromUserInput(QStandardPaths::standardLocations(QStandardPaths::HomeLocation)
+            .constFirst());
+    const FilePath ndkPath = FileUtils::getExistingDirectory(Tr::tr("Select an NDK"), homePath);
 
     if (AndroidConfig::isValidNdk(ndkPath)) {
         AndroidConfig::addCustomNdk(ndkPath);
-        if (m_ndkListWidget->findItems(ndkPath, Qt::MatchExactly).size() == 0) {
-            m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndkPath));
+        if (m_ndkListWidget->findItems(ndkPath.toUrlishString(), Qt::MatchExactly).size() == 0) {
+            m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndkPath.toUrlishString()));
         }
     } else if (!ndkPath.isEmpty()) {
         QMessageBox::warning(
@@ -479,7 +480,7 @@ bool AndroidSettingsWidget::isDefaultNdkSelected() const
 void AndroidSettingsWidget::validateJdk()
 {
     AndroidConfig::setOpenJDKLocation(m_openJdkLocationPathChooser->filePath());
-    expected_str<void> test = testJavaC(AndroidConfig::openJDKLocation());
+    Result<> test = testJavaC(AndroidConfig::openJDKLocation());
 
     m_androidSummary->setPointValid(JavaPathExistsAndWritableRow, test);
 

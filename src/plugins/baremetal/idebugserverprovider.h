@@ -9,6 +9,7 @@
 
 #include <utils/filepath.h>
 #include <utils/store.h>
+#include <utils/result.h>
 
 #include <QSet>
 #include <QUrl>
@@ -21,17 +22,14 @@ class QLineEdit;
 class QSpinBox;
 QT_END_NAMESPACE
 
-namespace Debugger {
-class DebuggerRunTool;
-}
+namespace Debugger { class DebuggerRunParameters; }
 
 namespace ProjectExplorer {
 class RunControl;
 class RunWorker;
 }
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
 class BareMetalDevice;
 class IDebugServerProviderConfigWidget;
@@ -55,7 +53,7 @@ public:
     void setChannel(const QUrl &channel);
     void setChannel(const QString &host, int port);
 
-    virtual QString channelString() const;
+    virtual QString channelPipe() const;
 
     QString id() const;
     QString typeDisplayName() const;
@@ -70,8 +68,8 @@ public:
     virtual void toMap(Utils::Store &data) const;
     virtual void fromMap(const Utils::Store &data);
 
-    virtual bool aboutToRun(Debugger::DebuggerRunTool *runTool,
-                            QString &errorMessage) const = 0;
+    virtual Utils::Result<> setupDebuggerRunParameters(Debugger::DebuggerRunParameters &rp,
+                                                     ProjectExplorer::RunControl *runControl) const = 0;
     virtual ProjectExplorer::RunWorker *targetRunner(
             ProjectExplorer::RunControl *runControl) const = 0;
 
@@ -179,5 +177,4 @@ protected:
     QSpinBox *m_portSpinBox = nullptr;
 };
 
-} // namespace Internal
-} // namespace BareMetal
+} // namespace BareMetal::Internal

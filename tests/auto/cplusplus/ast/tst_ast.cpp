@@ -2007,7 +2007,7 @@ void tst_AST::invalidCode()
     QFETCH(QByteArray, source);
 
     source += "\nclass Foo {};\n";
-    const std::shared_ptr<TranslationUnit> unit(parse(source, TranslationUnit::ParseTranlationUnit,
+    const std::shared_ptr<TranslationUnit> unit(parse(source, TranslationUnit::ParseTranslationUnit,
                                                      false, false, true));
 
     // Check that we find the class coming after the invalid garbage.
@@ -2058,7 +2058,7 @@ void tst_AST::invalidEnumWithDestructorId()
 void tst_AST::invalidFunctionInitializer()
 {
     std::shared_ptr<TranslationUnit> unit(parse(
-        "int main() { a t=b; c d(e)=\"\"; }", TranslationUnit::ParseTranlationUnit, false, false, true));
+        "int main() { a t=b; c d(e)=\"\"; }", TranslationUnit::ParseTranslationUnit, false, false, true));
 
     QVERIFY(diag.errorCount != 0);
 }
@@ -2066,7 +2066,7 @@ void tst_AST::invalidFunctionInitializer()
 void tst_AST::emptyMemberInitialization()
 {
     const std::shared_ptr<TranslationUnit> unit(parse(
-        "struct S\n{\n    S(): i() {}\n    int i;};", TranslationUnit::ParseTranlationUnit));
+        "struct S\n{\n    S(): i() {}\n    int i;};", TranslationUnit::ParseTranslationUnit));
     QVERIFY(unit->ast());
     QCOMPARE(diag.errorCount, 0);
 }
@@ -2075,7 +2075,7 @@ void tst_AST::placementNewWithEmptyConstructorArgs()
 {
     const std::shared_ptr<TranslationUnit> unit(parse(
         "int main()\n{    int* i = new int;\n    i = new(i) int();}",
-        TranslationUnit::ParseTranlationUnit));
+        TranslationUnit::ParseTranslationUnit));
     QVERIFY(unit->ast());
     QCOMPARE(diag.errorCount, 0);
 }

@@ -48,8 +48,11 @@ function(_add_doc _doc_file _dev_doc_file)
   add_qtc_documentation(${_doc_file}
     ENVIRONMENT_EXPORTS GENERATED_ATTRIBUTIONS_DIR
   )
+  set(attribution_src "${CMAKE_CURRENT_SOURCE_DIR}/../qt_attributions.json")
+  set(attribution_dest "${CMAKE_CURRENT_BINARY_DIR}/qt_attributions.json")
+  qtc_prepare_attribution_file("${attribution_src}" "${attribution_dest}")
   add_qtc_doc_attribution(doc_attributions
-    "${CMAKE_CURRENT_SOURCE_DIR}/../qt_attributions.json"
+    "${attribution_dest}"
     "${GENERATED_ATTRIBUTIONS_DIR}/creator-attributions.qdoc"
     ${_doc_file}
   )

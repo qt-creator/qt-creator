@@ -74,6 +74,8 @@
 using namespace Core;
 using namespace Utils;
 
+Q_LOGGING_CATEGORY(helpLog, "qtc.help", QtWarningMsg)
+
 namespace Help::Internal {
 
 const char kExternalWindowStateKey[] = "Help/ExternalWindowState";
@@ -118,7 +120,6 @@ public:
     static void activateHelpMode() { ModeManager::activateMode(Constants::ID_MODE_HELP); }
     static bool canShowHelpSideBySide();
 
-    HelpViewer *viewerForContextHelp();
     HelpWidget *createHelpWidget(const Core::Context &context, HelpWidget::WidgetStyle style);
     void createRightPaneContextViewer();
     HelpViewer *externalHelpViewer();
@@ -304,11 +305,6 @@ HelpViewer *HelpPluginPrivate::externalHelpViewer()
     return m_externalWindow->currentViewer();
 }
 
-void showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location)
-{
-    dd->showHelpUrl(url, location);
-}
-
 void showLinksInCurrentViewer(const QMultiMap<QString, QUrl> &links, const QString &key)
 {
     dd->showLinksInCurrentViewer(links, key);
@@ -450,11 +446,6 @@ void HelpPluginPrivate::showInHelpViewer(const QUrl &url, HelpViewer *viewer)
     viewer->window()->show();
 }
 
-HelpViewer *HelpPluginPrivate::viewerForContextHelp()
-{
-    return viewerForHelpViewerLocation(LocalHelpManager::contextHelpOption());
-}
-
 void HelpPluginPrivate::requestContextHelp()
 {
     // Find out what to show
@@ -462,6 +453,7 @@ void HelpPluginPrivate::requestContextHelp()
     const HelpItem tipHelp = tipHelpValue.canConvert<HelpItem>()
                                  ? tipHelpValue.value<HelpItem>()
                                  : HelpItem(tipHelpValue.toString());
+    qCDebug(helpLog) << "Request context help, tool tip:" << tipHelp;
     const QList<IContext *> contexts = ICore::currentContextObjects();
     if (contexts.isEmpty() && !tipHelp.isEmpty()) {
         showContextHelp(tipHelp);
@@ -492,7 +484,9 @@ void HelpPluginPrivate::requestContextHelpFor(QList<QPointer<IContext>> contexts
 
 void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
 {
+    qCDebug(helpLog) << "Show context help" << contextHelp;
     const HelpItem::Links links = contextHelp.bestLinks();
+    HelpItem::debugPrintLinks("Best Links:", contextHelp.links(), links);
     if (links.empty()) {
         // No link found or no context object
         HelpViewer *viewer = showHelpUrl(QUrl(Help::Constants::AboutBlank),

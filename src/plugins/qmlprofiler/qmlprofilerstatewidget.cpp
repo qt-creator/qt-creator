@@ -18,8 +18,7 @@
 
 #include <functional>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerStateWidget::QmlProfilerStateWidgetPrivate
 {
@@ -136,5 +135,4 @@ void QmlProfilerStateWidget::updateDisplay()
     }
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

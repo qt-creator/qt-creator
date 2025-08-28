@@ -14,6 +14,8 @@
 #include <solutions/tasking/tasktree.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
+#include <utils/guardedcallback.h>
 #include <utils/infobar.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/stylehelper.h>
@@ -33,14 +35,14 @@ using namespace std::string_view_literals;
 
 namespace Lua::Internal {
 
-expected_str<QJsonDocument> getPackageInfo(const FilePath &appDataPath)
+Result<QJsonDocument> getPackageInfo(const FilePath &appDataPath)
 {
     const FilePath packageInfoPath = appDataPath / "package.json";
 
     if (!packageInfoPath.exists())
         return QJsonDocument();
 
-    expected_str<QByteArray> json = packageInfoPath.fileContents();
+    Result<QByteArray> json = packageInfoPath.fileContents();
     if (!json)
         return make_unexpected(json.error());
 
@@ -58,7 +60,7 @@ expected_str<QJsonDocument> getPackageInfo(const FilePath &appDataPath)
     return doc;
 }
 
-expected_str<QJsonObject> getInstalledPackageInfo(const FilePath &appDataPath, const QString &name)
+Result<QJsonObject> getInstalledPackageInfo(const FilePath &appDataPath, const QString &name)
 {
     auto packageDoc = getPackageInfo(appDataPath);
     if (!packageDoc)
@@ -76,9 +78,9 @@ expected_str<QJsonObject> getInstalledPackageInfo(const FilePath &appDataPath, c
     return QJsonObject();
 }
 
-expected_str<QJsonDocument> getOrCreatePackageInfo(const FilePath &appDataPath)
+Result<QJsonDocument> getOrCreatePackageInfo(const FilePath &appDataPath)
 {
-    expected_str<QJsonDocument> doc = getPackageInfo(appDataPath);
+    Result<QJsonDocument> doc = getPackageInfo(appDataPath);
     if (doc && doc->isObject())
         return doc;
 
@@ -86,7 +88,7 @@ expected_str<QJsonDocument> getOrCreatePackageInfo(const FilePath &appDataPath)
     return QJsonDocument(obj);
 }
 
-expected_str<void> savePackageInfo(const FilePath &appDataPath, const QJsonDocument &doc)
+Result<> savePackageInfo(const FilePath &appDataPath, const QJsonDocument &doc)
 {
     if (!appDataPath.ensureWritableDir())
         return make_unexpected(Tr::tr("Cannot create app data directory."));
@@ -157,48 +159,44 @@ static Group installRecipe(
 
     const auto onUnarchiveSetup =
         [appDataPath, installOptionsIt, storage, emitResult](Unarchiver &unarchiver) {
-            const auto sourceAndCommand = Unarchiver::sourceAndCommand(
-                FilePath::fromUserInput(storage->fileName()));
-
-            if (!sourceAndCommand) {
-                emitResult(sourceAndCommand.error());
-                return SetupResult::StopWithError;
-            }
-            unarchiver.setGZipFileDestName(installOptionsIt->name);
-            unarchiver.setSourceAndCommand(*sourceAndCommand);
-            unarchiver.setDestDir(destination(appDataPath, *installOptionsIt));
+            unarchiver.setArchive(FilePath::fromUserInput(storage->fileName()));
+            unarchiver.setDestination(destination(appDataPath, *installOptionsIt));
             return SetupResult::Continue;
         };
 
-    const auto onUnarchiverDone = [appDataPath, installOptionsIt, emitResult](DoneWith result) {
-        if (result == DoneWith::Error)
-            return emitResult(Tr::tr("Unarchiving failed."));
-        if (result == DoneWith::Cancel)
-            return DoneResult::Error;
+    const auto onUnarchiverDone =
+        [appDataPath, installOptionsIt, emitResult](const Unarchiver &unarchiver, DoneWith result) {
+            if (result == DoneWith::Cancel)
+                return DoneResult::Error;
 
-        const FilePath destDir = destination(appDataPath, *installOptionsIt);
-        const FilePath binary = destDir / installOptionsIt->name;
+            Result<> r = unarchiver.result();
+            if (!r)
+                return emitResult(r.error());
 
-        if (binary.isFile())
-            binary.setPermissions(QFile::ExeUser | QFile::ExeGroup | QFile::ExeOther);
+            const FilePath destDir = destination(appDataPath, *installOptionsIt);
+            const FilePath binary = destDir / installOptionsIt->name;
 
-        expected_str<QJsonDocument> doc = getOrCreatePackageInfo(appDataPath);
-        if (!doc)
-            return emitResult(doc.error());
+            if (binary.isFile())
+                binary.setPermissions(QFile::ExeUser | QFile::ExeGroup | QFile::ExeOther);
 
-        QJsonObject obj = doc->object();
-        QJsonObject installedPackage;
-        installedPackage["version"] = installOptionsIt->version;
-        installedPackage["name"] = installOptionsIt->name;
-        installedPackage["path"] = destDir.toFSPathString();
-        obj[installOptionsIt->name] = installedPackage;
+            Result<QJsonDocument> doc = getOrCreatePackageInfo(appDataPath);
+            if (!doc)
+                return emitResult(doc.error());
 
-        expected_str<void> res = savePackageInfo(appDataPath, QJsonDocument(obj));
-        if (!res)
-            return emitResult(res.error());
-        return DoneResult::Success;
-    };
+            QJsonObject obj = doc->object();
+            QJsonObject installedPackage;
+            installedPackage["version"] = installOptionsIt->version;
+            installedPackage["name"] = installOptionsIt->name;
+            installedPackage["path"] = destDir.toFSPathString();
+            obj[installOptionsIt->name] = installedPackage;
 
+            Result<> res = savePackageInfo(appDataPath, QJsonDocument(obj));
+            if (!res)
+                return emitResult(res.error());
+            return DoneResult::Success;
+        };
+
+    // clang-format off
     return For (installOptionsIt) >> Do {
         storage,
         parallelIdealThreadCountLimit,
@@ -224,15 +222,16 @@ static Group installRecipe(
             }),
             NetworkQueryTask(onDownloadSetup, onDownloadDone),
             UnarchiverTask(onUnarchiveSetup, onUnarchiverDone),
-            onGroupDone([storage, emitResult] { storage->remove(); }),
+            onGroupDone([storage] { storage->remove(); }),
         },
         onGroupDone([emitResult](DoneWith result) {
             if (result == DoneWith::Cancel)
-                emitResult("Installation was canceled");
+                emitResult(Tr::tr("Installation was canceled."));
             else if (result == DoneWith::Success)
                 emitResult();
         }),
     };
+    // clang-format on
 }
 
 void setupInstallModule()
@@ -244,7 +243,7 @@ void setupInstallModule()
         State(const State &) {}
         ~State()
         {
-            for (auto tree : m_trees)
+            for (auto tree : std::as_const(m_trees))
                 delete tree;
         }
 
@@ -273,7 +272,7 @@ void setupInstallModule()
 
             install["packageInfo"] =
                 [pluginSpec](const QString &name, sol::this_state l) -> sol::optional<sol::table> {
-                expected_str<QJsonObject> obj
+                Result<QJsonObject> obj
                     = getInstalledPackageInfo(pluginSpec->appDataPath, name);
                 if (!obj)
                     throw sol::error(obj.error().toStdString());
@@ -294,6 +293,7 @@ void setupInstallModule()
                     const sol::table &installOptions,
                     const sol::function &callback) {
                     QList<InstallOptions> installOptionsList;
+                    auto guard = pluginSpec->connectionGuard.get();
                     if (installOptions.size() > 0) {
                         for (const auto &pair : installOptions) {
                             const sol::object &value = pair.second;
@@ -321,7 +321,8 @@ void setupInstallModule()
                         auto tree = state.createTree();
 
                         auto progress = new TaskProgress(tree);
-                        progress->setDisplayName(Tr::tr("Installing package(s) %1").arg("..."));
+                        progress->setDisplayName(
+                            Tr::tr("Installing %n package(s)...", "", installOptionsList.size()));
 
                         tree->setRecipe(
                             installRecipe(pluginSpec->appDataPath, installOptionsList, callback));
@@ -339,9 +340,13 @@ void setupInstallModule()
                             ICore::dialogParent());
 
                         const QString details
-                            = Tr::tr("The extension \"%1\" wants to install the following "
-                                     "package(s):\n\n")
+                            = Tr::tr(
+                                  "The extension \"%1\" wants to install the following %n "
+                                  "package(s):",
+                                  "",
+                                  installOptionsList.size())
                                   .arg(pluginSpec->name)
+                              + "\n\n"
                               + transform(installOptionsList, [](const InstallOptions &options) {
                                     //: %1 = package name, %2 = version, %3 = URL
                                     return QString("* %1 - %2 (from: %3)")
@@ -350,7 +355,6 @@ void setupInstallModule()
 
                         msgBox->setDetailedText(details);
 
-                        auto guard = pluginSpec->connectionGuard.get();
                         QObject::connect(msgBox, &QMessageBox::accepted, guard, install);
                         QObject::connect(msgBox, &QMessageBox::rejected, guard, denied);
 
@@ -366,17 +370,22 @@ void setupInstallModule()
 
                     InfoBarEntry entry(infoBarId, msg, InfoBarEntry::GlobalSuppression::Enabled);
 
-                    entry.addCustomButton(Tr::tr("Install"), [install, infoBarId]() {
-                        install();
-                        ICore::infoBar()->removeInfo(infoBarId);
-                    });
+                    entry.addCustomButton(
+                        Tr::tr("Install"),
+                        guardedCallback(guard, [install]() { install(); }),
+                        {},
+                        InfoBarEntry::ButtonAction::Hide);
 
                     entry.setCancelButtonInfo(denied);
 
                     const QString details
-                        = Tr::tr("The extension \"%1\" wants to install the following "
-                                 "package(s):\n\n")
+                        = Tr::tr(
+                              "The extension \"%1\" wants to install the following %n "
+                              "package(s):",
+                              "",
+                              installOptionsList.size())
                               .arg("**" + pluginSpec->name + "**") // markdown bold
+                          + "\n\n"
                           + transform(installOptionsList, [](const InstallOptions &options) {
                                 //: Markdown list item: %1 = package name, %2 = version, %3 = URL
                                 return Tr::tr("* %1 - %2 (from: [%3](%3))")

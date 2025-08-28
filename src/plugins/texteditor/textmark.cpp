@@ -182,6 +182,10 @@ TextMark::AnnotationRects TextMark::annotationRects(const QRectF &boundingRect,
     rects.text = lineAnnotation().simplified();
     if (rects.text.isEmpty())
         return rects;
+    // truncate the text to a sensible length to avoid expensive width calculation in QFontMetrics
+    // see QTBUG-138487
+    rects.text.truncate(1.2 * boundingRect.width() / fm.averageCharWidth());
+
     rects.fadeInRect = boundingRect;
     rects.fadeInRect.setWidth(fadeInOffset);
     rects.annotationRect = boundingRect;
@@ -292,7 +296,7 @@ void TextMark::addToToolTipLayout(QGridLayout *target) const
     target->addLayout(contentLayout, row, 1);
 
     // Right column: action icons/button
-    QList<QAction *> actions{m_actions.begin(), m_actions.end()};
+    QList<QAction *> actions;
     if (m_actionsProvider)
         actions = m_actionsProvider();
     if (m_category.id.isValid() && !m_lineAnnotation.isEmpty()) {
@@ -434,16 +438,6 @@ void TextMark::setToolTip(const QString &toolTip)
 {
     m_toolTip = toolTip;
     m_toolTipProvider = std::function<QString()>();
-}
-
-QVector<QAction *> TextMark::actions() const
-{
-    return m_actions;
-}
-
-void TextMark::setActions(const QVector<QAction *> &actions)
-{
-    m_actions = actions;
 }
 
 void TextMark::setActionsProvider(const std::function<QList<QAction *>()> &actionsProvider)

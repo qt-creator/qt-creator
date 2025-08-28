@@ -28,6 +28,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 
@@ -103,10 +104,10 @@ enum QmllsFunctionality {
 };
 
 static LanguageClient::Client *getQmllsClient(
-    const Utils::FilePath &fileName, QmllsFunctionality functionality)
+    ProjectExplorer::Project *project, const FilePath &fileName, QmllsFunctionality functionality)
 {
     if (functionality == ExperimentalFunctionality
-        && qmllsSettings()->useQmllsWithBuiltinCodemodelOnProject(fileName))
+        && qmllsSettings()->useQmllsWithBuiltinCodemodelOnProject(project, fileName))
         return nullptr;
 
     auto client = LanguageClient::LanguageClientManager::clientForFilePath(fileName);
@@ -133,7 +134,7 @@ void QmlJSEditorWidget::finalizeInitialization()
     m_updateUsesTimer.setInterval(UPDATE_USES_DEFAULT_INTERVAL);
     m_updateUsesTimer.setSingleShot(true);
     connect(&m_updateUsesTimer, &QTimer::timeout, this, &QmlJSEditorWidget::updateUses);
-    connect(this, &QPlainTextEdit::cursorPositionChanged,
+    connect(this, &PlainTextEdit::cursorPositionChanged,
             &m_updateUsesTimer, QOverload<>::of(&QTimer::start));
 
     m_updateOutlineIndexTimer.setInterval(UPDATE_OUTLINE_INTERVAL);
@@ -251,10 +252,10 @@ void QmlJSEditorWidget::foldAuxiliaryData()
     QTextBlock block = doc->lastBlock();
 
     while (block.isValid() && block.isVisible()) {
-        if (TextDocumentLayout::canFold(block) && block.next().isVisible()) {
+        if (TextBlockUserData::canFold(block) && block.next().isVisible()) {
             const QString trimmedText = block.text().trimmed();
             if (trimmedText.startsWith("/*##^##")) {
-                TextDocumentLayout::doFoldOrUnfold(block, false);
+                TextBlockUserData::doFoldOrUnfold(block, false);
                 documentLayout->requestUpdate();
                 documentLayout->emitDocumentSizeChanged();
                 break;
@@ -772,7 +773,9 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
                                    bool resolveTarget,
                                    bool /*inNextSplit*/)
 {
-    if (auto client = getQmllsClient(textDocument()->filePath(), DefaultFunctionality)) {
+    if (auto client = getQmllsClient(ProjectExplorer::ProjectManager::startupProject(),
+                                     textDocument()->filePath(),
+                                     DefaultFunctionality)) {
         client->findLinkAt(textDocument(),
                            cursor,
                            processLinkCallback,
@@ -875,6 +878,30 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
     link.targetLine = line;
     link.targetColumn = column - 1; // adjust the column
 
+    auto processPotentialCppLink = [&]() -> bool {
+        if (!value->asCppComponentValue() || !projectRootNode) {
+            processLinkCallback(link);
+            return true;
+        }
+
+        const ProjectExplorer::Node * const nodeForPath = projectRootNode->findNode(
+            [&fileName](ProjectExplorer::Node *n) {
+                const auto fileNode = n->asFileNode();
+                if (!fileNode)
+                    return false;
+                Utils::FilePath filePath = n->filePath();
+                return filePath.endsWith(fileName.toUserOutput());
+            });
+        if (nodeForPath) {
+            link.targetFilePath = nodeForPath->filePath();
+            processLinkCallback(link);
+            return true;
+        }
+
+        // else we will process an empty link below to avoid an error dialog
+        return false;
+    };
+
     if (auto q = AST::cast<const AST::UiQualifiedId *>(node)) {
         for (const AST::UiQualifiedId *tail = q; tail; tail = tail->next) {
             if (tail->next || !(cursorPosition <= tail->identifierToken.end())) {
@@ -884,31 +911,17 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
             link.linkTextStart = tail->identifierToken.begin();
             link.linkTextEnd = tail->identifierToken.end();
 
-            if (!value->asCppComponentValue() || !projectRootNode) {
-                processLinkCallback(link);
+            if (processPotentialCppLink()) {
                 return;
             }
-
-            const ProjectExplorer::Node * const nodeForPath = projectRootNode->findNode(
-                [&fileName](ProjectExplorer::Node *n) {
-                    const auto fileNode = n->asFileNode();
-                    if (!fileNode)
-                        return false;
-                    Utils::FilePath filePath = n->filePath();
-                    return filePath.endsWith(fileName.toUserOutput());
-                });
-            if (nodeForPath) {
-                link.targetFilePath = nodeForPath->filePath();
-                processLinkCallback(link);
-                return;
-            }
-            // else we will process an empty link below to avoid an error dialog
         }
     } else if (auto id = AST::cast<const AST::IdentifierExpression *>(node)) {
         link.linkTextStart = id->firstSourceLocation().begin();
         link.linkTextEnd = id->lastSourceLocation().end();
-        processLinkCallback(link);
-        return;
+
+        if (processPotentialCppLink()) {
+            return;
+        }
 
     } else if (auto mem = AST::cast<const AST::FieldMemberExpression *>(node)) {
         link.linkTextStart = mem->lastSourceLocation().begin();
@@ -924,7 +937,8 @@ void QmlJSEditorWidget::findUsages()
 {
     const Utils::FilePath fileName = textDocument()->filePath();
 
-    if (auto client = getQmllsClient(fileName, ExperimentalFunctionality)) {
+    if (auto client = getQmllsClient(ProjectExplorer::ProjectManager::startupProject(),
+                                     fileName, DefaultFunctionality)) {
         client->symbolSupport().findUsages(textDocument(), textCursor());
     } else {
         const int offset = textCursor().position();
@@ -936,7 +950,8 @@ void QmlJSEditorWidget::renameSymbolUnderCursor()
 {
     const Utils::FilePath fileName = textDocument()->filePath();
 
-    if (auto client = getQmllsClient(fileName, ExperimentalFunctionality)) {
+    if (auto client = getQmllsClient(ProjectExplorer::ProjectManager::startupProject(),
+                                     fileName, DefaultFunctionality)) {
         client->symbolSupport().renameSymbol(textDocument(), textCursor(), QString());
     } else {
         const int offset = textCursor().position();
@@ -1231,5 +1246,20 @@ void setupQmlJSEditor()
 }
 
 } // namespace Internal
+
+void setQdsSettingVisible(bool visible)
+{
+    Internal::settings().qdsCommand.setVisible(visible);
+}
+
+FilePath qdsCommand()
+{
+    const FilePath command = Internal::settings().qdsCommand.effectiveBinary();
+    if (command.isEmpty())
+        return Internal::settings().defaultQdsCommand();
+    return command;
+}
+
+// namespace Internal
 
 } // namespace QmlJSEditor

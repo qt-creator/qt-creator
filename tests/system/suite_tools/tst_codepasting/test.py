@@ -244,7 +244,7 @@ def main():
     # "Note: If the selection obtained from an editor spans a line break, the text will contain a
     # Unicode U+2029 paragraph separator character instead of a newline \n character."
     newParagraph = chr(0x2029)
-    selectedText = str(editor.textCursor().selectedText()).replace(newParagraph, "\n")
+    selectedText = str(textCursorForWidget(editor).selectedText()).replace(newParagraph, "\n")
     invokeMenuItem("Tools", "Code Pasting", "Paste Snippet...")
     test.compare(waitForObject(":stackedWidget.plainTextEdit_QPlainTextEdit").plainText,
                  selectedText, "Verify that dialog shows selected text from the editor")

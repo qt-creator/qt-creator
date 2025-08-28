@@ -41,7 +41,9 @@ void JsonKitsPage::initializePage()
                                        wiz->value(QLatin1String("RequiredFeatures")),
                                        wiz);
 
-    setTasksGenerator([required, preferred, platform](const Kit *k) -> Tasks {
+    const FilePath projectFilePath = wiz->expander()->expand(
+        Utils::FilePath::fromString(unexpandedProjectPath()));
+    setTasksGenerator([required, preferred, platform, projectFilePath](const Kit *k) -> Tasks {
         if (!k->hasFeatures(required))
             return {CompileTask(Task::Error, Tr::tr("At least one required feature is not present."))};
         if (platform.isValid() && !k->supportedPlatforms().contains(platform))
@@ -49,9 +51,11 @@ void JsonKitsPage::initializePage()
         if (!k->hasFeatures(preferred))
             return {
                 CompileTask(Task::Unknown, Tr::tr("At least one preferred feature is not present."))};
+        if (const auto issuesGenerator = ProjectManager::getIssuesGenerator(projectFilePath))
+            return issuesGenerator(k);
         return {};
     });
-    setProjectPath(wiz->expander()->expand(Utils::FilePath::fromString(unexpandedProjectPath())));
+    setProjectPath(projectFilePath);
 
     TargetSetupPage::initializePage();
 }
@@ -101,7 +105,7 @@ void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
     }
 }
 
-QSet<Id> JsonKitsPage::evaluate(const QVector<JsonKitsPage::ConditionalFeature> &list,
+QSet<Id> JsonKitsPage::evaluate(const QList<JsonKitsPage::ConditionalFeature> &list,
                                 const QVariant &defaultSet, JsonWizard *wiz)
 {
     if (list.isEmpty())
@@ -115,10 +119,10 @@ QSet<Id> JsonKitsPage::evaluate(const QVector<JsonKitsPage::ConditionalFeature> 
     return features;
 }
 
-QVector<JsonKitsPage::ConditionalFeature> JsonKitsPage::parseFeatures(const QVariant &data,
+QList<JsonKitsPage::ConditionalFeature> JsonKitsPage::parseFeatures(const QVariant &data,
                                                                       QString *errorMessage)
 {
-    QVector<ConditionalFeature> result;
+    QList<ConditionalFeature> result;
     if (errorMessage)
         errorMessage->clear();
 
@@ -142,14 +146,14 @@ QVector<JsonKitsPage::ConditionalFeature> JsonKitsPage::parseFeatures(const QVar
                     *errorMessage = Tr::tr("No \"%1\" key found in feature list object.")
                         .arg(QLatin1String(KEY_FEATURE));
                 }
-                return QVector<ConditionalFeature>();
+                return QList<ConditionalFeature>();
             }
 
             result.append({ feature, obj.value(QLatin1String(KEY_CONDITION), true) });
         } else {
             if (errorMessage)
                 *errorMessage = Tr::tr("Feature list element is not a string or object.");
-            return QVector<ConditionalFeature>();
+            return QList<ConditionalFeature>();
         }
     }
 

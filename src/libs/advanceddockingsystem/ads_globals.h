@@ -205,8 +205,8 @@ void setToolTip(QObjectPtr obj, const QString &tip)
 #ifndef QT_NO_TOOLTIP
     obj->setToolTip(tip);
 #else
-    Q_UNUSED(obj);
-    Q_UNUSED(tip);
+    Q_UNUSED(obj)
+    Q_UNUSED(tip)
 #endif
 }
 

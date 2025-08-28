@@ -8,13 +8,11 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QVector>
-#include <QString>
 #include <QQueue>
 #include <QSet>
+#include <QString>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 static inline quint64 supportedFeatures()
 {
@@ -76,7 +74,7 @@ void FlameGraphModel::loadNotes(int typeIndex, bool emitSignal)
     }
 
     if (emitSignal)
-        emit dataChanged(QModelIndex(), QModelIndex(), QVector<int>() << NoteRole);
+        emit dataChanged(QModelIndex(), QModelIndex(), QList<int>() << NoteRole);
 }
 
 void FlameGraphModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
@@ -127,7 +125,7 @@ void FlameGraphModel::finalize()
 
 void FlameGraphModel::onTypeDetailsFinished()
 {
-    emit dataChanged(QModelIndex(), QModelIndex(), QVector<int>(1, DetailsRole));
+    emit dataChanged(QModelIndex(), QModelIndex(), QList<int>(1, DetailsRole));
 }
 
 void FlameGraphModel::restrictToFeatures(quint64 visibleFeatures)
@@ -224,7 +222,7 @@ FlameGraphData::~FlameGraphData()
 
 FlameGraphData *FlameGraphModel::pushChild(FlameGraphData *parent, const QmlEvent &data)
 {
-    QVector<FlameGraphData *> &siblings = parent->children;
+    QList<FlameGraphData *> &siblings = parent->children;
 
     for (auto it = siblings.begin(), end = siblings.end(); it != end; ++it) {
         FlameGraphData *child = *it;
@@ -317,5 +315,4 @@ QmlProfilerModelManager *FlameGraphModel::modelManager() const
     return m_modelManager;
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

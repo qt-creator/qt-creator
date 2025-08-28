@@ -72,9 +72,9 @@ std::optional<QString> fontFamily(const QString &fontPath)
     return fontFamilies.front();
 }
 
-Utils::expected_str<QSet<QString>> mcuFonts()
+Utils::Result<QSet<QString>> mcuFonts()
 {
-    Utils::expected_str<Utils::FilePath> mcuFontsDir = QmlProjectManager::mcuFontsDir();
+    Utils::Result<Utils::FilePath> mcuFontsDir = QmlProjectManager::mcuFontsDir();
     if (!mcuFontsDir) {
         return Utils::make_unexpected(mcuFontsDir.error());
     }

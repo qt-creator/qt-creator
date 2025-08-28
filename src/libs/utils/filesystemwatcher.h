@@ -10,10 +10,9 @@
 #include <QObject>
 
 namespace Utils {
-class FileSystemWatcherPrivate;
 
 // Documentation inside.
-class QTCREATOR_UTILS_EXPORT FileSystemWatcher : public QObject
+class QTCREATOR_UTILS_EXPORT FileSystemWatcher final : public QObject
 {
     Q_OBJECT
 
@@ -30,7 +29,6 @@ public:
 
     void clear();
 
-    // Good to use in new code:
     void addFile(const Utils::FilePath &file, WatchMode wm);
     void addFiles(const Utils::FilePaths &files, WatchMode wm);
 
@@ -38,39 +36,21 @@ public:
     void removeFiles(const Utils::FilePaths &files);
 
     bool watchesFile(const Utils::FilePath &file) const;
-    Utils::FilePaths filePaths() const;
+    Utils::FilePaths files() const;
 
-    void addDirectory(const Utils::FilePath &file, WatchMode wm);
-    void addDirectories(const Utils::FilePaths &files, WatchMode wm);
+    void addDirectory(const Utils::FilePath &dir, WatchMode wm);
+    void addDirectories(const Utils::FilePaths &dirs, WatchMode wm);
 
-    void removeDirectory(const Utils::FilePath &file);
-    void removeDirectories(const Utils::FilePaths &files);
+    void removeDirectory(const Utils::FilePath &dir);
+    void removeDirectories(const Utils::FilePaths &dirs);
 
-    bool watchesDirectory(const Utils::FilePath &file) const;
+    bool watchesDirectory(const Utils::FilePath &dir) const;
 
-    Utils::FilePaths directoryPaths() const;
-
-    // Phase out:
-    void addFile(const QString &file, WatchMode wm);
-    void addFiles(const QStringList &files, WatchMode wm);
-
-    void removeFile(const QString &file);
-    void removeFiles(const QStringList &files);
-
-    bool watchesFile(const QString &file) const;
-    QStringList files() const;
-
-    void addDirectory(const QString &file, WatchMode wm);
-    void addDirectories(const QStringList &files, WatchMode wm);
-
-    void removeDirectories(const QStringList &files);
-
-    bool watchesDirectory(const QString &file) const;
-    QStringList directories() const;
+    Utils::FilePaths directories() const;
 
 signals:
-    void fileChanged(const QString &path);
-    void directoryChanged(const QString &path);
+    void fileChanged(const Utils::FilePath &path);
+    void directoryChanged(const Utils::FilePath &path);
 
 private:
     void init();
@@ -78,7 +58,7 @@ private:
     void slotDirectoryChanged(const QString &path);
     void handleDirChanged(const QString &path);
 
-    FileSystemWatcherPrivate *d;
+    class FileSystemWatcherPrivate *d;
 };
 
 } // namespace Utils

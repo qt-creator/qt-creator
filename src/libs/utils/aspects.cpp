@@ -8,7 +8,6 @@
 #include "environment.h"
 #include "fancylineedit.h"
 #include "guard.h"
-#include "iconbutton.h"
 #include "layoutbuilder.h"
 #include "macroexpander.h"
 #include "passworddialog.h"
@@ -17,6 +16,7 @@
 #include "qtcassert.h"
 #include "qtcolorbutton.h"
 #include "qtcsettings.h"
+#include "qtcwidgets.h"
 #include "stylehelper.h"
 #include "utilsicons.h"
 #include "utilstr.h"
@@ -102,10 +102,11 @@ public:
     AspectContainer *m_container = nullptr; // Not owned by us.
 
     bool m_visible = true;
-    bool m_enabled = true;
     bool m_readOnly = false;
     bool m_autoApply = true;
-    bool m_hasEnabler = false;
+    bool m_saveAlways = false; // if true, also empty keys will be written
+    QPointer<BoolAspect> m_enabler;
+    bool m_enabled = true;
     int m_spanX = 1;
     int m_spanY = 1;
     BaseAspect::ConfigWidgetCreator m_configWidgetCreator;
@@ -393,6 +394,8 @@ QUndoStack *BaseAspect::undoStack() const
 
 bool BaseAspect::isEnabled() const
 {
+    if (d->m_enabler)
+        return d->m_enabler->isEnabled() && d->m_enabler->volatileValue();
     return d->m_enabled;
 }
 
@@ -417,11 +420,9 @@ void BaseAspect::setEnabler(BoolAspect *checker)
 {
     QTC_ASSERT(checker, return);
 
-    d->m_hasEnabler = true;
+    d->m_enabler = checker;
 
-    auto update = [this, checker] {
-        BaseAspect::setEnabled(checker->isEnabled() && checker->volatileValue());
-    };
+    auto update = [this] { BaseAspect::setEnabled(isEnabled()); };
 
     connect(checker, &BoolAspect::volatileValueChanged, this, update);
     connect(checker, &BoolAspect::changed, this, update);
@@ -453,6 +454,16 @@ void BaseAspect::setSpan(int x, int y)
 {
     d->m_spanX = x;
     d->m_spanY = y;
+}
+
+bool BaseAspect::isSaveAlways() const
+{
+    return d->m_saveAlways;
+}
+
+void BaseAspect::setSaveAlways(bool saveAlways)
+{
+    d->m_saveAlways = saveAlways;
 }
 
 bool BaseAspect::isAutoApply() const
@@ -655,7 +666,7 @@ void BaseAspect::registerSubWidget(QWidget *widget)
         d->m_subWidgets.removeAll(widget);
     });
 
-    widget->setEnabled(d->m_enabled);
+    widget->setEnabled(isEnabled());
     widget->setToolTip(d->m_tooltip);
 
     // Visible is on by default. Not setting it explicitly avoid popping
@@ -666,7 +677,7 @@ void BaseAspect::registerSubWidget(QWidget *widget)
 
 void BaseAspect::forEachSubWidget(const std::function<void(QWidget *)> &func)
 {
-    for (const QPointer<QWidget> &w : d->m_subWidgets)
+    for (const QPointer<QWidget> &w : std::as_const(d->m_subWidgets))
         func(w);
 }
 
@@ -676,9 +687,9 @@ void BaseAspect::setContainer(AspectContainer *container)
 }
 
 void BaseAspect::saveToMap(Store &data, const QVariant &value,
-                           const QVariant &defaultValue, const Key &key)
+                           const QVariant &defaultValue, const Key &key) const
 {
-    if (key.isEmpty())
+    if (key.isEmpty() && !d->m_saveAlways)
         return;
     if (value == defaultValue)
         data.remove(key);
@@ -686,13 +697,19 @@ void BaseAspect::saveToMap(Store &data, const QVariant &value,
         data.insert(key, value);
 }
 
+bool BaseAspect::skipSave() const
+{
+    return settingsKey().isEmpty() && !d->m_saveAlways;
+}
+
 /*!
     Retrieves the internal value of this BaseAspect from the Store \a map.
 */
 void BaseAspect::fromMap(const Store &map)
 {
-    if (settingsKey().isEmpty())
+    if (skipSave())
         return;
+
     const QVariant val = map.value(settingsKey(), toSettingsValue(defaultVariantValue()));
     setVariantValue(fromSettingsValue(val), BeQuiet);
 }
@@ -702,15 +719,11 @@ void BaseAspect::fromMap(const Store &map)
 */
 void BaseAspect::toMap(Store &map) const
 {
-    if (settingsKey().isEmpty())
-        return;
     saveToMap(map, toSettingsValue(variantValue()), toSettingsValue(defaultVariantValue()), settingsKey());
 }
 
 void BaseAspect::volatileToMap(Store &map) const
 {
-    if (settingsKey().isEmpty())
-        return;
     saveToMap(map,
               toSettingsValue(volatileVariantValue()),
               toSettingsValue(defaultVariantValue()),
@@ -724,20 +737,16 @@ void BaseAspect::addToLayout(Layouting::Layout &parent) const
 
 void BaseAspect::readSettings()
 {
-    if (settingsKey().isEmpty())
+    if (skipSave())
         return;
     QTC_ASSERT(theSettings, return);
-    // The enabler needs to be set up after reading the settings, otherwise
-    // changes from reading the settings will not update the enabled state
-    // because the updates are "quiet".
-    QTC_CHECK(!d->m_hasEnabler);
     const QVariant val = theSettings->value(settingsKey());
     setVariantValue(val.isValid() ? fromSettingsValue(val) : defaultVariantValue(), BeQuiet);
 }
 
 void BaseAspect::writeSettings() const
 {
-    if (settingsKey().isEmpty())
+    if (skipSave())
         return;
     QTC_ASSERT(theSettings, return);
     theSettings->setValueWithDefault(settingsKey(),
@@ -840,6 +849,7 @@ class ColorAspectPrivate
 {
 public:
     QPointer<QtColorButton> m_colorButton; // Owned by configuration widget
+    QSize m_size;
 };
 
 class SelectionAspectPrivate
@@ -979,6 +989,7 @@ public:
     Key m_historyCompleterKey;
     StringAspect::ValueAcceptor m_valueAcceptor;
     std::optional<FancyLineEdit::ValidationFunction> m_validator;
+    std::function<QValidator *(QObject *parent)> m_validatorFactory;
 
     CheckableAspectImplementation m_checkerImpl;
 
@@ -1120,7 +1131,7 @@ void StringAspect::setValueAcceptor(StringAspect::ValueAcceptor &&acceptor)
 */
 void StringAspect::fromMap(const Store &map)
 {
-    if (!settingsKey().isEmpty())
+    if (!skipSave())
         setValue(map.value(settingsKey(), defaultValue()).toString(), BeQuiet);
     d->m_checkerImpl.fromMap(map);
 }
@@ -1223,6 +1234,12 @@ void StringAspect::setValidationFunction(const FancyLineEdit::ValidationFunction
     emit validationFunctionChanged(validator);
 }
 
+void StringAspect::setValidatorFactory(
+    const std::function<QValidator *(QObject *parent)> &validatorFactory)
+{
+    d->m_validatorFactory = validatorFactory;
+}
+
 void StringAspect::setAutoApplyOnEditingFinished(bool applyOnEditingFinished)
 {
     d->m_autoApplyOnEditingFinished = applyOnEditingFinished;
@@ -1271,6 +1288,9 @@ void StringAspect::addToLayoutImpl(Layout &parent)
 
         if (d->m_validator)
             lineEditDisplay->setValidationFunction(*d->m_validator);
+        else if (d->m_validatorFactory)
+            lineEditDisplay->setValidator(d->m_validatorFactory(lineEditDisplay));
+
         lineEditDisplay->setTextKeepingActiveCursor(displayedString);
         lineEditDisplay->setReadOnly(isReadOnly());
         lineEditDisplay->setValidatePlaceHolder(d->m_validatePlaceHolder);
@@ -1751,7 +1771,7 @@ void FilePathAspect::addToLayoutImpl(Layouting::Layout &parent)
 */
 void FilePathAspect::fromMap(const Store &map)
 {
-    if (!settingsKey().isEmpty())
+    if (!skipSave())
         setValue(map.value(settingsKey(), defaultValue()).toString(), BeQuiet);
     d->m_checkerImpl.fromMap(map);
 }
@@ -1907,11 +1927,18 @@ void ColorAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     QTC_CHECK(!d->m_colorButton);
     d->m_colorButton = createSubWidget<QtColorButton>();
+    if (d->m_size.isValid())
+        d->m_colorButton->setMinimumSize(d->m_size);
     parent.addItem(d->m_colorButton.data());
 
     bufferToGui();
     connect(d->m_colorButton.data(), &QtColorButton::colorChanged,
             this, &ColorAspect::handleGuiChanged);
+}
+
+void ColorAspect::setMinimumSize(const QSize &size)
+{
+    d->m_size = size;
 }
 
 bool ColorAspect::guiToBuffer()
@@ -2540,7 +2567,7 @@ void IntegerAspect::addToLayoutImpl(Layouting::Layout &parent)
     d->m_spinBox->setSuffix(d->m_suffix);
     d->m_spinBox->setSingleStep(d->m_singleStep);
     d->m_spinBox->setSpecialValueText(d->m_specialValueText);
-    if (d->m_maximumValue && d->m_maximumValue)
+    if (d->m_minimumValue && d->m_maximumValue)
         d->m_spinBox->setRange(int(d->m_minimumValue.value() / d->m_displayScaleFactor),
                                int(d->m_maximumValue.value() / d->m_displayScaleFactor));
     bufferToGui();
@@ -2641,7 +2668,7 @@ void DoubleAspect::addToLayoutImpl(Layout &builder)
     d->m_spinBox->setSuffix(d->m_suffix);
     d->m_spinBox->setSingleStep(d->m_singleStep);
     d->m_spinBox->setSpecialValueText(d->m_specialValueText);
-    if (d->m_maximumValue && d->m_maximumValue)
+    if (d->m_minimumValue && d->m_maximumValue)
         d->m_spinBox->setRange(d->m_minimumValue.value(), d->m_maximumValue.value());
     bufferToGui(); // Must happen after setRange()!
     addLabeledItem(builder, d->m_spinBox);
@@ -3404,7 +3431,7 @@ BaseAspect::Data::Ptr BaseAspect::extractData() const
     data->m_classId = metaObject();
     data->m_id = id();
     data->m_cloner = d->m_dataCloner;
-    for (const DataExtractor &extractor : d->m_dataExtractors)
+    for (const DataExtractor &extractor : std::as_const(d->m_dataExtractors))
         extractor(data);
     return Data::Ptr(data);
 }
@@ -3578,7 +3605,7 @@ void AspectList::fromMap(const Utils::Store &map)
 {
     QTC_ASSERT(!settingsKey().isEmpty(), return);
 
-    QVariantList list = map[settingsKey()].toList();
+    const QVariantList list = map[settingsKey()].toList();
     d->volatileItems.clear();
     for (const QVariant &entry : list) {
         auto item = d->createItem();
@@ -3724,7 +3751,7 @@ bool AspectList::isDirty()
     if (d->items != d->volatileItems)
         return true;
 
-    for (const std::shared_ptr<BaseAspect> &item : d->volatileItems) {
+    for (const std::shared_ptr<BaseAspect> &item : std::as_const(d->volatileItems)) {
         if (item->isDirty())
             return true;
     }
@@ -3755,57 +3782,50 @@ private:
 void AspectList::addToLayoutImpl(Layouting::Layout &parent)
 {
     using namespace Layouting;
+    using namespace Utils::QtcWidgets;
 
-    QScrollArea *scrollArea = new QScrollArea;
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setMaximumHeight(100);
-    scrollArea->setMinimumHeight(100);
-    scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-    auto fill = [this, scrollArea] {
-        if (scrollArea->widget())
-            delete scrollArea->takeWidget();
-
-        auto add = new QPushButton(Tr::tr("Add"));
-        QObject::connect(add, &QPushButton::clicked, scrollArea, [this] {
-            addItem(d->createItem());
-        });
-
-        Column column{noMargin};
-
-        forEachItem<BaseAspect>([&column, this](const std::shared_ptr<BaseAspect> &item, int idx) {
-            auto removeBtn = new IconButton;
-            removeBtn->setIcon(Utils::Icons::EDIT_CLEAR.icon());
-            removeBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-            QObject::connect(removeBtn, &QPushButton::clicked, removeBtn, [this, item] {
-                removeItem(item);
-            });
-            ColoredRow *rowWdgt = new ColoredRow(idx);
+    auto fill = [this] {
+        const auto createRow = [this](const std::shared_ptr<BaseAspect> &item) {
             // clang-format off
-            auto row = Row {
+            return Row {
                 *item,
-                removeBtn,
+                IconButton {
+                    ::icon(Utils::Icons::EDIT_CLEAR),
+                    sizePolicy(QSizePolicy{QSizePolicy::Fixed, QSizePolicy::Fixed}),
+                    onClicked(this, [this, item] {
+                        removeItem(item);
+                    })
+                },
                 spacing(5),
+                noMargin,
             };
             // clang-format on
-            row.attachTo(rowWdgt);
-            column.addItem(rowWdgt);
-        });
+        };
 
-        ColoredRow *rowWdgt = new ColoredRow(size());
-        Row{st, add}.attachTo(rowWdgt);
-        column.addItem(rowWdgt);
-
-        QWidget *contentWidget = column.emerge();
-        contentWidget->layout()->setSpacing(1);
-
-        scrollArea->setWidget(contentWidget);
+        // clang-format off
+        return Column {
+            Utils::transform(volatileItems(), createRow),
+            Row {
+                noMargin,
+                st,
+                IconButton {
+                    ::icon(Utils::Icons::PLUS),
+                    onClicked(this, [this](){
+                        addItem(d->createItem());
+                    })
+                }
+            }
+        };
+        // clang-format on
     };
 
-    fill();
-    QObject::connect(this, &AspectList::volatileValueChanged, scrollArea, fill);
-
-    parent.addItem(scrollArea);
+    // clang-format off
+    parent.addItem(
+        Group {
+            replaceLayoutOn(this, &AspectList::volatileValueChanged, fill)
+        }
+    );
+    // clang-format on
 }
 
 StringSelectionAspect::StringSelectionAspect(AspectContainer *container)
@@ -3887,10 +3907,11 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 
     QComboBox *comboBox = new QComboBox();
     comboBox->setInsertPolicy(QComboBox::InsertPolicy::NoInsert);
-    comboBox->setEditable(true);
-    comboBox->completer()->setCompletionMode(QCompleter::PopupCompletion);
-    comboBox->completer()->setFilterMode(Qt::MatchContains);
-
+    comboBox->setEditable(m_comboBoxEditable);
+    if (m_comboBoxEditable) {
+        comboBox->completer()->setCompletionMode(QCompleter::PopupCompletion);
+        comboBox->completer()->setFilterMode(Qt::MatchContains);
+    }
     comboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     comboBox->setCurrentText(value());
     comboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
@@ -3935,4 +3956,4 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
     return addLabeledItem(parent, comboBox);
 }
 
-} // Utils
+} // namespace Utils

@@ -10,7 +10,6 @@
 #include <utils/outputformat.h>
 
 #include <QPointer>
-#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QToolButton;
@@ -137,7 +136,7 @@ private:
     void storeSettings() const;
 
     TabWidget *m_tabWidget;
-    QVector<RunControlTab> m_runControlTabs;
+    QList<RunControlTab> m_runControlTabs;
     QAction *m_stopAction;
     QAction *m_closeCurrentTabAction;
     QAction *m_closeAllTabsAction;

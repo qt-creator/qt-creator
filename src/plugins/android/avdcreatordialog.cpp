@@ -18,6 +18,7 @@
 #include <utils/algorithm.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
+#include <utils/progressdialog.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/tooltip/tooltip.h>
@@ -31,7 +32,6 @@
 #include <QLineEdit>
 #include <QLoggingCategory>
 #include <QMessageBox>
-#include <QProgressDialog>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QSpinBox>
@@ -274,7 +274,7 @@ id: 3 or "desktop_large"
                 avdDeviceInfo << line;
             }
         }
-        for (const QString &type : m_deviceTypeToStringMap)
+        for (const QString &type : std::as_const(m_deviceTypeToStringMap))
             m_deviceDefinitionTypeComboBox->addItem(type);
 
         updateApiLevelComboBox();
@@ -314,15 +314,8 @@ void AvdDialog::createAvd()
 
     struct Progress {
         Progress() {
-            progressDialog.reset(new QProgressDialog(Core::ICore::dialogParent()));
-            progressDialog->setRange(0, 0);
-            progressDialog->setWindowModality(Qt::ApplicationModal);
-            progressDialog->setMinimumDuration(INT_MAX); // In order to suppress calls to processEvents() from setValue()
-            progressDialog->setWindowTitle("Create new AVD");
-            progressDialog->setLabelText(Tr::tr("Creating new AVD device..."));
-            progressDialog->setFixedSize(progressDialog->sizeHint());
-            progressDialog->setAutoClose(false);
-            progressDialog->show(); // TODO: Should not be needed. Investigate possible QT_BUG
+            progressDialog.reset(createProgressDialog(0, Tr::tr("Create new AVD"),
+                                                      Tr::tr("Creating new AVD device...")));
         }
         std::unique_ptr<QProgressDialog> progressDialog;
     };

@@ -22,8 +22,6 @@ class PLUGIN1_EXPORT MyPlugin1 : public ExtensionSystem::IPlugin
 
 public:
     MyPlugin1() = default;
-
-    bool initialize(const QStringList &arguments, QString *errorString) final;
 };
 
 } // namespace Plugin1

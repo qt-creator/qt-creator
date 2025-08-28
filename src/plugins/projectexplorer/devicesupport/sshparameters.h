@@ -5,6 +5,7 @@
 
 #include "../projectexplorer_export.h"
 
+#include <utils/aspects.h>
 #include <utils/filepath.h>
 
 namespace Utils { class Process; }
@@ -40,21 +41,55 @@ public:
 
     QStringList connectionOptions(const Utils::FilePath &binary) const;
 
-    Utils::FilePath privateKeyFile;
-    QString x11DisplayName;
-    int timeout = 0; // In seconds.
-    AuthenticationType authenticationType = AuthenticationTypeAll;
-    SshHostKeyCheckingMode hostKeyCheckingMode = SshHostKeyCheckingAllowNoMatch;
-
     static void setupSshEnvironment(Utils::Process *process);
 
     friend PROJECTEXPLORER_EXPORT bool operator==(const SshParameters &p1, const SshParameters &p2);
     friend bool operator!=(const SshParameters &p1, const SshParameters &p2) { return !(p1 == p2); }
 
+    Utils::FilePath privateKeyFile() const { return m_privateKeyFile; }
+    void setPrivateKeyFile(const Utils::FilePath &file) { m_privateKeyFile = file; }
+
+    QString x11DisplayName() const { return m_x11DisplayName; }
+    void setX11DisplayName(const QString &display) { m_x11DisplayName = display; }
+
+    int timeout() const { return m_timeout; }
+    void setTimeout(int seconds) { m_timeout = seconds; }
+
+    AuthenticationType authenticationType() const { return m_authenticationType; }
+    void setAuthenticationType(AuthenticationType type) { m_authenticationType = type; }
+
+    SshHostKeyCheckingMode hostKeyCheckingMode() const { return m_hostKeyCheckingMode; }
+    void setHostKeyCheckingMode(SshHostKeyCheckingMode mode) { m_hostKeyCheckingMode = mode; }
+
 private:
+    Utils::FilePath m_privateKeyFile;
+    QString m_x11DisplayName;
+    int m_timeout = 0; // In seconds. TODO: Change to chrono::duration
+    AuthenticationType m_authenticationType = AuthenticationTypeAll;
+    SshHostKeyCheckingMode m_hostKeyCheckingMode = SshHostKeyCheckingAllowNoMatch;
+
     QString m_host;
     quint16 m_port = 22;
     QString m_userName;
+};
+
+class PROJECTEXPLORER_EXPORT SshParametersAspectContainer : public Utils::AspectContainer
+{
+public:
+    SshParametersAspectContainer();
+
+    SshParameters sshParameters() const;
+    void setSshParameters(const SshParameters &params);
+
+public:
+    Utils::BoolAspect useKeyFile{this};
+    Utils::FilePathAspect privateKeyFile{this};
+    Utils::IntegerAspect timeout{this};
+    Utils::TypedSelectionAspect<SshHostKeyCheckingMode> hostKeyCheckingMode{this};
+
+    Utils::StringAspect host{this};
+    Utils::IntegerAspect port{this};
+    Utils::StringAspect userName{this};
 };
 
 #ifdef WITH_TESTS

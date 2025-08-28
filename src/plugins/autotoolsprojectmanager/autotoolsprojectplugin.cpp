@@ -4,44 +4,12 @@
 #include "autogenstep.h"
 #include "autoreconfstep.h"
 #include "autotoolsbuildconfiguration.h"
-#include "autotoolsprojectconstants.h"
 #include "configurestep.h"
 #include "makestep.h"
 
-#include <coreplugin/icontext.h>
-
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectmanager.h>
-
 #include <extensionsystem/iplugin.h>
 
-#include <utils/mimeconstants.h>
-
-using namespace ProjectExplorer;
-
 namespace AutotoolsProjectManager::Internal {
-
-/**
- * @brief Implementation of the ProjectExplorer::Project interface.
- *
- * Loads the autotools project and embeds it into the QtCreator project tree.
- * The class AutotoolsProject is the core of the autotools project plugin.
- * It is responsible to parse the Makefile.am files and do trigger project
- * updates if a Makefile.am file or a configure.ac file has been changed.
- */
-class AutotoolsProject : public Project
-{
-public:
-    explicit AutotoolsProject(const Utils::FilePath &fileName)
-        : Project(Utils::Constants::MAKEFILE_MIMETYPE, fileName)
-    {
-        setId(Constants::AUTOTOOLS_PROJECT_ID);
-        setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-        setDisplayName(projectDirectory().fileName());
-        setHasMakeInstallEquivalent(true);
-    }
-};
 
 /**
  * @brief Implementation of the ExtensionsSystem::IPlugin interface.
@@ -76,13 +44,11 @@ class AutotoolsProjectPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
-        ProjectManager::registerProjectType<AutotoolsProject>(Utils::Constants::MAKEFILE_MIMETYPE);
-
+        setupAutotoolsProject();
         setupAutogenStep();
         setupConfigureStep();
         setupAutoreconfStep();
         setupAutotoolsMakeStep();
-        setupAutotoolsBuildConfiguration();
     }
 };
 

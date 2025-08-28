@@ -19,6 +19,7 @@
 #include <qmljs/qmljsrewriter.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 
@@ -171,12 +172,22 @@ public:
 
         if (path.toUrlishString() == currentFileName.toFileInfo().path()) {
             // hack for the common case, next version should use the wizard
-            ProjectExplorer::Node *oldFileNode = ProjectExplorer::ProjectTree::nodeForFile(
-                currentFileName);
-            if (oldFileNode) {
-                ProjectExplorer::FolderNode *containingFolder = oldFileNode->parentFolderNode();
-                if (containingFolder)
-                    containingFolder->addFiles({newFileName});
+            using namespace ProjectExplorer;
+            bool fileAdded = false;
+            if (Project *const project = ProjectManager::projectForFile(currentFileName)) {
+                if (ProjectNode *const product = project->productNodeForFilePath(currentFileName)) {
+                    if (product->addFiles({newFileName}))
+                        fileAdded = true;
+                }
+            }
+            if (!fileAdded) {
+                ProjectExplorer::Node *oldFileNode = ProjectExplorer::ProjectTree::nodeForFile(
+                    currentFileName);
+                if (oldFileNode) {
+                    ProjectExplorer::FolderNode *containingFolder = oldFileNode->parentFolderNode();
+                    if (containingFolder)
+                        containingFolder->addFiles({newFileName});
+                }
             }
         }
 

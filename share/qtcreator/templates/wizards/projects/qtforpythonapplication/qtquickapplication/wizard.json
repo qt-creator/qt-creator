@@ -14,11 +14,11 @@
     [
         { "key": "SrcFileName", "value": "main.py" },
         { "key": "QmlFileName", "value": "main.qml" },
-        { "key": "PyProjectFile", "value": "%{JS: Util.fileName('%{ProjectName}', 'pyproject')}" },
+        { "key": "PyProjectTomlFile", "value": "pyproject.toml" },
         { "key": "QtQuickVersion", "value": "%{JS: value('QtVersion').QtQuickVersion}" },
         { "key": "QtQuickWindowVersion", "value": "%{JS: value('QtVersion').QtQuickWindowVersion}" },
         { "key": "PySideVersion", "value": "%{JS: value('QtVersion').PySideVersion}" },
-        { "key": "ProjectFilePath", "value": "%{ProjectDirectory}/%{PyProjectFile}" }
+        { "key": "ProjectFilePath", "value": "%{ProjectDirectory}/%{PyProjectTomlFile}" }
     ],
 
     "pages":
@@ -111,8 +111,8 @@
                     "target": "%{SrcFileName}"
                 },
                 {
-                    "source": "main.pyproject",
-                    "target": "%{PyProjectFile}",
+                    "source": "pyproject.toml",
+                    "target": "%{PyProjectTomlFile}",
                     "openAsProject": true
                 },
                 {

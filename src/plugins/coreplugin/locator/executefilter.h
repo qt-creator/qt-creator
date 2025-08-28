@@ -13,7 +13,7 @@ namespace Utils { class Process; }
 
 namespace Core::Internal {
 
-class ExecuteFilter : public Core::ILocatorFilter
+class ExecuteFilter final : public Core::ILocatorFilter
 {
     struct ExecuteData
     {
@@ -23,7 +23,7 @@ class ExecuteFilter : public Core::ILocatorFilter
 
 public:
     ExecuteFilter();
-    ~ExecuteFilter() override;
+    ~ExecuteFilter() final;
 
 private:
     LocatorMatcherTasks matchers() final;

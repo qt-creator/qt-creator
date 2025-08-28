@@ -98,6 +98,9 @@ public:
     /* called by locator widget on accept. By default, when acceptor is empty,
        EditorManager::openEditor(LocatorFilterEntry) will be used instead. */
     Acceptor acceptor;
+    /* Called by locator widget on completion request. By default, when completer is empty,
+       sets the text to the current filter shortcut + the displayName. */
+    Acceptor completer;
     /* icon to display along with the entry */
     std::optional<QIcon> displayIcon;
     /* file path, if the entry is related to a file, is used e.g. for resolving a file icon */

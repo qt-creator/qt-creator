@@ -362,6 +362,13 @@ protected:
         return true;
     }
 
+    bool visit(ForEachStatement *ast) override
+    {
+        if (ast->type == ForEachType::Of)
+            addUse(ast->inOfToken, SemanticHighlighter::KeywordType);
+        return true;
+    }
+
     bool visit(IdentifierExpression *ast) override
     {
         processName(ast->name, ast->identifierToken);
@@ -662,6 +669,7 @@ void SemanticHighlighter::updateFontSettings(const TextEditor::FontSettings &fon
     m_formats[LocalStateNameType] = fontSettings.toTextCharFormat(TextEditor::C_QML_STATE_NAME);
     m_formats[BindingNameType] = fontSettings.toTextCharFormat(TextEditor::C_BINDING);
     m_formats[FieldType] = fontSettings.toTextCharFormat(TextEditor::C_FIELD);
+    m_formats[KeywordType] = fontSettings.toTextCharFormat(TextEditor::C_KEYWORD);
 }
 
 void SemanticHighlighter::reportMessagesInfo(const QVector<QTextLayout::FormatRange> &diagnosticRanges,

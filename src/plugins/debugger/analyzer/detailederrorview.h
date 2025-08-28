@@ -8,9 +8,9 @@
 #include <QTreeView>
 #include <QStyledItemDelegate>
 
-namespace Debugger {
+namespace Utils { class Link; }
 
-class DiagnosticLocation;
+namespace Debugger {
 
 class DEBUGGER_EXPORT DetailedErrorView : public QTreeView
 {
@@ -33,7 +33,7 @@ public:
         LocationColumn,
     };
 
-    static QVariant locationData(int role, const DiagnosticLocation &location);
+    static QVariant locationData(int role, const Utils::Link &location);
 
 private:
     void contextMenuEvent(QContextMenuEvent *e) override;

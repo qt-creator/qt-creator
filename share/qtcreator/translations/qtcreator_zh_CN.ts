@@ -2174,11 +2174,8 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <translation>超超超高屏幕密度</translation>
     </message>
     <message>
-        <source>An image is used for the splashscreen. Qt Creator manages
-splashscreen by using a different method which requires changing
-the manifest file by overriding your settings. Allow override?</source>
-        <translation>用于启动画面的图像。Qt Creator 通过使用需要修改 manifest 文件的不同方法
-来管理启动图像，并会覆盖你的设置。允许覆盖？</translation>
+        <source>An image is used for the splashscreen. Qt Creator manages splashscreen by using a different method which requires changing the manifest file by overriding your settings. Allow override?</source>
+        <translation>用于启动画面的图像。Qt Creator 通过使用需要修改 manifest 文件的不同方法来管理启动图像，并会覆盖你的设置。允许覆盖？</translation>
     </message>
     <message>
         <source>Convert</source>
@@ -30806,9 +30803,7 @@ Expiration date: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File created:
-
-%1</source>
+        <source>File created:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

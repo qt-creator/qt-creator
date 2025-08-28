@@ -8,7 +8,7 @@
 #include "../qmlprojectmanagertr.h"
 
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/target.h>
+#include <projectexplorer/buildconfiguration.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -74,8 +74,8 @@ bool FileGenerator::isActive() const
     if (!m_buildSystem)
         return false;
 
-    if (auto *target = m_buildSystem->target())
-        return target->isActive();
+    if (auto *configuration = m_buildSystem->buildConfiguration())
+        return configuration->isActive();
 
     return false;
 }

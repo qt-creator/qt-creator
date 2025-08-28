@@ -256,7 +256,7 @@ public:
 
 signals:
     /// Project data might be locked while this is emitted.
-    void aboutToRemoveFiles(const QStringList &files);
+    void aboutToRemoveFiles(const Utils::FilePaths &files);
 
     void documentUpdated(CPlusPlus::Document::Ptr doc);
     void sourceFilesRefreshed(const QSet<QString> &files);

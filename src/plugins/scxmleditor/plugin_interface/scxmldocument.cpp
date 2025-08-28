@@ -169,7 +169,7 @@ QColor ScxmlDocument::getColor(int depth) const
     return m_colors.isEmpty() ? QColor(Qt::gray) : m_colors[depth % m_colors.count()];
 }
 
-void ScxmlDocument::setLevelColors(const QVector<QColor> &colors)
+void ScxmlDocument::setLevelColors(const QList<QColor> &colors)
 {
     m_colors = colors;
     emit colorThemeChanged();
@@ -294,7 +294,7 @@ bool ScxmlDocument::pasteData(const QByteArray &data, const QPointF &minPos, con
     }
 
     m_idMap.clear();
-    QVector<ScxmlTag*> addedTags;
+    QList<ScxmlTag*> addedTags;
 
     while (!xml.atEnd()) {
         QXmlStreamReader::TokenType token = xml.readNext();
@@ -374,7 +374,7 @@ void ScxmlDocument::printSCXML()
     qDebug() << content();
 }
 
-QByteArray ScxmlDocument::content(const QVector<ScxmlTag*> &tags) const
+QByteArray ScxmlDocument::content(const QList<ScxmlTag*> &tags) const
 {
     QByteArray result;
     if (!tags.isEmpty()) {
@@ -494,7 +494,7 @@ void ScxmlDocument::changeOrder(ScxmlTag *child, int newPos)
     }
 }
 
-void ScxmlDocument::addTags(ScxmlTag *parent, const QVector<ScxmlTag*> tags)
+void ScxmlDocument::addTags(ScxmlTag *parent, const QList<ScxmlTag*> tags)
 {
     if (m_undoRedoRunning)
         return;

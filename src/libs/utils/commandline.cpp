@@ -56,7 +56,7 @@ inline static bool isMetaCharWin(ushort c)
     return (c < sizeof(iqm) * 8) && (iqm[c / 8] & (1 << (c & 7)));
 }
 
-static void envExpandWin(QString &args, const Environment *env, const QString *pwd)
+static void envExpandWin(QString &args, const Environment *env, const QString &pwd)
 {
     static const QString cdName = QLatin1String("CD");
     int off = 0;
@@ -66,8 +66,8 @@ static void envExpandWin(QString &args, const Environment *env, const QString *p
          prev = that, off = that + 1) {
         if (prev >= 0) {
             const QString var = args.mid(prev + 1, that - prev - 1).toUpper();
-            const QString val = (var == cdName && pwd && !pwd->isEmpty())
-                                    ? QDir::toNativeSeparators(*pwd) : env->expandedValueForKey(var);
+            const QString val = (var == cdName && !pwd.isEmpty())
+                                    ? QDir::toNativeSeparators(pwd) : env->expandedValueForKey(var);
             if (!val.isEmpty()) { // Empty values are impossible, so this is an existence check
                 args.replace(prev, that - prev + 1, val);
                 off = prev + val.length();
@@ -77,10 +77,10 @@ static void envExpandWin(QString &args, const Environment *env, const QString *p
     }
 }
 
-static ProcessArgs prepareArgsWin(const QString &_args, ProcessArgs::SplitError *err,
-                                  const Environment *env, const QString *pwd)
+static QString prepareArgsWin(const QString &_args, ProcessArgs::SplitError *err,
+                              const Environment *env, const QString &pwd)
 {
-    QString args(_args);
+    QString args = _args;
 
     if (env) {
         envExpandWin(args, env, pwd);
@@ -88,7 +88,7 @@ static ProcessArgs prepareArgsWin(const QString &_args, ProcessArgs::SplitError 
         if (args.indexOf(QLatin1Char('%')) >= 0) {
             if (err)
                 *err = ProcessArgs::FoundMeta;
-            return ProcessArgs::createWindowsArgs(QString());
+            return {};
         }
     }
 
@@ -107,13 +107,13 @@ static ProcessArgs prepareArgsWin(const QString &_args, ProcessArgs::SplitError 
         } else if (isMetaCharWin(c)) {
             if (err)
                 *err = ProcessArgs::FoundMeta;
-            return ProcessArgs::createWindowsArgs(QString());
+            return {};
         }
     }
 
     if (err)
         *err = ProcessArgs::SplitOk;
-    return ProcessArgs::createWindowsArgs(args);
+    return args;
 }
 
 inline static bool isWhiteSpaceWin(ushort c)
@@ -256,13 +256,13 @@ static QStringList doSplitArgsWin(const QString &args, ProcessArgs::SplitError *
 
 static QStringList splitArgsWin(const QString &_args, bool abortOnMeta,
                                 ProcessArgs::SplitError *err,
-                                const Environment *env, const QString *pwd)
+                                const Environment *env, const QString &pwd)
 {
     if (abortOnMeta) {
         ProcessArgs::SplitError perr;
         if (!err)
             err = &perr;
-        QString args = prepareArgsWin(_args, &perr, env, pwd).toWindowsArgs();
+        QString args = prepareArgsWin(_args, &perr, env, pwd);
         if (*err != ProcessArgs::SplitOk)
             return {};
         return doSplitArgsWin(args, err);
@@ -289,7 +289,7 @@ static bool isMetaUnix(QChar cUnicode)
 
 static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                                  ProcessArgs::SplitError *err,
-                                 const Environment *env, const QString *pwd)
+                                 const Environment *env, const QString &pwd)
 {
     static const QString pwdName = QLatin1String("PWD");
     QStringList ret;
@@ -359,8 +359,8 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                                 goto quoteerr;
                             c = args.unicode()[pos++];
                         }
-                        if (var == pwdName && pwd && !pwd->isEmpty()) {
-                            cret += *pwd;
+                        if (var == pwdName && !pwd.isEmpty()) {
+                            cret += pwd;
                         } else {
                             const Environment::FindResult res = env->find(var);
                             if (!res) {
@@ -409,8 +409,8 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                     c = args.unicode()[pos++];
                 }
                 QString val;
-                if (var == pwdName && pwd && !pwd->isEmpty()) {
-                    val = *pwd;
+                if (var == pwdName && !pwd.isEmpty()) {
+                    val = pwd;
                 } else {
                     const Environment::FindResult res = env->find(var);
                     if (!res) {
@@ -498,7 +498,7 @@ inline static bool hasSpecialCharsUnix(const QString &arg)
 
 QStringList ProcessArgs::splitArgs(const QString &args, OsType osType,
                                    bool abortOnMeta, ProcessArgs::SplitError *err,
-                                   const Environment *env, const QString *pwd)
+                                   const Environment *env, const QString &pwd)
 {
     if (osType == OsTypeWindows)
         return splitArgsWin(args, abortOnMeta, err, env, pwd);
@@ -574,20 +574,15 @@ static QString quoteArgWin(const QString &arg)
     return ret;
 }
 
-ProcessArgs ProcessArgs::prepareArgs(const QString &args, SplitError *err, OsType osType,
-                                     const Environment *env, const FilePath *pwd, bool abortOnMeta)
+QString ProcessArgs::prepareShellArgs(const QString &args, SplitError *err, OsType osType,
+                                      const Environment *env, const FilePath &pwd)
 {
-    QString wdcopy;
-    QString *wd = nullptr;
-    if (pwd) {
-        wdcopy = pwd->toUrlishString();
-        wd = &wdcopy;
-    }
-    ProcessArgs res;
+    const QString wd = pwd.path();
+    QString res;
     if (osType == OsTypeWindows)
         res = prepareArgsWin(args, err, env, wd);
     else
-        res = createUnixArgs(splitArgs(args, osType, abortOnMeta, err, env, wd));
+        res = joinArgs(splitArgsUnix(args, true, err, env, wd), OsTypeLinux);
     return res;
 }
 
@@ -647,27 +642,32 @@ CommandLine &CommandLine::operator<<(const QStringList &args)
     return *this;
 }
 
-bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, ProcessArgs *outArgs,
-                                 const Environment *env, const FilePath *pwd)
+bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, QString *outArgs,
+                                 const Environment *env, const FilePath &pwd)
 {
     const FilePath executable = cmdLine.executable();
     if (executable.isEmpty())
         return false;
+
     const QString arguments = cmdLine.arguments();
+    const OsType osType = executable.osType();
+
     ProcessArgs::SplitError err;
-    *outArgs = ProcessArgs::prepareArgs(arguments, &err, executable.osType(), env, pwd);
+    *outArgs = ProcessArgs::prepareShellArgs(arguments, &err, osType, env, pwd);
+
     if (err == ProcessArgs::SplitOk) {
-        *outCmd = executable.toUrlishString();
+        *outCmd = executable.path();
     } else {
-        if (executable.osType() == OsTypeWindows) {
+        if (osType == OsTypeWindows) {
             *outCmd = qtcEnvironmentVariable("COMSPEC");
-            *outArgs = ProcessArgs::createWindowsArgs(QLatin1String("/v:off /s /c \"")
-                    + quoteArg(executable.toUserOutput()) + ' ' + arguments + '"');
+            *outArgs = "/v:off /s /c \""
+                        + quoteArgWin(executable.nativePath()) + ' ' + arguments + '"';
         } else {
             if (err != ProcessArgs::FoundMeta)
                 return false;
             *outCmd = qtcEnvironmentVariable("SHELL", "/bin/sh");
-            *outArgs = ProcessArgs::createUnixArgs({"-c", quoteArg(executable.toUrlishString()) + ' ' + arguments});
+            ProcessArgs::addArg(outArgs, "-c", osType);
+            ProcessArgs::addArg(outArgs, quoteArg(executable.path()) + ' ' + arguments, osType);
         }
     }
     return true;
@@ -1391,42 +1391,6 @@ void ProcessArgs::ArgIterator::appendArg(const QString &str)
     m_pos += qstr.length() + 1;
 }
 
-ProcessArgs ProcessArgs::createWindowsArgs(const QString &args)
-{
-    ProcessArgs result;
-    result.m_windowsArgs = args;
-    result.m_isWindows = true;
-    return result;
-}
-
-ProcessArgs ProcessArgs::createUnixArgs(const QStringList &args)
-{
-    ProcessArgs result;
-    result.m_unixArgs = args;
-    result.m_isWindows = false;
-    return result;
-}
-
-QString ProcessArgs::toWindowsArgs() const
-{
-    QTC_CHECK(m_isWindows);
-    return m_windowsArgs;
-}
-
-QStringList ProcessArgs::toUnixArgs() const
-{
-    QTC_CHECK(!m_isWindows);
-    return m_unixArgs;
-}
-
-QString ProcessArgs::toString() const
-{
-    if (m_isWindows)
-        return m_windowsArgs;
-    else
-        return ProcessArgs::joinArgs(m_unixArgs, OsTypeLinux);
-}
-
 /*!
     \class Utils::CommandLine
     \inmodule QtCreator
@@ -1622,6 +1586,18 @@ CommandLine CommandLine::toLocal() const
     CommandLine cmd = *this;
     cmd.setExecutable(FilePath::fromString(m_executable.path()));
     return cmd;
+}
+
+QStringList ProcessArgs::filterSimpleArgs(const QString &args, OsType osType)
+{
+    QStringList result;
+    QString args_ = args;
+    for (ArgIterator ait(&args_, osType); ait.next(); ) {
+        // This filters out items containing e.g. shell variables like '$FOO'
+        if (ait.isSimple())
+            result << ait.value();
+    }
+    return result;
 }
 
 QTCREATOR_UTILS_EXPORT bool operator==(const CommandLine &first, const CommandLine &second)

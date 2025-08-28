@@ -21,7 +21,7 @@ namespace ProjectExplorer {
 const char TASK_MARK_WARNING[] = "Task.Mark.Warning";
 const char TASK_MARK_ERROR[] = "Task.Mark.Error";
 
-static QVector<Id> s_registeredCategories;
+static QList<Id> s_registeredCategories;
 
 static TextEditor::TextMarkCategory categoryForType(Task::TaskType type)
 {

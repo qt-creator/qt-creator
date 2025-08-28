@@ -53,6 +53,7 @@ QtcPlugin {
             "qt.cpp",
             "qtcprocess.cpp",
             "settings.cpp",
+            "taskhub.cpp",
             "texteditor.cpp",
             "translate.cpp",
             "utils.cpp",
@@ -88,14 +89,12 @@ QtcPlugin {
 
     Group {
         name: "Lua scripts rcc"
-        Qt.core.resourcePrefix: "lua/scripts/"
         fileTags: "qt.core.resource_data"
         files: "scripts/**"
     }
 
     Group {
         name: "Lua images rcc"
-        Qt.core.resourcePrefix: "lua/images/"
         fileTags: "qt.core.resource_data"
         files: "images/**"
     }

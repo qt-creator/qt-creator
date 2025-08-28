@@ -92,7 +92,7 @@ QTCREATOR_UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString
     if (value.isString()) {
         *out = value.toString();
     } else if (value.isArray()) {
-        QJsonArray array = value.toArray();
+        const QJsonArray array = value.toArray();
         QStringList lines;
         for (const QJsonValue &v : array) {
             if (!v.isString())
@@ -264,11 +264,12 @@ QString quoteAmpersands(const QString &text)
 QString asciify(const QString &input)
 {
     QString result;
+    result.reserve(input.size() * 5);
     for (const QChar &c : input) {
         if (c.isPrint() && c.unicode() < 128)
-            result.append(c);
+            result += c;
         else
-            result.append(QString::fromLatin1("u%1").arg(int16_t(c.unicode()), 4, 16, QChar('0')));
+            result += QString::asprintf("u%04x", c.unicode());
     }
     return result;
 }
@@ -383,14 +384,23 @@ QTCREATOR_UTILS_EXPORT QStringView chopIfEndsWith(QStringView str, QChar c)
     return str;
 }
 
-QTCREATOR_UTILS_EXPORT QString normalizeNewlines(const QString &text)
+QTCREATOR_UTILS_EXPORT QString normalizeNewlines(const QStringView &text)
 {
-    QString res = text;
-    const auto newEnd = std::unique(res.begin(), res.end(), [](const QChar c1, const QChar c2) {
-        return c1 == '\r' && c2 == '\r'; // QTCREATORBUG-24556
+    QString res = text.toString();
+    const auto newEnd = std::unique(res.rbegin(), res.rend(), [](const QChar c1, const QChar c2) {
+        return c1 == '\n' && c2 == '\r'; // QTCREATORBUG-24556
     });
-    res.chop(std::distance(newEnd, res.end()));
-    res.replace("\r\n", "\n");
+    res.remove(0, std::distance(newEnd, res.rend()));
+    return res;
+}
+
+QTCREATOR_UTILS_EXPORT QByteArray normalizeNewlines(const QByteArray &text)
+{
+    QByteArray res = text;
+    const auto newEnd = std::unique(res.rbegin(), res.rend(), [](const char c1, const char c2) {
+        return c1 == '\n' && c2 == '\r'; // QTCREATORBUG-24556
+    });
+    res.remove(0, std::distance(newEnd, res.rend()));
     return res;
 }
 

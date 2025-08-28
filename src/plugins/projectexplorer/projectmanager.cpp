@@ -105,6 +105,9 @@ ProjectManager::ProjectManager()
             EditorManager::instance(), &EditorManager::updateWindowTitles);
     connect(this, &ProjectManager::projectDisplayNameChanged,
             EditorManager::instance(), &EditorManager::updateWindowTitles);
+    connect(this, &ProjectManager::startupProjectChanged, this, [this] {
+        emit activeBuildConfigurationChanged(activeBuildConfigForActiveProject());
+    });
 
     EditorManager::setWindowTitleAdditionHandler(&ProjectManagerPrivate::windowTitleAddition);
     EditorManager::setSessionTitleHandler(&ProjectManagerPrivate::sessionTitle);
@@ -568,8 +571,13 @@ void ProjectManager::configureEditors(Project *project)
 
 void ProjectManager::removeProjects(const QList<Project *> &remove)
 {
-    for (Project *pro : remove)
+    for (Project *pro : remove) {
+        for (const Target * const t : pro->targets()) {
+            for (BuildConfiguration * const bc : t->buildConfigurations())
+                emit m_instance->aboutToRemoveBuildConfiguration(bc);
+        }
         emit m_instance->aboutToRemoveProject(pro);
+    }
 
     bool changeStartupProject = false;
 

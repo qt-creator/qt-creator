@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>images/settingscategory_analyzer.png</file>
-        <file>images/settingscategory_analyzer@2x.png</file>
-    </qresource>
-</RCC>

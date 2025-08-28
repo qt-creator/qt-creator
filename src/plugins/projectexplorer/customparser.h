@@ -67,6 +67,8 @@ public:
 
     Utils::Id id;
     QString displayName;
+    bool buildDefault = false;
+    bool runDefault = false;
     CustomParserExpression error;
     CustomParserExpression warning;
 };
@@ -75,7 +77,7 @@ class PROJECTEXPLORER_EXPORT CustomParsersAspect : public Utils::BaseAspect
 {
     Q_OBJECT
 public:
-    CustomParsersAspect(Target *target);
+    CustomParsersAspect(BuildConfiguration *bc);
 
     void setParsers(const QList<Utils::Id> &parsers) { m_parsers = parsers; }
     QList<Utils::Id> parsers() const { return m_parsers; }
@@ -119,7 +121,9 @@ class CustomParsersSelectionWidget : public Utils::DetailsWidget
 {
     Q_OBJECT
 public:
-    CustomParsersSelectionWidget(QWidget *parent = nullptr);
+    enum Embedded { InRunConfig, InBuildConfig };
+
+    CustomParsersSelectionWidget(Embedded where, QWidget *parent = nullptr);
 
     void setSelectedParsers(const QList<Utils::Id> &parsers);
     QList<Utils::Id> selectedParsers() const;
@@ -134,4 +138,5 @@ private:
 } // namespace Internal
 } // namespace ProjectExplorer
 
+Q_DECLARE_METATYPE(ProjectExplorer::CustomParserSettings);
 Q_DECLARE_METATYPE(ProjectExplorer::CustomParserExpression::CustomParserChannel);

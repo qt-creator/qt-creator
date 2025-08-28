@@ -294,7 +294,8 @@ void ManhattanStyle::polish(QWidget *widget)
             widget->setContentsMargins(0, 0, 0, 0);
         }
     }
-    if (panelWidget(widget)) {
+    const bool isPanelWidget = panelWidget(widget);
+    if (isPanelWidget) {
 
         // Oxygen and possibly other styles override this
         if (qobject_cast<QDockWidget*>(widget))
@@ -338,6 +339,19 @@ void ManhattanStyle::polish(QWidget *widget)
             widget->setFixedHeight(height);
         }
     }
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+    // QTCREATORBUG-32549: Design requires distinguishable QPalette::Highlight for QAbstractButton
+    if (!isPanelWidget && qobject_cast<QAbstractButton*>(widget)) {
+        QPalette pal = widget->palette();
+        const QColor highlight = pal.color(QPalette::Highlight);
+        const QColor accent = pal.color(QPalette::Accent);
+        if (highlight == creatorColor(Theme::Token_Foreground_Muted) && highlight != accent) {
+            pal.setColor(QPalette::Highlight, accent);
+            widget->setPalette(pal);
+        }
+    }
+#endif // >= Qt 6.6.0
 }
 
 void ManhattanStyle::unpolish(QWidget *widget)
@@ -577,6 +591,12 @@ static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
         painter->drawPixmap(iconRect, iconPx);
         break;
     }
+    case QStyle::PE_PanelButtonTool: {
+        // QTCREATORBUG-32968 Only for the checked QToolButton
+        StyleHelper::drawCardBg(painter, option->rect.adjusted(1, 1, -1, -1),
+                                creatorColor(Theme::BackgroundColorSelected), frameColor, 2.5);
+        break;
+    }
     default:
         QTC_ASSERT_STRING("Unhandled QStyle::PrimitiveElement case");
         break;
@@ -596,7 +616,8 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                  || element == PE_FrameGroupBox
                  || element == PE_IndicatorRadioButton
                  || element == PE_IndicatorCheckBox
-                 || element == PE_IndicatorTabClose)
+                 || element == PE_IndicatorTabClose
+                 || (element == PE_PanelButtonTool && (option->state & State_On)))
                 && isDarkFusionStyle(baseStyle());
         if (tweakDarkTheme)
             drawPrimitiveTweakedForDarkTheme(element, option, painter, widget);
@@ -860,6 +881,39 @@ void ManhattanStyle::drawControl(
         const QWidget *widget) const
 {
     if (!panelWidget(widget) && !qobject_cast<const QMenu *>(widget)) {
+        // Workaround for QTBUG-136215
+        if constexpr (HostOsInfo::isMacHost()) {
+            if (element == CE_MenuItem) {
+                if (const QStyleOptionMenuItem *mi
+                    = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
+                    if (mi->font.strikeOut()) {
+                        const bool active = mi->state & State_Selected;
+                        if (active)
+                            painter->fillRect(mi->rect, mi->palette.highlight());
+
+                        painter->save();
+                        painter->setFont(mi->font);
+                        int xpos = mi->rect.x() + 18;
+                        int yPos = mi->rect.y();
+                        const int xm = 2 /*macItemFrame*/ + mi->maxIconWidth + 3 /*macItemHMargin*/;
+                        const int tabwidth = mi->reservedShortcutWidth;
+                        const auto text_flags = Qt::AlignVCenter | Qt::TextHideMnemonic
+                                                | Qt::TextSingleLine | Qt::AlignAbsolute;
+
+                        painter->drawText(
+                            xpos,
+                            yPos,
+                            mi->rect.width() - xm - tabwidth + 1,
+                            mi->rect.height(),
+                            text_flags,
+                            mi->text);
+                        painter->restore();
+
+                        return;
+                    }
+                }
+            }
+        }
         QProxyStyle::drawControl(element, option, painter, widget);
         return;
     }

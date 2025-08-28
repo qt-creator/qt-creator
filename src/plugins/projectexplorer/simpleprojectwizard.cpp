@@ -38,8 +38,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class SimpleProjectWizardDialog;
 
@@ -326,14 +325,12 @@ GeneratedFiles SimpleProjectWizard::generateFiles(const QWizard *w,
     return {};
 }
 
-bool SimpleProjectWizard::postGenerateFiles(const QWizard *w, const GeneratedFiles &l,
-                                             QString *errorMessage) const
+Result<> SimpleProjectWizard::postGenerateFiles(const QWizard *w, const GeneratedFiles &l) const
 {
     Q_UNUSED(w)
-    return CustomProjectWizard::postGenerateOpen(l, errorMessage);
+    return CustomProjectWizard::postGenerateOpen(l);
 }
 
-} // namespace Internal
-} // namespace GenericProjectManager
+} // namespace ProjectExplorer::Internal
 
 #include "simpleprojectwizard.moc"

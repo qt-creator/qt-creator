@@ -7,7 +7,7 @@
 
 namespace Macros::Internal {
 
-class MacroLocatorFilter : public Core::ILocatorFilter
+class MacroLocatorFilter final : public Core::ILocatorFilter
 {
 public:
     MacroLocatorFilter();

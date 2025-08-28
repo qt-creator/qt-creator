@@ -94,7 +94,7 @@ private:
     static QString bookmarkToString(const Bookmark *b);
     void saveBookmarks();
 
-    QMap<Utils::FilePath, QVector<Bookmark *>> m_bookmarksMap;
+    QMap<Utils::FilePath, QList<Bookmark *>> m_bookmarksMap;
 
     QList<Bookmark *> m_bookmarksList;
     QItemSelectionModel *m_selectionModel;

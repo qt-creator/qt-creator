@@ -15,6 +15,7 @@
 #include <QDir>
 #include <QFileDevice>
 #include <QFontMetrics>
+#include <QKeySequence>
 #include <QStandardPaths>
 
 using namespace std::string_view_literals;
@@ -113,6 +114,22 @@ void setupQtModule()
             },
             "height",
             &QFontMetrics::height);
+
+        qt.new_usertype<QKeySequence>(
+            "QKeySequence",
+            sol::no_constructor,
+            "isEmpty",
+            &QKeySequence::isEmpty,
+            "toString",
+            [](const QKeySequence& sequence, QKeySequence::SequenceFormat format) -> QString {
+                return sequence.toString(format);
+            }
+        );
+
+        qt["QKeySequenceFormat"] = lua.create_table_with(
+            "NativeText", QKeySequence::SequenceFormat::NativeText,
+            "PortableText", QKeySequence::SequenceFormat::PortableText
+        );
 
         mirrorEnum(qt, QMetaEnum::fromType<QCompleter::CompletionMode>(), "QCompleterCompletionMode");
 

@@ -67,11 +67,6 @@ void DataModel::setVerboseToolTipsEnabled(bool enabled)
     d->m_verboseToolTips = enabled;
 }
 
-bool DataModel::verboseToolTipsEnabled() const
-{
-    return d->m_verboseToolTips;
-}
-
 ParseDataPtr DataModel::parseData() const
 {
     return d->m_data;
@@ -88,11 +83,6 @@ void DataModel::setCostEvent(int event)
     d->updateFunctions();
     endResetModel();
     emit dataChanged(index(0, SelfCostColumn), index(qMax(0, rowCount() - 1), InclusiveCostColumn));
-}
-
-int DataModel::costEvent() const
-{
-    return d->m_event;
 }
 
 int DataModel::rowCount(const QModelIndex &parent) const

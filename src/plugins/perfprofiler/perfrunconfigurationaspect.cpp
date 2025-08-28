@@ -6,15 +6,15 @@
 #include "perfrunconfigurationaspect.h"
 #include "perfsettings.h"
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/buildconfiguration.h>
 
 using namespace ProjectExplorer;
 
 namespace PerfProfiler::Internal {
 
-PerfRunConfigurationAspect::PerfRunConfigurationAspect(Target *target)
+PerfRunConfigurationAspect::PerfRunConfigurationAspect(BuildConfiguration *bc)
 {
-    setProjectSettings(new PerfSettings(target));
+    setProjectSettings(new PerfSettings(bc->target()));
     setGlobalSettings(&PerfProfiler::globalSettings());
     setId(Constants::PerfSettingsId);
     setDisplayName(Tr::tr("Performance Analyzer Settings"));

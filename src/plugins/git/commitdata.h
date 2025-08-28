@@ -20,7 +20,6 @@ namespace Git::Internal {
 class GitSubmitEditorPanelInfo
 {
 public:
-    void clear();
     Utils::FilePath repository;
     QString branch;
 };
@@ -34,15 +33,14 @@ enum PushAction {
 class GitSubmitEditorPanelData
 {
 public:
-    void clear();
     // Format as "John Doe <jdoe@foobar.com>"
     QString authorString() const;
 
     QString author;
     QString email;
-    bool bypassHooks;
-    PushAction pushAction;
-    bool signOff;
+    bool bypassHooks = false;
+    PushAction pushAction = NoPush;
+    bool signOff = false;
 };
 
 enum FileState {
@@ -72,7 +70,6 @@ public:
     // A pair of state string/file name ('modified', 'file.cpp').
     using StateFilePair = QPair<FileStates, QString>;
 
-    void clear();
     // Parse the files and the branch of panelInfo
     // from a git status output
     bool parseFilesFromStatus(const QString &output);
@@ -90,6 +87,7 @@ public:
     GitSubmitEditorPanelData panelData;
     bool enablePush = false;
     QChar commentChar;
+    QString commitTemplate;
 
     QList<StateFilePair> files;
 

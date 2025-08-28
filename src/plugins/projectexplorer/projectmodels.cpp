@@ -439,7 +439,7 @@ void FlatModel::onExpanded(const QModelIndex &idx)
 ExpandData FlatModel::expandDataForNode(const Node *node) const
 {
     QTC_ASSERT(node, return {});
-    return {node->filePath().toUrlishString(), node->priority()};
+    return {node->filePath().toUrlishString(), node->rawDisplayName(), node->priority()};
 }
 
 void FlatModel::handleProjectAdded(Project *project)

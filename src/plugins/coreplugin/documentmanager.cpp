@@ -36,7 +36,6 @@
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
-#include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QLoggingCategory>
 #include <QMainWindow>
@@ -146,11 +145,11 @@ public:
         if (watchers.contains(path))
             return false;
 
-        expected_str<std::unique_ptr<FilePathWatcher>> res = path.watch();
+        Result<std::unique_ptr<FilePathWatcher>> res = path.watch();
         if (!res) {
             if (!path.exists())
                 return false; // Too much noise if we complain about non-existing files here.
-            QTC_ASSERT_EXPECTED(res, return false);
+            QTC_ASSERT_RESULT(res, return false);
         }
 
         connect(res->get(), &FilePathWatcher::pathChanged, this, [this, path] {
@@ -664,7 +663,7 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
                     (*alwaysSave) = dia.alwaysSaveChecked();
                 if (failedToSave)
                     (*failedToSave) = modifiedDocuments;
-                const QStringList filesToDiff = dia.filesToDiff();
+                const FilePaths filesToDiff = dia.filesToDiff();
                 if (!filesToDiff.isEmpty()) {
                     if (auto diffService = DiffService::instance())
                         diffService->diffModifiedFiles(filesToDiff);
@@ -715,7 +714,7 @@ bool DocumentManager::saveDocument(IDocument *document,
     expectFileChange(savePath); // This only matters to other IDocuments which refer to this file
     bool addWatcher = removeDocument(document); // So that our own IDocument gets no notification at all
 
-    if (const Result res = document->save(savePath, false); !res) {
+    if (const Result<> res = document->save(savePath, false); !res) {
         if (isReadOnly) {
             QFile ofi(savePath.toUrlishString());
             // Check whether the existing file is writable
@@ -1019,8 +1018,7 @@ bool DocumentManager::saveModifiedDocument(IDocument *document, const QString &m
 
 void DocumentManager::showFilePropertiesDialog(const FilePath &filePath)
 {
-    FilePropertiesDialog properties(filePath);
-    properties.exec();
+    Core::executeFilePropertiesDialog(filePath);
 }
 
 /*!
@@ -1133,7 +1131,7 @@ void DocumentManager::checkForReload()
 
     // handle the IDocuments
     QStringList errorStrings;
-    QStringList filesToDiff;
+    FilePaths filesToDiff;
     for (IDocument *document : std::as_const(changedIDocuments)) {
         IDocument::ChangeTrigger trigger = IDocument::TriggerInternal;
         std::optional<IDocument::ChangeType> type;
@@ -1188,7 +1186,7 @@ void DocumentManager::checkForReload()
         removeFileInfo(document);
         addFileInfos({document});
 
-        Result success = Result::Ok;
+        Result<> success = ResultOk;
         // we've got some modification
         document->checkPermissions();
         // check if it's contents or permissions:
@@ -1250,7 +1248,7 @@ void DocumentManager::checkForReload()
                     }
                 }
                 if (previousReloadAnswer == ReloadNoneAndDiff)
-                    filesToDiff.append(document->filePath().toUrlishString());
+                    filesToDiff.append(document->filePath());
 
             // IDocument wants us to ask, and it's the TypeRemoved case
             } else {

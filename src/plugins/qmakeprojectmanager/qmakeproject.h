@@ -61,7 +61,7 @@ class QmakeBuildSystem final : public ProjectExplorer::BuildSystem
     Q_OBJECT
 
 public:
-    explicit QmakeBuildSystem(QmakeBuildConfiguration *bc);
+    explicit QmakeBuildSystem(ProjectExplorer::BuildConfiguration *bc);
     ~QmakeBuildSystem();
 
     bool supportsAction(ProjectExplorer::Node *context,
@@ -84,7 +84,6 @@ public:
                     Utils::FilePaths *notRenamed) override;
     bool addDependencies(ProjectExplorer::Node *context,
                          const QStringList &dependencies) override;
-    QString name() const final { return QLatin1String("qmake"); }
     void triggerParsing() final;
 
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &file) const final;

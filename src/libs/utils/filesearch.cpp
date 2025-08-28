@@ -230,7 +230,7 @@ static bool getFileContent(const FilePath &filePath, QTextCodec *encoding,
     if (fileToContentsMap.contains(filePath)) {
         *tempString = fileToContentsMap.value(filePath);
     } else {
-        const expected_str<QByteArray> content = filePath.fileContents();
+        const Result<QByteArray> content = filePath.fileContents();
         if (!content)
             return false;
         *tempString = QTC_GUARD(encoding) ? encoding->toUnicode(*content)

@@ -31,6 +31,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <texteditor/formattexteditor.h>
 #include <texteditor/snippets/snippetprovider.h>
@@ -79,6 +80,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createCMakeOutputParserTest);
         addTestCreator(createCMakeAutogenParserTest);
         addTestCreator(createCMakeProjectImporterTest);
+        addTestCreator(createAddDependenciesTest);
 #endif
 
         FileIconProvider::registerIconOverlayForSuffix(Constants::Icons::FILE_OVERLAY, "cmake");
@@ -87,7 +89,21 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 
         TextEditor::SnippetProvider::registerGroup(Constants::CMAKE_SNIPPETS_GROUP_ID,
                                                    Tr::tr("CMake", "SnippetProvider"));
-        ProjectManager::registerProjectType<CMakeProject>(Utils::Constants::CMAKE_PROJECT_MIMETYPE);
+        const auto issuesGenerator = [](const Kit *k) {
+            Tasks result;
+            if (!CMakeKitAspect::cmakeTool(k)) {
+                result.append(
+                    Project::createTask(Task::TaskType::Error, Tr::tr("No cmake tool set.")));
+            }
+            if (ToolchainKitAspect::toolChains(k).isEmpty()) {
+                result.append(
+                    Project::createTask(
+                        Task::TaskType::Warning, Tr::tr("No compilers set in kit.")));
+            }
+            return result;
+        };
+        ProjectManager::registerProjectType<CMakeProject>(
+            Utils::Constants::CMAKE_PROJECT_MIMETYPE, issuesGenerator);
 
         ActionBuilder(this, Constants::BUILD_TARGET_CONTEXT_MENU)
             .setParameterText(Tr::tr("Build \"%1\""), Tr::tr("Build"), ActionBuilder::AlwaysEnabled)

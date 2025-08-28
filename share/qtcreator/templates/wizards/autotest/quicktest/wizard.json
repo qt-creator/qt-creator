@@ -39,6 +39,22 @@
         {
             "key": "TestCaseFileWithQmlSuffix",
             "value": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.qml' }"
+        },
+        {
+            "key": "FeatureQt",
+            "value": "QtSupport.Wizards.FeatureQt%{JS: value('BuildSystem') === 'cmake-qt6' ? '.6.5' : ''}"
+        },
+        {
+            "key": "MinimumSupportedQtVersion",
+            "value": "%{JS: value('BuildSystem') === 'cmake-qt6' ? '6.5' : '5.0' }"
+        },
+        {
+            "key": "HasQSPSetup",
+            "value": "%{JS: value('MinimumSupportedQtVersion') > '6.2' }"
+        },
+        {
+            "key": "UsesAutoResourcePrefix",
+            "value": "%{JS: value('MinimumSupportedQtVersion') > '6.4' }"
         }
     ],
 
@@ -99,8 +115,13 @@
                                 "condition": "%{JS: isPluginRunning('qmakeprojectmanager')}"
                             },
                             {
-                                "trKey": "CMake",
+                                "trKey": "CMake for Qt5 and Qt 6",
                                 "value": "cmake",
+                                "condition": "%{JS: isPluginRunning('cmakeprojectmanager')}"
+                            },
+                            {
+                                "trKey": "CMake",
+                                "value": "cmake-qt6",
                                 "condition": "%{JS: isPluginRunning('cmakeprojectmanager')}"
                             },
                             {
@@ -119,7 +140,7 @@
             "typeId": "Kits",
             "data": {
                  "projectFilePath": "%{ProjectFilePath}",
-                 "requiredFeatures": [ "QtSupport.Wizards.FeatureQtQuick.2", "DeviceType.Desktop" ]
+                 "requiredFeatures": [ "%{FeatureQt}", "QtSupport.Wizards.FeatureQtQuick.2", "DeviceType.Desktop" ]
             }
         },
         {
@@ -152,6 +173,13 @@
                     "source": "../files/tst.txt",
                     "target": "CMakeLists.txt",
                     "condition": "%{JS: value('BuildSystem') == 'cmake'}",
+                    "openInEditor": false,
+                    "openAsProject": true
+                },
+                {
+                    "source": "../files/tstQt6.txt",
+                    "target": "CMakeLists.txt",
+                    "condition": "%{JS: value('BuildSystem') == 'cmake-qt6'}",
                     "openInEditor": false,
                     "openAsProject": true
                 },

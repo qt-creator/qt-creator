@@ -3,13 +3,14 @@
 
 #pragma once
 
+#include <utils/result.h>
+
 #include <QMap>
 #include <QStringList>
 
 namespace Core { class GeneratedFile; }
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class GeneratorScriptArgument;
 
@@ -17,19 +18,16 @@ class GeneratorScriptArgument;
 QStringList fixGeneratorScript(const QString &configFile, QString attributeIn);
 
 // Step 1) Do a dry run of the generation script to get a list of files on stdout
-QList<Core::GeneratedFile>
+Utils::Result<QList<Core::GeneratedFile>>
     dryRunCustomWizardGeneratorScript(const QString &targetPath,
                                       const QStringList &script,
                                       const QList<GeneratorScriptArgument> &arguments,
-                                      const QMap<QString, QString> &fieldMap,
-                                      QString *errorMessage);
+                                      const QMap<QString, QString> &fieldMap);
 
 // Step 2) Generate files
-bool runCustomWizardGeneratorScript(const QString &targetPath,
-                                    const QStringList &script,
-                                    const QList<GeneratorScriptArgument> &arguments,
-                                    const QMap<QString, QString> &fieldMap,
-                                    QString *errorMessage);
+Utils::Result<> runCustomWizardGeneratorScript(const QString &targetPath,
+                                               const QStringList &script,
+                                               const QList<GeneratorScriptArgument> &arguments,
+                                               const QMap<QString, QString> &fieldMap);
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

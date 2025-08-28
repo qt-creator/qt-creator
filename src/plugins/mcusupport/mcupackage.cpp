@@ -497,7 +497,7 @@ static Toolchain *iarToolchain(const FilePath &path, Id language)
             Toolchains toDelete;
             std::tie(toRegister, toDelete)
                 = Utils::partition(detected, Utils::equal(&Toolchain::language, language));
-            for (Toolchain * const tc : toRegister) {
+            for (Toolchain * const tc : std::as_const(toRegister)) {
                 tc->setDetection(Toolchain::ManualDetection);
                 tc->setDisplayName("IAREW");
             }

@@ -4,10 +4,11 @@
 #include "memchecktool.h"
 
 #include "memcheckerrorview.h"
-#include "valgrindengine.h"
+#include "startremotedialog.h"
 #include "valgrindprocess.h"
 #include "valgrindsettings.h"
 #include "valgrindtr.h"
+#include "valgrindutils.h"
 
 #include "xmlprotocol/error.h"
 #include "xmlprotocol/error.h"
@@ -19,19 +20,20 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 
+#include <debugger/analyzer/analyzerutils.h>
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerruncontrol.h>
-#include <debugger/analyzer/analyzerutils.h>
-#include <debugger/analyzer/startremotedialog.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -44,6 +46,10 @@
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
+
+#include <solutions/tasking/barrier.h>
+
+#include <remotelinux/remotelinux_constants.h>
 
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
@@ -81,6 +87,7 @@
 using namespace Core;
 using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 using namespace Valgrind::XmlProtocol;
 
@@ -88,123 +95,6 @@ namespace Valgrind::Internal {
 
 const char MEMCHECK_RUN_MODE[] = "MemcheckTool.MemcheckRunMode";
 const char MEMCHECK_WITH_GDB_RUN_MODE[] = "MemcheckTool.MemcheckWithGdbRunMode";
-
-class MemcheckToolRunner final : public ValgrindToolRunner
-{
-    Q_OBJECT
-
-public:
-    explicit MemcheckToolRunner(ProjectExplorer::RunControl *runControl);
-
-    void start() final;
-    void stop() final;
-
-    const Utils::FilePaths suppressionFiles() const;
-
-signals:
-    void internalParserError(const QString &errorString);
-    void parserError(const Valgrind::XmlProtocol::Error &error);
-
-private:
-    QString progressTitle() const final;
-    void addToolArguments(CommandLine &cmd) const final;
-
-    void startDebugger(qint64 valgrindPid);
-    void appendLog(const QByteArray &data);
-
-    const bool m_withGdb;
-    std::unique_ptr<Process> m_process;
-};
-
-QString MemcheckToolRunner::progressTitle() const
-{
-    return Tr::tr("Analyzing Memory");
-}
-
-void MemcheckToolRunner::start()
-{
-    if (runControl()->device()->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        m_process.reset(new Process);
-        m_process->setCommand({runControl()->device()->filePath("echo"), "-n $SSH_CLIENT", CommandLine::Raw});
-        connect(m_process.get(), &Process::done, this, [this] {
-            const ProcessResult result = m_process->result();
-            const QByteArrayList data = m_process->rawStdOut().split(' ');
-            m_process.release()->deleteLater();
-            if (result != ProcessResult::FinishedWithSuccess || data.size() != 3) {
-                reportFailure();
-                return;
-            }
-            QHostAddress hostAddress;
-            if (!hostAddress.setAddress(QString::fromLatin1(data.first()))) {
-                reportFailure();
-                return;
-            }
-            m_runner.setLocalServerAddress(hostAddress);
-            ValgrindToolRunner::start();
-        });
-        m_process->start();
-        return;
-    }
-    m_runner.setLocalServerAddress(QHostAddress::LocalHost);
-    ValgrindToolRunner::start();
-}
-
-void MemcheckToolRunner::stop()
-{
-    m_process.reset();
-    disconnect(&m_runner, &ValgrindProcess::internalError,
-               this, &MemcheckToolRunner::internalParserError);
-    ValgrindToolRunner::stop();
-}
-
-void MemcheckToolRunner::addToolArguments(CommandLine &cmd) const
-{
-    cmd << "--tool=memcheck" << "--gen-suppressions=all";
-
-    if (m_settings.trackOrigins())
-        cmd << "--track-origins=yes";
-
-    if (m_settings.showReachable())
-        cmd << "--show-reachable=yes";
-
-    cmd << "--leak-check=" + m_settings.leakCheckOnFinishOptionString();
-
-    for (const FilePath &file : m_settings.suppressions())
-        cmd << QString("--suppressions=%1").arg(file.path());
-
-    cmd << QString("--num-callers=%1").arg(m_settings.numCallers());
-
-    if (m_withGdb)
-        cmd << "--vgdb=yes" << "--vgdb-error=0";
-
-    cmd.addArgs(m_settings.memcheckArguments(), CommandLine::Raw);
-}
-
-const FilePaths MemcheckToolRunner::suppressionFiles() const
-{
-    return m_settings.suppressions();
-}
-
-void MemcheckToolRunner::startDebugger(qint64 valgrindPid)
-{
-    auto debugger = new Debugger::DebuggerRunTool(runControl());
-    DebuggerRunParameters &rp = debugger->runParameters();
-    rp.setStartMode(Debugger::AttachToRemoteServer);
-    rp.setDisplayName(QString("VGdb %1").arg(valgrindPid));
-    rp.setRemoteChannel(QString("| vgdb --pid=%1").arg(valgrindPid));
-    rp.setUseContinueInsteadOfRun(true);
-    rp.addExpectedSignal("SIGTRAP");
-
-    connect(runControl(), &RunControl::stopped, debugger, &RunControl::deleteLater);
-
-    debugger->initiateStart();
-}
-
-void MemcheckToolRunner::appendLog(const QByteArray &data)
-{
-    appendMessage(QString::fromUtf8(data), Utils::StdOutFormat);
-}
-
 
 static ErrorListModel::RelevantFrameFinder makeFrameFinder(const QStringList &projectFiles)
 {
@@ -244,7 +134,6 @@ static ErrorListModel::RelevantFrameFinder makeFrameFinder(const QStringList &pr
         return frames.first();
     };
 }
-
 
 class MemcheckErrorFilterProxyModel final : public QSortFilterProxyModel
 {
@@ -300,16 +189,16 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         // assume this error was created by an external library
         QSet<QString> validFolders;
         for (Project *project : ProjectManager::projects()) {
-            validFolders << project->projectDirectory().toUrlishString();
-            const QList<Target *> targets = project->targets();
-            for (const Target *target : targets) {
-                const QList<DeployableFile> files = target->deploymentData().allFiles();
-                for (const DeployableFile &file : files) {
-                    if (file.isExecutable())
-                        validFolders << file.remoteDirectory();
+            validFolders << project->projectDirectory().path();
+            for (const Target *target : project->targets()) {
+                for (const BuildConfiguration *bc : target->buildConfigurations()) {
+                    const QList<DeployableFile> files = bc->buildSystem()->deploymentData().allFiles();
+                    for (const DeployableFile &file : files) {
+                        if (file.isExecutable())
+                            validFolders << file.remoteDirectory();
+                    }
+                    validFolders << bc->buildDirectory().path();
                 }
-                for (BuildConfiguration *config : target->buildConfigurations())
-                    validFolders << config->buildDirectory().toUrlishString();
             }
         }
 
@@ -340,14 +229,21 @@ static void initKindFilterAction(QAction *action, const QVariantList &kinds)
     action->setData(kinds);
 }
 
+static Group memcheckRecipe(RunControl *runControl);
+
 class MemcheckToolRunnerFactory final : public RunWorkerFactory
 {
 public:
     MemcheckToolRunnerFactory()
     {
-        setProduct<MemcheckToolRunner>();
+        setRecipeProducer(memcheckRecipe);
         addSupportedRunMode(MEMCHECK_RUN_MODE);
         addSupportedRunMode(MEMCHECK_WITH_GDB_RUN_MODE);
+
+        addSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+        addSupportedDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
+        // FIXME: https://github.com/nihui/valgrind-android suggests this could work for android
     }
 };
 
@@ -357,10 +253,10 @@ public:
     explicit MemcheckTool(QObject *parent);
     ~MemcheckTool() final;
 
-    void setupRunner(MemcheckToolRunner *runTool);
+    void setupRunControl(RunControl *runControl);
+    void setupSuppressionFiles(const FilePaths &suppressionFiles);
     void loadShowXmlLogFile(const QString &filePath, const QString &exitMsg);
 
-private:
     void updateRunActions();
     void settingsDestroyed(QObject *settings);
     void maybeActiveRunConfigurationChanged();
@@ -639,24 +535,7 @@ MemcheckTool::MemcheckTool(QObject *parent)
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, "Memcheck.Remote"),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
-    QObject::connect(action, &QAction::triggered, this, [this, action] {
-        RunConfiguration *runConfig = activeRunConfigForActiveProject();
-        if (!runConfig) {
-            showCannotStartDialog(action->text());
-            return;
-        }
-        StartRemoteDialog dlg;
-        if (dlg.exec() != QDialog::Accepted)
-            return;
-        TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
-        m_perspective.select();
-        RunControl *rc = new RunControl(MEMCHECK_RUN_MODE);
-        rc->copyDataFromRunConfiguration(runConfig);
-        rc->createMainWorker();
-        rc->setCommandLine(dlg.commandLine());
-        rc->setWorkingDirectory(dlg.workingDirectory());
-        rc->start();
-    });
+    setupExternalAnalyzer(action, &m_perspective, MEMCHECK_RUN_MODE);
 
     m_perspective.addToolBarAction(m_startAction);
     //toolbar.addAction(m_startWithGdbAction);
@@ -854,12 +733,12 @@ void MemcheckTool::updateRunActions()
         const auto canRun = ProjectExplorerPlugin::canRunStartupProject(MEMCHECK_RUN_MODE);
         m_startAction->setToolTip(canRun ? Tr::tr("Start a Valgrind Memcheck analysis.")
                                          : canRun.error());
-        m_startAction->setEnabled(canRun);
+        m_startAction->setEnabled(canRun.has_value());
         const auto canRunGdb = ProjectExplorerPlugin::canRunStartupProject(
             MEMCHECK_WITH_GDB_RUN_MODE);
         m_startWithGdbAction->setToolTip(
             canRunGdb ? Tr::tr("Start a Valgrind Memcheck with GDB analysis.") : canRunGdb.error());
-        m_startWithGdbAction->setEnabled(canRunGdb);
+        m_startWithGdbAction->setEnabled(canRunGdb.has_value());
         m_stopAction->setEnabled(false);
     }
 }
@@ -929,16 +808,10 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     updateFromSettings();
 }
 
-void MemcheckTool::setupRunner(MemcheckToolRunner *runTool)
+void MemcheckTool::setupRunControl(RunControl *runControl)
 {
-    RunControl *runControl = runTool->runControl();
     m_errorModel.setRelevantFrameFinder(makeFrameFinder(transform(runControl->project()->files(Project::AllFiles),
                                                                   &FilePath::toUrlishString)));
-
-    connect(runTool, &MemcheckToolRunner::parserError,
-            this, &MemcheckTool::parserError);
-    connect(runTool, &MemcheckToolRunner::internalParserError,
-            this, &MemcheckTool::internalParserError);
     connect(runControl, &RunControl::stopped,
             this, &MemcheckTool::engineFinished);
     connect(runControl, &RunControl::aboutToStart, this, [this] {
@@ -960,8 +833,10 @@ void MemcheckTool::setupRunner(MemcheckToolRunner *runTool)
     const QString name = runControl->commandLine().executable().fileName();
 
     m_errorView->setDefaultSuppressionFile(dir.pathAppended(name + ".supp"));
+}
 
-    const FilePaths suppressionFiles = runTool->suppressionFiles();
+void MemcheckTool::setupSuppressionFiles(const FilePaths &suppressionFiles)
+{
     for (const FilePath &file : suppressionFiles) {
         QAction *action = m_filterMenu->addAction(file.fileName());
         action->setToolTip(file.toUserOutput());
@@ -987,9 +862,9 @@ void MemcheckTool::loadShowXmlLogFile(const QString &filePath, const QString &ex
 void MemcheckTool::loadExternalXmlLogFile()
 {
     const FilePath filePath = FileUtils::getOpenFilePath(
-                Tr::tr("Open Memcheck XML Log File"),
-                {},
-                Tr::tr("XML Files (*.xml);;All Files (*)"));
+        Tr::tr("Open Memcheck XML Log File"),
+        {},
+        Tr::tr("XML Files (*.xml)") + ";;" + DocumentManager::allFilesFilterString());
     if (filePath.isEmpty())
         return;
 
@@ -1021,7 +896,7 @@ void MemcheckTool::loadXmlLogFile(const QString &filePath)
 
     m_logParser.reset(new Parser);
     connect(m_logParser.get(), &Parser::error, this, &MemcheckTool::parserError);
-    connect(m_logParser.get(), &Parser::done, this, [this](const Result &result) {
+    connect(m_logParser.get(), &Parser::done, this, [this](const Result<> &result) {
         if (!result)
             internalParserError(result.error());
         loadingExternalXmlLogFileFinished();
@@ -1115,24 +990,121 @@ void MemcheckTool::setBusyCursor(bool busy)
     m_errorView->setCursor(cursor);
 }
 
-MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
-    : ValgrindToolRunner(runControl)
-    , m_withGdb(runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE)
+static CommandLine memcheckCommand(RunControl *runControl, const ValgrindSettings &settings)
 {
-    setId("MemcheckToolRunner");
-    connect(&m_runner, &ValgrindProcess::error, this, &MemcheckToolRunner::parserError);
+    CommandLine cmd = defaultValgrindCommand(runControl, settings);
+    cmd << "--tool=memcheck" << "--gen-suppressions=all";
 
-    if (m_withGdb) {
-        connect(&m_runner, &ValgrindProcess::valgrindStarted,
-                this, &MemcheckToolRunner::startDebugger);
-        connect(&m_runner, &ValgrindProcess::logMessageReceived,
-                this, &MemcheckToolRunner::appendLog);
-    } else {
-        connect(&m_runner, &ValgrindProcess::internalError,
-                this, &MemcheckToolRunner::internalParserError);
-    }
+    if (settings.trackOrigins())
+        cmd << "--track-origins=yes";
 
-    dd->setupRunner(this);
+    if (settings.showReachable())
+        cmd << "--show-reachable=yes";
+
+    cmd << "--leak-check=" + settings.leakCheckOnFinishOptionString();
+
+    for (const FilePath &file : settings.suppressions())
+        cmd << QString("--suppressions=%1").arg(file.path());
+
+    cmd << QString("--num-callers=%1").arg(settings.numCallers());
+
+    if (runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE)
+        cmd << "--vgdb=yes" << "--vgdb-error=0";
+
+    cmd.addArgs(settings.memcheckArguments(), CommandLine::Raw);
+    return cmd;
+}
+
+static ExecutableItem hostAddressRecipe(const Storage<QHostAddress> &hostStorage, RunControl *runControl)
+{
+    if (runControl->device()->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+        return successItem;
+
+    const auto onSetup = [runControl](Process &process) {
+        process.setCommand({runControl->device()->filePath("echo"), "-n $SSH_CLIENT", CommandLine::Raw});
+    };
+    const auto onDone = [hostStorage](const Process &process) {
+        const QByteArrayList data = process.rawStdOut().split(' ');
+        if (data.size() != 3)
+            return DoneResult::Error;
+
+        QHostAddress hostAddress;
+        if (!hostAddress.setAddress(QString::fromLatin1(data.first())))
+            return DoneResult::Error;
+
+        *hostStorage = hostAddress;
+        return DoneResult::Success;
+    };
+    return ProcessTask(onSetup, onDone, CallDoneIf::Success).withCancel(canceler());
+}
+
+static ExecutableItem debuggerRecipe(const Storage<ProcessHandle> pidStorage, RunControl *runControl)
+{
+    if (runControl->runMode() != MEMCHECK_WITH_GDB_RUN_MODE)
+        return successItem;
+
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+    rp.setStartMode(Debugger::AttachToRemoteServer);
+    rp.setUseContinueInsteadOfRun(true);
+    rp.addExpectedSignal("SIGTRAP");
+
+    const auto parametersModifier = [pidStorage](DebuggerRunParameters &rp) {
+        rp.setDisplayName(QString("VGdb %1").arg(pidStorage->pid()));
+        rp.setRemoteChannelPipe(QString("vgdb --pid=%1").arg(pidStorage->pid()));
+    };
+
+    return debuggerRecipe(runControl, rp, parametersModifier);
+}
+
+static Group memcheckRecipe(RunControl *runControl)
+{
+    dd->setupRunControl(runControl); // Intentionally here, to enable re-run.
+
+    const Storage<ValgrindSettings> storage(false);
+    const Storage<QHostAddress> hostStorage(QHostAddress::LocalHost);
+    const Storage<ProcessHandle> pidStorage;
+
+    const auto valgrindKicker = [storage, hostStorage, pidStorage, runControl](const SingleBarrier &barrier) {
+        const auto onValgrindSetup = [storage, hostStorage, pidStorage, runControl, barrier](ValgrindProcess &process) {
+            dd->setupSuppressionFiles(storage->suppressions());
+            QObject::connect(&process, &ValgrindProcess::error, dd, &MemcheckTool::parserError);
+            QObject::connect(&process, &ValgrindProcess::valgrindStarted, &process,
+                             [processHandle = pidStorage.activeStorage(), barrier = barrier->barrier()](qint64 pid) {
+                *processHandle = ProcessHandle(pid);
+                barrier->advance();
+            });
+
+            if (runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE) {
+                QObject::connect(&process, &ValgrindProcess::logMessageReceived,
+                                 runControl, [runControl](const QByteArray &data) {
+                    runControl->postMessage(QString::fromUtf8(data), Utils::StdOutFormat);
+                });
+            } else {
+                QObject::connect(&process, &ValgrindProcess::internalError,
+                                 dd, &MemcheckTool::internalParserError);
+            }
+
+            setupValgrindProcess(&process, runControl, memcheckCommand(runControl, *storage));
+            process.setLocalServerAddress(*hostStorage);
+        };
+        return ValgrindProcessTask(onValgrindSetup);
+    };
+
+    const auto onDone = [runControl] {
+        runControl->postMessage(Tr::tr("Analyzing finished."), NormalMessageFormat);
+    };
+
+    return Group {
+        storage,
+        hostStorage,
+        pidStorage,
+        initValgrindRecipe(storage, runControl),
+        hostAddressRecipe(hostStorage, runControl),
+        When (valgrindKicker) >> Do {
+            debuggerRecipe(pidStorage, runControl)
+        },
+        onGroupDone(onDone)
+    };
 }
 
 const char heobProfileC[] = "Heob/Profile";
@@ -1601,8 +1573,7 @@ void HeobData::processFinished()
         if (m_data[0] >= HEOB_PID_ATTACH) {
             m_runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
             m_runControl->setKit(m_kit);
-            auto debugger = new DebuggerRunTool(m_runControl);
-            DebuggerRunParameters &rp = debugger->runParameters();
+            DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(m_runControl);
             rp.setAttachPid(ProcessHandle(m_data[1]));
             rp.setDisplayName(Tr::tr("Process %1").arg(m_data[1]));
             rp.setStartMode(AttachToLocalProcess);
@@ -1612,6 +1583,8 @@ void HeobData::processFinished()
 
             connect(m_runControl, &RunControl::started, this, &HeobData::debugStarted);
             connect(m_runControl, &RunControl::stopped, this, &HeobData::debugStopped);
+            auto debugger = createDebuggerWorker(m_runControl, rp);
+            Q_UNUSED(debugger)
             m_runControl->start();
             return;
         }
@@ -1733,5 +1706,3 @@ void setupMemcheckTool(QObject *guard)
 }
 
 } // Valgrind::Internal
-
-#include "memchecktool.moc"

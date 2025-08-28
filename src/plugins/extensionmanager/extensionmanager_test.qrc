@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/extensionmanager">
-        <file>testdata/defaultpacks.json</file>
-        <file>testdata/thirdpartyplugins.json</file>
-    </qresource>
-</RCC>

@@ -5,7 +5,7 @@
 
 #include "shapeprovider.h"
 
-#include <QVector>
+#include <QList>
 
 namespace ScxmlEditor {
 
@@ -40,7 +40,7 @@ protected:
 
 private:
     void init();
-    QVector<ShapeGroup*> m_groups;
+    QList<ShapeGroup*> m_groups;
 };
 
 } // namespace PluginInterface

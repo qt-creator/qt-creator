@@ -72,80 +72,74 @@ bool QmlModuleWizardFieldPageFactory::validateData(
     return true;
 }
 
-
-bool QmlModuleWizardGenerator::setup(const QVariant &data, QString *errorMessage)
+Utils::Result<> QmlModuleWizardGenerator::setup(const QVariant &data)
 {
-    const QVariantList list = JsonWizardFactory::objectOrList(data, errorMessage);
+    QString errorMessage;
+    const QVariantList list = JsonWizardFactory::objectOrList(data, &errorMessage);
     if (list.isEmpty())
-        return false;
+        return ResultError(errorMessage);
 
     const QVariantMap map = list.first().toMap();
     m_source = FilePath::fromSettings(map.value("source"_L1));
     m_target = FilePath::fromSettings(map.value("target"_L1));
-    return true;
+    return ResultOk;
 }
 
-Core::GeneratedFiles QmlModuleWizardGenerator::fileList(
-        Utils::MacroExpander *expander,
-        const Utils::FilePath &wizardDir,
-        const Utils::FilePath &projectDir,
-        QString *errorMessage)
+Core::GeneratedFiles QmlModuleWizardGenerator::fileList(Utils::MacroExpander *expander,
+                                                        const Utils::FilePath &wizardDir,
+                                                        const Utils::FilePath &projectDir,
+                                                        QString *errorMessage)
 {
     if (errorMessage)
         errorMessage->clear();
+    auto fail = [&](const QString &m) {
+        if (errorMessage)
+            *errorMessage = m;
+        return Core::GeneratedFiles{};
+    };
 
-    Utils::FilePath source = wizardDir.resolvePath(expander->expand(m_source));
-    if (!source.exists())
-        return {};
+    const Utils::FilePath sourcePath = wizardDir.resolvePath(expander->expand(m_source));
+    if (!sourcePath.exists())
+        return fail(Tr::tr("Source template not found: %1").arg(sourcePath.toUserOutput()));
 
-    Utils::FilePath target = expander->expand(m_target);
-    if (!target.isChildOf(projectDir))
-        return {};
+    const Utils::FilePath targetPath = expander->expand(m_target);
+    if (!targetPath.isChildOf(projectDir))
+        return fail(Tr::tr("Target path is outside the project: %1").arg(targetPath.toUserOutput()));
 
-    FileReader reader;
-    if (!reader.fetch(source, errorMessage))
-        return {};
+    const auto fileReadResult = sourcePath.fileContents();
+    if (!fileReadResult)
+        return fail(fileReadResult.error());
 
-    GeneratedFile file;
-    file.setFilePath(target);
-    file.setContents(Utils::TemplateEngine::processText(
-            expander,
-            QString::fromUtf8(reader.text()),
-            errorMessage));
-
-    if (!errorMessage->isEmpty()) {
-        *errorMessage = Tr::tr("When processing \"%1\":<br>%2")
-                .arg(source.toUserOutput(), *errorMessage);
-        return { };
+    const auto processedResult = Utils::TemplateEngine::processText(expander,
+                                                                    QString::fromUtf8(*fileReadResult));
+    if (!processedResult) {
+        return fail(Tr::tr("When processing \"%1\":<br>%2")
+                        .arg(sourcePath.toUserOutput(), processedResult.error()));
     }
 
+    Core::GeneratedFile file(targetPath);
+    file.setContents(*processedResult);
     return {file};
 }
 
-bool QmlModuleWizardGenerator::writeFile(
-    const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage)
+Utils::Result<> QmlModuleWizardGenerator::writeFile(const JsonWizard *wizard, Core::GeneratedFile *file)
 {
     if (wizard->stringValue("HasComponent") == "false")
         file->setAttributes(file->attributes() | Core::GeneratedFile::OpenEditorAttribute);
 
-    if (!file->write(errorMessage))
-        return false;
-
-    return true;
+    return file->write();
 }
 
-bool QmlModuleWizardGenerator::allDone(
-    const JsonWizard * /*wizard*/, GeneratedFile *file, QString * /*errorMessage*/)
+Utils::Result<> QmlModuleWizardGenerator::allDone(const JsonWizard * /*wizard*/, GeneratedFile *file)
 {
     if (auto* project = qobject_cast<QmlProject*>(ProjectManager::startupProject())) {
         Target *target = project->activeTarget();
         if (!target)
-            return false;
+            return ResultError("No active target.");
 
         auto bs = qobject_cast<QmlProjectManager::QmlBuildSystem *>(target->buildSystem());
         if (!bs)
-            return false;
-
+            return ResultError("No qml build system.");
 
         if (!bs->importPaths().contains("."))
             bs->addImportPath(".");
@@ -160,11 +154,10 @@ bool QmlModuleWizardGenerator::allDone(
         } else {
             bs->addFileFilter(modulePath);
         }
-        return true;
+        return ResultOk;
     }
-    return false;
+    return ResultError("No startup project.");
 }
-
 
 void setupQmlModuleWizard()
 {

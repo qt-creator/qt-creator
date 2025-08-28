@@ -13,7 +13,6 @@
 #include <utils/filepath.h>
 
 #include <QSet>
-#include <QString>
 
 namespace CPlusPlus {
 
@@ -21,15 +20,16 @@ class CPLUSPLUS_EXPORT FastPreprocessor: public Client
 {
     Environment _env;
     Snapshot _snapshot;
-    Preprocessor _preproc;
+    Preprocessor _preproc{this, &_env};
     QSet<Utils::FilePath> _merged;
     Document::Ptr _currentDoc;
-    bool _addIncludesToCurrentDoc;
+    bool _addIncludesToCurrentDoc = false;
+    const bool _expandFunctionLikeMacros;
 
     void mergeEnvironment(const Utils::FilePath &filePath);
 
 public:
-    FastPreprocessor(const Snapshot &snapshot);
+    FastPreprocessor(const Snapshot &snapshot, bool expandFunctionLikeMacros);
 
     QByteArray run(Document::Ptr newDoc,
                    const QByteArray &source,
@@ -50,7 +50,7 @@ public:
                                      int,
                                      int,
                                      const Macro &,
-                                     const QVector<MacroArgumentReference> &);
+                                     const QList<MacroArgumentReference> &);
     virtual void stopExpandingMacro(int, const Macro &) {}
     virtual void markAsIncludeGuard(const QByteArray &macroName);
 

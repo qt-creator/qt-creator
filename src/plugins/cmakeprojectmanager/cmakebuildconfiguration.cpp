@@ -105,19 +105,18 @@ const char CMAKE_CXX_FLAGS[] = "CMAKE_CXX_FLAGS";
 const char CMAKE_CXX_FLAGS_DEBUG[] = "CMAKE_CXX_FLAGS_DEBUG";
 const char CMAKE_CXX_FLAGS_RELWITHDEBINFO[] = "CMAKE_CXX_FLAGS_RELWITHDEBINFO";
 
-const char VXWORKS_DEVICE_TYPE[] = "VxWorks.Device.Type";
-
 namespace Internal {
 
 class CMakeBuildSettingsWidget : public QWidget
 {
 public:
     explicit CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc);
+    ~CMakeBuildSettingsWidget();
 
     void setError(const QString &message);
     void setWarning(const QString &message);
 
-    void updateInitialCMakeArguments();
+    void updateInitialCMakeArguments(bool fromReconfigure = false);
 
 private:
     void updateButtonState();
@@ -514,17 +513,13 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     });
 
     updateFromKit();
-    connect(m_buildConfig->target(), &Target::kitChanged,
+    connect(m_buildConfig, &BuildConfiguration::kitChanged,
             this, &CMakeBuildSettingsWidget::updateFromKit);
     connect(bc, &CMakeBuildConfiguration::enabledChanged, this, [this, bc] {
         if (bc->isEnabled())
             setError(QString());
     });
-    connect(this, &QObject::destroyed, this, [this] {
-        updateInitialCMakeArguments();
-    });
-
-    connect(m_buildConfig->target()->project(), &Project::aboutToSaveSettings, this, [this] {
+    connect(m_buildConfig->project(), &Project::aboutToSaveSettings, this, [this] {
         updateInitialCMakeArguments();
     });
 
@@ -550,6 +545,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     updateConfigurationStateSelection();
 }
 
+CMakeBuildSettingsWidget::~CMakeBuildSettingsWidget()
+{
+    updateInitialCMakeArguments();
+}
+
 void CMakeBuildSettingsWidget::batchEditConfiguration()
 {
     auto dialog = new QDialog(this);
@@ -565,7 +565,7 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
        "&lt;type&gt; can have one of the following values: FILEPATH, PATH, BOOL, INTERNAL, or STRING.<br/>"
                       "To unset a variable, use -U&lt;variable&gt;.<br/>"));
     connect(label, &QLabel::linkActivated, this, [this](const QString &) {
-        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->target()->kit());
+        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->kit());
         CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake-variables.7.html");
     });
     editor->setMinimumSize(800, 200);
@@ -621,7 +621,7 @@ void CMakeBuildSettingsWidget::reconfigureWithInitialParameters()
     if (reply != QMessageBox::Yes)
         return;
 
-    updateInitialCMakeArguments();
+    updateInitialCMakeArguments(true);
 
     m_buildConfig->cmakeBuildSystem()->clearCMakeCache();
 
@@ -663,8 +663,11 @@ static bool isGenerateQmllsSettingsEnabled()
     QTC_ASSERT(false, return false);
 }
 
-void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
+void CMakeBuildSettingsWidget::updateInitialCMakeArguments(bool fromReconfigure)
 {
+    QTC_ASSERT(m_buildConfig, return);
+    QTC_ASSERT(m_buildConfig->cmakeBuildSystem(), return);
+
     CMakeConfig initialList = m_buildConfig->initialCMakeArguments.cmakeConfiguration();
 
     // set QT_QML_GENERATE_QMLLS_INI if it is enabled via the settings checkbox and if its not part
@@ -677,6 +680,16 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
             initialList.append(
                 CMakeConfigItem("QT_QML_GENERATE_QMLLS_INI", CMakeConfigItem::BOOL, "ON"));
         }
+    }
+
+    const QVariant maintananceTool = Core::ICore::settings()->value("Updater/MaintenanceTool");
+    if (maintananceTool.isValid()
+        && std::none_of(
+            initialList.constBegin(), initialList.constEnd(), [](const CMakeConfigItem &item) {
+                return item.key == "QT_MAINTENANCE_TOOL";
+            })) {
+        initialList.append(CMakeConfigItem(
+            "QT_MAINTENANCE_TOOL", CMakeConfigItem::FILEPATH, maintananceTool.toString().toUtf8()));
     }
 
     for (const CMakeConfigItem &ci : m_buildConfig->cmakeBuildSystem()->configurationChanges()) {
@@ -700,11 +713,13 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
 
     m_buildConfig->initialCMakeArguments.setCMakeConfiguration(initialList);
 
-    // value() will contain only the unknown arguments (the non -D/-U arguments)
-    // As the user would expect to have e.g. "--preset" from "Initial Configuration"
-    // to "Current Configuration" as additional parameters
-    m_buildConfig->setAdditionalCMakeArguments(ProcessArgs::splitArgs(
-        m_buildConfig->initialCMakeArguments(), HostOsInfo::hostOs()));
+    if (fromReconfigure) {
+        // value() will contain only the unknown arguments (the non -D/-U arguments)
+        // As the user would expect to have e.g. "--preset" from "Initial Configuration"
+        // to "Current Configuration" as additional parameters
+        m_buildConfig->setAdditionalCMakeArguments(ProcessArgs::splitArgs(
+            m_buildConfig->initialCMakeArguments(), HostOsInfo::hostOs()));
+    }
 }
 
 void CMakeBuildSettingsWidget::kitCMakeConfiguration()
@@ -868,7 +883,7 @@ void CMakeBuildSettingsWidget::updateFromKit()
 
     // First the key value parameters
     ConfigModel::KitConfiguration configHash;
-    for (const CMakeConfigItem &i : config)
+    for (const CMakeConfigItem &i : std::as_const(config))
         configHash.insert(QString::fromUtf8(i.key), i);
 
     m_configModel->setConfigurationFromKit(configHash);
@@ -1082,7 +1097,7 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
     connect(help, &QAction::triggered, this, [this, idx] {
         const CMakeConfigItem item = ConfigModel::dataItemFromIndex(idx).toCMakeConfigItem();
 
-        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->target()->kit());
+        const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->kit());
         const QString linkUrl = "%1/variable/" + QString::fromUtf8(item.key) + ".html";
         CMakeTool::openCMakeHelpUrl(tool, linkUrl);
     });
@@ -1154,7 +1169,7 @@ static bool isWebAssembly(const Kit *k)
 
 static bool isVxWorks(const Kit *k)
 {
-    return RunDeviceTypeKitAspect::deviceTypeId(k) == VXWORKS_DEVICE_TYPE;
+    return RunDeviceTypeKitAspect::deviceTypeId(k) == Constants::VXWORKS_DEVICE_TYPE;
 }
 
 static bool isQnx(const Kit *k)
@@ -1205,6 +1220,11 @@ static CommandLine defaultInitialCMakeCommand(
 
     // CMake should output colors by default
     cmd.addArg("-DCMAKE_COLOR_DIAGNOSTICS:BOOL=ON");
+
+    // Add MaintenanceTool
+    const QVariant maintananceTool = Core::ICore::settings()->value("Updater/MaintenanceTool");
+    if (maintananceTool.isValid())
+        cmd.addArg("-DQT_MAINTENANCE_TOOL:FILEPATH=" + maintananceTool.toString());
 
     cmd.addArgs(CMakeConfigurationKitAspect::toArgumentsList(k));
     cmd.addArgs(CMakeConfigurationKitAspect::additionalConfiguration(k), CommandLine::Raw);
@@ -1289,7 +1309,7 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
     if (configurePreset.cacheVariables)
         cache = configurePreset.cacheVariables.value();
 
-    for (const CMakeConfigItem &presetItemRaw : cache) {
+    for (const CMakeConfigItem &presetItemRaw : std::as_const(cache)) {
 
         // Expand the CMakePresets Macros
         CMakeConfigItem presetItem(presetItemRaw);
@@ -1329,7 +1349,7 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
                 // Remove the expanded Qt path from the presets values
                 QString argItemExpandedValue = argItem.expandedValue(k);
                 presetValueList.removeIf([argItemExpandedValue](const QString &presetPath) {
-                    QStringList argItemPaths = argItemExpandedValue.split(";");
+                    const QStringList argItemPaths = argItemExpandedValue.split(";");
                     for (const QString &argPath : argItemPaths) {
                         const FilePath argFilePath = FilePath::fromString(argPath);
                         const FilePath presetFilePath = FilePath::fromUserInput(presetPath);
@@ -1341,7 +1361,7 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
                 });
 
                 // Add the presets values to the final argument
-                for (const QString &presetPath : presetValueList) {
+                for (const QString &presetPath : std::as_const(presetValueList)) {
                     argItem.value.append(";");
                     argItem.value.append(presetPath.toUtf8());
                 }
@@ -1425,7 +1445,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     : BuildConfiguration(target, id)
 {
     setConfigWidgetDisplayName(Tr::tr("CMake"));
-    m_buildSystem = new CMakeBuildSystem(this);
 
     buildDirectoryAspect()->setValueAcceptor(
         [](const QString &oldDir, const QString &newDir) -> std::optional<QString> {
@@ -1501,18 +1520,18 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
     qmlDebugging.setBuildConfiguration(this);
 
-    setInitialBuildAndCleanSteps(target);
+    setInitialBuildAndCleanSteps();
 
-    setInitializer([this, target](const BuildInfo &info) {
-        const Kit *k = target->kit();
+    setInitializer([this](const BuildInfo &info) {
+        const Kit *k = kit();
         const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
         const Store extraInfoMap = storeFromVariant(info.extraInfo);
         const QString buildType = extraInfoMap.contains(CMAKE_BUILD_TYPE)
                                       ? extraInfoMap.value(CMAKE_BUILD_TYPE).toString()
                                       : info.typeName;
 
-        CommandLine cmd = defaultInitialCMakeCommand(k, target->project(), buildType);
-        m_buildSystem->setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(k));
+        CommandLine cmd = defaultInitialCMakeCommand(k, project(), buildType);
+        cmakeBuildSystem()->setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(k));
 
         // Android magic:
         if (RunDeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
@@ -1591,7 +1610,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         }
 
         if (info.buildDirectory.isEmpty()) {
-            setBuildDirectory(shadowBuildDirectory(target->project()->projectFilePath(),
+            setBuildDirectory(shadowBuildDirectory(project()->projectFilePath(),
                                                    k,
                                                    info.displayName,
                                                    info.buildType));
@@ -1613,7 +1632,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             cmd.addArg("-DQT_QML_GENERATE_QMLLS_INI:BOOL=ON");
         }
 
-        CMakeProject *cmakeProject = static_cast<CMakeProject *>(target->project());
+        CMakeProject *cmakeProject = static_cast<CMakeProject *>(project());
         configureEnv.setUserEnvironmentChanges(
             getEnvironmentItemsFromCMakeConfigurePreset(cmakeProject, k));
 
@@ -1626,14 +1645,11 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         setInitialCMakeArguments(initialCMakeArguments);
         setCMakeBuildType(buildType);
 
-        setBuildPresetToBuildSteps(target);
+        setBuildPresetToBuildSteps();
     });
 }
 
-CMakeBuildConfiguration::~CMakeBuildConfiguration()
-{
-    delete m_buildSystem;
-}
+CMakeBuildConfiguration::~CMakeBuildConfiguration() = default;
 
 FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFilePath,
                                                        const Kit *k,
@@ -1643,7 +1659,7 @@ FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFi
     if (projectFilePath.isEmpty())
         return {};
 
-    const QString projectName = projectFilePath.parentDir().fileName();
+    const QString projectName = CMakeProject::projectDisplayName(projectFilePath);
     FilePath buildPath = buildDirectoryFromTemplate(
         projectFilePath.absolutePath(), projectFilePath, projectName, k, bcName, buildType, "cmake");
 
@@ -1865,7 +1881,7 @@ QWidget *CMakeBuildConfiguration::createConfigWidget()
 void CMakeBuildConfiguration::updateInitialCMakeArguments()
 {
     Q_ASSERT(m_configWidget);
-    m_configWidget->updateInitialCMakeArguments();
+    m_configWidget->updateInitialCMakeArguments(true);
 }
 
 QStringList CMakeBuildConfiguration::initialCMakeOptions() const
@@ -1906,15 +1922,14 @@ CMakeConfig CMakeBuildConfiguration::signingFlags() const
 }
 
 
-void CMakeBuildConfiguration::setInitialBuildAndCleanSteps(const Target *target)
+void CMakeBuildConfiguration::setInitialBuildAndCleanSteps()
 {
-    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(
-        target->kit());
+    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(kit());
 
     int buildSteps = 1;
     if (!presetItem.isNull()) {
-        const QString presetName = presetItem.expandedValue(target->kit());
-        const CMakeProject *project = static_cast<const CMakeProject *>(target->project());
+        const QString presetName = presetItem.expandedValue(kit());
+        const CMakeProject *project = static_cast<const CMakeProject *>(this->project());
 
         const auto buildPresets = project->presetsData().buildPresets;
         const int count
@@ -1939,16 +1954,15 @@ void CMakeBuildConfiguration::setInitialBuildAndCleanSteps(const Target *target)
     appendInitialCleanStep(Constants::CMAKE_BUILD_STEP_ID);
 }
 
-void CMakeBuildConfiguration::setBuildPresetToBuildSteps(const ProjectExplorer::Target *target)
+void CMakeBuildConfiguration::setBuildPresetToBuildSteps()
 {
-    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(
-        target->kit());
+    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(kit());
 
     if (presetItem.isNull())
         return;
 
-    const QString presetName = presetItem.expandedValue(target->kit());
-    const CMakeProject *project = static_cast<const CMakeProject *>(target->project());
+    const QString presetName = presetItem.expandedValue(kit());
+    const CMakeProject *project = static_cast<const CMakeProject *>(this->project());
 
     const auto allBuildPresets = project->presetsData().buildPresets;
     const auto buildPresets = Utils::filtered(
@@ -1973,7 +1987,7 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps(const ProjectExplorer::
         CMakeBuildStep *cbs = qobject_cast<CMakeBuildStep *>(buildStepList[i]);
         cbs->setBuildPreset(buildPresets[i].name);
         cbs->setUserEnvironmentChanges(
-            getEnvironmentItemsFromCMakeBuildPreset(project, target->kit(), buildPresets[i].name));
+            getEnvironmentItemsFromCMakeBuildPreset(project, kit(), buildPresets[i].name));
 
         if (buildPresets[i].targets) {
             QString targets = buildPresets[i].targets->join(" ");
@@ -2048,6 +2062,7 @@ CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
                 info.displayName.clear(); // ask for a name
                 info.buildDirectory.clear(); // This depends on the displayName
             }
+            info.enabledByDefault = type == BuildTypeDebug;
             result << info;
         }
         return result;
@@ -2134,7 +2149,7 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
 
 BuildConfiguration::BuildType CMakeBuildConfiguration::buildType() const
 {
-    return m_buildSystem->buildType();
+    return cmakeBuildSystem()->buildType();
 }
 
 BuildConfiguration::BuildType CMakeBuildSystem::buildType() const
@@ -2151,14 +2166,9 @@ BuildConfiguration::BuildType CMakeBuildSystem::buildType() const
     return CMakeBuildConfigurationFactory::cmakeBuildTypeToBuildType(cmakeBuildType);
 }
 
-BuildSystem *CMakeBuildConfiguration::buildSystem() const
-{
-    return m_buildSystem;
-}
-
 CMakeBuildSystem *CMakeBuildConfiguration::cmakeBuildSystem() const
 {
-    return m_buildSystem;
+    return qobject_cast<CMakeBuildSystem *>(buildSystem());
 }
 
 void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
@@ -2350,30 +2360,26 @@ InitialCMakeArgumentsAspect::InitialCMakeArgumentsAspect(AspectContainer *contai
 class ConfigureEnvironmentAspectWidget final : public EnvironmentAspectWidget
 {
 public:
-    ConfigureEnvironmentAspectWidget(ConfigureEnvironmentAspect *aspect, Target *target)
+    ConfigureEnvironmentAspectWidget(ConfigureEnvironmentAspect *aspect, BuildConfiguration *bc)
         : EnvironmentAspectWidget(aspect)
     {
-        envWidget()->setOpenTerminalFunc([target](const Environment &env) {
-            if (BuildConfiguration *bc = target->activeBuildConfiguration())
-                Core::FileUtils::openTerminal(bc->buildDirectory(), env);
+        envWidget()->setOpenTerminalFunc([bc](const Environment &env) {
+            Core::FileUtils::openTerminal(bc->buildDirectory(), env);
         });
     }
 };
 
-ConfigureEnvironmentAspect::ConfigureEnvironmentAspect(AspectContainer *container,
-                                                       BuildConfiguration *bc)
-    : EnvironmentAspect(container)
+ConfigureEnvironmentAspect::ConfigureEnvironmentAspect(BuildConfiguration *bc)
+    : EnvironmentAspect(bc)
 {
-    Target *target = bc->target();
     setIsLocal(true);
     setAllowPrintOnRun(false);
-    setConfigWidgetCreator(
-        [this, target] { return new ConfigureEnvironmentAspectWidget(this, target); });
+    setConfigWidgetCreator([this, bc] { return new ConfigureEnvironmentAspectWidget(this, bc); });
     addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
     setLabelText(Tr::tr("Base environment for the CMake configure step:"));
 
-    const int systemEnvIndex = addSupportedBaseEnvironment(Tr::tr("System Environment"), [target] {
-        IDevice::ConstPtr device = BuildDeviceKitAspect::device(target->kit());
+    const int systemEnvIndex = addSupportedBaseEnvironment(Tr::tr("System Environment"), [bc] {
+        IDevice::ConstPtr device = BuildDeviceKitAspect::device(bc->kit());
         return device ? device->systemEnvironment() : Environment::systemEnvironment();
     });
 
@@ -2381,38 +2387,29 @@ ConfigureEnvironmentAspect::ConfigureEnvironmentAspect(AspectContainer *containe
         return bc->environment();
     });
 
-    connect(target,
-            &Target::activeBuildConfigurationChanged,
-            this,
-            &EnvironmentAspect::environmentChanged);
-    connect(target,
-            &Target::buildEnvironmentChanged,
-            this,
-            &EnvironmentAspect::environmentChanged);
-
+    connect(bc, &BuildConfiguration::environmentChanged,
+            this, &EnvironmentAspect::environmentChanged);
 
     const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(
-        target->kit());
+        bc->kit());
 
     setBaseEnvironmentBase(presetItem.isNull() ? buildEnvIndex : systemEnvIndex);
 
-    connect(target->project(),
+    connect(bc->project(),
             &Project::environmentChanged,
             this,
             &EnvironmentAspect::environmentChanged);
 
-    connect(KitManager::instance(), &KitManager::kitUpdated, this, [this, target](const Kit *k) {
-        if (target->kit() == k)
+    connect(KitManager::instance(), &KitManager::kitUpdated, this, [this, bc](const Kit *k) {
+        if (bc->kit() == k)
             emit EnvironmentAspect::environmentChanged();
     });
 
-    addModifier([target](Utils::Environment &env) {
+    addModifier([bc](Utils::Environment &env) {
         // This will add ninja to path
-        if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-            bc->addToEnvironment(env);
-        }
-        target->kit()->addToBuildEnvironment(env);
-        env.modify(target->project()->additionalEnvironment());
+        bc->addToEnvironment(env);
+        bc->kit()->addToBuildEnvironment(env);
+        env.modify(bc->project()->additionalEnvironment());
     });
 }
 

@@ -11,6 +11,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <remotelinux/linuxprocessinterface.h>
 
@@ -109,6 +110,10 @@ QdbDevice::QdbDevice()
 {
     setDisplayType(Tr::tr("Boot to Qt Device"));
     setType(Constants::QdbLinuxOsType);
+    setMachineType(IDevice::Hardware);
+    setExtraData(ProjectExplorer::Constants::SUPPORTS_RSYNC, true);
+    setExtraData(ProjectExplorer::Constants::SUPPORTS_SFTP, true);
+    sourceProfile.setDefaultValue(true);
 
     addDeviceAction({Tr::tr("Reboot Device"), [](const IDevice::Ptr &device) {
         (void) new DeviceApplicationObserver(device, CommandLine{device->filePath("reboot")});
@@ -139,9 +144,10 @@ void QdbDevice::setupDefaultNetworkSettings(const QString &host)
     parameters.setHost(host);
     parameters.setUserName("root");
     parameters.setPort(22);
-    parameters.timeout = 10;
-    parameters.authenticationType = SshParameters::AuthenticationTypeAll;
-    setSshParameters(parameters);
+    parameters.setTimeout(10);
+    parameters.setAuthenticationType(SshParameters::AuthenticationTypeAll);
+    parameters.setHostKeyCheckingMode(ProjectExplorer::SshHostKeyCheckingNone);
+    setDefaultSshParameters(parameters);
 }
 
 // QdbDeviceWizard
@@ -155,7 +161,7 @@ public:
         setTitle(Tr::tr("Device Settings"));
 
         nameLineEdit = new QLineEdit(this);
-        nameLineEdit->setPlaceholderText(Tr::tr("A short, free-text description"));
+        nameLineEdit->setPlaceholderText(Tr::tr("A short, free-text description."));
 
         addressLineEdit = new QLineEdit(this);
         addressLineEdit->setPlaceholderText(Tr::tr("Host name or IP address"));

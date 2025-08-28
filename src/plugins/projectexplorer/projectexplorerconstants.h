@@ -128,6 +128,10 @@ const char COPY_DIRECTORY_STEP[] = "ProjectExplorer.CopyDirectoryStep";
 const char DEVICE_CHECK_STEP[] =  "ProjectExplorer.DeviceCheckBuildStep";
 const char CUSTOM_PROCESS_STEP[] =  "ProjectExplorer.ProcessStep";
 
+// Project Configuration
+const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
+const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
+
 // Language
 
 // Keep these short: These constants are exposed to the MacroExplorer!
@@ -153,7 +157,6 @@ const char QTC_DEFAULT_BUILD_DIRECTORY_TEMPLATE[] = "QTC_DEFAULT_BUILD_DIRECTORY
 
 // Desktop Device related ids:
 const char DESKTOP_DEVICE_ID[] = "Desktop Device";
-const char DESKTOP_DEVICE_TYPE[] = "Desktop";
 const int DESKTOP_PORT_START = 30000;
 const int DESKTOP_PORT_END = 31000;
 
@@ -167,6 +170,10 @@ const char ANDROID_ABI_X86_64[] = "x86_64";
 // JsonWizard:
 const char PAGE_ID_PREFIX[] = "PE.Wizard.Page.";
 const char GENERATOR_ID_PREFIX[] = "PE.Wizard.Generator.";
+
+// Device types
+const char DESKTOP_DEVICE_TYPE[] = "Desktop";
+const char DOCKER_DEVICE_TYPE[] = "DockerDeviceType";
 
 // RunMode
 const char NO_RUN_MODE[]="RunConfiguration.NoRunMode";
@@ -224,7 +231,6 @@ const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.BuildConfiguration.
 // Called "RemoteLinux." for backwards compatibility
 const char SUPPORTS_RSYNC[] = "RemoteLinux.SupportsRSync";
 const char SUPPORTS_SFTP[] = "RemoteLinux.SupportsSftp";
-const char SSH_FORWARD_DEBUGSERVER_PORT[] = "RemoteLinux.SshForwardDebugServerPort";
 
 // SDKs related ids:
 const char SDK_SETTINGS_CATEGORY[] = "AN.SDKs";

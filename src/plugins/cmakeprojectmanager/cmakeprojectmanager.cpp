@@ -376,7 +376,7 @@ void CMakeManager::runCMakeWithProfiling(BuildSystem *buildSystem)
     if (ProjectExplorerPlugin::saveModifiedFiles()) {
         // cmakeBuildSystem->runCMakeWithProfiling() below will trigger Target::buildSystemUpdated
         // which will ensure that the "cmake-profile.json" has been created and we can load the viewer
-        QObject::connect(cmakeBuildSystem->target(), &Target::buildSystemUpdated, this, [] {
+        QObject::connect(cmakeBuildSystem, &BuildSystem::updated, this, [] {
             Core::Command *ctfVisualiserLoadTrace = Core::ActionManager::command(
                 "Analyzer.Menu.StartAnalyzer.CtfVisualizer.LoadTrace");
 

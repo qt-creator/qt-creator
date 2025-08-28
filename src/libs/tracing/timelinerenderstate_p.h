@@ -19,7 +19,7 @@ public:
 
     float scale;  // "native" scale, this stays the same through the life time of a state
 
-    QVector<TimelineRenderPass::State *> passes;
+    QList<TimelineRenderPass::State *> passes;
 };
 
 } // namespace Timeline

@@ -10,8 +10,9 @@
 #include "appmanagertr.h"
 
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/processparameters.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -31,14 +32,26 @@ public:
         setExtraInit([] (BuildStep *step) {
             // We update the build targets when the active run configuration changes
             const auto updaterSlot = [step] {
-                const TargetInformation targetInformation(step->target());
+                const TargetInformation targetInformation(step->buildConfiguration());
                 step->setBuildTargets({targetInformation.cmakeBuildTarget});
                 step->setStepEnabled(!targetInformation.isBuiltin);
             };
-            QObject::connect(step->target(), &Target::activeRunConfigurationChanged, step, updaterSlot);
-            QObject::connect(step->target(), &Target::activeDeployConfigurationChanged, step, updaterSlot);
-            QObject::connect(step->target(), &Target::parsingFinished, step, updaterSlot);
-            QObject::connect(step->target(), &Target::runConfigurationsUpdated, step, updaterSlot);
+            QObject::connect(
+                step->buildConfiguration(),
+                &BuildConfiguration::activeRunConfigurationChanged,
+                step,
+                updaterSlot);
+            QObject::connect(
+                step->buildConfiguration(),
+                &BuildConfiguration::activeDeployConfigurationChanged,
+                step,
+                updaterSlot);
+            QObject::connect(step->buildSystem(), &BuildSystem::parsingFinished, step, updaterSlot);
+            QObject::connect(
+                step->buildConfiguration(),
+                &BuildConfiguration::runConfigurationsUpdated,
+                step,
+                updaterSlot);
             QObject::connect(step->project(), &Project::displayNameChanged, step, updaterSlot);
         });
 

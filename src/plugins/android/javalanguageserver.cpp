@@ -13,9 +13,10 @@
 #include <languageclient/languageclientutils.h>
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitaspect.h>
 
@@ -49,7 +50,7 @@ public:
     void fromMap(const Store &map) final;
     BaseSettings *copy() const final;
     Client *createClient(BaseClientInterface *interface) const final;
-    BaseClientInterface *createInterface(Project *project) const final;
+    BaseClientInterface *createInterface(BuildConfiguration *) const final;
 
     FilePath m_languageServer;
 
@@ -184,7 +185,7 @@ private:
     TemporaryDirectory m_workspaceDir = TemporaryDirectory("QtCreator-jls-XXXXXX");
 };
 
-BaseClientInterface *JLSSettings::createInterface(Project *) const
+BaseClientInterface *JLSSettings::createInterface(BuildConfiguration *) const
 {
     auto interface = new JLSInterface();
     CommandLine cmd{m_executable, arguments(), CommandLine::Raw};
@@ -199,12 +200,8 @@ public:
     using Client::Client;
 
     void executeCommand(const LanguageServerProtocol::Command &command) override;
-    void setCurrentProject(Project *project) override;
+    void setCurrentBuildConfiguration(BuildConfiguration *bc) override;
     void updateProjectFiles();
-    void updateTarget(Target *target);
-
-private:
-    Target *m_currentTarget = nullptr;
 };
 
 void JLSClient::executeCommand(const LanguageServerProtocol::Command &command)
@@ -223,13 +220,19 @@ void JLSClient::executeCommand(const LanguageServerProtocol::Command &command)
     }
 }
 
-void JLSClient::setCurrentProject(Project *project)
+void JLSClient::setCurrentBuildConfiguration(BuildConfiguration *bc)
 {
-    Client::setCurrentProject(project);
-    QTC_ASSERT(project, return);
-    updateTarget(project->activeTarget());
+    Client::setCurrentBuildConfiguration(bc);
+    QTC_ASSERT(bc, return);
     updateProjectFiles();
-    connect(project, &Project::activeTargetChanged, this, &JLSClient::updateTarget);
+
+    connect(bc->buildSystem(), &BuildSystem::parsingStarted,
+            this, &JLSClient::updateProjectFiles);
+    connect(bc->project(), &Project::activeBuildConfigurationChanged, this,
+            [this](BuildConfiguration *active) {
+                if (active == buildConfiguration())
+                    updateProjectFiles();
+            });
 }
 
 static void generateProjectFile(const FilePath &projectDir,
@@ -294,19 +297,18 @@ static void generateClassPathFile(const FilePath &projectDir,
 
 void JLSClient::updateProjectFiles()
 {
-    if (!m_currentTarget)
-        return;
+    QTC_ASSERT(buildConfiguration(), return);
 
-    Kit *kit = m_currentTarget->kit();
+    Kit *kit = buildConfiguration()->kit();
     if (RunDeviceTypeKitAspect::deviceTypeId(kit) != Android::Constants::ANDROID_DEVICE_TYPE)
         return;
 
-    if (ProjectNode *node = project()->findNodeForBuildKey(m_currentTarget->activeBuildKey())) {
+    if (ProjectNode *node = project()->findNodeForBuildKey(buildConfiguration()->activeBuildKey())) {
         QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
         if (!version)
             return;
         const FilePath qtSrc = version->prefix().pathAppended("src/android/java/src");
-        const FilePath &projectDir = project()->rootProjectDirectory();
+        const FilePath projectDir = project()->rootProjectDirectory();
         if (!projectDir.exists())
             return;
         const FilePath packageSourceDir = FilePath::fromVariant(
@@ -325,7 +327,7 @@ void JLSClient::updateProjectFiles()
         const QStringList classPaths = node->data(Constants::AndroidClassPaths).toStringList();
 
         const FilePath &sdkLocation = AndroidConfig::sdkLocation();
-        const QString &targetSDK = buildTargetSDK(m_currentTarget);
+        const QString &targetSDK = buildTargetSDK(buildConfiguration());
         const FilePath androidJar = sdkLocation / QString("platforms/%2/android.jar")
                                        .arg(targetSDK);
         FilePaths libs = {androidJar};
@@ -337,19 +339,6 @@ void JLSClient::updateProjectFiles()
         generateProjectFile(projectDir, qtSrc.path(), project()->displayName());
         generateClassPathFile(projectDir, sourceDir, libs);
     }
-}
-
-void JLSClient::updateTarget(Target *target)
-{
-    if (m_currentTarget)
-        disconnect(m_currentTarget, &Target::parsingFinished, this, &JLSClient::updateProjectFiles);
-
-    m_currentTarget = target;
-
-    if (m_currentTarget)
-        connect(m_currentTarget, &Target::parsingFinished, this, &JLSClient::updateProjectFiles);
-
-    updateProjectFiles();
 }
 
 Client *JLSSettings::createClient(BaseClientInterface *interface) const

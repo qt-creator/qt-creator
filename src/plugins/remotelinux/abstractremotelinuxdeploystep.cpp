@@ -26,7 +26,7 @@ namespace Internal {
 class AbstractRemoteLinuxDeployStepPrivate
 {
 public:
-    std::function<expected_str<void>()> internalInit;
+    std::function<Result<>()> internalInit;
 
     DeploymentTimeInfo deployTimes;
 };
@@ -68,7 +68,7 @@ bool AbstractRemoteLinuxDeployStep::hasRemoteFileChanged(
     return d->deployTimes.hasRemoteFileChanged(deployableFile, kit(), remoteTimestamp);
 }
 
-expected_str<void> AbstractRemoteLinuxDeployStep::isDeploymentPossible() const
+Result<> AbstractRemoteLinuxDeployStep::isDeploymentPossible() const
 {
     if (!deviceConfiguration())
         return make_unexpected(Tr::tr("No device configuration set."));
@@ -76,7 +76,7 @@ expected_str<void> AbstractRemoteLinuxDeployStep::isDeploymentPossible() const
 }
 
 void AbstractRemoteLinuxDeployStep::setInternalInitializer(
-    const std::function<expected_str<void>()> &init)
+    const std::function<Result<>()> &init)
 {
     d->internalInit = init;
 }

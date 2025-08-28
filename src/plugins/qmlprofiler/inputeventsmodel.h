@@ -5,8 +5,7 @@
 
 #include "qmlprofilertimelinemodel.h"
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class InputEventsModel : public QmlProfilerTimelineModel
 {
@@ -38,8 +37,7 @@ private:
     int m_keyTypeId;
     int m_mouseTypeId;
 
-    QVector<Item> m_data;
+    QList<Item> m_data;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

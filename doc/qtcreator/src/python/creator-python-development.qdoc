@@ -49,12 +49,12 @@
     \section1 Create Qt for Python applications
 
     Use wizards to create Qt for Python application projects. The wizards
-    generate a project file, \c {.pyproject}, that lists the files in the Python
-    project. They also generate a \c {.py} file that has some boilerplate code
-    and \c {requirements.txt} that stores the PySide version of the generated code.
-    In addition, the widget-based UI wizard creates a \c {.ui} file that has a
-    \QD form, and the Qt Quick Application wizard creates a \c {.qml} file that
-    imports Qt Quick controls.
+    generate a project file, \c {pyproject.toml}, that lists the files in the
+    Python project and other configuration. They also generate a \c {.py} file
+    that has some boilerplate code and \c {requirements.txt} that stores the
+    PySide version of the generated code. In addition, the widget-based UI
+    wizard creates a \c {.ui} file that has a \QD form, and the Qt Quick
+    Application wizard creates a \c {.qml} file that imports Qt Quick controls.
 
     The \uicontrol Window wizard adds code to the source file, without the UI
     file.
@@ -62,10 +62,10 @@
     The \uicontrol Empty wizard adds code to the source file, but it
     does not add any classes, so you need to add and instantiate them yourself.
 
-    The \c{.pyproject} files are JSON-based configuration files that replace
-    the previously used \c {.pyqtc} configuration files. You can still open and
-    use \c {.pyqtc} files, but we recommend that you choose \c{.pyproject} files
-    for new projects.
+    The \c{pyproject.toml} files are TOML-based configuration files that
+    replace the previously used \c {.pyproject} configuration files. You can
+    still open and use \c {.pyproject} files, but we recommend that you choose
+    \c{pyproject.toml} files for new projects.
 
     \section1 Select the Python version
 

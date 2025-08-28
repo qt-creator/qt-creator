@@ -2,23 +2,34 @@ import qbs.FileInfo
 
 QtcLibrary {
     name: "Utils"
-    cpp.includePaths: base.concat("mimetypes2", ".")
+    Properties { cpp.includePaths: base.concat("mimetypes2", ".") }
     cpp.defines: base.concat(["UTILS_LIBRARY"])
-    cpp.dynamicLibraries: {
-        var libs = [];
-        if (qbs.targetOS.contains("windows")) {
-            libs.push("user32", "iphlpapi", "ws2_32", "shell32", "ole32");
-            if (qbs.toolchain.contains("mingw"))
-                libs.push("uuid");
-            else if (qbs.toolchain.contains("msvc"))
-                libs.push("dbghelp");
-        } else if (qbs.targetOS.contains("unix")) {
-            if (!qbs.targetOS.contains("macos"))
-                libs.push("X11");
-            if (!qbs.targetOS.contains("openbsd"))
-                libs.push("pthread");
+    Properties { cpp.dynamicLibraries: base }
+
+    Properties {
+        condition: qbs.targetOS.contains("windows")
+        cpp.dynamicLibraries: {
+            var winLibs = ["user32", "iphlpapi", "ws2_32", "shell32", "ole32"];
+            if (qbs.toolchain.contains("mingw")) {
+                winLibs.push("uuid");
+                if (libarchive_static.present)
+                    winLibs.push("bcrypt");
+            }
+            if (qbs.toolchain.contains("msvc"))
+                winLibs.push("dbghelp");
+            return winLibs;
         }
-        return libs;
+    }
+    Properties {
+        condition: qbs.targetOS.contains("unix")
+        cpp.dynamicLibraries: {
+            var unixLibs = [];
+            if (!qbs.targetOS.contains("macos"))
+                unixLibs.push("X11");
+            if (!qbs.targetOS.contains("openbsd"))
+                unixLibs.push("pthread");
+            return unixLibs;
+        }
     }
 
     cpp.enableExceptions: true
@@ -28,11 +39,22 @@ QtcLibrary {
         cpp.frameworks: ["Foundation", "AppKit"]
     }
 
-    Depends { name: "Qt"; submodules: ["concurrent", "core-private", "network", "qml", "widgets", "xml"] }
+    Depends { name: "Qt"; submodules: ["concurrent", "core-private", "network", "printsupport", "qml", "widgets", "xml"] }
     Depends { name: "Qt.macextras"; condition: Qt.core.versionMajor < 6 && qbs.targetOS.contains("macos") }
     Depends { name: "Spinner" }
     Depends { name: "Tasking" }
     Depends { name: "ptyqt" }
+    Depends { name: "libarchive_static"; required: false} // in fact it's a hard dependency
+
+    Properties {
+        condition: libarchive_static.present
+        cpp.includePaths: libarchive_static.libarchiveIncludeDir
+        cpp.libraryPaths: libarchive_static.libarchiveLibDir
+        cpp.staticLibraries: libarchive_static.libarchiveStatic
+                             ? libarchive_static.libarchiveNames : []
+        cpp.dynamicLibraries: !libarchive_static.libarchiveStatic
+                              ? libarchive_static.libarchiveNames : []
+    }
 
     files: [
         "action.cpp",
@@ -139,8 +161,6 @@ QtcLibrary {
         "fileutils.h",
         "filewizardpage.cpp",
         "filewizardpage.h",
-        "flowlayout.cpp",
-        "flowlayout.h",
         "futuresynchronizer.cpp",
         "futuresynchronizer.h",
         "fuzzymatcher.cpp",
@@ -162,8 +182,6 @@ QtcLibrary {
         "htmldocextractor.h",
         "icon.cpp",
         "icon.h",
-        "iconbutton.cpp",
-        "iconbutton.h",
         "icondisplay.cpp",
         "icondisplay.h",
         "id.cpp",
@@ -248,6 +266,8 @@ QtcLibrary {
         "processinterface.h",
         "processreaper.cpp",
         "processreaper.h",
+        "progressdialog.cpp",
+        "progressdialog.h",
         "progressindicator.cpp",
         "progressindicator.h",
         "projectintropage.cpp",
@@ -262,6 +282,8 @@ QtcLibrary {
         "qtcolorbutton.h",
         "qtcsettings.cpp",
         "qtcsettings.h",
+        "qtcwidgets.cpp",
+        "qtcwidgets.h",
         "ranges.h",
         "reloadpromptutils.cpp",
         "reloadpromptutils.h",
@@ -474,6 +496,21 @@ QtcLibrary {
             condition: !qbs.targetOS.contains("macos")
             files: "touchbar.cpp"
         }
+    }
+
+    Group {
+        name: "PlainTextEdit"
+        prefix: "plaintextedit/"
+        files: [
+            "inputcontrol.cpp",
+            "inputcontrol.h",
+            "plaintextedit.cpp",
+            "plaintextedit.h",
+            "widgettextcontrol.cpp",
+            "widgettextcontrol.h",
+            "plaintexteditaccessibility.cpp",
+            "plaintexteditaccessibility.h",
+        ]
     }
 
     Export {

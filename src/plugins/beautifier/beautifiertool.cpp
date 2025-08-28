@@ -323,6 +323,7 @@ void AbstractSettings::save()
         if (!filePath.parentDir().ensureWritableDir()) {
             BeautifierTool::showError(Tr::tr("Cannot save styles. %1 does not exist.")
                                           .arg(filePath.toUserOutput()));
+            ++iStyles;
             continue;
         }
 
@@ -333,10 +334,10 @@ void AbstractSettings::save()
                                           .arg(saver.errorString()));
         } else {
             saver.write(iStyles.value().toLocal8Bit());
-            if (!saver.finalize()) {
+            if (const Result<> res = saver.finalize(); !res) {
                 BeautifierTool::showError(Tr::tr("Cannot save file \"%1\": %2.")
                                               .arg(filePath.toUserOutput())
-                                              .arg(saver.errorString()));
+                                              .arg(res.error()));
             }
         }
         ++iStyles;

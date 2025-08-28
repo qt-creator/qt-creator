@@ -11,6 +11,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QmlDesignerBase" }
     Depends { name: "QtSupport" }
+    Depends { name: "QmlJSEditor" }
     Depends { name: "TextEditor" }
 
     Group {
@@ -48,8 +49,10 @@ QtcPlugin {
         prefix: "qmlprojectexporter/"
         files: [
             "pythongenerator.cpp", "pythongenerator.h",
+            "resourcegenerator.cpp", "resourcegenerator.h",
             "cmakegenerator.cpp", "cmakegenerator.h",
             "cmakewriter.cpp", "cmakewriter.h",
+            "cmakewriterlib.cpp", "cmakewriterlib.h",
             "cmakewriterv0.cpp", "cmakewriterv0.h",
             "cmakewriterv1.cpp", "cmakewriterv1.h",
             "exporter.cpp", "exporter.h",

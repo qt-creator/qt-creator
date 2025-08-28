@@ -28,15 +28,11 @@ public:
 
     /// Only one cost event column will be shown, this decides which one it is.
     /// By default it is the first event in the @c ParseData, i.e. 0.
-    int costEvent() const;
     void setCostEvent(int event);
 
     void setParseData(const ParseDataPtr &data);
-    ParseDataPtr parseData() const;
 
     void setCalls(const QList<const FunctionCall *> &calls, const Function *function);
-    QList<const FunctionCall *> calls() const;
-    const Function *function() const;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;

@@ -70,8 +70,10 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
     m_host.setLabelText(Tr::tr("Host:"));
     m_host.setDisplayStyle(m == Display ? StringAspect::LabelDisplay
                                         : StringAspect::LineEditDisplay);
-    m_host.setValidationFunction([](FancyLineEdit *l, QString *) {
-        return hostValid(l->text());
+    m_host.setValidationFunction([](const QString &text) -> Result<> {
+        if (hostValid(text))
+            return ResultOk;
+        return ResultError(QString());
     });
 
     m_description.setLabelText(Tr::tr("Description:"));
@@ -179,7 +181,7 @@ GitLabOptionsWidget::GitLabOptionsWidget()
 
     m_curl.setValue(m_parameters->curl);
 
-    for (const auto &gitLabServer : m_parameters->gitLabServers) {
+    for (const auto &gitLabServer : std::as_const(m_parameters->gitLabServers)) {
         m_defaultGitLabServer->addItem(gitLabServer.displayString(),
                                        QVariant::fromValue(gitLabServer));
     }
@@ -188,6 +190,7 @@ GitLabOptionsWidget::GitLabOptionsWidget()
     if (found.id.isValid()) {
         m_defaultGitLabServer->setCurrentIndex(m_defaultGitLabServer->findData(
                                                    QVariant::fromValue(found)));
+        m_gitLabServerWidget->setGitLabServer(found);
     }
     updateButtonsState();
 

@@ -122,7 +122,9 @@ void ProcessHelper::setUnixTerminalDisabled()
     m_unixTerminalDisabled = true;
     enableChildProcessModifier();
 #  else
-    setUnixProcessParameters(QProcess::UnixProcessFlag::CreateNewSession);
+    UnixProcessParameters params = unixProcessParameters();
+    params.flags |= UnixProcessFlag::CreateNewSession;
+    setUnixProcessParameters(params);
 #  endif
 #endif
 }
@@ -130,6 +132,17 @@ void ProcessHelper::setUnixTerminalDisabled()
 void ProcessHelper::setUseCtrlCStub(bool enabled)
 {
     m_useCtrlCStub = enabled;
+}
+
+void Utils::ProcessHelper::setAllowCoreDumps(bool enabled)
+{
+#if defined(Q_OS_UNIX) && QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    UnixProcessParameters params = unixProcessParameters();
+    params.flags.setFlag(UnixProcessFlag::DisableCoreDumps, enabled);
+    setUnixProcessParameters(params);
+#else
+    Q_UNUSED(enabled)
+#endif
 }
 
 void ProcessHelper::enableChildProcessModifier()

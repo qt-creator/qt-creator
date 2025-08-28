@@ -17,20 +17,21 @@
 
     \section1 View inline annotations in editor
 
-    The editor shows found issues as inline annotations if the project matches
-    the currently open one and the respective file is part of the project.
-   hover over an annotation to bring up a tooltip with a short
+    The editor shows found issues as inline annotations if the project is
+    configured with a path mapping or if the project matches the
+    currently open one and the respective file is part of the project.
+    Hover over an annotation to bring up a tooltip with a short
     description of the issue.
 
     \image {qtcreator-axivion-annotation.webp} {Annotation popup}
 
-    Select \inlineimage icons/info.png to view detailed information about the
-    issue in the \uicontrol {Issue Details} view.
+    Select \inlineimage {icons/info.png} {Show Issues in Editor} to view detailed
+    information about the issue in the \uicontrol {Issue Details} view.
 
     \image {qtcreator-axivion-view-rule.webp} {Issue Details view}
 
     To hide inline annotations, go to \uicontrol Analyze > \uicontrol Axivion
-    and clear \inlineimage icons/warning.png.
+    and clear \inlineimage {icons/warning.png} {Show Issue Annotations Inline}.
 
     \section1 View issues
 
@@ -50,9 +51,9 @@
         \li Select the icon of an issue type.
     \endlist
 
-    To refresh the list, select \inlineimage icons/reload_gray.png.
+    To refresh the list, select \inlineimage {icons/reload_gray.png} {Reload}.
 
-    To get help, select \inlineimage icons/info.png.
+    To get help, select \inlineimage {icons/info.png} {Show Online Filter Help}.
 
     \section1 Issue types
 
@@ -64,29 +65,29 @@
         \li Type
         \li Description
     \row
-        \li \inlineimage icons/axivion-av.png
+        \li \inlineimage {icons/axivion-av.png} {AV}
         \li \uicontrol AV
         \li Architecture violations, such as hidden dependencies.
     \row
-        \li \inlineimage icons/axivion-cl.png
+        \li \inlineimage {icons/axivion-cl.png} {CL}
         \li \uicontrol CL
         \li Clones, such as duplicates and similar pieces of code.
     \row
-        \li \inlineimage icons/axivion-cy.png
+        \li \inlineimage {icons/axivion-cy.png} {CY}
         \li \uicontrol CY
         \li Cyclic dependencies, such as call, component, and include cycles.
     \row
-        \li \inlineimage icons/axivion-de.png
+        \li \inlineimage {icons/axivion-de.png} {DE}
         \li \uicontrol DE
         \li Dead entities are callable entities in the source code that cannot
             be reached from the entry points of the system under analysis.
     \row
-        \li \inlineimage icons/axivion-mv.png
+        \li \inlineimage {icons/axivion-mv.png} {MV}
         \li \uicontrol MV
         \li Violations of metrics based on lines and tokens,
             nesting, cyclomatic complexity, control flow, and so on.
     \row
-        \li \inlineimage icons/axivion-sv.png
+        \li \inlineimage {icons/axivion-sv.png} {SV}
         \li \uicontrol SV
         \li Style violations, such as deviations from the naming
             or coding conventions.
@@ -100,8 +101,10 @@
         \li The icon of an issue type.
         \li Two analyzed versions to compare. Select \uicontrol EMPTY to see
             issues from the version you select in the right-side version box.
-        \li \inlineimage icons/arrowup.png to see only added issues.
-        \li \inlineimage icons/arrowdown.png to see only removed issues.
+        \li \inlineimage {icons/arrowup.png} {Added Issues} to see only added
+            issues.
+        \li \inlineimage {icons/arrowdown.png} {Removed Issues} to see only
+            removed issues.
         \li The owner of the issue. Select \uicontrol ANYBODY to see all issues,
             \uicontrol NOBODY to see issues that are not associated with a user,
             or a user name to see issues owned by a particular user.
@@ -109,13 +112,16 @@
             match the pattern.
     \endlist
 
-    Select \inlineimage icons/filtericon.png for a column to set or clear the
-    filter expression for the column.
+    Select \inlineimage {icons/filtericon.png} {Filter} for a column to
+    set or clear the filter expression for the column.
 
-    The information you see depends on the issue type. Double-click an issue
+    The information you see depends on the issue type. Select an issue
     to see more information about it in the \uicontrol {Issue Details} view.
+    Double-click an issue to see the code that causes the issue inside the
+    editor.
 
-    To show inline issues, select \inlineimage icons/location.png.
+    To show inline issues, select
+    \inlineimage {icons/location.png} {Show Issues in Editor}.
 
     \section1 Jump to issues in the editor
 
@@ -134,8 +140,75 @@
     select the link in the details or in the \uicontrol {Right Path}
     or \uicontrol {Target Path} column.
 
-    \sa {Enable and disable plugins}, {Analyze}{How To: Analyze},
-    {Analyzers}, {Axivion}, {Analyzing Code}
+    \sa {Axivion}{Axivion Preferences}, {Local analysis with Axivion}{Local Analysis},
+    {Enable and disable plugins},{Analyze}{How To: Analyze}, {Analyzers},
+    {Analyzing Code}
+*/
+
+/*!
+    \page creator-axivion-localanalysis.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-analyze
+
+    \title Local analysis with Axivion
+
+    You can perform local analysis for projects you are connected to on a dashboard.
+    In the issue table, select the respective dashboard and project.
+    You need to have the Axivion Suite set up locally and a valid licence.
+
+    To set up a local build for the active project inside the Axivion view:
+    \image {qtcreator-axivion-localbuild.webp} {Local Build dialog}
+    \list 1
+    \li Select \inlineimage {icons/ax-localbuild.png}{Local Build} in the issue
+    table.
+
+    \li Select the Axivion Suite base directory in
+    \uicontrol {Axivion Suite Installation Directory}.
+
+    \li Enter the command or choose a script or the respective JSON file holding
+    the Axivion configuration.
+
+    \li Select the build type from \uicontrol {Build Type}. You may choose either
+    a clean build or an incremental build.
+
+    \li Select \uicontrol {Start Local Build} to perform the build with the given
+    parameters.
+    \endlist
+
+    View running and finished local builds in \uicontrol {Local Build Progress}.
+
+    \image {qtcreator-axivion-localbuild-progress.webp} {Local Build Progress}
+
+    Right-click a local build to cancel a running build from the context menu.
+    You can inspect the Axivion or build log of local builds after they finished.
+    Select \uicontrol {Remove All Finished} to remove
+    the local builds which have finished already from the local build progress.
+
+    \section1 Local dashboard
+
+    If the current selected project has a local build present, you may see
+    its result by switching to the local dashboard view.
+
+    Select \inlineimage {icons/ax-dashboard.png}{Local Dashboard} to do so.
+    This starts the local dashboard and switches the issue table to display
+    the latest results.
+
+    Select \uicontrol {Local Dashboard} again to switch back to the global
+    dashboard.
+
+    Information about using the global dashboard applies to the local
+    dashboard as well (issue type selection, filtering), but you have only
+    a limited version selection.
+
+    In \uicontrol {Version}, you can switch between the reference version
+    of the global dashboard and the local dashboard results.
+    Depending on the local build result you may limit the issue table to
+    local issues or changed issues.
+
+    \sa {Axivion}{Axivion Preferences}, {View Axivion static code analysis results},
+    {Enable and disable plugins}, {Analyze}{How To: Analyze}, {Analyzers},
+    {Analyzing Code}
 */
 
 /*!
@@ -195,5 +268,22 @@
             computer.
     \endlist
 
-    \sa {Enable and disable plugins}, {View Axivion static code analysis results}
+    \section1 Local Analyses
+
+    To perform local analyses, specify additional settings.
+
+    In \uicontrol {Axivion Suite path}, enter the path to the locally installed
+    Axivion Suite.
+
+    In \uicontrol {BAUHAUS_PYTHON}, enter the path to the python executable to be
+    used by the local analysis if it cannot be found automatically.
+
+    In \uicontrol {JAVA_HOME}, enter the path to a Java runtime or Java development
+    kit if it cannot be found automatically.
+
+    Select \uicontrol {Save all open files before starting an analysis} to
+    automatically save files opened inside the editor before starting an analysis.
+
+    \sa {Enable and disable plugins}, {View Axivion static code analysis results},
+    {Local analysis with Axivion}{Local Analysis}
 */

@@ -16,8 +16,6 @@
 #include <cplusplus/CppDocument.h>
 #include <utils/fileutils.h>
 
-#include <QFile>
-#include <QFileInfo>
 #include <QtTest>
 
 using namespace CPlusPlus;

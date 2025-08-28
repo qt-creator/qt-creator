@@ -19,10 +19,10 @@ LuaInterface *luaInterface()
     return s_luaInterface;
 }
 
-expected_str<std::unique_ptr<LuaState>> runScript(const QString &script, const QString &name)
+Result<std::unique_ptr<LuaState>> runScript(const QString &script, const QString &name)
 {
     if (!s_luaInterface)
-        return make_unexpected(Tr::tr("No Lua interface set"));
+        return ResultError(Tr::tr("No Lua interface set"));
 
     return s_luaInterface->runScript(script, name);
 }

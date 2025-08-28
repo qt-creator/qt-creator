@@ -31,7 +31,7 @@ class DEBUGGER_EXPORT DebuggerItem
 public:
     struct TechnicalData
     {
-        static Utils::expected_str<DebuggerItem::TechnicalData> extract(
+        static Utils::Result<DebuggerItem::TechnicalData> extract(
             const Utils::FilePath &fromExecutable,
             const std::optional<Utils::Environment> &customEnvironment);
         bool isEmpty() const;
@@ -101,6 +101,7 @@ public:
     void setGeneric(bool on);
 
     static bool addAndroidLldbPythonEnv(const Utils::FilePath &lldbCmd, Utils::Environment &env);
+    static bool fixupAndroidLlldbPythonDylib(const Utils::FilePath &lldbCmd);
 
 private:
     DebuggerItem(const QVariant &id);

@@ -28,10 +28,10 @@ const Utils::FilePaths rootCmakeFiles(ProjectExplorer::Project *project)
 
 const QString readFileContents(const Utils::FilePath &filePath)
 {
-    Utils::FileReader reader;
-    if (!reader.fetch(filePath))
+    const Utils::Result<QByteArray> res = filePath.fileContents();
+    if (!res)
         return {};
-    return QString::fromUtf8(reader.data());
+    return QString::fromUtf8(*res);
 }
 
 const QString qdsVersion(const Utils::FilePath &projectFilePath)
@@ -101,10 +101,10 @@ const Resolution resolutionFromConstants(const Utils::FilePath &projectFilePath)
     const QFileInfo fileInfo = projectFilePath.toFileInfo();
     const QString fileName = fileInfo.dir().absolutePath()
             + "/"  + "imports" + "/" + fileInfo.baseName() + "/Constants.qml";
-    Utils::FileReader reader;
-    if (!reader.fetch(Utils::FilePath::fromString(fileName)))
+    const Utils::Result<QByteArray> res = Utils::FilePath::fromString(fileName).fileContents();
+    if (!res)
         return {};
-    const QByteArray data = reader.data();
+    const QByteArray data = *res;
     static const QRegularExpression regexpWidth(R"x(readonly\s+property\s+int\s+width:\s+(\d*))x");
     static const QRegularExpression regexpHeight(R"x(readonly\s+property\s+int\s+height:\s+(\d*))x");
     int width = -1;

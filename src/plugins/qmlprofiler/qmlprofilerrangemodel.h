@@ -57,9 +57,9 @@ private:
     void computeExpandedLevels();
     void findBindingLoops();
 
-    QVector<Item> m_data;
+    QList<Item> m_data;
     QStack<int> m_stack;
-    QVector<int> m_expandedRowTypes;
+    QList<int> m_expandedRowTypes;
 };
 
 } // namespace Internal

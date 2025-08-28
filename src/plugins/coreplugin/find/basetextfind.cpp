@@ -17,7 +17,7 @@ using namespace Utils;
 
 namespace Core {
 
-QRegularExpression BaseTextFind::regularExpression(const QString &txt, FindFlags flags)
+QRegularExpression BaseTextFindBase::regularExpression(const QString &txt, FindFlags flags)
 {
     return QRegularExpression((flags & FindRegularExpression) ? txt
                                                               : QRegularExpression::escape(txt),
@@ -28,30 +28,16 @@ QRegularExpression BaseTextFind::regularExpression(const QString &txt, FindFlags
 
 struct BaseTextFindPrivate
 {
-    explicit BaseTextFindPrivate(QPlainTextEdit *editor);
-    explicit BaseTextFindPrivate(QTextEdit *editor);
+    BaseTextFindPrivate();
 
-    QPointer<QTextEdit> m_editor;
-    QPointer<QPlainTextEdit> m_plaineditor;
-    QPointer<QWidget> m_widget;
     Utils::MultiTextCursor m_scope;
     std::function<Utils::MultiTextCursor()> m_cursorProvider;
     int m_incrementalStartPos;
     bool m_incrementalWrappedState;
 };
 
-BaseTextFindPrivate::BaseTextFindPrivate(QTextEdit *editor)
-    : m_editor(editor)
-    , m_widget(editor)
-    , m_incrementalStartPos(-1)
-    , m_incrementalWrappedState(false)
-{
-}
-
-BaseTextFindPrivate::BaseTextFindPrivate(QPlainTextEdit *editor)
-    : m_plaineditor(editor)
-    , m_widget(editor)
-    , m_incrementalStartPos(-1)
+BaseTextFindPrivate::BaseTextFindPrivate()
+    : m_incrementalStartPos(-1)
     , m_incrementalWrappedState(false)
 {
 }
@@ -68,14 +54,14 @@ BaseTextFindPrivate::BaseTextFindPrivate(QPlainTextEdit *editor)
 */
 
 /*!
-    \fn void Core::BaseTextFind::findScopeChanged(const Utils::MultiTextCursor &cursor)
+    \internal
 
     This signal is emitted when the search
     scope changes to \a cursor.
 */
 
 /*!
-    \fn void Core::BaseTextFind::highlightAllRequested(const QString &txt, Utils::FindFlags findFlags)
+    \internal
 
     This signal is emitted when the search results for \a txt using the given
     \a findFlags should be highlighted in the editor widget.
@@ -84,55 +70,23 @@ BaseTextFindPrivate::BaseTextFindPrivate(QPlainTextEdit *editor)
 /*!
     \internal
 */
-BaseTextFind::BaseTextFind(QTextEdit *editor)
-    : d(new BaseTextFindPrivate(editor))
+BaseTextFindBase::BaseTextFindBase()
+    : d(new BaseTextFindPrivate)
 {
 }
 
 /*!
     \internal
 */
-BaseTextFind::BaseTextFind(QPlainTextEdit *editor)
-    : d(new BaseTextFindPrivate(editor))
-{
-}
-
-/*!
-    \internal
-*/
-BaseTextFind::~BaseTextFind()
+BaseTextFindBase::~BaseTextFindBase()
 {
     delete d;
-}
-
-QTextCursor BaseTextFind::textCursor() const
-{
-    QTC_ASSERT(d->m_editor || d->m_plaineditor, return QTextCursor());
-    return d->m_editor ? d->m_editor->textCursor() : d->m_plaineditor->textCursor();
-}
-
-void BaseTextFind::setTextCursor(const QTextCursor &cursor)
-{
-    QTC_ASSERT(d->m_editor || d->m_plaineditor, return);
-    d->m_editor ? d->m_editor->setTextCursor(cursor) : d->m_plaineditor->setTextCursor(cursor);
-}
-
-QTextDocument *BaseTextFind::document() const
-{
-    QTC_ASSERT(d->m_editor || d->m_plaineditor, return nullptr);
-    return d->m_editor ? d->m_editor->document() : d->m_plaineditor->document();
-}
-
-bool BaseTextFind::isReadOnly() const
-{
-    QTC_ASSERT(d->m_editor || d->m_plaineditor, return true);
-    return d->m_editor ? d->m_editor->isReadOnly() : d->m_plaineditor->isReadOnly();
 }
 
 /*!
     \reimp
 */
-bool BaseTextFind::supportsReplace() const
+bool BaseTextFindBase::supportsReplace() const
 {
     return !isReadOnly();
 }
@@ -140,7 +94,7 @@ bool BaseTextFind::supportsReplace() const
 /*!
     \reimp
 */
-FindFlags BaseTextFind::supportedFindFlags() const
+FindFlags BaseTextFindBase::supportedFindFlags() const
 {
     return FindBackward | FindCaseSensitively | FindRegularExpression
             | FindWholeWords | FindPreserveCase;
@@ -149,7 +103,7 @@ FindFlags BaseTextFind::supportedFindFlags() const
 /*!
     \reimp
 */
-void BaseTextFind::resetIncrementalSearch()
+void BaseTextFindBase::resetIncrementalSearch()
 {
     d->m_incrementalStartPos = -1;
     d->m_incrementalWrappedState = false;
@@ -158,7 +112,7 @@ void BaseTextFind::resetIncrementalSearch()
 /*!
     \reimp
 */
-void BaseTextFind::clearHighlights()
+void BaseTextFindBase::clearHighlights()
 {
     highlightAll(QString(), {});
 }
@@ -166,7 +120,7 @@ void BaseTextFind::clearHighlights()
 /*!
     \reimp
 */
-QString BaseTextFind::currentFindString() const
+QString BaseTextFindBase::currentFindString() const
 {
     QTextCursor cursor = textCursor();
     if (cursor.hasSelection() && cursor.block() != cursor.document()->findBlock(cursor.anchor()))
@@ -179,7 +133,7 @@ QString BaseTextFind::currentFindString() const
         cursor.movePosition(QTextCursor::StartOfWord);
         cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
         QString s = cursor.selectedText();
-        for (const QChar c : s) {
+        for (const QChar c : std::as_const(s)) {
             if (!c.isLetterOrNumber() && c != QLatin1Char('_')) {
                 s.clear();
                 break;
@@ -194,7 +148,7 @@ QString BaseTextFind::currentFindString() const
 /*!
     \reimp
 */
-QString BaseTextFind::completedFindString() const
+QString BaseTextFindBase::completedFindString() const
 {
     QTextCursor cursor = textCursor();
     cursor.setPosition(textCursor().selectionStart());
@@ -205,7 +159,7 @@ QString BaseTextFind::completedFindString() const
 /*!
     \reimp
 */
-IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, FindFlags findFlags)
+IFindSupport::Result BaseTextFindBase::findIncremental(const QString &txt, FindFlags findFlags)
 {
     QTextCursor cursor = textCursor();
     if (d->m_incrementalStartPos < 0)
@@ -215,7 +169,7 @@ IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, FindFlags
     bool found =  find(txt, findFlags, cursor, &wrapped);
     if (wrapped != d->m_incrementalWrappedState && found) {
         d->m_incrementalWrappedState = wrapped;
-        showWrapIndicator(d->m_widget);
+        showWrapIndicator(widget());
     }
     if (found)
         highlightAll(txt, findFlags);
@@ -227,12 +181,12 @@ IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, FindFlags
 /*!
     \reimp
 */
-IFindSupport::Result BaseTextFind::findStep(const QString &txt, FindFlags findFlags)
+IFindSupport::Result BaseTextFindBase::findStep(const QString &txt, FindFlags findFlags)
 {
     bool wrapped = false;
     bool found = find(txt, findFlags, textCursor(), &wrapped);
     if (wrapped)
-        showWrapIndicator(d->m_widget);
+        showWrapIndicator(widget());
     if (found) {
         d->m_incrementalStartPos = textCursor().selectionStart();
         d->m_incrementalWrappedState = false;
@@ -243,7 +197,7 @@ IFindSupport::Result BaseTextFind::findStep(const QString &txt, FindFlags findFl
 /*!
     \reimp
 */
-void BaseTextFind::replace(const QString &before, const QString &after, FindFlags findFlags)
+void BaseTextFindBase::replace(const QString &before, const QString &after, FindFlags findFlags)
 {
     QTextCursor cursor = replaceInternal(before, after, findFlags);
     setTextCursor(cursor);
@@ -270,8 +224,8 @@ static void insertTextAfterSelection(const QString &text, QTextCursor &cursor)
     insertCursor.endEditBlock();
 }
 
-QTextCursor BaseTextFind::replaceInternal(const QString &before, const QString &after,
-                                          FindFlags findFlags)
+QTextCursor BaseTextFindBase::replaceInternal(
+    const QString &before, const QString &after, FindFlags findFlags)
 {
     QTextCursor cursor = textCursor();
     bool usesRegExp = (findFlags & FindRegularExpression);
@@ -294,7 +248,7 @@ QTextCursor BaseTextFind::replaceInternal(const QString &before, const QString &
     return cursor;
 }
 
-Utils::MultiTextCursor BaseTextFind::multiTextCursor() const
+Utils::MultiTextCursor BaseTextFindBase::multiTextCursor() const
 {
     if (d->m_cursorProvider)
         return d->m_cursorProvider();
@@ -304,13 +258,13 @@ Utils::MultiTextCursor BaseTextFind::multiTextCursor() const
 /*!
     \reimp
 */
-bool BaseTextFind::replaceStep(const QString &before, const QString &after, FindFlags findFlags)
+bool BaseTextFindBase::replaceStep(const QString &before, const QString &after, FindFlags findFlags)
 {
     QTextCursor cursor = replaceInternal(before, after, findFlags);
     bool wrapped = false;
     bool found = find(before, findFlags, cursor, &wrapped);
     if (wrapped)
-        showWrapIndicator(d->m_widget);
+        showWrapIndicator(widget());
     return found;
 }
 
@@ -318,7 +272,7 @@ bool BaseTextFind::replaceStep(const QString &before, const QString &after, Find
     \reimp
     Returns the number of search hits replaced.
 */
-int BaseTextFind::replaceAll(const QString &before, const QString &after, FindFlags findFlags)
+int BaseTextFindBase::replaceAll(const QString &before, const QString &after, FindFlags findFlags)
 {
     QTextCursor editCursor = textCursor();
     if (findFlags.testFlag(FindBackward))
@@ -369,7 +323,7 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after, FindFl
     return count;
 }
 
-bool BaseTextFind::find(const QString &txt, FindFlags findFlags, QTextCursor start, bool *wrapped)
+bool BaseTextFindBase::find(const QString &txt, FindFlags findFlags, QTextCursor start, bool *wrapped)
 {
     if (txt.isEmpty()) {
         setTextCursor(start);
@@ -395,9 +349,8 @@ bool BaseTextFind::find(const QString &txt, FindFlags findFlags, QTextCursor sta
     return true;
 }
 
-QTextCursor BaseTextFind::findOne(const QRegularExpression &expr,
-                                  QTextCursor from,
-                                  QTextDocument::FindFlags options) const
+QTextCursor BaseTextFindBase::findOne(
+    const QRegularExpression &expr, QTextCursor from, QTextDocument::FindFlags options) const
 {
     QTextCursor found = document()->find(expr, from, options);
     while (!found.isNull() && !inScope(found)) {
@@ -419,7 +372,7 @@ QTextCursor BaseTextFind::findOne(const QRegularExpression &expr,
     return found;
 }
 
-bool BaseTextFind::inScope(const QTextCursor &candidate) const
+bool BaseTextFindBase::inScope(const QTextCursor &candidate) const
 {
     if (candidate.isNull())
         return false;
@@ -428,7 +381,7 @@ bool BaseTextFind::inScope(const QTextCursor &candidate) const
     return inScope(candidate.selectionStart(), candidate.selectionEnd());
 }
 
-bool BaseTextFind::inScope(int candidateStart, int candidateEnd) const
+bool BaseTextFindBase::inScope(int candidateStart, int candidateEnd) const
 {
     if (d->m_scope.isNull())
         return true;
@@ -442,7 +395,7 @@ bool BaseTextFind::inScope(int candidateStart, int candidateEnd) const
 /*!
     \reimp
 */
-void BaseTextFind::defineFindScope()
+void BaseTextFindBase::defineFindScope()
 {
     Utils::MultiTextCursor multiCursor = multiTextCursor();
     bool foundSelection = false;
@@ -465,7 +418,7 @@ void BaseTextFind::defineFindScope()
 /*!
     \reimp
 */
-void BaseTextFind::clearFindScope()
+void BaseTextFindBase::clearFindScope()
 {
     d->m_scope = Utils::MultiTextCursor();
     emit findScopeChanged(d->m_scope);
@@ -475,12 +428,12 @@ void BaseTextFind::clearFindScope()
     \reimp
     Emits highlightAllRequested().
 */
-void BaseTextFind::highlightAll(const QString &txt, FindFlags findFlags)
+void BaseTextFindBase::highlightAll(const QString &txt, FindFlags findFlags)
 {
     emit highlightAllRequested(txt, findFlags);
 }
 
-void BaseTextFind::setMultiTextCursorProvider(const CursorProvider &provider)
+void BaseTextFindBase::setMultiTextCursorProvider(const CursorProvider &provider)
 {
     d->m_cursorProvider = provider;
 }

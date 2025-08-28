@@ -65,16 +65,16 @@ const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "CMakeProjectManager.MakeStep.ClearS
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "CMakeProjectManager.MakeStep.UserEnvironmentChanges";
 const char BUILD_PRESET_KEY[] = "CMakeProjectManager.MakeStep.BuildPreset";
 
-class ProjectParserTaskAdapter : public TaskAdapter<QPointer<Target>>
+class ProjectParserTaskAdapter : public TaskAdapter<QPointer<BuildSystem>>
 {
 public:
     void start() final {
-        Target *target = *task();
-        if (!target) {
+        BuildSystem *bs = *task();
+        if (!bs) {
             emit done(DoneResult::Error);
             return;
         }
-        connect(target, &Target::parsingFinished, this, [this](bool success) {
+        connect(bs, &BuildSystem::parsingFinished, this, [this](bool success) {
             emit done(toDoneResult(success));
         });
     }
@@ -274,12 +274,12 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
             env.set("DESTDIR", stagingDir().path());
     });
 
-    connect(target(), &Target::parsingFinished, this, [this](bool success) {
+    connect(buildSystem(), &BuildSystem::parsingFinished, this, [this](bool success) {
         if (success) // Do not change when parsing failed.
             recreateBuildTargetsModel();
     });
 
-    connect(target(), &Target::activeRunConfigurationChanged,
+    connect(buildConfiguration(), &BuildConfiguration::activeRunConfigurationChanged,
             this, &CMakeBuildStep::updateBuildTargetsModel);
 }
 
@@ -313,7 +313,7 @@ bool CMakeBuildStep::init()
         return false;
 
     if (m_buildTargets.contains(QString())) {
-        RunConfiguration *rc = target()->activeRunConfiguration();
+        RunConfiguration *rc = buildConfiguration()->activeRunConfiguration();
         if (!rc || rc->buildKey().isEmpty()) {
             emit addTask(BuildSystemTask(Task::Error,
                                          ::ProjectExplorer::Tr::tr(
@@ -357,9 +357,9 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
 
 GroupItem CMakeBuildStep::runRecipe()
 {
-    const auto onParserSetup = [this](QPointer<Target> &parseTarget) {
+    const auto onParserSetup = [this](QPointer<BuildSystem> &buildSystem) {
         // Make sure CMake state was written to disk before trying to build:
-        auto bs = qobject_cast<CMakeBuildSystem *>(buildSystem());
+        auto bs = qobject_cast<CMakeBuildSystem *>(this->buildSystem());
         QTC_ASSERT(bs, return SetupResult::StopWithError);
         QString message;
         if (bs->persistCMakeState())
@@ -369,7 +369,7 @@ GroupItem CMakeBuildStep::runRecipe()
         else
             return SetupResult::StopWithSuccess;
         emit addOutput(message, OutputFormat::NormalMessage);
-        parseTarget = target();
+        buildSystem = bs;
         return SetupResult::Continue;
     };
     const auto onParserError = [this] {
@@ -480,7 +480,7 @@ CommandLine CMakeBuildStep::cmakeCommand() const
         cmd.addArg("--target");
         cmd.addArgs(Utils::transform(m_buildTargets, [this](const QString &s) {
             if (s.isEmpty()) {
-                if (RunConfiguration *rc = target()->activeRunConfiguration())
+                if (RunConfiguration *rc = buildConfiguration()->activeRunConfiguration())
                     return rc->buildKey();
             }
             return s;
@@ -547,7 +547,7 @@ QStringList CMakeBuildStep::specialTargets(bool allCapsTargets)
 
 QString CMakeBuildStep::activeRunConfigTarget() const
 {
-    RunConfiguration *rc = target()->activeRunConfiguration();
+    RunConfiguration *rc = buildConfiguration()->activeRunConfiguration();
     return rc ? rc->buildKey() : QString();
 }
 
@@ -818,7 +818,7 @@ void CMakeBuildStep::updateDeploymentData()
 
     QString install = currentInstallPrefix();
     FilePath rootDir = cmakeExecutable().withNewPath(stagingDir().path());
-    Q_UNUSED(install);
+    Q_UNUSED(install)
 
     DeploymentData deploymentData;
     deploymentData.setLocalInstallRoot(rootDir);
@@ -837,7 +837,7 @@ void CMakeBuildStep::updateDeploymentData()
                                                   ? DeployableFile::TypeExecutable
                                                   : DeployableFile::TypeNormal;
 
-            FilePath targetDirPath = filePath.parentDir().relativePathFrom(rootDir);
+            FilePath targetDirPath = filePath.parentDir().relativePathFromDir(rootDir);
 
             const FilePath targetDir = runDevice->rootPath().pathAppended(targetDirPath.path());
             deploymentData.addFile(filePath, targetDir.nativePath(), type);

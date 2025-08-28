@@ -281,9 +281,9 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyles textStyles) const
  * Returns the list of QTextCharFormats that corresponds to the list of
  * requested format categories.
  */
-QVector<QTextCharFormat> FontSettings::toTextCharFormats(const QVector<TextStyle> &categories) const
+QList<QTextCharFormat> FontSettings::toTextCharFormats(const QList<TextStyle> &categories) const
 {
-    QVector<QTextCharFormat> rc;
+    QList<QTextCharFormat> rc;
     const int size = categories.size();
     rc.reserve(size);
     for (int i = 0; i < size; i++)

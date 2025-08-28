@@ -1,12 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #pragma once
 
 #include "qmleventlocation.h"
 #include <texteditor/textmark.h>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerViewManager;
 
@@ -21,7 +21,7 @@ public:
 
 private:
     QmlProfilerViewManager *m_viewManager;
-    QVector<int> m_typeIds;
+    QList<int> m_typeIds;
 };
 
 class QmlProfilerTextMarkModel : public QObject
@@ -45,8 +45,7 @@ private:
     };
 
     QMultiHash<QString, TextMarkId> m_ids;
-    QVector<QmlProfilerTextMark *> m_marks;
+    QList<QmlProfilerTextMark *> m_marks;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

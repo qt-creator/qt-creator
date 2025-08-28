@@ -47,6 +47,10 @@ using namespace ProjectExplorer;
 // nmake/jom messages.
 static Task handleNmakeJomMessage(const QString &line)
 {
+    static const QRegularExpression qmllint(
+        "^(Warning|Error): ((.*):(\\d+):(\\d+)): .* ([[].*[]])$");
+    if (qmllint.match(line).hasMatch())
+        return {};
     Task::TaskType type = Task::Unknown;
     int matchLength = 0;
     if (line.startsWith("Error:")) {
@@ -268,7 +272,7 @@ void ProjectExplorerTest::testMsvcOutputParsers_data()
                           const QString &description,
                           const Utils::FilePath &file,
                           int line,
-                          const QVector<QTextLayout::FormatRange> formats)
+                          const QList<QTextLayout::FormatRange> formats)
     {
         CompileTask task(type, description, file, line);
         task.formats = formats;
@@ -417,7 +421,7 @@ void ProjectExplorerTest::testMsvcOutputParsers_data()
                                "        No constructor could take the source type, or constructor overload resolution was ambiguous",
                                FilePath::fromUserInput("..\\untitled\\main.cpp"),
                                19,
-                               QVector<QTextLayout::FormatRange>()
+                               QList<QTextLayout::FormatRange>()
                                    << formatRange(85, 365)));
 
     QTest::newRow("Linker error 1")
@@ -482,7 +486,7 @@ void ProjectExplorerTest::testMsvcOutputParsers_data()
                         "        ]",
                         FilePath::fromUserInput("symbolgroupvalue.cpp"),
                         2314,
-                        QVector<QTextLayout::FormatRange>()
+                        QList<QTextLayout::FormatRange>()
                             << formatRange(141, 287)));
 
     QTest::newRow("Ambiguous symbol")
@@ -519,7 +523,7 @@ void ProjectExplorerTest::testMsvcOutputParsers_data()
                                "main.cpp(6): note: see declaration of 'func'",
                                FilePath::fromUserInput("main.cpp"),
                                7,
-                               QVector<QTextLayout::FormatRange>()
+                               QList<QTextLayout::FormatRange>()
                                    << formatRange(67, 130))};
 
     QTest::newRow("cyrillic warning") // QTCREATORBUG-20297

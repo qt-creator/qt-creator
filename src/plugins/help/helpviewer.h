@@ -14,8 +14,7 @@
 #include <QUrl>
 #include <QWidget>
 
-namespace Help {
-namespace Internal {
+namespace Help::Internal {
 
 class HelpViewer : public QWidget
 {
@@ -103,5 +102,4 @@ private:
     void applyZoom(int percentage);
 };
 
-}   // namespace Internal
-}   // namespace Help
+} // namespace Help::Internal

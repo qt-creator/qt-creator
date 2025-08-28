@@ -12,8 +12,11 @@
 #include <optional>
 
 namespace CppEditor { class ClangDiagnosticConfigsModel; }
-namespace Debugger { class DiagnosticLocation; }
-namespace Utils { class FilePath; }
+
+namespace Utils {
+class FilePath;
+class Link;
+} // Utils
 
 namespace ClangTools {
 namespace Internal {
@@ -39,7 +42,7 @@ QString createDiagnosticToolTipString(const Diagnostic &diagnostic,
 
 CppEditor::ClangDiagnosticConfig builtinConfig();
 
-QString createFullLocationString(const Debugger::DiagnosticLocation &location);
+QString createFullLocationString(const Utils::Link &location);
 
 QString hintAboutBuildBeforeAnalysis();
 void showHintAboutBuildBeforeAnalysis();

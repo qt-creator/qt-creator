@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "highlightitem.h"
+
+#include <utils/theme/theme.h>
+
 #include <QPainter>
 
 using namespace ScxmlEditor::PluginInterface;
@@ -10,7 +13,8 @@ HighlightItem::HighlightItem(BaseItem *baseItem)
     : QGraphicsObject(nullptr)
     , m_baseItem(baseItem)
 {
-    m_pen = QPen(QColor(0xff, 0x00, 0x60));
+    m_pen = QPen(Utils::creatorTheme()->colorScheme() == Qt::ColorScheme::Dark ?
+                     QColor(0xfd, 0x7a, 0xac) : QColor(0xff, 0x00, 0x60));
     m_pen.setWidth(2);
     m_pen.setStyle(Qt::DashLine);
     m_pen.setCosmetic(true);

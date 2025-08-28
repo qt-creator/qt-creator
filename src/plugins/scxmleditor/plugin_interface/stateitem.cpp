@@ -19,6 +19,7 @@
 #include "utilsprovider.h"
 
 #include <utils/stringutils.h>
+#include <utils/theme/theme.h>
 
 #include <QBrush>
 #include <QCoreApplication>
@@ -127,7 +128,9 @@ void StateItem::updateEditorInfo(bool allChildren)
     ConnectableItem::updateEditorInfo(allChildren);
 
     QString color = editorInfo(Constants::C_SCXML_EDITORINFO_FONTCOLOR);
-    m_stateNameItem->setDefaultTextColor(color.isEmpty() ? QColor(Qt::black) : QColor(color));
+    m_stateNameItem->setDefaultTextColor(color.isEmpty()
+                                         ? Utils::creatorColor(Utils::Theme::TextColorNormal)
+                                         : QColor(color));
 
     // Update child too if necessary
     if (allChildren) {
@@ -187,7 +190,7 @@ void StateItem::updateBoundingRect()
 void StateItem::shrink()
 {
     QRectF trect;
-    const QVector<TransitionItem *> items = outputTransitions();
+    const QList<TransitionItem *> items = outputTransitions();
     for (TransitionItem *item : items) {
         if (item->targetType() == TransitionItem::InternalSameTarget || item->targetType() == TransitionItem::InternalNoTarget) {
             trect = trect.united(item->wholeBoundingRect());
@@ -220,7 +223,7 @@ void StateItem::transitionsChanged()
 {
     QRectF rr = boundingRect();
     QRectF rectInternalTransitions;
-    const QVector<TransitionItem*> internalTransitions = outputTransitions();
+    const QList<TransitionItem*> internalTransitions = outputTransitions();
     for (TransitionItem *item : internalTransitions) {
         if (item->targetType() <= TransitionItem::InternalNoTarget) {
             QRectF br = mapFromItem(item, item->boundingRect()).boundingRect();
@@ -460,6 +463,7 @@ void StateItem::connectToParent(BaseItem *parentItem)
 
 void StateItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    static QColor defaultForeground = Utils::creatorColor(Utils::Theme::TextColorNormal);
     ConnectableItem::paint(painter, option, widget);
 
     painter->save();
@@ -467,11 +471,11 @@ void StateItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
     // Set opacity and color
     painter->setOpacity(getOpacity());
-    m_pen.setColor(overlapping() ? qRgb(0xff, 0x00, 0x60) : qRgb(0x45, 0x45, 0x45));
+    m_pen.setColor(overlapping() ? qRgb(0xff, 0x00, 0x60) : defaultForeground);
     painter->setPen(m_pen);
     QColor stateColor(editorInfo(Constants::C_SCXML_EDITORINFO_STATECOLOR));
     if (!stateColor.isValid())
-        stateColor = tag() ? tag()->document()->getColor(depth()) : QColor(0x12, 0x34, 0x56);
+        stateColor = tag() ? tag()->document()->getColor(depth()) : defaultForeground;
 
     // Draw basic frame
     QRectF r = boundingRect();
@@ -511,7 +515,7 @@ void StateItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
         if (m_initial) {
             double size = m_titleRect.height() * 0.3;
-            painter->setBrush(QColor(0x4d, 0x4d, 0x4d));
+            painter->setBrush(defaultForeground);
             painter->drawEllipse(QPointF(m_titleRect.left() + 2 * size, m_titleRect.center().y()), size, size);
         }
     }

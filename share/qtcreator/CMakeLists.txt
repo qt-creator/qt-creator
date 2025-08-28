@@ -40,6 +40,7 @@ set(resource_files
   debugger/stdtypes.py
   debugger/utils.py
   debugger/loadorder.txt
+  debugger/visualize.py
 
   debugger-with-python2/qttypes.py
   debugger-with-python2/personaltypes.py

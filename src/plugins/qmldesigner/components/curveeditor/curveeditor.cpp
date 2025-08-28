@@ -35,7 +35,7 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     setContentsMargins(0, 0, 0, 0);
 
     m_toolbar->setStyleSheet(Theme::replaceCssColors(
-        QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
+        Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css")));
 
     auto *splitter = new QSplitter;
     splitter->addWidget(m_tree);
@@ -100,7 +100,7 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
         m_view, &GraphicsView::updateSelection);
 
     connect(m_view, &GraphicsView::zoomChanged, [this](double x, double y) {
-        Q_UNUSED(y);
+        Q_UNUSED(y)
         m_toolbar->setZoom(x);
     });
 

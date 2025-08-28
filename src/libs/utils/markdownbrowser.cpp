@@ -88,6 +88,8 @@ static QStringList defaultCodeFontFamilies()
     return {"Menlo", "Source Code Pro", "Monospace", "Courier"};
 }
 
+static QTextFragment copyButtonFragment(const QTextBlock &block);
+
 class CopyButtonHandler : public QObject, public QTextObjectInterface
 {
     Q_OBJECT
@@ -108,16 +110,42 @@ public:
     }
     static QIcon icon(bool isCopied)
     {
-        static QIcon clickedIcon(":/markdownbrowser/images/checkmark.png");
-        static QIcon unclickedIcon(":/markdownbrowser/images/code_copy_square.png");
+        static QIcon clickedIcon = Utils::Icons::OK.icon();
+        static QIcon unclickedIcon = Utils::Icons::COPY.icon();
         if (isCopied)
             return clickedIcon;
         return unclickedIcon;
     }
 
+    static void resetOtherCopyButtons(QTextDocument *doc, const QTextFragment &clickedFragment)
+    {
+        for (QTextBlock block = doc->begin(); block != doc->end(); block = block.next()) {
+            const QTextFragment otherFragment = copyButtonFragment(block);
+            if (otherFragment.isValid() && otherFragment != clickedFragment) {
+                QTextCursor resetCursor(block);
+                resetCursor.setPosition(otherFragment.position());
+                resetCursor.setPosition(
+                    otherFragment.position() + otherFragment.length(), QTextCursor::KeepAnchor);
+                QTextCharFormat resetFormat = otherFragment.charFormat();
+                resetFormat.setProperty(isCopiedPropertyId(), false);
+                resetCursor.setCharFormat(resetFormat);
+            }
+        }
+    }
+
+    static void copyCodeAndUpdateButton(QTextCursor &cursor, const QTextCharFormat &format)
+    {
+        const QString code = format.property(codePropertyId()).value<QString>();
+        Utils::setClipboardAndSelection(code);
+
+        QTextCharFormat newFormat = format;
+        newFormat.setProperty(isCopiedPropertyId(), true);
+        cursor.setCharFormat(newFormat);
+    }
+
     QSizeF intrinsicSize(QTextDocument *doc, int pos, const QTextFormat &format) override
     {
-        Q_UNUSED(pos);
+        Q_UNUSED(pos)
 
         if (!doc || !format.hasProperty(isCopiedPropertyId()))
             return QSizeF(0, 0);
@@ -135,7 +163,7 @@ public:
         int pos,
         const QTextFormat &format) override
     {
-        Q_UNUSED(pos);
+        Q_UNUSED(pos)
 
         if (!doc || !format.hasProperty(isCopiedPropertyId()))
             return;
@@ -272,8 +300,8 @@ public:
     virtual QSizeF intrinsicSize(
         QTextDocument *doc, int posInDocument, const QTextFormat &format) override
     {
-        Q_UNUSED(doc);
-        Q_UNUSED(posInDocument);
+        Q_UNUSED(doc)
+        Q_UNUSED(posInDocument)
         QSize result = Utils::Icons::UNKNOWN_FILE.icon().actualSize(QSize(16, 16));
         QString name = format.toImageFormat().name();
 
@@ -301,15 +329,42 @@ public:
         int posInDocument,
         const QTextFormat &format) override
     {
-        Q_UNUSED(document);
-        Q_UNUSED(posInDocument);
+        Q_UNUSED(document)
+        Q_UNUSED(posInDocument)
 
-        Entry::Pointer *entryPtr = m_entries.object(format.toImageFormat().name());
+        const QString name = format.toImageFormat().name();
+        Entry::Pointer *entryPtr = m_entries.object(name);
 
-        if (!entryPtr)
+        if (!entryPtr) {
+            constexpr QStringView themeScheme(u"theme://");
+            constexpr QStringView iconScheme(u"icon://");
+
+            QVariant resource = document->resource(QTextDocument::ImageResource, name);
+            if (resource.isValid()) {
+                const QImage img = qvariant_cast<QImage>(resource);
+                if (!img.isNull()) {
+                    painter->drawImage(rect, img);
+                    return;
+                }
+            } else if (name.startsWith(themeScheme)) {
+                const QIcon icon = QIcon::fromTheme(name.mid(themeScheme.length()));
+                if (!icon.isNull()) {
+                    painter->drawPixmap(
+                        rect.toRect(),
+                        icon.pixmap(rect.size().toSize(), painter->device()->devicePixelRatioF()));
+                    return;
+                }
+            } else if (name.startsWith(iconScheme)) {
+                std::optional<Icon> icon = Icons::fromString(name.mid(iconScheme.length()));
+                if (icon) {
+                    painter->drawPixmap(rect.toRect(), icon->pixmap());
+                    return;
+                }
+            }
+
             painter->drawPixmap(
                 rect.toRect(), Utils::Icons::UNKNOWN_FILE.icon().pixmap(rect.size().toSize()));
-        else if (!(*entryPtr)->movie.isValid())
+        } else if (!(*entryPtr)->movie.isValid())
             painter->drawPixmap(rect.toRect(), m_brokenImage.pixmap(rect.size().toSize()));
         else
             painter->drawImage(rect, (*entryPtr)->movie.currentImage());
@@ -390,8 +445,15 @@ public:
             };
 
             const auto isLocalUrl = [this, isRemoteUrl](const QUrl &url) {
+                QVariant res = this->resource(QTextDocument::ImageResource, url);
+                if (res.isValid())
+                    return false;
+
                 if (url.scheme() == "qrc")
                     return true;
+
+                if (!url.scheme().isEmpty())
+                    return false;
 
                 if (!m_basePath.isEmpty() && !isRemoteUrl(url))
                     return true;
@@ -820,48 +882,68 @@ void MarkdownBrowser::changeEvent(QEvent *event)
     QTextBrowser::changeEvent(event);
 }
 
+std::optional<std::pair<QTextFragment, QRectF>> MarkdownBrowser::findCopyButtonFragmentAt(const QPoint& viewportPos)
+{
+    QTextCursor cursor = cursorForPosition(viewportPos);
+    if (cursor.isNull())
+        return std::nullopt;
+
+    const QTextCharFormat format = cursor.charFormat();
+    if (format.objectType() != CopyButtonHandler::objectId())
+        return std::nullopt;
+
+    const QTextBlock block = cursor.block();
+    QTextFragment fragment = copyButtonFragment(block);
+    if (!fragment.isValid())
+        return std::nullopt;
+
+    QPointF blockPos = blockBBoxTopLeftPosition(block);
+    QRectF fragmentRect = calculateFragmentBounds(block, fragment, blockPos);
+    fragmentRect.translate(-horizontalScrollBar()->value(), -verticalScrollBar()->value());
+
+    if (fragmentRect.contains(viewportPos))
+        return std::make_pair(fragment, fragmentRect);
+    else
+        return std::nullopt;
+}
+
 void MarkdownBrowser::mousePressEvent(QMouseEvent *event)
 {
-    QTextCursor cursor = cursorForPosition(event->pos());
-    if (!cursor.isNull()) {
-        QTextCharFormat format = cursor.charFormat();
-        if (format.objectType() == CopyButtonHandler::objectId()) {
-            QTextBlock block = cursor.block();
-            QTextFragment fragment = copyButtonFragment(block);
-            if (fragment.isValid()) {
-                QPointF blockPosition = blockBBoxTopLeftPosition(block);
-                QRectF fragmentRect = calculateFragmentBounds(block, fragment, blockPosition);
+    auto result = findCopyButtonFragmentAt(event->pos());
+    if (result) {
+        QTextFragment fragment = result->first;
+        QTextCursor cursor(document());
+        cursor.setPosition(fragment.position());
+        cursor.setPosition(fragment.position() + fragment.length(), QTextCursor::KeepAnchor);
 
-                QPointF mousePos = event->pos();
-                QPointF viewportOffset(
-                    horizontalScrollBar()->value(), verticalScrollBar()->value());
-                mousePos += viewportOffset;
+        CopyButtonHandler::resetOtherCopyButtons(document(), fragment);
+        CopyButtonHandler::copyCodeAndUpdateButton(cursor, fragment.charFormat());
 
-                if (fragmentRect.isValid() && fragmentRect.contains(mousePos)) {
-                    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-                    // If the user clicks the text, the cursor will be positioned after the object,
-                    // so we have to move the cursor back to the object.
-                    if (cursor.selectedText() == QChar::ParagraphSeparator)
-                        cursor
-                            .movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor,
-                                          2);
+        document()->documentLayout()->update();
+        event->accept();
+    } else
+        QTextBrowser::mousePressEvent(event);
+}
 
-                    QString code
-                        = format.property(CopyButtonHandler::codePropertyId()).value<QString>();
-                    Utils::setClipboardAndSelection(code);
+void MarkdownBrowser::mouseMoveEvent(QMouseEvent *event)
+{
+    const QPoint mousePos = event->pos();
 
-                    QTextCharFormat newFormat = format;
-                    newFormat.setProperty(CopyButtonHandler::isCopiedPropertyId(), true);
-                    cursor.setCharFormat(newFormat);
-
-                    document()->documentLayout()->update();
-                    event->accept();
-                    return;
-                }
-            }
-        }
+    if (m_cachedCopyRect && m_cachedCopyRect->contains(mousePos)) {
+        QTextBrowser::mouseMoveEvent(event);
+        return;
     }
-    QTextBrowser::mousePressEvent(event);
+
+    m_cachedCopyRect.reset();
+    viewport()->unsetCursor();
+
+    auto result = findCopyButtonFragmentAt(mousePos);
+    if (result) {
+        m_cachedCopyRect = result->second;
+        viewport()->setCursor(Qt::PointingHandCursor);
+    }
+
+    QTextBrowser::mouseMoveEvent(event);
 }
 
 QMimeData *MarkdownBrowser::createMimeDataFromSelection() const

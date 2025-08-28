@@ -707,7 +707,7 @@ void TestResultsPane::createMarks(const QModelIndex &parent)
 {
     const TestResult parentResult = m_model->testResult(parent);
     const ResultType parentType = parentResult.isValid() ? parentResult.result() : ResultType::Invalid;
-    const QVector<ResultType> interested{ResultType::Fail, ResultType::UnexpectedPass};
+    const QList<ResultType> interested{ResultType::Fail, ResultType::UnexpectedPass};
     for (int row = 0, count = m_model->rowCount(parent); row < count; ++row) {
         const QModelIndex index = m_model->index(row, 0, parent);
         const TestResult result = m_model->testResult(index);

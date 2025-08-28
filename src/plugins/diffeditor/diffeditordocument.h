@@ -55,15 +55,15 @@ public:
     void setIgnoreWhitespace(bool ignore);
     bool ignoreWhitespace() const;
 
-    bool setContents(const QByteArray &contents) override;
+    Utils::Result<> setContents(const QByteArray &contents) override;
     Utils::FilePath fallbackSaveAsPath() const override;
     QString fallbackSaveAsFileName() const override;
 
     bool isSaveAsAllowed() const override;
     void reload();
-    Utils::Result reload(ReloadFlag flag, ChangeType type) override;
-    OpenResult open(QString *errorString, const Utils::FilePath &filePath,
-                    const Utils::FilePath &realFilePath) override;
+    Utils::Result<> reload(ReloadFlag flag, ChangeType type) override;
+    Utils::Result<> open(const Utils::FilePath &filePath,
+                         const Utils::FilePath &realFilePath) override;
     bool selectEncoding();
     State state() const { return m_state; }
 
@@ -75,7 +75,7 @@ signals:
     void descriptionChanged();
 
 protected:
-    Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     void beginReload();

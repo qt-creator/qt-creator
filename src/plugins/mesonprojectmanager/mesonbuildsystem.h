@@ -15,18 +15,15 @@ namespace ProjectExplorer { class ProjectUpdater; }
 
 namespace MesonProjectManager::Internal {
 
-class MesonBuildConfiguration;
-
 class MesonBuildSystem final : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 
 public:
-    MesonBuildSystem(MesonBuildConfiguration *bc);
+    MesonBuildSystem(ProjectExplorer::BuildConfiguration *bc);
     ~MesonBuildSystem() final;
 
     void triggerParsing() final;
-    QString name() const final { return QLatin1String("meson"); }
 
     inline const BuildOptionsList &buildOptions() const { return m_parser.buildOptions(); }
     inline const TargetsList &targets() const { return m_parser.targets(); }
@@ -45,6 +42,7 @@ private:
     bool needsSetup();
     void parsingCompleted(bool success);
     QStringList configArgs(bool isSetup);
+    void buildDirectoryChanged();
 
     ProjectExplorer::BuildSystem::ParseGuard m_parseGuard;
     MesonProjectParser m_parser;

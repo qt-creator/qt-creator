@@ -147,16 +147,16 @@ private:
 class JsonSettingsDocument : public Core::IDocument
 {
     Q_OBJECT
+
 public:
     JsonSettingsDocument(QUndoStack *undoStack);
 
-    OpenResult open(QString *errorString,
-                    const Utils::FilePath &filePath,
-                    const Utils::FilePath &realFilePath) override;
+    Result<> open(const Utils::FilePath &filePath,
+                  const Utils::FilePath &realFilePath) override;
 
-    Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
-    bool setContents(const QByteArray &contents) override;
+    Result<> setContents(const QByteArray &contents) override;
 
     QString fallbackSaveAsFileName() const override;
 
@@ -380,35 +380,28 @@ JsonSettingsDocument::JsonSettingsDocument(QUndoStack *undoStack)
     m_ceSettings.setUndoStack(undoStack);
 }
 
-Core::IDocument::OpenResult JsonSettingsDocument::open(QString *errorString,
-                                                       const FilePath &filePath,
-                                                       const FilePath &realFilePath)
+Result<> JsonSettingsDocument::open(const FilePath &filePath,
+                                    const FilePath &realFilePath)
 {
     if (!filePath.isReadableFile())
-        return OpenResult::ReadError;
+        return ResultError(Tr::tr("File not readable."));
 
-    auto contents = realFilePath.fileContents();
-    if (!contents) {
-        if (errorString)
-            *errorString = contents.error();
-        return OpenResult::ReadError;
-    }
+    Result<QByteArray> contents = realFilePath.fileContents();
+    if (!contents)
+        return ResultError(contents.error());
 
-    auto result = storeFromJson(*contents);
-    if (!result) {
-        if (errorString)
-            *errorString = result.error();
-        return OpenResult::ReadError;
-    }
+    Result<Store> result = storeFromJson(*contents);
+    if (!result)
+        return ResultError(result.error());
 
     setFilePath(filePath);
 
-    m_ceSettings.fromMap(*result);
+    m_ceSettings.fromMap(result.value());
     emit settingsChanged();
-    return OpenResult::Success;
+    return ResultOk;
 }
 
-Result JsonSettingsDocument::saveImpl(const FilePath &newFilePath, bool autoSave)
+Result<> JsonSettingsDocument::saveImpl(const FilePath &newFilePath, bool autoSave)
 {
     Store store;
 
@@ -425,19 +418,19 @@ Result JsonSettingsDocument::saveImpl(const FilePath &newFilePath, bool autoSave
         m_ceSettings.toMap(store);
     }
 
-    Utils::FilePath path = newFilePath.isEmpty() ? filePath() : newFilePath;
+    FilePath path = newFilePath.isEmpty() ? filePath() : newFilePath;
 
     if (!newFilePath.isEmpty() && !autoSave) {
         setPreferredDisplayName({});
         setFilePath(newFilePath);
     }
 
-    expected_str<qint64> result = path.writeFileContents(jsonFromStore(store));
+    Result<qint64> result = path.writeFileContents(jsonFromStore(store));
     if (!result)
-        return Result::Error(result.error());
+        return ResultError(result.error());
 
     emit changed();
-    return Result::Ok;
+    return ResultOk;
 }
 
 bool JsonSettingsDocument::isModified() const
@@ -445,17 +438,17 @@ bool JsonSettingsDocument::isModified() const
     return m_ceSettings.isDirty();
 }
 
-bool JsonSettingsDocument::setContents(const QByteArray &contents)
+Result<> JsonSettingsDocument::setContents(const QByteArray &contents)
 {
-    auto result = storeFromJson(contents);
-    QTC_ASSERT_EXPECTED(result, return false);
+    Result<Store> result = storeFromJson(contents);
+    QTC_ASSERT_RESULT(result, return ResultError(result.error()));
 
-    m_ceSettings.fromMap(*result);
+    m_ceSettings.fromMap(result.value());
 
     emit settingsChanged();
     emit changed();
     emit contentsChanged();
-    return true;
+    return ResultOk;
 }
 
 QString JsonSettingsDocument::fallbackSaveAsFileName() const
@@ -602,7 +595,7 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
             this,
             &CompilerWidget::hoveredLineChanged);
 
-    QTC_ASSERT_EXPECTED(m_asmEditor->configureGenericHighlighter("Intel x86 (NASM)"),
+    QTC_ASSERT_RESULT(m_asmEditor->configureGenericHighlighter("Intel x86 (NASM)"),
                         m_asmEditor->configureGenericHighlighter(
                             Utils::mimeTypeForName("text/x-asm")));
     m_asmEditor->setReadOnly(true);
@@ -757,18 +750,18 @@ void CompilerWidget::doCompile()
             m_resultTerminal->restart();
             m_resultTerminal->writeToTerminal("\x1b[?25l", false);
 
-            for (const auto &err : r.stdErr)
+            for (const auto &err : std::as_const(r.stdErr))
                 m_resultTerminal->writeToTerminal((err.text + "\r\n").toUtf8(), false);
-            for (const auto &out : r.stdOut)
+            for (const auto &out : std::as_const(r.stdOut))
                 m_resultTerminal->writeToTerminal((out.text + "\r\n").toUtf8(), false);
 
             m_resultTerminal->writeToTerminal(
                 QString("ASM generation compiler returned: %1\r\n\r\n").arg(r.code).toUtf8(), true);
 
             if (r.execResult) {
-                for (const auto &err : r.execResult->buildResult.stdErr)
+                for (const auto &err : std::as_const(r.execResult->buildResult.stdErr))
                     m_resultTerminal->writeToTerminal((err.text + "\r\n").toUtf8(), false);
-                for (const auto &out : r.execResult->buildResult.stdOut)
+                for (const auto &out : std::as_const(r.execResult->buildResult.stdOut))
                     m_resultTerminal->writeToTerminal((out.text + "\r\n").toUtf8(), false);
 
                 m_resultTerminal
@@ -783,11 +776,11 @@ void CompilerWidget::doCompile()
                                                           .toUtf8(),
                                                       true);
 
-                    for (const auto &err : r.execResult->stdErrLines)
+                    for (const auto &err : std::as_const(r.execResult->stdErrLines))
                         m_resultTerminal
                             ->writeToTerminal(("  \033[0;31m" + err + "\033[0m\r\n\r\n").toUtf8(),
                                               false);
-                    for (const auto &out : r.execResult->stdOutLines)
+                    for (const auto &out : std::as_const(r.execResult->stdOutLines))
                         m_resultTerminal->writeToTerminal((out + "\r\n").toUtf8(), false);
                 }
             }
@@ -1183,7 +1176,7 @@ QList<QTextEdit::ExtraSelection> AsmDocument::setCompileResult(
         Utils::transform(m_assemblyLines, [](const auto &line) { return line.text; }).join('\n'));
 
     int currentLine = 0;
-    for (auto l : m_assemblyLines) {
+    for (auto l : std::as_const(m_assemblyLines)) {
         currentLine++;
 
         auto createLabelLink = [currentLine, &linkFormat, &cursor, labelRow](

@@ -1548,12 +1548,21 @@ class Dumper(DumperBase):
         if self.platform_ != 'remote-android':
             return False
         funcname = frame.GetFunctionName()
-        if funcname and funcname.startswith('java.'):
-            return True
+        if funcname:
+            if funcname.startswith('java.'):
+                return True
+            if funcname.startswith('android.'):
+                return True
+            if funcname.startswith('com.android.'):
+                return True
+            if funcname.startswith('jdk.'):
+                return True
+            if funcname.startswith('sun.'):
+                return True
         module = frame.GetModule()
         filespec = module.GetPlatformFileSpec() # Not GetFileSpec
         filename = filespec.GetFilename()
-        if filename == 'libart.so':
+        if filename and filename.endswith('libart.so'):
             return True
         if funcname == None and not frame.line_entry.file.IsValid() and filename == None:
             return True

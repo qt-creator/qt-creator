@@ -8,7 +8,6 @@
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginspec.h>
 
-#include <utils/expected.h>
 #include <utils/filepath.h>
 
 #include <QString>
@@ -39,13 +38,10 @@ class LuaPluginSpec : public ExtensionSystem::PluginSpec
     LuaPluginSpec();
 
 public:
-    static Utils::expected_str<LuaPluginSpec *> create(
+    static Utils::Result<LuaPluginSpec *> create(
         const Utils::FilePath &filePath, sol::table pluginTable);
 
     ExtensionSystem::IPlugin *plugin() const override;
-
-    bool provides(
-        PluginSpec *spec, const ExtensionSystem::PluginDependency &dependency) const override;
 
     // For internal use only
     bool loadLibrary() override;

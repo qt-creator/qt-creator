@@ -3,43 +3,18 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
-#include <projectexplorer/projectexplorerconstants.h>
+namespace ProjectExplorer {
+class RunControl;
+class RunWorker;
+}
+namespace Tasking { class Group; }
 
-#include <utils/outputformat.h>
-#include <utils/port.h>
+namespace QmlProfiler::Internal {
 
-#include <qmldebug/qmloutputparser.h>
-
-namespace QmlProfiler {
-namespace Internal {
-
-class QmlProfilerRunner : public ProjectExplorer::RunWorker
-{
-public:
-    QmlProfilerRunner(ProjectExplorer::RunControl *runControl);
-
-private:
-    void start() override;
-    void stop() override;
-};
+Tasking::Group qmlProfilerRecipe(ProjectExplorer::RunControl *runControl);
 
 ProjectExplorer::RunWorker *createLocalQmlProfilerWorker(ProjectExplorer::RunControl *runControl);
+
 void setupQmlProfilerRunning();
 
 } // QmlProfiler::Internal
-
-class SimpleQmlProfilerRunnerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    explicit SimpleQmlProfilerRunnerFactory(const QList<Utils::Id> &runConfigs, const QList<Utils::Id> &extraRunModes = {})
-    {
-        cloneProduct(ProjectExplorer::Constants::QML_PROFILER_RUN_FACTORY);
-        addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-        for (const Utils::Id &id : extraRunModes)
-            addSupportedRunMode(id);
-        setSupportedRunConfigs(runConfigs);
-    }
-};
-
-} // QmlProfiler

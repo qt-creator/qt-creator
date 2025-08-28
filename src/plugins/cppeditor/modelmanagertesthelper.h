@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
 #include "cppmodelmanager.h"
 
 #include <projectexplorer/project.h>
@@ -12,7 +11,7 @@
 
 namespace CppEditor::Tests {
 
-class CPPEDITOR_EXPORT TestProject: public ProjectExplorer::Project
+class TestProject: public ProjectExplorer::Project
 {
     Q_OBJECT
 
@@ -25,7 +24,7 @@ private:
     QString m_name;
 };
 
-class CPPEDITOR_EXPORT ModelManagerTestHelper: public QObject
+class ModelManagerTestHelper: public QObject
 {
     Q_OBJECT
 

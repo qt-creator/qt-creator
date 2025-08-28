@@ -45,13 +45,13 @@ void PersistentSettingsTest::tst_readwrite()
     const FilePath filePath = FilePath::fromFileInfo(fi);
     PersistentSettingsWriter writer(filePath, "Narf");
     const Store originalData = generateData();
-    QString error;
-    bool success = writer.save(originalData, &error);
-    QVERIFY2(success, error.toLocal8Bit());
+    const Result<> res = writer.save(originalData, false);
+    if (!res)
+        QVERIFY2(false, res.error().toLocal8Bit());
 
     // verify written data
     PersistentSettingsReader reader;
-    success = reader.load(filePath);
+    const bool success = reader.load(filePath);
     QVERIFY(success);
 
     const Store restored = reader.restoreValues();

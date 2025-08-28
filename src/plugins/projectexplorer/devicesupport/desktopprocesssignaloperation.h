@@ -18,8 +18,8 @@ public:
     void interruptProcess(qint64 pid) override;
 
 private:
-    Utils::Result killProcessSilently(qint64 pid);
-    Utils::Result interruptProcessSilently(qint64 pid);
+    Utils::Result<> killProcessSilently(qint64 pid);
+    Utils::Result<> interruptProcessSilently(qint64 pid);
 
     void appendMsgCannotKill(qint64 pid, const QString &why);
     void appendMsgCannotInterrupt(qint64 pid, const QString &why);

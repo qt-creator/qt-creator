@@ -226,12 +226,15 @@ void FileExtractor::extract()
     if (m_alwaysCreateDir)
         targetFilePath.createDir();
 
-    const auto sourceAndCommand = Unarchiver::sourceAndCommand(m_sourceFile);
-    QTC_ASSERT(sourceAndCommand, return);
+    m_unarchiver = makeUniqueObjectLatePtr<Unarchiver>();
 
-    m_unarchiver.reset(new Unarchiver);
-    m_unarchiver->setSourceAndCommand(*sourceAndCommand);
-    m_unarchiver->setDestDir(m_targetPath);
+    m_unarchiver->setArchive(m_sourceFile);
+    m_unarchiver->setDestination(m_targetPath);
+
+    connect(m_unarchiver.get(), &Unarchiver::progress, this, [this](const FilePath &path) {
+        m_detailedText += path.toUserOutput() + "\n";
+        emit detailedTextChanged();
+    });
 
     m_timer.start();
     m_bytesBefore = QStorageInfo(m_targetPath.toFileInfo().dir()).bytesAvailable();
@@ -239,14 +242,10 @@ void FileExtractor::extract()
     if (m_compressedSize <= 0)
         qWarning() << "Compressed size for file '" << m_sourceFile << "' is zero or invalid: " << m_compressedSize;
 
-    connect(m_unarchiver.get(), &Unarchiver::outputReceived, this, [this](const QString &output) {
-        m_detailedText += output;
-        emit detailedTextChanged();
-    });
-
-    QObject::connect(m_unarchiver.get(), &Unarchiver::done, this, [this](Tasking::DoneResult result) {
-        m_unarchiver.release()->deleteLater();
-        m_finished = result == Tasking::DoneResult::Success;
+    QObject::connect(m_unarchiver.get(), &Unarchiver::done, this, [this]() {
+        Result<> r = m_unarchiver->result();
+        m_unarchiver.reset();
+        m_finished = r.has_value();
         m_timer.stop();
 
         m_progress = 100;

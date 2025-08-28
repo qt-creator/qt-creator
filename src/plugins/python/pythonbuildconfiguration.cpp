@@ -68,7 +68,7 @@ PySideBuildStep::PySideBuildStep(BuildStepList *bsl, Id id)
         env.prependOrSetPath(m_pysideProject().parentDir());
     });
 
-    connect(target(), &Target::buildSystemUpdated, this, &PySideBuildStep::updateExtraCompilers);
+    connect(buildSystem(), &BuildSystem::updated, this, &PySideBuildStep::updateExtraCompilers);
     connect(&m_pysideUic, &BaseAspect::changed, this, &PySideBuildStep::updateExtraCompilers);
 }
 
@@ -195,7 +195,7 @@ void PySideBuildStep::updateExtraCompilers()
     }
     for (LanguageClient::Client *client : LanguageClient::LanguageClientManager::clients()) {
         if (auto pylsClient = qobject_cast<PyLSClient *>(client))
-            pylsClient->updateExtraCompilers(project(), m_extraCompilers);
+            pylsClient->updateExtraCompilers(m_extraCompilers);
     }
     qDeleteAll(oldCompilers);
 }
@@ -257,7 +257,6 @@ void setupPySideBuildStep()
 
 PythonBuildConfiguration::PythonBuildConfiguration(Target *target, const Id &id)
     : BuildConfiguration(target, id)
-    , m_buildSystem(std::make_unique<PythonBuildSystem>(this))
 {
     setInitializer([this](const BuildInfo &info) { initialize(info); });
     setConfigWidgetDisplayName(Tr::tr("Python"));
@@ -271,7 +270,7 @@ PythonBuildConfiguration::PythonBuildConfiguration(Target *target, const Id &id)
 
     auto update = [this] {
         if (isActive()) {
-            m_buildSystem->emitBuildSystemUpdated();
+            buildSystem()->emitBuildSystemUpdated();
             updateDocuments();
         }
     };
@@ -311,11 +310,11 @@ void PythonBuildConfiguration::initialize(const BuildInfo &info)
 
         if (info.extraInfo.toMap().value("createVenv", false).toBool()
             && !info.buildDirectory.exists()) {
-            if (std::optional<Interpreter> python = PythonKitAspect::python(target()->kit()))
+            if (std::optional<Interpreter> python = PythonKitAspect::python(kit()))
                 PythonSettings::createVirtualEnvironment(python->command, info.buildDirectory);
         }
     } else {
-        updateInterpreter(PythonKitAspect::python(target()->kit()));
+        updateInterpreter(PythonKitAspect::python(kit()));
     }
 
     updateCacheAndEmitEnvironmentChanged();
@@ -332,7 +331,7 @@ void PythonBuildConfiguration::updatePython(const FilePath &python)
     if (auto buildStep = buildSteps()->firstOfType<PySideBuildStep>())
         buildStep->checkForPySide(python);
     updateDocuments();
-    m_buildSystem->requestParse();
+    buildSystem()->requestParse();
 }
 
 void PythonBuildConfiguration::updateDocuments()
@@ -375,11 +374,6 @@ void PythonBuildConfiguration::toMap(Store &map) const
         map[venvKey] = m_venv->toSettings();
 }
 
-BuildSystem *PythonBuildConfiguration::buildSystem() const
-{
-    return m_buildSystem.get();
-}
-
 FilePath PythonBuildConfiguration::python() const
 {
     return m_python;
@@ -397,7 +391,8 @@ public:
     {
         registerBuildConfiguration<PythonBuildConfiguration>("Python.PySideBuildConfiguration");
         setSupportedProjectType(PythonProjectId);
-        setSupportedProjectMimeTypeName(Constants::C_PY_PROJECT_MIME_TYPE);
+        setSupportedProjectMimeTypeNames(
+            {Constants::C_PY_PROJECT_MIME_TYPE, Constants::C_PY_PROJECT_MIME_TYPE_TOML});
         setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
             if (std::optional<Interpreter> python = PythonKitAspect::python(k)) {
                 BuildInfo base;
@@ -418,7 +413,8 @@ public:
                 int i = 2;
                 while (venv.buildDirectory.exists())
                     venv.buildDirectory = venvBase.stringAppended('_' + QString::number(i++));
-                venv.displayName = python->name + Tr::tr(" Virtual Environment");
+                //: %1 = name of this Python as registered in QtC
+                venv.displayName = Tr::tr("%1 Virtual Environment").arg(python->name);
                 venv.typeName = venvTypeName();
                 venv.extraInfo = QVariantMap{{"createVenv", forSetup}};
                 return QList<BuildInfo>{base, venv};

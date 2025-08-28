@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "expected.h"
+#include "result.h"
 #include "storekey.h"
 
 #include <QMap>
@@ -31,7 +31,7 @@ QTCREATOR_UTILS_EXPORT bool isStore(const QVariant &value);
 
 QTCREATOR_UTILS_EXPORT Key numberedKey(const Key &key, int number);
 
-QTCREATOR_UTILS_EXPORT expected_str<Store> storeFromJson(const QByteArray &json);
+QTCREATOR_UTILS_EXPORT Result<Store> storeFromJson(const QByteArray &json);
 QTCREATOR_UTILS_EXPORT QByteArray jsonFromStore(const Store &store);
 
 // These recursively change type.

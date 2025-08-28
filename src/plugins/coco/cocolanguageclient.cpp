@@ -33,7 +33,7 @@ CocoLanguageClient::CocoLanguageClient(const FilePath &coco, const FilePath &csm
 {
     setName("Coco");
     hoverHandler()->setPreferDiagnosticts(false);
-    setActivateDocumentAutomatically(false);
+    setActivatable(false);
     LanguageFilter allFiles;
     allFiles.filePattern = QStringList{"*"};
     setSupportedLanguage(allFiles);

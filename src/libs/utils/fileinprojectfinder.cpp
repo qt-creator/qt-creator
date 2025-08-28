@@ -10,7 +10,6 @@
 
 #include <QCursor>
 #include <QDir>
-#include <QFileInfo>
 #include <QLoggingCategory>
 #include <QMenu>
 #include <QUrl>
@@ -100,8 +99,8 @@ void FileInProjectFinder::addMappedPath(const FilePath &localFilePath, const QSt
     for (const QString &segment : segments) {
         auto it = node->children.find(segment);
         if (it == node->children.end())
-            it = node->children.insert(segment, new PathMappingNode);
-        node = *it;
+            it = node->children.insert(segment, PathMappingNode());
+        node = &*it;
     }
     node->localPath = localFilePath;
 }
@@ -190,7 +189,7 @@ bool FileInProjectFinder::checkMappedPath(const FilePath &originalPath,
             node = nullptr;
             break;
         }
-        node = *it;
+        node = &*it;
     }
     if (!node)
         return false;
@@ -504,11 +503,6 @@ FilePaths FileInProjectFinder::searchDirectories() const
 void FileInProjectFinder::setAdditionalSearchDirectories(const FilePaths &searchDirectories)
 {
     m_searchDirectories = searchDirectories;
-}
-
-FileInProjectFinder::PathMappingNode::~PathMappingNode()
-{
-    qDeleteAll(children);
 }
 
 FilePaths FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const

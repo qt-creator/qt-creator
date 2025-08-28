@@ -56,7 +56,7 @@ sol::protected_function_result run(sol::state &lua, QString statement, MacroExpa
     });
 }
 
-expected_str<QString> tryRun(const QString statement, MacroExpander *expander)
+Result<QString> tryRun(const QString statement, MacroExpander *expander)
 {
     sol::state lua;
 
@@ -89,7 +89,7 @@ void setupLuaExpander(MacroExpander *expander)
             if (statement.isEmpty())
                 return Tr::tr("No Lua statement to evaluate.");
 
-            expected_str<QString> result = tryRun("return " + statement, expander);
+            Result<QString> result = tryRun("return " + statement, expander);
             if (result)
                 return *result;
 

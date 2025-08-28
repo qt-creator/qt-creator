@@ -9,6 +9,8 @@
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsstaticanalysismessage.h>
 
+#include <utils/filepath.h>
+
 #include <QStack>
 #include <QList>
 
@@ -368,27 +370,27 @@ private:
 class QMLJS_EXPORT JsonSchemaManager
 {
 public:
-    JsonSchemaManager(const QStringList &searchPaths);
+    JsonSchemaManager(const Utils::FilePaths &searchPaths);
     ~JsonSchemaManager();
 
-    JsonSchema *schemaForFile(const QString &fileName) const;
+    JsonSchema *schemaForFile(const Utils::FilePath &filePath) const;
     JsonSchema *schemaByName(const QString &baseName) const;
 
 private:
     struct JsonSchemaData
     {
-        JsonSchemaData(const QString &absoluteFileName, JsonSchema *schema = nullptr)
-            : m_absoluteFileName(absoluteFileName)
+        JsonSchemaData(const Utils::FilePath &absoluteFilePath, JsonSchema *schema = nullptr)
+            : m_absoluteFilePath(absoluteFilePath)
             , m_schema(schema)
         {}
-        QString m_absoluteFileName;
+        Utils::FilePath m_absoluteFilePath;
         JsonSchema *m_schema;
         QDateTime m_lastParseAttempt;
     };
 
-    JsonSchema *parseSchema(const QString &schemaFileName) const;
+    JsonSchema *parseSchema(const Utils::FilePath &schemaFilePath) const;
 
-    QStringList m_searchPaths;
+    Utils::FilePaths m_searchPaths;
     mutable QHash<QString, JsonSchemaData> m_schemas;
     mutable JsonMemoryPool m_pool;
 };

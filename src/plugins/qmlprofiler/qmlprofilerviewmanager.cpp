@@ -18,8 +18,7 @@
 using namespace Debugger;
 using namespace Utils;
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
                                                QmlProfilerModelManager *modelManager,
@@ -102,5 +101,4 @@ void QmlProfilerViewManager::clear()
         m_traceView->clear();
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

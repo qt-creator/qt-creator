@@ -70,7 +70,7 @@ std::unique_ptr<LuaAspectContainer> aspectContainerCreate(const sol::main_table 
                     container->setLayouter(
                         [func = v.as<sol::main_function>()]() -> Layouting::Layout {
                             auto res = safe_call<Layouting::Layout>(func);
-                            QTC_ASSERT_EXPECTED(res, return {});
+                            QTC_ASSERT_RESULT(res, return {});
                             return *res;
                         });
             } else if (key == "onApplied") {
@@ -151,7 +151,7 @@ void typedAspectCreate(StringAspect *aspect, const std::string &key, const sol::
             [func = value.as<sol::main_function>()](const QString &oldValue, const QString &newValue)
                 -> std::optional<QString> {
                 auto res = safe_call<std::optional<QString>>(func, oldValue, newValue);
-                QTC_ASSERT_EXPECTED(res, return std::nullopt);
+                QTC_ASSERT_RESULT(res, return std::nullopt);
                 return *res;
             });
     else if (key == "showToolTipOnLabel")
@@ -159,7 +159,7 @@ void typedAspectCreate(StringAspect *aspect, const std::string &key, const sol::
     else if (key == "displayFilter")
         aspect->setDisplayFilter([func = value.as<sol::main_function>()](const QString &value) {
             auto res = safe_call<QString>(func, value);
-            QTC_ASSERT_EXPECTED(res, return value);
+            QTC_ASSERT_RESULT(res, return value);
             return *res;
         });
     else if (key == "placeHolderText")
@@ -205,7 +205,7 @@ void typedAspectCreate(FilePathAspect *aspect, const std::string &key, const sol
     else if (key == "openTerminalHandler")
         aspect->setOpenTerminalHandler([func = value.as<sol::main_function>()]() {
             auto res = void_safe_call(func);
-            QTC_CHECK_EXPECTED(res);
+            QTC_CHECK_RESULT(res);
         });
     else if (key == "expectedKind")
         aspect->setExpectedKind((PathChooser::Kind) value.as<int>());
@@ -218,7 +218,7 @@ void typedAspectCreate(FilePathAspect *aspect, const std::string &key, const sol
             [func = value.as<sol::main_function>()](const QString &oldValue, const QString &newValue)
                 -> std::optional<QString> {
                 auto res = safe_call<std::optional<QString>>(func, oldValue, newValue);
-                QTC_ASSERT_EXPECTED(res, return std::nullopt);
+                QTC_ASSERT_RESULT(res, return std::nullopt);
                 return *res;
             });
     else if (key == "showToolTipOnLabel")
@@ -234,7 +234,7 @@ void typedAspectCreate(FilePathAspect *aspect, const std::string &key, const sol
     else if (key == "displayFilter")
         aspect->setDisplayFilter([func = value.as<sol::main_function>()](const QString &path) {
             auto res = safe_call<QString>(func, path);
-            QTC_ASSERT_EXPECTED(res, return path);
+            QTC_ASSERT_RESULT(res, return path);
             return *res;
         });
     else if (key == "placeHolderText")
@@ -373,13 +373,13 @@ void setupSettingsModule()
             },
             "requestValue_cb",
             [](SecretAspect *aspect, sol::function callback) {
-                aspect->requestValue([callback](const expected_str<QString> &secret) {
+                aspect->requestValue([callback](const Result<QString> &secret) {
                     if (secret) {
                         auto res = void_safe_call(callback, true, secret.value());
-                        QTC_CHECK_EXPECTED(res);
+                        QTC_CHECK_RESULT(res);
                     } else {
                         auto res = void_safe_call(callback, false, secret.error());
-                        QTC_CHECK_EXPECTED(res);
+                        QTC_CHECK_RESULT(res);
                     }
                 });
             },
@@ -598,20 +598,20 @@ void setupSettingsModule()
                                 [func = value.as<sol::main_function>()]()
                                     -> std::shared_ptr<BaseAspect> {
                                     auto res = safe_call<std::shared_ptr<BaseAspect>>(func);
-                                    QTC_ASSERT_EXPECTED(res, return nullptr);
+                                    QTC_ASSERT_RESULT(res, return nullptr);
                                     return *res;
                                 });
                         } else if (key == "onItemAdded") {
                             aspect->setItemAddedCallback([func = value.as<sol::main_function>()](
                                                              std::shared_ptr<BaseAspect> item) {
                                 auto res = void_safe_call(func, item);
-                                QTC_CHECK_EXPECTED(res);
+                                QTC_CHECK_RESULT(res);
                             });
                         } else if (key == "onItemRemoved") {
                             aspect->setItemRemovedCallback([func = value.as<sol::main_function>()](
                                                                std::shared_ptr<BaseAspect> item) {
                                 auto res = void_safe_call(func, item);
-                                QTC_CHECK_EXPECTED(res);
+                                QTC_CHECK_RESULT(res);
                             });
                         } else {
                             baseAspectCreate(aspect, key, value);
@@ -624,14 +624,14 @@ void setupSettingsModule()
             [](AspectList *a, const sol::function &clbk) {
                 a->forEachItem<BaseAspect>([clbk](std::shared_ptr<BaseAspect> item) {
                     auto res = void_safe_call(clbk, item);
-                    QTC_CHECK_EXPECTED(res);
+                    QTC_CHECK_RESULT(res);
                 });
             },
             "enumerate",
             [](AspectList *a, const sol::function &clbk) {
                 a->forEachItem<BaseAspect>([clbk](std::shared_ptr<BaseAspect> item, int idx) {
                     auto res = void_safe_call(clbk, item, idx);
-                    QTC_CHECK_EXPECTED(res);
+                    QTC_CHECK_RESULT(res);
                 });
             },
             sol::base_classes,

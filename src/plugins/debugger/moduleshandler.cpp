@@ -206,7 +206,7 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
               canShowSymbols && moduleNameValid,
               [this, modulePath] { engine->requestModuleSections(modulePath); });
 
-    menu->addAction(settings().settingsDialog.action());
+    addStandardActions(ev.view(), menu);
 
     connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());

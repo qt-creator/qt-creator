@@ -36,9 +36,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 qtc_handle_compiler_cache_support()
 qtc_handle_llvm_linker()
 
-option(BUILD_LINK_WITH_QT "Link with Qt from the parent Qt Creator" OFF)
-qtc_link_with_qt()
-
 option(WITH_TESTS "Build Tests" ${ENV_QTC_WITH_TESTS})
 add_feature_info("Build tests" ${WITH_TESTS} "")
 option(WITH_DEBUG_CMAKE "Enabled CMake project debugging functionality" OFF)
@@ -80,7 +77,7 @@ find_package(Qt6
 find_package(Qt6 OPTIONAL_COMPONENTS Quick QuickWidgets Designer DesignerComponentsPrivate
                                      Help SerialPort Svg Tools LinguistTools QUIET)
 
-if (QT_VERSION VERSION_GREATER_EQUAL 6.9.0)
+if (Qt6_VERSION VERSION_GREATER_EQUAL 6.9.0)
   find_package(Qt6 OPTIONAL_COMPONENTS
     CorePrivate
     Core5CompatPrivate
@@ -221,7 +218,7 @@ feature_summary(INCLUDE_QUIET_PACKAGES WHAT
 )
 
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR
-    AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.GPL3-EXCEPT")
+    AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSES/LICENSE.GPL3-EXCEPT")
   # Only for opensource, non-super-repo builds
   add_subdirectory(packaging)
 endif()

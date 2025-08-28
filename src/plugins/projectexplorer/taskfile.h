@@ -24,7 +24,7 @@ public:
     TaskFile(QObject *parent);
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
-    Utils::Result reload(ReloadFlag flag, ChangeType type) override;
+    Utils::Result<> reload(ReloadFlag flag, ChangeType type) override;
 
     bool load(QString *errorString, const Utils::FilePath &fileName);
 

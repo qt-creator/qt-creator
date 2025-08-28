@@ -5,16 +5,17 @@
 
 #include <qmlprofiler/pixmapcachemodel.h>
 #include <qmlprofiler/qmlprofilermodelmanager.h>
+
 #include <QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class PixmapCacheModelTest : public QObject
 {
     Q_OBJECT
+
 public:
-    PixmapCacheModelTest(QObject *parent = nullptr);
+    PixmapCacheModelTest();
 
 private slots:
     void initTestCase();
@@ -32,5 +33,4 @@ private:
     int eventTypeIndices[2 * MaximumPixmapEventType];
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

@@ -29,8 +29,7 @@ const char ELEVATE_METHOD_SUDO[] = "sudo";
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 PerfTracePointDialog::PerfTracePointDialog()
 {
@@ -140,5 +139,4 @@ void PerfTracePointDialog::reject()
         QDialog::reject();
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

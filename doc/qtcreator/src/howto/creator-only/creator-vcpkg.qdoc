@@ -33,7 +33,7 @@
 
     \image {qtcreator-preferences-cmake-vcpkg.webp} {Vcpkg tab in CMake preferences}
 
-    Select \inlineimage icons/online.png
+    Select \inlineimage {icons/online.png} {URL}
     to download vcpkg if you have not installed it yet.
 
     \sa {Create vcpkg manifest files}, {Edit vcpkg manifest files},
@@ -92,9 +92,8 @@
     To add a package to your project:
 
     \list 1
-        \li Select the \inlineimage icons/vcpkg.png
-            (\uicontrol {Add vcpkg Package}) button on the manifest editor
-            toolbar.
+        \li Select \inlineimage {icons/vcpkg.png} {Add vcpkg Package}
+            (\uicontrol {Add vcpkg Package}) on the manifest editor toolbar.
             \image {qtcreator-vcpkg-package-selector.webp} {Add vcpkg Package dialog}
         \li Select the package to add to your project.
         \li Select \uicontrol OK to return to the editor.
@@ -106,8 +105,8 @@
     To generate sample CMake code to copy to the CMakeLists.text file:
 
     \list 1
-        \li Select the \inlineimage icons/cmake.png (\uicontrol {CMake Code})
-            button on the manifest editor toolbar.
+        \li Select \inlineimage {icons/cmake.png} {CMake Code}
+            (\uicontrol {CMake Code}) on the manifest editor toolbar.
             \image {qtcreator-vcpkg-cmake-config.webp} {CMake Code dialog}
         \li Select the example code you need and copy-paste it to the
             CMakeLists.txt file.
@@ -116,7 +115,8 @@
     \section1 Set the path to vcpkg
 
     To set the path to the directory where you installed vcpkg, select
-    \inlineimage icons/settings.png (\uicontrol Configure) on the editor toolbar.
+    \inlineimage {icons/settings.png} {Configure} (\uicontrol Configure) on the
+    editor toolbar.
 
     \sa {vcpkg Package Manager}, {Create vcpkg manifest files}
 */

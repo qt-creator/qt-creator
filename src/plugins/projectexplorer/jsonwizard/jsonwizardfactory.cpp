@@ -177,8 +177,10 @@ static JsonWizardFactory::Generator parseGenerator(const QVariant &value, QStrin
     }
 
     QVariant varVal = data.value(QLatin1String(DATA_KEY));
-    if (!factory->validateData(typeId, varVal, errorMessage))
+    if (const Result<> res = factory->validateData(typeId, varVal); !res) {
+        *errorMessage = res.error();
         return gen;
+    }
 
     gen.typeId = typeId;
     gen.data = varVal;
@@ -273,8 +275,9 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
                 }
 
                 if (!json.isObject()) {
-                    verboseLog.append(Tr::tr("* Did not find a JSON object in \"%1\".\n")
-                                      .arg(configFile.fileName()));
+                    verboseLog.append(
+                        Tr::tr("* Did not find a JSON object in \"%1\".").arg(configFile.fileName())
+                        + "\n");
                     continue;
                 }
 

@@ -255,6 +255,8 @@ void updateEditorToolBar(Core::IEditor *editor)
             auto clientsGroup = new QActionGroup(menu);
             clientsGroup->setExclusive(true);
             for (auto client : LanguageClientManager::clientsSupportingDocument(document, false)) {
+                if (!client->activatable())
+                    continue;
                 auto action = clientsGroup->addAction(client->name());
                 auto reopen = [action, client = QPointer(client), document] {
                     if (!client)
@@ -389,7 +391,7 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
             if (!filePath.exists())
                 return options->ignoreIfNotExists().value_or(false);
             if (filePath.isDir() && options->recursive().value_or(false))
-                return filePath.removeRecursively();
+                return filePath.removeRecursively().has_value();
         }
         return bool(filePath.removeFile());
     }

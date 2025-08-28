@@ -2,41 +2,25 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangformatglobalconfigwidget.h"
-
 #include "clangformatconfigwidget.h"
 #include "clangformatconstants.h"
 #include "clangformatfile.h"
-#include "clangformatglobalconfigwidget.h"
-#include "clangformatindenter.h"
 #include "clangformatsettings.h"
 #include "clangformattr.h"
 #include "clangformatutils.h"
 
 #include <cppeditor/cppcodestylepreferencesfactory.h>
 #include <cppeditor/cppcodestylesettingspage.h>
-#include <cppeditor/cppcodestylesnippets.h>
-#include <cppeditor/cppeditorconstants.h>
-
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
-
-#include <texteditor/codestyleeditor.h>
 #include <texteditor/codestylepool.h>
 #include <texteditor/codestyleselectorwidget.h>
-#include <texteditor/icodestylepreferences.h>
 #include <texteditor/texteditorsettings.h>
-
-#include <utils/guard.h>
 #include <utils/fileutils.h>
-#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
-#include <QComboBox>
 #include <QGroupBox>
-#include <QInputDialog>
-#include <QLabel>
-#include <QMessageBox>
 #include <QSpinBox>
 
 using namespace CppEditor;
@@ -46,45 +30,9 @@ using namespace Utils;
 
 namespace ClangFormat {
 
-class ClangFormatGlobalConfigWidget final : public CodeStyleEditorWidget
-{
-public:
-    ClangFormatGlobalConfigWidget(ICodeStylePreferences *codeStyle,
-                                  Project *project,
-                                  QWidget *parent);
-    void apply() final;
-    void finish() final;
-
-private:
-    void initCheckBoxes();
-    void initIndentationOrFormattingCombobox();
-    void initCustomSettingsCheckBox();
-    void initUseGlobalSettingsCheckBox();
-    void initFileSizeThresholdSpinBox();
-    void initCurrentProjectLabel();
-
-    bool projectClangFormatFileExists();
-
-    Project *m_project;
-    ICodeStylePreferences *m_codeStyle;
-    Guard m_ignoreChanges;
-    bool m_useCustomSettings;
-
-    QLabel *m_projectHasClangFormat;
-    QLabel *m_formattingModeLabel;
-    QLabel *m_fileSizeThresholdLabel;
-    QSpinBox *m_fileSizeThresholdSpinBox;
-    QComboBox *m_indentingOrFormatting;
-    QCheckBox *m_formatWhileTyping;
-    QCheckBox *m_formatOnSave;
-    QCheckBox *m_useCustomSettingsCheckBox;
-    QCheckBox *m_useGlobalSettings;
-    InfoLabel *m_currentProjectLabel;
-};
-
-ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ICodeStylePreferences *codeStyle,
-                                                             Project *project, QWidget *parent)
-    : TextEditor::CodeStyleEditorWidget(parent)
+ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
+    Project *project, ICodeStylePreferences *codeStyle, QWidget *parent)
+    : CodeStyleEditorWidget(parent)
     , m_project(project)
     , m_codeStyle(codeStyle)
 {
@@ -167,8 +115,7 @@ void ClangFormatGlobalConfigWidget::initCheckBoxes()
         m_formatWhileTyping->setEnabled(isFormatting);
     };
     setEnableCheckBoxes(m_indentingOrFormatting->currentIndex());
-    connect(m_indentingOrFormatting, &QComboBox::currentIndexChanged,
-            this, setEnableCheckBoxes);
+    connect(m_indentingOrFormatting, &QComboBox::currentIndexChanged, this, setEnableCheckBoxes);
 
     m_formatOnSave->setChecked(ClangFormatSettings::instance().formatOnSave());
     m_formatWhileTyping->setChecked(ClangFormatSettings::instance().formatWhileTyping());
@@ -176,12 +123,12 @@ void ClangFormatGlobalConfigWidget::initCheckBoxes()
 
 void ClangFormatGlobalConfigWidget::initIndentationOrFormattingCombobox()
 {
-    m_indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Indenting),
-                                        Tr::tr("Indenting only"));
-    m_indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Formatting),
-                                        Tr::tr("Full formatting"));
-    m_indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Disable),
-                                        Tr::tr("Use built-in indenter"));
+    m_indentingOrFormatting->insertItem(
+        static_cast<int>(ClangFormatSettings::Mode::Indenting), Tr::tr("Indenting only"));
+    m_indentingOrFormatting->insertItem(
+        static_cast<int>(ClangFormatSettings::Mode::Formatting), Tr::tr("Full formatting"));
+    m_indentingOrFormatting->insertItem(
+        static_cast<int>(ClangFormatSettings::Mode::Disable), Tr::tr("Use built-in indenter"));
 
     m_indentingOrFormatting->setCurrentIndex(
         static_cast<int>(getProjectIndentationOrFormattingSettings(m_project)));
@@ -189,6 +136,8 @@ void ClangFormatGlobalConfigWidget::initIndentationOrFormattingCombobox()
     connect(m_indentingOrFormatting, &QComboBox::currentIndexChanged, this, [this](int index) {
         if (m_project)
             m_project->setNamedSettings(Constants::MODE_ID, index);
+
+        emit modeChanged(static_cast<ClangFormatSettings::Mode>(index));
     });
 }
 
@@ -201,14 +150,13 @@ void ClangFormatGlobalConfigWidget::initUseGlobalSettingsCheckBox()
         const bool isDisabled = m_project && m_useGlobalSettings->isChecked();
         m_indentingOrFormatting->setDisabled(isDisabled);
         m_formattingModeLabel->setDisabled(isDisabled);
+        const auto currentMode = static_cast<ClangFormatSettings::Mode>(
+            m_indentingOrFormatting->currentIndex());
         m_projectHasClangFormat->setDisabled(
-            isDisabled
-            || (m_indentingOrFormatting->currentIndex()
-                == static_cast<int>(ClangFormatSettings::Mode::Disable)));
+            isDisabled || (currentMode == ClangFormatSettings::Mode::Disable));
         m_useCustomSettingsCheckBox->setChecked(getProjectCustomSettings(m_project));
-        m_useCustomSettingsCheckBox->setDisabled(isDisabled
-                                       || (m_indentingOrFormatting->currentIndex()
-                                           == static_cast<int>(ClangFormatSettings::Mode::Disable)));
+        m_useCustomSettingsCheckBox->setDisabled(
+            isDisabled || (currentMode == ClangFormatSettings::Mode::Disable));
 
         emit m_codeStyle->currentPreferencesChanged(m_codeStyle->currentPreferences());
     };
@@ -216,11 +164,11 @@ void ClangFormatGlobalConfigWidget::initUseGlobalSettingsCheckBox()
     m_useGlobalSettings->setChecked(getProjectUseGlobalSettings(m_project));
     enableProjectSettings();
 
-    connect(m_useGlobalSettings, &QCheckBox::toggled,
-            this, [this, enableProjectSettings] (bool checked) {
-                m_project->setNamedSettings(Constants::USE_GLOBAL_SETTINGS, checked);
-                enableProjectSettings();
-            });
+    connect(
+        m_useGlobalSettings, &QCheckBox::toggled, this, [this, enableProjectSettings](bool checked) {
+            m_project->setNamedSettings(Constants::USE_GLOBAL_SETTINGS, checked);
+            enableProjectSettings();
+        });
 }
 
 void ClangFormatGlobalConfigWidget::initFileSizeThresholdSpinBox()
@@ -280,65 +228,46 @@ void ClangFormatGlobalConfigWidget::initCustomSettingsCheckBox()
         m_projectHasClangFormat->hide();
     } else {
         m_projectHasClangFormat->show();
-        m_projectHasClangFormat->setText(Tr::tr("The current project has its own .clang-format file which "
-                                                "can be overridden by the settings below."));
+        m_projectHasClangFormat->setText(
+            Tr::tr("The current project has its own .clang-format file which "
+                   "can be overridden by the settings below."));
     }
 
-    auto setTemporarilyReadOnly = [this]() {
-        if (m_ignoreChanges.isLocked())
-            return;
-        Utils::GuardLocker locker(m_ignoreChanges);
-        m_codeStyle->currentPreferences()->setTemporarilyReadOnly(
-            !m_useCustomSettingsCheckBox->isChecked());
-        m_codeStyle->currentPreferences()->setIsAdditionalTabVisible(
-            m_useCustomSettingsCheckBox->isEnabled());
-        m_codeStyle->currentPreferences()->setAdditionalTabExist(true);
-        ClangFormatSettings::instance().write();
-        emit m_codeStyle->currentPreferencesChanged(m_codeStyle->currentPreferences());
-    };
-
-    auto setEnableCustomSettingsCheckBox = [this, setTemporarilyReadOnly](int index) {
+    auto setEnableCustomSettingsCheckBox = [this](int index) {
         bool isDisable = index == static_cast<int>(ClangFormatSettings::Mode::Disable);
         m_useCustomSettingsCheckBox->setDisabled(isDisable);
         m_projectHasClangFormat->setDisabled(isDisable);
-        setTemporarilyReadOnly();
     };
 
     m_useCustomSettingsCheckBox->setChecked(getProjectCustomSettings(m_project));
-    m_useCustomSettingsCheckBox->setToolTip("<html>"
-                                  + Tr::tr("When this option is enabled, ClangFormat will use a "
-                                           "user-specified configuration from the widget below, "
-                                           "instead of the project .clang-format file. You can "
-                                           "customize the formatting options for your code by "
-                                           "adjusting the settings in the widget. Note that any "
-                                           "changes made there will only affect the current "
-                                           "configuration, and will not modify the project "
-                                           ".clang-format file."));
-
-    setTemporarilyReadOnly();
+    m_useCustomSettingsCheckBox->setToolTip(
+        "<html>"
+        + Tr::tr("When this option is enabled, ClangFormat will use a "
+                 "user-specified configuration from the widget below, "
+                 "instead of the project .clang-format file. You can "
+                 "customize the formatting options for your code by "
+                 "adjusting the settings in the widget. Note that any "
+                 "changes made there will only affect the current "
+                 "configuration, and will not modify the project "
+                 ".clang-format file."));
 
     setEnableCustomSettingsCheckBox(m_indentingOrFormatting->currentIndex());
-    connect(m_indentingOrFormatting, &QComboBox::currentIndexChanged,
-            this, setEnableCustomSettingsCheckBox);
+    connect(
+        m_indentingOrFormatting,
+        &QComboBox::currentIndexChanged,
+        this,
+        setEnableCustomSettingsCheckBox);
 
-    connect(m_useCustomSettingsCheckBox,
-            &QCheckBox::toggled,
-            this,
-            [this, setTemporarilyReadOnly](bool checked) {
-                if (m_project) {
-                    m_project->setNamedSettings(Constants::USE_CUSTOM_SETTINGS_ID, checked);
-                } else {
-                    ClangFormatSettings::instance().setUseCustomSettings(checked);
-                    setTemporarilyReadOnly();
-                }
-            });
+    connect(m_useCustomSettingsCheckBox, &QCheckBox::toggled, this, [this](bool checked) {
+        if (m_project) {
+            m_project->setNamedSettings(Constants::USE_CUSTOM_SETTINGS_ID, checked);
+        } else {
+            ClangFormatSettings::instance().setUseCustomSettings(checked);
+        }
 
-    connect(m_codeStyle,
-            &TextEditor::ICodeStylePreferences::currentPreferencesChanged,
-            this,
-            setTemporarilyReadOnly);
+        emit useCustomSettingsChanged(checked);
+    });
 }
-
 
 void ClangFormatGlobalConfigWidget::apply()
 {
@@ -358,106 +287,16 @@ void ClangFormatGlobalConfigWidget::apply()
 void ClangFormatGlobalConfigWidget::finish()
 {
     ClangFormatSettings::instance().setUseCustomSettings(m_useCustomSettings);
-    m_codeStyle->currentPreferences()->setTemporarilyReadOnly(
-        !ClangFormatSettings::instance().useCustomSettings());
 }
 
-class ClangFormatSelectorWidget final : public CodeStyleSelectorWidget
+ClangFormatSettings::Mode ClangFormatGlobalConfigWidget::mode() const
 {
-public:
-    ClangFormatSelectorWidget(
-        ICodeStylePreferencesFactory *factory,
-        ProjectExplorer::Project *project = nullptr,
-        QWidget *parent = nullptr)
-        : CodeStyleSelectorWidget(factory, project, parent)
-    {}
+    return static_cast<ClangFormatSettings::Mode>(m_indentingOrFormatting->currentIndex());
+}
 
-private:
-    void slotImportClicked() final
-    {
-        const FilePath filePath = FileUtils::getOpenFilePath(
-            Tr::tr("Import Code Format"),
-            {},
-            Tr::tr("ClangFormat (*clang-format*);;All files (*)"));
-        if (!filePath.isEmpty()) {
-            QString name = QInputDialog::getText(
-                this,
-                Tr::tr("Import Code Style"),
-                Tr::tr("Enter a name for the imported code style:"));
-            if (name.isEmpty())
-                return;
-
-            CodeStylePool *codeStylePool = m_codeStyle->delegatingPool();
-            ICodeStylePreferences *importedStyle = codeStylePool->createCodeStyle(name);
-            ClangFormatFile file(importedStyle, filePath);
-
-            if (importedStyle)
-                m_codeStyle->setCurrentDelegate(importedStyle);
-            else
-                QMessageBox::warning(this,
-                                     Tr::tr("Import Code Style"),
-                                     Tr::tr("Cannot import code style from \"%1\".")
-                                         .arg(filePath.toUserOutput()));
-        }
-    }
-
-    void slotExportClicked() final
-    {
-        ICodeStylePreferences *currentPreferences = m_codeStyle->currentPreferences();
-        const FilePath filePath = FileUtils::getSaveFilePath(
-            Tr::tr("Export Code Format"),
-            FileUtils::homePath(),
-            Tr::tr("ClangFormat (*clang-format*);;All files (*)"));
-        if (!filePath.isEmpty()) {
-            FilePath clangFormatFile = filePathToCurrentSettings(currentPreferences);
-            clangFormatFile.copyFile(filePath);
-        }
-    }
-};
-
-class ClangFormatStyleFactory final : public CppCodeStylePreferencesFactory
+bool ClangFormatGlobalConfigWidget::useCustomSettings() const
 {
-public:
-    Indenter *createIndenter(QTextDocument *doc) const final
-    {
-        return new ClangFormatForwardingIndenter(doc);
-    }
-
-    std::pair<TextEditor::CodeStyleEditorWidget *, QString> additionalTab(
-        ICodeStylePreferences *codeStyle, Project *project, QWidget *parent) const final
-    {
-        return {createClangFormatConfigWidget(codeStyle, project, parent), Tr::tr("ClangFormat")};
-    }
-
-    CodeStyleEditorWidget *createAdditionalGlobalSettings(
-        ICodeStylePreferences *codeStyle, Project *project, QWidget *parent) final
-    {
-        return new ClangFormatGlobalConfigWidget(codeStyle, project, parent);
-    }
-
-    CodeStyleSelectorWidget *createSelectorWidget(
-        ProjectExplorer::Project *project, QWidget *parent) final
-    {
-        return new ClangFormatSelectorWidget(this, project, parent);
-    }
-
-    QString previewText() const override
-    {
-        return QLatin1String(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]);
-    }
-};
-
-void setupClangFormatStyleFactory(QObject *guard)
-{
-    static ClangFormatStyleFactory theClangFormatStyleFactory;
-
-    // Replace the default one.
-    TextEditorSettings::unregisterCodeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID);
-    TextEditorSettings::registerCodeStyleFactory(&theClangFormatStyleFactory);
-
-    QObject::connect(guard, &QObject::destroyed, [] {
-        TextEditorSettings::unregisterCodeStyleFactory(CppEditor::Constants::CPP_SETTINGS_ID);
-    });
+    return m_useCustomSettingsCheckBox->isChecked();
 }
 
 } // namespace ClangFormat

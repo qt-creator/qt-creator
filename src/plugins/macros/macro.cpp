@@ -4,12 +4,17 @@
 #include "macro.h"
 #include "macroevent.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/fileutils.h>
 
 #include <QFileInfo>
 #include <QDataStream>
+#include <QCoreApplication>
 
-using namespace Macros::Internal;
+using namespace Utils;
+
+namespace Macros::Internal {
 
 /*!
     \class Macros::Macro
@@ -73,19 +78,13 @@ Macro& Macro::operator=(const Macro &other)
     return *this;
 }
 
-bool Macro::load(QString fileName)
+bool Macro::load()
 {
     if (!d->events.isEmpty())
         return true; // the macro is not empty
 
-    // Take the current filename if the parameter is null
-    if (fileName.isNull())
-        fileName = d->fileName;
-    else
-        d->fileName = fileName;
-
     // Load all the macroevents
-    QFile file(fileName);
+    QFile file(d->fileName);
     if (file.open(QFile::ReadOnly)) {
         QDataStream stream(&file);
         stream >> d->version;
@@ -113,7 +112,7 @@ bool Macro::loadHeader(const QString &fileName)
     return false;
 }
 
-bool Macro::save(const QString &fileName, QWidget *parent)
+bool Macro::save(const QString &fileName)
 {
     Utils::FileSaver saver(Utils::FilePath::fromString(fileName));
     if (!saver.hasError()) {
@@ -125,8 +124,10 @@ bool Macro::save(const QString &fileName, QWidget *parent)
         }
         saver.setResult(&stream);
     }
-    if (!saver.finalize(parent))
+    if (const Result<> res = saver.finalize(); !res) {
+        FileUtils::showError(res.error());
         return false;
+    }
     d->fileName = fileName;
     return true;
 }
@@ -172,3 +173,5 @@ bool Macro::isWritable() const
     QFileInfo fileInfo(d->fileName);
     return fileInfo.exists() && fileInfo.isWritable();
 }
+
+} // namespace Macros::Internal

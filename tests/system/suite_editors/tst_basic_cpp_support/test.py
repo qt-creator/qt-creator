@@ -83,13 +83,13 @@ def main():
 
 def __typeAndWaitForAction__(editor, keyCombination):
     origTxt = str(editor.plainText)
-    cursorPos = editor.textCursor().position()
+    cursorPos = textCursorForWidget(editor).position()
     type(editor, keyCombination)
     if not waitFor("cppEditorPositionChanged(cursorPos) or origTxt != str(editor.plainText)", 2000):
         test.warning("Waiting timed out...")
 
 def cppEditorPositionChanged(origPos):
     try:
-        return waitForCppEditor().textCursor().position() != origPos
+        return textCursorForWidget(waitForCppEditor()).position() != origPos
     except:
         return False

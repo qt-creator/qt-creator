@@ -9,7 +9,7 @@
 
 #include <QAction>
 
-using namespace ScxmlEditor::PluginInterface;
+namespace ScxmlEditor::PluginInterface {
 
 ActionHandler::ActionHandler(QObject *parent)
     : QObject(parent)
@@ -27,7 +27,8 @@ ActionHandler::ActionHandler(QObject *parent)
         {Utils::Icons::PAN_TOOLBAR, Tr::tr("Panning"), Tr::tr("Panning (Shift)"), "Shift", true},
 
         {Utils::Icons::ZOOM_TOOLBAR, Tr::tr("Magnifier"), Tr::tr("Magnifier Tool"), "", true},
-        {Utils::Icon(":/scxmleditor/images/navigator.png"), Tr::tr("Navigator"), Tr::tr("Navigator (Ctrl+E)"), "Ctrl+E", true},
+        {Utils::Icon({{":/scxmleditor/images/navigator.png", Utils::Theme::PanelTextColorMid},
+                      {":/scxmleditor/images/navigator_fill.png", Utils::Theme::IconsInfoToolBarColor}}, Utils::Icon::Tint), Tr::tr("Navigator"), Tr::tr("Navigator (Ctrl+E)"), "Ctrl+E", true},
 
         {Utils::Icons::COPY_TOOLBAR, Tr::tr("Copy"), Tr::tr("Copy (Ctrl + C)"), "Ctrl+C", false},
         {Utils::Icons::CUT_TOOLBAR, Tr::tr("Cut"), Tr::tr("Cut (Ctrl + X)"), "Ctrl+X", false},
@@ -46,7 +47,7 @@ ActionHandler::ActionHandler(QObject *parent)
         {Utils::Icon({{":/scxmleditor/images/adjust_height.png", Utils::Theme::PanelTextColorMid}}, Utils::Icon::Tint), Tr::tr("Adjust Height"), Tr::tr("Adjust Height (Ctrl+L,8)"), "Ctrl+L,8", false},
         {Utils::Icon({{":/scxmleditor/images/adjust_size.png", Utils::Theme::PanelTextColorMid}}, Utils::Icon::Tint), Tr::tr("Adjust Size"), Tr::tr("Adjust Size (Ctrl+L,9)"), "Ctrl+L,9", false},
 
-        {Utils::Icon(":/scxmleditor/images/statistics.png"), Tr::tr("Show Statistics..."), Tr::tr("Show Statistics"), "", false}
+        {Utils::Icon({{":/scxmleditor/images/statistics.png", Utils::Theme::Theme::PanelTextColorMid}}, Utils::Icon::Tint), Tr::tr("Show Statistics..."), Tr::tr("Show Statistics"), "", false}
     };
 
     // Init actions
@@ -67,3 +68,5 @@ QAction *ActionHandler::action(ActionType type) const
 
     return nullptr;
 }
+
+} // ScxmlEditor::PluginInterface

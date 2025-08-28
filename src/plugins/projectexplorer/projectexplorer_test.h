@@ -25,8 +25,8 @@ private slots:
     void testJsonWizardsComboBox();
     void testJsonWizardsIconList();
 
-    void testGccOutputParsers_data();
-    void testGccOutputParsers();
+    void testGccOutputParser_data();
+    void testGccOutputParser();
 
     void testCustomOutputParsers_data();
     void testCustomOutputParsers();

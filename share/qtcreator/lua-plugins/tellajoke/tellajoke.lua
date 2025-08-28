@@ -53,5 +53,6 @@ return {
     Dependencies = {
         { Id = "lua", Version = "15.0.0" },
     },
+    Type = "Script",
     setup = setup,
 } --[[@as QtcPlugin]]

@@ -9,7 +9,6 @@
 #include "../qdbutils.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcassert.h>
 
@@ -78,17 +77,12 @@ void DeviceDetector::handleDeviceEvent(QdbDeviceTracker::DeviceEventType eventTy
     const Utils::Id deviceId =
             Utils::Id(Constants::QdbHardwareDevicePrefix).withSuffix(':').withSuffix(serial);
     const QString messagePrefix = Tr::tr("Device \"%1\" %2").arg(serial);
-    DeviceManager * const dm = DeviceManager::instance();
 
     if (eventType == QdbDeviceTracker::NewDevice) {
         const QString name = Tr::tr("Boot to Qt device %1").arg(serial);
         QdbDevice::Ptr device = QdbDevice::create();
         device->setupId(IDevice::AutoDetected, deviceId);
         device->setDisplayName(name);
-        device->setType(Qdb::Constants::QdbLinuxOsType);
-        device->setMachineType(IDevice::Hardware);
-        device->setExtraData(ProjectExplorer::Constants::SUPPORTS_RSYNC, true);
-        device->setExtraData(ProjectExplorer::Constants::SUPPORTS_SFTP, true);
 
         const QString ipAddress = info["ipAddress"];
         device->setupDefaultNetworkSettings(ipAddress);
@@ -100,14 +94,14 @@ void DeviceDetector::handleDeviceEvent(QdbDeviceTracker::DeviceEventType eventTy
             state = IDevice::DeviceReadyToUse;
         device->setDeviceState(state);
 
-        dm->addDevice(device);
+        DeviceManager::addDevice(device);
 
         if (state == IDevice::DeviceConnected)
             showMessage(messagePrefix.arg("connected, waiting for IP"), false);
         else
             showMessage(messagePrefix.arg("is ready to use at ").append(ipAddress), false);
     } else if (eventType == QdbDeviceTracker::DisconnectedDevice) {
-        dm->setDeviceState(deviceId, IDevice::DeviceDisconnected);
+        DeviceManager::setDeviceState(deviceId, IDevice::DeviceDisconnected);
         showMessage(messagePrefix.arg("disconnected"), false);
     }
 }
@@ -120,11 +114,10 @@ void DeviceDetector::handleTrackerError(const QString &errorMessage)
 
 void DeviceDetector::resetDevices()
 {
-    DeviceManager * const dm = DeviceManager::instance();
-    for (int i = 0; i < dm->deviceCount(); ++i) {
-        const IDevice::ConstPtr device = dm->deviceAt(i);
+    for (int i = 0; i < DeviceManager::deviceCount(); ++i) {
+        const IDevice::ConstPtr device = DeviceManager::deviceAt(i);
         if (isAutodetectedQdbDevice(device))
-            dm->setDeviceState(device->id(), IDevice::DeviceDisconnected);
+            DeviceManager::setDeviceState(device->id(), IDevice::DeviceDisconnected);
     }
 }
 

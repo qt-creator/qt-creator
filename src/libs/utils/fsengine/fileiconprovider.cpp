@@ -139,7 +139,7 @@ private:
 
     void ensureMimeOverlays() const
     {
-        for (const std::function<void()> &f : m_mimeUpdater)
+        for (const std::function<void()> &f : std::as_const(m_mimeUpdater))
             f();
         m_mimeUpdater.clear();
     }
@@ -345,7 +345,7 @@ QIcon directoryIcon(const QString &overlay)
     // Overlay the SP_DirIcon with the custom icons
     const QSize desiredSize = QSize(16, 16);
 
-    const QPixmap dirPixmap = QApplication::style()->standardIcon(QStyle::SP_DirIcon).pixmap(desiredSize);
+    const QPixmap dirPixmap = dirIcon().pixmap(desiredSize);
     const QIcon overlayIcon(overlay);
     QIcon result;
     result.addPixmap(FileIconProvider::overlayIcon(dirPixmap, overlayIcon));

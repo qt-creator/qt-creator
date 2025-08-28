@@ -22,12 +22,12 @@ namespace Nim {
 class NimbleRunConfiguration : public RunConfiguration
 {
 public:
-    NimbleRunConfiguration(Target *target, Id id)
-        : RunConfiguration(target, id)
+    NimbleRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
     {
-        environment.setSupportForBuildEnvironment(target);
+        environment.setSupportForBuildEnvironment(bc);
 
-        executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+        executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
 
         setUpdater([this] {
             BuildTargetInfo bti = buildTargetInfo();
@@ -36,8 +36,6 @@ public:
             executable.setExecutable(bti.targetFilePath);
             workingDir.setDefaultWorkingDirectory(bti.workingDirectory);
         });
-
-        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
         update();
     }
 
@@ -62,13 +60,13 @@ NimbleRunConfigurationFactory::NimbleRunConfigurationFactory()
 class NimbleTestConfiguration : public RunConfiguration
 {
 public:
-    NimbleTestConfiguration(Target *target, Id id)
-        : RunConfiguration(target, id)
+    NimbleTestConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
     {
         setDisplayName(Tr::tr("Nimble Test"));
         setDefaultDisplayName(Tr::tr("Nimble Test"));
 
-        executable.setDeviceSelector(target, ExecutableAspect::BuildDevice);
+        executable.setDeviceSelector(kit(), ExecutableAspect::BuildDevice);
         executable.setExecutable(Nim::nimblePathFromKit(kit()));
 
         arguments.setArguments("test");

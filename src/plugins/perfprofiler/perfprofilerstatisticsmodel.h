@@ -3,15 +3,13 @@
 
 #pragma once
 
-#include "perfprofilertracemanager.h"
-
 #include <QAbstractItemModel>
 #include <QFont>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 struct PerfProfilerStatisticsData;
+
 class PerfProfilerStatisticsModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -51,7 +49,7 @@ protected:
     int lastSortColumn;
     Qt::SortOrder lastSortOrder;
     QFont m_font;
-    QVector<Column> m_columns;
+    QList<Column> m_columns;
 };
 
 class PerfProfilerStatisticsRelativesModel;
@@ -91,9 +89,9 @@ public:
     };
 
 private:
-    QVector<Data> m_data;
-    QVector<int> m_forwardIndex;
-    QVector<int> m_backwardIndex;
+    QList<Data> m_data;
+    QList<int> m_forwardIndex;
+    QList<int> m_backwardIndex;
 
     PerfProfilerStatisticsRelativesModel *m_children;
     PerfProfilerStatisticsRelativesModel *m_parents;
@@ -105,12 +103,12 @@ private:
     std::unique_ptr<PerfProfilerStatisticsData> m_offlineData;
 };
 
-class PerfProfilerStatisticsRelativesModel : public PerfProfilerStatisticsModel {
-    Q_OBJECT
+class PerfProfilerStatisticsRelativesModel : public PerfProfilerStatisticsModel
+{
 public:
     struct Data {
         uint totalOccurrences;
-        QVector<Frame> data;
+        QList<Frame> data;
     };
 
     PerfProfilerStatisticsRelativesModel(Relation relation,
@@ -140,5 +138,4 @@ private:
     int m_currentRelative;
 };
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

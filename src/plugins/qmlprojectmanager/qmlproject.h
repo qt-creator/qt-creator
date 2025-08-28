@@ -18,7 +18,7 @@ namespace QmlProjectManager {
 class QmlProject;
 
 ExtensionSystem::IPlugin *findMcuSupportPlugin();
-QMLPROJECTMANAGER_EXPORT Utils::expected_str<Utils::FilePath> mcuFontsDir();
+QMLPROJECTMANAGER_EXPORT Utils::Result<Utils::FilePath> mcuFontsDir();
 
 class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
 {
@@ -27,9 +27,6 @@ public:
     explicit QmlProject(const Utils::FilePath &filename);
 
     static bool isQtDesignStudioStartedFromQtC();
-    bool isEditModePreferred() const override;
-
-    ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
     static bool isMCUs();
 
@@ -54,7 +51,7 @@ private:
     int preferedQtTarget(ProjectExplorer::Target *target);
 
 private slots:
-    void parsingFinished(const ProjectExplorer::Target *target, bool success);
+    void parsingFinished(bool success);
 };
 
 class FilesUpdateBlocker

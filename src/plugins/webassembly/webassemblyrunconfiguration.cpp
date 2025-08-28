@@ -58,52 +58,47 @@ static FilePath pythonInterpreter(const Environment &env)
     return {};
 }
 
-static CommandLine emrunCommand(const Target *target,
+static CommandLine emrunCommand(const BuildConfiguration *bc,
                                 const QString &buildKey,
                                 const QString &browser,
                                 const QString &port)
 {
-    if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-        const Environment env = bc->environment();
-        const FilePath emrun = env.searchInPath("emrun");
-        const FilePath emrunPy = emrun.absolutePath().pathAppended(emrun.baseName() + ".py");
-        const FilePath targetPath = bc->buildSystem()->buildTarget(buildKey).targetFilePath;
-        const FilePath html = targetPath.absolutePath() / (targetPath.baseName() + ".html");
+    const Environment env = bc->environment();
+    const FilePath emrun = env.searchInPath("emrun");
+    const FilePath emrunPy = emrun.absolutePath().pathAppended(emrun.baseName() + ".py");
+    const FilePath targetPath = bc->buildSystem()->buildTarget(buildKey).targetFilePath;
+    const FilePath html = targetPath.absolutePath() / (targetPath.baseName() + ".html");
 
-        QStringList args(emrunPy.path());
-        if (!browser.isEmpty()) {
-            args.append("--browser");
-            args.append(browser);
-        }
-        args.append("--port");
-        args.append(port);
-        args.append("--no_emrun_detect");
-        args.append("--serve_after_close");
-        args.append(html.toUrlishString());
-
-        return CommandLine(pythonInterpreter(env), args);
+    QStringList args(emrunPy.path());
+    if (!browser.isEmpty()) {
+        args.append("--browser");
+        args.append(browser);
     }
-    return {};
+    args.append("--port");
+    args.append(port);
+    args.append("--no_emrun_detect");
+    args.append("--serve_after_close");
+    args.append(html.toUrlishString());
+
+    return CommandLine(pythonInterpreter(env), args);
 }
 
 static const char BROWSER_KEY[] = "WASM.WebBrowserSelectionAspect.Browser";
 
-static WebBrowserEntries emrunBrowsers(Target *target)
+static WebBrowserEntries emrunBrowsers(BuildConfiguration *bc)
 {
     WebBrowserEntries result;
     result.append(qMakePair(QString(), Tr::tr("Default Browser")));
-    if (auto bc = target->activeBuildConfiguration()) {
-        const Environment environment = bc->environment();
-        const FilePath emrunPath = environment.searchInPath("emrun");
+    const Environment environment = bc->environment();
+    const FilePath emrunPath = environment.searchInPath("emrun");
 
-        Process browserLister;
-        browserLister.setEnvironment(environment);
-        browserLister.setCommand({emrunPath, {"--list_browsers"}});
-        browserLister.start();
+    Process browserLister;
+    browserLister.setEnvironment(environment);
+    browserLister.setCommand({emrunPath, {"--list_browsers"}});
+    browserLister.start();
 
-        if (browserLister.waitForFinished())
-            result.append(parseEmrunOutput(browserLister.rawStdOut()));
-    }
+    if (browserLister.waitForFinished())
+        result.append(parseEmrunOutput(browserLister.rawStdOut()));
     return result;
 }
 
@@ -116,9 +111,9 @@ public:
         : BaseAspect(container)
     {}
 
-    void setTarget(Target *target)
+    void setBuildConfiguration(BuildConfiguration *bc)
     {
-        m_availableBrowsers = emrunBrowsers(target);
+        m_availableBrowsers = emrunBrowsers(bc);
         if (!m_availableBrowsers.isEmpty()) {
             const int defaultIndex = qBound(0, m_availableBrowsers.count() - 1, 1);
             m_currentBrowser = m_availableBrowsers.at(defaultIndex).first;
@@ -134,7 +129,7 @@ public:
     {
         QTC_CHECK(!m_webBrowserComboBox);
         m_webBrowserComboBox = new QComboBox;
-        for (const WebBrowserEntry &be : m_availableBrowsers)
+        for (const WebBrowserEntry &be : std::as_const(m_availableBrowsers))
             m_webBrowserComboBox->addItem(be.second, be.first);
         m_webBrowserComboBox->setCurrentIndex(m_webBrowserComboBox->findData(m_currentBrowser));
         connect(m_webBrowserComboBox, &QComboBox::currentIndexChanged, this, [this] {
@@ -173,24 +168,23 @@ private:
 class EmrunRunConfiguration : public RunConfiguration
 {
 public:
-    EmrunRunConfiguration(Target *target, Id id)
-        : RunConfiguration(target, id)
+    EmrunRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
     {
-        webBrowser.setTarget(target);
+        webBrowser.setBuildConfiguration(bc);
 
         effectiveEmrunCall.setLabelText(Tr::tr("Effective emrun call:"));
         effectiveEmrunCall.setDisplayStyle(StringAspect::TextEditDisplay);
         effectiveEmrunCall.setReadOnly(true);
 
-        setUpdater([this, target] {
-            effectiveEmrunCall.setValue(emrunCommand(target,
+        setUpdater([this] {
+            effectiveEmrunCall.setValue(emrunCommand(buildConfiguration(),
                                                      buildKey(),
                                                      webBrowser.currentBrowser(),
                                                      "<port>").toUserOutput());
         });
 
         connect(&webBrowser, &BaseAspect::changed, this, &RunConfiguration::update);
-        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     }
 
 private:
@@ -216,18 +210,17 @@ public:
     EmrunRunWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto worker = new ProcessRunner(runControl);
             runControl->requestWorkerChannel();
 
-            worker->setStartModifier([worker, runControl] {
+            const auto modifier = [runControl](Process &process) {
                 const QString browserId =
                     runControl->aspectData<WebBrowserSelectionAspect>()->currentBrowser;
-                worker->setCommandLine(emrunCommand(runControl->target(), runControl->buildKey(),
+                process.setCommand(emrunCommand(runControl->buildConfiguration(), runControl->buildKey(),
                     browserId, QString::number(runControl->workerChannel().port())));
-                worker->setEnvironment(runControl->buildEnvironment());
-            });
+                process.setEnvironment(runControl->buildEnvironment());
+            };
 
-            return worker;
+            return createProcessWorker(runControl, modifier);
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);

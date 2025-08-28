@@ -29,14 +29,20 @@
         \li Select \uicontrol {Generate initialization and cleanup code}
             to add functions to your test that the testing framework
             executes to initialize and clean up the test.
-        \li In \uicontrol {Build system}, select the build system to use
-           for building the project: CMake, qmake, or Qbs.
+        \li In \uicontrol {Build system}, select the build system to use for building
+            the project: CMake, qmake, or Qbs. To build with CMake when developing with
+            Qt 5 or Qt 6.4 or earlier, select \uicontrol {CMake for Qt 5 and Qt 6}.
     \endlist
 
     \QC creates the test in the specified project directory. Edit the .cpp file
     to add private slots for each test function in your test.
 
     For more information about creating Qt tests, see \l{Creating a Test}.
+
+    \note While scanning for tests, the parser takes into account only files that
+    directly or indirectly include QTest or QtTest or its equivalent \c {QtTest/qtest.h}
+    and get linked against \c QTestLib when building the project.
+    Files that currently will not be built will be ignored.
 
     \sa {Test}{How To: Test}, {Select the build system}, {Testing},
     {Test Results}
@@ -70,12 +76,20 @@
         \li Select \uicontrol {Generate initialization and cleanup code}
             to add functions to your test that the testing framework
             executes to initialize and clean up the test.
-        \li In \uicontrol {Build system}, select the build system to use
-            for building the project: CMake, qmake, or Qbs.
+        \li In \uicontrol {Build system}, select the build system to use for building
+            the project: CMake, qmake, or Qbs. To build with CMake when developing with
+            Qt 5 or Qt 6.4 or earlier, select \uicontrol {CMake for Qt 5 and Qt 6}.
     \endlist
 
     \QC creates the test in the specified project directory. Edit the .cpp file
     to add private slots for each test function in your test.
+
+    \note While scanning for tests, the parser takes into account only files that
+    directly or indirectly include QuickTest or its equivalent \c {QtQuickTest/quicktest.h}.
+    If one gets found, it tries to detect statements to create a Qt Quick test application
+    and if it can find any it will parse respective QML files. If the C++ part will not
+    be built with the current configuration, there will be no automatic scanning of QML
+    files.
 
     \sa {Test}{How To: Test}, {Select the build system}, {Testing},
     {Test Results}
@@ -137,6 +151,10 @@
     \l{https://github.com/google/googletest/blob/master/docs/primer.md}
     {Google Test Primer}.
 
+    \note While scanning for tests, the parser takes into account only files that
+    directly or indirectly include \c {gtest/gtest.h}. Files that currently will
+    not be built will be ignored.
+
     \sa {Test}{How To: Test}, {Select the build system}, {Testing},
     {Test Results}
 */
@@ -190,6 +208,11 @@
     For more information about creating Boost tests, see
     \l{https://www.boost.org/doc/libs/1_81_0/libs/test/doc/html/index.html}
     {Boost.Test}.
+
+    \note While scanning for tests, the parser takes into account only files that
+    directly or indirectly include one of Boost's test library headers (any include
+    starting with \c {boost/test/} and having the \c {.hpp} suffix).
+    Files that currently will not be built will be ignored.
 
     \sa {Test}{How To: Test}, {Select the build system}, {Testing},
     {Test Results}
@@ -245,6 +268,11 @@
     For more information about creating Catch2 tests, see
     \l{https://github.com/catchorg/Catch2/blob/master/docs/Readme.md}
     {Catch2}.
+
+    \note While scanning for tests, the parser takes into account only files that
+    directly or indirectly include one of the common Catch2 headers
+    (\c {catch2.hpp}, \c {catch_all.hpp}, and some more).
+    Files that currently will not be built will be ignored.
 
     \sa {Test}{How To: Test}, {Select the build system}, {Testing},
     {Test Results}
@@ -328,16 +356,16 @@
         \li In the \uicontrol {Test Results} view, select:
 
             \list
-                \li \inlineimage icons/run_small.png
+                \li \inlineimage {icons/run_small.png} {Run All Tests}
                     (\uicontrol {Run All Tests}) to run all tests.
-                 \li \inlineimage icons/qtcreator-run-selected-tests.png
+                 \li \inlineimage {icons/qtcreator-run-selected-tests.png} {Run Selected Tests}
                     (\uicontrol {Run Selected Tests}) to run the selected tests.
-                 \li \inlineimage icons/qtcreator-run-failed-tests.png
+                 \li \inlineimage {icons/qtcreator-run-failed-tests.png} {Run Failed Tests}
                     (\uicontrol {Run Failed Tests}) to re-run the tests which failed
                     in the last run.
                     Depending on the framework, this may select more tests if it
                     is impossible to distinguish or to fully address the test.
-                 \li \inlineimage icons/qtcreator-run-tests-in-current-file.png
+                 \li \inlineimage {icons/qtcreator-run-tests-in-current-file.png} {Run Tests for Current File}
                     (\uicontrol {Run Tests for Current File}) to run the tests
                     in the file currently open in the code editor.
             \endlist
@@ -375,14 +403,14 @@
     To refresh the view, select \uicontrol {Rescan Tests} in the context menu.
 
     To show or hide init and cleanup or data functions in the \uicontrol Tests
-    view, select \inlineimage icons/filtericon.png
+    view, select \inlineimage {icons/filtericon.png} {Filter Test Tree}
     (\uicontrol {Filter Test Tree}), and then select \uicontrol {Show Init and
     Cleanup Functions} or \uicontrol {Show Data Functions}. Double-click a
     function in the list to open its source code in the code editor.
 
     The \uicontrol Tests view lists test cases in alphabetic, case insensitive
     order. To list them in the order in which they appear in the source code,
-    select \inlineimage icons/leafsort.png
+    select \inlineimage {icons/leafsort.png} {Sort Naturally}
     (\uicontrol {Sort Naturally}).
 
     \section1 Run and debug tests from code editor
@@ -772,7 +800,8 @@
     \image {qtcreator-test-results.webp} {Visual display in the Test Results view}
 
     The view shows test duration for the test frameworks that support it. To
-    show and hide duration information, select \inlineimage icons/stopwatch.png.
+    show and hide duration information, select
+    \inlineimage {icons/stopwatch.png} {Duration}.
 
     \section1 Qt Test Output
 
@@ -786,7 +815,8 @@
 
     To view the results of Qt and Qt Quick tests as plain text, go to
     \preferences > \uicontrol {Testing} > \uicontrol {Qt Test} and then clear
-    \uicontrol {Use XML output}. Then select \inlineimage icons/text.png
+    \uicontrol {Use XML output}. Then select
+    \inlineimage {icons/text.png} {Switch Between Visual and Text Display}
     (\uicontrol {Switch Between Visual and Text Display}) in
     \uicontrol {Test Results} to switch to the text display.
 
@@ -843,8 +873,9 @@
     \section1 Filtering Test Results
 
     To view only messages of a particular type, select
-    \inlineimage icons/filtericon.png (\uicontrol {Filter Test Results}) and
-    then select the types of messages to show.
+    \inlineimage {icons/filtericon.png} {Filter Test Results}
+    (\uicontrol {Filter Test Results}), and then select the
+    types of messages to show.
 
     To show all messages, select \uicontrol {Check All Filters}.
 

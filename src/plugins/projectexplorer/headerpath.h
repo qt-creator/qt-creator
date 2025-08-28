@@ -8,7 +8,6 @@
 
 #include <QDir>
 #include <QString>
-#include <QVector>
 
 namespace ProjectExplorer {
 
@@ -66,7 +65,7 @@ public:
     HeaderPathType type = HeaderPathType::User;
 };
 
-using HeaderPaths = QVector<HeaderPath>;
+using HeaderPaths = QList<HeaderPath>;
 template<typename C> HeaderPaths toHeaderPaths(const C &list, HeaderPathType type)
 {
     return Utils::transform<HeaderPaths>(list, [type](const auto &fp) {

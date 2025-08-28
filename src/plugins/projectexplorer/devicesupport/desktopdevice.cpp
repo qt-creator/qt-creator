@@ -55,10 +55,10 @@ DesktopDevice::DesktopDevice()
         = QString::fromLatin1("%1-%2").arg(DESKTOP_PORT_START).arg(DESKTOP_PORT_END);
     setFreePorts(Utils::PortList::fromString(portRange));
 
-    setOpenTerminal([](const Environment &env, const FilePath &path) -> expected_str<void> {
+    setOpenTerminal([](const Environment &env, const FilePath &path) -> Result<> {
         const Environment realEnv = env.hasChanges() ? env : Environment::systemEnvironment();
 
-        const expected_str<FilePath> shell = Terminal::defaultShellForDevice(path);
+        const Result<FilePath> shell = Terminal::defaultShellForDevice(path);
         if (!shell)
             return make_unexpected(shell.error());
 
@@ -66,11 +66,45 @@ DesktopDevice::DesktopDevice()
         process.setTerminalMode(TerminalMode::Detached);
         process.setEnvironment(realEnv);
         process.setCommand(CommandLine{*shell});
-        process.setWorkingDirectory(path);
+        FilePath workingDir = path;
+        if (!workingDir.isDir())
+            workingDir = workingDir.parentDir();
+        if (QTC_GUARD(workingDir.exists()))
+            process.setWorkingDirectory(workingDir);
         process.start();
 
         return {};
     });
+
+    struct DeployToolsAvailability
+    {
+        bool rsync;
+        bool sftp;
+    };
+
+    static auto hostDeployTools = []() -> DeployToolsAvailability
+    {
+        static auto check = [](const QString &tool) {
+            return FilePath::fromPathPart(tool).searchInPath().isExecutableFile();
+        };
+        return {check("rsync"), check("sftp")};
+    };
+
+    auto updateExtraData = [this](const DeployToolsAvailability &tools) {
+        setExtraData(Constants::SUPPORTS_RSYNC, tools.rsync);
+        setExtraData(Constants::SUPPORTS_SFTP, tools.sftp);
+    };
+
+    if (HostOsInfo::isWindowsHost()) {
+        QFutureWatcher<DeployToolsAvailability> *w = new QFutureWatcher<DeployToolsAvailability>(this);
+        connect(w, &QFutureWatcher<DeployToolsAvailability>::finished, this, [w, updateExtraData]() {
+            updateExtraData(w->result());
+            w->deleteLater();
+        });
+        w->setFuture(Utils::asyncRun([]() { return hostDeployTools(); }));
+    } else {
+        updateExtraData(hostDeployTools());
+    }
 }
 
 DesktopDevice::~DesktopDevice() = default;
@@ -113,7 +147,7 @@ FilePath DesktopDevice::filePath(const QString &pathOnDevice) const
     return FilePath::fromParts({}, {}, pathOnDevice);
 }
 
-expected_str<Environment> DesktopDevice::systemEnvironmentWithError() const
+Result<Environment> DesktopDevice::systemEnvironmentWithError() const
 {
     return Environment::systemEnvironment();
 }
@@ -126,39 +160,9 @@ FilePath DesktopDevice::rootPath() const
     return IDevice::rootPath();
 }
 
-struct DeployToolsAvailability
-{
-    bool rsync;
-    bool sftp;
-};
-
-static DeployToolsAvailability hostDeployTools()
-{
-    auto check = [](const QString &tool) {
-        return FilePath::fromPathPart(tool).searchInPath().isExecutableFile();
-    };
-    return {check("rsync"), check("sftp")};
-}
-
 void DesktopDevice::fromMap(const Store &map)
 {
     IDevice::fromMap(map);
-
-    auto updateExtraData = [this](const DeployToolsAvailability &tools) {
-        setExtraData(Constants::SUPPORTS_RSYNC, tools.rsync);
-        setExtraData(Constants::SUPPORTS_SFTP, tools.sftp);
-    };
-
-    if (HostOsInfo::isWindowsHost()) {
-        QFutureWatcher<DeployToolsAvailability> *w = new QFutureWatcher<DeployToolsAvailability>(this);
-        connect(w, &QFutureWatcher<DeployToolsAvailability>::finished, this, [w, updateExtraData]() {
-            updateExtraData(w->result());
-            w->deleteLater();
-        });
-        w->setFuture(Utils::asyncRun([]() { return hostDeployTools(); }));
-    } else {
-        updateExtraData(hostDeployTools());
-    }
 }
 
 } // namespace ProjectExplorer

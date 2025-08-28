@@ -539,7 +539,7 @@ static FancyLineEdit::AsyncValidationResult validatePath(FilePath filePath,
         if (!defaultValue.isEmpty()) {
             filePath = FilePath::fromUserInput(defaultValue);
         } else {
-            return make_unexpected(Tr::tr("The path must not be empty."));
+            return ResultError(Tr::tr("The path must not be empty."));
         }
     }
 
@@ -547,57 +547,57 @@ static FancyLineEdit::AsyncValidationResult validatePath(FilePath filePath,
     switch (kind) {
     case PathChooser::ExistingDirectory:
         if (!filePath.exists()) {
-            return make_unexpected(
+            return ResultError(
                 Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput()));
         }
         if (!filePath.isDir()) {
-            return make_unexpected(
+            return ResultError(
                 Tr::tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput()));
         }
         break;
     case PathChooser::File:
         if (!filePath.exists()) {
-            return make_unexpected(
+            return ResultError(
                 Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput()));
         }
         if (!filePath.isFile()) {
-            return make_unexpected(
+            return ResultError(
                 Tr::tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput()));
         }
         break;
     case PathChooser::SaveFile:
         if (!filePath.parentDir().exists()) {
-            return make_unexpected(
+            return ResultError(
                 Tr::tr("The directory \"%1\" does not exist.").arg(filePath.toUserOutput()));
         }
         if (filePath.exists() && filePath.isDir()) {
-            return make_unexpected(
+            return ResultError(
                 Tr::tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput()));
         }
         break;
     case PathChooser::ExistingCommand:
         if (!filePath.exists()) {
-            return make_unexpected(
+            return ResultError(
                 Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput()));
         }
         if (!filePath.isExecutableFile()) {
-            return make_unexpected(
+            return ResultError(
                 Tr::tr("The path \"%1\" is not an executable file.").arg(filePath.toUserOutput()));
         }
         break;
     case PathChooser::Directory:
         if (filePath.exists() && !filePath.isDir()) {
-            return make_unexpected(
+            return ResultError(
                 Tr::tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput()));
         }
         if (filePath.osType() == OsTypeWindows && !filePath.startsWithDriveLetter()
             && !filePath.startsWith("\\\\") && !filePath.startsWith("//")) {
-            return make_unexpected(Tr::tr("Invalid path \"%1\".").arg(filePath.toUserOutput()));
+            return ResultError(Tr::tr("Invalid path \"%1\".").arg(filePath.toUserOutput()));
         }
         break;
     case PathChooser::Command:
         if (filePath.exists() && !filePath.isExecutableFile()) {
-            return make_unexpected(Tr::tr("Cannot execute \"%1\".").arg(filePath.toUserOutput()));
+            return ResultError(Tr::tr("Cannot execute \"%1\".").arg(filePath.toUserOutput()));
         }
         break;
 
@@ -612,15 +612,15 @@ FancyLineEdit::AsyncValidationFunction PathChooser::defaultValidationFunction() 
 {
     return [this](const QString &text) -> FancyLineEdit::AsyncValidationFuture {
         if (text.isEmpty()) {
-            return QtFuture::makeReadyFuture((Utils::expected_str<QString>(
-                make_unexpected(Tr::tr("The path must not be empty.")))));
+            return QtFuture::makeReadyFuture((Utils::Result<QString>(
+                ResultError(Tr::tr("The path must not be empty.")))));
         }
 
         const FilePath expanded = d->expandedPath(FilePath::fromUserInput(text));
 
         if (expanded.isEmpty()) {
-            return QtFuture::makeReadyFuture((Utils::expected_str<QString>(
-                make_unexpected(Tr::tr("The path \"%1\" expanded to an empty string.")
+            return QtFuture::makeReadyFuture((Utils::Result<QString>(
+                ResultError(Tr::tr("The path \"%1\" expanded to an empty string.")
                                     .arg(expanded.toUserOutput())))));
         }
 

@@ -14,7 +14,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
 #endif
 
 using namespace CPlusPlus;
@@ -110,11 +109,6 @@ private:
 //! marked as invokable.
 class ConvertToMetaMethodCall : public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
-public:
-    static QObject *createTest();
-#endif
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const Document::Ptr &cppDoc = interface.currentFile()->cppDocument();
@@ -162,108 +156,19 @@ private:
 };
 
 #ifdef WITH_TESTS
-using namespace Tests;
-
-class ConvertToMetaMethodCallTest : public QObject
+class ConvertToMetaMethodCallTest : public Tests::CppQuickFixTestObject
 {
     Q_OBJECT
-
-private slots:
-    void test_data()
-    {
-        QTest::addColumn<QByteArray>("input");
-        QTest::addColumn<QByteArray>("expected");
-
-        // ^ marks the cursor locations.
-        // $ marks the replacement regions.
-        // The quoted string in the comment is the data tag.
-        // The rest of the comment is the replacement string.
-        const QByteArray allCases = R"(
-class C {
 public:
-    C() {
-        $this->^aSignal()$; // "signal from region on pointer to object" QMetaObject::invokeMethod(this, "aSignal")
-        C c;
-        $c.^aSignal()$; // "signal from region on object value" QMetaObject::invokeMethod(&c, "aSignal")
-        $(new C)->^aSignal()$; // "signal from region on expression" QMetaObject::invokeMethod((new C), "aSignal")
-        $emit this->^aSignal()$; // "signal from region, with emit" QMetaObject::invokeMethod(this, "aSignal")
-        $Q_EMIT this->^aSignal()$; // "signal from region, with Q_EMIT" QMetaObject::invokeMethod(this, "aSignal")
-        $this->^aSlot()$; // "slot from region" QMetaObject::invokeMethod(this, "aSlot")
-        $this->^noArgs()$; // "Q_SIGNAL, no arguments" QMetaObject::invokeMethod(this, "noArgs")
-        $this->^oneArg(0)$; // "Q_SLOT, one argument" QMetaObject::invokeMethod(this, "oneArg", Q_ARG(int, 0))
-        $this->^twoArgs(0, c)$; // "Q_INVOKABLE, two arguments" QMetaObject::invokeMethod(this, "twoArgs", Q_ARG(int, 0), Q_ARG(C, c))
-        this->^notInvokable(); // "not invokable"
-    }
-
-signals:
-    void aSignal();
-
-private slots:
-    void aSlot();
-
-private:
-    Q_SIGNAL void noArgs();
-    Q_SLOT void oneArg(int index);
-    Q_INVOKABLE void twoArgs(int index, const C &value);
-    void notInvokable();
+    using CppQuickFixTestObject::CppQuickFixTestObject;
 };
-)";
+#endif
 
-        qsizetype nextCursor = allCases.indexOf('^');
-        while (nextCursor != -1) {
-            const int commentStart = allCases.indexOf("//", nextCursor);
-            QVERIFY(commentStart != -1);
-            const int tagStart = allCases.indexOf('"', commentStart + 2);
-            QVERIFY(tagStart != -1);
-            const int tagEnd = allCases.indexOf('"', tagStart + 1);
-            QVERIFY(tagEnd != -1);
-            QByteArray input = allCases;
-            QByteArray output = allCases;
-            input.replace(nextCursor, 1, "@");
-            const QByteArray tag = allCases.mid(tagStart + 1, tagEnd - tagStart - 1);
-            const int prevNewline = allCases.lastIndexOf('\n', nextCursor);
-            const int regionStart = allCases.lastIndexOf('$', nextCursor);
-            bool hasReplacement = false;
-            if (regionStart != -1 && regionStart > prevNewline) {
-                const int regionEnd = allCases.indexOf('$', regionStart + 1);
-                QVERIFY(regionEnd != -1);
-                const int nextNewline = allCases.indexOf('\n', tagEnd);
-                QVERIFY(nextNewline != -1);
-                const QByteArray replacement
-                    = allCases.mid(tagEnd + 1, nextNewline - tagEnd - 1).trimmed();
-                output.replace(regionStart, regionEnd - regionStart, replacement);
-                hasReplacement = true;
-            }
-            static const auto matcher = [](char c) { return c == '^' || c == '$'; };
-            input.removeIf(matcher);
-            if (hasReplacement) {
-                output.removeIf(matcher);
-                output.prepend("#include <QMetaObject>\n\n");
-            } else {
-                output.clear();
-            }
-            QTest::newRow(tag.data()) << input << output;
-            nextCursor = allCases.indexOf('^', nextCursor + 1);
-        }
-    }
-
-    void test()
-    {
-        QFETCH(QByteArray, input);
-        QFETCH(QByteArray, expected);
-        ConvertToMetaMethodCall factory;
-        QuickFixOperationTest({CppTestDocument::create("file.cpp", input, expected)}, &factory);
-    }
-};
-
-QObject *ConvertToMetaMethodCall::createTest() { return new ConvertToMetaMethodCallTest; }
-
-#endif // WITH_TESTS
 } // namespace
 
 void registerConvertToMetaMethodCallQuickfix()
 {
-    CppQuickFixFactory::registerFactory<ConvertToMetaMethodCall>();
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(ConvertToMetaMethodCall);
 }
 
 } // namespace CppEditor::Internal

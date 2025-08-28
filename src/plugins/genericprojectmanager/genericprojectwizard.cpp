@@ -94,7 +94,7 @@ private:
 
 class GenericProjectWizard final : public BaseFileWizard
 {
-    Q_OBJECT
+    Q_OBJECT // needed for qobject_cast
 
 public:
     GenericProjectWizard(const BaseFileWizardFactory *factory)
@@ -152,8 +152,6 @@ public:
 
 class GenericProjectWizardFactory final : public BaseFileWizardFactory
 {
-    Q_OBJECT
-
 public:
     GenericProjectWizardFactory()
     {
@@ -255,11 +253,10 @@ protected:
         return files;
     }
 
-    bool postGenerateFiles(const QWizard *w, const GeneratedFiles &l,
-                           QString *errorMessage) const final
+    Result<> postGenerateFiles(const QWizard *w, const GeneratedFiles &l) const final
     {
         Q_UNUSED(w)
-        return CustomProjectWizard::postGenerateOpen(l, errorMessage);
+        return CustomProjectWizard::postGenerateOpen(l);
     }
 };
 

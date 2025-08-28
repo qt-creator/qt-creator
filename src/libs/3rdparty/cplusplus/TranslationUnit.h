@@ -101,14 +101,14 @@ public:
     bool isParsed() const;
 
     enum ParseMode {
-        ParseTranlationUnit,
+        ParseTranslationUnit,
         ParseDeclaration,
         ParseExpression,
         ParseDeclarator,
         ParseStatement
     };
 
-    bool parse(ParseMode mode = ParseTranlationUnit);
+    bool parse(ParseMode mode = ParseTranslationUnit);
 
     void resetAST();
     void release();

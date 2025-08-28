@@ -5,7 +5,7 @@
 
 #include <QObject>
 
-#include "expected.h"
+#include "result.h"
 #include "utils_global.h"
 
 namespace Utils {
@@ -20,7 +20,7 @@ class QTCREATOR_UTILS_EXPORT LuaInterface
 {
 public:
     virtual ~LuaInterface() = default;
-    virtual expected_str<std::unique_ptr<LuaState>> runScript(
+    virtual Result<std::unique_ptr<LuaState>> runScript(
         const QString &script, const QString &name)
         = 0;
 };
@@ -28,7 +28,7 @@ public:
 QTCREATOR_UTILS_EXPORT void setLuaInterface(LuaInterface *luaInterface);
 QTCREATOR_UTILS_EXPORT LuaInterface *luaInterface();
 
-QTCREATOR_UTILS_EXPORT expected_str<std::unique_ptr<LuaState>> runScript(
+QTCREATOR_UTILS_EXPORT Result<std::unique_ptr<LuaState>> runScript(
     const QString &script, const QString &name);
 
 } // namespace Utils

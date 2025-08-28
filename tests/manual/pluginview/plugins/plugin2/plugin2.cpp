@@ -13,15 +13,12 @@ MyPlugin2::~MyPlugin2()
     ExtensionSystem::PluginManager::removeObject(object2);
 }
 
-bool MyPlugin2::initialize(const QStringList & /*arguments*/, QString *errorString)
+void MyPlugin2::initialize()
 {
-    Q_UNUSED(errorString)
     initializeCalled = true;
     object1 = new QObject(this);
     object1->setObjectName("MyPlugin2");
     ExtensionSystem::PluginManager::addObject(object1);
-
-    return true;
 }
 
 void MyPlugin2::extensionsInitialized()

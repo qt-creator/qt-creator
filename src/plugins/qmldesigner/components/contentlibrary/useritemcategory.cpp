@@ -41,7 +41,7 @@ void UserItemCategory::loadBundle(bool force)
         jsonContent += "    \"id\": \"" + m_bundleId + "\",\n";
         jsonContent += "    \"items\": []\n";
         jsonContent += "}";
-        Utils::expected_str<qint64> res = jsonFilePath.writeFileContents(jsonContent.toLatin1());
+        Utils::Result<qint64> res = jsonFilePath.writeFileContents(jsonContent.toLatin1());
         if (!res.has_value()) {
             qWarning() << __FUNCTION__ << res.error();
             setIsEmpty(true);
@@ -50,7 +50,7 @@ void UserItemCategory::loadBundle(bool force)
         }
     }
 
-    Utils::expected_str<QByteArray> jsonContents = jsonFilePath.fileContents();
+    Utils::Result<QByteArray> jsonContents = jsonFilePath.fileContents();
     if (!jsonContents.has_value()) {
         qWarning() << __FUNCTION__ << jsonContents.error();
         setIsEmpty(true);

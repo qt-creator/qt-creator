@@ -6,7 +6,6 @@
 #include "../resourceeditortr.h"
 
 #include <coreplugin/fileutils.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -89,13 +88,13 @@ ResourceFile::~ResourceFile()
     clearPrefixList();
 }
 
-Core::IDocument::OpenResult ResourceFile::load()
+Result<> ResourceFile::load()
 {
     m_error_message.clear();
 
     if (m_filePath.isEmpty()) {
         m_error_message = Tr::tr("The file name is empty.");
-        return Core::IDocument::OpenResult::ReadError;
+        return ResultError(m_error_message);
     }
 
     clearPrefixList();
@@ -108,7 +107,7 @@ Core::IDocument::OpenResult ResourceFile::load()
         QFile file(m_filePath.toUrlishString());
         if (!file.open(QIODevice::ReadOnly)) {
             m_error_message = file.errorString();
-            return Core::IDocument::OpenResult::ReadError;
+            return ResultError(m_error_message);
         }
         QByteArray data = file.readAll();
         // Detect line ending style
@@ -122,7 +121,7 @@ Core::IDocument::OpenResult ResourceFile::load()
         if (!doc.setContent(data, &error_msg, &error_line, &error_col)) {
             m_error_message = Tr::tr("XML error on line %1, col %2: %3")
                         .arg(error_line).arg(error_col).arg(error_msg);
-            return Core::IDocument::OpenResult::CannotHandle;
+            return ResultError(m_error_message);
         }
 
     } else {
@@ -133,7 +132,7 @@ Core::IDocument::OpenResult ResourceFile::load()
         if (!doc.setContent(m_contents, &error_msg, &error_line, &error_col)) {
             m_error_message = Tr::tr("XML error on line %1, col %2: %3")
                         .arg(error_line).arg(error_col).arg(error_msg);
-            return Core::IDocument::OpenResult::CannotHandle;
+            return ResultError(m_error_message);
         }
 
     }
@@ -141,7 +140,7 @@ Core::IDocument::OpenResult ResourceFile::load()
     QDomElement root = doc.firstChildElement(QLatin1String("RCC"));
     if (root.isNull()) {
         m_error_message = Tr::tr("The <RCC> root element is missing.");
-        return Core::IDocument::OpenResult::CannotHandle;
+        return ResultError(m_error_message);
     }
 
     QDomElement relt = root.firstChildElement(QLatin1String("qresource"));
@@ -174,7 +173,7 @@ Core::IDocument::OpenResult ResourceFile::load()
         }
     }
 
-    return Core::IDocument::OpenResult::Success;
+    return ResultOk;
 }
 
 QString ResourceFile::contents() const
@@ -223,7 +222,10 @@ bool ResourceFile::save()
         return false;
     }
 
-    return m_textFileFormat.writeFile(m_filePath, contents(), &m_error_message);
+    const Result<> res = m_textFileFormat.writeFile(m_filePath, contents());
+    if (!res)
+        m_error_message = res.error();
+    return res.has_value();
 }
 
 void ResourceFile::refresh()
@@ -1075,11 +1077,11 @@ QModelIndex ResourceModel::deleteItem(const QModelIndex &idx)
     return index(file_idx, 0, prefix_model_idx);
 }
 
-Core::IDocument::OpenResult ResourceModel::reload()
+Result<> ResourceModel::reload()
 {
     beginResetModel();
-    Core::IDocument::OpenResult result = m_resource_file.load();
-    if (result == Core::IDocument::OpenResult::Success)
+    Result<> result = m_resource_file.load();
+    if (result.has_value())
         setDirty(false);
     endResetModel();
     return result;
@@ -1222,8 +1224,7 @@ EntryBackup * RelativeResourceModel::removeEntry(const QModelIndex &index)
             deleteItem(index);
             return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup, aliasBackup);
         }
-        RemoveFileDialog removeFileDialog(FilePath::fromString(fileNameBackup),
-                                          Core::ICore::dialogParent());
+        RemoveFileDialog removeFileDialog(FilePath::fromString(fileNameBackup));
         if (removeFileDialog.exec() == QDialog::Accepted) {
             deleteItem(index);
             Core::FileUtils::removeFiles({FilePath::fromString(fileNameBackup)},

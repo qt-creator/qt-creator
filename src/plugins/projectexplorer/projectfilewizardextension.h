@@ -24,8 +24,8 @@ public:
     ~ProjectFileWizardExtension() override;
 
     QList<QWizardPage *> extensionPages(const Core::IWizardFactory *wizard) override;
-    bool processFiles(const QList<Core::GeneratedFile> &files,
-                      bool *removeOpenProjectAttribute, QString *errorMessage) override;
+    Utils::Result<> processFiles(const QList<Core::GeneratedFile> &files,
+                                 bool *removeOpenProjectAttribute) override;
     void applyCodeStyle(Core::GeneratedFile *file) const override;
 
 public slots:
@@ -33,8 +33,8 @@ public slots:
 
 private:
     Node *findWizardContextNode(Node *contextNode, Project *project, const Utils::FilePath &path);
-    bool processProject(const QList<Core::GeneratedFile> &files,
-                        bool *removeOpenProjectAttribute, QString *errorMessage);
+    Utils::Result<> processProject(const QList<Core::GeneratedFile> &files,
+                                   bool *removeOpenProjectAttribute);
 
     ProjectWizardContext *m_context = nullptr;
 };

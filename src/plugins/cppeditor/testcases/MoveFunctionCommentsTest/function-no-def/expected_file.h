@@ -1,0 +1,2 @@
+// Function comment
+void aFunction();

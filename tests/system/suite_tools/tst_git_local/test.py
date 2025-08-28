@@ -201,7 +201,7 @@ def main():
         type(gitEditor, "<Home>")
     for _ in range(5):
         type(gitEditor, "<Right>")
-    rect = gitEditor.cursorRect(gitEditor.textCursor())
+    rect = gitEditor.cursorRect()
     mouseClick(gitEditor, rect.x+rect.width/2, rect.y+rect.height/2, 0, Qt.LeftButton)
     changed = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidgetChanged")
     waitFor('str(changed.plainText) != "Waiting for data..."', 5000)

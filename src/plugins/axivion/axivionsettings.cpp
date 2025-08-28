@@ -14,6 +14,7 @@
 #include <utils/algorithm.h>
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
@@ -86,29 +87,27 @@ bool PathMapping::operator!=(const PathMapping &other) const
     return !(*this == other);
 }
 
-static bool analysisPathValid(const FilePath &analysisPath, QString *error)
+static Result<> analysisPathValid(const FilePath &analysisPath)
 {
     if (analysisPath.isEmpty())
-        return true;
-    if (!analysisPath.isLocal() || analysisPath.isAbsolutePath()) {
-        if (error)
-            *error = Tr::tr("Path must be relative.");
-        return false;
-    }
+        return ResultOk;
+
+    // FIXME enable on master
+    // if (!analysisPath.isLocal())
+    //     return ResultError(Tr::tr("Analysis path must be local."));
+
     static const QRegularExpression invalid("^(.*/)?\\.\\.?(/.*)?$");
-    if (invalid.match(analysisPath.path()).hasMatch()) {
-        if (error)
-            *error = Tr::tr("Invalid path elements (. or ..).");
-        return false;
-    }
-    return true;
+    if (invalid.match(analysisPath.path()).hasMatch())
+        return ResultError(Tr::tr("Invalid path elements (. or ..)."));
+
+    return ResultOk;
 }
 
 bool PathMapping::isValid() const
  {
     return !projectName.isEmpty() && !localPath.isEmpty()
             && localPath.isLocal() && localPath.isAbsolutePath()
-            && analysisPathValid(analysisPath, nullptr);
+            && analysisPathValid(analysisPath);
 }
 
 static FilePath axivionJsonFilePath()
@@ -133,7 +132,7 @@ static QList<AxivionServer> readAxivionJson(const FilePath &filePath)
 {
     if (!filePath.exists())
         return {};
-    expected_str<QByteArray> contents = filePath.fileContents();
+    Result<QByteArray> contents = filePath.fileContents();
     if (!contents)
         return {};
     const QJsonDocument doc = QJsonDocument::fromJson(*contents);
@@ -206,6 +205,46 @@ public:
         return Utils::filtered(m_pathMapping, &PathMapping::isValid);
     }
 
+    FilePath mappedFilePath(const FilePath &filePath, const QString &projectName) const
+    {
+        QTC_ASSERT(!projectName.isEmpty(), return {});
+        QTC_ASSERT(filePath.exists(), return {});
+        FilePath fallback;
+
+        auto handleRelativeAnalysisPath = [](const PathMapping &pm, const FilePath &filePath) {
+            const FilePath sub = filePath.relativeChildPath(pm.localPath);
+            if (pm.analysisPath.isEmpty())
+                return sub;
+            else
+                return pm.analysisPath.pathAppended(sub.path());
+        };
+
+        for (const PathMapping &pm : m_pathMapping) {
+            if (pm.isValid() && projectName == pm.projectName) {
+                if (pm.analysisPath.isAbsolutePath()) {
+                    if (auto childPath = filePath.prefixRemoved(pm.localPath.path())) {
+                        return pm.analysisPath.pathAppended(childPath->path());
+                    }
+                } else {
+                    if (filePath.isChildOf(pm.localPath))
+                        return handleRelativeAnalysisPath(pm, filePath);
+                }
+            } else if (fallback.isEmpty()) {
+                if (filePath.isChildOf(pm.localPath))
+                    fallback = handleRelativeAnalysisPath(pm, filePath);
+            }
+        }
+        return fallback;
+    }
+
+    FilePath localProjectForProjectName(const QString &projectName) const
+    {
+        QTC_ASSERT(!projectName.isEmpty(), return {});
+        return Utils::findOrDefault(m_pathMapping, [projectName](const PathMapping &pm) {
+            return pm.isValid() && projectName == pm.projectName;
+        }).localPath;
+    }
+
 private:
     QList<PathMapping> m_pathMapping;
 };
@@ -231,14 +270,43 @@ AxivionSettings::AxivionSettings()
     highlightMarks.setLabelText(Tr::tr("Highlight marks"));
     highlightMarks.setToolTip(Tr::tr("Marks issues on the scroll bar."));
     highlightMarks.setDefaultValue(false);
+
+    axivionSuitePath.setSettingsKey("SuitePath");
+    axivionSuitePath.setExpectedKind(PathChooser::ExistingDirectory);
+    axivionSuitePath.setAllowPathFromDevice(false);
+    axivionSuitePath.setLabelText(Tr::tr("Axivion Suite path:"));
+
+    saveOpenFiles.setSettingsKey("SaveOpenFiles");
+    saveOpenFiles.setLabelText(Tr::tr("Save all open files before starting an analysis"));
+
+    bauhausPython.setSettingsKey("BauhausPython");
+    bauhausPython.setExpectedKind(PathChooser::ExistingCommand);
+    bauhausPython.setAllowPathFromDevice(false);
+    bauhausPython.setLabelText("BAUHAUS_PYTHON:");
+    bauhausPython.setToolTip(Tr::tr("Path to python executable.\nSet it to overwrite global "
+                                    "environment or if Axivion fails to find python in PATH."));
+
+    javaHome.setSettingsKey("JavaHome");
+    javaHome.setExpectedKind(PathChooser::ExistingDirectory);
+    javaHome.setAllowPathFromDevice(false);
+    javaHome.setLabelText("JAVA_HOME:");
+    javaHome.setToolTip(Tr::tr("Set it to overwrite global environment or if Axivion fails to "
+                               "find java in PATH."));
+
+    lastLocalBuildCommand.setSettingsKey("LastLocalBuildCmd"); // used without UI
+
     m_defaultServerId.setSettingsKey("DefaultDashboardId");
     pathMappingSettings().readSettings();
     AspectContainer::readSettings();
+    if (!axivionSuitePath().isEmpty())
+        validatePath();
 
     m_allServers = readAxivionJson(axivionJsonFilePath());
 
     if (m_allServers.size() == 1 && m_defaultServerId().isEmpty()) // handle settings transition
         m_defaultServerId.setValue(m_allServers.first().id.toString());
+
+    connect(&axivionSuitePath, &BaseAspect::changed, this, [this] { m_versionInfo.reset(); });
 }
 
 void AxivionSettings::toSettings() const
@@ -322,6 +390,55 @@ const QList<PathMapping> AxivionSettings::validPathMappings() const
     return pathMappingSettings().validPathMappings();
 }
 
+FilePath AxivionSettings::mappedFilePath(const FilePath &filePath,
+                                         const QString &projectName) const
+{
+    return pathMappingSettings().mappedFilePath(filePath, projectName);
+}
+
+Utils::FilePath AxivionSettings::localProjectForProjectName(const QString &projectName) const
+{
+    return pathMappingSettings().localProjectForProjectName(projectName);
+}
+
+
+void AxivionSettings::validatePath()
+{
+    if (m_versionInfo) {
+        emit suitePathValidated();
+        return;
+    }
+
+    const FilePath &suitePath = axivionSuitePath();
+    const FilePath info = (suitePath.isEmpty() ? FilePath{"axivion_suite_info"}
+                                               : suitePath.pathAppended("bin/axivion_suite_info"))
+            .withExecutableSuffix();
+
+    const auto onSetup = [info](Process &process) {
+        process.setCommand({info, {"--json"}});
+    };
+    const auto onDone = [this](const Process &process) {
+        const auto onFinish = qScopeGuard([this] { emit suitePathValidated(); });
+        m_versionInfo.reset();
+        if (process.result() != ProcessResult::FinishedWithSuccess)
+            return;
+
+        const QString output = process.allOutput();
+        QJsonParseError error;
+        const QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8(), &error);
+        if (error.error != QJsonParseError::NoError)
+            return;
+        if (!doc.isObject())
+            return;
+        const QJsonObject obj = doc.object();
+        const QString version = obj.value("versionNumber").toString();
+        const QString date = obj.value("dateTime").toString();
+        m_versionInfo.emplace(AxivionVersionInfo{version, date});
+    };
+
+    m_taskTreeRunner.start({ProcessTask(onSetup, onDone)});
+}
+
 static QString escapeKey(const QString &string)
 {
     QString escaped = string;
@@ -380,8 +497,10 @@ DashboardSettingsWidget::DashboardSettingsWidget(QWidget *parent, QPushButton *o
 {
     m_dashboardUrl.setLabelText(Tr::tr("Dashboard URL:"));
     m_dashboardUrl.setDisplayStyle(StringAspect::LineEditDisplay);
-    m_dashboardUrl.setValidationFunction([](FancyLineEdit *edit, QString *) {
-        return isUrlValid(edit->text());
+    m_dashboardUrl.setValidationFunction([](const QString &text) -> Result<> {
+        if (isUrlValid(text))
+            return ResultOk;
+        return ResultError(QString());
     });
 
     m_username.setLabelText(Tr::tr("Username:"));
@@ -438,21 +557,18 @@ public:
     {
         m_projectName.setLabelText(Tr::tr("Project name:"));
         m_projectName.setDisplayStyle(StringAspect::LineEditDisplay);
-        m_projectName.setValidationFunction([](FancyLineEdit *edit, QString *error) {
-            QTC_ASSERT(edit, return false);
-            if (!edit->text().isEmpty())
-                return true;
-            if (error)
-                *error = Tr::tr("Project name must be non-empty.");
-            return false;
+        m_projectName.setValidationFunction([](const QString &text) -> Result<> {
+            if (text.isEmpty())
+                return ResultError(Tr::tr("Project name must be non-empty."));
+            return ResultOk;
         });
         m_analysisPath.setLabelText(Tr::tr("Analysis path:"));
         m_analysisPath.setDisplayStyle(StringAspect::LineEditDisplay);
-        m_analysisPath.setValidationFunction([](FancyLineEdit *edit, QString *error) {
-            QTC_ASSERT(edit, return false);
+        m_analysisPath.setValidationFunction([](const QString &text) -> Result<> {
+            QString input = text;
             // do NOT use fromUserInput() as this also cleans the path
-            const FilePath fp = FilePath::fromString(edit->text().replace('\\', '/'));
-            return analysisPathValid(fp, error);
+            const FilePath fp = FilePath::fromString(input.replace('\\', '/'));
+            return analysisPathValid(fp);
         });
         m_localPath.setLabelText(Tr::tr("Local path:"));
         m_localPath.setExpectedKind(PathChooser::ExistingDirectory);
@@ -471,7 +587,7 @@ public:
     void updateContent(const PathMapping &mapping)
     {
         m_projectName.setValue(mapping.projectName, BaseAspect::BeQuiet);
-        m_analysisPath.setValue(mapping.analysisPath.toUserOutput(), BaseAspect::BeQuiet);
+        m_analysisPath.setValue(mapping.analysisPath.path(), BaseAspect::BeQuiet);
         m_localPath.setValue(mapping.localPath, BaseAspect::BeQuiet);
     }
 
@@ -505,6 +621,7 @@ private:
     void mappingChanged();
     void currentChanged(const QModelIndex &index, const QModelIndex &previous);
     void moveCurrentMapping(bool up);
+    void updateVersionAndBuildDate(QLabel *version, QLabel *buildDate);
 
     QComboBox *m_dashboardServers = nullptr;
     QPushButton *m_editServerButton = nullptr;
@@ -542,6 +659,9 @@ AxivionSettingsWidget::AxivionSettingsWidget()
     m_moveUpMappingButton = new QPushButton(Tr::tr("Move Up"), this);
     m_moveDownMappingButton = new QPushButton(Tr::tr("Move Down"), this);
 
+    auto version = new QLabel(this);
+    auto build = new QLabel(this);
+
     Column buttons { addMappingButton, m_deleteMappingButton, empty, m_moveUpMappingButton, m_moveDownMappingButton, st };
 
     Column {
@@ -561,6 +681,23 @@ AxivionSettingsWidget::AxivionSettingsWidget()
             }
         },
         Layouting::Group {
+            title(Tr::tr("Local Analyses")),
+            Column {
+                Row { settings().axivionSuitePath },
+                Row { settings().saveOpenFiles },
+                Form {
+                    Tr::tr("Version:"), version, br,
+                    Tr::tr("Build date:"), build, br,
+                },
+                Row { Tr::tr("Contact support@axivion.com if you need assistance.") },
+                Space(20),
+                Form {
+                    settings().bauhausPython, br,
+                    settings().javaHome, br
+                },
+            }
+        },
+        Layouting::Group {
             title(Tr::tr("Misc Options")),
             Row {settings().highlightMarks },
         },
@@ -577,11 +714,15 @@ AxivionSettingsWidget::AxivionSettingsWidget()
     connect(m_removeServerButton, &QPushButton::clicked,
             this, &AxivionSettingsWidget::removeCurrentServerConfig);
 
+    connect(&settings().axivionSuitePath, &BaseAspect::changed,
+            &settings(), &AxivionSettings::validatePath);
+    connect(&settings(), &AxivionSettings::suitePathValidated, this,
+            [this, version, build] { updateVersionAndBuildDate(version, build); });
     const QList<QTreeWidgetItem *> items = Utils::transform(pathMappingSettings().validPathMappings(),
                                                             [this](const PathMapping &m) {
         QTreeWidgetItem *item = new QTreeWidgetItem(&m_mappingTree,
                                                     {m.projectName,
-                                                     m.analysisPath.toUserOutput(),
+                                                     m.analysisPath.path(),
                                                      m.localPath.toUserOutput()});
         if (!m.isValid())
             item->setIcon(0, Icons::CRITICAL.icon());
@@ -605,6 +746,7 @@ AxivionSettingsWidget::AxivionSettingsWidget()
             &AxivionSettingsWidget::mappingChanged);
 
     updateEnabledStates();
+    settings().validatePath();
 }
 
 void AxivionSettingsWidget::apply()
@@ -731,7 +873,7 @@ void AxivionSettingsWidget::mappingChanged()
     QTC_ASSERT(item, return);
     PathMapping modified = m_details.toPathMapping();
     item->setText(0, modified.projectName);
-    item->setText(1, modified.analysisPath.toUserOutput());
+    item->setText(1, modified.analysisPath.path());
     item->setText(2, modified.localPath.toUserOutput());
     item->setIcon(0, modified.isValid() ? QIcon{} : Icons::CRITICAL.icon());
 }
@@ -766,6 +908,14 @@ void AxivionSettingsWidget::moveCurrentMapping(bool up)
     QTreeWidgetItem *item = m_mappingTree.takeTopLevelItem(row);
     m_mappingTree.insertTopLevelItem(up ? row - 1 : row + 1, item);
     m_mappingTree.setCurrentItem(item);
+}
+
+void AxivionSettingsWidget::updateVersionAndBuildDate(QLabel *version, QLabel *buildDate)
+{
+    QTC_ASSERT(version && buildDate, return);
+    std::optional<AxivionVersionInfo> info = settings().versionInfo();
+    version->setText(info ? info->versionNumber : QString{});
+    buildDate->setText(info ? info->dateTime : QString{});
 }
 
 // settings pages

@@ -106,7 +106,7 @@ int CtfTimelineModel::expandedRow(int index) const
 
 int CtfTimelineModel::collapsedRow(int index) const
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     return 0;
 }
 

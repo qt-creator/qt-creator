@@ -10,11 +10,9 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"runtime"
-	"slices"
-	"strings"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/fxamacker/cbor/v2"
 )
@@ -69,6 +67,30 @@ type freespaceresult struct {
 	Type string
 	Id   int
 	FreeSpace uint64
+}
+
+type groupresult struct {
+	Type string
+	Id   int
+	Group string
+}
+
+type groupidresult struct {
+	Type string
+	Id   int
+	GroupId int
+}
+
+type ownerresult struct {
+	Type string
+	Id   int
+	Owner string
+}
+
+type owneridresult struct {
+	Type string
+	Id   int
+	OwnerId int
 }
 
 type voidresult struct {
@@ -173,6 +195,42 @@ func processFreespace(cmd command, out chan<- []byte) {
 		Type:         "freespaceresult",
 		Id:           cmd.Id,
 		FreeSpace:    freeSpace(cmd.Path),
+	})
+	out <- result
+}
+
+func processGroup(cmd command, out chan<- []byte) {
+	result, _ := cbor.Marshal(groupresult{
+		Type:         "groupresult",
+		Id:           cmd.Id,
+		Group:        group(cmd.Path),
+	})
+	out <- result
+}
+
+func processGroupId(cmd command, out chan<- []byte) {
+	result, _ := cbor.Marshal(groupidresult{
+		Type:         "groupidresult",
+		Id:           cmd.Id,
+		GroupId:      groupId(cmd.Path),
+	})
+	out <- result
+}
+
+func processOwner(cmd command, out chan<- []byte) {
+	result, _ := cbor.Marshal(ownerresult{
+		Type:         "ownerresult",
+		Id:           cmd.Id,
+		Owner:        owner(cmd.Path),
+	})
+	out <- result
+}
+
+func processOwnerId(cmd command, out chan<- []byte) {
+	result, _ := cbor.Marshal(owneridresult{
+		Type:         "owneridresult",
+		Id:           cmd.Id,
+		OwnerId:      ownerId(cmd.Path),
 	})
 	out <- result
 }
@@ -345,11 +403,27 @@ func processSignal(cmd command, out chan<- []byte) {
 	out <- data
 }
 
+func exit(exitCode int, deleteOnExit bool) {
+	if deleteOnExit {
+		executable, err := os.Executable()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error getting executable path:", err)
+			os.Exit(1)
+		}
+		os.Remove(executable)
+	}
+	os.Exit(0)
+}
 
-func processCommand(watcher *WatcherHandler, cmd command, out chan<- []byte) {
+func processCommand(watcher *WatcherHandler, watchDogChannel chan struct{} ,cmd command, out chan<- []byte, deleteOnExit bool) {
 	defer globalWaitGroup.Done()
 
 	switch cmd.Type {
+	case "ping":
+		select {
+			case watchDogChannel <- struct{}{}:
+			default:
+		}
 	case "copyfile":
 		processCopyFile(cmd, out)
 	case "createdir":
@@ -366,12 +440,20 @@ func processCommand(watcher *WatcherHandler, cmd command, out chan<- []byte) {
 		processFind(cmd, out)
 	case "freespace":
 		processFreespace(cmd, out)
+	case "group":
+		processGroup(cmd, out)
+	case "groupId":
+		processGroupId(cmd, out)
 	case "is":
 		processIs(cmd, out)
 	case "signal":
 		processSignal(cmd, out)
 	case "readfile":
 		processReadFile(cmd, out)
+	case "owner":
+		processOwner(cmd, out)
+	case "ownerid":
+		processOwnerId(cmd, out)
 	case "readlink":
 		processReadLink(cmd, out)
 	case "remove":
@@ -398,33 +480,14 @@ func processCommand(watcher *WatcherHandler, cmd command, out chan<- []byte) {
 		})
 		out <- result
 	case "exit":
-		os.Exit(0)
+		exit(0, deleteOnExit)
 	}
 }
 
-
-func sendEnvironment(out chan<- []byte) {
-	// Delete all entries without a valid key.
-	env := slices.DeleteFunc(os.Environ(), func(s string) bool {
-		trimmed := strings.TrimSpace(s)
-		return len(trimmed) == 0 || trimmed[0] == '='
-	})
-
-	result, _ := cbor.Marshal(environment{
-		Type: "environment",
-		Id: -1,
-		OsType: runtime.GOOS,
-		Env:  env,
-	})
-	out <- result
-}
-
-func executor(watcher *WatcherHandler, commands <-chan command, out chan<- []byte) {
-	sendEnvironment(out)
-
+func executor(watcher *WatcherHandler, watchDogChannel chan struct {}, commands <-chan command, out chan<- []byte, deleteOnExit bool) {
 	for cmd := range commands {
 		globalWaitGroup.Add(1)
-		go processCommand(watcher, cmd, out)
+		go processCommand(watcher, watchDogChannel, cmd, out, deleteOnExit)
 	}
 }
 
@@ -494,9 +557,29 @@ func writeMain(out *bufio.Writer) {
 	out.Flush()
 }
 
-func readMain(test bool) {
+func watchDogLoop(channel chan struct {}, deleteOnExit bool) {
+	watchDogTimeOut := 60 * time.Minute
+	timer := time.NewTimer(watchDogTimeOut)
+
+	for {
+		select {
+		case <-channel:
+			timer.Reset(watchDogTimeOut)
+		case <-timer.C:
+			// If we don't get a signal for one minute, we assume that the connection is dead.
+			fmt.Println("Watchdog timeout, exiting.")
+			exit(100, deleteOnExit)
+		}
+	}
+}
+
+func readMain(test bool, deleteOnExit bool) {
 	commandChannel := make(chan command)
 	outputChannel := make(chan []byte)
+
+	watchDogChannel := make(chan struct {}, 1)
+	go watchDogLoop(watchDogChannel, deleteOnExit)
+
 	watcher := NewWatcherHandler()
 
 	var outputWG sync.WaitGroup
@@ -513,7 +596,7 @@ func readMain(test bool) {
 	globalWaitGroup.Add(1)
 	go func() {
 		defer globalWaitGroup.Done()
-		executor(watcher, commandChannel, outputChannel)
+		executor(watcher, watchDogChannel, commandChannel, outputChannel, deleteOnExit)
 	}()
 
 	globalWaitGroup.Add(1)
@@ -558,11 +641,13 @@ func readMain(test bool) {
 func main() {
 	test := flag.Bool("test", false, "test instead of read from stdin")
 	write := flag.Bool("write", false, "write instead of read data")
+	deleteOnExit := flag.Bool("deleteOnExit", false, "delete application on exit")
+
 	flag.Parse()
 
 	if *write {
 		writeMain(bufio.NewWriter(os.Stdout))
 	} else {
-		readMain(*test)
+		readMain(*test, *deleteOnExit)
 	}
 }

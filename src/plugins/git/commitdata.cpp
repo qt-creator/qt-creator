@@ -10,48 +10,17 @@
 
 namespace Git::Internal {
 
-void GitSubmitEditorPanelInfo::clear()
-{
-    repository.clear();
-    branch.clear();
-}
-
-void GitSubmitEditorPanelData::clear()
-{
-    author.clear();
-    email.clear();
-    bypassHooks = false;
-    pushAction = NoPush;
-    signOff = false;
-}
-
 QString GitSubmitEditorPanelData::authorString() const
 {
-    QString rc;
-    rc += author;
-
     if (email.isEmpty())
-        return rc;
+        return author;
 
-    rc += " <";
-    rc += email;
-    rc += '>';
-    return rc;
+    return author + " <" + email + ">";
 }
 
 CommitData::CommitData(CommitType type)
     : commitType(type)
 {
-}
-
-void CommitData::clear()
-{
-    panelInfo.clear();
-    panelData.clear();
-    amendHash.clear();
-    enablePush = false;
-
-    files.clear();
 }
 
 static FileStates stateFor(const QChar &c)

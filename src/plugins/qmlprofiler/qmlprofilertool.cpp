@@ -19,6 +19,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/findplugin.h>
 #include <coreplugin/icore.h>
@@ -33,6 +34,7 @@
 #include <debugger/debuggericons.h>
 #include <debugger/debuggermainwindow.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspect.h>
@@ -40,6 +42,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitaspect.h>
@@ -345,7 +348,7 @@ void QmlProfilerTool::updateRunActions()
             ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         d->m_startAction->setToolTip(canRun ? Tr::tr("Start QML Profiler analysis.")
                                             : canRun.error());
-        d->m_startAction->setEnabled(canRun);
+        d->m_startAction->setEnabled(canRun.has_value());
         d->m_stopAction->setEnabled(false);
     }
 }
@@ -365,7 +368,7 @@ void QmlProfilerTool::finalizeRunControl(RunControl *runControl)
 
     updateRunActions();
 
-    d->m_profilerModelManager->populateFileFinder(runControl->target());
+    d->m_profilerModelManager->populateFileFinder(runControl->buildConfiguration());
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
 }
 
@@ -511,7 +514,7 @@ bool QmlProfilerTool::prepareTool()
     return true;
 }
 
-ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
+RunControl *QmlProfilerTool::attachToWaitingApplication()
 {
     if (!prepareTool())
         return nullptr;
@@ -560,7 +563,7 @@ ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
     runControl->setQmlChannel(serverUrl);
     // The object as such is needed, the RunWorker becomes part of the RunControl at construction time,
     // similar to how QObject children are owned by their parents
-    [[maybe_unused]] auto profiler = new QmlProfilerRunner(runControl);
+    [[maybe_unused]] auto profiler = new RunWorker(runControl, qmlProfilerRecipe(runControl));
 
     connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionClosed,
             runControl, &RunControl::initiateStop);
@@ -594,14 +597,21 @@ static void saveLastTraceFile(const FilePath &filePath)
     }
 }
 
+static QString traceFileFilters(const QString &tFile, const QString &zFile)
+{
+    QString qmlTraceFiles = Tr::tr("QML traces (*%1 *%2)").arg(zFile, tFile);
+    return qmlTraceFiles.append(";;").append(Core::DocumentManager::allFilesFilterString());
+}
+
 void QmlProfilerTool::showSaveDialog()
 {
     QLatin1String tFile(QtdFileExtension);
     QLatin1String zFile(QztFileExtension);
+
     FilePath filePath = FileUtils::getSaveFilePath(
                 Tr::tr("Save QML Trace"),
                 globalSettings().lastTraceFile(),
-                Tr::tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
+                traceFileFilters(tFile, zFile));
     if (!filePath.isEmpty()) {
         if (!filePath.endsWith(zFile) && !filePath.endsWith(tFile))
             filePath = filePath.stringAppended(zFile);
@@ -622,10 +632,11 @@ void QmlProfilerTool::showLoadDialog()
 
     QLatin1String tFile(QtdFileExtension);
     QLatin1String zFile(QztFileExtension);
+
     FilePath filePath = FileUtils::getOpenFilePath(
                 Tr::tr("Load QML Trace"),
                 globalSettings().lastTraceFile(),
-                Tr::tr("QML traces (*%1 *%2)").arg(zFile).arg(tFile));
+                traceFileFilters(tFile, zFile));
 
     if (!filePath.isEmpty()) {
         saveLastTraceFile(filePath);

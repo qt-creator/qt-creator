@@ -79,7 +79,7 @@ public:
     virtual bool formatOnSave() const { return false; }
 
     // Expects a list of blocks in order of occurrence in the document.
-    virtual IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
+    virtual IndentationForBlock indentationForBlocks(const QList<QTextBlock> &blocks,
                                                      const TabSettings &tabSettings,
                                                      int cursorPositionInEditor = -1)
         = 0;

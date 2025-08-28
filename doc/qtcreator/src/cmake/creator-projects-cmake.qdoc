@@ -67,7 +67,7 @@
     view when you edit a \c CMakeLists.txt configuration file
     in a project. Also, refreshes project information when you build the project.
 
-    \image {qtcreator-projects-view-edit.png} {CMake project in Projects view}
+    \image {qtcreator-projects-view.webp} {CMake project in Projects view}
 
     To disable this behavior, go to \preferences > \uicontrol CMake >
     \uicontrol General and clear \uicontrol {Autorun CMake}.
@@ -124,7 +124,8 @@
     \endlist
 
     To view the documentation online, open it in the \uicontrol Help mode and
-    select \inlineimage icons/online.png (\uicontrol {Open Online Documentation}).
+    select \inlineimage {icons/online.png} {Open Online Documentation}
+    (\uicontrol {Open Online Documentation}).
 
     \sa {Build with CMake}{How To: Build with CMake},
     {Read Documentation}{How To: Read Documentation}, {CMake}
@@ -244,6 +245,15 @@
     \endlist
 
     Warnings and errors are displayed in \l {Issues}.
+
+    \section1 Install missing Qt packages
+
+    If you add a Qt module in \c find_package that you did not install, \QC
+    asks whether you want to install it with \QOI.
+
+    \image {qtcreator-install-packages.webp} {Installing missing Qt packages}
+
+    Select \uicontrol {Yes} to install the package with \QOI.
 
     \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Completion},
     {Snippets}
@@ -366,8 +376,8 @@
     highlighting as if the code were a part of the current project or the
     Qt library.
 
-    \QC detects the external libraries using the \l{CMake: find_package command}
-    command. Some libraries come with the CMake installation. You can find those
+    \QC detects the external libraries using the \l{CMake: find_package command}.
+    Some libraries come with the CMake installation. You can find those
     in the \c {Modules} directory of your CMake installation.
     For more information, see \l{CMake: cmake-packages(7)}.
 

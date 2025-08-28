@@ -133,7 +133,7 @@ void addCMakePresets(FolderNode *root, const Utils::FilePath &sourceDir)
         presetFileNames.append(cmakeProject->presetsData().include.value());
 
     std::vector<std::unique_ptr<FileNode>> presets;
-    for (const auto &fileName : presetFileNames) {
+    for (const auto &fileName : std::as_const(presetFileNames)) {
         Utils::FilePath file = sourceDir.pathAppended(fileName);
         if (file.exists())
             presets.push_back(std::make_unique<FileNode>(file, Node::fileTypeForFileName(file)));

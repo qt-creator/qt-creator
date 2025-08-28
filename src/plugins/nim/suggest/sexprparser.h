@@ -28,14 +28,6 @@ struct SExprParser {
         std::string value;
     };
 
-    SExprParser(const std::string &str)
-        : SExprParser(str.data(), str.length())
-    {}
-
-    SExprParser(const char *data)
-        : SExprParser(data, ::strlen(data))
-    {}
-
     SExprParser(const char *data, std::size_t length)
         : m_lexer(SExprLexer(data, length))
     {}

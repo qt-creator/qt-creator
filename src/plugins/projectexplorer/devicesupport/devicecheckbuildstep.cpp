@@ -54,8 +54,7 @@ public:
             return false;
         }
 
-        DeviceManager *dm = DeviceManager::instance();
-        dm->addDevice(newDevice);
+        DeviceManager::addDevice(newDevice);
         RunDeviceKitAspect::setDevice(kit(), newDevice);
         return true;
     }

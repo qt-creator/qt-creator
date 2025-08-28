@@ -48,7 +48,7 @@ const char udidTag[] = "udid";
 const char runtimeVersionTag[] = "version";
 const char buildVersionTag[] = "buildversion";
 
-static expected_str<void> runCommand(
+static Result<> runCommand(
     const CommandLine &command,
     QString *stdOutput,
     std::function<bool()> shouldStop = [] { return false; })
@@ -88,7 +88,7 @@ static expected_str<void> runCommand(
     return {};
 }
 
-static expected_str<void> runSimCtlCommand(
+static Result<> runSimCtlCommand(
     const QStringList &args,
     QString *output,
     std::function<bool()> shouldStop = [] { return false; })
@@ -102,14 +102,14 @@ static expected_str<void> runSimCtlCommand(
     return runCommand({xcrun, {"simctl", args}}, output, shouldStop);
 }
 
-static expected_str<void> launchSimulator(const QString &simUdid, std::function<bool()> shouldStop)
+static Result<> launchSimulator(const QString &simUdid, std::function<bool()> shouldStop)
 {
     QTC_ASSERT(!simUdid.isEmpty(), return make_unexpected(Tr::tr("Invalid Empty UDID.")));
     const FilePath simulatorAppPath = IosConfigurations::developerPath()
             .pathAppended("Applications/Simulator.app/Contents/MacOS/Simulator");
 
     // boot the requested simulator device
-    const expected_str<void> bootResult = runSimCtlCommand({"boot", simUdid}, nullptr, shouldStop);
+    const Result<> bootResult = runSimCtlCommand({"boot", simUdid}, nullptr, shouldStop);
     if (!bootResult)
         return bootResult;
 
@@ -432,7 +432,7 @@ void startSimulator(QPromise<SimulatorControl::Response> &promise, const QString
         return;
     }
 
-    expected_str<void> result = launchSimulator(simUdid,
+    Result<> result = launchSimulator(simUdid,
                                                 [&promise] { return promise.isCanceled(); });
     if (!result) {
         promise.addResult(make_unexpected(result.error()));
@@ -474,7 +474,7 @@ void installApp(QPromise<SimulatorControl::Response> &promise,
         return;
     }
 
-    expected_str<void> result
+    Result<> result
         = runSimCtlCommand({"install", simUdid, bundlePath.toUrlishString()}, nullptr, [&promise] {
               return promise.isCanceled();
           });
@@ -518,7 +518,7 @@ void launchApp(QPromise<SimulatorControl::Response> &promise,
     }
 
     QString stdOutput;
-    expected_str<void> result = runSimCtlCommand(args, &stdOutput, [&promise] {
+    Result<> result = runSimCtlCommand(args, &stdOutput, [&promise] {
         return promise.isCanceled();
     });
 
@@ -532,8 +532,8 @@ void launchApp(QPromise<SimulatorControl::Response> &promise,
     response.inferiorPid = pIdStr.toLongLong(&validPid);
 
     if (!validPid) {
-        promise.addResult(
-            make_unexpected(Tr::tr("Failed to convert inferior pid. (%1)").arg(pIdStr)));
+        promise.addResult(make_unexpected(
+            Tr::tr("Failed to parse the inferior PID from simctl output (%1).").arg(pIdStr)));
         return;
     }
 
@@ -543,7 +543,7 @@ void launchApp(QPromise<SimulatorControl::Response> &promise,
 void deleteSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
-    expected_str<void> result = runSimCtlCommand({"delete", simUdid}, nullptr, [&promise] {
+    Result<> result = runSimCtlCommand({"delete", simUdid}, nullptr, [&promise] {
         return promise.isCanceled();
     });
 
@@ -556,7 +556,7 @@ void deleteSimulator(QPromise<SimulatorControl::Response> &promise, const QStrin
 void resetSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
-    expected_str<void> result = runSimCtlCommand({"erase", simUdid}, nullptr, [&promise] {
+    Result<> result = runSimCtlCommand({"erase", simUdid}, nullptr, [&promise] {
         return promise.isCanceled();
     });
 
@@ -571,7 +571,7 @@ void renameSimulator(QPromise<SimulatorControl::Response> &promise,
                      const QString &newName)
 {
     SimulatorControl::ResponseData response(simUdid);
-    expected_str<void> result = runSimCtlCommand({"rename", simUdid, newName}, nullptr, [&promise] {
+    Result<> result = runSimCtlCommand({"rename", simUdid, newName}, nullptr, [&promise] {
         return promise.isCanceled();
     });
     if (!result)
@@ -593,7 +593,7 @@ void createSimulator(QPromise<SimulatorControl::Response> &promise,
     }
 
     QString stdOutput;
-    expected_str<void> result = runSimCtlCommand(
+    Result<> result = runSimCtlCommand(
         {"create", name, deviceType.identifier, runtime.identifier}, &stdOutput, [&promise] {
             return promise.isCanceled();
         });
@@ -612,7 +612,7 @@ void takeSceenshot(QPromise<SimulatorControl::Response> &promise,
                    const QString &filePath)
 {
     SimulatorControl::ResponseData response(simUdid);
-    expected_str<void> result
+    Result<> result
         = runSimCtlCommand({"io", simUdid, "screenshot", filePath}, nullptr, [&promise] {
               return promise.isCanceled();
           });

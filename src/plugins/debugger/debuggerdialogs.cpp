@@ -405,14 +405,16 @@ void StartApplicationDialog::run(bool attachRemote)
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setKit(k);
 
-    auto debugger = new DebuggerRunTool(runControl);
-
-    DebuggerRunParameters &rp = debugger->runParameters();
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     const QString inputAddress = dialog.channelOverrideEdit->text();
-    if (!inputAddress.isEmpty())
+    if (!inputAddress.isEmpty()) {
         rp.setRemoteChannel(inputAddress);
-    else
-        rp.setRemoteChannel(dev->sshParameters().host(), newParameters.serverPort);
+    } else {
+        QUrl channel;
+        channel.setHost(dev->sshParameters().host());
+        channel.setPort(newParameters.serverPort);
+        rp.setRemoteChannel(channel);
+    }
     rp.setDisplayName(newParameters.displayName());
     rp.setBreakOnMain(newParameters.breakAtMain);
     rp.setDebugInfoLocation(newParameters.debugInfoLocation);
@@ -429,14 +431,17 @@ void StartApplicationDialog::run(bool attachRemote)
         rp.setInferiorEnvironment(k->runEnvironment());
 
     if (!attachRemote)
-        debugger->runParameters().setStartMode(isLocal ? StartExternal : StartRemoteProcess);
+        rp.setStartMode(isLocal ? StartExternal : StartRemoteProcess);
 
     if (attachRemote) {
         rp.setStartMode(AttachToRemoteServer);
         rp.setCloseMode(KillAtClose);
         rp.setUseContinueInsteadOfRun(true);
-        rp.setDisplayName(Tr::tr("Attach to %1").arg(rp.remoteChannel()));
+        rp.setDisplayName(Tr::tr("Attach to %1").arg(rp.remoteChannel().toDisplayString()));
     }
+
+    auto debugger = createDebuggerWorker(runControl, rp);
+    Q_UNUSED(debugger)
 
     runControl->start();
 }
@@ -570,16 +575,21 @@ void runAttachToQmlPortDialog()
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setKit(kit);
-    auto debugger = new DebuggerRunTool(runControl);
-    DebuggerRunParameters &rp = debugger->runParameters();
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
 
     QUrl qmlServer = device->toolControlChannel(IDevice::QmlControlChannel);
     qmlServer.setPort(dlg.port());
     rp.setQmlServer(qmlServer);
 
     const SshParameters sshParameters = device->sshParameters();
-    rp.setRemoteChannel(sshParameters.host(), sshParameters.port());
+    QUrl channel;
+    channel.setHost(sshParameters.host());
+    channel.setPort(sshParameters.port());
+    rp.setRemoteChannel(channel);
     rp.setStartMode(AttachToQmlServer);
+
+    auto debugger = createDebuggerWorker(runControl, rp);
+    Q_UNUSED(debugger)
 
     runControl->start();
 }
@@ -714,11 +724,13 @@ void runStartRemoteCdbSessionDialog(Kit *kit)
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setKit(kit);
 
-    auto debugger = new DebuggerRunTool(runControl);
-    DebuggerRunParameters &rp = debugger->runParameters();
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     rp.setStartMode(AttachToRemoteServer);
     rp.setCloseMode(KillAtClose);
     rp.setRemoteChannel(dlg.connection());
+
+    auto debugger = createDebuggerWorker(runControl, rp);
+    Q_UNUSED(debugger)
 
     runControl->start();
 }

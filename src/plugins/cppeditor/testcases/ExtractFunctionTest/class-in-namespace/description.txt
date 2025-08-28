@@ -1,0 +1,1 @@
+class in namespace (TODO: Remove redundant qualification)

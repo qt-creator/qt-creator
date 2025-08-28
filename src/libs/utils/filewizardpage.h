@@ -5,6 +5,7 @@
 
 #include "utils_global.h"
 
+#include "result.h"
 #include "wizardpage.h"
 
 namespace Utils {
@@ -37,7 +38,7 @@ public:
     void setAllowDirectoriesInFileSelector(bool allow);
 
     // Validate a base name entry field (potentially containing extension)
-    static bool validateBaseName(const QString &name, QString *errorMessage = nullptr);
+    static Utils::Result<> validateBaseName(const QString &name);
 
 signals:
     void activated();

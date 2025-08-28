@@ -225,7 +225,7 @@ void testPixmap()
     pain.end();
     QPixmap pm = QPixmap::fromImage(im);
     int i = 1;
-    Q_UNUSED(i);
+    Q_UNUSED(i)
 }
 
 void testPlugin()
@@ -246,7 +246,7 @@ void testPlugin()
 
 void stringRefTest(const QString &refstring)
 {
-    Q_UNUSED(refstring);
+    Q_UNUSED(refstring)
 }
 
 void testString()
@@ -367,7 +367,7 @@ void testVectorOfList()
     QVector<QList<int> > *pv = &v;
     v.append(QList<int>() << 1);
     v.append(QList<int>() << 2 << 3);
-    Q_UNUSED(pv);
+    Q_UNUSED(pv)
 }
 
 int main(int argc, char *argv[])

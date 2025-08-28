@@ -45,7 +45,11 @@ static void adjustFormatStyleForLineBreak(clang::format::FormatStyle &style,
                                           ReplacementsToKeep replacementsToKeep)
 {
     style.MaxEmptyLinesToKeep = 100;
+#if LLVM_VERSION_MAJOR > 20
+    style.SortIncludes = {.Enabled = false};
+#else
     style.SortIncludes = clang::format::FormatStyle::SI_Never;
+#endif
 #if LLVM_VERSION_MAJOR >= 16
     style.SortUsingDeclarations = clang::format::FormatStyle::SUD_Never;
 #else
@@ -850,7 +854,7 @@ int ClangFormatBaseIndenter::indentFor(const QTextBlock &block,
 }
 
 IndentationForBlock ClangFormatBaseIndenter::indentationForBlocks(
-    const QVector<QTextBlock> &blocks,
+    const QList<QTextBlock> &blocks,
     const TabSettings & /*tabSettings*/,
     int cursorPositionInEditor)
 {
@@ -929,7 +933,7 @@ clang::format::FormatStyle ClangFormatBaseIndenterPrivate::customSettingsStyle(
         return currentQtStyle(preferences);
 
     clang::format::FormatStyle currentSettingsStyle;
-    const Utils::expected_str<void> result = parseConfigurationFile(filePath, currentSettingsStyle);
+    const Utils::Result<> result = parseConfigurationFile(filePath, currentSettingsStyle);
     if (!result) {
         qCWarning(clangIndenterLog)
             << QString{"Failed to parse config %1. Falling back to the Qt style."}.arg(

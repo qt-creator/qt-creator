@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "historyitem.h"
+
+#include <utils/theme/theme.h>
+
 #include <QPainter>
 #include <QPalette>
 
@@ -14,7 +17,7 @@ HistoryItem::HistoryItem(const QPointF &pos, BaseItem *parent)
     setMinimumHeight(40);
     setMinimumWidth(40);
 
-    m_pen.setColor(qRgb(0x12, 0x12, 0x12));
+    m_pen.setColor(Utils::creatorColor(Utils::Theme::TextColorNormal));
     m_pen.setWidth(2);
 }
 
@@ -40,8 +43,10 @@ void HistoryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     painter->setRenderHint(QPainter::Antialiasing, true);
     painter->setOpacity(getOpacity());
 
-    painter->setBrush(QColor(0xff, 0xff, 0xff));
-    m_pen.setColor(overlapping() ? qRgb(0xff, 0x00, 0x60) : qRgb(0x45, 0x45, 0x45));
+    static bool isDark = Utils::creatorTheme()->colorScheme() == Qt::ColorScheme::Dark;
+    painter->setBrush(isDark ? QColor(0x00, 0x00, 0x00) : QColor(0xff, 0xff, 0xff));
+    static const QColor colorNormal = Utils::creatorColor(Utils::Theme::TextColorNormal);
+    m_pen.setColor(overlapping() ? qRgb(0xff, 0x00, 0x60) : colorNormal);
     painter->setPen(m_pen);
     painter->drawEllipse(boundingRect().center(), m_size, m_size);
 

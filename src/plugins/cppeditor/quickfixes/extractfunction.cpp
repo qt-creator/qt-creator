@@ -24,7 +24,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QTest>
 #endif
 
 using namespace CPlusPlus;
@@ -124,7 +123,7 @@ public:
         // Write class qualification, if any.
         if (matchingClass) {
             const Scope *current = matchingClass;
-            QVector<const Name *> classes{matchingClass->name()};
+            QList<const Name *> classes{matchingClass->name()};
             while (current->enclosingScope()->asClass()) {
                 current = current->enclosingScope()->asClass();
                 classes.prepend(current->name());
@@ -225,8 +224,10 @@ public:
         auto layout = new QFormLayout(&dlg);
 
         auto funcNameEdit = new FancyLineEdit;
-        funcNameEdit->setValidationFunction([](FancyLineEdit *edit, QString *) {
-            return ExtractFunctionOptions::isValidFunctionName(edit->text());
+        funcNameEdit->setValidationFunction([](const QString &text) -> Result<> {
+            if (ExtractFunctionOptions::isValidFunctionName(text))
+                return ResultOk;
+            return ResultError(QString());
         });
         layout->addRow(Tr::tr("Function name"), funcNameEdit);
 
@@ -480,16 +481,6 @@ public:
 //! Extracts the selected code and puts it to a function
 class ExtractFunction : public CppQuickFixFactory
 {
-public:
-    ExtractFunction(FunctionNameGetter functionNameGetter = FunctionNameGetter())
-        : m_functionNameGetter(functionNameGetter)
-    {}
-
-#ifdef WITH_TESTS
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const CppRefactoringFilePtr file = interface.currentFile();
@@ -616,144 +607,31 @@ private:
         // The current implementation doesn't try to be too smart since it preserves the original form
         // of the declarations. This might be or not the desired effect. An improvement would be to
         // let the user somehow customize the function interface.
+        FunctionNameGetter nameGetter;
+        if (testMode())
+            nameGetter = []() { return QLatin1String("extracted"); };
         result << new ExtractFunctionOperation(interface,
                                                analyser.m_extractionStart,
                                                analyser.m_extractionEnd,
                                                refFuncDef, funcReturn, relevantDecls,
-                                               m_functionNameGetter);
+                                               nameGetter);
     }
-
-private:
-    FunctionNameGetter m_functionNameGetter; // For tests to avoid GUI pop-up.
 };
 
 #ifdef WITH_TESTS
-using namespace Tests;
-
-class ExtractFunctionTest : public QObject
+class ExtractFunctionTest : public Tests::CppQuickFixTestObject
 {
     Q_OBJECT
-
-private slots:
-    void test_data()
-    {
-        QTest::addColumn<QByteArray>("original");
-        QTest::addColumn<QByteArray>("expected");
-
-        QTest::newRow("basic")
-            << QByteArray("// Documentation for f\n"
-                 "void f()\n"
-                 "{\n"
-                 "    @{start}g();@{end}\n"
-                 "}\n")
-            << QByteArray("inline void extracted()\n"
-                 "{\n"
-                 "    g();\n"
-                 "}\n"
-                 "\n"
-                 "// Documentation for f\n"
-                 "void f()\n"
-                 "{\n"
-                 "    extracted();\n"
-                 "}\n");
-
-        QTest::newRow("class function")
-            << QByteArray("class Foo\n"
-                 "{\n"
-                 "private:\n"
-                 "    void bar();\n"
-                 "};\n\n"
-                 "void Foo::bar()\n"
-                 "{\n"
-                 "    @{start}g();@{end}\n"
-                 "}\n")
-            << QByteArray("class Foo\n"
-                 "{\n"
-                 "public:\n"
-                 "    void extracted();\n\n"
-                 "private:\n"
-                 "    void bar();\n"
-                 "};\n\n"
-                 "inline void Foo::extracted()\n"
-                 "{\n"
-                 "    g();\n"
-                 "}\n\n"
-                 "void Foo::bar()\n"
-                 "{\n"
-                 "    extracted();\n"
-                 "}\n");
-
-        QTest::newRow("class in namespace")
-            << QByteArray("namespace NS {\n"
-                 "class C {\n"
-                 "    void f(C &c);\n"
-                 "};\n"
-                 "}\n"
-                 "void NS::C::f(NS::C &c)\n"
-                 "{\n"
-                 "    @{start}C *c2 = &c;@{end}\n"
-                 "}\n")
-            << QByteArray("namespace NS {\n"
-                 "class C {\n"
-                 "    void f(C &c);\n"
-                 "\n"
-                 "public:\n"
-                 "    void extracted(NS::C &c);\n" // TODO: Remove non-required qualification
-                 "};\n"
-                 "}\n"
-                 "inline void NS::C::extracted(NS::C &c)\n"
-                 "{\n"
-                 "    C *c2 = &c;\n"
-                 "}\n"
-                 "\n"
-                 "void NS::C::f(NS::C &c)\n"
-                 "{\n"
-                 "    extracted(c);\n"
-                 "}\n");
-
-        QTest::newRow("if-block")
-            << QByteArray("inline void func()\n"
-                 "{\n"
-                 "    int dummy = 0;\n"
-                 "    @{start}if@{end} (dummy < 10) {\n"
-                 "        ++dummy;\n"
-                 "    }\n"
-                 "}\n")
-            << QByteArray("inline void extracted(int dummy)\n"
-                 "{\n"
-                 "    if (dummy < 10) {\n"
-                 "        ++dummy;\n"
-                 "    }\n"
-                 "}\n\n"
-                 "inline void func()\n"
-                 "{\n"
-                 "    int dummy = 0;\n"
-                 "    extracted(dummy);\n"
-                 "}\n");
-    }
-
-    void test()
-    {
-        QFETCH(QByteArray, original);
-        QFETCH(QByteArray, expected);
-
-        QList<TestDocumentPtr> testDocuments;
-        testDocuments << CppTestDocument::create("file.h", original, expected);
-
-        ExtractFunction factory([]() { return QLatin1String("extracted"); });
-        QuickFixOperationTest(testDocuments, &factory);
-    }
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
 };
-
-QObject *ExtractFunction::createTest() { return new ExtractFunctionTest; }
-
-#endif // WITH_TESTS
+#endif
 
 } // namespace
 
 void registerExtractFunctionQuickfix()
 {
-    CppQuickFixFactory::registerFactory<ExtractFunction>();
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(ExtractFunction);
 }
 
 } // namespace CppEditor::Internal

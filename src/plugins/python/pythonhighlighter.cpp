@@ -120,11 +120,9 @@ static int indent(const QString &line)
 
 static void setFoldingIndent(const QTextBlock &block, int indent)
 {
-    if (TextEditor::TextBlockUserData *userData = TextEditor::TextDocumentLayout::userData(block)) {
-         userData->setFoldingIndent(indent);
-         userData->setFoldingStartIncluded(false);
-         userData->setFoldingEndIncluded(false);
-    }
+    TextEditor::TextBlockUserData::setFoldingIndent(block, indent);
+    TextEditor::TextBlockUserData::setFoldingStartIncluded(block, false);
+    TextEditor::TextBlockUserData::setFoldingEndIncluded(block, false);
 }
 
 /**
@@ -181,7 +179,7 @@ int PythonHighlighter::highlightLine(const QString &text, int initialState)
         if (format != Format_Whitespace)
             hasOnlyWhitespace = false;
     }
-    TextEditor::TextDocumentLayout::setParentheses(currentBlock(), parentheses);
+    TextEditor::TextBlockUserData::setParentheses(currentBlock(), parentheses);
     return scanner.state();
 }
 

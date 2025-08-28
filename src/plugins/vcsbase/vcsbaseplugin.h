@@ -143,8 +143,9 @@ protected:
     // delete the file via VcsManager.
     void promptToDeleteCurrentFile();
     // Prompt to initialize version control in a directory, initially
-    // pointing to the current project.
-    void createRepository();
+    // pointing to the current project. The optional parameter
+    // repoDirectory is filled with the new repository toplevel dir.
+    void createRepository(Utils::FilePath *repoDirectory = nullptr);
 
     enum ActionState { NoVcsEnabled, OtherVcsEnabled, VcsEnabled };
 

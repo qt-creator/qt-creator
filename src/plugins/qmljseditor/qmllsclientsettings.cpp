@@ -48,19 +48,23 @@ QmllsClientSettings *qmllsSettings()
     return static_cast<QmllsClientSettings *>(qmllsSettings);
 }
 
-QmllsClientSettings::QmllsClientSettings()
+static const QStringList &supportedMimeTypes()
 {
-    m_name = "QML Language Server";
-
     using namespace Utils::Constants;
-    m_languageFilter.mimeTypes
+    static const QStringList mimeTypes
         = {QML_MIMETYPE,
            QMLUI_MIMETYPE,
-           QBS_MIMETYPE,
            QMLPROJECT_MIMETYPE,
            QMLTYPES_MIMETYPE,
-           JS_MIMETYPE,
-           JSON_MIMETYPE};
+           JS_MIMETYPE};
+    return mimeTypes;
+}
+
+QmllsClientSettings::QmllsClientSettings()
+{
+    m_name = Constants::QMLLS_NAME;
+
+    m_languageFilter.mimeTypes = supportedMimeTypes();
 
     m_settingsTypeId = Constants::QMLLS_CLIENT_SETTINGS_ID;
     m_startBehavior = RequiresProject;
@@ -68,41 +72,32 @@ QmllsClientSettings::QmllsClientSettings()
     m_enabled = false; // disabled by default
 }
 
-static QtVersion *qtVersionFromProject(const Project *project)
-{
-    return QtKitAspect::qtVersion(activeKit(project));
-}
-
 static std::pair<FilePath, QVersionNumber> evaluateLatestQmlls()
 {
-    // find latest qmlls, i.e. vals
     if (!QtVersionManager::isLoaded())
         return {};
+
     const QtVersions versions = QtVersionManager::versions();
     FilePath latestQmlls;
     QVersionNumber latestVersion;
-    FilePath latestQmakeFilePath;
     int latestUniqueId = std::numeric_limits<int>::min();
-    for (QtVersion *v : versions) {
-        // check if we find qmlls
-        QVersionNumber vNow = v->qtVersion();
-        FilePath qmllsNow = QmlJS::ModelManagerInterface::qmllsForBinPath(v->hostBinPath(), vNow);
-        if (!qmllsNow.isExecutableFile())
+
+    for (QtVersion *qtVersion : versions) {
+        const QVersionNumber version = qtVersion->qtVersion();
+        const int uniqueId = qtVersion->uniqueId();
+
+        // note: break ties between qt kits of same versions by selecting the qt kit with the highest id
+        if (std::tie(version, uniqueId) < std::tie(latestVersion, latestUniqueId))
             continue;
-        if (latestVersion > vNow)
+
+        const FilePath qmlls
+            = QmlJS::ModelManagerInterface::qmllsForBinPath(qtVersion->hostBinPath(), version);
+        if (!qmlls.isExecutableFile())
             continue;
-        FilePath qmakeNow = v->qmakeFilePath();
-        int uniqueIdNow = v->uniqueId();
-        if (latestVersion == vNow) {
-            if (latestQmakeFilePath > qmakeNow)
-                continue;
-            if (latestQmakeFilePath == qmakeNow && latestUniqueId >= v->uniqueId())
-                continue;
-        }
-        latestVersion = vNow;
-        latestQmlls = qmllsNow;
-        latestQmakeFilePath = qmakeNow;
-        latestUniqueId = uniqueIdNow;
+
+        latestVersion = version;
+        latestQmlls = qmlls;
+        latestUniqueId = uniqueId;
     }
     return std::make_pair(latestQmlls, latestVersion);
 }
@@ -117,18 +112,16 @@ static std::pair<FilePath, QVersionNumber> evaluateQmlls(const QtVersion *qtVers
                      qtVersion->qtVersion());
 }
 
-static CommandLine commandLineForQmlls(Project *project)
+static CommandLine commandLineForQmlls(BuildConfiguration *bc)
 {
-    const auto *qtVersion = qtVersionFromProject(project);
+    const QtVersion *qtVersion = QtKitAspect::qtVersion(bc->kit());
     QTC_ASSERT(qtVersion, return {});
 
     auto [executable, version] = evaluateQmlls(qtVersion);
 
     CommandLine result{executable, {}};
 
-    const QString buildDirectory = project->activeBuildConfiguration()
-                                       ? project->activeBuildConfiguration()->buildDirectory().path()
-                                       : QString();
+    const QString buildDirectory = bc->buildDirectory().path();
     if (!buildDirectory.isEmpty())
         result.addArgs({"-b", buildDirectory});
 
@@ -138,7 +131,7 @@ static CommandLine commandLineForQmlls(Project *project)
 
         // add custom import paths that the embedded codemodel uses too
         const QmlJS::ModelManagerInterface::ProjectInfo projectInfo
-            = QmlJS::ModelManagerInterface::instance()->projectInfo(project);
+            = QmlJS::ModelManagerInterface::instance()->projectInfo(bc->project());
         for (QmlJS::PathAndLanguage path : projectInfo.importPaths) {
             if (path.language() == QmlJS::Dialect::Qml)
                 result.addArgs({"-I", path.path().path()});
@@ -156,15 +149,15 @@ static CommandLine commandLineForQmlls(Project *project)
     return result;
 }
 
-bool QmllsClientSettings::isValidOnProject(ProjectExplorer::Project *project) const
+bool QmllsClientSettings::isValidOnBuildConfiguration(BuildConfiguration *bc) const
 {
-    if (!BaseSettings::isValidOnProject(project))
+    if (!BaseSettings::isValidOnBuildConfiguration(bc))
         return false;
 
-    if (!project || !QtVersionManager::isLoaded())
+    if (!bc || !QtVersionManager::isLoaded())
         return false;
 
-    const QtVersion *qtVersion = qtVersionFromProject(project);
+    const QtVersion *qtVersion = QtKitAspect::qtVersion(bc->kit());
     if (!qtVersion) {
         Core::MessageManager::writeSilently(
             Tr::tr("Current kit does not have a valid Qt version, disabling QML Language Server."));
@@ -187,10 +180,10 @@ public:
     FilePath qmllsFilePath() const { return m_cmd.executable(); }
 };
 
-BaseClientInterface *QmllsClientSettings::createInterface(Project *project) const
+BaseClientInterface *QmllsClientSettings::createInterface(BuildConfiguration *bc) const
 {
     auto interface = new QmllsClientInterface;
-    interface->setCommandLine(commandLineForQmlls(project));
+    interface->setCommandLine(commandLineForQmlls(bc));
     return interface;
 }
 
@@ -280,6 +273,7 @@ void QmllsClientSettings::toMap(Store &map) const
 void QmllsClientSettings::fromMap(const Store &map)
 {
     BaseSettings::fromMap(map);
+    m_languageFilter.mimeTypes = supportedMimeTypes();
 
     m_useLatestQmlls = map[useLatestQmllsKey].toBool();
     m_disableBuiltinCodemodel = map[disableBuiltinCodemodelKey].toBool();
@@ -294,14 +288,14 @@ bool QmllsClientSettings::isEnabledOnProjectFile(const Utils::FilePath &file) co
     return isEnabledOnProject(project);
 }
 
-bool QmllsClientSettings::useQmllsWithBuiltinCodemodelOnProject(const Utils::FilePath &file) const
+bool QmllsClientSettings::useQmllsWithBuiltinCodemodelOnProject(Project *project,
+                                                                const FilePath &file) const
 {
     if (m_disableBuiltinCodemodel)
         return false;
 
     // disableBuitinCodemodel only makes sense when qmlls is enabled
-    Project *project = ProjectManager::projectForFile(file);
-    return isEnabledOnProject(project);
+    return project && isEnabledOnProject(project) && project->isKnownFile(file);
 }
 
 // first time initialization: port old settings from the QmlJsEditingSettings AspectContainer
@@ -332,26 +326,25 @@ static void portFromOldSettings(QmllsClientSettings* qmllsClientSettings)
     portSetting(baseKey + USE_QMLLS_SEMANTIC_HIGHLIGHTING, &qmllsClientSettings->m_useQmllsSemanticHighlighting);
 }
 
-void setupQmllsClientSettings()
+void registerQmllsSettings()
 {
-    using namespace LanguageClient;
-    QmllsClientSettings *clientSettings = new QmllsClientSettings();
+    const ClientType type{Constants::QMLLS_CLIENT_SETTINGS_ID,
+                          Constants::QMLLS_NAME,
+                          []() { return new QmllsClientSettings; },
+                          false};
 
-    const ClientType type{
-        Constants::QMLLS_CLIENT_SETTINGS_ID,
-        clientSettings->m_name,
-        []() { return new QmllsClientSettings; },
-        false};
-
-    const QList<Utils::Store> savedSettings = LanguageClientSettings::storesBySettingsType(type.id);
-
-    if (!savedSettings.isEmpty())
-        clientSettings->fromMap(savedSettings.first());
-    else
-        portFromOldSettings(clientSettings);
-
-    LanguageClientManager::registerClientSettings(clientSettings);
     LanguageClientSettings::registerClientType(type);
+}
+
+void setupQmllsClient()
+{
+    if (!Utils::anyOf(LanguageClientManager::currentSettings(), [](const BaseSettings *settings) {
+            return settings->m_settingsTypeId == Constants::QMLLS_CLIENT_SETTINGS_ID;
+        })) {
+        QmllsClientSettings *clientSettings = new QmllsClientSettings();
+        portFromOldSettings(clientSettings);
+        LanguageClientManager::registerClientSettings(clientSettings);
+    }
 }
 
 QmllsClientSettingsWidget::QmllsClientSettingsWidget(

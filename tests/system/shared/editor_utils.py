@@ -1,6 +1,18 @@
 # Copyright (C) 2016 The Qt Company Ltd.
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+def textCursorForWidget(widgetObj):
+    try:
+        sTC = widgetObj.variantTextCursor()
+        tc = object.convertTo(sTC, "QTextCursor")
+    except:
+        t,v = sys.exc_info()[:2]
+        test.fatal("Failed to get QTextCursor from widget (%s)." % objectMap.realName(widgetObj),
+                   "%s: %s" % (str(t), str(v)))
+        tc = QTextCursor()
+    return tc
+
+
 def jumpToFirstLine(editor):
     home = "<Home>" if platform.system() == 'Darwin' else "<Ctrl+Home>"
     type(editor, home)
@@ -27,7 +39,7 @@ def placeCursorToLine(editor, line, isRegex=False):
         found = isRegex and regex.match(currentLine) or not isRegex and currentLine == line
         if not found:
             type(getEditor(), "<Down>")
-            newPosition = getEditor().textCursor().position()
+            newPosition = textCursorForWidget(getEditor()).position()
             if oldPosition == newPosition:
                 break
             oldPosition = newPosition
@@ -43,7 +55,7 @@ def placeCursorToLine(editor, line, isRegex=False):
 # returns the number of the text line where the cursor is, starting at line 1
 # param editor is the editor the cursor is in
 def lineNumberWithCursor(editor):
-    textPos = editor.textCursor().position()
+    textPos = textCursorForWidget(editor).position()
     line = str(editor.plainText)[:textPos].count("\n") + 1
     return line
 
@@ -78,7 +90,7 @@ def widgetContainsPoint(widget, point):
 # this function simply opens the context menu inside the given editor
 # at the same position where the text cursor is located at
 def openContextMenuOnTextCursorPosition(editor):
-    rect = editor.cursorRect(editor.textCursor())
+    rect = editor.cursorRect()
     openContextMenu(editor, rect.x+rect.width/2, rect.y+rect.height/2, 0)
     menuInList = [None]
     waitFor("menuVisibleAtEditor(editor, menuInList)", 5000)
@@ -129,7 +141,7 @@ def verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, e
         placeCursorToLine(editor, line, True)
         for ty in additionalKeyPresses:
             type(editor, ty)
-        rect = editor.cursorRect(editor.textCursor())
+        rect = editor.cursorRect()
         expectedToolTip = "{type='QLabel' objectName='qcToolTip' visible='1'}"
         # wait for similar tooltips to disappear
         checkIfObjectExists(expectedToolTip, False, 1000, True)

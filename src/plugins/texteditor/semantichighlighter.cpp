@@ -23,7 +23,7 @@ public:
     QTextLayout::FormatRange formatRange;
     QTextBlock block;
 };
-using Ranges = QVector<Range>;
+using Ranges = QList<Range>;
 
 const Ranges rangesForResult(const HighlightingResult &result, const QTextBlock &startBlock,
                              const QHash<int, QTextCharFormat> &kindToFormat)
@@ -107,7 +107,7 @@ void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
     QTC_ASSERT(formattingStartLine <= doc->blockCount(), return);
     QTextBlock currentBlock = doc->findBlockByNumber(formattingStartLine - 1);
 
-    std::map<QTextBlock, QVector<QTextLayout::FormatRange>> formatRanges;
+    std::map<QTextBlock, QList<QTextLayout::FormatRange>> formatRanges;
     for (int i = from; i < to; ++i) {
         for (const Range &range : rangesForResult(future.resultAt(i), doc, kindToFormat, splitter))
             formatRanges[range.block].append(range.formatRange);
@@ -134,7 +134,7 @@ void SemanticHighlighter::setExtraAdditionalFormats(SyntaxHighlighter *highlight
     QTextDocument *doc = highlighter->document();
     QTC_ASSERT(doc, return );
 
-    std::map<QTextBlock, QVector<QTextLayout::FormatRange>> formatRanges;
+    std::map<QTextBlock, QList<QTextLayout::FormatRange>> formatRanges;
 
     for (auto result : results) {
         for (const Range &range : rangesForResult(result, doc, kindToFormat))

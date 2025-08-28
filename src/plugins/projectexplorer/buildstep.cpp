@@ -141,23 +141,20 @@ void BuildStep::toMap(Store &map) const
 
 BuildConfiguration *BuildStep::buildConfiguration() const
 {
-    auto config = qobject_cast<BuildConfiguration *>(projectConfiguration());
-    if (config)
-        return config;
+    if (const auto buildConfig = qobject_cast<BuildConfiguration *>(projectConfiguration()))
+        return buildConfig;
+    if (const auto deployConfig = qobject_cast<DeployConfiguration *>(projectConfiguration()))
+        return deployConfig->buildConfiguration();
 
-    // step is not part of a build configuration, use active build configuration of step's target
+    QTC_CHECK(false);
     return target()->activeBuildConfiguration();
 }
 
 DeployConfiguration *BuildStep::deployConfiguration() const
 {
     auto config = qobject_cast<DeployConfiguration *>(projectConfiguration());
-    if (config)
-        return config;
-    // See comment in buildConfiguration()
-    QTC_CHECK(false);
-    // step is not part of a deploy configuration, use active deploy configuration of step's target
-    return target()->activeDeployConfiguration();
+    QTC_ASSERT(config, return target()->activeDeployConfiguration());
+    return config;
 }
 
 ProjectConfiguration *BuildStep::projectConfiguration() const
@@ -167,18 +164,14 @@ ProjectConfiguration *BuildStep::projectConfiguration() const
 
 BuildSystem *BuildStep::buildSystem() const
 {
-    if (auto bc = buildConfiguration())
-        return bc->buildSystem();
-    return target()->buildSystem();
+    BuildConfiguration * const bc = buildConfiguration();
+    QTC_ASSERT(bc, return nullptr);
+    return bc->buildSystem();
 }
 
 Environment BuildStep::buildEnvironment() const
 {
-    if (const auto bc = qobject_cast<BuildConfiguration *>(projectConfiguration()))
-        return bc->environment();
-    if (const auto bc = target()->activeBuildConfiguration())
-        return bc->environment();
-    return Environment::systemEnvironment();
+    return buildConfiguration()->environment();
 }
 
 FilePath BuildStep::buildDirectory() const

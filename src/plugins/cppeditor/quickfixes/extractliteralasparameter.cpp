@@ -15,7 +15,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
 #endif
 
 using namespace CPlusPlus;
@@ -298,12 +297,6 @@ private:
  */
 class ExtractLiteralAsParameter : public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
-public:
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const QList<AST *> &path = interface.path();
@@ -345,212 +338,19 @@ private:
 };
 
 #ifdef WITH_TESTS
-using namespace Tests;
-
-class ExtractLiteralAsParameterTest : public QObject
+class ExtractLiteralAsParameterTest : public Tests::CppQuickFixTestObject
 {
     Q_OBJECT
-
-private slots:
-    void testTypeDeduction_data()
-    {
-        QTest::addColumn<QByteArray>("typeString");
-        QTest::addColumn<QByteArray>("literal");
-        QTest::newRow("int")
-            << QByteArray("int ") << QByteArray("156");
-        QTest::newRow("unsigned int")
-            << QByteArray("unsigned int ") << QByteArray("156u");
-        QTest::newRow("long")
-            << QByteArray("long ") << QByteArray("156l");
-        QTest::newRow("unsigned long")
-            << QByteArray("unsigned long ") << QByteArray("156ul");
-        QTest::newRow("long long")
-            << QByteArray("long long ") << QByteArray("156ll");
-        QTest::newRow("unsigned long long")
-            << QByteArray("unsigned long long ") << QByteArray("156ull");
-        QTest::newRow("float")
-            << QByteArray("float ") << QByteArray("3.14159f");
-        QTest::newRow("double")
-            << QByteArray("double ") << QByteArray("3.14159");
-        QTest::newRow("long double")
-            << QByteArray("long double ") << QByteArray("3.14159L");
-        QTest::newRow("bool")
-            << QByteArray("bool ") << QByteArray("true");
-        QTest::newRow("bool")
-            << QByteArray("bool ") << QByteArray("false");
-        QTest::newRow("char")
-            << QByteArray("char ") << QByteArray("'X'");
-        QTest::newRow("wchar_t")
-            << QByteArray("wchar_t ") << QByteArray("L'X'");
-        QTest::newRow("char16_t")
-            << QByteArray("char16_t ") << QByteArray("u'X'");
-        QTest::newRow("char32_t")
-            << QByteArray("char32_t ") << QByteArray("U'X'");
-        QTest::newRow("const char *")
-            << QByteArray("const char *") << QByteArray("\"narf\"");
-        QTest::newRow("const wchar_t *")
-            << QByteArray("const wchar_t *") << QByteArray("L\"narf\"");
-        QTest::newRow("const char16_t *")
-            << QByteArray("const char16_t *") << QByteArray("u\"narf\"");
-        QTest::newRow("const char32_t *")
-            << QByteArray("const char32_t *") << QByteArray("U\"narf\"");
-    }
-
-    void testTypeDeduction()
-    {
-        QFETCH(QByteArray, typeString);
-        QFETCH(QByteArray, literal);
-        const QByteArray original = QByteArray("void foo() {return @") + literal + QByteArray(";}\n");
-        const QByteArray expected = QByteArray("void foo(") + typeString + QByteArray("newParameter = ")
-                                    + literal + QByteArray(") {return newParameter;}\n");
-
-        if (literal == "3.14159") {
-            qWarning("Literal 3.14159 is wrongly reported as int. Skipping.");
-            return;
-        } else if (literal == "3.14159L") {
-            qWarning("Literal 3.14159L is wrongly reported as long. Skipping.");
-            return;
-        }
-
-        ExtractLiteralAsParameter factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory);
-    }
-
-    void testFreeFunctionSeparateFiles()
-    {
-        QList<TestDocumentPtr> testDocuments;
-        QByteArray original;
-        QByteArray expected;
-
-        // Header File
-        original =
-            "void foo(const char *a, long b = 1);\n";
-        expected =
-            "void foo(const char *a, long b = 1, int newParameter = 156);\n";
-        testDocuments << CppTestDocument::create("file.h", original, expected);
-
-        // Source File
-        original =
-            "void foo(const char *a, long b)\n"
-            "{return 1@56 + 123 + 156;}\n";
-        expected =
-            "void foo(const char *a, long b, int newParameter)\n"
-            "{return newParameter + 123 + newParameter;}\n";
-        testDocuments << CppTestDocument::create("file.cpp", original, expected);
-
-        ExtractLiteralAsParameter factory;
-        QuickFixOperationTest(testDocuments, &factory);
-    }
-
-    void testMemberFunctionSeparateFiles()
-    {
-        QList<TestDocumentPtr> testDocuments;
-        QByteArray original;
-        QByteArray expected;
-
-        // Header File
-        original =
-            "class Narf {\n"
-            "public:\n"
-            "    int zort();\n"
-            "};\n";
-        expected =
-            "class Narf {\n"
-            "public:\n"
-            "    int zort(int newParameter = 155);\n"
-            "};\n";
-        testDocuments << CppTestDocument::create("file.h", original, expected);
-
-        // Source File
-        original =
-            "#include \"file.h\"\n\n"
-            "int Narf::zort()\n"
-            "{ return 15@5 + 1; }\n";
-        expected =
-            "#include \"file.h\"\n\n"
-            "int Narf::zort(int newParameter)\n"
-            "{ return newParameter + 1; }\n";
-        testDocuments << CppTestDocument::create("file.cpp", original, expected);
-
-        ExtractLiteralAsParameter factory;
-        QuickFixOperationTest(testDocuments, &factory);
-    }
-
-    void testNotTriggeringForInvalidCode()
-    {
-        QList<TestDocumentPtr> testDocuments;
-        QByteArray original;
-        original =
-            "T(\"test\")\n"
-            "{\n"
-            "    const int i = @14;\n"
-            "}\n";
-        testDocuments << CppTestDocument::create("file.cpp", original, "");
-
-        ExtractLiteralAsParameter factory;
-        QuickFixOperationTest(testDocuments, &factory);
-    }
-
-    void test_data()
-    {
-        QTest::addColumn<QByteArray>("original");
-        QTest::addColumn<QByteArray>("expected");
-
-        QTest::newRow("ExtractLiteralAsParameter_freeFunction")
-            << QByteArray(
-                   "void foo(const char *a, long b = 1)\n"
-                   "{return 1@56 + 123 + 156;}\n")
-            << QByteArray(
-                   "void foo(const char *a, long b = 1, int newParameter = 156)\n"
-                   "{return newParameter + 123 + newParameter;}\n");
-        QTest::newRow("ExtractLiteralAsParameter_memberFunction")
-            << QByteArray(
-                   "class Narf {\n"
-                   "public:\n"
-                   "    int zort();\n"
-                   "};\n\n"
-                   "int Narf::zort()\n"
-                   "{ return 15@5 + 1; }\n")
-            << QByteArray(
-                   "class Narf {\n"
-                   "public:\n"
-                   "    int zort(int newParameter = 155);\n"
-                   "};\n\n"
-                   "int Narf::zort(int newParameter)\n"
-                   "{ return newParameter + 1; }\n");
-        QTest::newRow("ExtractLiteralAsParameter_memberFunctionInline")
-            << QByteArray(
-                   "class Narf {\n"
-                   "public:\n"
-                   "    int zort()\n"
-                   "    { return 15@5 + 1; }\n"
-                   "};\n")
-            << QByteArray(
-                   "class Narf {\n"
-                   "public:\n"
-                   "    int zort(int newParameter = 155)\n"
-                   "    { return newParameter + 1; }\n"
-                   "};\n");
-    }
-
-    void test()
-    {
-        QFETCH(QByteArray, original);
-        QFETCH(QByteArray, expected);
-        ExtractLiteralAsParameter factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory);
-    }
-
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
 };
+#endif
 
-QObject *ExtractLiteralAsParameter::createTest() { return new ExtractLiteralAsParameterTest; }
-
-#endif // WITH_TESTS
 } // namespace
 
 void registerExtractLiteralAsParameterQuickfix()
 {
-    CppQuickFixFactory::registerFactory<ExtractLiteralAsParameter>();
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(ExtractLiteralAsParameter);
 }
 
 } // namespace CppEditor::Internal

@@ -178,7 +178,7 @@ void tst_PluginManager::correctPlugins1()
     bool plugin1running = false;
     bool plugin2running = false;
     bool plugin3running = false;
-    const QVector<QObject *> objs = PluginManager::allObjects();
+    const QList<QObject *> objs = PluginManager::allObjects();
     for (QObject *obj : objs) {
         if (obj->objectName() == "MyPlugin1_running")
             plugin1running = true;

@@ -142,6 +142,8 @@ def build(args, paths):
                                  paths.build)
 
 def package(args, paths):
+    if not os.path.exists(paths.install):
+        os.makedirs(paths.install)
     if not os.path.exists(paths.result):
         os.makedirs(paths.result)
     if common.is_windows_platform() and args.sign_command:
@@ -165,15 +167,20 @@ def package(args, paths):
         if os.environ.get('SIGNING_IDENTITY'):
             signed_install_path = paths.install + '-signed'
             common.copytree(paths.install, signed_install_path, symlinks=True)
-            apps = [d for d in os.listdir(signed_install_path) if d.endswith('.app')]
-            if apps:
-                app = apps[0]
-                common.conditional_sign_recursive(os.path.join(signed_install_path, app),
-                                                  lambda ff: ff.endswith('.dylib'))
-                common.check_print_call(zip
-                                        + [os.path.join(paths.result, args.name + '-signed.7z'),
-                                           app],
-                                        signed_install_path)
+            zippattern = None
+            if os.path.exists(signed_install_path):
+                apps = [d for d in os.listdir(signed_install_path) if d.endswith('.app')]
+                if apps:
+                    zippattern = apps[0]
+            if not zippattern:
+                os.makedirs(signed_install_path)  # if nothing was installed
+                zippattern = '*'
+            common.conditional_sign_recursive(signed_install_path,
+                                              lambda ff: ff.endswith('.dylib'))
+            common.check_print_call(zip
+                                    + [os.path.join(paths.result, args.name + '-signed.7z'),
+                                       zippattern],
+                                    signed_install_path)
 
 def get_paths(args):
     Paths = collections.namedtuple('Paths',

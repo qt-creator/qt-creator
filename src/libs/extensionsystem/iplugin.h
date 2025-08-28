@@ -5,6 +5,8 @@
 
 #include "extensionsystem_global.h"
 
+#include <utils/result.h>
+
 #include <QObject>
 
 #include <functional>
@@ -28,7 +30,7 @@ public:
     IPlugin();
     ~IPlugin() override;
 
-    virtual bool initialize(const QStringList &arguments, QString *errorString);
+    virtual Utils::Result<> initialize(const QStringList &arguments);
     virtual void extensionsInitialized() {}
     virtual bool delayedInitialize() { return false; }
     virtual ShutdownFlag aboutToShutdown() { return SynchronousShutdown; }

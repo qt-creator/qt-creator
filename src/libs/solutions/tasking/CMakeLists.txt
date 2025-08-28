@@ -18,6 +18,4 @@ add_qtc_library(Tasking OBJECT
     tasktreerunner.h
     tcpsocket.cpp
     tcpsocket.h
-  EXPLICIT_MOC
-    networkquery.h
 )

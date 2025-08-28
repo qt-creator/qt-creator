@@ -262,7 +262,7 @@ void MainWindow::on_actionExtTypes_triggered()
 {
     QVariant v1(QLatin1String("hallo"));
     QVariant v2(QStringList(QLatin1String("hallo")));
-    QVector<QString> vec;
+    QList<QString> vec;
     vec.push_back("Hallo");
     vec.push_back("Hallo2");
     std::set<std::string> stdSet;

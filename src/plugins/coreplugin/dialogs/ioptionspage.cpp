@@ -402,7 +402,7 @@ bool IOptionsPage::matches(const QRegularExpression &regexp) const
         d->m_keywordsInitialized = true;
     }
 
-    for (const QString &keyword : d->m_keywords)
+    for (const QString &keyword : std::as_const(d->m_keywords))
         if (keyword.contains(regexp))
             return true;
     return false;

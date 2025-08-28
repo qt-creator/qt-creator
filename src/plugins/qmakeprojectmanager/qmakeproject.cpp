@@ -103,13 +103,13 @@ public:
         Q_UNUSED(type)
         return BehaviorSilent;
     }
-    Result reload(ReloadFlag flag, ChangeType type) override
+    Result<> reload(ReloadFlag flag, ChangeType type) override
     {
         Q_UNUSED(flag)
         Q_UNUSED(type)
         if (m_priFile)
             m_priFile->scheduleUpdate();
-        return Result::Ok;
+        return ResultOk;
     }
 
     void setPriFile(QmakePriFile *priFile) { m_priFile = priFile; }
@@ -162,6 +162,7 @@ QmakeProject::QmakeProject(const FilePath &fileName) :
     setDisplayName(fileName.completeBaseName());
     setCanBuildProducts();
     setHasMakeInstallEquivalent(true);
+    setBuildSystemCreator<QmakeBuildSystem>("qmake");
 }
 
 QmakeProject::~QmakeProject()
@@ -201,7 +202,7 @@ DeploymentKnowledge QmakeProject::deploymentKnowledge() const
 // QmakeBuildSystem
 //
 
-QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
+QmakeBuildSystem::QmakeBuildSystem(BuildConfiguration *bc)
     : BuildSystem(bc)
     , m_qmakeVfs(new QMakeVfs)
     , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
@@ -211,8 +212,8 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
             this, &QmakeBuildSystem::buildFinished);
 
-    connect(bc->target(),
-            &Target::activeBuildConfigurationChanged,
+    connect(bc->project(),
+            &Project::activeBuildConfigurationChanged,
             this,
             [this](BuildConfiguration *bc) {
                 if (bc == buildConfiguration())
@@ -250,6 +251,7 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
 
 QmakeBuildSystem::~QmakeBuildSystem()
 {
+    // Trigger any pending parsingFinished signals before destroying any other build system part:
     m_guard = {};
     delete m_cppCodeModelUpdater;
     m_cppCodeModelUpdater = nullptr;
@@ -646,7 +648,7 @@ void QmakeBuildSystem::decrementPendingEvaluateFutures()
             updateBuildSystemData();
             updateCodeModels();
             updateDocuments();
-            target()->updateDefaultDeployConfigurations();
+            buildConfiguration()->updateDefaultDeployConfigurations();
             m_guard.markAsSuccess(); // Qmake always returns (some) data, even when it failed:-)
             TRACE("success" << int(m_guard.isSuccess()));
             m_guard = {}; // This triggers emitParsingFinished by destroying the previous guard.
@@ -720,7 +722,7 @@ void QmakeBuildSystem::asyncUpdate()
     if (m_asyncUpdateState != AsyncFullUpdatePending) {
         QSet<FilePath> projectFilePaths;
         for (QmakeProFile * const file : std::as_const(m_partialEvaluate)) {
-            QVector<QmakePriFile *> priFiles = file->children();
+            QList<QmakePriFile *> priFiles = file->children();
             for (int i = 0; i < priFiles.count(); ++i) {
                 const QmakePriFile * const priFile = priFiles.at(i);
                 projectFilePaths << priFile->filePath();
@@ -750,14 +752,11 @@ void QmakeBuildSystem::buildFinished(bool success)
 
 Tasks QmakeProject::projectIssues(const Kit *k) const
 {
-    Tasks result = Project::projectIssues(k);
-    const QtSupport::QtVersion *const qtFromKit = QtSupport::QtKitAspect::qtVersion(k);
-    if (!qtFromKit)
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No Qt version set in kit.")));
-    else if (!qtFromKit->isValid())
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Qt version is invalid.")));
-    if (!ToolchainKitAspect::cxxToolchain(k))
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No C++ compiler set in kit.")));
+    if (const Tasks result = Project::projectIssues(k); !result.isEmpty())
+        return result;
+
+    const QtSupport::QtVersion * const qtFromKit = QtSupport::QtKitAspect::qtVersion(k);
+    QTC_ASSERT(qtFromKit, return {}); // Checked by "static" issues generator in base class.
 
     // A project can be considered part of more than one Qt version, for instance if it is an
     // example shipped via the installer.
@@ -769,12 +768,12 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
     });
     if (!qtsContainingThisProject.isEmpty()
             && !qtsContainingThisProject.contains(const_cast<QtVersion *>(qtFromKit))) {
-        result.append(CompileTask(Task::Warning,
-                                  Tr::tr("Project is part of Qt sources that do not match "
-                                         "the Qt defined in the kit.")));
+        return {CompileTask(
+            Task::Warning,
+            Tr::tr("Project is part of Qt sources that do not match the Qt defined in the kit."))};
     }
 
-    return result;
+    return {};
 }
 
 // Find the folder that contains a file with a certain name (recurse down)
@@ -827,7 +826,7 @@ FilePath QmakeBuildSystem::buildDir(const FilePath &proFilePath) const
         return oldResult;
     }
 
-    const FilePath relativeDir = proFilePath.parentDir().relativePathFrom(projectDirectory());
+    const FilePath relativeDir = proFilePath.parentDir().relativePathFromDir(projectDirectory());
     return buildDir.resolvePath(relativeDir).canonicalPath();
 }
 
@@ -1203,7 +1202,9 @@ void QmakeBuildSystem::updateBuildSystemData()
         bti.targetFilePath = executableFor(node->proFile());
         bti.projectFilePath = node->filePath();
         bti.workingDirectory = workingDir;
-        bti.displayName = bti.projectFilePath.completeBaseName();
+        bti.displayName = node->proFile()->singleVariableValue(Variable::QmakeProjectName);
+        if (bti.displayName.isEmpty())
+            bti.displayName = bti.projectFilePath.completeBaseName();
         const FilePath relativePathInProject
                 = bti.projectFilePath.relativeChildPath(projectDirectory());
         if (!relativePathInProject.isEmpty()) {
@@ -1454,7 +1455,7 @@ void QmakeBuildSystem::testToolChain(Toolchain *tc, const FilePath &path) const
 
 QString QmakeBuildSystem::deviceRoot() const
 {
-    IDeviceConstPtr device = BuildDeviceKitAspect::device(target()->kit());
+    IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
     QTC_ASSERT(device, return {});
     FilePath deviceRoot = device->rootPath();
     if (!deviceRoot.isLocal())
@@ -1545,9 +1546,9 @@ static const Id vsGeneratorId() { return "QMAKE_GENERATOR_VS"; }
 QList<QPair<Id, QString>> QmakeBuildSystem::generators() const
 {
     if (HostOsInfo::isMacHost())
-        return {{xcodeGeneratorId(), Tr::tr("Generate Xcode project (via qmake)")}};
+        return {{xcodeGeneratorId(), Tr::tr("Xcode Project (via qmake)")}};
     if (HostOsInfo::isWindowsHost())
-        return {{vsGeneratorId(), Tr::tr("Generate Visual Studio project (via qmake)")}};
+        return {{vsGeneratorId(), Tr::tr("Visual Studio Project (via qmake)")}};
     return {};
 }
 

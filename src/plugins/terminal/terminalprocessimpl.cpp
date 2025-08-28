@@ -28,7 +28,7 @@ public:
         , m_interface(interface)
     {}
 
-    expected_str<qint64> startStubProcess(const ProcessSetupData &setup) override
+    Result<qint64> startStubProcess(const ProcessSetupData &setup) override
     {
         if (QApplication::activeModalWidget()) {
             m_fallbackStubCreator = std::make_unique<Utils::ProcessStubCreator>(m_interface);
@@ -44,7 +44,7 @@ public:
 
         TerminalWidget *terminal = m_terminalPane->stoppedTerminalWithId(id);
 
-        OpenTerminalParameters openParameters{setup.m_commandLine};
+        OpenTerminalParameters openParameters{setup.m_commandLine, setup.m_workingDirectory, setup.m_environment};
         openParameters.m_exitBehavior = ExitBehavior::Keep;
         openParameters.identifier = id;
 

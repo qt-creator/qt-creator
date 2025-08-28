@@ -6,13 +6,8 @@
 #include "utils_global.h"
 
 #include "filepath.h"
+#include "result.h"
 #include "store.h"
-
-#include <QVariant>
-
-QT_BEGIN_NAMESPACE
-class QWidget;
-QT_END_NAMESPACE
 
 namespace Utils {
 
@@ -35,17 +30,14 @@ class QTCREATOR_UTILS_EXPORT PersistentSettingsWriter
 public:
     PersistentSettingsWriter(const FilePath &fileName, const QString &docType);
 
-    bool save(const Store &data, QString *errorString) const;
-#ifdef QT_GUI_LIB
-    bool save(const Store &data, QWidget *parent) const;
-#endif
+    Result<> save(const Store &data, bool showError = true) const;
 
     FilePath fileName() const;
 
     void setContents(const Store &data);
 
 private:
-    bool write(const Store &data, QString *errorString) const;
+    Result<> write(const Store &data) const;
 
     const FilePath m_fileName;
     const QString m_docType;

@@ -66,7 +66,7 @@ void OnEntryExitItem::updateAttributes()
 
 void OnEntryExitItem::finalizeCreation()
 {
-    auto children = tag()->allChildren();
+    const QList<ScxmlTag*> children = tag()->allChildren();
     auto pos = m_eventNameItem->boundingRect().bottomLeft();
     for (auto child : children) {
         EventItem *item = new EventItem(pos, this);

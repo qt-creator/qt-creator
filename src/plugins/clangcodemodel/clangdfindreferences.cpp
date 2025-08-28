@@ -201,7 +201,7 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, const Link &lin
 
     const FilePath &targetFilePath = link.targetFilePath;
     if (!client->documentForFilePath(targetFilePath)) {
-        expected_str<QByteArray> fileContents = targetFilePath.fileContents();
+        Result<QByteArray> fileContents = targetFilePath.fileContents();
         if (!fileContents) {
             d->finishSearch();
             return;

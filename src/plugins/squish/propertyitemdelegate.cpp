@@ -12,6 +12,8 @@
 #include <QMouseEvent>
 #include <QRegularExpression>
 
+using namespace Utils;
+
 namespace Squish {
 namespace Internal {
 
@@ -130,17 +132,14 @@ void PropertyItemDelegate::setModelData(QWidget *editor,
 
 ValidatingPropertyNameLineEdit::ValidatingPropertyNameLineEdit(const QStringList &forbidden,
                                                                QWidget *parent)
-    : Utils::FancyLineEdit(parent)
+    : FancyLineEdit(parent)
     , m_forbidden(forbidden)
 {
-    setValidationFunction([this](FancyLineEdit *edit, QString * /*errorMessage*/) {
-        if (!edit)
-            return false;
-
+    setValidationFunction([this](const QString &text) -> Result<> {
         static const QRegularExpression identifier("^[a-zA-Z0-9_]+$");
-        const QString &value = edit->text();
-
-        return !m_forbidden.contains(value) && identifier.match(value).hasMatch();
+        if (!m_forbidden.contains(text) && identifier.match(text).hasMatch())
+            return ResultOk;
+        return ResultError(QString());
     });
 }
 
@@ -148,12 +147,14 @@ ValidatingPropertyNameLineEdit::ValidatingPropertyNameLineEdit(const QStringList
 
 ValidatingPropertyContainerLineEdit::ValidatingPropertyContainerLineEdit(const QStringList &allowed,
                                                                          QWidget *parent)
-    : Utils::FancyLineEdit(parent)
+    : FancyLineEdit(parent)
     , m_allowed(allowed)
 {
     setSpecialCompleter(new QCompleter(allowed, this));
-    setValidationFunction([this](FancyLineEdit *edit, QString * /*errorMessage*/) {
-        return edit && m_allowed.contains(edit->text());
+    setValidationFunction([this](const QString &text) -> Result<> {
+        if (m_allowed.contains(text))
+            return ResultOk;
+        return ResultError(QString());
     });
 }
 

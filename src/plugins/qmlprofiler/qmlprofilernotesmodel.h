@@ -12,23 +12,27 @@
 #include <QHash>
 
 namespace QmlProfiler {
-class QMLPROFILER_EXPORT QmlProfilerNotesModel : public Timeline::TimelineNotesModel {
+
+class QMLPROFILER_EXPORT QmlProfilerNotesModel : public Timeline::TimelineNotesModel
+{
     Q_OBJECT
+
 public:
     QmlProfilerNotesModel(QObject *parent);
 
     void restore() override;
     void stash() override;
 
-    const QVector<QmlNote> &notes() const;
-    void setNotes(const QVector<QmlNote> &notes);
+    const QList<QmlNote> &notes() const;
+    void setNotes(const QList<QmlNote> &notes);
     void addNote(const QmlNote &note);
     void clear() override;
 
 protected:
-    QVector<QmlNote> m_notes;
+    QList<QmlNote> m_notes;
 
     int addQmlNote(int typeId, int collapsedRow, qint64 startTime, qint64 duration,
                    const QString &text);
 };
+
 } // namespace QmlProfiler

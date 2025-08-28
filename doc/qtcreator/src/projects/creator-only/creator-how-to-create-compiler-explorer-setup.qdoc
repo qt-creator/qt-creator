@@ -69,8 +69,8 @@
 
     \section1 Set compiler options
 
-    Select \inlineimage icons/settings.png next to the \uicontrol Compiler field
-    to set options for the selected compiler.
+    Select \inlineimage {icons/settings.png} {Options} next to the
+    \uicontrol Compiler field to set options for the selected compiler.
 
     \image {qtcreator-compiler-explorer-options.webp} {Compiler Explorer options}
 
@@ -111,7 +111,7 @@
     To use Compiler Explorer at another URL:
 
     \list 1
-        \li Select \inlineimage icons/settings.png next to
+        \li Select \inlineimage {icons/settings.png} {Options} next to
             \uicontrol {Powered by}.
         \li In \uicontrol URL, enter the address of the Compiler Explorer to use.
             \image {qtcreator-set-compiler-explorer-url.webp} {Set Compiler Explorer dialog}

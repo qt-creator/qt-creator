@@ -11,7 +11,6 @@
 #include <utils/qtcprocess.h>
 
 #include <QDir>
-#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>

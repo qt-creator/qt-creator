@@ -9,6 +9,7 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/messagemanager.h>
 
 #include <cpaster/codepasterservice.h>
 
@@ -207,6 +208,8 @@ void DiffEditorWidgetController::jumpToOriginalFile(const QString &fileName,
     const FilePath filePath = m_document->workingDirectory().resolvePath(fileName);
     if (filePath.exists() && !filePath.isDir())
         EditorManager::openEditorAt({filePath, lineNumber, columnNumber});
+    else
+        Core::MessageManager::writeDisrupting(Tr::tr("File not found: \"%1\".").arg(fileName));
 }
 
 void DiffEditorWidgetController::setFontSettings(const FontSettings &fontSettings)

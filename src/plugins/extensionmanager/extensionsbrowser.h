@@ -7,10 +7,6 @@
 
 QT_FORWARD_DECLARE_CLASS(QLabel)
 
-namespace Core::WelcomePageHelpers {
-class TextFormat;
-}
-
 namespace ExtensionManager::Internal {
 
 class ExtensionsModel;
@@ -33,6 +29,7 @@ public:
     void showEvent(QShowEvent *event) override;
 
     QModelIndex currentIndex() const;
+    void selectIndex(const QModelIndex &index);
 
 signals:
     void itemSelected(const QModelIndex &current, const QModelIndex &previous);

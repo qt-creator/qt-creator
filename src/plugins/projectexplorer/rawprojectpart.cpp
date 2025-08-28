@@ -104,7 +104,7 @@ void RawProjectPart::setHeaderPaths(const HeaderPaths &headerPaths)
 
 void RawProjectPart::setIncludePaths(const QStringList &includePaths)
 {
-    this->headerPaths = Utils::transform<QVector>(includePaths, [](const QString &path) {
+    this->headerPaths = Utils::transform<QList>(includePaths, [](const QString &path) {
         return RawProjectPart::frameworkDetectionHeuristic(HeaderPath::makeUser(path));
     });
 }
@@ -210,7 +210,7 @@ ProjectUpdateInfo::ProjectUpdateInfo(Project *project,
 void addTargetFlagForIos(QStringList &cFlags, QStringList &cxxFlags, const BuildSystem *bs,
                          const std::function<QString ()> &getDeploymentTarget)
 {
-    const Utils::Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(bs->target()->kit());
+    const Utils::Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(bs->kit());
     if (deviceType != Ios::Constants::IOS_DEVICE_TYPE
             && deviceType != Ios::Constants::IOS_SIMULATOR_TYPE) {
         return;

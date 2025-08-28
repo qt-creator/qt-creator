@@ -36,7 +36,7 @@ ClangParser::ClangParser() :
 
 QList<OutputLineParser *> ClangParser::clangParserSuite()
 {
-    return {new ClangParser, new Internal::LldParser, new LdParser};
+    return {new ClangParser, new Internal::LldParser, new Internal::LdParser};
 }
 
 OutputLineParser::Result ClangParser::handleLine(const QString &line, OutputFormat type)
@@ -135,7 +135,7 @@ void ProjectExplorerTest::testClangOutputParser_data()
                           const Utils::FilePath &file,
                           int line,
                           int column,
-                          const QVector<QTextLayout::FormatRange> formats)
+                          const QList<QTextLayout::FormatRange> formats)
     {
         CompileTask task(type, description, file, line, column);
         task.formats = formats;
@@ -192,7 +192,7 @@ void ProjectExplorerTest::testClangOutputParser_data()
                    "      ^",
                    FilePath::fromUserInput("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"),
                    1425, 0,
-                   QVector<QTextLayout::FormatRange>()
+                   QList<QTextLayout::FormatRange>()
                        << formatRange(61, 278))};
 
         QTest::newRow("note")
@@ -209,7 +209,7 @@ void ProjectExplorerTest::testClangOutputParser_data()
                                    "                          ^",
                                    FilePath::fromUserInput("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"),
                                    1289, 27,
-                                   QVector<QTextLayout::FormatRange>()
+                                   QList<QTextLayout::FormatRange>()
                                        << formatRange(19, 167)));
 
         QTest::newRow("fatal error")
@@ -226,7 +226,7 @@ void ProjectExplorerTest::testClangOutputParser_data()
                                    "         ^",
                                    FilePath::fromUserInput("/usr/include/c++/4.6/utility"),
                                    68, 10,
-                                   QVector<QTextLayout::FormatRange>()
+                                   QList<QTextLayout::FormatRange>()
                                        << formatRange(34, 0)
                                        << formatRange(34, 28, "olpfile:///usr/include/c++/4.6/utility::68::10")
                                        << formatRange(62, 93)));
@@ -245,7 +245,7 @@ void ProjectExplorerTest::testClangOutputParser_data()
                                    "                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^",
                                    FilePath::fromUserInput("/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp"),
                                    567, 51,
-                                   QVector<QTextLayout::FormatRange>()
+                                   QList<QTextLayout::FormatRange>()
                                        << formatRange(74, 0)
                                        << formatRange(74, 64, "olpfile:///home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp::567::51")
                                        << formatRange(138, 202)));

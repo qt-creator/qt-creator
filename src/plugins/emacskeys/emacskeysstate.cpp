@@ -3,8 +3,11 @@
 
 #include "emacskeysstate.h"
 
+#include <utils/plaintextedit/plaintextedit.h>
+
 #include <QTextCursor>
-#include <QPlainTextEdit>
+
+using namespace Utils;
 
 namespace EmacsKeys {
 namespace Internal {
@@ -13,17 +16,17 @@ namespace Internal {
 // EmacsKeysState
 //---------------------------------------------------------------------------
 
-EmacsKeysState::EmacsKeysState(QPlainTextEdit *edit):
+EmacsKeysState::EmacsKeysState(PlainTextEdit *edit):
     m_ignore3rdParty(false),
     m_mark(-1),
     m_lastAction(KeysAction3rdParty),
     m_editorWidget(edit)
 {
-    connect(edit, &QPlainTextEdit::cursorPositionChanged,
+    connect(edit, &PlainTextEdit::cursorPositionChanged,
             this, &EmacsKeysState::cursorPositionChanged);
-    connect(edit, &QPlainTextEdit::textChanged,
+    connect(edit, &PlainTextEdit::textChanged,
             this, &EmacsKeysState::textChanged);
-    connect(edit, &QPlainTextEdit::selectionChanged,
+    connect(edit, &PlainTextEdit::selectionChanged,
             this, &EmacsKeysState::selectionChanged);
 }
 

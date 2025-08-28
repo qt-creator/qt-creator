@@ -33,52 +33,39 @@ using namespace Utils;
 
 namespace BareMetal::Internal {
 
-class BareMetalDebugSupport final : public Debugger::DebuggerRunTool
-{
-public:
-    explicit BareMetalDebugSupport(RunControl *runControl)
-        : Debugger::DebuggerRunTool(runControl)
-    {
-        const auto dev = std::static_pointer_cast<const BareMetalDevice>(runControl->device());
-        if (!dev) {
-            reportFailure(Tr::tr("Cannot debug: Kit has no device."));
-            return;
-        }
-
-        const QString providerId = dev->debugServerProviderId();
-        IDebugServerProvider *p = DebugServerProviderManager::findProvider(providerId);
-        if (!p) {
-            reportFailure(Tr::tr("No debug server provider found for %1").arg(providerId));
-            return;
-        }
-
-        if (RunWorker *runner = p->targetRunner(runControl))
-            addStartDependency(runner);
-    }
-
-private:
-    void start() final
-    {
-        const auto dev = std::static_pointer_cast<const BareMetalDevice>(runControl()->device());
-        QTC_ASSERT(dev, reportFailure(); return);
-        IDebugServerProvider *p = DebugServerProviderManager::findProvider(
-            dev->debugServerProviderId());
-        QTC_ASSERT(p, reportFailure(); return);
-
-        QString errorMessage;
-        if (!p->aboutToRun(this, errorMessage))
-            reportFailure(errorMessage);
-        else
-            DebuggerRunTool::start();
-    }
-};
-
 class BareMetalDebugSupportFactory final : public RunWorkerFactory
 {
 public:
     BareMetalDebugSupportFactory()
     {
-        setProduct<BareMetalDebugSupport>();
+        setProducer([](RunControl *runControl) -> RunWorker * {
+            const auto dev = std::static_pointer_cast<const BareMetalDevice>(runControl->device());
+            if (!dev) {
+                // TODO: reportFailure won't work from RunWorker's c'tor.
+                runControl->postMessage(Tr::tr("Cannot debug: Kit has no device."), ErrorMessageFormat);
+                return nullptr;
+            }
+
+            const QString providerId = dev->debugServerProviderId();
+            IDebugServerProvider *p = DebugServerProviderManager::findProvider(providerId);
+            if (!p) {
+                // TODO: reportFailure won't work from RunWorker's c'tor.
+                runControl->postMessage(Tr::tr("No debug server provider found for %1").arg(providerId),
+                                        ErrorMessageFormat);
+                return nullptr;
+            }
+
+            DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+            if (Result<> res = p->setupDebuggerRunParameters(rp, runControl); !res) {
+                runControl->postMessage(res.error(), ErrorMessageFormat); // TODO: reportFailure won't work from RunWorker's c'tor.
+                return nullptr;
+            }
+            auto debugger = createDebuggerWorker(runControl, rp);
+            if (RunWorker *runner = p->targetRunner(runControl))
+                debugger->addStartDependency(runner);
+
+            return debugger;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedRunConfig(BareMetal::Constants::BAREMETAL_RUNCONFIG_ID);

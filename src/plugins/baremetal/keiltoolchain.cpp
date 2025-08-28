@@ -250,7 +250,7 @@ static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringLis
 
     cpp.runBlocking();
     if (cpp.result() != ProcessResult::FinishedWithSuccess) {
-        qWarning() << cpp.exitMessage();
+        qWarning() << cpp.exitMessage(Process::FailureMessageFormat::WithStdErr);
         return {};
     }
 

@@ -3,16 +3,7 @@
 
 #include "plugin3.h"
 
-#include <qplugin.h>
-
 using namespace Plugin3;
 
-MyPlugin3::MyPlugin3()
-{
-}
-
-bool MyPlugin3::initialize(const QStringList &, QString *)
-{
-    return true;
-}
+MyPlugin3::MyPlugin3() = default;
 

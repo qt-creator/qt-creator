@@ -21,6 +21,8 @@
 #include <QFileSystemModel>
 #include <QMessageBox>
 
+using namespace Utils;
+
 namespace QmlDesigner {
 
 AssetsLibraryModel::AssetsLibraryModel(QObject *parent)
@@ -141,7 +143,7 @@ QString AssetsLibraryModel::addNewFolder(const QString &folderPath)
 {
     Utils::FilePath uniqueDirPath = Utils::FilePath::fromString(UniqueName::generatePath(folderPath));
 
-    const Utils::Result res = uniqueDirPath.ensureWritableDir();
+    const Utils::Result<> res = uniqueDirPath.ensureWritableDir();
     if (!res) {
         qWarning() << __FUNCTION__ << res.error();
         return {};
@@ -242,8 +244,8 @@ void AssetsLibraryModel::updateExpandPath(const Utils::FilePath &oldPath, const 
 
         // update subfolders expand states
         if (childPath.isChildOf(oldPath)) {
-            QString relativePath = Utils::FilePath::calcRelativePath(path, oldPath.toFSPathString());
-            Utils::FilePath newChildPath = newPath.pathAppended(relativePath);
+            Utils::FilePath relativePath = childPath.relativePathFromDir(oldPath);
+            Utils::FilePath newChildPath = newPath.resolvePath(relativePath);
 
             value = s_folderExpandStateHash.take(path);
             saveExpandState(newChildPath.toFSPathString(), value);
@@ -258,8 +260,8 @@ bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sour
     QModelIndex sourceIdx = m_sourceFsModel->index(sourceRow, 0, sourceParent);
     QString sourcePath = m_sourceFsModel->filePath(sourceIdx);
 
-    if (QFileInfo(sourcePath).isFile() && !m_fileWatcher->watchesFile(sourcePath))
-        m_fileWatcher->addFile(sourcePath, Utils::FileSystemWatcher::WatchModifiedDate);
+    if (QFileInfo(sourcePath).isFile() && !m_fileWatcher->watchesFile(FilePath::fromString(sourcePath)))
+        m_fileWatcher->addFile(FilePath::fromString(sourcePath), FileSystemWatcher::WatchModifiedDate);
 
     const QString rootPath = this->rootPath();
     if (!m_searchText.isEmpty() && path.startsWith(rootPath) && QFileInfo{path}.isDir()) {
@@ -338,7 +340,7 @@ QFileSystemModel *AssetsLibraryModel::createFsModel(const QString &path)
     fsModel->setReadOnly(false);
 
     connect(fsModel, &QFileSystemModel::directoryLoaded, this, [this](const QString &dir) {
-        emit directoryLoaded(dir);
+        emit directoryLoaded(Utils::FilePath::fromString(dir));
         syncIsEmpty();
     });
 

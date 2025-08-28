@@ -7,10 +7,9 @@
 #include "perfprofilerflamegraphview.h"
 #include "perfprofilerstatisticsview.h"
 #include "perfprofilertraceview.h"
-#include "perftimelinemodelmanager.h"
 
 #include <debugger/debuggermainwindow.h>
-#include <tracing/timelinezoomcontrol.h>
+
 #include <utils/fileinprojectfinder.h>
 
 #include <QCoreApplication>
@@ -23,12 +22,14 @@ class Project;
 class RunControl;
 }
 
-namespace PerfProfiler {
-namespace Internal {
+namespace Timeline { class TimelineZoomControl; }
+
+namespace PerfProfiler::Internal {
 
 class PerfProfilerTool  : public QObject
 {
     Q_OBJECT
+
 public:
     PerfProfilerTool();
     ~PerfProfilerTool();
@@ -112,5 +113,4 @@ private:
 void setupPerfProfilerTool();
 void destroyPerfProfilerTool();
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

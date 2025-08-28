@@ -18,15 +18,17 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
+            "../../libs/3rdparty/toml11/toml.hpp",
             "pipsupport.cpp",
             "pipsupport.h",
+            "pyprojecttoml.cpp",
+            "pyprojecttoml.h",
             "pyside.cpp",
             "pyside.h",
             "pythonbuildconfiguration.cpp",
             "pythonbuildconfiguration.h",
             "pysideuicextracompiler.cpp",
             "pysideuicextracompiler.h",
-            "python.qrc",
             "pythonbuildsystem.cpp",
             "pythonbuildsystem.h",
             "pythonconstants.h",
@@ -56,5 +58,30 @@ QtcPlugin {
             "pythonwizardpage.cpp",
             "pythonwizardpage.h",
         ]
+    }
+
+    Group {
+        name: "images"
+        prefix: "images/"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "qtforpython_neon.png",
+            "settingscategory_python.png",
+            "settingscategory_python@2x.png",
+        ]
+    }
+
+    QtcTestFiles {
+        name: "tests"
+        prefix: "tests/"
+        files: [
+            "pyprojecttoml_test.cpp",
+            "pyprojecttoml_test.h",
+        ]
+    }
+    QtcTestResources {
+        Qt.core.resourceSourceBase: product.sourceDirectory + "/tests/testfiles"
+        Qt.core.resourcePrefix: "/unittests/Python"
+        files: "tests/testfiles/*"
     }
 }

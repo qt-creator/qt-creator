@@ -109,8 +109,8 @@ public:
         setDefaultDisplayName(Tr::tr("Deploy to Boot to Qt target"));
         setUseDeploymentDataView();
 
-        addInitialStep(RemoteLinux::Constants::MakeInstallStepId, [](Target *target) {
-            const Project * const prj = target->project();
+        addInitialStep(RemoteLinux::Constants::MakeInstallStepId, [](BuildConfiguration *bc) {
+            const Project * const prj = bc->project();
             return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
                    && prj->hasMakeInstallEquivalent();
         });
@@ -162,11 +162,10 @@ private:
 
     void extensionsInitialized() final
     {
-        DeviceManager * const dm = DeviceManager::instance();
-        if (dm->isLoaded()) {
+        if (DeviceManager::isLoaded()) {
             d->setupDeviceDetection();
         } else {
-            connect(dm, &DeviceManager::devicesLoaded,
+            connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
                     d, &QdbPluginPrivate::setupDeviceDetection);
         }
     }

@@ -42,19 +42,20 @@
         \li  Select \uicontrol Build > \uicontrol {Build Project} or press
              \key {Ctrl+B}.
 
-             Or, select \inlineimage icons/run_small.png (\uicontrol Run) to
-             deploy and run the application after building it.
+             Or, select \inlineimage {icons/run_small.png} {Run} (\uicontrol Run)
+             to deploy and run the application after building it.
 
     \endlist
 
     \section1 Cancel builds
 
-    While the application is being built, the \inlineimage icons/build.png
-    (\uicontrol Build) button changes to a \inlineimage icons/cancel-build.png
+    While the application is being built, the \inlineimage {icons/build.png} {Build}
+    (\uicontrol Build) button changes to a
+    \inlineimage {icons/cancel-build.png} {Cancel Build}
     (\uicontrol {Cancel Build}) button. To cancel the build:
 
     \list
-        \li Select \inlineimage icons/cancel-build.png.
+        \li Select \inlineimage {icons/cancel-build.png} {Cancel Build}.
         \li Select \key {Alt+Backspace}.
         \li Go to \uicontrol Build > \uicontrol {Cancel Build}.
     \endlist

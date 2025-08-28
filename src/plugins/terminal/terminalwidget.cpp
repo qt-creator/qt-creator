@@ -67,6 +67,7 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
 
     setAllowBlinkingCursor(settings().allowBlinkingCursor());
     enableMouseTracking(settings().enableMouseTracking());
+    surface()->enableLiveReflow(settings().enableLiveReflow());
 
     connect(&settings(), &AspectContainer::applied, this, [this] {
         // Setup colors first, as setupFont will redraw the screen.
@@ -75,6 +76,7 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
         configBlinkTimer();
         setAllowBlinkingCursor(settings().allowBlinkingCursor());
         enableMouseTracking(settings().enableMouseTracking());
+        surface()->enableLiveReflow(settings().enableLiveReflow());
     });
 }
 
@@ -88,9 +90,9 @@ void TerminalWidget::setupPty()
     if (shellCommand.executable().isRootPath()) {
         writeToTerminal((Tr::tr("Connecting...") + "\r\n").toUtf8(), true);
         // We still have to find the shell to start ...
-        m_findShellWatcher.reset(new QFutureWatcher<expected_str<FilePath>>());
+        m_findShellWatcher.reset(new QFutureWatcher<Result<FilePath>>());
         connect(m_findShellWatcher.get(), &QFutureWatcher<FilePath>::finished, this, [this] {
-            const expected_str<FilePath> result = m_findShellWatcher->result();
+            const Result<FilePath> result = m_findShellWatcher->result();
             if (result) {
                 m_openParameters.shellCommand->setExecutable(*result);
                 restart(m_openParameters);
@@ -103,8 +105,8 @@ void TerminalWidget::setupPty()
                             true);
         });
 
-        m_findShellWatcher->setFuture(Utils::asyncRun([shellCommand]() -> expected_str<FilePath> {
-            const expected_str<FilePath> result = Utils::Terminal::defaultShellForDevice(
+        m_findShellWatcher->setFuture(Utils::asyncRun([shellCommand]() -> Result<FilePath> {
+            const Result<FilePath> result = Utils::Terminal::defaultShellForDevice(
                 shellCommand.executable());
             if (result && !result->isExecutableFile())
                 return make_unexpected(
@@ -584,7 +586,7 @@ void TerminalWidget::dropEvent(QDropEvent *event)
 
 void TerminalWidget::showEvent(QShowEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 
     if (!m_process)
         setupPty();

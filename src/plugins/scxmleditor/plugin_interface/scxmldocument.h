@@ -5,11 +5,11 @@
 
 #include <QFileInfo>
 #include <QHash>
+#include <QList>
 #include <QMap>
 #include <QObject>
 #include <QPointF>
 #include <QString>
-#include <QVector>
 
 QT_FORWARD_DECLARE_CLASS(QUndoStack)
 QT_FORWARD_DECLARE_CLASS(QXmlStreamReader)
@@ -106,7 +106,7 @@ public:
      * @param child
      */
     void addTag(ScxmlTag *parent, ScxmlTag *child);
-    void addTags(ScxmlTag *parent, const QVector<ScxmlTag*> tags);
+    void addTags(ScxmlTag *parent, const QList<ScxmlTag*> tags);
 
     /**
      * @brief removeTag - inform views that tag will be removed
@@ -183,7 +183,7 @@ public:
      */
     bool hasLayouted() const;
 
-    void setLevelColors(const QVector<QColor> &colors);
+    void setLevelColors(const QList<QColor> &colors);
     QColor getColor(int depth) const;
 
     bool hasError() const
@@ -196,7 +196,7 @@ public:
         return m_lastError;
     }
 
-    QByteArray content(const QVector<ScxmlTag*> &tags) const;
+    QByteArray content(const QList<ScxmlTag*> &tags) const;
     QByteArray content(ScxmlTag *tag = nullptr) const;
     void clear(bool createRoot = true);
 
@@ -256,14 +256,14 @@ private:
     ScxmlTag *createScxmlTag();
     QString m_fileName;
     QUndoStack *m_undoStack;
-    QVector<ScxmlTag*> m_tags;
+    QList<ScxmlTag*> m_tags;
     QHash<QString, int> m_nextIdHash;
     QHash<QString, QString> m_idMap;
     bool m_hasError = false;
     QString m_lastError;
-    QVector<ScxmlTag*> m_rootTags;
+    QList<ScxmlTag*> m_rootTags;
     QMap<QString, ScxmlNamespace*> m_namespaces;
-    QVector<QColor> m_colors;
+    QList<QColor> m_colors;
     bool m_hasLayouted = false;
     QString m_idDelimiter;
     bool m_useFullNameSpace = false;

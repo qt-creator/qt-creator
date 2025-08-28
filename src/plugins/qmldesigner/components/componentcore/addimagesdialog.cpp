@@ -6,6 +6,7 @@
 #include <qmldesignertr.h>
 
 #include <coreplugin/icore.h>
+#include <utils/pathchooser.h>
 
 #include <QComboBox>
 #include <QCoreApplication>
@@ -93,7 +94,7 @@ QString AddImagesDialog::getDirectory(const QStringList &fileNames, const QStrin
        directory = text;
     });
 
-    QPushButton *browseButton = new QPushButton(Tr::tr("&Browse..."), dialog);
+    QPushButton *browseButton = new QPushButton(Utils::PathChooser::browseButtonLabel(), dialog);
 
     QObject::connect(browseButton, &QPushButton::clicked, dialog, [setDirectoryForComboBox, &directory]() {
         const QString newDir = QFileDialog::getExistingDirectory(Core::ICore::dialogParent(),

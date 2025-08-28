@@ -75,7 +75,7 @@
     up to 1024 bytes in the file. For example, \c {-oleaks.html -g2 -L1024}
 
     To save your changes as default settings, select
-    \inlineimage icons/savefile.png.
+    \inlineimage {icons/savefile.png} {Save}.
 
     To remove a customized settings profile, select the profile, and then
     select \uicontrol Delete.

@@ -28,6 +28,7 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/abi.h>
 #include <projectexplorer/runcontrol.h>
 
 #include <utils/algorithm.h>
@@ -39,7 +40,6 @@
 #include <QApplication>
 #include <QDateTime>
 #include <QDebug>
-#include <QFileInfo>
 #include <QTimer>
 #include <QToolTip>
 #include <QVariant>
@@ -203,6 +203,8 @@ void LldbEngine::setupEngine()
             environment.appendOrSet("PYTHONPATH", "/usr/lib/llvm-14/lib/python3.10/dist-packages");
     }
 
+    DebuggerItem::fixupAndroidLlldbPythonDylib(lldbCmd);
+
     if (runParameters().runAsRoot()) {
         ProjectExplorer::RunControl::provideAskPassEntry(environment);
         m_lldbProc.setRunAsRoot(true);
@@ -261,6 +263,9 @@ void LldbEngine::handleLldbStarted()
     for (const FilePath &path : rp.solibSearchPath())
         executeDebuggerCommand("settings append target.exec-search-paths " + path.path());
 
+    if (rp.toolChainAbi().osFlavor() == ProjectExplorer::Abi::AndroidLinuxFlavor)
+        executeDebuggerCommand("settings set plugin.jit-loader.gdb.enable off");
+
     const FilePath &executable = rp.inferior().command.executable();
     DebuggerCommand cmd2("setupInferior");
     cmd2.arg("executable", executable.path());
@@ -312,7 +317,7 @@ void LldbEngine::handleLldbStarted()
                                                                  : rp.deviceSymbolsRoot());
             cmd2.arg("remotechannel", ((rp.startMode() == AttachToRemoteProcess
                                         || rp.startMode() == AttachToRemoteServer)
-                                           ? rp.remoteChannel() : QString()));
+                                           ? rp.remoteChannel().toString(): QString()));
             QTC_CHECK(
                 !rp.continueAfterAttach()
                 || (rp.startMode() == AttachToRemoteProcess || rp.startMode() == AttachToLocalProcess
@@ -340,7 +345,7 @@ void LldbEngine::handleLldbStarted()
                 const QString trimmed = line.trimmed();
                 return !trimmed.isEmpty() && !trimmed.startsWith('#');
             });
-            for (const QString &cmd : commands) {
+            for (const QString &cmd : std::as_const(commands)) {
                 executeDebuggerCommand(cmd);
             }
         } else {
@@ -392,7 +397,7 @@ void LldbEngine::continueInferior()
     notifyInferiorRunRequested();
     DebuggerCommand cmd("continueInferior");
     cmd.callback = [this](const DebuggerResponse &response) {
-        if (response.resultClass == ResultError)
+        if (response.resultClass == ResultFail)
             notifyEngineIll();
     };
     runCommand(cmd);

@@ -34,7 +34,7 @@ class ColorToolButton : public QToolButton
     Q_OBJECT
 
 public:
-    ColorToolButton(const QString &key, const QString &iconName, const QString &tooltip, QWidget *parent = nullptr);
+    ColorToolButton(const QString &key, const QIcon &icon, const QString &tooltip, QWidget *parent = nullptr);
     ~ColorToolButton() override;
 
 protected:

@@ -4,20 +4,20 @@
 #pragma once
 
 #include <qmlprofiler/qmlprofilerattachdialog.h>
+
 #include <QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerAttachDialogTest : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit QmlProfilerAttachDialogTest(QObject *parent = 0);
+    QmlProfilerAttachDialogTest();
 
 private slots:
     void testAccessors();
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

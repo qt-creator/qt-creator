@@ -11,8 +11,11 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/icon.h>
 #include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
+#include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 
 #include <QMenu>
 #include <QToolButton>
@@ -24,12 +27,19 @@ namespace ScxmlEditor::Common {
 ColorThemes::ColorThemes(QObject *parent)
     : QObject(parent)
 {
-    m_modifyAction = new QAction(QIcon(":/scxmleditor/images/colorthemes.png"), Tr::tr("Modify Color Themes..."), this);
+    const QIcon themes = Icon(
+                {{":/scxmleditor/images/colorthemes.png", Theme::PanelTextColorMid},
+                 {":/scxmleditor/images/theme1_fill.png", Theme::PanelTextColorMid},
+                 {":/scxmleditor/images/theme2_fill.png", Theme::IconsRunToolBarColor},
+                 {":/scxmleditor/images/theme3_fill.png", Theme::IconsWarningToolBarColor}},
+                Icon::Tint).icon();
+    m_modifyAction = new QAction(themes, Tr::tr("Modify Color Themes..."), this);
     m_modifyAction->setToolTip(Tr::tr("Modify Color Theme"));
 
     m_toolButton = new QToolButton;
-    m_toolButton->setIcon(QIcon(":/scxmleditor/images/colorthemes.png"));
+    m_toolButton->setIcon(themes);
     m_toolButton->setToolTip(Tr::tr("Select Color Theme"));
+    m_toolButton->setProperty(StyleHelper::C_NO_ARROW, true);
     m_toolButton->setPopupMode(QToolButton::InstantPopup);
 
     m_menu = new QMenu;
@@ -81,7 +91,7 @@ void ColorThemes::updateColorThemeMenu()
     keys.append(Constants::C_COLOR_SCHEME_SCXMLDOCUMENT);
     keys.append(Constants::C_COLOR_SCHEME_DEFAULT);
 
-    for (const QString &key: keys) {
+    for (const QString &key: std::as_const(keys)) {
         const QString actionText = key == Constants::C_COLOR_SCHEME_DEFAULT
                 ? Tr::tr("Factory Default") : key == Constants::C_COLOR_SCHEME_SCXMLDOCUMENT
                   ? Tr::tr("Colors from SCXML Document")
@@ -160,7 +170,7 @@ void ColorThemes::setCurrentColors(const QVariantMap &colorData)
 
     QStringList serializedColors;
 
-    QVector<QColor> colors = ColorThemeView::defaultColors();
+    QList<QColor> colors = ColorThemeView::defaultColors();
     for (QVariantMap::const_iterator i = colorData.begin(); i != colorData.end(); ++i) {
         const int k = i.key().toInt();
         if (k >= 0 && k < colors.count()) {

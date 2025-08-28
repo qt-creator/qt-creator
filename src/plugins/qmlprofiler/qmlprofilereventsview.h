@@ -14,6 +14,7 @@ namespace QmlProfiler {
 class QMLPROFILER_EXPORT QmlProfilerEventsView : public QWidget
 {
     Q_OBJECT
+
 public:
     QmlProfilerEventsView(QWidget *parent = nullptr) : QWidget(parent) {}
 

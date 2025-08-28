@@ -20,7 +20,6 @@
 #include <QPainter>
 #include <QApplication>
 #include <QAbstractProxyModel>
-#include <QFileInfo>
 #include <QScrollBar>
 #include <QStyleFactory>
 #include <QString>

@@ -2,16 +2,16 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "memoryusagemodel_test.h"
+
 #include "../qmlprofilertr.h"
+
 #include <QtTest>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
-MemoryUsageModelTest::MemoryUsageModelTest(QObject *parent) : QObject(parent),
-    model(&manager, &aggregator)
-{
-}
+MemoryUsageModelTest::MemoryUsageModelTest()
+    : model(&manager, &aggregator)
+{}
 
 void MemoryUsageModelTest::initTestCase()
 {
@@ -211,5 +211,4 @@ void MemoryUsageModelTest::cleanupTestCase()
     QCOMPARE(model.count(), 0);
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

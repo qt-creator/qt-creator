@@ -139,17 +139,18 @@ PropertyReader::PropertyReader(Document::Ptr doc, AST::UiObjectInitializer *ast)
                 for (UiObjectMemberList *iter = objectDefinition->initializer->members; iter; iter = iter->next) {
                     UiObjectMember *objectMember = iter->member;
                     if (UiScriptBinding *property = cast<UiScriptBinding *>(objectMember)) {
-                        const QString propertyNamePart2 = toString(property->qualifiedId);
+                        const QString qualifiedPropertyName = propertyName + QLatin1Char('.')
+                                                              + toString(property->qualifiedId);
                         const QString astValue = cleanupSemicolon(textAt(doc,
                                                                          property->statement->firstSourceLocation(),
                                                                          property->statement->lastSourceLocation()));
-                        m_astPropertyValues.insert(propertyName, astValue);
+                        m_astPropertyValues.insert(qualifiedPropertyName, astValue);
                         if (isLiteralValue(property)) {
-                            m_properties.insert(propertyName + QLatin1Char('.') + propertyNamePart2,
-                                                QVariant(deEscape(stripQuotes(astValue))));
+                            m_properties.insert(
+                                qualifiedPropertyName, QVariant(deEscape(stripQuotes(astValue))));
                         } else if (isEnum(property->statement)) { //enum
-                            m_properties.insert(propertyName + QLatin1Char('.') + propertyNamePart2, QVariant(astValue));
-                            m_bindingOrEnum.append(propertyName + QLatin1Char('.') + propertyNamePart2);
+                            m_properties.insert(qualifiedPropertyName, QVariant(astValue));
+                            m_bindingOrEnum.append(qualifiedPropertyName);
                         }
                     }
                 }

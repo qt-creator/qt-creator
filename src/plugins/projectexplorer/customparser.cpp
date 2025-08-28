@@ -26,6 +26,7 @@
 #   include "outputparser_test.h"
 #endif
 
+using namespace ProjectExplorer::Internal;
 using namespace Utils;
 
 const char idKey[] = "Id";
@@ -38,6 +39,8 @@ const char fileNameCapKey[] = "FileNameCap";
 const char messageCapKey[] = "MessageCap";
 const char channelKey[] = "Channel";
 const char exampleKey[] = "Example";
+const char buildDefaultKey[] = "BuildDefault";
+const char runDefaultKey[] = "RunDefault";
 
 namespace ProjectExplorer {
 
@@ -136,7 +139,9 @@ void CustomParserExpression::setFileNameCap(int fileNameCap)
 bool CustomParserSettings::operator ==(const CustomParserSettings &other) const
 {
     return id == other.id && displayName == other.displayName
-            && error == other.error && warning == other.warning;
+            && error == other.error && warning == other.warning
+            && buildDefault == other.buildDefault
+            && runDefault == other.runDefault;
 }
 
 Store CustomParserSettings::toMap() const
@@ -146,6 +151,8 @@ Store CustomParserSettings::toMap() const
     map.insert(nameKey, displayName);
     map.insert(errorKey, variantFromStore(error.toMap()));
     map.insert(warningKey, variantFromStore(warning.toMap()));
+    map.insert(buildDefaultKey, buildDefault);
+    map.insert(runDefaultKey, runDefault);
     return map;
 }
 
@@ -155,17 +162,24 @@ void CustomParserSettings::fromMap(const Store &map)
     displayName = map.value(nameKey).toString();
     error.fromMap(storeFromVariant(map.value(errorKey)));
     warning.fromMap(storeFromVariant(map.value(warningKey)));
+    buildDefault = map.value(buildDefaultKey).toBool();
+    runDefault = map.value(runDefaultKey).toBool();
 }
 
-CustomParsersAspect::CustomParsersAspect(Target *target)
+CustomParsersAspect::CustomParsersAspect(BuildConfiguration *bc)
 {
-    Q_UNUSED(target)
+    Q_UNUSED(bc)
     setId("CustomOutputParsers");
     setSettingsKey("CustomOutputParsers");
     setDisplayName(Tr::tr("Custom Output Parsers"));
     addDataExtractor(this, &CustomParsersAspect::parsers, &Data::parsers);
     setConfigWidgetCreator([this] {
-        const auto widget = new Internal::CustomParsersSelectionWidget;
+        const auto widget =
+                new CustomParsersSelectionWidget(CustomParsersSelectionWidget::InRunConfig);
+        for (const auto &s : ProjectExplorerPlugin::customParsers()) {
+            if (s.runDefault && !m_parsers.contains(s.id))
+                m_parsers.append(s.id);
+        }
         widget->setSelectedParsers(m_parsers);
         connect(widget, &Internal::CustomParsersSelectionWidget::selectionChanged,
                 this, [this, widget] { m_parsers = widget->selectedParsers(); });
@@ -260,7 +274,8 @@ class SelectionWidget : public QWidget
 {
     Q_OBJECT
 public:
-    SelectionWidget(QWidget *parent = nullptr) : QWidget(parent)
+    SelectionWidget(CustomParsersSelectionWidget::Embedded where, QWidget *parent)
+        : QWidget(parent), m_where(where)
     {
         const auto layout = new QVBoxLayout(this);
         const auto explanatoryLabel = new QLabel(Tr::tr(
@@ -302,12 +317,23 @@ private:
     {
         const auto layout = qobject_cast<QVBoxLayout *>(this->layout());
         QTC_ASSERT(layout, return);
-        const QList<Utils::Id> parsers = selectedParsers();
+        QList<Utils::Id> parsers = selectedParsers();
         for (const auto &p : std::as_const(parserCheckBoxes))
             delete p.first;
         parserCheckBoxes.clear();
         for (const CustomParserSettings &s : ProjectExplorerPlugin::customParsers()) {
             const auto checkBox = new QCheckBox(s.displayName, this);
+            bool isSelected = parsers.contains(s.id);
+            bool projectDefault =
+                       (m_where == CustomParsersSelectionWidget::InBuildConfig && s.buildDefault)
+                    || (m_where == CustomParsersSelectionWidget::InRunConfig  && s.runDefault);
+            if (projectDefault) {
+                //: %1 = parser display name
+                checkBox->setText(Tr::tr("%1 (project default)").arg(s.displayName));
+                if (!isSelected)
+                     parsers.append(s.id);
+            }
+            checkBox->setCheckState(parsers.contains(s.id) ? Qt::Checked : Qt::Unchecked);
             connect(checkBox, &QCheckBox::stateChanged, this, &SelectionWidget::selectionChanged);
             parserCheckBoxes.push_back({checkBox, s.id});
             layout->addWidget(checkBox);
@@ -316,12 +342,14 @@ private:
     }
 
     QList<QPair<QCheckBox *, Utils::Id>> parserCheckBoxes;
+    const CustomParsersSelectionWidget::Embedded m_where;
 };
 } // anonymous namespace
 
-CustomParsersSelectionWidget::CustomParsersSelectionWidget(QWidget *parent) : DetailsWidget(parent)
+CustomParsersSelectionWidget::CustomParsersSelectionWidget(Embedded where, QWidget *parent)
+    : DetailsWidget(parent)
 {
-    const auto widget = new SelectionWidget(this);
+    const auto widget = new SelectionWidget(where, this);
     connect(widget, &SelectionWidget::selectionChanged, this, [this] {
         updateSummary();
         emit selectionChanged();

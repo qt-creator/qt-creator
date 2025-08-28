@@ -6,6 +6,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
+#include <QtCore/QElapsedTimer>
 #include <QtCore/QMutex>
 #include <QtCore/QThread>
 #include <QtCore/QTimer>

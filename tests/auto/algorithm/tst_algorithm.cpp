@@ -238,9 +238,9 @@ void tst_Algorithm::transform()
         QCOMPARE(trans, QList<double>({1.5, 7.5, 17.5}));
     }
     {
-        // specific result container with one template parameter (QVector)
+        // specific result container with one template parameter (QList)
         std::vector<int> v({1, 2, 3, 4});
-        const QVector<BaseStruct *> trans = Utils::transform<QVector<BaseStruct *>>(v, [](int i) {
+        const QList<BaseStruct *> trans = Utils::transform<QList<BaseStruct *>>(v, [](int i) {
             return new Struct(i);
         });
         QCOMPARE(trans.size(), 4);
@@ -279,14 +279,14 @@ void tst_Algorithm::transform()
     {
         // specific result container with member function
         QList<Struct> v({1, 2, 3, 4});
-        const QVector<double> trans = Utils::transform<QVector<double>>(v, &Struct::getMember);
-        QCOMPARE(trans, QVector<double>({1.0, 2.0, 3.0, 4.0}));
+        const QList<double> trans = Utils::transform<QList<double>>(v, &Struct::getMember);
+        QCOMPARE(trans, QList<double>({1.0, 2.0, 3.0, 4.0}));
     }
     {
         // specific result container with member
         QList<Struct> v({1, 2, 3, 4});
-        const QVector<double> trans = Utils::transform<QVector<double>>(v, &Struct::member);
-        QCOMPARE(trans, QVector<double>({1.0, 2.0, 3.0, 4.0}));
+        const QList<double> trans = Utils::transform<QList<double>>(v, &Struct::member);
+        QCOMPARE(trans, QList<double>({1.0, 2.0, 3.0, 4.0}));
     }
     {
         // non-const container and function parameter
@@ -295,7 +295,7 @@ void tst_Algorithm::transform()
         const std::vector<std::reference_wrapper<Struct>> trans
             = Utils::transform(v, [](Struct &s) { return std::ref(s); });
         // different container type
-        QVector<Struct> v2({1, 2, 3, 4});
+        QList<Struct> v2({1, 2, 3, 4});
         const std::vector<std::reference_wrapper<Struct>> trans2
             = Utils::transform<std::vector>(v, [](Struct &s) { return std::ref(s); });
         // temporaries

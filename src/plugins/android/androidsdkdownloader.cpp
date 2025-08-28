@@ -14,12 +14,12 @@
 #include <utils/async.h>
 #include <utils/filepath.h>
 #include <utils/networkaccessmanager.h>
+#include <utils/progressdialog.h>
 #include <utils/unarchiver.h>
 
 #include <QCryptographicHash>
 #include <QLoggingCategory>
 #include <QMessageBox>
-#include <QProgressDialog>
 #include <QStandardPaths>
 
 using namespace Tasking;
@@ -65,7 +65,7 @@ static FilePath sdkFromUrl(const QUrl &url)
 // TODO: Make it a separate async task in a chain?
 static std::optional<QString> saveToDisk(const FilePath &filename, QIODevice *data)
 {
-    const expected_str<qint64> result = filename.writeFileContents(data->readAll());
+    const Result<qint64> result = filename.writeFileContents(data->readAll());
     if (!result) {
         return Tr::tr("Could not open \"%1\" for writing: %2.")
             .arg(filename.toUserOutput(), result.error());
@@ -77,7 +77,7 @@ static std::optional<QString> saveToDisk(const FilePath &filename, QIODevice *da
 static void validateFileIntegrity(QPromise<void> &promise, const FilePath &fileName,
                                   const QByteArray &sha256)
 {
-    const expected_str<QByteArray> result = fileName.fileContents();
+    const Result<QByteArray> result = fileName.fileContents();
     if (result) {
         QCryptographicHash hash(QCryptographicHash::Sha256);
         hash.addData(*result);
@@ -92,20 +92,14 @@ GroupItem downloadSdkRecipe()
     struct StorageStruct
     {
         StorageStruct() {
-            progressDialog.reset(new QProgressDialog(Tr::tr("Downloading SDK Tools package..."),
-                                 Tr::tr("Cancel"), 0, 100, Core::ICore::dialogParent()));
-            progressDialog->setWindowModality(Qt::ApplicationModal);
-            progressDialog->setMinimumDuration(INT_MAX); // In order to suppress calls to processEvents() from setValue()
-            progressDialog->setWindowTitle(dialogTitle());
-            progressDialog->setFixedSize(progressDialog->sizeHint());
-            progressDialog->setAutoClose(false);
-            progressDialog->show(); // TODO: Should not be needed. Investigate possible QT_BUG
+            progressDialog.reset(createProgressDialog(100, dialogTitle(),
+                                                      Tr::tr("Downloading SDK Tools package...")));
         }
         std::unique_ptr<QProgressDialog> progressDialog;
         std::optional<FilePath> sdkFileName;
     };
 
-    Storage<StorageStruct> storage;
+    const Storage<StorageStruct> storage;
 
     const auto onSetup = [] {
         if (AndroidConfig::sdkToolsUrl().isEmpty()) {
@@ -172,27 +166,25 @@ GroupItem downloadSdkRecipe()
             return;
         logError(Tr::tr("Verifying the integrity of the downloaded file has failed."));
     };
-    const auto onUnarchiveSetup = [storage](Unarchiver &unarchiver) {
+    const auto onUnarchiveSetup = [storage](Unarchiver &task) {
         storage->progressDialog->setRange(0, 0);
         storage->progressDialog->setLabelText(Tr::tr("Unarchiving SDK Tools package..."));
         const FilePath sdkFileName = *storage->sdkFileName;
-        const auto sourceAndCommand = Unarchiver::sourceAndCommand(sdkFileName);
-        if (!sourceAndCommand) {
-            logError(sourceAndCommand.error());
-            return SetupResult::StopWithError;
-        }
-        unarchiver.setSourceAndCommand(*sourceAndCommand);
-        unarchiver.setDestDir(sdkFileName.parentDir());
+        task.setArchive(sdkFileName);
+        task.setDestination(sdkFileName.parentDir());
         return SetupResult::Continue;
     };
-    const auto onUnarchiverDone = [storage](DoneWith result) {
+    const auto onUnarchiverDone = [storage](const Unarchiver &task, DoneWith result) {
         if (result == DoneWith::Cancel)
             return;
 
-        if (result != DoneWith::Success) {
-            logError(Tr::tr("Unarchiving error."));
+        const Result<> unarchiveResult = task.result();
+
+        if (!unarchiveResult) {
+            logError(Tr::tr("Unarchiving error: %1").arg(unarchiveResult.error()));
             return;
         }
+
         AndroidConfig::setTemporarySdkToolsPath(
             storage->sdkFileName->parentDir().pathAppended(Constants::cmdlineToolsName));
     };

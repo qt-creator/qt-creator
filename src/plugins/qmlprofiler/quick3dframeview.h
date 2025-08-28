@@ -37,14 +37,14 @@
 
 #include <memory>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class Quick3DMainView;
 
 class Quick3DFrameView : public QmlProfilerEventsView
 {
     Q_OBJECT
+
 public:
     explicit Quick3DFrameView(QmlProfilerModelManager *profilerModelManager,
                                          QWidget *parent = nullptr);
@@ -62,6 +62,7 @@ private:
 class Quick3DMainView : public Utils::TreeView
 {
     Q_OBJECT
+
 public:
     explicit Quick3DMainView(Quick3DFrameModel *model, bool compareView, QWidget *parent = nullptr);
     ~Quick3DMainView() override = default;
@@ -78,5 +79,4 @@ private:
     bool m_compareView;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

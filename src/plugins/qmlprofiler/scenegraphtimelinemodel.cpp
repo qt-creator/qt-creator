@@ -11,8 +11,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 static const char *ThreadLabels[] = {
     QT_TRANSLATE_NOOP("QtC::QmlProfiler", "GUI Thread"),
@@ -206,7 +205,7 @@ void SceneGraphTimelineModel::flattenLoads()
     int collapsedRowCount = 0;
 
     // computes "compressed row"
-    QVector <qint64> eventEndTimes;
+    QList<qint64> eventEndTimes;
 
     for (int i = 0; i < count(); i++) {
         Item &event = m_data[i];
@@ -277,5 +276,4 @@ SceneGraphTimelineModel::Item::Item(int typeId, int glyphCount) :
 {
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

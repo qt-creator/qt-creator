@@ -18,6 +18,8 @@ namespace Android::Internal {
 class AndroidDevice final : public ProjectExplorer::IDevice
 {
 public:
+    using Ptr = std::shared_ptr<AndroidDevice>;
+
     AndroidDevice();
 
     static IDevice::Ptr create();

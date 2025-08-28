@@ -17,7 +17,6 @@
 #include <QHash>
 #include <QList>
 #include <QSet>
-#include <QVector>
 
 #include <memory>
 
@@ -28,11 +27,11 @@ class CPPEDITOR_EXPORT ProjectInfo
 public:
     using ConstPtr = std::shared_ptr<const ProjectInfo>;
     static ConstPtr create(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
-                           const QVector<ProjectPart::ConstPtr> &projectParts);
+                           const QList<ProjectPart::ConstPtr> &projectParts);
     static ConstPtr cloneWithNewSettings(const ProjectInfo::ConstPtr &pi,
                                          const CppCodeModelSettings &settings);
 
-    const QVector<ProjectPart::ConstPtr> &projectParts() const { return m_projectParts; }
+    const QList<ProjectPart::ConstPtr> &projectParts() const { return m_projectParts; }
     const QSet<Utils::FilePath> &sourceFiles() const { return m_sourceFiles; }
     QString projectName() const { return m_projectName; }
     Utils::FilePath projectFilePath() const { return m_projectFilePath; }
@@ -50,10 +49,10 @@ public:
 
 private:
     ProjectInfo(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
-                const QVector<ProjectPart::ConstPtr> &projectParts);
+                const QList<ProjectPart::ConstPtr> &projectParts);
     ProjectInfo(const ProjectInfo::ConstPtr &pi, const CppCodeModelSettings &settings);
 
-    const QVector<ProjectPart::ConstPtr> m_projectParts;
+    const QList<ProjectPart::ConstPtr> m_projectParts;
     const QString m_projectName;
     const Utils::FilePath m_projectFilePath;
     const Utils::FilePath m_buildRoot;

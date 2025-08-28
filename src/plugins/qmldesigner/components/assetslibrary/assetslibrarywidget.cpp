@@ -25,6 +25,7 @@
 #include <uniquename.h>
 #include <utils3d.h>
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -187,7 +188,7 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &mainImageCache,
     updateSearch();
 
     setStyleSheet(Theme::replaceCssColors(
-        QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
+        Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css")));
 
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F6), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &AssetsLibraryWidget::reloadQmlSource);
@@ -433,7 +434,7 @@ void AssetsLibraryWidget::updateAssetPreview(const QString &id, const QPixmap &p
     const QString thumb = m_assetsIconProvider->setPixmap(id, pixmap, suffix);
 
     if (!thumb.isEmpty())
-        emit m_assetsModel->fileChanged(thumb);
+        emit m_assetsModel->fileChanged(Utils::FilePath::fromString(thumb));
 }
 
 void AssetsLibraryWidget::invalidateThumbnail(const QString &id)
@@ -517,7 +518,7 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
                 m_assetsModel->updateExpandPath(src, dest);
         } else if (isDir) {
             Core::AsynchronousMessageBox::warning(
-                Tr::tr("Folder move failure"),
+                Tr::tr("Failed to Move Folder"),
                 Tr::tr("Failed to move folder \"%1\". The folder might contain subfolders or one "
                        "of its files is in use.")
                     .arg(src.fileName()));
@@ -751,7 +752,7 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
             return priorities.value(first) < priorities.value(second);
         });
 
-        QStringList filters{Tr::tr("All Files (%1)").arg("*.*")};
+        QStringList filters{Core::DocumentManager::allFilesFilterString()};
         QString filterTemplate = "%1 (%2)";
         for (const QString &key : std::as_const(sortedKeys)) {
             const QStringList values = map.values(key);

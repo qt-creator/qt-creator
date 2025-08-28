@@ -11,12 +11,12 @@
 
 #include <QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerDetailsRewriter : public QObject
 {
     Q_OBJECT
+
 public:
     explicit QmlProfilerDetailsRewriter(QObject *parent = nullptr);
 
@@ -24,7 +24,7 @@ public:
     void requestDetailsForLocation(int typeId, const QmlEventLocation &location);
     Utils::FilePath getLocalFile(const QString &remoteFile);
     void reloadDocuments();
-    void populateFileFinder(const ProjectExplorer::Target *target);
+    void populateFileFinder(const ProjectExplorer::BuildConfiguration *bc);
 
 signals:
     void rewriteDetailsString(int typeId, const QString &details);
@@ -48,8 +48,7 @@ private:
     friend class QTypeInfo<PendingEvent>;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_TYPEINFO(QmlProfiler::Internal::QmlProfilerDetailsRewriter::PendingEvent, Q_MOVABLE_TYPE);

@@ -13,7 +13,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
 #endif
 
 using namespace CPlusPlus;
@@ -308,12 +307,6 @@ private:
  */
 class ConvertFromAndToPointer : public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
-public:
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const QList<AST *> &path = interface.path();
@@ -392,309 +385,19 @@ private:
 };
 
 #ifdef WITH_TESTS
-using namespace Tests;
-
-class ConvertFromAndToPointerTest : public QObject
+class ConvertFromAndToPointerTest : public Tests::CppQuickFixTestObject
 {
     Q_OBJECT
-
-private slots:
-    void test_data()
-    {
-        QTest::addColumn<QByteArray>("original");
-        QTest::addColumn<QByteArray>("expected");
-
-        QTest::newRow("ConvertFromPointer")
-            << QByteArray("void foo() {\n"
-                 "    QString *@str;\n"
-                 "    if (!str->isEmpty())\n"
-                 "        str->clear();\n"
-                 "    f1(*str);\n"
-                 "    f2(str);\n"
-                 "}\n")
-            << QByteArray("void foo() {\n"
-                 "    QString str;\n"
-                 "    if (!str.isEmpty())\n"
-                 "        str.clear();\n"
-                 "    f1(str);\n"
-                 "    f2(&str);\n"
-                 "}\n");
-
-        QTest::newRow("ConvertToPointer")
-            << QByteArray("void foo() {\n"
-                 "    QString @str;\n"
-                 "    if (!str.isEmpty())\n"
-                 "        str.clear();\n"
-                 "    f1(str);\n"
-                 "    f2(&str);\n"
-                 "}\n")
-            << QByteArray("void foo() {\n"
-                 "    QString *str = new QString;\n"
-                 "    if (!str->isEmpty())\n"
-                 "        str->clear();\n"
-                 "    f1(*str);\n"
-                 "    f2(str);\n"
-                 "}\n");
-
-        QTest::newRow("ConvertReferenceToPointer")
-            << QByteArray("void foo() {\n"
-                 "    QString narf;"
-                 "    QString &@str = narf;\n"
-                 "    if (!str.isEmpty())\n"
-                 "        str.clear();\n"
-                 "    f1(str);\n"
-                 "    f2(&str);\n"
-                 "}\n")
-            << QByteArray("void foo() {\n"
-                 "    QString narf;"
-                 "    QString *str = &narf;\n"
-                 "    if (!str->isEmpty())\n"
-                 "        str->clear();\n"
-                 "    f1(*str);\n"
-                 "    f2(str);\n"
-                 "}\n");
-
-        QTest::newRow("ConvertFromPointer_withInitializer")
-            << QByteArray("void foo() {\n"
-                 "    QString *@str = new QString(QLatin1String(\"schnurz\"));\n"
-                 "    if (!str->isEmpty())\n"
-                 "        str->clear();\n"
-                 "}\n")
-            << QByteArray("void foo() {\n"
-                 "    QString str(QLatin1String(\"schnurz\"));\n"
-                 "    if (!str.isEmpty())\n"
-                 "        str.clear();\n"
-                 "}\n");
-
-        QTest::newRow("ConvertFromPointer_withBareInitializer")
-            << QByteArray("void foo() {\n"
-                 "    QString *@str = new QString;\n"
-                 "    if (!str->isEmpty())\n"
-                 "        str->clear();\n"
-                 "}\n")
-            << QByteArray("void foo() {\n"
-                 "    QString str;\n"
-                 "    if (!str.isEmpty())\n"
-                 "        str.clear();\n"
-                 "}\n");
-
-        QTest::newRow("ConvertFromPointer_withEmptyInitializer")
-            << QByteArray("void foo() {\n"
-                 "    QString *@str = new QString();\n"
-                 "    if (!str->isEmpty())\n"
-                 "        str->clear();\n"
-                 "}\n")
-            << QByteArray("void foo() {\n"
-                 "    QString str;\n"
-                 "    if (!str.isEmpty())\n"
-                 "        str.clear();\n"
-                 "}\n");
-
-        QTest::newRow("ConvertFromPointer_structWithPointer")
-            << QByteArray("struct Bar{ QString *str; };\n"
-                 "void foo() {\n"
-                 "    Bar *@bar = new Bar;\n"
-                 "    bar->str = new QString;\n"
-                 "    delete bar->str;\n"
-                 "    delete bar;\n"
-                 "}\n")
-            << QByteArray("struct Bar{ QString *str; };\n"
-                 "void foo() {\n"
-                 "    Bar bar;\n"
-                 "    bar.str = new QString;\n"
-                 "    delete bar.str;\n"
-                 "    // delete bar;\n"
-                 "}\n");
-
-        QTest::newRow("ConvertToPointer_withInitializer")
-            << QByteArray("void foo() {\n"
-                 "    QString @str = QLatin1String(\"narf\");\n"
-                 "    if (!str.isEmpty())\n"
-                 "        str.clear();\n"
-                 "}\n")
-            << QByteArray("void foo() {\n"
-                 "    QString *str = new QString(QLatin1String(\"narf\"));\n"
-                 "    if (!str->isEmpty())\n"
-                 "        str->clear();\n"
-                 "}\n");
-
-        QTest::newRow("ConvertToPointer_withParenInitializer")
-            << QByteArray("void foo() {\n"
-                 "    QString @str(QLatin1String(\"narf\"));\n"
-                 "    if (!str.isEmpty())\n"
-                 "        str.clear();\n"
-                 "}\n")
-            << QByteArray("void foo() {\n"
-                 "    QString *str = new QString(QLatin1String(\"narf\"));\n"
-                 "    if (!str->isEmpty())\n"
-                 "        str->clear();\n"
-                 "}\n");
-
-        QTest::newRow("ConvertToPointer_noTriggerRValueRefs")
-            << QByteArray("void foo(Narf &&@narf) {}\n")
-            << QByteArray();
-
-        QTest::newRow("ConvertToPointer_noTriggerGlobal")
-            << QByteArray("int @global;\n")
-            << QByteArray();
-
-        QTest::newRow("ConvertToPointer_noTriggerClassMember")
-            << QByteArray("struct C { int @member; };\n")
-            << QByteArray();
-
-        QTest::newRow("ConvertToPointer_noTriggerClassMember2")
-            << QByteArray("void f() { struct C { int @member; }; }\n")
-            << QByteArray();
-
-        QTest::newRow("ConvertToPointer_functionOfFunctionLocalClass")
-            << QByteArray("void f() {\n"
-                 "    struct C {\n"
-                 "        void g() { int @member; }\n"
-                 "    };\n"
-                 "}\n")
-            << QByteArray("void f() {\n"
-                 "    struct C {\n"
-                 "        void g() { int *member; }\n"
-                 "    };\n"
-                 "}\n");
-
-        QTest::newRow("ConvertToPointer_redeclaredVariable_block")
-            << QByteArray("void foo() {\n"
-                 "    QString @str;\n"
-                 "    str.clear();\n"
-                 "    {\n"
-                 "        QString str;\n"
-                 "        str.clear();\n"
-                 "    }\n"
-                 "    f1(str);\n"
-                 "}\n")
-            << QByteArray("void foo() {\n"
-                 "    QString *str = new QString;\n"
-                 "    str->clear();\n"
-                 "    {\n"
-                 "        QString str;\n"
-                 "        str.clear();\n"
-                 "    }\n"
-                 "    f1(*str);\n"
-                 "}\n");
-
-        QTest::newRow("ConvertAutoFromPointer")
-            << QByteArray("void foo() {\n"
-                 "    auto @str = new QString(QLatin1String(\"foo\"));\n"
-                 "    if (!str->isEmpty())\n"
-                 "        str->clear();\n"
-                 "    f1(*str);\n"
-                 "    f2(str);\n"
-                 "}\n")
-            << QByteArray("void foo() {\n"
-                 "    auto str = QString(QLatin1String(\"foo\"));\n"
-                 "    if (!str.isEmpty())\n"
-                 "        str.clear();\n"
-                 "    f1(str);\n"
-                 "    f2(&str);\n"
-                 "}\n");
-
-        QTest::newRow("ConvertAutoFromPointer2")
-            << QByteArray("void foo() {\n"
-                 "    auto *@str = new QString;\n"
-                 "    if (!str->isEmpty())\n"
-                 "        str->clear();\n"
-                 "    f1(*str);\n"
-                 "    f2(str);\n"
-                 "}\n")
-            << QByteArray("void foo() {\n"
-                 "    auto str = QString();\n"
-                 "    if (!str.isEmpty())\n"
-                 "        str.clear();\n"
-                 "    f1(str);\n"
-                 "    f2(&str);\n"
-                 "}\n");
-
-        QTest::newRow("ConvertAutoToPointer")
-            << QByteArray("void foo() {\n"
-                 "    auto @str = QString(QLatin1String(\"foo\"));\n"
-                 "    if (!str.isEmpty())\n"
-                 "        str.clear();\n"
-                 "    f1(str);\n"
-                 "    f2(&str);\n"
-                 "}\n")
-            << QByteArray("void foo() {\n"
-                 "    auto @str = new QString(QLatin1String(\"foo\"));\n"
-                 "    if (!str->isEmpty())\n"
-                 "        str->clear();\n"
-                 "    f1(*str);\n"
-                 "    f2(str);\n"
-                 "}\n");
-
-        QTest::newRow("ConvertToPointerWithMacro")
-            << QByteArray("#define BAR bar\n"
-                 "void func()\n"
-                 "{\n"
-                 "    int @foo = 42;\n"
-                 "    int bar;\n"
-                 "    BAR = foo;\n"
-                 "}\n")
-            << QByteArray("#define BAR bar\n"
-                 "void func()\n"
-                 "{\n"
-                 "    int *foo = 42;\n"
-                 "    int bar;\n"
-                 "    BAR = *foo;\n"
-                 "}\n");
-
-        QString testObjAndFunc = "struct Object\n"
-                                 "{\n"
-                                 "    Object(%1){}\n"
-                                 "};\n"
-                                 "void func()\n"
-                                 "{\n"
-                                 "    %2\n"
-                                 "}\n";
-
-        QTest::newRow("ConvertToStack1_QTCREATORBUG23181")
-            << QByteArray(testObjAndFunc.arg("int").arg("Object *@obj = new Object(0);").toUtf8())
-            << QByteArray(testObjAndFunc.arg("int").arg("Object obj(0);").toUtf8());
-
-        QTest::newRow("ConvertToStack2_QTCREATORBUG23181")
-            << QByteArray(testObjAndFunc.arg("int").arg("Object *@obj = new Object{0};").toUtf8())
-            << QByteArray(testObjAndFunc.arg("int").arg("Object obj{0};").toUtf8());
-
-        QTest::newRow("ConvertToPointer1_QTCREATORBUG23181")
-            << QByteArray(testObjAndFunc.arg("").arg("Object @obj;").toUtf8())
-            << QByteArray(testObjAndFunc.arg("").arg("Object *obj = new Object;").toUtf8());
-
-        QTest::newRow("ConvertToPointer2_QTCREATORBUG23181")
-            << QByteArray(testObjAndFunc.arg("").arg("Object @obj();").toUtf8())
-            << QByteArray(testObjAndFunc.arg("").arg("Object *obj = new Object();").toUtf8());
-
-        QTest::newRow("ConvertToPointer3_QTCREATORBUG23181")
-            << QByteArray(testObjAndFunc.arg("").arg("Object @obj{};").toUtf8())
-            << QByteArray(testObjAndFunc.arg("").arg("Object *obj = new Object{};").toUtf8());
-
-        QTest::newRow("ConvertToPointer4_QTCREATORBUG23181")
-            << QByteArray(testObjAndFunc.arg("int").arg("Object @obj(0);").toUtf8())
-            << QByteArray(testObjAndFunc.arg("int").arg("Object *obj = new Object(0);").toUtf8());
-
-
-    }
-
-    void test()
-    {
-        QFETCH(QByteArray, original);
-        QFETCH(QByteArray, expected);
-        ConvertFromAndToPointer factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory);
-    }
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
 };
+#endif
 
-QObject *ConvertFromAndToPointer::createTest() { return new ConvertFromAndToPointerTest; }
-
-#endif // WITH_TESTS
 } // namespace
 
 void registerConvertFromAndToPointerQuickfix()
 {
-    CppQuickFixFactory::registerFactory<ConvertFromAndToPointer>();
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(ConvertFromAndToPointer);
 }
 
 } // namespace CppEditor::Internal

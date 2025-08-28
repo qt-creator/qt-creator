@@ -136,7 +136,7 @@ void SquishToolkitsPage::fetchServerSettings()
         QApplication::restoreOverrideCursor();
         // FIXME current impl limited to Desktop to avoid confusion and bugreports
         const QStringList ignored = { "Android", "iOS", "VNC", "XView" };
-        auto buttons = m_buttonGroup->buttons();
+        const QList<QAbstractButton*> buttons = m_buttonGroup->buttons();
         for (auto button : buttons) {
             const QString text = button->text();
             if (!ignored.contains(text) && s.licensedToolkits.contains(text)) {
@@ -281,7 +281,7 @@ public:
     WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) final
     {
         Q_UNUSED(wizard)
-        Q_UNUSED(data);
+        Q_UNUSED(data)
         QTC_ASSERT(canCreate(typeId), return nullptr);
         return new SquishAUTPage;
     }
@@ -300,45 +300,39 @@ public:
 class SquishFileGenerator final : public JsonWizardGenerator
 {
 public:
-    bool setup(const QVariant &data, QString *errorMessage);
+    Result<> setup(const QVariant &data);
     Core::GeneratedFiles fileList(MacroExpander *expander,
                                   const FilePath &wizardDir,
                                   const FilePath &projectDir,
                                   QString *errorMessage) final;
-    bool writeFile(const ProjectExplorer::JsonWizard *wizard, Core::GeneratedFile *file,
-                   QString *errorMessage) final;
-    bool allDone(const ProjectExplorer::JsonWizard *wizard, Core::GeneratedFile *file,
-                 QString *errorMessage) final;
+    Result<> writeFile(const ProjectExplorer::JsonWizard *wizard, Core::GeneratedFile *file) final;
+    Result<> allDone(const ProjectExplorer::JsonWizard *wizard, Core::GeneratedFile *file) final;
 
 private:
     QString m_mode;
 };
 
-bool SquishFileGenerator::setup(const QVariant &data, QString *errorMessage)
+Result<> SquishFileGenerator::setup(const QVariant &data)
 {
     if (data.isNull())
-        return false;
+        return ResultError("No data");
 
-    if (data.typeId() != QMetaType::QVariantMap) {
-        *errorMessage = Tr::tr("Key is not an object.");
-        return false;
-    }
+    if (data.typeId() != QMetaType::QVariantMap)
+        return ResultError(Tr::tr("Key is not an object."));
 
     const QVariantMap map = data.toMap();
-    auto modeVariant = map.value("mode");
-    if (!modeVariant.isValid()) {
-        *errorMessage = Tr::tr("Key 'mode' is not set.");
-        return false;
-    }
+    const QVariant modeVariant = map.value("mode");
+    if (!modeVariant.isValid())
+        return ResultError(Tr::tr("Key 'mode' is not set."));
 
     m_mode = modeVariant.toString();
     if (m_mode != "TestSuite") {
-        *errorMessage = Tr::tr("Unsupported mode:") + ' ' + m_mode;
+        const Result<> res = ResultError(Tr::tr("Unsupported mode:") + ' ' + m_mode);
         m_mode.clear();
-        return false;
+        return res;
     }
 
-    return true;
+    return ResultOk;
 }
 
 static QString generateSuiteConf(const QString &aut, const QString &language,
@@ -392,29 +386,23 @@ Core::GeneratedFiles SquishFileGenerator::fileList(MacroExpander *expander,
     return result;
 }
 
-bool SquishFileGenerator::writeFile(const JsonWizard *,
-                                    Core::GeneratedFile *file,
-                                    QString *errorMessage)
+Result<> SquishFileGenerator::writeFile(const JsonWizard *, Core::GeneratedFile *file)
 {
-    if (!(file->attributes() & Core::GeneratedFile::CustomGeneratorAttribute)) {
-        if (!file->write(errorMessage))
-            return false;
-    }
-    return true;
+    if (file->attributes() & Core::GeneratedFile::CustomGeneratorAttribute)
+        return ResultOk;
+    return file->write();
 }
 
-bool SquishFileGenerator::allDone(const JsonWizard *wizard,
-                                  Core::GeneratedFile *file, QString *errorMessage)
+Result<> SquishFileGenerator::allDone(const JsonWizard *wizard, Core::GeneratedFile *file)
 {
     Q_UNUSED(wizard)
-    Q_UNUSED(errorMessage)
 
     if (m_mode == "TestSuite" && file->filePath().fileName() == "suite.conf") {
         QMetaObject::invokeMethod(SquishFileHandler::instance(), [filePath = file->filePath()] {
             SquishFileHandler::instance()->openTestSuite(filePath);
         }, Qt::QueuedConnection);
     }
-    return true;
+    return ResultOk;
 }
 
 void setupSquishWizardPages()

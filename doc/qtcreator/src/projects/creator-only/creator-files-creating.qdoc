@@ -39,6 +39,9 @@
         \li State Chart XML (SCXML) files, Universal Modeling Language (UML)
             style models, and scratch models that use a temporary file.
     \row
+        \li \uicontrol {Lua}
+        \li Simple Lua files for \l {Extending \QC with Lua}{Lua plugins}.
+    \row
         \li \uicontrol {Qt}
         \li Source and header files for item, table,
             or list models, \QD forms and a matching classes for Qt Widgets

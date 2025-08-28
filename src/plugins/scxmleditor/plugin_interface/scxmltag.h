@@ -83,8 +83,8 @@ public:
     void removeChild(ScxmlTag *child);
     void moveChild(int oldPos, int newPos);
     int childCount() const;
-    QVector<ScxmlTag*> allChildren() const;
-    QVector<ScxmlTag*> children(const QString &name) const;
+    QList<ScxmlTag*> allChildren() const;
+    QList<ScxmlTag*> children(const QString &name) const;
     ScxmlTag *child(const QString &name) const;
     ScxmlTag *child(int row) const;
     int childIndex(const ScxmlTag *child) const;
@@ -116,7 +116,7 @@ private:
     QStringList m_attributeNames;
     QStringList m_attributeValues;
     QPointer<ScxmlTag> m_parentTag;
-    QVector<ScxmlTag*> m_childTags;
+    QList<ScxmlTag*> m_childTags;
     QPointer<ScxmlDocument> m_document;
     TagType m_tagType = UnknownTag;
     QString m_tagName;

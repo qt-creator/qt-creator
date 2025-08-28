@@ -98,10 +98,10 @@ QString getProductModel(const QString &device);
 bool sdkFullyConfigured();
 void setSdkFullyConfigured(bool allEssentialsInstalled);
 
-bool isValidNdk(const QString &ndkLocation);
-QStringList getCustomNdkList();
-void addCustomNdk(const QString &customNdk);
-void removeCustomNdk(const QString &customNdk);
+bool isValidNdk(const Utils::FilePath &ndkPath);
+Utils::FilePaths getCustomNdkList();
+void addCustomNdk(const Utils::FilePath &customNdk);
+void removeCustomNdk(const Utils::FilePath &customNdk);
 void setDefaultNdk(const Utils::FilePath &defaultNdk);
 Utils::FilePath defaultNdk();
 

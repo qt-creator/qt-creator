@@ -145,13 +145,15 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
                         "Android kits can be usable and all essential packages are installed. "
                         "To do it later, select Edit > Preferences > Devices > Android."),
                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
-        info.addCustomButton(Tr::tr("Configure Android"), [this] {
-            Core::ICore::infoBar()->removeInfo(kSetupAndroidSetting);
-            Core::ICore::infoBar()->globallySuppressInfo(kSetupAndroidSetting);
-            QTimer::singleShot(0, this, [] {
-                Core::ICore::showOptionsDialog(Constants::ANDROID_SETTINGS_ID);
-            });
-        });
+        info.addCustomButton(
+            Tr::tr("Configure Android"),
+            [this] {
+                QTimer::singleShot(0, this, [] {
+                    Core::ICore::showOptionsDialog(Constants::ANDROID_SETTINGS_ID);
+                });
+            },
+            {},
+            Utils::InfoBarEntry::ButtonAction::SuppressPersistently);
         Core::ICore::infoBar()->addInfo(info);
     }
 };

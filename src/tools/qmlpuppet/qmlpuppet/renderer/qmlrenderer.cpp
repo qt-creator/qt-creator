@@ -16,6 +16,7 @@
 #include <QFileInfo>
 #include <QQmlComponent>
 #include <QQuickItem>
+#include <QTimer>
 
 constexpr int DEFAULT_RENDER_DIM = 300;
 constexpr int DEFAULT_MAX_DIM = 1024;
@@ -155,8 +156,8 @@ bool QmlRenderer::setupRenderer()
     if (renderObj) {
         if (!qobject_cast<QWindow *>(renderObj))
             renderObj->setProperty("visible", true);
-#ifdef QUICK3D_MODULE
         QQuickItem *contentItem3D = nullptr;
+#ifdef QUICK3D_MODULE
         renderObj->setParent(m_window->contentItem());
         if (qobject_cast<QQuick3DObject *>(renderObj)) {
             m_helper = std::make_unique<QmlDesigner::Internal::GeneralHelper>();

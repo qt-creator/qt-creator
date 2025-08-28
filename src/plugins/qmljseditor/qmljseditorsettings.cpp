@@ -25,7 +25,7 @@
 
 #include <qmljstools/qmljstoolsconstants.h>
 
-#include <qtsupport/qtversionmanager.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -63,14 +63,10 @@ const char QML_CONTEXTPANE_KEY[] = "QmlJSEditor.ContextPaneEnabled";
 const char QML_CONTEXTPANEPIN_KEY[] = "QmlJSEditor.ContextPanePinned";
 const char FOLD_AUX_DATA[] = "QmlJSEditor.FoldAuxData";
 const char UIQML_OPEN_MODE[] = "QmlJSEditor.openUiQmlMode";
-const char FORMAT_COMMAND[] = "QmlJSEditor.formatCommand";
-const char FORMAT_COMMAND_OPTIONS[] = "QmlJSEditor.formatCommandOptions";
-const char CUSTOM_COMMAND[] = "QmlJSEditor.useCustomFormatCommand";
 const char CUSTOM_ANALYZER[] = "QmlJSEditor.useCustomAnalyzer";
 const char DISABLED_MESSAGES[] = "QmlJSEditor.disabledMessages";
 const char DISABLED_MESSAGES_NONQUICKUI[] = "QmlJSEditor.disabledMessagesNonQuickUI";
-const char DEFAULT_CUSTOM_FORMAT_COMMAND[]
-    = "%{CurrentDocument:Project:QT_HOST_BINS}/qmlformat%{HostOs:ExecutableSuffix}";
+const char QDS_COMMAND[] = "QmlJSEditor.qdsCommand";
 const char SETTINGS_PAGE[] = "C.QmlJsEditing";
 
 QmlJsEditingSettings &settings()
@@ -141,19 +137,6 @@ QmlJsEditingSettings::QmlJsEditingSettings()
     uiQmlOpenMode.addOption({Tr::tr("Qt Design Studio"), {}, Core::Constants::MODE_DESIGN});
     uiQmlOpenMode.addOption({Tr::tr("Qt Creator"), {}, Core::Constants::MODE_EDIT});
 
-    useCustomFormatCommand.setSettingsKey(group, CUSTOM_COMMAND);
-    useCustomFormatCommand.setLabelText(
-        Tr::tr("Use custom command instead of built-in formatter"));
-
-    formatCommand.setSettingsKey(group, FORMAT_COMMAND);
-    formatCommand.setDisplayStyle(StringAspect::LineEditDisplay);
-    formatCommand.setPlaceHolderText(defaultFormatCommand());
-    formatCommand.setLabelText(Tr::tr("Command:"));
-
-    formatCommandOptions.setSettingsKey(group, FORMAT_COMMAND_OPTIONS);
-    formatCommandOptions.setDisplayStyle(StringAspect::LineEditDisplay);
-    formatCommandOptions.setLabelText(Tr::tr("Arguments:"));
-
     useCustomAnalyzer.setSettingsKey(group, CUSTOM_ANALYZER);
     useCustomAnalyzer.setLabelText(Tr::tr("Use customized static analyzer"));
 
@@ -167,16 +150,19 @@ QmlJsEditingSettings::QmlJsEditingSettings()
     disabledMessagesForNonQuickUi.setFromSettingsTransformation(&fromSettingsTransformation);
     disabledMessagesForNonQuickUi.setToSettingsTransformation(&toSettingsTransformation);
 
-    readSettings();
+    qdsCommand.setSettingsKey(group, QDS_COMMAND);
+    qdsCommand.setPlaceHolderText(defaultQdsCommand().toUserOutput());
+    qdsCommand.setLabelText(Tr::tr("Command:"));
+    qdsCommand.setVisible(false);
 
-    autoFormatOnlyCurrentProject.setEnabler(&autoFormatOnSave);
-    formatCommand.setEnabler(&useCustomFormatCommand);
-    formatCommandOptions.setEnabler(&useCustomFormatCommand);
+    readSettings();
 }
 
-QString QmlJsEditingSettings::defaultFormatCommand() const
+FilePath QmlJsEditingSettings::defaultQdsCommand() const
 {
-    return DEFAULT_CUSTOM_FORMAT_COMMAND;
+    QtcSettings *settings = Core::ICore::settings();
+    const Key qdsInstallationEntry = "QML/Designer/DesignStudioInstallation"; //set in installer
+    return FilePath::fromUserInput(settings->value(qdsInstallationEntry).toString());
 }
 
 class AnalyzerMessageItem final : public Utils::TreeItem
@@ -235,6 +221,11 @@ private:
     bool m_disabledInNonQuickUi = false;
 };
 
+static void openQtVersionsOptions()
+{
+    Core::ICore::showOptionsDialog(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
+}
+
 class QmlJsEditingSettingsPageWidget final : public Core::IOptionsPageWidget
 {
 public:
@@ -242,9 +233,8 @@ public:
     {
         QmlJsEditingSettings &s = settings();
 
-        analyzerMessageModel.setHeader({Tr::tr("Enabled"),
-                                        Tr::tr("Disabled for non Qt Quick UI"),
-                                        Tr::tr("Message")});
+        analyzerMessageModel.setHeader(
+            {Tr::tr("Enabled"), Tr::tr("Only for Qt Quick UI"), Tr::tr("Message")});
         analyzerMessagesView = new QTreeView;
         analyzerMessagesView->setModel(&analyzerMessageModel);
         analyzerMessagesView->setEnabled(s.useCustomAnalyzer());
@@ -263,18 +253,14 @@ public:
         using namespace Layouting;
         // clang-format off
         QWidget *formattingGroup = nullptr;
+        QWidget *qdsGroup = nullptr;
         Column {
             Group {
                 bindTo(&formattingGroup),
-                title(Tr::tr("Automatic Formatting on File Save")),
+                title(Tr::tr("Formatting")),
                 Column {
                     s.autoFormatOnSave,
                     s.autoFormatOnlyCurrentProject,
-                    s.useCustomFormatCommand,
-                    Form {
-                        s.formatCommand, br,
-                        s.formatCommandOptions
-                    }
                 },
             },
             Group {
@@ -283,6 +269,25 @@ public:
                     s.pinContextPane,
                     s.enableContextPane
                 },
+            },
+            Group {
+                bindTo(&qdsGroup),
+                title(Tr::tr("Qt Design Studio")),
+                Column {
+                    Label {
+                        wordWrap(true),
+                        text(Tr::tr("Set the path to the Qt Design Studio application to enable "
+                                    "the \"Open in Qt Design Studio\" feature. If you have Qt "
+                                    "Design Studio installed alongside Qt Creator with the Qt "
+                                    "Online Installer, it is used as the default. Use "
+                                    "<a href=\"linwithqt\">\"Link with Qt\"</a> to link an "
+                                    "offline installation of Qt Creator to a Qt Online Installer.")),
+                        onLinkActivated(this, [](const QString &) { openQtVersionsOptions(); })
+                    },
+                    Form {
+                        s.qdsCommand
+                    }
+                }
             },
             Group {
                 title(Tr::tr("Features")),
@@ -311,6 +316,8 @@ public:
             st,
         }.attachTo(this);
         // clang-format on
+
+        qdsGroup->setVisible(s.qdsCommand.isVisible());
 
         Utils::VariableChooser::addSupportForChildWidgets(formattingGroup,
                                                           Utils::globalMacroExpander());
@@ -341,7 +348,7 @@ private:
     void populateAnalyzerMessages(const QList<int> &disabled, const QList<int> &disabledForNonQuickUi)
     {
         using namespace QmlJS::StaticAnalysis;
-        auto knownMessages = Utils::sorted(Message::allMessageTypes());
+        const QList<Type> knownMessages = Utils::sorted(Message::allMessageTypes());
         auto root = analyzerMessageModel.rootItem();
         for (auto msgType : knownMessages) {
             const QString msg = Message::prototypeForMessageType(msgType).message;

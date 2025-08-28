@@ -14,8 +14,7 @@
 
 using namespace Utils;
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 QmlProfilerTextMark::QmlProfilerTextMark(QmlProfilerViewManager *viewManager, int typeId,
                                          const FilePath &fileName, int lineNumber)
@@ -135,7 +134,4 @@ bool QmlProfilerTextMark::addToolTipContent(QLayout *target) const
     return true;
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
-
-
+} // namespace QmlProfiler::Internal

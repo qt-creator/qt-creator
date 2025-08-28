@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pythongenerator.h"
+
 #include "cmakewriter.h"
 #include "resourcegenerator.h"
+#include "../qmlproject.h"
 
-#include "projectexplorer/projectmanager.h"
-#include "qmlprojectmanager/qmlproject.h"
+#include <projectexplorer/projectmanager.h>
 
 #include <QMenu>
 
@@ -86,8 +87,8 @@ void PythonGenerator::updateProject(QmlProject *project)
     Regenerates the .qrc resources file
 */
 void PythonGenerator::update(const QSet<QString> &added, const QSet<QString> &removed) {
-    Q_UNUSED(added);
-    Q_UNUSED(removed);
+    Q_UNUSED(added)
+    Q_UNUSED(removed)
     ResourceGenerator::createQrc(qmlProject());
     // Generated Python code does not need to be updated
 };

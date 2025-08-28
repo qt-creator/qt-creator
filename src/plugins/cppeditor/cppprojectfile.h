@@ -66,7 +66,7 @@ public:
     bool active = true;
 };
 
-using ProjectFiles = QVector<ProjectFile>;
+using ProjectFiles = QList<ProjectFile>;
 
 const char *projectFileKindToText(ProjectFile::Kind kind);
 

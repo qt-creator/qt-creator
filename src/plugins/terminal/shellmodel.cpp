@@ -126,7 +126,7 @@ ShellModelPrivate::ShellModelPrivate()
     } else {
         FilePath shellsFile = FilePath::fromString("/etc/shells");
         const auto shellFileContent = shellsFile.fileContents();
-        QTC_ASSERT_EXPECTED(shellFileContent, return);
+        QTC_ASSERT_RESULT(shellFileContent, return);
 
         QString shellFileContentString = QString::fromUtf8(*shellFileContent);
 
@@ -165,7 +165,7 @@ QList<ShellModelItem> ShellModel::remote() const
 {
     QList<ShellModelItem> result;
 
-    ProjectExplorer::DeviceManager::instance()->forEachDevice(
+    ProjectExplorer::DeviceManager::forEachDevice(
         [&result](const std::shared_ptr<const ProjectExplorer::IDevice> &device) {
             if (device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
                 result << ShellModelItem{device->displayName(), {CommandLine{device->rootPath()}}};

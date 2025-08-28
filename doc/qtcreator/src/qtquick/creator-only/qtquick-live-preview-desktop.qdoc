@@ -12,8 +12,8 @@
     To preview the currently active QML file on the desktop:
 
     \list
-        \li Select \inlineimage icons/live-preview.png (\uicontrol {Live Preview})
-            on the \l{Edit Mode}{editor} toolbar.
+        \li Select \inlineimage {icons/live-preview.png} {Live Preview}
+            (\uicontrol {Live Preview}) on the \l{Edit Mode}{editor} toolbar.
             \image {qtcreator-live-preview.webp} {Application running on top of the editor view}
         \li Go to \uicontrol Build > \uicontrol {QML Preview}.
     \endlist

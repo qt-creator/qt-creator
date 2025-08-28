@@ -47,18 +47,20 @@
 #include <QTimer>
 #include <QSet>
 
+#include <queue>
+
 using namespace Utils;
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace QmlJS;
 
-namespace QmlJSTools {
-namespace Internal {
+namespace QmlJSTools::Internal {
 
 static void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &projectInfo)
 {
-    Kit *activeKit = projectInfo.project ? projectInfo.project->activeKit() : KitManager::defaultKit();
-    const QHash<QString, QString> replacements = {{QLatin1String("$(QT_INSTALL_QML)"), projectInfo.qtQmlPath.toUrlishString()}};
+    Project *project = projectFromProjectInfo(projectInfo);
+    Kit *activeKit =project ? project->activeKit() : KitManager::defaultKit();
+    const QHash<QString, QString> replacements = {{QLatin1String("$(QT_INSTALL_QML)"), projectInfo.qtQmlPath.path()}};
 
     for (IBundleProvider *bp : IBundleProvider::allBundleProviders())
         bp->mergeBundlesForKit(activeKit, projectInfo.activeBundle, replacements);
@@ -67,7 +69,7 @@ static void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &proje
 
     if (projectInfo.project) {
         QSet<Kit *> currentKits;
-        const QList<Target *> targets = projectInfo.project->targets();
+        const QList<Target *> targets = project->targets();
         for (const Target *t : targets)
             currentKits.insert(t->kit());
         currentKits.remove(activeKit);
@@ -85,16 +87,52 @@ static void findAllQrcFiles(const FilePath &filePath, FilePaths &out)
             out.append(path.canonicalPath());
             return IterationPolicy::Continue;
         },
-        {{"*.qrc"}, QDir::Files | QDir::Hidden, QDirIterator::Subdirectories});
+        {{"*.qrc"}, QDir::Files});
 }
 
 static FilePaths findGeneratedQrcFiles(const ModelManagerInterface::ProjectInfo &pInfo,
                                        const FilePaths &hiddenRccFolders)
 {
     FilePaths result;
-    // Search recursively in Application Directories for .qrc files.
-    for (const Utils::FilePath &path : pInfo.applicationDirectories) {
-        findAllQrcFiles(path, result);
+    const qint64 maxFilesToSearch = 8'000; // TODO: Creator 18: load value from settings
+    qint64 searchedFiles = 0;
+
+    std::queue<Utils::FilePath> toVisit;
+    for (const Utils::FilePath &path : pInfo.applicationDirectories)
+        toVisit.push(path);
+
+    while (!toVisit.empty()) {
+        Utils::FilePath current = toVisit.front();
+        toVisit.pop();
+
+        current.iterateDirectory(
+            [&toVisit,
+             &searchedFiles,
+             &result](const FilePath &child, const FilePathInfo &childInfo) {
+                if (++searchedFiles > maxFilesToSearch)
+                    return IterationPolicy::Stop;
+                if (childInfo.fileFlags.testFlag(FilePathInfo::DirectoryType)) {
+                    // ignore hidden files except for .qt/rcc and .rcc folders
+                    if (!child.fileName().startsWith(u'.')) {
+                        toVisit.push(child);
+                        return IterationPolicy::Continue;
+                    }
+                    if (child.fileName() == ".qt") {
+                        toVisit.push(child.pathAppended("rcc"));
+                        return IterationPolicy::Continue;
+                    }
+                    if (child.fileName() == ".rcc")
+                        toVisit.push(child);
+                    return IterationPolicy::Continue;
+                }
+                if (childInfo.fileFlags.testFlag(FilePathInfo::FileType) && child.endsWith(".qrc"))
+                    result.append(child);
+                return IterationPolicy::Continue;
+            },
+            {{}, QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::Hidden | QDir::NoDotAndDotDot});
+
+        if (searchedFiles > maxFilesToSearch)
+            break;
     }
 
     for (const Utils::FilePath &hiddenRccFolder : hiddenRccFolders) {
@@ -105,20 +143,22 @@ static FilePaths findGeneratedQrcFiles(const ModelManagerInterface::ProjectInfo 
 }
 
 ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
-    Project *project, const FilePaths &hiddenRccFolders) const
+    ProjectBase *project, const FilePaths &hiddenRccFolders) const
 {
     ModelManagerInterface::ProjectInfo projectInfo;
     projectInfo.project = project;
     projectInfo.qmlDumpEnvironment = Utils::Environment::systemEnvironment();
-    if (project) {
+    ProjectExplorer::Project *peProject = projectFromProjectInfo(projectInfo);
+    if (peProject) {
         using namespace Utils::Constants;
+
         const QSet<QString> qmlTypeNames = { QML_MIMETYPE ,
                                              QBS_MIMETYPE,
                                              QMLPROJECT_MIMETYPE,
                                              QMLTYPES_MIMETYPE,
                                              QMLUI_MIMETYPE };
-        projectInfo.sourceFiles = project->files([&qmlTypeNames](const Node *n) {
-            if (!Project::SourceFiles(n))
+        projectInfo.sourceFiles = peProject->files([&qmlTypeNames](const Node *n) {
+            if (!ProjectExplorer::Project::SourceFiles(n))
                 return false;
             const FileNode *fn = n->asFileNode();
             return fn && fn->fileType() == FileType::QML
@@ -126,7 +166,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
                                                                     MimeMatchMode::MatchExtension).name());
         });
     }
-    Kit *activeKit = ProjectExplorer::activeKit(project);
+    Kit *activeKit = ProjectExplorer::activeKit(peProject);
     Kit *kit = activeKit ? activeKit : KitManager::defaultKit();
     QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
 
@@ -135,9 +175,9 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     if (activeKit) {
         FilePath baseDir;
         auto addAppDir = [&baseDir, &projectInfo](const FilePath &mdir) {
-            auto dir = mdir.cleanPath();
+            const FilePath dir = mdir.cleanPath();
             if (!baseDir.path().isEmpty()) {
-                auto rDir = dir.relativePathFrom(baseDir);
+                const FilePath rDir = dir.relativePathFromDir(baseDir);
                 // do not add directories outside the build directory
                 // this might happen for example when we think an executable path belongs to
                 // a bundle, and we need to remove extra directories, but that was not the case
@@ -148,7 +188,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
                 projectInfo.applicationDirectories.append(dir);
         };
 
-        if (BuildConfiguration *bc = project->activeBuildConfiguration()) {
+        if (BuildConfiguration *bc = peProject->activeBuildConfiguration()) {
             // Append QML2_IMPORT_PATH if it is defined in build configuration.
             // It enables qmlplugindump to correctly dump custom plugins or other dependent
             // plugins that are not installed in default Qt qml installation directory.
@@ -168,7 +208,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
         // For an IDE things are a bit more complicated because source files might be edited,
         // and the directory of the executable might be outdated.
         // Here we try to get the directory of the executable, adding all targets
-        auto *bs = project->activeBuildSystem();
+        auto *bs = peProject->activeBuildSystem();
         const auto appTargets = bs ? bs->applicationTargets() : QList<BuildTargetInfo>{};
         for (const auto &target : appTargets) {
             if (target.targetFilePath.isEmpty())
@@ -326,7 +366,7 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopyInternal() const
 void ModelManager::updateDefaultProjectInfo()
 {
     // needs to be performed in the ui thread
-    Project *currentProject = ProjectManager::startupProject();
+    ProjectBase *currentProject = ProjectManager::startupProject();
     setDefaultProject(containsProject(currentProject)
                             ? projectInfo(currentProject)
                             : defaultProjectInfoForProject(currentProject, {}),
@@ -340,5 +380,9 @@ void ModelManager::addTaskInternal(const QFuture<void> &result, const QString &m
     ProgressManager::addTask(result, msg, taskId);
 }
 
-} // namespace Internal
-} // namespace QmlJSTools
+Project *projectFromProjectInfo(const QmlJS::ModelManagerInterface::ProjectInfo &projectInfo)
+{
+    return qobject_cast<Project *>(projectInfo.project);
+}
+
+} // namespace QmlJSTools::Internal

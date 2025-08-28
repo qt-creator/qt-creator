@@ -1270,7 +1270,7 @@ void PropertiesView::MView::visitMDiagramBehind(const MDiagram *diagram)
 
 void PropertiesView::MView::visitDObjectBefore(const DObject *object)
 {
-    Q_UNUSED(object);
+    Q_UNUSED(object)
 }
 
 void PropertiesView::MView::onStereotypesChanged(const QString &stereotypes)

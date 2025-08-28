@@ -8,7 +8,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-
 namespace EffectComposer {
 
 static bool enableEffectComposer()
@@ -16,7 +15,7 @@ static bool enableEffectComposer()
     return Core::ICore::isQtDesignStudio();
 }
 
-class EffectComposerPlugin : public ExtensionSystem::IPlugin
+class EffectComposerPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "EffectComposer.json")
@@ -25,10 +24,9 @@ public:
     EffectComposerPlugin() {}
     ~EffectComposerPlugin() override {}
 
-    bool initialize(const QStringList &arguments, QString *errorString) override
+    void initialize() final
     {
         EffectComposerView::registerDeclarativeTypes();
-        return ExtensionSystem::IPlugin::initialize(arguments, errorString);
     }
 
     bool delayedInitialize() override

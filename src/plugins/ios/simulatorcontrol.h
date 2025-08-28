@@ -62,7 +62,7 @@ public:
         qint64 inferiorPid{-1};
     };
 
-    using Response = Utils::expected_str<ResponseData>;
+    using Response = Utils::Result<ResponseData>;
 
 public:
     static QFuture<QList<DeviceTypeInfo>> updateDeviceTypes();

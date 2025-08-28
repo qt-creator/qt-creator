@@ -347,9 +347,8 @@ void Bind::attribute(GnuAttributeAST *ast)
 
     // int lparen_token = ast->lparen_token;
     // int tag_token = ast->tag_token;
-    for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
-        ExpressionTy value = this->expression(it->value);
-    }
+    for (ExpressionListAST *it = ast->expression_list; it; it = it->next)
+        expression(it->value);
     // int rparen_token = ast->rparen_token;
 }
 
@@ -677,9 +676,8 @@ void Bind::newPlacement(ExpressionListParenAST *ast)
         return;
 
     // int lparen_token = ast->lparen_token;
-    for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
-        ExpressionTy value = this->expression(it->value);
-    }
+    for (ExpressionListAST *it = ast->expression_list; it; it = it->next)
+        expression(it->value);
     // int rparen_token = ast->rparen_token;
 }
 
@@ -698,7 +696,7 @@ FullySpecifiedType Bind::newArrayDeclarator(NewArrayDeclaratorAST *ast, const Fu
         return type;
 
     // int lbracket_token = ast->lbracket_token;
-    ExpressionTy expression = this->expression(ast->expression);
+    expression(ast->expression);
     // int rbracket_token = ast->rbracket_token;
     return type;
 }
@@ -1024,7 +1022,7 @@ void Bind::objCMessageArgument(ObjCMessageArgumentAST *ast)
     if (! ast)
         return;
 
-    ExpressionTy parameter_value_expression = this->expression(ast->parameter_value_expression);
+    expression(ast->parameter_value_expression);
 }
 
 bool Bind::visit(ObjCTypeNameAST *ast)
@@ -1355,8 +1353,8 @@ bool Bind::visit(QtMemberDeclarationAST *ast)
 
 bool Bind::visit(CaseStatementAST *ast)
 {
-    ExpressionTy expression = this->expression(ast->expression);
-    this->statement(ast->statement);
+    expression(ast->expression);
+    statement(ast->statement);
     return false;
 }
 
@@ -1384,8 +1382,8 @@ bool Bind::visit(DeclarationStatementAST *ast)
 
 bool Bind::visit(DoStatementAST *ast)
 {
-    this->statement(ast->statement);
-    ExpressionTy expression = this->expression(ast->expression);
+    statement(ast->statement);
+    expression(ast->expression);
     return false;
 }
 
@@ -1398,7 +1396,7 @@ bool Bind::visit(ExpressionOrDeclarationStatementAST *ast)
 
 bool Bind::visit(ExpressionStatementAST *ast)
 {
-    ExpressionTy expression = this->expression(ast->expression);
+    expression(ast->expression);
     // int semicolon_token = ast->semicolon_token;
     return false;
 }
@@ -1577,7 +1575,7 @@ bool Bind::visit(GotoStatementAST *ast)
 
 bool Bind::visit(ReturnStatementAST *ast)
 {
-    ExpressionTy expression = this->expression(ast->expression);
+    expression(ast->expression);
     return false;
 }
 
@@ -1675,9 +1673,9 @@ bool Bind::visit(ObjCSynchronizedStatementAST *ast)
 {
     // int synchronized_token = ast->synchronized_token;
     // int lparen_token = ast->lparen_token;
-    ExpressionTy synchronized_object = this->expression(ast->synchronized_object);
+    expression(ast->synchronized_object);
     // int rparen_token = ast->rparen_token;
-    this->statement(ast->statement);
+    statement(ast->statement);
     return false;
 }
 
@@ -1700,9 +1698,9 @@ bool Bind::visit(CompoundExpressionAST *ast)
 bool Bind::visit(CompoundLiteralAST *ast)
 {
     // int lparen_token = ast->lparen_token;
-    ExpressionTy type_id = this->expression(ast->type_id);
+    expression(ast->type_id);
     // int rparen_token = ast->rparen_token;
-    ExpressionTy initializer = this->expression(ast->initializer);
+    expression(ast->initializer);
     return false;
 }
 
@@ -1719,18 +1717,18 @@ bool Bind::visit(QtMethodAST *ast)
 
 bool Bind::visit(BinaryExpressionAST *ast)
 {
-    ExpressionTy left_expression = this->expression(ast->left_expression);
+    expression(ast->left_expression);
     // int binary_op_token = ast->binary_op_token;
-    ExpressionTy right_expression = this->expression(ast->right_expression);
+    expression(ast->right_expression);
     return false;
 }
 
 bool Bind::visit(CastExpressionAST *ast)
 {
     // int lparen_token = ast->lparen_token;
-    ExpressionTy type_id = this->expression(ast->type_id);
+    expression(ast->type_id);
     // int rparen_token = ast->rparen_token;
-    ExpressionTy expression = this->expression(ast->expression);
+    expression(ast->expression);
     return false;
 }
 
@@ -1759,11 +1757,11 @@ bool Bind::visit(ConditionAST *ast)
 
 bool Bind::visit(ConditionalExpressionAST *ast)
 {
-    ExpressionTy condition = this->expression(ast->condition);
+    expression(ast->condition);
     // int question_token = ast->question_token;
-    ExpressionTy left_expression = this->expression(ast->left_expression);
+    expression(ast->left_expression);
     // int colon_token = ast->colon_token;
-    ExpressionTy right_expression = this->expression(ast->right_expression);
+    expression(ast->right_expression);
     return false;
 }
 
@@ -1771,10 +1769,10 @@ bool Bind::visit(CppCastExpressionAST *ast)
 {
     // int cast_token = ast->cast_token;
     // int less_token = ast->less_token;
-    ExpressionTy type_id = this->expression(ast->type_id);
+    expression(ast->type_id);
     // int greater_token = ast->greater_token;
     // int lparen_token = ast->lparen_token;
-    ExpressionTy expression = this->expression(ast->expression);
+    expression(ast->expression);
     // int rparen_token = ast->rparen_token;
     return false;
 }
@@ -1785,16 +1783,15 @@ bool Bind::visit(DeleteExpressionAST *ast)
     // int delete_token = ast->delete_token;
     // int lbracket_token = ast->lbracket_token;
     // int rbracket_token = ast->rbracket_token;
-    ExpressionTy expression = this->expression(ast->expression);
+    expression(ast->expression);
     return false;
 }
 
 bool Bind::visit(ArrayInitializerAST *ast)
 {
     // int lbrace_token = ast->lbrace_token;
-    for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
-        ExpressionTy value = this->expression(it->value);
-    }
+    for (ExpressionListAST *it = ast->expression_list; it; it = it->next)
+        expression(it->value);
     // int rbrace_token = ast->rbrace_token;
     return false;
 }
@@ -1803,12 +1800,12 @@ bool Bind::visit(NewExpressionAST *ast)
 {
     // int scope_token = ast->scope_token;
     // int new_token = ast->new_token;
-    this->newPlacement(ast->new_placement);
+    newPlacement(ast->new_placement);
     // int lparen_token = ast->lparen_token;
-    ExpressionTy type_id = this->expression(ast->type_id);
+    expression(ast->type_id);
     // int rparen_token = ast->rparen_token;
-    this->newTypeId(ast->new_type_id);
-    this->expression(ast->new_initializer);
+    newTypeId(ast->new_type_id);
+    expression(ast->new_initializer);
     return false;
 }
 
@@ -1816,7 +1813,7 @@ bool Bind::visit(TypeidExpressionAST *ast)
 {
     // int typeid_token = ast->typeid_token;
     // int lparen_token = ast->lparen_token;
-    ExpressionTy expression = this->expression(ast->expression);
+    expression(ast->expression);
     // int rparen_token = ast->rparen_token;
     return false;
 }
@@ -1844,7 +1841,7 @@ bool Bind::visit(SizeofExpressionAST *ast)
     // int sizeof_token = ast->sizeof_token;
     // int dot_dot_dot_token = ast->dot_dot_dot_token;
     // int lparen_token = ast->lparen_token;
-    ExpressionTy expression = this->expression(ast->expression);
+    expression(ast->expression);
     // int rparen_token = ast->rparen_token;
     return false;
 }
@@ -1880,7 +1877,7 @@ bool Bind::visit(ThisExpressionAST *ast)
 bool Bind::visit(NestedExpressionAST *ast)
 {
     // int lparen_token = ast->lparen_token;
-    ExpressionTy expression = this->expression(ast->expression);
+    expression(ast->expression);
     // int rparen_token = ast->rparen_token;
     return false;
 }
@@ -1888,14 +1885,14 @@ bool Bind::visit(NestedExpressionAST *ast)
 bool Bind::visit(StringLiteralAST *ast)
 {
     // int literal_token = ast->literal_token;
-    ExpressionTy next = this->expression(ast->next);
+    expression(ast->next);
     return false;
 }
 
 bool Bind::visit(ThrowExpressionAST *ast)
 {
     // int throw_token = ast->throw_token;
-    ExpressionTy expression = this->expression(ast->expression);
+    expression(ast->expression);
     return false;
 }
 
@@ -1914,7 +1911,7 @@ bool Bind::visit(TypeIdAST *ast)
 bool Bind::visit(UnaryExpressionAST *ast)
 {
     // int unary_op_token = ast->unary_op_token;
-    ExpressionTy expression = this->expression(ast->expression);
+    expression(ast->expression);
     return false;
 }
 
@@ -1943,7 +1940,7 @@ bool Bind::visit(ObjCProtocolExpressionAST *ast)
 bool Bind::visit(ObjCEncodeExpressionAST *ast)
 {
     // int encode_token = ast->encode_token;
-    FullySpecifiedType type = this->objCTypeName(ast->type_name);
+    objCTypeName(ast->type_name);
     return false;
 }
 
@@ -2452,7 +2449,7 @@ bool Bind::visit(ParameterDeclarationAST *ast)
     DeclaratorIdAST *declaratorId = nullptr;
     type = this->declarator(ast->declarator, type, &declaratorId);
     // int equal_token = ast->equal_token;
-    ExpressionTy expression = this->expression(ast->expression);
+    expression(ast->expression);
 
     const Name *argName = nullptr;
     if (declaratorId && declaratorId->name)
@@ -3363,14 +3360,14 @@ bool Bind::visit(ArrayAccessAST *ast)
 
 bool Bind::visit(PostIncrDecrAST *ast)
 {
-    ExpressionTy base_expression = this->expression(ast->base_expression);
+    expression(ast->base_expression);
     // int incr_decr_token = ast->incr_decr_token;
     return false;
 }
 
 bool Bind::visit(MemberAccessAST *ast)
 {
-    ExpressionTy base_expression = this->expression(ast->base_expression);
+    expression(ast->base_expression);
     // int access_token = ast->access_token;
     // int template_token = ast->template_token;
     /*const Name *member_name =*/ this->name(ast->member_name);
@@ -3460,9 +3457,8 @@ bool Bind::visit(FunctionDeclaratorAST *ast)
 
 bool Bind::visit(ArrayDeclaratorAST *ast)
 {
-    ExpressionTy expression = this->expression(ast->expression);
-    FullySpecifiedType type(control()->arrayType(_type));
-    _type = type;
+    expression(ast->expression);
+    _type = FullySpecifiedType(control()->arrayType(_type));;
     return false;
 }
 

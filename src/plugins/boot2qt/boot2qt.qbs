@@ -16,7 +16,6 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
-            "qdb.qrc",
             "qdbutils.cpp",
             "qdbutils.h",
             "qdbconstants.h",
@@ -53,5 +52,18 @@ QtcPlugin {
             "qdbmessagetracker.cpp",
             "qdbmessagetracker.h",
         ]
+    }
+
+    Group {
+        name: "images"
+        prefix: "images/"
+        files: [
+            "qdbdevice.png",
+            "qdbdevice@2x.png",
+            "qdbdevicesmall.png",
+            "qdbdevicesmall@2x.png",
+        ]
+        fileTags: "qt.core.resource_data"
+        Qt.core.resourcePrefix: "/qdb"
     }
 }

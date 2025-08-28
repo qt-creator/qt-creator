@@ -116,7 +116,7 @@ QList<PackageDescription> aggregatePackageEntries(const McuTargetDescription &de
 Packages McuTargetFactory::createPackages(const McuTargetDescription &desc)
 {
     Packages packages;
-    QList<PackageDescription> packageDescriptions = aggregatePackageEntries(desc);
+    const QList<PackageDescription> packageDescriptions = aggregatePackageEntries(desc);
 
     for (const PackageDescription &pkgDesc : packageDescriptions) {
         packages.insert(createPackage(pkgDesc));

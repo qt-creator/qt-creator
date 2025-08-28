@@ -9,22 +9,32 @@
 #include "pluginspec.h"
 
 #include <utils/algorithm.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCoreApplication>
+#include <QDialog>
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QListWidget>
 #include <QPushButton>
 #include <QTextEdit>
 
-Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec *)
+using namespace Utils;
 
 namespace ExtensionSystem {
 
-PluginErrorOverview::PluginErrorOverview(QWidget *parent)
-    : QDialog(parent)
+class  PluginErrorOverview : public QDialog
 {
+public:
+    PluginErrorOverview();
+};
+
+PluginErrorOverview::PluginErrorOverview()
+    : QDialog(dialogParent())
+{
+    setAttribute(Qt::WA_DeleteOnClose);
+    setModal(true);
     QListWidget *pluginList = new QListWidget(this);
 
     const auto showPluginDetails = [this](QListWidgetItem *item) {
@@ -91,6 +101,11 @@ PluginErrorOverview::PluginErrorOverview(QWidget *parent)
         pluginList->setCurrentRow(0);
 
     resize(434, 361);
+}
+
+void showPluginErrorOverview()
+{
+    (new ExtensionSystem::PluginErrorOverview)->show();
 }
 
 } // namespace ExtensionSystem

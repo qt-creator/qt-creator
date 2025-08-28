@@ -114,8 +114,8 @@ static QbsRequestManager &manager()
 void QbsRequestObject::start()
 {
     if (m_parseData.first) {
-        connect(m_parseData.first->target(), &Target::parsingFinished, this, [this](bool success) {
-            disconnect(m_parseData.first->target(), &Target::parsingFinished, this, nullptr);
+        connect(m_parseData.first, &BuildSystem::parsingFinished, this, [this](bool success) {
+            disconnect(m_parseData.first, &BuildSystem::parsingFinished, this, nullptr);
             emit done(toDoneResult(success));
         });
         QMetaObject::invokeMethod(
@@ -159,7 +159,7 @@ void QbsRequestObject::start()
                                                                 const QStringList &stdOut,
                                                                 const QStringList &stdErr,
                                                                 bool success) {
-        Q_UNUSED(workingDir);
+        Q_UNUSED(workingDir)
         const bool hasOutput = !stdOut.isEmpty() || !stdErr.isEmpty();
         if (success && !hasOutput)
             return;

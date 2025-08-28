@@ -13,7 +13,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
 #endif
 
 using namespace CPlusPlus;
@@ -298,12 +297,6 @@ static bool collectConnectArguments(
 //! Converts a Qt 4 QObject::connect() to Qt 5 style.
 class ConvertQt4Connect : public CppQuickFixFactory
 {
-public:
-#ifdef WITH_TESTS
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const QList<AST *> &path = interface.path();
@@ -346,156 +339,19 @@ private:
 };
 
 #ifdef WITH_TESTS
-using namespace Tests;
-class ConvertQt4ConnectTest : public QObject
+class ConvertQt4ConnectTest : public Tests::CppQuickFixTestObject
 {
     Q_OBJECT
-
-private slots:
-    void testOutOfClass()
-    {
-        QByteArray prefix =
-            "class QObject {};\n"
-            "class TestClass : public QObject\n"
-            "{\n"
-            "public:\n"
-            "    void setProp(int) {}\n"
-            "    void sigFoo(int) {}\n"
-            "};\n"
-            "\n"
-            "int foo()\n"
-            "{\n";
-
-        QByteArray suffix = "\n}\n";
-
-        QByteArray original = prefix
-                              + "    TestClass obj;\n"
-                                "    conne@ct(&obj, SIGNAL(sigFoo(int)), &obj, SLOT(setProp(int)));"
-                              + suffix;
-
-        QByteArray expected = prefix
-                              + "    TestClass obj;\n"
-                                "    connect(&obj, &TestClass::sigFoo, &obj, &TestClass::setProp);"
-                              + suffix;
-
-        QList<TestDocumentPtr> testDocuments;
-        testDocuments << CppTestDocument::create("file.cpp", original, expected);
-
-        ConvertQt4Connect factory;
-        QuickFixOperationTest(testDocuments, &factory);
-    }
-
-    void testWithinClass_data()
-    {
-        QTest::addColumn<QByteArray>("original");
-        QTest::addColumn<QByteArray>("expected");
-
-        QTest::newRow("four-args-connect")
-            << QByteArray("conne@ct(this, SIGNAL(sigFoo(int)), this, SLOT(setProp(int)));")
-            << QByteArray("connect(this, &TestClass::sigFoo, this, &TestClass::setProp);");
-
-        QTest::newRow("four-args-disconnect")
-            << QByteArray("disconne@ct(this, SIGNAL(sigFoo(int)), this, SLOT(setProp(int)));")
-            << QByteArray("disconnect(this, &TestClass::sigFoo, this, &TestClass::setProp);");
-
-        QTest::newRow("three-args-connect")
-            << QByteArray("conne@ct(this, SIGNAL(sigFoo(int)), SLOT(setProp(int)));")
-            << QByteArray("connect(this, &TestClass::sigFoo, this, &TestClass::setProp);");
-
-        QTest::newRow("template-value")
-            << QByteArray("Pointer<TestClass> p;\n"
-                          "conne@ct(p.t, SIGNAL(sigFoo(int)), p.t, SLOT(setProp(int)));")
-            << QByteArray("Pointer<TestClass> p;\n"
-                          "connect(p.t, &TestClass::sigFoo, p.t, &TestClass::setProp);");
-
-        QTest::newRow("implicit-pointer")
-            << QByteArray("Pointer<TestClass> p;\n"
-                          "conne@ct(p, SIGNAL(sigFoo(int)), p, SLOT(setProp(int)));")
-            << QByteArray("Pointer<TestClass> p;\n"
-                          "connect(p.data(), &TestClass::sigFoo, p.data(), &TestClass::setProp);");
-    }
-
-    void testWithinClass()
-    {
-        QFETCH(QByteArray, original);
-        QFETCH(QByteArray, expected);
-
-        QByteArray prefix =
-            "template<class T>\n"
-            "struct Pointer\n"
-            "{\n"
-            "    T *t;\n"
-            "    operator T*() const { return t; }\n"
-            "    T *data() const { return t; }\n"
-            "};\n"
-            "class QObject {};\n"
-            "class TestClass : public QObject\n"
-            "{\n"
-            "public:\n"
-            "    void setProp(int) {}\n"
-            "    void sigFoo(int) {}\n"
-            "    void setupSignals();\n"
-            "};\n"
-            "\n"
-            "int TestClass::setupSignals()\n"
-            "{\n";
-
-        QByteArray suffix = "\n}\n";
-
-        QList<TestDocumentPtr> testDocuments;
-        testDocuments << CppTestDocument::create("file.cpp",
-                                                 prefix + original + suffix,
-                                                 prefix + expected + suffix);
-
-        ConvertQt4Connect factory;
-        QuickFixOperationTest(testDocuments, &factory);
-    }
-
-    void testDifferentNamespace()
-    {
-        const QByteArray prefix =
-            "namespace NsA {\n"
-            "class ClassA : public QObject\n"
-            "{\n"
-            "  static ClassA *instance();\n"
-            "signals:\n"
-            "  void sig();\n"
-            "};\n"
-            "}\n"
-            "\n"
-            "namespace NsB {\n"
-            "class ClassB : public QObject\n"
-            "{\n"
-            "  void slot();\n"
-            "  void connector() {\n";
-
-        const QByteArray suffix = "  }\n};\n}";
-
-        const QByteArray original = "co@nnect(NsA::ClassA::instance(), SIGNAL(sig()),\n"
-                                    "        this, SLOT(slot()));\n";
-        const QByteArray expected = "connect(NsA::ClassA::instance(), &NsA::ClassA::sig,\n"
-                                    "        this, &ClassB::slot);\n";
-        QList<TestDocumentPtr> testDocuments;
-        testDocuments << CppTestDocument::create("file.cpp",
-                                                 prefix + original + suffix,
-                                                 prefix + expected + suffix);
-
-        ConvertQt4Connect factory;
-        QuickFixOperationTest(testDocuments, &factory);
-    }
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
 };
-
-QObject *ConvertQt4Connect::createTest()
-{
-    return new ConvertQt4ConnectTest;
-}
-#endif // WITH_TESTS
+#endif
 
 } // namespace
 
 void registerConvertQt4ConnectQuickfix()
 {
-    CppQuickFixFactory::registerFactory<ConvertQt4Connect>();
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(ConvertQt4Connect);
 }
 
 } // namespace CppEditor::Internal

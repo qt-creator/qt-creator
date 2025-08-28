@@ -1067,7 +1067,7 @@ void AndroidManifestEditorWidget::postSave()
     if (Target *target = androidTarget(docPath)) {
         if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
             QString androidNdkPlatform = AndroidConfig::bestNdkPlatformMatch(
-                minimumSDK(target),
+                minimumSDK(bc),
                 QtSupport::QtKitAspect::qtVersion(
                     androidTarget(m_textEditorWidget->textDocument()->filePath())->kit()));
             if (m_androidNdkPlatform != androidNdkPlatform) {
@@ -1883,10 +1883,10 @@ private:
 
     bool isSaveAsAllowed() const override { return false; }
 
-    Result saveImpl(const FilePath &filePath, bool autoSave) override
+    Result<> saveImpl(const FilePath &filePath, bool autoSave) override
     {
         m_editorWidget->preSave();
-        Result result = TextDocument::saveImpl(filePath, autoSave);
+        Result<> result = TextDocument::saveImpl(filePath, autoSave);
         m_editorWidget->postSave();
         return result;
     }

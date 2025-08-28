@@ -52,7 +52,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
             isRelative = true;
             directoryWithoutPrefix = directory.relativeChildPath(path);
         } else {
-            const FilePath relativePath = directory.relativePathFrom(path);
+            const FilePath relativePath = directory.relativePathFromDir(path);
             if (relativePath.path().count("../") < 5) {
                 isRelative = true;
                 directoryWithoutPrefix = relativePath;
@@ -782,12 +782,12 @@ void FolderNode::setIcon(const IconCreator &iconCreator)
     m_icon = iconCreator;
 }
 
-void FolderNode::setLocationInfo(const QVector<FolderNode::LocationInfo> &info)
+void FolderNode::setLocationInfo(const QList<FolderNode::LocationInfo> &info)
 {
     m_locations = Utils::sorted(info, &LocationInfo::priority);
 }
 
-const QVector<FolderNode::LocationInfo> FolderNode::locationInfo() const
+const QList<FolderNode::LocationInfo> FolderNode::locationInfo() const
 {
     return m_locations;
 }
@@ -1065,7 +1065,7 @@ ContainerNode::ContainerNode(Project *project)
 
 QString ContainerNode::displayName() const
 {
-    QString name = m_project->displayName();
+    QString name = rawDisplayName();
 
     const FilePath fp = m_project->projectFilePath();
     const FilePath dir = fp.isDir() ? fp.absoluteFilePath() : fp.absolutePath();
@@ -1076,6 +1076,11 @@ QString ContainerNode::displayName() const
     }
 
     return name;
+}
+
+QString ContainerNode::rawDisplayName() const
+{
+    return m_project->displayName();
 }
 
 bool ContainerNode::supportsAction(ProjectAction action, const Node *node) const

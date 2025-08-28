@@ -19,12 +19,17 @@ QtcPlugin {
     ])
 
     files: [
-        "scxmleditor_global.h", "scxmleditortr.h",
+        "scxmleditor_global.h",
+        "scxmleditoricons.h",
+        "scxmleditortr.h",
         "scxmleditorconstants.h",
-        "scxmleditor.cpp", "scxmleditor.h",
-        "scxmleditordocument.cpp", "scxmleditordocument.h",
+        "scxmleditor.cpp",
+        "scxmleditor.h",
+        "scxmleditordocument.cpp",
+        "scxmleditordocument.h",
         "scxmleditorplugin.cpp",
-        "scxmltexteditor.cpp", "scxmltexteditor.h",
+        "scxmltexteditor.cpp",
+        "scxmltexteditor.h",
     ]
 
     Group {
@@ -58,9 +63,14 @@ QtcPlugin {
             "structure.cpp", "structure.h",
             "structuremodel.cpp", "structuremodel.h",
             "treeview.h", "treeview.cpp",
-
-            "common.qrc",
         ]
+
+        Group {
+            name: "images"
+            files: "images/*.png"
+            fileTags: "qt.core.resource_data"
+            Qt.core.resourceSourceBase: product.sourceDirectory + "/common"
+        }
     }
 
     Group {

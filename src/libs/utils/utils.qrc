@@ -44,6 +44,8 @@
         <file>images/notloaded@2x.png</file>
         <file>images/ok.png</file>
         <file>images/ok@2x.png</file>
+        <file>images/oklarge.png</file>
+        <file>images/oklarge@2x.png</file>
         <file>images/clean_pane_small.png</file>
         <file>images/clean_pane_small@2x.png</file>
         <file>images/compile_error_taskbar.png</file>
@@ -141,10 +143,16 @@
         <file>images/reload_gray@2x.png</file>
         <file>images/error.png</file>
         <file>images/error@2x.png</file>
+        <file>images/errorlarge.png</file>
+        <file>images/errorlarge@2x.png</file>
         <file>images/warning.png</file>
         <file>images/warning@2x.png</file>
+        <file>images/warninglarge.png</file>
+        <file>images/warninglarge@2x.png</file>
         <file>images/info.png</file>
         <file>images/info@2x.png</file>
+        <file>images/infolarge.png</file>
+        <file>images/infolarge@2x.png</file>
         <file>images/warningfill.png</file>
         <file>images/warningfill@2x.png</file>
         <file>images/dark_fileicon.png</file>
@@ -175,6 +183,8 @@
         <file>images/reset@2x.png</file>
         <file>images/collapse.png</file>
         <file>images/collapse@2x.png</file>
+        <file>images/clock.png</file>
+        <file>images/clock@2x.png</file>
         <file>images/expand.png</file>
         <file>images/expand@2x.png</file>
         <file>images/iconoverlay_add_small.png</file>
@@ -294,11 +304,5 @@
         <file>images/classrelation@2x.png</file>
         <file>images/classrelationbackground.png</file>
         <file>images/classrelationbackground@2x.png</file>
-    </qresource>
-    <qresource prefix="/markdownbrowser">
-        <file>images/code_copy_square.png</file>
-        <file>images/code_copy_square@2x.png</file>
-        <file>images/checkmark.png</file>
-        <file>images/checkmark@2x.png</file>
     </qresource>
 </RCC>

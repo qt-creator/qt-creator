@@ -23,7 +23,6 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QFileInfo>
 #include <QLoggingCategory>
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runner", QtWarningMsg)
@@ -143,7 +142,7 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
         const QString details = Tr::tr("Command line: %1\nProcess Error: %2\nOutput:\n%3")
                                     .arg(process.commandLine().toUserOutput())
                                     .arg(process.error())
-                                    .arg(process.cleanedStdOut());
+                                    .arg(process.allOutput());
         const ClangToolStorage &data = *storage;
         QString message;
         if (process.result() == ProcessResult::StartFailed)
@@ -156,16 +155,16 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
             {false, unit.file, data.outputFilePath, {}, input.tool, message, details});
     };
 
-    const auto onReadSetup = [storage, input](Async<expected_str<Diagnostics>> &data) {
+    const auto onReadSetup = [storage, input](Async<Result<Diagnostics>> &data) {
         data.setConcurrentCallData(&parseDiagnostics,
                                    storage->outputFilePath,
                                    input.diagnosticsFilter);
     };
     const auto onReadDone = [storage, input, outputHandler, iterator](
-                                const Async<expected_str<Diagnostics>> &data, DoneWith result) {
+                                const Async<Result<Diagnostics>> &data, DoneWith result) {
         if (!outputHandler)
             return;
-        const expected_str<Diagnostics> diagnosticsResult = data.result();
+        const Result<Diagnostics> diagnosticsResult = data.result();
         const bool ok = result == DoneWith::Success && diagnosticsResult.has_value();
         Diagnostics diagnostics;
         QString error;
@@ -189,7 +188,7 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
             onGroupSetup(onSetup),
             sequential,
             ProcessTask(onProcessSetup, onProcessDone),
-            AsyncTask<expected_str<Diagnostics>>(onReadSetup, onReadDone)
+            AsyncTask<Result<Diagnostics>>(onReadSetup, onReadDone)
         }
     };
 }

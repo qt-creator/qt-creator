@@ -5,6 +5,8 @@
 
 #include <qtsupport/baseqtversion.h>
 
+namespace ProjectExplorer { class BuildConfiguration; }
+
 namespace Android::Internal {
 
 class AndroidQtVersion : public QtSupport::QtVersion
@@ -28,8 +30,8 @@ public:
     const QStringList androidAbis() const;
     int minimumNDK() const;
 
-    static QString androidDeploymentSettingsFileName(const ProjectExplorer::Target *target);
-    static Utils::FilePath androidDeploymentSettings(const ProjectExplorer::Target *target);
+    static QString androidDeploymentSettingsFileName(const ProjectExplorer::BuildConfiguration *bc);
+    static Utils::FilePath androidDeploymentSettings(const ProjectExplorer::BuildConfiguration *bc);
 
     struct BuiltWith {
         int apiVersion = -1;

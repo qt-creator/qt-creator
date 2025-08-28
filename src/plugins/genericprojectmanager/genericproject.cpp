@@ -91,7 +91,6 @@ public:
         const Utils::FilePairs &filesToRename,
         Utils::FilePaths *notRenamed) final;
     bool addFiles(Node *, const FilePaths &filePaths, FilePaths *) final;
-    QString name() const final { return QLatin1String("generic"); }
 
     FilePath filesFilePath() const { return ::FilePath::fromString(m_filesFileName); }
 
@@ -140,7 +139,7 @@ class GenericBuildConfiguration final : public BuildConfiguration
 {
 public:
     GenericBuildConfiguration(Target *target, Id id)
-        : BuildConfiguration(target, id), m_buildSystem(new GenericBuildSystem(this))
+        : BuildConfiguration(target, id)
     {
         setConfigWidgetDisplayName(GenericProjectManager::Tr::tr("Generic Manager"));
         setBuildDirectoryHistoryCompleter("Generic.BuildDir.History");
@@ -154,17 +153,11 @@ public:
         updateCacheAndEmitEnvironmentChanged();
     }
 
-    ~GenericBuildConfiguration() { delete m_buildSystem; }
-
 private:
     void addToEnvironment(Environment &env) const final
     {
         QtSupport::QtKitAspect::addHostBinariesToPath(kit(), env);
     }
-
-    BuildSystem *buildSystem() const { return m_buildSystem; }
-
-    GenericBuildSystem * const m_buildSystem;
 };
 
 class GenericBuildConfigurationFactory final : public BuildConfigurationFactory
@@ -216,6 +209,7 @@ public:
         setId(Constants::GENERICPROJECT_ID);
         setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
         setDisplayName(filePath.completeBaseName());
+        setBuildSystemCreator<GenericBuildSystem>("generic");
     }
 
     void editFilesTriggered();
@@ -271,11 +265,7 @@ GenericBuildSystem::GenericBuildSystem(BuildConfiguration *bc)
 
     connect(&m_deployFileWatcher, &FileSystemWatcher::fileChanged,
             this, &GenericBuildSystem::updateDeploymentData);
-
-    connect(bc->target(), &Target::activeBuildConfigurationChanged, this, [this] {
-        refresh(Everything);
-    });
-    connect(project(), &Project::activeTargetChanged, this, [this] {
+    connect(project(), &Project::activeBuildConfigurationChanged, this, [this] {
         refresh(Everything);
     });
 }
@@ -329,8 +319,10 @@ bool GenericBuildSystem::saveRawList(const QStringList &rawList, const QString &
             stream << filePath << '\n';
         saver.setResult(&stream);
     }
-    bool result = saver.finalize(ICore::dialogParent());
-    return result;
+    const Result<> result = saver.finalize();
+    if (!result)
+        FileUtils::showError(result.error());
+    return result.has_value();
 }
 
 static void insertSorted(QStringList *list, const QString &value)
@@ -569,13 +561,8 @@ void GenericBuildSystem::refresh(RefreshOptions options)
 GenericBuildSystem::SourceFiles GenericBuildSystem::processEntries(
         const QStringList &paths, QHash<QString, QString> *map) const
 {
-    const BuildConfiguration *const buildConfig = target()->activeBuildConfiguration();
-
-    const Environment buildEnv = buildConfig ? buildConfig->environment()
-                                             : Environment::systemEnvironment();
-
-    const MacroExpander *expander = buildConfig ? buildConfig->macroExpander()
-                                                : target()->macroExpander();
+    const Environment buildEnv = buildConfiguration()->environment();
+    const MacroExpander *expander = buildConfiguration()->macroExpander();
 
     const QDir projectDir(projectDirectory().toUrlishString());
 
@@ -618,8 +605,6 @@ void GenericBuildSystem::refreshCppCodeModel()
 {
     if (!m_cppCodeModelUpdater)
         return;
-    if (target() != project()->activeTarget())
-        return;
     QtSupport::CppKitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return);
 
@@ -648,9 +633,7 @@ void GenericBuildSystem::updateDeploymentData()
 {
     static const QString fileName("QtCreatorDeployment.txt");
     FilePath deploymentFilePath;
-    BuildConfiguration *bc = target()->activeBuildConfiguration();
-    if (bc)
-        deploymentFilePath = bc->buildDirectory().pathAppended(fileName);
+    deploymentFilePath = buildConfiguration()->buildDirectory().pathAppended(fileName);
 
     bool hasDeploymentData = deploymentFilePath.exists();
     if (!hasDeploymentData) {
@@ -661,7 +644,7 @@ void GenericBuildSystem::updateDeploymentData()
         DeploymentData deploymentData;
         deploymentData.addFilesFromDeploymentFile(deploymentFilePath, projectDirectory());
         setDeploymentData(deploymentData);
-        if (m_deployFileWatcher.filePaths() != FilePaths{deploymentFilePath}) {
+        if (m_deployFileWatcher.files() != FilePaths{deploymentFilePath}) {
             m_deployFileWatcher.clear();
             m_deployFileWatcher.addFile(deploymentFilePath,
                                         FileSystemWatcher::WatchModifiedDate);
@@ -697,8 +680,10 @@ Project::RestoreResult GenericProject::fromMap(const Store &map, QString *errorM
             removeTarget(t);
             continue;
         }
-        if (!t->activeRunConfiguration())
-            t->addRunConfiguration(new CustomExecutableRunConfiguration(t));
+        for (BuildConfiguration * const bc : t->buildConfigurations()) {
+            if (!bc->activeRunConfiguration())
+                bc->addRunConfiguration(new CustomExecutableRunConfiguration(bc));
+        }
     }
 
     if (auto bs = activeBuildSystem())

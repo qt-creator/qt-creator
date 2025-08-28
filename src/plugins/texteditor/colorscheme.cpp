@@ -6,8 +6,6 @@
 #include "texteditorconstants.h"
 #include "texteditortr.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/fileutils.h>
 
 #include <QFile>
@@ -264,7 +262,12 @@ bool ColorScheme::save(const FilePath &filePath) const
 
         saver.setResult(&w);
     }
-    return saver.finalize(Core::ICore::dialogParent());
+
+    const Result<> res = saver.finalize();
+    if (!res)
+        FileUtils::showError(res.error());
+
+    return res.has_value();
 }
 
 namespace {

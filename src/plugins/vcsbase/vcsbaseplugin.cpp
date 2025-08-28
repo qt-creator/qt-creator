@@ -648,7 +648,7 @@ static inline bool ask(QWidget *parent, const QString &title, const QString &que
     return QMessageBox::question(parent, title, question, QMessageBox::Yes|QMessageBox::No, defaultButton) == QMessageBox::Yes;
 }
 
-void VersionControlBase::createRepository()
+void VersionControlBase::createRepository(FilePath *repoDirectory)
 {
     QTC_ASSERT(supportsOperation(IVersionControl::CreateRepositoryOperation), return);
     // Find current starting directory
@@ -673,6 +673,8 @@ void VersionControlBase::createRepository()
     } while (true);
     // Create
     const bool rc = vcsCreateRepository(directory);
+    if (repoDirectory)
+        *repoDirectory = directory;
     const QString nativeDir = directory.toUserOutput();
     if (rc) {
         QMessageBox::information(mw, Tr::tr("Repository Created"),

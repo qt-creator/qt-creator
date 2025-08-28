@@ -10,9 +10,8 @@
 
 #include <cplusplus/SimpleLexer.h>
 
-#include <QStack>
 #include <QList>
-#include <QVector>
+#include <QStack>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;

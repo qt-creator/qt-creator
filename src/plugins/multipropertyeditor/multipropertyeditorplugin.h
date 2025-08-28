@@ -7,12 +7,12 @@
 
 namespace QmlDesigner {
 
-class MultiPropertyEditorPlugin : public ExtensionSystem::IPlugin
+class MultiPropertyEditorPlugin final : public ExtensionSystem::IPlugin
 {
         Q_OBJECT
-        Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "MultiPropertyEditor.json")
+        Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE
+                              "MultiPropertyEditor.json")
     public:
-        bool initialize(const QStringList &arguments, QString *errorString) override;
         bool delayedInitialize() override;
 };
 

@@ -22,7 +22,7 @@ public:
 
 protected:
     ProjectExplorer::IDeviceConstPtr deviceConfiguration() const;
-    virtual Utils::expected_str<void> isDeploymentPossible() const;
+    virtual Utils::Result<> isDeploymentPossible() const;
     void handleStdOutData(const QString &data);
     void handleStdErrData(const QString &data);
 
@@ -30,7 +30,7 @@ protected:
     void toMap(Utils::Store &map) const final;
     bool init() final;
 
-    void setInternalInitializer(const std::function<Utils::expected_str<void>()> &init);
+    void setInternalInitializer(const std::function<Utils::Result<>()> &init);
 
     void saveDeploymentTimeStamp(const ProjectExplorer::DeployableFile &deployableFile,
                                  const QDateTime &remoteTimestamp);

@@ -13,7 +13,6 @@ class QDir;
 QT_END_NAMESPACE
 
 namespace Utils {
-class FileSystemWatcher;
 class Process;
 }
 
@@ -42,7 +41,7 @@ private:
                                        const QString &importVersion);
     Q_INVOKABLE void dumpAllPlugins();
     void qmlPluginTypeDumpDone(Utils::Process *process);
-    void pluginChanged(const QString &pluginLibrary);
+    void pluginChanged(const Utils::FilePath &pluginLibrary);
 
 private:
     class Plugin {
@@ -91,7 +90,8 @@ private:
                                   const QString &prefix = QString());
 
 private:
-    Utils::FileSystemWatcher *pluginWatcher();
+    void watchFilePath(const Utils::FilePath &path);
+    void unwatchFilePath(const Utils::FilePath &path);
     void prepareLibraryInfo(LibraryInfo &libInfo,
                             const Utils::FilePath &libraryPath,
                             const QStringList &deps,
@@ -101,7 +101,7 @@ private:
                             QList<LanguageUtils::FakeMetaObject::ConstPtr> &objects);
 
     ModelManagerInterface *m_modelManager;
-    Utils::FileSystemWatcher *m_pluginWatcher;
+    QMap<Utils::FilePath, std::shared_ptr<Utils::FilePathWatcher>> m_pluginWatcher;
     QHash<Utils::Process *, Utils::FilePath> m_runningQmldumps;
     QList<Plugin> m_plugins;
     QHash<Utils::FilePath, int> m_libraryToPluginIndex;

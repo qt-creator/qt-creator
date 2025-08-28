@@ -902,34 +902,21 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
                 factory = factories.isEmpty() ? nullptr : factories.takeFirst();
                 continue;
             }
-            IDocument::OpenResult openResult = editor->document()->open(&errorString,
-                                                                        filePath,
-                                                                        realFp);
-            if (openResult == IDocument::OpenResult::Success)
+            Result<> openResult = editor->document()->open(filePath, realFp);
+            if (openResult)
                 break;
+            errorString = openResult.error();
             overrideCursor.reset();
             delete editor;
             editor = nullptr;
-            if (openResult == IDocument::OpenResult::ReadError) {
-                QMessageBox msgbox(QMessageBox::Critical,
-                                   ::Core::Tr::tr("File Error"),
-                                   ::Core::Tr::tr("Could not open \"%1\" for reading. "
-                                      "Either the file does not exist or you do not have "
-                                      "the permissions to open it.")
-                                       .arg(realFp.toUserOutput()),
-                                   QMessageBox::Ok,
-                                   ICore::dialogParent());
-                msgbox.exec();
-                return nullptr;
-            }
-            // can happen e.g. when trying to open an completely empty .qrc file
-            QTC_CHECK(openResult == IDocument::OpenResult::CannotHandle);
         } else {
             QTC_ASSERT(factory->isExternalEditor(),
                        factory = factories.isEmpty() ? nullptr : factories.takeFirst();
                        continue);
-            if (factory->startEditor(filePath, &errorString))
+            const Result<> res = factory->startEditor(filePath);
+            if (res)
                 break;
+            errorString = res.error();
         }
 
         if (errorString.isEmpty())
@@ -1905,7 +1892,7 @@ void EditorManagerPrivate::addEditorArea(EditorArea *area)
             // In case the hidden editor area has the current view, look for a view
             // that is not hidden, iterating through the history of current views.
             // This could be the first==current view (which results in a no-op).
-            for (const QPointer<EditorView> &view : d->m_currentView) {
+            for (const QPointer<EditorView> &view : std::as_const(d->m_currentView)) {
                 if (isReallyVisibile(view)) {
                     setCurrentView(view);
                     return;
@@ -2385,7 +2372,7 @@ void EditorManagerPrivate::autoSave()
         if (document->filePath().isEmpty()
                 || !savePath.isWritableDir()) // FIXME: save them to a dedicated directory
             continue;
-        if (Result res = document->autoSave(saveName); !res)
+        if (Result<> res = document->autoSave(saveName); !res)
             errors << res.error();
     }
     if (!errors.isEmpty())
@@ -2584,14 +2571,14 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
 {
     if (!document)
         return;
-    const QString fileName =  document->filePath().toUrlishString();
-    if (fileName.isEmpty())
+    const FilePath filePath =  document->filePath();
+    if (filePath.isEmpty())
         return;
     if (document->isModified()) {
         QMessageBox msgBox(QMessageBox::Question,
                            ::Core::Tr::tr("Revert to Saved"),
                            ::Core::Tr::tr("You will lose your current changes if you proceed reverting %1.")
-                               .arg(QDir::toNativeSeparators(fileName)),
+                               .arg(filePath.toUserOutput()),
                            QMessageBox::Yes | QMessageBox::No,
                            ICore::dialogParent());
         msgBox.button(QMessageBox::Yes)->setText(::Core::Tr::tr("Proceed"));
@@ -2608,12 +2595,12 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
             return;
 
         if (diffService && msgBox.clickedButton() == diffButton) {
-            diffService->diffModifiedFiles(QStringList(fileName));
+            diffService->diffModifiedFiles({filePath});
             return;
         }
     }
 
-    if (Result res = document->reload(IDocument::FlagReload, IDocument::TypeContents); !res)
+    if (Result<> res = document->reload(IDocument::FlagReload, IDocument::TypeContents); !res)
         QMessageBox::critical(ICore::dialogParent(), ::Core::Tr::tr("File Error"), res.error());
 }
 
@@ -3013,7 +3000,7 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const FilePath &filePath)
     menu->setEnabled(anyMatches);
 }
 
-void EditorManager::runWithTemporaryEditor(const Utils::FilePath &filePath,
+void EditorManager::runWithTemporaryEditor(const FilePath &filePath,
                                            const std::function<void (IEditor *)> &callback)
 {
     const MimeType mt = mimeTypeForFile(filePath, MimeMatchMode::MatchDefaultAndRemote);
@@ -3026,7 +3013,7 @@ void EditorManager::runWithTemporaryEditor(const Utils::FilePath &filePath,
         if (!editor)
             continue;
         editor->document()->setTemporary(true);
-        if (editor->document()->open(nullptr, filePath, filePath) != IDocument::OpenResult::Success)
+        if (!editor->document()->open(filePath, filePath))
             continue;
         callback(editor.get());
         break;
@@ -3302,13 +3289,13 @@ bool EditorManager::openExternalEditor(const FilePath &filePath, Id editorId)
 
     if (!ee)
         return false;
-    QString errorMessage;
+
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    const bool ok = ee->startEditor(filePath, &errorMessage);
+    const Result<> res = ee->startEditor(filePath);
     QApplication::restoreOverrideCursor();
-    if (!ok)
-        QMessageBox::critical(ICore::dialogParent(), ::Core::Tr::tr("Opening File"), errorMessage);
-    return ok;
+    if (!res)
+        QMessageBox::critical(ICore::dialogParent(), ::Core::Tr::tr("Opening File"), res.error());
+    return res.has_value();
 }
 
 /*!
@@ -3612,7 +3599,7 @@ QByteArray EditorManager::saveState()
     stream << QByteArray("EditorManagerV5");
 
     // TODO: In case of split views it's not possible to restore these for all correctly with this
-    QList<IDocument *> documents = DocumentModel::openedDocuments();
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
     for (IDocument *document : documents) {
         if (!document->filePath().isEmpty() && !document->isTemporary()) {
             IEditor *editor = DocumentModel::editorsForDocument(document).constFirst();

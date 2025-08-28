@@ -70,15 +70,15 @@ static void parseSectionHeader(const uchar *s, ElfSectionHeader *sh, const ElfDa
     sh->size = getOffset(s, context);
 }
 
-static void parseProgramHeader(const uchar *s, ElfProgramHeader *sh, const ElfData &context)
-{
-    sh->type = getWord(s, context);
-    sh->offset = getOffset(s, context);
-    /* p_vaddr = */ getAddress(s, context);
-    /* p_paddr = */ getAddress(s, context);
-    sh->filesz = getWord(s, context);
-    sh->memsz = getWord(s, context);
-}
+// static void parseProgramHeader(const uchar *s, ElfProgramHeader *sh, const ElfData &context)
+// {
+//     sh->type = getWord(s, context);
+//     sh->offset = getOffset(s, context);
+//     /* p_vaddr = */ getAddress(s, context);
+//     /* p_paddr = */ getAddress(s, context);
+//     sh->filesz = getWord(s, context);
+//     sh->memsz = getWord(s, context);
+// }
 
 ElfMapper::ElfMapper(const ElfReader *reader)
     : binary(reader->m_binary)
@@ -87,7 +87,7 @@ ElfMapper::ElfMapper(const ElfReader *reader)
 bool ElfMapper::map()
 {
     if (!binary.isLocal()) {
-        const expected_str<QByteArray> contents = binary.fileContents();
+        const Result<QByteArray> contents = binary.fileContents();
         QTC_CHECK(contents);
         raw = contents.value_or(QByteArray());
         start = raw.constData();
@@ -135,8 +135,8 @@ ElfReader::Result ElfReader::readIt()
 {
     if (!m_elfData.sectionHeaders.isEmpty())
         return Ok;
-    if (!m_elfData.programHeaders.isEmpty())
-        return Ok;
+    // if (!m_elfData.programHeaders.isEmpty())
+    //     return Ok;
 
     ElfMapper mapper(this);
     if (!mapper.map())
@@ -187,7 +187,7 @@ ElfReader::Result ElfReader::readIt()
     /* e_version = */   getWord(data, m_elfData);
     m_elfData.entryPoint = getAddress(data, m_elfData);
 
-    quint64 e_phoff   = getOffset(data, m_elfData);
+    /* quint64 e_phoff = */ getOffset(data, m_elfData);
     quint64 e_shoff   = getOffset(data, m_elfData);
     /* e_flags = */     getWord(data, m_elfData);
 
@@ -200,7 +200,7 @@ ElfReader::Result ElfReader::readIt()
 
     quint32 e_phentsize = getHalfWord(data, m_elfData);
     QTC_CHECK(e_phentsize == (is64Bit ? 56 : 32));
-    quint32 e_phnum     = getHalfWord(data, m_elfData);
+    /* quint32 e_phnum =  */ getHalfWord(data, m_elfData);
 
     quint32 e_shentsize = getHalfWord(data, m_elfData);
 
@@ -272,20 +272,20 @@ ElfReader::Result ElfReader::readIt()
         }
     }
 
-    if (e_phoff) {
-        for (quint32 i = 0; i < e_phnum; ++i) {
-            const uchar *s = mapper.ustart + e_phoff + i * e_phentsize;
-            ElfProgramHeader ph;
-            parseProgramHeader(s, &ph, m_elfData);
-            m_elfData.programHeaders.append(ph);
-        }
-    }
+    // if (e_phoff) {
+    //     for (quint32 i = 0; i < e_phnum; ++i) {
+    //         const uchar *s = mapper.ustart + e_phoff + i * e_phentsize;
+    //         ElfProgramHeader ph;
+    //         parseProgramHeader(s, &ph, m_elfData);
+    //         m_elfData.programHeaders.append(ph);
+    //     }
+    // }
     return Ok;
 }
 
-std::shared_ptr<ElfMapper> ElfReader::readSection(const QByteArray &name)
+std::unique_ptr<ElfMapper> ElfReader::readSection(const QByteArray &name)
 {
-    std::shared_ptr<ElfMapper> mapper;
+    std::unique_ptr<ElfMapper> mapper;
     readIt();
     int i = m_elfData.indexOf(name);
     if (i == -1)
@@ -301,44 +301,44 @@ std::shared_ptr<ElfMapper> ElfReader::readSection(const QByteArray &name)
     return mapper;
 }
 
-static QByteArray cutout(const char *s)
-{
-    QByteArray res(s, 80);
-    const int pos = res.indexOf('\0');
-    if (pos != -1)
-        res.resize(pos - 1);
-    return res;
-}
+// static QByteArray cutout(const char *s)
+// {
+//     QByteArray res(s, 80);
+//     const int pos = res.indexOf('\0');
+//     if (pos != -1)
+//         res.resize(pos - 1);
+//     return res;
+// }
 
-QByteArray ElfReader::readCoreName(bool *isCore)
-{
-    *isCore = false;
+// QByteArray ElfReader::readCoreName(bool *isCore)
+// {
+//     *isCore = false;
 
-    readIt();
+//     readIt();
 
-    ElfMapper mapper(this);
-    if (!mapper.map())
-        return QByteArray();
+//     ElfMapper mapper(this);
+//     if (!mapper.map())
+//         return QByteArray();
 
-    if (m_elfData.elftype != Elf_ET_CORE)
-        return QByteArray();
+//     if (m_elfData.elftype != Elf_ET_CORE)
+//         return QByteArray();
 
-    *isCore = true;
+//     *isCore = true;
 
-    for (int i = 0, n = m_elfData.sectionHeaders.size(); i != n; ++i)
-        if (m_elfData.sectionHeaders.at(i).type == Elf_SHT_NOTE) {
-            const ElfSectionHeader &header = m_elfData.sectionHeaders.at(i);
-            return cutout(mapper.start + header.offset + 0x40);
-        }
+//     for (int i = 0, n = m_elfData.sectionHeaders.size(); i != n; ++i)
+//         if (m_elfData.sectionHeaders.at(i).type == Elf_SHT_NOTE) {
+//             const ElfSectionHeader &header = m_elfData.sectionHeaders.at(i);
+//             return cutout(mapper.start + header.offset + 0x40);
+//         }
 
-    for (int i = 0, n = m_elfData.programHeaders.size(); i != n; ++i)
-        if (m_elfData.programHeaders.at(i).type == Elf_PT_NOTE) {
-            const ElfProgramHeader &header = m_elfData.programHeaders.at(i);
-            return cutout(mapper.start + header.offset + 0xec);
-        }
+//     for (int i = 0, n = m_elfData.programHeaders.size(); i != n; ++i)
+//         if (m_elfData.programHeaders.at(i).type == Elf_PT_NOTE) {
+//             const ElfProgramHeader &header = m_elfData.programHeaders.at(i);
+//             return cutout(mapper.start + header.offset + 0xec);
+//         }
 
-    return QByteArray();
-}
+//     return QByteArray();
+// }
 
 int ElfData::indexOf(const QByteArray &name) const
 {

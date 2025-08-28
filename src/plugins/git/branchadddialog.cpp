@@ -95,11 +95,17 @@ BranchAddDialog::BranchAddDialog(const QStringList &localBranches, Type type, QW
     resize(590, 138);
 
     auto branchNameLabel = new QLabel(Tr::tr("Branch Name:"));
+    auto annotateLabel = new QLabel(Tr::tr("Annotation:"));
+    annotateLabel->setVisible(false);
 
     m_branchNameEdit = new QLineEdit(this);
     m_branchNameEdit->setValidator(new BranchNameValidator(localBranches, this));
 
     m_checkoutCheckBox = new QCheckBox(Tr::tr("Checkout new branch"));
+
+    m_annotateEdit = new QLineEdit(this);
+    m_annotateEdit->setVisible(false);
+    m_annotateEdit->setPlaceholderText(Tr::tr("Annotation (Optional)"));
 
     m_trackingCheckBox = new QCheckBox(this);
     m_trackingCheckBox->setVisible(false);
@@ -118,6 +124,8 @@ BranchAddDialog::BranchAddDialog(const QStringList &localBranches, Type type, QW
     case BranchAddDialog::AddTag:
         setWindowTitle(Tr::tr("Add Tag"));
         branchNameLabel->setText(Tr::tr("Tag name:"));
+        annotateLabel->setVisible(true);
+        m_annotateEdit->setVisible(true);
         break;
     case BranchAddDialog::RenameTag:
         setWindowTitle(Tr::tr("Rename Tag"));
@@ -131,6 +139,7 @@ BranchAddDialog::BranchAddDialog(const QStringList &localBranches, Type type, QW
         Row { branchNameLabel, m_branchNameEdit },
         m_checkoutCheckBox,
         m_trackingCheckBox,
+        Row { annotateLabel, m_annotateEdit },
         st,
         m_buttonBox
     }.attachTo(this);
@@ -151,6 +160,11 @@ void BranchAddDialog::setBranchName(const QString &n)
 QString BranchAddDialog::branchName() const
 {
     return m_branchNameEdit->text();
+}
+
+QString BranchAddDialog::annotation() const
+{
+    return m_annotateEdit->text();
 }
 
 void BranchAddDialog::setTrackedBranchName(const QString &name, bool remote)

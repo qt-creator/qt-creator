@@ -88,7 +88,6 @@ QtcPlugin {
         "cppeditorlogging.h",
         "cppeditorwidget.cpp",
         "cppeditorwidget.h",
-        "cppeditor.qrc",
         "cppeditor_global.h",
         "cppeditortr.h",
         "cppeditorconstants.h",
@@ -221,6 +220,8 @@ QtcPlugin {
         name: "Quickfixes"
         prefix: "quickfixes/"
         files: [
+            "addmodulefrominclude.cpp",
+            "addmodulefrominclude.h",
             "assigntolocalvariable.cpp",
             "assigntolocalvariable.h",
             "bringidentifierintoscope.cpp",
@@ -351,6 +352,19 @@ QtcPlugin {
             "typehierarchybuilder_test.cpp",
             "typehierarchybuilder_test.h",
         ]
+    }
+
+    QtcTestResources { files: "testcases/**/*" }
+
+    Group {
+        name: "images"
+        prefix: "images/"
+        files: [
+            "dark_qt_cpp.png",
+            "dark_qt_h.png",
+            "dark_qt_c.png",
+        ]
+        fileTags: "qt.core.resource_data"
     }
 
     Export {

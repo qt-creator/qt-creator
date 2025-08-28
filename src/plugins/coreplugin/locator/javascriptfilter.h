@@ -9,7 +9,7 @@ class JavaScriptEngine;
 
 namespace Core::Internal {
 
-class JavaScriptFilter : public Core::ILocatorFilter
+class JavaScriptFilter final : public Core::ILocatorFilter
 {
 public:
     JavaScriptFilter();

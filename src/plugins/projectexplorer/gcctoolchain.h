@@ -94,7 +94,7 @@ public:
 
 protected:
     using CacheItem = QPair<QStringList, Macros>;
-    using GccCache = QVector<CacheItem>;
+    using GccCache = QList<CacheItem>;
 
     void setSupportedAbis(const Abis &abis);
     void setInstallDir(const Utils::FilePath &installDir);

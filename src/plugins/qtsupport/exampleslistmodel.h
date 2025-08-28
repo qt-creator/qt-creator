@@ -33,7 +33,7 @@ public:
         // (which is not ideal).
         QVersionNumber qtVersion = {};
     };
-    static QVector<ExtraExampleSet> pluginRegisteredExampleSets();
+    static QList<ExtraExampleSet> pluginRegisteredExampleSets();
 
     ExampleSetModel();
 
@@ -75,7 +75,7 @@ private:
     void helpManagerInitialized();
     void tryToInitialize();
 
-    QVector<ExtraExampleSet> m_extraExampleSets;
+    QList<ExtraExampleSet> m_extraExampleSets;
     int m_selectedExampleSetIndex = -1;
     QSet<Utils::Id> m_selectedQtTypes;
 

@@ -9,6 +9,7 @@
 #include "../testtreeitem.h"
 
 #include <qtsupport/qtoutputformatter.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
@@ -118,6 +119,9 @@ QtTestOutputReader::QtTestOutputReader(Process *testApplication,
     , m_testType(type)
 {
     m_parseMessages = theQtTestFramework().parseMessages();
+    // for UNIX we can rely on QLocale::system() - but Win just takes the language into account
+    m_locale = HostOsInfo::isWindowsHost() ? QLocale(QLocale::system().language())
+                                           : QLocale::system();
 }
 
 void QtTestOutputReader::processOutputLine(const QByteArray &outputLine)
@@ -220,7 +224,7 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
             } else if (currentTag == QStringLiteral("BenchmarkResult")) {
                 const QXmlStreamAttributes &attributes = m_xmlReader.attributes();
                 const QString metric = attributes.value(QStringLiteral("metric")).toString();
-                const double value = attributes.value(QStringLiteral("value")).toDouble();
+                const double value = m_locale.toDouble(attributes.value(QStringLiteral("value")));
                 const int iterations = attributes.value(QStringLiteral("iterations")).toInt();
                 m_dataTag = attributes.value(QStringLiteral("tag")).toString();
                 m_description = constructBenchmarkInformation(metric, value, iterations);
@@ -340,14 +344,14 @@ static QStringList extractFunctionInformation(const QString &testClassName,
 
 void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
 {
-    static const QRegularExpression start("^[*]{9} Start testing of (.*) [*]{9}$");
+    static const QRegularExpression start("^.*[*]{9} Start testing of (.*) [*]{9}$");
     static const QRegularExpression config("^Config: Using QtTest library (.*), "
                                            "(Qt (\\d+(\\.\\d+){2}) \\(.*\\))$");
     static const QRegularExpression summary("^Totals: (\\d+) passed, (\\d+) failed, "
                                             "(\\d+) skipped(, (\\d+) blacklisted)?(, (\\d+)ms)?$");
     static const QRegularExpression finish("^[*]{9} Finished testing of (.*) [*]{9}$");
 
-    static const QRegularExpression result("^(PASS   |FAIL!  |XFAIL  |XPASS  |SKIP   |RESULT "
+    static const QRegularExpression result("^.*(PASS   |FAIL!  |XFAIL  |XPASS  |SKIP   |RESULT "
                                            "|BPASS  |BFAIL  |BXPASS |BXFAIL "
                                            "|INFO   |QWARN  |WARNING|QDEBUG |QSYSTEM|QCRITICAL): (.*)$");
 

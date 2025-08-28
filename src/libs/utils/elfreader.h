@@ -104,15 +104,15 @@ public:
     quint64 addr;
 };
 
-class ElfProgramHeader
-{
-public:
-    quint32 name;
-    quint32 type;
-    quint64 offset;
-    quint64 filesz;
-    quint64 memsz;
-};
+// class ElfProgramHeader
+// {
+// public:
+//     quint32 name;
+//     quint32 type;
+//     quint64 offset;
+//     quint64 filesz;
+//     quint64 memsz;
+// };
 
 class QTCREATOR_UTILS_EXPORT ElfData
 {
@@ -130,7 +130,7 @@ public:
     QByteArray buildId;
     DebugSymbolsType symbolsType = UnknownSymbols;
     QList<ElfSectionHeader> sectionHeaders;
-    QList<ElfProgramHeader> programHeaders;
+    // QList<ElfProgramHeader> programHeaders;
 };
 
 class QTCREATOR_UTILS_EXPORT ElfReader
@@ -140,9 +140,9 @@ public:
     enum Result { Ok, NotElf, Corrupt };
 
     ElfData readHeaders();
-    std::shared_ptr<ElfMapper> readSection(const QByteArray &sectionName);
+    std::unique_ptr<ElfMapper> readSection(const QByteArray &sectionName);
     QString errorString() const { return m_errorString; }
-    QByteArray readCoreName(bool *isCore);
+    // QByteArray readCoreName(bool *isCore);
 
 private:
     friend class ElfMapper;

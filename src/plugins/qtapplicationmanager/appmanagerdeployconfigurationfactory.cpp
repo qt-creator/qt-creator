@@ -8,6 +8,7 @@
 #include "appmanagerconstants.h"
 #include "appmanagertr.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -22,9 +23,9 @@ using namespace ProjectExplorer;
 
 namespace AppManager::Internal {
 
-static bool isNecessaryToDeploy(const Target *target)
+static bool isNecessaryToDeploy(const BuildConfiguration *bc)
 {
-    auto device = RunDeviceKitAspect::device(target->kit());
+    auto device = RunDeviceKitAspect::device(bc->kit());
     return device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 

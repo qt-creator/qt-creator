@@ -89,8 +89,6 @@
 #include <QAction>
 #include <QCoreApplication>
 #include <QDebug>
-#include <QDir>
-#include <QFileInfo>
 #include <QMenu>
 #include <QStringList>
 

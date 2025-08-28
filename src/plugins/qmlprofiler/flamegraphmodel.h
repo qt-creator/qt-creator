@@ -8,7 +8,6 @@
 #include "qmleventlocation.h"
 
 #include <QSet>
-#include <QVector>
 #include <QStack>
 #include <QAbstractItemModel>
 
@@ -27,7 +26,7 @@ struct FlameGraphData {
     int typeIndex;
 
     FlameGraphData *parent;
-    QVector<FlameGraphData *> children;
+    QList<FlameGraphData *> children;
 };
 
 class FlameGraphModel : public QAbstractItemModel

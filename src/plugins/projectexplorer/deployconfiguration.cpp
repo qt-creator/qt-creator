@@ -28,8 +28,9 @@ const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildS
 const char USES_DEPLOYMENT_DATA[] = "ProjectExplorer.DeployConfiguration.CustomDataEnabled";
 const char DEPLOYMENT_DATA[] = "ProjectExplorer.DeployConfiguration.CustomData";
 
-DeployConfiguration::DeployConfiguration(Target *target, Id id)
-    : ProjectConfiguration(target, id)
+DeployConfiguration::DeployConfiguration(BuildConfiguration *bc, Id id)
+    : ProjectConfiguration(bc->target(), id)
+    , m_buildConfiguration(bc)
     , m_stepList(this, Constants::BUILDSTEPS_DEPLOY)
 {
     //: Default DeployConfiguration display name
@@ -39,10 +40,7 @@ DeployConfiguration::DeployConfiguration(Target *target, Id id)
     MacroExpander &expander = *macroExpander();
     expander.setDisplayName(Tr::tr("Run Settings"));
     expander.setAccumulating(true);
-    expander.registerSubProvider([target] {
-         BuildConfiguration *bc = target->activeBuildConfiguration();
-         return bc ? bc->macroExpander() : target->macroExpander();
-     });
+    expander.registerSubProvider([bc] { return bc->macroExpander(); });
 }
 
 BuildStepList *DeployConfiguration::stepList()
@@ -112,7 +110,12 @@ void DeployConfiguration::fromMap(const Store &map)
 
 bool DeployConfiguration::isActive() const
 {
-    return target()->isActive() && target()->activeDeployConfiguration() == this;
+    return project()->activeDeployConfiguration() == this;
+}
+
+BuildSystem *DeployConfiguration::buildSystem() const
+{
+    return buildConfiguration()->buildSystem();
 }
 
 
@@ -178,47 +181,47 @@ void DeployConfigurationFactory::setConfigBaseId(Id deployConfigBaseId)
     m_deployConfigBaseId = deployConfigBaseId;
 }
 
-DeployConfiguration *DeployConfigurationFactory::createDeployConfiguration(Target *t)
+DeployConfiguration *DeployConfigurationFactory::createDeployConfiguration(BuildConfiguration *bc)
 {
-    auto dc = new DeployConfiguration(t, m_deployConfigBaseId);
+    auto dc = new DeployConfiguration(bc, m_deployConfigBaseId);
     dc->setDefaultDisplayName(m_defaultDisplayName);
     dc->m_configWidgetCreator = m_configWidgetCreator;
     return dc;
 }
 
-DeployConfiguration *DeployConfigurationFactory::create(Target *parent)
+DeployConfiguration *DeployConfigurationFactory::create(BuildConfiguration *bc)
 {
-    QTC_ASSERT(canHandle(parent), return nullptr);
-    DeployConfiguration *dc = createDeployConfiguration(parent);
+    QTC_ASSERT(canHandle(bc->target()), return nullptr);
+    DeployConfiguration *dc = createDeployConfiguration(bc);
     QTC_ASSERT(dc, return nullptr);
     BuildStepList *stepList = dc->stepList();
     for (const BuildStepList::StepCreationInfo &info : std::as_const(m_initialSteps)) {
-        if (!info.condition || info.condition(parent))
+        if (!info.condition || info.condition(bc))
             stepList->appendStep(info.stepId);
     }
     return dc;
 }
 
-DeployConfiguration *DeployConfigurationFactory::clone(Target *parent,
+DeployConfiguration *DeployConfigurationFactory::clone(BuildConfiguration *bc,
                                                        const DeployConfiguration *source)
 {
     Store map;
     source->toMap(map);
-    return restore(parent, map);
+    return restore(bc, map);
 }
 
-DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const Store &map)
+DeployConfiguration *DeployConfigurationFactory::restore(BuildConfiguration *bc, const Store &map)
 {
     const Id id = idFromMap(map);
     DeployConfigurationFactory *factory = Utils::findOrDefault(g_deployConfigurationFactories,
-        [parent, id](DeployConfigurationFactory *f) {
-            if (!f->canHandle(parent))
+        [bc, id](DeployConfigurationFactory *f) {
+            if (!f->canHandle(bc->target()))
                 return false;
             return id.name().startsWith(f->m_deployConfigBaseId.name());
         });
     if (!factory)
         return nullptr;
-    DeployConfiguration *dc = factory->createDeployConfiguration(parent);
+    DeployConfiguration *dc = factory->createDeployConfiguration(bc);
     QTC_ASSERT(dc, return nullptr);
     dc->fromMap(map);
     if (dc->hasError()) {
@@ -254,7 +257,8 @@ void DeployConfigurationFactory::setSupportedProjectType(Utils::Id id)
     m_supportedProjectType = id;
 }
 
-void DeployConfigurationFactory::addInitialStep(Utils::Id stepId, const std::function<bool (Target *)> &condition)
+void DeployConfigurationFactory::addInitialStep(
+    Utils::Id stepId, const std::function<bool(BuildConfiguration *)> &condition)
 {
     m_initialSteps.append({stepId, condition});
 }

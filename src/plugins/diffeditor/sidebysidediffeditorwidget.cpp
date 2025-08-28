@@ -151,10 +151,10 @@ void SideDiffEditorWidget::setFolded(int blockNumber, bool folded)
     if (!block.isValid())
         return;
 
-    if (TextDocumentLayout::isFolded(block) == folded)
+    if (TextBlockUserData::isFolded(block) == folded)
         return;
 
-    TextDocumentLayout::doFoldOrUnfold(block, !folded);
+    TextBlockUserData::doFoldOrUnfold(block, !folded);
 
     auto documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout());
     documentLayout->requestUpdate();
@@ -198,7 +198,7 @@ bool SideDiffEditorWidget::selectionVisible(int blockNumber) const
 bool SideDiffEditorWidget::replacementVisible(int blockNumber) const
 {
     return m_data.isChunkLine(blockNumber) || (m_data.isFileLine(blockNumber)
-           && TextDocumentLayout::isFolded(document()->findBlockByNumber(blockNumber)));
+           && TextBlockUserData::isFolded(document()->findBlockByNumber(blockNumber)));
 }
 
 QColor SideDiffEditorWidget::replacementPenColor(int blockNumber) const
@@ -443,7 +443,7 @@ void SideDiffEditorWidget::paintSeparator(QPainter &painter,
     const int replacementTextWidth = fontMetrics().horizontalAdvance(replacementText) + 24;
     int x = replacementTextWidth + int(offset.x());
     if (x < document()->documentMargin()
-            || !TextDocumentLayout::isFolded(block)) {
+            || !TextBlockUserData::isFolded(block)) {
         x = int(document()->documentMargin());
     }
     const QString elidedText = fontMetrics().elidedText(text,
@@ -710,7 +710,7 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
         connect(m_editor[side]->horizontalScrollBar(), &QAbstractSlider::actionTriggered,
                 this, std::bind(&SideBySideDiffEditorWidget::horizontalSliderChanged, this, side));
 
-        connect(m_editor[side], &QPlainTextEdit::cursorPositionChanged,
+        connect(m_editor[side], &PlainTextEdit::cursorPositionChanged,
                 this, std::bind(&SideBySideDiffEditorWidget::cursorPositionChanged, this, side));
 
         connect(m_editor[side]->horizontalScrollBar(), &QAbstractSlider::rangeChanged,
@@ -834,7 +834,7 @@ void SideBySideDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
         QTextCursor cursor = editor->textCursor();
         cursor.setPosition(block.position());
         editor->setTextCursor(cursor);
-        editor->verticalScrollBar()->setValue(blockNumber);
+        editor->setTopBlock(block);
     }
 }
 

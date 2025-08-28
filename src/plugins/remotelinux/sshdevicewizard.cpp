@@ -110,9 +110,9 @@ public:
         m_keyFileChooser.setPromptDialogTitle(Tr::tr("Choose a Private Key File"));
         auto const deployButton = new QPushButton(Tr::tr("Deploy Public Key"), this);
         connect(deployButton, &QPushButton::clicked, this, [this] {
-            Internal::PublicKeyDeploymentDialog dlg(
+            const bool success = Internal::runPublicKeyDeploymentDialog(
                 m_device, m_keyFileChooser.filePath().stringAppended(".pub"));
-            m_iconLabel.setPixmap((dlg.exec() == QDialog::Accepted ? Icons::OK : Icons::BROKEN).pixmap());
+            m_iconLabel.setPixmap((success ? Icons::OK : Icons::BROKEN).pixmap());
         });
         auto const createButton = new QPushButton(Tr::tr("Create New Key Pair"), this);
         connect(createButton, &QPushButton::clicked, this, [this] {
@@ -148,7 +148,7 @@ public:
 
 private:
     void initializePage() final {
-        if (!m_device.sshParameters().privateKeyFile.isEmpty())
+        if (!m_device.sshParameters().privateKeyFile().isEmpty())
             m_keyFileChooser.setFilePath(m_keyFileChooser.filePath());
         m_iconLabel.clear();
     }
@@ -159,8 +159,8 @@ private:
     bool validatePage() final {
         if (!defaultKeys().contains(m_keyFileChooser.filePath())) {
             SshParameters sshParams = m_device.sshParameters();
-            sshParams.authenticationType = SshParameters::AuthenticationTypeSpecificKey;
-            sshParams.privateKeyFile = m_keyFileChooser.filePath();
+            sshParams.setAuthenticationType(SshParameters::AuthenticationTypeSpecificKey);
+            sshParams.setPrivateKeyFile(m_keyFileChooser.filePath());
             m_device.setSshParameters(sshParams);
         }
         return true;

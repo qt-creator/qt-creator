@@ -47,7 +47,7 @@ public:
     void setProjectIndex(int index);
     ProjectInfo currentProjectInfo() const;
 
-    bool validateProjectName(const QString &name, QString *errorMessage);
+    Result<> validateProjectName(const QString &name);
 
     // Calls slotChanged() - i.e. tell the page that some of its fields have been updated.
     // This function is useful if you programmatically update the fields of the page (i.e. from

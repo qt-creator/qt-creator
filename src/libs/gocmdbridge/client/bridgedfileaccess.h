@@ -27,17 +27,22 @@ class QTCREATOR_CMDBRIDGE_EXPORT FileAccess : public Utils::DeviceFileAccess
 public:
     ~FileAccess() override;
 
-    Utils::Result deployAndInit(
-        const Utils::FilePath &libExecPath, const Utils::FilePath &remoteRootPath);
+    Utils::Result<> deployAndInit(
+        const Utils::FilePath &libExecPath,
+        const Utils::FilePath &remoteRootPath,
+        const Utils::Environment &environment);
 
-    Utils::Result init(const Utils::FilePath &pathToBridge);
+    Utils::Result<> init(
+        const Utils::FilePath &pathToBridge,
+        const Utils::Environment &environment,
+        bool deleteOnExit);
 
-    Utils::Result signalProcess(int pid, Utils::ControlSignal signal) const;
+    Utils::Result<> signalProcess(int pid, Utils::ControlSignal signal) const;
 
     Utils::Environment deviceEnvironment() const override;
 
 protected:
-    Utils::Result reinit();
+    Utils::Result<> reinit();
 
     void iterateDirectory(const Utils::FilePath &filePath,
                           const Utils::FilePath::IterateDirCallback &callBack,
@@ -60,30 +65,34 @@ protected:
     QFile::Permissions permissions(const Utils::FilePath &filePath) const override;
     bool setPermissions(const Utils::FilePath &filePath, QFile::Permissions) const override;
     qint64 fileSize(const Utils::FilePath &filePath) const override;
+    QString owner(const Utils::FilePath &filePath) const override;
+    uint ownerId(const Utils::FilePath &filePath) const override;
+    QString group(const Utils::FilePath &filePath) const override;
+    uint groupId(const Utils::FilePath &filePath) const override;
     qint64 bytesAvailable(const Utils::FilePath &filePath) const override;
     QByteArray fileId(const Utils::FilePath &filePath) const override;
 
-    Utils::expected_str<QByteArray> fileContents(const Utils::FilePath &filePath,
+    Utils::Result<QByteArray> fileContents(const Utils::FilePath &filePath,
                                                  qint64 limit,
                                                  qint64 offset) const override;
-    Utils::expected_str<qint64> writeFileContents(const Utils::FilePath &filePath,
+    Utils::Result<qint64> writeFileContents(const Utils::FilePath &filePath,
                                                   const QByteArray &data) const override;
 
-    Utils::Result removeFile(const Utils::FilePath &filePath) const override;
-    bool removeRecursively(const Utils::FilePath &filePath, QString *error) const override;
+    Utils::Result<> removeFile(const Utils::FilePath &filePath) const override;
+    Utils::Result<> removeRecursively(const Utils::FilePath &filePath) const override;
 
     bool ensureExistingFile(const Utils::FilePath &filePath) const override;
     bool createDirectory(const Utils::FilePath &filePath) const override;
 
-    Utils::Result copyFile(const Utils::FilePath &filePath,
+    Utils::Result<> copyFile(const Utils::FilePath &filePath,
                            const Utils::FilePath &target) const override;
 
-    Utils::Result renameFile(
+    Utils::Result<> renameFile(
         const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
 
-    Utils::expected_str<Utils::FilePath> createTempFile(const Utils::FilePath &filePath) override;
+    Utils::Result<Utils::FilePath> createTempFile(const Utils::FilePath &filePath) override;
 
-    Utils::expected_str<std::unique_ptr<Utils::FilePathWatcher>> watch(
+    Utils::Result<std::unique_ptr<Utils::FilePathWatcher>> watch(
         const Utils::FilePath &filePath) const override;
 
 private:

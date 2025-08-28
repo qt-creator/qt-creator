@@ -5,7 +5,6 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/target.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
@@ -29,12 +28,12 @@ std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetFallbackPaths()
     return {workingDirectory, qmlPuppetExecutablePath(workingDirectory)};
 }
 
-std::pair<Utils::FilePath, Utils::FilePath> pathsForKitPuppet(ProjectExplorer::Target *target)
+std::pair<Utils::FilePath, Utils::FilePath> pathsForKitPuppet(ProjectExplorer::Kit *kit)
 {
-    if (!target || !target->kit())
+    if (!kit)
         return {};
 
-    QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
+    QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(kit);
 
     if (currentQtVersion) {
         auto path = currentQtVersion->binPath();
@@ -45,9 +44,9 @@ std::pair<Utils::FilePath, Utils::FilePath> pathsForKitPuppet(ProjectExplorer::T
 }
 } // namespace
 
-std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetPaths(ProjectExplorer::Target *target)
+std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetPaths(ProjectExplorer::Kit *kit)
 {
-    auto [workingDirectoryPath, puppetPath] = pathsForKitPuppet(target);
+    auto [workingDirectoryPath, puppetPath] = pathsForKitPuppet(kit);
 
     if (workingDirectoryPath.isEmpty() || !puppetPath.exists())
         return qmlPuppetFallbackPaths();

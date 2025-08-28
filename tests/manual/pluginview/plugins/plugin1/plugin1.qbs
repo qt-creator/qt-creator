@@ -7,6 +7,7 @@ QtcManualTest {
     destinationDirectory: FileInfo.cleanPath(FileInfo.joinPaths(base , ".."))
 
     Depends { name: "ExtensionSystem" }
+    Depends { name: "Utils" }
     Depends { name: "Manual test plugin2"}
     Depends { name: "Manual test plugin3"}
 

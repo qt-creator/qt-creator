@@ -159,7 +159,7 @@ void Chart::clear()
 
 void Chart::paintEvent(QPaintEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     QPainter painter(this);
     // painter.fillRect(rect(), creatorColor(Theme::Token_Background_Default)); left for the future
     painter.fillRect(rect(), creatorColor(Theme::BackgroundColorNormal));

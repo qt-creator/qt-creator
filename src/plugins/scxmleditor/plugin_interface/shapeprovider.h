@@ -9,9 +9,7 @@
 #include <QObject>
 #include <QString>
 
-namespace ScxmlEditor {
-
-namespace PluginInterface {
+namespace ScxmlEditor::PluginInterface {
 
 class ShapeProvider : public QObject
 {
@@ -36,7 +34,7 @@ public:
         }
 
         QString title;
-        QVector<Shape*> shapes;
+        QList<Shape*> shapes;
         void addShape(Shape *shape)
         {
             shapes << shape;
@@ -59,5 +57,4 @@ signals:
     void changed();
 };
 
-} // namespace PluginInterface
-} // namespace ScxmlEditor
+} // namespace ScxmlEditor::PluginInterface

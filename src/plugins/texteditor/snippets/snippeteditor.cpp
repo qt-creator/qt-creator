@@ -41,7 +41,7 @@ void SnippetEditorWidget::focusOutEvent(QFocusEvent *event)
 
 void SnippetEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
-    QPlainTextEdit::contextMenuEvent(e);
+    PlainTextEdit::contextMenuEvent(e);
 }
 
 } // namespace

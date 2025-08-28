@@ -48,6 +48,7 @@ public:
 signals:
     void engineStateChanged(DebuggerEngine *engine);
     void currentEngineChanged();
+    void shutDownCompleted();
 };
 
 } // Debugger::Internal

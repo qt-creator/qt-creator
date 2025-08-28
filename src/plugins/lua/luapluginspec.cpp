@@ -12,7 +12,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
-#include <utils/expected.h>
 
 #include <QJsonDocument>
 #include <QLoggingCategory>
@@ -47,13 +46,18 @@ LuaPluginSpec::LuaPluginSpec()
     : d(new LuaPluginSpecPrivate())
 {}
 
-expected_str<LuaPluginSpec *> LuaPluginSpec::create(const FilePath &filePath, sol::table pluginTable)
+Result<LuaPluginSpec *> LuaPluginSpec::create(const FilePath &filePath, sol::table pluginTable)
 {
     const FilePath directory = filePath.parentDir();
     std::unique_ptr<LuaPluginSpec> pluginSpec(new LuaPluginSpec());
 
     if (!pluginTable.get_or<sol::function>("setup"sv, {}))
         return make_unexpected(QString("Plugin info table did not contain a setup function"));
+
+    if (pluginTable.get_or<QString>("Type"sv, {}).toLower() != "script") {
+        qCWarning(luaPluginSpecLog) << "Plugin info table did not contain a Type=\"Script\" field";
+        pluginTable.set("Type"sv, "script"sv);
+    }
 
     QJsonValue v = toJson(pluginTable);
     if (luaPluginSpecLog().isDebugEnabled()) {
@@ -94,37 +98,6 @@ ExtensionSystem::IPlugin *LuaPluginSpec::plugin() const
     return nullptr;
 }
 
-bool LuaPluginSpec::provides(PluginSpec *spec, const PluginDependency &dependency) const
-{
-    if (QString::compare(dependency.id, spec->id(), Qt::CaseInsensitive) != 0)
-        return false;
-
-    const QString luaCompatibleVersion = spec->metaData().value("LuaCompatibleVersion").toString();
-
-    if (luaCompatibleVersion.isEmpty()) {
-        qCWarning(luaPluginSpecLog)
-            << "The plugin" << spec->id()
-            << "does not specify a \"LuaCompatibleVersion\", but the lua plugin" << name()
-            << "requires it.";
-        return false;
-    }
-
-    // If luaCompatibleVersion is greater than the dependency version, we cannot provide it.
-    if (versionCompare(luaCompatibleVersion, dependency.version) > 0)
-        return false;
-
-    // If the luaCompatibleVersion is greater than the spec version, we can provide it.
-    // Normally, a plugin that has a higher compatibility version than version is in an invalid state.
-    // This check is used when raising the compatibility version of the Lua plugin during development,
-    // where temporarily Lua's version is `(X-1).0.8y`, and the compatibility version has already
-    // been raised to the final release `X.0.0`.
-    if (versionCompare(luaCompatibleVersion, spec->version()) > 0)
-        return true;
-
-    // If the spec version is greater than the dependency version, we can provide it.
-    return (versionCompare(spec->version(), dependency.version) >= 0);
-}
-
 // LuaPluginSpec::For internal use {}
 bool LuaPluginSpec::loadLibrary()
 {
@@ -140,7 +113,7 @@ bool LuaPluginSpec::initializePlugin()
 
     std::unique_ptr<sol::state> activeLuaState = std::make_unique<sol::state>();
 
-    expected_str<sol::protected_function> setupResult = prepareSetup(*activeLuaState, *this);
+    Result<sol::protected_function> setupResult = prepareSetup(*activeLuaState, *this);
 
     if (!setupResult) {
         setError(Lua::Tr::tr("Cannot prepare extension setup: %1").arg(setupResult.error()));
@@ -185,6 +158,9 @@ ExtensionSystem::IPlugin::ShutdownFlag LuaPluginSpec::stop()
 
 void LuaPluginSpec::kill()
 {
+    if (!d->activeLuaState)
+        return;
+
     d->activeLuaState.reset();
     setState(PluginSpec::State::Deleted);
 }

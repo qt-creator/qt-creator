@@ -75,7 +75,7 @@ public:
     // The input is to be considered "complete" for parsing purposes.
     virtual Result handleLine(const QString &line, OutputFormat format) = 0;
 
-    virtual bool handleLink(const QString &href) { Q_UNUSED(href); return false; }
+    virtual bool handleLink(const QString &href) { Q_UNUSED(href) return false; }
     virtual bool hasFatalErrors() const { return false; }
     virtual void flush() {}
     virtual void runPostPrintActions(QPlainTextEdit *) {}

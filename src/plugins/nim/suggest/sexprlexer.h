@@ -38,24 +38,6 @@ struct SExprLexer {
         , m_pos(0)
     {}
 
-    SExprLexer(const char *data)
-        : SExprLexer(data, ::strlen(data))
-    {}
-
-    SExprLexer(const std::string &data)
-        : SExprLexer(data.c_str(), data.length())
-    {}
-
-    const char *data() const
-    {
-        return m_data;
-    }
-
-    std::size_t dataLength() const
-    {
-        return m_dataLength;
-    }
-
     static size_t tokenLength(Token &token)
     {
         return token.end - token.start + 1;
@@ -127,28 +109,6 @@ struct SExprLexer {
             }
         }
         return Finished;
-    }
-
-    static std::vector<Token> parse(const std::string &data)
-    {
-        return parse(data.data(), data.size());
-    }
-
-    static std::vector<Token> parse(const char *data)
-    {
-        return parse(data, ::strlen(data));
-    }
-
-    static std::vector<Token> parse(const char *data, std::size_t data_size)
-    {
-        std::vector<Token> result;
-        SExprLexer lexer(data, data_size);
-        Token token {};
-        while (lexer.next(token)) {
-            result.push_back(token);
-            token = {};
-        }
-        return result;
     }
 
 private:

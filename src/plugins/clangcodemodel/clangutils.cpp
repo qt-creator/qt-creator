@@ -76,7 +76,7 @@ QString diagnosticCategoryPrefixRemoved(const QString &text)
 }
 
 void generateCompilationDB(
-    QPromise<expected_str<FilePath>> &promise,
+    QPromise<Result<FilePath>> &promise,
     const QList<ProjectInfo::ConstPtr> &projectInfoList,
     const FilePath &baseDir,
     CompilationDbPurpose purpose,

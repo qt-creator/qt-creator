@@ -37,8 +37,8 @@ public:
 
 private:
     QIcon m_emptyIcon;
-    QVector<PluginInterface::TagType> m_iconIndices;
-    QVector<QIcon> m_icons;
+    QList<PluginInterface::TagType> m_iconIndices;
+    QList<QIcon> m_icons;
 };
 
 class StructureModel : public QAbstractItemModel

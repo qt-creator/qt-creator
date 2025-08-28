@@ -30,24 +30,48 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
 using namespace Utils;
 
-///
-// BuildSettingsWidget
-///
+namespace ProjectExplorer::Internal {
 
-BuildSettingsWidget::~BuildSettingsWidget()
+class BuildSettingsWidget final : public QWidget
 {
-    clearWidgets();
-}
+public:
+    explicit BuildSettingsWidget(Target *target);
 
-BuildSettingsWidget::BuildSettingsWidget(Target *target) :
-    m_target(target)
+private:
+    void clearWidgets();
+    void addSubWidget(QWidget *widget, const QString &displayName);
+
+    void updateBuildSettings();
+    void currentIndexChanged(int index);
+
+    void renameConfiguration();
+    void updateAddButtonMenu();
+
+    void updateActiveConfiguration();
+
+    void createConfiguration(const BuildInfo &info);
+    void cloneConfiguration();
+    void deleteConfiguration(BuildConfiguration *toDelete);
+    QString uniqueName(const QString &name, bool allowCurrentName);
+
+    Target *m_target = nullptr;
+    BuildConfiguration *m_buildConfiguration = nullptr;
+
+    QPushButton *m_addButton = nullptr;
+    QPushButton *m_removeButton = nullptr;
+    QPushButton *m_renameButton = nullptr;
+    QPushButton *m_cloneButton = nullptr;
+    QComboBox *m_buildConfigurationComboBox = nullptr;
+    QMenu *m_addButtonMenu = nullptr;
+
+    QList<QWidget *> m_subWidgets;
+};
+
+BuildSettingsWidget::BuildSettingsWidget(Target *target)
+    : m_target(target)
 {
-    Q_ASSERT(m_target);
-
     auto vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
 
@@ -60,38 +84,28 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
     }
 
     { // Edit Build Configuration row
-        auto hbox = new QHBoxLayout();
-        hbox->setContentsMargins(0, 0, 0, 0);
-        hbox->addWidget(new QLabel(Tr::tr("Edit build configuration:"), this));
         m_buildConfigurationComboBox = new QComboBox(this);
         m_buildConfigurationComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         m_buildConfigurationComboBox->setModel(m_target->buildConfigurationModel());
         setWheelScrollingWithoutFocusBlocked(m_buildConfigurationComboBox);
-        hbox->addWidget(m_buildConfigurationComboBox);
 
-        m_addButton = new QPushButton(this);
-        m_addButton->setText(Tr::tr("Add"));
-        m_addButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        hbox->addWidget(m_addButton);
+        m_addButton = new QPushButton(Tr::tr("Add"), this);
         m_addButtonMenu = new QMenu(this);
         m_addButton->setMenu(m_addButtonMenu);
 
-        m_removeButton = new QPushButton(this);
-        m_removeButton->setText(Tr::tr("Remove"));
-        m_removeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        m_removeButton = new QPushButton(Tr::tr("Remove"), this);
+        m_renameButton = new QPushButton(Tr::tr("Rename..."), this);
+        m_cloneButton = new QPushButton(Tr::tr("Clone..."), this);
+
+        auto hbox = new QHBoxLayout();
+        hbox->setContentsMargins(0, 0, 0, 0);
+        hbox->addWidget(new QLabel(Tr::tr("Edit build configuration:"), this));
+        hbox->addWidget(m_buildConfigurationComboBox);
+        hbox->addWidget(m_addButton);
         hbox->addWidget(m_removeButton);
-
-        m_renameButton = new QPushButton(this);
-        m_renameButton->setText(Tr::tr("Rename..."));
-        m_renameButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         hbox->addWidget(m_renameButton);
-
-        m_cloneButton = new QPushButton(this);
-        m_cloneButton->setText(Tr::tr("Clone..."));
-        m_cloneButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         hbox->addWidget(m_cloneButton);
-
-        hbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
+        hbox->addStretch();
         vbox->addLayout(hbox);
     }
 
@@ -128,13 +142,12 @@ void BuildSettingsWidget::addSubWidget(QWidget *widget, const QString &displayNa
     auto label = new QLabel(this);
     label->setText(displayName);
     label->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
-
     label->setContentsMargins(0, 18, 0, 0);
 
     layout()->addWidget(label);
     layout()->addWidget(widget);
 
-    m_labels.append(label);
+    m_subWidgets.append(label);
     m_subWidgets.append(widget);
 }
 
@@ -142,8 +155,6 @@ void BuildSettingsWidget::clearWidgets()
 {
     qDeleteAll(m_subWidgets);
     m_subWidgets.clear();
-    qDeleteAll(m_labels);
-    m_labels.clear();
 }
 
 void BuildSettingsWidget::updateAddButtonMenu()
@@ -281,15 +292,23 @@ void BuildSettingsWidget::cloneConfiguration()
         return;
 
     // Save the current build configuration settings, so that the clone gets all the settings
-    m_target->project()->saveSettings();
+    m_buildConfiguration->project()->saveSettings();
 
     BuildConfiguration *bc = m_buildConfiguration->clone(m_target);
     if (!bc)
         return;
 
     bc->setDisplayName(name);
-    const FilePath buildDirectory = bc->buildDirectory();
-    if (buildDirectory != m_target->project()->projectDirectory()) {
+    const FilePath buildDirectory = BuildConfiguration::buildDirectoryFromTemplate(
+        bc->project()->projectDirectory(),
+        bc->project()->projectFilePath(),
+        bc->project()->displayName(),
+        bc->kit(),
+        name,
+        bc->buildType(),
+        bc->project()->buildSystemName());
+    bc->setBuildDirectory(buildDirectory);
+    if (buildDirectory != bc->project()->projectDirectory()) {
         const FilePathPredicate isBuildDirOk = [this](const FilePath &candidate) {
             if (candidate.exists())
                 return false;
@@ -332,3 +351,10 @@ void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfigur
 
     m_target->removeBuildConfiguration(deleteConfiguration);
 }
+
+QWidget *createBuildSettingsWidget(Target *target)
+{
+    return new BuildSettingsWidget(target);
+}
+
+} // ProjectExplorer::Internal

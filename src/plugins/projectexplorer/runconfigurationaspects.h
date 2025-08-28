@@ -162,7 +162,7 @@ public:
     Utils::FilePath executable() const;
     void setExecutable(const Utils::FilePath &executable);
 
-    void setDeviceSelector(Target *target, ExecutionDeviceSelector selector);
+    void setDeviceSelector(Kit *kit, ExecutionDeviceSelector selector);
     void setSettingsKey(const Utils::Key &key);
     void makeOverridable(const Utils::Key &overridingKey, const Utils::Key &useOverridableKey);
     void addToLayoutImpl(Layouting::Layout &parent) override;
@@ -187,7 +187,7 @@ private:
 
     Utils::FilePathAspect m_executable;
     Utils::FilePathAspect *m_alternativeExecutable = nullptr;
-    Target *m_target = nullptr;
+    Kit *m_kit = nullptr;
     ExecutionDeviceSelector m_selector = RunDevice;
 };
 

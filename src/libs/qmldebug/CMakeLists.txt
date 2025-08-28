@@ -12,7 +12,6 @@ add_qtc_library(QmlDebug
     qmldebugconstants.h
     qmlenginecontrolclient.cpp qmlenginecontrolclient.h
     qmlenginedebugclient.h
-    qmloutputparser.cpp qmloutputparser.h
     qmltoolsclient.cpp qmltoolsclient.h
     qpacketprotocol.cpp qpacketprotocol.h
 )

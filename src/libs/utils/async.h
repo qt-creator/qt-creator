@@ -125,6 +125,9 @@ signals:
     void started();
     void done();
     void resultReadyAt(int index);
+    void progressRangeChanged(int min, int max);
+    void progressValueChanged(int value);
+    void progressTextChanged(const QString &text);
 };
 
 template <typename ResultType>
@@ -136,6 +139,21 @@ public:
     {
         connect(&m_watcher, &QFutureWatcherBase::finished, this, &AsyncBase::done);
         connect(&m_watcher, &QFutureWatcherBase::resultReadyAt, this, &AsyncBase::resultReadyAt);
+        connect(
+            &m_watcher,
+            &QFutureWatcherBase::progressValueChanged,
+            this,
+            &AsyncBase::progressValueChanged);
+        connect(
+            &m_watcher,
+            &QFutureWatcherBase::progressRangeChanged,
+            this,
+            &AsyncBase::progressRangeChanged);
+        connect(
+            &m_watcher,
+            &QFutureWatcherBase::progressTextChanged,
+            this,
+            &AsyncBase::progressTextChanged);
     }
     ~Async()
     {
@@ -153,7 +171,7 @@ public:
         wrapConcurrent(std::forward<Function>(function), std::forward<Args>(args)...);
     }
 
-    void setFutureSynchronizer(FutureSynchronizer *synchorizer) { m_synchronizer = synchorizer; }
+    void setFutureSynchronizer(FutureSynchronizer *synchronizer) { m_synchronizer = synchronizer; }
     void setThreadPool(QThreadPool *pool) { m_threadPool = pool; }
     void setPriority(QThread::Priority priority) { m_priority = priority; }
 

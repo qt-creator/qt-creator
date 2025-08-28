@@ -9,6 +9,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QElapsedTimer>
 #include <QPointer>
 #include <QTextDocument>
 #include <QThread>
@@ -242,7 +243,7 @@ void SyntaxHighlighterPrivate::reformatBlocks()
             break;
 
         const int stateBeforeHighlight = block.userState();
-        const int braceDepthBeforeHighlight = TextDocumentLayout::braceDepth(block);
+        const int braceDepthBeforeHighlight = TextBlockUserData::braceDepth(block);
 
         if (forceHighlightOfNextBlock || forceRehighlightBlocks.contains(block.blockNumber())
                 || block.blockNumber() <= highlightEndBlock) {
@@ -250,7 +251,7 @@ void SyntaxHighlighterPrivate::reformatBlocks()
             forceRehighlightBlocks.remove(block.blockNumber());
             forceHighlightOfNextBlock = (block.userState() != stateBeforeHighlight)
                                         || (braceDepthBeforeHighlight
-                                            != TextDocumentLayout::braceDepth(block));
+                                            != TextBlockUserData::braceDepth(block));
         }
 
         if (block == endBlock && !forceHighlightOfNextBlock)

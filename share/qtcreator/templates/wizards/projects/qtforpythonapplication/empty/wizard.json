@@ -13,8 +13,8 @@
     "options":
     [
         { "key": "SrcFileName", "value": "main.py" },
-        { "key": "PyProjectFile", "value": "%{JS: Util.fileName('%{ProjectName}', 'pyproject')}" },
-        { "key": "ProjectFilePath", "value": "%{ProjectDirectory}/%{PyProjectFile}" }
+        { "key": "PyProjectTomlFile", "value": "pyproject.toml" },
+        { "key": "ProjectFilePath", "value": "%{ProjectDirectory}/%{PyProjectTomlFile}" }
     ],
 
     "pages":
@@ -72,8 +72,8 @@
             "data":
             [
                 {
-                    "source": "../main.pyproject",
-                    "target": "%{PyProjectFile}",
+                    "source": "../pyproject.toml",
+                    "target": "%{PyProjectTomlFile}",
                     "openAsProject": true
                 },
                 {

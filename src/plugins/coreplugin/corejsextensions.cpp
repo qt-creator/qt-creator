@@ -11,6 +11,7 @@
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QDirIterator>
 #include <QLibraryInfo>
@@ -97,7 +98,7 @@ QString UtilsJsExtension::relativeFilePath(const QString &path, const QString &b
 {
     const FilePath basePath = FilePath::fromString(base).cleanPath();
     const FilePath filePath = FilePath::fromString(path).cleanPath();
-    return FilePath::calcRelativePath(filePath.toFSPathString(), basePath.toFSPathString());
+    return filePath.relativePathFromDir(basePath).toFSPathString();
 }
 
 bool UtilsJsExtension::exists(const QString &in) const
@@ -148,13 +149,13 @@ QString UtilsJsExtension::asciify(const QString &input) const
 
 QString UtilsJsExtension::qtQuickVersion(const QString &filePath) const
 {
-    QDirIterator dirIt(Utils::FilePath::fromString(filePath).parentDir().path(), {"*.qml"},
+    QDirIterator dirIt(FilePath::fromString(filePath).parentDir().path(), {"*.qml"},
                        QDir::Files, QDirIterator::Subdirectories);
     while (dirIt.hasNext()) {
-        Utils::FileReader reader;
-        if (!reader.fetch(Utils::FilePath::fromString(dirIt.next())))
+        const Result<QByteArray> result = FilePath::fromString(dirIt.next()).fileContents();
+        if (!result)
             continue;
-        const QString data = QString::fromUtf8(reader.data());
+        const QString data = QString::fromUtf8(*result);
         static const QString importString("import QtQuick");
         const int importIndex = data.indexOf(importString);
         if (importIndex == -1)

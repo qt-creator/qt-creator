@@ -77,7 +77,7 @@ private:
                               int line, const CPlusPlus::Macro &macro) override;
     void startExpandingMacro(int bytesOffset, int utf16charOffset,
                              int line, const CPlusPlus::Macro &macro,
-                             const QVector<CPlusPlus::MacroArgumentReference> &actuals) override;
+                             const QList<CPlusPlus::MacroArgumentReference> &actuals) override;
     void stopExpandingMacro(int bytesOffset, const CPlusPlus::Macro &macro) override;
     void markAsIncludeGuard(const QByteArray &macroName) override;
     void startSkippingBlocks(int utf16charsOffset) override;

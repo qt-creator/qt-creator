@@ -25,10 +25,10 @@ QWidget *ColorPickerAction::createWidget(QWidget *parent)
     return picker;
 }
 
-ColorToolButton::ColorToolButton(const QString &key, const QString &iconName, const QString &tooltip, QWidget *parent)
+ColorToolButton::ColorToolButton(const QString &key, const QIcon &icon, const QString &tooltip, QWidget *parent)
     : QToolButton(parent)
 {
-    setIcon(QIcon(iconName));
+    setIcon(icon);
     setToolTip(tooltip);
     setPopupMode(QToolButton::MenuButtonPopup);
 

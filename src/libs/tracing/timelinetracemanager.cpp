@@ -37,10 +37,10 @@ public:
     quint64 recordedFeatures = 0;
     bool aggregateTraces = false;
 
-    QHash<quint8, QVector<TraceEventLoader>> eventLoaders;
-    QVector<Initializer> initializers;
-    QVector<Finalizer> finalizers;
-    QVector<Clearer> clearers;
+    QHash<quint8, QList<TraceEventLoader>> eventLoaders;
+    QList<Initializer> initializers;
+    QList<Finalizer> finalizers;
+    QList<Clearer> clearers;
 
     qint64 traceStart = -1;
     qint64 traceEnd = -1;

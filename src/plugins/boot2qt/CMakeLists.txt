@@ -3,7 +3,6 @@ add_qtc_plugin(Boot2Qt
   DEPENDS Qt::Network
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport RemoteLinux
   SOURCES
-    qdb.qrc
     qdb_global.h
     qdbconstants.h
     qdbdevice.cpp qdbdevice.h
@@ -27,3 +26,12 @@ extend_qtc_plugin(Boot2Qt
     qdbwatcher.cpp qdbwatcher.h
 )
 
+qtc_add_resources(Boot2Qt "images"
+  PREFIX "/qdb"
+  BASE "."
+  FILES
+    images/qdbdevice.png
+    images/qdbdevice@2x.png
+    images/qdbdevicesmall.png
+    images/qdbdevicesmall@2x.png
+)

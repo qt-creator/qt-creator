@@ -25,7 +25,16 @@ def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWe
         clickButton(waitForObject("{text='Yes' type='QPushButton' unnamed='1' visible='1'}"))
     except:
         pass
-    __chooseTargets__(targets)
+
+    def additionalFunction():
+        # enable at least build configurations "Debug" and "Release"
+        configs = ['Debug', 'Release']
+        for checkbox in configs:
+            ensureChecked(waitForObject("{text='%s' type='QCheckBox' unnamed='1' visible='1' "
+                                        "window=':Qt Creator_Core::Internal::MainWindow'}"
+                                        % checkbox), True)
+
+    __chooseTargets__(targets, additionalFunc=additionalFunction)
     configureButton = waitForObject(":Qt Creator.Configure Project_QPushButton")
     clickButton(configureButton)
 
@@ -114,6 +123,8 @@ def __handleBuildSystem__(buildSystem):
     try:
         if buildSystem is None:
             buildSystem = str(comboObj.currentText)
+            if buildSystem.startswith("CMake"):
+                buildSystem = "CMake"
             test.log("Keeping default build system '%s'" % buildSystem)
         else:
             test.log("Trying to select build system '%s'" % buildSystem)
@@ -148,23 +159,24 @@ def __selectQtVersionDesktop__(buildSystem, checks, available=None, targets=[]):
         wanted = Targets.desktopTargetClasses()
     checkedTargets = __chooseTargets__(wanted, available)
     if checks:
+        def __verifyAndExplicitlyCheck__(text, detailsWidget, expectChecked):
+            cbObjectTxt = ("{type='QCheckBox' text='%s' unnamed='1' visible='1' container=%s}")
+            cbObject = cbObjectTxt % (text, objectMap.realName(detailsWidget))
+            verifyChecked(cbObject, expectChecked)
+            ensureChecked(cbObject, True)
+
         for target in checkedTargets:
             detailsWidget = waitForObject("{type='Utils::DetailsWidget' unnamed='1' visible='1' "
                                           "summaryText='%s'}" % Targets.getStringForTarget(target))
             detailsButton = getChildByClass(detailsWidget, "QToolButton")
             if test.verify(detailsButton != None, "Verifying if 'Details' button could be found"):
                 clickButton(detailsButton)
-                cbObject = ("{type='QCheckBox' text='%s' unnamed='1' visible='1' "
-                            "container=%s}")
-                verifyChecked(cbObject % ("Debug", objectMap.realName(detailsWidget)))
-                verifyChecked(cbObject % ("Release", objectMap.realName(detailsWidget)))
+                __verifyAndExplicitlyCheck__("Debug", detailsWidget, True)
+                __verifyAndExplicitlyCheck__("Release", detailsWidget, False)
+                __verifyAndExplicitlyCheck__("Profile", detailsWidget, False)
                 if buildSystem == "CMake":
-                    verifyChecked(cbObject % ("Release with Debug Information",
-                                              objectMap.realName(detailsWidget)))
-                    verifyChecked(cbObject % ("Minimum Size Release",
-                                              objectMap.realName(detailsWidget)))
-                elif buildSystem == "qmake":
-                    verifyChecked(cbObject % ("Profile", objectMap.realName(detailsWidget)))
+                    __verifyAndExplicitlyCheck__("Release with Debug Information", detailsWidget, False)
+                    __verifyAndExplicitlyCheck__("Minimum Size Release", detailsWidget, False)
                 clickButton(detailsButton)
     clickButton(waitForObject(":Next_QPushButton"))
     return checkedTargets
@@ -200,7 +212,7 @@ def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
             available.discard(currentItem)
 
 def __getProjectFileName__(projectName, buildSystem):
-    if buildSystem is None or buildSystem == "CMake":
+    if buildSystem is None or buildSystem.startswith("CMake"):
         return "CMakeLists.txt"
     else:
         return projectName + (".pro" if buildSystem == "qmake" else ".qbs")
@@ -530,6 +542,8 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False, ignoreVali
         version = None
     if templateName in ("Qt Quick 2 Extension Plugin", "Qt Quick Application"):
         result = set([Targets.DESKTOP_6_2_4])
+        if platform.system() in ('Windows', 'Microsoft') and os.getenv('SYSTEST_NEW_SETTINGS') == '1':
+            result.add(Targets.DESKTOP_6_7_3_GCC)
     elif templateName == "XR Application":
         result = set() # we need Qt6.8+
     elif 'Supported Platforms' in text:

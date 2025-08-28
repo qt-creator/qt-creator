@@ -47,8 +47,7 @@ using namespace CPlusPlus;
                                          int utf16charsOffset,
                                          int line,
                                          const Macro &macro,
-                                         const QVector<MacroArgumentReference> &actuals
-                                               = QVector<MacroArgumentReference>())
+                                         const QList<MacroArgumentReference> &actuals = {})
 
     Called when starting to expand \a macro at \a line with \a bytesOffset,
     \a utf16charsOffset, and \a actuals.

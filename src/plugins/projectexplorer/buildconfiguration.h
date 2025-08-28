@@ -5,6 +5,7 @@
 
 #include "projectexplorer_export.h"
 #include "projectconfiguration.h"
+#include "target.h"
 #include "task.h"
 
 #include <utils/environment.h>
@@ -20,6 +21,7 @@ class BuildDirectoryAspect;
 class BuildInfo;
 class BuildSystem;
 class BuildStepList;
+class DeployConfiguration;
 class Kit;
 class Node;
 class Project;
@@ -32,6 +34,7 @@ class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
 
 protected:
     friend class BuildConfigurationFactory;
+    friend class Target;
     explicit BuildConfiguration(Target *target, Utils::Id id);
 
 public:
@@ -41,7 +44,7 @@ public:
     Utils::FilePath rawBuildDirectory() const;
     void setBuildDirectory(const Utils::FilePath &dir);
 
-    virtual BuildSystem *buildSystem() const;
+    BuildSystem *buildSystem() const;
 
     virtual QWidget *createConfigWidget();
 
@@ -71,6 +74,27 @@ public:
     void appendInitialBuildStep(Utils::Id id);
     void appendInitialCleanStep(Utils::Id id);
 
+    void addDeployConfiguration(DeployConfiguration *dc);
+    bool removeDeployConfiguration(DeployConfiguration *dc);
+    const QList<DeployConfiguration *> deployConfigurations() const;
+    void setActiveDeployConfiguration(DeployConfiguration *dc);
+    DeployConfiguration *activeDeployConfiguration() const;
+    void setActiveDeployConfiguration(DeployConfiguration *dc, SetActive cascade);
+    void updateDefaultDeployConfigurations();
+    ProjectConfigurationModel *deployConfigurationModel() const;
+
+    void updateDefaultRunConfigurations();
+    const QList<RunConfiguration *> runConfigurations() const;
+    void addRunConfiguration(RunConfiguration *rc);
+    void removeRunConfiguration(RunConfiguration *rc);
+    void removeAllRunConfigurations();
+    RunConfiguration *activeRunConfiguration() const;
+    void setActiveRunConfiguration(RunConfiguration *rc);
+    ProjectConfigurationModel *runConfigurationModel() const;
+
+    QVariant extraData(const Utils::Key &name) const;
+    void setExtraData(const Utils::Key &name, const QVariant &value);
+
     virtual BuildConfiguration *clone(Target *target) const;
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
@@ -92,6 +116,15 @@ public:
 
     static QString buildTypeName(BuildType type);
 
+    static void setupBuildDirMacroExpander(
+        Utils::MacroExpander &exp,
+        const Utils::FilePath &mainFilePath,
+        const QString &projectName,
+        const Kit *kit,
+        const QString &bcName,
+        BuildType buildType,
+        const QString &buildSystem,
+        bool documentationOnly);
     static Utils::FilePath buildDirectoryFromTemplate(const Utils::FilePath &projectDir,
                                                       const Utils::FilePath &mainFilePath,
                                                       const QString &projectName,
@@ -101,6 +134,7 @@ public:
                                                       const QString &buildSystem);
 
     bool isActive() const;
+    QString activeBuildKey() const; // Build key of active run configuration
 
     void updateCacheAndEmitEnvironmentChanged();
 
@@ -123,15 +157,30 @@ public:
     virtual void stopReconfigure() {}
 
 signals:
+    void kitChanged();
+
     void environmentChanged();
     void buildDirectoryInitialized();
     void buildDirectoryChanged();
     void buildTypeChanged();
 
+    void removedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void addedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *rc);
+    void runConfigurationsUpdated();
+
+    void removedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
+    void addedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
+    void activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc);
+
 protected:
     void setInitializer(const std::function<void(const BuildInfo &info)> &initializer);
 
 private:
+    bool addConfigurationsFromMap(const Utils::Store &map, bool setActiveConfigurations);
+    void setExtraDataFromMap(const Utils::Store &map);
+    void storeConfigurationsToMap(Utils::Store &map) const;
+
     void emitBuildDirectoryChanged();
     Internal::BuildConfigurationPrivate *d = nullptr;
 };
@@ -176,6 +225,7 @@ protected:
     bool supportsTargetDeviceType(Utils::Id id) const;
     void setSupportedProjectType(Utils::Id id);
     void setSupportedProjectMimeTypeName(const QString &mimeTypeName);
+    void setSupportedProjectMimeTypeNames(const QStringList &mimeTypeNames);
     void addSupportedTargetDeviceType(Utils::Id id);
     void setDefaultDisplayName(const QString &defaultDisplayName);
 
@@ -195,7 +245,7 @@ private:
     Utils::Id m_buildConfigId;
     Utils::Id m_supportedProjectType;
     QList<Utils::Id> m_supportedTargetDeviceTypes;
-    QString m_supportedProjectMimeTypeName;
+    QStringList m_supportedProjectMimeTypeNames;
     IssueReporter m_issueReporter;
     BuildGenerator m_buildGenerator;
 };

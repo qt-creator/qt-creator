@@ -120,6 +120,7 @@ void StdIOClientInterface::startImpl()
         m_process->setEnvironment(*m_env);
     else
         m_process->setEnvironment(m_cmd.executable().deviceEnvironment());
+    m_process->setAllowCoreDumps(m_allowCoreDumps);
     m_process->start();
 }
 
@@ -136,6 +137,11 @@ void StdIOClientInterface::setWorkingDirectory(const FilePath &workingDirectory)
 void StdIOClientInterface::setEnvironment(const Environment &environment)
 {
     m_env = environment;
+}
+
+void StdIOClientInterface::setAllowCoreDumps(bool enable)
+{
+    m_allowCoreDumps = enable;
 }
 
 FilePath StdIOClientInterface::serverDeviceTemplate() const

@@ -14,7 +14,6 @@
 #include "project/nimproject.h"
 #include "project/nimrunconfiguration.h"
 #include "project/nimtoolchain.h"
-#include "settings/nimcodestylepreferencesfactory.h"
 #include "settings/nimcodestylesettingspage.h"
 
 #include <extensionsystem/iplugin.h>
@@ -45,17 +44,16 @@ public:
     NimRunConfigurationFactory nimRunConfigFactory;
     NimbleRunConfigurationFactory nimbleRunConfigFactory;
     NimbleTestConfigurationFactory nimbleTestConfigFactory;
-    ProcessRunnerFactory nimRunWorkerFactory{{nimRunConfigFactory.runConfigurationId()}};
-    ProcessRunnerFactory nimbleRunWorkerFactory{{nimbleRunConfigFactory.runConfigurationId()}};
-    SimpleDebugRunnerFactory nimDebugWorkerFactory{{nimRunConfigFactory.runConfigurationId()}};
-    SimpleDebugRunnerFactory nimbleDebugWorkerFactory{{nimbleRunConfigFactory.runConfigurationId()}};
-    ProcessRunnerFactory nimbleTestWorkerFactory{{nimbleTestConfigFactory.runConfigurationId()}};
+    ProcessRunnerFactory runWorkerFactory{{nimRunConfigFactory.runConfigurationId(),
+                                           nimbleRunConfigFactory.runConfigurationId(),
+                                           nimbleTestConfigFactory.runConfigurationId()}};
+    SimpleDebugRunnerFactory debugWorkerFactory{{nimRunConfigFactory.runConfigurationId(),
+                                                 nimbleRunConfigFactory.runConfigurationId()}};
     NimbleBuildStepFactory nimbleBuildStepFactory;
     NimbleTaskStepFactory nimbleTaskStepFactory;
     NimCompilerBuildStepFactory buildStepFactory;
     NimCompilerCleanStepFactory cleanStepFactory;
     NimCodeStyleSettingsPage codeStyleSettingsPage;
-    NimCodeStylePreferencesFactory codeStylePreferencesPage;
     NimToolchainFactory toolChainFactory;
 };
 

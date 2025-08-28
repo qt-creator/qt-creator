@@ -432,9 +432,9 @@ void CodeAssistantPrivate::destroyContext()
 {
     stopAutomaticProposalTimer();
 
-    if (isWaitingForProposal()) {
+    if (isWaitingForProposal())
         cancelCurrentRequest();
-    } else if (m_proposalWidget) {
+    if (m_proposalWidget) {
         m_editorWidget->keepAutoCompletionHighlight(false);
         if (m_proposalWidget->proposalIsVisible())
             m_proposalWidget->closeProposal();

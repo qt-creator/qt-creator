@@ -6,7 +6,6 @@
 #include "qmljseditordocument.h"
 #include <utils/changeset.h>
 #include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljsicons.h>
 
 #include <QStandardItemModel>
 
@@ -134,7 +133,6 @@ private:
     QmlJSTools::SemanticInfo m_semanticInfo;
     QList<int> m_treePos;
     QStandardItem *m_currentItem;
-    QmlJS::Icons *m_icons;
 
     QHash<QString, QIcon> m_typeToIcon;
     QHash<QmlOutlineItem*,QIcon> m_itemToIcon;

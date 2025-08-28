@@ -231,6 +231,7 @@ const char windowGeometryKey[] = "WindowGeometry";
 const char windowStateKey[] = "WindowState";
 const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
 const char menubarVisibleKey[] = "MenubarVisible";
+const char colorDialogKey[] = "QColorDialog/CustomColor/";
 
 namespace Internal {
 
@@ -290,6 +291,8 @@ public:
     void saveWindowSettings();
 
     MainWindow *m_mainwindow = nullptr;
+    InfoBar m_infoBar;
+    InfoBar m_popupInfoBar;
     QTimer m_trimTimer;
     QString m_prependAboutInformation;
     QStringList m_aboutInformation;
@@ -682,7 +685,7 @@ FilePath ICore::clangIncludeDirectory(const QString &clangVersion,
 /*!
     \internal
 */
-static expected_str<FilePath> clangBinary(
+static Result<FilePath> clangBinary(
     const QString &binaryBaseName, const FilePath &clangBinDirectory)
 {
     FilePath executable =
@@ -700,7 +703,7 @@ static expected_str<FilePath> clangBinary(
     if (!fromPath.isEmpty())
         return fromPath;
 
-    return make_unexpected(Tr::tr("Could not find %1 executable in %2")
+    return ResultError(Tr::tr("Could not find %1 executable in %2")
                                .arg(binaryBaseName)
                                .arg(clangBinDirectory.toUserOutput()));
 }
@@ -708,7 +711,7 @@ static expected_str<FilePath> clangBinary(
 /*!
     \internal
 */
-expected_str<FilePath> ICore::clangExecutable(const FilePath &clangBinDirectory)
+Result<FilePath> ICore::clangExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clang", clangBinDirectory);
 }
@@ -716,7 +719,7 @@ expected_str<FilePath> ICore::clangExecutable(const FilePath &clangBinDirectory)
 /*!
     \internal
 */
-expected_str<FilePath> ICore::clangdExecutable(const FilePath &clangBinDirectory)
+Result<FilePath> ICore::clangdExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clangd", clangBinDirectory);
 }
@@ -724,7 +727,7 @@ expected_str<FilePath> ICore::clangdExecutable(const FilePath &clangBinDirectory
 /*!
     \internal
 */
-expected_str<FilePath> ICore::clangTidyExecutable(const FilePath &clangBinDirectory)
+Result<FilePath> ICore::clangTidyExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clang-tidy", clangBinDirectory);
 }
@@ -732,7 +735,7 @@ expected_str<FilePath> ICore::clangTidyExecutable(const FilePath &clangBinDirect
 /*!
     \internal
 */
-expected_str<FilePath> ICore::clazyStandaloneExecutable(const FilePath &clangBinDirectory)
+Result<FilePath> ICore::clazyStandaloneExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clazy-standalone", clangBinDirectory);
 }
@@ -740,7 +743,7 @@ expected_str<FilePath> ICore::clazyStandaloneExecutable(const FilePath &clangBin
 /*!
     \internal
  */
-expected_str<FilePath> ICore::lldbExecutable(const Utils::FilePath &lldbBinDirectory)
+Result<FilePath> ICore::lldbExecutable(const Utils::FilePath &lldbBinDirectory)
 {
     return clangBinary("lldb", lldbBinDirectory);
 }
@@ -865,7 +868,24 @@ QStatusBar *ICore::statusBar()
 */
 Utils::InfoBar *ICore::infoBar()
 {
-    return d->m_modeStack->infoBar();
+    if (qtcEnvironmentVariableIsSet("QTC_DEBUG_POPUPNOTIFICATION"))
+        return &d->m_popupInfoBar;
+    return &d->m_infoBar;
+}
+
+InfoBar *ICore::popupInfoBar()
+{
+    return &d->m_popupInfoBar;
+}
+
+static void setRestartRequested(bool restart)
+{
+    qApp->setProperty("restart", restart);
+}
+
+static bool isRestartRequested()
+{
+    return qApp->property("restart").toBool();
 }
 
 /*!
@@ -881,6 +901,8 @@ Utils::InfoBar *ICore::infoBar()
 */
 bool ICore::askForRestart(const QString &text, const QString &altButtonText)
 {
+    if (isRestartRequested())
+        return true;
     QMessageBox mb(dialogParent());
     mb.setWindowTitle(Tr::tr("Restart Required"));
     mb.setText(text);
@@ -891,7 +913,7 @@ bool ICore::askForRestart(const QString &text, const QString &altButtonText)
     mb.addButton(translatedAltButtonText, QMessageBox::NoRole);
     mb.addButton(Tr::tr("Restart Now"), QMessageBox::YesRole);
 
-    mb.connect(&mb, &QDialog::accepted, ICore::instance(), &ICore::restart, Qt::QueuedConnection);
+    mb.connect(&mb, &QDialog::accepted, ICore::instance(), &ICore::restart);
     mb.exec();
 
     return mb.buttonRole(mb.clickedButton()) == QMessageBox::YesRole;
@@ -1122,17 +1144,14 @@ void ICore::setupScreenShooter(const QString &name, QWidget *w, const QRect &rc)
         new ScreenShooter(w, name, rc);
 }
 
-static void setRestart(bool restart)
-{
-    qApp->setProperty("restart", restart);
-}
-
 /*!
     Restarts \QC and restores the last session.
 */
 void ICore::restart()
 {
-    setRestart(true);
+    if (isRestartRequested())
+        return;
+    setRestartRequested(true);
     exit();
 }
 
@@ -1192,17 +1211,26 @@ void ICore::saveSettings(SaveSettingsReason reason)
     emit m_core->saveSettingsRequested(reason);
 
     QtcSettings *settings = PluginManager::settings();
-    settings->beginGroup(settingsGroup);
+    settings->withGroup(settingsGroup, [](QtcSettings *settings) {
+        if (!(s_overrideColor.isValid() && StyleHelper::baseColor() == s_overrideColor))
+            settings->setValueWithDefault(
+                colorKey,
+                StyleHelper::requestedBaseColor(),
+                QColor(StyleHelper::DEFAULT_BASE_COLOR));
 
-    if (!(s_overrideColor.isValid() && StyleHelper::baseColor() == s_overrideColor))
-        settings->setValueWithDefault(colorKey,
-                                      StyleHelper::requestedBaseColor(),
-                                      QColor(StyleHelper::DEFAULT_BASE_COLOR));
+        if (d->m_mainwindow->isVisible() && Internal::globalMenuBar()
+            && !Internal::globalMenuBar()->isNativeMenuBar()) {
+            settings->setValue(menubarVisibleKey, Internal::globalMenuBar()->isVisible());
+        }
 
-    if (Internal::globalMenuBar() && !Internal::globalMenuBar()->isNativeMenuBar())
-        settings->setValue(menubarVisibleKey, Internal::globalMenuBar()->isVisible());
-
-    settings->endGroup();
+        for (int i = 0; i < QColorDialog::customCount(); ++i) {
+            const auto key = Key(colorDialogKey + QByteArray::number(i));
+            const QColor color = QColorDialog::customColor(i);
+            const QString name = color.name(QColor::HexArgb);
+            // #ff000000 is default and also the name for invalid colors
+            settings->setValueWithDefault(key, name, QString("#ff000000"));
+        }
+    });
 
     DocumentManager::saveSettings();
     ActionManager::saveSettings();
@@ -1282,9 +1310,6 @@ QString ICore::aboutInformationCompact()
 */
 QString ICore::aboutInformationHtml()
 {
-    const QString buildCompatibilityString = Tr::tr("Based on Qt %1 (%2, %3)")
-                                                 .arg(QLatin1String(qVersion()), compilerString(),
-                                                      QSysInfo::buildCpuArchitecture());
     const AppInfo &appInfo = Utils::appInfo();
     QString ideRev;
     if (!appInfo.revision.isEmpty())
@@ -1293,10 +1318,21 @@ QString ICore::aboutInformationHtml()
                               ? appInfo.revision
                               : QString::fromLatin1("<a href=\"%1\">%2</a>")
                                     .arg(appInfo.revisionUrl, appInfo.revision));
-    QString buildDateInfo;
+    QString buildInfo;
 #ifdef QTC_SHOW_BUILD_DATE
-    buildDateInfo = Tr::tr("<br/>Built on %1 %2<br/>").arg(QLatin1String(__DATE__),
-                                                           QLatin1String(__TIME__));
+    //: Built on <date> <time> based on Qt <version> (<compiler>, <arch>)
+    buildInfo = Tr::tr("Built on %1 %2 based on Qt %3 (%4, %5)")
+                    .arg(
+                        QLatin1String(__DATE__),
+                        QLatin1String(__TIME__),
+                        QLatin1String(qVersion()),
+                        compilerString(),
+                        QSysInfo::buildCpuArchitecture());
+#else
+    buildInfo
+        //: Based on Qt <version> (<compiler>, <arch>)
+        = Tr::tr("Based on Qt %1 (%2, %3)")
+              .arg(QLatin1String(qVersion()), compilerString(), QSysInfo::buildCpuArchitecture());
 #endif
 
     static const QString br = QLatin1String("<br/>");
@@ -1308,12 +1344,10 @@ QString ICore::aboutInformationHtml()
                   "%2"
                   "%3"
                   "%4"
-                  "%5"
-                  "%6")
+                  "%5")
               .arg(
                   ICore::versionString(),
-                  buildCompatibilityString + br,
-                  buildDateInfo,
+                  wrapBr(buildInfo),
                   ideRev,
                   wrapBr(additionalInfo),
                   wrapBr(appInfo.copyright))
@@ -1369,6 +1403,7 @@ void ICorePrivate::init()
     m_jsExpander = JsExpander::createGlobalJsExpander();
     m_vcsManager = new VcsManager;
     m_modeStack = new FancyTabWidget(m_mainwindow);
+    m_modeStack->setInfoBar(&m_infoBar);
 
     setupShortcutSettings();
     setupExternalToolSettings();
@@ -1538,7 +1573,7 @@ void ICore::aboutToShutdown()
 {
     disconnect(qApp, &QApplication::focusChanged, d, &ICorePrivate::updateFocusWidget);
     for (auto contextsPair : d->m_contextWidgets) {
-        for (auto context : contextsPair.second)
+        for (auto context : std::as_const(contextsPair.second))
             disconnect(context, &QObject::destroyed, d->m_mainwindow, nullptr);
     }
     d->m_activeContext.clear();
@@ -1557,7 +1592,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     const auto cancelClose = [event] {
         event->ignore();
-        setRestart(false);
+        setRestartRequested(false);
     };
 
     // work around QTBUG-43344
@@ -1567,12 +1602,13 @@ void MainWindow::closeEvent(QCloseEvent *event)
         return;
     }
 
-    if (systemSettings().askBeforeExit()
-        && (QMessageBox::question(this,
-                                  Tr::tr("Exit %1?").arg(QGuiApplication::applicationDisplayName()),
-                                  Tr::tr("Exit %1?").arg(QGuiApplication::applicationDisplayName()),
-                                  QMessageBox::Yes | QMessageBox::No,
-                                  QMessageBox::No)
+    if (systemSettings().askBeforeExit() && !isRestartRequested()
+        && (QMessageBox::question(
+                this,
+                Tr::tr("Exit %1?").arg(QGuiApplication::applicationDisplayName()),
+                Tr::tr("Exit %1?").arg(QGuiApplication::applicationDisplayName()),
+                QMessageBox::Yes | QMessageBox::No,
+                QMessageBox::No)
             == QMessageBox::No)) {
         event->ignore();
         return;
@@ -2352,40 +2388,47 @@ void ICorePrivate::updateContextObject(const QList<IContext *> &context)
 void ICorePrivate::readSettings()
 {
     QtcSettings *settings = PluginManager::settings();
-    settings->beginGroup(settingsGroup);
-
-    if (s_overrideColor.isValid()) {
-        StyleHelper::setBaseColor(s_overrideColor);
-        // Get adapted base color.
-        s_overrideColor = StyleHelper::baseColor();
-    } else {
-        StyleHelper::setBaseColor(settings->value(colorKey,
-                                  QColor(StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
-    }
-
-    {
-        ModeManager::Style modeStyle =
-                ModeManager::Style(settings->value(modeSelectorLayoutKey, int(ModeManager::Style::IconsAndText)).toInt());
-
-        // Migrate legacy setting from Qt Creator 4.6 and earlier
-        static const char modeSelectorVisibleKey[] = "ModeSelectorVisible";
-        if (!settings->contains(modeSelectorLayoutKey) && settings->contains(modeSelectorVisibleKey)) {
-            bool visible = settings->value(modeSelectorVisibleKey, true).toBool();
-            modeStyle = visible ? ModeManager::Style::IconsAndText : ModeManager::Style::Hidden;
+    settings->withGroup(settingsGroup, [this](QtcSettings *settings) {
+        if (s_overrideColor.isValid()) {
+            StyleHelper::setBaseColor(s_overrideColor);
+            // Get adapted base color.
+            s_overrideColor = StyleHelper::baseColor();
+        } else {
+            StyleHelper::setBaseColor(
+                settings->value(colorKey, QColor(StyleHelper::DEFAULT_BASE_COLOR)).value<QColor>());
         }
 
-        ModeManager::setModeStyle(modeStyle);
-    }
+        {
+            ModeManager::Style modeStyle = ModeManager::Style(
+                settings->value(modeSelectorLayoutKey, int(ModeManager::Style::IconsAndText))
+                    .toInt());
 
-    if (globalMenuBar() && !globalMenuBar()->isNativeMenuBar()) {
-        const bool isVisible = settings->value(menubarVisibleKey, true).toBool();
+            // Migrate legacy setting from Qt Creator 4.6 and earlier
+            static const char modeSelectorVisibleKey[] = "ModeSelectorVisible";
+            if (!settings->contains(modeSelectorLayoutKey)
+                && settings->contains(modeSelectorVisibleKey)) {
+                bool visible = settings->value(modeSelectorVisibleKey, true).toBool();
+                modeStyle = visible ? ModeManager::Style::IconsAndText : ModeManager::Style::Hidden;
+            }
 
-        globalMenuBar()->setVisible(isVisible);
-        if (m_toggleMenubarAction)
-            m_toggleMenubarAction->setChecked(isVisible);
-    }
+            ModeManager::setModeStyle(modeStyle);
+        }
 
-    settings->endGroup();
+        if (globalMenuBar() && !globalMenuBar()->isNativeMenuBar()) {
+            const bool isVisible = settings->value(menubarVisibleKey, true).toBool();
+
+            globalMenuBar()->setVisible(isVisible);
+            if (m_toggleMenubarAction)
+                m_toggleMenubarAction->setChecked(isVisible);
+        }
+
+        for (int i = 0; i < QColorDialog::customCount(); ++i) {
+            QColorDialog::setCustomColor(
+                i,
+                QColor::fromString(
+                    settings->value(Key(colorDialogKey + QByteArray::number(i))).toString()));
+        }
+    });
 
     EditorManagerPrivate::readSettings();
     m_leftNavigationWidget->restoreSettings(settings);
@@ -2516,7 +2559,7 @@ void ICorePrivate::changeLog()
 
     auto versionCombo = new QComboBox;
     versionCombo->setMinimumWidth(80);
-    for (const VersionFilePair &f : versionedFiles)
+    for (const VersionFilePair &f : std::as_const(versionedFiles))
         versionCombo->addItem(f.first.toString());
     dialog = new LogDialog(ICore::dialogParent());
     auto showInExplorer = new QPushButton(FileUtils::msgGraphicalShellAction());

@@ -23,9 +23,9 @@ static bool enableAiAssistant()
 QmlDesignerAiPlugin::QmlDesignerAiPlugin() {}
 QmlDesignerAiPlugin::~QmlDesignerAiPlugin() {}
 
-bool QmlDesignerAiPlugin::initialize(const QStringList &arguments, QString *errorString)
+Utils::Result<> QmlDesignerAiPlugin::initialize(const QStringList &arguments)
 {
-    return ExtensionSystem::IPlugin::initialize(arguments, errorString);
+    return ExtensionSystem::IPlugin::initialize(arguments);
 }
 
 bool QmlDesignerAiPlugin::delayedInitialize()

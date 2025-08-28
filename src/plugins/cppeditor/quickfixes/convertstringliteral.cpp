@@ -13,7 +13,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
 #endif
 
 using namespace CPlusPlus;
@@ -39,7 +38,15 @@ enum ActionFlags {
     ConvertEscapeSequencesToCharAction = 0x200,
     ConvertEscapeSequencesToStringAction = 0x400,
     SingleQuoteAction = 0x800,
-    DoubleQuoteAction = 0x1000
+    DoubleQuoteAction = 0x1000,
+    ConvertToLatin1CharLiteralOperatorAction = 0x2000,
+    ConvertToLatin1StringLiteralOperatorAction = 0x4000,
+    ConvertToByteArrayLiteralOperatorAction = 0x8000,
+    ConvertToStringLiteralOperatorAction = 0x10000,
+    ConvertToOperatorActionMask = ConvertToLatin1CharLiteralOperatorAction
+                                  | ConvertToLatin1StringLiteralOperatorAction
+                                  | ConvertToByteArrayLiteralOperatorAction
+                                  | ConvertToStringLiteralOperatorAction,
 };
 
 static bool isQtStringLiteral(const QByteArray &id)
@@ -80,15 +87,21 @@ static QString msgQtStringLiteralDescription(const QString &replacement)
     return Tr::tr("Enclose in %1(...)").arg(replacement);
 }
 
+static QString msgQtStringLiteralOperatorDescription(const QString &replacement)
+{
+    //: %1 = operator name like "QLatin1Char"
+    return Tr::tr("Append %1 operator").arg(replacement);
+}
+
 static QString stringLiteralReplacement(unsigned actions)
 {
-    if (actions & EncloseInQLatin1CharAction)
+    if (actions & (EncloseInQLatin1CharAction | ConvertToLatin1CharLiteralOperatorAction))
         return QLatin1String("QLatin1Char");
-    if (actions & EncloseInQLatin1StringAction)
+    if (actions & (EncloseInQLatin1StringAction | ConvertToLatin1StringLiteralOperatorAction))
         return QLatin1String("QLatin1String");
-    if (actions & EncloseInQStringLiteralAction)
+    if (actions & (EncloseInQStringLiteralAction | ConvertToStringLiteralOperatorAction))
         return QLatin1String("QStringLiteral");
-    if (actions & EncloseInQByteArrayLiteralAction)
+    if (actions & (EncloseInQByteArrayLiteralAction | ConvertToByteArrayLiteralOperatorAction))
         return QLatin1String("QByteArrayLiteral");
     if (actions & TranslateTrAction)
         return QLatin1String("tr");
@@ -99,30 +112,61 @@ static QString stringLiteralReplacement(unsigned actions)
     return QString();
 }
 
+static QString stringLiteralOperatorPrefix(unsigned actions)
+{
+    if (actions & ConvertToStringLiteralOperatorAction)
+        return QLatin1String("u");
+    return QString();
+}
+
+static QString stringLiteralOperatorPostfix(unsigned actions)
+{
+    if (actions & (ConvertToLatin1CharLiteralOperatorAction
+                   | ConvertToLatin1StringLiteralOperatorAction)) {
+        return QLatin1String("_L1");
+    }
+    if (actions & ConvertToStringLiteralOperatorAction)
+        return QLatin1String("_s");
+    if (actions & ConvertToByteArrayLiteralOperatorAction)
+        return QLatin1String("_ba");
+    return QString();
+}
+
 static ExpressionAST *analyzeStringLiteral(const QList<AST *> &path,
                                            const CppRefactoringFilePtr &file, StringLiteralType *type,
                                            QByteArray *enclosingFunction = nullptr,
-                                           CallAST **enclosingFunctionCall = nullptr)
+                                           CallAST **enclosingFunctionCall = nullptr,
+                                           bool *isStringLiteralOperator = nullptr)
 {
     *type = TypeNone;
     if (enclosingFunction)
         enclosingFunction->clear();
     if (enclosingFunctionCall)
         *enclosingFunctionCall = nullptr;
+    if (isStringLiteralOperator)
+        *isStringLiteralOperator = false;
 
     if (path.isEmpty())
         return nullptr;
 
     ExpressionAST *literal = path.last()->asExpression();
     if (literal) {
+        const QChar charBeforeEnd = file->charAt(file->endOf(literal) - 1);
+
         if (literal->asStringLiteral()) {
             // Check for Objective C string (@"bla")
             const QChar firstChar = file->charAt(file->startOf(literal));
             *type = firstChar == QLatin1Char('@') ? TypeObjCString : TypeString;
+            // Check for a string literal operator
+            if (isStringLiteralOperator)
+                *isStringLiteralOperator = charBeforeEnd != QChar('"');
         } else if (NumericLiteralAST *numericLiteral = literal->asNumericLiteral()) {
             // character ('c') constants are numeric.
             if (file->tokenAt(numericLiteral->literal_token).is(T_CHAR_LITERAL))
                 *type = TypeChar;
+            // Check for a char literal operator
+            if (isStringLiteralOperator)
+                *isStringLiteralOperator = charBeforeEnd != QChar('\'');
         }
     }
 
@@ -315,6 +359,19 @@ public:
             changes.replace(endPos - 1, endPos, newQuote);
         }
 
+        // Append operator prefix and postfix
+        if (m_actions & ConvertToOperatorActionMask) {
+            changes.insert(endPos, stringLiteralOperatorPostfix(m_actions));
+
+            StringLiteralAST *stringLiteral = m_literal->asStringLiteral();
+            const QString prefix = stringLiteralOperatorPrefix(m_actions);
+            // Only prepend prefix if one is required
+            if (!prefix.isEmpty() && stringLiteral
+                && currentFile()->tokenAt(stringLiteral->literal_token).is(T_STRING_LITERAL)) {
+                changes.insert(startPos, prefix);
+            }
+        }
+
         // Convert single character strings into character constants
         if (m_actions & ConvertEscapeSequencesToCharAction) {
             StringLiteralAST *stringLiteral = m_literal->asStringLiteral();
@@ -407,7 +464,7 @@ class ConvertCStringToNSString: public CppQuickFixFactory
 {
 #ifdef WITH_TESTS
 public:
-    static QObject *createTest();
+    static QObject *createTest() { return new QObject; }
 #endif
 
 private:
@@ -451,7 +508,7 @@ class TranslateStringLiteral: public CppQuickFixFactory
 {
 #ifdef WITH_TESTS
 public:
-    static QObject *createTest();
+    static QObject *createTest() { return new QObject; }
 #endif
 
 private:
@@ -522,9 +579,10 @@ private:
   Replace
     "abcd"  -> QLatin1String("abcd")
     @"abcd" -> QLatin1String("abcd") (Objective C)
-    'a'     -> QLatin1Char('a')
+    'a'     -> QLatin1Char('a') or 'a'_L1
     'a'     -> "a"
-    "a"     -> 'a' or QLatin1Char('a') (Single character string constants)
+    "a"     -> 'a' or QLatin1Char('a') (Single character string constants) or u"a"_s
+               or "a"_L1 or "a"_ba
     "\n"    -> '\n', QLatin1Char('\n')
 
   Except if they are already enclosed in
@@ -536,24 +594,21 @@ private:
 
 class WrapStringLiteral: public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
-public:
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         StringLiteralType type = TypeNone;
         QByteArray enclosingFunction;
         const QList<AST *> &path = interface.path();
         CppRefactoringFilePtr file = interface.currentFile();
-        ExpressionAST *literal = analyzeStringLiteral(path, file, &type, &enclosingFunction);
+        bool isStringLiteralOperator = false;
+        ExpressionAST *literal = analyzeStringLiteral(path, file, &type, &enclosingFunction,
+                                                      nullptr, &isStringLiteralOperator);
         if (!literal || type == TypeNone)
             return;
         if ((type == TypeChar && enclosingFunction == "QLatin1Char")
             || isQtStringLiteral(enclosingFunction)
-            || isQtStringTranslation(enclosingFunction))
+            || isQtStringTranslation(enclosingFunction)
+            || isStringLiteralOperator)
             return;
 
         const int priority = path.size() - 1; // very high priority
@@ -561,6 +616,11 @@ private:
             unsigned actions = EncloseInQLatin1CharAction;
             QString description = msgQtStringLiteralDescription(stringLiteralReplacement(actions));
             result << new WrapStringLiteralOp(interface, priority, actions, description, literal);
+
+            actions = ConvertToLatin1CharLiteralOperatorAction;
+            description = msgQtStringLiteralOperatorDescription(stringLiteralReplacement(actions));
+            result << new WrapStringLiteralOp(interface, priority, actions, description, literal);
+
             if (NumericLiteralAST *charLiteral = literal->asNumericLiteral()) {
                 const QByteArray contents(file->tokenAt(charLiteral->literal_token).identifier->chars());
                 if (!charToStringEscapeSequences(contents).isEmpty()) {
@@ -575,8 +635,11 @@ private:
                                                    unsigned(RemoveObjectiveCAction) : 0u;
             unsigned actions = 0;
             if (StringLiteralAST *stringLiteral = literal->asStringLiteral()) {
+                const bool isSimpleStringLiteral
+                    = file->tokenAt(stringLiteral->literal_token).is(T_STRING_LITERAL);
+
                 const QByteArray contents(file->tokenAt(stringLiteral->literal_token).identifier->chars());
-                if (!stringToCharEscapeSequences(contents).isEmpty()) {
+                if (!stringToCharEscapeSequences(contents).isEmpty() && isSimpleStringLiteral) {
                     actions = EncloseInQLatin1CharAction | SingleQuoteAction
                               | ConvertEscapeSequencesToCharAction | objectiveCActions;
                     QString description =
@@ -587,14 +650,61 @@ private:
                     description = Tr::tr("Convert to Character Literal");
                     result << new WrapStringLiteralOp(interface, priority, actions,
                                                       description, literal);
+
+                    actions = SingleQuoteAction | ConvertToLatin1CharLiteralOperatorAction
+                              | objectiveCActions;
+                    description = Tr::tr(
+                        "Convert to Character Literal and Append QLatin1Char Operator");
+                    result << new WrapStringLiteralOp(
+                        interface, priority, actions, description, literal);
+                }
+
+                if (isSimpleStringLiteral) {
+                    actions = ConvertToLatin1StringLiteralOperatorAction;
+                    result << new WrapStringLiteralOp(
+                        interface,
+                        priority,
+                        actions,
+                        msgQtStringLiteralOperatorDescription(stringLiteralReplacement(actions)),
+                        literal);
+
+                    actions = ConvertToStringLiteralOperatorAction;
+                    result << new WrapStringLiteralOp(
+                        interface,
+                        priority,
+                        actions,
+                        msgQtStringLiteralOperatorDescription(stringLiteralReplacement(actions)),
+                        literal);
+
+                    actions = ConvertToByteArrayLiteralOperatorAction;
+                    result << new WrapStringLiteralOp(
+                        interface,
+                        priority,
+                        actions,
+                        msgQtStringLiteralOperatorDescription(stringLiteralReplacement(actions)),
+                        literal);
+                }
+
+                if (file->tokenAt(stringLiteral->literal_token).is(T_UTF16_STRING_LITERAL)
+                    && !isStringLiteralOperator) {
+                    actions = ConvertToStringLiteralOperatorAction;
+                    result << new WrapStringLiteralOp(
+                        interface,
+                        priority,
+                        actions,
+                        msgQtStringLiteralOperatorDescription(stringLiteralReplacement(actions)),
+                        literal);
                 }
             }
+
             actions = EncloseInQLatin1StringAction | objectiveCActions;
             result << new WrapStringLiteralOp(interface, priority, actions,
                                               msgQtStringLiteralDescription(stringLiteralReplacement(actions)), literal);
+
             actions = EncloseInQStringLiteralAction | objectiveCActions;
             result << new WrapStringLiteralOp(interface, priority, actions,
                                               msgQtStringLiteralDescription(stringLiteralReplacement(actions)), literal);
+
             actions = EncloseInQByteArrayLiteralAction | objectiveCActions;
             result << new WrapStringLiteralOp(interface, priority, actions,
                                               msgQtStringLiteralDescription(stringLiteralReplacement(actions)), literal);
@@ -611,12 +721,6 @@ private:
  */
 class EscapeStringLiteral : public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
-public:
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override
     {
         const QList<AST *> &path = interface.path();
@@ -654,89 +758,28 @@ private:
 };
 
 #ifdef WITH_TESTS
-using namespace Tests;
-
-class EscapeStringLiteralTest : public QObject
+class EscapeStringLiteralTest : public Tests::CppQuickFixTestObject
 {
     Q_OBJECT
-
-private slots:
-    void test_data()
-    {
-        QTest::addColumn<QByteArray>("original");
-        QTest::addColumn<QByteArray>("expected");
-
-        // Escape String Literal as UTF-8 (no-trigger)
-        QTest::newRow("EscapeStringLiteral_notrigger")
-            << QByteArray("const char *notrigger = \"@abcdef \\a\\n\\\\\";\n")
-            << QByteArray();
-
-        // Escape String Literal as UTF-8
-        QTest::newRow("EscapeStringLiteral")
-            << QByteArray("const char *utf8 = \"@\xe3\x81\x82\xe3\x81\x84\";\n")
-            << QByteArray("const char *utf8 = \"\\xe3\\x81\\x82\\xe3\\x81\\x84\";\n");
-
-        // Unescape String Literal as UTF-8 (from hexdecimal escape sequences)
-        QTest::newRow("UnescapeStringLiteral_hex")
-            << QByteArray("const char *hex_escaped = \"@\\xe3\\x81\\x82\\xe3\\x81\\x84\";\n")
-            << QByteArray("const char *hex_escaped = \"\xe3\x81\x82\xe3\x81\x84\";\n");
-
-        // Unescape String Literal as UTF-8 (from octal escape sequences)
-        QTest::newRow("UnescapeStringLiteral_oct")
-            << QByteArray("const char *oct_escaped = \"@\\343\\201\\202\\343\\201\\204\";\n")
-            << QByteArray("const char *oct_escaped = \"\xe3\x81\x82\xe3\x81\x84\";\n");
-
-        // Unescape String Literal as UTF-8 (triggered but no change)
-        QTest::newRow("UnescapeStringLiteral_noconv")
-            << QByteArray("const char *escaped_ascii = \"@\\x1b\";\n")
-            << QByteArray("const char *escaped_ascii = \"\\x1b\";\n");
-
-        // Unescape String Literal as UTF-8 (no conversion because of invalid utf-8)
-        QTest::newRow("UnescapeStringLiteral_invalid")
-            << QByteArray("const char *escaped = \"@\\xe3\\x81\";\n")
-            << QByteArray("const char *escaped = \"\\xe3\\x81\";\n");
-
-        QTest::newRow("escape string literal: simple case")
-            << QByteArray(R"(const char *str = @"àxyz";)")
-            << QByteArray(R"(const char *str = "\xc3\xa0xyz";)");
-        QTest::newRow("escape string literal: simple case reverse")
-            << QByteArray(R"(const char *str = @"\xc3\xa0xyz";)")
-            << QByteArray(R"(const char *str = "àxyz";)");
-        QTest::newRow("escape string literal: raw string literal")
-            << QByteArray(R"x(const char *str = @R"(àxyz)";)x")
-            << QByteArray(R"x(const char *str = R"(\xc3\xa0xyz)";)x");
-        QTest::newRow("escape string literal: splitting required")
-            << QByteArray(R"(const char *str = @"àf23бgб1";)")
-            << QByteArray(R"(const char *str = "\xc3\xa0""f23\xd0\xb1g\xd0\xb1""1";)");
-        QTest::newRow("escape string literal: unescape adjacent literals")
-            << QByteArray(R"(const char *str = @"\xc3\xa0""f23\xd0\xb1g\xd0\xb1""1";)")
-            << QByteArray(R"(const char *str = "àf23бgб1";)");
-    }
-
-    void test()
-    {
-        QFETCH(QByteArray, original);
-        QFETCH(QByteArray, expected);
-
-        EscapeStringLiteral factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory);
-    }
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
 };
+class WrapStringLiteralTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+#endif
 
-QObject *EscapeStringLiteral::createTest() { return new EscapeStringLiteralTest; }
-QObject *ConvertCStringToNSString::createTest() { return new QObject; }
-QObject *WrapStringLiteral::createTest() { return new QObject; }
-QObject *TranslateStringLiteral::createTest() { return new QObject; }
-
-#endif // WITH_TESTS
 } // namespace
 
 void registerConvertStringLiteralQuickfixes()
 {
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(EscapeStringLiteral);
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(WrapStringLiteral);
     CppQuickFixFactory::registerFactory<ConvertCStringToNSString>();
-    CppQuickFixFactory::registerFactory<EscapeStringLiteral>();
     CppQuickFixFactory::registerFactory<TranslateStringLiteral>();
-    CppQuickFixFactory::registerFactory<WrapStringLiteral>();
 }
 
 } // namespace CppEditor::Internal

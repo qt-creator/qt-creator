@@ -25,7 +25,7 @@ ProjectInfoGenerator::ProjectInfoGenerator(const ProjectUpdateInfo &projectUpdat
 
 ProjectInfo::ConstPtr ProjectInfoGenerator::generate(const QPromise<ProjectInfo::ConstPtr> &promise)
 {
-    QVector<ProjectPart::ConstPtr> projectParts;
+    QList<ProjectPart::ConstPtr> projectParts;
     for (const RawProjectPart &rpp : m_projectUpdateInfo.rawProjectParts) {
         if (promise.isCanceled())
             return {};
@@ -54,10 +54,10 @@ ProjectInfo::ConstPtr ProjectInfoGenerator::generate(const QPromise<ProjectInfo:
     return projectInfo;
 }
 
-const QVector<ProjectPart::ConstPtr> ProjectInfoGenerator::createProjectParts(
+const QList<ProjectPart::ConstPtr> ProjectInfoGenerator::createProjectParts(
     const RawProjectPart &rawProjectPart, const FilePath &projectFilePath)
 {
-    QVector<ProjectPart::ConstPtr> result;
+    QList<ProjectPart::ConstPtr> result;
     ProjectFileCategorizer cat(rawProjectPart.displayName,
                                rawProjectPart.files,
                                rawProjectPart.fileIsActive,

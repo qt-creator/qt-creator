@@ -50,9 +50,9 @@ public:
                                  const CPlusPlus::LookupContext &context,
                                  const QList<Result> &macroUses);
 
-    static QMap<int, QVector<Result> > chunks(const QFuture<Result> &future, int from, int to)
+    static QMap<int, QList<Result> > chunks(const QFuture<Result> &future, int from, int to)
     {
-        QMap<int, QVector<Result> > chunks;
+        QMap<int, QList<Result> > chunks;
 
         for (int i = from; i < to; ++i) {
             const Result use = future.resultAt(i);
@@ -180,7 +180,7 @@ private:
     QSet<QByteArray> _potentialFunctions;
     QSet<QByteArray> _potentialStatics;
     QList<CPlusPlus::AST *> _astStack;
-    QVector<Result> _usages;
+    QList<Result> _usages;
     QList<CPlusPlus::Document::DiagnosticMessage> _diagMsgs;
     int _chunkSize;
     int _lineOfLastUsage;

@@ -68,10 +68,10 @@ public:
     bool isEmpty() const { return m_isEmpty; }
 
 signals:
-    void directoryLoaded(const QString &path);
+    void directoryLoaded(const Utils::FilePath &path);
     void rootPathChanged();
     void isEmptyChanged();
-    void fileChanged(const QString &path);
+    void fileChanged(const Utils::FilePath &path);
     void generatedAssetsDeleted(const QHash<QString, Utils::FilePath> &assetData);
 
 private:

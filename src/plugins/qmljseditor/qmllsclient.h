@@ -62,6 +62,9 @@ public:
     void deactivateDocument(TextEditor::TextDocument *document) override;
 
     bool supportsDocumentSymbols(const TextEditor::TextDocument *doc) const override;
+    LanguageClient::LanguageClientOutlineItem *createOutlineItem(
+        const LanguageServerProtocol::DocumentSymbol &symbol) override;
+
 private:
     static QMap<QString, int> semanticTokenTypesMap();
 };

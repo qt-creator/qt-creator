@@ -10,11 +10,12 @@
 
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
+#include <utils/stringutils.h>
 
+using namespace Core;
 using namespace Utils;
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 static const char kItemSeparator = '\n';
 static const char kPropertySeparator = '\t';
@@ -28,35 +29,33 @@ ObjectsMapDocument::ObjectsMapDocument()
     connect(m_contentModel, &ObjectsMapModel::modelChanged, this, [this] { setModified(true); });
 }
 
-Core::IDocument::OpenResult ObjectsMapDocument::open(QString *errorString,
-                                                     const Utils::FilePath &fileName,
-                                                     const Utils::FilePath &realFileName)
+Result<> ObjectsMapDocument::open(const FilePath &fileName, const FilePath &realFileName)
 {
-    OpenResult result = openImpl(errorString, fileName, realFileName);
-    if (result == OpenResult::Success) {
+    Result<> result = openImpl(fileName, realFileName);
+    if (result.has_value()) {
         setFilePath(fileName);
         setModified(fileName != realFileName);
     }
     return result;
 }
 
-Result ObjectsMapDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> ObjectsMapDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (filePath.isEmpty())
-        return Result::Error("ASSERT: ObjectsMapDocument: filePath.isEmpty()");
+        return ResultError("ASSERT: ObjectsMapDocument: filePath.isEmpty()");
 
     const bool writeOk = writeFile(filePath);
     if (!writeOk)
-        return Result::Error(Tr::tr("Failed to write \"%1\"").arg(filePath.toUserOutput()));
+        return ResultError(Tr::tr("Failed to write \"%1\".").arg(filePath.toUserOutput()));
 
     if (!autoSave) {
         setModified(false);
         setFilePath(filePath);
     }
-    return Result::Ok;
+    return ResultOk;
 }
 
-Utils::FilePath ObjectsMapDocument::fallbackSaveAsPath() const
+FilePath ObjectsMapDocument::fallbackSaveAsPath() const
 {
     return {};
 }
@@ -72,22 +71,20 @@ void ObjectsMapDocument::setModified(bool modified)
     emit changed();
 }
 
-Result ObjectsMapDocument::reload(Core::IDocument::ReloadFlag flag,
-                                  Core::IDocument::ChangeType type)
+Result<> ObjectsMapDocument::reload(IDocument::ReloadFlag flag, IDocument::ChangeType type)
 {
-    Q_UNUSED(type);
+    Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return Result::Ok;
+        return ResultOk;
     emit aboutToReload();
-    QString errorString;
-    const bool success = (openImpl(&errorString, filePath(), filePath()) == OpenResult::Success);
-    if (success)
+    const Result<> result = openImpl(filePath(), filePath());
+    if (result.has_value())
         setModified(false);
-    emit reloadFinished(success);
-    return Result(success, errorString);
+    emit reloadFinished(result.has_value());
+    return result;
 }
 
-bool ObjectsMapDocument::buildObjectsMapTree(const QByteArray &contents)
+Result<> ObjectsMapDocument::buildObjectsMapTree(const QByteArray &contents)
 {
     QMap<QString, ObjectsMapTreeItem *> itemForName;
 
@@ -101,7 +98,7 @@ bool ObjectsMapDocument::buildObjectsMapTree(const QByteArray &contents)
         const QString objectName = QString::fromUtf8(line.left(tabPosition).trimmed());
         if (!objectName.startsWith(ObjectsMapTreeItem::COLON)) {
             qDeleteAll(itemForName);
-            return false;
+            return ResultError(Tr::tr("Object name does not start with colon."));
         }
 
         ObjectsMapTreeItem *item = new ObjectsMapTreeItem(objectName,
@@ -127,10 +124,10 @@ bool ObjectsMapDocument::buildObjectsMapTree(const QByteArray &contents)
     }
 
     m_contentModel->changeRootItem(root);
-    return true;
+    return ResultOk;
 }
 
-bool ObjectsMapDocument::setContents(const QByteArray &contents)
+Result<> ObjectsMapDocument::setContents(const QByteArray &contents)
 {
     return buildObjectsMapTree(contents);
 }
@@ -152,7 +149,7 @@ QByteArray ObjectsMapDocument::contents() const
         const PropertyList properties = objects.value(objName);
         // ensure to store invalid properties content as is instead of an empty {}
         if (properties.isEmpty()) {
-            if (Utils::TreeItem *item = m_contentModel->findItem(objName)) {
+            if (TreeItem *item = m_contentModel->findItem(objName)) {
                 ObjectsMapTreeItem *objMapItem = static_cast<ObjectsMapTreeItem *>(item);
                 if (!objMapItem->isValid()) {
                     result.append(objMapItem->propertiesContent()).append(kItemSeparator);
@@ -175,36 +172,30 @@ QByteArray ObjectsMapDocument::contents() const
     return result;
 }
 
-Core::IDocument::OpenResult ObjectsMapDocument::openImpl(QString *error,
-                                                         const Utils::FilePath &fileName,
-                                                         const Utils::FilePath &realFileName)
+Result<> ObjectsMapDocument::openImpl(const FilePath &fileName, const FilePath &realFileName)
 {
     if (fileName.isEmpty())
-        return OpenResult::CannotHandle;
+        return ResultError("File name is empty."); // FIXME: Find somethong better
 
     QByteArray text;
     if (realFileName.fileName() == "objects.map") {
-        Utils::FileReader reader;
-        if (!reader.fetch(realFileName, error))
-            return OpenResult::ReadError;
+        const Result<QByteArray> res = realFileName.fileContents();
+        if (!res)
+            return ResultError(res.error());
 
-        text = reader.text();
+        text = normalizeNewlines(*res);
     } else {
-        const Utils::FilePath base = settings().squishPath();
+        const FilePath base = settings().squishPath();
         if (base.isEmpty()) {
-            if (error)
-                error->append(Tr::tr("Incomplete Squish settings. "
-                                     "Missing Squish installation path."));
-            return OpenResult::ReadError;
+            return ResultError(Tr::tr("Incomplete Squish settings. "
+                                      "Missing Squish installation path."));
         }
-        const Utils::FilePath exe = base.pathAppended("lib/exec/objectmaptool").withExecutableSuffix();
-        if (!exe.isExecutableFile()) {
-            if (error)
-                error->append(Tr::tr("objectmaptool not found."));
-            return OpenResult::ReadError;
-        }
+        const FilePath exe = base.pathAppended("lib/exec/objectmaptool").withExecutableSuffix();
+        if (!exe.isExecutableFile())
+            return ResultError(Tr::tr("objectmaptool not found."));
 
-        Utils::Process objectMapReader;
+
+        Process objectMapReader;
         objectMapReader.setCommand({exe, {"--scriptMap", "--mode", "read",
                                           "--scriptedObjectMapPath", realFileName.toUserOutput()}});
         objectMapReader.setUtf8Codec();
@@ -212,37 +203,33 @@ Core::IDocument::OpenResult ObjectsMapDocument::openImpl(QString *error,
         objectMapReader.waitForFinished();
         text = objectMapReader.cleanedStdOut().toUtf8();
     }
-    if (!setContents(text)) {
-        if (error)
-            error->append(Tr::tr("Failure while parsing objects.map content."));
-        return OpenResult::ReadError;
-    }
-    return OpenResult::Success;
+    if (!setContents(text))
+        return ResultError(Tr::tr("Failure while parsing objects.map content."));
+    return ResultOk;
 }
 
-bool ObjectsMapDocument::writeFile(const Utils::FilePath &fileName) const
+bool ObjectsMapDocument::writeFile(const FilePath &fileName) const
 {
     if (fileName.endsWith("objects.map")) {
-        Utils::FileSaver saver(fileName);
+        FileSaver saver(fileName);
         return saver.write(contents()) && saver.finalize();
     }
 
     // otherwise we need the objectmaptool to write the scripted object map again
-    const Utils::FilePath base = settings().squishPath();
+    const FilePath base = settings().squishPath();
     if (base.isEmpty())
         return false;
-    const Utils::FilePath exe = base.pathAppended("lib/exec/objectmaptool").withExecutableSuffix();
+    const FilePath exe = base.pathAppended("lib/exec/objectmaptool").withExecutableSuffix();
     if (!exe.isExecutableFile())
         return false;
 
-    Utils::Process objectMapWriter;
+    Process objectMapWriter;
     objectMapWriter.setCommand({exe, {"--scriptMap", "--mode", "write",
                                       "--scriptedObjectMapPath", fileName.toUserOutput()}});
     objectMapWriter.setWriteData(contents());
     objectMapWriter.start();
     objectMapWriter.waitForFinished();
-    return objectMapWriter.result() == Utils::ProcessResult::FinishedWithSuccess;
+    return objectMapWriter.result() == ProcessResult::FinishedWithSuccess;
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

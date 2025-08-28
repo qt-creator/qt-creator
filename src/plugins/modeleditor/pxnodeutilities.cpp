@@ -14,7 +14,6 @@
 #include <projectexplorer/projectnodes.h>
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
 #include <QList>
 #include <QPair>
 
@@ -46,28 +45,16 @@ void PxNodeUtilities::setDiagramSceneController(qmt::DiagramSceneController *dia
     d->diagramSceneController = diagramSceneController;
 }
 
-QString PxNodeUtilities::calcRelativePath(const ProjectExplorer::Node *node,
-                                          const QString &anchorFolder)
+FilePath PxNodeUtilities::calcRelativePath(
+    const ProjectExplorer::Node *node, const FilePath &anchorFolder)
 {
-    const QString nodePath = node->asFileNode()
-            ? node->filePath().toFileInfo().path()
-            : node->filePath().toUrlishString();
-
-    return qmt::NameController::calcRelativePath(FilePath::fromString(nodePath),
-                                                 FilePath::fromString(anchorFolder)).toUrlishString();
+    return calcRelativePath(node->filePath(), anchorFolder);
 }
 
-QString PxNodeUtilities::calcRelativePath(const QString &filePath, const QString &anchorFolder)
+FilePath PxNodeUtilities::calcRelativePath(const FilePath &path, const FilePath &anchorFolder)
 {
-    QString path;
-
-    QFileInfo fileInfo(filePath);
-    if (fileInfo.exists() && fileInfo.isFile())
-        path = fileInfo.path();
-    else
-        path = filePath;
-    return qmt::NameController::calcRelativePath(FilePath::fromString(path),
-                                                 FilePath::fromString(anchorFolder)).toUrlishString();
+    const FilePath dir = path.isFile() ? path.parentDir() : path;
+    return qmt::NameController::calcRelativePath(dir, anchorFolder);
 }
 
 qmt::MPackage *PxNodeUtilities::createBestMatchingPackagePath(
@@ -218,16 +205,16 @@ qmt::MObject *PxNodeUtilities::findSameObject(const QStringList &relativeElement
     return nullptr;
 }
 
-bool PxNodeUtilities::isProxyHeader(const QString &file) const
+bool PxNodeUtilities::isProxyHeader(const Utils::FilePath &filePath) const
 {
     CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
 
-    CPlusPlus::Document::Ptr document = snapshot.document(FilePath::fromString(file));
+    CPlusPlus::Document::Ptr document = snapshot.document(filePath);
     if (document) {
         QList<CPlusPlus::Document::Include> includes = document->resolvedIncludes();
         if (includes.count() != 1)
             return false;
-        return includes.at(0).resolvedFileName().fileName() == QFileInfo(file).fileName();
+        return includes.at(0).resolvedFileName().fileName() == filePath.fileName();
     }
     return false;
 }

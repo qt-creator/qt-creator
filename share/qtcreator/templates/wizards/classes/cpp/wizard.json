@@ -19,7 +19,7 @@
         { "key": "isQObject", "value": "%{JS: [ 'QObject', 'QWidget', 'QMainWindow', 'QQuickItem'].indexOf(value('Base')) >= 0 }" },
         { "key": "GUARD", "value": "%{JS: Cpp.headerGuard(value('HdrFileName'))}" },
         { "key": "SharedDataInit", "value": "%{JS: (value('IncludeQSharedData')) ? 'data(new %{CN}Data)' : '' }" },
-        { "key": "Dependencies", "value": "%{JS: '' + (value('IncludeQObject') || value('IncludeQSharedData') || value('BaseCB') === 'QObject' ? ':Qt.core' : '') + (value('IncludeQWidget') || value('IncludeQMainWindow') || value('BaseCB') === 'QWidget' || value('BaseCB') === 'QMainWindow' ? ':Qt.widgets' : '') + (value('IncludeQQuickItem') || value('BaseCB') === 'QQuickItem' ? ':Qt.quick' : '')}"}
+        { "key": "Dependencies", "value": "%{JS: '' + (value('IncludeQObject') || value('IncludeQSharedData') || value('BaseCB') === 'QObject' ? ':Qt.Core' : '') + (value('IncludeQWidget') || value('IncludeQMainWindow') || value('BaseCB') === 'QWidget' || value('BaseCB') === 'QMainWindow' ? ':Qt.Widgets' : '') + (value('IncludeQQuickItem') || value('BaseCB') === 'QQuickItem' ? ':Qt.Quick' : '')}"}
     ],
 
     "pages":

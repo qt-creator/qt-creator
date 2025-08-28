@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/debugger">
-        <file>unit-tests/simple/main.cpp</file>
-        <file>unit-tests/simple/simple.pro</file>
-    </qresource>
-</RCC>

@@ -4,14 +4,11 @@
 #pragma once
 
 #include "perfprofilertracemanager.h"
-#include "perfresourcecounter.h"
 
 #include <QAbstractItemModel>
-#include <QScopedPointer>
 #include <QtQml/qqml.h>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class PerfProfilerFlameGraphData;
 class PerfProfilerFlameGraphModel : public QAbstractItemModel
@@ -81,5 +78,4 @@ private:
     std::unique_ptr<PerfProfilerFlameGraphData> m_offlineData;
 };
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

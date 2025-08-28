@@ -58,7 +58,7 @@ QString AddQtOperation::argumentsHelpText() const
                          "    --qmake <PATH>                             path to qmake. (required)\n"
                          "    --type <TYPE>                              type of Qt version to add. (required)\n"
                          "    --abis <ABI>(,<ABI>)*                      ABIs of Qt version (leave out for auto-detection!)\n"
-                         "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
+                         "    <KEY> <TYPE:VALUE>                         extra key value pairs, key can be hierarchical with '/' as the separator\n");
 }
 
 bool AddQtOperation::setArguments(const QStringList &args)

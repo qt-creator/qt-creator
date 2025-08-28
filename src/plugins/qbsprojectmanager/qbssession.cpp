@@ -336,6 +336,24 @@ FileChangeResult QbsSession::renameFiles(
     return updateFileList("rename-files", files, product, group);
 }
 
+ErrorInfo QbsSession::addDependencies(
+    const QStringList &dependencies, const QString &product, const QString &group)
+{
+    if (d->state != State::Active)
+        return ErrorInfo(Tr::tr("The qbs session is not in a valid state."));
+    const QJsonArray depsAsJson = QJsonArray::fromStringList(dependencies);
+    const QJsonObject request{
+        {"type", QLatin1String("add-dependencies")},
+        {"dependencies", depsAsJson},
+        {"product", product},
+        {"group", group}};
+    if (d->fileUpdatePossible)
+        sendFileUpdateRequest(request);
+    else
+        d->queuedFileUpdateRequests << request;
+    return {};
+}
+
 RunEnvironmentResult QbsSession::getRunEnvironment(
         const QString &product,
         const QProcessEnvironment &baseEnv,
@@ -527,7 +545,7 @@ void QbsSession::handlePacket(const QJsonObject &packet)
         }
     } else if (type == "command-description") {
         emit commandDescription(packet.value("message").toString());
-    } else if (type == "files-added" || type == "files-removed") {
+    } else if (type == "files-added" || type == "files-removed" || type == "dependencies-added") {
         handleFileListUpdated(packet);
     } else if (type == "process-result") {
         emit processResult(
@@ -643,12 +661,13 @@ void QbsSession::handleFileListUpdated(const QJsonObject &reply)
 {
     QTC_CHECK(!d->fileUpdatePossible);
     setProjectDataFromReply(reply, false);
-    const QStringList failedFiles = arrayToStringList(reply.value("failed-files"));
-    if (!failedFiles.isEmpty()) {
-        Core::MessageManager::writeFlashing(
-            Tr::tr("Failed to update files in Qbs project: %1.\n"
-               "The affected files are: \n\t%2")
-                .arg(getErrorInfo(reply).toString(), failedFiles.join("\n\t")));
+    const ErrorInfo error = getErrorInfo(reply);
+    if (error.hasError()) {
+        QString message = Tr::tr("Failed to update files in Qbs project: %1.").arg(error.toString());
+        const QStringList failedFiles = arrayToStringList(reply.value("failed-files"));
+        if (!failedFiles.isEmpty())
+            message.append('\n').append(failedFiles.join("\n\t"));
+        Core::MessageManager::writeFlashing(message);
         d->fileUpdatePossible = true;
         sendNextPendingFileUpdateRequest();
     }

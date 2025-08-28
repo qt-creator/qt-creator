@@ -67,7 +67,7 @@ public:
     Q_INVOKABLE void selectAllPredefined();
     Q_INVOKABLE void selectAllCustom();
 
-    void handleFileChange(const QString &path);
+    void handleFileChange(const Utils::FilePath &path);
 
     void setAuxiliaryEnabled(bool value);
     void setAuxiliaryCategories(const std::vector<std::string> &categories);

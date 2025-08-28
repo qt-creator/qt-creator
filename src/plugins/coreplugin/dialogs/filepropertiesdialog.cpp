@@ -8,14 +8,15 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimeutils.h>
 
 #include <QCheckBox>
 #include <QDateTime>
 #include <QDebug>
+#include <QDialog>
 #include <QDialogButtonBox>
-#include <QDir>
 #include <QFileInfo>
 #include <QLabel>
 #include <QLocale>
@@ -24,8 +25,36 @@ using namespace Utils;
 
 namespace Core {
 
-FilePropertiesDialog::FilePropertiesDialog(const FilePath &filePath, QWidget *parent)
-    : QDialog(parent)
+class FilePropertiesDialog final : public QDialog
+{
+public:
+    explicit FilePropertiesDialog(const FilePath &filePath);
+
+private:
+    void refresh();
+    void setPermission(QFile::Permissions newPermissions, bool set);
+    void detectTextFileSettings();
+
+    QLabel *m_name;
+    QLabel *m_path;
+    QLabel *m_mimeType;
+    QLabel *m_defaultEditor;
+    QLabel *m_lineEndings;
+    QLabel *m_indentation;
+    QLabel *m_owner;
+    QLabel *m_group;
+    QLabel *m_size;
+    QLabel *m_lastRead;
+    QLabel *m_lastModified;
+    QCheckBox *m_readable;
+    QCheckBox *m_writable;
+    QCheckBox *m_executable;
+    QCheckBox *m_symLink;
+    const FilePath m_filePath;
+};
+
+FilePropertiesDialog::FilePropertiesDialog(const FilePath &filePath)
+    : QDialog(dialogParent())
     , m_name(new QLabel)
     , m_path(new QLabel)
     , m_mimeType(new QLabel)
@@ -101,20 +130,17 @@ FilePropertiesDialog::FilePropertiesDialog(const FilePath &filePath, QWidget *pa
     refresh();
 }
 
-FilePropertiesDialog::~FilePropertiesDialog() = default;
-
 void FilePropertiesDialog::detectTextFileSettings()
 {
-    QFile file(m_filePath.toUrlishString());
-    if (!file.open(QIODevice::ReadOnly)) {
+    const Result<QByteArray> res = m_filePath.fileContents(/*maxsize*/ 50000);
+    if (!res) {
         m_lineEndings->setText(Tr::tr("Unknown"));
         m_indentation->setText(Tr::tr("Unknown"));
         return;
     }
+    const QByteArray data = *res;
 
     char lineSeparator = '\n';
-    const QByteArray data = file.read(50000);
-    file.close();
 
     // Try to guess the files line endings
     if (data.contains("\r\n")) {
@@ -185,18 +211,18 @@ void FilePropertiesDialog::refresh()
         const QFileInfo fileInfo = m_filePath.toFileInfo();
         QLocale locale;
 
-        m_name->setText(fileInfo.fileName());
-        m_path->setText(QDir::toNativeSeparators(fileInfo.canonicalPath()));
+        m_name->setText(m_filePath.fileName());
+        m_path->setText(m_filePath.parentDir().toUserOutput());
 
-        const Utils::MimeType mimeType = Utils::mimeTypeForFile(m_filePath);
+        const MimeType mimeType = Utils::mimeTypeForFile(m_filePath);
         m_mimeType->setText(mimeType.name());
 
         const EditorFactories factories = IEditorFactory::preferredEditorTypes(m_filePath);
         m_defaultEditor->setText(!factories.isEmpty() ? factories.at(0)->displayName()
                                                       : Tr::tr("Undefined"));
 
-        m_owner->setText(fileInfo.owner());
-        m_group->setText(fileInfo.group());
+        m_owner->setText(m_filePath.owner());
+        m_group->setText(m_filePath.group());
         m_size->setText(locale.formattedDataSize(fileInfo.size()));
         m_readable->setChecked(fileInfo.isReadable());
         m_writable->setChecked(fileInfo.isWritable());
@@ -227,6 +253,12 @@ void FilePropertiesDialog::setPermission(QFile::Permissions newPermissions, bool
     });
 
     refresh();
+}
+
+void executeFilePropertiesDialog(const FilePath &filePath)
+{
+    FilePropertiesDialog dialog(filePath);
+    dialog.exec();
 }
 
 } // Core

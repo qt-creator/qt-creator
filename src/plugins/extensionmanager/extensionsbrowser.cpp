@@ -23,6 +23,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <solutions/spinner/spinner.h>
+#include <solutions/tasking/conditional.h>
 #include <solutions/tasking/networkquery.h>
 #include <solutions/tasking/tasktree.h>
 #include <solutions/tasking/tasktreerunner.h>
@@ -33,12 +34,16 @@
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
+#include <utils/qtcprocess.h>
+#include <utils/qtcwidgets.h>
 #include <utils/stylehelper.h>
+#include <utils/unarchiver.h>
 #include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QItemDelegate>
 #include <QLabel>
+#include <QLayout>
 #include <QListView>
 #include <QMessageBox>
 #include <QPaintEvent>
@@ -46,6 +51,7 @@
 #include <QPainterPath>
 #include <QPushButton>
 #include <QStyle>
+#include <QTemporaryFile>
 
 using namespace Core;
 using namespace ExtensionSystem;
@@ -302,6 +308,7 @@ public:
             static const QPixmap iconInactive = Icon({{checkmarkMask, stateInactiveTF.themeColor}},
                                                      Icon::Tint).pixmap();
             m_installStateIcon->setPixmap(active ? iconActive : iconInactive);
+            m_installState->layout()->invalidate(); // QTCREATORBUG-32954
         }
 
         m_vendorLabel->setText(index.data(RoleVendor).toString());
@@ -329,7 +336,7 @@ public:
                 creatorColor(selected ? Theme::Token_Stroke_Strong
                              : hovered ? WelcomePageHelpers::cardHoverStroke
                                        : WelcomePageHelpers::cardDefaultStroke);
-            WelcomePageHelpers::drawCardBackground(painter, bgR, fillColor, strokeColor);
+            StyleHelper::drawCardBg(painter, bgR, fillColor, strokeColor);
         }
 
         render(painter, bgR.topLeft(), {}, QWidget::DrawChildren);
@@ -349,7 +356,8 @@ public:
                                     circleSize, circleSize);
             const QColor fillColor = creatorColor(Theme::Token_Foreground_Muted);
             const QColor strokeColor = creatorColor(Theme::Token_Stroke_Subtle);
-            drawCardBackground(painter, smallCircle, fillColor, strokeColor, circleSize / 2);
+            StyleHelper::drawCardBg(painter, smallCircle, fillColor, strokeColor,
+                                    circleSize / 2);
 
             painter->setFont(countTF.font());
             painter->setPen(countTF.color());
@@ -476,18 +484,6 @@ public:
     }
 
 protected:
-    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override
-    {
-        const SortOption &option = sortOptions().at(m_sortOptionIndex);
-        const ItemType leftType = left.data(RoleItemType).value<ItemType>();
-        const ItemType rightType = right.data(RoleItemType).value<ItemType>();
-        if (leftType != rightType)
-            return option.order == Qt::AscendingOrder ? leftType < rightType
-                                                      : leftType > rightType;
-
-        return QSortFilterProxyModel::lessThan(left, right);
-    }
-
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override
     {
         const QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
@@ -548,14 +544,14 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     auto titleLabel = new ElidingLabel(Tr::tr("Manage Extensions"));
     applyTf(titleLabel, titleTF);
 
-    auto externalRepoSwitch = new Switch("Use external repository");
+    auto externalRepoSwitch = new QtcSwitch("Use external repository");
     externalRepoSwitch->setEnabled(settings().useExternalRepo.isEnabled());
     if (settings().useExternalRepo.isEnabled())
         externalRepoSwitch->setToolTip("<html>" + externalRepoWarningNote());
     else
         externalRepoSwitch->setToolTip(settings().useExternalRepo.toolTip());
 
-    d->searchBox = new SearchBox;
+    d->searchBox = new QtcSearchBox;
     d->searchBox->setPlaceholderText(Tr::tr("Search"));
 
     d->searchProxyModel = new QSortFilterProxyModel(this);
@@ -726,46 +722,165 @@ QModelIndex ExtensionsBrowser::currentIndex() const
     return d->selectionModel->currentIndex();
 }
 
+void ExtensionsBrowser::selectIndex(const QModelIndex &index)
+{
+    d->selectionModel->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
+}
+class Downloader : public QObject
+{
+    Q_OBJECT
+public:
+    ~Downloader() { abort(); }
+
+    void setUrl(const QUrl &url) { m_url = url; }
+    void setDestination(QFile *file) { m_file = file; }
+
+    void abort()
+    {
+        if (m_reply) {
+            disconnect(m_reply, &QNetworkReply::finished, this, nullptr);
+            m_reply->abort();
+        }
+    }
+
+    void start()
+    {
+        if (!m_file || !m_file->isOpen()) {
+            emit done(Tasking::DoneResult::Error);
+            return;
+        }
+
+        m_reply = NetworkAccessManager::instance()->get(QNetworkRequest(m_url));
+        m_reply->setParent(this);
+
+        connect(m_reply, &QNetworkReply::readyRead, this, [this] {
+            QByteArray data = m_reply->readAll();
+            if (m_file->write(data) != data.size()) {
+                m_file->close();
+                abort();
+                emit done(Tasking::DoneResult::Error);
+            }
+        });
+
+        connect(m_reply, &QNetworkReply::downloadProgress, this, &Downloader::downloadProgress);
+#ifndef QT_NO_SSL
+        connect(m_reply, &QNetworkReply::sslErrors, this, &Downloader::sslErrors);
+#endif
+        connect(m_reply, &QNetworkReply::finished, this, [this] {
+            m_file->close();
+            if (m_reply->error() == QNetworkReply::NoError)
+                emit done(Tasking::DoneResult::Success);
+            else
+                emit done(Tasking::DoneResult::Error);
+        });
+
+        if (m_reply->isRunning())
+            emit started();
+    }
+
+signals:
+    void started();
+    void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+#ifndef QT_NO_SSL
+    void sslErrors(const QList<QSslError> &errors);
+#endif
+    void done(Tasking::DoneResult result);
+
+private:
+    QUrl m_url;
+    QFile *m_file = nullptr;
+    QNetworkReply *m_reply = nullptr;
+};
+
+using DownloadTask = Tasking::SimpleCustomTask<Downloader>;
+
 void ExtensionsBrowser::fetchExtensions()
 {
 #ifdef WITH_TESTS
-    // Uncomment for testing with local json data.
-    // Available: "defaultpacks", "thirdpartyplugins"
-    // d->model->setExtensionsJson(testData("defaultpacks")); return;
+    // Uncomment for testing with a local repository.
+    // d->model->setRepositoryPath(testData("defaultdata")); return;
 #endif // WITH_TESTS
 
-    if (!settings().useExternalRepo()) {
-        d->model->setExtensionsJson({});
+    FilePaths urls = Utils::transform(settings().repositoryUrls(), &FilePath::fromUserInput);
+
+    if (!settings().useExternalRepo() || urls.isEmpty()) {
+        d->model->setRepositoryPaths({});
         return;
     }
 
     using namespace Tasking;
 
-    const auto onQuerySetup = [this](NetworkQuery &query) {
-        const QString url = "%1/api/v1/getAll";
-        const QString request = url.arg(settings().externalRepoUrl());
-        query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
-        query.setNetworkAccessManager(NetworkAccessManager::instance());
-        qCDebug(browserLog).noquote() << "Sending JSON request:" << request;
-        d->m_spinner->show();
-    };
-    const auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
-        const QByteArray response = query.reply()->readAll();
-        qCDebug(browserLog).noquote() << "Got JSON QNetworkReply:" << query.reply()->error();
-        if (result == DoneWith::Success) {
-            qCDebug(browserLog).noquote() << "JSON response size:"
-                                          << QLocale::system().formattedDataSize(response.size());
-            d->model->setExtensionsJson(response);
-        } else {
-            qCWarning(browserLog).noquote() << response;
-            d->model->setExtensionsJson({});
-        }
-        d->m_spinner->hide();
+    const FilePath unpackDestination = ICore::userResourcePath() / "extensionstore";
+    if (unpackDestination.exists())
+        unpackDestination.removeRecursively();
+
+    Storage<FilePaths> unpackedRepositories;
+    Storage<QTemporaryFile> storage;
+
+    LoopList urlIterator(urls);
+
+    const auto setupDownloader = [storage, urlIterator](Downloader &downloader) {
+        storage->setFileTemplate(
+            QDir::tempPath() + "/extensionstore-XXXXXX." + urlIterator->completeSuffix());
+        if (!storage->open())
+            return SetupResult::StopWithError;
+        qCDebug(browserLog) << "Downloading" << *urlIterator << "to" << storage->fileName();
+        downloader.setUrl(urlIterator->toUrl());
+        downloader.setDestination(&*storage);
+        return SetupResult::Continue;
     };
 
-    Group group {
-        NetworkQueryTask{onQuerySetup, onQueryDone},
+    const auto setupUnarchiver =
+        [storage, unpackDestination, urlIterator, unpackedRepositories](Unarchiver &unarchiver) {
+            const FilePath archive = FilePath::fromString(storage->fileName());
+            const FilePath destination = unpackDestination / archive.baseName();
+            storage->flush();
+            qCDebug(browserLog) << "Unpacking" << archive << "to" << destination;
+            unarchiver.setArchive(archive);
+            unarchiver.setDestination(destination);
+            *unpackedRepositories << destination;
+        };
+
+    const auto isRemoteUrl = [urlIterator]() {
+        return urlIterator->scheme() == QLatin1String("http")
+               || urlIterator->scheme() == QLatin1String("https");
     };
+
+    const auto isDirectory = [urlIterator]() { return urlIterator->isReadableDir(); };
+
+    const auto warnInvalidUrl = [urlIterator] {
+        qCWarning(browserLog) << *urlIterator
+                              << "is not a http(s) url or an existing directory, skipping";
+    };
+
+    const auto addDirectory = [urlIterator, unpackedRepositories] {
+        *unpackedRepositories << *urlIterator;
+    };
+
+    // clang-format off
+    Group group {
+        unpackedRepositories,
+        Sync([this] { d->m_spinner->show(); }),
+        For (urlIterator) >> Do {
+            continueOnError,
+            If (isRemoteUrl) >> Then {
+                storage,
+                DownloadTask { setupDownloader },
+                UnarchiverTask { setupUnarchiver },
+            } >> ElseIf(isDirectory) >> Then {
+                Sync { addDirectory }
+            } >> Else {
+                Sync { warnInvalidUrl }
+            }
+        },
+
+        onGroupDone([this, unpackedRepositories](DoneWith result) {
+            d->m_spinner->hide();
+            qCDebug(browserLog) << "Done with" << result << "unpacked repositories" << *unpackedRepositories;
+            d->model->setRepositoryPaths(*unpackedRepositories);
+        }, CallDoneIf::SuccessOrError)
+    };
+    // clang-format on
 
     d->taskTreeRunner.start(group);
 }
@@ -781,8 +896,7 @@ QPixmap itemIcon(const QModelIndex &index, Size size)
     pixmap.setDevicePixelRatio(dpr);
     const QRect iconBgR(QPoint(), pixmap.deviceIndependentSize().toSize());
 
-    const PluginSpec *ps = pluginSpecForId(index.data(RoleId).toString());
-    const bool isEnabled = ps == nullptr || ps->isEffectivelyEnabled();
+    const bool isEnabled = PluginManager::specExistsAndIsEnabled(index.data(RoleId).toString());
     const QGradientStops gradientStops = {
         {0, creatorColor(Theme::Token_Gradient01_Start)},
         {1, creatorColor(Theme::Token_Gradient01_End)},
@@ -807,7 +921,7 @@ QPixmap itemIcon(const QModelIndex &index, Size size)
     gradient.setStops(gradientStops);
     if (!isEnabled)
         p.setOpacity(iconOpacityDisabled);
-    WelcomePageHelpers::drawCardBackground(&p, iconBgR, gradient, Qt::NoPen, iconRectRounding);
+    StyleHelper::drawCardBg(&p, iconBgR, gradient, Qt::NoPen, iconRectRounding);
     icon.paint(&p, iconBgR);
 
     return pixmap;
@@ -833,9 +947,8 @@ QPixmap itemBadge(const QModelIndex &index, [[maybe_unused]] Size size)
     pixmap.setDevicePixelRatio(dpr);
 
     QPainter p(&pixmap);
-    WelcomePageHelpers::drawCardBackground(&p, badgeR,
-                                           creatorColor(Theme::Token_Notification_Neutral_Default),
-                                           Qt::NoPen, iconRectRounding);
+    StyleHelper::drawCardBg(&p, badgeR, creatorColor(Theme::Token_Notification_Neutral_Default),
+                            Qt::NoPen, iconRectRounding);
     p.setFont(font);
     p.setPen(badgeTF.color());
     p.drawText(badgeR, Qt::AlignCenter, badgeText);
@@ -843,3 +956,5 @@ QPixmap itemBadge(const QModelIndex &index, [[maybe_unused]] Size size)
 }
 
 } // ExtensionManager::Internal
+
+#include "extensionsbrowser.moc"

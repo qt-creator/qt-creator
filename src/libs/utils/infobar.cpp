@@ -4,6 +4,7 @@
 #include "infobar.h"
 
 #include "algorithm.h"
+#include "infolabel.h"
 #include "qtcassert.h"
 #include "qtcsettings.h"
 #include "utilsicons.h"
@@ -26,33 +27,109 @@ QtcSettings *InfoBar::m_settings = nullptr;
 class InfoBarWidget : public QWidget
 {
 public:
-    InfoBarWidget(Qt::Edge edge, QWidget *parent = nullptr);
+    InfoBarWidget(Qt::Edge edge, InfoLabel::InfoType infoType = InfoLabel::None,
+                  QWidget *parent = nullptr);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
+    QColor backgroundColor() const;
+    const Utils::Icon &icon() const;
+
     const Qt::Edge m_edge;
+    const InfoLabel::InfoType m_infoType;
 };
 
-InfoBarWidget::InfoBarWidget(Qt::Edge edge, QWidget *parent)
+InfoBarWidget::InfoBarWidget(Qt::Edge edge, InfoLabel::InfoType infoType, QWidget *parent)
     : QWidget(parent)
     , m_edge(edge)
+    , m_infoType(infoType)
 {
     const bool topEdge = m_edge == Qt::TopEdge;
-    setContentsMargins(2, topEdge ? 0 : 1, 0, topEdge ? 1 : 0);
+    const int leftMargin = m_infoType == InfoLabel::None ? 2 : 26;
+    setContentsMargins(leftMargin, topEdge ? 0 : 1, 0, topEdge ? 1 : 0);
 }
 
 void InfoBarWidget::paintEvent(QPaintEvent *event)
 {
     QWidget::paintEvent(event);
     QPainter p(this);
-    p.fillRect(rect(), creatorColor(Theme::InfoBarBackground));
+    p.fillRect(rect(), backgroundColor());
+    if (m_infoType != InfoLabel::None) {
+        const QPixmap pixmap = icon().pixmap();
+        const int iconY = (height() - pixmap.deviceIndependentSize().height()) / 2;
+        p.drawPixmap(2, iconY, pixmap);
+    }
     const QRectF adjustedRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
     const bool topEdge = m_edge == Qt::TopEdge;
     p.setPen(creatorColor(Theme::FancyToolBarSeparatorColor));
     p.drawLine(QLineF(topEdge ? adjustedRect.bottomLeft() : adjustedRect.topLeft(),
                       topEdge ? adjustedRect.bottomRight() : adjustedRect.topRight()));
+}
+
+QColor InfoBarEntry::backgroundColor(InfoLabel::InfoType infoType)
+{
+    Theme::Color color = Theme::InfoBarBackground;
+    switch (infoType) {
+    case InfoLabel::Information:
+        color = Theme::Token_Notification_Neutral_Subtle; break;
+    case InfoLabel::Warning:
+        color = Theme::Token_Notification_Alert_Subtle; break;
+    case InfoLabel::Error:
+    case InfoLabel::NotOk:
+        color = Theme::Token_Notification_Danger_Subtle; break;
+    case InfoLabel::Ok:
+        color = Theme::Token_Notification_Success_Subtle; break;
+    default:
+        color = Theme::InfoBarBackground; break;
+    }
+    return creatorColor(color);
+}
+
+QColor InfoBarWidget::backgroundColor() const
+{
+    return InfoBarEntry::backgroundColor(m_infoType);
+}
+
+const Icon &InfoBarEntry::icon(InfoLabel::InfoType infoType)
+{
+    switch (infoType) {
+    case InfoLabel::Information: {
+        const static Utils::Icon icon(
+            {{":/utils/images/infolarge.png", Theme::Token_Notification_Neutral_Default}},
+            Icon::Tint);
+        return icon;
+    }
+    case InfoLabel::Warning: {
+        const static Utils::Icon icon(
+            {{":/utils/images/warninglarge.png", Theme::Token_Notification_Alert_Default}},
+            Icon::Tint);
+        return icon;
+    }
+    case InfoLabel::Error:
+    case InfoLabel::NotOk: {
+        const static Utils::Icon icon(
+            {{":/utils/images/errorlarge.png", Theme::Token_Notification_Danger_Default}},
+            Icon::Tint);
+        return icon;
+    }
+    case InfoLabel::Ok: {
+        const static Utils::Icon icon(
+            {{":/utils/images/oklarge.png", Theme::Token_Notification_Success_Default}},
+            Icon::Tint);
+        return icon;
+    }
+    default: {
+        const static Utils::Icon icon;
+        return icon;
+    }
+    }
+}
+
+const Icon &InfoBarWidget::icon() const
+{
+    return InfoBarEntry::icon(m_infoType);
 }
 
 InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppression _globalSuppression)
@@ -72,11 +149,28 @@ QString InfoBarEntry::text() const
     return m_infoText;
 }
 
-void InfoBarEntry::addCustomButton(const QString &buttonText,
-                                   CallBack callBack,
-                                   const QString &tooltip)
+QString InfoBarEntry::title() const
 {
-    m_buttons.append({buttonText, callBack, tooltip});
+    return m_title;
+}
+
+/*!
+    Sets the \a title that is used if the entry is shown in popup form.
+*/
+void InfoBarEntry::setTitle(const QString &title)
+{
+    m_title = title;
+}
+
+InfoBarEntry::GlobalSuppression InfoBarEntry::globalSuppression() const
+{
+    return m_globalSuppression;
+}
+
+void InfoBarEntry::addCustomButton(
+    const QString &buttonText, CallBack callBack, const QString &tooltip, ButtonAction action)
+{
+    m_buttons.append({buttonText, callBack, tooltip, action});
 }
 
 void InfoBarEntry::setCancelButtonInfo(CallBack callBack)
@@ -114,6 +208,11 @@ void InfoBarEntry::setComboInfo(const QList<ComboInfo> &list,
     m_combo.currentIndex = currentIndex;
 }
 
+InfoBarEntry::Combo InfoBarEntry::combo() const
+{
+    return m_combo;
+}
+
 void InfoBarEntry::removeCancelButton()
 {
     m_useCancelButton = false;
@@ -121,9 +220,44 @@ void InfoBarEntry::removeCancelButton()
     m_cancelButtonCallBack = nullptr;
 }
 
+bool InfoBarEntry::hasCancelButton() const
+{
+    return m_useCancelButton;
+}
+
+QString InfoBarEntry::cancelButtonText() const
+{
+    return m_cancelButtonText;
+}
+
+InfoBarEntry::CallBack InfoBarEntry::cancelButtonCallback() const
+{
+    return m_cancelButtonCallBack;
+}
+
+QList<InfoBarEntry::Button> InfoBarEntry::buttons() const
+{
+    return m_buttons;
+}
+
 void InfoBarEntry::setDetailsWidgetCreator(const InfoBarEntry::DetailsWidgetCreator &creator)
 {
     m_detailsWidgetCreator = creator;
+}
+
+InfoBarEntry::DetailsWidgetCreator InfoBarEntry::detailsWidgetCreator() const
+{
+    return m_detailsWidgetCreator;
+}
+
+void InfoBarEntry::setInfoType(InfoLabel::InfoType infoType)
+{
+    m_infoType = infoType;
+}
+
+InfoLabel::InfoType InfoBarEntry::infoType() const
+{
+    return m_infoType;
 }
 
 void InfoBar::addInfo(const InfoBarEntry &info)
@@ -135,14 +269,14 @@ void InfoBar::addInfo(const InfoBarEntry &info)
 void InfoBar::removeInfo(Id id)
 {
     const int size = m_infoBarEntries.size();
-    Utils::erase(m_infoBarEntries, equal(&InfoBarEntry::m_id, id));
+    Utils::erase(m_infoBarEntries, equal(&InfoBarEntry::id, id));
     if (size != m_infoBarEntries.size())
         emit changed();
 }
 
 bool InfoBar::containsInfo(Id id) const
 {
-    return anyOf(m_infoBarEntries, equal(&InfoBarEntry::m_id, id));
+    return anyOf(m_infoBarEntries, equal(&InfoBarEntry::id, id));
 }
 
 // Remove and suppress id
@@ -196,6 +330,31 @@ void InfoBar::initialize(QtcSettings *settings)
 QtcSettings *InfoBar::settings()
 {
     return m_settings;
+}
+
+QList<InfoBarEntry> InfoBar::entries() const
+{
+    return m_infoBarEntries;
+}
+
+void InfoBar::triggerButton(const Id &entryId, const InfoBarEntry::Button &button)
+{
+    switch (button.action) {
+    case InfoBarEntry::ButtonAction::Hide:
+        removeInfo(entryId);
+        break;
+    case InfoBarEntry::ButtonAction::Suppress:
+        suppressInfo(entryId); // hiding is implicit
+        break;
+    case InfoBarEntry::ButtonAction::SuppressPersistently:
+        removeInfo(entryId);
+        globallySuppressInfo(entryId);
+        break;
+        break;
+    case InfoBarEntry::ButtonAction::None:
+        break;
+    }
+    button.callback();
 }
 
 void InfoBar::clearGloballySuppressed()
@@ -264,20 +423,9 @@ void InfoBarDisplay::infoBarDestroyed()
     // will delete the widgets itself) or setInfoBar() being called explicitly.
 }
 
-static void disconnectRecursively(QObject *obj)
-{
-    obj->disconnect();
-    for (QObject *child : obj->children())
-        disconnectRecursively(child);
-}
-
 void InfoBarDisplay::update()
 {
     for (QWidget *widget : std::as_const(m_infoWidgets)) {
-        // Make sure that we are no longer connect to anything (especially lambdas).
-        // Otherwise a lambda might live longer than the owner of the lambda.
-        disconnectRecursively(widget);
-
         widget->hide(); // Late deletion can cause duplicate infos. Hide immediately to prevent it.
         widget->deleteLater();
     }
@@ -286,8 +434,9 @@ void InfoBarDisplay::update()
     if (!m_infoBar)
         return;
 
-    for (const InfoBarEntry &info : std::as_const(m_infoBar->m_infoBarEntries)) {
-        auto infoWidget = new InfoBarWidget(m_edge);
+    const QList<InfoBarEntry> entries = m_infoBar->entries();
+    for (const InfoBarEntry &info : entries) {
+        auto infoWidget = new InfoBarWidget(m_edge, info.infoType());
 
         auto hbox = new QHBoxLayout;
         hbox->setContentsMargins(2, 2, 2, 2);
@@ -296,14 +445,14 @@ void InfoBarDisplay::update()
         vbox->setContentsMargins(0, 0, 0, 0);
         vbox->addLayout(hbox);
 
-        QLabel *infoWidgetLabel = new QLabel(info.m_infoText);
+        QLabel *infoWidgetLabel = new QLabel(info.text());
         infoWidgetLabel->setWordWrap(true);
         infoWidgetLabel->setOpenExternalLinks(true);
         hbox->addWidget(infoWidgetLabel, 1);
 
-        if (info.m_detailsWidgetCreator) {
+        if (info.detailsWidgetCreator()) {
             if (m_isShowingDetailsWidget) {
-                QWidget *detailsWidget = info.m_detailsWidgetCreator();
+                QWidget *detailsWidget = info.detailsWidgetCreator()();
                 vbox->addWidget(detailsWidget);
             }
 
@@ -314,7 +463,7 @@ void InfoBarDisplay::update()
             connect(showDetailsButton, &QToolButton::clicked, this, [this, vbox, info] (bool) {
                 QWidget *detailsWidget = vbox->count() == 2 ? vbox->itemAt(1)->widget() : nullptr;
                 if (!detailsWidget) {
-                    detailsWidget = info.m_detailsWidgetCreator();
+                    detailsWidget = info.detailsWidgetCreator()();
                     vbox->addWidget(detailsWidget);
                 }
 
@@ -327,31 +476,38 @@ void InfoBarDisplay::update()
             m_isShowingDetailsWidget = false;
         }
 
-        if (!info.m_combo.entries.isEmpty()) {
+        const InfoBarEntry::Combo combo = info.combo();
+        if (!combo.entries.isEmpty()) {
             auto cb = new QComboBox();
-            cb->setToolTip(info.m_combo.tooltip);
-            for (const InfoBarEntry::ComboInfo &comboInfo : std::as_const(info.m_combo.entries))
+            cb->setToolTip(combo.tooltip);
+            for (const InfoBarEntry::ComboInfo &comboInfo : std::as_const(combo.entries))
                 cb->addItem(comboInfo.displayText, comboInfo.data);
-            if (info.m_combo.currentIndex >= 0 && info.m_combo.currentIndex < cb->count())
-                cb->setCurrentIndex(info.m_combo.currentIndex);
-            connect(cb, &QComboBox::currentIndexChanged, this, [cb, info] {
-                info.m_combo.callback({cb->currentText(), cb->currentData()});
-            }, Qt::QueuedConnection);
+            if (combo.currentIndex >= 0 && combo.currentIndex < cb->count())
+                cb->setCurrentIndex(combo.currentIndex);
+            connect(
+                cb,
+                &QComboBox::currentIndexChanged,
+                this,
+                [cb, combo] { combo.callback({cb->currentText(), cb->currentData()}); },
+                Qt::QueuedConnection);
 
             hbox->addWidget(cb);
         }
 
-        for (const InfoBarEntry::Button &button : std::as_const(info.m_buttons)) {
+        const QList<InfoBarEntry::Button> buttons = info.buttons();
+        for (const InfoBarEntry::Button &button : buttons) {
             auto infoWidgetButton = new QToolButton;
             infoWidgetButton->setText(button.text);
             infoWidgetButton->setToolTip(button.tooltip);
-            connect(infoWidgetButton, &QAbstractButton::clicked, [button] { button.callback(); });
+            connect(infoWidgetButton, &QAbstractButton::clicked, this, [button, this, id = info.id()] {
+                m_infoBar->triggerButton(id, button);
+            });
             hbox->addWidget(infoWidgetButton);
         }
 
-        const Id id = info.m_id;
+        const Id id = info.id();
         QToolButton *infoWidgetSuppressButton = nullptr;
-        if (info.m_globalSuppression == InfoBarEntry::GlobalSuppression::Enabled) {
+        if (info.globalSuppression() == InfoBarEntry::GlobalSuppression::Enabled) {
             infoWidgetSuppressButton = new QToolButton;
             infoWidgetSuppressButton->setText(Tr::tr("Do Not Show Again"));
             connect(infoWidgetSuppressButton, &QAbstractButton::clicked, this, [this, id] {
@@ -361,24 +517,24 @@ void InfoBarDisplay::update()
         }
 
         QToolButton *infoWidgetCloseButton = nullptr;
-        if (info.m_useCancelButton) {
+        if (info.hasCancelButton()) {
             infoWidgetCloseButton = new QToolButton;
             // need to connect to cancelObjectbefore connecting to cancelButtonClicked,
             // because the latter removes the button and with it any connect
-            if (info.m_cancelButtonCallBack)
-                connect(infoWidgetCloseButton, &QAbstractButton::clicked, info.m_cancelButtonCallBack);
+            if (info.cancelButtonCallback())
+                connect(infoWidgetCloseButton, &QAbstractButton::clicked, info.cancelButtonCallback());
             connect(infoWidgetCloseButton, &QAbstractButton::clicked, this, [this, id] {
                 m_infoBar->removeInfo(id);
             });
         }
 
         if (infoWidgetCloseButton) {
-            if (info.m_cancelButtonText.isEmpty()) {
+            if (info.cancelButtonText().isEmpty()) {
                 infoWidgetCloseButton->setAutoRaise(true);
                 infoWidgetCloseButton->setIcon(Icons::CLOSE_FOREGROUND.icon());
                 infoWidgetCloseButton->setToolTip(Tr::tr("Close"));
             } else {
-                infoWidgetCloseButton->setText(info.m_cancelButtonText);
+                infoWidgetCloseButton->setText(info.cancelButtonText());
             }
         }
 

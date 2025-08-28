@@ -6,6 +6,7 @@
 #include <QObject>
 
 namespace ProjectExplorer { class Node; }
+namespace Utils { class FilePath; }
 
 namespace qmt {
 class MObject;
@@ -28,13 +29,15 @@ public:
 
     void setDiagramSceneController(qmt::DiagramSceneController *diagramSceneController);
 
-    QString calcRelativePath(const ProjectExplorer::Node *node, const QString &anchorFolder);
-    QString calcRelativePath(const QString &filePath, const QString &anchorFolder);
+    Utils::FilePath calcRelativePath(
+        const ProjectExplorer::Node *node, const Utils::FilePath &anchorFolder);
+    Utils::FilePath calcRelativePath(
+        const Utils::FilePath &path, const Utils::FilePath &anchorFolder);
     qmt::MPackage *createBestMatchingPackagePath(qmt::MPackage *suggestedParentPackage,
                                                  const QStringList &relativeElements);
     qmt::MObject *findSameObject(const QStringList &relativeElements,
                                  const qmt::MObject *object);
-    bool isProxyHeader(const QString &file) const;
+    bool isProxyHeader(const Utils::FilePath &file) const;
 
 private:
     PxNodeUtilitiesPrivate *d;

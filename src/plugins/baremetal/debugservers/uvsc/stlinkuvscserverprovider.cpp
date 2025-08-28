@@ -90,7 +90,7 @@ public:
     void fromMap(const Store &data) final;
 
     bool operator==(const IDebugServerProvider &other) const final;
-    Utils::FilePath optionsFilePath(Debugger::DebuggerRunTool *runTool,
+    Utils::FilePath optionsFilePath(ProjectExplorer::RunControl *runControl,
                                     QString &errorMessage) const final;
 private:
     explicit StLinkUvscServerProvider();
@@ -221,10 +221,10 @@ bool StLinkUvscServerProvider::operator==(const IDebugServerProvider &other) con
     return true;
 }
 
-FilePath StLinkUvscServerProvider::optionsFilePath(DebuggerRunTool *runTool,
+FilePath StLinkUvscServerProvider::optionsFilePath(RunControl *runControl,
                                                    QString &errorMessage) const
 {
-    const FilePath optionsPath = buildOptionsFilePath(runTool);
+    const FilePath optionsPath = buildOptionsFilePath(runControl);
     std::ofstream ofs(optionsPath.path().toStdString(), std::ofstream::out);
     Uv::ProjectOptionsWriter writer(&ofs);
     const StLinkUvProjectOptions projectOptions(this);

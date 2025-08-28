@@ -3,7 +3,6 @@
 
 #include "qmlprofilerrunconfigurationaspect.h"
 #include "qmlprofilerruncontrol.h"
-#include "qmlprofilersettings.h"
 #include "qmlprofilertool.h"
 
 #ifdef WITH_TESTS

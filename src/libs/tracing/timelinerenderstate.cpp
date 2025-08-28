@@ -132,7 +132,7 @@ void TimelineRenderState::assembleNodeTree(const TimelineModel *model, int defau
             const TimelineRenderPass::State *passState = d->passes[pass];
             if (!passState)
                 continue;
-            const QVector<QSGNode *> &rows = passState->expandedRows();
+            const QList<QSGNode *> &rows = passState->expandedRows();
             if (rows.length() > row) {
                 QSGNode *rowChildNode = rows[row];
                 if (rowChildNode)
@@ -154,7 +154,7 @@ void TimelineRenderState::assembleNodeTree(const TimelineModel *model, int defau
             const TimelineRenderPass::State *passState = d->passes[pass];
             if (!passState)
                 continue;
-            const QVector<QSGNode *> &rows = passState->collapsedRows();
+            const QList<QSGNode *> &rows = passState->collapsedRows();
             if (rows.length() > row) {
                 QSGNode *rowChildNode = rows[row];
                 if (rowChildNode)

@@ -370,7 +370,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
     jomLabel->setWordWrap(true);
 
     m_showAllKitsCheckBox = new QCheckBox(
-        Tr::tr("Show all kits in \"Build & Run\" in \"Projects\" mode"));
+        Tr::tr("Show all kits in \"Build & Run\" in \"Projects\" mode").replace('&', "&&"));
     m_showAllKitsCheckBox->setToolTip(
         Tr::tr("Show also inactive kits in \"Build & Run\" in \"Projects\" mode."));
 

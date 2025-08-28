@@ -1,0 +1,56 @@
+
+# This has a gdb with Python 3.5.2
+
+FROM ubuntu:16.04
+
+RUN <<EOF
+
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get update
+
+apt-get install -y \
+        python3 \
+        openssh-client \
+        openssh-server \
+        net-tools \
+        vim \
+        gdb \
+        sudo \
+        qt5-default \
+        build-essential
+
+EOF
+
+
+RUN <<EOF
+
+cd /tmp
+
+cat <<-EOT > main.cpp
+    #include <QCoreApplication>
+
+    int main(int argc, char *argv[])
+    {
+        QCoreApplication app(argc, argv);
+
+        QString hello = "Hello";
+
+        return app.exec();
+    }
+EOT
+
+cat <<-EOT > tmp.pro
+    TEMPLATE = app
+    TARGET = tmp
+    INCLUDEPATH += .
+    CONFIG += debug
+
+    SOURCES += main.cpp
+EOT
+
+qmake
+make
+
+EOF
+

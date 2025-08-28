@@ -32,8 +32,7 @@
 
 #include <tracing/timelineformattime.h>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 Quick3DFrameModel::Quick3DFrameModel(QmlProfilerModelManager *modelManager)
     : m_modelManager(modelManager)
@@ -73,7 +72,7 @@ int Quick3DFrameModel::rowCount(const QModelIndex &parent) const
 
 int Quick3DFrameModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return MaxColumnType;
 }
 
@@ -461,7 +460,7 @@ QList<int> Quick3DFrameModel::frameIndices(const QString &view3DFilter) const
 
 QStringList Quick3DFrameModel::frameNames(const QString &view3D) const
 {
-    auto indices = frameIndices(view3D);
+    const QList<int> indices = frameIndices(view3D);
     QStringList ret;
     for (auto index : indices) {
         const Item &item = m_data[index];
@@ -526,5 +525,4 @@ void Quick3DFrameModel::finalize()
     endResetModel();
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

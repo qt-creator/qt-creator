@@ -64,6 +64,7 @@ private:
     int m_lineNumber = 0;
     QString m_duration;
     QXmlStreamReader m_xmlReader;
+    QLocale m_locale;
     OutputMode m_mode = XML;
     TestType m_testType = TestType::QtTest;
     bool m_parseMessages = false;

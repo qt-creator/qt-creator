@@ -27,9 +27,9 @@ class FileInProjectFinder;
 } // Utils
 
 namespace ProjectExplorer {
+class BuildConfiguration;
 class Kit;
 class Toolchain;
-class Target;
 } // ProjectExplorer
 
 namespace QtSupport {
@@ -174,6 +174,7 @@ public:
     Utils::FilePath librarySearchPath() const;
 
     Utils::FilePaths directoriesToIgnoreInProjectTree() const;
+    QString moduleForHeader(const QString &className) const; // Format is "Qt.Core"
 
     QString qtNamespace() const;
     QString qtLibInfix() const;
@@ -187,7 +188,7 @@ public:
     createMacroExpander(const std::function<const QtVersion *()> &qtVersion);
 
     static void populateQmlFileFinder(Utils::FileInProjectFinder *finder,
-                                      const ProjectExplorer::Target *target);
+                                      const ProjectExplorer::BuildConfiguration *bc);
 
     QSet<Utils::Id> features() const;
 

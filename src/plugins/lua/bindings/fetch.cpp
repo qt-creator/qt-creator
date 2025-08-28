@@ -10,6 +10,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/aspects.h>
+#include <utils/guardedcallback.h>
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
@@ -222,7 +223,7 @@ void setupFetchModule()
                     Tr::tr("Allow the extension \"%1\" to fetch data from the internet?")
                         .arg(pluginName)};
                 entry.setDetailsWidgetCreator([pluginName, url] {
-                    const QString markdown = Tr::tr("Allow the extension \"%1\" to fetch data"
+                    const QString markdown = Tr::tr("Allow the extension \"%1\" to fetch data "
                                                     "from the following URL:\n\n")
                                                  .arg("**" + pluginName + "**")
                                              + QString("* [%1](%1)").arg(url);
@@ -233,21 +234,27 @@ void setupFetchModule()
                     list->setMargin(StyleHelper::SpacingTokens::ExPaddingGapS);
                     return list;
                 });
-                entry.addCustomButton(Tr::tr("Always Allow"), [mod, pluginName, fetch]() {
-                    mod->setAllowedToFetch(pluginName, Module::IsAllowed::Yes);
-                    ICore::infoBar()->removeInfo(Id("Fetch").withSuffix(pluginName));
-                    fetch();
-                });
-                entry.addCustomButton(Tr::tr("Allow Once"), [pluginName, fetch]() {
-                    ICore::infoBar()->removeInfo(Id("Fetch").withSuffix(pluginName));
-                    fetch();
-                });
+                entry.addCustomButton(
+                    Tr::tr("Always Allow"),
+                    guardedCallback(
+                        guard,
+                        [mod, pluginName, fetch]() {
+                            mod->setAllowedToFetch(pluginName, Module::IsAllowed::Yes);
+                            fetch();
+                        }),
+                    {},
+                    InfoBarEntry::ButtonAction::Hide);
+                entry.addCustomButton(
+                    Tr::tr("Allow Once"),
+                    guardedCallback(guard, [pluginName, fetch]() { fetch(); }),
+                    {},
+                    InfoBarEntry::ButtonAction::Hide);
 
-                entry.setCancelButtonInfo(Tr::tr("Deny"), [mod, notAllowed, pluginName]() {
-                    ICore::infoBar()->removeInfo(Id("Fetch").withSuffix(pluginName));
-                    mod->setAllowedToFetch(pluginName, Module::IsAllowed::No);
-                    notAllowed();
-                });
+                entry.setCancelButtonInfo(
+                    Tr::tr("Deny"), guardedCallback(guard, [mod, notAllowed, pluginName]() {
+                        mod->setAllowedToFetch(pluginName, Module::IsAllowed::No);
+                        notAllowed();
+                    }));
                 ICore::infoBar()->addInfo(entry);
             };
 

@@ -63,14 +63,9 @@ private:
     }
 };
 
-CommitDataFetchResult CommitDataFetchResult::fetch(CommitType commitType, const FilePath &workingDirectory)
+Result<CommitData> fetchCommitData(CommitType commitType, const FilePath &workingDirectory)
 {
-    CommitDataFetchResult result;
-    result.commitData.commitType = commitType;
-    QString commitTemplate;
-    result.success = gitClient().getCommitData(
-                workingDirectory, &commitTemplate, result.commitData, &result.errorMessage);
-    return result;
+    return gitClient().getCommitData(commitType, workingDirectory);
 }
 
 /* The problem with git is that no diff can be obtained to for a random
@@ -86,7 +81,7 @@ GitSubmitEditor::GitSubmitEditor() :
     connect(submitEditorWidget(), &GitSubmitEditorWidget::logRequested, this, &GitSubmitEditor::showLog);
     connect(versionControl(), &Core::IVersionControl::repositoryChanged,
             this, &GitSubmitEditor::forceUpdateFileModel);
-    connect(&m_fetchWatcher, &QFutureWatcher<CommitDataFetchResult>::finished,
+    connect(&m_fetchWatcher, &QFutureWatcher<Result<CommitData>>::finished,
             this, &GitSubmitEditor::commitDataRetrieved);
 }
 
@@ -211,7 +206,7 @@ void GitSubmitEditor::updateFileModel()
         return;
     w->setUpdateInProgress(true);
     // TODO: Check if fetch works OK from separate thread, refactor otherwise
-    m_fetchWatcher.setFuture(Utils::asyncRun(&CommitDataFetchResult::fetch,
+    m_fetchWatcher.setFuture(Utils::asyncRun(&fetchCommitData,
                                              m_commitType, m_workingDirectory));
     Core::ProgressManager::addTask(m_fetchWatcher.future(), Tr::tr("Refreshing Commit Data"),
                                    TASK_UPDATE_COMMIT);
@@ -230,15 +225,15 @@ void GitSubmitEditor::forceUpdateFileModel()
 
 void GitSubmitEditor::commitDataRetrieved()
 {
-    CommitDataFetchResult result = m_fetchWatcher.result();
+    const Result<CommitData> result = m_fetchWatcher.result();
     GitSubmitEditorWidget *w = submitEditorWidget();
-    if (result.success) {
-        setCommitData(result.commitData);
+    if (result) {
+        setCommitData(result.value());
         w->refreshLog(m_workingDirectory);
         w->setEnabled(true);
     } else {
         // Nothing to commit left!
-        VcsOutputWindow::appendError(result.errorMessage);
+        VcsOutputWindow::appendError(result.error());
         m_model->clear();
         w->setEnabled(false);
     }

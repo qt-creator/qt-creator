@@ -4,7 +4,6 @@ add_qtc_plugin(Android
   LONG_DESCRIPTION_MD plugindescription.md
   LICENSE_MD LICENSE.md
   SOURCES
-    android.qrc
     androidtr.h
     androidbuildapkstep.cpp androidbuildapkstep.h
     androidconfigurations.cpp androidconfigurations.h
@@ -46,4 +45,14 @@ extend_qtc_plugin(Android
     androidsdkmanager_test.cpp androidsdkmanager_test.h
     sdkmanageroutputparser_test.cpp sdkmanageroutputparser_test.h
     android_tst.qrc
+)
+
+qtc_add_resources(Android "images"
+  PREFIX "/android"
+  BASE "."
+  FILES
+    images/androiddevice.png
+    images/androiddevice@2x.png
+    images/androiddevicesmall.png
+    images/androiddevicesmall@2x.png
 )

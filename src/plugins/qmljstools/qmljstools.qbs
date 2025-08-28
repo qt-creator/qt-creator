@@ -17,24 +17,26 @@ QtcPlugin {
     Depends { name: "QtSupport" }
 
     files: [
+        "qmlformatsettings.cpp",
+        "qmlformatsettings.h",
+        "qmlformatsettingswidget.cpp",
+        "qmlformatsettingswidget.h",
         "qmljsbundleprovider.cpp",
         "qmljsbundleprovider.h",
-        "qmljscodestylepreferencesfactory.cpp",
-        "qmljscodestylepreferencesfactory.h",
         "qmljscodestylepreferenceswidget.cpp",
         "qmljscodestylepreferenceswidget.h",
         "qmljscodestylesettings.cpp",
         "qmljscodestylesettings.h",
         "qmljscodestylesettingspage.cpp",
         "qmljscodestylesettingspage.h",
-        "qmljscodestylesettingswidget.cpp",
-        "qmljscodestylesettingswidget.h",
+        "qmljscustomformatterwidget.cpp",
+        "qmljscustomformatterwidget.h",
+        "qmljsformatterselectionwidget.cpp",
+        "qmljsformatterselectionwidget.h",
         "qmljsfunctionfilter.cpp",
         "qmljsfunctionfilter.h",
         "qmljsindenter.cpp",
         "qmljsindenter.h",
-        "qmljslocatordata.cpp",
-        "qmljslocatordata.h",
         "qmljsmodelmanager.cpp",
         "qmljsmodelmanager.h",
         "qmljsqtstylecodeformatter.cpp",
@@ -48,7 +50,7 @@ QtcPlugin {
         "qmljstoolsplugin.cpp",
         "qmljstoolssettings.cpp",
         "qmljstoolssettings.h",
-        "qmljstools.qrc"
+        "qmljstools.qrc",
     ]
 
     QtcTestFiles {

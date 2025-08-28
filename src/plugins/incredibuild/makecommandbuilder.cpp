@@ -36,10 +36,8 @@ QString MakeCommandBuilder::displayName() const
 FilePath MakeCommandBuilder::defaultCommand() const
 {
     if (BuildConfiguration *buildConfig = buildStep()->buildConfiguration()) {
-        if (Target *target = buildStep()->target()) {
-            if (Toolchain *toolChain = ToolchainKitAspect::cxxToolchain(target->kit()))
-                return toolChain->makeCommand(buildConfig->environment());
-        }
+        if (Toolchain *toolChain = ToolchainKitAspect::cxxToolchain(buildConfig->kit()))
+            return toolChain->makeCommand(buildConfig->environment());
     }
 
     return {};

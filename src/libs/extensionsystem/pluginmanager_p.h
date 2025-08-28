@@ -50,11 +50,11 @@ public:
     void checkForProblematicPlugins();
     void loadPlugins();
     void loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins);
-    void addPlugins(const QVector<PluginSpec *> &specs);
+    void addPlugins(const QList<PluginSpec *> &specs);
 
     void shutdown();
     void setPluginPaths(const Utils::FilePaths &paths);
-    const QVector<ExtensionSystem::PluginSpec *> loadQueue();
+    const QList<ExtensionSystem::PluginSpec *> loadQueue();
     void loadPlugin(PluginSpec *spec, PluginSpec::State destState);
     void resolveDependencies();
     void enableDependenciesIndirectly();
@@ -75,7 +75,7 @@ public:
     void removePluginsAfterRestart();
     void installPluginsAfterRestart();
 
-    Utils::Result removePluginOnRestart(const QString &pluginId);
+    Utils::Result<> removePluginOnRestart(const QString &pluginId);
     void installPluginOnRestart(const Utils::FilePath &src, const Utils::FilePath &dest);
 
     class TestSpec {
@@ -98,8 +98,8 @@ public:
         testSpecs = Utils::filtered(testSpecs, [pluginSpec](const TestSpec &s) { return s.pluginSpec != pluginSpec; });
     }
 
-    QHash<QString, QVector<PluginSpec *>> pluginCategories;
-    QVector<PluginSpec *> pluginSpecs;
+    QHash<QString, QList<PluginSpec *>> pluginCategories;
+    QList<PluginSpec *> pluginSpecs;
     std::vector<TestSpec> testSpecs;
     Utils::FilePaths pluginPaths;
     QString pluginIID;
@@ -156,8 +156,8 @@ private:
     void startDelayedInitialize();
 
     bool loadQueue(PluginSpec *spec,
-                   QVector<ExtensionSystem::PluginSpec *> &queue,
-                   QVector<ExtensionSystem::PluginSpec *> &circularityCheckQueue);
+                   QList<ExtensionSystem::PluginSpec *> &queue,
+                   QList<ExtensionSystem::PluginSpec *> &circularityCheckQueue);
     void stopAll();
     void deleteAll();
     void checkForDuplicatePlugins();

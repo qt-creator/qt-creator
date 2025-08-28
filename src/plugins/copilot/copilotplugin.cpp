@@ -35,7 +35,7 @@ static void cycleSuggestion(TextEditor::TextEditorWidget *editor, Direction dire
 {
     QTextBlock block = editor->textCursor().block();
     if (auto suggestion = dynamic_cast<TextEditor::CyclicSuggestion *>(
-            TextEditor::TextDocumentLayout::suggestion(block))) {
+            TextEditor::TextBlockUserData::suggestion(block))) {
         int index = suggestion->currentSuggestion();
         if (direction == Previous)
             --index;

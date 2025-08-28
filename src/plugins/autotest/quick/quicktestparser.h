@@ -7,11 +7,11 @@
 
 #include <qmljs/qmljsdocument.h>
 
-#include <QFileSystemWatcher>
+#include <utils/filesystemwatcher.h>
+
 #include <QReadWriteLock>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class QuickTestParseResult : public TestParseResult
 {
@@ -36,19 +36,19 @@ private:
     bool handleQtQuickTest(QPromise<TestParseResultPtr> &promise,
                            CPlusPlus::Document::Ptr document,
                            ITestFramework *framework);
-    void handleDirectoryChanged(const QString &directory);
-    void doUpdateWatchPaths(const QStringList &directories);
+    void handleDirectoryChanged(const Utils::FilePath &directory);
+    void doUpdateWatchPaths(const Utils::FilePaths &directories);
     QString quickTestName(const CPlusPlus::Document::Ptr &doc) const;
     QList<QmlJS::Document::Ptr> scanDirectoryForQuickTestQmlFiles(const Utils::FilePath &srcDir);
+
     QmlJS::Snapshot m_qmlSnapshot;
     QHash<Utils::FilePath, Utils::FilePath> m_proFilesForQmlFiles;
-    QFileSystemWatcher m_directoryWatcher;
-    QMap<QString, QMap<QString, QDateTime> > m_watchedFiles;
+    Utils::FileSystemWatcher m_directoryWatcher;
+    QMap<Utils::FilePath, QMap<QString, QDateTime> > m_watchedFiles;
     QMap<Utils::FilePath, Utils::FilePath> m_mainCppFiles;
     QSet<Utils::FilePath> m_prefilteredFiles;
     QReadWriteLock m_parseLock; // guard for m_mainCppFiles
     bool m_checkForDerivedTests = false;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

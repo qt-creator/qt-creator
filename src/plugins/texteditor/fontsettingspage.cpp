@@ -381,7 +381,7 @@ QColor FormatDescription::defaultBackground(TextStyle id)
     } else if (id == C_PARENTHESES) {
         return QColor(0xb4, 0xee, 0xb4);
     } else if (id == C_PARENTHESES_MISMATCH) {
-        return QColor(Qt::magenta);
+        return QColor(0xed, 0xb0, 0xed);
     } else if (id == C_AUTOCOMPLETE) {
         return QColor(192, 192, 255);
     } else if (id == C_CURRENT_LINE || id == C_SEARCH_SCOPE) {

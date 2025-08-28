@@ -16,6 +16,7 @@
 #include <QTreeView>
 
 using namespace Valgrind;
+using namespace Valgrind::Internal;
 using namespace Valgrind::XmlProtocol;
 
 int main(int argc, char *argv[])

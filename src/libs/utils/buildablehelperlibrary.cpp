@@ -112,7 +112,7 @@ QString BuildableHelperLibrary::qtVersionForQMake(const FilePath &qmakePath)
     qmake.setCommand({qmakePath, {"--version"}});
     qmake.runBlocking(5s);
     if (qmake.result() != ProcessResult::FinishedWithSuccess) {
-        qWarning() << qmake.exitMessage();
+        qWarning() << qmake.verboseExitMessage();
         return QString();
     }
 
@@ -162,7 +162,7 @@ QStringList BuildableHelperLibrary::possibleQMakeCommands()
     // Qt 6 CMake built targets, such as Android, are dependent on the host installation
     // and use a script wrapper around the host qmake executable
     // Remote build configurations (e.g. Windows host + Linux target) must be taken into account too
-    return {"qmake*"};
+    return {"qmake*", "qtpaths*"};
 }
 
 } // namespace Utils

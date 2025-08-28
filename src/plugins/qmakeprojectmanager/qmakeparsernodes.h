@@ -122,7 +122,7 @@ public:
 
     QmakePriFile *parent() const;
     QmakeProject *project() const;
-    const QVector<QmakePriFile *> children() const;
+    const QList<QmakePriFile *> children() const;
 
     QmakePriFile *findPriFile(const Utils::FilePath &fileName);
     const QmakePriFile *findPriFile(const Utils::FilePath &fileName) const;
@@ -160,7 +160,7 @@ public:
     bool deploysFolder(const QString &folder) const;
 
     QmakeProFile *proFile() const;
-    QVector<QmakePriFile *> subPriFilesExact() const;
+    QList<QmakePriFile *> subPriFilesExact() const;
 
     // Set by parent
     bool includedInExactParse() const;
@@ -214,7 +214,7 @@ private:
     QPointer<QmakeBuildSystem> m_buildSystem;
     QmakeProFile *m_qmakeProFile = nullptr;
     QmakePriFile *m_parent = nullptr;
-    QVector<QmakePriFile *> m_children;
+    QList<QmakePriFile *> m_children;
 
     Utils::TextFileFormat m_textFormat;
 
@@ -255,10 +255,10 @@ public:
 class QMAKEPROJECTMANAGER_EXPORT InstallsItem {
 public:
     InstallsItem() = default;
-    InstallsItem(QString p, QVector<ProFileEvaluator::SourceFile> f, bool a, bool e)
+    InstallsItem(QString p, QList<ProFileEvaluator::SourceFile> f, bool a, bool e)
         : path(p), files(f), active(a), executable(e) {}
     QString path;
-    QVector<ProFileEvaluator::SourceFile> files;
+    QList<ProFileEvaluator::SourceFile> files;
     bool active = false;
     bool executable = false;
 };
@@ -267,7 +267,7 @@ class QMAKEPROJECTMANAGER_EXPORT InstallsList {
 public:
     void clear() { targetPath.clear(); items.clear(); }
     QString targetPath;
-    QVector<InstallsItem> items;
+    QList<InstallsItem> items;
 };
 
 // Implements ProjectNode for qmake .pro files

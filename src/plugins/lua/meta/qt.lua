@@ -53,6 +53,23 @@ function qt.QFontMetrics:height() end
 ---@return QFontMetrics fontMetrics The new QFontMetrics.
 function qt.QFontMetrics.create(params) end
 
+---@class QKeySequence A Lua wrapper for the Qt `QKeySequence` class.
+qt.QKeySequence = {}
+
+---Checks if key sequence is assign.
+---@return boolean A boolean, representing whether there is sequence.
+function qt.QKeySequence:isEmpty() end
+
+---Returns key sequence string.
+---@return QString String with key sequence.
+function qt.QKeySequence:toString() end
+
+---@enum QKeySequenceFormat
+qt.QKeySequenceFormat = {
+    NativeText = 0,
+    PortableText = 0,
+};
+
 ---@enum TextElideMode
 qt.TextElideMode = {
     ElideLeft = 0,

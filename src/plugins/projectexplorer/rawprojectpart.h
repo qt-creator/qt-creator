@@ -107,7 +107,7 @@ public:
     Utils::QtMajorVersion qtVersion = Utils::QtMajorVersion::Unknown;
 };
 
-using RawProjectParts = QVector<RawProjectPart>;
+using RawProjectParts = QList<RawProjectPart>;
 
 class PROJECTEXPLORER_EXPORT KitInfo
 {

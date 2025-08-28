@@ -16,8 +16,7 @@
 
 using namespace Utils;
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 const QByteArray PerfProfilerTraceManager::s_resourceNamePrefix
         = QByteArrayLiteral("perfprofiler_");
@@ -515,10 +514,10 @@ void PerfProfilerTraceManager::appendEvent(PerfEvent &&event)
 
 void PerfProfilerTraceManager::processSample(PerfEvent &event) const
 {
-    QVector<qint32> frames;
+    QList<qint32> frames;
     int firstGuessed = -1;
     const bool aggregating = aggregateAddresses();
-    const QVector<qint32> &eventFrames = event.origFrames();
+    const QList<qint32> &eventFrames = event.origFrames();
     for (int i = 0; i < eventFrames.length(); ++i) {
         if (i == eventFrames.length() - event.origNumGuessedFrames())
             firstGuessed = frames.length();
@@ -627,5 +626,4 @@ PerfProfilerTraceManager &traceManager()
     return thePerfProfilerTraceManager;
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal
