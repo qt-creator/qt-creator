@@ -328,6 +328,15 @@ QStringList createAppPortArgs(std::variant<int, QString, QList<std::variant<int,
         appPort);
 }
 
+static ProcessTask checkDocker(const InstanceConfig &instanceConfig)
+{
+    return ProcessTask([instanceConfig](Process &process) {
+        connectProcessToLog(process, instanceConfig, "Check Docker");
+        CommandLine cmdLine{instanceConfig.dockerCli, {"system", "df"}};
+        process.setCommand(cmdLine);
+    });
+}
+
 static ProcessTask findContainerId(
     Storage<QString> containerId,
     const ComposeContainer &composeContainer,
@@ -1355,6 +1364,7 @@ static Result<Group> prepareContainerRecipe(
         imageDetails,
         runningDetails,
         containerDetails,
+        checkDocker(instanceConfig),
         ProcessTask(setupBuildImage),
         inspectImageTask(imageDetails, instanceConfig, imageName(instanceConfig)),
         createContainerRecipe(
@@ -1421,6 +1431,7 @@ static Result<Group> prepareContainerRecipe(
         imageDetails,
         containerDetails,
         runningDetails,
+        checkDocker(instanceConfig),
         prepareDockerImageRecipe(imageDetails, imageConfig, instanceConfig),
         createContainerRecipe(imageDetails, imageConfig, commonConfig, instanceConfig),
         inspectContainerTask(containerDetails, instanceConfig),
@@ -1490,6 +1501,7 @@ static Result<Group> prepareContainerRecipe(
     // clang-format off
     return Group {
         containerId, containerDetails, runningDetails, imageDetails,
+        checkDocker(instanceConfig),
         ProcessTask(setupComposeUp),
         findContainerId(containerId, config, instanceConfig),
         inspectContainerTask(containerDetails, instanceConfig, containerId),

@@ -304,7 +304,10 @@ Result<> Device::up(InstanceConfig instanceConfig, std::function<void(Result<>)>
         return SetupResult::Continue;
     };
 
-    const auto onDeviceStarted = [this, instance]() -> DoneResult {
+    const auto onDeviceStarted = [this, instance](DoneWith doneWith) -> DoneResult {
+        if (doneWith == DoneWith::Error)
+            return DoneResult::Error;
+
         auto downRecipe = (*instance)->downRecipe();
         if (!downRecipe) {
             qCWarning(devContainerDeviceLog)
