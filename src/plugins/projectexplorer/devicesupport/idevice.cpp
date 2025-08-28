@@ -971,8 +971,13 @@ FilePath IDevice::deviceToolPath(Id toolId) const
 
 QList<DeviceToolAspect *> IDevice::deviceToolAspects(DeviceToolAspect::ToolType supportType) const
 {
-    return filtered(d->deviceToolAspects.values(), [supportType](DeviceToolAspect *aspect) {
-        return aspect->toolType() & supportType;
+    const QList<DeviceToolAspect *> list =
+        filtered(d->deviceToolAspects.values(), [supportType](DeviceToolAspect *aspect) {
+            return aspect->toolType() & supportType;
+        });
+
+    return Utils::sorted(list, [](DeviceToolAspect *left, DeviceToolAspect *right) {
+        return left->labelText().toCaseFolded() < right->labelText().toCaseFolded();
     });
 }
 
