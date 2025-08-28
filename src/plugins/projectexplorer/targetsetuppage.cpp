@@ -114,8 +114,6 @@ public:
 
     Internal::ImportWidget *importWidget = nullptr;
     QSpacerItem *spacer;
-
-    bool widgetsWereSetUp = false;
 };
 
 } // namespace Internal
@@ -237,9 +235,6 @@ void TargetSetupPage::setProjectPath(const FilePath &path)
                                       "%1: Project name").arg(subDirsList.last()));
     }
     d->headerLabel->setVisible(!d->projectPath.isEmpty());
-
-    if (d->widgetsWereSetUp)
-        initializePage();
 }
 
 void TargetSetupPage::setProjectImporter(ProjectImporter *importer)
@@ -247,14 +242,8 @@ void TargetSetupPage::setProjectImporter(ProjectImporter *importer)
     if (importer == d->importer)
         return;
 
-    if (d->widgetsWereSetUp)
-        d->reset(); // Reset before changing the importer!
-
     d->importer = importer;
     d->importWidget->setVisible(d->importer);
-
-    if (d->widgetsWereSetUp)
-        initializePage();
 }
 
 bool TargetSetupPage::importLineEditHasFocus() const
