@@ -31,7 +31,7 @@ public:
     void updateErrorFlags();
     bool hasError() const;
 
-    static const int DefaultItemIdRole = Qt::UserRole + 1;
+    static const int DefaultExecutableRole = Qt::UserRole + 1;
     QVariant data(int column, int role) const override;
 
     Utils::Id m_id;

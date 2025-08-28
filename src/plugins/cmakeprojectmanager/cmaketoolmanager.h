@@ -44,6 +44,8 @@ public:
     static void setDefaultCMakeTool(const Utils::Id &id);
     static CMakeTool *findByCommand(const Utils::FilePath &command);
     static CMakeTool *findById(const Utils::Id &id);
+    static Utils::Id idForExecutable(const Utils::FilePath &cmakeExecutable);
+    static Utils::FilePath executableForId(const Utils::Id id);
 
     static void notifyAboutUpdate(CMakeTool *);
     static void restoreCMakeTools();

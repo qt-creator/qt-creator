@@ -324,14 +324,28 @@ void CMakeToolManager::setDefaultCMakeTool(const Id &id)
     ensureDefaultCMakeToolIsValid();
 }
 
-CMakeTool *CMakeToolManager::findByCommand(const Utils::FilePath &command)
+CMakeTool *CMakeToolManager::findByCommand(const FilePath &command)
 {
     return Utils::findOrDefault(d->m_cmakeTools, Utils::equal(&CMakeTool::cmakeExecutable, command));
+}
+
+Id CMakeToolManager::idForExecutable(const FilePath &cmakeExecutable)
+{
+    if (CMakeTool *tool = findByCommand(cmakeExecutable))
+        return tool->id();
+    return {};
 }
 
 CMakeTool *CMakeToolManager::findById(const Id &id)
 {
     return Utils::findOrDefault(d->m_cmakeTools, Utils::equal(&CMakeTool::id, id));
+}
+
+FilePath CMakeToolManager::executableForId(const Id id)
+{
+    if (CMakeTool *tool = findById(id))
+        return tool->cmakeExecutable();
+    return {};
 }
 
 void CMakeToolManager::restoreCMakeTools()

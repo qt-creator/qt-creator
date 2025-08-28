@@ -22,7 +22,8 @@ public:
 
     static Utils::FilePath cmakeExecutable(const ProjectExplorer::Kit *k);
     static CMakeKeywords cmakeKeywords(const ProjectExplorer::Kit *k);
-    static void setCMakeTool(ProjectExplorer::Kit *k, const Utils::Id id);
+    static void setCMakeExecutable(ProjectExplorer::Kit *k,
+                                   const Utils::FilePath &cmakeExecutable);
     static QString msgUnsupportedVersion(const QByteArray &versionString);
 
     static ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *k);

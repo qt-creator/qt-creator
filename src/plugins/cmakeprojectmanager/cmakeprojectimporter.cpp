@@ -1219,7 +1219,7 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
             addTemporaryData(CMakeKitAspect::id(), cmakeTool->id().toSetting(), k);
         }
 
-        CMakeKitAspect::setCMakeTool(k, cmakeTool->id());
+        CMakeKitAspect::setCMakeExecutable(k, data->cmakeBinary);
 
         CMakeGeneratorKitAspect::setGenerator(k, data->generator);
         CMakeGeneratorKitAspect::setPlatform(k, data->platform);
@@ -1308,7 +1308,7 @@ void CMakeProjectImporter::cleanupTemporaryCMake(Kit *k, const QVariantList &vl)
     if (vl.isEmpty())
         return; // No temporary CMake
     QTC_ASSERT(vl.count() == 1, return);
-    CMakeKitAspect::setCMakeTool(k, Id()); // Always mark Kit as not using this Qt
+    CMakeKitAspect::setCMakeExecutable(k, FilePath()); // Always mark Kit as not using this Qt
     CMakeToolManager::deregisterCMakeTool(Id::fromSetting(vl.at(0)));
     qCDebug(cmInputLog) << "Temporary CMake tool cleaned up.";
 }

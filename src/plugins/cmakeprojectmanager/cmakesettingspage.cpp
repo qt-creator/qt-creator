@@ -141,8 +141,8 @@ bool CMakeToolTreeItem::hasError() const
 
 QVariant CMakeToolTreeItem::data(int column, int role) const
 {
-    const auto defaultItemId = [this] {
-        return Id::fromSetting(model()->data({}, DefaultItemIdRole));
+    const auto defaultCMake = [this] {
+        return FilePath::fromVariant(model()->data({}, DefaultExecutableRole));
     };
 
     if (!m_id.isValid()) {
@@ -158,7 +158,7 @@ QVariant CMakeToolTreeItem::data(int column, int role) const
         switch (column) {
         case 0: {
             QString name = m_name;
-            if (defaultItemId() == m_id)
+            if (defaultCMake() == m_executable)
                 name += Tr::tr(" (Default)");
             return name;
         }
@@ -171,7 +171,7 @@ QVariant CMakeToolTreeItem::data(int column, int role) const
     case Qt::FontRole: {
         QFont font;
         font.setBold(m_changed);
-        font.setItalic(defaultItemId() == m_id);
+        font.setItalic(defaultCMake() == m_executable);
         return font;
     }
     case Qt::ToolTipRole: {
@@ -384,8 +384,8 @@ QString CMakeToolItemModel::uniqueDisplayName(const QString &base) const
 
 QVariant CMakeToolItemModel::data(const QModelIndex &index, int role) const
 {
-    if (role == CMakeToolTreeItem::DefaultItemIdRole)
-        return defaultItemId().toSetting();
+    if (role == CMakeToolTreeItem::DefaultExecutableRole)
+        return CMakeToolManager::executableForId(defaultItemId()).toVariant();
     return TreeModel::data(index, role);
 }
 

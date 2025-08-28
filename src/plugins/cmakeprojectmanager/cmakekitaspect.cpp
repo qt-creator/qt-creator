@@ -64,10 +64,10 @@ static bool isIos(const Kit *k)
            || deviceType == Ios::Constants::IOS_SIMULATOR_TYPE;
 }
 
-static Id defaultCMakeToolId()
+static FilePath defaultCMakeExecutable()
 {
     CMakeTool *defaultTool = CMakeToolManager::defaultCMakeTool();
-    return defaultTool ? defaultTool->id() : Id();
+    return defaultTool ? defaultTool->cmakeExecutable() : FilePath();
 }
 
 class CMakeToolListModel : public TreeModel<TreeItem, Internal::CMakeToolTreeItem>
@@ -97,8 +97,8 @@ public:
 private:
     QVariant data(const QModelIndex &index, int role) const
     {
-        if (role == CMakeToolTreeItem::DefaultItemIdRole)
-            return defaultCMakeToolId().toSetting();
+        if (role == CMakeToolTreeItem::DefaultExecutableRole)
+            return defaultCMakeExecutable().toVariant();
         return TreeModel::data(index, role);
     }
 
@@ -197,7 +197,8 @@ public:
         const auto model = new CMakeToolListModel(*kit, this);
         auto getter = [](const Kit &k) { return cmakeToolId(&k).toSetting(); };
         auto setter = [](Kit &k, const QVariant &id) {
-            CMakeKitAspect::setCMakeTool(&k, Id::fromSetting(id));
+            const FilePath cmakeExecutable = CMakeToolManager::executableForId(Id::fromSetting(id));
+            CMakeKitAspect::setCMakeExecutable(&k, cmakeExecutable);
         };
         auto resetModel = [model] { model->reset(); };
         addListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
@@ -263,11 +264,16 @@ CMakeKeywords CMakeKitAspect::cmakeKeywords(const Kit *k)
     return tool ? tool->keywords() : CMakeKeywords();
 }
 
-void CMakeKitAspect::setCMakeTool(Kit *k, const Id id)
+static void setCMakeTool(Kit *k, const Id id)
 {
     QTC_ASSERT(!id.isValid() || CMakeToolManager::findById(id), return);
     if (k)
         k->setValue(Constants::TOOL_ID, id.toSetting());
+}
+
+void CMakeKitAspect::setCMakeExecutable(Kit *k, const FilePath &cmakeExecutable)
+{
+    setCMakeTool(k, CMakeToolManager::idForExecutable(cmakeExecutable));
 }
 
 Tasks CMakeKitAspectFactory::validate(const Kit *k) const
@@ -294,12 +300,12 @@ void CMakeKitAspectFactory::setup(Kit *k)
     for (CMakeTool *tool : CMakeToolManager::cmakeTools()) {
         const QString toolSource = tool->detectionSource().id;
         if (!toolSource.isEmpty() && toolSource == kitSource) {
-            CMakeKitAspect::setCMakeTool(k, tool->id());
+            CMakeKitAspect::setCMakeExecutable(k, tool->cmakeExecutable());
             return;
         }
     }
 
-    CMakeKitAspect::setCMakeTool(k, defaultCMakeToolId());
+    CMakeKitAspect::setCMakeExecutable(k, defaultCMakeExecutable());
 }
 
 void CMakeKitAspectFactory::fix(Kit *k)
@@ -379,10 +385,10 @@ std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::autoDetect(
         ResultType tools = async.takeResult();
 
         for (auto &tool : tools) {
-            const Id id = tool->id();
+            const FilePath cmake = tool->cmakeExecutable();
             CMakeToolManager::registerCMakeTool(std::move(tool));
-            logCallback(Tr::tr("Found CMake tool: %1").arg(id.toString()));
-            CMakeKitAspect::setCMakeTool(kit, id);
+            logCallback(Tr::tr("Found CMake tool: %1").arg(cmake.toUserOutput()));
+            CMakeKitAspect::setCMakeExecutable(kit, cmake);
         }
     };
 
@@ -472,11 +478,11 @@ Utils::Result<Tasking::ExecutableItem> CMakeKitAspectFactory::createAspectFromJs
             return;
         }
         const QJsonObject obj = json.toObject();
-        const Id id = (*tool)->id();
+        const FilePath cmake = (*tool)->cmakeExecutable();
 
         CMakeToolManager::registerCMakeTool(std::move(*tool));
-        logCallback(Tr::tr("Found CMake tool: %1").arg(id.toString()));
-        CMakeKitAspect::setCMakeTool(kit, id);
+        logCallback(Tr::tr("Found CMake tool: %1").arg(cmake.toUserOutput()));
+        CMakeKitAspect::setCMakeExecutable(kit, cmake);
 
         if (obj.contains("generator"))
             CMakeGeneratorKitAspect::setGenerator(kit, obj.value("generator").toString());
