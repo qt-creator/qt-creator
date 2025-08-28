@@ -996,7 +996,7 @@ void tst_Process::destroyBlockingProcess()
     process.start();
     QVERIFY(process.waitForStarted());
     QVERIFY(process.isRunning());
-    QVERIFY(!process.waitForFinished(1s));
+    QVERIFY(!process.waitForFinished(10s));
 }
 
 void tst_Process::flushFinishedWhileWaitingForReadyRead_data()
