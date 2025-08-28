@@ -237,6 +237,7 @@ const char SUPPORTS_RSYNC[] = "RemoteLinux.SupportsRSync";
 const char SUPPORTS_SFTP[] = "RemoteLinux.SupportsSftp";
 // Tool implementation is actually in RemoteLinux
 const char RSYNC_TOOL_ID[] = "RsyncExecutable";
+const char SSH_TOOL_ID[] = "SshExecutable";
 
 // SDKs related ids:
 const char SDK_SETTINGS_CATEGORY[] = "AN.SDKs";

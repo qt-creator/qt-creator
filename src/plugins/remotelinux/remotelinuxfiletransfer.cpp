@@ -274,17 +274,31 @@ private:
         startNextBatch();
     }
 
+    FilePath sshCommand()
+    {
+        const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_rsync);
+        if (device) {
+            const FilePath sshDeviceTool = device->deviceToolPath(
+                ProjectExplorer::Constants::SSH_TOOL_ID);
+            if (!sshDeviceTool.isEmpty())
+                return sshDeviceTool;
+        }
+        if (m_rsync.isLocal())
+            return SshSettings::sshFilePath();
+        if (device)
+            return device->filePath("ssh");
+        return "ssh";
+    }
+
     void startNextBatch()
     {
         process().close();
 
         QStringList options;
-        // TODO Should we use the ssh device tool if available for remote?
-        //      There is no setting for that yet.
-        if (m_rsync.isLocal()) {
+        const FilePath ssh = sshCommand();
+        if (!ssh.isEmpty()) {
             const QString sshCmdLine = ProcessArgs::joinArgs(
-                QStringList{SshSettings::sshFilePath().toUserOutput()} << fullConnectionOptions(),
-                OsTypeLinux);
+                QStringList{ssh.nativePath()} << fullConnectionOptions(), OsTypeLinux);
             options << QStringList{"-e", sshCmdLine};
         }
         options << ProcessArgs::splitArgs(m_setup.m_rsyncFlags, m_rsync.osType());

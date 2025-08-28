@@ -477,6 +477,18 @@ public:
     }
 };
 
+class SshToolFactory : public DeviceToolAspectFactory
+{
+public:
+    SshToolFactory()
+    {
+        setToolId(Constants::SSH_TOOL_ID);
+        setToolType(DeviceToolAspect::BuildTool);
+        setFilePattern({"ssh"});
+        setLabelText(Tr::tr("SSH executable:"));
+    }
+};
+
 class ProjectExplorerPluginPrivate : public QObject
 {
 public:
@@ -696,6 +708,8 @@ public:
 
     CustomExecutableRunConfigurationFactory m_customExecutableRunConfigFactory;
     ProcessRunnerFactory m_customExecutableRunWorkerFactory{{Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID}};
+
+    SshToolFactory m_sshToolFactory;
 
     ProjectFileWizardExtension m_projectFileWizardExtension;
 
