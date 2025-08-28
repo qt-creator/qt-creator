@@ -6,6 +6,7 @@
 #include "buildinfo.h"
 #include "buildmanager.h"
 #include "buildsettingspropertiespage.h"
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevicefactory.h"
 #include "kit.h"
 #include "kitmanager.h"
@@ -787,7 +788,7 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
     layout->addLayout(hbox);
 
     m_targetSetupPage = new TargetSetupPage(this);
-    m_targetSetupPage->setProjectPath(m_project->projectFilePath());
+    m_targetSetupPage->setProjectAndPath(m_project, m_project->projectFilePath());
     m_targetSetupPage->setTasksGenerator([this](const Kit *k) {
         QTC_ASSERT(m_project.get(), return Tasks());
         return m_project->projectIssues(k);
@@ -1187,9 +1188,12 @@ void TargetGroupItem::rebuildContents()
     removeChildren();
 
     for (Kit *kit : sortedKits) {
-        if (!isAnyKitNotEnabled
-                || globalProjectExplorerSettings().showAllKits()
-                || m_project->target(kit->id()) != nullptr) {
+        const bool supportedByBuildDevice = BuildDeviceKitAspect::supportsProject(kit, m_project);
+        if (!supportedByBuildDevice)
+            continue;
+
+        if (!isAnyKitNotEnabled || globalProjectExplorerSettings().showAllKits()
+            || m_project->target(kit->id()) != nullptr) {
             appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
         }
     }

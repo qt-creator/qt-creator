@@ -4,6 +4,7 @@
 #include "targetsetuppage.h"
 
 #include "buildinfo.h"
+#include "devicesupport/devicekitaspects.h"
 #include "importwidget.h"
 #include "kit.h"
 #include "kitmanager.h"
@@ -109,6 +110,7 @@ public:
     TasksGenerator tasksGenerator;
     QPointer<ProjectImporter> importer;
     FilePath projectPath;
+    Project *project = nullptr;
     QString defaultShadowBuildLocation;
     std::vector<Internal::TargetSetupWidget *> widgets;
 
@@ -187,6 +189,8 @@ void TargetSetupPagePrivate::setupWidgets(const QString &filterText)
         updateWidget(widget);
         widgets.push_back(widget);
         centralWidget->layout()->addWidget(widget);
+        if (!BuildDeviceKitAspect::supportsProject(k, project))
+            widget->setVisible(false);
     }
     addAdditionalWidgets();
 
@@ -225,15 +229,23 @@ TargetSetupWidget *TargetSetupPagePrivate::widget(const Id kitId) const
     });
 }
 
-void TargetSetupPage::setProjectPath(const FilePath &path)
+void TargetSetupPage::setProjectAndPath(Project *project, const FilePath &path)
 {
+    d->project = project;
     d->projectPath = path;
+
+    for (const auto &w : d->widgets) {
+        if (!BuildDeviceKitAspect::supportsProject(w->kit(), project))
+            w->setVisible(false);
+    }
+
     if (!d->projectPath.isEmpty()) {
         QFileInfo fileInfo(QDir::cleanPath(path.toUrlishString()));
         QStringList subDirsList = fileInfo.absolutePath().split('/');
         d->headerLabel->setText(Tr::tr("The following kits can be used for project <b>%1</b>:",
                                       "%1: Project name").arg(subDirsList.last()));
     }
+
     d->headerLabel->setVisible(!d->projectPath.isEmpty());
 }
 
@@ -610,6 +622,8 @@ void TargetSetupPagePrivate::connectWidget(TargetSetupWidget *w)
 void TargetSetupPagePrivate::toggleVisibility(TargetSetupWidget *w)
 {
     const bool shouldBeVisible = [w, this] {
+        if (!BuildDeviceKitAspect::supportsProject(w->kit(), project))
+            return false;
         if (!w->isValid() && hideUnsuitableKitsCheckBox->isChecked())
             return false;
         const QString filterText = kitFilterLineEdit->text();

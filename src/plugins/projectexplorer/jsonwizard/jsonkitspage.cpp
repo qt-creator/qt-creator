@@ -55,7 +55,7 @@ void JsonKitsPage::initializePage()
             return issuesGenerator(k);
         return {};
     });
-    setProjectPath(projectFilePath);
+    setProjectAndPath(nullptr, projectFilePath);
 
     TargetSetupPage::initializePage();
 }

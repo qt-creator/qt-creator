@@ -206,7 +206,7 @@ void BaseQmakeProjectWizardDialog::generateProfileName(const QString &name,
 
     const Utils::FilePath proFile = path / name / (name + ".pro");
 
-    m_targetSetupPage->setProjectPath(proFile);
+    m_targetSetupPage->setProjectAndPath(nullptr, proFile);
 }
 
 } // Internal
