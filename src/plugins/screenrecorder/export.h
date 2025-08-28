@@ -7,11 +7,7 @@
 
 #include <utils/styledbar.h>
 
-#include <QFutureInterface>
-
-namespace Utils {
-class Process;
-}
+namespace Utils { class Process; }
 
 namespace ScreenRecorder {
 
@@ -61,7 +57,6 @@ private:
     Format m_currentFormat;
     Utils::Process *m_process;
     QByteArray m_lastOutputChunk;
-    std::unique_ptr<QFutureInterface<void>> m_futureInterface;
 
     QRect m_cropRect;
     FrameRange m_trimRange;

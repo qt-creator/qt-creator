@@ -14,17 +14,13 @@
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
-#include <coreplugin/progressmanager/futureprogress.h>
-#include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/processprogress.h>
 
-#include <QFutureWatcher>
 #include <QToolButton>
 
 using namespace Utils;
 
 namespace ScreenRecorder {
-
-const char screenRecordingExportId[] = "ScreenRecorder::screenRecordingExportTask";
 
 static const QVector<ExportWidget::Format> &formats()
 {
@@ -176,19 +172,12 @@ ExportWidget::ExportWidget(QWidget *parent)
         emit started();
     });
     connect(m_process, &Process::done, this, [this] {
-        m_futureInterface->reportFinished();
         if (m_process->exitCode() == 0) {
             emit finished(m_outputClipInfo.file);
         } else {
             FFmpegUtils::reportError(m_process->commandLine(), m_lastOutputChunk);
             emit finished({});
         }
-    });
-    connect(m_process, &Process::readyReadStandardError, this, [this] {
-        m_lastOutputChunk = m_process->readAllRawStandardError();
-        const int frameProgress = FFmpegUtils::parseFrameProgressFromOutput(m_lastOutputChunk);
-        if (frameProgress >= 0)
-            m_futureInterface->setProgressValue(frameProgress);
     });
 }
 
@@ -199,25 +188,26 @@ ExportWidget::~ExportWidget()
 
 void ExportWidget::startExport()
 {
-    m_futureInterface.reset(new QFutureInterface<void>);
-    m_futureInterface->setProgressRange(0, m_trimRange.second - m_trimRange.first);
-    Core::ProgressManager::addTask(m_futureInterface->future(),
-                                   Tr::tr("Exporting Screen Recording"), screenRecordingExportId);
-    m_futureInterface->setProgressValue(0);
-    m_futureInterface->reportStarted();
-    const auto watcher = new QFutureWatcher<void>(this);
-    connect(watcher, &QFutureWatcher<void>::canceled, this, &ExportWidget::interruptExport);
-    connect(watcher, &QFutureWatcher<void>::finished, this, [watcher] {
-        watcher->disconnect();
-        watcher->deleteLater();
-    });
-    watcher->setFuture(m_futureInterface->future());
-
     m_process->close();
     const CommandLine cl(Internal::settings().ffmpegTool(), ffmpegExportParameters());
     m_process->setCommand(cl);
     m_process->setWorkingDirectory(Internal::settings().ffmpegTool().parentDir());
+    m_process->setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
     FFmpegUtils::logFfmpegCall(cl);
+
+    auto progress = new Core::ProcessProgress(m_process);
+    progress->setDisplayName(Tr::tr("Exporting Screen Recording"));
+    progress->setProgressParser([this](QFutureInterface<void> &fi, const QString &inputText) {
+        fi.setProgressRange(0, m_trimRange.second - m_trimRange.first);
+        m_lastOutputChunk = inputText.toLatin1();
+        const int frameProgress = FFmpegUtils::parseFrameProgressFromOutput(m_lastOutputChunk);
+        if (frameProgress >= 0)
+            fi.setProgressValue(frameProgress);
+    });
+    progress->setAutoStopOnCancel(false);
+    connect(progress, &Core::ProcessProgress::canceled, this, &ExportWidget::interruptExport);
+    connect(m_process, &Process::done, progress, &QObject::deleteLater);
+
     m_process->start();
 }
 
