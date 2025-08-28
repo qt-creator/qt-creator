@@ -1671,7 +1671,10 @@ public:
         ProjectItem *projectItem = currentProjectItem();
         Project *project = projectItem ? projectItem->project() : nullptr;
 
-        QModelIndex index = m_targetsView->indexAt(pos);
+        QAbstractItemView *view = qobject_cast<QAbstractItemView *>(sender());
+        QTC_ASSERT(view, return);
+
+        QModelIndex index = view->indexAt(pos);
         if (ProjectItemBase *item = projectItemForIndex(index))
             item->addToMenu(&menu);
 
@@ -1682,7 +1685,7 @@ public:
         importBuild->setEnabled(project && project->projectImporter());
         QAction *manageKits = menu.addAction(Tr::tr("Manage Kits..."));
 
-        QAction *act = menu.exec(m_targetsView->mapToGlobal(pos));
+        QAction *act = menu.exec(view->mapToGlobal(pos));
 
         if (act == importBuild)
             handleImportBuild();
