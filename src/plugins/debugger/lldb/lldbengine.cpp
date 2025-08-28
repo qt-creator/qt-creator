@@ -225,14 +225,30 @@ void LldbEngine::handleLldbStarted()
     showStatusMessage(Tr::tr("Setting up inferior..."));
 
     const DebuggerRunParameters &rp = runParameters();
-
-    if (!rp.debugger().command.executable().isLocal()) {
-        pipeInDebuggerHelpers("lldbbridge", {});
-    } else {
-        QString dumperPath = ICore::resourcePath("debugger").path();
+    const auto setupDumper = [this](const FilePath &debugHelperDir) {
+        QString dumperPath = debugHelperDir.path();
         executeCommand("script sys.path.insert(1, '" + dumperPath + "')");
         // This triggers reportState("enginesetupok") or "enginesetupfailed":
         executeCommand("script from lldbbridge import *");
+    };
+
+    const auto runPythonCommand = [this](const DebuggerCommand &command) {
+        // To simplify we only implement a subset of the DebuggerCommand functionality.
+        QTC_CHECK(command.args.isNull() || command.args.isUndefined());
+        QTC_CHECK(!command.callback);
+        QTC_CHECK(!command.flags);
+        QTC_CHECK(!command.postTime);
+
+        const QString function = QString("script ") + command.function;
+        showMessage(function + "\n", LogInput);
+        executeCommand(function);
+    };
+
+    if (const Result<> res = initDebugHelper("lldbbridge", setupDumper, runPythonCommand); !res) {
+        AsynchronousMessageBox::critical(
+            Tr::tr("Could not setup Debugger Helper Scripts"), res.error());
+        notifyEngineSetupFailed();
+        return;
     }
 
     QString commands = nativeStartupCommands();
@@ -1145,48 +1161,6 @@ bool LldbEngine::hasCapability(unsigned cap) const
 
     //return cap == SnapshotCapability;
     return false;
-}
-
-void LldbEngine::runPythonCommand(DebuggerCommand command)
-{
-    command.function.prepend("script ");
-    if (!m_lldbProc.isRunning()) {
-        // This can legally happen e.g. through a reloadModule()
-        // triggered by changes in view visibility.
-        showMessage(QString("NO LLDB PROCESS RUNNING, CMD IGNORED: %1 %2")
-                        .arg(command.function)
-                        .arg(state()));
-        return;
-    }
-    const int tok = ++currentToken();
-    DebuggerCommand cmd = command;
-    QString token = QString::number(tok);
-    QString function = cmd.function;
-    QString msg = token + function + '\n';
-    if (cmd.flags == Silent) {
-        static const QRegularExpression regexp("\"environment\":.[^]]*.");
-        msg.replace(regexp, "<environment suppressed>");
-    }
-    if (cmd.flags == NeedsFullStop) {
-        cmd.flags &= ~NeedsFullStop;
-        if (state() == InferiorRunOk) {
-            showStatusMessage(Tr::tr("Stopping temporarily"), 1000);
-            m_onStop.append(cmd, false);
-            interruptInferior();
-            return;
-        }
-    }
-    showMessage(msg, LogInput);
-    m_commandForToken[currentToken()] = cmd;
-
-    /*
-self.report('token(\"%s\")' % args["token"])
-sys.stdout.write("@\n" + stuff + "@\n")
-sys.stdout.flush()
-*/
-    static const QString withReport(
-        R"(%1;sys.stdout.write("@\ntoken(\"%2\")@\n");sys.stdout.flush())");
-    executeCommand(withReport.arg(function).arg(token));
 }
 
 DebuggerEngine *createLldbEngine()

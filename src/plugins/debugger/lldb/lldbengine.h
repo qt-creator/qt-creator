@@ -108,8 +108,6 @@ private:
     void handleAttachedToCore();
     void executeCommand(const QString &command);
 
-    void runPythonCommand(DebuggerCommand cmd) override;
-
 private:
     DebuggerCommand m_lastDebuggableCommand;
 

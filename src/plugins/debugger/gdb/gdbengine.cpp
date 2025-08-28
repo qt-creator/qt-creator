@@ -4017,20 +4017,29 @@ void GdbEngine::handleGdbStarted()
     //if (terminal()->isUsable())
     //    runCommand({"set inferior-tty " + QString::fromUtf8(terminal()->slaveDevice())});
 
-    const FilePath dumperPath = ICore::resourcePath("debugger");
-    if (!rp.debugger().command.executable().isLocal()) {
-        // Gdb itself running remotely.
-        pipeInDebuggerHelpers("gdbbridge", CB(handleDumperSetup));
-    } else {
-        // Gdb on local host
+    const auto setupDumper = [this](const Utils::FilePath &debugHelperDir) {
         // This is useful (only) in custom gdb builds that did not run 'make install'
-        const FilePath uninstalledData = rp.debugger().command.executable().parentDir()
-            / "data-directory/python";
+        const FilePath uninstalledData = runParameters().debugger().command.executable().parentDir()
+                                         / "data-directory/python";
         if (uninstalledData.exists())
             runCommand({"python sys.path.append('" + uninstalledData.path() + "')"});
 
-        runCommand({"python sys.path.insert(1, '" + dumperPath.path() + "')"});
+        runCommand({"python sys.path.insert(1, '" + debugHelperDir.path() + "')"});
         runCommand({"python from gdbbridge import *", CB(handleDumperSetup)});
+    };
+
+    const auto runPythonCommand = [this](DebuggerCommand cmd) {
+        cmd.function.prepend("python ");
+        runCommand(cmd);
+    };
+
+    if (const Result<> res
+        = initDebugHelper("gdbbridge", setupDumper, runPythonCommand, CB(handleDumperSetup));
+        !res) {
+        AsynchronousMessageBox::critical(
+            Tr::tr("Could not setup Debugger Helper Scripts"), res.error());
+        notifyEngineSetupFailed();
+        return;
     }
 
     const FilePath path = settings().extraDumperFile();

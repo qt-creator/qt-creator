@@ -3220,25 +3220,59 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
     }
 }
 
-void DebuggerEngine::runPythonCommand(DebuggerCommand pythonCmd)
+Result<> CppDebuggerEngine::initDebugHelper(
+    const QString &bridgeBaseName,
+    const SetupDumper &setupDumper,
+    const RunPythonCommand &runPythonCommand,
+    const ImportResponse &callback)
 {
-    pythonCmd.function.prepend("python ");
-    runCommand(pythonCmd);
+    if (runParameters().debugger().command.executable().isLocal()) {
+        setupDumper(ICore::resourcePath("debugger"));
+        return ResultOk;
+    }
+
+    const Result<FilePath> remoteHelperDir = copyDebuggerHelpers();
+    if (!remoteHelperDir) {
+        showMessage(
+            Tr::tr("Failed to setup remote debugger helper files: %1").arg(remoteHelperDir.error()));
+        return pipeInDebuggerHelpers(bridgeBaseName, runPythonCommand, callback);
+    }
+
+    setupDumper(*remoteHelperDir);
+    return ResultOk;
 }
 
-void DebuggerEngine::pipeInDebuggerHelpers(
-    const QString &bridgeModuleName, std::function<void(const DebuggerResponse &)> callback)
+Result<FilePath> CppDebuggerEngine::copyDebuggerHelpers()
+{
+    const FilePath debuggerExecutable = runParameters().debugger().command.executable();
+
+    Result<std::unique_ptr<TemporaryFilePath>> remoteDir = TemporaryFilePath::create(
+        debuggerExecutable.tmpDir()->pathAppended("dbghelper-XXXXXXXX"), true);
+
+    if (!remoteDir)
+        return ResultError(remoteDir.error());
+
+    const Result<> copyResult
+        = ICore::resourcePath("debugger").copyRecursively((*remoteDir)->filePath());
+
+    if (!copyResult)
+        return ResultError(copyResult.error());
+
+    m_remoteDebuggerHelperDir = std::move(remoteDir.value());
+
+    return m_remoteDebuggerHelperDir->filePath();
+}
+
+Result<> CppDebuggerEngine::pipeInDebuggerHelpers(
+    const QString &bridgeModuleName,
+    const RunPythonCommand &runPythonCommand,
+    const ImportResponse &callback)
 {
     const FilePath dumperPath = ICore::resourcePath("debugger");
     const FilePath loadOrderFile = dumperPath / QString("loadorder_%1.txt").arg(bridgeModuleName);
     const Result<QByteArray> toLoad = loadOrderFile.fileContents();
-    if (!toLoad) {
-        AsynchronousMessageBox::critical(
-            Tr::tr("Cannot Find Debugger Initialization Script"),
-            Tr::tr("Cannot read \"%1\": %2").arg(loadOrderFile.toUserOutput(), toLoad.error()));
-        notifyEngineSetupFailed();
-        return;
-    }
+    if (!toLoad)
+        return ResultError(toLoad.error());
 
     runPythonCommand({"import sys, types"});
     QStringList moduleList;
@@ -3269,9 +3303,12 @@ void DebuggerEngine::pipeInDebuggerHelpers(
             moduleList.append('"' + module + '"');
     }
 
-    runPythonCommand({QString("from %1 import *").arg(bridgeModuleName), callback});
+    runPythonCommand(DebuggerCommand{QString("from %1 import *").arg(bridgeModuleName), callback});
     runPythonCommand(QString("theDumper.dumpermodules = [%1]").arg(moduleList.join(',')));
+
+    return ResultOk;
 }
+
 } // namespace Internal
 } // namespace Debugger
 

@@ -22,6 +22,7 @@
 #include <utils/processhandle.h>
 #include <utils/processinterface.h>
 #include <utils/result.h>
+#include <utils/temporaryfile.h>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
@@ -620,10 +621,6 @@ public:
     void updateToolTips();
     DebuggerToolTipManager *toolTipManager();
 
-    virtual void pipeInDebuggerHelpers(
-        const QString &bridgeModuleName, std::function<void(const DebuggerResponse &)> callback);
-    virtual void runPythonCommand(DebuggerCommand pythonCmd);
-
 signals:
     void engineStarted();
     void engineFinished();
@@ -781,6 +778,27 @@ public:
 
     void validateRunParameters(DebuggerRunParameters &rp) override;
     Core::Context languageContext() const override;
+
+protected:
+    using SetupDumper = std::function<void(const Utils::FilePath &)>;
+    using RunPythonCommand = std::function<void(DebuggerCommand)>;
+    using ImportResponse = std::function<void(const DebuggerResponse &)>;
+
+    Utils::Result<> initDebugHelper(
+        const QString &bridgeBaseName,
+        const SetupDumper &setupDumper,
+        const RunPythonCommand &runPythonCommand,
+        const ImportResponse &callback = {});
+
+private:
+    Utils::Result<Utils::FilePath> copyDebuggerHelpers();
+    Utils::Result<> pipeInDebuggerHelpers(
+        const QString &bridgeModuleName,
+        const RunPythonCommand &runPythonCommand,
+        const ImportResponse &callback);
+
+private:
+    std::unique_ptr<Utils::TemporaryFilePath> m_remoteDebuggerHelperDir;
 };
 
 class LocationMark : public TextEditor::TextMark
