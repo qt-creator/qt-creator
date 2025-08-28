@@ -76,6 +76,10 @@ private:
     QList<Utils::Id> m_removedItems;
 };
 
+CMakeToolTreeItem::CMakeToolTreeItem(Id specialId)
+    : m_id(specialId)
+{}
+
 CMakeToolTreeItem::CMakeToolTreeItem(const CMakeTool *item, bool changed)
     : m_id(item->id())
     , m_name(item->displayName())
@@ -150,6 +154,18 @@ QVariant CMakeToolTreeItem::data(int column, int role) const
             return Tr::tr("None", "No CMake tool");
         if (role == ProjectExplorer::KitAspect::IsNoneRole)
             return true;
+        return {};
+    }
+
+    if (m_id == ProjectExplorer::Constants::BUILD_DEVICE) {
+        if (role == Qt::DisplayRole && column == 0)
+            return Tr::tr("CMake from Build Device");
+        if (role == ProjectExplorer::KitAspect::FromBuildDeviceRole)
+            return true;
+        if (role == ProjectExplorer::KitAspect::IdRole)
+            return m_id.toSetting();
+        if (role == ProjectExplorer::KitAspect::QualityRole)
+            return int(!hasError());
         return {};
     }
 

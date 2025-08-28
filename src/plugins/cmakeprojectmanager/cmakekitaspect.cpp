@@ -91,7 +91,9 @@ public:
             for (CMakeTool *item : toolsForBuildDevice)
                 rootItem()->appendChild(new CMakeToolTreeItem(item, false));
         }
-        rootItem()->appendChild(new CMakeToolTreeItem); // The "none" item.
+        // The "From Build Device" and "None" items.
+        rootItem()->appendChild(new CMakeToolTreeItem(ProjectExplorer::Constants::BUILD_DEVICE));
+        rootItem()->appendChild(new CMakeToolTreeItem());
     }
 
 private:
@@ -179,13 +181,6 @@ private:
 
 // Implementations
 
-static Id cmakeToolId(const Kit *k)
-{
-    if (!k)
-        return {};
-    return Id::fromSetting(k->value(Constants::TOOL_ID));
-}
-
 class CMakeKitAspectImpl final : public KitAspect
 {
 public:
@@ -195,11 +190,8 @@ public:
         setManagingPage(Constants::Settings::TOOLS_ID);
 
         const auto model = new CMakeToolListModel(*kit, this);
-        auto getter = [](const Kit &k) { return cmakeToolId(&k).toSetting(); };
-        auto setter = [](Kit &k, const QVariant &id) {
-            const FilePath cmakeExecutable = CMakeToolManager::executableForId(Id::fromSetting(id));
-            CMakeKitAspect::setCMakeExecutable(&k, cmakeExecutable);
-        };
+        auto getter = [](const Kit &k) { return k.value(Constants::TOOL_ID); };
+        auto setter = [](Kit &k, const QVariant &id) { k.setValue(Constants::TOOL_ID, id); };
         auto resetModel = [model] { model->reset(); };
         addListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
 
@@ -238,13 +230,34 @@ CMakeKitAspectFactory::CMakeKitAspectFactory()
 
 using namespace Internal;
 
+static Id ensureId(const Kit *k, Id id)
+{
+    if (id == ProjectExplorer::Constants::BUILD_DEVICE) {
+        id = BuildDeviceKitAspect::deviceId(k);
+        CMakeTool *tool = CMakeToolManager::findById(id);
+        if (!tool) {
+            DetectionSource ds{DetectionSource::Temporary, id.toString()};
+            auto newTool = std::make_unique<CMakeTool>(ds, id);
+            CMakeTool *tool = newTool.get();
+            CMakeToolManager::registerCMakeTool(std::move(newTool));
+            IDeviceConstPtr dev = BuildDeviceKitAspect::device(k);
+            if (QTC_GUARD(dev)) {
+                tool->setFilePath(dev->deviceToolPath(Constants::TOOL_TYPE_CMAKE));
+                tool->setDisplayName(QString("Referenced from %1").arg(dev->displayName()));
+            }
+        }
+    }
+    return id;
+}
+
 static CMakeTool *cmakeTool(const Kit *k)
 {
     if (!k)
         return nullptr;
     if (!k->isAspectRelevant(CMakeKitAspect::id()))
         return nullptr;
-    return CMakeToolManager::findById(cmakeToolId(k));
+    Id id = ensureId(k, Id::fromSetting(k->value(Constants::TOOL_ID)));
+    return CMakeToolManager::findById(id);
 }
 
 Id CMakeKitAspect::id()
@@ -310,8 +323,9 @@ void CMakeKitAspectFactory::setup(Kit *k)
 
 void CMakeKitAspectFactory::fix(Kit *k)
 {
+    QTC_ASSERT(k, return);
     // TODO: Differentiate (centrally?) between "nothing set" and "actively set to nothing".
-    const Id id = cmakeToolId(k);
+    Id id = ensureId(k, Id::fromSetting(k->value(Constants::TOOL_ID)));
     if (id.isValid() && !CMakeToolManager::findById(id))
         setup(k);
 }

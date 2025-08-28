@@ -19,7 +19,7 @@ void setupCMakeSettingsPage();
 class CMakeToolTreeItem : public Utils::TreeItem
 {
 public:
-    CMakeToolTreeItem() = default;
+    CMakeToolTreeItem(Utils::Id specialId = {});
     CMakeToolTreeItem(const CMakeTool *item, bool changed);
     CMakeToolTreeItem(
         const QString &name,

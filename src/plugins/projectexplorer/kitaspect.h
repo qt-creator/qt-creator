@@ -199,7 +199,14 @@ class PROJECTEXPLORER_EXPORT KitAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    enum ItemRole { IdRole = Qt::UserRole + 100, IsNoneRole, TypeRole, QualityRole };
+    enum ItemRole {
+        IdRole = Qt::UserRole + 100,
+        IsNoneRole,
+        FromBuildDeviceRole,
+        FromRunDeviceRole,
+        TypeRole,
+        QualityRole
+    };
 
     KitAspect(Kit *kit, const KitAspectFactory *factory);
     ~KitAspect();
