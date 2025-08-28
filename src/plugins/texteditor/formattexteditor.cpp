@@ -13,15 +13,16 @@
 #include <utils/async.h>
 #include <utils/differ.h>
 #include <utils/fileutils.h>
+#include <utils/globaltasktree.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 #include <utils/textutils.h>
 
-#include <QFutureWatcher>
 #include <QScrollBar>
 #include <QTextBlock>
 
+using namespace Tasking;
 using namespace Utils;
 
 using namespace std::chrono_literals;
@@ -312,20 +313,22 @@ void formatEditorAsync(TextEditorWidget *editor, const Command &command, int sta
     if (sd.isEmpty())
         return;
 
-    auto watcher = new QFutureWatcher<FormatOutput>;
     const TextDocument *doc = editor->textDocument();
     const FormatInput input{doc->filePath(), sd, command, startPos, endPos};
-    QObject::connect(doc, &TextDocument::contentsChanged, watcher,
-                     &QFutureWatcher<FormatOutput>::cancel);
-    QObject::connect(watcher, &QFutureWatcherBase::finished, watcher,
-                     [watcher, editor = QPointer<PlainTextEdit>(editor), input] {
-        if (watcher->isCanceled())
+    const auto onSetup = [input](Async<FormatOutput> &task) {
+        task.setConcurrentCallData(format, input);
+    };
+    const auto onDone = [editor = QPointer<PlainTextEdit>(editor), input](
+                            const Async<FormatOutput> &task, DoneWith result) {
+        if (result == DoneWith::Cancel)
             showError(Tr::tr("File was modified."));
         else
-            checkAndApplyTask(editor, input, watcher->result());
-        watcher->deleteLater();
-    });
-    watcher->setFuture(Utils::asyncRun(&format, input));
+            checkAndApplyTask(editor, input, task.result());
+    };
+    const auto onTreeSetup = [doc](TaskTree &taskTree) {
+        QObject::connect(doc, &TextDocument::contentsChanged, &taskTree, &TaskTree::cancel);
+    };
+    GlobalTaskTree::start({AsyncTask<FormatOutput>(onSetup, onDone)}, onTreeSetup);
 }
 
 } // namespace TextEditor
