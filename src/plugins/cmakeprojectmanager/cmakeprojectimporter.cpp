@@ -135,15 +135,38 @@ static std::unique_ptr<TemporaryFilePath> ensureDir(const FilePath &path, const 
 
 // CMakeProjectImporter
 
+static void cleanupTemporaryCMake(Kit *k, const QVariantList &vl)
+{
+    if (vl.isEmpty())
+        return; // No temporary CMake
+    QTC_ASSERT(vl.count() == 1, return);
+    CMakeKitAspect::setCMakeExecutable(k, FilePath()); // Always mark Kit as not using this Qt
+    CMakeToolManager::deregisterCMakeTool(Id::fromSetting(vl.at(0)));
+    qCDebug(cmInputLog) << "Temporary CMake tool cleaned up.";
+}
+
+static void persistTemporaryCMake(Kit *k, const QVariantList &vl)
+{
+    if (vl.isEmpty())
+        return; // No temporary CMake
+    QTC_ASSERT(vl.count() == 1, return);
+    const QVariant &data = vl.at(0);
+    CMakeTool *tmpCmake = CMakeToolManager::findById(Id::fromSetting(data));
+    FilePath actualCmake = CMakeKitAspect::cmakeExecutable(k);
+
+    // User changed Kit away from temporary CMake that was set up:
+    if (tmpCmake && actualCmake != tmpCmake->cmakeExecutable())
+        CMakeToolManager::deregisterCMakeTool(tmpCmake->id());
+
+    qCDebug(cmInputLog) << "Temporary CMake tool made persistent.";
+}
+
 CMakeProjectImporter::CMakeProjectImporter(const FilePath &path, const CMakeProject *project)
     : QtProjectImporter(path)
     , m_project(project)
     , m_presetsTempDir(ensureDir(path.parentDir() / ".qtcreator", "qtc-cmake-presets-XXXXXXXX"))
 {
-    useTemporaryKitAspect(CMakeKitAspect::id(),
-                               [this](Kit *k, const QVariantList &vl) { cleanupTemporaryCMake(k, vl); },
-                               [this](Kit *k, const QVariantList &vl) { persistTemporaryCMake(k, vl); });
-
+    useTemporaryKitAspect(CMakeKitAspect::id(), &cleanupTemporaryCMake, &persistTemporaryCMake);
 }
 
 using CharToHexList = QList<QPair<QString, QString>>;
@@ -1304,32 +1327,6 @@ const QList<BuildInfo> CMakeProjectImporter::buildInfoList(void *directoryData) 
 void CMakeProjectImporter::deleteDirectoryData(void *directoryData) const
 {
     delete static_cast<DirectoryData *>(directoryData);
-}
-
-void CMakeProjectImporter::cleanupTemporaryCMake(Kit *k, const QVariantList &vl)
-{
-    if (vl.isEmpty())
-        return; // No temporary CMake
-    QTC_ASSERT(vl.count() == 1, return);
-    CMakeKitAspect::setCMakeExecutable(k, FilePath()); // Always mark Kit as not using this Qt
-    CMakeToolManager::deregisterCMakeTool(Id::fromSetting(vl.at(0)));
-    qCDebug(cmInputLog) << "Temporary CMake tool cleaned up.";
-}
-
-void CMakeProjectImporter::persistTemporaryCMake(Kit *k, const QVariantList &vl)
-{
-    if (vl.isEmpty())
-        return; // No temporary CMake
-    QTC_ASSERT(vl.count() == 1, return);
-    const QVariant &data = vl.at(0);
-    CMakeTool *tmpCmake = CMakeToolManager::findById(Id::fromSetting(data));
-    FilePath actualCmake = CMakeKitAspect::cmakeExecutable(k);
-
-    // User changed Kit away from temporary CMake that was set up:
-    if (tmpCmake && actualCmake != tmpCmake->cmakeExecutable())
-        CMakeToolManager::deregisterCMakeTool(tmpCmake->id());
-
-    qCDebug(cmInputLog) << "Temporary CMake tool made persistent.";
 }
 
 } // CMakeProjectManager::Internal

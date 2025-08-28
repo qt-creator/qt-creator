@@ -36,9 +36,6 @@ private:
 
     void deleteDirectoryData(void *directoryData) const final;
 
-    void cleanupTemporaryCMake(ProjectExplorer::Kit *k, const QVariantList &vl);
-    void persistTemporaryCMake(ProjectExplorer::Kit *k, const QVariantList &vl);
-
     void ensureBuildDirectory(DirectoryData &data, const ProjectExplorer::Kit *k) const;
 
     const CMakeProject *m_project;
