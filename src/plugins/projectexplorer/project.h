@@ -205,6 +205,7 @@ public:
 
     QList<Utils::Store> vanishedTargets() const;
     void removeVanishedTarget(int index);
+    void removeVanishedTarget(const Utils::Store &store);
     void removeAllVanishedTargets();
     Target *createKitAndTargetFromStore(const Utils::Store &store);
 

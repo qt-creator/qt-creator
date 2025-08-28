@@ -12,6 +12,7 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
@@ -19,6 +20,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
 #include <utils/fsengine/fsengine.h>
@@ -249,6 +251,21 @@ void DevContainerPlugin::startDeviceForProject(
     const auto onDone = Utils::guardedCallback(&guard, [this, project, log, device](Result<> result) {
         if (result) {
             devices.insert({project, device});
+
+            for (auto target : project->vanishedTargets()) {
+                const QString name = target.value(Target::displayNameKey()).toString();
+                auto kit = Utils::findOrDefault(KitManager::kits(), [&device, &name](Kit *k) {
+                    if (BuildDeviceKitAspect::device(k) != device)
+                        return false;
+                    return k->displayName() == name;
+                });
+
+                if (kit) {
+                    if (project->copySteps(target, kit))
+                        project->removeVanishedTarget(target);
+                }
+            }
+
             log->clear();
 #ifdef WITH_TESTS
             emit deviceUpDone();

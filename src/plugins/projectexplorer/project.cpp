@@ -660,6 +660,12 @@ void Project::removeVanishedTarget(int index)
     emit vanishedTargetsChanged();
 }
 
+void Project::removeVanishedTarget(const Utils::Store &store)
+{
+    if (d->m_vanishedTargets.removeAll(store))
+        emit vanishedTargetsChanged();
+}
+
 void Project::removeAllVanishedTargets()
 {
     d->m_vanishedTargets.clear();
