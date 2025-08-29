@@ -7,8 +7,6 @@ add_qtc_library(TestUtils OBJECT
     googletest.h
     google-using-declarations.h
     conditionally-disabled-tests.h
-    eventspy.cpp
-    eventspy.h
     notification.h
     processevents-utilities.cpp
     processevents-utilities.h
