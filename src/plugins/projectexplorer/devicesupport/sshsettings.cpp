@@ -3,112 +3,54 @@
 
 #include "sshsettings.h"
 
+#include "../projectexplorerconstants.h"
+#include "../projectexplorertr.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icore.h>
+
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcsettings.h>
+#include <utils/layoutbuilder.h>
 
-#include <QReadWriteLock>
-
+using namespace Core;
 using namespace Utils;
 
 namespace ProjectExplorer {
-namespace Internal {
 
-struct SshSettings
+SshSettings &sshSettings()
 {
-    bool useConnectionSharing = !HostOsInfo::isWindowsHost();
-    int connectionSharingTimeOutInMinutes = 10;
-    FilePath sshFilePath;
-    FilePath sftpFilePath;
-    FilePath askpassFilePath;
-    FilePath keygenFilePath;
-    ProjectExplorer::SshSettings::SearchPathRetriever searchPathRetriever = [] { return FilePaths(); };
-    QReadWriteLock lock;
-};
+    static SshSettings theSshSettings;
+    return theSshSettings;
+}
 
-} // namespace Internal
-
-Q_GLOBAL_STATIC(Internal::SshSettings, sshSettings)
-
-class AccessSettingsGroup
+static FilePaths extraSearchPaths()
 {
-public:
-    AccessSettingsGroup(QtcSettings *settings) : m_settings(settings)
-    {
-        settings->beginGroup("SshSettings");
+    FilePaths searchPaths = {ICore::libexecPath()};
+    if (HostOsInfo::isWindowsHost()) {
+        const QString gitBinary = ICore::settings()->value("Git/BinaryPath", "git")
+                                      .toString();
+        const QStringList rawGitSearchPaths = ICore::settings()->value("Git/Path")
+                                                  .toString().split(':', Qt::SkipEmptyParts);
+        const FilePaths gitSearchPaths = Utils::transform(rawGitSearchPaths,
+                  [](const QString &rawPath) { return FilePath::fromUserInput(rawPath); });
+        const FilePath fullGitPath = Environment::systemEnvironment()
+                                         .searchInPath(gitBinary, gitSearchPaths);
+        if (!fullGitPath.isEmpty()) {
+            searchPaths << fullGitPath.parentDir()
+                        << fullGitPath.parentDir().parentDir().pathAppended("usr/bin");
+        }
     }
-    ~AccessSettingsGroup() { m_settings->endGroup(); }
-private:
-    QtcSettings * const m_settings;
-};
-
-static Key connectionSharingKey() { return Key("UseConnectionSharing"); }
-static Key connectionSharingTimeoutKey() { return Key("ConnectionSharingTimeout"); }
-static Key sshFilePathKey() { return Key("SshFilePath"); }
-static Key sftpFilePathKey() { return Key("SftpFilePath"); }
-static Key askPassFilePathKey() { return Key("AskpassFilePath"); }
-static Key keygenFilePathKey() { return Key("KeygenFilePath"); }
-
-void SshSettings::loadSettings(QtcSettings *settings)
-{
-    QWriteLocker locker(&sshSettings->lock);
-    AccessSettingsGroup g(settings);
-    QVariant value = settings->value(connectionSharingKey());
-    if (value.isValid() && !HostOsInfo::isWindowsHost())
-        sshSettings->useConnectionSharing = value.toBool();
-    value = settings->value(connectionSharingTimeoutKey());
-    if (value.isValid())
-        sshSettings->connectionSharingTimeOutInMinutes = value.toInt();
-    sshSettings->sshFilePath = FilePath::fromString(settings->value(sshFilePathKey()).toString());
-    sshSettings->sftpFilePath = FilePath::fromString(settings->value(sftpFilePathKey()).toString());
-    sshSettings->askpassFilePath = FilePath::fromString(
-                settings->value(askPassFilePathKey()).toString());
-    sshSettings->keygenFilePath = FilePath::fromString(
-                settings->value(keygenFilePathKey()).toString());
+    return searchPaths;
 }
 
-void SshSettings::storeSettings(QtcSettings *settings)
-{
-    QReadLocker locker(&sshSettings->lock);
-    AccessSettingsGroup g(settings);
-    settings->setValue(connectionSharingKey(), sshSettings->useConnectionSharing);
-    settings->setValue(connectionSharingTimeoutKey(),
-                       sshSettings->connectionSharingTimeOutInMinutes);
-    settings->setValue(sshFilePathKey(), sshSettings->sshFilePath.toUrlishString());
-    settings->setValue(sftpFilePathKey(), sshSettings->sftpFilePath.toUrlishString());
-    settings->setValue(askPassFilePathKey(), sshSettings->askpassFilePath.toUrlishString());
-    settings->setValue(keygenFilePathKey(), sshSettings->keygenFilePath.toUrlishString());
-}
-
-void SshSettings::setConnectionSharingEnabled(bool share)
-{
-    QWriteLocker locker(&sshSettings->lock);
-    sshSettings->useConnectionSharing = share;
-}
-bool SshSettings::connectionSharingEnabled()
-{
-    QReadLocker locker(&sshSettings->lock);
-    return sshSettings->useConnectionSharing;
-}
-
-void SshSettings::setConnectionSharingTimeout(int timeInMinutes)
-{
-    QWriteLocker locker(&sshSettings->lock);
-    sshSettings->connectionSharingTimeOutInMinutes = timeInMinutes;
-}
-int SshSettings::connectionSharingTimeout()
-{
-    QReadLocker locker(&sshSettings->lock);
-    return sshSettings->connectionSharingTimeOutInMinutes;
-}
-
-// Keep read locker locked while calling this method
 static FilePath filePathValue(const FilePath &value, const QStringList &candidateFileNames)
 {
     if (!value.isEmpty())
         return value;
     Environment env = Environment::systemEnvironment();
-    env.prependToPath(sshSettings->searchPathRetriever());
+    env.prependToPath(extraSearchPaths());
     for (const QString &candidate : candidateFileNames) {
         const FilePath filePath = env.searchInPath(candidate);
         if (!filePath.isEmpty())
@@ -117,68 +59,142 @@ static FilePath filePathValue(const FilePath &value, const QStringList &candidat
     return {};
 }
 
-// Keep read locker locked while calling this method
-static FilePath filePathValue(const FilePath &value, const QString &candidateFileName)
+SshSettings::SshSettings()
 {
-    return filePathValue(value, QStringList(candidateFileName));
+    setSettingsGroup("SshSettings");
+    setAutoApply(false);
+
+    setLayouter([this] {
+        using namespace Layouting;
+        return Form {
+            m_useConnectionSharingAspect, br,
+            m_connectionSharingTimeoutInMinutesAspect, br,
+            m_sshFilePathAspect, br,
+            m_sftpFilePathAspect, br,
+            m_askpassFilePathAspect, br,
+            m_keygenFilePathAspect, br
+        };
+    });
+
+    m_useConnectionSharingAspect.setSettingsKey("UseConnectionSharing");
+    m_useConnectionSharingAspect.setDefaultValue(!HostOsInfo::isWindowsHost());
+    m_useConnectionSharingAspect.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
+    m_useConnectionSharingAspect.setLabelText(Tr::tr("Enable connection sharing:"));
+
+    m_connectionSharingTimeoutInMinutesAspect.setSettingsKey("ConnectionSharingTimeout");
+    m_connectionSharingTimeoutInMinutesAspect.setDefaultValue(10);
+    m_connectionSharingTimeoutInMinutesAspect.setLabelText(Tr::tr("Connection sharing timeout:"));
+    m_connectionSharingTimeoutInMinutesAspect.setRange(1, 1'000'000);
+    m_connectionSharingTimeoutInMinutesAspect.setSuffix(Tr::tr(" minutes"));
+
+    m_sshFilePathAspect.setSettingsKey("SshFilePath");
+    m_sshFilePathAspect.setLabelText(Tr::tr("Path to ssh executable:"));
+
+    m_sftpFilePathAspect.setSettingsKey("SftpFilePath");
+    m_sftpFilePathAspect.setLabelText(Tr::tr("Path to sftp executable:"));
+
+    m_askpassFilePathAspect.setSettingsKey("AskpassFilePath");
+    m_askpassFilePathAspect.setLabelText(Tr::tr("Path to ssh-askpass executable:"));
+
+    m_keygenFilePathAspect.setSettingsKey("KeygenFilePath");
+    m_keygenFilePathAspect.setLabelText(Tr::tr("Path to ssh-keygen executable:"));
+
+    readSettings();
+
+    if (m_sshFilePathAspect().isEmpty())
+        m_sshFilePathAspect.setDefaultPathValue(filePathValue("", {"ssh"}));
+
+    if (m_sftpFilePathAspect().isEmpty())
+        m_sftpFilePathAspect.setDefaultPathValue(filePathValue("", {"sftp"}));
+
+    if (m_keygenFilePathAspect().isEmpty())
+        m_keygenFilePathAspect.setDefaultPathValue(filePathValue("", {"ssh-keygen"}));
+
+    if (m_askpassFilePathAspect().isEmpty()) {
+        const FilePath systemSshAskPass =
+            FilePath::fromString(Environment::systemEnvironment().value("SSH_ASKPASS"));
+        m_askpassFilePathAspect.setDefaultPathValue(
+            filePathValue(systemSshAskPass, QStringList{"qtc-askpass", "ssh-askpass"}));
+    }
+
+    m_connectionSharingTimeoutInMinutesAspect.setEnabler(&m_useConnectionSharingAspect);
 }
 
-void SshSettings::setSshFilePath(const FilePath &ssh)
+FilePath SshSettings::sshFilePath() const
 {
-    QWriteLocker locker(&sshSettings->lock);
-    sshSettings->sshFilePath = ssh;
+    QReadLocker lock(&m_lock);
+    return m_sshFilePathAspect();
 }
 
-FilePath SshSettings::sshFilePath()
+FilePath SshSettings::askpassFilePath() const
 {
-    QReadLocker locker(&sshSettings->lock);
-    return filePathValue(sshSettings->sshFilePath, "ssh");
+    QReadLocker lock(&m_lock);
+    return m_askpassFilePathAspect();
 }
 
-void SshSettings::setSftpFilePath(const FilePath &sftp)
+FilePath SshSettings::keygenFilePath() const
 {
-    QWriteLocker locker(&sshSettings->lock);
-    sshSettings->sftpFilePath = sftp;
+    QReadLocker lock(&m_lock);
+    return m_keygenFilePathAspect();
 }
 
-FilePath SshSettings::sftpFilePath()
+FilePath SshSettings::sftpFilePath() const
 {
-    QReadLocker locker(&sshSettings->lock);
-    return filePathValue(sshSettings->sftpFilePath, "sftp");
+    QReadLocker lock(&m_lock);
+    return m_sftpFilePathAspect();
 }
 
-void SshSettings::setAskpassFilePath(const FilePath &askPass)
+bool SshSettings::useConnectionSharing() const
 {
-    QWriteLocker locker(&sshSettings->lock);
-    sshSettings->askpassFilePath = askPass;
+    QReadLocker lock(&m_lock);
+    return m_useConnectionSharingAspect();
 }
 
-FilePath SshSettings::askpassFilePath()
+int SshSettings::connectionSharingTimeoutInMinutes() const
 {
-    QReadLocker locker(&sshSettings->lock);
-    FilePath candidate;
-    candidate = sshSettings->askpassFilePath;
-    if (candidate.isEmpty())
-        candidate = FilePath::fromString(Environment::systemEnvironment().value("SSH_ASKPASS"));
-    return filePathValue(candidate, QStringList{"qtc-askpass", "ssh-askpass"});
+    QReadLocker lock(&m_lock);
+    return m_connectionSharingTimeoutInMinutesAspect();
 }
 
-void SshSettings::setKeygenFilePath(const FilePath &keygen)
-{
-    QWriteLocker locker(&sshSettings->lock);
-    sshSettings->keygenFilePath = keygen;
-}
+// SshSettingsWidget
 
-FilePath SshSettings::keygenFilePath()
+class SshSettingsWidget : public IOptionsPageWidget
 {
-    QReadLocker locker(&sshSettings->lock);
-    return filePathValue(sshSettings->keygenFilePath, "ssh-keygen");
-}
+public:
+    SshSettingsWidget()
+    {
+        QReadLocker locker(&sshSettings().m_lock);
+        sshSettings().layouter()().attachTo(this);
+    }
 
-void SshSettings::setExtraSearchPathRetriever(const SearchPathRetriever &pathRetriever)
+    void apply()
+    {
+        QWriteLocker lock(&sshSettings().m_lock);
+        sshSettings().apply();
+        sshSettings().writeSettings();
+    }
+
+    void cancel()
+    {
+        QWriteLocker lock(&sshSettings().m_lock);
+        sshSettings().cancel();
+    }
+};
+
+// SshSettingsPage
+
+class SshSettingsPage final : public Core::IOptionsPage
 {
-    QWriteLocker locker(&sshSettings->lock);
-    sshSettings->searchPathRetriever = pathRetriever;
-}
+public:
+    SshSettingsPage()
+    {
+        setId(Constants::SSH_SETTINGS_PAGE_ID);
+        setDisplayName(Tr::tr("SSH"));
+        setCategory(Constants::DEVICE_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new SshSettingsWidget; });
+    }
+};
+
+static SshSettingsPage theSshSettingsPage;
 
 } // namespace ProjectExplorer

@@ -76,10 +76,10 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const DeviceConstRef &devic
     const QString hostKeyCheckingString = params.hostKeyCheckingMode() == SshHostKeyCheckingStrict
             ? QLatin1String("yes") : QLatin1String("no");
     const bool isWindows = HostOsInfo::isWindowsHost()
-            && SshSettings::sshFilePath().toUrlishString().toLower().contains("/system32/");
+            && sshSettings().sshFilePath().path().toLower().contains("/system32/");
     const bool useTimeout = (params.timeout() != 0) && !isWindows;
 
-    CommandLine cmd{SshSettings::sshFilePath()};
+    CommandLine cmd{sshSettings().sshFilePath()};
     QStringList args{"-q",
                      "-o", "StrictHostKeyChecking=" + hostKeyCheckingString,
                      "-o", "Port=" + QString::number(params.port())};

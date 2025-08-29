@@ -5,40 +5,36 @@
 
 #include "../projectexplorer_export.h"
 
-#include <utils/filepath.h>
+#include <utils/aspects.h>
 
-#include <functional>
-
-namespace Utils { class QtcSettings; }
+#include <QReadLocker>
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT SshSettings
+class PROJECTEXPLORER_EXPORT SshSettings : public Utils::AspectContainer
 {
 public:
-    static void loadSettings(Utils::QtcSettings *settings);
-    static void storeSettings(Utils::QtcSettings *settings);
+    SshSettings();
 
-    static void setConnectionSharingEnabled(bool share);
-    static bool connectionSharingEnabled();
+    Utils::FilePath sshFilePath() const;
+    Utils::FilePath sftpFilePath() const;
+    Utils::FilePath keygenFilePath() const;
+    Utils::FilePath askpassFilePath() const;
+    bool useConnectionSharing() const;
+    int connectionSharingTimeoutInMinutes() const;
 
-    static void setConnectionSharingTimeout(int timeInMinutes);
-    static int connectionSharingTimeout();
+private:
+    Utils::FilePathAspect m_sshFilePathAspect{this};
+    Utils::FilePathAspect m_sftpFilePathAspect{this};
+    Utils::FilePathAspect m_keygenFilePathAspect{this};
+    Utils::FilePathAspect m_askpassFilePathAspect{this};
+    Utils::BoolAspect m_useConnectionSharingAspect{this};
+    Utils::IntegerAspect m_connectionSharingTimeoutInMinutesAspect{this};
 
-    static void setSshFilePath(const Utils::FilePath &ssh);
-    static Utils::FilePath sshFilePath();
-
-    static void setSftpFilePath(const Utils::FilePath &sftp);
-    static Utils::FilePath sftpFilePath();
-
-    static void setAskpassFilePath(const Utils::FilePath &askPass);
-    static Utils::FilePath askpassFilePath();
-
-    static void setKeygenFilePath(const Utils::FilePath &keygen);
-    static Utils::FilePath keygenFilePath();
-
-    using SearchPathRetriever = std::function<Utils::FilePaths()>;
-    static void setExtraSearchPathRetriever(const SearchPathRetriever &pathRetriever);
+    friend class SshSettingsWidget;
+    mutable QReadWriteLock m_lock;
 };
+
+PROJECTEXPLORER_EXPORT SshSettings &sshSettings();
 
 } // namespace ProjectExplorer

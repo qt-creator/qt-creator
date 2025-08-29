@@ -103,7 +103,7 @@ protected:
 
     QStringList fullConnectionOptions() const
     {
-        QStringList options = m_sshParameters.connectionOptions(SshSettings::sshFilePath());
+        QStringList options = m_sshParameters.connectionOptions(sshSettings().sshFilePath());
         if (!m_socketFilePath.isEmpty())
             options << "-o" << ("ControlPath=" + m_socketFilePath);
         return options;
@@ -123,7 +123,7 @@ private:
         m_sshParameters = displayless(m_device.sshParameters());
         const Id linkDeviceId = m_device.linkDeviceId();
         const auto linkDevice = DeviceManager::find(linkDeviceId);
-        const bool useConnectionSharing = !linkDevice && SshSettings::connectionSharingEnabled();
+        const bool useConnectionSharing = !linkDevice && sshSettings().useConnectionSharing();
 
         if (useConnectionSharing) {
             m_connecting = true;
@@ -183,7 +183,7 @@ public:
 private:
     void startImpl() final
     {
-        FilePath sftpBinary = SshSettings::sftpFilePath();
+        FilePath sftpBinary = sshSettings().sftpFilePath();
 
         // This is a hack. We only test the last hop here.
         const Id linkDeviceId = device().linkDeviceId();
@@ -284,7 +284,7 @@ private:
                 return sshDeviceTool;
         }
         if (m_rsync.isLocal())
-            return SshSettings::sshFilePath();
+            return sshSettings().sshFilePath();
         if (device)
             return device->filePath("ssh");
         return "ssh";

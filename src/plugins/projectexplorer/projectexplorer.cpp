@@ -38,8 +38,6 @@
 #include "devicesupport/devicekitaspects.h"
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/devicesettingspage.h"
-#include "devicesupport/sshsettings.h"
-#include "devicesupport/sshsettingspage.h"
 #include "editorconfiguration.h"
 #include "editorsettingspropertiespage.h"
 #include "environmentaspect.h"
@@ -716,7 +714,6 @@ public:
     // Settings pages
     AppOutputSettingsPage m_appOutputSettingsPage;
     DeviceSettingsPage m_deviceSettingsPage;
-    SshSettingsPage m_sshSettingsPage;
     CustomParsersSettingsPage m_customParsersSettingsPage;
 
     DefaultDeployConfigurationFactory m_defaultDeployConfigFactory;
@@ -2189,27 +2186,6 @@ void ProjectExplorerPlugin::extensionsInitialized()
     TaskHub::addCategory({Constants::TASK_CATEGORY_OTHER,
                           Tr::tr("Other"),
                           Tr::tr("Issues not covered by a more specialized category.")});
-
-    SshSettings::loadSettings(ICore::settings());
-    const auto searchPathRetriever = [] {
-        FilePaths searchPaths = {ICore::libexecPath()};
-        if (HostOsInfo::isWindowsHost()) {
-            const QString gitBinary = ICore::settings()->value("Git/BinaryPath", "git")
-                    .toString();
-            const QStringList rawGitSearchPaths = ICore::settings()->value("Git/Path")
-                    .toString().split(':', Qt::SkipEmptyParts);
-            const FilePaths gitSearchPaths = Utils::transform(rawGitSearchPaths,
-                    [](const QString &rawPath) { return FilePath::fromUserInput(rawPath); });
-            const FilePath fullGitPath = Environment::systemEnvironment()
-                    .searchInPath(gitBinary, gitSearchPaths);
-            if (!fullGitPath.isEmpty()) {
-                searchPaths << fullGitPath.parentDir()
-                            << fullGitPath.parentDir().parentDir().pathAppended("usr/bin");
-            }
-        }
-        return searchPaths;
-    };
-    SshSettings::setExtraSearchPathRetriever(searchPathRetriever);
 
     const auto parseIssuesAction = new QAction(Tr::tr("Parse Build Output..."), this);
     ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
