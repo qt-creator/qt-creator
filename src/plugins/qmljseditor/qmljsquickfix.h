@@ -39,9 +39,9 @@ public:
 protected:
     using Range = Utils::ChangeSet::Range;
 
-    virtual void performChanges(QmlJSTools::QmlJSRefactoringFilePtr currentFile,
-                                const QmlJSTools::QmlJSRefactoringChanges &refactoring,
-                                const QString &imports = QString())
+    virtual QString performChanges(QmlJSTools::QmlJSRefactoringFilePtr currentFile,
+                                   const QmlJSTools::QmlJSRefactoringChanges &refactoring,
+                                   const QString &imports = QString())
         = 0;
 
     const QmlJSTools::SemanticInfo &semanticInfo() const;

@@ -867,8 +867,11 @@ void moveToComponent(const SelectionContext &selectionContext)
     if (selectionContext.singleNodeIsSelected())
         modelNode = selectionContext.selectedModelNodes().constFirst();
 
-    if (modelNode.isValid())
-        selectionContext.view()->model()->rewriterView()->moveToComponent(modelNode);
+    if (modelNode.isValid()) {
+        QHash<ModelNode, QSet<ModelNode>> matAndTexNodes = Utils3D::allBoundMaterialsAndTextures(modelNode);
+        QString newFilePath = selectionContext.view()->model()->rewriterView()->moveToComponent(modelNode);
+        Utils3D::createMatLibForFile(newFilePath, matAndTexNodes, selectionContext.view());
+    }
 }
 
 void extractComponent(const SelectionContext &selectionContext)

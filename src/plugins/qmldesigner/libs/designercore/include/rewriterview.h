@@ -144,7 +144,7 @@ public:
 
     QSet<QPair<QString, QString> > qrcMapping() const;
 
-    void moveToComponent(const ModelNode &modelNode);
+    QString moveToComponent(const ModelNode &modelNode);
 
     QStringList autoComplete(const QString &text, int pos, bool explicitComplete = true);
 

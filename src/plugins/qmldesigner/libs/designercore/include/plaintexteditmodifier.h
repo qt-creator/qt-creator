@@ -49,8 +49,8 @@ public:
     QStringList autoComplete(QTextDocument * /*textDocument*/, int /*position*/,  bool /*explicitComplete*/) override
     { return {}; }
 
-    bool moveToComponent(int /* nodeOffset */, const QString & /* importData */) override
-    { return false; }
+    QString moveToComponent(int /* nodeOffset */, const QString & /* importData */) override
+    { return {}; }
 
 private:
     void textEditChanged();

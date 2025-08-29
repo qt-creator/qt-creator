@@ -85,7 +85,7 @@ static QmlJS::AST::UiObjectDefinition *getObjectDefinition(const QList<QmlJS::AS
     return object;
 }
 
-bool BaseTextEditModifier::moveToComponent(int nodeOffset, const QString &importData)
+QString BaseTextEditModifier::moveToComponent(int nodeOffset, const QString &importData)
 {
     if (m_textEdit) {
         if (auto document = qobject_cast<QmlJSEditor::QmlJSEditorDocument *>(
@@ -95,17 +95,16 @@ bool BaseTextEditModifier::moveToComponent(int nodeOffset, const QString &import
             QmlJS::AST::UiObjectDefinition *object = getObjectDefinition(path, qualifiedId);
 
             if (!object)
-                return false;
+                return {};
 
-            QmlJSEditor::performComponentFromObjectDef(qobject_cast<QmlJSEditor::QmlJSEditorWidget *>(
-                                                           m_textEdit),
-                                                       document->filePath().toUrlishString(),
-                                                       object,
-                                                       importData);
-            return true;
+            return QmlJSEditor::performComponentFromObjectDef(
+                qobject_cast<QmlJSEditor::QmlJSEditorWidget *>(m_textEdit),
+                document->filePath().toUrlishString(),
+                object,
+                importData);
         }
     }
-    return false;
+    return {};
 }
 
 QStringList BaseTextEditModifier::autoComplete(QTextDocument *textDocument, int position, bool explicitComplete)

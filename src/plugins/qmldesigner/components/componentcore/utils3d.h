@@ -21,6 +21,12 @@ void ensureMaterialLibraryNode(AbstractView *view);
 bool isPartOfMaterialLibrary(const ModelNode &node);
 ModelNode getTextureDefaultInstance(const QString &source, AbstractView *view);
 
+// key: bound mat/tex, value: nodes referenced by the bound mat/tex
+QHash<ModelNode, QSet<ModelNode>> allBoundMaterialsAndTextures(const ModelNode &node);
+void createMatLibForFile(const QString &fileName,
+                         const QHash<ModelNode, QSet<ModelNode>> &matAndTexNodes,
+                         AbstractView *view);
+
 ModelNode activeView3dNode(AbstractView *view);
 QString activeView3dId(AbstractView *view);
 

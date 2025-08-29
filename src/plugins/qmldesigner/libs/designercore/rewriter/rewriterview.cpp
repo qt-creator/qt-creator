@@ -1071,10 +1071,10 @@ QStringList generateImports(const ModelNodes &nodes, const ModulesStorage &modul
 #endif
 } // namespace
 
-void RewriterView::moveToComponent(const ModelNode &modelNode)
+QString RewriterView::moveToComponent(const ModelNode &modelNode)
 {
     if (!modelNode.isValid())
-        return;
+        return {};
 
     int offset = nodeOffset(modelNode);
 
@@ -1102,7 +1102,7 @@ void RewriterView::moveToComponent(const ModelNode &modelNode)
     if (importData.size())
         importData.append(QString(2, QChar::LineFeed));
 
-    textModifier()->moveToComponent(offset, importData);
+    return textModifier()->moveToComponent(offset, importData);
 }
 
 QStringList RewriterView::autoComplete(const QString &text, int pos, bool explicitComplete)
