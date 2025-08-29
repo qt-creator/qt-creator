@@ -18,7 +18,7 @@ MouseArea {
     property string text
 
     Timer {
-        interval: 1000
+        interval: 200
         running: root.containsMouse && root.text.length
         onTriggered: toolTip.showText(root, Qt.point(root.mouseX, root.mouseY), root.text)
     }
