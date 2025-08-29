@@ -179,12 +179,10 @@ static QStringList unreferencedBuildSystemFiles(const QJsonObject &project)
     return unreferenced;
 }
 
-QbsProjectNode *buildQbsProjectTree(const QString &projectName,
-                                    const FilePath &projectFile,
-                                    const FilePath &projectDir,
-                                    const QJsonObject &projectData)
+BuildTreeResult buildQbsProjectTree(const QString &projectName, const FilePath &projectFile,
+                                    const FilePath &projectDir, const QJsonObject &projectData)
 {
-    auto root = std::make_unique<QbsProjectNode>(projectData);
+    BuildTreeResult root = std::make_unique<QbsProjectNode>(projectData);
 
     // If we have no project information at all (i.e. it could not be properly parsed),
     // create the main project file node "manually".
@@ -216,7 +214,7 @@ QbsProjectNode *buildQbsProjectTree(const QString &projectName,
     buildSystemFiles->compress();
     root->addNode(std::move(buildSystemFiles));
     ProjectTree::applyTreeManager(root.get(), ProjectTree::AsyncPhase); // QRC nodes
-    return root.release();
+    return root;
 }
 
 } // namespace QbsProjectManager::Internal

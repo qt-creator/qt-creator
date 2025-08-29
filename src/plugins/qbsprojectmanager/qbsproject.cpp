@@ -547,29 +547,25 @@ void QbsBuildSystem::updateAfterParse()
 
 void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuation)
 {
-    m_treeCreationWatcher = new TreeCreationWatcher(this);
-    connect(m_treeCreationWatcher, &TreeCreationWatcher::finished, this,
-            [this, watcher = m_treeCreationWatcher, continuation] {
-        std::unique_ptr<QbsProjectNode> rootNode(watcher->result());
-        if (watcher != m_treeCreationWatcher) {
-            watcher->deleteLater();
-            return;
-        }
+    const auto onSetup = [this](Async<BuildTreeResult> &task) {
+        task.setThreadPool(ProjectExplorerPlugin::sharedThreadPool());
+        task.setPriority(QThread::LowPriority);
+        task.setConcurrentCallData(&buildQbsProjectTree, project()->displayName(),
+                                   project()->projectFilePath(), project()->projectDirectory(),
+                                   projectData());
+    };
+    const auto onDone = [this, continuation](const Async<BuildTreeResult> &task) {
         OpTimer("updateProjectNodes continuation");
-        m_treeCreationWatcher->deleteLater();
-        m_treeCreationWatcher = nullptr;
-        if (project()->activeBuildSystem() != this) {
+        if (project()->activeBuildSystem() != this)
             return;
-        }
+
+        BuildTreeResult rootNode(task.takeResult());
         project()->setDisplayName(rootNode->displayName());
         setRootProjectNode(std::move(rootNode));
         if (continuation)
             continuation();
-    });
-    m_treeCreationWatcher->setFuture(Utils::asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
-            QThread::LowPriority, &buildQbsProjectTree,
-            project()->displayName(), project()->projectFilePath(), project()->projectDirectory(),
-            projectData()));
+    };
+    m_taskTreeRunner.start({AsyncTask<BuildTreeResult>(onSetup, onDone)});
 }
 
 QbsBuildConfiguration *QbsBuildSystem::qbsBuildConfig() const
@@ -701,7 +697,7 @@ void QbsBuildSystem::startParsing(const QVariantMap &extraConfig)
 
     QTC_ASSERT(!m_qbsProjectParser, return);
     m_qbsProjectParser = new QbsProjectParser(this);
-    m_treeCreationWatcher = nullptr;
+    m_taskTreeRunner.reset();
     connect(m_qbsProjectParser, &QbsProjectParser::done,
             this, &QbsBuildSystem::handleQbsParsingDone);
 

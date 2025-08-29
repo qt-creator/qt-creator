@@ -12,10 +12,11 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/task.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/environment.h>
 #include <utils/id.h>
 
-#include <QFutureWatcher>
 #include <QHash>
 #include <QJsonObject>
 
@@ -146,8 +147,7 @@ private:
     QJsonObject m_projectData; // TODO: Perhaps store this in the root project node instead?
 
     QbsProjectParser *m_qbsProjectParser = nullptr;
-    using TreeCreationWatcher = QFutureWatcher<QbsProjectNode *>;
-    TreeCreationWatcher *m_treeCreationWatcher = nullptr;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
     Utils::Environment m_lastParseEnv;
     std::unique_ptr<QbsRequest> m_parseRequest;
 

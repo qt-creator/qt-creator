@@ -5,6 +5,8 @@
 
 #include <QtGlobal>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QJsonObject;
 class QString;
@@ -16,7 +18,9 @@ namespace QbsProjectManager::Internal {
 
 class QbsProjectNode;
 
-QbsProjectNode *buildQbsProjectTree(const QString &projectName,
+using BuildTreeResult = std::unique_ptr<QbsProjectNode>;
+
+BuildTreeResult buildQbsProjectTree(const QString &projectName,
                                     const Utils::FilePath &projectFile,
                                     const Utils::FilePath &projectDir,
                                     const QJsonObject &projectData);
