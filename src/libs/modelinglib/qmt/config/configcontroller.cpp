@@ -65,7 +65,7 @@ void ConfigController::readStereotypeDefinitions(const FilePath &path)
     for (const FilePath &filePath : std::as_const(paths)) {
         auto data = filePath.fileContents();
         if (data.has_value()) {
-            QString text = QString::fromUtf8(data.value());
+            QString text = QString::fromUtf8(*data);
             StringTextSource source;
             source.setSourceId(1);
             source.setText(text);

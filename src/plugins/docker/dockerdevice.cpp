@@ -1212,7 +1212,7 @@ Result<QPair<Utils::OsType, Utils::OsArch>> DockerDevicePrivate::osTypeAndArch()
     if (!arch)
         return make_unexpected(arch.error());
 
-    return qMakePair(os.value(), arch.value());
+    return qMakePair(*os, *arch);
 }
 
 void DockerDevicePrivate::shutdown()

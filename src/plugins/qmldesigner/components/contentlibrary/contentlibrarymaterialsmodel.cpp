@@ -237,7 +237,7 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(bool forceReload)
         return;
     }
 
-    QJsonDocument bundleJsonDoc = QJsonDocument::fromJson(jsonContents.value());
+    QJsonDocument bundleJsonDoc = QJsonDocument::fromJson(*jsonContents);
     if (bundleJsonDoc.isNull()) {
         qWarning() << __FUNCTION__ << "Invalid json file" << jsonFilePath;
         resetModel();

@@ -498,7 +498,7 @@ QSet<AssetPath> BundleHelper::getBundleComponentDependencies(const ModelNode &no
         return {};
     }
 
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(assetRefContents.value());
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(*assetRefContents);
     if (jsonDoc.isNull()) {
         qWarning() << __FUNCTION__ << "Invalid json file" << assetRefPath;
         return {};

@@ -130,7 +130,7 @@ static std::unique_ptr<TemporaryFilePath> ensureDir(const FilePath &path, const 
     Result<std::unique_ptr<TemporaryFilePath>> tempDir
         = TemporaryFilePath::create(path.pathAppended(pattern), true);
     QTC_ASSERT_RESULT(tempDir, return nullptr);
-    return std::move(tempDir.value());
+    return std::move(*tempDir);
 }
 
 // CMakeProjectImporter

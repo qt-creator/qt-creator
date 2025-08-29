@@ -1078,12 +1078,12 @@ void AndroidBuildApkStep::updateBuildToolsVersionInJsonFile()
         return;
 
     static const QRegularExpression regex(R"("sdkBuildToolsRevision":."[0-9.]+")");
-    QRegularExpressionMatch match = regex.match(QString::fromUtf8(contents.value()));
+    QRegularExpressionMatch match = regex.match(QString::fromUtf8(*contents));
     const QString version = buildToolsVersion().toString();
     if (match.hasMatch() && !version.isEmpty()) {
         const auto newStr = QLatin1String("\"sdkBuildToolsRevision\": \"%1\"").arg(version).toUtf8();
         contents->replace(match.captured(0).toUtf8(), newStr);
-        m_inputFile.writeFileContents(contents.value());
+        m_inputFile.writeFileContents(*contents);
     }
 }
 

@@ -51,7 +51,7 @@ bool QmlProjectItem::initProjectObject()
         return false;
     }
 
-    QString fileContent{QString::fromUtf8(contents.value())};
+    QString fileContent{QString::fromUtf8(*contents)};
     QJsonObject rootObj;
     QJsonParseError parseError;
 

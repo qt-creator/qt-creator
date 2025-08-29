@@ -81,7 +81,7 @@ Result<> FieldPageFactory::validateData(Id typeId, const QVariant &data)
         Result<JsonFieldPage::Field *> res = JsonFieldPage::Field::parse(v);
         if (!res)
             return ResultError(res.error());
-        delete res.value();
+        delete *res;
     }
 
     return ResultOk;

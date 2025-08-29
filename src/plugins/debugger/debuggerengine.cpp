@@ -3258,7 +3258,7 @@ Result<FilePath> CppDebuggerEngine::copyDebuggerHelpers()
     if (!copyResult)
         return ResultError(copyResult.error());
 
-    m_remoteDebuggerHelperDir = std::move(remoteDir.value());
+    m_remoteDebuggerHelperDir = std::move(*remoteDir);
 
     return m_remoteDebuggerHelperDir->filePath();
 }

@@ -58,7 +58,7 @@ void UserItemCategory::loadBundle(bool force)
         return;
     }
 
-    QJsonDocument bundleJsonDoc = QJsonDocument::fromJson(jsonContents.value());
+    QJsonDocument bundleJsonDoc = QJsonDocument::fromJson(*jsonContents);
     if (bundleJsonDoc.isNull()) {
         qWarning() << __FUNCTION__ << "Invalid json file" << jsonFilePath;
         setIsEmpty(true);

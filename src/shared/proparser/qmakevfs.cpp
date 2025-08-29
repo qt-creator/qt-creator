@@ -198,13 +198,13 @@ QMakeVfs::ReadResult QMakeVfs::readFile(int id, QString *contents, QString *errS
             return ReadOtherError;
         }
 
-        if (readResult.value().startsWith("\xef\xbb\xbf")) {
-        // UTF-8 BOM will cause subtle errors
-        *errStr = fL1S("Unexpected UTF-8 BOM");
-        return ReadOtherError;
-    }
-    *contents = QString::fromLocal8Bit(readResult.value());
-    return ReadOk;
+        if (readResult->startsWith("\xef\xbb\xbf")) {
+            // UTF-8 BOM will cause subtle errors
+            *errStr = fL1S("Unexpected UTF-8 BOM");
+            return ReadOtherError;
+        }
+        *contents = QString::fromLocal8Bit(*readResult);
+        return ReadOk;
 }
 
 bool QMakeVfs::exists(const QString &device, const QString &fn, VfsFlags flags)

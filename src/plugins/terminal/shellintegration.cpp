@@ -181,7 +181,7 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
     if (!tempDir)
         return;
 
-    m_tempDir = std::move(tempDir.value());
+    m_tempDir = std::move(*tempDir);
 
     if (cmd.executable().baseName() == "bash") {
         const FilePath rcPath = filesToCopy.bash.rcFile;

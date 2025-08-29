@@ -115,7 +115,7 @@ static void parseDirectory(const FilePath &directory,
                 .arg(filePath.toUserOutput(), res.error());
             continue;
         }
-        ExternalTool *tool = res.value();
+        ExternalTool *tool = *res;
         if (tools->contains(tool->id())) {
             if (isPreset) {
                 // preset that was changed

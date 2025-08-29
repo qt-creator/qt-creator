@@ -132,7 +132,7 @@ std::optional<McuModuleProjectItem> McuModuleProjectItem::fromQmldirModule(const
     }
 
     // find module name
-    QByteArray fileContents = qmldirContents.value();
+    QByteArray fileContents = *qmldirContents;
     QTextStream ts(fileContents);
     QString moduleName;
 

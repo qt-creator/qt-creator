@@ -108,7 +108,7 @@ void ContentLibraryUserModel::loadCustomCategories(const Utils::FilePath &userBu
     Utils::Result<QByteArray> jsonContents = jsonFilePath.fileContents();
     QTC_ASSERT_RESULT(jsonContents, return);
 
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonContents.value());
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(*jsonContents);
     QTC_ASSERT(!jsonDoc.isNull(), return);
 
     m_customCatsRootObj = jsonDoc.object();

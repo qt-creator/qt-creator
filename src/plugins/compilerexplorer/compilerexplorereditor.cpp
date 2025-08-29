@@ -396,7 +396,7 @@ Result<> JsonSettingsDocument::open(const FilePath &filePath,
 
     setFilePath(filePath);
 
-    m_ceSettings.fromMap(result.value());
+    m_ceSettings.fromMap(*result);
     emit settingsChanged();
     return ResultOk;
 }
@@ -443,7 +443,7 @@ Result<> JsonSettingsDocument::setContents(const QByteArray &contents)
     Result<Store> result = storeFromJson(contents);
     QTC_ASSERT_RESULT(result, return ResultError(result.error()));
 
-    m_ceSettings.fromMap(result.value());
+    m_ceSettings.fromMap(*result);
 
     emit settingsChanged();
     emit changed();

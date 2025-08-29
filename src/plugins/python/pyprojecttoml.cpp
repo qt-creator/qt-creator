@@ -175,11 +175,11 @@ PyProjectTomlParseResult parsePyProjectToml(const FilePath &pyProjectTomlPath)
         return result;
     }
 
-    auto projectName = getNodeByKey<std::string>("table", "project", projectTable.value(), "name");
+    auto projectName = getNodeByKey<std::string>("table", "project", *projectTable, "name");
     if (!projectName) {
         result.errors << projectName.error();
     } else {
-        result.projectName = QString::fromUtf8(projectName.value());
+        result.projectName = QString::fromUtf8(*projectName);
     }
 
     auto toolTable = getNodeByKey<toml::ordered_value>("table", "root", rootTable, "tool");
@@ -189,20 +189,20 @@ PyProjectTomlParseResult parsePyProjectToml(const FilePath &pyProjectTomlPath)
     }
 
     auto pysideTable
-        = getNodeByKey<toml::ordered_value>("table", "tool", toolTable.value(), "pyside6-project");
+        = getNodeByKey<toml::ordered_value>("table", "tool", *toolTable, "pyside6-project");
     if (!pysideTable) {
         result.errors << pysideTable.error();
         return result;
     }
 
     auto files
-        = getNodeByKey<toml::ordered_array>("array", "pyside6-project", pysideTable.value(), "files");
+        = getNodeByKey<toml::ordered_array>("array", "pyside6-project", *pysideTable, "files");
     if (!files) {
         result.errors << files.error();
         return result;
     }
 
-    const auto &filesArray = files.value();
+    const auto &filesArray = *files;
     result.projectFiles.reserve(filesArray.size());
 
     for (const auto &fileNode : filesArray) {
@@ -211,11 +211,11 @@ PyProjectTomlParseResult parsePyProjectToml(const FilePath &pyProjectTomlPath)
             result.errors << possibleFile.error();
             continue;
         }
-        auto file = QString::fromUtf8(possibleFile.value());
+        auto file = QString::fromUtf8(*possibleFile);
         auto filePath = pyProjectTomlPath.parentDir().pathAppended(file);
         if (!filePath.exists()) {
             auto line = static_cast<int>(fileNode.location().first_line_number());
-            result.errors << PyProjectTomlError::FileNotFoundError(possibleFile.value(), line);
+            result.errors << PyProjectTomlError::FileNotFoundError(*possibleFile, line);
             continue;
         }
         result.projectFiles.append(file);

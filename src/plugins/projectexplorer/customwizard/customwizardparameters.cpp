@@ -177,7 +177,7 @@ bool CustomWizardValidationRule::validate(QJSEngine &engine, const QMap<QString,
                  qPrintable(cond), qPrintable(res.error()));
         return false;
     }
-    return res.value();
+    return *res;
 }
 
 void CustomWizardParameters::clear()

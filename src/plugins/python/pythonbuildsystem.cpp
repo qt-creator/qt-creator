@@ -247,7 +247,7 @@ bool PythonBuildSystem::save()
             setError(newPyProjectToml.error());
             return false;
         }
-        newContents = newPyProjectToml.value().toUtf8();
+        newContents = newPyProjectToml->toUtf8();
     } else if (filePath.endsWith(".pyproject")) {
         // *.pyproject project file
         Result<QByteArray> contents = filePath.fileContents();

@@ -310,7 +310,7 @@ Result<GeneratedFiles> CustomWizard::generateWizardFiles() const
                                              ctx->replacements);
         if (!res)
             return res;
-        rc.append(res.value());
+        rc.append(*res);
     }
     // Add the template files specified by the <file> elements.
     for (const CustomWizardFile &file : std::as_const(d->m_parameters->files)) {
@@ -318,7 +318,7 @@ Result<GeneratedFiles> CustomWizard::generateWizardFiles() const
                                                      ctx->targetPath, context()->replacements);
         if (!res)
             return ResultError(res.error());
-        rc.append(res.value());
+        rc.append(*res);
     }
 
     return rc;

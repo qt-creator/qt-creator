@@ -160,7 +160,7 @@ void ExternaltoolTest::testReadLocale()
 
     res = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG));
     QVERIFY(res.has_value());
-    tool = res.value();
+    tool = *res;
     QVERIFY(tool != nullptr);
     QCOMPARE(tool->description(), QString::fromLatin1("Hi"));
     QCOMPARE(tool->displayName(), QString::fromLatin1("Hi"));
@@ -169,7 +169,7 @@ void ExternaltoolTest::testReadLocale()
 
     res = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG), QLatin1String("uk"));
     QVERIFY(res.has_value());
-    tool = res.value();
+    tool = *res;
     QVERIFY(tool != nullptr);
     QCOMPARE(tool->description(), QString::fromLatin1("Hi"));
     QCOMPARE(tool->displayName(), QString::fromLatin1("Hi"));
@@ -178,7 +178,7 @@ void ExternaltoolTest::testReadLocale()
 
     res = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG), QLatin1String("de_DE.UTF-8"));
     QVERIFY(res.has_value());
-    tool = res.value();
+    tool = *res;
     QVERIFY(tool != nullptr);
     QCOMPARE(tool->description(), QString::fromLatin1("Hallo"));
     QCOMPARE(tool->displayName(), QString::fromLatin1("Hallo"));
@@ -187,7 +187,7 @@ void ExternaltoolTest::testReadLocale()
 
     res = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG), QLatin1String("de_CH"));
     QVERIFY(res.has_value());
-    tool = res.value();
+    tool = *res;
     QVERIFY(tool != nullptr);
     QCOMPARE(tool->description(), QString::fromLatin1("Grüezi"));
     QCOMPARE(tool->displayName(), QString::fromLatin1("Grüezi"));

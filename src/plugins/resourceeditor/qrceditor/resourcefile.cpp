@@ -108,7 +108,7 @@ Result<> ResourceFile::load()
                 m_error_message = readResult.error();
                 return ResultError(m_error_message);
         }
-        QByteArray data = readResult.value();
+        QByteArray data = *readResult;
         // Detect line ending style
         m_textFileFormat.detectFromData(data);
         // we always write UTF-8 when saving
