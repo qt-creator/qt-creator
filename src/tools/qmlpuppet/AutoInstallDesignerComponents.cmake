@@ -1,5 +1,4 @@
-#env_with_default("QDS_AUTO_INSTALL_QUICK_DESIGNER_COMPONENTS" ENV_QDS_AUTO_INSTALL_QUICK_DESIGNER_COMPONENTS ${BUILD_DESIGNSTUDIO})
-env_with_default("QDS_AUTO_INSTALL_QUICK_DESIGNER_COMPONENTS" ENV_QDS_AUTO_INSTALL_QUICK_DESIGNER_COMPONENTS ON)
+env_with_default("QDS_AUTO_INSTALL_QUICK_DESIGNER_COMPONENTS" ENV_QDS_AUTO_INSTALL_QUICK_DESIGNER_COMPONENTS ${BUILD_DESIGNSTUDIO})
 option(QDS_AUTO_INSTALL_QUICK_DESIGNER_COMPONENTS "Auto-install qtquickdesigner-components into the active Qt" ${ENV_QDS_AUTO_INSTALL_QUICK_DESIGNER_COMPONENTS})
 
 # to avoid long file path which are problematic under windows
@@ -60,8 +59,12 @@ function(auto_install_quick_designer_components)
 
   include(ExternalProject)
   determine_dependency_build_directory(SHORT_BUILD_DIRECTORY)
-  message(STATUS "auto_install_qtquickdesigner_components: using build dir=${SHORT_BUILD_DIRECTORY})")
+  message(STATUS "auto_install_qtquickdesigner_components: using build dir=${SHORT_BUILD_DIRECTORY}")
   if (NOT TARGET a_i_q_c)
+    set(_extra_macos_argument "")
+    if(APPLE AND CMAKE_OSX_ARCHITECTURES)
+      set(_extra_macos_argument "-DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}")
+    endif()
     ExternalProject_Add(a_i_q_c
       GIT_REPOSITORY https://codereview.qt-project.org/qt-labs/qtquickdesigner-components
       GIT_TAG        HEAD
@@ -72,6 +75,7 @@ function(auto_install_quick_designer_components)
         -DCMAKE_PREFIX_PATH=${qtInstallPrefix}
         -DCMAKE_INSTALL_PREFIX=${qtInstallPrefix}
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        ${_extra_macos_argument}
       USES_TERMINAL_DOWNLOAD TRUE
       USES_TERMINAL_CONFIGURE TRUE
       USES_TERMINAL_BUILD TRUE
