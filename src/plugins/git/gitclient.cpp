@@ -55,6 +55,7 @@
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QAction>
+#include <QApplication>
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
@@ -815,6 +816,13 @@ GitClient::GitClient()
             }
         }
     });
+    connect(qApp, &QApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
+        if (!VcsBase::Internal::commonSettings().vcsShowStatus())
+            return;
+
+        if (state == Qt::ApplicationActive)
+            updateModificationInfos();
+    });
 }
 
 GitClient::~GitClient() = default;
@@ -926,6 +934,9 @@ void GitClient::updateModificationInfos()
 void GitClient::updateNextModificationInfo()
 {
     using IVCF = IVersionControl::FileState;
+
+    if (qApp->applicationState() != Qt::ApplicationActive)
+        return;
 
     if (m_statusUpdateQueue.isEmpty()) {
         m_timer->start();
