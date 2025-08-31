@@ -802,7 +802,7 @@ GitClient::GitClient()
     if (VcsBase::Internal::commonSettings().vcsShowStatus())
         setupTimer();
     connect(&VcsBase::Internal::commonSettings().vcsShowStatus, &Utils::BaseAspect::changed,
-            [this] {
+            this, [this] {
         bool enable = VcsBase::Internal::commonSettings().vcsShowStatus();
         QTC_CHECK(enable == bool(!m_timer));
         if (enable) {
