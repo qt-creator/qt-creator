@@ -70,11 +70,11 @@ public:
 
         m_urlEdit = new FancyLineEdit(this);
         m_urlEdit->setHistoryCompleter("Git.RemoteUrls");
-        m_urlEdit->setValidationFunction([](FancyLineEdit &edit) -> Result<> {
-            if (edit.text().isEmpty())
+        m_urlEdit->setValidationFunction([](const QString &text) -> Result<> {
+            if (text.isEmpty())
                 return ResultError(QString());
 
-            const GitRemote r(edit.text());
+            const GitRemote r(text);
             if (!r.isValid)
                 return ResultError(Tr::tr("The URL may not be valid."));
 
