@@ -44,9 +44,9 @@ public:
 
         m_nameEdit = new FancyLineEdit(this);
         m_nameEdit->setHistoryCompleter("Git.RemoteNames");
-        m_nameEdit->setValidationFunction([this](FancyLineEdit &edit) -> Result<> {
-            QString input = edit.text();
-            edit.setText(input.replace(m_invalidRemoteNameChars, "_"));
+        m_nameEdit->setValidationFunction([this](const QString &text) -> Result<> {
+            QString input = text;
+            m_nameEdit->setText(input.replace(m_invalidRemoteNameChars, "_"));
 
             // "Intermediate" patterns, may change to Acceptable when user edits further:
             if (input.endsWith(".lock")) //..may not end with ".lock"
