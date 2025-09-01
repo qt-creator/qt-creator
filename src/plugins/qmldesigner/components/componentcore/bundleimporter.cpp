@@ -211,7 +211,7 @@ void BundleImporter::handleImportTimer()
             if (data.isImport) {
                 Import import = Import::createLibraryImport(data.moduleName);
                 model->changeImports({import}, {});
-                emit importFinished(type, m_bundleId, data.typeAdded);
+                emit importFinished(data.simpleType, m_bundleId, data.typeAdded);
             } else {
                 emit unimportFinished(m_bundleId);
             }
@@ -411,7 +411,7 @@ QString BundleImporter::unimportComponent(const TypeName &type, const QString &q
     QString module = QString::fromLatin1(type.left(type.lastIndexOf('.')));
     m_bundleId = module.mid(module.lastIndexOf('.') + 1);
 
-    emit aboutToUnimport(type, m_bundleId);
+    emit aboutToUnimport(type.split('.').constLast(), m_bundleId);
 
     FilePath bundleImportPath = resolveBundleImportPath(m_bundleId);
     if (bundleImportPath.isEmpty())

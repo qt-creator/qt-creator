@@ -292,7 +292,7 @@ void ContentLibraryView::connectImporter()
                 QTC_ASSERT(matLib.isValid(), return);
 
                 Utils::reverseForeach(matLib.directSubModelNodes(), [&](const ModelNode &mat) {
-                    if (mat && mat.simplifiedTypeName() == type.split('.').constLast())
+                    if (mat && mat.simplifiedTypeName() == type)
                         QmlObjectNode(mat).destroy();
                 });
             });
