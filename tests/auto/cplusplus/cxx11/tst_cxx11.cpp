@@ -14,17 +14,6 @@
 using namespace CPlusPlus;
 using namespace Utils;
 
-#define VERIFY_ERRORS() \
-    do { \
-      QByteArray expectedErrors; \
-      if (!errorFile.isEmpty()) { \
-        QFile e(testdata(errorFile)); \
-        if (e.open(QFile::ReadOnly)) \
-          expectedErrors = QTextStream(&e).readAll().toUtf8(); \
-      } \
-      QCOMPARE(QString::fromLatin1(errors), QString::fromLatin1(expectedErrors)); \
-    } while (0)
-
 inline QString _(const QByteArray &ba) { return QString::fromUtf8(ba, ba.size()); }
 
 class tst_cxx11: public QObject
@@ -164,92 +153,80 @@ void tst_cxx11::parse_data()
 {
     QTest::addColumn<QString>("file");
     QTest::addColumn<int>("cxxVersion");
-    QTest::addColumn<QString>("errorFile");
 
-    QTest::newRow("inlineNamespace.1") << "inlineNamespace.1.cpp" << 2011 << "";
-    QTest::newRow("nestedNamespace.1") << "nestedNamespace.1.cpp" << 2011 << "";
-    QTest::newRow("staticAssert.1") << "staticAssert.1.cpp" << 2011 << "";
-    QTest::newRow("noExcept.1") << "noExcept.1.cpp" << 2011 << "";
-    QTest::newRow("braceInitializers.1") << "braceInitializers.1.cpp" << 2011 << "";
-    QTest::newRow("braceInitializers.2") << "braceInitializers.2.cpp" << 2011 << "";
-    QTest::newRow("braceInitializers.3") << "braceInitializers.3.cpp" << 2011 << "";
-    QTest::newRow("defaultdeleteInitializer.1") << "defaultdeleteInitializer.1.cpp" << 2011 << "";
-    QTest::newRow("refQualifier.1") << "refQualifier.1.cpp" << 2011 << "";
-    QTest::newRow("alignofAlignas.1") << "alignofAlignas.1.cpp" << 2011 << "";
-    QTest::newRow("rangeFor.1") << "rangeFor.1.cpp" << 2011 << "";
-    QTest::newRow("rangeFor.2") << "rangeFor.2.cpp" << 2011 << "";
-    QTest::newRow("rangeFor.3") << "rangeFor.3.cpp" << 2020 << "";
-    QTest::newRow("aliasDecl.1") << "aliasDecl.1.cpp" << 2011 << "";
-    QTest::newRow("enums.1") << "enums.1.cpp" << 2011 << "";
-    QTest::newRow("templateGreaterGreater.1") << "templateGreaterGreater.1.cpp" << 2011 << "";
-    QTest::newRow("packExpansion.1") << "packExpansion.1.cpp" << 2011 << "";
-    QTest::newRow("declType.1") << "declType.1.cpp" << 2011 << "";
-    QTest::newRow("threadLocal.1") << "threadLocal.1.cpp" << 2011 << "";
-    QTest::newRow("trailingtypespec.1") << "trailingtypespec.1.cpp" << 2011 << "";
-    QTest::newRow("lambda.2") << "lambda.2.cpp" << 2011 << "";
-    QTest::newRow("userDefinedLiterals.1") << "userDefinedLiterals.1.cpp" << 2011 << "";
-    QTest::newRow("userDefinedLiterals.2") << "userDefinedLiterals.2.cpp" << 2011 << "";
-    QTest::newRow("rawstringliterals") << "rawstringliterals.cpp" << 2011 << "";
-    QTest::newRow("friends") << "friends.cpp" << 2011 << "";
-    QTest::newRow("attributes") << "attributes.cpp" << 2011 << "";
-    QTest::newRow("foldExpressions") << "foldExpressions.cpp" << 2017 << "";
-    QTest::newRow("explicitObjectParameters") << "explicitObjParam.cpp" << 2023 << "";
-    QTest::newRow("placeholderReturnType") << "placeholderReturnType.cpp" << 2014 << "";
-    QTest::newRow("builtinTypeTraits") << "builtinTypeTraits.cpp" << 2020 << "";
+    QTest::newRow("inlineNamespace.1") << "inlineNamespace.1.cpp" << 2011;
+    QTest::newRow("nestedNamespace.1") << "nestedNamespace.1.cpp" << 2011;
+    QTest::newRow("staticAssert.1") << "staticAssert.1.cpp" << 2011;
+    QTest::newRow("noExcept.1") << "noExcept.1.cpp" << 2011;
+    QTest::newRow("braceInitializers.1") << "braceInitializers.1.cpp" << 2011;
+    QTest::newRow("braceInitializers.2") << "braceInitializers.2.cpp" << 2011;
+    QTest::newRow("braceInitializers.3") << "braceInitializers.3.cpp" << 2011;
+    QTest::newRow("defaultdeleteInitializer.1") << "defaultdeleteInitializer.1.cpp" << 2011;
+    QTest::newRow("refQualifier.1") << "refQualifier.1.cpp" << 2011;
+    QTest::newRow("alignofAlignas.1") << "alignofAlignas.1.cpp" << 2011;
+    QTest::newRow("rangeFor.1") << "rangeFor.1.cpp" << 2011;
+    QTest::newRow("rangeFor.2") << "rangeFor.2.cpp" << 2011;
+    QTest::newRow("rangeFor.3") << "rangeFor.3.cpp" << 2020;
+    QTest::newRow("aliasDecl.1") << "aliasDecl.1.cpp" << 2011;
+    QTest::newRow("enums.1") << "enums.1.cpp" << 2011;
+    QTest::newRow("templateGreaterGreater.1") << "templateGreaterGreater.1.cpp" << 2011;
+    QTest::newRow("packExpansion.1") << "packExpansion.1.cpp" << 2011;
+    QTest::newRow("declType.1") << "declType.1.cpp" << 2011;
+    QTest::newRow("threadLocal.1") << "threadLocal.1.cpp" << 2011;
+    QTest::newRow("trailingtypespec.1") << "trailingtypespec.1.cpp" << 2011;
+    QTest::newRow("lambda.2") << "lambda.2.cpp" << 2011;
+    QTest::newRow("userDefinedLiterals.1") << "userDefinedLiterals.1.cpp" << 2011;
+    QTest::newRow("userDefinedLiterals.2") << "userDefinedLiterals.2.cpp" << 2011;
+    QTest::newRow("rawstringliterals") << "rawstringliterals.cpp" << 2011;
+    QTest::newRow("friends") << "friends.cpp" << 2011;
+    QTest::newRow("attributes") << "attributes.cpp" << 2011;
+    QTest::newRow("foldExpressions") << "foldExpressions.cpp" << 2017;
+    QTest::newRow("explicitObjectParameters") << "explicitObjParam.cpp" << 2023;
+    QTest::newRow("placeholderReturnType") << "placeholderReturnType.cpp" << 2014;
+    QTest::newRow("builtinTypeTraits") << "builtinTypeTraits.cpp" << 2020;
     QTest::newRow("templateTemplateTypeInDependentName")
-        << "templateTemplateTypeInDependentName.cpp" << 2011 << "";
-    QTest::newRow("constevalIf") << "constevalIf.cpp" << 2023 << "";
-    QTest::newRow("int128") << "int128.cpp" << 2011 << "";
+        << "templateTemplateTypeInDependentName.cpp" << 2011;
+    QTest::newRow("constevalIf") << "constevalIf.cpp" << 2023;
+    QTest::newRow("int128") << "int128.cpp" << 2011;
     QTest::newRow("namedConstantTemplateParameter")
-        << "namedConstantTemplateParam.cpp" << 2020 << "";
-    QTest::newRow("declTypeInBaseClause") << "declTypeInBaseClause.1.cpp" << 2020 << "";
-    QTest::newRow("declTypeInTemplateBaseClause") << "declTypeInBaseClause.2.cpp" << 2020 << "";
-    QTest::newRow("ifWithInit") << "ifWithInit.cpp" << 2020 << "";
-    QTest::newRow("genericLambdas") << "genericLambdas.cpp" << 2020 << "";
-    QTest::newRow("coroutines") << "coroutines.cpp" << 2020 << "";
-    QTest::newRow("requiresClause") << "requiresClause.cpp" << 2020 << "";
-    QTest::newRow("concepts.1") << "concepts.1.cpp" << 2020 << "";
-    QTest::newRow("concepts.2") << "concepts.2.cpp" << 2020 << "";
+        << "namedConstantTemplateParam.cpp" << 2020;
+    QTest::newRow("declTypeInBaseClause") << "declTypeInBaseClause.1.cpp" << 2020;
+    QTest::newRow("declTypeInTemplateBaseClause") << "declTypeInBaseClause.2.cpp" << 2020;
+    QTest::newRow("ifWithInit") << "ifWithInit.cpp" << 2020;
+    QTest::newRow("genericLambdas") << "genericLambdas.cpp" << 2020;
+    QTest::newRow("coroutines") << "coroutines.cpp" << 2020;
+    QTest::newRow("requiresClause") << "requiresClause.cpp" << 2020;
+    QTest::newRow("concepts.1") << "concepts.1.cpp" << 2020;
+    QTest::newRow("concepts.2") << "concepts.2.cpp" << 2020;
 }
 
 void tst_cxx11::parse()
 {
     QFETCH(QString, file);
     QFETCH(int, cxxVersion);
-    QFETCH(QString, errorFile);
 
     QByteArray errors;
     Document::Ptr doc = document(file, cxxVersion, &errors);
     QVERIFY(doc);
-
-    if (! qgetenv("DEBUG").isNull())
-        printf("%s\n", errors.constData());
-
-    VERIFY_ERRORS();
+    QVERIFY2(errors.isEmpty(), errors.constData());
 }
 
 void tst_cxx11::parseWithC99Enabled_data()
 {
     QTest::addColumn<QString>("file");
-    QTest::addColumn<QString>("errorFile");
 
-    QTest::newRow("lambda.1") << "lambda.1.cpp" << "";
+    QTest::newRow("lambda.1") << "lambda.1.cpp";
 }
 
 void tst_cxx11::parseWithC99Enabled()
 {
     QFETCH(QString, file);
-    QFETCH(QString, errorFile);
 
     const bool c99Enabled = true;
     QByteArray errors;
     Document::Ptr doc = document(file, 2011, &errors, c99Enabled);
     QVERIFY(doc);
-
-    if (! qgetenv("DEBUG").isNull())
-        printf("%s\n", errors.constData());
-
-    VERIFY_ERRORS();
+    QVERIFY2(errors.isEmpty(), errors.constData());
 }
 
 //
