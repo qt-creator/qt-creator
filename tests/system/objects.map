@@ -10,6 +10,7 @@
 :*Qt Creator.Start Debugging_Core::Internal::FancyToolButton	{name='Debug.Button' toolTip?='Start debugging*' type='Core::Internal::FancyToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Widget Box_QDockWidget	{name='WidgetBoxDockWidget' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Widget Box'}
 :*Qt Creator.findEdit_Utils::FilterLineEdit	{name='findEdit' type='Utils::FancyLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.qt_tabwidget_stackedwidget_QStackedWidget	{name='qt_tabwidget_stackedwidget' type='QStackedWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Core::Internal::FancyToolButton	{name='KitSelector.Button' type='Core::Internal::FancyToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Utils::FilterLineEdit	{type='Utils::FancyLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Utils::IconButton	{toolTip='Clear text' type='Utils::FancyIconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -63,7 +64,7 @@
 :Dialog_Debugger::Internal::SymbolPathsDialog	{name='Debugger__Internal__SymbolPathsDialog' type='Debugger::Internal::SymbolPathsDialog' visible='1' windowTitle='Dialog'}
 :Dialog_QmlJSEditor::Internal::ComponentNameDialog	{type='QmlJSEditor::Internal::ComponentNameDialog' unnamed='1' visible='1' windowTitle='Move Component into Separate File'}
 :EnableQMLDebugger_ComboBox	{buddy=':EnableQMLDebugger_Label' type='QComboBox' unnamed='1' visible='1'}
-:EnableQMLDebugger_Label	{text='QML debugger:' type='QLabel' window=':Qt Creator_Core::Internal::MainWindow'}
+:EnableQMLDebugger_Label	{container=':qt_tabwidget_stackedwidget.Run Settings_QScrollArea' text='QML debugger:' type='QLabel' unnamed='1' visible='1'}
 :Events.QmlProfilerEventsTable_QmlProfiler::Internal::QmlProfilerStatisticsMainView	{container=':Qt Creator.Events_QDockWidget' name='QmlProfilerEventsTable' type='QmlProfiler::Internal::QmlProfilerStatisticsMainView' visible='1'}
 :Failed to start application_QMessageBox	{type='QMessageBox' unnamed='1' visible='1' windowTitle='Failed to start application'}
 :File has been removed.Close_QPushButton	{text='Close' type='QPushButton' unnamed='1' visible='1' window=':File has been removed_QMessageBox'}
@@ -209,6 +210,7 @@
 :projectComboBox_QComboBox	{name='projectComboBox' type='QComboBox' visible='1'}
 :qdesigner_internal::WidgetBoxCategoryListView	{container=':Widget Box_qdesigner_internal::WidgetBoxTreeWidget' occurrence='3' type='qdesigner_internal::WidgetBoxCategoryListView' unnamed='1' visible='1'}
 :qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QScrollArea' unnamed='1' visible='1'}
+:qt_tabwidget_stackedwidget.Run Settings_QScrollArea	{container=':*Qt Creator.qt_tabwidget_stackedwidget_QStackedWidget' type='QScrollArea' unnamed='1' visible='1' windowTitle='Run Settings'}
 :qt_tabwidget_stackedwidget_QScrollArea	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QScrollArea' unnamed='1' visible='1'}
 :qt_tabwidget_stackedwidget_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QWidget' unnamed='1' visible='1'}
 :qtdirList_QTreeView	{container=':qt_tabwidget_stackedwidget_QScrollArea' name='qtDirList' type='QTreeView' visible='1'}
