@@ -1092,7 +1092,7 @@ void MiniProjectTargetSelector::removedDeployConfiguration(DeployConfiguration *
 
 void MiniProjectTargetSelector::addedRunConfiguration(RunConfiguration *rc, bool update)
 {
-    if (!m_project || rc->target() != m_project->activeTarget())
+    if (!m_project || rc->buildConfiguration() != m_project->activeBuildConfiguration())
         return;
 
     m_listWidgets[RUN]->addProjectConfiguration(rc);
@@ -1102,7 +1102,7 @@ void MiniProjectTargetSelector::addedRunConfiguration(RunConfiguration *rc, bool
 
 void MiniProjectTargetSelector::removedRunConfiguration(RunConfiguration *rc, bool update)
 {
-    if (!m_project || rc->target() != m_project->activeTarget())
+    if (!m_project || rc->buildConfiguration() != m_project->activeBuildConfiguration())
         return;
 
     m_listWidgets[RUN]->removeProjectConfiguration(rc);
