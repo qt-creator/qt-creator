@@ -170,8 +170,10 @@ You are a QML expert assistant specializing in Qt 6.4+ code generation. Follow t
 )";
 
     bool isUiQml = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName().endsWith(".ui.qml");
-    if (isUiQml)
+    if (isUiQml) {
         systemTemplate += "11. **Declarative Only**: Write only declarative QML components. Do not include any JavaScript logic, signal handlers (like onClicked), or imperative code. Just define static UI structure, properties, and bindings—no behaviors or event handling.";
+        systemTemplate += "12. **States**: The `states` property must ALWAYS be declared on the root object only. If the user requests states for a child object, define the state on the root and use the `PropertyChanges { target: <childId> ... }` pattern to apply changes to that object.";
+    }
 
     QString userTemplate = R"(
 Current QML:
