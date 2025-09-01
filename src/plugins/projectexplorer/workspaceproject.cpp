@@ -647,11 +647,15 @@ public:
         if (const RestoreResult res = Project::fromMap(map, errorMessage); res != RestoreResult::Ok)
             return res;
 
-        // For projects created with Qt Creator < 17.
-        for (Target * const t : targets()) {
-            if (t->buildConfigurations().isEmpty())
-                t->updateDefaultBuildConfigurations();
-            QTC_CHECK(!t->buildConfigurations().isEmpty());
+        if (!activeTarget()) {
+            addTargetForDefaultKit();
+        } else {
+            // For projects created with Qt Creator < 17.
+            for (Target *const t : targets()) {
+                if (t->buildConfigurations().isEmpty())
+                    t->updateDefaultBuildConfigurations();
+                QTC_CHECK(!t->buildConfigurations().isEmpty());
+            }
         }
         return RestoreResult::Ok;
     }
