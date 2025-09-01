@@ -139,6 +139,8 @@ public:
     QString newKitName(const QList<Kit *> &allKits) const;
     static QString newKitName(const QString &name, const QList<Kit *> &allKits);
 
+    Utils::Store toMap() const;
+
 private:
     static void copyKitCommon(Kit *target, const Kit *source);
 
@@ -146,8 +148,6 @@ private:
     void operator=(const Kit &other) = delete;
 
     void kitUpdated();
-
-    Utils::Store toMap() const;
 
     const std::unique_ptr<Internal::KitPrivate> d;
 
