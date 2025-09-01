@@ -118,25 +118,25 @@ class tst_cxx11: public QObject
         QByteArray *errors = 0,
         bool c99Enabled = false)
     {
-        Document::Ptr doc = Document::create(FilePath::fromString(fileName));
         QFile file(testdata(fileName));
-        if (file.open(QFile::ReadOnly)) {
-            LanguageFeatures features;
-            features.cxxEnabled = true;
-            features.cxx11Enabled = true;
-            if (cxxVersion >= 2014)
-                features.cxx14Enabled = true;
-            if (cxxVersion >= 2017)
-                features.cxx17Enabled = true;
-            if (cxxVersion >= 2020)
-                features.cxx20Enabled = true;
-            if (cxxVersion >= 2023)
-                features.cxx23Enabled = true;
-            features.c99Enabled = c99Enabled;
-            processDocument(doc, QTextStream(&file).readAll().toUtf8(), features, errors);
-        } else {
-            qWarning() << "could not read file" << fileName;
+        if (!file.open(QFile::ReadOnly)) {
+            qDebug() << file.errorString() << fileName;
+            return {};
         }
+        const Document::Ptr doc = Document::create(FilePath::fromString(fileName));
+        LanguageFeatures features;
+        features.cxxEnabled = true;
+        features.cxx11Enabled = true;
+        if (cxxVersion >= 2014)
+            features.cxx14Enabled = true;
+        if (cxxVersion >= 2017)
+            features.cxx17Enabled = true;
+        if (cxxVersion >= 2020)
+            features.cxx20Enabled = true;
+        if (cxxVersion >= 2023)
+            features.cxx23Enabled = true;
+        features.c99Enabled = c99Enabled;
+        processDocument(doc, QTextStream(&file).readAll().toUtf8(), features, errors);
         return doc;
     }
 
@@ -220,6 +220,7 @@ void tst_cxx11::parse()
 
     QByteArray errors;
     Document::Ptr doc = document(file, cxxVersion, &errors);
+    QVERIFY(doc);
 
     if (! qgetenv("DEBUG").isNull())
         printf("%s\n", errors.constData());
@@ -243,6 +244,7 @@ void tst_cxx11::parseWithC99Enabled()
     const bool c99Enabled = true;
     QByteArray errors;
     Document::Ptr doc = document(file, 2011, &errors, c99Enabled);
+    QVERIFY(doc);
 
     if (! qgetenv("DEBUG").isNull())
         printf("%s\n", errors.constData());
@@ -256,6 +258,7 @@ void tst_cxx11::parseWithC99Enabled()
 void tst_cxx11::inlineNamespaceLookup()
 {
     Document::Ptr doc = document("inlineNamespace.1.cpp");
+    QVERIFY(doc);
     Snapshot snapshot;
     snapshot.insert(doc);
 
