@@ -1566,7 +1566,7 @@ FilePathAspect::~FilePathAspect() = default;
 
 FilePath FilePathAspect::operator()() const
 {
-    return FilePath::fromUserInput(TypedAspect::value());
+    return expandedValue();
 }
 
 FilePath FilePathAspect::expandedValue() const
