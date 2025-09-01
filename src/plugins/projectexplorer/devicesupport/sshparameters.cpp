@@ -237,9 +237,9 @@ SshParameters SshParametersAspectContainer::sshParameters() const
     QTC_ASSERT(QThread::currentThread() == thread(), return SshParameters());
 
     SshParameters params;
-    params.setHost(host.expandedValue());
+    params.setHost(host());
     params.setPort(port.value());
-    params.setUserName(userName.expandedValue());
+    params.setUserName(userName());
     params.setPrivateKeyFile(privateKeyFile.expandedValue());
     params.setTimeout(timeout.value());
     params.setAuthenticationType(

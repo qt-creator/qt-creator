@@ -630,8 +630,8 @@ public:
     StringAspect(AspectContainer *container = nullptr);
     ~StringAspect() override;
 
-    QString operator()() const { return expandedValue(); }
-    QString expandedValue() const;
+    QString operator()() const;
+    [[deprecated("Use operator()() instead")]] QString expandedValue() const;
 
     // Hook between UI and StringAspect:
     using ValueAcceptor = std::function<std::optional<QString>(const QString &, const QString &)>;
