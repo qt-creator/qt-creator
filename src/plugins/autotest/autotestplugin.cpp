@@ -318,22 +318,40 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
 
     while (scope && scope->asBlock())
         scope = scope->enclosingScope();
-    if (scope && scope->asFunction()) { // class, namespace for further stuff?
-        const QList<const CPlusPlus::Name *> fullName
-                = CPlusPlus::LookupContext::fullyQualifiedName(scope);
-        const QString funcName = CPlusPlus::Overview().prettyName(fullName);
-        const TestFrameworks active = activeTestFrameworks();
-        for (auto framework : active) {
-            const QStringList testName = framework->testNameForSymbolName(funcName);
-            if (!testName.size())
-                continue;
-            TestTreeItem *it = framework->rootNode()->findTestByNameAndFile(testName, filePath);
-            if (it) {
-                const QList<ITestConfiguration *> testsToRun
-                        = testItemsToTestConfigurations({ it }, mode);
-                if (!testsToRun.isEmpty()) {
-                    m_testRunner.runTests(mode, testsToRun);
-                    return;
+    if (scope) {
+        QList<const CPlusPlus::Name *> fullName;
+        if (scope->asFunction()) {
+            fullName = CPlusPlus::LookupContext::fullyQualifiedName(scope);
+        } else if (scope->asNamespace()) {
+            for (int count = scope->memberCount(), i = 0; i < count; ++i) {
+                CPlusPlus::Symbol *member = scope->memberAt(i);
+                if (member->line() != line)
+                    continue;
+                fullName = CPlusPlus::LookupContext::fullyQualifiedName(member);
+                if (fullName.size()) {
+                    const QString funcName = CPlusPlus::Overview().prettyName(fullName.last());
+                    if (funcName == text)
+                        break;
+                    else
+                        fullName.clear();
+                }
+            }
+        }
+        if (!fullName.isEmpty()) {
+            const QString funcName = CPlusPlus::Overview().prettyName(fullName);
+            const TestFrameworks active = activeTestFrameworks();
+            for (auto framework : active) {
+                const QStringList testName = framework->testNameForSymbolName(funcName);
+                if (!testName.size())
+                    continue;
+                TestTreeItem *it = framework->rootNode()->findTestByNameAndFile(testName, filePath);
+                if (it) {
+                    const QList<ITestConfiguration *> testsToRun
+                            = testItemsToTestConfigurations({ it }, mode);
+                    if (!testsToRun.isEmpty()) {
+                        m_testRunner.runTests(mode, testsToRun);
+                        return;
+                    }
                 }
             }
         }
