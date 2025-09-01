@@ -78,6 +78,17 @@ QString getContent(const QJsonObject &responseObject)
 
 } // namespace
 
+bool AiAssistantWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::EnabledChange) {
+        // Only focus the AI Assitant widget if no other view has taken focus through user interaction
+        if (m_quickWidget->quickWidget()->isEnabled() && !QApplication::focusWidget())
+            m_quickWidget->quickWidget()->setFocus();
+    }
+
+    return QWidget::eventFilter(obj, event);
+}
+
 AiAssistantWidget::AiAssistantWidget()
     : m_manager(std::make_unique<QNetworkAccessManager>())
     , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>())
@@ -94,6 +105,7 @@ AiAssistantWidget::AiAssistantWidget()
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_quickWidget->setMinimumHeight(minimumHeight() - 5);
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+    m_quickWidget->quickWidget()->installEventFilter(this);
 
     auto map = m_quickWidget->registerPropertyMap("AiAssistantBackend");
     map->setProperties({

@@ -45,6 +45,9 @@ public:
 signals:
     void isGeneratingChanged();
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
 private: // functions
     void reloadQmlSource();
     void setIsGenerating(bool val);
