@@ -116,29 +116,32 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     connect(this, &QmlProject::anyParsingFinished, this, &QmlProject::parsingFinished);
 }
 
+void QmlProject::openStartupQmlFile()
+{
+    const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(activeBuildSystem());
+    if (!qmlBuildSystem)
+        return;
+
+    disconnect(this, &QmlProject::activeBuildConfigurationChanged, this, &QmlProject::openStartupQmlFile);
+
+    const Utils::FilePath fileToOpen = qmlBuildSystem->getStartupQmlFileWithFallback();
+    if (!fileToOpen.isEmpty() && fileToOpen.exists() && !fileToOpen.isDir())
+        Core::EditorManager::openEditor(fileToOpen, Utils::Id());
+}
+
 void QmlProject::parsingFinished(bool success)
 {
     // trigger only once
     disconnect(this, &QmlProject::anyParsingFinished, this, &QmlProject::parsingFinished);
 
-    if (!success || !activeBuildSystem())
+    if (!success)
         return;
 
-    const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
-        activeBuildSystem());
-    if (!qmlBuildSystem)
+    if (activeBuildSystem()) {
+        openStartupQmlFile();
         return;
-
-    const auto openFile = [&](const Utils::FilePath file) {
-        //why is this timer needed here?
-        QTimer::singleShot(1000, this, [file] {
-            Core::EditorManager::openEditor(file, Utils::Id());
-        });
-    };
-
-    const Utils::FilePath fileToOpen = qmlBuildSystem->getStartupQmlFileWithFallback();
-    if (!fileToOpen.isEmpty() && fileToOpen.exists() && !fileToOpen.isDir())
-        openFile(fileToOpen);
+    }
+    connect(this, &QmlProject::activeBuildConfigurationChanged, this, &QmlProject::openStartupQmlFile);
 }
 
 Project::RestoreResult QmlProject::fromMap(const Store &map, QString *errorMessage)

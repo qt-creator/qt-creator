@@ -50,6 +50,7 @@ private:
     bool allowOnlySingleProject();
     int preferedQtTarget(ProjectExplorer::Target *target);
 
+    void openStartupQmlFile();
 private slots:
     void parsingFinished(bool success);
 };
