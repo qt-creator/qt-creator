@@ -511,11 +511,14 @@ void ModelPrivate::setTypeId(InternalNode *node,
     NanotraceHR::Tracer tracer{"model private set type id",
                                category(),
                                keyValue("alias", alias),
-                               keyValue("unqualified type name", unqualifiedTypeName)};
+                               keyValue("unqualified type name", unqualifiedTypeName),
+                               keyValue("old exported type", node->exportedTypeName)};
 
     if constexpr (useProjectStorage()) {
         node->importedTypeNameId = importedTypeNameId(alias, unqualifiedTypeName);
         node->exportedTypeName = projectStorage->exportedTypeName(node->importedTypeNameId);
+        tracer.end(keyValue("new exported type", node->exportedTypeName),
+                   keyValue("imported type name id", node->importedTypeNameId));
     }
 }
 
