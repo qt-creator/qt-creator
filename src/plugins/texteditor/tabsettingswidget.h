@@ -34,7 +34,6 @@ signals:
     void codingStyleLinkClicked(TextEditor::TabSettingsWidget::CodingStyleLink link);
 
 private:
-    void addToLayoutImpl(Layouting::Layout &parent) override;
     void codingStyleLinkActivated(const QString &linkString);
 
     Utils::BoolAspect autoDetect{this};

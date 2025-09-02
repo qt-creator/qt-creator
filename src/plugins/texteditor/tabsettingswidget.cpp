@@ -87,6 +87,25 @@ TabSettingsWidget::TabSettingsWidget()
     connect(this, &Utils::AspectContainer::changed, this, [this] {
             emit settingsChanged(tabSettings());
     });
+
+    setLayouter([this] {
+        using namespace Layouting;
+        return Column {
+            Group {
+                title(Tr::tr("Tabs And Indentation")),
+                Row {
+                    Form {
+                        m_codingStyleWarning, br,
+                        autoDetect, br,
+                        tabPolicy, br,
+                        indentSize, br,
+                        tabSize, br,
+                        continuationAlignBehavior, br
+                    }
+                }
+            }
+        };
+    });
 }
 
 TabSettingsWidget::~TabSettingsWidget() = default;
@@ -99,24 +118,6 @@ void TabSettingsWidget::setTabSettings(const TabSettings &s)
     tabSize.setValue(s.m_tabSize);
     indentSize.setValue(s.m_indentSize);
     continuationAlignBehavior.setValue(s.m_continuationAlignBehavior);
-}
-
-void TabSettingsWidget::addToLayoutImpl(Layouting::Layout &parent)
-{
-    using namespace Layouting;
-    parent.addItem(Group {
-        title(Tr::tr("Tabs And Indentation")),
-        Row {
-            Form {
-                m_codingStyleWarning, br,
-                autoDetect, br,
-                tabPolicy, br,
-                indentSize, br,
-                tabSize, br,
-                continuationAlignBehavior, br
-            }
-        }
-    });
 }
 
 TabSettings TabSettingsWidget::tabSettings() const
