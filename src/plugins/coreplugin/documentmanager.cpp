@@ -716,19 +716,24 @@ bool DocumentManager::saveDocument(
     bool addWatcher = removeDocument(document); // So that our own IDocument gets no notification at all
 
     if (const Result<> res = document->save(savePath, option); !res) {
+        ret = false;
+        bool showErrorDialog = true;
         if (isReadOnly) {
             QFile ofi(savePath.toFSPathString());
             // Check whether the existing file is writable
             if (!ofi.open(QIODevice::ReadWrite) && ofi.open(QIODevice::ReadOnly)) {
                 *isReadOnly = true;
-                goto out;
+                showErrorDialog = false; // calling code handles the situation
+            } else {
+                *isReadOnly = false;
             }
-            *isReadOnly = false;
         }
-        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"),
-                              Tr::tr("Error while saving file: %1").arg(res.error()));
-      out:
-        ret = false;
+        if (showErrorDialog) {
+            QMessageBox::critical(
+                ICore::dialogParent(),
+                Tr::tr("File Error"),
+                Tr::tr("Error while saving file: %1").arg(res.error()));
+        }
     }
 
     addDocument(document, addWatcher);
