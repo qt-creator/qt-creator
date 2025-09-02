@@ -4206,10 +4206,10 @@ TypeId ProjectStorage::declareType(std::string_view typeName, SourceId sourceId)
 
     auto typeId = s->selectTypeIdBySourceIdAndNameStatement.value<TypeId>(sourceId, typeName);
 
-    NanotraceHR::Tracer insertTracer{"insert type", category()};
-
-    if (!typeId)
+    if (!typeId) {
+        NanotraceHR::Tracer _{"insert type", category()};
         typeId = s->insertTypeStatement.value<TypeId>(sourceId, typeName);
+    }
 
     tracer.end(keyValue("type id", typeId));
 
