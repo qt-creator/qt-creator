@@ -174,9 +174,6 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &mainImageCache,
     m_assetsWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
     m_assetsWidget->engine()->addImageProvider("qmldesigner_assets", m_assetsIconProvider);
 
-    connect(m_assetsModel, &AssetsLibraryModel::fileChanged,
-            QmlDesignerPlugin::instance(), &QmlDesignerPlugin::assetChanged);
-
     connect(m_assetsModel, &AssetsLibraryModel::generatedAssetsDeleted,
             this, &AssetsLibraryWidget::handleDeletedGeneratedAssets);
 
@@ -434,7 +431,7 @@ void AssetsLibraryWidget::updateAssetPreview(const QString &id, const QPixmap &p
     const QString thumb = m_assetsIconProvider->setPixmap(id, pixmap, suffix);
 
     if (!thumb.isEmpty())
-        emit m_assetsModel->fileChanged(Utils::FilePath::fromString(thumb));
+        emit m_assetsModel->fileChanged(thumb);
 }
 
 void AssetsLibraryWidget::invalidateThumbnail(const QString &id)

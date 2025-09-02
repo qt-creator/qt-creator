@@ -104,7 +104,6 @@ signals:
     void usageStatisticsInsertFeedback(const QString &identifier,
                                        const QString &feedback,
                                        int rating);
-    void assetChanged(const Utils::FilePath &assetPath);
 
 private slots:
     void closeFeedbackPopup();

@@ -340,7 +340,7 @@ QFileSystemModel *AssetsLibraryModel::createFsModel(const QString &path)
     fsModel->setReadOnly(false);
 
     connect(fsModel, &QFileSystemModel::directoryLoaded, this, [this](const QString &dir) {
-        emit directoryLoaded(Utils::FilePath::fromString(dir));
+        emit directoryLoaded(dir);
         syncIsEmpty();
     });
 
@@ -356,7 +356,9 @@ QFileSystemModel *AssetsLibraryModel::createFsModel(const QString &path)
 Utils::FileSystemWatcher *AssetsLibraryModel::createFsWatcher()
 {
     Utils::FileSystemWatcher *fsWatcher = new Utils::FileSystemWatcher(parent());
-    connect(fsWatcher, &Utils::FileSystemWatcher::fileChanged, this, &AssetsLibraryModel::fileChanged);
+    connect(fsWatcher, &Utils::FileSystemWatcher::fileChanged, this, [&](const Utils::FilePath &path) {
+        emit fileChanged(path.toFSPathString());
+    });
     return fsWatcher;
 }
 
