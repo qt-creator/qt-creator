@@ -323,6 +323,7 @@ public:
 
     void updateModelNodeTypeIds(const ExportedTypeNames &addedExportedTypeNames,
                                 const ExportedTypeNames &removedExportedTypeNames);
+    void updateModelNodeTypeIds(const Imports &removedImports);
 
 protected:
     void removedTypeIds(const TypeIds &removedTypeIds) override;

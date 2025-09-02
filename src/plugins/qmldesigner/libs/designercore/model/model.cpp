@@ -246,6 +246,7 @@ void ModelPrivate::changeImports(Imports toBeAddedImports, Imports toBeRemovedIm
             projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
         }
         notifyImportsChanged(allNewAddedImports, removedImports);
+        updateModelNodeTypeIds(removedImports);
     }
 }
 
@@ -269,6 +270,7 @@ void ModelPrivate::setImports(Imports imports)
             projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
         }
         notifyImportsChanged(addedImports, removedImports);
+        updateModelNodeTypeIds(removedImports);
     }
 }
 
@@ -531,7 +533,7 @@ bool ModelPrivate::refreshExportedTypeName(InternalNode *node)
     if constexpr (useProjectStorage()) {
         auto exportedTypeName = projectStorage->exportedTypeName(node->importedTypeNameId);
         if (node->exportedTypeName != exportedTypeName) {
-            node->exportedTypeName = projectStorage->exportedTypeName(node->importedTypeNameId);
+            node->exportedTypeName = exportedTypeName;
             tracer.end(keyValue("refreshed exported type name", node->exportedTypeName));
             return true;
         }
@@ -588,6 +590,47 @@ void ModelPrivate::updateModelNodeTypeIds(const ExportedTypeNames &addedExported
                                    {},
                                    &InternalNode::unqualifiedTypeName,
                                    &Storage::Info::ExportedTypeName::name);
+
+    removeDuplicates(refreshedNodes);
+
+    if (rootNodeIsRefreshed) {
+        notifyRootNodeTypeChanged(QString::fromUtf8(m_rootInternalNode->typeName),
+                                  m_rootInternalNode->exportedTypeName.version.major.toSignedInteger(),
+                                  m_rootInternalNode->exportedTypeName.version.minor.toSignedInteger());
+    }
+
+    for (const auto &node : refreshedNodes) {
+        notifyNodeTypeChanged(node,
+                              node->typeName,
+                              node->exportedTypeName.version.major.toSignedInteger(),
+                              node->exportedTypeName.version.minor.toSignedInteger());
+    }
+}
+
+void ModelPrivate::updateModelNodeTypeIds(const Imports &removedImports)
+{
+    auto removedModuleIds = Utils::transform<SmallModuleIds<24>>(removedImports, [&](const Import &import) {
+        return createModuleId(import, m_localPath, *modulesStorage);
+    });
+
+    bool rootNodeIsRefreshed = false;
+    QVarLengthArray<InternalNodePointer, 24> refreshedNodes;
+
+    auto refeshNodeTypeId = [&](auto &node) {
+        bool isRefreshed = refreshExportedTypeName(node.get());
+        if (isRefreshed) {
+            if (node == m_rootInternalNode)
+                rootNodeIsRefreshed = true;
+            else
+                refreshedNodes.push_back(node);
+        }
+    };
+
+    for (InternalNodePointer &node : m_nodes) {
+        if (removedModuleIds.contains(node->exportedTypeName.moduleId)
+            or not node->exportedTypeName.typeId)
+            refeshNodeTypeId(node);
+    }
 
     removeDuplicates(refreshedNodes);
 

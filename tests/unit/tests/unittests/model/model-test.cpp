@@ -1117,6 +1117,101 @@ TEST_F(Model_Imports, change_imports_is_normalizing_import_path_for_modules)
     model.changeImports({directoryImport}, {});
 }
 
+TEST_F(Model_Imports, change_imports_updates_node_to_invalid_type)
+{
+    auto quickImport = QmlDesigner::Import::createLibraryImport("QtQuick");
+    auto node = model.createModelNode("Item");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, {});
+
+    model.changeImports({}, {quickImport});
+
+    ASSERT_FALSE(node.metaInfo());
+}
+
+TEST_F(Model_Imports, change_imports_updates_root_node_to_invalid_type)
+{
+    auto quickImport = QmlDesigner::Import::createLibraryImport("QtQuick");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, {});
+
+    model.changeImports({}, {quickImport});
+
+    ASSERT_FALSE(rootNode.metaInfo());
+}
+
+TEST_F(Model_Imports, change_imports_updates_node_to_valid_type)
+{
+    auto quickImport = QmlDesigner::Import::createLibraryImport("QtQuick");
+    auto exportedTypeName = projectStorageMock.exportedTypeName(itemTypeNameId);
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, {});
+    auto node = model.createModelNode("Item");
+    model.changeImports({}, {quickImport});
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, exportedTypeName);
+
+    model.changeImports({quickImport}, {});
+
+    ASSERT_THAT(node.metaInfo(), model.qtQuickItemMetaInfo());
+}
+
+TEST_F(Model_Imports, change_imports_updates_root_node_to_valid_type)
+{
+    auto quickImport = QmlDesigner::Import::createLibraryImport("QtQuick");
+    auto exportedTypeName = projectStorageMock.exportedTypeName(itemTypeNameId);
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, {});
+    model.changeImports({}, {quickImport});
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, exportedTypeName);
+
+    model.changeImports({quickImport}, {});
+
+    ASSERT_THAT(rootNode.metaInfo(), model.qtQuickItemMetaInfo());
+}
+
+TEST_F(Model_Imports, set_imports_updates_node_to_invalid_type)
+{
+    auto node = model.createModelNode("Item");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, {});
+
+    model.setImports({});
+
+    ASSERT_FALSE(node.metaInfo());
+}
+
+TEST_F(Model_Imports, set_imports_updates_root_node_to_invalid_type)
+{
+    auto quickImport = QmlDesigner::Import::createLibraryImport("QtQuick");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, {});
+
+    model.setImports({});
+
+    ASSERT_FALSE(rootNode.metaInfo());
+}
+
+TEST_F(Model_Imports, set_imports_updates_node_to_valid_type)
+{
+    auto quickImport = QmlDesigner::Import::createLibraryImport("QtQuick");
+    auto exportedTypeName = projectStorageMock.exportedTypeName(itemTypeNameId);
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, {});
+    auto node = model.createModelNode("Item");
+    model.setImports({});
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, exportedTypeName);
+
+    model.setImports({quickImport});
+
+    ASSERT_THAT(node.metaInfo(), model.qtQuickItemMetaInfo());
+}
+
+TEST_F(Model_Imports, set_imports_updates_root_node_to_valid_type)
+{
+    auto quickImport = QmlDesigner::Import::createLibraryImport("QtQuick");
+    auto exportedTypeName = projectStorageMock.exportedTypeName(itemTypeNameId);
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, {});
+    model.setImports({});
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, exportedTypeName);
+
+    model.setImports({quickImport});
+
+    ASSERT_THAT(rootNode.metaInfo(), model.qtQuickItemMetaInfo());
+}
+
 class Model_Node : public Model
 {};
 
