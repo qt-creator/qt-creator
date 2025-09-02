@@ -57,7 +57,7 @@ private:
 
     QString label() const;
     QString toolTip(Utils::FindFlags findFlags) const;
-    void startSearch(Core::SearchResult *search);
+    void startSearch(Core::SearchResult *search, const SearchParameters &parameters);
 
     bool m_enabled;
     QPointer<Core::SearchResult> m_currentSearch;

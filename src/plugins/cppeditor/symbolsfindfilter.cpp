@@ -68,13 +68,6 @@ void SymbolsFindFilter::findAll(const QString &txt, FindFlags findFlags)
     SearchResultWindow *window = SearchResultWindow::instance();
     SearchResult *search = window->startNewSearch(label(), toolTip(findFlags), txt);
     search->setSearchAgainSupported(true);
-    connect(search, &SearchResult::activated,
-            this, &SymbolsFindFilter::openEditor);
-    connect(search, &SearchResult::searchAgainRequested, this, [this, search] {
-        search->restart();
-        startSearch(search);
-    });
-    connect(this, &IFindFilter::enabledChanged, search, &SearchResult::setSearchAgainEnabled);
     window->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 
     SearchParameters parameters;
@@ -82,13 +75,19 @@ void SymbolsFindFilter::findAll(const QString &txt, FindFlags findFlags)
     parameters.flags = findFlags;
     parameters.types = m_symbolsToSearch;
     parameters.scope = m_scope;
-    search->setUserData(QVariant::fromValue(parameters));
-    startSearch(search);
+
+    connect(search, &SearchResult::activated, this, &SymbolsFindFilter::openEditor);
+    connect(search, &SearchResult::searchAgainRequested, this, [this, search, parameters] {
+        search->restart();
+        startSearch(search, parameters);
+    });
+    connect(this, &IFindFilter::enabledChanged, search, &SearchResult::setSearchAgainEnabled);
+
+    startSearch(search, parameters);
 }
 
-void SymbolsFindFilter::startSearch(SearchResult *search)
+void SymbolsFindFilter::startSearch(SearchResult *search, const SearchParameters &parameters)
 {
-    SearchParameters parameters = search->userData().value<SearchParameters>();
     QSet<FilePath> projectFileNames;
     if (parameters.scope == SearchProjectsOnly) {
         for (ProjectExplorer::Project *project : ProjectExplorer::ProjectManager::projects())
