@@ -64,14 +64,18 @@ TabSettingsWidget::TabSettingsWidget()
                "will fallback to the settings below if the detection fails.")
             .arg(QGuiApplication::applicationDisplayName()));
 
+    tabPolicy.setLabelText(Tr::tr("Default tab policy:"));
     tabPolicy.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
     tabPolicy.addOption(Tr::tr("Spaces Only"));
     tabPolicy.addOption(Tr::tr("Tabs Only"));
 
+    tabSize.setLabel(Tr::tr("Ta&b size:"));
     tabSize.setRange(1, 20);
 
+    indentSize.setLabel(Tr::tr("Default &indent size:"));
     indentSize.setRange(1, 20);
 
+    continuationAlignBehavior.setLabelText(Tr::tr("Align continuation lines:"));
     continuationAlignBehavior.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
     continuationAlignBehavior.addOption(Tr::tr("Not At All"));
     continuationAlignBehavior.addOption(Tr::tr("With Spaces"));
@@ -106,10 +110,10 @@ void TabSettingsWidget::addToLayoutImpl(Layouting::Layout &parent)
             Form {
                 m_codingStyleWarning, br,
                 autoDetect, br,
-                Tr::tr("Default tab policy:"), tabPolicy, br,
-                Tr::tr("Default &indent size:"), indentSize, br,
-                Tr::tr("Ta&b size:"), tabSize, br,
-                Tr::tr("Align continuation lines:"), continuationAlignBehavior, br
+                tabPolicy, br,
+                indentSize, br,
+                tabSize, br,
+                continuationAlignBehavior, br
             }
         }
     });
