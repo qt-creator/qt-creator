@@ -1274,8 +1274,6 @@ class PortMapping : public Utils::AspectContainer
 public:
     PortMapping();
 
-    void addToLayoutImpl(Layouting::Layout &parent) override;
-
     Utils::StringAspect ip{this};
     Utils::IntegerAspect hostPort{this};
     Utils::IntegerAspect containerPort{this};
@@ -1313,16 +1311,11 @@ PortMapping::PortMapping()
     for (const auto &aspect : aspects()) {
         connect(aspect, &BaseAspect::changed, this, &PortMapping::changed);
     }
-}
 
-void PortMapping::addToLayoutImpl(Layouting::Layout &parent)
-{
-    using namespace Layouting;
-
-    parent.addItem(ip);
-    parent.addItem(hostPort);
-    parent.addItem(containerPort);
-    parent.addItem(protocol);
+    setLayouter([this] {
+        using namespace Layouting;
+        return Row{ip, hostPort, containerPort, protocol};
+    });
 }
 
 PortMappings::PortMappings(Utils::AspectContainer *container)
