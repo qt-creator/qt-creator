@@ -27,7 +27,7 @@ constexpr auto oauthClientId = "qt-design-studio-staging"_L1;
 constexpr auto serviceUrl = "https://login.qt.io"_L1;
 constexpr auto oauthClientId = "qt-design-studio"_L1;
 #endif
-constexpr auto logout = "/v1/oidc/logout"_L1;
+// constexpr auto logout = "/v1/oidc/logout"_L1;
 constexpr auto authorize = "/v1/oidc/authorize"_L1;
 constexpr auto token = "/v1/oidc/token"_L1;
 }; // namespace QtLogin
@@ -83,7 +83,7 @@ DVAuthenticator::DVAuthenticator(QObject *parent)
         [&](QAbstractOAuth::Stage stage, QMultiMap<QString, QVariant> *parameters) {
             if (stage == QAbstractOAuth::Stage::RequestingAuthorization) {
                 parameters->insert("duration", "permanent");
-                parameters->insert("prompt", "consent");
+                parameters->insert("prompt", "login consent");
                 parameters->insert("resource", "https://login.qt.io");
             }
         });
@@ -150,20 +150,6 @@ void DVAuthenticator::login()
 
 void DVAuthenticator::logout()
 {
-    QNetworkRequest request(QUrl{QtLogin::serviceUrl + QtLogin::logout});
-    const QByteArray header{m_oauth2.token().prepend("Bearer ").toUtf8()};
-    request.setRawHeader("Authorization", header);
-    QNetworkReply *reply = m_oauth2.networkAccessManager()->get(request);
-    connect(reply, &QNetworkReply::finished, this, [&, reply] {
-        if (reply->error() == QNetworkReply::NoError) {
-            qCDebug(deploymentPluginLog) << "Loggged out successfully";
-        } else {
-            qCDebug(deploymentPluginLog)
-                << "Log out request failed. Code:"
-                << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()
-                << ", Message:" << reply->errorString();
-        }
-    });
     clearTokens();
     emit authStatusChanged();
 }
