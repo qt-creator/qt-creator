@@ -518,6 +518,8 @@ void ModelPrivate::updateModelNodeTypeIds(const ExportedTypeNames &addedExported
                                    {},
                                    &InternalNode::exportedTypeName);
 
+    std::ranges::sort(nodes, {}, &InternalNode::unqualifiedTypeName);
+
     Utils::set_greedy_intersection(nodes,
                                    addedExportedTypeNames,
                                    refeshNodeTypeId,
