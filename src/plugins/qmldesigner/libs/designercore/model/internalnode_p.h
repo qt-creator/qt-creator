@@ -233,6 +233,18 @@ public:
 
     PropertyDict::const_iterator end() const { return m_nameProperties.end(); }
 
+    template<typename String>
+    friend void convertToString(String &string, const InternalNode &node)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("type name", node.typeName),
+                              keyValue("unqualified type name", node.unqualifiedTypeName),
+                              keyValue("exported type name", node.exportedTypeName));
+
+        convertToString(string, dict);
+    }
+
 public:
     TypeName typeName;
     Utils::SmallString unqualifiedTypeName;

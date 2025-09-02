@@ -25,6 +25,7 @@ namespace QmlDesigner {
 using namespace NanotraceHR::Literals;
 using NanotraceHR::keyValue;
 using namespace Qt::StringLiterals;
+using ModelTracing::category;
 
 /*!
 \class QmlDesigner::AbstractView
@@ -37,6 +38,7 @@ editors can implement to be notified about model changes.
 
 AbstractView::~AbstractView()
 {
+    NanotraceHR::Tracer tracer{"abstract view destructor", category()};
     if (m_model)
         m_model.data()->detachView(this, Model::DoNotNotifyView);
 }
@@ -49,6 +51,8 @@ AbstractView::~AbstractView()
 */
 void AbstractView::setModel(Model *model)
 {
+    NanotraceHR::Tracer tracer{"abstract view set model", category()};
+
     Q_ASSERT(model != nullptr);
     if (model == m_model.data())
         return;
@@ -61,29 +65,44 @@ void AbstractView::setModel(Model *model)
 
 void AbstractView::setWidgetRegistration(WidgetRegistrationInterface *interface)
 {
+    NanotraceHR::Tracer tracer{"abstract view set widget registration", category()};
+
     m_widgetRegistration = interface;
 }
 
 void AbstractView::registerWidgetInfo()
 {
+    NanotraceHR::Tracer tracer{"abstract view register widget info", category()};
+
     if (m_widgetRegistration)
         m_widgetRegistration->registerWidgetInfo(widgetInfo());
 }
 
 void AbstractView::deregisterWidgetInfo()
 {
+    NanotraceHR::Tracer tracer{"abstract view deregister widget info", category()};
+
     if (m_widgetRegistration)
         m_widgetRegistration->deregisterWidgetInfo(widgetInfo());
 }
 
 RewriterTransaction AbstractView::beginRewriterTransaction(const QByteArray &identifier)
 {
+    NanotraceHR::Tracer tracer{"abstract view begin rewriter transaction",
+                               category(),
+                               keyValue("identifier", identifier)};
+
     return RewriterTransaction(this, identifier);
 }
 
-ModelNode AbstractView::createModelNode(const TypeName &typeName)
+ModelNode AbstractView::createModelNode(const TypeName &typeName, SL sl)
 {
 #ifdef QDS_USE_PROJECTSTORAGE
+    NanotraceHR::Tracer tracer{"abstract view create model node",
+                               category(),
+                               keyValue("type", typeName),
+                               keyValue("source location", sl)};
+
     return createModelNode(typeName, -1, -1);
 #else
     const NodeMetaInfo metaInfo = model()->metaInfo(typeName);
@@ -98,11 +117,24 @@ ModelNode AbstractView::createModelNode(const TypeName &typeName,
                                         const AuxiliaryDatas &auxPropertyList,
                                         const QString &nodeSource,
                                         ModelNode::NodeSourceType nodeSourceType,
-                                        const QString &behaviorPropertyName)
+                                        const QString &behaviorPropertyName,
+                                        SL sl)
 {
-    return ModelNode(model()->d->createNode(typeName, majorVersion, minorVersion, propertyList,
-                                            auxPropertyList, nodeSource, nodeSourceType,
-                                            behaviorPropertyName), model(), this);
+    NanotraceHR::Tracer _{"abstract view create model node",
+                          category(),
+                          keyValue("type", typeName),
+                          keyValue("source location", sl)};
+
+    return ModelNode(model()->d->createNode(typeName,
+                                            majorVersion,
+                                            minorVersion,
+                                            propertyList,
+                                            auxPropertyList,
+                                            nodeSource,
+                                            nodeSourceType,
+                                            behaviorPropertyName),
+                     model(),
+                     this);
 }
 
 ModelNode AbstractView::createModelNode(const TypeName &typeName,
@@ -110,8 +142,14 @@ ModelNode AbstractView::createModelNode(const TypeName &typeName,
                                         const AuxiliaryDatas &auxPropertyList,
                                         const QString &nodeSource,
                                         ModelNode::NodeSourceType nodeSourceType,
-                                        const QString &behaviorPropertyName)
+                                        const QString &behaviorPropertyName,
+                                        SL sl)
 {
+    NanotraceHR::Tracer tracer{"abstract view create model node",
+                               category(),
+                               keyValue("type", typeName),
+                               keyValue("source location", sl)};
+
     return ModelNode(model()->d->createNode(typeName,
                                             -1,
                                             -1,
@@ -127,6 +165,8 @@ ModelNode AbstractView::createModelNode(const TypeName &typeName,
 // Returns the constant root model node.
 ModelNode AbstractView::rootModelNode() const
 {
+    NanotraceHR::Tracer tracer{"abstract view root model node const", category()};
+
     Q_ASSERT(model());
     return ModelNode(model()->d->rootNode(), model(), const_cast<AbstractView *>(this));
 }
@@ -134,6 +174,8 @@ ModelNode AbstractView::rootModelNode() const
 // Returns the root model node.
 ModelNode AbstractView::rootModelNode()
 {
+    NanotraceHR::Tracer tracer{"abstract view root model node", category()};
+
     Q_ASSERT(model());
     return ModelNode(model()->d->rootNode(), model(), this);
 }
@@ -141,6 +183,8 @@ ModelNode AbstractView::rootModelNode()
 // Sets the reference to a model to a null pointer.
 void AbstractView::removeModel()
 {
+    NanotraceHR::Tracer tracer{"abstract view remove model", category()};
+
     m_model.clear();
 }
 
@@ -152,6 +196,8 @@ WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
                                           DesignerWidgetFlags widgetFlags,
                                           const QString &parentId)
 {
+    NanotraceHR::Tracer tracer{"abstract view create widget info", category()};
+
     WidgetInfo widgetInfo;
     widgetInfo.widget = widget;
     widgetInfo.uniqueId = uniqueId;
@@ -166,6 +212,8 @@ WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
 
 bool AbstractView::isAttached() const
 {
+    NanotraceHR::Tracer tracer{"abstract view is attached", category()};
+
     return model();
 }
 

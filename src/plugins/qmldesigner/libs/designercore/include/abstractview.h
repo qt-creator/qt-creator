@@ -57,6 +57,8 @@ class QMLDESIGNERCORE_EXPORT AbstractView : public QObject
 {
     Q_OBJECT
 
+    using SL = ModelTracing::SourceLocation;
+
 public:
     Q_FLAGS(PropertyChangeFlag PropertyChangeFlags)
 
@@ -86,9 +88,8 @@ public:
 
     RewriterTransaction beginRewriterTransaction(const QByteArray &identifier);
 
-    ModelNode createModelNode(const TypeName &typeName);
+    ModelNode createModelNode(const TypeName &typeName, SL sl = {});
 
-#
     ModelNode createModelNode(const TypeName &typeName,
                               int majorVersion,
                               int minorVersion,
@@ -96,14 +97,16 @@ public:
                               const AuxiliaryDatas &auxPropertyList = {},
                               const QString &nodeSource = {},
                               ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource,
-                              const QString &behaviorPropertyName = {});
+                              const QString &behaviorPropertyName = {},
+                              SL sl = {});
 
     ModelNode createModelNode(const TypeName &typeName,
                               const PropertyListType &propertyList,
                               const AuxiliaryDatas &auxPropertyList = {},
                               const QString &nodeSource = {},
                               ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource,
-                              const QString &behaviorPropertyName = {});
+                              const QString &behaviorPropertyName = {},
+                              SL sl = {});
 
     ModelNode rootModelNode() const;
     ModelNode rootModelNode();
