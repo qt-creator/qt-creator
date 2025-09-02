@@ -746,6 +746,55 @@ bool Semantic::visit(BasicTypeAST *ast)
         _type = _engine->imageType(ast->token);
         break;
 
+    // samplers (Vulkan additions)
+    case Parser::T_SAMPLER:
+    case Parser::T_SAMPLERSHADOW:
+        _type = _engine->samplerType(ast->token); // should we invent a new type instead?
+        break;
+
+    // subpass inputs and textures (Vulkan additions)
+    case Parser::T_ISUBPASSINPUT:
+    case Parser::T_ISUBPASSINPUTMS:
+    case Parser::T_ITEXTURE1D:
+    case Parser::T_ITEXTURE1DARRAY:
+    case Parser::T_ITEXTURE2D:
+    case Parser::T_ITEXTURE2DARRAY:
+    case Parser::T_ITEXTURE2DMS:
+    case Parser::T_ITEXTURE2DMSARRAY:
+    case Parser::T_ITEXTURE2DRECT:
+    case Parser::T_ITEXTURE3D:
+    case Parser::T_ITEXTUREBUFFER:
+    case Parser::T_ITEXTURECUBE:
+    case Parser::T_ITEXTURECUBEARRAY:
+    case Parser::T_SUBPASSINPUT:
+    case Parser::T_SUBPASSINPUTMS:
+    case Parser::T_TEXTURE1D:
+    case Parser::T_TEXTURE1DARRAY:
+    case Parser::T_TEXTURE2D:
+    case Parser::T_TEXTURE2DARRAY:
+    case Parser::T_TEXTURE2DMS:
+    case Parser::T_TEXTURE2DMSARRAY:
+    case Parser::T_TEXTURE2DRECT:
+    case Parser::T_TEXTURE3D:
+    case Parser::T_TEXTUREBUFFER:
+    case Parser::T_TEXTURECUBE:
+    case Parser::T_TEXTURECUBEARRAY:
+    case Parser::T_USUBPASSINPUT:
+    case Parser::T_USUBPASSINPUTMS:
+    case Parser::T_UTEXTURE1D:
+    case Parser::T_UTEXTURE1DARRAY:
+    case Parser::T_UTEXTURE2D:
+    case Parser::T_UTEXTURE2DARRAY:
+    case Parser::T_UTEXTURE2DMS:
+    case Parser::T_UTEXTURE2DMSARRAY:
+    case Parser::T_UTEXTURE2DRECT:
+    case Parser::T_UTEXTURE3D:
+    case Parser::T_UTEXTUREBUFFER:
+    case Parser::T_UTEXTURECUBE:
+    case Parser::T_UTEXTURECUBEARRAY:
+        _type = _engine->imageType(ast->token); // should we invent a new type instead?
+        break;
+
     default:
         _engine->error(ast->lineno, QString::fromLatin1("Unknown type `%1'").arg(QLatin1String(GLSLParserTable::spell[ast->token])));
     }

@@ -102,6 +102,19 @@
 %token ISAMPLERBUFFER "isamplerBuffer"
 %token ISAMPLERCUBE "isamplerCube"
 %token ISAMPLERCUBEARRAY "isamplerCubeArray"
+%token ISUBPASSINPUT "isubpassInput"
+%token ISUBPASSINPUTMS "isubpassInputMS"
+%token ITEXTURE1D "itexture1D"
+%token ITEXTURE1DARRAY "itexture1DArray"
+%token ITEXTURE2D "itexture2D"
+%token ITEXTURE2DARRAY "itexture2DArray"
+%token ITEXTURE2DMS "itexture2DMS"
+%token ITEXTURE2DMSARRAY "itexture2DMSArray"
+%token ITEXTURE2DRECT "itexture2DRect"
+%token ITEXTURE3D "itexture3D"
+%token ITEXTUREBUFFER "itextureBuffer"
+%token ITEXTURECUBE "itextureCube"
+%token ITEXTURECUBEARRAY "itextureCubeArray"
 %token IVEC2 "ivec2"
 %token IVEC3 "ivec3"
 %token IVEC4 "ivec4"
@@ -151,6 +164,7 @@
 %token RIGHT_OP ">>"
 %token RIGHT_PAREN ")"
 %token SAMPLE "sample"
+%token SAMPLER "sampler"
 %token SAMPLER1D "sampler1D"
 %token SAMPLER1DARRAY "sampler1DArray"
 %token SAMPLER1DARRAYSHADOW "sampler1DArrayShadow"
@@ -169,15 +183,29 @@
 %token SAMPLERCUBEARRAY "samplerCubeArray"
 %token SAMPLERCUBEARRAYSHADOW "samplerCubeArrayShadow"
 %token SAMPLERCUBESHADOW "samplerCubeShadow"
+%token SAMPLERSHADOW "samplerShadow"
 %token SEMICOLON ";"
 %token SHARED "shared"
 %token SLASH "/"
 %token SMOOTH "smooth"
 %token STAR "*"
 %token STRUCT "struct"
+%token SUBPASSINPUT "subpassInput"
+%token SUBPASSINPUTMS "subpassInputMS"
 %token SUBROUTINE "subroutine"
 %token SUB_ASSIGN "-="
 %token SWITCH "switch"
+%token TEXTURE1D "texture1D"
+%token TEXTURE1DARRAY "texture1DArray"
+%token TEXTURE2D "texture2D"
+%token TEXTURE2DARRAY "texture2DArray"
+%token TEXTURE2DMS "texture2DMS"
+%token TEXTURE2DMSARRAY "texture2DMSArray"
+%token TEXTURE2DRECT "texture2DRect"
+%token TEXTURE3D "texture3D"
+%token TEXTUREBUFFER "textureBuffer"
+%token TEXTURECUBE "textureCube"
+%token TEXTURECUBEARRAY "textureCubeArray"
 %token TILDE "~"
 %token TYPE_NAME "type_name"
 %token UIMAGE1D "uimage1D"
@@ -204,6 +232,19 @@
 %token USAMPLERBUFFER "usamplerBuffer"
 %token USAMPLERCUBE "usamplerCube"
 %token USAMPLERCUBEARRAY "usamplerCubeArray"
+%token USUBPASSINPUT "usubpassInput"
+%token USUBPASSINPUTMS "usubpassInputMS"
+%token UTEXTURE1D "utexture1D"
+%token UTEXTURE1DARRAY "utexture1DArray"
+%token UTEXTURE2D "utexture2D"
+%token UTEXTURE2DARRAY "utexture2DArray"
+%token UTEXTURE2DMS "utexture2DMS"
+%token UTEXTURE2DMSARRAY "utexture2DMSArray"
+%token UTEXTURE2DRECT "utexture2DRect"
+%token UTEXTURE3D "utexture3D"
+%token UTEXTUREBUFFER "utextureBuffer"
+%token UTEXTURECUBE "utextureCube"
+%token UTEXTURECUBEARRAY "utextureCubeArray"
 %token UVEC2 "uvec2"
 %token UVEC3 "uvec3"
 %token UVEC4 "uvec4"
@@ -2978,6 +3019,297 @@ case $rule_number: {
     ast(1) = makeAstNode<NamedTypeAST>(string(1));
 }   break;
 ./
+
+-- Vulkan type additions
+
+type_specifier_nonarray ::= ISUBPASSINPUT ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_ISUBPASSINPUT);
+}   break;
+./
+
+type_specifier_nonarray ::= ISUBPASSINPUTMS ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_ISUBPASSINPUTMS);
+}   break;
+./
+
+type_specifier_nonarray ::= ITEXTURE1D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_ITEXTURE1D);
+}   break;
+./
+
+type_specifier_nonarray ::= ITEXTURE1DARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_ITEXTURE1DARRAY);
+}   break;
+./
+
+type_specifier_nonarray ::= ITEXTURE2D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_ITEXTURE2D);
+}   break;
+./
+
+type_specifier_nonarray ::= ITEXTURE2DARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_ITEXTURE2DARRAY);
+}   break;
+./
+
+type_specifier_nonarray ::= ITEXTURE2DMS ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_ITEXTURE2DMS);
+}   break;
+./
+
+type_specifier_nonarray ::= ITEXTURE2DMSARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_ITEXTURE2DMSARRAY);
+}   break;
+./
+
+type_specifier_nonarray ::= ITEXTURE2DRECT ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_ITEXTURE2DRECT);
+}   break;
+./
+
+type_specifier_nonarray ::= ITEXTURE3D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_ITEXTURE3D);
+}   break;
+./
+
+type_specifier_nonarray ::= ITEXTUREBUFFER ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_ITEXTUREBUFFER);
+}   break;
+./
+
+type_specifier_nonarray ::= ITEXTURECUBE ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_ITEXTURECUBE);
+}   break;
+./
+
+type_specifier_nonarray ::= ITEXTURECUBEARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_ITEXTURECUBEARRAY);
+}   break;
+./
+
+type_specifier_nonarray ::= SAMPLER ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_SAMPLER);
+}   break;
+./
+
+type_specifier_nonarray ::= SAMPLERSHADOW ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_SAMPLERSHADOW);
+}   break;
+./
+
+type_specifier_nonarray ::= SUBPASSINPUT ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_SUBPASSINPUT);
+}   break;
+./
+
+type_specifier_nonarray ::= SUBPASSINPUTMS ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_SUBPASSINPUTMS);
+}   break;
+./
+
+type_specifier_nonarray ::= TEXTURE1D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_TEXTURE1D);
+}   break;
+./
+
+type_specifier_nonarray ::= TEXTURE1DARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_TEXTURE1DARRAY);
+}   break;
+./
+
+type_specifier_nonarray ::= TEXTURE2D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_TEXTURE2D);
+}   break;
+./
+
+type_specifier_nonarray ::= TEXTURE2DARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_TEXTURE2DARRAY);
+}   break;
+./
+
+type_specifier_nonarray ::= TEXTURE2DMS ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_TEXTURE2DMS);
+}   break;
+./
+
+type_specifier_nonarray ::= TEXTURE2DMSARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_TEXTURE2DMSARRAY);
+}   break;
+./
+
+type_specifier_nonarray ::= TEXTURE2DRECT ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_TEXTURE2DRECT);
+}   break;
+./
+
+type_specifier_nonarray ::= TEXTURE3D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_TEXTURE3D);
+}   break;
+./
+
+type_specifier_nonarray ::= TEXTUREBUFFER ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_TEXTUREBUFFER);
+}   break;
+./
+
+type_specifier_nonarray ::= TEXTURECUBE ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_TEXTURECUBE);
+}   break;
+./
+
+type_specifier_nonarray ::= TEXTURECUBEARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_TEXTURECUBEARRAY);
+}   break;
+./
+
+type_specifier_nonarray ::= USUBPASSINPUT ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_USUBPASSINPUT);
+}   break;
+./
+
+type_specifier_nonarray ::= USUBPASSINPUTMS ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_USUBPASSINPUTMS);
+}   break;
+./
+
+type_specifier_nonarray ::= UTEXTURE1D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UTEXTURE1D);
+}   break;
+./
+
+type_specifier_nonarray ::= UTEXTURE1DARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UTEXTURE1DARRAY);
+}   break;
+./
+
+type_specifier_nonarray ::= UTEXTURE2D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UTEXTURE2D);
+}   break;
+./
+
+type_specifier_nonarray ::= UTEXTURE2DARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UTEXTURE2DARRAY);
+}   break;
+./
+
+type_specifier_nonarray ::= UTEXTURE2DMS ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UTEXTURE2DMS);
+}   break;
+./
+
+type_specifier_nonarray ::= UTEXTURE2DMSARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UTEXTURE2DMSARRAY);
+}   break;
+./
+
+type_specifier_nonarray ::= UTEXTURE2DRECT ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UTEXTURE2DRECT);
+}   break;
+./
+
+type_specifier_nonarray ::= UTEXTURE3D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UTEXTURE3D);
+}   break;
+./
+
+type_specifier_nonarray ::= UTEXTUREBUFFER ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UTEXTUREBUFFER);
+}   break;
+./
+
+type_specifier_nonarray ::= UTEXTURECUBE ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UTEXTURECUBE);
+}   break;
+./
+
+type_specifier_nonarray ::= UTEXTURECUBEARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UTEXTURECUBEARRAY);
+}   break;
+./
+
+-- Vulkan type additions end
 
 precision_qualifier ::= HIGHP ;
 /.

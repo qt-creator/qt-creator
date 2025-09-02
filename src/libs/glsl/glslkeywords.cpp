@@ -609,6 +609,21 @@ static inline int classify7(const char *s) {
       }
     }
   }
+  else if (s[0] == 's') {
+    if (s[1] == 'a') {
+      if (s[2] == 'm') {
+        if (s[3] == 'p') {
+          if (s[4] == 'l') {
+            if (s[5] == 'e') {
+              if (s[6] == 'r') {
+                  return Parser::T_SAMPLER | Lexer::Variant_Vulkan;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   else if (s[0] == 'u') {
     if (s[1] == 'n') {
       if (s[2] == 'i') {
@@ -903,6 +918,35 @@ static inline int classify9(const char *s) {
       }
     }
   }
+  else if (s[0] == 't') {
+    if (s[1] == 'e') {
+      if (s[2] == 'x') {
+        if (s[3] == 't') {
+          if (s[4] == 'u') {
+            if (s[5] == 'r') {
+              if (s[6] == 'e') {
+                if (s[7] == '1') {
+                  if (s[8] == 'D') {
+                    return Parser::T_TEXTURE1D | Lexer::Variant_Vulkan;
+                  }
+                }
+                else if (s[7] == '2') {
+                  if (s[8] == 'D') {
+                    return Parser::T_TEXTURE2D | Lexer::Variant_Vulkan;
+                  }
+                }
+                else if (s[7] == '3') {
+                  if (s[8] == 'D') {
+                    return Parser::T_TEXTURE3D | Lexer::Variant_Vulkan;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   else if (s[0] == 'w') {
     if (s[1] == 'r') {
       if (s[2] == 'i') {
@@ -984,6 +1028,35 @@ static inline int classify10(const char *s) {
         }
       }
     }
+    else if (s[1] == 't') {
+      if (s[2] == 'e') {
+        if (s[3] == 'x') {
+          if (s[4] == 't') {
+            if (s[5] == 'u') {
+              if (s[6] == 'r') {
+                if (s[7] == 'e') {
+                  if (s[8] == '1') {
+                    if (s[9] == 'D') {
+                      return Parser::T_ITEXTURE1D | Lexer::Variant_Vulkan;
+                    }
+                  }
+                  else if (s[8] == '2') {
+                    if (s[9] == 'D') {
+                      return Parser::T_ITEXTURE2D | Lexer::Variant_Vulkan;
+                    }
+                  }
+                  else if (s[8] == '3') {
+                    if (s[9] == 'D') {
+                      return Parser::T_ITEXTURE3D | Lexer::Variant_Vulkan;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
   else if (s[0] == 's') {
     if (s[1] == 'u') {
@@ -1055,6 +1128,35 @@ static inline int classify10(const char *s) {
                   else if (s[8] == '3') {
                     if (s[9] == 'D') {
                       return Parser::T_USAMPLER3D | Lexer::Variant_GLSL_150;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 't') {
+      if (s[2] == 'e') {
+        if (s[3] == 'x') {
+          if (s[4] == 't') {
+            if (s[5] == 'u') {
+              if (s[6] == 'r') {
+                if (s[7] == 'e') {
+                  if (s[8] == '1') {
+                    if (s[9] == 'D') {
+                      return Parser::T_UTEXTURE1D | Lexer::Variant_Vulkan;
+                    }
+                  }
+                  else if (s[8] == '2') {
+                    if (s[9] == 'D') {
+                      return Parser::T_UTEXTURE2D | Lexer::Variant_Vulkan;
+                    }
+                  }
+                  else if (s[8] == '3') {
+                    if (s[9] == 'D') {
+                      return Parser::T_UTEXTURE3D | Lexer::Variant_Vulkan;
                     }
                   }
                 }
@@ -1149,6 +1251,38 @@ static inline int classify11(const char *s) {
                     if (s[9] == 'b') {
                       if (s[10] == 'e') {
                         return Parser::T_SAMPLERCUBE;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 't') {
+    if (s[1] == 'e') {
+      if (s[2] == 'x') {
+        if (s[3] == 't') {
+          if (s[4] == 'u') {
+            if (s[5] == 'r') {
+              if (s[6] == 'e') {
+                if (s[7] == '2') {
+                  if (s[8] == 'D') {
+                    if (s[9] == 'M') {
+                      if (s[10] == 'S') {
+                        return Parser::T_TEXTURE2DMS | Lexer::Variant_Vulkan;
+                      }
+                    }
+                  }
+                }
+                else if (s[7] == 'C') {
+                  if (s[8] == 'u') {
+                    if (s[9] == 'b') {
+                      if (s[10] == 'e') {
+                        return Parser::T_TEXTURECUBE | Lexer::Variant_Vulkan;
                       }
                     }
                   }
@@ -1271,6 +1405,63 @@ static inline int classify12(const char *s) {
         }
       }
     }
+    else if (s[1] == 't') {
+      if (s[2] == 'e') {
+        if (s[3] == 'x') {
+          if (s[4] == 't') {
+            if (s[5] == 'u') {
+              if (s[6] == 'r') {
+                if (s[7] == 'e') {
+                  if (s[8] == '2') {
+                    if (s[9] == 'D') {
+                      if (s[10] == 'M') {
+                        if (s[11] == 'S') {
+                          return Parser::T_ITEXTURE2DMS | Lexer::Variant_Vulkan;
+                        }
+                      }
+                    }
+                  }
+                  else if (s[8] == 'C') {
+                    if (s[9] == 'u') {
+                      if (s[10] == 'b') {
+                        if (s[11] == 'e') {
+                          return Parser::T_ITEXTURECUBE | Lexer::Variant_Vulkan;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 's') {
+    if (s[1] == 'u') {
+      if (s[2] == 'b') {
+        if (s[3] == 'p') {
+          if (s[4] == 'a') {
+            if (s[5] == 's') {
+              if (s[6] == 's') {
+                if (s[7] == 'I') {
+                  if (s[8] == 'n') {
+                    if (s[9] == 'p') {
+                      if (s[10] == 'u') {
+                        if (s[11] == 't') {
+                          return Parser::T_SUBPASSINPUT | Lexer::Variant_Vulkan;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
   else if (s[0] == 'u') {
     if (s[1] == 'i') {
@@ -1341,6 +1532,38 @@ static inline int classify12(const char *s) {
         }
       }
     }
+    else if (s[1] =='t') {
+      if (s[2] == 'e') {
+        if (s[3] == 'x') {
+          if (s[4] == 't') {
+            if (s[5] == 'u') {
+              if (s[6] == 'r') {
+                if (s[7] == 'e') {
+                  if (s[8] == '2') {
+                    if (s[9] == 'D') {
+                      if (s[10] == 'M') {
+                        if (s[11] == 'S') {
+                          return Parser::T_UTEXTURE2DMS | Lexer::Variant_Vulkan;
+                        }
+                      }
+                    }
+                  }
+                  else if (s[8] == 'C') {
+                    if (s[9] == 'u') {
+                      if (s[10] == 'b') {
+                        if (s[11] == 'e') {
+                          return Parser::T_UTEXTURECUBE | Lexer::Variant_Vulkan;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
   return Parser::T_IDENTIFIER;
 }
@@ -1375,6 +1598,31 @@ static inline int classify13(const char *s) {
                         if (s[11] == 'a') {
                           if (s[12] == 'y') {
                             return Parser::T_IIMAGE2DARRAY | Lexer::Variant_GLSL_400; // 420
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 's') {
+      if (s[2] == 'u') {
+        if (s[3] == 'b') {
+          if (s[4] == 'p') {
+            if (s[5] == 'a') {
+              if (s[6] == 's') {
+                if (s[7] == 's') {
+                  if (s[8] == 'I') {
+                    if (s[9] == 'n') {
+                      if (s[10] == 'p') {
+                        if (s[11] == 'u') {
+                          if (s[12] == 't') {
+                            return Parser::T_ISUBPASSINPUT | Lexer::Variant_Vulkan;
                           }
                         }
                       }
@@ -1448,6 +1696,59 @@ static inline int classify13(const char *s) {
                     }
                   }
                 }
+                else if (s[7] == 'S') {
+                  if (s[8] == 'h') {
+                    if (s[9] == 'a') {
+                      if (s[10] == 'd') {
+                        if (s[11] == 'o') {
+                          if (s[12] == 'w') {
+                            return Parser::T_SAMPLERSHADOW | Lexer::Variant_Vulkan;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 't') {
+    if (s[1] == 'e') {
+      if (s[2] == 'x') {
+        if (s[3] == 't') {
+          if (s[4] == 'u') {
+            if (s[5] == 'r') {
+              if (s[6] == 'e') {
+                if (s[7] == '2') {
+                  if (s[8] == 'D') {
+                    if (s[9] == 'R') {
+                      if (s[10] == 'e') {
+                        if (s[11] == 'c') {
+                          if (s[12] == 't') {
+                            return Parser::T_TEXTURE2DRECT | Lexer::Variant_Vulkan;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                else if (s[7] == 'B') {
+                  if (s[8] == 'u') {
+                    if (s[9] == 'f') {
+                      if (s[10] == 'f') {
+                        if (s[11] == 'e') {
+                          if (s[12] == 'r') {
+                            return Parser::T_TEXTUREBUFFER | Lexer::Variant_Vulkan;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
           }
@@ -1488,6 +1789,31 @@ static inline int classify13(const char *s) {
                           }
                         }
                       }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 's') {
+      if (s[2] == 'u') {
+        if (s[3] == 'b') {
+          if (s[4] == 'p') {
+            if (s[5] == 'a') {
+              if (s[6] == 's') {
+                if (s[7] == 's') {
+                  if (s[8] == 'I') {
+                    if (s[9] == 'n') {
+                      if (s[10] == 'p') {
+                        if (s[11] == 'u') {
+                          if (s[12] == 't') {
+                              return Parser::T_USUBPASSINPUT | Lexer::Variant_Vulkan;
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
@@ -1588,6 +1914,46 @@ static inline int classify14(const char *s) {
         }
       }
     }
+    else if (s[1] == 't') {
+      if (s[2] == 'e') {
+        if (s[3] == 'x') {
+          if (s[4] == 't') {
+            if (s[5] == 'u') {
+              if (s[6] == 'r') {
+                if (s[7] == 'e') {
+                  if (s[8] == '2') {
+                    if (s[9] == 'D') {
+                      if (s[10] == 'R') {
+                        if (s[11] == 'e') {
+                          if (s[12] == 'c') {
+                            if (s[13] == 't') {
+                              return Parser::T_ITEXTURE2DRECT | Lexer::Variant_Vulkan;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  else if (s[8] == 'B') {
+                    if (s[9] == 'u') {
+                      if (s[10] == 'f') {
+                        if (s[11] == 'f') {
+                          if (s[12] == 'e') {
+                            if (s[13] == 'r') {
+                              return Parser::T_ITEXTUREBUFFER | Lexer::Variant_Vulkan;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
   else if (s[0] == 's') {
     if (s[1] == 'a') {
@@ -1632,6 +1998,77 @@ static inline int classify14(const char *s) {
         }
       }
     }
+    else if (s[1] == 'u') {
+      if (s[2] == 'b') {
+        if (s[3] == 'p') {
+          if (s[4] == 'a') {
+            if (s[5] == 's') {
+              if (s[6] == 's') {
+                if (s[7] == 'I') {
+                  if (s[8] == 'n') {
+                    if (s[9] == 'p') {
+                      if (s[10] == 'u') {
+                        if (s[11] == 't') {
+                          if (s[12] == 'M') {
+                            if (s[13] == 'S') {
+                              return Parser::T_SUBPASSINPUTMS | Lexer::Variant_Vulkan;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 't') {
+    if (s[1] == 'e') {
+      if (s[2] == 'x') {
+        if (s[3] == 't') {
+          if (s[4] == 'u') {
+            if (s[5] == 'r') {
+              if (s[6] == 'e') {
+                if (s[7] == '1') {
+                  if (s[8] == 'D') {
+                    if (s[9] == 'A') {
+                      if (s[10] == 'r') {
+                        if (s[11] == 'r') {
+                          if (s[12] == 'a') {
+                            if (s[13] == 'y') {
+                              return Parser::T_TEXTURE1DARRAY | Lexer::Variant_Vulkan;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                else if (s[7] == '2') {
+                  if (s[8] == 'D') {
+                    if (s[9] == 'A') {
+                      if (s[10] == 'r') {
+                        if (s[11] == 'r') {
+                          if (s[12] == 'a') {
+                            if (s[13] == 'y') {
+                              return Parser::T_TEXTURE2DARRAY | Lexer::Variant_Vulkan;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
   else if (s[0] == 'u') {
     if (s[1] == 's') {
@@ -1661,6 +2098,46 @@ static inline int classify14(const char *s) {
                           if (s[12] == 'e') {
                             if (s[13] == 'r') {
                               return Parser::T_USAMPLERBUFFER | Lexer::Variant_GLSL_150;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 't') {
+      if (s[2] == 'e') {
+        if (s[3] == 'x') {
+          if (s[4] == 't') {
+            if (s[5] == 'u') {
+              if (s[6] == 'r') {
+                if (s[7] == 'e') {
+                  if (s[8] == '2') {
+                    if (s[9] == 'D') {
+                      if (s[10] == 'R') {
+                        if (s[11] == 'e') {
+                          if (s[12] == 'c') {
+                            if (s[13] == 't') {
+                                return Parser::T_UTEXTURE2DRECT | Lexer::Variant_Vulkan;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  else if (s[8] == 'B') {
+                    if (s[9] == 'u') {
+                      if (s[10] == 'f') {
+                        if (s[11] == 'f') {
+                          if (s[12] == 'e') {
+                            if (s[13] == 'r') {
+                              return Parser::T_UTEXTUREBUFFER | Lexer::Variant_Vulkan;
                             }
                           }
                         }
@@ -1772,6 +2249,50 @@ static inline int classify15(const char *s) {
         }
       }
     }
+    else if (s[1] == 't') {
+      if (s[2] == 'e') {
+        if (s[3] == 'x') {
+          if (s[4] == 't') {
+            if (s[5] == 'u') {
+              if (s[6] == 'r') {
+                if (s[7] == 'e') {
+                  if (s[8] == '1') {
+                    if (s[9] == 'D') {
+                      if (s[10] == 'A') {
+                        if (s[11] == 'r') {
+                          if (s[12] == 'r') {
+                            if (s[13] == 'a') {
+                              if (s[14] == 'y') {
+                                return Parser::T_ITEXTURE1DARRAY | Lexer::Variant_Vulkan;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  else if (s[8] == '2') {
+                    if (s[9] == 'D') {
+                      if (s[10] == 'A') {
+                        if (s[11] == 'r') {
+                          if (s[12] == 'r') {
+                            if (s[13] == 'a') {
+                              if (s[14] == 'y') {
+                                  return Parser::T_ITEXTURE2DARRAY | Lexer::Variant_Vulkan;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
   else if (s[0] == 's') {
     if (s[1] == 'a') {
@@ -1807,6 +2328,33 @@ static inline int classify15(const char *s) {
                               if (s[14] == 'w') {
                                 return Parser::T_SAMPLER2DSHADOW | Lexer::Variant_GLSL_120;
                               }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 'u') {
+      if (s[2] == 'b') {
+        if (s[3] == 'p') {
+          if (s[4] == 'a') {
+            if (s[5] == 's') {
+              if (s[6] == 's') {
+                if (s[7] == 'I') {
+                  if (s[8] == 'n') {
+                    if (s[9] == 'p') {
+                      if (s[10] == 'u') {
+                        if (s[11] == 't') {
+                          if (s[12] == 'M') {
+                            if (s[13] == 'S') {
+                              return Parser::T_ISUBPASSINPUTMS | Lexer::Variant_Vulkan;
                             }
                           }
                         }
@@ -1913,6 +2461,77 @@ static inline int classify15(const char *s) {
           }
         }
       }
+      else if (s[2] == 'u') {
+        if (s[3] == 'b') {
+          if (s[4] == 'p') {
+            if (s[5] == 'a') {
+              if (s[6] == 's') {
+                if (s[7] == 's') {
+                  if (s[8] == 'I') {
+                    if (s[9] == 'n') {
+                      if (s[10] == 'p') {
+                        if (s[11] == 'u') {
+                          if (s[12] == 't') {
+                            if (s[13] == 'M') {
+                              if (s[14] == 'S') {
+                                return Parser::T_USUBPASSINPUTMS | Lexer::Variant_Vulkan;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 't') {
+      if (s[2] == 'e') {
+        if (s[3] == 'x') {
+          if (s[4] == 't') {
+            if (s[5] == 'u') {
+              if (s[6] == 'r') {
+                if (s[7] == 'e') {
+                  if (s[8] == '1') {
+                    if (s[9] == 'D') {
+                      if (s[10] == 'A') {
+                        if (s[11] == 'r') {
+                          if (s[12] == 'r') {
+                            if (s[13] == 'a') {
+                              if (s[14] == 'y') {
+                                return Parser::T_UTEXTURE1DARRAY | Lexer::Variant_Vulkan;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  else if (s[8] == '2') {
+                    if (s[9] == 'D') {
+                      if (s[10] == 'A') {
+                        if (s[11] == 'r') {
+                          if (s[12] == 'r') {
+                            if (s[13] == 'a') {
+                              if (s[14] == 'y') {
+                                return Parser::T_UTEXTURE2DARRAY | Lexer::Variant_Vulkan;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
   return Parser::T_IDENTIFIER;
@@ -1971,6 +2590,58 @@ static inline int classify16(const char *s) {
       }
     }
   }
+  else if (s[0] == 't') {
+    if (s[1] == 'e') {
+      if (s[2] == 'x') {
+        if (s[3] == 't') {
+          if (s[4] == 'u') {
+            if (s[5] == 'r') {
+              if (s[6] == 'e') {
+                if (s[7] == '2') {
+                  if (s[8] == 'D') {
+                    if (s[9] == 'M') {
+                      if (s[10] == 'S') {
+                        if (s[11] == 'A') {
+                          if (s[12] == 'r') {
+                            if (s[13] == 'r') {
+                              if (s[14] == 'a') {
+                                if (s[15] == 'y') {
+                                  return Parser::T_TEXTURE2DMSARRAY | Lexer::Variant_Vulkan;
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                else if (s[7] == 'C') {
+                  if (s[8] == 'u') {
+                    if (s[9] == 'b') {
+                      if (s[10] == 'e') {
+                        if (s[11] == 'A') {
+                          if (s[12] == 'r') {
+                            if (s[13] == 'r') {
+                              if (s[14] == 'a') {
+                                if (s[15] == 'y') {
+                                    return Parser::T_TEXTURECUBEARRAY | Lexer::Variant_Vulkan;
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   return Parser::T_IDENTIFIER;
 }
 
@@ -2012,6 +2683,58 @@ static inline int classify17(const char *s) {
                                 if (s[15] == 'a') {
                                   if (s[16] == 'y') {
                                     return Parser::T_ISAMPLERCUBEARRAY | Lexer::Variant_GLSL_400;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 't') {
+      if (s[2] == 'e') {
+        if (s[3] == 'x') {
+          if (s[4] == 't') {
+            if (s[5] == 'u') {
+              if (s[6] == 'r') {
+                if (s[7] == 'e') {
+                  if (s[8] == '2') {
+                    if (s[9] == 'D') {
+                      if (s[10] == 'M') {
+                        if (s[11] == 'S') {
+                          if (s[12] == 'A') {
+                            if (s[13] == 'r') {
+                              if (s[14] == 'r') {
+                                if (s[15] == 'a') {
+                                  if (s[16] == 'y') {
+                                    return Parser::T_ITEXTURE2DMSARRAY | Lexer::Variant_Vulkan;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  else if (s[8] == 'C') {
+                    if (s[9] == 'u') {
+                      if (s[10] == 'b') {
+                        if (s[11] == 'e') {
+                          if (s[12] == 'A') {
+                            if (s[13] == 'r') {
+                              if (s[14] == 'r') {
+                                if (s[15] == 'a') {
+                                  if (s[16] == 'y') {
+                                      return Parser::T_ITEXTURECUBEARRAY | Lexer::Variant_Vulkan;
                                   }
                                 }
                               }
@@ -2101,6 +2824,58 @@ static inline int classify17(const char *s) {
                                 if (s[15] == 'a') {
                                   if (s[16] == 'y') {
                                     return Parser::T_USAMPLERCUBEARRAY | Lexer::Variant_GLSL_400;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 't') {
+      if (s[2] == 'e') {
+        if (s[3] == 'x') {
+          if (s[4] == 't') {
+            if (s[5] == 'u') {
+              if (s[6] == 'r') {
+                if (s[7] == 'e') {
+                  if (s[8] == '2') {
+                    if (s[9] == 'D') {
+                      if (s[10] == 'M') {
+                        if (s[11] == 'S') {
+                          if (s[12] == 'A') {
+                            if (s[13] == 'r') {
+                              if (s[14] == 'r') {
+                                if (s[15] == 'a') {
+                                  if (s[16] == 'y') {
+                                    return Parser::T_UTEXTURE2DMSARRAY | Lexer::Variant_Vulkan;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  else if (s[8] == 'C') {
+                    if (s[9] == 'u') {
+                      if (s[10] == 'b') {
+                        if (s[11] == 'e') {
+                          if (s[12] == 'A') {
+                            if (s[13] == 'r') {
+                              if (s[14] == 'r') {
+                                if (s[15] == 'a') {
+                                  if (s[16] == 'y') {
+                                    return Parser::T_UTEXTURECUBEARRAY | Lexer::Variant_Vulkan;
                                   }
                                 }
                               }
@@ -2598,6 +3373,50 @@ QStringList Lexer::keywords(int variant) {
       list += QLatin1String("uimageCube");
   if (variant & (Lexer::Variant_GLSL_400))
       list += QLatin1String("uimageCubeArray");
+  // Vulkan additions
+  if (variant & (Lexer::Variant_Vulkan)) {
+      list += QLatin1String("isubpassInput");
+      list += QLatin1String("isubpassInputMS");
+      list += QLatin1String("itexture1D");
+      list += QLatin1String("itexture1DArray");
+      list += QLatin1String("itexture2D");
+      list += QLatin1String("itexture2DArray");
+      list += QLatin1String("itexture2DMS");
+      list += QLatin1String("itexture2DMSArray");
+      list += QLatin1String("itexture2DRect");
+      list += QLatin1String("itexture3D");
+      list += QLatin1String("itextureBuffer");
+      list += QLatin1String("itextureCube");
+      list += QLatin1String("itextureCubeArray");
+      list += QLatin1String("sampler");
+      list += QLatin1String("samplerShadow");
+      list += QLatin1String("subpassInput");
+      list += QLatin1String("subpassInputMS");
+      list += QLatin1String("texture1D");
+      list += QLatin1String("texture1DArray");
+      list += QLatin1String("texture2D");
+      list += QLatin1String("texture2DArray");
+      list += QLatin1String("texture2DMS");
+      list += QLatin1String("texture2DMSArray");
+      list += QLatin1String("texture2DRect");
+      list += QLatin1String("texture3D");
+      list += QLatin1String("textureBuffer");
+      list += QLatin1String("textureCube");
+      list += QLatin1String("textureCubeArray");
+      list += QLatin1String("usubpassInput");
+      list += QLatin1String("usubpassInputMS");
+      list += QLatin1String("utexture1D");
+      list += QLatin1String("utexture1DArray");
+      list += QLatin1String("utexture2D");
+      list += QLatin1String("utexture2DArray");
+      list += QLatin1String("utexture2DMS");
+      list += QLatin1String("utexture2DMSArray");
+      list += QLatin1String("utexture2DRect");
+      list += QLatin1String("utexture3D");
+      list += QLatin1String("utextureBuffer");
+      list += QLatin1String("utextureCube");
+      list += QLatin1String("utextureCubeArray");
+  }
   return list;
 }
 

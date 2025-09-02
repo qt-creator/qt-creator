@@ -107,7 +107,8 @@ enum {
 class InitFile final
 {
 public:
-    explicit InitFile(const QString &fileName) : m_fileName(fileName) {}
+    explicit InitFile(const QString &fileName, bool cutVulkanRemoved = false)
+        : m_fileName(fileName), m_cutVulkanRemoved(cutVulkanRemoved) {}
 
     ~InitFile() { delete m_engine; }
 
@@ -129,21 +130,31 @@ private:
     void initialize() const
     {
         // Parse the builtins for any language variant so we can use all keywords.
-        const int variant = GLSL::Lexer::Variant_All;
+        const int variant = m_cutVulkanRemoved
+                       ? GLSL::Lexer::Variant_All
+                       : (GLSL::Lexer::Variant_All & ~GLSL::Lexer::Variant_Vulkan);
 
         QByteArray code;
         QFile file(Core::ICore::resourcePath("glsl").pathAppended(m_fileName).toUrlishString());
         if (file.open(QFile::ReadOnly))
             code = file.readAll();
 
+        if (m_cutVulkanRemoved) {
+            const int index = code.indexOf("//// Vulkan removed variables and functions");
+            if (index != -1)
+                code.truncate(index);
+        }
+
         m_engine = new GLSL::Engine();
         GLSL::Parser parser(m_engine, code.constData(), code.size(), variant);
         m_ast = parser.parse();
+        QTC_CHECK(m_ast);
     }
 
     QString m_fileName;
     mutable GLSL::Engine *m_engine = nullptr;
     mutable GLSL::TranslationUnitAST *m_ast = nullptr;
+    bool m_cutVulkanRemoved = false;
 };
 
 static const InitFile *fragmentShaderInit(int variant)
@@ -166,9 +177,13 @@ static const InitFile *vertexShaderInit(int variant)
     static InitFile glsl_es_100_vert{"glsl_es_100.vert"};
     static InitFile glsl_120_vert{"glsl_120.vert"};
     static InitFile glsl_330_vert{"glsl_330.vert"};
+    static InitFile glsl_330_vert_modified{"glsl_330.vert", true};
 
-    if (variant & GLSL::Lexer::Variant_GLSL_400)
+    if (variant & GLSL::Lexer::Variant_GLSL_400) {
+        if (variant & GLSL::Lexer::Variant_Vulkan)
+            return &glsl_330_vert_modified;
         return &glsl_330_vert;
+    }
 
     if (variant & GLSL::Lexer::Variant_GLSL_120)
         return &glsl_120_vert;
@@ -181,9 +196,13 @@ static const InitFile *shaderInit(int variant)
     static InitFile glsl_es_100_common{"glsl_es_100_common.glsl"};
     static InitFile glsl_120_common{"glsl_120_common.glsl"};
     static InitFile glsl_330_common{"glsl_330_common.glsl"};
+    static InitFile glsl_330_common_modified{"glsl_330_common.glsl", true};
 
-    if (variant & GLSL::Lexer::Variant_GLSL_400)
+    if (variant & GLSL::Lexer::Variant_GLSL_400) {
+        if (variant & GLSL::Lexer::Variant_Vulkan)
+            return &glsl_330_common_modified;
         return &glsl_330_common;
+    }
 
     if (variant & GLSL::Lexer::Variant_GLSL_120)
         return &glsl_120_common;
