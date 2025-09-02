@@ -22,7 +22,7 @@
 
     By default, \uicontrol {Always deploy project before running it} (1) and
     \uicontrol {Build the Whole Project} (2) are selected. Therefore, when
-    you select \inlineimage icons/run_small.png (\uicontrol Run), \QC checks
+    you select \inlineimage {icons/run_small.png} {Run} (\uicontrol Run), \QC checks
     for changes in the project files and also builds and deploys the project if
     necessary.
 

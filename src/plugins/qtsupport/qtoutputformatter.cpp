@@ -134,7 +134,7 @@ OutputLineParser::LinkSpec QtOutputLineParser::matchLine(const QString &line) co
 
 OutputLineParser::Result QtOutputLineParser::handleLine(const QString &txt, OutputFormat format)
 {
-    Q_UNUSED(format);
+    Q_UNUSED(format)
     const LinkSpec lr = matchLine(txt);
     if (!lr.target.isEmpty())
         return Result(Status::Done, {lr});

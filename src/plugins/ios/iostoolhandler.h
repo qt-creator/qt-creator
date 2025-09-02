@@ -46,6 +46,7 @@ public:
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000);
     bool isRunning() const;
     void stop();
+    int exitCode() const;
 
 signals:
     void isTransferringApp(Ios::IosToolHandler *handler, const Utils::FilePath &bundlePath,
@@ -55,17 +56,15 @@ signals:
                         const QString &deviceId, Ios::IosToolHandler::OpStatus status);
     void didStartApp(Ios::IosToolHandler *handler, const Utils::FilePath &bundlePath,
                      const QString &deviceId, Ios::IosToolHandler::OpStatus status);
-    void gotServerPorts(Ios::IosToolHandler *handler, const Utils::FilePath &bundlePath,
-                            const QString &deviceId, Utils::Port gdbPort, Utils::Port qmlPort);
-    void gotInferiorPid(Ios::IosToolHandler *handler, const Utils::FilePath &bundlePath,
-                        const QString &deviceId, qint64 pid);
+    void gotServerPorts(Utils::Port gdbPort, Utils::Port qmlPort);
+    void gotInferiorPid(qint64 pid);
     void deviceInfo(Ios::IosToolHandler *handler, const QString &deviceId,
                     const Ios::IosToolHandler::Dict &info);
-    void appOutput(Ios::IosToolHandler *handler, const QString &output);
+    void appOutput(const QString &output);
     void message(const QString &msg);
-    void errorMsg(Ios::IosToolHandler *handler, const QString &msg);
-    void toolExited(Ios::IosToolHandler *handler, int code);
-    void finished(Ios::IosToolHandler *handler);
+    void errorMsg(const QString &msg);
+    void toolExited(int code);
+    void finished();
 
 private:
     friend class Ios::Internal::IosToolHandlerPrivate;

@@ -716,16 +716,16 @@ Check::Check(Document::Ptr doc, const ContextPtr &context, Utils::QtcSettings *q
         auto toIntList = [](const QList<StaticAnalysis::Type> list) {
             return Utils::transform(list, [](StaticAnalysis::Type t) { return int(t); });
         };
-        auto disabled = qtcSettings->value("J.QtQuick/QmlJSEditor.disabledMessages",
-                                           QVariant::fromValue(
-                                               toIntList(defaultDisabledMessages()))).toList();
+        const auto disabled = qtcSettings->value("J.QtQuick/QmlJSEditor.disabledMessages",
+                                                 QVariant::fromValue(
+                                                     toIntList(defaultDisabledMessages()))).toList();
         for (const QVariant &disabledNumber : disabled)
             disableMessage(StaticAnalysis::Type(disabledNumber.toInt()));
 
         if (!isQtQuick2Ui()) {
-            auto disabled = qtcSettings->value("J.QtQuick/QmlJSEditor.disabledMessagesNonQuickUI",
-                                               QVariant::fromValue(
-                                                   toIntList(defaultDisabledMessagesForNonQuickUi()))).toList();
+            const auto disabled = qtcSettings->value("J.QtQuick/QmlJSEditor.disabledMessagesNonQuickUI",
+                                                     QVariant::fromValue(
+                                                         toIntList(defaultDisabledMessagesForNonQuickUi()))).toList();
             for (const QVariant &disabledNumber : disabled)
                 disableMessage(StaticAnalysis::Type(disabledNumber.toInt()));
         }

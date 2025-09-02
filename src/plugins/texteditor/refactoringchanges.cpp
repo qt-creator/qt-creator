@@ -73,8 +73,7 @@ bool RefactoringFile::create(const QString &contents, bool reindent, bool openIn
     // Write the file to disk:
     TextFileFormat format;
     format.setCodecName(EditorManager::defaultTextCodecName());
-    QString error;
-    bool saveOk = format.writeFile(m_filePath, m_document->toPlainText(), &error);
+    const Result<> saveOk = format.writeFile(m_filePath, m_document->toPlainText());
     delete m_document;
     m_document = nullptr;
     if (!saveOk)
@@ -112,15 +111,13 @@ QTextDocument *RefactoringFile::mutableDocument() const
     if (!m_document) {
         QString fileContents;
         if (!m_filePath.isEmpty()) {
-            QString error;
             QTextCodec *defaultCodec = EditorManager::defaultTextCodec();
             TextFileFormat::ReadResult result = TextFileFormat::readFile(m_filePath,
                                                                          defaultCodec,
                                                                          &fileContents,
-                                                                         &m_textFileFormat,
-                                                                         &error);
-            if (result != TextFileFormat::ReadSuccess) {
-                qWarning() << "Could not read " << m_filePath << ". Error: " << error;
+                                                                         &m_textFileFormat);
+            if (result.code != TextFileFormat::ReadSuccess) {
+                qWarning() << "Could not read " << m_filePath << ". Error: " << result.error;
                 m_textFileFormat.setCodec(nullptr);
             }
         }
@@ -266,14 +263,13 @@ bool RefactoringFile::apply()
             // if this document doesn't have an editor, write the result to a file
             if (!m_editor && m_textFileFormat.codec()) {
                 QTC_ASSERT(!m_filePath.isEmpty(), return false);
-                QString error;
                 // suppress "file has changed" warnings if the file is open in a read-only editor
                 Core::FileChangeBlocker block(m_filePath);
-                if (m_textFileFormat.writeFile(m_filePath, doc->toPlainText(), &error)) {
+                if (const Result<> res = m_textFileFormat.writeFile(m_filePath, doc->toPlainText())) {
                     Core::DocumentManager::notifyFilesChangedInternally({m_filePath});
                 } else {
                     qWarning() << "Could not apply changes to" << m_filePath
-                               << ". Error: " << error;
+                               << ". Error: " << res.error();
                     result = false;
                 }
             }

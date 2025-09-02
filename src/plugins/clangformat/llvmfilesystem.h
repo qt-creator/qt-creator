@@ -20,7 +20,7 @@ class LlvmFileAdapter : public File
 public:
     LlvmFileAdapter(const Twine &Path)
     {
-        Q_UNUSED(Path);
+        Q_UNUSED(Path)
     }
     /// Destroy the file after closing it (if open).
     /// Sub-classes should generally call close() inside their destructors. We
@@ -47,12 +47,12 @@ public:
                                                      bool RequiresNullTerminator = true,
                                                      bool IsVolatile = false) override
     {
-        Q_UNUSED(RequiresNullTerminator);
-        Q_UNUSED(IsVolatile);
+        Q_UNUSED(RequiresNullTerminator)
+        Q_UNUSED(IsVolatile)
 
         const FilePath path = FilePath::fromUserInput(QString::fromStdString(Name.str()));
-        const expected_str<QByteArray> contents = path.fileContents(FileSize, 0);
-        QTC_ASSERT_EXPECTED(contents, return std::error_code());
+        const Result<QByteArray> contents = path.fileContents(FileSize, 0);
+        QTC_ASSERT_RESULT(contents, return std::error_code());
 
         return MemoryBuffer::getMemBufferCopy(contents->data(), Name);
     }
@@ -102,8 +102,8 @@ public:
     /// \note The 'end' iterator is directory_iterator().
     vfs::directory_iterator dir_begin(const Twine &Dir, std::error_code &EC) override
     {
-        Q_UNUSED(Dir);
-        Q_UNUSED(EC);
+        Q_UNUSED(Dir)
+        Q_UNUSED(EC)
         Q_UNIMPLEMENTED();
         return {};
     }
@@ -112,7 +112,7 @@ public:
     /// this file system and may propagate down for nested file systems.
     std::error_code setCurrentWorkingDirectory(const Twine &Path) override
     {
-        Q_UNUSED(Path);
+        Q_UNUSED(Path)
         Q_UNIMPLEMENTED();
         return std::make_error_code(std::errc::not_supported);
     }
@@ -133,8 +133,8 @@ public:
 #endif
         override
     {
-        Q_UNUSED(Path);
-        Q_UNUSED(Output);
+        Q_UNUSED(Path)
+        Q_UNUSED(Output)
 
         Q_UNIMPLEMENTED();
         return std::make_error_code(std::errc::not_supported);

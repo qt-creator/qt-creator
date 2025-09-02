@@ -5,16 +5,17 @@
 
 #include <qmlprofiler/qmlprofileranimationsmodel.h>
 #include <qmlprofiler/qmlprofilermodelmanager.h>
+
 #include <QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerAnimationsModelTest : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit QmlProfilerAnimationsModelTest(QObject *parent = nullptr);
+    QmlProfilerAnimationsModelTest();
 
 private slots:
     void initTestCase();
@@ -33,5 +34,4 @@ private:
     QmlProfilerAnimationsModel model;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

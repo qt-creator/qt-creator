@@ -474,7 +474,7 @@ void ClangdCompletionItem::apply(TextEditorWidget *editorWidget,
             editorWidget->setAutoCompleteSkipPosition(editorWidget->textCursor());
     }
 
-    if (auto additionalEdits = item.additionalTextEdits()) {
+    if (const auto additionalEdits = item.additionalTextEdits()) {
         for (const auto &edit : *additionalEdits)
             applyTextEdit(editorWidget, edit);
     }

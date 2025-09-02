@@ -44,8 +44,6 @@
 #include <cctype>
 #include <cstdio>
 #include <deque>
-#include <list>
-#include <algorithm>
 
 // FIXME: This is used for errors that should appear in the editor.
 static Q_LOGGING_CATEGORY(lexerLog, "qtc.cpp.lexer", QtWarningMsg)
@@ -247,7 +245,6 @@ struct Value
 
 } // namespace Internal
 
-using namespace CPlusPlus;
 using namespace CPlusPlus::Internal;
 
 namespace {
@@ -975,7 +972,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
     // a "reference" line initialize set to the line where expansion happens.
     unsigned baseLine = idTk.lineno - m_state.m_lineRef + 1;
 
-    QVector<PPToken> body = macro->definitionTokens();
+    QList<PPToken> body = macro->definitionTokens();
 
     // Within nested expansion we might reach a previously added marker token. In this case,
     // we need to move it from its current possition to outside the nesting.
@@ -995,7 +992,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
         }
 
         // Collect individual tokens that form the macro arguments.
-        QVector<QVector<PPToken> > allArgTks;
+        QList<QList<PPToken>> allArgTks;
         bool hasArgs = collectActualArguments(tk, &allArgTks, macro->name());
 
         // Check whether collecting arguments failed due to a previously added marker
@@ -1014,7 +1011,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
         if (hasArgs) {
             const int expectedArgCount = macro->formals().size();
             if (macro->isVariadic() && allArgTks.size() == expectedArgCount - 1)
-                allArgTks.push_back(QVector<PPToken>());
+                allArgTks.push_back(QList<PPToken>());
             const int actualArgCount = allArgTks.size();
             if (expectedArgCount == actualArgCount
                     || (macro->isVariadic() && actualArgCount > expectedArgCount - 1)
@@ -1040,9 +1037,9 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
             // Bundle each token sequence into a macro argument "reference" for notification.
             // Even empty ones, which are not necessarily important on its own, but for the matter
             // of couting their number - such as in foo(,)
-            QVector<MacroArgumentReference> argRefs;
+            QList<MacroArgumentReference> argRefs;
             for (int i = 0; i < allArgTks.size(); ++i) {
-                const QVector<PPToken> &argTks = allArgTks.at(i);
+                const QList<PPToken> &argTks = allArgTks.at(i);
                 if (argTks.isEmpty()) {
                     argRefs.push_back(MacroArgumentReference());
                 } else {
@@ -1142,11 +1139,11 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
 }
 
 bool Preprocessor::handleFunctionLikeMacro(const Macro *macro,
-                                           QVector<PPToken> &body,
-                                           const QVector<QVector<PPToken> > &actuals,
+                                           QList<PPToken> &body,
+                                           const QList<QList<PPToken> > &actuals,
                                            unsigned baseLine)
 {
-    QVector<PPToken> expanded;
+    QList<PPToken> expanded;
 
     const auto addToken = [&expanded](PPToken &&tok) {
         if (expanded.isEmpty())
@@ -1162,11 +1159,11 @@ bool Preprocessor::handleFunctionLikeMacro(const Macro *macro,
 
         if (bodyTk.is(T_IDENTIFIER)) {
             const ByteArrayRef id = bodyTk.asByteArrayRef();
-            const QVector<QByteArray> &formals = macro->formals();
+            const QList<QByteArray> &formals = macro->formals();
             int j = 0;
             for (; j < formals.size() && expanded.size() < MAX_TOKEN_EXPANSION_COUNT; ++j) {
                 if (formals[j] == id) {
-                    QVector<PPToken> actualsForThisParam = actuals.at(j);
+                    QList<PPToken> actualsForThisParam = actuals.at(j);
                     unsigned lineno = baseLine;
 
                     // Collect variadic arguments
@@ -1509,7 +1506,7 @@ bool Preprocessor::consumeComments(PPToken *tk)
     return tk->isNot(T_EOF_SYMBOL);
 }
 
-bool Preprocessor::collectActualArguments(PPToken *tk, QVector<QVector<PPToken> > *actuals,
+bool Preprocessor::collectActualArguments(PPToken *tk, QList<QList<PPToken> > *actuals,
                                           const QByteArray &parentMacroName)
 {
     Q_ASSERT(tk);
@@ -1548,7 +1545,7 @@ bool Preprocessor::collectActualArguments(PPToken *tk, QVector<QVector<PPToken> 
         //### TODO: error message
         return false;
 
-    QVector<PPToken> tokens;
+    QList<PPToken> tokens;
     lex(tk);
     scanActualArgument(tk, &tokens);
 
@@ -1557,7 +1554,7 @@ bool Preprocessor::collectActualArguments(PPToken *tk, QVector<QVector<PPToken> 
     while (tk->is(T_COMMA)) {
         lex(tk);
 
-        QVector<PPToken> tokens;
+        QList<PPToken> tokens;
         scanActualArgument(tk, &tokens);
         actuals->append(tokens);
     }
@@ -1569,7 +1566,7 @@ bool Preprocessor::collectActualArguments(PPToken *tk, QVector<QVector<PPToken> 
     return true;
 }
 
-void Preprocessor::scanActualArgument(PPToken *tk, QVector<PPToken> *tokens)
+void Preprocessor::scanActualArgument(PPToken *tk, QList<PPToken> *tokens)
 {
     Q_ASSERT(tokens);
 
@@ -1785,7 +1782,7 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
             m_state.updateIncludeGuardState(State::IncludeGuardStateHint_Define, &idToken);
     }
 
-    QVector<PPToken> bodyTokens;
+    QList<PPToken> bodyTokens;
     unsigned previousBytesOffset = 0;
     unsigned previousUtf16charsOffset = 0;
     unsigned previousLine = 0;
@@ -1833,7 +1830,7 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
         if (macro.isFunctionLike()) {
             macroId += '(';
             bool fst = true;
-            const QVector<QByteArray> formals = macro.formals();
+            const QList<QByteArray> formals = macro.formals();
             for (const QByteArray &formal : formals) {
                 if (! fst)
                     macroId += ", ";

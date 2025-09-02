@@ -4,6 +4,7 @@
 #include "removefiledialog.h"
 
 #include "filepath.h"
+#include "guiutils.h"
 #include "layoutbuilder.h"
 #include "utilstr.h"
 
@@ -14,8 +15,8 @@
 
 namespace Utils {
 
-RemoveFileDialog::RemoveFileDialog(const FilePath &filePath, QWidget *parent)
-    : QDialog(parent)
+RemoveFileDialog::RemoveFileDialog(const FilePath &filePath)
+    : QDialog(dialogParent())
 {
     const bool isFile = filePath.isFile();
     setWindowTitle(isFile ? Tr::tr("Remove File") : Tr::tr("Remove Folder"));

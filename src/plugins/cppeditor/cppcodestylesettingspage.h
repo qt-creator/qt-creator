@@ -6,7 +6,7 @@
 #include "cppcodestylesettings.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/codestyleeditor.h>
 #include <texteditor/tabsettings.h>
 
 #include <QWidget>
@@ -19,11 +19,17 @@ namespace TextEditor {
     class CodeStyleEditorWidget;
 }
 
-namespace CppEditor::Internal {
+namespace CppEditor {
+
+namespace Internal {
 
 class CppCodeStylePreferencesWidgetPrivate;
 
-class CppCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
+void setupCppCodeStyleSettings();
+
+} // namespace Internal
+
+class CPPEDITOR_EXPORT CppCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
 {
     Q_OBJECT
 
@@ -54,13 +60,12 @@ private:
     CppCodeStyleSettings cppCodeStyleSettings() const;
 
     CppCodeStylePreferences *m_preferences = nullptr;
-    CppCodeStylePreferencesWidgetPrivate *d = nullptr;
+    Internal::CppCodeStylePreferencesWidgetPrivate *d = nullptr;
     CppCodeStyleSettings m_originalCppCodeStyleSettings;
     TextEditor::TabSettings m_originalTabSettings;
     bool m_blockUpdates = false;
-    friend class CppCodeStylePreferencesWidgetPrivate;
+
+    friend class Internal::CppCodeStylePreferencesWidgetPrivate;
 };
 
-void setupCppCodeStyleSettings();
-
-} // namespace CppEditor::Internal
+} // namespace CppEditor

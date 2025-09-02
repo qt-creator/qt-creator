@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/result.h>
+
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -30,9 +32,8 @@ public:
 
     // Utilities to initialize/populate the model
     static QStandardItemModel *createModel(QObject *parent);
-    static bool populateModelFromMailCapFile(const Utils::FilePath &file,
-                                             QStandardItemModel *model,
-                                             QString *errorMessage);
+    static Utils::Result<> populateModelFromMailCapFile(const Utils::FilePath &file,
+                                                        QStandardItemModel *model);
 
     // Return a list for a completer on the field line edits
     static QStringList nickNameList(const QStandardItemModel *model);

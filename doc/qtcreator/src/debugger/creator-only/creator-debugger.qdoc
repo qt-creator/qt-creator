@@ -225,7 +225,8 @@
     debugger in the following ways:
 
     \list
-        \li Select \inlineimage icons/qtcreator-debug-button.png
+        \li Select
+            \inlineimage {icons/qtcreator-debug-button.png} {Start Debugging of Startup Project}
             (\uicontrol {Start Debugging of Startup Project}).
         \li Select \key F5.
         \li Enter \c {dr} in the locator, and select the project to debug.
@@ -479,17 +480,18 @@
 
     \title Debug crashed processes on Windows
 
-    The \e{post-mortem} debugger operating mode is available only on Windows,
-    if you installed the debugging tools for Windows.
+    You can launch the debugger in the \e {post-mortem} debugger operating mode
+    if an application crashes on Windows. Select \uicontrol {Debug in \QC} in the
+    error message from the Windows operating system.
 
-    The \QC installation program asks you whether you want to register \QC as a
-    post-mortem debugger. To change the setting, go to
-    \preferences > \uicontrol Debugger >
-    \uicontrol General > \uicontrol {Use \QC for post-mortem debugging}.
+    You can use the post-mortem debugger only on Windows, and you must first
+    install the debugging tools for Windows.
 
-    You can launch the debugger in the post-mortem mode if an application
-    crashes on Windows. Select the \uicontrol {Debug in \QC} button in the error
-    message from the Windows operating system.
+    To register \QC as a post-mortem debugger, go to \preferences >
+    \uicontrol Debugger > \uicontrol General, and then select
+    \uicontrol {Use \QC for post-mortem debugging}.
+
+    \image {qtcreator-preferences-debugger-general.webp} {General tab in Debugger preferences}
 
     \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
@@ -529,6 +531,9 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-debug
+    \ingroup creator-how-to-b2qt
+    \ingroup creator-how-to-remote-linux
+    \ingroup creator-how-to-qnx
 
     \title Debug remotely with GDB
 
@@ -960,25 +965,25 @@
             \li Keyboard Shortcut
             \li Description
         \row
-            \li \inlineimage icons/qtcreator-debug-button-stop.png
+            \li \inlineimage {icons/qtcreator-debug-button-stop.png} {Stop Debugger}
             \li \uicontrol {Stop Debugger}
             \li \key {Shift+F5}
             \li Stops the debugger.
         \row
-            \li \inlineimage icons/debugger_stepover_small.png
+            \li \inlineimage {icons/debugger_stepover_small.png} {Step Over}
             \li \uicontrol {Step Over}
             \li \key F10 (\key {Command+Shift+O} on \macos)
             \li Steps over the next line inside the function being debugged. It
                 executes the call and moves to the next line to be executed in
                 the function.
         \row
-            \li \inlineimage icons/debugger_stepinto_small.png
+            \li \inlineimage {icons/debugger_stepinto_small.png} {Step Into}
             \li \uicontrol {Step Into}
             \li \key F11 (\key {Command+Shift+I} on \macos)
             \li Steps into the line that it is currently on. For a function call,
                 goes into the function and is ready to continue.
         \row
-            \li \inlineimage icons/debugger_stepout_small.png
+            \li \inlineimage {icons/debugger_stepout_small.png} {Step Out}
             \li \uicontrol {Step Out}
             \li \key {Shift+F11} (\key {Command+Shift+T} on \macos)
             \li Finishes executing the function and exits to the function that
@@ -999,7 +1004,7 @@
             \li Runs to the selected function when you are stepping into a nested
                 function.
         \row
-            \li \inlineimage icons/qtcreator-debugging-continue.png
+            \li \inlineimage {icons/qtcreator-debugging-continue.png} {Continue}
             \li \uicontrol {Continue}
             \li \key F5
             \li Resumes application execution at the address where it last
@@ -1056,7 +1061,11 @@
 
     To force a plain C-like display of structures, go to \preferences >
     \uicontrol Debugger > \uicontrol {Locals & Expressions}, and then clear
-    \uicontrol {Use Debugging Helpers}. This still uses the
+    \uicontrol {Use Debugging Helpers}.
+
+    \image {qtcreator-debugging-helper-options.webp} {Locals & Expressions tab in Debugger preferences}
+
+    This still uses the
     Python scripts, but generates more basic output. To force the plain display
     for a single object or for all objects of a given type, select
     \uicontrol {Change Value Display Format} > \uicontrol Raw in the context
@@ -1097,8 +1106,6 @@
     objects connected to this object's slots with Qt's signals and slots
     mechanism. Go to \preferences > \uicontrol {Debugger} >
     \uicontrol {Locals & Expressions} > \uicontrol {Use Debugging Helpers}.
-
-    \image {qtcreator-debugging-helper-options.webp} {Locals & Expressions tab in Debugger preferences}
 
     In the \uicontrol Locals view, expand the object's entry and open the slot
     in the \e slots subitem. The view shows the objects connected to this slot
@@ -1462,9 +1469,9 @@
     \list
         \li Go to \uicontrol Debug > \uicontrol {Operate by Instruction} while
             the debugger is running.
-        \li Select the \inlineimage icons/debugger_singleinstructionmode.png
-            (\uicontrol {Operate by Instruction}) tool button on the debugger
-            toolbar.
+        \li Select
+            \inlineimage {icons/debugger_singleinstructionmode.png} {Operate by Instruction}
+            (\uicontrol {Operate by Instruction}) on the debugger toolbar.
         \li In the \l {Viewing and Editing Register State}{Registers} view,
             select a value, and then select \uicontrol {Open Disassembler at <value>}
             in the context menu.
@@ -1473,7 +1480,7 @@
     \section1 Starting Disassembler
 
     To start a disassembler from the \uicontrol Registers view, select
-    \uicontrol {Open Disassembler} and  set the disassembler address:
+    \uicontrol {Open Disassembler} and set the disassembler address:
 
     \image {qcreator-debugger-select-start-address.webp} {Select Start Address dialog}
 
@@ -1525,7 +1532,7 @@
     can specify \l{https://sourceware.org/gdb/onlinedocs/gdb/Signals.html}
     {GDB commands} for handling the signals. For example, you can tell GDB to
     ignore the \c SIGSTOP signal if you receive the following error message:
-    \c {The inferior stopped because it received a signal from the operating
+    \c {The debugged process stopped because it received a signal from the operating
     system. Signal name: SIGSTOP}.
 
     To stop GDB from handling the \c SIGSTOP signal, add the following commands
@@ -2102,8 +2109,8 @@
     Some anti-virus applications do not allow debuggers to retrieve data. For
     example, on Windows, launching the debugger might fail with the following
     message if the Avira AntiVir is installed on the development PC: \e{The
-    inferior stopped because it received a signal from the operating system.
-    Signal name:? signal meaning: Unknown signal.}
+    debugged process stopped because it received a signal from the operating
+    system. Signal name:? signal meaning: Unknown signal.}
 
     Some versions of Avira AntiVir Desktop-Products have known issues in
     various development environments, including \QC. To fix the problem,
@@ -2132,9 +2139,8 @@
 
         \li Make sure you use at least \QC 3.0.1
 
-        \li Select the \inlineimage icons/run_small.png
-            (\uicontrol Run) button to verify that the
-            \l {Run on many platforms}{build and run kit selector}
+        \li Select \inlineimage {icons/run_small.png} {Run} (\uicontrol Run) to
+            check that the \l {Run on many platforms}{build and run kit selector}
             picked a runnable target and you can run the application.
 
         \li Make sure the debugger is \l{Supported Debuggers}{set up properly}.

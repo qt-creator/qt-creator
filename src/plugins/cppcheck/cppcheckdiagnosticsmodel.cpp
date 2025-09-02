@@ -5,13 +5,12 @@
 
 #include "cppchecktr.h"
 
-#include <debugger/analyzer/diagnosticlocation.h>
-
 #include <utils/algorithm.h>
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/link.h>
 #include <utils/utilsicons.h>
 
-using namespace Debugger;
+using namespace Utils;
 
 namespace Cppcheck::Internal {
 
@@ -57,12 +56,8 @@ QVariant DiagnosticItem::data(int column, int role) const
 {
     if (column == DiagnosticsModel::DiagnosticColumn) {
         switch (role) {
-        case DetailedErrorView::LocationRole: {
-            const auto location = DiagnosticLocation(m_diagnostic.fileName,
-                                                     m_diagnostic.lineNumber,
-                                                     0);
-            return QVariant::fromValue(location);
-        }
+        case Debugger::DetailedErrorView::LocationRole:
+            return QVariant::fromValue(Link(m_diagnostic.fileName, m_diagnostic.lineNumber, 0));
         case Qt::DisplayRole:
             return QString("%1: %2").arg(m_diagnostic.lineNumber).arg(m_diagnostic.message);
         case Qt::ToolTipRole:

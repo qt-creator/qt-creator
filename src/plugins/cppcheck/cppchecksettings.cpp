@@ -8,7 +8,6 @@
 #include "cppchecktr.h"
 
 #include <utils/environment.h>
-#include <utils/flowlayout.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/layoutbuilder.h>

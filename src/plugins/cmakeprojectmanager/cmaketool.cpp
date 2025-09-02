@@ -89,7 +89,7 @@ public:
     QList<CMakeTool::Generator> m_generators;
     CMakeKeywords m_keywords;
     QMutex m_keywordsMutex;
-    QVector<FileApi> m_fileApis;
+    QList<FileApi> m_fileApis;
     CMakeTool::Version m_version;
 };
 
@@ -251,7 +251,7 @@ CMakeKeywords CMakeTool::keywords()
         findCMakeRoot.writeFileContents("message(${CMAKE_ROOT})");
 
         FilePath cmakeRoot;
-        runCMake(proc, {"-P", findCMakeRoot.nativePath()}, 5);
+        runCMake(proc, {"-P", findCMakeRoot.nativePath()});
         if (proc.result() == ProcessResult::FinishedWithSuccess) {
             QStringList output = filtered(proc.allOutput().split('\n'),
                                           std::not_fn(&QString::isEmpty));
@@ -445,7 +445,7 @@ static QStringList parseDefinition(const QString &definition)
     QStringList result;
     QString word;
     bool ignoreWord = false;
-    QVector<QChar> braceStack;
+    QList<QChar> braceStack;
 
     for (const QChar &c : definition) {
         if (c == '[' || c == '<' || c == '(') {
@@ -624,8 +624,8 @@ void CMakeTool::fetchFromCapabilities() const
         m_introspection->m_haveCapabilitites = true;
         parseFromCapabilities(cmake.cleanedStdOut());
     } else {
-        qCCritical(cmakeToolLog) << "Fetching capabilities failed: " << cmake.commandLine()
-                                 << cmake.allOutput() << cmake.error() << cmake.errorString();
+        qCCritical(cmakeToolLog) << "Fetching capabilities failed: "
+                                 << cmake.verboseExitMessage();
         m_introspection->m_haveCapabilitites = false;
 
         // In the rare case when "cmake -E capabilities" crashes / fails to run

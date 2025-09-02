@@ -22,7 +22,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
 #endif
 
 #include <memory>
@@ -262,12 +261,6 @@ private:
 //! Adds a declarations to a definition
 class InsertDeclFromDef: public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
-public:
-    static QObject *createTest();
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         const QList<AST *> &path = interface.path();
@@ -337,13 +330,6 @@ private:
 
 class AddDeclarationForUndeclaredIdentifier : public CppQuickFixFactory
 {
-public:
-#ifdef WITH_TESTS
-    static QObject *createTest();
-    void setMembersOnly() { m_membersOnly = true; }
-#endif
-
-private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
         // Are we on a name?
@@ -422,7 +408,7 @@ private:
             // For an unqualified access, offer a local declaration and, if we are
             // in a member function, a member declaration.
             if (const auto simpleName = idExpr->name->asSimpleName()) {
-                if (!m_membersOnly)
+                if (!property("membersOnly").toBool())
                     result << new AddLocalDeclarationOp(interface, index, binExpr, simpleName);
                 maybeAddMember(interface, file->scopeAt(idExpr->firstToken()), "this",
                                binExpr->right_expression, nullptr, result);
@@ -676,530 +662,29 @@ private:
                 InsertionPointLocator::Public, true, false);
         }
     }
-
-    bool m_membersOnly = false;
 };
 
 #ifdef WITH_TESTS
-using namespace Tests;
-
-class AddDeclarationForUndeclaredIdentifierTest : public QObject
+class InsertDeclFromDefTest : public Tests::CppQuickFixTestObject
 {
     Q_OBJECT
-
-private slots:
-    // QTCREATORBUG-26004
-    void testLocalDeclFromUse()
-    {
-        const QByteArray original = "void func() {\n"
-                                    "    QStringList list;\n"
-                                    "    @it = list.cbegin();\n"
-                                    "}\n";
-        const QByteArray expected = "void func() {\n"
-                                    "    QStringList list;\n"
-                                    "    auto it = list.cbegin();\n"
-                                    "}\n";
-        AddDeclarationForUndeclaredIdentifier factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory);
-    }
-
-    void testInsertMemberFromUse_data()
-    {
-        QTest::addColumn<QByteArray>("original");
-        QTest::addColumn<QByteArray>("expected");
-
-        QByteArray original;
-        QByteArray expected;
-
-        original =
-            "class C {\n"
-            "public:\n"
-            "    C(int x) : @m_x(x) {}\n"
-            "private:\n"
-            "    int m_y;\n"
-            "};\n";
-        expected =
-            "class C {\n"
-            "public:\n"
-            "    C(int x) : m_x(x) {}\n"
-            "private:\n"
-            "    int m_y;\n"
-            "    int m_x;\n"
-            "};\n";
-        QTest::addRow("inline constructor") << original << expected;
-
-        original =
-            "class C {\n"
-            "public:\n"
-            "    C(int x, double d);\n"
-            "private:\n"
-            "    int m_x;\n"
-            "};\n"
-            "C::C(int x, double d) : m_x(x), @m_d(d)\n";
-        expected =
-            "class C {\n"
-            "public:\n"
-            "    C(int x, double d);\n"
-            "private:\n"
-            "    int m_x;\n"
-            "    double m_d;\n"
-            "};\n"
-            "C::C(int x, double d) : m_x(x), m_d(d)\n";
-        QTest::addRow("out-of-line constructor") << original << expected;
-
-        original =
-            "class C {\n"
-            "public:\n"
-            "    C(int x) : @m_x(x) {}\n"
-            "private:\n"
-            "    int m_x;\n"
-            "};\n";
-        expected = "";
-        QTest::addRow("member already present") << original << expected;
-
-        original =
-            "int func() { return 0; }\n"
-            "class C {\n"
-            "public:\n"
-            "    C() : @m_x(func()) {}\n"
-            "private:\n"
-            "    int m_y;\n"
-            "};\n";
-        expected =
-            "int func() { return 0; }\n"
-            "class C {\n"
-            "public:\n"
-            "    C() : m_x(func()) {}\n"
-            "private:\n"
-            "    int m_y;\n"
-            "    int m_x;\n"
-            "};\n";
-        QTest::addRow("initialization via function call") << original << expected;
-
-        original =
-            "struct S {\n\n};\n"
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { m_s.@value = v; }\n"
-            "private:\n"
-            "    S m_s;\n"
-            "};\n";
-        expected =
-            "struct S {\n\n"
-            "    int value;\n"
-            "};\n"
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { m_s.value = v; }\n"
-            "private:\n"
-            "    S m_s;\n"
-            "};\n";
-        QTest::addRow("add member to other struct") << original << expected;
-
-        original =
-            "struct S {\n\n};\n"
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { S::@value = v; }\n"
-            "};\n";
-        expected =
-            "struct S {\n\n"
-            "    static int value;\n"
-            "};\n"
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { S::value = v; }\n"
-            "};\n";
-        QTest::addRow("add static member to other struct (explicit)") << original << expected;
-
-        original =
-            "struct S {\n\n};\n"
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { m_s.@value = v; }\n"
-            "private:\n"
-            "    static S m_s;\n"
-            "};\n";
-        expected =
-            "struct S {\n\n"
-            "    static int value;\n"
-            "};\n"
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { m_s.value = v; }\n"
-            "private:\n"
-            "    static S m_s;\n"
-            "};\n";
-        QTest::addRow("add static member to other struct (implicit)") << original << expected;
-
-        original =
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v);\n"
-            "};\n"
-            "void C::setValue(int v) { this->@m_value = v; }\n";
-        expected =
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v);\n"
-            "private:\n"
-            "    int m_value;\n"
-            "};\n"
-            "void C::setValue(int v) { this->@m_value = v; }\n";
-        QTest::addRow("add member to this (explicit)") << original << expected;
-
-        original =
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { @m_value = v; }\n"
-            "};\n";
-        expected =
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { m_value = v; }\n"
-            "private:\n"
-            "    int m_value;\n"
-            "};\n";
-        QTest::addRow("add member to this (implicit)") << original << expected;
-
-        original =
-            "class C {\n"
-            "public:\n"
-            "    static void setValue(int v) { @m_value = v; }\n"
-            "};\n";
-        expected =
-            "class C {\n"
-            "public:\n"
-            "    static void setValue(int v) { m_value = v; }\n"
-            "private:\n"
-            "    static int m_value;\n"
-            "};\n";
-        QTest::addRow("add static member to this (inline)") << original << expected;
-
-        original =
-            "class C {\n"
-            "public:\n"
-            "    static void setValue(int v);\n"
-            "};\n"
-            "void C::setValue(int v) { @m_value = v; }\n";
-        expected =
-            "class C {\n"
-            "public:\n"
-            "    static void setValue(int v);\n"
-            "private:\n"
-            "    static int m_value;\n"
-            "};\n"
-            "void C::setValue(int v) { @m_value = v; }\n";
-        QTest::addRow("add static member to this (non-inline)") << original << expected;
-
-        original =
-            "struct S {\n\n};\n"
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { m_s.@setValue(v); }\n"
-            "private:\n"
-            "    S m_s;\n"
-            "};\n";
-        expected =
-            "struct S {\n\n"
-            "    void setValue(int);\n"
-            "};\n"
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { m_s.setValue(v); }\n"
-            "private:\n"
-            "    S m_s;\n"
-            "};\n";
-        QTest::addRow("add member function to other struct") << original << expected;
-
-        original =
-            "struct S {\n\n};\n"
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { S::@setValue(v); }\n"
-            "};\n";
-        expected =
-            "struct S {\n\n"
-            "    static void setValue(int);\n"
-            "};\n"
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { S::setValue(v); }\n"
-            "};\n";
-        QTest::addRow("add static member function to other struct (explicit)") << original << expected;
-
-        original =
-            "struct S {\n\n};\n"
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { m_s.@setValue(v); }\n"
-            "private:\n"
-            "    static S m_s;\n"
-            "};\n";
-        expected =
-            "struct S {\n\n"
-            "    static void setValue(int);\n"
-            "};\n"
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { m_s.setValue(v); }\n"
-            "private:\n"
-            "    static S m_s;\n"
-            "};\n";
-        QTest::addRow("add static member function to other struct (implicit)") << original << expected;
-
-        original =
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v);\n"
-            "};\n"
-            "void C::setValue(int v) { this->@setValueInternal(v); }\n";
-        expected =
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v);\n"
-            "private:\n"
-            "    void setValueInternal(int);\n"
-            "};\n"
-            "void C::setValue(int v) { this->setValueInternal(v); }\n";
-        QTest::addRow("add member function to this (explicit)") << original << expected;
-
-        original =
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { @setValueInternal(v); }\n"
-            "};\n";
-        expected =
-            "class C {\n"
-            "public:\n"
-            "    void setValue(int v) { setValueInternal(v); }\n"
-            "private:\n"
-            "    void setValueInternal(int);\n"
-            "};\n";
-        QTest::addRow("add member function to this (implicit)") << original << expected;
-
-        original =
-            "class C {\n"
-            "public:\n"
-            "    int value() const { return @valueInternal(); }\n"
-            "};\n";
-        expected =
-            "class C {\n"
-            "public:\n"
-            "    int value() const { return valueInternal(); }\n"
-            "private:\n"
-            "    int valueInternal() const;\n"
-            "};\n";
-        QTest::addRow("add const member function to this (implicit)") << original << expected;
-
-        original =
-            "class C {\n"
-            "public:\n"
-            "    static int value() { int i = @valueInternal(); return i; }\n"
-            "};\n";
-        expected =
-            "class C {\n"
-            "public:\n"
-            "    static int value() { int i = @valueInternal(); return i; }\n"
-            "private:\n"
-            "    static int valueInternal();\n"
-            "};\n";
-        QTest::addRow("add static member function to this (inline)") << original << expected;
-
-        original =
-            "class C {\n"
-            "public:\n"
-            "    static int value();\n"
-            "};\n"
-            "int C::value() { return @valueInternal(); }\n";
-        expected =
-            "class C {\n"
-            "public:\n"
-            "    static int value();\n"
-            "private:\n"
-            "    static int valueInternal();\n"
-            "};\n"
-            "int C::value() { return valueInternal(); }\n";
-        QTest::addRow("add static member function to this (non-inline)") << original << expected;
-    }
-
-    void testInsertMemberFromUse()
-    {
-        QFETCH(QByteArray, original);
-        QFETCH(QByteArray, expected);
-
-        QList<TestDocumentPtr> testDocuments({
-            CppTestDocument::create("file.h", original, expected)
-        });
-
-        AddDeclarationForUndeclaredIdentifier factory;
-        factory.setMembersOnly();
-        QuickFixOperationTest(testDocuments, &factory);
-    }
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
 };
-
-class InsertDeclFromDefTest : public QObject
+class AddDeclarationForUndeclaredIdentifierTest : public Tests::CppQuickFixTestObject
 {
     Q_OBJECT
-
-private slots:
-    /// Check from source file: Insert in header file.
-    void test()
-    {
-        insertToSectionDeclFromDef("public", 0);
-        insertToSectionDeclFromDef("public slots", 1);
-        insertToSectionDeclFromDef("protected", 2);
-        insertToSectionDeclFromDef("protected slots", 3);
-        insertToSectionDeclFromDef("private", 4);
-        insertToSectionDeclFromDef("private slots", 5);
-    }
-
-    void testTemplateFuncTypename()
-    {
-        QByteArray original =
-            "class Foo\n"
-            "{\n"
-            "};\n"
-            "\n"
-            "template<class T>\n"
-            "void Foo::fu@nc() {}\n";
-
-        QByteArray expected =
-            "class Foo\n"
-            "{\n"
-            "public:\n"
-            "    template<class T>\n"
-            "    void func();\n"
-            "};\n"
-            "\n"
-            "template<class T>\n"
-            "void Foo::fu@nc() {}\n";
-
-        InsertDeclFromDef factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory, {}, 0);
-    }
-
-    void testTemplateFuncInt()
-    {
-        QByteArray original =
-            "class Foo\n"
-            "{\n"
-            "};\n"
-            "\n"
-            "template<int N>\n"
-            "void Foo::fu@nc() {}\n";
-
-        QByteArray expected =
-            "class Foo\n"
-            "{\n"
-            "public:\n"
-            "    template<int N>\n"
-            "    void func();\n"
-            "};\n"
-            "\n"
-            "template<int N>\n"
-            "void Foo::fu@nc() {}\n";
-
-        InsertDeclFromDef factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory, {}, 0);
-    }
-
-    void testTemplateReturnType()
-    {
-        QByteArray original =
-            "class Foo\n"
-            "{\n"
-            "};\n"
-            "\n"
-            "std::vector<int> Foo::fu@nc() const {}\n";
-
-        QByteArray expected =
-            "class Foo\n"
-            "{\n"
-            "public:\n"
-            "    std::vector<int> func() const;\n"
-            "};\n"
-            "\n"
-            "std::vector<int> Foo::func() const {}\n";
-
-        InsertDeclFromDef factory;
-        QuickFixOperationTest(singleDocument(original, expected), &factory, {}, 0);
-    }
-
-    void testNotTriggeredForTemplateFunc()
-    {
-        QByteArray contents =
-            "class Foo\n"
-            "{\n"
-            "    template<class T>\n"
-            "    void func();\n"
-            "};\n"
-            "\n"
-            "template<class T>\n"
-            "void Foo::fu@nc() {}\n";
-
-        InsertDeclFromDef factory;
-        QuickFixOperationTest(singleDocument(contents, ""), &factory);
-    }
-
-private:
-    // Function for one of InsertDeclDef section cases
-    void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
-    {
-        QList<TestDocumentPtr> testDocuments;
-
-        QByteArray original;
-        QByteArray expected;
-        QByteArray sectionString = section + ":\n";
-        if (sectionIndex == 4)
-            sectionString.clear();
-
-        // Header File
-        original =
-            "class Foo\n"
-            "{\n"
-            "};\n";
-        expected =
-            "class Foo\n"
-            "{\n"
-            + sectionString +
-            "    Foo();\n"
-            "@};\n";
-        testDocuments << CppTestDocument::create("file.h", original, expected);
-
-        // Source File
-        original =
-            "#include \"file.h\"\n"
-            "\n"
-            "Foo::Foo@()\n"
-            "{\n"
-            "}\n"
-            ;
-        expected = original;
-        testDocuments << CppTestDocument::create("file.cpp", original, expected);
-
-        InsertDeclFromDef factory;
-        QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), sectionIndex);
-    }
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
 };
+#endif
 
-QObject *AddDeclarationForUndeclaredIdentifier::createTest()
-{
-    return new AddDeclarationForUndeclaredIdentifierTest;
-}
-
-QObject *InsertDeclFromDef::createTest()
-{
-    return new InsertDeclFromDefTest;
-}
-
-#endif // WITH_TESTS
 } // namespace
 
 void registerCreateDeclarationFromUseQuickfixes()
 {
-    CppQuickFixFactory::registerFactory<InsertDeclFromDef>();
-    CppQuickFixFactory::registerFactory<AddDeclarationForUndeclaredIdentifier>();
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(InsertDeclFromDef);
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(AddDeclarationForUndeclaredIdentifier);
 }
 
 } // namespace CppEditor::Internal

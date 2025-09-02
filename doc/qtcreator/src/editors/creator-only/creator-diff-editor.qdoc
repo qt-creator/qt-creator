@@ -68,11 +68,12 @@
     in the right pane.
 
     To view the differences in a unified view where changed rows are placed
-    below each other, select \inlineimage icons/unifieddiff.png
+    below each other, select
+    \inlineimage {icons/unifieddiff.png} {Switch to Unified Diff Editor}
     (\uicontrol {Switch to Unified Diff Editor}).
 
     To switch back to the side-by-side view, select
-    \inlineimage icons/sidebysidediff.png
+    \inlineimage {icons/sidebysidediff.png} {Switch to Side by Side Diff Editor}
     (\uicontrol {Switch to Side by Side Diff Editor}).
 
     To only show text changes, select \uicontrol {Ignore Whitespace}.
@@ -82,7 +83,7 @@
 
     By default, the horizontal scroll bars in the left and right pane are
     synchronized. To use them independently of each other, select
-    \inlineimage icons/linkicon.png
+    \inlineimage {icons/linkicon.png} {Synchronize Horizontal Scroll Bars}
     (\uicontrol {Synchronize Horizontal Scroll Bars}).
 
     \section1 Revert and apply changes
@@ -95,7 +96,8 @@
 
     \section1 Reload files
 
-    If the files change outside \QC, select \inlineimage icons/reload_gray.png
+    If the files change outside \QC, select
+    \inlineimage {icons/reload_gray.png} {Reload Editor}
     (\uicontrol {Reload Editor}) to compare them again and to show the results.
 
     \if defined(qtcreator)

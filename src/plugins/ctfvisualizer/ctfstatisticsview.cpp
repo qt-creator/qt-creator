@@ -32,7 +32,7 @@ CtfStatisticsView::CtfStatisticsView(CtfStatisticsModel *model, QWidget *parent)
     connect(selectionModel(), &QItemSelectionModel::currentChanged, this,
             [this](const QModelIndex &current, const QModelIndex &previous)
     {
-        Q_UNUSED(previous);
+        Q_UNUSED(previous)
         QModelIndex index = this->model()->index(current.row(), CtfStatisticsModel::Title);
         QString title = this->model()->data(index).toString();
         emit this->eventTypeSelected(title);

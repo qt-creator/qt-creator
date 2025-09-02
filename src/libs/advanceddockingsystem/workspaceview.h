@@ -6,8 +6,8 @@
 #include "workspaceinputdialog.h"
 #include "workspacemodel.h"
 
-#include <utils/expected.h>
 #include <utils/itemviews.h>
+#include <utils/result.h>
 
 namespace ADS {
 
@@ -57,7 +57,7 @@ private:
 
     void runWorkspaceNameInputDialog(
         WorkspaceNameInputDialog *workspaceInputDialog,
-        std::function<Utils::expected_str<QString>(const QString &)> callback);
+        std::function<Utils::Result<QString>(const QString &)> callback);
 
     DockManager *m_manager;
     WorkspaceModel m_workspaceModel;

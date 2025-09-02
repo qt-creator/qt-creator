@@ -95,7 +95,7 @@ public:
         if (!path.isLocal())
             return result;
         if (path.isEmpty()) {
-            result << BuildSystemTask(Task::Error, Tr::tr("No Python setup."));
+            result << BuildSystemTask(Task::Error, Tr::tr("No Python set up."));
         } else if (!path.exists()) {
             result << BuildSystemTask(Task::Error,
                                       Tr::tr("Python \"%1\" not found.").arg(path.toUserOutput()));

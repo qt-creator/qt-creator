@@ -14,7 +14,7 @@ class DEBUGGER_EXPORT DebuggerRunConfigurationAspect
     : public ProjectExplorer::GlobalOrProjectAspect
 {
 public:
-    DebuggerRunConfigurationAspect(ProjectExplorer::Target *target);
+    DebuggerRunConfigurationAspect(ProjectExplorer::BuildConfiguration *bc);
     ~DebuggerRunConfigurationAspect();
 
     void fromMap(const Utils::Store &map) override;
@@ -27,8 +27,6 @@ public:
     bool useMultiProcess() const;
     void setUseMultiProcess(bool on);
     QString overrideStartup() const;
-
-    int portsUsedByDebugger() const;
 
     struct Data : BaseAspect::Data
     {
@@ -45,7 +43,7 @@ private:
     Utils::TriStateAspect m_pythonAspect;
     Utils::BoolAspect m_multiProcessAspect;
     Utils::StringAspect m_overrideStartupAspect;
-    ProjectExplorer::Target *m_target;
+    ProjectExplorer::BuildConfiguration * const m_buildConfiguration;
 };
 
 } // namespace Debugger

@@ -1,5 +1,4 @@
 ---@meta Gui
-
 local gui = {}
 
 ---The base class of all ui related classes.
@@ -14,6 +13,8 @@ gui.layout = {}
 ---@class Widget : Object
 ---@field visible boolean Whether the widget is visible or not.
 ---@field enabled boolean Whether the widget is enabled or not.
+---@field focus boolean Whether the widget has focus or not.
+---@field toolTip string The tooltip of the widget.
 gui.widget = {}
 
 ---@alias LayoutChild string|BaseAspect|Layout|Widget|function
@@ -27,6 +28,7 @@ gui.widget = {}
 ---@field widgetAttributes? WidgetAttributeMapT<boolean> The widget attributes of the widget.
 ---@field autoFillBackground? boolean A boolean, representing whether the widget should automatically fill its background.
 ---@field sizePolicy? SizePolicy.Policy[] Two size policies of the widget, horizontal and vertical.
+---@field toolTip string The tooltip of the widget.
 gui.baseWidgetOptions = {}
 
 ---@class (exact) WidgetOptions : BaseWidgetOptions
@@ -153,13 +155,21 @@ function gui.TextEdit(options) end
 ---A Single line text edit
 ---@class LineEdit : Widget
 ---@field rightSideIconPath? FilePath A path to icon
+---@field text string Current text
+local lineEdit = {}
+
+---@class LineEditOptions : WidgetOptions
+---@field rightSideIconPath? FilePath A path to icon
 ---@field placeHolderText? string A placeholder text for intput
 ---@field completer? QCompleter A QCompleter object.
 ---@field onReturnPressed? function The function to be called when Enter is pressed
 ---@field onRightSideIconClicked? function The function to be called when right side icon is clicked
 ---@field text string Current text
+local lineEditOptions = {}
 
-local lineEdit = {}
+---@param options LineEditOptions
+---@return LineEdit
+function gui.LineEdit(options) end
 
 ---@class PushButton : Widget
 local pushButton = {}
@@ -167,6 +177,65 @@ local pushButton = {}
 ---@param options WidgetOptions
 ---@return PushButton
 function gui.PushButton(options) end
+
+
+---@class QtcLabel : Widget
+local QtcLabel = {}
+
+---Enum representing the QtcLabel types
+---@enum QtcLabel.Role
+QtcLabel.Role = {
+    Primary = 0,
+    Secondary = 0,
+}
+
+---@class QtcLabelOptions : BaseWidgetOptions
+---@field role? QtcLabel.Role e The role of the label. (default: "Primary")
+---@field text? string The text of the label.
+
+---@param options QtcLabelOptions
+---@return QtcLabel
+function gui.QtcLabel(options) end
+
+---@class QtcButton : Widget
+local QtcButton = {}
+
+--- Enum representing the QtcButton roles
+---@enum QtcButton.Role
+QtcButton.Role = {
+    LargePrimary = 0,
+    LargeSecondary = 0,
+    LargeTertiary = 0,
+    SmallPrimary = 0,
+    SmallSecondary = 0,
+    SmallTertiary = 0,
+    SmallList = 0,
+    SmallLink = 0,
+    Tag = 0,
+}
+
+---@class QtcButtonOptions : BaseWidgetOptions
+---@field role? QtcButton.Role The role of the button. (default: "LargePrimary")
+---@field text? string The text of the button.
+---@field icon? IconFilePathOrString The icon of the button.
+
+---@param options QtcButtonOptions
+---@return QtcButton
+function gui.QtcButton(options) end
+
+
+---@class QtcSwitch : Widget
+local QtcSwitch = {}
+
+---@class QtcSwitchOptions : BaseWidgetOptions
+---@field text? string The text of the switch.
+---@field checked? boolean Whether the switch is checked or not.
+---@field onClicked? function The function to be called when the switch is clicked.
+
+---@param options QtcSwitchOptions
+---@return QtcSwitch
+function gui.QtcSwitch(options) end
+
 
 ---@class Label : Widget
 ---@field text string Returns the content of the Label as string

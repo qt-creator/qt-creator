@@ -9,16 +9,12 @@ namespace MesonProjectManager::Internal {
 
 enum class MesonBuildType { plain, debug, debugoptimized, release, minsize, custom };
 
-class MesonBuildSystem;
-
 class MesonBuildConfiguration final : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 public:
     MesonBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
-    ~MesonBuildConfiguration() final;
 
-    ProjectExplorer::BuildSystem *buildSystem() const final;
     void build(const QString &target);
 
     QStringList mesonConfigArgs();
@@ -35,7 +31,6 @@ private:
 
     MesonBuildType m_buildType;
     QWidget *createConfigWidget() final;
-    MesonBuildSystem *m_buildSystem = nullptr;
     QString m_parameters;
 };
 

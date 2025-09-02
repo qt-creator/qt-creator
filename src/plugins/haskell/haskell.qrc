@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/haskell">
-        <file>images/settingscategory_haskell.png</file>
-        <file>images/settingscategory_haskell@2x.png</file>
-    </qresource>
-</RCC>

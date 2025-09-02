@@ -30,7 +30,6 @@
 #include <utils/filepath.h>
 
 #include <QByteArray>
-#include <QVector>
 #include <QString>
 
 namespace CPlusPlus {
@@ -56,13 +55,13 @@ public:
     const QByteArray definitionText() const
     { return _definitionText; }
 
-    const QVector<PPToken> &definitionTokens() const
+    const QList<PPToken> &definitionTokens() const
     { return _definitionTokens; }
 
-    void setDefinition(const QByteArray &definitionText, const QVector<PPToken> &definitionTokens)
+    void setDefinition(const QByteArray &definitionText, const QList<PPToken> &definitionTokens)
     { _definitionText = definitionText; _definitionTokens = definitionTokens; }
 
-    const QVector<QByteArray> &formals() const
+    const QList<QByteArray> &formals() const
     { return _formals; }
 
     void addFormal(const QByteArray &formal)
@@ -140,8 +139,8 @@ private:
 
     QByteArray _name;
     QByteArray _definitionText;
-    QVector<PPToken> _definitionTokens;
-    QVector<QByteArray> _formals;
+    QList<PPToken> _definitionTokens;
+    QList<QByteArray> _formals;
     Utils::FilePath _fileName;
     unsigned _hashcode;
     unsigned _fileRevision;

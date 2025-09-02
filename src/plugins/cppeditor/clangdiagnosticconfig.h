@@ -10,7 +10,6 @@
 #include <QHash>
 #include <QMap>
 #include <QStringList>
-#include <QVector>
 
 namespace Utils { class QtcSettings; }
 
@@ -84,7 +83,7 @@ private:
     bool m_useBuildSystemWarnings = false;
 };
 
-using ClangDiagnosticConfigs = QVector<ClangDiagnosticConfig>;
+using ClangDiagnosticConfigs = QList<ClangDiagnosticConfig>;
 
 ClangDiagnosticConfigs CPPEDITOR_EXPORT diagnosticConfigsFromSettings(Utils::QtcSettings *s);
 void CPPEDITOR_EXPORT diagnosticConfigsToSettings(Utils::QtcSettings *s,

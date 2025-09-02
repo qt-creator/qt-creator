@@ -38,10 +38,8 @@ signals:
     void canceled();
 
     // business logic -> GUI
-    void started(const Utils::Port &debugServerPort, qint64 pid);
+    void started(qint64 pid, const QString &packageDir);
     void finished(const QString &errorMessage);
-    void stdOut(const QString &data);
-    void stdErr(const QString &data);
 
 private:
     ProjectExplorer::RunControl *m_runControl = nullptr;

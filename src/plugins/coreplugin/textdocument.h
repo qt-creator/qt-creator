@@ -31,14 +31,14 @@ public:
     bool supportsUtf8Bom() const;
     Utils::TextFileFormat::LineTerminationMode lineTerminationMode() const;
 
-    ReadResult read(const Utils::FilePath &filePath, QStringList *plainTextList, QString *errorString);
-    ReadResult read(const Utils::FilePath &filePath, QString *plainText, QString *errorString);
+    ReadResult read(const Utils::FilePath &filePath, QStringList *plainTextList);
+    ReadResult read(const Utils::FilePath &filePath, QString *plainText);
 
     bool hasDecodingError() const;
     QByteArray decodingErrorSample() const;
 
-    bool write(const Utils::FilePath &filePath, const QString &data, QString *errorMessage) const;
-    bool write(const Utils::FilePath &filePath, const Utils::TextFileFormat &format, const QString &data, QString *errorMessage) const;
+    Utils::Result<> write(const Utils::FilePath &filePath, const QString &data) const;
+    Utils::Result<> write(const Utils::FilePath &filePath, const Utils::TextFileFormat &format, const QString &data) const;
 
     void setSupportsUtf8Bom(bool value);
     void setLineTerminationMode(Utils::TextFileFormat::LineTerminationMode mode);

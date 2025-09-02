@@ -6,6 +6,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/theme/theme.h>
+
 #include <QBrush>
 #include <QColorDialog>
 #include <QLinearGradient>
@@ -136,11 +138,22 @@ ColorThemeItem *ColorThemeView::createItem(int index, const QColor &color)
     return new ColorThemeItem(index, color, this);
 }
 
-const QVector<QColor> &ColorThemeView::defaultColors()
+const QList<QColor> &ColorThemeView::defaultColors()
 {
     // Left with hardcoded values for now
-    // Can be deleted in the future
-    static const QVector<QColor> colors = {
+    if (Utils::creatorTheme()->colorScheme() == Qt::ColorScheme::Dark) {
+        static const QList<QColor> colors = {
+            QColor(0x64, 0x64, 0x64),
+            QColor(0x60, 0x68, 0x59),
+            QColor(0x6f, 0x6c, 0x58),
+            QColor(0x57, 0x69, 0x6f),
+            QColor(0x57, 0x58, 0x61),
+            QColor(0x74, 0x63, 0x50),
+            QColor(0x75, 0x5a, 0x5a)
+        };
+        return colors;
+    }
+    static const QList<QColor> colors = {
         QColor(0xe0, 0xe0, 0xe0),
         QColor(0xd3, 0xe4, 0xc3),
         QColor(0xeb, 0xe4, 0xba),

@@ -22,7 +22,7 @@
 
     Use the version that was built against the Qt version.
 
-    \b {\QC does not find a helper application, such as Git or a
+    \b {\QC does not find a helper application, such as Git, Ninja, or a
     compiler. What should I do?}
 
     Make sure that the application is in your system PATH when starting \QC.
@@ -30,8 +30,19 @@
     specified for the application. Many plugins specify either the path to the
     tool they need or the environment they run in.
 
-    This is especially relevant for the \macos where \c {/usr/local/bin} might
-    not be in the path when \QC is started.
+    You can also specify the environment for finding and running tools globally
+    or for a particular project or kit, as described in
+    \l{Edit environment settings}.
+
+    This is especially relevant when you start \QC from your desktop
+    and not from a terminal application, like from Finder, Dock, or
+    Spotlight on \macos, or from Dock, Dash, or the Activities overview on
+    Gnome. In that case, the started application does not inherit the
+    environment that you set up for your shell (that your terminal application
+    uses), but instead from \c launchd (\macos) or \c gnome-shell (Gnome).
+    That means that paths that you have set up for your terminal, such as
+    \c{/usr/local/bin} or \c{/opt/homebrew/bin} for Homebrew on \macos, are not
+    automatically available to \QC if you started it from your desktop.
 
     \b {Has a reported issue been addressed?}
 

@@ -110,7 +110,7 @@ void ModeManagerPrivate::showMenu(int index, QMouseEvent *event)
         QTC_ASSERT(viewContainer, return);
         QMenu *viewMenu = viewContainer->menu();
         QTC_ASSERT(viewMenu, return);
-        QList<QAction *> actions = viewMenu->actions();
+        const QList<QAction *> actions = viewMenu->actions();
         if (actions.isEmpty())
             return;
         auto menu = new QMenu(m_actionBar);

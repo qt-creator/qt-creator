@@ -37,7 +37,7 @@ public:
 
 protected:
     QByteArray fileContents() const override;
-    bool setFileContents(const QByteArray &contents) override;
+    Utils::Result<> setFileContents(const QByteArray &contents) override;
 
 private:
     inline PerforceSubmitEditorWidget *submitEditorWidget();

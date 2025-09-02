@@ -4,20 +4,24 @@
 #pragma once
 
 #include "qmljscodestylesettings.h"
+#include "qmljsformatterselectionwidget.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/codestyleeditor.h>
+
+#include <QStackedWidget>
+
+QT_BEGIN_NAMESPACE
+class QString;
+class QWidget;
+QT_END_NAMESPACE
 
 namespace TextEditor {
     class FontSettings;
-    class SimpleCodeStylePreferencesWidget;
-    class SnippetEditorWidget;
 }
 
 namespace QmlJSTools {
-class QmlJSCodeStylePreferencesWidget;
 class QmlJSCodeStyleSettings;
-
 namespace Internal {
 
 class QmlJSCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
@@ -25,23 +29,25 @@ class QmlJSCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
     Q_OBJECT
 
 public:
-    explicit QmlJSCodeStylePreferencesWidget(const TextEditor::ICodeStylePreferencesFactory *factory,
-                                             QWidget *parent = nullptr);
+    explicit QmlJSCodeStylePreferencesWidget(const QString &previewText, QWidget *parent = nullptr);
 
     void setPreferences(QmlJSCodeStylePreferences* preferences);
 
 private:
     void decorateEditor(const TextEditor::FontSettings &fontSettings);
     void setVisualizeWhitespace(bool on);
-    void slotSettingsChanged();
+    void slotSettingsChanged(const QmlJSCodeStyleSettings &);
+    void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences);
     void updatePreview();
+    void builtInFormatterPreview();
+    void qmlformatPreview();
+    void customFormatterPreview();
 
-    QmlJSCodeStylePreferences *m_preferences = nullptr;
-    TextEditor::SimpleCodeStylePreferencesWidget *m_tabPreferencesWidget;
-    QmlJSTools::QmlJSCodeStylePreferencesWidget *m_codeStylePreferencesWidget;
+    FormatterSelectionWidget *m_formatterSelectionWidget;
+    QStackedWidget *m_formatterSettingsStack;
     TextEditor::SnippetEditorWidget *m_previewTextEdit;
+    QmlJSCodeStylePreferences *m_preferences = nullptr;
 };
-
 
 class QmlJSCodeStyleSettingsPage : public Core::IOptionsPage
 {

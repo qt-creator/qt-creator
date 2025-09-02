@@ -4,14 +4,11 @@
 #pragma once
 
 #include "scxmltag.h"
+
+#include <QList>
 #include <QMenu>
-#include <QVector>
 
-namespace ScxmlEditor {
-
-namespace PluginInterface {
-
-namespace TagUtils {
+namespace ScxmlEditor::PluginInterface::TagUtils {
 
 enum MenuAction {
     AddChild = 0,
@@ -23,16 +20,14 @@ enum MenuAction {
 };
 
 bool checkPaste(const QString &copiedTagType, const ScxmlTag *currentTag);
-QVector<TagType> allowedChildTypes(TagType tagType);
-QVector<TagType> childTypes(TagType type);
+QList<TagType> allowedChildTypes(TagType tagType);
+QList<TagType> childTypes(TagType type);
 void createChildMenu(const ScxmlTag *tag, QMenu *menu, bool addRemove = true);
 void initChildMenu(TagType tagType, QMenu *menu);
 ScxmlTag *findChild(const ScxmlTag *tag, TagType childType);
 ScxmlTag *metadataTag(ScxmlTag *tag, const QString &tagname, bool blockUpdates = false);
-void findAllChildren(const ScxmlTag *tag, QVector<ScxmlTag*> &children);
-void findAllTransitionChildren(const ScxmlTag *tag, QVector<ScxmlTag*> &children);
+void findAllChildren(const ScxmlTag *tag, QList<ScxmlTag*> &children);
+void findAllTransitionChildren(const ScxmlTag *tag, QList<ScxmlTag*> &children);
 void modifyPosition(ScxmlTag *tag, const QPointF &minPos, const QPointF &targetPos);
 
-} // namespace TagUtils
-} // namespace PluginInterface
-} // namespace ScxmlEditor
+} // namespace ScxmlEditor::PluginInterface::TagUtils

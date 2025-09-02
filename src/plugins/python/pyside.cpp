@@ -90,9 +90,7 @@ PySideInstaller::PySideInstaller()
             this, &PySideInstaller::handleDocumentOpened);
 }
 
-void PySideInstaller::installPyside(const FilePath &python,
-                                    const QString &pySide,
-                                    TextEditor::TextDocument *document)
+void PySideInstaller::installPyside(const FilePath &python, const QString &pySide)
 {
     QMap<QVersionNumber, Utils::FilePath> availablePySides;
 
@@ -150,10 +148,12 @@ void PySideInstaller::installPyside(const FilePath &python,
         hlayout->addWidget(new QLabel("<b>" + Tr::tr("Installing PySide") + "</b>"));
         dialogLayout->addLayout(hlayout);
 
-        QLabel *installDescription = new QLabel(Tr::tr("You can install PySide "
-                                                       "from PyPi (Community OSS version) or from your Qt "
-                                                       "installation location, if you are using the Qt "
-                                                       "Installer and have a commercial license."));
+        QLabel *installDescription = new QLabel(
+            Tr::tr(
+                "You can install PySide "
+                "from PyPI (Community OSS version) or from your Qt "
+                "installation location, if you are using the Qt "
+                "Installer and have a commercial license."));
         installDescription->setWordWrap(true);
         dialogLayout->addWidget(installDescription);
 
@@ -186,7 +186,6 @@ void PySideInstaller::installPyside(const FilePath &python,
             install->setRequirements(requirementsFile);
         }
     }
-    document->infoBar()->removeInfo(installPySideInfoBarId);
     install->run();
 }
 
@@ -199,10 +198,11 @@ void PySideInstaller::handlePySideMissing(const FilePath &python,
     const QString message = Tr::tr("%1 installation missing for %2 (%3)")
                                 .arg(pySide, pythonName(python), python.toUserOutput());
     InfoBarEntry info(installPySideInfoBarId, message, InfoBarEntry::GlobalSuppression::Enabled);
-    auto installCallback = [this, python, pySide, document] { installPyside(python, pySide, document); };
+    auto installCallback = [this, python, pySide] { installPyside(python, pySide); };
     const QString installTooltip = Tr::tr("Install %1 for %2 using pip package installer.")
                                        .arg(pySide, python.toUserOutput());
-    info.addCustomButton(Tr::tr("Install"), installCallback, installTooltip);
+    info.addCustomButton(
+        Tr::tr("Install"), installCallback, installTooltip, InfoBarEntry::ButtonAction::Hide);
     document->infoBar()->addInfo(info);
 }
 

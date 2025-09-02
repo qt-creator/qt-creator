@@ -22,6 +22,7 @@
 #include <qmlobjectnode.h>
 #include <qmlprojectmanager/qmlprojectconstants.h>
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -47,7 +48,6 @@
 
 #include <QApplication>
 #include <QMessageBox>
-#include <QPlainTextEdit>
 #include <QRandomGenerator>
 #include <QClipboard>
 
@@ -424,22 +424,22 @@ void DesignDocument::resetToDocumentModel()
 {
     NanotraceHR::Tracer tracer{"design document reset to document model", category()};
 
-    const QPlainTextEdit *edit = plainTextEdit();
+    const Utils::PlainTextEdit *edit = plainTextEdit();
     if (edit)
         edit->document()->clearUndoRedoStacks();
 
     m_inFileComponentModel.reset();
 }
 
-void DesignDocument::loadDocument(QPlainTextEdit *edit)
+void DesignDocument::loadDocument(Utils::PlainTextEdit *edit)
 {
     NanotraceHR::Tracer tracer{"design document load document", category()};
 
     Q_CHECK_PTR(edit);
 
-    connect(edit, &QPlainTextEdit::undoAvailable, this, &DesignDocument::undoAvailable);
-    connect(edit, &QPlainTextEdit::redoAvailable, this, &DesignDocument::redoAvailable);
-    connect(edit, &QPlainTextEdit::modificationChanged, this, &DesignDocument::dirtyStateChanged);
+    connect(edit, &Utils::PlainTextEdit::undoAvailable, this, &DesignDocument::undoAvailable);
+    connect(edit, &Utils::PlainTextEdit::redoAvailable, this, &DesignDocument::redoAvailable);
+    connect(edit, &Utils::PlainTextEdit::modificationChanged, this, &DesignDocument::dirtyStateChanged);
 
     m_documentTextModifier.reset(new BaseTextEditModifier(qobject_cast<TextEditor::TextEditorWidget *>(plainTextEdit())));
 
@@ -466,7 +466,7 @@ void DesignDocument::changeToDocumentModel()
     viewManager().detachRewriterView();
     viewManager().detachViewsExceptRewriterAndComponetView();
 
-    const QPlainTextEdit *edit = plainTextEdit();
+    const Utils::PlainTextEdit *edit = plainTextEdit();
     if (edit)
         edit->document()->clearUndoRedoStacks();
 
@@ -483,8 +483,8 @@ bool DesignDocument::isQtForMCUsProject() const
 {
     NanotraceHR::Tracer tracer{"design document is Qt for MCUs project", category()};
 
-    if (m_currentTarget)
-        return m_currentTarget->additionalData("CustomQtForMCUs").toBool();
+    if (m_currentTarget && m_currentTarget->buildSystem())
+        return m_currentTarget->buildSystem()->additionalData("CustomQtForMCUs").toBool();
 
     return false;
 }
@@ -493,11 +493,11 @@ QString DesignDocument::defaultFontFamilyMCU() const
 {
     NanotraceHR::Tracer tracer{"design document default font family MCU", category()};
 
-    if (m_currentTarget == nullptr) {
+    if (!m_currentTarget || !m_currentTarget->buildSystem())
         return QmlProjectManager::Constants::FALLBACK_MCU_FONT_FAMILY;
-    }
 
-    return m_currentTarget->additionalData(QmlProjectManager::Constants::customDefaultFontFamilyMCU)
+    return m_currentTarget->buildSystem()
+        ->additionalData(QmlProjectManager::Constants::customDefaultFontFamilyMCU)
         .toString();
 }
 
@@ -536,7 +536,7 @@ void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textMod
     viewManager().detachRewriterView();
     viewManager().detachViewsExceptRewriterAndComponetView();
 
-    const QPlainTextEdit *edit = plainTextEdit();
+    const Utils::PlainTextEdit *edit = plainTextEdit();
     if (edit)
         edit->document()->clearUndoRedoStacks();
 
@@ -634,7 +634,7 @@ void DesignDocument::clearUndoRedoStacks() const
 {
     NanotraceHR::Tracer tracer{"design document clear undo redo stacks", category()};
 
-    const QPlainTextEdit *edit = plainTextEdit();
+    const Utils::PlainTextEdit *edit = plainTextEdit();
     if (edit)
         edit->document()->clearUndoRedoStacks();
 }
@@ -901,13 +901,12 @@ TextEditor::BaseTextEditor *DesignDocument::textEditor() const
     return qobject_cast<TextEditor::BaseTextEditor *>(editor());
 }
 
-QPlainTextEdit *DesignDocument::plainTextEdit() const
+Utils::PlainTextEdit *DesignDocument::plainTextEdit() const
 {
     NanotraceHR::Tracer tracer{"design document plain text edit", category()};
 
-    if (editor())
-        return qobject_cast<QPlainTextEdit*>(editor()->widget());
-
+    if (TextEditor::BaseTextEditor *editor = textEditor())
+        return editor->editorWidget();
     return nullptr;
 }
 

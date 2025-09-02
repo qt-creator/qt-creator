@@ -10,7 +10,7 @@ namespace PerfProfiler::Internal {
 class PerfRunConfigurationAspect final : public ProjectExplorer::GlobalOrProjectAspect
 {
 public:
-    explicit PerfRunConfigurationAspect(ProjectExplorer::Target *target);
+    explicit PerfRunConfigurationAspect(ProjectExplorer::BuildConfiguration *bc);
 };
 
-} // PerfProfiler::Internal
+} // namespace PerfProfiler::Internal

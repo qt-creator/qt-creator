@@ -9,8 +9,6 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
-#include <debugger/analyzer/analyzericons.h>
-
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/projectexplorer.h>
@@ -29,7 +27,7 @@ namespace Valgrind::Internal {
 class ValgrindRunConfigurationAspect : public GlobalOrProjectAspect
 {
 public:
-    ValgrindRunConfigurationAspect(Target *)
+    ValgrindRunConfigurationAspect(BuildConfiguration *)
     {
         setProjectSettings(new ValgrindSettings(false));
         setGlobalSettings(&globalSettings());

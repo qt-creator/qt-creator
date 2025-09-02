@@ -7,7 +7,6 @@
 #include "../diffservice.h"
 #include "../idocument.h"
 
-#include <utils/filepath.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -17,8 +16,6 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QTreeWidget>
-
-Q_DECLARE_METATYPE(Core::IDocument*)
 
 using namespace Utils;
 
@@ -172,7 +169,7 @@ void SaveItemsDialog::collectFilesToDiff()
     const QList<QTreeWidgetItem *> items = m_treeWidget->selectedItems();
     for (const QTreeWidgetItem *item : items) {
         if (auto doc = item->data(0, Qt::UserRole).value<IDocument*>())
-            m_filesToDiff.append(doc->filePath().toUrlishString());
+            m_filesToDiff.append(doc->filePath());
     }
     reject();
 }
@@ -188,7 +185,7 @@ QList<IDocument*> SaveItemsDialog::itemsToSave() const
     return m_itemsToSave;
 }
 
-QStringList SaveItemsDialog::filesToDiff() const
+QList<FilePath> SaveItemsDialog::filesToDiff() const
 {
     return m_filesToDiff;
 }

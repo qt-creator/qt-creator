@@ -1,0 +1,1 @@
+add const member function to struct from inside use via "this"

@@ -75,7 +75,7 @@ public:
     {
         setManagingPage(Constants::DEVICE_SETTINGS_PAGE_ID);
 
-        const auto model = new DeviceManagerModel(DeviceManager::instance(), this);
+        const auto model = new DeviceManagerModel(this);
         auto getter = [](const Kit &k) {
             auto device = DeviceAspect::device(&k);
             return device ? device->id().toSetting() : QVariant{};
@@ -174,10 +174,8 @@ public:
 
     static Id defaultValue(const Kit *k)
     {
-        if (const IDeviceConstPtr &dev = DeviceManager::instance()->defaultDevice(
-                TypeAspect::deviceTypeId(k))) {
+        if (const IDeviceConstPtr dev = DeviceManager::defaultDevice(TypeAspect::deviceTypeId(k)))
             return dev->id();
-        }
         return {};
     }
 
@@ -221,7 +219,7 @@ private:
 
     void setup(Kit *k) override
     {
-        QTC_ASSERT(DeviceManager::instance()->isLoaded(), return);
+        QTC_ASSERT(DeviceManager::instance(), return);
         if (const IDevice::ConstPtr dev = DeviceAspect::device(k); dev && isCompatible(dev, k))
             return;
         DeviceAspect::setDeviceId(k, defaultValue(k));
@@ -277,7 +275,7 @@ private:
         expander->registerVariable(
             varName("KeyFile"), varDescription(Tr::tr("Private key file (%1)")), [kit] {
                 const IDevice::ConstPtr device = DeviceAspect::device(kit);
-                return device ? device->sshParameters().privateKeyFile.toUrlishString() : QString();
+                return device ? device->sshParameters().privateKeyFile().toUrlishString() : QString();
             });
         expander
             ->registerVariable(varName("Name"), varDescription(Tr::tr("Device name (%1)")), [kit] {
@@ -297,7 +295,6 @@ private:
             fix(k);
 
         DeviceManager *dm = DeviceManager::instance();
-        connect(dm, &DeviceManager::deviceListReplaced, this, &DeviceKitAspectFactory::devicesChanged);
         connect(dm, &DeviceManager::deviceAdded, this, &DeviceKitAspectFactory::devicesChanged);
         connect(dm, &DeviceManager::deviceRemoved, this, &DeviceKitAspectFactory::devicesChanged);
         connect(dm, &DeviceManager::deviceUpdated, this, &DeviceKitAspectFactory::deviceUpdated);
@@ -392,8 +389,8 @@ Id RunDeviceKitAspect::id()
 
 IDevice::ConstPtr RunDeviceKitAspect::device(const Kit *k)
 {
-    QTC_ASSERT(DeviceManager::instance()->isLoaded(), return IDevice::ConstPtr());
-    return DeviceManager::instance()->find(deviceId(k));
+    QTC_ASSERT(DeviceManager::isLoaded(), return IDevice::ConstPtr());
+    return DeviceManager::find(deviceId(k));
 }
 
 Id RunDeviceKitAspect::deviceId(const Kit *k)
@@ -515,8 +512,8 @@ Id BuildDeviceKitAspect::id()
 
 IDevice::ConstPtr BuildDeviceKitAspect::device(const Kit *k)
 {
-    QTC_ASSERT(DeviceManager::instance()->isLoaded(), return IDevice::ConstPtr());
-    return DeviceManager::instance()->find(deviceId(k));
+    QTC_ASSERT(DeviceManager::isLoaded(), return IDevice::ConstPtr());
+    return DeviceManager::find(deviceId(k));
 }
 
 Id BuildDeviceKitAspect::deviceId(const Kit *k)

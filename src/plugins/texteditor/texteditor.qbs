@@ -96,7 +96,6 @@ Project {
             "highlightersettingspage.h",
             "icodestylepreferences.cpp",
             "icodestylepreferences.h",
-            "icodestylepreferencesfactory.cpp",
             "icodestylepreferencesfactory.h",
             "indenter.h",
             "ioutlinewidget.h",
@@ -136,7 +135,6 @@ Project {
             "textdocumentlayout.h",
             "texteditor.cpp",
             "texteditor.h",
-            "texteditor.qrc",
             "texteditor_global.h",
             "texteditorconstants.cpp",
             "texteditorconstants.h",
@@ -146,13 +144,13 @@ Project {
             "texteditorsettings.cpp",
             "texteditorsettings.h",
             "texteditortr.h",
-            "textsuggestion.cpp",
-            "textsuggestion.h",
             "textindenter.cpp",
             "textindenter.h",
             "textmark.cpp",
             "textmark.h",
             "textstyles.h",
+            "textsuggestion.cpp",
+            "textsuggestion.h",
             "typehierarchy.cpp",
             "typehierarchy.h",
             "typingsettings.cpp",
@@ -236,6 +234,17 @@ Project {
                 "highlighter_test.h",
                 "texteditor_test.cpp",
                 "texteditor_test.h",
+            ]
+        }
+
+        Group {
+            name: "images"
+            fileTags: "qt.core.resource_data"
+            files: [
+                "images/finddocuments.png",
+                "images/snippet.png",
+                "images/settingscategory_texteditor.png",
+                "images/settingscategory_texteditor@2x.png",
             ]
         }
     }

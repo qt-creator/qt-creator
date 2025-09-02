@@ -34,7 +34,7 @@ public:
 public Q_SLOTS:
     void checkFinished(QObject *o, const QUrl &url)
     {
-        Q_UNUSED(url);
+        Q_UNUSED(url)
         if (o) {
             checkForWindow(o);
             if (conf && qae) {

@@ -26,7 +26,7 @@ using namespace std::string_view_literals;
 
 namespace Lua {
 
-Utils::expected_str<void> connectHooks(
+Utils::Result<> connectHooks(
         sol::state_view lua, const sol::table &table, const QString &path, QObject *guard);
 
 static Q_LOGGING_CATEGORY(logLuaEngine, "qtc.lua.engine", QtWarningMsg);
@@ -63,7 +63,7 @@ public:
     LuaInterfaceImpl(QObject *guard) : QObject(guard) { Utils::setLuaInterface(this); }
     ~LuaInterfaceImpl() final { Utils::setLuaInterface(nullptr); }
 
-    expected_str<std::unique_ptr<LuaState>> runScript(
+    Result<std::unique_ptr<LuaState>> runScript(
         const QString &script, const QString &name) final
     {
         return Lua::runScript(script, name);
@@ -140,8 +140,8 @@ void prepareLuaState(
             Core::MessageManager::writeSilently(QString("%1 %2").arg(p, msg));
         }
     };
-    const expected_str<FilePath> tmpDir = HostOsInfo::root().tmpDir();
-    QTC_ASSERT_EXPECTED(tmpDir, return);
+    const Result<FilePath> tmpDir = HostOsInfo::root().tmpDir();
+    QTC_ASSERT_RESULT(tmpDir, return);
     QString id = name;
     static const QRegularExpression regexp("[^a-zA-Z0-9_]");
     id = id.replace(regexp, "_").toLower();
@@ -153,7 +153,7 @@ void prepareLuaState(
         };
     }
 
-    for (const auto &func : d->m_autoProviders)
+    for (const auto &func : std::as_const(d->m_autoProviders))
         func(lua);
 
     if (customizeState)
@@ -226,7 +226,7 @@ void registerHook(QString name, const std::function<void(sol::function, QObject 
     d->m_hooks.insert("." + name, hook);
 }
 
-expected_str<void> connectHooks(
+Result<> connectHooks(
     sol::state_view lua, const sol::table &table, const QString &path, QObject *guard)
 {
     qCDebug(logLuaEngine) << "connectHooks called with path: " << path;
@@ -270,7 +270,7 @@ expected_str<void> connectHooks(
     return {};
 }
 
-expected_str<LuaPluginSpec *> loadPlugin(const FilePath &path)
+Result<LuaPluginSpec *> loadPlugin(const FilePath &path)
 {
     auto contents = path.fileContents();
     if (!contents)
@@ -298,7 +298,7 @@ expected_str<LuaPluginSpec *> loadPlugin(const FilePath &path)
     return LuaPluginSpec::create(path, pluginInfo);
 }
 
-expected_str<sol::protected_function> prepareSetup(
+Result<sol::protected_function> prepareSetup(
     sol::state_view lua, const LuaPluginSpec &pluginSpec)
 {
     auto contents = pluginSpec.filePath().fileContents();
@@ -353,7 +353,7 @@ expected_str<sol::protected_function> prepareSetup(
         };
     }
 
-    for (const auto &func : d->m_autoProviders)
+    for (const auto &func : std::as_const(d->m_autoProviders))
         func(lua);
 
     sol::protected_function_result result = lua.safe_script(

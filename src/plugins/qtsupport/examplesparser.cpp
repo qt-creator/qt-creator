@@ -264,19 +264,19 @@ static QList<ExampleItem *> parseTutorials(QXmlStreamReader *reader, const FileP
     return result;
 }
 
-expected_str<ParsedExamples> parseExamples(const FilePath &manifest,
+Result<ParsedExamples> parseExamples(const FilePath &manifest,
                                            const FilePath &examplesInstallPath,
                                            const FilePath &demosInstallPath,
                                            const bool examples)
 {
-    const expected_str<QByteArray> contents = manifest.fileContents();
+    const Result<QByteArray> contents = manifest.fileContents();
     if (!contents)
         return make_unexpected(contents.error());
 
     return parseExamples(*contents, manifest, examplesInstallPath, demosInstallPath, examples);
 }
 
-expected_str<ParsedExamples> parseExamples(const QByteArray &manifestData,
+Result<ParsedExamples> parseExamples(const QByteArray &manifestData,
                                            const Utils::FilePath &manifestPath,
                                            const FilePath &examplesInstallPath,
                                            const FilePath &demosInstallPath,

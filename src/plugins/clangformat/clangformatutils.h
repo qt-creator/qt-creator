@@ -21,7 +21,7 @@ namespace CppEditor { class CppCodeStyleSettings; }
 
 namespace ClangFormat {
 
-QString projectUniqueId(ProjectExplorer::Project *project);
+QString projectUniqueId(const ProjectExplorer::Project *project);
 
 bool getProjectUseGlobalSettings(const ProjectExplorer::Project *project);
 
@@ -48,10 +48,10 @@ clang::format::FormatStyle currentQtStyle(const TextEditor::ICodeStylePreference
 
 Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreferences *codeStyle);
 
-Utils::expected_str<void> parseConfigurationContent(const std::string &fileContent,
+Utils::Result<> parseConfigurationContent(const std::string &fileContent,
                                                     clang::format::FormatStyle &style,
                                                     bool allowUnknownOptions = false);
-Utils::expected_str<void> parseConfigurationFile(const Utils::FilePath &filePath,
+Utils::Result<> parseConfigurationFile(const Utils::FilePath &filePath,
                                                  clang::format::FormatStyle &style);
 
 } // ClangFormat

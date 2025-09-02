@@ -27,12 +27,10 @@ using namespace Utils;
 namespace Qdb::Internal {
 
 static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
-                                                QmlDebugServicesPreset qmlServices)
+                                                QmlDebugServicesPreset qmlServices,
+                                                bool suppressDefaultStdOutHandling = false)
 {
-    auto worker = new ProcessRunner(runControl);
-    worker->setId("QdbDeviceInferiorWorker");
-
-    worker->setStartModifier([worker, runControl, qmlServices] {
+    const auto modifier = [runControl, qmlServices](Process &process) {
         CommandLine cmd{runControl->device()->filePath(Constants::AppcontrollerFilepath)};
 
         int lowerPort = 0;
@@ -52,8 +50,9 @@ static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
             lowerPort = runControl->debugChannel().port();
             upperPort = runControl->qmlChannel().port();
             if (lowerPort + 1 != upperPort) {
-                worker->reportFailure("Need adjacent free ports for combined C++/QML debugging");
-                return;
+                runControl->postMessage("Need adjacent free ports for combined C++/QML debugging",
+                                        ErrorMessageFormat);
+                return Tasking::SetupResult::StopWithError;
             }
         }
         if (runControl->usesPerfChannel()) {
@@ -77,11 +76,12 @@ static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
         cmd.addArg(QString("%1-%2").arg(lowerPort).arg(upperPort));
         cmd.addCommandLineAsArgs(runControl->commandLine());
 
-        worker->setCommandLine(cmd);
-        worker->setWorkingDirectory(runControl->workingDirectory());
-        worker->setEnvironment(runControl->environment());
-    });
-    return worker;
+        process.setCommand(cmd);
+        process.setWorkingDirectory(runControl->workingDirectory());
+        process.setEnvironment(runControl->environment());
+        return Tasking::SetupResult::Continue;
+    };
+    return createProcessWorker(runControl, modifier, suppressDefaultStdOutHandling);
 }
 
 class QdbRunWorkerFactory final : public RunWorkerFactory
@@ -90,16 +90,15 @@ public:
     QdbRunWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto worker = new ProcessRunner(runControl);
-            worker->setStartModifier([worker] {
-                const CommandLine remoteCommand = worker->commandLine();
+            const auto modifier = [runControl](Process &process) {
+                const CommandLine remoteCommand = runControl->commandLine();
                 const FilePath remoteExe = remoteCommand.executable();
                 CommandLine cmd{remoteExe.withNewPath(Constants::AppcontrollerFilepath)};
                 cmd.addArg(remoteExe.nativePath());
                 cmd.addArgs(remoteCommand.arguments(), CommandLine::Raw);
-                worker->setCommandLine(cmd);
-            });
-            return worker;
+                process.setCommand(cmd);
+            };
+            return createProcessWorker(runControl, modifier);
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
@@ -114,11 +113,8 @@ public:
     QdbDebugWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto worker = new DebuggerRunTool(runControl);
-            worker->setId("QdbDeviceDebugSupport");
-
-            DebuggerRunParameters &rp = worker->runParameters();
-            worker->setupPortsGatherer();
+            DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+            rp.setupPortsGatherer(runControl);
             rp.setStartMode(Debugger::AttachToRemoteServer);
             rp.setCloseMode(KillAndExitMonitorAtClose);
             rp.setUseContinueInsteadOfRun(true);
@@ -126,11 +122,13 @@ public:
             rp.addSolibSearchDir("%{sysroot}/system/lib");
             rp.setSkipDebugServer(true);
 
-            auto debuggee = createQdbDeviceInferiorWorker(runControl, QmlDebuggerServices);
-            worker->addStartDependency(debuggee);
-            debuggee->addStopDependency(worker);
+            auto debugger = createDebuggerWorker(runControl, rp);
 
-            return worker;
+            auto debuggee = createQdbDeviceInferiorWorker(runControl, QmlDebuggerServices);
+            debugger->addStartDependency(debuggee);
+            debuggee->addStopDependency(debugger);
+
+            return debugger;
         });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
@@ -169,9 +167,9 @@ public:
     {
         setProducer([](RunControl *runControl) {
             runControl->requestPerfChannel();
-            return createQdbDeviceInferiorWorker(runControl, NoQmlDebugServices);
+            return createQdbDeviceInferiorWorker(runControl, NoQmlDebugServices, true);
         });
-        addSupportedRunMode("PerfRecorder");
+        addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
         addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
     }

@@ -8,8 +8,7 @@
 
 #include <tracing/timelineformattime.h>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 PixmapCacheModel::PixmapCacheModel(QmlProfilerModelManager *manager,
                                    Timeline::TimelineModelAggregator *parent) :
@@ -437,7 +436,7 @@ void PixmapCacheModel::flattenLoads()
     int collapsedRowCount = 0;
 
     // computes "compressed row"
-    QVector <qint64> eventEndTimes;
+    QList <qint64> eventEndTimes;
     for (int i = 0; i < count(); i++) {
         PixmapCacheModel::Item &event = m_data[i];
         if (event.pixmapEventType == PixmapCacheModel::PixmapLoadingStarted) {
@@ -490,6 +489,4 @@ int PixmapCacheModel::updateCacheCount(int lastCacheSizeEvent,
     return index;
 }
 
-
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

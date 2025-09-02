@@ -34,12 +34,11 @@
     To load the Qt AI Assistant extension from the web:
 
     \list 1
-        \li Go to \uicontrol Extensions, and select \inlineimage icons/settings.png.
-            \image {qtcreator-preferences-extensions.webp} {Browser tab in Extensions preferences}
+        \li Go to \uicontrol Extensions.
+            \image {qtcreator-extension-mode.webp} {AI Assistant in Extensions mode}
         \li Select \uicontrol {Use external repository}.
-        \li Select \uicontrol {OK}.
-        \li Back in \uicontrol Extensions, select \uicontrol {AI Assistant}, and
-            then select \uicontrol Install.
+        \li Select \uicontrol {AI Assistant}.
+        \li Select \uicontrol Install.
     \endlist
 
     \section1 Enable code syntax highlighting in the inline chat window
@@ -54,7 +53,7 @@
 
     To use LLMs running locally on your computer with the Qt AI Assistant extension,
     install Ollama. You can run models available from the Ollama selection as well
-    as custom models added by you to Ollama.
+    as custom models that you add to Ollama.
 
     \section2 Run models on Ollama
 
@@ -77,7 +76,6 @@
     \list
         \li \c codellama:7b-code
         \li \c deepseek-coder-v2:lite
-        \li \c starcoder2:7b
         \li \c theqtcompany/codellama-7b-qml
         \li \c theqtcompany/codellama-13b-qml
     \endlist
@@ -97,22 +95,22 @@
     You can connect to the following LLMs:
 
     \list
-        \li Meta Code Llama 13B QML (for Qt 6, running in a cloud deployment
-            of your choice)
-        \li Meta Code Llama 13B (for Qt 5, running in a cloud deployment of your
-            choice)
-        \li Meta Llama 3.3 70B QML (running in a cloud deployment of your choice)
-        \li Anthropic Claude 3.5 Sonnet (provided by Anthropic, remember that you
+        \li Code Llama 13B QML (for Qt 6, running in a cloud deployment of your choice)
+        \li Code Llama 13B (for Qt 5, running in a cloud deployment of your choice)
+        \li Codestral (provided by Mistral)
+        \li Llama 3.3 70B (running in a cloud deployment of your choice)
+        \li Claude 3.7 Sonnet (provided by Anthropic, remember that you
             need to have a token-based billing payment method configured for your
             Anthropic account: \l {https://console.anthropic.com/}{console.anthropic.com})
-        \li OpenAI GPT-4o (provided by OpenAI, remember that you need to have a
+        \li GPT 4o (provided by OpenAI, remember that you need to have a
             token-based billing payment method configured for your OpenAI account:
             \l {https://platform.openai.com/}{platform.openai.com})
-        \li Meta Code Llama 13B QML through Ollama (running locally on your computer)
-        \li Meta Code Llama 7B QML through Ollama (running locally on your computer)
-        \li Meta Code Llama 7B through Ollama (running locally on your computer)
+        \li GPT 4.1-mini (provided by OpenAI)
+        \li DeepSeek V3 (provided by DeepSeek)
+        \li Code Llama 13B QML through Ollama (running locally on your computer)
+        \li Code Llama 7B QML through Ollama (running locally on your computer)
+        \li Code Llama 7B through Ollama (running locally on your computer)
         \li DeepSeek Coder V2 Lite through Ollama (running locally on your computer)
-        \li BigCode StarCoder2 through Ollama (running locally on your computer)
     \endlist
 
     To connect to an LLM:
@@ -150,11 +148,13 @@
     To close the code completion bar, select the \key Esc key or move the cursor
     to another position.
 
-    To turn auto-completion of code on or off globally for all projects, go to
-    \preferences > \uicontrol {AI Assistant}. Qt AI Assistant consumes a
-    significant number of tokens from the LLM. To cut costs, disable the
-    auto-completion feature when not needed, and use keyboard shortcuts for
-    code completion.
+    To select the model for code completion, go to \preferences >
+    \uicontrol {AI Assistant} > \uicontrol General.
+
+    In \uicontrol General, you can also turn auto-completion of code on or off
+    globally for all projects. Qt AI Assistant consumes a significant number of
+    tokens from the LLM. To cut costs, turn off the auto-completion feature when
+    not needed, and use keyboard shortcuts for code completion.
 
     \section1 Complete code from the keyboard
 
@@ -166,13 +166,14 @@
     to implement your requests in human language, ask questions, or execute
     \e {smart commands}. To open the chat, select \key {Ctrl+Shift+A}.
     Alternatively, to open the inline prompt window, you can select code
-    and then select \inlineimage icons/ai-assistant.png.
+    and then select \inlineimage {icons/ai-assistant.png} {AI Assistant}.
 
     To close the inline prompt window, select \key Esc or
-    \inlineimage icons/close.png.
+    \inlineimage {icons/close.png} {Close}.
 
     To go to Qt AI Assistant preferences from the inline prompt window, select
-    \inlineimage icons/settings.png.
+    \inlineimage {icons/settings.png} {Preferences}. There, you can set the model
+    to use for prompts and code reviews.
 
     \section2 Request suggestions using human language
 
@@ -181,6 +182,20 @@
     context to the prompt. Qt AI Assistant shows a suggestion that you can
     copy to the clipboard by selecting \uicontrol Copy in the inline prompt
     window.
+
+    \section2 Request code review
+
+    To review code with Qt AI Assistant:
+
+    \list 1
+        \li Highlight code in the code editor.
+        \li Open the inline prompt window.
+        \li Select the \uicontrol {/review} smart command.
+    \endlist
+
+    Qt AI Assistant reviews the code and suggests improvements. It uses
+    \l {qmllint}{QML Lint} to review QML code if \uicontrol {Enable QML linter}
+    is on in \preferences > \uicontrol {AI Assistant} > \uicontrol General.
 
     \section2 Request test cases in Qt Test syntax
 
@@ -216,9 +231,10 @@
         \li Highlight code in the code editor.
         \li Open the inline prompt window.
         \li Select the \uicontrol {/fix} smart command.
+        \li Optionally, apply the changes to the code.
     \endlist
 
-    Qt AI Assistant writes a suggestion for a fix of your code.
+    Qt AI Assistant suggests a fix that you can apply to your code.
 
     \section2 Request explaining of code
 
@@ -231,6 +247,19 @@
     \endlist
 
     Qt AI Assistant provides an explanation of the highlighted code.
+
+    \section2 Add inline comments
+
+    To add inline comments to existing code with Qt AI Assistant:
+
+    \list 1
+        \li Highlight code in the code editor.
+        \li Open the inline prompt window.
+        \li Select the \uicontrol {/inlinecomments} smart command.
+        \li Optionally, apply the comments to your code.
+    \endlist
+
+    Qt AI Assistant adds inline comments that you can apply to your code.
 
     \sa {Install extensions}, {Load extensions}
 */

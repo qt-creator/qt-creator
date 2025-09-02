@@ -1994,8 +1994,10 @@ void ClangdTestCompletion::testCompleteAfterProjectChange()
                 EditorManager::openEditor(project()->projectFilePath()));
     QVERIFY(proFileEditor);
     proFileEditor->insert("DEFINES += PROJECT_CONFIGURATION_1\n");
-    const Result res = proFileEditor->document()->save();
-    QVERIFY2(res, qPrintable(res.error()));
+    const Result<> res = proFileEditor->document()->save();
+    QVERIFY(res);
+    if (!res)
+        QVERIFY2(false, qPrintable(res.error()));
     QVERIFY(waitForSignalOrTimeout(project(), &Project::anyParsingFinished, timeOutInMs()));
     QVERIFY(waitForSignalOrTimeout(LanguageClientManager::instance(),
                                    &LanguageClientManager::clientRemoved,

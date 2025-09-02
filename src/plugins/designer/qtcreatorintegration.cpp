@@ -40,7 +40,6 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -62,15 +61,14 @@
 #include <memory>
 #include <optional>
 
-namespace Designer::Internal {
-Q_LOGGING_CATEGORY(log, "qtc.designer", QtWarningMsg);
-} // namespace Designer::Internal
-
-using namespace Designer::Internal;
 using namespace CPlusPlus;
 using namespace TextEditor;
 using namespace ProjectExplorer;
 using namespace Utils;
+
+namespace Designer::Internal {
+
+Q_LOGGING_CATEGORY(log, "qtc.designer", QtWarningMsg);
 
 static QString msgClassNotFound(const QString &uiClassName, const QList<Document::Ptr> &docList)
 {
@@ -518,9 +516,9 @@ static Document::Ptr getParsedDocument(const FilePath &filePath,
     if (const auto source = workingCopy.source(filePath)) {
         src = *source;
     } else {
-        Utils::FileReader reader;
-        if (reader.fetch(filePath)) // ### FIXME error reporting
-            src = QString::fromLocal8Bit(reader.data()).toUtf8();
+        const Result<QByteArray> res = filePath.fileContents();
+        if (res) // ### FIXME error reporting
+            src = QString::fromLocal8Bit(*res).toUtf8();
     }
 
     Document::Ptr doc = snapshot.preprocessedDocument(src, filePath);
@@ -860,3 +858,5 @@ void QtCreatorIntegration::slotSyncSettingsToDesigner()
     setHeaderSuffix(CppEditor::preferredCxxHeaderSuffix(ProjectTree::currentProject()));
     setHeaderLowercase(FormClassWizardPage::lowercaseHeaderFiles());
 }
+
+} // namespace Designer::Internal

@@ -48,6 +48,7 @@ LocatorMatcherTasks LocatorFiltersFilter::matchers()
                 entry.acceptor = [shortcutString] {
                     return AcceptResult{shortcutString + ' ', int(shortcutString.size() + 1)};
                 };
+                entry.completer = entry.acceptor;
                 entry.displayIcon = icon;
                 entry.extraInfo = filter->displayName();
                 entry.toolTip = filter->description();

@@ -74,7 +74,7 @@ static CMakeFileResult extractCMakeFilesData(const QFuture<void> &cancelFuture,
               const auto mimeType = Utils::mimeTypeForFile(info.path);
               if (mimeType.matchesName(Utils::Constants::CMAKE_MIMETYPE)
                   || mimeType.matchesName(Utils::Constants::CMAKE_PROJECT_MIMETYPE)) {
-                  expected_str<QByteArray> fileContent = sfn.fileContents();
+                  Result<QByteArray> fileContent = sfn.fileContents();
                   std::string errorString;
                   if (fileContent) {
                       fileContent = fileContent->replace("\r\n", "\n");
@@ -139,7 +139,7 @@ public:
     std::vector<std::unique_ptr<FileNode>> cmakeNodesOther;
     std::vector<std::unique_ptr<FileNode>> cmakeListNodes;
 
-    Configuration codemodel;
+    ConfigurationInfo codemodel;
     std::vector<TargetDetails> targetDetails;
 };
 
@@ -166,13 +166,13 @@ static PreprocessedData preprocess(const QFuture<void> &cancelFuture, FileApiDat
     return result;
 }
 
-static QVector<FolderNode::LocationInfo> extractBacktraceInformation(
+static QList<FolderNode::LocationInfo> extractBacktraceInformation(
     const BacktraceInfo &backtraces,
     const FilePath &sourceDir,
     int backtraceIndex,
     unsigned int locationInfoPriority)
 {
-    QVector<FolderNode::LocationInfo> info;
+    QList<FolderNode::LocationInfo> info;
     // Set up a default target path:
     while (backtraceIndex != -1) {
         const size_t bi = static_cast<size_t>(backtraceIndex);
@@ -450,8 +450,8 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                                               .arg(++compileLanguageCountHash[ci.language].second)
                                         : ci.language;
             rpp.setDisplayName(t.name + "_" + postfix);
-            rpp.setMacros(transform<QVector>(ci.defines, &DefineInfo::define));
-            rpp.setHeaderPaths(transform<QVector>(ci.includes, &IncludeInfo::path));
+            rpp.setMacros(transform<QList>(ci.defines, &DefineInfo::define));
+            rpp.setHeaderPaths(transform<QList>(ci.includes, &IncludeInfo::path));
 
             QStringList fragments = splitFragments(ci.fragments);
 
@@ -583,7 +583,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
     return rpps;
 }
 
-static FilePath directorySourceDir(const Configuration &c,
+static FilePath directorySourceDir(const ConfigurationInfo &c,
                                    const FilePath &sourceDir,
                                    int directoryIndex)
 {
@@ -593,7 +593,7 @@ static FilePath directorySourceDir(const Configuration &c,
     return sourceDir.resolvePath(c.directories[di].sourcePath);
 }
 
-static FilePath directoryBuildDir(const Configuration &c,
+static FilePath directoryBuildDir(const ConfigurationInfo &c,
                                   const FilePath &buildDir,
                                   int directoryIndex)
 {
@@ -605,10 +605,10 @@ static FilePath directoryBuildDir(const Configuration &c,
 
 static void addProjects(const QFuture<void> &cancelFuture,
                         const QHash<FilePath, ProjectNode *> &cmakeListsNodes,
-                        const Configuration &config,
+                        const ConfigurationInfo &config,
                         const FilePath &sourceDir)
 {
-    for (const FileApiDetails::Project &p : config.projects) {
+    for (const FileApiDetails::ProjectInfo &p : config.projects) {
         if (cancelFuture.isCanceled())
             return;
 
@@ -777,7 +777,7 @@ static void addGeneratedFilesNode(ProjectNode *targetRoot, const FilePath &topLe
 static void addTargets(FolderNode *root,
                        const QFuture<void> &cancelFuture,
                        const QHash<FilePath, ProjectNode *> &cmakeListsNodes,
-                       const Configuration &config,
+                       const ConfigurationInfo &config,
                        const std::vector<TargetDetails> &targetDetails,
                        const FilePath &sourceDir,
                        const FilePath &buildDir)
@@ -815,7 +815,7 @@ static void addTargets(FolderNode *root,
 
     QHash<FilePath, FolderNode *> folderNodes;
 
-    for (const FileApiDetails::Target &t : config.targets) {
+    for (const FileApiDetails::TargetInfo &t : config.targets) {
         if (cancelFuture.isCanceled())
             return;
 
@@ -855,8 +855,8 @@ static std::unique_ptr<CMakeProjectNode> generateRootProjectNode(const QFuture<v
 {
     std::unique_ptr<CMakeProjectNode> result = std::make_unique<CMakeProjectNode>(sourceDirectory);
 
-    const FileApiDetails::Project topLevelProject
-        = findOrDefault(data.codemodel.projects, equal(&FileApiDetails::Project::parent, -1));
+    const FileApiDetails::ProjectInfo topLevelProject
+        = findOrDefault(data.codemodel.projects, equal(&FileApiDetails::ProjectInfo::parent, -1));
     if (!topLevelProject.name.isEmpty())
         result->setDisplayName(topLevelProject.name);
     else
@@ -923,7 +923,7 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
         if (folderNode) {
             QSet<std::pair<FilePath, int>> locations;
             auto dedup = [&locations](const Backtrace &bt) {
-                QVector<FolderNode::LocationInfo> result;
+                QList<FolderNode::LocationInfo> result;
                 Utils::reverseForeach(bt, [&](const FolderNode::LocationInfo &i) {
                     int count = locations.count();
                     locations.insert({i.path, i.line});
@@ -934,9 +934,9 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
                 return result;
             };
 
-            QVector<FolderNode::LocationInfo> result = dedup(t.backtrace);
+            QList<FolderNode::LocationInfo> result = dedup(t.backtrace);
             auto dedupMulti = [&dedup](const Backtraces &bts) {
-                QVector<FolderNode::LocationInfo> result;
+                QList<FolderNode::LocationInfo> result;
                 for (const Backtrace &bt : bts) {
                     result.append(dedup(bt));
                 }
@@ -962,9 +962,26 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
     }
 }
 
-static void markCMakeModulesFromPrefixPathAsGenerated(FileApiQtcData &result)
+static void setIsGenerated(QSet<CMakeFileInfo> &cmakeFiles, Node *node, bool isGenerated)
 {
-    const QSet<FilePath> paths = [&result]() {
+    // Replace the key in a QSet by searching and inserting the updated key
+    CMakeFileInfo info;
+    info.path = node->path();
+
+    auto it = cmakeFiles.find(info);
+    if (it != cmakeFiles.end()) {
+        info = *it;
+        info.isGenerated = isGenerated;
+        cmakeFiles.insert(info);
+    }
+
+    node->setIsGenerated(isGenerated);
+}
+
+static void markCMakeModulesFromPrefixPathAsGenerated(
+    FileApiQtcData &result, const FilePath &sourceDir, const FilePath &buildDir)
+{
+    const QSet<FilePath> externlPaths = [&result]() {
         QSet<FilePath> paths;
         for (const QByteArray var : {"CMAKE_PREFIX_PATH", "CMAKE_FIND_ROOT_PATH"}) {
             const QStringList pathList = result.cache.stringValueOf(var).split(";");
@@ -977,14 +994,17 @@ static void markCMakeModulesFromPrefixPathAsGenerated(FileApiQtcData &result)
     if (!result.rootProjectNode)
         return;
 
-    result.rootProjectNode->forEachGenericNode([&paths](Node *node) {
-        for (const FilePath &path : paths) {
-            if (node->path().isChildOf(path)) {
-                node->setIsGenerated(true);
-                break;
+    result.rootProjectNode->forEachGenericNode(
+        [&externlPaths, &sourceDir, &buildDir, &result](Node *node) {
+            for (const FilePath &path : externlPaths) {
+                const bool isExternal = !node->path().isChildOf(sourceDir)
+                                        && !node->path().isChildOf(buildDir);
+                if (node->path().isChildOf(path) && isExternal) {
+                    setIsGenerated(result.cmakeFiles, node, true);
+                    break;
+                }
             }
-        }
-    });
+        });
 }
 
 static void setSubprojectBuildSupport(FileApiQtcData &result)
@@ -1036,7 +1056,8 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
     auto rootProjectNode = generateRootProjectNode(cancelFuture, data, sourceDir, buildDir);
     if (cancelFuture.isCanceled())
         return {};
-    rootProjectNode.get()->compress();
+    if (!qtcEnvironmentVariableIsSet("QTC_PROJECT_NO_COMPRESS"))
+        rootProjectNode.get()->compress();
     ProjectTree::applyTreeManager(rootProjectNode.get(), ProjectTree::AsyncPhase); // QRC nodes
     result.rootProjectNode = std::move(rootProjectNode);
 
@@ -1050,7 +1071,7 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
     if (input.replyFile.isMultiConfig && input.replyFile.generator != "Ninja Multi-Config")
         result.usesAllCapsTargets = true;
 
-    markCMakeModulesFromPrefixPathAsGenerated(result);
+    markCMakeModulesFromPrefixPathAsGenerated(result, sourceDir, buildDir);
     setSubprojectBuildSupport(result);
 
     return result;

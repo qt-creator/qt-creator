@@ -47,11 +47,8 @@ namespace CppEditor::Internal::Tests {
 
 bool isClangFormatPresent()
 {
-    using namespace ExtensionSystem;
-    return Utils::contains(PluginManager::plugins(), [](const PluginSpec *plugin) {
-        return plugin->id() == "clangformat" && plugin->isEffectivelyEnabled();
-    });
-};
+    return ExtensionSystem::PluginManager::specExistsAndIsEnabled("clangformat");
+}
 
 CppTestDocument::CppTestDocument(const QByteArray &fileName, const QByteArray &source,
                                          char cursorMarker)
@@ -527,16 +524,17 @@ int clangdIndexingTimeout()
 SourceFilesRefreshGuard::SourceFilesRefreshGuard()
 {
     connect(CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed, this, [this] {
-        m_refreshed = true;
+        --m_missing;
     });
 }
 
 bool SourceFilesRefreshGuard::wait()
 {
-    for (int i = 0; i < 10 && !m_refreshed; ++i) {
+    for (int i = 0; i < 10 && m_missing > 0; ++i) {
         CppEditor::Tests::waitForSignalOrTimeout(
             CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed, 1000);
     }
-    return m_refreshed;
+    QTC_ASSERT(m_missing >= 0, return true);
+    return m_missing == 0;
 }
 } // namespace CppEditor::Tests

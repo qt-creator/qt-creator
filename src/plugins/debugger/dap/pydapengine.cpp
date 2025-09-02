@@ -40,7 +40,7 @@ const char installDebugPyInfoBarId[] = "Python::InstallDebugPy";
 
 static FilePath packageDir(const FilePath &python, const QString &packageName)
 {
-    expected_str<FilePath> baseDir = python.isLocal() ? Core::ICore::userResourcePath()
+    Result<FilePath> baseDir = python.isLocal() ? Core::ICore::userResourcePath()
                                                       : python.tmpDir();
     return baseDir ? baseDir->pathAppended(packageName) : FilePath();
 }
@@ -231,24 +231,26 @@ void PyDapEngine::setupEngine()
                  Tr::tr(
                      "Python debugging support is not available. Install the debugpy package."),
                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
-        info.addCustomButton(Tr::tr("Install debugpy"), [this] {
-            Core::ICore::infoBar()->removeInfo(installDebugPyInfoBarId);
-            Core::ICore::infoBar()->globallySuppressInfo(installDebugPyInfoBarId);
-            const FilePath target = packageDir(runParameters().interpreter(), "debugpy");
-            QTC_ASSERT(target.isSameDevice(runParameters().interpreter()), return);
-            m_installProcess.reset(new Process);
-            m_installProcess->setCommand(
-                {runParameters().interpreter(),
-                 {"-m",
-                  "pip",
-                  "install",
-                  "-t",
-                  target.isLocal() ? target.toUserOutput() : target.path(),
-                  "debugpy",
-                  "--upgrade"}});
-            m_installProcess->setTerminalMode(TerminalMode::Run);
-            m_installProcess->start();
-        });
+        info.addCustomButton(
+            Tr::tr("Install debugpy"),
+            [this] {
+                const FilePath target = packageDir(runParameters().interpreter(), "debugpy");
+                QTC_ASSERT(target.isSameDevice(runParameters().interpreter()), return);
+                m_installProcess.reset(new Process);
+                m_installProcess->setCommand(
+                    {runParameters().interpreter(),
+                     {"-m",
+                      "pip",
+                      "install",
+                      "-t",
+                      target.isLocal() ? target.toUserOutput() : target.path(),
+                      "debugpy",
+                      "--upgrade"}});
+                m_installProcess->setTerminalMode(TerminalMode::Run);
+                m_installProcess->start();
+            },
+            {},
+            InfoBarEntry::ButtonAction::SuppressPersistently);
         Core::ICore::infoBar()->addInfo(info);
 
         notifyEngineSetupFailed();

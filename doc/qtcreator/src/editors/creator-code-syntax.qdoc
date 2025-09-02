@@ -17,7 +17,7 @@
     As you write code, \QC checks code syntax. When \QC spots a syntax error in
     your code, it underlines it, displays an icon, and shows error details when
     you move the mouse pointer over the error or the icon. To apply an available
-    fix, select \inlineimage icons/refactormarker.png.
+    fix, select \inlineimage {icons/refactormarker.png} {Light bulb icon}.
 
     Similarly, when you are working on an instance of a JavaScript object
     notation (JSON) entity, \QC underlines errors in the JSON data structure.
@@ -79,7 +79,7 @@
     between lines can be useful if there is usually not enough space to
     display annotations next to the text.
 
-    \image {qtcreator-options-text-editor-display.png} {Display tab Text Editor preferences}
+    \image {qtcreator-preferences-text-editor-display.webp} {Display tab Text Editor preferences}
 
     If you hide the annotations, you can move the mouse pointer over an icon to
     view them.
@@ -128,9 +128,9 @@
         \li Select \uicontrol {Use customized static analyzer}.
             \image {qtcreator-preferences-qtquick-qmljs-editing.webp} {QML/JS Editing tab in Qt Quick preferences}
         \li In \uicontrol Enabled, select the messages that you want to see.
-        \li To disable messages for non-Qt Quick UI files, select them in
-            \uicontrol {Disabled for non Qt Quick UI}. You cannot
-            enable messages just for non-Qt Quick UI files.
+        \li To show particular messages only for Qt Quick UI files, select them in
+            \uicontrol {Only for Qt Quick UI}. You cannot enable messages just for non-Qt Quick UI
+            files.
     \endlist
 
     \section1 JavaScript and QML Error Codes
@@ -800,14 +800,5 @@
     To only format files that belong to the current project, select
     \uicontrol {Restrict to files contained in the current project}.
 
-    To use an external tool, such as \l {qmlformat}, which automatically
-    formats QML files according to QML coding conventions:
-
-    \list 1
-        \li Select \uicontrol {Use custom command instead of built-in formatter}.
-        \li In \uicontrol Command, enter the path to the tool.
-        \li In \uicontrol Arguments, enter options for running the tool.
-    \endlist
-
-    \sa {Check code syntax}, {Qt Quick Code Style}
+    \sa {Check code syntax}, {Specify Qt Quick code style}
 */

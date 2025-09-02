@@ -6,7 +6,6 @@ add_qtc_plugin(ScreenRecorder
     export.cpp export.h
     ffmpegutils.cpp ffmpegutils.h
     record.cpp record.h
-    screenrecorder.qrc
     screenrecorderconstants.h
     screenrecorderplugin.cpp
     screenrecordersettings.cpp screenrecordersettings.h

@@ -189,6 +189,9 @@ ScxmlEditorData::~ScxmlEditorData()
         DesignMode::unregisterDesignWidget(m_modeWidget);
         delete m_modeWidget;
         m_modeWidget = nullptr;
+    } else if (m_mainToolBar) { // gets automatically deleted with m_modeWidget
+        delete m_mainToolBar;
+        m_mainToolBar = nullptr;
     }
 
     delete m_xmlEditorFactory;

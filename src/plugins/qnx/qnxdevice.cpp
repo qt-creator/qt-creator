@@ -65,10 +65,10 @@ public:
         setType(Constants::QNX_QNX_OS_TYPE);
         setMachineType(IDevice::Hardware);
         SshParameters sshParams;
-        sshParams.timeout = 10;
-        setSshParameters(sshParams);
+        sshParams.setTimeout(10);
+        setDefaultSshParameters(sshParams);
         setFreePorts(PortList::fromString("10000-10100"));
-        setExtraData(RemoteLinux::Constants::SourceProfile, true);
+        sourceProfile.setDefaultValue(true);
 
         addDeviceAction({Tr::tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device) {
             QnxDeployQtLibrariesDialog dialog(device, Core::ICore::dialogParent());

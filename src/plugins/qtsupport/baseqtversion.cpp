@@ -14,19 +14,18 @@
 
 #include <android/androidconstants.h>
 
-#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <proparser/qmakevfs.h>
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
-#include <projectexplorer/headerpath.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
@@ -46,11 +45,10 @@
 #include <utils/stringutils.h>
 #include <utils/winutils.h>
 
-#include <resourceeditor/resourcenode.h>
-
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QHash>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QUrl>
@@ -58,6 +56,7 @@
 #include <QtConcurrent>
 
 #include <algorithm>
+#include <optional>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -202,7 +201,7 @@ public:
     DisplayName m_unexpandedDisplayName;
 
     std::optional<QtVersionData> m_data;
-    QFuture<expected_str<QtVersionData>> m_dataFuture;
+    QFuture<Result<QtVersionData>> m_dataFuture;
 
     bool m_mkspecUpToDate = false;
     bool m_mkspecReadUpToDate = false;
@@ -228,6 +227,7 @@ public:
     FilePath m_qscxmlcPath;
     FilePath m_qmlRuntimePath;
     FilePath m_qmlplugindumpPath;
+    std::optional<QHash<QString, QStringList>> m_classesPerModule;
 
     std::unique_ptr<MacroExpander> m_expander;
 };
@@ -279,6 +279,41 @@ QString QtVersion::defaultUnexpandedDisplayName() const
         result += QString(Tr::tr(" (on %1)")).arg(qmakeFilePath().host().toString());
 
     return result;
+}
+
+QString QtVersion::moduleForHeader(const QString &headerFileName) const
+{
+    if (!d->m_classesPerModule) {
+        d->m_classesPerModule.emplace();
+        const FileFilter filesFilter({}, QDir::Files);
+        const FileFilter frameworksFilter({"*.framework"}, QDir::Dirs | QDir::NoDotAndDotDot);
+        const FilePaths frameworks = libraryPath().dirEntries(frameworksFilter);
+        for (const FilePath &framework : frameworks) {
+            const QString frameworkName = framework.fileName();
+            const QString &moduleName = frameworkName.left(frameworkName.indexOf('.'));
+            const FilePath headersDir = libraryPath().resolvePath(framework.pathAppended("Headers"));
+            const FilePaths headers = headersDir.dirEntries(filesFilter);
+            d->m_classesPerModule->insert(moduleName, Utils::transform(headers, &FilePath::fileName));
+        }
+        if (frameworks.isEmpty()) {
+            const FileFilter modulesFilter({"Qt[A-Z]*"}, QDir::Dirs | QDir::NoDotAndDotDot);
+            const FilePaths modules = headerPath().dirEntries(modulesFilter);
+            for (const FilePath &module : modules) {
+                const FilePath headersDir = headerPath().resolvePath(module);
+                const FilePaths headers = headersDir.dirEntries(filesFilter);
+                d->m_classesPerModule
+                    ->insert(module.fileName(), Utils::transform(headers, &FilePath::fileName));
+            }
+        }
+    }
+
+    for (auto it = d->m_classesPerModule->cbegin(); it != d->m_classesPerModule->cend(); ++it) {
+        if (it.value().contains(headerFileName)) {
+            QTC_ASSERT(it.key().size() > 2, return it.key());
+            return it.key().left(2) + '.' + it.key().mid(2);
+        }
+    }
+    return {};
 }
 
 QSet<Id> QtVersion::availableFeatures() const
@@ -429,7 +464,7 @@ Tasks QtVersion::validateKit(const Kit *k)
         return result;
 
     const Id dt = RunDeviceTypeKitAspect::deviceTypeId(k);
-    if (dt != "DockerDeviceType") {
+    if (dt != ProjectExplorer::Constants::DOCKER_DEVICE_TYPE) {
         const QSet<Id> tdt = targetDeviceTypes();
         if (!tdt.isEmpty() && !tdt.contains(dt))
             result << BuildSystemTask(Task::Warning, Tr::tr("Device type is not supported by Qt version."));
@@ -1192,7 +1227,7 @@ bool QtVersion::hasMkspec(const QString &spec) const
     if (spec.isEmpty())
         return true; // default spec of a Qt version
 
-    const FilePath absSpec = hostDataPath() / "mkspecs" / spec;
+    const FilePath absSpec = hostDataPath().pathAppended("mkspecs").resolvePath(spec);
     if (absSpec.pathAppended("qmake.conf").isReadableFile())
         return true;
 
@@ -1223,7 +1258,7 @@ QVersionNumber QtVersion::qtVersion() const
     return QVersionNumber::fromString(qtVersionString());
 }
 
-expected_str<QtVersionData> dataForQMake(const FilePath m_qmakeCommand, const Environment env)
+Result<QtVersionData> dataForQMake(const FilePath m_qmakeCommand, const Environment env)
 {
     QtVersionData data;
 
@@ -1296,7 +1331,7 @@ QtVersionData &QtVersionPrivate::data()
         if (m_dataFuture.isRunning())
             m_dataFuture.waitForFinished();
 
-        const expected_str<QtVersionData> data = m_dataFuture.result();
+        const Result<QtVersionData> data = m_dataFuture.result();
         m_qmakeIsExecutable = data.has_value();
         if (!data.has_value()) {
             Core::MessageManager::writeFlashing(data.error());
@@ -1564,10 +1599,10 @@ QtVersion::createMacroExpander(const std::function<const QtVersion *()> &qtVersi
     return expander;
 }
 
-void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Target *target)
+void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const BuildConfiguration *bc)
 {
     // If target given, then use the project associated with that ...
-    const Project *startupProject = target ? target->project() : nullptr;
+    const Project *startupProject = bc ? bc->project() : nullptr;
 
     // ... else try the session manager's global startup project ...
     if (!startupProject)
@@ -1594,19 +1629,19 @@ void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Target 
 
     // If no target was given, but we've found a startupProject, then try to deduce a
     // target from that.
-    if (!target && startupProject)
-        target = startupProject->activeTarget();
+    if (!bc && startupProject)
+        bc = startupProject->activeBuildConfiguration();
 
     // ... and find the sysroot and qml directory if we have any target at all.
-    const Kit *kit = target ? target->kit() : nullptr;
+    const Kit *kit = bc ? bc->kit() : nullptr;
     const FilePath activeSysroot = SysRootKitAspect::sysRoot(kit);
     const QtVersion *qtVersion = QtVersionManager::isLoaded()
             ? QtKitAspect::qtVersion(kit) : nullptr;
     FilePaths additionalSearchDirectories = qtVersion
             ? FilePaths({qtVersion->qmlPath()}) : FilePaths();
 
-    if (target) {
-        for (const DeployableFile &file : target->deploymentData().allFiles())
+    if (bc) {
+        for (const DeployableFile &file : bc->buildSystem()->deploymentData().allFiles())
             finder->addMappedPath(file.localFilePath(), file.remoteFilePath());
     }
 
@@ -1620,6 +1655,27 @@ void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Target 
         } else {
             // Can there be projects without root node?
         }
+    }
+
+    // HACK:
+    // Paths of .qml files go through several location before ending up in the binary
+    // (source directory, build directory, entries in .qrc files). The qml debug server
+    // side does not do any back-mapping to source directory files when reporting e.g.
+    // stack frames or breakpoint locations, so this file finder here is supposed to do
+    // the work, some deterministic, some by guessing. The most deterministic way is to
+    // read .qrc fils, but in modern Qt 6.x(?) CMake projects, .qrc files containing .qml
+    // file are typically on-the-fly and are not part of the project's sources anymore.
+    // On top of this, the heuristic to search for the files in the project directory
+    // which would normally help as fallback fails for in-source builds due to some
+    // unfortunate naming of build artifacts (for a "testprojects/untitled/Main.qml"
+    // source, a " testproject/untitled/untitled/Main.qml" build artifact will be
+    // generated /and/ found by the back-mapping heuristics using "prefixToIgnore" in
+    // FileInProjectFinder::checkProjectDirectory.
+    // To work around further, we add all .qrc files found in the project:
+    if (bc) {
+        const FileFilter filter = {{"*.qrc"},  QDir::Files|QDir::Hidden, QDirIterator::Subdirectories};
+        const FilePaths extraQrcs = bc->buildDirectory().dirEntries(filter);
+        sourceFiles += extraQrcs;
     }
 
     // Finally, do populate m_projectFinder
@@ -1657,7 +1713,7 @@ Environment QtVersion::qmakeRunEnvironment() const
 
 void QtVersion::setupQmakeRunEnvironment(Environment &env) const
 {
-    Q_UNUSED(env);
+    Q_UNUSED(env)
 }
 
 bool QtVersion::hasQmlDumpWithRelocatableFlag() const
@@ -1748,7 +1804,7 @@ bool QtVersionPrivate::queryQMakeVariables(const FilePath &binary, const Environ
     QByteArray output;
     output = runQmakeQuery(binary, env, error);
 
-    if (!output.contains("QMAKE_VERSION:")) {
+    if (binary.fileName().contains("qmake") && !output.contains("QMAKE_VERSION:")) {
         // Some setups pass error messages via stdout, fooling the logic below.
         // Example with docker/qemu/arm "OCI runtime exec failed: exec failed: container_linux.go:367:
         // starting container process caused: exec: "/bin/qmake": stat /bin/qmake: no such file or directory"

@@ -9,7 +9,6 @@ namespace Core { class IEditor; }
 
 namespace QmlProjectManager::Internal {
 
-Utils::FilePath qdsInstallationEntry();
 bool qdsInstallationExists();
 bool checkIfEditorIsuiQml(Core::IEditor *editor);
 Utils::FilePath projectFilePath();

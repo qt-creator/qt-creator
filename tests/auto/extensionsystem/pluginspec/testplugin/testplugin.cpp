@@ -12,10 +12,9 @@ MyPluginImpl::MyPluginImpl()
 {
 }
 
-bool MyPluginImpl::initialize(const QStringList &, QString *)
+void MyPluginImpl::initialize()
 {
     m_isInitialized = true;
-    return true;
 }
 
 void MyPluginImpl::extensionsInitialized()

@@ -152,7 +152,7 @@ void tst_Devicectlutils::parseError()
 {
     QFETCH(QByteArray, data);
     QFETCH(QString, error);
-    const Utils::expected_str<QJsonValue> result = parseDevicectlResult(data);
+    const Utils::Result<QJsonValue> result = parseDevicectlResult(data);
     if (error.isEmpty()) {
         QVERIFY(result);
     } else {
@@ -302,7 +302,7 @@ void tst_Devicectlutils::parseDeviceInfo()
     QFETCH(QString, error);
     QFETCH(InfoMap, info);
 
-    const Utils::expected_str<InfoMap> result = Ios::Internal::parseDeviceInfo(data, usbId);
+    const Utils::Result<InfoMap> result = Ios::Internal::parseDeviceInfo(data, usbId);
     if (error.isEmpty()) {
         QVERIFY(result);
         QCOMPARE(*result, info);
@@ -360,7 +360,7 @@ void tst_Devicectlutils::parseAppInfo()
   }
 })raw");
 
-    const Utils::expected_str<QUrl> result
+    const Utils::Result<QUrl> result
         = Ios::Internal::parseAppInfo(data, "org.iuehrg.cmake-widgets");
     QVERIFY(result);
     QCOMPARE(*result,
@@ -405,7 +405,7 @@ void tst_Devicectlutils::parseProcessIdentifier()
   }
 })raw");
 
-    const Utils::expected_str<qint64> result = Ios::Internal::parseProcessIdentifier(data);
+    const Utils::Result<qint64> result = Ios::Internal::parseProcessIdentifier(data);
     QVERIFY(result);
     QCOMPARE(*result, 1000);
 }
@@ -470,7 +470,7 @@ void tst_Devicectlutils::parseLaunchResult()
     }
   }
 })raw");
-    const Utils::expected_str<qint64> result = Ios::Internal::parseLaunchResult(data);
+    const Utils::Result<qint64> result = Ios::Internal::parseLaunchResult(data);
     QVERIFY(result);
     QCOMPARE(*result, 1802);
 }

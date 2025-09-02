@@ -379,12 +379,11 @@ void IosConfigurations::load()
 void IosConfigurations::updateSimulators()
 {
     // currently we have just one simulator
-    DeviceManager *devManager = DeviceManager::instance();
     Id devId = Constants::IOS_SIMULATOR_DEVICE_ID;
-    IDevice::ConstPtr dev = devManager->find(devId);
+    IDevice::Ptr dev = DeviceManager::find(devId);
     if (!dev) {
-        dev = IDevice::ConstPtr(new IosSimulator(devId));
-        devManager->addDevice(dev);
+        dev = IDevice::Ptr(new IosSimulator(devId));
+        DeviceManager::addDevice(dev);
     }
     Utils::futureSynchronizer()->addFuture(SimulatorControl::updateAvailableSimulators(this));
 }
@@ -624,7 +623,6 @@ Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                 if (!toolChain) {
                     toolChain = new GccToolchain(ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID,
                                                  GccToolchain::Clang);
-                    toolChain->setPriority(Toolchain::PriorityLow);
                     toolChain->setDetection(Toolchain::AutoDetection);
                     toolChain->setLanguage(l);
                     toolChain->setDisplayName(target.name);
@@ -634,6 +632,7 @@ Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                                                   platform.cxxCompilerPath : platform.cCompilerPath);
                     existingClangToolchains.append(toolChain);
                 }
+                toolChain->setPriority(Toolchain::PriorityLow);
                 toolchains.append(toolChain);
             };
 

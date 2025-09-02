@@ -16,7 +16,6 @@
 
 #include <QApplication>
 #include <QDesktopServices>
-#include <QFileInfo>
 #include <QHash>
 #include <QLabel>
 #include <QScreen>

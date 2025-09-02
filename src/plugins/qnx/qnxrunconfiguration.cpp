@@ -15,8 +15,6 @@
 
 #include <remotelinux/remotelinuxenvironmentaspect.h>
 
-#include <qtsupport/qtoutputformatter.h>
-
 #include <utils/processinterface.h>
 
 using namespace ProjectExplorer;
@@ -28,10 +26,10 @@ namespace Qnx::Internal {
 class QnxRunConfiguration final : public RunConfiguration
 {
 public:
-    QnxRunConfiguration(Target *target, Id id)
-        : RunConfiguration(target, id)
+    QnxRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
     {
-        executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+        executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
         executable.setLabelText(Tr::tr("Executable on device:"));
         executable.setPlaceHolderText(Tr::tr("Remote path not set"));
         executable.makeOverridable("RemoteLinux.RunConfig.AlternateRemoteExecutable",
@@ -40,7 +38,7 @@ public:
 
         symbolFile.setLabelText(Tr::tr("Executable on host:"));
 
-        environment.setDeviceSelector(target, EnvironmentAspect::RunDevice);
+        environment.setDeviceSelector(kit(), EnvironmentAspect::RunDevice);
 
         workingDir.setEnvironment(&environment);
 
@@ -48,10 +46,10 @@ public:
         qtLibraries.setLabelText(Tr::tr("Path to Qt libraries on device"));
         qtLibraries.setDisplayStyle(StringAspect::LineEditDisplay);
 
-        setUpdater([this, target] {
+        setUpdater([this] {
             const BuildTargetInfo bti = buildTargetInfo();
             const FilePath localExecutable = bti.targetFilePath;
-            const DeployableFile depFile = target->deploymentData()
+            const DeployableFile depFile = buildSystem()->deploymentData()
                                                .deployableForLocalFile(localExecutable);
             executable.setExecutable(FilePath::fromString(depFile.remoteFilePath()));
             symbolFile.setValue(localExecutable);
@@ -67,8 +65,6 @@ public:
                 r.environment.set("QT_QPA_FONTDIR", libPath + "/lib/fonts");
             }
         });
-
-        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     }
 
     ExecutableAspect executable{this};

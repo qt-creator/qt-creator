@@ -13,7 +13,7 @@
 
     Use wizards to create Qt Quick projects that have boiler-plate code. Change
     the code in the \uicontrol Edit mode or use a separate visual editor,
-    \l{Qt Design Studio documentation}{\QDS} to open and edit \l{UI files}
+    \l{\QDS documentation}{\QDS} to open and edit \l{UI files}
     (.ui.qml).
 
     Don't edit UI files in the \uicontrol Edit mode because it is easy
@@ -21,13 +21,26 @@
 
     \section1 Opening Files in \QDS
 
-    If you have installed \QDS, and open a .ui.qml or a .qml file in \QC, it
+    If you installed \QDS with \QOI, and open a .ui.qml or a .qml file in \QC, it
     asks you whether you would like to open the file in \QDS instead. Select
     \uicontrol {Open in \QDS} to open the file in \QDS.
 
+    To hide the question, select \uicontrol {Do Not Show Again}.
+
     To continue editing the file in \QC, close the info bar.
 
-    To hide the question, select \uicontrol {Do Not Show Again}.
+    To open the UI file in \QDS later, select \uicontrol {QDS} on the editor
+    toolbar.
+
+    \image {qtcreator-editor-toolbar-qml.webp} {Editor toolbar for a QML UI file}
+
+    \section2 Setting the Path to \QDS
+
+    If you installed \QDS using some other method than \QOI, set the path to the
+    \QDS installation directory in \preferences > \uicontrol {Qt Quick} >
+    \uicontrol {QML/JS Editing} > \uicontrol {\QDS}.
+
+    \image {qtcreator-qml-js-editing.webp} {QML/JS Editing tab in Qt Quick preferences}
 
     \section1 Editing Files in \QMLD
 
@@ -43,7 +56,7 @@
     {QML types}, see the Qt reference documentation available online and
     in the \uicontrol Help mode.
 
-    For more information about using \QMLD, see \l{Qt Design Studio documentation}.
+    For more information about using \QMLD, see \l{\QDS documentation}.
 
     \sa {Create Qt Quick Applications}, {Create Qt Quick UI Prototypes},
     {Enable and disable plugins}

@@ -2,6 +2,7 @@ import "../cplusplus-shared/CPlusPlusTool.qbs" as CPlusPlusTool
 
 CPlusPlusTool {
     name: "cplusplus-update-frontend"
+    hasCMakeProjectFile: false
 
     cpp.defines: base.concat([
         'PATH_CPP_FRONTEND="' + path + '/../../libs/3rdparty/cplusplus"',

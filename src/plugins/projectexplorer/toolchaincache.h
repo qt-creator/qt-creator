@@ -3,10 +3,10 @@
 
 #pragma once
 
+#include <QList>
 #include <QMutex>
 #include <QMutexLocker>
 #include <QPair>
-#include <QVector>
 
 #include <optional>
 
@@ -82,7 +82,7 @@ private:
     using CacheItem = QPair<K, T>;
 
     QMutex m_mutex;
-    QVector<CacheItem> m_cache;
+    QList<CacheItem> m_cache;
 };
 
 } // namespace ProjectExplorer

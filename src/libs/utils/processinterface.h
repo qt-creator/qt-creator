@@ -91,6 +91,7 @@ public:
     bool m_lowPriority = false;
     bool m_unixTerminalDisabled = false;
     bool m_useCtrlCStub = false;
+    bool m_allowCoreDumps = true;
     bool m_belowNormalPriority = false; // internal, dependent on other fields and specific code path
     bool m_createConsoleOnWindows = false;
     bool m_forceDefaultErrorMode = false;
@@ -102,7 +103,7 @@ public:
     int m_exitCode = 0;
     QProcess::ExitStatus m_exitStatus = QProcess::NormalExit;
     QProcess::ProcessError m_error = QProcess::UnknownError;
-    QString m_errorString;
+    QString m_errorString = {};
 };
 
 enum class ControlSignal {

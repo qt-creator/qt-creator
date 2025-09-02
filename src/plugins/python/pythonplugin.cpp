@@ -13,7 +13,9 @@
 #include "pythontr.h"
 #include "pythonwizardpage.h"
 
-#include <debugger/debuggerruncontrol.h>
+#ifdef WITH_TESTS
+#include "tests/pyprojecttoml_test.h"
+#endif // WITH_TESTS
 
 #include <extensionsystem/iplugin.h>
 
@@ -29,7 +31,6 @@
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/theme/theme.h>
 
-using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -75,6 +76,9 @@ class PythonPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+#ifdef WITH_TESTS
+        addTestCreator(createPyProjectTomlTest);
+#endif
         Core::IOptionsPage::registerCategory(
             Constants::C_PYTHON_SETTINGS_CATEGORY,
             Tr::tr("Python"),
@@ -95,11 +99,22 @@ class PythonPlugin final : public ExtensionSystem::IPlugin
 
         setupPipSupport(this);
 
-        KitManager::setIrrelevantAspects(KitManager::irrelevantAspects()
-                                         + QSet<Id>{PythonKitAspect::id()});
+        KitManager::setIrrelevantAspects(
+            KitManager::irrelevantAspects() + QSet<Id>{PythonKitAspect::id()});
 
-        ProjectManager::registerProjectType<PythonProject>(Constants::C_PY_PROJECT_MIME_TYPE);
-        ProjectManager::registerProjectType<PythonProject>(Constants::C_PY_PROJECT_MIME_TYPE_LEGACY);
+        const auto issuesGenerator = [](const Kit *k) -> Tasks {
+            if (!PythonKitAspect::python(k))
+                return {BuildSystemTask(
+                    Task::Error,
+                    Tr::tr("No Python interpreter set for kit \"%1\".").arg(k->displayName()))};
+            return {};
+        };
+        ProjectManager::registerProjectType<PythonProject>(
+            Constants::C_PY_PROJECT_MIME_TYPE, issuesGenerator);
+        ProjectManager::registerProjectType<PythonProject>(
+            Constants::C_PY_PROJECT_MIME_TYPE_LEGACY, issuesGenerator);
+        ProjectManager::registerProjectType<PythonProject>(
+            Constants::C_PY_PROJECT_MIME_TYPE_TOML, issuesGenerator);
 
         auto oldHighlighter = Utils::Text::codeHighlighter();
         Utils::Text::setCodeHighlighter(
@@ -128,6 +143,6 @@ class PythonPlugin final : public ExtensionSystem::IPlugin
     }
 };
 
-} // Python::Internal
+} // namespace Python::Internal
 
 #include "pythonplugin.moc"

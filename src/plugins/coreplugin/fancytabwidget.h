@@ -137,6 +137,7 @@ public:
     void insertCornerWidget(int pos, QWidget *widget);
     int cornerWidgetCount() const;
     void setTabToolTip(int index, const QString &toolTip);
+    void setInfoBar(Utils::InfoBar *infoBar);
 
     void paintEvent(QPaintEvent *event) override;
 
@@ -171,7 +172,6 @@ private:
     QWidget *m_selectionWidget;
     QStatusBar *m_statusBar;
     Utils::InfoBarDisplay m_infoBarDisplay;
-    Utils::InfoBar m_infoBar;
 };
 
 } // namespace Internal

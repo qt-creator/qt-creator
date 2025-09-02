@@ -6,6 +6,7 @@
 #include "cpptoolstestcase.h"
 #include "projectinfo.h"
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>

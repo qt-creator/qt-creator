@@ -3,31 +3,10 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
-
-#include <texteditor/icodestylepreferencesfactory.h>
+namespace TextEditor { class ICodeStylePreferencesFactory; }
 
 namespace CppEditor {
 
-class CPPEDITOR_EXPORT CppCodeStylePreferencesFactory
-    : public TextEditor::ICodeStylePreferencesFactory
-{
-public:
-    CppCodeStylePreferencesFactory();
-
-    Utils::Id languageId() override;
-    QString displayName() override;
-    TextEditor::ICodeStylePreferences *createCodeStyle() const override;
-    TextEditor::CodeStyleEditorWidget *createEditor(TextEditor::ICodeStylePreferences *settings,
-                                                    ProjectExplorer::Project *project,
-                                                    QWidget *parent) const override;
-    TextEditor::Indenter *createIndenter(QTextDocument *doc) const override;
-    QString snippetProviderGroupId() const override;
-    QString previewText() const override;
-    virtual std::pair<TextEditor::CodeStyleEditorWidget *, QString> additionalTab(
-        TextEditor::ICodeStylePreferences *codeStyle,
-        ProjectExplorer::Project *project,
-        QWidget *parent) const;
-};
+TextEditor::ICodeStylePreferencesFactory *createCppCodeStylePreferencesFactory();
 
 } // namespace CppEditor

@@ -125,6 +125,7 @@ public:
     const Utils::FilePath &filePath() const;  // file system path
     int line() const;
     virtual QString displayName() const;
+    virtual QString rawDisplayName() const { return displayName(); }
     virtual QString tooltip() const;
     bool isEnabled() const;
     bool listInProject() const;
@@ -290,8 +291,8 @@ public:
         unsigned int priority = 0;
         QString displayName;
     };
-    void setLocationInfo(const QVector<LocationInfo> &info);
-    const QVector<LocationInfo> locationInfo() const;
+    void setLocationInfo(const QList<LocationInfo> &info);
+    const QList<LocationInfo> locationInfo() const;
 
     QString addFileFilter() const;
     void setAddFileFilter(const QString &filter) { m_addFileFilter = filter; }
@@ -338,7 +339,7 @@ protected:
     virtual void handleSubTreeChanged(FolderNode *node);
 
     std::vector<std::unique_ptr<Node>> m_nodes;
-    QVector<LocationInfo> m_locations;
+    QList<LocationInfo> m_locations;
 
 private:
     std::unique_ptr<Node> takeNode(Node *node);
@@ -437,6 +438,7 @@ public:
     ContainerNode(Project *project);
 
     QString displayName() const final;
+    QString rawDisplayName() const final;
     bool supportsAction(ProjectAction action, const Node *node) const final;
 
     bool isFolderNodeType() const override { return false; }

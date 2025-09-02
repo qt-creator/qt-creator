@@ -48,6 +48,7 @@ static Locator *m_instance = nullptr;
 const char kDirectoryFilterPrefix[] = "directory";
 const char kUrlFilterPrefix[] = "url";
 const char kUseCenteredPopup[] = "UseCenteredPopupForShortcut";
+const char kUseTabCompletion[] = "UseTabCompletion";
 
 class LocatorData
 {
@@ -180,6 +181,8 @@ void Locator::loadSettings()
             = settings->value("RelativePaths", m_settings.relativePaths).toBool();
         m_settings.useCenteredPopup
             = settings->value(kUseCenteredPopup, m_settings.useCenteredPopup).toBool();
+        m_settings.useTabCompletion
+            = settings->value(kUseTabCompletion, m_settings.useTabCompletion).toBool();
     });
 
     for (ILocatorFilter *filter : std::as_const(m_filters)) {
@@ -340,6 +343,8 @@ void Locator::saveSettings() const
         settings->setValueWithDefault("RelativePaths", m_settings.relativePaths, def.relativePaths);
         settings->setValueWithDefault(
             kUseCenteredPopup, m_settings.useCenteredPopup, def.useCenteredPopup);
+        settings->setValueWithDefault(
+            kUseTabCompletion, m_settings.useTabCompletion, def.useTabCompletion);
     });
 }
 
@@ -407,6 +412,16 @@ bool Locator::useCenteredPopupForShortcut()
 void Locator::setUseCenteredPopupForShortcut(bool center)
 {
     m_instance->m_settings.useCenteredPopup = center;
+}
+
+bool Locator::useTabCompletion()
+{
+    return m_instance->m_settings.useTabCompletion;
+}
+
+void Locator::setUseTabCompletion(bool useTabCompletion)
+{
+    m_instance->m_settings.useTabCompletion = useTabCompletion;
 }
 
 void Locator::refresh(const QList<ILocatorFilter *> &filters)

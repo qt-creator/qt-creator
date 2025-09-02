@@ -33,6 +33,9 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/toolchainkitaspect.h>
+
+#include <qtsupport/qtkitaspect.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
@@ -52,8 +55,6 @@ namespace QmakeProjectManager::Internal {
 class QmakeProjectManagerPluginPrivate : public QObject
 {
 public:
-    void projectChanged();
-    void activeTargetChanged();
     void updateActions();
     void updateRunQMakeAction();
     void updateContextActions(Node *node);
@@ -73,9 +74,6 @@ public:
     QmakeBuildConfigurationFactory buildConfigFactory;
 
     ProFileEditorFactory profileEditorFactory;
-
-    QmakeProject *m_previousStartupProject = nullptr;
-    Target *m_previousTarget = nullptr;
 
     QAction *m_runQMakeAction = nullptr;
     QAction *m_runQMakeActionContextMenu = nullptr;
@@ -137,7 +135,24 @@ void QmakeProjectManagerPlugin::initialize()
     d = new QmakeProjectManagerPluginPrivate;
 
     //create and register objects
-    ProjectManager::registerProjectType<QmakeProject>(Utils::Constants::PROFILE_MIMETYPE);
+    const auto issuesGenerator = [](const Kit *k) {
+        Tasks result;
+        const QtSupport::QtVersion * const qtFromKit = QtSupport::QtKitAspect::qtVersion(k);
+        if (!qtFromKit) {
+            result.append(
+                Project::createTask(Task::TaskType::Error, Tr::tr("No Qt version set in kit.")));
+        } else if (!qtFromKit->isValid()) {
+            result.append(
+                Project::createTask(Task::TaskType::Error, Tr::tr("Qt version is invalid.")));
+        }
+        if (!ToolchainKitAspect::cxxToolchain(k)) {
+            result.append(
+                Project::createTask(Task::TaskType::Error, Tr::tr("No C++ compiler set in kit.")));
+        }
+        return result;
+    };
+    ProjectManager::registerProjectType<QmakeProject>(
+        Utils::Constants::PROFILE_MIMETYPE, issuesGenerator);
 
     IWizardFactory::registerFactoryCreator([] { return new SubdirsProjectWizard; });
     IWizardFactory::registerFactoryCreator([] { return new CustomWidgetWizard; });
@@ -251,10 +266,14 @@ void QmakeProjectManagerPlugin::initialize()
 
     connect(BuildManager::instance(), &BuildManager::buildStateChanged,
             d, &QmakeProjectManagerPluginPrivate::buildStateChanged);
-    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
-            d, &QmakeProjectManagerPluginPrivate::projectChanged);
-    connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
-            d, &QmakeProjectManagerPluginPrivate::projectChanged);
+    connect(ProjectManager::instance(), &ProjectManager::activeBuildConfigurationChanged,
+            d, &QmakeProjectManagerPluginPrivate::updateActions);
+    connect(ProjectManager::instance(), &ProjectManager::currentBuildConfigurationChanged,
+            d, &QmakeProjectManagerPluginPrivate::updateActions);
+    connect(ProjectManager::instance(), &ProjectManager::parsingFinishedActive,
+            d, &QmakeProjectManagerPluginPrivate::updateActions);
+    connect(ProjectManager::instance(), &ProjectManager::parsingFinishedCurrent,
+            d, &QmakeProjectManagerPluginPrivate::updateActions);
 
     connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
             d, &QmakeProjectManagerPluginPrivate::updateContextActions);
@@ -290,25 +309,6 @@ void QmakeProjectManagerPlugin::initialize()
             d, &QmakeProjectManagerPluginPrivate::updateBuildFileAction);
 
     d->updateActions();
-}
-
-void QmakeProjectManagerPluginPrivate::projectChanged()
-{
-    if (m_previousStartupProject)
-        disconnect(m_previousStartupProject, &Project::activeTargetChanged,
-                   this, &QmakeProjectManagerPluginPrivate::activeTargetChanged);
-
-    if (ProjectTree::currentProject())
-        m_previousStartupProject = qobject_cast<QmakeProject *>(ProjectTree::currentProject());
-    else
-        m_previousStartupProject = qobject_cast<QmakeProject *>(ProjectManager::startupProject());
-
-    if (m_previousStartupProject) {
-        connect(m_previousStartupProject, &Project::activeTargetChanged,
-                this, &QmakeProjectManagerPluginPrivate::activeTargetChanged);
-    }
-
-    activeTargetChanged();
 }
 
 static QmakeProFileNode *buildableFileProFile(Node *node)
@@ -436,24 +436,6 @@ void QmakeProjectManagerPluginPrivate::handleSubDirContextMenu(QmakeBuildSystem:
         bs->buildHelper(action, isFileBuild, subProjectNode, buildableFileNode);
 }
 
-void QmakeProjectManagerPluginPrivate::activeTargetChanged()
-{
-    if (m_previousTarget)
-        disconnect(m_previousTarget, &Target::activeBuildConfigurationChanged,
-                   this, &QmakeProjectManagerPluginPrivate::updateRunQMakeAction);
-
-    m_previousTarget = m_previousStartupProject ? m_previousStartupProject->activeTarget() : nullptr;
-
-    if (m_previousTarget) {
-        connect(m_previousTarget, &Target::activeBuildConfigurationChanged,
-                this, &QmakeProjectManagerPluginPrivate::updateRunQMakeAction);
-        connect(m_previousTarget, &Target::parsingFinished,
-                this, &QmakeProjectManagerPluginPrivate::updateActions);
-    }
-
-    updateRunQMakeAction();
-}
-
 void QmakeProjectManagerPluginPrivate::updateActions()
 {
     updateRunQMakeAction();
@@ -463,9 +445,12 @@ void QmakeProjectManagerPluginPrivate::updateActions()
 void QmakeProjectManagerPluginPrivate::updateRunQMakeAction()
 {
     bool enable = true;
-    if (BuildManager::isBuilding(m_previousStartupProject))
+    Project *project = ProjectTree::currentProject();
+    if (!project)
+        project = ProjectManager::startupProject();
+    if (BuildManager::isBuilding(project))
         enable = false;
-    auto pro = qobject_cast<QmakeProject *>(m_previousStartupProject);
+    auto pro = qobject_cast<QmakeProject *>(project);
     m_runQMakeAction->setVisible(pro);
     if (!pro || !pro->rootProjectNode() || !pro->activeBuildConfiguration())
         enable = false;

@@ -281,7 +281,7 @@ void aggregate(const QObjectList &components)
     }
     if (!agg)
         agg = new Aggregate(Aggregate::PrivateConstructor); // we already have locked
-    for (QObject *comp : toAdd) { // add
+    for (QObject *comp : std::as_const(toAdd)) { // add
         agg->m_components.append(comp);
         QObject::connect(comp, &QObject::destroyed, agg, &Aggregate::deleteSelf);
         Aggregate::aggregateMap().insert(comp, agg);

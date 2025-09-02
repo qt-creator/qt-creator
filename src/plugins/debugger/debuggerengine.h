@@ -16,10 +16,12 @@
 
 #include <texteditor/textmark.h>
 
+#include <utils/fileinprojectfinder.h>
 #include <utils/filepath.h>
 #include <utils/outputformat.h>
 #include <utils/processhandle.h>
 #include <utils/processinterface.h>
+#include <utils/result.h>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
@@ -34,12 +36,9 @@ namespace Utils {
 class MacroExpander;
 class Perspective;
 class ProcessResultData;
-class Result;
 } // Utils
 
 namespace Debugger {
-
-class DebuggerRunTool;
 
 enum DebuggerState
 {
@@ -79,7 +78,9 @@ public:
 
     static void setBreakOnMainNextTime();
 
-    Utils::Result fixupParameters(ProjectExplorer::RunControl *runControl);
+    void setupPortsGatherer(ProjectExplorer::RunControl *runControl) const;
+
+    Utils::Result<> fixupParameters(ProjectExplorer::RunControl *runControl);
 
     void setStartMode(DebuggerStartMode startMode);
     DebuggerStartMode startMode() const { return m_startMode; }
@@ -99,7 +100,6 @@ public:
     QString displayName() const { return m_displayName; }
 
     void setAttachPid(Utils::ProcessHandle pid) { m_attachPid = pid; }
-    void setAttachPid(qint64 pid) { m_attachPid = Utils::ProcessHandle(pid); }
     Utils::ProcessHandle attachPid() const { return m_attachPid; }
 
     void setSolibSearchPath(const Utils::FilePaths &list) { m_solibSearchPath = list; }
@@ -112,14 +112,11 @@ public:
     bool isQmlDebugging() const { return m_isQmlDebugging; }
     void setQmlDebugging(bool on) { m_isQmlDebugging = on; }
 
-    void setRemoteChannel(const QString &channel) { m_remoteChannel = channel; }
-    void setRemoteChannel(const QUrl &url) {
-        m_remoteChannel = QString("%1:%2").arg(url.host()).arg(url.port());
-    }
-    void setRemoteChannel(const QString &host, int port) {
-        m_remoteChannel = QString("%1:%2").arg(host).arg(port);
-    }
-    QString remoteChannel() const { return m_remoteChannel; }
+    void setRemoteChannel(const QUrl &channel) { m_remoteChannel = channel; }
+    QUrl remoteChannel() const { return m_remoteChannel; }
+
+    void setRemoteChannelPipe(const QString &pipe) { m_remoteChannelPipe = pipe; }
+    QString remoteChannelPipe() const { return m_remoteChannelPipe; }
 
     void setUseExtendedRemote(bool on) { m_useExtendedRemote = on; }
     bool useExtendedRemote() const { return m_useExtendedRemote; }
@@ -274,6 +271,9 @@ public:
     void setAddQmlServerInferiorCmdArgIfNeeded(bool on) { m_addQmlServerInferiorCmdArgIfNeeded = on; }
     bool isAddQmlServerInferiorCmdArgIfNeeded() const { return m_addQmlServerInferiorCmdArgIfNeeded; }
 
+    Utils::FilePaths findQmlFile(const QUrl &url) const;
+    void populateQmlFileFinder(const ProjectExplorer::RunControl *runControl);
+
 private:
     DebuggerStartMode m_startMode = NoStartMode;
     DebuggerCloseMode m_closeMode = KillAtClose;
@@ -289,7 +289,8 @@ private:
     QUrl m_qmlServer; // Used by Qml debugging.
     bool m_isQmlDebugging = false;
 
-    QString m_remoteChannel; // Used by general remote debugging.
+    QUrl m_remoteChannel; // Used by general remote debugging.
+    QString m_remoteChannelPipe;
     bool m_useExtendedRemote = false; // Whether to use GDB's target extended-remote or not.
     Utils::FilePath m_symbolFile;
 
@@ -372,6 +373,8 @@ private:
     bool m_serverEssential = true;
     bool m_skipDebugServer = false;
     bool m_addQmlServerInferiorCmdArgIfNeeded = false;
+
+    Utils::FileInProjectFinder m_qmlFileFinder;
 };
 
 namespace Internal {
@@ -462,7 +465,7 @@ public:
     DebuggerEngine();
     ~DebuggerEngine() override;
 
-    void setRunTool(DebuggerRunTool *runTool);
+    void setDevice(const ProjectExplorer::IDeviceConstPtr &device);
     void setRunParameters(const DebuggerRunParameters &runParameters);
 
     void setRunId(const QString &id);
@@ -618,12 +621,11 @@ public:
 signals:
     void engineStarted();
     void engineFinished();
-    void requestRunControlFinish();
     void requestRunControlStop();
     void attachToCoreRequested(const QString &coreFile);
-    void appendMessageRequested(const QString &msg,
-                                Utils::OutputFormat format,
-                                bool appendNewLine) const;
+    void postMessageRequested(const QString &msg, Utils::OutputFormat format, bool appendNewLine) const;
+    void interruptTerminalRequested();
+    void kickoffTerminalProcessRequested();
 
 protected:
     void notifyEngineSetupOk();
@@ -738,8 +740,6 @@ protected:
     bool usesTerminal() const;
     qint64 applicationPid() const;
     qint64 applicationMainThreadId() const;
-    void interruptTerminal() const;
-    void kickoffTerminalProcess() const;
 
     static QString msgStopped(const QString &reason = QString());
     static QString msgStoppedBySignal(const QString &meaning, const QString &name);

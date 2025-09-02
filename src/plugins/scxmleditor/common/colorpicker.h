@@ -29,7 +29,7 @@ private:
     QToolButton *createButton(const QColor &color);
 
     QStringList m_lastUsedColorNames;
-    QVector<QToolButton*> m_lastUsedColorButtons;
+    QList<QToolButton*> m_lastUsedColorButtons;
     QString m_key;
 
     QHBoxLayout *m_lastUsedColorContainer;

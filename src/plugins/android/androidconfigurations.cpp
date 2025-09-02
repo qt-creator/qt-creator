@@ -33,7 +33,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcprocess.h>
@@ -42,8 +41,6 @@
 #include <utils/stringutils.h>
 
 #include <QApplication>
-#include <QDirIterator>
-#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -70,6 +67,7 @@ Suggested NDK and Debugger version per Qt version:
 |                  | 6.4       | 23.1.7779620  | 8.3.0  | 12.0.8 |
 |                  | 6.5 - 6.6 | 25.1.8937393  |        | 14.0.6 |
 |                  | 6.7 - 6.9 | 26.1.10909125 |        | 17.0.2 |
+|                  | 6.10      | 27.2.12479018 |        | 18.0.3 |
 
 < Qt 6.5: Mapping read from sdk_definitions.json
 >= Qt 6.5: Mapping read from <QtDir>/modules/Core.json
@@ -131,11 +129,6 @@ const char OpenJDKLocationKey[] = "OpenJDKLocation";
 const char OpenSslPriLocationKey[] = "OpenSSLPriLocation";
 const char AutomaticKitCreationKey[] = "AutomatiKitCreation";
 const char EmulatorArgsKey[] = "EmulatorArgs";
-
-const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
-const QLatin1String X86ToolchainPrefix("x86");
-const QLatin1String AArch64ToolchainPrefix("aarch64-linux-android");
-const QLatin1String X86_64ToolchainPrefix("x86_64");
 
 const QLatin1String ArmToolsPrefix ("arm-linux-androideabi");
 const QLatin1String X86ToolsPrefix("i686-linux-android");
@@ -202,37 +195,6 @@ static QLatin1String toolsPrefix(const Abi &abi)
     }
 }
 
-static QLatin1String toolchainPrefix(const Abi &abi)
-{
-    switch (abi.architecture()) {
-    case Abi::ArmArchitecture:
-        if (abi.wordWidth() == 64)
-            return AArch64ToolchainPrefix;
-        return ArmToolchainPrefix;
-    case Abi::X86Architecture:
-        if (abi.wordWidth() == 64)
-            return X86_64ToolchainPrefix;
-        return X86ToolchainPrefix;
-    default:
-        return Unknown;
-    }
-}
-
-static FilePath gdbPathFromNdk(const Abi &abi, const FilePath &ndkLocation)
-{
-    const FilePath path = ndkLocation.pathAppended(
-        QString("prebuilt/%1/bin/gdb%2").arg(AndroidConfig::toolchainHostFromNdk(ndkLocation),
-                                             QString(QTC_HOST_EXE_SUFFIX)));
-    if (path.exists())
-        return path;
-    // fallback for old NDKs (e.g. 10e)
-    return ndkLocation.pathAppended(QString("toolchains/%1-4.9/prebuilt/%2/bin/%3-gdb%4")
-                                        .arg(toolchainPrefix(abi),
-                                             AndroidConfig::toolchainHostFromNdk(ndkLocation),
-                                             toolsPrefix(abi),
-                                             QString(QTC_HOST_EXE_SUFFIX)));
-}
-
 static FilePath lldbPathFromNdk(const FilePath &ndkLocation)
 {
     const FilePath path = ndkLocation.pathAppended(
@@ -274,7 +236,7 @@ struct AndroidConfigData
     QByteArray m_sdkToolsSha256;
     QStringList m_commonEssentialPkgs;
     QList<SdkForQtVersions> m_specificQtVersions;
-    QStringList m_customNdkList;
+    FilePaths m_customNdkList;
     FilePath m_defaultNdk;
     bool m_sdkFullyConfigured = false;
     QHash<QString, QString> m_serialNumberToDeviceName; // cache
@@ -339,13 +301,12 @@ void AndroidConfigData::load(const QtcSettings &settings)
     if (emulatorArgs.typeId() == QMetaType::QStringList) // Changed in 8.0 from QStringList to QString.
         emulatorArgs = ProcessArgs::joinArgs(emulatorArgs.toStringList());
     m_emulatorArgs = emulatorArgs.toString();
-    m_sdkLocation = FilePath::fromUserInput(settings.value(SDKLocationKey).toString()).cleanPath();
-    m_customNdkList = settings.value(CustomNdkLocationsKey).toStringList();
-    m_defaultNdk =
-            FilePath::fromUserInput(settings.value(DefaultNdkLocationKey).toString()).cleanPath();
+    m_sdkLocation = FilePath::fromSettings(settings.value(SDKLocationKey)).cleanPath();
+    m_customNdkList = FilePath::fromSettingsList(settings.value(CustomNdkLocationsKey));
+    m_defaultNdk = FilePath::fromSettings(settings.value(DefaultNdkLocationKey)).cleanPath();
     m_sdkManagerToolArgs = settings.value(SDKManagerToolArgsKey).toStringList();
-    m_openJDKLocation = FilePath::fromString(settings.value(OpenJDKLocationKey).toString());
-    m_openSslLocation = FilePath::fromString(settings.value(OpenSslPriLocationKey).toString());
+    m_openJDKLocation = FilePath::fromSettings(settings.value(OpenJDKLocationKey));
+    m_openSslLocation = FilePath::fromSettings(settings.value(OpenSslPriLocationKey));
     m_automaticKitCreation = settings.value(AutomaticKitCreationKey, true).toBool();
     m_sdkFullyConfigured = settings.value(SdkFullyConfiguredKey, false).toBool();
 
@@ -356,7 +317,7 @@ void AndroidConfigData::load(const QtcSettings &settings)
         m_sdkLocation = FilePath::fromSettings(
                             reader.restoreValue(SDKLocationKey, m_sdkLocation.toSettings()))
                             .cleanPath();
-        m_customNdkList = reader.restoreValue(CustomNdkLocationsKey).toStringList();
+        m_customNdkList = FilePath::fromSettingsList(reader.restoreValue(CustomNdkLocationsKey));
         m_sdkManagerToolArgs = reader.restoreValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs).toStringList();
         m_openJDKLocation = FilePath::fromSettings(
             reader.restoreValue(OpenJDKLocationKey, m_openJDKLocation.toSettings()));
@@ -384,7 +345,7 @@ void AndroidConfigData::save(QtcSettings &settings) const
 
     // user settings
     settings.setValue(SDKLocationKey, m_sdkLocation.toSettings());
-    settings.setValue(CustomNdkLocationsKey, m_customNdkList);
+    settings.setValue(CustomNdkLocationsKey, FilePath::toSettingsList(m_customNdkList));
     settings.setValue(DefaultNdkLocationKey, m_defaultNdk.toSettings());
     settings.setValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs);
     settings.setValue(OpenJDKLocationKey, m_openJDKLocation.toSettings());
@@ -411,7 +372,7 @@ void AndroidConfigData::parseDependenciesJson()
         sdkConfigFile.copyFile(sdkConfigUserFile);
     }
 
-    const expected_str<QByteArray> result = sdkConfigUserFile.fileContents();
+    const Result<QByteArray> result = sdkConfigUserFile.fileContents();
     if (!result) {
         qCDebug(
             avdConfigLog,
@@ -536,24 +497,36 @@ static QList<int> availableNdkPlatforms(const QtVersion *qtVersion)
                                      HostOsInfo::hostOs());
 }
 
-QStringList getCustomNdkList() { return config().m_customNdkList; }
+FilePaths getCustomNdkList()
+{
+    return config().m_customNdkList;
+}
 
-void addCustomNdk(const QString &customNdk)
+void addCustomNdk(const FilePath &customNdk)
 {
     if (!config().m_customNdkList.contains(customNdk))
         config().m_customNdkList.append(customNdk);
 }
 
-void removeCustomNdk(const QString &customNdk)
+void removeCustomNdk(const FilePath &customNdk)
 {
     config().m_customNdkList.removeAll(customNdk);
 }
 
-void setDefaultNdk(const FilePath &defaultNdk) { config().m_defaultNdk = defaultNdk; }
+void setDefaultNdk(const FilePath &defaultNdk)
+{
+    config().m_defaultNdk = defaultNdk;
+}
 
-FilePath defaultNdk() { return config().m_defaultNdk; }
+FilePath defaultNdk()
+{
+    return config().m_defaultNdk;
+}
 
-FilePath openSslLocation() { return config().m_openSslLocation; }
+FilePath openSslLocation()
+{
+    return config().m_openSslLocation;
+}
 
 void setOpenSslLocation(const FilePath &openSslLocation)
 {
@@ -772,10 +745,8 @@ QStringList getAbis(const QString &device)
     return result;
 }
 
-bool isValidNdk(const QString &ndkLocation)
+bool isValidNdk(const FilePath &ndkPath)
 {
-    const FilePath ndkPath = FilePath::fromUserInput(ndkLocation);
-
     if (!ndkPath.exists() || !ndkPath.pathAppended("toolchains").exists())
         return false;
 
@@ -881,15 +852,13 @@ QVersionNumber ndkVersion(const FilePath &ndkPath)
     } else {
         // No source.properties. There should be a file named RELEASE.TXT
         const FilePath ndkReleaseTxtPath = ndkPath.pathAppended("RELEASE.TXT");
-        FileReader reader;
-        QString errorString;
-        if (reader.fetch(ndkReleaseTxtPath, &errorString)) {
+        const Result<QByteArray> content = ndkReleaseTxtPath.fileContents();
+        if (content) {
             // RELEASE.TXT contains the ndk version in either of the following formats:
             // r6a
             // r10e (64 bit)
-            QString content = QString::fromUtf8(reader.data());
             static const QRegularExpression re("(r)(?<major>[0-9]{1,2})(?<minor>[a-z]{1,1})");
-            QRegularExpressionMatch match = re.match(content);
+            const QRegularExpressionMatch match = re.match(QString::fromUtf8(*content));
             if (match.hasMatch()) {
                 QString major = match.captured("major");
                 QString minor = match.captured("minor");
@@ -899,10 +868,10 @@ QVersionNumber ndkVersion(const FilePath &ndkPath)
                                                      .arg((int)minor[0].toLatin1() - 97));
             } else {
                 qCDebug(avdConfigLog) << "Cannot find ndk version. Cannot parse RELEASE.TXT."
-                                      << content;
+                                      << *content;
             }
         } else {
-            qCDebug(avdConfigLog) << "Cannot find ndk version." << errorString;
+            qCDebug(avdConfigLog) << "Cannot find ndk version." << content.error();
         }
     }
     return version;
@@ -1286,7 +1255,7 @@ void AndroidConfigurations::removeUnusedDebuggers()
             uniqueNdks.append(ndkLocation);
     }
 
-    uniqueNdks.append(FileUtils::toFilePathList(AndroidConfig::getCustomNdkList()));
+    uniqueNdks.append(AndroidConfig::getCustomNdkList());
 
     const QList<Debugger::DebuggerItem> allDebuggers = Debugger::DebuggerItemManager::debuggers();
     for (const Debugger::DebuggerItem &debugger : allDebuggers) {
@@ -1346,9 +1315,7 @@ static const Debugger::DebuggerItem *existingDebugger(const FilePath &command,
     return nullptr;
 }
 
-static QVariant findOrRegisterDebugger(Toolchain *tc,
-                                       const QStringList &abisList,
-                                       bool customDebugger = false)
+static QVariant findOrRegisterDebugger(Toolchain *tc, bool customDebugger = false)
 {
     const FilePath ndk = static_cast<AndroidToolchain *>(tc)->ndkLocation();
     const FilePath lldbCommand = lldbPathFromNdk(ndk);
@@ -1358,54 +1325,20 @@ static QVariant findOrRegisterDebugger(Toolchain *tc,
     if (existingLldb)
         return existingLldb->id();
 
-    const FilePath gdbCommand = gdbPathFromNdk(tc->targetAbi(), ndk);
-
-    // check if the debugger is already registered, but ignoring the display name
-    const Debugger::DebuggerItem *existingGdb = existingDebugger(gdbCommand,
-                                                                 Debugger::GdbEngineType);
-    // Return existing debugger with same command
-    if (existingGdb)
-        return existingGdb->id();
-
-    const QString mainName = Tr::tr("Android Debugger (%1, NDK %2)");
-    const QString custom = customDebugger ? QString{"Custom "} : QString{};
-    // debugger not found, register a new one
-    // check lldb
-    QVariant registeredLldb;
-    if (!lldbCommand.isEmpty()) {
-        Debugger::DebuggerItem debugger;
-        debugger.setCommand(lldbCommand);
-        debugger.setEngineType(Debugger::LldbEngineType);
-        debugger.setUnexpandedDisplayName(custom + mainName
-                .arg(getMultiOrSingleAbiString(allSupportedAbis()))
-                .arg(AndroidConfig::ndkVersion(ndk).toString())
-                                          + ' ' + debugger.engineTypeName());
-        debugger.setAutoDetected(true);
-        debugger.reinitializeFromFile();
-        registeredLldb = Debugger::DebuggerItemManager::registerDebugger(debugger);
-    }
-
-    // we always have a value for gdb (but we shouldn't - we currently use a fallback)
-    if (!gdbCommand.exists()) {
-        if (!registeredLldb.isNull())
-            return registeredLldb;
+    if (lldbCommand.isEmpty())
         return {};
-    }
 
+    // debugger not found, register a new one, check lldb
+    const QString custom = customDebugger ? QString{"Custom "} : QString{};
     Debugger::DebuggerItem debugger;
-    debugger.setCommand(gdbCommand);
-    debugger.setEngineType(Debugger::GdbEngineType);
-
-    // NDK 10 and older have multiple gdb versions per ABI, so check for that.
-    const bool oldNdkVersion = AndroidConfig::ndkVersion(ndk) <= QVersionNumber{11};
-    debugger.setUnexpandedDisplayName(custom + mainName
-            .arg(getMultiOrSingleAbiString(oldNdkVersion ? abisList : allSupportedAbis()))
-            .arg(AndroidConfig::ndkVersion(ndk).toString())
-                                      + ' ' + debugger.engineTypeName());
+    debugger.setCommand(lldbCommand);
+    debugger.setEngineType(Debugger::LldbEngineType);
+    debugger.setUnexpandedDisplayName(custom + Tr::tr("Android Debugger (%1, NDK %2)")
+        .arg(getMultiOrSingleAbiString(allSupportedAbis()), AndroidConfig::ndkVersion(ndk).toString())
+        + ' ' + debugger.engineTypeName());
     debugger.setAutoDetected(true);
     debugger.reinitializeFromFile();
-    QVariant registeredGdb = Debugger::DebuggerItemManager::registerDebugger(debugger);
-    return registeredLldb.isNull() ? registeredGdb : registeredLldb;
+    return Debugger::DebuggerItemManager::registerDebugger(debugger);
 }
 
 void AndroidConfigurations::registerCustomToolchainsAndDebuggers()
@@ -1413,18 +1346,13 @@ void AndroidConfigurations::registerCustomToolchainsAndDebuggers()
     const Toolchains existingAndroidToolchains = ToolchainManager::toolchains(
         Utils::equal(&Toolchain::typeId, Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
 
-    const FilePaths customNdks = FileUtils::toFilePathList(AndroidConfig::getCustomNdkList());
+    const FilePaths customNdks = AndroidConfig::getCustomNdkList();
     const Toolchains customToolchains
         = autodetectToolchainsFromNdks(existingAndroidToolchains, customNdks, true);
 
     ToolchainManager::registerToolchains(customToolchains);
-    for (Toolchain *tc : customToolchains) {
-        const auto androidToolchain = static_cast<AndroidToolchain *>(tc);
-        QString abiStr;
-        if (androidToolchain)
-            abiStr = androidToolchain->platformLinkerFlags().at(1).split('-').first();
-        findOrRegisterDebugger(tc, {abiStr}, true);
-    }
+    for (Toolchain *tc : customToolchains)
+        findOrRegisterDebugger(tc, true);
 }
 void AndroidConfigurations::updateAutomaticKitList()
 {
@@ -1491,9 +1419,8 @@ void AndroidConfigurations::updateAutomaticKitList()
                 RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
                 ToolchainKitAspect::setBundle(k, bundle);
                 QtKitAspect::setQtVersion(k, qt);
-                QStringList abis = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
                 Debugger::DebuggerKitAspect::setDebugger(
-                    k, findOrRegisterDebugger(bundle.toolchains().first(), abis));
+                    k, findOrRegisterDebugger(bundle.toolchains().first()));
 
                 BuildDeviceKitAspect::setDeviceId(k, DeviceManager::defaultDesktopDevice()->id());
                 k->setSticky(QtKitAspect::id(), true);
@@ -1502,6 +1429,7 @@ void AndroidConfigurations::updateAutomaticKitList()
                 QString versionStr = QLatin1String("Qt %{Qt:Version}");
                 if (!qt->isAutodetected())
                     versionStr = QString("%1").arg(qt->displayName());
+                const QStringList abis = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
                 k->setUnexpandedDisplayName(Tr::tr("Android %1 Clang %2")
                                                 .arg(versionStr, getMultiOrSingleAbiString(abis)));
                 k->setValueSilently(
@@ -1547,10 +1475,8 @@ void AndroidConfigurations::load()
 void AndroidConfigurations::updateAndroidDevice()
 {
     // Remove any dummy Android device, because it won't be usable.
-    DeviceManager *const devMgr = DeviceManager::instance();
-    IDevice::ConstPtr dev = devMgr->find(Constants::ANDROID_DEVICE_ID);
-    if (dev)
-        devMgr->removeDevice(dev->id());
+    if (IDevice::ConstPtr dev = DeviceManager::find(Constants::ANDROID_DEVICE_ID))
+       DeviceManager::removeDevice(dev->id());
     setupDevicesWatcher();
 }
 

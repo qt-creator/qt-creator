@@ -82,9 +82,8 @@ public:
 
         // Open file
         QScopedPointer<TextEditor::BaseTextEditor> editor(TextEditor::createPlainTextEditor());
-        QString error;
-        editor->document()->open(&error, document->filePath(), document->filePath());
-        QVERIFY(error.isEmpty());
+        Result<> res = editor->document()->open(document->filePath(), document->filePath());
+        QVERIFY(res.has_value());
 
         // Set cursor position
         QTextCursor cursor = editor->textCursor();
@@ -476,7 +475,7 @@ void PointerDeclarationFormatterTest::testMultipleMatches()
 
     PointerDeclarationFormatterTestCase(source.toUtf8(),
                                         reformattedSource,
-                                        Document::ParseTranlationUnit,
+                                        Document::ParseTranslationUnit,
                                         PointerDeclarationFormatter::IgnoreCursor);
 }
 
@@ -559,7 +558,7 @@ void PointerDeclarationFormatterTest::testMacros()
 
     PointerDeclarationFormatterTestCase(source.toUtf8(),
                                         reformattedSource,
-                                        Document::ParseTranlationUnit,
+                                        Document::ParseTranslationUnit,
                                         PointerDeclarationFormatter::RespectCursor);
 }
 

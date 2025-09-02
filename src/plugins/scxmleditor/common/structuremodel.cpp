@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "scxmldocument.h"
+#include "scxmleditoricons.h"
 #include "scxmleditortr.h"
 #include "scxmltag.h"
 #include "structuremodel.h"
@@ -15,10 +16,11 @@ using namespace ScxmlEditor::Common;
 StructureModel::StructureModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
-    m_icons.addIcon(State, QIcon(":/scxmleditor/images/state.png"));
-    m_icons.addIcon(Parallel, QIcon(":/scxmleditor/images/parallel.png"));
-    m_icons.addIcon(Initial, QIcon(":/scxmleditor/images/initial.png"));
-    m_icons.addIcon(Final, QIcon(":/scxmleditor/images/final.png"));
+    m_icons.addIcon(State, ScxmlEditor::Icons::STATE.icon());
+    m_icons.addIcon(Parallel, ScxmlEditor::Icons::PARALLEL.icon());
+    m_icons.addIcon(Initial, ScxmlEditor::Icons::INITIAL.icon());
+    m_icons.addIcon(Final, ScxmlEditor::Icons::FINAL.icon());
+    m_icons.addIcon(History, ScxmlEditor::Icons::HISTORY.icon());
 }
 
 void StructureModel::setDocument(ScxmlDocument *document)

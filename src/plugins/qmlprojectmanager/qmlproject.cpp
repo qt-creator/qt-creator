@@ -4,7 +4,6 @@
 #include "qmlproject.h"
 
 #include "qmlprojectconstants.h"
-#include "qmlprojectmanagertr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
@@ -25,9 +24,6 @@
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtsupportconstants.h>
-
-#include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
 #include <utils/expected.h>
@@ -35,7 +31,6 @@
 #include <utils/mimeconstants.h>
 #include <utils/predicates.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QLoggingCategory>
@@ -49,18 +44,18 @@ using namespace Utils;
 using namespace Qt::Literals::StringLiterals;
 
 namespace {
-expected_str<FilePath> mcuInstallationRoot()
+Utils::Result<FilePath> mcuInstallationRoot()
 {
     ExtensionSystem::IPlugin *mcuSupportPlugin = QmlProjectManager::findMcuSupportPlugin();
     if (mcuSupportPlugin == nullptr) {
         return make_unexpected("Failed to find MCU Support plugin"_L1);
     }
 
-    expected_str<FilePath> root;
+    Utils::Result<FilePath> root;
     QMetaObject::invokeMethod(mcuSupportPlugin,
                               "installationRoot",
                               Qt::DirectConnection,
-                              Q_RETURN_ARG(expected_str<FilePath>, root));
+                              Q_RETURN_ARG(Utils::Result<FilePath>, root));
 
     return root;
 }
@@ -82,9 +77,9 @@ ExtensionSystem::IPlugin *findMcuSupportPlugin()
     return pluginSpec->plugin();
 }
 
-expected_str<FilePath> mcuFontsDir()
+Utils::Result<FilePath> mcuFontsDir()
 {
-    expected_str<FilePath> mcuRoot = mcuInstallationRoot();
+    Utils::Result<FilePath> mcuRoot = mcuInstallationRoot();
     if (!mcuRoot) {
         return mcuRoot;
     }
@@ -100,7 +95,8 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setDisplayName(fileName.completeBaseName());
 
     setSupportsBuilding(false);
-    setBuildSystemCreator<QmlBuildSystem>();
+    setIsEditModePreferred(!Core::ICore::isQtDesignStudio());
+    setBuildSystemCreator<QmlBuildSystem>("qml");
 
     if (Core::ICore::isQtDesignStudio()) {
         if (allowOnlySingleProject() && !fileName.endsWith(Constants::fakeProjectName)) {
@@ -120,12 +116,12 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     connect(this, &QmlProject::anyParsingFinished, this, &QmlProject::parsingFinished);
 }
 
-void QmlProject::parsingFinished(const Target *target, bool success)
+void QmlProject::parsingFinished(bool success)
 {
     // trigger only once
     disconnect(this, &QmlProject::anyParsingFinished, this, &QmlProject::parsingFinished);
 
-    if (!target || !success || !activeBuildSystem())
+    if (!success || !activeBuildSystem())
         return;
 
     const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
@@ -151,29 +147,35 @@ Project::RestoreResult QmlProject::fromMap(const Store &map, QString *errorMessa
     if (result != RestoreResult::Ok)
         return result;
 
-    if (activeTarget())
-        return RestoreResult::Ok;
+    if (!activeTarget()) {
+        // find a kit that matches prerequisites (prefer default one)
+        const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [this](const Kit *k) {
+            return !containsType(projectIssues(k), Task::TaskType::Error)
+                   && RunDeviceTypeKitAspect::deviceTypeId(k)
+                          == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+        });
 
-    // find a kit that matches prerequisites (prefer default one)
-    const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [this](const Kit *k) {
-        return !containsType(projectIssues(k), Task::TaskType::Error)
-               && RunDeviceTypeKitAspect::deviceTypeId(k)
-                      == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-    });
+        if (!kits.isEmpty()) {
+            if (kits.contains(KitManager::defaultKit()))
+                addTargetForDefaultKit();
+            else
+                addTargetForKit(kits.first());
+        }
 
-    if (!kits.isEmpty()) {
-        if (kits.contains(KitManager::defaultKit()))
-            addTargetForDefaultKit();
-        else
-            addTargetForKit(kits.first());
+        // FIXME: are there any other way?
+        // What if it's not a Design Studio project? What should we do then?
+        if (Core::ICore::isQtDesignStudio()) {
+            int preferedVersion = preferedQtTarget(activeTarget());
+
+            setKitWithVersion(preferedVersion, kits);
+        }
     }
 
-    // FIXME: are there any other way?
-    // What if it's not a Design Studio project? What should we do then?
-    if (Core::ICore::isQtDesignStudio()) {
-        int preferedVersion = preferedQtTarget(activeTarget());
-
-        setKitWithVersion(preferedVersion, kits);
+    // For projects created with Qt Creator < 17.
+    for (Target * const t : targets()) {
+        if (t->buildConfigurations().isEmpty())
+            t->updateDefaultBuildConfigurations();
+        QTC_CHECK(!t->buildConfigurations().isEmpty());
     }
 
     return RestoreResult::Ok;
@@ -225,45 +227,6 @@ Utils::FilePaths QmlProject::collectQmlFiles() const
     return qmlFiles;
 }
 
-Tasks QmlProject::projectIssues(const Kit *k) const
-{
-    Tasks result = Project::projectIssues(k);
-
-    const QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
-    if (!version)
-        result.append(createProjectTask(Task::TaskType::Warning, Tr::tr("No Qt version set in kit.")));
-
-    IDevice::ConstPtr dev = RunDeviceKitAspect::device(k);
-    if (!dev)
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Kit has no device.")));
-
-    if (version && version->qtVersion() < QVersionNumber(5, 0, 0))
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Qt version is too old.")));
-
-    if (!dev || !version)
-        return result; // No need to check deeper than this
-
-    if (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        if (version->type() == QtSupport::Constants::DESKTOPQT) {
-            if (version->qmlRuntimeFilePath().isEmpty()) {
-                result.append(
-                    createProjectTask(Task::TaskType::Error,
-                                      Tr::tr("Qt version has no QML utility.")));
-            }
-        } else {
-            // Non-desktop Qt on a desktop device? We don't support that.
-            result.append(createProjectTask(Task::TaskType::Error,
-                                            Tr::tr("Non-desktop Qt is used with a desktop device.")));
-        }
-    } else {
-        // If not a desktop device, don't check the Qt version for qml runtime binary.
-        // The device is responsible for providing it and we assume qml runtime can be found
-        // in $PATH if it's not explicitly given.
-    }
-
-    return result;
-}
-
 bool QmlProject::isQtDesignStudioStartedFromQtC()
 {
     return qEnvironmentVariableIsSet(Constants::enviromentLaunchedQDS);
@@ -272,11 +235,6 @@ bool QmlProject::isQtDesignStudioStartedFromQtC()
 DeploymentKnowledge QmlProject::deploymentKnowledge() const
 {
     return DeploymentKnowledge::Perfect;
-}
-
-bool QmlProject::isEditModePreferred() const
-{
-    return !Core::ICore::isQtDesignStudio();
 }
 
 int QmlProject::preferedQtTarget(Target *target)

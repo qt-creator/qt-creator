@@ -190,7 +190,7 @@ public:
     TestTreeItem::Type m_type = TestTreeItem::Root;
 };
 
-typedef QVector<TestCodeLocationAndType> TestCodeLocationList;
+using TestCodeLocationList = QList<TestCodeLocationAndType>;
 
 } // namespace Autotest
 

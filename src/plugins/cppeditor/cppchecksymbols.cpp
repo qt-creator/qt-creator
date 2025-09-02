@@ -333,7 +333,7 @@ void CheckSymbols::run()
     if (!isCanceled()) {
         if (_doc->translationUnit()) {
             accept(_doc->translationUnit()->ast());
-            _usages << QVector<Result>::fromList(_macroUses);
+            _usages << _macroUses;
             flush();
         }
 

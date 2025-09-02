@@ -93,7 +93,8 @@
 
     You can \l {Use Qt Creator variables}{use \QC variables} in arguments,
     executable paths, and working directories. That is, in all fields where you
-    see the \inlineimage icons/replace.png (\uicontrol {Variables}) button.
+    see the \inlineimage {icons/replace.png} {Variables} (\uicontrol {Variables})
+    button.
 
     \section1 Add build steps
 
@@ -119,11 +120,13 @@
         \li To add a build step, select \uicontrol {Add Build Step} and select
             the step to add.
         \li To disable a step you added, select
-            \inlineimage icons/buildstepdisable.png (\uicontrol {Disable}).
-        \li To change the order of steps, select \inlineimage icons/arrowup.png
-            (\uicontrol {Move Up}) and \inlineimage icons/arrowdown.png
+            \inlineimage {icons/buildstepdisable.png} {Disable}
+            (\uicontrol {Disable}).
+        \li To change the order of steps, select
+            \inlineimage {icons/arrowup.png} {Move Up} (\uicontrol {Move Up})
+            and \inlineimage {icons/arrowdown.png} {Move Down}
             (\uicontrol {Move Down}).
-        \li To remove a step, select \inlineimage icons/close.png
+        \li To remove a step, select \inlineimage {icons/close.png} {Remove Item}
             (\uicontrol {Remove Item}).
     \endlist
 

@@ -17,7 +17,7 @@ public:
     ~QmlDesignerAiPlugin();
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    virtual Utils::Result<> initialize(const QStringList &arguments) override;
     bool delayedInitialize() override;
 };
 

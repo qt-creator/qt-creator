@@ -123,7 +123,7 @@ LookupItem TypeHierarchyBuilder::followTypedef(const LookupContext &context, con
                                                Scope *enclosingScope,
                                                std::set<const Symbol *> typedefs)
 {
-    QList<LookupItem> items = context.lookup(symbolName, enclosingScope);
+    const QList<LookupItem> items = context.lookup(symbolName, enclosingScope);
 
     Symbol *actualBaseSymbol = nullptr;
     LookupItem matchingItem;

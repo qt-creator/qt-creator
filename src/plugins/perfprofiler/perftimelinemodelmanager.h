@@ -3,27 +3,22 @@
 
 #pragma once
 
-#include "perfprofilertracemanager.h"
 #include "perfresourcecounter.h"
 
 #include <tracing/timelinemodelaggregator.h>
-#include <tracing/timelinezoomcontrol.h>
 
-#include <QPointer>
+#include <QHash>
+
 #include <unordered_map>
 
-namespace ProjectExplorer {
-class Kit;
-} // namespace ProjectExplorer
+namespace PerfProfiler::Internal {
 
-namespace PerfProfiler {
-namespace Internal {
-
-class PerfDataReader;
+class PerfEvent;
+class PerfEventType;
 class PerfTimelineModel;
+
 class PerfTimelineModelManager : public Timeline::TimelineModelAggregator
 {
-    Q_OBJECT
 public:
     PerfTimelineModelManager();
     ~PerfTimelineModelManager();
@@ -51,5 +46,4 @@ private:
 
 PerfTimelineModelManager &modelManager();
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

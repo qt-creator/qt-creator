@@ -574,10 +574,10 @@ void StylesheetMerger::styleMerge(const Utils::FilePath &templateFile,
                                   ModulesStorage &modulesStorage,
                                   ExternalDependenciesInterface &externalDependencies)
 {
-    Utils::FileReader reader;
+    const Utils::Result<QByteArray> res = templateFile.fileContents();
 
-    QTC_ASSERT(reader.fetch(templateFile), return );
-    const QString qmlTemplateString = QString::fromUtf8(reader.data());
+    QTC_ASSERT(res, return);
+    const QString qmlTemplateString = QString::fromUtf8(*res);
     StylesheetMerger::styleMerge(qmlTemplateString, model, modulesStorage, externalDependencies);
 }
 

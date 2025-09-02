@@ -22,7 +22,7 @@ private slots:
 void ExtensionsModelTest::testRepositoryJsonParser()
 {
     ExtensionsModel model;
-    model.setExtensionsJson(testData("defaultpacks"));
+    model.setRepositoryPaths({testData("defaultdata")});
 }
 
 QObject *createExtensionsModelTest()
@@ -30,9 +30,9 @@ QObject *createExtensionsModelTest()
     return new ExtensionsModelTest;
 }
 
-QByteArray testData(const QString &id)
+Utils::FilePath testData(const QString &id)
 {
-    return Utils::FileReader::fetchQrc(":/extensionmanager/testdata/" + id + ".json");
+    return Utils::FilePath::fromUserInput(":/extensionmanager/testdata/" + id);
 }
 
 } // ExtensionManager::Internal

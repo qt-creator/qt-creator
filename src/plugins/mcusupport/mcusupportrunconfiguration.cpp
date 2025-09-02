@@ -16,26 +16,26 @@
 #include <cmakeprojectmanager/cmaketool.h>
 
 #include <utils/aspects.h>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace McuSupport::Internal {
 
-static FilePath cmakeFilePath(const Target *target)
+static FilePath cmakeFilePath(const Kit *k)
 {
-    const CMakeProjectManager::CMakeTool *tool = CMakeProjectManager::CMakeKitAspect::cmakeTool(
-        target->kit());
+    const CMakeProjectManager::CMakeTool *tool = CMakeProjectManager::CMakeKitAspect::cmakeTool(k);
     return tool->filePath();
 }
 
-static QStringList flashAndRunArgs(const RunConfiguration *rc, const Target *target)
+static QStringList flashAndRunArgs(const RunConfiguration *rc)
 {
     // Use buildKey if provided, fallback to projectName
     const QString targetName = QLatin1String("flash_%1")
                                    .arg(!rc->buildKey().isEmpty()
                                             ? rc->buildKey()
-                                            : target->project()->displayName());
+                                            : rc->project()->displayName());
 
     return {"--build", ".", "--target", targetName};
 }
@@ -43,20 +43,16 @@ static QStringList flashAndRunArgs(const RunConfiguration *rc, const Target *tar
 class FlashAndRunConfiguration final : public RunConfiguration
 {
 public:
-    FlashAndRunConfiguration(Target *target, Id id)
-        : RunConfiguration(target, id)
+    FlashAndRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
     {
         flashAndRunParameters.setLabelText(Tr::tr("Flash and run CMake parameters:"));
         flashAndRunParameters.setDisplayStyle(StringAspect::TextEditDisplay);
         flashAndRunParameters.setSettingsKey("FlashAndRunConfiguration.Parameters");
 
-        setUpdater([target, this] {
-            flashAndRunParameters.setValue(flashAndRunArgs(this, target).join(' '));
-        });
-
+        setUpdater([this] { flashAndRunParameters.setValue(flashAndRunArgs(this).join(' ')); });
         update();
-
-        connect(target->project(), &Project::displayNameChanged, this, &RunConfiguration::update);
+        connect(project(), &Project::displayNameChanged, this, &RunConfiguration::update);
     }
 
     bool isEnabled(Utils::Id runMode) const override
@@ -84,14 +80,13 @@ McuSupportRunConfigurationFactory::McuSupportRunConfigurationFactory()
 FlashRunWorkerFactory::FlashRunWorkerFactory()
 {
     setProducer([](RunControl *runControl) {
-        auto worker = new ProcessRunner(runControl);
-        worker->setStartModifier([worker, runControl] {
-            const Target *target = runControl->target();
-            worker->setCommandLine({cmakeFilePath(target),
-                                    runControl->aspectData<StringAspect>()->value, CommandLine::Raw});
-            worker->setWorkingDirectory(target->activeBuildConfiguration()->buildDirectory());
-            worker->setEnvironment(target->activeBuildConfiguration()->environment());
-        });
+        const auto modifier = [runControl](Process &process) {
+            const BuildConfiguration *bc = runControl->buildConfiguration();
+            process.setCommand({cmakeFilePath(bc->kit()),
+                                runControl->aspectData<StringAspect>()->value, CommandLine::Raw});
+            process.setWorkingDirectory(bc->buildDirectory());
+            process.setEnvironment(bc->environment());
+        };
 
         QObject::connect(runControl, &RunControl::started, runControl, [] {
             FlashAndRunConfiguration::disabled = true;
@@ -101,8 +96,7 @@ FlashRunWorkerFactory::FlashRunWorkerFactory()
             FlashAndRunConfiguration::disabled = false;
             ProjectExplorerPlugin::updateRunActions();
         });
-
-        return worker;
+        return createProcessWorker(runControl, modifier);
     });
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     addSupportedRunConfig(Constants::RUNCONFIGURATION);

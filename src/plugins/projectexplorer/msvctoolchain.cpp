@@ -27,21 +27,19 @@
 #include <utils/temporarydirectory.h>
 #include <utils/winutils.h>
 
+#include <QComboBox>
+#include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
+#include <QFormLayout>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLabel>
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QSettings>
-#include <QVector>
 #include <QVersionNumber>
-
-#include <QComboBox>
-#include <QDateTime>
-#include <QFormLayout>
-#include <QLabel>
 
 using namespace Utils;
 
@@ -255,16 +253,16 @@ static std::optional<VisualStudioInstallation> detectCppBuildTools2017()
     return installation;
 }
 
-static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QString &vswhere)
+static QList<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QString &vswhere)
 {
-    QVector<VisualStudioInstallation> installations;
+    QList<VisualStudioInstallation> installations;
     Process vsWhereProcess;
     vsWhereProcess.setUtf8Codec();
     vsWhereProcess.setCommand({FilePath::fromString(vswhere),
                         {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"}});
     vsWhereProcess.runBlocking(5s);
     if (vsWhereProcess.result() != ProcessResult::FinishedWithSuccess) {
-        qWarning() << vsWhereProcess.exitMessage();
+        qWarning() << vsWhereProcess.verboseExitMessage();
         return installations;
     }
 
@@ -315,9 +313,9 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
     return installations;
 }
 
-static QVector<VisualStudioInstallation> detectVisualStudioFromRegistry()
+static QList<VisualStudioInstallation> detectVisualStudioFromRegistry()
 {
-    QVector<VisualStudioInstallation> result;
+    QList<VisualStudioInstallation> result;
 #ifdef Q_OS_WIN64
     const QString keyRoot = QStringLiteral(
         "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\");
@@ -348,12 +346,12 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromRegistry()
     return result;
 }
 
-static QVector<VisualStudioInstallation> detectVisualStudio()
+static QList<VisualStudioInstallation> detectVisualStudio()
 {
     const QString vswhere = windowsProgramFilesDir()
                             + "/Microsoft Visual Studio/Installer/vswhere.exe";
     if (QFileInfo::exists(vswhere)) {
-        const QVector<VisualStudioInstallation> installations = detectVisualStudioFromVsWhere(
+        const QList<VisualStudioInstallation> installations = detectVisualStudioFromVsWhere(
             vswhere);
         if (!installations.isEmpty())
             return installations;
@@ -610,7 +608,7 @@ static QByteArray msvcCompilationFile()
 // [1] https://msdn.microsoft.com/en-us/library/b0084kay.aspx
 // [2] http://stackoverflow.com/questions/3665537/how-to-find-out-cl-exes-built-in-macros
 Macros MsvcToolchain::msvcPredefinedMacros(const QStringList &cxxflags,
-                                           const Utils::Environment &env) const
+                                           const Environment &env) const
 {
     Macros predefinedMacros;
 
@@ -634,18 +632,18 @@ Macros MsvcToolchain::msvcPredefinedMacros(const QStringList &cxxflags,
         }
     }
 
-    Utils::TempFileSaver saver(Utils::TemporaryDirectory::masterDirectoryPath()
-                               + "/envtestXXXXXX.cpp");
+    TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/envtestXXXXXX.cpp");
     saver.write(msvcCompilationFile());
-    if (!saver.finalize()) {
-        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
+    if (const Result<> res = saver.finalize(); !res) {
+        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(res.error()));
         return predefinedMacros;
     }
-    Utils::Process cpp;
+
+    Process cpp;
     cpp.setEnvironment(env);
-    cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryFilePath());
+    cpp.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
     QStringList arguments;
-    const Utils::FilePath binary = env.searchInPath(QLatin1String("cl.exe"));
+    const FilePath binary = env.searchInPath(QLatin1String("cl.exe"));
     if (binary.isEmpty()) {
         qWarning("%s: The compiler binary cl.exe could not be found in the path.", Q_FUNC_INFO);
         return predefinedMacros;
@@ -1293,6 +1291,12 @@ public:
         m_mainLayout->addRow(m_nameDisplayLabel);
         m_varsBatDisplayLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
         m_mainLayout->addRow(Tr::tr("Initialization:"), m_varsBatDisplayLabel);
+        if (g_availableMsvcToolchains.isEmpty()) {
+            setErrorMessage(
+                Tr::tr(
+                    "No MSVC toolchains were found. You need to install Visual Studio or the "
+                    "Visual Studio Build Tools."));
+        }
     }
 
 protected:
@@ -1588,7 +1592,7 @@ static const MsvcToolchain *selectMsvcToolChain(const QString &displayedVarsBat,
         flavors << Abi::WindowsMsvc2022Flavor << Abi::WindowsMsvc2019Flavor
                 << Abi::WindowsMsvc2017Flavor;
     flavors << Abi::WindowsMsvc2015Flavor << Abi::WindowsMsvc2013Flavor;
-    for (const Abi::OSFlavor flavor : flavors) {
+    for (const Abi::OSFlavor flavor : std::as_const(flavors)) {
         if (const auto tc = Utils::findOrDefault(g_availableMsvcToolchains,
                                                  [&clangClInfo, flavor](const MsvcToolchain *tc) {
                                                      const Abi abi = tc->targetAbi();
@@ -1835,11 +1839,11 @@ public:
         setSupportedToolchainType(Constants::MSVC_TOOLCHAIN_TYPEID);
         setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
         setToolchainConstructor([] { return new MsvcToolchain(Constants::MSVC_TOOLCHAIN_TYPEID); });
+        setUserCreatable(true);
     }
 
     Toolchains autoDetect(const ToolchainDetector &detector) const final;
 
-    bool canCreate() const final { return !g_availableMsvcToolchains.isEmpty(); }
     std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
         const ToolchainBundle &bundle) const override
     {
@@ -1971,7 +1975,7 @@ Toolchains MsvcToolchainFactory::autoDetect(const ToolchainDetector &detector) c
                 continue;
 
             QList<Toolchain *> tmp;
-            const QVector<QPair<MsvcToolchain::Platform, QString>> platforms = {
+            const QList<QPair<MsvcToolchain::Platform, QString>> platforms = {
                 {MsvcToolchain::x86, "x86"},
                 {MsvcToolchain::amd64, "x64"},
                 {MsvcToolchain::ia64, "ia64"},
@@ -2016,7 +2020,7 @@ Toolchains MsvcToolchainFactory::autoDetect(const ToolchainDetector &detector) c
                                                  MsvcToolchain::arm64_x86,
                                                  MsvcToolchain::arm64_amd64};
 
-    const QVector<VisualStudioInstallation> studios = detectVisualStudio();
+    const QList<VisualStudioInstallation> studios = detectVisualStudio();
     for (const VisualStudioInstallation &i : studios) {
         for (MsvcToolchain::Platform platform : platforms) {
             const bool toolchainInstalled
@@ -2060,17 +2064,17 @@ void MsvcToolchain::cancelMsvcToolChainDetection()
     envModThreadPool()->clear();
 }
 
-std::optional<QString> MsvcToolchain::generateEnvironmentSettings(const Utils::Environment &env,
-                                                                    const QString &batchFile,
-                                                                    const QString &batchArgs,
-                                                                    QMap<QString, QString> &envPairs)
+std::optional<QString> MsvcToolchain::generateEnvironmentSettings(const Environment &env,
+                                                                  const QString &batchFile,
+                                                                  const QString &batchArgs,
+                                                                  QMap<QString, QString> &envPairs)
 {
     const QString marker = "####################";
     // Create a temporary file name for the output. Use a temporary file here
     // as I don't know another way to do this in Qt...
 
     // Create a batch file to create and save the env settings
-    Utils::TempFileSaver saver(Utils::TemporaryDirectory::masterDirectoryPath() + "/XXXXXX.bat");
+    TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/XXXXXX.bat");
 
     QByteArray call = "call ";
     call += ProcessArgs::quoteArg(batchFile).toLocal8Bit();
@@ -2079,7 +2083,7 @@ std::optional<QString> MsvcToolchain::generateEnvironmentSettings(const Utils::E
         call += batchArgs.toLocal8Bit();
     }
 
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (HostOsInfo::isWindowsHost())
         saver.write("chcp 65001\r\n");
     saver.write("set VSCMD_SKIP_SENDTELEMETRY=1\r\n");
     saver.write("set CLINK_NOAUTORUN=1\r\n");
@@ -2089,24 +2093,24 @@ std::optional<QString> MsvcToolchain::generateEnvironmentSettings(const Utils::E
     saver.write("    call \"%VCINSTALLDIR%/Auxiliary/Build/vcvarsall.bat\" /clean_env\r\n");
     saver.write("  )\r\n");
     saver.write(")\r\n");
-    saver.write(call + "\r\n");
-    saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
+    saver.write(QByteArray(call + "\r\n"));
+    saver.write(QByteArray("@echo " + marker.toLocal8Bit() + "\r\n"));
     saver.write("set\r\n");
-    saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
-    if (!saver.finalize()) {
-        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
+    saver.write(QByteArray("@echo " + marker.toLocal8Bit() + "\r\n"));
+    if (const Result<> &res = saver.finalize(); !res) {
+        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(res.error()));
         return {};
     }
 
-    Utils::Process run;
+    Process run;
 
     // As of WinSDK 7.1, there is logic preventing the path from being set
     // correctly if "ORIGINALPATH" is already set. That can cause problems
     // if Creator is launched within a session set up by setenv.cmd.
-    Utils::Environment runEnv = env;
+    Environment runEnv = env;
     runEnv.unset(QLatin1String("ORIGINALPATH"));
     run.setEnvironment(runEnv);
-    Utils::FilePath cmdPath = Utils::FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC"));
+    FilePath cmdPath = FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC"));
     if (cmdPath.isEmpty())
         cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
     // Windows SDK setup scripts require command line switches for environment expansion.
@@ -2118,7 +2122,7 @@ std::optional<QString> MsvcToolchain::generateEnvironmentSettings(const Utils::E
     run.runBlocking(1min);
 
     if (run.result() != ProcessResult::FinishedWithSuccess) {
-        const QString message = !run.cleanedStdErr().isEmpty() ? run.cleanedStdErr() : run.exitMessage();
+        const QString message = run.exitMessage(Process::FailureMessageFormat::WithStdErr);
         qWarning().noquote() << message;
         QString command = QDir::toNativeSeparators(batchFile);
         if (!batchArgs.isEmpty())
@@ -2210,6 +2214,7 @@ public:
         setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
         setSupportedToolchainType(Constants::CLANG_CL_TOOLCHAIN_TYPEID);
         setToolchainConstructor([] { return new ClangClToolchain; });
+        setUserCreatable(true);
     }
 
     Toolchains autoDetect(const ToolchainDetector &detector) const final;
@@ -2218,8 +2223,6 @@ public:
     {
         return std::make_unique<ClangClToolchainConfigWidget>(bundle);
     }
-
-    bool canCreate() const final { return !g_availableMsvcToolchains.isEmpty(); }
 };
 
 Toolchains ClangClToolchainFactory::autoDetect(const ToolchainDetector &detector) const
@@ -2237,7 +2240,7 @@ Toolchains ClangClToolchainFactory::autoDetect(const ToolchainDetector &detector
     Toolchains results;
     Toolchains known = detector.alreadyKnown;
 
-    expected_str<FilePath> qtCreatorsClang = Core::ICore::clangExecutable(CLANG_BINDIR);
+    Result<FilePath> qtCreatorsClang = Core::ICore::clangExecutable(CLANG_BINDIR);
     if (qtCreatorsClang) {
         qtCreatorsClang = qtCreatorsClang->parentDir().pathAppended("clang-cl.exe");
         results.append(detectClangClToolChainInPath(*qtCreatorsClang,

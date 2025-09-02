@@ -36,16 +36,19 @@ struct ProjectContents {
 };
 
 // Create a binary icon file
-static Core::GeneratedFile generateIconFile(const FilePath &source,
-                                            const FilePath &target,
+static Core::GeneratedFile generateIconFile(const FilePath &sourcePath,
+                                            const FilePath &targetPath,
                                             QString *errorMessage)
 {
     // Read out source
-    Utils::FileReader reader;
-    if (!reader.fetch(source, errorMessage))
-        return Core::GeneratedFile();
-    Core::GeneratedFile rc(target);
-    rc.setBinaryContents(reader.data());
+    const Result<QByteArray> res = sourcePath.fileContents();
+    if (!res) {
+        if (errorMessage)
+            *errorMessage = res.error();
+        return {};
+    }
+    Core::GeneratedFile rc(targetPath);
+    rc.setBinaryContents(*res);
     rc.setBinary(true);
     return rc;
 }
@@ -302,20 +305,23 @@ QString PluginGenerator::processTemplate(const QString &tmpl,
                                          const SubstitutionMap &substMap,
                                          QString *errorMessage)
 {
-    Utils::FileReader reader;
-    if (!reader.fetch(Utils::FilePath::fromString(tmpl), errorMessage))
-        return {};
-
-    QString cont = QString::fromUtf8(reader.data());
-
-    // Expander needed to handle extra variable "Cpp:PragmaOnce"
-    Utils::MacroExpander *expander = Utils::globalMacroExpander();
-    cont = Utils::TemplateEngine::processText(expander, cont, errorMessage);
-    if (!errorMessage->isEmpty()) {
-        qWarning("Error processing custom plugin file: %s\nFile:\n%s",
-                 qPrintable(*errorMessage), qPrintable(cont));
+    const Result<QByteArray> res = FilePath::fromString(tmpl).fileContents();
+    if (!res) {
+        *errorMessage = res.error();
         return {};
     }
+
+    QString cont = QString::fromUtf8(*res);
+
+    // Expander needed to handle extra variable "Cpp:PragmaOnce"
+    MacroExpander *expander = Utils::globalMacroExpander();
+    const Result<QString> processed = TemplateEngine::processText(expander, cont);
+    if (!processed) {
+        qWarning("Error processing custom plugin file: %s\nFile:\n%s",
+                 qPrintable(processed.error()), qPrintable(cont));
+        return {};
+    }
+    cont = processed.value_or(QString());
 
     const QChar atChar = QLatin1Char('@');
     int offset = 0;

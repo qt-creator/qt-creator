@@ -54,7 +54,7 @@ class QbsBuildSystem final : public ProjectExplorer::BuildSystem
     Q_OBJECT
 
 public:
-    explicit QbsBuildSystem(QbsBuildConfiguration *bc);
+    explicit QbsBuildSystem(ProjectExplorer::BuildConfiguration *bc);
     ~QbsBuildSystem() final;
 
     void triggerParsing() final;
@@ -71,9 +71,9 @@ public:
         ProjectExplorer::Node *context,
         const Utils::FilePairs &filesToRename,
         Utils::FilePaths *notRenamed) final;
+    bool addDependencies(ProjectExplorer::Node *context, const QStringList &dependencies) final;
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
     QVariant additionalData(Utils::Id id) const final;
-    QString name() const final { return QLatin1String("qbs"); }
 
     bool isProjectEditable() const;
     bool addFilesToProduct(const Utils::FilePaths &filePaths,
@@ -92,6 +92,8 @@ public:
         const QJsonObject &product,
         const QJsonObject &group,
         Utils::FilePaths *notRenamed);
+    bool addDependenciesToProduct(
+        const QStringList &deps, const QJsonObject &product, const QJsonObject &group);
 
     static ProjectExplorer::FileType fileTypeFor(const QSet<QString> &tags);
 
@@ -117,7 +119,6 @@ private:
             const ExtraCompilerFilter &filter) const override;
 
     void handleQbsParsingDone(bool success);
-    void changeActiveTarget(ProjectExplorer::Target *t);
     void prepareForParsing();
     void updateDocuments();
     void updateCppCodeModel();

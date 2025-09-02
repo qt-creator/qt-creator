@@ -7,8 +7,7 @@
 
 #include <QPair>
 
-namespace Subversion {
-namespace Internal {
+namespace Subversion::Internal {
 
 class SubversionSubmitEditor : public VcsBase::VcsBaseSubmitEditor
 {
@@ -24,8 +23,7 @@ public:
     void setStatusList(const QList<StatusFilePair> &statusOutput);
 
     QByteArray fileContents() const override;
-    bool setFileContents(const QByteArray &contents) override;
+    Utils::Result<> setFileContents(const QByteArray &contents) override;
 };
 
-} // namespace Internal
-} // namespace Subversion
+} // namespace Subversion::Internal

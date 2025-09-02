@@ -153,12 +153,12 @@ QString CocoQMakeSettings::configChanges() const
 {
     return "<table><tbody>"
            + tableRow(
-               Tr::tr("Additional qmake arguments: "),
+               Tr::tr("Additional qmake arguments:"),
                maybeQuote(configAssignment()) + " " + maybeQuote(pathAssignment()))
            + tableRow(
-               Tr::tr("Build environment: "),
+               Tr::tr("Build environment:"),
                maybeQuote(QString(featuresVar) + "=" + projectDirectory()))
-           + tableRow(Tr::tr("Feature file: "), maybeQuote(featureFilePath())) + "</tbody></table>";
+           + tableRow(Tr::tr("Feature file:"), maybeQuote(featureFilePath())) + "</tbody></table>";
 }
 
 QString CocoQMakeSettings::projectDirectory() const

@@ -82,7 +82,7 @@ TransitionEditorWidget::TransitionEditorWidget(TransitionEditorView *view)
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     m_toolbar->setStyleSheet(Theme::replaceCssColors(
-        QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
+        Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css")));
     m_scrollbar->setOrientation(Qt::Horizontal);
 
     QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Preferred);

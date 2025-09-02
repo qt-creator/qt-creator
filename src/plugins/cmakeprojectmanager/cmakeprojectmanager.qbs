@@ -108,4 +108,6 @@ QtcPlugin {
             "rstparser/rstparser.h"
         ]
     }
+
+    QtcTestResources { files: "testcases/**/*" }
 }

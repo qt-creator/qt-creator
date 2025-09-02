@@ -21,7 +21,8 @@ public:
 
     bool operator<(const ProcessInfo &other) const;
 
-    static QList<ProcessInfo> processInfoList(const Utils::FilePath &deviceRoot = Utils::FilePath());
+    static Result<QList<ProcessInfo>> processInfoList(
+        const Utils::FilePath &deviceRoot = Utils::FilePath());
 };
 
 } // namespace Utils

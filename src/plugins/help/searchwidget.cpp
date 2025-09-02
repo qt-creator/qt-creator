@@ -38,36 +38,6 @@ SearchWidget::SearchWidget() = default;
 
 SearchWidget::~SearchWidget() = default;
 
-void SearchWidget::zoomIn()
-{
-    auto browser = resultWidget->findChild<QTextBrowser*>();
-    if (browser && zoomCount != 10) {
-        zoomCount++;
-        browser->zoomIn();
-    }
-}
-
-void SearchWidget::zoomOut()
-{
-    auto browser = resultWidget->findChild<QTextBrowser*>();
-    if (browser && zoomCount != -5) {
-        zoomCount--;
-        browser->zoomOut();
-    }
-}
-
-void SearchWidget::resetZoom()
-{
-    if (zoomCount == 0)
-        return;
-
-    auto browser = resultWidget->findChild<QTextBrowser*>();
-    if (browser) {
-        browser->zoomOut(zoomCount);
-        zoomCount = 0;
-    }
-}
-
 void SearchWidget::reindexDocumentation()
 {
     if (searchEngine)

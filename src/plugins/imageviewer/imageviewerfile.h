@@ -35,11 +35,11 @@ public:
     ImageViewerFile();
     ~ImageViewerFile() override;
 
-    OpenResult open(QString *errorString, const Utils::FilePath &filePath,
-                    const Utils::FilePath &realFilePath) override;
+    Utils::Result<> open(const Utils::FilePath &filePath,
+                         const Utils::FilePath &realFilePath) override;
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
-    Utils::Result reload(ReloadFlag flag, ChangeType type) override;
+    Utils::Result<> reload(ReloadFlag flag, ChangeType type) override;
 
     QMovie *movie() const;
 
@@ -55,7 +55,7 @@ signals:
 
 private:
     void cleanUp();
-    OpenResult openImpl(QString *errorString, const Utils::FilePath &filePath);
+    Utils::Result<> openImpl(const Utils::FilePath &filePath);
 
     ImageType m_type = TypeInvalid;
 #ifndef QT_NO_SVG

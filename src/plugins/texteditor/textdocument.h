@@ -81,7 +81,9 @@ public:
     Utils::MultiTextCursor indent(const Utils::MultiTextCursor &cursor);
     Utils::MultiTextCursor unindent(const Utils::MultiTextCursor &cursor);
 
+    Formatter* formatter() const;
     void setFormatter(Formatter *indenter); // transfers ownership
+    void setFormatterMode(Formatter::FormatMode mode);
     void autoFormat(const QTextCursor &cursor);
     bool applyChangeSet(const Utils::ChangeSet &changeSet);
 
@@ -100,12 +102,12 @@ public:
 
     // IDocument implementation.
     QByteArray contents() const override;
-    bool setContents(const QByteArray &contents) override;
+    Utils::Result<> setContents(const QByteArray &contents) override;
     void formatContents() override;
     bool shouldAutoSave() const override;
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
-    Utils::Result reload(ReloadFlag flag, ChangeType type) override;
+    Utils::Result<> reload(ReloadFlag flag, ChangeType type) override;
     void setFilePath(const Utils::FilePath &newName) override;
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
 
@@ -115,19 +117,19 @@ public:
     void setFallbackSaveAsPath(const Utils::FilePath &fallbackSaveAsPath);
     void setFallbackSaveAsFileName(const QString &fallbackSaveAsFileName);
 
-    OpenResult open(QString *errorString, const Utils::FilePath &filePath,
-                    const Utils::FilePath &realFilePath) override;
-    virtual Utils::Result reload();
-    Utils::Result reload(const Utils::FilePath &realFilePath);
+    Utils::Result<> open(const Utils::FilePath &filePath,
+                         const Utils::FilePath &realFilePath) override;
+    virtual Utils::Result<> reload();
+    Utils::Result<> reload(const Utils::FilePath &realFilePath);
 
-    bool setPlainText(const QString &text);
+    Utils::Result<> setPlainText(const QString &text);
     QTextDocument *document() const;
 
     using SyntaxHighLighterCreator = std::function<SyntaxHighlighter *()>;
     void resetSyntaxHighlighter(const SyntaxHighLighterCreator &creator);
     SyntaxHighlighter *syntaxHighlighter() const;
 
-    Utils::Result reload(const QByteArray &codec);
+    Utils::Result<> reload(const QByteArray &codec);
     void cleanWhitespace(const QTextCursor &cursor);
 
     virtual void triggerPendingUpdates();
@@ -164,14 +166,13 @@ signals:
 
 protected:
     virtual void applyFontSettings();
-    Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
     virtual void slotCodeStyleSettingsChanged(); // Used in CppEditorDocumet
 
 private:
-    OpenResult openImpl(QString *errorString,
-                        const Utils::FilePath &filePath,
-                        const Utils::FilePath &realFileName,
-                        bool reload);
+    Utils::Result<> openImpl(const Utils::FilePath &filePath,
+                             const Utils::FilePath &realFileName,
+                             bool reload);
     void cleanWhitespace(QTextCursor &cursor, bool inEntireDocument, bool cleanIndentation);
     void ensureFinalNewLine(QTextCursor &cursor);
     void modificationChanged(bool modified);

@@ -411,12 +411,9 @@ private:
             const bool isDeclFile = refactoringFile->filePath() == state->originalFilePath;
             ChangeSet changes;
             if (isDeclFile) {
-                QString relInclude = headerFilePath.relativePathFrom(
-                                                       refactoringFile->filePath().parentDir()).toUrlishString();
-                if (!relInclude.isEmpty())
-                    relInclude.append('/');
-                relInclude.append('"').append(headerFileName).append('"');
-                insertNewIncludeDirective(relInclude, refactoringFile,
+                const FilePath baseDir = refactoringFile->filePath().parentDir();
+                const QString relInclude = headerFilePath.relativePathFromDir(baseDir).path();
+                insertNewIncludeDirective('"' + relInclude + '"', refactoringFile,
                                           refactoringFile->cppDocument(), changes);
             }
             for (AST * const declToMove : std::as_const(it->declarationsToMove)) {

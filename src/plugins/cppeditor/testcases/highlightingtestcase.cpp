@@ -78,3 +78,6 @@ const auto c = L'c'_wc;
     [
         gnu::always_inline]
 ]();
+
+#define N 2
+unsigned int testArray[][N] = {};

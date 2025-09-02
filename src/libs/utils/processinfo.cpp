@@ -5,6 +5,7 @@
 
 #include "algorithm.h"
 #include "qtcprocess.h"
+#include "utilstr.h"
 
 #include <QDir>
 #include <QRegularExpression>
@@ -15,9 +16,11 @@
 #ifdef QTCREATOR_PCH_H
 #define CALLBACK WINAPI
 #endif
+// windows.h needs to be included before psapi.h!
 #include <windows.h>
-#include <tlhelp32.h>
+
 #include <psapi.h>
+#include <tlhelp32.h>
 #endif
 
 namespace Utils {
@@ -31,11 +34,16 @@ bool ProcessInfo::operator<(const ProcessInfo &other) const
     return commandLine < other.commandLine;
 }
 
-// Determine UNIX processes by reading "/proc". Default to ps if
-// it does not exist
-
-static QList<ProcessInfo> getLocalProcessesUsingProc(const FilePath &procDir)
+static Result<QList<ProcessInfo>> getLocalProcessesUsingProc(const FilePath &devicePath)
 {
+    const FilePath procDir = devicePath.withNewPath("/proc");
+    if (!procDir.exists())
+        return ResultError(Tr::tr("\"%1\" does not exist.").arg(procDir.toUserOutput()));
+
+    const FilePath find = devicePath.withNewPath("find").searchInPath();
+    if (!find.isExecutableFile())
+        return ResultError(Tr::tr("\"find\" is not an existing executable"));
+
     static const QString execs = "-exec test -f {}/exe \\; "
                                  "-exec test -f {}/cmdline \\; "
                                  "-exec echo -en 'p{}\\ne' \\; "
@@ -45,14 +53,20 @@ static QList<ProcessInfo> getLocalProcessesUsingProc(const FilePath &procDir)
                                  "-exec echo \\; "
                                  "-exec echo __SKIP_ME__ \\;";
 
-    CommandLine cmd{procDir.withNewPath("find"),
-                    {procDir.nativePath(), "-maxdepth", "1", "-type", "d", "-name", "[0-9]*"}};
+    CommandLine cmd{find, {procDir.nativePath(), "-maxdepth", "1", "-type", "d", "-name", "[0-9]*"}};
 
     cmd.addArgs(execs, CommandLine::Raw);
 
     Process procProcess;
     procProcess.setCommand(cmd);
     procProcess.runBlocking();
+
+    // We can only check the errorString here. The exit code maybe != 0 if one of the "test"s failed.
+    if (!procProcess.errorString().isEmpty()) {
+        return ResultError(Tr::tr("Failed to run %1: %2")
+                                   .arg(cmd.executable().toUserOutput())
+                                   .arg(procProcess.errorString()));
+    }
 
     QList<ProcessInfo> processes;
 
@@ -95,12 +109,22 @@ static QList<ProcessInfo> getLocalProcessesUsingProc(const FilePath &procDir)
 }
 
 // Determine UNIX processes by running ps
-static QMap<qint64, QString> getLocalProcessDataUsingPs(const FilePath &deviceRoot,
-                                                        const QString &column)
+static Result<QMap<qint64, QString>> getLocalProcessDataUsingPs(
+    const FilePath &ps, const QString &column)
 {
     Process process;
-    process.setCommand({deviceRoot.withNewPath("ps"), {"-e", "-o", "pid," + column}});
+    process.setCommand({ps, {"-e", "-o", "pid," + column}});
     process.runBlocking();
+    if (!process.errorString().isEmpty()) {
+        return ResultError(
+            Tr::tr("Failed to run %1: %2").arg(ps.toUserOutput()).arg(process.errorString()));
+    }
+
+    if (process.exitCode() != 0) {
+        return ResultError(Tr::tr("Failed to run %1: %2")
+                                   .arg(ps.toUserOutput())
+                                   .arg(process.readAllStandardError()));
+    }
 
     // Split "457 /Users/foo.app arg1 arg2"
     const QStringList lines = process.readAllStandardOutput().split(QLatin1Char('\n'));
@@ -114,39 +138,57 @@ static QMap<qint64, QString> getLocalProcessDataUsingPs(const FilePath &deviceRo
     return result;
 }
 
-static QList<ProcessInfo> getLocalProcessesUsingPs(const FilePath &deviceRoot)
+static Result<QList<ProcessInfo>> getLocalProcessesUsingPs(const FilePath &deviceRoot)
 {
     QList<ProcessInfo> processes;
 
+    const FilePath ps = deviceRoot.withNewPath("ps").searchInPath();
+    if (!ps.isExecutableFile())
+        return ResultError(Tr::tr("\"ps\" is not an existing executable."));
+
     // cmdLines are full command lines, usually with absolute path,
     // exeNames only the file part of the executable's path.
-    const QMap<qint64, QString> exeNames = getLocalProcessDataUsingPs(deviceRoot, "comm");
-    const QMap<qint64, QString> cmdLines = getLocalProcessDataUsingPs(deviceRoot, "args");
+    using namespace Qt::Literals;
+    const QString exeNameColumn = deviceRoot.osType() == OsTypeMac ? "comm"_L1 : "exe"_L1;
+    const Result<QMap<qint64, QString>> exeNames = getLocalProcessDataUsingPs(ps, exeNameColumn);
+    if (!exeNames)
+        return ResultError(exeNames.error());
 
-    for (auto it = exeNames.begin(), end = exeNames.end(); it != end; ++it) {
+    const Result<QMap<qint64, QString>> cmdLines = getLocalProcessDataUsingPs(ps, "args");
+    if (!cmdLines)
+        return ResultError(cmdLines.error());
+
+    for (auto it = exeNames->begin(), end = exeNames->end(); it != end; ++it) {
         const qint64 pid = it.key();
         if (pid <= 0)
             continue;
-        const QString cmdLine = cmdLines.value(pid);
-        if (cmdLines.isEmpty())
+        const QString cmdLine = cmdLines->value(pid);
+        if (cmdLines->isEmpty())
             continue;
         const QString exeName = it.value();
         if (exeName.isEmpty())
             continue;
-        const int pos = cmdLine.indexOf(exeName);
-        if (pos == -1)
-            continue;
-        processes.append({pid, cmdLine.left(pos + exeName.size()), cmdLine});
+        processes.append({pid, exeName, cmdLine});
     }
 
     return processes;
 }
 
-static QList<ProcessInfo> getProcessesUsingPidin(const FilePath &pidin)
+static Result<QList<ProcessInfo>> getProcessesUsingPidin(const FilePath &deviceRoot)
 {
+    const FilePath pidin = deviceRoot.withNewPath("pidin").searchInPath();
+    if (!pidin.isExecutableFile())
+        return ResultError(Tr::tr("\"pidin\" is not an existing executable."));
+
     Process process;
     process.setCommand({pidin, {"-F", "%a %A {/%n}"}});
     process.runBlocking();
+    if (process.errorString().isEmpty()) {
+        return ResultError(
+            Tr::tr("Failed to run %1: %2").arg(pidin.toUserOutput()).arg(process.errorString()));
+    }
+    if (process.exitCode() != 0)
+        return ResultError(process.readAllStandardError());
 
     QList<ProcessInfo> processes;
     QStringList lines = process.readAllStandardOutput().split(QLatin1Char('\n'));
@@ -176,55 +218,58 @@ static QList<ProcessInfo> getProcessesUsingPidin(const FilePath &pidin)
     return Utils::sorted(std::move(processes));
 }
 
-static QList<ProcessInfo> processInfoListUnix(const FilePath &deviceRoot)
+static Result<QList<ProcessInfo>> processInfoListUnix(const FilePath &deviceRoot)
 {
-    const FilePath procDir = deviceRoot.withNewPath("/proc");
-    const FilePath pidin = deviceRoot.withNewPath("pidin").searchInPath();
-
-    if (pidin.isExecutableFile())
-        return getProcessesUsingPidin(pidin);
-
-    if (procDir.isReadableDir())
-        return getLocalProcessesUsingProc(procDir);
-
-    return getLocalProcessesUsingPs(deviceRoot);
+    return getLocalProcessesUsingPs(deviceRoot)
+        .transform_error(
+            [](const QString &error) { return Tr::tr("Failed to run ps: %1").arg(error); })
+        .or_else([&deviceRoot](const QString &error) {
+            return getProcessesUsingPidin(deviceRoot)
+                .transform_error([error](const QString &pidinError) {
+                    return Tr::tr("Failed to run pidin: %1\n%2").arg(pidinError).arg(error);
+                });
+        })
+        .or_else([&deviceRoot](const QString &error) {
+            return getLocalProcessesUsingProc(deviceRoot)
+                .transform_error([error](const QString &procError) {
+                    return Tr::tr("Failed to check /proc: %1\n%2").arg(procError).arg(error);
+                });
+        });
 }
 
-#if defined(Q_OS_UNIX)
-
-QList<ProcessInfo> ProcessInfo::processInfoList(const FilePath &deviceRoot)
+Result<QList<ProcessInfo>> ProcessInfo::processInfoList(const FilePath &deviceRoot)
 {
-    return processInfoListUnix(deviceRoot);
-}
-
-#elif defined(Q_OS_WIN)
-
-QList<ProcessInfo> ProcessInfo::processInfoList(const FilePath &deviceRoot)
-{
-    if (!deviceRoot.isLocal())
+    if (deviceRoot.osType() != OsType::OsTypeWindows)
         return processInfoListUnix(deviceRoot);
 
-    QList<ProcessInfo> processes;
+    if (HostOsInfo::isWindowsHost() && deviceRoot.isLocal()) {
+#if defined(Q_OS_WIN)
+        QList<ProcessInfo> processes;
 
-    PROCESSENTRY32 pe;
-    pe.dwSize = sizeof(PROCESSENTRY32);
-    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    if (snapshot == INVALID_HANDLE_VALUE)
+        PROCESSENTRY32 pe;
+        pe.dwSize = sizeof(PROCESSENTRY32);
+        HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        if (snapshot == INVALID_HANDLE_VALUE) {
+            return ResultError(
+                Tr::tr("Failed to create snapshot: %1").arg(winErrorMessage(GetLastError())));
+        }
+
+        for (bool hasNext = Process32First(snapshot, &pe); hasNext;
+             hasNext = Process32Next(snapshot, &pe)) {
+            ProcessInfo p;
+            p.processId = pe.th32ProcessID;
+            // Image has the absolute path, but can fail.
+            const QString image = imageName(pe.th32ProcessID);
+            p.executable = p.commandLine = image.isEmpty() ? QString::fromWCharArray(pe.szExeFile)
+                                                           : image;
+            processes << p;
+        }
+        CloseHandle(snapshot);
         return processes;
-
-    for (bool hasNext = Process32First(snapshot, &pe); hasNext; hasNext = Process32Next(snapshot, &pe)) {
-        ProcessInfo p;
-        p.processId = pe.th32ProcessID;
-        // Image has the absolute path, but can fail.
-        const QString image = imageName(pe.th32ProcessID);
-        p.executable = p.commandLine = image.isEmpty() ?
-            QString::fromWCharArray(pe.szExeFile) : image;
-        processes << p;
+#endif
     }
-    CloseHandle(snapshot);
-    return processes;
-}
 
-#endif //Q_OS_WIN
+    return {};
+}
 
 } // namespace Utils

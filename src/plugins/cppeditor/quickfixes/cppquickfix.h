@@ -13,9 +13,12 @@
 
 #include <optional>
 
+#ifdef WITH_TESTS
+#include "cppquickfix_test.h"
+#endif
+
 namespace CppEditor {
 namespace Internal {
-class CppQuickFixInterface;
 
 class CppQuickFixOperation
     : public TextEditor::QuickFixOperation,
@@ -70,6 +73,25 @@ public:
 #endif
     }
 
+#ifdef WITH_TESTS
+    template<class Factory, class Test> static void registerFactoryWithStandardTest()
+    {
+        new Factory;
+        cppEditor()->addTestCreator([] {
+            auto factory = std::make_unique<Factory>();
+            factory->enableTestMode();
+            return new Test(std::move(factory));
+        });
+    }
+#endif
+
+    void enableTestMode() { m_testMode = true; }
+
+    static ExtensionSystem::IPlugin *cppEditor();
+
+protected:
+    bool testMode() const { return m_testMode; }
+
 private:
     /*!
         Implement this function to match and create the appropriate
@@ -81,9 +103,16 @@ private:
     virtual void doMatch(const Internal::CppQuickFixInterface &interface,
                          QuickFixOperations &result) = 0;
 
-    static ExtensionSystem::IPlugin *cppEditor();
-
     std::optional<QVersionNumber> m_clangdReplacement;
+    bool m_testMode = false;
 };
 
 } // namespace CppEditor
+
+#ifdef WITH_TESTS
+#define REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(Factory) \
+    CppQuickFixFactory::registerFactoryWithStandardTest<Factory, Factory##Test>()
+#else
+#define REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(Factory) \
+    CppQuickFixFactory::registerFactory<Factory>()
+#endif

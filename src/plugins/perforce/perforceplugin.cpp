@@ -31,6 +31,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
 
 #include <vcsbase/vcsbaseconstants.h>
@@ -710,8 +711,8 @@ void PerforcePluginPrivate::startSubmitProject()
     TempFileSaver saver;
     saver.setAutoRemove(false);
     saver.write(result.stdOut.toLatin1());
-    if (!saver.finalize()) {
-        VcsOutputWindow::appendError(saver.errorString());
+    if (const Result<> res = saver.finalize(); !res) {
+        VcsOutputWindow::appendError(res.error());
         cleanCommitMessageFile();
         return;
     }
@@ -1061,10 +1062,13 @@ std::shared_ptr<TempFileSaver> PerforcePluginPrivate::createTemporaryArgumentFil
     for (int i = 0; i <= last; i++) {
         rc->write(extraArgs.at(i).toLocal8Bit());
         if (i != last)
-            rc->write("\n", 1);
+            rc->write({"\n", 1});
     }
-    if (!rc->finalize(errorString))
+    if (const Result<> res = rc->finalize(); !res) {
+        if (errorString)
+            *errorString = res.error();
         return std::shared_ptr<TempFileSaver>();
+    }
     return rc;
 }
 
@@ -1414,9 +1418,9 @@ bool PerforcePluginPrivate::activateCommit()
         return false;
 
     // Pipe file into p4 submit -i
-    FileReader reader;
-    if (!reader.fetch(Utils::FilePath::fromString(m_commitMessageFileName))) {
-        VcsOutputWindow::appendError(reader.errorString());
+    const Result<QByteArray> contents = FilePath::fromString(m_commitMessageFileName).fileContents();
+    if (!contents) {
+        VcsOutputWindow::appendError(contents.error());
         return false;
     }
 
@@ -1424,7 +1428,7 @@ bool PerforcePluginPrivate::activateCommit()
     submitArgs << QLatin1String("submit") << QLatin1String("-i");
     const PerforceResponse submitResponse = runP4Cmd(settings().topLevelSymLinkTarget(), submitArgs,
                                                      LongTimeOut|RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow|ShowBusyCursor,
-                                                     {}, reader.text());
+                                                     {}, normalizeNewlines(contents.value()));
     if (submitResponse.error)
         return false;
 

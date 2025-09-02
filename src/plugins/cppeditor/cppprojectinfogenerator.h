@@ -20,7 +20,7 @@ public:
     ProjectInfo::ConstPtr generate(const QPromise<ProjectInfo::ConstPtr> &promise);
 
 private:
-    const QVector<ProjectPart::ConstPtr> createProjectParts(
+    const QList<ProjectPart::ConstPtr> createProjectParts(
             const ProjectExplorer::RawProjectPart &rawProjectPart,
             const Utils::FilePath &projectFilePath);
     ProjectPart::ConstPtr createProjectPart(const Utils::FilePath &projectFilePath,

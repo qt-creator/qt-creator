@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/expected.h>
+#include <utils/result.h>
 
 #include <QJsonValue>
 
@@ -20,11 +20,11 @@ const char vOff[] = "*off*";
 const char vDevelopment[] = "Development";
 const char vYes[] = "YES";
 
-Utils::expected_str<QJsonValue> parseDevicectlResult(const QByteArray &rawOutput);
-Utils::expected_str<QMap<QString, QString>> parseDeviceInfo(const QByteArray &rawOutput,
+Utils::Result<QJsonValue> parseDevicectlResult(const QByteArray &rawOutput);
+Utils::Result<QMap<QString, QString>> parseDeviceInfo(const QByteArray &rawOutput,
                                                             const QString &deviceUsbId);
-Utils::expected_str<QUrl> parseAppInfo(const QByteArray &rawOutput, const QString &bundleIdentifier);
-Utils::expected_str<qint64> parseProcessIdentifier(const QByteArray &rawOutput);
-Utils::expected_str<qint64> parseLaunchResult(const QByteArray &rawOutput);
+Utils::Result<QUrl> parseAppInfo(const QByteArray &rawOutput, const QString &bundleIdentifier);
+Utils::Result<qint64> parseProcessIdentifier(const QByteArray &rawOutput);
+Utils::Result<qint64> parseLaunchResult(const QByteArray &rawOutput);
 
 } // namespace Ios::Internal

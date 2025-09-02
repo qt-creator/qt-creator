@@ -1,0 +1,1 @@
+Add local variable for a member function, cursor in the middle (QTCREATORBUG-10355)

@@ -5,15 +5,14 @@
 
 #include "../qmlprofilertr.h"
 #include <qmldebug/qpacketprotocol.h>
+
 #include <QtTest>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
-QmlProfilerTraceClientTest::QmlProfilerTraceClientTest(QObject *parent) : QObject(parent),
-    traceClient(nullptr, &modelManager, std::numeric_limits<quint64>::max())
-{
-}
+QmlProfilerTraceClientTest::QmlProfilerTraceClientTest()
+    : traceClient(nullptr, &modelManager, std::numeric_limits<quint64>::max())
+{}
 
 static void bufferCompressedFile(const QString &name, QBuffer &buffer)
 {
@@ -87,5 +86,4 @@ void QmlProfilerTraceClientTest::testMessageReceived()
     QVERIFY(checkStream.atEnd());
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::QmlProfiler

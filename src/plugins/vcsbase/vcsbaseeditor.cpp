@@ -736,22 +736,22 @@ void VcsBaseEditorWidget::init()
     case LogOutput:
         connect(d->entriesComboBox(), &QComboBox::activated,
                 this, &VcsBaseEditorWidget::slotJumpToEntry);
-        connect(this, &QPlainTextEdit::textChanged,
+        connect(this, &PlainTextEdit::textChanged,
                 this, &VcsBaseEditorWidget::slotPopulateLogBrowser);
-        connect(this, &QPlainTextEdit::cursorPositionChanged,
+        connect(this, &PlainTextEdit::cursorPositionChanged,
                 this, &VcsBaseEditorWidget::slotCursorPositionChanged);
         break;
     case AnnotateOutput:
         // Annotation highlighting depends on contents, which is set later on
-        connect(this, &QPlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
+        connect(this, &PlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
         break;
     case DiffOutput:
         // Diff: set up diff file browsing
         connect(d->entriesComboBox(), &QComboBox::activated,
                 this, &VcsBaseEditorWidget::slotJumpToEntry);
-        connect(this, &QPlainTextEdit::textChanged,
+        connect(this, &PlainTextEdit::textChanged,
                 this, &VcsBaseEditorWidget::slotPopulateDiffBrowser);
-        connect(this, &QPlainTextEdit::cursorPositionChanged,
+        connect(this, &PlainTextEdit::cursorPositionChanged,
                 this, &VcsBaseEditorWidget::slotCursorPositionChanged);
         break;
     }
@@ -1094,7 +1094,7 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
     if (changes.isEmpty())
         return;
 
-    disconnect(this, &QPlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
+    disconnect(this, &PlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
 
     if (SyntaxHighlighter *ah = textDocument()->syntaxHighlighter()) {
         ah->rehighlight();
@@ -1151,7 +1151,7 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     const QChar deletionIndicator = QLatin1Char('-');
     // find nearest change hunk
     QTextBlock block = cursor.block();
-    if (TextDocumentLayout::foldingIndent(block) <= 1) {
+    if (TextBlockUserData::foldingIndent(block) <= 1) {
         // We are in a diff header, do not jump anywhere.
         // DiffAndLogHighlighter sets the foldingIndent for us.
         return;
@@ -1192,7 +1192,7 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
     QTC_ASSERT(hasDiff(), return rc);
     // Search back for start of chunk.
     QTextBlock block = cursor.block();
-    if (block.isValid() && TextDocumentLayout::foldingIndent(block) <= 1) {
+    if (block.isValid() && TextBlockUserData::foldingIndent(block) <= 1) {
         // We are in a diff header, not in a chunk!
         // DiffAndLogHighlighter sets the foldingIndent for us.
         return rc;

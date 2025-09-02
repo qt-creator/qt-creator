@@ -14,6 +14,7 @@
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 
+#include <QCoreApplication>
 #include <QIODevice>
 #include <QTextStream>
 

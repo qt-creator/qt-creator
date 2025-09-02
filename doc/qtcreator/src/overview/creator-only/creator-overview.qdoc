@@ -68,7 +68,7 @@
     \image {heartgame-start.webp} {Heart Rate Game}
 
     To create intuitive, modern-looking, fluid user interfaces (UI), use
-    \l{Qt Quick} and \l{Qt Design Studio documentation}{\QDS}:
+    \l{Qt Quick} and \l{\QDS documentation}{\QDS}:
 
     \list
         \li \l {\QMLD}

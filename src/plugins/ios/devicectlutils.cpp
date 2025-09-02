@@ -12,7 +12,7 @@ using namespace Utils;
 
 namespace Ios::Internal {
 
-expected_str<QJsonValue> parseDevicectlResult(const QByteArray &rawOutput)
+Result<QJsonValue> parseDevicectlResult(const QByteArray &rawOutput)
 {
     // there can be crap (progress info) at front and/or end
     const int firstCurly = rawOutput.indexOf('{');
@@ -51,10 +51,10 @@ expected_str<QJsonValue> parseDevicectlResult(const QByteArray &rawOutput)
     return resultValue;
 }
 
-expected_str<QMap<QString, QString>> parseDeviceInfo(const QByteArray &rawOutput,
+Result<QMap<QString, QString>> parseDeviceInfo(const QByteArray &rawOutput,
                                                      const QString &deviceUsbId)
 {
-    const expected_str<QJsonValue> result = parseDevicectlResult(rawOutput);
+    const Result<QJsonValue> result = parseDevicectlResult(rawOutput);
     if (!result)
         return make_unexpected(result.error());
     // find device
@@ -84,9 +84,9 @@ expected_str<QMap<QString, QString>> parseDeviceInfo(const QByteArray &rawOutput
     return make_unexpected(QLatin1String("Device is not handled by devicectl"));
 }
 
-Utils::expected_str<QUrl> parseAppInfo(const QByteArray &rawOutput, const QString &bundleIdentifier)
+Utils::Result<QUrl> parseAppInfo(const QByteArray &rawOutput, const QString &bundleIdentifier)
 {
-    const Utils::expected_str<QJsonValue> result = parseDevicectlResult(rawOutput);
+    const Utils::Result<QJsonValue> result = parseDevicectlResult(rawOutput);
     if (!result)
         return make_unexpected(result.error());
     const QJsonArray apps = (*result)["apps"].toArray();
@@ -97,9 +97,9 @@ Utils::expected_str<QUrl> parseAppInfo(const QByteArray &rawOutput, const QStrin
     return {};
 }
 
-Utils::expected_str<qint64> parseProcessIdentifier(const QByteArray &rawOutput)
+Utils::Result<qint64> parseProcessIdentifier(const QByteArray &rawOutput)
 {
-    const expected_str<QJsonValue> result = parseDevicectlResult(rawOutput);
+    const Result<QJsonValue> result = parseDevicectlResult(rawOutput);
     if (!result)
         return make_unexpected(result.error());
     const QJsonArray matchingProcesses = (*result)["runningProcesses"].toArray();
@@ -108,9 +108,9 @@ Utils::expected_str<qint64> parseProcessIdentifier(const QByteArray &rawOutput)
     return -1;
 }
 
-Utils::expected_str<qint64> parseLaunchResult(const QByteArray &rawOutput)
+Utils::Result<qint64> parseLaunchResult(const QByteArray &rawOutput)
 {
-    const Utils::expected_str<QJsonValue> result = parseDevicectlResult(rawOutput);
+    const Utils::Result<QJsonValue> result = parseDevicectlResult(rawOutput);
     if (!result)
         return make_unexpected(result.error());
     const qint64 pid = (*result)["process"]["processIdentifier"].toInteger(-1);

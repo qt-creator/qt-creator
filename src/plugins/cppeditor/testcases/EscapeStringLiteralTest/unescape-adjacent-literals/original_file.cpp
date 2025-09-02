@@ -1,0 +1,1 @@
+const char *str = @"\xc3\xa0""f23\xd0\xb1g\xd0\xb1""1";

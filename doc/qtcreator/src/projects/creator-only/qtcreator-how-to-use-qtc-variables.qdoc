@@ -15,7 +15,7 @@
     variables take care of quoting their expansions, so you do not need to put
     them in quotes.
 
-    Select the \inlineimage icons/replace.png
+    Select the \inlineimage {icons/replace.png} {Variables}
     (\uicontrol {Variables}) button in a field to select from a list of
     variables that are available in a particular context.
     For more information about each variable, move the cursor over it in the
@@ -25,6 +25,8 @@
 
     The following syntax enables you to use environment variables as \QC
     variables: %{Env:VARNAME}.
+
+    \section1 Pattern substitution
 
     \QC uses pattern substitution when expanding variable names. To replace the
     first match of \e pattern within \e variable with \e replacement, use:
@@ -49,11 +51,80 @@
     to be a file path, in which case forward slashes might get translated
     to backslashes on Windows hosts.
 
+    \section1 Use default values
+
     To use the default value if the variable is not set, use:
 
     \badcode
     %{variable:-default}
     \endcode
+
+    \section1 Examples
+
+    The following sections contain examples of using \QC variables.
+
+    \section2 Current document variables
+
+    The \c {%{CurrentDocument}} variable expands to information about the file
+    that is currently open in the editor.
+
+    For example:
+
+    \list
+        \li \c {%{CurrentDocument:Project:Name}} expands to the name of the
+            project containing the document.
+        \li \c {%{CurrentDocument:FileName}} expands to the name of the document.
+        \li \c {%{CurrentDocument:FilePath}} expands to the full path of the
+            document including the filename.
+    \endlist
+
+    \section2 Kit and build configuration variables
+
+    The \c {%{ProjectName}} variable expands to the project name, \c {%{Kit}}
+    expands to information about a build and run kit, and \c {%{BuildConfig}}
+    expands to the build configuration.
+
+    You can combine them to set the default build configuration in \preferences >
+    \uicontrol {Build & Run} > \uicontrol {Default Build Properties}:
+
+    \badcode
+    "build-%{ProjectName}-%{Kit:FileSystemName}-%{BuildConfig:Name}"
+    \endcode
+
+    \image {qtcreator-build-settings-default.webp} {Default Build Properties tab in Build & Run preferences}
+
+    \section2 Qt variables
+
+    The \c {%{Qt}} variable expands to information about a Qt installation.
+
+    \c {%{Qt:Version}} expands to the version number of a Qt installation. You
+    can use it in kit names.
+
+    \section2 Device variables
+
+    The \c {%{Device}} variable expands to information about the device where you
+    run the project (\e {run device}).
+
+    For example:
+
+    \list
+        \li \c{ %{Device:HostAddress}} expands to the host name or IP address of
+            the device from the device configuration. You can use it for SSH
+            authentication.
+        \li \c {%{Device:PrivateKeyFile}} expands to the filename and path of a
+            private key file. You can use it for SSH authentication.
+        \li \c {%{Device:SshPort}} expands to the port number for SSH
+            connections.
+        \li \c {%{Device:UserName}} expands to the username to log into the
+            device. You can use it for custom connections when the device is not
+            connected automatically.
+    \endlist
+
+    \section2 Git variable
+
+    \c {%{Git:Config:user.name}} expands to the username from the Git
+    configuration. You can use it in license header templates or in any field
+    where you need the Git username.
 
     \sa {Specify the environment for projects}, {Configure projects for building},
     {Configure projects for running}

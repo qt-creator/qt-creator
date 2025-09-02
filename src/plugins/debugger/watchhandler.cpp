@@ -1754,7 +1754,7 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
               [this] { grabWidget(); });
 
     menu->addSeparator();
-    QModelIndexList mil = ev.currentOrSelectedRows();
+    const QModelIndexList mil = ev.currentOrSelectedRows();
     if (mil.size() > 1) {
         WatchItemSet wis;
         for (const QModelIndex &i : mil)
@@ -2241,7 +2241,7 @@ bool WatchHandler::insertItem(WatchItem *item)
 void WatchModel::reexpandItems()
 {
     m_engine->reexpandItems(m_expandedINames);
-    for (const QString &iname: m_expandedINames) {
+    for (const QString &iname: std::as_const(m_expandedINames)) {
         if (WatchItem *item = findItem(iname)) {
             emit itemIsExpanded(indexForItem(item));
             emit inameIsExpanded(iname);

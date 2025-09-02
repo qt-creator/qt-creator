@@ -1747,8 +1747,8 @@ QMimeData *FileSystemModel::mimeData(const QModelIndexList &indexes) const
 bool FileSystemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                              int row, int column, const QModelIndex &parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(column);
+    Q_UNUSED(row)
+    Q_UNUSED(column)
     if (!parent.isValid() || isReadOnly())
         return false;
 

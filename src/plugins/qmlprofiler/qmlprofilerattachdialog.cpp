@@ -15,8 +15,7 @@
 
 using namespace ProjectExplorer;
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerAttachDialogPrivate
 {
@@ -91,5 +90,4 @@ void QmlProfilerAttachDialog::setKitId(Utils::Id id)
     d->kitChooser->setCurrentKitId(id);
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

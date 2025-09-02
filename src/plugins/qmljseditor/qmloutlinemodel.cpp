@@ -6,9 +6,10 @@
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljscontext.h>
-#include <qmljs/qmljsscopechain.h>
+#include <qmljs/qmljsicons.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsrewriter.h>
+#include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljsvalueowner.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 
@@ -318,9 +319,6 @@ QmlOutlineModel::QmlOutlineModel(QmlJSEditorDocument *document) :
     QStandardItemModel(document),
     m_editorDocument(document)
 {
-    m_icons = Icons::instance();
-    Icons::instance()->setIconFilesPath(Core::ICore::resourcePath("qmlicons").toUrlishString());
-
     setItemPrototype(new QmlOutlineItem(this));
 }
 
@@ -1058,18 +1056,13 @@ SourceLocation QmlOutlineModel::getLocation(AST::PatternProperty *propertyNode) 
 }
 
 QIcon QmlOutlineModel::getIcon(AST::UiQualifiedId *qualifiedId) {
-    QIcon icon;
     if (qualifiedId) {
         QString name = asString(qualifiedId);
         if (name.contains(QLatin1Char('.')))
             name = name.split(QLatin1Char('.')).last();
-
-        // TODO: get rid of namespace prefixes.
-        icon = m_icons->icon(QLatin1String("Qt"), name);
-        if (icon.isNull())
-            icon = m_icons->icon(QLatin1String("QtWebkit"), name);
+        return Icons::Provider::instance().icon(name);
     }
-    return icon;
+    return QIcon();
 }
 
 QString QmlOutlineModel::getAnnotation(AST::UiObjectInitializer *objectInitializer) {

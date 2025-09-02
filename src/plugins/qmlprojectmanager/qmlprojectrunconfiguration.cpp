@@ -8,11 +8,9 @@
 #include "qmlprojectmanagertr.h"
 #include "qmlprojectrunconfiguration.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -30,17 +28,13 @@
 #include <qmldesignerbase/utils/qmlpuppetpaths.h>
 
 #include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/winutils.h>
-
-#include <qmljstools/qmljstoolsconstants.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -54,7 +48,7 @@ namespace QmlProjectManager::Internal {
 class QmlProjectRunConfiguration final : public RunConfiguration
 {
 public:
-    QmlProjectRunConfiguration(Target *target, Id id);
+    QmlProjectRunConfiguration(BuildConfiguration *bc, Id id);
 
 private:
     QString disabledReason(Utils::Id runMode) const final;
@@ -75,8 +69,8 @@ private:
     mutable bool usePuppetAsQmlRuntime = false;
 };
 
-QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
-    : RunConfiguration(target, id)
+QmlProjectRunConfiguration::QmlProjectRunConfiguration(BuildConfiguration *bc, Id id)
+    : RunConfiguration(bc, id)
 {
     setUsesEmptyBuildKeys();
     qmlViewer.setSettingsKey(Constants::QML_VIEWER_KEY);
@@ -86,7 +80,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
 
     arguments.setSettingsKey(Constants::QML_VIEWER_ARGUMENTS_KEY);
 
-    setCommandLineGetter([this, target] {
+    setCommandLineGetter([this] {
         const FilePath qmlRuntime = qmlRuntimeFilePath();
         CommandLine cmd(qmlRuntime);
         if (usePuppetAsQmlRuntime)
@@ -96,7 +90,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         cmd.addArgs(arguments(), CommandLine::Raw);
 
         // arguments from .qmlproject file
-        const QmlBuildSystem *bs = qobject_cast<QmlBuildSystem *>(target->buildSystem());
+        const QmlBuildSystem *bs = qobject_cast<QmlBuildSystem *>(buildSystem());
         for (const QString &importPath : bs->targetImportPaths()) {
             cmd.addArg("-I");
             cmd.addArg(importPath);
@@ -125,7 +119,6 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         return cmd;
     });
 
-    qmlMainFile.setTarget(target);
     connect(&qmlMainFile, &BaseAspect::changed, this, &RunConfiguration::update);
 
     if (Core::ICore::isQtDesignStudio())
@@ -133,18 +126,14 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     else
         qtversion.setVisible(false);
 
-    connect(target, &Target::kitChanged, this, &RunConfiguration::update);
-
-    multiLanguage.setTarget(target);
-    auto buildSystem = qobject_cast<const QmlBuildSystem *>(activeBuildSystem());
-    if (buildSystem)
-        multiLanguage.setValue(buildSystem->multilanguageSupport());
+    if (auto bs = qobject_cast<const QmlBuildSystem *>(buildSystem()))
+        multiLanguage.setValue(bs->multilanguageSupport());
 
     connect(&multiLanguage, &BaseAspect::changed,
             &environment, &EnvironmentAspect::environmentChanged);
 
     auto envModifier = [this](Environment env) {
-        if (auto bs = qobject_cast<const QmlBuildSystem *>(activeBuildSystem()))
+        if (auto bs = qobject_cast<const QmlBuildSystem *>(buildSystem()))
             env.modify(bs->environment());
 
         if (multiLanguage() && !multiLanguage.databaseFilePath().isEmpty()) {
@@ -157,7 +146,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         return env;
     };
 
-    const Id deviceTypeId = RunDeviceTypeKitAspect::deviceTypeId(target->kit());
+    const Id deviceTypeId = RunDeviceTypeKitAspect::deviceTypeId(kit());
     if (deviceTypeId == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         environment.addPreferredBaseEnvironment(Tr::tr("System Environment"), [envModifier] {
             return envModifier(Environment::systemEnvironment());
@@ -170,7 +159,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     });
 
     setRunnableModifier([this](ProcessRunData &r) {
-        const QmlBuildSystem *bs = static_cast<QmlBuildSystem *>(activeBuildSystem());
+        const QmlBuildSystem *bs = static_cast<QmlBuildSystem *>(buildSystem());
         r.workingDirectory = bs->targetDirectory();
     });
 
@@ -201,11 +190,9 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
     if (!qmlViewer().isEmpty())
         return qmlViewer();
 
-    Kit *kit = target()->kit();
-
     // We might not have a full Qt version for building, but the device
     // might know what is good for running.
-    IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit);
+    IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit());
     if (dev) {
         const FilePath qmlRuntime = dev->qmlRunCommand();
         if (!qmlRuntime.isEmpty())
@@ -214,12 +201,12 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 
     // The Qt version might know, but we need to make sure
     // that the device can reach it.
-    if (QtVersion *version = QtKitAspect::qtVersion(kit)) {
+    if (QtVersion *version = QtKitAspect::qtVersion(kit())) {
         // look for QML Puppet as qmlruntime only in QtStudio Qt versions
         if (version->features().contains("QtStudio") && version->qtVersion().majorVersion() > 5
-            && dev->rootPath().isLocal()) {
+            && dev && dev->rootPath().isLocal()) {
             auto [workingDirectoryPath, puppetPath] = QmlDesigner::QmlPuppetPaths::qmlPuppetPaths(
-                target());
+                kit());
             if (!puppetPath.isEmpty()) {
                 usePuppetAsQmlRuntime = true;
                 return puppetPath;
@@ -244,11 +231,10 @@ void QmlProjectRunConfiguration::setupQtVersionAspect()
     qtversion.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     qtversion.setLabelText(Tr::tr("Qt Version:"));
 
-    Kit *kit = target()->kit();
-    QtVersion *version = QtKitAspect::qtVersion(kit);
+    QtVersion *version = QtKitAspect::qtVersion(kit());
 
     if (version) {
-        const QmlBuildSystem *buildSystem = qobject_cast<QmlBuildSystem *>(target()->buildSystem());
+        const QmlBuildSystem *buildSystem = qobject_cast<QmlBuildSystem *>(this->buildSystem());
         const bool isQt6Project = buildSystem && buildSystem->qt6Project();
 
         if (isQt6Project) {
@@ -263,13 +249,12 @@ void QmlProjectRunConfiguration::setupQtVersionAspect()
             qtversion.setValue(valueForVersion);
 
             connect(&qtversion, &BaseAspect::changed, this, [this] {
-                QTC_ASSERT(target(), return );
-                auto project = target()->project();
+                auto project = this->project();
                 QTC_ASSERT(project, return );
 
                 int oldValue = !qtversion();
                 const int preferedQtVersion = qtversion() > 0 ? 6 : 5;
-                Kit *currentKit = target()->kit();
+                Kit *currentKit = kit();
 
                 const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [&](const Kit *k) {
                     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
@@ -282,7 +267,7 @@ void QmlProjectRunConfiguration::setupQtVersionAspect()
                     return;
 
                 if (!kits.isEmpty()) {
-                    auto newTarget = target()->project()->target(kits.first());
+                    auto newTarget = project->target(kits.first());
                     if (!newTarget)
                         newTarget = project->addTargetForKit(kits.first());
 
@@ -303,7 +288,7 @@ bool QmlProjectRunConfiguration::isEnabled(Id) const
 {
     return const_cast<QmlProjectRunConfiguration *>(this)->qmlMainFile.isQmlFilePresent()
            && !qmlRuntimeFilePath().isEmpty()
-           && activeBuildSystem()->hasParsingData();
+           && buildSystem()->hasParsingData();
 }
 
 FilePath QmlProjectRunConfiguration::mainScript() const

@@ -8,22 +8,21 @@
 
 #include <QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerTraceClientTest : public QObject
 {
     Q_OBJECT
+
 public:
-    QmlProfilerTraceClient traceClient;
-    explicit QmlProfilerTraceClientTest(QObject *parent = nullptr);
+    QmlProfilerTraceClientTest();
 
 private slots:
     void testMessageReceived();
 
 private:
     QmlProfilerModelManager modelManager;
+    QmlProfilerTraceClient traceClient;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

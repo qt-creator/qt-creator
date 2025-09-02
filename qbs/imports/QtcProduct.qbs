@@ -11,6 +11,7 @@ Product {
     property bool useNonGuiPchFile: false
     property bool useGuiPchFile: false
     property bool useQt: true
+    property bool hasCMakeProjectFile: true
     property string pathToSharedSources: FileInfo.joinPaths(path,
             FileInfo.relativePath(FileInfo.joinPaths('/', qtc.ide_qbs_imports_path),
                                   FileInfo.joinPaths('/', qtc.ide_shared_sources_path)))
@@ -25,6 +26,11 @@ Product {
     }
 
     Depends { name: "qtc" }
+
+    Properties {
+        condition: qbs.toolchain.includes("clang")
+        cpp.commonCompilerFlags: "-Wno-parentheses-equality"
+    }
 
     cpp.cxxFlags: {
         var flags = [];
@@ -86,5 +92,12 @@ Product {
         prefix: pathToSharedSources + '/'
         files: "qtcreator_gui_pch.h"
         fileTags: "cpp_pch_src"
+    }
+
+    Group {
+        name: "CMake project file"
+        condition: hasCMakeProjectFile
+        prefix: sourceDirectory + '/'
+        files: "CMakeLists.txt"
     }
 }

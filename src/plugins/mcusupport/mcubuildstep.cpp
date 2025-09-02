@@ -185,22 +185,22 @@ ProjectExplorer::Kit *MCUBuildStepFactory::findMostRecentQulKit()
     return mcuKit;
 }
 
-void MCUBuildStepFactory::updateDeployStep(ProjectExplorer::Target *target, bool enabled)
+void MCUBuildStepFactory::updateDeployStep(ProjectExplorer::BuildConfiguration *bc, bool enabled)
 {
-    if (!target)
+    if (!bc)
         return;
 
-    ProjectExplorer::DeployConfiguration *deployConfiguration = target->activeDeployConfiguration();
+    ProjectExplorer::DeployConfiguration *deployConfiguration = bc->activeDeployConfiguration();
 
     // Return if the kit is currupted or is an MCU kit (unsupported in Design Studio)
     if (!deployConfiguration
-        || (target->kit() && target->kit()->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY))) {
+        || (bc->kit() && bc->kit()->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY))) {
         // This branch is called multiple times when selecting the run configuration
         // Show the message only once when the kit changes (avoid repitition)
         static ProjectExplorer::Kit *previousSelectedKit = nullptr;
-        if (previousSelectedKit && previousSelectedKit == target->kit())
+        if (previousSelectedKit && previousSelectedKit == bc->kit())
             return;
-        previousSelectedKit = target->kit();
+        previousSelectedKit = bc->kit();
 
         //TODO use DeployMcuProcessStep::showError instead when the Issues panel
         // supports poping up on new entries

@@ -1,7 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "analyzer/analyzericons.h"
 #include "debuggeractions.h"
 #include "debuggerinternalconstants.h"
 #include "debuggercore.h"
@@ -93,6 +92,7 @@
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/statuslabel.h>
+#include <utils/stringutils.h>
 #include <utils/styledbar.h>
 #include <utils/temporarydirectory.h>
 #include <utils/utilsicons.h>
@@ -430,6 +430,27 @@ QAction *addCheckableAction(const QObject *parent, QMenu *menu, const QString &d
     act->setCheckable(true);
     act->setChecked(checked);
     return act;
+}
+
+void addStandardActions(QWidget *treeView, QMenu *menu)
+{
+    BaseTreeView *view = qobject_cast<BaseTreeView *>(treeView);
+    QTC_ASSERT(treeView, return);
+    QTC_ASSERT(menu, return);
+
+    menu->addSeparator();
+
+    addAction(view, menu, Tr::tr("Copy Selected Items to Clipboard"), true, [view] {
+        setClipboardAndSelection(view->selectionAsText());
+    });
+
+    addAction(view, menu, Tr::tr("Copy Selected Items to New Editor"), true, [view] {
+        openTextEditor("View", view->selectionAsText());
+    });
+
+    menu->addSeparator();
+
+    menu->addAction(settings().settingsDialog.action());
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1165,20 +1186,27 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 
     addCdbOptionPages(&m_optionPages);
 
-    connect(ModeManager::instance(), &ModeManager::currentModeAboutToChange, this, [] {
-        if (ModeManager::currentModeId() == MODE_DEBUG)
-            DebuggerMainWindow::leaveDebugMode();
-    });
+    connect(
+        ModeManager::instance(),
+        &ModeManager::currentModeAboutToChange,
+        DebuggerMainWindow::instance(),
+        [] {
+            if (ModeManager::currentModeId() == MODE_DEBUG)
+                DebuggerMainWindow::leaveDebugMode();
+        });
 
-    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
-            this, [](Id mode, Id oldMode) {
-        QTC_ASSERT(mode != oldMode, return);
-        if (mode == MODE_DEBUG) {
-            DebuggerMainWindow::enterDebugMode();
-            if (IEditor *editor = EditorManager::currentEditor())
-                editor->widget()->setFocus();
-        }
-    });
+    connect(
+        ModeManager::instance(),
+        &ModeManager::currentModeChanged,
+        DebuggerMainWindow::instance(),
+        [](Id mode, Id oldMode) {
+            QTC_ASSERT(mode != oldMode, return);
+            if (mode == MODE_DEBUG) {
+                DebuggerMainWindow::enterDebugMode();
+                if (IEditor *editor = EditorManager::currentEditor())
+                    editor->widget()->setFocus();
+            }
+        });
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
         this, &DebuggerPluginPrivate::updateDebugWithoutDeployMenu);
@@ -1392,15 +1420,14 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
 
         auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         runControl->setKit(kit);
-        auto debugger = new DebuggerRunTool(runControl);
-        DebuggerRunParameters &rp = debugger->runParameters();
+        DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
         rp.setInferiorExecutable(executable);
         if (!sysRoot.isEmpty())
             rp.setSysRoot(FilePath::fromUserInput(sysRoot));
         if (pid) {
             rp.setStartMode(AttachToLocalProcess);
             rp.setCloseMode(DetachAtClose);
-            rp.setAttachPid(pid);
+            runControl->setAttachPid(ProcessHandle(pid));
             rp.setDisplayName(Tr::tr("Process %1").arg(pid));
             rp.setStartMessage(Tr::tr("Attaching to local process %1.").arg(pid));
         } else if (startMode == AttachToRemoteServer) {
@@ -1421,6 +1448,9 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         }
         rp.setUseTerminal(useTerminal);
 
+        auto debugger = createDebuggerWorker(runControl, rp);
+        Q_UNUSED(debugger)
+
         m_scheduledStarts.append(runControl);
         return true;
     }
@@ -1438,11 +1468,10 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         qint64 pid = it->section(':', 1, 1).toLongLong();
         auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         runControl->setKit(findUniversalCdbKit());
-        auto debugger = new DebuggerRunTool(runControl);
-        DebuggerRunParameters &rp = debugger->runParameters();
+        runControl->setAttachPid(ProcessHandle(pid));
+        DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
         rp.setStartMode(AttachToCrashedProcess);
         rp.setCrashParameter(it->section(':', 0, 0));
-        rp.setAttachPid(pid);
         rp.setDisplayName(Tr::tr("Crashed process %1").arg(pid));
         rp.setStartMessage(Tr::tr("Attaching to crashed process %1").arg(pid));
         if (pid < 1) {
@@ -1450,6 +1479,10 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                 "does not match the pattern <handle>:<pid>.").arg(*it, option);
             return false;
         }
+
+        auto debugger = createDebuggerWorker(runControl, rp);
+        Q_UNUSED(debugger)
+
         m_scheduledStarts.append(runControl);
         return true;
     }
@@ -1509,11 +1542,11 @@ void DebuggerPluginPrivate::updatePresetState()
     if (!currentEngine) {
         // No engine running  -- or -- we have a running engine but it does not
         // correspond to the current start up project.
-        m_startAction.setEnabled(canRun);
+        m_startAction.setEnabled(canRun.has_value());
         m_startAction.setIcon(startIcon(true));
         m_startAction.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         m_startAction.setVisible(true);
-        m_debugWithoutDeployAction.setEnabled(canRun);
+        m_debugWithoutDeployAction.setEnabled(canRun.has_value());
         m_visibleStartAction.setAction(&m_startAction);
         m_hiddenStopAction.setAction(&m_undisturbableAction);
         return;
@@ -1527,7 +1560,7 @@ void DebuggerPluginPrivate::updatePresetState()
     m_startAction.setEnabled(false);
     m_startAction.setVisible(false);
 
-    m_debugWithoutDeployAction.setEnabled(canRun);
+    m_debugWithoutDeployAction.setEnabled(canRun.has_value());
 
     const DebuggerState state = currentEngine->state();
 
@@ -1545,8 +1578,8 @@ void DebuggerPluginPrivate::updatePresetState()
         m_hiddenStopAction.setAction(ActionManager::command(Constants::INTERRUPT)->action());
     } else if (state == DebuggerFinished) {
         // We don't want to do anything anymore.
-        m_startAction.setEnabled(canRun);
-        m_debugWithoutDeployAction.setEnabled(canRun);
+        m_startAction.setEnabled(canRun.has_value());
+        m_debugWithoutDeployAction.setEnabled(canRun.has_value());
         m_visibleStartAction.setAction(ActionManager::command(DEBUGGER_START)->action());
         m_hiddenStopAction.setAction(&m_undisturbableAction);
     } else if (state == InferiorUnrunnable) {
@@ -1616,12 +1649,14 @@ void DebuggerPluginPrivate::attachToLastCore()
     runControl->setKit(KitManager::defaultKit());
     runControl->setDisplayName(Tr::tr("Last Core file \"%1\"").arg(lastCore.coreFile.toUserOutput()));
 
-    auto debugger = new DebuggerRunTool(runControl);
-    DebuggerRunParameters &rp = debugger->runParameters();
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     rp.setInferiorExecutable(lastCore.binary);
     rp.setCoreFilePath(lastCore.coreFile);
     rp.setStartMode(AttachToCore);
     rp.setCloseMode(DetachAtClose);
+
+    auto debugger = createDebuggerWorker(runControl, rp);
+    Q_UNUSED(debugger)
 
     runControl->start();
 }
@@ -1665,9 +1700,7 @@ void DebuggerPluginPrivate::attachToRunningApplication()
         runControl->setDisplayName(Tr::tr("Process %1").arg(processInfo.processId));
         runControl->requestDebugChannel();
 
-        auto debugger = new DebuggerRunTool(runControl);
-        DebuggerRunParameters &rp = debugger->runParameters();
-        debugger->setId("AttachToRunningProcess");
+        DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
         rp.setServerAttachPid(ProcessHandle(processInfo.processId));
         rp.setServerUseMulti(false);
         rp.setServerEssential(false);
@@ -1675,6 +1708,9 @@ void DebuggerPluginPrivate::attachToRunningApplication()
         rp.setCloseMode(DetachAtClose);
         rp.setUseContinueInsteadOfRun(true);
         rp.setContinueAfterAttach(false);
+
+        auto debugger = createDebuggerWorker(runControl, rp);
+        Q_UNUSED(debugger)
 
         runControl->start();
     }
@@ -1736,17 +1772,18 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     runControl->setKit(kit);
     //: %1: PID
     runControl->setDisplayName(Tr::tr("Process %1").arg(processInfo.processId));
+    runControl->setAttachPid(ProcessHandle(processInfo.processId));
 
-    auto debugger = new DebuggerRunTool(runControl);
-    DebuggerRunParameters &rp = debugger->runParameters();
-    rp.setAttachPid(ProcessHandle(processInfo.processId));
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     rp.setInferiorExecutable(device->filePath(processInfo.executable));
     rp.setStartMode(AttachToLocalProcess);
     rp.setCloseMode(DetachAtClose);
     rp.setContinueAfterAttach(contAfterAttach);
 
-    runControl->start();
+    auto debugger = createDebuggerWorker(runControl, rp);
+    Q_UNUSED(debugger)
 
+    runControl->start();
     return runControl;
 }
 
@@ -1941,7 +1978,8 @@ void DebuggerPluginPrivate::dumpLog()
         ts << logWindow->combinedContents();
         saver.setResult(&ts);
     }
-    saver.finalize(ICore::dialogParent());
+    if (const Result<> res = saver.finalize(); !res)
+        FileUtils::showError(res.error());
 }
 
 void DebuggerPluginPrivate::remoteCommand(const QStringList &options)
@@ -2035,7 +2073,7 @@ public:
 
 private:
     // IPlugin implementation.
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    Utils::Result<> initialize(const QStringList &arguments) final;
     QObject *remoteCommand(const QStringList &options,
                            const QString &workingDirectory,
                            const QStringList &arguments) final;
@@ -2082,19 +2120,24 @@ IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
     dd->m_shutdownTimer.setInterval(0);
     dd->m_shutdownTimer.setSingleShot(true);
 
-    connect(&dd->m_shutdownTimer, &QTimer::timeout, this, [this] {
+    const auto doShutdown = [this] {
         DebuggerMainWindow::doShutdown();
 
         dd->m_shutdownTimer.stop();
+        disconnect(EngineManager::instance(), &EngineManager::shutDownCompleted, this, nullptr);
 
         delete dd->m_mode;
         dd->m_mode = nullptr;
         emit asynchronousShutdownFinished();
-    });
+    };
+
+    connect(&dd->m_shutdownTimer, &QTimer::timeout, this, doShutdown);
 
     if (EngineManager::shutDown()) {
         // If any engine is aborting we give them extra three seconds.
         dd->m_shutdownTimer.setInterval(3000);
+        connect(EngineManager::instance(), &EngineManager::shutDownCompleted, this, doShutdown,
+                Qt::QueuedConnection);
     }
     dd->m_shutdownTimer.start();
 
@@ -2135,7 +2178,7 @@ static BuildConfiguration::BuildType startupBuildType()
 {
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
     if (RunConfiguration *runConfig = activeRunConfigForActiveProject()) {
-        if (const BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
+        if (const BuildConfiguration *buildConfig = runConfig->buildConfiguration())
             buildType = buildConfig->buildType();
     }
     return buildType;
@@ -2246,16 +2289,17 @@ void showPermanentStatusMessage(const QString &message)
 
 namespace Internal {
 
-bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+Result<> DebuggerPlugin::initialize(const QStringList &arguments)
 {
-    Q_UNUSED(errorMessage)
-
     IOptionsPage::registerCategory(
         DEBUGGER_SETTINGS_CATEGORY,
         Tr::tr("Debugger"),
         ":/debugger/images/settingscategory_debugger.png");
+
     IOptionsPage::registerCategory(
-        "T.Analyzer", Tr::tr("Analyzer"), Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
+        "T.Analyzer",
+        Tr::tr("Analyzer"),
+        ":/debugger/images/settingscategory_analyzer.png");
 
     // Needed for call from AppOutputPane::attachToRunControl() and GammarayIntegration.
     ExtensionSystem::PluginManager::addObject(this);
@@ -2266,7 +2310,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     addTestCreator(createDebuggerTest);
 #endif
 
-    return true;
+    return ResultOk;
 }
 
 void DebuggerPlugin::attachToProcess(const qint64 processId, const Utils::FilePath &executable)
@@ -2285,18 +2329,20 @@ void DebuggerPlugin::attachToProcess(const qint64 processId, const Utils::FilePa
 
 void DebuggerPlugin::attachExternalApplication(RunControl *rc)
 {
-    ProcessHandle pid = rc->applicationProcessHandle();
+    const ProcessHandle pid = rc->applicationProcessHandle();
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    runControl->setTarget(rc->target());
+    runControl->setBuildConfiguration(rc->buildConfiguration());
     runControl->setDisplayName(Tr::tr("Process %1").arg(pid.pid()));
+    runControl->setAttachPid(pid);
 
-    auto debugger = new DebuggerRunTool(runControl);
-    DebuggerRunParameters &rp = debugger->runParameters();
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     rp.setInferiorExecutable(rc->targetFilePath());
-    rp.setAttachPid(pid);
     rp.setStartMode(AttachToLocalProcess);
     rp.setCloseMode(DetachAtClose);
+
+    auto debugger = createDebuggerWorker(runControl, rp);
+    Q_UNUSED(debugger)
 
     runControl->start();
 }

@@ -109,7 +109,7 @@ Token SimpleLexer::tokenAt(const QString &text,
 {
     SimpleLexer tokenize;
     tokenize.setLanguageFeatures(languageFeatures);
-    const QVector<Token> tokens = tokenize(text, state);
+    const QList<Token> tokens = tokenize(text, state);
     const int tokenIdx = tokenAt(tokens, utf16charsOffset);
     return (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 }

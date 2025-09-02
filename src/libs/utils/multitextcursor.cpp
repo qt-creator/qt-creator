@@ -164,7 +164,19 @@ QTextCursor MultiTextCursor::takeMainCursor()
     QTextCursor cursor = m_cursorList.back();
     auto it = m_cursorList.end();
     --it;
-    m_cursorMap.erase(it->selectionStart());
+
+    auto mapIt = m_cursorMap.find(it->selectionStart());
+    if (mapIt == m_cursorMap.end()) {
+        // If the QTextCursor has been moved, we cannot find it by selectionStart in the map.
+        // We need to find it by comparing the cursor pointers.
+        mapIt = std::find_if(m_cursorMap.begin(), m_cursorMap.end(), [&it](const auto &pair) {
+            return pair.second == it;
+        });
+    }
+
+    QTC_ASSERT(mapIt != m_cursorMap.end(), return QTextCursor());
+
+    m_cursorMap.erase(mapIt);
     m_cursorList.erase(it);
 
     return cursor;
@@ -285,7 +297,8 @@ void MultiTextCursor::insertText(const QString &text, bool selectNewText)
 
 bool equalCursors(const QTextCursor &lhs, const QTextCursor &rhs)
 {
-    return lhs == rhs && lhs.anchor() == rhs.anchor();
+    return lhs == rhs && lhs.anchor() == rhs.anchor()
+           && lhs.verticalMovementX() == rhs.verticalMovementX();
 }
 
 bool MultiTextCursor::operator==(const MultiTextCursor &other) const
@@ -346,9 +359,7 @@ bool MultiTextCursor::multiCursorEvent(
     return bindings.contains(QKeySequence(searchkey));
 }
 
-bool MultiTextCursor::handleMoveKeyEvent(QKeyEvent *e,
-                                         QPlainTextEdit *edit,
-                                         bool camelCaseNavigationEnabled)
+bool MultiTextCursor::handleMoveKeyEvent(QKeyEvent *e, bool camelCaseNavigationEnabled)
 {
     if (e->modifiers() & Qt::AltModifier && !Utils::HostOsInfo::isMacHost()) {
         QTextCursor::MoveOperation op = QTextCursor::NoMove;
@@ -378,9 +389,9 @@ bool MultiTextCursor::handleMoveKeyEvent(QKeyEvent *e,
             const std::list<QTextCursor> cursors = m_cursorList;
             for (QTextCursor cursor : cursors) {
                 if (camelCaseNavigationEnabled && op == QTextCursor::WordRight)
-                    CamelCaseCursor::right(&cursor, edit, QTextCursor::MoveAnchor);
+                    CamelCaseCursor::right(&cursor, QTextCursor::MoveAnchor);
                 else if (camelCaseNavigationEnabled && op == QTextCursor::WordLeft)
-                    CamelCaseCursor::left(&cursor, edit, QTextCursor::MoveAnchor);
+                    CamelCaseCursor::left(&cursor, QTextCursor::MoveAnchor);
                 else
                     cursor.movePosition(op, QTextCursor::MoveAnchor);
 
@@ -480,9 +491,9 @@ bool MultiTextCursor::handleMoveKeyEvent(QKeyEvent *e,
         cursor.setVisualNavigation(true);
 
         if (camelCaseNavigationEnabled && op == QTextCursor::WordRight)
-            CamelCaseCursor::right(&cursor, edit, mode);
+            CamelCaseCursor::right(&cursor, mode);
         else if (camelCaseNavigationEnabled && op == QTextCursor::WordLeft)
-            CamelCaseCursor::left(&cursor, edit, mode);
+            CamelCaseCursor::left(&cursor, mode);
         else if (!cursor.movePosition(op, mode) && mode == QTextCursor::MoveAnchor)
             cursor.clearSelection();
         cursor.setVisualNavigation(visualNavigation);

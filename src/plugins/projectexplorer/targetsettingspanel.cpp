@@ -652,8 +652,8 @@ public:
     {
         if (!m_panel) {
             m_panel = (m_subIndex == RunPage)
-                    ? new PanelsWidget(Tr::tr("Run Settings"), new RunSettingsWidget(target()))
-                    : new PanelsWidget(Tr::tr("Build Settings"), new BuildSettingsWidget(target()));
+                    ? new PanelsWidget(Tr::tr("Run Settings"), createRunSettingsWidget(target()))
+                    : new PanelsWidget(Tr::tr("Build Settings"), createBuildSettingsWidget(target()));
         }
         return m_panel;
     }
@@ -772,6 +772,7 @@ ITargetItem *TargetGroupItem::targetItem(Target *target) const
 void TargetGroupItemPrivate::handleAddedKit(Kit *kit)
 {
     q->appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
+    scheduleRebuildContents();
 }
 
 void TargetItem::updateSubItems()

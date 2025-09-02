@@ -68,7 +68,7 @@ std::unique_ptr<EmbeddedWidgetInterface> addEmbeddedWidget(
     int pos = cursorPosition.index() == 0
                   ? std::get<int>(cursorPosition)
                   : std::get<Position>(cursorPosition)
-                        .positionInDocument(editor->textDocument()->document());
+                        .toPositionInDocument(editor->textDocument()->document());
 
     std::unique_ptr<EmbeddedWidgetInterface> embed = editorWidget->insertWidget(widget, pos);
     return embed;
@@ -105,8 +105,8 @@ void setRefactorMarker(
     marker.cursor = cursor;
     marker.icon = icon.icon();
     marker.callback = [callback](TextEditorWidget *) {
-        expected_str<void> res = Lua::void_safe_call(callback);
-        QTC_CHECK_EXPECTED(res);
+        Result<> res = Lua::void_safe_call(callback);
+        QTC_CHECK_RESULT(res);
     };
     marker.type = id;
 
@@ -238,8 +238,19 @@ void setupTextEditorModule()
             sol::no_constructor,
             "mainCursor",
             &MultiTextCursor::mainCursor,
+            "setMainCursor",
+            [](MultiTextCursor *self, QTextCursor *cursor) { self->replaceMainCursor(*cursor); },
             "cursors",
             [](MultiTextCursor *self) { return sol::as_table(self->cursors()); },
+            "setCursors",
+            [](MultiTextCursor *self, const sol::table &cursors) {
+                QList<QTextCursor> textCursors;
+                for (const auto &[k, cursor] : cursors) {
+                    if (QTC_GUARD(cursor.is<QTextCursor>()))
+                        textCursors.append(cursor.as<QTextCursor>());
+                }
+                self->setCursors(textCursors);
+            },
             "insertText",
             [](MultiTextCursor *self, const QString &text) { self->insertText(text); });
 
@@ -253,7 +264,17 @@ void setupTextEditorModule()
             "column",
             sol::property(
                 [](const Position &pos) { return pos.column; },
-                [](Position &pos, int column) { pos.column = column; }));
+                [](Position &pos, int column) { pos.column = column; }),
+            "toPositionInDocument",
+            sol::overload(
+                &Position::toPositionInDocument,
+                [](const Position &pos, TextDocument *doc) {
+                    return pos.toPositionInDocument(doc->document());
+                }),
+            "toTextCursor",
+            sol::overload(&Position::toTextCursor, [](const Position &pos, TextDocument *doc) {
+                return pos.toTextCursor(doc->document());
+            }));
 
         // In range can't use begin/end as "end" is a reserved word for LUA scripts
         result.new_usertype<Range>(
@@ -266,23 +287,21 @@ void setupTextEditorModule()
             "to",
             sol::property(
                 [](const Range &range) { return range.end; },
-                [](Range &range, const Position &end) { range.end = end; }));
+                [](Range &range, const Position &end) { range.end = end; }),
+            "toTextCursor",
+            sol::overload(&Range::toTextCursor, [](const Range &range, TextDocument *doc) {
+                return range.toTextCursor(doc->document());
+            }));
 
         auto textCursorType = result.new_usertype<QTextCursor>(
             "TextCursor",
             sol::no_constructor,
             "create",
             sol::overload(
-                []() {
-                    return QTextCursor();
-                },
-                [](QTextDocument *doc) {
-                    return QTextCursor(doc);
-                },
-                [](const QTextCursor &other) {
-                    return QTextCursor(other);
-                }
-            ),
+                []() { return QTextCursor(); },
+                [](QTextDocument *doc) { return QTextCursor(doc); },
+                [](const QTextCursor &other) { return QTextCursor(other); },
+                [](TextDocument *doc) { return QTextCursor(doc->document()); }),
             "position",
             &QTextCursor::position,
             "blockNumber",
@@ -322,16 +341,18 @@ void setupTextEditorModule()
             [](QTextCursor *textCursor, const QString &text) { textCursor->insertText(text); },
             "movePosition",
             sol::overload(
-                [](QTextCursor *cursor, QTextCursor::MoveOperation op) {
-                    cursor->movePosition(op);
-                },
+                [](QTextCursor *cursor, QTextCursor::MoveOperation op) { cursor->movePosition(op); },
                 [](QTextCursor *cursor, QTextCursor::MoveOperation op, QTextCursor::MoveMode mode) {
                     cursor->movePosition(op, mode);
                 },
-                [](QTextCursor *cursor, QTextCursor::MoveOperation op, QTextCursor::MoveMode mode, int n) {
-                    cursor->movePosition(op, mode, n);
-                }
-            ));
+                [](QTextCursor *cursor,
+                   QTextCursor::MoveOperation op,
+                   QTextCursor::MoveMode mode,
+                   int n) { cursor->movePosition(op, mode, n); }),
+            "setPosition",
+            sol::overload(&QTextCursor::setPosition, [](QTextCursor *cursor, int pos) {
+                cursor->setPosition(pos);
+            }));
 
         textCursorType["MoveMode"] = lua.create_table_with(
             "MoveAnchor", QTextCursor::MoveAnchor,
@@ -397,8 +418,8 @@ void setupTextEditorModule()
             "onShouldClose",
             [guard](EmbeddedWidgetInterface *widget, sol::main_function func) {
                 QObject::connect(widget, &EmbeddedWidgetInterface::shouldClose, guard, [func]() {
-                    expected_str<void> res = void_safe_call(func);
-                    QTC_CHECK_EXPECTED(res);
+                    Result<> res = void_safe_call(func);
+                    QTC_CHECK_RESULT(res);
                 });
             });
 
@@ -408,7 +429,7 @@ void setupTextEditorModule()
         QObject::connect(guard, &QObject::destroyed, [activeMarkers] {
             for (const auto &[k, v] : activeMarkers->asKeyValueRange()) {
                 if (k) {
-                    for (const auto &id : v)
+                    for (const auto &id : std::as_const(v))
                         k->editorWidget()->clearRefactorMarkers(id);
                 }
             }
@@ -430,16 +451,12 @@ void setupTextEditorModule()
                 return addEmbeddedWidget(textEditor, toWidget(widget), position);
             },
             "insertExtraToolBarWidget",
-            [](const TextEditorPtr &textEditor,
-               TextEditorWidget::Side side,
-               LayoutOrWidget widget) {
+            [](const TextEditorPtr &textEditor, TextEditorWidget::Side side, LayoutOrWidget widget) {
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 textEditor->editorWidget()->insertExtraToolBarWidget(side, toWidget(widget));
             },
             "insertExtraToolBarAction",
-            [](const TextEditorPtr &textEditor,
-               TextEditorWidget::Side side,
-               QAction* action) {
+            [](const TextEditorPtr &textEditor, TextEditorWidget::Side side, QAction *action) {
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 textEditor->editorWidget()->insertExtraToolBarAction(side, action);
             },
@@ -475,6 +492,11 @@ void setupTextEditorModule()
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 return textEditor->editorWidget()->multiTextCursor();
             },
+            "setCursor",
+            [](const TextEditorPtr &textEditor, MultiTextCursor *cursor) {
+                QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
+                textEditor->editorWidget()->setMultiTextCursor(*cursor);
+            },
             "hasLockedSuggestion",
             [](const TextEditorPtr &textEditor) {
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
@@ -490,6 +512,13 @@ void setupTextEditorModule()
                     textEditor && textEditor->editorWidget(),
                     throw sol::error("TextEditor is not valid"));
                 return textEditor->editorWidget()->hasFocus();
+            },
+            "setFocus",
+            [](const TextEditorPtr &textEditor) {
+                QTC_ASSERT(
+                    textEditor && textEditor->editorWidget(),
+                    throw sol::error("TextEditor is not valid"));
+                textEditor->editorWidget()->setFocus();
             },
             "firstVisibleBlockNumber",
             [](const TextEditorPtr &textEditor) -> int {
@@ -592,8 +621,8 @@ void setupTextEditorModule()
             &TextEditorRegistry::currentEditorChanged,
             guard,
             [func](BaseTextEditor *editor) {
-                expected_str<void> res = void_safe_call(func, editor);
-                QTC_CHECK_EXPECTED(res);
+                Result<> res = void_safe_call(func, editor);
+                QTC_CHECK_RESULT(res);
             });
     });
 
@@ -603,8 +632,8 @@ void setupTextEditorModule()
             &TextEditorRegistry::editorCreated,
             guard,
             [func](TextEditorPtr editor) {
-                expected_str<void> res = void_safe_call(func, editor);
-                QTC_CHECK_EXPECTED(res);
+                Result<> res = void_safe_call(func, editor);
+                QTC_CHECK_RESULT(res);
             });
     });
 
@@ -614,9 +643,9 @@ void setupTextEditorModule()
             &TextEditorRegistry::documentContentsChanged,
             guard,
             [func](TextDocument *document, int position, int charsRemoved, int charsAdded) {
-                expected_str<void> res
+                Result<> res
                     = void_safe_call(func, document, position, charsRemoved, charsAdded);
-                QTC_CHECK_EXPECTED(res);
+                QTC_CHECK_RESULT(res);
             });
     });
 
@@ -626,8 +655,8 @@ void setupTextEditorModule()
             &TextEditorRegistry::currentCursorChanged,
             guard,
             [func](BaseTextEditor *editor, const MultiTextCursor &cursor) {
-                expected_str<void> res = void_safe_call(func, editor, cursor);
-                QTC_CHECK_EXPECTED(res);
+                Result<> res = void_safe_call(func, editor, cursor);
+                QTC_CHECK_RESULT(res);
             });
     });
 }

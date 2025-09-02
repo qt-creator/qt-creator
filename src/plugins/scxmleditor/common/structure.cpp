@@ -54,7 +54,7 @@ StructureSortFilterProxyModel::StructureSortFilterProxyModel(QObject *parent)
 {
 }
 
-void StructureSortFilterProxyModel::setVisibleTags(const QVector<TagType> &visibleTags)
+void StructureSortFilterProxyModel::setVisibleTags(const QList<TagType> &visibleTags)
 {
     m_visibleTags = visibleTags;
     if (!m_visibleTags.contains(Scxml))
@@ -102,7 +102,7 @@ Structure::Structure(QWidget *parent)
     m_proxyModel->setDynamicSortFilter(false);
 
     // Default set of the visible tags
-    QVector<TagType> visibleTags;
+    QList<TagType> visibleTags;
     for (int i = 0; i < Finalize; ++i)
         visibleTags << TagType(i);
     m_proxyModel->setVisibleTags(visibleTags);
@@ -132,7 +132,7 @@ void Structure::addCheckbox(const QString &name, TagType type)
 
 void Structure::updateCheckBoxes()
 {
-    QVector<TagType> visibleTags;
+    QList<TagType> visibleTags;
     for (QCheckBox *box : std::as_const(m_checkboxes)) {
         if (box->isChecked()) {
             switch (TagType(box->property(Constants::C_SCXMLTAG_TAGTYPE).toInt())) {

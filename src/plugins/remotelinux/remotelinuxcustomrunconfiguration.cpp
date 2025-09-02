@@ -20,7 +20,7 @@ namespace RemoteLinux::Internal {
 class RemoteLinuxCustomRunConfiguration : public RunConfiguration
 {
 public:
-    RemoteLinuxCustomRunConfiguration(Target *target, Id id);
+    RemoteLinuxCustomRunConfiguration(BuildConfiguration *bc, Id id);
 
     QString runConfigDefaultDisplayName();
 
@@ -36,12 +36,12 @@ private:
     X11ForwardingAspect x11Forwarding{this};
 };
 
-RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *target, Id id)
-    : RunConfiguration(target, id)
+RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(BuildConfiguration *bc, Id id)
+    : RunConfiguration(bc, id)
 {
-    environment.setDeviceSelector(target, EnvironmentAspect::RunDevice);
+    environment.setDeviceSelector(kit(), EnvironmentAspect::RunDevice);
 
-    executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+    executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
     executable.setSettingsKey("RemoteLinux.CustomRunConfig.RemoteExecutable");
     executable.setLabelText(Tr::tr("Remote executable:"));
     executable.setReadOnly(false);
@@ -65,7 +65,7 @@ QString RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName()
     QString display = remoteExecutable.isEmpty()
             ? Tr::tr("Custom Executable")
             : Tr::tr("Run \"%1\"").arg(remoteExecutable.toUserOutput());
-    return RunConfigurationFactory::decoratedTargetName(display, target());
+    return RunConfigurationFactory::decoratedTargetName(display, kit());
 }
 
 Tasks RemoteLinuxCustomRunConfiguration::checkForIssues() const

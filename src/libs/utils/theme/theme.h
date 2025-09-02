@@ -5,7 +5,7 @@
 
 #include "../utils_global.h"
 
-#include <utils/expected.h>
+#include <utils/result.h>
 
 #include <QBrush> // QGradientStops
 #include <QObject>
@@ -611,7 +611,7 @@ public:
 
     static void setHelpMenu(QMenu *menu);
 
-    static expected_str<Color> colorToken(const QString &token, TokenFlags flags = {});
+    static Result<Color> colorToken(const QString &token, TokenFlags flags = {});
     static Color highlightFor(Color role);
 
 protected:

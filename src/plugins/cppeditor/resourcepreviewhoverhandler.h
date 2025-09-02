@@ -5,10 +5,7 @@
 
 #include <texteditor/basehoverhandler.h>
 
-#include <QString>
-
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 class ResourcePreviewHoverHandler : public TextEditor::BaseHoverHandler
 {
@@ -24,5 +21,4 @@ private:
     QString m_resPath;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal

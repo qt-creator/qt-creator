@@ -53,13 +53,13 @@ private:
 void CocoCMakeSettings::connectToProject(CocoProjectWidget *parent) const
 {
     connect(
-        buildConfig()->target(),
-        &Target::buildSystemUpdated,
+        buildConfig()->buildSystem(),
+        &BuildSystem::updated,
         parent,
-        &CocoProjectWidget::buildSystemUpdated);
+        [parent, bs = buildConfig()->buildSystem()] { parent->buildSystemUpdated(bs); });
     connect(
         buildConfig()->buildSystem(),
-        &ProjectExplorer::BuildSystem::errorOccurred,
+        &BuildSystem::errorOccurred,
         parent,
         &CocoProjectWidget::configurationErrorOccurred);
 }
@@ -120,8 +120,8 @@ QString CocoCMakeSettings::saveButtonText() const
 QString CocoCMakeSettings::configChanges() const
 {
     return "<table><tbody>"
-           + tableRow(Tr::tr("Additional CMake options: "), maybeQuote(initialCacheOption()))
-           + tableRow(Tr::tr("Initial cache script: "), maybeQuote(featureFilePath()))
+           + tableRow(Tr::tr("Additional CMake options:"), maybeQuote(initialCacheOption()))
+           + tableRow(Tr::tr("Initial cache script:"), maybeQuote(featureFilePath()))
            + "</tbody></table>";
 }
 

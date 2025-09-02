@@ -445,8 +445,8 @@ QList<Declaration *> SymbolFinder::findMatchingDeclaration(const LookupContext &
 
     // For member functions not defined inline, add fuzzy matches as fallbacks. We cannot do
     // this for free functions, because there is no guarantee that there's a separate declaration.
-    QList<Declaration *> fuzzyMatches = argumentCountMatch + nameMatch;
     if (!functionType->enclosingScope() || !functionType->enclosingScope()->asClass()) {
+        const QList<Declaration *> fuzzyMatches = argumentCountMatch + nameMatch;
         for (Declaration * const d : fuzzyMatches) {
             if (d->enclosingScope() && d->enclosingScope()->asClass())
                 result.append(d);

@@ -7,7 +7,7 @@ instructions:
         instructions:
           - type: EnvironmentVariable
             variableName: QTC_QT_BASE_URL
-            variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/qt/6.8.3/release_content/"
+            variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/qt/6.9.1/release_content/"
           - type: EnvironmentVariable
             variableName: MACOSX_DEPLOYMENT_TARGET
             variableValue: 12.0
@@ -37,7 +37,7 @@ instructions:
         variableValue: "RelWithDebInfo"
       - type: EnvironmentVariable
         variableName: LLVM_BASE_URL
-        variableValue: https://ci-files02-hki.ci.qt.io/packages/jenkins/qtcreator_libclang/libclang-release_19.1.6-based
+        variableValue: https://ci-files02-hki.ci.qt.io/packages/jenkins/qtcreator_libclang/libclang-release_20.1.3-based
       - type: EnvironmentVariable
         variableName: QTC_QT_MODULES
         variableValue: "qt5compat qtbase qtdeclarative qtimageformats qtquick3d qtquicktimeline qtserialport qtshadertools qtsvg qttools qttranslations qtwebengine"
@@ -46,7 +46,7 @@ instructions:
         variableValue: 11.0
       - type: EnvironmentVariable
         variableName: QTC_SDKTOOL_QT_BASE_URL
-        variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/archive/qt/6.6/6.6.0-released/Qt/src/submodules/qtbase-everywhere-src-6.6.0"
+        variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/qt/6.7.2/release_content/src/submodules/qtbase-everywhere-src-6.7.2"
       - type: EnvironmentVariable
         variableName: GOFLAGS
         variableValue: "-buildvcs=false"
@@ -170,7 +170,7 @@ instructions:
         instructions:
           - type: EnvironmentVariable
             variableName: QTC_QT_POSTFIX
-            variableValue: "-MacOS-MacOS_14-Clang-MacOS-MacOS_14-X86_64-ARM64.7z"
+            variableValue: "-MacOS-MacOS_15-Clang-MacOS-MacOS_15-X86_64-ARM64.7z"
             enable_if:
               condition: property
               property: features

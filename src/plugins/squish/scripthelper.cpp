@@ -144,8 +144,8 @@ bool ScriptHelper::writeScriptFile(const Utils::FilePath &outScriptFile,
     for (const QByteArray &line : functionFooter(m_language))
         data.append(line).append('\n');
 
-    const Utils::expected_str<qint64> result = outScriptFile.writeFileContents(data);
-    QTC_ASSERT_EXPECTED(result, return false);
+    const Utils::Result<qint64> result = outScriptFile.writeFileContents(data);
+    QTC_ASSERT_RESULT(result, return false);
     return true;
 }
 

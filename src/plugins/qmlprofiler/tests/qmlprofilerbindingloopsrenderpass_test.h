@@ -5,19 +5,18 @@
 
 #include <QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerBindingLoopsRenderPassTest : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit QmlProfilerBindingLoopsRenderPassTest(QObject *parent = nullptr);
+    QmlProfilerBindingLoopsRenderPassTest();
 
 private slots:
     void testInstance();
     void testUpdate();
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

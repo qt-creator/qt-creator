@@ -7,6 +7,7 @@
 
 #include "deploymentdata.h"
 #include "kit.h"
+#include "task.h"
 
 #include <coreplugin/idocument.h>
 
@@ -20,6 +21,7 @@
 #include <memory>
 
 namespace Core { class Context; }
+namespace TextEditor { class ProjectWrapper; }
 namespace Utils {
 class Environment;
 class MacroExpander;
@@ -59,6 +61,7 @@ public:
     Project(const QString &mimeType, const Utils::FilePath &fileName);
     ~Project() override;
 
+    QString buildSystemName() const;
     QString displayName() const;
     Utils::Id id() const;
 
@@ -68,16 +71,16 @@ public:
     QString mimeType() const;
     bool canBuildProducts() const;
 
-    BuildSystem *createBuildSystem(Target *target) const;
+    BuildSystem *createBuildSystem(BuildConfiguration *bc) const;
 
-    virtual Utils::FilePath projectFilePath() const;
+    Utils::FilePath projectFilePath() const;
     virtual Utils::FilePath projectDirectory() const;
 
     // This does not affect nodes, only the root path.
     void changeRootProjectDirectory();
     Utils::FilePath rootProjectDirectory() const;
 
-    virtual ProjectNode *rootProjectNode() const;
+    ProjectNode *rootProjectNode() const;
     ContainerNode *containerNode() const;
 
     // EditorConfiguration:
@@ -94,6 +97,7 @@ public:
     Target *target(Utils::Id id) const;
     Target *target(Kit *k) const;
     void setActiveTarget(Target *target, SetActive cascade);
+    void setActiveBuildConfiguration(BuildConfiguration *bc, SetActive cascade);
 
     Kit *activeKit() const;
     RunConfiguration *activeRunConfiguration() const;
@@ -101,6 +105,7 @@ public:
     DeployConfiguration *activeDeployConfiguration() const;
     BuildSystem *activeBuildSystem() const;
 
+    void setIssuesGenerator(const std::function<Tasks(const Kit *)> &generator);
     virtual Tasks projectIssues(const Kit *k) const;
 
     static bool copySteps(Target *sourceTarget, Target *newTarget);
@@ -177,7 +182,7 @@ public:
     QList<Core::IDocument *> modifiedDocuments() const;
     bool isModified() const;
 
-    virtual bool isEditModePreferred() const;
+    bool isEditModePreferred() const;
 
     void registerGenerator(Utils::Id id, const QString &displayName,
                            const std::function<void()> &runner);
@@ -188,6 +193,7 @@ public:
                                             const QString &descriptor,
                                             Utils::MacroExpander *expander,
                                             const std::function<Project *()> &projectGetter);
+    static Task createTask(ProjectExplorer::Task::TaskType type, const QString &description);
 
     QList<Utils::Store> vanishedTargets() const;
     void removeVanishedTarget(int index);
@@ -208,6 +214,8 @@ signals:
     void removedTarget(ProjectExplorer::Target *target);
     void addedTarget(ProjectExplorer::Target *target);
 
+    void activeBuildConfigurationChanged(BuildConfiguration *bc);
+
     void vanishedTargetsChanged();
 
     void settingsLoaded();
@@ -215,8 +223,8 @@ signals:
 
     void projectLanguagesUpdated();
 
-    void anyParsingStarted(Target *target);
-    void anyParsingFinished(Target *target, bool success);
+    void anyParsingStarted();
+    void anyParsingFinished(bool success);
 
     void rootProjectDirectoryChanged();
 
@@ -227,9 +235,9 @@ signals:
 protected:
     virtual RestoreResult fromMap(const Utils::Store &map, QString *errorMessage);
     void createTargetFromMap(const Utils::Store &map, int index);
-    virtual bool setupTarget(Target *t);
 
     void setCanBuildProducts();
+    void setIsEditModePreferred(bool preferEditMode);
 
     void setId(Utils::Id id);
     void setProjectLanguages(Core::Context language);
@@ -237,15 +245,15 @@ protected:
 
     void setSupportsBuilding(bool value);
 
-    static ProjectExplorer::Task createProjectTask(ProjectExplorer::Task::TaskType type,
-                                                   const QString &description);
     template <typename BuildSystemImpl>
-    void setBuildSystemCreator() {
-        setBuildSystemCreator([](Target *t) { return new BuildSystemImpl(t); });
+    void setBuildSystemCreator(const QString &name) {
+        setBuildSystemName(name);
+        setBuildSystemCreator([](BuildConfiguration *bc) { return new BuildSystemImpl(bc); });
     }
 
 private:
-    void setBuildSystemCreator(const std::function<BuildSystem *(Target *)> &creator);
+    void setBuildSystemName(const QString &name);
+    void setBuildSystemCreator(const std::function<BuildSystem *(BuildConfiguration *)> &creator);
 
     void addTarget(std::unique_ptr<Target> &&target);
 
@@ -259,6 +267,7 @@ private:
     ProjectPrivate *d;
 };
 
-} // namespace ProjectExplorer
+PROJECTEXPLORER_EXPORT TextEditor::ProjectWrapper wrapProject(Project *p);
+PROJECTEXPLORER_EXPORT Project *unwrapProject(const TextEditor::ProjectWrapper &w);
 
-Q_DECLARE_METATYPE(ProjectExplorer::Project *)
+} // namespace ProjectExplorer

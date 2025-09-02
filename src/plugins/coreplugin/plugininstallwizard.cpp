@@ -113,50 +113,42 @@ public:
             }
             return true;
         }
-
-        const auto sourceAndCommand = Unarchiver::sourceAndCommand(path);
-        if (!sourceAndCommand)
-            m_info->setText(sourceAndCommand.error());
-
-        return bool(sourceAndCommand);
+        return true;
     }
 
     InfoLabel *m_info = nullptr;
     Data *m_data = nullptr;
 };
 
-using CheckResult = expected_str<PluginSpec *>;
+using CheckResult = Result<PluginSpec *>;
 
-static Result checkPlugin(PluginSpec *spec, bool update)
+static Result<> checkPlugin(PluginSpec *spec, bool update)
 {
-    const bool pluginAlreadyExists
-        = Utils::anyOf(PluginManager::plugins(), [spec](PluginSpec *other) {
-              return other->id() == spec->id();
-          });
+    const bool pluginAlreadyExists = PluginManager::specExists(spec->id());
 
     if (!update && pluginAlreadyExists) {
-        return Result::Error(
+        return ResultError(
             Tr::tr("A plugin with ID \"%1\" is already installed.").arg(spec->id()));
     } else if (update && !pluginAlreadyExists) {
-        return Result::Error(Tr::tr("No plugin with ID \"%1\" is installed.").arg(spec->id()));
+        return ResultError(Tr::tr("No plugin with ID \"%1\" is installed.").arg(spec->id()));
     }
 
     if (!spec->resolveDependencies(PluginManager::plugins())) {
-        return Result::Error(
+        return ResultError(
             Tr::tr("Plugin failed to resolve dependencies:") + " " + spec->errorString());
     }
-    return Result::Ok;
+    return ResultOk;
 }
 
-static expected_str<std::unique_ptr<PluginSpec>> checkPlugin(
-    expected_str<std::unique_ptr<PluginSpec>> spec, bool update)
+static Result<std::unique_ptr<PluginSpec>> checkPlugin(
+    Result<std::unique_ptr<PluginSpec>> spec, bool update)
 {
     if (!spec)
         return spec;
-    const Result ok = checkPlugin(spec->get(), update);
+    const Result<> ok = checkPlugin(spec->get(), update);
     if (ok)
         return spec;
-    return Utils::make_unexpected(ok.error());
+    return ResultError(ok.error());
 }
 
 // Async. Result is set if any issue was found.
@@ -164,19 +156,19 @@ void checkContents(QPromise<CheckResult> &promise, const FilePath &tempDir, bool
 {
     QList<PluginSpec *> plugins = pluginSpecsFromArchive(tempDir);
     if (plugins.isEmpty()) {
-        promise.addResult(Utils::make_unexpected(Tr::tr("No plugins found.")));
+        promise.addResult(ResultError(Tr::tr("No plugins found.")));
         return;
     }
     if (plugins.size() > 1) {
-        promise.addResult(Utils::make_unexpected(Tr::tr("More than one plugin found.")));
+        promise.addResult(ResultError(Tr::tr("More than one plugin found.")));
         qDeleteAll(plugins);
         return;
     }
 
     PluginSpec *plugin = plugins.front();
-    const Result ok = checkPlugin(plugin, update);
+    const Result<> ok = checkPlugin(plugin, update);
     if (!ok) {
-        promise.addResult(Utils::make_unexpected(ok.error()));
+        promise.addResult(ResultError(ok.error()));
         delete plugin;
         return;
     }
@@ -221,7 +213,7 @@ public:
         emit completeChanged();
         if (hasLibSuffix(m_data->sourcePath)) {
             m_cancelButton->setVisible(false);
-            expected_str<std::unique_ptr<PluginSpec>> spec
+            Result<std::unique_ptr<PluginSpec>> spec
                 = checkPlugin(readCppPluginSpec(m_data->sourcePath), m_data->prepareForUpdate);
             if (!spec) {
                 m_label->setType(InfoLabel::Error);
@@ -252,23 +244,26 @@ public:
 
         m_output->clear();
 
-        const auto sourceAndCommand = Unarchiver::sourceAndCommand(m_data->sourcePath);
-        if (!sourceAndCommand) {
-            m_label->setType(InfoLabel::Error);
-            m_label->setText(sourceAndCommand.error());
-            return;
-        }
-
-        const auto onUnarchiverSetup = [this, sourceAndCommand](Unarchiver &unarchiver) {
-            unarchiver.setSourceAndCommand(*sourceAndCommand);
-            unarchiver.setDestDir(m_data->extractedPath);
-            connect(&unarchiver, &Unarchiver::outputReceived, this, [this](const QString &output) {
-                m_output->append(output);
+        const auto onUnarchiverSetup = [this](Unarchiver &unarchiver) {
+            connect(&unarchiver, &Unarchiver::progress, this, [this](const FilePath &filePath) {
+                m_output->append(filePath.toUserOutput());
             });
+
+            unarchiver.setArchive(m_data->sourcePath);
+            unarchiver.setDestination(FilePath::fromString(m_tempDir->path()));
         };
-        const auto onUnarchiverError = [this] {
+
+        const auto onUnarchiverDone = [this](const Unarchiver &unarchiver) {
+            if (unarchiver.result()) {
+                m_label->setType(InfoLabel::Ok);
+                m_label->setText(Tr::tr("Archive extracted successfully."));
+                return DoneResult::Success;
+            }
+
             m_label->setType(InfoLabel::Error);
-            m_label->setText(Tr::tr("There was an error while unarchiving."));
+            m_label->setText(
+                Tr::tr("There was an error while unarchiving: %1").arg(unarchiver.result().error()));
+            return DoneResult::Error;
         };
 
         const auto onCheckerSetup = [this](Async<CheckResult> &async) {
@@ -280,7 +275,7 @@ public:
             return SetupResult::Continue;
         };
         const auto onCheckerDone = [this](const Async<CheckResult> &async) {
-            expected_str<PluginSpec *> result = async.result();
+            Result<PluginSpec *> result = async.result();
             if (!result) {
                 m_label->setType(InfoLabel::Error);
                 m_label->setText(result.error());
@@ -295,7 +290,7 @@ public:
 
         // clang-format off
         const Group root{
-            UnarchiverTask(onUnarchiverSetup, onUnarchiverError, CallDoneIf::Error),
+            UnarchiverTask(onUnarchiverSetup, onUnarchiverDone),
             AsyncTask<CheckResult>(onCheckerSetup, onCheckerDone, CallDoneIf::Success)
         };
         // clang-format on
@@ -517,7 +512,7 @@ InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareFo
                                          / extensionId(data.pluginSpec.get());
 
             if (prepareForUpdate) {
-                const Result result = ExtensionSystem::PluginManager::removePluginOnRestart(
+                const Result<> result = ExtensionSystem::PluginManager::removePluginOnRestart(
                     data.pluginSpec->id());
                 if (!result) {
                     qWarning() << "Failed to remove plugin" << data.pluginSpec->id() << ":"
@@ -540,14 +535,14 @@ InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareFo
                     return false;
 
                 auto specs = pluginSpecsFromArchive(installPath.resolvePath(
-                    data.pluginSpec->filePath().relativePathFrom(data.extractedPath)));
+                    data.pluginSpec->filePath().relativePathFromDir(data.extractedPath)));
 
                 QTC_ASSERT(specs.size() == 1, return false);
                 data.pluginSpec.reset(specs.front());
                 return true;
             } else {
                 QString error;
-                FileUtils::CopyAskingForOverwrite copy(&postCopyOperation);
+                FileUtils::CopyAskingForOverwrite copy;
                 if (!FileUtils::copyRecursively(data.extractedPath, installPath, &error, copy())) {
                     QMessageBox::warning(
                         ICore::dialogParent(), Tr::tr("Failed to Copy Plugin Files"), error);
@@ -555,7 +550,7 @@ InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareFo
                 }
 
                 auto specs = pluginSpecsFromArchive(installPath.resolvePath(
-                    data.pluginSpec->filePath().relativePathFrom(data.extractedPath)));
+                    data.pluginSpec->filePath().relativePathFromDir(data.extractedPath)));
 
                 QTC_ASSERT(specs.size() == 1, return false);
                 data.pluginSpec.reset(specs.front());
@@ -581,8 +576,10 @@ InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareFo
 
     if (spec->isEffectivelySoftloadable()) {
         spec->setEnabledBySettings(data.loadImmediately);
-        if (data.loadImmediately)
+        if (data.loadImmediately) {
             PluginManager::loadPluginsAtRuntime({spec});
+            ExtensionSystem::PluginManager::writeSettings();
+        }
         return InstallResult::Success;
     }
 

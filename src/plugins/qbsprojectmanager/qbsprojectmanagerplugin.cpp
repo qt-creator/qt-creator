@@ -88,7 +88,6 @@ private:
 
     void initialize() final;
 
-    void targetWasAdded(ProjectExplorer::Target *target);
     void projectChanged(QbsProject *project);
 
     void buildFileContextMenu();
@@ -289,9 +288,7 @@ void QbsProjectManagerPlugin::initialize()
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &QbsProjectManagerPlugin::updateBuildActions);
 
-    connect(ProjectManager::instance(), &ProjectManager::targetAdded,
-            this, &QbsProjectManagerPlugin::targetWasAdded);
-    connect(ProjectManager::instance(), &ProjectManager::targetRemoved,
+    connect(ProjectManager::instance(), &ProjectManager::buildConfigurationRemoved,
             this, &QbsProjectManagerPlugin::updateBuildActions);
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
             this, &QbsProjectManagerPlugin::updateReparseQbsAction);
@@ -308,17 +305,6 @@ void QbsProjectManagerPlugin::initialize()
     updateContextActions(ProjectTree::currentNode());
     updateReparseQbsAction();
     updateBuildActions();
-}
-
-void QbsProjectManagerPlugin::targetWasAdded(Target *target)
-{
-    if (!qobject_cast<QbsProject *>(target->project()))
-        return;
-
-    connect(target, &Target::parsingStarted,
-            this, std::bind(&QbsProjectManagerPlugin::projectChanged, this, nullptr));
-    connect(target, &Target::parsingFinished,
-            this, std::bind(&QbsProjectManagerPlugin::projectChanged, this, nullptr));
 }
 
 void QbsProjectManagerPlugin::updateContextActions(Node *node)

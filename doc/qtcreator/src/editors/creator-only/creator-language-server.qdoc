@@ -141,24 +141,24 @@
             to add a generic language server.
             \image {qtcreator-language-server-generic-stdio.png} {Generic StdIO Language Server in the General tab in Language Client preferences}
         \li In the \uicontrol Name field, enter a name for the language server.
-            Select the \inlineimage icons/replace.png
-            (\uicontrol {Variables}) button to use a variable for the server
+            Select \inlineimage {icons/replace.png} {Variables}
+            (\uicontrol {Variables}) to use a variable for the server
             name. For more information, see \l{Use Qt Creator variables}.
-        \li In the \uicontrol {Language} field, select
+        \li In \uicontrol {Language}, select
             \uicontrol {Set MIME Types} to select the MIME types of the files to
             send to the language server. In the field below, you can enter file
             patterns to extend the MIME types, separated by semicolons.
-        \li In the \uicontrol {Startup behavior} field, select whether the
+        \li In \uicontrol {Startup behavior}, select whether the
             language server is started when \QC starts or when a project or file
             with a matching MIME type is opened. \l{View output}
             {General Messages} displays information about the connection to the
             language server.
-        \li In the \uicontrol {Initialization options} field, you can add
+        \li In \uicontrol {Initialization options}, you can add
             language server specific JSON attributes to pass to an \c initialize
             request.
-        \li In the \uicontrol Executable field, enter the path to the language
+        \li In \uicontrol Executable, enter the path to the language
             server executable.
-        \li In the \uicontrol Arguments field, enter any required command-line
+        \li In \uicontrol Arguments, enter any required command-line
             arguments. Select \uicontrol Variables to use variables as
             arguments.
     \endlist
@@ -182,12 +182,12 @@
             \uicontrol Add > \uicontrol {Java Language Server} to add
             a Java language server.
             \image {qtcreator-language-client-options-java.png} {Java language server in the General tab in Language Client preferences}
-        \li In the \uicontrol Name field, enter a name for the language server.
-            Select the \inlineimage icons/replace.png
-            (\uicontrol {Variables}) button to use a variable for the server
+        \li In \uicontrol Name, enter a name for the language server.
+            Select \inlineimage {icons/replace.png} {Variables}
+            (\uicontrol {Variables}) to use a variable for the server
             name.
-        \li In the \uicontrol Java field, enter the path to the Java executable.
-        \li In the \uicontrol {Java Language Server} field, enter the path to
+        \li In \uicontrol Java, enter the path to the Java executable.
+        \li In \uicontrol {Java Language Server}, enter the path to
             the Java language server \c .jar file. You can download the Java
             language server from \l{https://download.eclipse.org/jdtls/milestones/}
             {Eclipse Downloads}.
@@ -301,8 +301,8 @@
     For a generic language server, the value of the \uicontrol {Startup behavior}
     field in the \l{Add generic language servers}{language server preferences}
     determines when the server is started. To restart language servers, select
-    \inlineimage icons/languageclient.png on the \l{Edit Mode}{editor toolbar},
-    and go to \uicontrol {Restart}.
+    \inlineimage {icons/languageclient.png} {Language Client menu} on the
+    \l{Edit Mode} {editor toolbar}, and then select \uicontrol {Restart}.
 
     \uicontrol Log displays additional information about the selected log entry.
     You can see the \uicontrol {Content length} and \uicontrol {MIME type} of

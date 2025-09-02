@@ -11,6 +11,8 @@
 
 #include <QRegularExpression>
 
+using namespace Utils;
+
 namespace Perforce::Internal {
 
 enum { FileSpecRole = Qt::UserRole + 1 };
@@ -38,12 +40,12 @@ QByteArray PerforceSubmitEditor::fileContents() const
     return text.toLocal8Bit();
 }
 
-bool PerforceSubmitEditor::setFileContents(const QByteArray &contents)
+Result<> PerforceSubmitEditor::setFileContents(const QByteArray &contents)
 {
     if (!parseText(QString::fromUtf8(contents)))
-        return false;
+        return ResultError(ResultAssert); // FIXME: parseText always returns true, why?
     updateFields();
-    return true;
+    return ResultOk;
 }
 
 bool PerforceSubmitEditor::parseText(QString text)

@@ -124,7 +124,7 @@ QStringList QmlProfilerStatisticsModel::details(int typeIndex) const
     return {displayName, data, QString::number(durationPercent(typeIndex), 'f', 2) + '%'};
 }
 
-QString QmlProfilerStatisticsModel::summary(const QVector<int> &typeIds) const
+QString QmlProfilerStatisticsModel::summary(const QList<int> &typeIds) const
 {
     const double cutoff = 0.1;
     const double round = 0.05;
@@ -370,12 +370,12 @@ QVariant QmlProfilerStatisticsModel::headerData(int section, Qt::Orientation ori
 void QmlProfilerStatisticsModel::typeDetailsChanged(int typeIndex)
 {
     const QModelIndex index = createIndex(typeIndex, MainDetails);
-    emit dataChanged(index, index, QVector<int>({SortRole, Qt::DisplayRole}));
+    emit dataChanged(index, index, QList<int>({SortRole, Qt::DisplayRole}));
 }
 
 void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
 {
-    static const QVector<int> noteRoles({Qt::ToolTipRole, Qt::ForegroundRole});
+    static const QList<int> noteRoles({Qt::ToolTipRole, Qt::ForegroundRole});
     const Timeline::TimelineNotesModel *notesModel = m_modelManager->notesModel();
     if (typeIndex == s_invalidTypeId) {
         m_notes.clear();
@@ -506,7 +506,7 @@ void QmlProfilerStatisticsRelativesModel::loadEvent(RangeType type, const QmlEve
         int selfTypeIndex = (m_relation == QmlProfilerStatisticsCallers) ? event.typeIndex() :
                                                                            callerTypeIndex;
 
-        QVector<QmlStatisticsRelativesData> &relatives = m_data[selfTypeIndex];
+        QList<QmlStatisticsRelativesData> &relatives = m_data[selfTypeIndex];
         auto it = std::lower_bound(relatives.begin(), relatives.end(), relativeTypeIndex);
         if (it != relatives.end() && it->typeIndex == relativeTypeIndex) {
             it->calls++;
@@ -573,7 +573,7 @@ QVariant QmlProfilerStatisticsRelativesModel::data(const QModelIndex &index, int
     auto main_it = m_data.find(m_relativeTypeIndex);
     QTC_ASSERT(main_it != m_data.end(), return QVariant());
 
-    const QVector<QmlStatisticsRelativesData> &data = main_it.value();
+    const QList<QmlStatisticsRelativesData> &data = main_it.value();
     QTC_ASSERT(row >= 0 && row < data.length(), return QVariant());
 
     const QmlStatisticsRelativesData &stats = data.at(row);
@@ -678,11 +678,11 @@ void QmlProfilerStatisticsRelativesModel::typeDetailsChanged(int typeId)
     if (main_it == m_data.constEnd())
         return;
 
-    const QVector<QmlStatisticsRelativesData> &rows = main_it.value();
+    const QList<QmlStatisticsRelativesData> &rows = main_it.value();
     for (int row = 0, end = rows.length(); row != end; ++row) {
         if (rows[row].typeIndex == typeId) {
             const QModelIndex index = createIndex(row, RelativeDetails);
-            emit dataChanged(index, index, QVector<int>({SortRole, Qt::DisplayRole}));
+            emit dataChanged(index, index, QList<int>({SortRole, Qt::DisplayRole}));
             return;
         }
     }

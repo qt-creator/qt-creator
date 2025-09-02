@@ -186,7 +186,7 @@ void GitEditorWidget::setPlainText(const QString &text)
     switch (contentType())
     {
     case LogOutput: {
-        AnsiEscapeCodeHandler::setTextInEditor(this, text);
+        AnsiEscapeCodeHandler::setTextInDocument(document(), text);
         return;
     }
     case AnnotateOutput:

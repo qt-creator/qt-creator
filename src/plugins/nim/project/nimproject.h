@@ -20,15 +20,8 @@ class NimBuildConfiguration : public ProjectExplorer::BuildConfiguration
     NimBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
 
 public:
-    ~NimBuildConfiguration();
-
     Utils::FilePath cacheDirectory() const;
     Utils::FilePath outFilePath() const;
-
-private:
-    ProjectExplorer::BuildSystem *buildSystem() const;
-
-    NimBuildSystem * const m_buildSystem;
 };
 
 Utils::FilePath nimPathFromKit(ProjectExplorer::Kit *kit);
@@ -54,8 +47,8 @@ public:
 signals:
     void finished();
     void requestReparse();
-    void directoryChanged(const QString &path);
-    void fileChanged(const QString &path);
+    void directoryChanged(const Utils::FilePath &path);
+    void fileChanged(const Utils::FilePath &path);
 
 private:
     void loadSettings();

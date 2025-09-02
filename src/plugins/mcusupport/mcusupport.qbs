@@ -65,6 +65,12 @@ QtcPlugin {
         "mcusupportimportprovider.cpp",
     ]
 
+    Group {
+        name: "wizards"
+        files: "wizards/**/*"
+        fileTags: []
+    }
+
     QtcTestFiles {
         condition: qtc.withPluginTests && (qtc_gtest_gmock.hasRepo || qtc_gtest_gmock.externalLibsPresent)
         prefix: "test/"

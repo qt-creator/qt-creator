@@ -8,15 +8,12 @@
 #include <tracing/timelinetracefile.h>
 
 #include <QObject>
-#include <QVector>
 #include <QString>
 
-QT_FORWARD_DECLARE_CLASS(QFile)
 QT_FORWARD_DECLARE_CLASS(QIODevice)
 QT_FORWARD_DECLARE_CLASS(QXmlStreamReader)
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerTraceFile : public Timeline::TimelineTraceFile
 {
@@ -51,5 +48,4 @@ private:
 };
 
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

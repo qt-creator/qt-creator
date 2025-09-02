@@ -5,120 +5,110 @@
 
 #include "cppcodestylesettings.h"
 #include "cppcodestylesettingspage.h"
+#include "cppcodestylesnippets.h"
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
 #include "cppqtstyleindenter.h"
 
+#include <projectexplorer/project.h>
+
+#include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/indenter.h>
+
 #include <QLayout>
+
+using namespace TextEditor;
 
 namespace CppEditor {
 
-static const char *defaultPreviewText =
-    "#include <math.h>\n"
-    "\n"
-    "class Complex\n"
-    "    {\n"
-    "public:\n"
-    "    Complex(double re, double im)\n"
-    "        : _re(re), _im(im)\n"
-    "        {}\n"
-    "    double modulus() const\n"
-    "        {\n"
-    "        return sqrt(_re * _re + _im * _im);\n"
-    "        }\n"
-    "private:\n"
-    "    double _re;\n"
-    "    double _im;\n"
-    "    };\n"
-    "\n"
-    "void bar(int i)\n"
-    "    {\n"
-    "    static int counter = 0;\n"
-    "    counter += i;\n"
-    "    }\n"
-    "\n"
-    "namespace Foo\n"
-    "    {\n"
-    "    namespace Bar\n"
-    "        {\n"
-    "        void foo(int a, int b)\n"
-    "            {\n"
-    "            for (int i = 0; i < a; i++)\n"
-    "                {\n"
-    "                if (i < b)\n"
-    "                    bar(i);\n"
-    "                else\n"
-    "                    {\n"
-    "                    bar(i);\n"
-    "                    bar(b);\n"
-    "                    }\n"
-    "                }\n"
-    "            }\n"
-    "        } // namespace Bar\n"
-    "    } // namespace Foo\n"
-    ;
-
-
-CppCodeStylePreferencesFactory::CppCodeStylePreferencesFactory() = default;
-
-Utils::Id CppCodeStylePreferencesFactory::languageId()
+class CppCodeStyleEditor final : public CodeStyleEditor
 {
-    return Constants::CPP_SETTINGS_ID;
-}
+public:
+    static CppCodeStyleEditor *create(
+        const ICodeStylePreferencesFactory *factory,
+        ProjectExplorer::Project *project,
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent)
+    {
+        auto editor = new CppCodeStyleEditor{parent};
+        editor->init(factory, wrapProject(project), codeStyle);
+        return editor;
+    }
 
-QString CppCodeStylePreferencesFactory::displayName()
+private:
+    CppCodeStyleEditor(QWidget *parent)
+        : CodeStyleEditor{parent}
+    {}
+
+    CodeStyleEditorWidget *createEditorWidget(
+        const void * /*project*/,
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent) const final
+    {
+        auto cppPreferences = dynamic_cast<CppCodeStylePreferences *>(codeStyle);
+        if (cppPreferences == nullptr)
+            return nullptr;
+
+        auto widget = new CppCodeStylePreferencesWidget(parent);
+
+        widget->layout()->setContentsMargins(0, 0, 0, 0);
+        widget->setCodeStyle(cppPreferences);
+
+        return widget;
+    }
+
+    QString previewText() const final
+    {
+        return QString::fromLatin1(Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]);
+    }
+
+    QString snippetProviderGroupId() const final
+    {
+        return CppEditor::Constants::CPP_SNIPPETS_GROUP_ID;
+    }
+};
+
+// CppCodeStylePreferencesFactory
+
+class CppCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
 {
-    return Tr::tr(Constants::CPP_SETTINGS_NAME);
-}
+public:
+    CppCodeStylePreferencesFactory() = default;
 
-TextEditor::ICodeStylePreferences *CppCodeStylePreferencesFactory::createCodeStyle() const
+private:
+    CodeStyleEditorWidget *createCodeStyleEditor(
+            const ProjectWrapper &project,
+            ICodeStylePreferences *codeStyle,
+            QWidget *parent) const final
+    {
+        return CppCodeStyleEditor::create(
+                    this, ProjectExplorer::unwrapProject(project), codeStyle, parent);
+    }
+
+    Utils::Id languageId() final
+    {
+        return Constants::CPP_SETTINGS_ID;
+    }
+
+    QString displayName() final
+    {
+        return Tr::tr(Constants::CPP_SETTINGS_NAME);
+    }
+
+    ICodeStylePreferences *createCodeStyle() const final
+    {
+        return new CppCodeStylePreferences;
+    }
+
+    Indenter *createIndenter(QTextDocument *doc) const final
+    {
+        return createCppQtStyleIndenter(doc);
+    }
+};
+
+ICodeStylePreferencesFactory *createCppCodeStylePreferencesFactory()
 {
-    return new CppCodeStylePreferences;
-}
-
-TextEditor::CodeStyleEditorWidget *CppCodeStylePreferencesFactory::createEditor(
-    TextEditor::ICodeStylePreferences *preferences,
-    ProjectExplorer::Project *project,
-    QWidget *parent) const
-{
-    auto cppPreferences = dynamic_cast<CppCodeStylePreferences *>(preferences);
-    if (!cppPreferences)
-        return nullptr;
-    auto widget = new Internal::CppCodeStylePreferencesWidget(parent);
-
-    widget->layout()->setContentsMargins(0, 0, 0, 0);
-    widget->setCodeStyle(cppPreferences);
-
-    const auto tab = additionalTab(preferences, project, parent);
-    widget->addTab(tab.first, tab.second);
-
-    return widget;
-}
-
-TextEditor::Indenter *CppCodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
-{
-    return createCppQtStyleIndenter(doc);
-}
-
-QString CppCodeStylePreferencesFactory::snippetProviderGroupId() const
-{
-    return QString(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
-}
-
-QString CppCodeStylePreferencesFactory::previewText() const
-{
-    return QLatin1String(defaultPreviewText);
-}
-
-std::pair<TextEditor::CodeStyleEditorWidget *, QString> CppCodeStylePreferencesFactory::additionalTab(
-    TextEditor::ICodeStylePreferences *codeStyle,
-    ProjectExplorer::Project *project,
-    QWidget *parent) const
-{
-    Q_UNUSED(codeStyle)
-    Q_UNUSED(parent)
-    Q_UNUSED(project)
-    return {nullptr, ""};
+    return new CppCodeStylePreferencesFactory;
 }
 
 } // namespace CppEditor

@@ -293,15 +293,12 @@ IEditor *IEditorFactory::createEditor() const
 /*!
     Opens the file at \a filePath in an external editor.
 
-    Returns \c true on success or \c false on failure with the error in
-    \a errorMessage.
-
-    \sa setEditorStarter()
+    Returns \c Utils::ResultOk on success or \c Utils::ResultError on failure.
 */
-bool IEditorFactory::startEditor(const FilePath &filePath, QString *errorMessage)
+Result<> IEditorFactory::startEditor(const FilePath &filePath)
 {
-    QTC_ASSERT(m_starter, return false);
-    return m_starter(filePath, errorMessage);
+    QTC_ASSERT(m_starter, return ResultError(ResultAssert));
+    return m_starter(filePath);
 }
 
 /*!
@@ -322,7 +319,7 @@ void IEditorFactory::setEditorCreator(const std::function<IEditor *()> &creator)
 }
 
 /*!
-    \fn void Core::IEditorFactory::setEditorStarter(const std::function<bool(const Utils::FilePath &, QString *)> &starter);
+    \fn void Core::IEditorFactory::setEditorStarter(const std::function<Utils::Result<>(const Utils::FilePath &)> &starter)
 
     Sets the function that is used to open a file for a given \c FilePath to
     \a starter.
@@ -332,7 +329,7 @@ void IEditorFactory::setEditorCreator(const std::function<IEditor *()> &creator)
 
     This is mutually exclusive with the use of setEditorCreator().
 */
-void IEditorFactory::setEditorStarter(const std::function<bool(const FilePath &, QString *)> &starter)
+void IEditorFactory::setEditorStarter(const std::function<Result<>(const FilePath &)> &starter)
 {
     QTC_CHECK(!m_starter);
     QTC_CHECK(!m_creator);

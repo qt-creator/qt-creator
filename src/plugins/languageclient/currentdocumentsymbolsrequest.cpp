@@ -71,14 +71,4 @@ void CurrentDocumentSymbolsRequest::clearConnections()
     m_connections.clear();
 }
 
-CurrentDocumentSymbolsRequestTaskAdapter::CurrentDocumentSymbolsRequestTaskAdapter()
-{
-    connect(task(), &CurrentDocumentSymbolsRequest::done, this, &TaskInterface::done);
-}
-
-void CurrentDocumentSymbolsRequestTaskAdapter::start()
-{
-    task()->start();
-}
-
 } // namespace LanguageClient

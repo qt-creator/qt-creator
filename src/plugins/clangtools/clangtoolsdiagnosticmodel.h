@@ -14,7 +14,6 @@
 
 #include <QPointer>
 #include <QSortFilterProxyModel>
-#include <QVector>
 
 #include <functional>
 #include <map>
@@ -116,13 +115,12 @@ signals:
 private:
     void connectFileWatcher();
     void updateItems(const DiagnosticItem *changedItem);
-    void onFileChanged(const QString &path);
+    void onFileChanged(const Utils::FilePath &path);
     void clearAndSetupCache();
 
-private:
     QHash<Utils::FilePath, FilePathItem *> m_filePathToItem;
     QSet<Diagnostic> m_diagnostics;
-    std::map<QVector<ExplainingStep>, QVector<DiagnosticItem *>> stepsToItemsCache;
+    std::map<QList<ExplainingStep>, QList<DiagnosticItem *>> stepsToItemsCache;
     std::unique_ptr<Utils::FileSystemWatcher> m_filesWatcher;
     const CppEditor::ClangToolType m_type;
 };

@@ -31,7 +31,7 @@
 
     \if defined(qtcreator)
         For more information about using \QDS to create projects, see
-        \l{Qt Design Studio documentation}.
+        \l{\QDS documentation}.
     \endif
 
     To use qmake as the build system, use a Qt Creator

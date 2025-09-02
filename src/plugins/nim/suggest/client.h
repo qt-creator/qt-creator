@@ -46,7 +46,6 @@ private:
                                                          const QString &dirtyFile);
 
     void clear();
-    void onDisconnectedFromServer();
     void onReadyRead();
     void parsePayload(const char *payload, std::size_t size);
 

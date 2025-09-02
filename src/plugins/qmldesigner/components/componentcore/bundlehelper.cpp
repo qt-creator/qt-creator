@@ -19,9 +19,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <solutions/zip/zipreader.h>
-#include <solutions/zip/zipwriter.h>
-
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 
@@ -33,6 +30,13 @@
 #include <QTemporaryDir>
 #include <QWidget>
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+#  include <QtCore/private/qzipreader_p.h>
+#  include <QtCore/private/qzipwriter_p.h>
+#else
+#  include <QtGui/private/qzipreader_p.h>
+#  include <QtGui/private/qzipwriter_p.h>
+#endif
 namespace QmlDesigner {
 
 Utils::FilePath AssetPath::absFilPath() const
@@ -132,7 +136,7 @@ void BundleHelper::importBundleToProject()
 
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
 
-    ZipReader zipReader(importPath);
+    QZipReader zipReader(importPath);
 
     QByteArray bundleJsonContent = zipReader.fileData(Constants::BUNDLE_JSON_FILENAME);
     QTC_ASSERT(!bundleJsonContent.isEmpty(), return);
@@ -145,9 +149,9 @@ void BundleHelper::importBundleToProject()
     bool bundleVersionOk = !bundleVersion.isEmpty() && bundleVersion == BUNDLE_VERSION;
     if (!bundleVersionOk) {
         QMessageBox::warning(m_widget,
-                             Tr::tr("Unsupported bundle file"),
+                             Tr::tr("Unsupported Bundle File"),
                              Tr::tr("The chosen bundle was created with an incompatible version"
-                                    " of Qt Design Studio"));
+                                    " of Qt Design Studio."));
         return;
     }
 
@@ -197,7 +201,7 @@ void BundleHelper::importBundleToProject()
         for (const QString &file : std::as_const(allFiles)) {
             Utils::FilePath filePath = bundlePath.pathAppended(file);
             filePath.parentDir().ensureWritableDir();
-            QTC_ASSERT_EXPECTED(filePath.writeFileContents(zipReader.fileData(file)),);
+            QTC_ASSERT_RESULT(filePath.writeFileContents(zipReader.fileData(file)),);
         }
 
         QString typePrefix = compUtils.userBundleType(bundleId);
@@ -220,7 +224,7 @@ void BundleHelper::exportBundle(const QList<ModelNode> &nodes, const QPixmap &ic
     if (exportPath.isEmpty())
         return;
 
-    m_zipWriter = std::make_unique<ZipWriter>(exportPath);
+    m_zipWriter = std::make_unique<QZipWriter>(exportPath);
 
     m_tempDir = std::make_unique<QTemporaryDir>();
     QTC_ASSERT(m_tempDir->isValid(), return);
@@ -325,7 +329,7 @@ QJsonObject BundleHelper::exportNode(const ModelNode &node, const QPixmap &iconP
 
     auto qmlFilePath = tempPath.pathAppended(qml);
     auto result = qmlFilePath.writeFileContents(qmlString.toUtf8());
-    QTC_ASSERT_EXPECTED(result, return {});
+    QTC_ASSERT_RESULT(result, return {});
     m_zipWriter->addFile(qmlFilePath.fileName(), qmlString.toUtf8());
 
     // add item's dependency assets to the bundle zip and target path (for icon generation)
@@ -615,7 +619,7 @@ QSet<AssetPath> BundleHelper::getBundleComponentDependencies(const ModelNode &no
 
     Utils::FilePath assetRefPath = compPath.pathAppended(Constants::COMPONENT_BUNDLES_ASSET_REF_FILE);
 
-    Utils::expected_str<QByteArray> assetRefContents = assetRefPath.fileContents();
+    Utils::Result<QByteArray> assetRefContents = assetRefPath.fileContents();
     if (!assetRefContents.has_value()) {
         qWarning() << __FUNCTION__ << assetRefContents.error();
         return {};
@@ -698,8 +702,8 @@ QString BundleHelper::getImportPath() const
     return QFileDialog::getOpenFileName(m_widget,
                                         Tr::tr("Import Component"),
                                         projectFP.toFSPathString(),
-                                        Tr::tr("Qt Design Studio Bundle Files (*.%1)")
-                                            .arg(Constants::BUNDLE_SUFFIX));
+                                        Tr::tr("Qt Design Studio Bundle Files")
+                                            + QString(" (*.%1)").arg(Constants::BUNDLE_SUFFIX));
 }
 
 QString BundleHelper::getExportPath(const ModelNode &node) const
@@ -798,18 +802,18 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
                                                        const Utils::FilePath &mainCompDir) const
 {
     QSet<AssetPath> depList;
-    AssetPath compAssetPath = {mainCompDir, filePath.relativePathFrom(mainCompDir).toFSPathString()};
+    AssetPath compAssetPath = {mainCompDir, filePath.relativePathFromDir(mainCompDir).toFSPathString()};
 
 #ifdef QDS_USE_PROJECTSTORAGE
     ModelPointer model = m_view->model()->createModel("Item");
 #else
     ModelPointer model = Model::create("Item");
 #endif
-    Utils::FileReader reader;
-    QTC_ASSERT(reader.fetch(filePath), return {});
+    const Utils::Result<QByteArray> res = filePath.fileContents();
+    QTC_ASSERT(res, return {});
 
     QPlainTextEdit textEdit;
-    textEdit.setPlainText(QString::fromUtf8(reader.data()));
+    textEdit.setPlainText(QString::fromUtf8(*res));
     NotIndentingTextEditModifier modifier(textEdit.document());
     modifier.setParent(model.get());
     RewriterView rewriterView(m_view->externalDependencies(),
@@ -883,7 +887,7 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
                             assetPathBase = pValuePath.parentDir();
                         } else {
                             Utils::FilePath assetPath = filePath.parentDir().resolvePath(pValueStr);
-                            assetPathRelative = assetPath.relativePathFrom(mainCompDir).toFSPathString();
+                            assetPathRelative = assetPath.relativePathFromDir(mainCompDir).toFSPathString();
                             assetPathBase = mainCompDir;
                         }
 
@@ -898,7 +902,7 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
 
                 if (match.hasMatch()) {
                     Utils::FilePath assetPath = filePath.parentDir().resolvePath(match.captured(1));
-                    QString assetPathRelative = assetPath.relativePathFrom(mainCompDir).toFSPathString();
+                    QString assetPathRelative = assetPath.relativePathFromDir(mainCompDir).toFSPathString();
 
                     QTC_ASSERT(assetPath.exists(), continue);
                     depList.insert({mainCompDir, assetPathRelative});

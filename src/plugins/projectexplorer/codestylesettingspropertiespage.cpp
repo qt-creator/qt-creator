@@ -43,8 +43,8 @@ public:
         for (ICodeStylePreferencesFactory *factory : TextEditorSettings::codeStyleFactories()) {
             Utils::Id languageId = factory->languageId();
             ICodeStylePreferences *codeStylePreferences = config->codeStyle(languageId);
-
-            auto preview = factory->createCodeStyleEditor(codeStylePreferences, project, stackedWidget);
+            CodeStyleEditorWidget *preview = factory->createCodeStyleEditor(
+                wrapProject(project), codeStylePreferences, stackedWidget);
             if (preview && preview->layout())
                 preview->layout()->setContentsMargins(QMargins());
             stackedWidget->addWidget(preview);

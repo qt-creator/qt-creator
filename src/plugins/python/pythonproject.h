@@ -36,8 +36,6 @@ class PythonProject : public ProjectExplorer::Project
     Q_OBJECT
 public:
     explicit PythonProject(const Utils::FilePath &filename);
-
-    ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const override;
 };
 
 } // Python::Internal

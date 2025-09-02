@@ -51,6 +51,6 @@ public:
     bool m_inherited = false;
 };
 
-typedef QVector<QtTestCodeLocationAndType> QtTestCodeLocationList;
+using QtTestCodeLocationList = QList<QtTestCodeLocationAndType>;
 
 } // namespace Autotest::Internal

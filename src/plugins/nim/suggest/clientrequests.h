@@ -90,11 +90,6 @@ public:
         return m_lines;
     }
 
-    const std::vector<Line> &lines() const
-    {
-        return m_lines;
-    }
-
 signals:
     void finished();
 

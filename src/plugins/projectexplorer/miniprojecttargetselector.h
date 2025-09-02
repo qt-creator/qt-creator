@@ -40,6 +40,7 @@ public:
     void nextOrShow();
 
 private:
+    friend class ProjectExplorer::BuildConfiguration;
     friend class ProjectExplorer::Target;
     void projectAdded(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
@@ -75,7 +76,7 @@ private:
     void mousePressEvent(QMouseEvent *) override;
 
     void doLayout();
-    QVector<int> listWidgetWidths(int minSize, int maxSize);
+    QList<int> listWidgetWidths(int minSize, int maxSize);
     QWidget *createTitleLabel(const QString &text);
 
     QAction *m_projectAction;
@@ -83,8 +84,8 @@ private:
     enum TYPES { PROJECT = 0, TARGET = 1, BUILD = 2, DEPLOY = 3, RUN = 4, LAST = 5 };
     ProjectListView *m_projectListWidget;
     KitAreaWidget *m_kitAreaWidget;
-    QVector<GenericListWidget *> m_listWidgets;
-    QVector<QWidget *> m_titleWidgets;
+    QList<GenericListWidget *> m_listWidgets;
+    QList<QWidget *> m_titleWidgets;
     QLabel *m_summaryLabel;
 
     Project *m_project = nullptr;

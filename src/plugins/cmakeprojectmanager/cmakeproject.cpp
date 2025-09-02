@@ -3,6 +3,7 @@
 
 #include "cmakeproject.h"
 
+#include "cmakebuildsystem.h"
 #include "cmakekitaspect.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectimporter.h"
@@ -52,8 +53,12 @@ CMakeProject::CMakeProject(const FilePath &fileName)
 {
     setId(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-    setDisplayName(projectDirectory().fileName());
+    setDisplayName(projectDisplayName(projectFilePath()));
     setCanBuildProducts();
+    setBuildSystemCreator<CMakeBuildSystem>("cmake");
+
+    // Allow presets to check if being run under Qt Creator
+    Environment::modifySystemEnvironment({{"QTC_RUN", "1"}});
 
     // This only influences whether 'Install into temporary host directory'
     // will show up by default enabled in some remote deploy configurations.
@@ -74,17 +79,9 @@ CMakeProject::~CMakeProject()
 Tasks CMakeProject::projectIssues(const Kit *k) const
 {
     Tasks result = Project::projectIssues(k);
-
-    if (!CMakeKitAspect::cmakeTool(k))
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No cmake tool set.")));
-    if (ToolchainKitAspect::toolChains(k).isEmpty())
-        result.append(createProjectTask(Task::TaskType::Warning, Tr::tr("No compilers set in kit.")));
-
     result.append(m_issues);
-
     return result;
 }
-
 
 ProjectImporter *CMakeProject::projectImporter() const
 {
@@ -95,7 +92,7 @@ ProjectImporter *CMakeProject::projectImporter() const
 
 void CMakeProject::addIssue(IssueType type, const QString &text)
 {
-    m_issues.append(createProjectTask(type, text));
+    m_issues.append(createTask(type, text));
 }
 
 void CMakeProject::clearIssues()
@@ -145,6 +142,8 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
     } else {
         result.vendor = cmakeUserPresetsData.vendor;
     }
+
+    result.hasValidPresets = cmakePresetsData.hasValidPresets && cmakeUserPresetsData.hasValidPresets;
 
     auto combinePresetsInternal = [](auto &presetsHash,
                                      auto &presets,
@@ -244,6 +243,7 @@ void CMakeProject::setupBuildPresets(Internal::PresetsData &presetsData)
                     Tr::tr("Build preset %1 is missing a corresponding configure preset.")
                         .arg(buildPreset.name)));
                 TaskHub::requestPopup();
+                presetsData.hasValidPresets = false;
             }
 
             const QString &configurePresetName = buildPreset.configurePreset.value_or(QString());
@@ -256,6 +256,44 @@ void CMakeProject::setupBuildPresets(Internal::PresetsData &presetsData)
                       .environment;
         }
     }
+}
+
+QString CMakeProject::projectDisplayName(const Utils::FilePath &projectFilePath)
+{
+    const QString fallbackDisplayName = projectFilePath.absolutePath().fileName();
+
+    Result<QByteArray> fileContent = projectFilePath.fileContents();
+    cmListFile cmakeListFile;
+    std::string errorString;
+    if (fileContent) {
+        fileContent = fileContent->replace("\r\n", "\n");
+        if (!cmakeListFile.ParseString(
+                fileContent->toStdString(), projectFilePath.fileName().toStdString(), errorString)) {
+            return fallbackDisplayName;
+        }
+    }
+
+    QHash<QString, QString> setVariables;
+    for (const auto &func : cmakeListFile.Functions) {
+        if (func.LowerCaseName() == "set" && func.Arguments().size() == 2)
+            setVariables.insert(
+                QString::fromUtf8(func.Arguments()[0].Value),
+                QString::fromUtf8(func.Arguments()[1].Value));
+
+        if (func.LowerCaseName() == "project" && func.Arguments().size() > 0) {
+            const QString projectName = QString::fromUtf8(func.Arguments()[0].Value);
+            if (projectName.startsWith("${") && projectName.endsWith("}")) {
+                const QString projectVar = projectName.mid(2, projectName.size() - 3);
+                if (setVariables.contains(projectVar))
+                    return setVariables.value(projectVar);
+                else
+                    return fallbackDisplayName;
+            }
+            return projectName;
+        }
+    }
+
+    return fallbackDisplayName;
 }
 
 Internal::CMakeSpecificSettings &CMakeProject::settings()
@@ -272,18 +310,13 @@ void CMakeProject::readPresets()
         QString errorMessage;
         int errorLine = -1;
 
-        if (presetFile.exists()) {
-            if (parser.parse(presetFile, errorMessage, errorLine)) {
-                data = parser.presetsData();
-            } else {
-                TaskHub::addTask(BuildSystemTask(Task::TaskType::Error,
-                                                 Tr::tr("Failed to load %1: %2")
-                                                     .arg(presetFile.fileName())
-                                                     .arg(errorMessage),
-                                                 presetFile,
-                                                 errorLine));
-                TaskHub::requestPopup();
-            }
+        if (parser.parse(presetFile, errorMessage, errorLine)) {
+            data = parser.presetsData();
+        } else {
+            TaskHub::addTask(
+                BuildSystemTask(Task::TaskType::Error, errorMessage, presetFile, errorLine));
+            TaskHub::requestPopup();
+            data.hasValidPresets = false;
         }
         return data;
     };
@@ -314,6 +347,7 @@ void CMakeProject::readPresets()
                     presetData.configurePresets = includeData.configurePresets
                                                   + presetData.configurePresets;
                     presetData.buildPresets = includeData.buildPresets + presetData.buildPresets;
+                    presetData.hasValidPresets = includeData.hasValidPresets && presetData.hasValidPresets;
 
                     includeStack << includePath;
                 }
@@ -323,8 +357,13 @@ void CMakeProject::readPresets()
     const Utils::FilePath cmakePresetsJson = projectDirectory().pathAppended("CMakePresets.json");
     const Utils::FilePath cmakeUserPresetsJson = projectDirectory().pathAppended("CMakeUserPresets.json");
 
+    if (!cmakePresetsJson.exists())
+        return;
+
     Internal::PresetsData cmakePresetsData = parsePreset(cmakePresetsJson);
-    Internal::PresetsData cmakeUserPresetsData = parsePreset(cmakeUserPresetsJson);
+    Internal::PresetsData cmakeUserPresetsData;
+    if (cmakeUserPresetsJson.exists())
+        cmakeUserPresetsData = parsePreset(cmakeUserPresetsJson);
 
     // resolve the include
     Utils::FilePaths includeStack = {cmakePresetsJson};
@@ -336,7 +375,12 @@ void CMakeProject::readPresets()
     m_presetsData = combinePresets(cmakePresetsData, cmakeUserPresetsData);
     setupBuildPresets(m_presetsData);
 
-    for (const auto &configPreset : m_presetsData.configurePresets) {
+    if (!m_presetsData.hasValidPresets) {
+        m_presetsData = {};
+        return;
+    }
+
+    for (const auto &configPreset : std::as_const(m_presetsData.configurePresets)) {
         if (configPreset.hidden)
             continue;
 
@@ -352,15 +396,6 @@ void CMakeProject::readPresets()
 FilePath CMakeProject::buildDirectoryToImport() const
 {
     return m_buildDirToImport;
-}
-
-bool CMakeProject::setupTarget(Target *t)
-{
-    t->updateDefaultBuildConfigurations();
-    if (t->buildConfigurations().isEmpty())
-        return false;
-    t->updateDefaultDeployConfigurations();
-    return true;
 }
 
 ProjectExplorer::DeploymentKnowledge CMakeProject::deploymentKnowledge() const

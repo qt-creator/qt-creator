@@ -41,3 +41,7 @@ qt-linux-with-llvm-vcpkg: Dockerfile-llvm-vcpkg ## Build Ubuntu 22.04, Qt 6, doc
 qt-linux-with-llvm-vcpkg-run: qt-linux-with-llvm-vcpkg ## Build & run the image, With Clang, Vcpkg
 	docker run -it --rm  $(default_run_args) qt-linux-llvm-vcpkg:6 /bin/bash
 
+qt-linux-with-gcc-10: Dockerfile-gcc-10 ## Build Ubuntu 22.04, Qt 6, docker-cli image, With GCC 10
+	docker build . -f Dockerfile-gcc-10 -t qt-linux-gcc-10 -t qt-linux-gcc-10:6
+qt-linux-with-gcc-10-run: qt-linux-with-gcc-10 ## Build & run the image, With GCC 10
+	docker run -it --rm  $(default_run_args) qt-linux-gcc-10:6 /bin/bash

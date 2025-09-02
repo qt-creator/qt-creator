@@ -86,8 +86,8 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
 {
     setAcceptDrops(true);
 
-    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
-    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
+    QString sheet = Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css");
+    setStyleSheet(Theme::replaceCssColors(sheet));
 
     Core::Context context(Constants::qml3DEditorContextId);
     m_context = new Core::IContext(this);

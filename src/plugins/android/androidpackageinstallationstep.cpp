@@ -92,7 +92,7 @@ bool AndroidPackageInstallationStep::init()
 
     processParameters()->setCommandLine(cmd);
     // This is useful when running an example target from a Qt module project.
-    processParameters()->setWorkingDirectory(Internal::buildDirectory(target()));
+    processParameters()->setWorkingDirectory(Internal::buildDirectory(buildConfiguration()));
 
     m_androidDirsToClean.clear();
     // don't remove gradle's cache, it takes ages to rebuild it.
@@ -104,7 +104,7 @@ bool AndroidPackageInstallationStep::init()
 
 QString AndroidPackageInstallationStep::nativeAndroidBuildPath() const
 {
-    QString buildPath = androidBuildDirectory(target()).toFSPathString();
+    QString buildPath = androidBuildDirectory(buildConfiguration()).toFSPathString();
     if (HostOsInfo::isWindowsHost())
         if (buildEnvironment().searchInPath("sh.exe").isEmpty())
             buildPath = QDir::toNativeSeparators(buildPath);
@@ -125,7 +125,7 @@ Tasking::GroupItem AndroidPackageInstallationStep::runRecipe()
     using namespace Tasking;
 
     const auto onSetup = [this] {
-        if (skipInstallationAndPackageSteps(target())) {
+        if (skipInstallationAndPackageSteps(buildConfiguration())) {
             reportWarningOrError(Tr::tr("Product type is not an application, not running the "
                                         "Make install step."), Task::Warning);
             return SetupResult::StopWithSuccess;
@@ -135,7 +135,7 @@ Tasking::GroupItem AndroidPackageInstallationStep::runRecipe()
             const FilePath androidDir = FilePath::fromString(dir);
             if (!dir.isEmpty() && androidDir.exists()) {
                 emit addOutput(Tr::tr("Removing directory %1").arg(dir), OutputFormat::NormalMessage);
-                const Result result = androidDir.removeRecursively();
+                const Result<> result = androidDir.removeRecursively();
                 if (!result) {
                     reportWarningOrError(
                         Tr::tr("Failed to clean \"%1\" from the previous build, "

@@ -14,10 +14,10 @@
 #include <remotelinux/abstractremotelinuxdeploystep.h>
 
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -55,8 +55,8 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
     setDisplayName(Tr::tr("Install Application Manager package"));
 
     controller.setDefaultPathValue(getToolFilePath(Constants::APPMAN_CONTROLLER,
-                                                   target()->kit(),
-                                                   RunDeviceKitAspect::device(target()->kit())));
+                                                   kit(),
+                                                   RunDeviceKitAspect::device(kit())));
 
     arguments.setSettingsKey(SETTINGSPREFIX "Arguments");
     arguments.setResetter([] { return QLatin1String(ArgumentsDefault); });
@@ -72,7 +72,7 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
         if (customizeStep.value())
             return;
 
-        const TargetInformation targetInformation(target());
+        const TargetInformation targetInformation(buildConfiguration());
 
         IDeviceConstPtr device = RunDeviceKitAspect::device(kit());
         if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
@@ -86,10 +86,13 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
         setStepEnabled(!targetInformation.isBuiltin);
     };
 
-    connect(target(), &Target::activeRunConfigurationChanged, this, updateAspects);
-    connect(target(), &Target::activeDeployConfigurationChanged, this, updateAspects);
-    connect(target(), &Target::parsingFinished, this, updateAspects);
-    connect(target(), &Target::runConfigurationsUpdated, this, updateAspects);
+    connect(buildConfiguration(), &BuildConfiguration::activeRunConfigurationChanged,
+            this, updateAspects);
+    connect(buildConfiguration(), &BuildConfiguration::activeDeployConfigurationChanged,
+            this, updateAspects);
+    connect(buildSystem(), &BuildSystem::parsingFinished, this, updateAspects);
+    connect(buildConfiguration(), &BuildConfiguration::runConfigurationsUpdated,
+            this, updateAspects);
     connect(project(), &Project::displayNameChanged, this, updateAspects);
     connect(&customizeStep, &BaseAspect::changed, this, updateAspects);
     updateAspects();
@@ -97,7 +100,7 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
 
 GroupItem AppManagerInstallPackageStep::deployRecipe()
 {
-    const TargetInformation targetInformation(target());
+    const TargetInformation targetInformation(buildConfiguration());
 
     const FilePath controllerPath = controller().isEmpty() ?
                                         FilePath::fromString(controller.defaultValue()) :

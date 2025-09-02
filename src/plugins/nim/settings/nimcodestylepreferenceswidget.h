@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/codestyleeditor.h>
 
 namespace TextEditor {
 class FontSettings;
@@ -17,8 +17,8 @@ class NimCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
     Q_OBJECT
 
 public:
-    NimCodeStylePreferencesWidget(TextEditor::ICodeStylePreferences *preferences, QWidget *parent = nullptr);
-    ~NimCodeStylePreferencesWidget();
+    NimCodeStylePreferencesWidget(
+        TextEditor::ICodeStylePreferences *preferences, QWidget *parent = nullptr);
 
 private:
     void decorateEditor(const TextEditor::FontSettings &fontSettings);

@@ -78,6 +78,7 @@ QString DoxygenGenerator::generate(QTextCursor cursor,
 
     Document::Ptr doc = snapshot.preprocessedDocument(declCandidate.toUtf8(),
                                                       documentFilePath,
+                                                      true,
                                                       cursor.blockNumber());
     doc->parse(Document::ParseDeclaration);
     doc->check(Document::FastCheck);

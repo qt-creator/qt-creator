@@ -17,8 +17,6 @@
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpprefactoringchanges.h>
 
-#include <debugger/analyzer/diagnosticlocation.h>
-
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -36,7 +34,7 @@
 #include <set>
 
 using namespace CppEditor;
-using namespace Debugger;
+using namespace Utils;
 
 namespace ClangTools {
 namespace Internal {
@@ -210,9 +208,8 @@ void DiagnosticView::suppressCurrentDiagnostic()
             diags << diag;
             continue;
         }
-        Utils::FilePath filePath = diag.location.filePath;
-        const Utils::FilePath relativeFilePath
-                = filePath.relativeChildPath(project->projectDirectory());
+        FilePath filePath = diag.location.targetFilePath;
+        const FilePath relativeFilePath = filePath.relativeChildPath(project->projectDirectory());
         if (!relativeFilePath.isEmpty())
             filePath = relativeFilePath;
         const SuppressedDiagnostic supDiag(filePath, diag.description,
@@ -242,7 +239,9 @@ void DiagnosticView::suppressCurrentDiagnosticInline()
         if (!isApplicable)
             continue;
 
-        diagnosticsPerFileAndLine[diag.location.filePath][diag.location.line] << diag.name;
+        diagnosticsPerFileAndLine[diag.location.targetFilePath][diag.location.targetLine]
+                << diag.name;
+
         diags << diag;
     }
 
@@ -485,9 +484,11 @@ void DiagnosticView::mouseDoubleClickEvent(QMouseEvent *event)
 void DiagnosticView::openEditorForCurrentIndex()
 {
     const QVariant v = model()->data(currentIndex(), Debugger::DetailedErrorView::LocationRole);
-    const auto loc = v.value<Debugger::DiagnosticLocation>();
-    if (loc.isValid())
-        Core::EditorManager::openEditorAt(Utils::Link(loc.filePath, loc.line, loc.column - 1));
+    Link loc = v.value<Link>();
+    if (loc.hasValidTarget()) {
+        --loc.targetColumn; // FIXME: Move this to the model side.
+        Core::EditorManager::openEditorAt(loc);
+    }
 }
 
 } // namespace Internal

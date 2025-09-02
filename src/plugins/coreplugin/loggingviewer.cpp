@@ -127,16 +127,16 @@ struct SavedEntry
     QtMsgType level{QtFatalMsg};
     std::optional<std::array<bool, 5>> levels;
 
-    static Utils::expected_str<SavedEntry> fromJson(const QJsonObject &obj)
+    static Result<SavedEntry> fromJson(const QJsonObject &obj)
     {
         if (!obj.contains("name"))
-            return Utils::make_unexpected(Tr::tr("Entry is missing a logging category name."));
+            return ResultError(Tr::tr("Entry is missing a logging category name."));
 
         SavedEntry result;
         result.name = obj.value("name").toString();
 
         if (!obj.contains("entry"))
-            return Utils::make_unexpected(Tr::tr("Entry is missing data."));
+            return ResultError(Tr::tr("Entry is missing data."));
 
         auto entry = obj.value("entry").toObject();
         if (entry.contains("color"))
@@ -145,7 +145,7 @@ struct SavedEntry
         if (entry.contains("level")) {
             int lvl = entry.value("level").toInt(0);
             if (lvl < QtDebugMsg || lvl > QtInfoMsg)
-                return Utils::make_unexpected(Tr::tr("Invalid level: %1").arg(lvl));
+                return ResultError(Tr::tr("Invalid level: %1").arg(lvl));
             result.level = static_cast<QtMsgType>(lvl);
         }
 
@@ -701,12 +701,12 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
     filterEdit->setText("^(?!qt\\.).+");
     filterEdit->setValidationFunction(
         [](const QString &input) {
-            return Utils::asyncRun([input]() -> Utils::expected_str<QString> {
+            return Utils::asyncRun([input]() -> Utils::Result<QString> {
                 QRegularExpression re(input);
                 if (re.isValid())
                     return input;
 
-                return Utils::make_unexpected(
+                return ResultError(
                     Tr::tr("Invalid regular expression: %1").arg(re.errorString()));
             });
         });
@@ -1024,7 +1024,7 @@ void LoggingCategoryModel::loadAndUpdateFromPreset()
     if (fp.isEmpty())
         return;
     // read file, update categories
-    const Utils::expected_str<QByteArray> contents = fp.fileContents();
+    const Utils::Result<QByteArray> contents = fp.fileContents();
     if (!contents) {
         QMessageBox::critical(ICore::dialogParent(),
                               Tr::tr("Error"),
@@ -1052,7 +1052,7 @@ void LoggingCategoryModel::loadAndUpdateFromPreset()
                 break;
             }
             const QJsonObject itemObj = value.toObject();
-            Utils::expected_str<SavedEntry> item = SavedEntry::fromJson(itemObj);
+            Utils::Result<SavedEntry> item = SavedEntry::fromJson(itemObj);
             if (!item) {
                 formatError = true;
                 break;

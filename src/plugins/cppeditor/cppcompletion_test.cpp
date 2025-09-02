@@ -2225,7 +2225,7 @@ void CompletionTest::testCompletion_data()
 
     QTest::newRow("no_binding_block_as_instantiationOrigin_QTCREATORBUG-11424") << _(
             "template <typename T>\n"
-            "class QVector\n"
+            "class QList\n"
             "{\n"
             "public:\n"
             "   inline const_iterator constBegin() const;\n"
@@ -2233,8 +2233,8 @@ void CompletionTest::testCompletion_data()
             "\n"
             "typedef struct { double value; } V;\n"
             "\n"
-            "double getValue(const QVector<V>& d) const {\n"
-            "   typedef QVector<V>::ConstIterator Iter;\n"
+            "double getValue(const QList<V>& d) const {\n"
+            "   typedef QList<V>::ConstIterator Iter;\n"
             "   @\n"
             "}\n"
         ) << _("double val = d.constBegin()->") << QStringList();

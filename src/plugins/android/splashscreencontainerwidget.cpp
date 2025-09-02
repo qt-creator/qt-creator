@@ -84,7 +84,7 @@ class SplashScreenWidget : public QWidget
     private:
         void paintEvent(QPaintEvent *event) override
         {
-            Q_UNUSED(event);
+            Q_UNUSED(event)
             QPainter painter(this);
             painter.setPen(QPen(Qt::gray, 1));
             painter.setBrush(QBrush(m_parentWidget->m_backgroundColor));
@@ -527,9 +527,12 @@ SplashScreenContainerWidget::SplashScreenContainerWidget(
 
     auto warningLabel = new QLabel(this);
     warningLabel->setAlignment(Qt::AlignHCenter);
-    warningLabel->setText(Tr::tr("An image is used for the splashscreen. Qt Creator manages\n"
-                                 "splashscreen by using a different method which requires changing\n"
-                                 "the manifest file by overriding your settings. Allow override?"));
+    warningLabel->setText(
+        Tr::tr(
+            "An image is used for the splashscreen. Qt Creator manages "
+            "splashscreen by using a different method which requires changing "
+            "the manifest file by overriding your settings. Allow override?"));
+    warningLabel->setWordWrap(true);
     m_convertSplashscreen = new QToolButton(this);
     m_convertSplashscreen->setText(Tr::tr("Convert"));
     noSplashscreenLayout->addStretch();

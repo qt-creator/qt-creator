@@ -208,7 +208,7 @@ protected:
 private:
     void addCurrentFile();
     void revertCurrentFile();
-    void diffProject();
+    void diffProjectDirectory();
     void diffCurrentFile();
     void revertAll();
     void startCommitAll();
@@ -216,13 +216,13 @@ private:
     void startCommitCurrentFile();
     void filelogCurrentFile();
     void annotateCurrentFile();
-    void projectStatus();
+    void projectDirectoryStatus();
     void updateDirectory();
-    void updateProject();
+    void updateProjectDirectory();
     void diffCommitFiles(const QStringList &);
-    void logProject();
+    void logProjectDirectory();
     void logRepository();
-    void commitProject();
+    void commitProjectDirectory();
     void diffRepository();
     void statusRepository();
     void updateRepository();
@@ -271,18 +271,18 @@ private:
     Utils::Action *m_editCurrentAction = nullptr;
     Utils::Action *m_uneditCurrentAction = nullptr;
     QAction *m_uneditRepositoryAction = nullptr;
-    Utils::Action *m_diffProjectAction = nullptr;
+    Utils::Action *m_diffProjectDirectoryAction = nullptr;
     Utils::Action *m_diffCurrentAction = nullptr;
-    Utils::Action *m_logProjectAction = nullptr;
+    Utils::Action *m_logProjectDirectoryAction = nullptr;
     QAction *m_logRepositoryAction = nullptr;
     QAction *m_commitAllAction = nullptr;
     QAction *m_revertRepositoryAction = nullptr;
     Utils::Action *m_commitCurrentAction = nullptr;
     Utils::Action *m_filelogCurrentAction = nullptr;
     Utils::Action *m_annotateCurrentAction = nullptr;
-    Utils::Action *m_statusProjectAction = nullptr;
-    Utils::Action *m_updateProjectAction = nullptr;
-    Utils::Action *m_commitProjectAction = nullptr;
+    Utils::Action *m_statusProjectDirectoryAction = nullptr;
+    Utils::Action *m_updateProjectDirectoryAction = nullptr;
+    Utils::Action *m_commitProjectDirectoryAction = nullptr;
     Utils::Action *m_updateDirectoryAction = nullptr;
     Utils::Action *m_commitDirectoryAction = nullptr;
     QAction *m_diffRepositoryAction = nullptr;
@@ -559,40 +559,53 @@ CvsPluginPrivate::CvsPluginPrivate()
 
     cvsMenu->addSeparator(context);
 
-    m_diffProjectAction = new Action(Tr::tr("Diff Project"), Tr::tr("Diff Project \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT,
-        context);
+    m_diffProjectDirectoryAction = new Action(Tr::tr("Diff Project Directory"),
+                                              Tr::tr("Diff Directory of Project \"%1\""),
+                                              Action::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_diffProjectDirectoryAction, CMD_ID_DIFF_PROJECT, context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_diffProjectAction, &QAction::triggered, this, &CvsPluginPrivate::diffProject);
+    connect(m_diffProjectDirectoryAction, &QAction::triggered,
+            this, &CvsPluginPrivate::diffProjectDirectory);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_statusProjectAction = new Action(Tr::tr("Project Status"), Tr::tr("Status of Project \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_statusProjectAction, CMD_ID_STATUS,
-        context);
+    m_statusProjectDirectoryAction = new Action(Tr::tr("Project Directory Status"),
+                                                Tr::tr("Status of Directory of Project \"%1\""),
+                                                Action::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_statusProjectDirectoryAction, CMD_ID_STATUS, context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_statusProjectAction, &QAction::triggered, this, &CvsPluginPrivate::projectStatus);
+    connect(m_statusProjectDirectoryAction, &QAction::triggered,
+            this, &CvsPluginPrivate::projectDirectoryStatus);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_logProjectAction = new Action(Tr::tr("Log Project"), Tr::tr("Log Project \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, context);
+    m_logProjectDirectoryAction = new Action(Tr::tr("Log Project Directory"),
+                                             Tr::tr("Log Directory of Project \"%1\""),
+                                             Action::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_logProjectDirectoryAction, CMD_ID_PROJECTLOG, context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_logProjectAction, &QAction::triggered, this, &CvsPluginPrivate::logProject);
+    connect(m_logProjectDirectoryAction, &QAction::triggered,
+            this, &CvsPluginPrivate::logProjectDirectory);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_updateProjectAction = new Action(Tr::tr("Update Project"), Tr::tr("Update Project \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_updateProjectAction, CMD_ID_UPDATE, context);
+    m_updateProjectDirectoryAction = new Action(Tr::tr("Update Project Directory"),
+                                                Tr::tr("Update Directory of Project \"%1\""),
+                                                Action::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_updateProjectDirectoryAction, CMD_ID_UPDATE, context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_updateProjectAction, &QAction::triggered, this, &CvsPluginPrivate::updateProject);
+    connect(m_updateProjectDirectoryAction, &QAction::triggered,
+            this, &CvsPluginPrivate::updateProjectDirectory);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_commitProjectAction = new Action(Tr::tr("Commit Project"), Tr::tr("Commit Project \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_commitProjectAction, CMD_ID_PROJECTCOMMIT, context);
+    m_commitProjectDirectoryAction = new Action(Tr::tr("Commit Project Directory"),
+                                                Tr::tr("Commit Directory of Project \"%1\""),
+                                                Action::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_commitProjectDirectoryAction, CMD_ID_PROJECTCOMMIT, context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_commitProjectAction, &QAction::triggered, this, &CvsPluginPrivate::commitProject);
+    connect(m_commitProjectDirectoryAction, &QAction::triggered,
+            this, &CvsPluginPrivate::commitProjectDirectory);
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -737,11 +750,11 @@ void CvsPluginPrivate::updateActions(VersionControlBase::ActionState as)
     m_uneditCurrentAction->setParameter(currentFileName);
 
     const QString currentProjectName = currentState().currentProjectName();
-    m_diffProjectAction->setParameter(currentProjectName);
-    m_statusProjectAction->setParameter(currentProjectName);
-    m_updateProjectAction->setParameter(currentProjectName);
-    m_logProjectAction->setParameter(currentProjectName);
-    m_commitProjectAction->setParameter(currentProjectName);
+    m_diffProjectDirectoryAction->setParameter(currentProjectName);
+    m_statusProjectDirectoryAction->setParameter(currentProjectName);
+    m_updateProjectDirectoryAction->setParameter(currentProjectName);
+    m_logProjectDirectoryAction->setParameter(currentProjectName);
+    m_commitProjectDirectoryAction->setParameter(currentProjectName);
 
     // TODO: Find a more elegant way to shorten the path
     QString currentDirectoryName = currentState().currentFileDirectory().toUserOutput();
@@ -811,7 +824,7 @@ void CvsPluginPrivate::revertCurrentFile()
         emit filesChanged(QStringList(state.currentFile().toUrlishString()));
 }
 
-void CvsPluginPrivate::diffProject()
+void CvsPluginPrivate::diffProjectDirectory()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
@@ -894,8 +907,8 @@ void CvsPluginPrivate::startCommit(const FilePath &workingDir, const QString &fi
     const QString submitTemplate;
     // Create a submit
     saver.write(submitTemplate.toUtf8());
-    if (!saver.finalize()) {
-        VcsOutputWindow::appendError(saver.errorString());
+    if (const Result<> res = saver.finalize(); !res) {
+        VcsOutputWindow::appendError(res.error());
         return;
     }
     m_commitMessageFileName = saver.filePath().toUrlishString();
@@ -922,7 +935,7 @@ void CvsPluginPrivate::filelogCurrentFile()
     filelog(state.currentFileTopLevel(), state.relativeCurrentFile(), true);
 }
 
-void CvsPluginPrivate::logProject()
+void CvsPluginPrivate::logProjectDirectory()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
@@ -974,7 +987,7 @@ void CvsPluginPrivate::updateDirectory()
     update(state.currentFileDirectory(), {});
 }
 
-void CvsPluginPrivate::updateProject()
+void CvsPluginPrivate::updateProjectDirectory()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
@@ -1120,14 +1133,14 @@ bool CvsPluginPrivate::status(const FilePath &topLevel, const QString &file, con
     return ok;
 }
 
-void CvsPluginPrivate::projectStatus()
+void CvsPluginPrivate::projectDirectoryStatus()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
     status(state.currentProjectTopLevel(), state.relativeCurrentProject(), Tr::tr("Project status"));
 }
 
-void CvsPluginPrivate::commitProject()
+void CvsPluginPrivate::commitProjectDirectory()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);

@@ -8,7 +8,6 @@
 #include "cppsemanticinfo.h"
 
 #include <QTextCursor>
-#include <QVector>
 
 namespace CppEditor {
 
@@ -35,7 +34,7 @@ public:
         int column = 0; // 1-based
         int length = 0;
     };
-    using Ranges = QVector<Range>;
+    using Ranges = QList<Range>;
 
     Ranges useRanges;
     bool areUseRangesForLocalVariable = false;

@@ -234,7 +234,7 @@
     to specify Android-specific settings, such as the application icon.
     However, you need the manifest file to publish the package in the Play Store.
     For more information about manifest files, see
-    \l {Qt Android Manifest File Configuration}.
+    \l {Qt for Android Manifest File Configuration}.
 
     If you use CMake as the build system, you must specify the Android package
     source directory, \c QT_ANDROID_PACKAGE_SOURCE_DIR, in the CMakeList.txt

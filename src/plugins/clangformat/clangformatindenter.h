@@ -43,7 +43,7 @@ public:
     Utils::EditOperations format(const TextEditor::RangesInLines &rangesInLines,
                                  FormattingMode mode) override;
     bool formatOnSave() const override;
-    TextEditor::IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
+    TextEditor::IndentationForBlock indentationForBlocks(const QList<QTextBlock> &blocks,
                                                          const TextEditor::TabSettings &tabSettings,
                                                          int cursorPositionInEditor = -1) override;
     std::optional<TextEditor::TabSettings> tabSettings() const override;

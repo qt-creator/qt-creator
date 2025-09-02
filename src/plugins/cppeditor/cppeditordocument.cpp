@@ -340,28 +340,28 @@ void CppEditorDocument::applyIfdefedOutBlocks()
             const BlockRange &range = m_ifdefedOutBlocks.at(rangeNumber);
             if (block.position() >= range.first()
                 && ((block.position() + block.length() - 1) <= range.last() || !range.last())) {
-                TextDocumentLayout::setIfdefedOut(block);
+                TextBlockUserData::setIfdefedOut(block);
                 resetToPrevious = true;
             } else {
-                TextDocumentLayout::clearIfdefedOut(block);
-                previousBraceDepth = TextDocumentLayout::braceDepth(block);
+                TextBlockUserData::clearIfdefedOut(block);
+                previousBraceDepth = TextBlockUserData::braceDepth(block);
                 resetToPrevious = false;
             }
             if (block.contains(range.last()))
                 ++rangeNumber;
         } else {
-            TextDocumentLayout::clearIfdefedOut(block);
+            TextBlockUserData::clearIfdefedOut(block);
             resetToPrevious = false;
         }
 
         // Do not change brace depth and folding indent in ifdefed-out code.
         if (resetToPrevious) {
-            const int currentBraceDepth = TextDocumentLayout::braceDepth(block);
-            const int currentFoldingIndent = TextDocumentLayout::foldingIndent(block);
+            const int currentBraceDepth = TextBlockUserData::braceDepth(block);
+            const int currentFoldingIndent = TextBlockUserData::foldingIndent(block);
             if (currentBraceDepth != previousBraceDepth
                 || currentFoldingIndent != previousBraceDepth) {
-                TextDocumentLayout::setBraceDepth(block, previousBraceDepth);
-                TextDocumentLayout::setFoldingIndent(block, previousBraceDepth);
+                TextBlockUserData::setBraceDepth(block, previousBraceDepth);
+                TextBlockUserData::setFoldingIndent(block, previousBraceDepth);
                 needUpdate = true;
                 qCDebug(highlighterLog)
                     << "changing brace depth and folding indent to" << previousBraceDepth
@@ -501,7 +501,7 @@ TextEditor::TabSettings CppEditorDocument::tabSettings() const
     return indenter()->tabSettings().value_or(TextEditor::TextDocument::tabSettings());
 }
 
-Result CppEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> CppEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (!indenter()->formatOnSave() || autoSave)
         return TextEditor::TextDocument::saveImpl(filePath, autoSave);

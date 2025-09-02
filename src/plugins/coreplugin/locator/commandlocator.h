@@ -11,7 +11,7 @@ namespace Core {
  * Core::Command's by sub-string of their action's text. */
 class Command;
 
-class CORE_EXPORT CommandLocator : public ILocatorFilter
+class CORE_EXPORT CommandLocator final : public ILocatorFilter
 {
 public:
     CommandLocator(Utils::Id id, const QString &displayName, const QString &shortCutString,

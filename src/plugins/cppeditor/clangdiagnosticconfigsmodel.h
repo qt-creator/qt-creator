@@ -7,8 +7,6 @@
 
 #include "clangdiagnosticconfig.h"
 
-#include <QVector>
-
 namespace CppEditor {
 
 class CPPEDITOR_EXPORT ClangDiagnosticConfigsModel

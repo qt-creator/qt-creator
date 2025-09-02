@@ -107,7 +107,7 @@ Definitions definitionsForMimeType(const QString &mimeType)
 {
     auto definitionsForMimeTypeName = [mimeType](const QString mimeTypeName) {
         Definitions definitions
-            = highlightRepository()->definitionsForMimeType(mimeTypeName).toList();
+            = highlightRepository()->definitionsForMimeType(mimeTypeName);
         if (definitions.size() > 1) {
             const Definition rememberedDefinition
                 = definitionForSetting(kDefinitionForMimeType, mimeType);
@@ -134,8 +134,7 @@ Definitions definitionsForMimeType(const QString &mimeType)
 
 Definitions definitionsForFileName(const FilePath &fileName)
 {
-    Definitions definitions
-        = highlightRepository()->definitionsForFileName(fileName.fileName()).toList();
+    Definitions definitions = highlightRepository()->definitionsForFileName(fileName.fileName());
 
     if (definitions.size() > 1) {
         const QString &fileExtension = fileName.completeSuffix();

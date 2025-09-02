@@ -34,8 +34,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 static const qint64 million = static_cast<qint64>(1000000);
 
@@ -48,7 +47,6 @@ PerfDataReader::PerfDataReader(QObject *parent) :
     m_lastRemoteTimestamp(0)
 {
     connect(&m_input, &QProcess::finished, this, [this](int exitCode) {
-        emit processFinished();
         // process any remaining input before signaling finished()
         readFromDevice();
         if (m_recording || future().isRunning()) {
@@ -62,6 +60,7 @@ PerfDataReader::PerfDataReader(QObject *parent) :
                                         "Your trace is incomplete. The exit code was %1.")
                                  .arg(exitCode));
         }
+        emit processFinished();
     });
 
     connect(&m_input, &QIODevice::bytesWritten, this, &PerfDataReader::writeChunk);
@@ -385,7 +384,7 @@ void PerfDataReader::addTargetArguments(CommandLine *cmd, const RunControl *runC
 {
     ProjectExplorer::Kit *kit = runControl->kit();
     QTC_ASSERT(kit, return);
-    ProjectExplorer::BuildConfiguration *buildConfig = runControl->target()->activeBuildConfiguration();
+    ProjectExplorer::BuildConfiguration *buildConfig = runControl->buildConfiguration();
     QString buildDir = buildConfig ? buildConfig->buildDirectory().toUrlishString() : QString();
     collectArguments(cmd, buildDir, kit);
 }
@@ -398,5 +397,4 @@ FilePath findPerfParser()
     return filePath;
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

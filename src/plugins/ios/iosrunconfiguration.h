@@ -66,7 +66,7 @@ class IosRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT // FIXME: Used in  IosDsymBuildStep
 
 public:
-    IosRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
+    IosRunConfiguration(ProjectExplorer::BuildConfiguration *bc, Utils::Id id);
 
     QString applicationName() const;
     Utils::FilePath bundleDirectory() const;

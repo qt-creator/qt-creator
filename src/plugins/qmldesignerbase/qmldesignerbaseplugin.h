@@ -37,7 +37,7 @@ public:
     static bool isLiteModeEnabled();
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    Utils::Result<> initialize(const QStringList &arguments) final;
 
 private:
     class Data;

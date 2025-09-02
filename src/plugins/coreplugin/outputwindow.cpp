@@ -61,6 +61,17 @@ public:
     {
     }
 
+    qsizetype totalQueuedValue(const std::function<qsizetype(const QString &)> &getValue) const
+    {
+        return std::accumulate(
+            queuedOutput.cbegin(),
+            queuedOutput.cend(),
+            0,
+            [&](qsizetype val, const QPair<QString, OutputFormat> &c) {
+                return val + getValue(c.first);
+            });
+    }
+
     Key settingsKey;
     OutputFormatter formatter;
     QList<QPair<QString, OutputFormat>> queuedOutput;
@@ -307,12 +318,11 @@ void OutputWindow::contextMenuEvent(QContextMenuEvent *event)
         const FilePath file = FileUtils::getSaveFilePath(
             {}, FileUtils::homePath() / d->outputFileNameHint);
         if (!file.isEmpty()) {
-            QString error;
             Utils::TextFileFormat format;
             format.setCodecName(EditorManager::defaultTextCodecName());
             format.lineTerminationMode = EditorManager::defaultLineEnding();
-            if (!format.writeFile(file, toPlainText(), &error))
-                MessageManager::writeDisrupting(error);
+            if (const Result<> res = format.writeFile(file, toPlainText()); !res)
+                MessageManager::writeDisrupting(res.error());
         }
     });
     saveAction->setEnabled(!document()->isEmpty());
@@ -646,11 +656,12 @@ void OutputWindow::updateAutoScroll()
 
 qsizetype OutputWindow::totalQueuedSize() const
 {
-    return std::accumulate(
-        d->queuedOutput.cbegin(),
-        d->queuedOutput.cend(),
-        0,
-        [](qsizetype val, const QPair<QString, OutputFormat> &c) { return val + c.first.size(); });
+    return d->totalQueuedValue([](const QString &s) { return s.size(); });
+}
+
+qsizetype OutputWindow::totalQueuedLines() const
+{
+    return d->totalQueuedValue([](const QString &s) { return s.count('\n'); });
 }
 
 void OutputWindow::setMaxCharCount(qsizetype count)
@@ -675,15 +686,19 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 }
 
 void OutputWindow::registerPositionOf(unsigned taskId, int linkedOutputLines, int skipLines,
-                                      int offset)
+                                      int offset, TaskSource taskSource)
 {
     if (linkedOutputLines <= 0)
         return;
 
+    // For Tasks that result from an OutputLineParser, the corresponding content is the last
+    // one written to the text edit, otherwise it's the last queued output.
+    const int extraLines = taskSource == TaskSource::Parsed ? 0 : totalQueuedLines();
+
     const int blocknumber = document()->blockCount() - offset;
 
     // -1 because OutputFormatter has already added the newline.
-    const int firstLine = blocknumber - linkedOutputLines - skipLines - 1;
+    const int firstLine = blocknumber - linkedOutputLines - skipLines - 1 + extraLines;
 
     const int lastLine = firstLine + linkedOutputLines - 1;
 

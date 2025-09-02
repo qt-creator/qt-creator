@@ -82,6 +82,7 @@ public:
     static QMainWindow *mainWindow();
     static QWidget *dialogParent();
     static Utils::InfoBar *infoBar();
+    static Utils::InfoBar *popupInfoBar();
 
     static bool askForRestart(const QString &text, const QString &altButtonText = {});
 
@@ -151,13 +152,13 @@ public:
     static QString aboutInformationHtml();
     static QString systemInformation();
     static void setupScreenShooter(const QString &name, QWidget *w, const QRect &rc = QRect());
-    static Utils::expected_str<Utils::FilePath> clangExecutable(const Utils::FilePath &clangBinDirectory);
-    static Utils::expected_str<Utils::FilePath> clangdExecutable(const Utils::FilePath &clangBinDirectory);
-    static Utils::expected_str<Utils::FilePath> clangTidyExecutable(const Utils::FilePath &clangBinDirectory);
-    static Utils::expected_str<Utils::FilePath> clazyStandaloneExecutable(const Utils::FilePath &clangBinDirectory);
+    static Utils::Result<Utils::FilePath> clangExecutable(const Utils::FilePath &clangBinDirectory);
+    static Utils::Result<Utils::FilePath> clangdExecutable(const Utils::FilePath &clangBinDirectory);
+    static Utils::Result<Utils::FilePath> clangTidyExecutable(const Utils::FilePath &clangBinDirectory);
+    static Utils::Result<Utils::FilePath> clazyStandaloneExecutable(const Utils::FilePath &clangBinDirectory);
     static Utils::FilePath clangIncludeDirectory(const QString &clangVersion,
                                                  const Utils::FilePath &clangFallbackIncludeDir);
-    static Utils::expected_str<Utils::FilePath> lldbExecutable(const Utils::FilePath &lldbBinDirectory);
+    static Utils::Result<Utils::FilePath> lldbExecutable(const Utils::FilePath &lldbBinDirectory);
     static QStatusBar *statusBar();
 
     static void saveSettings(SaveSettingsReason reason);

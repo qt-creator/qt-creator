@@ -26,7 +26,7 @@ namespace RemoteLinux::Internal {
 class RemoteLinuxRunConfiguration final : public RunConfiguration
 {
 public:
-    RemoteLinuxRunConfiguration(Target *target, Id id);
+    RemoteLinuxRunConfiguration(BuildConfiguration *bc, Id id);
 
     RemoteLinuxEnvironmentAspect environment{this};
     ExecutableAspect executable{this};
@@ -38,12 +38,12 @@ public:
     UseLibraryPathsAspect useLibraryPath{this};
 };
 
-RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
-    : RunConfiguration(target, id)
+RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(BuildConfiguration *bc, Id id)
+    : RunConfiguration(bc, id)
 {
-    environment.setDeviceSelector(target, EnvironmentAspect::RunDevice);
+    environment.setDeviceSelector(kit(), EnvironmentAspect::RunDevice);
 
-    executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+    executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
     executable.setLabelText(Tr::tr("Executable on device:"));
     executable.setPlaceHolderText(Tr::tr("Remote path not set"));
     executable.makeOverridable("RemoteLinux.RunConfig.AlternateRemoteExecutable",
@@ -59,14 +59,14 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
     connect(&useLibraryPath, &BaseAspect::changed,
             &environment, &EnvironmentAspect::environmentChanged);
 
-    setUpdater([this, target] {
-        const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(target->kit());
-        const IDeviceConstPtr runDevice = RunDeviceKitAspect::device(target->kit());
+    setUpdater([this] {
+        const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit());
+        const IDeviceConstPtr runDevice = RunDeviceKitAspect::device(kit());
         QTC_ASSERT(buildDevice, return);
         QTC_ASSERT(runDevice, return);
         const BuildTargetInfo bti = buildTargetInfo();
         const FilePath localExecutable = bti.targetFilePath;
-        const DeploymentData deploymentData = target->deploymentData();
+        const DeploymentData deploymentData = buildSystem()->deploymentData();
         const DeployableFile depFile = deploymentData.deployableForLocalFile(localExecutable);
 
         executable.setExecutable(runDevice->filePath(depFile.remoteFilePath()));
@@ -84,10 +84,6 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
         if (bti.runEnvModifier)
             bti.runEnvModifier(env, useLibraryPath());
     });
-
-    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
-    connect(target, &Target::deploymentDataChanged, this, &RunConfiguration::update);
-    connect(target, &Target::kitChanged, this, &RunConfiguration::update);
 }
 
 // RemoteLinuxRunConfigurationFactory

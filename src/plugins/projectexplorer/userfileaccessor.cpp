@@ -4,6 +4,7 @@
 #include "userfileaccessor.h"
 
 #include "abi.h"
+#include "buildsystem.h"
 #include "devicesupport/devicemanager.h"
 #include "project.h"
 #include "projectexplorer.h"
@@ -911,10 +912,22 @@ private:
 };
 
 
+class TestBuildSystem : public BuildSystem
+{
+public:
+    using BuildSystem::BuildSystem;
+private:
+    void triggerParsing() override {}
+};
+
 class TestProject : public Project
 {
 public:
-    TestProject() : Project("x-test/testproject", "/test/project") { setDisplayName("Test Project"); }
+    TestProject() : Project("x-test/testproject", "/test/project")
+    {
+        setDisplayName("Test Project");
+        setBuildSystemCreator<TestBuildSystem>("UserFileAccessorTest");
+    }
 
     bool needsConfiguration() const final { return false; }
 };

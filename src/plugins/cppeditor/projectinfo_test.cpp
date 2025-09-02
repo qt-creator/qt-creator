@@ -9,6 +9,7 @@
 #include "headerpathfilter.h"
 #include "projectinfo.h"
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchainconfigwidget.h>
 #include <utils/algorithm.h>
@@ -20,6 +21,22 @@ using namespace ProjectExplorer;
 namespace CppEditor::Internal {
 
 namespace {
+class TestBuildSystem : public BuildSystem
+{
+public:
+    using BuildSystem::BuildSystem;
+private:
+    void triggerParsing() override {}
+};
+class TestProject : public Project
+{
+public:
+    TestProject(const Utils::FilePath &projectFilePath) : Project({}, projectFilePath)
+    {
+        setBuildSystemCreator<TestBuildSystem>("ProjectPartTest");
+    }
+};
+
 class ProjectPartChooserTestHelper
 {
 public:
@@ -50,12 +67,10 @@ public:
     {
         QList<ProjectPart::ConstPtr> projectParts;
 
-        const auto p1 = std::make_shared<Project>(
-                    QString(), Utils::FilePath::fromString("p1.pro"));
+        const auto p1 = std::make_shared<TestProject>(Utils::FilePath::fromString("p1.pro"));
         projectMap.insert(p1->projectFilePath(), p1);
         projectParts.append(ProjectPart::create(p1->projectFilePath()));
-        const auto p2 = std::make_shared<Project>(
-                    QString(), Utils::FilePath::fromString("p2.pro"));
+        const auto p2 = std::make_shared<TestProject>(Utils::FilePath::fromString("p2.pro"));
         projectMap.insert(p2->projectFilePath(), p2);
         projectParts.append(ProjectPart::create(p2->projectFilePath()));
 

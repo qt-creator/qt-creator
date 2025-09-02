@@ -40,10 +40,10 @@ class PROJECTEXPLORER_EXPORT BuildSystem : public QObject
     Q_OBJECT
 
 public:
-    explicit BuildSystem(Target *target);
     explicit BuildSystem(BuildConfiguration *bc);
     ~BuildSystem() override;
 
+    QString name() const;
     Project *project() const;
     Target *target() const;
     Kit *kit() const;
@@ -79,7 +79,6 @@ public:
     virtual bool addDependencies(Node *context, const QStringList &dependencies);
     virtual bool supportsAction(Node *context, ProjectAction action, const Node *node) const;
     virtual void buildNamedTarget(const QString &target) { Q_UNUSED(target) }
-    virtual QString name() const = 0;
 
     // Owned by the build system. Use only in main thread. Can go away at any time.
     ExtraCompiler *extraCompilerForSource(const Utils::FilePath &source) const;
@@ -149,10 +148,12 @@ public:
 signals:
     void parsingStarted();
     void parsingFinished(bool success);
+    void updated(); // FIXME: Redundant with parsingFinished()?
     void testInformationUpdated();
     void debuggingStarted();
     void errorOccurred(const QString &message);
     void warningOccurred(const QString &message);
+    void deploymentDataChanged();
 
 protected:
     // Helper methods to manage parsing state and signalling

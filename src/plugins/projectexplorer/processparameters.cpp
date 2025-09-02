@@ -145,12 +145,13 @@ QString ProcessParameters::prettyArguments() const
 {
     const QString margs = effectiveArguments();
     const FilePath workDir = effectiveWorkingDirectory();
+    const OsType osType = workDir.osType();
     ProcessArgs::SplitError err;
-    const ProcessArgs args = ProcessArgs::prepareArgs(margs, &err, HostOsInfo::hostOs(),
-                                                      &m_runData.environment, &workDir);
+    const QString args = ProcessArgs::prepareShellArgs(margs, &err, osType,
+                                                       &m_runData.environment, workDir);
     if (err != ProcessArgs::SplitOk)
         return margs; // Sorry, too complex - just fall back.
-    return args.toString();
+    return args;
 }
 
 static QString invalidCommandMessage(const QString &displayName)

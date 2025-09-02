@@ -252,8 +252,10 @@ void SuppressionDialog::accept()
         stream << m_suppressionEdit->toPlainText();
         saver.setResult(&stream);
     }
-    if (!saver.finalize(this))
+    if (const Result<> res = saver.finalize(); !res) {
+        FileUtils::showError(res.error());
         return;
+    }
 
     // Add file to project if there is a project containing this file on the file system.
     if (!ProjectExplorer::ProjectManager::projectForFile(path)) {

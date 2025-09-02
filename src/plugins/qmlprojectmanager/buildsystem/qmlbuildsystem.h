@@ -23,7 +23,7 @@ class QMLPROJECTMANAGER_EXPORT QmlBuildSystem final : public ProjectExplorer::Bu
     Q_OBJECT
 
 public:
-    explicit QmlBuildSystem(ProjectExplorer::Target *target);
+    explicit QmlBuildSystem(ProjectExplorer::BuildConfiguration *bc);
     ~QmlBuildSystem() = default;
 
     void triggerParsing() final;
@@ -40,8 +40,6 @@ public:
                      Utils::FilePaths *notRenamed) override;
 
     bool updateProjectFile();
-
-    QString name() const override { return QLatin1String("qml"); }
 
     QmlProject *qmlProject() const;
 
@@ -153,5 +151,7 @@ private:
 
     QmlProjectExporter::Exporter* m_fileGen;
 };
+
+void setupQmlBuildConfiguration();
 
 } // namespace QmlProjectManager

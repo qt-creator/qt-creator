@@ -49,7 +49,7 @@ public:
     // Returns the common path
     void setFiles(const Utils::FilePaths &files);
 
-    bool runVersionControl(const QList<Core::GeneratedFile> &files, QString *errorMessage);
+    Utils::Result<> runVersionControl(const QList<Core::GeneratedFile> &files);
 
     void initializeProjectTree(Node *context, const Utils::FilePaths &paths,
                                Core::IWizardFactory::WizardKind kind,

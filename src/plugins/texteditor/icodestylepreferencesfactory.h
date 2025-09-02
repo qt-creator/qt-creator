@@ -4,58 +4,41 @@
 #pragma once
 
 #include "texteditor_global.h"
-
-#include "indenter.h"
-
 #include <utils/id.h>
 
-#include <QWidget>
+#include <QString>
 
-namespace  ProjectExplorer { class Project; }
+QT_BEGIN_NAMESPACE
+class QTextDocument;
+class QWidget;
+QT_END_NAMESPACE
 
 namespace TextEditor {
-
+class CodeStyleEditorWidget;
 class ICodeStylePreferences;
-class CodeStyleSelectorWidget;
-
-class TEXTEDITOR_EXPORT CodeStyleEditorWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    CodeStyleEditorWidget(QWidget *parent = nullptr)
-        : QWidget(parent)
-    {}
-    virtual void apply() {}
-    virtual void finish() {}
-};
+class Indenter;
+class ProjectWrapper;
 
 class TEXTEDITOR_EXPORT ICodeStylePreferencesFactory
 {
     ICodeStylePreferencesFactory(const ICodeStylePreferencesFactory &) = delete;
+    ICodeStylePreferencesFactory(const ICodeStylePreferencesFactory &&) = delete;
     ICodeStylePreferencesFactory &operator=(const ICodeStylePreferencesFactory &) = delete;
+    ICodeStylePreferencesFactory &operator=(const ICodeStylePreferencesFactory &&) = delete;
 
 public:
-    ICodeStylePreferencesFactory();
+    ICodeStylePreferencesFactory() = default;
     virtual ~ICodeStylePreferencesFactory() = default;
 
-    virtual CodeStyleEditorWidget *createCodeStyleEditor(ICodeStylePreferences *codeStyle,
-                                                         ProjectExplorer::Project *project = nullptr,
-                                                         QWidget *parent = nullptr);
-    virtual CodeStyleEditorWidget *createAdditionalGlobalSettings(ICodeStylePreferences *codeStyle,
-                                                                  ProjectExplorer::Project *project
-                                                                  = nullptr,
-                                                                  QWidget *parent = nullptr);
+    virtual CodeStyleEditorWidget *createCodeStyleEditor(
+        const ProjectWrapper &project,
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent = nullptr) const
+        = 0;
+    virtual TextEditor::Indenter *createIndenter(QTextDocument *doc) const = 0;
     virtual Utils::Id languageId() = 0;
     virtual QString displayName() = 0;
     virtual ICodeStylePreferences *createCodeStyle() const = 0;
-    virtual CodeStyleEditorWidget *createEditor(ICodeStylePreferences *preferences,
-                                                ProjectExplorer::Project *project = nullptr,
-                                                QWidget *parent = nullptr) const = 0;
-    virtual CodeStyleSelectorWidget *createSelectorWidget(
-        ProjectExplorer::Project *project, QWidget *parent = nullptr);
-    virtual TextEditor::Indenter *createIndenter(QTextDocument *doc) const = 0;
-    virtual QString snippetProviderGroupId() const = 0;
-    virtual QString previewText() const = 0;
 };
 
 } // namespace TextEditor

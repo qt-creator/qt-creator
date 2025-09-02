@@ -8,11 +8,9 @@
 #include "task.h"
 
 #include <utils/aspects.h>
-#include <utils/environment.h>
 #include <utils/macroexpander.h>
 
 #include <functional>
-#include <memory>
 
 namespace Utils {
 class OutputFormatter;
@@ -163,10 +161,10 @@ public:
     }
 
     using ProjectConfiguration::registerAspect;
-    using AspectFactory = std::function<Utils::BaseAspect *(Target *)>;
+    using AspectFactory = std::function<Utils::BaseAspect *(BuildConfiguration *)>;
     template <class T> static void registerAspect()
     {
-        addAspectFactory([](Target *target) { return new T(target); });
+        addAspectFactory([](BuildConfiguration *bc) { return new T(bc); });
     }
 
     QMap<Utils::Id, Utils::Store> settingsData() const; // FIXME: Merge into aspectData?
@@ -174,13 +172,15 @@ public:
 
     void update();
 
-    virtual RunConfiguration *clone(Target *parent);
+    virtual RunConfiguration *clone(BuildConfiguration *bc);
+    void cloneFromOther(const RunConfiguration *rc);
+
+    BuildConfiguration *buildConfiguration() const { return m_buildConfiguration; }
+
+    BuildSystem *buildSystem() const;
 
 protected:
-    RunConfiguration(Target *target, Utils::Id id);
-
-    /// convenience function to get current build system. Try to avoid.
-    BuildSystem *activeBuildSystem() const;
+    RunConfiguration(BuildConfiguration *bc, Utils::Id id);
 
     using Updater = std::function<void()>;
     void setUpdater(const Updater &updater);
@@ -197,10 +197,12 @@ private:
 
     static void addAspectFactory(const AspectFactory &aspectFactory);
 
+    friend class BuildConfiguration;
     friend class RunConfigurationCreationInfo;
     friend class RunConfigurationFactory;
     friend class Target;
 
+    BuildConfiguration * const m_buildConfiguration;
     QString m_buildKey;
     CommandLineGetter m_commandLineGetter;
     RunnableModifier m_runnableModifier;
@@ -214,7 +216,7 @@ class RunConfigurationCreationInfo
 {
 public:
     enum CreationMode {AlwaysCreate, ManualCreationOnly};
-    RunConfiguration *create(Target *target) const;
+    RunConfiguration *create(BuildConfiguration *bc) const;
 
     const RunConfigurationFactory *factory = nullptr;
     QString buildKey;
@@ -233,24 +235,23 @@ public:
     RunConfigurationFactory operator=(const RunConfigurationFactory &) = delete;
     virtual ~RunConfigurationFactory();
 
-    static RunConfiguration *restore(Target *parent, const Utils::Store &map);
-    static const QList<RunConfigurationCreationInfo> creatorsForTarget(Target *parent);
+    static RunConfiguration *restore(BuildConfiguration *bc, const Utils::Store &map);
+    static const QList<RunConfigurationCreationInfo> creatorsForBuildConfig(BuildConfiguration *bc);
 
     Utils::Id runConfigurationId() const { return m_runConfigurationId; }
-
-    static QString decoratedTargetName(const QString &targetName, Target *kit);
+    static QString decoratedTargetName(const QString &targetName, Kit *kit);
 
 protected:
-    virtual QList<RunConfigurationCreationInfo> availableCreators(Target *target) const;
-    virtual bool supportsBuildKey(Target *target, const QString &key) const;
+    virtual QList<RunConfigurationCreationInfo> availableCreators(BuildConfiguration *bc) const;
+    virtual bool supportsBuildKey(BuildConfiguration *bc, const QString &key) const;
 
-    using RunConfigurationCreator = std::function<RunConfiguration *(Target *)>;
+    using RunConfigurationCreator = std::function<RunConfiguration *(BuildConfiguration *)>;
 
     template <class RunConfig>
     void registerRunConfiguration(Utils::Id runConfigurationId)
     {
-        m_creator = [runConfigurationId](Target *t) -> RunConfiguration * {
-            return new RunConfig(t, runConfigurationId);
+        m_creator = [runConfigurationId](BuildConfiguration *bc) -> RunConfiguration * {
+            return new RunConfig(bc, runConfigurationId);
         };
         m_runConfigurationId = runConfigurationId;
     }
@@ -261,7 +262,7 @@ protected:
 
 private:
     bool canHandle(Target *target) const;
-    RunConfiguration *create(Target *target) const;
+    RunConfiguration *create(BuildConfiguration *bc) const;
 
     friend class RunConfigurationCreationInfo;
     friend class RunConfiguration;
@@ -279,8 +280,8 @@ public:
                                           bool addDeviceName = false);
 
 private:
-    QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const override;
-    bool supportsBuildKey(Target *target, const QString &key) const override;
+    QList<RunConfigurationCreationInfo> availableCreators(BuildConfiguration *bc) const override;
+    bool supportsBuildKey(BuildConfiguration *bc, const QString &key) const override;
 
     const QString m_fixedBuildTarget;
     const bool m_decorateTargetName;

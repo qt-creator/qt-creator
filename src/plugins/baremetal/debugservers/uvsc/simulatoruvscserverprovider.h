@@ -22,7 +22,7 @@ public:
     bool operator==(const IDebugServerProvider &other) const final;
     bool isSimulator() const final { return true; }
 
-    Utils::FilePath optionsFilePath(Debugger::DebuggerRunTool *runTool,
+    Utils::FilePath optionsFilePath(ProjectExplorer::RunControl *runControl,
                                     QString &errorMessage) const final;
 
 private:

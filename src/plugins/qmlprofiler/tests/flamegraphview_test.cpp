@@ -5,17 +5,16 @@
 #include "flamegraphmodel_test.h"
 
 #include <qmlprofiler/qmlprofilertool.h>
+
 #include <QtTest>
 #include <QMenu>
 #include <QWindow>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
-FlameGraphViewTest::FlameGraphViewTest(QObject *parent)
-    : QObject(parent), view(&manager)
-{
-}
+FlameGraphViewTest::FlameGraphViewTest()
+    : view(&manager)
+{}
 
 void FlameGraphViewTest::initTestCase()
 {
@@ -142,5 +141,4 @@ void FlameGraphViewTest::cleanupTestCase()
     manager.clearAll();
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

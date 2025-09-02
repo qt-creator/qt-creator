@@ -70,8 +70,8 @@ static LocatorMatcherTasks dataTagMatchers(const LinkAcceptor &acceptor)
 DataTagLocatorFilter::DataTagLocatorFilter()
 {
     setId("Locate Qt Test data tags");
-    setDisplayName(Tr::tr("Locate Qt Test data tags"));
-    setDescription(Tr::tr("Locates Qt Test data tags found inside the active project."));
+    setDisplayName(Tr::tr("Qt Test Data Tags"));
+    setDescription(Tr::tr("Locates Qt Test data tags inside the active project."));
     setDefaultShortcutString("qdt");
     setPriority(Medium);
     using namespace ProjectExplorer;

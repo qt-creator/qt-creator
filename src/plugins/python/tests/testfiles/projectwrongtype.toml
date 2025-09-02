@@ -1,0 +1,5 @@
+project = 33
+name = "ProjectWrongTypeTest"
+
+[tool.pyside6-project]
+files = []

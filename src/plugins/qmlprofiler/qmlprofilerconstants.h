@@ -3,8 +3,7 @@
 
 #pragma once
 
-namespace QmlProfiler {
-namespace Constants {
+namespace QmlProfiler::Constants {
 
 const char TASK_LOAD[] = "QmlProfiler.TaskLoad";
 const char TASK_SAVE[] = "QmlProfiler.TaskSave";
@@ -24,5 +23,4 @@ const char QmlProfilerLoadActionId[] =
 const char QmlProfilerSaveActionId[] =
         "Analyzer.Menu.StartAnalyzer.QMLProfilerOptions.SaveQMLTrace";
 
-} // namespace Constants
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Constants

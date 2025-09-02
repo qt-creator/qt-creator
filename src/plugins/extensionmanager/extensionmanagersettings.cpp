@@ -15,7 +15,10 @@
 #include <utils/stylehelper.h>
 
 #include <QGuiApplication>
-#include <QSslSocket>
+
+#ifndef QT_NO_SSL
+  #include <QSslSocket>
+#endif
 
 namespace ExtensionManager::Internal {
 
@@ -34,18 +37,26 @@ ExtensionManagerSettings::ExtensionManagerSettings()
     useExternalRepo.setDefaultValue(false);
     useExternalRepo.setLabelText(Tr::tr("Use external repository"));
 
+#ifndef QT_NO_SSL
     const bool sslSupported = QSslSocket::supportsSsl();
+#else
+    const bool sslSupported = false;
+#endif
 
     useExternalRepo.setEnabled(sslSupported);
     if (!sslSupported) {
         useExternalRepo.setToolTip(Tr::tr("SSL support is not available."));
     }
 
-    externalRepoUrl.setSettingsKey("ExternalRepoUrl");
-    externalRepoUrl.setDefaultValue("https://qc-extensions.qt.io");
-    externalRepoUrl.setDisplayStyle(Utils::StringAspect::LineEditDisplay);
-    externalRepoUrl.setLabelText(Tr::tr("Server URL:"));
+    repositoryUrls.setSettingsKey("RepositoryUrls");
+    repositoryUrls.setLabelText(Tr::tr("Repository URLs:"));
+    repositoryUrls.setToolTip(
+        Tr::tr("Repositories to query for extensions. You can specify local paths or "
+               "HTTP(S) URLs that should be merged with the main repository."));
+    repositoryUrls.setDefaultValue(
+        {"https://github.com/qt-creator/extension-registry/archive/refs/heads/main.tar.gz"});
 
+    // clang-format off
     setLayouter([this] {
         using namespace Layouting;
         using namespace Core;
@@ -63,7 +74,7 @@ ExtensionManagerSettings::ExtensionManagerSettings()
                 title(Tr::tr("Use External Repository")),
                 groupChecker(useExternalRepo.groupChecker()),
                 Form {
-                    externalRepoUrl
+                    repositoryUrls, br,
                 },
             },
             Row {
@@ -82,6 +93,7 @@ ExtensionManagerSettings::ExtensionManagerSettings()
             spacing(Utils::StyleHelper::SpacingTokens::ExVPaddingGapXl),
         };
     });
+    // clang-format on
 
     readSettings();
 }
@@ -103,11 +115,15 @@ const ExtensionManagerSettingsPage settingsPage;
 QString externalRepoWarningNote()
 {
     return
-    Tr::tr("%1 does not check extensions from external vendors for security "
-           "flaws or malicious intent, so be careful when installing them, "
-           "as it might leave your computer vulnerable to attacks such as "
-           "hacking, malware, and phishing.")
-        .arg(QGuiApplication::applicationDisplayName());
+    Tr::tr("If you choose to link or connect an external repository, "
+           "you are acting at your own discretion and risk. "
+           "The Qt Company does not control, endorse, or maintain any "
+           "external repositories that you connect. Any changes, "
+           "unavailability or security issues in external repositories "
+           "are beyond The Qt Company's control and responsibility. "
+           "By linking or connecting external repositories, you "
+           "acknowledge these conditions and accept responsibility "
+           "for managing associated risks appropriately.");
 }
 
 } // ExtensionManager::Internal

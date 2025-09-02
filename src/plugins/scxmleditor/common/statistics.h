@@ -40,7 +40,7 @@ private:
     void calculateStats(PluginInterface::ScxmlTag *tag);
 
     QStringList m_names;
-    QVector<int> m_counts;
+    QList<int> m_counts;
     int m_levels = 0;
 };
 

@@ -19,7 +19,6 @@ QtcPlugin {
         "glslcompletionassist.h",
         "glsleditor.cpp",
         "glsleditor.h",
-        "glsleditor.qrc",
         "glsleditorconstants.h",
         "glsleditorplugin.cpp",
         "glsleditortr.h",
@@ -28,4 +27,12 @@ QtcPlugin {
         "glslindenter.cpp",
         "glslindenter.h",
     ]
+
+    Group {
+        name: "images"
+        files: [
+            "images/glslfile.png",
+        ]
+        fileTags: "qt.core.resource_data"
+    }
 }

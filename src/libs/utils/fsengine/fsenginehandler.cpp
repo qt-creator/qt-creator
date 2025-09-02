@@ -51,7 +51,6 @@ public:
     bool setSize(qint64 size) final;
     bool caseSensitive() const final;
     bool isRelativePath() const final;
-    QStringList entryList(QDir::Filters filters, const QStringList &filterNames) const final;
     FileFlags fileFlags(FileFlags type) const final;
     bool setPermissions(uint perms) final;
     QByteArray id() const final;
@@ -143,11 +142,11 @@ bool FSEngineImpl::open(QIODeviceBase::OpenMode openMode, std::optional<QFile::P
         return false;
 
     if (read || append) {
-        const expected_str<QByteArray> readResult = m_filePath.fileContents();
-        QTC_ASSERT_EXPECTED(readResult, return false);
+        const Result<QByteArray> readResult = m_filePath.fileContents();
+        QTC_ASSERT_RESULT(readResult, return false);
 
-        const expected_str<qint64> writeResult = m_tempStorage->write(*readResult);
-        QTC_ASSERT_EXPECTED(writeResult, return false);
+        const Result<qint64> writeResult = m_tempStorage->write(*readResult);
+        QTC_ASSERT_RESULT(writeResult, return false);
 
         if (!append)
             m_tempStorage->seek(0);
@@ -212,15 +211,15 @@ bool FSEngineImpl::isSequential() const
 
 bool FSEngineImpl::remove()
 {
-    Result result = m_filePath.removeRecursively();
+    Result<> result = m_filePath.removeRecursively();
     if (!result)
         setError(QFile::RemoveError, result.error());
-    return result;
+    return result.has_value();
 }
 
 bool FSEngineImpl::copy(const QString &newName)
 {
-    Result result = m_filePath.copyFile(FilePath::fromString(newName));
+    Result<> result = m_filePath.copyFile(FilePath::fromString(newName));
     if (!result)
         setError(QFile::CopyError, result.error());
     return bool(result);
@@ -228,7 +227,7 @@ bool FSEngineImpl::copy(const QString &newName)
 
 bool FSEngineImpl::rename(const QString &newName)
 {
-    Result result = m_filePath.renameFile(FilePath::fromString(newName));
+    Result<> result = m_filePath.renameFile(FilePath::fromString(newName));
     if (!result)
         setError(QFile::RenameError, result.error());
     return bool(result);
@@ -258,7 +257,7 @@ bool FSEngineImpl::rmdir(const QString &dirName, bool recurseParentDirectories) 
     if (recurseParentDirectories)
         return false;
 
-    return m_filePath.pathAppended(dirName).removeRecursively();
+    return m_filePath.pathAppended(dirName).removeRecursively().has_value();
 }
 
 bool FSEngineImpl::setSize(qint64 size)
@@ -278,25 +277,9 @@ bool FSEngineImpl::isRelativePath() const
     return false;
 }
 
-QStringList FSEngineImpl::entryList(QDir::Filters filters, const QStringList &filterNames) const
-{
-    QStringList result;
-    m_filePath.iterateDirectory(
-        [&result](const FilePath &p, const FilePathInfo &fi) {
-            result.append(p.toFSPathString());
-            g_filePathInfoCache
-                .cache(p,
-                       new FilePathInfoCache::CachedData{fi,
-                                                         QDateTime::currentDateTime().addSecs(60)});
-            return IterationPolicy::Continue;
-        },
-        {filterNames, filters});
-    return result;
-}
-
 QAbstractFileEngine::FileFlags FSEngineImpl::fileFlags(FileFlags type) const
 {
-    Q_UNUSED(type);
+    Q_UNUSED(type)
     return {g_filePathInfoCache.cached(m_filePath, createCacheData).filePathInfo.fileFlags.toInt()};
 }
 

@@ -17,6 +17,7 @@
 #include <QLoggingCategory>
 #include <QPromise>
 #include <QThread>
+#include <QTimer>
 
 Q_LOGGING_CATEGORY(clientLog, "qtc.cmdbridge.client", QtWarningMsg)
 
@@ -43,10 +44,12 @@ namespace Internal {
 struct ClientPrivate
 {
     FilePath remoteCmdBridgePath;
+    Environment environment;
 
     // Only access from the thread
     Process *process = nullptr;
     QThread *thread = nullptr;
+    QTimer *watchDogTimer = nullptr;
 
     struct Jobs
     {
@@ -58,8 +61,8 @@ struct ClientPrivate
 
     QMap<int, std::shared_ptr<QPromise<FilePath>>> watchers;
 
-    expected_str<void> readPacket(QCborStreamReader &reader);
-    std::optional<expected_str<void>> handleWatchResults(const QVariantMap &map);
+    Result<> readPacket(QCborStreamReader &reader);
+    std::optional<Result<>> handleWatchResults(const QVariantMap &map);
 };
 
 QString decodeString(QCborStreamReader &reader)
@@ -167,7 +170,7 @@ static QVariant readVariant(QCborStreamReader &reader)
     return result;
 }
 
-std::optional<expected_str<void>> ClientPrivate::handleWatchResults(const QVariantMap &map)
+std::optional<Result<>> ClientPrivate::handleWatchResults(const QVariantMap &map)
 {
     const QString type = map.value("Type").toString();
     if (type == "watchEvent") {
@@ -175,26 +178,26 @@ std::optional<expected_str<void>> ClientPrivate::handleWatchResults(const QVaria
         auto it = watchers.find(id);
 
         if (it == watchers.end())
-            return make_unexpected(QString("No watcher found for id %1").arg(id));
+            return ResultError(QString("No watcher found for id %1").arg(id));
 
         auto promise = it.value();
         if (!promise->isCanceled())
             promise->addResult(FilePath::fromUserInput(map.value("Path").toString()));
 
-        return expected_str<void>{};
+        return Result<>{};
     } else if (type == "removewatchresult") {
         auto id = map.value("Id").toInt();
         watchers.remove(id);
-        return expected_str<void>{};
+        return Result<>{};
     }
 
     return std::nullopt;
 }
 
-expected_str<void> ClientPrivate::readPacket(QCborStreamReader &reader)
+Result<> ClientPrivate::readPacket(QCborStreamReader &reader)
 {
     if (!reader.enterContainer())
-        return make_unexpected(QString("The packet did not contain a container"));
+        return ResultError(QString("The packet did not contain a container"));
 
     Q_ASSERT(QThread::currentThread() == thread);
 
@@ -206,10 +209,10 @@ expected_str<void> ClientPrivate::readPacket(QCborStreamReader &reader)
     }
 
     if (!reader.leaveContainer())
-        return make_unexpected(QString("The packet did not contain a finalized map"));
+        return ResultError(QString("The packet did not contain a finalized map"));
 
     if (!map.contains("Id")) {
-        return make_unexpected(QString("The packet did not contain an Id"));
+        return ResultError(QString("The packet did not contain an Id"));
     }
 
     auto watchHandled = handleWatchResults(map);
@@ -220,7 +223,7 @@ expected_str<void> ClientPrivate::readPacket(QCborStreamReader &reader)
     auto j = jobs.readLocked();
     auto it = j->map.find(id);
     if (it == j->map.end())
-        return make_unexpected(
+        return ResultError(
             QString("No job found for packet with id %1: %2")
                 .arg(id)
                 .arg(QString::fromUtf8(QJsonDocument::fromVariant(map).toJson())));
@@ -236,10 +239,11 @@ expected_str<void> ClientPrivate::readPacket(QCborStreamReader &reader)
 
 } // namespace Internal
 
-Client::Client(const Utils::FilePath &remoteCmdBridgePath)
+Client::Client(const Utils::FilePath &remoteCmdBridgePath, const Utils::Environment &env)
     : d(new Internal::ClientPrivate())
 {
     d->remoteCmdBridgePath = remoteCmdBridgePath;
+    d->environment = env;
 }
 
 Client::~Client()
@@ -248,7 +252,7 @@ Client::~Client()
         d->thread->wait(2000);
 }
 
-expected_str<QFuture<Environment>> Client::start()
+Result<> Client::start(bool deleteOnExit)
 {
     d->thread = new QThread(this);
     d->thread->setObjectName("CmdBridgeClientThread");
@@ -257,37 +261,30 @@ expected_str<QFuture<Environment>> Client::start()
     d->process = new Process();
     d->process->moveToThread(d->thread);
 
-    std::shared_ptr<QPromise<Environment>> envPromise = std::make_shared<QPromise<Environment>>();
+    d->watchDogTimer = new QTimer();
+    d->watchDogTimer->setInterval(1000);
+    d->watchDogTimer->moveToThread(d->thread);
 
-    expected_str<void> result;
-
-    d->jobs.writeLocked()->map.insert(-1, [envPromise](QVariantMap map) {
-        envPromise->start();
-        QString type = map.value("Type").toString();
-        if (type == "environment") {
-            expected_str<OsType> osType = osTypeFromString(map.value("OsType").toString());
-            QTC_CHECK_EXPECTED(osType);
-            Environment env(map.value("Env").toStringList(), osType.value_or(OsTypeLinux));
-            envPromise->addResult(env);
-        } else if (type == "error") {
-            QString err = map.value("Error", QString{}).toString();
-            qCWarning(clientLog) << "Error: " << err;
-            envPromise->setException(std::make_exception_ptr(std::runtime_error(err.toStdString())));
-        } else {
-            qCWarning(clientLog) << "Unknown initial response type: " << type;
-            envPromise->setException(
-                std::make_exception_ptr(std::runtime_error("Unknown response type")));
-        }
-
-        envPromise->finish();
-
-        return JobResult::Done;
+    connect(d->thread, &QThread::finished, d->watchDogTimer, &QTimer::deleteLater);
+    connect(d->watchDogTimer, &QTimer::timeout, d->process, [this] {
+        QTC_ASSERT(d->process, return);
+        QCborMap args;
+        args.insert(QString("Id"), -1);
+        args.insert(QString("Type"), QString("ping"));
+        d->process->writeRaw(args.toCborValue().toCbor());
     });
+    connect(d->process, &Process::started, d->watchDogTimer, qOverload<>(&QTimer::start));
+
+    Result<> result = ResultOk;
 
     QMetaObject::invokeMethod(
         d->process,
-        [this]() -> expected_str<void> {
-            d->process->setCommand({d->remoteCmdBridgePath, {}});
+        [this, deleteOnExit]() -> Result<> {
+            if (deleteOnExit)
+                d->process->setCommand({d->remoteCmdBridgePath, {"-deleteOnExit"}});
+            else
+                d->process->setCommand({d->remoteCmdBridgePath, {}});
+            d->process->setEnvironment(d->environment);
             d->process->setProcessMode(ProcessMode::Writer);
             d->process->setProcessChannelMode(QProcess::ProcessChannelMode::SeparateChannels);
             // Make sure the process has a codec, otherwise it will try to ask us recursively
@@ -323,7 +320,7 @@ expected_str<QFuture<Environment>> Client::start()
 
             auto stateMachine =
                 [markerOffset = 0, state = int(0), packetSize(0), packetData = QByteArray(), this](
-                    QByteArray &buffer) mutable {
+                    QByteArray &buffer) mutable -> bool {
                     static const QByteArray MagicCode{GOBRIDGE_MAGIC_PACKET_MARKER};
 
                     if (state == 0) {
@@ -335,7 +332,7 @@ expected_str<QFuture<Environment>> Client::start()
                                 // Partial magic marker?
                                 markerOffset += buffer.size();
                                 buffer.clear();
-                                return;
+                                return false;
                             }
                             // Broken package, search for next magic marker
                             qCWarning(clientLog)
@@ -350,6 +347,8 @@ expected_str<QFuture<Environment>> Client::start()
                     }
 
                     if (state == 1) {
+                        if (buffer.size() < 4)
+                            return false; // wait for more data
                         QDataStream ds(buffer);
                         ds >> packetSize;
                         // TODO: Enforce max size in bridge.
@@ -376,9 +375,10 @@ expected_str<QFuture<Environment>> Client::start()
                             packetData.clear();
                             state = 0;
                             auto result = d->readPacket(reader);
-                            QTC_CHECK_EXPECTED(result);
+                            QTC_CHECK_RESULT(result);
                         }
                     }
+                    return !buffer.isEmpty();
                 };
 
             connect(
@@ -387,8 +387,7 @@ expected_str<QFuture<Environment>> Client::start()
                 d->process,
                 [this, buffer = QByteArray(), stateMachine]() mutable {
                     buffer.append(d->process->readAllRawStandardError());
-                    while (!buffer.isEmpty())
-                        stateMachine(buffer);
+                    while (stateMachine(buffer)) {}
                 });
 
             connect(d->process, &Process::readyReadStandardOutput, d->process, [this] {
@@ -398,20 +397,17 @@ expected_str<QFuture<Environment>> Client::start()
             d->process->start();
 
             if (!d->process)
-                return make_unexpected(Tr::tr("Failed starting bridge process"));
+                return ResultError(Tr::tr("Failed starting bridge process"));
 
             if (!d->process->waitForStarted())
-                return make_unexpected(
+                return ResultError(
                     Tr::tr("Failed starting bridge process: %1").arg(d->process->errorString()));
-            return {};
+            return ResultOk;
         },
         Qt::BlockingQueuedConnection,
         &result);
 
-    if (!result)
-        return make_unexpected(result.error());
-
-    return envPromise->future();
+    return result;
 }
 
 enum class Errors {
@@ -420,14 +416,14 @@ enum class Errors {
 };
 
 template<class R>
-static Utils::expected_str<QFuture<R>> createJob(
+static Utils::Result<QFuture<R>> createJob(
     Internal::ClientPrivate *d,
     QCborMap args,
     const std::function<JobResult(QVariantMap map, QPromise<R> &promise)> &resultFunc,
     Errors handleErrors = Errors::Handle)
 {
     if (!d->process || !d->process->isRunning())
-        return make_unexpected(Tr::tr("Bridge process not running"));
+        return ResultError(Tr::tr("Bridge process not running"));
 
     std::shared_ptr<QPromise<R>> promise = std::make_shared<QPromise<R>>();
     QFuture<R> future = promise->future();
@@ -468,13 +464,16 @@ static Utils::expected_str<QFuture<R>> createJob(
 
     QMetaObject::invokeMethod(
         d->process,
-        [d, args]() { d->process->writeRaw(args.toCborValue().toCbor()); },
+        [d, args]() {
+            QTC_ASSERT(d->process, return);
+            d->process->writeRaw(args.toCborValue().toCbor());
+        },
         Qt::QueuedConnection);
 
     return future;
 }
 
-static Utils::expected_str<QFuture<void>> createVoidJob(
+static Utils::Result<QFuture<void>> createVoidJob(
     Internal::ClientPrivate *d, const QCborMap &args, const QString &resulttype)
 {
     return createJob<void>(d, args, [resulttype](QVariantMap map, QPromise<void> &promise) {
@@ -484,7 +483,7 @@ static Utils::expected_str<QFuture<void>> createVoidJob(
     });
 }
 
-expected_str<QFuture<Client::ExecResult>> Client::execute(
+Result<QFuture<Client::ExecResult>> Client::execute(
     const Utils::CommandLine &cmdLine, const Utils::Environment &env, const QByteArray &stdIn)
 {
     QCborMap execArgs = QCborMap{
@@ -513,12 +512,12 @@ expected_str<QFuture<Client::ExecResult>> Client::execute(
     });
 }
 
-expected_str<QFuture<Client::FindData>> Client::find(
+Result<QFuture<Client::FindData>> Client::find(
     const QString &directory, const Utils::FileFilter &filter)
 {
     // TODO: golang's walkDir does not support automatically following symlinks.
     if (filter.iteratorFlags.testFlag(QDirIterator::FollowSymlinks))
-        return make_unexpected(Tr::tr("FollowSymlinks is not supported"));
+        return ResultError(Tr::tr("FollowSymlinks is not supported"));
 
     QCborMap findArgs{
         {"Type", "find"},
@@ -582,7 +581,7 @@ expected_str<QFuture<Client::FindData>> Client::find(
         Errors::DontHandle);
 }
 
-Utils::expected_str<QFuture<QString>> Client::readlink(const QString &path)
+Utils::Result<QFuture<QString>> Client::readlink(const QString &path)
 {
     return createJob<QString>(
         d.get(),
@@ -595,7 +594,7 @@ Utils::expected_str<QFuture<QString>> Client::readlink(const QString &path)
         });
 }
 
-Utils::expected_str<QFuture<QString>> Client::fileId(const QString &path)
+Utils::Result<QFuture<QString>> Client::fileId(const QString &path)
 {
     return createJob<QString>(
         d.get(),
@@ -608,7 +607,7 @@ Utils::expected_str<QFuture<QString>> Client::fileId(const QString &path)
         });
 }
 
-Utils::expected_str<QFuture<quint64>> Client::freeSpace(const QString &path)
+Utils::Result<QFuture<quint64>> Client::freeSpace(const QString &path)
 {
     return createJob<quint64>(
         d.get(),
@@ -620,7 +619,7 @@ Utils::expected_str<QFuture<quint64>> Client::freeSpace(const QString &path)
         });
 }
 
-Utils::expected_str<QFuture<QByteArray>> Client::readFile(
+Utils::Result<QFuture<QByteArray>> Client::readFile(
     const QString &path, qint64 limit, qint64 offset)
 {
     return createJob<QByteArray>(
@@ -641,7 +640,7 @@ Utils::expected_str<QFuture<QByteArray>> Client::readFile(
         });
 }
 
-Utils::expected_str<QFuture<qint64>> Client::writeFile(
+Utils::Result<QFuture<qint64>> Client::writeFile(
     const QString &path, const QByteArray &contents)
 {
     return createJob<qint64>(
@@ -660,17 +659,17 @@ Utils::expected_str<QFuture<qint64>> Client::writeFile(
         });
 }
 
-Utils::expected_str<QFuture<void>> Client::removeFile(const QString &path)
+Utils::Result<QFuture<void>> Client::removeFile(const QString &path)
 {
     return createVoidJob(d.get(), QCborMap{{"Type", "remove"}, {"Path", path}}, "removeresult");
 }
 
-Utils::expected_str<QFuture<void>> Client::removeRecursively(const QString &path)
+Utils::Result<QFuture<void>> Client::removeRecursively(const QString &path)
 {
     return createVoidJob(d.get(), QCborMap{{"Type", "removeall"}, {"Path", path}}, "removeallresult");
 }
 
-Utils::expected_str<QFuture<void>> Client::ensureExistingFile(const QString &path)
+Utils::Result<QFuture<void>> Client::ensureExistingFile(const QString &path)
 {
     return createVoidJob(
         d.get(),
@@ -678,12 +677,12 @@ Utils::expected_str<QFuture<void>> Client::ensureExistingFile(const QString &pat
         "ensureexistingfileresult");
 }
 
-Utils::expected_str<QFuture<void>> Client::createDir(const QString &path)
+Utils::Result<QFuture<void>> Client::createDir(const QString &path)
 {
     return createVoidJob(d.get(), QCborMap{{"Type", "createdir"}, {"Path", path}}, "createdirresult");
 }
 
-Utils::expected_str<QFuture<void>> Client::copyFile(const QString &source, const QString &target)
+Utils::Result<QFuture<void>> Client::copyFile(const QString &source, const QString &target)
 {
     return createVoidJob(
         d.get(),
@@ -694,7 +693,7 @@ Utils::expected_str<QFuture<void>> Client::copyFile(const QString &source, const
         "copyfileresult");
 }
 
-Utils::expected_str<QFuture<void>> Client::renameFile(const QString &source, const QString &target)
+Utils::Result<QFuture<void>> Client::renameFile(const QString &source, const QString &target)
 {
     return createVoidJob(
         d.get(),
@@ -705,7 +704,7 @@ Utils::expected_str<QFuture<void>> Client::renameFile(const QString &source, con
         "renamefileresult");
 }
 
-Utils::expected_str<QFuture<FilePath>> Client::createTempFile(const QString &path)
+Utils::Result<QFuture<FilePath>> Client::createTempFile(const QString &path)
 {
     return createJob<FilePath>(
         d.get(),
@@ -748,7 +747,7 @@ constexpr int toUnixChmod(QFileDevice::Permissions permissions)
     return mode;
 }
 
-Utils::expected_str<QFuture<void>> Client::setPermissions(
+Utils::Result<QFuture<void>> Client::setPermissions(
     const QString &path, QFile::Permissions perms)
 {
     int p = toUnixChmod(perms);
@@ -787,13 +786,14 @@ public:
 void Client::stopWatch(int id)
 {
     QMetaObject::invokeMethod(d->process, [this, id]() mutable {
+        QTC_ASSERT(d->process, return);
         QCborMap stopWatch{{"Type", "stopwatch"}, {"Id", id}};
         d->watchers.remove(id);
         d->process->writeRaw(stopWatch.toCborValue().toCbor());
     });
 }
 
-Utils::expected_str<std::unique_ptr<FilePathWatcher>> Client::watch(const QString &path)
+Utils::Result<std::unique_ptr<FilePathWatcher>> Client::watch(const QString &path)
 {
     auto jobResult = createJob<GoFilePathWatcher::Watch>(
         d.get(),
@@ -820,16 +820,16 @@ Utils::expected_str<std::unique_ptr<FilePathWatcher>> Client::watch(const QStrin
         });
 
     if (!jobResult)
-        return make_unexpected(jobResult.error());
+        return ResultError(jobResult.error());
 
     try {
         return std::make_unique<GoFilePathWatcher>(jobResult->result());
     } catch (const std::exception &e) {
-        return make_unexpected(QString::fromUtf8(e.what()));
+        return ResultError(QString::fromUtf8(e.what()));
     }
 }
 
-Utils::expected_str<QFuture<void>> Client::signalProcess(int pid, Utils::ControlSignal signal)
+Utils::Result<QFuture<void>> Client::signalProcess(int pid, Utils::ControlSignal signal)
 {
     QString signalString;
     switch (signal) {
@@ -843,9 +843,9 @@ Utils::expected_str<QFuture<void>> Client::signalProcess(int pid, Utils::Control
         signalString = "kill";
         break;
     case ControlSignal::KickOff:
-        return make_unexpected(Tr::tr("Kickoff signal is not supported"));
+        return ResultError(Tr::tr("Kickoff signal is not supported"));
     case ControlSignal::CloseWriteChannel:
-        return make_unexpected(Tr::tr("CloseWriteChannel signal is not supported"));
+        return ResultError(Tr::tr("CloseWriteChannel signal is not supported"));
     }
 
     return createVoidJob(
@@ -854,12 +854,69 @@ Utils::expected_str<QFuture<void>> Client::signalProcess(int pid, Utils::Control
         "signalsuccess");
 }
 
+Result<QFuture<QString>> Client::owner(const QString &path)
+{
+    return createJob<QString>(
+        d.get(),
+        QCborMap{{"Type", "owner"}, {"Path", path}},
+        [](QVariantMap map, QPromise<QString> &promise) {
+            ASSERT_TYPE("ownerresult");
+
+            promise.addResult(map.value("Owner").toString());
+
+            return JobResult::Done;
+        });
+}
+
+Result<QFuture<uint>> Client::ownerId(const QString &path)
+{
+    return createJob<uint>(
+        d.get(),
+        QCborMap{{"Type", "ownerid"}, {"Path", path}},
+        [](QVariantMap map, QPromise<uint> &promise) {
+            ASSERT_TYPE("owneridresult");
+
+            promise.addResult(uint(map.value("OwnerId").toInt()));
+
+            return JobResult::Done;
+        });
+}
+
+Result<QFuture<QString>> Client::group(const QString &path)
+{
+    return createJob<QString>(
+        d.get(),
+        QCborMap{{"Type", "group"}, {"Path", path}},
+        [](QVariantMap map, QPromise<QString> &promise) {
+            ASSERT_TYPE("groupresult");
+
+            promise.addResult(map.value("Group").toString());
+
+            return JobResult::Done;
+        });
+}
+
+Result<QFuture<uint>> Client::groupId(const QString &path)
+{
+    return createJob<uint>(
+        d.get(),
+        QCborMap{{"Type", "groupid"}, {"Path", path}},
+        [](QVariantMap map, QPromise<uint> &promise) {
+            ASSERT_TYPE("groupidresult");
+
+            promise.addResult(uint(map.value("GroupId").toInt()));
+
+            return JobResult::Done;
+        });
+}
+
+
 bool Client::exit()
 {
     try {
         createVoidJob(d.get(), QCborMap{{"Type", "exit"}}, "exitres").and_then([](auto future) {
             future.waitForFinished();
-            return expected_str<void>();
+            return Result<>();
         });
         return true;
     } catch (const std::runtime_error &e) {
@@ -877,7 +934,7 @@ bool Client::exit()
     }
 }
 
-Utils::expected_str<QFuture<Client::Stat>> Client::stat(const QString &path)
+Utils::Result<QFuture<Client::Stat>> Client::stat(const QString &path)
 {
     return createJob<Stat>(
         d.get(),
@@ -899,7 +956,7 @@ Utils::expected_str<QFuture<Client::Stat>> Client::stat(const QString &path)
         });
 }
 
-expected_str<QFuture<bool>> Client::is(const QString &path, Is is)
+Result<QFuture<bool>> Client::is(const QString &path, Is is)
 {
     return createJob<bool>(
         d.get(),
@@ -913,7 +970,7 @@ expected_str<QFuture<bool>> Client::is(const QString &path, Is is)
         });
 }
 
-expected_str<FilePath> Client::getCmdBridgePath(
+Result<FilePath> Client::getCmdBridgePath(
     OsType osType, OsArch osArch, const FilePath &libExecPath)
 {
     static const QMap<OsType, QString> typeToString = {
@@ -944,7 +1001,7 @@ expected_str<FilePath> Client::getCmdBridgePath(
     if (result.exists())
         return result;
 
-    return make_unexpected(
+    return ResultError(
         QString(Tr::tr("No command bridge found for architecture %1-%2")).arg(type, arch));
 }
 

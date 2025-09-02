@@ -43,13 +43,13 @@ void setupLocalSocketModule()
             QObject::connect(socket, &QLocalSocket::connected, socket, [socket, cb] {
                 qDebug() << "CONNECTED";
                 auto res = void_safe_call(cb, true);
-                QTC_CHECK_EXPECTED(res);
+                QTC_CHECK_RESULT(res);
                 QObject::disconnect(socket, &QLocalSocket::errorOccurred, socket, nullptr);
             }, Qt::SingleShotConnection);
             QObject::connect(socket, &QLocalSocket::errorOccurred, socket, [socket, cb] {
                 qDebug() << "CONNECT ERROR";
                 auto res = void_safe_call(cb, false, socket->errorString());
-                QTC_CHECK_EXPECTED(res);
+                QTC_CHECK_RESULT(res);
                 QObject::disconnect(socket, &QLocalSocket::connected, socket, nullptr);
             }, Qt::SingleShotConnection);
 
@@ -79,7 +79,7 @@ void setupLocalSocketModule()
 
             QObject::connect(socket, &QLocalSocket::readyRead, socket, [socket, cb] {
                 auto res = void_safe_call(cb, socket->readAll().toStdString());
-                QTC_CHECK_EXPECTED(res);
+                QTC_CHECK_RESULT(res);
             }, Qt::SingleShotConnection);
         };
 

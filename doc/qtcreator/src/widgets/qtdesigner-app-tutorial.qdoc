@@ -318,6 +318,7 @@
     \section1 Build and run your application
 
     Now that you have all the necessary files, select
-    \inlineimage icons/run_small.png to build and run your application.
+    \inlineimage {icons/run_small.png} {Run} (\uicontrol Run)
+    to build and run your application.
 
 */

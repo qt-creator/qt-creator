@@ -27,7 +27,7 @@
     the build system structure of the project and lists all files that
     are part of the project.
 
-    \image {qtcreator-projects-view-edit.png} {Projects view in the sidebar}
+    \image {qtcreator-projects-view.webp} {Projects view in the sidebar}
 
     \note Usually, \l{Navigate with locator}{searching with the locator}
     is the fastest way to find a particular project, file, class, or function,
@@ -121,7 +121,7 @@
 
     The toolbar in the \uicontrol Projects view has additional options.
 
-    To filter view contents, select \inlineimage icons/filtericon.png
+    To filter view contents, select \inlineimage {icons/filtericon.png} {Filter Tree}
     (\uicontrol {Filter Tree}):
 
     \list
@@ -139,7 +139,8 @@
     \endlist
 
     To stop synchronizing the position in the project tree with the file
-    currently opened in the editor, clear \inlineimage icons/linkicon.png
+    currently opened in the editor, clear
+    \inlineimage {icons/linkicon.png} {Synchronize with Editor}
     (\uicontrol {Synchronize with Editor}).
 
     Some build systems support adding and removing files to a project in \QC

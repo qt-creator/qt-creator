@@ -16,6 +16,10 @@
 #include <QFileInfo>
 #include <QDebug>
 
+using namespace Utils;
+
+namespace CodePaster {
+
 enum { debug = 0 };
 
 const char tempPatternC[] = "pasterXXXXXX.xml";
@@ -24,8 +28,6 @@ const char pasterElementC[] = "paster";
 const char userElementC[] = "user";
 const char descriptionElementC[] = "description";
 const char textElementC[] = "text";
-
-namespace CodePaster {
 
 FileShareProtocol::FileShareProtocol() = default;
 
@@ -159,7 +161,7 @@ void FileShareProtocol::paste(
         )
 {
     // Write out temp XML file
-    Utils::TempFileSaver saver(fileShareSettings().path().pathAppended(tempPatternC).toFSPathString());
+    TempFileSaver saver(fileShareSettings().path().pathAppended(tempPatternC).toFSPathString());
     saver.setAutoRemove(false);
     if (!saver.hasError()) {
         // Flat text sections embedded into pasterElement
@@ -176,8 +178,8 @@ void FileShareProtocol::paste(
 
         saver.setResult(&writer);
     }
-    if (!saver.finalize()) {
-        Core::MessageManager::writeDisrupting(saver.errorString());
+    if (const Result<> res = saver.finalize(); !res) {
+        Core::MessageManager::writeDisrupting(res.error());
         return;
     }
 

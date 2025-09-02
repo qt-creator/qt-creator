@@ -72,7 +72,7 @@ static FilePath pyLspPath(const FilePath &python)
     const QString version = pythonVersion(python);
     if (python.isLocal())
         return Core::ICore::userResourcePath() / "pylsp" / version;
-    if (const expected_str<FilePath> tmpDir = python.tmpDir())
+    if (const Result<FilePath> tmpDir = python.tmpDir())
         return *tmpDir / "qc-pylsp" / version;
     return {};
 }
@@ -169,7 +169,6 @@ PyLSClient *clientForPython(const FilePath &python)
     interface->setCommandLine({python, {"-m", "pylsp"}});
     auto client = new PyLSClient(interface);
     client->setName(Tr::tr("Python Language Server (%1)").arg(python.toUserOutput()));
-    client->setActivateDocumentAutomatically(true);
     client->updateConfiguration();
     LanguageFilter filter;
     filter.mimeTypes = QStringList() << Constants::C_PY_MIMETYPE << Constants::C_PY3_MIMETYPE;
@@ -218,7 +217,7 @@ void PyLSClient::openDocument(TextEditor::TextDocument *document)
                 if (BuildStepList *buildSteps = buildConfig->buildSteps()) {
                     BuildStep *buildStep = buildSteps->firstStepWithId(PySideBuildStep::id());
                     if (auto *pythonBuildStep = qobject_cast<PySideBuildStep *>(buildStep))
-                        updateExtraCompilers(project, pythonBuildStep->extraCompilers());
+                        updateExtraCompilers(pythonBuildStep->extraCompilers());
                 }
             }
         } else if (isSupportedDocument(document)) {
@@ -238,22 +237,21 @@ void PyLSClient::openDocument(TextEditor::TextDocument *document)
     Client::openDocument(document);
 }
 
-void PyLSClient::projectClosed(ProjectExplorer::Project *project)
+void PyLSClient::buildConfigurationClosed(BuildConfiguration *bc)
 {
-    for (ProjectExplorer::ExtraCompiler *compiler : m_extraCompilers.value(project))
+    for (ExtraCompiler *compiler : m_extraCompilers)
         closeExtraCompiler(compiler, compiler->targets().first());
-    Client::projectClosed(project);
+    Client::buildConfigurationClosed(bc);
 }
 
-void PyLSClient::updateExtraCompilers(ProjectExplorer::Project *project,
-                                      const QList<PySideUicExtraCompiler *> &extraCompilers)
+void PyLSClient::updateExtraCompilers(const QList<PySideUicExtraCompiler *> &extraCompilers)
 {
-    auto oldCompilers = m_extraCompilers.take(project);
+    auto oldCompilers = m_extraCompilers;
     for (PySideUicExtraCompiler *extraCompiler : extraCompilers) {
         QTC_ASSERT(extraCompiler->targets().size() == 1 , continue);
         int index = oldCompilers.indexOf(extraCompiler);
         if (index < 0) {
-            m_extraCompilers[project] << extraCompiler;
+            m_extraCompilers << extraCompiler;
             connect(
                 extraCompiler,
                 &ExtraCompiler::contentsChanged,
@@ -265,19 +263,17 @@ void PyLSClient::updateExtraCompilers(ProjectExplorer::Project *project,
                 extraCompiler,
                 &QObject::destroyed,
                 this,
-                [this, extraCompiler, file = extraCompiler->targets().constFirst()]() {
-                    for (QList<ProjectExplorer::ExtraCompiler *> &extraCompilers : m_extraCompilers)
-                        QTC_CHECK(extraCompilers.removeAll(extraCompiler) == 0);
+                [this, extraCompiler, file = extraCompiler->targets().constFirst()] {
+                    QTC_CHECK(m_extraCompilers.removeAll(extraCompiler) == 0);
                     closeExtraCompiler(extraCompiler, file);
                 });
-
             if (extraCompiler->isDirty())
                 extraCompiler->compileFile();
         } else {
-            m_extraCompilers[project] << oldCompilers.takeAt(index);
+            m_extraCompilers << oldCompilers.takeAt(index);
         }
     }
-    for (ProjectExplorer::ExtraCompiler *compiler : oldCompilers)
+    for (ExtraCompiler *compiler : std::as_const(oldCompilers))
         closeExtraCompiler(compiler, compiler->targets().first());
 }
 
@@ -414,22 +410,29 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
             auto message = Tr::tr("Update Python language server (PyLS) for %1 (%2).")
                                .arg(pythonName(python), python.toUserOutput());
             InfoBarEntry info(updatePylsInfoBarId, message);
-            info.addCustomButton(Tr::tr("Always Update"), [this, python, document, state] {
-                document->infoBar()->removeInfo(updatePylsInfoBarId);
-                Core::ICore::settings()->setValue(alwaysUpdateKey, true);
-                InfoBar::globallySuppressInfo(updatePylsInfoBarId);
-                installPythonLanguageServer(python, document, state.pylsModulePath, false, true);
-            });
-            info.addCustomButton(Tr::tr("Update"), [this, python, document, state] {
-                document->infoBar()->removeInfo(updatePylsInfoBarId);
-                installPythonLanguageServer(python, document, state.pylsModulePath, false, true);
-            });
-            info.addCustomButton(Tr::tr("Never"), [document, python] {
-                document->infoBar()->removeInfo(updatePylsInfoBarId);
-                InfoBar::globallySuppressInfo(updatePylsInfoBarId);
-                if (auto client = clientForPython(python))
-                    LanguageClientManager::openDocumentWithClient(document, client);
-            });
+            info.addCustomButton(
+                Tr::tr("Always Update"),
+                [this, python, document, state] {
+                    Core::ICore::settings()->setValue(alwaysUpdateKey, true);
+                    installPythonLanguageServer(python, document, state.pylsModulePath, false, true);
+                },
+                {},
+                InfoBarEntry::ButtonAction::SuppressPersistently);
+            info.addCustomButton(
+                Tr::tr("Update"),
+                [this, python, document, state] {
+                    installPythonLanguageServer(python, document, state.pylsModulePath, false, true);
+                },
+                {},
+                InfoBarEntry::ButtonAction::Hide);
+            info.addCustomButton(
+                Tr::tr("Never"),
+                [document, python] {
+                    if (auto client = clientForPython(python))
+                        LanguageClientManager::openDocumentWithClient(document, client);
+                },
+                {},
+                InfoBarEntry::ButtonAction::SuppressPersistently);
             info.setCancelButtonInfo([python, document]{
                 if (auto client = clientForPython(python))
                     LanguageClientManager::openDocumentWithClient(document, client);

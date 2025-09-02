@@ -36,7 +36,7 @@ private:
     void resetModel();
 
     PluginInterface::ScxmlDocument *m_document = nullptr;
-    QVector<PluginInterface::ScxmlTag*> m_allTags;
+    QList<PluginInterface::ScxmlTag*> m_allTags;
     QString m_strFilter;
 };
 

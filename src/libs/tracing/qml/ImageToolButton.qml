@@ -22,6 +22,11 @@ ToolButton {
         smooth: false
     }
 
+    topInset: Theme.compactToolbar() ? 0 : 3
+    rightInset: topInset
+    bottomInset: topInset
+    leftInset: topInset
+
     background: Rectangle {
         radius: Theme.compactToolbar() ? 0 : 5
         color: (parent.checked || parent.pressed)

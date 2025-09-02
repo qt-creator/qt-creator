@@ -9,8 +9,7 @@
 #include <QWidget>
 #include <QQuickWidget>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class FlameGraphView : public QmlProfilerEventsView
 {
@@ -29,5 +28,4 @@ private:
     FlameGraphModel *m_model;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

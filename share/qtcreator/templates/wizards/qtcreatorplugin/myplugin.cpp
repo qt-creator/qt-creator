@@ -45,7 +45,7 @@ public:
         // depends on have passed their initialize() phase.
 
         // If you need access to command line arguments or to report errors, use the
-        //    bool IPlugin::initialize(const QStringList &arguments, QString *errorString)
+        //    Utils::Result<> IPlugin::initialize(const QStringList &arguments)
         // overload.
 
         ActionContainer *menu = ActionManager::createMenu(Constants::MENU_ID);

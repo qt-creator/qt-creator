@@ -56,11 +56,7 @@ def main():
         qchs.extend([os.path.join(p, "qtopengl.qch"), os.path.join(p, "qtwidgets.qch")])
     addHelpDocumentation(qchs)
     setFixedHelpViewer(HelpViewer.HELPMODE)
-    if not test.verify(object.exists(getWelcomeScreenSideBarButton('Get Started')),
-                       "Verifying: Qt Creator displays Welcome Page with Getting Started."):
-        test.fatal("Something's wrong - leaving test.")
-        invokeMenuItem("File", "Exit")
-        return
+
     # select "Examples" topic
     switchToSubMode('Examples')
     expect = (("QListView", "unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'",

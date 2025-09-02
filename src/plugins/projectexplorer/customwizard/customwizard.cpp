@@ -16,8 +16,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QDebug>
 #include <QFile>
@@ -160,35 +160,33 @@ BaseFileWizard *CustomWizard::create(const WizardDialogParameters &p) const
 }
 
 // Read out files and store contents with field contents replaced.
-static bool createFile(CustomWizardFile cwFile,
-                       const QString &sourceDirectory,
-                       const QString &targetDirectory,
-                       const CustomProjectWizard::FieldReplacementMap &fm,
-                       GeneratedFiles *files,
-                       QString *errorMessage)
+static Result<GeneratedFile> createFile(CustomWizardFile cwFile,
+                                        const QString &sourceDirectory,
+                                        const FilePath &targetDirectory,
+                                        const CustomProjectWizard::FieldReplacementMap &fm)
 {
     const QChar slash =  QLatin1Char('/');
     const QString sourcePath = sourceDirectory + slash + cwFile.source;
     // Field replacement on target path
     CustomWizardContext::replaceFields(fm, &cwFile.target);
-    const QString targetPath = targetDirectory + slash + cwFile.target;
+    const FilePath targetPath = targetDirectory.pathAppended(cwFile.target);
     if (CustomWizardPrivate::verbose)
         qDebug() << "generating " << targetPath << sourcePath << fm;
 
     // Read contents of source file
-    FileReader reader;
-    if (!reader.fetch(FilePath::fromString(sourcePath), errorMessage))
-        return false;
+    const Result<QByteArray> contents = FilePath::fromString(sourcePath).fileContents();
+    if (!contents)
+        return ResultError(contents.error());
 
     GeneratedFile generatedFile;
-    generatedFile.setFilePath(FilePath::fromString(targetPath).cleanPath());
+    generatedFile.setFilePath(targetPath.cleanPath());
     if (cwFile.binary) {
         // Binary file: Set data.
         generatedFile.setBinary(true);
-        generatedFile.setBinaryContents(reader.data());
+        generatedFile.setBinaryContents(*contents);
     } else {
         // Template file: Preprocess.
-        const QString contentsIn = QString::fromLocal8Bit(reader.text());
+        const QString contentsIn = QString::fromLocal8Bit(normalizeNewlines(*contents));
         generatedFile.setContents(CustomWizardContext::processFile(fm, contentsIn));
     }
 
@@ -198,8 +196,7 @@ static bool createFile(CustomWizardFile cwFile,
     if (cwFile.openProject)
         attributes |= GeneratedFile::OpenProjectAttribute;
     generatedFile.setAttributes(attributes);
-    files->push_back(generatedFile);
-    return true;
+    return generatedFile;
 }
 
 // Helper to find a specific wizard page of a wizard by type.
@@ -237,21 +234,27 @@ GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString *error
     if (CustomWizardPrivate::verbose) {
         QString logText;
         QTextStream str(&logText);
-        str << "CustomWizard::generateFiles: " << ctx->targetPath << '\n';
+        str << "CustomWizard::generateFiles: " << ctx->targetPath.toUserOutput() << '\n';
         const FieldReplacementMap::const_iterator cend = context()->replacements.constEnd();
         for (FieldReplacementMap::const_iterator it = context()->replacements.constBegin(); it != cend; ++it)
             str << "  '" << it.key() << "' -> '" << it.value() << "'\n";
         qWarning("%s", qPrintable(logText));
     }
-    return generateWizardFiles(errorMessage);
+    const Result<GeneratedFiles> res = generateWizardFiles();
+    if (!res) {
+        if (errorMessage)
+            *errorMessage = res.error();
+        return {};
+    }
+    return res.value();
 }
 
-bool CustomWizard::writeFiles(const GeneratedFiles &files, QString *errorMessage) const
+Result<> CustomWizard::writeFiles(const GeneratedFiles &files) const
 {
-    if (!BaseFileWizardFactory::writeFiles(files, errorMessage))
-        return false;
+    if (const Result<> res = BaseFileWizardFactory::writeFiles(files); !res)
+        return res;
     if (d->m_parameters->filesGeneratorScript.isEmpty())
-        return true;
+        return ResultOk;
     // Prepare run of the custom script to generate. In the case of a
     // project wizard that is entirely created by a script,
     // the target project directory might not exist.
@@ -263,31 +266,30 @@ bool CustomWizard::writeFiles(const GeneratedFiles &files, QString *errorMessage
     if (!scriptWorkingDirDir.exists()) {
         if (CustomWizardPrivate::verbose)
             qDebug("Creating directory %s", qPrintable(scriptWorkingDir));
-        if (!scriptWorkingDirDir.mkpath(scriptWorkingDir)) {
-            *errorMessage = QString::fromLatin1("Unable to create the target directory \"%1\"").arg(scriptWorkingDir);
-            return false;
-        }
+        if (!scriptWorkingDirDir.mkpath(scriptWorkingDir))
+            return ResultError(QString("Unable to create the target directory \"%1\"").arg(scriptWorkingDir));
     }
     // Run the custom script to actually generate the files.
-    if (!runCustomWizardGeneratorScript(scriptWorkingDir,
-                                                  d->m_parameters->filesGeneratorScript,
-                                                  d->m_parameters->filesGeneratorScriptArguments,
-                                                  ctx->replacements, errorMessage))
-        return false;
+    const Result<> res = runCustomWizardGeneratorScript(scriptWorkingDir,
+                                                      d->m_parameters->filesGeneratorScript,
+                                                      d->m_parameters->filesGeneratorScriptArguments,
+                                                      ctx->replacements);
+    if (!res)
+        return res;
     // Paranoia: Check on the files generated by the script:
     for (const GeneratedFile &generatedFile : files) {
-        if (generatedFile.attributes() & GeneratedFile::CustomGeneratorAttribute)
+        if (generatedFile.attributes() & GeneratedFile::CustomGeneratorAttribute) {
             if (!generatedFile.filePath().isFile()) {
-                *errorMessage = QString::fromLatin1("%1 failed to generate %2").
+                return ResultError(QString::fromLatin1("%1 failed to generate %2").
                         arg(d->m_parameters->filesGeneratorScript.back()).
-                        arg(generatedFile.filePath().toUrlishString());
-                return false;
+                        arg(generatedFile.filePath().toUrlishString()));
             }
+        }
     }
-    return true;
+    return ResultOk;
 }
 
-GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) const
+Result<GeneratedFiles> CustomWizard::generateWizardFiles() const
 {
     GeneratedFiles rc;
     const CustomWizardContextPtr ctx = context();
@@ -298,21 +300,25 @@ GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) const
         qDebug() << "CustomWizard::generateWizardFiles: in "
                  << ctx->targetPath << ", using: " << ctx->replacements;
 
-    // If generator script is non-empty, do a dry run to get it's files.
+    // If generator script is non-empty, do a dry run to get its files.
     if (!d->m_parameters->filesGeneratorScript.isEmpty()) {
-        rc += dryRunCustomWizardGeneratorScript(scriptWorkingDirectory(ctx, d->m_parameters),
-                                                          d->m_parameters->filesGeneratorScript,
-                                                          d->m_parameters->filesGeneratorScriptArguments,
-                                                          ctx->replacements,
-                                                          errorMessage);
-        if (rc.isEmpty())
-            return rc;
+        Result<QList<GeneratedFile>> res =
+           dryRunCustomWizardGeneratorScript(scriptWorkingDirectory(ctx, d->m_parameters),
+                                             d->m_parameters->filesGeneratorScript,
+                                             d->m_parameters->filesGeneratorScriptArguments,
+                                             ctx->replacements);
+        if (!res)
+            return res;
+        rc.append(res.value());
     }
     // Add the template files specified by the <file> elements.
-    for (const CustomWizardFile &file : std::as_const(d->m_parameters->files))
-        if (!createFile(file, d->m_parameters->directory, ctx->targetPath.toUrlishString(), context()->replacements,
-                        &rc, errorMessage))
-            return {};
+    for (const CustomWizardFile &file : std::as_const(d->m_parameters->files)) {
+        const Result<GeneratedFile> res = createFile(file, d->m_parameters->directory,
+                                                     ctx->targetPath, context()->replacements);
+        if (!res)
+            return ResultError(res.error());
+        rc.append(res.value());
+    }
 
     return rc;
 }
@@ -512,8 +518,13 @@ GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QString *err
     ctx->replacements = fieldReplacementMap;
     if (CustomWizardPrivate::verbose)
         qDebug() << "CustomProjectWizard::generateFiles" << dialog << ctx->targetPath << ctx->replacements;
-    const GeneratedFiles generatedFiles = generateWizardFiles(errorMessage);
-    return generatedFiles;
+    const Result<GeneratedFiles> generatedFiles = generateWizardFiles();
+    if (!generatedFiles) {
+        if (errorMessage)
+            *errorMessage = generatedFiles.error();
+        return {};
+    }
+    return *generatedFiles;
 }
 
 /*!
@@ -521,36 +532,32 @@ GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QString *err
     the respective attributes set.
 */
 
-bool CustomProjectWizard::postGenerateOpen(const GeneratedFiles &l, QString *errorMessage)
+Result<> CustomProjectWizard::postGenerateOpen(const GeneratedFiles &l)
 {
     // Post-Generate: Open the project and the editors as desired
     for (const GeneratedFile &file : l) {
         if (file.attributes() & GeneratedFile::OpenProjectAttribute) {
             OpenProjectResult result = ProjectExplorerPlugin::openProject(file.filePath());
-            if (!result) {
-                if (errorMessage)
-                    *errorMessage = result.errorMessage();
-                return false;
-            }
+            if (!result)
+                return ResultError(result.errorMessage());
         }
     }
-    return BaseFileWizardFactory::postGenerateOpenEditors(l, errorMessage);
+    return BaseFileWizardFactory::postGenerateOpenEditors(l);
 }
 
-bool CustomProjectWizard::postGenerateFiles(const QWizard *, const GeneratedFiles &l, QString *errorMessage) const
+Result<> CustomProjectWizard::postGenerateFiles(const QWizard *, const GeneratedFiles &l) const
 {
     if (CustomWizardPrivate::verbose)
         qDebug() << "CustomProjectWizard::postGenerateFiles()";
-    return CustomProjectWizard::postGenerateOpen(l, errorMessage);
+    return CustomProjectWizard::postGenerateOpen(l);
 }
 
 void CustomProjectWizard::handleProjectParametersChanged(const QString &name,
-                                                         const Utils::FilePath &path)
+                                                         const FilePath &path)
 {
+    Q_UNUSED(path);
     // Make '%ProjectName%' available in base replacements.
     context()->baseReplacements.insert(QLatin1String("ProjectName"), name);
-
-    emit projectLocationChanged(path / name);
 }
 
 } // namespace ProjectExplorer

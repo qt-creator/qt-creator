@@ -40,7 +40,7 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
 
     clear(Tr::tr("No document"));
 
-    connect(this, &QPlainTextEdit::cursorPositionChanged,
+    connect(this, &PlainTextEdit::cursorPositionChanged,
             this, &UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor);
 
     IContext::attach(this, Context(Constants::UNIFIED_VIEW_ID));
@@ -578,7 +578,7 @@ void UnifiedDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
     QTextCursor cursor = textCursor();
     cursor.setPosition(block.position());
     setTextCursor(cursor);
-    verticalScrollBar()->setValue(blockNumber);
+    setTopBlock(block);
 }
 
 } // namespace DiffEditor::Internal

@@ -12,6 +12,7 @@
 #include <QClipboard>
 #include <QDesktopServices>
 #include <QDeadlineTimer>
+#include <QElapsedTimer>
 #include <QGlyphRun>
 #include <QLoggingCategory>
 #include <QMenu>

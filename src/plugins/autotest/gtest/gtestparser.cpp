@@ -62,7 +62,7 @@ static bool hasGTestNames(const CPlusPlus::Document::Ptr &document)
         if (!macro.isFunctionLike())
             continue;
         if (GTestUtils::isGTestMacro(QLatin1String(macro.macro().name()))) {
-            const QVector<CPlusPlus::Document::Block> args = macro.arguments();
+            const QList<CPlusPlus::Document::Block> args = macro.arguments();
             if (args.size() != 2)
                 continue;
             return true;
@@ -86,7 +86,7 @@ bool GTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     }
 
     const FilePath filePath = doc->filePath();
-    CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, fileName);
+    CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, fileName, false);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
     GTestVisitor visitor(document);

@@ -104,8 +104,8 @@ private:
 class PythonRunConfiguration : public RunConfiguration
 {
 public:
-    PythonRunConfiguration(Target *target, Id id)
-        : RunConfiguration(target, id)
+    PythonRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
     {
         buffered.setSettingsKey("PythonEditor.RunConfiguation.Buffered");
         buffered.setLabelText(Tr::tr("Buffered output"));
@@ -117,7 +117,7 @@ public:
         mainScript.setLabelText(Tr::tr("Script:"));
         mainScript.setReadOnly(true);
 
-        environment.setSupportForBuildEnvironment(target);
+        environment.setSupportForBuildEnvironment(bc);
 
         x11Forwarding.setVisible(HostOsInfo::isAnyUnixHost());
 
@@ -145,8 +145,6 @@ public:
             mainScript.setValue(bti.targetFilePath);
             workingDir.setDefaultWorkingDirectory(bti.targetFilePath.parentDir());
         });
-
-        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     }
 
     FilePathAspect interpreter{this};
@@ -194,10 +192,13 @@ void setupPythonDebugWorker()
 void setupPythonOutputParser()
 {
     addOutputParserFactory([](Target *t) -> OutputLineParser * {
-        if (t && t->project()->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE)
+        if (!t)
+            return nullptr;
+        if (t->project()->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE
+            || t->project()->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE_TOML)
             return new PythonOutputLineParser;
         return nullptr;
     });
 }
 
-} // Python::Internal
+} // namespace Python::Internal

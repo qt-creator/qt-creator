@@ -29,9 +29,9 @@ using namespace Utils;
 namespace ClangTools {
 namespace Internal {
 
-static QString lineColumnString(const Debugger::DiagnosticLocation &location)
+static QString lineColumnString(const Link &link)
 {
-    return QString("%1:%2").arg(QString::number(location.line), QString::number(location.column));
+    return QString("%1:%2").arg(link.targetLine).arg(link.targetColumn);
 }
 
 static QString fixitStatus(FixitStatus status)
@@ -91,7 +91,7 @@ QString createDiagnosticToolTipString(
             if (!steps.second.isEmpty())
                 steps.second += "<br>";
             steps.second += QString("%1:%2: %3")
-                    .arg(step.location.filePath.toUserOutput(),
+                    .arg(step.location.targetFilePath.toUserOutput(),
                          lineColumnString(step.location),
                          step.message);
         }
@@ -121,10 +121,11 @@ QString createDiagnosticToolTipString(
     return html;
 }
 
-QString createFullLocationString(const Debugger::DiagnosticLocation &location)
+QString createFullLocationString(const Link &location)
 {
-    return location.filePath.toUserOutput() + QLatin1Char(':') + QString::number(location.line)
-            + QLatin1Char(':') + QString::number(location.column);
+    return location.targetFilePath.toUserOutput()
+            + QLatin1Char(':') + QString::number(location.targetLine)
+            + QLatin1Char(':') + QString::number(location.targetColumn);
 }
 
 QString hintAboutBuildBeforeAnalysis()
@@ -174,7 +175,7 @@ static FilePath findValidExecutable(const FilePaths &candidates)
 
 FilePath toolShippedExecutable(ClangToolType tool)
 {
-    const expected_str<FilePath> shippedExecutable
+    const Result<FilePath> shippedExecutable
         = tool == ClangToolType::Tidy ? Core::ICore::clangTidyExecutable(CLANG_BINDIR)
                                       : Core::ICore::clazyStandaloneExecutable(CLANG_BINDIR);
     return shippedExecutable.value_or(FilePath{});

@@ -141,8 +141,7 @@ public:
                              int /*utf16charsOffset*/,
                              int line,
                              const Macro &macro,
-                             const QVector<MacroArgumentReference> &actuals
-                                    = QVector<MacroArgumentReference>()) override
+                             const QList<MacroArgumentReference> &actuals = {}) override
     {
         m_expandedMacros.append(macro.name());
         m_expandedMacrosOffset.append(bytesOffset);
@@ -266,7 +265,7 @@ public:
     const QList<int> macroArgsCount() const
     { return m_macroArgsCount; }
 
-    const QMap<QByteArray, QVector<MacroArgumentReference >> usedMacros() const
+    const QMap<QByteArray, QList<MacroArgumentReference >> usedMacros() const
     { return m_usedMacros; }
 
     const QList<Pragma> &pragmas() const { return m_pragmas; }
@@ -288,7 +287,7 @@ private:
     QHash<QByteArray, QList<int> > m_definitionsResolvedFromLines;
     QSet<QByteArray> m_unresolvedDefines;
     QList<int> m_macroArgsCount;
-    QMap<QByteArray, QVector<MacroArgumentReference >> m_usedMacros;
+    QMap<QByteArray, QList<MacroArgumentReference >> m_usedMacros;
     QList<Pragma> m_pragmas;
 };
 
@@ -539,7 +538,7 @@ void tst_Preprocessor::macro_args_offsets()
     Preprocessor preprocess(&client, &env);
     preprocess.run(fileName, source, true, false);
 
-    QMap<QByteArray, QVector<MacroArgumentReference >> usedMacros = client.usedMacros();
+    QMap<QByteArray, QList<MacroArgumentReference>> usedMacros = client.usedMacros();
     QCOMPARE(usedMacros.size(), 1);
     QVERIFY(usedMacros.contains(macroName));
     MacroArgumentReference argRef = usedMacros.value(macroName).at(0);

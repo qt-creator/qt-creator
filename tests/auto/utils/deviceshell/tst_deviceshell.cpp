@@ -239,7 +239,7 @@ private slots:
     void testStdErr_data()
     {
         QTest::addColumn<CommandLine>("cmdLine");
-        for (const auto &cmdLine : m_availableShells) {
+        for (const auto &cmdLine : std::as_const(m_availableShells)) {
             QTest::newRow(cmdLine.executable().baseName().toUtf8()) << cmdLine;
         }
     }
@@ -268,7 +268,7 @@ private slots:
     void testNoCommand_data()
     {
         QTest::addColumn<CommandLine>("cmdLine");
-        for (const auto &cmdLine : m_availableShells) {
+        for (const auto &cmdLine : std::as_const(m_availableShells)) {
             QTest::newRow(cmdLine.executable().baseName().toUtf8()) << cmdLine;
         }
     }
@@ -292,7 +292,7 @@ private slots:
     void testMultiThreadedFind_data()
     {
         QTest::addColumn<CommandLine>("cmdLine");
-        for (const auto &cmdLine : m_availableShells) {
+        for (const auto &cmdLine : std::as_const(m_availableShells)) {
             QTest::newRow(cmdLine.executable().baseName().toUtf8()) << cmdLine;
         }
     }
@@ -340,7 +340,7 @@ private slots:
     void testNoScript_data()
     {
         QTest::addColumn<CommandLine>("cmdLine");
-        for (const auto &cmdLine : m_availableShells) {
+        for (const auto &cmdLine : std::as_const(m_availableShells)) {
             QTest::newRow(cmdLine.executable().baseName().toUtf8()) << cmdLine;
         }
     }

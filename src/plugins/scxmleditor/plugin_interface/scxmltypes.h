@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <QList>
 #include <QVariant>
-#include <QVector>
 
 namespace ScxmlEditor {
 

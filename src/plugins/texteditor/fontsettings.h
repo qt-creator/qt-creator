@@ -14,7 +14,6 @@
 #include <QList>
 #include <QString>
 #include <QTextCharFormat>
-#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QFont;
@@ -43,7 +42,7 @@ public:
     bool fromSettings(const FormatDescriptions &descriptions,
                       const Utils::QtcSettings *s);
 
-    QVector<QTextCharFormat> toTextCharFormats(const QVector<TextStyle> &categories) const;
+    QList<QTextCharFormat> toTextCharFormats(const QList<TextStyle> &categories) const;
     QTextCharFormat toTextCharFormat(TextStyle category) const;
     QTextCharFormat toTextCharFormat(TextStyles textStyles) const;
 

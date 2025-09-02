@@ -8,24 +8,22 @@
 #include "runconfigurationaspects.h"
 #include "target.h"
 
-#include <utils/processinterface.h>
-
 using namespace Utils;
 
 namespace ProjectExplorer {
 
 // CustomExecutableRunConfiguration
 
-CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target)
-    : CustomExecutableRunConfiguration(target, Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID)
+CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(BuildConfiguration *bc)
+    : CustomExecutableRunConfiguration(bc, Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID)
 {}
 
-CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *target, Id id)
-    : RunConfiguration(target, id)
+CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(BuildConfiguration *bc, Id id)
+    : RunConfiguration(bc, id)
 {
-    environment.setSupportForBuildEnvironment(target);
+    environment.setSupportForBuildEnvironment(bc);
 
-    executable.setDeviceSelector(target, ExecutableAspect::HostDevice);
+    executable.setDeviceSelector(kit(), ExecutableAspect::HostDevice);
     executable.setSettingsKey("ProjectExplorer.CustomExecutableRunConfiguration.Executable");
     executable.setReadOnly(false);
     executable.setHistoryCompleter("Qt.CustomExecutable.History");
@@ -71,13 +69,6 @@ CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory
 {
     registerRunConfiguration<CustomExecutableRunConfiguration>(
         Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID);
-}
-
-CustomExecutableRunWorkerFactory::CustomExecutableRunWorkerFactory()
-{
-    setProduct<ProcessRunner>();
-    addSupportedRunMode(Constants::NORMAL_RUN_MODE);
-    addSupportedRunConfig(Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID);
 }
 
 } // namespace ProjectExplorer

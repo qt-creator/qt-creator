@@ -1,39 +1,41 @@
-// Copyright (C) 2016 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <qmljs/qmljs_global.h>
-#include <qmljs/parser/qmljsast_p.h>
+
+#include <memory>
 
 QT_FORWARD_DECLARE_CLASS(QIcon)
+QT_FORWARD_DECLARE_CLASS(QStringView)
 
-namespace QmlJS {
+namespace QmlJS::Icons {
 
-class IconsPrivate;
+namespace Internal {
+class IconsStorage;
+}
 
-class QMLJS_EXPORT Icons
+class QMLJS_EXPORT Provider
 {
 public:
-    ~Icons();
+    static Provider &instance();
 
-    static Icons *instance();
+    Provider(const Provider &) = delete;
+    Provider &operator=(const Provider &) = delete;
+    Provider(Provider &&) = delete;
+    Provider &operator=(Provider &&) = delete;
 
-    void setIconFilesPath(const QString &iconPath);
-
-    QIcon icon(const QString &packageName, const QString typeName) const;
-    static QIcon icon(AST::Node *node);
-
-    static QIcon objectDefinitionIcon();
-    static QIcon scriptBindingIcon();
-    static QIcon publicMemberIcon();
-    static QIcon functionDeclarationIcon();
-    static QIcon enumMemberIcon();
+    QIcon icon(QStringView typeName) const;
 
 private:
-    Icons();
-    static Icons *m_instance;
-    IconsPrivate *d;
+    Provider();
+    std::unique_ptr<const Internal::IconsStorage> m_stockPtr;
 };
 
-} // namespace QmlJS
+QIcon QMLJS_EXPORT objectDefinitionIcon();
+QIcon QMLJS_EXPORT scriptBindingIcon();
+QIcon QMLJS_EXPORT publicMemberIcon();
+QIcon QMLJS_EXPORT functionDeclarationIcon();
+QIcon QMLJS_EXPORT enumMemberIcon();
+} // namespace QmlJS::Icons

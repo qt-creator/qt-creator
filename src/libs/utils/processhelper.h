@@ -43,6 +43,7 @@ public:
     void setLowPriority();
     void setUnixTerminalDisabled();
     void setUseCtrlCStub(bool enabled); // release only
+    void setAllowCoreDumps(bool enabled);
 
     static void terminateProcess(QProcess *process);
     static void interruptPid(qint64 pid);

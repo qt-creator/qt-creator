@@ -11,12 +11,15 @@
 #include "cmaketoolmanager.h"
 #include "presetsmacros.h"
 
+#include <android/androidconstants.h>
 #include <coreplugin/messagemanager.h>
 #include <debugger/debuggeritem.h>
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggerkitaspect.h>
+#include <ios/iosconstants.h>
 
 #include <projectexplorer/buildinfo.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/sysrootkitaspect.h>
@@ -25,6 +28,9 @@
 #include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
 
+#include <remotelinux/remotelinux_constants.h>
+
+#include <qnx/qnxconstants.h>
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
@@ -32,6 +38,8 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
+
+#include <webassembly/webassemblyconstants.h>
 
 #include <QApplication>
 #include <QLoggingCategory>
@@ -74,12 +82,13 @@ struct DirectoryData
 
     // Kit Stuff
     FilePath cmakeBinary;
+    QString cmakeSystemName;
     QString generator;
     QString platform;
     QString toolset;
     FilePath sysroot;
     QtProjectImporter::QtVersionData qt;
-    QVector<ToolchainDescriptionEx> toolchains;
+    QList<ToolchainDescriptionEx> toolchains;
     QVariant debugger;
 };
 
@@ -351,8 +360,11 @@ static CMakeConfig configurationFromPresetProbe(
 
         project(preset-probe)
 
-        foreach (file_path_value
-            CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_SYSROOT QT_HOST_PATH CMAKE_MAKE_PROGRAM)
+        set(file_path_value_list CMAKE_C_COMPILER CMAKE_CXX_COMPILER QT_HOST_PATH CMAKE_MAKE_PROGRAM)
+        if (NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
+            list(APPEND file_path_value_list CMAKE_SYSROOT)
+        endif()
+        foreach (file_path_value IN LISTS file_path_value_list)
             if (${file_path_value})
                 set(${file_path_value} "${${file_path_value}}" CACHE FILEPATH "" FORCE)
             endif()
@@ -364,7 +376,11 @@ static CMakeConfig configurationFromPresetProbe(
             endif()
         endforeach()
 
-        foreach (string_value CMAKE_C_COMPILER_TARGET CMAKE_CXX_COMPILER_TARGET)
+        set(string_value_list CMAKE_SYSTEM_NAME)
+        if (NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
+            list(APPEND string_value_list CMAKE_C_COMPILER_TARGET CMAKE_CXX_COMPILER_TARGET)
+        endif()
+        foreach (string_value IN LISTS string_value_list)
             if (${string_value})
                 set(${string_value} "${${string_value}}" CACHE STRING "" FORCE)
             endif()
@@ -532,8 +548,11 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
         find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 
         if (CMAKE_CROSSCOMPILING)
+            if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+               set(qmake_script_suffix ".bat")
+            endif()
             find_program(qmake_binary
-                NAMES qmake qmake.bat
+                NAMES qmake${qmake_script_suffix}
                 PATHS "${Qt${QT_VERSION_MAJOR}_DIR}/../../../bin"
                 NO_DEFAULT_PATH)
             file(WRITE "${CMAKE_SOURCE_DIR}/qmake-location.txt" "${qmake_binary}")
@@ -616,9 +635,9 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
     return {qmakeLocation, resultedPrefixPath};
 }
 
-static QVector<ToolchainDescriptionEx> extractToolchainsFromCache(const CMakeConfig &config)
+static QList<ToolchainDescriptionEx> extractToolchainsFromCache(const CMakeConfig &config)
 {
-    QVector<ToolchainDescriptionEx> result;
+    QList<ToolchainDescriptionEx> result;
     bool haveCCxxCompiler = false;
     for (const CMakeConfigItem &i : config) {
         if (!i.key.startsWith("CMAKE_") || !i.key.endsWith("_COMPILER"))
@@ -945,6 +964,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         }
 
         data->sysroot = config.filePathValueOf("CMAKE_SYSROOT");
+        data->cmakeSystemName = config.stringValueOf("CMAKE_SYSTEM_NAME");
 
         const auto [qmake, cmakePrefixPath] = qtInfoFromCMakeCache(config, env);
         if (!qmake.isEmpty())
@@ -982,7 +1002,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                 }
             }
         }
-        for (const auto &buildType : buildConfigurationTypes) {
+        for (const auto &buildType : std::as_const(buildConfigurationTypes)) {
             DirectoryData *newData = new DirectoryData(*data);
             newData->cmakeBuildType = buildType;
 
@@ -1101,7 +1121,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 
     const bool compilersMatch = [k, data] {
         const QList<Id> allLanguages = ToolchainManager::allLanguages();
-        for (const ToolchainDescriptionEx &tcd : data->toolchains) {
+        for (const ToolchainDescriptionEx &tcd : std::as_const(data->toolchains)) {
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
@@ -1114,7 +1134,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     }();
     const bool noCompilers = [k, data] {
         const QList<Id> allLanguages = ToolchainManager::allLanguages();
-        for (const ToolchainDescriptionEx &tcd : data->toolchains) {
+        for (const ToolchainDescriptionEx &tcd : std::as_const(data->toolchains)) {
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
@@ -1149,6 +1169,26 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     return true;
 }
 
+static void setupBuildAndRunDevice(Kit *k, const QString &cmakeSystemName, const FilePath &sysroot)
+{
+    if (cmakeSystemName == "Android") {
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, Android::Constants::ANDROID_DEVICE_TYPE);
+    } else if (cmakeSystemName == "iOS") {
+        if (sysroot.fileName() == "iPhoneSimulator.sdk")
+            RunDeviceTypeKitAspect::setDeviceTypeId(k, Ios::Constants::IOS_SIMULATOR_TYPE);
+        else
+            RunDeviceTypeKitAspect::setDeviceTypeId(k, Ios::Constants::IOS_DEVICE_TYPE);
+    } else if (cmakeSystemName == "Emscripten") {
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE);
+    } else if (cmakeSystemName == "Linux" && !sysroot.isEmpty()) {
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, RemoteLinux::Constants::GenericLinuxOsType);
+    } else if (cmakeSystemName == "QNX") {
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, Qnx::Constants::QNX_QNX_OS_TYPE);
+    } else if (cmakeSystemName == "VxWorks") {
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::VXWORKS_DEVICE_TYPE);
+    }
+}
+
 Kit *CMakeProjectImporter::createKit(void *directoryData) const
 {
     DirectoryData *data = static_cast<DirectoryData *>(directoryData);
@@ -1165,8 +1205,9 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
         CMakeGeneratorKitAspect::setToolset(k, data->toolset);
 
         SysRootKitAspect::setSysRoot(k, data->sysroot);
+        setupBuildAndRunDevice(k, data->cmakeSystemName, data->sysroot);
 
-        for (const ToolchainDescriptionEx &cmtcd : data->toolchains) {
+        for (const ToolchainDescriptionEx &cmtcd : std::as_const(data->toolchains)) {
             const ToolchainData tcd = findOrCreateToolchains(cmtcd);
             QTC_ASSERT(!tcd.tcs.isEmpty(), continue);
 
@@ -1395,7 +1436,7 @@ void CMakeProjectImporterTest::testCMakeProjectImporterToolchain()
         config.append(CMakeConfigItem(key.toUtf8(), value.toUtf8()));
     }
 
-    const QVector<ToolchainDescriptionEx> tcs = extractToolchainsFromCache(config);
+    const QList<ToolchainDescriptionEx> tcs = extractToolchainsFromCache(config);
     QCOMPARE(tcs.count(), expectedLanguages.count());
     for (int i = 0; i < tcs.count(); ++i) {
         QCOMPARE(tcs.at(i).language, expectedLanguages.at(i));

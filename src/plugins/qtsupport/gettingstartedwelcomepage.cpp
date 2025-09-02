@@ -24,6 +24,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcwidgets.h>
 #include <utils/shutdownguard.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -140,7 +141,7 @@ static FilePath copyToAlternativeLocation(const FilePath &proFile,
                                  QMessageBox::NoButton);
             return {};
         } else {
-            Result result = projectDir.copyRecursively(targetDir);
+            Result<> result = projectDir.copyRecursively(targetDir);
 
             if (result) {
                 // set vars to new location
@@ -277,18 +278,17 @@ public:
         m_exampleDelegate.setShowExamples(isExamples);
 
         using namespace StyleHelper::SpacingTokens;
-
         using namespace Layouting;
         Row titleRow {
             customMargins(0, 0, ExVPaddingGapXl, 0),
             spacing(ExVPaddingGapXl),
         };
 
-        m_searcher = new SearchBox;
+        m_searcher = new QtcSearchBox;
         if (m_isExamples) {
             m_searcher->setPlaceholderText(Tr::tr("Search in Examples..."));
 
-            auto exampleSetSelector = new ComboBox;
+            auto exampleSetSelector = new QtcComboBox;
             exampleSetSelector->setSizeAdjustPolicy(QComboBox::AdjustToContents);
             exampleSetSelector->setMinimumWidth(ListItemDelegate::itemSize().width()
                                                 - ExVPaddingGapXl);

@@ -1,0 +1,139 @@
+{
+    "$schema": "../../schema/extension.schema.json",
+    "info": {
+        "id": "vale",
+        "vendor_id": "theqtcompany",
+        "display_name": "Vale Language Server",
+        "display_vendor": "The Qt Company",
+        "license": "open-source",
+        "tags": [
+            "language server",
+            "Vale",
+            "ValeLS",
+            "Qt"
+        ]
+    },
+    "latest": "0.7.0",
+    "versions": {
+        "0.7.0": {
+            "sources": [
+                {
+                    "url": "https://github.com/qt-creator/ValeLS/releases/download/v0.7/ValeLS.zip",
+                    "sha256": "baf38eeccfd5f8e9acfb7c9817c74eb66e53b440170bb901f485d8bc09610c4b"
+                }
+            ],
+            "metadata": {
+                "Id": "vale",
+                "Url": "https://www.qt.io",
+                "Name": "Vale Language Server",
+                "Tags": [
+                    "language server",
+                    "Vale",
+                    "ValeLS",
+                    "Qt"
+                ],
+                "Vendor": "The Qt Company",
+                "License": "GPL",
+                "Version": "0.7.0",
+                "Category": "Language Server",
+                "VendorId": "theqtcompany",
+                "Copyright": "(C) The Qt Company 2024",
+                "Type": "Script",
+                "Languages": [
+                    "en",
+                    "de"
+                ],
+                "Description": "Provides an integration of the Vale language server",
+                "Dependencies": [
+                    {
+                        "Id": "lualanguageclient",
+                        "Version": "20.0.0"
+                    }
+                ],
+                "Experimental": true,
+                "CompatVersion": "0.4",
+                "DisabledByDefault": false
+            }
+        },
+        "0.5.0": {
+            "sources": [
+                {
+                    "url": "https://github.com/qt-creator/ValeLS/releases/download/v0.5/ValeLS.zip",
+                    "sha256": "1f84eede6bd6bebec805b2f35c4f8c7f18c8dbabac88122889ac83feee47d984"
+                }
+            ],
+            "metadata": {
+                "Id": "vale",
+                "Url": "https://www.qt.io",
+                "Name": "Vale Language Server",
+                "Tags": [
+                    "language server",
+                    "Vale",
+                    "ValeLS",
+                    "Qt"
+                ],
+                "Vendor": "The Qt Company",
+                "License": "GPL",
+                "Version": "0.5.0",
+                "Category": "Language Server",
+                "VendorId": "theqtcompany",
+                "Copyright": "(C) The Qt Company 2024",
+                "Type": "Script",
+                "Languages": [
+                    "en",
+                    "de"
+                ],
+                "Description": "Provides an integration of the Vale language server",
+                "Dependencies": [
+                    {
+                        "Id": "lualanguageclient",
+                        "Version": "20.0.0"
+                    }
+                ],
+                "Experimental": true,
+                "CompatVersion": "0.4",
+                "DisabledByDefault": false
+            }
+        },
+        "0.4.0": {
+            "sources": [
+                {
+                    "url": "https://github.com/qt-creator/ValeLS/releases/download/v0.4/ValeLS.zip",
+                    "sha256": "f0a7e3bacf15fc352539e7c687aeea96180f3c72ffe1cb4b174f94f2c857428a"
+                }
+            ],
+            "metadata": {
+                "Id": "vale",
+                "Url": "https://www.qt.io",
+                "Name": "Vale Language Server",
+                "Tags": [
+                    "language server",
+                    "Vale",
+                    "ValeLS",
+                    "Qt"
+                ],
+                "Vendor": "The Qt Company",
+                "License": "GPL",
+                "Version": "0.4.0",
+                "Category": "Language Server",
+                "VendorId": "theqtcompany",
+                "Copyright": "(C) The Qt Company 2024",
+                "Type": "Script",
+                "Languages": [
+                    "en",
+                    "de"
+                ],
+                "Description": "Provides an integration of the Vale language server",
+                "Dependencies": [
+                    {
+                        "Id": "lualanguageclient",
+                        "Version": "15.0.0"
+                    }
+                ],
+                "Experimental": true,
+                "CompatVersion": "1.0.0",
+                "DisabledByDefault": false
+            }
+        }
+    }
+}

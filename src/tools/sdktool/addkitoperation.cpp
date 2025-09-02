@@ -37,7 +37,8 @@ const char DISPLAYNAME[] = "PE.Profile.Name";
 const char ICON[] = "PE.Profile.Icon";
 const char AUTODETECTED[] = "PE.Profile.AutoDetected";
 const char SDK[] = "PE.Profile.SDK";
-const char ENV[] = "PE.Profile.Environment";
+const char BUILD_ENV[] = "PE.Profile.Environment";
+const char RUN_ENV[] = "PE.Profile.RunEnvironment";
 const char DATA[] = "PE.Profile.Data";
 
 // Standard KitAspects:
@@ -84,13 +85,14 @@ QString AddKitOperation::argumentsHelpText() const
         "    --<LANG>toolchain <ID>                     tool chain for a language.\n"
         "    --qt <ID>                                  Qt of the new kit.\n"
         "    --mkspec <PATH>                            mkspec of the new kit.\n"
-        "    --env <VALUE>                              add a custom environment setting. [may be repeated]\n"
+        "    --env <VALUE>                              add a custom build (and run) environment setting. [may be repeated]\n"
+        "    --run-env <VALUE>                          add a custom run environment setting. [may be repeated]\n"
         "    --cmake <ID>                               set a cmake tool.\n"
         "    --cmake-generator <GEN>:<EXTRA>:<TOOLSET>:<PLATFORM>\n"
         "                                               set a cmake generator.\n"
         "    --cmake-config <KEY:TYPE=VALUE>            set a cmake configuration value [may be "
         "repeated]\n"
-        "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
+        "    <KEY> <TYPE:VALUE>                         extra key value pairs, key can be hierarchical with '/' as the separator\n");
 }
 
 bool AddKitOperation::setArguments(const QStringList &args)
@@ -225,7 +227,15 @@ bool AddKitOperation::setArguments(const QStringList &args)
             if (next.isNull())
                 return false;
             ++i; // skip next;
-            m_env.append(next);
+            m_buildEnv.append(next);
+            continue;
+        }
+
+        if (current == "--run-env") {
+            if (next.isNull())
+                return false;
+            ++i; // skip next;
+            m_runEnv.append(next);
             continue;
         }
 
@@ -481,7 +491,7 @@ void AddKitOperation::unittest()
     kitData.m_icon = "/tmp/icon2.png";
     kitData.m_debugger = "/usr/bin/gdb-test2";
     kitData.m_sysRoot = "/sys/root//";
-    kitData.m_env = env;
+    kitData.m_buildEnv = env;
     kitData.m_tcs = tcs;
     map = kitData.addKit(map, tcMap, qtMap, devMap, {});
 
@@ -526,8 +536,8 @@ void AddKitOperation::unittest()
     QCOMPARE(data.value(QT).toString(), "SDK.{qt-id}");
     QVERIFY(data.contains(MKSPEC));
     QCOMPARE(data.value(MKSPEC).toString(), "unsupported/mkspec");
-    QVERIFY(data.contains(ENV));
-    QCOMPARE(data.value(ENV).toStringList(), env);
+    QVERIFY(data.contains(BUILD_ENV));
+    QCOMPARE(data.value(BUILD_ENV).toStringList(), env);
     QVERIFY(data.contains("extraData"));
     QCOMPARE(data.value("extraData").toString(), "extraValue");
 
@@ -542,7 +552,7 @@ void AddKitOperation::unittest()
     kitData.m_displayName = "Test debugger Id";
     kitData.m_icon = "/tmp/icon2.png";
     kitData.m_debuggerId = "debugger Id";
-    kitData.m_env = env;
+    kitData.m_buildEnv = env;
 
     map = kitData.addKit(map, tcMap, qtMap, devMap, {});
     QCOMPARE(map.count(), 6);
@@ -708,8 +718,10 @@ QVariantMap AddKitData::addKit(const QVariantMap &map,
     }
     if (!m_cmakeConfiguration.isEmpty())
         data << KeyValuePair({kit, DATA, CMAKE_CONFIGURATION}, QVariant(m_cmakeConfiguration));
-    if (!m_env.isEmpty())
-        data << KeyValuePair({kit, DATA, ENV}, QVariant(m_env));
+    if (!m_buildEnv.isEmpty())
+        data << KeyValuePair({kit, DATA, BUILD_ENV}, QVariant(m_buildEnv));
+    if (!m_runEnv.isEmpty())
+        data << KeyValuePair({kit, DATA, RUN_ENV}, QVariant(m_runEnv));
 
     data << KeyValuePair(DEFAULT, QVariant(defaultKit));
     data << KeyValuePair(COUNT, QVariant(count + 1));

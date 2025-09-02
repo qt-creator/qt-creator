@@ -9,7 +9,6 @@
 #include <solutions/tasking/tasktree.h>
 
 #include <utils/aspects.h>
-#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/id.h>
@@ -46,6 +45,7 @@ class FileTransferInterface;
 class FileTransferSetupData;
 class Kit;
 class SshParameters;
+class SshParametersAspectContainer;
 class Target;
 class Task;
 
@@ -68,7 +68,7 @@ public:
 
 signals:
     // If the error message is empty the operation was successful
-    void finished(const Utils::Result &result);
+    void finished(const Utils::Result<> &result);
 
 protected:
     explicit DeviceProcessSignalOperation();
@@ -86,12 +86,10 @@ public:
     using ConstPtr = IDeviceConstPtr;
     template <class ...Args> using Continuation = std::function<void(Args...)>;
 
-    enum Origin { ManuallyAdded, AutoDetected };
+    enum Origin { ManuallyAdded, AutoDetected, AddedBySdk };
     enum MachineType { Hardware, Emulator };
 
     virtual ~IDevice();
-
-    virtual Ptr clone() const;
 
     QString displayName() const;
     void setDisplayName(const QString &name);
@@ -117,6 +115,7 @@ public:
     void setType(Utils::Id type);
 
     bool isAutoDetected() const;
+    bool isFromSdk() const;
     Utils::Id id() const;
 
     virtual QList<Task> validate() const;
@@ -158,7 +157,9 @@ public:
     static QString defaultPublicKeyFilePath();
 
     SshParameters sshParameters() const;
-    void setSshParameters(const SshParameters &sshParameters);
+    void setDefaultSshParameters(const SshParameters &sshParameters);
+
+    SshParametersAspectContainer &sshParametersAspectContainer() const;
 
     enum ControlChannelHint { QmlControlChannel };
     virtual QUrl toolControlChannel(const ControlChannelHint &) const;
@@ -184,10 +185,8 @@ public:
     void setupId(Origin origin, Utils::Id id = Utils::Id());
 
     bool canOpenTerminal() const;
-    Utils::expected_str<void> openTerminal(const Utils::Environment &env,
+    Utils::Result<> openTerminal(const Utils::Environment &env,
                                            const Utils::FilePath &workingDir) const;
-
-    Utils::BoolAspect allowEmptyCommand{this};
 
     bool isWindowsDevice() const { return osType() == Utils::OsTypeWindows; }
     bool isLinuxDevice() const { return osType() == Utils::OsTypeLinux; }
@@ -206,12 +205,12 @@ public:
             const FileTransferSetupData &setup) const;
 
     Utils::Environment systemEnvironment() const;
-    virtual Utils::expected_str<Utils::Environment> systemEnvironmentWithError() const;
+    virtual Utils::Result<Utils::Environment> systemEnvironmentWithError() const;
 
     virtual void aboutToBeRemoved() const {}
 
     virtual bool ensureReachable(const Utils::FilePath &other) const;
-    virtual Utils::expected_str<Utils::FilePath> localSource(const Utils::FilePath &other) const;
+    virtual Utils::Result<Utils::FilePath> localSource(const Utils::FilePath &other) const;
 
     virtual bool prepareForBuild(const Target *target);
     virtual std::optional<Utils::FilePath> clangdExecutable() const;
@@ -220,13 +219,21 @@ public:
 
     void doApply() const;
 
+public:
+    Utils::BoolAspect allowEmptyCommand{this};
+    Utils::StringSelectionAspect linkDevice{this};
+    Utils::BoolAspect sshForwardDebugServerPort{this};
+    Utils::FilePathAspect debugServerPathAspect{this};
+    Utils::FilePathAspect qmlRunCommandAspect{this};
+    Utils::PortListAspect freePortsAspect{this};
+
 protected:
     IDevice();
 
     virtual void fromMap(const Utils::Store &map);
     virtual void toMap(Utils::Store &map) const;
 
-    using OpenTerminal = std::function<Utils::expected_str<void>(const Utils::Environment &,
+    using OpenTerminal = std::function<Utils::Result<>(const Utils::Environment &,
                                                                  const Utils::FilePath &)>;
     void setOpenTerminal(const OpenTerminal &openTerminal);
     void setDisplayType(const QString &type);
@@ -239,6 +246,7 @@ private:
     IDevice &operator=(const IDevice &) = delete;
 
     int version() const;
+    void setFromSdk();
 
     const std::unique_ptr<Internal::IDevicePrivate> d;
     friend class DeviceManager;
@@ -258,6 +266,7 @@ public:
     SshParameters sshParameters() const;
     Utils::FilePath filePath(const QString &pathOnDevice) const;
     QVariant extraData(Utils::Id kind) const;
+    Utils::Id linkDeviceId() const;
 
 private:
     std::weak_ptr<const IDevice> m_constDevice;
@@ -308,7 +317,7 @@ class PROJECTEXPLORER_EXPORT DeviceProcessKiller : public QObject
 public:
     void setProcessPath(const Utils::FilePath &path) { m_processPath = path; }
     void start();
-    Utils::Result result() const { return m_result; }
+    Utils::Result<> result() const { return m_result; }
 
 signals:
     void done(Tasking::DoneResult result);
@@ -316,17 +325,9 @@ signals:
 private:
     Utils::FilePath m_processPath;
     DeviceProcessSignalOperation::Ptr m_signalOperation;
-    Utils::Result m_result = Utils::Result::Ok;
+    Utils::Result<> m_result = Utils::ResultOk;
 };
 
-class PROJECTEXPLORER_EXPORT DeviceProcessKillerTaskAdapter final
-    : public Tasking::TaskAdapter<DeviceProcessKiller>
-{
-public:
-    DeviceProcessKillerTaskAdapter();
-    void start() final;
-};
-
-using DeviceProcessKillerTask = Tasking::CustomTask<DeviceProcessKillerTaskAdapter>;
+using DeviceProcessKillerTask = Tasking::SimpleCustomTask<DeviceProcessKiller>;
 
 } // namespace ProjectExplorer

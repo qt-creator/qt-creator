@@ -16,7 +16,6 @@
 #include <utils/qtcprocess.h>
 
 #include <QDir>
-#include <QDirIterator>
 #include <QRegularExpression>
 
 using namespace LanguageUtils;
@@ -27,20 +26,8 @@ namespace QmlJS {
 PluginDumper::PluginDumper(ModelManagerInterface *modelManager)
     : QObject(modelManager)
     , m_modelManager(modelManager)
-    , m_pluginWatcher(nullptr)
 {
     qRegisterMetaType<QmlJS::ModelManagerInterface::ProjectInfo>("QmlJS::ModelManagerInterface::ProjectInfo");
-}
-
-Utils::FileSystemWatcher *PluginDumper::pluginWatcher()
-{
-    if (!m_pluginWatcher) {
-        m_pluginWatcher = new Utils::FileSystemWatcher(this);
-        m_pluginWatcher->setObjectName(QLatin1String("PluginDumperWatcher"));
-        connect(m_pluginWatcher, &Utils::FileSystemWatcher::fileChanged,
-                this, &PluginDumper::pluginChanged);
-    }
-    return m_pluginWatcher;
 }
 
 void PluginDumper::loadBuiltinTypes(const QmlJS::ModelManagerInterface::ProjectInfo &info)
@@ -142,8 +129,7 @@ void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
     for (const QmlDirParser::Plugin &plugin : plugins) {
         const FilePath pluginLibrary = resolvePlugin(canonicalLibraryPath, plugin.path, plugin.name);
         if (!pluginLibrary.isEmpty()) {
-            if (!pluginWatcher()->watchesFile(pluginLibrary))
-                pluginWatcher()->addFile(pluginLibrary, FileSystemWatcher::WatchModifiedDate);
+            watchFilePath(pluginLibrary);
             m_libraryToPluginIndex.insert(pluginLibrary, index);
         }
     }
@@ -153,8 +139,7 @@ void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
         for (const FilePath &path : std::as_const(plugin.typeInfoPaths)) {
             if (!path.exists())
                 continue;
-            if (!pluginWatcher()->watchesFile(path))
-                pluginWatcher()->addFile(path, FileSystemWatcher::WatchModifiedDate);
+            watchFilePath(path);
             m_libraryToPluginIndex.insert(path, index);
         }
     }
@@ -314,9 +299,13 @@ void PluginDumper::qmlPluginTypeDumpDone(Process *process)
     }
 }
 
-void PluginDumper::pluginChanged(const QString &pluginLibrary)
+void PluginDumper::pluginChanged(const FilePath &pluginLibrary)
 {
-    const int pluginIndex = m_libraryToPluginIndex.value(FilePath::fromString(pluginLibrary), -1);
+    // FilePathWatcher emits also when the file is deleted.
+    if (!pluginLibrary.exists())
+        unwatchFilePath(pluginLibrary);
+
+    const int pluginIndex = m_libraryToPluginIndex.value(pluginLibrary, -1);
     if (pluginIndex == -1)
         return;
 
@@ -331,9 +320,9 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
         PluginDumper::QmlTypeDescription result;
 
         for (const FilePath &p: paths) {
-            Utils::FileReader reader;
-            if (!reader.fetch(p)) {
-                result.errors += reader.errorString();
+            const Result<QByteArray> contents = p.fileContents();
+            if (!contents) {
+                result.errors += contents.error();
                 continue;
             }
             QString error;
@@ -341,8 +330,8 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
             CppQmlTypesLoader::BuiltinObjects objs;
             QList<ModuleApiInfo> apis;
             QStringList deps;
-            CppQmlTypesLoader::parseQmlTypeDescriptions(reader.text(), &objs, &apis, &deps,
-                                                        &error, &warning, p.toUrlishString());
+            CppQmlTypesLoader::parseQmlTypeDescriptions(*contents, &objs, &apis, &deps,
+                                                        &error, &warning, p.toFSPathString());
             if (!error.isEmpty()) {
                 result.errors += Tr::tr("Failed to parse \"%1\".\nError: %2").arg(p.toUserOutput(), error);
             } else {
@@ -605,6 +594,28 @@ void PluginDumper::loadQmltypesFile(const FilePaths &qmltypesFilePaths,
             m_modelManager->updateLibraryInfo(libraryPath, libInfo);
         }
     });
+}
+
+void PluginDumper::watchFilePath(const FilePath &path)
+{
+    if (m_pluginWatcher.contains(path) || !path.exists())
+        return;
+
+    Result<std::unique_ptr<FilePathWatcher>> res = path.watch();
+    QTC_ASSERT_RESULT(res, return);
+
+    connect(res->get(), &FilePathWatcher::pathChanged, this, &PluginDumper::pluginChanged);
+    m_pluginWatcher.insert(path, std::move(*res));
+}
+
+void PluginDumper::unwatchFilePath(const FilePath &path)
+{
+    auto foundPath = m_pluginWatcher.find(path);
+    if (foundPath == m_pluginWatcher.end())
+        return;
+
+    disconnect(foundPath->get(), &FilePathWatcher::pathChanged, this, &PluginDumper::pluginChanged);
+    m_pluginWatcher.erase(foundPath);
 }
 
 void PluginDumper::runQmlDump(const ModelManagerInterface::ProjectInfo &info,

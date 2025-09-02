@@ -94,7 +94,6 @@ private:
 
 class DiffFilesController : public DiffEditorController
 {
-    Q_OBJECT
 public:
     DiffFilesController(IDocument *document);
 
@@ -157,7 +156,6 @@ DiffFilesController::DiffFilesController(IDocument *document)
 
 class DiffCurrentFileController : public DiffFilesController
 {
-    Q_OBJECT
 public:
     DiffCurrentFileController(IDocument *document, const QString &fileName)
         : DiffFilesController(document)
@@ -178,12 +176,11 @@ QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
         DocumentModel::documentForFilePath(FilePath::fromString(m_fileName)));
 
     if (textDocument && textDocument->isModified()) {
-        QString errorString;
         TextFileFormat format = textDocument->format();
 
         QString leftText;
         const TextFileFormat::ReadResult leftResult = TextFileFormat::readFile(
-            FilePath::fromString(m_fileName), format.codec(), &leftText, &format, &errorString);
+            FilePath::fromString(m_fileName), format.codec(), &leftText, &format);
 
         const QString rightText = textDocument->plainText();
 
@@ -192,9 +189,9 @@ QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
         reloadInput.fileInfo = {DiffFileInfo(m_fileName, Tr::tr("Saved")),
                                 DiffFileInfo(m_fileName, Tr::tr("Modified"))};
         reloadInput.fileInfo[RightSide].patchBehaviour = DiffFileInfo::PatchEditor;
-        reloadInput.binaryFiles = (leftResult == TextFileFormat::ReadEncodingError);
+        reloadInput.binaryFiles = (leftResult.code == TextFileFormat::ReadEncodingError);
 
-        if (leftResult == TextFileFormat::ReadIOError)
+        if (leftResult.code == TextFileFormat::ReadIOError)
             reloadInput.fileOperation = FileData::NewFile;
 
         result << reloadInput;
@@ -207,7 +204,6 @@ QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
 
 class DiffOpenFilesController : public DiffFilesController
 {
-    Q_OBJECT
 public:
     DiffOpenFilesController(IDocument *document) : DiffFilesController(document) {}
 
@@ -232,7 +228,7 @@ QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
             QString leftText;
             const QString fileName = textDocument->filePath().toUrlishString();
             const TextFileFormat::ReadResult leftResult = TextFileFormat::readFile(
-                FilePath::fromString(fileName), format.codec(), &leftText, &format, &errorString);
+                FilePath::fromString(fileName), format.codec(), &leftText, &format);
 
             const QString rightText = textDocument->plainText();
 
@@ -241,9 +237,9 @@ QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
             reloadInput.fileInfo = {DiffFileInfo(fileName, Tr::tr("Saved")),
                                     DiffFileInfo(fileName, Tr::tr("Modified"))};
             reloadInput.fileInfo[RightSide].patchBehaviour = DiffFileInfo::PatchEditor;
-            reloadInput.binaryFiles = (leftResult == TextFileFormat::ReadEncodingError);
+            reloadInput.binaryFiles = (leftResult.code == TextFileFormat::ReadEncodingError);
 
-            if (leftResult == TextFileFormat::ReadIOError)
+            if (leftResult.code == TextFileFormat::ReadIOError)
                 reloadInput.fileOperation = FileData::NewFile;
 
             result << reloadInput;
@@ -257,26 +253,25 @@ QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
 
 class DiffModifiedFilesController : public DiffFilesController
 {
-    Q_OBJECT
 public:
-    DiffModifiedFilesController(IDocument *document, const QStringList &fileNames)
+    DiffModifiedFilesController(IDocument *document, const FilePaths &fileNames)
         : DiffFilesController(document)
-        , m_fileNames(fileNames) {}
+        , m_filePaths(fileNames) {}
 
 protected:
     QList<ReloadInput> reloadInputList() const final;
 
 private:
-    const QStringList m_fileNames;
+    const FilePaths m_filePaths;
 };
 
 QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
 {
     QList<ReloadInput> result;
 
-    for (const QString &fileName : m_fileNames) {
+    for (const FilePath &filePath : m_filePaths) {
         auto textDocument = qobject_cast<TextDocument *>(
-            DocumentModel::documentForFilePath(FilePath::fromString(fileName)));
+            DocumentModel::documentForFilePath(filePath));
 
         if (textDocument && textDocument->isModified()) {
             QString errorString;
@@ -285,7 +280,7 @@ QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
             QString leftText;
             const QString fileName = textDocument->filePath().toUrlishString();
             const TextFileFormat::ReadResult leftResult = TextFileFormat::readFile(
-                FilePath::fromString(fileName), format.codec(), &leftText, &format, &errorString);
+                FilePath::fromString(fileName), format.codec(), &leftText, &format);
 
             const QString rightText = textDocument->plainText();
 
@@ -294,9 +289,9 @@ QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
             reloadInput.fileInfo = {DiffFileInfo(fileName, Tr::tr("Saved")),
                                     DiffFileInfo(fileName, Tr::tr("Modified"))};
             reloadInput.fileInfo[RightSide].patchBehaviour = DiffFileInfo::PatchEditor;
-            reloadInput.binaryFiles = (leftResult == TextFileFormat::ReadEncodingError);
+            reloadInput.binaryFiles = (leftResult.code == TextFileFormat::ReadEncodingError);
 
-            if (leftResult == TextFileFormat::ReadIOError)
+            if (leftResult.code == TextFileFormat::ReadIOError)
                 reloadInput.fileOperation = FileData::NewFile;
 
             result << reloadInput;
@@ -310,20 +305,20 @@ QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
 
 class DiffExternalFilesController : public DiffFilesController
 {
-    Q_OBJECT
 public:
-    DiffExternalFilesController(IDocument *document, const QString &leftFileName,
-                                const QString &rightFileName)
+    DiffExternalFilesController(
+        IDocument *document, const FilePath &leftFilePath, const FilePath &rightFilePath)
         : DiffFilesController(document)
-        , m_leftFileName(leftFileName)
-        , m_rightFileName(rightFileName) {}
+        , m_leftFilePath(leftFilePath)
+        , m_rightFilePath(rightFilePath)
+    {}
 
 protected:
     QList<ReloadInput> reloadInputList() const final;
 
 private:
-    const QString m_leftFileName;
-    const QString m_rightFileName;
+    const FilePath m_leftFilePath;
+    const FilePath m_rightFilePath;
 };
 
 QList<ReloadInput> DiffExternalFilesController::reloadInputList() const
@@ -336,19 +331,19 @@ QList<ReloadInput> DiffExternalFilesController::reloadInputList() const
     QString rightText;
 
     const TextFileFormat::ReadResult leftResult = TextFileFormat::readFile(
-        FilePath::fromString(m_leftFileName), format.codec(), &leftText, &format, &errorString);
+        m_leftFilePath, format.codec(), &leftText, &format);
     const TextFileFormat::ReadResult rightResult = TextFileFormat::readFile(
-        FilePath::fromString(m_rightFileName), format.codec(), &rightText, &format, &errorString);
+        m_rightFilePath, format.codec(), &rightText, &format);
 
     ReloadInput reloadInput;
     reloadInput.text = {leftText, rightText};
-    reloadInput.fileInfo[LeftSide].fileName = m_leftFileName;
-    reloadInput.fileInfo[RightSide].fileName = m_rightFileName;
-    reloadInput.binaryFiles = (leftResult == TextFileFormat::ReadEncodingError
-            || rightResult == TextFileFormat::ReadEncodingError);
+    reloadInput.fileInfo[LeftSide].fileName = m_leftFilePath.toUrlishString();
+    reloadInput.fileInfo[RightSide].fileName = m_rightFilePath.toUrlishString();
+    reloadInput.binaryFiles = leftResult.code == TextFileFormat::ReadEncodingError
+                           || rightResult.code == TextFileFormat::ReadEncodingError;
 
-    const bool leftFileExists = (leftResult != TextFileFormat::ReadIOError);
-    const bool rightFileExists = (rightResult != TextFileFormat::ReadIOError);
+    const bool leftFileExists = leftResult.code != TextFileFormat::ReadIOError;
+    const bool rightFileExists = rightResult.code != TextFileFormat::ReadIOError;
     if (!leftFileExists && rightFileExists)
         reloadInput.fileOperation = FileData::NewFile;
     else if (leftFileExists && !rightFileExists)
@@ -374,8 +369,8 @@ class DiffEditorServiceImpl final : public QObject, public DiffService
     Q_INTERFACES(Core::DiffService)
 
 public:
-    void diffFiles(const QString &leftFileName, const QString &rightFileName) final;
-    void diffModifiedFiles(const QStringList &fileNames) final;
+    void diffFiles(const FilePath &leftFilePath, const FilePath &rightFilePath) final;
+    void diffModifiedFiles(const FilePaths &filePaths) final;
 };
 
 template <typename Controller, typename... Args>
@@ -391,19 +386,20 @@ void reload(const QString &vcsId, const QString &displayName, Args &&...args)
     document->reload();
 }
 
-void DiffEditorServiceImpl::diffFiles(const QString &leftFileName, const QString &rightFileName)
+void DiffEditorServiceImpl::diffFiles(const FilePath &leftFilePath, const FilePath &rightFilePath)
 {
-    const QString documentId = Constants::DIFF_EDITOR_PLUGIN
-            + QLatin1String(".DiffFiles.") + leftFileName + QLatin1Char('.') + rightFileName;
+    const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".DiffFiles.")
+                               + leftFilePath.toUrlishString() + QLatin1Char('.')
+                               + rightFilePath.toUrlishString();
     const QString title = Tr::tr("Diff Files");
-    reload<DiffExternalFilesController>(documentId, title, leftFileName, rightFileName);
+    reload<DiffExternalFilesController>(documentId, title, leftFilePath, rightFilePath);
 }
 
-void DiffEditorServiceImpl::diffModifiedFiles(const QStringList &fileNames)
+void DiffEditorServiceImpl::diffModifiedFiles(const FilePaths &filePaths)
 {
     const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".DiffModifiedFiles");
     const QString title = Tr::tr("Diff Modified Files");
-    reload<DiffModifiedFilesController>(documentId, title, fileNames);
+    reload<DiffModifiedFilesController>(documentId, title, filePaths);
 }
 
 class DiffEditorPlugin final : public ExtensionSystem::IPlugin
@@ -531,8 +527,8 @@ void DiffEditorPlugin::diffExternalFiles()
 
     const QString documentId = QLatin1String(Constants::DIFF_EDITOR_PLUGIN)
             + ".DiffExternalFiles." + filePath1.toUrlishString() + '.' + filePath2.toUrlishString();
-    const QString title = Tr::tr("Diff \"%1\", \"%2\"").arg(filePath1.toUrlishString(), filePath2.toUrlishString());
-    reload<DiffExternalFilesController>(documentId, title, filePath1.toUrlishString(), filePath2.toUrlishString());
+    const QString title = Tr::tr("Diff \"%1\", \"%2\"").arg(filePath1.toUserOutput(), filePath2.toUserOutput());
+    reload<DiffExternalFilesController>(documentId, title, filePath1, filePath2);
 }
 
 } // namespace DiffEditor::Internal

@@ -47,17 +47,25 @@
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeconstants.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QClipboard>
+#include <QDialogButtonBox>
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
+#include <QPushButton>
+
+#ifdef WITH_TESTS
+#include <cppeditor/cpptoolstestcase.h>
+#include <QTest>
+#endif
 
 using namespace ProjectExplorer;
 using namespace TextEditor;
@@ -71,7 +79,7 @@ static Q_LOGGING_CATEGORY(cmakeBuildSystemLog, "qtc.cmake.buildsystem", QtWarnin
 // CMakeBuildSystem:
 // --------------------------------------------------------------------
 
-CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
+CMakeBuildSystem::CMakeBuildSystem(BuildConfiguration *bc)
     : BuildSystem(bc)
     , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
 {
@@ -134,6 +142,8 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
 
 CMakeBuildSystem::~CMakeBuildSystem()
 {
+    // Trigger any pending parsingFinished signals before destroying any other build system part:
+    m_currentGuard = {};
     if (!m_treeScanner.isFinished()) {
         auto future = m_treeScanner.future();
         future.cancel();
@@ -249,7 +259,7 @@ static QString relativeFilePaths(const FilePaths &filePaths, const FilePath &pro
     return Utils::transform(
                filePaths,
                [projectDir](const FilePath &path) {
-                   return path.canonicalPath().relativePathFrom(projectDir).cleanPath().path();
+                   return path.canonicalPath().relativePathFromDir(projectDir).cleanPath().path();
                })
         .join(' ');
 };
@@ -315,7 +325,7 @@ static std::optional<cmListFile> getUncachedCMakeListFile(const FilePath &target
     // Have a fresh look at the CMake file, not relying on a cached value
     Core::DocumentManager::saveModifiedDocumentSilently(
         Core::DocumentModel::documentForFilePath(targetCMakeFile));
-    expected_str<QByteArray> fileContent = targetCMakeFile.fileContents();
+    Result<QByteArray> fileContent = targetCMakeFile.fileContents();
     cmListFile cmakeListFile;
     std::string errorString;
     if (fileContent) {
@@ -407,7 +417,7 @@ static SnippetAndLocation generateSnippetAndLocationForSources(
         result.line += extraChars;
     return result;
 }
-static expected_str<bool> insertSnippetSilently(const FilePath &cmakeFile,
+static Result<bool> insertSnippetSilently(const FilePath &cmakeFile,
                                                 const SnippetAndLocation &snippetLocation)
 {
     BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditorAt(
@@ -415,14 +425,14 @@ static expected_str<bool> insertSnippetSilently(const FilePath &cmakeFile,
         Constants::CMAKE_EDITOR_ID,
         Core::EditorManager::DoNotMakeVisible | Core::EditorManager::DoNotChangeCurrentEditor));
     if (!editor) {
-        return make_unexpected("BaseTextEditor cannot be obtained for " + cmakeFile.toUserOutput()
+        return ResultError("BaseTextEditor cannot be obtained for " + cmakeFile.toUserOutput()
                                + ":" + QString::number(snippetLocation.line) + ":"
                                + QString::number(snippetLocation.column));
     }
     editor->insert(snippetLocation.snippet);
     editor->editorWidget()->autoIndent();
     if (!Core::DocumentManager::saveDocument(editor->document()))
-        return make_unexpected("Changes to " + cmakeFile.toUserOutput() + " could not be saved.");
+        return ResultError("Changes to " + cmakeFile.toUserOutput() + " could not be saved.");
     return true;
 }
 
@@ -528,7 +538,7 @@ static std::optional<cmListFileFunction> handleQtCreateTranslation(const cmListF
 }
 
 
-static expected_str<bool> insertQtAddTranslations(const cmListFile &cmakeListFile,
+static Result<bool> insertQtAddTranslations(const cmListFile &cmakeListFile,
                                                   const FilePath &targetCmakeFile,
                                                   const QString &targetName,
                                                   int targetDefinitionLine,
@@ -553,7 +563,7 @@ static expected_str<bool> insertQtAddTranslations(const cmListFile &cmakeListFil
         snippet = QString("\nqt_add_translations(%1 TS_FILES %2)\n").arg(targetName, filesToAdd);
 
     const int insertionLine = function->LineEnd() + 1;
-    expected_str<bool> inserted = insertSnippetSilently(targetCmakeFile,
+    Result<bool> inserted = insertSnippetSilently(targetCmakeFile,
                                                         {snippet, insertionLine, 0});
     if (!inserted || !addLinguist)
         return inserted;
@@ -615,7 +625,7 @@ bool CMakeBuildSystem::addTsFiles(Node *context, const FilePaths &filePaths, Fil
             }
 
             // we failed to find any pre-existing, add one ourself
-            expected_str<bool> inserted = insertQtAddTranslations(*cmakeListFile,
+            Result<bool> inserted = insertQtAddTranslations(*cmakeListFile,
                                                                   targetCMakeFile,
                                                                   targetName,
                                                                   cmakeFile->targetLine,
@@ -638,7 +648,7 @@ bool CMakeBuildSystem::addTsFiles(Node *context, const FilePaths &filePaths, Fil
         if (lastArgument.Delim == cmListFileArgument::Quoted)
             snippetLocation.column += 2;
 
-        expected_str<bool> inserted = insertSnippetSilently(targetCMakeFile, snippetLocation);
+        Result<bool> inserted = insertSnippetSilently(targetCMakeFile, snippetLocation);
         if (!inserted) {
             qCCritical(cmakeBuildSystemLog) << inserted.error();
             return false;
@@ -724,7 +734,7 @@ bool CMakeBuildSystem::addSrcFiles(Node *context, const FilePaths &filePaths, Fi
 
             const SnippetAndLocation snippetLocation = generateSnippetAndLocationForSources(
                         newSourceFiles, *cmakeListFile, *function, targetName);
-            expected_str<bool> inserted = insertSnippetSilently(targetCMakeFile, snippetLocation);
+            Result<bool> inserted = insertSnippetSilently(targetCMakeFile, snippetLocation);
             if (!inserted) {
                 qCCritical(cmakeBuildSystemLog) << inserted.error();
                 return false;
@@ -877,9 +887,9 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
         const QString targetName = n->buildKey();
 
         bool haveGlobbing = false;
-        for (const auto &file : filePaths) {
+        for (const FilePath &file : filePaths) {
             const QString fileName
-                = file.canonicalPath().relativePathFrom(projDir).cleanPath().path();
+                = file.canonicalPath().relativePathFromDir(projDir).cleanPath().path();
 
             auto filePos = projectFileArgumentPosition(targetName, fileName);
             if (filePos) {
@@ -960,7 +970,7 @@ bool CMakeBuildSystem::canRenameFile(Node *context,
     if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
         const FilePath projDir = n->filePath().canonicalPath();
         const QString oldRelPathName
-            = oldFilePath.canonicalPath().relativePathFrom(projDir).cleanPath().path();
+            = oldFilePath.canonicalPath().relativePathFromDir(projDir).cleanPath().path();
 
         const QString targetName = n->buildKey();
 
@@ -1010,7 +1020,7 @@ bool CMakeBuildSystem::renameFile(
         bool &shouldRunCMake)
 {
     const FilePath projDir = context->filePath().canonicalPath();
-    const FilePath newRelPath = newFilePath.canonicalPath().relativePathFrom(projDir).cleanPath();
+    const FilePath newRelPath = newFilePath.canonicalPath().relativePathFromDir(projDir).cleanPath();
     const QString newRelPathName = newRelPath.toUrlishString();
 
     const QString targetName = context->buildKey();
@@ -1074,6 +1084,178 @@ void CMakeBuildSystem::buildNamedTarget(const QString &target)
     CMakeProjectManager::Internal::buildTarget(this, target);
 }
 
+static Result<bool> insertDependencies(
+    const QString &targetName,
+    const FilePath &targetCMakeFile,
+    int targetDefinitionLine,
+    const QStringList &dependencies,
+    int qtMajorVersion)
+{
+    std::optional<cmListFile> cmakeListFile = getUncachedCMakeListFile(targetCMakeFile);
+    if (!cmakeListFile)
+        return ResultError("Failed to read " + targetCMakeFile.toUserOutput());
+
+    std::optional<cmListFileFunction> function
+        = findFunction(*cmakeListFile, [targetDefinitionLine](const auto &func) {
+              return func.Line() == targetDefinitionLine;
+          });
+    if (!function.has_value())
+        return ResultError(QString("Failed to locate the target defining function at %1").arg(targetDefinitionLine));
+    const int targetDefinitionLastLine = function->LineEnd();
+
+    //
+    // find_package
+    //
+    const QString qtPackage = QString("Qt%1").arg(qtMajorVersion);
+    function = findFunction(
+        *cmakeListFile,
+        [qtPackage](const auto &func) {
+            return func.LowerCaseName() == "find_package" && func.Arguments().size() > 0
+                   && func.Arguments()[0].Value == qtPackage.toStdString();
+        },
+        /* reverse = */ true);
+
+    const QString findComponents = transform(dependencies, [](const QString &dep) {
+                                       QTC_ASSERT(dep.size() > 3, return dep);
+                                       return dep.mid(3);
+                                   }).join(" ");
+    QString snippet = QString("find_package(%1 REQUIRED COMPONENTS %2)\n%3")
+                          .arg(qtPackage)
+                          .arg(findComponents)
+                          .arg(!function ? QString("\n") : QString(""));
+
+    int insertionLine = function ? function->LineEnd() + 1 : targetDefinitionLine;
+    Result<bool> inserted = insertSnippetSilently(targetCMakeFile, {snippet, insertionLine, 0});
+    if (!inserted)
+        return inserted;
+    const int insertedFindPackageOffset = 2;
+
+    //
+    // target_link_libraries
+    //
+    cmakeListFile = getUncachedCMakeListFile(targetCMakeFile);
+
+    function = findFunction(
+        *cmakeListFile,
+        [targetName](const auto &func) {
+            return func.LowerCaseName() == "target_link_libraries" && func.Arguments().size() > 0
+                   && func.Arguments()[0].Value == targetName.toStdString();
+        },
+        /* reverse = */ true);
+
+    const QString targetPrefix = QString("Qt%1::").arg(qtMajorVersion);
+    const QString linkLibraries
+        = transform(dependencies, [targetPrefix](const QString &dep) -> QString {
+              QTC_ASSERT(dep.size() > 3, return targetPrefix + dep);
+              return targetPrefix + dep.mid(3);
+          }).join(" ");
+    snippet = QString("%1target_link_libraries(%2 PRIVATE %3)\n")
+                  .arg(!function ? QString("\n") : QString(""))
+                  .arg(targetName)
+                  .arg(linkLibraries);
+
+    insertionLine = (function ? function->LineEnd()
+                              : targetDefinitionLastLine + insertedFindPackageOffset)
+                    + 1;
+    return insertSnippetSilently(targetCMakeFile, {snippet, insertionLine, 0});
+}
+
+bool CMakeBuildSystem::addDependencies(
+    ProjectExplorer::Node *context, const QStringList &dependencies)
+{
+    if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
+        const QString targetName = n->buildKey();
+        const std::optional<Link> cmakeFile = cmakeFileForBuildKey(targetName, buildTargets());
+        if (!cmakeFile)
+            return false;
+
+        int qtMajorVersion = 6;
+        if (auto qt = m_findPackagesFilesHash.value("Qt5Core"); qt.hasValidTarget())
+            qtMajorVersion = 5;
+
+        Result<bool> inserted = insertDependencies(
+            targetName,
+            cmakeFile->targetFilePath,
+            cmakeFile->targetLine,
+            dependencies,
+            qtMajorVersion);
+        if (!inserted) {
+            qCCritical(cmakeBuildSystemLog) << inserted.error();
+            return false;
+        }
+
+        return true;
+    }
+    return BuildSystem::addDependencies(context, dependencies);
+}
+
+#ifdef WITH_TESTS
+class AddDependenciesTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test()
+    {
+        const auto projectDir = std::make_unique<CppEditor::Tests::TemporaryCopiedDir>(
+            ":/cmakeprojectmanager/testcases/adddependencies");
+
+        QVERIFY(insertDependencies(
+            "HelloQt",
+            projectDir->filePath().pathAppended("existing_qt5.cmake"),
+            18,
+            {"Qt.Concurrent"},
+            5));
+        QVERIFY(insertDependencies(
+            "HelloQt",
+            projectDir->filePath().pathAppended("existing_qt6.cmake"),
+            8,
+            {"Qt.Concurrent"},
+            6));
+        QVERIFY(insertDependencies(
+            "HelloCpp",
+            projectDir->filePath().pathAppended("no_qt6.cmake"),
+            8,
+            {"Qt.Concurrent"},
+            6));
+
+        // Compare files.
+        static const QString suffix = "_expected.cmake";
+        const FileFilter filter({"*" + suffix}, QDir::Files);
+        const FilePaths expectedDocuments = projectDir->filePath().dirEntries(filter);
+        QVERIFY(!expectedDocuments.isEmpty());
+        for (const FilePath &expected : expectedDocuments) {
+            const FilePath actual = expected.parentDir().pathAppended(
+                expected.fileName().chopped(suffix.length()) + ".cmake");
+            QVERIFY(actual.exists());
+            const auto actualContents = actual.fileContents();
+            QVERIFY(actualContents);
+            const auto expectedContents = expected.fileContents();
+            const QByteArrayList actualLines = actualContents->split('\n');
+            const QByteArrayList expectedLines = expectedContents->split('\n');
+            if (actualLines.size() != expectedLines.size()) {
+                qDebug().noquote().nospace() << "---\n" << *expectedContents << "EOF";
+                qDebug().noquote().nospace() << "+++\n" << *actualContents << "EOF";
+            }
+            QCOMPARE(actualLines.size(), expectedLines.size());
+            for (int i = 0; i < actualLines.size(); ++i) {
+                const QByteArray actualLine = actualLines.at(i);
+                const QByteArray expectedLine = expectedLines.at(i);
+                if (actualLine != expectedLine)
+                    qDebug() << "Unexpected content in line" << (i + 1) << "of file"
+                             << actual.fileName();
+                QCOMPARE(actualLine, expectedLine);
+            }
+        }
+    }
+};
+
+QObject *createAddDependenciesTest()
+{
+    return new AddDependenciesTest;
+}
+#endif
+
 FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
 {
     FilePath project = projectDirectory();
@@ -1086,7 +1268,7 @@ FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
         baseDirectory = baseDirectory.parentDir();
     }
 
-    const FilePath relativePath = baseDirectory.relativePathFrom(project);
+    const FilePath relativePath = baseDirectory.relativePathFromDir(project);
     FilePath generatedFilePath = buildConfiguration()->buildDirectory().resolvePath(relativePath);
 
     if (sourceFile.suffix() == "ui") {
@@ -1196,15 +1378,40 @@ bool CMakeBuildSystem::mustApplyConfigurationChangesArguments(const BuildDirPara
     if (parameters.configurationChangesArguments.isEmpty())
         return false;
 
-    int answer = QMessageBox::question(Core::ICore::dialogParent(),
-                                       Tr::tr("Apply configuration changes?"),
-                                       "<p>" + Tr::tr("Run CMake with configuration changes?")
-                                       + "</p><pre>"
-                                       + parameters.configurationChangesArguments.join("\n")
-                                       + "</pre>",
-                                       QMessageBox::Apply | QMessageBox::Discard,
-                                       QMessageBox::Apply);
-    return answer == QMessageBox::Apply;
+    QDialog question(Core::ICore::dialogParent());
+    question.resize(600, 300);
+    question.setWindowTitle(Tr::tr("Apply configuration changes?"));
+
+    QDialogButtonBox buttonBox;
+    buttonBox.setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Discard);
+    buttonBox.setCenterButtons(true);
+    QPushButton *apply = buttonBox.button(QDialogButtonBox::Ok);
+    apply->setDefault(true);
+    apply->setAutoDefault(true);
+    apply->setText(Tr::tr("Apply"));
+    QPushButton *discard = buttonBox.button(QDialogButtonBox::Discard);
+    discard->setAutoDefault(false);
+
+    QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &question, &QDialog::accept);
+    QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &question, &QDialog::reject);
+
+    using namespace Layouting;
+    // clang-format off
+    Column {
+        Tr::tr("Run CMake with configuration changes?"),
+        TextEdit {
+            markdown("```\n" +
+                    parameters.configurationChangesArguments.join("\n") +
+                    "\n```"),
+            readOnly(true),
+        }, br,
+        Row {
+            &buttonBox,
+        }
+    }.attachTo(&question);
+    // clang-format on
+
+    return question.exec() == QDialog::Accepted;
 }
 
 void CMakeBuildSystem::runCMake()
@@ -1361,11 +1568,12 @@ void CMakeBuildSystem::checkAndReportError(QString &errorMessage)
 
 static QSet<FilePath> projectFilesToWatch(const QSet<CMakeFileInfo> &cmakeFiles)
 {
-    return Utils::transform(Utils::filtered(cmakeFiles,
-                                            [](const CMakeFileInfo &info) {
-                                                return !info.isGenerated;
-                                            }),
-                            [](const CMakeFileInfo &info) { return info.path; });
+    QSet<FilePath> result;
+    for (const CMakeFileInfo &info : cmakeFiles) {
+        if (!info.isGenerated && !info.isCMake)
+            result.insert(info.path);
+    }
+    return result;
 }
 
 void CMakeBuildSystem::updateProjectData()
@@ -1491,8 +1699,8 @@ void CMakeBuildSystem::updateProjectData()
         for (const RawProjectPart &rpp : std::as_const(rpps)) {
             FilePath moduleMapFile = buildConfiguration()->buildDirectory()
                     .pathAppended("qml_module_mappings/" + rpp.buildSystemTarget);
-            if (expected_str<QByteArray> content = moduleMapFile.fileContents()) {
-                auto lines = content->split('\n');
+            if (Result<QByteArray> content = moduleMapFile.fileContents()) {
+                const QList<QByteArray> lines = content->split('\n');
                 for (const QByteArray &line : lines) {
                     if (!line.isEmpty())
                         moduleMappings.append(line.simplified());
@@ -1850,7 +2058,7 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
 
     const std::string fphsFunctionName = "find_package_handle_standard_args";
     CMakeKeywords keywords;
-    if (auto tool = CMakeKitAspect::cmakeTool(target()->kit()))
+    if (auto tool = CMakeKitAspect::cmakeTool(kit()))
         keywords = tool->keywords();
     QSet<std::string> fphsFunctionArgs;
     if (keywords.functionArgs.contains(QString::fromStdString(fphsFunctionName))) {
@@ -2117,7 +2325,7 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
             appTargetList.append(bti);
         } else if (ct.targetType == UtilityType && ct.qtcRunnable) {
             const QString buildKey = ct.title;
-            CMakeTool *cmakeTool = CMakeKitAspect::cmakeTool(target()->kit());
+            CMakeTool *cmakeTool = CMakeKitAspect::cmakeTool(kit());
             if (!cmakeTool)
                 continue;
 
@@ -2466,7 +2674,7 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 MakeInstallCommand CMakeBuildSystem::makeInstallCommand(const FilePath &installRoot) const
 {
     MakeInstallCommand cmd;
-    if (CMakeTool *tool = CMakeKitAspect::cmakeTool(target()->kit()))
+    if (CMakeTool *tool = CMakeKitAspect::cmakeTool(kit()))
         cmd.command.setExecutable(tool->cmakeExecutable());
 
     QString installTarget = "install";
@@ -2496,8 +2704,7 @@ QList<QPair<Id, QString>> CMakeBuildSystem::generators() const
 {
     if (!buildConfiguration())
         return {};
-    const CMakeTool * const cmakeTool
-            = CMakeKitAspect::cmakeTool(buildConfiguration()->target()->kit());
+    const CMakeTool * const cmakeTool = CMakeKitAspect::cmakeTool(kit());
     if (!cmakeTool)
         return {};
     QList<QPair<Id, QString>> result;
@@ -2516,8 +2723,7 @@ void CMakeBuildSystem::runGenerator(Id id)
         Core::MessageManager::writeDisrupting(
             addCMakePrefix(Tr::tr("cmake generator failed: %1.").arg(detail)));
     };
-    const CMakeTool * const cmakeTool
-            = CMakeKitAspect::cmakeTool(buildConfiguration()->target()->kit());
+    const CMakeTool * const cmakeTool = CMakeKitAspect::cmakeTool(kit());
     if (!cmakeTool) {
         showError(Tr::tr("Kit does not have a cmake binary set."));
         return;
@@ -2529,7 +2735,7 @@ void CMakeBuildSystem::runGenerator(Id id)
         showError(Tr::tr("Cannot create output directory \"%1\".").arg(outDir.toUrlishString()));
         return;
     }
-    CommandLine cmdLine(cmakeTool->cmakeExecutable(), {"-S", buildConfiguration()->target()
+    CommandLine cmdLine(cmakeTool->cmakeExecutable(), {"-S", buildConfiguration()
                         ->project()->projectDirectory().toUserOutput(), "-G", generator});
     if (!cmdLine.executable().isExecutableFile()) {
         showError(Tr::tr("No valid cmake executable."));
@@ -2582,3 +2788,7 @@ ExtraCompiler *CMakeBuildSystem::findExtraCompiler(const ExtraCompilerFilter &fi
 }
 
 } // CMakeProjectManager::Internal
+
+#ifdef WITH_TESTS
+#include <cmakebuildsystem.moc>
+#endif

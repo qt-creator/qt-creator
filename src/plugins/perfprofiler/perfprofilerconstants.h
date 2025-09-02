@@ -3,8 +3,7 @@
 
 #pragma once
 
-namespace PerfProfiler {
-namespace Constants {
+namespace PerfProfiler::Constants {
 
 const char PerfProfilerTaskLoadPerf[]   =
         "Analyzer.Menu.StartAnalyzer.PerfProfilerOptions.LoadPerf";
@@ -34,5 +33,4 @@ const char PerfRecordArgsId[]           = "PerfRecordArgsId";
 const char PerfStreamMagic[] = "QPERFSTREAM";
 const char PerfZqfileMagic[] = "PTQFILE4.10";
 
-} // namespace Constants
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Constants

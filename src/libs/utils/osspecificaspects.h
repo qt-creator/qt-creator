@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "expected.h"
+#include "result.h"
 
 #include <QDebug>
 #include <QString>
@@ -36,22 +36,23 @@ inline QString osTypeToString(OsType osType)
     }
 }
 
-inline Utils::expected_str<OsType> osTypeFromString(const QString &string)
+inline Utils::Result<OsType> osTypeFromString(const QString &string)
 {
     if (string.compare("windows", Qt::CaseInsensitive) == 0)
         return OsTypeWindows;
     if (string.compare("linux", Qt::CaseInsensitive) == 0)
         return OsTypeLinux;
     if (string.compare("mac", Qt::CaseInsensitive) == 0
-        || string.compare("darwin", Qt::CaseInsensitive) == 0)
+        || string.compare("darwin", Qt::CaseInsensitive) == 0
+        || string.compare("macos", Qt::CaseInsensitive) == 0)
         return OsTypeMac;
     if (string.compare("other unix", Qt::CaseInsensitive) == 0)
         return OsTypeOtherUnix;
 
-    return Utils::make_unexpected(QString::fromLatin1("Unknown os type: %1").arg(string));
+    return Utils::ResultError(QString::fromLatin1("Unknown os type: %1").arg(string));
 }
 
-inline Utils::expected_str<OsArch> osArchFromString(const QString &architecture)
+inline Utils::Result<OsArch> osArchFromString(const QString &architecture)
 {
     if (architecture == QLatin1String("x86_64") || architecture == QLatin1String("amd64"))
         return OsArchAMD64;
@@ -64,7 +65,7 @@ inline Utils::expected_str<OsArch> osArchFromString(const QString &architecture)
     if (architecture == QLatin1String("arm64") || architecture == QLatin1String("aarch64"))
         return OsArchArm64;
 
-    return Utils::make_unexpected(QString::fromLatin1("Unknown architecture: %1").arg(architecture));
+    return Utils::ResultError(QString::fromLatin1("Unknown architecture: %1").arg(architecture));
 }
 
 namespace OsSpecificAspects {

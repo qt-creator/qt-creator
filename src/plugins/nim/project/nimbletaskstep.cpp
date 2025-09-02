@@ -63,7 +63,7 @@ NimbleTaskStep::NimbleTaskStep(BuildStepList *parentList, Id id)
 
     setCommandLineProvider([this] {
         QString args = m_taskName() + " " + m_taskArgs();
-        return CommandLine(Nim::nimblePathFromKit(target()->kit()), args, CommandLine::Raw);
+        return CommandLine(Nim::nimblePathFromKit(kit()), args, CommandLine::Raw);
     });
 
     setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });

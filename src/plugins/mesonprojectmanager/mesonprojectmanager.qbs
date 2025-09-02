@@ -53,7 +53,6 @@ Project {
             "ninjaparser.h",
             "mesonprojectnodes.cpp",
             "mesonprojectnodes.h",
-            "resources_meson.qrc",
             "settings.cpp",
             "settings.h",
             "toolkitaspectwidget.cpp",
@@ -65,6 +64,18 @@ Project {
             "toolssettingspage.cpp",
             "toolssettingspage.h",
         ]
+
+        Group {
+            name: "images"
+            prefix: "icons/"
+            files: [
+                "meson_logo.png",
+                "meson_bw_logo.png",
+                "meson_bw_logo@2x.png",
+            ]
+            fileTags: "qt.core.resource_data"
+            Qt.core.resourcePrefix: "/mesonproject"
+        }
     }
 
     QtcAutotest {

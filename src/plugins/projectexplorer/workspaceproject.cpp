@@ -28,6 +28,7 @@
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
 
+#include <QElapsedTimer>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -50,7 +51,7 @@ const QLatin1StringView FILES_EXCLUDE_KEY{"files.exclude"};
 const char EXCLUDE_ACTION_ID[] = "ProjectExplorer.ExcludeFromWorkspace";
 const char RESCAN_ACTION_ID[] = "ProjectExplorer.RescanWorkspace";
 
-const expected_str<QJsonObject> projectDefinition(const FilePath &path)
+const Result<QJsonObject> projectDefinition(const FilePath &path)
 {
     if (auto fileContents = path.fileContents())
         return QJsonDocument::fromJson(*fileContents).object();
@@ -62,7 +63,8 @@ static QFlags<QDir::Filter> workspaceDirFilter = QDir::AllEntries | QDir::NoDotA
 class WorkspaceBuildSystem final : public BuildSystem
 {
 public:
-    WorkspaceBuildSystem(Target *t);
+    WorkspaceBuildSystem(BuildConfiguration *bc);
+    ~WorkspaceBuildSystem();
 
     void reparse(bool force);
     void triggerParsing() final;
@@ -77,8 +79,6 @@ public:
 
     void scan(const FilePath &path);
     void scanNext();
-
-    QString name() const final { return QLatin1String("Workspace"); }
 
 private:
     bool isFiltered(const FilePath &path, QList<IVersionControl *> versionControls) const;
@@ -102,8 +102,8 @@ static FolderNode *findAvailableParent(ProjectNode *root, const FilePath &path)
     return result;
 }
 
-WorkspaceBuildSystem::WorkspaceBuildSystem(Target *t)
-    :BuildSystem(t)
+WorkspaceBuildSystem::WorkspaceBuildSystem(BuildConfiguration *bc)
+    : BuildSystem(bc)
 {
     connect(&m_scanner, &TreeScanner::finished, this, [this] {
         QTC_ASSERT(!m_scanQueue.isEmpty(), return);
@@ -132,14 +132,14 @@ WorkspaceBuildSystem::WorkspaceBuildSystem(Target *t)
         if (scannedDir == projectDirectory()) {
             qCDebug(wsbs) << "Finished scanning new root" << scannedDir;
             auto root = std::make_unique<ProjectNode>(scannedDir);
-            root->setDisplayName(target()->project()->displayName());
+            root->setDisplayName(project()->displayName());
             m_watcher.reset(new FileSystemWatcher);
             connect(
                 m_watcher.get(),
                 &FileSystemWatcher::directoryChanged,
                 this,
-                [this](const QString &path) {
-                    handleDirectoryChanged(FilePath::fromPathPart(path));
+                [this](const FilePath &path) {
+                    handleDirectoryChanged(path);
                 });
 
             addNodes(root.get());
@@ -165,12 +165,14 @@ WorkspaceBuildSystem::WorkspaceBuildSystem(Target *t)
         });
     });
 
-    connect(target()->project(),
-            &Project::projectFileIsDirty,
-            this,
-            &BuildSystem::requestDelayedParse);
-
+    connect(project(), &Project::projectFileIsDirty, this, &BuildSystem::requestDelayedParse);
     requestDelayedParse();
+}
+
+WorkspaceBuildSystem::~WorkspaceBuildSystem()
+{
+    // Trigger any pending parsingFinished signals before destroying any other build system part:
+    m_parseGuard = {};
 }
 
 void WorkspaceBuildSystem::reparse(bool force)
@@ -231,7 +233,7 @@ void WorkspaceBuildSystem::reparse(bool force)
     setApplicationTargets(targetInfos);
 
     if (force || oldFilters != m_filters)
-        scan(target()->project()->projectDirectory());
+        scan(project()->projectDirectory());
     else
         emitBuildSystemUpdated();
 }
@@ -310,7 +312,7 @@ void WorkspaceBuildSystem::handleDirectoryChanged(const FilePath &directory)
         };
         fn->forEachFileNode(filter);
         fn->forEachFolderNode(filter);
-        for (auto n : toRemove)
+        for (auto n : std::as_const(toRemove))
             fn->replaceSubtree(n, nullptr);
     } else {
         scan(directory);
@@ -359,8 +361,8 @@ bool WorkspaceBuildSystem::isFiltered(const FilePath &path, QList<IVersionContro
 class WorkspaceRunConfiguration : public RunConfiguration
 {
 public:
-    WorkspaceRunConfiguration(Target *target, Id id)
-        : RunConfiguration(target, id)
+    WorkspaceRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
     {
         hint.setText(Tr::tr("Clone the configuration to change it. Or, make the changes in "
                             "the .qtcreator/project.json file."));
@@ -402,14 +404,13 @@ public:
         auto enabledUpdater = [this] { setEnabled(enabled.value()); };
         connect(&enabled, &BaseAspect::changed, this, enabledUpdater);
         connect(this, &AspectContainer::fromMapFinished, this, enabledUpdater);
-        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
         enabledUpdater();
         enabled.setSettingsKey("Workspace.RunConfiguration.Enabled");
     }
 
-    RunConfiguration *clone(Target *parent) override
+    RunConfiguration *clone(BuildConfiguration *bc) override
     {
-        RunConfiguration *result = RunConfiguration::clone(parent);
+        RunConfiguration *result = RunConfiguration::clone(bc);
         dynamic_cast<WorkspaceRunConfiguration *>(result)->enabled.setValue(true);
         return result;
     }
@@ -429,17 +430,6 @@ public:
         registerRunConfiguration<WorkspaceRunConfiguration>(
             Id(WORKSPACE_PROJECT_RUNCONFIG_ID));
         addSupportedProjectType(WORKSPACE_PROJECT_ID);
-    }
-};
-
-class WorkspaceProjectRunWorkerFactory : public RunWorkerFactory
-{
-public:
-    WorkspaceProjectRunWorkerFactory()
-    {
-        setProduct<ProcessRunner>();
-        addSupportedRunMode(Constants::NORMAL_RUN_MODE);
-        addSupportedRunConfig(WORKSPACE_PROJECT_RUNCONFIG_ID);
     }
 };
 
@@ -536,7 +526,7 @@ public:
 
         setBuildGenerator([this](const Kit *, const FilePath &projectPath, bool forSetup) {
             QList<BuildInfo> result = parseBuildConfigurations(projectPath, forSetup);
-            if (!forSetup) {
+            if (!forSetup || result.isEmpty()) {
                 BuildInfo info;
                 info.factory = this;
                 info.typeName = ::ProjectExplorer::Tr::tr("Build");
@@ -606,7 +596,7 @@ public:
 
         setId(WORKSPACE_PROJECT_ID);
         setDisplayName(projectDirectory().fileName());
-        setBuildSystemCreator<WorkspaceBuildSystem>();
+        setBuildSystemCreator<WorkspaceBuildSystem>("Workspace");
 
         connect(this, &Project::projectFileIsDirty, this, &WorkspaceProject::updateBuildConfigurations);
     }
@@ -656,6 +646,20 @@ public:
         return Project::projectDirectory().parentDir();
     }
 
+    RestoreResult fromMap(const Store &map, QString *errorMessage) override
+    {
+        if (const RestoreResult res = Project::fromMap(map, errorMessage); res != RestoreResult::Ok)
+            return res;
+
+        // For projects created with Qt Creator < 17.
+        for (Target * const t : targets()) {
+            if (t->buildConfigurations().isEmpty())
+                t->updateDefaultBuildConfigurations();
+            QTC_CHECK(!t->buildConfigurations().isEmpty());
+        }
+        return RestoreResult::Ok;
+    }
+
     void saveProjectDefinition(const QJsonObject &json)
     {
         Utils::FileSaver saver(projectFilePath());
@@ -666,9 +670,9 @@ public:
     void excludePath(const FilePath &path)
     {
         QTC_ASSERT(projectFilePath().exists(), return);
-        if (expected_str<QJsonObject> json = projectDefinition(projectFilePath())) {
+        if (Result<QJsonObject> json = projectDefinition(projectFilePath())) {
             QJsonArray excludes = (*json)[FILES_EXCLUDE_KEY].toArray();
-            const QString relative = path.relativePathFrom(projectDirectory()).path();
+            const QString relative = path.relativePathFromDir(projectDirectory()).path();
             if (excludes.contains(relative))
                 return;
             excludes << relative;
@@ -744,7 +748,7 @@ void setupWorkspaceProject(QObject *guard)
         });
 
     static WorkspaceProjectRunConfigurationFactory theRunConfigurationFactory;
-    static WorkspaceProjectRunWorkerFactory theRunWorkerFactory;
+    static ProcessRunnerFactory theRunWorkerFactory{{WORKSPACE_PROJECT_RUNCONFIG_ID}};
     static WorkspaceBuildConfigurationFactory theBuildConfigurationFactory;
 }
 

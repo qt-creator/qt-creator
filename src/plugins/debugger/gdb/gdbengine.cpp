@@ -357,6 +357,8 @@ void GdbEngine::handleResponse(const QString &buff)
             } else if (m_detectTargetIncompat && data.contains(notCompatibleMessage)) {
                 m_detectTargetIncompat = false;
                 m_ignoreNextTrap = true;
+            } else if (data.contains("no attribute 'lru_cache'")) {
+                setProperty("lru_fail", true);
             }
 
             m_pendingLogStreamOutput += data;
@@ -383,7 +385,7 @@ void GdbEngine::handleResponse(const QString &buff)
             else if (resultClass == u"connected")
                 response.resultClass = ResultConnected;
             else if (resultClass == u"error")
-                response.resultClass = ResultError;
+                response.resultClass = ResultFail;
             else if (resultClass == u"exit")
                 response.resultClass = ResultExit;
             else
@@ -684,7 +686,7 @@ void GdbEngine::interruptInferior()
             DeviceProcessSignalOperation::Ptr signalOperation = dev->signalOperation();
             QTC_ASSERT(signalOperation, notifyInferiorStopFailed(); return);
             connect(signalOperation.get(), &DeviceProcessSignalOperation::finished,
-                    this, [this, signalOperation](const Result &result) {
+                    this, [this, signalOperation](const Result<> &result) {
                         if (result) {
                             showMessage("Interrupted " + QString::number(inferiorPid()));
                             notifyInferiorStopOk();
@@ -718,7 +720,7 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
             .arg(cmd.function).arg(state()));
         if (cmd.callback) {
             DebuggerResponse response;
-            response.resultClass = ResultError;
+            response.resultClass = ResultFail;
             cmd.callback(response);
         }
         return;
@@ -862,7 +864,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
         showMessage(QString("COOKIE FOR TOKEN %1 ALREADY EATEN (%2). "
                             "TWO RESPONSES FOR ONE COMMAND?").arg(token).
                     arg(stateName(state())));
-        if (response->resultClass == ResultError) {
+        if (response->resultClass == ResultFail) {
             QString msg = response->data["msg"].data();
             if (msg == "Cannot find new threads: generic error") {
                 // Handle a case known to occur on Linux/gdb 6.8 when debugging moc
@@ -953,7 +955,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
     }
 
     bool isExpectedResult =
-           (response->resultClass == ResultError) // Can always happen.
+           (response->resultClass == ResultFail) // Can always happen.
         || (response->resultClass == ResultRunning && (flags & RunRequest))
         || (response->resultClass == ResultExit && (flags & ExitRequest))
         || (response->resultClass == ResultDone);
@@ -1057,7 +1059,7 @@ void GdbEngine::handleExecuteJumpToLine(const DebuggerResponse &response)
         // All is fine. Waiting for a *running
         // and the temporary breakpoint to be hit.
         notifyInferiorRunOk(); // Only needed for gdb < 7.0.
-    } else if (response.resultClass == ResultError) {
+    } else if (response.resultClass == ResultFail) {
         // Could be "Unreasonable jump request" or similar.
         QString out = Tr::tr("Cannot jump. Stopped.");
         QString msg = response.data["msg"].data();
@@ -1500,6 +1502,20 @@ void GdbEngine::handleShowVersion(const DebuggerResponse &response)
             } else if (useDebugInfoD == TriState::Disabled) {
                 runCommand({"set debuginfod enabled off"});
             }
+        }
+    }
+}
+
+void GdbEngine::handleDumperSetup(const DebuggerResponse &response)
+{
+    CHECK_STATE(EngineSetupRequested);
+    if (response.resultClass == ResultFail) {
+        const QString msg = response.data["msg"].data();
+        if (property("lru_fail").toBool() && msg.contains("Error while executing Python code.")) {
+            AsynchronousMessageBox::critical(
+                        Tr::tr("Cannot Execute Python Code"),
+                        Tr::tr("Python 3.2 or later is required, so update GDB to a "
+                               "version that uses it."));
         }
     }
 }
@@ -2463,7 +2479,7 @@ void GdbEngine::handleTracepointHit(const GdbMi &data)
     const GdbMi &warnings = data["warnings"];
     if (warnings.childCount() > 0) {
         for (const GdbMi &warning: warnings) {
-            emit appendMessageRequested(warning.toString(), ErrorMessageFormat, true);
+            emit postMessageRequested(warning.toString(), ErrorMessageFormat, true);
         }
     }
     QString message = bp->message();
@@ -2507,7 +2523,7 @@ void GdbEngine::handleTracepointHit(const GdbMi &data)
         }
     }
     showMessage(message);
-    emit appendMessageRequested(message, NormalMessageFormat, true);
+    emit postMessageRequested(message, NormalMessageFormat, true);
 }
 
 void GdbEngine::handleTracepointModified(const GdbMi &data)
@@ -4003,7 +4019,7 @@ void GdbEngine::handleGdbStarted()
     if (!rp.debugger().command.executable().isLocal()) {
         // Gdb itself running remotely.
         const FilePath loadOrderFile = dumperPath / "loadorder.txt";
-        const expected_str<QByteArray> toLoad = loadOrderFile.fileContents();
+        const Result<QByteArray> toLoad = loadOrderFile.fileContents();
         if (!toLoad) {
             AsynchronousMessageBox::critical(Tr::tr("Cannot Find Debugger Initialization Script"),
                                              Tr::tr("Cannot read \"%1\": %2")
@@ -4022,7 +4038,7 @@ void GdbEngine::handleGdbStarted()
                 module = "gdbbridge";
 
             const FilePath codeFile = dumperPath / (module + ".py");
-            const expected_str<QByteArray> code = codeFile.fileContents();
+            const Result<QByteArray> code = codeFile.fileContents();
             if (!code) {
                 qDebug() << Tr::tr("Cannot read \"%1\": %2")
                                 .arg(codeFile.toUserOutput(), code.error());
@@ -4041,7 +4057,7 @@ void GdbEngine::handleGdbStarted()
                 moduleList.append('"' + module + '"');
         }
 
-        runCommand({"python from gdbbridge import *"});
+        runCommand({"python from gdbbridge import *", CB(handleDumperSetup)});
         runCommand(QString("python theDumper.dumpermodules = [%1]").arg(moduleList.join(',')));
 
     } else {
@@ -4053,7 +4069,7 @@ void GdbEngine::handleGdbStarted()
             runCommand({"python sys.path.append('" + uninstalledData.path() + "')"});
 
         runCommand({"python sys.path.insert(1, '" + dumperPath.path() + "')"});
-        runCommand({"python from gdbbridge import *"});
+        runCommand({"python from gdbbridge import *", CB(handleDumperSetup)});
     }
 
     const FilePath path = settings().extraDumperFile();
@@ -4142,8 +4158,7 @@ void GdbEngine::handleGdbDone()
             msg = failedToStartMessage() + ' ' + Tr::tr("The working directory \"%1\" is not usable.")
                 .arg(wd.toUserOutput());
         } else {
-            msg = RunWorker::userMessageForProcessError(QProcess::FailedToStart,
-                runParameters().debugger().command.executable());
+            msg = m_gdbProc.exitMessage();
         }
         handleAdapterStartFailed(msg);
         return;
@@ -4151,8 +4166,7 @@ void GdbEngine::handleGdbDone()
 
     const QProcess::ProcessError error = m_gdbProc.error();
     if (error != QProcess::UnknownError) {
-        QString msg = RunWorker::userMessageForProcessError(error,
-                      runParameters().debugger().command.executable());
+        QString msg = m_gdbProc.exitMessage();
         const QString errorString = m_gdbProc.errorString();
         if (!errorString.isEmpty())
             msg += '\n' + errorString;
@@ -4582,6 +4596,23 @@ void GdbEngine::setupInferior()
     }
 }
 
+static QString extractRemoteChannel(const QUrl &url, const QString &pipe)
+{
+    if (!pipe.isEmpty())
+        return " | " + pipe;
+
+    QString scheme = url.scheme();
+    if (scheme.isEmpty())
+        scheme = "tcp";
+
+    // "Fix" the IPv6 case with host names without '['...']'
+    QString host = url.host();
+    if (!host.startsWith('[') && host.count(':') >= 2)
+        host = '[' + host + ']';
+
+    return QString("%1:%2:%3").arg(scheme, host).arg(url.port());
+}
+
 void GdbEngine::runEngine()
 {
     CHECK_STATE(EngineRunRequested);
@@ -4592,8 +4623,10 @@ void GdbEngine::runEngine()
 
         claimInitialBreakpoints();
         notifyEngineRunAndInferiorStopOk();
-
-        runCommand({"target remote " + rp.remoteChannel()});
+        // in case of vxworks target remote is already set by commandsAfterConnect
+        if (!rp.debugger().command.executable().contains("gdb_bin"))
+            runCommand({"target remote " + extractRemoteChannel(rp.remoteChannel(),
+                                                                rp.remoteChannelPipe())});
 
     } else if (runParameters().isLocalAttachEngine()) {
 
@@ -4678,7 +4711,7 @@ void GdbEngine::handleLocalAttach(const DebuggerResponse &response)
         }
         break;
     }
-    case ResultError:
+    case ResultFail:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
             const QString msg = msgPtraceError(runParameters().startMode());
             showStatusMessage(Tr::tr("Failed to attach to application: %1").arg(msg));
@@ -4709,7 +4742,7 @@ void GdbEngine::handleRemoteAttach(const DebuggerResponse &response)
         handleInferiorPrepared();
         break;
     }
-    case ResultError:
+    case ResultFail:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
             notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode()));
             break;
@@ -4743,8 +4776,7 @@ void GdbEngine::interruptInferior2()
         interruptLocalInferior(inferiorPid());
 
     } else if (isTermEngine()) {
-
-        interruptTerminal();
+        emit interruptTerminalRequested();
     }
 }
 
@@ -4851,27 +4883,15 @@ void GdbEngine::handleExecRun(const DebuggerResponse &response)
 void GdbEngine::handleSetTargetAsync(const DebuggerResponse &response)
 {
     CHECK_STATE(EngineSetupRequested);
-    if (response.resultClass == ResultError)
+    if (response.resultClass == ResultFail)
         qDebug() << "Adapter too old: does not support asynchronous mode.";
 }
 
 void GdbEngine::callTargetRemote()
 {
     CHECK_STATE(EngineSetupRequested);
-    QString channel = runParameters().remoteChannel();
-
-    // Don't touch channels with explicitly set protocols.
-    if (!channel.startsWith("tcp:") && !channel.startsWith("udp:")
-            && !channel.startsWith("file:") && channel.contains(':')
-            && !channel.startsWith('|'))
-    {
-        // "Fix" the IPv6 case with host names without '['...']'
-        if (!channel.startsWith('[') && channel.count(':') >= 2) {
-            channel.insert(0, '[');
-            channel.insert(channel.lastIndexOf(':'), ']');
-        }
-        channel = "tcp:" + channel;
-    }
+    const QString channel = extractRemoteChannel(runParameters().remoteChannel(),
+                                                 runParameters().remoteChannelPipe());
 
     if (m_isQnxGdb)
         runCommand({"target qnx " + channel, CB(handleTargetQnx)});
@@ -4983,7 +5003,7 @@ void GdbEngine::handleSetNtoExecutable(const DebuggerResponse &response)
         handleInferiorPrepared();
         break;
     }
-    case ResultError:
+    case ResultFail:
     default:
         notifyInferiorSetupFailedHelper(response.data["msg"].data());
     }
@@ -5027,12 +5047,12 @@ void GdbEngine::handleStubAttached(const DebuggerResponse &response, qint64 main
         } else {
             showMessage("INFERIOR ATTACHED");
             QTC_ASSERT(usesTerminal(), return);
-            kickoffTerminalProcess();
+            emit kickoffTerminalProcessRequested();
             //notifyEngineRunAndInferiorRunOk();
             // Wait for the upcoming *stopped and handle it there.
         }
         break;
-    case ResultError:
+    case ResultFail:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
             notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode()));
             break;
@@ -5120,7 +5140,7 @@ void GdbEngine::handleTargetCore(const DebuggerResponse &response)
     CHECK_STATE(EngineRunRequested);
     notifyEngineRunOkAndInferiorUnrunnable();
     showMessage(Tr::tr("Attached to core."), StatusBar);
-    if (response.resultClass == ResultError) {
+    if (response.resultClass == ResultFail) {
         // We'll accept any kind of error e.g. &"Cannot access memory at address 0x2abc2a24\n"
         // Even without the stack, the user can find interesting stuff by exploring
         // the memory, globals etc.

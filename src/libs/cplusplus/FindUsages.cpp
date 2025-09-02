@@ -220,9 +220,9 @@ public:
                     return Usage::Tag::Read;
                 continue;
             }
-            if (const auto postIncrDecrOp = (*it)->asPostIncrDecr())
+            if ((*it)->asPostIncrDecr())
                 return checkPotentialWrite(Usage::Tag::Write, it + 1);
-            if (const auto declaratorId = (*it)->asDeclaratorId()) {
+            if ((*it)->asDeclaratorId()) {
                 // We don't want to classify constructors and destructors as declarations
                 // when listing class usages.
                 if (m_findUsages->_declSymbol->asClass())

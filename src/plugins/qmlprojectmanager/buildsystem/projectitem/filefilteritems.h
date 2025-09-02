@@ -3,14 +3,14 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QFileInfo>
 #include <QObject>
 #include <QRegularExpression>
 #include <QSet>
 #include <QTimer>
 #include <QJsonArray>
-
-QT_FORWARD_DECLARE_CLASS(QDir)
 
 namespace Utils { class FileSystemWatcher; }
 
@@ -66,9 +66,9 @@ private:
 
     bool fileMatches(const QString &fileName) const;
     bool ignoreDirectory(const QFileInfo &file) const;
-    QSet<QString> filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs = nullptr);
+    QSet<QString> filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<Utils::FilePath> *parsedDirs = nullptr);
     Utils::FileSystemWatcher *dirWatcher();
-    QStringList watchedDirectories() const;
+    Utils::FilePaths watchedDirectories() const;
 
     QString m_rootDir;
     QString m_defaultDir;

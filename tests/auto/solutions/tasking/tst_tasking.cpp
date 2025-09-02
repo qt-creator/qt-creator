@@ -362,31 +362,23 @@ public:
     void start() {
         QTimer::singleShot(0, this, [this] {
             emit tick();
-            QTimer::singleShot(m_interval, this, &TickAndDone::done);
+            QTimer::singleShot(m_interval, this, [this] { emit done(DoneResult::Success); });
         });
     }
 
 signals:
     void tick();
-    void done();
+    void done(DoneResult result);
 
 private:
     milliseconds m_interval;
 };
 
-class TickAndDoneTaskAdapter : public TaskAdapter<TickAndDone>
-{
-public:
-    TickAndDoneTaskAdapter() { connect(task(), &TickAndDone::done, this,
-                                       [this] { emit done(DoneResult::Success); }); }
-    void start() final { task()->start(); }
-};
-
-using TickAndDoneTask = CustomTask<TickAndDoneTaskAdapter>;
+using TickAndDoneTask = SimpleCustomTask<TickAndDone>;
 
 template <typename SharedBarrierType>
-GroupItem createBarrierAdvance(const Storage<CustomStorage> &storage,
-                               const SharedBarrierType &barrier, int taskId)
+ExecutableItem createBarrierAdvance(const Storage<CustomStorage> &storage,
+                                    const SharedBarrierType &barrier, int taskId)
 {
     return TickAndDoneTask([storage, barrier, taskId](TickAndDone &tickAndDone) {
         tickAndDone.setInterval(1ms);
@@ -2283,7 +2275,7 @@ void tst_Tasking::testTree_data()
         SingleBarrier barrier;
 
         // Test that barrier advance, triggered from inside the task described by
-        // setupBarrierAdvance, placed BEFORE the group containing the waitFor() element
+        // createBarrierAdvance, placed BEFORE the group containing the waitFor() element
         // in the tree order, works OK in SEQUENTIAL mode.
         const Group root1 {
             storage,
@@ -2308,7 +2300,7 @@ void tst_Tasking::testTree_data()
         };
 
         // Test that barrier advance, triggered from inside the task described by
-        // setupTaskWithCondition, placed BEFORE the group containing the waitFor() element
+        // createBarrierAdvance, placed BEFORE the group containing the waitFor() element
         // in the tree order, works OK in PARALLEL mode.
         const Group root2 {
             storage,
@@ -2333,7 +2325,7 @@ void tst_Tasking::testTree_data()
         };
 
         // Test that barrier advance, triggered from inside the task described by
-        // setupTaskWithCondition, placed AFTER the group containing the waitFor() element
+        // createBarrierAdvance, placed AFTER the group containing the waitFor() element
         // in the tree order, works OK in PARALLEL mode.
         //
         // Notice: This won't work in SEQUENTIAL mode, since the advancing barrier, placed after the
@@ -2365,7 +2357,7 @@ void tst_Tasking::testTree_data()
         };
 
         // Test that barrier advance, triggered from inside the task described by
-        // setupBarrierAdvance, placed BEFORE the groups containing the waitFor() element
+        // createBarrierAdvance, placed BEFORE the groups containing the waitFor() element
         // in the tree order, wakes both waitFor tasks.
         const Group root4 {
             storage,
@@ -2436,13 +2428,32 @@ void tst_Tasking::testTree_data()
             << TestData{storage, root4, log4, 5, DoneWith::Success, 5};
         QTest::newRow("BarrierParallelTwoSingleBarriers")
             << TestData{storage, root5, log5, 5, DoneWith::Success, 5};
+
+        const auto barrierKicker = [storage](int taskId) {
+            return [storage, taskId](const SingleBarrier &barrier) {
+                return createBarrierAdvance(storage, barrier, taskId);
+            };
+        };
+
+        // The same as BarrierParallelAdvanceFirst, but in terms of When () >> Do {...}.
+        const Group rootWhenDo {
+            storage,
+            When (barrierKicker(1)) >> Do {
+                groupSetup(2),
+                createSuccessTask(2),
+                createSuccessTask(3)
+            }
+        };
+
+        QTest::newRow("BarrierWhenDo")
+            << TestData{storage, rootWhenDo, log2, 4, DoneWith::Success, 4};
     }
 
     {
         MultiBarrier<2> barrier;
 
         // Test that multi barrier advance, triggered from inside the tasks described by
-        // setupBarrierAdvance, placed BEFORE the group containing the waitFor() element
+        // createBarrierAdvance, placed BEFORE the group containing the waitFor() element
         // in the tree order, works OK in SEQUENTIAL mode.
         const Group root1 {
             storage,
@@ -2470,7 +2481,7 @@ void tst_Tasking::testTree_data()
         };
 
         // Test that multi barrier advance, triggered from inside the tasks described by
-        // setupBarrierAdvance, placed BEFORE the group containing the waitFor() element
+        // createBarrierAdvance, placed BEFORE the group containing the waitFor() element
         // in the tree order, works OK in PARALLEL mode.
         const Group root2 {
             storage,
@@ -2498,7 +2509,7 @@ void tst_Tasking::testTree_data()
         };
 
         // Test that multi barrier advance, triggered from inside the tasks described by
-        // setupBarrierAdvance, placed AFTER the group containing the waitFor() element
+        // createBarrierAdvance, placed AFTER the group containing the waitFor() element
         // in the tree order, works OK in PARALLEL mode.
         //
         // Notice: This won't work in SEQUENTIAL mode, since the advancing barriers, placed after
@@ -2533,7 +2544,7 @@ void tst_Tasking::testTree_data()
         };
 
         // Test that multi barrier advance, triggered from inside the task described by
-        // setupBarrierAdvance, placed BEFORE the groups containing the waitFor() element
+        // createBarrierAdvance, placed BEFORE the groups containing the waitFor() element
         // in the tree order, wakes both waitFor tasks.
         const Group root4 {
             storage,
@@ -3817,7 +3828,7 @@ void tst_Tasking::testTree_data()
             return std::make_pair(tickStorage->get(), &QTimer::timeout);
         };
 
-        const Group cancelRecipe {
+        const Group cancelTriggeredRecipe {
             storage,
             tickStorage,
             onGroupSetup(onSetup(0ms)), // 1st queued call
@@ -3825,18 +3836,76 @@ void tst_Tasking::testTree_data()
                 groupSetup(1),
                 createSuccessTask(2, s_endlessTime),
                 groupDone(1)
-            }.withCancel(onTickSetup) // 2nd queued call
+            }.withCancel(onTickSetup, {
+                createSuccessTask(3), // 2nd queued call
+                createFailingTask(4), // 3rd queued call
+                createSuccessTask(5)
+            })
         };
 
-        const Log cancelLog {
+        const Log cancelTriggeredLog {
             {1, Handler::GroupSetup},
             {2, Handler::Setup},
             {2, Handler::Canceled},
             {1, Handler::GroupCanceled},
+            {3, Handler::Setup},
+            {3, Handler::Success},
+            {4, Handler::Setup},
+            {4, Handler::Error}
         };
 
-        QTest::newRow("WithCancel")
-            << TestData{storage, cancelRecipe, cancelLog, 2, DoneWith::Error, 1};
+        QTest::newRow("WithCancelTriggered")
+            << TestData{storage, cancelTriggeredRecipe, cancelTriggeredLog, 5, DoneWith::Error, 3};
+
+        const Group cancelSkippedSuccessRecipe {
+            storage,
+            tickStorage,
+            onGroupSetup(onSetup(s_endlessTime)),
+            Group {
+                groupSetup(1),
+                createSuccessTask(2), // 1st queued call
+                groupDone(1)
+            }.withCancel(onTickSetup, { // This group is skipped since the previous group wasn't canceled
+                createSuccessTask(3),
+                createFailingTask(4),
+                createSuccessTask(5)
+            })
+        };
+
+        const Log cancelSkippedSuccessLog {
+            {1, Handler::GroupSetup},
+            {2, Handler::Setup},
+            {2, Handler::Success},
+            {1, Handler::GroupSuccess}
+        };
+
+        QTest::newRow("WithCancelSkippedSuccess")
+            << TestData{storage, cancelSkippedSuccessRecipe, cancelSkippedSuccessLog, 5, DoneWith::Success, 1};
+
+        const Group cancelSkippedErrorRecipe {
+            storage,
+            tickStorage,
+            onGroupSetup(onSetup(s_endlessTime)),
+            Group {
+                groupSetup(1),
+                createFailingTask(2), // 1st queued call
+                groupDone(1)
+            }.withCancel(onTickSetup, { // This group is skipped since the previous group wasn't canceled
+                createSuccessTask(3),
+                createFailingTask(4),
+                createSuccessTask(5)
+            })
+        };
+
+        const Log cancelSkippedErrorLog {
+            {1, Handler::GroupSetup},
+            {2, Handler::Setup},
+            {2, Handler::Error},
+            {1, Handler::GroupError}
+        };
+
+        QTest::newRow("WithCancelSkippedError")
+            << TestData{storage, cancelSkippedErrorRecipe, cancelSkippedErrorLog, 5, DoneWith::Error, 1};
 
         const Group acceptRecipe {
             storage,

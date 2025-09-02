@@ -8,8 +8,7 @@
 
 #include <utils/qtcassert.h>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager,
                                    Timeline::TimelineModelAggregator *parent) :
@@ -274,6 +273,4 @@ void MemoryUsageModel::Item::update(qint64 amount)
     }
 }
 
-
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

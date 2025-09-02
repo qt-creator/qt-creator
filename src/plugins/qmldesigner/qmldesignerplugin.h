@@ -48,7 +48,7 @@ public:
     QmlDesignerPlugin();
     ~QmlDesignerPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    Utils::Result<> initialize(const QStringList &arguments) final;
     bool delayedInitialize() final;
     void extensionsInitialized() final;
     ShutdownFlag aboutToShutdown() final;
@@ -104,7 +104,7 @@ signals:
     void usageStatisticsInsertFeedback(const QString &identifier,
                                        const QString &feedback,
                                        int rating);
-    void assetChanged(const QString &assetPath);
+    void assetChanged(const Utils::FilePath &assetPath);
 
 private slots:
     void closeFeedbackPopup();

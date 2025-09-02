@@ -319,7 +319,7 @@ AddRelatedElementsDialog::AddRelatedElementsDialog(QWidget *parent) :
             },
         },
         Row {
-            Tr::tr("Number of matching elements: "), d->NumberOfMatchingElementsValue, st,
+            Tr::tr("Number of matching elements:"), d->NumberOfMatchingElementsValue, st,
         },
         st,
         d->buttonBox,

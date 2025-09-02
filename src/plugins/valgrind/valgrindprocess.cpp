@@ -23,7 +23,7 @@ using namespace Tasking;
 using namespace Utils;
 using namespace Valgrind::XmlProtocol;
 
-namespace Valgrind {
+namespace Valgrind::Internal {
 
 static CommandLine valgrindCommand(const CommandLine &command,
                                    const QTcpServer &xmlServer,
@@ -120,7 +120,7 @@ Group ValgrindProcessPrivate::runRecipe() const
             });
             if (!xmlServer->listen(m_localServerAddress)) {
                 emit q->processErrorReceived(Tr::tr("XmlServer on %1:").arg(ip) + ' '
-                                             + xmlServer->errorString(), QProcess::FailedToStart);
+                                             + xmlServer->errorString(), ProcessResult::StartFailed);
                 return false;
             }
             xmlServer->setMaxPendingConnections(1);
@@ -137,7 +137,7 @@ Group ValgrindProcessPrivate::runRecipe() const
             });
             if (!logServer->listen(m_localServerAddress)) {
                 emit q->processErrorReceived(Tr::tr("LogServer on %1:").arg(ip) + ' '
-                                             + logServer->errorString(), QProcess::FailedToStart);
+                                             + logServer->errorString(), ProcessResult::StartFailed);
                 return false;
             }
             logServer->setMaxPendingConnections(1);
@@ -183,7 +183,7 @@ Group ValgrindProcessPrivate::runRecipe() const
         connect(this, &ValgrindProcessPrivate::stopRequested, processPtr, &Process::stop);
     };
     const auto onProcessDone = [this, storage](const Process &process) {
-        emit q->processErrorReceived(process.errorString(), process.error());
+        emit q->processErrorReceived(process.errorString(), process.result());
     };
 
     const auto isAddressValid = [this] { return !m_localServerAddress.isNull(); };
@@ -280,6 +280,6 @@ bool ValgrindProcess::runBlocking()
     return ok;
 }
 
-} // namespace Valgrind
+} // namespace Valgrind::Internal
 
 #include "valgrindprocess.moc"

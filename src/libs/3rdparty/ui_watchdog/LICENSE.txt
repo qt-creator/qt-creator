@@ -1,0 +1,4 @@
+KDToolBox is © Klarälvdalens Datakonsult AB (KDAB) and is made available
+under the terms of the MIT license (see LICENSES/MIT.txt).
+
+Contact KDAB at <info@kdab.com> to inquire about commercial licensing.

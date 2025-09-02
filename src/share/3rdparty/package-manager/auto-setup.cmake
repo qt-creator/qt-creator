@@ -12,6 +12,9 @@ if (QT_CREATOR_SOURCE_GROUPS)
   source_group("Resources" REGULAR_EXPRESSION "\\.(pdf|plist|png|jpeg|jpg|storyboard|xcassets|qrc|svg|gif|ico|webp)$")
   source_group("Forms" REGULAR_EXPRESSION "\\.(ui)$")
   source_group("State charts" REGULAR_EXPRESSION "\\.(scxml)$")
+  source_group("Source Files" REGULAR_EXPRESSION
+    "\\.(C|F|M|c|c\\+\\+|cc|cpp|mpp|cxx|ixx|cppm|ccm|cxxm|c\\+\\+m|cu|f|f90|for|fpp|ftn|m|mm|rc|def|r|odl|idl|hpj|bat|qml|js)$"
+  )
 endif()
 
 #
@@ -257,7 +260,7 @@ macro(qtc_auto_setup_vcpkg)
       PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/vcpkg.json")
 
     find_program(vcpkg_program vcpkg
-      PATHS $ENV{VCPKG_ROOT} ${CMAKE_SOURCE_DIR}/vcpkg ${CMAKE_SOURCE_DIR}/3rdparty/vcpkg
+      PATHS ${CMAKE_SOURCE_DIR}/vcpkg ${CMAKE_SOURCE_DIR}/3rdparty/vcpkg $ENV{VCPKG_ROOT}
       NO_DEFAULT_PATH
     )
     if (NOT vcpkg_program)
@@ -314,9 +317,14 @@ macro(qtc_auto_setup_vcpkg)
             set(ENV{ANDROID_NDK_HOME} \"${ANDROID_NDK}\")
           ")
         elseif (WIN32)
-          set(vcpkg_triplet x64-mingw-static)
+          if ("$ENV{PROCESSOR_ARCHITECTURE}" STREQUAL "ARM64")
+            set(vcpkg_triplet arm64-mingw-static)
+          else()
+            set(vcpkg_triplet x64-mingw-static)
+          endif()
           if (CMAKE_CXX_COMPILER MATCHES ".*/(.*)/cl.exe")
-            set(vcpkg_triplet ${CMAKE_MATCH_1}-windows)
+            string(TOLOWER ${CMAKE_MATCH_1} host_arch_lowercase)
+            set(vcpkg_triplet ${host_arch_lowercase}-windows)
           endif()
         elseif(APPLE)
           # We're too early to use CMAKE_HOST_SYSTEM_PROCESSOR
@@ -330,7 +338,16 @@ macro(qtc_auto_setup_vcpkg)
             set(vcpkg_triplet x64-osx)
           endif()
         else()
-          set(vcpkg_triplet x64-linux)
+          # We're too early to use CMAKE_HOST_SYSTEM_PROCESSOR
+          execute_process(
+            COMMAND uname -m
+            OUTPUT_VARIABLE __linux_host_system_processor
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+          if (__linux_host_system_processor MATCHES "aarch64")
+            set(vcpkg_triplet arm64-linux)
+          else()
+            set(vcpkg_triplet x64-linux)
+          endif()
         endif()
       endif()
 
@@ -352,3 +369,37 @@ macro(qtc_auto_setup_vcpkg)
   endif()
 endmacro()
 qtc_auto_setup_vcpkg()
+
+#
+# MaintenanceTool
+#
+if (QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER)
+  return()
+endif()
+
+option(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER
+       "Skip Qt Creator's MaintenanceTool find_package provider" OFF)
+option(QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI
+       "Use CLI mode for Qt Creator's MaintenanceTool find_package provider" OFF)
+
+function(qtc_maintenance_provider_missing_variable_message variable)
+  message(STATUS "Qt Creator: ${variable} was not set. "
+                 "Qt MaintenanceTool cannot be used to install missing Qt modules that you specify in find_package(). "
+                 "To disable this message set QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER to ON.")
+endfunction()
+
+if (NOT QT_MAINTENANCE_TOOL)
+  qtc_maintenance_provider_missing_variable_message(QT_MAINTENANCE_TOOL)
+  return()
+endif()
+if (NOT QT_QMAKE_EXECUTABLE)
+  qtc_maintenance_provider_missing_variable_message(QT_QMAKE_EXECUTABLE)
+  return()
+endif()
+
+if (CMAKE_VERSION GREATER_EQUAL "3.24")
+  list(APPEND CMAKE_PROJECT_TOP_LEVEL_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/maintenance_tool_provider.cmake)
+else()
+  message(WARNING "Qt Creator: CMake version 3.24 is needed for MaintenanceTool find_package() provider. "
+                  "To disable this warning set QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER to ON.")
+endif()

@@ -49,7 +49,7 @@ bool CMakeAbstractProcessStep::init()
     }
 
     // Warn if doing out-of-source builds with a CMakeCache.txt is the source directory
-    const Utils::FilePath projectDirectory = bc->target()->project()->projectDirectory();
+    const Utils::FilePath projectDirectory = bc->project()->projectDirectory();
     if (bc->buildDirectory() != projectDirectory) {
         if (projectDirectory.pathAppended(Constants::CMAKE_CACHE_TXT).exists()) {
             emit addTask(BuildSystemTask(

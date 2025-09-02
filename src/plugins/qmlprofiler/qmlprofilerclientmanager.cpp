@@ -8,8 +8,7 @@
 
 #include <utils/qtcassert.h>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent) :
     QmlDebug::QmlDebugConnectionManager(parent)
@@ -119,5 +118,4 @@ void QmlProfilerClientManager::logState(const QString &message)
     QmlProfilerTool::logState(QLatin1String("QML Profiler: ") + message);
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

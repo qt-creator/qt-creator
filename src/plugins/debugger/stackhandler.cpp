@@ -330,63 +330,6 @@ static StackFrame inputFunctionForDisassembly()
     return frame;
 }
 
-template<typename Functor>
-void forEachCell(Functor f, QAbstractItemModel *model, const QModelIndex &idx)
-{
-    f(idx);
-    for (int i = 0, n = model->rowCount(idx); i < n; ++i)
-        forEachCell(f, model, model->index(i, 0, idx));
-}
-
-static QString selectedText(QWidget *widget, bool useAll)
-{
-    QAbstractItemView *view = qobject_cast<QAbstractItemView *>(widget);
-    QTC_ASSERT(view, return {});
-    QAbstractItemModel *model = view->model();
-    QTC_ASSERT(model, return {});
-
-    const int ncols = model->columnCount(QModelIndex());
-    QList<int> largestColumnWidths(ncols, 0);
-
-    QSet<QModelIndex> selected;
-    if (QItemSelectionModel *selection = view->selectionModel()) {
-        const QModelIndexList list = selection->selectedIndexes();
-        selected = QSet<QModelIndex>(list.begin(), list.end());
-    }
-    if (selected.isEmpty())
-        useAll = true;
-
-    // First, find the widths of the largest columns,
-    // so that we can print them out nicely aligned.
-    forEachCell([ncols, model, &largestColumnWidths, selected, useAll](const QModelIndex &idx) {
-        if (useAll || selected.contains(idx)) {
-            for (int j = 0; j < ncols; ++j) {
-                const QModelIndex sibling = model->sibling(idx.row(), j, idx);
-                const int columnWidth = model->data(sibling, Qt::DisplayRole).toString().size();
-                if (columnWidth > largestColumnWidths.at(j))
-                    largestColumnWidths[j] = columnWidth;
-            }
-        }
-    }, model, QModelIndex());
-
-    QString str;
-    forEachCell([ncols, model, largestColumnWidths, &str, selected, useAll](const QModelIndex &idx) {
-        if (useAll || selected.contains(idx)) {
-            for (int j = 0; j != ncols; ++j) {
-                const QModelIndex sibling = model->sibling(idx.row(), j, idx);
-                const QString columnEntry = model->data(sibling, Qt::DisplayRole).toString();
-                str += columnEntry;
-                const int difference = largestColumnWidths.at(j) - columnEntry.size();
-                // Add one extra space between columns.
-                str += QString(qMax(difference, 0) + 1, QChar(' '));
-            }
-            str += '\n';
-        }
-    }, model, QModelIndex());
-
-    return str.trimmed();
-}
-
 // Write stack frames as task file for displaying it in the build issues pane.
 void StackHandler::saveTaskFile()
 {
@@ -425,14 +368,6 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
     const quint64 address = frame.address;
 
     menu->addAction(settings().expandStack.action());
-
-    addAction(this, menu, Tr::tr("Copy Contents to Clipboard"), true, [ev] {
-        setClipboardAndSelection(selectedText(ev.view(), true));
-    });
-
-    addAction(this, menu, Tr::tr("Copy Selection to Clipboard"), true, [ev] {
-        setClipboardAndSelection(selectedText(ev.view(), false));
-    });
 
     addAction(this, menu, Tr::tr("Save as Task File..."), true, [this] { saveTaskFile(); });
 
@@ -483,7 +418,9 @@ bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
 
     menu->addSeparator();
     menu->addAction(settings().useToolTipsInStackView.action());
-    menu->addAction(settings().settingsDialog.action());
+
+    addStandardActions(qobject_cast<BaseTreeView *>(ev.view()), menu);
+
     connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
     return true;

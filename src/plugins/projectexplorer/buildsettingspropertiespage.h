@@ -5,58 +5,10 @@
 
 #include <QWidget>
 
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QLabel;
-class QMenu;
-class QPushButton;
-QT_END_NAMESPACE
+namespace ProjectExplorer { class Target; }
 
-namespace ProjectExplorer {
+namespace ProjectExplorer::Internal {
 
-class BuildConfiguration;
-class BuildInfo;
-class Target;
+QWidget *createBuildSettingsWidget(Target *target);
 
-namespace Internal {
-
-class BuildSettingsWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    BuildSettingsWidget(Target *target);
-    ~BuildSettingsWidget() override;
-
-    void clearWidgets();
-    void addSubWidget(QWidget *widget, const QString &displayName);
-
-private:
-    void updateBuildSettings();
-    void currentIndexChanged(int index);
-
-    void renameConfiguration();
-    void updateAddButtonMenu();
-
-    void updateActiveConfiguration();
-
-    void createConfiguration(const BuildInfo &info);
-    void cloneConfiguration();
-    void deleteConfiguration(BuildConfiguration *toDelete);
-    QString uniqueName(const QString &name, bool allowCurrentName);
-
-    Target *m_target = nullptr;
-    BuildConfiguration *m_buildConfiguration = nullptr;
-
-    QPushButton *m_addButton = nullptr;
-    QPushButton *m_removeButton = nullptr;
-    QPushButton *m_renameButton = nullptr;
-    QPushButton *m_cloneButton = nullptr;
-    QComboBox *m_buildConfigurationComboBox = nullptr;
-    QMenu *m_addButtonMenu = nullptr;
-
-    QList<QWidget *> m_subWidgets;
-    QList<QLabel *> m_labels;
-};
-
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

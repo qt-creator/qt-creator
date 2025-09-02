@@ -230,7 +230,7 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(bool forceReload)
 
     Utils::FilePath jsonFilePath = m_bundlePath.pathAppended("material_bundle.json");
 
-    Utils::expected_str<QByteArray> jsonContents = jsonFilePath.fileContents();
+    Utils::Result<QByteArray> jsonContents = jsonFilePath.fileContents();
     if (!jsonContents.has_value()) {
         qWarning() << __FUNCTION__ << jsonContents.error();
         resetModel();

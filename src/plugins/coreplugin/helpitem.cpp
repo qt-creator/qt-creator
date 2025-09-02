@@ -7,9 +7,12 @@
 #include <utils/algorithm.h>
 #include <utils/htmldocextractor.h>
 
+#include <QLoggingCategory>
 #include <QVersionNumber>
 
-using namespace Core;
+namespace Core {
+
+Q_LOGGING_CATEGORY(helpItemLog, "qtc.helpitem", QtWarningMsg)
 
 Q_GLOBAL_STATIC(HelpItem::LinkNarrower, m_linkNarrower);
 
@@ -227,6 +230,20 @@ std::pair<QUrl, QVersionNumber> HelpItem::extractQtVersionNumber(const QUrl &url
     return {url, {}};
 }
 
+void HelpItem::debugPrintLinks(const QString &title, const Links &toPrint, const Links &toMark)
+{
+    if (helpItemLog().isDebugEnabled()) {
+        qCDebug(helpItemLog) << title;
+        for (const HelpItem::Link &link : toPrint) {
+            const size_t posInMarked
+                = std::distance(toMark.cbegin(), std::find(toMark.cbegin(), toMark.cend(), link));
+            const bool isMarked = posInMarked < toMark.size();
+            const QString mark = QString("%1").arg(isMarked ? QString::number(posInMarked) : "", 4);
+            qDebug() << qPrintable(mark) << link.first << "->" << link.second.toString();
+        }
+    }
+}
+
 // sort primary by "url without version" and seconday by "version"
 static bool helpUrlLessThan(const QUrl &a, const QUrl &b)
 {
@@ -320,6 +337,7 @@ const HelpItem::Links HelpItem::bestLinks() const
     if (isFuzzyMatch())
         return getBestLinks(links());
     const Links filteredLinks = *m_linkNarrower ? (*m_linkNarrower)(*this, links()) : links();
+    debugPrintLinks("Filtered links:", links(), filteredLinks);
     return getBestLink(filteredLinks);
 }
 
@@ -339,3 +357,13 @@ void HelpItem::setLinkNarrower(const LinkNarrower &narrower)
 {
     *m_linkNarrower = narrower;
 }
+
+QDebug operator<<(QDebug debug, const HelpItem &i)
+{
+    debug.nospace() << "HelpItem(ids:{\"" << qPrintable(i.m_helpIds.join("\",\""))
+                    << "\"}, url:" << i.m_helpUrl.toString() << ", keyword:" << i.m_keyword
+                    << ", fuzzy:" << i.m_isFuzzyMatch << ")";
+    return debug;
+}
+
+} // namespace Core

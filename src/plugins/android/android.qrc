@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/android">
-        <file>images/androiddevice.png</file>
-        <file>images/androiddevice@2x.png</file>
-        <file>images/androiddevicesmall.png</file>
-        <file>images/androiddevicesmall@2x.png</file>
-    </qresource>
-</RCC>

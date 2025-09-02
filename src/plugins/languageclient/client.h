@@ -9,9 +9,13 @@
 #include "semantichighlightsupport.h"
 
 namespace Core { class IDocument; }
-namespace ProjectExplorer { class Project; }
-namespace TextEditor
-{
+
+namespace ProjectExplorer {
+class BuildConfiguration;
+class Project;
+}
+
+namespace TextEditor {
 class IAssistProcessor;
 class TextDocument;
 class TextEditorWidget;
@@ -115,9 +119,13 @@ public:
     virtual void openDocument(TextEditor::TextDocument *document);
     void closeDocument(TextEditor::TextDocument *document,
                        const std::optional<Utils::FilePath> &overwriteFilePath = {});
+    bool activatable() const;
+    void setActivatable(bool active);
     virtual void activateDocument(TextEditor::TextDocument *document);
     void activateEditor(Core::IEditor *editor);
     virtual void deactivateDocument(TextEditor::TextDocument *document);
+    void deactivateEditor(Core::IEditor *editor);
+
     bool documentOpen(const TextEditor::TextDocument *document) const;
     TextEditor::TextDocument *documentForFilePath(const Utils::FilePath &file) const;
     void setShadowDocument(const Utils::FilePath &filePath, const QString &contents);
@@ -135,10 +143,11 @@ public:
     void setDocumentChangeUpdateThreshold(int msecs);
 
     // workspace control
-    virtual void setCurrentProject(ProjectExplorer::Project *project);
+    virtual void setCurrentBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
+    ProjectExplorer::BuildConfiguration *buildConfiguration() const;
     ProjectExplorer::Project *project() const;
-    virtual void projectOpened(ProjectExplorer::Project *project);
-    virtual void projectClosed(ProjectExplorer::Project *project);
+    virtual void buildConfigurationOpened(ProjectExplorer::BuildConfiguration *bc);
+    virtual void buildConfigurationClosed(ProjectExplorer::BuildConfiguration *bc);
     virtual bool canOpenProject(ProjectExplorer::Project *project);
     void updateConfiguration(const QJsonValue &configuration);
 

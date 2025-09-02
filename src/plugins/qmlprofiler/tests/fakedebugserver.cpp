@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fakedebugserver.h"
+
 #include <qmldebug/qpacketprotocol.h>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 void fakeDebugServer(QIODevice *socket)
 {
@@ -25,5 +25,4 @@ void fakeDebugServer(QIODevice *socket)
     });
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

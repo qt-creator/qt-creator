@@ -107,7 +107,7 @@ public:
     void setFilePath(const Utils::FilePath &filePath) { m_filePath = filePath; }
     Utils::FilePath filePath() const { return m_filePath; }
 
-    Core::IDocument::OpenResult load();
+    Utils::Result<> load();
     bool save();
     QString contents() const;
     QString errorMessage() const { return m_error_message; }
@@ -227,7 +227,7 @@ private:
     bool renameFile(const QString &fileName, const QString &newFileName);
 
 public:
-    virtual Core::IDocument::OpenResult reload();
+    virtual Utils::Result<> reload();
     virtual bool save();
     QString contents() const { return m_resource_file.contents(); }
 

@@ -47,7 +47,7 @@ public:
     int currentEventIndex;
     int currentRow;
 
-    QVector<QHash<qint64, TimelineRenderState *> > renderStates;
+    QList<QHash<qint64, TimelineRenderState *> > renderStates;
     TimelineRenderState *lastState;
 };
 

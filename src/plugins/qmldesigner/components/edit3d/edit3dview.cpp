@@ -1210,7 +1210,7 @@ void Edit3DView::createEdit3DActions()
     m_showParticleEmitterAction = std::make_unique<Edit3DAction>(
         QmlDesigner::Constants::EDIT3D_EDIT_SHOW_PARTICLE_EMITTER,
         View3DActionType::ShowParticleEmitter,
-        Tr::tr("Always Show Particle Emitters And Attractors"),
+        Tr::tr("Always Show Particle Emitters and Attractors"),
         QKeySequence(Qt::Key_M),
         true,
         false,
@@ -1260,7 +1260,7 @@ void Edit3DView::createEdit3DActions()
     m_particleViewModeAction = std::make_unique<Edit3DAction>(
         QmlDesigner::Constants::EDIT3D_PARTICLE_MODE,
         View3DActionType::Edit3DParticleModeToggle,
-        Tr::tr("Toggle particle animation On/Off"),
+        Tr::tr("Toggle Particle Animation On/Off"),
         QKeySequence(Qt::Key_V),
         true,
         false,
@@ -1358,7 +1358,7 @@ void Edit3DView::createEdit3DActions()
     m_snapToggleAction = std::make_unique<Edit3DAction>(
         QmlDesigner::Constants::EDIT3D_SNAP_TOGGLE,
         View3DActionType::Empty,
-        Tr::tr("Toggle snapping during node drag"),
+        Tr::tr("Toggle Snapping During Node Drag"),
         QKeySequence(Qt::SHIFT | Qt::Key_Tab),
         true,
         Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ENABLED, false).toBool(),
@@ -1381,7 +1381,7 @@ void Edit3DView::createEdit3DActions()
 
     m_snapConfigAction = std::make_unique<Edit3DAction>(QmlDesigner::Constants::EDIT3D_SNAP_CONFIG,
                                                         View3DActionType::Empty,
-                                                        Tr::tr("Open snap configuration dialog"),
+                                                        Tr::tr("Open Snap Configuration"),
                                                         QKeySequence(),
                                                         false,
                                                         false,
@@ -1427,7 +1427,7 @@ void Edit3DView::createEdit3DActions()
     m_cameraSpeedConfigAction = std::make_unique<Edit3DIndicatorButtonAction>(
         QmlDesigner::Constants::EDIT3D_CAMERA_SPEED_CONFIG,
         View3DActionType::Empty,
-        Tr::tr("Open camera speed configuration dialog"),
+        Tr::tr("Open Camera Speed Configuration"),
         toolbarIcon(DesignerIcons::CameraSpeedConfigIcon),
         cameraSpeedConfigTrigger,
         this);

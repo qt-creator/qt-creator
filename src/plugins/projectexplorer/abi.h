@@ -21,7 +21,7 @@ namespace ProjectExplorer {
 // --------------------------------------------------------------------------
 
 class Abi;
-using Abis = QVector<Abi>;
+using Abis = QList<Abi>;
 
 class PROJECTEXPLORER_EXPORT Abi
 {

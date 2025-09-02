@@ -26,12 +26,12 @@ using namespace Utils;
 
 namespace Core {
 
-using ReadCallback = std::function<void(Utils::expected_str<QString>)>;
+using ReadCallback = std::function<void(Utils::Result<QString>)>;
 
 class SecretAspectPrivate
 {
 public:
-    void callReadCallbacks(const expected_str<QString> &value)
+    void callReadCallbacks(const Result<QString> &value)
     {
         for (const auto &callback : readCallbacks)
             callback(value);
@@ -65,7 +65,7 @@ static bool applyKey(const SecretAspect &aspect, CredentialQuery &op)
     return true;
 }
 
-void SecretAspect::readSecret(const std::function<void(Utils::expected_str<QString>)> &cb) const
+void SecretAspect::readSecret(const std::function<void(Utils::Result<QString>)> &cb) const
 {
     d->readCallbacks.push_back(cb);
 
@@ -117,7 +117,7 @@ QString SecretAspect::warningThatNoSecretStorageIsAvailable()
 
 void SecretAspect::readSettings()
 {
-    readSecret([](const expected_str<QString> &) {});
+    readSecret([](const Result<QString> &) {});
 }
 
 void SecretAspect::writeSettings() const
@@ -187,7 +187,7 @@ void SecretAspect::addToLayoutImpl(Layouting::Layout &parent)
     }
 
     requestValue(
-        guardedCallback(edit, [edit, showPasswordButton](const Utils::expected_str<QString> &value) {
+        guardedCallback(edit, [edit, showPasswordButton](const Utils::Result<QString> &value) {
             if (!value) {
                 edit->setPlaceholderText(value.error());
                 return;
@@ -211,7 +211,7 @@ void SecretAspect::addToLayoutImpl(Layouting::Layout &parent)
 }
 
 void SecretAspect::requestValue(
-    const std::function<void(const Utils::expected_str<QString> &)> &callback) const
+    const std::function<void(const Utils::Result<QString> &)> &callback) const
 {
     if (d->wasEdited)
         callback(d->value);

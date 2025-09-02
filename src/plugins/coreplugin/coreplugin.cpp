@@ -63,9 +63,9 @@
 
 #include <cstdlib>
 
-using namespace Core;
-using namespace Core::Internal;
 using namespace Utils;
+
+namespace Core::Internal {
 
 static CorePlugin *m_instance = nullptr;
 
@@ -73,6 +73,8 @@ const char kWarnCrashReportingSetting[] = "WarnCrashReporting";
 
 CorePlugin::CorePlugin()
 {
+    QObject::connect(qApp, SIGNAL(fileOpenRequest(QString)), this, SLOT(fileOpenRequest(QString)));
+
     // Trigger creation as early as possible before anyone else could
     // mess with the systemEnvironment before it is "backed up".
     (void) systemSettings();
@@ -234,7 +236,7 @@ static void addToPathChooserContextMenu(PathChooser *pathChooser, QMenu *menu)
     } else {
         auto mkPathAct = new QAction(Tr::tr("Create Folder"), menu);
         QObject::connect(mkPathAct, &QAction::triggered, pathChooser, [pathChooser] {
-            QDir().mkpath(pathChooser->filePath().toUrlishString());
+            pathChooser->filePath().ensureWritableDir();
             pathChooser->triggerChanged();
         });
         menu->insertAction(firstAction, mkPathAct);
@@ -244,15 +246,14 @@ static void addToPathChooserContextMenu(PathChooser *pathChooser, QMenu *menu)
         menu->insertSeparator(firstAction);
 }
 
-bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
+Result<> CorePlugin::initialize(const QStringList &arguments)
 {
     initTAndCAcceptDialog();
     initProxyAuthDialog();
 
-    if (ThemeEntry::availableThemes().isEmpty()) {
-        *errorMessage = Tr::tr("No themes found in installation.");
-        return false;
-    }
+    if (ThemeEntry::availableThemes().isEmpty())
+        return ResultError(Tr::tr("No themes found in installation."));
+
     const CoreArguments args = parseArguments(arguments);
     Theme *themeFromArg = ThemeEntry::createTheme(args.themeId);
     Theme *theme = themeFromArg ? themeFromArg
@@ -372,7 +373,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addTestCreator(&createVcsManagerTest);
 #endif
 
-    return true;
+    return ResultOk;
 }
 
 static Id generateOpenPageCommandId(IOptionsPage *page)
@@ -422,12 +423,8 @@ void CorePlugin::extensionsInitialized()
     Find::extensionsInitialized();
     m_locator->extensionsInitialized();
     ICore::extensionsInitialized();
-    if (ExtensionSystem::PluginManager::hasError()) {
-        auto errorOverview = new ExtensionSystem::PluginErrorOverview(ICore::mainWindow());
-        errorOverview->setAttribute(Qt::WA_DeleteOnClose);
-        errorOverview->setModal(true);
-        errorOverview->show();
-    }
+    if (ExtensionSystem::PluginManager::hasError())
+        ExtensionSystem::showPluginErrorOverview();
     checkSettings();
     registerActionsForOptions();
 }
@@ -460,6 +457,8 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
 
 void CorePlugin::fileOpenRequest(const QString &f)
 {
+    if (ExtensionSystem::PluginManager::isShuttingDown())
+        return;
     remoteCommand(QStringList(), QString(), QStringList(f));
 }
 
@@ -526,14 +525,16 @@ void CorePlugin::warnAboutCrashReporing()
 
     Utils::InfoBarEntry info(kWarnCrashReportingSetting, warnStr,
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    info.addCustomButton(ICore::msgShowOptionsDialog(), [] {
-        ICore::infoBar()->removeInfo(kWarnCrashReportingSetting);
-        ICore::infoBar()->globallySuppressInfo(kWarnCrashReportingSetting);
-        ICore::showOptionsDialog(Core::Constants::SETTINGS_ID_SYSTEM);
-    });
+    info.setTitle(Tr::tr("Crash Reporting"));
+    info.addCustomButton(
+        ICore::msgShowOptionsDialog(),
+        [] { ICore::showOptionsDialog(Core::Constants::SETTINGS_ID_SYSTEM); },
+        {},
+        InfoBarEntry::ButtonAction::SuppressPersistently);
 
     info.setDetailsWidgetCreator([]() -> QWidget * {
         auto label = new QLabel;
+        label->setWindowTitle(Tr::tr("Crash Reporting"));
         label->setWordWrap(true);
         label->setOpenExternalLinks(true);
         label->setText(msgCrashpadInformation());
@@ -583,3 +584,5 @@ ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
     ICore::aboutToShutdown();
     return SynchronousShutdown;
 }
+
+} // Core::Internal

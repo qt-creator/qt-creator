@@ -107,8 +107,7 @@ DiffSelections SelectableTextEditorWidget::polishedSelections(const DiffSelectio
 
 void SelectableTextEditorWidget::setFoldingIndent(const QTextBlock &block, int indent)
 {
-    if (TextBlockUserData *userData = TextDocumentLayout::userData(block))
-         userData->setFoldingIndent(indent);
+    TextBlockUserData::setFoldingIndent(block, indent);
 }
 
 void SelectableTextEditorWidget::paintBlock(QPainter *painter,

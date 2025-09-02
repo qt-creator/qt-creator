@@ -138,7 +138,7 @@ void tst_Ecmascript::test_data()
     QTest::addColumn<int>("nStaticMessages");
 
 
-    for (const QFileInfo& f: m_files)
+    for (const QFileInfo& f: std::as_const(m_files))
         QTest::newRow(f.fileName().toLatin1().data()) << f.absoluteFilePath();
 }
 

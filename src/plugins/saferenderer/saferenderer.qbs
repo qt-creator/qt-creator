@@ -7,7 +7,6 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
 
     files: [
-        "saferenderer.cpp",
         "saferenderer.h",
         "saferenderer.qrc",
     ]

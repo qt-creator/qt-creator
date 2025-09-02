@@ -9,6 +9,8 @@
 #include "gitsettings.h"
 #include "gittr.h"
 
+#include <coreplugin/icore.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditortr.h>
@@ -27,6 +29,7 @@
 #include <QLabel>
 #include <QLayout>
 #include <QLoggingCategory>
+#include <QMessageBox>
 #include <QTextCodec>
 #include <QTimer>
 
@@ -74,7 +77,7 @@ bool BlameMark::addToolTipContent(QLayout *target) const
             qCInfo(log) << "Link activated with target:" << link;
             const QString hash = (link == "blameParent") ? info.hash + "^" : info.hash;
 
-            if (link.startsWith("blame") || link == "showFile") {
+            if (link.startsWith("blame") || link == "revert" || link == "showFile") {
                 const VcsBasePluginState state = currentState();
                 QTC_ASSERT(state.hasTopLevel(), return);
                 const Utils::FilePath path = state.topLevel();
@@ -85,6 +88,17 @@ bool BlameMark::addToolTipContent(QLayout *target) const
                         << "Blaming: \"" << path << "/" << originalFileName
                         << "\":" << info.originalLine << " @ " << hash;
                     gitClient().annotate(path, originalFileName, info.originalLine, hash);
+                } else if (link == "revert") {
+                    const QMessageBox::StandardButton result = QMessageBox::question(
+                        Core::ICore::dialogParent(),
+                        Tr::tr("Revert Commit?"),
+                        Tr::tr("Revert the commit %1?").arg(info.hash.left(8)),
+                        QMessageBox::Yes | QMessageBox::No);
+                    if (result == QMessageBox::Yes) {
+                        qCInfo(log).nospace().noquote()
+                            << "Reverting: \"" << path << "\" @ " << hash;
+                        gitClient().synchronousRevert(path, hash);
+                    }
                 } else {
                     qCInfo(log).nospace().noquote()
                         << "Showing file: \"" << path << "/" << originalFileName << "\" @ " << hash;
@@ -121,16 +135,18 @@ QString BlameMark::toolTipText(const CommitInfo &info) const
         const QString blameRevision = Tr::tr("Blame %1").arg(info.hash.left(8));
         const QString blameParent = Tr::tr("Blame Parent");
         const QString showFile = Tr::tr("File at %1").arg(info.hash.left(8));
+        const QString revert = Tr::tr("Revert %1").arg(info.hash.left(8));
         const QString logForLine = Tr::tr("Log for line %1").arg(info.line);
         actions = QString(
                       "<table cellspacing=\"10\"><tr>"
                       "  <td><a href=\"blame\">%1</a></td>"
                       "  <td><a href=\"blameParent\">%2</a></td>"
                       "  <td><a href=\"showFile\">%3</a></td>"
-                      "  <td><a href=\"logLine\">%4</a></td>"
+                      "  <td><a href=\"revert\">%4</a></td>"
+                      "  <td><a href=\"logLine\">%5</a></td>"
                       "</tr></table>"
                       "<p></p>")
-                      .arg(blameRevision, blameParent, showFile, logForLine);
+                      .arg(blameRevision, blameParent, showFile, revert, logForLine);
     }
 
     const QString header = QString(
@@ -241,7 +257,7 @@ void InstantBlame::setup()
         }
 
         qCInfo(log) << "Adding blame cursor connection";
-        m_blameCursorPosConn = connect(widget, &QPlainTextEdit::cursorPositionChanged, this,
+        m_blameCursorPosConn = connect(widget, &PlainTextEdit::cursorPositionChanged, this,
                                        [this] {
                                            if (!settings().instantBlame()) {
                                                disconnect(m_blameCursorPosConn);
@@ -297,15 +313,13 @@ void InstantBlame::setup()
 static CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePath &filePath,
                                    int line, const Git::Internal::Author &author)
 {
-    static const QString uncommittedHash(40, '0');
-
     CommitInfo result;
     if (blame.size() <= 12)
         return result;
 
     const QStringList firstLineParts = blame.at(0).split(" ");
     result.hash = firstLineParts.first();
-    result.modified = result.hash == uncommittedHash;
+    result.modified = !gitClient().isValidRevision(result.hash);
     if (result.modified) {
         result.author = Tr::tr("Not Committed Yet");
         result.subject = Tr::tr("Modified line in %1").arg(filePath.fileName());
@@ -345,7 +359,7 @@ void InstantBlame::once()
         connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, [this] { m_blameMark.reset(); }, Qt::SingleShotConnection);
 
-        connect(widget, &QPlainTextEdit::cursorPositionChanged,
+        connect(widget, &PlainTextEdit::cursorPositionChanged,
             this, [this] { m_blameMark.reset(); }, Qt::SingleShotConnection);
 
         const FilePath workingDirectory = currentState().topLevel();

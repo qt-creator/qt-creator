@@ -77,7 +77,7 @@ def checkCompile(expectToFail=False):
         return False
 
 def compileSucceeded(compileOutput):
-    return None != re.match(".*exited normally\.\n\d\d:\d\d:\d\d: Elapsed time: "
+    return None != re.match(".*finished successfully\.\n\d\d:\d\d:\d\d: Elapsed time: "
                             "(\d:)?\d{2}:\d\d\.$", str(compileOutput), re.S)
 
 def waitForCompile(timeout=60000):
@@ -162,10 +162,13 @@ def verifyBuildAndRun(expectCompileToFail=False):
     # check application output log
     appOutput = logApplicationOutput()
     if appOutput:
-        test.verify((re.search(".* exited with code \d+", str(appOutput)) or
-                     re.search(".* crashed\.", str(appOutput)) or
-                     re.search(".* was ended forcefully\.", str(appOutput))) and
-                    re.search('[Ss]tarting.*', str(appOutput)),
+        strOutput = str(appOutput)
+        test.verify((re.search(".* exited with code \d+", strOutput) or
+                     re.search(".* crashed\.", strOutput) or
+                     re.search(".* was ended forcefully\.", strOutput) or
+                     re.search(".* finished successfully\.", strOutput) or
+                     re.search(".* was canceled after \d+ ms\.", strOutput)) and
+                    re.search('[Ss]tarting.*', strOutput),
                     "Verifying if built app started and closed successfully.")
 
 # run project for debug and release

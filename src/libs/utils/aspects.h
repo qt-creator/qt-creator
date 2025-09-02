@@ -106,6 +106,9 @@ public:
 
     void setSpan(int x, int y = 1);
 
+    bool isSaveAlways() const;
+    void setSaveAlways(bool saveAlways);
+
     QString labelText() const;
     void setLabelText(const QString &labelText);
     void setLabelPixmap(const QPixmap &labelPixmap);
@@ -270,10 +273,11 @@ protected:
     }
 
     void registerSubWidget(QWidget *widget);
-    static void saveToMap(Store &data, const QVariant &value,
-                          const QVariant &defaultValue, const Key &key);
-
     void forEachSubWidget(const std::function<void(QWidget *)> &func);
+
+    void saveToMap(Store &data, const QVariant &value,
+                   const QVariant &defaultValue, const Key &key) const;
+    bool skipSave() const;
 
 protected:
     template <class Value>
@@ -522,6 +526,7 @@ public:
     ~ColorAspect() override;
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
+    void setMinimumSize(const QSize &size);
 
 private:
     void bufferToGui() override;
@@ -642,6 +647,7 @@ public:
     void setAcceptRichText(bool acceptRichText);
     void setUseResetButton();
     void setValidationFunction(const FancyLineEdit::ValidationFunction &validator);
+    void setValidatorFactory(const std::function<QValidator *(QObject *parent)> &validatorFactory);
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
     void setElideMode(Qt::TextElideMode elideMode);
 
@@ -1142,14 +1148,14 @@ public:
     void setCreateItemFunction(CreateItem createItem);
 
     template<class T>
-    void forEachItem(std::function<void(const std::shared_ptr<T> &)> callback)
+    void forEachItem(std::function<void(const std::shared_ptr<T> &)> callback) const
     {
         for (const auto &item : volatileItems())
             callback(std::static_pointer_cast<T>(item));
     }
 
     template<class T>
-    void forEachItem(std::function<void(const std::shared_ptr<T> &, int)> callback)
+    void forEachItem(std::function<void(const std::shared_ptr<T> &, int)> callback) const
     {
         int idx = 0;
         for (const auto &item : volatileItems())
@@ -1203,6 +1209,8 @@ public:
     void bufferToGui() override;
     bool guiToBuffer() override;
 
+    void setComboBoxEditable(bool editable) { m_comboBoxEditable = editable; }
+
 signals:
     void refillRequested();
 
@@ -1212,6 +1220,7 @@ private:
     FillCallback m_fillCallback;
     QStandardItemModel *m_model{nullptr};
     QItemSelectionModel *m_selectionModel{nullptr};
+    bool m_comboBoxEditable{true};
 
     Utils::UndoableValue<QString> m_undoable;
 };

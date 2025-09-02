@@ -10,10 +10,8 @@
 
 #include <QString>
 #include <QTextDocument>
-#include <QVector>
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 class ReplacementOperation
 {
@@ -24,7 +22,7 @@ public:
     Utils::FilePath filePath;
     bool apply = false;
 };
-using ReplacementOperations = QVector<ReplacementOperation *>;
+using ReplacementOperations = QList<ReplacementOperation *>;
 
 /// Simplified version of TextEditor::RefactoringFile that allows
 /// to operate on not owned ReplamentOperations
@@ -56,5 +54,4 @@ private:
     ReplacementOperations m_replacementOperations; // Not owned.
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

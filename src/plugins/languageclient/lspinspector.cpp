@@ -322,8 +322,10 @@ void LspLogWidget::saveLog()
         return;
     FileSaver saver(filePath, QIODevice::Text);
     saver.write(contents.toUtf8());
-    if (!saver.finalize(this))
+    if (const Result<> res = saver.finalize(); !res) {
+        FileUtils::showError(res.error());
         saveLog();
+    }
 }
 
 class LspInspectorWidget : public QDialog
@@ -483,7 +485,7 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
             messageEditor->editorWidget()->setVisible(true);
             return;
         }
-        QList<Client *> clients = LanguageClientManager::instance()->clientsByName(
+        const QList<Client *> clients = LanguageClientManager::instance()->clientsByName(
             m_clients->currentText());
         QString errMsg;
         for (Client *client : clients) {

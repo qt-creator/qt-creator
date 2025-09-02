@@ -591,7 +591,7 @@ MimeBinaryProvider::loadMimeTypeExtra(const QString &mimeName)
     }
     return it;
 #else
-    Q_UNUSED(mimeName);
+    Q_UNUSED(mimeName)
     qWarning("Cannot load mime type since QXmlStreamReader is not available.");
     return m_mimetypeExtra.cend();
 #endif // feature xmlstreamreader

@@ -61,12 +61,11 @@ GitLabCloneDialog::GitLabCloneDialog(const Project &project, QWidget *parent)
     m_pathChooser->setExpectedKind(PathChooser::ExistingDirectory);
     form->addRow(Tr::tr("Path"), m_pathChooser);
     m_directoryLE = new FancyLineEdit(this);
-    m_directoryLE->setValidationFunction([this](FancyLineEdit *e, QString *msg) {
-        const FilePath fullPath = m_pathChooser->filePath().pathAppended(e->text());
-        bool alreadyExists = fullPath.exists();
-        if (alreadyExists && msg)
-            *msg = Tr::tr("Path \"%1\" already exists.").arg(fullPath.toUserOutput());
-        return !alreadyExists;
+    m_directoryLE->setValidationFunction([this](const QString &text) -> Result<> {
+        const FilePath fullPath = m_pathChooser->filePath().pathAppended(text);
+        if (fullPath.exists())
+            return ResultError(Tr::tr("Path \"%1\" already exists.").arg(fullPath.toUserOutput()));
+        return ResultOk;
     });
     form->addRow(Tr::tr("Directory"), m_directoryLE);
     m_submodulesCB = new QCheckBox(this);
@@ -206,7 +205,7 @@ void GitLabCloneDialog::cloneFinished(bool success)
 
         // limit the files to the most top-level item(s)
         int minimum = std::numeric_limits<int>::max();
-        for (const FilePath &f : filesWeMayOpen) {
+        for (const FilePath &f : std::as_const(filesWeMayOpen)) {
             int parentCount = f.toUrlishString().count('/');
             if (parentCount < minimum)
                 minimum = parentCount;
@@ -223,7 +222,7 @@ void GitLabCloneDialog::cloneFinished(bool success)
             accept();
         } else {
             const QStringList pFiles = Utils::transform(filesWeMayOpen, [base](const FilePath &f) {
-                return f.relativePathFrom(base).toUserOutput();
+                return f.relativePathFromDir(base).toUserOutput();
             });
             bool ok = false;
             const QString fileToOpen

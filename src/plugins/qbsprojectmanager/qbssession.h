@@ -134,6 +134,9 @@ public:
         const QList<std::pair<QString, QString>> &files,
         const QString &product,
         const QString &group);
+    ErrorInfo addDependencies(
+        const QStringList &dependencies, const QString &product, const QString &group);
+
     RunEnvironmentResult getRunEnvironment(const QString &product,
             const QProcessEnvironment &baseEnv,
             const QStringList &config);

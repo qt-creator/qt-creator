@@ -708,10 +708,10 @@ public:
      * \param workspace display name of the workspace that will be created
      * \return file name of the created workspace or unexpected
      */
-    Utils::expected_str<QString> createWorkspace(const QString &workspace);
+    Utils::Result<QString> createWorkspace(const QString &workspace);
 
-    Utils::expected_str<void> openWorkspace(const QString &fileName);
-    Utils::expected_str<void> reloadActiveWorkspace();
+    Utils::Result<> openWorkspace(const QString &fileName);
+    Utils::Result<> reloadActiveWorkspace();
 
     /**
      * \brief Deletes a workspace from workspace list and the file from disk.
@@ -726,7 +726,7 @@ public:
      * \param cloneName display name of cloned workspace
      * \return file name of the cloned workspace or unexpected
      */
-    Utils::expected_str<QString> cloneWorkspace(const QString &originalFileName,
+    Utils::Result<QString> cloneWorkspace(const QString &originalFileName,
                                                 const QString &cloneName);
 
     /**
@@ -736,21 +736,21 @@ public:
      * \param newName new display name
      * \return file name of the renamed workspace or unexpected if rename failed
      */
-    Utils::expected_str<QString> renameWorkspace(const QString &originalFileName,
+    Utils::Result<QString> renameWorkspace(const QString &originalFileName,
                                                  const QString &newName);
 
-    Utils::Result resetWorkspacePreset(const QString &fileName);
+    Utils::Result<> resetWorkspacePreset(const QString &fileName);
 
     /**
      * \brief Save the currently active workspace.
      */
-    Utils::expected_str<void> save();
+    Utils::Result<> save();
 
     void setModeChangeState(bool value);
     bool isModeChangeState() const;
 
-    Utils::expected_str<QString> importWorkspace(const QString &filePath);
-    Utils::expected_str<QString> exportWorkspace(const QString &targetFilePath,
+    Utils::Result<QString> importWorkspace(const QString &filePath);
+    Utils::Result<QString> exportWorkspace(const QString &targetFilePath,
                                                  const QString &sourceFileName);
 
     // Workspace convenience functions
@@ -792,9 +792,9 @@ private:
     static QString readAttribute(const Utils::FilePath &filePath, QStringView key);
     static bool writeAttribute(const Utils::FilePath &filePath, QStringView key,
                                const QString &value);
-    static Utils::expected_str<void> write(const Utils::FilePath &filePath, const QByteArray &data);
+    static Utils::Result<> write(const Utils::FilePath &filePath, const QByteArray &data);
 
-    Utils::expected_str<QByteArray> loadWorkspace(const Workspace &workspace) const;
+    Utils::Result<QByteArray> loadWorkspace(const Workspace &workspace) const;
 
     /**
      * \brief Copy all missing workspace presets over to the local workspace folder.

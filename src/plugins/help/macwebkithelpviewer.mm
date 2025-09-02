@@ -703,8 +703,8 @@ DOMRange *MacWebKitHelpViewer::findText(NSString *text, bool forward, bool caseS
 bool MacWebKitHelpViewer::findText(const QString &text, FindFlags flags, bool incremental,
                                    bool fromSearch, bool *wrapped)
 {
-    Q_UNUSED(incremental);
-    Q_UNUSED(fromSearch);
+    Q_UNUSED(incremental)
+    Q_UNUSED(fromSearch)
     @autoreleasepool {
         if (wrapped)
             *wrapped = false;

@@ -10,6 +10,7 @@ add_qtc_plugin(Docker
     dockercontainerthread.h
     dockerdevice.cpp dockerdevice.h
     dockerdevicewidget.cpp dockerdevicewidget.h
+    dockerdeviceenvironmentaspect.cpp dockerdeviceenvironmentaspect.h
     dockerplugin.cpp
     dockersettings.cpp dockersettings.h
     kitdetector.cpp kitdetector.h

@@ -401,7 +401,7 @@ public:
     virtual Utils::FilePath correspondingCompilerCommand(
         const Utils::FilePath &srcPath, Utils::Id targetLang) const;
 
-    virtual bool canCreate() const;
+    bool canCreate() const;
     Toolchain *create() const;
 
     Toolchain *restore(const Utils::Store &data);
@@ -436,7 +436,7 @@ protected:
         }
     };
 
-    using Candidates = QVector<Candidate>;
+    using Candidates = QList<Candidate>;
 
 private:
     QString m_displayName;

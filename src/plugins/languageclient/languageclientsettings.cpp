@@ -13,6 +13,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectpanelfactory.h>
@@ -330,6 +331,7 @@ public:
     LanguageClientSettingsPage();
 
     void init();
+    bool initialized() const { return m_initialized; }
 
     QList<BaseSettings *> settings() const;
     QList<BaseSettings *> changedSettings() const;
@@ -337,6 +339,7 @@ public:
     void enableSettings(const QString &id, bool enable = true);
 
 private:
+    bool m_initialized = false;
     LanguageClientSettingsModel m_model;
     QSet<QString> m_changedSettings;
 };
@@ -355,6 +358,7 @@ LanguageClientSettingsPage::LanguageClientSettingsPage()
 
 void LanguageClientSettingsPage::init()
 {
+    m_initialized = true;
     QList<BaseSettings *> newList = LanguageClientSettings::fromSettings(Core::ICore::settings());
     m_model.reset(newList);
     qDeleteAll(newList);
@@ -588,18 +592,17 @@ bool BaseSettings::isValid() const
     return !m_name.isEmpty();
 }
 
-bool BaseSettings::isValidOnProject(ProjectExplorer::Project *) const
+bool BaseSettings::isValidOnBuildConfiguration(BuildConfiguration *) const
 {
     return isValid();
 }
 
 Client *BaseSettings::createClient() const
 {
-    return createClient(static_cast<ProjectExplorer::Project *>(nullptr));
+    return createClient(static_cast<BuildConfiguration *>(nullptr));
 }
 
-
-bool BaseSettings::isEnabledOnProject(ProjectExplorer::Project *project) const
+bool BaseSettings::isEnabledOnProject(Project *project) const
 {
     if (project) {
         LanguageClient::ProjectSettings settings(project);
@@ -611,11 +614,13 @@ bool BaseSettings::isEnabledOnProject(ProjectExplorer::Project *project) const
     return m_enabled;
 }
 
-Client *BaseSettings::createClient(ProjectExplorer::Project *project) const
+Client *BaseSettings::createClient(BuildConfiguration *bc) const
 {
-    if (!isValidOnProject(project) || !isEnabledOnProject(project))
+    if (!isValidOnBuildConfiguration(bc))
         return nullptr;
-    BaseClientInterface *interface = createInterface(project);
+    if (bc && !isEnabledOnProject(bc->project()))
+        return nullptr;
+    BaseClientInterface *interface = createInterface(bc);
     QTC_ASSERT(interface, return nullptr);
     auto *client = createClient(interface);
     QTC_ASSERT(client, return nullptr);
@@ -625,8 +630,8 @@ Client *BaseSettings::createClient(ProjectExplorer::Project *project) const
 
     client->setSupportedLanguage(m_languageFilter);
     client->setInitializationOptions(initializationOptions());
-    client->setActivateDocumentAutomatically(true);
-    client->setCurrentProject(project);
+    client->setActivatable(m_activatable);
+    client->setCurrentBuildConfiguration(bc);
     client->updateConfiguration(m_configuration);
     return client;
 }
@@ -673,6 +678,11 @@ void LanguageClientSettings::init()
 {
     settingsPage().init();
     LanguageClientManager::applySettings();
+}
+
+bool LanguageClientSettings::initialized()
+{
+    return settingsPage().initialized();
 }
 
 QList<Utils::Store> LanguageClientSettings::storesBySettingsType(Utils::Id settingsTypeId)
@@ -845,12 +855,12 @@ Utils::CommandLine StdIOSettings::command() const
     return Utils::CommandLine(m_executable, arguments(), Utils::CommandLine::Raw);
 }
 
-BaseClientInterface *StdIOSettings::createInterface(ProjectExplorer::Project *project) const
+BaseClientInterface *StdIOSettings::createInterface(BuildConfiguration *bc) const
 {
     auto interface = new StdIOClientInterface;
     interface->setCommandLine(command());
-    if (project)
-        interface->setWorkingDirectory(project->projectDirectory());
+    if (bc)
+        interface->setWorkingDirectory(bc->project()->projectDirectory());
     return interface;
 }
 
@@ -917,24 +927,21 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
         m_startupBehavior->addItem(startupBehaviorString(BaseSettings::StartBehavior(behavior)));
     m_startupBehavior->setCurrentIndex(settings->m_startBehavior);
 
-    m_initializationOptions->setValidationFunction(
-        [](Utils::FancyLineEdit *edit, QString *errorMessage) {
-            const QString value = Utils::globalMacroExpander()->expand(edit->text());
+    m_initializationOptions->setValidationFunction([](const QString &text) -> Result<> {
+            const QString value = globalMacroExpander()->expand(text);
 
             if (value.isEmpty())
-                return true;
+                return ResultOk;
 
             QJsonParseError parseInfo;
             const QJsonDocument json = QJsonDocument::fromJson(value.toUtf8(), &parseInfo);
 
             if (json.isNull()) {
-                if (errorMessage)
-                    *errorMessage = Tr::tr("Failed to parse JSON at %1: %2")
+                return ResultError(Tr::tr("Failed to parse JSON at %1: %2")
                                         .arg(parseInfo.offset)
-                                        .arg(parseInfo.errorString());
-                return false;
+                                        .arg(parseInfo.errorString()));
             }
-            return true;
+            return ResultOk;
         });
     m_initializationOptions->setText(settings->m_initializationOptions);
     m_initializationOptions->setPlaceholderText(Tr::tr("Language server-specific JSON to pass via "

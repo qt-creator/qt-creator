@@ -25,17 +25,13 @@ public:
         setDisplayName(Tr::tr("System Editor"));
         setMimeTypes({Utils::Constants::OCTET_STREAM_MIMETYPE});
 
-        setEditorStarter([](const FilePath &filePath, QString *errorMessage) {
-            Q_UNUSED(errorMessage)
+        setEditorStarter([](const FilePath &filePath) -> Result<> {
             QUrl url;
             url.setPath(filePath.toUrlishString());
             url.setScheme(QLatin1String("file"));
-            if (!QDesktopServices::openUrl(url)) {
-                if (errorMessage)
-                    *errorMessage = Tr::tr("Could not open URL %1.").arg(url.toString());
-                return false;
-            }
-            return true;
+            if (!QDesktopServices::openUrl(url))
+                return ResultError(Tr::tr("Could not open URL %1.").arg(url.toString()));
+            return ResultOk;
         });
     }
 };

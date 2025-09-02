@@ -7,6 +7,7 @@
 
 #include <texteditor/icodestylepreferences.h>
 
+#include <utils/filepath.h>
 #include <utils/store.h>
 
 namespace TextEditor { class TabSettings; }
@@ -19,7 +20,17 @@ class QMLJSTOOLS_EXPORT QmlJSCodeStyleSettings
 public:
     QmlJSCodeStyleSettings();
 
+    enum Formatter {
+        Builtin,
+        QmlFormat,
+        Custom
+    };
+
     int lineLength = 80;
+    QString qmlformatIniContent;
+    Formatter formatter = Builtin;
+    Utils::FilePath customFormatterPath;
+    QString customFormatterArguments;
 
     Utils::Store toMap() const;
     void fromMap(const Utils::Store &map);

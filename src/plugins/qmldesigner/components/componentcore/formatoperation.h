@@ -5,8 +5,7 @@
 
 #include "selectioncontext.h"
 
-namespace QmlDesigner {
-namespace FormatOperation {
+namespace QmlDesigner::FormatOperation {
 
 bool propertiesCopyable(const SelectionContext &selectionState);
 bool propertiesApplyable(const SelectionContext &selectionState);
@@ -14,5 +13,4 @@ void copyFormat(const SelectionContext &selectionState);
 void applyFormat(const SelectionContext &selectionState);
 void readFormatConfiguration();
 
-} // namespace FormatOperation
-} // QmlDesigner
+} // namespace QmlDesigner::FormatOperation

@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "futureprogress.h"
+
 #include "progressbar.h"
+#include "progressmanager_p.h"
 
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -127,8 +129,8 @@ FutureProgress::FutureProgress(QWidget *parent) :
         else
             emit clicked();
     });
-    setMinimumWidth(100);
-    setMaximumWidth(300);
+    setMinimumWidth(Internal::ProgressManagerPrivate::infoMinWidth());
+    setMaximumWidth(Internal::ProgressManagerPrivate::infoMaxWidth());
 }
 
 /*!

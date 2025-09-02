@@ -5,12 +5,9 @@
 #include <qmlprofiler/qmlnote.h>
 #include <QtTest>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
-QmlNoteTest::QmlNoteTest(QObject *parent) : QObject(parent)
-{
-}
+QmlNoteTest::QmlNoteTest() = default;
 
 void QmlNoteTest::testAccessors()
 {
@@ -58,5 +55,4 @@ void QmlNoteTest::testStreamOps()
     QCOMPARE(note2, note);
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

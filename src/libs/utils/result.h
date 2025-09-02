@@ -6,34 +6,40 @@
 #include "utils_global.h"
 
 #include "expected.h"
+#include "qtcassert.h"
 
 #include <QString>
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT Result
+#ifdef Q_QDOC
+template<typename T = void>
+class Result
+{};
+#endif
+
+template<typename T = void>
+using Result = Utils::expected<T, QString>;
+
+QTCREATOR_UTILS_EXPORT extern const Result<> ResultOk;
+
+QTCREATOR_UTILS_EXPORT Result<> makeResult(bool ok, const QString &errorMessage);
+
+enum ResultSpecialErrorCode {
+    ResultAssert,
+    ResultUnimplemented,
+};
+
+class QTCREATOR_UTILS_EXPORT ResultError
 {
-    Result() = default;
-    explicit Result(const std::optional<QString> &err) : m_error(err) {}
-
 public:
-    Result(bool success, const QString &errorString);
-    Result(const expected_str<void> &res);
-    Result(const Result &) = default;
-    Result(Result &&) = default;
-    ~Result();
+    ResultError(const QString &errorMessage);
+    ResultError(ResultSpecialErrorCode code, const QString &errorMessage = {});
 
-    Result &operator=(const Result &) = default;
-    Result &operator=(Result &&) = default;
-
-    static const Result Ok;
-    static Result Error(const QString &errorString) { return Result(errorString); };
-
-    QString error() const { return m_error ? *m_error : QString(); }
-    operator bool() const { return !m_error; }
+    template<typename T> operator Result<T>() { return tl::make_unexpected(m_error); }
 
 private:
-    std::optional<QString> m_error;
+    QString m_error;
 };
 
 #define QTC_ASSERT_AND_ERROR_OUT(cond) \
@@ -42,3 +48,31 @@ private:
        .arg(#cond).arg(__FILE__).arg(__LINE__)))
 
 } // namespace Utils
+
+
+//! If \a result has an error the error will be printed and the \a action will be executed.
+#define QTC_ASSERT_RESULT(result, action) \
+    if (Q_LIKELY(result)) { \
+    } else { \
+        ::Utils::writeAssertLocation(QString("%1:%2: %3") \
+                                         .arg(__FILE__) \
+                                         .arg(__LINE__) \
+                                         .arg(result.error()) \
+                                         .toUtf8() \
+                                         .data()); \
+        action; \
+    } \
+    do { \
+    } while (0)
+
+#define QTC_CHECK_RESULT(result) \
+    if (Q_LIKELY(result)) { \
+    } else { \
+        ::Utils::writeAssertLocation( \
+            QString("%1:%2: %3").arg(__FILE__).arg(__LINE__).arg(result.error()).toUtf8().data()); \
+    } \
+    do { \
+    } while (0)
+
+#define QVERIFY_RESULT(result) \
+    QVERIFY2(result, result ? #result : static_cast<const char*>(result.error().toUtf8()))

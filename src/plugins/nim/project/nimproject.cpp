@@ -49,7 +49,7 @@ NimProjectScanner::NimProjectScanner(Project *project)
         // Sync watched dirs
         const QSet<FilePath> fsDirs = Utils::transform<QSet>(nodes,
                                                              [](const std::unique_ptr<FileNode> &fn) { return fn->directory(); });
-        const QSet<FilePath> projectDirs = Utils::toSet(m_directoryWatcher.directoryPaths());
+        const QSet<FilePath> projectDirs = Utils::toSet(m_directoryWatcher.directories());
         m_directoryWatcher.addDirectories(Utils::toList(fsDirs - projectDirs), FileSystemWatcher::WatchAllChanges);
         m_directoryWatcher.removeDirectories(Utils::toList(projectDirs - fsDirs));
 
@@ -148,6 +148,7 @@ class NimBuildSystem final : public BuildSystem
 {
 public:
     explicit NimBuildSystem(BuildConfiguration *bc);
+    ~NimBuildSystem();
 
     bool supportsAction(Node *, ProjectAction action, const Node *node) const final;
     bool addFiles(Node *node, const FilePaths &filePaths, FilePaths *) final;
@@ -159,8 +160,6 @@ public:
         Node *,
         const Utils::FilePairs &filesToRename,
         Utils::FilePaths *notRenamed) final;
-    QString name() const final { return QLatin1String("nim"); }
-
     void triggerParsing() final;
 
 protected:
@@ -187,6 +186,12 @@ NimBuildSystem::NimBuildSystem(BuildConfiguration *bc)
     });
 
     requestDelayedParse();
+}
+
+NimBuildSystem::~NimBuildSystem()
+{
+    // Trigger any pending parsingFinished signals before destroying any other build system part:
+    m_guard = {};
 }
 
 void NimBuildSystem::triggerParsing()
@@ -267,7 +272,7 @@ static FilePath defaultBuildDirectory(const Kit *k,
 }
 
 NimBuildConfiguration::NimBuildConfiguration(Target *target, Utils::Id id)
-    : BuildConfiguration(target, id), m_buildSystem(new NimBuildSystem(this))
+    : BuildConfiguration(target, id)
 {
     setConfigWidgetDisplayName(Tr::tr("General"));
     setConfigWidgetHasFrame(true);
@@ -276,9 +281,9 @@ NimBuildConfiguration::NimBuildConfiguration(Target *target, Utils::Id id)
     appendInitialBuildStep(Constants::C_NIMCOMPILERBUILDSTEP_ID);
     appendInitialCleanStep(Constants::C_NIMCOMPILERCLEANSTEP_ID);
 
-    setInitializer([this, target](const BuildInfo &info) {
+    setInitializer([this](const BuildInfo &info) {
         // Create the build configuration and initialize it from build info
-        setBuildDirectory(defaultBuildDirectory(target->kit(),
+        setBuildDirectory(defaultBuildDirectory(kit(),
                                                 project()->projectFilePath(),
                                                 displayName(),
                                                 buildType()));
@@ -288,9 +293,6 @@ NimBuildConfiguration::NimBuildConfiguration(Target *target, Utils::Id id)
         nimCompilerBuildStep->setBuildType(info.buildType);
     });
 }
-
-NimBuildConfiguration::~NimBuildConfiguration() { delete m_buildSystem; }
-BuildSystem *NimBuildConfiguration::buildSystem() const { return m_buildSystem; }
 
 FilePath NimBuildConfiguration::cacheDirectory() const
 {
@@ -324,6 +326,7 @@ public:
                     info.displayName = info.typeName;
                     info.buildDirectory = defaultBuildDirectory(k, projectPath, info.typeName, buildType);
                 }
+                info.enabledByDefault = buildType == BuildConfiguration::Debug;
                 return info;
             };
             return QList<BuildInfo>{
@@ -340,13 +343,8 @@ class NimProject final : public Project
 public:
     explicit NimProject(const FilePath &filePath);
 
-    Tasks projectIssues(const Kit *k) const final;
-
     // Keep for compatibility with Qt Creator 4.10
     void toMap(Store &map) const final;
-
-    QStringList excludedFiles() const;
-    void setExcludedFiles(const QStringList &excludedFiles);
 
 protected:
     // Keep for compatibility with Qt Creator 4.10
@@ -361,20 +359,7 @@ NimProject::NimProject(const FilePath &filePath) : Project(Constants::C_NIM_MIME
     setDisplayName(filePath.completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-}
-
-Tasks NimProject::projectIssues(const Kit *k) const
-{
-    Tasks result = Project::projectIssues(k);
-    auto tc = ToolchainKitAspect::toolchain(k, Constants::C_NIMLANGUAGE_ID);
-    if (!tc) {
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No Nim compiler set.")));
-        return result;
-    }
-    if (!tc->compilerCommand().exists())
-        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Nim compiler does not exist.")));
-
-    return result;
+    setBuildSystemCreator<NimBuildSystem>("nim");
 }
 
 void NimProject::toMap(Store &map) const
@@ -390,22 +375,26 @@ Project::RestoreResult NimProject::fromMap(const Store &map, QString *errorMessa
     return result;
 }
 
-QStringList NimProject::excludedFiles() const
-{
-    return m_excludedFiles;
-}
-
-void NimProject::setExcludedFiles(const QStringList &excludedFiles)
-{
-    m_excludedFiles = excludedFiles;
-}
-
 // Setup
 
 void setupNimProject()
 {
     static const NimBuildConfigurationFactory buildConfigFactory;
-    ProjectManager::registerProjectType<NimProject>(Constants::C_NIM_PROJECT_MIMETYPE);
+    const auto issuesGenerator = [](const Kit *k) {
+        Tasks result;
+        auto tc = ToolchainKitAspect::toolchain(k, Constants::C_NIMLANGUAGE_ID);
+        if (!tc) {
+            result.append(
+                Project::createTask(Task::TaskType::Error, Tr::tr("No Nim compiler set.")));
+            return result;
+        }
+        if (!tc->compilerCommand().exists())
+            result.append(
+                Project::createTask(Task::TaskType::Error, Tr::tr("Nim compiler does not exist.")));
+        return result;
+    };
+    ProjectManager::registerProjectType<NimProject>(
+        Constants::C_NIM_PROJECT_MIMETYPE, issuesGenerator);
 }
 
 } // Nim

@@ -7,15 +7,15 @@ on:
       - 'doc/**'
 
 env:
-  QT_VERSION: 6.8.3
+  QT_VERSION: 6.9.1
   MACOS_DEPLOYMENT_TARGET: 11.0
-  CLANG_VERSION: 19.1.6
+  CLANG_VERSION: 20.1.3
   ELFUTILS_VERSION: 0.175
   CMAKE_VERSION: 3.30.3
   NINJA_VERSION: 1.10.2
   BUILD_TYPE: Release
-  CCACHE_VERSION: 4.9
-  QT_MIRRORS: download.qt.io;mirrors.ocf.berkeley.edu/qt;ftp.fau.de/qtproject;mirror.bit.edu.cn/qtproject
+  CCACHE_VERSION: 4.11.2
+  QT_MIRRORS: download.qt.io;mirrors.ocf.berkeley.edu/qt;ftp.fau.de/qtproject;mirrors.sau.edu.cn/qt
 
 jobs:
   build:
@@ -37,7 +37,7 @@ jobs:
         - {
             name: "Windows Latest MinGW", artifact: "windows-x64-mingw",
             os: windows-latest,
-            toolchain: "https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/tools_mingw1310/qt.tools.win64_mingw1310/13.1.0-202407240918mingw1310.7z",
+            toolchain: "https://\\${qt_mirror}/online/qtsdkrepository/windows_x86/desktop/tools_mingw1310/qt.tools.win64_mingw1310/13.1.0-202407240918mingw1310.7z",
             toolchain_path: "Tools/mingw1310_64/bin",
             cc: "gcc", cxx: "g++",
             is_msvc: false
@@ -165,8 +165,20 @@ jobs:
 
         if ("${{ runner.os }}" STREQUAL "Windows")
           file(MAKE_DIRECTORY build/build/bin)
-          foreach(retry RANGE 10)
-            file(DOWNLOAD "https://download.qt.io/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64.7z" ./opengl32sw-64.7z SHOW_PROGRESS)
+          set(opengl_sw_url "https://\${qt_mirror}/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64.7z")
+          foreach(qt_mirror $ENV{QT_MIRRORS})
+            foreach(retry RANGE 10)
+              cmake_language(EVAL CODE "
+                message(\"Downloading ${opengl_sw_url}\")
+                file(DOWNLOAD \"${opengl_sw_url}\" ./opengl32sw-64.7z SHOW_PROGRESS)
+              ")
+              file(SIZE ./opengl32sw-64.7z fileSize)
+              if (fileSize GREATER 0)
+                break()
+              endif()
+            endforeach()
+
+            # Check to see if we have the file, if not, go to next mirror
             file(SIZE ./opengl32sw-64.7z fileSize)
             if (fileSize GREATER 0)
               break()
@@ -176,8 +188,19 @@ jobs:
         endif()
 
         if (NOT "x${{ matrix.config.toolchain }}" STREQUAL "x")
-          foreach(retry RANGE 10)
-            file(DOWNLOAD "${{ matrix.config.toolchain }}" ./toolchain.7z SHOW_PROGRESS)
+          foreach(qt_mirror $ENV{QT_MIRRORS})
+            foreach(retry RANGE 10)
+              cmake_language(EVAL CODE "
+                message(\"Downloading ${{ matrix.config.toolchain }}\")
+                file(DOWNLOAD \"${{ matrix.config.toolchain }}\" ./toolchain.7z SHOW_PROGRESS)
+              ")
+              file(SIZE ./toolchain.7z fileSize)
+              if (fileSize GREATER 0)
+                break()
+              endif()
+            endforeach()
+
+            # Check to see if we have the file, if not, go to next mirror
             file(SIZE ./toolchain.7z fileSize)
             if (fileSize GREATER 0)
               break()
@@ -214,63 +237,85 @@ jobs:
           set(compiler_id "clang_64")
         endif()
 
-        set(qt_base_url "https://download.qt.io/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}/qt6_${qt_version_dotless}")
-        file(DOWNLOAD "${qt_base_url}/Updates.xml" ./Updates.xml SHOW_PROGRESS)
-
-        file(READ ./Updates.xml updates_xml)
-        # get the package sections, only for given compiler, without the "debug info" ones
-        string(REGEX REPLACE "<PackageUpdate>" ";<PackageUpdate>" sections "${updates_xml}")
-        list(FILTER sections EXCLUDE REGEX "<Name>.*debug.*</Name>")
-        list(FILTER sections INCLUDE REGEX "<Name>.*${compiler_id}.*</Name>")
-
-        # Save the path for other steps
-        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/qt/" qt_dir)
-        file(APPEND "$ENV{GITHUB_OUTPUT}" "qt_dir=${qt_dir}")
-
-        function(get_sub_url outvar module)
-          set(filtered ${sections})
-          list(FILTER filtered INCLUDE REGEX "<DownloadableArchives>.*${module}.*</DownloadableArchives>")
-          list(LENGTH filtered count)
-          if (count LESS 1)
-            set(${outvar} "<notfound>" PARENT_SCOPE)
-            return()
-          endif()
-          list(GET filtered 0 section)
-          string(REGEX MATCH "<Name>(.*)</Name>" match "${section}")
-          set(name ${CMAKE_MATCH_1})
-          string(REGEX MATCH "<Version>(.*)</Version>" match "${section}")
-          set(version ${CMAKE_MATCH_1})
-          string(REGEX MATCH "<DownloadableArchives>.*(${module}[^,]+).*</DownloadableArchives>" match "${section}")
-          set(archive ${CMAKE_MATCH_1})
-          set(${outvar} "${name}/${version}${archive}" PARENT_SCOPE)
-        endfunction()
-
-        message("Downloading Qt to ${qt_dir}")
-        function(downloadAndExtract module subdir)
-          file(MAKE_DIRECTORY "${qt_dir}/${subdir}")
-          set(archive "${module}.7z")
-          get_sub_url(sub_url ${module})
-          set(url "${qt_base_url}/${sub_url}")
-          message("Downloading ${module} from ${url}")
-          message("... extracting to ${qt_dir}/${subdir}")
+        set(qt_base_url "https://\${qt_mirror}/online/qtsdkrepository/${url_os}/desktop/qt6_${qt_version_dotless}/qt6_${qt_version_dotless}")
+        foreach(qt_mirror $ENV{QT_MIRRORS})
           foreach(retry RANGE 10)
-            file(DOWNLOAD "${url}" "$ENV{GITHUB_WORKSPACE}/${archive}" SHOW_PROGRESS)
-            file(SIZE "$ENV{GITHUB_WORKSPACE}/${archive}" fileSize)
+            cmake_language(EVAL CODE "
+              message(\"Downloading ${qt_base_url}/Updates.xml}\")
+              file(DOWNLOAD \"${qt_base_url}/Updates.xml\" ./Updates.xml)
+            ")
+            file(SIZE ./Updates.xml fileSize)
             if (fileSize GREATER 0)
               break()
             endif()
           endforeach()
-          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "$ENV{GITHUB_WORKSPACE}/${archive}" WORKING_DIRECTORY "${qt_dir}/${subdir}")
-        endfunction()
 
-        foreach(package qtbase qtdeclarative qttools qtsvg qttranslations qtimageformats qtserialport qtquicktimeline qtquick3d qt5compat qtshadertools)
-          downloadAndExtract(${package} "")
+          # try the next mirror if we didn't manage to get an Updates.xml file
+          file(SIZE ./Updates.xml fileSize)
+          if (fileSize EQUAL 0)
+            continue()
+          endif()
+
+          file(READ ./Updates.xml updates_xml)
+          # get the package sections, only for given compiler, without the "debug info" ones
+          string(REGEX REPLACE "<PackageUpdate>" ";<PackageUpdate>" sections "${updates_xml}")
+          list(FILTER sections EXCLUDE REGEX "<Name>.*debug.*</Name>")
+          list(FILTER sections INCLUDE REGEX "<Name>.*${compiler_id}.*</Name>")
+
+          # Save the path for other steps
+          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/qt/" qt_dir)
+          file(APPEND "$ENV{GITHUB_OUTPUT}" "qt_dir=${qt_dir}")
+
+          function(get_sub_url outvar module)
+            set(filtered ${sections})
+            list(FILTER filtered INCLUDE REGEX "<DownloadableArchives>.*${module}.*</DownloadableArchives>")
+            list(LENGTH filtered count)
+            if (count LESS 1)
+              set(${outvar} "<notfound>" PARENT_SCOPE)
+              return()
+            endif()
+            list(GET filtered 0 section)
+            string(REGEX MATCH "<Name>(.*)</Name>" match "${section}")
+            set(name ${CMAKE_MATCH_1})
+            string(REGEX MATCH "<Version>(.*)</Version>" match "${section}")
+            set(version ${CMAKE_MATCH_1})
+            string(REGEX MATCH "<DownloadableArchives>.*(${module}[^,]+).*</DownloadableArchives>" match "${section}")
+            set(archive ${CMAKE_MATCH_1})
+            set(${outvar} "${name}/${version}${archive}" PARENT_SCOPE)
+          endfunction()
+
+          message("Downloading Qt to ${qt_dir}")
+          function(downloadAndExtract module subdir)
+            file(MAKE_DIRECTORY "${qt_dir}/${subdir}")
+            set(archive "${module}.7z")
+            get_sub_url(sub_url ${module})
+            set(url "${qt_base_url}/${sub_url}")
+            foreach(retry RANGE 10)
+              cmake_language(EVAL CODE "
+                message(\"Downloading ${module} from ${url}\")
+                file(DOWNLOAD \"${url}\" \"$ENV{GITHUB_WORKSPACE}/${archive}\" SHOW_PROGRESS)
+              ")
+              file(SIZE "$ENV{GITHUB_WORKSPACE}/${archive}" fileSize)
+              if (fileSize GREATER 0)
+                break()
+              endif()
+            endforeach()
+            message("... extracting to ${qt_dir}/${subdir}")
+            execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "$ENV{GITHUB_WORKSPACE}/${archive}" WORKING_DIRECTORY "${qt_dir}/${subdir}")
+          endfunction()
+
+          foreach(package qtbase qtdeclarative qttools qtsvg qttranslations qtimageformats qtserialport qtquicktimeline qtquick3d qt5compat qtshadertools)
+            downloadAndExtract(${package} "")
+          endforeach()
+
+          # uic depends on libicu*.so
+          if ("${{ runner.os }}" STREQUAL "Linux")
+            downloadAndExtract("icu" "lib")
+          endif()
+
+          # Work is done, no need to try the next mirror.
+          break()
         endforeach()
-
-        # uic depends on libicu*.so
-        if ("${{ runner.os }}" STREQUAL "Linux")
-          downloadAndExtract("icu" "lib")
-        endif()
 
         execute_process(COMMAND ${qt_dir}/bin/qmake -query)
 
@@ -298,25 +343,31 @@ jobs:
       run: |
         if ("${{ runner.os }}" STREQUAL "Windows")
           set(url_os "windows_x86")
-          set(openssl_localdir "Tools/OpenSSL/Win_x64/bin")
+          set(openssl_localdir "Win_x64/bin")
           set(openssl_dest_dir "${{ steps.qt.outputs.qt_dir }}/bin")
           set(shared_suffix ".dll")
         elseif ("${{ runner.os }}" STREQUAL "Linux")
-          set(url_os "linux_x64")
-          set(openssl_localdir "Tools/OpenSSL/binary/lib")
-          set(openssl_dest_dir "${{ steps.qt.outputs.qt_dir }}/lib/Qt/lib")
-          set(shared_suffix ".so*")
+          # TODO: only sources are provided for Linux
+          return()
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           # Not needed on macOS
           return()
         endif()
 
-        set(openssl_base_url "https://\${qt_mirror}/online/qtsdkrepository/${url_os}/desktop/tools_openssl_x64")
+        set(openssl_base_url "https://\${qt_mirror}/online/qtsdkrepository/${url_os}/desktop/tools_opensslv3_x64")
         foreach(qt_mirror $ENV{QT_MIRRORS})
-          cmake_language(EVAL CODE "
-            message(\"Downloading ${openssl_base_url}/Updates.xml}\")
-            file(DOWNLOAD \"${openssl_base_url}/Updates.xml\" ./Updates.xml)
-          ")
+          foreach(retry RANGE 10)
+            cmake_language(EVAL CODE "
+              message(\"Downloading ${openssl_base_url}/Updates.xml}\")
+              file(DOWNLOAD \"${openssl_base_url}/Updates.xml\" ./Updates.xml SHOW_PROGRESS)
+            ")
+            file(SIZE ./Updates.xml fileSize)
+            if (fileSize GREATER 0)
+              break()
+            endif()
+          endforeach()
+
+          # Check to see if we have the file, if not, go to next mirror
           file(SIZE ./Updates.xml fileSize)
           if (fileSize GREATER 0)
             break()
@@ -325,7 +376,7 @@ jobs:
 
         file(READ ./Updates.xml updates_xml)
         string(REGEX MATCH
-          "<Name>(qt.tools.openssl.*)</Name>.*<Version>([0-9+-.]+)</Version>.*<DownloadableArchives>(.*)</DownloadableArchives>" updates_xml_output "${updates_xml}")
+          "<Name>(qt.tools.opensslv3.*)</Name>.*<Version>([0-9+-.]+)</Version>.*<DownloadableArchives>(.*)</DownloadableArchives>" updates_xml_output "${updates_xml}")
 
         set(openssl_directory ${CMAKE_MATCH_1})
         set(openssl_version ${CMAKE_MATCH_2})
@@ -337,10 +388,18 @@ jobs:
         file(MAKE_DIRECTORY ${openssl_dest_dir})
 
         foreach(qt_mirror $ENV{QT_MIRRORS})
-          cmake_language(EVAL CODE "
-            message(\"Downloading ${url}\")
-            file(DOWNLOAD \"${url}\" ./openssl.7z)
-          ")
+          foreach(retry RANGE 10)
+            cmake_language(EVAL CODE "
+              message(\"Downloading ${url}\")
+              file(DOWNLOAD \"${url}\" ./openssl.7z)
+            ")
+            file(SIZE ./openssl.7z fileSize)
+            if (fileSize GREATER 0)
+              break()
+            endif()
+          endforeach()
+
+          # Check to see if we have the file, if not, go to next mirror
           file(SIZE ./openssl.7z fileSize)
           if (fileSize GREATER 0)
             break()
@@ -374,10 +433,18 @@ jobs:
 
         set(libclang_url "https://\${qt_mirror}/development_releases/prebuilt/libclang/${libclang}")
         foreach(qt_mirror $ENV{QT_MIRRORS})
-          cmake_language(EVAL CODE "
-            message(\"Downloading ${libclang_url}\")
-            file(DOWNLOAD \"${libclang_url}\" ./libclang.7z)
-          ")
+          foreach(retry RANGE 10)
+            cmake_language(EVAL CODE "
+              message(\"Downloading ${libclang_url}\")
+              file(DOWNLOAD \"${libclang_url}\" ./libclang.7z)
+            ")
+            file(SIZE ./libclang.7z fileSize)
+            if (fileSize GREATER 0)
+              break()
+            endif()
+          endforeach()
+
+          # Check to see if we have the file, if not, go to next mirror
           file(SIZE ./libclang.7z fileSize)
           if (fileSize GREATER 0)
             break()

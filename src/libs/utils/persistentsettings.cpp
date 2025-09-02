@@ -19,6 +19,7 @@
 #include <QXmlStreamWriter>
 
 #ifdef QT_GUI_LIB
+#include "guiutils.h"
 #include <QMessageBox>
 #endif
 
@@ -381,23 +382,20 @@ PersistentSettingsWriter::PersistentSettingsWriter(const FilePath &fileName, con
     m_fileName(fileName), m_docType(docType)
 { }
 
-bool PersistentSettingsWriter::save(const Store &data, QString *errorString) const
+Result<> PersistentSettingsWriter::save(const Store &data, [[maybe_unused]] bool showErrorInMessageBox) const
 {
     if (data == m_savedData)
-        return true;
-    return write(data, errorString);
-}
+        return ResultOk;
+
+    const Result<> res = write(data);
 
 #ifdef QT_GUI_LIB
-bool PersistentSettingsWriter::save(const Store &data, QWidget *parent) const
-{
-    QString errorString;
-    const bool success = save(data, &errorString);
-    if (!success)
-        QMessageBox::critical(parent, Tr::tr("File Error"), errorString);
-    return success;
-}
+    if (showErrorInMessageBox && !res)
+        QMessageBox::critical(dialogParent(), Tr::tr("File Error"), res.error());
 #endif // QT_GUI_LIB
+
+    return res;
+}
 
 FilePath PersistentSettingsWriter::fileName() const
 { return m_fileName; }
@@ -408,7 +406,7 @@ void PersistentSettingsWriter::setContents(const Store &data)
     m_savedData = data;
 }
 
-bool PersistentSettingsWriter::write(const Store &data, QString *errorString) const
+Result<> PersistentSettingsWriter::write(const Store &data) const
 {
     m_fileName.parentDir().ensureWritableDir();
     FileSaver saver(m_fileName, QIODevice::Text);
@@ -434,15 +432,14 @@ bool PersistentSettingsWriter::write(const Store &data, QString *errorString) co
 
         saver.setResult(&w);
     }
-    bool ok = saver.finalize();
-    if (ok) {
-        m_savedData = data;
-    } else if (errorString) {
+
+    if (const Result<> res = saver.finalize(); !res) {
         m_savedData.clear();
-        *errorString = saver.errorString();
+        return res;
     }
 
-    return ok;
+    m_savedData = data;
+    return ResultOk;
 }
 
 } // namespace Utils

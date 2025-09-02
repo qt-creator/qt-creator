@@ -143,7 +143,7 @@ Utils::Id GccParser::id()
 
 QList<OutputLineParser *> GccParser::gccParserSuite()
 {
-    return {new GccParser, new Internal::LldParser, new LdParser};
+    return {new GccParser, new Internal::LldParser, new Internal::LdParser};
 }
 
 void GccParser::gccCreateOrAmendTask(
@@ -288,7 +288,7 @@ bool GccParser::isContinuation(const QString &newLine) const
 
 namespace ProjectExplorer::Internal {
 
-void ProjectExplorerTest::testGccOutputParsers_data()
+void ProjectExplorerTest::testGccOutputParser_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
@@ -301,7 +301,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                           const Utils::FilePath &file,
                           int line,
                           int column,
-                          const QVector<QTextLayout::FormatRange> formats)
+                          const QList<QTextLayout::FormatRange> formats)
     {
         CompileTask task(type, description, file, line, column);
         task.formats = formats;
@@ -344,7 +344,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                "/temp/test/untitled8/main.cpp:9: error: `sfasdf' undeclared (first use this function)",
                                FilePath::fromUserInput("/temp/test/untitled8/main.cpp"),
                                9, 0,
-                               QVector<QTextLayout::FormatRange>()
+                               QList<QTextLayout::FormatRange>()
                                    << formatRange(46, 0)
                                    << formatRange(46, 29, "olpfile:///temp/test/untitled8/main.cpp::0::0")
                                    << formatRange(75, 39)
@@ -406,63 +406,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                FilePath::fromUserInput("/temp/test/untitled8/main.cpp"),
                                8, 2));
 
-    QVector<QTextLayout::FormatRange> formatRanges;
-    if (HostOsInfo::isWindowsHost()) {
-        formatRanges << formatRange(51, 28)
-                     << formatRange(79, 31, "olpfile://C:/temp/test/untitled8/main.cpp::8::-1")
-                     << formatRange(110, 54);
-    } else {
-        formatRanges << formatRange(51, 113);
-    }
-    QTest::newRow("Undefined reference (debug)")
-            << QString::fromLatin1("main.o: In function `main':\n"
-                                   "C:\\temp\\test\\untitled8/main.cpp:8: undefined reference to `MainWindow::doSomething()'\n"
-                                   "collect2: ld returned 1 exit status")
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << (Tasks()
-                << compileTask(Task::Error,
-                               "undefined reference to `MainWindow::doSomething()'\n"
-                               "main.o: In function `main':\n"
-                               "C:\\temp\\test\\untitled8/main.cpp:8: undefined reference to `MainWindow::doSomething()'",
-                               FilePath::fromUserInput("C:\\temp\\test\\untitled8/main.cpp"),
-                               8, 0,
-                               formatRanges)
-                << CompileTask(Task::Error, "collect2: ld returned 1 exit status"));
-
-    formatRanges.clear();
-    if (HostOsInfo::isWindowsHost()) {
-        formatRanges << formatRange(51, 28)
-                     << formatRange(79, 31, "olpfile://C:/temp/test/untitled8/main.cpp::-1::-1")
-                     << formatRange(110, 65);
-    } else {
-        formatRanges << formatRange(51, 124);
-    }
-    QTest::newRow("Undefined reference (release)")
-            << QString::fromLatin1("main.o: In function `main':\n"
-                                   "C:\\temp\\test\\untitled8/main.cpp:(.text+0x40): undefined reference to `MainWindow::doSomething()'\n"
-                                   "collect2: ld returned 1 exit status")
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << (Tasks()
-                << compileTask(Task::Error,
-                               "undefined reference to `MainWindow::doSomething()'\n"
-                               "main.o: In function `main':\n"
-                               "C:\\temp\\test\\untitled8/main.cpp:(.text+0x40): undefined reference to `MainWindow::doSomething()'",
-                               FilePath::fromUserInput("C:\\temp\\test\\untitled8/main.cpp"),
-                               -1, 0,
-                               formatRanges)
-                << CompileTask(Task::Error, "collect2: ld returned 1 exit status"));
-
-    QTest::newRow("linker: dll format not recognized")
-            << QString::fromLatin1("c:\\Qt\\4.6\\lib/QtGuid4.dll: file not recognized: File format not recognized")
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << (Tasks()
-                << CompileTask(Task::Error,
-                               "file not recognized: File format not recognized",
-                               FilePath::fromUserInput("c:\\Qt\\4.6\\lib/QtGuid4.dll")));
-
+    QList<QTextLayout::FormatRange> formatRanges;
     QTest::newRow("Invalid rpath")
             << QString::fromLatin1("g++: /usr/local/lib: No such file or directory")
             << OutputParserTester::STDERR
@@ -484,7 +428,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                "../../../../master/src/plugins/debugger/gdb/gdbengine.cpp:2114: warning: unused variable 'index'",
                                FilePath::fromUserInput("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"),
                                2114, 0,
-                               QVector<QTextLayout::FormatRange>()
+                               QList<QTextLayout::FormatRange>()
                                    << formatRange(24, 272))
                 << CompileTask(Task::Warning,
                                "unused variable 'handler'",
@@ -504,7 +448,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                "/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp:264: error: expected primary-expression before ':' token",
                                FilePath::fromUserInput("/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp"),
                                264, 0,
-                               QVector<QTextLayout::FormatRange>()
+                               QList<QTextLayout::FormatRange>()
                                    << formatRange(45, 0)
                                    << formatRange(45, 68, "olpfile:///home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp::0::0")
                                    << formatRange(113, 106)
@@ -522,22 +466,6 @@ void ProjectExplorerTest::testGccOutputParsers_data()
             << QStringList() << QStringList{"distcc[73168] (dcc_get_hostlist) Warning: no hostlist is set; can't distribute work",
                                             "distcc[73168] (dcc_build_somewhere) Warning: failed to distribute, running locally instead"}
             << Tasks();
-
-    QTest::newRow("ld warning (QTCREATORBUG-905)")
-            << QString::fromLatin1("ld: warning: Core::IEditor* QVariant::value<Core::IEditor*>() const has different visibility (hidden) in .obj/debug-shared/openeditorsview.o and (default) in .obj/debug-shared/editormanager.o")
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << (Tasks()
-                 << CompileTask(Task::Warning,
-                         "Core::IEditor* QVariant::value<Core::IEditor*>() const has different visibility (hidden) in .obj/debug-shared/openeditorsview.o and (default) in .obj/debug-shared/editormanager.o"));
-
-    QTest::newRow("ld fatal")
-            << QString::fromLatin1("ld: fatal: Symbol referencing errors. No output written to testproject")
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << (Tasks()
-                 << CompileTask(Task::Error,
-                         "Symbol referencing errors. No output written to testproject"));
 
     QTest::newRow("Teambuilder issues")
             << QString::fromLatin1("TeamBuilder Client:: error: could not find Scheduler, running Job locally...")
@@ -567,7 +495,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                 "/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c:194: warning: suggest explicit braces to avoid ambiguous 'else'",
                                 FilePath::fromUserInput("/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c"),
                                 194, 0,
-                                QVector<QTextLayout::FormatRange>()
+                                QList<QTextLayout::FormatRange>()
                                     << formatRange(50, 0)
                                     << formatRange(50, 67, "olpfile:///Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c::0::0")
                                     << formatRange(117, 216)
@@ -579,14 +507,6 @@ void ProjectExplorerTest::testGccOutputParsers_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory")
             << Tasks();
-
-    QTest::newRow("ld: missing library")
-            << QString::fromLatin1("/usr/bin/ld: cannot find -ldoesnotexist")
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << (Tasks()
-                << CompileTask(Task::Error,
-                               "cannot find -ldoesnotexist"));
 
     QTest::newRow("In function")
             << QString::fromLatin1("../../scriptbug/main.cpp: In function void foo(i) [with i = double]:\n"
@@ -601,7 +521,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                 "../../scriptbug/main.cpp:22: instantiated from here",
                                 FilePath::fromUserInput("../../scriptbug/main.cpp"),
                                 -1, 0,
-                                QVector<QTextLayout::FormatRange>()
+                                QList<QTextLayout::FormatRange>()
                                     << formatRange(43, 120))
                  << CompileTask(Task::Warning,
                                 "unused variable c",
@@ -643,7 +563,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                 "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]",
                                 FilePath::fromUserInput("../../scriptbug/main.cpp"),
                                 -1, 0,
-                                QVector<QTextLayout::FormatRange>()
+                                QList<QTextLayout::FormatRange>()
                                     << formatRange(17, 195))
                 << CompileTask(Task::Unknown,
                                "instantiated from here",
@@ -664,36 +584,6 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                 FilePath::fromUserInput("/home/code/test.cpp"),
                                 54, 38));
 
-    formatRanges.clear();
-    if (HostOsInfo::isWindowsHost()) {
-        formatRanges << formatRange(46, 44)
-                     << formatRange(90, 39, "olpfile://M:/Development/x64/QtPlot/qplotaxis.cpp::26::-1")
-                     << formatRange(129, 50);
-    } else {
-        formatRanges << formatRange(46, 133);
-    }
-    QTest::newRow("QTCREATORBUG-597")
-            << QString::fromLatin1("debug/qplotaxis.o: In function `QPlotAxis':\n"
-                                   "M:\\Development\\x64\\QtPlot/qplotaxis.cpp:26: undefined reference to `vtable for QPlotAxis'\n"
-                                   "M:\\Development\\x64\\QtPlot/qplotaxis.cpp:26: undefined reference to `vtable for QPlotAxis'\n"
-                                   "collect2: ld returned 1 exit status")
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << (Tasks()
-                << compileTask(Task::Error,
-                               "undefined reference to `vtable for QPlotAxis'\n"
-                               "debug/qplotaxis.o: In function `QPlotAxis':\n"
-                               "M:\\Development\\x64\\QtPlot/qplotaxis.cpp:26: undefined reference to `vtable for QPlotAxis'",
-                               FilePath::fromUserInput("M:\\Development\\x64\\QtPlot/qplotaxis.cpp"),
-                               26, 0,
-                               formatRanges)
-                << CompileTask(Task::Error,
-                               "undefined reference to `vtable for QPlotAxis'",
-                               FilePath::fromUserInput("M:\\Development\\x64\\QtPlot/qplotaxis.cpp"),
-                               26)
-                << CompileTask(Task::Error,
-                               "collect2: ld returned 1 exit status"));
-
     QTest::newRow("instantiated from here should not be an error")
             << QString::fromLatin1("../stl/main.cpp: In member function typename _Vector_base<_Tp, _Alloc>::_Tp_alloc_type::const_reference Vector<_Tp, _Alloc>::at(int) [with _Tp = Point, _Alloc = Allocator<Point>]:\n"
                                    "../stl/main.cpp:38:   instantiated from here\n"
@@ -709,7 +599,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                "../stl/main.cpp:38:   instantiated from here",
                                FilePath::fromUserInput("../stl/main.cpp"),
                                -1, 0,
-                               QVector<QTextLayout::FormatRange>()
+                               QList<QTextLayout::FormatRange>()
                                    << formatRange(163, 224))
                 << CompileTask(Task::Warning,
                                "returning reference to temporary",
@@ -720,7 +610,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                "../stl/main.cpp:31: warning: unused parameter index",
                                FilePath::fromUserInput("../stl/main.cpp"),
                                31, 0,
-                               QVector<QTextLayout::FormatRange>()
+                               QList<QTextLayout::FormatRange>()
                                    << formatRange(23, 85)));
 
     formatRanges.clear();
@@ -768,7 +658,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                  "      |                                                ^",
                                  FilePath::fromUserInput("perfattributes.cpp"),
                                  28, 48,
-                                 QVector<QTextLayout::FormatRange>()
+                                 QList<QTextLayout::FormatRange>()
                                      << formatRange(170, 400))};
     QTest::newRow("QTCREATORBUG-2206")
             << QString::fromLatin1("../../../src/XmlUg/targetdelete.c: At top level:")
@@ -793,21 +683,12 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                       "/Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh:1134:26: warning: no newline at end of file",
                       FilePath::fromUserInput("/Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh"),
                       1134, 26,
-                      QVector<QTextLayout::FormatRange>()
+                      QList<QTextLayout::FormatRange>()
                           << formatRange(26, 22)
                           << formatRange(48, 39, "olpfile:///Symbian/SDK/EPOC32/INCLUDE/GCCE/GCCE.h::15::0")
                           << formatRange(87, 46)
                           << formatRange(133, 50, "olpfile:///Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh::1134::26")
                           << formatRange(183, 44))};
-
-    QTest::newRow("Linker fail (release build)")
-            << QString::fromLatin1("release/main.o:main.cpp:(.text+0x42): undefined reference to `MainWindow::doSomething()'")
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << (Tasks()
-                << CompileTask(Task::Error,
-                               "undefined reference to `MainWindow::doSomething()'",
-                               FilePath::fromUserInput("main.cpp")));
 
     QTest::newRow("enumeration warning")
             << QString::fromLatin1("../../../src/shared/proparser/profileevaluator.cpp: In member function 'ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(const ProString&, const ProStringList&)':\n"
@@ -821,7 +702,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                 "../../../src/shared/proparser/profileevaluator.cpp:2817:9: warning: case value '0' not in enumerated type 'ProFileEvaluator::Private::TestFunc'",
                                 FilePath::fromUserInput("../../../src/shared/proparser/profileevaluator.cpp"),
                                 2817, 9,
-                                QVector<QTextLayout::FormatRange>()
+                                QList<QTextLayout::FormatRange>()
                                     << formatRange(76, 351)));
 
     QTest::newRow("include with line:column info")
@@ -836,7 +717,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                    "./mw.h:4:0: warning: \"STUPID_DEFINE\" redefined",
                    FilePath::fromUserInput("./mw.h"),
                    4, 0,
-                   QVector<QTextLayout::FormatRange>()
+                   QList<QTextLayout::FormatRange>()
                        << formatRange(26, 88))};
 
     QTest::newRow("instantiation with line:column info")
@@ -852,30 +733,12 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                 "file.cpp:87:10: instantiated from here",
                                 FilePath::fromUserInput("file.h"),
                                 -1, 0,
-                                QVector<QTextLayout::FormatRange>()
+                                QList<QTextLayout::FormatRange>()
                                     << formatRange(172, 218))
                  << CompileTask(Task::Warning,
                                 "comparison between signed and unsigned integer expressions [-Wsign-compare]",
                                 FilePath::fromUserInput("file.h"),
                                 21, 5));
-
-    QTest::newRow("linker error") // QTCREATORBUG-3107
-            << QString::fromLatin1("cns5k_ins_parser_tests.cpp:(.text._ZN20CNS5kINSParserEngine21DropBytesUntilStartedEP14CircularBufferIhE[CNS5kINSParserEngine::DropBytesUntilStarted(CircularBuffer<unsigned char>*)]+0x6d): undefined reference to `CNS5kINSPacket::SOH_BYTE'")
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << (Tasks()
-                << CompileTask(Task::Error,
-                               "undefined reference to `CNS5kINSPacket::SOH_BYTE'",
-                               FilePath::fromUserInput("cns5k_ins_parser_tests.cpp")));
-
-    QTest::newRow("libimf warning")
-            << QString::fromLatin1("libimf.so: warning: warning: feupdateenv is not implemented and will always fail")
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << (Tasks()
-                 << CompileTask(Task::Warning,
-                                "warning: feupdateenv is not implemented and will always fail",
-                                FilePath::fromUserInput("libimf.so")));
 
     QTest::newRow("gcc 4.8")
             << QString::fromLatin1("In file included from /home/code/src/creator/src/libs/extensionsystem/pluginerrorview.cpp:31:0:\n"
@@ -893,7 +756,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                    "                         ^",
                    FilePath::fromUserInput(".uic/ui_pluginerrorview.h"),
                    14, 25,
-                   QVector<QTextLayout::FormatRange>()
+                   QList<QTextLayout::FormatRange>()
                        << formatRange(41, 22)
                        << formatRange(63, 67, "olpfile:///home/code/src/creator/src/libs/extensionsystem/pluginerrorview.cpp::31::0")
                        << formatRange(130, 146))};
@@ -916,7 +779,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                    "main.cpp:7:22: error: within this context",
                    FilePath::fromUserInput("/usr/include/qt4/QtCore/qstring.h"),
                    597, 5,
-                   QVector<QTextLayout::FormatRange>()
+                   QList<QTextLayout::FormatRange>()
                        << formatRange(43, 22)
                        << formatRange(65, 31, "olpfile:///usr/include/qt4/QtCore/QString::1::0")
                        << formatRange(96, 40)
@@ -924,208 +787,6 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                        << formatRange(169, 28)
                        << formatRange(197, 33, "olpfile:///usr/include/qt4/QtCore/qstring.h::597::5")
                        << formatRange(230, 99))};
-
-    QTest::newRow("ld: Multiple definition error")
-            << QString::fromLatin1("foo.o: In function `foo()':\n"
-                                   "/home/user/test/foo.cpp:2: multiple definition of `foo()'\n"
-                                   "bar.o:/home/user/test/bar.cpp:4: first defined here\n"
-                                   "collect2: error: ld returned 1 exit status")
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << (Tasks()
-                << compileTask(Task::Error,
-                               "multiple definition of `foo()'\n"
-                               "foo.o: In function `foo()':\n"
-                               "/home/user/test/foo.cpp:2: multiple definition of `foo()'",
-                               FilePath::fromUserInput("/home/user/test/foo.cpp"),
-                               2, 0,
-                               QVector<QTextLayout::FormatRange>()
-                                   << formatRange(31, 28)
-                                   << formatRange(59, 23, "olpfile:///home/user/test/foo.cpp::2::-1")
-                                   << formatRange(82, 34))
-                << CompileTask(Task::Error,
-                               "first defined here",
-                               FilePath::fromUserInput("/home/user/test/bar.cpp"),
-                               4)
-                << CompileTask(Task::Error,
-                               "collect2: error: ld returned 1 exit status"));
-
-    QTest::newRow("ld: .data section")
-            << QString::fromLatin1("foo.o:(.data+0x0): multiple definition of `foo'\n"
-                                   "bar.o:(.data+0x0): first defined here\n"
-                                   "collect2: error: ld returned 1 exit status")
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << (Tasks()
-                << CompileTask(Task::Error,
-                               "multiple definition of `foo'",
-                               FilePath::fromUserInput("foo.o"), -1)
-                << CompileTask(Task::Error,
-                               "first defined here",
-                               FilePath::fromUserInput("bar.o"), -1)
-                << CompileTask(Task::Error,
-                               "collect2: error: ld returned 1 exit status"));
-
-    QTest::newRow("Undefined symbol (Apple ld)")
-            << "Undefined symbols for architecture x86_64:\n"
-               "  \"SvgLayoutTest()\", referenced from:\n"
-               "      _main in main.cpp.o"
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << Tasks({CompileTask(Task::Error,
-                              "Undefined symbols for architecture x86_64:\n"
-                              "Undefined symbols for architecture x86_64:\n"
-                              "  \"SvgLayoutTest()\", referenced from:\n"
-                              "      _main in main.cpp.o",
-                              "main.cpp.o")});
-
-    QTest::newRow("ld: undefined member function reference")
-            << "obj/gtest-clang-printing.o:gtest-clang-printing.cpp:llvm::VerifyDisableABIBreakingChecks: error: undefined reference to 'llvm::DisableABIBreakingChecks'"
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << (Tasks()
-                << CompileTask(Task::Error,
-                               "error: undefined reference to 'llvm::DisableABIBreakingChecks'",
-                               "gtest-clang-printing.cpp"));
-
-    const auto task = [](Task::TaskType type, const QString &msg,
-                                        const QString &file = {}, int line = -1) {
-        return CompileTask(type, msg, FilePath::fromString(file), line);
-    };
-    const auto errorTask = [&task](const QString &msg, const QString &file = {}, int line = -1) {
-        return task(Task::Error, msg, file, line);
-    };
-    const auto unknownTask = [&task](const QString &msg, const QString &file = {}, int line = -1) {
-        return task(Task::Unknown, msg, file, line);
-    };
-    QTest::newRow("lld: undefined reference with debug info")
-            << "ld.lld: error: undefined symbol: func()\n"
-               ">>> referenced by test.cpp:5\n"
-               ">>>               /tmp/ccg8pzRr.o:(main)\n"
-               "collect2: error: ld returned 1 exit status"
-            << OutputParserTester::STDERR << QStringList() << QStringList()
-            << Tasks({
-                   errorTask("ld.lld: error: undefined symbol: func()"),
-                   unknownTask("referenced by test.cpp:5", "test.cpp", 5),
-                   unknownTask("/tmp/ccg8pzRr.o:(main)",  "/tmp/ccg8pzRr.o"),
-                   errorTask("collect2: error: ld returned 1 exit status")});
-
-    QTest::newRow("lld: undefined reference with debug info (more verbose format)")
-            << "ld.lld: error: undefined symbol: someFunc()\n"
-               ">>> referenced by main.cpp:10 (/tmp/untitled4/main.cpp:10)\n"
-               ">>>               /tmp/Debug4/untitled4.5abe06ac/3a52ce780950d4d9/main.cpp.o:(main)\n"
-               "clang-8: error: linker command failed with exit code 1 (use -v to see invocation)"
-            << OutputParserTester::STDERR << QStringList()
-            << QStringList("clang-8: error: linker command failed with exit code 1 (use -v to see invocation)")
-            << Tasks{
-                   errorTask("ld.lld: error: undefined symbol: someFunc()"),
-                   unknownTask("referenced by main.cpp:10 (/tmp/untitled4/main.cpp:10)",
-                               "/tmp/untitled4/main.cpp", 10),
-                   unknownTask("/tmp/Debug4/untitled4.5abe06ac/3a52ce780950d4d9/main.cpp.o:(main)",
-                               "/tmp/Debug4/untitled4.5abe06ac/3a52ce780950d4d9/main.cpp.o")};
-
-    QTest::newRow("lld: undefined reference without debug info")
-            << "ld.lld: error: undefined symbol: func()\n"
-               ">>> referenced by test.cpp\n"
-               ">>>               /tmp/ccvjyJph.o:(main)\n"
-               "collect2: error: ld returned 1 exit status"
-            << OutputParserTester::STDERR << QStringList() << QStringList()
-            << Tasks{
-                   errorTask("ld.lld: error: undefined symbol: func()"),
-                   unknownTask("referenced by test.cpp", "test.cpp"),
-                   unknownTask("/tmp/ccvjyJph.o:(main)",  "/tmp/ccvjyJph.o"),
-                   errorTask("collect2: error: ld returned 1 exit status")};
-
-    if (HostOsInfo::isWindowsHost()) {
-        QTest::newRow("lld: undefined reference with mingw")
-                << "lld-link: error: undefined symbol: __Z4funcv\n"
-                   ">>> referenced by C:\\Users\\orgads\\AppData\\Local\\Temp\\cccApKoz.o:(.text)\n"
-                   "collect2.exe: error: ld returned 1 exit status"
-                << OutputParserTester::STDERR << QStringList() << QStringList()
-                << Tasks{
-                       errorTask("lld-link: error: undefined symbol: __Z4funcv"),
-                       unknownTask("referenced by C:\\Users\\orgads\\AppData\\Local\\Temp\\cccApKoz.o:(.text)",
-                                   "C:/Users/orgads/AppData/Local/Temp/cccApKoz.o"),
-                       errorTask("collect2.exe: error: ld returned 1 exit status")};
-    }
-
-    QTest::newRow("lld: multiple definitions with debug info")
-            << "ld.lld: error: duplicate symbol: func()\n"
-               ">>> defined at test1.cpp:1\n"
-               ">>>            test1.o:(func())\n"
-               ">>> defined at test1.cpp:1\n"
-               ">>>            test1.o:(.text+0x0)\n"
-               "collect2: error: ld returned 1 exit status"
-            << OutputParserTester::STDERR << QStringList() << QStringList()
-            << Tasks{
-                   errorTask("ld.lld: error: duplicate symbol: func()"),
-                   unknownTask("defined at test1.cpp:1", "test1.cpp", 1),
-                   unknownTask("test1.o:(func())",  "test1.o"),
-                   unknownTask("defined at test1.cpp:1", "test1.cpp", 1),
-                   unknownTask("test1.o:(.text+0x0)",  "test1.o"),
-                   errorTask("collect2: error: ld returned 1 exit status")};
-
-    QTest::newRow("lld: multiple definitions with debug info (more verbose format)")
-            << "ld.lld: error: duplicate symbol: theFunc()\n"
-               ">>> defined at file.cpp:1 (/tmp/untitled3/file.cpp:1)\n"
-               ">>>            /tmp/Debug/untitled3.dade828b/3a52ce780950d4d9/file.cpp.o:(theFunc())\n"
-               ">>> defined at main.cpp:5 (/tmp/untitled3/main.cpp:5)\n"
-               ">>>            /tmp/Debug/untitled3.dade828b/3a52ce780950d4d9/main.cpp.o:(.text+0x0)\n"
-               "collect2: error: ld returned 1 exit status"
-            << OutputParserTester::STDERR << QStringList() << QStringList()
-            << Tasks{
-                   errorTask("ld.lld: error: duplicate symbol: theFunc()"),
-                   unknownTask("defined at file.cpp:1 (/tmp/untitled3/file.cpp:1)",
-                               "/tmp/untitled3/file.cpp", 1),
-                   unknownTask("/tmp/Debug/untitled3.dade828b/3a52ce780950d4d9/file.cpp.o:(theFunc())",
-                               "/tmp/Debug/untitled3.dade828b/3a52ce780950d4d9/file.cpp.o"),
-                   unknownTask("defined at main.cpp:5 (/tmp/untitled3/main.cpp:5)",
-                               "/tmp/untitled3/main.cpp", 5),
-                   unknownTask("/tmp/Debug/untitled3.dade828b/3a52ce780950d4d9/main.cpp.o:(.text+0x0)",
-                               "/tmp/Debug/untitled3.dade828b/3a52ce780950d4d9/main.cpp.o"),
-                   errorTask("collect2: error: ld returned 1 exit status")};
-
-    QTest::newRow("lld: multiple definitions without debug info")
-            << "ld.lld: error: duplicate symbol: func()\n"
-               ">>> defined at test1.cpp\n"
-               ">>>            test1.o:(func())\n"
-               ">>> defined at test1.cpp\n"
-               ">>>            test1.o:(.text+0x0)\n"
-               "collect2: error: ld returned 1 exit status"
-            << OutputParserTester::STDERR << QStringList() << QStringList()
-            << Tasks{
-                   errorTask("ld.lld: error: duplicate symbol: func()"),
-                   unknownTask("defined at test1.cpp", "test1.cpp"),
-                   unknownTask("test1.o:(func())",  "test1.o"),
-                   unknownTask("defined at test1.cpp", "test1.cpp"),
-                   unknownTask("test1.o:(.text+0x0)",  "test1.o"),
-                   errorTask("collect2: error: ld returned 1 exit status")};
-
-    if (HostOsInfo::isWindowsHost()) {
-        QTest::newRow("lld: multiple definitions with mingw")
-                << "lld-link: error: duplicate symbol: __Z4funcv in test1.o and in test2.o\n"
-                   "collect2.exe: error: ld returned 1 exit status"
-                << OutputParserTester::STDERR << QStringList() << QStringList()
-                << Tasks{
-                       errorTask("lld-link: error: duplicate symbol: __Z4funcv in test1.o and in test2.o"),
-                       errorTask("collect2.exe: error: ld returned 1 exit status", {})};
-    }
-
-    QTest::newRow("Mac: ranlib warning")
-            << QString::fromLatin1("ranlib: file: lib/libtest.a(Test0.cpp.o) has no symbols")
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << (Tasks()
-                << CompileTask(Task::Warning,
-                               "file: lib/libtest.a(Test0.cpp.o) has no symbols"));
-
-    QTest::newRow("Mac: ranlib warning2")
-            << QString::fromLatin1("/path/to/XCode/and/ranlib: file: lib/libtest.a(Test0.cpp.o) has no symbols")
-            << OutputParserTester::STDERR
-            << QStringList() << QStringList()
-            << (Tasks()
-                << CompileTask(Task::Warning,
-                               "file: lib/libtest.a(Test0.cpp.o) has no symbols"));
 
     QTest::newRow("GCC 9 output")
             << QString("In file included from /usr/include/qt/QtCore/qlocale.h:43,\n"
@@ -1180,7 +841,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                  "      |                      ^~~~~~~)",
                                  FilePath::fromUserInput("/usr/include/qt/QtCore/qvariant.h"),
                                  273, 25,
-                                 QVector<QTextLayout::FormatRange>()
+                                 QList<QTextLayout::FormatRange>()
                                      << formatRange(140, 22)
                                      << formatRange(162, 32, "olpfile:///usr/include/qt/QtCore/qlocale.h::43::0")
                                      << formatRange(194, 27)
@@ -1208,7 +869,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                  "     |                boxed_value<[...]>",
                                  FilePath::fromUserInput("t.cc"),
                                  15, 4,
-                                 QVector<QTextLayout::FormatRange>()
+                                 QList<QTextLayout::FormatRange>()
                                      << formatRange(93, 460)),
                       compileTask(Task::Error,
                                   "‘string’ in namespace ‘std’ does not name a type\n"
@@ -1220,7 +881,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                   "  1 | std::string test(void)",
                                   FilePath::fromUserInput("incomplete.c"),
                                   1, 6,
-                                  QVector<QTextLayout::FormatRange>()
+                                  QList<QTextLayout::FormatRange>()
                                       << formatRange(49, 284)),
                       compileTask(Task::Warning,
                                   "passing argument 2 of ‘callee’ makes pointer from integer without a cast [-Wint-conversion]\n"
@@ -1235,7 +896,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                   "    |                            ~~~~~~~~~~~~^~~",
                                   FilePath::fromUserInput("param-type-mismatch.c"),
                                   5, 24,
-                                  QVector<QTextLayout::FormatRange>()
+                                  QList<QTextLayout::FormatRange>()
                                       << formatRange(92, 519))};
 
     QTest::newRow(R"("inlined from")")
@@ -1267,7 +928,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                                         "      |         ~~~~~~~~~~~~^~~",
                                  FilePath::fromUserInput("smallstring.h"),
                                  465, 21,
-                                 QVector<QTextLayout::FormatRange>()
+                                 QList<QTextLayout::FormatRange>()
                                      << formatRange(62, 805))};
 
     QTest::newRow(R"("required from")")
@@ -1308,7 +969,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                  "      |       ^~~~~",
                                  FilePath::fromUserInput("moc_helpindexfilter.cpp"),
                                  105, 1,
-                                 QVector<QTextLayout::FormatRange>()
+                                 QList<QTextLayout::FormatRange>()
                                      << formatRange(46, 1458))};
 
     QTest::newRow(R"("requested here")")
@@ -1417,7 +1078,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                "   79 |             apply = [p](XInterface *x) { doit_nest(x, p); };\n"
                "      |                                          ~~~~~~~~^~~~~",
                FilePath::fromUserInput("/data/dev/creator/src/libs/utils/aspects.cpp"), 3454, 13,
-               QVector<QTextLayout::FormatRange>{
+               QList<QTextLayout::FormatRange>{
                    formatRange(82, 22),
                    formatRange(104, 44, "olpfile:///data/dev/creator/src/libs/utils/aspects.cpp::12::0"),
                    formatRange(148, 5),
@@ -1429,10 +1090,10 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                    formatRange(501, 228)})});
 }
 
-void ProjectExplorerTest::testGccOutputParsers()
+void ProjectExplorerTest::testGccOutputParser()
 {
     OutputParserTester testbench;
-    testbench.setLineParsers(GccParser::gccParserSuite());
+    testbench.setLineParsers({new GccParser});
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);

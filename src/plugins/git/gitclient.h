@@ -141,19 +141,26 @@ public:
     void monitorDirectory(const Utils::FilePath &path);
     void stopMonitoring(const Utils::FilePath &path);
 
-    void diffFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
+    enum DiffMode { Unstaged, Staged };
+    void diffFile(const Utils::FilePath &workingDirectory, const QString &fileName,
+                  DiffMode diffMode = Unstaged) const;
     void diffFiles(const Utils::FilePath &workingDirectory,
                    const QStringList &unstagedFileNames,
                    const QStringList &stagedFileNames) const;
     void diffProject(const Utils::FilePath &workingDirectory,
-                     const QString &projectDirectory) const;
-    void diffRepository(const Utils::FilePath &workingDirectory) const
+                     const QString &projectDirectory, DiffMode diffMode = Unstaged) const;
+    void diffUnstagedRepository(const Utils::FilePath &workingDirectory) const
     {
-        return diffRepository(workingDirectory, {}, {});
+        return diffRepository(workingDirectory, {}, {}, Unstaged);
+    }
+    void diffStagedRepository(const Utils::FilePath &workingDirectory) const
+    {
+        return diffRepository(workingDirectory, {}, {}, Staged);
     }
     void diffRepository(const Utils::FilePath &workingDirectory,
                         const QString &leftCommit,
-                        const QString &rightCommit) const;
+                        const QString &rightCommit,
+                        DiffMode diffMode = Unstaged) const;
     void diffBranch(const Utils::FilePath &workingDirectory,
                     const QString &branchName) const;
     void merge(const Utils::FilePath &workingDirectory, const QStringList &unmergedFileNames = {});
@@ -170,9 +177,9 @@ public:
     void removeStaleRemoteBranches(const Utils::FilePath &workingDirectory, const QString &remote);
     void recoverDeletedFiles(const Utils::FilePath &workingDirectory);
     void addFile(const Utils::FilePath &workingDirectory, const QString &fileName);
-    bool synchronousLog(const Utils::FilePath &workingDirectory, const QStringList &arguments,
-                        QString *output, QString *errorMessage = nullptr,
-                        VcsBase::RunFlags flags = VcsBase::RunFlags::None);
+    Utils::Result<QString> synchronousLog(const Utils::FilePath &workingDirectory,
+                                          const QStringList &arguments,
+                                          VcsBase::RunFlags flags = VcsBase::RunFlags::None);
     bool synchronousAdd(const Utils::FilePath &workingDirectory, const QStringList &files,
                         const QStringList &extraOptions = {});
     bool synchronousDelete(const Utils::FilePath &workingDirectory,
@@ -188,6 +195,7 @@ public:
     bool synchronousApplyPatch(const Utils::FilePath &workingDirectory, const QString &file,
                                QString *errorMessage, const QStringList &extraArguments = {}) const;
     bool synchronousInit(const Utils::FilePath &workingDirectory);
+    bool synchronousAddGitignore(const Utils::FilePath &workingDirectory);
     bool synchronousCheckoutFiles(const Utils::FilePath &workingDirectory, QStringList files = {},
                                   QString revision = {}, QString *errorMessage = nullptr,
                                   bool revertStaging = true);
@@ -291,11 +299,11 @@ public:
     void setConfigValue(const Utils::FilePath &workingDirectory, const QString &configVar,
                         const QString &value) const;
 
-    bool readDataFromCommit(const Utils::FilePath &repoDirectory, const QString &commit,
-                            CommitData &commitData, QString *errorMessage = nullptr,
-                            QString *commitTemplate = nullptr);
-    bool getCommitData(const Utils::FilePath &workingDirectory, QString *commitTemplate,
-                       CommitData &commitData, QString *errorMessage);
+    Utils::Result<CommitData> enrichCommitData(const Utils::FilePath &repoDirectory,
+                                               const QString &commit,
+                                               const CommitData &commitDataIn);
+    Utils::Result<CommitData> getCommitData(CommitType commitType,
+                                            const Utils::FilePath &workingDirectory);
 
     bool addAndCommit(const Utils::FilePath &workingDirectory,
                       const GitSubmitEditorPanelData &data,

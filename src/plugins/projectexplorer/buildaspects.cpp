@@ -31,10 +31,7 @@ namespace ProjectExplorer {
 class BuildDirectoryAspect::Private
 {
 public:
-    Private(Target *target) : target(target) {}
-
     FilePath sourceDir;
-    Target * const target;
     FilePath savedShadowBuildDir;
     QString specialProblem;
     QLabel *genericProblemSpacer;
@@ -43,9 +40,9 @@ public:
     QPointer<InfoLabel> specialProblemLabel;
 };
 
-BuildDirectoryAspect::BuildDirectoryAspect(AspectContainer *container, const BuildConfiguration *bc)
-    : FilePathAspect(container),
-      d(new Private(bc->target()))
+BuildDirectoryAspect::BuildDirectoryAspect(BuildConfiguration *bc)
+    : FilePathAspect(bc),
+      d(new Private)
 {
     setSettingsKey("ProjectExplorer.BuildConfiguration.BuildDirectory");
     setLabelText(Tr::tr("Build directory:"));
@@ -58,14 +55,14 @@ BuildDirectoryAspect::BuildDirectoryAspect(AspectContainer *container, const Bui
 
         const QString problem = updateProblemLabelsHelper(text);
         if (!problem.isEmpty())
-            return QtFuture::makeReadyFuture(expected_str<QString>(make_unexpected(problem)));
+            return QtFuture::makeReadyFuture(Result<QString>(make_unexpected(problem)));
 
         const FilePath newPath = FilePath::fromUserInput(text);
-        const auto buildDevice = BuildDeviceKitAspect::device(d->target->kit());
+        const auto buildDevice = BuildDeviceKitAspect::device(buildConfiguration()->kit());
 
         if (buildDevice && buildDevice->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
             && !buildDevice->rootPath().ensureReachable(newPath)) {
-            return QtFuture::makeReadyFuture((Utils::expected_str<QString>(make_unexpected(
+            return QtFuture::makeReadyFuture((Utils::Result<QString>(make_unexpected(
                 Tr::tr("The build directory is not reachable from the build device.")))));
         }
 
@@ -150,7 +147,7 @@ void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
         });
     }
 
-    const auto buildDevice = BuildDeviceKitAspect::device(d->target->kit());
+    const auto buildDevice = BuildDeviceKitAspect::device(buildConfiguration()->kit());
     if (buildDevice && buildDevice->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         pathChooser()->setAllowPathFromDevice(true);
     else
@@ -218,6 +215,11 @@ QString BuildDirectoryAspect::updateProblemLabelsHelper(const QString &value)
     if (d->specialProblem.isEmpty())
         return genericProblem;
     return genericProblem + '\n' + d->specialProblem;
+}
+
+BuildConfiguration *BuildDirectoryAspect::buildConfiguration() const
+{
+    return qobject_cast<BuildConfiguration *>(container());
 }
 
 SeparateDebugInfoAspect::SeparateDebugInfoAspect(AspectContainer *container)

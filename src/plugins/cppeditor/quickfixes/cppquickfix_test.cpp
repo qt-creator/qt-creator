@@ -3,19 +3,21 @@
 
 #include "cppquickfix_test.h"
 
+#include "../cppeditortr.h"
 #include "../cppeditorwidget.h"
 #include "../cppmodelmanager.h"
 #include "../cppsourceprocessertesthelper.h"
 #include "../cpptoolssettings.h"
+#include "cppquickfix.h"
 #include "cppquickfixassistant.h"
 
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectexplorer.h>
 #include <texteditor/textdocument.h>
-#include <utils/fileutils.h>
 
+#include <QByteArrayList>
 #include <QDebug>
 #include <QDir>
+#include <QDirIterator>
 #include <QtTest>
 
 /*!
@@ -216,8 +218,8 @@ QuickFixOperationTest::QuickFixOperationTest(const QList<TestDocumentPtr> &testD
         // Check
         QString result = testDocument->m_editorWidget->document()->toPlainText();
         removeTrailingWhitespace(result);
-        QEXPECT_FAIL("escape string literal: raw string literal", "FIXME", Continue);
-        QEXPECT_FAIL("escape string literal: unescape adjacent literals", "FIXME", Continue);
+        QEXPECT_FAIL("escape-raw-string", "FIXME", Continue);
+        QEXPECT_FAIL("unescape-adjacent-literals", "FIXME", Continue);
         if (!expectedFailMessage.isEmpty())
             QEXPECT_FAIL("", expectedFailMessage.data(), Continue);
         else if (result != testDocument->m_expectedSource) {
@@ -242,6 +244,167 @@ void QuickFixOperationTest::run(const QList<TestDocumentPtr> &testDocuments,
     ProjectExplorer::HeaderPaths headerPaths;
     headerPaths.push_back(ProjectExplorer::HeaderPath::makeUser(headerPath));
     QuickFixOperationTest(testDocuments, factory, headerPaths, operationIndex);
+}
+
+CppQuickFixTestObject::~CppQuickFixTestObject() = default;
+
+CppQuickFixTestObject::CppQuickFixTestObject(std::unique_ptr<CppQuickFixFactory> &&factory)
+    : m_factory(std::move(factory)) {}
+
+void CppQuickFixTestObject::initTestCase()
+{
+    QString testName = objectName();
+    if (testName.isEmpty()) {
+        const QStringList classNameComponents
+            = QString::fromLatin1(metaObject()->className()).split("::", Qt::SkipEmptyParts);
+        QVERIFY(!classNameComponents.isEmpty());
+        testName = classNameComponents.last();
+    }
+    const QDir testDir(QLatin1String(":/cppeditor/testcases/") + testName);
+    QVERIFY2(testDir.exists(), qPrintable(testDir.absolutePath()));
+    const QStringList subDirs = testDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
+    for (const QString &subDir : subDirs) {
+        TestData testData;
+        QDirIterator dit(testDir.absoluteFilePath(subDir));
+        while (dit.hasNext()) {
+            const QFileInfo fi = dit.nextFileInfo();
+            const auto readFile = [&]() -> Utils::expected<QByteArray, QString> {
+                QFile f(fi.absoluteFilePath());
+                if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+                    return Utils::make_unexpected(
+                        Tr::tr("Cannot open \"%1\"").arg(f.fileName()));
+                return f.readAll();
+            };
+            if (fi.fileName() == "description.txt") {
+                const auto t = readFile();
+                if (!t)
+                    QVERIFY2(false, qPrintable(t.error()));
+                testData.tag = t->trimmed();
+                continue;
+            }
+            if (fi.fileName() == "opindex.txt") {
+                const auto t = readFile();
+                if (!t)
+                    QVERIFY2(false, qPrintable(t.error()));
+                bool ok;
+                testData.opIndex = t->trimmed().toInt(&ok);
+                QVERIFY2(ok && testData.opIndex >= 0, t->constData());
+                continue;
+            }
+            if (fi.fileName() == "fail.txt") {
+                const auto m = readFile();
+                if (!m)
+                    QVERIFY2(false, qPrintable(m.error()));
+                testData.failMessage = m->trimmed();
+                continue;
+            }
+            if (fi.fileName() == "properties.txt") {
+                const auto p = readFile();
+                if (!p)
+                    QVERIFY2(false, qPrintable(p.error()));
+                const QByteArrayList lines = p->trimmed().split('\n');
+                for (QByteArray line : lines) {
+                    line = line.trimmed();
+                    if (line.isEmpty())
+                        continue;
+                    const int colonOffset = line.indexOf(':');
+                    if (colonOffset == -1) {
+                        testData.properties.insert(QString::fromUtf8(line), true);
+                    } else {
+                        testData.properties.insert(
+                            QString::fromUtf8(line.left(colonOffset)),
+                            QString::fromUtf8(line.mid(colonOffset + 1)));
+                    }
+                }
+                continue;
+            }
+            if (fi.fileName().startsWith("original_")) {
+                const auto o = readFile();
+                if (!o)
+                    QVERIFY2(false, qPrintable(o.error()));
+                QVERIFY2(!o->isEmpty(), qPrintable(fi.absoluteFilePath()));
+                testData.files[fi.fileName().mid(9)].first = *o;
+                continue;
+            }
+            if (fi.fileName().startsWith("expected_")) {
+                const auto e = readFile();
+                if (!e)
+                    QVERIFY2(false, qPrintable(e.error()));
+                testData.files[fi.fileName().mid(9)].second = *e;
+                continue;
+            }
+            QVERIFY2(false, qPrintable(fi.absoluteFilePath()));
+        }
+        if (testData.tag.isEmpty())
+            testData.tag = subDir.toUtf8();
+        QVERIFY(!testData.files.isEmpty());
+        m_testData.push_back(std::move(testData));
+    }
+    QVERIFY(!m_testData.isEmpty());
+}
+
+void CppQuickFixTestObject::cleanupTestCase()
+{
+    m_testData.clear();
+}
+
+void CppQuickFixTestObject::test_data()
+{
+    QTest::addColumn<QByteArrayList>("fileNames");
+    QTest::addColumn<QByteArrayList>("original");
+    QTest::addColumn<QByteArrayList>("expected");
+    QTest::addColumn<int>("opIndex");
+    QTest::addColumn<QByteArray>("failMessage");
+    QTest::addColumn<QVariantMap>("properties");
+
+    for (const TestData &testData : std::as_const(m_testData)) {
+        QByteArrayList fileNames;
+        QByteArrayList original;
+        QByteArrayList expected;
+        for (auto it = testData.files.begin(); it != testData.files.end(); ++it) {
+            fileNames << it.key().toUtf8();
+            original << it.value().first;
+            expected << it.value().second;
+        }
+        QTest::newRow(testData.tag.constData()) << fileNames << original << expected
+                                                << testData.opIndex << testData.failMessage
+                                                << testData.properties;
+    }
+}
+
+void CppQuickFixTestObject::test()
+{
+    QFETCH(QByteArrayList, fileNames);
+    QFETCH(QByteArrayList, original);
+    QFETCH(QByteArrayList, expected);
+    QFETCH(int, opIndex);
+    QFETCH(QByteArray, failMessage);
+    QFETCH(QVariantMap, properties);
+
+    class PropertiesMgr
+    {
+    public:
+        PropertiesMgr(CppQuickFixFactory &factory, const QVariantMap &props)
+            : m_factory(factory), m_props(props)
+        {
+            for (auto it = props.begin(); it != props.end(); ++it)
+                m_factory.setProperty(it.key().toUtf8().constData(), it.value());
+        }
+        ~PropertiesMgr()
+        {
+            for (auto it = m_props.begin(); it != m_props.end(); ++it)
+                m_factory.setProperty(it.key().toUtf8().constData(), {});
+        }
+
+    private:
+        CppQuickFixFactory &m_factory;
+        const QVariantMap &m_props;
+    } propsMgr(*m_factory, properties);
+
+    QList<TestDocumentPtr> testDocuments;
+    for (qsizetype i = 0; i < fileNames.size(); ++i)
+        testDocuments << CppTestDocument::create(fileNames.at(i), original.at(i), expected.at(i));
+    QuickFixOperationTest(testDocuments, m_factory.get(), {}, opIndex, failMessage);
 }
 
 } // namespace Tests

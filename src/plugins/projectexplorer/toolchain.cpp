@@ -966,7 +966,7 @@ QList<ToolchainBundle> ToolchainBundle::collectBundles(
         toolchainsPerBundleId.erase(unbundled);
     }
 
-    for (const Toolchains &tcs : toolchainsPerBundleId)
+    for (const Toolchains &tcs : std::as_const(toolchainsPerBundleId))
         bundles.emplaceBack(tcs, handleMissing);
     return bundles;
 }
@@ -1039,7 +1039,7 @@ QList<ToolchainBundle> ToolchainBundle::bundleUnbundledToolchains(const Toolchai
             if (nextBundle.isEmpty())
                 break;
             const Id newBundleId = Id::generate();
-            for (Toolchain * const tc : nextBundle)
+            for (Toolchain * const tc : std::as_const(nextBundle))
                 tc->setBundleId(newBundleId);
             bundles.emplaceBack(nextBundle, handleMissing);
         }

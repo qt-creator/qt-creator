@@ -1,5 +1,6 @@
 QtcLibrary {
     name: "yaml-cpp"
+    hasCMakeProjectFile: false
 
     cpp.defines: base.concat(["YAML_CPP_DLL", "yaml_cpp_EXPORTS"])
     cpp.includePaths: [product.sourceDirectory + "/include/"]

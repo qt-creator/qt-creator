@@ -31,13 +31,7 @@ namespace ClangFormat {
 
 static bool isBeautifierPluginActivated()
 {
-    const ExtensionSystem::PluginSpecs specs = ExtensionSystem::PluginManager::plugins();
-    return std::find_if(specs.begin(),
-                        specs.end(),
-                        [](ExtensionSystem::PluginSpec *spec) {
-                            return spec->id() == "beautifier" && spec->isEffectivelyEnabled();
-                        })
-           != specs.end();
+    return ExtensionSystem::PluginManager::specExistsAndIsEnabled("beautifier");
 }
 
 static bool isBeautifierOnSaveActivated()
@@ -190,7 +184,7 @@ bool ClangFormatForwardingIndenter::formatOnSave() const
 }
 
 TextEditor::IndentationForBlock ClangFormatForwardingIndenter::indentationForBlocks(
-    const QVector<QTextBlock> &blocks,
+    const QList<QTextBlock> &blocks,
     const TextEditor::TabSettings &tabSettings,
     int cursorPositionInEditor)
 {

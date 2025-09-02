@@ -6,6 +6,7 @@
 #include "builderutils.h"
 
 #include <QAction>
+#include <QFrame>
 #include <QString>
 
 #include <initializer_list>
@@ -104,7 +105,9 @@ public:
     int stretch = -1;
     int spanCols = 1;
     int spanRows = 1;
+    Qt::Alignment alignment = {};
     bool empty = false;
+    bool advancesCell = true;
 };
 
 class QTCREATOR_UTILS_EXPORT Layout : public Object
@@ -117,11 +120,14 @@ public:
     Layout(Implementation *w) { ptr = w; }
 
     void span(int cols, int rows);
+    void align(Qt::Alignment alignment);
 
+    void setAlignment(Qt::Alignment alignment);
     void setNoMargins();
     void setNormalMargins();
     void setContentsMargins(int left, int top, int right, int bottom);
     void setColumnStretch(int column, int stretch);
+    void setRowStretch(int row, int stretch);
     void setSpacing(int space);
     void setFieldGrowthPolicy(int policy);
     void setStretch(int index, int stretch);
@@ -231,6 +237,37 @@ public:
     int spanRows = 1;
 };
 
+// Unlike Span, this class sets the span on all of its items.
+class QTCREATOR_UTILS_EXPORT SpanAll
+{
+public:
+    SpanAll(int cols, const Layout::I &item);
+    SpanAll(int cols, int rows, const Layout::I &item);
+
+    Layout::I item;
+    int spanCols = 1;
+    int spanRows = 1;
+};
+
+class QTCREATOR_UTILS_EXPORT Align
+{
+public:
+    Align(Qt::Alignment alignment, const Layout::I &item);
+
+    Layout::I item;
+    Qt::Alignment alignment = {};
+};
+
+class QTCREATOR_UTILS_EXPORT GridCell
+{
+public:
+    GridCell(const std::initializer_list<Layout::I> &items)
+        : items(items)
+    {}
+
+    std::initializer_list<Layout::I> items;
+};
+
 //
 // Widgets
 //
@@ -269,6 +306,8 @@ public:
     void setCursor(Qt::CursorShape shape);
     void setMinimumWidth(int);
     void setMinimumHeight(int height);
+    void setMaximumWidth(int maxWidth);
+    void setMaximumHeight(int maxHeight);
 
     void activateWindow();
     void close();
@@ -290,6 +329,7 @@ public:
     void setTextInteractionFlags(Qt::TextInteractionFlags);
     void setOpenExternalLinks(bool);
     void onLinkHovered(QObject *guard, const std::function<void(const QString &)> &);
+    void onLinkActivated(QObject *guard, const std::function<void(const QString &)> &);
 };
 
 class QTCREATOR_UTILS_EXPORT Group : public Widget
@@ -390,10 +430,14 @@ class QTCREATOR_UTILS_EXPORT ScrollArea : public Widget
 {
 public:
     using Implementation = QScrollArea;
+    using I = Building::BuilderItem<ScrollArea>;
 
+    ScrollArea(std::initializer_list<I> items);
     ScrollArea(const Layout &inner);
 
     void setLayout(const Layout &inner);
+    void setFrameShape(QFrame::Shape shape);
+    void setFixSizeHintBug(bool fix);
 };
 
 class QTCREATOR_UTILS_EXPORT Stack : public Widget
@@ -476,6 +520,30 @@ public:
     void setViewportMargins(int left, int top, int right, int bottom);
 };
 
+class QTCREATOR_UTILS_EXPORT CanvasWidget : public QWidget
+{
+public:
+    using PaintFunction = std::function<void(QPainter &painter)>;
+
+    void setPaintFunction(const PaintFunction &paintFunction);
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    PaintFunction m_paintFunction;
+};
+
+class QTCREATOR_UTILS_EXPORT Canvas : public Layouting::Widget
+{
+public:
+    using Implementation = CanvasWidget;
+    using I = Building::BuilderItem<Canvas>;
+
+    Canvas() = default;
+    Canvas(std::initializer_list<I> ps);
+
+    void setPaintFunction(const CanvasWidget::PaintFunction &paintFunction);
+};
+
 // Special
 
 class QTCREATOR_UTILS_EXPORT If
@@ -483,7 +551,7 @@ class QTCREATOR_UTILS_EXPORT If
 public:
     If(bool condition,
        const std::initializer_list<Layout::I> ifcase,
-       const std::initializer_list<Layout::I> thencase = {});
+       const std::initializer_list<Layout::I> elsecase = {});
 
     const std::initializer_list<Layout::I> used;
 };
@@ -538,13 +606,17 @@ void doit(Interface *x, IdId, auto p)
 
 // Setter dispatchers
 
+QTC_DEFINE_BUILDER_SETTER(alignment, setAlignment)
 QTC_DEFINE_BUILDER_SETTER(childrenCollapsible, setChildrenCollapsible)
 QTC_DEFINE_BUILDER_SETTER(columnStretch, setColumnStretch)
+QTC_DEFINE_BUILDER_SETTER(rowStretch, setRowStretch)
 QTC_DEFINE_BUILDER_SETTER(customMargins, setContentsMargins)
 QTC_DEFINE_BUILDER_SETTER(fieldGrowthPolicy, setFieldGrowthPolicy)
 QTC_DEFINE_BUILDER_SETTER(groupChecker, setGroupChecker)
+QTC_DEFINE_BUILDER_SETTER(icon, setIcon)
 QTC_DEFINE_BUILDER_SETTER(onClicked, onClicked)
 QTC_DEFINE_BUILDER_SETTER(onLinkHovered, onLinkHovered)
+QTC_DEFINE_BUILDER_SETTER(onLinkActivated, onLinkActivated)
 QTC_DEFINE_BUILDER_SETTER(onTextChanged, onTextChanged)
 QTC_DEFINE_BUILDER_SETTER(openExternalLinks, setOpenExternalLinks)
 QTC_DEFINE_BUILDER_SETTER(orientation, setOrientation);
@@ -564,6 +636,14 @@ QTC_DEFINE_BUILDER_SETTER(markdown, setMarkdown);
 QTC_DEFINE_BUILDER_SETTER(sizePolicy, setSizePolicy);
 QTC_DEFINE_BUILDER_SETTER(basePath, setBasePath);
 QTC_DEFINE_BUILDER_SETTER(fixedSize, setFixedSize);
+QTC_DEFINE_BUILDER_SETTER(placeholderText, setPlaceholderText);
+QTC_DEFINE_BUILDER_SETTER(frameShape, setFrameShape);
+QTC_DEFINE_BUILDER_SETTER(paint, setPaintFunction);
+QTC_DEFINE_BUILDER_SETTER(fixSizeHintBug, setFixSizeHintBug);
+QTC_DEFINE_BUILDER_SETTER(maximumWidth, setMaximumWidth)
+QTC_DEFINE_BUILDER_SETTER(maximumHeight, setMaximumHeight)
+QTC_DEFINE_BUILDER_SETTER(minimumWidth, setMinimumWidth)
+QTC_DEFINE_BUILDER_SETTER(minimumHeight, setMinimumHeight)
 
 // Nesting dispatchers
 
@@ -577,6 +657,24 @@ QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Space &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Stretch &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const If &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Span &inner);
+QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const SpanAll &inner);
+QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Align &inner);
+QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const GridCell &inner);
+
+template<class T>
+void addToLayout(Layout *layout, const QList<T> &inner)
+{
+    for (const auto &i : inner)
+        addToLayout(layout, i);
+}
+
+template<std::ranges::view T>
+void addToLayout(Layout *layout, T inner)
+{
+    for (const auto &i : inner)
+        addToLayout(layout, i);
+}
+
 // ... can be added to anywhere later to support "user types"
 
 QTCREATOR_UTILS_EXPORT void addToWidget(Widget *widget, const Layout &layout);
@@ -590,6 +688,10 @@ QTCREATOR_UTILS_EXPORT void addToSplitter(Splitter *splitter, const Layout &inne
 QTCREATOR_UTILS_EXPORT void addToStack(Stack *stack, QWidget *inner);
 QTCREATOR_UTILS_EXPORT void addToStack(Stack *stack, const Widget &inner);
 QTCREATOR_UTILS_EXPORT void addToStack(Stack *stack, const Layout &inner);
+
+QTCREATOR_UTILS_EXPORT void addToScrollArea(ScrollArea *scrollArea, QWidget *inner);
+QTCREATOR_UTILS_EXPORT void addToScrollArea(ScrollArea *scrollArea, const Widget &inner);
+QTCREATOR_UTILS_EXPORT void addToScrollArea(ScrollArea *scrollArea, const Layout &inner);
 
 template <class Inner>
 void doit_nested(Layout *outer, Inner && inner)
@@ -617,6 +719,11 @@ void doit_nested(Splitter *outer, auto inner)
     addToSplitter(outer, inner);
 }
 
+void doit_nested(ScrollArea *outer, auto inner)
+{
+    addToScrollArea(outer, inner);
+}
+
 template <class Inner>
 void doit(auto outer, Building::NestId, Inner && inner)
 {
@@ -640,5 +747,59 @@ QTCREATOR_UTILS_EXPORT LayoutModifier stretch(int index, int stretch);
 // Convenience
 
 QTCREATOR_UTILS_EXPORT QWidget *createHr(QWidget *parent = nullptr);
+
+// Dynamic layout replacement
+
+QTCREATOR_UTILS_EXPORT void destroyLayout(QLayout *layout);
+
+template<typename Sender, typename Signal, typename Widget, typename LayoutCreateFunc>
+void replaceLayoutOn(Sender *sender, Signal signal, Widget *widget, const LayoutCreateFunc &func)
+{
+    func().attachTo(widget);
+
+    QObject::connect(sender, signal, widget, [widget, func] {
+        destroyLayout(widget->layout());
+        func().attachTo(widget);
+    });
+}
+
+class ReplaceLayoutOnId {};
+
+template<typename Type>
+concept DerivedFromWidget = std::derived_from<Type, Layouting::Widget>;
+
+template<typename Interface, typename Sender, typename Signal, typename LayoutCreateFunc>
+    requires DerivedFromWidget<Interface>
+void doit(Interface *x, ReplaceLayoutOnId, const std::tuple<Sender *, Signal, LayoutCreateFunc> &arg)
+{
+    replaceLayoutOn(std::get<0>(arg), std::get<1>(arg), x->emerge(), std::get<2>(arg));
+}
+
+template<class FUNC>
+concept ReturnsLayout = std::derived_from<typename std::invoke_result<FUNC>::type, Layout>;
+
+template<typename Sender, typename Signal, typename LayoutCreateFunc>
+    requires ReturnsLayout<LayoutCreateFunc>
+auto replaceLayoutOn(Sender *sender, Signal signal, const LayoutCreateFunc &func)
+{
+    return Building::IdAndArg{ReplaceLayoutOnId{}, std::make_tuple(sender, signal, func)};
+}
+
+namespace Tools {
+
+template<typename X>
+typename X::Implementation *access(const X *x)
+{
+    return static_cast<typename X::Implementation *>(x->ptr);
+}
+
+template<typename X>
+void apply(X *x, std::initializer_list<typename X::I> ps)
+{
+    for (auto &&p : ps)
+        p.apply(x);
+}
+
+} // Tools
 
 } // namespace Layouting

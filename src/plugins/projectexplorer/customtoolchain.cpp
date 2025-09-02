@@ -220,7 +220,7 @@ QStringList CustomToolchain::headerPathsList() const
 
 void CustomToolchain::setHeaderPaths(const QStringList &list)
 {
-    HeaderPaths tmp = Utils::transform<QVector>(list, [](const QString &headerPath) {
+    HeaderPaths tmp = Utils::transform<QList>(list, [](const QString &headerPath) {
         return HeaderPath::makeBuiltIn(headerPath.trimmed());
     });
 
@@ -482,7 +482,7 @@ void CustomToolchainConfigWidget::applyImpl()
         return;
 
     bundle().setTargetAbi(m_abiWidget->currentAbi());
-    const Macros macros = Utils::transform<QVector>(
+    const Macros macros = Utils::transform<QList>(
         m_predefinedDetails->text().split('\n', Qt::SkipEmptyParts),
         [](const QString &m) {
             return Macro::fromKeyValue(m);

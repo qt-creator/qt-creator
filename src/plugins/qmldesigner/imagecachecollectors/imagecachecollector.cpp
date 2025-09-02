@@ -147,7 +147,8 @@ bool ImageCacheCollector::runProcess(const QStringList &arguments) const
     if (!m_target)
         return false;
 
-    auto [workingDirectoryPath, puppetPath] = QmlDesigner::QmlPuppetPaths::qmlPuppetPaths(target());
+    auto [workingDirectoryPath, puppetPath] = QmlDesigner::QmlPuppetPaths::qmlPuppetPaths(
+        target()->kit());
     if (puppetPath.isEmpty())
         return false;
 

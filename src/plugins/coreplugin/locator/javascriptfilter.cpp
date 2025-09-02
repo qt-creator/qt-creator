@@ -342,15 +342,7 @@ private:
     JavaScriptOutput m_output;
 };
 
-class JavaScriptRequestAdapter : public TaskAdapter<JavaScriptRequest>
-{
-public:
-    JavaScriptRequestAdapter() { connect(task(), &JavaScriptRequest::done,
-                                         this, &TaskInterface::done); }
-    void start() final { task()->start(); }
-};
-
-using JavaScriptRequestTask = CustomTask<JavaScriptRequestAdapter>;
+using JavaScriptRequestTask = SimpleCustomTask<JavaScriptRequest>;
 
 namespace Core::Internal {
 
@@ -377,6 +369,7 @@ LocatorMatcherTasks JavaScriptFilter::matchers()
         if (storage.input().trimmed().isEmpty()) {
             LocatorFilterEntry entry;
             entry.displayName = Tr::tr("Reset Engine");
+            entry.completer = [] { return AcceptResult(); }; // do not complete
             entry.acceptor = [engine] {
                 if (engine) {
                     JavaScriptInput request;
@@ -415,13 +408,16 @@ LocatorMatcherTasks JavaScriptFilter::matchers()
 
         LocatorFilterEntry entry;
         entry.displayName = expression;
+        entry.completer = [] { return AcceptResult(); }; // do not complete
 
         LocatorFilterEntry copyResultEntry;
         copyResultEntry.displayName = Tr::tr("Copy to clipboard: %1").arg(output);
+        copyResultEntry.completer = [] { return AcceptResult(); }; // do not complete
         copyResultEntry.acceptor = acceptor(output);
 
         LocatorFilterEntry copyExpressionEntry;
         copyExpressionEntry.displayName = Tr::tr("Copy to clipboard: %1").arg(expression);
+        copyExpressionEntry.completer = [] { return AcceptResult(); }; // do not complete
         copyExpressionEntry.acceptor = acceptor(expression);
 
         storage.reportOutput({entry, copyResultEntry, copyExpressionEntry});

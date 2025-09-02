@@ -16,7 +16,6 @@ QtcPlugin {
 
     files: [
         "androidtr.h",
-        "android.qrc",
         "androidconfigurations.cpp",
         "androidconfigurations.h",
         "androidconstants.h",
@@ -91,6 +90,18 @@ QtcPlugin {
         name: "long description"
         files: "plugindescription.md"
         fileTags: "pluginjson.longDescription"
+    }
+
+    Group {
+        name: "images"
+        prefix: "images/"
+        files: [
+            "androiddevice.png",
+            "androiddevice@2x.png",
+            "androiddevicesmall.png",
+            "androiddevicesmall@2x.png",
+        ]
+        fileTags: "qt.core.resource_data"
     }
 
     QtcTestFiles {

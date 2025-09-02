@@ -38,9 +38,9 @@ ContentLibraryUserModel::ContentLibraryUserModel(ContentLibraryWidget *parent)
 {
     createCategories();
 
-    connect(m_fileWatcher.get(), &Utils::FileSystemWatcher::directoryChanged, this,
-    [this] (const QString &dirPath) {
-        reloadTextureCategory(Utils::FilePath::fromString(dirPath));
+    connect(m_fileWatcher.get(), &Utils::FileSystemWatcher::directoryChanged,
+            this, [this] (const auto &dirPath) {
+        reloadTextureCategory(dirPath);
     });
 }
 
@@ -108,12 +108,12 @@ void ContentLibraryUserModel::loadCustomCategories(const Utils::FilePath &userBu
     if (!jsonFilePath.exists()) {
         const QString jsonContent = QStringLiteral(R"({ "version": "%1", "items": {}})")
                                         .arg(CUSTOM_BUNDLES_JSON_FILE_VERSION);
-        Utils::expected_str<qint64> res = jsonFilePath.writeFileContents(jsonContent.toLatin1());
-        QTC_ASSERT_EXPECTED(res, return);
+        Utils::Result<qint64> res = jsonFilePath.writeFileContents(jsonContent.toLatin1());
+        QTC_ASSERT_RESULT(res, return);
     }
 
-    Utils::expected_str<QByteArray> jsonContents = jsonFilePath.fileContents();
-    QTC_ASSERT_EXPECTED(jsonContents, return);
+    Utils::Result<QByteArray> jsonContents = jsonFilePath.fileContents();
+    QTC_ASSERT_RESULT(jsonContents, return);
 
     QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonContents.value());
     QTC_ASSERT(!jsonDoc.isNull(), return);
@@ -161,7 +161,7 @@ void ContentLibraryUserModel::addBundleDir(const Utils::FilePath &dirPath)
         auto userBundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User");
         auto jsonFilePath = userBundlePath.pathAppended(Constants::CUSTOM_BUNDLES_JSON_FILENAME);
         auto result = jsonFilePath.writeFileContents(QJsonDocument(m_customCatsRootObj).toJson());
-        QTC_ASSERT_EXPECTED(result,);
+        QTC_CHECK_RESULT(result);
     }
 
     updateIsEmpty();
@@ -305,7 +305,7 @@ void ContentLibraryUserModel::removeBundleDir(int catIdx)
     auto userBundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User");
     auto jsonFilePath = userBundlePath.pathAppended(Constants::CUSTOM_BUNDLES_JSON_FILENAME);
     auto result = jsonFilePath.writeFileContents(QJsonDocument(m_customCatsRootObj).toJson());
-    QTC_ASSERT_EXPECTED(result, return);
+    QTC_ASSERT_RESULT(result, return);
 
     // remove from model
     beginRemoveRows({}, catIdx, catIdx);

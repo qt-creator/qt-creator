@@ -418,7 +418,7 @@ Import LinkPrivate::importNonFile(const Document::Ptr &doc, const ImportInfo &im
     const QString packageName = importInfo.name();
     const ComponentVersion version = importInfo.version();
 
-    QList<Utils::FilePath> libraryPaths = modulePaths(packageName,
+    const Utils::FilePaths libraryPaths = modulePaths(packageName,
                                                       version.toString(),
                                                       m_importPaths + m_applicationDirectories);
 
@@ -538,7 +538,8 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
                                                                 m_importPaths);
         subImport.libraryPath = libraryPaths.value(0); // first is the best match
 
-        bool subImportFound = importLibrary(doc, subImport.libraryPath, &subImport, targetObject, importPath, true);
+        bool subImportFound = subImport.libraryPath != libraryPath
+                && importLibrary(doc, subImport.libraryPath, &subImport, targetObject, importPath, true);
 
         if (!subImportFound && errorLoc.isValid()) {
             if (!(optional || (toImport.flags & QmlDirParser::Import::Optional))) {

@@ -100,17 +100,19 @@ static QString translatedOrUntranslatedText(QVariantMap &map, const QString &key
 class LineEdit : public FancyLineEdit
 {
 public:
-    LineEdit(MacroExpander *expander, const QRegularExpression &pattern)
+    LineEdit(MacroExpander *expander, const QRegularExpression &regex)
     {
-        if (pattern.pattern().isEmpty() || !pattern.isValid())
+        if (regex.pattern().isEmpty() || !regex.isValid())
             return;
         m_expander.setDisplayName(Tr::tr("Line Edit Validator Expander"));
         m_expander.setAccumulating(true);
         m_expander.registerVariable("INPUT", Tr::tr("The text edit input to fix up."),
                                     [this] { return m_currentInput; });
         m_expander.registerSubProvider([expander]() -> MacroExpander * { return expander; });
-        setValidationFunction([this, pattern](FancyLineEdit *, QString *) {
-            return pattern.match(text()).hasMatch();
+        setValidationFunction([this, regex](const QString &) -> Result<> {
+            if (regex.match(text()).hasMatch())
+                return ResultOk;
+            return ResultError(QString());
         });
     }
 
@@ -156,7 +158,7 @@ void JsonFieldPage::Field::setHasUserChanges()
 
 void JsonFieldPage::Field::fromSettings(const QVariant &value)
 {
-    Q_UNUSED(value);
+    Q_UNUSED(value)
 }
 
 QVariant JsonFieldPage::Field::toSettings() const

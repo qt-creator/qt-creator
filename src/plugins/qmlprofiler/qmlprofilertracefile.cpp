@@ -18,8 +18,7 @@
 #include <QBuffer>
 #include <QDataStream>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 const char PROFILER_FILE_VERSION[] = "1.02";
 
@@ -99,9 +98,9 @@ static QString qmlTypeAsString(Message message, RangeType rangeType)
 QmlProfilerTraceFile::QmlProfilerTraceFile(QObject *parent) : Timeline::TimelineTraceFile(parent)
 {
     static int meta[] = {
-        qRegisterMetaType<QVector<QmlEvent> >(),
-        qRegisterMetaType<QVector<QmlEventType> >(),
-        qRegisterMetaType<QVector<QmlNote> >()
+        qRegisterMetaType<QList<QmlEvent> >(),
+        qRegisterMetaType<QList<QmlEventType> >(),
+        qRegisterMetaType<QList<QmlNote> >()
     };
     Q_UNUSED(meta)
 }
@@ -232,7 +231,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
         stream >> data;
         buffer.setData(qUncompress(data));
         buffer.open(QIODevice::ReadOnly);
-        QVector<QmlNote> notes;
+        QList<QmlNote> notes;
         bufferStream >> notes;
         buffer.close();
         qmlNotes()->setNotes(notes);
@@ -748,7 +747,7 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
         stream.writeEndElement(); // profilerDataModel
         if (!isCanceled()) {
             stream.writeStartElement(_("noteData"));
-            const QVector<QmlNote> &notes = qmlNotes()->notes();
+            const QList<QmlNote> &notes = qmlNotes()->notes();
             for (int noteIndex = 0; noteIndex < notes.length() && !isCanceled(); ++noteIndex) {
                 const QmlNote &note = notes[noteIndex];
                 stream.writeStartElement(_("note"));
@@ -852,5 +851,4 @@ QmlProfilerNotesModel *QmlProfilerTraceFile::qmlNotes()
     return static_cast<QmlProfilerNotesModel *>(notes());
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

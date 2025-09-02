@@ -58,6 +58,7 @@ CopilotClient::CopilotClient(const FilePath &nodePath, const FilePath &distPath)
     langFilter.filePattern = {"*"};
 
     setSupportedLanguage(langFilter);
+    setActivatable(false);
 
     registerCustomMethod("LogMessage", [this](const LanguageServerProtocol::JsonRpcMessage &message) {
         QString msg = message.toJsonObject().value("params").toObject().value("message").toString();

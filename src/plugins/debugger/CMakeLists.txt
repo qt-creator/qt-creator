@@ -6,12 +6,8 @@ add_qtc_plugin(Debugger
   DEFINES
     CLANG_BINDIR="${LLVM_TOOLS_BINARY_DIR}"
   SOURCES
-    analyzer/analyzerbase.qrc
-    analyzer/analyzericons.h
-    analyzer/analyzerutils.cpp analyzer/analyzerutils.h
+    analyzer/analyzerutils.h
     analyzer/detailederrorview.cpp analyzer/detailederrorview.h
-    analyzer/diagnosticlocation.cpp analyzer/diagnosticlocation.h
-    analyzer/startremotedialog.cpp analyzer/startremotedialog.h
     breakhandler.cpp breakhandler.h
     breakpoint.cpp breakpoint.h
     cdb/cdbengine.cpp cdb/cdbengine.h
@@ -32,7 +28,6 @@ add_qtc_plugin(Debugger
     dap/gdbdapengine.cpp dap/gdbdapengine.h
     dap/lldbdapengine.cpp dap/lldbdapengine.h
     dap/pydapengine.cpp dap/pydapengine.h
-    debugger.qrc
     debugger_global.h
     debuggeractions.cpp debuggeractions.h
     debuggerconstants.h
@@ -110,9 +105,16 @@ extend_qtc_plugin(Debugger
   DEFINES UNICODE _UNICODE
 )
 
-extend_qtc_plugin(Debugger
+file(GLOB_RECURSE images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} images/*)
+qtc_add_resources(Debugger "images"
+  PREFIX "/debugger"
+  BASE "."
+  FILES ${images}
+)
+file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} unit-tests/*)
+qtc_add_resources(Debugger "testcases"
   CONDITION WITH_TESTS
-  SOURCES
-    debuggerunittests.qrc
-    unit-tests/simple/main.cpp
+  PREFIX "/debugger"
+  BASE "."
+  FILES ${test_cases}
 )

@@ -3,32 +3,11 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
-
-#include <solutions/tasking/tasktreerunner.h>
-
-#include <QDateTime>
+namespace ProjectExplorer { class RunControl; }
+namespace Tasking { class Group; }
 
 namespace Qnx::Internal {
 
-class Slog2InfoRunner : public ProjectExplorer::RunWorker
-{
-public:
-    explicit Slog2InfoRunner(ProjectExplorer::RunControl *runControl);
-
-    void start() override;
-    void stop() override;
-
-private:
-    void processRemainingLogData();
-    void processLogInput(const QString &input);
-    void processLogLine(const QString &line);
-
-    QString m_applicationId;
-    QDateTime m_launchDateTime;
-    bool m_currentLogs = false;
-    QString m_remainingData;
-    Tasking::TaskTreeRunner m_taskTreeRunner;
-};
+Tasking::Group slog2InfoRecipe(ProjectExplorer::RunControl *runControl);
 
 } // Qnx::Internal

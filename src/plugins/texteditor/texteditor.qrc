@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/texteditor">
-        <file>images/finddocuments.png</file>
-        <file>images/snippet.png</file>
-        <file>images/settingscategory_texteditor.png</file>
-        <file>images/settingscategory_texteditor@2x.png</file>
-    </qresource>
-</RCC>

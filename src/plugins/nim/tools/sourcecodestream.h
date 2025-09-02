@@ -33,11 +33,6 @@ public:
         m_position = m_textLength;
     }
 
-    inline int pos()
-    {
-        return m_position;
-    }
-
     inline int length() const
     {
         return m_position - m_markedPosition;
@@ -65,11 +60,6 @@ public:
     {
         const QChar *start = m_text + m_markedPosition;
         return QString(start, length());
-    }
-
-    inline QString value(int begin, int length) const
-    {
-        return QString(m_text + begin, length);
     }
 
 private:

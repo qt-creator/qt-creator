@@ -33,8 +33,6 @@
 #include <utils3d.h>
 #include <variantproperty.h>
 
-#include <solutions/zip/zipreader.h>
-
 #include <utils/algorithm.h>
 
 #ifndef QMLDESIGNER_TEST
@@ -52,6 +50,12 @@
 #include <QMessageBox>
 #include <QPixmap>
 #include <QVector3D>
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+#  include <QtCore/private/qzipreader_p.h>
+#else
+#  include <QtGui/private/qzipreader_p.h>
+#endif
 
 namespace QmlDesigner {
 
@@ -631,7 +635,7 @@ void ContentLibraryView::addLibAssets(const QStringList &paths, const QString &b
 
         // save asset
         auto result = sourcePath.copyFile(targetPath);
-        QTC_ASSERT_EXPECTED(result,);
+        QTC_ASSERT_RESULT(result,);
 
         targetPathsToAdd.append(targetPath);
     }
@@ -690,7 +694,7 @@ void ContentLibraryView::addLibComponent(const ModelNode &node)
         targetPath.parentDir().ensureWritableDir();
 
         auto result = targetPath.writeFileContents(assetContent);
-        QTC_ASSERT_EXPECTED(result,);
+        QTC_ASSERT_RESULT(result,);
 
         if (assetAbsPath.fileName() != compFileName) // skip component file (only collect dependencies)
             filesList.append(asset.relativePath);
@@ -710,7 +714,7 @@ void ContentLibraryView::addLibComponent(const ModelNode &node)
 
     auto result = bundlePath.pathAppended(Constants::BUNDLE_JSON_FILENAME)
                       .writeFileContents(QJsonDocument(jsonRef).toJson());
-    QTC_ASSERT_EXPECTED(result,);
+    QTC_ASSERT_RESULT(result,);
 
     m_widget->userModel()->addItem(m_bundleId, compBaseName, compFileName, iconSavePath.toUrl(),
                                    filesList);
@@ -779,7 +783,7 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
         depAssetsRelativePaths.append(assetPath.relativePath);
 
     auto result = bundlePath.pathAppended(qml).writeFileContents(qmlString.toUtf8());
-    QTC_ASSERT_EXPECTED(result,);
+    QTC_ASSERT_RESULT(result,);
 
     // get icon path
     QString iconPathTemplate = QLatin1String("icons/%1.png");
@@ -803,7 +807,7 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
 
     result = bundlePath.pathAppended(Constants::BUNDLE_JSON_FILENAME)
                       .writeFileContents(QJsonDocument(jsonRef).toJson());
-    QTC_ASSERT_EXPECTED(result,);
+    QTC_ASSERT_RESULT(result,);
 
     // copy item's assets to target folder
     for (const AssetPath &assetPath : depAssetsList) {
@@ -812,7 +816,7 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
         assetPathTarget.parentDir().ensureWritableDir();
 
         auto result = assetPathSource.copyFile(assetPathTarget);
-        QTC_ASSERT_EXPECTED(result,);
+        QTC_ASSERT_RESULT(result,);
     }
 
     Utils::FilePath iconSavePath = bundlePath.pathAppended(iconPath);
@@ -893,7 +897,7 @@ void ContentLibraryView::importBundleToContentLib()
     if (importPath.isEmpty())
         return;
 
-    ZipReader zipReader(importPath);
+    QZipReader zipReader(importPath);
 
     QByteArray bundleJsonContent = zipReader.fileData(Constants::BUNDLE_JSON_FILENAME);
     QTC_ASSERT(!bundleJsonContent.isEmpty(), return);
@@ -956,7 +960,7 @@ void ContentLibraryView::importBundleToContentLib()
         for (const QString &file : std::as_const(files)) {
             Utils::FilePath filePath = bundlePath.pathAppended(file);
             filePath.parentDir().ensureWritableDir();
-            QTC_ASSERT_EXPECTED(filePath.writeFileContents(zipReader.fileData(file)),);
+            QTC_ASSERT_RESULT(filePath.writeFileContents(zipReader.fileData(file)),);
         }
 
         m_widget->userModel()->addItem(bundleId, name, qml, iconUrl, files);
@@ -970,7 +974,7 @@ void ContentLibraryView::importBundleToContentLib()
 
     auto result = bundlePath.pathAppended(Constants::BUNDLE_JSON_FILENAME)
                       .writeFileContents(QJsonDocument(jsonRef).toJson());
-    QTC_ASSERT_EXPECTED(result,);
+    QTC_ASSERT_RESULT(result,);
 }
 
 ModelNode ContentLibraryView::getBundleMaterialDefaultInstance(const TypeName &type)

@@ -1096,7 +1096,7 @@ void ProjectPartsModel::configure(const QList<ProjectInfo::ConstPtr> &projectInf
     emit layoutAboutToBeChanged();
     m_projectPartsList.clear();
     for (const ProjectInfo::ConstPtr &info : std::as_const(projectInfos)) {
-        const QVector<ProjectPart::ConstPtr> projectParts = info->projectParts();
+        const QList<ProjectPart::ConstPtr> projectParts = info->projectParts();
         for (const ProjectPart::ConstPtr &projectPart : projectParts) {
             if (!m_projectPartsList.contains(projectPart)) {
                 m_projectPartsList << projectPart;

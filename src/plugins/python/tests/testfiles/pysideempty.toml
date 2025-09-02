@@ -1,0 +1,4 @@
+[project]
+name = "PysideEmptyTest"
+
+[tool.pyside6-project]

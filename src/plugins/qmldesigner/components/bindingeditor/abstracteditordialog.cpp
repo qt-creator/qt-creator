@@ -34,7 +34,7 @@ AbstractEditorDialog::AbstractEditorDialog(QWidget *parent, const QString &title
                      this, &AbstractEditorDialog::rejected);
     QObject::connect(m_editorWidget, &BindingEditorWidget::returnKeyClicked,
                      this, &AbstractEditorDialog::accepted);
-    QObject::connect(m_editorWidget, &QPlainTextEdit::textChanged,
+    QObject::connect(m_editorWidget, &Utils::PlainTextEdit::textChanged,
                      this, &AbstractEditorDialog::textChanged);
 }
 

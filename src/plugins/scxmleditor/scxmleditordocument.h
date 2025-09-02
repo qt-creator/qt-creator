@@ -13,9 +13,7 @@ QT_FORWARD_DECLARE_CLASS(QDesignerFormWindowInterface)
 
 namespace ScxmlEditor {
 
-namespace Common {
-class MainWidget;
-} // namespace Common
+namespace Common { class MainWidget; }
 
 namespace Internal {
 
@@ -27,13 +25,12 @@ public:
     explicit ScxmlEditorDocument(Common::MainWidget *designWidget, QObject *parent = nullptr);
 
     // IDocument
-    OpenResult open(QString *errorString,
-                    const Utils::FilePath &filePath,
-                    const Utils::FilePath &realFilePath) override;
+    Utils::Result<> open(const Utils::FilePath &filePath,
+                         const Utils::FilePath &realFilePath) override;
     bool shouldAutoSave() const override;
     bool isSaveAsAllowed() const override;
     bool isModified() const override;
-    Utils::Result reload(ReloadFlag flag, ChangeType type) override;
+    Utils::Result<> reload(ReloadFlag flag, ChangeType type) override;
     bool supportsCodec(const QByteArray &codec) const override;
 
     // Internal
@@ -46,7 +43,7 @@ signals:
     void reloadRequested(QString *errorString, const QString &);
 
 protected:
-    Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     QPointer<Common::MainWidget> m_designWidget;

@@ -3,20 +3,19 @@
 
 #pragma once
 
-#include "perfprofilertracemanager.h"
-#include "perftimelinemodelmanager.h"
-#include "perfresourcecounter.h"
-
 #include <tracing/timelinemodel.h>
 
-#include <QStack>
+#include "perfevent.h"
+#include "perfresourcecounter.h"
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
+
+class PerfTimelineModelManager;
 
 class PerfTimelineModel : public Timeline::TimelineModel
 {
     Q_OBJECT
+
 public:
 
     struct LocationStats {
@@ -112,7 +111,7 @@ private:
         }
     };
 
-    QVector<int> m_currentStack;
+    QList<int> m_currentStack;
 
     qint64 m_lastTimestamp;
     qint64 m_threadStartTimestamp;
@@ -120,16 +119,16 @@ private:
 
     PerfResourceCounter<> m_resourceBlocks;
 
-    QVector<int> m_locationOrder;
+    QList<int> m_locationOrder;
     QHash<int, LocationStats> m_locationStats;
 
     quint32 m_pid;
     quint32 m_tid;
     qint64 m_samplingFrequency;
 
-    QVector<StackFrame> m_data;
+    QList<StackFrame> m_data;
     QHash<int, QHash<qint32, QVariant>> m_extraData;
-    QHash<int, QVector<QPair<qint32, quint64>>> m_attributeValues;
+    QHash<int, QList<QPair<qint32, quint64>>> m_attributeValues;
 
     void computeExpandedLevels();
 
@@ -142,5 +141,4 @@ private:
                    int guesses);
 };
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

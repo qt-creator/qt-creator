@@ -8,7 +8,6 @@
 #include <projectexplorer/rawprojectpart.h>
 
 #include <QString>
-#include <QVector>
 
 namespace CppEditor {
 

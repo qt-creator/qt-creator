@@ -12,8 +12,6 @@ namespace Internal {
 
 class FormClassWizard : public Core::BaseFileWizardFactory
 {
-    Q_OBJECT
-
 public:
     FormClassWizard();
 

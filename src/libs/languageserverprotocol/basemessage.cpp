@@ -73,7 +73,7 @@ static void parseContentType(BaseMessage &message, QByteArray contentType, QStri
     QList<QByteArray> contentTypeElements = contentType.split(';');
     QByteArray mimeTypeName = contentTypeElements.takeFirst();
     QTextCodec *codec = nullptr;
-    for (const QByteArray &_contentTypeElement : contentTypeElements) {
+    for (const QByteArray &_contentTypeElement : std::as_const(contentTypeElements)) {
         const QByteArray &contentTypeElement = _contentTypeElement.trimmed();
         if (contentTypeElement.startsWith(contentCharsetName)) {
             const int equalindex = contentTypeElement.indexOf('=');

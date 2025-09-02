@@ -18,10 +18,9 @@
 
 #include <QDebug>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal{
 
-class PropertyVisitor: protected QmlJS::AST::Visitor
+class PropertyVisitor : protected QmlJS::AST::Visitor
 {
 public:
     QmlJS::AST::Node *operator()(QmlJS::AST::Node *node, int line, int column)
@@ -182,10 +181,9 @@ void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
     }
 }
 
-void QmlProfilerDetailsRewriter::populateFileFinder(const ProjectExplorer::Target *target)
+void QmlProfilerDetailsRewriter::populateFileFinder(const ProjectExplorer::BuildConfiguration *bc)
 {
-    QtSupport::QtVersion::populateQmlFileFinder(&m_projectFinder, target);
+    QtSupport::QtVersion::populateQmlFileFinder(&m_projectFinder, bc);
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

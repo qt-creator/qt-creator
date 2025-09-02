@@ -38,14 +38,7 @@ private:
     int m_current = -1;
 };
 
-class TASKING_EXPORT BarrierTaskAdapter : public TaskAdapter<Barrier>
-{
-public:
-    BarrierTaskAdapter() { connect(task(), &Barrier::done, this, &TaskInterface::done); }
-    void start() final { task()->start(); }
-};
-
-using BarrierTask = CustomTask<BarrierTaskAdapter>;
+using BarrierTask = SimpleCustomTask<Barrier>;
 
 template <int Limit = 1>
 class SharedBarrier
@@ -93,6 +86,27 @@ ExecutableItem waitForBarrierTask(const MultiBarrier<Limit> &sharedBarrier)
         return SetupResult::Continue;
     });
 }
+
+template <typename Signal>
+ExecutableItem signalAwaiter(const typename QtPrivate::FunctionPointer<Signal>::Object *sender, Signal signal)
+{
+    return BarrierTask([sender, signal](Barrier &barrier) {
+        QObject::connect(sender, signal, &barrier, &Barrier::advance, Qt::SingleShotConnection);
+    });
+}
+
+using BarrierKickerGetter = std::function<ExecutableItem(const SingleBarrier &)>;
+
+class TASKING_EXPORT When final
+{
+public:
+    explicit When(const BarrierKickerGetter &kicker) : m_barrierKicker(kicker) {}
+
+private:
+    TASKING_EXPORT friend Group operator>>(const When &whenItem, const Do &doItem);
+
+    BarrierKickerGetter m_barrierKicker;
+};
 
 } // namespace Tasking
 

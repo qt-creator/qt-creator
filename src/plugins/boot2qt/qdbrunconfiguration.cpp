@@ -30,12 +30,12 @@ namespace Qdb::Internal {
 class QdbRunConfiguration : public RunConfiguration
 {
 public:
-    QdbRunConfiguration(Target *target, Id id)
-        : RunConfiguration(target, id)
+    QdbRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
     {
         setDefaultDisplayName(Tr::tr("Run on Boot to Qt Device"));
 
-        executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+        executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
         executable.setSettingsKey("QdbRunConfig.RemoteExecutable");
         executable.setLabelText(Tr::tr("Executable on device:"));
         executable.setPlaceHolderText(Tr::tr("Remote path not set"));
@@ -45,25 +45,22 @@ public:
         symbolFile.setSettingsKey("QdbRunConfig.LocalExecutable");
         symbolFile.setLabelText(Tr::tr("Executable on host:"));
 
-        environment.setDeviceSelector(target, EnvironmentAspect::RunDevice);
+        environment.setDeviceSelector(kit(), EnvironmentAspect::RunDevice);
 
         workingDir.setEnvironment(&environment);
 
         fullCommand.setLabelText(Tr::tr("Full command line:"));
 
-        setUpdater([this, target] {
+        setUpdater([this] {
             const BuildTargetInfo bti = buildTargetInfo();
             const FilePath localExecutable = bti.targetFilePath;
-            const DeployableFile depFile = target->deploymentData().deployableForLocalFile(localExecutable);
-            IDevice::ConstPtr dev = RunDeviceKitAspect::device(target->kit());
+            const DeployableFile depFile = buildSystem()->deploymentData().deployableForLocalFile(
+                localExecutable);
+            IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit());
             QTC_ASSERT(dev, return);
             executable.setExecutable(dev->filePath(depFile.remoteFilePath()));
             symbolFile.setValue(localExecutable);
         });
-
-        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
-        connect(target, &Target::deploymentDataChanged, this, &RunConfiguration::update);
-        connect(target, &Target::kitChanged, this, &RunConfiguration::update);
 
         auto updateFullCommand = [this] {
             CommandLine plain{executable(), arguments(), CommandLine::Raw};

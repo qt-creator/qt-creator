@@ -5,10 +5,7 @@
 
 #include <QAbstractItemModel>
 
-#include <functional>
-
 namespace ProjectExplorer {
-class Target;
 class ProjectConfiguration;
 
 // Documentation inside.
@@ -17,8 +14,6 @@ class ProjectConfigurationModel : public QAbstractListModel
     Q_OBJECT
 
 public:
-    explicit ProjectConfigurationModel(Target *target);
-
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -29,10 +24,11 @@ public:
     void addProjectConfiguration(ProjectConfiguration *pc);
     void removeProjectConfiguration(ProjectConfiguration *pc);
 
+    void triggerUpdate();
+
 private:
     void displayNameChanged(ProjectConfiguration *pc);
 
-    Target *m_target;
     QList<ProjectConfiguration *> m_projectConfigurations;
 };
 

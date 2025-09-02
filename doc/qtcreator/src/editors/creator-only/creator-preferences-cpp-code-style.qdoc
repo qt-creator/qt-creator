@@ -123,5 +123,5 @@
     \endcode
 
     \sa {Indent text or code}, {Specify code style}, {Behavior},
-    {Qt Quick Code Style}, {Nim}
+    {Specify Qt Quick code style}, {Nim}
 */

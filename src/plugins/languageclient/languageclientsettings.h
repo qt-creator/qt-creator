@@ -30,7 +30,12 @@ class FancyLineEdit;
 } // namespace Utils
 
 namespace Core { class IDocument; }
-namespace ProjectExplorer { class Project; }
+
+namespace ProjectExplorer {
+class BuildConfiguration;
+class Project;
+}
+
 namespace TextEditor { class BaseTextEditor; }
 
 namespace LanguageClient {
@@ -72,6 +77,8 @@ public:
     QString m_initializationOptions;
     QString m_configuration;
     bool m_showInSettings = true;
+    // controlls whether the resulting client can be used for completions/highlight/outline etc.
+    bool m_activatable = true;
 
     QJsonObject initializationOptions() const;
     QJsonValue configuration() const;
@@ -80,16 +87,16 @@ public:
     virtual QWidget *createSettingsWidget(QWidget *parent = nullptr) const;
     virtual BaseSettings *copy() const = 0;
     virtual bool isValid() const;
-    virtual bool isValidOnProject(ProjectExplorer::Project *project) const;
+    virtual bool isValidOnBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const;
     Client *createClient() const;
-    Client *createClient(ProjectExplorer::Project *project) const;
+    Client *createClient(ProjectExplorer::BuildConfiguration *bc) const;
     bool isEnabledOnProject(ProjectExplorer::Project *project) const;
 
     virtual void toMap(Utils::Store &map) const;
     virtual void fromMap(const Utils::Store &map);
 
 protected:
-    virtual BaseClientInterface *createInterface(ProjectExplorer::Project *) const = 0;
+    virtual BaseClientInterface *createInterface(ProjectExplorer::BuildConfiguration *) const = 0;
     virtual Client *createClient(BaseClientInterface *interface) const;
 
     BaseSettings(const BaseSettings &other) = default;
@@ -117,7 +124,7 @@ public:
     Utils::CommandLine command() const;
 
 protected:
-    BaseClientInterface *createInterface(ProjectExplorer::Project *project) const override;
+    BaseClientInterface *createInterface(ProjectExplorer::BuildConfiguration *bc) const override;
 
     StdIOSettings(const StdIOSettings &other) = default;
     StdIOSettings(StdIOSettings &&other) = default;
@@ -137,6 +144,8 @@ class LANGUAGECLIENT_EXPORT LanguageClientSettings
 {
 public:
     static void init();
+    static bool initialized();
+
     static QList<BaseSettings *> fromSettings(Utils::QtcSettings *settings);
     static QList<BaseSettings *> pageSettings();
     static QList<BaseSettings *> changedSettings();

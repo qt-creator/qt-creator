@@ -21,13 +21,14 @@ QtcPlugin {
         "extensionsbrowser.h",
         "extensionsmodel.cpp",
         "extensionsmodel.h",
+        "remotespec.cpp",
+        "remotespec.h",
     ]
 
     QtcTestFiles {
         files: [
             "extensionmanager_test.h",
             "extensionmanager_test.cpp",
-            "extensionmanager_test.qrc",
         ]
     }
 }

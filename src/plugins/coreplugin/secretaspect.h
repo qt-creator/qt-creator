@@ -25,7 +25,7 @@ public:
     void addToLayoutImpl(Layouting::Layout &parent) override;
 
     void requestValue(
-        const std::function<void(const Utils::expected_str<QString> &)> &callback) const;
+        const std::function<void(const Utils::Result<QString> &)> &callback) const;
     void setValue(const QString &value);
 
     void readSettings() override;
@@ -34,7 +34,7 @@ public:
     static QString warningThatNoSecretStorageIsAvailable();
 
 protected:
-    void readSecret(const std::function<void(Utils::expected_str<QString>)> &callback) const;
+    void readSecret(const std::function<void(Utils::Result<QString>)> &callback) const;
 
 private:
     std::unique_ptr<SecretAspectPrivate> d;

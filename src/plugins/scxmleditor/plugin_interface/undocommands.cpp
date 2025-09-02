@@ -332,7 +332,7 @@ void ChangeFullNameSpaceCommand::makeIdMap(ScxmlTag *tag, QHash<QString, QString
         break;
     }
 
-    const QVector<ScxmlTag *> children = tag->allChildren();
+    const QList<ScxmlTag *> children = tag->allChildren();
     for (ScxmlTag *child : children) {
         makeIdMap(child, map, use);
     }
@@ -359,7 +359,7 @@ void ChangeFullNameSpaceCommand::updateNameSpace(ScxmlTag *tag, const QHash<QStr
             tag->setAttribute(name, map[attr]);
     }
 
-    const QVector<ScxmlTag *> children = tag->allChildren();
+    const QList<ScxmlTag *> children = tag->allChildren();
     for (ScxmlTag *child : children) {
         updateNameSpace(child, map);
     }

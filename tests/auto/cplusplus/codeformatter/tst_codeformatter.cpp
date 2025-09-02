@@ -17,6 +17,7 @@ class tst_CodeFormatter: public QObject
 private Q_SLOTS:
     void ifStatementWithoutBraces1();
     void ifStatementWithoutBraces2();
+    void ifStatementWithoutBraces3();
     void ifStatementWithBraces1();
     void ifStatementWithBraces2();
     void ifStatementMixed();
@@ -108,6 +109,7 @@ private Q_SLOTS:
     void lambdaWithReturnType();
     void structuredBinding();
     void subscriptOperatorInFunctionCall();
+    void pseudoFunctionCall();
     void statementMacros();
     void tryCatchClause();
 };
@@ -264,6 +266,19 @@ void tst_CodeFormatter::ifStatementWithoutBraces2()
          << Line("        foo;")
          << Line("}")
          ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::ifStatementWithoutBraces3()
+{
+    QList<Line> data;
+    data << Line("template <typename T> void foo() {")
+         << Line("    if constexpr (true)")
+         << Line("        return;")
+         << Line("    if constexpr (sizeof(T) == 0)")
+         << Line("        return;")
+         << Line("}")
+        ;
     checkIndent(data);
 }
 
@@ -2210,6 +2225,18 @@ void tst_CodeFormatter::subscriptOperatorInFunctionCall()
          << Line("    ~    0);")
          << Line("    func(array[i],")
          << Line("    ~    i);")
+         << Line("}")
+        ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::pseudoFunctionCall()
+{
+    QList<Line> data;
+    data << Line("template <typename T>")
+         << Line("void foo() {")
+         << Line("    static_assert(sizeof(T) > 0,")
+         << Line("    ~             \"incomplete type\");")
          << Line("}")
         ;
     checkIndent(data);

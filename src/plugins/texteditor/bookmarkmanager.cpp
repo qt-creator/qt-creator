@@ -550,9 +550,9 @@ bool BookmarkManager::canDropMimeData(const QMimeData *data, Qt::DropAction acti
                                       int row, int column,
                                       const QModelIndex &parent) const
 {
-    Q_UNUSED(row);
-    Q_UNUSED(column);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(column)
+    Q_UNUSED(parent)
 
     if (!(action & supportedDropActions()))
         return false;
@@ -567,7 +567,7 @@ bool BookmarkManager::canDropMimeData(const QMimeData *data, Qt::DropAction acti
 bool BookmarkManager::dropMimeData(const QMimeData *data, Qt::DropAction action,
                                    int row, int column, const QModelIndex &parent)
 {
-    Q_UNUSED(column);
+    Q_UNUSED(column)
 
     if (!(action & supportedDropActions()))
         return false;
@@ -717,7 +717,7 @@ void BookmarkManager::documentPrevNext(bool next)
     int lastLine = -1;
     int prevLine = -1;
     int nextLine = -1;
-    const QVector<Bookmark *> marks = m_bookmarksMap[filePath];
+    const QList<Bookmark *> marks = m_bookmarksMap[filePath];
     for (int i = 0; i < marks.count(); ++i) {
         int markLine = marks.at(i)->lineNumber();
         if (firstLine == -1 || firstLine > markLine)

@@ -1,0 +1,6 @@
+[project]
+name = "CorrectTest"
+description = "pyproject.toml project example"
+
+[tool.pyside6-project]
+files = ["another_file.py", "folder/file_in_folder.py", "main.py", "new_file.py"]

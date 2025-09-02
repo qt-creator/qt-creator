@@ -5,8 +5,7 @@
 
 #include <tracing/timelinerenderpass.h>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class PerfTimelineResourcesRenderPass : public Timeline::TimelineRenderPass
 {
@@ -23,6 +22,5 @@ private:
     PerfTimelineResourcesRenderPass() = default;
 };
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal
 

@@ -14,8 +14,6 @@ class QComboBox;
 class QPushButton;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class Project; }
-
 namespace TextEditor {
 
 class ICodeStylePreferences;
@@ -25,14 +23,15 @@ class TEXTEDITOR_EXPORT CodeStyleSelectorWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CodeStyleSelectorWidget(ICodeStylePreferencesFactory *factory,
-                                     ProjectExplorer::Project *project = nullptr,
-                                     QWidget *parent = nullptr);
+    explicit CodeStyleSelectorWidget(QWidget *parent = nullptr);
     ~CodeStyleSelectorWidget() override;
 
     void setCodeStyle(ICodeStylePreferences *codeStyle);
 
 protected:
+    virtual void slotImportClicked();
+    virtual void slotExportClicked();
+
     ICodeStylePreferences *m_codeStyle = nullptr;
 
 private:
@@ -40,15 +39,11 @@ private:
     void slotCurrentDelegateChanged(ICodeStylePreferences *delegate);
     void slotCopyClicked();
     void slotRemoveClicked();
-    virtual void slotImportClicked();
-    virtual void slotExportClicked();
     void slotCodeStyleAdded(ICodeStylePreferences *codeStylePreferences);
     void slotCodeStyleRemoved(ICodeStylePreferences *codeStylePreferences);
     void slotUpdateName(ICodeStylePreferences *codeStylePreferences);
 
     void updateName(ICodeStylePreferences *codeStyle);
-    ICodeStylePreferencesFactory *m_factory;
-    ProjectExplorer::Project *m_project = nullptr;
 
     QString displayName(ICodeStylePreferences *codeStyle) const;
 

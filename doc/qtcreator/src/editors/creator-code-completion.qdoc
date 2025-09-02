@@ -43,63 +43,63 @@
             \li  Description
         \if defined(qtcreator)
         \row
-            \li \inlineimage completion/class.png
+            \li \inlineimage {completion/class.png} {Class icon}
             \li A class
         \row
-            \li \inlineimage completion/enum.png
+            \li \inlineimage {completion/enum.png} {Enum icon}
             \li An enum
         \row
-            \li \inlineimage completion/enumerator.png
+            \li \inlineimage {completion/enumerator.png} {Enum value icon}
             \li An enumerator (value of an enum)
         \row
-            \li \inlineimage completion/func.png
+            \li \inlineimage {completion/func.png} {Function icon}
             \li A function
         \row
-            \li \inlineimage completion/func_priv.png
+            \li \inlineimage {completion/func_priv.png} {Private function icon}
             \li A private function
         \row
-            \li \inlineimage completion/func_prot.png
+            \li \inlineimage {completion/func_prot.png} {Protected function icon}
             \li A protected function
         \row
-            \li \inlineimage completion/var.png
+            \li \inlineimage {completion/var.png} {Variable icon}
             \li A variable
         \row
-            \li \inlineimage completion/var_priv.png
+            \li \inlineimage {completion/var_priv.png} {Private variable icon}
             \li A private variable
         \row
-            \li \inlineimage completion/var_prot.png
+            \li \inlineimage {completion/var_prot.png} {Protected variable icon}
             \li A protected variable
         \row
-            \li \inlineimage completion/signal.png
+            \li \inlineimage {completion/signal.png} {Signal icon}
             \li A signal
         \row
-            \li \inlineimage completion/slot.png
+            \li \inlineimage {completion/slot.png} {Slot icon}
             \li A slot
         \row
-            \li \inlineimage completion/slot_priv.png
+            \li \inlineimage {completion/slot_priv.png} {Private slot icon}
             \li A private slot
         \row
-            \li \inlineimage completion/slot_prot.png
+            \li \inlineimage {completion/slot_prot.png} {Protected slot icon}
             \li A protected slot
         \row
-            \li \inlineimage completion/keyword.png
+            \li \inlineimage {completion/keyword.png} {C++ keyword icon}
             \li A C++ keyword
         \row
-            \li \inlineimage completion/snippet.png
+            \li \inlineimage {completion/snippet.png} {C++ code snippet icon}
             \li A C++ code snippet
         \endif
         \row
-            \li \inlineimage completion/element.png
+            \li \inlineimage {completion/element.png} {QML type icon}
             \li A QML type
         \row
-            \li \inlineimage completion/qmlsnippet.png
+            \li \inlineimage {completion/qmlsnippet.png} {QML code snippet icon}
             \li A QML code snippet
         \if defined(qtcreator)
         \row
-            \li \inlineimage completion/macro.png
+            \li \inlineimage {completion/macro.png} {Macro icon}
             \li A macro
         \row
-            \li \inlineimage completion/namespace.png
+            \li \inlineimage {completion/namespace.png} {Namespace icon}
             \li A namespace
         \endif
     \endtable

@@ -517,8 +517,8 @@ static void foldOrUnfoldComments(bool unfold)
             continue;
         if (tokenEndPos < nextBlock.position())
             continue;
-        if (TextEditor::TextDocumentLayout::foldingIndent(tokenBlock)
-            >= TextEditor::TextDocumentLayout::foldingIndent(nextBlock)) {
+        if (TextEditor::TextBlockUserData::foldingIndent(tokenBlock)
+            >= TextEditor::TextBlockUserData::foldingIndent(nextBlock)) {
             continue;
         }
         if (unfold)
@@ -1394,16 +1394,16 @@ ProjectInfo::ConstPtr CppModelManager::projectInfo(Project *project)
 void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo)
 {
     QMutexLocker snapshotLocker(&d->m_snapshotMutex);
-    QStringList removedFiles;
+    FilePaths removedFiles;
     for (const ProjectPart::ConstPtr &projectPart : projectInfo.projectParts()) {
         for (const ProjectFile &cxxFile : std::as_const(projectPart->files)) {
             const QSet<FilePath> filePaths = d->m_snapshot.allIncludesForDocument(cxxFile.path);
             for (const FilePath &filePath : filePaths) {
                 d->m_snapshot.remove(filePath);
-                removedFiles << filePath.toUrlishString();
+                removedFiles << filePath;
             }
             d->m_snapshot.remove(cxxFile.path);
-            removedFiles << cxxFile.path.toUrlishString();
+            removedFiles << cxxFile.path;
         }
     }
 
@@ -1476,7 +1476,7 @@ public:
     }
 
 private:
-    static QSet<QString> projectPartIds(const QVector<ProjectPart::ConstPtr> &projectParts)
+    static QSet<QString> projectPartIds(const QList<ProjectPart::ConstPtr> &projectParts)
     {
         QSet<QString> ids;
 
@@ -1618,7 +1618,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
                 const QSet<FilePath> removedFiles = comparer.removedFiles();
                 if (!removedFiles.isEmpty()) {
                     filesRemoved = true;
-                    emit m_instance->aboutToRemoveFiles(transform<QStringList>(removedFiles, &FilePath::toUrlishString));
+                    emit m_instance->aboutToRemoveFiles(toList(removedFiles));
                     removeFilesFromSnapshot(removedFiles);
                 }
             }
@@ -1989,10 +1989,10 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
         for (const RewriteCandidate &candidate : it.value()) {
             const QTextBlock &block = file->document()->findBlockByNumber(
                 candidate.includeLine - 1);
-            const FilePath relPathOld = FilePath::fromString(FilePath::calcRelativePath(
-                candidate.oldHeaderFilePath.toUrlishString(), includingFileOld.parentDir().toUrlishString()));
-            const FilePath relPathNew = FilePath::fromString(FilePath::calcRelativePath(
-                candidate.newHeaderFilePath.toUrlishString(), includingFileNew.parentDir().toUrlishString()));
+            const FilePath relPathOld = candidate.oldHeaderFilePath.relativePathFromDir(
+                includingFileOld.parentDir());
+            const FilePath relPathNew = candidate.newHeaderFilePath.relativePathFromDir(
+                includingFileNew.parentDir());
             int replaceStart = block.text().indexOf(relPathOld.toUrlishString());
             QString oldString;
             QString newString;
@@ -2166,15 +2166,15 @@ void CppModelManager::GC()
     }
 
     // Find out the files in the current snapshot that are not reachable from the project files
-    QStringList notReachableFiles;
+    FilePaths notReachableFiles;
     Snapshot newSnapshot;
     for (Snapshot::const_iterator it = currentSnapshot.begin(); it != currentSnapshot.end(); ++it) {
-        const FilePath &fileName = it.key();
+        const FilePath &filePath = it.key();
 
-        if (reachableFiles.contains(fileName))
+        if (reachableFiles.contains(filePath))
             newSnapshot.insert(it.value());
         else
-            notReachableFiles.append(fileName.toUrlishString());
+            notReachableFiles.append(filePath);
     }
 
     // Announce removing files and replace the snapshot

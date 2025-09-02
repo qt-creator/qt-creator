@@ -37,6 +37,9 @@ using namespace Core;
 
 TerminalPane::TerminalPane(QObject *parent)
     : IOutputPane(parent)
+    , m_closeCurrentTabAction(new QAction(Tr::tr("Close Tab"), this))
+    , m_closeAllTabsAction(new QAction(Tr::tr("Close All Tabs"), this))
+    , m_closeOtherTabsAction(new QAction(Tr::tr("Close Other Tabs"), this))
     , m_selfContext("Terminal.Pane")
 {
     setId("Terminal");
@@ -54,6 +57,13 @@ TerminalPane::TerminalPane(QObject *parent)
         if (currentTerminal())
             currentTerminal()->zoomOut();
     });
+
+    m_tabWidget.setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(
+        &m_tabWidget,
+        &QWidget::customContextMenuRequested,
+        this,
+        &TerminalPane::contextMenuRequested);
 
     createShellMenu();
     initActions();
@@ -398,6 +408,33 @@ void TerminalPane::goToPrev()
 
     m_tabWidget.setCurrentIndex(prevIndex);
     emit navigateStateUpdate();
+}
+
+void TerminalPane::contextMenuRequested(const QPoint &pos)
+{
+    if (!m_tabWidget.tabBar()->geometry().contains(pos))
+        return;
+
+    const int index = m_tabWidget.tabBar()->tabAt(pos);
+    const QList<QAction *> actions
+        = {m_closeCurrentTabAction, m_closeAllTabsAction, m_closeOtherTabsAction};
+    QAction *action = QMenu::exec(actions, m_tabWidget.mapToGlobal(pos), nullptr, &m_tabWidget);
+
+    if (action == m_closeAllTabsAction) {
+        while (m_tabWidget.count() > 0)
+            removeTab(0);
+        return;
+    }
+
+    const int currentIdx = index != -1 ? index : m_tabWidget.currentIndex();
+    if (action == m_closeCurrentTabAction) {
+        if (currentIdx >= 0)
+            removeTab(currentIdx);
+    } else if (action == m_closeOtherTabsAction) {
+        for (int t = m_tabWidget.count() - 1; t >= 0; t--)
+            if (t != currentIdx)
+                removeTab(t);
+    }
 }
 
 } // namespace Terminal

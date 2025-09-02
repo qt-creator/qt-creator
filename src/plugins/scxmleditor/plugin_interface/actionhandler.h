@@ -9,9 +9,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QAction)
 
-namespace ScxmlEditor {
-
-namespace PluginInterface {
+namespace ScxmlEditor::PluginInterface {
 
 class ActionHandler : public QObject
 {
@@ -23,8 +21,7 @@ public:
     QAction *action(ActionType type) const;
 
 private:
-    QVector<QAction*> m_actions;
+    QList<QAction*> m_actions;
 };
 
-} // namespace PluginInterface
-} // namespace ScxmlEditor
+} // namespace ScxmlEditor::PluginInterface

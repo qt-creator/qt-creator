@@ -11,6 +11,8 @@
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>
 
+using namespace Utils;
+
 namespace ClangTools {
 namespace Internal {
 
@@ -29,13 +31,13 @@ private:
 };
 
 using Range = TextEditor::RefactoringFile::Range;
-using DiagnosticRange = QPair<Debugger::DiagnosticLocation, Debugger::DiagnosticLocation>;
+using DiagnosticRange = QPair<Link, Link>;
 
 static Range toRange(const QTextDocument *doc, DiagnosticRange locations)
 {
     Range range;
-    range.start = Utils::Text::positionInText(doc, locations.first.line, locations.first.column);
-    range.end = Utils::Text::positionInText(doc, locations.second.line, locations.second.column);
+    range.start = Text::positionInText(doc, locations.first.targetLine, locations.first.targetColumn);
+    range.end = Text::positionInText(doc, locations.second.targetLine, locations.second.targetColumn);
     return range;
 }
 
@@ -47,9 +49,10 @@ void ClangToolQuickFixOperation::perform()
     for (const ExplainingStep &step : m_diagnostic.explainingSteps) {
         if (!step.isFixIt)
             continue;
-        TextEditor::RefactoringFilePtr &refactoringFile = refactoringFiles[step.location.filePath];
+        TextEditor::RefactoringFilePtr &refactoringFile =
+                refactoringFiles[step.location.targetFilePath];
         if (refactoringFile.isNull())
-            refactoringFile = changes.file(step.location.filePath);
+            refactoringFile = changes.file(step.location.targetFilePath);
         Utils::ChangeSet changeSet = refactoringFile->changeSet();
         Range range = toRange(refactoringFile->document(), {step.ranges.first(), step.ranges.last()});
         changeSet.replace(range, step.message);

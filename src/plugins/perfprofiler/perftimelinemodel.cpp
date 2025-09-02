@@ -1,8 +1,8 @@
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "perfdatareader.h"
 #include "perfprofilertr.h"
+#include "perfprofilertracemanager.h"
 #include "perftimelinemodel.h"
 #include "perftimelinemodelmanager.h"
 #include "perftimelineresourcesrenderpass.h"
@@ -13,8 +13,7 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 PerfTimelineModel::PerfTimelineModel(quint32 pid, quint32 tid, qint64 startTime, qint64 endTime,
                                      PerfTimelineModelManager *parent) :
@@ -308,7 +307,7 @@ void PerfTimelineModel::updateFrames(const PerfEvent &event, int numConcurrentTh
                                      qint64 resourceDelta, int resourceGuesses)
 {
     static const int intMax = std::numeric_limits<int>::max();
-    const QVector<qint32> &frames = event.frames();
+    const QList<qint32> &frames = event.frames();
 
     const int numFrames = frames.length();
     const qint64 sampleStart = m_lastTimestamp < 0
@@ -411,7 +410,7 @@ void PerfTimelineModel::loadEvent(const PerfEvent &event, int numConcurrentThrea
 {
     switch (event.attributeId(0)) {
     case PerfEvent::LostTypeId: {
-        QVector<int> frames;
+        QList<int> frames;
         for (int pos = m_currentStack.length() - 1; pos >= 0; --pos)
             frames.append(selectionId(m_currentStack[pos]));
 
@@ -627,5 +626,4 @@ QList<const Timeline::TimelineRenderPass *> PerfTimelineModel::supportedRenderPa
     return passes;
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

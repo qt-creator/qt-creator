@@ -24,13 +24,11 @@ using namespace Utils;
 
 namespace BareMetal::Internal {
 
-const char executableFileKeyC[] = "ExecutableFile";
 const char jlinkDeviceKeyC[] = "JLinkDevice";
 const char jlinkHostInterfaceKeyC[] = "JLinkHostInterface";
 const char jlinkHostInterfaceIPAddressKeyC[] = "JLinkHostInterfaceIPAddress";
 const char jlinkTargetInterfaceKeyC[] = "JLinkTargetInterface";
 const char jlinkTargetInterfaceSpeedKeyC[] = "JLinkTargetInterfaceSpeed";
-const char additionalArgumentsKeyC[] = "AdditionalArguments";
 
 // JLinkGdbServerProviderConfigWidget
 
@@ -86,7 +84,6 @@ public:
 
     bool operator==(const IDebugServerProvider &other) const final;
 
-    QString channelString() const final;
     CommandLine command() const final;
 
     QSet<StartupMode> supportedStartupModes() const final;
@@ -98,13 +95,11 @@ private:
     static QString defaultInitCommands();
     static QString defaultResetCommands();
 
-    FilePath m_executableFile;
     QString m_jlinkDevice;
     QString m_jlinkHost = {"USB"};
     QString m_jlinkHostAddr;
     QString m_jlinkTargetIface = {"SWD"};
     QString m_jlinkTargetIfaceSpeed = {"12000"};
-    QString m_additionalArguments;
 
     friend class JLinkGdbServerProviderConfigWidget;
     friend class JLinkGdbServerProviderFactory;
@@ -132,17 +127,6 @@ QString JLinkGdbServerProvider::defaultInitCommands()
 QString JLinkGdbServerProvider::defaultResetCommands()
 {
     return {"monitor reset halt\n"};
-}
-
-QString JLinkGdbServerProvider::channelString() const
-{
-    switch (startupMode()) {
-    case StartupOnNetwork:
-        // Just return as "host:port" form.
-        return GdbServerProvider::channelString();
-    default: // wrong
-        return {};
-    }
 }
 
 CommandLine JLinkGdbServerProvider::command() const
@@ -197,21 +181,17 @@ bool JLinkGdbServerProvider::isValid() const
 void JLinkGdbServerProvider::toMap(Store &data) const
 {
     GdbServerProvider::toMap(data);
-    data.insert(executableFileKeyC, m_executableFile.toSettings());
     data.insert(jlinkDeviceKeyC, m_jlinkDevice);
     data.insert(jlinkHostInterfaceKeyC, m_jlinkHost);
     data.insert(jlinkHostInterfaceIPAddressKeyC, m_jlinkHostAddr);
     data.insert(jlinkTargetInterfaceKeyC, m_jlinkTargetIface);
     data.insert(jlinkTargetInterfaceSpeedKeyC, m_jlinkTargetIfaceSpeed);
-    data.insert(additionalArgumentsKeyC, m_additionalArguments);
 }
 
 void JLinkGdbServerProvider::fromMap(const Store &data)
 {
     GdbServerProvider::fromMap(data);
-    m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
     m_jlinkDevice = data.value(jlinkDeviceKeyC).toString();
-    m_additionalArguments = data.value(additionalArgumentsKeyC).toString();
     m_jlinkHost = data.value(jlinkHostInterfaceKeyC).toString();
     m_jlinkHostAddr = data.value(jlinkHostInterfaceIPAddressKeyC).toString();
     m_jlinkTargetIface = data.value(jlinkTargetInterfaceKeyC).toString();

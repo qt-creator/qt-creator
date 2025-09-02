@@ -3,9 +3,9 @@
 
 #include "addrunconfigdialog.h"
 
+#include "buildconfiguration.h"
 #include "project.h"
 #include "projectexplorertr.h"
-#include "target.h"
 
 #include <utils/itemviews.h>
 #include <utils/fancylineedit.h>
@@ -30,9 +30,9 @@ const Qt::ItemDataRole IsCustomRole = Qt::UserRole;
 class CandidateTreeItem : public TreeItem
 {
 public:
-    CandidateTreeItem(const RunConfigurationCreationInfo &rci, const Target *target)
-        : m_creationInfo(rci), m_projectRoot(target->project()->projectDirectory()),
-          m_displayName(target->macroExpander()->expand(rci.displayName))
+    CandidateTreeItem(const RunConfigurationCreationInfo &rci, const BuildConfiguration *bc)
+        : m_creationInfo(rci), m_projectRoot(bc->project()->projectDirectory()),
+          m_displayName(bc->macroExpander()->expand(rci.displayName))
     { }
 
     RunConfigurationCreationInfo creationInfo() const { return m_creationInfo; }
@@ -64,12 +64,12 @@ private:
 class CandidatesModel : public TreeModel<TreeItem, CandidateTreeItem>
 {
 public:
-    CandidatesModel(Target *target, QObject *parent) : TreeModel(parent)
+    CandidatesModel(BuildConfiguration *bc, QObject *parent) : TreeModel(parent)
     {
         setHeader({Tr::tr("Name"), Tr::tr("Source")});
         for (const RunConfigurationCreationInfo &rci
-             : RunConfigurationFactory::creatorsForTarget(target)) {
-            rootItem()->appendChild(new CandidateTreeItem(rci, target));
+             : RunConfigurationFactory::creatorsForBuildConfig(bc)) {
+            rootItem()->appendChild(new CandidateTreeItem(rci, bc));
         }
     }
 };
@@ -108,11 +108,11 @@ private:
     }
 };
 
-AddRunConfigDialog::AddRunConfigDialog(Target *target, QWidget *parent)
+AddRunConfigDialog::AddRunConfigDialog(BuildConfiguration *bc, QWidget *parent)
     : QDialog(parent), m_view(new CandidatesTreeView(this))
 {
     setWindowTitle(Tr::tr("Create Run Configuration"));
-    const auto model = new CandidatesModel(target, this);
+    const auto model = new CandidatesModel(bc, this);
     const auto proxyModel = new ProxyModel(this);
     proxyModel->setSourceModel(model);
     const auto filterEdit = new FancyLineEdit(this);

@@ -204,7 +204,7 @@ public:
 
     QByteArray rawData;
     QString incompleteLineBuffer; // lines not yet signaled
-    QTextCodec *codec = nullptr; // Not owner
+    const QTextCodec *codec = nullptr; // Not owner
     std::unique_ptr<QTextCodec::ConverterState> codecState;
     std::function<void(const QString &lines)> outputCallback;
     TextChannelMode m_textChannelMode = TextChannelMode::Off;
@@ -244,13 +244,15 @@ void DefaultImpl::start()
 bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
 {
     const CommandLine &commandLine = m_setup.m_commandLine;
+    const OsType osType = commandLine.executable().osType();
+
     QString commandString;
-    ProcessArgs processArgs;
+    QString processArgs;
     const bool success = ProcessArgs::prepareCommand(commandLine, &commandString, &processArgs,
                                                      &m_setup.m_environment,
-                                                     &m_setup.m_workingDirectory);
+                                                     m_setup.m_workingDirectory);
 
-    if (commandLine.executable().osType() == OsTypeWindows) {
+    if (osType == OsTypeWindows) {
         QString args;
         if (m_setup.m_useCtrlCStub) {
             if (m_setup.m_lowPriority)
@@ -261,7 +263,7 @@ bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
         } else if (m_setup.m_lowPriority) {
             m_setup.m_belowNormalPriority = true;
         }
-        ProcessArgs::addArgs(&args, processArgs.toWindowsArgs());
+        ProcessArgs::addArgs(&args, processArgs);
         m_setup.m_nativeArguments = args;
         // Note: Arguments set with setNativeArgs will be appended to the ones
         // passed with start() below.
@@ -275,7 +277,7 @@ bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
             emit done(result);
             return false;
         }
-        *arguments = processArgs.toUnixArgs();
+        *arguments = ProcessArgs::splitArgs(processArgs, osType);
     }
     *program = commandString;
     return true;
@@ -375,32 +377,11 @@ public:
             penv = Environment::systemEnvironment().toProcessEnvironment();
         const QStringList senv = penv.toStringList();
 
-        bool startResult = m_ptyProcess->startProcess(executable,
-                                                      HostOsInfo::isWindowsHost()
-                                                          ? QStringList{m_setup.m_nativeArguments}
-                                                                << arguments
-                                                          : arguments,
-                                                      m_setup.m_workingDirectory.nativePath(),
-                                                      senv,
-                                                      m_setup.m_ptyData->size().width(),
-                                                      m_setup.m_ptyData->size().height());
-
-        if (!startResult) {
-            const ProcessResultData result = {-1,
-                                              QProcess::CrashExit,
-                                              QProcess::FailedToStart,
-                                              "Failed to start pty process: "
-                                                  + m_ptyProcess->lastError()};
-            emit done(result);
-            return;
-        }
-
-        if (!m_ptyProcess->lastError().isEmpty()) {
-            const ProcessResultData result
-                = {-1, QProcess::CrashExit, QProcess::FailedToStart, m_ptyProcess->lastError()};
-            emit done(result);
-            return;
-        }
+        FilePath workingDir = m_setup.m_workingDirectory;
+        if (!workingDir.isDir())
+            workingDir = workingDir.parentDir();
+        if (!QTC_GUARD(workingDir.exists()))
+            workingDir = workingDir.withNewPath({});
 
         connect(m_ptyProcess->notifier(), &QIODevice::readyRead, this, [this] {
             if (m_setup.m_ptyData->ptyInputFlagsChangedHandler()
@@ -433,6 +414,32 @@ public:
             const ProcessResultData result = {0, QProcess::NormalExit, QProcess::UnknownError, {}};
             emit done(result);
         });
+
+        bool startResult = m_ptyProcess->startProcess(
+            executable,
+            HostOsInfo::isWindowsHost() ? QStringList{m_setup.m_nativeArguments} << arguments
+                                        : arguments,
+            workingDir.nativePath(),
+            senv,
+            m_setup.m_ptyData->size().width(),
+            m_setup.m_ptyData->size().height());
+
+        if (!startResult) {
+            const ProcessResultData result
+                = {-1,
+                   QProcess::CrashExit,
+                   QProcess::FailedToStart,
+                   "Failed to start pty process: " + m_ptyProcess->lastError()};
+            emit done(result);
+            return;
+        }
+
+        if (!m_ptyProcess->lastError().isEmpty()) {
+            const ProcessResultData result
+                = {-1, QProcess::CrashExit, QProcess::FailedToStart, m_ptyProcess->lastError()};
+            emit done(result);
+            return;
+        }
 
         emit started(m_ptyProcess->pid());
     }
@@ -507,6 +514,7 @@ private:
         if (m_setup.m_unixTerminalDisabled)
             m_process->setUnixTerminalDisabled();
         m_process->setUseCtrlCStub(m_setup.m_useCtrlCStub);
+        m_process->setAllowCoreDumps(m_setup.m_allowCoreDumps);
         m_process->start(program, arguments, handler->openMode());
         handler->handleProcessStart();
     }
@@ -723,8 +731,8 @@ public:
     qint64 m_applicationMainThreadId = 0;
     ProcessResultData m_resultData;
 
-    QTextCodec *m_stdOutCodec = nullptr;
-    QTextCodec *m_stdErrCodec = nullptr;
+    const QTextCodec *m_stdOutCodec = nullptr;
+    const QTextCodec *m_stdErrCodec = nullptr;
 
     ProcessResult m_result = ProcessResult::StartFailed;
     ChannelBuffer m_stdOut;
@@ -1131,6 +1139,11 @@ void Process::setUseCtrlCStub(bool enabled)
     d->m_setup.m_useCtrlCStub = enabled;
 }
 
+void Process::setAllowCoreDumps(bool enabled)
+{
+    d->m_setup.m_allowCoreDumps = enabled;
+}
+
 void Process::start()
 {
     QTC_ASSERT(state() == QProcess::NotRunning, return);
@@ -1138,6 +1151,19 @@ void Process::start()
                qWarning("Restarting the Process directly from one of its signal handlers will "
                         "lead to crash! Consider calling close() prior to direct restart."));
     d->clearForRun();
+
+    if (d->m_setup.m_commandLine.executable().isEmpty()
+        && d->m_setup.m_commandLine.executable().scheme().isEmpty()
+        && d->m_setup.m_commandLine.executable().host().isEmpty()) {
+        d->m_result = ProcessResult::StartFailed;
+        d->m_resultData.m_exitCode = 255;
+        d->m_resultData.m_exitStatus = QProcess::CrashExit;
+        d->m_resultData.m_errorString = Tr::tr("No executable specified.");
+        d->m_resultData.m_error = QProcess::FailedToStart;
+        d->emitGuardedSignal(&Process::done);
+        return;
+    }
+
     ProcessInterface *processImpl = nullptr;
     if (d->m_setup.m_commandLine.executable().isLocal()) {
         processImpl = d->createProcessInterface();
@@ -1272,6 +1298,22 @@ void Process::setForceDefaultErrorModeOnWindows(bool force)
 bool Process::forceDefaultErrorModeOnWindows() const
 {
     return d->m_setup.m_forceDefaultErrorMode;
+}
+
+ProcessInterface *Process::takeProcessInterface()
+{
+    QTC_ASSERT(QThread::currentThread() == thread(), return nullptr);
+    QTC_ASSERT(state() == QProcess::NotRunning, return nullptr);
+    QTC_ASSERT(d->m_process, return nullptr);
+    QTC_ASSERT(d->m_process->thread() == thread(), return nullptr);
+    if (d->m_blockingInterface) {
+        d->m_blockingInterface->disconnect();
+        d->m_blockingInterface.release()->deleteLater();
+    }
+    d->clearForRun();
+    d->m_process->disconnect();
+    d->m_process->setParent(nullptr);
+    return d->m_process.release();
 }
 
 void Process::setExtraData(const QString &key, const QVariant &value)
@@ -1532,8 +1574,12 @@ void Process::stop()
     if (state() == QProcess::NotRunning)
         return;
 
-    emit requestingStop();
     d->sendControlSignal(ControlSignal::Terminate);
+
+    // done() signal could have been sent synchronously - see TerminalInterface::killInferiorProcess()
+    if (state() == QProcess::NotRunning)
+        return;
+
     d->m_killTimer.start(d->m_process->m_setup.m_reaperTimeout);
 }
 
@@ -1559,7 +1605,9 @@ QString Process::exitMessage(const CommandLine &command, ProcessResult result,
     case ProcessResult::TerminatedAbnormally:
         return Tr::tr("The command \"%1\" terminated abnormally.").arg(cmd);
     case ProcessResult::StartFailed:
-        return Tr::tr("The command \"%1\" could not be started.").arg(cmd);
+        return Tr::tr("The command \"%1\" could not be started.").arg(cmd) + ' '
+               + Tr::tr("Either the invoked program is missing, or you may have insufficient "
+                        "permissions to invoke the program.");
     case ProcessResult::Canceled:
         // TODO: We might want to format it nicely when bigger than 1 second, e.g. 1,324 s.
         //       Also when it's bigger than 1 minute, 1 hour, etc...
@@ -1568,9 +1616,26 @@ QString Process::exitMessage(const CommandLine &command, ProcessResult result,
     return {};
 }
 
-QString Process::exitMessage() const
+QString Process::exitMessage(FailureMessageFormat format) const
 {
-    return exitMessage(commandLine(), result(), exitCode(), processDuration());
+    QString msg = exitMessage(commandLine(), result(), exitCode(), processDuration());
+    if (format == FailureMessageFormat::Plain || result() == ProcessResult::FinishedWithSuccess)
+        return msg;
+    if (format == FailureMessageFormat::WithStdErr
+        || format == FailureMessageFormat::WithAllOutput) {
+        const QString stdErr = cleanedStdErr();
+        if (!stdErr.isEmpty()) {
+            msg.append('\n').append(Tr::tr("Standard error output was:")).append('\n')
+                .append(stdErr);
+        }
+    }
+    if (format == FailureMessageFormat::WithStdOut
+        || format == FailureMessageFormat::WithAllOutput) {
+        const QString stdOut = cleanedStdOut();
+        if (!stdOut.isEmpty())
+            msg.append('\n').append(Tr::tr("Standard output was:")).append('\n').append(stdOut);
+    }
+    return msg;
 }
 
 milliseconds Process::processDuration() const
@@ -1702,12 +1767,14 @@ void ChannelBuffer::append(const QByteArray &text)
     // Convert and append the new input to the buffer of incomplete lines
     incompleteLineBuffer.append(codec->toUnicode(text.constData(), text.size(), codecState.get()));
 
+    QStringView bufferView(incompleteLineBuffer);
+
     do {
-        // Any completed lines in the incompleteLineBuffer?
+        // Any completed lines in the bufferView?
         int pos = -1;
         if (emitSingleLines) {
-            const int posn = incompleteLineBuffer.indexOf('\n');
-            const int posr = incompleteLineBuffer.indexOf('\r');
+            const int posn = bufferView.indexOf('\n');
+            const int posr = bufferView.indexOf('\r');
             if (posn != -1) {
                 if (posr != -1) {
                     if (posn == posr + 1)
@@ -1721,16 +1788,16 @@ void ChannelBuffer::append(const QByteArray &text)
                 pos = posr; // Make sure internal '\r' triggers a line output
             }
         } else {
-            pos = qMax(incompleteLineBuffer.lastIndexOf('\n'),
-                       incompleteLineBuffer.lastIndexOf('\r'));
+            pos = qMax(bufferView.lastIndexOf('\n'),
+                       bufferView.lastIndexOf('\r'));
         }
 
         if (pos == -1)
             break;
 
         // Get completed lines and remove them from the incompleteLinesBuffer:
-        const QString line = Utils::normalizeNewlines(incompleteLineBuffer.left(pos + 1));
-        incompleteLineBuffer = incompleteLineBuffer.mid(pos + 1);
+        const QString line = Utils::normalizeNewlines(bufferView.left(pos + 1));
+        bufferView = bufferView.mid(pos + 1);
 
         QTC_ASSERT(outputCallback, return);
         outputCallback(line);
@@ -1738,6 +1805,7 @@ void ChannelBuffer::append(const QByteArray &text)
         if (!emitSingleLines)
             break;
     } while (true);
+    incompleteLineBuffer = bufferView.toString();
 }
 
 void ChannelBuffer::handleRest()
@@ -1748,7 +1816,7 @@ void ChannelBuffer::handleRest()
     }
 }
 
-void Process::setCodec(QTextCodec *codec)
+void Process::setCodec(const QTextCodec *codec)
 {
     QTC_ASSERT(codec, return);
     d->m_stdOutCodec = codec;
@@ -1959,7 +2027,7 @@ void ProcessPrivate::handleDone(const ProcessResultData &data)
 
     switch (m_state) {
     case QProcess::NotRunning:
-        QTC_CHECK(false); // Can't happen
+        QTC_ASSERT(false, return); // Can't happen
         break;
     case QProcess::Starting:
         QTC_CHECK(m_resultData.m_error == QProcess::FailedToStart);

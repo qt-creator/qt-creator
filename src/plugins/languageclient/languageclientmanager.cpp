@@ -18,6 +18,7 @@
 #include <languageserverprotocol/messages.h>
 #include <languageserverprotocol/progresssupport.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
@@ -36,6 +37,7 @@
 
 using namespace ExtensionSystem;
 using namespace LanguageServerProtocol;
+using namespace ProjectExplorer;
 
 namespace LanguageClient {
 
@@ -58,15 +60,14 @@ LanguageClientManager::LanguageClientManager()
     managerInstance = this;
     d.reset(new LanguageClientManagerPrivate);
     using namespace Core;
-    using namespace ProjectExplorer;
     connect(EditorManager::instance(), &EditorManager::editorOpened,
             this, &LanguageClientManager::editorOpened);
     connect(EditorManager::instance(), &EditorManager::documentOpened,
             this, &LanguageClientManager::documentOpened);
     connect(EditorManager::instance(), &EditorManager::documentClosed,
             this, &LanguageClientManager::documentClosed);
-    connect(ProjectManager::instance(), &ProjectManager::projectAdded,
-            this, &LanguageClientManager::projectAdded);
+    connect(ProjectManager::instance(), &ProjectManager::buildConfigurationAdded,
+            this, &LanguageClientManager::buildConfigurationAdded);
     connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
             this, [this](Project *project) { project->disconnect(this); });
 
@@ -115,9 +116,10 @@ void LanguageClient::LanguageClientManager::addClient(Client *client)
                 }
             });
 
-    ProjectExplorer::Project *project = client->project();
+    Project *project = client->project();
+
     if (!project)
-        project = ProjectExplorer::ProjectManager::startupProject();
+        project = ProjectManager::startupProject();
     if (project)
         client->updateConfiguration(ProjectSettings(project).workspaceConfiguration());
 
@@ -201,12 +203,12 @@ void LanguageClientManager::clientFinished(Client *client)
 }
 
 Client *LanguageClientManager::startClient(const BaseSettings *setting,
-                                           ProjectExplorer::Project *project)
+                                           BuildConfiguration *bc)
 {
     QTC_ASSERT(managerInstance, return nullptr);
     QTC_ASSERT(setting, return nullptr);
     QTC_ASSERT(setting->isValid(), return nullptr);
-    Client *client = setting->createClient(project);
+    Client *client = setting->createClient(bc);
     QTC_ASSERT(client, return nullptr);
     qCDebug(Log) << "start client: " << client->name() << client;
     client->start();
@@ -288,6 +290,8 @@ QList<Client *> LanguageClientManager::clientsSupportingDocument(
 
 void LanguageClientManager::writeSettings()
 {
+    // do not write settings before they have been initialized
+    QTC_ASSERT(LanguageClientSettings::initialized(), return);
     LanguageClientSettings::toSettings(Core::ICore::settings(), managerInstance->m_currentSettings);
 }
 
@@ -357,31 +361,34 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
         }
     } else if (setting->m_startBehavior == BaseSettings::RequiresProject) {
         const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
-        QHash<ProjectExplorer::Project *, Client *> clientForProject;
+        QHash<Project *, Client *> clientForProject;
         for (Core::IDocument *document : openedDocuments) {
             auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
             if (!textDocument || !setting->m_languageFilter.isSupported(textDocument))
                 continue;
             const Utils::FilePath filePath = textDocument->filePath();
-            for (ProjectExplorer::Project *project :
-                 ProjectExplorer::ProjectManager::projects()) {
-                if (!setting->isValidOnProject(project))
-                    continue;
-                const bool settingIsEnabled
-                    = ProjectSettings(project).enabledSettings().contains(setting->m_id)
-                      || (setting->m_enabled
-                          && !ProjectSettings(project).disabledSettings().contains(setting->m_id));
-                if (!settingIsEnabled)
-                    continue;
-                if (project->isKnownFile(filePath)) {
-                    Client *client = clientForProject[project];
-                    if (!client) {
-                        client = startClient(setting, project);
-                        if (!client)
+            for (Project *project : ProjectManager::projects()) {
+                for (Target *target : project->targets()) {
+                    for (BuildConfiguration *bc : target->buildConfigurations()) {
+                        if (!setting->isValidOnBuildConfiguration(bc))
                             continue;
-                        clientForProject[project] = client;
+                        const bool settingIsEnabled
+                            = ProjectSettings(project).enabledSettings().contains(setting->m_id)
+                              || (setting->m_enabled
+                                  && !ProjectSettings(project).disabledSettings().contains(setting->m_id));
+                        if (!settingIsEnabled)
+                            continue;
+                        if (project->isKnownFile(filePath)) {
+                            Client *client = clientForProject[project];
+                            if (!client) {
+                                client = startClient(setting, bc);
+                                if (!client)
+                                    continue;
+                                clientForProject[project] = client;
+                            }
+                            client->openDocument(textDocument);
+                        }
                     }
-                    client->openDocument(textDocument);
                 }
             }
         }
@@ -448,11 +455,11 @@ QList<Client *> LanguageClientManager::clientsByName(const QString &name)
     });
 }
 
-void LanguageClientManager::updateWorkspaceConfiguration(const ProjectExplorer::Project *project,
+void LanguageClientManager::updateWorkspaceConfiguration(const Project *project,
                                                          const QJsonValue &json)
 {
-    for (Client *client : managerInstance->m_clients) {
-        ProjectExplorer::Project *clientProject = client->project();
+    for (Client *client : std::as_const(managerInstance->m_clients)) {
+        Project *clientProject = client->project();
         if (!clientProject || clientProject == project)
             client->updateConfiguration(json);
     }
@@ -470,11 +477,10 @@ Client *LanguageClientManager::clientForFilePath(const Utils::FilePath &filePath
     return clientForDocument(TextEditor::TextDocument::textDocumentForFilePath(filePath));
 }
 
-const QList<Client *> LanguageClientManager::clientsForProject(
-        const ProjectExplorer::Project *project)
+const QList<Client *> LanguageClientManager::clientsForBuildConfiguration(const BuildConfiguration *bc)
 {
-    return Utils::filtered(managerInstance->m_clients, [project](const Client *c) {
-        return c->project() == project;
+    return Utils::filtered(managerInstance->m_clients, [bc](const Client *c) {
+        return c->buildConfiguration() == bc;
     });
 }
 
@@ -483,6 +489,7 @@ void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *doc
     if (!document)
         return;
     Client *currentClient = clientForDocument(document);
+    client = client && client->activatable() ? client : nullptr;
     if (client == currentClient)
         return;
     const bool firstOpen = !managerInstance->m_clientForDocument.remove(document);
@@ -637,27 +644,36 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
         QList<Client *> clients = clientsForSetting(setting);
         if (setting->m_startBehavior == BaseSettings::RequiresProject) {
             const Utils::FilePath &filePath = document->filePath();
-            for (ProjectExplorer::Project *project : ProjectExplorer::ProjectManager::projects()) {
+            for (Project *project : ProjectManager::projects()) {
                 // check whether file is part of this project
                 if (!project->isKnownFile(filePath))
                     continue;
+                for (Target *target : project->targets()) {
+                    bool activateDocument = project->activeTarget() == target;
+                    for (BuildConfiguration *bc : target->buildConfigurations()) {
+                        // check whether we already have a client running for this project
+                        Client *clientForBc = Utils::findOrDefault(
+                            clients, Utils::equal(&Client::buildConfiguration, bc));
 
-                // check whether we already have a client running for this project
-                Client *clientForProject
-                    = Utils::findOrDefault(clients, Utils::equal(&Client::project, project));
+                        // create a client only when valid on the current project
+                        if (!clientForBc) {
+                            if (!setting->isValidOnBuildConfiguration(bc))
+                                continue;
+                            clientForBc = startClient(setting, bc);
+                        }
 
-                // create a client only when valid on the current project
-                if (!clientForProject) {
-                    if (!setting->isValidOnProject(project))
-                        continue;
-                    clientForProject = startClient(setting, project);
+                        QTC_ASSERT(clientForBc, continue);
+                        activateDocument |= clientForBc->activatable()
+                                            && target->activeBuildConfiguration() == bc;
+                        if (activateDocument)
+                            openDocumentWithClient(textDocument, clientForBc);
+                        else
+                            clientForBc->openDocument(textDocument);
+                        // Since we already opened the document in this client we remove the client
+                        // from the list of clients that receive the openDocument call
+                        clients.removeAll(clientForBc);
+                    }
                 }
-
-                QTC_ASSERT(clientForProject, continue);
-                openDocumentWithClient(textDocument, clientForProject);
-                // Since we already opened the document in this client we remove the client
-                // from the list of clients that receive the openDocument call
-                clients.removeAll(clientForProject);
             }
         } else if (setting->m_startBehavior == BaseSettings::RequiresFile && clients.isEmpty()) {
             if (Client *client = startClient(setting); QTC_GUARD(client))
@@ -665,8 +681,9 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
         }
         allClients << clients;
     }
+
     for (auto client : std::as_const(allClients)) {
-        if (m_clientForDocument[textDocument])
+        if (m_clientForDocument[textDocument] || !client->activatable())
             client->openDocument(textDocument);
         else
             openDocumentWithClient(textDocument, client);
@@ -678,25 +695,25 @@ void LanguageClientManager::documentClosed(Core::IDocument *document)
     openDocumentWithClient(qobject_cast<TextEditor::TextDocument *>(document), nullptr);
 }
 
-void LanguageClientManager::updateProject(ProjectExplorer::Project *project)
+void LanguageClientManager::updateProject(BuildConfiguration *bc)
 {
     for (BaseSettings *setting : std::as_const(m_currentSettings)) {
         if (setting->isValid()
             && setting->m_enabled
             && setting->m_startBehavior == BaseSettings::RequiresProject) {
             if (Utils::findOrDefault(clientsForSetting(setting),
-                                     [project](const QPointer<Client> &client) {
-                                         return client->project() == project;
+                                     [bc](const QPointer<Client> &client) {
+                                     return client->buildConfiguration() == bc;
                                      })
                 == nullptr) {
                 Client *newClient = nullptr;
                 const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
                 for (Core::IDocument *doc : openedDocuments) {
                     if (setting->m_languageFilter.isSupported(doc)
-                        && project->isKnownFile(doc->filePath())) {
+                            && bc->project()->isKnownFile(doc->filePath())) {
                         if (auto textDoc = qobject_cast<TextEditor::TextDocument *>(doc)) {
                             if (!newClient)
-                                newClient = startClient(setting, project);
+                                newClient = startClient(setting, bc);
                             if (!newClient)
                                 break;
                             newClient->openDocument(textDoc);
@@ -708,14 +725,19 @@ void LanguageClientManager::updateProject(ProjectExplorer::Project *project)
     }
 }
 
-void LanguageClientManager::projectAdded(ProjectExplorer::Project *project)
+void LanguageClientManager::buildConfigurationAdded(BuildConfiguration *bc)
 {
-    connect(project, &ProjectExplorer::Project::fileListChanged, this, [this, project]() {
-        updateProject(project);
-    });
+    connect(
+        bc->project(),
+        &ProjectExplorer::Project::fileListChanged,
+        this,
+        [this, bc = QPointer<BuildConfiguration>(bc)] {
+            if (bc)
+                updateProject(bc);
+        });
     const QList<Client *> &clients = reachableClients();
     for (Client *client : clients)
-        client->projectOpened(project);
+        client->buildConfigurationOpened(bc);
 }
 
 void LanguageClientManager::trackClientDeletion(Client *client)

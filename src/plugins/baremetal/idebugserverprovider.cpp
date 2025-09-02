@@ -73,6 +73,7 @@ void IDebugServerProvider::setChannel(const QUrl &channel)
 
 void IDebugServerProvider::setChannel(const QString &host, int port)
 {
+    m_channel.setScheme("tcp");
     m_channel.setHost(host);
     m_channel.setPort(port);
 }
@@ -82,12 +83,9 @@ QUrl IDebugServerProvider::channel() const
     return m_channel;
 }
 
-QString IDebugServerProvider::channelString() const
+QString IDebugServerProvider::channelPipe() const
 {
-    // Just return as "host:port" form.
-    if (m_channel.port() <= 0)
-        return m_channel.host();
-    return m_channel.host() + ':' + QString::number(m_channel.port());
+    return {};
 }
 
 QString IDebugServerProvider::id() const
@@ -336,6 +334,7 @@ void HostWidget::setChannel(const QUrl &channel)
 QUrl HostWidget::channel() const
 {
     QUrl url;
+    url.setScheme("tcp");
     url.setHost(m_hostLineEdit->text());
     url.setPort(m_portSpinBox->value());
     return url;

@@ -2,5 +2,6 @@ import "../cplusplus-shared/CPlusPlusToolUsingCustomUtils.qbs" as CPlusPlusToolU
 
 CPlusPlusToolUsingCustomUtils {
     name: "cplusplus-ast2png"
+    hasCMakeProjectFile: false
     files: base.concat(["cplusplus-ast2png.cpp"])
 }

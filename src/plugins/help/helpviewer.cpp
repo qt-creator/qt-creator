@@ -6,8 +6,6 @@
 #include "helptr.h"
 #include "localhelpmanager.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/fadingindicator.h>
 #include <utils/fileutils.h>
 #include <utils/temporarydirectory.h>
@@ -22,7 +20,9 @@
 
 #include <QHelpEngine>
 
-using namespace Help::Internal;
+using namespace Utils;
+
+namespace Help::Internal {
 
 struct ExtensionMap {
     const char *extension;
@@ -143,13 +143,15 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
 
         const QString& path = resolvedUrl.path();
         if (!canOpenPage(path)) {
-            Utils::TempFileSaver saver(Utils::TemporaryDirectory::masterDirectoryPath()
+            TempFileSaver saver(TemporaryDirectory::masterDirectoryPath()
                 + "/qtchelp_XXXXXX." + QFileInfo(path).completeSuffix());
             saver.setAutoRemove(false);
             if (!saver.hasError())
                 saver.write(helpEngine.fileData(resolvedUrl));
-            if (saver.finalize(Core::ICore::dialogParent()))
+            if (const Result<> res = saver.finalize())
                 QDesktopServices::openUrl(QUrl(saver.filePath().toUrlishString()));
+            else
+                FileUtils::showError(res.error());
             return true;
         }
         return false;
@@ -256,3 +258,5 @@ bool HelpViewer::handleForwardBackwardMouseButtons(QMouseEvent *event)
 
     return false;
 }
+
+} // Help::Internal

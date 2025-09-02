@@ -6,14 +6,14 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmlprofiler/qmlprofilerdetailsrewriter.h>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerDetailsRewriterTest : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit QmlProfilerDetailsRewriterTest(QObject *parent = nullptr);
+    QmlProfilerDetailsRewriterTest();
 
 private slots:
     void testMissingModelManager();
@@ -29,5 +29,4 @@ private:
     void seedRewriter();
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

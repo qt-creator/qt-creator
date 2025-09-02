@@ -22,7 +22,6 @@ QtcPlugin {
         "CppEditor",
     ]
 
-    cpp.defines: base.concat(["CPP_ENABLED"])
     cpp.includePaths: base.concat([
         sharedSources.prefix
     ])

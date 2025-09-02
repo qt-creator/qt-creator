@@ -29,7 +29,7 @@ def main():
     if not startedWithoutPluginError():
         return
     verifySaveBeforeBuildChecked(False)
-    projectName = "SampleApp-CMake"
+    projectName = "SampleApp_CMake"
     ensureSaveBeforeBuildChecked(False)
     # create qt quick application
     createNewQtQuickApplication(tempDir(), projectName)
@@ -37,7 +37,7 @@ def main():
         verifySaveBeforeBuildChecked(not expectDialog)
         files = ["%s.CMakeLists\\.txt" % projectName,
                  "%s.app%s.Source Files.main\\.cpp" % (projectName, projectName),
-                 "%s.app%s.Main\\.qml" % (projectName, projectName)]
+                 "%s.app%s.Source Files.Main\\.qml" % (projectName, projectName)]
         for i, file in enumerate(files):
             if not openDocument(file):
                 test.fatal("Could not open file '%s'" % simpleFileName(file))

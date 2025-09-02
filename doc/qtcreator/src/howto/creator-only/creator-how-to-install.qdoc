@@ -21,10 +21,15 @@
 
     \section1 \QOI
 
-    \QOI has both the latest released version of \QC and a beta version or a
-    release candidate of the upcoming release, depending on the release cycle.
+    \l{https://www.qt.io/download-dev}{\QOI} has both the latest released
+    version of \QC and a beta version or a release candidate of the upcoming
+    release, depending on the release cycle.
 
-    \note You need a Qt Account to use \QOI.
+    Search for \QC in the \QOI to find the avaiable versions.
+
+    \image {qt-online-installer.webp} {Qt Creator installers filtered in Qt Online Installer}
+
+    \note You need a \l{https://account.qt.io/}{Qt Account} to use \QOI.
 
     \section1 Standalone \QC
 

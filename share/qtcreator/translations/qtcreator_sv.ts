@@ -12283,13 +12283,8 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <translation>XXXHDPI</translation>
     </message>
     <message>
-        <source>An image is used for the splashscreen. Qt Creator manages
-splashscreen by using a different method which requires changing
-the manifest file by overriding your settings. Allow override?</source>
-        <translation>En bild används för startskärmen. Qt Creator hanterar
-startskärmen genom att använda en annan metod som kräver
-ändring avmanifest-filen genom att åsidosätta dina 
-inställningar. Tillåt denna åsidosättning?</translation>
+        <source>An image is used for the splashscreen. Qt Creator manages splashscreen by using a different method which requires changing the manifest file by overriding your settings. Allow override?</source>
+        <translation>En bild används för startskärmen. Qt Creator hanterar startskärmen genom att använda en annan metod som kräver ändring avmanifest-filen genom att åsidosätta dina inställningar. Tillåt denna åsidosättning?</translation>
     </message>
     <message>
         <source>Convert</source>
@@ -32857,7 +32852,7 @@ Commit now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Clean Project  Directory...</source>
+        <source>Clean Project Directory...</source>
         <comment>Avoid translating &quot;Clean&quot;</comment>
         <translation type="unfinished"></translation>
     </message>
@@ -36306,12 +36301,8 @@ See the documentation of the specific language server for valid settings.</sourc
         <translation>Installera paket</translation>
     </message>
     <message>
-        <source>The extension &quot;%1&quot; wants to install the following package(s):
-
-</source>
-        <translation>Utökningen &quot;%1&quot; vill installera följande paket:
-
-</translation>
+        <source>The extension &quot;%1&quot; wants to install the following package(s):</source>
+        <translation>Utökningen &quot;%1&quot; vill installera följande paket:</translation>
     </message>
     <message>
         <source>Install</source>
@@ -44395,12 +44386,6 @@ till projektet &quot;%2&quot;.</translation>
         <translation>* Misslyckades med att tolka &quot;%1&quot;:%2:%3: %4</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>* Hittade inte ett JSON-objekt i &quot;%1&quot;.
-</translation>
-    </message>
-    <message>
         <source>JsonWizard: &quot;%1&quot; not found.</source>
         <translation>JsonWizard: &quot;%1&quot; hittades inte.</translation>
     </message>
@@ -45066,8 +45051,8 @@ Dessa filer behålls.</numerusform>
         <translation>Installerar PySide</translation>
     </message>
     <message>
-        <source>You can install PySide from PyPi (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
-        <translation>Du kan installera PySide från PyPi (Community OSS-version) eller från din Qt-installationsplats, om du använder Qt-installeraren och har en kommersiell licens.</translation>
+        <source>You can install PySide from PyPI (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
+        <translation>Du kan installera PySide från PyPI (Community OSS-version) eller från din Qt-installationsplats, om du använder Qt-installeraren och har en kommersiell licens.</translation>
     </message>
     <message>
         <source>Select which version to install:</source>
@@ -49061,12 +49046,8 @@ the program.</source>
         <translation>Projektfil genererad</translation>
     </message>
     <message>
-        <source>File created:
-
-%1</source>
-        <translation>Filen skapad:
-
-%1</translation>
+        <source>File created:</source>
+        <translation>Filen skapad:</translation>
     </message>
     <message>
         <source>Select File Location</source>
@@ -50327,10 +50308,8 @@ Kontrollprocessen misslyckades att starta.</translation>
         <translation>&quot;sftp&quot;-binären &quot;%1&quot; finns inte.</translation>
     </message>
     <message>
-        <source>Created directory: &quot;%1&quot;.
-</source>
-        <translation>Skapade katalog: &quot;%1&quot;.
-</translation>
+        <source>Created directory: &quot;%1&quot;.</source>
+        <translation>Skapade katalog: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Copied %1/%2: &quot;%3&quot; -&gt; &quot;%4&quot;.
@@ -55280,8 +55259,8 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>Översikt</translation>
     </message>
     <message>
-        <source>Cursors: %2</source>
-        <translation>Markörer: %2</translation>
+        <source>Cursors: %1</source>
+        <translation>Markörer: %1</translation>
     </message>
     <message>
         <source>Cursor position: %1</source>
@@ -60443,8 +60422,8 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Number of matching elements: </source>
-        <translation>Antal matchande element: </translation>
+        <source>Number of matching elements:</source>
+        <translation>Antal matchande element:</translation>
     </message>
 </context>
 <context>

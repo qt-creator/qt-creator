@@ -50,7 +50,7 @@ QbsInstallStep::QbsInstallStep(BuildStepList *bsl, Id id)
 
 bool QbsInstallStep::init()
 {
-    QTC_ASSERT(!target()->buildSystem()->isParsing(), return false);
+    QTC_ASSERT(!buildSystem()->isParsing(), return false);
     return true;
 }
 
@@ -94,7 +94,7 @@ FilePath QbsInstallStep::installRoot() const
 
 const QbsBuildConfiguration *QbsInstallStep::buildConfig() const
 {
-    return static_cast<QbsBuildConfiguration *>(target()->activeBuildConfiguration());
+    return static_cast<QbsBuildConfiguration *>(buildConfiguration());
 }
 
 QWidget *QbsInstallStep::createConfigWidget()
@@ -131,7 +131,7 @@ QWidget *QbsInstallStep::createConfigWidget()
         commandLineTextEdit->setPlainText(buildConfig()->equivalentCommandLine(data));
     };
 
-    connect(target(), &Target::parsingFinished, this, updateState);
+    connect(buildSystem(), &BuildSystem::parsingFinished, this, updateState);
     connect(buildConfig(), &QbsBuildConfiguration::qbsConfigurationChanged, this, updateState);
     connect(this, &ProjectConfiguration::displayNameChanged, this, updateState);
 

@@ -44,8 +44,8 @@ static bool isDisabled(TriStateAspect *aspect)
     return aspect->value() == TriState::Disabled;
 }
 
-DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
-    : m_target(target)
+DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(BuildConfiguration *bc)
+    : m_buildConfiguration(bc)
 {
     setId("DebuggerAspect");
     setDisplayName(Tr::tr("Debugger settings"));
@@ -159,7 +159,7 @@ void DebuggerRunConfigurationAspect::setUseQmlDebugger(bool value)
 bool DebuggerRunConfigurationAspect::useCppDebugger() const
 {
     if (m_cppAspect() == TriState::Default)
-        return m_target->project()->projectLanguages().contains(
+        return m_buildConfiguration->project()->projectLanguages().contains(
                     ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     return m_cppAspect() == TriState::Enabled;
 }
@@ -182,15 +182,13 @@ static bool projectHasQmlDefines(ProjectExplorer::Project *project)
 bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 {
     if (m_qmlAspect() == TriState::Default) {
-        const Core::Context languages = m_target->project()->projectLanguages();
+        const Core::Context languages = m_buildConfiguration->project()->projectLanguages();
         if (!languages.contains(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID))
-            return projectHasQmlDefines(m_target->project());
+            return projectHasQmlDefines(m_buildConfiguration->project());
 
         // Try to find a build configuration to check whether qml debugging is enabled there
-        if (BuildConfiguration *bc = m_target->activeBuildConfiguration()) {
-            if (const auto aspect = bc->aspect<QtSupport::QmlDebuggingAspect>())
-                return aspect->value() == TriState::Enabled;
-        }
+        if (const auto aspect = m_buildConfiguration->aspect<QtSupport::QmlDebuggingAspect>())
+            return aspect->value() == TriState::Enabled;
 
         return !languages.contains(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     }
@@ -200,7 +198,7 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
 bool DebuggerRunConfigurationAspect::usePythonDebugger() const
 {
     if (m_pythonAspect() == TriState::Default) {
-        const Core::Context languages = m_target->project()->projectLanguages();
+        const Core::Context languages = m_buildConfiguration->project()->projectLanguages();
         return languages.contains(ProjectExplorer::Constants::PYTHON_LANGUAGE_ID);
     }
     return m_pythonAspect() == TriState::Enabled;
@@ -219,16 +217,6 @@ void DebuggerRunConfigurationAspect::setUseMultiProcess(bool value)
 QString DebuggerRunConfigurationAspect::overrideStartup() const
 {
     return m_overrideStartupAspect();
-}
-
-int DebuggerRunConfigurationAspect::portsUsedByDebugger() const
-{
-    int ports = 0;
-    if (useQmlDebugger())
-        ++ports;
-    if (useCppDebugger())
-        ++ports;
-    return ports;
 }
 
 void DebuggerRunConfigurationAspect::toMap(Store &map) const

@@ -31,6 +31,7 @@ Project {
         "3rdparty/qtkeychain/qtkeychain.qbs",
         "3rdparty/sol2/sol2.qbs",
         "3rdparty/syntax-highlighting/syntax-highlighting.qbs",
+        "3rdparty/ui_watchdog/uiwatchdog.qbs",
         "3rdparty/winpty/winpty.qbs",
         "3rdparty/yaml-cpp/yaml-cpp.qbs",
     ].concat(qlitehtml).concat(project.additionalLibs)

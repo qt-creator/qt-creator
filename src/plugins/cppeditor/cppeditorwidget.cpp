@@ -425,7 +425,7 @@ CppEditorWidget::CppEditorWidget()
 
 CppEditorWidget *CppEditorWidget::fromTextDocument(TextEditor::TextDocument *doc)
 {
-    const QVector<BaseTextEditor *> editors = BaseTextEditor::textEditorsForDocument(doc);
+    const QList<BaseTextEditor *> editors = BaseTextEditor::textEditorsForDocument(doc);
     for (BaseTextEditor * const editor : editors) {
         if (const auto editorWidget = qobject_cast<CppEditor::CppEditorWidget *>(
                 editor->editorWidget()))
@@ -474,7 +474,7 @@ void CppEditorWidget::finalizeInitialization()
     });
     connect(&d->m_localRenaming, &CppLocalRenaming::processKeyPressNormally,
             this, &CppEditorWidget::processKeyNormally);
-    connect(this, &QPlainTextEdit::cursorPositionChanged, this, [this] {
+    connect(this, &PlainTextEdit::cursorPositionChanged, this, [this] {
         if (d->m_cppEditorOutline)
             d->m_cppEditorOutline->updateIndex();
     });
@@ -489,8 +489,8 @@ void CppEditorWidget::finalizeInitialization()
     d->m_updateFunctionDeclDefLinkTimer.setInterval(UPDATE_FUNCTION_DECL_DEF_LINK_INTERVAL);
     connect(&d->m_updateFunctionDeclDefLinkTimer, &QTimer::timeout,
             this, &CppEditorWidget::updateFunctionDeclDefLinkNow);
-    connect(this, &QPlainTextEdit::cursorPositionChanged, this, &CppEditorWidget::updateFunctionDeclDefLink);
-    connect(this, &QPlainTextEdit::textChanged, this, &CppEditorWidget::updateFunctionDeclDefLink);
+    connect(this, &PlainTextEdit::cursorPositionChanged, this, &CppEditorWidget::updateFunctionDeclDefLink);
+    connect(this, &PlainTextEdit::textChanged, this, &CppEditorWidget::updateFunctionDeclDefLink);
 
     // set up the use highlighitng
     connect(this, &CppEditorWidget::cursorPositionChanged, this, [this] {
@@ -792,11 +792,11 @@ void CppEditorWidget::showRenameWarningIfFileIsGenerated(const Utils::FilePath &
         static const Id infoId("cppeditor.renameWarning");
         InfoBarEntry info(infoId, warning);
         if (ec) {
-            info.addCustomButton(CppEditor::Tr::tr("Open \"%1\"").arg(ec->source().fileName()),
-                                 [source = ec->source()] {
-                                     EditorManager::openEditor(source);
-                                     ICore::infoBar()->removeInfo(infoId);
-                                 });
+            info.addCustomButton(
+                CppEditor::Tr::tr("Open \"%1\"").arg(ec->source().fileName()),
+                [source = ec->source()] { EditorManager::openEditor(source); },
+                {},
+                InfoBarEntry::ButtonAction::Hide);
         }
         ICore::infoBar()->addInfo(info);
         return;

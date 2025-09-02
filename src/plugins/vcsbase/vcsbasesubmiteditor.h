@@ -95,7 +95,7 @@ protected:
      * the file. The default implementation uses the text
      * of the description editor. */
     virtual QByteArray fileContents() const;
-    virtual bool setFileContents(const QByteArray &contents);
+    virtual Utils::Result<> setFileContents(const QByteArray &contents);
 
     QString description() const;
     void setDescription(const QString &text);

@@ -18,7 +18,8 @@
 using namespace Utils;
 
 using namespace ScxmlEditor::Common;
-using namespace ScxmlEditor::Internal;
+
+namespace ScxmlEditor::Internal {
 
 ScxmlEditorDocument::ScxmlEditorDocument(MainWidget *designWidget, QObject *parent)
     : m_designWidget(designWidget)
@@ -34,46 +35,42 @@ ScxmlEditorDocument::ScxmlEditorDocument(MainWidget *designWidget, QObject *pare
     });
 }
 
-Core::IDocument::OpenResult ScxmlEditorDocument::open(QString *errorString,
-                                                      const Utils::FilePath &filePath,
-                                                      const Utils::FilePath &realFilePath)
+Result<> ScxmlEditorDocument::open(const FilePath &filePath, const FilePath &realFilePath)
 {
     Q_UNUSED(realFilePath)
 
     if (filePath.isEmpty())
-        return OpenResult::ReadError;
+        return ResultError("File path is empty"); // FIXME: Use something better
 
     if (!m_designWidget)
-        return OpenResult::ReadError;
+        return ResultError(ResultAssert);
 
     const FilePath &absoluteFilePath = filePath.absoluteFilePath();
-    if (!m_designWidget->load(absoluteFilePath.toUrlishString())) {
-        *errorString = m_designWidget->errorMessage();
-        return OpenResult::ReadError;
-    }
+    if (!m_designWidget->load(absoluteFilePath.toUrlishString()))
+        return ResultError(m_designWidget->errorMessage());
 
     setFilePath(absoluteFilePath);
 
-    return OpenResult::Success;
+    return ResultOk;
 }
 
-Result ScxmlEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> ScxmlEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (filePath.isEmpty())
-        return Result::Error("ASSERT: ScxmlEditorDocument: filePath.isEmpty()");
+        return ResultError("ASSERT: ScxmlEditorDocument: filePath.isEmpty()");
 
     bool dirty = m_designWidget->isDirty();
 
     m_designWidget->setFileName(filePath.toUrlishString());
     if (!m_designWidget->save()) {
         m_designWidget->setFileName(this->filePath().toUrlishString());
-        return Result::Error(m_designWidget->errorMessage());
+        return ResultError(m_designWidget->errorMessage());
     }
 
     if (autoSave) {
         m_designWidget->setFileName(this->filePath().toUrlishString());
         m_designWidget->save();
-        return Result::Ok;
+        return ResultOk;
     }
 
     setFilePath(filePath);
@@ -81,7 +78,7 @@ Result ScxmlEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
     if (dirty != m_designWidget->isDirty())
         emit changed();
 
-    return Result::Ok;
+    return ResultOk;
 }
 
 void ScxmlEditorDocument::setFilePath(const FilePath &newName)
@@ -110,17 +107,17 @@ bool ScxmlEditorDocument::isModified() const
     return m_designWidget && m_designWidget->isDirty();
 }
 
-Result ScxmlEditorDocument::reload(ReloadFlag flag, ChangeType type)
+Result<> ScxmlEditorDocument::reload(ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return Result::Ok;
+        return ResultOk;
     emit aboutToReload();
     QString errorString;
     emit reloadRequested(&errorString, filePath().toUrlishString());
     const bool success = errorString.isEmpty();
     emit reloadFinished(success);
-    return Result(success, errorString);
+    return makeResult(success, errorString);
 }
 
 bool ScxmlEditorDocument::supportsCodec(const QByteArray &codec) const
@@ -137,3 +134,5 @@ void ScxmlEditorDocument::syncXmlFromDesignWidget()
 {
     document()->setPlainText(designWidgetContents());
 }
+
+} // namespace ScxmlEditor::Internal

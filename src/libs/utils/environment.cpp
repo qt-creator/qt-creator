@@ -200,6 +200,8 @@ void Environment::prependOrSetLibrarySearchPaths(const FilePaths &values)
     This can be different from the system environment that \QC started in if the
     user changed it in \uicontrol Preferences > \uicontrol Environment >
     \uicontrol System > \uicontrol Environment.
+
+    \sa originalSystemEnvironment()
 */
 
 Environment Environment::systemEnvironment()
@@ -208,6 +210,17 @@ Environment Environment::systemEnvironment()
     return *staticSystemEnvironment();
 }
 
+/*!
+    Returns \QC's original system environment.
+
+    This is the full, unmodified environment that \QC was started with.
+    Use this environment to start processes that are built alongside \QC
+    and thus have the same library dependencies. This is particularly
+    relevant if \QC was started via Squish or another instance of \QC,
+    i.e. in testing or development contexts.
+    For all other processes, use \l systemEnvironment() or more specialized
+    variants such as the build environment, if applicable.
+*/
 const Environment &Environment::originalSystemEnvironment()
 {
     static const Environment env(QProcessEnvironment::systemEnvironment().toStringList());
@@ -448,7 +461,7 @@ const NameValueDictionary &Environment::resolved() const
         return m_dict;
 
     m_fullDict = false;
-    for (const Item &item : m_changeItems) {
+    for (const Item &item : std::as_const(m_changeItems)) {
         switch (item.index()) {
         case SetSystemEnvironment:
             m_dict = Environment::systemEnvironment().toDictionary();
@@ -533,7 +546,7 @@ const NameValueDictionary &Environment::resolved() const
             break;
         }
         case SetupEnglishOutput:
-            m_dict.set("LC_MESSAGES", "en_US.utf8");
+            m_dict.set("LC_MESSAGES", "en_US.UTF-8");
             m_dict.set("LANGUAGE", "en_US:en");
             break;
         }

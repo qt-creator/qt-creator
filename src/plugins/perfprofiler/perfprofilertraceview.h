@@ -3,13 +3,10 @@
 
 #pragma once
 
-#include "perftimelinemodelmanager.h"
-
 #include <QQuickWidget>
 #include <QWidget>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class PerfProfilerTool;
 
@@ -31,5 +28,4 @@ private:
     void updateCursorPosition();
 };
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

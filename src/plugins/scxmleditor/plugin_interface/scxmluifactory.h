@@ -7,9 +7,7 @@
 
 #include <QObject>
 
-namespace ScxmlEditor {
-
-namespace PluginInterface {
+namespace ScxmlEditor::PluginInterface {
 
 class ISCEditor;
 class ScxmlDocument;
@@ -41,9 +39,8 @@ public:
 private:
     void initPlugins();
 
-    QVector<ISCEditor*> m_plugins;
+    QList<ISCEditor*> m_plugins;
     QMap<QString, QObject*> m_objects;
 };
 
-} // namespace PluginInterface
-} // namespace ScxmlEditor
+} // namespace ScxmlEditor::PluginInterface

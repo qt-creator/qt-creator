@@ -13,8 +13,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class FilePath; }
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 class QtCreatorIntegration : public QDesignerIntegration
 {
@@ -59,5 +58,4 @@ private:
     Private * const d;
 };
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

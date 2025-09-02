@@ -15,7 +15,7 @@ QFuture<Languages> languages(const Config &config)
     url.setQuery(QUrlQuery{{"fields", "id,name,extensions,logoUrl"}});
 
     return jsonRequest<Languages>(config.networkManager, url, [](const QJsonDocument &doc) {
-        QJsonArray languages = doc.array();
+        const QJsonArray languages = doc.array();
         Languages result;
         for (const auto &language : languages) {
             QJsonObject obj = language.toObject();
@@ -23,7 +23,7 @@ QFuture<Languages> languages(const Config &config)
             l.id = obj["id"].toString();
             l.name = obj["name"].toString();
             l.logoUrl = obj["logoUrl"].toString();
-            QJsonArray extensions = obj["extensions"].toArray();
+            const QJsonArray extensions = obj["extensions"].toArray();
             for (const auto &extension : extensions) {
                 l.extensions.append(extension.toString());
             }

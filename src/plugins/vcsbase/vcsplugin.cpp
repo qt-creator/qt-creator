@@ -57,12 +57,11 @@ public:
 
     void populateNickNameModel()
     {
-        QString errorMessage;
-        if (!NickNameDialog::populateModelFromMailCapFile(commonSettings().nickNameMailMap(),
-                                                          m_nickNameModel,
-                                                          &errorMessage)) {
-            qWarning("%s", qPrintable(errorMessage));
-        }
+        const Result<> res =
+                NickNameDialog::populateModelFromMailCapFile(commonSettings().nickNameMailMap(),
+                                                             m_nickNameModel);
+        if (!res)
+            qWarning("%s", qPrintable(res.error()));
     }
 
     void slotSettingsChanged()

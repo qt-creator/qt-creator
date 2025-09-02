@@ -1,0 +1,3 @@
+C -> C++, indented
+FIXME: Remove adjacent newline along with last block
+FIXME: Use CppRefactoringFile to auto-indent continuation lines?

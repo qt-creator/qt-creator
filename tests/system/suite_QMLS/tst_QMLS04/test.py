@@ -21,6 +21,19 @@ def main():
     invokeContextMenuItem(editorArea, "Refactoring", "Move Component into Separate File")
     # give component name and proceed
     replaceEditorContent(waitForObject(":Dialog.componentNameEdit_QLineEdit"), "MyComponent")
+    propertyListWidget = waitForObject(":ComponentDialog.PropertiesListWidget")
+    propertiesModel = propertyListWidget.model()
+    expectedPropertiesAndCheckState = {"anchors.horizontalCenter":True, "anchors.top":True,
+                                       "anchors.topMargin":True, "text":False}
+    indices = dumpIndices(propertiesModel)
+    test.compare(len(indices), len(expectedPropertiesAndCheckState), "Number of listed properties matches.")
+    for index in indices:
+        property = str(index.data().toString())
+        checked = index.data(10).toInt() == 2 # Qt::CheckState == 10, Qt::Checked == 2
+        if test.verify(property in expectedPropertiesAndCheckState,
+                       "Excepted property '%s' found." % property):
+            test.compare(checked, expectedPropertiesAndCheckState[property],
+                         "Expected check state matches.")
     clickButton(waitForObject(":Dialog.OK_QPushButton"))
     try:
         waitForObject(":Add to Version Control_QMessageBox", 5000)
@@ -30,14 +43,14 @@ def main():
     # verify if refactoring is done correctly
     waitFor("'MyComponent' in str(editorArea.plainText)", 2000)
     codeText = str(editorArea.plainText)
-    patternCodeToAdd = "MyComponent\s+\{\s*id: textEdit\s*\}"
-    patternCodeToMove = "TextEdit\s+\{.*\}"
+    patternCodeToAdd = "MyComponent\s+\{\s*id: textEdit\s*(.*(anchors|parent)\..*){4}\}"
+    patternCodeToMove = "TextEdit\s+\{.*text: \"Enter something\".*\}"
     # there should be empty MyComponent item instead of TextEdit item
     if re.search(patternCodeToAdd, codeText, re.DOTALL) and not re.search(patternCodeToMove, codeText, re.DOTALL):
         test.passes("Refactoring was properly applied in source file")
     else:
         test.fail("Refactoring of Text to MyComponent failed in source file. Content of editor:\n%s" % codeText)
-    myCompTE = "SampleApp.appSampleApp.MyComponent\\.qml"
+    myCompTE = "SampleApp.appSampleApp.Source Files.MyComponent\\.qml"
     # there should be new QML file generated with name "MyComponent.qml"
     try:
         # openDocument() doesn't wait for expected elements, so it might be faster than the updates

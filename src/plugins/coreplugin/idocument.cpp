@@ -11,7 +11,6 @@
 #include <utils/qtcassert.h>
 
 #include <QFile>
-#include <QFileInfo>
 
 #include <memory>
 #include <optional>
@@ -69,21 +68,6 @@
     setPreferredDisplayName(), setTemporary().
 
     \ingroup mainclasses
-*/
-
-/*!
-    \enum Core::IDocument::OpenResult
-
-    The OpenResult enum describes whether a file was successfully opened.
-
-    \value Success
-           The file was read successfully and can be handled by this document
-           type.
-    \value ReadError
-           The file could not be opened for reading, either because it does not
-           exist or because of missing permissions.
-    \value CannotHandle
-           This document type could not handle the file content.
 */
 
 /*!
@@ -304,24 +288,20 @@ Id IDocument::id() const
     If the editor is opened from a regular file, \a filePath and \a
     filePath are the same.
 
-    Use \a errorString to return an error message if this document cannot
-    handle the file contents.
-
     Returns whether the file was opened and read successfully.
 
     The default implementation does nothing and returns
-    CannotHandle.
+    \c CannotHandle.
 
     \sa EditorManager::openEditor()
     \sa shouldAutoSave()
     \sa setFilePath()
 */
-IDocument::OpenResult IDocument::open(QString *errorString, const Utils::FilePath &filePath, const Utils::FilePath &realFilePath)
+Result<> IDocument::open(const FilePath &filePath, const FilePath &realFilePath)
 {
-    Q_UNUSED(errorString)
     Q_UNUSED(filePath)
     Q_UNUSED(realFilePath)
-    return OpenResult::CannotHandle;
+    return ResultError(ResultUnimplemented);
 }
 
 /*!
@@ -341,11 +321,11 @@ IDocument::OpenResult IDocument::open(QString *errorString, const Utils::FilePat
     \sa saved()
     \sa filePath()
 */
-Result IDocument::save(const FilePath &filePath, bool autoSave)
+Result<> IDocument::save(const FilePath &filePath, bool autoSave)
 {
     const FilePath savePath = filePath.isEmpty() ? this->filePath() : filePath;
     emit aboutToSave(savePath, autoSave);
-    const Result res = saveImpl(savePath, autoSave);
+    const Result<> res = saveImpl(savePath, autoSave);
     if (res)
         emit saved(savePath, autoSave);
     return res;
@@ -362,11 +342,11 @@ Result IDocument::save(const FilePath &filePath, bool autoSave)
 
     The default implementation does nothing and returns \c false.
 */
-Result IDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> IDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     Q_UNUSED(filePath)
     Q_UNUSED(autoSave)
-    return Result::Error(Tr::tr("Not implemented"));
+    return ResultError(Tr::tr("Not implemented"));
 }
 
 /*!
@@ -393,10 +373,10 @@ QByteArray IDocument::contents() const
     \sa contents()
     \sa EditorManager::openEditorWithContents()
 */
-bool IDocument::setContents(const QByteArray &contents)
+Result<> IDocument::setContents(const QByteArray &contents)
 {
     Q_UNUSED(contents)
-    return false;
+    return ResultError(ResultUnimplemented);
 }
 
 /*!
@@ -462,11 +442,11 @@ IDocument::ReloadBehavior IDocument::reloadBehavior(ChangeTrigger trigger, Chang
     \sa reloadFinished()
     \sa changed()
 */
-Result IDocument::reload(ReloadFlag flag, ChangeType type)
+Result<> IDocument::reload(ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(flag)
     Q_UNUSED(type)
-    return Result::Ok;
+    return ResultOk;
 }
 
 /*!
@@ -642,13 +622,13 @@ void IDocument::setMimeType(const QString &mimeType)
 /*!
     \internal
 */
-Result IDocument::autoSave(const FilePath &filePath)
+Result<> IDocument::autoSave(const FilePath &filePath)
 {
-    if (const Result res = save(filePath, true); !res)
+    if (const Result<> res = save(filePath, true); !res)
         return res;
 
     d->autoSavePath = filePath;
-    return Result::Ok;
+    return ResultOk;
 }
 
 static const char kRestoredAutoSave[] = "RestoredAutoSave";

@@ -46,7 +46,11 @@
         {
             "trDisplayName": "Project Location",
             "trShortTitle": "Location",
-            "typeId": "Project"
+            "typeId": "Project",
+            "data": {
+                "projectNameValidator": "^[A-Za-z0-9_]+$",
+                "trProjectNameValidatorUserMessage": "Project name must use only letters, digits, or underscores."
+            }
         },
         {
             "trDisplayName": "Define Project Details",

@@ -145,6 +145,13 @@
             \li String
             \li Link to online documentation for the plugin, like
                 \c{https://www.mycompany-online.com/docs/greatplugin/manual.html}.
+        \row
+            \li Recommends
+            \li String or array of strings
+            \li A list of plugin IDs that are enabled (if they are installed) when this plugin is
+                enabled. This can be useful when a plugin that is disabled by default is extended
+                by other pre-installed plugins (that are also disabled by default, since they would
+                indirectly enable this plugin otherwise).
     \endtable
 
     \section2 Dependencies
@@ -217,19 +224,19 @@
         \row
             \li Type
             \li String
-            \li Optional. Value \c Required, \c Optional, or \c Test. Defines if the dependency is
+            \li Optional. Value \c required, \c optional, or \c test. Defines if the dependency is
                 a hard requirement, optional, or required for running the plugin's tests.
-                Defaults to \c{Required}.
+                Defaults to \c{required}.
     \endtable
 
     \section3 Optional Dependencies
 
     A plugin can specify that a dependency on another plugin is optional, by adding
-    \c {"Type" : "Optional"} to the dependency object:
+    \c {"Type" : "optional"} to the dependency object:
 
     \list
         \li If the dependency can be resolved, the plugin and
-            its dependency are loaded and initialized as for \c Required dependencies.
+            its dependency are loaded and initialized as for \c required dependencies.
         \li If the dependency cannot be resolved, the plugin is loaded and initialized
             as if the dependency was not declared at all.
     \endlist
@@ -249,7 +256,7 @@
 
     A plugin can specify additional dependencies that are required for running its
     tests, but not for its normal execution, by declaring dependencies with
-    \c {"Type" : "Test"}. Test dependencies are force loaded, and do not affect load order.
+    \c {"Type" : "test"}. Test dependencies are force loaded, and do not affect load order.
 
     This type of dependency is not transitive.
 

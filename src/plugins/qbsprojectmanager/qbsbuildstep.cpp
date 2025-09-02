@@ -131,7 +131,7 @@ private:
 
     QbsBuildStep *qbsStep() const;
 
-    bool validateProperties(FancyLineEdit *edit, QString *errorMessage);
+    Result<> validateProperties(const QString &text);
 
     class Property
     {
@@ -188,7 +188,7 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Id id) :
 
     selectedAbis.setLabelText(QbsProjectManager::Tr::tr("ABIs:"));
     selectedAbis.setDisplayStyle(MultiSelectionAspect::DisplayStyle::ListView);
-    selectedAbis.setKit(target()->kit());
+    selectedAbis.setKit(kit());
 
     keepGoing.setSettingsKey(QBS_KEEP_GOING);
     keepGoing.setToolTip(
@@ -263,7 +263,7 @@ bool QbsBuildStep::init()
 
 void QbsBuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
-    formatter->addLineParsers(target()->kit()->createOutputParsers());
+    formatter->addLineParsers(kit()->createOutputParsers());
     BuildStep::setupOutputFormatter(formatter);
 }
 
@@ -485,8 +485,8 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
 
     propertyEdit = new FancyLineEdit(this);
     propertyEdit->setToolTip(QbsProjectManager::Tr::tr("Properties to pass to the project."));
-    propertyEdit->setValidationFunction([this](FancyLineEdit *edit, QString *errorMessage) {
-        return validateProperties(edit, errorMessage);
+    propertyEdit->setValidationFunction([this](const QString &text) {
+        return validateProperties(text);
     });
 
     defaultInstallDirCheckBox = new QCheckBox(this);
@@ -654,15 +654,12 @@ QbsBuildStep *QbsBuildStepConfigWidget::qbsStep() const
     return m_qbsStep;
 }
 
-bool QbsBuildStepConfigWidget::validateProperties(FancyLineEdit *edit, QString *errorMessage)
+Result<> QbsBuildStepConfigWidget::validateProperties(const QString &text)
 {
     ProcessArgs::SplitError err;
-    const QStringList argList = ProcessArgs::splitArgs(edit->text(), HostOsInfo::hostOs(), false, &err);
-    if (err != ProcessArgs::SplitOk) {
-        if (errorMessage)
-            *errorMessage = QbsProjectManager::Tr::tr("Could not split properties.");
-        return false;
-    }
+    const QStringList argList = ProcessArgs::splitArgs(text, HostOsInfo::hostOs(), false, &err);
+    if (err != ProcessArgs::SplitOk)
+        return ResultError(QbsProjectManager::Tr::tr("Could not split properties."));
 
     QList<Property> properties;
     const MacroExpander * const expander = m_qbsStep->macroExpander();
@@ -678,19 +675,14 @@ bool QbsBuildStepConfigWidget::validateProperties(FancyLineEdit *edit, QString *
             if (m_qbsStep->selectedAbis.isManagedByTarget())
                 specialProperties << Constants::QBS_ARCHITECTURES;
             if (specialProperties.contains(propertyName)) {
-                if (errorMessage) {
-                    *errorMessage = QbsProjectManager::Tr::tr("Property \"%1\" cannot be set here. "
-                                          "Please use the dedicated UI element.").arg(propertyName);
-                }
-                return false;
+                return ResultError(QbsProjectManager::Tr::tr("Property \"%1\" cannot be set here. "
+                                          "Please use the dedicated UI element.").arg(propertyName));
             }
             const QString rawValue = rawArg.mid(pos + 1);
             Property property(propertyName, rawValue, expander->expand(rawValue));
             properties.append(property);
         } else {
-            if (errorMessage)
-                *errorMessage = QbsProjectManager::Tr::tr("No \":\" found in property definition.");
-            return false;
+            return ResultError(QbsProjectManager::Tr::tr("No \":\" found in property definition."));
         }
     }
 
@@ -698,7 +690,7 @@ bool QbsBuildStepConfigWidget::validateProperties(FancyLineEdit *edit, QString *
         m_propertyCache = properties;
         applyCachedProperties();
     }
-    return true;
+    return ResultOk;
 }
 
 // --------------------------------------------------------------------

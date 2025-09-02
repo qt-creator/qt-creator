@@ -315,8 +315,7 @@ void AndroidCreateKeystoreCertificate::buttonBoxAccepted()
     genKeyCertProc.runBlocking(15s);
 
     if (genKeyCertProc.result() != ProcessResult::FinishedWithSuccess) {
-        QMessageBox::critical(this, Tr::tr("Error"),
-                              genKeyCertProc.exitMessage() + '\n' + genKeyCertProc.allOutput());
+        QMessageBox::critical(this, Tr::tr("Error"), genKeyCertProc.verboseExitMessage());
         return;
     }
     accept();

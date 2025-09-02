@@ -3,15 +3,14 @@
 
 #include "cmakegenerator.h"
 #include "filetypes.h"
+#include "../qmlproject.h"
+#include "../qmlprojectmanagertr.h"
 
-#include "qmlprojectmanager/qmlproject.h"
-#include "qmlprojectmanager/qmlprojectmanagertr.h"
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectnodes.h>
 
-#include "projectexplorer/projectmanager.h"
-#include "projectexplorer/projectnodes.h"
-
-#include "utils/filenamevalidatinglineedit.h"
-#include "utils/persistentsettings.h"
+#include <utils/filenamevalidatinglineedit.h>
+#include <utils/persistentsettings.h>
 
 #include <QDirIterator>
 #include <QFileInfo>
@@ -19,6 +18,8 @@
 #include <QMessageBox>
 
 #include <set>
+
+using namespace Utils;
 
 namespace QmlProjectManager {
 namespace QmlProjectExporter {
@@ -418,12 +419,12 @@ bool CMakeGenerator::findFile(const NodePtr &node, const Utils::FilePath &file) 
     return false;
 }
 
-void CMakeGenerator::insertFile(NodePtr &node, const Utils::FilePath &path) const
+void CMakeGenerator::insertFile(NodePtr &node, const FilePath &path) const
 {
-    QString error;
-    if (!Utils::FileNameValidatingLineEdit::validateFileName(path.fileName(), false, &error)) {
+    const Result<> valid = FileNameValidatingLineEdit::validateFileName(path.fileName(), false);
+    if (!valid) {
         if (!isImageFile(path))
-            logIssue(ProjectExplorer::Task::Error, error, path);
+            logIssue(ProjectExplorer::Task::Error, valid.error(), path);
     }
 
     if (path.fileName() == "qmldir") {
@@ -616,10 +617,9 @@ void CMakeGenerator::createWriter()
 
     auto writeSettings = [settingsFile, &store](int identifier) {
         store["CMake Generator"] = identifier;
-        QString error;
         Utils::PersistentSettingsWriter settingsWriter(settingsFile, "QtCreatorProject");
-        if (!settingsWriter.save(store, &error)) {
-            const QString text("Failed to write settings file");
+        if (const Result<> res = settingsWriter.save(store); !res) {
+            const QString text = QString("Failed to write settings file: %1").arg(res.error());
             logIssue(ProjectExplorer::Task::Error, text, settingsFile);
         }
     };

@@ -15,7 +15,7 @@ def main():
     invokeMenuItem("File", "Exit")
 
 def prepareQmlFile():
-    if not openDocument("untitled.appuntitled.Main\\.qml"):
+    if not openDocument("untitled.appuntitled.Source Files.Main\\.qml"):
         test.fatal("Could not open Main.qml")
         return None
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")

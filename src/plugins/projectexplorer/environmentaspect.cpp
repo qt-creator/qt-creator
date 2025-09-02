@@ -41,9 +41,9 @@ EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
     }
 }
 
-void EnvironmentAspect::setDeviceSelector(Target *target, DeviceSelector selector)
+void EnvironmentAspect::setDeviceSelector(Kit *kit, DeviceSelector selector)
 {
-    m_target = target;
+    m_kit = kit;
     m_selector = selector;
 }
 
@@ -75,6 +75,15 @@ Utils::Environment EnvironmentAspect::environment() const
     Environment env = modifiedBaseEnvironment();
     env.modify(userEnvironmentChanges());
     return env;
+}
+
+Environment EnvironmentAspect::expandedEnvironment(const Utils::MacroExpander &expander) const
+{
+    Environment expandedEnv;
+    environment().forEachEntry([&](const QString &key, const QString &value, bool enabled) {
+        expandedEnv.set(key, expander.expand(value), enabled);
+    });
+    return expandedEnv;
 }
 
 Environment EnvironmentAspect::modifiedBaseEnvironment() const
@@ -123,7 +132,7 @@ int EnvironmentAspect::addPreferredBaseEnvironment(const QString &displayName,
     return index;
 }
 
-void EnvironmentAspect::setSupportForBuildEnvironment(Target *target)
+void EnvironmentAspect::setSupportForBuildEnvironment(BuildConfiguration *bc)
 {
     setIsLocal(true);
     addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
@@ -131,16 +140,9 @@ void EnvironmentAspect::setSupportForBuildEnvironment(Target *target)
     addSupportedBaseEnvironment(Tr::tr("System Environment"), [] {
         return Environment::systemEnvironment();
     });
-    addPreferredBaseEnvironment(Tr::tr("Build Environment"), [target] {
-        if (BuildConfiguration *bc = target->activeBuildConfiguration())
-            return bc->environment();
-        // Fallback for targets without buildconfigurations:
-        return target->kit()->buildEnvironment();
-    });
+    addPreferredBaseEnvironment(Tr::tr("Build Environment"), [bc] { return bc->environment(); });
 
-    connect(target, &Target::activeBuildConfigurationChanged,
-            this, &EnvironmentAspect::environmentChanged);
-    connect(target, &Target::buildEnvironmentChanged,
+    connect(bc, &BuildConfiguration::environmentChanged,
             this, &EnvironmentAspect::environmentChanged);
 }
 

@@ -26,8 +26,6 @@
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
-namespace ProjectExplorer { class Project; }
-
 namespace QmlJS {
 
 class Snapshot;
@@ -47,9 +45,11 @@ public:
         AllQrcResources
     };
 
+    using ProjectBase = QObject; // This is a ProjectExplorer::Project in the using code.
+
     struct ProjectInfo
     {
-        QPointer<ProjectExplorer::Project> project;
+        QPointer<ProjectBase> project;
         QList<Utils::FilePath> sourceFiles;
         PathsAndLanguages importPaths;
         QList<Utils::FilePath> activeResourceFiles;
@@ -115,6 +115,7 @@ public:
     static void writeWarning(const QString &msg);
     static WorkingCopy workingCopy();
     static Utils::FilePath qmllsForBinPath(const Utils::FilePath &binPath, const QVersionNumber &v);
+    static Utils::FilePath qmlformatForBinPath(const Utils::FilePath &binPath, const QVersionNumber &v);
 
     QmlJS::Snapshot snapshot() const;
     QmlJS::Snapshot newestSnapshot() const;
@@ -129,22 +130,22 @@ public:
     void removeFiles(const QList<Utils::FilePath> &files);
     QStringList qrcPathsForFile(const Utils::FilePath &file,
                                 const QLocale *locale = nullptr,
-                                ProjectExplorer::Project *project = nullptr,
+                                ProjectBase *project = nullptr,
                                 QrcResourceSelector resources = AllQrcResources);
     QStringList filesAtQrcPath(const QString &path, const QLocale *locale = nullptr,
-                               ProjectExplorer::Project *project = nullptr,
+                               ProjectBase *project = nullptr,
                                QrcResourceSelector resources = AllQrcResources);
     QMap<QString, QStringList> filesInQrcPath(const QString &path,
                                               const QLocale *locale = nullptr,
-                                              ProjectExplorer::Project *project = nullptr,
+                                              ProjectBase *project = nullptr,
                                               bool addDirs = false,
                                               QrcResourceSelector resources = AllQrcResources);
     Utils::FilePath fileToSource(const Utils::FilePath &file);
 
     QList<ProjectInfo> projectInfos() const;
-    bool containsProject(ProjectExplorer::Project *project) const;
-    ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
-    void updateProjectInfo(const ProjectInfo &pinfo, ProjectExplorer::Project *p);
+    bool containsProject(ProjectBase *project) const;
+    ProjectInfo projectInfo(ProjectBase *project) const;
+    void updateProjectInfo(const ProjectInfo &pinfo, ProjectBase *p);
 
     void updateDocument(const QmlJS::Document::Ptr& doc);
     void updateLibraryInfo(const Utils::FilePath &path, const QmlJS::LibraryInfo &info);
@@ -173,7 +174,7 @@ public:
 
     void setDefaultVContext(const ViewerContext &vContext);
     virtual ProjectInfo defaultProjectInfo() const;
-    virtual ProjectInfo defaultProjectInfoForProject(ProjectExplorer::Project *project,
+    virtual ProjectInfo defaultProjectInfoForProject(ProjectBase *project,
                                                      const Utils::FilePaths &hiddenRccFolders) const;
 
     // Blocks until all parsing threads are done. Use for testing only!
@@ -192,7 +193,7 @@ public:
                                 bool emitDocChanged, bool libOnly = true, bool forceRescan = false);
 
     virtual void resetCodeModel();
-    void removeProjectInfo(ProjectExplorer::Project *project);
+    void removeProjectInfo(ProjectBase *project);
     void maybeQueueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc);
 
     QFuture<void> refreshSourceFiles(const QList<Utils::FilePath> &sourceFiles,
@@ -239,12 +240,12 @@ protected:
     void maybeScan(const PathsAndLanguages &importPaths);
     void updateImportPaths();
     void loadQmlTypeDescriptionsInternal(const QString &path);
-    void setDefaultProject(const ProjectInfo &pInfo, ProjectExplorer::Project *p);
+    void setDefaultProject(const ProjectInfo &pInfo, ProjectBase *p);
     void cancelAllThreads();
 
 private:
     void joinAllThreads(bool cancelOnWait = false);
-    void iterateQrcFiles(ProjectExplorer::Project *project,
+    void iterateQrcFiles(ProjectBase *project,
                          QrcResourceSelector resources,
                          const std::function<void(Utils::QrcParser::ConstPtr)> &callback);
     ViewerContext getVContext(const ViewerContext &vCtx, const Document::Ptr &doc, bool limitToProject) const;
@@ -262,10 +263,10 @@ private:
         QHash<Dialect, QmlJS::ViewerContext> m_defaultVContexts;
         bool m_shouldScanImports = false;
         QSet<Utils::FilePath> m_scannedPaths;
-        ProjectExplorer::Project *m_defaultProject = nullptr;
+        ProjectBase *m_defaultProject = nullptr;
         ProjectInfo m_defaultProjectInfo;
-        QHash<ProjectExplorer::Project *, ProjectInfo> m_projects;
-        QMultiHash<Utils::FilePath, ProjectExplorer::Project *> m_fileToProject;
+        QHash<ProjectBase *, ProjectInfo> m_projects;
+        QMultiHash<Utils::FilePath, ProjectBase *> m_fileToProject;
     };
     Utils::SynchronizedValue<SyncedData> m_syncedData;
 

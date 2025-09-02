@@ -66,7 +66,7 @@ QThread processThread;
 // Helper to create the shared memory mapped segment
 void setupSharedPid();
 // Parses the command line, returns a status code in case of error
-std::optional<int> tryParseCommandLine(QCoreApplication &app);
+std::optional<int> tryParseCommandLine(const QStringList &args);
 // Sets the working directory, returns a status code in case of error
 std::optional<int> trySetWorkingDir();
 // Reads the environment variables from the env file, returns a status code in case of error
@@ -82,13 +82,18 @@ void resumeInferior();
 
 int main(int argc, char *argv[])
 {
+    // The QCoreApplication ctor removes "-qmljsdebugger=..." etc args. We need them.
+    QStringList origArgs;
+    for (int i = 0; i < argc; ++i)
+        origArgs.append(QString::fromLocal8Bit(argv[i]));
+
+    std::optional<int> error = tryParseCommandLine(origArgs);
+    if (error)
+        return error.value();
+
     QCoreApplication a(argc, argv);
 
     setupSharedPid();
-
-    auto error = tryParseCommandLine(a);
-    if (error)
-        return error.value();
 
     qCInfo(log) << "Debug helper started: ";
     qCInfo(log) << "Socket:" << commandLineParser.value("socket");
@@ -470,7 +475,7 @@ void setupSignalHandlers()
 #endif
 }
 
-std::optional<int> tryParseCommandLine(QCoreApplication &app)
+std::optional<int> tryParseCommandLine(const QStringList &args)
 {
     commandLineParser.setApplicationDescription("Debug helper for QtCreator");
     commandLineParser.addHelpOption();
@@ -488,7 +493,7 @@ std::optional<int> tryParseCommandLine(QCoreApplication &app)
                            "waitmessage",
                            "Press enter to continue ..."));
 
-    commandLineParser.process(app);
+    commandLineParser.process(args);
 
     inferiorCmdAndArguments = commandLineParser.positionalArguments();
     debugMode = commandLineParser.isSet("debug");
@@ -566,7 +571,7 @@ void killInferior()
 void onControlSocketReadyRead()
 {
     //k = kill, i = interrupt, c = continue, s = shutdown
-    QByteArray data = controlSocket.readAll();
+    const QByteArray data = controlSocket.readAll();
     for (auto ch : data) {
         qCDebug(log) << "Received:" << ch;
 

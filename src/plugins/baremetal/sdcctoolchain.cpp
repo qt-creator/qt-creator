@@ -64,7 +64,7 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const Environment &
 
     cpp.runBlocking();
     if (cpp.result() != ProcessResult::FinishedWithSuccess) {
-        qWarning() << cpp.exitMessage();
+        qWarning() << cpp.exitMessage(Process::FailureMessageFormat::WithStdErr);
         return {};
     }
 
@@ -84,7 +84,7 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Environment &
 
     cpp.runBlocking();
     if (cpp.result() != ProcessResult::FinishedWithSuccess) {
-        qWarning() << cpp.exitMessage();
+        qWarning() << cpp.exitMessage(Process::FailureMessageFormat::WithStdErr);
         return {};
     }
 

@@ -14,7 +14,9 @@
 #include "icontext.h"
 #include "icore.h"
 #include "idocument.h"
+#include "iversioncontrol.h"
 #include "iwizardfactory.h"
+#include "vcsmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -38,7 +40,6 @@
 #include <QComboBox>
 #include <QContextMenuEvent>
 #include <QDir>
-#include <QFileInfo>
 #include <QFileSystemModel>
 #include <QHeaderView>
 #include <QMenu>
@@ -483,7 +484,7 @@ void FolderNavigationWidget::removeCurrentItem()
     if (!current.isValid() || m_fileSystemModel->isDir(current))
         return;
     const FilePath filePath = FilePath::fromString(m_fileSystemModel->filePath(current));
-    RemoveFileDialog dialog(filePath, ICore::dialogParent());
+    RemoveFileDialog dialog(filePath);
     dialog.setDeleteFileVisible(false);
     if (dialog.exec() == QDialog::Accepted) {
         emit m_instance->aboutToRemoveFile(filePath);
@@ -688,6 +689,19 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     EditorManager::addNativeDirAndOpenWithActions(&menu, &fakeEntry);
 
     if (hasCurrentItem) {
+        if (isDir) {
+            FilePath topLevel;
+            if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(filePath, &topLevel)) {
+                //: %1 = version control name
+                const QString text = Tr::tr("%1 Log Directory").arg(vc->displayName());
+                QAction *vcsLogDirectory = menu.addAction(text);
+                const FilePath relativeDirectory = filePath.relativeChildPath(topLevel);
+                connect(vcsLogDirectory, &QAction::triggered, this, [vc, topLevel, relativeDirectory] {
+                    vc->vcsLog(topLevel, relativeDirectory);
+                });
+            }
+        }
+
         menu.addAction(ActionManager::command(ADDNEWFILE)->action());
         if (!isDir)
             menu.addAction(ActionManager::command(REMOVEFILE)->action());
@@ -714,10 +728,10 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         else
             createNewFolder(current.parent());
     } else if (action == removeFolder) {
-        RemoveFileDialog dialog(filePath, ICore::dialogParent());
+        RemoveFileDialog dialog(filePath);
         dialog.setDeleteFileVisible(false);
         if (dialog.exec() == QDialog::Accepted) {
-            Utils::Result result = filePath.removeRecursively();
+            Result<> result = filePath.removeRecursively();
             if (!result)
                 QMessageBox::critical(ICore::dialogParent(), Tr::tr("Error"), result.error());
         }

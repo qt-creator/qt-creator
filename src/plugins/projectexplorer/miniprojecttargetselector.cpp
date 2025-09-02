@@ -737,12 +737,12 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
             });
     connect(m_listWidgets[DEPLOY], &GenericListWidget::changeActiveProjectConfiguration,
             this, [this](QObject *pc) {
-                 m_project->activeTarget()->setActiveDeployConfiguration(
+                 m_project->activeBuildConfiguration()->setActiveDeployConfiguration(
                     static_cast<DeployConfiguration *>(pc), SetActive::Cascade);
             });
     connect(m_listWidgets[RUN], &GenericListWidget::changeActiveProjectConfiguration,
             this, [this](QObject *pc) {
-                 m_project->activeTarget()->setActiveRunConfiguration(static_cast<RunConfiguration *>(pc));
+                 m_project->activeBuildConfiguration()->setActiveRunConfiguration(static_cast<RunConfiguration *>(pc));
             });
 }
 
@@ -757,9 +757,9 @@ bool MiniProjectTargetSelector::event(QEvent *event)
 }
 
 // does some fancy calculations to ensure proper widths for the list widgets
-QVector<int> MiniProjectTargetSelector::listWidgetWidths(int minSize, int maxSize)
+QList<int> MiniProjectTargetSelector::listWidgetWidths(int minSize, int maxSize)
 {
-    QVector<int> result;
+    QList<int> result;
     result.resize(LAST);
     if (m_projectListWidget->isVisibleTo(this))
         result[PROJECT] = m_projectListWidget->optimalWidth();
@@ -798,7 +798,7 @@ QVector<int> MiniProjectTargetSelector::listWidgetWidths(int minSize, int maxSiz
 
     int widthToDistribute = tooSmall ? (minSize - totalWidth)
                                      : (totalWidth - maxSize);
-    QVector<int> indexes;
+    QList<int> indexes;
     indexes.reserve(LAST);
     for (int i = PROJECT; i < LAST; ++i)
         if (result[i] != -1)
@@ -914,17 +914,17 @@ void MiniProjectTargetSelector::doLayout()
 
         // Clamp the size of the listwidgets to be at least as high as the sidebar button
         // and at most half the height of the entire Qt Creator window.
+        const int minHeight = alignedWithActionHeight;
+        const int maxHeight = std::max(minHeight, Core::ICore::mainWindow()->height() / 2);
         heightWithoutKitArea = summaryLabelHeight
-                               + qBound(alignedWithActionHeight,
-                                        maxItemCount * 30 + bottomMargin + titleWidgetsHeight,
-                                        Core::ICore::mainWindow()->height() / 2);
+            + qBound(minHeight, maxItemCount * 30 + bottomMargin + titleWidgetsHeight, maxHeight);
 
         int titleY = summaryLabelY + summaryLabelHeight;
         int listY = titleY + titleWidgetsHeight;
         int listHeight = heightWithoutKitArea + kitAreaHeight - bottomMargin - listY + 1;
 
         // list widget widths
-        QVector<int> widths = listWidgetWidths(minWidth, Core::ICore::mainWindow()->width() * 0.9);
+        QList<int> widths = listWidgetWidths(minWidth, Core::ICore::mainWindow()->width() * 0.9);
 
         const int runColumnWidth = widths[RUN] == -1 ? 0 : RunColumnWidth;
         int x = 0;
@@ -1027,10 +1027,6 @@ void MiniProjectTargetSelector::addedTarget(Target *target)
 
     for (BuildConfiguration *bc : target->buildConfigurations())
         addedBuildConfiguration(bc, false);
-    for (DeployConfiguration *dc : target->deployConfigurations())
-        addedDeployConfiguration(dc, false);
-    for (RunConfiguration *rc : target->runConfigurations())
-        addedRunConfiguration(rc, false);
 }
 
 void MiniProjectTargetSelector::removedTarget(Target *target)
@@ -1042,16 +1038,17 @@ void MiniProjectTargetSelector::removedTarget(Target *target)
 
     for (BuildConfiguration *bc : target->buildConfigurations())
         removedBuildConfiguration(bc, false);
-    for (DeployConfiguration *dc : target->deployConfigurations())
-        removedDeployConfiguration(dc, false);
-    for (RunConfiguration *rc : target->runConfigurations())
-        removedRunConfiguration(rc, false);
 }
 
 void MiniProjectTargetSelector::addedBuildConfiguration(BuildConfiguration *bc, bool update)
 {
     if (!m_project || bc->target() != m_project->activeTarget())
         return;
+
+    for (DeployConfiguration *dc : bc->deployConfigurations())
+        addedDeployConfiguration(dc, false);
+    for (RunConfiguration *rc : bc->runConfigurations())
+        addedRunConfiguration(rc, false);
 
     m_listWidgets[BUILD]->addProjectConfiguration(bc);
     if (update)
@@ -1063,6 +1060,11 @@ void MiniProjectTargetSelector::removedBuildConfiguration(BuildConfiguration *bc
     if (!m_project || bc->target() != m_project->activeTarget())
         return;
 
+    for (DeployConfiguration *dc : bc->deployConfigurations())
+        removedDeployConfiguration(dc, false);
+    for (RunConfiguration *rc : bc->runConfigurations())
+        removedRunConfiguration(rc, false);
+
     m_listWidgets[BUILD]->removeProjectConfiguration(bc);
     if (update)
         updateBuildListVisible();
@@ -1070,7 +1072,7 @@ void MiniProjectTargetSelector::removedBuildConfiguration(BuildConfiguration *bc
 
 void MiniProjectTargetSelector::addedDeployConfiguration(DeployConfiguration *dc, bool update)
 {
-    if (!m_project || dc->target() != m_project->activeTarget())
+    if (!m_project || dc->buildConfiguration() != m_project->activeBuildConfiguration())
         return;
 
     m_listWidgets[DEPLOY]->addProjectConfiguration(dc);
@@ -1080,7 +1082,7 @@ void MiniProjectTargetSelector::addedDeployConfiguration(DeployConfiguration *dc
 
 void MiniProjectTargetSelector::removedDeployConfiguration(DeployConfiguration *dc, bool update)
 {
-    if (!m_project || dc->target() != m_project->activeTarget())
+    if (!m_project || dc->buildConfiguration() != m_project->activeBuildConfiguration())
         return;
 
     m_listWidgets[DEPLOY]->removeProjectConfiguration(dc);
@@ -1154,8 +1156,10 @@ void MiniProjectTargetSelector::updateDeployListVisible()
     int maxCount = 0;
     for (Project *p : ProjectManager::projects()) {
         const QList<Target *> targets = p->targets();
-        for (Target *t : targets)
-            maxCount = qMax(t->deployConfigurations().size(), maxCount);
+        for (Target *t : targets) {
+            for (const BuildConfiguration * const bc : t->buildConfigurations())
+                maxCount = qMax(bc->deployConfigurations().size(), maxCount);
+        }
     }
 
     bool visible = maxCount > 1;
@@ -1170,8 +1174,10 @@ void MiniProjectTargetSelector::updateRunListVisible()
     int maxCount = 0;
     for (Project *p : ProjectManager::projects()) {
         const QList<Target *> targets = p->targets();
-        for (Target *t : targets)
-            maxCount = qMax(t->runConfigurations().size(), maxCount);
+        for (Target *t : targets) {
+            for (const BuildConfiguration * const bc : t->buildConfigurations())
+                maxCount = qMax(bc->runConfigurations().size(), maxCount);
+        }
     }
 
     bool visible = maxCount > 1;
@@ -1246,29 +1252,7 @@ void MiniProjectTargetSelector::activeTargetChanged(Target *target)
         for (BuildConfiguration *bc : target->buildConfigurations())
             bl.append(bc);
         m_listWidgets[BUILD]->setProjectConfigurations(bl, target->activeBuildConfiguration());
-
-        QObjectList dl;
-        for (DeployConfiguration *dc : target->deployConfigurations())
-            dl.append(dc);
-        m_listWidgets[DEPLOY]->setProjectConfigurations(dl, target->activeDeployConfiguration());
-
-        QObjectList rl;
-        for (RunConfiguration *rc : target->runConfigurations())
-            rl.append(rc);
-        m_listWidgets[RUN]->setProjectConfigurations(rl, target->activeRunConfiguration());
-
-        m_buildConfiguration = m_target->activeBuildConfiguration();
-        if (m_buildConfiguration)
-            connect(m_buildConfiguration, &ProjectConfiguration::displayNameChanged,
-                    this, &MiniProjectTargetSelector::updateActionAndSummary);
-        m_deployConfiguration = m_target->activeDeployConfiguration();
-        if (m_deployConfiguration)
-            connect(m_deployConfiguration, &ProjectConfiguration::displayNameChanged,
-                    this, &MiniProjectTargetSelector::updateActionAndSummary);
-        m_runConfiguration = m_target->activeRunConfiguration();
-        if (m_runConfiguration)
-            connect(m_runConfiguration, &ProjectConfiguration::displayNameChanged,
-                    this, &MiniProjectTargetSelector::updateActionAndSummary);
+        activeBuildConfigurationChanged(target->activeBuildConfiguration());
 
         connect(m_target, &Target::kitChanged,
                 this, &MiniProjectTargetSelector::updateActionAndSummary);
@@ -1299,13 +1283,30 @@ void MiniProjectTargetSelector::kitChanged(Kit *k)
 
 void MiniProjectTargetSelector::activeBuildConfigurationChanged(BuildConfiguration *bc)
 {
-    if (m_buildConfiguration)
+    if (m_buildConfiguration) {
         disconnect(m_buildConfiguration, &ProjectConfiguration::displayNameChanged,
                    this, &MiniProjectTargetSelector::updateActionAndSummary);
+    }
+
     m_buildConfiguration = bc;
     if (m_buildConfiguration)
         connect(m_buildConfiguration, &ProjectConfiguration::displayNameChanged,
                 this, &MiniProjectTargetSelector::updateActionAndSummary);
+    if (m_buildConfiguration) {
+        QObjectList dl;
+        for (DeployConfiguration *dc : bc->deployConfigurations())
+            dl.append(dc);
+        m_listWidgets[DEPLOY]->setProjectConfigurations(dl, bc->activeDeployConfiguration());
+        activeDeployConfigurationChanged(m_buildConfiguration->activeDeployConfiguration());
+        QObjectList rl;
+        for (RunConfiguration *rc : bc->runConfigurations())
+            rl.append(rc);
+        m_listWidgets[RUN]->setProjectConfigurations(rl, bc->activeRunConfiguration());
+        activeRunConfigurationChanged(m_buildConfiguration->activeRunConfiguration());
+    } else {
+        m_listWidgets[DEPLOY]->setProjectConfigurations({}, nullptr);
+        activeDeployConfigurationChanged(nullptr);
+    }
     m_listWidgets[BUILD]->setActiveProjectConfiguration(bc);
     updateActionAndSummary();
 }

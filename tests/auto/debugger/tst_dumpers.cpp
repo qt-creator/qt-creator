@@ -4,7 +4,6 @@
 #include "debuggerprotocol.h"
 #include "simplifytype.h"
 #include "watchdata.h"
-#include "watchutils.h"
 
 #include <utils/commandline.h> // for Utils::ProcessArgs
 #include <utils/fileutils.h>
@@ -24,6 +23,7 @@ Q_LOGGING_CATEGORY(lcDumpers, "qtc.debugger.dumpers", QtDebugMsg)
 
 using namespace Debugger;
 using namespace Internal;
+using namespace Utils;
 
 enum class BuildSystem
 {
@@ -51,7 +51,7 @@ enum class Language
     "};\n"
 
 // Copied from msvctoolchain.cpp to avoid plugin dependency.
-static bool generateEnvironmentSettings(Utils::Environment &env,
+static bool generateEnvironmentSettings(Environment &env,
                                         const QString &batchFile,
                                         const QString &batchArgs,
                                         QMap<QString, QString> &envPairs)
@@ -69,21 +69,21 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
     delete pVarsTempFile;
 
     // Create a batch file to create and save the env settings
-    Utils::TempFileSaver saver(QDir::tempPath() + "/XXXXXX.bat");
+    TempFileSaver saver(QDir::tempPath() + "/XXXXXX.bat");
 
     QByteArray call = "call ";
-    call += Utils::ProcessArgs::quoteArg(batchFile).toLocal8Bit();
+    call += ProcessArgs::quoteArg(batchFile).toLocal8Bit();
     if (!batchArgs.isEmpty()) {
         call += ' ';
         call += batchArgs.toLocal8Bit();
     }
-    saver.write(call + "\r\n");
+    saver.write(QByteArray(call + "\r\n"));
 
-    const QByteArray redirect = "set > " + Utils::ProcessArgs::quoteArg(
+    const QByteArray redirect = "set > " + ProcessArgs::quoteArg(
                                     QDir::toNativeSeparators(tempOutFile)).toLocal8Bit() + "\r\n";
     saver.write(redirect);
-    if (!saver.finalize()) {
-        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
+    if (const Result<> res = saver.finalize(); !res) {
+        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(res.error()));
         return false;
     }
 
@@ -96,7 +96,7 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
     const QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
     // Windows SDK setup scripts require command line switches for environment expansion.
     QStringList cmdArguments{"/E:ON", "/V:ON", "/c",
-                             Utils::ProcessArgs::quoteArg(saver.filePath().toUserOutput())};
+                             ProcessArgs::quoteArg(saver.filePath().toUserOutput())};
     run.start(cmdPath, cmdArguments);
 
     if (!run.waitForStarted()) {
@@ -624,98 +624,7 @@ struct Check
     mutable bool optionallyPresent = false;
 };
 
-// We sometimes have a pattern like this:
-// Data(...) + Check(...) + DerivedCheck(...) % SomeCondition
-// Where DerivedCheck is a subclass of Check but does not override operator %.
-// This is  problem, because the base class implementation of operator % returns Check&,
-// which means that the subclass checks are mistreated as the base class checks.
-// In order to make it work correctly, we either must override the entire operator % overload set
-// in all subclass or get clever about it.
-// With C++23 we can *in theory* simply have:
-// struct Check
-// {
-//     void doOp(...)
-//     {
-//         ...
-//     }
-//
-//     template <typename Self>
-//     Self& operatorOp(this Self& self, ...)
-//     {
-//         Check::doOp(...);
-//         return self;
-//     }
-//     ...
-// };
-// And the derived check types can directly inherit Check.
-// But we are currently C++20 and for now we need a CRTP middle struct.
-template<typename Derived>
-struct CrtpCheckHelper : public Check
-{
-    using Check::Check;
-
-    Derived &operator%(Optional)
-    {
-        Check::operator%(Optional{});
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(DebuggerEngine engine)
-    {
-        Check::operator%(engine);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(GdbVersion version)
-    {
-        Check::operator%(version);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(LldbVersion version)
-    {
-        Check::operator%(version);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(GccVersion version)
-    {
-        Check::operator%(version);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(ClangVersion version)
-    {
-        Check::operator%(version);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(MsvcVersion version)
-    {
-        Check::operator%(version);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(BoostVersion version)
-    {
-        Check::operator%(version);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(QtVersion version)
-    {
-        Check::operator%(version);
-        return static_cast<Derived&>(*this);
-    }
-
-    Derived &operator%(AdditionalCriteria criteria)
-    {
-        Check::operator%(criteria);
-        return static_cast<Derived&>(*this);
-    }
-};
-
-struct CheckSet : public CrtpCheckHelper<CheckSet>
+struct CheckSet : public Check
 {
     CheckSet(std::initializer_list<Check> checks) : checks(checks) {}
     QList<Check> checks;
@@ -725,43 +634,43 @@ const QtVersion Qt4 = QtVersion(0, 0x4ffff);
 const QtVersion Qt5 = QtVersion(0x50000, 0x5ffff);
 const QtVersion Qt6 = QtVersion(0x60000, 0x6ffff);
 
-struct Check4 : public CrtpCheckHelper<Check4>
+struct Check4 : public Check
 {
     Check4(const QByteArray &iname, const Value &value, const Type &type)
-        : CrtpCheckHelper(QString::fromUtf8(iname), value, type)
+        : Check(QString::fromUtf8(iname), value, type)
     { qtVersionForCheck = Qt4; }
 
     Check4(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
-        : CrtpCheckHelper(QString::fromUtf8(iname), name, value, type)
+        : Check(QString::fromUtf8(iname), name, value, type)
     { qtVersionForCheck = Qt4; }
 };
 
-struct Check5 : public CrtpCheckHelper<Check5>
+struct Check5 : public Check
 {
     Check5(const QByteArray &iname, const Value &value, const Type &type)
-        : CrtpCheckHelper(QString::fromUtf8(iname), value, type)
+        : Check(QString::fromUtf8(iname), value, type)
     { qtVersionForCheck = Qt5; }
 
     Check5(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
-        : CrtpCheckHelper(QString::fromUtf8(iname), name, value, type)
+        : Check(QString::fromUtf8(iname), name, value, type)
     { qtVersionForCheck = Qt5; }
 };
 
-struct Check6 : public CrtpCheckHelper<Check6>
+struct Check6 : public Check
 {
     Check6(const QByteArray &iname, const Value &value, const Type &type)
-        : CrtpCheckHelper(QString::fromUtf8(iname), value, type)
+        : Check(QString::fromUtf8(iname), value, type)
     { qtVersionForCheck = Qt6; }
 
     Check6(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
-        : CrtpCheckHelper(QString::fromUtf8(iname), name, value, type)
+        : Check(QString::fromUtf8(iname), name, value, type)
     { qtVersionForCheck = Qt6; }
 };
 
 // To brush over uses of 'key'/'value' vs 'first'/'second' in inames
-struct CheckPairish : public CrtpCheckHelper<CheckPairish>
+struct CheckPairish : public Check
 {
-    using CrtpCheckHelper::CrtpCheckHelper;
+    using Check::Check;
 };
 
 
@@ -1160,7 +1069,7 @@ public:
 
     const Data &operator+(InternalProfile) const
     {
-        const auto parentDir = Utils::FilePath::fromUserInput(__FILE__).parentDir().path();
+        const auto parentDir = FilePath::fromUserInput(__FILE__).parentDir().path();
         profileExtra += "INCLUDEPATH += " + parentDir + "/../../../src/libs/3rdparty\n";
         return *this;
     }
@@ -1363,14 +1272,14 @@ void tst_Dumpers::initTestCase()
             &m_gdbBuildVersion, &m_isMacGdb, &m_isQnxGdb);
         m_makeBinary = QDir::fromNativeSeparators(QString::fromLocal8Bit(qgetenv("QTC_MAKE_PATH_FOR_TEST")));
 #ifdef Q_OS_WIN
-        Utils::Environment env = Utils::Environment::systemEnvironment();
+        Environment env = Environment::systemEnvironment();
         if (m_makeBinary.isEmpty())
             m_makeBinary = "mingw32-make";
         if (m_makeBinary != "mingw32-make")
-            env.prependOrSetPath(Utils::FilePath::fromString(m_makeBinary).parentDir());
+            env.prependOrSetPath(FilePath::fromString(m_makeBinary).parentDir());
         // if qmake is not in PATH make sure the correct libs for inferior are prepended to PATH
         if (m_qmakeBinary != "qmake")
-            env.prependOrSetPath(Utils::FilePath::fromString(m_qmakeBinary).parentDir());
+            env.prependOrSetPath(FilePath::fromString(m_qmakeBinary).parentDir());
         m_env = env.toProcessEnvironment();
 #else
         m_env = QProcessEnvironment::systemEnvironment();
@@ -1382,7 +1291,7 @@ void tst_Dumpers::initTestCase()
     } else if (m_debuggerEngine == CdbEngine) {
         QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
         QMap <QString, QString> envPairs;
-        Utils::Environment env = Utils::Environment::systemEnvironment();
+        Environment env = Environment::systemEnvironment();
         QVERIFY(generateEnvironmentSettings(env, QString::fromLatin1(envBat), QString(), envPairs));
         for (auto envIt = envPairs.begin(); envIt != envPairs.end(); ++envIt)
             env.set(envIt.key(), envIt.value());
@@ -1391,7 +1300,7 @@ void tst_Dumpers::initTestCase()
             cdbextPath = QString(CDBEXT_PATH "\\qtcreatorcdbext64");
         QVERIFY(QFileInfo::exists(cdbextPath + "\\qtcreatorcdbext.dll"));
         env.set("_NT_DEBUGGER_EXTENSION_PATH", cdbextPath);
-        env.prependOrSetPath(Utils::FilePath::fromString(m_qmakeBinary).parentDir());
+        env.prependOrSetPath(FilePath::fromString(m_qmakeBinary).parentDir());
         m_makeBinary = env.searchInPath("nmake.exe").toUrlishString();
         m_env = env.toProcessEnvironment();
 
@@ -1440,10 +1349,10 @@ void tst_Dumpers::initTestCase()
         QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
         if (!envBat.isEmpty()) {
             QMap <QString, QString> envPairs;
-            Utils::Environment env = Utils::Environment::systemEnvironment();
+            Environment env = Environment::systemEnvironment();
             QVERIFY(generateEnvironmentSettings(env, QString::fromLatin1(envBat), QString(), envPairs));
 
-            env.prependOrSetPath(Utils::FilePath::fromString(m_qmakeBinary).parentDir());
+            env.prependOrSetPath(FilePath::fromString(m_qmakeBinary).parentDir());
 
             m_env = env.toProcessEnvironment();
             m_makeBinary = env.searchInPath("nmake.exe").toUrlishString();
@@ -2102,7 +2011,7 @@ void tst_Dumpers::dumper()
         }
 
         const QString iname = check.iname;
-        WatchItem *item = local.findAnyChild([iname](Utils::TreeItem *item) {
+        WatchItem *item = local.findAnyChild([iname](TreeItem *item) {
             return static_cast<WatchItem *>(item)->internalName() == iname;
         });
         if (!item) {
@@ -2154,7 +2063,7 @@ void tst_Dumpers::dumper()
             data.checks.removeAt(i);
     }
 
-    for (const CheckSet &checkset : data.checksets) {
+    for (const CheckSet &checkset : std::as_const(data.checksets)) {
         bool setok = false;
         bool removeItDummy = false;
         for (const Check &check : checkset.checks) {
@@ -3258,9 +3167,9 @@ void tst_Dumpers::dumper_data()
                + Check("test.[properties].myProp3", "54", "@QVariant (long)")
                + Check("test.[properties].myProp4", "44", "@QVariant (int)")
 #endif
-               + Check("test.[properties].4", "\"New\"",
+               + Check("test.[properties].4", "New",
                     "\"Stuff\"", "@QVariant (QByteArray)")
-               + Check("test.[properties].5", "\"Old\"",
+               + Check("test.[properties].5", "Old",
                     "\"Cruft\"", "@QVariant (QString)")
                + Check5("mm", "destroyed", "@QMetaMethod")
                + Check4("mm", "destroyed(QObject*)", "@QMetaMethod")
@@ -5199,7 +5108,9 @@ void tst_Dumpers::dumper_data()
                + Check("map5.0", "[0] 12", "42", "")
 
                + Check("map6", "<1 items>", "std::map<short, std::string>")
-               + Check("map6.0", "[0] 12", "\"42\"", "");
+               // QTCREATORBUG-32455: LLDB bridge reports incorrect alignment for `std::string`
+               // so we end up reading garbage.
+               + Check("map6.0", "[0] 12", "\"42\"", "") % NoLldbEngine;
 
 
     QTest::newRow("StdMapQt")
@@ -5458,13 +5369,12 @@ void tst_Dumpers::dumper_data()
 
                + CoreProfile()
 
-               + Check("set1", "<1 items>", "std::set<@QString>")
-               + Check("set1.0", "[0]", "\"22.0\"", "@QString")
+               + Check("set1", "<1 items>", "std::set<QString>")
+               + Check("set1.0", "[0]", "\"22.0\"", "QString")
 
-               + Check("set2", "<1 items>", "std::set<@QPointer<@QObject>, "
-                    "std::less<@QPointer<@QObject>>, std::allocator<@QPointer<@QObject>>>")
-               + Check("ob", "", "@QObject")
-               + Check("ptr", "", "@QPointer<@QObject>");
+               + Check("set2", "<1 items>", "std::set<QPointer<QObject>>")
+               + Check("ob", "", "QObject")
+               + Check("ptr", "", "QPointer<QObject>");
 
 
     QTest::newRow("StdStack")
@@ -5577,8 +5487,11 @@ void tst_Dumpers::dumper_data()
                + Cxx17Profile{}
                + Check("view", "\"test\"", TypeDef("std::basic_string_view<char, std::char_traits<char> >", "std::string_view"))
                + Check("u16view", "\"test\"", TypeDef("std::basic_string_view<char16_t, std::char_traits<char16_t> >", "std::u16string_view"))
-               + Check("basicview", "\"test\"", "std::basic_string_view<char, std::char_traits<char> >")
-               + Check("u16basicview", "\"test\"", "std::basic_string_view<char16_t, std::char_traits<char16_t> >");
+               + Check("basicview", "\"test\"", "std::basic_string_view<char, std::char_traits<char> >") % NoLldbEngine
+               + Check("u16basicview", "\"test\"", "std::basic_string_view<char16_t, std::char_traits<char16_t> >") % NoLldbEngine
+               // LLDB resolves type to `std::string_view` anyway
+               + Check("basicview", "\"test\"", "std::string_view") % LldbEngine
+               + Check("u16basicview", "\"test\"", "std::u16string_view") % LldbEngine;
 
 
     QTest::newRow("StdStringQt")
@@ -5613,9 +5526,15 @@ void tst_Dumpers::dumper_data()
 
                     "&tuple")
 
-               + Check("tuple.0", "[0]", "123", "int")
-               + Check("tuple.1", "[1]", "\"hello\"", "std::string")
-               + Check("tuple.2", "[2]", "456", "int");
+               + Check("tuple.0", "[0]", "123", "int") % NoLldbEngine
+               + Check("tuple.1", "[1]", "\"hello\"", "std::string") % NoLldbEngine
+               + Check("tuple.2", "[2]", "456", "int") % NoLldbEngine
+               // With LLDB the tuple elements have actual names (of the form '[N]')
+               // in the GDB/MI data, so the usual fallback scheme ('N') does not come into play.
+               // See `WatchItem::parseHelper` for more details.
+               + Check("tuple.[0]", "[0]", "123", "int") % LldbEngine
+               + Check("tuple.[1]", "[1]", "\"hello\"", "std::string") % LldbEngine
+               + Check("tuple.[2]", "[2]", "456", "int") % LldbEngine;
 
 
     QTest::newRow("StdValArray")
@@ -5833,16 +5752,24 @@ void tst_Dumpers::dumper_data()
                + Cxx11Profile()
 
                + Check("map1", "<2 items>", "std::unordered_map<unsigned int, unsigned int>")
-               + Check("map1.0", "[0] 22", "2", "") % NoCdbEngine
-               + Check("map1.1", "[1] 11", "1", "") % NoCdbEngine
+               + Check("map1.0", "[0] 22", "2", "") % GdbEngine
+               // LDDB bridge reports `childtype` to the key type
+               + Check("map1.0", "[0] 22", "2", "unsigned int") % LldbEngine
+               + Check("map1.1", "[1] 11", "1", "") % GdbEngine
+               // LDDB bridge reports `childtype` to the key type
+               + Check("map1.1", "[1] 11", "1", "unsigned int") % LldbEngine
                + Check("map1.0", "[0] 11", "1", "") % CdbEngine
                + Check("map1.1", "[1] 22", "2", "") % CdbEngine
 
                + Check("map2", "<2 items>", "std::unordered_map<std::string, float>")
-               + Check("map2.0", "[0] \"22.0\"", FloatValue("22.0"), "") % NoCdbEngine
+               + Check("map2.0", "[0] \"22.0\"", FloatValue("22.0"), "") % GdbEngine
+               // LDDB bridge reports `childtype` to the key type
+               + Check("map2.0", "[0] \"22.0\"", FloatValue("22.0"), "std::string") % LldbEngine
                + Check("map2.0.first", "\"22.0\"", "std::string")        % NoCdbEngine
                + Check("map2.0.second", FloatValue("22"), "float")       % NoCdbEngine
-               + Check("map2.1", "[1] \"11.0\"", FloatValue("11.0"), "") % NoCdbEngine
+               + Check("map2.1", "[1] \"11.0\"", FloatValue("11.0"), "") % GdbEngine
+               // LDDB bridge reports `childtype` to the key type
+               + Check("map2.1", "[1] \"11.0\"", FloatValue("11.0"), "std::string") % LldbEngine
                + Check("map2.1.first", "\"11.0\"", "std::string")        % NoCdbEngine
                + Check("map2.1.second", FloatValue("11"), "float")       % NoCdbEngine
                + Check("map2.0", "[0] \"11.0\"", FloatValue("11.0"), "") % CdbEngine
@@ -5853,8 +5780,10 @@ void tst_Dumpers::dumper_data()
                + Check("map2.1.second", FloatValue("22"), "float")       % CdbEngine
 
                + Check("map3", "<2 items>", "std::unordered_multimap<int, std::string>")
-               + Check("map3.0", "[0] 1", "\"Bar\"", "") % NoCdbEngine
-               + Check("map3.1", "[1] 1", "\"Foo\"", "") % NoCdbEngine
+               // LLDB bridge reports incorrect alignment for `std::string` (1 instead of 8)
+               // causing these checks to fail.
+               + Check("map3.0", "[0] 1", "\"Bar\"", "") % GdbEngine
+               + Check("map3.1", "[1] 1", "\"Foo\"", "") % GdbEngine
                + Check("map3.0", "[0] 1", "\"Foo\"", "") % CdbEngine
                + Check("map3.1", "[1] 1", "\"Bar\"", "") % CdbEngine;
 
@@ -6116,8 +6045,12 @@ void tst_Dumpers::dumper_data()
                            {"a.b", "43", "int"}})   // CDB, old GDB
                + CheckSet({{"a.#1.i", "42", "int"},
                            {"a.i", "42", "int"}})
-               + CheckSet({{"a.#2.f", ff, "float"},
-                           {"a.f", ff, "float"}});
+               // QTCREATORBUG-32455: LLDB bridge gets confused when there are multiple
+               // unnamed structs around. Here it is somewhat stubborn and says
+               // that `a.#2` is the same as the currently active `a.#1`
+               // and so there is no `a.#2.f`, only `a.#2.b` and `a.#2.i`
+               + CheckSet({Check{"a.#2.f", ff, "float"} % NoLldbEngine,
+                           Check{"a.f", ff, "float"} % NoLldbEngine});
 
 
     QTest::newRow("Chars")
@@ -7685,24 +7618,26 @@ void tst_Dumpers::dumper_data()
                 "&m, &it")
 
          + Check("m", "<2 items>", TypeDef("std::map<std::string, std::list<std::string>>","map_t"))
-         + Check("m.0.first", "\"one\"", "std::string")
-         + Check("m.0.second", "<3 items>", "std::list<std::string>")
-         + Check("m.0.second.0", "[0]", "\"a\"", "std::string")
-         + Check("m.0.second.1", "[1]", "\"b\"", "std::string")
-         + Check("m.0.second.2", "[2]", "\"c\"", "std::string")
-         + Check("m.1.first", "\"two\"", "std::string")
-         + Check("m.1.second", "<3 items>", "std::list<std::string>")
-         + Check("m.1.second.0", "[0]", "\"1\"", "std::string")
-         + Check("m.1.second.1", "[1]", "\"2\"", "std::string")
-         + Check("m.1.second.2", "[2]", "\"3\"", "std::string")
+         // QTCREATORBUG-32455: LLDB bridge misreports alignment of `std::string` and `std::list`
+         // so we end up reading garbage
+         + Check("m.0.first", "\"one\"", "std::string") % NoLldbEngine
+         + Check("m.0.second", "<3 items>", "std::list<std::string>") % NoLldbEngine
+         + Check("m.0.second.0", "[0]", "\"a\"", "std::string") % NoLldbEngine
+         + Check("m.0.second.1", "[1]", "\"b\"", "std::string") % NoLldbEngine
+         + Check("m.0.second.2", "[2]", "\"c\"", "std::string") % NoLldbEngine
+         + Check("m.1.first", "\"two\"", "std::string") % NoLldbEngine
+         + Check("m.1.second", "<3 items>", "std::list<std::string>") % NoLldbEngine
+         + Check("m.1.second.0", "[0]", "\"1\"", "std::string") % NoLldbEngine
+         + Check("m.1.second.1", "[1]", "\"2\"", "std::string") % NoLldbEngine
+         + Check("m.1.second.2", "[2]", "\"3\"", "std::string") % NoLldbEngine
          + Check("it", AnyValue, TypeDef("std::_Tree_const_iterator<std::_Tree_val<"
                                     "std::_Tree_simple_types<std::pair<"
                                     "std::string const ,std::list<std::string>>>>>",
                                     "std::map<std::string, std::list<std::string> >::const_iterator"))
-         + CheckSet({{"it.first", "\"one\"", "std::string"},    // NoCdbEngine
-                     {"it.0.first", "\"one\"", "std::string"}}) // CdbEngine
-         + CheckSet({{"it.second", "<3 items>", "std::list<std::string>"},
-                     {"it.0.second", "<3 items>", "std::list<std::string>"}});
+         + CheckSet({Check{"it.first", "\"one\"", "std::string"} % NoLldbEngine, // NoCdbEngine
+                     Check{"it.0.first", "\"one\"", "std::string"} % NoLldbEngine}) // CdbEngine
+         + CheckSet({Check{"it.second", "<3 items>", "std::list<std::string>"} % NoLldbEngine,
+                     Check{"it.0.second", "<3 items>", "std::list<std::string>"} % NoLldbEngine});
 
 
     QTest::newRow("Varargs")
@@ -7912,7 +7847,7 @@ void tst_Dumpers::dumper_data()
                     "&v, &n")
 
                + Check("v", "", "{...}") % GdbEngine
-               + Check("v", "", TypePattern(".*anonymous .*")) % LldbEngine
+               + Check("v", "", TypePattern(".*unnamed .*")) % LldbEngine
                + Check("v", "", TypePattern(".*<unnamed-type-.*")) % CdbEngine
                + Check("n", "", "S") % NoCdbEngine
                + Check("n", "", TypePattern("main::.*::S")) % CdbEngine
@@ -7922,8 +7857,11 @@ void tst_Dumpers::dumper_data()
                            {"v.a", "2", "int"}})
                //+ Check("v.b", "3", "int") % GdbVersion(0, 70699)
                //+ Check("v.1.b", "3", "int") % GdbVersion(70700)
-               + CheckSet({{"v.#2.b", "3", "int"},
-                           {"v.b", "3", "int"}})
+               // QTCREATORBUG-32455: LLDB bridge gets confused when there are multiple
+               // unnamed structs around. Here it thinks that `v.#1` and `v.#2` are the same type
+               // and so there is no `v.#2.b`, only `v.#2.a`
+               + CheckSet({Check{"v.#2.b", "3", "int"} % NoLldbEngine,
+                           Check{"v.b", "3", "int"} % NoLldbEngine})
                + Check("v.x", "1", "int")
                + Check("n.x", "10", "int")
                + Check("n.y", "20", "int");
@@ -8898,8 +8836,8 @@ void tst_Dumpers::dumper_data()
         + Check{"ums", "<10 items>", "std::pmr::unordered_multiset<int>"} % NoGdbEngine
         + Check{"ums", "<10 items>", "std::pmr::unordered_multiset"} % GdbEngine
 
-        // There is a bizzare interaction of `DumperBase.Type.size` (see Python scripts) and libcxx
-        // that results in the size of
+        // QTCREATORBUG-32455: there is a bizzare interaction of `DumperBase.Type.size`
+        // (see Python scripts) and libcxx that results in the size of
         // `std::__1::pmr::polymorphic_allocator<std::__1::pair<const int, int>>`
         // from `std::pmr::map` being reported as exactly 0 which breaks dumping
         + Check{"m", "<10 items>", "std::pmr::map<int, int>"} % CdbEngine

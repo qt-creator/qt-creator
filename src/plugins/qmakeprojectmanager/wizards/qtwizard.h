@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "qtprojectparameters.h"
 #include <projectexplorer/baseprojectwizarddialog.h>
 #include <projectexplorer/customwizard/customwizard.h>
 
@@ -28,8 +27,6 @@ namespace Internal {
 
 class QtWizard : public Core::BaseFileWizardFactory
 {
-    Q_OBJECT
-
 protected:
     QtWizard();
 
@@ -44,25 +41,21 @@ public:
     // Query CppEditor settings for the class wizard settings
     static bool lowerCaseFiles();
 
-    static bool qt4ProjectPostGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
+    static Utils::Result<> qt4ProjectPostGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l);
 
 private:
-    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
-                           QString *errorMessage) const override;
+    Utils::Result<> postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l) const;
 };
 
 // A custom wizard with an additional Qt 4 target page
 class CustomQmakeProjectWizard : public ProjectExplorer::CustomProjectWizard
 {
-    Q_OBJECT
-
 public:
     CustomQmakeProjectWizard();
 
 private:
     Core::BaseFileWizard *create(const Core::WizardDialogParameters &parameters) const override;
-    bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l,
-                           QString *errorMessage) const override;
+    Utils::Result<> postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l) const override;
 
 private:
     enum { targetPageId = 1 };
@@ -76,7 +69,8 @@ private:
 
 class BaseQmakeProjectWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
 {
-    Q_OBJECT
+    Q_OBJECT // needed for qobject_cast
+
 protected:
     explicit BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
                                           Utils::ProjectIntroPage *introPage,

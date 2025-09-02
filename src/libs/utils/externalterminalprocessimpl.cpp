@@ -90,7 +90,7 @@ struct AppScript
     QString detached;
 };
 
-expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData &setupData)
+Result<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData &setupData)
 {
     const TerminalCommand terminal = TerminalCommand::terminalEmulator();
     bool detached = setupData.m_terminalMode == TerminalMode::Detached;
@@ -107,7 +107,7 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
              {ExternalTerminalProcessImpl::openTerminalScriptAttached(), TerminalAppScriptDetached}},
         };
 
-        if (terminalMap.contains(terminal.command.toUrlishString())) {
+        if (terminalMap.contains(terminal.command.path())) {
             const QString env
                 = Utils::transform(setupData.m_environment.toStringList(), [](const QString &env) {
                       return CommandLine{"export", {env}}.toUserOutput();
@@ -121,7 +121,7 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
             QTemporaryFile shFile;
             shFile.setAutoRemove(false);
             QTC_ASSERT(shFile.open(),
-                       return make_unexpected(Tr::tr("Failed to open temporary script file.")));
+                       return ResultError(Tr::tr("Failed to open temporary script file.")));
 
             const QString shScript = QString("cd '%1'\n%2\nclear\n'%3' %4\nrm '%5'\n")
                                          .arg(setupData.m_workingDirectory.nativePath())
@@ -139,8 +139,8 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
                                 | QFile::WriteGroup | QFile::WriteOther);
 
             const QString script = (detached
-                                        ? terminalMap.value(terminal.command.toUrlishString()).detached
-                                        : terminalMap.value(terminal.command.toUrlishString()).attached)
+                                        ? terminalMap.value(terminal.command.path()).detached
+                                        : terminalMap.value(terminal.command.path()).attached)
                                        .arg(shFile.fileName());
 
             process->setCommand({"osascript", {"-"}});
@@ -148,7 +148,7 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
             process->start();
 
             if (!process->waitForStarted()) {
-                return make_unexpected(
+                return ResultError(
                     Tr::tr("Failed to start terminal process: \"%1\".").arg(process->errorString()));
             }
 
@@ -196,7 +196,7 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
     process->start();
     process->waitForStarted();
     if (process->error() != QProcess::UnknownError) {
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Failed to start terminal process: \"%1\".").arg(process->errorString()));
     }
 

@@ -130,7 +130,7 @@ namespace Axivion::Internal::Dto {
     }
 
     template<typename T>
-    static Utils::expected_str<T> deserializeExp(const QByteArray &json)
+    static Utils::Result<T> deserializeExp(const QByteArray &json)
     {
         try {
             return T::deserialize(json);
@@ -572,7 +572,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<Any>(json);
     }
 
-    Utils::expected_str<Any> Any::deserializeExpected(const QByteArray &json)
+    Utils::Result<Any> Any::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<Any>(json);
     }
@@ -676,10 +676,10 @@ namespace Axivion::Internal::Dto {
 
     // version
 
-    constexpr std::array<qint32, 4> ApiVersion::number{7,7,3,3857};
-    const QLatin1String ApiVersion::string{"7.7.3.13857"};
-    const QLatin1String ApiVersion::name{"7.7.3"};
-    const QLatin1String ApiVersion::timestamp{"2024-02-07 09:28:43 +00:00"};
+    constexpr std::array<qint32, 4> ApiVersion::number{7,9,4,16514};
+    const QLatin1String ApiVersion::string{"7.9.4.16514"};
+    const QLatin1String ApiVersion::name{"7.9.4"};
+    const QLatin1String ApiVersion::timestamp{"2025-03-28 06:43:32 +00:00"};
 
     // AnalyzedFileDto
 
@@ -721,7 +721,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<AnalyzedFileDto>(json);
     }
 
-    Utils::expected_str<AnalyzedFileDto> AnalyzedFileDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<AnalyzedFileDto> AnalyzedFileDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<AnalyzedFileDto>(json);
     }
@@ -839,7 +839,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<ChangePasswordFormDto>(json);
     }
 
-    Utils::expected_str<ChangePasswordFormDto> ChangePasswordFormDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<ChangePasswordFormDto> ChangePasswordFormDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<ChangePasswordFormDto>(json);
     }
@@ -979,7 +979,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<ColumnTypeOptionDto>(json);
     }
 
-    Utils::expected_str<ColumnTypeOptionDto> ColumnTypeOptionDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<ColumnTypeOptionDto> ColumnTypeOptionDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<ColumnTypeOptionDto>(json);
     }
@@ -1033,7 +1033,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<CommentRequestDto>(json);
     }
 
-    Utils::expected_str<CommentRequestDto> CommentRequestDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<CommentRequestDto> CommentRequestDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<CommentRequestDto>(json);
     }
@@ -1083,7 +1083,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<CsrfTokenDto>(json);
     }
 
-    Utils::expected_str<CsrfTokenDto> CsrfTokenDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<CsrfTokenDto> CsrfTokenDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<CsrfTokenDto>(json);
     }
@@ -1145,7 +1145,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<EntityDto>(json);
     }
 
-    Utils::expected_str<EntityDto> EntityDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<EntityDto> EntityDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<EntityDto>(json);
     }
@@ -1227,7 +1227,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<ErrorDto>(json);
     }
 
-    Utils::expected_str<ErrorDto> ErrorDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<ErrorDto> ErrorDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<ErrorDto>(json);
     }
@@ -1311,7 +1311,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<IssueCommentDto>(json);
     }
 
-    Utils::expected_str<IssueCommentDto> IssueCommentDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<IssueCommentDto> IssueCommentDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<IssueCommentDto>(json);
     }
@@ -1534,7 +1534,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<IssueSourceLocationDto>(json);
     }
 
-    Utils::expected_str<IssueSourceLocationDto> IssueSourceLocationDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<IssueSourceLocationDto> IssueSourceLocationDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<IssueSourceLocationDto>(json);
     }
@@ -1599,7 +1599,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<IssueTagDto>(json);
     }
 
-    Utils::expected_str<IssueTagDto> IssueTagDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<IssueTagDto> IssueTagDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<IssueTagDto>(json);
     }
@@ -1666,7 +1666,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<IssueTagTypeDto>(json);
     }
 
-    Utils::expected_str<IssueTagTypeDto> IssueTagTypeDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<IssueTagTypeDto> IssueTagTypeDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<IssueTagTypeDto>(json);
     }
@@ -1796,7 +1796,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<MetricDto>(json);
     }
 
-    Utils::expected_str<MetricDto> MetricDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<MetricDto> MetricDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<MetricDto>(json);
     }
@@ -1870,7 +1870,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<MetricValueTableRowDto>(json);
     }
 
-    Utils::expected_str<MetricValueTableRowDto> MetricValueTableRowDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<MetricValueTableRowDto> MetricValueTableRowDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<MetricValueTableRowDto>(json);
     }
@@ -1979,7 +1979,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<NamedFilterVisibilityDto>(json);
     }
 
-    Utils::expected_str<NamedFilterVisibilityDto> NamedFilterVisibilityDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<NamedFilterVisibilityDto> NamedFilterVisibilityDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<NamedFilterVisibilityDto>(json);
     }
@@ -2032,7 +2032,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<ProjectReferenceDto>(json);
     }
 
-    Utils::expected_str<ProjectReferenceDto> ProjectReferenceDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<ProjectReferenceDto> ProjectReferenceDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<ProjectReferenceDto>(json);
     }
@@ -2090,7 +2090,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<RuleDto>(json);
     }
 
-    Utils::expected_str<RuleDto> RuleDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<RuleDto> RuleDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<RuleDto>(json);
     }
@@ -2197,6 +2197,61 @@ namespace Axivion::Internal::Dto {
         }
     }
 
+    // TableOptionsDto
+
+    static const QLatin1String tableOptionsKeySubRowsProp{"subRowsProp"};
+    static const QLatin1String tableOptionsKeyMaxHeight{"maxHeight"};
+
+    template<>
+    class de_serializer<TableOptionsDto> final
+    {
+    public:
+        // throws Axivion::Internal::Dto::invalid_dto_exception
+        static TableOptionsDto deserialize(const QJsonValue &json)
+        {
+            const QJsonObject jo = toJsonObject<TableOptionsDto>(json);
+            return {
+                deserialize_field<std::optional<QString>>(jo, tableOptionsKeySubRowsProp),
+                deserialize_field<std::optional<qint32>>(jo, tableOptionsKeyMaxHeight)
+            };
+        }
+
+        static QJsonValue serialize(const TableOptionsDto &value)
+        {
+            QJsonObject jo;
+            serialize_field(jo, tableOptionsKeySubRowsProp, value.subRowsProp);
+            serialize_field(jo, tableOptionsKeyMaxHeight, value.maxHeight);
+            return { jo };
+        }
+
+        de_serializer() = delete;
+        ~de_serializer() = delete;
+    };
+
+    // throws Axivion::Internal::Dto::invalid_dto_exception
+    TableOptionsDto TableOptionsDto::deserialize(const QByteArray &json)
+    {
+        return deserialize_bytes<TableOptionsDto>(json);
+    }
+
+    Utils::Result<TableOptionsDto> TableOptionsDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<TableOptionsDto>(json);
+    }
+
+    TableOptionsDto::TableOptionsDto(
+        std::optional<QString> subRowsProp,
+        std::optional<qint32> maxHeight
+    ) :
+        subRowsProp(std::move(subRowsProp)),
+        maxHeight(std::move(maxHeight))
+    { }
+
+    QByteArray TableOptionsDto::serialize() const
+    {
+        return serialize_bytes(*this);
+    }
+
     // ToolsVersionDto
 
     static const QLatin1String toolsVersionKeyName{"name"};
@@ -2237,7 +2292,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<ToolsVersionDto>(json);
     }
 
-    Utils::expected_str<ToolsVersionDto> ToolsVersionDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<ToolsVersionDto> ToolsVersionDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<ToolsVersionDto>(json);
     }
@@ -2344,7 +2399,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<VersionKindCountDto>(json);
     }
 
-    Utils::expected_str<VersionKindCountDto> VersionKindCountDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<VersionKindCountDto> VersionKindCountDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<VersionKindCountDto>(json);
     }
@@ -2364,51 +2419,30 @@ namespace Axivion::Internal::Dto {
         return serialize_bytes(*this);
     }
 
-    // AnalysisVersionDto
+    // ProjectBranchRequestDto
 
-    static const QLatin1String analysisVersionKeyDate{"date"};
-    static const QLatin1String analysisVersionKeyLabel{"label"};
-    static const QLatin1String analysisVersionKeyIndex{"index"};
-    static const QLatin1String analysisVersionKeyName{"name"};
-    static const QLatin1String analysisVersionKeyMillis{"millis"};
-    static const QLatin1String analysisVersionKeyIssueCounts{"issueCounts"};
-    static const QLatin1String analysisVersionKeyToolsVersion{"toolsVersion"};
-    static const QLatin1String analysisVersionKeyLinesOfCode{"linesOfCode"};
-    static const QLatin1String analysisVersionKeyCloneRatio{"cloneRatio"};
+    static const QLatin1String projectBranchRequestKeySourceVersion{"sourceVersion"};
+    static const QLatin1String projectBranchRequestKeyTargetProject{"targetProject"};
 
     template<>
-    class de_serializer<AnalysisVersionDto> final
+    class de_serializer<ProjectBranchRequestDto> final
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static AnalysisVersionDto deserialize(const QJsonValue &json)
+        static ProjectBranchRequestDto deserialize(const QJsonValue &json)
         {
-            const QJsonObject jo = toJsonObject<AnalysisVersionDto>(json);
+            const QJsonObject jo = toJsonObject<ProjectBranchRequestDto>(json);
             return {
-                deserialize_field<QString>(jo, analysisVersionKeyDate),
-                deserialize_field<std::optional<QString>>(jo, analysisVersionKeyLabel),
-                deserialize_field<qint32>(jo, analysisVersionKeyIndex),
-                deserialize_field<QString>(jo, analysisVersionKeyName),
-                deserialize_field<qint64>(jo, analysisVersionKeyMillis),
-                deserialize_field<Any>(jo, analysisVersionKeyIssueCounts),
-                deserialize_field<std::optional<ToolsVersionDto>>(jo, analysisVersionKeyToolsVersion),
-                deserialize_field<std::optional<qint64>>(jo, analysisVersionKeyLinesOfCode),
-                deserialize_field<std::optional<double>>(jo, analysisVersionKeyCloneRatio)
+                deserialize_field<std::optional<QString>>(jo, projectBranchRequestKeySourceVersion),
+                deserialize_field<QString>(jo, projectBranchRequestKeyTargetProject)
             };
         }
 
-        static QJsonValue serialize(const AnalysisVersionDto &value)
+        static QJsonValue serialize(const ProjectBranchRequestDto &value)
         {
             QJsonObject jo;
-            serialize_field(jo, analysisVersionKeyDate, value.date);
-            serialize_field(jo, analysisVersionKeyLabel, value.label);
-            serialize_field(jo, analysisVersionKeyIndex, value.index);
-            serialize_field(jo, analysisVersionKeyName, value.name);
-            serialize_field(jo, analysisVersionKeyMillis, value.millis);
-            serialize_field(jo, analysisVersionKeyIssueCounts, value.issueCounts);
-            serialize_field(jo, analysisVersionKeyToolsVersion, value.toolsVersion);
-            serialize_field(jo, analysisVersionKeyLinesOfCode, value.linesOfCode);
-            serialize_field(jo, analysisVersionKeyCloneRatio, value.cloneRatio);
+            serialize_field(jo, projectBranchRequestKeySourceVersion, value.sourceVersion);
+            serialize_field(jo, projectBranchRequestKeyTargetProject, value.targetProject);
             return { jo };
         }
 
@@ -2417,39 +2451,25 @@ namespace Axivion::Internal::Dto {
     };
 
     // throws Axivion::Internal::Dto::invalid_dto_exception
-    AnalysisVersionDto AnalysisVersionDto::deserialize(const QByteArray &json)
+    ProjectBranchRequestDto ProjectBranchRequestDto::deserialize(const QByteArray &json)
     {
-        return deserialize_bytes<AnalysisVersionDto>(json);
+        return deserialize_bytes<ProjectBranchRequestDto>(json);
     }
 
-    Utils::expected_str<AnalysisVersionDto> AnalysisVersionDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<ProjectBranchRequestDto> ProjectBranchRequestDto::deserializeExpected(const QByteArray &json)
     {
-        return deserializeExp<AnalysisVersionDto>(json);
+        return deserializeExp<ProjectBranchRequestDto>(json);
     }
 
-    AnalysisVersionDto::AnalysisVersionDto(
-        QString date,
-        std::optional<QString> label,
-        qint32 index,
-        QString name,
-        qint64 millis,
-        Any issueCounts,
-        std::optional<ToolsVersionDto> toolsVersion,
-        std::optional<qint64> linesOfCode,
-        std::optional<double> cloneRatio
+    ProjectBranchRequestDto::ProjectBranchRequestDto(
+        std::optional<QString> sourceVersion,
+        QString targetProject
     ) :
-        date(std::move(date)),
-        label(std::move(label)),
-        index(std::move(index)),
-        name(std::move(name)),
-        millis(std::move(millis)),
-        issueCounts(std::move(issueCounts)),
-        toolsVersion(std::move(toolsVersion)),
-        linesOfCode(std::move(linesOfCode)),
-        cloneRatio(std::move(cloneRatio))
+        sourceVersion(std::move(sourceVersion)),
+        targetProject(std::move(targetProject))
     { }
 
-    QByteArray AnalysisVersionDto::serialize() const
+    QByteArray ProjectBranchRequestDto::serialize() const
     {
         return serialize_bytes(*this);
     }
@@ -2497,7 +2517,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<ApiTokenCreationRequestDto>(json);
     }
 
-    Utils::expected_str<ApiTokenCreationRequestDto> ApiTokenCreationRequestDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<ApiTokenCreationRequestDto> ApiTokenCreationRequestDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<ApiTokenCreationRequestDto>(json);
     }
@@ -2621,7 +2641,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<ApiTokenInfoDto>(json);
     }
 
-    Utils::expected_str<ApiTokenInfoDto> ApiTokenInfoDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<ApiTokenInfoDto> ApiTokenInfoDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<ApiTokenInfoDto>(json);
     }
@@ -2772,7 +2792,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<ColumnInfoDto>(json);
     }
 
-    Utils::expected_str<ColumnInfoDto> ColumnInfoDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<ColumnInfoDto> ColumnInfoDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<ColumnInfoDto>(json);
     }
@@ -2946,7 +2966,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<DashboardInfoDto>(json);
     }
 
-    Utils::expected_str<DashboardInfoDto> DashboardInfoDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<DashboardInfoDto> DashboardInfoDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<DashboardInfoDto>(json);
     }
@@ -3024,7 +3044,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<IssueCommentListDto>(json);
     }
 
-    Utils::expected_str<IssueCommentListDto> IssueCommentListDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<IssueCommentListDto> IssueCommentListDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<IssueCommentListDto>(json);
     }
@@ -3080,7 +3100,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<IssueKindInfoDto>(json);
     }
 
-    Utils::expected_str<IssueKindInfoDto> IssueKindInfoDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<IssueKindInfoDto> IssueKindInfoDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<IssueKindInfoDto>(json);
     }
@@ -3164,7 +3184,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<IssueTagTypeListDto>(json);
     }
 
-    Utils::expected_str<IssueTagTypeListDto> IssueTagTypeListDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<IssueTagTypeListDto> IssueTagTypeListDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<IssueTagTypeListDto>(json);
     }
@@ -3238,7 +3258,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<LineMarkerDto>(json);
     }
 
-    Utils::expected_str<LineMarkerDto> LineMarkerDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<LineMarkerDto> LineMarkerDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<LineMarkerDto>(json);
     }
@@ -3349,7 +3369,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<RepositoryUpdateMessageDto>(json);
     }
 
-    Utils::expected_str<RepositoryUpdateMessageDto> RepositoryUpdateMessageDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<RepositoryUpdateMessageDto> RepositoryUpdateMessageDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<RepositoryUpdateMessageDto>(json);
     }
@@ -3429,7 +3449,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<RuleListDto>(json);
     }
 
-    Utils::expected_str<RuleListDto> RuleListDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<RuleListDto> RuleListDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<RuleListDto>(json);
     }
@@ -3482,7 +3502,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<SortInfoDto>(json);
     }
 
-    Utils::expected_str<SortInfoDto> SortInfoDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<SortInfoDto> SortInfoDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<SortInfoDto>(json);
     }
@@ -3571,7 +3591,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<UserRefDto>(json);
     }
 
-    Utils::expected_str<UserRefDto> UserRefDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<UserRefDto> UserRefDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<UserRefDto>(json);
     }
@@ -3627,30 +3647,42 @@ namespace Axivion::Internal::Dto {
         return serialize_bytes(*this);
     }
 
-    // AnalyzedFileListDto
+    // VersionKindCountsDto
 
-    static const QLatin1String analyzedFileListKeyVersion{"version"};
-    static const QLatin1String analyzedFileListKeyRows{"rows"};
+    static const QLatin1String versionKindCountsKeyAV{"AV"};
+    static const QLatin1String versionKindCountsKeyCL{"CL"};
+    static const QLatin1String versionKindCountsKeyCY{"CY"};
+    static const QLatin1String versionKindCountsKeyDE{"DE"};
+    static const QLatin1String versionKindCountsKeyMV{"MV"};
+    static const QLatin1String versionKindCountsKeySV{"SV"};
 
     template<>
-    class de_serializer<AnalyzedFileListDto> final
+    class de_serializer<VersionKindCountsDto> final
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static AnalyzedFileListDto deserialize(const QJsonValue &json)
+        static VersionKindCountsDto deserialize(const QJsonValue &json)
         {
-            const QJsonObject jo = toJsonObject<AnalyzedFileListDto>(json);
+            const QJsonObject jo = toJsonObject<VersionKindCountsDto>(json);
             return {
-                deserialize_field<AnalysisVersionDto>(jo, analyzedFileListKeyVersion),
-                deserialize_field<std::vector<AnalyzedFileDto>>(jo, analyzedFileListKeyRows)
+                deserialize_field<VersionKindCountDto>(jo, versionKindCountsKeyAV),
+                deserialize_field<VersionKindCountDto>(jo, versionKindCountsKeyCL),
+                deserialize_field<VersionKindCountDto>(jo, versionKindCountsKeyCY),
+                deserialize_field<VersionKindCountDto>(jo, versionKindCountsKeyDE),
+                deserialize_field<VersionKindCountDto>(jo, versionKindCountsKeyMV),
+                deserialize_field<VersionKindCountDto>(jo, versionKindCountsKeySV)
             };
         }
 
-        static QJsonValue serialize(const AnalyzedFileListDto &value)
+        static QJsonValue serialize(const VersionKindCountsDto &value)
         {
             QJsonObject jo;
-            serialize_field(jo, analyzedFileListKeyVersion, value.version);
-            serialize_field(jo, analyzedFileListKeyRows, value.rows);
+            serialize_field(jo, versionKindCountsKeyAV, value.AV);
+            serialize_field(jo, versionKindCountsKeyCL, value.CL);
+            serialize_field(jo, versionKindCountsKeyCY, value.CY);
+            serialize_field(jo, versionKindCountsKeyDE, value.DE);
+            serialize_field(jo, versionKindCountsKeyMV, value.MV);
+            serialize_field(jo, versionKindCountsKeySV, value.SV);
             return { jo };
         }
 
@@ -3659,53 +3691,82 @@ namespace Axivion::Internal::Dto {
     };
 
     // throws Axivion::Internal::Dto::invalid_dto_exception
-    AnalyzedFileListDto AnalyzedFileListDto::deserialize(const QByteArray &json)
+    VersionKindCountsDto VersionKindCountsDto::deserialize(const QByteArray &json)
     {
-        return deserialize_bytes<AnalyzedFileListDto>(json);
+        return deserialize_bytes<VersionKindCountsDto>(json);
     }
 
-    Utils::expected_str<AnalyzedFileListDto> AnalyzedFileListDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<VersionKindCountsDto> VersionKindCountsDto::deserializeExpected(const QByteArray &json)
     {
-        return deserializeExp<AnalyzedFileListDto>(json);
+        return deserializeExp<VersionKindCountsDto>(json);
     }
 
-    AnalyzedFileListDto::AnalyzedFileListDto(
-        AnalysisVersionDto version,
-        std::vector<AnalyzedFileDto> rows
+    VersionKindCountsDto::VersionKindCountsDto(
+        VersionKindCountDto AV,
+        VersionKindCountDto CL,
+        VersionKindCountDto CY,
+        VersionKindCountDto DE,
+        VersionKindCountDto MV,
+        VersionKindCountDto SV
     ) :
-        version(std::move(version)),
-        rows(std::move(rows))
+        AV(std::move(AV)),
+        CL(std::move(CL)),
+        CY(std::move(CY)),
+        DE(std::move(DE)),
+        MV(std::move(MV)),
+        SV(std::move(SV))
     { }
 
-    QByteArray AnalyzedFileListDto::serialize() const
+    QByteArray VersionKindCountsDto::serialize() const
     {
         return serialize_bytes(*this);
     }
 
-    // EntityListDto
+    // AnalysisVersionDto
 
-    static const QLatin1String entityListKeyVersion{"version"};
-    static const QLatin1String entityListKeyEntities{"entities"};
+    static const QLatin1String analysisVersionKeyDate{"date"};
+    static const QLatin1String analysisVersionKeyLabel{"label"};
+    static const QLatin1String analysisVersionKeyIndex{"index"};
+    static const QLatin1String analysisVersionKeyName{"name"};
+    static const QLatin1String analysisVersionKeyMillis{"millis"};
+    static const QLatin1String analysisVersionKeyIssueCounts{"issueCounts"};
+    static const QLatin1String analysisVersionKeyToolsVersion{"toolsVersion"};
+    static const QLatin1String analysisVersionKeyLinesOfCode{"linesOfCode"};
+    static const QLatin1String analysisVersionKeyCloneRatio{"cloneRatio"};
 
     template<>
-    class de_serializer<EntityListDto> final
+    class de_serializer<AnalysisVersionDto> final
     {
     public:
         // throws Axivion::Internal::Dto::invalid_dto_exception
-        static EntityListDto deserialize(const QJsonValue &json)
+        static AnalysisVersionDto deserialize(const QJsonValue &json)
         {
-            const QJsonObject jo = toJsonObject<EntityListDto>(json);
+            const QJsonObject jo = toJsonObject<AnalysisVersionDto>(json);
             return {
-                deserialize_field<std::optional<AnalysisVersionDto>>(jo, entityListKeyVersion),
-                deserialize_field<std::vector<EntityDto>>(jo, entityListKeyEntities)
+                deserialize_field<QString>(jo, analysisVersionKeyDate),
+                deserialize_field<std::optional<QString>>(jo, analysisVersionKeyLabel),
+                deserialize_field<qint32>(jo, analysisVersionKeyIndex),
+                deserialize_field<QString>(jo, analysisVersionKeyName),
+                deserialize_field<qint64>(jo, analysisVersionKeyMillis),
+                deserialize_field<std::optional<VersionKindCountsDto>>(jo, analysisVersionKeyIssueCounts),
+                deserialize_field<std::optional<ToolsVersionDto>>(jo, analysisVersionKeyToolsVersion),
+                deserialize_field<std::optional<qint64>>(jo, analysisVersionKeyLinesOfCode),
+                deserialize_field<std::optional<double>>(jo, analysisVersionKeyCloneRatio)
             };
         }
 
-        static QJsonValue serialize(const EntityListDto &value)
+        static QJsonValue serialize(const AnalysisVersionDto &value)
         {
             QJsonObject jo;
-            serialize_field(jo, entityListKeyVersion, value.version);
-            serialize_field(jo, entityListKeyEntities, value.entities);
+            serialize_field(jo, analysisVersionKeyDate, value.date);
+            serialize_field(jo, analysisVersionKeyLabel, value.label);
+            serialize_field(jo, analysisVersionKeyIndex, value.index);
+            serialize_field(jo, analysisVersionKeyName, value.name);
+            serialize_field(jo, analysisVersionKeyMillis, value.millis);
+            serialize_field(jo, analysisVersionKeyIssueCounts, value.issueCounts);
+            serialize_field(jo, analysisVersionKeyToolsVersion, value.toolsVersion);
+            serialize_field(jo, analysisVersionKeyLinesOfCode, value.linesOfCode);
+            serialize_field(jo, analysisVersionKeyCloneRatio, value.cloneRatio);
             return { jo };
         }
 
@@ -3714,25 +3775,39 @@ namespace Axivion::Internal::Dto {
     };
 
     // throws Axivion::Internal::Dto::invalid_dto_exception
-    EntityListDto EntityListDto::deserialize(const QByteArray &json)
+    AnalysisVersionDto AnalysisVersionDto::deserialize(const QByteArray &json)
     {
-        return deserialize_bytes<EntityListDto>(json);
+        return deserialize_bytes<AnalysisVersionDto>(json);
     }
 
-    Utils::expected_str<EntityListDto> EntityListDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<AnalysisVersionDto> AnalysisVersionDto::deserializeExpected(const QByteArray &json)
     {
-        return deserializeExp<EntityListDto>(json);
+        return deserializeExp<AnalysisVersionDto>(json);
     }
 
-    EntityListDto::EntityListDto(
-        std::optional<AnalysisVersionDto> version,
-        std::vector<EntityDto> entities
+    AnalysisVersionDto::AnalysisVersionDto(
+        QString date,
+        std::optional<QString> label,
+        qint32 index,
+        QString name,
+        qint64 millis,
+        std::optional<VersionKindCountsDto> issueCounts,
+        std::optional<ToolsVersionDto> toolsVersion,
+        std::optional<qint64> linesOfCode,
+        std::optional<double> cloneRatio
     ) :
-        version(std::move(version)),
-        entities(std::move(entities))
+        date(std::move(date)),
+        label(std::move(label)),
+        index(std::move(index)),
+        name(std::move(name)),
+        millis(std::move(millis)),
+        issueCounts(std::move(issueCounts)),
+        toolsVersion(std::move(toolsVersion)),
+        linesOfCode(std::move(linesOfCode)),
+        cloneRatio(std::move(cloneRatio))
     { }
 
-    QByteArray EntityListDto::serialize() const
+    QByteArray AnalysisVersionDto::serialize() const
     {
         return serialize_bytes(*this);
     }
@@ -3780,7 +3855,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<FileViewDto>(json);
     }
 
-    Utils::expected_str<FileViewDto> FileViewDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<FileViewDto> FileViewDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<FileViewDto>(json);
     }
@@ -3854,7 +3929,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<IssueDto>(json);
     }
 
-    Utils::expected_str<IssueDto> IssueDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<IssueDto> IssueDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<IssueDto>(json);
     }
@@ -3920,216 +3995,6 @@ namespace Axivion::Internal::Dto {
         return serialize_bytes(*this);
     }
 
-    // IssueTableDto
-
-    static const QLatin1String issueTableKeyStartVersion{"startVersion"};
-    static const QLatin1String issueTableKeyEndVersion{"endVersion"};
-    static const QLatin1String issueTableKeyTableViewUrl{"tableViewUrl"};
-    static const QLatin1String issueTableKeyColumns{"columns"};
-    static const QLatin1String issueTableKeyRows{"rows"};
-    static const QLatin1String issueTableKeyTotalRowCount{"totalRowCount"};
-    static const QLatin1String issueTableKeyTotalAddedCount{"totalAddedCount"};
-    static const QLatin1String issueTableKeyTotalRemovedCount{"totalRemovedCount"};
-
-    template<>
-    class de_serializer<IssueTableDto> final
-    {
-    public:
-        // throws Axivion::Internal::Dto::invalid_dto_exception
-        static IssueTableDto deserialize(const QJsonValue &json)
-        {
-            const QJsonObject jo = toJsonObject<IssueTableDto>(json);
-            return {
-                deserialize_field<std::optional<AnalysisVersionDto>>(jo, issueTableKeyStartVersion),
-                deserialize_field<AnalysisVersionDto>(jo, issueTableKeyEndVersion),
-                deserialize_field<std::optional<QString>>(jo, issueTableKeyTableViewUrl),
-                deserialize_field<std::optional<std::vector<ColumnInfoDto>>>(jo, issueTableKeyColumns),
-                deserialize_field<std::vector<std::map<QString, Any>>>(jo, issueTableKeyRows),
-                deserialize_field<std::optional<qint32>>(jo, issueTableKeyTotalRowCount),
-                deserialize_field<std::optional<qint32>>(jo, issueTableKeyTotalAddedCount),
-                deserialize_field<std::optional<qint32>>(jo, issueTableKeyTotalRemovedCount)
-            };
-        }
-
-        static QJsonValue serialize(const IssueTableDto &value)
-        {
-            QJsonObject jo;
-            serialize_field(jo, issueTableKeyStartVersion, value.startVersion);
-            serialize_field(jo, issueTableKeyEndVersion, value.endVersion);
-            serialize_field(jo, issueTableKeyTableViewUrl, value.tableViewUrl);
-            serialize_field(jo, issueTableKeyColumns, value.columns);
-            serialize_field(jo, issueTableKeyRows, value.rows);
-            serialize_field(jo, issueTableKeyTotalRowCount, value.totalRowCount);
-            serialize_field(jo, issueTableKeyTotalAddedCount, value.totalAddedCount);
-            serialize_field(jo, issueTableKeyTotalRemovedCount, value.totalRemovedCount);
-            return { jo };
-        }
-
-        de_serializer() = delete;
-        ~de_serializer() = delete;
-    };
-
-    // throws Axivion::Internal::Dto::invalid_dto_exception
-    IssueTableDto IssueTableDto::deserialize(const QByteArray &json)
-    {
-        return deserialize_bytes<IssueTableDto>(json);
-    }
-
-    Utils::expected_str<IssueTableDto> IssueTableDto::deserializeExpected(const QByteArray &json)
-    {
-        return deserializeExp<IssueTableDto>(json);
-    }
-
-    IssueTableDto::IssueTableDto(
-        std::optional<AnalysisVersionDto> startVersion,
-        AnalysisVersionDto endVersion,
-        std::optional<QString> tableViewUrl,
-        std::optional<std::vector<ColumnInfoDto>> columns,
-        std::vector<std::map<QString, Any>> rows,
-        std::optional<qint32> totalRowCount,
-        std::optional<qint32> totalAddedCount,
-        std::optional<qint32> totalRemovedCount
-    ) :
-        startVersion(std::move(startVersion)),
-        endVersion(std::move(endVersion)),
-        tableViewUrl(std::move(tableViewUrl)),
-        columns(std::move(columns)),
-        rows(std::move(rows)),
-        totalRowCount(std::move(totalRowCount)),
-        totalAddedCount(std::move(totalAddedCount)),
-        totalRemovedCount(std::move(totalRemovedCount))
-    { }
-
-    QByteArray IssueTableDto::serialize() const
-    {
-        return serialize_bytes(*this);
-    }
-
-    // MetricListDto
-
-    static const QLatin1String metricListKeyVersion{"version"};
-    static const QLatin1String metricListKeyMetrics{"metrics"};
-
-    template<>
-    class de_serializer<MetricListDto> final
-    {
-    public:
-        // throws Axivion::Internal::Dto::invalid_dto_exception
-        static MetricListDto deserialize(const QJsonValue &json)
-        {
-            const QJsonObject jo = toJsonObject<MetricListDto>(json);
-            return {
-                deserialize_field<std::optional<AnalysisVersionDto>>(jo, metricListKeyVersion),
-                deserialize_field<std::vector<MetricDto>>(jo, metricListKeyMetrics)
-            };
-        }
-
-        static QJsonValue serialize(const MetricListDto &value)
-        {
-            QJsonObject jo;
-            serialize_field(jo, metricListKeyVersion, value.version);
-            serialize_field(jo, metricListKeyMetrics, value.metrics);
-            return { jo };
-        }
-
-        de_serializer() = delete;
-        ~de_serializer() = delete;
-    };
-
-    // throws Axivion::Internal::Dto::invalid_dto_exception
-    MetricListDto MetricListDto::deserialize(const QByteArray &json)
-    {
-        return deserialize_bytes<MetricListDto>(json);
-    }
-
-    Utils::expected_str<MetricListDto> MetricListDto::deserializeExpected(const QByteArray &json)
-    {
-        return deserializeExp<MetricListDto>(json);
-    }
-
-    MetricListDto::MetricListDto(
-        std::optional<AnalysisVersionDto> version,
-        std::vector<MetricDto> metrics
-    ) :
-        version(std::move(version)),
-        metrics(std::move(metrics))
-    { }
-
-    QByteArray MetricListDto::serialize() const
-    {
-        return serialize_bytes(*this);
-    }
-
-    // MetricValueRangeDto
-
-    static const QLatin1String metricValueRangeKeyStartVersion{"startVersion"};
-    static const QLatin1String metricValueRangeKeyEndVersion{"endVersion"};
-    static const QLatin1String metricValueRangeKeyEntity{"entity"};
-    static const QLatin1String metricValueRangeKeyMetric{"metric"};
-    static const QLatin1String metricValueRangeKeyValues{"values"};
-
-    template<>
-    class de_serializer<MetricValueRangeDto> final
-    {
-    public:
-        // throws Axivion::Internal::Dto::invalid_dto_exception
-        static MetricValueRangeDto deserialize(const QJsonValue &json)
-        {
-            const QJsonObject jo = toJsonObject<MetricValueRangeDto>(json);
-            return {
-                deserialize_field<AnalysisVersionDto>(jo, metricValueRangeKeyStartVersion),
-                deserialize_field<AnalysisVersionDto>(jo, metricValueRangeKeyEndVersion),
-                deserialize_field<QString>(jo, metricValueRangeKeyEntity),
-                deserialize_field<QString>(jo, metricValueRangeKeyMetric),
-                deserialize_field<std::vector<std::optional<double>>>(jo, metricValueRangeKeyValues)
-            };
-        }
-
-        static QJsonValue serialize(const MetricValueRangeDto &value)
-        {
-            QJsonObject jo;
-            serialize_field(jo, metricValueRangeKeyStartVersion, value.startVersion);
-            serialize_field(jo, metricValueRangeKeyEndVersion, value.endVersion);
-            serialize_field(jo, metricValueRangeKeyEntity, value.entity);
-            serialize_field(jo, metricValueRangeKeyMetric, value.metric);
-            serialize_field(jo, metricValueRangeKeyValues, value.values);
-            return { jo };
-        }
-
-        de_serializer() = delete;
-        ~de_serializer() = delete;
-    };
-
-    // throws Axivion::Internal::Dto::invalid_dto_exception
-    MetricValueRangeDto MetricValueRangeDto::deserialize(const QByteArray &json)
-    {
-        return deserialize_bytes<MetricValueRangeDto>(json);
-    }
-
-    Utils::expected_str<MetricValueRangeDto> MetricValueRangeDto::deserializeExpected(const QByteArray &json)
-    {
-        return deserializeExp<MetricValueRangeDto>(json);
-    }
-
-    MetricValueRangeDto::MetricValueRangeDto(
-        AnalysisVersionDto startVersion,
-        AnalysisVersionDto endVersion,
-        QString entity,
-        QString metric,
-        std::vector<std::optional<double>> values
-    ) :
-        startVersion(std::move(startVersion)),
-        endVersion(std::move(endVersion)),
-        entity(std::move(entity)),
-        metric(std::move(metric)),
-        values(std::move(values))
-    { }
-
-    QByteArray MetricValueRangeDto::serialize() const
-    {
-        return serialize_bytes(*this);
-    }
-
     // MetricValueTableDto
 
     static const QLatin1String metricValueTableKeyColumns{"columns"};
@@ -4167,7 +4032,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<MetricValueTableDto>(json);
     }
 
-    Utils::expected_str<MetricValueTableDto> MetricValueTableDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<MetricValueTableDto> MetricValueTableDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<MetricValueTableDto>(json);
     }
@@ -4231,7 +4096,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<NamedFilterCreateDto>(json);
     }
 
-    Utils::expected_str<NamedFilterCreateDto> NamedFilterCreateDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<NamedFilterCreateDto> NamedFilterCreateDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<NamedFilterCreateDto>(json);
     }
@@ -4353,7 +4218,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<NamedFilterInfoDto>(json);
     }
 
-    Utils::expected_str<NamedFilterInfoDto> NamedFilterInfoDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<NamedFilterInfoDto> NamedFilterInfoDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<NamedFilterInfoDto>(json);
     }
@@ -4480,7 +4345,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<NamedFilterUpdateDto>(json);
     }
 
-    Utils::expected_str<NamedFilterUpdateDto> NamedFilterUpdateDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<NamedFilterUpdateDto> NamedFilterUpdateDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<NamedFilterUpdateDto>(json);
     }
@@ -4498,6 +4363,386 @@ namespace Axivion::Internal::Dto {
     { }
 
     QByteArray NamedFilterUpdateDto::serialize() const
+    {
+        return serialize_bytes(*this);
+    }
+
+    // RepositoryUpdateResponseDto
+
+    static const QLatin1String repositoryUpdateResponseKeyMessages{"messages"};
+    static const QLatin1String repositoryUpdateResponseKeyHasErrors{"hasErrors"};
+    static const QLatin1String repositoryUpdateResponseKeyHasWarnings{"hasWarnings"};
+
+    template<>
+    class de_serializer<RepositoryUpdateResponseDto> final
+    {
+    public:
+        // throws Axivion::Internal::Dto::invalid_dto_exception
+        static RepositoryUpdateResponseDto deserialize(const QJsonValue &json)
+        {
+            const QJsonObject jo = toJsonObject<RepositoryUpdateResponseDto>(json);
+            return {
+                deserialize_field<std::vector<RepositoryUpdateMessageDto>>(jo, repositoryUpdateResponseKeyMessages),
+                deserialize_field<bool>(jo, repositoryUpdateResponseKeyHasErrors),
+                deserialize_field<bool>(jo, repositoryUpdateResponseKeyHasWarnings)
+            };
+        }
+
+        static QJsonValue serialize(const RepositoryUpdateResponseDto &value)
+        {
+            QJsonObject jo;
+            serialize_field(jo, repositoryUpdateResponseKeyMessages, value.messages);
+            serialize_field(jo, repositoryUpdateResponseKeyHasErrors, value.hasErrors);
+            serialize_field(jo, repositoryUpdateResponseKeyHasWarnings, value.hasWarnings);
+            return { jo };
+        }
+
+        de_serializer() = delete;
+        ~de_serializer() = delete;
+    };
+
+    // throws Axivion::Internal::Dto::invalid_dto_exception
+    RepositoryUpdateResponseDto RepositoryUpdateResponseDto::deserialize(const QByteArray &json)
+    {
+        return deserialize_bytes<RepositoryUpdateResponseDto>(json);
+    }
+
+    Utils::Result<RepositoryUpdateResponseDto> RepositoryUpdateResponseDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<RepositoryUpdateResponseDto>(json);
+    }
+
+    RepositoryUpdateResponseDto::RepositoryUpdateResponseDto(
+        std::vector<RepositoryUpdateMessageDto> messages,
+        bool hasErrors,
+        bool hasWarnings
+    ) :
+        messages(std::move(messages)),
+        hasErrors(std::move(hasErrors)),
+        hasWarnings(std::move(hasWarnings))
+    { }
+
+    QByteArray RepositoryUpdateResponseDto::serialize() const
+    {
+        return serialize_bytes(*this);
+    }
+
+    // AnalyzedFileListDto
+
+    static const QLatin1String analyzedFileListKeyVersion{"version"};
+    static const QLatin1String analyzedFileListKeyRows{"rows"};
+
+    template<>
+    class de_serializer<AnalyzedFileListDto> final
+    {
+    public:
+        // throws Axivion::Internal::Dto::invalid_dto_exception
+        static AnalyzedFileListDto deserialize(const QJsonValue &json)
+        {
+            const QJsonObject jo = toJsonObject<AnalyzedFileListDto>(json);
+            return {
+                deserialize_field<AnalysisVersionDto>(jo, analyzedFileListKeyVersion),
+                deserialize_field<std::vector<AnalyzedFileDto>>(jo, analyzedFileListKeyRows)
+            };
+        }
+
+        static QJsonValue serialize(const AnalyzedFileListDto &value)
+        {
+            QJsonObject jo;
+            serialize_field(jo, analyzedFileListKeyVersion, value.version);
+            serialize_field(jo, analyzedFileListKeyRows, value.rows);
+            return { jo };
+        }
+
+        de_serializer() = delete;
+        ~de_serializer() = delete;
+    };
+
+    // throws Axivion::Internal::Dto::invalid_dto_exception
+    AnalyzedFileListDto AnalyzedFileListDto::deserialize(const QByteArray &json)
+    {
+        return deserialize_bytes<AnalyzedFileListDto>(json);
+    }
+
+    Utils::Result<AnalyzedFileListDto> AnalyzedFileListDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<AnalyzedFileListDto>(json);
+    }
+
+    AnalyzedFileListDto::AnalyzedFileListDto(
+        AnalysisVersionDto version,
+        std::vector<AnalyzedFileDto> rows
+    ) :
+        version(std::move(version)),
+        rows(std::move(rows))
+    { }
+
+    QByteArray AnalyzedFileListDto::serialize() const
+    {
+        return serialize_bytes(*this);
+    }
+
+    // EntityListDto
+
+    static const QLatin1String entityListKeyVersion{"version"};
+    static const QLatin1String entityListKeyEntities{"entities"};
+
+    template<>
+    class de_serializer<EntityListDto> final
+    {
+    public:
+        // throws Axivion::Internal::Dto::invalid_dto_exception
+        static EntityListDto deserialize(const QJsonValue &json)
+        {
+            const QJsonObject jo = toJsonObject<EntityListDto>(json);
+            return {
+                deserialize_field<std::optional<AnalysisVersionDto>>(jo, entityListKeyVersion),
+                deserialize_field<std::vector<EntityDto>>(jo, entityListKeyEntities)
+            };
+        }
+
+        static QJsonValue serialize(const EntityListDto &value)
+        {
+            QJsonObject jo;
+            serialize_field(jo, entityListKeyVersion, value.version);
+            serialize_field(jo, entityListKeyEntities, value.entities);
+            return { jo };
+        }
+
+        de_serializer() = delete;
+        ~de_serializer() = delete;
+    };
+
+    // throws Axivion::Internal::Dto::invalid_dto_exception
+    EntityListDto EntityListDto::deserialize(const QByteArray &json)
+    {
+        return deserialize_bytes<EntityListDto>(json);
+    }
+
+    Utils::Result<EntityListDto> EntityListDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<EntityListDto>(json);
+    }
+
+    EntityListDto::EntityListDto(
+        std::optional<AnalysisVersionDto> version,
+        std::vector<EntityDto> entities
+    ) :
+        version(std::move(version)),
+        entities(std::move(entities))
+    { }
+
+    QByteArray EntityListDto::serialize() const
+    {
+        return serialize_bytes(*this);
+    }
+
+    // IssueTableDto
+
+    static const QLatin1String issueTableKeyStartVersion{"startVersion"};
+    static const QLatin1String issueTableKeyEndVersion{"endVersion"};
+    static const QLatin1String issueTableKeyTableViewUrl{"tableViewUrl"};
+    static const QLatin1String issueTableKeyColumns{"columns"};
+    static const QLatin1String issueTableKeyRows{"rows"};
+    static const QLatin1String issueTableKeyTotalRowCount{"totalRowCount"};
+    static const QLatin1String issueTableKeyTotalAddedCount{"totalAddedCount"};
+    static const QLatin1String issueTableKeyTotalRemovedCount{"totalRemovedCount"};
+
+    template<>
+    class de_serializer<IssueTableDto> final
+    {
+    public:
+        // throws Axivion::Internal::Dto::invalid_dto_exception
+        static IssueTableDto deserialize(const QJsonValue &json)
+        {
+            const QJsonObject jo = toJsonObject<IssueTableDto>(json);
+            return {
+                deserialize_field<std::optional<AnalysisVersionDto>>(jo, issueTableKeyStartVersion),
+                deserialize_field<AnalysisVersionDto>(jo, issueTableKeyEndVersion),
+                deserialize_field<std::optional<QString>>(jo, issueTableKeyTableViewUrl),
+                deserialize_field<std::optional<std::vector<ColumnInfoDto>>>(jo, issueTableKeyColumns),
+                deserialize_field<std::vector<std::map<QString, Any>>>(jo, issueTableKeyRows),
+                deserialize_field<std::optional<qint32>>(jo, issueTableKeyTotalRowCount),
+                deserialize_field<std::optional<qint32>>(jo, issueTableKeyTotalAddedCount),
+                deserialize_field<std::optional<qint32>>(jo, issueTableKeyTotalRemovedCount)
+            };
+        }
+
+        static QJsonValue serialize(const IssueTableDto &value)
+        {
+            QJsonObject jo;
+            serialize_field(jo, issueTableKeyStartVersion, value.startVersion);
+            serialize_field(jo, issueTableKeyEndVersion, value.endVersion);
+            serialize_field(jo, issueTableKeyTableViewUrl, value.tableViewUrl);
+            serialize_field(jo, issueTableKeyColumns, value.columns);
+            serialize_field(jo, issueTableKeyRows, value.rows);
+            serialize_field(jo, issueTableKeyTotalRowCount, value.totalRowCount);
+            serialize_field(jo, issueTableKeyTotalAddedCount, value.totalAddedCount);
+            serialize_field(jo, issueTableKeyTotalRemovedCount, value.totalRemovedCount);
+            return { jo };
+        }
+
+        de_serializer() = delete;
+        ~de_serializer() = delete;
+    };
+
+    // throws Axivion::Internal::Dto::invalid_dto_exception
+    IssueTableDto IssueTableDto::deserialize(const QByteArray &json)
+    {
+        return deserialize_bytes<IssueTableDto>(json);
+    }
+
+    Utils::Result<IssueTableDto> IssueTableDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<IssueTableDto>(json);
+    }
+
+    IssueTableDto::IssueTableDto(
+        std::optional<AnalysisVersionDto> startVersion,
+        AnalysisVersionDto endVersion,
+        std::optional<QString> tableViewUrl,
+        std::optional<std::vector<ColumnInfoDto>> columns,
+        std::vector<std::map<QString, Any>> rows,
+        std::optional<qint32> totalRowCount,
+        std::optional<qint32> totalAddedCount,
+        std::optional<qint32> totalRemovedCount
+    ) :
+        startVersion(std::move(startVersion)),
+        endVersion(std::move(endVersion)),
+        tableViewUrl(std::move(tableViewUrl)),
+        columns(std::move(columns)),
+        rows(std::move(rows)),
+        totalRowCount(std::move(totalRowCount)),
+        totalAddedCount(std::move(totalAddedCount)),
+        totalRemovedCount(std::move(totalRemovedCount))
+    { }
+
+    QByteArray IssueTableDto::serialize() const
+    {
+        return serialize_bytes(*this);
+    }
+
+    // MetricListDto
+
+    static const QLatin1String metricListKeyVersion{"version"};
+    static const QLatin1String metricListKeyMetrics{"metrics"};
+
+    template<>
+    class de_serializer<MetricListDto> final
+    {
+    public:
+        // throws Axivion::Internal::Dto::invalid_dto_exception
+        static MetricListDto deserialize(const QJsonValue &json)
+        {
+            const QJsonObject jo = toJsonObject<MetricListDto>(json);
+            return {
+                deserialize_field<std::optional<AnalysisVersionDto>>(jo, metricListKeyVersion),
+                deserialize_field<std::vector<MetricDto>>(jo, metricListKeyMetrics)
+            };
+        }
+
+        static QJsonValue serialize(const MetricListDto &value)
+        {
+            QJsonObject jo;
+            serialize_field(jo, metricListKeyVersion, value.version);
+            serialize_field(jo, metricListKeyMetrics, value.metrics);
+            return { jo };
+        }
+
+        de_serializer() = delete;
+        ~de_serializer() = delete;
+    };
+
+    // throws Axivion::Internal::Dto::invalid_dto_exception
+    MetricListDto MetricListDto::deserialize(const QByteArray &json)
+    {
+        return deserialize_bytes<MetricListDto>(json);
+    }
+
+    Utils::Result<MetricListDto> MetricListDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<MetricListDto>(json);
+    }
+
+    MetricListDto::MetricListDto(
+        std::optional<AnalysisVersionDto> version,
+        std::vector<MetricDto> metrics
+    ) :
+        version(std::move(version)),
+        metrics(std::move(metrics))
+    { }
+
+    QByteArray MetricListDto::serialize() const
+    {
+        return serialize_bytes(*this);
+    }
+
+    // MetricValueRangeDto
+
+    static const QLatin1String metricValueRangeKeyStartVersion{"startVersion"};
+    static const QLatin1String metricValueRangeKeyEndVersion{"endVersion"};
+    static const QLatin1String metricValueRangeKeyEntity{"entity"};
+    static const QLatin1String metricValueRangeKeyMetric{"metric"};
+    static const QLatin1String metricValueRangeKeyValues{"values"};
+
+    template<>
+    class de_serializer<MetricValueRangeDto> final
+    {
+    public:
+        // throws Axivion::Internal::Dto::invalid_dto_exception
+        static MetricValueRangeDto deserialize(const QJsonValue &json)
+        {
+            const QJsonObject jo = toJsonObject<MetricValueRangeDto>(json);
+            return {
+                deserialize_field<AnalysisVersionDto>(jo, metricValueRangeKeyStartVersion),
+                deserialize_field<AnalysisVersionDto>(jo, metricValueRangeKeyEndVersion),
+                deserialize_field<QString>(jo, metricValueRangeKeyEntity),
+                deserialize_field<QString>(jo, metricValueRangeKeyMetric),
+                deserialize_field<std::vector<std::optional<double>>>(jo, metricValueRangeKeyValues)
+            };
+        }
+
+        static QJsonValue serialize(const MetricValueRangeDto &value)
+        {
+            QJsonObject jo;
+            serialize_field(jo, metricValueRangeKeyStartVersion, value.startVersion);
+            serialize_field(jo, metricValueRangeKeyEndVersion, value.endVersion);
+            serialize_field(jo, metricValueRangeKeyEntity, value.entity);
+            serialize_field(jo, metricValueRangeKeyMetric, value.metric);
+            serialize_field(jo, metricValueRangeKeyValues, value.values);
+            return { jo };
+        }
+
+        de_serializer() = delete;
+        ~de_serializer() = delete;
+    };
+
+    // throws Axivion::Internal::Dto::invalid_dto_exception
+    MetricValueRangeDto MetricValueRangeDto::deserialize(const QByteArray &json)
+    {
+        return deserialize_bytes<MetricValueRangeDto>(json);
+    }
+
+    Utils::Result<MetricValueRangeDto> MetricValueRangeDto::deserializeExpected(const QByteArray &json)
+    {
+        return deserializeExp<MetricValueRangeDto>(json);
+    }
+
+    MetricValueRangeDto::MetricValueRangeDto(
+        AnalysisVersionDto startVersion,
+        AnalysisVersionDto endVersion,
+        QString entity,
+        QString metric,
+        std::vector<std::optional<double>> values
+    ) :
+        startVersion(std::move(startVersion)),
+        endVersion(std::move(endVersion)),
+        entity(std::move(entity)),
+        metric(std::move(metric)),
+        values(std::move(values))
+    { }
+
+    QByteArray MetricValueRangeDto::serialize() const
     {
         return serialize_bytes(*this);
     }
@@ -4554,7 +4799,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<ProjectInfoDto>(json);
     }
 
-    Utils::expected_str<ProjectInfoDto> ProjectInfoDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<ProjectInfoDto> ProjectInfoDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<ProjectInfoDto>(json);
     }
@@ -4578,66 +4823,6 @@ namespace Axivion::Internal::Dto {
     { }
 
     QByteArray ProjectInfoDto::serialize() const
-    {
-        return serialize_bytes(*this);
-    }
-
-    // RepositoryUpdateResponseDto
-
-    static const QLatin1String repositoryUpdateResponseKeyMessages{"messages"};
-    static const QLatin1String repositoryUpdateResponseKeyHasErrors{"hasErrors"};
-    static const QLatin1String repositoryUpdateResponseKeyHasWarnings{"hasWarnings"};
-
-    template<>
-    class de_serializer<RepositoryUpdateResponseDto> final
-    {
-    public:
-        // throws Axivion::Internal::Dto::invalid_dto_exception
-        static RepositoryUpdateResponseDto deserialize(const QJsonValue &json)
-        {
-            const QJsonObject jo = toJsonObject<RepositoryUpdateResponseDto>(json);
-            return {
-                deserialize_field<std::vector<RepositoryUpdateMessageDto>>(jo, repositoryUpdateResponseKeyMessages),
-                deserialize_field<bool>(jo, repositoryUpdateResponseKeyHasErrors),
-                deserialize_field<bool>(jo, repositoryUpdateResponseKeyHasWarnings)
-            };
-        }
-
-        static QJsonValue serialize(const RepositoryUpdateResponseDto &value)
-        {
-            QJsonObject jo;
-            serialize_field(jo, repositoryUpdateResponseKeyMessages, value.messages);
-            serialize_field(jo, repositoryUpdateResponseKeyHasErrors, value.hasErrors);
-            serialize_field(jo, repositoryUpdateResponseKeyHasWarnings, value.hasWarnings);
-            return { jo };
-        }
-
-        de_serializer() = delete;
-        ~de_serializer() = delete;
-    };
-
-    // throws Axivion::Internal::Dto::invalid_dto_exception
-    RepositoryUpdateResponseDto RepositoryUpdateResponseDto::deserialize(const QByteArray &json)
-    {
-        return deserialize_bytes<RepositoryUpdateResponseDto>(json);
-    }
-
-    Utils::expected_str<RepositoryUpdateResponseDto> RepositoryUpdateResponseDto::deserializeExpected(const QByteArray &json)
-    {
-        return deserializeExp<RepositoryUpdateResponseDto>(json);
-    }
-
-    RepositoryUpdateResponseDto::RepositoryUpdateResponseDto(
-        std::vector<RepositoryUpdateMessageDto> messages,
-        bool hasErrors,
-        bool hasWarnings
-    ) :
-        messages(std::move(messages)),
-        hasErrors(std::move(hasErrors)),
-        hasWarnings(std::move(hasWarnings))
-    { }
-
-    QByteArray RepositoryUpdateResponseDto::serialize() const
     {
         return serialize_bytes(*this);
     }
@@ -4691,7 +4876,7 @@ namespace Axivion::Internal::Dto {
         return deserialize_bytes<TableInfoDto>(json);
     }
 
-    Utils::expected_str<TableInfoDto> TableInfoDto::deserializeExpected(const QByteArray &json)
+    Utils::Result<TableInfoDto> TableInfoDto::deserializeExpected(const QByteArray &json)
     {
         return deserializeExp<TableInfoDto>(json);
     }

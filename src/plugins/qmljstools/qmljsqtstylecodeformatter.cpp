@@ -19,21 +19,18 @@ CreatorCodeFormatter::CreatorCodeFormatter(const TabSettings &tabSettings)
 
 void CreatorCodeFormatter::saveBlockData(QTextBlock *block, const BlockData &data) const
 {
-    TextBlockUserData *userData = TextDocumentLayout::userData(*block);
-    auto cppData = static_cast<QmlJSCodeFormatterData *>(userData->codeFormatterData());
+    auto cppData = static_cast<QmlJSCodeFormatterData *>(TextBlockUserData::codeFormatterData(*block));
     if (!cppData) {
         cppData = new QmlJSCodeFormatterData;
-        userData->setCodeFormatterData(cppData);
+        TextBlockUserData::setCodeFormatterData(*block, cppData);
     }
     cppData->m_data = data;
 }
 
 bool CreatorCodeFormatter::loadBlockData(const QTextBlock &block, BlockData *data) const
 {
-    TextBlockUserData *userData = TextDocumentLayout::textUserData(block);
-    if (!userData)
-        return false;
-    auto cppData = static_cast<const QmlJSCodeFormatterData *>(userData->codeFormatterData());
+    auto cppData = static_cast<const QmlJSCodeFormatterData *>(
+        TextBlockUserData::codeFormatterData(block));
     if (!cppData)
         return false;
 
@@ -43,10 +40,10 @@ bool CreatorCodeFormatter::loadBlockData(const QTextBlock &block, BlockData *dat
 
 void CreatorCodeFormatter::saveLexerState(QTextBlock *block, int state) const
 {
-    TextDocumentLayout::setLexerState(*block, state);
+    TextBlockUserData::setLexerState(*block, state);
 }
 
 int CreatorCodeFormatter::loadLexerState(const QTextBlock &block) const
 {
-    return TextDocumentLayout::lexerState(block);
+    return TextBlockUserData::lexerState(block);
 }

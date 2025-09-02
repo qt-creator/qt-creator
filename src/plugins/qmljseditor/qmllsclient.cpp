@@ -3,10 +3,13 @@
 
 #include "qmllsclient.h"
 
+#include "languageclient/languageclientoutline.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
 #include "qmljsquickfix.h"
 #include "qmllsclientsettings.h"
+
+#include <coreplugin/icore.h>
 
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
@@ -20,6 +23,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 
+#include <qmljs/qmljsicons.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/mimeconstants.h>
@@ -217,9 +221,36 @@ bool QmllsClient::supportsDocumentSymbols(const TextEditor::TextDocument *doc) c
         return false;
 
     // disable document symbols (outline feature) when the experimental checkbox is not set
-    if (qmllsSettings()->useQmllsWithBuiltinCodemodelOnProject(doc->filePath()))
+    if (qmllsSettings()->useQmllsWithBuiltinCodemodelOnProject(project(), doc->filePath()))
         return false;
     return Client::supportsDocumentSymbols(doc);
+}
+
+class QmllsOutlineItem : public LanguageClientOutlineItem
+{
+    using LanguageClientOutlineItem::LanguageClientOutlineItem;
+
+private:
+    QVariant data(int column, int role) const override
+    {
+        if (valid() && role == Qt::DecorationRole) {
+            return symbolIcon(name());
+        }
+        return LanguageClientOutlineItem::data(column, role);
+    }
+    const QIcon symbolIcon(QStringView symbolName) const
+    {
+        if (symbolName.contains(QLatin1Char('.')))
+            symbolName = symbolName.split(QLatin1Char('.')).last();
+        const auto &icon = QmlJS::Icons::Provider::instance().icon(symbolName);
+        return icon.isNull() ? LanguageClient::symbolIcon(type()) : icon;
+    }
+};
+
+LanguageClientOutlineItem *QmllsClient::createOutlineItem(
+    const LanguageServerProtocol::DocumentSymbol &symbol)
+{
+    return new QmllsOutlineItem(this, symbol);
 }
 
 } // namespace QmlJSEditor

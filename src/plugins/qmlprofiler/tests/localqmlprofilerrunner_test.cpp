@@ -6,6 +6,7 @@
 #include <debugger/analyzer/analyzerutils.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <qmlprofiler/qmlprofilerruncontrol.h>
 #include <qmlprofiler/qmlprofilertool.h>
@@ -28,7 +29,7 @@ LocalQmlProfilerRunnerTest::LocalQmlProfilerRunnerTest(QObject *parent) : QObjec
 
 void LocalQmlProfilerRunnerTest::testRunner()
 {
-    QPointer<RunControl> runControl;
+    std::unique_ptr<RunControl> runControl;
     QPointer<RunWorker> profiler;
 
     bool running = false;
@@ -37,25 +38,27 @@ void LocalQmlProfilerRunnerTest::testRunner()
     int runCount = 0;
     int stopCount = 0;
 
-    runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    runControl.reset(new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE));
     runControl->setCommandLine(CommandLine{"\\-/|\\-/"});
 
-    profiler = createLocalQmlProfilerWorker(runControl);
+    profiler = createLocalQmlProfilerWorker(runControl.get());
 
-    auto connectRunner = [&]() {
-        connect(runControl, &RunControl::aboutToStart, this, [&] {
+    auto connectRunner = [&] {
+        running = false;
+        started = false;
+        connect(runControl.get(), &RunControl::aboutToStart, this, [&] {
             QVERIFY(!started);
             QVERIFY(!running);
             ++startCount;
             started = true;
         });
-        connect(runControl, &RunControl::started, this, [&] {
+        connect(runControl.get(), &RunControl::started, this, [&] {
             QVERIFY(started);
             QVERIFY(!running);
             ++runCount;
             running = true;
         });
-        connect(runControl, &RunControl::stopped, this, [&] {
+        connect(runControl.get(), &RunControl::stopped, this, [&] {
             QVERIFY(started);
             ++stopCount;
             running = false;
@@ -66,26 +69,22 @@ void LocalQmlProfilerRunnerTest::testRunner()
     connectRunner();
 
     QTest::ignoreMessage(
-                QtDebugMsg, "Invalid run control state transition from  "
-                            "\"RunControlState::Starting\"  to  \"RunControlState::Stopped\"");
+                QtDebugMsg, "Invalid run control state transition from "
+                            "\"RunControlState::Starting\" to \"RunControlState::Stopped\"");
     runControl->initiateStart();
 
     QTRY_COMPARE_WITH_TIMEOUT(startCount, 1, 30000);
     QTRY_VERIFY_WITH_TIMEOUT(!started, 30000);
     QCOMPARE(stopCount, 1);
     QCOMPARE(runCount, 0);
-
-    runControl->setAutoDeleteOnStop(true);
-    runControl->initiateStop();
-    QTRY_VERIFY(runControl.isNull());
-    QVERIFY(profiler.isNull());
+    QVERIFY(runControl->isStopped());
 
     // comma is used to specify a test function. In this case, an invalid one.
-    runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    runControl.reset(new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE));
 
     const FilePath app = FilePath::fromString(QCoreApplication::applicationFilePath());
     runControl->setCommandLine({app, {"-test", "QmlProfiler,"}});
-    profiler = createLocalQmlProfilerWorker(runControl);
+    profiler = createLocalQmlProfilerWorker(runControl.get());
     connectRunner();
     runControl->initiateStart();
 
@@ -94,15 +93,11 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QCOMPARE(startCount, 2);
     QCOMPARE(stopCount, 2);
     QCOMPARE(runCount, 1);
+    QVERIFY(runControl->isStopped());
 
-    runControl->setAutoDeleteOnStop(true);
-    runControl->initiateStop();
-    QTRY_VERIFY(runControl.isNull());
-    QVERIFY(profiler.isNull());
-
-    runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    runControl.reset(new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE));
     runControl->setCommandLine(CommandLine{app});
-    profiler = createLocalQmlProfilerWorker(runControl);
+    profiler = createLocalQmlProfilerWorker(runControl.get());
     connectRunner();
     runControl->initiateStart();
 
@@ -112,15 +107,11 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QCOMPARE(startCount, 3);
     QCOMPARE(stopCount, 3);
     QCOMPARE(runCount, 2);
+    QVERIFY(runControl->isStopped());
 
-    runControl->setAutoDeleteOnStop(true);
-    runControl->initiateStop();
-    QTRY_VERIFY(runControl.isNull());
-    QVERIFY(profiler.isNull());
-
-    runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    runControl.reset(new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE));
     runControl->setCommandLine({app, {"-test", "QmlProfiler,"}});
-    profiler = createLocalQmlProfilerWorker(runControl);
+    profiler = createLocalQmlProfilerWorker(runControl.get());
     connectRunner();
     runControl->initiateStart();
 
@@ -129,11 +120,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QCOMPARE(startCount, 4);
     QCOMPARE(stopCount, 4);
     QCOMPARE(runCount, 3);
-
-    runControl->setAutoDeleteOnStop(true);
-    runControl->initiateStop();
-    QTRY_VERIFY(runControl.isNull());
-    QVERIFY(profiler.isNull());
+    QVERIFY(runControl->isStopped());
 }
 
 void LocalQmlProfilerRunnerTest::testFindFreePort()

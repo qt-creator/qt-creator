@@ -80,7 +80,7 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
     effectiveCall.setEnabled(true);
 
     auto updateSummary = [this] {
-        QtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
+        QtVersion *qtVersion = QtKitAspect::qtVersion(kit());
         if (!qtVersion)
             return Tr::tr("<b>qmake:</b> No Qt version set. Cannot run qmake.");
         const QString program = qtVersion->qmakeFilePath().fileName();
@@ -88,7 +88,7 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
     };
     setSummaryUpdater(updateSummary);
 
-    connect(target(), &Target::kitChanged, this, updateSummary);
+    connect(buildConfiguration(), &BuildConfiguration::kitChanged, this, updateSummary);
 }
 
 QmakeBuildConfiguration *QMakeStep::qmakeBuildConfiguration() const
@@ -120,15 +120,12 @@ QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
 
     if (v->qtVersion() < QVersionNumber(5, 0, 0))
         arguments << "-r";
-    bool userProvidedMkspec = false;
-    for (ProcessArgs::ConstArgIterator ait(userArguments()); ait.next(); ) {
-        if (ait.value() == "-spec") {
-            if (ait.next()) {
-                userProvidedMkspec = true;
-                break;
-            }
-        }
-    }
+
+    const QStringList userArgs = ProcessArgs::splitArgs(userArguments(),
+                                                        project()->projectFilePath().osType());
+    const int mkspecIndex = userArgs.indexOf("-spec");
+    const bool userProvidedMkspec = mkspecIndex >= 0 && mkspecIndex + 1 < userArgs.size();
+
     const FilePath specArg = FilePath::fromString(mkspec());
     QTC_CHECK(specArg.isSameDevice(v->qmakeFilePath()));
     if (!userProvidedMkspec && !specArg.isEmpty())
@@ -149,19 +146,18 @@ QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
 
 QMakeStepConfig QMakeStep::deducedArguments() const
 {
-    Kit *kit = target()->kit();
     QMakeStepConfig config;
     Abi targetAbi;
-    if (Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit)) {
+    if (Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit())) {
         targetAbi = tc->targetAbi();
         if (HostOsInfo::isWindowsHost()
             && tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
-            config.sysRoot = SysRootKitAspect::sysRoot(kit).toUrlishString();
+            config.sysRoot = SysRootKitAspect::sysRoot(kit()).toUrlishString();
             config.targetTriple = tc->originalTargetTriple();
         }
     }
 
-    QtVersion *version = QtKitAspect::qtVersion(kit);
+    QtVersion *version = QtKitAspect::qtVersion(kit());
 
     config.osType = QMakeStepConfig::osTypeFor(targetAbi, version);
     config.separateDebugInfo = qmakeBuildConfiguration()->separateDebugInfo();
@@ -379,15 +375,11 @@ QString QMakeStep::effectiveQMakeCall() const
 
 QStringList QMakeStep::parserArguments()
 {
-    // NOTE: extra parser args placed before the other args intentionally
-    QStringList result = m_extraParserArgs;
     QtVersion *qt = QtKitAspect::qtVersion(kit());
     QTC_ASSERT(qt, return {});
-    for (ProcessArgs::ConstArgIterator ait(allArguments(qt, ArgumentFlag::Expand)); ait.next(); ) {
-        if (ait.isSimple())
-            result << ait.value();
-    }
-    return result;
+    const QString allArgs = allArguments(qt, ArgumentFlag::Expand);
+    // NOTE: extra parser args placed before the other args intentionally
+    return m_extraParserArgs + ProcessArgs::filterSimpleArgs(allArgs, qt->qmakeFilePath().osType());
 }
 
 QString QMakeStep::mkspec() const
@@ -401,7 +393,7 @@ QString QMakeStep::mkspec() const
     if (pos > 0 && pos < args.size())
         return FilePath::fromUserInput(args[pos]).toUrlishString();
 
-    return QmakeKitAspect::effectiveMkspec(target()->kit());
+    return QmakeKitAspect::effectiveMkspec(kit());
 }
 
 void QMakeStep::toMap(Store &map) const
@@ -458,7 +450,7 @@ QWidget *QMakeStep::createConfigWidget()
 
     connect(project(), &Project::projectLanguagesUpdated,
             widget, [this] { linkQmlDebuggingLibraryChanged(); });
-    connect(target(), &Target::parsingFinished,
+    connect(buildSystem(), &BuildSystem::parsingFinished,
             widget, [this] { updateEffectiveQMakeCall(); });
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::useQtQuickCompilerChanged,
             widget, [this] { useQtQuickCompilerChanged(); });
@@ -466,7 +458,7 @@ QWidget *QMakeStep::createConfigWidget()
             widget, [this] { separateDebugInfoChanged(); });
     connect(qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,
             widget, [this] { qmakeBuildConfigChanged(); });
-    connect(target(), &Target::kitChanged,
+    connect(buildConfiguration(), &BuildConfiguration::kitChanged,
             widget, [this] { qtVersionChanged(); });
 
     connect(abisListWidget, &QListWidget::itemChanged, this, [this] {
@@ -539,7 +531,7 @@ void QMakeStep::abisChanged()
             m_selectedAbis << item->text();
     }
 
-    if (QtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit())) {
+    if (QtVersion *qtVersion = QtKitAspect::qtVersion(kit())) {
         if (qtVersion->hasAbi(Abi::LinuxOS, Abi::AndroidLinuxFlavor)) {
             const QString prefix = QString("%1=").arg(Android::Constants::ANDROID_ABIS);
             QStringList args = m_extraArgs;
@@ -553,7 +545,7 @@ void QMakeStep::abisChanged()
                 args << prefix + '"' + m_selectedAbis.join(' ') + '"';
             setExtraArguments(args);
             buildSystem()->setProperty(Android::Constants::AndroidAbis, m_selectedAbis);
-        } else if (qtVersion->hasAbi(Abi::DarwinOS) && !isIos(target()->kit())) {
+        } else if (qtVersion->hasAbi(Abi::DarwinOS) && !isIos(kit())) {
             const QString prefix = "QMAKE_APPLE_DEVICE_ARCHS=";
             QStringList args = m_extraArgs;
             for (auto it = args.begin(); it != args.end(); ++it) {
@@ -621,7 +613,7 @@ void QMakeStep::updateAbiWidgets()
     if (!abisLabel)
         return;
 
-    QtVersion *qtVersion = QtKitAspect::qtVersion(target()->kit());
+    QtVersion *qtVersion = QtKitAspect::qtVersion(kit());
     if (!qtVersion)
         return;
 

@@ -11,8 +11,7 @@
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
 
-#include <QFileInfo>
-#include <QDir>
+#include <QCoreApplication>
 
 using namespace Utils;
 using namespace Core::Internal;
@@ -144,9 +143,8 @@ QHash<int, QByteArray> SessionModel::roleNames() const
     return roles;
 }
 
-void SessionModel::sort(int column, Qt::SortOrder order)
+void SessionModel::sortImpl(int column, Qt::SortOrder order)
 {
-    beginResetModel();
     const auto cmp = [column, order](const QString &s1, const QString &s2) {
         bool isLess;
         if (column == 0) {
@@ -168,6 +166,12 @@ void SessionModel::sort(int column, Qt::SortOrder order)
     Utils::sort(m_sortedSessions, cmp);
     m_currentSortColumn = column;
     m_currentSortOrder = order;
+}
+
+void SessionModel::sort(int column, Qt::SortOrder order)
+{
+    beginResetModel();
+    sortImpl(column, order);
     endResetModel();
 }
 
@@ -210,10 +214,11 @@ void SessionModel::deleteSessions(const QStringList &sessions)
 {
     if (!SessionManager::confirmSessionDelete(sessions))
         return;
-    beginResetModel();
     SessionManager::deleteSessions(sessions);
+    beginResetModel();
     m_sortedSessions = SessionManager::sessions();
-    sort(m_currentSortColumn, m_currentSortOrder);
+    if (m_currentSortColumn >= 0)
+        sortImpl(m_currentSortColumn, m_currentSortOrder);
     endResetModel();
 }
 
@@ -242,11 +247,12 @@ void SessionModel::runSessionNameInputDialog(SessionNameInputDialog *sessionInpu
         QString newSession = sessionInputDialog->value();
         if (newSession.isEmpty() || SessionManager::sessions().contains(newSession))
             return;
-        beginResetModel();
         createSession(newSession);
+        beginResetModel();
         m_sortedSessions = SessionManager::sessions();
+        if (m_currentSortColumn >= 0)
+            sortImpl(m_currentSortColumn, m_currentSortOrder);
         endResetModel();
-        sort(m_currentSortColumn, m_currentSortOrder);
 
         if (sessionInputDialog->isSwitchToRequested())
             switchToSession(newSession);

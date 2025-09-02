@@ -629,8 +629,8 @@ void FossilPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
     TempFileSaver saver;
     // Keep the file alive, else it removes self and forgets its name
     saver.setAutoRemove(false);
-    if (!saver.finalize()) {
-        VcsOutputWindow::appendError(saver.errorString());
+    if (const Result<> res = saver.finalize(); !res) {
+        VcsOutputWindow::appendError(res.error());
         return;
     }
 

@@ -6,7 +6,6 @@
 #include <projectexplorer/devicesupport/idevicefwd.h>
 
 #include <QDialog>
-#include <QProcess>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -17,10 +16,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class Process; }
 
-namespace PerfProfiler {
-namespace Internal {
-
-namespace Ui { class PerfTracePointDialog; }
+namespace PerfProfiler::Internal {
 
 class PerfTracePointDialog : public QDialog
 {
@@ -46,5 +42,4 @@ private:
     void reject() final;
 };
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

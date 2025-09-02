@@ -19,10 +19,10 @@
 #include <QTextDocument>
 #include <QUndoStack>
 
+using namespace Core;
 using namespace Utils;
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent)
   : m_formWindow(form)
@@ -43,35 +43,30 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
             m_resourceHandler, &ResourceHandler::updateResources);
 }
 
-Core::IDocument::OpenResult FormWindowFile::open(QString *errorString,
-                                                 const Utils::FilePath &filePath,
-                                                 const Utils::FilePath &realFilePath)
+Result<> FormWindowFile::open(const FilePath &filePath, const FilePath &realFilePath)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormWindowFile::open" << filePath.toUserOutput();
 
     QDesignerFormWindowInterface *form = formWindow();
-    QTC_ASSERT(form, return OpenResult::CannotHandle);
+    QTC_ASSERT(form, return ResultError(ResultAssert));
 
     if (filePath.isEmpty())
-        return OpenResult::ReadError;
+        return ResultError("File name is empty"); // FIXME: Use something better
 
     QString contents;
-    Utils::TextFileFormat::ReadResult readResult = read(filePath.absoluteFilePath(),
-                                                        &contents,
-                                                        errorString);
-    if (readResult == Utils::TextFileFormat::ReadEncodingError)
-        return OpenResult::CannotHandle;
-    if (readResult != Utils::TextFileFormat::ReadSuccess)
-        return OpenResult::ReadError;
+    TextFileFormat::ReadResult readResult = read(filePath.absoluteFilePath(), &contents);
+    if (readResult.code != TextFileFormat::ReadSuccess)
+        return ResultError(readResult.error);
 
     form->setFileName(filePath.absoluteFilePath().toUrlishString());
     const QByteArray contentsBA = contents.toUtf8();
     QBuffer str;
     str.setData(contentsBA);
     str.open(QIODevice::ReadOnly);
-    if (!form->setContents(&str, errorString))
-        return OpenResult::CannotHandle;
+    QString errorString;
+    if (!form->setContents(&str, &errorString))
+        return ResultError(errorString);
     form->setDirty(filePath != realFilePath);
 
     syncXmlFromFormWindow();
@@ -79,35 +74,35 @@ Core::IDocument::OpenResult FormWindowFile::open(QString *errorString,
     setShouldAutoSave(false);
     resourceHandler()->updateProjectResources();
 
-    return OpenResult::Success;
+    return ResultOk;
 }
 
-Result FormWindowFile::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> FormWindowFile::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (!m_formWindow)
-        return Result::Error("ASSERT: FormWindoFile: !m_formWindow");
+        return ResultError("ASSERT: FormWindoFile: !m_formWindow");
     if (filePath.isEmpty())
-        return Result::Error("ASSERT: FormWindowFile: filePath.isEmpty()");
+        return ResultError("ASSERT: FormWindowFile: filePath.isEmpty()");
 
     const QString oldFormName = m_formWindow->fileName();
     if (!autoSave)
         m_formWindow->setFileName(filePath.toUrlishString());
-    QString errorString;
-    const bool writeOK = writeFile(filePath, &errorString);
+
+    const Result<> res = writeFile(filePath);
     m_shouldAutoSave = false;
     if (autoSave)
-        return Result(writeOK, errorString);
+        return res;
 
-    if (!writeOK) {
+    if (!res) {
         m_formWindow->setFileName(oldFormName);
-        return Result::Error(errorString);
+        return res;
     }
 
     m_formWindow->setDirty(false);
     setFilePath(filePath);
     updateIsModified();
 
-    return Result::Ok;
+    return ResultOk;
 }
 
 QByteArray FormWindowFile::contents() const
@@ -115,17 +110,17 @@ QByteArray FormWindowFile::contents() const
     return formWindowContents().toUtf8();
 }
 
-bool FormWindowFile::setContents(const QByteArray &contents)
+Result<> FormWindowFile::setContents(const QByteArray &contents)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << contents.size();
 
     document()->clear();
 
-    QTC_ASSERT(m_formWindow, return false);
+    QTC_ASSERT(m_formWindow, return ResultError(ResultAssert));
 
     if (contents.isEmpty())
-        return false;
+        return ResultError(ResultAssert);
 
     // If we have an override cursor, reset it over Designer loading,
     // should it pop up messages about missing resources or such.
@@ -142,11 +137,11 @@ bool FormWindowFile::setContents(const QByteArray &contents)
         QApplication::setOverrideCursor(overrideCursor);
 
     if (!success)
-        return false;
+        return ResultError(ResultAssert);
 
     syncXmlFromFormWindow();
     setShouldAutoSave(false);
-    return true;
+    return ResultOk;
 }
 
 void FormWindowFile::setFilePath(const FilePath &newName)
@@ -184,11 +179,11 @@ bool FormWindowFile::isSaveAsAllowed() const
     return true;
 }
 
-Result FormWindowFile::reload(ReloadFlag flag, ChangeType type)
+Result<> FormWindowFile::reload(ReloadFlag flag, ChangeType type)
 {
     if (flag == FlagIgnore) {
         if (!m_formWindow || type != TypeContents)
-            return Result::Ok;
+            return ResultOk;
         const bool wasModified = m_formWindow->isDirty();
         {
             Utils::GuardLocker locker(m_modificationChangedGuard);
@@ -198,14 +193,12 @@ Result FormWindowFile::reload(ReloadFlag flag, ChangeType type)
         }
         if (!wasModified)
             updateIsModified();
-        return Result::Ok;
+        return ResultOk;
     } else {
         emit aboutToReload();
-        QString errorString;
-        const bool success
-                = (open(&errorString, filePath(), filePath()) == OpenResult::Success);
-        emit reloadFinished(success);
-        return Result(success, errorString);
+        const Result<> result = open(filePath(), filePath());
+        emit reloadFinished(result.has_value());
+        return result;
     }
 }
 
@@ -227,7 +220,7 @@ bool FormWindowFile::supportsCodec(const QByteArray &codec) const
     return TextEditor::TextDocument::isUtf8Codec(codec);
 }
 
-bool FormWindowFile::writeFile(const Utils::FilePath &filePath, QString *errorString) const
+Result<> FormWindowFile::writeFile(const Utils::FilePath &filePath) const
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << this->filePath() << filePath;
@@ -235,7 +228,7 @@ bool FormWindowFile::writeFile(const Utils::FilePath &filePath, QString *errorSt
     Q_ASSERT(integration);
     if (!integration->setQtVersionFromFile(filePath))
         integration->resetQtVersion();
-    return write(filePath, format(), m_formWindow->contents(), errorString);
+    return write(filePath, format(), m_formWindow->contents());
 }
 
 QDesignerFormWindowInterface *FormWindowFile::formWindow() const
@@ -269,5 +262,4 @@ void FormWindowFile::slotFormWindowRemoved(QDesignerFormWindowInterface *w)
         m_formWindow = nullptr;
 }
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

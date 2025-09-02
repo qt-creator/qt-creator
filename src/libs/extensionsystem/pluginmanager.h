@@ -65,27 +65,30 @@ public:
 
     static void startProfiling();
     // Plugin operations
-    static QVector<PluginSpec *> loadQueue();
+    static QList<PluginSpec *> loadQueue();
     static void loadPlugins();
     static void loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins);
     static Utils::FilePaths pluginPaths();
     static void setPluginPaths(const Utils::FilePaths &paths);
     static QString pluginIID();
     static void setPluginIID(const QString &iid);
-    static const QVector<PluginSpec *> plugins();
-    static QHash<QString, QVector<PluginSpec *>> pluginCollections();
+    static const QList<PluginSpec *> plugins();
+    static QHash<QString, QList<PluginSpec *>> pluginCollections();
     static bool hasError();
     static const QStringList allErrors();
     static const QSet<PluginSpec *> pluginsRequiringPlugin(PluginSpec *spec);
-    static const QSet<PluginSpec *> pluginsRequiredByPlugin(PluginSpec *spec);
+    static const QSet<PluginSpec *> pluginsToEnableForPlugin(PluginSpec *spec);
     static void checkForProblematicPlugins();
     static PluginSpec *specForPlugin(IPlugin *plugin);
+    static PluginSpec *specById(const QString &id);
+    static bool specExists(const QString &id);
+    static bool specExistsAndIsEnabled(const QString &id);
 
-    static void addPlugins(const QVector<PluginSpec *> &specs);
+    static void addPlugins(const QList<PluginSpec *> &specs);
 
     static void reInstallPlugins();
 
-    static Utils::Result removePluginOnRestart(const QString &id);
+    static Utils::Result<> removePluginOnRestart(const QString &id);
     static void installPluginOnRestart(
         const Utils::FilePath &source, const Utils::FilePath &destination);
 
@@ -106,10 +109,9 @@ public:
     // command line arguments
     static QStringList arguments();
     static QStringList argumentsForRestart();
-    static bool parseOptions(const QStringList &args,
+    static Utils::Result<> parseOptions(const QStringList &args,
         const QMap<QString, bool> &appOptions,
-        QMap<QString, QString> *foundAppOptions,
-        QString *errorString);
+        QMap<QString, QString> *foundAppOptions);
     static void formatOptions(QTextStream &str, int optionIndentation, int descriptionIndentation);
     static void formatPluginOptions(QTextStream &str, int optionIndentation, int descriptionIndentation);
     static void formatPluginVersions(QTextStream &str);

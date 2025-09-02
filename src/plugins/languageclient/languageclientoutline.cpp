@@ -310,6 +310,7 @@ private:
     QPointer<Client> m_client;
     TextEditor::TextEditorWidget *m_editorWidget;
     const DocumentUri m_uri;
+    Utils::AnnotatedItemDelegate m_delegate;
 };
 
 Utils::TreeViewComboBox *createOutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor)
@@ -329,6 +330,9 @@ OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *edi
     const bool sorted = LanguageClientSettings::outlineComboBoxIsSorted();
     m_proxyModel.sort(sorted ? 0 : -1);
     setModel(&m_proxyModel);
+    m_delegate.setDelimiter(" ");
+    m_delegate.setAnnotationRole(LanguageClientOutlineItem::AnnotationRole);
+    setItemDelegate(&m_delegate);
     setMinimumContentsLength(13);
     QSizePolicy policy = sizePolicy();
     policy.setHorizontalPolicy(QSizePolicy::Expanding);

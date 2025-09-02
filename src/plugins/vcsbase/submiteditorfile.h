@@ -17,10 +17,11 @@ class SubmitEditorFile : public Core::IDocument
 public:
     explicit SubmitEditorFile(VcsBaseSubmitEditor *editor);
 
-    OpenResult open(QString *errorString, const Utils::FilePath &filePath,
-                    const Utils::FilePath &realFilePath) override;
+    Utils::Result<> open(const Utils::FilePath &filePath,
+                         const Utils::FilePath &realFilePath) override;
+
     QByteArray contents() const override;
-    bool setContents(const QByteArray &contents) override;
+    Utils::Result<> setContents(const QByteArray &contents) override;
 
     bool isModified() const override { return m_modified; }
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
@@ -28,7 +29,7 @@ public:
     void setModified(bool modified = true);
 
 protected:
-    Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     bool m_modified;

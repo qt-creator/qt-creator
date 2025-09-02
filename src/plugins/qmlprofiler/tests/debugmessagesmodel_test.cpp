@@ -8,13 +8,11 @@
 
 #include <QtTest>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
-DebugMessagesModelTest::DebugMessagesModelTest(QObject *parent) :
-    QObject(parent), model(&manager, &aggregator)
-{
-}
+DebugMessagesModelTest::DebugMessagesModelTest()
+    : model(&manager, &aggregator)
+{}
 
 void DebugMessagesModelTest::initTestCase()
 {
@@ -114,5 +112,4 @@ void DebugMessagesModelTest::cleanupTestCase()
     QCOMPARE(model.collapsedRowCount(), 1);
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

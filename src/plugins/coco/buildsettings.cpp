@@ -41,11 +41,8 @@ BuildSettings::BuildSettings(ModificationFile &featureFile, BuildConfiguration *
 
 void BuildSettings::connectToBuildStep(CocoBuildStep *step) const
 {
-    connect(
-        buildConfig()->target(),
-        &ProjectExplorer::Target::buildSystemUpdated,
-        step,
-        &CocoBuildStep::buildSystemUpdated);
+    connect(buildConfig()->buildSystem(), &BuildSystem::updated,
+            step, &CocoBuildStep::buildSystemUpdated);
 }
 
 bool BuildSettings::enabled() const

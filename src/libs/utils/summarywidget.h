@@ -6,7 +6,7 @@
 #include "utils_global.h"
 
 #include "detailswidget.h"
-#include "expected.h"
+#include "result.h"
 #include "infolabel.h"
 
 #include <QWidget>
@@ -20,7 +20,7 @@ public:
                   const QString &invalidText, DetailsWidget *detailsWidget);
 
     template<class T>
-    void setPointValid(int key, const expected_str<T> &test)
+    void setPointValid(int key, const Result<T> &test)
     {
         setPointValid(key, test.has_value(), test.has_value() ? QString{} : test.error());
     }

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "dockerdeviceenvironmentaspect.h"
+
 #include <coreplugin/documentmanager.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
@@ -11,6 +13,14 @@
 #include <utils/synchronizedvalue.h>
 
 namespace Docker::Internal {
+
+class PortMappings : public Utils::AspectList
+{
+public:
+    PortMappings(Utils::AspectContainer *container);
+
+    QStringList createArguments() const;
+};
 
 class DockerDevice : public ProjectExplorer::IDevice
 {
@@ -45,11 +55,11 @@ public:
 
     bool handlesFile(const Utils::FilePath &filePath) const override;
     bool ensureReachable(const Utils::FilePath &other) const override;
-    Utils::expected_str<Utils::FilePath> localSource(const Utils::FilePath &other) const override;
+    Utils::Result<Utils::FilePath> localSource(const Utils::FilePath &other) const override;
 
-    Utils::expected_str<Utils::Environment> systemEnvironmentWithError() const override;
+    Utils::Result<Utils::Environment> systemEnvironmentWithError() const override;
 
-    Utils::Result updateContainerAccess() const;
+    Utils::Result<> updateContainerAccess() const;
     void setMounts(const QStringList &mounts) const;
 
     bool prepareForBuild(const ProjectExplorer::Target *target) override;
@@ -68,6 +78,8 @@ public:
     Utils::FilePathAspect clangdExecutableAspect{this};
     Utils::StringSelectionAspect network{this};
     Utils::StringAspect extraArgs{this};
+    DockerDeviceEnvironmentAspect environment{this};
+    PortMappings portMappings{this};
 
     Utils::TextDisplay containerStatus{this};
 

@@ -147,9 +147,9 @@
 
     The system configuration determines the font sizes in other parts of \QC.
 
-    When viewing output, use the \inlineimage icons/plus.png {Plus button} and
-    \inlineimage icons/minus.png {Minus button} buttons or keyboard shortcuts to
-    set the zoom level.
+    When viewing output, select \inlineimage {icons/plus.png} {Zoom In}
+    (\uicontrol {Zoom In}) and \inlineimage {icons/minus.png} {Zoom Out}
+    (\uicontrol {Zoom Out}) or keyboard shortcuts to set the zoom level.
 
     For more information, see \l{View output}.
 

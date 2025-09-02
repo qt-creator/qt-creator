@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/guard.h>
+#include <utils/result.h>
 
 #include <QFuture>
 #include <QMutex>
@@ -41,9 +41,10 @@ public:
     bool canConnect();
     void checkCanConnect(bool async = true);
     static void recheckDockerDaemon();
-    QFuture<Utils::expected_str<QList<Network>>> networks();
+    QFuture<Utils::Result<QList<Network>>> networks();
 
     bool isContainerRunning(const QString &containerId);
+    bool imageExists(const QString &imageId);
 
 signals:
     void dockerDaemonAvailableChanged();

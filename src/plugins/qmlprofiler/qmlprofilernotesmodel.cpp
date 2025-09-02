@@ -104,12 +104,12 @@ void QmlProfilerNotesModel::stash()
     resetModified();
 }
 
-const QVector<QmlNote> &QmlProfilerNotesModel::notes() const
+const QList<QmlNote> &QmlProfilerNotesModel::notes() const
 {
     return m_notes;
 }
 
-void QmlProfilerNotesModel::setNotes(const QVector<QmlNote> &notes)
+void QmlProfilerNotesModel::setNotes(const QList<QmlNote> &notes)
 {
     m_notes = notes;
 }

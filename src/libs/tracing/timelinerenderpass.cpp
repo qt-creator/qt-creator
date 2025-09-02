@@ -5,15 +5,15 @@
 
 namespace Timeline {
 
-const QVector<QSGNode *> &TimelineRenderPass::State::expandedRows() const
+const QList<QSGNode *> &TimelineRenderPass::State::expandedRows() const
 {
-    static const QVector<QSGNode *> empty;
+    static const QList<QSGNode *> empty;
     return empty;
 }
 
-const QVector<QSGNode *> &TimelineRenderPass::State::collapsedRows() const
+const QList<QSGNode *> &TimelineRenderPass::State::collapsedRows() const
 {
-    static const QVector<QSGNode *> empty;
+    static const QList<QSGNode *> empty;
     return empty;
 }
 

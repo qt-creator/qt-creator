@@ -6,59 +6,60 @@
 #include <QApplication>
 
 #include <utils/layoutbuilder.h>
-
-#include <coreplugin/welcomepagehelper.h>
+#include <utils/qtcwidgets.h>
 
 QWidget *widgets()
 {
+    using namespace Utils;
+
     auto widget = new QWidget;
 
-    auto comboBox = new Core::ComboBox;
+    auto comboBox = new QtcComboBox;
     const QStringList content = QColor::colorNames();
     comboBox->addItems(content.first(8));
 
-    auto switchOn = new Core::Switch("Qt::RightToLeft");
+    auto switchOn = new QtcSwitch("Qt::RightToLeft");
     switchOn->setChecked(true);
-    auto switchOff = new Core::Switch("Qt::LeftToRight");
+    auto switchOff = new QtcSwitch("Qt::LeftToRight");
     switchOff->setLayoutDirection(Qt::LeftToRight);
 
     using namespace Layouting;
     Column {
         Group {
-            title("Core::Button"),
+            title("Button"),
             Column {
-                new Core::Button("LargePrimary", Core::Button::LargePrimary),
-                new Core::Button("LargeSecondary", Core::Button::LargeSecondary),
-                new Core::Button("LargeTertiary", Core::Button::LargeTertiary),
-                new Core::Button("SmallPrimary", Core::Button::SmallPrimary),
-                new Core::Button("SmallSecondary", Core::Button::SmallSecondary),
-                new Core::Button("SmallTertiary", Core::Button::SmallTertiary),
-                new Core::Button("SmallList", Core::Button::SmallList),
-                new Core::Button("SmallLink", Core::Button::SmallLink),
-                new Core::Button("Tag", Core::Button::Tag),
+                new QtcButton("LargePrimary", QtcButton::LargePrimary),
+                new QtcButton("LargeSecondary", QtcButton::LargeSecondary),
+                new QtcButton("LargeTertiary", QtcButton::LargeTertiary),
+                new QtcButton("SmallPrimary", QtcButton::SmallPrimary),
+                new QtcButton("SmallSecondary", QtcButton::SmallSecondary),
+                new QtcButton("SmallTertiary", QtcButton::SmallTertiary),
+                new QtcButton("SmallList", QtcButton::SmallList),
+                new QtcButton("SmallLink", QtcButton::SmallLink),
+                new QtcButton("Tag", QtcButton::Tag),
             },
         },
         Group {
-            title("Core::Label"),
+            title("Label"),
             Column {
-                new Core::Label("Primary", Core::Label::Primary),
-                new Core::Label("Secondary", Core::Label::Secondary),
+                new QtcLabel("Primary", QtcLabel::Primary),
+                new QtcLabel("Secondary", QtcLabel::Secondary),
             },
         },
         Group {
-            title("Core::SearchBox"),
+            title("SearchBox"),
             Column {
-                new Core::SearchBox,
+                new QtcSearchBox,
             },
         },
         Group {
-            title("Core::ComboBox"),
+            title("ComboBox"),
             Column {
                 comboBox,
             },
         },
         Group {
-            title("Core::Switch"),
+            title("Switch"),
             Column {
                 switchOn,
                 switchOff,

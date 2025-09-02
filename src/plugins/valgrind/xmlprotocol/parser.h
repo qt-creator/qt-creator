@@ -39,7 +39,7 @@ public:
 
     void start();
     bool isRunning() const;
-    Utils::Result runBlocking();
+    Utils::Result<> runBlocking();
 
 signals:
     void status(const Status &status);
@@ -47,7 +47,7 @@ signals:
     void errorCount(qint64 unique, qint64 count);
     void suppressionCount(const QString &name, qint64 count);
     void announceThread(const AnnounceThread &announceThread);
-    void done(const Utils::Result &result);
+    void done(const Utils::Result<> &result);
 
 private:
     std::unique_ptr<ParserPrivate> d;
@@ -58,8 +58,8 @@ class ParserTaskAdapter final : public Tasking::TaskAdapter<Parser>
 public:
     ParserTaskAdapter()
     {
-        connect(task(), &Parser::done, this, [this](const Utils::Result &result) {
-            emit done(Tasking::toDoneResult(result == Utils::Result::Ok));
+        connect(task(), &Parser::done, this, [this](const Utils::Result<> &result) {
+            emit done(Tasking::toDoneResult(result == Utils::ResultOk));
         });
     }
     void start() final { task()->start(); }

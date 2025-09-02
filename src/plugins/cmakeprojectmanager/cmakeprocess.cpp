@@ -11,7 +11,9 @@
 #include "cmakespecificsettings.h"
 #include "cmaketoolmanager.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/processprogress.h>
+
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
@@ -22,9 +24,9 @@
 
 #include <utils/algorithm.h>
 #include <utils/macroexpander.h>
-#include <utils/qtcprocess.h>
 #include <utils/processinfo.h>
 #include <utils/processinterface.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -106,12 +108,23 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     // Copy the "package-manager" CMake code from the ${IDE:ResourcePath} to the build directory
     if (settings(parameters.project).packageManagerAutoSetup()) {
-        const FilePath localPackageManagerDir = buildDirectory.pathAppended(Constants::PACKAGE_MANAGER_DIR);
-        const FilePath idePackageManagerDir = FilePath::fromString(
-            parameters.expander->expand(QStringLiteral("%{IDE:ResourcePath}/package-manager")));
+        const FilePath idePackageManagerDir = Core::ICore::resourcePath("package-manager");
+        const FilePath localPackageManagerDir = buildDirectory / Constants::PACKAGE_MANAGER_DIR;
 
-        if (!localPackageManagerDir.exists() && idePackageManagerDir.exists())
-            idePackageManagerDir.copyRecursively(localPackageManagerDir);
+        if (!idePackageManagerDir.isDir()) {
+            BuildSystem::appendBuildSystemOutput(
+                Tr::tr("Qt Creator installation is missing the "
+                       "package-manager directory. It was expected here: \"%1\".")
+                    .arg(idePackageManagerDir.toUserOutput()));
+        } else if (!localPackageManagerDir.exists()) {
+            const auto result = idePackageManagerDir.copyRecursively(localPackageManagerDir);
+            if (!result) {
+                BuildSystem::appendBuildSystemOutput(
+                    addCMakePrefix(
+                        {Tr::tr("Failed to copy package-manager folder:"), result.error()})
+                        .join('\n'));
+            }
+        }
     }
 
     const auto parser = new CMakeOutputParser;

@@ -11,8 +11,7 @@
 #include <QtCore/private/qabstractfileengine_p.h>
 #include <QtGlobal>
 
-namespace Utils {
-namespace Internal {
+namespace Utils::Internal {
 
 class FixedListFSEngine : public QAbstractFileEngine
 {
@@ -41,7 +40,7 @@ public:
         case QAbstractFileEngine::AbsoluteName:
         case QAbstractFileEngine::DefaultName:
         case QAbstractFileEngine::CanonicalName:
-            return chopIfEndsWith(m_filePath.toUrlishString(), '/');
+            return chopIfEndsWith(m_filePath.toFSPathString(), '/');
             break;
         case QAbstractFileEngine::BaseName:
             if (m_filePath.fileName().isEmpty())
@@ -51,7 +50,7 @@ public:
         case QAbstractFileEngine::PathName:
         case QAbstractFileEngine::AbsolutePathName:
         case QAbstractFileEngine::CanonicalPathName:
-            return chopIfEndsWith(m_filePath.parentDir().toUrlishString(), '/');
+            return chopIfEndsWith(m_filePath.parentDir().toFSPathString(), '/');
             break;
 
         default:
@@ -86,5 +85,4 @@ public:
 #endif
 };
 
-} // namespace Internal
-} // namespace Utils
+} // namespace Utils::Internal

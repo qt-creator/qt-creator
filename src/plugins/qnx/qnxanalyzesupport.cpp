@@ -8,7 +8,10 @@
 #include "slog2inforunner.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
+
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -21,24 +24,23 @@ public:
     QnxQmlProfilerWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto worker = new ProcessRunner(runControl);
-            worker->setId("QnxQmlProfilerSupport");
-            worker->appendMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
-
             runControl->requestQmlChannel();
 
-            auto slog2InfoRunner = new Slog2InfoRunner(runControl);
-            worker->addStartDependency(slog2InfoRunner);
+            const auto modifier = [runControl](Process &process) {
+                CommandLine cmd = runControl->commandLine();
+                cmd.addArg(qmlDebugTcpArguments(QmlProfilerServices, runControl->qmlChannel()));
+                process.setCommand(cmd);
+            };
+
+            auto worker = createProcessWorker(runControl, modifier);
+            runControl->postMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
+
+            auto slog2InfoRunner = new RunWorker(runControl, slog2InfoRecipe(runControl));
 
             auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
             profiler->addStartDependency(worker);
+            worker->addStartDependency(slog2InfoRunner);
             worker->addStopDependency(profiler);
-
-            worker->setStartModifier([worker, runControl] {
-                CommandLine cmd = worker->commandLine();
-                cmd.addArg(qmlDebugTcpArguments(QmlProfilerServices, runControl->qmlChannel()));
-                worker->setCommandLine(cmd);
-            });
             return worker;
         });
         // FIXME: Shouldn't this use the run mode id somehow?

@@ -112,7 +112,7 @@ public:
 
     virtual qint64 writeToPty(const QByteArray &data)
     {
-        Q_UNUSED(data);
+        Q_UNUSED(data)
         return 0;
     }
     void writeToTerminal(const QByteArray &data, bool forceFlush);
@@ -127,23 +127,25 @@ public:
 
     virtual bool resizePty(QSize newSize)
     {
-        Q_UNUSED(newSize);
-        return false;
+        Q_UNUSED(newSize)
+        return true;
     }
 
-    virtual void setClipboard(const QString &text) { Q_UNUSED(text); }
+    virtual void setClipboard(const QString &text) { Q_UNUSED(text) }
     virtual std::optional<Link> toLink(const QString &text)
     {
-        Q_UNUSED(text);
+        Q_UNUSED(text)
         return std::nullopt;
     }
 
     virtual void selectionChanged(const std::optional<Selection> &newSelection)
     {
-        Q_UNUSED(newSelection);
+        Q_UNUSED(newSelection)
     }
-    virtual void linkActivated(const Link &link) { Q_UNUSED(link); }
-    virtual void contextMenuRequested(const QPoint &pos) { Q_UNUSED(pos); }
+
+    virtual void linkActivated(const Link &link) { Q_UNUSED(link) }
+
+    virtual void contextMenuRequested(const QPoint &pos) { Q_UNUSED(pos) }
 
     virtual void surfaceChanged(){};
 

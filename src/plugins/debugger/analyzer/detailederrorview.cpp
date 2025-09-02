@@ -4,10 +4,10 @@
 #include "detailederrorview.h"
 
 #include "../debuggertr.h"
-#include "diagnosticlocation.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <utils/link.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
@@ -16,10 +16,11 @@
 #include <QAbstractTextDocumentLayout>
 #include <QAction>
 #include <QContextMenuEvent>
-#include <QFileInfo>
 #include <QHeaderView>
 #include <QMenu>
 #include <QPainter>
+
+using namespace Utils;
 
 namespace Debugger {
 
@@ -42,10 +43,11 @@ DetailedErrorView::DetailedErrorView(QWidget *parent) :
     });
     connect(this, &QAbstractItemView::clicked, [](const QModelIndex &index) {
         if (index.column() == LocationColumn) {
-            const auto loc = index.model()->data(index, DetailedErrorView::LocationRole)
-                    .value<DiagnosticLocation>();
-            if (loc.isValid())
-                Core::EditorManager::openEditorAt(Utils::Link(loc.filePath, loc.line, loc.column - 1));
+            Link loc = index.model()->data(index, DetailedErrorView::LocationRole).value<Link>();
+            if (loc.hasValidTarget()) {
+                --loc.targetColumn; // FIXME: Move adjustment to model side.
+                Core::EditorManager::openEditorAt(loc);
+            }
         }
     });
 
@@ -95,19 +97,20 @@ void DetailedErrorView::selectIndex(const QModelIndex &index)
                                           | QItemSelectionModel::Rows);
 }
 
-QVariant DetailedErrorView::locationData(int role, const DiagnosticLocation &location)
+QVariant DetailedErrorView::locationData(int role, const Link &location)
 {
     switch (role) {
     case Debugger::DetailedErrorView::LocationRole:
         return QVariant::fromValue(location);
     case Qt::DisplayRole:
-        return location.isValid() ? QString::fromLatin1("%1:%2:%3")
-                               .arg(location.filePath.fileName())
-                               .arg(location.line)
-                               .arg(location.column)
+        return location.hasValidTarget() ? QString::fromLatin1("%1:%2:%3")
+                               .arg(location.targetFilePath.fileName())
+                               .arg(location.targetLine)
+                               .arg(location.targetColumn)
                          : QString();
     case Qt::ToolTipRole:
-        return location.filePath.isEmpty() ? QVariant() : QVariant(location.filePath.toUserOutput());
+        return location.targetFilePath.isEmpty()
+                ? QVariant() : QVariant(location.targetFilePath.toUserOutput());
     case Qt::FontRole: {
         QFont font = QApplication::font();
         font.setUnderline(true);

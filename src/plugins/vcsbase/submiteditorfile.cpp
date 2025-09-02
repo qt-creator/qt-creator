@@ -6,14 +6,12 @@
 #include "vcsbasesubmiteditor.h"
 
 #include <utils/fileutils.h>
-
-#include <QFileInfo>
+#include <utils/stringutils.h>
 
 using namespace Core;
-using namespace VcsBase;
-using namespace VcsBase::Internal;
 using namespace Utils;
 
+namespace VcsBase::Internal {
 /*!
     \class VcsBase::Internal::SubmitEditorFile
 
@@ -30,23 +28,22 @@ SubmitEditorFile::SubmitEditorFile(VcsBaseSubmitEditor *editor) :
             this, &IDocument::contentsChanged);
 }
 
-IDocument::OpenResult SubmitEditorFile::open(QString *errorString, const FilePath &filePath,
-                                             const FilePath &realFilePath)
+Result<> SubmitEditorFile::open(const FilePath &filePath, const FilePath &realFilePath)
 {
     if (filePath.isEmpty())
-        return OpenResult::ReadError;
+        return ResultError("File name is empty");  // FIXME: Use something better
 
-    FileReader reader;
-    if (!reader.fetch(realFilePath, errorString))
-        return OpenResult::ReadError;
+    const Result<QByteArray> res = realFilePath.fileContents();
+    if (!res)
+        return ResultError(res.error());
 
-    const QString text = QString::fromLocal8Bit(reader.text());
+    const QString text = QString::fromLocal8Bit(normalizeNewlines(*res));
     if (!m_editor->setFileContents(text.toUtf8()))
-        return OpenResult::CannotHandle;
+        return ResultError("Cannot set file contents"); // FIXME: Use something better
 
     setFilePath(filePath.absoluteFilePath());
     setModified(filePath != realFilePath);
-    return OpenResult::Success;
+    return ResultOk;
 }
 
 QByteArray SubmitEditorFile::contents() const
@@ -54,7 +51,7 @@ QByteArray SubmitEditorFile::contents() const
     return m_editor->fileContents();
 }
 
-bool SubmitEditorFile::setContents(const QByteArray &contents)
+Result<> SubmitEditorFile::setContents(const QByteArray &contents)
 {
     return m_editor->setFileContents(contents);
 }
@@ -67,21 +64,18 @@ void SubmitEditorFile::setModified(bool modified)
     emit changed();
 }
 
-Result SubmitEditorFile::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> SubmitEditorFile::saveImpl(const FilePath &filePath, bool autoSave)
 {
     FileSaver saver(filePath, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
     saver.write(m_editor->fileContents());
-    QString errorString;
-    if (!saver.finalize(&errorString))
-        return Result::Error(errorString);
+    if (const Result<> res = saver.finalize(); !res)
+        return res;
     if (autoSave)
-        return Result::Ok;
+        return ResultOk;
     setFilePath(filePath.absoluteFilePath());
     setModified(false);
-    if (!errorString.isEmpty())
-        return Result::Error(errorString);
     emit changed();
-    return Result::Ok;
+    return ResultOk;
 }
 
 IDocument::ReloadBehavior SubmitEditorFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
@@ -90,3 +84,5 @@ IDocument::ReloadBehavior SubmitEditorFile::reloadBehavior(ChangeTrigger state, 
     Q_UNUSED(type)
     return BehaviorSilent;
 }
+
+} // VcsBase::Internal

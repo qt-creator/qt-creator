@@ -27,7 +27,6 @@ namespace Internal { class CorePlugin; }
 class CORE_EXPORT IWizardFactory
     : public QObject
 {
-    Q_OBJECT
 public:
     enum WizardKind {
         FileWizard = 0x01,

@@ -13,9 +13,9 @@
 
     \table borderless
         \row
-            \li \inlineimage icons/app-development.png
-            \li \inlineimage icons/ide.png
-            \li \inlineimage icons/getting-started.png
+            \li \inlineimage {icons/app-development.png} {}
+            \li \inlineimage {icons/ide.png} {}
+            \li \inlineimage {icons/getting-started.png} {}
         \row
             \li \b {\l{Overview}}
 
@@ -34,9 +34,9 @@
                 control systems. For an overview of the options you have, go to
                 \l{Configuring Qt Creator}.
         \row
-            \li \inlineimage icons/platform-and-toolchain.png
-            \li \inlineimage icons/tutorials.png
-            \li \inlineimage icons/api-reference.png
+            \li \inlineimage {icons/platform-and-toolchain.png} {}
+            \li \inlineimage {icons/tutorials.png} {}
+            \li \inlineimage {icons/api-reference.png} {}
         \row
             \li \b {\l{Tutorial: Build and run}{Building and Running an Example}}
 

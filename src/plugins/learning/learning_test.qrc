@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/learning">
+        <file>testdata/courses.json</file>
+    </qresource>
+</RCC>

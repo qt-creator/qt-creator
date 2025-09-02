@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "tabsettings.h"
 #include "texteditor_global.h"
 
 #include <utils/id.h>
@@ -18,7 +19,6 @@ namespace TextEditor {
 
 namespace Internal { class ICodeStylePreferencesPrivate; }
 
-class TabSettings;
 class CodeStylePool;
 
 class TEXTEDITOR_EXPORT ICodeStylePreferences : public QObject
@@ -38,15 +38,6 @@ public:
 
     bool isReadOnly() const;
     void setReadOnly(bool on);
-
-    bool isTemporarilyReadOnly() const;
-    void setTemporarilyReadOnly(bool on);
-
-    bool isAdditionalTabVisible() const;
-    void setIsAdditionalTabVisible(bool on);
-
-    bool additionalTabExist() const;
-    void setAdditionalTabExist(bool on);
 
     void setTabSettings(const TabSettings &settings);
     TabSettings tabSettings() const;

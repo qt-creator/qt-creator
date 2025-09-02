@@ -12,6 +12,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultwindow.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
@@ -26,6 +27,8 @@
 #include <QLabel>
 
 using namespace LanguageServerProtocol;
+using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace LanguageClient {
 
@@ -277,20 +280,20 @@ bool operator==(const ItemData &id1, const ItemData &id2)
     return id1.range == id2.range && id1.userData == id2.userData;
 }
 
-QStringList SymbolSupport::getFileContents(const Utils::FilePath &filePath)
+QStringList SymbolSupport::getFileContents(const FilePath &filePath)
 {
     QString fileContent;
     if (TextEditor::TextDocument *document = TextEditor::TextDocument::textDocumentForFilePath(
             filePath)) {
         fileContent = document->plainText();
     } else {
-        Utils::TextFileFormat format;
-        format.lineTerminationMode = Utils::TextFileFormat::LFLineTerminator;
-        QString error;
+        TextFileFormat format;
+        format.lineTerminationMode = TextFileFormat::LFLineTerminator;
         const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
-        if (Utils::TextFileFormat::readFile(filePath, codec, &fileContent, &format, &error)
-            != Utils::TextFileFormat::ReadSuccess) {
-            qDebug() << "Failed to read file" << filePath << ":" << error;
+        const TextFileFormat::ReadResult result =
+                TextFileFormat::readFile(filePath, codec, &fileContent, &format);
+        if (result.code != TextFileFormat::ReadSuccess) {
+            qDebug() << "Failed to read file" << filePath << ":" << result.error;
         }
     }
     return fileContent.split("\n");
@@ -318,15 +321,13 @@ Utils::SearchResultItems generateSearchResultItems(
         item.setFilePath(filePath);
         item.setUseTextEditorFont(true);
         if (renaming && limitToProjects) {
-            const ProjectExplorer::Node * const node
-                = ProjectExplorer::ProjectTree::nodeForFile(filePath);
+            const Node * const node = ProjectTree::nodeForFile(filePath);
             if (node) {
                 item.setSelectForReplacement(!node->isGenerated());
             } else {
                 item.setSelectForReplacement(
-                    client->project()
-                    && ProjectExplorer::ProjectManager::isInProjectSourceDir(
-                        filePath, *client->project()));
+                    client->buildConfiguration()
+                    && ProjectManager::isInProjectSourceDir(filePath, *client->project()));
             }
             if (item.selectForReplacement()
                 && filePath.baseName().compare(oldSymbolName, Qt::CaseInsensitive) == 0) {
@@ -726,7 +727,7 @@ void SymbolSupport::applyRename(const Utils::SearchResultItems &checkedItems,
             changes << deleteFile;
     }
 
-    for (const DocumentChange &change : changes)
+    for (const DocumentChange &change : std::as_const(changes))
         applyDocumentChange(m_client, change);
 
     for (auto it = editsForDocuments.begin(), end = editsForDocuments.end(); it != end; ++it)

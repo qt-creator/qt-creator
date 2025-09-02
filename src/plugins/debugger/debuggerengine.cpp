@@ -10,7 +10,6 @@
 #include "debuggericons.h"
 #include "debuggerkitaspect.h"
 #include "debuggerrunconfigurationaspect.h"
-#include "debuggerruncontrol.h"
 #include "debuggertooltipmanager.h"
 #include "debuggertr.h"
 
@@ -44,11 +43,13 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
@@ -127,6 +128,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
 
     DebuggerRunParameters params;
 
+    params.m_attachPid = runControl->attachPid();
     params.m_displayName = runControl->displayName();
 
     if (auto symbolsAspect = runControl->aspectData<SymbolFileAspect>())
@@ -208,7 +210,15 @@ void DebuggerRunParameters::setBreakOnMainNextTime()
     breakOnMainNextTime = true;
 }
 
-Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runControl)
+void DebuggerRunParameters::setupPortsGatherer(ProjectExplorer::RunControl *runControl) const
+{
+    if (isCppDebugging())
+        runControl->requestDebugChannel();
+    if (isQmlDebugging())
+        runControl->requestQmlChannel();
+}
+
+Result<> DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runControl)
 {
     if (m_symbolFile.isEmpty())
         m_symbolFile = m_inferior.command.executable();
@@ -225,7 +235,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
 
     // validate debugger if C++ debugging is enabled
     if (!m_validationErrors.isEmpty())
-        return Result::Error(m_validationErrors.join('\n'));
+        return ResultError(m_validationErrors.join('\n'));
 
     if (m_isQmlDebugging) {
         const auto device = runControl->device();
@@ -233,7 +243,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
             if (m_qmlServer.port() <= 0) {
                 m_qmlServer = Utils::urlFromLocalHostAndFreePort();
                 if (m_qmlServer.port() <= 0)
-                    return Result::Error(Tr::tr("Not enough free ports for QML debugging."));
+                    return ResultError(Tr::tr("Not enough free ports for QML debugging."));
             }
             // Makes sure that all bindings go through the JavaScript engine, so that
             // breakpoints are actually hit!
@@ -284,13 +294,13 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
     if (HostOsInfo::isWindowsHost()) {
         // Otherwise command lines with '> tmp.log' hang.
         ProcessArgs::SplitError perr;
-        ProcessArgs::prepareArgs(m_inferior.command.arguments(), &perr,
+        ProcessArgs::prepareShellArgs(m_inferior.command.arguments(), &perr,
                                  HostOsInfo::hostOs(), nullptr,
-                                 &m_inferior.workingDirectory).toWindowsArgs();
+                                 m_inferior.workingDirectory);
         if (perr != ProcessArgs::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
-            return Result::Error(Tr::tr("Debugging complex command lines "
+            return ResultError(Tr::tr("Debugging complex command lines "
                                         "is currently not supported on Windows."));
         }
     }
@@ -301,7 +311,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
     if (settings().forceLoggingToConsole())
         m_inferior.environment.set("QT_LOGGING_TO_CONSOLE", "1");
 
-    return Result::Ok;
+    return ResultOk;
 }
 
 void DebuggerRunParameters::setStartMode(DebuggerStartMode startMode)
@@ -369,6 +379,20 @@ bool DebuggerRunParameters::isCppDebugging() const
 bool DebuggerRunParameters::isNativeMixedDebugging() const
 {
     return m_nativeMixedEnabled && isCppDebugging() && m_isQmlDebugging;
+}
+
+FilePaths DebuggerRunParameters::findQmlFile(const QUrl &url) const
+{
+    return m_qmlFileFinder.findFile(url);
+}
+
+void DebuggerRunParameters::populateQmlFileFinder(const RunControl *runControl)
+{
+    m_qmlFileFinder.setProjectDirectory(projectSourceDirectory());
+    m_qmlFileFinder.setProjectFiles(projectSourceFiles());
+    m_qmlFileFinder.setAdditionalSearchDirectories(additionalSearchDirectories());
+    m_qmlFileFinder.setSysroot(sysRoot());
+    QtSupport::QtVersion::populateQmlFileFinder(&m_qmlFileFinder, runControl->buildConfiguration());
 }
 
 namespace Internal {
@@ -790,7 +814,6 @@ public:
     OptionalAction m_operateInReverseDirectionAction{Tr::tr("Reverse Direction")};
     OptionalAction m_snapshotAction{Tr::tr("Take Snapshot of Process State")};
 
-    QPointer<DebuggerRunTool> m_runTool;
     DebuggerToolTipManager m_toolTipManager;
     Context m_context;
 };
@@ -820,7 +843,7 @@ void DebuggerEnginePrivate::setupViews()
     connect(fp, &FutureProgress::canceled, m_engine, &DebuggerEngine::quitDebugger);
     m_progress.reportStarted();
 
-    m_inferiorPid = rp.attachPid().isValid() ? rp.attachPid() : ProcessHandle();
+    m_inferiorPid = rp.attachPid();
 //    if (m_inferiorPid.isValid())
 //        m_runControl->setApplicationProcessHandle(m_inferiorPid);
 
@@ -1319,13 +1342,10 @@ void DebuggerEngine::setRunId(const QString &id)
     d->m_runId = id;
 }
 
-void DebuggerEngine::setRunTool(DebuggerRunTool *runTool)
+void DebuggerEngine::setDevice(const IDeviceConstPtr &device)
 {
-    d->m_runTool = runTool;
-    d->m_device = runTool->runControl()->device();
-
+    d->m_device = device;
     validateRunParameters(d->m_runParameters);
-
     d->setupViews();
 }
 
@@ -1425,7 +1445,7 @@ void DebuggerEngine::abortDebugger()
         // We already tried. Try harder.
         showMessage("ABORTING DEBUGGER. SECOND TIME.");
         abortDebuggerProcess();
-        emit requestRunControlFinish();
+        emit requestRunControlStop();
     }
 }
 
@@ -1931,8 +1951,8 @@ void DebuggerEngine::notifyInferiorShutdownFinished()
 void DebuggerEngine::notifyInferiorIll()
 {
     showMessage("NOTE: INFERIOR ILL");
-    // This can be issued in almost any state. The inferior could still be
-    // alive as some previous notifications might have been bogus.
+    // This can be issued in almost any state. The debugged process could
+    // still be alive as some previous notifications might have been bogus.
     startDying();
     if (state() == InferiorRunRequested) {
         // We asked for running, but did not see a response.
@@ -2046,11 +2066,11 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
         case AppOutput:
         case AppStuff:
             d->m_logWindow->showOutput(channel, msg);
-            emit appendMessageRequested(msg, StdOutFormat, false);
+            emit postMessageRequested(msg, StdOutFormat, false);
             break;
         case AppError:
             d->m_logWindow->showOutput(channel, msg);
-            emit appendMessageRequested(msg, StdErrFormat, false);
+            emit postMessageRequested(msg, StdErrFormat, false);
             break;
         default:
             d->m_logWindow->showOutput(channel, QString("[%1] %2").arg(debuggerName(), msg));
@@ -2349,18 +2369,6 @@ qint64 DebuggerEngine::applicationMainThreadId() const
     return d->m_runParameters.applicationMainThreadId();
 }
 
-void DebuggerEngine::interruptTerminal() const
-{
-    QTC_ASSERT(usesTerminal(), return);
-    d->m_runTool->interruptTerminal();
-}
-
-void DebuggerEngine::kickoffTerminalProcess() const
-{
-    QTC_ASSERT(usesTerminal(), return);
-    d->m_runTool->kickoffTerminalProcess();
-}
-
 void DebuggerEngine::selectWatchData(const QString &)
 {
 }
@@ -2582,11 +2590,18 @@ bool DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name
         name = ' ' + Tr::tr("<Unknown>", "name") + ' ';
     if (meaning.isEmpty())
         meaning = ' ' + Tr::tr("<Unknown>", "meaning") + ' ';
-    const QString msg = Tr::tr("<p>The inferior stopped because it received a "
-                           "signal from the operating system.<p>"
-                           "<table><tr><td>Signal name : </td><td>%1</td></tr>"
-                           "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
-            .arg(name, meaning);
+    const QString msg = QString("<p>%1</p>"
+                                "<table>"
+                                "<tr><td>%2</td><td>%3</td></tr>"
+                                "<tr><td>%4</td><td>%5</td></tr>"
+                                "</table>")
+                            .arg(
+                                Tr::tr("The debugged process stopped because it received a signal "
+                                       "from the operating system."),
+                                Tr::tr("Signal name:"),
+                                name,
+                                Tr::tr("Signal meaning:"),
+                                meaning);
 
     d->m_alertBox = AsynchronousMessageBox::information(Tr::tr("Signal Received"), msg);
     return true;
@@ -2594,9 +2609,9 @@ bool DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name
 
 void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description)
 {
-    const QString msg =
-        Tr::tr("<p>The inferior stopped because it triggered an exception.<p>%1").
-                         arg(description);
+    const QString msg = "<p>"
+                        + Tr::tr("The debugged process stopped because it triggered an exception.")
+                        + "</p><p>" + description + "</p>";
     AsynchronousMessageBox::information(Tr::tr("Exception Triggered"), msg);
 }
 
@@ -2946,7 +2961,7 @@ QString DebuggerEngine::formatStartParameters() const
         str << '\n';
     }
     if (!rp.remoteChannel().isEmpty())
-        str << "Remote: " << rp.remoteChannel() << '\n';
+        str << "Remote: " << rp.remoteChannel().toDisplayString() << '\n';
     if (!rp.qmlServer().host().isEmpty())
         str << "QML server: " << rp.qmlServer().host() << ':' << rp.qmlServer().port() << '\n';
     str << "Sysroot: " << rp.sysRoot() << '\n';
@@ -3051,7 +3066,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
             if (!preferredDebugger.isEmpty()) {
                 warnOnInappropriateDebugger = true;
                 detailedWarning = Tr::tr(
-                                      "The inferior is in the Portable Executable format.\n"
+                                      "The executable uses the Portable Executable format.\n"
                                       "Selecting %1 as debugger would improve the debugging "
                                       "experience for this binary format.")
                                       .arg(preferredDebugger);
@@ -3145,7 +3160,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
             }
             if (globalRegExpSourceMap.isEmpty())
                 return;
-            if (std::shared_ptr<ElfMapper> mapper = reader.readSection(".debug_str")) {
+            if (std::unique_ptr<ElfMapper> mapper = reader.readSection(".debug_str")) {
                 const char *str = mapper->start;
                 const char *limit = str + mapper->fdlen;
                 bool found = false;

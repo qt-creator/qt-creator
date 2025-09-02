@@ -13,11 +13,6 @@
 
 namespace QmlDesigner {
 
-bool MultiPropertyEditorPlugin::initialize(const QStringList &arguments, QString *errorString)
-{
-    return ExtensionSystem::IPlugin::initialize(arguments, errorString);
-}
-
 bool MultiPropertyEditorPlugin::delayedInitialize()
 {
     auto *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();

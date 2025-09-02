@@ -182,9 +182,9 @@ void FileWizardPage::slotActivated()
         emit activated();
 }
 
-bool FileWizardPage::validateBaseName(const QString &name, QString *errorMessage /* = 0*/)
+Result<> FileWizardPage::validateBaseName(const QString &name)
 {
-    return FileNameValidatingLineEdit::validateFileName(name, false, errorMessage);
+    return FileNameValidatingLineEdit::validateFileName(name, false);
 }
 
 } // namespace Utils

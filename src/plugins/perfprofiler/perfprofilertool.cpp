@@ -5,6 +5,7 @@
 
 #include "perfloaddialog.h"
 #include "perfprofilertr.h"
+#include "perfprofilertracemanager.h"
 #include "perfsettings.h"
 #include "perftracepointdialog.h"
 
@@ -29,6 +30,8 @@
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitaspect.h>
+
+#include <tracing/timelinezoomcontrol.h>
 
 #include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
@@ -439,7 +442,7 @@ void PerfProfilerTool::updateRunActions()
         const auto canRun = ProjectExplorerPlugin::canRunStartupProject(
             ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
         m_startAction->setToolTip(canRun ? Tr::tr("Start a performance analysis.") : canRun.error());
-        m_startAction->setEnabled(canRun);
+        m_startAction->setEnabled(canRun.has_value());
         m_loadPerfData->setEnabled(true);
         m_loadTrace->setEnabled(true);
     }

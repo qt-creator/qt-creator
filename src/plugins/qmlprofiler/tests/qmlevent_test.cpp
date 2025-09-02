@@ -1,5 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #include "qmlevent_test.h"
 
 #include <QtTest>
@@ -26,9 +27,7 @@ static inline bool operator!=(const QmlEvent &event1, const QmlEvent &event2)
 
 namespace Internal {
 
-QmlEventTest::QmlEventTest(QObject *parent) : QObject(parent)
-{
-}
+QmlEventTest::QmlEventTest() = default;
 
 void QmlEventTest::testCtors()
 {
@@ -61,10 +60,10 @@ void QmlEventTest::testCtors()
     }
 
     {
-        QmlEvent event(20, 30, QVector<qint64>({600, 700, 800, 900}));
+        QmlEvent event(20, 30, QList<qint64>({600, 700, 800, 900}));
         QCOMPARE(event.timestamp(), 20);
         QCOMPARE(event.typeIndex(), 30);
-        QCOMPARE(event.numbers<QVector<qint32>>(), QVector<qint32>({600, 700, 800, 900}));
+        QCOMPARE(event.numbers<QList<qint32>>(), QList<qint32>({600, 700, 800, 900}));
 
         QmlEvent event2(event);
         QCOMPARE(event2, event);

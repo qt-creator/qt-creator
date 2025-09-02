@@ -9,4 +9,5 @@ set_target_properties(tst_manual_plugin2 PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/.."
 )
 
-target_link_libraries(tst_manual_plugin2 PRIVATE ExtensionSystem)
+target_link_libraries(tst_manual_plugin2 PRIVATE ExtensionSystem
+                                         PRIVATE Utils)

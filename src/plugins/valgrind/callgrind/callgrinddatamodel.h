@@ -25,11 +25,6 @@ public:
     ParseDataPtr parseData() const;
 
     void setVerboseToolTipsEnabled(bool enabled);
-    bool verboseToolTipsEnabled() const;
-
-    /// Only one cost event column will be shown, this decides which one it is.
-    /// By default it is the first event in the @c ParseData, i.e. 0.
-    int costEvent() const;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;

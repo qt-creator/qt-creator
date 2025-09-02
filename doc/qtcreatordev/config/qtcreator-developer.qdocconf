@@ -48,6 +48,7 @@ exampledirs = ../examples
 
 depends +=    qtwidgets \
               qtcore \
+              qtcore5compat \
               qtqml \
               qtquick \
               qmake \

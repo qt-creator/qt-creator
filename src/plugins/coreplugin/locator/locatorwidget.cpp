@@ -85,6 +85,8 @@ public:
 
 class CompletionList : public TreeView
 {
+    Q_OBJECT
+
 public:
     CompletionList(QWidget *parent = nullptr);
 
@@ -99,6 +101,9 @@ public:
 
     void keyPressEvent(QKeyEvent *event) override;
     bool eventFilter(QObject *watched, QEvent *event) override;
+
+signals:
+    void completionRequested(const QModelIndex &index);
 
 private:
     QMetaObject::Connection m_updateSizeConnection;
@@ -433,9 +438,21 @@ LocatorPopup::LocatorPopup(LocatorWidget *locatorWidget, QWidget *parent)
     });
     connect(locatorWidget, &LocatorWidget::showCurrentItemToolTip,
             m_tree, &CompletionList::showCurrentItemToolTip);
-    connect(locatorWidget, &LocatorWidget::handleKey, this, [this](QKeyEvent *keyEvent) {
-        QApplication::sendEvent(m_tree, keyEvent);
-    }, Qt::DirectConnection); // must be handled directly before event is deleted
+    connect(
+        locatorWidget,
+        &LocatorWidget::handleKey,
+        this,
+        [this](QKeyEvent *keyEvent) { m_tree->keyPressEvent(keyEvent); },
+        Qt::DirectConnection); // must be handled directly before event is deleted
+    connect(
+        m_tree,
+        &CompletionList::completionRequested,
+        locatorWidget,
+        [this, locatorWidget](const QModelIndex &index) {
+            if (!index.isValid() || !isVisible())
+                return;
+            locatorWidget->completeEntry(index.row());
+        });
     connect(m_tree, &QAbstractItemView::activated, locatorWidget,
             [this, locatorWidget](const QModelIndex &index) {
         if (!index.isValid() || !isVisible())
@@ -495,6 +512,11 @@ void CompletionList::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
     case Qt::Key_Tab:
+        if (Locator::useTabCompletion()) {
+            emit completionRequested(currentIndex());
+            return;
+        }
+        [[fallthrough]];
     case Qt::Key_Down:
         next();
         return;
@@ -841,7 +863,7 @@ void LocatorWidget::showPopupNow()
     emit showPopup();
 }
 
-QList<ILocatorFilter *> LocatorWidget::filtersFor(const QString &text, QString &searchText)
+LocatorWidget::FiltersFor LocatorWidget::filtersFor(const QString &text)
 {
     const int length = text.size();
     int firstNonSpace;
@@ -855,6 +877,7 @@ QList<ILocatorFilter *> LocatorWidget::filtersFor(const QString &text, QString &
     if (whiteSpace >= 0) {
         const QString prefix = text.mid(firstNonSpace, whiteSpace - firstNonSpace).toLower();
         QList<ILocatorFilter *> prefixFilters;
+        QString searchText;
         for (ILocatorFilter *filter : filters) {
             if (prefix == filter->shortcutString()) {
                 searchText = text.mid(whiteSpace).trimmed();
@@ -862,10 +885,10 @@ QList<ILocatorFilter *> LocatorWidget::filtersFor(const QString &text, QString &
             }
         }
         if (!prefixFilters.isEmpty())
-            return prefixFilters;
+            return {prefixFilters, searchText, prefix};
     }
-    searchText = text.trimmed();
-    return Utils::filtered(filters, &ILocatorFilter::isIncludedByDefault);
+    const QString searchText = text.trimmed();
+    return {Utils::filtered(filters, &ILocatorFilter::isIncludedByDefault), searchText, QString()};
 }
 
 void LocatorWidget::setProgressIndicatorVisible(bool visible)
@@ -885,8 +908,7 @@ void LocatorWidget::setProgressIndicatorVisible(bool visible)
 
 void LocatorWidget::runMatcher(const QString &text)
 {
-    QString searchText;
-    const QList<ILocatorFilter *> filters = filtersFor(text, searchText);
+    const auto [filters, searchText, prefix] = filtersFor(text);
 
     LocatorMatcherTasks tasks;
     for (ILocatorFilter *filter : filters)
@@ -958,6 +980,26 @@ void LocatorWidget::acceptEntry(int row)
     }
 }
 
+void LocatorWidget::completeEntry(int row)
+{
+    if (row < 0 || row >= m_locatorModel->rowCount())
+        return;
+    const QModelIndex index = m_locatorModel->index(row, 0);
+    if (!index.isValid())
+        return;
+    const LocatorFilterEntry entry
+        = m_locatorModel->data(index, LocatorEntryRole).value<LocatorFilterEntry>();
+    const auto defaultCompleter = [this, &entry] {
+        const auto [_1, _2, prefix] = filtersFor(currentText());
+        const QString text = prefix.isEmpty() ? entry.displayName
+                                              : (prefix + " " + entry.displayName);
+        return AcceptResult{text, int(text.size())};
+    };
+    const AcceptResult result = entry.completer ? entry.completer() : defaultCompleter();
+    if (!result.newText.isEmpty())
+        showText(result.newText, result.selectionStart, result.selectionLength);
+}
+
 void LocatorWidget::showText(const QString &text, int selectionStart, int selectionLength)
 {
     if (!text.isEmpty())
@@ -1023,3 +1065,5 @@ QSize CompletionDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 
 } // namespace Internal
 } // namespace Core
+
+#include "locatorwidget.moc"

@@ -7,7 +7,6 @@
 #include <QObject>
 #include <QPointer>
 #include <QVariantMap>
-#include <QVector>
 
 QT_FORWARD_DECLARE_CLASS(QAction)
 QT_FORWARD_DECLARE_CLASS(QMenu)

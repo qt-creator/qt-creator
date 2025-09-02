@@ -11,8 +11,7 @@
 #include <QQmlContext>
 #include <QQmlEngine>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 PerfProfilerFlameGraphView::PerfProfilerFlameGraphView(QWidget *parent)
     : QQuickWidget(parent)
@@ -58,5 +57,4 @@ bool PerfProfilerFlameGraphView::isZoomed() const
     return rootObject()->property("zoomed").toBool();
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

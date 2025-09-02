@@ -493,8 +493,10 @@ void CppFileSettingsWidget::slotEdit()
         FileSaver saver(path, QIODevice::Text);
         saver.write(
             Tr::tr(licenseTemplateTemplate).arg(QGuiApplication::applicationDisplayName()).toUtf8());
-        if (!saver.finalize(this))
+        if (const Result<> res = saver.finalize(); !res) {
+            FileUtils::showError(res.error());
             return;
+        }
         setLicenseTemplatePath(path);
     }
     // Edit (now) existing file with C++

@@ -7,13 +7,11 @@
 
 #include <utils/filepath.h>
 
-#include <QVector>
-#include <QStringList>
 #include <QHash>
+#include <QStringList>
 #include <QXmlStreamWriter>
 
-namespace TextEditor {
-namespace Internal {
+namespace TextEditor::Internal {
 
 // Characteristics of this collection:
 // - Store snippets by group.
@@ -27,6 +25,7 @@ namespace Internal {
 class SnippetsCollection : public QObject
 {
     Q_OBJECT
+
 public:
     ~SnippetsCollection() override;
 
@@ -39,9 +38,9 @@ public:
         int index() const;
     private:
         explicit Hint(int index);
-        Hint(int index, QVector<Snippet>::iterator it);
+        Hint(int index, QList<Snippet>::iterator it);
         int m_index;
-        QVector<Snippet>::iterator m_it;
+        QList<Snippet>::iterator m_it;
     };
 
     void insertSnippet(const Snippet &snippet);
@@ -69,7 +68,7 @@ public:
     QList<QString> groupIds() const;
 
     void reload();
-    bool synchronize(QString *errorString);
+    Utils::Result<> synchronize();
 
 private:
     void identifyGroups();
@@ -98,11 +97,10 @@ private:
     // Snippets for each group are kept in a list. However, not all of them are necessarily
     // active. Specifically, removed built-in snippets are kept as the last ones (for each
     // group there is a iterator that marks the logical end).
-    QVector<QVector<Snippet> > m_snippets;
-    QVector<int> m_activeSnippetsCount;
+    QList<QList<Snippet> > m_snippets;
+    QList<int> m_activeSnippetsCount;
 
     QHash<QString, int> m_groupIndexById;
 };
 
-} // Internal
-} // TextEditor
+} // TextEditor::Internal

@@ -15,8 +15,7 @@
 #include <QVBoxLayout>
 #include <QMenu>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 FlameGraphView::FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent) :
     QmlProfilerEventsView(parent), m_content(new QQuickWidget(this)),
@@ -76,5 +75,4 @@ void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
         QMetaObject::invokeMethod(m_content->rootObject(), "resetRoot");
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

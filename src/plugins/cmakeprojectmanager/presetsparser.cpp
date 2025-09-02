@@ -474,7 +474,7 @@ const PresetsData &PresetsParser::presetsData() const
 
 bool PresetsParser::parse(const FilePath &jsonFile, QString &errorMessage, int &errorLine)
 {
-    const Utils::expected_str<QByteArray> jsonContents = jsonFile.fileContents();
+    const Utils::Result<QByteArray> jsonContents = jsonFile.fileContents();
     if (!jsonContents) {
         errorMessage
             = ::CMakeProjectManager::Tr::tr("Failed to read file \"%1\".").arg(jsonFile.fileName());

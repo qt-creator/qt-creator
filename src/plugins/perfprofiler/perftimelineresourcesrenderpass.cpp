@@ -11,8 +11,7 @@
 
 #include <QSGFlatColorMaterial>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class ResourcesRenderPassState final : public Timeline::TimelineRenderPass::State
 {
@@ -27,16 +26,16 @@ public:
 
     void updateIndexes(int from, int to);
 
-    const QVector<QSGNode *> &expandedRows() const final { return m_expandedRows; }
-    const QVector<QSGNode *> &collapsedRows() const final { return m_collapsedRows; }
+    const QList<QSGNode *> &expandedRows() const final { return m_expandedRows; }
+    const QList<QSGNode *> &collapsedRows() const final { return m_collapsedRows; }
 
     void addGeometry(QSGGeometry *geometry);
 
 private:
     QSGFlatColorMaterial m_material;
-    QVector<QSGNode *> m_collapsedRows;
-    QVector<QSGNode *> m_expandedRows;
-    QVector<QSGGeometry *> m_geometries;
+    QList<QSGNode *> m_collapsedRows;
+    QList<QSGNode *> m_expandedRows;
+    QList<QSGGeometry *> m_geometries;
 
     int m_indexFrom;
     int m_indexTo;
@@ -236,5 +235,4 @@ void ResourcesRenderPassState::addGeometry(QSGGeometry *geometry)
     m_geometries.append(geometry);
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // namespace PerfProfiler::Internal

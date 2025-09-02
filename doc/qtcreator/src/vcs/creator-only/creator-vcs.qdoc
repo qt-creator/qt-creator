@@ -131,7 +131,7 @@
     executed, a timestamp, and the relevant output. Select \uicontrol View >
     \uicontrol Output > \uicontrol {Version Control} to open the view.
 
-    \image {qtcreator-vcs-pane.png} {Version Control view}
+    \image {qtcreator-vcs-pane.webp} {Version Control view}
 
     \section1 Add files
 

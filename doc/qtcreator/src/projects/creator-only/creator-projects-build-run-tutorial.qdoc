@@ -31,7 +31,7 @@
     between the host and devices. For more information, see
     \l{\B2Q: Documentation}.
 
-    If you have \l{Qt Design Studio documentation}{\QDS} installed, you can open
+    If you have \l{\QDS documentation}{\QDS} installed, you can open
     \QDS examples from \QC in \QDS.
 
     \list 1
@@ -48,7 +48,7 @@
         \li Select an example in the list of examples.
 
             You can also use tags (3) to filter examples. For instance, enter
-            the \uicontrol \B2Q tag (commercial only) in the search field
+            the \uicontrol {\B2Q} tag (commercial only) in the search field
             (4) to list examples that you can run on \B2Q devices.
 
         \li In \uicontrol {Configure Project}, select
@@ -69,7 +69,7 @@
             automatically detected the installed kit. If you cannot see any kits,
             see \l{Add kits}.
 
-        \li Select \inlineimage icons/run_small.png
+        \li Select \inlineimage {icons/run_small.png} {Run}
             (\uicontrol Run) to build and run the application.
 
         \li To see the compilation progress, select \key{Alt+4} to open
@@ -88,5 +88,5 @@
 
     \sa {Manage Kits}{How To: Manage Kits}, {Open projects},
     {Developing for Android}, {Developing for iOS},
-    {Compile Output}, {\B2Q: Documentation}, {Qt Design Studio documentation}
+    {Compile Output}, {\B2Q: Documentation}, {\QDS documentation}
 */

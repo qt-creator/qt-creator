@@ -6,7 +6,6 @@
 #include "cppeditor_global.h"
 #include "projectinfo.h"
 
-#include <utils/expected.h>
 #include <utils/filepath.h>
 
 #include <QPromise>
@@ -17,7 +16,7 @@
 namespace CppEditor {
 class ClangDiagnosticConfig;
 
-using GenerateCompilationDbResult = Utils::expected_str<Utils::FilePath>;
+using GenerateCompilationDbResult = Utils::Result<Utils::FilePath>;
 using GetOptionsBuilder = std::function<CompilerOptionsBuilder(const ProjectPart &)>;
 enum class CompilationDbPurpose { Project, CodeModel, Analysis };
 

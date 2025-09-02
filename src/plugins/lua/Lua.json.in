@@ -4,7 +4,7 @@
     "Name" : "Lua",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
-    "LuaCompatibleVersion" : "15.0.0",
+    "ScriptCompatibleVersion" : "15.0.0",
     "DisabledByDefault" : false,
     "SoftLoadable" : true,
     "VendorId" : "theqtcompany",

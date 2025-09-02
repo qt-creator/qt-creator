@@ -67,7 +67,7 @@ static std::optional<QDomElement> documentElement(const FilePath &fileName)
         return {};
     }
 
-    const expected_str<QByteArray> result = fileName.fileContents();
+    const Result<QByteArray> result = fileName.fileContents();
     if (!result) {
         MessageManager::writeDisrupting(Tr::tr("Cannot open \"%1\".")
                                             .arg(fileName.toUserOutput())
@@ -95,12 +95,12 @@ static int parseMinSdk(const QDomElement &manifestElem)
     return 0;
 }
 
-static const ProjectNode *currentProjectNode(const Target *target)
+static const ProjectNode *currentProjectNode(const BuildConfiguration *bc)
 {
-    return target->project()->findNodeForBuildKey(target->activeBuildKey());
+    return bc->project()->findNodeForBuildKey(bc->activeBuildKey());
 }
 
-QString packageName(const Target *target)
+QString packageName(const BuildConfiguration *bc)
 {
     QString packageName;
 
@@ -109,8 +109,8 @@ QString packageName(const Target *target)
         return trimmed.startsWith("//") || trimmed.startsWith('*') || trimmed.startsWith("/*");
     };
 
-    const FilePath androidBuildDir = androidBuildDirectory(target);
-    const expected_str<QByteArray> gradleContents = androidBuildDir.pathAppended("build.gradle")
+    const FilePath androidBuildDir = androidBuildDirectory(bc);
+    const Result<QByteArray> gradleContents = androidBuildDir.pathAppended("build.gradle")
                                                         .fileContents();
     if (gradleContents) {
         const auto lines = gradleContents->split('\n');
@@ -143,7 +143,7 @@ QString packageName(const Target *target)
 
     if (packageName.isEmpty()) {
         // Check AndroidManifest.xml
-        const auto element = documentElement(manifestPath(target));
+        const auto element = documentElement(manifestPath(bc));
         if (element)
             packageName = element->attribute("package");
     }
@@ -151,18 +151,18 @@ QString packageName(const Target *target)
     return packageName;
 }
 
-QString activityName(const Target *target)
+QString activityName(const BuildConfiguration *bc)
 {
-    const auto element = documentElement(manifestPath(target));
+    const auto element = documentElement(manifestPath(bc));
     if (!element)
         return {};
     return element->firstChildElement("application").firstChildElement("activity")
                                                     .attribute("android:name");
 }
 
-static FilePath manifestSourcePath(const Target *target)
+static FilePath manifestSourcePath(const BuildConfiguration *bc)
 {
-    if (const ProjectNode *node = currentProjectNode(target)) {
+    if (const ProjectNode *node = currentProjectNode(bc)) {
         const QString packageSource
             = node->data(Android::Constants::AndroidPackageSourceDir).toString();
         if (!packageSource.isEmpty()) {
@@ -171,7 +171,7 @@ static FilePath manifestSourcePath(const Target *target)
                 return manifest;
         }
     }
-    return manifestPath(target);
+    return manifestPath(bc);
 }
 
 /*!
@@ -179,15 +179,15 @@ static FilePath manifestSourcePath(const Target *target)
     of the kit is returned if the manifest file of the APK cannot be found
     or parsed.
 */
-int minimumSDK(const Target *target)
+int minimumSDK(const BuildConfiguration *bc)
 {
-    const auto element = documentElement(manifestSourcePath(target));
+    const auto element = documentElement(manifestSourcePath(bc));
     if (!element)
-        return minimumSDK(target->kit());
+        return minimumSDK(bc->kit());
 
     const int minSdkVersion = parseMinSdk(*element);
     if (minSdkVersion == 0)
-        return defaultMinimumSDK(QtSupport::QtKitAspect::qtVersion(target->kit()));
+        return defaultMinimumSDK(QtSupport::QtKitAspect::qtVersion(bc->kit()));
     return minSdkVersion;
 }
 
@@ -212,9 +212,9 @@ int minimumSDK(const Kit *kit)
     return minSdkVersion;
 }
 
-QString buildTargetSDK(const Target *target)
+QString buildTargetSDK(const BuildConfiguration *bc)
 {
-    if (auto bc = target->activeBuildConfiguration()) {
+    if (bc) {
         if (auto androidBuildApkStep = bc->buildSteps()->firstOfType<AndroidBuildApkStep>())
             return androidBuildApkStep->buildTargetSdk();
     }
@@ -223,9 +223,9 @@ QString buildTargetSDK(const Target *target)
     return fallback;
 }
 
-QStringList applicationAbis(const Target *target)
+QStringList applicationAbis(const Kit *k)
 {
-    auto qt = dynamic_cast<AndroidQtVersion *>(QtSupport::QtKitAspect::qtVersion(target->kit()));
+    auto qt = dynamic_cast<AndroidQtVersion *>(QtSupport::QtKitAspect::qtVersion(k));
     return qt ? qt->androidAbis() : QStringList();
 }
 
@@ -241,13 +241,13 @@ QString archTriplet(const QString &abi)
     return {"arm-linux-androideabi"};
 }
 
-QJsonObject deploymentSettings(const Target *target)
+QJsonObject deploymentSettings(const Kit *k)
 {
-    QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
+    QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(k);
     if (!qt)
         return {};
 
-    auto tc = ToolchainKitAspect::cxxToolchain(target->kit());
+    auto tc = ToolchainKitAspect::cxxToolchain(k);
     if (!tc || tc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPEID)
         return {};
     QJsonObject settings;
@@ -256,7 +256,7 @@ QJsonObject deploymentSettings(const Target *target)
     settings["ndk"] = AndroidConfig::ndkLocation(qt).toFSPathString();
     settings["sdk"] = AndroidConfig::sdkLocation().toFSPathString();
     if (!qt->supportsMultipleQtAbis()) {
-        const QStringList abis = applicationAbis(target);
+        const QStringList abis = applicationAbis(k);
         QTC_ASSERT(abis.size() == 1, return {});
         settings["stdcpp-path"] = (AndroidConfig::toolchainPath(qt) / "sysroot/usr/lib"
                                    / archTriplet(abis.first()) / "libc++_shared.so")
@@ -274,26 +274,21 @@ QJsonObject deploymentSettings(const Target *target)
 
 bool isQtCreatorGenerated(const FilePath &deploymentFile)
 {
-    const expected_str<QByteArray> result = deploymentFile.fileContents();
+    const Result<QByteArray> result = deploymentFile.fileContents();
     if (!result)
         return false;
     return QJsonDocument::fromJson(*result).object()["_description"].toString() == qtcSignature;
 }
 
-FilePath androidBuildDirectory(const Target *target)
+FilePath androidBuildDirectory(const BuildConfiguration *bc)
 {
     QString suffix;
-    const Project *project = target->project();
+    const Project *project = bc->project();
     if (project->extraData(Android::Constants::AndroidBuildTargetDirSupport).toBool()
         && project->extraData(Android::Constants::UseAndroidBuildTargetDir).toBool())
-        suffix = QString("-%1").arg(target->activeBuildKey());
+        suffix = QString("-%1").arg(bc->activeBuildKey());
 
-    return buildDirectory(target) / (Constants::ANDROID_BUILD_DIRECTORY + suffix);
-}
-
-FilePath androidAppProcessDir(const Target *target)
-{
-    return buildDirectory(target) / Constants::ANDROID_APP_PROCESS_DIRECTORY;
+    return buildDirectory(bc) / (Constants::ANDROID_BUILD_DIRECTORY + suffix);
 }
 
 bool isQt5CmakeProject(const ProjectExplorer::Target *target)
@@ -305,47 +300,43 @@ bool isQt5CmakeProject(const ProjectExplorer::Target *target)
     return isQt5 && isCmakeProject;
 }
 
-FilePath buildDirectory(const Target *target)
+FilePath buildDirectory(const BuildConfiguration *bc)
 {
-    if (const BuildSystem *bs = target->buildSystem()) {
-        const QString buildKey = target->activeBuildKey();
+    const QString buildKey = bc->activeBuildKey();
 
-        // Get the target build dir based on the settings file path
-        FilePath buildDir;
-        const ProjectNode *node = target->project()->findNodeForBuildKey(buildKey);
-        if (node) {
-            const QString settingsFile = node->data(Constants::AndroidDeploySettingsFile).toString();
-            buildDir = FilePath::fromUserInput(settingsFile).parentDir();
-        }
+    // Get the target build dir based on the settings file path
+    FilePath buildDir;
+    const ProjectNode *node = bc->project()->findNodeForBuildKey(buildKey);
+    if (node) {
+        const QString settingsFile = node->data(Constants::AndroidDeploySettingsFile).toString();
+        buildDir = FilePath::fromUserInput(settingsFile).parentDir();
+    }
 
-        if (!buildDir.isEmpty())
-            return buildDir;
+    if (!buildDir.isEmpty())
+        return buildDir;
 
-        // Otherwise fallback to target working dir
-        buildDir = bs->buildTarget(target->activeBuildKey()).workingDirectory;
-        if (isQt5CmakeProject(target)) {
-            // Return the main build dir and not the android libs dir
-            const QString libsDir = QString(Constants::ANDROID_BUILD_DIRECTORY) + "/libs";
-            FilePath parentDuildDir = buildDir.parentDir();
-            if (parentDuildDir.endsWith(libsDir) || libsDir.endsWith(libsDir + "/"))
-                return parentDuildDir.parentDir().parentDir();
-        } else {
-            // Qt6 + CMake: Very cautios hack to work around QTCREATORBUG-26479 for simple projects
-            const QString jsonFileName =
-                AndroidQtVersion::androidDeploymentSettingsFileName(target);
-            const FilePath jsonFile = buildDir / jsonFileName;
-            if (!jsonFile.exists()) {
-                const FilePath projectBuildDir = bs->buildConfiguration()->buildDirectory();
-                if (buildDir != projectBuildDir) {
-                    const FilePath projectJsonFile = projectBuildDir / jsonFileName;
-                    if (projectJsonFile.exists())
-                        buildDir = projectBuildDir;
-                }
+    // Otherwise fallback to target working dir
+    buildDir = bc->buildSystem()->buildTarget(buildKey).workingDirectory;
+    if (isQt5CmakeProject(bc->target())) {
+        // Return the main build dir and not the android libs dir
+        const QString libsDir = QString(Constants::ANDROID_BUILD_DIRECTORY) + "/libs";
+        FilePath parentDuildDir = buildDir.parentDir();
+        if (parentDuildDir.endsWith(libsDir) || libsDir.endsWith(libsDir + "/"))
+            return parentDuildDir.parentDir().parentDir();
+    } else {
+        // Qt6 + CMake: Very cautios hack to work around QTCREATORBUG-26479 for simple projects
+        const QString jsonFileName = AndroidQtVersion::androidDeploymentSettingsFileName(bc);
+        const FilePath jsonFile = buildDir / jsonFileName;
+        if (!jsonFile.exists()) {
+            const FilePath projectBuildDir = bc->buildDirectory();
+            if (buildDir != projectBuildDir) {
+                const FilePath projectJsonFile = projectBuildDir / jsonFileName;
+                if (projectJsonFile.exists())
+                    buildDir = projectBuildDir;
             }
         }
-        return buildDir;
     }
-    return {};
+    return buildDir;
 }
 
 Abi androidAbi2Abi(const QString &androidAbi)
@@ -383,17 +374,17 @@ Abi androidAbi2Abi(const QString &androidAbi)
     }
 }
 
-bool skipInstallationAndPackageSteps(const Target *target)
+bool skipInstallationAndPackageSteps(const BuildConfiguration *bc)
 {
     // For projects using Qt 5.15 and Qt 6, the deployment settings file
     // is generated by CMake/qmake and not Qt Creator, so if such file doesn't exist
     // or it's been generated by Qt Creator, we can assume the project is not
     // an android app.
-    const FilePath inputFile = AndroidQtVersion::androidDeploymentSettings(target);
+    const FilePath inputFile = AndroidQtVersion::androidDeploymentSettings(bc);
     if (!inputFile.exists() || isQtCreatorGenerated(inputFile))
         return true;
 
-    const Project *p = target->project();
+    const Project *p = bc->project();
 
     const Context cmakeCtx(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     const bool isCmakeProject = p->projectContext() == cmakeCtx;
@@ -406,34 +397,34 @@ bool skipInstallationAndPackageSteps(const Target *target)
     return n == nullptr; // If no Application target found, then skip steps
 }
 
-FilePath manifestPath(const Target *target)
+FilePath manifestPath(const BuildConfiguration *bc)
 {
-    QVariant manifest = target->namedSettings(AndroidManifestName);
+    QVariant manifest = bc->extraData(AndroidManifestName);
     if (manifest.isValid())
         return manifest.value<FilePath>();
-    return androidBuildDirectory(target).pathAppended(AndroidManifestName);
+    return androidBuildDirectory(bc).pathAppended(AndroidManifestName);
 }
 
-void setManifestPath(Target *target, const FilePath &path)
+void setManifestPath(BuildConfiguration *bc, const FilePath &path)
 {
-     target->setNamedSettings(AndroidManifestName, QVariant::fromValue(path));
+     bc->setExtraData(AndroidManifestName, QVariant::fromValue(path));
 }
 
-QString deviceSerialNumber(const Target *target)
+QString deviceSerialNumber(const BuildConfiguration *bc)
 {
-    return target->namedSettings(AndroidDeviceSn).toString();
+    return bc->extraData(AndroidDeviceSn).toString();
 }
 
-void setDeviceSerialNumber(Target *target, const QString &deviceSerialNumber)
+void setDeviceSerialNumber(BuildConfiguration *bc, const QString &deviceSerialNumber)
 {
     qCDebug(androidManagerLog) << "Target device serial changed:"
-                               << target->displayName() << deviceSerialNumber;
-    target->setNamedSettings(AndroidDeviceSn, deviceSerialNumber);
+                               << bc->target()->displayName() << deviceSerialNumber;
+    bc->setExtraData(AndroidDeviceSn, deviceSerialNumber);
 }
 
-static QString preferredAbi(const QStringList &appAbis, const Target *target)
+static QString preferredAbi(const QStringList &appAbis, const BuildConfiguration *bc)
 {
-    const auto deviceAbis = target->namedSettings(AndroidDeviceAbis).toStringList();
+    const auto deviceAbis = bc->extraData(AndroidDeviceAbis).toStringList();
     for (const auto &abi : deviceAbis) {
         if (appAbis.contains(abi))
             return abi;
@@ -441,13 +432,13 @@ static QString preferredAbi(const QStringList &appAbis, const Target *target)
     return {};
 }
 
-QString apkDevicePreferredAbi(const Target *target)
+QString apkDevicePreferredAbi(const BuildConfiguration *bc)
 {
-    const FilePath libsPath = androidBuildDirectory(target).pathAppended("libs");
+    const FilePath libsPath = androidBuildDirectory(bc).pathAppended("libs");
     if (!libsPath.exists()) {
-        if (const ProjectNode *node = currentProjectNode(target)) {
+        if (const ProjectNode *node = currentProjectNode(bc)) {
             const QString abi = preferredAbi(
-                        node->data(Android::Constants::AndroidAbis).toStringList(), target);
+                node->data(Android::Constants::AndroidAbis).toStringList(), bc);
             if (abi.isEmpty())
                 return node->data(Android::Constants::AndroidAbi).toString();
         }
@@ -458,24 +449,24 @@ QString apkDevicePreferredAbi(const Target *target)
         if (!abiDir.dirEntries({{"*.so"}, QDir::Files | QDir::NoDotAndDotDot}).isEmpty())
             apkAbis << abiDir.fileName();
     }
-    return preferredAbi(apkAbis, target);
+    return preferredAbi(apkAbis, bc);
 }
 
-void setDeviceAbis(Target *target, const QStringList &deviceAbis)
+void setDeviceAbis(BuildConfiguration *bc, const QStringList &deviceAbis)
 {
-    target->setNamedSettings(AndroidDeviceAbis, deviceAbis);
+    bc->setExtraData(AndroidDeviceAbis, deviceAbis);
 }
 
-int deviceApiLevel(const Target *target)
+int deviceApiLevel(const BuildConfiguration *bc)
 {
-    return target->namedSettings(ApiLevelKey).toInt();
+    return bc->extraData(ApiLevelKey).toInt();
 }
 
-void setDeviceApiLevel(Target *target, int level)
+void setDeviceApiLevel(BuildConfiguration *bc, int level)
 {
     qCDebug(androidManagerLog) << "Target device API level changed:"
-                               << target->displayName() << level;
-    target->setNamedSettings(ApiLevelKey, level);
+                               << bc->target()->displayName() << level;
+    bc->setExtraData(ApiLevelKey, level);
 }
 
 int defaultMinimumSDK(const QtSupport::QtVersion *qtVersion)
@@ -720,7 +711,7 @@ static ExecutableItem waitForAvdRecipe(const QString &avdName, const Storage<QSt
 
     const auto onIsConnectedDone = [stopStorage, outputStorage, serialNumberStorage] {
         const QString serialNumber = *serialNumberStorage;
-        for (const QString &line : *outputStorage) {
+        for (const QString &line : std::as_const(*outputStorage)) {
             // skip the daemon logs
             if (!line.startsWith("* daemon") && line.left(line.indexOf('\t')).trimmed() == serialNumber)
                 return DoneResult::Error;

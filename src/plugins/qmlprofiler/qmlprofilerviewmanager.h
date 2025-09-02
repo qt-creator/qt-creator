@@ -10,8 +10,7 @@
 
 namespace Utils { class Perspective; }
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerViewManager : public QObject
 {
@@ -48,6 +47,4 @@ private:
     Utils::Perspective *m_perspective = nullptr;
 };
 
-
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

@@ -284,7 +284,7 @@ void CompilerSettings::fillCompilerModel(const Utils::StringSelectionAspect::Res
                      this,
                      [watcher, this, fillFromCache]() {
                          try {
-                             auto result = watcher->result();
+                             const auto result = watcher->result();
                              auto itCache = cachedCompilers().insert(m_languageId, {});
 
                              for (const Api::Compiler &compiler : result)

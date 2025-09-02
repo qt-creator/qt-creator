@@ -112,7 +112,7 @@ def lineUnderCursor(window):
     return textUnderCursor(window, QTextCursor.StartOfLine, QTextCursor.EndOfLine)
 
 def textUnderCursor(window, fromPos, toPos):
-    cursor = window.textCursor()
+    cursor = textCursorForWidget(window)
     oldposition = cursor.position()
     cursor.movePosition(fromPos)
     cursor.movePosition(toPos, QTextCursor.KeepAnchor)
@@ -120,18 +120,6 @@ def textUnderCursor(window, fromPos, toPos):
     cursor.setPosition(oldposition)
     return str(returnValue)
 
-def which(program):
-    # Don't use spawn.find_executable because it can't find .bat or
-    # .cmd files and doesn't check whether a file is executable (!)
-    if platform.system() in ('Windows', 'Microsoft'):
-        command = "where"
-    else:
-        command = "which"
-    foundPath = getOutputFromCmdline([command, program], acceptedError=1)
-    if foundPath:
-        return foundPath.splitlines()[0]
-    else:
-        return None
 
 # this function removes the user files of given pro file(s)
 # can be called with a single string object or a list of strings holding path(s) to

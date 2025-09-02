@@ -3,17 +3,15 @@
 
 #pragma once
 
-#include "debuggerconstants.h"
-
-#include <projectexplorer/abi.h>
-
 #include <functional>
 
+#include <QString>
+
 QT_BEGIN_NAMESPACE
+class QAction;
 class QObject;
 class QWidget;
 class QMenu;
-class QAction;
 QT_END_NAMESPACE
 
 namespace Utils { class BaseTreeView; }
@@ -42,5 +40,6 @@ QAction *addCheckableAction(const QObject *parent, QMenu *menu, const QString &d
 QStringList qtBuildPaths();
 
 QWidget *addSearch(Utils::BaseTreeView *treeView);
+void addStandardActions(QWidget *treeView, QMenu *menu);
 
 } // Debugger::Internal

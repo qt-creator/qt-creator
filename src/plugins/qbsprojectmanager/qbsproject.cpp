@@ -107,6 +107,7 @@ QbsProject::QbsProject(const FilePath &fileName)
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setCanBuildProducts();
     setDisplayName(fileName.completeBaseName());
+    setBuildSystemCreator<QbsBuildSystem>("qbs");
 }
 
 QbsProject::~QbsProject()
@@ -136,12 +137,8 @@ void QbsProject::configureAsExampleProject(Kit *kit)
         static_cast<QbsBuildSystem *>(activeBuildSystem())->prepareForParsing();
 }
 
-
-static bool supportsNodeAction(ProjectAction action, const Node *node)
+static bool supportsNodeAction(const QbsBuildSystem *bs, ProjectAction action, const Node *node)
 {
-    QbsBuildSystem *bs = static_cast<QbsBuildSystem *>(activeBuildSystem(node->getProject()));
-    if (!bs)
-        return false;
     if (!bs->isProjectEditable())
         return false;
     if (action == RemoveFile || action == Rename)
@@ -149,7 +146,7 @@ static bool supportsNodeAction(ProjectAction action, const Node *node)
     return false;
 }
 
-QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
+QbsBuildSystem::QbsBuildSystem(BuildConfiguration *bc)
     : BuildSystem(bc),
       m_session(new QbsSession(this, BuildDeviceKitAspect::device(bc->kit()))),
       m_cppCodeModelUpdater(
@@ -174,7 +171,7 @@ QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
             }
         }
         CppEditor::GeneratedCodeModelSupport::update(m_extraCompilers);
-        for (ExtraCompiler *compiler : m_extraCompilers) {
+        for (ExtraCompiler *compiler : std::as_const(m_extraCompilers)) {
             if (compiler->isDirty())
                 compiler->compileFile();
         }
@@ -188,18 +185,16 @@ QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
 
     delayParsing();
 
-    connect(bc->project(), &Project::activeTargetChanged,
-            this, &QbsBuildSystem::changeActiveTarget);
-
-    connect(bc->target(), &Target::activeBuildConfigurationChanged,
+    connect(bc->project(), &Project::activeBuildConfigurationChanged,
             this, &QbsBuildSystem::delayParsing);
-
     connect(bc->project(), &Project::projectFileIsDirty, this, &QbsBuildSystem::delayParsing);
     updateProjectNodes({});
 }
 
 QbsBuildSystem::~QbsBuildSystem()
 {
+    // Trigger any pending parsingFinished signals before destroying any other build system part:
+    m_guard = {};
     m_parseRequest.reset();
     delete m_cppCodeModelUpdater;
     delete m_qbsProjectParser;
@@ -218,7 +213,7 @@ bool QbsBuildSystem::supportsAction(Node *context, ProjectAction action, const N
             return true;
     }
 
-    return supportsNodeAction(action, node);
+    return supportsNodeAction(this, action, node);
 }
 
 bool QbsBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
@@ -312,6 +307,28 @@ bool QbsBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename, 
     }
 
     return BuildSystem::renameFiles(context, filesToRename, notRenamed);
+}
+
+bool QbsBuildSystem::addDependencies(ProjectExplorer::Node *context, const QStringList &dependencies)
+{
+    const QStringList lowercaseDeps = transform(dependencies, [](const QString &dep) -> QString {
+        QTC_ASSERT(dep.size() > 3, return dep);
+        return dep.left(3) + dep.mid(3).toLower();
+    });
+
+    if (session()->apiLevel() < 9)
+        return BuildSystem::addDependencies(context, lowercaseDeps);
+
+    if (auto *n = dynamic_cast<QbsGroupNode *>(context)) {
+        const QbsProductNode * const prdNode = parentQbsProductNode(n);
+        QTC_ASSERT(prdNode, return false);
+        return addDependenciesToProduct(lowercaseDeps, prdNode->productData(), n->groupData());
+    }
+
+    if (auto *n = dynamic_cast<QbsProductNode *>(context))
+        return addDependenciesToProduct(lowercaseDeps, n->productData(), n->mainGroup());
+
+    return BuildSystem::addDependencies(context, dependencies);
 }
 
 QVariant QbsBuildSystem::additionalData(Id id) const
@@ -470,9 +487,22 @@ bool QbsBuildSystem::renameFilesInProduct(
     return notRenamed->isEmpty();
 }
 
+bool QbsBuildSystem::addDependenciesToProduct(
+    const QStringList &deps, const QJsonObject &product, const QJsonObject &group)
+{
+    ensureWriteableQbsFile(groupFilePath(group));
+    const ErrorInfo error = session()->addDependencies(
+        deps, product.value("full-display-name").toString(), group.value("name").toString());
+    if (error.hasError()) {
+        MessageManager::writeDisrupting(error.toString());
+        return false;
+    }
+    return true;
+}
+
 QString QbsBuildSystem::profile() const
 {
-    return QbsProfileManager::ensureProfileForKit(target()->kit());
+    return QbsProfileManager::ensureProfileForKit(kit());
 }
 
 void QbsBuildSystem::updateAfterParse()
@@ -536,7 +566,7 @@ FilePath QbsBuildSystem::groupFilePath(const QJsonObject &group) const
 
 FilePath QbsBuildSystem::installRoot()
 {
-    const auto dc = target()->activeDeployConfiguration();
+    const auto dc = buildConfiguration()->activeDeployConfiguration();
     if (dc) {
         const QList<BuildStep *> steps = dc->stepList()->steps();
         for (const BuildStep * const step : steps) {
@@ -597,12 +627,6 @@ void QbsBuildSystem::handleQbsParsingDone(bool success)
     emitBuildSystemUpdated();
 }
 
-void QbsBuildSystem::changeActiveTarget(Target *t)
-{
-    if (t)
-        delayParsing();
-}
-
 void QbsBuildSystem::triggerParsing()
 {
     scheduleParsing({});
@@ -658,7 +682,7 @@ void QbsBuildSystem::startParsing(const QVariantMap &extraConfig)
     connect(m_qbsProjectParser, &QbsProjectParser::done,
             this, &QbsBuildSystem::handleQbsParsingDone);
 
-    QbsProfileManager::updateProfileIfNecessary(target()->kit());
+    QbsProfileManager::updateProfileIfNecessary(kit());
     m_qbsProjectParser->parse(config, env, dir, qbsBuildConfig()->configurationName());
 }
 
@@ -907,7 +931,7 @@ static RawProjectPart generateProjectPart(
 
     const QStringList defines = arrayToStringList(props.value("cpp.defines"))
             + arrayToStringList(props.value("cpp.platformDefines"));
-    rpp.setMacros(transform<QVector>(defines,
+    rpp.setMacros(transform<QList>(defines,
             [](const QString &s) { return Macro::fromKeyValue(s); }));
 
     ProjectExplorer::HeaderPaths headerPaths;

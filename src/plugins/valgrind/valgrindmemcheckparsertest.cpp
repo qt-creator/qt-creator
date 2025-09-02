@@ -125,7 +125,7 @@ public:
         connect(runner, &ValgrindProcess::logMessageReceived, this, [](const QByteArray &log) {
             qDebug() << "log message received:" << log;
         });
-        connect(runner, &ValgrindProcess::processErrorReceived, this, [this](const QString &) {
+        connect(runner, &ValgrindProcess::processErrorReceived, this, [this] {
             m_errorReceived = true;
         });
     }

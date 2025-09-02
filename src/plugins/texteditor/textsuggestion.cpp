@@ -49,7 +49,7 @@ bool TextSuggestion::applyLine(TextEditorWidget *widget)
 
 bool TextSuggestion::filterSuggestions(TextEditorWidget *widget)
 {
-    Q_UNUSED(widget);
+    Q_UNUSED(widget)
 
     QTextCursor c = m_suggestion.range.begin.toTextCursor(sourceDocument());
     c.setPosition(currentPosition(), QTextCursor::KeepAnchor);
@@ -110,7 +110,7 @@ bool CyclicSuggestion::filterSuggestions(TextEditorWidget *widget)
     QList<Data> newSuggestions;
     int newIndex = -1;
     int currentIndex = 0;
-    for (auto suggestion : m_suggestions) {
+    for (auto suggestion : std::as_const(m_suggestions)) {
         QTextCursor c = suggestion.range.begin.toTextCursor(sourceDocument());
         c.setPosition(currentPosition(), QTextCursor::KeepAnchor);
         if (suggestion.text.startsWith(c.selectedText())) {
@@ -151,9 +151,11 @@ public:
             connect(m_next, &QAction::triggered, this, &SuggestionToolTip::selectNext);
         }
 
-        auto apply = addAction(Tr::tr("Apply (%1)").arg(QKeySequence(Qt::Key_Tab).toString()));
+        auto apply = addAction(
+            Tr::tr("Apply (%1)").arg(QKeySequence(Qt::Key_Tab).toString(QKeySequence::NativeText)));
         auto applyWord = addAction(
-            Tr::tr("Apply Word (%1)").arg(QKeySequence(QKeySequence::MoveToNextWord).toString()));
+            Tr::tr("Apply Word (%1)")
+                .arg(QKeySequence(QKeySequence::MoveToNextWord).toString(QKeySequence::NativeText)));
         auto applyLine = addAction(Tr::tr("Apply Line"));
 
         connect(apply, &QAction::triggered, this, &SuggestionToolTip::apply);
@@ -253,7 +255,7 @@ void SuggestionHoverHandler::identifyMatch(
     QTextCursor cursor(editorWidget->document());
     cursor.setPosition(pos);
     m_block = cursor.block();
-    auto *suggestion = dynamic_cast<CyclicSuggestion *>(TextDocumentLayout::suggestion(m_block));
+    auto *suggestion = dynamic_cast<CyclicSuggestion *>(TextBlockUserData::suggestion(m_block));
 
     if (!suggestion)
         return;
@@ -269,7 +271,7 @@ void SuggestionHoverHandler::identifyMatch(
 void SuggestionHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
     Q_UNUSED(point)
-    auto *suggestion = dynamic_cast<CyclicSuggestion *>(TextDocumentLayout::suggestion(m_block));
+    auto *suggestion = dynamic_cast<CyclicSuggestion *>(TextBlockUserData::suggestion(m_block));
 
     if (!suggestion)
         return;

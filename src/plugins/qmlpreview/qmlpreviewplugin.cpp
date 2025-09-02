@@ -125,7 +125,7 @@ public:
 };
 
 QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
-    : q(parent), runWorkerFactory(parent, &m_settings)
+    : q(parent)
 {
     m_settings.fileLoader = &defaultFileLoader;
     m_settings.fileClassifier = &defaultFileClassifier;
@@ -202,14 +202,28 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     connect(q, &QmlPreviewPlugin::previewedFileChanged, this, &QmlPreviewPluginPrivate::checkFile);
 }
 
+static QmlPreviewPlugin *theInstance = nullptr;
+
 QmlPreviewPlugin::~QmlPreviewPlugin()
 {
     delete d;
+    theInstance = nullptr;
+}
+
+QmlPreviewPlugin *QmlPreviewPlugin::instance()
+{
+    return theInstance;
+}
+
+const QmlPreviewRunnerSetting &QmlPreviewPlugin::settings()
+{
+    return theInstance->d->m_settings;
 }
 
 void QmlPreviewPlugin::initialize()
 {
     d = new QmlPreviewPluginPrivate(this);
+    theInstance = this;
 
 #ifdef WITH_TESTS
     addTestCreator(createQmlPreviewClientTest);

@@ -25,6 +25,8 @@
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.model", QtWarningMsg)
 
+using namespace Utils;
+
 namespace ClangTools {
 namespace Internal {
 
@@ -101,7 +103,7 @@ void ClangToolsDiagnosticModel::addDiagnostics(const Diagnostics &diagnostics, b
         }
 
         // Create file path item if necessary
-        const Utils::FilePath &filePath = d.location.filePath;
+        const FilePath &filePath = d.location.targetFilePath;
         FilePathItem *&filePathItem = m_filePathToItem[filePath];
         if (!filePathItem) {
             filePathItem = new FilePathItem(filePath);
@@ -163,10 +165,10 @@ void ClangToolsDiagnosticModel::clearAndSetupCache()
     stepsToItemsCache.clear();
 }
 
-void ClangToolsDiagnosticModel::onFileChanged(const QString &path)
+void ClangToolsDiagnosticModel::onFileChanged(const FilePath &path)
 {
     forItemsAtLevel<2>([&](DiagnosticItem *item){
-        if (item->diagnostic().location.filePath == Utils::FilePath::fromString(path))
+        if (item->diagnostic().location.targetFilePath == path)
             item->setFixItStatus(FixitStatus::Invalidated);
     });
     m_filesWatcher->removeFile(path);
@@ -193,9 +195,9 @@ std::unique_ptr<InlineSuppressedDiagnostics> ClangToolsDiagnosticModel::createIn
     QTC_ASSERT(false, return {});
 }
 
-static QString lineColumnString(const Debugger::DiagnosticLocation &location)
+static QString lineColumnString(const Link &location)
 {
-    return QString("%1:%2").arg(QString::number(location.line), QString::number(location.column));
+    return QString("%1:%2").arg(location.targetLine).arg(location.targetColumn);
 }
 
 static QString createExplainingStepToolTipString(const ExplainingStep &step)
@@ -227,10 +229,10 @@ static QString createExplainingStepToolTipString(const ExplainingStep &step)
     return html;
 }
 
-static QString createLocationString(const Debugger::DiagnosticLocation &location)
+static QString createLocationString(const Link &location)
 {
-    const QString filePath = location.filePath.toUserOutput();
-    const QString lineNumber = QString::number(location.line);
+    const QString filePath = location.targetFilePath.toUserOutput();
+    const QString lineNumber = QString::number(location.targetLine);
     const QString fileAndLine = filePath + QLatin1Char(':') + lineNumber;
     return QLatin1String("in ") + fileAndLine;
 }
@@ -253,7 +255,7 @@ static QString createExplainingStepString(const ExplainingStep &explainingStep, 
 
 static QString fullText(const Diagnostic &diagnostic)
 {
-    QString text = diagnostic.location.filePath.toUserOutput() + QLatin1Char(':');
+    QString text = diagnostic.location.targetFilePath.toUserOutput() + QLatin1Char(':');
     text += lineColumnString(diagnostic.location) + QLatin1String(": ");
     if (!diagnostic.category.isEmpty())
         text += diagnostic.category + QLatin1String(": ");
@@ -441,7 +443,7 @@ ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step, int index)
     , m_index(index)
 {}
 
-static QString rangeString(const QVector<Debugger::DiagnosticLocation> &ranges)
+static QString rangeString(const Links &ranges)
 {
     return QString("%1-%2").arg(lineColumnString(ranges[0]), lineColumnString(ranges[1]));
 }
@@ -455,7 +457,7 @@ QVariant ExplainingStepItem::data(int column, int role) const
             return QVariant::fromValue(m_step.location);
         case Debugger::DetailedErrorView::FullTextRole: {
             return QString("%1:%2: %3")
-                .arg(m_step.location.filePath.toUserOutput(),
+                .arg(m_step.location.targetFilePath.toUserOutput(),
                      lineColumnString(m_step.location),
                      m_step.message);
         }
@@ -467,11 +469,11 @@ QVariant ExplainingStepItem::data(int column, int role) const
             return parent()->data(column, role);
         case Qt::DisplayRole: {
             const Utils::FilePath mainFilePath
-                = static_cast<DiagnosticItem *>(parent())->diagnostic().location.filePath;
+                = static_cast<DiagnosticItem *>(parent())->diagnostic().location.targetFilePath;
             const QString locationString
-                = m_step.location.filePath == mainFilePath
+                = m_step.location.targetFilePath == mainFilePath
                       ? lineColumnString(m_step.location)
-                      : QString("%1:%2").arg(m_step.location.filePath.fileName(),
+                      : QString("%1:%2").arg(m_step.location.targetFilePath.fileName(),
                                              lineColumnString(m_step.location));
 
             if (m_step.isFixIt) {
@@ -654,7 +656,7 @@ bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
             Utils::FilePath filePath = d.filePath;
             if (d.filePath.toFileInfo().isRelative())
                 filePath = m_lastProjectDirectory.resolvePath(filePath);
-            if (filePath == diag.location.filePath) {
+            if (filePath == diag.location.targetFilePath) {
                 diagnosticItem->setTextMarkVisible(false);
                 return false;
             }
@@ -676,19 +678,18 @@ bool DiagnosticFilterModel::lessThan(const QModelIndex &l, const QModelIndex &r)
     if (sortColumn() == Debugger::DetailedErrorView::DiagnosticColumn && isComparingDiagnostics) {
         bool result = false;
         if (itemLeft->level() == 2) {
-            using Debugger::DiagnosticLocation;
             const int role = Debugger::DetailedErrorView::LocationRole;
 
-            const auto leftLoc = sourceModel()->data(l, role).value<DiagnosticLocation>();
+            const auto leftLoc = sourceModel()->data(l, role).value<Link>();
             const auto leftText
                 = sourceModel()->data(l, ClangToolsDiagnosticModel::TextRole).toString();
 
-            const auto rightLoc = sourceModel()->data(r, role).value<DiagnosticLocation>();
+            const auto rightLoc = sourceModel()->data(r, role).value<Link>();
             const auto rightText
                 = sourceModel()->data(r, ClangToolsDiagnosticModel::TextRole).toString();
 
-            result = std::tie(leftLoc.line, leftLoc.column, leftText)
-                     < std::tie(rightLoc.line, rightLoc.column, rightText);
+            result = std::tie(leftLoc.targetLine, leftLoc.targetColumn, leftText)
+                     < std::tie(rightLoc.targetLine, rightLoc.targetColumn, rightText);
         } else if (itemLeft->level() == 3) {
             Utils::TreeItem *itemRight = model->itemForIndex(r);
             QTC_ASSERT(itemRight, QSortFilterProxyModel::lessThan(l, r));

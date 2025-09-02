@@ -167,12 +167,14 @@ bool LogChangeWidget::populateLog(const FilePath &repository, const QString &com
         arguments << "--not" << remotesFlag;
     }
     arguments << "--";
-    QString output;
-    if (!gitClient().synchronousLog(
-                repository, arguments, &output, nullptr, RunFlags::NoOutput)) {
+
+    const Result<QString> res = gitClient().synchronousLog(repository, arguments, RunFlags::NoOutput);
+    if (!res) {
+        VcsOutputWindow::appendError(res.error());
         return false;
     }
-    const QStringList lines = output.split('\n');
+
+    const QStringList lines = res.value().split('\n');
     for (const QString &line : lines) {
         const int colonPos = line.indexOf(':');
         if (colonPos != -1) {

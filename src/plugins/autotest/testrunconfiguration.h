@@ -9,7 +9,6 @@
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 
 #include <utils/qtcassert.h>
@@ -22,9 +21,9 @@ namespace Internal {
 class TestRunConfiguration : public ProjectExplorer::RunConfiguration
 {
 public:
-    TestRunConfiguration(ProjectExplorer::Target *parent, TestConfiguration *config)
-        : ProjectExplorer::RunConfiguration(parent, "AutoTest.TestRunConfig"),
-          debuggerAspect(parent)
+    TestRunConfiguration(ProjectExplorer::BuildConfiguration *bc, TestConfiguration *config)
+        : ProjectExplorer::RunConfiguration(bc, "AutoTest.TestRunConfig"),
+        debuggerAspect(bc)
     {
         setDefaultDisplayName(QCoreApplication::translate("QtC::Autotest", "AutoTest Debug"));
 

@@ -139,8 +139,9 @@ class PlainDumper():
         # https://sourceware.org/gdb/current/onlinedocs/gdb.html/Pretty-Printing-API.html#:~:text=Function%3A%20pretty_printer.to_string%20(self)
         elif isinstance(val, gdb.Value):
             d.putItem(d.fromNativeValue(val))
-        else:
-            return
+        elif val is not None:  # Assuming LazyString
+            d.putCharArrayValue(val.address, val.length,
+                                val.type.target().sizeof)
 
         lister = getattr(printer, 'children', None)
         if lister is None:
@@ -766,8 +767,6 @@ class Dumper(DumperBase):
             return None
 
     def callHelper(self, rettype, value, function, args):
-        if self.isWindowsTarget():
-            raise Exception("gdb crashes when calling functions on Windows")
         # args is a tuple.
         arg = ''
         for i in range(len(args)):

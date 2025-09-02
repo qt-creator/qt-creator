@@ -131,7 +131,7 @@ void LibrarySelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
         versionCombo->addItem("--");
         QString selected = nameCombo->currentData(SelectedVersion).toString();
         Api::Library lib = qvariant_cast<Api::Library>(nameCombo->currentData(LibraryData));
-        for (const auto &version : lib.versions) {
+        for (const auto &version : std::as_const(lib.versions)) {
             versionCombo->addItem(version.version, version.id);
             if (version.id == selected)
                 versionCombo->setCurrentIndex(versionCombo->count() - 1);

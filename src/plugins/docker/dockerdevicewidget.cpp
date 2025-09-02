@@ -104,7 +104,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             this,
             [this, logView, dockerDevice, searchPaths] {
                 logView->clear();
-                Result startResult = dockerDevice->updateContainerAccess();
+                Result<> startResult = dockerDevice->updateContainerAccess();
 
                 if (!startResult) {
                     logView->append(Tr::tr("Failed to start container."));
@@ -167,6 +167,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     Column {
         noMargin,
         Form {
+            noMargin,
             dockerDevice->repo, br,
             dockerDevice->tag, br,
             dockerDevice->imageId, br,
@@ -178,13 +179,14 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             dockerDevice->clangdExecutableAspect, br,
             dockerDevice->network, br,
             dockerDevice->extraArgs, br,
+            dockerDevice->environment, br,
             Column {
                 pathListLabel,
                 dockerDevice->mounts,
             }, br,
+            dockerDevice->portMappings, br,
             If { dockerDevice->isAutoDetected(), {}, {detectionControls} },
-            noMargin,
-        },br,
+        }, br,
         Tr::tr("Command line:"), createLineLabel, br,
     }.attachTo(this);
     // clang-format on
@@ -217,4 +219,4 @@ void DockerDeviceWidget::updateDaemonStateTexts()
     }
 }
 
-} // Docker::Internal
+} // namespace Docker::Internal

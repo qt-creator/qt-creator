@@ -43,26 +43,9 @@
 */
 
 /*!
-    \fn bool ExtensionSystem::IPlugin::initialize(const QStringList &arguments, QString *errorString)
-    Called after the plugin has been loaded and the IPlugin instance
-    has been created.
-
-    The initialize functions of plugins that depend on this plugin are called
-    after the initialize function of this plugin has been called with
-    \a arguments. Plugins should initialize their internal state in this
-    function.
-
-    Returns whether initialization succeeds. If it does not, \a errorString
-    should be set to a user-readable message describing the reason.
-
-    \sa extensionsInitialized()
-    \sa delayedInitialize()
-*/
-
-/*!
     \fn void ExtensionSystem::IPlugin::initialize()
     This function is called as the default implementation of
-    \c initialize(const QStringList &arguments, QString *errorString) and can be
+    \c initialize(const QStringList &arguments) and can be
     overwritten instead of the full-args version in cases the parameters
     are not used by the implementation and there is no error to report.
 
@@ -172,12 +155,25 @@ IPlugin::IPlugin() = default;
 */
 IPlugin::~IPlugin() = default;
 
-bool IPlugin::initialize(const QStringList &arguments, QString *errorString)
+/*!
+    Called after the plugin has been loaded and the IPlugin instance
+    has been created.
+
+    The initialize functions of plugins that depend on this plugin are called
+    after the initialize function of this plugin has been called with
+    \a arguments. Plugins should initialize their internal state in this
+    function.
+
+    Returns whether initialization succeeds.
+
+    \sa extensionsInitialized()
+    \sa delayedInitialize()
+*/
+Utils::Result<> IPlugin::initialize(const QStringList &arguments)
 {
     Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
     initialize();
-    return true;
+    return Utils::ResultOk;
 }
 
 /*!

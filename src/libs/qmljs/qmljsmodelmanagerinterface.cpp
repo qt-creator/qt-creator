@@ -234,6 +234,13 @@ FilePath ModelManagerInterface::qmllsForBinPath(const Utils::FilePath &binPath, 
     return binPath.resolvePath(qmllsExe);
 }
 
+FilePath ModelManagerInterface::qmlformatForBinPath(const Utils::FilePath &binPath, const QVersionNumber &version)
+{
+    if (version < QVersionNumber(6,2,0))
+        return {};
+    return binPath.pathAppended("qmlformat").withExecutableSuffix();
+}
+
 void ModelManagerInterface::activateScan()
 {
     const bool shouldScan = m_syncedData.update<bool>([](SyncedData &sd) {
@@ -309,7 +316,7 @@ void ModelManagerInterface::loadQmlTypeDescriptionsInternal(const QString &resou
 }
 
 void ModelManagerInterface::setDefaultProject(const ModelManagerInterface::ProjectInfo &pInfo,
-                                              ProjectExplorer::Project *p)
+                                              ProjectBase *p)
 {
     m_syncedData.write([p, pInfo](SyncedData &sd) {
         sd.m_defaultProject = p;
@@ -498,7 +505,7 @@ static QSet<Utils::FilePath> generatedQrc(
 }
 
 void ModelManagerInterface::iterateQrcFiles(
-        ProjectExplorer::Project *project, QrcResourceSelector resources,
+        ProjectBase *project, QrcResourceSelector resources,
         const std::function<void(QrcParser::ConstPtr)> &callback)
 {
     QList<ProjectInfo> pInfos;
@@ -531,7 +538,7 @@ void ModelManagerInterface::iterateQrcFiles(
 
 QStringList ModelManagerInterface::qrcPathsForFile(const Utils::FilePath &file,
                                                    const QLocale *locale,
-                                                   ProjectExplorer::Project *project,
+                                                   ProjectBase *project,
                                                    QrcResourceSelector resources)
 {
     QStringList res;
@@ -542,7 +549,7 @@ QStringList ModelManagerInterface::qrcPathsForFile(const Utils::FilePath &file,
 }
 
 QStringList ModelManagerInterface::filesAtQrcPath(const QString &path, const QLocale *locale,
-                                         ProjectExplorer::Project *project,
+                                         ProjectBase *project,
                                          QrcResourceSelector resources)
 {
     QString normPath = QrcParser::normalizedQrcFilePath(path);
@@ -554,10 +561,10 @@ QStringList ModelManagerInterface::filesAtQrcPath(const QString &path, const QLo
 }
 
 QMap<QString, QStringList> ModelManagerInterface::filesInQrcPath(const QString &path,
-                                                        const QLocale *locale,
-                                                        ProjectExplorer::Project *project,
-                                                        bool addDirs,
-                                                        QrcResourceSelector resources)
+                                                                 const QLocale *locale,
+                                                                 ProjectBase *project,
+                                                                 bool addDirs,
+                                                                 QrcResourceSelector resources)
 {
     QString normPath = QrcParser::normalizedQrcDirectoryPath(path);
     QMap<QString, QStringList> res;
@@ -572,18 +579,17 @@ QList<ModelManagerInterface::ProjectInfo> ModelManagerInterface::projectInfos() 
     return m_syncedData.readLocked()->m_projects.values();
 }
 
-bool ModelManagerInterface::containsProject(ProjectExplorer::Project *project) const
+bool ModelManagerInterface::containsProject(ProjectBase *project) const
 {
     return m_syncedData.readLocked()->m_projects.contains(project);
 }
 
-ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfo(
-        ProjectExplorer::Project *project) const
+ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfo(ProjectBase *project) const
 {
     return m_syncedData.readLocked()->m_projects.value(project);
 }
 
-void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectExplorer::Project *p)
+void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectBase *p)
 {
     if (pinfo.project.isNull() || !p || m_indexerDisabled)
         return;
@@ -649,7 +655,7 @@ void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectE
 }
 
 
-void ModelManagerInterface::removeProjectInfo(ProjectExplorer::Project *project)
+void ModelManagerInterface::removeProjectInfo(ProjectBase *project)
 {
     ProjectInfo info;
     info.sourceFiles.clear();
@@ -693,8 +699,8 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfoForPath(
 QList<ModelManagerInterface::ProjectInfo> ModelManagerInterface::allProjectInfosForPath(
     const Utils::FilePath &path) const
 {
-    QList<ProjectExplorer::Project *> projects
-        = m_syncedData.get<QList<ProjectExplorer::Project *>>([&path](const SyncedData &sd) {
+    QList<ProjectBase *> projects
+        = m_syncedData.get<QList<ProjectBase *>>([&path](const SyncedData &sd) {
               auto projects = sd.m_fileToProject.values(path);
               if (projects.isEmpty())
                   projects = sd.m_fileToProject.values(path.canonicalPath());
@@ -702,7 +708,7 @@ QList<ModelManagerInterface::ProjectInfo> ModelManagerInterface::allProjectInfos
           });
 
     QList<ProjectInfo> infos;
-    for (ProjectExplorer::Project *project : std::as_const(projects)) {
+    for (ProjectBase *project : std::as_const(projects)) {
         ProjectInfo info = projectInfo(project);
         if (!info.project.isNull())
             infos.append(info);
@@ -918,7 +924,7 @@ bool ModelManagerInterface::findNewQmlLibraryInPath(const Utils::FilePath &path,
     }
 
     // found a new library!
-    const expected_str<QByteArray> contents = qmldirFile.fileContents();
+    const Result<QByteArray> contents = qmldirFile.fileContents();
     if (!contents)
         return false;
     QString qmldirData = QString::fromUtf8(*contents);
@@ -1059,7 +1065,7 @@ void ModelManagerInterface::parseLoop(QSet<Utils::FilePath> &scannedPaths,
             contents = entry.first;
             documentRevision = entry.second;
         } else {
-            const expected_str<QByteArray> fileContents = fileName.fileContents();
+            const Result<QByteArray> fileContents = fileName.fileContents();
             if (fileContents) {
                 QTextStream ins(*fileContents);
                 contents = ins.readAll();
@@ -1727,10 +1733,10 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfo() c
 }
 
 ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfoForProject(
-    ProjectExplorer::Project *project, const FilePaths &hiddenRccFolders) const
+    ProjectBase *project, const FilePaths &hiddenRccFolders) const
 {
-    Q_UNUSED(project);
-    Q_UNUSED(hiddenRccFolders);
+    Q_UNUSED(project)
+    Q_UNUSED(hiddenRccFolders)
     return ModelManagerInterface::ProjectInfo();
 }
 
@@ -1813,7 +1819,7 @@ Utils::FilePath ModelManagerInterface::fileToSource(const Utils::FilePath &path)
     if (!path.scheme().isEmpty())
         return path;
 
-    QList<Utils::FilePath> applicationPaths = m_syncedData.readLocked()->m_applicationPaths;
+    const Utils::FilePaths applicationPaths = m_syncedData.readLocked()->m_applicationPaths;
 
     for (const Utils::FilePath &p : applicationPaths) {
         if (!p.isEmpty() && path.startsWith(p.path())) {

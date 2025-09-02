@@ -692,6 +692,7 @@ void DebuggerMainWindowPrivate::cleanDocks()
     m_statusLabel->clear();
 
     for (QDockWidget *dock : q->dockWidgets()) {
+        dock->setFloating(false);
         if (dock != m_toolBarDock)
             dock->setVisible(false);
     }

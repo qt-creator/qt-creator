@@ -27,7 +27,6 @@ const char ANDROID_KIT_NDK[] = "Android.NDK";
 const char ANDROID_KIT_SDK[] = "Android.SDK";
 
 const char ANDROID_BUILD_DIRECTORY[] = "android-build";
-const char ANDROID_APP_PROCESS_DIRECTORY[] = "android-app-process";
 const char JAVA_EDITOR_ID[] = "java.editor";
 const char JLS_SETTINGS_ID[] = "Java::JLSSettingsID";
 const char ANDROID_ARCHITECTURE[] = "Android.Architecture";

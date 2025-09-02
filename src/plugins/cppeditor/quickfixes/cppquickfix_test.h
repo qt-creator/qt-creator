@@ -5,20 +5,24 @@
 
 #include "../cpptoolstestcase.h"
 #include "../cppcodestylesettings.h"
-#include "cppquickfix.h"
 #include "cppquickfixsettings.h"
 
 #include <projectexplorer/headerpath.h>
 
 #include <QByteArray>
+#include <QHash>
 #include <QList>
 #include <QObject>
 #include <QSharedPointer>
 #include <QStringList>
+#include <QVariantMap>
+
+#include <memory>
 
 namespace TextEditor { class QuickFixOperation; }
 
 namespace CppEditor {
+class CppQuickFixFactory;
 
 namespace Internal {
 namespace Tests {
@@ -84,6 +88,34 @@ public:
                     CppQuickFixFactory *factory,
                     const QString &headerPath,
                     int operationIndex = 0);
+};
+
+class CppQuickFixTestObject : public QObject
+{
+    Q_OBJECT
+public:
+    CppQuickFixTestObject(std::unique_ptr<CppQuickFixFactory> &&factory);
+    ~CppQuickFixTestObject();
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void test_data();
+    void test();
+
+private:
+    const std::unique_ptr<CppQuickFixFactory> m_factory;
+
+    class TestData
+    {
+    public:
+        QByteArray tag;
+        QHash<QString, std::pair<QByteArray, QByteArray>> files;
+        QByteArray failMessage;
+        QVariantMap properties;
+        int opIndex = 0;
+    };
+    QList<TestData> m_testData;
 };
 
 QList<TestDocumentPtr> singleDocument(

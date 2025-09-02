@@ -3,24 +3,10 @@
 
 #pragma once
 
-#include <texteditor/icodestylepreferencesfactory.h>
+namespace TextEditor { class ICodeStylePreferencesFactory; }
 
 namespace Nim {
 
-class NimCodeStylePreferencesFactory : public TextEditor::ICodeStylePreferencesFactory
-{
-public:
-    NimCodeStylePreferencesFactory();
-
-    Utils::Id languageId() override;
-    QString displayName() override;
-    TextEditor::ICodeStylePreferences *createCodeStyle() const override;
-    TextEditor::CodeStyleEditorWidget *createEditor(TextEditor::ICodeStylePreferences *settings,
-                                                    ProjectExplorer::Project *project,
-                                                    QWidget *parent) const override;
-    TextEditor::Indenter *createIndenter(QTextDocument *doc) const override;
-    QString snippetProviderGroupId() const override;
-    QString previewText() const override;
-};
+TextEditor::ICodeStylePreferencesFactory *createNimCodeStylePreferencesFactory();
 
 } // namespace Nim

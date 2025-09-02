@@ -627,11 +627,9 @@ QStatusBar *FancyTabWidget::statusBar() const
     return m_statusBar;
 }
 
-InfoBar *FancyTabWidget::infoBar()
+void FancyTabWidget::setInfoBar(InfoBar *infoBar)
 {
-    if (!m_infoBarDisplay.infoBar())
-        m_infoBarDisplay.setInfoBar(&m_infoBar);
-    return &m_infoBar;
+    m_infoBarDisplay.setInfoBar(infoBar);
 }
 
 void FancyTabWidget::setCurrentIndex(int index)

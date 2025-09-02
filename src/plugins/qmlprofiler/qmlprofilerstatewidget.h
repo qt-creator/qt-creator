@@ -8,12 +8,12 @@
 
 #include <QFrame>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerStateWidget : public QFrame
 {
     Q_OBJECT
+
 public:
     explicit QmlProfilerStateWidget(QmlProfilerStateManager *stateManager,
                                     QmlProfilerModelManager *modelManager,
@@ -31,5 +31,4 @@ private:
     QmlProfilerStateWidgetPrivate *d;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

@@ -11,7 +11,6 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-#include <QFileInfo>
 #include <QHBoxLayout>
 
 using namespace Utils;

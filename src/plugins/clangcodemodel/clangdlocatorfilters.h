@@ -7,7 +7,7 @@
 
 namespace ClangCodeModel::Internal {
 
-class ClangdAllSymbolsFilter : public Core::ILocatorFilter
+class ClangdAllSymbolsFilter final : public Core::ILocatorFilter
 {
 public:
     ClangdAllSymbolsFilter();
@@ -16,7 +16,7 @@ private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
-class ClangdClassesFilter : public Core::ILocatorFilter
+class ClangdClassesFilter final : public Core::ILocatorFilter
 {
 public:
     ClangdClassesFilter();
@@ -25,7 +25,7 @@ private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
-class ClangdFunctionsFilter : public Core::ILocatorFilter
+class ClangdFunctionsFilter final : public Core::ILocatorFilter
 {
 public:
     ClangdFunctionsFilter();
@@ -34,7 +34,7 @@ private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
-class ClangdCurrentDocumentFilter : public Core::ILocatorFilter
+class ClangdCurrentDocumentFilter final : public Core::ILocatorFilter
 {
 public:
     ClangdCurrentDocumentFilter();

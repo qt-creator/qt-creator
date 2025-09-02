@@ -44,7 +44,7 @@ QString AddCMakeOperation::argumentsHelpText() const
            "    --id <ID>                                  id of the new cmake (required).\n"
            "    --name <NAME>                              display name of the new cmake (required).\n"
            "    --path <PATH>                              path to the cmake binary (required).\n"
-           "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
+           "    <KEY> <TYPE:VALUE>                         extra key value pairs, key can be hierarchical with '/' as the separator\n");
 }
 
 bool AddCMakeOperation::setArguments(const QStringList &args)

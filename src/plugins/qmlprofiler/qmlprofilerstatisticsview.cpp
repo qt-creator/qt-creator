@@ -96,7 +96,7 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
     setLayout(groupLayout);
 }
 
-QString QmlProfilerStatisticsView::summary(const QVector<int> &typeIds) const
+QString QmlProfilerStatisticsView::summary(const QList<int> &typeIds) const
 {
     return m_mainView->summary(typeIds);
 }
@@ -237,7 +237,7 @@ bool QmlProfilerStatisticsMainView::isRestrictedToRange() const
     return m_model->isRestrictedToRange();
 }
 
-QString QmlProfilerStatisticsMainView::summary(const QVector<int> &typeIds) const
+QString QmlProfilerStatisticsMainView::summary(const QList<int> &typeIds) const
 {
     return m_model->summary(typeIds);
 }

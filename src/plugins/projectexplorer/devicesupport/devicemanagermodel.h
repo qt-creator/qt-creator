@@ -15,18 +15,16 @@ namespace Utils { class Id; }
 namespace ProjectExplorer {
 namespace Internal { class DeviceManagerModelPrivate; }
 
-class DeviceManager;
-
 class PROJECTEXPLORER_EXPORT DeviceManagerModel : public QAbstractListModel
 {
 public:
-    explicit DeviceManagerModel(const DeviceManager *deviceManager, QObject *parent = nullptr);
+    explicit DeviceManagerModel(QObject *parent = nullptr);
     ~DeviceManagerModel() override;
 
     void setFilter(const QList<Utils::Id> &filter);
     void setTypeFilter(Utils::Id type);
 
-    IDeviceConstPtr device(int pos) const;
+    IDevicePtr device(int pos) const;
     Utils::Id deviceId(int pos) const;
     int indexOf(IDeviceConstPtr dev) const;
     int indexForId(Utils::Id id) const;

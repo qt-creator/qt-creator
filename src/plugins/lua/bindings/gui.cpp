@@ -9,6 +9,7 @@
 #include <utils/aspects.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
+#include <utils/qtcwidgets.h>
 
 #include <QMetaEnum>
 #include <QCompleter>
@@ -41,7 +42,7 @@ static void processChildren(T *item, const sol::table &children)
         } else if (child.is<sol::function>()) {
             const sol::function f = child.get<sol::function>();
             auto res = void_safe_call(f, item);
-            QTC_ASSERT_EXPECTED(res, continue);
+            QTC_ASSERT_RESULT(res, continue);
         } else if (child.is<Span>()) {
             const Span &span = child.get<Span>();
             item->addItem(span);
@@ -79,9 +80,32 @@ void constructWidget(std::unique_ptr<T> &widget, const sol::table &children)
     }
 }
 
+/*
+ CREATE_HAS_FUNC is a macro that creates a concept that checks if a function exists in a class.
+
+ The arguments must be instances of the type that the function expects.
+
+ If you have a function like this:
+    void foo(int, const QString &, QWidget*);
+
+ You can check for it with this macro:
+    CREATE_HAS_FUNC(foo, int(), QString(), nullptr)
+
+ You could also specify a value instead of calling the default constructor,
+ it would have the same effect but be more verbose:
+    CREATE_HAS_FUNC(foo, int(0), QString("hello"), nullptr)
+
+ Both ways will create a concept called has_foo<T> that checks if the function exists, and can
+ be called with the specified arguments.
+*/
 // clang-format off
 #define CREATE_HAS_FUNC(name, ...) \
     template<class T> concept has_##name = requires { \
+        { std::declval<T>().name(__VA_ARGS__) } -> std::same_as<void>; \
+    };
+
+#define CREATE_HAS_FUNC_NAMED(name, hasFuncName, ...) \
+    template<class T> concept has_##hasFuncName = requires { \
         { std::declval<T>().name(__VA_ARGS__) } -> std::same_as<void>; \
     };
 // clang-format on
@@ -120,6 +144,8 @@ CREATE_HAS_FUNC(setCursor, Qt::CursorShape())
 CREATE_HAS_FUNC(setMinimumWidth, int());
 CREATE_HAS_FUNC(setEnableCodeCopyButton, bool());
 CREATE_HAS_FUNC(setDefaultAction, nullptr);
+CREATE_HAS_FUNC_NAMED(setRole, setRoleButton, QtcButton::Role());
+CREATE_HAS_FUNC_NAMED(setRole, setRoleLabel, QtcLabel::Role());
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
@@ -297,7 +323,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
                 guard,
                 [f = *onTextChanged](const QString &text) {
                     auto res = void_safe_call(f, text);
-                    QTC_CHECK_EXPECTED(res);
+                    QTC_CHECK_RESULT(res);
                 });
         }
     }
@@ -309,7 +335,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
                 guard,
                 [f = *onClicked]() {
                     auto res = void_safe_call(f);
-                    QTC_CHECK_EXPECTED(res);
+                    QTC_CHECK_RESULT(res);
                 });
         }
     }
@@ -354,6 +380,17 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
             "openExternalLinks"sv);
         if (openExternalLinks)
             item->setOpenExternalLinks(*openExternalLinks);
+    }
+    if constexpr (has_setRoleButton<T>) {
+        sol::optional<QtcButton::Role> role = children.get<sol::optional<QtcButton::Role>>(
+            "role"sv);
+        if (role)
+            item->setRole(*role);
+    }
+    if constexpr (has_setRoleLabel<T>) {
+        sol::optional<QtcLabel::Role> role = children.get<sol::optional<QtcLabel::Role>>("role"sv);
+        if (role)
+            item->setRole(*role);
     }
 }
 
@@ -553,6 +590,49 @@ void setupGuiModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
+        auto qtcButton = gui.new_usertype<Utils::QtcWidgets::Button>(
+            "QtcButton",
+            sol::call_constructor,
+            sol::factories([](const sol::table &children) {
+                return constructWidgetType<Utils::QtcWidgets::Button>(children, nullptr);
+            }),
+            "setText",
+            &Utils::QtcWidgets::Button::setText,
+            "setIcon",
+            &Utils::QtcWidgets::Button::setIcon,
+            "setRole",
+            &Utils::QtcWidgets::Button::setRole,
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
+        gui.new_usertype<Utils::QtcWidgets::Switch>(
+            "QtcSwitch",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Utils::QtcWidgets::Switch>(children, guard);
+            }),
+            "setText",
+            &Utils::QtcWidgets::Switch::setText,
+            "setChecked",
+            &Utils::QtcWidgets::Switch::setChecked,
+            "onClicked",
+            &Utils::QtcWidgets::Switch::onClicked,
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
+        auto qtcLabel = gui.new_usertype<Utils::QtcWidgets::Label>(
+            "QtcLabel",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Utils::QtcWidgets::Label>(children, guard);
+            }),
+            "setText",
+            &Utils::QtcWidgets::Label::setText,
+            "setRole",
+            &Utils::QtcWidgets::Label::setRole,
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
         gui.new_usertype<Label>(
             "Label",
             sol::call_constructor,
@@ -596,6 +676,8 @@ void setupGuiModule()
             sol::property([](Widget *self) { return self->emerge()->hasFocus(); }),
             "setFocus",
             [](Widget *self) { self->emerge()->setFocus(); },
+            "toolTip",
+            sol::property(&Widget::setToolTip),
             sol::base_classes,
             sol::bases<Object, Thing>());
 
@@ -604,6 +686,8 @@ void setupGuiModule()
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextFormat>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextInteractionFlag>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::CursorShape>());
+        mirrorEnum(gui.get<sol::table>("QtcButton"), QMetaEnum::fromType<QtcButton::Role>());
+        mirrorEnum(gui.get<sol::table>("QtcLabel"), QMetaEnum::fromType<QtcLabel::Role>());
 
         auto sizePolicy = gui.create_named("QSizePolicy");
         mirrorEnum(sizePolicy, QMetaEnum::fromType<QSizePolicy::Policy>());
@@ -657,6 +741,8 @@ void setupGuiModule()
             }),
             "text",
             sol::property(&LineEdit::text, &LineEdit::setText),
+            "rightSideIconPath",
+            sol::property(&LineEdit::setRightSideIconPath),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 

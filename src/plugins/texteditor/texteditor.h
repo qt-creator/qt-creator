@@ -18,6 +18,7 @@
 #include <utils/elidinglabel.h>
 #include <utils/link.h>
 #include <utils/multitextcursor.h>
+#include <utils/plaintextedit/plaintextedit.h>
 #include <utils/textutils.h>
 #include <utils/uncommentselection.h>
 
@@ -128,7 +129,8 @@ public:
 
     static BaseTextEditor *currentTextEditor();
     static QList<BaseTextEditor *> openedTextEditors();
-    static QVector<BaseTextEditor *> textEditorsForDocument(TextDocument *textDocument);
+    static QList<BaseTextEditor *> textEditorsForDocument(TextDocument *textDocument);
+    static QList<BaseTextEditor *> textEditorsForFilePath(const Utils::FilePath &path);
 
     TextEditorWidget *editorWidget() const;
     TextDocument *textDocument() const;
@@ -190,7 +192,7 @@ private:
     Internal::BaseTextEditorPrivate *d;
 };
 
-class TEXTEDITOR_EXPORT TextEditorWidget : public QPlainTextEdit
+class TEXTEDITOR_EXPORT TextEditorWidget : public Utils::PlainTextEdit
 {
     Q_OBJECT
 public:
@@ -212,7 +214,7 @@ public:
     QTextCursor textCursorAt(int position) const;
     Utils::Text::Position lineColumn() const;
     void convertPosition(int pos, int *line, int *column) const;
-    using QPlainTextEdit::cursorRect;
+    using PlainTextEdit::cursorRect;
     QRect cursorRect(int pos) const;
     void setCursorPosition(int pos);
     QWidget *toolBarWidget() const;
@@ -501,7 +503,7 @@ public:
     void configureGenericHighlighter(const Utils::MimeType &mimeType);
 
     /// Overwrite the current highlighter with a new generic highlighter based on the given definition
-    Utils::expected_str<void> configureGenericHighlighter(const QString &definitionName);
+    Utils::Result<> configureGenericHighlighter(const QString &definitionName);
 
     Q_INVOKABLE void inSnippetMode(bool *active); // Used by FakeVim.
 
@@ -583,7 +585,7 @@ protected:
     virtual void paintBlock(QPainter *painter,
                             const QTextBlock &block,
                             const QPointF &offset,
-                            const QVector<QTextLayout::FormatRange> &selections,
+                            const QList<QTextLayout::FormatRange> &selections,
                             const QRect &clipRect) const;
     void timerEvent(QTimerEvent *) override;
     void mouseMoveEvent(QMouseEvent *) override;

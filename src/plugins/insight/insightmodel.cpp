@@ -28,6 +28,8 @@
 #include <QApplication>
 #include <QDebug>
 
+using namespace Utils;
+
 namespace QmlDesigner {
 
 namespace {
@@ -352,10 +354,10 @@ void InsightModel::setup()
     }
 
     m_fileSystemWatcher->addFiles(
-        {m_mainQmlInfo.absoluteFilePath(),
-         m_configInfo.absoluteFilePath(),
-         m_qtdsConfigInfo.absoluteFilePath()},
-        Utils::FileSystemWatcher::WatchModifiedDate);
+        {FilePath::fromString(m_mainQmlInfo.absoluteFilePath()),
+         FilePath::fromString(m_configInfo.absoluteFilePath()),
+         FilePath::fromString(m_qtdsConfigInfo.absoluteFilePath())},
+        FileSystemWatcher::WatchModifiedDate);
 
     m_initialized = true;
 }
@@ -555,8 +557,9 @@ void InsightModel::selectAllCustom()
     selectAll(customCategories(), m_customCheckState);
 }
 
-void InsightModel::handleFileChange(const QString &path)
+void InsightModel::handleFileChange(const FilePath &filePath)
 {
+    const QString path = filePath.toFSPathString();
     if (m_mainQmlInfo.absoluteFilePath() == path)
         parseMainQml();
     else if (m_configInfo.absoluteFilePath() == path)

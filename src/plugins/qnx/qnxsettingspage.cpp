@@ -451,7 +451,7 @@ public:
         }
 
         data.insert(QNXConfigCountKey, count);
-        m_writer.save(data, Core::ICore::dialogParent());
+        m_writer.save(data);
     }
 
     void restoreConfigurations()
@@ -491,7 +491,7 @@ public:
             return;
 
         auto l = new QHBoxLayout(this);
-        for (const QnxTarget &target : config->m_targets) {
+        for (const QnxTarget &target : std::as_const(config->m_targets)) {
             auto button = new QPushButton(Tr::tr("Create Kit for %1").arg(target.cpuDir()));
             connect(button, &QPushButton::clicked, this, [config, target] {
                 config->createKit(target);

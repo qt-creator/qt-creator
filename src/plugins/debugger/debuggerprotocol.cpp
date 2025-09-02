@@ -428,7 +428,7 @@ QString DebuggerResponse::stringFromResultClass(ResultClass resultClass)
         case ResultDone: return QLatin1String("done");
         case ResultRunning: return QLatin1String("running");
         case ResultConnected: return QLatin1String("connected");
-        case ResultError: return QLatin1String("error");
+        case ResultFail: return QLatin1String("error");
         case ResultExit: return QLatin1String("exit");
         default: return QLatin1String("unknown");
     }

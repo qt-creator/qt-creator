@@ -1,3 +1,5 @@
+import "../common/common.qbs" as Common
+
 CppApplication {
     name: "Manual Test Utils LayoutBuilder"
 
@@ -5,4 +7,6 @@ CppApplication {
     Depends { name: "Utils" }
 
     files: "tst_manual_widgets_layoutbuilder.cpp"
+
+    Common {}
 }

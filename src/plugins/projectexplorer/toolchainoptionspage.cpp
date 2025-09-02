@@ -522,7 +522,7 @@ void ToolChainOptionsWidget::redetectToolchains()
     //    Instead, delete the re-discovered toolchains.
     //    Conversely, if not all toolchains of the bundle were re-discovered, we remove the existing
     //    item and the newly discovered toolchains are marked for re-bundling.
-    for (const auto &[item, newToolchains] : itemsToRemove) {
+    for (const auto &[item, newToolchains] : std::as_const(itemsToRemove)) {
         if (item->bundle->toolchains().size() == newToolchains.size()) {
             qDeleteAll(newToolchains);
         } else {

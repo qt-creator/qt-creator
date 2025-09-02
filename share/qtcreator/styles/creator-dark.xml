@@ -10,7 +10,7 @@
   <style name="SearchResultContainingFunction" foreground="#d6cf9a" background="#2e2f30"/>
   <style name="SearchScope" background="#8a602c"/>
   <style name="Parentheses" foreground="#bec0c2" background="#1d545c"/>
-  <style name="ParenthesesMismatch" background="#ff6aad"/>
+  <style name="ParenthesesMismatch" background="#8f3460"/>
   <style name="AutoComplete" foreground="#2c408a" background="#9aa7d6"/>
   <style name="CurrentLine" background="#373737"/>
   <style name="CurrentLineNumber" foreground="#d6c540" bold="true"/>

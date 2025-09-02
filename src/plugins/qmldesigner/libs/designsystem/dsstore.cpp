@@ -18,6 +18,8 @@
 #include <QPlainTextEdit>
 #include <QScopeGuard>
 
+using namespace Utils;
+
 namespace {
 Q_LOGGING_CATEGORY(dsLog, "qtc.designer.designSystem", QtInfoMsg)
 constexpr char DesignModuleName[] = "DesignSystem";
@@ -56,7 +58,7 @@ std::optional<QString> modelSerializeHelper(
     [[maybe_unused]] QmlDesigner::ProjectStorageDependencies &projectStorageDependencies,
     QmlDesigner::ExternalDependenciesInterface &ed,
     std::function<void(QmlDesigner::Model *)> callback,
-    const Utils::FilePath &targetDir,
+    const FilePath &targetDir,
     const QString &typeName,
     bool isSingelton = false)
 {
@@ -87,10 +89,10 @@ std::optional<QString> modelSerializeHelper(
 
     view.executeInTransaction("DSStore::modelSerializeHelper", [&] { callback(model.get()); });
 
-    Utils::FileSaver saver(dsFilePath(targetDir, typeName), QIODevice::Text);
+    FileSaver saver(dsFilePath(targetDir, typeName), QIODevice::Text);
     saver.write(reformatQml(modifier.text()));
-    if (!saver.finalize())
-        return saver.errorString();
+    if (const Result<> res = saver.finalize(); !res)
+        return res.error();
 
     return {};
 }
@@ -142,7 +144,7 @@ std::optional<QString> DSStore::load(const Utils::FilePath &dsModuleDirPath)
 
     // read qmldir
     const auto qmldirFile = dsModuleDirPath / "qmldir";
-    const Utils::expected_str<QByteArray> contents = qmldirFile.fileContents();
+    const Utils::Result<QByteArray> contents = qmldirFile.fileContents();
     if (!contents)
         return tr("Can not read Design System qmldir");
 
@@ -180,7 +182,7 @@ std::optional<QString> DSStore::save(bool mcuCompatible)
     return tr("Can not locate design system module");
 }
 
-std::optional<QString> DSStore::save(const Utils::FilePath &moduleDirPath, bool mcuCompatible)
+std::optional<QString> DSStore::save(const FilePath &moduleDirPath, bool mcuCompatible)
 {
     if (!QDir().mkpath(moduleDirPath.absoluteFilePath().toUrlishString()))
         return tr("Can not create design system module directory %1.").arg(moduleDirPath.toUrlishString());
@@ -198,11 +200,11 @@ std::optional<QString> DSStore::save(const Utils::FilePath &moduleDirPath, bool 
     }
 
     // Write qmldir
-    Utils::FileSaver saver(moduleDirPath / "qmldir", QIODevice::Text);
+    FileSaver saver(moduleDirPath / "qmldir", QIODevice::Text);
     const QString qmldirContents = QString("module %1\n%2").arg(moduleImportStr(), singletons.join("\n"));
     saver.write(qmldirContents.toUtf8());
-    if (!saver.finalize())
-        errors << tr("Can not write design system qmldir. %1").arg(saver.errorString());
+    if (const Result<> res = saver.finalize(); !res)
+        errors << tr("Can not write design system qmldir. %1").arg(res.error());
 
     if (!errors.isEmpty())
         return errors.join("\n");
@@ -464,10 +466,9 @@ DSThemeManager *DSStore::collection(const QString &typeName)
 std::optional<QString> DSStore::loadCollection(const QString &typeName,
                                                const Utils::FilePath &qmlFilePath)
 {
-    Utils::FileReader reader;
-    QString errorString;
-    if (!reader.fetch(qmlFilePath, &errorString))
-        return errorString;
+    const Utils::Result<QByteArray> res = qmlFilePath.fileContents();
+    if (!res)
+        return res.error();
 
 #ifdef QDS_USE_PROJECTSTORAGE
     auto model = QmlDesigner::Model::create(m_projectStorageDependencies,
@@ -479,7 +480,7 @@ std::optional<QString> DSStore::loadCollection(const QString &typeName,
     auto model = QmlDesigner::Model::create("QtObject");
 #endif
     QPlainTextEdit editor;
-    QString qmlContent = QString::fromUtf8(reader.data());
+    QString qmlContent = QString::fromUtf8(*res);
     editor.setPlainText(qmlContent);
 
     QmlDesigner::NotIndentingTextEditModifier modifier(editor.document());

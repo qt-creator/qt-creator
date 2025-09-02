@@ -17,13 +17,10 @@ class QTCREATOR_UTILS_EXPORT FileNameValidatingLineEdit : public FancyLineEdit
 public:
     explicit FileNameValidatingLineEdit(QWidget *parent = nullptr);
 
-    static bool validateFileName(const QString &name,
-                                 bool allowDirectories = false,
-                                 QString *errorMessage = nullptr);
+    static Result<> validateFileName(const QString &name, bool allowDirectories = false);
 
-    static bool validateFileNameExtension(const QString &name,
-                                          const QStringList &requiredExtensions = QStringList(),
-                                          QString *errorMessage = nullptr);
+    static Result<> validateFileNameExtension(const QString &name,
+                                              const QStringList &requiredExtensions = {});
 
     /**
      * Sets whether entering directories is allowed. This will enable the user

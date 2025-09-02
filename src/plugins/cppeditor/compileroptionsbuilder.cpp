@@ -3,13 +3,11 @@
 
 #include "compileroptionsbuilder.h"
 
-#include "cppmodelmanager.h"
 #include "headerpathfilter.h"
 
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacro.h>
 
@@ -18,7 +16,6 @@
 #include <utils/algorithm.h>
 #include <utils/cpplanguage_details.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -961,6 +958,12 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
         m_clStyle = true;
         m_compilerFlags.flags.prepend("--driver-mode=cl");
     }
+
+    // Apple's headers are broken, see QTCREATORBUG-32499.
+    // Note that the condition is not technically correct, but we don't know the target OS
+    // here, and it shouldn't hurt to have the option where it is not strictly needed.
+    if (HostOsInfo::isMacHost())
+        m_compilerFlags.flags << "-Wno-elaborated-enum-base";
 }
 
 bool CompilerOptionsBuilder::isClStyle() const

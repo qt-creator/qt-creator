@@ -47,7 +47,7 @@ def main():
         if emptyLine or (trailingWS and not isIgnored):
             waitFor("str(fileCombo.currentText).endswith('*')", 2500)
 
-        currentContent = str(editor.toPlainText())
+        currentContent = str(editor.plainText)
         if trailingWS and not isIgnored:
             test.verify(currentContent.find(TabBlankTab) == -1, "Trailing whitespace cleaned.")
             expectedContent = preparedContent.replace(TabBlankTab, '')

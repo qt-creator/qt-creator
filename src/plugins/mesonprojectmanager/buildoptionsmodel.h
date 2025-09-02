@@ -132,7 +132,7 @@ public:
     };
     bool setData(int column, const QVariant &data, int role) final
     {
-        Q_UNUSED(role);
+        Q_UNUSED(role)
         QTC_ASSERT(column == 1, return false);
         m_option->setValue(data);
         return true;

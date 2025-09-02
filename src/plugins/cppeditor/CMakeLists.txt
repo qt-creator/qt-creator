@@ -33,7 +33,6 @@ add_qtc_plugin(CppEditor
     cppcompletionassistprovider.cpp cppcompletionassistprovider.h
     cppcursorinfo.h
     cppdoxygen.cpp cppdoxygen.h
-    cppeditor.qrc
     cppeditor_global.h
     cppeditortr.h
     cppeditorconstants.h
@@ -96,6 +95,7 @@ add_qtc_plugin(CppEditor
     insertionpointlocator.cpp insertionpointlocator.h
     projectinfo.cpp projectinfo.h
     projectpart.cpp projectpart.h
+    quickfixes/addmodulefrominclude.cpp quickfixes/addmodulefrominclude.h
     quickfixes/assigntolocalvariable.cpp quickfixes/assigntolocalvariable.h
     quickfixes/bringidentifierintoscope.cpp quickfixes/bringidentifierintoscope.h
     quickfixes/completeswitchstatement.cpp quickfixes/completeswitchstatement.h
@@ -167,4 +167,20 @@ extend_qtc_plugin(CppEditor
   EXPLICIT_MOC
     cppdoxygen_test.h
     quickfixes/cppquickfix_test.h
+)
+
+qtc_add_resources(CppEditor "images"
+  PREFIX "/cppeditor"
+  BASE "."
+  FILES
+    images/dark_qt_c.png
+    images/dark_qt_cpp.png
+    images/dark_qt_h.png
+)
+file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testcases/*)
+qtc_add_resources(CppEditor "testcases"
+  CONDITION WITH_TESTS
+  PREFIX "/cppeditor"
+  BASE "."
+  FILES ${test_cases}
 )

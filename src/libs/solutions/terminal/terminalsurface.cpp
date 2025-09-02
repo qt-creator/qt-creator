@@ -364,7 +364,7 @@ struct TerminalSurfacePrivate
     }
     int movecursor(VTermPos pos, VTermPos oldpos, int visible)
     {
-        Q_UNUSED(oldpos);
+        Q_UNUSED(oldpos)
         Cursor oldCursor = q->cursor();
         m_cursor.position = {pos.col, pos.row};
         m_cursor.visible = visible > 0;
@@ -696,6 +696,11 @@ std::reverse_iterator<CellIterator> TerminalSurface::rIteratorAt(QPoint pos) con
 std::reverse_iterator<CellIterator> TerminalSurface::rIteratorAt(int pos) const
 {
     return std::make_reverse_iterator(iteratorAt(pos));
+}
+
+void TerminalSurface::enableLiveReflow(bool enable)
+{
+    vterm_screen_enable_reflow(d->m_vtermScreen, enable);
 }
 
 } // namespace TerminalSolution

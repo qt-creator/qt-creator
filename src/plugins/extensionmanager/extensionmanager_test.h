@@ -3,12 +3,14 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QObject>
 
 namespace ExtensionManager::Internal {
 
 QObject *createExtensionsModelTest();
 
-QByteArray testData(const QString &id);
+Utils::FilePath testData(const QString &id);
 
 } // namespace ExtensionManager::Internal

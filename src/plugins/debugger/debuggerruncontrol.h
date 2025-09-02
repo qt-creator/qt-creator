@@ -8,47 +8,19 @@
 #include "debuggerengine.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
-
-#include <utils/environmentfwd.h>
 
 namespace Debugger {
 
-namespace Internal { class DebuggerRunToolPrivate; }
+DEBUGGER_EXPORT Tasking::Group debuggerRecipe(
+    ProjectExplorer::RunControl *runControl,
+    const DebuggerRunParameters &initialParameters,
+    const std::function<void(DebuggerRunParameters &)> &parametersModifier = {});
 
-class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
-{
-public:
-    explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl);
-    ~DebuggerRunTool() override;
-
-    void start() override;
-    void stop() override;
-
-    void kickoffTerminalProcess();
-    void interruptTerminal();
-
-    void setupPortsGatherer();
-
-    DebuggerRunParameters &runParameters() { return m_runParameters; }
-
-private:
-    void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1);
-
-    void startCoreFileSetupIfNeededAndContinueStartup();
-    void continueAfterCoreFileSetup();
-
-    void startTerminalIfNeededAndContinueStartup();
-    void continueAfterTerminalStart();
-
-    void startDebugServerIfNeededAndContinueStartup();
-    void continueAfterDebugServerStart();
-
-    Internal::DebuggerRunToolPrivate *d;
-    QList<QPointer<Internal::DebuggerEngine>> m_engines;
-    DebuggerRunParameters m_runParameters;
-};
+DEBUGGER_EXPORT ProjectExplorer::RunWorker *createDebuggerWorker(
+    ProjectExplorer::RunControl *runControl,
+    const DebuggerRunParameters &initialParameters,
+    const std::function<void(DebuggerRunParameters &)> &parametersModifier = {});
 
 void setupDebuggerRunWorker();
 
@@ -64,8 +36,5 @@ public:
         setSupportedRunConfigs(runConfigs);
     }
 };
-
-extern DEBUGGER_EXPORT const char DebugServerRunnerWorkerId[];
-extern DEBUGGER_EXPORT const char GdbServerPortGathererWorkerId[];
 
 } // Debugger

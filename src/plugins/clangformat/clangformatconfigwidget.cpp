@@ -18,7 +18,6 @@
 #include <cppeditor/cppcodestylesettingspage.h>
 #include <cppeditor/cppcodestylesnippets.h>
 #include <cppeditor/cpphighlighter.h>
-#include <cppeditor/cpptoolssettings.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -33,11 +32,8 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/guard.h>
-#include <utils/layoutbuilder.h>
-#include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
 #include <utils/infolabel.h>
-#include <utils/expected.h>
+#include <utils/layoutbuilder.h>
 
 #include <QComboBox>
 #include <QLabel>
@@ -65,51 +61,6 @@ static void invokeMethodForLanguageClientManager(const char *method, Args &&...a
     QMetaObject::invokeMethod(languageClientManager, method, args...);
 }
 
-class ClangFormatConfigWidget final : public TextEditor::CodeStyleEditorWidget
-{
-public:
-    ClangFormatConfigWidget(TextEditor::ICodeStylePreferences *codeStyle,
-                            Project *project,
-                            QWidget *parent);
-
-    ~ClangFormatConfigWidget()
-    {
-        auto doc = qobject_cast<TextEditor::TextDocument *>(m_editor->document());
-        invokeMethodForLanguageClientManager("documentClosed",
-                                             Q_ARG(Core::IDocument *, doc));
-    }
-
-    void apply() final;
-
-private:
-    bool eventFilter(QObject *object, QEvent *event) final;
-
-    FilePath globalPath();
-    FilePath projectPath();
-    void createStyleFileIfNeeded(bool isGlobal);
-
-    void initPreview(TextEditor::ICodeStylePreferences *codeStyle);
-    void initEditor();
-
-    void reopenClangFormatDocument(bool readOnly);
-
-    void updatePreview();
-    void slotCodeStyleChanged(TextEditor::ICodeStylePreferences *currentPreferences);
-
-    ProjectExplorer::Project *m_project = nullptr;
-    QWidget *m_editorWidget = nullptr;
-    QScrollArea *m_editorScrollArea = nullptr;
-    TextEditor::SnippetEditorWidget *m_preview = nullptr;
-    std::unique_ptr<Core::IEditor> m_editor;
-
-    std::unique_ptr<ClangFormatFile> m_config;
-
-    Guard m_ignoreChanges;
-    QLabel *m_clangVersion;
-    InfoLabel *m_clangFileIsCorrectText;
-    ClangFormatIndenter *m_indenter;
-};
-
 bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::Wheel && qobject_cast<QComboBox *>(object)) {
@@ -119,14 +70,11 @@ bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
     return QWidget::eventFilter(object, event);
 }
 
-static bool isReadOnlyCodeStyle(TextEditor::ICodeStylePreferences *style)
-{
-    return style->isReadOnly() || style->isTemporarilyReadOnly() || !style->isAdditionalTabVisible();
-}
-
 ClangFormatConfigWidget::ClangFormatConfigWidget(
-    TextEditor::ICodeStylePreferences *codeStyle, Project *project, QWidget *parent)
+    const Project *project, TextEditor::ICodeStylePreferences *codeStyle, QWidget *parent)
     : CodeStyleEditorWidget(parent)
+    , m_preview(new TextEditor::SnippetEditorWidget(this))
+
 {
     m_project = project;
     m_config = std::make_unique<ClangFormatFile>(codeStyle->currentPreferences());
@@ -155,8 +103,14 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(
 
     slotCodeStyleChanged(codeStyle->currentPreferences());
 
-    reopenClangFormatDocument(isReadOnlyCodeStyle(codeStyle));
+    reopenClangFormatDocument();
     updatePreview();
+}
+
+ClangFormatConfigWidget::~ClangFormatConfigWidget()
+{
+    auto doc = qobject_cast<TextEditor::TextDocument *>(m_editor->document());
+    invokeMethodForLanguageClientManager("documentClosed", Q_ARG(Core::IDocument *, doc));
 }
 
 void ClangFormatConfigWidget::slotCodeStyleChanged(TextEditor::ICodeStylePreferences *codeStyle)
@@ -166,8 +120,23 @@ void ClangFormatConfigWidget::slotCodeStyleChanged(TextEditor::ICodeStylePrefere
     m_config.reset(new ClangFormatFile(codeStyle));
     m_config->setIsReadOnly(codeStyle->isReadOnly());
 
-    reopenClangFormatDocument(isReadOnlyCodeStyle(codeStyle));
+    reopenClangFormatDocument();
+    updateReadOnlyState();
     updatePreview();
+}
+
+void ClangFormatConfigWidget::updateReadOnlyState()
+{
+    const bool isReadOnly = m_config->isReadOnly() || !m_useCustomSettings;
+    m_preview->setReadOnly(isReadOnly);
+    TextEditor::TextEditorWidget * const widget = editorWidget();
+    QTC_ASSERT(widget, return);
+    widget->setReadOnly(isReadOnly);
+}
+
+TextEditor::TextEditorWidget *ClangFormatConfigWidget::editorWidget() const
+{
+    return TextEditor::TextEditorWidget::fromEditor(m_editor.get());
 }
 
 void ClangFormatConfigWidget::initEditor()
@@ -178,16 +147,13 @@ void ClangFormatConfigWidget::initEditor()
     Core::IEditorFactory *factory = factories.takeFirst();
     m_editor.reset(factory->createEditor());
 
-    QString errorString;
-    m_editor->document()->open(&errorString, m_config->filePath(), m_config->filePath());
+    m_editor->document()->open(m_config->filePath(), m_config->filePath());
     m_editor->widget()->adjustSize();
 
     invokeMethodForLanguageClientManager("documentOpened",
                                          Q_ARG(Core::IDocument *, m_editor->document()));
     invokeMethodForLanguageClientManager("editorOpened",
                                          Q_ARG(Core::IEditor *, m_editor.get()));
-
-    m_editorWidget = m_editor->widget();
 
     m_editorScrollArea->setWidget(m_editor->widget());
     m_editorScrollArea->setWidgetResizable(true);
@@ -201,7 +167,7 @@ void ClangFormatConfigWidget::initEditor()
 
     connect(m_editor->document(), &TextEditor::TextDocument::contentsChanged, this, [this] {
         clang::format::FormatStyle currentSettingsStyle{};
-        const Utils::expected_str<void> success
+        const Utils::Result<> success
             = parseConfigurationContent(m_editor->document()->contents().toStdString(),
                                         currentSettingsStyle);
 
@@ -218,7 +184,7 @@ void ClangFormatConfigWidget::initEditor()
 
     QShortcut *completionSC = new QShortcut(QKeySequence("Ctrl+Space"), this);
     connect(completionSC, &QShortcut::activated, this, [this] {
-        if (auto *editor = qobject_cast<TextEditor::BaseTextEditor *>(m_editor.get()))
+        if (auto editor = qobject_cast<TextEditor::BaseTextEditor *>(m_editor.get()))
             editor->editorWidget()->invokeAssist(TextEditor::Completion);
     });
 
@@ -231,7 +197,6 @@ void ClangFormatConfigWidget::initPreview(TextEditor::ICodeStylePreferences *cod
     FilePath fileName = m_project ? m_project->projectFilePath().pathAppended("snippet.cpp")
                                   : Core::ICore::userResourcePath("snippet.cpp");
 
-    m_preview = new TextEditor::SnippetEditorWidget(this);
     TextEditor::DisplaySettings displaySettings = m_preview->displaySettings();
     displaySettings.m_visualizeWhitespace = true;
     m_preview->setDisplaySettings(displaySettings);
@@ -307,36 +272,28 @@ void ClangFormatConfigWidget::updatePreview()
     m_preview->textDocument()->autoFormatOrIndent(cursor);
 }
 
-void ClangFormatConfigWidget::reopenClangFormatDocument(bool readOnly)
+void ClangFormatConfigWidget::reopenClangFormatDocument()
 {
     GuardLocker locker(m_ignoreChanges);
 
-    QString errorString;
-    if (m_editor->document()->open(&errorString, m_config->filePath(), m_config->filePath())
-        == Core::IDocument::OpenResult::Success) {
+    if (m_editor->document()->open(m_config->filePath(), m_config->filePath())) {
         invokeMethodForLanguageClientManager("documentOpened",
                                              Q_ARG(Core::IDocument *, m_editor->document()));
     }
-
-    auto textEditorWidget = qobject_cast<TextEditor::TextEditorWidget *>(m_editorWidget);
-    QTC_ASSERT(textEditorWidget, m_editorWidget->setEnabled(!readOnly); return;);
-    textEditorWidget->setReadOnly(readOnly);
 }
 
 void ClangFormatConfigWidget::apply()
 {
-    if (!m_editorWidget->isEnabled())
+    TextEditor::TextEditorWidget * const widget = editorWidget();
+    if (QTC_GUARD(widget) && widget->isReadOnly())
         return;
-
     m_editor->document()->save(m_config->filePath());
 }
 
-TextEditor::CodeStyleEditorWidget *createClangFormatConfigWidget(
-    TextEditor::ICodeStylePreferences *codeStyle,
-    Project *project,
-    QWidget *parent)
+void ClangFormatConfigWidget::onUseCustomSettingsChanged(bool doUse)
 {
-    return new ClangFormatConfigWidget(codeStyle, project, parent);
+    m_useCustomSettings = doUse;
+    updateReadOnlyState();
 }
 
 } // namespace ClangFormat

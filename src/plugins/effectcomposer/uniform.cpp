@@ -331,26 +331,35 @@ R"(
     case Type::Vec2: {
         QVector2D minVal = m_minValue.value<QVector2D>();
         QVector2D maxVal = m_maxValue.value<QVector2D>();
+        //: X-coordinate
         appendVectorSpinbox("x", Tr::tr("X"), minVal.x(), maxVal.x(), true);
+        //: Y-coordinate
         appendVectorSpinbox("y", Tr::tr("Y"), minVal.y(), maxVal.y(), false);
         break;
     }
     case Type::Vec3: {
         QVector3D minVal = m_minValue.value<QVector3D>();
         QVector3D maxVal = m_maxValue.value<QVector3D>();
+        //: X-coordinate
         appendVectorSpinbox("x", Tr::tr("X"), minVal.x(), maxVal.x(), true);
+        //: Y-coordinate
         appendVectorSpinbox("y", Tr::tr("Y"), minVal.y(), maxVal.y(), false);
         appendVectorSeparator();
+        //: Z-coordinate
         appendVectorSpinbox("z", Tr::tr("Z"), minVal.z(), maxVal.z(), true);
         break;
     }
     case Type::Vec4: {
         QVector4D minVal = m_minValue.value<QVector4D>();
         QVector4D maxVal = m_maxValue.value<QVector4D>();
+        //: X-coordinate
         appendVectorSpinbox("x", Tr::tr("X"), minVal.x(), maxVal.x(), true);
+        //: Y-coordinate
         appendVectorSpinbox("y", Tr::tr("Y"), minVal.y(), maxVal.y(), false);
         appendVectorSeparator();
+        //: Z-coordinate
         appendVectorSpinbox("z", Tr::tr("Z"), minVal.z(), maxVal.z(), true);
+        //: W-coordinate
         appendVectorSpinbox("w", Tr::tr("W"), minVal.w(), maxVal.w(), false);
         break;
     }

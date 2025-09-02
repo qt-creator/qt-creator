@@ -226,7 +226,7 @@ public:
                 this, &RelativeNumbersColumn::followEditorLayout);
 
         auto start = QOverload<>::of(&QTimer::start);
-        connect(m_editor, &QPlainTextEdit::cursorPositionChanged,
+        connect(m_editor, &PlainTextEdit::cursorPositionChanged,
                 &m_timerUpdate, start);
         connect(m_editor->verticalScrollBar(), &QAbstractSlider::valueChanged,
                 &m_timerUpdate, start);
@@ -387,6 +387,7 @@ public:
 
     void handleDelayedQuitAll(bool forced);
     void handleDelayedQuit(bool forced, Core::IEditor *editor);
+    void handleBufferDelete(bool forced, Core::IEditor *editor);
     void userActionTriggered(int key);
 
     void updateAllHightLights();
@@ -399,6 +400,7 @@ public:
 signals:
     void delayedQuitRequested(bool forced, Core::IEditor *editor);
     void delayedQuitAllRequested(bool forced);
+    void delayedBufferDeleteRequested(bool forced, Core::IEditor *editor);
 
 public:
     struct HandlerAndData
@@ -491,8 +493,10 @@ FakeVimExCommandsMappings::FakeVimExCommandsMappings()
     m_commandEdit->setPlaceholderText(QString());
     connect(m_commandEdit, &FancyLineEdit::textChanged,
             this, &FakeVimExCommandsMappings::commandChanged);
-    m_commandEdit->setValidationFunction([](FancyLineEdit *e, QString *){
-        return QRegularExpression(e->text()).isValid();
+    m_commandEdit->setValidationFunction([](const QString &text) -> Result<> {
+        if (QRegularExpression(text).isValid())
+            return ResultOk;
+        return ResultError(Tr::tr("The pattern \"%1\" is no valid regular expression.").arg(text));
     });
     auto resetButton = new QPushButton(Tr::tr("Reset"), m_commandBox);
     resetButton->setToolTip(Tr::tr("Reset to default."));
@@ -1147,6 +1151,8 @@ void FakeVimPlugin::initialize()
             this, &FakeVimPlugin::handleDelayedQuit, Qt::QueuedConnection);
     connect(this, &FakeVimPlugin::delayedQuitAllRequested,
             this, &FakeVimPlugin::handleDelayedQuitAll, Qt::QueuedConnection);
+    connect(this, &FakeVimPlugin::delayedBufferDeleteRequested,
+            this, &FakeVimPlugin::handleBufferDelete, Qt::QueuedConnection);
 
     setCursorBlinking(s.blinkingCursor());
 }
@@ -1302,9 +1308,14 @@ void FakeVimPlugin::moveSomewhere(FakeVimHandler *handler, DistFunction f, int c
 {
     QTC_ASSERT(handler, return);
     QWidget *w = handler->widget();
-    auto pe = qobject_cast<QPlainTextEdit *>(w);
-    QTC_ASSERT(pe, return);
-    QRect rc = pe->cursorRect();
+    QRect rc;
+    if (auto pe = qobject_cast<QPlainTextEdit *>(w)) {
+        rc = pe->cursorRect();
+    } else if (auto pe = qobject_cast<PlainTextEdit *>(w)) {
+        rc = pe->cursorRect();
+    } else {
+        QTC_ASSERT(false, return);
+    }
     QRect cursorRect(w->mapToGlobal(rc.topLeft()), w->mapToGlobal(rc.bottomRight()));
     //qDebug() << "\nCURSOR: " << cursorRect;
 
@@ -1363,20 +1374,20 @@ void FakeVimPlugin::fold(FakeVimHandler *handler, int depth, bool fold)
     QTC_ASSERT(documentLayout, return);
 
     QTextBlock block = handler->textCursor().block();
-    int indent = TextDocumentLayout::foldingIndent(block);
+    int indent = TextBlockUserData::foldingIndent(block);
     if (fold) {
-        if (TextDocumentLayout::isFolded(block)) {
-            while (block.isValid() && (TextDocumentLayout::foldingIndent(block) >= indent
+        if (TextBlockUserData::isFolded(block)) {
+            while (block.isValid() && (TextBlockUserData::foldingIndent(block) >= indent
                 || !block.isVisible())) {
                 block = block.previous();
             }
         }
-        if (TextDocumentLayout::canFold(block))
+        if (TextBlockUserData::canFold(block))
             ++indent;
         while (depth != 0 && block.isValid()) {
-            const int indent2 = TextDocumentLayout::foldingIndent(block);
-            if (TextDocumentLayout::canFold(block) && indent2 < indent) {
-                TextDocumentLayout::doFoldOrUnfold(block, false);
+            const int indent2 = TextBlockUserData::foldingIndent(block);
+            if (TextBlockUserData::canFold(block) && indent2 < indent) {
+                TextBlockUserData::doFoldOrUnfold(block, false);
                 if (depth > 0)
                     --depth;
                 indent = indent2;
@@ -1384,18 +1395,18 @@ void FakeVimPlugin::fold(FakeVimHandler *handler, int depth, bool fold)
             block = block.previous();
         }
     } else {
-        if (TextDocumentLayout::isFolded(block)) {
+        if (TextBlockUserData::isFolded(block)) {
             if (depth < 0) {
                 // recursively open fold
                 while (block.isValid()
-                    && TextDocumentLayout::foldingIndent(block) >= indent) {
-                    if (TextDocumentLayout::canFold(block))
-                        TextDocumentLayout::doFoldOrUnfold(block, true);
+                    && TextBlockUserData::foldingIndent(block) >= indent) {
+                    if (TextBlockUserData::canFold(block))
+                        TextBlockUserData::doFoldOrUnfold(block, true);
                     block = block.next();
                 }
             } else {
-                if (TextDocumentLayout::canFold(block)) {
-                    TextDocumentLayout::doFoldOrUnfold(block, true);
+                if (TextBlockUserData::canFold(block)) {
+                    TextBlockUserData::doFoldOrUnfold(block, true);
                     if (depth > 0)
                         --depth;
                 }
@@ -1450,6 +1461,8 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
     if (auto edit = Aggregation::query<QTextEdit>(widget))
         widget = edit;
     else if (auto edit = Aggregation::query<QPlainTextEdit>(widget))
+        widget = edit;
+    else if (auto edit = Aggregation::query<Utils::PlainTextEdit>(widget))
         widget = edit;
     else
         return;
@@ -1686,7 +1699,7 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
 
     handler->foldToggle.set([this, handler](int depth) {
         QTextBlock block = handler->textCursor().block();
-        fold(handler, depth, !TextDocumentLayout::isFolded(block));
+        fold(handler, depth, !TextBlockUserData::isFolded(block));
     });
 
     handler->foldAll.set([handler](bool fold) {
@@ -1696,7 +1709,7 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
 
         QTextBlock block = document->firstBlock();
         while (block.isValid()) {
-            TextDocumentLayout::doFoldOrUnfold(block, !fold);
+            TextBlockUserData::doFoldOrUnfold(block, !fold);
             block = block.next();
         }
 
@@ -1715,10 +1728,10 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             int repeat = count;
             block = block.next();
             QTextBlock prevBlock = block;
-            int indent = TextDocumentLayout::foldingIndent(block);
+            int indent = TextBlockUserData::foldingIndent(block);
             block = block.next();
             while (block.isValid()) {
-                int newIndent = TextDocumentLayout::foldingIndent(block);
+                int newIndent = TextBlockUserData::foldingIndent(block);
                 if (current ? indent > newIndent : indent < newIndent) {
                     if (prevBlock.isVisible()) {
                         pos = prevBlock.position();
@@ -1735,10 +1748,10 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             }
         } else if (count < 0) {
             int repeat = -count;
-            int indent = TextDocumentLayout::foldingIndent(block);
+            int indent = TextBlockUserData::foldingIndent(block);
             block = block.previous();
             while (block.isValid()) {
-                int newIndent = TextDocumentLayout::foldingIndent(block);
+                int newIndent = TextBlockUserData::foldingIndent(block);
                 if (current ? indent > newIndent : indent < newIndent) {
                     while (block.isValid() && !block.isVisible())
                         block = block.previous();
@@ -1830,7 +1843,7 @@ void FakeVimPlugin::documentRenamed(
 
 void FakeVimPlugin::renameFileNameInEditors(const FilePath &oldPath, const FilePath &newPath)
 {
-    for (const HandlerAndData &handlerAndData : m_editorToHandler) {
+    for (const HandlerAndData &handlerAndData : std::as_const(m_editorToHandler)) {
         if (handlerAndData.handler->currentFileName() == oldPath.toUrlishString())
             handlerAndData.handler->setCurrentFileName(newPath.toUrlishString());
     }
@@ -1851,7 +1864,7 @@ void FakeVimPlugin::setUseFakeVimInternal(bool on)
         //ICore *core = ICore::instance();
         //core->updateAdditionalContexts(Context(FAKEVIM_CONTEXT),
         // Context());
-        for (const HandlerAndData &handlerAndData : m_editorToHandler)
+        for (const HandlerAndData &handlerAndData : std::as_const(m_editorToHandler))
             handlerAndData.handler->setupWidget();
     } else {
         //ICore *core = ICore::instance();
@@ -1942,6 +1955,9 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
             handler->showMessage(MessageError, Tr::tr("%n files not saved", nullptr, failed.size()));
         if (cmd.matches("wqa", "wqall"))
             emit delayedQuitAllRequested(cmd.hasBang);
+    } else if (cmd.matches("bd", "bdelete")) {
+        // :bd[elete]
+        emit delayedBufferDeleteRequested(cmd.hasBang, editorFromHandler());
     } else if (cmd.matches("q", "quit")) {
         // :q[uit]
         emit delayedQuitRequested(cmd.hasBang, editorFromHandler());
@@ -2021,6 +2037,11 @@ void FakeVimPlugin::handleDelayedQuitAll(bool forced)
 {
     triggerAction(Core::Constants::REMOVE_ALL_SPLITS);
     EditorManager::closeAllEditors(!forced);
+}
+
+void FakeVimPlugin::handleBufferDelete(bool forced, IEditor *editor)
+{
+    EditorManager::closeEditors({editor}, !forced);
 }
 
 void FakeVimPlugin::quitFakeVim()

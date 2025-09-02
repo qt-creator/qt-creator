@@ -1,4 +1,4 @@
-// Copyright (C) 2024 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -29,7 +29,8 @@
             \image {qtcreator-create-new-kit-vxworks.webp} {Create New Kit dialog}
         \li In \uicontrol {Qt version}, select the folder that contains qmake for
             the Qt VxWorks build.
-        \li In \uicontrol {VBS path}, enter the path to the VxWorks VSB directory.
+        \li In \uicontrol {VBS path}, enter the path to the VxWorks source build
+            (VSB) directory.
         \li In \uicontrol {Host name}, enter the host name or IP address of the
             device.
         \li Select \uicontrol OK to create a VxWorks kit.
@@ -42,5 +43,61 @@
     a NFS directory shared with the device.
 
     \sa {Enable and disable plugins}, {Activate kits for a project},
+    {Debug C++ applications on VxWorks devices},
     {Remote Linux Deploy Configuration}, {Qt for VxWorks}
+*/
+
+/*!
+    \page creator-how-to-debug-vxworks.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-vxworks
+    \ingroup creator-how-to-debug
+
+    \title Debug C++ applications on VxWorks devices
+
+    \note Place all the library dependencies on the SD card. Debugging doesn't
+    work from other locations, such as a mounted NFS directory.
+
+    \QC only copies the application binaries and other deployable files to
+    the root of the SD card. It doesn't preserve nor create the directory
+    structure on the SD card.
+
+    To debug Qt applications, add the following line to your VxWorks source build
+    (VSB) configuration:
+
+    \badcode
+    vxprj vsb config -s -add "_WRS_CONFIG_TCF_GDB_RSP=y"
+    \endcode
+
+    To automatically start the GDB server on the device, add the following lines
+    to your VxWorks image project (VIP) configuration:
+
+    \badcode
+    "INCLUDE_DEBUG_AGENT"
+    "INCLUDE_DEBUG_AGENT_START"
+    "INCLUDE_STANDALONE_SYM_TBL"
+    \endcode
+
+    For more information, see \l {Qt for VxWorks}.
+
+    To set up debugging:
+
+    \list 1
+        \li Activate a VxWorks kit for the project.
+        \li Go to \uicontrol Projects > \uicontrol Run.
+        \li In \uicontrol {Run Settings}, set \uicontrol Priority and
+            \uicontrol {Stack size}.
+            \image {qtcreator-run-settings-vxworks.webp} {Run Settings for VxWorks}
+        \li In \uicontrol Environment, set the \c LD_LIBRARY_PATH variable to
+            the location of the libraries on the SD card. If the path to the
+            SD card is not \c {/sd0a}, set \c VX_SDCARD_PATH to the correct
+            location.
+    \endlist
+
+    To start debugging, press \key {F5} or select \uicontrol Debug >
+    \uicontrol {Start Debugging} > \uicontrol {Start Debugging of Startup Project}.
+
+    \sa {Activate kits for a project}, {Create kits for VxWorks devices},
+    {Debugging}, {Qt for VxWorks}
 */

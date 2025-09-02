@@ -90,28 +90,27 @@ public:
     void setSizes(quint64 startAddr, qint64 range, int blockSize = 4096);
 
     QByteArray contents() const final { return dataMid(0, m_size); }
-    bool setContents(const QByteArray &contents) final;
+    Utils::Result<> setContents(const QByteArray &contents) final;
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const final
     {
         return type == TypeRemoved ? BehaviorSilent : IDocument::reloadBehavior(state, type);
     }
 
-    OpenResult open(QString *errorString, const FilePath &filePath,
-                    const FilePath &realFilePath) final
+    Result<> open(const FilePath &filePath, const FilePath &realFilePath) final
     {
         QTC_CHECK(filePath == realFilePath); // The bineditor can do no autosaving
-        return openImpl(errorString, filePath);
+        return openImpl(filePath);
     }
 
-    OpenResult openImpl(QString *errorString, const FilePath &filePath, quint64 offset = 0);
+    Result<> openImpl(const FilePath &filePath, quint64 offset = 0);
 
     void provideData(quint64 address);
 
     void provideNewRange(quint64 offset)
     {
         if (filePath().exists())
-            openImpl(nullptr, filePath(), offset);
+            openImpl(filePath(), offset);
     }
 
     bool isModified() const final;
@@ -119,8 +118,8 @@ public:
 
     bool isSaveAsAllowed() const final { return true; }
 
-    Utils::Result reload(ReloadFlag flag, ChangeType type) final;
-    Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) final;
+    Utils::Result<> reload(ReloadFlag flag, ChangeType type) final;
+    Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) final;
 
     void fetchData(quint64 address) const { if (m_fetchDataHandler) m_fetchDataHandler(address); }
     void requestNewWindow(quint64 address) { if (m_newWindowRequestHandler) m_newWindowRequestHandler(address); }
@@ -156,7 +155,7 @@ public:
     void addData(quint64 addr, const QByteArray &data);
     void updateContents();
 
-    Result save(const FilePath &oldFilePath, const FilePath &newFilePath);
+    Result<> save(const FilePath &oldFilePath, const FilePath &newFilePath);
     void clear();
 
     void undo();
@@ -614,7 +613,7 @@ void BinEditorDocument::setModified(bool modified)
     emit changed();
 }
 
-Result BinEditorDocument::save(const FilePath &oldFilePath, const FilePath &newFilePath)
+Result<> BinEditorDocument::save(const FilePath &oldFilePath, const FilePath &newFilePath)
 {
     if (oldFilePath != newFilePath) {
         // Get a unique temporary file name
@@ -623,19 +622,19 @@ Result BinEditorDocument::save(const FilePath &oldFilePath, const FilePath &newF
             const auto result = TemporaryFilePath::create(
                 newFilePath.stringAppended("_XXXXXX.new"));
             if (!result)
-                return Result::Error(result.error());
+                return ResultError(result.error());
             tmpName = (*result)->filePath();
         }
 
-        if (Result res = oldFilePath.copyFile(tmpName); !res)
+        if (Result<> res = oldFilePath.copyFile(tmpName); !res)
             return res;
 
         if (newFilePath.exists()) {
-            if (Result res = newFilePath.removeFile(); !res)
+            if (Result<> res = newFilePath.removeFile(); !res)
                 return res;
         }
 
-        if (Result res = tmpName.renameFile(newFilePath); !res)
+        if (Result<> res = tmpName.renameFile(newFilePath); !res)
             return res;
     }
 
@@ -659,12 +658,11 @@ Result BinEditorDocument::save(const FilePath &oldFilePath, const FilePath &newF
             saver.setResult(output->resize(size));
     }
 
-    QString errorString;
-    if (!saver.finalize(&errorString))
-        return Result::Error(errorString);
+    if (const Result<> res = saver.finalize(); !res)
+        return res;
 
     setModified(false);
-    return Result::Ok;
+    return ResultOk;
 }
 
 void BinEditorDocument::setSizes(quint64 startAddr, qint64 range, int blockSize)
@@ -2109,54 +2107,37 @@ BinEditorDocument::BinEditorDocument()
     m_newRangeRequestHandler = [this](quint64 offset) { provideNewRange(offset); };
 }
 
-bool BinEditorDocument::setContents(const QByteArray &contents)
+Result<> BinEditorDocument::setContents(const QByteArray &contents)
 {
     clear();
     if (!contents.isEmpty()) {
         setSizes(0, contents.length(), contents.length());
         addData(0, contents);
     }
-    return true;
+    return ResultOk;
 }
 
-IDocument::OpenResult BinEditorDocument::openImpl(QString *errorString, const FilePath &filePath, quint64 offset)
+Result<> BinEditorDocument::openImpl(const FilePath &filePath, quint64 offset)
 {
     const qint64 size = filePath.fileSize();
     if (size < 0) {
-        QString msg = Tr::tr("Cannot open %1: %2").arg(filePath.toUserOutput(), Tr::tr("File Error"));
         // FIXME: Was: file.errorString(), but we don't have a file anymore.
-        if (errorString)
-            *errorString = msg;
-        else
-            QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
-        return OpenResult::ReadError;
+        return ResultError(Tr::tr("Cannot open \"%1\".").arg(filePath.toUserOutput()));
     }
 
-    if (size == 0) {
-        QString msg = Tr::tr("The Binary Editor cannot open empty files.");
-        if (errorString)
-            *errorString = msg;
-        else
-            QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
-        return OpenResult::CannotHandle;
-    }
+    if (size == 0)
+        return ResultError(Tr::tr("The Binary Editor cannot open empty files."));
 
-    if (size / 16 >= qint64(1) << 31) {
-        // The limit is 2^31 lines (due to QText* interfaces) * 16 bytes per line.
-        QString msg = Tr::tr("The file is too big for the Binary Editor (max. 32GB).");
-        if (errorString)
-            *errorString = msg;
-        else
-            QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
-        return OpenResult::CannotHandle;
-    }
+    // The limit is 2^31 lines (due to QText* interfaces) * 16 bytes per line.
+    if (size / 16 >= qint64(1) << 31)
+        return ResultError(Tr::tr("The file is too big for the Binary Editor (max. 32GB)."));
 
     if (offset >= quint64(size))
-        return OpenResult::CannotHandle;
+        return ResultError(Tr::tr("File offset too large."));
 
     setFilePath(filePath);
     setSizes(offset, size);
-    return OpenResult::Success;
+    return ResultOk;
 }
 
 void BinEditorDocument::provideData(quint64 address)
@@ -2182,26 +2163,25 @@ bool BinEditorDocument::isModified() const
     return m_undoStack.size() != m_unmodifiedState;
 }
 
-Result BinEditorDocument::reload(ReloadFlag flag, ChangeType type)
+Result<> BinEditorDocument::reload(ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return Result::Ok;
+        return ResultOk;
     emit aboutToReload();
     clear();
-    QString errorString;
-    const bool success = (openImpl(&errorString, filePath()) == OpenResult::Success);
-    emit reloadFinished(success);
-    return Result(success, errorString);
+    const Result<> result = openImpl(filePath());
+    emit reloadFinished(result.has_value());
+    return result;
 }
 
-Result BinEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> BinEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
-    QTC_ASSERT(!autoSave, return Result::Ok); // bineditor does not support autosave - it would be a bit expensive
-    if (Result res = save(this->filePath(), filePath); !res)
+    QTC_ASSERT(!autoSave, return ResultOk); // bineditor does not support autosave - it would be a bit expensive
+    if (Result<> res = save(this->filePath(), filePath); !res)
         return res;
     setFilePath(filePath);
-    return Result::Ok;
+    return ResultOk;
 }
 
 class BinEditorImpl final : public IEditor, public EditorService

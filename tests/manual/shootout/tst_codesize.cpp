@@ -40,7 +40,7 @@ struct Suite
     QByteArray title;
     int flags;
     QByteArray cmd;
-    QVector<Case> cases;
+    QList<Case> cases;
 };
 
 Q_DECLARE_METATYPE(Case)

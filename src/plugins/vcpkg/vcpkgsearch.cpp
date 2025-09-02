@@ -7,6 +7,8 @@
 #include "vcpkgsettings.h"
 #include "vcpkgtr.h"
 
+#include <projectexplorer/projecttree.h>
+
 #include <solutions/spinner/spinner.h>
 #include <solutions/tasking/tasktree.h>
 #include <solutions/tasking/tasktreerunner.h>
@@ -27,6 +29,7 @@
 #include <QListWidget>
 #include <QTextBrowser>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Vcpkg::Internal::Search {
@@ -39,9 +42,8 @@ static void vcpkgManifests(QPromise<VcpkgManifest> &promise, const FilePath &vcp
     for (const FilePath &manifestFile : manifestFiles) {
         if (promise.isCanceled())
             return;
-        FileReader reader;
-        if (reader.fetch(manifestFile))
-            promise.addResult(parseVcpkgManifest(reader.data()));
+        if (const Result<QByteArray> res = manifestFile.fileContents())
+            promise.addResult(parseVcpkgManifest(*res));
     }
 }
 
@@ -206,7 +208,9 @@ void VcpkgPackageSearchDialog::updatePackages()
         onGroupSetup([this] { m_spinner->show(); }),
         AsyncTask<VcpkgManifest>{
             [](Async<VcpkgManifest> &task) {
-                task.setConcurrentCallData(vcpkgManifests, settings().vcpkgRoot());
+                FilePath vcpkgRoot =
+                    settings(ProjectTree::currentProject())->vcpkgRoot.expandedValue();
+                task.setConcurrentCallData(vcpkgManifests, vcpkgRoot);
             },
             [this](const Async<VcpkgManifest> &task) { m_allPackages = task.results(); }
         },

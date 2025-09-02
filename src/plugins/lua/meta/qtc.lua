@@ -61,7 +61,15 @@ EditorHooks = {}
 ---@field runActionsUpdated? function function() Called when Project.canRunStartupProject() might have changed.
 ---@field buildStateChanged? function function(project: Project, isBuilding: boolean)
 
+---@class TaskHubHooks
+---@field categoryAdded? function function(category: TaskCategory)
+---@field taskAdded? function function(task: Task)
+---@field taskRemoved? function function(task: Task)
+---@field tasksCleared? function function(categoryId: Id)
+---@field categoryVisibilityChanged? function function(categoryId: Id, visible: boolean)
+
 ---@class Hooks
 ---@field editors? EditorHooks
 ---@field projects? ProjectHooks
+---@field taskHub? TaskHubHooks
 Hooks = {}

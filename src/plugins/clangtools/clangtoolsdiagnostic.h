@@ -3,14 +3,12 @@
 
 #pragma once
 
-#include <debugger/analyzer/diagnosticlocation.h>
+#include <utils/link.h>
 
 #include <QMetaType>
 #include <QString>
-#include <QVector>
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 class ExplainingStep
 {
@@ -22,8 +20,8 @@ public:
     }
 
     QString message;
-    Debugger::DiagnosticLocation location;
-    QVector<Debugger::DiagnosticLocation> ranges;
+    Utils::Link location;
+    Utils::Links ranges;
     bool isFixIt = false;
 };
 
@@ -40,14 +38,13 @@ public:
     QString description;
     QString category;
     QString type;
-    Debugger::DiagnosticLocation location;
-    QVector<ExplainingStep> explainingSteps;
+    Utils::Link location;
+    QList<ExplainingStep> explainingSteps;
     bool hasFixits = false;
 };
 
 using Diagnostics = QList<Diagnostic>;
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal
 
 Q_DECLARE_METATYPE(ClangTools::Internal::Diagnostic)

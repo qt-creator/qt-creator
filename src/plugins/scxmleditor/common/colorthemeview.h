@@ -54,7 +54,7 @@ public:
     void setColor(int index, const QColor &color);
     QColor color(int index) const;
     QVariantMap colorData() const;
-    static const QVector<QColor> &defaultColors();
+    static const QList<QColor> &defaultColors();
 
 signals:
     void colorChanged();
@@ -66,7 +66,7 @@ private:
     void updateItemRects();
     ColorThemeItem *createItem(int index, const QColor &color);
 
-    QVector<ColorThemeItem*> m_themeItems;
+    QList<ColorThemeItem*> m_themeItems;
 };
 
 } // namespace Common

@@ -37,8 +37,8 @@ public:
 
     virtual Utils::CommandLine command() const;
 
-    bool aboutToRun(Debugger::DebuggerRunTool *runTool,
-                    QString &errorMessage) const final;
+    Utils::Result<> setupDebuggerRunParameters(Debugger::DebuggerRunParameters &rp,
+                                             ProjectExplorer::RunControl *runControl) const final;
     ProjectExplorer::RunWorker *targetRunner(
             ProjectExplorer::RunControl *runControl) const override;
 
@@ -61,6 +61,8 @@ protected:
     QString m_initCommands;
     QString m_resetCommands;
     bool m_useExtendedRemote = false;
+    Utils::FilePath m_executableFile;
+    QString m_additionalArguments;
 
     friend class GdbServerProviderConfigWidget;
 };

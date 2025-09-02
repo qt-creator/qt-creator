@@ -455,7 +455,7 @@ void MercurialPluginPrivate::createRepositoryActions(const Core::Context &contex
 
     m_createRepositoryAction = new QAction(Tr::tr("Create Repository..."), this);
     command = Core::ActionManager::registerAction(m_createRepositoryAction, Utils::Id(Constants::CREATE_REPOSITORY), context);
-    connect(m_createRepositoryAction, &QAction::triggered, this, &MercurialPluginPrivate::createRepository);
+    connect(m_createRepositoryAction, &QAction::triggered, this, [this] { createRepository(); });
     m_mercurialContainer->addAction(command);
 }
 
@@ -564,8 +564,8 @@ void MercurialPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusI
     TempFileSaver saver;
     // Keep the file alive, else it removes self and forgets its name
     saver.setAutoRemove(false);
-    if (!saver.finalize()) {
-        VcsOutputWindow::appendError(saver.errorString());
+    if (const Result<> res = saver.finalize(); !res) {
+        VcsOutputWindow::appendError(res.error());
         return;
     }
 

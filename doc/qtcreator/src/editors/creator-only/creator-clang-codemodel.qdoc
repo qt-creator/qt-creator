@@ -114,7 +114,7 @@
     \uicontrol {Toggle Progress Details} (1), and then select \uicontrol X on
     the progress bar.
 
-    \image {qtcreator-toggle-progress-bar.webp} {Toggle Progress Details button}
+    \image {qtcreator-toggle-progress-bar.webp} {Toggle Progress Details}
 
     By default, \QC runs one clangd process per project. If you have created
     \l{Manage sessions}{sessions} that have related projects, you can

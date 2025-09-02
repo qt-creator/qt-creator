@@ -414,7 +414,7 @@ static QPair<QStringList, QStringList> getFindAndConfigCMakePackages(
                                                  .split(";"),
                                              &FilePath::fromUserInput);
 
-        for (const auto &prefix : paths) {
+        for (const auto &prefix : std::as_const(paths)) {
             // Only search for directories if we have a prefix
             const FilePaths dirs = !m.pathPrefix.isEmpty()
                                        ? prefix.pathAppended(m.pathPrefix)

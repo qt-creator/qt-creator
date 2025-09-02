@@ -1,0 +1,1 @@
+add member function from outside use

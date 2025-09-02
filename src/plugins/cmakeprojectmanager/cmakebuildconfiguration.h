@@ -41,8 +41,7 @@ private:
 class ConfigureEnvironmentAspect final: public ProjectExplorer::EnvironmentAspect
 {
 public:
-    ConfigureEnvironmentAspect(Utils::AspectContainer *container,
-                               ProjectExplorer::BuildConfiguration *buildConfig);
+    ConfigureEnvironmentAspect(ProjectExplorer::BuildConfiguration *buildConfig);
 
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
@@ -67,7 +66,6 @@ public:
     // Context menu action:
     void buildTarget(const QString &buildTarget);
     void reBuildTarget(const QString &cleanTarget, const QString &buildTarget);
-    ProjectExplorer::BuildSystem *buildSystem() const final;
 
     void addToEnvironment(Utils::Environment &env) const override;
 
@@ -88,7 +86,7 @@ public:
     Utils::FilePathAspect sourceDirectory{this};
     Utils::StringAspect buildTypeAspect{this};
     QtSupport::QmlDebuggingAspect qmlDebugging{this};
-    Internal::ConfigureEnvironmentAspect configureEnv{this, this};
+    Internal::ConfigureEnvironmentAspect configureEnv{this};
 
     void updateInitialCMakeArguments();
     QStringList initialCMakeOptions() const;
@@ -108,11 +106,10 @@ private:
     QWidget *createConfigWidget() override;
     virtual CMakeConfig signingFlags() const;
 
-    void setInitialBuildAndCleanSteps(const ProjectExplorer::Target *target);
-    void setBuildPresetToBuildSteps(const ProjectExplorer::Target *target);
+    void setInitialBuildAndCleanSteps();
+    void setBuildPresetToBuildSteps();
     void filterConfigArgumentsFromAdditionalCMakeArguments();
 
-    Internal::CMakeBuildSystem *m_buildSystem = nullptr;
     QStringList m_unrestrictedBuildTargets;
     Internal::CMakeBuildSettingsWidget *m_configWidget = nullptr;
 

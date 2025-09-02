@@ -42,8 +42,6 @@
     \internal
 */
 
-Q_DECLARE_METATYPE(Core::IFindFilter*)
-
 using namespace Qt;
 using namespace Utils;
 

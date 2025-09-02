@@ -170,25 +170,28 @@
 
     \image {qtcreator-build-cmake-output.png} {CMake output in Projects mode}
 
-    To clear the output from CMake, select the \inlineimage icons/clean_pane_small.png
-    (\uicontrol Clear) button.
+    To clear the output from CMake, select
+    \inlineimage {icons/clean_pane_small.png} {Clear} (\uicontrol Clear).
 
     You can enter a string in the \uicontrol Filter field to filter output.
-    To specify filtering options, select the
-    \inlineimage icons/magnifier.png {Filtering options menu}
-    button. You can filter output by using regular expressions or
+    To specify filtering options, select
+    \inlineimage {icons/magnifier.png} {Filter menu}.
+    You can filter output by using regular expressions or
     case-sensitivity. Select \uicontrol {Show Non-matching Lines} to
-    hide the lines that match the filter.
+    hide the lines that match the filter. You can also set the number of
+    preceding and subsequent lines to show.
 
     Select \key {Ctrl+F} to \l{Search in current file}{search} for a string in
     the output.
 
-    To increase or decrease the output text size, select \inlineimage icons/plus.png
-    (\uicontrol {Zoom In}) or \inlineimage icons/minus.png
-    (\uicontrol {Zoom Out}), or select \key Ctrl++ or \key Ctrl+-.
+    To increase or decrease the output text size, select
+    \inlineimage {icons/plus.png} {Zoom In} (\uicontrol {Zoom In}) or \key Ctrl++
+    or \inlineimage {icons/minus.png} {Zoom Out} (\uicontrol {Zoom Out}) or
+    \key Ctrl+-.
 
-    To hide the output, select the \inlineimage icons/rightsidebaricon.png
-    (\uicontrol {Hide Right Sidebar}) button or select \key {Alt+Shift+0}.
+    To hide the output, select
+    \inlineimage {icons/rightsidebaricon.png} {Hide Right Sidebar}}
+    (\uicontrol {Hide Right Sidebar}) or \key {Alt+Shift+0}.
 
     \section1 CLICOLOR_FORCE Environment Variable
 

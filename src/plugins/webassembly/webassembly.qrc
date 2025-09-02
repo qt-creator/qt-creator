@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/webassembly">
-        <file>images/webassemblydevice.png</file>
-        <file>images/webassemblydevice@2x.png</file>
-        <file>images/webassemblydevicesmall.png</file>
-        <file>images/webassemblydevicesmall@2x.png</file>
-    </qresource>
-</RCC>

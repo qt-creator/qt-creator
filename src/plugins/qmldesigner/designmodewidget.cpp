@@ -153,9 +153,9 @@ QWidget *DesignModeWidget::createProjectExplorerWidget(QWidget *parent)
     }
 
     if (navigationView.widget) {
-        QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
+        QString sheet = Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css");
         sheet += "QLabel { background-color: #4f4f4f; }";
-        navigationView.widget->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
+        navigationView.widget->setStyleSheet(Theme::replaceCssColors(sheet));
         navigationView.widget->setParent(parent);
     }
 
@@ -227,7 +227,7 @@ void DesignModeWidget::setup()
     m_dockManager->setWorkspacePresetsPath(
         Core::ICore::resourcePath("qmldesigner/workspacePresets/").toUrlishString());
 
-    QString sheet = QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/dockwidgets.css"));
+    QString sheet = Utils::FileUtils::fetchQrc(":/qmldesigner/dockwidgets.css");
     m_dockManager->setStyleSheet(Theme::replaceCssColors(sheet));
 
     connect(ProjectExplorer::ProjectManager::instance(),
@@ -315,9 +315,9 @@ void DesignModeWidget::setup()
         const QString uniqueId = idString.remove(" "); // title without whitespaces
 
         // Apply stylesheet to QWidget
-        QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
+        QString sheet = Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css");
         sheet += "QLabel { background-color: creatorTheme.DSsectionHeadBackground; }";
-        navigationView.widget->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
+        navigationView.widget->setStyleSheet(Theme::replaceCssColors(sheet));
 
         ensureMinimumSize(navigationView.widget);
 

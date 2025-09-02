@@ -671,7 +671,7 @@ void DiffEditor::updateDescription()
     const QString description = m_document->description();
 
     if (m_document->isDescriptionAnsiEnabled())
-        AnsiEscapeCodeHandler::setTextInEditor(m_descriptionWidget, description);
+        AnsiEscapeCodeHandler::setTextInDocument(m_descriptionWidget->document(), description);
     else
         m_descriptionWidget->setPlainText(description);
     m_descriptionWidget->setVisible(m_showDescription && !description.isEmpty());

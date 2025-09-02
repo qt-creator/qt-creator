@@ -59,8 +59,8 @@ public:
         addSupportedTargetDeviceType(Constants::QNX_QNX_OS_TYPE);
         setUseDeploymentDataView();
 
-        addInitialStep(RemoteLinux::Constants::MakeInstallStepId, [](Target *target) {
-            const Project * const prj = target->project();
+        addInitialStep(RemoteLinux::Constants::MakeInstallStepId, [](BuildConfiguration *bc) {
+            const Project * const prj = bc->project();
             return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
                     && prj->hasMakeInstallEquivalent();
         });

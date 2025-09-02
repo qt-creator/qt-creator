@@ -19,24 +19,24 @@ namespace Internal {
 class EditMode;
 class Locator;
 
-class CorePlugin : public ExtensionSystem::IPlugin
+class CorePlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Core.json")
 
 public:
     CorePlugin();
-    ~CorePlugin() override;
+    ~CorePlugin() final;
 
     static CorePlugin *instance();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage = nullptr) override;
-    void extensionsInitialized() override;
-    bool delayedInitialize() override;
-    ShutdownFlag aboutToShutdown() override;
+    Utils::Result<> initialize(const QStringList &arguments) final;
+    void extensionsInitialized() final;
+    bool delayedInitialize() final;
+    ShutdownFlag aboutToShutdown() final;
     QObject *remoteCommand(const QStringList & /* options */,
                            const QString &workingDirectory,
-                           const QStringList &args) override;
+                           const QStringList &args) final;
 
     static QString msgCrashpadInformation();
 

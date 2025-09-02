@@ -260,15 +260,11 @@ bool QmlJSHighlighter::maybeQmlBuiltinType(QStringView text) const
 int QmlJSHighlighter::onBlockStart()
 {
     m_currentBlockParentheses.clear();
-    m_braceDepth = 0;
     m_inMultilineComment = false;
-    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(currentBlock())) {
-        userData->setFoldingIndent(0);
-        userData->setFoldingStartIncluded(false);
-        userData->setFoldingEndIncluded(false);
-    }
-    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(currentBlock().previous()))
-        m_braceDepth = userData->braceDepth();
+    TextBlockUserData::setFoldingIndent(currentBlock(), 0);
+    TextBlockUserData::setFoldingStartIncluded(currentBlock(), false);
+    TextBlockUserData::setFoldingEndIncluded(currentBlock(), false);
+    m_braceDepth = TextBlockUserData::braceDepth(currentBlock().previous());
     m_foldingIndent = m_braceDepth;
 
     int state = 0;
@@ -284,9 +280,9 @@ int QmlJSHighlighter::onBlockStart()
 void QmlJSHighlighter::onBlockEnd(int state)
 {
     setCurrentBlockState(state);
-    TextDocumentLayout::setBraceDepth(currentBlock(), m_braceDepth);
-    TextDocumentLayout::setParentheses(currentBlock(), m_currentBlockParentheses);
-    TextDocumentLayout::setFoldingIndent(currentBlock(), m_foldingIndent);
+    TextBlockUserData::setBraceDepth(currentBlock(), m_braceDepth);
+    TextBlockUserData::setParentheses(currentBlock(), m_currentBlockParentheses);
+    TextBlockUserData::setFoldingIndent(currentBlock(), m_foldingIndent);
 }
 
 void QmlJSHighlighter::onOpeningParenthesis(QChar parenthesis, int pos, bool atStart)
@@ -296,7 +292,7 @@ void QmlJSHighlighter::onOpeningParenthesis(QChar parenthesis, int pos, bool atS
         // if a folding block opens at the beginning of a line, treat the entire line
         // as if it were inside the folding block
         if (atStart)
-            TextDocumentLayout::userData(currentBlock())->setFoldingStartIncluded(true);
+            TextBlockUserData::setFoldingStartIncluded(currentBlock(), true);
     }
     m_currentBlockParentheses.push_back(Parenthesis(Parenthesis::Opened, parenthesis, pos));
 }
@@ -306,7 +302,7 @@ void QmlJSHighlighter::onClosingParenthesis(QChar parenthesis, int pos, bool atE
     if (parenthesis == QLatin1Char('}') || parenthesis == QLatin1Char(']') || parenthesis == QLatin1Char('-')) {
         --m_braceDepth;
         if (atEnd)
-            TextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
+            TextBlockUserData::setFoldingEndIncluded(currentBlock(), true);
         else
             m_foldingIndent = qMin(m_braceDepth, m_foldingIndent); // folding indent is the minimum brace depth of a block
     }

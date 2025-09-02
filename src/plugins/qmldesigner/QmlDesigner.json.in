@@ -20,6 +20,9 @@
     "Deprecated" : true,
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-qtquickdesigner-plugin.html",
+    "Recommends" : [
+        "isoiconbrowser"
+    ],
     "Arguments" : [
         {
             "Name" : "-capture-puppet-stream",

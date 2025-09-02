@@ -29,7 +29,6 @@ QtcPlugin {
             "breakhandler.cpp", "breakhandler.h",
             "breakpoint.cpp", "breakpoint.h",
             "commonoptionspage.cpp", "commonoptionspage.h",
-            "debugger.qrc",
             "debugger_global.h", "debuggertr.h",
             "debuggeractions.cpp", "debuggeractions.h",
             "debuggerconstants.h",
@@ -180,24 +179,6 @@ QtcPlugin {
     }
 
     Group {
-        name: "Images"
-        prefix: "images/"
-        files: ["*.png"]
-    }
-
-    Group {
-        name: "Images/qml"
-        prefix: "images/qml/"
-        files: ["*.png"]
-    }
-
-    Group {
-        name: "Images/analyzer"
-        prefix: "analyzer/images/"
-        files: ["*.png"]
-    }
-
-    Group {
         name: "RegistryAccess"
         condition: qbs.targetOS.contains("windows")
         prefix: project.sharedSourcesDir + "/registryaccess/"
@@ -229,30 +210,21 @@ QtcPlugin {
         name: "Analyzer"
         prefix: "analyzer/"
         files: [
-            "analyzerbase.qrc",
-            "analyzericons.h",
-            "analyzerutils.cpp",
             "analyzerutils.h",
             "detailederrorview.cpp",
             "detailederrorview.h",
-            "diagnosticlocation.cpp",
-            "diagnosticlocation.h",
-            "startremotedialog.cpp",
-            "startremotedialog.h",
         ]
     }
 
-    QtcTestFiles {
-        files: [
-            "debuggerunittests.qrc",
-        ]
+    QtcTestResources {
+        prefix: "unit-tests/"
+        files: ["**/*"]
     }
 
     Group {
-        name: "Unit test resources"
-        prefix: "unit-tests/"
-        fileTags: []
-        files: ["**/*"]
+        name: "images"
+        files: "images/*.png"
+        fileTags: "qt.core.resource_data"
     }
 
     Export {

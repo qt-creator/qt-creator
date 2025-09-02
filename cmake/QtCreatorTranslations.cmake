@@ -38,6 +38,7 @@ function(_extract_ts_data_from_targets outprefix)
             .*[.]json[.]in
             .*[.]svg
             .*[.]pro
+            .*[.]pri
             .*[.]css
             "${binary_dir_regex}/.*"
           )

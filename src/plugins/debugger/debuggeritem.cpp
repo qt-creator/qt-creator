@@ -27,7 +27,7 @@ using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-static expected_str<QString> fetchVersionOutput(const FilePath &executable, Environment environment)
+static Result<QString> fetchVersionOutput(const FilePath &executable, Environment environment)
 {
     // CDB only understands the single-dash -version, whereas GDB and LLDB are
     // happy with both -version and --version. So use the "working" -version
@@ -54,7 +54,7 @@ static expected_str<QString> fetchVersionOutput(const FilePath &executable, Envi
     proc.runBlocking();
     QString output = proc.allOutput().trimmed();
     if (proc.result() != ProcessResult::FinishedWithSuccess)
-        return make_unexpected(output);
+        return ResultError(output);
 
     return output;
 }
@@ -141,7 +141,7 @@ static std::optional<Abi> extractLegacyGdbTargetAbi(const QString &fromOutput)
     return Abi::abiFromTargetTriplet(*legacyGdbTargetAbiString);
 }
 
-static Utils::expected_str<DebuggerItem::TechnicalData> extractLldbTechnicalData(
+static Utils::Result<DebuggerItem::TechnicalData> extractLldbTechnicalData(
     const FilePath &fromExecutable, const Environment &env, const QString &dapServerSuffix)
 {
     // As of LLVM 19.1.4 `lldb-dap`/`lldb-vscode` has no `--version` switch
@@ -154,15 +154,15 @@ static Utils::expected_str<DebuggerItem::TechnicalData> extractLldbTechnicalData
     binaryName.replace(dapServerSuffix, QString{});
     const FilePath lldb = fromExecutable.parentDir() / binaryName;
     if (!lldb.exists()) {
-        return make_unexpected(QString{"%1 does not exist alongside %2"}
+        return ResultError(QString{"%1 does not exist alongside %2"}
                                    .arg(lldb.fileNameView(), fromExecutable.toUserOutput()));
     }
     if (!lldb.isExecutableFile()) {
-        return make_unexpected(QString{"%1 exists alongside %2 but is not executable"}
+        return ResultError(QString{"%1 exists alongside %2 but is not executable"}
                                    .arg(lldb.fileNameView(), fromExecutable.toUserOutput()));
     }
 
-    const expected_str<QString> output = fetchVersionOutput(lldb, env);
+    const Result<QString> output = fetchVersionOutput(lldb, env);
     if (!output)
         return make_unexpected(output.error());
 
@@ -190,11 +190,12 @@ const char DEBUGGER_INFORMATION_WORKINGDIRECTORY[] = "WorkingDirectory";
 // DebuggerItem
 // --------------------------------------------------------------------------
 
-Utils::expected_str<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::extract(
-    const FilePath &fromExecutable, const std::optional<Utils::Environment> &customEnvironment)
+Result<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::extract(
+    const FilePath &fromExecutable, const std::optional<Environment> &customEnvironment)
 {
     Environment env = customEnvironment.value_or(fromExecutable.deviceEnvironment());
     DebuggerItem::addAndroidLldbPythonEnv(fromExecutable, env);
+    DebuggerItem::fixupAndroidLlldbPythonDylib(fromExecutable);
 
     if (qgetenv("QTC_ENABLE_NATIVE_DAP_DEBUGGERS").toInt() != 0) {
         for (const auto &dapServerSuffix : {QString{"-dap"}, QString{"-vscode"}}) {
@@ -212,7 +213,7 @@ Utils::expected_str<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::ex
             WinDLLFileVersion, fromExecutable.absoluteFilePath().path(), &errorMessage);
 
         if (!errorMessage.isEmpty())
-            return make_unexpected(std::move(errorMessage));
+            return ResultError(std::move(errorMessage));
 
         return DebuggerItem::TechnicalData{
             .engineType = UvscEngineType,
@@ -221,9 +222,9 @@ Utils::expected_str<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::ex
         };
     }
 
-    const expected_str<QString> output = fetchVersionOutput(fromExecutable, env);
+    const Result<QString> output = fetchVersionOutput(fromExecutable, env);
     if (!output) {
-        return make_unexpected(output.error());
+        return ResultError(output.error());
     }
 
     if (output->contains("gdb")) {
@@ -267,7 +268,7 @@ Utils::expected_str<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::ex
         };
     }
 
-    return make_unexpected(
+    return ResultError(
         QString{"Failed to determine debugger engine type from '%1'"}.arg(*output));
 }
 
@@ -326,7 +327,7 @@ void DebuggerItem::reinitializeFromFile(QString *error, Utils::Environment *cust
         return;
 
     auto env = customEnv ? std::optional<Environment>{*customEnv} : std::optional<Environment>{};
-    expected_str<TechnicalData> technicalData = TechnicalData::extract(m_command, env);
+    Result<TechnicalData> technicalData = TechnicalData::extract(m_command, env);
     if (!technicalData) {
         if (error)
             *error = technicalData.error();
@@ -359,6 +360,31 @@ bool DebuggerItem::addAndroidLldbPythonEnv(const Utils::FilePath &lldbCmd, Utils
         }
     }
     return false;
+}
+
+bool DebuggerItem::fixupAndroidLlldbPythonDylib(const FilePath &lldbCmd)
+{
+    if (!lldbCmd.baseName().contains("lldb")
+        || !lldbCmd.path().contains("/toolchains/llvm/prebuilt/") || !HostOsInfo::isMacHost())
+        return false;
+
+    const FilePath lldbBaseDir = lldbCmd.parentDir().parentDir();
+    const FilePath pythonLibDir = lldbBaseDir / "python3" / "lib";
+    if (!pythonLibDir.exists())
+        return false;
+
+    pythonLibDir.iterateDirectory(
+        [lldbBaseDir](const FilePath &file) {
+            if (file.fileName().startsWith("libpython3")) {
+                const FilePath lldbLibPython = lldbBaseDir / "lib" / file.fileName();
+                if (!lldbLibPython.exists())
+                    file.copyFile(lldbLibPython);
+                return IterationPolicy::Stop;
+            }
+            return IterationPolicy::Continue;
+        },
+        {{"*.dylib"}});
+    return true;
 }
 
 QString DebuggerItem::engineTypeName() const

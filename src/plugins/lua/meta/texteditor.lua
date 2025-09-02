@@ -10,10 +10,26 @@ local Utils
 ---@field column integer The column number.
 local Position = {}
 
+---Returns the position in the document as an integer. (since 17.0.0)
+---@param document TextDocument The document to get the position in.
+---@return integer position The position in the document.
+function Position:toPositionInDocument(document) end
+
+---Returns a new TextCursor at the position. (since 17.0.0)
+---@param document TextDocument The document to create the cursor for.
+---@return TextCursor cursor The created cursor.
+function Position:toTextCursor(document) end
+
+
 ---@class Range
 ---@field from Position The beginning position of the range.
 ---@field to Position The end position of the range.
 local Range = {}
+
+---Returns the range in the document as a TextCursor. (since 17.0.0)
+---@param document TextDocument The document to get the range in.
+---@return TextCursor cursor The created cursor.
+function Range:toTextCursor(document) end
 
 ---@class TextCursor
 local TextCursor = {}
@@ -64,13 +80,17 @@ TextCursor.MoveMode = {
 ---  No parameters. Creates a default-constructed cursor.
 ---
 ---**Overload 2**: `TextCursor.create(doc)`
----  - `doc`: A `QTextDocument*` (or usertype) from which to create the cursor.
+---  - `doc`: A `QTextDocument` (or usertype) from which to create the cursor. The position will be at the start of the document.
 ---
----**Overload 3**: `TextCursor.create(other)`
+---**Overload 3**: `TextCursor.create(doc)`
+---  - `doc`: A TextDocument for which to create the cursor. The position will be at the start of the document. (since 17.0.0)
+---
+---**Overload 4**: `TextCursor.create(other)`
 ---  - `other`: Another `TextCursor` to copy.
 ---
 ---@overload fun(): TextCursor
 ---@overload fun(doc: any): TextCursor
+---@overload fun(doc: TextDocument): TextCursor
 ---@overload fun(other: TextCursor): TextCursor
 ---@return TextCursor
 function TextCursor.create(...) end
@@ -103,26 +123,31 @@ function TextCursor:selectionRange() end
 ---@param text string The text to insert.
 function TextCursor:insertText(text) end
 
----Moves the cursor using a specified operation, and optionally a mode and/or repetition count.
----
----**Overload 1**: `cursor:movePosition(operation)`
----  - `operation`: A `TextCursor.MoveOperation`.
----  - Moves once, using the default mode `MoveAnchor`.
----
----**Overload 2**: `cursor:movePosition(operation, mode)`
----  - `operation`: A `TextCursor.MoveOperation`.
----  - `mode`: A `TextCursor.MoveMode` (e.g. `MoveAnchor` or `KeepAnchor`).
----
----**Overload 3**: `cursor:movePosition(operation, mode, n)`
----  - `operation`: A `TextCursor.MoveOperation`.
----  - `mode`: A `TextCursor.MoveMode`.
----  - `n`: Number of times to repeat the move.
----
----@overload fun(operation: TextCursor.MoveOperation)
----@overload fun(operation: TextCursor.MoveOperation, mode: TextCursor.MoveMode)
----@overload fun(operation: TextCursor.MoveOperation, mode: TextCursor.MoveMode, n: integer)
+
+---Moves the cursor using the specified operation `n` times. The move mode lets you specify whether the anchor is moved too.
+---@param operation TextCursor.MoveOperation The move operation.
+---@param mode TextCursor.MoveMode The move mode.
+---@param n integer The number of times to repeat the move.
 function TextCursor:movePosition(operation, mode, n) end
 
+---Move the cursor using the specified operation once. The move mode lets you specify whether the anchor is moved too.
+---@param operation TextCursor.MoveOperation The move operation.
+---@param mode TextCursor.MoveMode The move mode.
+function TextCursor:movePosition(operation, mode) end
+
+---Move the cursor using the specified operation once. The anchor will be moved too.
+---@param operation TextCursor.MoveOperation The move operation.
+function TextCursor:movePosition(operation) end
+
+
+---Set the cursor to a specific position. (since 17.0.0)
+---@param position integer The position to set the cursor to.
+---@param mode TextCursor.MoveMode The move mode.
+function TextCursor:setPosition(position, mode) end
+
+---Set the cursor (including the anchor) to a specific position. (since 17.0.0)
+---@param position integer The position to set the cursor to.
+function TextCursor:setPosition(position) end
 
 ---@class MultiTextCursor
 local MultiTextCursor = {}
@@ -131,9 +156,17 @@ local MultiTextCursor = {}
 ---@return TextCursor mainCursor The main cursor.
 function MultiTextCursor:mainCursor() end
 
+---Sets the main cursor. (since 17.0.1)
+---@param mainCursor TextCursor to set as the main cursor.
+function MultiTextCursor:setMainCursor(mainCursor) end
+
 ---Returns the cursors.
 ---@return TextCursor[] cursors The cursors.
 function MultiTextCursor:cursors() end
+
+---Sets all cursors. (since 17.0.1)
+---@param cursors TextCursor[] to set as the cursors.
+function MultiTextCursor:setCursors(cursors) end
 
 ---Inserts the passed text at all cursor positions overwriting any selected text.
 ---@param text string The text to insert.
@@ -189,6 +222,10 @@ function TextEditor:document() end
 ---@return MultiTextCursor cursor The cursor of the editor.
 function TextEditor:cursor() end
 
+---Sets the main cursor of the editor. (since 17.0.1)
+---@param cursor MultiTextCursor to set as the cursor of the editor.
+function TextEditor:setCursor(cursor) end
+
 ---@class EmbeddedWidget
 local EmbeddedWidget = {}
 
@@ -236,6 +273,9 @@ function TextEditor:insertText(text) end
 ---Indicates if the editor widget has focus.
 ---@return boolean hasFocus True if the editor widget has focus, false otherwise.
 function TextEditor:hasFocus() end
+
+---Sets the focus to the editor widget.
+function TextEditor:setFocus() end
 
 ---Returns the block number of the first visible line in the text editor.
 ---@return integer blockNumber The block number of the first visible line.

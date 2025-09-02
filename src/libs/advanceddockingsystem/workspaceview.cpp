@@ -86,7 +86,7 @@ void WorkspaceView::createNewWorkspace()
     workspaceInputDialog.setActionText(Tr::tr("&Create"), Tr::tr("Create and &Open"));
 
     runWorkspaceNameInputDialog(&workspaceInputDialog, [this](const QString &newName) {
-        Utils::expected_str<QString> result = m_manager->createWorkspace(newName);
+        Utils::Result<QString> result = m_manager->createWorkspace(newName);
 
         if (!result)
             QMessageBox::warning(this, Tr::tr("Cannot Create Workspace"), result.error());
@@ -110,7 +110,7 @@ void WorkspaceView::cloneCurrentWorkspace()
     workspaceInputDialog.setValue(Tr::tr("%1 Copy").arg(displayName));
 
     runWorkspaceNameInputDialog(&workspaceInputDialog, [this, fileName](const QString &newName) {
-        Utils::expected_str<QString> result = m_manager->cloneWorkspace(fileName, newName);
+        Utils::Result<QString> result = m_manager->cloneWorkspace(fileName, newName);
 
         if (!result)
             QMessageBox::warning(this, Tr::tr("Cannot Clone Workspace"), result.error());
@@ -134,7 +134,7 @@ void WorkspaceView::renameCurrentWorkspace()
     workspaceInputDialog.setValue(displayName);
 
     runWorkspaceNameInputDialog(&workspaceInputDialog, [this, fileName](const QString &newName) {
-        Utils::expected_str<QString> result = m_manager->renameWorkspace(fileName, newName);
+        Utils::Result<QString> result = m_manager->renameWorkspace(fileName, newName);
 
         if (!result)
             QMessageBox::warning(this, Tr::tr("Cannot Rename Workspace"), result.error());
@@ -155,7 +155,7 @@ void WorkspaceView::resetCurrentWorkspace()
 
 void WorkspaceView::switchToCurrentWorkspace()
 {
-    Utils::expected_str<void> result = m_manager->openWorkspace(currentWorkspace());
+    Utils::Result<> result = m_manager->openWorkspace(currentWorkspace());
 
     if (!result)
         QMessageBox::warning(this, Tr::tr("Cannot Switch Workspace"), result.error());
@@ -184,7 +184,7 @@ void WorkspaceView::importWorkspace()
 
     previousDirectory = QFileInfo(filePath).absolutePath();
 
-    const Utils::expected_str<QString> newFileName = m_manager->importWorkspace(filePath);
+    const Utils::Result<QString> newFileName = m_manager->importWorkspace(filePath);
     if (newFileName)
         m_workspaceModel.resetWorkspaces();
     else
@@ -209,7 +209,7 @@ void WorkspaceView::exportCurrentWorkspace()
 
     previousDirectory = QFileInfo(filePath).absolutePath();
 
-    const Utils::expected_str<QString> result = m_manager->exportWorkspace(filePath,
+    const Utils::Result<QString> result = m_manager->exportWorkspace(filePath,
                                                                            currentWorkspace());
 
     if (!result)
@@ -336,14 +336,14 @@ bool WorkspaceView::confirmWorkspaceDelete(const QStringList &fileNames)
 
 void WorkspaceView::runWorkspaceNameInputDialog(
     WorkspaceNameInputDialog *workspaceInputDialog,
-    std::function<Utils::expected_str<QString>(const QString &)> callback)
+    std::function<Utils::Result<QString>(const QString &)> callback)
 {
     if (workspaceInputDialog->exec() == QDialog::Accepted) {
         const QString newWorkspace = workspaceInputDialog->value();
         if (newWorkspace.isEmpty() || m_manager->workspaces().contains(newWorkspace))
             return;
 
-        const Utils::expected_str<QString> fileName = callback(newWorkspace);
+        const Utils::Result<QString> fileName = callback(newWorkspace);
         if (!fileName)
             return;
 

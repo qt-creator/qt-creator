@@ -69,7 +69,7 @@ void TextEditorWidget::setTextEditor(
 
         setFocusProxy(m_textEditor->editorWidget());
 
-        connect(m_textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged, this, [this] {
+        connect(m_textEditor->editorWidget(), &Utils::PlainTextEdit::cursorPositionChanged, this, [this] {
             // Cursor position is changed by rewriter
             if (!m_blockCursorSelectionSynchronisation)
                 m_updateSelectionTimer.start();
@@ -304,18 +304,14 @@ void TextEditorWidget::dropEvent(QDropEvent *dropEvent)
             = QString::fromUtf8(dropEvent->mimeData()->data(Constants::MIME_TYPE_ASSETS)).split(',');
 
         QTC_ASSERT(!assetsPaths.isEmpty(), return);
-        auto assetTypeAndData = AssetsLibraryWidget::getAssetTypeAndData(assetsPaths.first());
-        QString assetType = assetTypeAndData.first;
-        QString assetData = QString::fromUtf8(assetTypeAndData.second);
-
-        ModelNode newModelNode;
-        ModelNode targetNode = targetProperty.parentModelNode();
+        const ModelNode targetNode = targetProperty.parentModelNode();
         QList<ModelNode> addedNodes;
 
         for (const QString &assetPath : assetsPaths) {
-            auto assetTypeAndData = AssetsLibraryWidget::getAssetTypeAndData(assetPath);
-            QString assetType = assetTypeAndData.first;
-            QString assetData = QString::fromUtf8(assetTypeAndData.second);
+            ModelNode newModelNode;
+            const auto assetTypeAndData = AssetsLibraryWidget::getAssetTypeAndData(assetPath);
+            const QString assetType = assetTypeAndData.first;
+            const QString assetData = QString::fromUtf8(assetTypeAndData.second);
             bool moveNodesAfter = true; // Appending to parent is the default in text editor
             if (assetType == Constants::MIME_TYPE_ASSET_IMAGE) {
                 newModelNode = ModelNodeOperations::handleItemLibraryImageDrop(assetPath,

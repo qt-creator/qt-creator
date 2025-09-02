@@ -36,7 +36,8 @@
             "trShortTitle": "Kits",
             "typeId": "Kits",
             "data": {
-                "projectFilePath": "%{CMakeFile}"
+                "projectFilePath": "%{CMakeFile}",
+                "requiredFeatures": [ "MCU" ]
             }
         },
         {

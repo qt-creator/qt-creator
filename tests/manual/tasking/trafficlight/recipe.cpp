@@ -11,60 +11,34 @@
 using namespace Tasking;
 using namespace std::chrono;
 
+static Group lightState(GlueInterface *iface, Lights lights, const milliseconds &timeout)
+{
+    return {
+        Sync([iface, lights] { iface->setLights(lights); }),
+        timeoutTask(timeout, DoneResult::Success)
+    };
+}
+
 ExecutableItem recipe(GlueInterface *iface)
 {
     return Forever {
         finishAllAndSuccess,
         Group { // "working" state
             parallel,
-            BarrierTask( // transitions to the "broken" state
-                [iface](Barrier &barrier) {
-                    QObject::connect(iface, &GlueInterface::smashed, &barrier, &Barrier::advance);
-                },
-                DoneResult::Error),
+            signalAwaiter(iface, &GlueInterface::smashed) && DoneResult::Error, // transitions to the "broken" state
             Forever {
-                TimeoutTask( // "red" state
-                    [iface](milliseconds &timeout) {
-                        timeout = 3s;
-                        iface->setRed(true);
-                    },
-                    [iface] { iface->setRed(false); }),
-                TimeoutTask( // "redGoingGreen" state
-                    [iface](milliseconds &timeout) {
-                        timeout = 1s;
-                        iface->setRed(true);
-                        iface->setYellow(true);
-                    },
-                    [iface] { iface->setRed(false); iface->setYellow(false); }),
-                TimeoutTask( // "green" state
-                    [iface](milliseconds &timeout) {
-                        timeout = 3s;
-                        iface->setGreen(true);
-                    },
-                    [iface] { iface->setGreen(false); }),
-                TimeoutTask( // "greenGoingRed" state
-                    [iface](milliseconds &timeout) {
-                        timeout = 1s;
-                        iface->setYellow(true);
-                    },
-                    [iface] { iface->setYellow(false); }),
+                lightState(iface, Light::Red, 3s), // "red" state
+                lightState(iface, Light::Red | Light::Yellow, 1s), // "redGoingGreen" state
+                lightState(iface, Light::Green, 3s), // "green" state
+                lightState(iface, Light::Yellow, 1s), // "greenGoingRed" state
             }
         },
         Group { // "broken" state
             parallel,
-            BarrierTask( // transitions to the "working" state
-                [iface](Barrier &barrier) {
-                    QObject::connect(iface, &GlueInterface::repaired, &barrier, &Barrier::advance);
-                },
-                DoneResult::Error),
+            signalAwaiter(iface, &GlueInterface::repaired) && DoneResult::Error, // transitions to the "working" state
             Forever {
-                TimeoutTask( // "blinking" state
-                    [iface](milliseconds &timeout) {
-                        timeout = 1s;
-                        iface->setYellow(true);
-                    },
-                    [iface] { iface->setYellow(false); }),
-                TimeoutTask([](milliseconds &timeout) { timeout = 1s; }) // "unblinking" state
+                lightState(iface, Light::Yellow, 1s), // "blinking" state
+                lightState(iface, Light::Off, 1s), // "unblinking" state
             }
         }
     };

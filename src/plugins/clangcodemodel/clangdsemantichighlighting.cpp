@@ -174,7 +174,7 @@ void doSemanticHighlighting(
     if (!promise.isCanceled()) {
         qCInfo(clangdLogHighlight) << "reporting" << results.size() << "highlighting results";
         QList<Range> virtualRanges;
-        for (const HighlightingResult &r : results) {
+        for (const HighlightingResult &r : std::as_const(results)) {
             qCDebug(clangdLogHighlight)
                 << '\t' << r.line << r.column << r.length << int(r.textStyles.mainStyle);
             if (r.textStyles.mainStyle != C_VIRTUAL_METHOD)

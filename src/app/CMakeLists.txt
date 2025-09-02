@@ -114,6 +114,28 @@ if (APPLE)
       "${IDE_ICON_PATH}/qtcreator.xcassets"
       > /dev/null
     BYPRODUCTS qtcreator.Info.plist
+    DEPENDS
+      qtcreator.xcassets/qtcreator.appiconset/Contents.json
+      qtcreator.xcassets/qtcreator.appiconset/icon_128x128.png
+      qtcreator.xcassets/qtcreator.appiconset/icon_128x128@2x.png
+      qtcreator.xcassets/qtcreator.appiconset/icon_16x16.png
+      qtcreator.xcassets/qtcreator.appiconset/icon_16x16@2x.png
+      qtcreator.xcassets/qtcreator.appiconset/icon_256x256.png
+      qtcreator.xcassets/qtcreator.appiconset/icon_256x256@2x.png
+      qtcreator.xcassets/qtcreator.appiconset/icon_32x32.png
+      qtcreator.xcassets/qtcreator.appiconset/icon_32x32@2x.png
+      qtcreator.xcassets/qtcreator.appiconset/icon_512x512.png
+      qtcreator.xcassets/qtcreator.appiconset/icon_512x512@2x.png
+      qtcreator.xcassets/qtcreator-project.iconset/icon_128x128.png
+      qtcreator.xcassets/qtcreator-project.iconset/icon_128x128@2x.png
+      qtcreator.xcassets/qtcreator-project.iconset/icon_16x16.png
+      qtcreator.xcassets/qtcreator-project.iconset/icon_16x16@2x.png
+      qtcreator.xcassets/qtcreator-project.iconset/icon_256x256.png
+      qtcreator.xcassets/qtcreator-project.iconset/icon_256x256@2x.png
+      qtcreator.xcassets/qtcreator-project.iconset/icon_32x32.png
+      qtcreator.xcassets/qtcreator-project.iconset/icon_32x32@2x.png
+      qtcreator.xcassets/qtcreator-project.iconset/icon_512x512.png
+      qtcreator.xcassets/qtcreator-project.iconset/icon_512x512@2x.png
     VERBATIM
   )
   target_sources(qtcreator

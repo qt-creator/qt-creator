@@ -10,10 +10,10 @@
 
 #include <QtTest>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
-class DummyModel : public QmlProfilerRangeModel {
+class DummyModel : public QmlProfilerRangeModel
+{
 public:
     DummyModel(QmlProfilerModelManager *manager, Timeline::TimelineModelAggregator *aggregator);
     void loadData();
@@ -46,10 +46,7 @@ void DummyModel::loadData()
     finalize();
 }
 
-QmlProfilerBindingLoopsRenderPassTest::QmlProfilerBindingLoopsRenderPassTest(QObject *parent) :
-    QObject(parent)
-{
-}
+QmlProfilerBindingLoopsRenderPassTest::QmlProfilerBindingLoopsRenderPassTest() = default;
 
 void QmlProfilerBindingLoopsRenderPassTest::testInstance()
 {
@@ -135,5 +132,4 @@ void QmlProfilerBindingLoopsRenderPassTest::testUpdate()
     QVERIFY(parentState.expandedRowRoot());
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

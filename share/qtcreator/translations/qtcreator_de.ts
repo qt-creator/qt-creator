@@ -120,6 +120,33 @@
     </message>
 </context>
 <context>
+    <name>ActionsComboBox</name>
+    <message>
+        <source>Call Function</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Assign</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change State</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set Property</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Print Message</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation type="unfinished">Benutzerdefiniert</translation>
+    </message>
+</context>
+<context>
     <name>AddModuleView</name>
     <message>
         <source>Select a Module to Add</source>
@@ -285,6 +312,21 @@
     </message>
 </context>
 <context>
+    <name>AdditiveColorGradientSection</name>
+    <message>
+        <source>Additive Color Gradient</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Top Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bottom Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AdvancedSection</name>
     <message>
         <source>Advanced</source>
@@ -336,6 +378,37 @@
     </message>
     <message>
         <source>Sets the position of the component&apos;s baseline in local coordinates.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Affector3DSection</name>
+    <message>
+        <source>Particle Affector</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation type="unfinished">System</translation>
+    </message>
+    <message>
+        <source>Sets the ParticleSystem3D for the affector. If system is direct parent of the affector, this property does not need to be defined.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Particles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets which logical particles will be affected. When empty, all particles in the system are affected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation type="unfinished">Aktiviert</translation>
+    </message>
+    <message>
+        <source>If set to false, this affector will not alter any particles. Usually this is used to conditionally turn an affector on or off.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -570,6 +643,25 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
 </context>
 <context>
+    <name>AndOperatorSpecifics</name>
+    <message>
+        <source>AND Operator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input 01</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input 02</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">Ausgaben</translation>
+    </message>
+</context>
+<context>
     <name>AnimatedImageSpecifics</name>
     <message>
         <source>Image</source>
@@ -593,6 +685,61 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Toggles if the animation is playing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AnimatedSpriteDirectorySpecifics</name>
+    <message>
+        <source>Animated Sprite Directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set this property to advance the current frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame duration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duration of each frame of the animation in milliseconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loops</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Indicate the number of times the animation should reply, set to -1 for Infinite</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Running</source>
+        <translation type="unfinished">Läuft</translation>
+    </message>
+    <message>
+        <source>Indicates whether the application is running or not</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Indicate whether the animation is paused or not</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source path</source>
+        <translation type="unfinished">Quellpfad</translation>
+    </message>
+    <message>
+        <source>Path to the directory with images for the sprite animation</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -834,6 +981,13 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
 </context>
 <context>
+    <name>ApplicationScreensSpecifics</name>
+    <message>
+        <source>Application Screens</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ApplicationWindowSpecifics</name>
     <message>
         <source>Window</source>
@@ -858,6 +1012,140 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     <message>
         <source>Opacity</source>
         <translation>Deckkraft</translation>
+    </message>
+</context>
+<context>
+    <name>ArcArrowSpecifics</name>
+    <message>
+        <source>Arc Arrow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished">Farbe</translation>
+    </message>
+    <message>
+        <source>Thickness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Arrow Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>Arc start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Arc end</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flip</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ArcItemSpecifics</name>
+    <message>
+        <source>Arc Item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the color inside the Arc stroke. This only works if the &lt;b&gt;Full outline&lt;/b&gt; option is selected and the Arc stroke is not thick enough to fill the space.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the color of the Arc.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the thickness of the Arc.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation type="unfinished">Verbergen</translation>
+    </message>
+    <message>
+        <source>Arc start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the start angle of the Arc.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Arc end</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the end angle of the Arc.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Outline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Outline width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the width of the outline that follows the Arc.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Full outline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round outline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles the &lt;b&gt;Full outline&lt;/b&gt; to have rounded edges.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles the starting edge of the &lt;b&gt;Full outline&lt;/b&gt; to be rounded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round end</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles the end edge of the &lt;b&gt;Full outline&lt;/b&gt; to be rounded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cap style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the line ends as square or rounded.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -917,6 +1205,14 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Edit Component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reimport 3D Asset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add Light Probe</source>
         <translation type="unfinished"></translation>
     </message>
@@ -938,6 +1234,69 @@ Bind to AmbientSound.Infinite to loop the current sound forever.</source>
     </message>
     <message>
         <source>Add to Content Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Attractor3DSection</name>
+    <message>
+        <source>Particle Attractor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Position Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the variation on attract position.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a ParticleAbstractShape3D for particles attraction.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation type="unfinished">Dauer</translation>
+    </message>
+    <message>
+        <source>Sets the duration in milliseconds how long it takes for particles to reach the attaction position.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duration Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the duration variation in milliseconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide At End</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets if the particle should disappear when it reaches the attractor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use Cached Positions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets if the attractor caches possible positions within its shape. Cached positions give less random results but are better for performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Positions Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the amount of possible positions stored within the attractor shape.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1088,6 +1447,65 @@ A positive value will increase reverb for higher frequencies and dampen lower fr
     </message>
 </context>
 <context>
+    <name>AxisHelperSection</name>
+    <message>
+        <source>Axis Helper</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Axis Lines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show colored axis indicator lines.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation type="unfinished">Aktiviert</translation>
+    </message>
+    <message>
+        <source>XY Grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show grid on XY plane.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>XZ Grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show grid on XZ plane.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>YZ Grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show grid on YZ plane.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid Opacity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the opacity of the visible grids.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Grid Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the color of the visible grids.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>BakeLightsProgressDialog</name>
     <message>
         <source>Close</source>
@@ -1214,6 +1632,139 @@ It should be a relative path.</source>
     </message>
 </context>
 <context>
+    <name>Bars3DSpecifics</name>
+    <message>
+        <source>Bars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uniform Scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Proportionally scale multiple series</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Thickness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Thickness ratio between X and Z dimension</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation type="unfinished">Abstand</translation>
+    </message>
+    <message>
+        <source>Bar spacing in the X and Z dimensions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Col</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Row</source>
+        <translation type="unfinished">Zeile</translation>
+    </message>
+    <message>
+        <source>Relative Spacing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set bar spacing relative to thickness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Series Margin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Margin between series columns in X and Z dimensions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Floor Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Floor level in Y-axis data coordinates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selection Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bar selection mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BevelSection</name>
+    <message>
+        <source>Corner Bevel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a flat cut on the top left or right corners.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a flat cut on the bottom left or right corners.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">Global</translation>
+    </message>
+    <message>
+        <source>Sets a flat cut on all of the corners.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BidirectionalBindingSpecifics</name>
+    <message>
+        <source>Bidrectional Binding</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Target 01</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Target of the binding.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Property 01</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Target 02</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Target Flow Item whose state is changed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Property 02</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>BindingsDialog</name>
     <message>
         <source>Owner</source>
@@ -1247,6 +1798,56 @@ It should be a relative path.</source>
     <name>BindingsListView</name>
     <message>
         <source>Removes the binding.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BlendEffectSpecifics</name>
+    <message>
+        <source>Blend</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The mode which is used when foreground source is blended over source.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Foreground source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The component that is going to be blended over the source.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BlurSection</name>
+    <message>
+        <source>Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strength of the blur.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1366,6 +1967,68 @@ It should be a relative path.</source>
     </message>
 </context>
 <context>
+    <name>BorderItemSpecifics</name>
+    <message>
+        <source>Border Item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke color of the Border.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke thickness of the Border.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation type="unfinished">Verbergen</translation>
+    </message>
+    <message>
+        <source>Draw Edges</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation type="unfinished">Vertikal</translation>
+    </message>
+    <message>
+        <source>Toggles the top or bottom edges of the border.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation type="unfinished">Horizontal</translation>
+    </message>
+    <message>
+        <source>Toggles the left or right edges of the border.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BoxShapeSection</name>
+    <message>
+        <source>Box Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The extents of the box shape in the X, Y and Z directions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>BrandBar</name>
     <message>
         <source>Welcome to</source>
@@ -1389,6 +2052,88 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Professional Edition</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BrightnessContrastEffectSpecifics</name>
+    <message>
+        <source>Brightness and Contrast</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The increase or decrease of source brightness.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contrast</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The increase or decrease of source contrast. The decrease of the contrast is linear, but the increase is applied with a non-linear curve to allow very high contrast adjustment at the high end of the value range.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BrushStrokesSection</name>
+    <message>
+        <source>Noise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise Sample Texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Defines a texture for noise samples.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">Vorgabe</translation>
+    </message>
+    <message>
+        <source>Brush</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Length of the brush.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished">Größe</translation>
+    </message>
+    <message>
+        <source>Size of the brush.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Angle of the brush</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1643,6 +2388,29 @@ It should be a relative path.</source>
     </message>
 </context>
 <context>
+    <name>CapsuleShapeSection</name>
+    <message>
+        <source>Capsule Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Diameter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the diameter of the capsule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation type="unfinished">Höhe</translation>
+    </message>
+    <message>
+        <source>Sets the height of the capsule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ChangeStyleWidgetAction</name>
     <message>
         <source>Change style for Qt Quick Controls 2.</source>
@@ -1651,6 +2419,13 @@ It should be a relative path.</source>
     <message>
         <source>Change style for Qt Quick Controls 2. Configuration file qtquickcontrols2.conf not found.</source>
         <translation>Stil für Qt Quick Controls 2 ändern. Die Konfigurationsdatei qtquickcontrols2.conf wurde nicht gefunden.</translation>
+    </message>
+</context>
+<context>
+    <name>CharacterControllerSection</name>
+    <message>
+        <source>Character Controller</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1757,6 +2532,49 @@ It should be a relative path.</source>
     </message>
 </context>
 <context>
+    <name>ChartViewSpecifics</name>
+    <message>
+        <source>Title</source>
+        <translation type="unfinished">Titel</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished">Farbe</translation>
+    </message>
+    <message>
+        <source>Background</source>
+        <translation type="unfinished">Hintergrund</translation>
+    </message>
+    <message>
+        <source>Roundness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Diameter of the rounding circle at the corners</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drop Shadow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable border drop shadow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Plot Area</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Localization</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Localize Numbers</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CheckBoxSpecifics</name>
     <message>
         <source>Check Box</source>
@@ -1830,9 +2648,41 @@ It should be a relative path.</source>
     </message>
 </context>
 <context>
-    <name>Coco</name>
+    <name>ChromaticAberrationSection</name>
     <message>
-        <source>Coco</source>
+        <source>Mask</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mask Texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Defines a texture for mask.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">Vorgabe</translation>
+    </message>
+    <message>
+        <source>Aberration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount of aberration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Focus Depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Focus depth of the aberration.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1881,6 +2731,21 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Copy uniform name to clipboard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CollisionShapeSection</name>
+    <message>
+        <source>Collision Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Debug Draw</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draws the collision shape in the scene view.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2003,6 +2868,68 @@ It should be a relative path.</source>
     </message>
 </context>
 <context>
+    <name>ColorMasterSection</name>
+    <message>
+        <source>Colors</source>
+        <translation type="unfinished">Farben</translation>
+    </message>
+    <message>
+        <source>Red Strength</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Red strength.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Green Strength</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Green strength.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blue Strength</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blue strength.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saturation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color saturation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ColorOverlayEffectSpecifics</name>
+    <message>
+        <source>Overlay Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Overlay color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ColorPalette</name>
     <message>
         <source>Remove from Favorites</source>
@@ -2010,6 +2937,76 @@ It should be a relative path.</source>
     </message>
     <message>
         <source>Add to Favorites</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ColorizeEffectSpecifics</name>
+    <message>
+        <source>Colorize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The hue value which is used to colorize the source.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lightness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The increase or decrease of source lightness value. Unlike hue and saturation properties, lightness does not set the used value, but it shifts the existing source pixel lightness value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saturation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The saturation value which is used to colorize the source.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ColorizedImageSpecifics</name>
+    <message>
+        <source>Colorized Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill mode</source>
+        <translation type="unfinished">Füllmodus</translation>
+    </message>
+    <message>
+        <source>Alignment H</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alignment V</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2112,13 +3109,6 @@ It should be a relative path.</source>
     <message>
         <source>Determines whether the combobox gets focus if pressed.</source>
         <translation>Bestimmt, ob die Combobox bei Betätigung den Fokus bekommt.</translation>
-    </message>
-</context>
-<context>
-    <name>Component</name>
-    <message>
-        <source>Error exporting node %1. Cannot parse type %2.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2263,19 +3253,14 @@ This can not be undone.</source>
     </message>
 </context>
 <context>
-    <name>ConfirmPropertyRemoveForm</name>
-    <message>
-        <source>The property is in use in the shader code.
-Are you sure you want to remove it?</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>ConfirmForm</name>
     <message>
         <source>Cancel</source>
         <translation type="unfinished">Abbrechen</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation type="unfinished">Entfernen</translation>
+        <source>Accept</source>
+        <translation type="unfinished">Annehmen</translation>
     </message>
 </context>
 <context>
@@ -2308,31 +3293,39 @@ Are you sure you want to remove it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Call Function</source>
+        <source>Sets the component that is affected by the action of the &lt;b&gt;Target&lt;/b&gt; component&apos;s &lt;b&gt;Signal&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Assign</source>
+        <source>Sets the item component&apos;s method that is affected by the &lt;b&gt;Target&lt;/b&gt; component&apos;s &lt;b&gt;Signal&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Change State</source>
+        <source>Sets the component and its property from which the value is copied when the &lt;b&gt;Target&lt;/b&gt; component initiates the &lt;b&gt;Signal&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set Property</source>
+        <source>Sets the component and its property to which the copied value is assigned when the &lt;b&gt;Target&lt;/b&gt; component initiates the &lt;b&gt;Signal&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Print Message</source>
+        <source>Sets a &lt;b&gt;State Group&lt;/b&gt; that is accessed when the &lt;b&gt;Target&lt;/b&gt; component initiates the &lt;b&gt;Signal&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Custom</source>
-        <translation type="unfinished">Benutzerdefiniert</translation>
+        <source>Sets a &lt;b&gt;State&lt;/b&gt; within the assigned &lt;b&gt;State Group&lt;/b&gt; that is accessed when the &lt;b&gt;Target&lt;/b&gt; component initiates the &lt;b&gt;Signal&lt;/b&gt;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add Condition</source>
+        <source>Sets the property of the component that is affected by the action of the &lt;b&gt;Target&lt;/b&gt; component&apos;s &lt;b&gt;Signal&lt;/b&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the value of the property of the component that is affected by the action of the &lt;b&gt;Target&lt;/b&gt; component&apos;s &lt;b&gt;Signal&lt;/b&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a text that is printed when the &lt;b&gt;Signal&lt;/b&gt; of the &lt;b&gt;Target&lt;/b&gt; component initiates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2340,35 +3333,7 @@ Are you sure you want to remove it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove Condition</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Removes the logical condition for the &lt;b&gt;Target&lt;/b&gt; component.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add Else Statement</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets an alternate condition for the previously defined logical condition.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove Else Statement</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Removes the alternate logical condition for the previously defined logical condition.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Write the conditions for the components and the signals manually.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Jump to the code.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2478,7 +3443,10 @@ Are you sure you want to remove it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>To use &lt;b&gt;Content Library&lt;/b&gt;, first add the QtQuick3D module in the &lt;b&gt;Components&lt;/b&gt; view.</source>
+        <source>To use &lt;b&gt;Content Library&lt;/b&gt; effects, add the &lt;b&gt;QtQuick3D&lt;/b&gt; module and the &lt;b&gt;View3D&lt;/b&gt;
+                         component in the &lt;b&gt;Components&lt;/b&gt; view, or click
+                         &lt;a href=&quot;#add_import&quot;&gt;&lt;span style=&quot;text-decoration:none;color:%1&quot;&gt;
+                         here&lt;/span&gt;&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2554,7 +3522,10 @@ Are you sure you want to remove it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>To use &lt;b&gt;Content Library&lt;/b&gt;, first add the QtQuick3D module in the &lt;b&gt;Components&lt;/b&gt; view.</source>
+        <source>To use &lt;b&gt;Content Library&lt;/b&gt; materials, add the &lt;b&gt;QtQuick3D&lt;/b&gt; module and the &lt;b&gt;View3D&lt;/b&gt;
+                         component in the &lt;b&gt;Components&lt;/b&gt; view, or click
+                         &lt;a href=&quot;#add_import&quot;&gt;&lt;span style=&quot;text-decoration:none;color:%1&quot;&gt;
+                         here&lt;/span&gt;&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2657,6 +3628,14 @@ Are you sure you want to remove it?</source>
 <context>
     <name>ContentLibraryUserView</name>
     <message>
+        <source>Add a custom bundle folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No match found.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2665,7 +3644,18 @@ Are you sure you want to remove it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>To use %1, add the &lt;b&gt;QtQuick3D&lt;/b&gt; module and the &lt;b&gt;View3D&lt;/b&gt;
+                                         component in the &lt;b&gt;Components&lt;/b&gt; view, or click
+                                         &lt;a href=&quot;#add_import&quot;&gt;&lt;span style=&quot;text-decoration:none;color:%2&quot;&gt;
+                                         here&lt;/span&gt;&lt;/a&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;b&gt;Content Library&lt;/b&gt; is disabled inside a non-visual component.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are no items in this category.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2744,6 +3734,52 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Wheel</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ConvexMeshShapeSection</name>
+    <message>
+        <source>Convex Mesh Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Defines the location of the mesh file used to define the shape.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CornerRadiusSection</name>
+    <message>
+        <source>Corner Radiuses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles the top left or right corner to a rounded shape.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles the bottom left or right corner to a rounded shape.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">Global</translation>
+    </message>
+    <message>
+        <source>Toggles all the corners into a rounded shape.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2852,6 +3888,17 @@ Unshaded materials are not affected by the environment (for example, lights).</s
     </message>
 </context>
 <context>
+    <name>DashPatternEditor</name>
+    <message>
+        <source>Dash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gap</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DebugSettingsSection</name>
     <message>
         <source>Debug Settings</source>
@@ -2871,6 +3918,29 @@ Unshaded materials are not affected by the environment (for example, lights).</s
     </message>
     <message>
         <source>Changes how all materials are rendered to only reflect a particular aspect of the overall rendering process</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DebugViewSection</name>
+    <message>
+        <source>Debug View</source>
+        <translation type="unfinished">Debugansicht</translation>
+    </message>
+    <message>
+        <source>Source View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the source View3D item to show render statistics for.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Detailed Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables detailed mode, which shows more detailed resource usage statistics.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3172,6 +4242,75 @@ A value of 0 will not wrap the light at all, while a value of 1 will wrap the li
     </message>
 </context>
 <context>
+    <name>DepthOfFieldHQBlurSection</name>
+    <message>
+        <source>Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blur Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount of blur.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Focus Distance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Focus distance of the blur.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Focus Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Focus range of the blur.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DesaturateSection</name>
+    <message>
+        <source>Desaturate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strength of the desaturate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DesaturationEffectSpecifics</name>
+    <message>
+        <source>Desaturation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How much the source colors are desaturated.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Details</name>
     <message>
         <source>Details</source>
@@ -3318,6 +4457,201 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
 </context>
 <context>
+    <name>DirectionalBlurEffectSpecifics</name>
+    <message>
+        <source>Directional Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The direction for the blur. Blur is applied to both sides of each pixel. Therefore, setting the direction to 0 and 180 produces the same result.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <translation type="unfinished">Samples</translation>
+    </message>
+    <message>
+        <source>Samples per pixel for blur calculation. A larger value produces better quality, but is slower to render.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The perceived amount of movement for each pixel. The movement is divided evenly to both sides of each pixel.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching and Border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transparent border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pads the exterior of the component with a transparent edge, making sampling outside the source texture use transparency instead of the edge pixels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DisplaceEffectSpecifics</name>
+    <message>
+        <source>Displace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displacement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The scale for the displacement. The bigger the scale, the bigger the displacement of the pixels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displacement source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The component that is going to be used as the displacement map.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DistortionRippleSection</name>
+    <message>
+        <source>Distortion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>Radius of the effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation type="unfinished">Breite</translation>
+    </message>
+    <message>
+        <source>Width of the distortion.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation type="unfinished">Höhe</translation>
+    </message>
+    <message>
+        <source>Height of the distortion.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Phase</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Phase of the distortion.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Center of the distortion.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DistortionSphereSection</name>
+    <message>
+        <source>Distortion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>Radius of the effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation type="unfinished">Höhe</translation>
+    </message>
+    <message>
+        <source>Height of the distortion.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Center of the distortion.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DistortionSpiralSection</name>
+    <message>
+        <source>Distortion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>Radius of the effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strength of the distortion.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Center of the distortion.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DownloadButton</name>
     <message>
         <source>Update available.</source>
@@ -3390,6 +4724,124 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
 </context>
 <context>
+    <name>DropShadowEffectSpecifics</name>
+    <message>
+        <source>Drop Shadow Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drop shadow color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drop Shadow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>The softness of the shadow. A larger radius causes the edges of the shadow to appear more blurry.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <translation type="unfinished">Samples</translation>
+    </message>
+    <message>
+        <source>Samples per pixel for edge softening blur calculation. Ideally, this value should be twice as large as the highest required radius value plus one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spread</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The part of the shadow color that is strengthened near the source edges.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offsets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation type="unfinished">Abstand</translation>
+    </message>
+    <message>
+        <source>H</source>
+        <comment>horizontal</comment>
+        <extracomment>The horizontal offset</extracomment>
+        <translation type="unfinished">H</translation>
+    </message>
+    <message>
+        <source>The horizontal offset for the rendered shadow compared to the inner shadow component&apos;s horizontal position.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>V</source>
+        <comment>vertical</comment>
+        <extracomment>The vertical offset</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The vertical offset for the rendered shadow compared to the inner shadow component&apos;s vertical position. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching and Border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transparent border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pads the exterior of the component with a transparent edge, making sampling outside the source texture use transparency instead of the edge pixels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DynamicBurst3DSection</name>
+    <message>
+        <source>Particle Dynamic Burst</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Trigger Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the triggering mode used for emitting the particles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the random variation in particle emit amount.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation type="unfinished">Aktiviert</translation>
+    </message>
+    <message>
+        <source>If set to false, this burst will not emit any particles. Usually this is used to conditionally turn a burst on or off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DynamicPropertiesSection</name>
     <message>
         <source>Local Custom Properties</source>
@@ -3413,6 +4865,44 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
     <message>
         <source>Add Property</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DynamicRigidBodySection</name>
+    <message>
+        <source>Dynamic Rigid Body</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tensor and Matrix modes require QML code.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lock X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lock Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lock Z</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EdgeDetectSection</name>
+    <message>
+        <source>Edge</source>
+        <translation type="unfinished">Rand</translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strength of the edge.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3463,6 +4953,24 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
     </message>
     <message>
         <source>Effect Composer is disabled on MCU projects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Effect Composer is not supported in MCU projects.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EffectComposer::EffectComposerView</name>
+    <message>
+        <source>Effect Composer</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EffectComposer::EffectShadersCodeEditor</name>
+    <message>
+        <source>Untitled Editor</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3536,16 +5044,52 @@ defined in &lt;b&gt;Step size&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A node with this name already exists.
+        <source>An effect with this name already exists.
 Suffix was added to make the name unique.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Edit effect node name</source>
+        <source>A built-in effect with this name already exists in the library.
+Please rename the effect before adding it to the library.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The property is in use in the shader code.
+Are you sure you want to remove it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The effect is already added into the library.
+Are you sure you want to update it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit effect name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open the shader code editor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add to Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add the effect to the effect library.
+You can reuse effects added to the library in other effect compositions.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add Property</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add new property to the effect.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3590,12 +5134,26 @@ Suffix was added to make the name unique.</source>
         <source>An effect with same properties already exists, this effect cannot be added.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Remove custom effect from the library.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>EffectNodesComboBox</name>
     <message>
         <source>+ Add Effect</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The node removal from library cannot be undone.
+Are you sure you want to remove node:
+&apos;%1&apos;?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="unfinished">Entfernen</translation>
     </message>
 </context>
 <context>
@@ -3750,40 +5308,83 @@ The foreground component should be transparent, and the background component sho
     </message>
 </context>
 <context>
-    <name>EmptyMaterialEditorPane</name>
+    <name>EllipseItemSpecifics</name>
     <message>
-        <source>&lt;b&gt;Material Editor&lt;/b&gt; is not supported in Qt5 projects.</source>
+        <source>Ellipse Item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Material Editor&lt;/b&gt; is disabled inside a non-visual component.</source>
+        <source>Fill color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>There are no materials in this project.&lt;br&gt;Select &apos;&lt;b&gt;+&lt;/b&gt;&apos; to create one.</source>
+        <source>Sets the color to fill the Ellipse.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>To use &lt;b&gt;Material Editor&lt;/b&gt;, first add the QtQuick3D module in the &lt;b&gt;Components&lt;/b&gt; view.</source>
+        <source>Stroke color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke color of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke thickness of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation type="unfinished">Verbergen</translation>
+    </message>
+</context>
+<context>
+    <name>EmbossSection</name>
+    <message>
+        <source>Emboss</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strength of the emboss.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>EmptyTextureEditorPane</name>
+    <name>EmitBurst3DSection</name>
     <message>
-        <source>&lt;b&gt;Texture Editor&lt;/b&gt; is not supported in Qt5 projects.</source>
+        <source>Particle Emit Burst</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>To use &lt;b&gt;Texture Editor&lt;/b&gt;, first add the QtQuick3D module in the &lt;b&gt;Components&lt;/b&gt; view.</source>
+        <source>Time</source>
+        <translation type="unfinished">Zeit</translation>
+    </message>
+    <message>
+        <source>Sets the time in milliseconds when emitting the burst starts.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;b&gt;Texture Editor&lt;/b&gt; is disabled inside a non-visual component.</source>
+        <source>Amount</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>There are no textures in this project.&lt;br&gt;Select &apos;&lt;b&gt;+&lt;/b&gt;&apos; to create one.</source>
+        <source>Sets the amount of particles emitted during the burst.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation type="unfinished">Dauer</translation>
+    </message>
+    <message>
+        <source>Sets the duration of the burst.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3850,6 +5451,696 @@ The foreground component should be transparent, and the background component sho
     <message>
         <source>Insert Keyframe</source>
         <translation>Keyframe einfügen</translation>
+    </message>
+</context>
+<context>
+    <name>ExtendedSceneEnvironmentSection</name>
+    <message>
+        <source>Extended Scene Environment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Background Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets if and how the background of the scene should be cleared.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets which color will be used to clear the viewport when using SceneEnvironment.Color for the backgroundMode property.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Skybox Cube Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a cubemap to be used as a skybox when the background mode is SkyBoxCubeMap.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Skybox Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how much to blur the skybox when using SceneEnvironment.SkyBox for the backgroundMode property.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Antialiasing</source>
+        <translation type="unfinished">Kantenglättung</translation>
+    </message>
+    <message>
+        <source>Antialiasing Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the antialiasing mode applied to the scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Antialiasing Quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the level of antialiasing applied to the scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FXAA</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables fast approximate antialiasing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specular AA</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables specular antialiasing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Temporal AA</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables temporal antialiasing using camera jittering and frame blending.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Temporal AA Strength</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the amount of temporal antialiasing applied.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tone Mapping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how colors are tonemapped from HDR to LDR before being displayed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exposure</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the exposure of the scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>White Point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the white point of the scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sharpening</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the sharpening amount applied to the scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dithering</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables dithering to reduce banding artifacts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color Adjustments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation type="unfinished">Aktiviert</translation>
+    </message>
+    <message>
+        <source>Enables color adjustments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjusts the brightness of the scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contrast</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjusts the contrast of the scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saturation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjusts the saturation of the scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color Grading</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables color grading via look up table (LUT) textures.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished">Größe</translation>
+    </message>
+    <message>
+        <source>Sets the size of the LUT texture. The texture should have the dimensions: width=(size * size), height=(size).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the source of the LUT texture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alpha Mix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the amount of color grading to mix with the scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ambient Occlusion (SSAO)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables ambient occlusion.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the amount of ambient occulusion applied.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets roughly how far ambient occlusion shadows spread away from objects.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Softness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how smooth the edges of the ambient occlusion shading are.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets ambient occlusion quality (more shades of gray) at the expense of performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bias</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a cutoff distance preventing objects from exhibiting ambient occlusion at close distances.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dither</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables scattering the edges of the ambient occlusion shadow bands to improve smoothness.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Depth of Field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables Depth of Field effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Focus Distance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the distance from the camera at which objects are in focus.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Focus Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the range of distances from the focus distance that are in focus.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blur Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the amount of blur applied to objects outside the focus range.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Glow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables the Glow/Bloom Effect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>High Quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables high quality mode for the glow effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bicubic Upsampling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reduces the aliasing artifacts and boxing in the glow effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the strength of the glow effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Intensity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the Intensity of the glow effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bloom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the amount of bloom applied to the glow effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lower Threshold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the minimum brightness of the HDR glow.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Upper Threshold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the maximum brightness of the HDR glow.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HDR Scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the bleed scale of the HDR glow.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blend Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the blending mode for the glow effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blur Levels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets which of the blur passes get applied to the glow effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Level 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Level 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Level 3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Level 4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Level 5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Level 6</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Level 7</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vignette</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables the vignette effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished">Farbe</translation>
+    </message>
+    <message>
+        <source>Sets the color of the vignette effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the strength of the vignette effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>Sets the radius of the vignette effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lens Flare</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables the Lens Flare effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bloom Scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the scale of the lens flare bloom effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bloom Bias</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the level at which the lens flare bloom starts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ghost Dispersal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the distance between the lens flare ghosts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ghost Count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the amount of lens flare ghosts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Halo Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the size of the lens flare halo.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stretch Aspect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set correction factor for roundness of the lens flare halo.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distortion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set amount of chromatic aberration in the lens flare.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set amount of blur to apply to the lens flare.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lens Color Texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A gradient image used for the lens flare lens color.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply Dirt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set whether to apply a dirt texture to the lens flare.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dirt Texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An image that is used to simulate inperfections on the lens.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply Starburst</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set whether to apply a starburst texture to the lens flare.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Starburst Texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A noise image to augment the starburst effect of the lens flare.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation type="unfinished">Richtung</translation>
+    </message>
+    <message>
+        <source>Sets the direction of the camera in the scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image Based Lighting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HDR Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets an image to use to light the scene, either instead of, or in addition to standard lights.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the amount of light emitted by the light probe.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Horizon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the light probe horizon. When set, adds darkness (black) to the bottom of the environment, forcing the lighting to come predominantly from the top of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Orientation</source>
+        <translation type="unfinished">Ausrichtung</translation>
+    </message>
+    <message>
+        <source>Sets the orientation of the light probe.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Other Effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Post Processing effects applied to this scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Settings for Fog applied to the scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Advanced</source>
+        <translation type="unfinished">Erweitert</translation>
+    </message>
+    <message>
+        <source>Enable Depth Test</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables depth testing. Disable to optimize render speed for layers with mostly transparent objects.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable Depth Prepass</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables draw depth buffer as a separate pass. Disable to optimize render speed for layers with low depth complexity.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Debug Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Additional render settings for debugging scenes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FastBlurEffectSpecifics</name>
+    <message>
+        <source>Fast Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>The distance of the neighboring pixels which affect the blurring of an individual pixel. A larger radius increases the blur effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching and Border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transparent border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pads the exterior of the component with a transparent edge, making sampling outside the source texture use transparency instead of the edge pixels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FeedbackPopup</name>
+    <message>
+        <source>Enjoying Qt Design Studio?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select your satisfaction level.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>We highly appreciate additional feedback.
+Bouquets, brickbats, or suggestions, all feedback is welcome!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation type="unfinished">Überspringen</translation>
+    </message>
+    <message>
+        <source>Submit</source>
+        <translation type="unfinished">Submit</translation>
     </message>
 </context>
 <context>
@@ -4061,6 +6352,72 @@ The foreground component should be transparent, and the background component sho
     <message>
         <source>Deceleration</source>
         <translation>Verzögerung</translation>
+    </message>
+</context>
+<context>
+    <name>FlipSection</name>
+    <message>
+        <source>Flip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation type="unfinished">Horizontal</translation>
+    </message>
+    <message>
+        <source>Flip horizontally.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation type="unfinished">Vertikal</translation>
+    </message>
+    <message>
+        <source>Flip vertically.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FlipableItemSpecifics</name>
+    <message>
+        <source>Flipped Status</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rotational axis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the rotation along with the x-axis or y-axis.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flip angle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the angle of the components to produce the flipping effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation type="unfinished">Deckkraft</translation>
+    </message>
+    <message>
+        <source>Front</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the visibility percentage of the front side component within the Flipable component.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation type="unfinished">Zurück</translation>
+    </message>
+    <message>
+        <source>Sets the visibility percentage of the back side component within the Flipable component.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4413,6 +6770,99 @@ The foreground component should be transparent, and the background component sho
     </message>
 </context>
 <context>
+    <name>GammaAdjustEffectSpecifics</name>
+    <message>
+        <source>Gamma Adjust</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gamma</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The change factor for how the luminance of each pixel is altered.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GaussianBlurEffectSpecifics</name>
+    <message>
+        <source>Gaussian Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>The distance of the neighboring pixels which affect the blurring of an individual pixel. A larger radius increases the blur effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deviation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A parameter to the gaussian function that is used when calculating neighboring pixel weights for the blurring.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <translation type="unfinished">Samples</translation>
+    </message>
+    <message>
+        <source>Samples per pixel for blur calculation. A larger value produces better quality, but is slower to render.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching and Border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transparent border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pads the exterior of the component with a transparent edge, making sampling outside the source texture use transparency instead of the edge pixels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GaussianBlurSection</name>
+    <message>
+        <source>Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strength of the blur.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>GeometrySection</name>
     <message>
         <source>Geometry - 2D</source>
@@ -4512,6 +6962,65 @@ The foreground component should be transparent, and the background component sho
     </message>
 </context>
 <context>
+    <name>GlowEffectSpecifics</name>
+    <message>
+        <source>Glow Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Glow color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Glow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>The softness of the glow. A larger radius causes the edges of the glow to appear more blurry. Depending on the radius value, value of the samples should be set to sufficiently large to ensure the visual quality.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <translation type="unfinished">Samples</translation>
+    </message>
+    <message>
+        <source>Samples per pixel for edge softening blur calculation. A larger value produces better quality, but is slower to render. Ideally, this value should be twice as large as the highest required radius value plus one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spread</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The part of the glow color that is strengthened near the source edges.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching and Border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transparent border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pads the exterior of the component with a transparent edge, making sampling outside the source texture use transparency instead of the edge pixels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>GradientPresetList</name>
     <message>
         <source>Gradient Picker</source>
@@ -4544,6 +7053,273 @@ The foreground component should be transparent, and the background component sho
     <message>
         <source>Apply</source>
         <translation>Anwenden</translation>
+    </message>
+</context>
+<context>
+    <name>GraphsCameraSection</name>
+    <message>
+        <source>Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Camera preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation type="unfinished">Ziel</translation>
+    </message>
+    <message>
+        <source>Camera target position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom</source>
+        <translation type="unfinished">Vergrößern</translation>
+    </message>
+    <message>
+        <source>Camera zoom level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Min Zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Camera minimum zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Camera maximum zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>X Rotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Camera X rotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wrap X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wrap camera X rotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Y Rotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Camera Y rotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wrap Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wrap camera Y rotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Orthographic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use orthographic camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GraphsSection</name>
+    <message>
+        <source>Graph</source>
+        <translation type="unfinished">Graph</translation>
+    </message>
+    <message>
+        <source>Render Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rendering mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shadow Quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quality and style of the shadows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Optimization</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Optimization hint</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MSAA</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Multisample anti-aliasing sample count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Aspect Ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Horizontal to vertical aspect ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Horizontal AR</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Horizontal aspect ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Margin</source>
+        <translation type="unfinished">Rand</translation>
+    </message>
+    <message>
+        <source>Graph background margin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Measure FPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Measure rendering speed as Frames Per Second</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GraphsViewSpecifics</name>
+    <message>
+        <source>Background</source>
+        <translation type="unfinished">Hintergrund</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished">Farbe</translation>
+    </message>
+    <message>
+        <source>Margins</source>
+        <translation type="unfinished">Ränder</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The amount of empty space on the top of the graph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The amount of empty space on the bottom of the graph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The amount of empty space on the left of the graph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The amount of empty space on the right of the graph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Gravity3DSection</name>
+    <message>
+        <source>Particle Gravity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Magnitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the magnitude in position change per second.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation type="unfinished">Richtung</translation>
+    </message>
+    <message>
+        <source>Sets the direction the gravity will affect toward.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GridGeometrySection</name>
+    <message>
+        <source>Grid Geometry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Horizontal Lines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the number of horizontal lines in the grid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vertical Lines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the number of vertical lines in the grid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Horizontal Step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the space between horizontal lines.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vertical Step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the space between vertical lines.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4799,6 +7575,158 @@ a highlight component.</source>
     </message>
 </context>
 <context>
+    <name>HDRBloomTonemapSection</name>
+    <message>
+        <source>Tonemap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gamma</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount of gamma.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exposure</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount of exposure.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blur Falloff</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount of blur falloff.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tonemapping Lerp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tonemapping linear interpolation value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bloom Threshold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bloom color threshold value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Channel Threshold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Channel color threshold value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>HeightFieldGeometrySection</name>
+    <message>
+        <source>Height Field Geometry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the dimensions of a box contain the geometry.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the location of an image file containing the heightmap data.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Smooth Shading</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets whether the height map is shown with smooth shading or with hard angles between the squares of the map.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>HeightFieldShapeSection</name>
+    <message>
+        <source>Height Field Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the location of an image file containing the heightmap data.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The extents of the height field shape in the X, Y and Z directions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>HueSaturationEffectSpecifics</name>
+    <message>
+        <source>Hue and Saturation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The hue value which is added to the source hue value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lightness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The lightness value which is added to the source saturation value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saturation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The saturation value value which is added to the source saturation value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>IconSection</name>
     <message>
         <source>Icon</source>
@@ -4854,6 +7782,25 @@ a highlight component.</source>
     </message>
     <message>
         <source>Toggles if the icon is saved to the cache memory.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ImageLayerSpecifics</name>
+    <message>
+        <source>Image Layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Platform ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rendering hints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4961,6 +7908,132 @@ a highlight component.</source>
     </message>
     <message>
         <source>Inverts the image horizontally.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>InfiniteGridSection</name>
+    <message>
+        <source>Infinite Grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Visible</source>
+        <translation type="unfinished">Sichtbar</translation>
+    </message>
+    <message>
+        <source>Sets whether the infinite grid is visible.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Axis Lines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets whether the axis lines are visible.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation type="unfinished">An</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation type="unfinished">Aus</translation>
+    </message>
+    <message>
+        <source>Grid Interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the distance between grid lines.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>InnerShadowEffectSpecifics</name>
+    <message>
+        <source>Inner Shadow Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inner shadow color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inner Shadow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>The softness of the shadow. A larger radius causes the edges of the shadow to appear more blurry.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <translation type="unfinished">Samples</translation>
+    </message>
+    <message>
+        <source>Samples per pixel for edge softening blur calculation. Ideally, this value should be twice as large as the highest required radius value plus one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spread</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The part of the shadow color that is strengthened near the source edges.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fast</source>
+        <translation type="unfinished">Schnell</translation>
+    </message>
+    <message>
+        <source>The blurring algorithm that is used to produce the softness for the effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offsets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation type="unfinished">Abstand</translation>
+    </message>
+    <message>
+        <source>H</source>
+        <comment>horizontal</comment>
+        <extracomment>The horizontal offset</extracomment>
+        <translation type="unfinished">H</translation>
+    </message>
+    <message>
+        <source>The horizontal offset for the rendered shadow compared to the inner shadow component&apos;s horizontal position.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>V</source>
+        <comment>vertical</comment>
+        <extracomment>The vertical offset</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The vertical offset for the rendered shadow compared to the inner shadow component&apos;s vertical position. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5077,6 +8150,36 @@ a highlight component.</source>
     </message>
 </context>
 <context>
+    <name>InstanceModelSection</name>
+    <message>
+        <source>Instance Model</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instancing Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the underlying instance table of the model.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>InstanceRepeaterSection</name>
+    <message>
+        <source>Instance Repeater</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instancing Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the instance table used by the repeater.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>InstancingSection</name>
     <message>
         <source>Instancing</source>
@@ -5141,6 +8244,29 @@ a highlight component.</source>
     <name>ItemFilterComboBox</name>
     <message>
         <source>[None]</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ItemLayerSpecifics</name>
+    <message>
+        <source>Item Layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Platform ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rendering hints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Refresh interval</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5454,6 +8580,64 @@ be rendered into the texture.</source>
     </message>
 </context>
 <context>
+    <name>LevelAdjustEffectSpecifics</name>
+    <message>
+        <source>Level Adjust</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gamma</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The change factor for how the luminance of each pixel is altered.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>R</source>
+        <comment>red</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>G</source>
+        <comment>green</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>B</source>
+        <comment>blue</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Minimum</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">Ausgaben</translation>
+    </message>
+    <message>
+        <source>Caching</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>LightmapperSection</name>
     <message>
         <source>Lightmapper</source>
@@ -5521,6 +8705,85 @@ be rendered into the texture.</source>
     </message>
     <message>
         <source>The size of the workgroup used for indirect light computation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>LineParticle3DSection</name>
+    <message>
+        <source>Line Particle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Segments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the segment count of the line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alpha Fade</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the line fade amount per segment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scale Multiplier</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the scale multiplier per segment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Texcoord Multiplier</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the texture coordinate multiplier of the line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Texcoord Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the texture coordinate mode of the line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Line Length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the length of the line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Line Length Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the length variation of the line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Min Segment Length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the minimum length between line segments.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>EOL Fade Out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the fade out duration after the end of particle lifetime.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5730,6 +8993,56 @@ a highlight component.</source>
     </message>
     <message>
         <source>Whether the component will be instantiated asynchronously.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>LodManagerSection</name>
+    <message>
+        <source>Lod Manager</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies the camera from which the distance to the child nodes is calculated.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fade Distance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies the distance at which the cross-fade between the detail levels starts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Distances</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies the thresholds when the detail level changes. The first number is the distance when the first node changes to the second one, etc.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Currently only editable in QML.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>LookAtNodeSection</name>
+    <message>
+        <source>Look-at Node</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Target Node</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the target node to look at.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5960,8 +9273,96 @@ a highlight component.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>load</source>
+        <source>Invalid binding. Please use a valid non-cyclic binding.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation type="unfinished">Warnung</translation>
+    </message>
+    <message>
+        <source>Rename collection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Abbrechen</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove collection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure? The action cannot be undone.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="unfinished">Entfernen</translation>
+    </message>
+    <message>
+        <source>More options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NewCollection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="unfinished">Aktualisieren</translation>
+    </message>
+    <message>
+        <source>Invalid binding. Cyclic binding is not allowed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished">Zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Set Binding</source>
+        <translation type="unfinished">Binding einstellen</translation>
+    </message>
+    <message>
+        <source>Duplicate mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate variable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename variable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete variable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No name found, please enter a valid name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This name is already in use, please use a different name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Name</translation>
     </message>
     <message>
         <source>Create mode</source>
@@ -5996,23 +9397,43 @@ a highlight component.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>How to see a preview on Android device</source>
+        <source>To preview your application on an Android device:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Scan the QR code below or click on the link to go to the Google Play store with your device and seek for Qt Viewer application.</source>
+        <source>Select the “GET IT ON Google Play” link or scan the QR code below with your Android device.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Install the Qt Viewer application on your phone.</source>
+        <source>Install Qt UI Viewer on your Android device.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open up this window again, if you already closed it, and click on &quot;Add Run Target&quot; button in this window.</source>
+        <source>Connect your Android device to the same network as your Qt Design Studio. For secured office networks contact the network admin to identify the correct network.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Run target IP</source>
+        <source>Open Qt UI Viewer and find the IP address of the device.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open the application you want to preview in Qt Design Studio.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to Run dropdown in the top toolbar and select Device Manager.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add your Qt UI Viewer IP address in the Device Manager.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select your Android device from the Run dropdown from the Qt Design Studio top toolbar and select Run.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set target device IP</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6074,16 +9495,16 @@ a highlight component.</source>
         <translation type="unfinished">Beispiele</translation>
     </message>
     <message>
-        <source>Tutorials</source>
-        <translation type="unfinished">Anleitungen</translation>
-    </message>
-    <message>
         <source>UI Tour</source>
         <translation type="unfinished">Oberfläche vorführen</translation>
     </message>
     <message>
         <source>User Guide</source>
         <translation type="unfinished">Handbuch</translation>
+    </message>
+    <message>
+        <source>Qt Academy</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Blog</source>
@@ -6100,6 +9521,13 @@ a highlight component.</source>
     <message>
         <source>Get Qt</source>
         <translation type="unfinished">Qt</translation>
+    </message>
+</context>
+<context>
+    <name>MainWindow</name>
+    <message>
+        <source>MainWindow</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6142,6 +9570,49 @@ a highlight component.</source>
     </message>
 </context>
 <context>
+    <name>MaskedBlurEffectSpecifics</name>
+    <message>
+        <source>Masked Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>The distance of the neighboring pixels which affect the blurring of an individual pixel. A larger radius increases the blur effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <translation type="unfinished">Samples</translation>
+    </message>
+    <message>
+        <source>Samples per pixel for blur calculation. A larger value produces better quality, but is slower to render.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mask source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The component that controls the final intensity of the blur.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MaterialBrowser</name>
     <message>
         <source>Add a Material.</source>
@@ -6156,7 +9627,10 @@ a highlight component.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>To use &lt;b&gt;Material Browser&lt;/b&gt;, first add the QtQuick3D module in the &lt;b&gt;Components&lt;/b&gt; view.</source>
+        <source>To use the &lt;b&gt;Material Browser&lt;/b&gt;, add the &lt;b&gt;QtQuick3D&lt;/b&gt; module and the &lt;b&gt;View3D&lt;/b&gt;
+                             component in the &lt;b&gt;Components&lt;/b&gt; view, or click
+                             &lt;a href=&quot;#add_import&quot;&gt;&lt;span style=&quot;text-decoration:none;color:%1&quot;&gt;
+                             here&lt;/span&gt;&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6232,83 +9706,6 @@ a highlight component.</source>
     </message>
 </context>
 <context>
-    <name>MaterialEditorPreview</name>
-    <message>
-        <source>Select preview environment.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select preview model.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cone</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cube</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cylinder</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sphere</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Basic</source>
-        <translation type="unfinished">Grundlegend</translation>
-    </message>
-    <message>
-        <source>Color</source>
-        <translation type="unfinished">Farbe</translation>
-    </message>
-    <message>
-        <source>Studio</source>
-        <translation type="unfinished">Studio</translation>
-    </message>
-    <message>
-        <source>Landscape</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MaterialEditorToolBar</name>
-    <message>
-        <source>Apply material to selected model.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Create new material.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete current material.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open material browser.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MaterialEditorTopSection</name>
-    <message>
-        <source>Name</source>
-        <translation type="unfinished">Name</translation>
-    </message>
-    <message>
-        <source>Material name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="unfinished">Typ</translation>
-    </message>
-</context>
-<context>
     <name>MaterialSection</name>
     <message>
         <source>Material</source>
@@ -6372,6 +9769,111 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Target video output.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MinMaxMapperSpecifics</name>
+    <message>
+        <source>Min Max Mapper</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Min</source>
+        <translation type="unfinished">Min</translation>
+    </message>
+    <message>
+        <source>Max</source>
+        <translation type="unfinished">Max</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">Ausgaben</translation>
+    </message>
+    <message>
+        <source>Below min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Above max</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Out of range</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ModelBlendParticle3DSection</name>
+    <message>
+        <source>Model Blend Particle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delegate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The delegate provides a template defining the model for the ModelBlendParticle3D.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>End Node</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the node that specifies the transformation for the model at the end of particle effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Model Blend Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets blending mode for the particle effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>End Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the end time of the particle in milliseconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Activation Node</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a node that activates particles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Emit Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets emit mode of the particles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ModelParticle3DSection</name>
+    <message>
+        <source>Model Particle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delegate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The delegate provides a template defining each object instantiated by the particle.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6558,6 +10060,29 @@ This overrides the scene&apos;s light probe.</source>
     </message>
     <message>
         <source>Sets the set of attributes of the current morph target.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MotionBlurSection</name>
+    <message>
+        <source>Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fade Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies how much the blur fades away each frame.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blur quality.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6843,6 +10368,29 @@ This overrides the scene&apos;s light probe.</source>
         <source>Sets the pivot of the node.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Node</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Is Visible</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>NotOperatorSpecifics</name>
+    <message>
+        <source>NOT Operator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">Ausgaben</translation>
+    </message>
 </context>
 <context>
     <name>NumberAnimationSpecifics</name>
@@ -6871,6 +10419,131 @@ This overrides the scene&apos;s light probe.</source>
     <name>Object3DSection</name>
     <message>
         <source>Object</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>OpacityMaskEffectSpecifics</name>
+    <message>
+        <source>Opacity Mask</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls how the alpha values of the source mask will behave.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mask source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The component that is going to be used as the mask.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>OrOperatorSpecifics</name>
+    <message>
+        <source>OR Operator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input 01</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input 02</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">Ausgaben</translation>
+    </message>
+</context>
+<context>
+    <name>OrbitCameraControllerSection</name>
+    <message>
+        <source>Orbit Camera Controller</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Origin</source>
+        <translation type="unfinished">Ursprung</translation>
+    </message>
+    <message>
+        <source>The node that the camera will orbit around.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The camera that will be controlled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mouse/Touch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables interaction via mouse and touch.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pan Controls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables panning gestures.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables inverting X-axis controls.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>X Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The speed of the X-axis controls.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables inverting Y-axis controls.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Y Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The speed of the Y-axis controls.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7079,6 +10752,400 @@ the total implicit size.</source>
     </message>
 </context>
 <context>
+    <name>Particle3DSection</name>
+    <message>
+        <source>Particle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the maximum amount of particles that can exist at the same time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished">Farbe</translation>
+    </message>
+    <message>
+        <source>Sets the base color that is used for colorizing the particles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the color variation that is used for colorizing the particles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unified Color Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets if the colorVariation should be applied uniformly for all the color channels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fade In Effect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the fading effect used when the particles appear.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fade Out Effect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the fading effect used when the particles reach their lifeSpan and disappear.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fade In Duration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the duration in milliseconds for the fading in effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fade Out Duration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the duration in milliseconds for the fading out effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the align mode used for the particles. Particle alignment means the direction that particles face.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align Target Position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the position particles are aligned to. This property has effect only when the alignMode is set to Particle3D.AlignTowardsTarget.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Has Transparency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets if the particle has any transparency and should be blended with the background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sort Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the sort mode used for the particles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ParticleCustomShape3DSection</name>
+    <message>
+        <source>Particle Custom Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets whether the particles are used in random order instead of in the order they are specified in the source.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the location of the shape file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ParticleEmitter3DSection</name>
+    <message>
+        <source>Particle Emitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation type="unfinished">System</translation>
+    </message>
+    <message>
+        <source>Sets the ParticleSystem3D for the emitter. If system is direct parent of the emitter, this property does not need to be defined.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Emit Bursts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a list of EmitBurst3D elements to declaratively define bursts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a starting velocity for emitted particles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Particle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the logical particle which this emitter emits.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation type="unfinished">Aktiviert</translation>
+    </message>
+    <message>
+        <source>If enabled is set to false, this emitter will not emit any particles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets optional shape for the emitting area.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Emit Rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the constant emitting rate in particles per second.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Span</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the lifespan of a single particle in milliseconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Life Span Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the lifespan variation of a single particle in milliseconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Particle Scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the scale multiplier of the particles at the beginning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Particle End Scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the scale multiplier of the particles at the end of particle lifeSpan.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scale Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the scale variation of the particles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>End Scale Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the scale variation of the particles in the end.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Depth Bias</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the depth bias of the emitter. Depth bias is added to the object distance from camera when sorting objects.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Particle Rotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rotation</source>
+        <translation type="unfinished">Drehung</translation>
+    </message>
+    <message>
+        <source>Sets the rotation of the particles in the beginning. Rotation is defined as degrees in euler angles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the rotation variation of the particles in the beginning. Rotation variation is defined as degrees in euler angles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the rotation velocity of the particles in the beginning. Rotation velocity is defined as degrees per second in euler angles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the rotation velocity variation of the particles. Rotation velocity variation is defined as degrees per second in euler angles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ParticleModelShape3DSection</name>
+    <message>
+        <source>Particle Model Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets if the shape should be filled or just use the shape outlines.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delegate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The delegate provides a template defining the model for the ParticleModelShape3D.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ParticleShape3DSection</name>
+    <message>
+        <source>Particle Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets if the shape should be filled or just use the shape outlines.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Typ</translation>
+    </message>
+    <message>
+        <source>Sets the type of the shape.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the extents of the shape.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ParticleSystem3DSection</name>
+    <message>
+        <source>Particle System</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the time in milliseconds where the system starts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished">Zeit</translation>
+    </message>
+    <message>
+        <source>Sets the time in milliseconds for the system.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Running</source>
+        <translation type="unfinished">Läuft</translation>
+    </message>
+    <message>
+        <source>Sets if system is currently running.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paused</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets if system is currently paused.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logging</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables collection of loggingData.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use Random Seed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets if particle system seed should be random or user defined.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Seed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the seed value used for particles randomization.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PassSection</name>
     <message>
         <source>Pass</source>
@@ -7237,6 +11304,213 @@ a highlight component.</source>
     </message>
 </context>
 <context>
+    <name>PhysicsBodySection</name>
+    <message>
+        <source>Physics Body</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Physics Material</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The physics material of the body.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PhysicsMaterialSection</name>
+    <message>
+        <source>Physics Material</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PhysicsNodeSection</name>
+    <message>
+        <source>Physics Node</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collision Shapes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Receive Contact Reports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Determines whether this body will receive contact reports when colliding with other bodies.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send Contact Reports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Determines whether this body will send contact reports when colliding with other bodies.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Receive Trigger Reports</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Determines whether this body will receive reports when entering or leaving a trigger body.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send Trigger Reports</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PhysicsWorldSection</name>
+    <message>
+        <source>Physics World</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scene</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The scene node to which the physics world is attached.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Viewport</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The node to which the debug geometry of the physics world is added.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Running</source>
+        <translation type="unfinished">Läuft</translation>
+    </message>
+    <message>
+        <source>Whether the physics world is running.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Force Debug Draw</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Whether to force debug drawing of the physics world.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>CCD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Whether to enable continuous collision detection.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gravity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The gravity vector.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Typical Length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The typical length of objects in the scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Typical Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The typical speed of objects in the scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default Density</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The default density of objects in the scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Min Timestep</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Defines the minimum simulation timestep in milliseconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Timestep</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Defines the maximum simulation timestep in milliseconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PieItemSpecifics</name>
+    <message>
+        <source>Pie Item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the color to fill the Pie.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke color of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke thickness of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation type="unfinished">Verbergen</translation>
+    </message>
+    <message>
+        <source>Pie start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the starting angle of the Pie.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pie end</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the ending angle of the Pie.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PluginManager</name>
     <message>
         <source>Failed Plugins</source>
@@ -7271,6 +11545,37 @@ a highlight component.</source>
     </message>
     <message>
         <source>Sets the quadratic attenuation of the light.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PointRotator3DSection</name>
+    <message>
+        <source>Particle Point Rotator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Magnitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the magnitude in degrees per second.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation type="unfinished">Richtung</translation>
+    </message>
+    <message>
+        <source>Sets the direction for the rotation. Values will be automatically normalized to a unit vector.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pivot Point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the pivot point for the rotation. Particles are rotated around this point.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7356,6 +11661,49 @@ a highlight component.</source>
     <name>PresetView</name>
     <message>
         <source>Delete Custom Preset</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Preview</name>
+    <message>
+        <source>Select preview environment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select preview model.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cube</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cylinder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sphere</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Basic</source>
+        <translation type="unfinished">Grundlegend</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished">Farbe</translation>
+    </message>
+    <message>
+        <source>Studio</source>
+        <translation type="unfinished">Studio</translation>
+    </message>
+    <message>
+        <source>Landscape</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7773,6 +12121,133 @@ a highlight component.</source>
     </message>
 </context>
 <context>
+    <name>ProceduralSkyTextureDataSection</name>
+    <message>
+        <source>Procedural Sky Texture Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This property sets the size of the texture. The higher the quality, the more memory is used.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sky</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Top Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies the sky color at the top of the skybox.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Horizon Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies the sky color at the horizon.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Energy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies the HDR color intensity of the top half of the skybox.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modifies the curve (n^x) of the sky gradient from the horizon to the top.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ground</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bottom Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies the ground color at the bottom of the skybox.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies the ground color at the horizon.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies the HDR color intensity of the bottom half of the skybox.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modifies the curve (n^x) of the ground gradient from the horizon to the bottom.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sun</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished">Farbe</translation>
+    </message>
+    <message>
+        <source>Specifies the color at the sun on the skybox.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies the HDR color intensity of sun on the skybox.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fade Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies the angle from the center of the sun to where it starts to fade.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fade End</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies the angle from the center of the sun to where it fades out completely.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modifies the curve (n^x) of the gradient from the sky color and the sun.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Latitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies the angle between the horizon and the sun position.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Longitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies the angle between the forward direction and the sun position.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ProgressBarSpecifics</name>
     <message>
         <source>Progress Bar</source>
@@ -7876,11 +12351,22 @@ operation is in progress.</source>
 <context>
     <name>PropertyEditorPane</name>
     <message>
+        <source>No match found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Current State</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The current state of the States View.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PropertyEditorToolBar</name>
+    <message>
+        <source>Lock current node</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7924,44 +12410,74 @@ operation is in progress.</source>
     </message>
 </context>
 <context>
-    <name>QKeychain::DeletePasswordJobPrivate</name>
+    <name>QKeychain::Job</name>
     <message>
-        <source>Password entry not found</source>
+        <source>No error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Could not decrypt data</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QKeychain::ReadPasswordJobPrivate</name>
-    <message>
-        <source>Password entry not found</source>
+        <source>The specified item could not be found in the keychain</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Could not decrypt data</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QKeychain::WritePasswordJobPrivate</name>
-    <message>
-        <source>Credential size exceeds maximum size of %1</source>
+        <source>User canceled the operation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Credential key exceeds maximum size of %1</source>
+        <source>User interaction is not allowed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Writing credentials failed: Win32 error code %1</source>
+        <source>No keychain is available. You may need to restart your computer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Encryption failed</source>
+        <source>The user name or passphrase you entered is not correct</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A cryptographic verification failure has occurred</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Function or operation not implemented</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>I/O error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Already open with with write permission</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid parameters passed to a function</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to allocate memory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bad parameter or invalid state for operation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An internal component failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The specified item already exists in the keychain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to decode the provided data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation type="unfinished">Unbekannter Fehler</translation>
     </message>
 </context>
 <context>
@@ -7995,6 +12511,65 @@ operation is in progress.</source>
     </message>
 </context>
 <context>
+    <name>QUnicodeControlCharacterMenu</name>
+    <message>
+        <source>LRM Left-to-right mark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RLM Right-to-left mark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ZWJ Zero width joiner</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ZWNJ Zero width non-joiner</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ZWSP Zero width space</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LRE Start of left-to-right embedding</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RLE Start of right-to-left embedding</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LRO Start of left-to-right override</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RLO Start of right-to-left override</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PDF Pop directional formatting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LRI Left-to-right isolate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RLI Right-to-left isolate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FSI First strong isolate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PDI Pop directional isolate</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>QmlDesigner::AbstractEditorDialog</name>
     <message>
         <source>Untitled Editor</source>
@@ -8004,8 +12579,8 @@ operation is in progress.</source>
 <context>
     <name>QmlDesigner::ActionEditorDialog</name>
     <message>
-        <source>Connection Editor</source>
-        <translation type="unfinished"></translation>
+        <source>Action Editor</source>
+        <translation type="unfinished">Aktionseditor</translation>
     </message>
 </context>
 <context>
@@ -8055,24 +12630,6 @@ operation is in progress.</source>
     <message>
         <source>Author</source>
         <translation>Autor</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::AnnotationEditor</name>
-    <message>
-        <source>Annotation</source>
-        <translation>Annotation</translation>
-    </message>
-    <message>
-        <source>Delete this annotation?</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::AnnotationEditorDialog</name>
-    <message>
-        <source>Annotation Editor</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8138,164 +12695,6 @@ operation is in progress.</source>
     </message>
 </context>
 <context>
-    <name>QmlDesigner::AnnotationTableView</name>
-    <message>
-        <source>Title</source>
-        <translation type="unfinished">Titel</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation type="unfinished">Autor</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation type="unfinished">Wert</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::AssetExportDialog</name>
-    <message>
-        <source>Choose Export File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Metadata file (*.metadata)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <translation>Öffnen</translation>
-    </message>
-    <message>
-        <source>Advanced Options</source>
-        <translation type="unfinished">Erweiterte Optionen</translation>
-    </message>
-    <message>
-        <source>Export assets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export components separately</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="unfinished">Export</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::AssetExporter</name>
-    <message>
-        <source>Export root directory: %1.
-Exporting assets: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Yes</source>
-        <translation>Ja</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation>Nein</translation>
-    </message>
-    <message>
-        <source>Each component is exported separately.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Canceling export.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unknown error.</source>
-        <translation type="unfinished">Unbekannter Fehler.</translation>
-    </message>
-    <message>
-        <source>Loading file is taking too long.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot parse. The file contains coding errors.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Loading components failed. %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot export component. Document &quot;%1&quot; has parsing errors.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error saving component file. %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>Unbekannt</translation>
-    </message>
-    <message>
-        <source>Cannot preprocess file: %1. Error %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot preprocess file: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot update %1.
-%2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Exporting file %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export canceled.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Writing metadata failed. Cannot create file %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Writing metadata to file %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Empty JSON document.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Writing metadata failed. %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export finished.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::AssetExporterPlugin</name>
-    <message>
-        <source>Asset Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Issues with exporting assets.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export Components</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export components in the current project.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>QmlDesigner::AssetsLibraryView</name>
     <message>
         <source>Assets</source>
@@ -8349,21 +12748,6 @@ Exporting assets: %2</source>
     </message>
 </context>
 <context>
-    <name>QmlDesigner::BindingEditorDialog</name>
-    <message>
-        <source>Binding Editor</source>
-        <translation>Binding-Editor</translation>
-    </message>
-    <message>
-        <source>NOT</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invert the boolean expression.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>QmlDesigner::BindingEditorWidget</name>
     <message>
         <source>Trigger Completion</source>
@@ -8405,13 +12789,6 @@ Exporting assets: %2</source>
     </message>
 </context>
 <context>
-    <name>QmlDesigner::ColorTool</name>
-    <message>
-        <source>Color Tool</source>
-        <translation>Farbwerkzeug</translation>
-    </message>
-</context>
-<context>
     <name>QmlDesigner::ComponentAction</name>
     <message>
         <source>Edit sub components defined in this file.</source>
@@ -8434,37 +12811,6 @@ Exporting assets: %2</source>
     </message>
 </context>
 <context>
-    <name>QmlDesigner::ConnectionEditorStatements</name>
-    <message>
-        <source>Function</source>
-        <translation type="unfinished">Funktion</translation>
-    </message>
-    <message>
-        <source>Assignment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set Property</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set State</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Print</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Empty</source>
-        <translation type="unfinished">Leer</translation>
-    </message>
-    <message>
-        <source>Custom</source>
-        <translation type="unfinished">Benutzerdefiniert</translation>
-    </message>
-</context>
-<context>
     <name>QmlDesigner::ConnectionModel</name>
     <message>
         <source>Target</source>
@@ -8481,20 +12827,6 @@ Exporting assets: %2</source>
     <message>
         <source>Error</source>
         <translation type="unfinished">Fehler</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::ConnectionModelBackendDelegate</name>
-    <message>
-        <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::ConnectionModelStatementDelegate</name>
-    <message>
-        <source>Base State</source>
-        <translation type="unfinished">Grundzustand</translation>
     </message>
 </context>
 <context>
@@ -8565,6 +12897,10 @@ Exporting assets: %2</source>
         <comment>Title of content library widget</comment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Choose Directory</source>
+        <translation type="unfinished">Verzeichnis wählen</translation>
+    </message>
 </context>
 <context>
     <name>QmlDesigner::CrumbleBar</name>
@@ -8597,30 +12933,6 @@ Exporting assets: %2</source>
     <message>
         <source>Unify</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Linear</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Start Frame</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>End Frame</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Current Frame</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation type="unfinished">Verkleinern</translation>
-    </message>
-    <message>
-        <source>Zoom In</source>
-        <translation type="unfinished">Vergrößern</translation>
     </message>
     <message>
         <source>Not supported for MCUs</source>
@@ -8681,16 +12993,9 @@ Exporting assets: %2</source>
     </message>
 </context>
 <context>
-    <name>QmlDesigner::DesignSystemView</name>
-    <message>
-        <source>Design System</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>QmlDesigner::DesignSystemWidget</name>
     <message>
-        <source>Design System</source>
+        <source>Design Tokens</source>
         <comment>Title of Editor widget</comment>
         <translation type="unfinished"></translation>
     </message>
@@ -8700,53 +13005,6 @@ Exporting assets: %2</source>
     </message>
     <message>
         <source>StatesEditorWidget: %1 cannot be created.%2</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::DeviceShare::DeviceManagerModel</name>
-    <message>
-        <source>Active</source>
-        <translation type="unfinished">Aktiv</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation type="unfinished">Status</translation>
-    </message>
-    <message>
-        <source>Alias</source>
-        <translation type="unfinished">Alias</translation>
-    </message>
-    <message>
-        <source>IPv4 Address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>OS</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>OS Version</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Architecture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Screen Size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>App Version</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Self ID</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Device ID</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8853,25 +13111,9 @@ Exporting assets: %2</source>
         <source>Primitives</source>
         <translation type="unfinished">Primitive</translation>
     </message>
-    <message>
-        <source>Imported Models</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to Add Import</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not add QtQuick3D import to project.</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>QmlDesigner::Edit3DWidget</name>
-    <message>
-        <source>Your file does not import Qt Quick 3D.&lt;br&gt;&lt;br&gt;To create a 3D view, add the &lt;b&gt;QtQuick3D&lt;/b&gt; module in the &lt;b&gt;Components&lt;/b&gt; view or click &lt;a href=&quot;#add_import&quot;&gt;&lt;span style=&quot;text-decoration:none;color:%1&quot;&gt;here&lt;/span&gt;&lt;/a&gt;.&lt;br&gt;&lt;br&gt;To import 3D assets, select &lt;b&gt;+&lt;/b&gt; in the &lt;b&gt;Assets&lt;/b&gt; view.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Edit Component</source>
         <translation type="unfinished"></translation>
@@ -9021,15 +13263,23 @@ Exporting assets: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Import Component</source>
+        <source>Import Bundle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Export Component</source>
+        <source>Export Bundle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Imported Models</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>3D view is not supported in MCU projects.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>To use the &lt;b&gt;3D&lt;/b&gt; view, add the &lt;b&gt;QtQuick3D&lt;/b&gt; module and the &lt;b&gt;View3D&lt;/b&gt; component in the &lt;b&gt;Components&lt;/b&gt; view or click &lt;a href=&quot;#add_import&quot;&gt;&lt;span style=&quot;text-decoration:none;color:%1&quot;&gt;here&lt;/span&gt;&lt;/a&gt;.&lt;br&gt;&lt;br&gt;To import 3D assets, select &lt;b&gt;+&lt;/b&gt; in the &lt;b&gt;Assets&lt;/b&gt; view.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9077,6 +13327,10 @@ Exporting assets: %2</source>
         <source>Description</source>
         <translation type="unfinished">Beschreibung</translation>
     </message>
+    <message>
+        <source></source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>QmlDesigner::EventListPluginView</name>
@@ -9093,28 +13347,6 @@ Exporting assets: %2</source>
     </message>
 </context>
 <context>
-    <name>QmlDesigner::FilePathModel</name>
-    <message>
-        <source>Canceling file preparation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::GlobalAnnotationDialog</name>
-    <message>
-        <source>Global Annotation Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Global Annotation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All Annotations</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>QmlDesigner::GlobalAnnotationEditor</name>
     <message>
         <source>Global Annotation</source>
@@ -9122,21 +13354,6 @@ Exporting assets: %2</source>
     </message>
     <message>
         <source>Delete this annotation?</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::GraphicsView</name>
-    <message>
-        <source>Open Style Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Insert Keyframe</source>
-        <translation type="unfinished">Keyframe einfügen</translation>
-    </message>
-    <message>
-        <source>Delete Selected Keyframes</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -9343,11 +13560,7 @@ Exporting assets: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Failed to insert import statement into qml document.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to update imports: %1</source>
+        <source>Failed to insert QtQuick3D import to the qml document.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -9471,10 +13684,6 @@ Exporting assets: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>My 3D Components</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>All Other Components</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9501,15 +13710,23 @@ Exporting assets: %2</source>
 <context>
     <name>QmlDesigner::ListModelEditorDialog</name>
     <message>
-        <source>Add Row</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Remove Columns</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Row Above</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Row Below</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove Rows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9568,44 +13785,6 @@ Exporting assets: %2</source>
     <message>
         <source>Material Browser</source>
         <comment>Title of material browser widget</comment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::MaterialEditorContextObject</name>
-    <message>
-        <source>&lt;b&gt;Incompatible properties:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Change Type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Changing the type from %1 to %2 can&apos;t be done without removing incompatible properties.&lt;br&gt;&lt;br&gt;%3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do you want to continue by removing incompatible properties?</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::MaterialEditorView</name>
-    <message>
-        <source>Cannot Export Property as Alias</source>
-        <translation type="unfinished">Eigenschaft kann nicht als Alias exportiert werden</translation>
-    </message>
-    <message>
-        <source>Property %1 does already exist for root component.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Material Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Material Editor view</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -9808,6 +13987,10 @@ Locked components cannot be modified or selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Qml Designer Lite initialization error: The Qml Designer Lite plugin is not enabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Give Feedback...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9934,6 +14117,44 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
+    <name>QmlDesigner::ScriptEditorBackend</name>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Fehler</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::ScriptEditorStatements</name>
+    <message>
+        <source>Function</source>
+        <translation type="unfinished">Funktion</translation>
+    </message>
+    <message>
+        <source>Assignment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set Property</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set State</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Print</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Empty</source>
+        <translation type="unfinished">Leer</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation type="unfinished">Benutzerdefiniert</translation>
+    </message>
+</context>
+<context>
     <name>QmlDesigner::SetFrameValueDialog</name>
     <message>
         <source>Edit Keyframe</source>
@@ -10016,28 +14237,6 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>QmlDesigner::SignalListDelegate</name>
-    <message>
-        <source>Release</source>
-        <translation type="unfinished">Release</translation>
-    </message>
-    <message>
-        <source>Connect</source>
-        <translation type="unfinished">Verbinden</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::SignalListModel</name>
-    <message>
-        <source>Item ID</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Signal</source>
-        <translation type="unfinished">Signal</translation>
-    </message>
-</context>
-<context>
     <name>QmlDesigner::SourceTool</name>
     <message>
         <source>Open File</source>
@@ -10069,6 +14268,13 @@ Locked components cannot be modified or selected.</source>
     <message>
         <source>Reset Zoom</source>
         <translation>Vergrößerung zurücksetzen</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::StatementDelegate</name>
+    <message>
+        <source>Base State</source>
+        <translation type="unfinished">Grundzustand</translation>
     </message>
 </context>
 <context>
@@ -10244,25 +14450,6 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Code view</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::TextureEditorView</name>
-    <message>
-        <source>Cannot Export Property as Alias</source>
-        <translation type="unfinished">Eigenschaft kann nicht als Alias exportiert werden</translation>
-    </message>
-    <message>
-        <source>Property %1 does already exist for root component.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Texture Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Texture Editor view</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -10512,60 +14699,8 @@ Locked components cannot be modified or selected.</source>
 <context>
     <name>QmlDesigner::TimelineToolBar</name>
     <message>
-        <source>Base State</source>
-        <translation>Grundzustand</translation>
-    </message>
-    <message>
-        <source>Not Supported for MCUs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Timeline Settings</source>
-        <translation>Timeline-Einstellungen</translation>
-    </message>
-    <message>
-        <source>To Start</source>
-        <translation>Zum Beginn</translation>
-    </message>
-    <message>
-        <source>Previous</source>
-        <translation>Vorige</translation>
-    </message>
-    <message>
-        <source>Play</source>
-        <translation>Abspielen</translation>
-    </message>
-    <message>
-        <source>Next</source>
-        <translation>Nächste</translation>
-    </message>
-    <message>
-        <source>To End</source>
-        <translation>Zum Ende</translation>
-    </message>
-    <message>
-        <source>Loop Playback</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Playback Speed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Auto Key</source>
-        <translation>Auto Key</translation>
-    </message>
-    <message>
         <source>Easing Curve Editor</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zoom Out</source>
-        <translation>Verkleinern</translation>
-    </message>
-    <message>
-        <source>Zoom In</source>
-        <translation>Vergrößern</translation>
     </message>
 </context>
 <context>
@@ -10899,6 +15034,14 @@ Locked components cannot be modified or selected.</source>
         <translation>Sichtbarkeit</translation>
     </message>
     <message>
+        <source>Isolate Selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show All Nodes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Reset Size</source>
         <translation>Größe zurücksetzen</translation>
     </message>
@@ -10923,15 +15066,11 @@ Locked components cannot be modified or selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Extract Component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add to Content Library</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Import Component</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export Component</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10944,6 +15083,10 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Edit in Effect Composer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reimport 3D Asset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10976,6 +15119,14 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vertical Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Horizontal Center</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11025,6 +15176,14 @@ Locked components cannot be modified or selected.</source>
     <message>
         <source>Reset size and use implicit size.</source>
         <translation>Größe zurücksetzen und implizite Größe verwenden.</translation>
+    </message>
+    <message>
+        <source>Show selected nodes only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show all nodes.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Reset position and use implicit position.</source>
@@ -11091,15 +15250,19 @@ Locked components cannot be modified or selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Import Bundle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Bundle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add Mouse Area</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Open Signal Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Update 3D Asset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11975,10 +16138,6 @@ Locked components cannot be modified or selected.</source>
         <translation>Prüfe die Integrität des Pakets...</translation>
     </message>
     <message>
-        <source>Unarchiving error.</source>
-        <translation>Fehler beim Entpacken.</translation>
-    </message>
-    <message>
         <source>Download SDK Tools</source>
         <translation>SDK-Werkzeuge herunterladen</translation>
     </message>
@@ -11993,6 +16152,10 @@ Locked components cannot be modified or selected.</source>
     <message>
         <source>Download from %1 was redirected.</source>
         <translation>Das Herunterladen von %1 wurde umgeleitet.</translation>
+    </message>
+    <message>
+        <source>Unarchiving error: %1</source>
+        <translation>Fehler beim Entpacken: %1</translation>
     </message>
     <message>
         <source>Automatically download Android SDK Tools to selected location.
@@ -12454,10 +16617,6 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     <message>
         <source>The kit&apos;s run configuration is invalid.</source>
         <translation>Die Ausführungskonfiguration des Kits ist ungültig.</translation>
-    </message>
-    <message>
-        <source>The kit&apos;s build configuration is invalid.</source>
-        <translation>Die Build-Konfiguration des Kits ist ungültig.</translation>
     </message>
     <message>
         <source>No valid deployment device is set.</source>
@@ -13266,12 +17425,8 @@ Rufen Sie QtAndroid::hideSplashScreen() auf, um einen Startbildschirm zu verstec
         <translation>XXXHDPI</translation>
     </message>
     <message>
-        <source>An image is used for the splashscreen. Qt Creator manages
-splashscreen by using a different method which requires changing
-the manifest file by overriding your settings. Allow override?</source>
-        <translation>Für den Startbildschirm wird ein Bild verwendet. Qt Creator verwaltet
-Startbildschirme auf andere Weise, was eine Änderung der Manifest-Datei
-und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlauben?</translation>
+        <source>An image is used for the splashscreen. Qt Creator manages splashscreen by using a different method which requires changing the manifest file by overriding your settings. Allow override?</source>
+        <translation>Für den Startbildschirm wird ein Bild verwendet. Qt Creator verwaltet Startbildschirme auf andere Weise, was eine Änderung der Manifest-Datei und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlauben?</translation>
     </message>
     <message>
         <source>Convert</source>
@@ -13371,10 +17526,6 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     <message>
         <source>Clean Environment</source>
         <translation>Saubere Umgebung</translation>
-    </message>
-    <message>
-        <source>%1 exited.</source>
-        <translation>%1 wurde beendet.</translation>
     </message>
     <message>
         <source>Starting Application Manager debugging...</source>
@@ -14760,11 +18911,11 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <translation>Führe Tests für &quot;%1&quot; aus.</translation>
     </message>
     <message>
-        <source>Locate Qt Test data tags</source>
-        <translation>Qt Test Data Tags finden</translation>
+        <source>Qt Test Data Tags</source>
+        <translation>Qt Test Data Tags</translation>
     </message>
     <message>
-        <source>Locates Qt Test data tags found inside the active project.</source>
+        <source>Locates Qt Test data tags inside the active project.</source>
         <translation>Findet Qt Test Data Tags im aktiven Projekt.</translation>
     </message>
 </context>
@@ -14857,6 +19008,26 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <translation>Online-Filterhilfe anzeigen</translation>
     </message>
     <message>
+        <source>Local Build...</source>
+        <translation>Lokaler Build...</translation>
+    </message>
+    <message>
+        <source>Local Dashboard</source>
+        <translation>Lokales Dashboard</translation>
+    </message>
+    <message>
+        <source>Reference version</source>
+        <translation>Referenzversion</translation>
+    </message>
+    <message>
+        <source>Locally changed issues</source>
+        <translation>Lokal geänderte Probleme</translation>
+    </message>
+    <message>
+        <source>All local issues</source>
+        <translation>Alle lokalen Probleme</translation>
+    </message>
+    <message>
         <source>Show All</source>
         <translation>Alle anzeigen</translation>
     </message>
@@ -14867,6 +19038,14 @@ Siehe auch die Einstellungen für Google Test.</translation>
     <message>
         <source>No Dashboard</source>
         <translation>Kein Dashboard</translation>
+    </message>
+    <message>
+        <source>Failed</source>
+        <translation>Fehlgeschlagen</translation>
+    </message>
+    <message>
+        <source>Local Build Progress</source>
+        <translation>Lokaler Build-Fortschritt</translation>
     </message>
     <message>
         <source>Show Issues in Editor</source>
@@ -14883,6 +19062,22 @@ Siehe auch die Einstellungen für Google Test.</translation>
     <message>
         <source>Copy Dashboard Link to Clipboard</source>
         <translation>Dashboard-Link in die Zwischenablage kopieren</translation>
+    </message>
+    <message>
+        <source>Cancel Local Build</source>
+        <translation>Lokalen Build abbrechen</translation>
+    </message>
+    <message>
+        <source>See Axivion Log...</source>
+        <translation>Axivion-Log ansehen...</translation>
+    </message>
+    <message>
+        <source>See Build Log...</source>
+        <translation>Build-Log ansehen...</translation>
+    </message>
+    <message>
+        <source>Remove All Finished</source>
+        <translation>Alle Beendeten entfernen</translation>
     </message>
     <message>
         <source>Show Issue Properties</source>
@@ -14945,6 +19140,10 @@ Benutzer: %2</translation>
         <translation>Fehler beim Abrufen der DashboardInfo.</translation>
     </message>
     <message>
+        <source>Fetching local DashboardInfo error.</source>
+        <translation>Fehler beim Abrufen der lokalen DashboardInfo.</translation>
+    </message>
+    <message>
         <source>The activated link appears to be external.
 Do you want to open &quot;%1&quot; with its default application?</source>
         <translation>Der aktivierte Link scheint extern zu sein.
@@ -14965,6 +19164,24 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     <message>
         <source>Marks issues on the scroll bar.</source>
         <translation>Markiert Probleme in der Bildlaufleiste.</translation>
+    </message>
+    <message>
+        <source>Axivion Suite path:</source>
+        <translation>Pfad zur Axivion Suite:</translation>
+    </message>
+    <message>
+        <source>Save all open files before starting an analysis</source>
+        <translation>Alle geöffnete Dateien vor dem Start einer Analyse speichern</translation>
+    </message>
+    <message>
+        <source>Path to python executable.
+Set it to overwrite global environment or if Axivion fails to find python in PATH.</source>
+        <translation>Pfad zur ausführbaren Datei von python.
+Setzen Sie dies, um die globale Umgebung zu überschreiben oder wenn Axivion python nicht im PATH findet.</translation>
+    </message>
+    <message>
+        <source>Set it to overwrite global environment or if Axivion fails to find java in PATH.</source>
+        <translation>Setzen Sie dies, um die globale Umgebung zu überschreiben oder wenn Axivion java nicht im PATH findet.</translation>
     </message>
     <message>
         <source>Axivion: Deleting API token for %1 as respective dashboard server was removed.</source>
@@ -15005,6 +19222,22 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     <message>
         <source>Default dashboard server:</source>
         <translation>Vorgabe-Dashboardserver:</translation>
+    </message>
+    <message>
+        <source>Local Analyses</source>
+        <translation>Lokale Analysen</translation>
+    </message>
+    <message>
+        <source>Version:</source>
+        <translation>Version:</translation>
+    </message>
+    <message>
+        <source>Build date:</source>
+        <translation>Build-Datum:</translation>
+    </message>
+    <message>
+        <source>Contact support@axivion.com if you need assistance.</source>
+        <translation>Kontaktieren Sie support@axivion.com, wenn Sie Hilfe benötigen.</translation>
     </message>
     <message>
         <source>Misc Options</source>
@@ -15109,6 +19342,80 @@ a entspricht Problemen, deren Wert den Buchstaben &apos;a&apos; enthält
     <message>
         <source>Apply</source>
         <translation>Anwenden</translation>
+    </message>
+    <message>
+        <source>Failed to start local dashboard.</source>
+        <translation>Lokales Dashboard konnte nicht gestartet werden.</translation>
+    </message>
+    <message>
+        <source>Build type:</source>
+        <translation>Build-Typ:</translation>
+    </message>
+    <message>
+        <source>Clean Build: Set environment variable AXIVION_CLEAN_BUILD=1
+Incremental Build: Set environment variable AXIVION_INCREMENTAL_BUILD=1</source>
+        <translation>Vor dem Build bereinigen: Setzt die Umgebungsvariable AXIVION_CLEAN_BUILD=1
+Inkrementeller Build: Setzt die Umgebungsvariable AXIVION_INCREMENTAL_BUILD=1</translation>
+    </message>
+    <message>
+        <source>Clean Build</source>
+        <translation>Vor dem Build bereinigen</translation>
+    </message>
+    <message>
+        <source>Incremental Build</source>
+        <translation>Inkrementeller Build</translation>
+    </message>
+    <message>
+        <source>Warning: Modifying source files during the local build may produce unexpected warnings, errors, or wrong results.</source>
+        <translation>Warnung: Das Verändern der Quelldateien während des lokalen Builds kann zu unerwarteten Warnungen, Fehlern oder falschen Ergebnissen führen.</translation>
+    </message>
+    <message>
+        <source>Warning: If your build is not configured for local build, you may overwrite output files of your native compiler when starting a local build.</source>
+        <translation>Warnung: Wenn Ihr Build nicht für lokale Builds konfiguriert ist, kann dies beim Start eines lokalen Builds zum Überschreiben der Ausgabedateien des nativen Compilers führen.</translation>
+    </message>
+    <message>
+        <source>Start Local Build</source>
+        <translation>Lokalen Build starten</translation>
+    </message>
+    <message>
+        <source>Choose the same Axivion Suite version as your CI build uses or the results may differ.</source>
+        <translation>Wählen Sie dieselbe Version der Axivion Suite, die Ihr CI-Build verwendet, da die Ergebnisse sonst unterschiedlich ausfallen können.</translation>
+    </message>
+    <message>
+        <source>Axivion Suite installation directory:</source>
+        <translation>Installationsverzeichnis der Axivion Suite:</translation>
+    </message>
+    <message>
+        <source>Enter the command for building %1:</source>
+        <translation>Geben Sie das Kommando für das Erstellen von %1 ein:</translation>
+    </message>
+    <message>
+        <source>Local Build Command: %1</source>
+        <translation>Lokales Build-Kommando: %1</translation>
+    </message>
+    <message>
+        <source>Started</source>
+        <translation>Gestartet</translation>
+    </message>
+    <message>
+        <source>Building</source>
+        <translation>Erstelle</translation>
+    </message>
+    <message>
+        <source>Analyzing</source>
+        <translation>Analysiere</translation>
+    </message>
+    <message>
+        <source>Updating Dashboard</source>
+        <translation>Aktualisiere Dashboard</translation>
+    </message>
+    <message>
+        <source>Finished</source>
+        <translation>Beendet</translation>
+    </message>
+    <message>
+        <source>Starting</source>
+        <translation>Starte</translation>
     </message>
 </context>
 <context>
@@ -16497,16 +20804,8 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <translation>Der Binäreditor kann keine leeren Dateien öffnen.</translation>
     </message>
     <message>
-        <source>File Error</source>
-        <translation>Dateifehler</translation>
-    </message>
-    <message>
         <source>The file is too big for the Binary Editor (max. 32GB).</source>
         <translation>Die Datei ist zu groß für den Binäreditor (höchstens 32GB).</translation>
-    </message>
-    <message>
-        <source>Cannot open %1: %2</source>
-        <translation>Die Datei %1 kann nicht geöffnet werden: %2</translation>
     </message>
     <message>
         <source>Memory at 0x%1</source>
@@ -16619,6 +20918,14 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     <message>
         <source>Zoom: %1%</source>
         <translation>Vergrößerung: %1%</translation>
+    </message>
+    <message>
+        <source>Cannot open &quot;%1&quot;.</source>
+        <translation>&quot;%1&quot; kann nicht geöffnet werden.</translation>
+    </message>
+    <message>
+        <source>File offset too large.</source>
+        <translation>Datei-Offset ist zu groß.</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
@@ -17257,6 +21564,10 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <translation>Konfigurationsänderungen anwenden?</translation>
     </message>
     <message>
+        <source>Apply</source>
+        <translation>Anwenden</translation>
+    </message>
+    <message>
         <source>Run CMake with configuration changes?</source>
         <translation>CMake mit Änderungen der Konfiguration ausführen?</translation>
     </message>
@@ -17491,6 +21802,14 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     <message>
         <source>CMake executable &quot;%1&quot; and build directory &quot;%2&quot; must be on the same device.</source>
         <translation>Das CMake-Werkzeug &quot;%1&quot; und das Build-Verzeichnis &quot;%2&quot; müssen auf demselben Gerät liegen.</translation>
+    </message>
+    <message>
+        <source>Qt Creator installation is missing the package-manager directory. It was expected here: &quot;%1&quot;.</source>
+        <translation>Das Verzeichnis package-manager fehlt in der Qt Creator-Installation. Es wurde hier erwartet: &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <source>Failed to copy package-manager folder:</source>
+        <translation>Das package-manager Verzeichnis konnte nicht kopiert werden:</translation>
     </message>
     <message>
         <source>Running %1 in %2.</source>
@@ -17867,44 +22186,44 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
         <translation>Anforderung im gesamten Repository zurücknehmen (unedit)</translation>
     </message>
     <message>
-        <source>Diff Project</source>
-        <translation>Diff für Projekt</translation>
+        <source>Diff Project Directory</source>
+        <translation>Diff des Projektverzeichnisses</translation>
     </message>
     <message>
-        <source>Diff Project &quot;%1&quot;</source>
-        <translation>Diff für Projekt &quot;%1&quot;</translation>
+        <source>Diff Directory of Project &quot;%1&quot;</source>
+        <translation>Diff des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Project Status</source>
-        <translation>Status des Projekts</translation>
+        <source>Project Directory Status</source>
+        <translation>Status des Projektverzeichnisses</translation>
     </message>
     <message>
-        <source>Status of Project &quot;%1&quot;</source>
-        <translation>Status des Projekts &quot;%1&quot;</translation>
+        <source>Status of Directory of Project &quot;%1&quot;</source>
+        <translation>Status des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Log Project</source>
-        <translation>Log für Projekt</translation>
+        <source>Log Project Directory</source>
+        <translation>Log des Projektverzeichnisses</translation>
     </message>
     <message>
-        <source>Log Project &quot;%1&quot;</source>
-        <translation>Log für Projekt &quot;%1&quot;</translation>
+        <source>Log Directory of Project &quot;%1&quot;</source>
+        <translation>Log des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Update Project</source>
-        <translation>Projekt auf aktuellen Stand bringen</translation>
+        <source>Update Project Directory</source>
+        <translation>Projektverzeichnis aktualisieren</translation>
     </message>
     <message>
-        <source>Update Project &quot;%1&quot;</source>
-        <translation>Projekt &quot;%1&quot; auf aktuellen Stand bringen</translation>
+        <source>Update Directory of Project &quot;%1&quot;</source>
+        <translation>Projektverzeichnis von &quot;%1&quot; aktualisieren</translation>
     </message>
     <message>
-        <source>Commit Project</source>
-        <translation>Commit des Projekts</translation>
+        <source>Commit Project Directory</source>
+        <translation>Commit des Projektverzeichnisses</translation>
     </message>
     <message>
-        <source>Commit Project &quot;%1&quot;</source>
-        <translation>Commit des Projekts &quot;%1&quot;</translation>
+        <source>Commit Directory of Project &quot;%1&quot;</source>
+        <translation>Commit des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Update Directory</source>
@@ -18070,16 +22389,20 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
         <translation>Potenziell veraltete Clangd-Indexeinträge aktualisieren</translation>
     </message>
     <message>
+        <source>Compilation Database for &quot;%1&quot;</source>
+        <translation>Kompilierungsdatenbank für &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Compilation Database</source>
+        <translation>Kompilierungsdatenbank</translation>
+    </message>
+    <message>
         <source>Generate Compilation Database</source>
         <translation>Kompilierungsdatenbank erzeugen</translation>
     </message>
     <message>
         <source>Generating Clang compilation database canceled.</source>
         <translation>Erzeugen der Clang-Kompilierungsdatenbank wurde abgebrochen.</translation>
-    </message>
-    <message>
-        <source>Generate Compilation Database for &quot;%1&quot;</source>
-        <translation>Kompilierungsdatenbank für &quot;%1&quot; erzeugen</translation>
     </message>
     <message>
         <source>Clang compilation database generated at &quot;%1&quot;.</source>
@@ -18278,34 +22601,6 @@ Das integrierte Codemodell übernimmt das Einrücken.</translation>
     <message>
         <source>When this option is enabled, ClangFormat will use a user-specified configuration from the widget below, instead of the project .clang-format file. You can customize the formatting options for your code by adjusting the settings in the widget. Note that any changes made there will only affect the current configuration, and will not modify the project .clang-format file.</source>
         <translation>Wenn diese Einstellung aktiviert ist, wird statt der .clang-format-Datei des Projekts die benutzerdefinierte Einstellung unten verwendet. Beachten Sie, dass die unten durchgeführten Einstellungen nur die aktuelle Konfiguration beeinflussen und die .clang-format-Datei des Projekts nicht verändert wird.</translation>
-    </message>
-    <message>
-        <source>Import Code Format</source>
-        <translation>Code-Format importieren</translation>
-    </message>
-    <message>
-        <source>ClangFormat (*clang-format*);;All files (*)</source>
-        <translation>ClangFormat (*clang-format*);;All files (*)</translation>
-    </message>
-    <message>
-        <source>Import Code Style</source>
-        <translation>Coding Style importieren</translation>
-    </message>
-    <message>
-        <source>Enter a name for the imported code style:</source>
-        <translation>Geben Sie einen Namen für den importierten Coding Style ein:</translation>
-    </message>
-    <message>
-        <source>Cannot import code style from &quot;%1&quot;.</source>
-        <translation>Der Coding Style kann nicht von &quot;%1&quot; importiert werden.</translation>
-    </message>
-    <message>
-        <source>Export Code Format</source>
-        <translation>Code-Format exportieren</translation>
-    </message>
-    <message>
-        <source>ClangFormat</source>
-        <translation>ClangFormat</translation>
     </message>
 </context>
 <context>
@@ -18609,10 +22904,6 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
         <translation>Wählen Sie YAML-Datei mit Meldungen</translation>
     </message>
     <message>
-        <source>YAML Files (*.yml *.yaml);;All Files (*)</source>
-        <translation>YAML-Dateien (*.yml *.yaml);;Alle Dateien (*)</translation>
-    </message>
-    <message>
         <source>Error Loading Diagnostics</source>
         <translation>Fehler beim Laden der Meldungen</translation>
     </message>
@@ -18639,6 +22930,10 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     <message>
         <source>Failed to start the analyzer.</source>
         <translation>Das Analysewerkzeug konnte nicht gestartet werden.</translation>
+    </message>
+    <message>
+        <source>YAML Files (*.yml *.yaml)</source>
+        <translation>YAML-Dateien (*.yml *.yaml)</translation>
     </message>
     <message>
         <source>All Files</source>
@@ -19421,10 +23716,6 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
         <translation>Kommando ist mit Rückgabewert %1 fehlgeschlagen: %2</translation>
     </message>
     <message>
-        <source>Error starting cmdbridge: %1</source>
-        <translation>Fehler beim Starten von cmdbridge: %1</translation>
-    </message>
-    <message>
         <source>Remote root path is empty</source>
         <translation>Entferntes Wurzelverzeichnis ist leer</translation>
     </message>
@@ -19520,6 +23811,10 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
         <translation>Konfigurieren</translation>
     </message>
     <message>
+        <source>Coco</source>
+        <translation>Coco</translation>
+    </message>
+    <message>
         <source>Coco Code Coverage: Reconfiguring...</source>
         <translation>Coco Code Coverage: Konfiguriere neu...</translation>
     </message>
@@ -19548,12 +23843,12 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
         <translation>Speichern &amp;&amp; neu konfigurieren</translation>
     </message>
     <message>
-        <source>Additional CMake options: </source>
-        <translation>Zusätzliche CMake-Optionen: </translation>
+        <source>Additional CMake options:</source>
+        <translation>Zusätzliche CMake-Optionen:</translation>
     </message>
     <message>
-        <source>Initial cache script: </source>
-        <translation>Skript für initialen Cache: </translation>
+        <source>Initial cache script:</source>
+        <translation>Skript für initialen Cache:</translation>
     </message>
     <message>
         <source>Overwrite file &quot;%1&quot;.</source>
@@ -19668,16 +23963,16 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
         <translation>Speichern</translation>
     </message>
     <message>
-        <source>Additional qmake arguments: </source>
-        <translation>Zusätzliche qmake-Argumente: </translation>
+        <source>Additional qmake arguments:</source>
+        <translation>Zusätzliche qmake-Argumente:</translation>
     </message>
     <message>
-        <source>Build environment: </source>
-        <translation>Build-Umgebung: </translation>
+        <source>Build environment:</source>
+        <translation>Build-Umgebung:</translation>
     </message>
     <message>
-        <source>Feature file: </source>
-        <translation>Feature-Datei: </translation>
+        <source>Feature file:</source>
+        <translation>Feature-Datei:</translation>
     </message>
     <message>
         <source>Error: Coco installation directory not set. (This can&apos;t happen.)</source>
@@ -19959,6 +24254,10 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     <message>
         <source>Failed to compile: &quot;%1&quot;.</source>
         <translation>Compilierung fehlgeschlagen: &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <source>File not readable.</source>
+        <translation>Datei nicht lesbar.</translation>
     </message>
     <message>
         <source>Add Source Code</source>
@@ -20721,6 +25020,11 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
         <translation>Die ausführbare Datei %1 konnte in %2 nicht gefunden werden</translation>
     </message>
     <message>
+        <source>Built on %1 %2 based on Qt %3 (%4, %5)</source>
+        <extracomment>Built on &lt;date&gt; &lt;time&gt; based on Qt &lt;version&gt; (&lt;compiler&gt;, &lt;arch&gt;)</extracomment>
+        <translation>Erstellt am %1 um %2, basierend auf Qt %3 (%4, %5)</translation>
+    </message>
+    <message>
         <source>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, axivion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</source>
         <translation>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, axivion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</translation>
     </message>
@@ -21093,10 +25397,6 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     <message>
         <source>&lt;br/&gt;From revision %1&lt;br/&gt;</source>
         <translation>&lt;br/&gt;Revision %1&lt;br/&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;br/&gt;Built on %1 %2&lt;br/&gt;</source>
-        <translation>&lt;br/&gt;Erstellt am %1 %2&lt;br/&gt;</translation>
     </message>
     <message>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
@@ -21955,6 +26255,10 @@ unter Versionsverwaltung (%2) stellen?</translation>
         <translation>Status der Versionsverwaltung: nicht enthalten.</translation>
     </message>
     <message>
+        <source>Show Details...</source>
+        <translation>Details anzeigen...</translation>
+    </message>
+    <message>
         <source>Toggle Progress Details</source>
         <translation>Verlaufsdetails ein/ausschalten</translation>
     </message>
@@ -22600,6 +26904,15 @@ Möchten Sie es beenden?</translation>
         <translation>Zeichenkette in reines ASCII umwandeln.</translation>
     </message>
     <message>
+        <source>%1 uses %2 for collecting crashes and sending them to Sentry for processing. %2 may capture arbitrary contents from crashed process’ memory, including user sensitive information, URLs, and whatever other content users have trusted %1 with. The collected crash reports are however only used for the sole purpose of fixing bugs.</source>
+        <extracomment>%1 = application name, %2 crash backend name (Google Crashpad or Google Breakpad)</extracomment>
+        <translation>%1 verwendet %2, um Absturzberichte zu sammeln und diese zur Verarbeitung an Sentry zu senden. %2 kann beliebige Inhalte des Speichers des abgestürzten Prozesses erfassen. Dies kann persönliche Daten, URLs und andere Inhalte, die der Benutzer %1 anvertraut hat, beinhalten. Die gesammelten Absturzberichte werden allerdings nur zum Zweck der Fehlerbehebung verwendet.</translation>
+    </message>
+    <message>
+        <source>%1 Overview</source>
+        <translation>Übersicht über %1</translation>
+    </message>
+    <message>
         <source>Create Folder</source>
         <translation>Verzeichnis erzeugen</translation>
     </message>
@@ -22644,16 +26957,8 @@ Sie werden wahrscheinlich auf weitere Probleme mit dieser Instanz von %3 stoßen
         <translation>Bearbeiten &gt; Einstellungen &gt; Umgebung &gt; System</translation>
     </message>
     <message>
-        <source>%1 uses Google Crashpad for collecting crashes and sending them to Sentry for processing. Crashpad may capture arbitrary contents from crashed process’ memory, including user sensitive information, URLs, and whatever other content users have trusted %1 with. The collected crash reports are however only used for the sole purpose of fixing bugs.</source>
-        <translation>%1 nutzt Google Crashpad, um Absturzberichte zu sammeln und diese zur Verarbeitung an Sentry zu senden. Crashpad kann beliebige Inhalte des Speichers des abgestürzten Prozesses erfassen. Dies beinhaltet persönliche Daten, URLs und welche Inhalte auch immer der Benutzer %1 anvertraut hat. Die gesammelten Absturzberichte werden allerdings nur zum Zweck der Fehlerbehebung genutzt.</translation>
-    </message>
-    <message>
         <source>More information:</source>
         <translation>Mehr Informationen:</translation>
-    </message>
-    <message>
-        <source>Crashpad Overview</source>
-        <translation>Übersicht über Crashpad</translation>
     </message>
     <message>
         <source>%1 security policy</source>
@@ -22920,10 +27225,6 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>&quot;%1&quot; konnte nicht geöffnet werden: Dateien des Typs &quot;%2&quot; können nicht geöffnet werden.</translation>
     </message>
     <message>
-        <source>Could not open &quot;%1&quot; for reading. Either the file does not exist or you do not have the permissions to open it.</source>
-        <translation>&quot;%1&quot; konnte nicht zum Lesen geöffnet werden. Entweder gibt es die Datei nicht oder sie haben nicht die Berechtigung sie zu öffnen.</translation>
-    </message>
-    <message>
         <source>Could not open &quot;%1&quot;: Unknown error.</source>
         <translation>&quot;%1&quot; konnte nicht geöffnet werden: Unbekannter Fehler.</translation>
     </message>
@@ -23056,12 +27357,16 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>Absturzberichte aktivieren</translation>
     </message>
     <message>
-        <source>Ask for confirmation before exiting</source>
-        <translation>Vor dem Beenden nachfragen</translation>
+        <source>Go to Crash Reports</source>
+        <translation>Zu Absturzberichten gehen</translation>
     </message>
     <message>
-        <source>Clear Local Crash Reports</source>
-        <translation>Lokale Absturzberichte löschen</translation>
+        <source>Clear Crash Reports</source>
+        <translation>Absturzberichte löschen</translation>
+    </message>
+    <message>
+        <source>Ask for confirmation before exiting</source>
+        <translation>Vor dem Beenden nachfragen</translation>
     </message>
     <message>
         <source>Auto-save files after refactoring</source>
@@ -23119,6 +27424,10 @@ Möchten Sie sie jetzt auschecken?</translation>
     <message>
         <source>Minimum number of open documents that should be kept in memory. Increasing this number will lead to greater resource usage when not manually closing documents.</source>
         <translation>Mindestanzahl offener Dokumente, die im Speicher vorgehalten werden sollen. Diese Zahl zu erhöhen führt zu größerem Ressourcenverbrauch, wenn Dateien nicht manuell geschlossen werden.</translation>
+    </message>
+    <message>
+        <source>Manage</source>
+        <translation>Verwalten</translation>
     </message>
     <message>
         <source>Command line arguments used for &quot;Run in terminal&quot;.</source>
@@ -23298,7 +27607,8 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Based on Qt %1 (%2, %3)</source>
-        <translation>Auf Qt %1 (%2, %3) beruhend</translation>
+        <extracomment>Based on Qt &lt;version&gt; (&lt;compiler&gt;, &lt;arch&gt;)</extracomment>
+        <translation>Auf Qt %1 (%2, %3) basierend</translation>
     </message>
     <message>
         <source>Empty search term.</source>
@@ -23518,12 +27828,16 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <translation>Abgebrochen.</translation>
     </message>
     <message>
-        <source>There was an error while unarchiving.</source>
-        <translation>Beim Entpacken des Archivs trat ein Fehler auf.</translation>
-    </message>
-    <message>
         <source>Archive is OK.</source>
         <translation>Archiv ist OK.</translation>
+    </message>
+    <message>
+        <source>Archive extracted successfully.</source>
+        <translation>Archiv wurde erfolgreich ausgepackt.</translation>
+    </message>
+    <message>
+        <source>There was an error while unarchiving: %1</source>
+        <translation>Beim Entpacken ist ein Fehler aufgetreten: %1</translation>
     </message>
     <message>
         <source>Summary</source>
@@ -23714,6 +28028,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>&quot;%1&quot; öffnen</translation>
+    </message>
+    <message>
+        <source>%1 Log Directory</source>
+        <extracomment>%1 = version control name</extracomment>
+        <translation>%1 Log des Verzeichnisses</translation>
     </message>
     <message>
         <source>Remove Folder</source>
@@ -23921,10 +28240,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <translation>Unerwartetes Format der Datei.</translation>
     </message>
     <message>
-        <source>Haskell Editor</source>
-        <translation>Haskell-Editor</translation>
-    </message>
-    <message>
         <source>Switches to an open document.</source>
         <translation>Wechselt zu einem offenen Dokument.</translation>
     </message>
@@ -24082,6 +28397,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <translation>In %1(...) einschließen</translation>
     </message>
     <message>
+        <source>Append %1 operator</source>
+        <extracomment>%1 = operator name like &quot;QLatin1Char&quot;</extracomment>
+        <translation>%1-Operator anhängen</translation>
+    </message>
+    <message>
         <source>Convert to String Literal</source>
         <translation>In Zeichenkettenliteral umwandeln</translation>
     </message>
@@ -24092,6 +28412,10 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>Convert to Character Literal</source>
         <translation>In Zeichenliteral umwandeln</translation>
+    </message>
+    <message>
+        <source>Convert to Character Literal and Append QLatin1Char Operator</source>
+        <translation>In Zeichenliteral umwandeln und QLatin1Char-Operator anhängen</translation>
     </message>
     <message>
         <source>Mark as Translatable</source>
@@ -24124,6 +28448,10 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>Convert to Camel Case</source>
         <translation>In Camel-Case umwandeln</translation>
+    </message>
+    <message>
+        <source>Add #include %1 and Project Dependency %2</source>
+        <translation>#include %1 und Projektabhängigkeit %2 hinzufügen</translation>
     </message>
     <message>
         <source>Add #include %1</source>
@@ -24967,10 +29295,6 @@ Lassen Sie dies leer, um Heuristiken anwenden zu lassen.</translation>
         <translation>Testergebnisse verbergen</translation>
     </message>
     <message>
-        <source>The content of the &quot;name&quot; variable.</source>
-        <translation>Der Inhalt der Variable &quot;name&quot;.</translation>
-    </message>
-    <message>
         <source>Getter attributes:</source>
         <translation>Getter-Attribute:</translation>
     </message>
@@ -24995,12 +29319,20 @@ Lassen Sie dies leer, um Heuristiken anwenden zu lassen.</translation>
         <translation>Member-Variablenname:</translation>
     </message>
     <message>
+        <source>Test with example name:</source>
+        <translation>Test mit Beispielname:</translation>
+    </message>
+    <message>
         <source>Missing Namespace Handling</source>
         <translation>Handhabung fehlender Namensräume</translation>
     </message>
     <message>
         <source>Generate missing namespaces</source>
         <translation>Fehlende Namensräume erstellen</translation>
+    </message>
+    <message>
+        <source>The content of the &lt;b&gt;name&lt;/b&gt; parameter in the fields above, that is, the &quot;semantic name&quot; without any prefix or suffix.</source>
+        <translation>Der Inhalt des &lt;b&gt;name&lt;/b&gt;-Parameters in den Eingabefeldern oben, das heißt der &quot;semantische Name&quot; ohne jegliche Prefixe oder Suffixe.</translation>
     </message>
     <message>
         <source>Add &quot;using namespace ...&quot;</source>
@@ -25021,10 +29353,6 @@ Lassen Sie dies leer, um Heuristiken anwenden zu lassen.</translation>
     <message>
         <source>Name from member variable:</source>
         <translation>Name aus der Membervariable:</translation>
-    </message>
-    <message>
-        <source>Test input:</source>
-        <translation>Testeingabe:</translation>
     </message>
     <message>
         <source>Custom Getter Setter Templates</source>
@@ -25855,6 +30183,38 @@ Flags: %3</translation>
     <message>
         <source>Could not create &quot;%1&quot;: %2</source>
         <translation>Konnte &quot;%1&quot; nicht erstellen: %2</translation>
+    </message>
+    <message>
+        <source>Import Code Format</source>
+        <translation>Code-Format importieren</translation>
+    </message>
+    <message>
+        <source>ClangFormat (*clang-format*);;All files (*)</source>
+        <translation>ClangFormat (*clang-format*);;All files (*)</translation>
+    </message>
+    <message>
+        <source>Import Code Style</source>
+        <translation>Coding Style importieren</translation>
+    </message>
+    <message>
+        <source>Enter a name for the imported code style:</source>
+        <translation>Geben Sie einen Namen für den importierten Coding Style ein:</translation>
+    </message>
+    <message>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
+        <translation>Der Coding Style kann nicht von &quot;%1&quot; importiert werden.</translation>
+    </message>
+    <message>
+        <source>Export Code Format</source>
+        <translation>Code-Format exportieren</translation>
+    </message>
+    <message>
+        <source>Add Project Dependency %1</source>
+        <translation>Projektabhängigkeit %1 hinzufügen</translation>
+    </message>
+    <message>
+        <source>Cannot open &quot;%1&quot;</source>
+        <translation>&quot;%1&quot; kann nicht geöffnet werden</translation>
     </message>
 </context>
 <context>
@@ -26847,6 +31207,10 @@ Möchten Sie die Daten trotzdem anzeigen?</translation>
         <translation>Bei &quot;qFatal&quot; anhalten</translation>
     </message>
     <message>
+        <source>Use asynchronous mode to control the debugged process</source>
+        <translation>Asynchronen Modus zur Steuerung des zu debuggenden Prozesses verwenden</translation>
+    </message>
+    <message>
         <source>GDB commands entered here will be executed after GDB has been started, but before the debugged program is started or attached, and before the debugging helpers are initialized.</source>
         <translation>Hier angegebene GDB-Kommandos werden ausgeführt, nachdem GDB gestartet wurde und bevor das zu debuggende Programm gestartet (beziehungsweise der Debugger angehängt) und die Ausgabe-Hilfsbibliothek initialisiert wird.</translation>
     </message>
@@ -26995,6 +31359,14 @@ Sie haben die Wahl zu warten oder das Debuggen abzubrechen.</numerusform>
     <message>
         <source>Application exited after receiving signal %1</source>
         <translation>Die Anwendung wurde nach Empfang des Signals %1 beendet</translation>
+    </message>
+    <message>
+        <source>Cannot Execute Python Code</source>
+        <translation>Kann keinen Python-Code ausführen</translation>
+    </message>
+    <message>
+        <source>Python 3.2 or later is required, so update GDB to a version that uses it.</source>
+        <translation>Es wird Python 3.2 oder neuer benötigt. Aktualisieren Sie GDB auf eine Version, die dies verwendet.</translation>
     </message>
     <message>
         <source>The selected build of GDB supports Python scripting, but the used version %1.%2 is not sufficient for %3. Python %4 or later is required.</source>
@@ -27340,10 +31712,6 @@ markers in the source code editor.</source>
         <translation>&lt;p&gt;Um einfache Python-Kommandos auszuführen, stellen Sie ihnen &quot;python&quot; voran.&lt;/p&gt;&lt;p&gt;Um mehrere Zeilen umfassende Sequenzen von Python-Kommandos auszuführen, stellen Sie dem Block &quot;python&quot; auf einer separaten Zeile voran und fügen Sie &quot;end&quot; auf einer separaten Zeile an.&lt;/p&gt;&lt;p&gt;Um beliebige Python-Skripte auszuführen, verwenden Sie &lt;i&gt;python execfile(&apos;/pfad/zu/script.py&apos;)&lt;/i&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
-        <source>Use asynchronous mode to control the inferior</source>
-        <translation>Asynchronen Modus zur Steuerung des zu debuggenden Prozesses verwenden</translation>
-    </message>
-    <message>
         <source>Use common locations for debug information</source>
         <translation>Verwende Standardpfade zu Debug-Information</translation>
     </message>
@@ -27550,10 +31918,6 @@ markers in the source code editor.</source>
     <message>
         <source>Cannot Open Task File</source>
         <translation>Die Aufgabendatei kann nicht geöffnet werden</translation>
-    </message>
-    <message>
-        <source>Copy Selection to Clipboard</source>
-        <translation>Auswahl in Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Copy Contents to Clipboard</source>
@@ -28638,6 +33002,14 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     <message>
         <source>Attach to Running Debug Server...</source>
         <translation>Verbinde zu laufendem Debug-Server...</translation>
+    </message>
+    <message>
+        <source>Copy Selected Items to Clipboard</source>
+        <translation>Ausgewählte Elemente in Zwischenablage kopieren</translation>
+    </message>
+    <message>
+        <source>Copy Selected Items to New Editor</source>
+        <translation>Ausgewählte Elemente in neuen Editor kopieren</translation>
     </message>
     <message>
         <source>Attach to Running Application...</source>
@@ -29908,16 +34280,8 @@ Bitte wählen Sie einen 64-bit-Debugger in den Kit-Einstellungen für dieses Kit
         <translation>&lt;unbekannt&gt;</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The inferior stopped because it received a signal from the operating system.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation>&lt;p&gt;Der Prozess wurde wegen eines Signals vom Betriebssystem angehalten.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Name des Signals : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Bedeutung : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
-    </message>
-    <message>
         <source>Signal Received</source>
         <translation>Signal erhalten</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;The inferior stopped because it triggered an exception.&lt;p&gt;%1</source>
-        <translation>&lt;p&gt;Der zu debuggende Prozess wurde angehalten, da er eine Ausnahme ausgelöst hat.&lt;p&gt;%1</translation>
     </message>
     <message>
         <source>Exception Triggered</source>
@@ -29976,12 +34340,6 @@ Bitte wählen Sie einen 64-bit-Debugger in den Kit-Einstellungen für dieses Kit
         <translation>Abschnitte in &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>The inferior is in the Portable Executable format.
-Selecting %1 as debugger would improve the debugging experience for this binary format.</source>
-        <translation>Der zu debuggende Prozess hat das Portable Executable-Format.
-Für dieses Binärformat wäre %1 besser als Debugger geeignet.</translation>
-    </message>
-    <message>
         <source>The selected debugger may be inappropriate for the inferior.
 Examining symbols and setting breakpoints by file name and line number may fail.
 </source>
@@ -30010,6 +34368,28 @@ Für dieses Binärformat wären GDB oder LLDB besser als Debugger geeignet.</tra
     <message>
         <source>Reverse-execution recording failed.</source>
         <translation>Aufzeichnung für Rückwärtsausführung fehlgeschlagen.</translation>
+    </message>
+    <message>
+        <source>The debugged process stopped because it received a signal from the operating system.</source>
+        <translation>Der zu debuggende Prozess wurde wegen eines Signals vom Betriebssystems angehalten.</translation>
+    </message>
+    <message>
+        <source>Signal name:</source>
+        <translation>Signalname:</translation>
+    </message>
+    <message>
+        <source>Signal meaning:</source>
+        <translation>Signalbedeutung:</translation>
+    </message>
+    <message>
+        <source>The debugged process stopped because it triggered an exception.</source>
+        <translation>Der zu debuggende Prozess wurde angehalten, da er eine Ausnahme ausgelöst hat.</translation>
+    </message>
+    <message>
+        <source>The executable uses the Portable Executable format.
+Selecting %1 as debugger would improve the debugging experience for this binary format.</source>
+        <translation>Die ausführbare Datei verwendet das Portable Executable-Format.
+Für dieses Binärformat wäre %1 besser als Debugger geeignet.</translation>
     </message>
     <message>
         <source>Found.</source>
@@ -30118,18 +34498,6 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
         <translation>Kopieren</translation>
     </message>
     <message>
-        <source>Start Remote Analysis</source>
-        <translation>Entfernte Analyse starten</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation>Ausführbare Datei:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumente:</translation>
-    </message>
-    <message>
         <source>Working directory:</source>
         <translation>Arbeitsverzeichnis:</translation>
     </message>
@@ -30217,14 +34585,6 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     <message>
         <source>Starting debugger &quot;%1&quot; for ABI &quot;%2&quot;...</source>
         <translation>Starte Debugger &quot;%1&quot; für ABI &quot;%2&quot;...</translation>
-    </message>
-    <message>
-        <source>Close Debugging Session</source>
-        <translation>Debuggen beenden</translation>
-    </message>
-    <message>
-        <source>A debugging session is still in progress. Terminating the session in the current state can leave the target in an inconsistent state. Would you still like to terminate it?</source>
-        <translation>Der Debugger läuft noch. Das Beenden im aktuellen Zustand könnte zu einem inkonsistenten Zustand des untersuchten Prozesses führen. Möchten Sie ihn trotzdem beenden?</translation>
     </message>
     <message>
         <source>Debugged executable</source>
@@ -31037,22 +35397,6 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Only alphanumeric characters and underscore allowed.
-Ids must begin with a lowercase letter.</source>
-        <translation type="unfinished">Es sind nur alphanumerische Zeichen und Unterstriche zulässig.
-IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
-    </message>
-    <message>
-        <source>Ids have to be unique.</source>
-        <translation type="unfinished">IDs müssen eindeutig sein.</translation>
-    </message>
-    <message>
-        <source>Invalid Id: %1
-%2</source>
-        <translation type="unfinished">Ungültige ID: %1
-%2</translation>
-    </message>
-    <message>
         <source>Invalid meta info.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -31063,6 +35407,36 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>No property definition allowed.</source>
         <translation type="unfinished">Eigenschaftsdefinition nicht zulässig.</translation>
+    </message>
+    <message>
+        <source>Unknown property for Type &quot;%1.&quot;.</source>
+        <extracomment>do not translate &quot;Type&quot;</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown property for ItemLibraryEntry &quot;%1.&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown property for Property &quot;%1.&quot;.</source>
+        <extracomment>do not translate &quot;Property&quot;</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown property for QmlSource &quot;%1.&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown property for ExtraFile &quot;%1.&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid or duplicate library entry &quot;%1.&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid type &quot;%1.&quot;.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid type %1.</source>
@@ -31086,10 +35460,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>Unknown property for ExtraFile %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid or duplicate library entry %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -31331,6 +35701,10 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Unterschiede zwischen geänderten Dateien anzeigen</translation>
     </message>
     <message>
+        <source>File not found: &quot;%1&quot;.</source>
+        <translation>Datei nicht gefunden: &quot;%1&quot;.</translation>
+    </message>
+    <message>
         <source>Send Chunk to CodePaster...</source>
         <translation>Änderung an CodePaster senden...</translation>
     </message>
@@ -31362,8 +35736,8 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Ausführbare Datei für Docker nicht gefunden</translation>
     </message>
     <message>
-        <source>Failed to retrieve docker networks. Exit code: %1. Error: %2</source>
-        <translation>Docker-Netzwerke konnten nicht abgerufen werden. Rückgabewert: %1. Fehler: %2</translation>
+        <source>Failed to retrieve docker networks: %1</source>
+        <translation>Docker-Netzwerke konnten nicht abgerufen werden: %1</translation>
     </message>
     <message>
         <source>Path &quot;%1&quot; is not a directory or does not exist.</source>
@@ -31372,6 +35746,14 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Docker</source>
         <translation>Docker</translation>
+    </message>
+    <message>
+        <source>Failed creating Docker container: %1</source>
+        <translation>Docker-Container konnte nicht erstellt werden: %1</translation>
+    </message>
+    <message>
+        <source>Failed starting Docker event listener. Exit code: %1, output: %2</source>
+        <translation>Docker-Eventlistener konnte nicht gestartet werden. Rückgabewert: %1, Ausgabe: %2</translation>
     </message>
     <message>
         <source>Failed starting Docker container. Exit code: %1, output: %2</source>
@@ -31384,6 +35766,14 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Run as outside user:</source>
         <translation>Als Benutzer von außerhalb ausführen:</translation>
+    </message>
+    <message>
+        <source>Device is shut down.</source>
+        <translation>Das Gerät ist heruntergefahren.</translation>
+    </message>
+    <message>
+        <source>Container environment:</source>
+        <translation>Container-Umgebung:</translation>
     </message>
     <message>
         <source>Do not modify entry point:</source>
@@ -31402,8 +35792,60 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Zusätzliche Argumente für docker create.</translation>
     </message>
     <message>
+        <source>Clangd executable:</source>
+        <translation>Ausführbare Datei für Clangd:</translation>
+    </message>
+    <message>
         <source>Network:</source>
         <translation>Netzwerk:</translation>
+    </message>
+    <message>
+        <source>Docker system is not reachable.</source>
+        <translation>Docker-System ist nicht erreichbar.</translation>
+    </message>
+    <message>
+        <source>Docker image &quot;%1&quot; not found.</source>
+        <translation>Docker-Image &quot;%1&quot; wurde nicht gefunden.</translation>
+    </message>
+    <message>
+        <source>Show unnamed images</source>
+        <translation>Unbenannte Images anzeigen</translation>
+    </message>
+    <message>
+        <source>Host IP address.</source>
+        <translation>Host IP-Adresse.</translation>
+    </message>
+    <message>
+        <source>Host IP:</source>
+        <translation>Host IP:</translation>
+    </message>
+    <message>
+        <source>Host port number.</source>
+        <translation>Host Portnummer.</translation>
+    </message>
+    <message>
+        <source>Host port:</source>
+        <translation>Hostport:</translation>
+    </message>
+    <message>
+        <source>Container port number.</source>
+        <translation>Container Portnummer.</translation>
+    </message>
+    <message>
+        <source>Container port:</source>
+        <translation>Containerport:</translation>
+    </message>
+    <message>
+        <source>Protocol to use.</source>
+        <translation>Zu verwendendes Protokoll.</translation>
+    </message>
+    <message>
+        <source>Protocol:</source>
+        <translation>Protokoll:</translation>
+    </message>
+    <message>
+        <source>Port mappings:</source>
+        <translation>Port-Zuordnungen:</translation>
     </message>
     <message>
         <source>Error</source>
@@ -31418,48 +35860,24 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>angehalten</translation>
     </message>
     <message>
-        <source>Error starting remote shell. No container.</source>
-        <translation>Fehler beim Start der entfernten Shell. Kein Container.</translation>
-    </message>
-    <message>
         <source>Open Shell in Container</source>
         <translation>Shell in Container öffnen</translation>
-    </message>
-    <message>
-        <source>Image &quot;%1&quot; is not available.</source>
-        <translation>Image &quot;%1&quot; ist nicht verfügbar.</translation>
-    </message>
-    <message>
-        <source>Failed creating Docker container. Exit code: %1, output: %2</source>
-        <translation>Docker-Container konnte nicht erstellt werden. Rückgabewert: %1, Ausgabe: %2</translation>
     </message>
     <message>
         <source>Failed creating Docker container. No container ID received.</source>
         <translation>Docker-Container konnte nicht erstellt werden. Keine Container-ID erhalten.</translation>
     </message>
     <message>
-        <source>Failed to start container &quot;%1&quot;.</source>
-        <translation>Container &quot;%1&quot; konnte nicht gestartet werden.</translation>
-    </message>
-    <message>
-        <source>Device is shut down</source>
-        <translation>Das Gerät ist heruntergefahren</translation>
-    </message>
-    <message>
-        <source>Docker system is not reachable</source>
-        <translation>Docker-System ist nicht erreichbar</translation>
-    </message>
-    <message>
         <source>Running</source>
         <translation>Läuft</translation>
     </message>
     <message>
-        <source>Docker Image Selection</source>
-        <translation>Auswahl des Docker-Image</translation>
+        <source>Environment could not be captured.</source>
+        <translation>Die Umgebung konnte nicht abgerufen werden.</translation>
     </message>
     <message>
-        <source>Show Unnamed Images</source>
-        <translation>Unbenannte Images anzeigen</translation>
+        <source>Docker Image Selection</source>
+        <translation>Auswahl des Docker-Image</translation>
     </message>
     <message>
         <source>Loading ...</source>
@@ -31516,10 +35934,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Clears detected daemon state. It will be automatically re-evaluated next time access is needed.</source>
         <translation>Löscht den festgestellten Daemon-Status. Wird automatisch neu ausgewertet, wenn das nächste Mal Zugriff benötigt wird.</translation>
-    </message>
-    <message>
-        <source>Clangd Executable:</source>
-        <translation>Ausführbare Datei für Clangd:</translation>
     </message>
     <message>
         <source>Paths to mount:</source>
@@ -31625,6 +36039,10 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
     </message>
+    <message>
+        <source>Fetch Environment</source>
+        <translation>Umgebung abrufen</translation>
+    </message>
 </context>
 <context>
     <name>QtC::EffectComposer</name>
@@ -31694,6 +36112,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>This property allows explicit control of current animation time when Running property is false.</source>
+        <extracomment>do not translate &quot;Running&quot;</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -31702,6 +36121,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>This property allows explicit control of current animation frame when Running property is false.</source>
+        <extracomment>do not translate &quot;Running&quot;</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -31714,6 +36134,24 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>This property specifies how much of extra space is reserved for the effect outside the parent geometry.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to write QEN file for effect:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to copy effect resource:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Effect was updated in effect library.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Effect was added to effect library.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -31745,10 +36183,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Effect Composer [beta]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Effect Composer</source>
         <comment>Title of effect composer widget</comment>
         <translation type="unfinished"></translation>
@@ -31759,18 +36193,22 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
     <message>
         <source>X</source>
+        <extracomment>X-coordinate</extracomment>
         <translation type="unfinished">X</translation>
     </message>
     <message>
         <source>Y</source>
+        <extracomment>Y-coordinate</extracomment>
         <translation type="unfinished">Y</translation>
     </message>
     <message>
         <source>Z</source>
+        <extracomment>Z-coordinate</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>W</source>
+        <extracomment>W-coordinate</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -31884,8 +36322,16 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Aktiv</translation>
     </message>
     <message>
+        <source>Restart Required</source>
+        <translation>Neustart erforderlich</translation>
+    </message>
+    <message>
         <source>Restart Now</source>
         <translation>Jetzt neu starten</translation>
+    </message>
+    <message>
+        <source>(Incompatible)</source>
+        <translation>(Inkompatibel)</translation>
     </message>
     <message>
         <source>Remove...</source>
@@ -31894,6 +36340,10 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Update...</source>
         <translation>Aktualisieren...</translation>
+    </message>
+    <message>
+        <source>Cannot install extension: %1</source>
+        <translation>Erweiterung kann nicht installiert werden: %1</translation>
     </message>
     <message>
         <source>Error</source>
@@ -31940,8 +36390,12 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Lade herunter...</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <source>Code: %1 (%2).</source>
+        <translation>Code: %1 (%2).</translation>
+    </message>
+    <message>
+        <source>Downloaded extension has an invalid hash.</source>
+        <translation>Die heruntergeladene Erweiterung hat eine ungültige Prüfsumme.</translation>
     </message>
     <message>
         <source>Download Extension</source>
@@ -31954,10 +36408,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Cannot download extension</source>
         <translation>Erweiterung kann nicht heruntergeladen werden</translation>
-    </message>
-    <message>
-        <source>Code: %1.</source>
-        <translation>Code: %1.</translation>
     </message>
     <message>
         <source>Inactive</source>
@@ -32013,16 +36463,20 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Externes Repository benutzen</translation>
     </message>
     <message>
-        <source>Server URL:</source>
-        <translation>Server-URL:</translation>
-    </message>
-    <message>
         <source>Note</source>
         <translation>Hinweis</translation>
     </message>
     <message>
-        <source>%1 does not check extensions from external vendors for security flaws or malicious intent, so be careful when installing them, as it might leave your computer vulnerable to attacks such as hacking, malware, and phishing.</source>
-        <translation>%1 überprüft keine Erweiterungen von externen Anbietern auf Sicherheitsprobleme oder böswillige Absichten. Seien Sie deshalb vorsichtig beim Installieren solcher Erweiterungen, da sie Ihren Computer für Angriffe wie Hacking, Schadsoftware und Phishing anfällig machen könnten.</translation>
+        <source>SSL support is not available.</source>
+        <translation>SSL-Unterstützung ist nicht verfügbar.</translation>
+    </message>
+    <message>
+        <source>Repository URLs:</source>
+        <translation>Repository-URLs:</translation>
+    </message>
+    <message>
+        <source>Repositories to query for extensions. You can specify local paths or HTTP(S) URLs that should be merged with the main repository.</source>
+        <translation>Repositories von denen Erweiterungen abgefragt werden. Sie können lokale Pfade oder HTTP(S)-URLs angeben, die mit dem Haupt-Repository zusammengeführt werden sollen.</translation>
     </message>
     <message>
         <source>Use External Repository</source>
@@ -32041,12 +36495,22 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Browser</translation>
     </message>
     <message>
+        <source>If you choose to link or connect an external repository, you are acting at your own discretion and risk. The Qt Company does not control, endorse, or maintain any external repositories that you connect. Any changes, unavailability or security issues in external repositories are beyond The Qt Company&apos;s control and responsibility. By linking or connecting external repositories, you acknowledge these conditions and accept responsibility for managing associated risks appropriately.</source>
+        <translation>Wenn Sie sich entscheiden, externe Repositories zu verknüpfen oder zuzugreifen, handeln Sie nach eigenem Ermessen und auf eigene Verantwortung. The Qt Company kontrolliert, unterstützt oder wartet von Ihnen zugegriffene externe Repositories in keiner Weise. Jegliche Veränderungen, Verfügbarkeit oder Sicherheitsprobleme von externen Repositories sind außerhalb der Kontrolle und Verantwortung der The Qt Company. Indem Sie externe Repositories verknüpfen oder zugreifen, erkennen Sie diese Bedingungen an und akzeptieren die Verantwortung dafür, die damit verbundenen Risiken angemessen zu verwalten.
+
+If you choose to link or connect an external repository, you are acting at your own discretion and risk. The Qt Company does not control, endorse, or maintain any external repositories that you connect. Any changes, unavailability or security issues in external repositories are beyond The Qt Company&apos;s control and responsibility. By linking or connecting external repositories, you acknowledge these conditions and accept responsibility for managing associated risks appropriately.</translation>
+    </message>
+    <message>
         <source>Documentation</source>
         <translation>Dokumentation</translation>
     </message>
     <message>
         <source>More Information</source>
         <translation>Mehr Informationen</translation>
+    </message>
+    <message>
+        <source>Platform agnostic</source>
+        <translation>Plattformunabhängig</translation>
     </message>
     <message>
         <source>New</source>
@@ -32916,6 +37380,10 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
         <translation>Benutzerdefinierte Aktion #%1 ausführen</translation>
     </message>
     <message>
+        <source>The pattern &quot;%1&quot; is no valid regular expression.</source>
+        <translation>&quot;%1&quot; ist kein zulässiger regulärer Ausdruck.</translation>
+    </message>
+    <message>
         <source>Invalid regular expression.</source>
         <translation>Ungültiger regulärer Ausdruck.</translation>
     </message>
@@ -33702,6 +38170,18 @@ Jetzt Commit ausführen?</translation>
         <translation>Log für alle lokalen Branches anzeigen</translation>
     </message>
     <message>
+        <source>Git Diff Staged Project Changes</source>
+        <translation>Git Diff der vorgemerkten Änderungen für das Projekt</translation>
+    </message>
+    <message>
+        <source>Git Diff Staged Repository Changes</source>
+        <translation>Git Diff der vorgemerkten Änderungen für das Repository</translation>
+    </message>
+    <message>
+        <source>Git Diff Staged &quot;%1&quot; Changes</source>
+        <translation>Git Diff der vorgemerkten Änderungen für &quot;%1&quot;</translation>
+    </message>
+    <message>
         <source>Git Diff &quot;%1&quot;</source>
         <translation>Git Diff &quot;%1&quot;</translation>
     </message>
@@ -33830,7 +38310,15 @@ Möchten Sie den Branch &quot;%1&quot; im entfernten Repository erzeugen und ihn
     </message>
     <message>
         <source>Cancel %1.</source>
-        <translation>%1 Abbrechen.</translation>
+        <translation>%1 abbrechen.</translation>
+    </message>
+    <message>
+        <source>Di&amp;ff &amp;&amp; Cancel</source>
+        <translation>Di&amp;ff &amp;&amp; abbrechen</translation>
+    </message>
+    <message>
+        <source>Show a diff of the local changes and cancel %1.</source>
+        <translation>Zeigt ein Diff der lokalen Änderungen und bricht %1 ab.</translation>
     </message>
     <message>
         <source>Create &amp;Branch from %1...</source>
@@ -34420,6 +38908,14 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     <message>
         <source>Branch Name:</source>
         <translation>Branch:</translation>
+    </message>
+    <message>
+        <source>Annotation:</source>
+        <translation>Annotation:</translation>
+    </message>
+    <message>
+        <source>Annotation (Optional)</source>
+        <translation>Annotation (Optional)</translation>
     </message>
     <message>
         <source>Add Branch</source>
@@ -35234,6 +39730,10 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <translation>Git-Einstellungen</translation>
     </message>
     <message>
+        <source>Access git config variables.</source>
+        <translation>Auf Git Konfigurationsvariablen zugreifen.</translation>
+    </message>
+    <message>
         <source>Triggers a Git version control operation.</source>
         <translation>Führt eine Aktion des Git-Versionskontrollsystems aus.</translation>
     </message>
@@ -35262,6 +39762,16 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Alt+G,Alt+D</source>
         <translation>Alt+G,Alt+D</translation>
+    </message>
+    <message>
+        <source>Diff Staged Current File Changes</source>
+        <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
+        <translation>Diff der vorgemerkten Änderungen für die aktuelle Datei</translation>
+    </message>
+    <message>
+        <source>Diff Staged Changes in &quot;%1&quot;</source>
+        <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
+        <translation>Diff der vorgemerkten Änderungen für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Log Current File</source>
@@ -35376,6 +39886,16 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <translation>Diff des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
+        <source>Diff Staged Project Directory Changes</source>
+        <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
+        <translation>Diff der vorgemerkten Änderungen für das Projektverzeichnis</translation>
+    </message>
+    <message>
+        <source>Diff Staged Directory of Project &quot;%1&quot; Changes</source>
+        <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
+        <translation>Diff der vorgemerkten Änderungen für das Projektverzeichnis von &quot;%1&quot;</translation>
+    </message>
+    <message>
         <source>Log Project Directory</source>
         <extracomment>Avoid translating &quot;Log&quot;</extracomment>
         <translation>Log des Projektverzeichnisses</translation>
@@ -35386,7 +39906,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <translation>Log des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Clean Project  Directory...</source>
+        <source>Clean Project Directory...</source>
         <extracomment>Avoid translating &quot;Clean&quot;</extracomment>
         <translation>Clean des Projektverzeichnisses...</translation>
     </message>
@@ -35999,54 +40519,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
         <translation>GLSL</translation>
-    </message>
-</context>
-<context>
-    <name>QtC::Haskell</name>
-    <message>
-        <source>Release</source>
-        <translation>Release</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>Allgemein</translation>
-    </message>
-    <message>
-        <source>Build directory:</source>
-        <translation>Build-Verzeichnis:</translation>
-    </message>
-    <message>
-        <source>GHCi</source>
-        <translation>GHCi</translation>
-    </message>
-    <message>
-        <source>Run GHCi</source>
-        <translation>GHCi ausführen</translation>
-    </message>
-    <message>
-        <source>Haskell</source>
-        <comment>SnippetProvider</comment>
-        <translation>Haskell</translation>
-    </message>
-    <message>
-        <source>Executable</source>
-        <translation>Ausführbare Datei</translation>
-    </message>
-    <message>
-        <source>Haskell</source>
-        <translation>Haskell</translation>
-    </message>
-    <message>
-        <source>Stack executable:</source>
-        <translation>Ausführbare Stack-Datei:</translation>
-    </message>
-    <message>
-        <source>Choose Stack Executable</source>
-        <translation>Ausführbare Datei für Stack auswählen</translation>
-    </message>
-    <message>
-        <source>Stack Build</source>
-        <translation>Erstellen mit Stack</translation>
     </message>
 </context>
 <context>
@@ -36700,6 +41172,10 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <translation>Animation anhalten</translation>
     </message>
     <message>
+        <source>File not readable.</source>
+        <translation>Datei nicht lesbar.</translation>
+    </message>
+    <message>
         <source>Image format not supported.</source>
         <translation>Bildformat nicht unterstützt.</translation>
     </message>
@@ -36828,10 +41304,6 @@ Möchten Sie sie überschreiben?</translation>
     <message>
         <source>IncrediBuild Distribution Control</source>
         <translation>IncrediBuild-Verteilungskontrolle</translation>
-    </message>
-    <message>
-        <source>Profile.xml:</source>
-        <translation>Profile.xml:</translation>
     </message>
     <message>
         <source>Defines how Automatic Interception Interface should handle the various processes involved in a distributed job. It is not necessary for &quot;Visual Studio&quot; or &quot;Make and Build tools&quot; builds, but can be used to provide configuration options if those builds use additional processes that are not included in those packages. It is required to configure distributable processes in &quot;Dev Tools&quot; builds.</source>
@@ -37056,10 +41528,6 @@ Möchten Sie sie überschreiben?</translation>
     <message>
         <source>%1 Simulator</source>
         <translation>%1 Simulator</translation>
-    </message>
-    <message>
-        <source>Application not running.</source>
-        <translation>Anwendung läuft nicht.</translation>
     </message>
     <message>
         <source>Could not find device specific debug symbols at %1. Debugging initialization will be slow until you open the Organizer window of Xcode with the device connected to have the symbols generated.</source>
@@ -37332,10 +41800,6 @@ Möchten Sie sie überschreiben?</translation>
         <translation>Warte auf dem lokalen Port %1 (Port %2 auf dem Gerät) auf den QML-Debugger.</translation>
     </message>
     <message>
-        <source>Could not get necessary ports for the debugger connection.</source>
-        <translation>Auf die für die Debugger-Verbindung notwendigen Ports konnte nicht zugegriffen werden.</translation>
-    </message>
-    <message>
         <source>Could not get inferior PID.</source>
         <translation>Die Prozess-ID des zu debuggenden Prozesses konnte nicht bestimmt werden.</translation>
     </message>
@@ -37346,6 +41810,14 @@ Möchten Sie sie überschreiben?</translation>
     <message>
         <source>The device is locked, please unlock.</source>
         <translation>Das Gerät ist gesperrt, bitte entsperren Sie es.</translation>
+    </message>
+    <message>
+        <source>Failed to get a local debugger port for QML.</source>
+        <translation>Es konnte kein lokaler Debugger-Port für QML erhalten werden.</translation>
+    </message>
+    <message>
+        <source>Could not get necessary ports for the QML debugger connection.</source>
+        <translation>Auf die für die QML-Debugger-Verbindung notwendigen Ports konnte nicht zugegriffen werden.</translation>
     </message>
     <message>
         <source>Run ended.</source>
@@ -37398,10 +41870,6 @@ Ablaufdatum: %3</translation>
     <message>
         <source>Starting remote process.</source>
         <translation>Starte entfernten Prozess.</translation>
-    </message>
-    <message>
-        <source>Could not get necessary ports for the profiler connection.</source>
-        <translation>Auf die für die Profiler-Verbindung notwendigen Ports konnte nicht zugegriffen werden.</translation>
     </message>
     <message>
         <source>Deploy on iOS</source>
@@ -37557,8 +42025,8 @@ Ablaufdatum: %3</translation>
         <translation>Ungültiger (leerer) Bundle-Identifier.</translation>
     </message>
     <message>
-        <source>Failed to convert inferior pid. (%1)</source>
-        <translation>Die PID des zu debuggenden Prozesses konnte nicht ermittelt werden. (%1)</translation>
+        <source>Failed to parse the inferior PID from simctl output (%1).</source>
+        <translation>Die Auswertung der PID des zu debuggenden Prozesses aus der Ausgabe von simctl ist fehlgeschlagen (%1).</translation>
     </message>
 </context>
 <context>
@@ -38064,6 +42532,27 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
 </context>
 <context>
+    <name>QtC::Learning</name>
+    <message>
+        <source>h</source>
+        <comment>hours</comment>
+        <translation>h</translation>
+    </message>
+    <message>
+        <source>min</source>
+        <comment>minutes</comment>
+        <translation>min</translation>
+    </message>
+    <message>
+        <source>Search for Qt Academy courses...</source>
+        <translation>Suche nach Qt Academy-Kursen...</translation>
+    </message>
+    <message>
+        <source>Courses</source>
+        <translation>Kurse</translation>
+    </message>
+</context>
+<context>
     <name>QtC::Lua</name>
     <message>
         <source>Network Access</source>
@@ -38088,7 +42577,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
         <translation>Der Erweiterung &quot;%1&quot; erlauben, Daten aus dem Internet zu laden?</translation>
     </message>
     <message>
-        <source>Allow the extension &quot;%1&quot; to fetch datafrom the following URL:
+        <source>Allow the extension &quot;%1&quot; to fetch data from the following URL:
 
 </source>
         <translation>Der Erweiterung &quot;%1&quot; erlauben, Daten von der folgenden URL zu laden:
@@ -38132,28 +42621,30 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
         <translation>Temporäre Datei konnte nicht geschrieben werden.</translation>
     </message>
     <message>
-        <source>Unarchiving failed.</source>
-        <translation>Entpacken fehlgeschlagen.</translation>
+        <source>Installation was canceled.</source>
+        <translation>Installation wurde abgebrochen.</translation>
+    </message>
+    <message numerus="yes">
+        <source>Installing %n package(s)...</source>
+        <translation>
+            <numerusform>Installiere ein Paket...</numerusform>
+            <numerusform>Installiere %n Pakete...</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>The extension &quot;%1&quot; wants to install the following %n package(s):</source>
+        <translation>
+            <numerusform>Die Erweiterung &quot;%1&quot; möchte folgendes Paket installieren:</numerusform>
+            <numerusform>Die Erweiterung &quot;%1&quot; möchte folgende %n Pakete installieren:</numerusform>
+        </translation>
     </message>
     <message>
         <source>Cannot open temporary file.</source>
         <translation>Temporäre Datei konnte nicht geöffnet werden.</translation>
     </message>
     <message>
-        <source>Installing package(s) %1</source>
-        <translation>Installiere Paket(e) %1</translation>
-    </message>
-    <message>
         <source>Install Package</source>
         <translation>Installiere Paket</translation>
-    </message>
-    <message>
-        <source>The extension &quot;%1&quot; wants to install the following package(s):
-
-</source>
-        <translation>Die Erweiterung &quot;%1&quot; möchte folgende Pakete installieren:
-
-</translation>
     </message>
     <message>
         <source>Install</source>
@@ -38741,6 +43232,10 @@ sind ungültige Pfade vorhanden.</translation>
         <translation>Anforderungen</translation>
     </message>
     <message>
+        <source>Optional</source>
+        <translation>Optional</translation>
+    </message>
+    <message>
         <source>Automatically create kits for all available targets on start</source>
         <translation>Beim Start automatisch Kits für alle verfügbaren Ziele erstellen</translation>
     </message>
@@ -38812,8 +43307,8 @@ sind ungültige Pfade vorhanden.</translation>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <source>Read about Using QtMCUs in the Qt Design Studio</source>
-        <translation>Über die Benutzung von QtMCUs in Qt Design Studio informieren</translation>
+        <source>Read about using Qt Design Studio for Qt for MCUs.</source>
+        <translation>Über die Verwendung von Qt für MCUs in Qt Design Studio informieren.</translation>
     </message>
     <message>
         <source>Go to the Documentation</source>
@@ -40863,22 +45358,6 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
         <source>Starting: &quot;%1&quot; %2</source>
         <translation>Starte: &quot;%1&quot; %2</translation>
     </message>
-    <message>
-        <source>The process &quot;%1&quot; exited normally.</source>
-        <translation>Der Prozess &quot;%1&quot; wurde normal beendet.</translation>
-    </message>
-    <message>
-        <source>The process &quot;%1&quot; exited with code %2.</source>
-        <translation>Der Prozess &quot;%1&quot; wurde mit dem Rückgabewert %2 beendet.</translation>
-    </message>
-    <message>
-        <source>The process &quot;%1&quot; crashed.</source>
-        <translation>Der Prozess &quot;%1&quot; ist abgestürzt.</translation>
-    </message>
-    <message>
-        <source>Could not start process &quot;%1&quot; %2.</source>
-        <translation>Der Prozess &quot;%1&quot; %2 konnte nicht gestartet werden.</translation>
-    </message>
     <message numerus="yes">
         <source>Finished %1 of %n steps</source>
         <translation>
@@ -41401,6 +45880,18 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
 ----------
 Title of a the cloned RunConfiguration window, text of the window</extracomment>
         <translation>Duplizierte Konfiguration</translation>
+    </message>
+    <message>
+        <source>Clone From Run Configuration</source>
+        <translation>Von Ausführungskonfiguration klonen</translation>
+    </message>
+    <message>
+        <source>There are no other run configurations.</source>
+        <translation>Es gibt keine anderen Ausführungskonfigurationen.</translation>
+    </message>
+    <message>
+        <source>Clone into This...</source>
+        <translation>Hier hinein klonen...</translation>
     </message>
     <message>
         <source>Remove Run Configurations?</source>
@@ -41942,6 +46433,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>%1 Log Directory</source>
+        <extracomment>%1 = version control name</extracomment>
         <translation>%1 Log des Verzeichnisses</translation>
     </message>
     <message>
@@ -42587,10 +47079,6 @@ The name of the build configuration created by default for a generic project.</e
         <translation>Deployment-Konfiguration</translation>
     </message>
     <message>
-        <source>Unexpected run control state %1 when worker %2 started.</source>
-        <translation>Unerwarteter Run Control-Zustand %1 beim Start von Worker %2.</translation>
-    </message>
-    <message>
         <source>Application Still Running</source>
         <translation>Anwendung läuft noch</translation>
     </message>
@@ -42924,6 +47412,10 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
         <translation>%1 hinzufügen</translation>
     </message>
     <message>
+        <source>&amp;Restore</source>
+        <translation>Wiede&amp;rherstellen</translation>
+    </message>
+    <message>
         <source>Yes (id is &quot;%1&quot;)</source>
         <translation>Ja (id ist &quot;%1&quot;)</translation>
     </message>
@@ -42952,12 +47444,60 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
         <translation>%1 (Vorgabe für %2)</translation>
     </message>
     <message>
+        <source>Use SSH port forwarding for debugging</source>
+        <translation>SSH-Portweiterleitung zum Debuggen verwenden</translation>
+    </message>
+    <message>
+        <source>Enable debugging on remote targets that cannot expose GDB server ports.
+The SSH tunneling is used to map the remote GDB server port to localhost.
+The local and remote ports are determined automatically.</source>
+        <translation>Ermöglicht Debuggen auf entfernten Zielen, die gdbserver-Ports nicht direkt bereitstellen können.
+Es wird SSH-Tunneling verwendet, um die entfernten GDB-Server-Ports auf localhost abzubilden.
+Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
+    </message>
+    <message>
+        <source>Access via:</source>
+        <translation>Zugriff über:</translation>
+    </message>
+    <message>
+        <source>Select the device to connect through.</source>
+        <translation>Wählen Sie das Gerät, über das verbunden werden soll.</translation>
+    </message>
+    <message>
+        <source>Direct</source>
+        <translation>Direkt</translation>
+    </message>
+    <message>
         <source>The device name cannot be empty.</source>
         <translation>Der Gerätename darf nicht leer sein.</translation>
     </message>
     <message>
         <source>A device with this name already exists.</source>
         <translation>Ein Gerät dieses Namens existiert bereits.</translation>
+    </message>
+    <message>
+        <source>GDB server executable:</source>
+        <translation>Ausführbare Datei des GDB-Servers:</translation>
+    </message>
+    <message>
+        <source>The GDB server executable to use on the device.</source>
+        <translation>Die ausführbare Datei des GDB-Servers, der auf dem Gerät verwendet werden soll.</translation>
+    </message>
+    <message>
+        <source>Leave empty to look up executable in $PATH</source>
+        <translation>Wenn der Wert leer ist, wird die ausführbare Datei in $PATH gesucht</translation>
+    </message>
+    <message>
+        <source>QML runtime executable:</source>
+        <translation>Ausführbare Datei der QML-Runtime:</translation>
+    </message>
+    <message>
+        <source>The QML runtime executable to use on the device.</source>
+        <translation>Die ausführbare Datei der QML-Runtime, die auf dem Gerät verwendet werden soll.</translation>
+    </message>
+    <message>
+        <source>Enter lists and ranges like this: &quot;1024,1026-1028,1030&quot;.</source>
+        <translation>Geben Sie Listen und Bereiche wie folgt ein: &quot;1024,1026-1028,1030&quot;.</translation>
     </message>
     <message>
         <source>Opening a terminal is not supported.</source>
@@ -42988,12 +47528,12 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
         <translation>localSource() ist für diesen Gerätetyp nicht implementiert.</translation>
     </message>
     <message>
-        <source>No device for given path: &quot;%1&quot;.</source>
-        <translation>Kein Gerät für den angegebenen Pfad: &quot;%1&quot;.</translation>
+        <source>No device for the path: &quot;%1&quot;.</source>
+        <translation>Kein Gerät für den Pfad: &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>Device for path &quot;%1&quot; does not support killing processes.</source>
-        <translation>Das Beenden von Prozessen wird von dem Gerät für den Pfad &quot;%1&quot; nicht unterstützt.</translation>
+        <source>Device for the path &quot;%1&quot; does not support killing processes.</source>
+        <translation>Das Beenden von Prozessen wird vom Gerät für den Pfad &quot;%1&quot; nicht unterstützt.</translation>
     </message>
     <message>
         <source>Filter</source>
@@ -43030,6 +47570,10 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     <message>
         <source>Fetching process list. This might take a while.</source>
         <translation>Rufe Prozessliste ab. Dies kann eine Weile dauern.</translation>
+    </message>
+    <message>
+        <source>Failed to fetch process list.</source>
+        <translation>Prozessliste konnte nicht abgerufen werden.</translation>
     </message>
     <message>
         <source>Remote Error</source>
@@ -43157,10 +47701,6 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
         <source>%1 (on %{Device:Name})</source>
         <extracomment>Shown in Run configuration, Add menu: &quot;name of runnable (on device name)&quot;</extracomment>
         <translation>%1 (auf %{Device:Name})</translation>
-    </message>
-    <message>
-        <source>No build system active</source>
-        <translation>Kein Build-System aktiv</translation>
     </message>
     <message>
         <source>Empty</source>
@@ -43397,8 +47937,8 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
         <translation>DebugBreakProcess schlug fehl:</translation>
     </message>
     <message>
-        <source>%1 does not exist. If you built %2 yourself, check out https://code.qt.io/cgit/qt-creator/binary-artifacts.git/.</source>
-        <translation>%1 existiert nicht. Wenn Sie %2 selbst gebaut haben, checken Sie https://code.qt.io/cgit/qt-creator/binary-artifacts.git/ aus.</translation>
+        <source>%1 does not exist. Your %2 installation seems to be corrupt.</source>
+        <translation>%1 existiert nicht. Ihre %2-Installation scheint beschädigt zu sein.</translation>
     </message>
     <message>
         <source>Cannot start %1. Check src\tools\win64interrupt\win64interrupt.c for more information.</source>
@@ -44296,6 +48836,10 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
         <translation>Q_OBJECT einfügen</translation>
     </message>
     <message>
+        <source>Project name must use only letters, digits, or underscores.</source>
+        <translation>Projektname darf nur Buchstaben, Ziffern und Unterstriche enthalten.</translation>
+    </message>
+    <message>
         <source>Creates a header file that you can add to a C/C++ project.</source>
         <translation>Erzeugt eine Headerdatei, die Sie zu einem C/C++-Projekt hinzufügen können.</translation>
     </message>
@@ -44338,6 +48882,10 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     <message>
         <source>Add QML_ELEMENT</source>
         <translation>QML_ELEMENT einfügen</translation>
+    </message>
+    <message>
+        <source>CMake for Qt 5 and Qt 6</source>
+        <translation>CMake für Qt 5 und Qt 6</translation>
     </message>
     <message>
         <source>Shared Library</source>
@@ -44428,10 +48976,6 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
         <translation>QQuickItem einbinden</translation>
     </message>
     <message>
-        <source>CMake for Qt 6.5 and Later</source>
-        <translation>CMake für Qt 6.5 und neuer</translation>
-    </message>
-    <message>
         <source>Qt 6.2</source>
         <translation>Qt 6.2</translation>
     </message>
@@ -44442,6 +48986,50 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     <message>
         <source>Create example project</source>
         <translation>Beispielprojekt erzeugen</translation>
+    </message>
+    <message>
+        <source>Request passthrough</source>
+        <translation>Passthrough anfordern</translation>
+    </message>
+    <message>
+        <source>Request permissions for passthrough mode.</source>
+        <translation>Erlaubnis für Passthrough-Modus anfordern.</translation>
+    </message>
+    <message>
+        <source>Request hand tracking</source>
+        <translation>Hand-Tracking anfordern</translation>
+    </message>
+    <message>
+        <source>Request permissions for hand tracking.</source>
+        <translation>Erlaubnis für Hand-Tracking anfordern.</translation>
+    </message>
+    <message>
+        <source>Request spatial anchors</source>
+        <translation>Spatial Anchors anfordern</translation>
+    </message>
+    <message>
+        <source>Request permissions for anchors API.</source>
+        <translation>Erlaubnis für die Anchors-API anfordern.</translation>
+    </message>
+    <message>
+        <source>XR Features</source>
+        <translation>XR-Funktionen</translation>
+    </message>
+    <message>
+        <source>Features</source>
+        <translation>Funktionen</translation>
+    </message>
+    <message>
+        <source>Kit Selection: For Apple Vision Pro, select any kit.</source>
+        <translation>Kit-Auswahl: Wählen Sie ein beliebiges Kit für Apple Vision Pro.</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick 3D XR application with QML and C++ code. You can build and deploy the application to desktop VR and standalone XR platforms. For the Apple Vision Pro, you can develop in Qt Creator but must deploy the CMake project with XCode.</source>
+        <translation>Erstellt eine Qt Quick 3D XR-Anwendung mit QML- und C++-Code. Das Bauen und Deployment der Anwendung ist für Desktop-VR und eigenständige XR-Plattformen möglich. Sie können in Qt Creator für Apple Vision Pro entwickeln, doch dafür müssen Sie das Deployment des CMake-Projekts mit Xcode durchführen.</translation>
+    </message>
+    <message>
+        <source>XR Application</source>
+        <translation>XR-Anwendung</translation>
     </message>
     <message>
         <source>Create a project that you can open in Qt Design Studio</source>
@@ -44626,6 +49214,10 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     <message>
         <source>This wizard creates a simple unit test project using Qt Test.</source>
         <translation>Dieser Assistent erstellt ein einfaches Unit-Test-Projekt mit Qt Test.</translation>
+    </message>
+    <message>
+        <source>CMake for Qt5 and Qt 6</source>
+        <translation>CMake für Qt 5 und Qt 6</translation>
     </message>
     <message>
         <source>Creates a new unit test project using Qt Test. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
@@ -45184,12 +49776,6 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
         <translation>* Konfiguration gefunden und ausgewertet.</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>* Konnte kein JSON-Objekt in &quot;%1&quot; finden.
-</translation>
-    </message>
-    <message>
         <source>* Version %1 not supported.</source>
         <translation>* Version %1 nicht unterstützt.</translation>
     </message>
@@ -45390,10 +49976,6 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
         <source>%1: Working directory of the active run configuration.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
         <translation>%1: Arbeitsverzeichnis der aktiven Ausführungskonfiguration.</translation>
-    </message>
-    <message>
-        <source>Target Settings</source>
-        <translation>Zieleinstellungen</translation>
     </message>
     <message>
         <source>Source directory</source>
@@ -45666,16 +50248,8 @@ Sie werden erhalten.</numerusform>
         <translation>Der Prozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
-        <source>An unknown error in the process occurred.</source>
-        <translation>Im Prozess trat ein unbekannter Fehler auf.</translation>
-    </message>
-    <message>
-        <source>Either the invoked program &quot;%1&quot; is missing, or you may have insufficient permissions to invoke the program.</source>
-        <translation>Entweder ist das aufgerufene Programm &quot;%1&quot; nicht vorhanden oder Ihre Rechte reichen nicht aus, um dieses Programm aufzurufen.</translation>
-    </message>
-    <message>
-        <source>The process crashed.</source>
-        <translation>Der Prozess ist abgestürzt.</translation>
+        <source>Docker Image &quot;%1&quot; (%2)</source>
+        <translation>Docker Image &quot;%1&quot; (%2)</translation>
     </message>
     <message>
         <source>Requesting process to stop ....</source>
@@ -45686,20 +50260,20 @@ Sie werden erhalten.</numerusform>
         <translation>Erzwinge den Stopp des Prozesses ....</translation>
     </message>
     <message>
+        <source>No recipe producer.</source>
+        <translation>Kein Produzent eines Rezepts.</translation>
+    </message>
+    <message>
+        <source>Unexpected run control state %1 when worker started.</source>
+        <translation>Unerwarteter Zustand %1 der Ausführungskonfiguration beim Starten des Workers.</translation>
+    </message>
+    <message>
         <source>Process unexpectedly did not finish.</source>
         <translation>Der Prozess hat sich unerwarteterweise nicht beendet.</translation>
     </message>
     <message>
         <source>Connectivity lost?</source>
         <translation>Verbindung verloren?</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation>Ein Fehler trat beim Versuch zum Prozess zu schreiben auf. Möglicherweise läuft der Prozess nicht oder hat seinen Eingabekanal geschlossen.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the process. For example, the process may not be running.</source>
-        <translation>Ein Fehler trat beim Versuch vom Prozess zu lesen auf. Möglicherweise läuft der Prozess nicht.</translation>
     </message>
     <message>
         <source>Kit is unsuited for project</source>
@@ -46334,6 +50908,10 @@ Was soll %1 tun?</translation>
         <translation>Auf die gespeicherte Umgebung für &quot;%1&quot; zurückgreifen nach:</translation>
     </message>
     <message>
+        <source>No MSVC toolchains were found. You need to install Visual Studio or the Visual Studio Build Tools.</source>
+        <translation>Es wurden keine MSVC-Toolchains gefunden. Sie müssen Visual Studio oder die Visual Studio Build Tools installieren.</translation>
+    </message>
+    <message>
         <source>&lt;empty&gt;</source>
         <translation>&lt;leer&gt;</translation>
     </message>
@@ -46611,6 +51189,26 @@ Was soll %1 tun?</translation>
         <translation>Systemumgebung bereinigen</translation>
     </message>
     <message>
+        <source>Build default</source>
+        <translation>Vorgabe (Erstellen)</translation>
+    </message>
+    <message>
+        <source>Run default</source>
+        <translation>Vorgabe (Ausführen)</translation>
+    </message>
+    <message>
+        <source>The name of the custom parser.</source>
+        <translation>Der Name des benutzerdefinierten Parsers.</translation>
+    </message>
+    <message>
+        <source>This custom parser is used by default for all build configurations of the project.</source>
+        <translation>Dieser benutzerdefinierte Parser wird standardmäßig für alle Build-Konfigurationen des Projekts verwendet.</translation>
+    </message>
+    <message>
+        <source>This custom parser is used by default for all run configurations of the project.</source>
+        <translation>Dieser benutzerdefinierte Parser wird standardmäßig für alle Ausführungskonfigurationen des Projekts verwendet.</translation>
+    </message>
+    <message>
         <source>Custom output parsers defined here can be enabled individually in the project&apos;s build or run settings.</source>
         <translation>Parser, die hier vom Benutzer definiert wurden, können einzeln in den Build- oder Ausführungseinstellungen des Projekts aktiviert werden.</translation>
     </message>
@@ -46681,6 +51279,11 @@ Was soll %1 tun?</translation>
     <message>
         <source>Custom output parsers scan command line output for user-provided error patterns&lt;br&gt;to create entries in Issues.&lt;br&gt;The parsers can be configured &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
         <translation>Benutzerdefinierte Parser werten die Kommandozeilenausgabe mit vom Benutzer gewählten Fehler-Suchmustern aus.&lt;br&gt;Sie können diese Parser &lt;a href=&quot;dummy&quot;&gt;hier&lt;/a&gt; konfigurieren.</translation>
+    </message>
+    <message>
+        <source>%1 (project default)</source>
+        <extracomment>%1 = parser display name</extracomment>
+        <translation>%1 (Projektvoreinstellung)</translation>
     </message>
     <message>
         <source>There are no custom parsers active</source>
@@ -46781,14 +51384,6 @@ fails because Clang does not understand the target architecture.</source>
     <message>
         <source>Cannot run: No command given.</source>
         <translation>Keine Ausführung möglich: Kein Kommando angegeben.</translation>
-    </message>
-    <message>
-        <source>%1 exited with code %2</source>
-        <translation>%1 wurde mit dem Rückgabewert %2 beendet</translation>
-    </message>
-    <message>
-        <source>The process was ended forcefully.</source>
-        <translation>Der Prozess wurde gestoppt.</translation>
     </message>
     <message>
         <source>Import as qmake or CMake Project (Limited Functionality)</source>
@@ -47085,6 +51680,94 @@ Wählen Sie einen anderen Pfad.</translation>
         <source>Windows App SDK</source>
         <translation>Windows App SDK</translation>
     </message>
+    <message>
+        <source>Enable to specify a private key file to use for authentication, otherwise the default mechanism is used for authentication (password, .sshconfig and the default private key).</source>
+        <translation>Wählen Sie dies, um einen privaten Schlüssel für die Authentifizierung anzugeben. Anderenfalls wird der Standardmechanismus für die Authentifizierung verwendet (Passwort, sshconfig und der voreingestellte private Schlüssel).</translation>
+    </message>
+    <message>
+        <source>Use specific key:</source>
+        <translation>Ausgewählten Schlüssel verwenden:</translation>
+    </message>
+    <message>
+        <source>The device&apos;s SSH host key checking mode.</source>
+        <translation>Der Prüfmodus für den SSH-Hostkey des Geräts.</translation>
+    </message>
+    <message>
+        <source>Host key check:</source>
+        <translation>Hostkey-Prüfung:</translation>
+    </message>
+    <message>
+        <source>No host key checking.</source>
+        <translation>Keine Hostkey-Prüfung.</translation>
+    </message>
+    <message>
+        <source>Strict</source>
+        <translation>Strikt</translation>
+    </message>
+    <message>
+        <source>Strict host key checking.</source>
+        <translation>Strikte Hostkey-Prüfung.</translation>
+    </message>
+    <message>
+        <source>Allow No Match</source>
+        <translation>Fehlende Übereinstimmung zulassen</translation>
+    </message>
+    <message>
+        <source>Allow host key checking.</source>
+        <translation>Hostkey-Prüfung erlauben.</translation>
+    </message>
+    <message>
+        <source>Host name or IP address</source>
+        <translation>Hostname oder IP-Adresse</translation>
+    </message>
+    <message>
+        <source>The device&apos;s host name or IP address.</source>
+        <translation>Hostname oder IP-Adresse des Geräts.</translation>
+    </message>
+    <message>
+        <source>Host name:</source>
+        <translation>Hostname:</translation>
+    </message>
+    <message>
+        <source>User name</source>
+        <translation>Benutzername</translation>
+    </message>
+    <message>
+        <source>The device&apos;s SSH user name.</source>
+        <translation>Der SSH-Benutzername des Geräts.</translation>
+    </message>
+    <message>
+        <source>User name:</source>
+        <translation>Benutzername:</translation>
+    </message>
+    <message>
+        <source>The device&apos;s SSH port number.</source>
+        <translation>Der SSH-Port des Geräts.</translation>
+    </message>
+    <message>
+        <source>SSH port:</source>
+        <translation>SSH-Port:</translation>
+    </message>
+    <message>
+        <source>Private key file</source>
+        <translation>Private Schlüsseldatei</translation>
+    </message>
+    <message>
+        <source>The device&apos;s private key file.</source>
+        <translation>Die private Schlüsseldatei des Geräts.</translation>
+    </message>
+    <message>
+        <source>Private key file:</source>
+        <translation>Private Schlüsseldatei:</translation>
+    </message>
+    <message>
+        <source>Timeout:</source>
+        <translation>Zeitlimit:</translation>
+    </message>
+    <message>
+        <source>The device&apos;s SSH connection timeout.</source>
+        <translation>Zeitlimit für die SSH-Verbindung des Geräts.</translation>
+    </message>
 </context>
 <context>
     <name>QtC::Python</name>
@@ -47222,7 +51905,7 @@ Wählen Sie einen anderen Pfad.</translation>
         <translation>Installiere PySide</translation>
     </message>
     <message>
-        <source>You can install PySide from PyPi (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
+        <source>You can install PySide from PyPI (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
         <translation>Sie können PySide von PyPI (Community OSS-Version) oder, falls Sie den Qt-Installer verwenden und eine kommerzielle Lizenz besitzen, von Ihrer Qt-Installation installieren.</translation>
     </message>
     <message>
@@ -47287,8 +51970,8 @@ Wählen Sie einen anderen Pfad.</translation>
         <translation>Die Installation von &quot;%1&quot; wurde vom Benutzer abgebrochen.</translation>
     </message>
     <message>
-        <source>Installing &quot;%1&quot; failed with exit code %2.</source>
-        <translation>Die Installation von &quot;%1&quot; ist mit dem Rückgabewert %2 fehlgeschlagen.</translation>
+        <source>Installing &quot;%1&quot; failed:</source>
+        <translation>Die Installation von &quot;%1&quot; ist fehlgeschlagen:</translation>
     </message>
     <message>
         <source>Run PySide6 project tool</source>
@@ -47323,9 +52006,9 @@ Wählen Sie einen anderen Pfad.</translation>
         <translation>Globales Python</translation>
     </message>
     <message>
-        <source> Virtual Environment</source>
-        <translatorcomment>python-&gt;name + Tr::tr(&quot; Virtual Environment&quot;);</translatorcomment>
-        <translation> virtuelle Umgebung</translation>
+        <source>%1 Virtual Environment</source>
+        <extracomment>%1 = name of this Python as registered in QtC</extracomment>
+        <translation>Virtuelle Umgebung von %1</translation>
     </message>
     <message>
         <source>REPL</source>
@@ -47424,7 +52107,7 @@ Wählen Sie einen anderen Pfad.</translation>
         <translation>Der für Python-basierte Projekte verwendete Interpreter.</translation>
     </message>
     <message>
-        <source>No Python setup.</source>
+        <source>No Python set up.</source>
         <translation>Kein Python eingerichtet.</translation>
     </message>
     <message>
@@ -47454,6 +52137,26 @@ Wählen Sie einen anderen Pfad.</translation>
     <message>
         <source>No Python interpreter set for kit &quot;%1&quot;.</source>
         <translation>Kein Python-Interpreter für das Kit &quot;%1&quot; eingerichtet.</translation>
+    </message>
+    <message>
+        <source>Parsing error: %1</source>
+        <translation>Fehler bei Auswertung: %1</translation>
+    </message>
+    <message>
+        <source>Type error: &quot;%1&quot; must be a &quot;%2&quot;, not a &quot;%3&quot;.</source>
+        <translation>Typfehler: Der Typ von &quot;%1&quot; muss &quot;%2&quot; sein, nicht &quot;%3&quot;.</translation>
+    </message>
+    <message>
+        <source>Missing node error: &quot;%1&quot; table must contain a &quot;%2&quot; node.</source>
+        <translation>Fehler - fehlender Knoten: Die Tabelle &quot;%1&quot; muss einen &quot;%2&quot;-Knoten enthalten.</translation>
+    </message>
+    <message>
+        <source>Node &quot;%1&quot; is empty.</source>
+        <translation>Knoten &quot;%1&quot; ist leer.</translation>
+    </message>
+    <message>
+        <source>File &quot;%1&quot; does not exist.</source>
+        <translation>Datei &quot;%1&quot; existiert nicht.</translation>
     </message>
 </context>
 <context>
@@ -47803,16 +52506,12 @@ Dies ist selten nötig.</translation>
         <translation>Der qbs-Build-Graph konnte nicht geladen werden.</translation>
     </message>
     <message>
-        <source>The qbs session is not in a valid state.</source>
-        <translation>Die qbs-Sitzung ist in keinem gültigen Zustand.</translation>
+        <source>Failed to update files in Qbs project: %1.</source>
+        <translation>Fehler beim Aktualisieren der Dateien im Qbs-Projekt: %1.</translation>
     </message>
     <message>
-        <source>Failed to update files in Qbs project: %1.
-The affected files are: 
-	%2</source>
-        <translation>Das Aktualisieren von Dateien im Qbs-Projekt ist fehlgeschlagen: %1.
-Die betroffenen Dateien sind: 
-	%2</translation>
+        <source>The qbs session is not in a valid state.</source>
+        <translation>Die qbs-Sitzung ist in keinem gültigen Zustand.</translation>
     </message>
     <message>
         <source>Qbs Editor</source>
@@ -47866,7 +52565,7 @@ Die betroffenen Dateien sind:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A short, free-text description</source>
+        <source>A short, free-text description.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -47883,6 +52582,14 @@ Die betroffenen Dateien sind:
     </message>
     <message>
         <source>Boot to Qt Network Device Setup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set This Application to Start by Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Default Application</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -47966,19 +52673,11 @@ Die betroffenen Dateien sind:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Could not start QDB host server in %1</source>
+        <source>Could not start QDB host server in &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Starting QDB host server.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set this application to start by default</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset default application</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -48616,12 +53315,12 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <translation>Das Projekt ist Teil von Qt-Quellen, die nicht zum im Kit definierten Qt passen.</translation>
     </message>
     <message>
-        <source>Generate Xcode project (via qmake)</source>
-        <translation>Xcode-Projekt generieren (mittels qmake)</translation>
+        <source>Xcode Project (via qmake)</source>
+        <translation>Xcode-Projekt (mittels qmake)</translation>
     </message>
     <message>
-        <source>Generate Visual Studio project (via qmake)</source>
-        <translation>Visual Studio-Projekt generieren (mittels qmake)</translation>
+        <source>Visual Studio Project (via qmake)</source>
+        <translation>Visual Studio-Projekt (mittels qmake)</translation>
     </message>
     <message>
         <source>qmake generator failed: %1.</source>
@@ -48786,6 +53485,10 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
         <translation>Die mkspec konnte für diese Qt-Version nicht gefunden werden.</translation>
     </message>
     <message>
+        <source>qmake not found for Qt version.</source>
+        <translation>Für die Qt-Version wurde kein qmake gefunden.</translation>
+    </message>
+    <message>
         <source>mkspec</source>
         <translation>mkspec</translation>
     </message>
@@ -48841,16 +53544,6 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
 <context>
     <name>QtC::QmlDebug</name>
     <message>
-        <source>The port seems to be in use.</source>
-        <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
-        <translation>Der Port wird bereits verwendet.</translation>
-    </message>
-    <message>
-        <source>The application is not set up for QML/JS debugging.</source>
-        <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
-        <translation>Diese Anwendung ist nicht für QML/JS-Debuggen eingerichtet.</translation>
-    </message>
-    <message>
         <source>Socket state changed to %1</source>
         <translation>Socket-Status geändert zu %1</translation>
     </message>
@@ -48874,101 +53567,15 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
 <context>
     <name>QtC::QmlDesigner</name>
     <message>
-        <source>&quot;%1&quot; failed (exit code %2).</source>
-        <translation type="unfinished">&quot;%1&quot; schlug fehl (Rückgabewert %2).</translation>
-    </message>
-    <message>
-        <source>Failed to generate deployable package!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; crashed.</source>
-        <translation type="unfinished">&quot;%1&quot; ist abgestürzt.</translation>
-    </message>
-    <message>
-        <source>Generate QRC Resource File...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save Project as QRC File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QML Resource File (*.qrc)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QmlDesigner::GenerateResource</source>
-        <comment>Success</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QmlDesigner::GenerateResource</source>
-        <comment>Successfully generated QRC resource file
- %1</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Generate Deployable Package...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save Project as Resource</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Generating deployable package. Please wait...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Error</source>
         <translation>Fehler</translation>
-    </message>
-    <message>
-        <source>Failed to generate deployable package!
-
-Please check the output pane for more information.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Success</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Successfully generated deployable package</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to open file to write QRC XML: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resource generator is already running.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QmlDesigner::GenerateResource</source>
-        <comment>Unable to generate resource file: %1</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A timeout occurred running &quot;%1&quot;.</source>
-        <translation type="unfinished">Zeitüberschreitung bei Ausführung von &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Export Components</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export path:</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Baking aborted: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Baking finished!</source>
+        <source>Baking finished.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -48992,7 +53599,7 @@ Please check the output pane for more information.</source>
         <translation type="unfinished">QtQuick View konnte nicht erzeugt werden</translation>
     </message>
     <message>
-        <source>ConnectionsEditorWidget: %1 cannot be created.%2</source>
+        <source>ConnectionsEditorWidget: %1 cannot be created: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -49002,14 +53609,6 @@ Please check the output pane for more information.</source>
     <message>
         <source>Property Value</source>
         <translation type="unfinished">Eigenschaftswert</translation>
-    </message>
-    <message>
-        <source>Error creating asset directory. %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error saving asset. %1</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Failed to Delete File</source>
@@ -49029,7 +53628,7 @@ Please check the output pane for more information.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Folder move failure</source>
+        <source>Failed to Move Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -49045,10 +53644,6 @@ Please check the output pane for more information.</source>
         <translation type="unfinished">%1 konnte nicht zum Projekt hinzugefügt werden.</translation>
     </message>
     <message>
-        <source>All Files (%1)</source>
-        <translation type="unfinished">Alle Dateien (%1)</translation>
-    </message>
-    <message>
         <source>Add Assets</source>
         <translation type="unfinished">Assets hinzufügen</translation>
     </message>
@@ -49059,6 +53654,23 @@ Please check the output pane for more information.</source>
     <message>
         <source>Binding Editor</source>
         <translation type="unfinished">Binding-Editor</translation>
+    </message>
+    <message>
+        <source>NOT</source>
+        <extracomment>boolean expression (probably better do not translate)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert the boolean expression.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Item ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Signal</source>
+        <translation type="unfinished">Signal</translation>
     </message>
     <message>
         <source>Signal List for %1</source>
@@ -49082,20 +53694,8 @@ Please check the output pane for more information.</source>
         <translation type="unfinished">Ressourcen hinzufügen</translation>
     </message>
     <message>
-        <source>&amp;Browse...</source>
-        <translation type="unfinished">&amp;Auswählen...</translation>
-    </message>
-    <message>
         <source>Target Directory</source>
         <translation type="unfinished">Zielverzeichnis</translation>
-    </message>
-    <message>
-        <source>Unsupported bundle file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The chosen bundle was created with an incompatible version of Qt Design Studio</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Component Exists</source>
@@ -49110,11 +53710,23 @@ Please check the output pane for more information.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Qt Design Studio Bundle Files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Qt Design Studio Bundle Files (*.%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Export Material</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unsupported Bundle File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The chosen bundle was created with an incompatible version of Qt Design Studio.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -49175,27 +53787,27 @@ Please check the output pane for more information.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>TemplateMerge</source>
-        <comment>Merge With Template</comment>
+        <source>Merge With Template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>TemplateMerge</source>
-        <comment>&amp;Browse...</comment>
+        <source>Template:</source>
+        <translation type="unfinished">Template:</translation>
+    </message>
+    <message>
+        <source>Browse Template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>TemplateMerge</source>
-        <comment>Template:</comment>
+        <source>Effect file &quot;%1&quot; not found in the project.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>TemplateMerge</source>
-        <comment>Browse Template</comment>
+        <source>Asset %1 is not complete.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Effect file %1 not found in the project.</source>
+        <source>Please reimport the asset.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -49340,15 +53952,31 @@ Do you want to edit this effect?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Always Show Particle Emitters And Attractors</source>
+        <source>Always Show Particle Emitters and Attractors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle Particle Animation On/Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle Snapping During Node Drag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Snap Configuration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Viewport Modes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Camera Speed Configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Toggle between always showing the particle emitter and attractor visualizations and only showing them when the emitter or attractor is selected.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Toggle particle animation On/Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -49369,22 +53997,6 @@ Do you want to edit this effect?</source>
     </message>
     <message>
         <source>Background Color Actions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Toggle snapping during node drag</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open snap configuration dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Toggle Split View On/Off</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open camera speed configuration dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -49452,7 +54064,7 @@ Do you want to edit this effect?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Snap without Anchors</source>
+        <source>Snap Without Anchors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -49476,6 +54088,26 @@ Do you want to edit this effect?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Ctrl+Alt+I</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Linear</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start Frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>End Frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current Frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Zoom In</source>
         <translation type="unfinished">Vergrößern</translation>
     </message>
@@ -49493,10 +54125,6 @@ Do you want to edit this effect?</source>
     </message>
     <message>
         <source>Zoom screen to fit current selection.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+i</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -49562,10 +54190,6 @@ Error:
         <translation type="unfinished">Pfad-Werkzeug</translation>
     </message>
     <message>
-        <source>Invalid QML source</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Text Tool</source>
         <translation type="unfinished">Textwerkzeug</translation>
     </message>
@@ -49586,7 +54210,7 @@ Error:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Failed to generate QSB file for: %1</source>
+        <source>Failed to generate QSB file for: %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -49610,7 +54234,7 @@ Error:
         <translation type="unfinished">Die QML-Datei ist in keinem QML-Editor geöffnet.</translation>
     </message>
     <message>
-        <source>Enjoying the %1?</source>
+        <source>Enjoying %1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -49815,6 +54439,246 @@ Error:
     </message>
     <message>
         <source>The made changes will take effect after a restart of the QML Puppet or %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Annotation Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation type="unfinished">Titel</translation>
+    </message>
+    <message>
+        <source>Author</source>
+        <translation type="unfinished">Autor</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation type="unfinished">Wert</translation>
+    </message>
+    <message>
+        <source>Global Annotation Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global Annotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Annotations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation type="unfinished">Release</translation>
+    </message>
+    <message>
+        <source>Connect</source>
+        <translation type="unfinished">Verbinden</translation>
+    </message>
+    <message>
+        <source>Color Tool</source>
+        <translation type="unfinished">Farbwerkzeug</translation>
+    </message>
+    <message>
+        <source>Failed to Add Import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not add QtQuick3D import to the document.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open Style Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert Keyframe</source>
+        <translation type="unfinished">Keyframe einfügen</translation>
+    </message>
+    <message>
+        <source>Delete Selected Keyframes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Design Tokens</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Design Tokens view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables or disables the targeted device in the Run dropdown.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Indicates whether the Qt UI Viewer on the targeted device is turned on or off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the name of the targeted device.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays the IP address of the targeted device.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays the operating system of the targeted device.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays the version of the operating system on the targeted device.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays the CPU architecture information of the targeted device.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays the screen dimensions of the targeted device.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays the version ID of the Qt UI Viewer application.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays the ID created by the target device.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displays the ID created by Qt Design Studio for the target device.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation type="unfinished">Aktiviert</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation type="unfinished">Status</translation>
+    </message>
+    <message>
+        <source>Alias</source>
+        <translation type="unfinished">Alias</translation>
+    </message>
+    <message>
+        <source>IP Address</source>
+        <translation type="unfinished">IP-Adresse</translation>
+    </message>
+    <message>
+        <source>OS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OS Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Architecture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Screen Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>App Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Self ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid QML Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Run App</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Live Preview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Style Incompatibility</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Qt UI Viewer only supports the default Android style (Material). Different styles may not be displayed correctly.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not Supported for MCUs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Timeline Settings</source>
+        <translation type="unfinished">Timeline-Einstellungen</translation>
+    </message>
+    <message>
+        <source>Previous Frame</source>
+        <translation type="unfinished">Voriger Frame</translation>
+    </message>
+    <message>
+        <source>Play</source>
+        <translation type="unfinished">Abspielen</translation>
+    </message>
+    <message>
+        <source>Next Frame</source>
+        <translation type="unfinished">Nächster Frame</translation>
+    </message>
+    <message>
+        <source>Loop Playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playback Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Timeline Current Frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto Key</source>
+        <translation type="unfinished">Auto Key</translation>
+    </message>
+    <message>
+        <source>Timeline First Frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Timeline Last Frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Missing type %1 name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Missing default property: %1 in type %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Missing property %1 in type %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not existing Qml Document %1 for type %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not existing Qmltypes File %1.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -50370,6 +55234,10 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
         <translation>Dieser Typ (%1) wird von UI-Dateien (.ui.qml) nicht unterstützt.</translation>
     </message>
     <message>
+        <source>Arbitrary functions and function calls outside of a Connections or ScriptAction objects are not supported in a UI file (.ui.qml).</source>
+        <translation>Beliebige Funktionen und Funktionsaufrufe außerhalb eines Connections- und ScriptAction-Objektes werden in einer UI-Datei (.ui.qml) nicht unterstützt.</translation>
+    </message>
+    <message>
         <source>A when condition cannot contain an object.</source>
         <translation>Eine &quot;when&quot;-Bedingung kann kein Objekt enthalten.</translation>
     </message>
@@ -50420,10 +55288,6 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     <message>
         <source>JavaScript can break the visual tooling in Qt Design Studio.</source>
         <translation>JavaScript kann das visuelle Tooling in Qt Design Studio stören.</translation>
-    </message>
-    <message>
-        <source>Arbitrary functions and function calls outside of a Connections object are not supported in a UI file (.ui.qml).</source>
-        <translation>Beliebige Funktionen und Funktionsaufrufe außerhalb des Connections-Objektes werden in einer UI-Datei (.ui.qml) nicht unterstützt.</translation>
     </message>
     <message>
         <source>Duplicate import (%1).</source>
@@ -50667,12 +55531,32 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
         <translation>Ctrl+Shift+C</translation>
     </message>
     <message>
-        <source>Reformat File</source>
-        <translation>Datei neu formatieren</translation>
+        <source>Ctrl+Shift+;</source>
+        <translation>Ctrl+Shift+;</translation>
+    </message>
+    <message>
+        <source>Reformat Document</source>
+        <translation>Dokument neu formatieren</translation>
     </message>
     <message>
         <source>Inspect API for Element Under Cursor</source>
         <translation>API für Element unter der Einfügemarke untersuchen</translation>
+    </message>
+    <message>
+        <source>QmlFormat not found.</source>
+        <translation>QmlFormat nicht gefunden.</translation>
+    </message>
+    <message>
+        <source>Custom formatter path not found.</source>
+        <translation>Pfad des benutzerdefinierten Formatierers nicht gefunden.</translation>
+    </message>
+    <message>
+        <source>Error: No current document to format.</source>
+        <translation>Fehler: Kein aktuelles Dokument zum Formatieren.</translation>
+    </message>
+    <message>
+        <source>Error: Formatting failed with the selected formatter.</source>
+        <translation>Fehler: Formatieren mit dem gewählten Formatierer ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Issues that the QML code parser found.</source>
@@ -50779,16 +55663,8 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
         <translation>Qt Quick-Werkzeugleiste verankern</translation>
     </message>
     <message>
-        <source>Use custom command instead of built-in formatter</source>
-        <translation>Benutzerdefiniertes Kommando anstatt des integrierten Formatierers verwenden</translation>
-    </message>
-    <message>
         <source>Command:</source>
         <translation>Kommando:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumente:</translation>
     </message>
     <message>
         <source>Always show Qt Quick Toolbar</source>
@@ -50843,10 +55719,6 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
         <translation>Aktiviert</translation>
     </message>
     <message>
-        <source>Disabled for non Qt Quick UI</source>
-        <translation>Nur für Qt Quick UI</translation>
-    </message>
-    <message>
         <source>Message</source>
         <translation>Nachricht</translation>
     </message>
@@ -50855,16 +55727,24 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
         <translation>Überprüfungen können für alle Dateien oder nur für Qt Quick UI-Dateien aktiviert werden. Es ist nicht möglich, Überprüfungen nur für Qt Quick UI-Dateien zu deaktivieren.</translation>
     </message>
     <message>
-        <source>Automatic Formatting on File Save</source>
-        <translation>Automatische Formatierung beim Speichern einer Datei</translation>
-    </message>
-    <message>
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
     <message>
         <source>Open .ui.qml files with:</source>
         <translation>.ui.qml-Dateien öffnen mit:</translation>
+    </message>
+    <message>
+        <source>Only for Qt Quick UI</source>
+        <translation>Nur für Qt Quick UI</translation>
+    </message>
+    <message>
+        <source>Formatting</source>
+        <translation>Formatierung</translation>
+    </message>
+    <message>
+        <source>Set the path to the Qt Design Studio application to enable the &quot;Open in Qt Design Studio&quot; feature. If you have Qt Design Studio installed alongside Qt Creator with the Qt Online Installer, it is used as the default. Use &lt;a href=&quot;linwithqt&quot;&gt;&quot;Link with Qt&quot;&lt;/a&gt; to link an offline installation of Qt Creator to a Qt Online Installer.</source>
+        <translation>Setzt den Pfad zur Qt Design Studio-Anwendung, um die Funktion &quot;In Qt Design Studio öffnen&quot; zu aktivieren. Wenn Sie Qt Design Studio über den Qt Online Installer zusammen mit Qt Creator installiert haben, wird dies standardmäßig verwendet. Verwenden Sie &lt;a href=&quot;linwithqt&quot;&gt;&quot;Mit Qt verknüpfen&lt;/a&gt;, um eine Offline-Installation von Qt Creator mit einem Qt Online Installer zu verknüpfen.</translation>
     </message>
     <message>
         <source>Open Language Server preferences...</source>
@@ -50978,17 +55858,65 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
         <translation>Codemodell zurücksetzen</translation>
     </message>
     <message>
-        <source>Other</source>
-        <translation>Andere</translation>
-    </message>
-    <message>
-        <source>&amp;Line length:</source>
-        <translation>&amp;Zeilenlänge:</translation>
-    </message>
-    <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Global</translation>
+    </message>
+    <message>
+        <source>No qmlformat executable found.</source>
+        <translation>Ausführbare Datei für qmlformat nicht gefunden.</translation>
+    </message>
+    <message>
+        <source>Failed to generate qmlformat.ini file.</source>
+        <translation>Generieren der qmlformat.ini-Datei ist fehlgeschlagen.</translation>
+    </message>
+    <message>
+        <source>Global qmlformat Configuration</source>
+        <translation>Globale qmlformat-Konfiguration</translation>
+    </message>
+    <message>
+        <source>Built-in Formatter Settings</source>
+        <translation>Einstellungen des integrierten Formatierers</translation>
+    </message>
+    <message>
+        <source>Other Settings</source>
+        <translation>Weitere Einstellungen</translation>
+    </message>
+    <message>
+        <source>Line length:</source>
+        <translation>Zeilenlänge:</translation>
+    </message>
+    <message>
+        <source>Command:</source>
+        <translation>Kommando:</translation>
+    </message>
+    <message>
+        <source>Arguments:</source>
+        <translation>Argumente:</translation>
+    </message>
+    <message>
+        <source>Custom Formatter Configuration</source>
+        <translation>Konfiguration für benutzerdefinierten Formatierer</translation>
+    </message>
+    <message>
+        <source>Built-In Formatter [Deprecated]</source>
+        <translation>Integrierter Formatierer [veraltet]</translation>
+    </message>
+    <message>
+        <source>QmlFormat [LSP]</source>
+        <translation>QmlFormat [LSP]</translation>
+    </message>
+    <message>
+        <source>Custom Formatter [Must be qmlformat compatible]</source>
+        <translation>Benutzerdefinierter Formatierer [Muss qmlformat-kompatibel sein]</translation>
+    </message>
+    <message>
+        <source>Formatter</source>
+        <translation>Formatierer</translation>
+    </message>
+    <message>
+        <source>Formatter Selection</source>
+        <translation>Formatiererauswahl</translation>
     </message>
 </context>
 <context>
@@ -51065,12 +55993,6 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
         <translation>Die Anwendung wurde beendet, bevor eine Verbindung aufgebaut werden konnte. Es wurden keine Daten geladen.</translation>
     </message>
     <message>
-        <source>Could not connect to the in-process QML profiler within %1 s.
-Do you want to retry and wait %2 s?</source>
-        <translation>Innerhalb von %1 s konnte keine Verbindung zum QML-Profiler im Prozess hergestellt werden.
-Wollen Sie es erneut versuchen und %2 s warten?</translation>
-    </message>
-    <message>
         <source>%1 s</source>
         <translation>%1 s</translation>
     </message>
@@ -51117,10 +56039,6 @@ Wollen Sie die Daten vorher speichern?</translation>
     <message>
         <source>Hide or show event categories.</source>
         <translation>Ereigniskategorien verstecken oder anzeigen.</translation>
-    </message>
-    <message>
-        <source>Failed to connect.</source>
-        <translation>Verbindung fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Memory Usage</source>
@@ -51922,6 +56840,18 @@ Speichern fehlgeschlagen.</translation>
 <context>
     <name>QtC::QmlProjectManager</name>
     <message>
+        <source>Open the document in Qt Design Studio.
+
+Qt Design Studio is not configured. Configure it in Preferences &gt; Qt Quick &gt; QML/JS Editing.</source>
+        <translation>Das Dokument in Qt Design Studio öffnen.
+
+Qt Design Studio ist nicht konfiguriert. Konfigurieren Sie es in Einstellungen &gt; Qt Quick &gt; QML/JS-Bearbeitung.</translation>
+    </message>
+    <message>
+        <source>Open the document in Qt Design Studio.</source>
+        <translation>Das Dokument in Qt Design Studio öffnen.</translation>
+    </message>
+    <message>
         <source>Kit has no device.</source>
         <translation>Das Kit hat kein Gerät.</translation>
     </message>
@@ -52003,6 +56933,10 @@ Speichern fehlgeschlagen.</translation>
         <translation>Warnung beim Laden der Projektdatei %1.</translation>
     </message>
     <message>
+        <source>Default</source>
+        <translation>Vorgabe</translation>
+    </message>
+    <message>
         <source>No Qt Design Studio installation found</source>
         <translation>Es wurde keine Installation von Qt Design Studio gefunden</translation>
     </message>
@@ -52075,12 +57009,6 @@ Speichern fehlgeschlagen.</translation>
         <translation>Qt Design Studio konnte nicht gestartet werden.</translation>
     </message>
     <message>
-        <source>No project file (*.qmlproject) found for Qt Design Studio.
-Qt Design Studio requires a .qmlproject based project to open the .ui.qml file.</source>
-        <translation>Es wurde keine Projektdatei (*.qmlproject) für Qt Design Studio gefunden.
-Qt Design Studio benötigt zum Öffnen der .ui.qml-Datei ein .qmlproject-basiertes Projekt.</translation>
-    </message>
-    <message>
         <source>Set as Main .qml File</source>
         <translation>Als .qml-Hauptdatei setzen</translation>
     </message>
@@ -52093,12 +57021,8 @@ Qt Design Studio benötigt zum Öffnen der .ui.qml-Datei ein .qmlproject-basiert
         <translation>Projektdatei erstellt</translation>
     </message>
     <message>
-        <source>File created:
-
-%1</source>
-        <translation>Datei erstellt:
-
-%1</translation>
+        <source>File created:</source>
+        <translation>Datei erstellt:</translation>
     </message>
     <message>
         <source>Select File Location</source>
@@ -52169,8 +57093,106 @@ Sind Sie sicher?</translation>
         <translation>CMake-Generator aktivieren</translation>
     </message>
     <message>
+        <source>Compiling the project as a library requires Qt Design Studio 4.8 or later.</source>
+        <translation>Das Kompilieren des Projekts als Bibliothek benötigt Qt Design Studio 4.8 oder neuer.</translation>
+    </message>
+    <message>
         <source>The project was created with a Qt Design Studio version earlier than Qt Design Studio 4.5. Due to limitations of the project structure in earlier Qt Design Studio versions, the resulting application might not display all the assets. Referring to assets between different QML modules does not work in the compiled application.&lt;br&gt;&lt;a href=&quot;https://doc.qt.io/qtdesignstudio/studio-designer-developer-workflow.html&quot;&gt;See the documentation for details.&lt;/a&gt;</source>
         <translation>Das Projekt wurde mit einer früheren Version von Qt Design Studio als Qt Design Studio 4.5 erstellt. Wegen der Einschränkungen der Projektstruktur in früheren Versionen von Qt Design Studio könnte die resultierende Anwendung nicht alle Assets anzeigen. Verweise auf Assets zwischen verschiedenen QML-Modulen funktionieren in der erstellten Anwendung nicht.&lt;br&gt;&lt;a href=&quot;https://doc.qt.io/qtdesignstudio/studio-designer-developer-workflow.html&quot;&gt;Details finden Sie in der Dokumentation.&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>The project structure has changed.
+Please clean the build folder before rebuilding.
+</source>
+        <translation>Die Projektstruktur hat sich geändert.
+Bereinigen Sie bitte vor dem erneuten Erstellen das Build-Verzeichnis.
+</translation>
+    </message>
+    <message>
+        <source>Failed to remove the qmlcomponents.cmake file.
+</source>
+        <translation>Das Entfernen der qmlcomponents.cmake-Datei ist fehlgeschlagen.
+</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; failed (exit code %2).</source>
+        <translation>&quot;%1&quot; schlug fehl (Rückgabewert %2).</translation>
+    </message>
+    <message>
+        <source>Failed to generate deployable package!</source>
+        <translation>Deployment-Paket konnte nicht generiert werden!</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; crashed.</source>
+        <translation>&quot;%1&quot; ist abgestürzt.</translation>
+    </message>
+    <message>
+        <source>Generate QRC Resource File...</source>
+        <translation>QRC Ressourcen-Datei generieren...</translation>
+    </message>
+    <message>
+        <source>Save Project as QRC File</source>
+        <translation>Projekt als QRC-Datei speichern</translation>
+    </message>
+    <message>
+        <source>QML Resource File (*.qrc)</source>
+        <translation>QML Ressourcen-Datei (*.qrc)</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Fehler</translation>
+    </message>
+    <message>
+        <source>Failed to generate QRC resource file.</source>
+        <translation>QRC Ressourcen-Datei konnte nicht generiert werden.</translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation>Erfolg</translation>
+    </message>
+    <message>
+        <source>Successfully generated QRC resource file.</source>
+        <translation>QRC Ressourcen-Datei erfolgreich generiert.</translation>
+    </message>
+    <message>
+        <source>Generate Deployable Package...</source>
+        <translation>Deployment-Paket generieren...</translation>
+    </message>
+    <message>
+        <source>Save Project as Resource</source>
+        <translation>Projekt als Ressource speichern</translation>
+    </message>
+    <message>
+        <source>Generating deployable package. Please wait...</source>
+        <translation>Generiere Deployment-Paket. Bitte warten...</translation>
+    </message>
+    <message>
+        <source>Failed to generate deployable package!
+
+Please check the output pane for more information.</source>
+        <translation>Deployment-Paket konnte nicht generiert werden!
+
+Bitte überprüfen Sie die Allgemeinen Ausgaben für weitere Informationen.</translation>
+    </message>
+    <message>
+        <source>Successfully generated deployable package.</source>
+        <translation>Deployment-Paket erfolgreich generiert.</translation>
+    </message>
+    <message>
+        <source>Failed to open file &quot;%1&quot; to write QRC XML.</source>
+        <translation>Die Datei &quot;%1&quot; konnte nicht zum Schreiben der QRC XML-Daten geöffnet werden.</translation>
+    </message>
+    <message>
+        <source>Resource generator is already running.</source>
+        <translation>Ressourcen-Generator läuft bereits.</translation>
+    </message>
+    <message>
+        <source>Unable to generate resource file &quot;%1&quot;.</source>
+        <translation>Ressourcen-Datei &quot;%1&quot; konnte nicht generiert werden.</translation>
+    </message>
+    <message>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
@@ -53115,10 +58137,6 @@ wirklich entfernen?</translation>
         <translation>Datei mit öffentlichem Schlüssel auswählen</translation>
     </message>
     <message>
-        <source>Public Key Files (*.pub);;All Files (*)</source>
-        <translation>Öffentliche Schlüssel (*.pub);;Alle Dateien (*)</translation>
-    </message>
-    <message>
         <source>Deploying...</source>
         <translation>Sende Schlüssel...</translation>
     </message>
@@ -53133,6 +58151,10 @@ wirklich entfernen?</translation>
     <message>
         <source>Close</source>
         <translation>Schließen</translation>
+    </message>
+    <message>
+        <source>Public Key Files (*.pub)</source>
+        <translation>Öffentliche Schlüsseldateien (*.pub)</translation>
     </message>
     <message>
         <source>Summary</source>
@@ -53464,66 +58486,9 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <translation>Benutzername für Geräte-Login:</translation>
     </message>
     <message>
-        <source>Authentication type:</source>
-        <translation>Art der Authentifizierung:</translation>
-    </message>
-    <message>
-        <source>&amp;Host name:</source>
-        <translation>&amp;Hostname:</translation>
-    </message>
-    <message>
-        <source>IP or host name of the device</source>
-        <translation>IP-Adresse oder Hostname des Geräts</translation>
-    </message>
-    <message>
-        <source>&amp;SSH port:</source>
-        <translation>&amp;SSH-Port:</translation>
-    </message>
-    <message>
-        <source>Free ports:</source>
-        <translation>Freie Ports:</translation>
-    </message>
-    <message>
-        <source>Timeout:</source>
-        <translation>Zeitlimit:</translation>
-    </message>
-    <message>
-        <source>s</source>
-        <translation>s</translation>
-    </message>
-    <message>
         <source>Source %1 and %2</source>
         <translatorcomment>Source (verb) /etc/profile and $HOME/.profile</translatorcomment>
         <translation>%1 und %2 einbeziehen</translation>
-    </message>
-    <message>
-        <source>Direct</source>
-        <translation>Direkt</translation>
-    </message>
-    <message>
-        <source>Use SSH port forwarding for debugging</source>
-        <translation>SSH-Portweiterleitung zum Debuggen verwenden</translation>
-    </message>
-    <message>
-        <source>Enable debugging on remote targes which cannot expose gdbserver ports.
-The ssh tunneling is used to map the remote gdbserver port to localhost.
-The local and remote ports are determined automatically.</source>
-        <translation>Mache Debuggen auf entfernten Zielen möglich, die gdbserver-Ports nicht direkt bereitstellen können.
-Es wird SSH-Tunneling verwendet, um die entfernten gdbserver-Ports auf localhost abzubilden.
-Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
-    </message>
-    <message>
-        <source>&amp;Username:</source>
-        <translation>&amp;Benutzername:</translation>
-    </message>
-    <message>
-        <source>QML runtime executable:</source>
-        <translation>Ausführbare Datei der QML-Runtime:</translation>
-    </message>
-    <message>
-        <source>Access via:</source>
-        <translatorcomment>drop down with devices</translatorcomment>
-        <translation>Zugriff über:</translation>
     </message>
     <message>
         <source>Physical Device</source>
@@ -53544,30 +58509,6 @@ Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     <message>
         <source>Machine type:</source>
         <translation>Gerätetyp:</translation>
-    </message>
-    <message>
-        <source>GDB server executable:</source>
-        <translation>Ausführbare Datei des GDB-Servers:</translation>
-    </message>
-    <message>
-        <source>Leave empty to look up executable in $PATH</source>
-        <translation>Wenn der Wert leer ist, wird die ausführbare Datei in $PATH gesucht</translation>
-    </message>
-    <message>
-        <source>You can enter lists and ranges like this: &apos;1024,1026-1028,1030&apos;.</source>
-        <translation>Sie können Listen und Bereiche wie folgt angeben: &apos;1024,1026-1028,1030&apos;.</translation>
-    </message>
-    <message>
-        <source>&amp;Check host key</source>
-        <translation>Host-S&amp;chlüssel prüfen</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation>Vorgabe</translation>
-    </message>
-    <message>
-        <source>Specific &amp;key</source>
-        <translation>Aus&amp;gewählter Schlüssel</translation>
     </message>
     <message>
         <source>Remote process failed: %1</source>
@@ -53616,6 +58557,10 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
         <translation>Entferntes Linuxgerät</translation>
     </message>
     <message>
+        <source>Source profile before executing commands.</source>
+        <translation>Profil vor dem Ausführen von Kommandos einbinden.</translation>
+    </message>
+    <message>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
@@ -53632,10 +58577,16 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
         <translation>Das Gerät war bei einem vorherigen Verbindungsversuch nicht erreichbar.&lt;br&gt;Es werden keine weiteren Verbindungsversuche unternommen, bis das Gerät manuell über einen erfolgreichen Verbindungstest in den &lt;a href=&quot;dummy&quot;&gt;Einstellungen&lt;/a&gt; zurückgesetzt wurde.</translation>
     </message>
     <message>
-        <source>Created directory: &quot;%1&quot;.
-</source>
-        <translation>Verzeichnis wurde erstellt: &quot;%1&quot;.
-</translation>
+        <source>Connected</source>
+        <translation>Verbunden</translation>
+    </message>
+    <message>
+        <source>Connected (fallback)</source>
+        <translation>Verbunden (Fallback)</translation>
+    </message>
+    <message>
+        <source>Created directory: &quot;%1&quot;.</source>
+        <translation>Verzeichnis wurde erstellt: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Copied %1/%2: &quot;%3&quot; -&gt; &quot;%4&quot;.
@@ -55126,8 +60077,12 @@ Zeile: %4, Spalte: %5
         <translation>Der symbolische Name &lt;span style=&apos;white-space: nowrap&apos;&gt;&quot;%1&quot;&lt;/span&gt;, den Sie entfernen wollen, wird in Multi-Property-Namen verwendet. Wählen Sie die Aktion, die Sie auf Referenzen in diesen Multi-Property-Namen anwenden wollen.</translation>
     </message>
     <message>
-        <source>Failed to write &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; konnte nicht geschrieben werden</translation>
+        <source>Failed to write &quot;%1&quot;.</source>
+        <translation>&quot;%1&quot; konnte nicht geschrieben werden.</translation>
+    </message>
+    <message>
+        <source>Object name does not start with colon.</source>
+        <translation>Objektname startet nicht mit einem Doppelpunkt.</translation>
     </message>
     <message>
         <source>Incomplete Squish settings. Missing Squish installation path.</source>
@@ -56201,6 +61156,18 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
         <translation>Das aktuelle Terminal schließen.</translation>
     </message>
     <message>
+        <source>Close Tab</source>
+        <translation>Reiter schließen</translation>
+    </message>
+    <message>
+        <source>Close All Tabs</source>
+        <translation>Alle schließen</translation>
+    </message>
+    <message>
+        <source>Close Other Tabs</source>
+        <translation>Andere Reiter schließen</translation>
+    </message>
+    <message>
         <source>Devices</source>
         <translation>Geräte</translation>
     </message>
@@ -56307,6 +61274,14 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     <message>
         <source>Enables mouse tracking in the terminal.</source>
         <translation>Aktiviert die Verfolgung der Maus im Terminal.</translation>
+    </message>
+    <message>
+        <source>Enable live reflow (experimental)</source>
+        <translation>Live Reflow aktivieren (experimentell)</translation>
+    </message>
+    <message>
+        <source>Wraps and reflows text when resizing the terminal. Note that this does not work properly with all shells and prompts.</source>
+        <translation>Bricht Text um und passt den Textfluss an, wenn die Größe des Terminals verändert wird. Beachten Sie, dass dies nicht mit allen Shell-Anwendungen und Prompts korrekt funktioniert.</translation>
     </message>
     <message>
         <source>Load Theme...</source>
@@ -57696,8 +62671,8 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
         <translation>Öffne Datei</translation>
     </message>
     <message>
-        <source>Cursors: %2</source>
-        <translation>Einfügemarken: %2</translation>
+        <source>Cursors: %1</source>
+        <translation>Einfügemarken: %1</translation>
     </message>
     <message>
         <source>Cursor position: %1</source>
@@ -59412,11 +64387,6 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
         <translation>Beispiel</translation>
     </message>
     <message>
-        <source></source>
-        <comment>Snippets are text fragments that can be inserted into an editor via the usual completion mechanics using a trigger text. The translated text (trigger variant) is used to disambiguate between snippets with the same trigger.</comment>
-        <translation></translation>
-    </message>
-    <message>
         <source>Highlighter updates: done</source>
         <translation>Aktualisierungen der Syntaxhervorhebung: abgeschlossen</translation>
     </message>
@@ -59465,6 +64435,14 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
         <translation>Hash in die Zwischenablage kopieren</translation>
     </message>
     <message>
+        <source>Revert Commit?</source>
+        <translation>Commit rückgängig machen?</translation>
+    </message>
+    <message>
+        <source>Revert the commit %1?</source>
+        <translation>Den Commit %1 rückgängig machen?</translation>
+    </message>
+    <message>
         <source>Blame %1</source>
         <translation>Blame von %1</translation>
     </message>
@@ -59475,6 +64453,10 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     <message>
         <source>File at %1</source>
         <translation>Datei bei %1</translation>
+    </message>
+    <message>
+        <source>Revert %1</source>
+        <translation>%1 rückgängig machen</translation>
     </message>
     <message>
         <source>Log for line %1</source>
@@ -59789,6 +64771,10 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Neue Aktualisierungen sind verfügbar. Wollen Sie eine Aktualisierung starten?</translation>
     </message>
     <message>
+        <source>Updates Available</source>
+        <translation>Aktualisierungen verfügbar</translation>
+    </message>
+    <message>
         <source>Start Update</source>
         <translation>Aktualisierung beginnen</translation>
     </message>
@@ -59812,6 +64798,11 @@ Die Trace-Daten sind verloren.</translation>
     <message>
         <source>Open Settings</source>
         <translation>Einstellungen öffnen</translation>
+    </message>
+    <message>
+        <source>Update Details</source>
+        <extracomment>in the sense &quot;details of the update&quot;</extracomment>
+        <translation>Aktualisierungsdetails</translation>
     </message>
     <message>
         <source>No updates found.</source>
@@ -60200,6 +65191,10 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Das Programm &quot;%1&quot; wurde nicht gefunden.</translation>
     </message>
     <message>
+        <source>No executable specified.</source>
+        <translation>Es wurde keine ausführbare Datei angegeben.</translation>
+    </message>
+    <message>
         <source>Failed to create process interface for &quot;%1&quot;.</source>
         <translation>Prozess-Interface für &quot;%1&quot; konnte nicht erstellt werden.</translation>
     </message>
@@ -60236,8 +65231,20 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Das Kommando &quot;%1&quot; konnte nicht gestartet werden.</translation>
     </message>
     <message>
+        <source>Either the invoked program is missing, or you may have insufficient permissions to invoke the program.</source>
+        <translation>Entweder fehlt das auszuführende Programm oder Sie haben vielleicht nicht die benötigten Berechtigungen zum Ausführen des Programms.</translation>
+    </message>
+    <message>
         <source>The command &quot;%1&quot; was canceled after %2 ms.</source>
         <translation>Das Kommando &quot;%1&quot; wurde nach %2 ms abgebrochen.</translation>
+    </message>
+    <message>
+        <source>Standard error output was:</source>
+        <translation>Standardfehlerausgabe war:</translation>
+    </message>
+    <message>
+        <source>Standard output was:</source>
+        <translation>Standardausgabe war:</translation>
     </message>
     <message>
         <source>Invalid command</source>
@@ -60807,45 +65814,6 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Schließen</translation>
     </message>
     <message>
-        <source>File format not supported.</source>
-        <translation>Dateiformat wird nicht unterstützt.</translation>
-    </message>
-    <message>
-        <source>Could not find any unarchiving executable in PATH (%1).</source>
-        <translation>Konnte kein Archivierungswerkzeug im PATH finden (%1).</translation>
-    </message>
-    <message>
-        <source>No source file set.</source>
-        <translation>Keine Quelldatei gesetzt.</translation>
-    </message>
-    <message>
-        <source>No destination directory set.</source>
-        <translation>Kein Zielverzeichnis gesetzt.</translation>
-    </message>
-    <message>
-        <source>Failed to open output file.</source>
-        <translation>Die Ausgabedatei konnte nicht geöffnet werden.</translation>
-    </message>
-    <message>
-        <source>Failed to write output file.</source>
-        <translation>Die Ausgabedatei konnte nicht geschrieben werden.</translation>
-    </message>
-    <message>
-        <source>Command failed.</source>
-        <translation>Das Kommando schlug fehl.</translation>
-    </message>
-    <message>
-        <source>Running %1
-in &quot;%2&quot;.
-
-</source>
-        <comment>Running &lt;cmd&gt; in &lt;workingdirectory&gt;</comment>
-        <translation>Führe %1
-in &quot;%2&quot; aus.
-
-</translation>
-    </message>
-    <message>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
     </message>
@@ -61039,6 +66007,114 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.</trans
         <source>Remote error output was: %1</source>
         <translation>Fehlerausgabe des Geräts: %1</translation>
     </message>
+    <message>
+        <source>Copied</source>
+        <translation>Kopiert</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopieren</translation>
+    </message>
+    <message>
+        <source>&amp;Undo</source>
+        <translation>&amp;Rückgängig</translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <translation>&amp;Wiederholen</translation>
+    </message>
+    <message>
+        <source>Cu&amp;t</source>
+        <translation>&amp;Ausschneiden</translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation>&amp;Kopieren</translation>
+    </message>
+    <message>
+        <source>Copy &amp;Link Location</source>
+        <translation>&amp;Link-Adresse kopieren</translation>
+    </message>
+    <message>
+        <source>&amp;Paste</source>
+        <translation>&amp;Einfügen</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation>Alles auswählen</translation>
+    </message>
+    <message>
+        <source>Insert Unicode Control Character</source>
+        <translation>Unicode-Kontrollzeichen einfügen</translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; does not exist.</source>
+        <translation>&quot;%1&quot; existiert nicht.</translation>
+    </message>
+    <message>
+        <source>&quot;find&quot; is not an existing executable</source>
+        <translation>&quot;find&quot; ist keine ausführbare Datei</translation>
+    </message>
+    <message>
+        <source>Failed to run %1: %2</source>
+        <translation>%1 konnte nicht ausgeführt werden: %2</translation>
+    </message>
+    <message>
+        <source>&quot;ps&quot; is not an existing executable.</source>
+        <translation>&quot;ps&quot; ist keine ausführbare Datei.</translation>
+    </message>
+    <message>
+        <source>&quot;pidin&quot; is not an existing executable.</source>
+        <translation>&quot;pidin&quot; ist keine ausführbare Datei.</translation>
+    </message>
+    <message>
+        <source>Failed to run ps: %1</source>
+        <translation>ps konnte nicht ausgeführt werden: %1</translation>
+    </message>
+    <message>
+        <source>Failed to run pidin: %1
+%2</source>
+        <translation>pidin konnte nicht ausgeführt werden: %1
+%2</translation>
+    </message>
+    <message>
+        <source>Failed to check /proc: %1
+%2</source>
+        <translation>/proc konnte nicht überprüft werden: %1
+%2</translation>
+    </message>
+    <message>
+        <source>Failed to create snapshot: %1</source>
+        <translation>Snapshot konnte nicht erstellt werden: %1</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
+    </message>
+    <message>
+        <source>Internal error: %1.</source>
+        <translation>Interner Fehler: %1.</translation>
+    </message>
+    <message>
+        <source>Not implemented error: %1.</source>
+        <translation>Fehler: Nicht implementiert: %1.</translation>
+    </message>
+    <message>
+        <source>Unknown error: %1.</source>
+        <translation>Unbekannter Fehler: %1.</translation>
+    </message>
+    <message>
+        <source>Unknown reason.</source>
+        <translation>Grund unbekannt.</translation>
+    </message>
+    <message>
+        <source>Not an archive.</source>
+        <translation>Kein Archiv.</translation>
+    </message>
+    <message>
+        <source>Canceled.</source>
+        <translation>Abgebrochen.</translation>
+    </message>
 </context>
 <context>
     <name>QtC::Valgrind</name>
@@ -61171,10 +66247,6 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.</trans
         <translation>Valgrind-Ausschlussdateien</translation>
     </message>
     <message>
-        <source>Valgrind Suppression File (*.supp);;All Files (*)</source>
-        <translation>Valgrind Ausschlussdatei (*.supp);;Alle Dateien (*)</translation>
-    </message>
-    <message>
         <source>Valgrind Generic Settings</source>
         <translation>Generische Einstellungen für Valgrind</translation>
     </message>
@@ -61233,6 +66305,10 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.</trans
     <message>
         <source>Show additional information for events in tooltips</source>
         <translation>Zusätzliche Informationen zu Ereignissen in Tooltips anzeigen</translation>
+    </message>
+    <message>
+        <source>Valgrind Suppression File (*.supp)</source>
+        <translation>Valgrind-Ausschlussdatei (*.supp)</translation>
     </message>
     <message>
         <source>Valgrind arguments:</source>
@@ -61368,12 +66444,12 @@ Mit Cache-Simulation werden weitere Ereigniszähler aktiviert:
         <translation>Bei der Ausführung von %1 trat ein Fehler auf: %2</translation>
     </message>
     <message>
-        <source>Callgrind dumped profiling info</source>
-        <translation>Callgrind hat die Profiling-Information ausgeschrieben</translation>
-    </message>
-    <message>
         <source>Callgrind unpaused.</source>
         <translation>Callgrind fortgesetzt.</translation>
+    </message>
+    <message>
+        <source>Callgrind dumped profiling info.</source>
+        <translation>Callgrind hat die Profiling-Information ausgeschrieben.</translation>
     </message>
     <message>
         <source>Failed opening temp file...</source>
@@ -61503,10 +66579,6 @@ Mit Cache-Simulation werden weitere Ereigniszähler aktiviert:
         <translation>Memcheck</translation>
     </message>
     <message>
-        <source>Analyzing Memory</source>
-        <translation>Analysiere Speicher</translation>
-    </message>
-    <message>
         <source>Load External XML Log File</source>
         <translation>Externe XML-Logdatei laden</translation>
     </message>
@@ -61604,10 +66676,6 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     <message>
         <source>Open Memcheck XML Log File</source>
         <translation>Memcheck-XML-Logdatei öffnen</translation>
-    </message>
-    <message>
-        <source>XML Files (*.xml);;All Files (*)</source>
-        <translation>XML-Dateien (*.xml);;Alle Dateien (*)</translation>
     </message>
     <message>
         <source>Memcheck: Failed to open file for reading: %1</source>
@@ -61800,6 +66868,14 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
         <translation>Funktionsprofiler läuft...</translation>
     </message>
     <message>
+        <source>Callgrind paused.</source>
+        <translation>Callgrind pausiert.</translation>
+    </message>
+    <message>
+        <source>Callgrind Output (callgrind.out*)</source>
+        <translation>Callgrind-Ausgabe (callgrind.out*)</translation>
+    </message>
+    <message>
         <source>Remove template parameter lists when displaying function names.</source>
         <translation>Beim Anzeigen von Funktionsnamen Template-Parameterlisten entfernen.</translation>
     </message>
@@ -61864,20 +66940,12 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
         <translation>Callgrind-Logdatei öffnen</translation>
     </message>
     <message>
-        <source>Callgrind Output (callgrind.out*);;All Files (*)</source>
-        <translation>Callgrind-Ausgabedatei (callgrind.out*);;Alle Dateien (*)</translation>
-    </message>
-    <message>
         <source>Callgrind: Failed to open file for reading: %1</source>
         <translation>Callgrind: Konnte Datei nicht zum Lesen öffnen: %1</translation>
     </message>
     <message>
         <source>Parsing Profile Data...</source>
         <translation>Werte Profilerdaten aus...</translation>
-    </message>
-    <message>
-        <source>Profiling</source>
-        <translation>Profiling</translation>
     </message>
     <message>
         <source>Profiling %1</source>
@@ -61926,6 +66994,10 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     <message>
         <source>%1 (Called: %2; Incl. Cost: %3)</source>
         <translation>%1 (Aufgerufen: %2; Inkl. Kosten: %3)</translation>
+    </message>
+    <message>
+        <source>XML Files (*.xml)</source>
+        <translation>XML-Dateien (*.xml)</translation>
     </message>
     <message>
         <source>New</source>
@@ -62127,6 +67199,26 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     <message>
         <source>Heob: Failure in process attach handshake (%1).</source>
         <translation>Heob: Fehler im Handshake beim Verbinden zum Prozess (%1).</translation>
+    </message>
+    <message>
+        <source>Start Remote Analysis</source>
+        <translation>Entfernte Analyse starten</translation>
+    </message>
+    <message>
+        <source>Kit:</source>
+        <translation>Kit:</translation>
+    </message>
+    <message>
+        <source>Executable:</source>
+        <translation>Ausführbare Datei:</translation>
+    </message>
+    <message>
+        <source>Arguments:</source>
+        <translation>Argumente:</translation>
+    </message>
+    <message>
+        <source>Working directory:</source>
+        <translation>Arbeitsverzeichnis:</translation>
     </message>
 </context>
 <context>
@@ -62945,44 +68037,12 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Willkommen</translation>
     </message>
     <message>
-        <source>Welcome to %1</source>
-        <translation>Willkommen bei %1</translation>
-    </message>
-    <message>
         <source>Create Project...</source>
         <translation>Projekt erstellen...</translation>
     </message>
     <message>
         <source>Open Project...</source>
         <translation>Projekt öffnen...</translation>
-    </message>
-    <message>
-        <source>Explore more</source>
-        <translation>Erfahre mehr</translation>
-    </message>
-    <message>
-        <source>Get Started</source>
-        <translation>Schnelleinstieg</translation>
-    </message>
-    <message>
-        <source>Get Qt</source>
-        <translation>Qt</translation>
-    </message>
-    <message>
-        <source>Qt Account</source>
-        <translation>Qt Account</translation>
-    </message>
-    <message>
-        <source>Online Community</source>
-        <translation>Online-Community</translation>
-    </message>
-    <message>
-        <source>Blogs</source>
-        <translation>Blogs</translation>
-    </message>
-    <message>
-        <source>User Guide</source>
-        <translation>Handbuch</translation>
     </message>
     <message>
         <source>Would you like to take a quick UI tour? This tour highlights important user interface elements and shows how they are used. To take the tour later, select Help &gt; UI Tour.</source>
@@ -63700,8 +68760,79 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Andere Elementattribute</translation>
     </message>
     <message>
-        <source>Number of matching elements: </source>
-        <translation>Anzahl der übereinstimmenden Elemente: </translation>
+        <source>Number of matching elements:</source>
+        <translation>Anzahl der übereinstimmenden Elemente:</translation>
+    </message>
+</context>
+<context>
+    <name>RadialBlurEffectSpecifics</name>
+    <message>
+        <source>Radial Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Angle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The direction for the blur and at the same time the level of blurring. The larger the angle, the more the result becomes blurred. The quality of the blur depends on samples property.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <translation type="unfinished">Samples</translation>
+    </message>
+    <message>
+        <source>Samples per pixel for blur calculation. A larger value produces better quality, but is slower to render. This property is not intended to be animated. Changing this property may cause the underlying OpenGL shaders to be recompiled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offsets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation type="unfinished">Abstand</translation>
+    </message>
+    <message>
+        <source>H</source>
+        <comment>horizontal</comment>
+        <extracomment>The horizontal offset</extracomment>
+        <translation type="unfinished">H</translation>
+    </message>
+    <message>
+        <source>The horizontal offset for the rendered shadow compared to the inner shadow component&apos;s horizontal position.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>V</source>
+        <comment>vertical</comment>
+        <extracomment>The vertical offset</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The vertical offset for the rendered shadow compared to the inner shadow component&apos;s vertical position. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching and Border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transparent border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pads the exterior of the component with a transparent edge, making sampling outside the source texture use transparency instead of the edge pixels.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -63733,6 +68864,37 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Determines whether the radio button gets focus if pressed.</source>
         <translation>Bestimmt, ob der Radioknopf bei Betätigung den Fokus bekommt.</translation>
+    </message>
+</context>
+<context>
+    <name>RangeMapperSpecifics</name>
+    <message>
+        <source>Ranger Mapper</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input max</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output max</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished">Ausgaben</translation>
     </message>
 </context>
 <context>
@@ -63817,6 +68979,41 @@ defined in step size.</source>
     </message>
 </context>
 <context>
+    <name>RectangleItemSpecifics</name>
+    <message>
+        <source>Rectangle Item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the color to fill the Rectangle.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke color of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke thickness of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation type="unfinished">Verbergen</translation>
+    </message>
+</context>
+<context>
     <name>RectangleSpecifics</name>
     <message>
         <source>Rectangle</source>
@@ -63852,6 +69049,49 @@ defined in step size.</source>
     </message>
     <message>
         <source>Sets the radius by which the corners get rounded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>RecursiveBlurEffectSpecifics</name>
+    <message>
+        <source>Recursive Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loops</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The amount of blur iterations that are going to be performed for the source.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>The distance of the neighboring pixels which affect the blurring of an individual pixel. A larger radius increases the blur effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching and Border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels  to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transparent border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pads the exterior of the component with a transparent edge, making sampling outside the source texture use transparency instead of the edge pixels.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -63936,6 +69176,61 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
 </context>
 <context>
+    <name>RegularPolygonItemSpecifics</name>
+    <message>
+        <source>Regular Polygon Item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the color to fill the enclosed Regular Polygon.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke color of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke thickness of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation type="unfinished">Verbergen</translation>
+    </message>
+    <message>
+        <source>Side count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the number of edges for the Regular Polygon.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radiuses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>Sets the radius of the corners in the Regular Polygon.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>RenameFolderDialog</name>
     <message>
         <source>Rename Folder</source>
@@ -64005,6 +69300,37 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>The delegate provides a template defining each object instantiated by the repeater.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Repeller3DSection</name>
+    <message>
+        <source>Particle Repeller</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>Sets the radius of the effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Outer Radius</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the outer radius of the effect.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the strength of the effect.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -64129,6 +69455,269 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
 </context>
 <context>
+    <name>RuntimeLoaderSection</name>
+    <message>
+        <source>Runtime Loader</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the URL of the 3D asset to import at runtime.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instancing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>If this property is set, the imported model will not be rendered normally. Instead, a number of instances of the model will be rendered, as defined by the instance table.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SCurveTonemapSection</name>
+    <message>
+        <source>Curve</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shoulder Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the slope of the curve shoulder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shoulder Emphasis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the emphasis of the curve shoulder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toe Slope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the slope of the curve toe.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toe Emphasis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the emphasis of the curve toe.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished">Farbe</translation>
+    </message>
+    <message>
+        <source>Contrast Boost</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the contrast boost amount.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saturation Level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the color saturation level.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gamma</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the gamma value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use Exposure</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies if the exposure or white point should be used.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>White Point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the white point value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exposure</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the exposure value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SafeImagePane</name>
+    <message>
+        <source>Safe Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation type="unfinished">Position</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished">Größe</translation>
+    </message>
+    <message>
+        <source>W</source>
+        <comment>width</comment>
+        <extracomment>The width of the object</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>H</source>
+        <comment>height</comment>
+        <extracomment>The height of the object</extracomment>
+        <translation type="unfinished">H</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>fillColor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation type="unfinished">Deckkraft</translation>
+    </message>
+</context>
+<context>
+    <name>SafePicturePane</name>
+    <message>
+        <source>Safe Picture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation type="unfinished">Position</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished">Größe</translation>
+    </message>
+    <message>
+        <source>W</source>
+        <comment>width</comment>
+        <extracomment>The width of the object</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>H</source>
+        <comment>height</comment>
+        <extracomment>The height of the object</extracomment>
+        <translation type="unfinished">H</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished">Farbe</translation>
+    </message>
+    <message>
+        <source>fillColor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation type="unfinished">Deckkraft</translation>
+    </message>
+</context>
+<context>
+    <name>SafeTextPane</name>
+    <message>
+        <source>Safe Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation type="unfinished">Position</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation type="unfinished">Größe</translation>
+    </message>
+    <message>
+        <source>W</source>
+        <comment>width</comment>
+        <extracomment>The width of the object</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>H</source>
+        <comment>height</comment>
+        <extracomment>The height of the object</extracomment>
+        <translation type="unfinished">H</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation type="unfinished">Text</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished">Farbe</translation>
+    </message>
+    <message>
+        <source>fillColor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation type="unfinished">Deckkraft</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Emphasis</source>
+        <translation type="unfinished">Hervorherbung</translation>
+    </message>
+    <message>
+        <source>Alignment H</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alignment V</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wrap mode</source>
+        <translation type="unfinished">Umbruch</translation>
+    </message>
+    <message>
+        <source>Dynamic</source>
+        <translation type="unfinished">dynamisch</translation>
+    </message>
+</context>
+<context>
     <name>SaveAsDialog</name>
     <message>
         <source>Save Effect</source>
@@ -64187,6 +69776,131 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Discard Changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ScaleAffector3DSection</name>
+    <message>
+        <source>Particle Scale Affector</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scaling Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the scaling type of the affector.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Minimum Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the minimum scale size.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the maximum scale size.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation type="unfinished">Dauer</translation>
+    </message>
+    <message>
+        <source>Sets the duration of scaling period.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Easing curve</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a custom scaling curve.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Scatter3DSpecifics</name>
+    <message>
+        <source>Scatter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Polar Coordinates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use polar coordinates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Label Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Normalized horizontal radial label offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selection Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scatter item selection mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ScatterSection</name>
+    <message>
+        <source>Noise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Noise Sample Texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Defines a texture for noise samples.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">Vorgabe</translation>
+    </message>
+    <message>
+        <source>Scatter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount of scatter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation type="unfinished">Richtung</translation>
+    </message>
+    <message>
+        <source>Direction of scatter. 0 = both, 1 = horizontal, 2 = vertical.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Randomize</source>
+        <translation type="unfinished">Randomisieren</translation>
+    </message>
+    <message>
+        <source>Specifies if the scatter is random.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -64426,6 +70140,143 @@ Setting this property to true corrects the cubemap by taking the camera position
     </message>
     <message>
         <source>Sets the light mapper object for the scene.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ScreenSpecifics</name>
+    <message>
+        <source>Screen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output Device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Background color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Application size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>W</source>
+        <comment>width</comment>
+        <extracomment>The width of the object</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Width</source>
+        <translation type="unfinished">Breite</translation>
+    </message>
+    <message>
+        <source>H</source>
+        <comment>height</comment>
+        <extracomment>The height of the object</extracomment>
+        <translation type="unfinished">H</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation type="unfinished">Höhe</translation>
+    </message>
+</context>
+<context>
+    <name>ScriptEditorForm</name>
+    <message>
+        <source>Sets the component that is affected by the action.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the item component&apos;s method.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the component and its property from which the value is copied.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the component and its property to which the copied value is assigned.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a logical condition for the selected action.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Removes the logical condition for the action.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a &lt;b&gt;State Group&lt;/b&gt; that is accessed when the action is initiated.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a &lt;b&gt;State&lt;/b&gt; within the assigned &lt;b&gt;State Group&lt;/b&gt; that is accessed when the action is initiated.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the property of the component that is affected by the action.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the value of the property of the component that is affected by the action.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a text that is printed when the action is initiated.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Condition</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove Condition</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Else Statement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets an alternate condition for the previously defined logical condition.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove Else Statement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Removes the alternate logical condition for the previously defined logical condition.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Write the conditions manually.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jump to the code.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ScriptSection</name>
+    <message>
+        <source>Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation type="unfinished">Aktion</translation>
+    </message>
+    <message>
+        <source>Sets an action that is associated with the selected &lt;b&gt;ScriptAction&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -65246,6 +71097,21 @@ A near field gain of 1 will raise the volume of the sound signal by approx 20 dB
     </message>
 </context>
 <context>
+    <name>SphereShapeSection</name>
+    <message>
+        <source>Sphere Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Diameter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the diameter of the capsule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SpinBoxSpecifics</name>
     <message>
         <source>Spin Box</source>
@@ -65316,7 +71182,7 @@ it reaches the start or end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Manage run targets</source>
+        <source>Device Manager</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -65379,6 +71245,167 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Sets the angle of the inner light cone.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SpriteLayerSpecifics</name>
+    <message>
+        <source>Sprite Layer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Platform ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SpriteParticle3DSection</name>
+    <message>
+        <source>Sprite Particle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blend Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the blending mode used for rendering the particles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Casts Reflections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables reflection probes to reflect sprite particles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sprite</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the Texture used for the particles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sprite Sequence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the sprite sequence properties for the particle.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Billboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets if the particle texture should always be aligned face towards the screen.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Particle Scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the scale multiplier of the particles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the Texture used for coloring the particles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lights</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the lights used for the particles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation type="unfinished">Abstand</translation>
+    </message>
+    <message>
+        <source>Offsets the X coordinate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offsets the Y coordinate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SpriteSequence3DSection</name>
+    <message>
+        <source>Particle Sprite Sequence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame Count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the amount of image frames in sprite.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame Index</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the initial index of the frame.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interpolate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets if the sprites are interpolated (blended) between frames to make the animation appear smoother.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation type="unfinished">Dauer</translation>
+    </message>
+    <message>
+        <source>Sets the duration in milliseconds how long it takes for the sprite sequence to animate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duration Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the duration variation in milliseconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Random Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets if the animation should start from a random frame between 0 and frameCount - 1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Animation Direction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the animation direction of the sequence.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -65504,6 +71531,69 @@ it reaches the start or end.</source>
     </message>
 </context>
 <context>
+    <name>StarItemSpecifics</name>
+    <message>
+        <source>Star Item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the color to fill the enclosed Star.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke color of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke thickness of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation type="unfinished">Verbergen</translation>
+    </message>
+    <message>
+        <source>Count</source>
+        <translation type="unfinished">Anzahl</translation>
+    </message>
+    <message>
+        <source>Sets the number of TODO for the Star.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TODO</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radiuses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>Sets the radius of the corners in the Regular Polygon.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>StateMenu</name>
     <message>
         <source>Clone</source>
@@ -65623,15 +71713,7 @@ it reaches the start or end.</source>
         <translation type="unfinished">Element</translation>
     </message>
     <message>
-        <source>Sets the component that is affected by the action of the &lt;b&gt;Target&lt;/b&gt; component&apos;s &lt;b&gt;Signal&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Method</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets the item component&apos;s method that is affected by the &lt;b&gt;Target&lt;/b&gt; component&apos;s &lt;b&gt;Signal&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -65639,23 +71721,11 @@ it reaches the start or end.</source>
         <translation type="unfinished">Von</translation>
     </message>
     <message>
-        <source>Sets the component and its property from which the value is copied when the &lt;b&gt;Target&lt;/b&gt; component initiates the &lt;b&gt;Signal&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>To</source>
         <translation type="unfinished">Bis</translation>
     </message>
     <message>
-        <source>Sets the component and its property to which the copied value is assigned when the &lt;b&gt;Target&lt;/b&gt; component initiates the &lt;b&gt;Signal&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>State Group</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sets a &lt;b&gt;State Group&lt;/b&gt; that is accessed when the &lt;b&gt;Target&lt;/b&gt; component initiates the &lt;b&gt;Signal&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -65663,35 +71733,152 @@ it reaches the start or end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Sets a &lt;b&gt;State&lt;/b&gt; within the assigned &lt;b&gt;State Group&lt;/b&gt; that is accessed when the &lt;b&gt;Target&lt;/b&gt; component initiates the &lt;b&gt;Signal&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Property</source>
         <translation type="unfinished">Eigenschaft</translation>
-    </message>
-    <message>
-        <source>Sets the property of the component that is affected by the action of the &lt;b&gt;Target&lt;/b&gt; component&apos;s &lt;b&gt;Signal&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Value</source>
         <translation type="unfinished">Wert</translation>
     </message>
     <message>
-        <source>Sets the value of the property of the component that is affected by the action of the &lt;b&gt;Target&lt;/b&gt; component&apos;s &lt;b&gt;Signal&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Message</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Sets a text that is printed when the &lt;b&gt;Signal&lt;/b&gt; of the &lt;b&gt;Target&lt;/b&gt; component initiates.</source>
+        <source>Custom Connections can only be edited with the binding editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StraightArrowSpecifics</name>
+    <message>
+        <source>Straight Arrow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Custom Connections can only be edited with the binding editor</source>
+        <source>Color</source>
+        <translation type="unfinished">Farbe</translation>
+    </message>
+    <message>
+        <source>Thickness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Arrow Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>Flip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rotate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Corner</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flip Corner</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StringMapperSpecifics</name>
+    <message>
+        <source>String Mapper</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decimal places</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output text</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StrokeDetailsSection</name>
+    <message>
+        <source>Stroke Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Border mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the way the border gets drawn along the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust radius</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggles the corners to adapt the radius of the component.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust border radius</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the style of the stroke. Selecting &lt;b&gt;None&lt;/b&gt; would make it without a stroke.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Join style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the style of the connecting points of the edges.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cap style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the line ends as square or rounded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dash pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the Dash length and gap in the Stroke.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dash offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the starting point of the dash pattern for a line.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>hide inside line</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -65778,6 +71965,92 @@ it reaches the start or end.</source>
     </message>
     <message>
         <source>Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Surface3DSpecifics</name>
+    <message>
+        <source>Surface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flip Grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flip horizontal grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Polar Coordinates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use polar coordinates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Label Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Normalized horizontal radial label offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selection Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Surface point selection mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SvgPathItemSpecifics</name>
+    <message>
+        <source>SVG Path Item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the color to fill the SVG Path Item.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke color of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke thickness of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation type="unfinished">Verbergen</translation>
+    </message>
+    <message>
+        <source>Path Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Path data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets a data string that specifies the SVG Path.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -65891,6 +72164,53 @@ This is used for calculating the total implicit size.</source>
     <name>Tag</name>
     <message>
         <source>tag name</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TargetDirection3DSection</name>
+    <message>
+        <source>Particle Target Direction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation type="unfinished">Position</translation>
+    </message>
+    <message>
+        <source>Sets the position for particles target.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Position Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the position variation for particles target.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Normalized</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets if the distance to position should be considered as normalized or not.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Magnitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This property defines the magnitude in position change per second.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Magnitude Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the magnitude variation in position change per second.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -66290,6 +72610,49 @@ This is used for calculating the total implicit size.</source>
     </message>
 </context>
 <context>
+    <name>TextItemSpecifics</name>
+    <message>
+        <source>Text Item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the color to fill the Text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke color of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke thickness of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation type="unfinished">Verbergen</translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation type="unfinished">Text</translation>
+    </message>
+    <message>
+        <source>Sets the text to display.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TextSection</name>
     <message>
         <source>Text Area</source>
@@ -66327,7 +72690,7 @@ This is used for calculating the total implicit size.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Apply to selected material</source>
+        <source>Apply to selected material(s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -66344,36 +72707,6 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Create New Texture</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>TextureEditorToolBar</name>
-    <message>
-        <source>Apply texture to selected model&apos;s material.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Create new texture.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete current texture.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open material browser.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>TextureEditorTopSection</name>
-    <message>
-        <source>Name</source>
-        <translation type="unfinished">Name</translation>
-    </message>
-    <message>
-        <source>Texture name</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -66560,6 +72893,49 @@ This is used for calculating the total implicit size.</source>
     </message>
 </context>
 <context>
+    <name>ThresholdMaskEffectSpecifics</name>
+    <message>
+        <source>Threshold Mask</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spread</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The smoothness of the mask edges near the threshold alpha value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Threshold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A threshold value for the mask pixels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mask source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The component that is going to be used as the mask.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ThumbnailDelegate</name>
     <message>
         <source>Overwrite Example?</source>
@@ -66579,6 +72955,53 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Recently Downloaded</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TiltShiftSection</name>
+    <message>
+        <source>Tilt Shift</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Focus Position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the focus position.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Focus Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the focus width.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blur Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the blur amount.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation type="unfinished">Vertikal</translation>
+    </message>
+    <message>
+        <source>Specifies if the tilt shift is vertical.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inverted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specifies if the tilt shift is inverted.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -66652,6 +73075,25 @@ This is used for calculating the total implicit size.</source>
     </message>
 </context>
 <context>
+    <name>ToolBar</name>
+    <message>
+        <source>Apply texture to selected model&apos;s material.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create new texture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete current texture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open material browser.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ToolBarSpecifics</name>
     <message>
         <source>Tool Bar</source>
@@ -66682,6 +73124,44 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Sets the orientation of the separator.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Toolbar</name>
+    <message>
+        <source>Apply material to selected model.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create new material.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete current material.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open material browser.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TopSection</name>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Name</translation>
+    </message>
+    <message>
+        <source>Material name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Typ</translation>
+    </message>
+    <message>
+        <source>Texture name</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -66780,6 +73260,146 @@ This is used for calculating the total implicit size.</source>
     <name>TourRestartButton</name>
     <message>
         <source>Restart</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Tr</name>
+    <message>
+        <source>Basic</source>
+        <translation type="unfinished">Grundlegend</translation>
+    </message>
+    <message>
+        <source>Intermediate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Advanced</source>
+        <translation type="unfinished">Erweitert</translation>
+    </message>
+    <message>
+        <source>Start Course</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Course Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Objectives</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TrailEmitter3DSection</name>
+    <message>
+        <source>Particle Trail Emitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Follow</source>
+        <translation type="unfinished">Folgen</translation>
+    </message>
+    <message>
+        <source>Sets the logical particle which this emitter follows.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TriangleItemSpecifics</name>
+    <message>
+        <source>Triangle Item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fill color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the color to fill the Triangle.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke color of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stroke width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the stroke thickness of the boundary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation type="unfinished">Verbergen</translation>
+    </message>
+    <message>
+        <source>Radiuses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>Sets the radius of the corners and the radius for the edges of the intersections in the Triangle.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Margin</source>
+        <translation type="unfinished">Rand</translation>
+    </message>
+    <message>
+        <source>Vertical</source>
+        <translation type="unfinished">Vertikal</translation>
+    </message>
+    <message>
+        <source>Sets the top and bottom margins for the Triangle component.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The margin above the item.</source>
+        <translation type="unfinished">Der Rand über dem Element.</translation>
+    </message>
+    <message>
+        <source>The margin below the item.</source>
+        <translation type="unfinished">Der Rand unter dem Element.</translation>
+    </message>
+    <message>
+        <source>Horizontal</source>
+        <translation type="unfinished">Horizontal</translation>
+    </message>
+    <message>
+        <source>Sets the left and right margins for the Triangle component.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The left margin of the item.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The right margin of the item.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TriangleMeshShapeSection</name>
+    <message>
+        <source>Triangle Mesh Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Defines the location of the mesh file used to define the shape.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -66889,6 +73509,37 @@ Are you sure you want to remove it?</source>
     </message>
 </context>
 <context>
+    <name>VectorDirection3DSection</name>
+    <message>
+        <source>Particle Vector Direction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <translation type="unfinished">Richtung</translation>
+    </message>
+    <message>
+        <source>Sets the direction for particles target.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Direction Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the direction variation for particles target.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Normalized</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets if the direction should be normalized after applying the variation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VideoSection</name>
     <message>
         <source>Video</source>
@@ -66943,6 +73594,247 @@ Are you sure you want to remove it?</source>
     </message>
     <message>
         <source>Sets the format of the backing texture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VignetteSection</name>
+    <message>
+        <source>Vignette</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strength</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the vignette strength.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Radius</source>
+        <translation type="unfinished">Radius</translation>
+    </message>
+    <message>
+        <source>Set the vignette radius.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vignette Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Wander3DSection</name>
+    <message>
+        <source>Particle Wander</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fade In Duration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the duration in milliseconds for fading in the affector.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fade Out Duration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the duration in milliseconds for fading out the affector.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished">Global</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets how long distance each particle moves at the ends of curves.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the pace (frequency) each particle wanders in curves per second.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pace Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the starting point for the pace (frequency).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unique</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the unique distance each particle moves at the ends of curves.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amount Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the variation for uniqueAmount between 0.0 and 1.0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the unique pace (frequency) each particle wanders in curves per second.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pace Variation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the unique pace (frequency) variation for each particle between 0.0 and 1.0.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>WasdControllerSection</name>
+    <message>
+        <source>WASD Controller</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controlled Node</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the 3D node controlled by this controller.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables inverting X-axis controls.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enabled</source>
+        <translation type="unfinished">Aktiviert</translation>
+    </message>
+    <message>
+        <source>Invert Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables inverting Y-axis controls.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mouse Control</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables using mouse to control the target node.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keyboard Control</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enables using keyboard to control the target node.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Speeds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Speed</source>
+        <translation type="unfinished">Geschwindigkeit</translation>
+    </message>
+    <message>
+        <source>Sets the general navigation speed multiplier.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the navigation speed multiplier when the Shift key is pressed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Forward Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the navigation speed when forward key is pressed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Back Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the navigation speed when back key is pressed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the navigation speed when right key is pressed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the navigation speed when left key is pressed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Up Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the navigation speed when up key is pressed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Down Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the navigation speed when down key is pressed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>X Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the navigation speed when mouse is moved along X-axis.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Y Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sets the navigation speed when mouse is moved along Y-axis.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -67061,6 +73953,77 @@ Are you sure you want to remove it?</source>
     <message>
         <source>Visibility</source>
         <translation type="unfinished">Sichtbarkeit</translation>
+    </message>
+</context>
+<context>
+    <name>ZoomBlurEffectSpecifics</name>
+    <message>
+        <source>Zoom Blur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The maximum perceived amount of movement for each pixel. The amount is smaller near the center and reaches the specified value at the edges.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Samples</source>
+        <translation type="unfinished">Samples</translation>
+    </message>
+    <message>
+        <source>Samples per pixel to calculate blur. A larger value produces better quality, but is slower to render.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offsets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation type="unfinished">Abstand</translation>
+    </message>
+    <message>
+        <source>H</source>
+        <comment>horizontal</comment>
+        <extracomment>The horizontal offset</extracomment>
+        <translation type="unfinished">H</translation>
+    </message>
+    <message>
+        <source>The horizontal offset for the rendered shadow compared to the inner shadow component&apos;s horizontal position.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>V</source>
+        <comment>vertical</comment>
+        <extracomment>The vertical offset</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The vertical offset for the rendered shadow compared to the inner shadow component&apos;s vertical position. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caching and Border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cached</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caches the effect output pixels to improve the rendering performance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Transparent border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pads the exterior of the component with a transparent edge, making sampling outside the source texture use transparency instead of the edge pixels.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

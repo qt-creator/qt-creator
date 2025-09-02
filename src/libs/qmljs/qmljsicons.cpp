@@ -1,15 +1,18 @@
-// Copyright (C) 2016 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljsicons.h"
 
 #include <cplusplus/Icons.h>
+#include <utils/appinfo.h>
+#include <qmljs/parser/qmljsast_p.h>
 
 #include <QDir>
 #include <QHash>
 #include <QIcon>
 #include <QLoggingCategory>
 #include <QPair>
+#include <QStringView>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -20,54 +23,37 @@ enum {
 
 static Q_LOGGING_CATEGORY(iconsLog, "qtc.qmljs.icons", QtWarningMsg)
 
-namespace QmlJS {
-
-Icons *Icons::m_instance = nullptr;
-
-class IconsPrivate
+namespace QmlJS::Icons {
+namespace Internal {
+class IconsStorage
 {
 public:
-    QHash<QPair<QString,QString>,QIcon> iconHash;
-    QString resourcePath;
+    using FullTypeName = std::pair<QString /*packageName*/, QString /*typeName*/>;
+
+    explicit IconsStorage();
+
+    QIcon query(QStringView typeName) const;
+
+private:
+    const Utils::FilePath m_path = Utils::appInfo().resources / QLatin1String("qmlicons");
+    QHash<FullTypeName, QIcon> m_iconsMap;
+    QList<QString> m_packageNames;
 };
 
-} // namespace QmlJS
-
-Icons::Icons()
-    : d(new IconsPrivate)
+IconsStorage::IconsStorage()
 {
-}
-
-Icons::~Icons()
-{
-    m_instance = nullptr;
-    delete d;
-}
-
-Icons *Icons::instance()
-{
-    if (!m_instance)
-        m_instance = new Icons();
-    return m_instance;
-}
-
-void Icons::setIconFilesPath(const QString &iconPath)
-{
-    if (iconPath == d->resourcePath)
-        return;
-
-    d->resourcePath = iconPath;
-
+    const QString iconsPath = m_path.toFSPathString();
     if (debug)
-        qCDebug(iconsLog) << "parsing" << iconPath;
-    QDir topDir(iconPath);
-    QList<QFileInfo> dirs = topDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+        qCDebug(iconsLog) << "parsing" << iconsPath;
+    QDir topDir(iconsPath);
+    const QFileInfoList dirs = topDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
     for (const QFileInfo &subDirInfo : dirs) {
         if (debug)
             qCDebug(iconsLog) << "parsing" << subDirInfo.absoluteFilePath();
         const QString packageName = subDirInfo.fileName();
+        m_packageNames.append(packageName);
         QDir subDir(subDirInfo.absoluteFilePath() + QLatin1String("/16x16"));
-        QList<QFileInfo> files = subDir.entryInfoList(QDir::Files);
+        const QFileInfoList files = subDir.entryInfoList(QDir::Files);
         for (const QFileInfo &iconFile : files) {
             QIcon icon(iconFile.absoluteFilePath());
             if (icon.isNull()) {
@@ -76,52 +62,67 @@ void Icons::setIconFilesPath(const QString &iconPath)
                 continue;
             }
             if (debug)
-                qCDebug(iconsLog) << "adding" << packageName << iconFile.baseName() << "icon to database";
-            QPair<QString,QString> element(packageName, iconFile.baseName());
-            d->iconHash.insert(element, icon);
+                qCDebug(iconsLog) << "adding" << packageName << iconFile.baseName()
+                                  << "icon to database";
+            FullTypeName iconId(packageName, iconFile.baseName());
+            m_iconsMap.insert(iconId, icon);
         }
     }
 }
 
-QIcon Icons::icon(const QString &packageName, const QString typeName) const
+QIcon IconsStorage::query(QStringView typeName) const
 {
-    QPair<QString,QString> element(packageName, typeName);
-    if (debug)
-        qCDebug(iconsLog) << "icon for" << packageName << typeName << "requested" << d->iconHash.contains(element);
-    return d->iconHash.value(element);
-}
-
-QIcon Icons::icon(Node *node)
-{
-    if (dynamic_cast<AST::UiObjectDefinition*>(node))
-        return objectDefinitionIcon();
-    if (dynamic_cast<AST::UiScriptBinding*>(node))
-        return scriptBindingIcon();
-
+    for (const QString &packageName : m_packageNames) {
+        const FullTypeName fullTypeName(packageName, typeName.toString());
+        if (debug)
+            qCDebug(iconsLog) << "icon for" << packageName << typeName << "requested"
+                              << m_iconsMap.contains(fullTypeName);
+        if (m_iconsMap.contains(fullTypeName)) {
+            return m_iconsMap.value(fullTypeName);
+        }
+    }
     return QIcon();
 }
+} // namespace Internal
 
-QIcon Icons::objectDefinitionIcon()
+Provider::Provider()
+    : m_stockPtr(std::make_unique<const Internal::IconsStorage>())
+{
+}
+
+Provider &Provider::instance()
+{
+    static Provider iconsProvider;
+    return iconsProvider;
+}
+
+QIcon Provider::icon(QStringView typeName) const
+{
+    return m_stockPtr->query(typeName);
+}
+
+QIcon objectDefinitionIcon()
 {
     return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Class);
 }
 
-QIcon Icons::scriptBindingIcon()
+QIcon scriptBindingIcon()
 {
     return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::VarPublic);
 }
 
-QIcon Icons::publicMemberIcon()
+QIcon publicMemberIcon()
 {
     return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::FuncPublic);
 }
 
-QIcon Icons::functionDeclarationIcon()
+QIcon functionDeclarationIcon()
 {
     return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::FuncPublic);
 }
 
-QIcon Icons::enumMemberIcon()
+QIcon enumMemberIcon()
 {
     return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Enum);
 }
+} // namespace QmlJS::Icons

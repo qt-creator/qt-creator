@@ -16,6 +16,7 @@
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
@@ -62,7 +63,7 @@ public:
 
                 auto result = ::Lua::void_safe_call(
                     callback, ::Lua::toTable(callback.lua_state(), msg.toJsonObject()));
-                QTC_CHECK_EXPECTED(result);
+                QTC_CHECK_RESULT(result);
             }};
     }
 };
@@ -200,7 +201,7 @@ public:
 protected:
     Client *createClient(BaseClientInterface *interface) const final;
 
-    BaseClientInterface *createInterface(ProjectExplorer::Project *project) const override;
+    BaseClientInterface *createInterface(ProjectExplorer::BuildConfiguration *bc) const override;
 };
 enum class TransportType { StdIO, LocalSocket };
 
@@ -209,8 +210,8 @@ class LuaClientWrapper : public QObject
     Q_OBJECT
 public:
     TransportType m_transportType{TransportType::StdIO};
-    std::function<expected_str<void>(CommandLine &)> m_cmdLineCallback;
-    std::function<expected_str<void>(QString &)> m_initOptionsCallback;
+    std::function<Result<>(CommandLine &)> m_cmdLineCallback;
+    std::function<Result<>(QString &)> m_initOptionsCallback;
     sol::main_function m_asyncInitOptions;
     bool m_isUpdatingAsyncOptions{false};
     AspectContainer *m_aspects{nullptr};
@@ -222,6 +223,7 @@ public:
     QString m_serverName;
     LanguageFilter m_languageFilter;
     bool m_showInSettings;
+    bool m_activatable;
     BaseSettings::StartBehavior m_startBehavior = BaseSettings::RequiresFile;
 
     std::optional<sol::protected_function> m_onInstanceStart;
@@ -247,7 +249,7 @@ public:
             options,
             "cmd",
             m_cmdLine,
-            [](const sol::protected_function_result &res) -> expected_str<CommandLine> {
+            [](const sol::protected_function_result &res) -> Result<CommandLine> {
                 if (res.get_type(0) != sol::type::table)
                     return make_unexpected(QString("cmd callback did not return a table"));
                 return cmdFromTable(res.get<sol::table>());
@@ -257,7 +259,7 @@ public:
             options,
             "initializationOptions",
             m_initializationOptions,
-            [](const sol::protected_function_result &res) -> expected_str<QString> {
+            [](const sol::protected_function_result &res) -> Result<QString> {
                 if (res.get_type(0) == sol::type::table)
                     return ::Lua::toJsonString(res.get<sol::table>());
                 else if (res.get_type(0) == sol::type::string)
@@ -303,6 +305,7 @@ public:
         }
 
         m_showInSettings = options.get<std::optional<bool>>("showInSettings"sv).value_or(true);
+        m_activatable = options.get<std::optional<bool>>("activatable"sv).value_or(true);
 
         // get<sol::optional<>> because on MSVC, get_or(..., nullptr) fails to compile
         m_aspects = options.get<sol::optional<AspectContainer *>>("settings"sv).value_or(nullptr);
@@ -357,7 +360,7 @@ public:
             return;
 
         if (unexpected && m_startFailedCallback) {
-            QTC_CHECK_EXPECTED(::Lua::void_safe_call(*m_startFailedCallback));
+            QTC_CHECK_RESULT(::Lua::void_safe_call(*m_startFailedCallback));
         }
     }
 
@@ -452,7 +455,7 @@ public:
             Project *project = ProjectManager::projectForFile(document->filePath());
             const auto clients = LanguageClientManager::clientsForSettingId(m_clientSettingsId);
             result = Utils::filtered(clients, [project](Client *c) {
-                return c && c->project() == project;
+                return c && c->project() && c->project() == project;
             });
         }
         else
@@ -469,7 +472,7 @@ public:
 
         const LanguageServerProtocol::JsonRpcMessage request(messageValue.toObject());
 
-        auto clients = clientsForDocument(document);
+        const QList<Client *> clients = clientsForDocument(document);
         QTC_CHECK(clients.size() == 1);
 
         for (Client *c : clients) {
@@ -536,7 +539,7 @@ public:
                 qWarning() << "Error applying option callback:" << result.error();
         }
         if (m_initOptionsCallback) {
-            expected_str<void> result = m_initOptionsCallback(m_initializationOptions);
+            Result<> result = m_initOptionsCallback(m_initializationOptions);
             if (!result)
                 qWarning() << "Error applying init option callback:" << result.error();
 
@@ -561,11 +564,11 @@ public:
     }
 
     template<typename T>
-    std::function<expected_str<void>(T &)> addValue(
+    std::function<Result<>(T &)> addValue(
         const sol::table &options,
         const char *fieldName,
         T &dest,
-        std::function<expected_str<T>(const sol::protected_function_result &)> transform)
+        std::function<Result<T>(const sol::protected_function_result &)> transform)
     {
         auto fixed = options.get<sol::optional<sol::table>>(fieldName);
         auto cb = options.get<sol::optional<sol::protected_function>>(fieldName);
@@ -573,15 +576,15 @@ public:
         if (fixed) {
             dest = fixed.value().get<T>(1);
         } else if (cb) {
-            std::function<expected_str<void>(T &)> callback =
-                [cb, transform](T &dest) -> expected_str<void> {
+            std::function<Result<>(T &)> callback =
+                [cb, transform](T &dest) -> Result<> {
                 auto res = cb.value().call();
                 if (!res.valid()) {
                     sol::error err = res;
                     return Utils::make_unexpected(QString::fromLocal8Bit(err.what()));
                 }
 
-                expected_str<T> trResult = transform(res);
+                Result<T> trResult = transform(res);
                 if (!trResult)
                     return make_unexpected(trResult.error());
 
@@ -589,27 +592,27 @@ public:
                 return {};
             };
 
-            QTC_CHECK_EXPECTED(callback(dest));
+            QTC_CHECK_RESULT(callback(dest));
             return callback;
         }
         return {};
     }
 
-    BaseClientInterface *createInterface(ProjectExplorer::Project *project)
+    BaseClientInterface *createInterface(BuildConfiguration *bc)
     {
         if (m_transportType == TransportType::StdIO) {
             auto interface = new StdIOClientInterface;
             interface->setCommandLine(m_cmdLine);
-            if (project)
-                interface->setWorkingDirectory(project->projectDirectory());
+            if (bc)
+                interface->setWorkingDirectory(bc->project()->projectDirectory());
             return interface;
         } else if (m_transportType == TransportType::LocalSocket) {
             if (m_serverName.isEmpty())
                 return nullptr;
 
             auto interface = new LuaLocalSocketClientInterface(m_cmdLine, m_serverName);
-            if (project)
-                interface->setWorkingDirectory(project->projectDirectory());
+            if (bc)
+                interface->setWorkingDirectory(bc->project()->projectDirectory());
             return interface;
         }
         return nullptr;
@@ -641,6 +644,7 @@ LuaClientSettings::LuaClientSettings(const std::weak_ptr<LuaClientWrapper> &wrap
         m_initializationOptions = w->m_initializationOptions;
         m_startBehavior = w->m_startBehavior;
         m_showInSettings = w->m_showInSettings;
+        m_activatable = w->m_activatable;
         QObject::connect(w.get(), &LuaClientWrapper::optionsChanged, &guard, [this] {
             if (auto w = m_wrapper.lock())
                 m_initializationOptions = w->m_initializationOptions;
@@ -700,10 +704,10 @@ Client *LuaClientSettings::createClient(BaseClientInterface *interface) const
     return client;
 }
 
-BaseClientInterface *LuaClientSettings::createInterface(ProjectExplorer::Project *project) const
+BaseClientInterface *LuaClientSettings::createInterface(BuildConfiguration *bc) const
 {
     if (auto w = m_wrapper.lock())
-        return w->createInterface(project);
+        return w->createInterface(bc);
 
     return nullptr;
 }

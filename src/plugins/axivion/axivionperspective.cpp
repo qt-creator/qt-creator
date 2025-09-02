@@ -9,8 +9,10 @@
 #include "dashboard/dto.h"
 #include "issueheaderview.h"
 #include "dynamiclistmodel.h"
+#include "localbuild.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -37,6 +39,7 @@
 #include <utils/utilsicons.h>
 #include <utils/overlaywidget.h>
 #include <utils/shutdownguard.h>
+#include <utils/treemodel.h>
 
 #include <QButtonGroup>
 #include <QClipboard>
@@ -53,6 +56,7 @@
 #include <QScrollArea>
 #include <QStackedWidget>
 #include <QStandardItemModel>
+#include <QStyledItemDelegate>
 #include <QTextBrowser>
 #include <QToolButton>
 #include <QUrlQuery>
@@ -66,7 +70,13 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
+// issue model
 constexpr int ListItemIdRole = Qt::UserRole + 2;
+constexpr int ListItemSourcePathRole = Qt::UserRole + 3; // only *retrieval* of first link if any
+
+// progress model
+constexpr int ProjectNameRole = Qt::UserRole + 20;
+constexpr int ProgressItemDataRole = Qt::UserRole + 21;
 
 static const Icon MARKER_ICON({{":/axivion/images/marker.png", Theme::IconsBaseColor}});
 static const Icon USER_ICON({{":/axivion/images/user.png", Theme::PanelTextColorDark}}, Icon::Tint);
@@ -90,28 +100,119 @@ struct LinkWithColumns
 };
 
 static bool issueListContextMenuEvent(const ItemViewEvent &ev); // impl at bottom
+static bool progressListContextMenuEvent(const ItemViewEvent &ev); // impl at bottom
+static void resetFocusToIssuesTable(); // impl at bottom
 
-static std::optional<PathMapping> findPathMappingMatch(const QString &projectName,
-                                                       const Link &link)
+/**
+ * combine local (absolute) path with analysis path
+ * if analysis path is absolute just return the local path
+ * otherwise check whether the local path ends with (parts of) analysis path
+ * and return the combined path or if no match append analysis to local path
+ *
+ * examples:
+ * local                analysis                    result
+ * /a/b/c               /d/e                        /a/b/c
+ * /a/b/c               d/e                         /a/b/c/d/e
+ * /a/b/c               c                           /a/b
+ * /a/b/c               c/d                         /a/b/c/c/d
+ * /a/b/c               b/c/d                       /a/b/c/b/c/d
+ * /a/b/c               b                           /a/b/c/b
+ * /a/b/c/d             b/d/e                       /a/b/c/d/b/d/e
+ */
+static FilePath combinedPaths(const FilePath &localPath, const FilePath &analysisPath)
 {
-    QTC_ASSERT(!projectName.isEmpty(), return std::nullopt);
+    if (analysisPath.isEmpty() || analysisPath.isAbsolutePath())
+        return localPath;
+
+    const QList<QStringView> localComp = localPath.pathComponents();
+    const QList<QStringView> analysisComp = analysisPath.pathComponents();
+    const int localCount = localComp.size();
+    const int analysisCount = analysisComp.size();
+
+    for (int localBwd = localCount - 1; localBwd >= 0; --localBwd) {
+        // do we have a potential start of match
+        if (localComp.at(localBwd) == analysisComp.first()) {
+            // only if all analysis path components do fit
+            if (localBwd + analysisCount < localCount)
+                continue;
+            int fwd = 1;
+            // check whether all analysis path components match
+            for ( ; fwd < analysisCount && localBwd + fwd < localCount; ++fwd) {
+                if (localComp.at(localBwd + fwd) != analysisComp.at(fwd))
+                    break;
+            }
+            // check whether we broke at a mismatch
+            if (fwd != analysisCount && (localBwd + fwd != localCount))
+                continue;
+
+            QList<QStringView> resultPath = localComp.sliced(0, localBwd);
+            if (resultPath.first() == u"/") // hack for UNIX paths
+                resultPath.replace(0, QStringView{});
+            const QStringList pathStrings = Utils::transform(resultPath, &QStringView::toString);
+            return FilePath::fromUserInput(pathStrings.join('/'));
+        }
+    }
+    return localPath.pathAppended(analysisPath.path());
+}
+
+static QList<PathMapping> findPathMappingMatches(const QString &projectName, const Link &link)
+{
+    QList<PathMapping> result;
+    QTC_ASSERT(!projectName.isEmpty(), return result);
+    const bool pathIsAbsolute = link.targetFilePath.isAbsolutePath();
     for (const PathMapping &mapping : settings().validPathMappings()) {
         if (mapping.projectName != projectName)
             continue;
 
-        if (mapping.analysisPath.isEmpty())
-            return mapping;
-
-        QString analysis = mapping.analysisPath.toUrlishString();
+        QString analysis = mapping.analysisPath.path();
         // ensure we use complete paths
-        if (!analysis.endsWith('/'))
+        if (!analysis.isEmpty() && !analysis.endsWith('/'))
             analysis.append('/');
-        if (!link.targetFilePath.startsWith(analysis))
-            continue;
 
-        return mapping;
+        if (pathIsAbsolute) {
+            if (mapping.analysisPath.isEmpty())
+                continue;
+
+            if (!link.targetFilePath.startsWith(analysis))
+                continue;
+        } else {
+            if (mapping.analysisPath.isAbsolutePath())
+                continue;
+
+            if (!analysis.isEmpty() && !link.targetFilePath.startsWith(analysis))
+                continue;
+
+        }
+
+        result << mapping;
     }
-    return std::nullopt;
+    return result;
+}
+
+static FilePath mappedPathForLink(const Link &link)
+{
+    if (const std::optional<Dto::ProjectInfoDto> pInfo = projectInfo()) {
+        const QList<PathMapping> mappings = findPathMappingMatches(pInfo->name, link);
+        const bool linkIsRelative = link.targetFilePath.isRelativePath();
+        for (const PathMapping &mapping : mappings) {
+            if (linkIsRelative) {
+                // combine local & analysis paths
+                const FilePath localPath = combinedPaths(mapping.localPath, mapping.analysisPath);
+                const FilePath mapped = localPath.pathAppended(link.targetFilePath.path());
+                if (mapped.exists())
+                    return mapped;
+                continue;
+            }
+            // else absolute paths
+            std::optional<FilePath> fp = link.targetFilePath.prefixRemoved(
+                        mapping.analysisPath.path());
+            QTC_ASSERT(fp, return {});
+            fp = mapping.localPath.pathAppended(fp->path());
+            if (fp->exists())
+                return *fp;
+        }
+    }
+    return {};
 }
 
 class IssueListItem final : public ListItem
@@ -134,6 +235,8 @@ public:
             return m_toolTips.at(column);
         if (role == ListItemIdRole)
             return m_id;
+        if (role == ListItemSourcePathRole)
+            return m_links.isEmpty() ? QVariant() : QVariant::fromValue(m_links.first().link);
         return {};
     }
 
@@ -150,24 +253,18 @@ public:
                 // prefer to use the open project's file instead of some generic approach
                 const FilePath computedPath = findFileForIssuePath(link.targetFilePath);
                 FilePath targetFilePath;
-                if (!computedPath.exists()) {
-                    if (const std::optional<Dto::ProjectInfoDto> pInfo = projectInfo()) {
-                        if (auto mapping = findPathMappingMatch(pInfo->name, link)) {
-                            std::optional<FilePath> fp = link.targetFilePath.prefixRemoved(
-                                        mapping->analysisPath.toUrlishString());
-                            QTC_CHECK(fp);
-                            fp = mapping->localPath.pathAppended(fp->toUrlishString());
-                            if (fp->exists())
-                                targetFilePath = *fp;
-                        }
-                    }
-                }
+                if (!computedPath.exists())
+                    targetFilePath = mappedPathForLink(link);
                 link.targetFilePath = targetFilePath.isEmpty() ? computedPath : targetFilePath;
-                if (link.targetFilePath.exists())
+                if (link.targetFilePath.exists()) {
                     EditorManager::openEditorAt(link);
+                    resetFocusToIssuesTable();
+                }
             }
             return true;
         } else if (role == BaseTreeView::ItemViewEventRole && !m_id.isEmpty()) {
+            if (currentDashboardMode() == DashboardMode::Local)
+                return false;
             ItemViewEvent ev = value.value<ItemViewEvent>();
             if (ev.as<QContextMenuEvent>())
                 return issueListContextMenuEvent(ev);
@@ -189,7 +286,9 @@ public:
     void updateUi(const QString &kind);
     void initDashboardList(const QString &preferredProject = {});
     void resetDashboard();
+    void leaveOrEnterDashboardMode(bool byLocalBuildButton);
     void updateNamedFilters();
+    void updateLocalBuildState(const QString &projectName, int percent);
 
     const std::optional<Dto::TableInfoDto> currentTableInfo() const { return m_currentTableInfo; }
     IssueListSearch searchFromUi() const;
@@ -197,6 +296,11 @@ public:
     enum OverlayIconType { EmptyIcon, ErrorIcon, SettingsIcon };
     void showOverlay(const QString &message = {}, OverlayIconType type = EmptyIcon);
     void showErrorMessage(const QString &message);
+
+    bool currentIssueHasValidMapping() const;
+
+    void requestFocusForIssuesTable();
+
 protected:
     void showEvent(QShowEvent *event) override;
 private:
@@ -207,13 +311,18 @@ private:
     void onSortParameterChanged();
     void updateVersionItemsEnabledState();
     void updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDto> &info);
+    void updateVersionsFromProjectInfo(const std::optional<Dto::ProjectInfoDto> &info);
     void updateAllFilters(const QVariant &namedFilter);
     void setFiltersEnabled(bool enabled);
     void fetchTable();
-    void fetchIssues(const IssueListSearch &search);
+    void fetchLocalDashboard();
+    void fetchIssues(DashboardMode dashboardMode, const IssueListSearch &search);
     void onFetchRequested(int startRow, int limit);
+    void switchDashboard(bool local);
+    void onLocalBuildTriggered();
     void hideOverlays();
     void openFilterHelp();
+    void checkForLocalBuildAndUpdate();
 
     QString m_currentPrefix;
     QString m_currentProject;
@@ -227,13 +336,17 @@ private:
     QComboBox *m_ownerFilter = nullptr;
     QComboBox *m_versionStart = nullptr;
     QComboBox *m_versionEnd = nullptr;
+    QComboBox *m_localVersions = nullptr;
     QComboBox *m_namedFilters = nullptr;
+    QToolButton *m_localBuild = nullptr;
+    QToolButton *m_localDashBoard = nullptr;
     QToolButton *m_showFilterHelp = nullptr;
     Guard m_signalBlocker;
     QLineEdit *m_pathGlobFilter = nullptr; // FancyLineEdit instead?
     QLabel *m_totalRows = nullptr;
     BaseTreeView *m_issuesView = nullptr;
     QStackedWidget *m_stack = nullptr;
+    QStackedWidget *m_versionsStack = nullptr;
     IssueHeaderView *m_headerView = nullptr;
     QPlainTextEdit *m_errorEdit = nullptr;
     DynamicListModel *m_issuesModel = nullptr;
@@ -243,6 +356,8 @@ private:
     TaskTreeRunner m_taskTreeRunner;
     OverlayWidget *m_overlay = nullptr;
     bool m_dashboardListUninitialized = true;
+
+    enum LocalVersions { ReferenceVersion, LocallyChanged, LocalOnly };
 };
 
 IssuesWidget::IssuesWidget(QWidget *parent)
@@ -251,10 +366,12 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     setFrameStyle(QFrame::NoFrame);
     QWidget *widget = new QWidget(this);
     m_dashboards = new QComboBox(this);
-    m_dashboards->setMinimumContentsLength(15);
+    m_dashboards->setMinimumWidth(250);
+    m_dashboards->setMaximumWidth(250);
     connect(m_dashboards, &QComboBox::currentIndexChanged, this, [this] {
         if (m_signalBlocker.isLocked())
             return;
+        m_dashboards->setToolTip(m_dashboards->currentText());
         const QVariant data = m_dashboards->currentData();
         if (data.isValid()) {
             const AxivionServer server = data.value<AxivionServer>();
@@ -272,22 +389,59 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     });
 
     m_dashboardProjects = new QComboBox(this);
-    m_dashboardProjects->setMinimumContentsLength(25);
+    m_dashboardProjects->setMinimumWidth(250);
+    m_dashboardProjects->setMaximumWidth(250);
     connect(m_dashboardProjects, &QComboBox::currentIndexChanged, this, [this] {
         if (m_signalBlocker.isLocked())
             return;
+
         m_currentPrefix.clear();
         m_currentProject.clear();
         m_issuesModel->clear();
+        m_localBuild->setEnabled(false);
+        m_localDashBoard->setEnabled(false);
+
+        m_dashboardProjects->setToolTip(m_dashboardProjects->currentText());
+        if (currentDashboardMode() == DashboardMode::Local) {
+            switchDashboardMode(DashboardMode::Global, false);
+            return;
+        }
+
+        m_issuesView->showProgressIndicator();
+        setFiltersEnabled(false);
         fetchDashboardAndProjectInfo({}, m_dashboardProjects->currentText());
     });
-    // row with issue types (-> depending on choice, tables below change)
+    // row with local build + dashboard, issue types (-> depending on choice, tables below change)
     //  and a selectable range (start version, end version)
     // row with added/removed and some filters (assignee, path glob, (named filter))
     // table, columns depend on chosen issue type
+    QHBoxLayout *localLayout = new QHBoxLayout;
+    localLayout->setSpacing(0);
+    m_localBuild = new QToolButton(this);
+    const Icon build({{":/utils/images/project.png", Theme::PaletteButtonText},
+                      {":/axivion/images/local.png", Theme::PaletteButtonText}}, Icon::Tint);
+    m_localBuild->setIcon(build.icon());
+    m_localBuild->setToolTip(Tr::tr("Local Build..."));
+    m_localBuild->setEnabled(false);
+    connect(m_localBuild, &QToolButton::clicked, this, &IssuesWidget::onLocalBuildTriggered);
+    m_localDashBoard = new QToolButton(this);
+    const Icon dashboard({{":/axivion/images/dashboard.png", Theme::PaletteButtonText},
+                          {":/axivion/images/local.png", Theme::PaletteButtonText}}, Icon::Tint);
+    m_localDashBoard->setIcon(dashboard.icon());
+    m_localDashBoard->setToolTip(Tr::tr("Local Dashboard"));
+    m_localDashBoard->setCheckable(true);
+    m_localDashBoard->setEnabled(false);
+    localLayout->addWidget(m_localBuild);
+    localLayout->addWidget(m_localDashBoard);
+    connect(&settings(), &AxivionSettings::suitePathValidated, this, [this] {
+        m_localBuild->setEnabled(!hasRunningLocalBuild(m_currentProject));
+        checkForLocalBuildAndUpdate();
+    });
+    connect(m_localDashBoard, &QToolButton::clicked, this, &IssuesWidget::switchDashboard);
     m_typesButtonGroup = new QButtonGroup(this);
     m_typesButtonGroup->setExclusive(true);
     m_typesLayout = new QHBoxLayout;
+    m_typesLayout->setSpacing(0);
 
     m_versionStart = new QComboBox(this);
     m_versionStart->setMinimumContentsLength(25);
@@ -308,6 +462,16 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         updateVersionItemsEnabledState();
         onSearchParameterChanged();
         setAnalysisVersion(m_versionDates.at(index));
+    });
+
+    m_localVersions = new QComboBox(this);
+    m_localVersions->setMinimumContentsLength(25);
+    m_localVersions->addItems({Tr::tr("Reference version"), Tr::tr("Locally changed issues"),
+                               Tr::tr("All local issues")});
+    connect(m_localVersions, &QComboBox::currentIndexChanged, this, [this] {
+        if (m_signalBlocker.isLocked())
+            return;
+        onSearchParameterChanged();
     });
 
     m_addedFilter = new QPushButton(this);
@@ -380,7 +544,9 @@ IssuesWidget::IssuesWidget(QWidget *parent)
             return;
         const QString id = m_issuesModel->data(m_issuesView->currentIndex(), ListItemIdRole).toString();
         QTC_ASSERT(!id.isEmpty(), return);
-        fetchIssueInfo(id);
+        const bool useGlobal = currentDashboardMode() == DashboardMode::Global
+                || !currentIssueHasValidMapping();
+        fetchIssueInfo(useGlobal ? DashboardMode::Global : DashboardMode::Local, id);
     });
     m_totalRows = new QLabel(Tr::tr("Total rows:"), this);
 
@@ -403,8 +569,15 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_stack->addWidget(m_issuesView);
     m_stack->addWidget(errorWidget);
 
+    Stack {
+        bindTo(&m_versionsStack),
+        Row { m_versionStart, m_versionEnd, noMargin },
+        Row { m_localVersions, st, noMargin }
+    };
+    m_versionsStack->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+
     Column {
-        Row { m_dashboards, m_dashboardProjects, empty, m_typesLayout, st, m_versionStart, m_versionEnd, st },
+        Row { m_dashboards, m_dashboardProjects, empty, localLayout, empty, m_typesLayout, empty, m_versionsStack, st },
         Row { m_addedFilter, m_removedFilter, Space(1), m_ownerFilter, m_pathGlobFilter, m_namedFilters, m_showFilterHelp },
         m_stack,
         Row { st, m_totalRows }
@@ -421,7 +594,9 @@ IssuesWidget::IssuesWidget(QWidget *parent)
 void IssuesWidget::updateUi(const QString &kind)
 {
     setFiltersEnabled(false);
-    const std::optional<Dto::ProjectInfoDto> projectInfo = Internal::projectInfo();
+    const std::optional<Dto::ProjectInfoDto> projectInfo
+            = currentDashboardMode() == DashboardMode::Global ? Internal::projectInfo()
+                                                              : localProjectInfo();
     updateBasicProjectInfo(projectInfo);
 
     if (!projectInfo)
@@ -454,8 +629,13 @@ void IssuesWidget::updateUi(const QString &kind)
             }
         }
     }
-    if (m_currentPrefix.isEmpty())
-        m_currentPrefix = info.issueKinds.size() ? info.issueKinds.front().prefix : QString{};
+    if (m_currentPrefix.isEmpty()) {
+        const int id = m_typesButtonGroup->checkedId();
+        if (id > 0 && id <= int(info.issueKinds.size()))
+            m_currentPrefix = info.issueKinds.at(id - 1).prefix;
+        else
+            m_currentPrefix = info.issueKinds.size() ? info.issueKinds.front().prefix : QString{};
+    }
     fetchTable();
 }
 
@@ -467,6 +647,34 @@ void IssuesWidget::resetDashboard()
     m_dashboardProjects->clear();
     m_dashboards->clear();
     m_dashboardListUninitialized = true;
+}
+
+void IssuesWidget::leaveOrEnterDashboardMode(bool byLocalBuildButton)
+{
+    GuardLocker lock(m_signalBlocker);
+
+    switch (currentDashboardMode()) {
+    case DashboardMode::Global:
+        m_versionsStack->setCurrentIndex(int(DashboardMode::Global));
+        if (!byLocalBuildButton) {
+            QTC_ASSERT(currentDashboardInfo(), reinitProjectList(m_currentProject); return);
+            m_issuesView->showProgressIndicator();
+            setFiltersEnabled(false);
+            fetchDashboardAndProjectInfo({}, m_dashboardProjects->currentText());
+            return;
+        }
+
+        m_localDashBoard->setChecked(false);
+        fetchNamedFilters(DashboardMode::Global);
+        fetchTable();
+        break;
+    case DashboardMode::Local:
+        m_localVersions->setCurrentIndex(LocalVersions::ReferenceVersion);
+        m_versionsStack->setCurrentIndex(int(DashboardMode::Local));
+        m_issuesView->showProgressIndicator();
+        fetchLocalDashboard();
+        break;
+    }
 }
 
 void IssuesWidget::updateNamedFilters()
@@ -486,10 +694,18 @@ void IssuesWidget::updateNamedFilters()
     const QIcon global = Utils::Icons::LOCKED.icon();
     const QIcon user = USER_ICON.icon();
     m_namedFilters->addItem(global, Tr::tr("Show All")); // no active named filter
-    for (const auto &it : userFilters)
+    for (const auto &it : std::as_const(userFilters))
         m_namedFilters->addItem(user, it.displayName, QVariant::fromValue(it));
-    for (const auto &it : globalFilters)
+    for (const auto &it : std::as_const(globalFilters))
         m_namedFilters->addItem(global, it.displayName, QVariant::fromValue(it));
+}
+
+void IssuesWidget::updateLocalBuildState(const QString &projectName, int percent)
+{
+    if (percent != 100 || projectName != m_currentProject)
+        return;
+    m_localBuild->setEnabled(true);
+    checkForLocalBuildAndUpdate();
 }
 
 void IssuesWidget::initDashboardList(const QString &preferredProject)
@@ -529,7 +745,7 @@ void IssuesWidget::initDashboardList(const QString &preferredProject)
 void IssuesWidget::reinitProjectList(const QString &currentProject)
 {
     const auto onDashboardInfoFetched
-            = [this, currentProject] (const expected_str<DashboardInfo> &info) {
+            = [this, currentProject] (const Result<DashboardInfo> &info) {
         if (!info) {
             m_issuesView->hideProgressIndicator();
             return;
@@ -540,7 +756,7 @@ void IssuesWidget::reinitProjectList(const QString &currentProject)
             if (!currentProject.isEmpty() && info->projects.contains(currentProject))
                 m_dashboardProjects->setCurrentText(currentProject);
         }
-        fetchNamedFilters();
+        fetchNamedFilters(DashboardMode::Global);
     };
     {
         GuardLocker lock(m_signalBlocker);
@@ -549,6 +765,7 @@ void IssuesWidget::reinitProjectList(const QString &currentProject)
     updateBasicProjectInfo(std::nullopt);
     hideOverlays();
     m_issuesView->showProgressIndicator();
+    setFiltersEnabled(false);
     fetchDashboardAndProjectInfo(onDashboardInfoFetched, currentProject);
 }
 
@@ -699,7 +916,7 @@ void IssuesWidget::onSearchParameterChanged()
     m_totalRowCount = 0;
     IssueListSearch search = searchFromUi();
     search.computeTotalRowCount = true;
-    fetchIssues(search);
+    fetchIssues(currentDashboardMode(), search);
 }
 
 void IssuesWidget::onSortParameterChanged()
@@ -707,11 +924,26 @@ void IssuesWidget::onSortParameterChanged()
     m_issuesModel->clear();
     m_issuesModel->setExpectedRowCount(m_totalRowCount);
     IssueListSearch search = searchFromUi();
-    fetchIssues(search);
+    fetchIssues(currentDashboardMode(), search);
 }
 
 void IssuesWidget::updateVersionItemsEnabledState()
 {
+    if (currentDashboardMode() == DashboardMode::Local) {
+        std::optional<Dto::ProjectInfoDto> localInfo = localProjectInfo();
+        if (QTC_GUARD(localInfo)) {
+            const int versionCount = localInfo->versions.size();
+            QTC_ASSERT(versionCount >= 2 && versionCount <= 3, return);
+            QStandardItemModel *model = qobject_cast<QStandardItemModel *>(m_localVersions->model());
+            QTC_ASSERT(model, return);
+            for (int i = 0; i < model->rowCount(); ++i) {
+                if (auto item = model->item(i))
+                    item->setEnabled(i == 0 || versionCount == 3);
+            }
+        }
+        return;
+    }
+
     const int versionCount = m_versionDates.size();
     if (versionCount < 2)
         return;
@@ -751,11 +983,14 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     if (!info) {
         cleanOld();
         GuardLocker lock(m_signalBlocker);
+        m_localBuild->setEnabled(false);
+        m_localDashBoard->setEnabled(false);
         m_userNames.clear();
         m_versionDates.clear();
         m_ownerFilter->clear();
         m_versionStart->clear();
         m_versionEnd->clear();
+        m_versionEnd->setVisible(true);
         m_pathGlobFilter->clear();
         m_namedFilters->clear();
 
@@ -806,9 +1041,22 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     }
     m_ownerFilter->addItems(userDisplayNames);
 
+    updateVersionsFromProjectInfo(info);
+    m_showFilterHelp->setEnabled(info->issueFilterHelp.has_value());
+    std::optional<AxivionVersionInfo> suiteVersionInfo = settings().versionInfo();
+    m_localBuild->setEnabled(!hasRunningLocalBuild(m_currentProject));
+    checkForLocalBuildAndUpdate();
+}
+
+void IssuesWidget::updateVersionsFromProjectInfo(const std::optional<Dto::ProjectInfoDto> &info)
+{
     m_versionDates.clear();
     m_versionStart->clear();
     m_versionEnd->clear();
+
+    if (!info)
+        return;
+
     QStringList versionLabels;
     const std::vector<Dto::AnalysisVersionDto> &versions = info->versions;
     for (auto it = versions.crbegin(); it != versions.crend(); ++it) {
@@ -820,7 +1068,6 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     m_versionEnd->addItems(versionLabels);
     m_versionStart->setCurrentIndex(m_versionDates.count() - 1);
     updateVersionItemsEnabledState();
-    m_showFilterHelp->setEnabled(info->issueFilterHelp.has_value());
 }
 
 void IssuesWidget::updateAllFilters(const QVariant &namedFilter)
@@ -849,10 +1096,14 @@ void IssuesWidget::updateAllFilters(const QVariant &namedFilter)
 
 void IssuesWidget::setFiltersEnabled(bool enabled)
 {
+    const QList<QAbstractButton *> buttons = m_typesButtonGroup->buttons();
+    for (auto kindButton : buttons)
+        kindButton->setEnabled(enabled);
     m_addedFilter->setEnabled(enabled);
     m_removedFilter->setEnabled(enabled);
     m_ownerFilter->setEnabled(enabled);
     m_versionStart->setEnabled(enabled);
+    m_localVersions->setEnabled(enabled);
     m_versionEnd->setEnabled(enabled);
     m_pathGlobFilter->setEnabled(enabled);
     m_namedFilters->setEnabled(enabled);
@@ -864,15 +1115,39 @@ IssueListSearch IssuesWidget::searchFromUi() const
     QTC_ASSERT(m_currentTableInfo, return search);
     const int userIndex = m_ownerFilter->currentIndex();
     QTC_ASSERT(userIndex >= 0 && m_userNames.size() > userIndex, return search);
-    const int versionStartIndex = m_versionStart->currentIndex();
-    QTC_ASSERT(versionStartIndex >= 0 && m_versionDates.size() > versionStartIndex, return search);
-    const int versionEndIndex = m_versionEnd->currentIndex();
-    QTC_ASSERT(versionEndIndex >= 0 && m_versionDates.size() > versionEndIndex, return search);
+    if (m_versionsStack->currentIndex() == int(DashboardMode::Local)) { // local dashboard
+        std::optional<Dto::ProjectInfoDto> localInfo = localProjectInfo();
+        QTC_ASSERT(localInfo, return search);
+        const int localVersionsCount = localInfo->versions.size();
+        QTC_ASSERT(localVersionsCount <= 3, return search);
+        switch (m_localVersions->currentIndex()) {
+        case LocalVersions::ReferenceVersion:
+            QTC_ASSERT(localVersionsCount >= 2, return search);
+            search.versionStart = localInfo->versions.front().date;
+            search.versionEnd = localInfo->versions.at(1).date;
+            break;
+        case LocalVersions::LocallyChanged:
+            QTC_ASSERT(localVersionsCount == 3, return search);
+            search.versionStart = localInfo->versions.at(1).date;
+            search.versionEnd = localInfo->versions.back().date;
+            break;
+        case LocalVersions::LocalOnly:
+            QTC_ASSERT(localVersionsCount == 3, return search);
+            search.versionStart = localInfo->versions.front().date;
+            search.versionEnd = localInfo->versions.back().date;
+            break;
+        }
+    } else { // global dashboard
+        const int versionStartIndex = m_versionStart->currentIndex();
+        const int versionEndIndex = m_versionEnd->currentIndex();
+        QTC_ASSERT(versionStartIndex >= 0 && m_versionDates.size() > versionStartIndex, return search);
+        QTC_ASSERT(versionEndIndex >= 0 && m_versionDates.size() > versionEndIndex, return search);
+        search.versionStart = m_versionDates.at(versionStartIndex);
+        search.versionEnd = m_versionDates.at(versionEndIndex);
+    }
     search.kind = m_currentPrefix; // not really ui.. but anyhow
     search.owner = m_userNames.at(userIndex);
     search.filter_path = m_pathGlobFilter->text();
-    search.versionStart = m_versionDates.at(versionStartIndex);
-    search.versionEnd = m_versionDates.at(versionEndIndex);
     // different approach: checked means disabling in webview, checked here means explicitly request
     // the checked one, having both checked is impossible (having none checked means fetch both)
     // reason for different approach: currently poor reflected inside the ui (TODO)
@@ -889,6 +1164,8 @@ IssueListSearch IssuesWidget::searchFromUi() const
 void IssuesWidget::fetchTable()
 {
     QTC_ASSERT(!m_currentPrefix.isEmpty(), return);
+    const DashboardMode dashboardMode = currentDashboardMode();
+
     // fetch table dto and apply, on done fetch first data for the selected issues
     const auto tableHandler = [this](const Dto::TableInfoDto &dto) {
         m_currentTableInfo.emplace(dto);
@@ -898,21 +1175,41 @@ void IssuesWidget::fetchTable()
         m_currentTableInfo.reset();
         m_issuesView->showProgressIndicator();
     };
-    const auto doneHandler = [this](DoneWith result) {
+    const auto doneHandler = [this, dashboardMode](DoneWith result) {
+        if (dashboardMode == DashboardMode::Local)
+            updateVersionItemsEnabledState();
         if (result == DoneWith::Error) {
             m_issuesView->hideProgressIndicator();
             return;
         }
         // first time lookup... should we cache and maybe represent old data?
         updateTable();
+        QTC_ASSERT(projectInfo(), m_issuesView->hideProgressIndicator(); return);
         IssueListSearch search = searchFromUi();
         search.computeTotalRowCount = true;
-        fetchIssues(search);
+        fetchIssues(dashboardMode, search);
     };
-    m_taskTreeRunner.start(tableInfoRecipe(m_currentPrefix, tableHandler), setupHandler, doneHandler);
+    m_taskTreeRunner.start(tableInfoRecipe(dashboardMode, m_currentPrefix, tableHandler),
+                           setupHandler, doneHandler);
 }
 
-void IssuesWidget::fetchIssues(const IssueListSearch &search)
+void IssuesWidget::fetchLocalDashboard()
+{
+    const auto onDashboardInfoFetched = [this] (const Result<DashboardInfo> &info) {
+        if (!info) {
+            m_issuesView->hideProgressIndicator();
+            return;
+        }
+        fetchNamedFilters(DashboardMode::Local);
+    };
+    hideOverlays();
+    m_currentPrefix.clear();
+    m_issuesModel->clear();
+    m_issuesView->showProgressIndicator();
+    fetchLocalDashboardInfo(onDashboardInfoFetched, m_currentProject);
+}
+
+void IssuesWidget::fetchIssues(DashboardMode dashboardMode, const IssueListSearch &search)
 {
     hideOverlays();
     const auto issuesHandler = [this, startRow = search.offset](const Dto::IssueTableDto &dto) {
@@ -920,7 +1217,8 @@ void IssuesWidget::fetchIssues(const IssueListSearch &search)
     };
     const auto setupHandler = [this](TaskTree *) { m_issuesView->showProgressIndicator(); };
     const auto doneHandler = [this](DoneWith) { m_issuesView->hideProgressIndicator(); };
-    m_taskTreeRunner.start(issueTableRecipe(search, issuesHandler), setupHandler, doneHandler);
+    m_taskTreeRunner.start(issueTableRecipe(dashboardMode, search, issuesHandler),
+                           setupHandler, doneHandler);
 }
 
 void IssuesWidget::onFetchRequested(int startRow, int limit)
@@ -931,7 +1229,7 @@ void IssuesWidget::onFetchRequested(int startRow, int limit)
     IssueListSearch search = searchFromUi();
     search.offset = startRow;
     search.limit = limit;
-    fetchIssues(search);
+    fetchIssues(currentDashboardMode(), search);
 }
 
 void IssuesWidget::showOverlay(const QString &message, OverlayIconType type)
@@ -975,6 +1273,52 @@ void IssuesWidget::showErrorMessage(const QString &message)
     m_stack->setCurrentIndex(1);
 }
 
+bool IssuesWidget::currentIssueHasValidMapping() const
+{
+    QTC_ASSERT(!m_currentProject.isEmpty(), return false);
+    const QModelIndex index = m_issuesView->currentIndex();
+    QTC_ASSERT(index.isValid(), return false);
+    const Link srcLink = m_issuesModel->data(index, ListItemSourcePathRole).value<Link>();
+    if (srcLink.hasValidTarget()) {
+        const FilePath mapped = mappedPathForLink(srcLink);
+        return mapped.isEmpty() || mapped.exists();
+    }
+    return true;
+}
+
+void IssuesWidget::requestFocusForIssuesTable()
+{
+    m_issuesView->setFocus();
+}
+
+void IssuesWidget::switchDashboard(bool local)
+{
+    if (local) {
+        QTC_ASSERT(!m_currentProject.isEmpty(), return);
+        auto callback = [] { switchDashboardMode(DashboardMode::Local, true); };
+        m_issuesView->showProgressIndicator();
+        setFiltersEnabled(false);
+        startLocalDashboard(m_currentProject, callback);
+    } else {
+        switchDashboardMode(DashboardMode::Global, true);
+    }
+}
+
+void IssuesWidget::onLocalBuildTriggered()
+{
+    QTC_ASSERT(!m_currentProject.isEmpty(), return);
+
+    m_localBuild->setEnabled(false);
+    if (startLocalBuild(m_currentProject)) {
+        showLocalBuildProgress();
+        m_localDashBoard->setEnabled(false);
+        if (currentDashboardMode() == DashboardMode::Local)   // TODO maybe handle differently but
+            switchDashboardMode(DashboardMode::Global, true); // for now avoid access while build
+    } else {
+        m_localBuild->setEnabled(true);
+    }
+}
+
 void IssuesWidget::hideOverlays()
 {
     if (m_overlay)
@@ -986,7 +1330,15 @@ void IssuesWidget::openFilterHelp()
 {
     const std::optional<Dto::ProjectInfoDto> projInfo = projectInfo();
     if (projInfo && projInfo->issueFilterHelp)
-        QDesktopServices::openUrl(resolveDashboardInfoUrl(*projInfo->issueFilterHelp));
+        QDesktopServices::openUrl(resolveDashboardInfoUrl(DashboardMode::Global, *projInfo->issueFilterHelp));
+}
+
+void IssuesWidget::checkForLocalBuildAndUpdate()
+{
+    checkForLocalBuildResults(m_currentProject, [this] {
+        m_localBuild->setEnabled(!hasRunningLocalBuild(m_currentProject));
+        m_localDashBoard->setEnabled(true);
+    });
 }
 
 static void loadImage(QPromise<QImage> &promise, const QByteArray &data)
@@ -1003,7 +1355,7 @@ public:
             if (!m_loadingQueue.contains(name)) {
                 m_loadingQueue.append(name);
                 if (!m_loaderTaskTree.isRunning())
-                    m_loaderTaskTree.start(m_recipe);
+                    m_loaderTaskTree.start(recipe());
             }
             return QImage();
         }
@@ -1024,8 +1376,11 @@ private:
 
         const Storage<DownloadData> storage;
 
-        const auto onSetup = [this, storage] {
-            storage->inputUrl = resolveDashboardInfoUrl(m_loadingQueue.first());
+        const bool useGlobal = currentDashboardMode() == DashboardMode::Global
+                || !currentIssueHasValidPathMapping();
+        DashboardMode dashboardMode = useGlobal ? DashboardMode::Global : DashboardMode::Local;
+        const auto onSetup = [this, dashboardMode, storage] {
+            storage->inputUrl = resolveDashboardInfoUrl(dashboardMode, m_loadingQueue.first());
             storage->expectedContentType = ContentType::Svg;
         };
 
@@ -1048,7 +1403,7 @@ private:
             Group {
                 storage,
                 onGroupSetup(onSetup),
-                If (downloadDataRecipe(storage)) >> Then {
+                If (downloadDataRecipe(dashboardMode, storage)) >> Then {
                     AsyncTask<QImage>(onImageLoadSetup, onImageLoadDone, CallDoneIf::Success) || successItem
                 },
                 onGroupDone(onDone)
@@ -1056,11 +1411,206 @@ private:
         };
     }
 
-    const Group m_recipe = recipe();
     QList<QUrl> m_loadingQueue;
     TaskTreeRunner m_loaderTaskTree;
     unsigned int m_cachedImagesSize = 0;
 };
+
+struct ProgressItemData
+{
+    QString projectName;
+    QString state;
+    int percent = 0;
+};
+
+class ProgressItem final : public TypedTreeItem<ProgressItem, ProgressItem>
+{
+public:
+    explicit ProgressItem(const ProgressItemData &data) : m_data(data) {}
+    bool setData(int column, const QVariant &data, int role) final;
+    QVariant data(int column, int role) const final;
+
+private:
+    ProgressItemData m_data;
+};
+
+bool ProgressItem::setData(int column, const QVariant &data, int role)
+{
+    if (role == ProjectNameRole) {
+        m_data.projectName = data.toString();
+        return true;
+    }
+    if (role == ProgressItemDataRole) {
+        m_data = data.value<ProgressItemData>();
+        return true;
+    }
+    if (role == BaseTreeView::ItemViewEventRole) {
+        ItemViewEvent ev = data.value<ItemViewEvent>();
+        if (ev.as<QContextMenuEvent>())
+            return progressListContextMenuEvent(ev);
+    }
+
+    return TreeItem::setData(column, data, role);
+}
+
+QVariant ProgressItem::data(int column, int role) const
+{
+    if (role == ProjectNameRole)
+        return m_data.projectName;
+    if (role == ProgressItemDataRole)
+        return QVariant::fromValue(m_data);
+    if (role == Qt::ToolTipRole)
+        return m_data.state;
+    return TreeItem::data(column, role);
+}
+
+class ProgressModel : public TreeModel<ProgressItem>
+{
+public:
+    explicit ProgressModel(QObject *parent)
+        : TreeModel<ProgressItem>(new ProgressItem({}), parent) {}
+
+    void addOrUpdateProgressItem(const QString &projectName, const ProgressItemData &data)
+    {
+        auto oldItem = findNonRootItem([projectName] (ProgressItem *it) {
+                return it->data(0, ProjectNameRole).toString() == projectName;
+        });
+        if (oldItem) {
+            oldItem->setData(0, QVariant::fromValue(data), ProgressItemDataRole);
+            emit dataChanged(oldItem->index(), oldItem->index());
+        } else {
+            rootItem()->appendChild(new ProgressItem(data));
+        }
+    }
+
+    void removeFinished()
+    {
+        QList<int> toBeRemoved;
+
+        forAllItems([&toBeRemoved](ProgressItem *it) {
+            if (it->data(0, ProgressItemDataRole).value<ProgressItemData>().percent == 100)
+                toBeRemoved.append(it->index().row());
+        });
+
+        for (auto row = toBeRemoved.crbegin(); row != toBeRemoved.crend(); ++row)
+            rootItem()->removeChildAt(*row);
+    }
+};
+
+class ProgressItemDelegate final : public QStyledItemDelegate
+{
+    static constexpr int ItemMargin = 3;
+    static constexpr int BarHeight = 6;
+    static constexpr int BarMargin = 5;
+public:
+    explicit ProgressItemDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const final;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const final;
+};
+
+QSize ProgressItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &) const
+{
+    QStyleOptionViewItem opt = option;
+    opt.initFrom(opt.widget);
+
+    const QFontMetrics fm(opt.font);
+    const int fontHeight = fm.height();
+    // 2x line of text, progress bar in between, margin before any of these and after the last one
+    return QSize(opt.rect.width(),
+                 2 * fontHeight + BarHeight + 4 * ItemMargin);
+}
+
+void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                                 const QModelIndex &index) const
+{
+
+    QStyleOptionViewItem opt = option;
+    initStyleOption(&opt, index);
+
+    const QFontMetrics fm(opt.font);
+
+    const ProgressModel *model = static_cast<const ProgressModel *>(index.model());
+    if (!model)
+        return;
+    const ProgressItemData data = model->data(index, ProgressItemDataRole).value<ProgressItemData>();
+
+    QBrush background;
+    QColor foreground;
+    if (opt.state & QStyle::State_Selected) {
+        background = opt.palette.highlight().color();
+        foreground = opt.palette.highlightedText().color();
+    } else {
+        background = opt.palette.window().color();
+        foreground = opt.palette.text().color();
+    }
+    painter->save();
+    painter->setPen(opt.palette.alternateBase().color());
+    painter->setBrush(background);
+    painter->drawRect(opt.rect);
+    painter->setPen(foreground);
+
+    // texts get an additional pixel as margin
+    painter->drawText(ItemMargin + 1, opt.rect.bottom() - ItemMargin - fm.descent(), data.state);
+    QFont boldFont = opt.font;
+    boldFont.setBold(true);
+    painter->setFont(boldFont);
+    painter->drawText(ItemMargin + 1, opt.rect.top() + ItemMargin + fm.ascent(), data.projectName);
+
+    QColor progressBrush = creatorColor(Theme::ProgressBarColorFinished);
+    if (data.percent == 100 && data.state == Tr::tr("Failed"))
+        progressBrush = creatorColor(Theme::ProgressBarColorError);
+
+    painter->setPen(opt.palette.shadow().color());
+    painter->setBrush(creatorColor(Theme::ProgressBarBackgroundColor));
+    const int horizontalBarMargin = ItemMargin + BarMargin;
+    QRect bar(horizontalBarMargin,
+              opt.rect.bottom() - horizontalBarMargin - fm.height() - ItemMargin,
+              opt.rect.width() - 2 * horizontalBarMargin, BarHeight - 1);
+    painter->drawRect(bar);
+    bar.setWidth((opt.rect.width() - 2 * horizontalBarMargin) * data.percent / 100);
+    painter->fillRect(bar, progressBrush);
+
+    painter->restore();
+}
+
+class ProgressWidget : public QScrollArea
+{
+public:
+    explicit ProgressWidget(QWidget *parent = nullptr);
+
+    void addOrUpdateProgressItem(const QString &projectName, const ProgressItemData &data);
+    void removeFinishedItems();
+
+private:
+    ProgressModel *m_progressModel = nullptr;
+};
+
+ProgressWidget::ProgressWidget(QWidget *parent)
+    : QScrollArea(parent)
+{
+    setFrameStyle(QFrame::NoFrame);
+
+    BaseTreeView *view = new BaseTreeView(this);
+    view->setHeaderHidden(true);
+    view->header()->setStretchLastSection(true);
+    view->setRootIsDecorated(false);
+    view->setModel(m_progressModel = new ProgressModel(view));
+    view->setItemDelegate(new ProgressItemDelegate(view));
+    setWidget(view);
+}
+
+void ProgressWidget::addOrUpdateProgressItem(const QString &projectName,
+                                             const ProgressItemData &data)
+{
+    m_progressModel->addOrUpdateProgressItem(projectName, data);
+}
+
+void ProgressWidget::removeFinishedItems()
+{
+    m_progressModel->removeFinished();
+}
 
 class AxivionPerspective : public Perspective
 {
@@ -1072,14 +1622,26 @@ public:
     void handleShowErrorMessage(const QString &errorMessage);
     void reinitDashboardList(const QString &preferredProject);
     void resetDashboard();
-    bool handleContextMenu(const QString &issue, const ItemViewEvent &e);
+    bool handleContextMenu(bool globalDashboard, const QString &issue, const ItemViewEvent &e);
+    bool handleProgressContextMenu(const ItemViewEvent &e);
     void setIssueDetailsHtml(const QString &html);
     void handleAnchorClicked(const QUrl &url);
     void updateNamedFilters();
+    void updateLocalBuildStateFor(const QString &projectName, const QString &state, int percent);
+
+    void leaveOrEnterDashboardMode(bool byLocalBuildButton);
+    bool currentIssueHasValidPathMapping() const;
+
+    void showProgressWidget();
+
+    void requestFocusForIssuesTable();
 
 private:
+    void removeFinishedBuilds();
+
     IssuesWidget *m_issuesWidget = nullptr;
     LazyImageBrowser *m_issueDetails = nullptr;
+    ProgressWidget *m_progressWidget = nullptr;
 };
 
 AxivionPerspective::AxivionPerspective()
@@ -1103,6 +1665,10 @@ AxivionPerspective::AxivionPerspective()
     m_issueDetails->setOpenLinks(false);
     connect(m_issueDetails, &QTextBrowser::anchorClicked,
             this, &AxivionPerspective::handleAnchorClicked);
+
+    m_progressWidget = new ProgressWidget;
+    m_progressWidget->setObjectName("AxivionLocalBuildProgress");
+    m_progressWidget->setWindowTitle(Tr::tr("Local Build Progress"));
 
     auto reloadDataAct = new QAction(this);
     reloadDataAct->setIcon(Utils::Icons::RELOAD_TOOLBAR.icon());
@@ -1138,6 +1704,7 @@ AxivionPerspective::AxivionPerspective()
 
     addWindow(m_issuesWidget, Perspective::SplitVertical, nullptr);
     addWindow(m_issueDetails, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
+    addWindow(m_progressWidget, Perspective::AddToTab, nullptr, false, Qt::RightDockWidgetArea);
 
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     QAction *action = new QAction(Tr::tr("Axivion"), this);
@@ -1172,7 +1739,8 @@ void AxivionPerspective::resetDashboard()
     m_issuesWidget->resetDashboard();
 }
 
-bool AxivionPerspective::handleContextMenu(const QString &issue, const ItemViewEvent &e)
+bool AxivionPerspective::handleContextMenu(bool globalDashboard, const QString &issue,
+                                           const ItemViewEvent &e)
 {
     if (!currentDashboardInfo())
         return false;
@@ -1183,7 +1751,8 @@ bool AxivionPerspective::handleContextMenu(const QString &issue, const ItemViewE
     if (baseUri.isEmpty())
         return false;
 
-    QUrl dashboardUrl = resolveDashboardInfoUrl(baseUri);
+    QUrl dashboardUrl = resolveDashboardInfoUrl(globalDashboard ? DashboardMode::Global
+                                                                : DashboardMode::Local, baseUri);
     QUrl issueBaseUrl = dashboardUrl.resolved(issue);
     const IssueListSearch search = m_issuesWidget->searchFromUi();
     issueBaseUrl.setQuery(search.toUrlQuery(QueryMode::SimpleQuery));
@@ -1205,6 +1774,54 @@ bool AxivionPerspective::handleContextMenu(const QString &issue, const ItemViewE
         if (auto clipboard = QGuiApplication::clipboard())
             clipboard->setText(dashboardUrl.toString());
     });
+    menu->addAction(action);
+    QObject::connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
+    menu->popup(e.globalPos());
+    return true;
+}
+
+bool AxivionPerspective::handleProgressContextMenu(const ItemViewEvent &e)
+{
+    const QModelIndexList selectedIndices = e.selectedRows();
+    const QModelIndex first = selectedIndices.isEmpty() ? QModelIndex() : selectedIndices.first();
+
+    const QString project = first.isValid() ? first.data(ProjectNameRole).toString() : QString{};
+    const LocalBuildInfo localBuildInfo = project.isEmpty() ? LocalBuildInfo{}
+                                                            : localBuildInfoFor(project);
+    const bool selectedFinished = localBuildInfo.state == LocalBuildState::Finished;
+    QMenu *menu = new QMenu;
+    QAction *action = nullptr;
+    if (!selectedFinished && !project.isEmpty()) {
+        action = new QAction(Tr::tr("Cancel Local Build"), menu);
+        QObject::connect(action, &QAction::triggered,
+                         menu, [project] { cancelLocalBuild(project); });
+        menu->addAction(action);
+        menu->addSeparator();
+    }
+    action = new QAction(Tr::tr("See Axivion Log..."), menu);
+    action->setEnabled(selectedFinished);
+    QObject::connect(action, &QAction::triggered, menu, [project, localBuildInfo] {
+        QString title = QString("Axivion Local Build: Axivion Log (%1)").arg(project);
+        EditorManager::openEditorWithContents(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
+                                              &title, localBuildInfo.axivionOutput.toUtf8(),
+                                              "Axivion.LocalBuildLog");
+    });
+    menu->addAction(action);
+
+    action = new QAction(Tr::tr("See Build Log..."), menu);
+    action->setEnabled(selectedFinished);
+    QObject::connect(action, &QAction::triggered, menu, [project, localBuildInfo] {
+        QString title = QString("Axivion Local Build: Build Log (%1)").arg(project);
+        EditorManager::openEditorWithContents(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
+                                              &title, localBuildInfo.buildOutput.toUtf8(),
+                                              "Axivion.LocalBuildAxivionLog");
+    });
+    menu->addAction(action);
+
+    menu->addSeparator();
+    action = new QAction(Tr::tr("Remove All Finished"), menu);
+    QObject::connect(action, &QAction::triggered,
+                     this, &AxivionPerspective::removeFinishedBuilds);
     menu->addAction(action);
     QObject::connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(e.globalPos());
@@ -1248,6 +1865,43 @@ void AxivionPerspective::updateNamedFilters()
     m_issuesWidget->updateNamedFilters();
 }
 
+void AxivionPerspective::updateLocalBuildStateFor(const QString &projectName, const QString &state,
+                                                  int percent)
+{
+    m_issuesWidget->updateLocalBuildState(projectName, percent);
+    m_progressWidget->addOrUpdateProgressItem(projectName, {projectName, state, percent});
+}
+
+void AxivionPerspective::leaveOrEnterDashboardMode(bool byLocalBuildButton)
+{
+    m_issuesWidget->leaveOrEnterDashboardMode(byLocalBuildButton);
+}
+
+bool AxivionPerspective::currentIssueHasValidPathMapping() const
+{
+    return m_issuesWidget->currentIssueHasValidMapping();
+}
+
+void AxivionPerspective::showProgressWidget()
+{
+    Command *cmd = ActionManager::command("Dock.AxivionLocalBuildProgress");
+    QTC_ASSERT(cmd, return);
+    if (cmd->action() && !cmd->action()->isChecked())
+        cmd->action()->trigger();
+    // TODO can we ensure the progress widget is uncollapsed?
+}
+
+void AxivionPerspective::requestFocusForIssuesTable()
+{
+    m_issuesWidget->requestFocusForIssuesTable();
+}
+
+void AxivionPerspective::removeFinishedBuilds()
+{
+    removeFinishedLocalBuilds();
+    m_progressWidget->removeFinishedItems();
+}
+
 static AxivionPerspective *axivionPerspective()
 {
     static GuardedObject<AxivionPerspective> theAxivionPerspective;
@@ -1280,7 +1934,19 @@ static bool issueListContextMenuEvent(const ItemViewEvent &ev)
     if (!first.isValid())
         return false;
     const QString issue = first.data().toString();
-    return axivionPerspective()->handleContextMenu(issue, ev);
+    return axivionPerspective()->handleContextMenu(true, issue, ev);
+}
+
+static bool progressListContextMenuEvent(const ItemViewEvent &ev)
+{
+    QTC_ASSERT(axivionPerspective(), return false);
+    return axivionPerspective()->handleProgressContextMenu(ev);
+}
+
+static void resetFocusToIssuesTable()
+{
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->requestFocusForIssuesTable();
 }
 
 void showFilterException(const QString &errorMessage)
@@ -1305,6 +1971,30 @@ void updateNamedFilters()
 {
     QTC_ASSERT(axivionPerspective(), return);
     axivionPerspective()->updateNamedFilters();
+}
+
+void updateLocalBuildStateFor(const QString &projectName, const QString &state, int percent)
+{
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->updateLocalBuildStateFor(projectName, state, percent);
+}
+
+void leaveOrEnterDashboardMode(bool byLocalBuildButton)
+{
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->leaveOrEnterDashboardMode(byLocalBuildButton);
+}
+
+bool currentIssueHasValidPathMapping()
+{
+    QTC_ASSERT(axivionPerspective(), return false);
+    return axivionPerspective()->currentIssueHasValidPathMapping();
+}
+
+void showLocalBuildProgress()
+{
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->showProgressWidget();
 }
 
 void setupAxivionPerspective()

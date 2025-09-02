@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "debugmessagesmodel.h"
+
 #include "qmlprofilerconstants.h"
 #include "qmlprofilertr.h"
+
 #include <tracing/timelineformattime.h>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 DebugMessagesModel::DebugMessagesModel(QmlProfilerModelManager *manager,
                                        Timeline::TimelineModelAggregator *parent) :
@@ -105,5 +106,4 @@ QVariantMap DebugMessagesModel::location(int index) const
     return locationFromTypeId(index);
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

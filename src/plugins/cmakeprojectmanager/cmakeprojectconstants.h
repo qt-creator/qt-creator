@@ -85,5 +85,7 @@ const char BUILD_FOLDER_ROLE[] = "CMakeProjectManager.data.buildFolder";
 // Output
 const char OUTPUT_PREFIX[] = "[cmake] ";
 
+const char VXWORKS_DEVICE_TYPE[] = "VxWorks.Device.Type";
+
 } // namespace Constants
 } // namespace CMakeProjectManager

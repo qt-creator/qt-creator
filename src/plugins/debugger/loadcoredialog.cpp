@@ -79,8 +79,8 @@ private:
     QLabel *m_progressLabel;
 
     TaskTree m_taskTree;
-    expected_str<FilePath> m_coreFileResult;
-    expected_str<FilePath> m_symbolFileResult;
+    Result<FilePath> m_coreFileResult;
+    Result<FilePath> m_symbolFileResult;
 
     struct State
     {
@@ -233,19 +233,19 @@ void AttachCoreDialog::accepted()
     const DebuggerItem *debuggerItem = Debugger::DebuggerKitAspect::debugger(kit());
     const FilePath debuggerCommand = debuggerItem->command();
 
-    const auto copyFile = [debuggerCommand](const FilePath &srcPath) -> expected_str<FilePath> {
+    const auto copyFile = [debuggerCommand](const FilePath &srcPath) -> Result<FilePath> {
         if (!srcPath.isSameDevice(debuggerCommand)) {
-            const expected_str<FilePath> tmpPath = debuggerCommand.tmpDir();
+            const Result<FilePath> tmpPath = debuggerCommand.tmpDir();
             if (!tmpPath)
                 return make_unexpected(tmpPath.error());
 
             const FilePath pattern = (tmpPath.value()
                                       / (srcPath.fileName() + ".XXXXXXXXXXX"));
 
-            const expected_str<FilePath> resultPath = pattern.createTempFile();
+            const Result<FilePath> resultPath = pattern.createTempFile();
             if (!resultPath)
                 return make_unexpected(resultPath.error());
-            const Result result = srcPath.copyFile(resultPath.value());
+            const Result<> result = srcPath.copyFile(resultPath.value());
             if (!result)
                 return make_unexpected(result.error());
 
@@ -255,7 +255,7 @@ void AttachCoreDialog::accepted()
         return srcPath;
     };
 
-    using ResultType = expected_str<FilePath>;
+    using ResultType = Result<FilePath>;
 
     const auto copyFileAsync = [=](QPromise<ResultType> &promise, const FilePath &srcPath) {
         promise.addResult(copyFile(srcPath));
@@ -349,8 +349,7 @@ void runAttachToCoreDialog()
     runControl->setKit(dlg.kit());
     runControl->setDisplayName(Tr::tr("Core file \"%1\"").arg(dlg.coreFile().toUserOutput()));
 
-    auto debugger = new DebuggerRunTool(runControl);
-    DebuggerRunParameters &rp = debugger->runParameters();
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     rp.setInferiorExecutable(dlg.symbolFileCopy());
     rp.setCoreFilePath(dlg.coreFileCopy());
     rp.setStartMode(AttachToCore);
@@ -359,6 +358,9 @@ void runAttachToCoreDialog()
     const FilePath sysRoot = dlg.sysRoot();
     if (!sysRoot.isEmpty())
         rp.setSysRoot(sysRoot);
+
+    auto debugger = createDebuggerWorker(runControl, rp);
+    Q_UNUSED(debugger)
 
     runControl->start();
 }

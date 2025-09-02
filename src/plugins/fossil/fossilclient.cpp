@@ -23,9 +23,7 @@
 #include <QSyntaxHighlighter>
 
 #include <QDateTime>
-#include <QDir>
 #include <QFile>
-#include <QFileInfo>
 #include <QTextStream>
 #include <QMap>
 #include <QRegularExpression>

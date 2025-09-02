@@ -66,9 +66,7 @@ void SemanticHighlighter::run()
 
 Parentheses SemanticHighlighter::getClearedParentheses(const QTextBlock &block)
 {
-    Parentheses parens;
-    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(block))
-        parens = userData->parentheses();
+    Parentheses parens = TextBlockUserData::parentheses(block);
     if (m_seenBlocks.insert(block.blockNumber()).second) {
         parens = Utils::filtered(parens, [](const Parenthesis &p) {
             return p.source != parenSource();
@@ -150,12 +148,12 @@ void SemanticHighlighter::handleHighlighterResults()
                             ++it;
                     }
                 }
-                TextDocumentLayout::setParentheses(block, syntacticParens);
+                TextBlockUserData::setParentheses(block, syntacticParens);
             }
             continue;
         }
         if (parentheses.first.isValid() && result.line - 1 > parentheses.first.blockNumber()) {
-            TextDocumentLayout::setParentheses(parentheses.first, parentheses.second);
+            TextBlockUserData::setParentheses(parentheses.first, parentheses.second);
             parentheses = {};
         }
         if (!parentheses.first.isValid()) {
@@ -182,7 +180,7 @@ void SemanticHighlighter::handleHighlighterResults()
         insertSorted(parentheses.second, paren);
     }
     if (parentheses.first.isValid())
-        TextDocumentLayout::setParentheses(parentheses.first, parentheses.second);
+        TextBlockUserData::setParentheses(parentheses.first, parentheses.second);
 
     qCDebug(log) << "onHighlighterResultAvailable() took" << t.elapsed() << "ms";
 }
@@ -222,11 +220,11 @@ void SemanticHighlighter::onHighlighterFinished()
 
     for (QTextBlock currentBlock = m_baseTextDocument->document()->firstBlock();
          currentBlock != firstResultBlock; currentBlock = currentBlock.next()) {
-        TextDocumentLayout::setParentheses(currentBlock, getClearedParentheses(currentBlock));
+        TextBlockUserData::setParentheses(currentBlock, getClearedParentheses(currentBlock));
     }
     for (QTextBlock currentBlock = lastResultBlock.next(); currentBlock.isValid();
          currentBlock = currentBlock.next()) {
-        TextDocumentLayout::setParentheses(currentBlock, getClearedParentheses(currentBlock));
+        TextBlockUserData::setParentheses(currentBlock, getClearedParentheses(currentBlock));
     }
 
     m_watcher.release()->deleteLater();

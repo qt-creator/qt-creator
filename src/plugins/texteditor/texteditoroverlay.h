@@ -3,11 +3,10 @@
 
 #pragma once
 
-#include <QObject>
-#include <QList>
-#include <QVector>
-#include <QTextCursor>
 #include <QColor>
+#include <QList>
+#include <QObject>
+#include <QTextCursor>
 
 QT_FORWARD_DECLARE_CLASS(QWidget)
 QT_FORWARD_DECLARE_CLASS(QPainterPath)

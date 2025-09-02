@@ -13,17 +13,15 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
-#include <remotelinux/remotelinux_constants.h>
-
 #include <utils/filestreamer.h>
 
 using namespace ProjectExplorer;
-using namespace RemoteLinux;
 using namespace Tasking;
 using namespace Utils;
 
@@ -51,7 +49,7 @@ public:
             if (customizeStep.value())
                 return;
 
-            const TargetInformation targetInformation(target());
+            const TargetInformation targetInformation(buildConfiguration());
 
             packageFilePath.setValue(targetInformation.packageFilePath);
             packageFilePath.setDefaultValue(packageFilePath.value());
@@ -62,10 +60,13 @@ public:
             setStepEnabled(!targetInformation.isBuiltin);
         };
 
-        connect(target(), &Target::activeRunConfigurationChanged, this, updateAspects);
-        connect(target(), &Target::activeDeployConfigurationChanged, this, updateAspects);
-        connect(target(), &Target::parsingFinished, this, updateAspects);
-        connect(target(), &Target::runConfigurationsUpdated, this, updateAspects);
+        connect(buildConfiguration(), &BuildConfiguration::activeRunConfigurationChanged,
+                this, updateAspects);
+        connect(buildConfiguration(), &BuildConfiguration::activeDeployConfigurationChanged,
+                this, updateAspects);
+        connect(buildSystem(), &BuildSystem::parsingFinished, this, updateAspects);
+        connect(buildConfiguration(), &BuildConfiguration::runConfigurationsUpdated,
+                this, updateAspects);
         connect(project(), &Project::displayNameChanged, this, updateAspects);
         connect(&customizeStep, &BaseAspect::changed, this, updateAspects);
 
@@ -75,7 +76,7 @@ public:
 private:
     bool init() final
     {
-        return TargetInformation(target()).isValid();
+        return TargetInformation(buildConfiguration()).isValid();
     }
 
     GroupItem runRecipe() final
