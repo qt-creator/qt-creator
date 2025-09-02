@@ -2181,7 +2181,7 @@ foo::foo2::MyType<int> foo::foo2::bar()
             "template<bool B, class T = void> using enable_if_t = typename enable_if<B,T>::type;\n"
             "}\n"
             "struct S {\n"
-            "    template<typename T, std::enable_if_t<true, T>> void f@unc();\n"
+            "    template<typename T, std::enable_if_t<true, T> = true> void f@unc();\n"
             "};\n";
         const QByteArray expected =
             "namespace std {\n"
@@ -2190,7 +2190,7 @@ foo::foo2::MyType<int> foo::foo2::bar()
             "template<bool B, class T = void> using enable_if_t = typename enable_if<B,T>::type;\n"
             "}\n"
             "struct S {\n"
-            "    template<typename T, std::enable_if_t<true, T>> void func();\n"
+            "    template<typename T, std::enable_if_t<true, T> = true> void func();\n"
             "};\n\n"
             "template<typename T, std::enable_if_t<true, T>>\n"
             "void S::func()\n{\n\n"
