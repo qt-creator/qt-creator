@@ -395,7 +395,7 @@ FullySpecifiedType Bind::declarator(DeclaratorAST *ast, const FullySpecifiedType
     if (!type->asFunctionType()) {
         ExpressionTy initializer = this->expression(ast->initializer);
         if (cxx11Enabled && isAuto) {
-            if (initializer.type() && !initializer.type()->isUndefinedType())
+            if (ast->initializer)
                 type = initializer;
             type.setAuto(true);
         }
