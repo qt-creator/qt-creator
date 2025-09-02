@@ -775,7 +775,7 @@ void BuildConfiguration::updateDefaultRunConfigurations()
 
     // Make sure a configured RC will be active after we delete the RCs:
     RunConfiguration *active = activeRunConfiguration();
-    if (active && (removalList.contains(active) || !active->isEnabled(Constants::NORMAL_RUN_MODE))) {
+    if (active && removalList.contains(active)) {
         RunConfiguration *newConfiguredDefault = newConfigured.isEmpty() ? nullptr : newConfigured.at(0);
 
         RunConfiguration *rc = Utils::findOrDefault(existingConfigured, [](RunConfiguration *rc) {
