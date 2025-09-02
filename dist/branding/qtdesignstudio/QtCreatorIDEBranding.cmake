@@ -40,6 +40,7 @@ set(DESIGNSTUDIO_PLUGINS
     Insight
     LanguageClient
     McuSupport
+    MultiPropertyEditor
     ProjectExplorer
     QmakeProjectManager
     QmlDesigner
