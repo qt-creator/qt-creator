@@ -137,15 +137,14 @@ signals:
 
 private:
     virtual FileContainerProvider fileContainerProvider() const = 0;
-    void openEditor(Core::SearchResult *result, const Utils::SearchResultItem &item);
+    void openEditor(const Utils::SearchResultItem &item, const FileFindParameters &parameters);
     void doReplace(const QString &txt, const Utils::SearchResultItems &items, bool preserveCase);
     void hideHighlightAll(bool visible);
-    void searchAgain(Core::SearchResult *search);
     virtual void setupSearch(Core::SearchResult *search);
 
     void runNewSearch(const QString &txt, Utils::FindFlags findFlags,
                       Core::SearchResultWindow::SearchMode searchMode);
-    void runSearch(Core::SearchResult *search);
+    void runSearch(Core::SearchResult *search, const FileFindParameters &parameters);
 
     Internal::BaseFileFindPrivate *d;
 };

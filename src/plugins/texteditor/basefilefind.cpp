@@ -294,7 +294,7 @@ void BaseFileFind::setCurrentSearchEngine(int index)
 }
 
 void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
-                                    SearchResultWindow::SearchMode searchMode)
+                                SearchResultWindow::SearchMode searchMode)
 {
     d->m_currentFindSupport = nullptr;
     if (d->m_filterCombo)
@@ -322,23 +322,22 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
     parameters.editorOpener = searchEngine->editorOpener();
     parameters.searchExecutor = searchEngine->searchExecutor();
 
-    search->setUserData(QVariant::fromValue(parameters));
-    connect(search, &SearchResult::activated, this, [this, search](const SearchResultItem &item) {
-        openEditor(search, item);
+    connect(search, &SearchResult::activated, this, [this, parameters](const SearchResultItem &item) {
+        openEditor(item, parameters);
     });
     if (searchMode == SearchResultWindow::SearchAndReplace)
         connect(search, &SearchResult::replaceButtonClicked, this, &BaseFileFind::doReplace);
     connect(search, &SearchResult::visibilityChanged, this, &BaseFileFind::hideHighlightAll);
-    connect(search, &SearchResult::searchAgainRequested, this, [this, search] {
-        searchAgain(search);
+    connect(search, &SearchResult::searchAgainRequested, this, [this, search, parameters] {
+        search->restart();
+        runSearch(search, parameters);
     });
 
-    runSearch(search);
+    runSearch(search, parameters);
 }
 
-void BaseFileFind::runSearch(SearchResult *search)
+void BaseFileFind::runSearch(SearchResult *search, const FileFindParameters &parameters)
 {
-    const FileFindParameters parameters = search->userData().value<FileFindParameters>();
     SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch|IOutputPane::WithFocus));
     auto watcher = new QFutureWatcher<SearchResultItems>;
     watcher->setPendingResultsLimit(1);
@@ -510,9 +509,8 @@ void BaseFileFind::readCommonSettings(
     syncSearchEngineCombo(currentSearchEngineIndex);
 }
 
-void BaseFileFind::openEditor(SearchResult *result, const SearchResultItem &item)
+void BaseFileFind::openEditor(const SearchResultItem &item, const FileFindParameters &parameters)
 {
-    const FileFindParameters parameters = result->userData().value<FileFindParameters>();
     IEditor *openedEditor = parameters.editorOpener ? parameters.editorOpener(item, parameters)
                                                     : nullptr;
     if (!openedEditor)
@@ -533,12 +531,6 @@ void BaseFileFind::hideHighlightAll(bool visible)
 {
     if (!visible && d->m_currentFindSupport)
         d->m_currentFindSupport->clearHighlights();
-}
-
-void BaseFileFind::searchAgain(SearchResult *search)
-{
-    search->restart();
-    runSearch(search);
 }
 
 void BaseFileFind::setupSearch(SearchResult *search)
