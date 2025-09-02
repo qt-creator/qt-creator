@@ -258,7 +258,9 @@ void Project::handleKitRemoval(Kit *k)
 {
     for (const std::unique_ptr<Target> &target : d->m_targets) {
         if (k == target->kit()) {
+            d->m_vanishedTargets.append(target->toMap());
             removeTarget(target.get());
+            emit vanishedTargetsChanged();
             break;
         }
     }

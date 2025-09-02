@@ -19,17 +19,21 @@ class Project;
 
 namespace DevContainer {
 
+class ProgressPromise;
+using ProgressPtr = std::unique_ptr<ProgressPromise>;
+
 class Device : public ProjectExplorer::IDevice
 {
 public:
-    Device();
+    Device(ProjectExplorer::Project *project);
     ~Device();
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
 
-    Utils::Result<> up(InstanceConfig instanceConfig, std::function<void(Utils::Result<>)> callback);
-
+    void up(InstanceConfig instanceConfig, std::function<void(Utils::Result<>)> callback);
     Utils::Result<> down();
+
+    void restart(std::function<void(Utils::Result<>)> callback);
 
     Utils::ProcessInterface *createProcessInterface() const override;
 
@@ -49,12 +53,23 @@ public: // FilePath stuff
     Utils::FilePath rootPath() const override;
 
 private:
+    void onConfigChanged();
+    Tasking::Group upRecipe(
+        InstanceConfig instanceConfig, Tasking::Storage<ProgressPtr> progressStorage);
+    Tasking::Group downRecipe();
+
+private:
     Utils::Process::ProcessInterfaceCreator m_processInterfaceCreator;
     InstanceConfig m_instanceConfig;
     std::unique_ptr<CmdBridge::FileAccess> m_fileAccess;
     std::optional<Utils::Environment> m_systemEnvironment;
     std::optional<Tasking::ExecutableItem> m_downRecipe;
     Tasking::ParallelTaskTreeRunner m_taskTreeRunner;
+
+    std::unique_ptr<Utils::FilePathWatcher> m_devContainerJsonWatcher;
+    std::unique_ptr<Utils::FilePathWatcher> m_dockerFileWatcher;
+
+    QPointer<ProjectExplorer::Project> m_project;
 };
 
 } // namespace DevContainer

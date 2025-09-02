@@ -22,14 +22,18 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/target.h>
 
 #include <tasking/conditional.h>
 
 #include <utils/algorithm.h>
+#include <utils/infobar.h>
 
 #include <tasking/conditional.h>
 
 #include <QLoggingCategory>
+#include <QMessageBox>
 #include <QProgressDialog>
 
 Q_LOGGING_CATEGORY(devContainerDeviceLog, "qtc.devcontainer.device", QtWarningMsg)
@@ -40,7 +44,8 @@ using namespace Utils;
 
 namespace DevContainer {
 
-Device::Device()
+Device::Device(Project *project)
+    : m_project(project)
 {
     setDisplayType(Tr::tr("Development Container"));
     setOsType(OsTypeLinux);
@@ -81,8 +86,7 @@ public:
     ProgressPromise(TaskTree &tree, const QString title, Id id)
     {
         Core::FutureProgress *futureProgress = Core::ProgressManager::addTask(future(), title, id);
-        QObject::connect(
-            futureProgress, &Core::FutureProgress::canceled, &tree, &TaskTree::cancel);
+        QObject::connect(futureProgress, &Core::FutureProgress::canceled, &tree, &TaskTree::cancel);
 
         addSource(tree);
         start();
@@ -141,8 +145,6 @@ private:
     const FilePath m_workspaceFolderMountPoint;
 };
 
-using ProgressPtr = std::unique_ptr<ProgressPromise>;
-
 static auto setupProgress(const Storage<ProgressPtr> &progressStorage, const QString &title, Id id)
 {
     return [progressStorage, title, id](TaskTree &taskTree) {
@@ -155,14 +157,49 @@ static auto setupProgress(const Storage<ProgressPtr> &progressStorage, const QSt
     };
 }
 
-Result<> Device::up(InstanceConfig instanceConfig, std::function<void(Result<>)> callback)
+void Device::onConfigChanged()
 {
-    m_instanceConfig = instanceConfig;
-    m_processInterfaceCreator = nullptr;
-    m_fileAccess.reset();
-    m_systemEnvironment.reset();
-    m_downRecipe.reset();
+    const Id infoBarId = Id("DevContainer.Reload.InfoBar.")
+                             .withSuffix(m_instanceConfig.workspaceFolder.toUrlishString());
 
+    InfoBarEntry entry{infoBarId, Tr::tr("Would you like to rebuild the device?")};
+
+    InfoBar *infoBar = Core::ICore::popupInfoBar();
+    entry.setTitle(Tr::tr("DevContainer configuration has changed"));
+    entry.setInfoType(InfoLabel::Information);
+
+    entry.addCustomButton(
+        Tr::tr("Rebuild"),
+        [this, infoBarId, infoBar] {
+            infoBar->removeInfo(infoBarId);
+
+            auto oldLogFunction = m_instanceConfig.logFunction;
+            std::shared_ptr<QString> log = std::make_shared<QString>();
+            m_instanceConfig.logFunction = [oldLogFunction, log](const QString &message) {
+                *log += message + '\n';
+                oldLogFunction(message);
+            };
+
+            restart([this, log, oldLogFunction](Result<> result) {
+                m_instanceConfig.logFunction = oldLogFunction;
+
+                if (!result) {
+                    QMessageBox box(Core::ICore::dialogParent());
+                    box.setWindowTitle(Tr::tr("DevContainer Error"));
+                    box.setIcon(QMessageBox::Critical);
+                    box.setText(result.error());
+                    box.setDetailedText(*log);
+                    box.exec();
+                }
+            });
+        },
+        Tr::tr("Rebuild and restart the DevContainer."));
+
+    infoBar->addInfo(entry);
+}
+
+Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progressStorage)
+{
     struct Options
     {
         bool mountLibExec = true;
@@ -175,13 +212,35 @@ Result<> Device::up(InstanceConfig instanceConfig, std::function<void(Result<>)>
 
     const Storage<std::shared_ptr<Instance>> instance;
     const Storage<Options> options;
-    const Storage<ProgressPtr> progressStorage;
 
     auto runningInstance = std::make_shared<DevContainer::RunningInstanceData>();
 
-    const auto loadConfig = [&instanceConfig, instance, options, this]() -> DoneResult {
-        const auto result = [&]() -> Result<> {
-            Result<Config> config = Instance::configFromFile(instanceConfig);
+    const auto init = [instanceConfig, this]() {
+        m_instanceConfig = instanceConfig;
+        m_processInterfaceCreator = nullptr;
+        m_fileAccess.reset();
+        m_systemEnvironment.reset();
+        m_downRecipe.reset();
+        m_dockerFileWatcher.reset();
+        m_devContainerJsonWatcher.reset();
+
+        instanceConfig.configFilePath.watch()
+            .and_then([this](std::unique_ptr<Utils::FilePathWatcher> jsonWatcher) {
+                connect(
+                    jsonWatcher.get(),
+                    &FilePathWatcher::pathChanged,
+                    this,
+                    &Device::onConfigChanged);
+                m_devContainerJsonWatcher = std::move(jsonWatcher);
+                return ResultOk;
+            })
+            .or_else(m_instanceConfig.logFunction);
+    };
+
+    const auto loadConfig = [instanceConfig, instance, options, this]() -> DoneResult {
+        const Result<> result = [&]() -> Result<> {
+            InstanceConfig modifiedConfig = instanceConfig;
+            Result<Config> config = Instance::configFromFile(modifiedConfig);
             if (!config)
                 return ResultError(config.error());
 
@@ -209,14 +268,15 @@ Result<> Device::up(InstanceConfig instanceConfig, std::function<void(Result<>)>
             options->autoDetectKits
                 = DevContainer::customization(*config, "qt-creator/auto-detect-kits").toBool(true);
 
-            instanceConfig.runProcessesInTerminal = options->runProcessesInTerminal;
+            modifiedConfig.runProcessesInTerminal = options->runProcessesInTerminal;
 
             if (options->mountLibExec) {
-                instanceConfig.mounts.push_back(Mount{
-                    .type = MountType::Bind,
-                    .source = Core::ICore::libexecPath().absoluteFilePath().path(),
-                    .target = options->libExecMountPoint,
-                });
+                modifiedConfig.mounts.push_back(
+                    Mount{
+                        .type = MountType::Bind,
+                        .source = Core::ICore::libexecPath().absoluteFilePath().path(),
+                        .target = options->libExecMountPoint,
+                    });
             }
 
             if (config->common.name)
@@ -226,8 +286,31 @@ Result<> Device::up(InstanceConfig instanceConfig, std::function<void(Result<>)>
                 [](const auto &containerConfig) { return containerConfig.workspaceFolder; },
                 *config->containerConfig);
 
+            if (config->containerConfig) {
+                if (std::holds_alternative<DockerfileContainer>(*config->containerConfig)) {
+                    const auto &dockerfileContainer = std::get<DockerfileContainer>(
+                        *config->containerConfig);
+
+                    const FilePath configFileDir = instanceConfig.configFilePath.parentDir();
+                    const FilePath dockerFile = configFileDir.resolvePath(
+                        dockerfileContainer.dockerfile);
+
+                    dockerFile.watch()
+                        .and_then([this](std::unique_ptr<Utils::FilePathWatcher> dockerWatcher) {
+                            connect(
+                                dockerWatcher.get(),
+                                &FilePathWatcher::pathChanged,
+                                this,
+                                &Device::onConfigChanged);
+                            m_dockerFileWatcher = std::move(dockerWatcher);
+                            return ResultOk;
+                        })
+                        .or_else(m_instanceConfig.logFunction);
+                }
+            }
+
             Result<std::unique_ptr<Instance>> instanceResult
-                = DevContainer::Instance::fromConfig(*config, instanceConfig);
+                = DevContainer::Instance::fromConfig(*config, modifiedConfig);
             if (!instanceResult)
                 return ResultError(instanceResult.error());
 
@@ -292,8 +375,8 @@ Result<> Device::up(InstanceConfig instanceConfig, std::function<void(Result<>)>
         return DoneResult::Success;
     };
 
-    const auto startDeviceTree =
-        [instance, instanceConfig, runningInstance, progressStorage](TaskTree &taskTree) -> SetupResult {
+    const auto startDeviceTree = [instance, instanceConfig, runningInstance, progressStorage](
+                                     TaskTree &taskTree) -> SetupResult {
         const Result<Group> devcontainerRecipe = (*instance)->upRecipe(runningInstance);
         if (!devcontainerRecipe) {
             instanceConfig.logFunction(
@@ -388,10 +471,26 @@ Result<> Device::up(InstanceConfig instanceConfig, std::function<void(Result<>)>
 
     const auto autoDetectKitsEnabled = [options] { return options->autoDetectKits; };
 
+    const auto restoreVanishedTargets = [this]() {
+        for (QMap<Utils::Key, QVariant> target : m_project->vanishedTargets()) {
+            const QString name = target.value(Target::displayNameKey()).toString();
+            auto kit = Utils::findOrDefault(KitManager::kits(), [this, &name](Kit *k) {
+                if (BuildDeviceKitAspect::device(k) != shared_from_this())
+                    return false;
+                return k->displayName() == name;
+            });
+
+            if (kit) {
+                if (m_project->copySteps(target, kit))
+                    m_project->removeVanishedTarget(target);
+            }
+        }
+    };
+
     // clang-format off
-    const Group recipe {
+    return Group {
         instance, options,
-        progressStorage,
+        Sync(init),
         Sync(loadConfig),
         TaskTreeTask(startDeviceTree, onDeviceStarted),
         Sync(setupProcessInterfaceCreator),
@@ -399,19 +498,52 @@ Result<> Device::up(InstanceConfig instanceConfig, std::function<void(Result<>)>
         TaskTreeTask(setupManualKits),
         If (autoDetectKitsEnabled) >> Then {
             kitDetectionRecipe(shared_from_this(), DetectionSource::Temporary, instanceConfig.logFunction)
-        }
+        },
+        Sync(restoreVanishedTargets)
     };
     // clang-format on
+}
 
+Group Device::downRecipe()
+{
+    if (!m_downRecipe)
+        return Group{};
+
+    // clang-format off
+    return Group {
+        Sync([this](){
+            m_processInterfaceCreator = nullptr;
+            m_fileAccess.reset();
+            m_systemEnvironment.reset();
+        }),
+        removeDetectedKitsRecipe(shared_from_this(), m_instanceConfig.logFunction),
+        *m_downRecipe
+    };
+    // clang-format on
+}
+
+void Device::up(InstanceConfig instanceConfig, std::function<void(Result<>)> callback)
+{
     const auto onDone = [callback](DoneWith doneWith) {
-        const Result<> result = (doneWith != DoneWith::Error) ? ResultOk
-            : ResultError(Tr::tr("Failed to start DevContainer, check General Messages for details"));
+        const Result<> result
+            = (doneWith != DoneWith::Error)
+                  ? ResultOk
+                  : ResultError(
+                        Tr::tr("Failed to start DevContainer, check General Messages for details"));
         callback(result);
     };
 
-    m_taskTreeRunner.start(recipe, setupProgress(progressStorage, Tr::tr("Starting DevContainer"),
-                                                 "DevContainer.Startup"), onDone);
-    return ResultOk;
+    const Storage<ProgressPtr> progressStorage;
+
+    Group recipe{
+        progressStorage,
+        upRecipe(instanceConfig, progressStorage),
+    };
+
+    m_taskTreeRunner.start(
+        recipe,
+        setupProgress(progressStorage, Tr::tr("Starting DevContainer"), "DevContainer.Startup"),
+        onDone);
 }
 
 Result<> Device::down()
@@ -419,19 +551,9 @@ Result<> Device::down()
     if (!m_downRecipe)
         return ResultError(Tr::tr("DevContainer is not running or has not been started."));
 
-    m_processInterfaceCreator = nullptr;
-    m_fileAccess.reset();
-    m_systemEnvironment.reset();
-
     const Storage<ProgressPtr> progressStorage;
 
-    // clang-format off
-    const Group recipe {
-        progressStorage,
-        removeDetectedKitsRecipe(shared_from_this(), m_instanceConfig.logFunction),
-        *m_downRecipe
-    };
-    // clang-format on
+    Group recipe{progressStorage, downRecipe()};
 
     if (ExtensionSystem::PluginManager::isShuttingDown()) {
         TaskTree taskTree;
@@ -445,9 +567,37 @@ Result<> Device::down()
                          Tr::tr("Failed to stop DevContainer, check General Messages for details"));
     }
 
-    m_taskTreeRunner.start(recipe, setupProgress(progressStorage, Tr::tr("Stopping DevContainer"),
-                                                 "DevContainer.Shutdown"));
+    m_taskTreeRunner.start(
+        recipe,
+        setupProgress(progressStorage, Tr::tr("Stopping DevContainer"), "DevContainer.Shutdown"));
     return ResultOk;
+}
+
+void Device::restart(std::function<void(Result<>)> callback)
+{
+    const Storage<ProgressPtr> progressStorage;
+
+    const auto onDone = [callback](DoneWith doneWith) {
+        const Result<> result
+            = (doneWith != DoneWith::Error)
+                  ? ResultOk
+                  : ResultError(
+                        Tr::tr("Failed to start DevContainer, check General Messages for details"));
+        callback(result);
+    };
+
+    // clang-format off
+    Group recipe {
+        progressStorage,
+        downRecipe(),
+        upRecipe(m_instanceConfig, progressStorage),
+    };
+    // clang-format on
+
+    m_taskTreeRunner.start(
+        recipe,
+        setupProgress(progressStorage, Tr::tr("Restarting DevContainer"), "DevContainer.Restart"),
+        onDone);
 }
 
 FilePath Device::rootPath() const

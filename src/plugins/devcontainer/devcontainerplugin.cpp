@@ -254,29 +254,15 @@ void DevContainerPlugin::startDeviceForProject(
         Core::MessageManager::writeSilently(message);
     };
 
-    std::shared_ptr<Device> device = std::make_shared<DevContainer::Device>();
+    std::shared_ptr<Device> device = std::make_shared<DevContainer::Device>(project);
     device->setDisplayName(Tr::tr("DevContainer for %1").arg(project->displayName()));
     DeviceManager::addDevice(device);
 
     const auto onDone = Utils::guardedCallback(&guard, [this, project, log, device](Result<> result) {
         if (result) {
             devices.insert({project, device});
-
-            for (auto target : project->vanishedTargets()) {
-                const QString name = target.value(Target::displayNameKey()).toString();
-                auto kit = Utils::findOrDefault(KitManager::kits(), [&device, &name](Kit *k) {
-                    if (BuildDeviceKitAspect::device(k) != device)
-                        return false;
-                    return k->displayName() == name;
-                });
-
-                if (kit) {
-                    if (project->copySteps(target, kit))
-                        project->removeVanishedTarget(target);
-                }
-            }
-
             log->clear();
+
 #ifdef WITH_TESTS
             emit deviceUpDone();
 #endif
@@ -299,13 +285,7 @@ void DevContainerPlugin::startDeviceForProject(
         log->clear();
     });
 
-    Result<> result = device->up(instanceConfig, onDone);
-
-    if (!result) {
-        QMessageBox::critical(
-            Core::ICore::dialogParent(), Tr::tr("DevContainer Error"), result.error());
-        DeviceManager::removeDevice(device->id());
-    }
+    device->up(instanceConfig, onDone);
 }
 
 } // namespace DevContainer::Internal
