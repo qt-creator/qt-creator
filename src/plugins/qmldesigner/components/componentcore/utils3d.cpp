@@ -255,8 +255,8 @@ void createMatLibForFile(const QString &fileName,
     Imports imports;
     for (const auto &[path, kind] : moduleInfos.asKeyValueRange()) {
         if (kind == ModuleKind::PathLibrary) {
-            imports.append(Import::createFileImport(Utils::FilePath::calcRelativePath(
-                path, file.parentDir().path())));
+            imports.append(Import::createFileImport(
+                Utils::FilePath::fromString(path).relativePathFromDir(file.parentDir()).path()));
         } else {
             imports.append(Import::createLibraryImport(path));
         }
