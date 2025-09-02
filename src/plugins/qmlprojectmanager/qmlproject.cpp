@@ -122,11 +122,16 @@ void QmlProject::openStartupQmlFile()
     if (!qmlBuildSystem)
         return;
 
-    disconnect(this, &QmlProject::activeBuildConfigurationChanged, this, &QmlProject::openStartupQmlFile);
+    disconnect(ProjectManager::instance(),
+               &ProjectManager::projectAdded,
+               this,
+               &QmlProject::openStartupQmlFile);
 
     const Utils::FilePath fileToOpen = qmlBuildSystem->getStartupQmlFileWithFallback();
-    if (!fileToOpen.isEmpty() && fileToOpen.exists() && !fileToOpen.isDir())
-        Core::EditorManager::openEditor(fileToOpen, Utils::Id());
+    QTimer::singleShot(0, qmlBuildSystem, [fileToOpen]() {
+        if (!fileToOpen.isEmpty() && fileToOpen.exists() && !fileToOpen.isDir())
+            Core::EditorManager::openEditor(fileToOpen, Utils::Id());
+    });
 }
 
 void QmlProject::parsingFinished(bool success)
@@ -141,7 +146,10 @@ void QmlProject::parsingFinished(bool success)
         openStartupQmlFile();
         return;
     }
-    connect(this, &QmlProject::activeBuildConfigurationChanged, this, &QmlProject::openStartupQmlFile);
+    connect(ProjectManager::instance(),
+            &ProjectManager::projectAdded,
+            this,
+            &QmlProject::openStartupQmlFile);
 }
 
 Project::RestoreResult QmlProject::fromMap(const Store &map, QString *errorMessage)
