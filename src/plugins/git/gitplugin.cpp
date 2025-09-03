@@ -1335,7 +1335,7 @@ void GitPluginPrivate::unstageFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    gitClient().synchronousReset(state.currentFileTopLevel(), {state.relativeCurrentFile()});
+    gitClient().reset(state.currentFileTopLevel(), {state.relativeCurrentFile()});
 }
 
 void GitPluginPrivate::gitkForCurrentFile()

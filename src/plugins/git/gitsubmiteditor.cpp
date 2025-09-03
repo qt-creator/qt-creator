@@ -301,7 +301,7 @@ void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAct
         break;
 
     case FileUnstage:
-        gitClient().synchronousReset(m_workingDirectory, {filePath.toUrlishString()});
+        gitClient().reset(m_workingDirectory, {filePath.toUrlishString()});
         refresh = true;
         break;
 
