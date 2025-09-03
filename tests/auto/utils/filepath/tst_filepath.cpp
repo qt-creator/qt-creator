@@ -152,6 +152,7 @@ private slots:
     void parentsWithDrive();
     void parentsWithUncPath();
     void parentsWithLastPath();
+    void exists();
 
 private:
     QTemporaryDir tempDir;
@@ -2210,6 +2211,21 @@ void tst_filepath::parentsWithLastPath()
     QCOMPARE(*it, FilePath::fromUserInput("/"));
     ++it;
     QCOMPARE(it, std::end(emptyLast));
+}
+
+void tst_filepath::exists()
+{
+    const Result<FilePath> tmpPath = FilePath().tmpDir();
+    QVERIFY_RESULT(tmpPath);
+
+    const FilePath pattern = tmpPath.value() / "test.XXXXXXXXXXX";
+
+    const Result<FilePath> resultPath = pattern.createTempFile();
+    QVERIFY_RESULT(resultPath);
+
+    QVERIFY(resultPath->exists());
+    QVERIFY_RESULT(resultPath->removeFile());
+    QVERIFY(!resultPath->exists());
 }
 
 } // Utils
