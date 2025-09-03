@@ -579,12 +579,12 @@ class WorkspaceProject : public Project
 {
     Q_OBJECT
 public:
-    WorkspaceProject(const FilePath file)
+    WorkspaceProject(const FilePath file, const QJsonObject defaultConfiguration = QJsonObject())
     : Project(FOLDER_MIMETYPE, file.isDir() ? file / ".qtcreator" / "project.json" : file)
     {
         QTC_CHECK(projectFilePath().absolutePath().ensureWritableDir());
         if (!projectFilePath().exists() && QTC_GUARD(projectFilePath().ensureExistingFile())) {
-            QJsonObject projectJson;
+            QJsonObject projectJson = defaultConfiguration;
             projectJson.insert("$schema", "https://download.qt.io/official_releases/qtcreator/latest/installer_source/jsonschemas/project.json");
             projectJson.insert(FILES_EXCLUDE_KEY, QJsonArray{QJsonValue(".qtcreator/project.json.user")});
             projectFilePath().writeFileContents(QJsonDocument(projectJson).toJson());
