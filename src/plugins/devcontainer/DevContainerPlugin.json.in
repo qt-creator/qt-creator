@@ -30,7 +30,7 @@
                             "devcontainer.json",
                             ".devcontainer.json"
                         ],
-                        "url": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.base.schema.json"
+                        "url": "https://raw.githubusercontent.com/qt-creator/devcontainer-spec/main/schemas/devContainer.schema.json"
                     }
                 ]
             }
