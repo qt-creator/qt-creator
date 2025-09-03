@@ -32,6 +32,8 @@ QtcPlugin {
         name: "images"
         files: [
             "images/glslfile.png",
+            "images/vulkan.png",
+            "images/vulkan@2x.png",
         ]
         fileTags: "qt.core.resource_data"
     }

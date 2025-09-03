@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "glsleditor.h"
+
 #include "glslautocompleter.h"
 #include "glslcompletionassist.h"
 #include "glsleditorconstants.h"
@@ -37,6 +38,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/changeset.h>
+#include <utils/icon.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
@@ -210,6 +212,12 @@ static const InitFile *shaderInit(int variant)
     return &glsl_es_100_common;
 }
 
+static const InitFile *vulkanInit(int /*variant*/)
+{
+    static InitFile glsl_vulkan{"glsl_vulkan.glsl"};
+    return &glsl_vulkan;
+}
+
 class CreateRanges: protected Visitor
 {
     QTextDocument *textDocument;
@@ -234,6 +242,8 @@ protected:
         }
     }
 };
+
+static Utils::Icon vulkanIcon({{":/glsleditor/images/vulkan.png", Utils::Theme::IconsBaseColor}});
 
 //
 //  GlslEditorWidget
@@ -260,6 +270,7 @@ private:
 
     QTimer m_updateDocumentTimer;
     QComboBox *m_outlineCombo = nullptr;
+    QToolButton *m_vulkanSupport = nullptr;
     Document::Ptr m_glslDocument;
 };
 
@@ -293,8 +304,21 @@ GlslEditorWidget::GlslEditorWidget()
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_outlineCombo->setSizePolicy(policy);
 
-    insertExtraToolBarWidget(TextEditorWidget::Left, m_outlineCombo);
+    m_vulkanSupport = new QToolButton;
+    m_vulkanSupport->setCheckable(true);
+    m_vulkanSupport->setChecked(true);
+    m_vulkanSupport->setIcon(vulkanIcon.icon());
+    m_vulkanSupport->setToolTip(Tr::tr("Vulkan support enabled"));
 
+    insertExtraToolBarWidget(TextEditorWidget::Left, m_outlineCombo);
+    insertExtraToolBarWidget(TextEditorWidget::Right, m_vulkanSupport);
+
+    connect(m_vulkanSupport, &QToolButton::clicked,
+            this, [this](bool checked) {
+        m_vulkanSupport->setToolTip(checked ? Tr::tr("Vulkan support enabled")
+                                            : Tr::tr("Vulkan support disabled"));
+        m_updateDocumentTimer.start();
+    });
     connect(this, &TextEditorWidget::tooltipRequested, this, &GlslEditorWidget::onTooltipRequested);
 }
 
@@ -332,13 +356,17 @@ void GlslEditorWidget::updateDocumentNow()
     int variant = languageVariant(textDocument()->mimeType());
     const QString contents = toPlainText(); // get the code from the editor
     int version = versionFor(contents);
-    if (version >= 330)
+    if (version >= 330) {
         variant |= GLSL::Lexer::Variant_GLSL_400;
+        if (m_vulkanSupport->isChecked())
+            variant |= GLSL::Lexer::Variant_Vulkan;
+    }
 
     const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
 
     Document::Ptr doc(new Document());
     doc->_currentGlslVersion = version;
+    doc->_vulkanEnabled = m_vulkanSupport->isChecked();
     doc->_engine = new Engine();
     Parser parser(doc->_engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
 
@@ -355,6 +383,10 @@ void GlslEditorWidget::updateDocumentNow()
         }
         if (variant & Lexer::Variant_FragmentShader) {
             file = fragmentShaderInit(variant);
+            sem.translationUnit(file->ast(), globalScope, file->engine());
+        }
+        if (variant & Lexer::Variant_Vulkan) {
+            file = vulkanInit(variant);
             sem.translationUnit(file->ast(), globalScope, file->engine());
         }
         sem.translationUnit(ast, globalScope, doc->_engine);

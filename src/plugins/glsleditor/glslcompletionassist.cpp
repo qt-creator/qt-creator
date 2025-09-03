@@ -439,8 +439,12 @@ IAssistProposal *GlslCompletionAssistProcessor::performAsync()
 
  //       if (m_keywordVariant != languageVariant(interface->mimeType())) {
             int langVar = languageVariant(interface->mimeType());
-            if (interface->glslDocument()->currentGlslVersion() >= 330)
+            const int currentGLSLVersion = interface->glslDocument()->currentGlslVersion();
+            if (currentGLSLVersion >= 330) {
                 langVar |= GLSL::Lexer::Variant_GLSL_400;
+                if (interface->glslDocument()->vulkanEnabled())
+                    langVar |= GLSL::Lexer::Variant_Vulkan;
+            }
             QStringList keywords = GLSL::Lexer::keywords(langVar);
 //            m_keywordCompletions.clear();
             for (int index = 0; index < keywords.size(); ++index)

@@ -37,6 +37,8 @@ public:
     void addRange(const QTextCursor &cursor, GLSL::Scope *scope);
 
     int currentGlslVersion() const { return _currentGlslVersion; }
+    bool vulkanEnabled() const { return _vulkanEnabled; }
+
 private:
     struct Range {
         QTextCursor cursor;
@@ -49,6 +51,7 @@ private:
     QList<Range> _cursors;
 
     int _currentGlslVersion = -1;
+    bool _vulkanEnabled = false;
 
     friend class GlslEditorWidget;
 };
