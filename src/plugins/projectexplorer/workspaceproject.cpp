@@ -43,6 +43,7 @@ Q_LOGGING_CATEGORY(wsp, "qtc.projectexplorer.workspace.project", QtWarningMsg);
 
 const QLatin1StringView FOLDER_MIMETYPE{"inode/directory"};
 const QLatin1StringView WORKSPACE_MIMETYPE{"text/x-workspace-project"};
+const QLatin1StringView CARGO_TOML_MIMETYPE{"text/x-cargo-toml"};
 const char WORKSPACE_PROJECT_ID[] = "ProjectExplorer.WorkspaceProject";
 const char WORKSPACE_PROJECT_RUNCONFIG_ID[] = "WorkspaceProject.RunConfiguration:";
 
@@ -693,10 +694,48 @@ public:
     }
 };
 
+static QJsonObject defaultCargoJson()
+{
+    static QJsonObject result = QJsonDocument::fromJson(R"(
+    {
+        "build.configuration": [
+            {
+                "name": "cargo build",
+                    "steps": [
+                        {
+                            "executable": "cargo",
+                            "arguments": ["build"],
+                            "workingDirectory": "%{ActiveProject:ProjectDirectory}"
+                        }
+                    ]
+            }
+        ],
+        "targets": [
+            {
+                "name": "cargo run",
+                "executable": "cargo",
+                "arguments": ["run"],
+                "workingDirectory": "%{ActiveProject:ProjectDirectory}"
+            }
+        ]
+    })").object();
+    return result;
+}
+
+class CargoProject : public WorkspaceProject
+{
+public:
+    CargoProject(const FilePath &file)
+        : WorkspaceProject(file.parentDir(), defaultCargoJson())
+    {
+    }
+};
+
 void setupWorkspaceProject(QObject *guard)
 {
     ProjectManager::registerProjectType<WorkspaceProject>(FOLDER_MIMETYPE);
     ProjectManager::registerProjectType<WorkspaceProject>(WORKSPACE_MIMETYPE);
+    ProjectManager::registerProjectType<CargoProject>(CARGO_TOML_MIMETYPE);
 
     QAction *excludeAction = nullptr;
     ActionBuilder(guard, EXCLUDE_ACTION_ID)

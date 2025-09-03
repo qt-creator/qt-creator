@@ -48,6 +48,12 @@
         "        <glob pattern='project.json' weight='100'/>",
         "    </mime-type>",
 
+        "    <mime-type type='text/x-cargo-toml'>",
+        "        <sub-class-of type='application/toml'/>",
+        "        <comment>cargo TOML project file</comment>",
+        "        <glob pattern='Cargo.toml'/>",
+        "    </mime-type>",
+
         "</mime-info>"
     ]
 }
