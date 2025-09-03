@@ -4,6 +4,8 @@
 #include <utils/filepath.h>
 #include <utils/stringutils.h>
 
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QTest>
 
 //TESTED_COMPONENT=src/libs/utils
@@ -38,6 +40,7 @@ private slots:
     void testRemoveExtraCommasFromJson_data();
     void testCleanJson();
     void testCleanJson_data();
+    void testApplyJsonPatch();
 };
 
 void tst_StringUtils::testCleanJson_data()
@@ -80,6 +83,31 @@ void tst_StringUtils::testCleanJson()
 
     QByteArray result = cleanJson(input);
     QCOMPARE(result, expected);
+}
+
+void tst_StringUtils::testApplyJsonPatch()
+{
+    QString targetJson = R"json({"v1":1,"v2":{"v21":1,"v22":2},"v3":{},"v4":[1,2],"v5":{}})json";
+    QString patchJson
+        = R"json({"v1":2,"v2":{"v21":2},"v4":[1,2,3],"v5":{},"v6":{"v61":[1,2],"v62":"1"}})json";
+    QString expectedJson
+        = R"json({"v1":2,"v2":{"v21":2,"v22":2},"v3":{},"v4":[1,2,1,2,3],"v5":{},"v6":{"v61":[1,2],"v62":"1"}})json";
+
+    QJsonDocument targetDoc = QJsonDocument::fromJson(targetJson.toUtf8());
+    QJsonDocument patchDoc = QJsonDocument::fromJson(patchJson.toUtf8());
+    QJsonValue target = targetDoc.object();
+    QJsonValue patch = patchDoc.object();
+
+    applyJsonPatch(target, patch);
+
+    QJsonDocument resultDoc = QJsonDocument(target.toObject());
+    QCOMPARE(resultDoc.toJson(QJsonDocument::Compact), expectedJson.toUtf8());
+
+    // Empty value should not change target ...
+    target = targetDoc.object();
+    applyJsonPatch(target, QJsonValue());
+    resultDoc = QJsonDocument(target.toObject());
+    QCOMPARE(resultDoc.toJson(QJsonDocument::Compact), targetJson.toUtf8());
 }
 
 void tst_StringUtils::testRemoveExtraCommasFromJson_data()

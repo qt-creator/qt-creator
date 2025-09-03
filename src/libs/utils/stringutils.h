@@ -45,6 +45,8 @@ QTCREATOR_UTILS_EXPORT QByteArray removeExtraCommasFromJson(const QByteArray &js
 QTCREATOR_UTILS_EXPORT QByteArray removeCommentsFromJson(const QByteArray &json);
 QTCREATOR_UTILS_EXPORT QByteArray cleanJson(const QByteArray &json);
 
+QTCREATOR_UTILS_EXPORT void applyJsonPatch(QJsonValue &target, const QJsonValue &patch);
+
 // Compare case insensitive and use case sensitive comparison in case of that being equal.
 QTCREATOR_UTILS_EXPORT int caseFriendlyCompare(const QString &a, const QString &b);
 

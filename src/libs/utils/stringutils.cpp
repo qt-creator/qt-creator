@@ -18,6 +18,7 @@
 #include <QDir>
 #include <QFontMetrics>
 #include <QJsonArray>
+#include <QJsonObject>
 #include <QJsonValue>
 #include <QLocale>
 #include <QPalette>
@@ -202,6 +203,41 @@ QTCREATOR_UTILS_EXPORT QByteArray removeCommentsFromJson(const QByteArray &input
 QTCREATOR_UTILS_EXPORT QByteArray cleanJson(const QByteArray &json)
 {
     return removeExtraCommasFromJson(removeCommentsFromJson(json));
+}
+
+QTCREATOR_UTILS_EXPORT void applyJsonPatch(QJsonValue &target, const QJsonValue &patch)
+{
+    if (patch.isNull())
+        return;
+
+    if (patch.type() != target.type()) {
+        target = patch;
+        return;
+    }
+
+    if (patch.isObject()) {
+        QJsonObject targetObject = target.toObject();
+        QJsonObject patchObject = patch.toObject();
+
+        for (auto itPatchChild = patchObject.constBegin(); itPatchChild != patchObject.constEnd();
+             ++itPatchChild) {
+            QJsonValue targetChildValue = targetObject.value(itPatchChild.key());
+            applyJsonPatch(targetChildValue, itPatchChild.value());
+            targetObject.insert(itPatchChild.key(), targetChildValue);
+        }
+
+        target = targetObject;
+    } else if (patch.isArray()) {
+        QJsonArray targetArray = target.toArray();
+        const QJsonArray patchArray = patch.toArray();
+
+        for (const QJsonValue &patchValue : patchArray)
+            targetArray.append(patchValue);
+
+        target = targetArray;
+    } else {
+        target = patch;
+    }
 }
 
 QTCREATOR_UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString *out)
