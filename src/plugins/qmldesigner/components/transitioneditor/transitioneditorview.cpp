@@ -198,7 +198,7 @@ void addAnimationsToTransition(const ModelNode &transition, const QHash<QString,
 
     auto view = transition.view();
     for (auto it = idPropertyList.cbegin(); it != idPropertyList.cend(); ++it) {
-        ModelNode parallelAnimation = view->createModelNode("QtQuick.ParallelAnimation");
+        ModelNode parallelAnimation = view->createModelNode("ParallelAnimation");
         transition.defaultNodeAbstractProperty().reparentHere(parallelAnimation);
         for (const QString &property : it.value()) {
             ModelNode sequentialAnimation = view->createModelNode(

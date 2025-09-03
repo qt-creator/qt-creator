@@ -232,10 +232,7 @@ void QmlTimelineKeyframeGroup::setValue(const QVariant &value, qreal currentFram
                                                                  QVariant(currentFrame)},
                                                                 {PropertyName("value"), value}};
 
-    ModelNode frame = modelNode().view()->createModelNode("QtQuick.Timeline.Keyframe",
-                                                          1,
-                                                          0,
-                                                          propertyPairList);
+    ModelNode frame = modelNode().view()->createModelNode("Keyframe", 1, 0, propertyPairList);
     NodeListProperty nodeListProperty = modelNode().defaultNodeListProperty();
 
     const int sourceIndex = nodeListProperty.count();
