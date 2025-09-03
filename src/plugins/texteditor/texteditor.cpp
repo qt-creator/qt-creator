@@ -7114,11 +7114,16 @@ void TextEditorWidgetPrivate::updateCurrentLineInScrollbar()
         m_highlightScrollBarController->removeHighlights(Constants::SCROLL_BAR_CURRENT_LINE);
         for (const QTextCursor &tc : m_cursors) {
             if (QTextLayout *layout = q->editorLayout()->blockLayout(tc.block())) {
-                const int pos = q->editorLayout()->firstLineNumberOf(tc.block()) +
+                const int line = q->editorLayout()->firstLineNumberOf(tc.block()) +
                         layout->lineForTextPosition(tc.positionInBlock()).lineNumber();
-                m_highlightScrollBarController->addHighlight({Constants::SCROLL_BAR_CURRENT_LINE, pos,
-                                                              Theme::TextEditor_CurrentLine_ScrollBarColor,
-                                                              Highlight::HighestPriority});
+                const int pos = q->editorLayout()->offsetForLine(line);
+                const int lineSpacing = q->editorLayout()->lineSpacing();
+                m_highlightScrollBarController->addHighlight(
+                    {Constants::SCROLL_BAR_CURRENT_LINE,
+                     pos,
+                     lineSpacing,
+                     Theme::TextEditor_CurrentLine_ScrollBarColor,
+                     Highlight::HighestPriority});
             }
         }
     }
@@ -8269,7 +8274,6 @@ void TextEditorWidgetPrivate::adjustScrollBarRanges()
     if (lineSpacing == 0)
         return;
 
-    m_highlightScrollBarController->setLineHeight(lineSpacing);
     m_highlightScrollBarController->setVisibleRange(q->viewport()->rect().height());
     m_highlightScrollBarController->setMargin(q->textDocument()->document()->documentMargin());
 }
@@ -8356,17 +8360,27 @@ void TextEditorWidgetPrivate::addSearchResultsToScrollBar(
     for (const SearchResult &result : results) {
         const QTextBlock &block = q->document()->findBlock(result.start);
         if (block.isValid() && block.isVisible()) {
+            const int lineSpacing = q->editorLayout()->lineSpacing();
             if (q->lineWrapMode() == PlainTextEdit::WidgetWidth) {
                 auto blockLayout = q->editorLayout()->blockLayout(block);
-                const int firstLine = blockLayout->lineForTextPosition(result.start - block.position()).lineNumber();
-                const int lastLine = blockLayout->lineForTextPosition(result.start - block.position() + result.length).lineNumber();
-                for (int line = firstLine; line <= lastLine; ++line) {
-                    m_highlightScrollBarController->addHighlight(
-                        {category, q->editorLayout()->firstLineNumberOf(block) + line, color, prio});
-                }
+                auto blockLine = q->editorLayout()->firstLineNumberOf(block);
+                const int firstLine
+                    = blockLayout->lineForTextPosition(result.start - block.position()).lineNumber();
+                const int pos = q->editorLayout()->offsetForLine(
+                    firstLine + blockLine);
+                const int lastLine = blockLayout
+                                         ->lineForTextPosition(
+                                             result.start - block.position() + result.length)
+                                         .lineNumber();
+                const int length = q->editorLayout()->offsetForLine(
+                                       lastLine + blockLine)
+                                   - pos + lineSpacing;
+                m_highlightScrollBarController->addHighlight({category, pos, length, color, prio});
             } else {
+                const int firstLine = q->editorLayout()->firstLineNumberOf(block);
+                const int pos = q->editorLayout()->offsetForLine(firstLine);
                 m_highlightScrollBarController->addHighlight(
-                    {category, q->editorLayout()->firstLineNumberOf(block), color, prio});
+                    {category, pos, lineSpacing, color, prio});
             }
         }
     }
@@ -8390,14 +8404,6 @@ void TextEditorWidgetPrivate::addSelectionHighlightToScrollBar(const QList<Searc
         Highlight::NormalPriority);
 }
 
-Highlight markToHighlight(TextMark *mark, int lineNumber)
-{
-    return Highlight(mark->category().id,
-                     lineNumber,
-                     mark->color().value_or(Utils::Theme::TextColorNormal),
-                     textMarkPrioToScrollBarPrio(mark->priority()));
-}
-
 void TextEditorWidgetPrivate::updateHighlightScrollBarNow()
 {
     m_scrollBarUpdateScheduled = false;
@@ -8414,6 +8420,17 @@ void TextEditorWidgetPrivate::updateHighlightScrollBarNow()
     // update search selection
     addSelectionHighlightToScrollBar(m_selectionResults);
 
+    auto markToHighlight = [&](TextMark *mark, const QTextBlock &block) {
+        const int line = q->editorLayout()->firstLineNumberOf(block);
+        const int pos = q->editorLayout()->offsetForLine(line);
+        const int lineSpacing = q->editorLayout()->lineSpacing();
+        return Highlight(mark->category().id,
+                         pos,
+                         lineSpacing,
+                         mark->color().value_or(Utils::Theme::TextColorNormal),
+                         textMarkPrioToScrollBarPrio(mark->priority()));
+    };
+
     // update text marks
     const TextMarks marks = m_document->marks();
     for (TextMark *mark : marks) {
@@ -8421,7 +8438,7 @@ void TextEditorWidgetPrivate::updateHighlightScrollBarNow()
             continue;
         const QTextBlock &block = q->document()->findBlockByNumber(mark->lineNumber() - 1);
         if (block.isVisible())
-            m_highlightScrollBarController->addHighlight(markToHighlight(mark, q->editorLayout()->firstLineNumberOf(block)));
+            m_highlightScrollBarController->addHighlight(markToHighlight(mark, block));
     }
 }
 
