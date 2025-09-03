@@ -290,11 +290,6 @@ FilePath BuildConfiguration::buildDirectory() const
     return project()->projectDirectory().resolvePath(path);
 }
 
-FilePath BuildConfiguration::rawBuildDirectory() const
-{
-    return d->m_buildDirectoryAspect();
-}
-
 void BuildConfiguration::setBuildDirectory(const FilePath &dir)
 {
     if (dir == d->m_buildDirectoryAspect())
