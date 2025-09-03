@@ -10,7 +10,7 @@ QtcPlugin {
 
     files: [
         "extensionmanager.qrc",
-        "extensionmanager_global.h"
+        "extensionmanager_global.h",
         "extensionmanagerconstants.h",
         "extensionmanagerlegalnotice.cpp",
         "extensionmanagerlegalnotice.h",
