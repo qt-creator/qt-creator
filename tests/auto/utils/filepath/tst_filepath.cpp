@@ -153,6 +153,7 @@ private slots:
     void parentsWithUncPath();
     void parentsWithLastPath();
     void exists();
+    void isNewerThan();
 
 private:
     QTemporaryDir tempDir;
@@ -2226,6 +2227,23 @@ void tst_filepath::exists()
     QVERIFY(resultPath->exists());
     QVERIFY_RESULT(resultPath->removeFile());
     QVERIFY(!resultPath->exists());
+}
+
+void tst_filepath::isNewerThan()
+{
+    const QDateTime time = QDateTime::currentDateTime().addSecs(-1);
+
+    const Result<FilePath> tmpPath = FilePath().tmpDir();
+    QVERIFY_RESULT(tmpPath);
+
+    const FilePath pattern = (tmpPath.value() / "test.XXXXXXXXXXX");
+
+    const Result<FilePath> resultPath = pattern.createTempFile();
+    QVERIFY_RESULT(resultPath);
+
+    QVERIFY(resultPath->isNewerThan(time));
+    QVERIFY(!resultPath->isNewerThan(QDateTime::currentDateTime()));
+    QVERIFY(!resultPath->isNewerThan(resultPath->lastModified()));
 }
 
 } // Utils

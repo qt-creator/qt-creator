@@ -2417,7 +2417,7 @@ qint64 FilePath::bytesAvailable() const
 */
 bool FilePath::isNewerThan(const QDateTime &timeStamp) const
 {
-    if (!exists() || lastModified() >= timeStamp)
+    if (!exists() || lastModified() > timeStamp)
         return true;
     if (isDir()) {
         const FilePaths dirContents = dirEntries(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
