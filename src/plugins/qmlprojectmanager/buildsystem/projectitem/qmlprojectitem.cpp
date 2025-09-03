@@ -547,7 +547,7 @@ void QmlProjectItem::setEnablePythonGeneration(bool enable)
 
 bool QmlProjectItem::standaloneApp() const
 {
-    return m_project["deployment"].toObject()["standaloneApp"].toBool();
+    return m_project["deployment"].toObject()["standaloneApp"].toBool(true);
 }
 
 void QmlProjectItem::setStandaloneApp(bool value)
