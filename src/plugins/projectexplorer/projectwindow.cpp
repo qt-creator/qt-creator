@@ -623,6 +623,10 @@ public:
         QObject::connect(project, &Project::activeTargetChanged, &m_guard, [this] {
             announceChange();
         });
+
+        QObject::connect(project, &Project::addedTarget, &m_guard, [this] {
+            announceChange();
+        });
     }
 
     ~ProjectItem()
@@ -1566,14 +1570,9 @@ public:
         if (!projectItem)
             return;
 
-        m_targetsView->selectionModel()->clear();
-        QModelIndex sel;
         ProjectPanels panels;
-        if (ProjectItemBase *active = projectItem->activeItem()) {
-            sel = active->index();
+        if (ProjectItemBase *active = projectItem->activeItem())
             panels = active->panelWidgets();
-        }
-        m_targetsView->selectionModel()->select(sel, QItemSelectionModel::Select);
         setPanels(panels);
 
         m_targetsView->updateSize();
