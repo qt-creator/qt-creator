@@ -106,8 +106,18 @@ private:
     QObject guard;
 };
 
+Id instantiateInfoBarId(Project *project)
+{
+    return Id("DevContainer.Instantiate.InfoBar.")
+        .withSuffix(project->projectDirectory().toUrlishString());
+}
+
 void DevContainerPlugin::onProjectRemoved(Project *project)
 {
+    const Id infoBarId = instantiateInfoBarId(project);
+    InfoBar *infoBar = Core::ICore::popupInfoBar();
+    infoBar->removeInfo(infoBarId);
+
     auto it = devices.find(project);
     if (it == devices.end())
         return;
@@ -152,8 +162,10 @@ void DevContainerPlugin::onProjectAdded(Project *project)
         if (instanceConfigs.isEmpty())
             return;
 
-        const Id infoBarId = Id("DevContainer.Instantiate.InfoBar.")
-                                 .withSuffix(project->projectDirectory().toUrlishString());
+        const Id infoBarId = instantiateInfoBarId(project);
+
+        InfoBar *infoBar = Core::ICore::popupInfoBar();
+        infoBar->removeInfo(infoBarId);
 
         if (instanceConfigs.size() == 1) {
             InfoBarEntry entry(
@@ -161,7 +173,6 @@ void DevContainerPlugin::onProjectAdded(Project *project)
                 Tr::tr("Found Devcontainer in project, would you like to start it?"),
                 InfoBarEntry::GlobalSuppression::Enabled);
 
-            InfoBar *infoBar = Core::ICore::popupInfoBar();
             entry.setTitle(Tr::tr("Configure devcontainer?"));
             entry.setInfoType(InfoLabel::Information);
             entry.addCustomButton(
@@ -209,7 +220,6 @@ void DevContainerPlugin::onProjectAdded(Project *project)
 
         std::shared_ptr<InstanceConfig> selectedConfig = std::make_shared<InstanceConfig>(instanceConfigs.first());
 
-        InfoBar *infoBar = Core::ICore::popupInfoBar();
         entry.setTitle(Tr::tr("Configure devcontainer?"));
         entry.setInfoType(InfoLabel::Information);
         entry.setComboInfo(comboInfos, [selectedConfig](const InfoBarEntry::ComboInfo &comboInfo) {
