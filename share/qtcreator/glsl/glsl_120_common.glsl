@@ -383,36 +383,36 @@ bvec3 not(bvec3 x);
 bvec4 not(bvec4 x);
 
 // Texture lookup functions.
-vec4 texture1D(sampler1D sampler, float coord);
-vec4 texture1D(sampler1D sampler, float coord, float bias);
-vec4 texture1DProj(sampler1D sampler, vec2 coord);
-vec4 texture1DProj(sampler1D sampler, vec2 coord, float bias);
-vec4 texture1DProj(sampler1D sampler, vec4 coord);
-vec4 texture1DProj(sampler1D sampler, vec4 coord, float bias);
+vec4 texture1D(sampler1D _sampler, float coord);
+vec4 texture1D(sampler1D _sampler, float coord, float bias);
+vec4 texture1DProj(sampler1D _sampler, vec2 coord);
+vec4 texture1DProj(sampler1D _sampler, vec2 coord, float bias);
+vec4 texture1DProj(sampler1D _sampler, vec4 coord);
+vec4 texture1DProj(sampler1D _sampler, vec4 coord, float bias);
 
-vec4 texture2D(sampler2D sampler, vec2 coord);
-vec4 texture2D(sampler2D sampler, vec2 coord, float bias);
-vec4 texture2DProj(sampler2D sampler, vec3 coord);
-vec4 texture2DProj(sampler2D sampler, vec3 coord, float bias);
-vec4 texture2DProj(sampler2D sampler, vec4 coord);
-vec4 texture2DProj(sampler2D sampler, vec4 coord, float bias);
+vec4 texture2D(sampler2D _sampler, vec2 coord);
+vec4 texture2D(sampler2D _sampler, vec2 coord, float bias);
+vec4 texture2DProj(sampler2D _sampler, vec3 coord);
+vec4 texture2DProj(sampler2D _sampler, vec3 coord, float bias);
+vec4 texture2DProj(sampler2D _sampler, vec4 coord);
+vec4 texture2DProj(sampler2D _sampler, vec4 coord, float bias);
 
-vec4 texture3D(sampler3D sampler, vec3 coord);
-vec4 texture3D(sampler3D sampler, vec3 coord, float bias);
-vec4 texture3DProj(sampler3D sampler, vec4 coord);
-vec4 texture3DProj(sampler3D sampler, vec4 coord, float bias);
+vec4 texture3D(sampler3D _sampler, vec3 coord);
+vec4 texture3D(sampler3D _sampler, vec3 coord, float bias);
+vec4 texture3DProj(sampler3D _sampler, vec4 coord);
+vec4 texture3DProj(sampler3D _sampler, vec4 coord, float bias);
 
-vec4 textureCube(samplerCube sampler, vec3 coord);
-vec4 textureCube(samplerCube sampler, vec3 coord, float bias);
+vec4 textureCube(samplerCube _sampler, vec3 coord);
+vec4 textureCube(samplerCube _sampler, vec3 coord, float bias);
 
-vec4 shadow1D(sampler1DShadow sampler, vec3 coord);
-vec4 shadow1D(sampler1DShadow sampler, vec3 coord, float bias);
-vec4 shadow2D(sampler2DShadow sampler, vec3 coord);
-vec4 shadow2D(sampler2DShadow sampler, vec3 coord, float bias);
-vec4 shadow1DProj(sampler1DShadow sampler, vec4 coord);
-vec4 shadow1DProj(sampler1DShadow sampler, vec4 coord, float bias);
-vec4 shadow2DProj(sampler2DShadow sampler, vec4 coord);
-vec4 shadow2DProj(sampler2DShadow sampler, vec4 coord, float bias);
+vec4 shadow1D(sampler1DShadow _sampler, vec3 coord);
+vec4 shadow1D(sampler1DShadow _sampler, vec3 coord, float bias);
+vec4 shadow2D(sampler2DShadow _sampler, vec3 coord);
+vec4 shadow2D(sampler2DShadow _sampler, vec3 coord, float bias);
+vec4 shadow1DProj(sampler1DShadow _sampler, vec4 coord);
+vec4 shadow1DProj(sampler1DShadow _sampler, vec4 coord, float bias);
+vec4 shadow2DProj(sampler2DShadow _sampler, vec4 coord);
+vec4 shadow2DProj(sampler2DShadow _sampler, vec4 coord, float bias);
 
 // Noise functions.
 float noise1(float x);

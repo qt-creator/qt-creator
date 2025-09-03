@@ -6,9 +6,6 @@ vec4  gl_Position;
 float gl_PointSize;
 vec4  gl_ClipVertex;
 
-int   gl_VertexID;
-int   gl_InstanceID;
-
 struct gl_PerVertex {
     vec4  gl_Position;
     float gl_PointSize;
@@ -45,3 +42,8 @@ float gl_FogCoord;
 
 void EmitVertex();
 void EndPrimitive();
+
+//// Vulkan removed variables and functions
+
+int   gl_VertexID;
+int   gl_InstanceID;

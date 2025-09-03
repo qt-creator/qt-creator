@@ -255,12 +255,12 @@ bvec3 not(bvec3 x);
 bvec4 not(bvec4 x);
 
 // Texture lookup functions.
-vec4 texture2D(sampler2D sampler, vec2 coord);
-vec4 texture2D(sampler2D sampler, vec2 coord, float bias);
-vec4 texture2DProj(sampler2D sampler, vec3 coord);
-vec4 texture2DProj(sampler2D sampler, vec3 coord, float bias);
-vec4 texture2DProj(sampler2D sampler, vec4 coord);
-vec4 texture2DProj(sampler2D sampler, vec4 coord, float bias);
+vec4 texture2D(sampler2D _sampler, vec2 coord);
+vec4 texture2D(sampler2D _sampler, vec2 coord, float bias);
+vec4 texture2DProj(sampler2D _sampler, vec3 coord);
+vec4 texture2DProj(sampler2D _sampler, vec3 coord, float bias);
+vec4 texture2DProj(sampler2D _sampler, vec4 coord);
+vec4 texture2DProj(sampler2D _sampler, vec4 coord, float bias);
 
-vec4 textureCube(samplerCube sampler, vec3 coord);
-vec4 textureCube(samplerCube sampler, vec3 coord, float bias);
+vec4 textureCube(samplerCube _sampler, vec3 coord);
+vec4 textureCube(samplerCube _sampler, vec3 coord, float bias);
