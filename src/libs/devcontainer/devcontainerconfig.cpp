@@ -736,11 +736,11 @@ Result<Config> Config::fromJson(const QByteArray &data, const JsonStringToString
     QJsonDocument doc = QJsonDocument::fromJson(cleanedInput, &error);
     if (error.error != QJsonParseError::NoError) {
         return ResultError(
-            Tr::tr("Failed to parse devcontainer json file: %1").arg(error.errorString()));
+            Tr::tr("Cannot parse development container JSON file: %1").arg(error.errorString()));
     }
 
     if (!doc.isObject())
-        return ResultError(Tr::tr("Invalid devcontainer json file: expected an object"));
+        return ResultError(Tr::tr("Invalid development container JSON file: expected an object."));
 
     QJsonObject json = doc.object();
     return Config::fromJson(json, jsonStringToString);

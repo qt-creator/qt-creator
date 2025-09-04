@@ -170,10 +170,12 @@ void DevContainerPlugin::onProjectAdded(Project *project)
         if (instanceConfigs.size() == 1) {
             InfoBarEntry entry(
                 infoBarId,
-                Tr::tr("Found Devcontainer in project, would you like to start it?"),
+                Tr::tr(
+                    "Found a development container in the project %1, would you like to start it?")
+                    .arg(project->displayName()),
                 InfoBarEntry::GlobalSuppression::Enabled);
 
-            entry.setTitle(Tr::tr("Configure devcontainer?"));
+            entry.setTitle(Tr::tr("Configure the development container?"));
             entry.setInfoType(InfoLabel::Information);
             entry.addCustomButton(
                 Tr::tr("Yes"),
@@ -181,7 +183,7 @@ void DevContainerPlugin::onProjectAdded(Project *project)
                     infoBar->removeInfo(infoBarId);
                     startDeviceForProject(project, instanceConfig);
                 },
-                Tr::tr("Start DevContainer"));
+                Tr::tr("Start the development container."));
 
             infoBar->addInfo(entry);
             return;
@@ -189,7 +191,8 @@ void DevContainerPlugin::onProjectAdded(Project *project)
 
         InfoBarEntry entry(
             infoBarId,
-            Tr::tr("Found Devcontainers in project, would you like to start one of them?"),
+            Tr::tr("Found development containers in the project %1, would you like to start any of them?")
+                .arg(project->displayName()),
             InfoBarEntry::GlobalSuppression::Enabled);
 
         const auto toComboInfo = [](const DevContainer::InstanceConfig &config) {
@@ -220,7 +223,7 @@ void DevContainerPlugin::onProjectAdded(Project *project)
 
         std::shared_ptr<InstanceConfig> selectedConfig = std::make_shared<InstanceConfig>(instanceConfigs.first());
 
-        entry.setTitle(Tr::tr("Configure devcontainer?"));
+        entry.setTitle(Tr::tr("Configure the development container?"));
         entry.setInfoType(InfoLabel::Information);
         entry.setComboInfo(comboInfos, [selectedConfig](const InfoBarEntry::ComboInfo &comboInfo) {
             *selectedConfig = comboInfo.data.value<InstanceConfig>();
@@ -239,7 +242,7 @@ void DevContainerPlugin::onProjectAdded(Project *project)
 
                 startDeviceForProject(project, *selectedConfig);
             },
-            Tr::tr("Start DevContainer"));
+            Tr::tr("Start the development container."));
 
         infoBar->addInfo(entry);
     };
@@ -255,7 +258,7 @@ void DevContainerPlugin::startDeviceForProject(
     };
 
     std::shared_ptr<Device> device = std::make_shared<DevContainer::Device>(project);
-    device->setDisplayName(Tr::tr("DevContainer for %1").arg(project->displayName()));
+    device->setDisplayName(Tr::tr("Development Container for %1").arg(project->displayName()));
     DeviceManager::addDevice(device);
 
     const auto onDone = Utils::guardedCallback(&guard, [this, project, log, device](Result<> result) {
@@ -272,7 +275,7 @@ void DevContainerPlugin::startDeviceForProject(
         DeviceManager::removeDevice(device->id());
 
         QMessageBox box(Core::ICore::dialogParent());
-        box.setWindowTitle(Tr::tr("DevContainer Error"));
+        box.setWindowTitle(Tr::tr("Development Container Error"));
         box.setIcon(QMessageBox::Critical);
         box.setText(result.error());
         box.setDetailedText(*log);

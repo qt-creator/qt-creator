@@ -162,10 +162,10 @@ void Device::onConfigChanged()
     const Id infoBarId = Id("DevContainer.Reload.InfoBar.")
                              .withSuffix(m_instanceConfig.workspaceFolder.toUrlishString());
 
-    InfoBarEntry entry{infoBarId, Tr::tr("Would you like to rebuild the device?")};
+    InfoBarEntry entry{infoBarId, Tr::tr("Rebuild the development container?")};
 
     InfoBar *infoBar = Core::ICore::popupInfoBar();
-    entry.setTitle(Tr::tr("DevContainer configuration has changed"));
+    entry.setTitle(Tr::tr("The Development Container Configuration Changed"));
     entry.setInfoType(InfoLabel::Information);
 
     entry.addCustomButton(
@@ -185,7 +185,7 @@ void Device::onConfigChanged()
 
                 if (!result) {
                     QMessageBox box(Core::ICore::dialogParent());
-                    box.setWindowTitle(Tr::tr("DevContainer Error"));
+                    box.setWindowTitle(Tr::tr("Development Container Error"));
                     box.setIcon(QMessageBox::Critical);
                     box.setText(result.error());
                     box.setDetailedText(*log);
@@ -193,7 +193,7 @@ void Device::onConfigChanged()
                 }
             });
         },
-        Tr::tr("Rebuild and restart the DevContainer."));
+        Tr::tr("Rebuild and restart the development container."));
 
     infoBar->addInfo(entry);
 }
@@ -246,7 +246,9 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
 
             if (!config->containerConfig) {
                 return ResultError(
-                    Tr::tr("DevContainer config does not contain a container configuration."));
+                    Tr::tr(
+                        "The configuration does not contain a \"build\", \"image\" or "
+                        "\"dockerComposeFile\" entry."));
             }
 
             options->mountLibExec
@@ -321,7 +323,8 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
 
         if (!result) {
             instanceConfig.logFunction(
-                Tr::tr("Failed to load DevContainer config: %1").arg(result.error()));
+                Tr::tr("Cannot load the development container configuration: %1")
+                    .arg(result.error()));
             return DoneResult::Error;
         }
         return DoneResult::Success;
@@ -369,7 +372,7 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
         }();
 
         if (!result) {
-            instanceConfig.logFunction(Tr::tr("Failed to setup CmdBridge: %1").arg(result.error()));
+            instanceConfig.logFunction(Tr::tr("Cannot setup CmdBridge: %1").arg(result.error()));
             return DoneResult::Error;
         }
         return DoneResult::Success;
@@ -380,7 +383,8 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
         const Result<Group> devcontainerRecipe = (*instance)->upRecipe(runningInstance);
         if (!devcontainerRecipe) {
             instanceConfig.logFunction(
-                Tr::tr("Failed to create DevContainer recipe: %1").arg(devcontainerRecipe.error()));
+                Tr::tr("Cannot create the development container recipe: %1")
+                    .arg(devcontainerRecipe.error()));
             return SetupResult::StopWithError;
         }
         taskTree.setRecipe(std::move(*devcontainerRecipe));
@@ -395,7 +399,8 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
         auto downRecipe = (*instance)->downRecipe();
         if (!downRecipe) {
             qCWarning(devContainerDeviceLog)
-                << "Failed to create down recipe for DevContainer instance:" << downRecipe.error();
+                << "Cannot create down recipe for the development container instance:"
+                << downRecipe.error();
             return DoneResult::Error;
         }
 
@@ -456,7 +461,7 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
 
                 if (!executableItem) {
                     instanceConfig.logFunction(
-                        Tr::tr("Failed to create kit aspect %1: %2")
+                        Tr::tr("Cannot create kit aspect %1: %2")
                             .arg(it.key())
                             .arg(executableItem.error()));
                     continue;
@@ -525,11 +530,12 @@ Group Device::downRecipe()
 void Device::up(InstanceConfig instanceConfig, std::function<void(Result<>)> callback)
 {
     const auto onDone = [callback](DoneWith doneWith) {
-        const Result<> result
-            = (doneWith != DoneWith::Error)
-                  ? ResultOk
-                  : ResultError(
-                        Tr::tr("Failed to start DevContainer, check General Messages for details"));
+        const Result<> result = (doneWith != DoneWith::Error)
+                                    ? ResultOk
+                                    : ResultError(
+                                          Tr::tr(
+                                              "Cannot start the development container. Check "
+                                              "General Messages for details."));
         callback(result);
     };
 
@@ -542,14 +548,16 @@ void Device::up(InstanceConfig instanceConfig, std::function<void(Result<>)> cal
 
     m_taskTreeRunner.start(
         recipe,
-        setupProgress(progressStorage, Tr::tr("Starting DevContainer"), "DevContainer.Startup"),
+        setupProgress(
+            progressStorage, Tr::tr("Starting the development container"), "DevContainer.Startup"),
         onDone);
 }
 
 Result<> Device::down()
 {
     if (!m_downRecipe)
-        return ResultError(Tr::tr("DevContainer is not running or has not been started."));
+        return ResultError(
+            Tr::tr("The development container is not running or has not been started."));
 
     const Storage<ProgressPtr> progressStorage;
 
@@ -557,19 +565,23 @@ Result<> Device::down()
 
     if (ExtensionSystem::PluginManager::isShuttingDown()) {
         TaskTree taskTree;
-        setupProgress(progressStorage, Tr::tr("Stopping DevContainer"), "DevContainer.Shutdown")(
+        setupProgress(
+            progressStorage, Tr::tr("Stopping the development container"), "DevContainer.Shutdown")(
             taskTree);
         taskTree.setRecipe(recipe);
 
         return taskTree.runBlocking() == DoneWith::Success
                    ? ResultOk
                    : ResultError(
-                         Tr::tr("Failed to stop DevContainer, check General Messages for details"));
+                         Tr::tr(
+                             "Cannot stop the development container. Check General Messages for "
+                             "details."));
     }
 
     m_taskTreeRunner.start(
         recipe,
-        setupProgress(progressStorage, Tr::tr("Stopping DevContainer"), "DevContainer.Shutdown"));
+        setupProgress(
+            progressStorage, Tr::tr("Stopping the development container"), "DevContainer.Shutdown"));
     return ResultOk;
 }
 
@@ -578,11 +590,12 @@ void Device::restart(std::function<void(Result<>)> callback)
     const Storage<ProgressPtr> progressStorage;
 
     const auto onDone = [callback](DoneWith doneWith) {
-        const Result<> result
-            = (doneWith != DoneWith::Error)
-                  ? ResultOk
-                  : ResultError(
-                        Tr::tr("Failed to start DevContainer, check General Messages for details"));
+        const Result<> result = (doneWith != DoneWith::Error)
+                                    ? ResultOk
+                                    : ResultError(
+                                          Tr::tr(
+                                              "Cannot start the development container. Check "
+                                              "General Messages for details."));
         callback(result);
     };
 
@@ -596,7 +609,8 @@ void Device::restart(std::function<void(Result<>)> callback)
 
     m_taskTreeRunner.start(
         recipe,
-        setupProgress(progressStorage, Tr::tr("Restarting DevContainer"), "DevContainer.Restart"),
+        setupProgress(
+            progressStorage, Tr::tr("Restarting the development container"), "DevContainer.Restart"),
         onDone);
 }
 

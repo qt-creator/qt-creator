@@ -1,14 +1,21 @@
-# Devcontainer Plugin for Qt Creator
+# Development Container Plugin for Qt Creator
+
+The plugin provides support for development containers in the IDE.
+
+It allows you to easily configure and manage containers for your projects.
+
+You can find a full specification of and documentation about the configuration format at [https://containers.dev/](https://containers.dev/)
 
 ## Custom configuration support
 
+Example of a devcontainer.json with customizations for Qt Creator:
+
 ```json
-// Example of a devcontainer.json customization for Qt Creator
 {
     "customizations": {
         "qt-creator": {
             "device": {
-                "auto-detect-kits": true
+                "auto-detect-kits": true,
                 "run-processes-in-terminal": false,
                 "copy-cmd-bridge": false,
                 "mount-libexec": true,
@@ -19,13 +26,16 @@
 }
 ```
 
+The following table shows the available options for customizing Qt Creator in the `devcontainer.json` file:
+
 | Key | Type | Description |
 | --- | ---- | ----------- |
-| `auto-detect-kits` | boolean | If set to true, the devcontainer will try to automatically detect a kit in the devcontainer. |
-| `run-processes-in-terminal` | boolean | If set to true, some of the devcontainer setup processes will be run in a terminal window. Currently only used for `docker build`. |
-| `copy-cmd-bridge` | boolean | If set to true, the cmd bridge script will be copied into the devcontainer instead of trying to mount it. This is useful if the devcontainer is not able to mount the host filesystem. |
-| `mount-libexec` | boolean | If set to true, the libexec directory will be mounted into the devcontainer. This is used for the cmd bridge. |
-| `libexec-mount-point` | string | The mount point for the libexec directory in the devcontainer. This is used for the cmd bridge. |
+| `auto-detect-kits` | boolean | If set to true, the Development Container Support tries to automatically detect a kit in the development container. |
+| `run-processes-in-terminal` | boolean | If set to true, some of the development container setup processes are run in a terminal window. Currently only used for `docker build`. |
+| `copy-cmd-bridge` | boolean | If set to true, the command bridge helper is copied into the development container instead of trying to mount it. This is useful if the development container is not able to mount the host filesystem. |
+| `mount-libexec` | boolean | If set to true, the libexec directory is mounted into the development container. This is used for the Command Bridge Helper. |
+| `libexec-mount-point` | string | The mount point for the libexec directory in the development container. This is used for the Command Bridge Helper. |
+| `kits` | array of objects | An array of custom kits to be used in the development container. See below for more details. |
 
 ## Custom Kits
 
@@ -39,19 +49,24 @@ Instead of having Qt Creator auto detect kits based on the PATH Environment vari
             "kits": [
                 {
                     "name": "My DevContainer Kit",
-                    "QtSupport.QtInformation": "/6.7.0/gcc_64/bin/qmake6",
-                    "PE.Profile.ToolChainsV3": {
+                    "qt": "/6.7.0/gcc_64/bin/qmake6",
+                    "compiler": {
                         "Cxx": "/usr/bin/c++",
                         "C": "/usr/bin/gcc"
                     },
-                    "CMakeProjectManager.CMakeKitInformation": {
+                    "cmake": {
                         "binary": "/usr/bin/cmake",
                         "generator": "Unix Makefiles"
                     },
-                    "Debugger.Information": "/usr/bin/lldb"
+                    "debugger": "/usr/bin/lldb"
                 }
             ]
         }
     }
 }
 ```
+
+## JSON Language Server
+
+When you open the `devcontainer.json` file, the JSON Language Server provides features such as validation, autocompletion, and hover documentation for the configuration options.
+You may have to install the JSON Language Server to take full advantage of these features.
