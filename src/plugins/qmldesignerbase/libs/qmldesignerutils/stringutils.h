@@ -24,7 +24,7 @@ concept is_object = std::is_object_v<T>;
 
 std::pair<QStringView, QStringView> split_last(is_object auto &&, QChar c) = delete; // remove rvalue overload
 
-inline std::pair<QStringView, QStringView> split_last(QStringView text, QChar c)
+inline std::pair<QStringView, QStringView> split_last(QStringView text, QChar c = u'.')
 {
     auto splitPoint = std::ranges::find(text | std::views::reverse, c).base();
 

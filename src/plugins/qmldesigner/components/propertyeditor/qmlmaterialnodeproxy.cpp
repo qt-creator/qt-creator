@@ -12,6 +12,8 @@
 #include <qmldesignerplugin.h>
 #include <utils3d.h>
 
+#include <qmldesignerutils/stringutils.h>
+
 #include <QQmlEngine>
 
 namespace QmlDesigner {
@@ -125,7 +127,7 @@ void QmlMaterialNodeProxy::setCurrentType(const QString &type)
 {
     NanotraceHR::Tracer tracer{"qml material node proxy set current type", category()};
 
-    m_currentType = type.split('.').last();
+    m_currentType = StringUtils::split_last(type).second.toString();
     updatePossibleTypeIndex();
 }
 
