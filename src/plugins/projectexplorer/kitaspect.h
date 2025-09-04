@@ -127,7 +127,7 @@ public:
 
     virtual int weight(const Kit *k) const;
 
-    virtual QString moduleForHeader(const Kit *k, const QString &className) const;
+    virtual QVariant getInfo(const Kit *k, Utils::Id request, const QVariant &input) const;
 
     virtual ItemList toUserOutput(const Kit *) const = 0;
 

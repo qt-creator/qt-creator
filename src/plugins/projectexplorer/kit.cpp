@@ -567,8 +567,9 @@ void Kit::addToRunEnvironment(Environment &env) const
 QString Kit::moduleForHeader(const QString &headerFileName) const
 {
     for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
-        if (const QString module = factory->moduleForHeader(this, headerFileName); !module.isEmpty())
-            return module;
+        const QVariant module = factory->getInfo(this, "moduleForHeader", headerFileName);
+        if (module.canConvert<QString>())
+            return module.toString();
     }
     return {};
 }

@@ -363,10 +363,11 @@ int KitAspectFactory::weight(const Kit *k) const
     return k->value(id()).isValid() ? 1 : 0;
 }
 
-QString KitAspectFactory::moduleForHeader(const Kit *k, const QString &className) const
+QVariant KitAspectFactory::getInfo(const Kit *k, Id request, const QVariant &input) const
 {
     Q_UNUSED(k)
-    Q_UNUSED(className)
+    Q_UNUSED(request)
+    Q_UNUSED(input)
     return {};
 }
 
