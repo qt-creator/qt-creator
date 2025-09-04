@@ -65,6 +65,9 @@
     uppercase letters to locate a symbol when using camel case or the letters
     after the underscore when using snake case.
 
+    To turn off \key Tab completion, select \inlineimage {icons/magnifier.png}
+    {Locator menu} and clear \uicontrol {Use Tab Completion}.
+
     \section2 Use wildcard characters in search strings
 
     To narrow down the search results, use the following wildcard characters:
