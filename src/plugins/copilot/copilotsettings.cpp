@@ -45,31 +45,34 @@ CopilotSettings::CopilotSettings()
 
     const FilePath nodeFromPath = FilePath("node").searchInPath();
 
-    // clang-format off
-
     // From: https://github.com/github/copilot.vim/blob/release/README.md#getting-started
-    const FilePaths searchDirs = {
+    const QStringList subLocations
+        = {"dist/agent.js",
+           "copilot/dist/agent.js",
+           "dist/language-server.js",
+           "copilot-language-server/dist/language-server.js"};
+
+    const QString baseDir = "pack/github/start/copilot.vim";
+
+    const FilePaths locations = {
         // Vim, Linux/macOS:
-        FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/dist/agent.js"),
-        FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
-        FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/dist/language-server.js"),
+        FilePath::fromUserInput("~/.vim") / baseDir,
 
         // Neovim, Linux/macOS:
-        FilePath::fromUserInput("~/.config/nvim/pack/github/start/copilot.vim/dist/agent.js"),
-        FilePath::fromUserInput("~/.config/nvim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
-        FilePath::fromUserInput("~/.config/nvim/pack/github/start/copilot.vim/dist/language-server.js"),
+        FilePath::fromUserInput("~/.config/nvim") / baseDir,
 
         // Vim, Windows (PowerShell command):
-        FilePath::fromUserInput("~/vimfiles/pack/github/start/copilot.vim/dist/agent.js"),
-        FilePath::fromUserInput("~/vimfiles/pack/github/start/copilot.vim/copilot/dist/agent.js"),
-        FilePath::fromUserInput("~/vimfiles/pack/github/start/copilot.vim/dist/language-server.js"),
+        FilePath::fromUserInput("~/vimfiles") / baseDir,
 
         // Neovim, Windows (PowerShell command):
-        FilePath::fromUserInput("~/AppData/Local/nvim/pack/github/start/copilot.vim/dist/agent.js"),
-        FilePath::fromUserInput("~/AppData/Local/nvim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
-        FilePath::fromUserInput("~/AppData/Local/nvim/pack/github/start/copilot.vim/dist/language-server.js")
+        FilePath::fromUserInput("~/AppData/Local/nvim") / baseDir,
     };
-    // clang-format on
+
+    FilePaths searchDirs;
+    for (const auto &loc : locations) {
+        for (const auto &subLocation : subLocations)
+            searchDirs.append(loc / subLocation);
+    }
 
     const FilePath distFromVim = findOrDefault(searchDirs, &FilePath::exists);
 
