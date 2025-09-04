@@ -411,21 +411,13 @@ function(qtc_finalize_sbom target)
 endfunction()
 
 function(markdown_to_json resultVarName filepath)
-  file(STRINGS ${filepath} markdown)
-  set(result "")
-  foreach(line IN LISTS markdown)
-    string(REPLACE "\\" "\\\\" line "${line}") # Replace \ with \\
-    string(REPLACE "\"" "\\\"" line "${line}") # Replace " with \"
-    string(PREPEND line "        \"")
-    string(APPEND line "\"")
-    # We have to escape ; because list(APPEND ...) will split the string at ;
-    # list(JOIN ...) will replace the \; with ; again
-    string(REPLACE ";" "\\;" line "${line}")
-    list(APPEND result "${line}")
-  endforeach()
-  list(JOIN result ",\n" result)
-  set(result "[\n${result}\n    ]")
-  set("${resultVarName}" ${result} PARENT_SCOPE)
+  file(READ ${filepath} markdown)
+  set(result "${markdown}")
+  string(REPLACE "\\" "\\\\" result "${result}") # Replace \ with \\
+  string(REPLACE "\"" "\\\"" result "${result}") # Replace " with \"
+  string(REPLACE "\n" "\\n" result "${result}") # Replace \n with \\n
+
+  set("${resultVarName}" "\"${result}\"" PARENT_SCOPE)
 endfunction()
 
 function(add_qtc_plugin target_name)
