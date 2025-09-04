@@ -28,7 +28,7 @@ gui.widget = {}
 ---@field widgetAttributes? WidgetAttributeMapT<boolean> The widget attributes of the widget.
 ---@field autoFillBackground? boolean A boolean, representing whether the widget should automatically fill its background.
 ---@field sizePolicy? SizePolicy.Policy[] Two size policies of the widget, horizontal and vertical.
----@field toolTip string The tooltip of the widget.
+---@field toolTip? string The tooltip of the widget.
 gui.baseWidgetOptions = {}
 
 ---@class (exact) WidgetOptions : BaseWidgetOptions
