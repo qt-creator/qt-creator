@@ -1846,7 +1846,78 @@ void GitClient::merge(const FilePath &workingDirectory, const QStringList &unmer
 
 void GitClient::status(const FilePath &workingDirectory)
 {
-    enqueueCommand({workingDirectory, {"status"}, RunFlag::ShowStdOut});
+    QString output;
+    QString errorMessage;
+    if (gitStatus(workingDirectory, ShowAll, &output, &errorMessage) == StatusResult::Failed) {
+        VcsOutputWindow::appendError(workingDirectory, errorMessage);
+        return;
+    }
+
+    const ParsedRepoStatus status = parsePorcelainStatus(output);
+    VcsOutputWindow::appendText(workingDirectory, Tr::tr("Git status"));
+    const QString branchLine = output.section('\n', 0, 0);
+    if (branchLine.startsWith("## "))
+        VcsOutputWindow::appendSilently(workingDirectory,
+                                        Tr::tr("On branch %1").arg(branchLine.mid(3)));
+
+    using FileState = Core::VcsFileState;
+    const auto stateText = [](FileState state) {
+        switch (state) {
+        case FileState::Untracked: return Tr::tr("Untracked");
+        case FileState::Added: return Tr::tr("Added");
+        case FileState::Modified: return Tr::tr("Modified");
+        case FileState::Deleted: return Tr::tr("Deleted");
+        case FileState::Renamed: return Tr::tr("Renamed");
+        case FileState::Unmerged: return Tr::tr("Unmerged");
+        case FileState::Unknown: break;
+        }
+        return Tr::tr("Unknown");
+    };
+    const auto stateColor = [](FileState state) {
+        switch (state) {
+        case FileState::Untracked: return creatorColor(Theme::VcsBase_FileUntracked_TextColor);
+        case FileState::Added: return creatorColor(Theme::VcsBase_FileAdded_TextColor);
+        case FileState::Modified: return creatorColor(Theme::VcsBase_FileModified_TextColor);
+        case FileState::Deleted: return creatorColor(Theme::VcsBase_FileDeleted_TextColor);
+        case FileState::Renamed: return creatorColor(Theme::VcsBase_FileRenamed_TextColor);
+        case FileState::Unmerged: return creatorColor(Theme::VcsBase_FileUnmerged_TextColor);
+        case FileState::Unknown: break;
+        }
+        return creatorColor(Theme::VcsBase_FileStatusUnknown_TextColor);
+    };
+
+    QStringList files = status.modifiedFiles.keys();
+    files.sort();
+    QHash<FileState, int> summary;
+    for (const QString &file : std::as_const(files)) {
+        const FileState state = status.modifiedFiles.value(file);
+        ++summary[state];
+        const QString color = AnsiEscapeCodeHandler::ansiFromColor(stateColor(state));
+        VcsOutputWindow::appendSilently(
+            workingDirectory,
+            color + stateText(state) + ": " + file + AnsiEscapeCodeHandler::noColor());
+    }
+
+    QStringList summaryItems;
+    for (FileState state : {FileState::Modified, FileState::Added, FileState::Renamed,
+                            FileState::Deleted, FileState::Unmerged, FileState::Untracked}) {
+        const int count = summary.value(state);
+        if (!count)
+            continue;
+        switch (state) {
+        case FileState::Modified: summaryItems.append(Tr::tr("%1 modified").arg(count)); break;
+        case FileState::Added: summaryItems.append(Tr::tr("%1 added").arg(count)); break;
+        case FileState::Renamed: summaryItems.append(Tr::tr("%1 renamed").arg(count)); break;
+        case FileState::Deleted: summaryItems.append(Tr::tr("%1 deleted").arg(count)); break;
+        case FileState::Unmerged: summaryItems.append(Tr::tr("%1 unmerged").arg(count)); break;
+        case FileState::Untracked: summaryItems.append(Tr::tr("%1 untracked").arg(count)); break;
+        case FileState::Unknown: break;
+        }
+    }
+    const QString summaryText = summaryItems.isEmpty()
+                                    ? Tr::tr("No changes")
+                                    : Tr::tr("Summary: %1").arg(summaryItems.join(", "));
+    VcsOutputWindow::appendSilently(workingDirectory, summaryText);
 }
 
 void GitClient::fullStatus(const FilePath &workingDirectory)

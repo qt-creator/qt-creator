@@ -41,6 +41,7 @@
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
+#include <coreplugin/outputwindow.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <extensionsystem/iplugin.h>
@@ -2477,6 +2478,7 @@ class GitTest final : public QObject
 private slots:
     void testStatusParsing_data();
     void testStatusParsing();
+    void testColorfulStatus();
     void testChangesStatusParsing_data();
     void testChangesStatusParsing();
     void testDiffFileResolving_data();
@@ -2558,6 +2560,46 @@ void GitTest::testStatusParsing()
         QCOMPARE(data.files.size(), 1);
     else
         QCOMPARE(data.files.at(1).first, second);
+}
+
+void GitTest::testColorfulStatus()
+{
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repository = FilePath::fromString(temporaryDir.path());
+    const auto runGit = [repository](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repository, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+
+    QVERIFY(runGit({"init", "-b", "main", "."}));
+    QVERIFY(runGit({"config", "user.email", "test@test"}));
+    QVERIFY(runGit({"config", "user.name", "Test User"}));
+    QVERIFY(runGit({"config", "commit.gpgsign", "false"}));
+    QVERIFY(bool((repository / "modified.txt").writeFileContents("initial\n")));
+    QVERIFY(runGit({"add", "modified.txt"}));
+    QVERIFY(runGit({"commit", "-m", "Initial"}));
+    QVERIFY(bool((repository / "modified.txt").writeFileContents("changed\n")));
+    QVERIFY(bool((repository / "untracked.txt").writeFileContents("new\n")));
+
+    const QList<Core::OutputWindow *> outputWindows = VcsOutputWindow::instance()->outputWindows();
+    QVERIFY(!outputWindows.isEmpty());
+    Core::OutputWindow *outputWindow = outputWindows.constFirst();
+    const QString previousOutput = outputWindow->toPlainText();
+    gitClient().status(repository);
+
+    const QString modifiedText = "Modified: modified.txt";
+    const QString untrackedText = "Untracked: untracked.txt";
+    QTRY_VERIFY(outputWindow->toPlainText().mid(previousOutput.size()).contains(modifiedText));
+    QTRY_VERIFY(outputWindow->toPlainText().mid(previousOutput.size()).contains(untrackedText));
+
+    const auto colorAt = [outputWindow](const QString &text) {
+        QTextCursor cursor(outputWindow->document());
+        cursor.setPosition(outputWindow->toPlainText().indexOf(text));
+        return cursor.charFormat().foreground().color();
+    };
+    QCOMPARE(colorAt(modifiedText), Utils::creatorColor(Utils::Theme::VcsBase_FileModified_TextColor));
+    QCOMPARE(colorAt(untrackedText), Utils::creatorColor(Utils::Theme::VcsBase_FileUntracked_TextColor));
 }
 
 void GitTest::testChangesStatusParsing_data()
