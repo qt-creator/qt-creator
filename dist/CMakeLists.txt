@@ -13,7 +13,7 @@ install(
 file(GLOB_RECURSE changelog_files RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "changelog/*")
 
 qtc_add_sbom(Changelog
-    TYPE RESOURCES
+    SBOM_ENTITY_TYPE RESOURCES
 )
 
 qtc_sbom_add_files(Changelog

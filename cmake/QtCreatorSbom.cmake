@@ -831,8 +831,9 @@ function(qtc_sbom_compute_cpe out_var)
   set(${out_var} "${cpe}" PARENT_SCOPE)
 endfunction()
 
-# Transforms a DEFAULT_SBOM_ENTITY_TYPE or SBOM_ENTITY_TYPE to a TYPE, and adds that to the out_var
-# forwarded args. Needed because the Qt SBOM API only knows about the ill-named TYPE option,
+# Transforms Creator's DEFAULT_SBOM_ENTITY_TYPE or SBOM_ENTITY_TYPE options to Qt's TYPE or
+# SBOM_ENTITY_TYPE options, and adds them to the out_var forwarded args.
+# Needed because older Qt SBOM API only knew about the ill-named TYPE option,
 # rather than SBOM_ENTITY_TYPE, so we need to do this translation.
 function(qtc_sbom_add_sbom_entity_type_to_args out_var)
   set(opt_args "")
@@ -861,7 +862,12 @@ function(qtc_sbom_add_sbom_entity_type_to_args out_var)
 
   # Forward the sbom entity type if we have one.
   if(sbom_entity_type)
-    list(APPEND filtered_args TYPE "${sbom_entity_type}")
+    if(Qt6_VERSION VERSION_GREATER_EQUAL "6.10.1")
+      set(option_name SBOM_ENTITY_TYPE)
+    else()
+      set(option_name TYPE)
+    endif()
+    list(APPEND filtered_args ${option_name} "${sbom_entity_type}")
   endif()
 
   set(${out_var} "${filtered_args}" PARENT_SCOPE)
@@ -878,7 +884,26 @@ function(qtc_add_sbom)
     return()
   endif()
 
-  _qt_internal_add_sbom(${ARGN})
+  if(Qt6_VERSION VERSION_GREATER_EQUAL "6.10.1")
+    set(replace_sbom_entity_type_to_type OFF)
+  else()
+    set(replace_sbom_entity_type_to_type ON)
+  endif()
+
+  if(replace_sbom_entity_type_to_type)
+    set(forward_args "")
+    foreach(arg IN LISTS ARGN)
+      if(arg STREQUAL "SBOM_ENTITY_TYPE")
+        list(APPEND forward_args "TYPE")
+      else()
+        list(APPEND forward_args "${arg}")
+      endif()
+    endforeach()
+  else()
+    set(forward_args ${ARGN})
+  endif()
+
+  _qt_internal_add_sbom(${forward_args})
 endfunction()
 
 # Function to add files to an SBOM-enabled target.

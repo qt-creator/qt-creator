@@ -19,7 +19,7 @@ qtc_copy_to_builddir(copy_fonts_to_builddir
 
 file(GLOB_RECURSE package_manager_files package-manager/*)
 qtc_add_sbom(PackageManagerResources
-  TYPE RESOURCES
+  SBOM_ENTITY_TYPE RESOURCES
   LICENSE_EXPRESSION "MIT"
   USE_ATTRIBUTION_FILES
   ATTRIBUTION_FILE_PATHS
@@ -36,7 +36,7 @@ qtc_sbom_add_files(PackageManagerResources
 
 file(GLOB_RECURSE fonts_files fonts/*)
 qtc_add_sbom(FontsResources
-  TYPE RESOURCES
+  SBOM_ENTITY_TYPE RESOURCES
   LICENSE_EXPRESSION "OFL-1.1-RFN"
   USE_ATTRIBUTION_FILES
   ATTRIBUTION_FILE_PATHS

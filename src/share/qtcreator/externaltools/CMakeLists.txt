@@ -20,7 +20,7 @@ install(FILES ${tools}
 )
 
 qtc_add_sbom(ExternalToolsResources
-  TYPE RESOURCES
+  SBOM_ENTITY_TYPE RESOURCES
 )
 
 qtc_sbom_add_files(ExternalToolsResources
