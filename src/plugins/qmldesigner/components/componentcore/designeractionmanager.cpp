@@ -2106,39 +2106,34 @@ void DesignerActionManager::createDefaultAddResourceHandler()
 void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()
 {
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("QtQuick.Image",
+                ModelNodePreviewImageHandler("Image",
                                              ModelNodeOperations::previewImageDataForImageNode));
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("QtQuick.BorderImage",
+                ModelNodePreviewImageHandler("BorderImage",
                                              ModelNodeOperations::previewImageDataForImageNode));
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("Qt.SafeRenderer.SafeRendererImage",
+                ModelNodePreviewImageHandler("SafeRendererImage",
                                              ModelNodeOperations::previewImageDataForImageNode));
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("Qt.SafeRenderer.SafeRendererPicture",
+                ModelNodePreviewImageHandler("SafeRendererPicture",
                                              ModelNodeOperations::previewImageDataForImageNode));
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("QtQuick3D.Texture",
+                ModelNodePreviewImageHandler("Texture",
                                              ModelNodeOperations::previewImageDataForImageNode));
     registerModelNodePreviewHandler(
-        ModelNodePreviewImageHandler("QtQuick3D.Material",
-                                     ModelNodeOperations::previewImageDataForGenericNode));
-    registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("QtQuick3D.Model",
+                ModelNodePreviewImageHandler("Material",
                                              ModelNodeOperations::previewImageDataForGenericNode));
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("QtQuick3D.Node",
+                ModelNodePreviewImageHandler("Model",
+                                             ModelNodeOperations::previewImageDataForGenericNode));
+    registerModelNodePreviewHandler(
+                ModelNodePreviewImageHandler("Node",
                                              ModelNodeOperations::previewImageDataForGenericNode,
                                              true));
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("QtQuick.Item",
+                ModelNodePreviewImageHandler("Item",
                                              ModelNodeOperations::previewImageDataForGenericNode,
                                              true));
-
-    // TODO - Disabled until QTBUG-86616 is fixed
-//    registerModelNodePreviewHandler(
-//                ModelNodePreviewImageHandler("QtQuick3D.Effect",
-//                                             ModelNodeOperations::previewImageDataFor3DNode));
 }
 
 void DesignerActionManager::addDesignerAction(ActionInterface *newAction)
