@@ -5,6 +5,8 @@
 
 #include "qmldesignerutils_global.h"
 
+#include <utils/smallstringview.h>
+
 #include <QString>
 #include <QStringView>
 
@@ -25,6 +27,19 @@ std::pair<QStringView, QStringView> split_last(is_object auto &&, QChar c) = del
 inline std::pair<QStringView, QStringView> split_last(QStringView text, QChar c)
 {
     auto splitPoint = std::ranges::find(text | std::views::reverse, c).base();
+
+    if (splitPoint == text.begin())
+        return {{}, text};
+
+    return {{text.begin(), std::prev(splitPoint)}, {splitPoint, text.end()}};
+}
+
+std::pair<QStringView, QStringView> split_last(is_object auto &&, char c) = delete; // remove rvalue overload
+
+inline std::pair<Utils::SmallStringView, Utils::SmallStringView> split_last(Utils::SmallStringView text,
+                                                                            char c = '.')
+{
+    auto splitPoint = std::ranges::find(text.rbegin(), text.rend(), c).base();
 
     if (splitPoint == text.begin())
         return {{}, text};

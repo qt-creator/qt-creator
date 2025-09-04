@@ -11,6 +11,8 @@
 #include <qmlmodelnodeproxy.h>
 #include <variantproperty.h>
 
+#include <qmldesignerutils/stringutils.h>
+
 #include <QFileDialog>
 #include <QDirIterator>
 #include <QMetaEnum>
@@ -257,22 +259,12 @@ ModelNode ItemFilterModel::modelNodeForRow(const int &row) const
 
 namespace {
 
-std::pair<Utils::SmallStringView, Utils::SmallStringView> decomposeTypePath(Utils::SmallStringView typeName)
-{
-    auto found = std::find(typeName.rbegin(), typeName.rend(), '.');
-
-    if (found == typeName.rend())
-        return {{}, typeName};
-
-    return {{typeName.begin(), std::prev(found.base())}, {found.base(), typeName.end()}};
-}
-
 NodeMetaInfo getMetaInfo(Utils::SmallStringView typeFilter, const Model *model)
 {
     if (not model)
         return {};
 
-    auto [moduleName, typeName] = decomposeTypePath(typeFilter);
+    auto [moduleName, typeName] = StringUtils::split_last(typeFilter);
 
     if (not moduleName.empty()) {
         auto module = model->module(moduleName, Storage::ModuleKind::QmlLibrary);

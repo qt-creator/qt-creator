@@ -23,6 +23,7 @@
 
 #include <modulesstorage/modulesstorage.h>
 #include <projectstorage/projectstorage.h>
+#include <qmldesignerutils/stringutils.h>
 #include <qmldesignerutils/version.h>
 
 #include <QWidget>
@@ -359,20 +360,6 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
     }
 }
 
-namespace {
-
-std::pair<Utils::SmallStringView, Utils::SmallStringView> decomposeTypePath(Utils::SmallStringView typeName)
-{
-    auto found = std::find(typeName.rbegin(), typeName.rend(), '.');
-
-    if (found == typeName.rend())
-        return {{}, typeName};
-
-    return {{typeName.begin(), std::prev(found.base())}, {found.base(), typeName.end()}};
-}
-
-} // namespace
-
 void ModelPrivate::changeNodeType(const InternalNodePointer &node,
                                   const TypeName &typeName,
                                   int majorVersion,
@@ -383,7 +370,7 @@ void ModelPrivate::changeNodeType(const InternalNodePointer &node,
                                keyValue("node", *node),
                                keyValue("type name", typeName)};
 
-    auto [alias, unqualifiedTypeName] = decomposeTypePath(typeName);
+    auto [alias, unqualifiedTypeName] = StringUtils::split_last(typeName);
 
     node->typeName = typeName;
     node->unqualifiedTypeName = unqualifiedTypeName;
@@ -419,7 +406,7 @@ InternalNodePointer ModelPrivate::createNode(TypeNameView typeName,
     if (!isRootNode)
         internalId = m_internalIdCounter++;
 
-    auto [alias, unqualifiedTypeName] = decomposeTypePath(typeName);
+    auto [alias, unqualifiedTypeName] = StringUtils::split_last(typeName);
 
     auto newNode = std::make_shared<InternalNode>(typeName,
                                                   unqualifiedTypeName,
@@ -485,7 +472,7 @@ ImportedTypeNameId ModelPrivate::importedTypeNameId(Utils::SmallStringView typeN
                                category(),
                                keyValue("type name", typeName)};
 
-    auto [moduleName, unqualifiedTypeName] = decomposeTypePath(typeName);
+    auto [moduleName, unqualifiedTypeName] = StringUtils::split_last(typeName);
 
     return importedTypeNameId(moduleName, unqualifiedTypeName);
 }
@@ -1896,7 +1883,7 @@ void ModelPrivate::changeRootNodeType(const TypeName &typeName, int majorVersion
 
     m_rootInternalNode->traceToken.tick("type name", keyValue("type name", typeName));
 
-    auto [alias, unqualifiedTypeName] = decomposeTypePath(typeName);
+    auto [alias, unqualifiedTypeName] = StringUtils::split_last(typeName);
 
     m_rootInternalNode->typeName = typeName;
     m_rootInternalNode->unqualifiedTypeName = unqualifiedTypeName;

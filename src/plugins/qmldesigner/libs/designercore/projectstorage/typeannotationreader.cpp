@@ -7,6 +7,7 @@
 
 #include <designercoretr.h>
 
+#include <qmldesignerutils/stringutils.h>
 #include <utils/algorithm.h>
 
 #include <QDebug>
@@ -242,28 +243,11 @@ TypeAnnotationReader::ParserSate TypeAnnotationReader::readExtraFileElement(cons
     return Error;
 }
 
-namespace {
-QT_WARNING_PUSH
-QT_WARNING_DISABLE_CLANG("-Wunneeded-internal-declaration")
-
-std::pair<Utils::SmallStringView, Utils::SmallStringView> decomposeTypePath(Utils::SmallStringView typeName)
-{
-    auto found = std::find(typeName.rbegin(), typeName.rend(), '.');
-
-    if (found == typeName.rend())
-        return {{}, typeName};
-
-    return {{typeName.begin(), std::prev(found.base())}, {found.base(), typeName.end()}};
-}
-
-QT_WARNING_POP
-} // namespace
-
 void TypeAnnotationReader::readTypeProperty(QStringView name, const QVariant &value)
 {
     if (name == "name"_L1) {
         Utils::PathString fullTypeName = value.toString();
-        auto [moduleName, typeName] = decomposeTypePath(fullTypeName);
+        auto [moduleName, typeName] = StringUtils::split_last(fullTypeName);
 
         m_typeAnnotations.back().typeName = typeName;
         m_typeAnnotations.back().moduleId = m_modulesStorage.moduleId(moduleName,
