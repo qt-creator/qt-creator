@@ -1075,10 +1075,8 @@ void addItemToStackedContainer(const SelectionContext &selectionContext)
         }
     }
 
-    view->executeInTransaction("DesignerActionManager:addItemToStackedContainer", [=](){
+    view->executeInTransaction("DesignerActionManager:addItemToStackedContainer", [=]() {
 
-        NodeMetaInfo itemMetaInfo = view->model()->metaInfo("Item", -1, -1);
-        QTC_ASSERT(itemMetaInfo.isValid(), return);
 #ifdef QDS_USE_PROJECTSTORAGE
         QmlDesigner::ModelNode itemNode = view->createModelNode("Item");
 #else

@@ -126,7 +126,6 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view,
     QmlItemNode newQmlItemNode;
 
     auto doCreateQmlItemNodeFromImage = [=, &newQmlItemNode, &parentproperty]() {
-        NodeMetaInfo metaInfo = view->model()->metaInfo("Image");
         QList<QPair<PropertyName, QVariant> > propertyPairList;
         if (const int intX = qRound(position.x()))
             propertyPairList.emplace_back("x", intX);

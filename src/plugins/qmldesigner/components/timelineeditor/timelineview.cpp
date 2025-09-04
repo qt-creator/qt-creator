@@ -179,7 +179,7 @@ void TimelineView::variantPropertiesChanged(const QList<VariantProperty> &proper
 {
     for (const auto &property : propertyList) {
         if ((property.name() == "frame" || property.name() == "value")
-            && property.parentModelNode().type() == "Keyframe"
+            && property.parentModelNode().metaInfo().isQtQuickTimelineKeyframe()
             && property.parentModelNode().hasParentProperty()) {
             const ModelNode framesNode
                 = property.parentModelNode().parentProperty().parentModelNode();

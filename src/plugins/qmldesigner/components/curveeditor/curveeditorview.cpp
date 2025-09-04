@@ -71,9 +71,9 @@ void CurveEditorView::modelAboutToBeDetached(Model *model)
 
 bool dirtyfiesView(const ModelNode &node)
 {
-    return (node.type() == "Keyframe" && node.hasParentProperty())
-        || QmlTimeline::isValidQmlTimeline(node)
-        || QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(node);
+    return (node.metaInfo().isQtQuickTimelineKeyframe() && node.hasParentProperty())
+           || QmlTimeline::isValidQmlTimeline(node)
+           || QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(node);
 }
 
 void CurveEditorView::nodeRemoved([[maybe_unused]] const ModelNode &removedNode,

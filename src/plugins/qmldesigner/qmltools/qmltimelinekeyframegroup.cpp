@@ -388,7 +388,7 @@ bool QmlTimelineKeyframeGroup::checkKeyframesType(const ModelNode &node, SL sl)
                                keyValue("model node", node),
                                keyValue("caller location", sl)};
 
-    return node.isValid() && node.type() == "KeyframeGroup";
+    return node.isValid() && node.metaInfo().isQtQuickTimelineKeyframeGroup();
 }
 
 QmlTimelineKeyframeGroup QmlTimelineKeyframeGroup::keyframeGroupForKeyframe(const ModelNode &node,
