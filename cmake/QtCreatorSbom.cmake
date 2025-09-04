@@ -826,7 +826,7 @@ function(qtc_sbom_add_sbom_entity_type_to_args out_var)
   )
   set(multi_args "")
 
-  cmake_parse_arguments(PARSE_ARGV 0 arg "${opt_args}" "${single_args}" "${multi_args}")
+  cmake_parse_arguments(PARSE_ARGV 1 arg "${opt_args}" "${single_args}" "${multi_args}")
 
   if(arg_SBOM_ENTITY_TYPE)
     set(sbom_entity_type "${arg_SBOM_ENTITY_TYPE}")
