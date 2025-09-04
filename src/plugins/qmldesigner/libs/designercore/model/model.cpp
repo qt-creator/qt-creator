@@ -3534,7 +3534,7 @@ namespace {
 }
 } // namespace
 
-NodeMetaInfo Model::metaInfo(const TypeName &typeName,
+NodeMetaInfo Model::metaInfo(Utils::SmallStringView typeName,
                              [[maybe_unused]] int majorVersion,
                              [[maybe_unused]] int minorVersion,
                              [[maybe_unused]] SL sl) const
@@ -3567,7 +3567,7 @@ NodeMetaInfo Model::metaInfo([[maybe_unused]] Module module,
 #endif
 }
 
-Module Model::module(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind, SL sl)
+Module Model::module(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind, SL sl) const
 {
     if constexpr (useProjectStorage()) {
         NanotraceHR::Tracer tracer{"model get module", category(), keyValue("caller location", sl)};

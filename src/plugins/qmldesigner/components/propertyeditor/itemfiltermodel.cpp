@@ -255,6 +255,35 @@ ModelNode ItemFilterModel::modelNodeForRow(const int &row) const
     return view->modelNodeForInternalId(m_modelInternalIds.at(row));
 }
 
+namespace {
+
+std::pair<Utils::SmallStringView, Utils::SmallStringView> decomposeTypePath(Utils::SmallStringView typeName)
+{
+    auto found = std::find(typeName.rbegin(), typeName.rend(), '.');
+
+    if (found == typeName.rend())
+        return {{}, typeName};
+
+    return {{typeName.begin(), std::prev(found.base())}, {found.base(), typeName.end()}};
+}
+
+NodeMetaInfo getMetaInfo(Utils::SmallStringView typeFilter, const Model *model)
+{
+    if (not model)
+        return {};
+
+    auto [moduleName, typeName] = decomposeTypePath(typeFilter);
+
+    if (not moduleName.empty()) {
+        auto module = model->module(moduleName, Storage::ModuleKind::QmlLibrary);
+        return model->metaInfo(module, typeName);
+    }
+
+    return model->metaInfo(typeName);
+}
+
+} // namespace
+
 void ItemFilterModel::setupModel()
 {
     NanotraceHR::Tracer tracer{"item filter model setup model", category()};
@@ -268,7 +297,8 @@ void ItemFilterModel::setupModel()
     const auto nodes = m_selectionOnly ? m_modelNode.view()->selectedModelNodes()
                                        : m_modelNode.view()->allModelNodes();
 
-    auto base = m_modelNode.model()->metaInfo(m_typeFilter.toUtf8());
+    auto base = getMetaInfo(m_typeFilter.toUtf8(), m_modelNode.model());
+
     for (const QmlDesigner::ModelNode &node : nodes) {
         if (node.hasId() && node.metaInfo().isBasedOn(base))
             m_modelInternalIds.append(node.internalId());
