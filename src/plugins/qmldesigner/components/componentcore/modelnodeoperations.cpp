@@ -582,29 +582,29 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
 
 void layoutRowPositioner(const SelectionContext &selectionContext)
 {
-    layoutHelperFunction(selectionContext, "QtQuick.Row", compareByX);
+    layoutHelperFunction(selectionContext, "Row", compareByX);
 }
 
 void layoutColumnPositioner(const SelectionContext &selectionContext)
 {
-    layoutHelperFunction(selectionContext, "QtQuick.Column", compareByY);
+    layoutHelperFunction(selectionContext, "Column", compareByY);
 }
 
 void layoutGridPositioner(const SelectionContext &selectionContext)
 {
-    layoutHelperFunction(selectionContext, "QtQuick.Grid", compareByGrid);
+    layoutHelperFunction(selectionContext, "Grid", compareByGrid);
 }
 
 void layoutFlowPositioner(const SelectionContext &selectionContext)
 {
-    layoutHelperFunction(selectionContext, "QtQuick.Flow", compareByGrid);
+    layoutHelperFunction(selectionContext, "Flow", compareByGrid);
 }
 
 void layoutRowLayout(const SelectionContext &selectionContext)
 {
     try {
         LayoutInGridLayout::ensureLayoutImport(selectionContext);
-        layoutHelperFunction(selectionContext, "QtQuick.Layouts.RowLayout", compareByX);
+        layoutHelperFunction(selectionContext, "RowLayout", compareByX);
     } catch (RewritingException &e) { //better safe than sorry
         e.showException();
     }
@@ -614,7 +614,7 @@ void layoutColumnLayout(const SelectionContext &selectionContext)
 {
     try {
         LayoutInGridLayout::ensureLayoutImport(selectionContext);
-        layoutHelperFunction(selectionContext, "QtQuick.Layouts.ColumnLayout", compareByY);
+        layoutHelperFunction(selectionContext, "ColumnLayout", compareByY);
     } catch (RewritingException &e) { //better safe than sorry
         e.showException();
     }
@@ -1077,7 +1077,7 @@ void addItemToStackedContainer(const SelectionContext &selectionContext)
 
     view->executeInTransaction("DesignerActionManager:addItemToStackedContainer", [=](){
 
-        NodeMetaInfo itemMetaInfo = view->model()->metaInfo("QtQuick.Item", -1, -1);
+        NodeMetaInfo itemMetaInfo = view->model()->metaInfo("Item", -1, -1);
         QTC_ASSERT(itemMetaInfo.isValid(), return);
 #ifdef QDS_USE_PROJECTSTORAGE
         QmlDesigner::ModelNode itemNode = view->createModelNode("Item");
@@ -1993,8 +1993,7 @@ bool dropAsImage3dTexture(const ModelNode &targetNode,
         // if dropping an image on a material, create a texture instead of image
         // Show texture property selection dialog
         auto dialog = ChooseFromPropertyListDialog::createIfNeeded(targetNode,
-                                                                   view->model()->metaInfo(
-                                                                       "QtQuick3D.Texture"),
+                                                                   view->model()->metaInfo("Texture"),
                                                                    Core::ICore::dialogParent());
         if (!dialog)
             return false;

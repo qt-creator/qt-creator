@@ -179,7 +179,7 @@ void TimelineView::variantPropertiesChanged(const QList<VariantProperty> &proper
 {
     for (const auto &property : propertyList) {
         if ((property.name() == "frame" || property.name() == "value")
-            && property.parentModelNode().type() == "QtQuick.Timeline.Keyframe"
+            && property.parentModelNode().type() == "Keyframe"
             && property.parentModelNode().hasParentProperty()) {
             const ModelNode framesNode
                 = property.parentModelNode().parentProperty().parentModelNode();
@@ -313,8 +313,6 @@ void enableInCurrentState(
 
 const QmlTimeline TimelineView::addNewTimeline()
 {
-    const TypeName timelineType = "QtQuick.Timeline.Timeline";
-
     QTC_ASSERT(isAttached(), return QmlTimeline());
 
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TIMELINE_ADDED);
@@ -325,6 +323,7 @@ const QmlTimeline TimelineView::addNewTimeline()
         e.showException();
     }
 #ifndef QDS_USE_PROJECTSTORAGE
+    const TypeName timelineType = "QtQuick.Timeline.Timeline";
     NodeMetaInfo metaInfo = model()->metaInfo(timelineType);
 
     QTC_ASSERT(metaInfo.isValid(), return QmlTimeline());
@@ -358,13 +357,12 @@ const QmlTimeline TimelineView::addNewTimeline()
 
 ModelNode TimelineView::addAnimation(QmlTimeline timeline)
 {
-    const TypeName animationType = "QtQuick.Timeline.TimelineAnimation";
-
     QTC_ASSERT(timeline.isValid(), return ModelNode());
 
     QTC_ASSERT(isAttached(), return ModelNode());
 
 #ifndef QDS_USE_PROJECTSTORAGE
+    const TypeName animationType = "QtQuick.Timeline.TimelineAnimation";
     NodeMetaInfo metaInfo = model()->metaInfo(animationType);
 
     QTC_ASSERT(metaInfo.isValid(), return ModelNode());

@@ -1120,7 +1120,7 @@ bool isStackedContainerWithoutTabBar(const SelectionContext &context)
     if (!context.view()->model())
         return false;
 
-    if (!context.view()->model()->metaInfo("QtQuick.Controls.TabBar", -1, -1).isValid())
+    if (!context.view()->model()->metaInfo("TabBar", -1, -1).isValid())
         return false;
 
     ModelNode currentSelectedNode = context.currentSingleSelectedNode();

@@ -71,7 +71,7 @@ void CurveEditorView::modelAboutToBeDetached(Model *model)
 
 bool dirtyfiesView(const ModelNode &node)
 {
-    return (node.type() == "QtQuick.Timeline.Keyframe" && node.hasParentProperty())
+    return (node.type() == "Keyframe" && node.hasParentProperty())
         || QmlTimeline::isValidQmlTimeline(node)
         || QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(node);
 }
