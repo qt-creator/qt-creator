@@ -84,7 +84,14 @@ public:
             return;
         }
 
-        QStyledItemDelegate::paint(painter, option, index);
+        QStyleOptionViewItem opt = option;
+        const QVariant textColorVariant = index.data(Qt::ForegroundRole);
+        if (textColorVariant.canConvert<QColor>()) {
+            const QColor textColor = textColorVariant.value<QColor>();
+            opt.palette.setColor(QPalette::HighlightedText, textColor);
+        }
+
+        QStyledItemDelegate::paint(painter, opt, index);
         if (index.data(Project::isParsingRole).toBool()) {
             QStyleOptionViewItem opt = option;
             initStyleOption(&opt, index);

@@ -45,6 +45,7 @@
 #include <QScrollBar>
 #include <QSize>
 #include <QSortFilterProxyModel>
+#include <QStyledItemDelegate>
 #include <QTimer>
 #include <QToolButton>
 
@@ -283,6 +284,20 @@ static bool isChildOf(const QModelIndex &index, const QModelIndex &parent)
 
 using namespace Internal;
 
+class FolderItemDelegate final : public QStyledItemDelegate
+{
+public:
+    FolderItemDelegate(QObject *parent = nullptr)
+        : QStyledItemDelegate(parent)
+    {}
+
+    void initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const final
+    {
+        QStyledItemDelegate::initStyleOption(option, index);
+        option->palette.setColor(QPalette::HighlightedText, option->palette.color(QPalette::Text));
+    }
+};
+
 /*!
     \class FolderNavigationWidget
 
@@ -303,6 +318,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_crumbLabel(new DelayedFileCrumbLabel(this))
 {
     IContext::attach(this, Context(C_FOLDERNAVIGATIONWIDGET));
+
+    m_listView->setItemDelegate(new FolderItemDelegate(m_listView));
 
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
