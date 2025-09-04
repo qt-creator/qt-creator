@@ -33,6 +33,7 @@
 #include <QTextDocumentFragment>
 #include <QTextDocumentWriter>
 #include <QTextObjectInterface>
+#include <QTextTable>
 #include <QTimer>
 
 namespace Utils {
@@ -180,7 +181,7 @@ public:
         QRectF iconRect(rect.left(), rect.top() + (rect.height() - iconSize) / 2, iconSize, iconSize);
         icon(isCopied).paint(painter, iconRect.toRect());
 
-        painter->setPen(QColor("#888"));
+        painter->setPen(creatorColor(Theme::Color::PanelTextColorMid));
         painter->setFont(getFont(doc));
         painter
             ->drawText(rect.adjusted(20, 0, -5, 0), Qt::AlignLeft | Qt::AlignVCenter, text(isCopied));
@@ -806,6 +807,41 @@ QString MarkdownBrowser::toMarkdown() const
     return document()->toMarkdown();
 }
 
+static void postProcessTables(QTextFrame *frame)
+{
+    QTextFrameFormat format = frame->frameFormat();
+    if (format.isTableFormat()) {
+        QTextTableFormat tableFormat = format.toTableFormat();
+
+        tableFormat.setBorder(0);
+        tableFormat.setCellSpacing(0);
+        tableFormat.setCellPadding(5);
+        frame->setFrameFormat(tableFormat);
+
+        QTextCursor cursor(frame);
+        QTextTable *table = cursor.currentTable();
+        for (int r = 0; r < table->rows() - 1; ++r) {
+            for (int c = 0; c < table->columns(); ++c) {
+                QTextTableCell cell = table->cellAt(r, c);
+                QTextTableCellFormat cellFormat = cell.format().toTableCellFormat();
+                // The only hint we get from the markdown importer whether a cell is a header
+                // is the font weight. So we treat cells in the first row that are bold as headers.
+                const bool mightBeHeader = r == 0 && cellFormat.fontWeight() == QFont::Bold;
+                const QColor borderColor = mightBeHeader
+                                               ? creatorColor(Theme::Color::Token_Text_Default)
+                                               : creatorColor(Theme::Color::Token_Text_Muted);
+                cellFormat.setBottomBorder(1);
+                cellFormat.setBottomBorderBrush(borderColor);
+                cellFormat.setBottomBorderStyle(QTextFrameFormat::BorderStyle_Solid);
+                cell.setFormat(cellFormat);
+            }
+        }
+    }
+
+    for (QTextFrame *child : frame->childFrames())
+        postProcessTables(child);
+}
+
 void MarkdownBrowser::postProcessDocument(bool firstTime)
 {
     const QFont contentFont = Utils::font(contentTF);
@@ -815,6 +851,8 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
         return f;
     };
     document()->setDefaultFont(scaledFont(contentFont));
+
+    postProcessTables(document()->rootFrame());
 
     for (QTextBlock block = document()->begin(); block != document()->end(); block = block.next()) {
         if (firstTime) {
