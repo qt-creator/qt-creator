@@ -12,7 +12,7 @@ def switchViewTo(view):
                              "window=':Qt Creator_Core::Internal::MainWindow'}"), 20, 20 + 52 * view, 0, Qt.LeftButton)
 
 def __kitIsActivated__(kit):
-    return not ("<h3>Click to activate</h3>" in str(kit.toolTip)
+    return not ("<h3>Click to enable target, click again to make active</h3>" in str(kit.toolTip)
                 or "<h3>Kit is unsuited for project</h3>" in str(kit.toolTip))
 
 
