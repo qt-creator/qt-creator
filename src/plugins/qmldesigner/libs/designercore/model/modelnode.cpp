@@ -16,6 +16,7 @@
 #include <modelutils.h>
 #include <rewriterview.h>
 
+#include <qmldesignerutils/stringutils.h>
 #include <utils/algorithm.h>
 
 namespace QmlDesigner {
@@ -245,7 +246,7 @@ QString ModelNode::simplifiedTypeName(SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    return QString::fromUtf8(type().split('.').constLast());
+    return m_internalNode->unqualifiedTypeName.toQString();
 }
 
 QString ModelNode::displayName(SL sl) const
