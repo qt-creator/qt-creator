@@ -8,9 +8,17 @@
 
     \title User interface
 
-    When you start \QC, it opens to the \uicontrol Welcome mode.
+    The first time you start \QC, it asks you about your level of experience as a
+    developer and the platforms you develop applications for.
 
-    \image {qtcreator-welcome.webp} {Welcome mode}
+    \image {qtcreator-personalize-learning.webp} {Personalize Learning dialog}
+
+    \QC sets the contents of the \uicontrol Overview tab based on your answers.
+
+    \image {qtcreator-welcome-overview.webp} {Overview tab in the Welcome mode}
+
+    The following table describes the parts of the UI that are visible in all
+    \QC modes.
 
     \table
     \header
