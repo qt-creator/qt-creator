@@ -824,7 +824,7 @@ void TextDocumentLayout::requestUpdateNow()
 int TextDocumentLayout::embeddedWidgetOffset(const QTextBlock &block, QWidget *widget)
 {
     if (auto userData = TextBlockUserData::textUserData(block)) {
-        int offset = PlainTextDocumentLayout::blockBoundingRect(block).height();
+        int offset = PlainTextDocumentLayout::blockBoundingRect(block, false).height();
         for (auto embeddedWidget : userData->embeddedWidgets(block)) {
             if (embeddedWidget == widget)
                 return offset;
@@ -856,13 +856,18 @@ static QRectF replacementBoundingRect(const QTextDocument *replacement)
     return boundingRect;
 }
 
-int TextDocumentLayout::additionalBlockHeight(const QTextBlock &block) const
+int TextDocumentLayout::additionalBlockHeight(
+    const QTextBlock &block, bool includeEmbeddedWidgetsHeight) const
 {
     int additionalHeight = TextBlockUserData::additionalAnnotationHeight(block);
+    if (!includeEmbeddedWidgetsHeight)
+        return additionalHeight;
+
     for (const QPointer<QWidget> &wdgt : TextBlockUserData::embeddedWidgets(block)) {
         if (wdgt && wdgt->isVisible())
             additionalHeight += wdgt->height();
     }
+
     return additionalHeight;
 }
 

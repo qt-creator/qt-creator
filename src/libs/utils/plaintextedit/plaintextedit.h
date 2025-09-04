@@ -266,6 +266,7 @@ public:
 
     QRectF frameBoundingRect(QTextFrame *) const override;
     QRectF blockBoundingRect(const QTextBlock &block) const override;
+    QRectF blockBoundingRect(const QTextBlock &block, bool includeEmbeddedWidgetsHeight) const;
 
     void ensureBlockLayout(const QTextBlock &block) const;
 
@@ -282,7 +283,7 @@ public:
     virtual int lineCount() const;
     virtual int firstLineNumberOf(const QTextBlock &block) const;
     virtual QTextBlock findBlockByLineNumber(int lineNumber) const;
-    virtual int additionalBlockHeight(const QTextBlock &block) const;
+    virtual int additionalBlockHeight(const QTextBlock &block, bool includeEmbeddedWidgets) const;
     virtual QRectF replacementBlockBoundingRect(const QTextBlock &block) const;
     virtual int relativeLineSpacing() const;
     virtual int lineSpacing() const;

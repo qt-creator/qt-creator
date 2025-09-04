@@ -191,7 +191,8 @@ public:
     void setRequiredWidth(int width);
 
     QSizeF documentSize() const override;
-    int additionalBlockHeight(const QTextBlock &block) const override;
+    int additionalBlockHeight(
+        const QTextBlock &block, bool includeEmbeddedWidgetsHeight) const override;
     QRectF replacementBlockBoundingRect(const QTextBlock &block) const override;
     int lineSpacing() const override;
     int relativeLineSpacing() const override;
