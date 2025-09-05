@@ -1126,7 +1126,7 @@ ModelNode createPathNode(ModelNode parent, const PropertyMap &properties)
 {
     ItemLibraryEntry itemLibraryEntry;
     itemLibraryEntry.setName("SVG Path Item");
-    itemLibraryEntry.setType("QtQuick.Studio.Components.SvgPathItem");
+    itemLibraryEntry.setType("SvgPathItem");
 
     ModelNode node = QmlItemNode::createQmlObjectNode(
                 parent.view(), itemLibraryEntry, {}, parent.defaultNodeAbstractProperty(), false);
@@ -1144,7 +1144,7 @@ ModelNode createGroupNode(ModelNode parent, const PropertyMap &properties)
 {
     ItemLibraryEntry itemLibraryEntry;
     itemLibraryEntry.setName("Group");
-    itemLibraryEntry.setType("QtQuick.Studio.Components.GroupItem");
+    itemLibraryEntry.setType("GroupItem");
 
     ModelNode node = QmlItemNode::createQmlObjectNode(
                 parent.view(), itemLibraryEntry, {}, parent.defaultNodeAbstractProperty(), false);

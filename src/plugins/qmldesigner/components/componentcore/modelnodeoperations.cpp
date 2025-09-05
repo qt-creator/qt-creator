@@ -2180,7 +2180,7 @@ ModelNode handleItemLibraryShaderDrop(const QString &shaderPath,
             // create a new Shader
             ItemLibraryEntry itemLibraryEntry;
             itemLibraryEntry.setName("Shader");
-            itemLibraryEntry.setType("QtQuick3D.Shader");
+            itemLibraryEntry.setType("Shader");
 
             // set shader properties
             PropertyName prop = "shader";
@@ -2233,7 +2233,7 @@ ModelNode handleItemLibrarySoundDrop(const QString &soundPath,
         // create a new SoundEffect
         ItemLibraryEntry itemLibraryEntry;
         itemLibraryEntry.setName("SoundEffect");
-        itemLibraryEntry.setType("QtMultimedia.SoundEffect");
+        itemLibraryEntry.setType("SoundEffect");
 
         // set source property
         PropertyName prop = "source";
