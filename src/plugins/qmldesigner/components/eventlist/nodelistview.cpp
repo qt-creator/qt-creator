@@ -132,20 +132,6 @@ bool supported(const ModelNode &node)
     return metaInfo.hasProperty("eventIds");
 }
 
-static QIcon flowTypeIconFromFont(const TypeName &type)
-{
-    QString unicode = Theme::getIconUnicode(Theme::Icon::edit);
-    const QString fontName = "qtds_propertyIconFont.ttf";
-    if (type == "FlowView.FlowTransition")
-        unicode = Theme::getIconUnicode(Theme::Icon::flowTransition);
-    else if (type == "FlowView.FlowActionArea")
-        unicode = Theme::getIconUnicode(Theme::Icon::flowAction);
-    else if (type == "FlowView.FlowWildcard")
-        unicode = Theme::getIconUnicode(Theme::Icon::wildcard);
-
-    return Utils::StyleHelper::getIconFromIconFont(fontName, unicode, 28, 28);
-}
-
 void NodeListView::reset()
 {
     auto setData = [this](int row, int column, const QVariant &data, int role = Qt::EditRole) {
@@ -163,10 +149,6 @@ void NodeListView::reset()
                 auto eventIds = eventIdsFromVariant(node.variantProperty("eventIds").value());
 
                 setData(row, NodeListModel::idColumn, node.id());
-                setData(row,
-                        NodeListModel::idColumn,
-                        flowTypeIconFromFont(node.type()),
-                        Qt::DecorationRole);
                 setData(row, NodeListModel::idColumn, iid, NodeListModel::internalIdRole);
                 setData(row, NodeListModel::idColumn, eventIds, NodeListModel::eventIdsRole);
 
