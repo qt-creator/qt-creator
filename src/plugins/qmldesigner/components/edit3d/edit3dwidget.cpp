@@ -60,16 +60,16 @@ inline static QIcon contextIcon(const DesignerIcons::IconId &iconId)
 static QIcon getEntryIcon(const ItemLibraryEntry &entry)
 {
     static const QMap<QString, DesignerIcons::IconId> itemLibraryDesignerIconId = {
-        {"QtQuick3D.OrthographicCamera__Camera Orthographic", DesignerIcons::CameraOrthographicIcon},
-        {"QtQuick3D.PerspectiveCamera__Camera Perspective", DesignerIcons::CameraPerspectiveIcon},
-        {"QtQuick3D.DirectionalLight__Light Directional", DesignerIcons::LightDirectionalIcon},
-        {"QtQuick3D.PointLight__Light Point", DesignerIcons::LightPointIcon},
-        {"QtQuick3D.SpotLight__Light Spot", DesignerIcons::LightSpotIcon},
-        {"QtQuick3D.Model__Cone", DesignerIcons::ModelConeIcon},
-        {"QtQuick3D.Model__Cube", DesignerIcons::ModelCubeIcon},
-        {"QtQuick3D.Model__Cylinder", DesignerIcons::ModelCylinderIcon},
-        {"QtQuick3D.Model__Plane", DesignerIcons::ModelPlaneIcon},
-        {"QtQuick3D.Model__Sphere", DesignerIcons::ModelSphereIcon},
+        {"OrthographicCamera__Camera Orthographic", DesignerIcons::CameraOrthographicIcon},
+        {"PerspectiveCamera__Camera Perspective", DesignerIcons::CameraPerspectiveIcon},
+        {"DirectionalLight__Light Directional", DesignerIcons::LightDirectionalIcon},
+        {"PointLight__Light Point", DesignerIcons::LightPointIcon},
+        {"SpotLight__Light Spot", DesignerIcons::LightSpotIcon},
+        {"Model__Cone", DesignerIcons::ModelConeIcon},
+        {"Model__Cube", DesignerIcons::ModelCubeIcon},
+        {"Model__Cylinder", DesignerIcons::ModelCylinderIcon},
+        {"Model__Plane", DesignerIcons::ModelPlaneIcon},
+        {"Model__Sphere", DesignerIcons::ModelSphereIcon},
     };
 
     QString entryKey = entry.typeName() + "__" + entry.name();
