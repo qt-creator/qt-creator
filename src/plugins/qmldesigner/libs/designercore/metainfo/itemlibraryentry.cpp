@@ -203,11 +203,9 @@ void ItemLibraryEntry::setName(const QString &name)
     m_data->name = name;
 }
 
-void ItemLibraryEntry::setType(const TypeName &typeName, int majorVersion, int minorVersion)
+void ItemLibraryEntry::setType(const TypeName &typeName)
 {
     m_data->typeName = typeName;
-    m_data->majorVersion = majorVersion;
-    m_data->minorVersion = minorVersion;
 }
 
 void ItemLibraryEntry::setLibraryEntryIconPath(const QString &iconPath)

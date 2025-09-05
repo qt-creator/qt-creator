@@ -73,7 +73,7 @@ WidgetInfo StatesEditorView::widgetInfo()
                             tr("States"));
 }
 
-void StatesEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
+void StatesEditorView::rootNodeTypeChanged(const QString & /*type*/)
 {
     checkForStatesAvailability();
 }

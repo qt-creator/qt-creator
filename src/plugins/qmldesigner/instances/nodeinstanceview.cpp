@@ -528,12 +528,12 @@ void NodeInstanceView::removeInstanceAndSubInstances(const ModelNode &node)
         removeInstanceNodeRelationship(node);
 }
 
-void NodeInstanceView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
+void NodeInstanceView::rootNodeTypeChanged(const QString & /*type*/)
 {
     restartProcess();
 }
 
-void NodeInstanceView::nodeTypeChanged(const ModelNode &, const TypeName &, int, int)
+void NodeInstanceView::nodeTypeChanged(const ModelNode &, const TypeName &)
 {
     restartProcess();
 }
@@ -1142,8 +1142,8 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 
         InstanceContainer container(instance.instanceId(),
                                     createQualifiedTypeName(modelNode, m_modulesStorage),
-                                    modelNode.majorVersion(),
-                                    modelNode.minorVersion(),
+                                    modelNode.exportedTypeName().version.major.toSignedInteger(),
+                                    modelNode.exportedTypeName().version.minor.toSignedInteger(),
                                     ModelUtils::componentFilePath(modelNode),
                                     modelNode.nodeSource(),
                                     nodeSourceType,
@@ -1284,8 +1284,8 @@ CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QLis
         const auto modelNode = instance.modelNode();
         InstanceContainer container(instance.instanceId(),
                                     createQualifiedTypeName(modelNode, m_modulesStorage),
-                                    modelNode.majorVersion(),
-                                    modelNode.minorVersion(),
+                                    modelNode.exportedTypeName().version.major.toSignedInteger(),
+                                    modelNode.exportedTypeName().version.minor.toSignedInteger(),
                                     ModelUtils::componentFilePath(modelNode),
                                     modelNode.nodeSource(),
                                     nodeSourceType,

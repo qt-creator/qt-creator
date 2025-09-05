@@ -35,7 +35,7 @@ public:
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) override;
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) override;
     void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList, PropertyChangeFlags propertyChange) override;
-    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
+    void rootNodeTypeChanged(const QString &type) override;
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;

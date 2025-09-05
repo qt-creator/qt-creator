@@ -93,7 +93,6 @@ void DebugView::nodeCreated(const ModelNode &createdNode)
         QString string;
         message.setString(&string);
         message << createdNode;
-        message << createdNode.majorVersion() << "." << createdNode.minorVersion();
         message << createdNode.nodeSource();
         message << "MetaInfo " << createdNode.metaInfo().isValid() << " ";
         if (auto metaInfo = createdNode.metaInfo())
@@ -211,15 +210,11 @@ void DebugView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProper
     }
 }
 
-void DebugView::rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
+void DebugView::rootNodeTypeChanged(const QString &type)
 {
     if (isDebugViewEnabled()) {
         QString message;
         message += type;
-        message += QStringLiteral(" ");
-        message += QString::number(majorVersion);
-        message += QStringLiteral(" ");
-        message += QString::number(minorVersion);
         log("::rootNodeTypeChanged:", message);
     }
 }
@@ -271,7 +266,6 @@ void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*sel
         QString string;
         message.setString(&string);
         message << selectedNode;
-        message << " version: " << selectedNode.majorVersion() << '.' << selectedNode.minorVersion();
         for (const VariantProperty &property : selectedNode.variantProperties())
             message << property << lineBreak;
 

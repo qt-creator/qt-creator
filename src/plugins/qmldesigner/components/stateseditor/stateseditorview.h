@@ -81,7 +81,7 @@ public:
     bool hasWidget() const override { return true; }
     WidgetInfo widgetInfo() override;
 
-    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
+    void rootNodeTypeChanged(const QString &type) override;
 
     ModelNode activeStatesGroupNode() const;
     void setActiveStatesGroupNode(const ModelNode &modelNode);

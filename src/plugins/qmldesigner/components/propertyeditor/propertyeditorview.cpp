@@ -1449,14 +1449,14 @@ void PropertyEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Pr
     m_locked = false;
 }
 
-void PropertyEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
+void PropertyEditorView::rootNodeTypeChanged(const QString & /*type*/)
 {
     NanotraceHR::Tracer tracer{"property editor view root node type changed", category()};
 
     resetView();
 }
 
-void PropertyEditorView::nodeTypeChanged(const ModelNode &node, const TypeName &, int, int)
+void PropertyEditorView::nodeTypeChanged(const ModelNode &node, const TypeName &)
 {
     NanotraceHR::Tracer tracer{"property editor view node type changed", category()};
 

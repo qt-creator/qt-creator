@@ -861,9 +861,6 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         return;
     }
 
-    int majorVersion = -1;
-    int minorVersion = -1;
-
     if (modelNode.isRootNode() && !m_rewriterView->allowComponentRoot() && info.isQmlComponent()) {
         for (AST::UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
             if (auto def = AST::cast<AST::UiObjectDefinition *>(iter->member)) {
@@ -878,24 +875,12 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     if (modelNode.metaInfo()
             != info //If there is no valid parentProperty                                                                                                      //the node has just been created. The type is correct then.
-        || modelNode.majorVersion() != majorVersion || modelNode.minorVersion() != minorVersion
         || modelNode.behaviorPropertyName() != onTokenProperty) {
         const bool isRootNode = m_rewriterView->rootModelNode() == modelNode;
-        differenceHandler.typeDiffers(
-            isRootNode, modelNode, info, typeName, majorVersion, minorVersion, astNode, context);
+        differenceHandler.typeDiffers(isRootNode, modelNode, info, typeName, astNode, context);
 
         if (!modelNode.isValid())
             return;
-
-        if (!isRootNode && modelNode.majorVersion() != -1 && modelNode.minorVersion() != -1) {
-            qWarning() << "Preempting Node sync. Type differs" << modelNode
-                       << modelNode.majorVersion() << modelNode.minorVersion();
-
-            // Don't return when validating. We want node offset to be calculated and aux data
-            // to be correct.
-            if (differenceHandler.isAmender())
-                return; // the difference handler will create a new node, so we're done.
-        }
     }
 
     if (info.isQmlComponent() || isImplicitComponent)
@@ -1245,21 +1230,12 @@ void TextToModelMerger::syncNodeProperty(AbstractProperty &modelProperty,
         return;
     }
 
-    int majorVersion = -1;
-    int minorVersion = -1;
-
     if (modelProperty.isNodeProperty() && dynamicPropertyType == modelProperty.dynamicTypeName()) {
         ModelNode nodePropertyNode = modelProperty.toNodeProperty().modelNode();
         syncNode(nodePropertyNode, binding, context, differenceHandler);
     } else {
-        differenceHandler.shouldBeNodeProperty(modelProperty,
-                                               info,
-                                               typeName,
-                                               majorVersion,
-                                               minorVersion,
-                                               binding,
-                                               dynamicPropertyType,
-                                               context);
+        differenceHandler.shouldBeNodeProperty(
+            modelProperty, info, typeName, binding, dynamicPropertyType, context);
     }
 }
 
@@ -1386,8 +1362,6 @@ void TextToModelMerger::syncNodeListProperty(NodeListProperty &modelListProperty
 
 ModelNode TextToModelMerger::createModelNode(const NodeMetaInfo &nodeMetaInfo,
                                              const TypeName &typeName,
-                                             int majorVersion,
-                                             int minorVersion,
                                              bool isImplicitComponent,
                                              AST::UiObjectMember *astNode,
                                              ReadingContext *context,
@@ -1433,14 +1407,8 @@ ModelNode TextToModelMerger::createModelNode(const NodeMetaInfo &nodeMetaInfo,
     else if (useCustomParser)
         nodeSourceType = ModelNode::NodeWithCustomParserSource;
 
-    ModelNode newNode = m_rewriterView->createModelNode(typeName,
-                                                        majorVersion,
-                                                        minorVersion,
-                                                        PropertyListType(),
-                                                        {},
-                                                        nodeSource,
-                                                        nodeSourceType,
-                                                        onTokenProperty);
+    ModelNode newNode = m_rewriterView->createModelNode(
+        typeName, PropertyListType(), {}, nodeSource, nodeSourceType, onTokenProperty);
 
     syncNode(newNode, astNode, context, differenceHandler);
     return newNode;
@@ -1560,8 +1528,6 @@ void ModelValidator::shouldBeVariantProperty([[maybe_unused]] AbstractProperty &
 void ModelValidator::shouldBeNodeProperty([[maybe_unused]] AbstractProperty &modelProperty,
                                           const NodeMetaInfo &,
                                           const TypeName & /*typeName*/,
-                                          int /*majorVersion*/,
-                                          int /*minorVersion*/,
                                           AST::UiObjectMember * /*astNode*/,
                                           const TypeName & /*dynamicPropertyType */,
                                           ReadingContext * /*context*/)
@@ -1588,25 +1554,11 @@ void ModelValidator::typeDiffers(bool /*isRootNode*/,
                                  ModelNode &modelNode,
                                  const NodeMetaInfo &,
                                  const TypeName &typeName,
-                                 int majorVersion,
-                                 int minorVersion,
                                  QmlJS::AST::UiObjectMember * /*astNode*/,
                                  ReadingContext * /*context*/)
 {
     QTC_ASSERT(modelNode.type() == typeName, return);
 
-    if (modelNode.majorVersion() != majorVersion) {
-        qDebug() << Q_FUNC_INFO << modelNode;
-        qDebug() << typeName << modelNode.majorVersion() << majorVersion;
-    }
-
-    if (modelNode.minorVersion() != minorVersion) {
-        qDebug() << Q_FUNC_INFO << modelNode;
-        qDebug() << typeName << modelNode.minorVersion() << minorVersion;
-    }
-
-    QTC_ASSERT(modelNode.majorVersion() == majorVersion, return);
-    QTC_ASSERT(modelNode.minorVersion() == minorVersion, return);
     QTC_ASSERT(0, return);
 }
 
@@ -1715,8 +1667,6 @@ void ModelAmender::shouldBeVariantProperty(AbstractProperty &modelProperty, cons
 void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
                                         const NodeMetaInfo &nodeMetaInfo,
                                         const TypeName &typeName,
-                                        int majorVersion,
-                                        int minorVersion,
                                         AST::UiObjectMember *astNode,
                                         const TypeName &dynamicPropertyType,
                                         ReadingContext *context)
@@ -1727,14 +1677,8 @@ void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
     const bool propertyTakesComponent = propertyHasImplicitComponentType(newNodeProperty,
                                                                          nodeMetaInfo);
 
-    const ModelNode &newNode = m_merger->createModelNode(nodeMetaInfo,
-                                                         typeName,
-                                                         majorVersion,
-                                                         minorVersion,
-                                                         propertyTakesComponent,
-                                                         astNode,
-                                                         context,
-                                                         *this);
+    const ModelNode &newNode = m_merger->createModelNode(
+        nodeMetaInfo, typeName, propertyTakesComponent, astNode, context, *this);
 
     if (dynamicPropertyType.isEmpty())
         newNodeProperty.setModelNode(newNode);
@@ -1774,13 +1718,10 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
         return {};
     }
 
-    int majorVersion = -1;
-    int minorVersion = -1;
-
     const bool propertyTakesComponent = propertyHasImplicitComponentType(modelProperty, info);
 
     const ModelNode &newNode = m_merger->createModelNode(
-        info, typeName, majorVersion, minorVersion, propertyTakesComponent, arrayMember, context, *this);
+        info, typeName, propertyTakesComponent, arrayMember, context, *this);
 
     if (propertyTakesComponent)
         m_merger->setupComponentDelayed(newNode, true);
@@ -1803,8 +1744,6 @@ void ModelAmender::typeDiffers(bool isRootNode,
                                ModelNode &modelNode,
                                const NodeMetaInfo &nodeMetaInfo,
                                const TypeName &typeName,
-                               int majorVersion,
-                               int minorVersion,
                                AST::UiObjectMember *astNode,
                                ReadingContext *context)
 {
@@ -1813,7 +1752,7 @@ void ModelAmender::typeDiffers(bool isRootNode,
                                                                             nodeMetaInfo);
 
     if (isRootNode) {
-        modelNode.view()->changeRootNodeType(typeName, majorVersion, minorVersion);
+        modelNode.view()->changeRootNodeType(typeName);
     } else {
         NodeAbstractProperty parentProperty = modelNode.parentProperty();
         int nodeIndex = -1;
@@ -1824,14 +1763,8 @@ void ModelAmender::typeDiffers(bool isRootNode,
 
         removeModelNode(modelNode);
 
-        const ModelNode &newNode = m_merger->createModelNode(nodeMetaInfo,
-                                                             typeName,
-                                                             majorVersion,
-                                                             minorVersion,
-                                                             propertyTakesComponent,
-                                                             astNode,
-                                                             context,
-                                                             *this);
+        const ModelNode &newNode = m_merger->createModelNode(
+            nodeMetaInfo, typeName, propertyTakesComponent, astNode, context, *this);
         parentProperty.reparentHere(newNode);
         if (parentProperty.isNodeListProperty()) {
             int currentIndex = parentProperty.toNodeListProperty().indexOf(newNode);

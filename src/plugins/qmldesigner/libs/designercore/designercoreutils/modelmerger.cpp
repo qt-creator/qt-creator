@@ -216,7 +216,7 @@ void ModelMerger::replaceModel(const ModelNode &modelNode, const MergePredicate 
         syncId(rootNode, modelNode, idRenamingHash);
         syncNodeProperties(rootNode, modelNode, idRenamingHash, view(), predicate);
         syncNodeListProperties(rootNode, modelNode, idRenamingHash, view(), predicate);
-        m_view->changeRootNodeType(modelNode.type(), modelNode.majorVersion(), modelNode.minorVersion());
+        m_view->changeRootNodeType(modelNode.type());
     });
 }
 

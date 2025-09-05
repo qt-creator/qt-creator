@@ -246,7 +246,7 @@ void FormEditorView::nodeRemoved(const ModelNode &/*removedNode*/,
     updateHasEffects();
 }
 
-void FormEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
+void FormEditorView::rootNodeTypeChanged(const QString & /*type*/)
 {
     NanotraceHR::Tracer tracer{"form editor view root node type changed", category()};
 

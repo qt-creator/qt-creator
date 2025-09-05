@@ -77,10 +77,7 @@ public:
 
     MOCK_METHOD(void,
                 nodeTypeChanged,
-                (const QmlDesigner::ModelNode &node,
-                 const QmlDesigner::TypeName &type,
-                 int majorVersion,
-                 int minorVersion),
+                (const QmlDesigner::ModelNode &node, const QmlDesigner::TypeName &type),
                 (override));
 
     using AbstractView::setKind;

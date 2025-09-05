@@ -355,9 +355,7 @@ QmlModelState QmlModelState::duplicate(const QString &name, SL sl) const
 
     const QList<ModelNode> nodes = modelNode().nodeListProperty("changes").toModelNodeList();
     for (const ModelNode &childNode : nodes) {
-        ModelNode newModelNode(view()->createModelNode(childNode.type(),
-                                                       childNode.majorVersion(),
-                                                       childNode.minorVersion()));
+        ModelNode newModelNode(view()->createModelNode(childNode.type()));
 
         for (const BindingProperty &bindingProperty : childNode.bindingProperties()) {
             auto property = newModelNode.bindingProperty(bindingProperty.name());

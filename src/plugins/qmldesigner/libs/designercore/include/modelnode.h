@@ -90,8 +90,6 @@ public:
     TypeName type(SL sl = {}) const;
     QString simplifiedTypeName(SL sl = {}) const;
     QString displayName(SL sl = {}) const;
-    int minorVersion(SL sl = {}) const;
-    int majorVersion(SL sl = {}) const;
 
     bool isValid() const;
 
@@ -101,7 +99,7 @@ public:
 
     NodeAbstractProperty parentProperty(SL sl = {}) const;
     void setParentProperty(NodeAbstractProperty parent, SL sl = {});
-    void changeType(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1, SL sl = {});
+    void changeType(const TypeName &typeName, SL sl = {});
     void setParentProperty(const ModelNode &newParentNode,
                            const PropertyName &propertyName,
                            SL sl = {});

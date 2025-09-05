@@ -31,7 +31,7 @@ public:
                                 const NodeAbstractProperty &,
                                 AbstractView::PropertyChangeFlags) override;
     void propertiesRemoved(const QList<AbstractProperty>&) override;
-    void rootNodeTypeChanged(const QString &, int , int ) override;
+    void rootNodeTypeChanged(const QString &) override;
     void rewriterBeginTransaction() override;
     void rewriterEndTransaction() override;
     void currentStateChanged(const ModelNode &) override;

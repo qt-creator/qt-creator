@@ -36,7 +36,7 @@ public:
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) override;
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) override;
     void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty>& propertyList,PropertyChangeFlags propertyChange) override;
-    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
+    void rootNodeTypeChanged(const QString &type) override;
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
@@ -165,11 +165,11 @@ void ForwardView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProp
         view->signalHandlerPropertiesChanged(adjustedList(propertyList, view.data()), propertyChange);
 }
 
-template <class ViewType>
-void ForwardView<ViewType>::rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
+template<class ViewType>
+void ForwardView<ViewType>::rootNodeTypeChanged(const QString &type)
 {
     for (const ViewTypePointer &view : std::as_const(m_targetViewList))
-        view->rootNodeTypeChanged(type, majorVersion, minorVersion);
+        view->rootNodeTypeChanged(type);
 }
 
 template <class ViewType>

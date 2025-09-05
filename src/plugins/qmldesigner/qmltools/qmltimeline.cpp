@@ -360,7 +360,7 @@ void QmlTimeline::addKeyframeGroupIfNotExists(const ModelNode &node, PropertyNam
         return;
 
     if (!hasKeyframeGroup(node, propertyName)) {
-        ModelNode frames = modelNode().view()->createModelNode("KeyframeGroup", 1, 0);
+        ModelNode frames = modelNode().view()->createModelNode("KeyframeGroup");
 
         modelNode().defaultNodeListProperty().reparentHere(frames);
 

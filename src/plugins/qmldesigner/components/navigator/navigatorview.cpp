@@ -506,14 +506,14 @@ void NavigatorView::propertiesRemoved(const QList<AbstractProperty> &propertyLis
     m_currentModelInterface->notifyModelNodesRemoved(modelNodes);
 }
 
-void NavigatorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
+void NavigatorView::rootNodeTypeChanged(const QString & /*type*/)
 {
     NanotraceHR::Tracer tracer{"navigator view root node type changed", category()};
 
     m_currentModelInterface->notifyDataChanged(rootModelNode());
 }
 
-void NavigatorView::nodeTypeChanged(const ModelNode &modelNode, const TypeName &, int , int)
+void NavigatorView::nodeTypeChanged(const ModelNode &modelNode, const TypeName &)
 {
     NanotraceHR::Tracer tracer{"navigator view node type changed", category()};
 

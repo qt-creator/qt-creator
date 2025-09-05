@@ -355,7 +355,7 @@ void ComponentView::importsChanged(const Imports &addedImports, const Imports &r
     });
     if (simulinkImportAdded) {
         // add SLConnector component when SimulinkConnector import is added
-        ModelNode node = createModelNode("SLConnector", 1, 0);
+        ModelNode node = createModelNode("SLConnector");
         node.bindingProperty("root").setExpression(rootModelNode().validId());
         rootModelNode().defaultNodeListProperty().reparentHere(node);
     } else {

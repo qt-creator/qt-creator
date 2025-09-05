@@ -80,8 +80,8 @@ public:
                           const ModelNode &movedNode,
                           int /*oldIndex*/) override;
     void nodeOrderChanged(const NodeListProperty &listProperty) override;
-    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
-    void nodeTypeChanged(const ModelNode& node, const TypeName &type, int majorVersion, int minorVersion) override;
+    void rootNodeTypeChanged(const QString &type) override;
+    void nodeTypeChanged(const ModelNode &node, const TypeName &type) override;
 
     void rewriterBeginTransaction() override;
     void rewriterEndTransaction() override;

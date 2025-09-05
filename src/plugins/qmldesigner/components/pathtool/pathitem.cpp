@@ -51,7 +51,7 @@ void PathItem::writeLinePath(const ModelNode &pathNode, const CubicSegment &cubi
     propertyList.append(PropertyPair("x", cubicSegment.fourthControlX()));
     propertyList.append(PropertyPair("y", cubicSegment.fourthControlY()));
 
-    ModelNode lineNode = pathNode.view()->createModelNode("PathLine", -1, -1, propertyList);
+    ModelNode lineNode = pathNode.view()->createModelNode("PathLine", propertyList);
     pathNode.nodeListProperty("pathElements").reparentHere(lineNode);
 }
 
@@ -63,7 +63,7 @@ void PathItem::writeQuadPath(const ModelNode &pathNode, const CubicSegment &cubi
     propertyList.append(PropertyPair("x", cubicSegment.fourthControlX()));
     propertyList.append(PropertyPair("y", cubicSegment.fourthControlY()));
 
-    ModelNode lineNode = pathNode.view()->createModelNode("PathQuad", -1, -1, propertyList);
+    ModelNode lineNode = pathNode.view()->createModelNode("PathQuad", propertyList);
     pathNode.nodeListProperty("pathElements").reparentHere(lineNode);
 }
 
@@ -77,7 +77,7 @@ void PathItem::writeCubicPath(const ModelNode &pathNode, const CubicSegment &cub
     propertyList.append(PropertyPair("x", cubicSegment.fourthControlX()));
     propertyList.append(PropertyPair("y", cubicSegment.fourthControlY()));
 
-    ModelNode lineNode = pathNode.view()->createModelNode("PathCubic", -1, -1, propertyList);
+    ModelNode lineNode = pathNode.view()->createModelNode("PathCubic", propertyList);
     pathNode.nodeListProperty("pathElements").reparentHere(lineNode);
 }
 
@@ -90,7 +90,7 @@ void PathItem::writePathAttributes(const ModelNode &pathNode, const QMap<QString
         propertyList.append(PropertyPair("name", attributesIterator.key()));
         propertyList.append(PropertyPair("value", attributesIterator.value()));
 
-        ModelNode lineNode = pathNode.view()->createModelNode("PathAttribute", -1, -1, propertyList);
+        ModelNode lineNode = pathNode.view()->createModelNode("PathAttribute", propertyList);
         pathNode.nodeListProperty("pathElements").reparentHere(lineNode);
     }
 }
@@ -101,7 +101,7 @@ void PathItem::writePathPercent(const ModelNode& pathNode, double percent)
         QList<QPair<PropertyName, QVariant> > propertyList;
         propertyList.append(PropertyPair("value", percent));
 
-        ModelNode lineNode = pathNode.view()->createModelNode("PathPercent", -1, -1, propertyList);
+        ModelNode lineNode = pathNode.view()->createModelNode("PathPercent", propertyList);
         pathNode.nodeListProperty("pathElements").reparentHere(lineNode);
     }
 }

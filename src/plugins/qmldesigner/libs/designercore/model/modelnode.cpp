@@ -203,38 +203,6 @@ TypeName ModelNode::type(SL sl) const
     return m_internalNode->typeName;
 }
 
-/*! \brief minor number of the QML type
-\return minor number
-*/
-int ModelNode::minorVersion(SL sl) const
-{
-    if (!isValid())
-        return {};
-
-    NanotraceHR::Tracer tracer{"model node minor version",
-                               category(),
-                               keyValue("model node", *this),
-                               keyValue("caller location", sl)};
-
-    return m_internalNode->minorVersion;
-}
-
-/*! \brief major number of the QML type
-\return major number
-*/
-int ModelNode::majorVersion(SL sl) const
-{
-    if (!isValid())
-        return {};
-
-    NanotraceHR::Tracer tracer{"model node major version",
-                               category(),
-                               keyValue("model node", *this),
-                               keyValue("caller location", sl)};
-
-    return m_internalNode->majorVersion;
-}
-
 /*! \return the short-hand type name of the node. */
 QString ModelNode::simplifiedTypeName(SL sl) const
 {
@@ -363,7 +331,7 @@ void ModelNode::setParentProperty(NodeAbstractProperty parent, SL sl)
     parent.reparentHere(*this);
 }
 
-void ModelNode::changeType(const TypeName &typeName, int majorVersion, int minorVersion, SL sl)
+void ModelNode::changeType(const TypeName &typeName, SL sl)
 {
     if (!isValid())
         return;
@@ -373,7 +341,7 @@ void ModelNode::changeType(const TypeName &typeName, int majorVersion, int minor
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    model()->d->changeNodeType(m_internalNode, typeName, majorVersion, minorVersion);
+    model()->d->changeNodeType(m_internalNode, typeName);
 }
 
 void ModelNode::setParentProperty(const ModelNode &newParentNode, const PropertyName &propertyName, SL sl)
@@ -933,7 +901,7 @@ bool ModelNode::hasMetaInfo(SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    return model()->hasNodeMetaInfo(type(), majorVersion(), minorVersion());
+    return model()->hasNodeMetaInfo(type());
 }
 
 /*! \brief has a node the selection of the model

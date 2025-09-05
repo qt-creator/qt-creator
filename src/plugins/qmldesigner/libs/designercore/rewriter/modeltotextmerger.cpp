@@ -106,7 +106,7 @@ void ModelToTextMerger::propertiesChanged(const QList<AbstractProperty>& propert
     }
 }
 
-void ModelToTextMerger::nodeTypeChanged(const ModelNode &node,const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
+void ModelToTextMerger::nodeTypeChanged(const ModelNode &node, const QString & /*type*/)
 {
     if (!node.isInHierarchy())
         return;

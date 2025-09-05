@@ -115,17 +115,12 @@ public:
                                             Storage::ModuleKind kind,
                                             SL sl = {}) const;
     NodeMetaInfo metaInfo(Utils::SmallStringView typeName,
-                          int majorVersion = -1,
-                          int minorVersion = -1,
                           SL sl = {}) const;
     NodeMetaInfo metaInfo(Module module,
                           Utils::SmallStringView typeName,
                           Storage::Version version = Storage::Version{},
                           SL sl = {}) const;
-    bool hasNodeMetaInfo(const TypeName &typeName,
-                         int majorVersion = -1,
-                         int minorVersion = -1,
-                         SL sl = {}) const;
+    bool hasNodeMetaInfo(const TypeName &typeName, SL sl = {}) const;
 
     NodeMetaInfo boolMetaInfo() const;
     NodeMetaInfo doubleMetaInfo() const;

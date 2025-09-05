@@ -449,7 +449,7 @@ ModelNode createMaterial(AbstractView *view, const TypeName &typeName)
     if (!matLib.isValid() || !typeName.size())
         return {};
 
-    ModelNode newMatNode = view->createModelNode(typeName, -1, -1);
+    ModelNode newMatNode = view->createModelNode(typeName);
     matLib.defaultNodeListProperty().reparentHere(newMatNode);
 
     static QRegularExpression rgx("([A-Z])([a-z]*)");

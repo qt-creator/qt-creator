@@ -264,9 +264,9 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
         compatibleProps.copyMappedProperties(selectedNode);
 
         if (selectedNode.isRootNode())
-            rewriterView->changeRootNodeType(typeName.toUtf8(), -1, -1);
+            rewriterView->changeRootNodeType(typeName.toUtf8());
         else
-            selectedNode.changeType(typeName.toUtf8(), -1, -1);
+            selectedNode.changeType(typeName.toUtf8());
 
         compatibleProps.applyCompatibleProperties(selectedNode);
     };

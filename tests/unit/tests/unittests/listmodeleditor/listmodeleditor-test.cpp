@@ -108,7 +108,7 @@ public:
                                  listModelNode);
 
         componentModel->attachView(&mockComponentView);
-        mockComponentView.changeRootNodeType("ListModel", -1, -1);
+        mockComponentView.changeRootNodeType("ListModel");
 
         componentElement = createElement({{"name", "com"}, {"value", 11}, {"value2", 55}},
                                          mockComponentView,
@@ -121,7 +121,7 @@ public:
 
     ModelNode createElement(std::initializer_list<Entry> entries, AbstractView &view, ModelNode listModel)
     {
-        auto element = view.createModelNode("QtQml.Models/ListElement", 2, 15);
+        auto element = view.createModelNode("QtQml.Models/ListElement");
         listModel.defaultNodeListProperty().reparentHere(element);
 
         for (const auto &entry : entries) {

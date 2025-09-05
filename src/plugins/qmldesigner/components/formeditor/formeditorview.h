@@ -61,7 +61,7 @@ public:
     void nodeSourceChanged(const ModelNode &node, const QString &newNodeSource) override;
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) override;
     void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList) override;
-    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
+    void rootNodeTypeChanged(const QString &type) override;
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;

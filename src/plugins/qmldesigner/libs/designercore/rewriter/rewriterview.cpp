@@ -350,28 +350,25 @@ void RewriterView::nodeOrderChanged(const NodeListProperty &listProperty)
         applyChanges();
 }
 
-void RewriterView::rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
+void RewriterView::rootNodeTypeChanged(const QString &type)
 {
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
 
-    modelToTextMerger()->nodeTypeChanged(rootModelNode(), type, majorVersion, minorVersion);
+    modelToTextMerger()->nodeTypeChanged(rootModelNode(), type);
 
     if (!isModificationGroupActive())
         applyChanges();
 }
 
-void RewriterView::nodeTypeChanged(const ModelNode &node,
-                                   const TypeName &type,
-                                   int majorVersion,
-                                   int minorVersion)
+void RewriterView::nodeTypeChanged(const ModelNode &node, const TypeName &type)
 {
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
 
-    modelToTextMerger()->nodeTypeChanged(node, QString::fromLatin1(type), majorVersion, minorVersion);
+    modelToTextMerger()->nodeTypeChanged(node, QString::fromLatin1(type));
 
     if (!isModificationGroupActive())
         applyChanges();

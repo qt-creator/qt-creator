@@ -97,8 +97,6 @@ public:
     void setFileUrl(const QUrl &url);
 
     InternalNodePointer createNode(TypeNameView typeName,
-                                   int majorVersion,
-                                   int minorVersion,
                                    const QList<QPair<PropertyName, QVariant>> &propertyList,
                                    const AuxiliaryDatas &auxPropertyList,
                                    const QString &nodeSource,
@@ -109,7 +107,7 @@ public:
     /*factory methods for internal use in model and rewriter*/
     void removeNodeAndRelatedResources(const InternalNodePointer &node);
     void changeNodeId(const InternalNodePointer &node, const QString &id);
-    void changeNodeType(const InternalNodePointer &node, const TypeName &typeName, int majorVersion, int minorVersion);
+    void changeNodeType(const InternalNodePointer &node, const TypeName &typeName);
 
     InternalNodePointer rootNode() const;
     InternalNodePointer findNode(const QString &id) const;
@@ -140,7 +138,7 @@ public:
                            PropertyNameView parentPropertyName,
                            AbstractView::PropertyChangeFlags propertyChange);
     void notifyNodeIdChanged(const InternalNodePointer &node, const QString &newId, const QString &oldId);
-    void notifyNodeTypeChanged(const InternalNodePointer &node, const TypeName &type, int majorVersion, int minorVersion);
+    void notifyNodeTypeChanged(const InternalNodePointer &node, const TypeName &type);
 
     void notifyPropertiesRemoved(const QList<PropertyPair> &propertyList);
     void notifyPropertiesAboutToBeRemoved(const QList<InternalProperty *> &internalPropertyList);
@@ -169,7 +167,7 @@ public:
                                     const QVariant &data);
     void notifyNodeSourceChanged(const InternalNodePointer &node, const QString &newNodeSource);
 
-    void notifyRootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
+    void notifyRootNodeTypeChanged(const QString &type);
 
     void notifyCustomNotification(const AbstractView *senderView,
                                   const QString &identifier,
@@ -268,7 +266,7 @@ public:
                          int to);
     static bool propertyNameIsValid(PropertyNameView propertyName);
     void clearParent(const InternalNodePointer &node);
-    void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
+    void changeRootNodeType(const TypeName &type);
     void setScriptFunctions(const InternalNodePointer &node, const QStringList &scriptFunctionList);
     void setNodeSource(const InternalNodePointer &node, const QString &nodeSource);
 

@@ -415,28 +415,6 @@ void TypeAnnotationReader::addHints()
     }
 }
 
-void TypeAnnotationReader::setVersion(const QString &versionNumber)
-{
-    //    const TypeName typeName = m_currentEntry.typeName();
-    int major = 1;
-    int minor = 0;
-
-    if (!versionNumber.isEmpty()) {
-        int val = -1;
-        bool ok = false;
-        if (versionNumber.contains('.'_L1)) {
-            val = versionNumber.split('.'_L1).constFirst().toInt(&ok);
-            major = ok ? val : major;
-            val = versionNumber.split('.'_L1).constLast().toInt(&ok);
-            minor = ok ? val : minor;
-        } else {
-            val = versionNumber.toInt(&ok);
-            major = ok ? val : major;
-        }
-    }
-    // m_currentEntry.setType(typeName, major, minor);
-}
-
 TypeAnnotationReader::ParserSate TypeAnnotationReader::parserState() const
 {
     return m_parserState;

@@ -39,7 +39,7 @@ public:
     void nodeReparented(const QmlDesigner::ModelNode &node, const QmlDesigner::NodeAbstractProperty &newPropertyParent, const QmlDesigner::NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
     void nodeAboutToBeReparented(const QmlDesigner::ModelNode &node, const QmlDesigner::NodeAbstractProperty &newPropertyParent, const QmlDesigner::NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
     void nodeIdChanged(const QmlDesigner::ModelNode& node, const QString& newId, const QString& oldId);
-    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
+    void rootNodeTypeChanged(const QString &type);
 
     void bindingPropertiesChanged(const QList<QmlDesigner::BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
     void variantPropertiesChanged(const QList<QmlDesigner::VariantProperty>& propertyList, PropertyChangeFlags propertyChange);

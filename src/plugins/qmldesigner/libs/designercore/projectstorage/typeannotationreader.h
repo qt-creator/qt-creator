@@ -109,8 +109,6 @@ private:
     void readHint(const QString &name, const QVariant &value);
     void addHints();
 
-    void setVersion(const QString &versionNumber);
-
     ParserSate parserState() const;
     void setParserState(ParserSate newParserState);
 

@@ -82,7 +82,7 @@ void BundleHelper::createImporter()
                 QTC_ASSERT(target, return);
 
                 m_view->executeInTransaction("BundleHelper::createImporter", [&] {
-                    ModelNode newNode = m_view->createModelNode(typeName, -1, -1);
+                    ModelNode newNode = m_view->createModelNode(typeName);
                     target.defaultNodeListProperty().reparentHere(newNode);
                     newNode.setIdWithoutRefactoring(m_view->model()->generateNewId(
                         newNode.simplifiedTypeName(), "node"));

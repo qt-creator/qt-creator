@@ -83,9 +83,7 @@ void TextEditorView::nodeAboutToBeRemoved(const ModelNode &/*removedNode*/)
 {
 }
 
-void TextEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
-{
-}
+void TextEditorView::rootNodeTypeChanged(const QString & /*type*/) {}
 
 void TextEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& /*propertyList*/)
 {

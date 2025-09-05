@@ -95,19 +95,7 @@ RewriterTransaction AbstractView::beginRewriterTransaction(const QByteArray &ide
     return RewriterTransaction(this, identifier);
 }
 
-ModelNode AbstractView::createModelNode(const TypeName &typeName, SL sl)
-{
-    NanotraceHR::Tracer tracer{"abstract view create model node",
-                               category(),
-                               keyValue("type", typeName),
-                               keyValue("source location", sl)};
-
-    return createModelNode(typeName, -1, -1);
-}
-
 ModelNode AbstractView::createModelNode(const TypeName &typeName,
-                                        int majorVersion,
-                                        int minorVersion,
                                         const QList<QPair<PropertyName, QVariant>> &propertyList,
                                         const AuxiliaryDatas &auxPropertyList,
                                         const QString &nodeSource,
@@ -121,33 +109,6 @@ ModelNode AbstractView::createModelNode(const TypeName &typeName,
                           keyValue("source location", sl)};
 
     return ModelNode(model()->d->createNode(typeName,
-                                            majorVersion,
-                                            minorVersion,
-                                            propertyList,
-                                            auxPropertyList,
-                                            nodeSource,
-                                            nodeSourceType,
-                                            behaviorPropertyName),
-                     model(),
-                     this);
-}
-
-ModelNode AbstractView::createModelNode(const TypeName &typeName,
-                                        const QList<QPair<PropertyName, QVariant>> &propertyList,
-                                        const AuxiliaryDatas &auxPropertyList,
-                                        const QString &nodeSource,
-                                        ModelNode::NodeSourceType nodeSourceType,
-                                        const QString &behaviorPropertyName,
-                                        SL sl)
-{
-    NanotraceHR::Tracer tracer{"abstract view create model node",
-                               category(),
-                               keyValue("type", typeName),
-                               keyValue("source location", sl)};
-
-    return ModelNode(model()->d->createNode(typeName,
-                                            -1,
-                                            -1,
                                             propertyList,
                                             auxPropertyList,
                                             nodeSource,
@@ -391,14 +352,9 @@ void AbstractView::signalDeclarationPropertiesChanged(const QVector<SignalDeclar
 {
 }
 
-void AbstractView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
-{
-}
+void AbstractView::rootNodeTypeChanged(const QString & /*type*/) {}
 
-void AbstractView::nodeTypeChanged(const ModelNode & /*node*/, const TypeName & /*type*/, int /*majorVersion*/, int /*minorVersion*/)
-{
-
-}
+void AbstractView::nodeTypeChanged(const ModelNode & /*node*/, const TypeName & /*type*/) {}
 
 void AbstractView::importsChanged(const Imports &/*addedImports*/, const Imports &/*removedImports*/)
 {
@@ -728,13 +684,13 @@ void AbstractView::setCurrentStateNode(const ModelNode &node)
         m_model->setCurrentStateNode(node);
 }
 
-void AbstractView::changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion)
+void AbstractView::changeRootNodeType(const TypeName &type)
 {
     NanotraceHR::Tracer tracer{"abstract view change root node type", ModelTracing::category()};
 
     Internal::WriteLocker locker(m_model.data());
 
-    m_model.data()->d->changeRootNodeType(type, majorVersion, minorVersion);
+    m_model.data()->d->changeRootNodeType(type);
 }
 
 ModelNode AbstractView::currentStateNode() const

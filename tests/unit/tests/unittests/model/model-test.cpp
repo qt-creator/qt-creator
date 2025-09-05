@@ -1488,7 +1488,7 @@ TEST_F(Model_MetaInfo, notify_about_removed_exported_type_name)
     ExportedTypeName itemExportedTypeName{qtQuickModuleId, itemTypeId, "Item"};
     auto observer = projectStorageMock.observers.front();
 
-    EXPECT_CALL(viewMock, nodeTypeChanged(node, Eq("Item"), -1, -1));
+    EXPECT_CALL(viewMock, nodeTypeChanged(node, Eq("Item")));
 
     observer->exportedTypeNamesChanged({}, {itemExportedTypeName});
 }
@@ -1522,7 +1522,7 @@ TEST_F(Model_MetaInfo, notify_about_added_exported_type_name)
                                                  {qtQuickModuleId, itemTypeId2, "Item"});
     ExportedTypeName item2ExportedTypeName{qtQuickModuleId, itemTypeId2, "Item"};
 
-    EXPECT_CALL(viewMock, nodeTypeChanged(node, Eq("Item"), -1, -1));
+    EXPECT_CALL(viewMock, nodeTypeChanged(node, Eq("Item")));
 
     observer->exportedTypeNamesChanged({item2ExportedTypeName}, {});
 }

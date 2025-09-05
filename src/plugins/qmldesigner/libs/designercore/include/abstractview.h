@@ -88,20 +88,8 @@ public:
 
     RewriterTransaction beginRewriterTransaction(const QByteArray &identifier);
 
-    ModelNode createModelNode(const TypeName &typeName, SL sl = {});
-
     ModelNode createModelNode(const TypeName &typeName,
-                              int majorVersion,
-                              int minorVersion,
                               const PropertyListType &propertyList = PropertyListType(),
-                              const AuxiliaryDatas &auxPropertyList = {},
-                              const QString &nodeSource = {},
-                              ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource,
-                              const QString &behaviorPropertyName = {},
-                              SL sl = {});
-
-    ModelNode createModelNode(const TypeName &typeName,
-                              const PropertyListType &propertyList,
                               const AuxiliaryDatas &auxPropertyList = {},
                               const QString &nodeSource = {},
                               ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource,
@@ -163,8 +151,8 @@ public:
                                                 PropertyChangeFlags propertyChange);
     virtual void signalDeclarationPropertiesChanged(const QVector<SignalDeclarationProperty> &propertyList,
                                                     PropertyChangeFlags propertyChange);
-    virtual void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
-    virtual void nodeTypeChanged(const ModelNode &node, const TypeName &type, int majorVersion, int minorVersion);
+    virtual void rootNodeTypeChanged(const QString &type);
+    virtual void nodeTypeChanged(const ModelNode &node, const TypeName &type);
 
     virtual void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList);
     virtual void instanceErrorChanged(const QVector<ModelNode> &errorNodeList);
@@ -226,7 +214,7 @@ public:
     virtual void dragStarted(QMimeData *mimeData);
     virtual void dragEnded();
 
-    void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
+    void changeRootNodeType(const TypeName &type);
 
     void emitCustomNotification(const QString &identifier,
                                 Utils::span<const ModelNode> nodes = {},

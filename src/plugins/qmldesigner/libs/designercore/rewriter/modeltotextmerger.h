@@ -36,7 +36,7 @@ public:
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId);
     void nodeSlidAround(const ModelNode &movingNode, const ModelNode &inFrontOfNode);
-    void nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion);
+    void nodeTypeChanged(const ModelNode &node, const QString &type);
 
     void addImports(const Imports &import);
     void removeImports(const Imports &imports);

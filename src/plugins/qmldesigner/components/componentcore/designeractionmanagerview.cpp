@@ -57,7 +57,7 @@ void DesignerActionManagerView::propertiesRemoved(const QList<AbstractProperty> 
     setupContext(SelectionContext::UpdateMode::Properties);
 }
 
-void DesignerActionManagerView::rootNodeTypeChanged(const QString &, int, int)
+void DesignerActionManagerView::rootNodeTypeChanged(const QString &)
 {
     setupContext();
 }

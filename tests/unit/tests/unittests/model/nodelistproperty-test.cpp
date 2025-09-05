@@ -40,11 +40,11 @@ protected:
         model->attachView(&abstractViewMock);
         nodeListProperty = abstractViewMock.rootModelNode().nodeListProperty("foo");
 
-        node1 = abstractViewMock.createModelNode("QtQick.Item1", -1, -1);
-        node2 = abstractViewMock.createModelNode("QtQick.Item2", -1, -1);
-        node3 = abstractViewMock.createModelNode("QtQick.Item3", -1, -1);
-        node4 = abstractViewMock.createModelNode("QtQick.Item4", -1, -1);
-        node5 = abstractViewMock.createModelNode("QtQick.Item5", -1, -1);
+        node1 = abstractViewMock.createModelNode("QtQick.Item1");
+        node2 = abstractViewMock.createModelNode("QtQick.Item2");
+        node3 = abstractViewMock.createModelNode("QtQick.Item3");
+        node4 = abstractViewMock.createModelNode("QtQick.Item4");
+        node5 = abstractViewMock.createModelNode("QtQick.Item5");
 
         nodeListProperty.reparentHere(node1);
         nodeListProperty.reparentHere(node2);

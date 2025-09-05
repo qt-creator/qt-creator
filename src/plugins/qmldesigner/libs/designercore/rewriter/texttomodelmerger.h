@@ -95,8 +95,6 @@ public:
                               DifferenceHandler &differenceHandler);
     ModelNode createModelNode(const QmlDesigner::NodeMetaInfo &nodeMetaInfo,
                               const TypeName &typeName,
-                              int majorVersion,
-                              int minorVersion,
                               bool isImplicitComponent,
                               QmlJS::AST::UiObjectMember *astNode,
                               ReadingContext *context,
@@ -187,8 +185,6 @@ public:
     virtual void shouldBeNodeProperty(AbstractProperty &modelProperty,
                                       const NodeMetaInfo &nodeMetaInfo,
                                       const TypeName &typeName,
-                                      int majorVersion,
-                                      int minorVersion,
                                       QmlJS::AST::UiObjectMember *astNode,
                                       const TypeName &dynamicPropertyType,
                                       ReadingContext *context)
@@ -201,8 +197,6 @@ public:
                              ModelNode &modelNode,
                              const NodeMetaInfo &nodeMetaInfo,
                              const TypeName &typeName,
-                             int majorVersion,
-                             int minorVersion,
                              QmlJS::AST::UiObjectMember *astNode,
                              ReadingContext *context)
         = 0;
@@ -246,8 +240,6 @@ public:
     void shouldBeNodeProperty(AbstractProperty &modelProperty,
                               const NodeMetaInfo &nodeMetaInfo,
                               const TypeName &typeName,
-                              int majorVersion,
-                              int minorVersion,
                               QmlJS::AST::UiObjectMember *astNode,
                               const TypeName &dynamicPropertyType,
                               ReadingContext *context) override;
@@ -260,8 +252,6 @@ public:
                      ModelNode &modelNode,
                      const NodeMetaInfo &nodeMetaInfo,
                      const TypeName &typeName,
-                     int majorVersion,
-                     int minorVersion,
                      QmlJS::AST::UiObjectMember *astNode,
                      ReadingContext *context) override;
     void propertyAbsentFromQml(AbstractProperty &modelProperty) override;
@@ -301,8 +291,6 @@ public:
     void shouldBeNodeProperty(AbstractProperty &modelProperty,
                               const NodeMetaInfo &nodeMetaInfo,
                               const TypeName &typeName,
-                              int majorVersion,
-                              int minorVersion,
                               QmlJS::AST::UiObjectMember *astNode,
                               const TypeName &dynamicPropertyType,
                               ReadingContext *context) override;
@@ -315,8 +303,6 @@ public:
                      ModelNode &modelNode,
                      const NodeMetaInfo &nodeMetaInfo,
                      const TypeName &typeName,
-                     int majorVersion,
-                     int minorVersion,
                      QmlJS::AST::UiObjectMember *astNode,
                      ReadingContext *context) override;
     void propertyAbsentFromQml(AbstractProperty &modelProperty) override;

@@ -57,14 +57,10 @@ public:
 
     explicit InternalNode(TypeNameView typeName,
                           std::string_view unqualifiedTypeName,
-                          int majorVersion,
-                          int minorVersion,
                           qint32 internalId,
                           ModelTracing::FlowToken flowTraceToken)
         : typeName(typeName.toByteArray())
         , unqualifiedTypeName(unqualifiedTypeName)
-        , majorVersion(majorVersion)
-        , minorVersion(minorVersion)
         , isValid(true)
         , internalId(internalId)
         , traceToken(flowTraceToken.beginAsynchronous("InternalNode",
@@ -249,8 +245,6 @@ public:
     TypeName typeName;
     Utils::SmallString unqualifiedTypeName;
     QString id;
-    int majorVersion = 0;
-    int minorVersion = 0;
     bool isValid = false;
     qint32 internalId = -1;
     QString nodeSource;

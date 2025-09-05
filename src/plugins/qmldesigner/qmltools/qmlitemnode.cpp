@@ -258,7 +258,7 @@ QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
         }
 
         TypeName type(effectName.toUtf8());
-        ModelNode newModelNode = view->createModelNode(type, -1, -1);
+        ModelNode newModelNode = view->createModelNode(type);
         newModelNode.setIdWithoutRefactoring(view->model()->generateNewId(effectName));
         newQmlItemNode = QmlItemNode(newModelNode);
 

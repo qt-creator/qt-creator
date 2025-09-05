@@ -65,7 +65,7 @@ ModelPrivate::ModelPrivate(Model *model,
     setFileUrl(fileUrl);
     m_imports = std::move(imports);
 
-    m_rootInternalNode = createNode(typeName, -1, -1, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
+    m_rootInternalNode = createNode(typeName, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
 
     m_currentStateNode = m_rootInternalNode;
     m_currentTimelineNode = m_rootInternalNode;
@@ -302,10 +302,7 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
     }
 }
 
-void ModelPrivate::changeNodeType(const InternalNodePointer &node,
-                                  const TypeName &typeName,
-                                  int majorVersion,
-                                  int minorVersion)
+void ModelPrivate::changeNodeType(const InternalNodePointer &node, const TypeName &typeName)
 {
     NanotraceHR::Tracer tracer{"model private change node type",
                                category(),
@@ -316,19 +313,16 @@ void ModelPrivate::changeNodeType(const InternalNodePointer &node,
 
     node->typeName = typeName;
     node->unqualifiedTypeName = unqualifiedTypeName;
-    node->majorVersion = majorVersion;
-    node->minorVersion = minorVersion;
+
     setTypeId(node.get(), alias, unqualifiedTypeName);
 
     try {
-        notifyNodeTypeChanged(node, typeName, majorVersion, minorVersion);
+        notifyNodeTypeChanged(node, typeName);
     } catch (const RewritingException &) {
     }
 }
 
 InternalNodePointer ModelPrivate::createNode(TypeNameView typeName,
-                                             int majorVersion,
-                                             int minorVersion,
                                              const QList<QPair<PropertyName, QVariant>> &propertyList,
                                              const AuxiliaryDatas &auxiliaryDatas,
                                              const QString &nodeSource,
@@ -351,9 +345,7 @@ InternalNodePointer ModelPrivate::createNode(TypeNameView typeName,
     auto [alias, unqualifiedTypeName] = StringUtils::split_last(typeName);
 
     auto newNode = std::make_shared<InternalNode>(typeName,
-                                                  unqualifiedTypeName,
-                                                  majorVersion,
-                                                  minorVersion,
+                                                  unqualifiedTypeName,                         
                                                   internalId,
                                                   traceToken.tickWithFlow("create node"));
 
@@ -519,16 +511,11 @@ void ModelPrivate::updateModelNodeTypeIds(const ExportedTypeNames &addedExported
     removeDuplicates(refreshedNodes);
 
     if (rootNodeIsRefreshed) {
-        notifyRootNodeTypeChanged(QString::fromUtf8(m_rootInternalNode->typeName),
-                                  m_rootInternalNode->exportedTypeName.version.major.toSignedInteger(),
-                                  m_rootInternalNode->exportedTypeName.version.minor.toSignedInteger());
+        notifyRootNodeTypeChanged(QString::fromUtf8(m_rootInternalNode->typeName));
     }
 
     for (const auto &node : refreshedNodes) {
-        notifyNodeTypeChanged(node,
-                              node->typeName,
-                              node->exportedTypeName.version.major.toSignedInteger(),
-                              node->exportedTypeName.version.minor.toSignedInteger());
+        notifyNodeTypeChanged(node, node->typeName);
     }
 }
 
@@ -559,18 +546,11 @@ void ModelPrivate::updateModelNodeTypeIds(const Imports &removedImports)
 
     removeDuplicates(refreshedNodes);
 
-    if (rootNodeIsRefreshed) {
-        notifyRootNodeTypeChanged(QString::fromUtf8(m_rootInternalNode->typeName),
-                                  m_rootInternalNode->exportedTypeName.version.major.toSignedInteger(),
-                                  m_rootInternalNode->exportedTypeName.version.minor.toSignedInteger());
-    }
+    if (rootNodeIsRefreshed)
+        notifyRootNodeTypeChanged(QString::fromUtf8(m_rootInternalNode->typeName));
 
-    for (const auto &node : refreshedNodes) {
-        notifyNodeTypeChanged(node,
-                              node->typeName,
-                              node->exportedTypeName.version.major.toSignedInteger(),
-                              node->exportedTypeName.version.minor.toSignedInteger());
-    }
+    for (const auto &node : refreshedNodes)
+        notifyNodeTypeChanged(node, node->typeName);
 }
 
 void ModelPrivate::removedTypeIds(const TypeIds &removedTypeIds)
@@ -788,12 +768,11 @@ void ModelPrivate::notifyNodeSourceChanged(const InternalNodePointer &node,
     });
 }
 
-void ModelPrivate::notifyRootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
+void ModelPrivate::notifyRootNodeTypeChanged(const QString &type)
 {
     NanotraceHR::Tracer tracer{"model private notify root node type changed", category()};
 
-    notifyNodeInstanceViewLast(
-        [&](AbstractView *view) { view->rootNodeTypeChanged(type, majorVersion, minorVersion); });
+    notifyNodeInstanceViewLast([&](AbstractView *view) { view->rootNodeTypeChanged(type); });
 }
 
 void ModelPrivate::notifyInstancePropertyChange(Utils::span<const QPair<ModelNode, PropertyName>> properties)
@@ -1195,16 +1174,12 @@ void ModelPrivate::notifyNodeRemoved(const InternalNodePointer &removedNode,
     });
 }
 
-void ModelPrivate::notifyNodeTypeChanged(const InternalNodePointer &node,
-                                         const TypeName &type,
-                                         int majorVersion,
-                                         int minorVersion)
+void ModelPrivate::notifyNodeTypeChanged(const InternalNodePointer &node, const TypeName &type)
 {
     NanotraceHR::Tracer tracer{"model private notify node type changed", category()};
 
-    notifyNodeInstanceViewLast([&](AbstractView *view) {
-        view->nodeTypeChanged(ModelNode{node, m_model, view}, type, majorVersion, minorVersion);
-    });
+    notifyNodeInstanceViewLast(
+        [&](AbstractView *view) { view->nodeTypeChanged(ModelNode{node, m_model, view}, type); });
 }
 
 void ModelPrivate::notifyNodeIdChanged(const InternalNodePointer &node,
@@ -1801,7 +1776,7 @@ void ModelPrivate::clearParent(const InternalNodePointer &node)
                        AbstractView::NoAdditionalChanges);
 }
 
-void ModelPrivate::changeRootNodeType(const TypeName &typeName, int majorVersion, int minorVersion)
+void ModelPrivate::changeRootNodeType(const TypeName &typeName)
 {
     NanotraceHR::Tracer tracer{"model private change root node type", category()};
 
@@ -1813,10 +1788,9 @@ void ModelPrivate::changeRootNodeType(const TypeName &typeName, int majorVersion
 
     m_rootInternalNode->typeName = typeName;
     m_rootInternalNode->unqualifiedTypeName = unqualifiedTypeName;
-    m_rootInternalNode->majorVersion = majorVersion;
-    m_rootInternalNode->minorVersion = minorVersion;
+
     setTypeId(m_rootInternalNode.get(), alias, unqualifiedTypeName);
-    notifyRootNodeTypeChanged(QString::fromUtf8(typeName), majorVersion, minorVersion);
+    notifyRootNodeTypeChanged(QString::fromUtf8(typeName));
 }
 
 void ModelPrivate::setScriptFunctions(const InternalNodePointer &node,
@@ -2742,11 +2716,11 @@ void Model::setFileUrl(const QUrl &url, SL sl)
     d->setFileUrl(url);
 }
 
-bool Model::hasNodeMetaInfo(const TypeName &typeName, int majorVersion, int minorVersion, SL sl) const
+bool Model::hasNodeMetaInfo(const TypeName &typeName, SL sl) const
 {
     NanotraceHR::Tracer tracer{"model has node meta info", category(), keyValue("caller location", sl)};
 
-    return metaInfo(typeName, majorVersion, minorVersion).isValid();
+    return metaInfo(typeName).isValid();
 }
 
 NodeMetaInfo Model::boolMetaInfo() const
@@ -3134,8 +3108,6 @@ namespace {
 } // namespace
 
 NodeMetaInfo Model::metaInfo(Utils::SmallStringView typeName,
-                             [[maybe_unused]] int majorVersion,
-                             [[maybe_unused]] int minorVersion,
                              [[maybe_unused]] SL sl) const
 {
     NanotraceHR::Tracer tracer{"model meta info with type name",
@@ -3273,15 +3245,9 @@ QHash<QStringView, ModelNode> Model::idModelNodeDict(SL sl)
 }
 
 namespace {
-ModelNode createNode(Model *model,
-                     Internal::ModelPrivate *d,
-                     const TypeName &typeName,
-                     int majorVersion,
-                     int minorVersion)
+ModelNode createNode(Model *model, Internal::ModelPrivate *d, const TypeName &typeName)
 {
-    return ModelNode(d->createNode(typeName, majorVersion, minorVersion, {}, {}, {}, {}, {}),
-                     model,
-                     nullptr);
+    return ModelNode(d->createNode(typeName, {}, {}, {}, {}, {}), model, nullptr);
 }
 } // namespace
 
@@ -3289,7 +3255,7 @@ ModelNode Model::createModelNode(const TypeName &typeName, [[maybe_unused]] SL s
 {
     NanotraceHR::Tracer tracer{"model create model node", category(), keyValue("caller location", sl)};
 
-    return createNode(this, d.get(), typeName, -1, -1);
+    return createNode(this, d.get(), typeName);
 }
 
 void Model::changeRootNodeType(const TypeName &type, SL sl)
@@ -3300,7 +3266,7 @@ void Model::changeRootNodeType(const TypeName &type, SL sl)
 
     Internal::WriteLocker locker(this);
 
-    d->changeRootNodeType(type, -1, -1);
+    d->changeRootNodeType(type);
 }
 
 void Model::removeModelNodes(ModelNodes nodes, BypassModelResourceManagement bypass, SL sl)
