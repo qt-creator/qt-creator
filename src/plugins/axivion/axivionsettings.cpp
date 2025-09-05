@@ -827,18 +827,19 @@ void AxivionSettingsWidget::showServerDialog(bool add)
     QDialog dialog;
     dialog.setWindowTitle(add ? Tr::tr("Add Dashboard Configuration")
                          : Tr::tr("Edit Dashboard Configuration"));
-    QVBoxLayout *layout = new QVBoxLayout;
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok, this);
     auto ok = buttons->button(QDialogButtonBox::Ok);
     auto dashboardWidget = new DashboardSettingsWidget(this, ok);
     dashboardWidget->setDashboardServer(old);
-    layout->addWidget(dashboardWidget);
     ok->setEnabled(dashboardWidget->isValid());
     connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked,
             &dialog, &QDialog::reject);
     connect(ok, &QPushButton::clicked, &dialog, &QDialog::accept);
-    layout->addWidget(buttons);
-    dialog.setLayout(layout);
+
+    Layouting::Column {
+        dashboardWidget,
+        buttons
+    }.attachTo(&dialog);
     dialog.resize(500, 200);
 
     if (dialog.exec() != QDialog::Accepted) {
@@ -932,17 +933,15 @@ static PathMapping showPathMappingsDialog(const PathMapping &suggested)
 {
     QDialog dialog(ICore::dialogParent());
     dialog.setWindowTitle(Tr::tr("Missing Path Mapping"));
-    QVBoxLayout *layout = new QVBoxLayout;
     auto label = new QLabel(Tr::tr("Configure a valid path mapping for \"%1\" to open "
                                    "files for this project.").arg(suggested.projectName), &dialog);
-    layout->addWidget(label);
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok, &dialog);
     auto ok = buttons->button(QDialogButtonBox::Ok);
     auto mappingWidget = new QWidget(&dialog);
     PathMappingDetails details;
     details.updateContent(suggested);
     details.layouter()().attachTo(mappingWidget);
-    layout->addWidget(mappingWidget);
+
     ok->setEnabled(suggested.isValid()
                    && suggested.localPath.resolvePath(suggested.analysisPath).exists());
     QObject::connect(buttons->button(QDialogButtonBox::Cancel),
@@ -952,8 +951,12 @@ static PathMapping showPathMappingsDialog(const PathMapping &suggested)
         const PathMapping pm = details.toPathMapping();
         ok->setEnabled(pm.isValid() && pm.localPath.resolvePath(pm.analysisPath).exists());
     });
-    layout->addWidget(buttons);
-    dialog.setLayout(layout);
+
+    Layouting::Column {
+        label,
+        mappingWidget,
+        buttons,
+    }.attachTo(&dialog);
     dialog.resize(500, 200);
 
     if (dialog.exec() != QDialog::Accepted)
