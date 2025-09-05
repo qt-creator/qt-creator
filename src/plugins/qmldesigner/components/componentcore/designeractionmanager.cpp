@@ -855,7 +855,7 @@ public:
 
         return singleSelectedNode.metaInfo().isListOrGridView()
                && singleSelectedNode.property("model").toNodeProperty().modelNode().type()
-                      == "QtQml.Models.ListModel";
+                      == "ListModel";
     }
 
     bool isEnabled(const SelectionContext &) const override { return true; }
