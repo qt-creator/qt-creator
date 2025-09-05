@@ -8,7 +8,7 @@
     \title MCU Treadmill
     \brief Illustrates how to import and use the MCU Treadmill design from Figma to \QDS.
 
-    \image {mcu-treadmill-overview.webp}{MCU Treadmill overview}
+    \image {mcu-treadmill-overview.webp}{MCU Treadmill overview.}
 
     MCU Treadmill is designed in Figma. You can bring the design to \QDS and create
     a responsive MCU Treadmill application.
@@ -38,7 +38,7 @@
 
         \li Select \uicontrol Export, then \uicontrol Save. By default, the \c .qtbridge
             file is saved as \c mcuDemo.qtbridge.
-            \image {figma-qtbridge-export.webp}{Export Figma design with \QBF}
+            \image {figma-qtbridge-export.webp}{Export Figma design with \QBF.}
 
         \li Select \uicontrol Close, then exit Figma.
     \endlist
@@ -48,17 +48,17 @@
     After importing the MCU Treadmill design from Figma:
     \list 1
         \li Create a new \QDS project for MCU.
-            \image {qds-new-mcu-project.webp} {Create new MCU project in \QDS}
+            \image {qds-new-mcu-project.webp} {Create new MCU project in \QDS.}
 
         \li Drag the \c .qtbridge file (\c mcuDemo.qtbridge) to the \uicontrol 2D view.
-            \image {qtbridge-mcu-import-warning.webp}{Qt Bridge asset import warning in \QDS}
+            \image {qtbridge-mcu-import-warning.webp}{Qt Bridge asset import warning in \QDS.}
 
         \li Select \uicontrol Yes, then select \uicontrol Import.
-            \image {qtbridge-mcu-asset-import.webp}{Qt Bridge asset import in \QDS}
+            \image {qtbridge-mcu-asset-import.webp}{Qt Bridge asset import in \QDS.}
 
         \li In the following notification, select \uicontrol No. This replaces the existing
             \c Screen01.ui.qml file with the imported file.
-            \image {qt-mcu-import-conflict.webp}{Import file conflict notifcation}
+            \image {qt-mcu-import-conflict.webp}{Import file conflict notifcation.}
 
         \li After a successful import, select \uicontrol Close.
     \endlist
@@ -70,6 +70,145 @@
     components with connection, state, timeline animation, \c QML, and \c Javascript.
     Find a fully functional example in the Examples section on the Qt Design Studio homepage.
 
+    \section1 Adding timeline animations to the MCU Treadmill example
+
+    Add timeline animations to the \c TrackView.ui.qml and \c SplashScreen.ui.qml
+    files to animate the real-time progress of the treadmill, and the loading screen
+    of the MCU Treadmill example.
+
+        \section2 Adding animation to TrackView.ui.qml
+
+        \list 1
+            \li Select \c TrackView.ui.qml in the \uicontrol Projects view.
+            \li To add a new timeline, go to the \uicontrol Timeline view
+                and select \imageplus.
+                \image {studio-timeline-empty.webp}{Create a new timeline animation.}
+
+            \li Set the \uicontrol {Timeline ID} to \c timeline, \uicontrol {Animation ID} to
+                \c timelineAnimation, and the \uicontrol Duration to \c 10000. Also, select
+                \uicontrol Continuous and clear the \uicontrol {Running in base state} checkbox.
+                \image {mcu-treadmill-trackview-animation.webp}{Setting up the TrackView animation.}
+
+            \li Select \imagelocalrecordkeyframes (\uicontrol {Auto Key}) to enable
+                automatic keyframe generation.
+                \image {mcu-treadmill-trackview-animation-autokey.webp}{Select autokey.}
+
+            \li In the \uicontrol Navigator view, select \c trackView_merge_1. Then,
+                go to the \uicontrol Geometry-2D in the \uicontrol Properties view, and
+                for both \uicontrol X and \uicontrol Y \uicontrol Position, select
+                \imageactionicon > \uicontrol {Insert Keyframe}.
+                \image {mcu-treadmill-trackview-navigator.webp}{trackview_merge_1 in the navigator view.}
+                \inlineimage {mcu-treadmill-trackview-animation-insert-keyframe-position-x.webp}{Set keyframe for x and y position.}
+
+            \li In the \uicontrol Timeline view, move the playhead (1) to 200 frames.
+                \image {mcu-treadmill-trackview-animation-playhead.webp} {Move playhead in the Timeline view.}
+
+            \li In the \uicontrol 2D view, drag \c trackView_merge_1 across the track image
+                towards the bend.
+                \image {mcu-treadmill-trackview-image-first-move.webp}{Move the trackView image.}
+
+            \li In the \uicontrol Timeline view, move the playhead (1) 20 frames ahead.
+                \image {mcu-treadmill-trackview-animation-playhead-moved.webp}{Move the playhead 20 frames in the Timeline view.}
+
+            \li In the \uicontrol 2D view, drag \c trackView_merge_1 slightly ahead
+                across the track image.
+                \image {mcu-treadmill-trackview-image-first-move-next.webp}{Move the trackView image across the track.}
+
+            \li Repeat steps 8 and 9 until the \c trackView_merge_1 almost returns to its
+                beginning position.
+                \image {mcu-treadmill-trackview-image-first-move-next-2.webp}{Move the trackView image across the track.}
+                \inlineimage {mcu-treadmill-trackview-image-first-move-next-3.webp}{Move the trackView image across the track.}
+
+            \li Select \imagelocalrecordkeyframes (\uicontrol {Auto Key}) to stop
+                automatic keyframe generation.
+        \endlist
+
+        \section2 Adding animation to SplashScreen.ui.qml
+
+        \list 1
+            \li Select \c SplashScreen.ui.qml in the \uicontrol Projects view.
+            \li To add a new timeline, go to the \uicontrol Timeline view
+                and select \imageplus.
+                \image {studio-timeline-empty.webp}{Create a new timeline animation.}
+
+            \li Set the \uicontrol {Timeline ID} to \c timeline, \uicontrol {Animation ID} to
+                \c timelineAnimation, and \uicontrol Duration to \c 5000.
+                \image {mcu-treadmill-splashscreen-animation.webp}{Setting up the SplashScreen animation.}
+
+            \li Select \imagelocalrecordkeyframes (\uicontrol {Auto Key}) to enable
+                automatic keyframe generation.
+                \image {mcu-treadmill-trackview-animation-autokey.webp}{Select autokey.}
+
+            \li In the \uicontrol Navigator view, multi-select \c slogan, \c qtLogo,
+                and \c speedtrekLogo.
+                \image {mcu-treadmill-splashscreen-navigator.webp}{Select slogan, qtLogo, and speedtrekLogo from the Navigator view.}
+
+            \li Go to the \uicontrol Properties view > \uicontrol Visibility,
+                and select \imageactionicon > \uicontrol {Insert Keyframe} to insert a keyframe in
+                the animation timeline. Then, set \uicontrol Opacity to \c 0.
+                \image {mcu-treadmill-splashscreen-opacity.webp}{Inserting keyframe for the Opacity.}
+
+            \li Now, select only \c slogan from the \uicontrol Navigator view. Then, go to
+                \uicontrol Properties view > \uicontrol Geometry-2D > \uicontrol Position, and set
+                \uicontrol X to \c 254.
+                \image {mcu-treadmill-splashscreen-slogan-position-x.webp}{Set the x-position of splashscreen slogan.}
+
+            \li Select \c speedtrekLogo from the \uicontrol Navigator view. Then, go to
+                \uicontrol Properties view > \uicontrol Geometry-2D > \uicontrol Position, and set
+                \uicontrol X to \c -12.
+
+            \li In the \uicontrol Timeline view, move the playhead to 200 frames.
+            \li Select \c slogan from the \uicontrol Navigator view. Then, in the
+                \uicontrol Properties view, set:
+                \list
+                    \li \uicontrol Geometry-2D > \uicontrol Position > \uicontrol X to \c 154.
+                    \li \uicontrol Visibility > \uicontrol Opacity to \c 1.
+                \endlist
+
+            \li Select \c speedtrekLogo from the \uicontrol Navigator view. Then, in the
+                \uicontrol Properties view, set:
+                \list
+                    \li \uicontrol Geometry-2D > \uicontrol Position > \uicontrol X to \c 88.
+                    \li \uicontrol Visibility > \uicontrol Opacity to \c 1.
+                \endlist
+                \image {mcu-treadmill-splashscreen-slogan-speedtrekLogo-position-x-opacity-2.webp}{Update the X position and Opacity of slogan and speedtrekLogo.}
+
+            \li Select the \c qtLogo from the \uicontrol Navigator view. Then, in the
+                \uicontrol Properties view, select:
+                \list
+                    \li \uicontrol Geometry-2D > \uicontrol Position > \uicontrol Y
+                        > \imageactionicon > \uicontrol {Insert Keyframe}.
+                    \li \uicontrol Visibility > \uicontrol Opacity > \imageactionicon
+                        > \uicontrol {Insert Keyframe}.
+                \endlist
+                \image {mcu-treadmill-splashscreen-qtLogo-position-y-keyframe.webp}{Set the keyframe for qtLogo Position Y.}
+
+            \li In the \uicontrol Timeline view, move the playhead to 400 frames.
+            \li Select the \c qtLogo from the \uicontrol Navigator view. Then, in the
+                \uicontrol Properties view, set:
+                \list
+                    \li \uicontrol Geometry-2D > \uicontrol Position > \uicontrol Y to \c 334.
+                    \li \uicontrol Visibility > \uicontrol Opacity to \c 1.
+                \endlist
+                \image {mcu-treadmill-splashscreen-qtLogo-position-y-opacity.webp}{Set the new opacity and Y position for qtLogo.}
+
+            \li In the \uicontrol Timeline view, move the playhead to 800 frames.
+            \li Select \c splashScreen from the \uicontrol Navigator view. Go to
+                the \uicontrol Properties view > \uicontrol Visibility, and for
+                \uicontrol Opacity, select \imageactionicon > \uicontrol {Insert Keyframe}.
+                \image {mcu-treadmill-splashscreen-navigator-selected.webp}{splashScreen selected in the Navigator view.}
+                \inlineimage {mcu-treadmill-splashscreen-opacity-at-800-frame.webp}{Setting splashScreen opacity at 800 frame.}
+
+            \li In the \uicontrol Timeline view, move the playhead to 1000 frames.
+            \li Select the \c splashScreen from the \uicontrol Navigator view. Go to
+                the \uicontrol Properties view > \uicontrol Visibility, and set
+                \uicontrol Opacity to \c 0.
+                \image {mcu-treadmill-splashscreen-opacity-at-1000-frame.webp}{Setting splashScreen opacity at 1000 frame.}
+
+            \li Select \imagelocalrecordkeyframes (\uicontrol {Auto Key}) to stop
+                automatic keyframe generation.
+        \endlist
+
     \section1 Running the MCU Treadmill example in \QDS
 
     \list 1
@@ -77,7 +216,7 @@
         \li Download the MCU Treadmill example.
         \li Select the downloaded project to open it in \QDS.
         \li Select \uicontrol {Run App}, then select \imagerunproject.
-            \image {mcu-treadmill-running.webp}{MCU Treadmill demo running}
+            \image {mcu-treadmill-running.webp}{MCU Treadmill demo running.}
     \endlist
 
     To find the logic and animations of this example, check these files in the \uicontrol Code
@@ -111,7 +250,7 @@
         \li Install the board-specific files:
             \list 1
                 \li Open \c {MaintenanceTool.exe} in the Qt installation folder.
-                    \image {qt-maintenance-tool.webp} {MaintenanceTool.exe in the Qt installation folder}
+                    \image {qt-maintenance-tool.webp} {MaintenanceTool.exe in the Qt installation folder.}
 
                 \li Log in with your Qt account and proceed.
                 \li Select \uicontrol {Add or remove components}, then select \uicontrol Next.
@@ -122,7 +261,7 @@
                     For this example, you can choose \uicontrol {STM32F769I Discovery} if that STM
                     board is available to you.
 
-                    \image {qt-maintenance-tool-mcu-kits.webp} {MCU kits in Qt Maintenance tool}
+                    \image {qt-maintenance-tool-mcu-kits.webp} {MCU kits in Qt Maintenance tool.}
 
                 \li Then, select \imagerunsmall next to the \uicontrol {Third-party Tools and SDKs}.
                     From the list, matching your STM board, select the latest version of:
@@ -131,7 +270,7 @@
                         \li \uicontrol {STM Cube Programmer}
                         \li \uicontrol {STM32Cube}
                     \endlist
-                    \image {qt-maintenance-tool-mcu-third-party-tools.webp} {Thrid party tools in Qt Maintenance tool}
+                    \image {qt-maintenance-tool-mcu-third-party-tools.webp} {Thrid party tools in Qt Maintenance tool.}
 
                 \li Select \uicontrol Next, and then \uicontrol Update.
                 \li After the update, select \uicontrol Finish.
@@ -154,14 +293,14 @@
         \li Browse to your \QDS project folder, select \c CMakeLists.txt, then select
             \uicontrol Open. This contains all the necessary code that
             Qt Creator needs to build and run your project.
-            \image {creator-mcu-project-cmakefile.webp} {Opening CMakeLists file from Qt Creator}
+            \image {creator-mcu-project-cmakefile.webp} {Opening CMakeLists file from Qt Creator.}
 
         \li After Qt Creator finishes loading your project, select \uicontrol Projects.
             Under the \uicontrol {Build & Run} options, double-click the MCU kit you want
             to use to run this application. To run it as a desktop application from Qt Creator,
             select the desktop kit for MCU. To run it on your preferred
             STM board, select the STM kit.
-            \image {creator-building-mcu-kits.webp} {Building MCU kits in Qt Creator}
+            \image {creator-building-mcu-kits.webp} {Building MCU kits in Qt Creator.}
 
             \note Double-clicking starts to build the kit for Qt Creator. Later,
                 you can access these kits from the \uicontrol {Kit Selector} above
@@ -189,7 +328,7 @@
                 the \imagerunproject button, then select the MCU kit for your STM board from
                 there, and select \uicontrol {Minimum Size Release}. This optimizes your
                 application's file sizes before pushing them to your STM board.
-                \br \inlineimage {creator-mcu-project-minimize-size-for-stm-board.webp} {Qt Creator debug with STM minimize size release option for MCU application}
+                \br \inlineimage {creator-mcu-project-minimize-size-for-stm-board.webp} {Qt Creator debug with STM minimize size release option for MCU application.}
     \endlist
 
 */
