@@ -631,18 +631,18 @@ public:
 
     static EventQueueTracker &get();
 
-    void flushAll()
+    void finishAll()
     {
         std::lock_guard lock{mutex};
 
         for (auto queue : queues)
-            queue->flush();
+            queue->finish();
     }
 
 private:
     void terminate()
     {
-        flushAll();
+        void finishAll();
         if (terminateHandler)
             terminateHandler();
     }
@@ -668,21 +668,21 @@ class EventQueue<TraceEvent, Tracing::IsEnabled>
 public:
     using IsActive = std::true_type;
 
-    EventQueue(EnabledTraceFile &file);
+    EventQueue(std::shared_ptr<EnabledTraceFile> file);
 
     ~EventQueue();
 
     void setEventsSpans(TraceEventsSpan eventsOne, TraceEventsSpan eventsTwo);
 
-    void flush();
+    void finish();
 
     EventQueue(const EventQueue &) = delete;
     EventQueue(EventQueue &&) = delete;
     EventQueue &operator=(const EventQueue &) = delete;
     EventQueue &operator=(EventQueue &&) = delete;
 
-    bool isFlushed = false;
-    EnabledTraceFile &file;
+    bool isFinished = false;
+    std::shared_ptr<EnabledTraceFile> file;
     std::unique_ptr<TraceEvents> eventArrayOne = std::make_unique<TraceEvents>();
     std::unique_ptr<TraceEvents> eventArrayTwo = std::make_unique<TraceEvents>();
     TraceEventsSpan eventsOne;

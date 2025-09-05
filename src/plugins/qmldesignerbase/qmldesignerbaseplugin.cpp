@@ -51,8 +51,8 @@ QmlDesignerBasePlugin::QmlDesignerBasePlugin()
 QmlDesignerBasePlugin::~QmlDesignerBasePlugin()
 {
 #ifdef ENABLE_TRACING_FILE
-    NanotraceHR::Internal::EventQueueTracker<NanotraceHR::TraceEventWithArguments>::get().flushAll();
-    NanotraceHR::Internal::EventQueueTracker<NanotraceHR::TraceEventWithoutArguments>::get().flushAll();
+    NanotraceHR::Internal::EventQueueTracker<NanotraceHR::TraceEventWithArguments>::get().finishAll();
+    NanotraceHR::Internal::EventQueueTracker<NanotraceHR::TraceEventWithoutArguments>::get().finishAll();
     NanotraceHR::resetTraceFilePointer();
 #endif
 }

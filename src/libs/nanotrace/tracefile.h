@@ -6,12 +6,14 @@
 #include "nanotraceglobals.h"
 #include "nanotracehrfwd.h"
 
+#include <memory>
+
 namespace NanotraceHR {
 
 #ifdef ENABLE_TRACING_FILE
 
 NANOTRACE_EXPORT void resetTraceFilePointer();
-NANOTRACE_EXPORT EnabledTraceFile &traceFile();
+NANOTRACE_EXPORT std::shared_ptr<EnabledTraceFile> traceFile();
 
 #endif
 
