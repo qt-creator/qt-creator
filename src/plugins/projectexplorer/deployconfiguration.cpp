@@ -247,6 +247,11 @@ void DeployConfigurationFactory::addSupportedTargetDeviceType(Utils::Id id)
     m_supportedTargetDeviceTypes.append(id);
 }
 
+QList<Id> DeployConfigurationFactory::supportedTargetDeviceTypes() const
+{
+    return m_supportedTargetDeviceTypes;
+}
+
 void DeployConfigurationFactory::setDefaultDisplayName(const QString &defaultDisplayName)
 {
     m_defaultDisplayName = defaultDisplayName;

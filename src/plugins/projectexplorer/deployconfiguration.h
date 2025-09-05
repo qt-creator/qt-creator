@@ -76,6 +76,7 @@ public:
     static DeployConfiguration *clone(BuildConfiguration *bc, const DeployConfiguration *dc);
 
     void addSupportedTargetDeviceType(Utils::Id id);
+    QList<Utils::Id> supportedTargetDeviceTypes() const;
     void setDefaultDisplayName(const QString &defaultDisplayName);
     void setSupportedProjectType(Utils::Id id);
 

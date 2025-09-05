@@ -659,6 +659,7 @@ void BuildConfiguration::updateDefaultDeployConfigurations()
             removeDeployConfiguration(dc);
     }
 
+    DeployConfiguration *preferredDc = activeDeployConfiguration();
     for (Utils::Id id : std::as_const(toCreate)) {
         for (DeployConfigurationFactory *dcFactory : dcFactories) {
             if (dcFactory->creationId() == id) {
@@ -666,10 +667,17 @@ void BuildConfiguration::updateDefaultDeployConfigurations()
                 if (dc) {
                     QTC_CHECK(dc->id() == id);
                     addDeployConfiguration(dc);
+                    // Prefer a deploy configuration that specifically supports the target
+                    // over the generic DefaultDeployConfiguration:
+                    if (!preferredDc && !dcFactory->supportedTargetDeviceTypes().isEmpty()) {
+                        preferredDc = dc;
+                    }
                 }
             }
         }
     }
+    if (preferredDc)
+        setActiveDeployConfiguration(preferredDc);
 }
 
 void BuildConfiguration::updateDefaultRunConfigurations()
