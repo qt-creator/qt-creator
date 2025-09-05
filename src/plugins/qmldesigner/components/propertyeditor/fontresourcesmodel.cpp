@@ -57,6 +57,13 @@ const QStringList &fontFilesFilterList()
 
 std::optional<QString> fontFamily(const QString &fontPath)
 {
+    static QHash<QString, QString> s_cache;
+
+    auto cached_name = s_cache.value(fontPath);
+
+    if (!cached_name.isEmpty())
+        return cached_name;
+
     const int fontId = QFontDatabase::addApplicationFont(fontPath);
     const QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
     QFontDatabase::removeApplicationFont(fontId);
@@ -68,6 +75,8 @@ std::optional<QString> fontFamily(const QString &fontPath)
         ProjectExplorer::TaskHub::addTask(issueType, issueDesc, issueCategory);
         return {};
     }
+
+    s_cache.insertOrAssign(fontPath, fontFamilies.front());
 
     return fontFamilies.front();
 }
