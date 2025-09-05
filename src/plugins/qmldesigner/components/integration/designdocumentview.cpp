@@ -242,7 +242,7 @@ void DesignDocumentView::copyModelNodes(const QList<ModelNode> &nodesToCopy,
         for (ModelNode node : view.rootModelNode().directSubModelNodes()) {
             node.destroy();
         }
-        view.changeRootNodeType("QtQuick.Rectangle");
+        view.changeRootNodeType("Rectangle");
         view.rootModelNode().setIdWithRefactoring("__multi__selection__");
 
         for (const ModelNode &selectedNode : std::as_const(selectedNodes)) {
