@@ -290,6 +290,14 @@
             \li Ctrl+E, 4
             \li Ctrl+E, 4
         \row
+            \li Previous Tab
+            \li Ctrl+Alt+Right
+            \li Cmd+Opt+Right
+        \row
+            \li Next Tab
+            \li Ctrl+Alt+Left
+            \li Cmd+Opt+Left
+        \row
             \li New project
             \li Ctrl+Shift+N
             \li Cmd+Shift+N

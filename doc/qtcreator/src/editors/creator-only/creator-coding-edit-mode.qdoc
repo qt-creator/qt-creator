@@ -70,6 +70,11 @@
 
     \image {qtcreator-preferences-environment-interface.webp} {Interface tab in Environment preferences}
 
+    To move to the previous or next tab in the \uicontrol Edit mode,
+    go to \uicontrol Window and select \uicontrol {Previous Tab}
+    (\key {Ctrl+Alt+Right}) or \uicontrol {Next Tab}
+    (\key {Ctrl+Alt+Left}).
+
     \section1 Editor Toolbar
 
     The editor toolbar is context sensitive and shows items relevant to the file
