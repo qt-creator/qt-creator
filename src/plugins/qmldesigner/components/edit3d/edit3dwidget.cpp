@@ -707,7 +707,10 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     const bool isSingleComponent = view()->hasSingleSelectedModelNode() && modelNode.isComponent();
     const bool anyNodeSelected = view()->hasSelectedModelNodes();
     const bool selectionExcludingRoot = anyNodeSelected && !view()->rootModelNode().isSelected();
-    const bool isInBundle = modelNode.type().startsWith(compUtils.componentBundlesTypePrefix().toLatin1());
+
+    auto bundleModuleIds = view()->model()->moduleIdsStartsWith(
+        compUtils.componentBundlesTypePrefix().toUtf8(), Storage::ModuleKind::QmlLibrary);
+    const bool isInBundle = bundleModuleIds.contains(modelNode.exportedTypeName().moduleId);
 
     if (m_createSubMenu)
         m_createSubMenu->setEnabled(!isSceneLocked());

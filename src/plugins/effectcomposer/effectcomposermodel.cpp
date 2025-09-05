@@ -1645,7 +1645,7 @@ void EffectComposerModel::saveResources(const QString &name)
         endResetModel();
     }
 
-    emit resourcesSaved(QString("%1.%2.%2").arg(m_effectTypePrefix, name).toUtf8(), effectPath);
+    emit resourcesSaved(name.toUtf8(), effectPath);
 }
 
 // Get value in QML format that used for exports

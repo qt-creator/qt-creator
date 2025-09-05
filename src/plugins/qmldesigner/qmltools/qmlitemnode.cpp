@@ -249,7 +249,7 @@ QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
         const QString effectName = QFileInfo(effectPath).baseName();
         Import import = Import::createLibraryImport(GeneratedComponentUtils(view->externalDependencies())
                                                             .composedEffectsTypePrefix()
-                                                        + '.' + effectName, "1.0");
+                                                        + '.' + effectName);
         try {
             if (!view->model()->hasImport(import, true, true))
                 view->model()->changeImports({import}, {});
