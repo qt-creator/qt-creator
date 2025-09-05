@@ -10,14 +10,9 @@
 #include <utils/uniqueobjectptr.h>
 
 #include <QFrame>
-#include <QFuture>
 #include <QUrl>
 
 class StudioQuickWidget;
-
-QT_BEGIN_NAMESPACE
-class QTimer;
-QT_END_NAMESPACE
 
 namespace EffectComposer {
 
@@ -73,7 +68,6 @@ public:
 private:
     void setupCodeEditor();
     void reloadQmlSource();
-    void handleImportScanTimer();
     void updateCodeEditorIndex();
 
     QPointer<EffectComposerModel> m_effectComposerModel;
@@ -83,15 +77,6 @@ private:
     QmlDesigner::QmlModelNodeProxy m_backendModelNode;
     QmlDesigner::QmlAnchorBindingProxy m_backendAnchorBinding;
 
-    struct ImportScanData {
-        QFuture<void> future;
-        int counter = 0;
-        QTimer *timer = nullptr;
-        QmlDesigner::TypeName type;
-        Utils::FilePath path;
-    };
-
-    ImportScanData m_importScan;
     QString m_compositionPath;
 };
 

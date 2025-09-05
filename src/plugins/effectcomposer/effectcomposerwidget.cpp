@@ -29,8 +29,6 @@
 #include <qmldesignerutils/asset.h>
 #include <studioquickwidget.h>
 
-#include <qmljs/qmljsmodelmanagerinterface.h>
-
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/environment.h>
@@ -41,7 +39,6 @@
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickItem>
-#include <QTimer>
 
 using namespace Core;
 
@@ -118,21 +115,13 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
                         {"rootView", QVariant::fromValue(this)}});
 
     connect(m_effectComposerModel.data(), &EffectComposerModel::resourcesSaved,
-            this, [this](const QmlDesigner::TypeName &type, const Utils::FilePath &path) {
-        if (!m_importScan.timer) {
-            m_importScan.timer = new QTimer(this);
-            connect(m_importScan.timer, &QTimer::timeout,
-                    this, &EffectComposerWidget::handleImportScanTimer);
-        }
+            this, [this](const QmlDesigner::TypeName &type) {
+        QmlDesigner::NodeMetaInfo newTypeInfo = m_effectComposerView->model()->metaInfo(type);
+        if (!newTypeInfo.isValid())
+            return;
 
-        if (m_importScan.timer->isActive() && !m_importScan.future.isFinished())
-            m_importScan.future.cancel();
-
-        m_importScan.counter = 0;
-        m_importScan.type = type;
-        m_importScan.path = path;
-
-        m_importScan.timer->start(100);
+        // If an existing type is updated, we have to reset QML Puppet to update 2D view/properties
+        m_effectComposerView->resetPuppet();
     });
 
     connect(m_effectComposerModel.data(), &EffectComposerModel::hasUnsavedChangesChanged,
@@ -410,66 +399,6 @@ void EffectComposerWidget::reloadQmlSource()
     const QString effectComposerQmlPath = qmlSourcesPath() + "/EffectComposer.qml";
     QTC_ASSERT(QFileInfo::exists(effectComposerQmlPath), return);
     m_quickWidget->setSource(QUrl::fromLocalFile(effectComposerQmlPath));
-}
-
-void EffectComposerWidget::handleImportScanTimer()
-{
-    ++m_importScan.counter;
-
-    if (m_importScan.counter == 1) {
-        // Rescan the effect import to update code model
-        auto modelManager = QmlJS::ModelManagerInterface::instance();
-        if (modelManager) {
-            QmlJS::PathsAndLanguages pathToScan;
-            pathToScan.maybeInsert(m_importScan.path);
-            m_importScan.future = ::Utils::asyncRun(&QmlJS::ModelManagerInterface::importScan,
-                                                    modelManager->workingCopy(),
-                                                    pathToScan, modelManager, true, true, true);
-        }
-    } else if (m_importScan.counter < 100) {
-        // We have to wait a while to ensure qmljs detects new files and updates its
-        // internal model. Then we force amend on rewriter to trigger qmljs snapshot update.
-        if (m_importScan.future.isCanceled() || m_importScan.future.isFinished())
-            m_importScan.counter = 100; // skip the timeout step
-    } else if (m_importScan.counter == 100) {
-        // Scanning is taking too long, abort
-        m_importScan.future.cancel();
-        m_importScan.timer->stop();
-        m_importScan.counter = 0;
-    } else if (m_importScan.counter == 101) {
-        if (m_effectComposerView->model() && m_effectComposerView->model()->rewriterView()) {
-            QmlDesigner::QmlDesignerPlugin::instance()->documentManager().resetPossibleImports();
-            m_effectComposerView->model()->rewriterView()->forceAmend();
-        }
-    } else if (m_importScan.counter == 102) {
-        if (m_effectComposerView->model()) {
-            // If type is in use, we have to reset QML Puppet to update 2D view
-            if (!m_effectComposerView->allModelNodesOfType(
-                                         m_effectComposerView->model()->metaInfo(m_importScan.type)).isEmpty()) {
-                m_effectComposerView->resetPuppet();
-            }
-        }
-    } else if (m_importScan.counter >= 103) {
-        // Refresh property view by resetting selection if any selected node is of updated type
-        if (m_effectComposerView->model() && m_effectComposerView->hasSelectedModelNodes()) {
-            const auto nodes = m_effectComposerView->selectedModelNodes();
-            QmlDesigner::MetaInfoType metaType
-                = m_effectComposerView->model()->metaInfo(m_importScan.type).type();
-            bool match = false;
-            for (const QmlDesigner::ModelNode &node : nodes) {
-                if (node.metaInfo().type() == metaType) {
-                    match = true;
-                    break;
-                }
-            }
-            if (match) {
-                m_effectComposerView->clearSelectedModelNodes();
-                m_effectComposerView->setSelectedModelNodes(nodes);
-            }
-        }
-        m_importScan.timer->stop();
-        m_importScan.counter = 0;
-    }
 }
 
 void EffectComposerWidget::updateCodeEditorIndex()

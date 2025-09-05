@@ -189,7 +189,7 @@ signals:
     void hasValidTargetChanged();
     void shadersBaked();
     void currentCompositionChanged();
-    void resourcesSaved(const QByteArray &type, const Utils::FilePath &path);
+    void resourcesSaved(const QByteArray &type);
     void hasUnsavedChangesChanged();
     void assignToSelectedTriggered(const QString &effectPath);
     void removePropertiesFromScene(QSet<QByteArray> props, const QString &typeName);
