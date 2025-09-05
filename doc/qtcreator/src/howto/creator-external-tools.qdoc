@@ -218,6 +218,14 @@
         \li Select \uicontrol {Open With} > \uicontrol {System Editor}.
     \endlist
 
+    \section1 Switch between editor types
+
+    To switch between editor types, right-click the filename and select
+    \uicontrol {Open With} > \uicontrol {Cycle to Next Editor}.
+
+    You can assign a keyboard shortcut for \uicontrol {Cycle to Next Editor}.
+    For more information, see \l {Assign keyboard shortcuts}.
+
     \section1 Add editors to Tools menu
 
     You can add menu items for opening the file you are currently viewing in
