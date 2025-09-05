@@ -988,7 +988,6 @@ TEST_F(PropertyMetaInfo, default_cast_to_invalid_variant)
 
 TEST_F(PropertyMetaInfo, not_existing_property_cast_returns_invalid_value)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector4d", {});
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant(43);
 
