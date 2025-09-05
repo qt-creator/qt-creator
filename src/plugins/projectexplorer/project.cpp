@@ -9,6 +9,7 @@
 #include "buildsystem.h"
 #include "deployconfiguration.h"
 #include "devicesupport/devicekitaspects.h"
+#include "devicesupport/idevice.h"
 #include "editorconfiguration.h"
 #include "environmentaspect.h"
 #include "kit.h"
@@ -706,8 +707,24 @@ Tasks Project::projectIssues(const Kit *k) const
 {
     if (!k->isValid())
         return {createTask(Task::TaskType::Error, ::PE::Tr::tr("Kit is not valid."))};
+    if (const Task t = checkBuildDevice(k, projectFilePath()); !t.isNull())
+        return {t};
     if (d->m_issuesGenerator)
         return d->m_issuesGenerator(k);
+    return {};
+}
+
+Task Project::checkBuildDevice(const Kit *k, const Utils::FilePath &projectFile)
+{
+    IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(k);
+    if (!buildDevice)
+        return createTask(Task::TaskType::Error, ::PE::Tr::tr("Kit has no build device"));
+    if (!buildDevice->rootPath().ensureReachable(projectFile)) {
+        return createTask(
+            Task::TaskType::Error,
+            ::PE::Tr::tr("Project file \"%1\" is not reachable from build device \"%2\".")
+                .arg(projectFile.toUserOutput(), buildDevice->displayName()));
+    }
     return {};
 }
 

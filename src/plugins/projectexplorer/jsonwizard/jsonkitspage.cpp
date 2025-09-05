@@ -51,6 +51,8 @@ void JsonKitsPage::initializePage()
         if (!k->hasFeatures(preferred))
             return {
                 CompileTask(Task::Unknown, Tr::tr("At least one preferred feature is not present."))};
+        if (const Task t = Project::checkBuildDevice(k, projectFilePath); !t.isNull())
+            return {t};
         if (const auto issuesGenerator = ProjectManager::getIssuesGenerator(projectFilePath))
             return issuesGenerator(k);
         return {};
