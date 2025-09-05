@@ -44,7 +44,9 @@ bool BaseConnectionManager::isActive() const
     return m_isActive;
 }
 
-void BaseConnectionManager::showCannotConnectToPuppetWarningAndSwitchToEditMode() {}
+void BaseConnectionManager::showCannotConnectToPuppetWarningAndSwitchToEditMode(
+    const QString & /*qmlPuppetPath*/)
+{}
 
 void BaseConnectionManager::processFinished(const QString &reason)
 {

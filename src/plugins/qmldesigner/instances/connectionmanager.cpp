@@ -35,10 +35,11 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
                                  view,
                                  externalDependencies);
 
+    QString qmlPuppetPath;
     for (Connection &connection : m_connections) {
 
         QString socketToken(QUuid::createUuid().toString());
-        connection.localServer = std::make_unique<QLocalServer>();
+        connection.localServer = std::make_unique<QLocalServer>(nullptr);
         connection.localServer->listen(socketToken);
         connection.localServer->setMaxPendingConnections(1);
 
@@ -50,16 +51,18 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
             [&](int exitCode, QProcess::ExitStatus exitStatus) {
                 processFinished(exitCode, exitStatus, connection.name);
             });
+        if (qmlPuppetPath.isEmpty() && connection.qmlPuppetProcess) {
+            qmlPuppetPath = connection.qmlPuppetProcess.get()->program();
+            qDebug() << "Start QMLPuppets from: " << qmlPuppetPath;
+        }
     }
-    if (!m_connections.empty() && m_connections.at(0).qmlPuppetProcess)
-        qDebug() << "Start QMLPuppets from: " << m_connections.at(0).qmlPuppetProcess.get()->program();
     const int second = 1000;
     for (Connection &connection : m_connections) {
         int waitConstant = 5 * second;
 
         if (!connection.localServer->hasPendingConnections() && !connection.localServer->waitForNewConnection(waitConstant)) {
             closeSocketsAndKillProcesses();
-            showCannotConnectToPuppetWarningAndSwitchToEditMode();
+            showCannotConnectToPuppetWarningAndSwitchToEditMode(qmlPuppetPath);
             return;
         }
         connection.socket.reset(connection.localServer->nextPendingConnection());

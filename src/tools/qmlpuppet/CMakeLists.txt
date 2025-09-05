@@ -30,9 +30,12 @@ if (NOT QT_CREATOR_API_DEFINED)
   set(IS_STAND_ALONE_PUPPET_BUILD ON)
 endif()
 
+env_with_default("QTC_NO_DEFAULT_QMLPUPPET" ENV_QTC_NO_DEFAULT_QMLPUPPET OFF)
+option(NO_DEFAULT_QMLPUPPET "Expect that Qt comes with its own QMLPuppet" ${ENV_QTC_NO_DEFAULT_QMLPUPPET})
+
 add_qtc_executable(qmlpuppet
   ${DESTINATION}
-  CONDITION TARGET Qt::Quick
+  CONDITION TARGET Qt::Quick AND NOT NO_DEFAULT_QMLPUPPET
   DEPENDS
     Qt::CorePrivate Qt::Widgets Qt::QmlPrivate
     Qt::QuickPrivate Qt::Network Qt::GuiPrivate

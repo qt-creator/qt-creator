@@ -22,7 +22,7 @@ public:
 
     void shutDown() override;
 
-    void showCannotConnectToPuppetWarningAndSwitchToEditMode() override;
+    void showCannotConnectToPuppetWarningAndSwitchToEditMode(const QString &qmlPuppetPath) override;
 
 protected:
     void dispatchCommand(const QVariant &command, Connection &connection) override;

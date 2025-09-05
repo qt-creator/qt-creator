@@ -40,7 +40,7 @@ public:
 
 protected:
     void dispatchCommand(const QVariant &command, Connection &connection) override;
-    virtual void showCannotConnectToPuppetWarningAndSwitchToEditMode();
+    virtual void showCannotConnectToPuppetWarningAndSwitchToEditMode(const QString &qmlPuppetPath);
     using ConnectionManagerInterface::processFinished;
     void processFinished(const QString &reason);
     static void writeCommandToIODevice(const QVariant &command,

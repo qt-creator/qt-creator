@@ -11,6 +11,7 @@
 
 #include <coreplugin/messagebox.h>
 
+#include <QFileInfo>
 #include <QLocalSocket>
 #include <QTimer>
 
@@ -56,17 +57,23 @@ void InteractiveConnectionManager::shutDown()
     ConnectionManager::shutDown();
 }
 
-void InteractiveConnectionManager::showCannotConnectToPuppetWarningAndSwitchToEditMode()
+void InteractiveConnectionManager::showCannotConnectToPuppetWarningAndSwitchToEditMode(
+    const QString &qmlPuppetPath)
 {
-    Core::AsynchronousMessageBox::warning(
-        tr("Cannot Connect to QML Puppet"),
-        tr("The executable of the QML Puppet may not be responding. "
-           "Switching to another kit might help."));
+    QString title = tr("Cannot Connect to QML Puppet");
+    QString message;
+
+    if (!QFileInfo::exists(qmlPuppetPath))
+        message = tr("The QML Puppet executable was not found.\n");
+    else
+        message = tr("The executable of the QML Puppet may not be responding.\n");
+    message += tr("Switching to another kit with a correct QML Puppet might help.");
+
+    Core::AsynchronousMessageBox::warning(title, message);
 
     QmlDesignerPlugin::instance()->switchToTextModeDeferred();
     if (m_view && m_view->isAttached())
-        m_view->model()->emitDocumentMessage(
-            tr("Cannot Connect to QML Puppet"));
+        m_view->model()->emitDocumentMessage(title);
 }
 
 void InteractiveConnectionManager::dispatchCommand(const QVariant &command, Connection &connection)
