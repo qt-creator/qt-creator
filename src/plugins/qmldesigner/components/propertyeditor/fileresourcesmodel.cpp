@@ -26,7 +26,7 @@ FileResourcesModel::FileResourcesModel(QObject *parent)
     : QObject(parent)
     , m_filter(QLatin1String("(*.*)"))
 {
-    NanotraceHR::Tracer tracer{"file resources model consstructor", category()};
+    NanotraceHR::Tracer tracer{"file resources model constructor", category()};
 
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
         QmlDesigner::DocumentManager::currentFilePath());
