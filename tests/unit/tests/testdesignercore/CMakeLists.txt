@@ -342,7 +342,6 @@ extend_qtc_library(TestDesignerCore
     filesystem.cpp filesystem.h
     filestatus.h
     filestatuscache.cpp filestatuscache.h
-    modulescanner.cpp modulescanner.h
     projectstorageexceptions.cpp projectstorageexceptions.h
     projectstorageinterface.h
     projectstoragefwd.h

@@ -24,7 +24,6 @@
 #include <externaldependenciesinterface.h>
 #include <import.h>
 #include <modelutils.h>
-#include <projectstorage/modulescanner.h>
 #include <qmldesignerutils/stringutils.h>
 #include <rewritingexception.h>
 
