@@ -23,9 +23,7 @@ add_qtc_library(QmlDesignerCore
     QmlDesignerUtils
     Sqlite
   DEFINES
-     $<$<BOOL:${USE_PROJECTSTORAGE}>:QDS_USE_PROJECTSTORAGE>
      $<$<BOOL:${QTC_USE_QML_DESIGNER_LITE}>:QTC_USE_QML_DESIGNER_LITE>
-     $<$<BOOL:${DETACH_DISABLED_VIEWS}>:DETACH_DISABLED_VIEWS>
   PUBLIC_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}
     include
@@ -79,14 +77,6 @@ extend_qtc_library(QmlDesignerCore
     exception.cpp
     invalidargumentexception.cpp
     rewritingexception.cpp
-)
-
-extend_qtc_library(QmlDesignerCore
-  CONDITION NOT USE_PROJECTSTORAGE
-  INCLUDES exceptions
-  SOURCES_PREFIX exceptions
-  SOURCES
-    invalidmetainfoexception.cpp
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -183,17 +173,6 @@ extend_qtc_library(QmlDesignerCore
 )
 
 extend_qtc_library(QmlDesignerCore
-  CONDITION NOT USE_PROJECTSTORAGE
-  SOURCES_PREFIX include
-  SOURCES
-    invalidmetainfoexception.h
-    itemlibraryinfo.h
-    metainforeader.h
-    subcomponentmanager.h
-    metainfo.h
-)
-
-extend_qtc_library(QmlDesignerCore
   SOURCES_PROPERTIES SKIP_AUTOGEN ON
   SOURCES_PREFIX include
   SOURCES
@@ -255,16 +234,6 @@ extend_qtc_library(QmlDesignerCore
     itemlibraryentry.cpp
     nodehints.cpp
     nodemetainfo.cpp
-)
-
-extend_qtc_library(QmlDesignerCore
-  CONDITION NOT USE_PROJECTSTORAGE
-  SOURCES_PREFIX metainfo
-  SOURCES
-    itemlibraryinfo.cpp
-    metainfo.cpp
-    metainforeader.cpp
-    subcomponentmanager.cpp
 )
 
 extend_qtc_library(QmlDesignerCore

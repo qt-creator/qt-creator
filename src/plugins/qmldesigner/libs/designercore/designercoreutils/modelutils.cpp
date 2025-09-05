@@ -122,9 +122,8 @@ PropertyMetaInfo metainfo(const ModelNode &node, PropertyNameView propertyName)
     return node.metaInfo().property(propertyName);
 }
 
-QString componentFilePath([[maybe_unused]] const PathCacheType &pathCache, const NodeMetaInfo &metaInfo)
+QString componentFilePath(const PathCacheType &pathCache, const NodeMetaInfo &metaInfo)
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     auto typeSourceId = metaInfo.sourceId();
 
     if (typeSourceId && metaInfo.isFileComponent()) {
@@ -132,9 +131,6 @@ QString componentFilePath([[maybe_unused]] const PathCacheType &pathCache, const
     }
 
     return {};
-#else
-    return metaInfo.componentFileName();
-#endif
 }
 
 QString componentFilePath(const ModelNode &node)

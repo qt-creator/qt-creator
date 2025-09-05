@@ -6,7 +6,6 @@
 #include <qmldesignertr.h>
 #include <theme.h>
 
-#include "metainfo.h"
 #include <utils/utilsicons.h>
 
 #include <utils/stylehelper.h>

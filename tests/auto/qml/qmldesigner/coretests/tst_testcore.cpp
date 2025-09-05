@@ -15,11 +15,6 @@
 #include <qmlanchors.h>
 #include <qmlmodelnodefacade.h>
 
-#ifndef QDS_USE_PROJECTSTORAGE
-#include <metainfo.h>
-#include <subcomponentmanager.h>
-#endif
-
 #include "../testconnectionmanager.h"
 #include "../testview.h"
 #include <abstractproperty.h>
@@ -181,11 +176,8 @@ ModelPointer createModel(const QString &typeName,
 {
     QApplication::processEvents();
 
-#ifdef QDS_USE_PROJECTSTORAGE
     auto model = metaInfoPropxyModel->createModel(typeName.toUtf8());
-#else
-    auto model = QmlDesigner::Model::create(typeName.toUtf8(), major, minor, metaInfoPropxyModel);
-#endif
+
     QPlainTextEdit *textEdit = new QPlainTextEdit;
     QObject::connect(model.get(), &QObject::destroyed, textEdit, &QObject::deleteLater);
     textEdit->setPlainText(QString("import %1 %3.%4; %2{}")
@@ -235,9 +227,6 @@ tst_TestCore::~tst_TestCore() = default;
 
 void tst_TestCore::initTestCase()
 {
-#ifndef QDS_USE_PROJECTSTORAGE
-    MetaInfo::disableParseItemLibraryDescriptionsUgly();
-#endif
     Exception::setShouldAssert(false);
 
     if (!QmlJS::ModelManagerInterface::instance())
@@ -264,9 +253,6 @@ void tst_TestCore::initTestCase()
     qDebug() << pluginPath;
     Q_ASSERT(QFileInfo::exists(pluginPath));
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    MetaInfo::initializeGlobal({pluginPath}, *externalDependencies);
-#endif
 
     QFileInfo builtins(IDE_DATA_PATH "/qml-type-descriptions/builtins.qmltypes");
     QStringList errors, warnings;
@@ -1366,36 +1352,21 @@ void tst_TestCore::testRewriterBehaivours()
 
     QVERIFY(metaInfo.isValid());
 
-#ifdef QDS_USE_PROJECTSTORAGE
     ModelNode newBehavior = testRewriterView->createModelNode("Behavior",
                                                               {},
                                                               {},
                                                               {},
                                                               ModelNode::NodeWithoutSource,
                                                               "height");
-#else
-    ModelNode newBehavior = testRewriterView->createModelNode("QtQuick.Behavior",
-                                                              metaInfo.majorVersion(),
-                                                              metaInfo.minorVersion(),
-                                                              {},
-                                                              {},
-                                                              {},
-                                                              ModelNode::NodeWithoutSource,
-                                                              "height");
-#endif
+
     rootModelNode.defaultNodeListProperty().reparentHere(newBehavior);
 
     QCOMPARE(newBehavior.behaviorPropertyName(), "height");
 
     metaInfo = animation.metaInfo();
     QVERIFY(metaInfo.isValid());
-#ifdef QDS_USE_PROJECTSTORAGE
     ModelNode newAnimation = testRewriterView->createModelNode(model->exportedTypeNameForMetaInfo(metaInfo).name.toQByteArray());
-#else
-    ModelNode newAnimation = testRewriterView->createModelNode(metaInfo.typeName(),
-                                                               metaInfo.majorVersion(),
-                                                               metaInfo.minorVersion());
-#endif
+
     newBehavior.defaultNodeListProperty().reparentHere(newAnimation);
 
     newAnimation.variantProperty("duration").setValue(500);
@@ -1678,11 +1649,6 @@ void tst_TestCore::testStatesVersionFailing()
 
     QCOMPARE(QmlItemNode(rootModelNode).states().state("state2"), newState);
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    QCOMPARE(stateInfo.majorVersion(), newState.modelNode().majorVersion());
-    QCOMPARE(stateInfo.minorVersion(), newState.modelNode().minorVersion());
-#endif
-
     ModelNode rect1Node = view->modelNodeForId("rect1");
     QVERIFY(rect1Node.isValid());
     QmlObjectNode rect1(rect1Node);
@@ -1721,11 +1687,6 @@ void tst_TestCore::testStatesVersionFailing()
     QVERIFY(changes2.isValid());
     QVERIFY(changes2.modelNode().hasProperty("x"));
     QVERIFY(oldText != textEdit.toPlainText());
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    QCOMPARE(changeInfo.majorVersion(), changes2.modelNode().majorVersion());
-    QCOMPARE(changeInfo.minorVersion(), changes2.modelNode().minorVersion());
-#endif
 }
 
 void tst_TestCore::loadSubItems()
@@ -2002,11 +1963,6 @@ void tst_TestCore::testBasicStatesQtQuick20()
     QCOMPARE(rootModelNode.type(), QmlDesigner::TypeName("QtQuick.Rectangle"));
     QCOMPARE(rootModelNode.majorVersion(), 2);
     //QCOMPARE(rootModelNode.majorQtQuickVersion(), 2);
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    qDebug() << rootModelNode.nodeListProperty("states").toModelNodeList().first().metaInfo().majorVersion();
-    qDebug() << rootModelNode.nodeListProperty("states").toModelNodeList().first().metaInfo().typeName();
-#endif
 
     QSKIP("No QML Puppet");
 
@@ -4524,65 +4480,6 @@ bool contains(const QmlDesigner::PropertyMetaInfos &properties, QUtf8StringView 
 }
 } // namespace
 
-#ifndef QDS_USE_PROJECTSTORAGE
-void tst_TestCore::testSubComponentManager()
-{
-    const QString qmlString("import QtQuick 2.15\n"
-                        "Rectangle {\n"
-                        "    id: root\n"
-                        "    x: 10;\n"
-                        "    y: 10;\n"
-                        "    Rectangle {\n"
-                        "        id: rectangle1\n"
-                        "        x: 10;\n"
-                        "        y: 10;\n"
-                        "    }\n"
-                        "    Component {\n"
-                        "        id: rectangleComponent\n"
-                        "        Rectangle {\n"
-                        "            x: 100;\n"
-                        "            y: 100;\n"
-                        "        }\n"
-                        "    }\n"
-                        "}");
-
-    QString fileName = QString(TESTSRCDIR) + "/../data/fx/usingmybutton.qml";
-    QFile file(fileName);
-    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
-
-    QPlainTextEdit textEdit;
-    textEdit.setPlainText(QString::fromUtf8(file.readAll()));
-    NotIndentingTextEditModifier modifier(&textEdit);
-
-    auto model(createModel("QtQuick.Rectangle", 2, 15));
-    model->setFileUrl(QUrl::fromLocalFile(fileName));
-    ExternalDependenciesFake externalDependenciesFake{model.get()};
-
-    QScopedPointer<SubComponentManager> subComponentManager(
-        new SubComponentManager(model.get(), externalDependenciesFake));
-    subComponentManager->update(QUrl::fromLocalFile(fileName), model->imports());
-    QVERIFY(model->hasNodeMetaInfo("QtQuick.Rectangle", 2, 15));
-    QVERIFY(contains(model->metaInfo("QtQuick.Rectangle").properties(), "border.width"));
-
-    model->rewriterView()->setTextModifier(&modifier);
-
-    QVERIFY(model->rewriterView()->errors().isEmpty());
-
-    QVERIFY(model->rewriterView()->rootModelNode().isValid());
-
-    QVERIFY(model->hasNodeMetaInfo("QtQuick.Rectangle", 2, 15));
-    QVERIFY(contains(model->metaInfo("QtQuick.Rectangle").properties(), "border.width"));
-
-    QVERIFY(model->metaInfo("<cpp>.QQuickPen").isValid());
-
-    QSKIP("File components not working TODO", SkipAll);
-    NodeMetaInfo myButtonMetaInfo = model->metaInfo("MyButton");
-    QVERIFY(myButtonMetaInfo.isValid());
-    QVERIFY(contains(myButtonMetaInfo.properties(), "border.width"));
-    QVERIFY(myButtonMetaInfo.hasProperty("border.width"));
-}
-#endif
-
 void tst_TestCore::testAnchorsAndRewriting()
 {
     const QString qmlString("import QtQuick 2.15\n"
@@ -4851,11 +4748,6 @@ void tst_TestCore::testMetaInfoSimpleType()
     NodeMetaInfo itemMetaInfo = model->metaInfo("QtQuick.Item", 2, 1);
 
     QVERIFY(itemMetaInfo.isValid());
-#ifndef QDS_USE_PROJECTSTORAGE
-    QCOMPARE(itemMetaInfo.typeName(), QmlDesigner::TypeName("QtQuick.Item"));
-    QCOMPARE(itemMetaInfo.majorVersion(), 2);
-    QCOMPARE(itemMetaInfo.minorVersion(), 1);
-#endif
 
     // super classes
     NodeMetaInfo qobject = itemMetaInfo.prototypes()[1];
@@ -4877,17 +4769,9 @@ void tst_TestCore::testMetaInfoUncreatableType()
     QVERIFY(animationTypeInfo.isValid());
 
     QVERIFY(animationTypeInfo.isValid());
-#ifndef QDS_USE_PROJECTSTORAGE
-    QCOMPARE(animationTypeInfo.typeName(), QmlDesigner::TypeName("QtQuick.Animation"));
-    QCOMPARE(animationTypeInfo.majorVersion(), 2);
-    QCOMPARE(animationTypeInfo.minorVersion(), 1);
-#endif
 
     NodeMetaInfo qObjectTypeInfo = animationTypeInfo.prototypes()[1];
     QVERIFY(qObjectTypeInfo.isValid());
-#ifndef QDS_USE_PROJECTSTORAGE
-    QCOMPARE(qObjectTypeInfo.simplifiedTypeName(), QmlDesigner::TypeName("QtObject"));
-#endif
 
     QCOMPARE(animationTypeInfo.prototypes().size(), 2);
 }
@@ -4927,11 +4811,7 @@ void tst_TestCore::testMetaInfoCustomType()
 
     NodeMetaInfo stateOperationInfo = propertyChangesInfo.prototypes()[1];
     QVERIFY(stateOperationInfo.isValid());
-#ifndef QDS_USE_PROJECTSTORAGE
-    QCOMPARE(stateOperationInfo.typeName(), QmlDesigner::TypeName("QtQuick.QQuickStateOperation"));
-    QCOMPARE(stateOperationInfo.majorVersion(), -1);
-    QCOMPARE(stateOperationInfo.minorVersion(), -1);
-#endif
+
     QCOMPARE(propertyChangesInfo.prototypes().size(), 3);
 
     // DeclarativePropertyChanges just has 3 properties
@@ -4949,31 +4829,11 @@ void tst_TestCore::testMetaInfoEnums()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    QCOMPARE(view->rootModelNode().metaInfo().typeName(), QmlDesigner::TypeName("QtQuick.Text"));
-#endif
-
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("transformOrigin"));
 
     QVERIFY(view->rootModelNode().metaInfo().property("transformOrigin").isEnumType());
-#ifndef QDS_USE_PROJECTSTORAGE
-    QCOMPARE(view->rootModelNode()
-                 .metaInfo()
-                 .property("transformOrigin")
-                 .propertyType()
-                 .simplifiedTypeName(),
-             QmlDesigner::TypeName("TransformOrigin"));
-#endif
 
     QVERIFY(view->rootModelNode().metaInfo().property("horizontalAlignment").isEnumType());
-#ifndef QDS_USE_PROJECTSTORAGE
-    QCOMPARE(view->rootModelNode()
-                 .metaInfo()
-                 .property("horizontalAlignment")
-                 .propertyType()
-                 .simplifiedTypeName(),
-             QmlDesigner::TypeName("HAlignment"));
-#endif
 
     QApplication::processEvents();
 }
@@ -5070,12 +4930,7 @@ void tst_TestCore::testMetaInfoDotProperties()
     QVERIFY(model->hasNodeMetaInfo("QtQuick.Text"));
 
     QVERIFY(model->metaInfo("QtQuick.Rectangle").hasProperty("border"));
-#ifndef QDS_USE_PROJECTSTORAGE
-    QCOMPARE(model->metaInfo("QtQuick.Rectangle").property("border").propertyType().typeName(),
-             QmlDesigner::TypeName("<cpp>.QQuickPen"));
 
-    QCOMPARE(view->rootModelNode().metaInfo().typeName(), QmlDesigner::TypeName("QtQuick.Text"));
-#endif
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("font"));
 
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("font.bold"));
@@ -5105,9 +4960,6 @@ void tst_TestCore::testMetaInfoListProperties()
     model->attachView(view.data());
 
     QVERIFY(model->hasNodeMetaInfo("QtQuick.Item"));
-#ifndef QDS_USE_PROJECTSTORAGE
-    QCOMPARE(view->rootModelNode().metaInfo().typeName(), QmlDesigner::TypeName("QtQuick.Item"));
-#endif
 
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("states"));
     QVERIFY(view->rootModelNode().metaInfo().property("states").isListProperty());
@@ -5144,12 +4996,6 @@ void tst_TestCore::testQtQuick20Basic()
     QVERIFY(testRewriterView->errors().isEmpty());
     ModelNode rootModelNode(testRewriterView->rootModelNode());
     QVERIFY(rootModelNode.isValid());
-#ifndef QDS_USE_PROJECTSTORAGE
-    QCOMPARE(rootModelNode.metaInfo().majorVersion(), 2);
-    QCOMPARE(rootModelNode.metaInfo().minorVersion(), 0);
-    //QCOMPARE(rootModelNode.majorQtQuickVersion(), 2);
-    QCOMPARE(rootModelNode.majorVersion(), 2);
-#endif
 }
 
 void tst_TestCore::testQtQuick20BasicRectangle()
@@ -5171,13 +5017,6 @@ void tst_TestCore::testQtQuick20BasicRectangle()
     QVERIFY(testRewriterView->errors().isEmpty());
     ModelNode rootModelNode(testRewriterView->rootModelNode());
     QVERIFY(rootModelNode.isValid());
-#ifndef QDS_USE_PROJECTSTORAGE
-    QCOMPARE(rootModelNode.type(), QmlDesigner::TypeName("QtQuick.Rectangle"));
-    QCOMPARE(rootModelNode.metaInfo().majorVersion(), 2);
-    QCOMPARE(rootModelNode.metaInfo().minorVersion(), 0);
-    //QCOMPARE(rootModelNode.majorQtQuickVersion(), 2);
-    QCOMPARE(rootModelNode.majorVersion(), 2);
-#endif
 }
 
 void tst_TestCore::testQtQuickControls2()

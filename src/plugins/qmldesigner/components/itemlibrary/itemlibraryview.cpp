@@ -11,7 +11,6 @@
 #include <coreplugin/icore.h>
 #include <customnotifications.h>
 #include <import.h>
-#include <metainfo.h>
 #include <nodelistproperty.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>

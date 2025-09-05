@@ -714,13 +714,9 @@ TEST_F(Model_ResourceManagment,
 
 TEST_F(Model_ResourceManagment, by_default_remove_model_node_removes_node)
 {
-    QmlDesigner::Model newModel{{projectStorageMock,
-                                 pathCache,
-                                 modulesStorage,
-                                 projectStorageTriggerUpdateMock},
-                                "QtQuick.Item"};
+    auto newModel = model.createModel("Item");
     NiceMock<AbstractViewMock> viewMock;
-    newModel.attachView(&viewMock);
+    newModel->attachView(&viewMock);
     auto node = createNodeWithParent(viewMock.rootModelNode());
 
     EXPECT_CALL(viewMock, nodeAboutToBeRemoved(Eq(node)));
@@ -730,13 +726,9 @@ TEST_F(Model_ResourceManagment, by_default_remove_model_node_removes_node)
 
 TEST_F(Model_ResourceManagment, by_default_remove_properties_removes_property)
 {
-    QmlDesigner::Model newModel{{projectStorageMock,
-                                 pathCache,
-                                 modulesStorage,
-                                 projectStorageTriggerUpdateMock},
-                                "QtQuick.Item"};
+    auto newModel = model.createModel("Item");
     NiceMock<AbstractViewMock> viewMock;
-    newModel.attachView(&viewMock);
+    newModel->attachView(&viewMock);
     rootNode = viewMock.rootModelNode();
     auto property = createProperty(rootNode, "yi");
 
@@ -857,13 +849,9 @@ TEST_F(Model_ResourceManagment, remove_model_nodes_bypasses_model_resource_manag
 
 TEST_F(Model_ResourceManagment, by_default_remove_model_nodes_in_factory_method_calls_removes_node)
 {
-    QmlDesigner::Model newModel{{projectStorageMock,
-                                 pathCache,
-                                 modulesStorage,
-                                 projectStorageTriggerUpdateMock},
-                                "QtQuick.Item"};
+    auto newModel = model.createModel("Item");
     NiceMock<AbstractViewMock> viewMock;
-    newModel.attachView(&viewMock);
+    newModel->attachView(&viewMock);
     rootNode = viewMock.rootModelNode();
     auto node = createNodeWithParent(rootNode, "yi");
     auto node2 = createNodeWithParent(rootNode, "er");
@@ -871,7 +859,7 @@ TEST_F(Model_ResourceManagment, by_default_remove_model_nodes_in_factory_method_
     EXPECT_CALL(viewMock, nodeAboutToBeRemoved(node));
     EXPECT_CALL(viewMock, nodeAboutToBeRemoved(node2));
 
-    newModel.removeModelNodes({node, node2});
+    newModel->removeModelNodes({node, node2});
 }
 
 TEST_F(Model_ResourceManagment, remove_properties)
@@ -955,19 +943,15 @@ TEST_F(Model_ResourceManagment, remove_properties_bypasses_model_resource_manage
 TEST_F(Model_ResourceManagment, by_default_remove_properties_in_factory_method_calls_removes_properties)
 {
     model.detachView(&viewMock);
-    QmlDesigner::Model newModel{{projectStorageMock,
-                                 pathCache,
-                                 modulesStorage,
-                                 projectStorageTriggerUpdateMock},
-                                "QtQuick.Item"};
-    newModel.attachView(&viewMock);
+    auto newModel = model.createModel("Item");
+    newModel->attachView(&viewMock);
     rootNode = viewMock.rootModelNode();
     auto property = createProperty(rootNode, "yi");
     auto property2 = createProperty(rootNode, "er");
 
     EXPECT_CALL(viewMock, propertiesAboutToBeRemoved(UnorderedElementsAre(property, property2)));
 
-    newModel.removeProperties({property, property2});
+    newModel->removeProperties({property, property2});
 }
 
 class Model_Imports : public Model
@@ -1340,24 +1324,14 @@ TEST_F(Model_MetaInfo, add_project_storage_observer_to_project_storage)
 {
     EXPECT_CALL(projectStorageMock, addObserver(_));
 
-    QmlDesigner::Model model{{projectStorageMock, pathCache, modulesStorage, projectStorageTriggerUpdateMock},
-                             "Item",
-                             -1,
-                             -1,
-                             nullptr,
-                             {}};
+    auto m = model.createModel("Item");
 }
 
 TEST_F(Model_MetaInfo, remove_project_storage_observer_from_project_storage)
 {
     EXPECT_CALL(projectStorageMock, removeObserver(_)).Times(2); // the fixture model is calling it too
 
-    QmlDesigner::Model model{{projectStorageMock, pathCache, modulesStorage, projectStorageTriggerUpdateMock},
-                             "Item",
-                             -1,
-                             -1,
-                             nullptr,
-                             {}};
+    auto m = model.createModel("Item");
 }
 
 TEST_F(Model_MetaInfo, refresh_meta_infos_callback_is_calling_abstract_view)
@@ -1367,13 +1341,9 @@ TEST_F(Model_MetaInfo, refresh_meta_infos_callback_is_calling_abstract_view)
     ProjectStorageObserverMock observerMock;
     QmlDesigner::ProjectStorageObserver *observer = nullptr;
     ON_CALL(projectStorageMock, addObserver(_)).WillByDefault([&](auto *o) { observer = o; });
-    QmlDesigner::Model model{{projectStorageMock, pathCache, modulesStorage, projectStorageTriggerUpdateMock},
-                             "Item",
-                             -1,
-                             -1,
-                             nullptr,
-                             {}};
-    model.attachView(&viewMock);
+    auto newModel = model.createModel("Item");
+
+    newModel->attachView(&viewMock);
 
     EXPECT_CALL(viewMock, refreshMetaInfos(typeIds));
 
@@ -1387,13 +1357,9 @@ TEST_F(Model_MetaInfo, added_exported_type_names_are_changed_callback_is_calling
     ProjectStorageObserverMock observerMock;
     QmlDesigner::ProjectStorageObserver *observer = nullptr;
     ON_CALL(projectStorageMock, addObserver(_)).WillByDefault([&](auto *o) { observer = o; });
-    QmlDesigner::Model model{{projectStorageMock, pathCache, modulesStorage, projectStorageTriggerUpdateMock},
-                             "Item",
-                             -1,
-                             -1,
-                             nullptr,
-                             {}};
-    model.attachView(&viewMock);
+    auto newModel = model.createModel("Item");
+
+    newModel->attachView(&viewMock);
 
     EXPECT_CALL(viewMock, exportedTypeNamesChanged(added, IsEmpty()));
 
@@ -1407,13 +1373,8 @@ TEST_F(Model_MetaInfo, removed_exported_type_names_are_changed_callback_is_calli
     ProjectStorageObserverMock observerMock;
     QmlDesigner::ProjectStorageObserver *observer = nullptr;
     ON_CALL(projectStorageMock, addObserver(_)).WillByDefault([&](auto *o) { observer = o; });
-    QmlDesigner::Model model{{projectStorageMock, pathCache, modulesStorage, projectStorageTriggerUpdateMock},
-                             "Item",
-                             -1,
-                             -1,
-                             nullptr,
-                             {}};
-    model.attachView(&viewMock);
+    auto newModel = model.createModel("Item");
+    newModel->attachView(&viewMock);
 
     EXPECT_CALL(viewMock, exportedTypeNamesChanged(IsEmpty(), removed));
 

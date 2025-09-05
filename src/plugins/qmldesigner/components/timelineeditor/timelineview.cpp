@@ -322,25 +322,15 @@ const QmlTimeline TimelineView::addNewTimeline()
     } catch (const Exception &e) {
         e.showException();
     }
-#ifndef QDS_USE_PROJECTSTORAGE
-    const TypeName timelineType = "QtQuick.Timeline.Timeline";
-    NodeMetaInfo metaInfo = model()->metaInfo(timelineType);
 
-    QTC_ASSERT(metaInfo.isValid(), return QmlTimeline());
-#endif
     ModelNode timelineNode;
 
     executeInTransaction("TimelineView::addNewTimeline", [&] {
         bool hasTimelines = getTimelines().isEmpty();
         QString currentStateName = getStateName(this, hasTimelines);
 
-#ifdef QDS_USE_PROJECTSTORAGE
         timelineNode = createModelNode("Timeline");
-#else
-        timelineNode = createModelNode(timelineType,
-                                       metaInfo.majorVersion(),
-                                       metaInfo.minorVersion());
-#endif
+
         timelineNode.ensureIdExists();
 
         timelineNode.variantProperty("startFrame").setValue(0);
@@ -361,26 +351,14 @@ ModelNode TimelineView::addAnimation(QmlTimeline timeline)
 
     QTC_ASSERT(isAttached(), return ModelNode());
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    const TypeName animationType = "QtQuick.Timeline.TimelineAnimation";
-    NodeMetaInfo metaInfo = model()->metaInfo(animationType);
-
-    QTC_ASSERT(metaInfo.isValid(), return ModelNode());
-#endif
     ModelNode animationNode;
 
     executeInTransaction("TimelineView::addAnimation", [&] {
         bool hasAnimations = getAnimations(timeline).isEmpty();
         QString currentStateName = getStateName(this, hasAnimations);
 
-#ifdef QDS_USE_PROJECTSTORAGE
         animationNode = createModelNode("TimelineAnimation");
-#else
-        animationNode = createModelNode(animationType,
-                                        metaInfo.majorVersion(),
-                                        metaInfo.minorVersion());
-        animationNode.variantProperty("duration").setValue(timeline.duration());
-#endif
+
         animationNode.ensureIdExists();
 
         animationNode.variantProperty("from").setValue(timeline.startKeyframe());

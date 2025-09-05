@@ -304,12 +304,8 @@ void ItemLibraryImport::updateRemovable()
 {
     NanotraceHR::Tracer tracer{"item library import update removable", category()};
 
-#ifdef QDS_USE_PROJECTSTORAGE
     bool importRemovable = m_sectionType == SectionType::Default && m_import.url() != "QtQuick";
-#else
-    bool importRemovable = !m_importUsed && m_sectionType == SectionType::Default
-                           && m_import.url() != "QtQuick";
-#endif
+
     if (importRemovable != m_importRemovable) {
         m_importRemovable = importRemovable;
         emit importRemovableChanged();

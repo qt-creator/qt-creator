@@ -36,9 +36,7 @@
 #include <utils/fileutils.h>
 #include <utils/smallstring.h>
 
-#ifdef QDS_USE_PROJECTSTORAGE
 #include <qmlprojectmanager/qmlproject.h>
-#endif
 
 #include <QApplication>
 #include <QDir>
@@ -535,16 +533,6 @@ void QmlDesigner::PropertyEditorQmlBackend::createPropertyEditorValues(const Qml
     NanotraceHR::Tracer tracer{"property editor qml backend create property editor values",
                                category()};
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    for (const auto &property : PropertyEditorUtils::filteredProperties(qmlObjectNode.metaInfo())) {
-        auto propertyName = property.name();
-        createPropertyEditorValue(qmlObjectNode,
-                                  propertyName,
-                                  qmlObjectNode.instanceValue(propertyName),
-                                  propertyEditor);
-    }
-#else
-
     for (const auto &property : MetaInfoUtils::addInflatedValueAndReferenceProperties(
              qmlObjectNode.metaInfo().properties())) {
         auto propertyName = property.name();
@@ -554,7 +542,6 @@ void QmlDesigner::PropertyEditorQmlBackend::createPropertyEditorValues(const Qml
                                   propertyEditor,
                                   property.property);
     }
-#endif
 }
 
 PropertyEditorValue *PropertyEditorQmlBackend::insertValue(const QString &name,
@@ -664,26 +651,12 @@ void PropertyEditorQmlBackend::setup(const ModelNodes &editorNodes,
 
     contextObject()->setSelectionChanged(false);
 
-    NodeMetaInfo metaInfo = qmlObjectNode.modelNode().metaInfo();
-
-#ifdef QDS_USE_PROJECTSTORAGE
     contextObject()->setMajorVersion(-1);
     contextObject()->setMinorVersion(-1);
 
     const auto version = QmlProjectManager::QmlProject::qtQuickVersion();
     contextObject()->setMajorQtQuickVersion(version.major);
     contextObject()->setMinorQtQuickVersion(version.minor);
-#else
-    if (metaInfo.isValid()) {
-        contextObject()->setMajorVersion(metaInfo.majorVersion());
-        contextObject()->setMinorVersion(metaInfo.minorVersion());
-    } else {
-        contextObject()->setMajorVersion(-1);
-        contextObject()->setMinorVersion(-1);
-    }
-    contextObject()->setMajorQtQuickVersion(qmlObjectNode.view()->majorQtQuickVersion());
-    contextObject()->setMinorQtQuickVersion(qmlObjectNode.view()->minorQtQuickVersion());
-#endif
 
     contextObject()->setEditorInstancesCount(propertyEditor->instancesCount());
 
@@ -745,239 +718,6 @@ inline bool dotPropertyHeuristic(const QmlObjectNode &node,
     return true;
 }
 
-#ifndef QDS_USE_PROJECTSTORAGE
-QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaType,
-                                                     const NodeMetaInfo &superType,
-                                                     const QmlObjectNode &node)
-{
-    // If we have dynamically generated specifics file for the type, prefer using it
-    QUrl dynamicUrl = PropertyEditorQmlBackend::getQmlFileUrl(
-        metaType.typeName() + "SpecificsDynamic", metaType);
-
-    if (checkIfUrlExists(dynamicUrl)) {
-        Utils::FilePath fp = Utils::FilePath::fromString(fileFromUrl(dynamicUrl));
-        return QString::fromUtf8(fp.fileContents().value_or(QByteArray()));
-    }
-
-    if (!templateConfiguration() || !templateConfiguration()->isValid())
-        return QString();
-
-    const auto nodes = templateConfiguration()->children();
-
-    QStringList allTypes; // all template types
-    QStringList separateSectionTypes; // separate section types only
-    QStringList needsTypeArgTypes;  // types that need type as third parameter
-
-    for (const QmlJS::SimpleReaderNode::Ptr &node : nodes) {
-        if (node->propertyNames().contains("separateSection"))
-            separateSectionTypes.append(variantToStringList(node->property("typeNames").value));
-        if (node->propertyNames().contains("needsTypeArg"))
-            needsTypeArgTypes.append(variantToStringList(node->property("typeNames").value));
-
-        allTypes.append(variantToStringList(node->property("typeNames").value));
-    }
-
-    auto propertyMetaInfoCompare = [](const auto &first, const auto &second) {
-        return first.name() < second.name();
-    };
-    std::map<PropertyMetaInfo, PropertyMetaInfos, decltype(propertyMetaInfoCompare)> propertyMap(
-        propertyMetaInfoCompare);
-    PropertyMetaInfos separateSectionProperties;
-
-    // Iterate over all properties and isolate the properties which have their own template
-    for (const auto &property : PropertyEditorUtils::filteredProperties(metaType)) {
-        const auto &propertyName = property.name();
-        if (propertyName.startsWith("__"))
-            continue; // private API
-
-        if (!superType.hasProperty(propertyName) // TODO add property.isLocalProperty()
-            && property.isWritable() && dotPropertyHeuristic(node, metaType, propertyName)) {
-            QString typeName = QString::fromUtf8(property.propertyType().simplifiedTypeName());
-
-            if (typeName == "alias" && node.isValid())
-                typeName = QString::fromUtf8(node.instanceType(propertyName));
-
-            // Check if a template for the type exists
-            if (allTypes.contains(typeName)) {
-                if (separateSectionTypes.contains(typeName)) { // template enforces separate section
-                    separateSectionProperties.push_back(property);
-                } else {
-                    if (propertyName.contains('.')) {
-                        const PropertyName parentPropertyName = propertyName.split('.').first();
-                        const PropertyMetaInfo parentProperty = metaType.property(parentPropertyName);
-
-                        auto vectorFound = std::find(separateSectionProperties.begin(),
-                                                     separateSectionProperties.end(),
-                                                     parentProperty);
-
-                        auto propertyMapFound = propertyMap.find(parentProperty);
-
-                        const bool exists = propertyMapFound != propertyMap.end()
-                                            || vectorFound != separateSectionProperties.end();
-
-                        if (!exists)
-                            propertyMap[parentProperty].push_back(property);
-                    } else {
-                        propertyMap[property];
-                    }
-                }
-            }
-        }
-    }
-
-    // Filter out the properties which have a basic type e.g. int, string, bool
-    PropertyMetaInfos basicProperties;
-    auto it = propertyMap.begin();
-    while (it != propertyMap.end()) {
-        if (it->second.empty()) {
-            basicProperties.push_back(it->first);
-            it = propertyMap.erase(it);
-        } else {
-            ++it;
-        }
-    }
-
-    Utils::sort(basicProperties, propertyMetaInfoCompare);
-
-    auto findAndFillTemplate = [&nodes, &node, &needsTypeArgTypes](PropertyNameView label,
-                                                                   const PropertyMetaInfo &property) {
-        const auto &propertyName = property.name();
-        PropertyName underscoreProperty = propertyName;
-        underscoreProperty.replace('.', '_');
-
-        TypeName typeName = property.propertyType().simplifiedTypeName();
-        // alias resolution only possible with instance
-        if (!useProjectStorage() && typeName == "alias" && node.isValid())
-            typeName = node.instanceType(propertyName);
-
-        QString filledTemplate;
-        for (const QmlJS::SimpleReaderNode::Ptr &n : nodes) {
-            // Check if we have a template for the type
-            if (variantToStringList(n->property(QStringLiteral("typeNames")).value).contains(QString::fromLatin1(typeName))) {
-                const QString fileName = propertyTemplatesPath() + n->property(QStringLiteral("sourceFile")).value.toString();
-                QFile file(fileName);
-                if (file.open(QIODevice::ReadOnly)) {
-                    QString source = QString::fromUtf8(file.readAll());
-                    file.close();
-                    if (needsTypeArgTypes.contains(QString::fromUtf8(typeName))) {
-                        filledTemplate = source.arg(QString::fromUtf8(label),
-                                                    QString::fromUtf8(underscoreProperty),
-                                                    QString::fromUtf8(typeName));
-                    } else {
-                        filledTemplate = source.arg(QString::fromUtf8(label),
-                                                    QString::fromUtf8(underscoreProperty));
-                    }
-                } else {
-                    qWarning().nospace() << "template definition source file not found:" << fileName;
-                }
-            }
-        }
-        return filledTemplate;
-    };
-
-    // QML specfics preparation
-    QStringList imports = variantToStringList(templateConfiguration()->property(QStringLiteral("imports")).value);
-    QString qmlTemplate = imports.join(QLatin1Char('\n')) + QLatin1Char('\n');
-    bool emptyTemplate = true;
-
-    const QString anchorLeftRight = "anchors.left: parent.left\nanchors.right: parent.right\n";
-
-    qmlTemplate += "Column {\n";
-    qmlTemplate += "width: parent.width\n";
-
-    bool isEditableComponent = node.modelNode().isComponent() && !QmlItemNode(node).isEffectItem();
-    if (isEditableComponent)
-        qmlTemplate += "ComponentButton {}\n";
-
-    QString qmlInnerTemplate = "";
-
-    qmlInnerTemplate += "Section {\n";
-    qmlInnerTemplate += "caption: \"" + Tr::tr("Exposed Custom Properties") + "\"\n";
-    qmlInnerTemplate += anchorLeftRight;
-    qmlInnerTemplate += "leftPadding: 0\n";
-    qmlInnerTemplate += "rightPadding: 0\n";
-    qmlInnerTemplate += "bottomPadding: 0\n";
-    qmlInnerTemplate += "Column {\n";
-    qmlInnerTemplate += "width: parent.width\n";
-
-    // First the section containing properties of basic type e.g. int, string, bool
-    if (!basicProperties.empty()) {
-        emptyTemplate = false;
-
-        qmlInnerTemplate += "Column {\n";
-        qmlInnerTemplate += "width: parent.width\n";
-        qmlInnerTemplate += "leftPadding: 8\n";
-        qmlInnerTemplate += "bottomPadding: 10\n";
-        qmlInnerTemplate += "SectionLayout {\n";
-
-        for (const auto &basicProperty : std::as_const(basicProperties))
-            qmlInnerTemplate += findAndFillTemplate(basicProperty.name(), basicProperty);
-
-        qmlInnerTemplate += "}\n"; // SectionLayout
-        qmlInnerTemplate += "}\n"; // Column
-    }
-
-    // Second the section containing properties of complex type for which no specific template exists e.g. Button
-    if (!propertyMap.empty()) {
-        emptyTemplate = false;
-        for (auto &[property, properties] : propertyMap) {
-            //     for (auto it = propertyMap.cbegin(); it != propertyMap.cend(); ++it) {
-            TypeName parentTypeName = property.propertyType().simplifiedTypeName();
-            // alias resolution only possible with instance
-            if (!useProjectStorage() && parentTypeName == "alias" && node.isValid())
-                parentTypeName = node.instanceType(property.name());
-
-            qmlInnerTemplate += "Section {\n";
-            qmlInnerTemplate += QStringLiteral("caption: \"%1 - %2\"\n")
-                                    .arg(QString::fromUtf8(property.name()),
-                                         QString::fromUtf8(parentTypeName));
-            qmlInnerTemplate += anchorLeftRight;
-            qmlInnerTemplate += "leftPadding: 8\n";
-            qmlInnerTemplate += "rightPadding: 0\n";
-            qmlInnerTemplate += "expanded: false\n";
-            qmlInnerTemplate += "level: 1\n";
-            qmlInnerTemplate += "SectionLayout {\n";
-
-            Utils::sort(properties, propertyMetaInfoCompare);
-
-            for (const auto &subProperty : properties) {
-                const auto &propertyName = subProperty.name();
-                auto found = std::find(propertyName.rbegin(), propertyName.rend(), '.');
-                const PropertyName shortName{found.base(),
-                                             std::distance(found.base(), propertyName.end())};
-                qmlInnerTemplate += findAndFillTemplate(shortName, property);
-            }
-
-            qmlInnerTemplate += "}\n"; // SectionLayout
-            qmlInnerTemplate += "}\n"; // Section
-        }
-    }
-
-    // Third the section containing properties of complex type for which a specific template exists e.g. Rectangle, Image
-    if (!separateSectionProperties.empty()) {
-        emptyTemplate = false;
-        Utils::sort(separateSectionProperties, propertyMetaInfoCompare);
-        for (const auto &property : separateSectionProperties)
-            qmlInnerTemplate += findAndFillTemplate(property.name(), property);
-    }
-
-    qmlInnerTemplate += "}\n"; // Column
-    qmlInnerTemplate += "}\n"; // Section
-
-    if (!emptyTemplate)
-        qmlTemplate += qmlInnerTemplate;
-
-    qmlTemplate += "}\n"; // Column
-
-    return qmlTemplate;
-}
-
-QUrl PropertyEditorQmlBackend::getQmlFileUrl(const TypeName &relativeTypeName, const NodeMetaInfo &info)
-{
-    return fileToUrl(locateQmlFile(info, QString::fromUtf8(fixTypeNameForPanes(relativeTypeName) + ".qml")));
-}
-#endif // QDS_USE_PROJECTSTORAGE
-
 TypeName PropertyEditorQmlBackend::fixTypeNameForPanes(const TypeName &typeName)
 {
     NanotraceHR::Tracer tracer{"property editor qml backend fix type name for panes", category()};
@@ -1028,14 +768,6 @@ void PropertyEditorQmlBackend::setupContextProperties()
         {"dummyBackendValue", QVariant::fromValue(m_dummyPropertyEditorValue.get())},
     });
 }
-
-#ifndef QDS_USE_PROJECTSTORAGE
-TypeName PropertyEditorQmlBackend::qmlFileName(const NodeMetaInfo &nodeInfo)
-{
-    const TypeName fixedTypeName = fixTypeNameForPanes(nodeInfo.typeName());
-    return fixedTypeName + "Pane.qml";
-}
-#endif
 
 QUrl PropertyEditorQmlBackend::fileToUrl(const QString &filePath)
 {
@@ -1138,69 +870,5 @@ void PropertyEditorQmlBackend::setValueforAuxiliaryProperties(const QmlObjectNod
     const PropertyName propertyName = auxNamePostFix(key.name);
     setValue(qmlObjectNode, propertyName, qmlObjectNode.modelNode().auxiliaryDataWithDefault(key));
 }
-
-#ifndef QDS_USE_PROJECTSTORAGE
-std::tuple<QUrl, NodeMetaInfo> PropertyEditorQmlBackend::getQmlUrlForMetaInfo(const NodeMetaInfo &metaInfo)
-{
-    if (metaInfo.isValid()) {
-        const NodeMetaInfos &hierarchy = metaInfo.selfAndPrototypes();
-        for (const NodeMetaInfo &info : hierarchy) {
-            QUrl fileUrl = fileToUrl(locateQmlFile(info, QString::fromUtf8(qmlFileName(info))));
-            if (fileUrl.isValid())
-                return {fileUrl, info};
-        }
-    }
-
-    return {emptyPaneUrl(), {}};
-}
-
-QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const QString &relativePath)
-{
-    static const QDir fileSystemDir(PropertyEditorQmlBackend::propertyEditorResourcesPath());
-
-    constexpr QLatin1String qmlDesignerSubfolder{"/designer/"};
-    const QDir resourcesDir(QStringLiteral(":/propertyEditorQmlSources"));
-    const QDir importDir(info.importDirectoryPath() + qmlDesignerSubfolder);
-    const QDir importDirVersion(info.importDirectoryPath() + QStringLiteral(".")
-                                + QString::number(info.majorVersion()) + qmlDesignerSubfolder);
-
-    const QString relativePathWithoutEnding = relativePath.left(relativePath.size() - 4);
-    const QString relativePathWithVersion = QString("%1_%2_%3.qml").arg(relativePathWithoutEnding
-        ).arg(info.majorVersion()).arg(info.minorVersion());
-
-    //Check for qml files with versions first
-
-    const QString withoutDir = relativePath.split(QStringLiteral("/")).constLast();
-
-    int lastSlash = importDirVersion.absoluteFilePath(withoutDir).lastIndexOf("/");
-    QString dirPath = importDirVersion.absoluteFilePath(withoutDir).left(lastSlash);
-
-    if (importDirVersion.exists(withoutDir) && !dirPath.endsWith("QtQuick/Controls.2/designer") && !dirPath.endsWith("QtQuick/Controls/designer"))
-        return importDirVersion.absoluteFilePath(withoutDir);
-
-    const QString withoutDirWithVersion = relativePathWithVersion.split(QStringLiteral("/")).constLast();
-
-    QStringList possiblePaths = {
-        fileSystemDir.absoluteFilePath(relativePathWithVersion),
-        resourcesDir.absoluteFilePath(relativePathWithVersion),
-        fileSystemDir.absoluteFilePath(relativePath),
-        resourcesDir.absoluteFilePath(relativePath)
-    };
-
-    if (!importDir.isEmpty())
-        possiblePaths.append({
-            importDir.absoluteFilePath(relativePathWithVersion),
-            //Since we are in a subfolder of the import we do not require the directory
-            importDir.absoluteFilePath(withoutDirWithVersion),
-            importDir.absoluteFilePath(relativePath),
-            //Since we are in a subfolder of the import we do not require the directory
-            importDir.absoluteFilePath(withoutDir),
-        });
-
-    return Utils::findOrDefault(possiblePaths, [](const QString &possibleFilePath) {
-        return QFileInfo::exists(possibleFilePath);
-    });
-}
-#endif // QDS_USE_PROJECTSTORAGE
 
 } //QmlDesigner

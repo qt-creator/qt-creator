@@ -277,32 +277,6 @@ std::pair<QString, QString> splitExpression(const QString &expression)
     return {sourceNode, propertyName};
 }
 
-#ifndef QDS_USE_PROJECTSTORAGE
-QStringList singletonsFromView(AbstractView *view)
-{
-    RewriterView *rv = view->rewriterView();
-    if (!rv)
-        return {};
-    QStringList out;
-    for (const QmlTypeData &data : rv->getQMLTypes()) {
-        if (data.isSingleton && !data.typeName.isEmpty())
-            out.push_back(data.typeName);
-    }
-    return out;
-}
-
-std::vector<PropertyMetaInfo> propertiesFromSingleton(const QString &name, AbstractView *view)
-{
-    Model *model = view->model();
-    QTC_ASSERT(model, return {});
-
-    if (NodeMetaInfo metaInfo = model->metaInfo(name.toUtf8()); metaInfo.isValid())
-        return metaInfo.properties();
-
-    return {};
-}
-#endif
-
 QList<AbstractProperty> dynamicPropertiesFromNode(const ModelNode &node)
 {
     auto isDynamic = [](const AbstractProperty &p) {
@@ -318,7 +292,6 @@ QList<AbstractProperty> dynamicPropertiesFromNode(const ModelNode &node)
     return dynamicProperties;
 }
 
-#ifdef QDS_USE_PROJECTSTORAGE
 QStringList availableSources(AbstractView *view)
 {
     if (!view->isAttached())
@@ -339,19 +312,6 @@ QStringList availableSources(AbstractView *view)
     std::sort(sourceNodes.begin(), sourceNodes.end());
     return sourceNodes;
 }
-#else
-QStringList availableSources(AbstractView *view)
-{
-    QStringList sourceNodes;
-
-    for (const ModelNode &modelNode : view->allModelNodes()) {
-        if (!modelNode.id().isEmpty())
-            sourceNodes.append(modelNode.id());
-    }
-    std::sort(sourceNodes.begin(), sourceNodes.end());
-    return singletonsFromView(view) + sourceNodes;
-}
-#endif
 
 QStringList availableTargetProperties(const BindingProperty &bindingProperty)
 {
@@ -389,7 +349,6 @@ ModelNode getNodeByIdOrParent(AbstractView *view, const QString &id, const Model
     return {};
 }
 
-#ifdef QDS_USE_PROJECTSTORAGE
 NodeMetaInfo singletonMetaInfoForId(const QString &id, AbstractView *view)
 {
     using Storage::Info::ExportedTypeName;
@@ -415,7 +374,6 @@ NodeMetaInfo singletonMetaInfoForId(const QString &id, AbstractView *view)
 
     return *found;
 }
-#endif
 } // namespace
 
 QStringList availableSourceProperties(const QString &id,
@@ -434,7 +392,6 @@ QStringList availableSourceProperties(const QString &id,
 
     QStringList possibleProperties;
     if (!modelNode.isValid()) {
-#ifdef QDS_USE_PROJECTSTORAGE
         if (auto singletonMetaInfo = singletonMetaInfoForId(id, view)) {
             for (const auto &property : singletonMetaInfo.properties()) {
                 if (metaInfoIsCompatible(targetType, property))
@@ -442,16 +399,7 @@ QStringList availableSourceProperties(const QString &id,
             }
             return possibleProperties;
         }
-#else
-        QStringList singletons = singletonsFromView(view);
-        if (singletons.contains(id)) {
-            for (const auto &property : propertiesFromSingleton(id, view)) {
-                if (metaInfoIsCompatible(targetType, property))
-                    possibleProperties.push_back(QString::fromUtf8(property.name()));
-            }
-            return possibleProperties;
-        }
-#endif
+
         qCWarning(ScriptEditorLog) << __FUNCTION__ << "invalid model node:" << id;
         return {};
     }

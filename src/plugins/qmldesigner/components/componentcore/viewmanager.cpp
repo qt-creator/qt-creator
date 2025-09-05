@@ -348,7 +348,6 @@ void ViewManager::registerViewAction(AbstractView &view)
 
     auto viewAction = view.action();
     viewAction->setCheckable(true);
-#ifdef DETACH_DISABLED_VIEWS
     QObject::connect(view.action(),
                      &AbstractViewAction::viewCheckedChanged,
                      [&](bool checked, AbstractView &view) {
@@ -357,7 +356,6 @@ void ViewManager::registerViewAction(AbstractView &view)
                          else
                              disableView(view);
                      });
-#endif
 }
 
 void ViewManager::enableView(AbstractView &view)
@@ -634,12 +632,7 @@ void ViewManager::qmlJSEditorContextHelp(const Core::IContext::HelpCallback &cal
     if (!selectedNode)
         selectedNode = view()->rootModelNode();
 
-#ifdef QDS_USE_PROJECTSTORAGE
     Core::HelpItem helpItem("QML." + selectedNode.simplifiedTypeName(),
-#else
-    Core::HelpItem helpItem({QString::fromUtf8("QML." + selectedNode.type()),
-                             "QML." + selectedNode.simplifiedTypeName()},
-#endif
                             {},
                             {},
                             Core::HelpItem::QmlComponent);

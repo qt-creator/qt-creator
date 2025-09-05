@@ -1058,7 +1058,6 @@ TypeName createQualifiedTypeName(const ModelNode &node, ModulesStorage &modulesS
     if (!node)
         return {};
 
-#ifdef QDS_USE_PROJECTSTORAGE
     auto exportedType = node.exportedTypeName();
     if (exportedType.name.size()) {
         using Storage::ModuleKind;
@@ -1081,9 +1080,6 @@ TypeName createQualifiedTypeName(const ModelNode &node, ModulesStorage &modulesS
     }
 
     return {};
-#else
-    return node.type();
-#endif
 }
 
 } // namespace
@@ -1211,43 +1207,6 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         importVector.append(AddImportContainer(import.url(), import.file(), import.version(), import.alias(), import.importPaths()));
 
     QVector<MockupTypeContainer> mockupTypesVector;
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    for (const QmlTypeData &cppTypeData : model()->rewriterView()->getQMLTypes()) {
-        const QString versionString = cppTypeData.versionString;
-        int majorVersion = -1;
-        int minorVersion = -1;
-
-        if (versionString.contains(QStringLiteral("."))) {
-            const QStringList splittedString = versionString.split(QStringLiteral("."));
-            majorVersion = splittedString.constFirst().toInt();
-            minorVersion = splittedString.constLast().toInt();
-        }
-
-        bool isItem = false;
-
-        if (!cppTypeData.isSingleton) { /* Singletons only appear on the right hand sides of bindings and create just warnings. */
-            const TypeName typeName = cppTypeData.typeName.toUtf8();
-            const QString uri = cppTypeData.importUrl;
-
-            NodeMetaInfo metaInfo = model()->metaInfo(uri.toUtf8() + "." + typeName);
-
-            if (metaInfo.isValid())
-                isItem = metaInfo.isGraphicalItem();
-
-            MockupTypeContainer mockupType(typeName, uri, majorVersion, minorVersion, isItem);
-
-            mockupTypesVector.append(mockupType);
-        } else { /* We need a type for the signleton import */
-            const TypeName typeName = cppTypeData.typeName.toUtf8() + "Mockup";
-            const QString uri = cppTypeData.importUrl;
-
-            MockupTypeContainer mockupType(typeName, uri, majorVersion, minorVersion, isItem);
-
-            mockupTypesVector.append(mockupType);
-        }
-    }
-#endif
 
     QString lastUsedLanguage;
     if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current(m_currentTarget))

@@ -10,8 +10,6 @@
 #include "filemanager/firstdefinitionfinder.h"
 #include "filemanager/objectlengthcalculator.h"
 #include "filemanager/qmlrefactoring.h"
-#include "itemlibraryinfo.h"
-#include "metainfo.h"
 #include "modelnodepositionstorage.h"
 #include "modelutils.h"
 #include "nodemetainfo.h"
@@ -465,14 +463,6 @@ public:
                    [[maybe_unused]] const ViewerContext &vContext,
                    Model *model)
         : m_doc(doc)
-#ifndef QDS_USE_PROJECTSTORAGE
-        , m_context(
-              Link(snapshot,
-                   vContext,
-                   ModelManagerInterface::instance()->builtins(doc))(doc, &m_diagnosticLinkMessages))
-        , m_scopeChain(doc, m_context)
-        , m_scopeBuilder(&m_scopeChain)
-#endif
         , m_model(model)
     {
     }
@@ -483,16 +473,6 @@ public:
     {
         return m_doc;
     }
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    void enterScope(AST::Node *node)
-    { m_scopeBuilder.push(node); }
-
-    void leaveScope()
-    {
-        m_scopeBuilder.pop();
-    }
-#endif
 
     std::tuple<NodeMetaInfo, TypeName> lookup(AST::UiQualifiedId *astTypeNode)
     {
@@ -621,24 +601,12 @@ public:
             return QVariant();
     }
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    const ScopeChain &scopeChain() const
-    {
-        return m_scopeChain;
-    }
-#endif
-
     QList<DiagnosticMessage> diagnosticLinkMessages() const
     { return m_diagnosticLinkMessages; }
 
 private:
     Document::Ptr m_doc;
     QList<DiagnosticMessage> m_diagnosticLinkMessages;
-#ifndef QDS_USE_PROJECTSTORAGE
-    ContextPtr m_context;
-    ScopeChain m_scopeChain;
-    ScopeBuilder m_scopeBuilder;
-#endif
     Model *m_model;
 };
 
@@ -711,271 +679,6 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc, DifferenceHandler
     m_rewriterView->model()->setImports(imports);
 }
 
-namespace {
-
-#ifndef QDS_USE_PROJECTSTORAGE
-bool skipModule(QStringView moduleName)
-{
-    class StartsWith : public QStringView
-    {
-    public:
-        using QStringView::QStringView;
-
-        bool operator()(QStringView moduleName) const { return moduleName.startsWith(*this); }
-    };
-
-    class EndsWith : public QStringView
-    {
-    public:
-        using QStringView::QStringView;
-
-        bool operator()(QStringView moduleName) const { return moduleName.endsWith(*this); }
-    };
-
-    class StartsAndEndsWith : public std::pair<QStringView, QStringView>
-    {
-    public:
-        using Base = std::pair<QStringView, QStringView>;
-        using Base::Base;
-
-        bool operator()(QStringView moduleName) const
-        {
-            return moduleName.startsWith(first) && moduleName.endsWith(second);
-        }
-    };
-
-    class Equals : public QStringView
-    {
-    public:
-        using QStringView::QStringView;
-
-        bool operator()(QStringView moduleName) const { return moduleName == *this; }
-    };
-
-    static constexpr auto skipModules = std::make_tuple(
-        EndsWith(u".impl"),
-        StartsWith(u"QML"),
-        StartsWith(u"QtQml"),
-        StartsAndEndsWith(u"QtQuick", u".PrivateWidgets"),
-        EndsWith(u".private"),
-        EndsWith(u".Private"),
-        Equals(u"QtQuick.Particles"),
-        StartsWith(u"QtQuick.Dialogs"),
-        Equals(u"QtQuick.Controls.Styles"),
-        Equals(u"QtNfc"),
-        Equals(u"Qt.WebSockets"),
-        Equals(u"QtWebkit"),
-        Equals(u"QtLocation"),
-        Equals(u"QtWebChannel"),
-        Equals(u"QtWinExtras"),
-        Equals(u"QtPurchasing"),
-        Equals(u"QtBluetooth"),
-        Equals(u"Enginio"),
-        Equals(u"FlowView"),
-        StartsWith(u"Qt.labs."),
-        StartsWith(u"Qt.test.controls"),
-        StartsWith(u"QmlTime"),
-        StartsWith(u"Qt.labs."),
-        StartsWith(u"Qt.test.controls"),
-        StartsWith(u"Qt3D."),
-        StartsWith(u"Qt5Compat.GraphicalEffects"),
-        StartsWith(u"QtCanvas3D"),
-        StartsWith(u"QtCore"),
-        StartsWith(u"QtDataVisualization"),
-        StartsWith(u"QtGamepad"),
-        StartsWith(u"QtOpcUa"),
-        StartsWith(u"QtPositioning"),
-        Equals(u"QtQuick.Controls.Basic"),
-        Equals(u"QtQuick.Controls.Fusion"),
-        Equals(u"QtQuick.Controls.Imagine"),
-        Equals(u"QtQuick.Controls.Material"),
-        Equals(u"QtQuick.Controls.NativeStyle"),
-        Equals(u"QtQuick.Controls.Universal"),
-        Equals(u"QtQuick.Controls.Windows"),
-        Equals(u"QtQuick3D.MaterialEditor"),
-        StartsWith(u"QtQuick.LocalStorage"),
-        StartsWith(u"QtQuick.NativeStyle"),
-        StartsWith(u"QtQuick.Pdf"),
-        StartsWith(u"QtQuick.Scene2D"),
-        StartsWith(u"QtQuick.Scene3D"),
-        StartsWith(u"QtQuick.Shapes"),
-        StartsWith(u"QtQuick.Studio.EventSimulator"),
-        StartsWith(u"QtQuick.Studio.EventSystem"),
-        StartsWith(u"QtQuick.Templates"),
-        StartsWith(u"QtQuick.tooling"),
-        StartsWith(u"QtQuick.VirtualKeyboard.Plugins"),
-        StartsWith(u"QtQuick.VirtualKeyboard.Styles.Builtin"),
-        StartsWith(u"QtQuick3D MateriablacklistImportslEditor"),
-        StartsWith(u"QtQuick3D.ParticleEffects"),
-        StartsWith(u"QtRemoteObjects"),
-        StartsWith(u"QtRemoveObjects"),
-        StartsWith(u"QtScxml"),
-        StartsWith(u"QtSensors"),
-        StartsWith(u"QtTest"),
-        StartsWith(u"QtTextToSpeech"),
-        StartsWith(u"QtVncServer"),
-        StartsWith(u"QtWebEngine"),
-        StartsWith(u"QtWebSockets"),
-        StartsWith(u"QtWebView"));
-
-    return std::apply([=](const auto &...skipModule) { return (skipModule(moduleName) || ...); },
-                      skipModules);
-}
-
-void collectPossibleFileImports(const QString &checkPath,
-                                const QDir &docDir,
-                                QSet<QString> usedImportsSet,
-                                QList<QmlDesigner::Import> &possibleImports)
-{
-    const QStringList qmlList("*.qml");
-    const QStringList qmldirList("qmldir");
-    const QChar delimeter('/');
-    const QString upDir("../");
-
-    if (QFileInfo(checkPath).isRoot())
-        return;
-
-    const QStringList entries = QDir(checkPath).entryList(QDir::Dirs | QDir::NoDot | QDir::NoDotDot);
-    const QString checkPathDelim = checkPath + delimeter;
-    for (const QString &entry : entries) {
-        QDir dir(checkPathDelim + entry);
-        const QString dirPath = dir.path();
-        if (!dir.entryInfoList(qmlList, QDir::Files).isEmpty()
-            && dir.entryInfoList(qmldirList, QDir::Files).isEmpty()
-            && !usedImportsSet.contains(dirPath)) {
-            const QString importName = docDir.relativeFilePath(dirPath);
-
-            // Omit all imports that would be just "../", "../../" etc. without additional subfolder,
-            // as we don't want to encourage bad design. "../MySharedComps" is a legitimate
-            // use, though.
-            if (!importName.startsWith(upDir) || importName.lastIndexOf(upDir) != importName.size() - 3) {
-                QmlDesigner::Import import = QmlDesigner::Import::createFileImport(importName);
-                possibleImports.append(import);
-            }
-        }
-        collectPossibleFileImports(dirPath, docDir, usedImportsSet, possibleImports);
-    }
-}
-
-QmlDesigner::Imports createQt5Modules()
-{
-    return {QmlDesigner::Import::createLibraryImport("QtQuick", "2.15"),
-            QmlDesigner::Import::createLibraryImport("QtQuick.Controls", "2.15"),
-            QmlDesigner::Import::createLibraryImport("QtQuick.Window", "2.15"),
-            QmlDesigner::Import::createLibraryImport("QtQuick.Layouts", "2.15"),
-            QmlDesigner::Import::createLibraryImport("QtQuick.Timeline", "1.0"),
-            QmlDesigner::Import::createLibraryImport("QtCharts", "2.15"),
-            QmlDesigner::Import::createLibraryImport("QtDataVisualization", "2.15"),
-            QmlDesigner::Import::createLibraryImport("QtQuick.Studio.Components", "1.0"),
-            QmlDesigner::Import::createLibraryImport("QtQuick.Studio.Effects", "1.0"),
-            QmlDesigner::Import::createLibraryImport("QtQuick.Studio.LogicHelper", "1.0"),
-            QmlDesigner::Import::createLibraryImport("QtQuick.Studio.MultiText", "1.0"),
-            QmlDesigner::Import::createLibraryImport("Qt.SafeRenderer", "2.0")};
-}
-#endif
-
-} // namespace
-
-#ifndef QDS_USE_PROJECTSTORAGE
-void TextToModelMerger::setupPossibleImports()
-{
-    if (!m_rewriterView->possibleImportsEnabled())
-        return;
-
-    static QUrl lastProjectUrl;
-    auto &externalDependencies = m_rewriterView->externalDependencies();
-    auto projectUrl = externalDependencies.projectUrl();
-
-    auto allUsedImports = m_scopeChain->context()->imports(m_document.data())->all();
-
-    if (m_possibleModules.isEmpty() || projectUrl != lastProjectUrl) {
-        auto &externalDependencies = m_rewriterView->externalDependencies();
-        if (externalDependencies.isQt6Project()) {
-            ModuleScanner moduleScanner{[&](QStringView moduleName) {
-                                            return skipModule(moduleName);
-                                        },
-                                        VersionScanning::No,
-                                        m_rewriterView->externalDependencies()};
-            moduleScanner.scan(m_rewriterView->externalDependencies().modulePaths());
-            m_possibleModules = moduleScanner.modules();
-        } else {
-            ModuleScanner moduleScanner{[&](QStringView) { return false; },
-                                        VersionScanning::Yes,
-                                        m_rewriterView->externalDependencies()};
-            m_possibleModules = createQt5Modules();
-            moduleScanner.scan(externalDependencies.projectModulePaths());
-            m_possibleModules.append(moduleScanner.modules());
-        }
-    }
-
-    lastProjectUrl = projectUrl;
-
-    auto modules = m_possibleModules;
-
-    if (document()->fileName() != "<internal>")
-        modules.append(generatePossibleFileImports(document()->path().toUrlishString(), allUsedImports));
-
-    if (m_rewriterView->isAttached())
-        m_rewriterView->model()->setPossibleImports(modules);
-}
-
-QList<QmlDesigner::Import> TextToModelMerger::generatePossibleFileImports(
-    const QString &path, const QList<QmlJS::Import> &usedImports) const
-{
-    if (!m_rewriterView)
-        return {};
-
-    QSet<QString> usedImportsSet;
-    for (const QmlJS::Import &i : usedImports)
-        usedImportsSet.insert(i.info.path());
-
-    QList<QmlDesigner::Import> possibleImports;
-
-    collectPossibleFileImports(m_rewriterView->externalDependencies().currentResourcePath().toLocalFile(),
-                               QDir(path), usedImportsSet, possibleImports);
-
-    return possibleImports;
-}
-
-#endif
-
-#ifndef QDS_USE_PROJECTSTORAGE
-void TextToModelMerger::setupUsedImports()
-{
-     const QmlJS::Imports *imports = m_scopeChain->context()->imports(m_document.data());
-     if (!imports)
-         return;
-
-     const QList<QmlJS::Import> allImports = imports->all();
-
-     QSet<QString> usedImportsSet;
-     Imports usedImports;
-
-     // populate usedImportsSet from current model nodes
-     const QList<ModelNode> allModelNodes = m_rewriterView->allModelNodes();
-     for (const ModelNode &modelNode : allModelNodes) {
-         QString type = QString::fromUtf8(modelNode.type());
-         if (type.contains('.'))
-             usedImportsSet.insert(type.left(type.lastIndexOf('.')));
-     }
-
-     for (const QmlJS::Import &import : allImports) {
-         QString version = import.info.version().toString();
-
-         if (!import.info.name().isEmpty() && usedImportsSet.contains(import.info.name())) {
-            if (import.info.type() == ImportType::Library)
-                usedImports.append(
-                    Import::createLibraryImport(import.info.name(), version, import.info.as()));
-            else if (import.info.type() == ImportType::Directory || import.info.type() == ImportType::File)
-                usedImports.append(Import::createFileImport(import.info.name(), import.info.version().toString(), import.info.as()));
-         }
-     }
-
-    if (m_rewriterView->isAttached())
-        m_rewriterView->model()->setUsedImports(usedImports);
-}
-#endif
-
 Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url,
                                                              const QString &data,
                                                              QList<DocumentMessage> *errors)
@@ -1031,16 +734,6 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     if (rewriterBenchmark().isInfoEnabled())
         time.start();
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    if (m_rewriterView->isDocumentRewriterView() && Utils::HostOsInfo::isWindowsHost()) {
-        ModelManagerInterface::instance()->waitForFinished();
-        static bool firstTimeLoad = true;
-        if (firstTimeLoad)
-            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-        firstTimeLoad = false;
-    }
-#endif
-
     const QUrl url = m_rewriterView->model()->fileUrl();
 
     m_qrcMapping.clear();
@@ -1083,16 +776,6 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         m_vContext = ModelManagerInterface::instance()->projectVContext(Dialect::Qml, m_document);
         ReadingContext ctxt(snapshot, m_document, m_vContext, m_rewriterView->model());
 
-#ifndef QDS_USE_PROJECTSTORAGE
-        m_scopeChain = QSharedPointer<const ScopeChain>(new ScopeChain(ctxt.scopeChain()));
-
-        if (view()->checkLinkErrors()) {
-            qCInfo(rewriterBenchmark) << "linked:" << time.elapsed();
-            collectLinkErrors(&errors, ctxt);
-        }
-        setupPossibleImports();
-#endif
-
         tracer.tick("text to model merger load - before setup imports");
         qCInfo(rewriterBenchmark) << "possible imports:" << time.elapsed();
 
@@ -1127,10 +810,6 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         m_rewriterView->positionStorage()->cleanupInvalidOffsets();
 
         qCInfo(rewriterBenchmark) << "synced nodes:" << time.elapsed();
-
-#ifndef QDS_USE_PROJECTSTORAGE
-        setupUsedImports();
-#endif
 
         setActive(false);
 
@@ -1185,12 +864,6 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     int majorVersion = -1;
     int minorVersion = -1;
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    typeName = info.typeName();
-    majorVersion = info.majorVersion();
-    minorVersion = info.minorVersion();
-#endif
-
     if (modelNode.isRootNode() && !m_rewriterView->allowComponentRoot() && info.isQmlComponent()) {
         for (AST::UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
             if (auto def = AST::cast<AST::UiObjectDefinition *>(iter->member)) {
@@ -1231,10 +904,6 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         setupCustomParserNodeDelayed(modelNode, differenceHandler.isAmender());
     else if (!modelNode.nodeSource().isEmpty() || modelNode.nodeSourceType() != ModelNode::NodeWithoutSource)
         clearImplicitComponentDelayed(modelNode, differenceHandler.isAmender());
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    context->enterScope(astNode);
-#endif
 
     QSet<PropertyName> modelPropertyNames = Utils::toSet(modelNode.propertyNames());
     if (!modelNode.id().isEmpty())
@@ -1400,10 +1069,6 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         else
             differenceHandler.propertyAbsentFromQml(modelProperty);
     }
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    context->leaveScope();
-#endif
 }
 
 static QVariant parsePropertyExpression(AST::ExpressionNode *expressionNode)
@@ -1520,12 +1185,7 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
                                                       script->qualifiedId,
                                                       astValue);
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    // Can happen if the type was just created and was not fully processed yet
-    const bool newlyCreatedTypeCase = !modelNode.metaInfo().properties().size();
-#else
     const bool newlyCreatedTypeCase = false;
-#endif
 
     if (enumValue.isValid()) { // It is a qualified enum:
         AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
@@ -1587,12 +1247,6 @@ void TextToModelMerger::syncNodeProperty(AbstractProperty &modelProperty,
 
     int majorVersion = -1;
     int minorVersion = -1;
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    typeName = info.typeName();
-    majorVersion = info.majorVersion();
-    minorVersion = info.minorVersion();
-#endif
 
     if (modelProperty.isNodeProperty() && dynamicPropertyType == modelProperty.dynamicTypeName()) {
         ModelNode nodePropertyNode = modelProperty.toNodeProperty().modelNode();
@@ -2122,11 +1776,6 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
 
     int majorVersion = -1;
     int minorVersion = -1;
-#ifndef QDS_USE_PROJECTSTORAGE
-    typeName = info.typeName();
-    majorVersion = info.majorVersion();
-    minorVersion = info.minorVersion();
-#endif
 
     const bool propertyTakesComponent = propertyHasImplicitComponentType(modelProperty, info);
 
@@ -2298,27 +1947,8 @@ void TextToModelMerger::collectSemanticErrorsAndWarningsAst(
 
     QList<StaticAnalysis::Message> messages;
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    Check check(m_document, m_scopeChain->context());
-    check.disableMessage(StaticAnalysis::ErrPrototypeCycle);
-    check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototype);
-    check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototypeOf);
-
-    const QList<StaticAnalysis::Type> types = StaticAnalysis::Message::allMessageTypes();
-    for (StaticAnalysis::Type type : types) {
-        StaticAnalysis::PrototypeMessageData prototypeMessageData = StaticAnalysis::Message::prototypeForMessageType(type);
-        if (prototypeMessageData.severity == Severity::MaybeWarning
-                || prototypeMessageData.severity == Severity::Warning) {
-            check.disableMessage(type);
-        }
-    }
-
-    check.enableQmlDesignerChecks();
-    messages messages = check();
-#else
     AstCheck check(m_document);
     messages = check();
-#endif
 
     QUrl fileNameUrl = QUrl::fromLocalFile(m_document->fileName().toUrlishString());
 
@@ -2450,40 +2080,7 @@ QSet<QPair<QString, QString> > TextToModelMerger::qrcMapping() const
 
 QList<QmlTypeData> TextToModelMerger::getQMLSingletons() const
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     return {};
-#else
-    QList<QmlTypeData> list;
-    if (!m_scopeChain || !m_scopeChain->document())
-        return list;
-
-    const QmlJS::Imports *imports = m_scopeChain->context()->imports(
-        m_scopeChain->document().data());
-
-    if (!imports)
-        return list;
-
-    for (const QmlJS::Import &import : imports->all()) {
-        if (import.info.type() == ImportType::Library && !import.libraryPath.isEmpty()) {
-            const LibraryInfo &libraryInfo = m_scopeChain->context()->snapshot().libraryInfo(
-                import.libraryPath);
-
-            for (const QmlDirParser::Component &component : libraryInfo.components()) {
-                if (component.singleton) {
-                    QmlTypeData qmlData;
-
-                    qmlData.typeName = component.typeName;
-                    qmlData.importUrl = import.info.name();
-                    qmlData.versionString = import.info.version().toString();
-                    qmlData.isSingleton = component.singleton;
-
-                    list.append(qmlData);
-                }
-            }
-        }
-    }
-    return list;
-#endif
 }
 
 void TextToModelMerger::clearPossibleImportKeys()

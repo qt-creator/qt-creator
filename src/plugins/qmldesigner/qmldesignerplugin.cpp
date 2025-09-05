@@ -26,9 +26,6 @@
 #include <eventlist/eventlistpluginview.h>
 #include <formeditor/view3dtool.h>
 #include <studioquickwidget.h>
-#ifndef QDS_USE_PROJECTSTORAGE
-#  include <metainfo.h>
-#endif
 #include <devicesharing/devicemanager.h>
 #include <pathtool/pathtool.h>
 #include <qmljseditor/qmljseditor.h>
@@ -530,15 +527,6 @@ void QmlDesignerPlugin::showDesigner()
 {
     NanotraceHR::Tracer tracer{"qml designer plugin show designer", category()};
 
-    if constexpr (isWithoutQmlDesignerProjectStorage()) {
-        QMessageBox::warning(Core::ICore::dialogParent(),
-                             tr("Qml Designer Plugin"),
-                             tr("Qml Designer Plugin requires Project Storage support.\n"
-                                "Current Qt: %1 is not between PROJECTSTORAGE_QT_MIN_VERSION "
-                                "and PROJECTSTORAGE_QT_MAX_VERSION")
-                                 .arg(QString::fromLatin1(qVersion())));
-    }
-
     QTC_ASSERT(!d->documentManager.hasCurrentDesignDocument(), return);
 
     enforceDelayedInitialize();
@@ -634,10 +622,6 @@ void QmlDesignerPlugin::activateAutoSynchronization()
     selectModelNodeUnderTextCursor();
 
     d->mainWidget.setupNavigatorHistory(currentDesignDocument()->textEditor());
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    currentDesignDocument()->updateSubcomponentManager();
-#endif
 }
 
 void QmlDesignerPlugin::deactivateAutoSynchronization()
@@ -714,11 +698,6 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
                          [postfix](const Utils::FilePath &p) {
                            return (p / postfix).toFSPathString();
                          });
-
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    MetaInfo::initializeGlobal(pluginPaths, d->externalDependencies);
-#endif
 
     d->viewManager.registerView(std::make_unique<ConnectionView>(d->externalDependencies));
 

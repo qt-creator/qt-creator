@@ -558,13 +558,8 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
             selectionContext.view()->executeInTransaction("DesignerActionManager|layoutHelperFunction",[=](){
 
                 QmlItemNode parentNode = qmlItemNode.instanceParentItem();
-#ifdef QDS_USE_PROJECTSTORAGE
                 const ModelNode layoutNode = selectionContext.view()->createModelNode(layoutType);
-#else
-                NodeMetaInfo metaInfo = selectionContext.view()->model()->metaInfo(layoutType);
 
-                const ModelNode layoutNode = selectionContext.view()->createModelNode(layoutType, metaInfo.majorVersion(), metaInfo.minorVersion());
-#endif
                 reparentTo(layoutNode, parentNode);
                 layoutNode.ensureIdExists();
 
@@ -657,11 +652,8 @@ static void addSignal(const QString &typeName,
                       ExternalDependenciesInterface &externanDependencies,
                       [[maybe_unused]] Model *otherModel)
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     auto model = otherModel->createModel("Item");
-#else
-    auto model = Model::create("Item", 2, 0);
-#endif
+
     RewriterView rewriterView(externanDependencies,
                               otherModel->projectStorageDependencies().modulesStorage,
                               RewriterView::Amend);
@@ -902,12 +894,7 @@ void extractComponent(const SelectionContext &selectionContext)
     Model *model = contextView->model();
     ModulesStorage &modulesStorage = model->projectStorageDependencies().modulesStorage;
 
-#ifdef QDS_USE_PROJECTSTORAGE
     ModelPointer inputModel = model->createModel("Rectangle");
-#else
-    ModelPointer inputModel = Model::create("QtQuick.Rectangle", 1, 0, contextView->model());
-    inputModel->setFileUrl(contextView->model()->fileUrl());
-#endif
 
     // Create ModelNodes from qml string
     // This is not including the root node by default
@@ -1075,40 +1062,19 @@ void addItemToStackedContainer(const SelectionContext &selectionContext)
         }
     }
 
-    view->executeInTransaction("DesignerActionManager:addItemToStackedContainer", [=]() {
-
-#ifdef QDS_USE_PROJECTSTORAGE
+    view->executeInTransaction("DesignerActionManager:addItemToStackedContainer", [=](){
         QmlDesigner::ModelNode itemNode = view->createModelNode("Item");
-#else
-        QmlDesigner::ModelNode itemNode =
-                view->createModelNode("QtQuick.Item", itemMetaInfo.majorVersion(), itemMetaInfo.minorVersion());
-#endif
+
         container.defaultNodeListProperty().reparentHere(itemNode);
 
         if (potentialTabBar.isValid()) {// The stacked container is hooked up to a TabBar
-#ifdef QDS_USE_PROJECTSTORAGE
             const int buttonIndex = potentialTabBar.directSubModelNodes().size();
             ModelNode tabButtonNode = view->createModelNode("TabButton");
 
             tabButtonNode.variantProperty("text").setValue(
                 QString::fromLatin1("Tab %1").arg(buttonIndex));
             potentialTabBar.defaultNodeListProperty().reparentHere(tabButtonNode);
-#else
-            NodeMetaInfo tabButtonMetaInfo = view->model()->metaInfo("QtQuick.Controls.TabButton",
-                                                                     -1,
-                                                                     -1);
-            if (tabButtonMetaInfo.isValid()) {
-                const int buttonIndex = potentialTabBar.directSubModelNodes().size();
-                ModelNode tabButtonNode =
-                        view->createModelNode("QtQuick.Controls.TabButton",
-                                              tabButtonMetaInfo.majorVersion(),
-                                              tabButtonMetaInfo.minorVersion());
 
-                tabButtonNode.variantProperty("text").setValue(QString::fromLatin1("Tab %1").arg(buttonIndex));
-                potentialTabBar.defaultNodeListProperty().reparentHere(tabButtonNode);
-
-            }
-#endif
         }
     });
 }
@@ -1247,16 +1213,6 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
     QTC_ASSERT(container.isValid(), return);
     QTC_ASSERT(container.metaInfo().isValid(), return);
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    NodeMetaInfo tabBarMetaInfo = view->model()->metaInfo("QtQuick.Controls.TabBar", -1, -1);
-    QTC_ASSERT(tabBarMetaInfo.isValid(), return);
-    QTC_ASSERT(tabBarMetaInfo.majorVersion() == 2, return);
-
-    NodeMetaInfo tabButtonMetaInfo = view->model()->metaInfo("QtQuick.Controls.TabButton", -1, -1);
-    QTC_ASSERT(tabButtonMetaInfo.isValid(), return);
-    QTC_ASSERT(tabButtonMetaInfo.majorVersion() == 2, return);
-#endif
-
     QmlItemNode containerItemNode(container);
     QTC_ASSERT(containerItemNode.isValid(), return);
 
@@ -1264,14 +1220,8 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
     QTC_ASSERT(container.metaInfo().hasProperty(indexPropertyName), return);
 
     view->executeInTransaction("DesignerActionManager:addItemToStackedContainer", [&]() {
-#ifdef QDS_USE_PROJECTSTORAGE
         ModelNode tabBarNode = view->createModelNode("TabBar");
-#else
-        ModelNode tabBarNode =
-                view->createModelNode("QtQuick.Controls.TabBar",
-                                      tabBarMetaInfo.majorVersion(),
-                                      tabBarMetaInfo.minorVersion());
-#endif
+
         container.parentProperty().reparentHere(tabBarNode);
 
         const int maxValue = container.directSubModelNodes().size();
@@ -1283,14 +1233,8 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
         tabBarItem.anchors().setAnchor(AnchorLineBottom, containerItemNode, AnchorLineTop);
 
         for (int i = 0; i < maxValue; ++i) {
-#ifdef QDS_USE_PROJECTSTORAGE
             ModelNode tabButtonNode = view->createModelNode("TabButton");
-#else
-            ModelNode tabButtonNode =
-                    view->createModelNode("QtQuick.Controls.TabButton",
-                                          tabButtonMetaInfo.majorVersion(),
-                                          tabButtonMetaInfo.minorVersion());
-#endif
+
             tabButtonNode.variantProperty("text").setValue(QString::fromLatin1("Tab %1").arg(i));
             tabBarNode.defaultNodeListProperty().reparentHere(tabButtonNode);
         }
@@ -1461,16 +1405,8 @@ void addToGroupItem(const SelectionContext &selectionContext)
                 selectionContext.view()
                     ->executeInTransaction("DesignerActionManager|addToGroupItem1", [&]() {
                         QmlItemNode parentNode = qmlItemNode.instanceParentItem();
-#ifdef QDS_USE_PROJECTSTORAGE
                         groupNode = selectionContext.view()->createModelNode("GroupItem");
-#else
-                        const TypeName typeName = "QtQuick.Studio.Components.GroupItem";
 
-                        NodeMetaInfo metaInfo = selectionContext.view()->model()->metaInfo(typeName);
-                        groupNode = selectionContext.view()->createModelNode(typeName,
-                                                                             metaInfo.majorVersion(),
-                                                                             metaInfo.minorVersion());
-#endif
                         reparentTo(groupNode, parentNode);
                     });
                 selectionContext.view()
@@ -1660,17 +1596,9 @@ void addMouseAreaFill(const SelectionContext &selectionContext)
         ->executeInTransaction("DesignerActionManager|addMouseAreaFill", [selectionContext]() {
             ModelNode modelNode = selectionContext.currentSingleSelectedNode();
             if (modelNode.isValid()) {
-#ifdef QDS_USE_PROJECTSTORAGE
                 QmlDesigner::ModelNode mouseAreaNode = selectionContext.view()->createModelNode(
                     "MouseArea");
-#else
-                NodeMetaInfo itemMetaInfo = selectionContext.view()->model()->metaInfo(
-                    "QtQuick.MouseArea", -1, -1);
-                QTC_ASSERT(itemMetaInfo.isValid(), return);
 
-                QmlDesigner::ModelNode mouseAreaNode = selectionContext.view()->createModelNode(
-                    "QtQuick.MouseArea", itemMetaInfo.majorVersion(), itemMetaInfo.minorVersion());
-#endif
                 mouseAreaNode.ensureIdExists();
 
                 modelNode.defaultNodeListProperty().reparentHere(mouseAreaNode);

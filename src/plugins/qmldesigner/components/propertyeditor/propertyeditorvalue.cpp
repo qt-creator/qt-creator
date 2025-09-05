@@ -758,7 +758,6 @@ void PropertyEditorNodeWrapper::add(const QString &type)
     TypeName propertyType = type.toUtf8();
 
     if ((m_editorValue && m_editorValue->modelNode().isValid())) {
-#ifdef QDS_USE_PROJECTSTORAGE
         if (propertyType.isEmpty()) {
             auto node = m_editorValue->modelNode();
             auto metaInfo = m_editorValue->propertyType();
@@ -766,18 +765,7 @@ void PropertyEditorNodeWrapper::add(const QString &type)
             propertyType = exportedTypeName.name.toQByteArray();
         }
         m_modelNode = m_editorValue->modelNode().view()->createModelNode(propertyType);
-#else
-        if (propertyType.isEmpty()) {
-            propertyType = m_editorValue->modelNode()
-                               .metaInfo()
-                               .property(m_editorValue->name())
-                               .propertyType()
-                               .typeName();
-        }
-        while (propertyType.contains('*')) // strip star
-            propertyType.chop(1);
-        m_modelNode = m_editorValue->modelNode().view()->createModelNode(propertyType, 4, 7);
-#endif
+
         m_editorValue->modelNode().nodeAbstractProperty(m_editorValue->name()).reparentHere(m_modelNode);
         if (!m_modelNode.isValid())
             qWarning("PropertyEditorNodeWrapper::add failed");
@@ -980,7 +968,6 @@ PropertyEditorSubSelectionWrapper::PropertyEditorSubSelectionWrapper(const Model
     QmlObjectNode qmlObjectNode(modelNode);
 
     QTC_ASSERT(qmlObjectNode.isValid(), return );
-#ifdef QDS_USE_PROJECTSTORAGE
     for (const auto &property : MetaInfoUtils::addInflatedValueAndReferenceProperties(
              qmlObjectNode.modelNode().metaInfo().properties())) {
         auto propertyName = property.name();
@@ -989,16 +976,6 @@ PropertyEditorSubSelectionWrapper::PropertyEditorSubSelectionWrapper(const Model
                                   qmlObjectNode.instanceValue(propertyName),
                                   property.property);
     }
-#else
-    for (const auto &property :
-         PropertyEditorUtils::filteredProperties(qmlObjectNode.modelNode().metaInfo())) {
-        auto propertyName = property.name();
-        createPropertyEditorValue(qmlObjectNode,
-                                  propertyName,
-                                  qmlObjectNode.instanceValue(propertyName),
-                                  property);
-    }
-#endif
 }
 
 ModelNode PropertyEditorSubSelectionWrapper::modelNode() const

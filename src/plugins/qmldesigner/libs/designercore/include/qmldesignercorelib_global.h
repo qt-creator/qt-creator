@@ -35,15 +35,6 @@ enum AnchorLineType {
     AnchorLineAllMask = AnchorLineVerticalMask | AnchorLineHorizontalMask
 };
 
-constexpr bool isWithoutQmlDesignerProjectStorage()
-{
-#ifdef QDS_USE_PROJECTSTORAGE
-    return false;
-#else
-    return true;
-#endif
-}
-
 constexpr bool isUsingQmlDesignerLite()
 {
 #ifdef QTC_USE_QML_DESIGNER_LITE

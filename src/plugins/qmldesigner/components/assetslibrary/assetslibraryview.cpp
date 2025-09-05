@@ -83,10 +83,6 @@ void AssetsLibraryView::customNotification(const AbstractView * /*view*/,
 {
     if (identifier == "delete_selected_assets") {
         m_widget->deleteSelectedAssets();
-#ifndef QDS_USE_PROJECTSTORAGE
-    } else if (identifier == "asset_import_finished") {
-        m_3dImportsSyncTimer.start();
-#endif
     }
 }
 

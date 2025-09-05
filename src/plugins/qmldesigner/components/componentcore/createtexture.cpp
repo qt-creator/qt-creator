@@ -73,14 +73,8 @@ ModelNode CreateTexture::execute()
 
     ModelNode newTextureNode;
     m_view->executeInTransaction(__FUNCTION__, [&]() {
-#ifdef QDS_USE_PROJECTSTORAGE
         newTextureNode = m_view->createModelNode("Texture");
-#else
-        NodeMetaInfo metaInfo = m_view->model()->qtQuick3DTextureMetaInfo();
-        newTextureNode = m_view->createModelNode("QtQuick3D.Texture",
-                                                 metaInfo.majorVersion(),
-                                                 metaInfo.minorVersion());
-#endif
+
         newTextureNode.ensureIdExists();
         VariantProperty textureName = newTextureNode.variantProperty("objectName");
         textureName.setValue(nameFromId(newTextureNode.id(), "Texture"_L1));
@@ -152,12 +146,8 @@ ModelNode CreateTexture::execute(const ModelNode &texture)
             return;
 
         // create the duplicate texture
-#ifdef QDS_USE_PROJECTSTORAGE
         QmlObjectNode duplicateTex = m_view->createModelNode(matType);
-#else
-            NodeMetaInfo metaInfo = m_view->model()->metaInfo(matType);
-            QmlObjectNode duplicateTex = m_view->createModelNode(matType, metaInfo.majorVersion(), metaInfo.minorVersion());
-#endif
+
         duplicateTextureNode = duplicateTex.modelNode();
 
         // sync properties. Only the base state is duplicated.
@@ -240,19 +230,12 @@ ModelNode CreateTexture::createTextureFromImage(const  Utils::FilePath &assetPat
     if (!matLib.isValid())
         return {};
 
-    NodeMetaInfo metaInfo = m_view->model()->qtQuick3DTextureMetaInfo();
-
     QString textureSource = assetPath.relativePathFromDir(DocumentManager::currentFilePath().parentDir()).toUrlishString();
 
     ModelNode newTexNode = Utils3D::getTextureDefaultInstance(textureSource, m_view);
     if (!newTexNode.isValid()) {
-#ifdef QDS_USE_PROJECTSTORAGE
         newTexNode = m_view->createModelNode("Texture");
-#else
-        newTexNode = m_view->createModelNode("QtQuick3D.Texture",
-                                             metaInfo.majorVersion(),
-                                             metaInfo.minorVersion());
-#endif
+
         newTexNode.setIdWithoutRefactoring(m_view->model()->generateNewId(assetPath.baseName()));
 
         VariantProperty textureName = newTexNode.variantProperty("objectName");

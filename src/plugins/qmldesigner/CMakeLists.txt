@@ -8,10 +8,6 @@ endif()
 option(QTC_USE_QML_DESIGNER_LITE "Use Qml Designer Lite" ${BUILD_NOT_DESIGNSTUDIO})
 add_feature_info("Qml Designer Lite" ${QTC_USE_QML_DESIGNER_LITE} "")
 
-option(USE_PROJECTSTORAGE "Use ProjectStorage" ${BUILD_DESIGNSTUDIO})
-add_feature_info("Use project storage" ${USE_PROJECTSTORAGE} "")
-option(DETACH_DISABLED_VIEWS "Detach disabled views" ${BUILD_DESIGNSTUDIO})
-
 # temporary workaround for broken QML imports in Qt -> Qt 6.9.2 should work without this
 env_with_default(QTC_USE_QML_IMPORT_OVERRIDE ENV_QTC_USE_QML_IMPORT_OVERRIDE ${BUILD_DESIGNSTUDIO})
 option(USE_QML_IMPORT_OVERRIDE "Use Qml import override from resource path." ${ENV_QTC_USE_QML_IMPORT_OVERRIDE})
@@ -61,9 +57,7 @@ add_qtc_plugin(QmlDesigner
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
     SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
     $<$<BOOL:${QTC_USE_QML_DESIGNER_LITE}>:QTC_USE_QML_DESIGNER_LITE>
-    $<$<BOOL:${DETACH_DISABLED_VIEWS}>:DETACH_DISABLED_VIEWS>
   PUBLIC_DEFINES
-    $<$<BOOL:${USE_PROJECTSTORAGE}>:QDS_USE_PROJECTSTORAGE>
     $<$<BOOL:${USE_QML_IMPORT_OVERRIDE}>:USE_QML_IMPORT_OVERRIDE>
   INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/libs

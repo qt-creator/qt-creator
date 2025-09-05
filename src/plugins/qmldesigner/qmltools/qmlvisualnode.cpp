@@ -45,7 +45,6 @@ bool QmlVisualNode::isItemOr3DNode(const ModelNode &modelNode, SL sl)
     auto metaInfo = modelNode.metaInfo();
     auto model = modelNode.model();
 
-#ifdef QDS_USE_PROJECTSTORAGE
     auto qtQuickItem = model->qtQuickItemMetaInfo();
     auto qtQuick3dnode = model->qtQuick3DNodeMetaInfo();
     auto qtQuickWindowWindow = model->qtQuickWindowMetaInfo();
@@ -65,17 +64,8 @@ bool QmlVisualNode::isItemOr3DNode(const ModelNode &modelNode, SL sl)
         or matched == qtQuickControlsPopup) {
         return modelNode.isRootNode();
     }
+
     return true;
-#else
-
-    if (metaInfo.isBasedOn(model->qtQuickItemMetaInfo(), model->qtQuick3DNodeMetaInfo()))
-        return true;
-
-    if (metaInfo.isGraphicalItem() && modelNode.isRootNode())
-        return true;
-
-    return false;
-#endif
 }
 
 bool QmlVisualNode::isValid(SL sl) const
@@ -402,11 +392,8 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
 {
     auto model = view->model();
 
-#ifdef QDS_USE_PROJECTSTORAGE
     auto inputModel = model->createModel("Item");
-#else
-    auto inputModel = Model::create("QtQuick.Item", 1, 0, model);
-#endif
+
     inputModel->setFileUrl(model->fileUrl());
     inputModel->changeImports(model->imports(), {});
 
@@ -477,12 +464,6 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
     NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry, view->model());
 
     auto createNodeFunc = [=, &newQmlObjectNode, &parentProperty]() {
-#ifndef QDS_USE_PROJECTSTORAGE
-        NodeMetaInfo metaInfo = view->model()->metaInfo(itemLibraryEntry.typeName());
-
-        int minorVersion = metaInfo.minorVersion();
-        int majorVersion = metaInfo.majorVersion();
-#endif
         using PropertyBindingEntry = QPair<PropertyName, QString>;
         QList<PropertyBindingEntry> propertyBindingList;
         QList<PropertyBindingEntry> propertyEnumList;
@@ -507,24 +488,12 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
 
             ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource;
 
-#ifdef QDS_USE_PROJECTSTORAGE
             NodeMetaInfo metaInfo{itemLibraryEntry.typeId(), view->model()->projectStorage()};
             if (metaInfo.isQmlComponent())
                 nodeSourceType = ModelNode::NodeWithComponentSource;
             newQmlObjectNode = QmlObjectNode(view->createModelNode(
                 itemLibraryEntry.typeName(), propertyPairList, {}, {}, nodeSourceType));
-#else
-            if (itemLibraryEntry.typeName() == "QtQml.Component")
-                nodeSourceType = ModelNode::NodeWithComponentSource;
 
-            newQmlObjectNode = QmlObjectNode(view->createModelNode(itemLibraryEntry.typeName(),
-                                                                   majorVersion,
-                                                                   minorVersion,
-                                                                   propertyPairList,
-                                                                   {},
-                                                                   {},
-                                                                   nodeSourceType));
-#endif
         } else {
             const QString templateContent = getSourceForUrl(templatePath);
             newQmlObjectNode = createQmlObjectNodeFromSource(view, templateContent, position);
@@ -647,16 +616,8 @@ QmlVisualNode QmlVisualNode::createQml3DNode(AbstractView *view,
 
         QList<QPair<PropertyName, QVariant> > propertyPairList;
         propertyPairList.append(Position(position).propertyPairList());
-#ifdef QDS_USE_PROJECTSTORAGE
-        newQmlObjectNode = QmlVisualNode(view->createModelNode(typeName,
-                                                               propertyPairList));
-#else
-        NodeMetaInfo metaInfo = view->model()->metaInfo(typeName);
-        newQmlObjectNode = QmlVisualNode(view->createModelNode(typeName,
-                                                               metaInfo.majorVersion(),
-                                                               metaInfo.minorVersion(),
-                                                               propertyPairList));
-#endif
+
+        newQmlObjectNode = QmlVisualNode(view->createModelNode(typeName, propertyPairList));
 
         if (newQmlObjectNode.id().isEmpty()) {
             newQmlObjectNode.modelNode().setIdWithoutRefactoring(

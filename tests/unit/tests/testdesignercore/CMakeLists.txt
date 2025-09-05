@@ -37,7 +37,6 @@ add_qtc_library(TestDesignerCore OBJECT
     DONT_CHECK_MESSAGE_COUNTER
     QTC_RESOURCE_DIR="${QtCreatorResourcesDir}"
     QDS_MODEL_USE_PROJECTSTORAGEINTERFACE
-    QDS_USE_PROJECTSTORAGE
     QMLDESIGNERCORE_STATIC_LIBRARY
     QMLDESIGNER_STATIC_LIBRARY
 )
@@ -70,7 +69,6 @@ extend_qtc_library(TestDesignerCore
   SOURCES
     exception.cpp
     invalidargumentexception.cpp
-    invalidmetainfoexception.cpp
     rewritingexception.cpp
 )
 
@@ -184,7 +182,6 @@ extend_qtc_library(TestDesignerCore
     imagecacheauxiliarydata.h
     import.h
     invalidargumentexception.h
-    invalidmetainfoexception.h
     iwidgetplugin.h
     mathutils.h
     modelfwd.h

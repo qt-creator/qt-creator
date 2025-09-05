@@ -73,25 +73,6 @@ RewriterView::RewriterView(ExternalDependenciesInterface &externalDependencies,
 
     m_amendTimer.setInterval(800);
     connect(&m_amendTimer, &QTimer::timeout, this, &RewriterView::amendQmlText);
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    connect(modelManager,
-            &QmlJS::ModelManagerInterface::libraryInfoUpdated,
-            this,
-            &RewriterView::handleLibraryInfoUpdate,
-            Qt::QueuedConnection);
-    connect(modelManager,
-            &QmlJS::ModelManagerInterface::projectInfoUpdated,
-            this,
-            &RewriterView::handleProjectUpdate,
-            Qt::DirectConnection);
-    connect(this,
-            &RewriterView::modelInterfaceProjectUpdated,
-            this,
-            &RewriterView::handleLibraryInfoUpdate,
-            Qt::QueuedConnection);
-#endif
 }
 
 RewriterView::~RewriterView() = default;
@@ -671,18 +652,6 @@ void RewriterView::forceAmend()
     amendQmlText();
 }
 
-#ifndef QDS_USE_PROJECTSTORAGE
-bool RewriterView::isDocumentRewriterView() const
-{
-    return m_isDocumentRewriterView;
-}
-
-void RewriterView::setIsDocumentRewriterView(bool b)
-{
-    m_isDocumentRewriterView = b;
-}
-#endif
-
 void RewriterView::setRemoveImports(bool removeImports)
 {
     m_textToModelMerger->setRemoveImports(removeImports);
@@ -910,23 +879,6 @@ void RewriterView::setupCanonicalHashes() const
     }
 }
 
-#ifndef QDS_USE_PROJECTSTORAGE
-void RewriterView::handleLibraryInfoUpdate()
-{
-    // Trigger dummy amend to reload document when library info changes
-    if (isAttached() && !m_modelAttachPending
-        && !debugQmlPuppet(externalDependencies().designerSettings()))
-        m_amendTimer.start();
-
-    emitCustomNotification(UpdateItemlibrary);
-}
-
-void RewriterView::handleProjectUpdate()
-{
-    emit modelInterfaceProjectUpdated();
-}
-#endif
-
 ModelNode RewriterView::nodeAtTextCursorPosition(int cursorPosition) const
 {
     return nodeAtTextCursorPositionHelper(rootModelNode(), cursorPosition);
@@ -960,13 +912,6 @@ bool RewriterView::renameId(const QString &oldId, const QString &newId)
 
     return false;
 }
-
-#ifndef QDS_USE_PROJECTSTORAGE
-const QmlJS::ScopeChain *RewriterView::scopeChain() const
-{
-    return textToModelMerger()->scopeChain();
-}
-#endif
 
 QmlJS::Document::Ptr RewriterView::document() const
 {
@@ -1009,7 +954,6 @@ QSet<QPair<QString, QString>> RewriterView::qrcMapping() const
 }
 
 namespace {
-#ifdef QDS_USE_PROJECTSTORAGE
 
 ModuleIds generateModuleIds(const ModelNodes &nodes, const ModulesStorage &modulesStorage)
 {
@@ -1068,7 +1012,6 @@ QStringList generateImports(const ModelNodes &nodes, const ModulesStorage &modul
     return generateImports(moduleIds, model->fileUrl(), modulesStorage);
 }
 
-#endif
 } // namespace
 
 QString RewriterView::moveToComponent(const ModelNode &modelNode)
@@ -1079,24 +1022,7 @@ QString RewriterView::moveToComponent(const ModelNode &modelNode)
     int offset = nodeOffset(modelNode);
 
     const QList<ModelNode> nodes = modelNode.allSubModelNodesAndThisNode();
-#ifdef QDS_USE_PROJECTSTORAGE
     auto directPaths = generateImports(nodes, m_modulesStorage, model());
-#else
-    QSet<QString> directPathsSet;
-
-    // Always add QtQuick import
-    QString quickImport = model()->qtQuickItemMetaInfo().requiredImportString();
-    if (!quickImport.isEmpty())
-        directPathsSet.insert(quickImport);
-
-    for (const ModelNode &partialNode : nodes) {
-        QString importStr = partialNode.metaInfo().requiredImportString();
-        if (importStr.size())
-            directPathsSet << importStr;
-    }
-
-    auto directPaths = directPathsSet.values();
-#endif
 
     QString importData = Utils::sorted(directPaths).join(QChar::LineFeed);
     if (importData.size())
@@ -1115,34 +1041,6 @@ QStringList RewriterView::autoComplete(const QString &text, int pos, bool explic
 
     return list;
 }
-
-#ifndef QDS_USE_PROJECTSTORAGE
-QList<QmlTypeData> RewriterView::getQMLTypes() const
-{
-    QList<QmlTypeData> qmlDataList;
-
-    qmlDataList.append(m_textToModelMerger->getQMLSingletons());
-
-    for (const QmlJS::ModelManagerInterface::CppData &cppData :
-         QmlJS::ModelManagerInterface::instance()->cppData())
-        for (const LanguageUtils::FakeMetaObject::ConstPtr &fakeMetaObject : cppData.exportedTypes) {
-            for (const LanguageUtils::FakeMetaObject::Export &exportItem : fakeMetaObject->exports()) {
-                QmlTypeData qmlData;
-                qmlData.cppClassName = fakeMetaObject->className();
-                qmlData.typeName = exportItem.type;
-                qmlData.importUrl = exportItem.package;
-                qmlData.versionString = exportItem.version.toString();
-                qmlData.superClassName = fakeMetaObject->superclassName();
-                qmlData.isSingleton = fakeMetaObject->isSingleton();
-
-                if (qmlData.importUrl != "<cpp>") //ignore pure unregistered cpp types
-                    qmlDataList.append(qmlData);
-            }
-        }
-
-    return qmlDataList;
-}
-#endif
 
 void RewriterView::setWidgetStatusCallback(std::function<void(bool)> setWidgetStatusCallback)
 {

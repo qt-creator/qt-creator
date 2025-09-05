@@ -205,31 +205,14 @@ void addAnimationsToTransition(const ModelNode &transition, const QHash<QString,
             parallelAnimation.defaultNodeAbstractProperty().reparentHere(
                 sequentialAnimation);
 
-#ifdef QDS_USE_PROJECTSTORAGE
             ModelNode pauseAnimation = view->createModelNode("PauseAnimation", {{"duration", 0}});
-#else
-            const NodeMetaInfo pauseMetaInfo = view->model()->metaInfo("QtQuick.PauseAnimation");
 
-            ModelNode pauseAnimation = view->createModelNode("QtQuick.PauseAnimation",
-                                                             pauseMetaInfo.majorVersion(),
-                                                             pauseMetaInfo.minorVersion(),
-                                                             {{"duration", 0}});
-#endif
             sequentialAnimation.defaultNodeAbstractProperty().reparentHere(pauseAnimation);
 
-#ifdef QDS_USE_PROJECTSTORAGE
             ModelNode propertyAnimation = view->createModelNode("PropertyAnimation",
                                                           {{"property", property},
                                                            {"duration", 150}});
-#else
-            const NodeMetaInfo propertyMetaInfo = view->model()->metaInfo("QtQuick.PauseAnimation");
 
-            ModelNode propertyAnimation = view->createModelNode("QtQuick.PropertyAnimation",
-                                                          propertyMetaInfo.majorVersion(),
-                                                          propertyMetaInfo.minorVersion(),
-                                                          {{"property", property},
-                                                           {"duration", 150}});
-#endif
             propertyAnimation.bindingProperty("target").setExpression(it.key());
             sequentialAnimation.defaultNodeAbstractProperty().reparentHere(
                 propertyAnimation);
@@ -363,8 +346,6 @@ ModelNode TransitionEditorView::addNewTransition(const ModelNode &stateGroup, Sh
         executeInTransaction(
             " TransitionEditorView::addNewTransition",
             [&transition, idPropertyList, parentNode, this]() {
-
-#ifdef QDS_USE_PROJECTSTORAGE
                 transition = createModelNode("Transition",
                                              {{
                                                   "from",
@@ -374,20 +355,7 @@ ModelNode TransitionEditorView::addNewTransition(const ModelNode &stateGroup, Sh
                                                   "to",
                                                   "*",
                                               }});
-#else
-                const NodeMetaInfo transitionMetaInfo = model()->metaInfo("QtQuick.Transition");
-                transition = createModelNode("QtQuick.Transition",
-                                             transitionMetaInfo.majorVersion(),
-                                             transitionMetaInfo.minorVersion(),
-                                             {{
-                                                  "from",
-                                                  "*",
-                                              },
-                                              {
-                                                  "to",
-                                                  "*",
-                                              }});
-#endif
+
                 transition.setAuxiliaryData(transitionDurationProperty, 2000);
                 transition.ensureIdExists();
                 parentNode.nodeListProperty("transitions").reparentHere(transition);

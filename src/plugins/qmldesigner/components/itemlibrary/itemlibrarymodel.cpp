@@ -349,11 +349,6 @@ Import ItemLibraryModel::entryToImport(const ItemLibraryEntry &entry)
 {
     NanotraceHR::Tracer tracer{"item library model entry to import", category()};
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    if (entry.majorVersion() == -1 && entry.minorVersion() == -1)
-        return Import::createFileImport(entry.requiredImport());
-#endif
-
     return Import::createLibraryImport(entry.requiredImport(), QString::number(entry.majorVersion()) + QLatin1Char('.') +
                                                                QString::number(entry.minorVersion()));
 
@@ -422,19 +417,10 @@ void ItemLibraryModel::update(Model *model)
     for (const ItemLibraryEntry &entry : std::as_const(itemLibEntries)) {
         NodeMetaInfo metaInfo;
 
-#ifdef QDS_USE_PROJECTSTORAGE
         metaInfo = NodeMetaInfo{entry.typeId(), model->projectStorage()};
-#else
-        metaInfo = model->metaInfo(entry.typeName());
-#endif
 
-#ifdef QDS_USE_PROJECTSTORAGE
         bool valid = metaInfo.isValid();
-#else
-        bool valid = metaInfo.isValid()
-                     && (metaInfo.majorVersion() >= entry.majorVersion()
-                         || metaInfo.majorVersion() < 0);
-#endif
+
         bool isItem = valid && metaInfo.isQtQuickItem();
         bool forceVisibility = valid
                                && NodeHints::fromItemLibraryEntry(entry, model).visibleInLibrary();
@@ -457,13 +443,9 @@ void ItemLibraryModel::update(Model *model)
 
         Import import = entryToImport(entry);
         bool hasImport = model->hasImport(import, true, true);
-#ifndef QDS_USE_PROJECTSTORAGE
-        bool isImportPossible = false;
-        if (!hasImport)
-            isImportPossible = !blockNewImports && model->isImportPossible(import, true, true);
-#else
+
         bool isImportPossible = !blockNewImports;
-#endif
+
         bool isUsable = (valid && (isItem || forceVisibility))
                         && (entry.requiredImport().isEmpty() || hasImport);
         if (!blocked && (isUsable || isImportPossible)) {

@@ -191,17 +191,7 @@ void QmlModelState::addChangeSetIfNotExists(const ModelNode &node)
     if (!hasPropertyChanges(node)) {
         ModelNode newChangeSet;
 
-#ifdef QDS_USE_PROJECTSTORAGE
         newChangeSet = modelNode().view()->createModelNode("PropertyChanges");
-#else
-        const QByteArray typeName = "QtQuick.PropertyChanges";
-        NodeMetaInfo metaInfo = modelNode().model()->metaInfo(typeName);
-
-        int major = metaInfo.majorVersion();
-        int minor = metaInfo.minorVersion();
-
-        newChangeSet = modelNode().view()->createModelNode(typeName, major, minor);
-#endif
 
         modelNode().nodeListProperty("changes").reparentHere(newChangeSet);
 
@@ -412,17 +402,7 @@ ModelNode QmlModelState::createQmlState(AbstractView *view, const PropertyListTy
     if (!view)
         return {};
 
-#ifdef QDS_USE_PROJECTSTORAGE
     return view->createModelNode("State", propertyList);
-#else
-    const QByteArray typeName = "QtQuick.State";
-    NodeMetaInfo metaInfo = view->model()->metaInfo(typeName);
-
-    int major = metaInfo.majorVersion();
-    int minor = metaInfo.minorVersion();
-
-    return view->createModelNode(typeName, major, minor, propertyList);
-#endif
 }
 
 void QmlModelState::setAsDefault(SL sl)

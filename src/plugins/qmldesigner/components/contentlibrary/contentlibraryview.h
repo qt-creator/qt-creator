@@ -71,13 +71,8 @@ private:
     void importBundleToContentLib();
     void saveIconToBundle(const auto &image, const QString &iconPath);
     void decodeAndDropToContentLib(const QByteArray &encodedInternalIds);
-
-#ifdef QDS_USE_PROJECTSTORAGE
     void applyBundleMaterialToDropTarget(const ModelNode &bundleMat, const TypeName &typeName = {});
-#else
-    void applyBundleMaterialToDropTarget(const ModelNode &bundleMat,
-                                         const NodeMetaInfo &metaInfo = {});
-#endif
+
     ModelNode getBundleMaterialDefaultInstance(const TypeName &type);
 
     QPointer<ContentLibraryWidget> m_widget;

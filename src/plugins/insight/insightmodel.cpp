@@ -215,14 +215,10 @@ struct ModelBuilder
         rewriter->setCheckLinkErrors(false);
         rewriter->setTextModifier(modifier.get());
 
-#ifdef QDS_USE_PROJECTSTORAGE
         model = QmlDesigner::Model::create(projectStorageDependencies,
                                            "Item",
                                            {Import::createLibraryImport("QtQuick")},
                                            filePath);
-#else
-        model = QmlDesigner::Model::create("QtQuick.Item", 2, 1);
-#endif
         model->setRewriterView(rewriter.get());
     }
 

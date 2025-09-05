@@ -17,7 +17,6 @@
 #include <designericons.h>
 #include <designersettings.h>
 #include <designmodewidget.h>
-#include <metainfo.h>
 #include <modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodehints.h>
@@ -333,15 +332,8 @@ void Edit3DView::modelAttached(Model *model)
         if (QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit()))
             m_isBakingLightsSupported = qtVer->qtVersion() >= QVersionNumber(6, 5, 0);
     }
-#ifdef QDS_USE_PROJECTSTORAGE
+
     onEntriesChanged();
-#else
-    connect(model->metaInfo().itemLibraryInfo(),
-            &ItemLibraryInfo::entriesChanged,
-            this,
-            &Edit3DView::onEntriesChanged,
-            Qt::UniqueConnection);
-#endif
 
     model->sendCustomNotificationToNodeInstanceView(
         Request3DSceneToolStates{Utils3D::active3DSceneNode(this).id()});
@@ -375,7 +367,6 @@ void Edit3DView::handleEntriesChanged()
         {EK_primitives, {tr("Primitives"), contextIcon(DesignerIcons::PrimitivesIcon)}}
     };
 
-#ifdef QDS_USE_PROJECTSTORAGE
     auto append = [&](const NodeMetaInfo &metaInfo, ItemLibraryEntryKeys key) {
         auto entries = metaInfo.itemLibrariesEntries();
         if (entries.size())
@@ -388,25 +379,6 @@ void Edit3DView::handleEntriesChanged()
     append(model()->qtQuick3DPointLightMetaInfo(), EK_lights);
     append(model()->qtQuick3DOrthographicCameraMetaInfo(), EK_cameras);
     append(model()->qtQuick3DPerspectiveCameraMetaInfo(), EK_cameras);
-#else
-    const QList<ItemLibraryEntry> itemLibEntries = model()->metaInfo().itemLibraryInfo()->entries();
-    for (const ItemLibraryEntry &entry : itemLibEntries) {
-        ItemLibraryEntryKeys entryKey;
-        if (entry.typeName() == "QtQuick3D.Model" && entry.name() != "Empty") {
-            entryKey = EK_primitives;
-        } else if (entry.typeName() == "QtQuick3D.DirectionalLight"
-                   || entry.typeName() == "QtQuick3D.PointLight"
-                   || entry.typeName() == "QtQuick3D.SpotLight") {
-            entryKey = EK_lights;
-        } else if (entry.typeName() == "QtQuick3D.OrthographicCamera"
-                   || entry.typeName() == "QtQuick3D.PerspectiveCamera") {
-            entryKey = EK_cameras;
-        } else {
-            continue;
-        }
-        entriesMap[entryKey].entryList.append(entry);
-    }
-#endif
 
     m_edit3DWidget->updateCreateSubMenu(entriesMap.values());
 }
@@ -479,10 +451,6 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
             self->m_nodeAtPosReqType = NodeAtPosReqType::MainScenePick;
             self->m_pickView3dNode = self->modelNodeForInternalId(qint32(data[1].toInt()));
         });
-#ifndef QDS_USE_PROJECTSTORAGE
-    } else if (identifier == "asset_import_finished" || identifier == "assets_deleted") {
-        onEntriesChanged();
-#endif
     }
 }
 

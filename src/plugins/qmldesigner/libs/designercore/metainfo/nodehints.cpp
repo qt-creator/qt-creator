@@ -4,7 +4,6 @@
 #include "nodehints.h"
 #include "model.h"
 
-#include "metainfo.h"
 #include <enumeration.h>
 #include <itemlibraryentry.h>
 #include <nodeabstractproperty.h>
@@ -21,10 +20,6 @@
 #include <languageutils/fakemetaobject.h>
 
 #include <utils/qtcassert.h>
-
-#ifndef QDS_USE_PROJECTSTORAGE
-#  include <itemlibraryinfo.h>
-#endif
 
 #include <QJSEngine>
 
@@ -69,39 +64,9 @@ static QVariant evaluateExpression(const QString &expression, const ModelNode &m
 } //Internal
 
 QmlDesigner::NodeHints::NodeHints(const ModelNode &node)
-#ifdef QDS_USE_PROJECTSTORAGE
     : NodeHints{node.metaInfo()}
-#endif
 {
     m_modelNode = node;
-#ifndef QDS_USE_PROJECTSTORAGE
-
-    if (!isValid())
-        return;
-
-    const ItemLibraryInfo *libraryInfo = model()->metaInfo().itemLibraryInfo();
-
-    if (!m_modelNode.metaInfo().isValid()) {
-
-        QList <ItemLibraryEntry> itemLibraryEntryList = libraryInfo->entriesForType(
-                    modelNode().type(), modelNode().majorVersion(), modelNode().minorVersion());
-
-        if (!itemLibraryEntryList.isEmpty())
-            m_hints = itemLibraryEntryList.constFirst().hints();
-    } else { /* If we have meta information we run the complete type hierarchy and check for hints */
-        const auto classHierarchy = m_modelNode.metaInfo().selfAndPrototypes();
-        for (const NodeMetaInfo &metaInfo : classHierarchy) {
-            QList <ItemLibraryEntry> itemLibraryEntryList = libraryInfo->entriesForType(
-                        metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
-
-            if (!itemLibraryEntryList.isEmpty() && !itemLibraryEntryList.constFirst().hints().isEmpty()) {
-                m_hints = itemLibraryEntryList.constFirst().hints();
-                return;
-            }
-
-        }
-    }
-#endif
 }
 
 NodeHints::NodeHints(const NodeMetaInfo &metaInfo)
@@ -110,12 +75,8 @@ NodeHints::NodeHints(const NodeMetaInfo &metaInfo)
 }
 
 NodeHints::NodeHints(const ItemLibraryEntry &entry, [[maybe_unused]] Model *model)
-#ifdef QDS_USE_PROJECTSTORAGE
     : NodeHints{NodeMetaInfo{entry.typeId(), model->projectStorage()}}
-#endif
 {
-    if constexpr (!useProjectStorage())
-        m_hints = entry.hints();
 }
 
 namespace {
@@ -394,12 +355,10 @@ QString NodeHints::bindParentToProperty() const
 
 QHash<QString, QString> NodeHints::hints() const
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     if (m_hints.empty()) {
         for (const auto &[name, expression] : m_metaInfo.typeHints())
             m_hints.insert(name.toQString(), expression.toQString());
     }
-#endif
 
     return m_hints;
 }

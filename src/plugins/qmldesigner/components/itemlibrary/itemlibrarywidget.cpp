@@ -17,18 +17,12 @@
 #include <itemlibraryentry.h>
 #include <itemlibraryimageprovider.h>
 #include <modelnodeoperations.h>
-#ifndef QDS_USE_PROJECTSTORAGE
-#  include <itemlibraryinfo.h>
-#endif
 #include <itemlibrarymodel.h>
 #include <model.h>
 #include <modelutils.h>
 #include <rewritingexception.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
-#ifndef QDS_USE_PROJECTSTORAGE
-#  include <metainfo.h>
-#endif
 
 #include <qmldesignerbase/settings/designersettings.h>
 
@@ -97,18 +91,11 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 
                 // For drag to be handled correctly, we must have the component properly imported
                 // beforehand, so we import the module immediately when the drag starts
-#ifdef QDS_USE_PROJECTSTORAGE
+
                 if (!entry.requiredImport().isEmpty()) {
                     Import import = Import::createLibraryImport(entry.requiredImport());
                     m_model->changeImports({import}, {});
                 }
-#else
-                if (!entry.requiredImport().isEmpty()
-                    && !ModelUtils::addImportWithCheck(entry.requiredImport(), m_model)) {
-                    qWarning() << __FUNCTION__ << "Required import adding failed:"
-                               << entry.requiredImport();
-                }
-#endif
 
                 if (m_model) {
                     tracer.tick("start drag");
@@ -206,25 +193,6 @@ ItemLibraryWidget::~ItemLibraryWidget()
 {
     NanotraceHR::Tracer tracer{"item library widget destructor", category()};
 }
-
-#ifndef QDS_USE_PROJECTSTORAGE
-void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
-{
-    if (m_itemLibraryInfo.data() == itemLibraryInfo)
-        return;
-
-    if (m_itemLibraryInfo) {
-        disconnect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
-                   this, &ItemLibraryWidget::delayedUpdateModel);
-    }
-    m_itemLibraryInfo = itemLibraryInfo;
-    if (itemLibraryInfo) {
-        connect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
-                this, &ItemLibraryWidget::delayedUpdateModel);
-    }
-    delayedUpdateModel();
-}
-#endif
 
 QList<QToolButton *> ItemLibraryWidget::createToolBarWidgets()
 {
@@ -324,9 +292,6 @@ void ItemLibraryWidget::setModel(Model *model)
         m_itemToDrag = {};
         return;
     }
-#ifndef QDS_USE_PROJECTSTORAGE
-    setItemLibraryInfo(model->metaInfo().itemLibraryInfo());
-#endif
 
     if (DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument()) {
         const bool subCompEditMode = document->inFileComponentModelActive();

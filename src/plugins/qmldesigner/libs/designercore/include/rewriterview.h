@@ -126,10 +126,6 @@ public:
 
     QmlJS::Document::Ptr document() const;
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    const QmlJS::ScopeChain *scopeChain() const;
-#endif
-
     QString convertTypeToImportAlias(QStringView type) const;
 
     bool checkSemanticErrors() const { return m_checkSemanticErrors; }
@@ -147,10 +143,6 @@ public:
     QString moveToComponent(const ModelNode &modelNode);
 
     QStringList autoComplete(const QString &text, int pos, bool explicitComplete = true);
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    QList<QmlTypeData> getQMLTypes() const;
-#endif
 
     void setWidgetStatusCallback(std::function<void(bool)> setWidgetStatusCallback);
 
@@ -175,11 +167,6 @@ public:
 
     void forceAmend();
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    bool isDocumentRewriterView() const;
-    void setIsDocumentRewriterView(bool b);
-#endif
-
     void setRemoveImports(bool removeImports);
 
     void convertPosition(int pos, int *line, int *column) const;
@@ -203,10 +190,6 @@ protected: // functions
 private: //variables
     ModelNode nodeAtTextCursorPositionHelper(const ModelNode &root, int cursorPosition) const;
     void setupCanonicalHashes() const;
-#ifndef QDS_USE_PROJECTSTORAGE
-    void handleLibraryInfoUpdate();
-    void handleProjectUpdate();
-#endif
     bool inErrorState() const { return !m_rewritingErrorMessage.isEmpty(); }
 
     QPointer<TextModifier> m_textModifier;
@@ -233,10 +216,6 @@ private: //variables
     bool m_modelAttachPending = false;
     bool m_allowComponentRoot = false;
     bool m_possibleImportsEnabled = true;
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    bool m_isDocumentRewriterView = false;
-#endif
 
     mutable QHash<int, ModelNode> m_canonicalIntModelNode;
     mutable QHash<ModelNode, int> m_canonicalModelNodeInt;

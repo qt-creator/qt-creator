@@ -39,10 +39,8 @@ class QMLDESIGNERCORE_EXPORT NodeMetaInfo
     using NodeMetaInfos = std::vector<NodeMetaInfo>;
 
 public:
-    NodeMetaInfo();
-#ifndef QDS_USE_PROJECTSTORAGE
-    NodeMetaInfo(Model *model, const TypeName &typeName, int majorVersion, int minorVersion);
-#else
+    NodeMetaInfo() = default;
+
     NodeMetaInfo(TypeId typeId, NotNullPointer<const ProjectStorageType> projectStorage)
         : m_typeId{typeId}
         , m_projectStorage{projectStorage}
@@ -50,15 +48,7 @@ public:
     NodeMetaInfo(NotNullPointer<const ProjectStorageType> projectStorage)
         : m_projectStorage{projectStorage}
     {}
-#endif
 
-    NodeMetaInfo(const NodeMetaInfo &);
-    NodeMetaInfo &operator=(const NodeMetaInfo &);
-    NodeMetaInfo(NodeMetaInfo &&);
-    NodeMetaInfo &operator=(NodeMetaInfo &&);
-    ~NodeMetaInfo();
-
-#ifdef QDS_USE_PROJECTSTORAGE
     static NodeMetaInfo create(NotNullPointer<const ProjectStorageType> projectStorage, TypeId typeId)
     {
         return {typeId, projectStorage};
@@ -68,7 +58,6 @@ public:
     {
         return std::bind_front(&NodeMetaInfo::create, projectStorage);
     }
-#endif
 
     bool isValid() const;
     explicit operator bool() const { return isValid(); }
@@ -111,12 +100,6 @@ public:
 
     bool defaultPropertyIsComponent() const;
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    TypeName typeName() const;
-    TypeName simplifiedTypeName() const;
-    int majorVersion() const;
-    int minorVersion() const;
-#endif
     Storage::Info::ExportedTypeNames allExportedTypeNames(SL sl = {}) const;
     Storage::Info::ExportedTypeNames exportedTypeNamesForSourceId(SourceId sourceId) const;
 
@@ -125,9 +108,6 @@ public:
     Storage::Info::ItemLibraryEntries itemLibrariesEntries(SL sl = {}) const;
 
     SourceId sourceId(SL sl = {}) const;
-#ifndef QDS_USE_PROJECTSTORAGE
-    QString componentFileName() const;
-#endif
 
     bool isBasedOn(const NodeMetaInfo &metaInfo, SL sl = {}) const;
     bool isBasedOn(const NodeMetaInfo &metaInfo1, const NodeMetaInfo &metaInfo2, SL sl = {}) const;
@@ -285,46 +265,30 @@ public:
     bool usesCustomParser(SL sl = {}) const;
 
     bool isEnumeration(SL sl = {}) const;
-#ifndef QDS_USE_PROJECTSTORAGE
-    QString importDirectoryPath() const;
-    QString requiredImportString() const;
-#endif
+
     friend bool operator==(const NodeMetaInfo &first, const NodeMetaInfo &second)
     {
-        if constexpr (useProjectStorage())
-            return first.m_typeId == second.m_typeId;
-        else
-            return first.m_privateData == second.m_privateData;
+        return first.m_typeId == second.m_typeId;
     }
 
-    friend bool operator!=(const NodeMetaInfo &first, const NodeMetaInfo &second)
+    friend auto operator<=>(const NodeMetaInfo &first, const NodeMetaInfo &second)
     {
-        return !(first == second);
+        return first.m_typeId <=> second.m_typeId;
     }
 
     SourceId propertyEditorPathId(SL sl = {}) const;
 
     const ProjectStorageType &projectStorage() const { return *m_projectStorage; }
 
-    void *key() const
-    {
-        if constexpr (!useProjectStorage())
-            return m_privateData.get();
-
-        return nullptr;
-    }
-
 private:
     const Storage::Info::Type &typeData() const;
     PropertyDeclarationId defaultPropertyDeclarationId() const;
-    bool isSubclassOf(const TypeName &type, int majorVersion = -1, int minorVersion = -1) const;
 
 private:
     TypeId m_typeId;
     NotNullPointer<const ProjectStorageType> m_projectStorage = {};
     mutable std::optional<Storage::Info::Type> m_typeData;
     mutable std::optional<PropertyDeclarationId> m_defaultPropertyId;
-    std::shared_ptr<NodeMetaInfoPrivate> m_privateData;
 };
 
 using NodeMetaInfos = std::vector<NodeMetaInfo>;
@@ -339,10 +303,7 @@ struct hash<QmlDesigner::NodeMetaInfo>
 {
     auto operator()(const QmlDesigner::NodeMetaInfo &metaInfo) const
     {
-        if constexpr (QmlDesigner::useProjectStorage())
-            return std::hash<QmlDesigner::TypeId>{}(metaInfo.id());
-        else
-            return std::hash<void *>{}(metaInfo.key());
+        return std::hash<QmlDesigner::TypeId>{}(metaInfo.id());
     }
 };
 } // namespace std

@@ -229,14 +229,9 @@ static bool canBeDropped(const QMimeData *mimeData, Model *model)
         || mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_2D)) {
         return true;
     }
-#ifdef QDS_USE_PROJECTSTORAGE
     auto itemLibraryEntry = itemLibraryEntryFromMimeData(mimeData);
     NodeMetaInfo metaInfo{itemLibraryEntry.typeId(), model->projectStorage()};
     return metaInfo.canBeDroppedInFormEditor() == FlagIs::True;
-#else
-    return NodeHints::fromItemLibraryEntry(itemLibraryEntryFromMimeData(mimeData), model)
-        .canBeDroppedInFormEditor();
-#endif
 }
 
 static bool hasItemLibraryInfo(const QMimeData *mimeData)

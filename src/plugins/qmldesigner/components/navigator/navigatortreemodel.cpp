@@ -198,7 +198,6 @@ static QColor nodeColor(const ModelNode &node)
     const NodeMetaInfo metaInfo = node.metaInfo();
     const Model *model = node.model();
 
-#ifdef QDS_USE_PROJECTSTORAGE
     NodeMetaInfo item = model->qtQuickItemMetaInfo();
     NodeMetaInfo node3D = model->qtQuick3DNodeMetaInfo();
     NodeMetaInfo material = model->qtQuick3DMaterialMetaInfo();
@@ -212,14 +211,6 @@ static QColor nodeColor(const ModelNode &node)
         return Utils::creatorTheme()->color(Utils::Theme::Navigator_3DColor);
     if (nodeType == material || nodeType == texture)
         return Utils::creatorTheme()->color(Utils::Theme::Navigator_MaterialColor);
-#else
-    if (metaInfo.isBasedOn(model->qtQuickItemMetaInfo()))
-        return Utils::creatorTheme()->color(Utils::Theme::Navigator_2DColor);
-    if (metaInfo.isBasedOn(model->qtQuick3DNodeMetaInfo()))
-        return Utils::creatorTheme()->color(Utils::Theme::Navigator_3DColor);
-    if (metaInfo.isBasedOn(model->qtQuick3DMaterialMetaInfo()), model->qtQuick3DTextureMetaInfo())
-        return Utils::creatorTheme()->color(Utils::Theme::Navigator_MaterialColor);
-#endif
 
     return Utils::creatorTheme()->color(Utils::Theme::Navigator_DefaultColor);
 }
@@ -965,13 +956,8 @@ void NavigatorTreeModel::addImport(const QString &importName)
 {
     NanotraceHR::Tracer tracer{"navigator tree model add import", category()};
 
-#ifdef QDS_USE_PROJECTSTORAGE
     Import import = Import::createLibraryImport(importName);
     m_view->model()->changeImports({import}, {});
-#else
-    if (!ModelUtils::addImportWithCheck(importName, m_view->model()))
-        qWarning() << __FUNCTION__ << "Adding import failed:" << importName;
-#endif
 }
 
 bool QmlDesigner::NavigatorTreeModel::moveNodeToParent(const NodeAbstractProperty &targetProperty,

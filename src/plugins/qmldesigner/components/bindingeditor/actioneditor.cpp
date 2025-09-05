@@ -241,19 +241,12 @@ void ActionEditor::prepareConnections()
         for (const auto &property : modelNode.metaInfo().properties()) {
             if (isSkippedType(property.propertyType()))
                 continue;
-#ifdef QDS_USE_PROJECTSTORAGE
             auto exportedTypeName = model->exportedTypeNameForMetaInfo(property.propertyType())
                                         .name.toQByteArray();
             connection.properties.append(
                 ActionEditorDialog::PropertyOption(QString::fromUtf8(property.name()),
                                                    exportedTypeName,
                                                    property.isWritable()));
-#else
-            connection.properties.append(
-                ActionEditorDialog::PropertyOption(QString::fromUtf8(property.name()),
-                                                   skipCpp(property.propertyType().typeName()),
-                                                   property.isWritable()));
-#endif
         }
 
         for (const VariantProperty &variantProperty : modelNode.variantProperties()) {
@@ -305,7 +298,6 @@ void ActionEditor::prepareConnections()
     }
 
     // Singletons
-#ifdef QDS_USE_PROJECTSTORAGE
     if (auto model = m_modelNode.model()) {
         for (const auto &metaInfo : model->singletonMetaInfos()) {
             if (metaInfo.isValid()) {
@@ -329,31 +321,6 @@ void ActionEditor::prepareConnections()
             }
         }
     }
-#else
-    if (RewriterView *rv = m_modelNode.view()->rewriterView()) {
-        for (const QmlTypeData &data : rv->getQMLTypes()) {
-            if (!data.typeName.isEmpty()) {
-                NodeMetaInfo metaInfo = m_modelNode.view()->model()->metaInfo(data.typeName.toUtf8());
-                if (metaInfo.isValid()) {
-                    ActionEditorDialog::SingletonOption singelton;
-                    for (const auto &property : metaInfo.properties()) {
-                        if (isSkippedType(property.propertyType()))
-                            continue;
-                        singelton.properties.append(ActionEditorDialog::PropertyOption(
-                            QString::fromUtf8(property.name()),
-                            skipCpp(property.propertyType().typeName()),
-                            property.isWritable()));
-                    }
-
-                    if (!singelton.properties.isEmpty()) {
-                        singelton.item = data.typeName;
-                        singletons.append(singelton);
-                    }
-                }
-            }
-        }
-    }
-#endif
 
     // States
     for (const QmlModelState &state : QmlItemNode(m_modelNode.view()->rootModelNode()).states().allStates())

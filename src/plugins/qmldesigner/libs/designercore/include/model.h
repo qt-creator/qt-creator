@@ -76,38 +76,13 @@ public:
     enum ViewNotification { NotifyView, DoNotNotifyView };
 
     Model(ProjectStorageDependencies projectStorageDependencies,
-          const TypeName &type,
-          int major = 1,
-          int minor = 1,
-          Model *metaInfoProxyModel = nullptr,
-          std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {},
-          SL sl = {});
-    Model(ProjectStorageDependencies projectStorageDependencies,
           Utils::SmallStringView typeName,
           Imports imports,
           const QUrl &fileUrl,
           std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {},
           SL sl = {});
-#ifndef QDS_USE_PROJECTSTORAGE
-    Model(const TypeName &typeName,
-          int major = 1,
-          int minor = 1,
-          Model *metaInfoProxyModel = nullptr,
-          std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {});
-#endif
-    ~Model();
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    static ModelPointer create(const TypeName &typeName,
-                               int major = 1,
-                               int minor = 1,
-                               Model *metaInfoProxyModel = nullptr,
-                               std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
-    {
-        return ModelPointer(
-            new Model(typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)));
-    }
-#endif
+    ~Model();
 
     static ModelPointer create(ProjectStorageDependencies projectStorageDependencies,
                                Utils::SmallStringView typeName,
@@ -127,22 +102,6 @@ public:
                                       std::move(resourceManagement)));
     }
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    static ModelPointer create(ProjectStorageDependencies projectStorageDependencies,
-                               const TypeName &typeName,
-                               int major = 1,
-                               int minor = 1,
-                               std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
-    {
-        return ModelPointer(new Model(projectStorageDependencies,
-                                      typeName,
-                                      major,
-                                      minor,
-                                      nullptr,
-                                      std::move(resourceManagement)));
-    }
-#endif
-
     ModelPointer createModel(const TypeName &typeName,
                              std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {},
                              SL sl = {});
@@ -150,12 +109,6 @@ public:
     const QUrl &fileUrl() const;
     SourceId fileUrlSourceId() const;
     void setFileUrl(const QUrl &url, SL sl = {});
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    const MetaInfo metaInfo() const;
-    MetaInfo metaInfo();
-    void setMetaInfo(const MetaInfo &metaInfo);
-#endif
 
     Module module(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind, SL sl = {}) const;
     SmallModuleIds<128> moduleIdsStartsWith(Utils::SmallStringView startsWith,
@@ -225,10 +178,8 @@ public:
     NodeMetaInfo vector3dMetaInfo() const;
     NodeMetaInfo vector4dMetaInfo() const;
 
-#ifdef QDS_USE_PROJECTSTORAGE
     SmallNodeMetaInfos<256> metaInfosForModule(Module module, SL sl = {}) const;
     SmallNodeMetaInfos<256> singletonMetaInfos(SL sl = {}) const;
-#endif
 
     QList<ItemLibraryEntry> itemLibraryEntries(SL sl = {}) const;
     QList<ItemLibraryEntry> directoryImportsItemLibraryEntries(SL sl = {}) const;
@@ -262,10 +213,6 @@ public:
     void changeImports(Imports importsToBeAdded, Imports importsToBeRemoved, SL sl = {});
     void setImports(Imports imports, SL sl = {});
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    void setPossibleImports(Imports possibleImports);
-    void setUsedImports(Imports usedImports);
-#endif
     bool hasImport(const Import &import,
                    bool ignoreAlias = true,
                    bool allowHigherVersion = false,
@@ -287,8 +234,6 @@ public:
 
     const AbstractView *nodeInstanceView() const;
     void setNodeInstanceView(AbstractView *nodeInstanceView, SL sl = {});
-
-    Model *metaInfoProxyModel() const;
 
     void setDocumentMessages(const QList<DocumentMessage> &errors,
                              const QList<DocumentMessage> &warnings,

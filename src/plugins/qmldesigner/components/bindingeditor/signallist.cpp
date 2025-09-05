@@ -196,35 +196,26 @@ void SignalList::addConnection(const QModelIndex &modelIndex)
     const ModelNode rootModelNode = view->rootModelNode();
 
     if (rootModelNode.isValid() && rootModelNode.metaInfo().isValid()) {
-#ifndef QDS_USE_PROJECTSTORAGE
-        NodeMetaInfo nodeMetaInfo = view->model()->qtQmlConnectionsMetaInfo();
-        if (nodeMetaInfo.isValid()) {
-#endif
-            view->executeInTransaction("ConnectionModel::addConnection", [&] {
-#ifdef QDS_USE_PROJECTSTORAGE
-                ModelNode newNode = view->createModelNode("Connections");
-#else
-                ModelNode newNode = view->createModelNode("QtQuick.Connections",
-                                                          nodeMetaInfo.majorVersion(),
-                                                          nodeMetaInfo.minorVersion());
-#endif
-                const QString source = m_modelNode.validId() + ".trigger()";
+        view->executeInTransaction("ConnectionModel::addConnection", [&] {
+            ModelNode newNode = view->createModelNode("Connections");
 
-                if (QmlItemNode::isValidQmlItemNode(m_modelNode))
-                    m_modelNode.nodeAbstractProperty("data").reparentHere(newNode);
-                else
-                    rootModelNode.nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName()).reparentHere(newNode);
+            const QString source = m_modelNode.validId() + ".trigger()";
 
-                const QString expression = m_model->data(targetModelIndex, Qt::DisplayRole).toString();
-                newNode.bindingProperty("target").setExpression(expression);
-                newNode.signalHandlerProperty(SignalHandlerProperty::prefixAdded(signalName)).setSource(source);
+            if (QmlItemNode::isValidQmlItemNode(m_modelNode))
+                m_modelNode.nodeAbstractProperty("data").reparentHere(newNode);
+            else
+                rootModelNode.nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName())
+                    .reparentHere(newNode);
 
-                m_model->setConnected(modelIndex.row(), true);
-                m_model->setData(buttonModelIndex, newNode.internalId(), SignalListModel::ConnectionsInternalIdRole);
-            });
-#ifndef QDS_USE_PROJECTSTORAGE
-        }
-#endif
+            const QString expression = m_model->data(targetModelIndex, Qt::DisplayRole).toString();
+            newNode.bindingProperty("target").setExpression(expression);
+            newNode.signalHandlerProperty(SignalHandlerProperty::prefixAdded(signalName)).setSource(source);
+
+            m_model->setConnected(modelIndex.row(), true);
+            m_model->setData(buttonModelIndex,
+                             newNode.internalId(),
+                             SignalListModel::ConnectionsInternalIdRole);
+        });
     }
 }
 

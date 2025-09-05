@@ -262,21 +262,12 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
         }
 
         compatibleProps.copyMappedProperties(selectedNode);
-#ifdef QDS_USE_PROJECTSTORAGE
+
         if (selectedNode.isRootNode())
             rewriterView->changeRootNodeType(typeName.toUtf8(), -1, -1);
         else
             selectedNode.changeType(typeName.toUtf8(), -1, -1);
-#else
-        if (selectedNode.isRootNode())
-            rewriterView->changeRootNodeType(metaInfo.typeName(),
-                                             metaInfo.majorVersion(),
-                                             metaInfo.minorVersion());
-        else
-            selectedNode.changeType(metaInfo.typeName(),
-                                    metaInfo.majorVersion(),
-                                    metaInfo.minorVersion());
-#endif
+
         compatibleProps.applyCompatibleProperties(selectedNode);
     };
 

@@ -76,10 +76,6 @@ void FormEditorView::modelAttached(Model *model)
 
     AbstractView::modelAttached(model);
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    m_hadIncompleteTypeInformation = model->rewriterView()->hasIncompleteTypeInformation();
-#endif
-
     m_formEditorWidget->setBackgoundImage({});
 
     temporaryBlockView();
@@ -416,10 +412,6 @@ void FormEditorView::customNotification(const AbstractView * /*view*/, const QSt
         m_dragTool->clearMoveDelay();
     if (identifier == QLatin1String("reset QmlPuppet"))
         temporaryBlockView();
-#ifndef QDS_USE_PROJECTSTORAGE
-    if (identifier == UpdateItemlibrary)
-        m_hadIncompleteTypeInformation = model()->rewriterView()->hasIncompleteTypeInformation();
-#endif
 }
 
 void FormEditorView::currentStateChanged(const ModelNode & /*node*/)

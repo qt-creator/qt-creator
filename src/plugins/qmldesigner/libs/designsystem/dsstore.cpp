@@ -66,15 +66,11 @@ std::optional<QString> modelSerializeHelper(
     if (isSingelton)
         qmlText.prepend("pragma Singleton\n");
 
-#ifdef QDS_USE_PROJECTSTORAGE
     auto model = QmlDesigner::Model::create(projectStorageDependencies,
                                             "QtObject",
                                             {QmlDesigner::Import::createLibraryImport("QtQtuick")},
                                             QUrl::fromLocalFile(
                                                 "/path/dummy.qml")); // the dummy file will most probably not work
-#else
-    auto model = QmlDesigner::Model::create("QtObject");
-#endif
 
     QPlainTextEdit editor;
     editor.setPlainText(qmlText);
@@ -470,15 +466,12 @@ std::optional<QString> DSStore::loadCollection(const QString &typeName,
     if (!res)
         return res.error();
 
-#ifdef QDS_USE_PROJECTSTORAGE
     auto model = QmlDesigner::Model::create(m_projectStorageDependencies,
                                             "QtObject",
                                             {QmlDesigner::Import::createLibraryImport("QtQtuick")},
                                             QUrl::fromLocalFile(
                                                 "/path/dummy.qml")); // the dummy file will most probably not work
-#else
-    auto model = QmlDesigner::Model::create("QtObject");
-#endif
+
     QPlainTextEdit editor;
     QString qmlContent = QString::fromUtf8(*res);
     editor.setPlainText(qmlContent);

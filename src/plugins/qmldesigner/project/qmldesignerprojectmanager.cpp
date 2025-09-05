@@ -191,7 +191,7 @@ Sqlite::JournalMode projectStorageJournalMode()
     return Sqlite::JournalMode::Wal;
 }
 
-[[maybe_unused]] QString qmlPath(::ProjectExplorer::Target *target)
+QString qmlPath(::ProjectExplorer::Target *target)
 {
     const QString envPath = QString::fromLocal8Bit(qgetenv("QDS_QML_IMPORT_OVERRIDE")).trimmed();
     if (!envPath.isEmpty()) {
@@ -273,11 +273,7 @@ std::unique_ptr<ProjectStorageData> createProjectStorageData(const ::ProjectExpl
                                                              PathCacheType &pathCache,
                                                              ModulesStorage &modulesStorage)
 {
-    if constexpr (useProjectStorage()) {
-        return std::make_unique<ProjectStorageData>(project, pathCache, modulesStorage);
-    } else {
-        return {};
-    }
+    return std::make_unique<ProjectStorageData>(project, pathCache, modulesStorage);
 }
 
 Utils::PathString createDatabasePath(std::string_view name)
@@ -402,45 +398,15 @@ ModulesStorage &QmlDesignerProjectManager::modulesStorage()
     return m_data->modulesStorage;
 }
 
-namespace {
-[[maybe_unused]] ProjectStorageType *dummyProjectStorage()
-{
-    return nullptr;
-}
-
-[[maybe_unused]] PathCacheType *dummyPathCache()
-{
-    return nullptr;
-}
-
-[[maybe_unused]] ModulesStorage *dummyModulesStorage()
-{
-    return nullptr;
-}
-
-[[maybe_unused]] ProjectStorageTriggerUpdateInterface *dummyTriggerUpdate()
-{
-    return nullptr;
-}
-
-} // namespace
-
 ProjectStorageDependencies QmlDesignerProjectManager::projectStorageDependencies()
 {
     NanotraceHR::Tracer tracer{"qml designer project manager project storage dependencies",
                                category()};
 
-    if constexpr (useProjectStorage()) {
-        return {m_projectData->projectStorageData->storage,
-                m_data->pathCache,
-                m_data->modulesStorage,
-                m_projectData->projectStorageData->pathWatcher};
-    } else {
-        return {*dummyProjectStorage(),
-                *dummyPathCache(),
-                *dummyModulesStorage(),
-                *dummyTriggerUpdate()};
-    }
+    return {m_projectData->projectStorageData->storage,
+            m_data->pathCache,
+            m_data->modulesStorage,
+            m_projectData->projectStorageData->pathWatcher};
 }
 
 void QmlDesignerProjectManager::editorOpened(::Core::IEditor *)
@@ -459,42 +425,38 @@ void QmlDesignerProjectManager::editorsClosed(const QList<::Core::IEditor *> &) 
 
 namespace {
 
-[[maybe_unused]] QString projectDirectory(::ProjectExplorer::Target *target)
+QString projectDirectory(::ProjectExplorer::Target *target)
 {
     ::QmlProjectManager::QmlBuildSystem *buildSystem = getQmlBuildSystem(target);
 
     return buildSystem->canonicalProjectDir().cleanPath().path();
 }
 
-[[maybe_unused]] void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
+void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
 {
-    if constexpr (useProjectStorage()) {
-        auto qmlRootPath = qmlPath(target);
-        qmldirPaths.push_back(qmlRootPath + "/QML");
-        qmldirPaths.push_back(qmlRootPath + "/Qt");
-        qmldirPaths.push_back(qmlRootPath + "/QtCharts");
-        qmldirPaths.push_back(qmlRootPath + "/QtGraphs");
-        qmldirPaths.push_back(qmlRootPath + "/QtCore");
-        qmldirPaths.push_back(qmlRootPath + "/QtQml");
-        qmldirPaths.push_back(qmlRootPath + "/QtQuick");
-        qmldirPaths.push_back(qmlRootPath + "/QtQuick3D");
-        qmldirPaths.push_back(qmlRootPath + "/Qt5Compat");
-        qmldirPaths.push_back(qmlRootPath + "/QtMultimedia");
-        qmldirPaths.push_back(qmlRootPath + "/QtQuickUltralite");
-    }
+    auto qmlRootPath = qmlPath(target);
+    qmldirPaths.push_back(qmlRootPath + "/QML");
+    qmldirPaths.push_back(qmlRootPath + "/Qt");
+    qmldirPaths.push_back(qmlRootPath + "/QtCharts");
+    qmldirPaths.push_back(qmlRootPath + "/QtGraphs");
+    qmldirPaths.push_back(qmlRootPath + "/QtCore");
+    qmldirPaths.push_back(qmlRootPath + "/QtQml");
+    qmldirPaths.push_back(qmlRootPath + "/QtQuick");
+    qmldirPaths.push_back(qmlRootPath + "/QtQuick3D");
+    qmldirPaths.push_back(qmlRootPath + "/Qt5Compat");
+    qmldirPaths.push_back(qmlRootPath + "/QtMultimedia");
+    qmldirPaths.push_back(qmlRootPath + "/QtQuickUltralite");
 }
 
-[[maybe_unused]] void qtQmldirPathsForLiteDesigner(QStringList &qmldirPaths)
+void qtQmldirPathsForLiteDesigner(QStringList &qmldirPaths)
 {
-    if constexpr (useProjectStorage()) {
-        auto qmlRootPath = QLibraryInfo::path(QLibraryInfo::QmlImportsPath);
-        qmldirPaths.push_back(qmlRootPath + "/QML");
-        qmldirPaths.push_back(qmlRootPath + "/QtQml");
-        qmldirPaths.push_back(qmlRootPath + "/QtQuick");
-    }
+    auto qmlRootPath = QLibraryInfo::path(QLibraryInfo::QmlImportsPath);
+    qmldirPaths.push_back(qmlRootPath + "/QML");
+    qmldirPaths.push_back(qmlRootPath + "/QtQml");
+    qmldirPaths.push_back(qmlRootPath + "/QtQuick");
 }
 
-[[maybe_unused]] QStringList directories(::ProjectExplorer::Target *target)
+QStringList directories(::ProjectExplorer::Target *target)
 {
     if (!target)
         return {};

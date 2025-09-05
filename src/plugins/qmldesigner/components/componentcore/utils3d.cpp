@@ -35,7 +35,6 @@ namespace {
 std::tuple<QString, Storage::ModuleKind> nodeModuleInfo(const ModelNode &node, Model *model)
 {
     using Storage::ModuleKind;
-#ifdef QDS_USE_PROJECTSTORAGE
     using Storage::Info::ExportedTypeName;
     using Storage::Module;
 
@@ -46,10 +45,6 @@ std::tuple<QString, Storage::ModuleKind> nodeModuleInfo(const ModelNode &node, M
         return {module.name.toQString(), module.kind};
     }
     return {{}, ModuleKind::QmlLibrary};
-#else
-    return {QString::fromUtf8(node.type()).left(node.type().lastIndexOf('.')),
-            ModuleKind::QmlLibrary};
-#endif
 }
 
 } // namespace
@@ -95,15 +90,8 @@ void ensureMaterialLibraryNode(AbstractView *view)
 
     view->executeInTransaction(__FUNCTION__, [&] {
     // Create material library node
-#ifdef QDS_USE_PROJECTSTORAGE
         TypeName nodeTypeName = view->rootModelNode().metaInfo().isQtQuick3DNode() ? "Node" : "Item";
-        matLib = view->createModelNode(nodeTypeName, -1, -1);
-#else
-            auto nodeType = view->rootModelNode().metaInfo().isQtQuick3DNode()
-                                ? view->model()->qtQuick3DNodeMetaInfo()
-                                : view->model()->qtQuickItemMetaInfo();
-            matLib = view->createModelNode(nodeType.typeName(), nodeType.majorVersion(), nodeType.minorVersion());
-#endif
+        matLib = view->createModelNode(nodeTypeName);
         matLib.setIdWithoutRefactoring(Constants::MATERIAL_LIB_ID);
         view->rootModelNode().defaultNodeListProperty().reparentHere(matLib);
     });
@@ -229,11 +217,8 @@ void createMatLibForFile(const QString &fileName,
     if (matLibNodes.isEmpty())
         return;
 
-#ifdef QDS_USE_PROJECTSTORAGE
     ModelPointer fileModel = view->model()->createModel("Item");
-#else
-    ModelPointer fileModel = Model::create("Item", 2, 0);
-#endif
+
     fileModel->setFileUrl(QUrl::fromUserInput(fileName));
     QTextDocument textDoc(qmlStr);
     IndentingTextEditModifier modifier(&textDoc);
@@ -458,7 +443,6 @@ void assignTextureAsLightProbe(AbstractView *view, const ModelNode &texture, int
 }
 
 // This method should be executed within a transaction as it performs multiple modifications to the model
-#ifdef QDS_USE_PROJECTSTORAGE
 ModelNode createMaterial(AbstractView *view, const TypeName &typeName)
 {
     ModelNode matLib = Utils3D::materialLibraryNode(view);
@@ -482,33 +466,6 @@ ModelNode createMaterial(AbstractView *view, const TypeName &typeName)
 
     return newMatNode;
 }
-#else
-ModelNode createMaterial(AbstractView *view, const NodeMetaInfo &metaInfo)
-{
-    ModelNode matLib = Utils3D::materialLibraryNode(view);
-    if (!matLib.isValid() || !metaInfo.isValid())
-        return {};
-
-    ModelNode newMatNode = view->createModelNode(metaInfo.typeName(),
-                                                 metaInfo.majorVersion(),
-                                                 metaInfo.minorVersion());
-    matLib.defaultNodeListProperty().reparentHere(newMatNode);
-
-    static QRegularExpression rgx("([A-Z])([a-z]*)");
-    QString newName = QString::fromLatin1(metaInfo.simplifiedTypeName()).replace(rgx, " \\1\\2").trimmed();
-    if (newName.endsWith(" Material"))
-        newName.chop(9); // remove trailing " Material"
-    QString newId = view->model()->generateNewId(newName, "material");
-    newMatNode.setIdWithRefactoring(newId);
-
-    VariantProperty objNameProp = newMatNode.variantProperty("objectName");
-    objNameProp.setValue(newName);
-
-    view->emitCustomNotification("focus_material_section", {});
-
-    return newMatNode;
-}
-#endif
 
 bool addQuick3DImportAndView3D(AbstractView *view, bool suppressWarningDialog)
 {
@@ -533,10 +490,7 @@ bool addQuick3DImportAndView3D(AbstractView *view, bool suppressWarningDialog)
             return;
 
         ensureMaterialLibraryNode(view);
-#ifndef QDS_USE_PROJECTSTORAGE
-    });
-    view->executeInTransaction(__FUNCTION__, [&] {
-#endif
+
         NodeMetaInfo view3dInfo = view->model()->qtQuick3DView3DMetaInfo();
         if (!view->allModelNodesOfType(view3dInfo).isEmpty())
             return;
@@ -593,14 +547,8 @@ void assignMaterialTo3dModel(AbstractView *view, const ModelNode &modelNode,
 
         // if no valid material, create a new default material
         if (!newMaterialNode) {
-#ifdef QDS_USE_PROJECTSTORAGE
             newMaterialNode = view->createModelNode("PrincipledMaterial");
-#else
-            NodeMetaInfo metaInfo = view->model()->qtQuick3DPrincipledMaterialMetaInfo();
-            newMaterialNode = view->createModelNode("QtQuick3D.PrincipledMaterial",
-                                                    metaInfo.majorVersion(),
-                                                    metaInfo.minorVersion());
-#endif
+
             newMaterialNode.ensureIdExists();
         }
     }
@@ -628,14 +576,9 @@ ModelNode createMaterial(AbstractView *view)
         ModelNode matLib = materialLibraryNode(view);
         if (!matLib.isValid())
             return;
-#ifdef QDS_USE_PROJECTSTORAGE
+
         newMatNode = view->createModelNode("PrincipledMaterial");
-#else
-        NodeMetaInfo metaInfo = view->model()->qtQuick3DPrincipledMaterialMetaInfo();
-        newMatNode = view->createModelNode("QtQuick3D.PrincipledMaterial",
-                                     metaInfo.majorVersion(),
-                                     metaInfo.minorVersion());
-#endif
+
         QmlObjectNode(newMatNode).setNameAndId("New Material", "material");
         matLib.defaultNodeListProperty().reparentHere(newMatNode);
         newMatNode.selectNode();
@@ -663,12 +606,8 @@ void duplicateMaterial(AbstractView *view, const ModelNode &material)
         QTC_ASSERT(matLib.isValid(), return);
 
 // create the duplicate material
-#ifdef QDS_USE_PROJECTSTORAGE
         QmlObjectNode duplicateMat = view->createModelNode(matType);
-#else
-        NodeMetaInfo metaInfo = view->model()->metaInfo(matType);
-        QmlObjectNode duplicateMat = view->createModelNode(matType, metaInfo.majorVersion(), metaInfo.minorVersion());
-#endif
+
         duplicateMatNode = duplicateMat.modelNode();
 
         // generate and set a unique name

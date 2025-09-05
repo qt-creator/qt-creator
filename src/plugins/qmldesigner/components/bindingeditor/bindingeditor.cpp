@@ -162,34 +162,11 @@ void BindingEditor::setTargetName(const QString &target)
 }
 
 namespace {
-template<typename Tuple>
-bool isType(const Tuple &types, const TypeName &compareType)
-{
-    return std::apply([&](const auto &...type) { return ((type == compareType) || ...); }, types);
-}
-
-template<typename... Tuple>
-bool isType(const TypeName &first, const TypeName &second, const Tuple &...types)
-{
-    return ((types == first) || ...) && ((types == second) || ...);
-}
 
 bool compareTypes(const NodeMetaInfo &sourceType, const NodeMetaInfo &targetType)
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     return targetType.isVariant() || sourceType.isVariant()
            || (targetType.isNumber() && sourceType.isNumber()) || sourceType.isBasedOn(targetType);
-#else
-    const TypeName source = sourceType.simplifiedTypeName();
-    const TypeName target = targetType.simplifiedTypeName();
-
-    static constexpr auto variantTypes = std::make_tuple("alias", "unknown", "variant", "var");
-
-    return isType(variantTypes, target) || isType(variantTypes, source) || target == source
-           || targetType == sourceType || isType(target, source, "double", "real", "int")
-           || isType(target, source, "QColor", "color")
-           || isType(target, source, "QString", "string");
-#endif
 }
 } // namespace
 
@@ -245,7 +222,6 @@ void BindingEditor::prepareBindings()
     }
 
     //singletons:
-#ifdef QDS_USE_PROJECTSTORAGE
     if (auto model = m_modelNode.view()->model()) {
         for (const auto &metaInfo : model->singletonMetaInfos()) {
             BindingEditorDialog::BindingOption binding;
@@ -265,32 +241,7 @@ void BindingEditor::prepareBindings()
             }
         }
     }
-#else
-    if (RewriterView *rv = m_modelNode.view()->rewriterView()) {
-        for (const QmlTypeData &data : rv->getQMLTypes()) {
-            if (!data.typeName.isEmpty()) {
-                NodeMetaInfo metaInfo = m_modelNode.view()->model()->metaInfo(data.typeName.toUtf8());
 
-                if (metaInfo.isValid()) {
-                    BindingEditorDialog::BindingOption binding;
-
-                    for (const auto &property : metaInfo.properties()) {
-                        const auto propertyType = property.propertyType();
-
-                        if (compareTypes(m_backendValueType, propertyType)) {
-                            binding.properties.append(QString::fromUtf8(property.name()));
-                        }
-                    }
-
-                    if (!binding.properties.isEmpty()) {
-                        binding.item = data.typeName;
-                        bindings.append(binding);
-                    }
-                }
-            }
-        }
-    }
-#endif
     if (!bindings.isEmpty() && m_dialog)
         m_dialog->setAllBindings(bindings, m_backendValueType);
 }
@@ -299,17 +250,12 @@ void BindingEditor::updateWindowName()
 {
     if (m_dialog && m_backendValueType) {
         QString targetString;
-#ifdef QDS_USE_PROJECTSTORAGE
 
         auto exportedTypeName = m_modelNode.model()->exportedTypeNameForMetaInfo(m_backendValueType);
         if (exportedTypeName.name.size()) {
             targetString = " [" + (m_targetName.isEmpty() ? QString() : (m_targetName + ": "))
                            + exportedTypeName.name.toQString() + "]";
         }
-#else
-        targetString = " [" + (m_targetName.isEmpty() ? QString() : (m_targetName + ": "))
-                       + QString::fromUtf8(m_backendValueType.simplifiedTypeName()) + "]";
-#endif
 
         m_dialog->setWindowTitle(m_dialog->defaultTitle() + targetString);
     }

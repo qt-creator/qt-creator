@@ -577,14 +577,8 @@ QList<SlotList> getSlotsLists(const ModelNode &node)
 //creates connection without signalHandlerProperty
 ModelNode createNewConnection(ModelNode targetNode)
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     ModelNode newConnectionNode = targetNode.view()->createModelNode("Connections");
-#else
-    NodeMetaInfo connectionsMetaInfo = targetNode.view()->model()->qtQmlConnectionsMetaInfo();
-    const auto typeName = useProjectStorage() ? "Connections" : "QtQuick.Connections";
-    ModelNode newConnectionNode = targetNode.view()->createModelNode(
-        typeName, connectionsMetaInfo.majorVersion(), connectionsMetaInfo.minorVersion());
-#endif
+
     if (QmlItemNode::isValidQmlItemNode(targetNode)) {
         targetNode.nodeAbstractProperty("data").reparentHere(newConnectionNode);
     } else {
@@ -875,10 +869,7 @@ public:
             return;
 
         AbstractView *view = targetNode.view();
-        NodeMetaInfo modelMetaInfo = view->model()->metaInfo("ListModel");
-        NodeMetaInfo elementMetaInfo = view->model()->metaInfo("ListElement");
 
-#ifdef QDS_USE_PROJECTSTORAGE
         ListModelEditorModel model{[&] { return view->createModelNode("ListModel"); },
                                    [&] { return view->createModelNode("ListElement"); },
                                    [&](const ModelNode &node) {
@@ -899,33 +890,6 @@ public:
 
                                        return node;
                                    }};
-#else
-        ListModelEditorModel model{
-            [&] {
-                return view->createModelNode("QtQml.Models.ListModel",
-                                             modelMetaInfo.majorVersion(),
-                                             modelMetaInfo.minorVersion());
-            },
-            [&] {
-                return view->createModelNode("QtQml.Models.ListElement",
-                                             elementMetaInfo.majorVersion(),
-                                             elementMetaInfo.minorVersion());
-            },
-            [&](const ModelNode &node) {
-                bool isNowInComponent = ModelNodeOperations::goIntoComponent(node);
-
-                Model *currentModel = QmlDesignerPlugin::instance()->currentDesignDocument()->currentModel();
-
-                if (currentModel->rewriterView() && !currentModel->rewriterView()->errors().isEmpty()) {
-                    throw DocumentError{};
-                }
-
-                if (isNowInComponent)
-                    return view->rootModelNode();
-
-                return node;
-            }};
-#endif
 
         model.setListView(targetNode);
 

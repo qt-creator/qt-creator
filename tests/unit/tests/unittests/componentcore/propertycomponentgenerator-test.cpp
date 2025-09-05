@@ -197,9 +197,8 @@ protected:
     QmlDesigner::Model model{
         {projectStorageMock, pathCacheMock, modulesStorage, projectStorageTriggerUpdateMock},
         "Item",
-        -1,
-        -1,
-        nullptr,
+        {QmlDesigner::Import::createLibraryImport("QtQuick")},
+        QUrl::fromLocalFile(pathCacheMock.path.toQString()),
         std::make_unique<ModelResourceManagementMockWrapper>(resourceManagementMock)};
     QmlDesigner::PropertyComponentGenerator generator{QString{sourcesPath}, &model};
     QmlDesigner::NodeMetaInfo itemMetaInfo = model.qtQuickItemMetaInfo();

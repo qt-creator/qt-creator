@@ -116,14 +116,14 @@ function(configure_qml_designer Qt6_VERSION)
     option(WITH_QMLDESIGNER "Build QmlDesigner" ${ENV_QTC_WITH_QMLDESIGNER})
     add_feature_info("WITH_QMLDESIGNER" ${WITH_QMLDESIGNER} "${QMLDESIGNER_FEATURE_DESC}")
 
-    if(USE_PROJECTSTORAGE AND NOT IS_SUPPORTED_PROJECTSTORAGE_QT)
+    if(NOT IS_SUPPORTED_PROJECTSTORAGE_QT)
         if(BUILD_DESIGNSTUDIO)
             set(_level FATAL_ERROR)
         else()
             set(_level WARNING)
         endif()
         message(${_level}
-            "USE_PROJECTSTORAGE is enabled, but current Qt ${Qt6_VERSION} is not supported by the project storage "
+            "Current Qt ${Qt6_VERSION} is not supported by the project storage "
             "(required: ${PROJECTSTORAGE_QT_MIN_VERSION} - ${PROJECTSTORAGE_QT_MAX_VERSION})."
         )
     endif()

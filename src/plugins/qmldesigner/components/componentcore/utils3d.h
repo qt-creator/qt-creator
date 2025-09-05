@@ -43,11 +43,7 @@ void assignTextureAsLightProbe(AbstractView *view, const ModelNode &texture, int
 
 void openNodeInPropertyEditor(const ModelNode &node);
 
-#ifdef QDS_USE_PROJECTSTORAGE
 ModelNode createMaterial(AbstractView *view, const TypeName &typeName);
-#else
-ModelNode createMaterial(AbstractView *view, const NodeMetaInfo &metaInfo);
-#endif
 
 ModelNode createMaterial(AbstractView *view);
 void renameMaterial(const ModelNode &material, const QString &newName);

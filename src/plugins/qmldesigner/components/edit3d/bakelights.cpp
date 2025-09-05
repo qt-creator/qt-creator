@@ -22,10 +22,6 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectmanager.h>
 
-#ifndef QDS_USE_PROJECTSTORAGE
-#include <qmljs/qmljsmodelmanagerinterface.h>
-#endif
-
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
@@ -121,12 +117,8 @@ void BakeLights::bakeLights()
                                               m_view->externalDependencies(),
                                               m_modulesStorage};
 
-#ifdef QDS_USE_PROJECTSTORAGE
     m_model = m_view->model()->createModel("Item");
-#else
-    m_model = QmlDesigner::Model::create("QtQuick/Item", 2, 1);
-    m_model->setFileUrl(m_view->model()->fileUrl());
-#endif
+
     // Take the current unsaved state of the main model and apply it to our copy
     auto textDocument = std::make_unique<QTextDocument>(
                 m_view->model()->rewriterView()->textModifier()->textDocument()->toRawText());
@@ -234,11 +226,8 @@ void BakeLights::exposeModelsAndLights(const QString &nodeId)
 
     RewriterView rewriter{m_view->externalDependencies(), m_modulesStorage, RewriterView::Amend};
 
-#ifdef QDS_USE_PROJECTSTORAGE
     auto compModel = m_view->model()->createModel("Item");
-#else
-    ModelPointer compModel = QmlDesigner::Model::create("QtQuick/Item", 2, 1);
-#endif
+
     const Utils::FilePath compFilePath = Utils::FilePath::fromString(componentFilePath);
     QByteArray src = compFilePath.fileContents().value();
 
@@ -293,13 +282,6 @@ void BakeLights::exposeModelsAndLights(const QString &nodeId)
             qWarning() << __FUNCTION__ << "Failed to save changes to:" << componentFilePath;
         }
     }
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    QmlJS::Document::Ptr doc = rewriter.document();
-    modelManager->updateDocument(doc);
-    m_view->model()->rewriterView()->forceAmend();
-#endif
 
     compModel->setRewriterView({});
 

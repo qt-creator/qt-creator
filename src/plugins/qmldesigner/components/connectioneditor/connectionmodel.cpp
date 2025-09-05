@@ -188,7 +188,7 @@ void ConnectionModel::updateSignalName(int rowNumber)
 }
 
 namespace {
-#ifdef QDS_USE_PROJECTSTORAGE
+
 bool isSingleton(AbstractView *view, bool isAlias, QStringView newTarget)
 {
     using Storage::Info::ExportedTypeName;
@@ -218,29 +218,7 @@ bool isSingleton(AbstractView *view, bool isAlias, QStringView newTarget)
     return std::ranges::find_if(singletonMetaInfos, hasTargetExportedTypeName)
            != singletonMetaInfos.end();
 }
-#else
-bool isSingleton(AbstractView *view, bool isAlias, const QString &newTarget)
-{
-    if (RewriterView *rv = view->rewriterView()) {
-        for (const QmlTypeData &data : rv->getQMLTypes()) {
-            if (!data.typeName.isEmpty()) {
-                if (data.typeName == newTarget) {
-                    if (view->model()->metaInfo(data.typeName.toUtf8()).isValid())
-                        return true;
 
-                } else if (isAlias) {
-                    if (data.typeName == newTarget.split(".").constFirst()) {
-                        if (view->model()->metaInfo(data.typeName.toUtf8()).isValid())
-                            return true;
-                    }
-                }
-            }
-        }
-    }
-
-    return false;
-}
-#endif
 } // namespace
 
 void ConnectionModel::updateTargetNode(int rowNumber)
@@ -363,30 +341,21 @@ void ConnectionModel::addConnection(const PropertyName &signalName)
     ModelNode rootModelNode = connectionView()->rootModelNode();
 
     if (rootModelNode.isValid() && rootModelNode.metaInfo().isValid()) {
-#ifndef QDS_USE_PROJECTSTORAGE
-        NodeMetaInfo nodeMetaInfo = connectionView()->model()->qtQmlConnectionsMetaInfo();
+        ModelNode selectedNode = connectionView()->firstSelectedModelNode();
+        if (!selectedNode)
+            selectedNode = connectionView()->rootModelNode();
 
-        if (nodeMetaInfo.isValid()) {
-#endif
-            ModelNode selectedNode = connectionView()->firstSelectedModelNode();
-            if (!selectedNode)
-                selectedNode = connectionView()->rootModelNode();
+        PropertyName signalHandlerName = signalName;
+        if (signalHandlerName.isEmpty())
+            signalHandlerName = getFirstSignalForTarget(selectedNode.metaInfo());
 
-            PropertyName signalHandlerName = signalName;
-            if (signalHandlerName.isEmpty())
-                signalHandlerName = getFirstSignalForTarget(selectedNode.metaInfo());
+        signalHandlerName = addOnToSignalName(QString::fromUtf8(signalHandlerName)).toUtf8();
 
-            signalHandlerName = addOnToSignalName(QString::fromUtf8(signalHandlerName)).toUtf8();
-
-            connectionView()
-                ->executeInTransaction("ConnectionModel::addConnection", [&] {
-#ifdef QDS_USE_PROJECTSTORAGE
+        connectionView()
+            ->executeInTransaction(
+                "ConnectionModel::addConnection", [&] {
                     ModelNode newNode = connectionView()->createModelNode("Connections");
-#else
-                    ModelNode newNode = connectionView()->createModelNode("QtQuick.Connections",
-                                                                          nodeMetaInfo.majorVersion(),
-                                                                          nodeMetaInfo.minorVersion());
-#endif
+
                     QString source = "console.log(\"clicked\")";
 
                     if (connectionView()->selectedModelNodes().size() == 1) {
@@ -410,9 +379,6 @@ void ConnectionModel::addConnection(const PropertyName &signalName)
 
                     selectProperty(newNode.signalHandlerProperty(signalHandlerName));
                 });
-#ifndef QDS_USE_PROJECTSTORAGE
-        }
-#endif
     }
 }
 
@@ -590,7 +556,6 @@ QStringList ConnectionModel::getPossibleSignalsForConnection(const ModelNode &co
 
     //separate check for singletons
     if (const BindingProperty bp = connection.bindingProperty("target")) {
-#ifdef QDS_USE_PROJECTSTORAGE
         if (auto model = m_connectionView->model()) {
             const Utils::SmallString bindExpression = bp.expression();
             using Storage::Info::ExportedTypeName;
@@ -612,35 +577,7 @@ QStringList ConnectionModel::getPossibleSignalsForConnection(const ModelNode &co
                 }
             }
         }
-#else
-        const QString bindExpression = bp.expression();
 
-        if (const RewriterView *const rv = connectionView()->rewriterView()) {
-            for (const QmlTypeData &data : rv->getQMLTypes()) {
-                if (!data.typeName.isEmpty()) {
-                    if (data.typeName == bindExpression) {
-                        NodeMetaInfo metaInfo = connectionView()->model()->metaInfo(
-                            data.typeName.toUtf8());
-                        if (metaInfo.isValid()) {
-                            stringList << propertyNameListToStringList(metaInfo.signalNames());
-                            break;
-                        }
-                    } else if (bindExpression.contains(".")) {
-                        //if it doesn't fit the same name, maybe it's an alias?
-                        QStringList expression = bindExpression.split(".");
-                        if ((expression.size() > 1) && (expression.constFirst() == data.typeName)) {
-                            expression.removeFirst();
-
-                            stringList << getAliasMetaSignals(expression.join(".").toUtf8(),
-                                                              connectionView()->model()->metaInfo(
-                                                                  data.typeName.toUtf8()));
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-#endif
         std::ranges::sort(stringList);
         stringList.erase(std::ranges::unique(stringList).begin(), stringList.end());
     }

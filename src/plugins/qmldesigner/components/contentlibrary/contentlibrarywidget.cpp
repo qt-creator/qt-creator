@@ -224,7 +224,7 @@ void ContentLibraryWidget::browseBundleFolder()
 void ContentLibraryWidget::createImporter()
 {
     m_importer = new BundleImporter();
-#ifdef QDS_USE_PROJECTSTORAGE
+
     connect(m_importer,
             &BundleImporter::importFinished,
             this,
@@ -233,16 +233,6 @@ void ContentLibraryWidget::createImporter()
                 if (typeName.size())
                     updateImportedState(bundleId);
             });
-#else
-    connect(m_importer,
-            &BundleImporter::importFinished,
-            this,
-            [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId, bool) {
-                setImporterRunning(false);
-                if (metaInfo.isValid())
-                    updateImportedState(bundleId);
-            });
-#endif
 
     connect(m_importer, &BundleImporter::unimportFinished, this,
             [&](const QString &bundleId) {

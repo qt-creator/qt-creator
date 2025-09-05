@@ -63,7 +63,6 @@ void BundleHelper::createImporter()
 {
     m_importer = Utils::makeUniqueObjectPtr<BundleImporter>();
 
-#ifdef QDS_USE_PROJECTSTORAGE
     QObject::connect(
         m_importer.get(),
         &BundleImporter::importFinished,
@@ -94,38 +93,6 @@ void BundleHelper::createImporter()
                 });
             }
         });
-#else
-    QObject::connect(m_importer.get(), &BundleImporter::importFinished, m_view,
-        [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId, bool typeAdded) {
-            QTC_ASSERT(metaInfo.isValid(), return);
-            if (isMaterialBundle(bundleId)) {
-                m_view->executeInTransaction("BundleHelper::createImporter", [&] {
-                    Utils3D::createMaterial(m_view, metaInfo);
-                    if (typeAdded)
-                        m_view->resetPuppet();
-                });
-            } else if (isItemBundle(bundleId)) {
-
-                ModelNode target = Utils3D::active3DSceneNode(m_view);
-                if (!target)
-                    target = m_view->rootModelNode();
-                QTC_ASSERT(target, return);
-
-                m_view->executeInTransaction("BundleHelper::createImporter", [&] {
-                    ModelNode newNode = m_view->createModelNode(metaInfo.typeName(),
-                                                                metaInfo.majorVersion(),
-                                                                metaInfo.minorVersion());
-                    target.defaultNodeListProperty().reparentHere(newNode);
-                    newNode.setIdWithoutRefactoring(m_view->model()->generateNewId(
-                        newNode.simplifiedTypeName(), "node"));
-                    m_view->clearSelectedModelNodes();
-                    m_view->selectModelNode(newNode);
-                    if (typeAdded)
-                        m_view->resetPuppet();
-                });
-            }
-        });
-#endif
 }
 
 void BundleHelper::importBundleToProject()
@@ -739,76 +706,14 @@ bool BundleHelper::isItemBundle(const QString &bundleId) const
            || bundleId == compUtils.user3DBundleId();
 }
 
-#ifndef QDS_USE_PROJECTSTORAGE
-namespace {
-
-Utils::FilePath getComponentFilePath(const QString &nodeType, const Utils::FilePath &compDir)
-{
-    QString compName = nodeType.split('.').last();
-
-    auto findCompFilePath = [&](const Utils::FilePath &dir) -> Utils::FilePath {
-        Utils::FilePath compFP = dir.pathAppended(QLatin1String("%1.qml").arg(compName));
-        if (compFP.exists())
-            return compFP;
-
-        compFP = dir.pathAppended(QLatin1String("%1.ui.qml").arg(compName));
-        if (compFP.exists())
-            return compFP;
-
-        return {};
-    };
-
-    Utils::FilePath compFilePath;
-
-    // a component in "Generated" folder
-    if (nodeType.startsWith("Generated.")) {
-        Utils::FilePath projectPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
-        QString nodeTypeSlashSep = nodeType;
-        nodeTypeSlashSep.replace('.', '/');
-        Utils::FilePath genCompDir = projectPath.pathAppended(nodeTypeSlashSep);
-
-        if (!genCompDir.exists())
-            genCompDir = genCompDir.parentDir();
-
-        compFilePath = findCompFilePath(genCompDir);
-        if (compFilePath.exists())
-            return compFilePath;
-
-
-        qWarning() << __FUNCTION__ << "Couldn't find Generated component path";
-        return {};
-    }
-
-    // for components in the same dir as the main comp., search recursively for the comp. file
-    compFilePath = findCompFilePath(compDir);
-    if (compFilePath.exists())
-        return compFilePath;
-
-    const Utils::FilePaths subDirs = compDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
-    for (const Utils::FilePath &dir : subDirs) {
-        compFilePath = getComponentFilePath(nodeType, dir);
-        if (compFilePath.exists())
-            return compFilePath;
-    }
-
-    qWarning() << __FUNCTION__ << "Couldn't find component path";
-    return {};
-}
-
-} // namespace
-#endif
-
 QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &filePath,
                                                        const Utils::FilePath &mainCompDir) const
 {
     QSet<AssetPath> depList;
     AssetPath compAssetPath = {mainCompDir, filePath.relativePathFromDir(mainCompDir).toFSPathString()};
 
-#ifdef QDS_USE_PROJECTSTORAGE
     ModelPointer model = m_view->model()->createModel("Item");
-#else
-    ModelPointer model = Model::create("Item");
-#endif
+
     const Utils::Result<QByteArray> res = filePath.fileContents();
     QTC_ASSERT(res, return {});
 
@@ -828,7 +733,6 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
 
     std::function<void(const ModelNode &node)> parseNode;
     parseNode = [&](const ModelNode &node) {
-#ifdef QDS_USE_PROJECTSTORAGE
         if (isProjectComponent(node)) {
             Utils::FilePath compFilePath = Utils::FilePath::fromString(ModelUtils::componentFilePath(node));
             if (!compFilePath.isEmpty()) {
@@ -845,27 +749,6 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
                 return;
             }
         }
-#else
-        // workaround node.isComponent() as it is not working here
-        QString nodeType = QString::fromLatin1(node.type());
-
-        if (!nodeType.startsWith("QtQuick")) {
-            Utils::FilePath compFilPath = getComponentFilePath(nodeType, mainCompDir);
-            if (!compFilPath.isEmpty()) {
-                Utils::FilePath compDir = compFilPath.isChildOf(mainCompDir) ? mainCompDir
-                                                                             : compFilPath.parentDir();
-                depList.unite(getComponentDependencies(compFilPath, compDir));
-
-                // for sub components, mark their imports to be removed from their parent component
-                // as they will be moved to the same folder as the parent
-                QString import = nodeType.left(nodeType.lastIndexOf('.'));
-                if (model->hasImport(import))
-                    compAssetPath.importsToRemove.append(import);
-
-                return;
-            }
-        }
-#endif
 
         const QList<AbstractProperty> nodeProps = node.properties();
         for (const AbstractProperty &p : nodeProps) {

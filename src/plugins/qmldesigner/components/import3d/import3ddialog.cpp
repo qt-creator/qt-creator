@@ -1005,11 +1005,7 @@ Rectangle {
                                               m_view->externalDependencies(),
                                               m_modulesStorage};
 
-#ifdef QDS_USE_PROJECTSTORAGE
     m_model = m_view->model()->createModel("Item");
-#else
-    m_model = QmlDesigner::Model::create("QtQuick/Item", 2, 1);
-#endif
 
     m_model->setFileUrl(m_previewFile.toUrl());
 

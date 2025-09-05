@@ -364,17 +364,12 @@ void AssetsLibraryWidget::handleDeletedGeneratedAssets(const QHash<QString, Util
                 if (assetType.startsWith(effectPrefix))
                     effectNames.append(assetType.sliced(idx + 1));
                 removedImportUrl = assetType.first(idx);
-#ifdef QDS_USE_PROJECTSTORAGE
+
                 auto module = m_assetsView->model()->module(removedImportUrl.toUtf8(),
                                                             Storage::ModuleKind::QmlLibrary);
                 auto metaInfo = m_assetsView->model()->metaInfo(module, assetType.sliced(idx + 1).toUtf8());
                 for (ModelNode &node : allNodes) {
                     if (node.metaInfo() == metaInfo) {
-#else
-                TypeName type = assetType.toUtf8();
-                for (ModelNode &node : allNodes) {
-                    if (node.metaInfo().typeName() == type) {
-#endif
                         clearStacks = true;
                         node.destroy();
                     }
@@ -420,9 +415,6 @@ void AssetsLibraryWidget::handleDeletedGeneratedAssets(const QHash<QString, Util
         document->clearUndoRedoStacks();
 
     m_assetsView->emitCustomNotification("effectcomposer_effects_deleted", {}, {effectNames});
-#ifndef QDS_USE_PROJECTSTORAGE
-    m_assetsView->emitCustomNotification("assets_deleted");
-#endif
 }
 
 void AssetsLibraryWidget::updateAssetPreview(const QString &id, const QPixmap &pixmap,

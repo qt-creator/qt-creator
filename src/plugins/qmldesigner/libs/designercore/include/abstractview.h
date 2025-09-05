@@ -263,11 +263,7 @@ public:
 
     bool isEnabled() const
     {
-#ifdef DETACH_DISABLED_VIEWS
         return m_visible && (hasWidget() ? m_action->isChecked() : true);
-#else
-        return m_visible;
-#endif
     }
 
     void setVisibility(bool visible) { m_visible = visible; }

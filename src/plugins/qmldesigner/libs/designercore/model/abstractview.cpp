@@ -97,17 +97,12 @@ RewriterTransaction AbstractView::beginRewriterTransaction(const QByteArray &ide
 
 ModelNode AbstractView::createModelNode(const TypeName &typeName, SL sl)
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     NanotraceHR::Tracer tracer{"abstract view create model node",
                                category(),
                                keyValue("type", typeName),
                                keyValue("source location", sl)};
 
     return createModelNode(typeName, -1, -1);
-#else
-    const NodeMetaInfo metaInfo = model()->metaInfo(typeName);
-    return createModelNode(typeName, metaInfo.majorVersion(), metaInfo.minorVersion());
-#endif
 }
 
 ModelNode AbstractView::createModelNode(const TypeName &typeName,
@@ -789,33 +784,6 @@ static int getMajorVersionFromImport(const Model *model)
     return -1;
 }
 
-#ifndef QDS_USE_PROJECTSTORAGE
-static int getMajorVersionFromNode(const ModelNode &modelNode)
-{
-    if (modelNode.metaInfo().isValid()) {
-        for (const NodeMetaInfo &info : modelNode.metaInfo().selfAndPrototypes()) {
-            if (info.isQtObject() || info.isQtQuickItem())
-                return info.majorVersion();
-        }
-    }
-
-    return 1; // default
-}
-
-static int getMinorVersionFromNode(const ModelNode &modelNode)
-{
-    if (modelNode.metaInfo().isValid()) {
-        const NodeMetaInfos infos = modelNode.metaInfo().selfAndPrototypes();
-        for (const NodeMetaInfo &info :  infos) {
-            if (info.isQtObject() || info.isQtQuickItem())
-                return info.minorVersion();
-        }
-    }
-
-    return 1; // default
-}
-#endif
-
 int AbstractView::majorQtQuickVersion() const
 {
     NanotraceHR::Tracer tracer{"abstract view major qt quick version", ModelTracing::category()};
@@ -824,11 +792,7 @@ int AbstractView::majorQtQuickVersion() const
     if (majorVersionFromImport >= 0)
         return majorVersionFromImport;
 
-#ifdef QDS_USE_PROJECTSTORAGE
     return -1;
-#else
-    return getMajorVersionFromNode(rootModelNode());
-#endif
 }
 
 int AbstractView::minorQtQuickVersion() const
@@ -839,11 +803,7 @@ int AbstractView::minorQtQuickVersion() const
     if (minorVersionFromImport >= 0)
         return minorVersionFromImport;
 
-#ifdef QDS_USE_PROJECTSTORAGE
     return -1;
-#else
-    return getMinorVersionFromNode(rootModelNode());
-#endif
 }
 
 AbstractViewAction::AbstractViewAction(AbstractView &view)

@@ -17,7 +17,6 @@
 #include <designmodewidget.h>
 #include <externaldependenciesinterface.h>
 #include <generatedcomponentutils.h>
-#include <metainfo.h>
 #include <nodeabstractproperty.h>
 #include <nodehints.h>
 #include <nodeinstanceview.h>
@@ -858,7 +857,6 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
 
     view()->executeInTransaction("Edit3DWidget::dropEvent", [&] {
     // add 3D assets to 3d editor (QtQuick3D import will be added if missing)
-#ifdef QDS_USE_PROJECTSTORAGE
         const QStringList added3DAssets = addedAssets.value(ComponentCoreConstants::add3DAssetsDisplayString);
         for (const QString &assetPath : added3DAssets) {
             QString fileName = QFileInfo(assetPath).baseName();
@@ -875,28 +873,6 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
                 QmlVisualNode::createQml3DNode(view(), entry, m_canvas->activeScene(), {}, false);
             }
         }
-#else
-        ItemLibraryInfo *itemLibInfo = m_view->model()->metaInfo().itemLibraryInfo();
-
-        const QStringList added3DAssets = addedAssets.value(
-            ComponentCoreConstants::add3DAssetsDisplayString);
-        for (const QString &assetPath : added3DAssets) {
-            QString fileName = QFileInfo(assetPath).baseName();
-            fileName = fileName.at(0).toUpper() + fileName.mid(1); // capitalize first letter
-            QString type = QString("%1.%2.%2").arg(QmlDesignerPlugin::instance()->documentManager()
-                                                       .generatedComponentUtils().import3dTypePrefix(),
-                                                   fileName);
-            QList<ItemLibraryEntry> entriesForType = itemLibInfo->entriesForType(type.toUtf8());
-            if (!entriesForType.isEmpty()) { // should always be true, but just in case
-                QmlVisualNode::createQml3DNode(view(),
-                                               entriesForType.at(0),
-                                               m_canvas->activeScene(),
-                                               {},
-                                               false)
-                    .modelNode();
-            }
-        }
-#endif
     });
 
     m_view->model()->endDrag();

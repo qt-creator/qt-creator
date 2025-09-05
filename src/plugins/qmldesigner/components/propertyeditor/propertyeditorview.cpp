@@ -610,44 +610,6 @@ void PropertyEditorView::setIsSelectionLocked(bool locked)
 
 namespace {
 
-#ifndef QDS_USE_PROJECTSTORAGE
-[[maybe_unused]] std::tuple<NodeMetaInfo, QUrl> diffType(const NodeMetaInfo &commonAncestor,
-                                                         const NodeMetaInfo &specificsClassMetaInfo)
-{
-    NodeMetaInfo diffClassMetaInfo;
-    QUrl qmlSpecificsFile;
-
-    if (commonAncestor.isValid()) {
-        diffClassMetaInfo = commonAncestor;
-        const NodeMetaInfos hierarchy = commonAncestor.selfAndPrototypes();
-        for (const NodeMetaInfo &metaInfo : hierarchy) {
-            if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsFile))
-                break;
-            qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName() + "Specifics",
-                                                                       metaInfo);
-            diffClassMetaInfo = metaInfo;
-        }
-    }
-
-    if (!PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsFile))
-        diffClassMetaInfo = specificsClassMetaInfo;
-
-    return {diffClassMetaInfo, qmlSpecificsFile};
-}
-
-[[maybe_unused]] QString getSpecificQmlData(const NodeMetaInfo &commonAncestor,
-                                            const ModelNode &selectedNode,
-                                            const NodeMetaInfo &diffClassMetaInfo)
-{
-    if (commonAncestor.isValid() && diffClassMetaInfo != selectedNode.metaInfo())
-        return PropertyEditorQmlBackend::templateGeneration(commonAncestor,
-                                                            diffClassMetaInfo,
-                                                            selectedNode);
-
-    return {};
-}
-#endif // QDS_USE_PROJECTSTORAGE
-
 PropertyEditorQmlBackend *getQmlBackend(QHash<QString, PropertyEditorQmlBackend *> &qmlBackendHash,
                                         const QUrl &qmlFileUrl,
                                         AsynchronousImageCache &imageCache,
@@ -710,8 +672,8 @@ void setupWidget(PropertyEditorQmlBackend *currentQmlBackend,
     currentQmlBackend->contextObject()->triggerSelectionChanged();
 }
 
-[[maybe_unused]] auto findPaneAndSpecificsPath(const NodeMetaInfos &prototypes,
-                                               const SourcePathCacheInterface &pathCache)
+auto findPaneAndSpecificsPath(const NodeMetaInfos &prototypes,
+                              const SourcePathCacheInterface &pathCache)
 {
     Utils::PathString panePath;
     Utils::PathString specificsPath;
@@ -738,7 +700,7 @@ void setupWidget(PropertyEditorQmlBackend *currentQmlBackend,
     return std::make_tuple(panePath, specificsPath, specificsDynamicPath);
 }
 
-[[maybe_unused]] QUrl createPaneUrl(Utils::SmallStringView panePath)
+QUrl createPaneUrl(Utils::SmallStringView panePath)
 {
     if (panePath.empty())
         return PropertyEditorQmlBackend::emptyPaneUrl();
@@ -772,7 +734,6 @@ void PropertyEditorView::setupQmlBackend()
 {
     NanotraceHR::Tracer tracer{"property editor view setup Qml Backend", category()};
 
-#ifdef QDS_USE_PROJECTSTORAGE
     const NodeMetaInfo commonAncestor = findCommonAncestor(activeNode());
     auto selfAndPrototypes = commonAncestor.selfAndPrototypes();
     bool isEditableComponent = activeNode().isComponent()
@@ -807,40 +768,6 @@ void PropertyEditorView::setupQmlBackend()
     m_qmlBackEndForCurrentType = currentQmlBackend;
 
     setupInsight(rootModelNode(), currentQmlBackend);
-#else
-    const NodeMetaInfo commonAncestor = findCommonAncestor(activeNode());
-
-    // qmlFileUrl is panel url. and specifics is its metainfo
-    const auto [qmlFileUrl, specificsClassMetaInfo] = PropertyEditorQmlBackend::getQmlUrlForMetaInfo(
-        commonAncestor);
-
-    auto [diffClassMetaInfo, qmlSpecificsFile] = diffType(commonAncestor, specificsClassMetaInfo);
-
-    // Hack to fix Textures in property views in case obsolete specifics are loaded from module
-    if (qmlFileUrl.toLocalFile().endsWith("TexturePane.qml"))
-        qmlSpecificsFile = QUrl{};
-
-    QString specificQmlData = getSpecificQmlData(commonAncestor, activeNode(), diffClassMetaInfo);
-
-    PropertyEditorQmlBackend *currentQmlBackend = getQmlBackend(m_qmlBackendHash,
-                                                                qmlFileUrl,
-                                                                m_imageCache,
-                                                                m_stackedWidget,
-                                                                this);
-
-    setupCurrentQmlBackend(currentQmlBackend,
-                           currentNodes(),
-                           qmlSpecificsFile,
-                           currentStateNode(),
-                           this,
-                           specificQmlData);
-
-    setupWidget(currentQmlBackend, this, m_stackedWidget);
-
-    m_qmlBackEndForCurrentType = currentQmlBackend;
-
-    setupInsight(rootModelNode(), currentQmlBackend);
-#endif // QDS_USE_PROJECTSTORAGE
 
     m_dynamicPropertiesModel->setSelectedNode(activeNode());
     connect(m_qmlBackEndForCurrentType->contextObject(),
@@ -1067,8 +994,7 @@ void PropertyEditorView::modelAttached(Model *model)
 
     AbstractView::modelAttached(model);
 
-    if constexpr (useProjectStorage())
-        m_propertyComponentGenerator.setModel(model);
+    m_propertyComponentGenerator.setModel(model);
 
     if (debug)
         qDebug() << Q_FUNC_INFO;
@@ -1295,7 +1221,7 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty> &
 }
 
 void PropertyEditorView::auxiliaryDataChanged(const ModelNode &node,
-                                              [[maybe_unused]] AuxiliaryDataKeyView key,
+                                              AuxiliaryDataKeyView key,
                                               const QVariant &data)
 {
     NanotraceHR::Tracer tracer{"property editor view auxiliary data changed", category()};
@@ -1576,10 +1502,10 @@ void PropertyEditorView::importsChanged(const Imports &addedImports, const Impor
         m_qmlBackEndForCurrentType->contextObject()->setHasQuick3DImport(true);
 }
 
-void PropertyEditorView::customNotification([[maybe_unused]] const AbstractView *view,
+void PropertyEditorView::customNotification(const AbstractView *,
                                             const QString &identifier,
                                             const QList<ModelNode> &nodeList,
-                                            [[maybe_unused]] const QList<QVariant> &data)
+                                            const QList<QVariant> &)
 {
     NanotraceHR::Tracer tracer{"property editor view custom notification", category()};
 

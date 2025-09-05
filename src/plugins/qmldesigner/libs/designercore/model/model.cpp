@@ -8,9 +8,6 @@
 #include <itemlibraryentry.h>
 #include <modelutils.h>
 #include <sourcepathstorage/sourcepathcache.h>
-#ifndef QDS_USE_PROJECTSTORAGE
-#  include "metainfo.h"
-#endif
 
 #include "nodelistproperty.h"
 #include "rewriterview.h"
@@ -52,36 +49,6 @@ namespace Internal {
 
 ModelPrivate::ModelPrivate(Model *model,
                            ProjectStorageDependencies projectStorageDependencies,
-                           const TypeName &typeName,
-                           int major,
-                           int minor,
-                           Model *metaInfoProxyModel,
-                           std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
-    : projectStorage{&projectStorageDependencies.storage}
-    , pathCache{&projectStorageDependencies.cache}
-    , modulesStorage{&projectStorageDependencies.modulesStorage}
-    , projectStorageTriggerUpdate{&projectStorageDependencies.triggerUpdate}
-    , m_model{model}
-    , m_resourceManagement{std::move(resourceManagement)}
-{
-    NanotraceHR::Tracer tracer{"model private constructor", category()};
-
-    m_metaInfoProxyModel = metaInfoProxyModel;
-
-    m_imports = {Import::createLibraryImport({"QtQuick"})};
-
-    m_rootInternalNode = createNode(
-        typeName, major, minor, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
-
-    m_currentStateNode = m_rootInternalNode;
-    m_currentTimelineNode = m_rootInternalNode;
-
-    if constexpr (useProjectStorage())
-        projectStorage->addObserver(this);
-}
-
-ModelPrivate::ModelPrivate(Model *model,
-                           ProjectStorageDependencies projectStorageDependencies,
                            Utils::SmallStringView typeName,
                            Imports imports,
                            const QUrl &fileUrl,
@@ -103,28 +70,7 @@ ModelPrivate::ModelPrivate(Model *model,
     m_currentStateNode = m_rootInternalNode;
     m_currentTimelineNode = m_rootInternalNode;
 
-    if constexpr (useProjectStorage())
-        projectStorage->addObserver(this);
-}
-
-ModelPrivate::ModelPrivate(Model *model,
-                           const TypeName &typeName,
-                           int major,
-                           int minor,
-                           Model *metaInfoProxyModel,
-                           std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
-    : m_model(model)
-    , m_resourceManagement{std::move(resourceManagement)}
-{
-    NanotraceHR::Tracer tracer{"model private constructor", category()};
-
-    m_metaInfoProxyModel = metaInfoProxyModel;
-
-    m_rootInternalNode = createNode(
-        typeName, major, minor, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
-
-    m_currentStateNode = m_rootInternalNode;
-    m_currentTimelineNode = m_rootInternalNode;
+    projectStorage->addObserver(this);
 }
 
 ModelPrivate::~ModelPrivate()
@@ -132,8 +78,8 @@ ModelPrivate::~ModelPrivate()
     NanotraceHR::Tracer tracer{"model private destructor", category()};
 
     removeNode(rootNode());
-    if constexpr (useProjectStorage())
-        projectStorage->removeObserver(this);
+
+    projectStorage->removeObserver(this);
 };
 
 void ModelPrivate::detachAllViews()
@@ -242,10 +188,9 @@ void ModelPrivate::changeImports(Imports toBeAddedImports, Imports toBeRemovedIm
     m_imports = set_union(importWithoutAddedImport, allNewAddedImports);
 
     if (!removedImports.isEmpty() || !allNewAddedImports.isEmpty()) {
-        if (useProjectStorage()) {
-            auto imports = createStorageImports(m_imports, m_localPath, *modulesStorage, m_sourceId);
-            projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
-        }
+        auto imports = createStorageImports(m_imports, m_localPath, *modulesStorage, m_sourceId);
+        projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
+
         notifyImportsChanged(allNewAddedImports, removedImports);
         updateModelNodeTypeIds(removedImports);
     }
@@ -266,10 +211,9 @@ void ModelPrivate::setImports(Imports imports)
     m_imports = imports;
 
     if (!removedImports.isEmpty() || !addedImports.isEmpty()) {
-        if (useProjectStorage()) {
-            auto imports = createStorageImports(m_imports, m_localPath, *modulesStorage, m_sourceId);
-            projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
-        }
+        auto imports = createStorageImports(m_imports, m_localPath, *modulesStorage, m_sourceId);
+        projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
+
         notifyImportsChanged(addedImports, removedImports);
         updateModelNodeTypeIds(removedImports);
     }
@@ -348,12 +292,10 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
 
     if (oldPath != fileUrl) {
         m_fileUrl = fileUrl;
-        if constexpr (useProjectStorage()) {
-            auto path = fileUrl.toString(QUrl::PreferLocalFile);
-            m_sourceId = pathCache->sourceId(SourcePath{path});
-            auto found = std::find(path.rbegin(), path.rend(), u'/').base();
-            m_localPath = Utils::PathString{QStringView{path.begin(), std::prev(found)}};
-        }
+        auto path = fileUrl.toString(QUrl::PreferLocalFile);
+        m_sourceId = pathCache->sourceId(SourcePath{path});
+        auto found = std::find(path.rbegin(), path.rend(), u'/').base();
+        m_localPath = Utils::PathString{QStringView{path.begin(), std::prev(found)}};
 
         for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
             view->fileUrlChanged(oldPath, fileUrl);
@@ -503,12 +445,10 @@ void ModelPrivate::setTypeId(InternalNode *node,
                                keyValue("unqualified type name", unqualifiedTypeName),
                                keyValue("old exported type", node->exportedTypeName)};
 
-    if constexpr (useProjectStorage()) {
-        node->importedTypeNameId = importedTypeNameId(alias, unqualifiedTypeName);
-        node->exportedTypeName = projectStorage->exportedTypeName(node->importedTypeNameId);
-        tracer.end(keyValue("new exported type", node->exportedTypeName),
-                   keyValue("imported type name id", node->importedTypeNameId));
-    }
+    node->importedTypeNameId = importedTypeNameId(alias, unqualifiedTypeName);
+    node->exportedTypeName = projectStorage->exportedTypeName(node->importedTypeNameId);
+    tracer.end(keyValue("new exported type", node->exportedTypeName),
+               keyValue("imported type name id", node->importedTypeNameId));
 }
 
 bool ModelPrivate::refreshExportedTypeName(InternalNode *node)
@@ -517,13 +457,11 @@ bool ModelPrivate::refreshExportedTypeName(InternalNode *node)
                                category(),
                                keyValue("node", *node)};
 
-    if constexpr (useProjectStorage()) {
-        auto exportedTypeName = projectStorage->exportedTypeName(node->importedTypeNameId);
-        if (node->exportedTypeName != exportedTypeName) {
-            node->exportedTypeName = exportedTypeName;
-            tracer.end(keyValue("refreshed exported type name", node->exportedTypeName));
-            return true;
-        }
+    auto exportedTypeName = projectStorage->exportedTypeName(node->importedTypeNameId);
+    if (node->exportedTypeName != exportedTypeName) {
+        node->exportedTypeName = exportedTypeName;
+        tracer.end(keyValue("refreshed exported type name", node->exportedTypeName));
+        return true;
     }
 
     return false;
@@ -708,18 +646,6 @@ InternalNodePointer ModelPrivate::rootNode() const
 
     return m_rootInternalNode;
 }
-
-#ifndef QDS_USE_PROJECTSTORAGE
-MetaInfo ModelPrivate::metaInfo() const
-{
-    return m_metaInfo;
-}
-
-void ModelPrivate::setMetaInfo(const MetaInfo &metaInfo)
-{
-    m_metaInfo = metaInfo;
-}
-#endif
 
 void ModelPrivate::changeNodeId(const InternalNodePointer &node, const QString &id)
 {
@@ -2105,27 +2031,6 @@ void WriteLocker::lock(Model *model)
 } // namespace Internal
 
 Model::Model(ProjectStorageDependencies projectStorageDependencies,
-             const TypeName &typeName,
-             int major,
-             int minor,
-             Model *metaInfoProxyModel,
-             std::unique_ptr<ModelResourceManagementInterface> resourceManagement,
-             SL sl)
-{
-    NanotraceHR::Tracer tracer{"model constructed with metainfoproxymodel",
-                               category(),
-                               keyValue("caller location", sl)};
-
-    d = std::make_unique<Internal::ModelPrivate>(this,
-                                                 projectStorageDependencies,
-                                                 typeName,
-                                                 major,
-                                                 minor,
-                                                 metaInfoProxyModel,
-                                                 std::move(resourceManagement));
-}
-
-Model::Model(ProjectStorageDependencies projectStorageDependencies,
              Utils::SmallStringView typeName,
              Imports imports,
              const QUrl &fileUrl,
@@ -2143,17 +2048,6 @@ Model::Model(ProjectStorageDependencies projectStorageDependencies,
                                                  fileUrl,
                                                  std::move(resourceManagement));
 }
-
-#ifndef QDS_USE_PROJECTSTORAGE
-Model::Model(const TypeName &typeName,
-             int major,
-             int minor,
-             Model *metaInfoProxyModel,
-             std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
-    : d(std::make_unique<Internal::ModelPrivate>(
-          this, typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)))
-{}
-#endif
 
 ModelPointer Model::createModel(const TypeName &typeName,
                                 std::unique_ptr<ModelResourceManagementInterface> resourceManagement,
@@ -2201,7 +2095,6 @@ Storage::Info::ExportedTypeName Model::exportedTypeNameForMetaInfo(const NodeMet
     return {};
 }
 
-#ifdef QDS_USE_PROJECTSTORAGE
 
 namespace {
 
@@ -2275,11 +2168,9 @@ QmlDesigner::Imports createQt6ModulesForProjectStorage()
 
 } //namespace
 
-#endif //QDS_USE_PROJECTSTORAGE
 
 Imports Model::possibleImports([[maybe_unused]] SL sl) const
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     NanotraceHR::Tracer tracer{"model possible imports", category(), keyValue("caller location", sl)};
 
     static auto qt6Imports = createQt6ModulesForProjectStorage();
@@ -2288,18 +2179,11 @@ Imports Model::possibleImports([[maybe_unused]] SL sl) const
     std::ranges::sort(imports);
 
     return imports;
-#else
-    return d->m_possibleImportList;
-#endif
 }
 
 Imports Model::usedImports() const
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     return imports();
-#else
-    return d->m_usedImportList;
-#endif
 }
 
 void Model::changeImports(Imports importsToBeAdded, Imports importsToBeRemoved, SL sl)
@@ -2315,34 +2199,6 @@ void Model::setImports(Imports imports, SL sl)
 
     d->setImports(std::move(imports));
 }
-
-#ifndef QDS_USE_PROJECTSTORAGE
-void Model::setPossibleImports(Imports possibleImports)
-{
-    auto tracer = d->traceToken.begin("possible imports");
-
-    std::sort(possibleImports.begin(), possibleImports.end());
-
-    if (d->m_possibleImportList != possibleImports) {
-        d->m_possibleImportList = std::move(possibleImports);
-        d->notifyPossibleImportsChanged(d->m_possibleImportList);
-    }
-}
-#endif
-
-#ifndef QDS_USE_PROJECTSTORAGE
-void Model::setUsedImports(Imports usedImports)
-{
-    auto tracer = d->traceToken.begin("used imports");
-
-    std::sort(usedImports.begin(), usedImports.end());
-
-    if (d->m_usedImportList != usedImports) {
-        d->m_usedImportList = std::move(usedImports);
-        d->notifyUsedImportsChanged(d->m_usedImportList);
-    }
-}
-#endif
 
 static bool compareVersions(const Import &import1, const Import &import2, bool allowHigherVersion)
 {
@@ -2814,18 +2670,6 @@ void Model::setNodeInstanceView(AbstractView *nodeInstanceView, SL sl)
     d->setNodeInstanceView(nodeInstanceView);
 }
 
-/*!
- \brief Returns the model that is used for metainfo
- \return Returns itself if other metaInfoProxyModel does not exist
-*/
-Model *Model::metaInfoProxyModel() const
-{
-    if (d->m_metaInfoProxyModel)
-        return d->m_metaInfoProxyModel->metaInfoProxyModel();
-
-    return const_cast<Model *>(this);
-}
-
 void Model::setDocumentMessages(const QList<DocumentMessage> &errors,
                                 const QList<DocumentMessage> &warnings,
                                 SL sl)
@@ -2905,54 +2749,25 @@ bool Model::hasNodeMetaInfo(const TypeName &typeName, int majorVersion, int mino
     return metaInfo(typeName, majorVersion, minorVersion).isValid();
 }
 
-#ifndef QDS_USE_PROJECTSTORAGE
-MetaInfo Model::metaInfo()
-{
-    return d->metaInfo();
-}
-
-const MetaInfo Model::metaInfo() const
-{
-    return d->metaInfo();
-}
-
-void Model::setMetaInfo(const MetaInfo &metaInfo)
-{
-    d->setMetaInfo(metaInfo);
-}
-#endif
-
 NodeMetaInfo Model::boolMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QML, BoolType>();
-    } else {
-        return metaInfo("QML.bool");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QML, BoolType>();
 }
 
 NodeMetaInfo Model::doubleMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QML, DoubleType>();
-    } else {
-        return metaInfo("QML.double");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QML, DoubleType>();
 }
 
 NodeMetaInfo Model::floatMetaInfo() const
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     using namespace Storage::Info;
     using Storage::ModuleKind;
 
     return {d->projectStorage->commonTypeId<QML, FloatType, ModuleKind::CppLibrary>(),
             d->projectStorage};
-#else
-    return {};
-#endif
 }
 
 template<Storage::Info::StaticString moduleName, Storage::Info::StaticString typeName, Storage::ModuleKind moduleKind>
@@ -2965,455 +2780,273 @@ NodeMetaInfo Model::createNodeMetaInfo() const
 
 NodeMetaInfo Model::fontMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, font>();
-    } else {
-        return metaInfo("QtQuick.font");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, font>();
 }
 
 NodeMetaInfo Model::qtQmlModelsListModelMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQml_Models, ListModel>();
-    } else {
-        return metaInfo("QtQml.Models.ListModel");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQml_Models, ListModel>();
 }
 
 NodeMetaInfo Model::qtQmlModelsListElementMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQml_Models, ListElement>();
-    } else {
-        return metaInfo("QtQml.Models.ListElement");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQml_Models, ListElement>();
 }
 
 NodeMetaInfo Model::qtQmlXmlListModelXmlListModelRoleMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQml_XmlListModel, XmlListModelRole>();
-    } else {
-        return metaInfo("QtQml.XmlListModel.XmlListModelRole");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQml_XmlListModel, XmlListModelRole>();
 }
 
 NodeMetaInfo Model::qmlQtObjectMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QML, QtObject>();
-    } else {
-        return metaInfo("QML.QtObject");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QML, QtObject>();
 }
 
 NodeMetaInfo Model::qtQuickItemMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, Item>();
-    } else {
-        return metaInfo("QtQuick.Item");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, Item>();
 }
 
 NodeMetaInfo Model::qtQuickRectangleMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, Rectangle>();
-    } else {
-        return metaInfo("QtQuick.Rectangle");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, Rectangle>();
 }
 
 NodeMetaInfo Model::qtQuickShapesShapeMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick_Shapes, Shape>();
-    } else {
-        return metaInfo("QtQuick.Shapes.Shape");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick_Shapes, Shape>();
 }
 
 NodeMetaInfo Model::qtQuickGradientMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, Gradient>();
-    } else {
-        return metaInfo("QtQuick.Gradient");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, Gradient>();
 }
 
 NodeMetaInfo Model::qtQuickImageMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, Image>();
-    } else {
-        return metaInfo("QtQuick.Image");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, Image>();
 }
 
 NodeMetaInfo Model::qtQuickTextMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, Text>();
-    } else {
-        return metaInfo("QtQuick.Text");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, Text>();
 }
 
 NodeMetaInfo Model::qtQuickPropertyAnimationMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, PropertyAnimation>();
-    } else {
-        return metaInfo("QtQuick.PropertyAnimation");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, PropertyAnimation>();
 }
 
 NodeMetaInfo Model::qtQuickPropertyChangesMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, PropertyChanges>();
-    } else {
-        return metaInfo("QtQuick.PropertyChanges");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, PropertyChanges>();
 }
 
 NodeMetaInfo Model::qtQuickTextEditMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, TextEdit>();
-    } else {
-        return metaInfo("QtQuick.TextEdit");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, TextEdit>();
 }
 
 NodeMetaInfo Model::qtQuickTemplatesLabelMetaInfo() const
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     using namespace Storage::Info;
     return createNodeMetaInfo<QtQuick_Templates, Label>();
-#else
-    return metaInfo("QtQuick.Controls.Label");
-#endif
 }
 
 NodeMetaInfo Model::qtQuickTemplatesTextAreaMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick_Templates, TextArea>();
-    } else {
-        return metaInfo("QtQuick.Controls.TextArea");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick_Templates, TextArea>();
 }
 
 NodeMetaInfo Model::qtQuick3DNodeMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, Node>();
-    } else {
-        return metaInfo("QtQuick3D.Node");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, Node>();
 }
 
 NodeMetaInfo Model::qtQuick3DObject3DMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, Object3D>();
-    } else {
-        return metaInfo("QtQuick3D.Object3D");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, Object3D>();
 }
 
 NodeMetaInfo Model::qtQuick3DCameraMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, Camera>();
-    } else {
-        return metaInfo("QtQuick3D.Camera");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, Camera>();
 }
 
 NodeMetaInfo Model::qtQuick3DPointLightMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, PointLight>();
-    } else {
-        return metaInfo("QtQuick3D.PointLight");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, PointLight>();
 }
 
 NodeMetaInfo Model::qtQuick3DSpotLightMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, SpotLight>();
-    } else {
-        return metaInfo("QtQuick3D.SpotLight");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, SpotLight>();
 }
 
 NodeMetaInfo Model::qtQuick3DOrthographicCameraMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, OrthographicCamera>();
-    } else {
-        return metaInfo("QtQuick3D.OrthographicCamera");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, OrthographicCamera>();
 }
 
 NodeMetaInfo Model::qtQuick3DParticles3DSpriteParticle3DMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D_Particles3D, SpriteParticle3D>();
-    } else {
-        return metaInfo("QtQuick3D.Particles3D.SpriteParticle3D");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D_Particles3D, SpriteParticle3D>();
 }
 
 NodeMetaInfo Model::qtQuick3DPerspectiveCameraMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, PerspectiveCamera>();
-    } else {
-        return metaInfo("QtQuick3D.PerspectiveCamera");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, PerspectiveCamera>();
 }
 
 NodeMetaInfo Model::qtQuick3DTextureMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, Texture>();
-    } else {
-        return metaInfo("QtQuick3D.Texture");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, Texture>();
 }
 
 NodeMetaInfo Model::qtQuick3DTextureInputMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, TextureInput>();
-    } else {
-        return metaInfo("QtQuick3D.TextureInput");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, TextureInput>();
 }
 
 NodeMetaInfo Model::qtQuick3DView3DMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, View3D>();
-    } else {
-        return metaInfo("QtQuick3D.View3D");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, View3D>();
 }
 
 NodeMetaInfo Model::qtQuickBorderImageMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, BorderImage>();
-    } else {
-        return metaInfo("QtQuick.BorderImage");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, BorderImage>();
 }
 
 NodeMetaInfo Model::qtQuick3DBakedLightmapMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, BakedLightmap>();
-    } else {
-        return metaInfo("QtQuick3D.BakedLightmap");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, BakedLightmap>();
 }
 
 NodeMetaInfo Model::qtQuick3DMaterialMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, Material>();
-    } else {
-        return metaInfo("QtQuick3D.Material");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, Material>();
 }
 
 NodeMetaInfo Model::qtQuick3DDefaultMaterialMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, DefaultMaterial>();
-    } else {
-        return metaInfo("QtQuick3D.DefaultMaterial");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, DefaultMaterial>();
 }
 
 NodeMetaInfo Model::qtQuick3DLightMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, Light>();
-    } else {
-        return metaInfo("QtQuick3D.Light");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, Light>();
 }
 
 NodeMetaInfo Model::qtQuick3DDirectionalLightMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, DirectionalLight>();
-    } else {
-        return metaInfo("QtQuick3D.DirectionalLight");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, DirectionalLight>();
 }
 
 NodeMetaInfo Model::qtQuick3DPrincipledMaterialMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, PrincipledMaterial>();
-    } else {
-        return metaInfo("QtQuick3D.PrincipledMaterial");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, PrincipledMaterial>();
 }
 
 NodeMetaInfo Model::qtQuick3DSceneEnvironmentMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, SceneEnvironment>();
-    } else {
-        return metaInfo("QtQuick3D.SceneEnvironment");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, SceneEnvironment>();
 }
 
 NodeMetaInfo Model::qtQuickTimelineTimelineMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick_Timeline, Timeline>();
-    } else {
-        return metaInfo("QtQuick.Timeline.Timeline");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick_Timeline, Timeline>();
 }
 
 NodeMetaInfo Model::qtQuickTransistionMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, Transition>();
-    } else {
-        return metaInfo("QtQuick.Transition");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, Transition>();
 }
 
 NodeMetaInfo Model::qtQuickWindowMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, Window>();
-    } else {
-        return metaInfo("QtQuick.Window.Window");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, Window>();
 }
 
 NodeMetaInfo Model::qtQuickDialogsAbstractDialogMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick_Dialogs, QQuickAbstractDialog, Storage::ModuleKind::CppLibrary>();
-    } else {
-        return metaInfo("QtQuick.Dialogs.Dialog");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick_Dialogs, QQuickAbstractDialog, Storage::ModuleKind::CppLibrary>();
 }
 
 NodeMetaInfo Model::qtQuickTemplatesPopupMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick_Templates, Popup>();
-    } else {
-        return metaInfo("QtQuick.Controls.Popup");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick_Templates, Popup>();
 }
 
 NodeMetaInfo Model::qtQmlConnectionsMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQml, Connections>();
-    } else {
-        return metaInfo("QtQml.Connections");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQml, Connections>();
 }
 
 NodeMetaInfo Model::qtQuickStateGroupMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, StateGroup>();
-    } else {
-        return metaInfo("QtQuick.StateGroup");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, StateGroup>();
 }
 
 NodeMetaInfo Model::vector2dMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, vector2d>();
-    } else {
-        return metaInfo("QtQuick.vector2d");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, vector2d>();
 }
 
 NodeMetaInfo Model::vector3dMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, vector3d>();
-    } else {
-        return metaInfo("QtQuick.vector3d");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, vector3d>();
 }
 
 NodeMetaInfo Model::vector4dMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick, vector4d>();
-    } else {
-        return metaInfo("QtQuick.vector4d");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick, vector4d>();
 }
-
-#ifdef QDS_USE_PROJECTSTORAGE
 
 QVarLengthArray<NodeMetaInfo, 256> Model::metaInfosForModule(Module module, SL sl) const
 {
@@ -3440,25 +3073,19 @@ SmallNodeMetaInfos<256> Model::singletonMetaInfos(SL sl) const
                                                                 NodeMetaInfo::bind(d->projectStorage));
 }
 
-#endif
 
 QList<ItemLibraryEntry> Model::itemLibraryEntries([[maybe_unused]] SL sl) const
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     NanotraceHR::Tracer tracer{"model item library entries",
                                category(),
                                keyValue("caller location", sl)};
 
     using namespace Storage::Info;
     return toItemLibraryEntries(*d->pathCache, d->projectStorage->itemLibraryEntries(d->m_sourceId));
-#else
-    return d->metaInfo().itemLibraryInfo()->entries();
-#endif
 }
 
 QList<ItemLibraryEntry> Model::directoryImportsItemLibraryEntries([[maybe_unused]] SL sl) const
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     NanotraceHR::Tracer tracer{"model directory imports item library entries",
                                category(),
                                keyValue("caller location", sl)};
@@ -3469,43 +3096,28 @@ QList<ItemLibraryEntry> Model::directoryImportsItemLibraryEntries([[maybe_unused
                                                  d->m_sourceId),
                                              d->m_sourceId.directoryPathId(),
                                              d->m_localPath);
-#else
-    return {};
-#endif
 }
 
 QList<ItemLibraryEntry> Model::allItemLibraryEntries([[maybe_unused]] SL sl) const
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     NanotraceHR::Tracer tracer{"model all item library entries",
                                category(),
                                keyValue("caller location", sl)};
 
     using namespace Storage::Info;
     return toItemLibraryEntries(*d->pathCache, d->projectStorage->allItemLibraryEntries());
-#else
-    return d->metaInfo().itemLibraryInfo()->entries();
-#endif
 }
 
 NodeMetaInfo Model::qtQuickTimelineKeyframeGroupMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick_Timeline, KeyframeGroup>();
-    } else {
-        return metaInfo("QtQuick.Timeline.KeyframeGroup");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick_Timeline, KeyframeGroup>();
 }
 
 NodeMetaInfo Model::qtQuick3DModelMetaInfo() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick3D, Storage::Info::Model>();
-    } else {
-        return metaInfo("QtQuick3D.Model");
-    }
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick3D, Storage::Info::Model>();
 }
 
 namespace {
@@ -3526,16 +3138,12 @@ NodeMetaInfo Model::metaInfo(Utils::SmallStringView typeName,
                              [[maybe_unused]] int minorVersion,
                              [[maybe_unused]] SL sl) const
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     NanotraceHR::Tracer tracer{"model meta info with type name",
                                category(),
                                keyValue("caller location", sl)};
 
     return NodeMetaInfo(d->projectStorage->exportedTypeName(d->importedTypeNameId(typeName)).typeId,
                         d->projectStorage);
-#else
-    return NodeMetaInfo(metaInfoProxyModel(), typeName, majorVersion, minorVersion);
-#endif
 }
 
 NodeMetaInfo Model::metaInfo([[maybe_unused]] Module module,
@@ -3543,41 +3151,29 @@ NodeMetaInfo Model::metaInfo([[maybe_unused]] Module module,
                              [[maybe_unused]] Storage::Version version,
                              [[maybe_unused]] SL sl) const
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     NanotraceHR::Tracer tracer{"model meta info with module",
                                category(),
                                keyValue("caller location", sl)};
 
     return NodeMetaInfo(d->projectStorage->typeId(module.id(), typeName, version), d->projectStorage);
-#else
-    return {};
-#endif
 }
 
 Module Model::module(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind, SL sl) const
 {
-    if constexpr (useProjectStorage()) {
-        NanotraceHR::Tracer tracer{"model get module", category(), keyValue("caller location", sl)};
+    NanotraceHR::Tracer tracer{"model get module", category(), keyValue("caller location", sl)};
 
-        return Module(d->modulesStorage->moduleId(moduleName, moduleKind), d->projectStorage);
-    }
-
-    return {};
+    return Module(d->modulesStorage->moduleId(moduleName, moduleKind), d->projectStorage);
 }
 
 SmallModuleIds<128> Model::moduleIdsStartsWith(Utils::SmallStringView startsWith,
                                                Storage::ModuleKind kind,
                                                SL sl) const
 {
-    if constexpr (useProjectStorage()) {
-        NanotraceHR::Tracer tracer{"model module ids starts with",
-                                   category(),
-                                   keyValue("caller location", sl)};
+    NanotraceHR::Tracer tracer{"model module ids starts with",
+                               category(),
+                               keyValue("caller location", sl)};
 
-        return d->modulesStorage->moduleIdsStartsWith(startsWith, kind);
-    }
-
-    return {};
+    return d->modulesStorage->moduleIdsStartsWith(startsWith, kind);
 }
 
 /*! \name View related functions
@@ -3691,14 +3287,9 @@ ModelNode createNode(Model *model,
 
 ModelNode Model::createModelNode(const TypeName &typeName, [[maybe_unused]] SL sl)
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     NanotraceHR::Tracer tracer{"model create model node", category(), keyValue("caller location", sl)};
 
     return createNode(this, d.get(), typeName, -1, -1);
-#else
-    const NodeMetaInfo m = metaInfo(typeName);
-    return createNode(this, d.get(), typeName, m.majorVersion(), m.minorVersion());
-#endif
 }
 
 void Model::changeRootNodeType(const TypeName &type, SL sl)

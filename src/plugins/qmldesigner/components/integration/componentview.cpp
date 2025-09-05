@@ -349,12 +349,6 @@ void ComponentView::updateImport3DSupport(const QVariantMap &supportMap)
 
 void ComponentView::importsChanged(const Imports &addedImports, const Imports &removedImports)
 {
-#ifndef QDS_USE_PROJECTSTORAGE
-    DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
-    for (const auto &import : addedImports)
-        document->addSubcomponentManagerImport(import);
-#endif
-
     // TODO: generalize the logic below to allow adding/removing any Qml component when its import is added/removed
     bool simulinkImportAdded = std::any_of(addedImports.cbegin(), addedImports.cend(), [](const Import &import) {
         return import.url() == "SimulinkConnector";
@@ -389,11 +383,6 @@ void ComponentView::importsChanged(const Imports &addedImports, const Imports &r
 
 void ComponentView::possibleImportsChanged([[maybe_unused]] const Imports &possibleImports)
 {
-#ifndef QDS_USE_PROJECTSTORAGE
-    DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
-    for (const auto &import : possibleImports)
-        document->addSubcomponentManagerImport(import);
-#endif
 }
 
 } // namespace QmlDesigner

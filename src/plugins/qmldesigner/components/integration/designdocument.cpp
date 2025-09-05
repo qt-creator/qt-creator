@@ -8,9 +8,6 @@
 #include "qmlvisualnode.h"
 
 #include <auxiliarydataproperties.h>
-#ifndef QDS_USE_PROJECTSTORAGE
-#  include <metainfo.h>
-#endif
 #include <model/modelresourcemanagement.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
@@ -77,27 +74,15 @@ DesignDocument::DesignDocument([[maybe_unused]] const QUrl &filePath,
 {
     NanotraceHR::Tracer tracer{"design document constructor", category()};
 
-#ifdef QDS_USE_PROJECTSTORAGE
     m_documentModel = Model::create(projectStorageDependencies,
                                     "Item",
                                     {Import::createLibraryImport("QtQuick")},
                                     filePath,
                                     std::make_unique<ModelResourceManagement>());
-#else
-    m_documentModel = Model::create("QtQuick.Item",
-                                    1,
-                                    0,
-                                    nullptr,
-                                    std::make_unique<ModelResourceManagement>());
-    m_subComponentManager = new SubComponentManager(m_documentModel.get(), externalDependencies);
-#endif
+
     m_rewriterView = std::make_unique<RewriterView>(externalDependencies,
                                                     modulesStorage,
                                                     RewriterView::Amend);
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    m_rewriterView->setIsDocumentRewriterView(true);
-#endif
 }
 
 DesignDocument::~DesignDocument()
@@ -200,17 +185,7 @@ ModelPointer DesignDocument::createInFileComponentModel()
 {
     NanotraceHR::Tracer tracer{"design document create in file component model", category()};
 
-#ifdef QDS_USE_PROJECTSTORAGE
     auto model = m_documentModel->createModel("Item", std::make_unique<ModelResourceManagement>());
-#else
-    auto model = Model::create("QtQuick.Item",
-                               1,
-                               0,
-                               nullptr,
-                               std::make_unique<ModelResourceManagement>());
-    model->setFileUrl(m_documentModel->fileUrl());
-    model->setMetaInfo(m_documentModel->metaInfo());
-#endif
 
     return model;
 }
@@ -647,20 +622,6 @@ void DesignDocument::close()
     emit designDocumentClosed();
 }
 
-#ifndef QDS_USE_PROJECTSTORAGE
-void DesignDocument::updateSubcomponentManager()
-{
-    Q_ASSERT(m_subComponentManager);
-    m_subComponentManager->update(QUrl::fromLocalFile(fileName().toUrlishString()),
-                                  currentModel()->imports() + currentModel()->possibleImports());
-}
-
-void DesignDocument::addSubcomponentManagerImport(const Import &import)
-{
-    m_subComponentManager->addAndParseImport(import);
-}
-#endif
-
 void DesignDocument::deleteSelected()
 {
     NanotraceHR::Tracer tracer{"design document delete selected", category()};
@@ -804,55 +765,6 @@ RewriterView *DesignDocument::rewriterView() const
     return m_rewriterView.get();
 }
 
-#ifndef QDS_USE_PROJECTSTORAGE
-static void removeUnusedImports(RewriterView *rewriter)
-{
-    // Remove any import statements for asset based nodes (composed effect or imported3d)
-    // if there is no nodes using them in the scene.
-    QTC_ASSERT(rewriter && rewriter->model(), return);
-
-    GeneratedComponentUtils compUtils{rewriter->externalDependencies()};
-
-    const QString effectPrefix = compUtils.composedEffectsTypePrefix();
-    const QString imported3dPrefix = compUtils.import3dTypePrefix();
-    const QList<Utils::FilePath> qmlFiles = compUtils.imported3dComponents();
-    QHash<QString, QString> m_imported3dTypeMap;
-    for (const Utils::FilePath &qmlFile : qmlFiles) {
-        QString importName = compUtils.getImported3dImportName(qmlFile);
-        QString type = qmlFile.baseName();
-        m_imported3dTypeMap.insert(importName, type);
-    }
-
-    const Imports &imports = rewriter->model()->imports();
-    QHash<QString, Import> assetImports;
-    for (const Import &import : imports) {
-        if (import.url().startsWith(effectPrefix)) {
-            QString type = import.url().split('.').last();
-            assetImports.insert(type, import);
-        } else if (import.url().startsWith(imported3dPrefix)) {
-            assetImports.insert(m_imported3dTypeMap[import.url()], import);
-        }
-    }
-
-    const QList<ModelNode> allNodes = rewriter->allModelNodes();
-    for (const ModelNode &node : allNodes) {
-        if (QmlItemNode(node).isEffectItem()
-            || (node.isComponent() && node.metaInfo().isQtQuick3DNode())) {
-            assetImports.remove(node.simplifiedTypeName());
-        }
-    }
-
-    if (!assetImports.isEmpty()) {
-        Imports removeImports;
-        for (const Import &import : assetImports)
-            removeImports.append(import);
-        rewriter->model()->changeImports({}, removeImports);
-    }
-
-    rewriter->forceAmend();
-}
-#endif
-
 void DesignDocument::setEditor(Core::IEditor *editor)
 {
     NanotraceHR::Tracer tracer{"design document set editor", category()};
@@ -865,11 +777,6 @@ void DesignDocument::setEditor(Core::IEditor *editor)
         if (m_textEditor && m_textEditor->document() == document) {
             if (m_documentModel && m_documentModel->rewriterView()) {
 
-#ifdef QDS_USE_PROJECTSTORAGE
-                // TODO: ProjectStorage should handle this via Model somehow (QDS-14519)
-#else
-                removeUnusedImports(rewriterView());
-#endif
                 m_documentModel->rewriterView()->writeAuxiliaryData();
             }
         }

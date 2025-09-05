@@ -33,14 +33,6 @@ struct ModelDeleter
 
 using ModelPointer = std::unique_ptr<class Model, ModelDeleter>;
 
-constexpr bool useProjectStorage()
-{
-#ifdef QDS_USE_PROJECTSTORAGE
-    return true;
-#else
-    return false;
-#endif
-}
 class SourcePathStorage;
 class ProjectStorageTriggerUpdateInterface;
 using PathCache = SourcePathCache<SourcePathStorage, std::shared_mutex>;

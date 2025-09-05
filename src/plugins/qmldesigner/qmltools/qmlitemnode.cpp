@@ -41,7 +41,6 @@ bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode, SL sl)
 
     auto metaInfo = modelNode.metaInfo();
     auto model = modelNode.model();
-#ifdef QDS_USE_PROJECTSTORAGE
 
     auto qtQuickitem = model->qtQuickItemMetaInfo();
     auto qtQuickWindowWindow = model->qtQuickWindowMetaInfo();
@@ -62,18 +61,6 @@ bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode, SL sl)
         return modelNode.isRootNode();
 
     return true;
-#else
-    auto qtQuickitem = model->qtQuickItemMetaInfo();
-
-    if (metaInfo.isBasedOn(model->qtQuickItemMetaInfo())) {
-        return true;
-    }
-
-    if (metaInfo.isGraphicalItem() && modelNode.isRootNode())
-        return true;
-
-    return false;
-#endif
 }
 
 QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view,
@@ -141,25 +128,13 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view,
             propertyPairList.emplace_back("source", relativeImageName);
         }
 
-#ifdef QDS_USE_PROJECTSTORAGE
         TypeName type("Image");
         QImageReader reader(imageName);
         if (reader.supportsAnimation())
             type = "AnimatedImage";
 
         newQmlItemNode = QmlItemNode(view->createModelNode(type, propertyPairList));
-#else
 
-        TypeName type("QtQuick.Image");
-        QImageReader reader(imageName);
-        if (reader.supportsAnimation())
-            type = "QtQuick.AnimatedImage";
-
-        newQmlItemNode = QmlItemNode(view->createModelNode(type,
-                                                           metaInfo.majorVersion(),
-                                                           metaInfo.minorVersion(),
-                                                           propertyPairList));
-#endif
         parentproperty.reparentHere(newQmlItemNode);
 
         QFileInfo fi(relativeImageName);
@@ -220,13 +195,9 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
         propertyPairList.emplace_back("font.family", fontFamily);
         propertyPairList.emplace_back("font.pointSize", 20);
         propertyPairList.emplace_back("text", fontFamily);
-#ifdef QDS_USE_PROJECTSTORAGE
+
         newQmlItemNode = QmlItemNode(view->createModelNode("Text", propertyPairList));
-#else
-        NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Text");
-        newQmlItemNode = QmlItemNode(view->createModelNode("QtQuick.Text", metaInfo.majorVersion(),
-                                                           metaInfo.minorVersion(), propertyPairList));
-#endif
+
         parentproperty.reparentHere(newQmlItemNode);
 
         newQmlItemNode.setId(view->model()->generateNewId("text", "text"));

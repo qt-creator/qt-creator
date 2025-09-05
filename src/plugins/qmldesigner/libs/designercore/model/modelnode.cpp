@@ -900,20 +900,12 @@ NodeMetaInfo ModelNode::metaInfo([[maybe_unused]] SL sl) const
     if (!isValid())
         return {};
 
-#ifdef QDS_USE_PROJECTSTORAGE
-
     NanotraceHR::Tracer tracer{"model node meta info",
                                category(),
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return NodeMetaInfo(m_internalNode->exportedTypeName.typeId, m_model->projectStorage());
-#else
-    return NodeMetaInfo(m_model->metaInfoProxyModel(),
-                        m_internalNode->typeName,
-                        m_internalNode->majorVersion,
-                        m_internalNode->minorVersion);
-#endif
 }
 
 const Storage::Info::ExportedTypeName &ModelNode::exportedTypeName(SL sl) const
@@ -1955,7 +1947,6 @@ bool ModelNode::isComponent(SL sl) const
 
 QIcon ModelNode::typeIcon([[maybe_unused]] SL sl) const
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     if (!isValid())
         return QIcon(QStringLiteral(":/ItemLibrary/images/item-invalid-icon.png"));
 
@@ -1968,21 +1959,6 @@ QIcon ModelNode::typeIcon([[maybe_unused]] SL sl) const
         return QIcon(iconPath.toQString());
     else
         return QIcon(QStringLiteral(":/ItemLibrary/images/item-default-icon.png"));
-#else
-    if (isValid()) {
-        // if node has no own icon, search for it in the itemlibrary
-        const ItemLibraryInfo *libraryInfo = model()->metaInfo().itemLibraryInfo();
-        QList<ItemLibraryEntry> itemLibraryEntryList = libraryInfo->entriesForType(type(),
-                                                                                   majorVersion(),
-                                                                                   minorVersion());
-        if (!itemLibraryEntryList.isEmpty())
-            return itemLibraryEntryList.constFirst().typeIcon();
-        else if (metaInfo().isValid())
-            return QIcon(QStringLiteral(":/ItemLibrary/images/item-default-icon.png"));
-    }
-
-    return QIcon(QStringLiteral(":/ItemLibrary/images/item-invalid-icon.png"));
-#endif
 }
 
 QString ModelNode::behaviorPropertyName(SL sl) const

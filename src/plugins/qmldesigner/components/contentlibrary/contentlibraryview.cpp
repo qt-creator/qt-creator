@@ -209,7 +209,6 @@ WidgetInfo ContentLibraryView::widgetInfo()
 
 void ContentLibraryView::connectImporter()
 {
-#ifdef QDS_USE_PROJECTSTORAGE
     connect(m_widget->importer(),
             &BundleImporter::importFinished,
             this,
@@ -246,46 +245,6 @@ void ContentLibraryView::connectImporter()
                     m_bundleItemPos = {};
                 }
             });
-#else
-    connect(m_widget->importer(),
-            &BundleImporter::importFinished,
-            this,
-            [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId, bool typeAdded) {
-                QTC_ASSERT(metaInfo.isValid(), return);
-                if (isMaterialBundle(bundleId)) {
-                    applyBundleMaterialToDropTarget({}, metaInfo);
-                    if (typeAdded)
-                        resetPuppet();
-                } else if (isItemBundle(bundleId)) {
-                    if (!m_bundleItemTarget)
-                        m_bundleItemTarget = Utils3D::active3DSceneNode(this);
-                    if (!m_bundleItemTarget)
-                        m_bundleItemTarget = rootModelNode();
-
-                    QTC_ASSERT(m_bundleItemTarget, return);
-
-                    executeInTransaction("ContentLibraryView::connectImporter", [&] {
-                        QVector3D pos = m_bundleItemPos.value<QVector3D>();
-                        ModelNode newNode = createModelNode(metaInfo.typeName(),
-                                                               metaInfo.majorVersion(),
-                                                               metaInfo.minorVersion(),
-                                                               {{"x", pos.x()},
-                                                                {"y", pos.y()},
-                                                                {"z", pos.z()}});
-                        m_bundleItemTarget.defaultNodeListProperty().reparentHere(newNode);
-                        newNode.setIdWithoutRefactoring(model()->generateNewId(
-                            newNode.simplifiedTypeName(), "node"));
-                        clearSelectedModelNodes();
-                        selectModelNode(newNode);
-                        if (typeAdded)
-                            resetPuppet();
-                    });
-
-                    m_bundleItemTarget = {};
-                    m_bundleItemPos = {};
-                }
-            });
-#endif
 
     connect(m_widget->importer(), &BundleImporter::aboutToUnimport, this,
             [&] (const QmlDesigner::TypeName &type, const QString &bundleId) {
@@ -420,11 +379,7 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         if (defaultMat.isValid()) {
             if (m_bundleMaterialTargets.isEmpty()) { // if no drop target, create a duplicate material
                 executeInTransaction(__FUNCTION__, [&] {
-#ifdef QDS_USE_PROJECTSTORAGE
                     Utils3D::createMaterial(this, m_draggedBundleMaterial->type());
-#else
-                    Utils3D::createMaterial(this, defaultMat.metaInfo());
-#endif
                 });
             } else {
                 applyBundleMaterialToDropTarget(defaultMat);
@@ -461,11 +416,7 @@ void ContentLibraryView::customNotification(const AbstractView *view,
             if (defaultMat.isValid()) {
                 if (m_bundleMaterialTargets.isEmpty()) { // if no drop target, create a duplicate material
                     executeInTransaction(__FUNCTION__, [&] {
-#ifdef QDS_USE_PROJECTSTORAGE
                         Utils3D::createMaterial(this, m_draggedBundleItem->type());
-#else
-                        Utils3D::createMaterial(this, defaultMat.metaInfo());
-#endif
                     });
                 } else {
                     applyBundleMaterialToDropTarget(defaultMat);
@@ -536,7 +487,6 @@ void ContentLibraryView::modelNodePreviewPixmapChanged(const ModelNode &node,
     }
 }
 
-#ifdef QDS_USE_PROJECTSTORAGE
 void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundleMat,
                                                          const TypeName &typeName)
 {
@@ -564,36 +514,6 @@ void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundle
         }
     });
 }
-#else
-void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundleMat,
-                                                         const NodeMetaInfo &metaInfo)
-{
-    if (!bundleMat.isValid() && !metaInfo.isValid())
-        return;
-
-    executeInTransaction("ContentLibraryView::applyBundleMaterialToDropTarget", [&] {
-        ModelNode newMatNode = metaInfo.isValid() ? Utils3D::createMaterial(this, metaInfo) : bundleMat;
-
-        for (const ModelNode &target : std::as_const(m_bundleMaterialTargets)) {
-            if (target.isValid() && target.metaInfo().isQtQuick3DModel()) {
-                QmlObjectNode qmlObjNode(target);
-                if (m_bundleMaterialAddToSelected) {
-                    QStringList matList = ModelUtils::expressionToList(
-                        qmlObjNode.expression("materials"));
-                    matList.append(newMatNode.id());
-                    QString updatedExp = ModelUtils::listToExpression(matList);
-                    qmlObjNode.setBindingProperty("materials", updatedExp);
-                } else {
-                    qmlObjNode.setBindingProperty("materials", newMatNode.id());
-                }
-            }
-
-            m_bundleMaterialTargets = {};
-            m_bundleMaterialAddToSelected = false;
-        }
-    });
-}
-#endif
 
 void ContentLibraryView::addLibAssets(const QStringList &paths, const QString &bundlePath)
 {

@@ -254,14 +254,8 @@ void QmlModelNodeProxy::createModelNode(int internalIdParent,
         if (!import.isEmpty())
             view->model()->changeImports({import}, {});
 
-#ifdef QDS_USE_PROJECTSTORAGE
         ModelNode newNode = view->createModelNode(typeName.toUtf8());
-#else
-        NodeMetaInfo metaInfo = parentModelNode.model()->metaInfo(typeName.toUtf8());
-        ModelNode newNode = view->createModelNode(metaInfo.typeName(),
-                                                  metaInfo.majorVersion(),
-                                                  metaInfo.minorVersion());
-#endif
+
         parentModelNode.nodeAbstractProperty(property.toUtf8()).reparentHere(newNode);
     });
 }
@@ -314,12 +308,7 @@ void QmlModelNodeProxy::changeType(int internalId, const QString &typeName)
     QTC_ASSERT(node.isValid(), return );
 
     QTC_ASSERT(!node.isRootNode(), return );
-#ifdef QDS_USE_PROJECTSTORAGE
-    node.changeType(typeName.toUtf8(), -1, -1);
-#else
-    NodeMetaInfo metaInfo = node.model()->metaInfo(typeName.toUtf8());
-    node.changeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
-#endif
+    node.changeType(typeName.toUtf8());
 }
 
 void QmlModelNodeProxy::handleInstancePropertyChanged(const ModelNode &modelNode,

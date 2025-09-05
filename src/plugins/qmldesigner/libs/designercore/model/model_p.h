@@ -8,9 +8,7 @@
 #include <tracing/qmldesignertracing.h>
 
 #include "abstractview.h"
-#ifndef QDS_USE_PROJECTSTORAGE
-#  include "metainfo.h"
-#endif
+
 #include "modelnode.h"
 
 #include <nodemetainfo.h>
@@ -85,22 +83,9 @@ public:
 
     ModelPrivate(Model *model,
                  ProjectStorageDependencies m_projectStorageDependencies,
-                 const TypeName &type,
-                 int major,
-                 int minor,
-                 Model *metaInfoProxyModel,
-                 std::unique_ptr<ModelResourceManagementInterface> resourceManagement);
-    ModelPrivate(Model *model,
-                 ProjectStorageDependencies m_projectStorageDependencies,
                  Utils::SmallStringView typeName,
                  Imports imports,
                  const QUrl &filePath,
-                 std::unique_ptr<ModelResourceManagementInterface> resourceManagement);
-    ModelPrivate(Model *model,
-                 const TypeName &type,
-                 int major,
-                 int minor,
-                 Model *metaInfoProxyModel,
                  std::unique_ptr<ModelResourceManagementInterface> resourceManagement);
 
     ~ModelPrivate() override;
@@ -128,11 +113,6 @@ public:
 
     InternalNodePointer rootNode() const;
     InternalNodePointer findNode(const QString &id) const;
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    MetaInfo metaInfo() const;
-    void setMetaInfo(const MetaInfo &metaInfo);
-#endif
 
     void attachView(AbstractView *view);
     void detachView(AbstractView *view, bool notifyView);
@@ -359,9 +339,6 @@ public:
 
 private:
     Model *m_model = nullptr;
-#ifndef QDS_USE_PROJECTSTORAGE
-    MetaInfo m_metaInfo;
-#endif
     Imports m_imports;
     Imports m_possibleImportList;
     Imports m_usedImportList;
@@ -379,7 +356,6 @@ private:
     SourceId m_sourceId;
     QPointer<RewriterView> m_rewriterView;
     QPointer<AbstractView> m_nodeInstanceView;
-    QPointer<Model> m_metaInfoProxyModel;
     QHash<TypeName, std::shared_ptr<NodeMetaInfoPrivate>> m_nodeMetaInfoCache;
     Utils::UniqueObjectPtr<QDrag> drag;
     bool m_writeLock = false;

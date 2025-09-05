@@ -20,27 +20,17 @@
 namespace QmlDesigner {
 
 class NodeMetaInfo;
-class NodeMetaInfoPrivate;
 
 class QMLDESIGNERCORE_EXPORT PropertyMetaInfo
 {
 public:
-    PropertyMetaInfo();
-    PropertyMetaInfo(std::shared_ptr<NodeMetaInfoPrivate> nodeMetaInfoPrivateData,
-                     PropertyNameView propertyName);
+    PropertyMetaInfo() = default;
 
     PropertyMetaInfo([[maybe_unused]] PropertyDeclarationId id,
                      [[maybe_unused]] NotNullPointer<const ProjectStorageType> projectStorage)
-#ifdef QDS_USE_PROJECTSTORAGE
         : m_projectStorage{projectStorage}
         , m_id{id}
-#endif
     {}
-    PropertyMetaInfo(const PropertyMetaInfo &);
-    PropertyMetaInfo &operator=(const PropertyMetaInfo &);
-    PropertyMetaInfo(PropertyMetaInfo &&);
-    PropertyMetaInfo &operator=(PropertyMetaInfo &&);
-    ~PropertyMetaInfo();
 
     static PropertyMetaInfo create(NotNullPointer<const ProjectStorageType> projectStorage,
                                    PropertyDeclarationId id)
@@ -57,11 +47,7 @@ public:
 
     bool isValid() const
     {
-#ifdef QDS_USE_PROJECTSTORAGE
         return bool(m_id);
-#else
-        return bool(m_nodeMetaInfoPrivateData);
-#endif
     }
 
     PropertyDeclarationId id() const { return m_id; }
@@ -79,30 +65,18 @@ public:
 
     friend bool operator==(const PropertyMetaInfo &first, const PropertyMetaInfo &second)
     {
-#ifdef QDS_USE_PROJECTSTORAGE
         return first.m_id == second.m_id;
-#else
-        return first.m_nodeMetaInfoPrivateData == second.m_nodeMetaInfoPrivateData
-               && first.name() == second.name();
-#endif
     }
 
     const ProjectStorageType &projectStorage() const { return *m_projectStorage; }
 
 private:
     const Storage::Info::PropertyDeclaration &propertyData() const;
-    TypeName propertyTypeName() const;
-    const NodeMetaInfoPrivate *nodeMetaInfoPrivateData() const;
-    const PropertyName &propertyName() const;
 
 private:
     NotNullPointer<const ProjectStorageType> m_projectStorage;
     mutable std::optional<Storage::Info::PropertyDeclaration> m_propertyData;
     PropertyDeclarationId m_id;
-#ifndef QDS_USE_PROJECTSTORAGE
-    std::shared_ptr<NodeMetaInfoPrivate> m_nodeMetaInfoPrivateData;
-    PropertyName m_propertyName;
-#endif
 };
 
 using PropertyMetaInfos = std::vector<PropertyMetaInfo>;

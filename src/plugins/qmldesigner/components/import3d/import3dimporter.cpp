@@ -18,10 +18,6 @@
 #include <modelutils.h>
 #include <utils3d.h>
 
-#ifndef QDS_USE_PROJECTSTORAGE
-#include <qmljs/qmljsmodelmanagerinterface.h>
-#endif
-
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/filepath.h>
@@ -698,44 +694,6 @@ void Import3dImporter::finalizeQuick3DImport()
             static int counter;
             counter = 0;
 
-#ifndef QDS_USE_PROJECTSTORAGE
-            auto modelManager = QmlJS::ModelManagerInterface::instance();
-            QFuture<void> result;
-            if (modelManager) {
-                QmlJS::PathsAndLanguages pathToScan;
-                pathToScan.maybeInsert(::Utils::FilePath::fromString(m_importPath));
-                result = ::Utils::asyncRun(&QmlJS::ModelManagerInterface::importScan,
-                                           modelManager->workingCopy(),
-                                           pathToScan,
-                                           modelManager,
-                                           true,
-                                           true,
-                                           true);
-            }
-            // First we have to wait a while to ensure qmljs detects new files and updates its
-            // internal model. Then we force amend on rewriter to trigger qmljs snapshot update.
-            timer->callOnTimeout([this, timer, progressTitle, model, result]() {
-                if (!isCancelled()) {
-                    notifyProgress(++counter * 2, progressTitle);
-                    if (counter == 1) {
-                        if (!Utils3D::addQuick3DImportAndView3D(model->rewriterView(), true))
-                            addError(tr("Failed to insert QtQuick3D import to the qml document."));
-                    } else if (counter < 50) {
-                        if (result.isCanceled() || result.isFinished())
-                            counter = 49; // skip to next step
-                    } else if (counter >= 50) {
-                        for (const ParseData &pd : std::as_const(m_parseData)) {
-                            if (!pd.overwrittenImports.isEmpty()) {
-                                model->rewriterView()->resetPuppet();
-                                model->rewriterView()->emitCustomNotification("asset_import_update");
-                                break;
-                            }
-                        }
-                        timer->stop();
-                        notifyFinished();
-                        model->rewriterView()->emitCustomNotification("asset_import_finished");
-                    }
-#else
             counter = 0;
             timer->callOnTimeout([this, timer, progressTitle, model]() {
                 if (!isCancelled()) {
@@ -754,7 +712,6 @@ void Import3dImporter::finalizeQuick3DImport()
                         timer->stop();
                         notifyFinished();
                     }
-#endif
                 } else {
                     timer->stop();
                 }

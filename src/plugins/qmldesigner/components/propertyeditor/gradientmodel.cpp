@@ -761,25 +761,9 @@ QmlDesigner::ModelNode GradientModel::createGradientNode()
 {
     NanotraceHR::Tracer tracer{"gradient model create gradient node", category()};
 
-#ifdef QDS_USE_PROJECTSTORAGE
     QmlDesigner::TypeName typeName = m_gradientTypeName.toUtf8();
     auto gradientNode = view()->createModelNode(typeName);
-#else
-    QmlDesigner::TypeName fullTypeName = m_gradientTypeName.toUtf8();
 
-    if (m_gradientTypeName == "Gradient") {
-        fullTypeName.prepend("QtQuick.");
-    } else {
-        fullTypeName.prepend("QtQuick.Shapes.");
-    }
-
-    auto metaInfo = model()->metaInfo(fullTypeName);
-
-    int minorVersion = metaInfo.minorVersion();
-    int majorVersion = metaInfo.majorVersion();
-
-    auto gradientNode = view()->createModelNode(fullTypeName, majorVersion, minorVersion);
-#endif
     setupGradientProperties(gradientNode);
 
     return gradientNode;
@@ -789,17 +773,7 @@ QmlDesigner::ModelNode GradientModel::createGradientStopNode()
 {
     NanotraceHR::Tracer tracer{"gradient model create gradient stop node", category()};
 
-#ifdef QDS_USE_PROJECTSTORAGE
     return view()->createModelNode("GradientStop");
-#else
-    QByteArray fullTypeName = "QtQuick.GradientStop";
-    auto metaInfo = model()->metaInfo(fullTypeName);
-
-    int minorVersion = metaInfo.minorVersion();
-    int majorVersion = metaInfo.majorVersion();
-
-    return view()->createModelNode(fullTypeName, majorVersion, minorVersion);
-#endif
 }
 
 void GradientModel::deleteGradientNode(bool saveTransaction)
