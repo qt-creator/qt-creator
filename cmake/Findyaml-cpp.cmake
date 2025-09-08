@@ -17,8 +17,14 @@ if (yaml-cpp_FOUND)
   endif()
   if(TARGET yaml-cpp::yaml-cpp)
     # yaml-cpp >= 0.8
-    set_property(TARGET yaml-cpp::yaml-cpp PROPERTY IMPORTED_GLOBAL TRUE)
-    add_library(yaml-cpp ALIAS yaml-cpp::yaml-cpp)
+    if (NOT TARGET yaml-cpp)
+      # yaml-cpp == 0.8.0
+      # the yaml-cpp target was reintroduced for backwards compatibility after
+      # 0.8.0 for backwards compatibility, supposedly to be removed again in
+      # 0.10.0
+      set_property(TARGET yaml-cpp::yaml-cpp PROPERTY IMPORTED_GLOBAL TRUE)
+      add_library(yaml-cpp ALIAS yaml-cpp::yaml-cpp)
+    endif()
     set(yaml-cpp_TARGET yaml-cpp::yaml-cpp)
   else()
     set(yaml-cpp_TARGET yaml-cpp)
