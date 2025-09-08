@@ -411,10 +411,12 @@ public:
     void setThumbnail(const FilePath &path)
     {
         m_previousPixmap = m_currentPixmap;
-        m_currentPixmap = QPixmap(path.toFSPathString())
-                              .scaled(blogThumbSize * devicePixelRatio(), Qt::KeepAspectRatio,
-                                      Qt::SmoothTransformation);
-        m_currentPixmap.setDevicePixelRatio(devicePixelRatio());
+        m_currentPixmap = QPixmap(path.toFSPathString());
+        if (!m_currentPixmap.isNull()) {
+            m_currentPixmap = m_currentPixmap.scaled(blogThumbSize * devicePixelRatio(),
+                                                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            m_currentPixmap.setDevicePixelRatio(devicePixelRatio());
+        }
         if (!m_previousPixmap.isNull()) {
             m_animation.stop();
             m_animation.start();
@@ -633,9 +635,12 @@ private:
         QPixmap pixmap;
         if (QPixmapCache::find(key, &pixmap))
             return pixmap;
-        pixmap = QPixmap(path).scaled(WelcomePageHelpers::WelcomeThumbnailSize * dpr,
-                                      Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        pixmap.setDevicePixelRatio(dpr);
+        pixmap = QPixmap(path);
+        if (!pixmap.isNull()) {
+            pixmap = pixmap.scaled(WelcomePageHelpers::WelcomeThumbnailSize * dpr,
+                                   Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            pixmap.setDevicePixelRatio(dpr);
+        }
         QPixmapCache::insert(key, pixmap);
         return pixmap;
     }
