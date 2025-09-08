@@ -298,11 +298,6 @@ private:
         connect(dm, &DeviceManager::deviceAdded, this, &DeviceKitAspectFactory::devicesChanged);
         connect(dm, &DeviceManager::deviceRemoved, this, &DeviceKitAspectFactory::devicesChanged);
         connect(dm, &DeviceManager::deviceUpdated, this, &DeviceKitAspectFactory::deviceUpdated);
-
-        connect(KitManager::instance(), &KitManager::kitUpdated,
-                this, &DeviceKitAspectFactory::setup);
-        connect(KitManager::instance(), &KitManager::unmanagedKitUpdated,
-                this, &DeviceKitAspectFactory::setup);
     }
 
     void deviceUpdated(Id id)
