@@ -8301,7 +8301,7 @@ void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()
             if (start > end)
                 std::swap(start, end);
             if (m_find->inScope(start, end))
-                m_searchResults << SearchResult{start, start - end};
+                m_searchResults << SearchResult{start, end - start};
         }
         addSearchResultsToScrollBar(m_searchResults);
     };
