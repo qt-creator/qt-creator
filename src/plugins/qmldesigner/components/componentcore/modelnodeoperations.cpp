@@ -1929,13 +1929,22 @@ bool dropAsImage3dTexture(const ModelNode &targetNode,
         if (dialog->result() == QDialog::Accepted) {
             view->executeInTransaction("NavigatorTreeModel::dropAsImage3dTexture", [&] {
                 newNode = createTextureNode(view, imagePath);
-                if (newNode.isValid()) // Automatically set the texture to selected property
+                if (newNode.isValid()) {
+                    outMoveNodesAfter = false;
                     targetNode.bindingProperty(dialog->selectedProperty())
                         .setExpression(newNode.validId());
+                }
             });
         }
 
         delete dialog;
+        return true;
+    } else if (targetNode.metaInfo().isQtQuick3DMaterial()
+               || targetNode == Utils3D::materialLibraryNode(view)) {
+        view->executeInTransaction("NavigatorTreeModel::dropAsImage3dTexture", [&] {
+            newNode = createTextureNode(view, imagePath);
+            outMoveNodesAfter = false;
+        });
         return true;
     } else if (targetNode.metaInfo().isQtQuick3DTextureInput()) {
         bindToProperty("texture");
@@ -2098,7 +2107,7 @@ ModelNode handleItemLibraryImageDrop(const QString &imagePath,
 
         newImagePath = getImagesDefaultDirectory().pathAppended(origImagePath.fileName());
     } else {
-        newImagePath = origImagePath.relativePathFromDir(DocumentManager::currentResourcePath());
+        newImagePath = origImagePath;
     }
 
     if (!dropAsImage3dTexture(targetNode, newImagePath.toUrlishString(), newModelNode, outMoveNodesAfter)) {
