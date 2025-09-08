@@ -44,7 +44,7 @@ std::tuple<QString, Storage::ModuleKind> nodeModuleInfo(const ModelNode &node, M
             exportedName.moduleId);
         return {module.name.toQString(), module.kind};
     }
-    return {{}, ModuleKind::QmlLibrary};
+    return {QString{}, ModuleKind::QmlLibrary};
 }
 
 } // namespace
