@@ -238,16 +238,33 @@ static const InitFile *vulkanInit(int /*variant*/)
     return &glsl_vulkan;
 }
 
-class CreateRanges: protected Visitor
+class CreateRangesMarkSemanticDetails: protected Visitor
 {
     QTextDocument *textDocument;
     Document::Ptr glslDocument;
+    Namespace *globalNamespace;
+    QList<QTextEdit::ExtraSelection> marked;
+    QTextCharFormat functionCallFormat;
+    QTextCharFormat memberFormat;
+    QTextCharFormat globalVarFormat;
+    QTextCharFormat layoutIdFormat;
 
 public:
-    CreateRanges(QTextDocument *textDocument, Document::Ptr glslDocument)
-        : textDocument(textDocument), glslDocument(glslDocument) {}
+    CreateRangesMarkSemanticDetails(QTextDocument *textDocument, Document::Ptr glslDocument,
+                                    Namespace *global)
+        : textDocument(textDocument), glslDocument(glslDocument), globalNamespace(global)
+    {
+        const TextEditor::FontSettings &fontSettings
+                = TextEditor::TextEditorSettings::fontSettings();
+        functionCallFormat = fontSettings.toTextCharFormat(TextEditor::C_FUNCTION);
+        memberFormat = fontSettings.toTextCharFormat(TextEditor::C_FIELD);
+        globalVarFormat = fontSettings.toTextCharFormat(TextEditor::C_GLOBAL);
+        layoutIdFormat = fontSettings.toTextCharFormat(TextEditor::C_ENUMERATION);
+    }
 
     void operator()(AST *ast) { accept(ast); }
+
+    const QList<QTextEdit::ExtraSelection> markedSemantics() const { return marked; }
 
 protected:
     using GLSL::Visitor::visit;
@@ -261,6 +278,82 @@ protected:
             tc.setPosition(ast->position + ast->length, QTextCursor::KeepAnchor);
             glslDocument->addRange(tc, ast->symbol);
         }
+    }
+
+    void endVisit(FunctionCallExpressionAST *ast) override
+    {
+        if (auto id = ast->id) {
+            if (auto name = id->name) {
+                if (globalNamespace->find(*name))
+                    createGlobalMemberEntry(id, functionCallFormat);
+            }
+        }
+    }
+
+    void endVisit(MemberAccessExpressionAST *ast) override
+    {
+        if (auto member = ast->field) {
+            QTC_ASSERT(ast->length != -1, return);
+            QTextCursor tc(textDocument);
+            const int position = ast->position + ast->length + - member->length();
+            tc.setPosition(position);
+            tc.setPosition(position + member->length(), QTextCursor::KeepAnchor);
+            QTextEdit::ExtraSelection sel;
+            sel.cursor = tc;
+            sel.format = memberFormat;
+            marked.append(sel);
+        }
+    }
+
+    void endVisit(IdentifierExpressionAST *ast) override
+    {
+        if (auto name = ast->name; name && name->startsWith("gl_")) {
+            if (globalNamespace->find(*name))
+                createGlobalMemberEntry(ast, globalVarFormat);
+        }
+    }
+
+    void endVisit(StructTypeAST::Field *ast) override
+    {
+        if (auto name = ast->name; name && name->startsWith("gl_")) {
+            if (globalNamespace->find(*name))
+                createGlobalMemberEntry(ast, globalVarFormat);
+        }
+    }
+
+    void endVisit(InterfaceBlockAST *ast) override
+    {
+        if (auto name = ast->name; name && name->startsWith("gl_")) {
+            if (globalNamespace->find(*name))
+                createGlobalMemberEntry(ast, globalVarFormat);
+        }
+    }
+
+    void endVisit(LayoutQualifierAST *ast) override
+    {
+        if (ast->name) {
+            QTC_ASSERT(ast->length != -1, return);
+            QTextCursor tc(textDocument);
+            tc.setPosition(ast->position);
+            tc.setPosition(ast->position + ast->name->length(), QTextCursor::KeepAnchor);
+            QTextEdit::ExtraSelection sel;
+            sel.cursor = tc;
+            sel.format = layoutIdFormat;
+            marked.append(sel);
+        }
+    }
+
+private:
+    void createGlobalMemberEntry(AST *ast, const QTextCharFormat &format)
+    {
+        QTC_ASSERT(ast->length != -1, return);
+        QTextCursor tc(textDocument);
+        tc.setPosition(ast->position);
+        tc.setPosition(ast->position + ast->length, QTextCursor::KeepAnchor);
+        QTextEdit::ExtraSelection sel;
+        sel.cursor = tc;
+        sel.format = format;
+        marked.append(sel);
     }
 };
 
@@ -436,7 +529,7 @@ void GlslEditorWidget::updateDocumentNow()
         }
         sem.translationUnit(ast, globalScope, doc->_engine);
 
-        CreateRanges createRanges(document(), doc);
+        CreateRangesMarkSemanticDetails createRanges(document(), doc, globalScope->asNamespace());
         createRanges(ast);
 
 #if 0
@@ -470,6 +563,7 @@ void GlslEditorWidget::updateDocumentNow()
         }
 
         setExtraSelections(CodeWarningsSelection, sels);
+        setExtraSelections(OtherSelection, createRanges.markedSemantics());
         m_glslDocument = doc;
     }
 }
