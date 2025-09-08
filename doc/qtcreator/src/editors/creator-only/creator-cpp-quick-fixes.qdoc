@@ -355,6 +355,10 @@
     }
     \endcode
         \row
+            \li Remove Curly Braces
+            \li Removes curly braces from a block that consists of a single
+                statement.
+        \row
             \li Complete Switch Statement
             \li Adds all possible cases to a switch statement of the type
                 \c enum.
@@ -572,6 +576,9 @@
                 initialized if it is not yet declared. If \QC cannot
                 automatically detect the data type of the member, you
                 must add it.
+        \row
+            \li Add Definition
+            \li Inserts a definition stub for a static data member.
         \row
             \li Add Forward Declaration
             \li Adds a forward declaration for an undeclared identifier
