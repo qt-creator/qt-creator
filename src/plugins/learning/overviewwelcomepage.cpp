@@ -17,6 +17,7 @@
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/welcomepagehelper.h>
 
@@ -682,17 +683,42 @@ private:
         projects->setMinimumWidth(100);
         projects->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
+        auto newButton = new QtcButton(Tr::tr("Create Project..."), QtcButton::LargePrimary);
+        QStackedWidget *stackView;
+
         using namespace Layouting;
-        return QtcWidgets::Rectangle {
+        QWidget *panel = QtcWidgets::Rectangle {
             radius(radiusL), fillBrush(rectFill()), strokePen(rectStroke()),
             customMargins(SpacingTokens::PaddingHXxl, SpacingTokens::PaddingVXl,
-                          rectStroke().width(), SpacingTokens::PaddingVXl),
+            rectStroke().width(), SpacingTokens::PaddingVXl),
             Column {
                 tfLabel(Tr::tr("Recent Projects"), titleTf),
-                projects,
+                Stack {
+                    bindTo(&stackView),
+                    Row { projects, noMargin },
+                    Grid {
+                        GridCell({ Align(Qt::AlignCenter, newButton) }),
+                    },
+                },
                 noMargin, spacing(SpacingTokens::GapVM),
             },
         }.emerge();
+
+        auto setStackIndex = [stackView] {
+            const bool hasProjects =
+                !ProjectExplorer::ProjectExplorerPlugin::recentProjects().empty();
+            stackView->setCurrentIndex(hasProjects ? 0 : 1);
+        };
+        setStackIndex();
+        connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
+                &ProjectExplorer::ProjectExplorerPlugin::recentProjectsChanged,
+                stackView, setStackIndex);
+        connect(newButton, &QtcButton::clicked, newButton, [] {
+            QAction *openAction = ActionManager::command(Core::Constants::NEW)->action();
+            openAction->trigger();
+        });
+
+        return panel;
     }
 
     static QWidget *blogPostsPanel()
