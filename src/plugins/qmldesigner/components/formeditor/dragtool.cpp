@@ -250,6 +250,9 @@ void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneD
         if (event->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_2D)) {
             view()->changeToSelectionTool();
             view()->model()->endDrag();
+
+            commitTransaction();
+
             FormEditorItem *target = targetContainerOrRootItem(itemList);
 
             ModelNode targetNode = target->qmlItemNode().modelNode();
