@@ -1566,6 +1566,11 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
                                      this,
                                      &TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar);
 
+    m_documentConnections << connect(q->editorLayout(),
+                                     &QAbstractTextDocumentLayout::documentSizeChanged,
+                                     this,
+                                     &TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar);
+
     m_documentConnections << connect(documentLayout,
                                      &QAbstractTextDocumentLayout::update,
                                      this,
