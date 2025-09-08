@@ -483,7 +483,7 @@ int TextEditorLayout::lineForOffset(int offset) const
 
     while (block.isValid()) {
         int blockOffset = -1;
-        if (currentBlockNumber < d->m_offsetCache.size())
+        if (currentBlockNumber < int(d->m_offsetCache.size()))
             blockOffset = d->m_offsetCache[currentBlockNumber].offset;
         ++currentBlockNumber;
         if (blockOffset < 0)
