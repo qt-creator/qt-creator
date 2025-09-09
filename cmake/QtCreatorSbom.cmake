@@ -44,12 +44,38 @@ function(qtc_setup_sbom)
     return()
   endif()
 
+  # Disable SPDX JSON generation for unsupported Qt versions. Older Qt versions don't properly
+  # handle spaces in the python interpreter path which is needed for SPDX JSON generation.
+  if(
+      (QT_SBOM_GENERATE_SPDX_V2_JSON
+      OR QT_SBOM_GENERATE_JSON)
+      AND NOT QTC_NO_AUTO_DISABLE_SBOM_GENERATE_SPDX_V2_JSON
+      AND NOT Qt6_VERSION VERSION_GREATER_EQUAL "6.10.1")
+    set(json_help_string
+      "Generate SBOM documents in SPDX v2.3 JSON format if required python dependency "
+        "spdx-tools is available.")
+    set(require_help_string "Error out if JSON SBOM generation depdendency is not found.")
+
+    set(QT_SBOM_GENERATE_SPDX_V2_JSON "OFF" CACHE BOOL "${json_help_string}" FORCE)
+    set(QT_SBOM_REQUIRE_GENERATE_SPDX_V2_JSON "OFF" CACHE BOOL "${require_help_string}" FORCE)
+
+    # Older deprecated options.
+    set(QT_SBOM_GENERATE_JSON "OFF" CACHE BOOL "${json_help_string}" FORCE)
+    set(QT_SBOM_REQUIRE_GENERATE_JSON "OFF" CACHE BOOL "${require_help_string}" FORCE)
+
+    message(STATUS
+      "Disabled SPDX v2.3 JSON SBOM generation for Qt versions older than 6.10.1, due to lack of "
+      "support for spaces in python interpreter paths.")
+  endif()
+
   # Call Qt's internal setup function.
   _qt_internal_setup_sbom(
     GENERATE_SBOM_DEFAULT "${generate_by_default}"
   )
 
   add_feature_info("Build SBOMs" "${QT_GENERATE_SBOM}" "")
+  add_feature_info("Build SPDX v2.3 tag:value format SBOMs" "${QT_GENERATE_SBOM}" "")
+  add_feature_info("Build SPDX v2.3 JSON format SBOMs" "${QT_SBOM_GENERATE_SPDX_V2_JSON}" "")
 endfunction()
 
 function(qtc_force_disable_sbom)

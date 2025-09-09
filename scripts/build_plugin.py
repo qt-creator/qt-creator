@@ -12,6 +12,7 @@ import os
 import shlex
 
 import common
+from common import cmake_option
 
 def get_arguments():
     parser = argparse.ArgumentParser(description='Build Qt Creator for packaging')
@@ -40,6 +41,8 @@ def get_arguments():
                         action='store_true', default=False)
     parser.add_argument('--build-type', help='Build type to pass to CMake (defaults to RelWithDebInfo)',
                         default='RelWithDebInfo')
+    parser.add_argument('--no-sbom', help='Skip SBOM generation', action='store_true', default=False)
+
     # zipping
     parser.add_argument('--zip-threads', help='Sets number of threads to use for 7z. Use "+" for turning threads on '
                         'without a specific number of threads. This is directly passed to the "-mmt" option of 7z.',
@@ -79,7 +82,9 @@ def build(args, paths):
                   '-DCMAKE_BUILD_TYPE=' + args.build_type,
                   '-DQTC_SEPARATE_DEBUG_INFO=' + separate_debug_info_option,
                   '-DCMAKE_INSTALL_PREFIX=' + common.to_posix_path(paths.install),
-                  '-DQT_GENERATE_SBOM=ON',
+                  '-DQT_GENERATE_SBOM=' + cmake_option(not args.no_sbom),
+                  '-DQT_SBOM_GENERATE_SPDX_V2_JSON=' + cmake_option(not args.no_sbom),
+                  '-DQT_SBOM_REQUIRE_GENERATE_SPDX_V2_JSON=' + cmake_option(not args.no_sbom),
                   '-G', 'Ninja']
 
     if args.module_paths:
