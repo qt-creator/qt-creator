@@ -87,7 +87,7 @@ void CppFunctionParamRenamingHandler::Private::handleLinkFound(const DeclDefLink
 {
     if (localRenaming.isActive())
         this->link = link;
-    linkFinder.reset();
+    linkFinder.release()->deleteLater();
 }
 
 void CppFunctionParamRenamingHandler::Private::findLink(FunctionDefinitionAST &func,
