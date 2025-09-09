@@ -21,5 +21,20 @@
     "LongDescription": ${LONG_DESCRIPTION},
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/devcontainer.html",
+    "languageclient": {
+        "WorkspaceConfig": {
+            "json": {
+                "schemas": [
+                    {
+                        "fileMatch": [
+                            "devcontainer.json",
+                            ".devcontainer.json"
+                        ],
+                        "url": "https://raw.githubusercontent.com/qt-creator/devcontainer-spec/main/schemas/devContainer.schema.json"
+                    }
+                ]
+            }
+        }
+    },
     ${IDE_PLUGIN_DEPENDENCIES}
 }

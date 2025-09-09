@@ -448,33 +448,27 @@ void CppFindReferences::findAll_helper(SearchResult *search, CPlusPlus::Symbol *
 
 void CppFindReferences::setupSearch(Core::SearchResult *search)
 {
-    auto renameFilesCheckBox = new QCheckBox();
+    auto renameFilesCheckBox = new QCheckBox;
     renameFilesCheckBox->setVisible(false);
     search->setAdditionalReplaceWidget(renameFilesCheckBox);
-    connect(search, &SearchResult::replaceButtonClicked, this,
-            std::bind(&CppFindReferences::onReplaceButtonClicked, this, search, _1, _2, _3));
-}
+    connect(search, &SearchResult::replaceButtonClicked, this, [this, search, renameFilesCheckBox](
+        const QString &text, const SearchResultItems &items, bool preserveCase) {
+        const FilePaths filePaths = TextEditor::BaseFileFind::replaceAll(text, items, preserveCase);
+        if (!filePaths.isEmpty()) {
+            m_modelManager->updateSourceFiles(Utils::toSet(filePaths));
+            SearchResultWindow::instance()->hide();
+        }
 
-void CppFindReferences::onReplaceButtonClicked(Core::SearchResult *search, const QString &text,
-                                               const SearchResultItems &items, bool preserveCase)
-{
-    const Utils::FilePaths filePaths = TextEditor::BaseFileFind::replaceAll(text, items, preserveCase);
-    if (!filePaths.isEmpty()) {
-        m_modelManager->updateSourceFiles(Utils::toSet(filePaths));
-        SearchResultWindow::instance()->hide();
-    }
+        CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
+        if (parameters.filesToRename.isEmpty())
+            return;
 
-    CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
-    if (parameters.filesToRename.isEmpty())
-        return;
+        if (!renameFilesCheckBox->isChecked())
+            return;
 
-    auto renameFilesCheckBox = qobject_cast<QCheckBox *>(search->additionalReplaceWidget());
-    if (!renameFilesCheckBox || !renameFilesCheckBox->isChecked())
-        return;
-
-    ProjectExplorerPlugin::renameFilesForSymbol(
-                parameters.prettySymbolName, text, parameters.filesToRename,
-                parameters.preferLowerCaseFileNames);
+        ProjectExplorerPlugin::renameFilesForSymbol(parameters.prettySymbolName, text,
+            parameters.filesToRename, parameters.preferLowerCaseFileNames);
+    });
 }
 
 void CppFindReferences::searchAgain(SearchResult *search)

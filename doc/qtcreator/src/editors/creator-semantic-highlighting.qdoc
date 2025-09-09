@@ -53,7 +53,16 @@
 
     To suppress the message for a particular file pattern, go to \preferences >
     \uicontrol {Text Editor} > \uicontrol {Generic Highlighter} and add the
-    pattern to \uicontrol {Ignored file patterns}.
+    pattern to \uicontrol {Ignored file patterns}, separated by a comma.
+
+    To ignore files according to their extension, add:
+    \c {\A(?:(?s:[^/\\]*\.<extension>))\z}
+
+    To ignore files according to their filename, add:
+    \c {\A(?:(?s:<string>[^/\\]*))\z}
+
+    For example:
+    \c {\A(?:[^/\\]*\.txt)\z,\A(?:LICENSE[^/\\]*)\z,\A(?:README)\z,\A(?:qmldir)\z}
 
     \section2 Add your own definitions
 

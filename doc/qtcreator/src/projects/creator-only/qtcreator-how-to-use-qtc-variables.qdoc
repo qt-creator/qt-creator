@@ -76,6 +76,8 @@
         \li \c {%{CurrentDocument:FileName}} expands to the name of the document.
         \li \c {%{CurrentDocument:FilePath}} expands to the full path of the
             document including the filename.
+        \li \c {%{CurrentDocument:DirName}} expands to the name of the parent
+            directory of the document.
     \endlist
 
     \section2 Kit and build configuration variables

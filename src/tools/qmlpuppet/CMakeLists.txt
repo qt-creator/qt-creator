@@ -18,6 +18,7 @@ if (NOT QT_CREATOR_API_DEFINED)
   set(CMAKE_CXX_EXTENSIONS OFF)
 
   set(DESTINATION DESTINATION .)
+  set(QTC_SBOM_READY ON)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
   include(QtCreatorSbom)

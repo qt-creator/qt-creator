@@ -15,8 +15,8 @@
 #include "languageclientoutline.h"
 #include "languageclientquickfix.h"
 #include "languageclientsymbolsupport.h"
-#include "languageclientutils.h"
 #include "languageclienttr.h"
+#include "languageclientutils.h"
 #include "progressmanager.h"
 #include "semantichighlightsupport.h"
 
@@ -24,6 +24,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <languageserverprotocol/completion.h>
 #include <languageserverprotocol/diagnostics.h>
@@ -50,6 +52,7 @@
 #include <utils/appinfo.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
+#include <utils/stringutils.h>
 
 #include <QDebug>
 #include <QGuiApplication>
@@ -1569,11 +1572,36 @@ bool Client::canOpenProject(Project *project)
 void Client::updateConfiguration(const QJsonValue &configuration)
 {
     d->m_configuration = configuration;
-    if (reachable() && !configuration.isNull()
+
+    QJsonValue mergedConfig;
+    for (ExtensionSystem::PluginSpec *plugin : ExtensionSystem::PluginManager::plugins()) {
+        if (!plugin->isEffectivelyEnabled())
+            continue;
+
+        QJsonValue lcValue = plugin->metaData().value("languageclient");
+        if (lcValue.isUndefined())
+            continue;
+        QTC_ASSERT(lcValue.isObject(), continue);
+        QJsonObject lspConfig = lcValue.toObject();
+
+        QJsonValue workspaceConfigValue = lspConfig.value("WorkspaceConfig");
+        if (workspaceConfigValue.isUndefined())
+            continue;
+        QTC_ASSERT(workspaceConfigValue.isObject(), continue);
+        applyJsonPatch(mergedConfig, workspaceConfigValue);
+    }
+    if (configuration.isObject())
+        applyJsonPatch(mergedConfig, configuration);
+
+    qCDebug(LOGLSPCLIENT).noquote()
+        << "Merged configuration for" << name() << ":"
+        << QJsonDocument(mergedConfig.toObject()).toJson(QJsonDocument::Indented);
+
+    if (reachable() && !mergedConfig.toObject().isEmpty()
         && d->m_dynamicCapabilities.isRegistered(DidChangeConfigurationNotification::methodName)
                .value_or(true)) {
         DidChangeConfigurationParams params;
-        params.setSettings(configuration);
+        params.setSettings(mergedConfig);
         DidChangeConfigurationNotification notification(params);
         sendMessage(notification);
     }

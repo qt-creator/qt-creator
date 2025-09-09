@@ -103,7 +103,7 @@ public:
     void clearBlockLayout(
         QTextBlock &start, QTextBlock &end, bool &blockVisibilityChanged) const override;
     void relayout() override;
-    int additionalBlockHeight(const QTextBlock &block) const override;
+    int additionalBlockHeight(const QTextBlock &block, bool includeEmbeddedWidgetsHeight) const override;
     QRectF replacementBlockBoundingRect(const QTextBlock &block) const override;
     int lineSpacing() const override;
     int relativeLineSpacing() const override;

@@ -1,11 +1,12 @@
-find_package(Qt6 COMPONENTS Widgets REQUIRED)
+find_package(yaml-cpp QUIET MODULE)
 
 add_qtc_plugin(QtApplicationManagerIntegration
+  CONDITION TARGET yaml-cpp::yaml-cpp
   PLUGIN_DEPENDS
     Core Debugger ProjectExplorer
     QtSupport RemoteLinux
   PLUGIN_CLASS AppManagerPlugin
-  DEPENDS Qt::Network Qt::Widgets ExtensionSystem Utils yaml-cpp
+  DEPENDS Qt::Network Qt::Widgets ExtensionSystem Utils yaml-cpp::yaml-cpp
   SOURCES
     appmanagerconstants.h
     appmanagercreatepackagestep.cpp appmanagercreatepackagestep.h

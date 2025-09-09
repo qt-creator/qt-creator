@@ -17,6 +17,7 @@
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/welcomepagehelper.h>
 
@@ -410,10 +411,12 @@ public:
     void setThumbnail(const FilePath &path)
     {
         m_previousPixmap = m_currentPixmap;
-        m_currentPixmap = QPixmap(path.toFSPathString())
-                              .scaled(blogThumbSize * devicePixelRatio(), Qt::KeepAspectRatio,
-                                      Qt::SmoothTransformation);
-        m_currentPixmap.setDevicePixelRatio(devicePixelRatio());
+        m_currentPixmap = QPixmap(path.toFSPathString());
+        if (!m_currentPixmap.isNull()) {
+            m_currentPixmap = m_currentPixmap.scaled(blogThumbSize * devicePixelRatio(),
+                                                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            m_currentPixmap.setDevicePixelRatio(devicePixelRatio());
+        }
         if (!m_previousPixmap.isNull()) {
             m_animation.stop();
             m_animation.start();
@@ -632,9 +635,12 @@ private:
         QPixmap pixmap;
         if (QPixmapCache::find(key, &pixmap))
             return pixmap;
-        pixmap = QPixmap(path).scaled(WelcomePageHelpers::WelcomeThumbnailSize * dpr,
-                                      Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        pixmap.setDevicePixelRatio(dpr);
+        pixmap = QPixmap(path);
+        if (!pixmap.isNull()) {
+            pixmap = pixmap.scaled(WelcomePageHelpers::WelcomeThumbnailSize * dpr,
+                                   Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            pixmap.setDevicePixelRatio(dpr);
+        }
         QPixmapCache::insert(key, pixmap);
         return pixmap;
     }
@@ -682,17 +688,42 @@ private:
         projects->setMinimumWidth(100);
         projects->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
+        auto newButton = new QtcButton(Tr::tr("Create Project..."), QtcButton::LargePrimary);
+        QStackedWidget *stackView;
+
         using namespace Layouting;
-        return QtcWidgets::Rectangle {
+        QWidget *panel = QtcWidgets::Rectangle {
             radius(radiusL), fillBrush(rectFill()), strokePen(rectStroke()),
             customMargins(SpacingTokens::PaddingHXxl, SpacingTokens::PaddingVXl,
-                          rectStroke().width(), SpacingTokens::PaddingVXl),
+            rectStroke().width(), SpacingTokens::PaddingVXl),
             Column {
                 tfLabel(Tr::tr("Recent Projects"), titleTf),
-                projects,
+                Stack {
+                    bindTo(&stackView),
+                    Row { projects, noMargin },
+                    Grid {
+                        GridCell({ Align(Qt::AlignCenter, newButton) }),
+                    },
+                },
                 noMargin, spacing(SpacingTokens::GapVM),
             },
         }.emerge();
+
+        auto setStackIndex = [stackView] {
+            const bool hasProjects =
+                !ProjectExplorer::ProjectExplorerPlugin::recentProjects().empty();
+            stackView->setCurrentIndex(hasProjects ? 0 : 1);
+        };
+        setStackIndex();
+        connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
+                &ProjectExplorer::ProjectExplorerPlugin::recentProjectsChanged,
+                stackView, setStackIndex);
+        connect(newButton, &QtcButton::clicked, newButton, [] {
+            QAction *openAction = ActionManager::command(Core::Constants::NEW)->action();
+            openAction->trigger();
+        });
+
+        return panel;
     }
 
     static QWidget *blogPostsPanel()

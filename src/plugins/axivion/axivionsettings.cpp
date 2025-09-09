@@ -824,23 +824,25 @@ void AxivionSettingsWidget::removeCurrentServerConfig()
 void AxivionSettingsWidget::showServerDialog(bool add)
 {
     const AxivionServer old = m_dashboardServers->currentData().value<AxivionServer>();
-    QDialog d;
-    d.setWindowTitle(add ? Tr::tr("Add Dashboard Configuration")
+    QDialog dialog;
+    dialog.setWindowTitle(add ? Tr::tr("Add Dashboard Configuration")
                          : Tr::tr("Edit Dashboard Configuration"));
-    QVBoxLayout *layout = new QVBoxLayout;
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok, this);
     auto ok = buttons->button(QDialogButtonBox::Ok);
     auto dashboardWidget = new DashboardSettingsWidget(this, ok);
     dashboardWidget->setDashboardServer(old);
-    layout->addWidget(dashboardWidget);
     ok->setEnabled(dashboardWidget->isValid());
-    connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked, &d, &QDialog::reject);
-    connect(ok, &QPushButton::clicked, &d, &QDialog::accept);
-    layout->addWidget(buttons);
-    d.setLayout(layout);
-    d.resize(500, 200);
+    connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked,
+            &dialog, &QDialog::reject);
+    connect(ok, &QPushButton::clicked, &dialog, &QDialog::accept);
 
-    if (d.exec() != QDialog::Accepted) {
+    Layouting::Column {
+        dashboardWidget,
+        buttons
+    }.attachTo(&dialog);
+    dialog.resize(500, 200);
+
+    if (dialog.exec() != QDialog::Accepted) {
         if (add) { // if we canceled an add, remove the canceled item
             m_dashboardServers->removeItem(m_dashboardServers->currentIndex());
             updateEnabledStates();
@@ -929,33 +931,35 @@ void AxivionSettingsWidget::updateVersionAndBuildDate(QLabel *version, QLabel *b
 
 static PathMapping showPathMappingsDialog(const PathMapping &suggested)
 {
-    QDialog d(ICore::dialogParent());
-    d.setWindowTitle(Tr::tr("Missing Path Mapping"));
-    QVBoxLayout *layout = new QVBoxLayout;
+    QDialog dialog(ICore::dialogParent());
+    dialog.setWindowTitle(Tr::tr("Missing Path Mapping"));
     auto label = new QLabel(Tr::tr("Configure a valid path mapping for \"%1\" to open "
-                                   "files for this project.").arg(suggested.projectName), &d);
-    layout->addWidget(label);
-    auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok, &d);
+                                   "files for this project.").arg(suggested.projectName), &dialog);
+    auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok, &dialog);
     auto ok = buttons->button(QDialogButtonBox::Ok);
-    auto mappingWidget = new QWidget(&d);
+    auto mappingWidget = new QWidget(&dialog);
     PathMappingDetails details;
     details.updateContent(suggested);
     details.layouter()().attachTo(mappingWidget);
-    layout->addWidget(mappingWidget);
+
     ok->setEnabled(suggested.isValid()
                    && suggested.localPath.resolvePath(suggested.analysisPath).exists());
     QObject::connect(buttons->button(QDialogButtonBox::Cancel),
-                     &QPushButton::clicked, &d, &QDialog::reject);
-    QObject::connect(ok, &QPushButton::clicked, &d, &QDialog::accept);
-    QObject::connect(&details, &BaseAspect::changed, &d, [&details, ok] {
+                     &QPushButton::clicked, &dialog, &QDialog::reject);
+    QObject::connect(ok, &QPushButton::clicked, &dialog, &QDialog::accept);
+    QObject::connect(&details, &BaseAspect::changed, &dialog, [&details, ok] {
         const PathMapping pm = details.toPathMapping();
         ok->setEnabled(pm.isValid() && pm.localPath.resolvePath(pm.analysisPath).exists());
     });
-    layout->addWidget(buttons);
-    d.setLayout(layout);
-    d.resize(500, 200);
 
-    if (d.exec() != QDialog::Accepted)
+    Layouting::Column {
+        label,
+        mappingWidget,
+        buttons,
+    }.attachTo(&dialog);
+    dialog.resize(500, 200);
+
+    if (dialog.exec() != QDialog::Accepted)
         return {};
 
     return details.toPathMapping();

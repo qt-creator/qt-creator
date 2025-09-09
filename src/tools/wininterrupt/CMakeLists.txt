@@ -19,6 +19,7 @@ endif()
 
 if (NOT QT_CREATOR_API_DEFINED)
   # standalone build
+  set(QTC_SBOM_READY ON)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
   include(QtCreatorSbom)

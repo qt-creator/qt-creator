@@ -43,7 +43,6 @@ public:
     ~BuildConfiguration() override;
 
     Utils::FilePath buildDirectory() const;
-    Utils::FilePath rawBuildDirectory() const;
     void setBuildDirectory(const Utils::FilePath &dir);
 
     BuildSystem *buildSystem() const;

@@ -1,0 +1,90 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "customizations": {
+            "type": "object",
+            "properties": {
+                "qt-creator": {
+                    "type": "object",
+                    "properties": {
+                        "auto-detect-kits": {
+                            "type": "boolean",
+                            "default": true,
+                            "description": "If set to true, the devcontainer will try to automatically detect a kit in the devcontainer."
+                        },
+                        "run-processes-in-terminal": {
+                            "type": "boolean",
+                            "default": "false",
+                            "description": "If set to true, some of the devcontainer setup processes will be run in a terminal window. Currently only used for `docker build`."
+                        },
+                        "copy-cmd-bridge": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "If set to true, the cmd bridge script will be copied into the devcontainer instead of trying to mount it. This is useful if the devcontainer is not able to mount the host filesystem."
+                        },
+                        "mount-libexec": {
+                            "type": "boolean",
+                            "default": true,
+                            "description": "If set to true, the libexec directory will be mounted into the devcontainer. This is used for the cmd bridge."
+                        },
+                        "libexec-mount-point": {
+                            "type": "string",
+                            "default": "/devcontainer/libexec",
+                            "description": "The mount point for the libexec directory in the devcontainer. This is used for the cmd bridge."
+                        },
+                        "kits": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "The name of the Kit"
+                                    },
+                                    "qt": {
+                                        "type": "string",
+                                        "description": "Path to qmake or qmake6 executable"
+                                    },
+                                    "compiler": {
+                                        "type": "object",
+                                        "properties": {
+                                            "Cxx": {
+                                                "type": "string",
+                                                "description": "Path to the C++ compiler executable"
+                                            },
+                                            "C": {
+                                                "type": "string",
+                                                "description": "Path to the C compiler executable"
+                                            }
+                                        }
+                                    },
+                                    "cmake": {
+                                        "type": "object",
+                                        "properties": {
+                                            "binary": {
+                                                "type": "string",
+                                                "description": "Path to the cmake executable"
+                                            },
+                                            "generator": {
+                                                "type": "string",
+                                                "description": "The type of generator to use"
+                                            }
+                                        }
+                                    },
+                                    "debugger": {
+                                        "type": "string",
+                                        "description": "The path to the debugger executable"
+                                    }
+                                },
+                                "required": [
+                                    "name"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -909,27 +909,34 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
             = markdownHeadingFormats[qBound(0, blockFormat.headingLevel() - 1, 5)];
 
         const QFont headingFont = scaledFont(Utils::font(headingTf));
-        for (auto it = block.begin(); !(it.atEnd()); ++it) {
-            const QTextFragment fragment = it.fragment();
-            if (fragment.isValid()) {
-                QTextCharFormat charFormat = fragment.charFormat();
-                cursor.setPosition(fragment.position());
-                cursor.setPosition(fragment.position() + fragment.length(), QTextCursor::KeepAnchor);
-                if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
-                    // We don't use font size adjustment for headings
-                    charFormat.clearProperty(QTextFormat::FontSizeAdjustment);
-                    charFormat.setFontPointSize(headingFont.pointSizeF());
-                    charFormat.setFontCapitalization(headingFont.capitalization());
-                    charFormat.setFontFamilies(headingFont.families());
-                    charFormat.setFontWeight(headingFont.weight());
-                    charFormat.setForeground(color(headingTf));
-                } else if (charFormat.isAnchor()) {
-                    charFormat.setForeground(creatorColor(Theme::Token_Text_Accent));
-                } else {
-                    charFormat.setForeground(color(contentTF));
-                }
-                cursor.setCharFormat(charFormat);
+
+        QList<QTextCursor> fragmentCursors = [&block]() {
+            QList<QTextCursor> result;
+            for (auto it = block.begin(); !it.atEnd(); ++it) {
+                QTextFragment fragment = it.fragment();
+                result.emplaceBack(block);
+                result.back().setPosition(fragment.position());
+                result.back().setPosition(fragment.position() + fragment.length(), QTextCursor::KeepAnchor);
             }
+            return result;
+        }();
+
+        for (QTextCursor &fc : fragmentCursors) {
+            QTextCharFormat charFormat = block.charFormat();
+
+            if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
+                charFormat.clearProperty(QTextFormat::FontSizeAdjustment);
+                charFormat.setFontPointSize(headingFont.pointSizeF());
+                charFormat.setFontCapitalization(headingFont.capitalization());
+                charFormat.setFontFamilies(headingFont.families());
+                charFormat.setFontWeight(headingFont.weight());
+                charFormat.setForeground(color(headingTf));
+            } else if (charFormat.isAnchor()) {
+                charFormat.setForeground(creatorColor(Theme::Token_Text_Accent));
+            } else {
+                charFormat.setForeground(color(contentTF));
+            }
+            fc.setCharFormat(charFormat);
         }
     }
 }

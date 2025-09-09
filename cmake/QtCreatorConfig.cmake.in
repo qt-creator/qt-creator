@@ -47,6 +47,8 @@ if (NOT TARGET QtCreator::Core)
   include("${CMAKE_CURRENT_LIST_DIR}/QtCreatorTargets.cmake")
 endif()
 
+qtc_check_if_project_is_sbom_ready()
+
 qtc_add_exported_sbom_paths(
     PREFIXES "${QTCREATOR_RELOCATABLE_INSTALL_PREFIX}"
 )

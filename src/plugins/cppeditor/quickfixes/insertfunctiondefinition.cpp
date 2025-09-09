@@ -90,6 +90,9 @@ public:
         const FilePath &targetFilePath,
         ChangeSet *changeSet = nullptr)
     {
+        QTC_ASSERT(declAST->declarator_list, return);
+        QTC_ASSERT(declAST->declarator_list->value, return);
+
         CppRefactoringChanges refactoring(op->snapshot());
         if (!loc.isValid())
             loc = insertLocationForMethodDefinition(decl, true, NamespaceHandling::Ignore,
@@ -106,8 +109,7 @@ public:
 
         // TODO: Record this with the function instead? Then it would also work
         // for e.g. function pointer parameters with different syntax.
-        oo.trailingReturnType = declAST->declarator_list && declAST->declarator_list->value
-                                && declAST->declarator_list->value->postfix_declarator_list
+        oo.trailingReturnType = declAST->declarator_list->value->postfix_declarator_list
                                 && declAST->declarator_list->value->postfix_declarator_list->value
                                 && declAST->declarator_list->value->postfix_declarator_list
                                        ->value->asFunctionDeclarator()
@@ -439,8 +441,10 @@ private:
             {
                 if (m_decl)
                     return false;
-                if (decl->symbols && decl->symbols->value == m_func)
+                if (decl->declarator_list && decl->declarator_list->value && decl->symbols
+                    && decl->symbols->value == m_func) {
                     m_decl = decl;
+                }
                 return !m_decl;
             }
 

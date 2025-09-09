@@ -64,14 +64,18 @@ TabSettingsWidget::TabSettingsWidget()
                "will fallback to the settings below if the detection fails.")
             .arg(QGuiApplication::applicationDisplayName()));
 
+    tabPolicy.setLabelText(Tr::tr("Default tab policy:"));
     tabPolicy.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
     tabPolicy.addOption(Tr::tr("Spaces Only"));
     tabPolicy.addOption(Tr::tr("Tabs Only"));
 
+    tabSize.setLabel(Tr::tr("Ta&b size:"));
     tabSize.setRange(1, 20);
 
+    indentSize.setLabel(Tr::tr("Default &indent size:"));
     indentSize.setRange(1, 20);
 
+    continuationAlignBehavior.setLabelText(Tr::tr("Align continuation lines:"));
     continuationAlignBehavior.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
     continuationAlignBehavior.addOption(Tr::tr("Not At All"));
     continuationAlignBehavior.addOption(Tr::tr("With Spaces"));
@@ -82,6 +86,25 @@ TabSettingsWidget::TabSettingsWidget()
             this, &TabSettingsWidget::codingStyleLinkActivated);
     connect(this, &Utils::AspectContainer::changed, this, [this] {
             emit settingsChanged(tabSettings());
+    });
+
+    setLayouter([this] {
+        using namespace Layouting;
+        return Column {
+            Group {
+                title(Tr::tr("Tabs And Indentation")),
+                Row {
+                    Form {
+                        m_codingStyleWarning, br,
+                        autoDetect, br,
+                        tabPolicy, br,
+                        indentSize, br,
+                        tabSize, br,
+                        continuationAlignBehavior, br
+                    }
+                }
+            }
+        };
     });
 }
 
@@ -95,24 +118,6 @@ void TabSettingsWidget::setTabSettings(const TabSettings &s)
     tabSize.setValue(s.m_tabSize);
     indentSize.setValue(s.m_indentSize);
     continuationAlignBehavior.setValue(s.m_continuationAlignBehavior);
-}
-
-void TabSettingsWidget::addToLayoutImpl(Layouting::Layout &parent)
-{
-    using namespace Layouting;
-    parent.addItem(Group {
-        title(Tr::tr("Tabs And Indentation")),
-        Row {
-            Form {
-                m_codingStyleWarning, br,
-                autoDetect, br,
-                Tr::tr("Default tab policy:"), tabPolicy, br,
-                Tr::tr("Default &indent size:"), indentSize, br,
-                Tr::tr("Ta&b size:"), tabSize, br,
-                Tr::tr("Align continuation lines:"), continuationAlignBehavior, br
-            }
-        }
-    });
 }
 
 TabSettings TabSettingsWidget::tabSettings() const

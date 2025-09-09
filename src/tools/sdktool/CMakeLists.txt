@@ -14,6 +14,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 if (NOT QT_CREATOR_API_DEFINED)
   # standalone build
   set(DESTINATION DESTINATION .)
+  set(QTC_SBOM_READY ON)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
   include(QtCreatorSbom)

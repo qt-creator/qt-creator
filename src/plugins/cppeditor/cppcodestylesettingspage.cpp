@@ -255,11 +255,13 @@ public:
             m_handlingStatementMacroChange = false;
         });
 
+        m_generalSettingsRow = Column { m_tabSettingsWidget, statementMacrosGroup }.emerge();
+
         Row {
             TabWidget {
                 bindTo(&m_categoryTab),
                 Tab { Tr::tr("General"),
-                    Row { Column { m_tabSettingsWidget, statementMacrosGroup }, createPreview(0) }
+                    Row { m_generalSettingsRow, createPreview(0) }
                 },
                 Tab { Tr::tr("Content"), Row { contentGroup, createPreview(1) } },
                 Tab { Tr::tr("Braces"), Row { bracesGroup, createPreview(2) } },
@@ -322,6 +324,7 @@ public:
     QList<QWidget *> m_controllers;
 
     QTabWidget *m_categoryTab = nullptr;
+    QWidget *m_generalSettingsRow = nullptr;
     TabSettingsWidget *m_tabSettingsWidget = nullptr;
     QPlainTextEdit * const m_statementMacros;
     bool m_handlingStatementMacroChange = false;
@@ -532,7 +535,7 @@ void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(ICodeStylePref
     const bool enable = !preferences->isReadOnly();
     for (QWidget *widget : std::as_const(d->m_controllers))
         widget->setEnabled(enable);
-    d->m_tabSettingsWidget->setEnabled(enable);
+    d->m_generalSettingsRow->setEnabled(enable);
 
     if (preview)
         updatePreview();

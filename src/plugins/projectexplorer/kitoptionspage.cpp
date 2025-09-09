@@ -13,6 +13,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/algorithm.h>
+#include <utils/guard.h>
 #include <utils/id.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -185,6 +186,9 @@ public:
 
     QString newKitName(const QString &sourceName) const;
 
+    void handleWidgetConstructionStart() { m_widgetConstructionGuard.lock(); }
+    void handleWidgetConstructionEnd() { m_widgetConstructionGuard.unlock(); }
+
 signals:
     void kitStateChanged();
 
@@ -207,6 +211,7 @@ private:
 
     QBoxLayout *m_parentLayout;
     KitNode *m_defaultNode = nullptr;
+    Guard m_widgetConstructionGuard;
 };
 
 KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent)
@@ -420,6 +425,9 @@ void KitModel::addKit(Kit *k)
 
 void KitModel::updateKit(Kit *)
 {
+    if (m_widgetConstructionGuard.isLocked())
+        return;
+
     validateKitNames();
     emit kitStateChanged();
 }
@@ -703,6 +711,8 @@ void KitNode::ensureWidget()
     if (m_widget)
         return;
 
+    m_model->handleWidgetConstructionStart();
+
     m_widget = new KitManagerConfigWidget(m_kit, m_isDefaultKit, m_hasUniqueName);
 
     QObject::connect(m_widget, &KitManagerConfigWidget::dirty, m_model, [this] { update(); });
@@ -717,6 +727,8 @@ void KitNode::ensureWidget()
         }
     });
     m_parentLayout->addWidget(m_widget);
+
+    m_model->handleWidgetConstructionEnd();
 }
 
 // KitOptionsPage

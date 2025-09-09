@@ -106,7 +106,7 @@
             token-based billing payment method configured for your OpenAI account:
             \l {https://platform.openai.com/}{platform.openai.com})
         \li GPT 4.1-mini (provided by OpenAI)
-        \li DeepSeek V3 (provided by DeepSeek)
+        \li DeepSeek V3.1 (provided by DeepSeek)
         \li Code Llama 13B QML through Ollama (running locally on your computer)
         \li Code Llama 7B QML through Ollama (running locally on your computer)
         \li Code Llama 7B through Ollama (running locally on your computer)

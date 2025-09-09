@@ -110,6 +110,7 @@ public:
     QList<BuildConfiguration *> allBuildConfigurations() const;
 
     void setIssuesGenerator(const std::function<Tasks(const Kit *)> &generator);
+    static Task checkBuildDevice(const Kit *k, const Utils::FilePath &projectFile);
     virtual Tasks projectIssues(const Kit *k) const;
 
     // Will be added to the Issues Pane and stay there for the lifetime of the Project,

@@ -3,8 +3,8 @@ find_package(yaml-cpp QUIET MODULE)
 set(CLANG_VERSION ${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}.${LLVM_VERSION_PATCH})
 
 add_qtc_plugin(ClangTools
-  CONDITION TARGET yaml-cpp
-  DEPENDS yaml-cpp
+  CONDITION TARGET yaml-cpp::yaml-cpp
+  DEPENDS yaml-cpp::yaml-cpp
   PLUGIN_DEPENDS Core Debugger CppEditor
   PLUGIN_RECOMMENDS CppEditor
   PLUGIN_TEST_DEPENDS QmakeProjectManager QbsProjectManager

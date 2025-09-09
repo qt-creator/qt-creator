@@ -191,7 +191,8 @@ void TextEditorLayout::relayout()
     d->m_offsetCache.clear();
 }
 
-int TextEditorLayout::additionalBlockHeight(const QTextBlock &block) const
+int TextEditorLayout::additionalBlockHeight(
+    const QTextBlock &block, bool includeEmbeddedWidgetsHeight) const
 {
     int additionalHeight = 0;
     const QFontMetrics fm(block.charFormat().font());
@@ -205,7 +206,8 @@ int TextEditorLayout::additionalBlockHeight(const QTextBlock &block) const
     }
     auto documentLayout = qobject_cast<PlainTextDocumentLayout *>(document()->documentLayout());
     if (QTC_GUARD(documentLayout))
-        additionalHeight += documentLayout->additionalBlockHeight(block);
+        additionalHeight
+            += documentLayout->additionalBlockHeight(block, includeEmbeddedWidgetsHeight);
     return additionalHeight;
 }
 
@@ -424,8 +426,9 @@ int TextEditorLayout::blockHeight(const QTextBlock &block) const
 {
     if (QRectF replacement = replacementBlockBoundingRect(block); !replacement.isNull())
         return replacement.height();
-    return blockLayoutValid(block.fragmentIndex()) ? blockBoundingRect(block).height()
-                                                   : lineSpacing() + additionalBlockHeight(block);
+    return blockLayoutValid(block.fragmentIndex())
+               ? blockBoundingRect(block).height()
+               : lineSpacing() + additionalBlockHeight(block, true);
 }
 
 int TextEditorLayout::offsetForBlock(const QTextBlock &block) const
@@ -480,7 +483,7 @@ int TextEditorLayout::lineForOffset(int offset) const
 
     while (block.isValid()) {
         int blockOffset = -1;
-        if (currentBlockNumber < d->m_offsetCache.size())
+        if (currentBlockNumber < int(d->m_offsetCache.size()))
             blockOffset = d->m_offsetCache[currentBlockNumber].offset;
         ++currentBlockNumber;
         if (blockOffset < 0)

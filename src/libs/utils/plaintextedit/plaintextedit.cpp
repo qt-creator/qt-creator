@@ -292,6 +292,12 @@ QRectF PlainTextDocumentLayout::frameBoundingRect(QTextFrame *) const
 
 QRectF PlainTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 {
+    return blockBoundingRect(block, true);
+}
+
+QRectF PlainTextDocumentLayout::blockBoundingRect(
+    const QTextBlock &block, bool includeEmbeddedWidgetsHeight) const
+{
     if (!block.isValid() || !block.isVisible()) { return QRectF(); }
     ensureBlockLayout(block);
 
@@ -313,12 +319,12 @@ QRectF PlainTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
         }
     }
 
-    br.adjust(0, 0, 0, additionalBlockHeight(block));
+    br.adjust(0, 0, 0, additionalBlockHeight(block, includeEmbeddedWidgetsHeight));
 
     return br;
 }
 
-int PlainTextDocumentLayout::additionalBlockHeight(const QTextBlock &) const
+int PlainTextDocumentLayout::additionalBlockHeight(const QTextBlock &, bool) const
 {
     return 0;
 }
