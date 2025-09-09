@@ -38,6 +38,19 @@ namespace Debugger {
 
 namespace Internal {
 
+static const QList<DebuggerItem> debuggersForBuildDevice(const Kit *k)
+{
+    if (const IDeviceConstPtr device = BuildDeviceKitAspect::device(k)) {
+        const Utils::FilePath rootPath = device->rootPath();
+        return Utils::filtered(DebuggerItemManager::debuggers(), [&](const DebuggerItem &item) {
+            if (item.isGeneric())
+                return device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
+            return item.command().isSameDevice(rootPath);
+        });
+    }
+    return {};
+}
+
 class DebuggerItemListModel : public TreeModel<TreeItem, DebuggerTreeItem>
 {
 public:
@@ -50,17 +63,8 @@ public:
     {
         clear();
 
-        if (const IDeviceConstPtr device = BuildDeviceKitAspect::device(&m_kit)) {
-            const Utils::FilePath rootPath = device->rootPath();
-            const QList<DebuggerItem> debuggersForBuildDevice
-                = Utils::filtered(DebuggerItemManager::debuggers(), [&](const DebuggerItem &item) {
-                      if (item.isGeneric())
-                          return device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
-                      return item.command().isSameDevice(rootPath);
-                  });
-            for (const DebuggerItem &item : debuggersForBuildDevice)
-                rootItem()->appendChild(new DebuggerTreeItem(item, false));
-        }
+        for (const DebuggerItem &item : debuggersForBuildDevice(&m_kit))
+            rootItem()->appendChild(new DebuggerTreeItem(item, false));
         DebuggerItem noneItem;
         noneItem.setUnexpandedDisplayName(Tr::tr("None", "No debugger"));
         rootItem()->appendChild(new DebuggerTreeItem(noneItem, false));
@@ -279,7 +283,7 @@ public:
         DebuggerItem bestItem;
         DebuggerItem::MatchLevel bestLevel = DebuggerItem::DoesNotMatch;
         const Environment systemEnvironment = Environment::systemEnvironment();
-        for (const DebuggerItem &item : DebuggerItemManager::debuggers()) {
+        for (const DebuggerItem &item : Internal::debuggersForBuildDevice(k)) {
             DebuggerItem::MatchLevel level = DebuggerItem::DoesNotMatch;
 
             if (rawId.isNull()) {
@@ -358,14 +362,17 @@ public:
     void fix(Kit *k) override
     {
         const QVariant id = k->value(DebuggerKitAspect::id());
+        const QList<DebuggerItem> debuggers = Internal::debuggersForBuildDevice(k);
         const DebuggerItem debugger = Utils::findOrDefault(
-            DebuggerItemManager::debuggers(), Utils::equal(&DebuggerItem::id, id));
+            debuggers, Utils::equal(&DebuggerItem::id, id));
+        if (id.isValid() && !debugger.isValid())
+            return setup(k);
         if (debugger.isValid() && debugger.engineType() == CdbEngineType) {
             const int tcWordWidth = ToolchainKitAspect::targetAbi(k).wordWidth();
             if (Utils::anyOf(debugger.abis(), Utils::equal(&Abi::wordWidth, tcWordWidth)))
                 return;
 
-            for (const DebuggerItem &item : DebuggerItemManager::debuggers()) {
+            for (const DebuggerItem &item : debuggers) {
                 if (item.engineType() == CdbEngineType
                     && Utils::anyOf(item.abis(), Utils::equal(&Abi::wordWidth, tcWordWidth))) {
                     k->setValue(DebuggerKitAspect::id(), item.id());
