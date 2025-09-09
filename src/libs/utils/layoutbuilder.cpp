@@ -213,7 +213,7 @@ private:
             ++indexInRow;
         }
         // Finish the last row.
-        if (!testOnly)
+        if (!testOnly && !itemList.isEmpty())
             setItemGeometries(/*count=*/indexInRow, /*beforeIndex=*/itemList.size(), lineHeight);
 
         return y + lineHeight - rect.y() + bottom;
