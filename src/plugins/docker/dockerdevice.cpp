@@ -1311,10 +1311,6 @@ PortMapping::PortMapping()
     protocol.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     protocol.setLabelText(Tr::tr("Protocol:"));
 
-    for (const auto &aspect : aspects()) {
-        connect(aspect, &BaseAspect::changed, this, &PortMapping::changed);
-    }
-
     setLayouter([this] {
         using namespace Layouting;
         return Row{ip, hostPort, containerPort, protocol};
