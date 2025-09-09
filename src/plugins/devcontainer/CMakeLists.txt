@@ -11,6 +11,13 @@ add_qtc_plugin(DevContainerPlugin
     devcontainerdevice.h
 )
 
+qtc_add_resources(DevContainerPlugin "images"
+  PREFIX "/devcontainer"
+  BASE "."
+  FILES
+    images/container.png
+    images/container@2x.png
+)
 
 extend_qtc_plugin(DevContainerPlugin
   CONDITION WITH_TESTS

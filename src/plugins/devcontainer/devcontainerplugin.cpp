@@ -25,6 +25,7 @@
 #include <utils/algorithm.h>
 #include <utils/fsengine/fsengine.h>
 #include <utils/guardedcallback.h>
+#include <utils/icon.h>
 #include <utils/infobar.h>
 
 #include <QMessageBox>

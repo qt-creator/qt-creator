@@ -41,4 +41,15 @@ QtcPlugin {
             ".**/*",
         ]
     }
+
+    Group {
+        name: "images"
+        prefix: "images/"
+        files: [
+            "container.png",
+            "container@2x.png",
+        ]
+        fileTags: "qt.core.resource_data"
+        Qt.core.resourcePrefix: "/devcontainer"
+    }
 }
