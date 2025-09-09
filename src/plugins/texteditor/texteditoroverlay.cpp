@@ -11,6 +11,7 @@
 #include <QTextBlock>
 
 #include <algorithm>
+#include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/qtcassert.h>
 
 using namespace TextEditor;
@@ -126,12 +127,15 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
     if (block.blockNumber() < m_editor->firstVisibleBlock().blockNumber() - 1)
         block = document->findBlockByNumber(m_editor->firstVisibleBlock().blockNumber() - 1);
 
+    auto layout = [this](const QTextBlock &block){
+        return m_editor->editorLayout()->blockLayout(block);
+    };
+
     if (begin.position() == end.position()) {
         // special case empty selections
         const QRectF blockGeometry = m_editor->blockBoundingGeometry(block);
-        QTextLayout *blockLayout = block.layout();
         int pos = begin.position() - begin.block().position();
-        QTextLine line = blockLayout->lineForTextPosition(pos);
+        QTextLine line = layout(block)->lineForTextPosition(pos);
         QTC_ASSERT(line.isValid(), return {});
         QRectF lineRect = line.naturalTextRect();
         lineRect = lineRect.translated(blockGeometry.topLeft());
@@ -155,15 +159,16 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
             continue;
 
         const QRectF blockGeometry = m_editor->blockBoundingGeometry(block);
-        QTextLayout *blockLayout = block.layout();
+        QTextLayout *blockLayout = layout(block);
 
         int firstLine = 0;
 
         int beginChar = 0;
         if (block == begin.block()) {
             beginChar = begin.positionInBlock();
-            const QString preeditAreaText = begin.block().layout()->preeditAreaText();
-            if (!preeditAreaText.isEmpty() && beginChar >= begin.block().layout()->preeditAreaPosition())
+            QTextLayout *beginLayout = layout(begin.block());
+            const QString preeditAreaText = beginLayout->preeditAreaText();
+            if (!preeditAreaText.isEmpty() && beginChar >= beginLayout->preeditAreaPosition())
                 beginChar += preeditAreaText.length();
             QTextLine line = blockLayout->lineForTextPosition(beginChar);
             QTC_ASSERT(line.isValid(), return {});
@@ -177,8 +182,9 @@ QPainterPath TextEditorOverlay::createSelectionPath(const QTextCursor &begin, co
         int endChar = -1;
         if (block == end.block()) {
             endChar = end.positionInBlock();
-            const QString preeditAreaText = end.block().layout()->preeditAreaText();
-            if (!preeditAreaText.isEmpty() && endChar >= end.block().layout()->preeditAreaPosition())
+            QTextLayout *endLayout = layout(end.block());
+            const QString preeditAreaText = endLayout->preeditAreaText();
+            if (!preeditAreaText.isEmpty() && endChar >= endLayout->preeditAreaPosition())
                 endChar += preeditAreaText.length();
             QTextLine line = blockLayout->lineForTextPosition(endChar);
             QTC_ASSERT(line.isValid(), return {});
