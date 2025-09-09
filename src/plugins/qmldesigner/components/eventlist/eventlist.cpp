@@ -184,7 +184,7 @@ void EventList::initialize(EventListPluginView *parent)
 
     if (!m_model) {
         QByteArray unqualifiedTypeName = "ListModel";
-        m_model = parent->model()->createModel(unqualifiedTypeName);
+        m_model = parent->model()->createModel({.typeName = unqualifiedTypeName, .cloneImports = true});
     }
 
     if (!m_eventView) {

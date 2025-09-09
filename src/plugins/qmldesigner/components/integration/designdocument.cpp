@@ -185,7 +185,10 @@ ModelPointer DesignDocument::createInFileComponentModel()
 {
     NanotraceHR::Tracer tracer{"design document create in file component model", category()};
 
-    auto model = m_documentModel->createModel("Item", std::make_unique<ModelResourceManagement>());
+    auto model = m_documentModel->createModel(
+        {.typeName = "Item",
+         .cloneImports = true,
+         .resourceManagement = std::make_unique<ModelResourceManagement>()});
 
     return model;
 }

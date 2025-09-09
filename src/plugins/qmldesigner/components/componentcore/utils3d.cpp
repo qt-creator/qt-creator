@@ -217,7 +217,7 @@ void createMatLibForFile(const QString &fileName,
     if (matLibNodes.isEmpty())
         return;
 
-    ModelPointer fileModel = view->model()->createModel("Item");
+    ModelPointer fileModel = view->model()->createModel({"Item"});
 
     fileModel->setFileUrl(QUrl::fromUserInput(fileName));
     QTextDocument textDoc(qmlStr);

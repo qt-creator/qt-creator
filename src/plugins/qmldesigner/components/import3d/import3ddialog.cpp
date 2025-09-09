@@ -1005,7 +1005,7 @@ Rectangle {
                                               m_view->externalDependencies(),
                                               m_modulesStorage};
 
-    m_model = m_view->model()->createModel("Item");
+    m_model = m_view->model()->createModel({"Item"});
 
     m_model->setFileUrl(m_previewFile.toUrl());
 

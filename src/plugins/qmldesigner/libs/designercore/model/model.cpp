@@ -2023,9 +2023,7 @@ Model::Model(ProjectStorageDependencies projectStorageDependencies,
                                                  std::move(resourceManagement));
 }
 
-ModelPointer Model::createModel(const TypeName &typeName,
-                                std::unique_ptr<ModelResourceManagementInterface> resourceManagement,
-                                SL sl)
+ModelPointer Model::createModel(CreateModelParameters parameters, SL sl)
 {
     NanotraceHR::Tracer tracer{"model create model", category(), keyValue("caller location", sl)};
 
@@ -2033,10 +2031,10 @@ ModelPointer Model::createModel(const TypeName &typeName,
                           *d->pathCache,
                           *d->modulesStorage,
                           *d->projectStorageTriggerUpdate},
-                         typeName,
-                         imports(),
+                         parameters.typeName,
+                         parameters.cloneImports ? imports() : Imports{},
                          fileUrl(),
-                         std::move(resourceManagement),
+                         std::move(parameters.resourceManagement),
                          sl);
 }
 

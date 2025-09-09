@@ -101,7 +101,7 @@ static bool hasOnly3DNodes(const ModelNode &node)
 
 QString DesignDocumentView::toText() const
 {
-    auto outputModel = model()->createModel("Rectangle");
+    auto outputModel = model()->createModel({"Rectangle"});
 
     QPlainTextEdit textEdit;
 
@@ -142,7 +142,7 @@ QString DesignDocumentView::toText() const
 
 void DesignDocumentView::fromText(const QString &text)
 {
-    auto inputModel = model()->createModel("Rectangle");
+    auto inputModel = model()->createModel({"Rectangle"});
 
     QPlainTextEdit textEdit;
     QString imports;
@@ -186,7 +186,7 @@ ModelPointer DesignDocumentView::pasteToModel(ExternalDependenciesInterface &ext
 
     QTC_ASSERT(parentModel, return nullptr);
 
-    auto pasteModel = parentModel->createModel("Item");
+    auto pasteModel = parentModel->createModel({.typeName = "Item", .cloneImports = true});
 
     pasteModel->setFileUrl(parentModel->fileUrl());
     pasteModel->changeImports(parentModel->imports(), {});
@@ -208,7 +208,7 @@ void DesignDocumentView::copyModelNodes(const QList<ModelNode> &nodesToCopy,
 
     ModulesStorage &modulesStorage = parentModel->projectStorageDependencies().modulesStorage;
 
-    auto copyModel = parentModel->createModel("Rectangle");
+    auto copyModel = parentModel->createModel({.typeName = "Rectangle", .cloneImports = true});
 
     QList<ModelNode> selectedNodes = nodesToCopy;
 

@@ -575,7 +575,7 @@ void StylesheetMerger::styleMerge(const QString &qmlTemplateString,
 
     QTC_ASSERT(parentModel, return );
 
-    auto templateModel = model->createModel("Item");
+    auto templateModel = model->createModel({"Item"});
 
     Q_ASSERT(templateModel.get());
 
@@ -602,7 +602,7 @@ void StylesheetMerger::styleMerge(const QString &qmlTemplateString,
     ModelNode templateRootNode = templateRewriterView->rootModelNode();
     QTC_ASSERT(templateRootNode.isValid(), return );
 
-    auto styleModel = model->createModel("Item");
+    auto styleModel = model->createModel({"Item"});
 
     styleModel->setFileUrl(parentModel->fileUrl());
 

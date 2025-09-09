@@ -392,7 +392,7 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
 {
     auto model = view->model();
 
-    auto inputModel = model->createModel("Item");
+    auto inputModel = model->createModel({"Item"});
 
     inputModel->setFileUrl(model->fileUrl());
     inputModel->changeImports(model->imports(), {});

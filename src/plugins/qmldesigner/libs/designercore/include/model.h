@@ -102,9 +102,14 @@ public:
                                       std::move(resourceManagement)));
     }
 
-    ModelPointer createModel(const TypeName &typeName,
-                             std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {},
-                             SL sl = {});
+    struct CreateModelParameters
+    {
+        TypeNameView typeName = "QtObject";
+        bool cloneImports = false;
+        std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {};
+    };
+
+    ModelPointer createModel(CreateModelParameters, SL sl = {});
 
     const QUrl &fileUrl() const;
     SourceId fileUrlSourceId() const;

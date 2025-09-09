@@ -652,7 +652,7 @@ static void addSignal(const QString &typeName,
                       ExternalDependenciesInterface &externanDependencies,
                       [[maybe_unused]] Model *otherModel)
 {
-    auto model = otherModel->createModel("Item");
+    auto model = otherModel->createModel({"Item"});
 
     RewriterView rewriterView(externanDependencies,
                               otherModel->projectStorageDependencies().modulesStorage,
@@ -894,7 +894,7 @@ void extractComponent(const SelectionContext &selectionContext)
     Model *model = contextView->model();
     ModulesStorage &modulesStorage = model->projectStorageDependencies().modulesStorage;
 
-    ModelPointer inputModel = model->createModel("Rectangle");
+    ModelPointer inputModel = model->createModel({"Rectangle"});
 
     // Create ModelNodes from qml string
     // This is not including the root node by default

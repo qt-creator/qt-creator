@@ -279,36 +279,43 @@ class Model_CreationFromOtherModel : public Model
 
 TEST_F(Model_CreationFromOtherModel, root_node_has_object_type_name)
 {
-    auto newModel = model.createModel("QtObject");
+    auto newModel = model.createModel({"QtObject"});
 
     ASSERT_THAT(newModel->rootModelNode().type(), Eq("QtObject"));
 }
 
 TEST_F(Model_CreationFromOtherModel, root_node_has_object_meta_info)
 {
-    auto newModel = model.createModel("QtObject");
+    auto newModel = model.createModel({"QtObject"});
 
     ASSERT_THAT(newModel->rootModelNode().metaInfo(), newModel->qmlQtObjectMetaInfo());
 }
 
 TEST_F(Model_CreationFromOtherModel, file_url)
 {
-    auto newModel = model.createModel("QtObject");
+    auto newModel = model.createModel({"QtObject"});
 
     ASSERT_THAT(newModel->fileUrl().toLocalFile(), Eq(documentFilePath.toQString()));
 }
 
 TEST_F(Model_CreationFromOtherModel, file_url_source_id)
 {
-    auto newModel = model.createModel("QtObject");
+    auto newModel = model.createModel({"QtObject"});
     ASSERT_THAT(newModel->fileUrlSourceId(), documentSourceId);
 }
 
 TEST_F(Model_CreationFromOtherModel, imports)
 {
-    auto newModel = model.createModel("QtObject");
+    auto newModel = model.createModel({.typeName = "QtObject", .cloneImports = true});
 
     ASSERT_THAT(newModel->imports(), UnorderedElementsAreArray(imports));
+}
+
+TEST_F(Model_CreationFromOtherModel, no_imports_if_not_cloned)
+{
+    auto newModel = model.createModel({.typeName = "QtObject", .cloneImports = false});
+
+    ASSERT_THAT(newModel->imports(), IsEmpty());
 }
 
 class Model_ResourceManagment : public Model
@@ -714,7 +721,7 @@ TEST_F(Model_ResourceManagment,
 
 TEST_F(Model_ResourceManagment, by_default_remove_model_node_removes_node)
 {
-    auto newModel = model.createModel("Item");
+    auto newModel = model.createModel({"Item"});
     NiceMock<AbstractViewMock> viewMock;
     newModel->attachView(&viewMock);
     auto node = createNodeWithParent(viewMock.rootModelNode());
@@ -726,7 +733,7 @@ TEST_F(Model_ResourceManagment, by_default_remove_model_node_removes_node)
 
 TEST_F(Model_ResourceManagment, by_default_remove_properties_removes_property)
 {
-    auto newModel = model.createModel("Item");
+    auto newModel = model.createModel({"Item"});
     NiceMock<AbstractViewMock> viewMock;
     newModel->attachView(&viewMock);
     rootNode = viewMock.rootModelNode();
@@ -849,7 +856,7 @@ TEST_F(Model_ResourceManagment, remove_model_nodes_bypasses_model_resource_manag
 
 TEST_F(Model_ResourceManagment, by_default_remove_model_nodes_in_factory_method_calls_removes_node)
 {
-    auto newModel = model.createModel("Item");
+    auto newModel = model.createModel({"Item"});
     NiceMock<AbstractViewMock> viewMock;
     newModel->attachView(&viewMock);
     rootNode = viewMock.rootModelNode();
@@ -943,7 +950,7 @@ TEST_F(Model_ResourceManagment, remove_properties_bypasses_model_resource_manage
 TEST_F(Model_ResourceManagment, by_default_remove_properties_in_factory_method_calls_removes_properties)
 {
     model.detachView(&viewMock);
-    auto newModel = model.createModel("Item");
+    auto newModel = model.createModel({"Item"});
     newModel->attachView(&viewMock);
     rootNode = viewMock.rootModelNode();
     auto property = createProperty(rootNode, "yi");
@@ -1324,14 +1331,14 @@ TEST_F(Model_MetaInfo, add_project_storage_observer_to_project_storage)
 {
     EXPECT_CALL(projectStorageMock, addObserver(_));
 
-    auto m = model.createModel("Item");
+    auto m = model.createModel({"Item"});
 }
 
 TEST_F(Model_MetaInfo, remove_project_storage_observer_from_project_storage)
 {
     EXPECT_CALL(projectStorageMock, removeObserver(_)).Times(2); // the fixture model is calling it too
 
-    auto m = model.createModel("Item");
+    auto m = model.createModel({"Item"});
 }
 
 TEST_F(Model_MetaInfo, refresh_meta_infos_callback_is_calling_abstract_view)
@@ -1341,7 +1348,7 @@ TEST_F(Model_MetaInfo, refresh_meta_infos_callback_is_calling_abstract_view)
     ProjectStorageObserverMock observerMock;
     QmlDesigner::ProjectStorageObserver *observer = nullptr;
     ON_CALL(projectStorageMock, addObserver(_)).WillByDefault([&](auto *o) { observer = o; });
-    auto newModel = model.createModel("Item");
+    auto newModel = model.createModel({"Item"});
 
     newModel->attachView(&viewMock);
 
@@ -1357,7 +1364,7 @@ TEST_F(Model_MetaInfo, added_exported_type_names_are_changed_callback_is_calling
     ProjectStorageObserverMock observerMock;
     QmlDesigner::ProjectStorageObserver *observer = nullptr;
     ON_CALL(projectStorageMock, addObserver(_)).WillByDefault([&](auto *o) { observer = o; });
-    auto newModel = model.createModel("Item");
+    auto newModel = model.createModel({"Item"});
 
     newModel->attachView(&viewMock);
 
@@ -1373,7 +1380,7 @@ TEST_F(Model_MetaInfo, removed_exported_type_names_are_changed_callback_is_calli
     ProjectStorageObserverMock observerMock;
     QmlDesigner::ProjectStorageObserver *observer = nullptr;
     ON_CALL(projectStorageMock, addObserver(_)).WillByDefault([&](auto *o) { observer = o; });
-    auto newModel = model.createModel("Item");
+    auto newModel = model.createModel({.typeName = "Item", .cloneImports = true});
     newModel->attachView(&viewMock);
 
     EXPECT_CALL(viewMock, exportedTypeNamesChanged(IsEmpty(), removed));

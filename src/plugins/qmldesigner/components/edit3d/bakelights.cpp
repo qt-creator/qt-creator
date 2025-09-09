@@ -117,7 +117,7 @@ void BakeLights::bakeLights()
                                               m_view->externalDependencies(),
                                               m_modulesStorage};
 
-    m_model = m_view->model()->createModel("Item");
+    m_model = m_view->model()->createModel({"Item"});
 
     // Take the current unsaved state of the main model and apply it to our copy
     auto textDocument = std::make_unique<QTextDocument>(
@@ -226,7 +226,7 @@ void BakeLights::exposeModelsAndLights(const QString &nodeId)
 
     RewriterView rewriter{m_view->externalDependencies(), m_modulesStorage, RewriterView::Amend};
 
-    auto compModel = m_view->model()->createModel("Item");
+    auto compModel = m_view->model()->createModel({"Item"});
 
     const Utils::FilePath compFilePath = Utils::FilePath::fromString(componentFilePath);
     QByteArray src = compFilePath.fileContents().value();
