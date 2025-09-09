@@ -107,8 +107,8 @@ public:
             qCWarning(qtWelcomeOverviewLog).noquote() << json.error() << OverviewItem::jsonFile();
             return {};
         }
-        qCWarning(qtWelcomeOverviewLog).noquote() << "Reading" << types << "from" <<
-            OverviewItem::jsonFile();
+        qCDebug(qtWelcomeOverviewLog).noquote()
+            << "Reading" << types << "from" << OverviewItem::jsonFile();
         return itemsFromJson(json->data(), types);
     }
 
