@@ -220,14 +220,20 @@ void ToolchainKitAspectFactory::fix(Kit *k)
 {
     QTC_ASSERT(ToolchainManager::isLoaded(), return);
     const QList<Id> languages = ToolchainManager::allLanguages();
+    const IDeviceConstPtr dev = BuildDeviceKitAspect::device(k);
     for (const Id l : languages) {
         const QByteArray tcId = ToolchainKitAspect::toolchainId(k, l);
-        if (!tcId.isEmpty() && !ToolchainManager::findToolchain(tcId)) {
+        if (tcId.isEmpty())
+            continue;
+        Toolchain * const tc = ToolchainManager::findToolchain(tcId);
+        if (!tc)  {
             qWarning("Tool chain set up in kit \"%s\" for \"%s\" not found.",
                      qPrintable(k->displayName()),
                      qPrintable(ToolchainManager::displayNameOfLanguageId(l)));
             ToolchainKitAspect::clearToolchain(k, l); // make sure to clear out no longer known tool chains
         }
+        if (!dev || !dev->rootPath().isSameDevice(tc->compilerCommand()))
+            ToolchainKitAspect::clearToolchain(k, l);
     }
 }
 
@@ -260,6 +266,8 @@ static void setToolchainsFromAbis(Kit *k, const LanguagesAndAbis &abisByLanguage
         abisByCategory.insert(category, langAndAbi.second);
     }
 
+    const IDeviceConstPtr dev = BuildDeviceKitAspect::device(k);
+
     // Get bundles.
     const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
         ToolchainBundle::HandleMissing::CreateAndRegister);
@@ -267,7 +275,13 @@ static void setToolchainsFromAbis(Kit *k, const LanguagesAndAbis &abisByLanguage
     // Set a matching bundle for each LanguageCategory/Abi pair, if possible.
     for (auto it = abisByCategory.cbegin(); it != abisByCategory.cend(); ++it) {
         const QList<ToolchainBundle> matchingBundles
-            = Utils::filtered(bundles, [&it](const ToolchainBundle &b) {
+            = Utils::filtered(bundles, [&](const ToolchainBundle &b) {
+                  if (!dev)
+                      return false;
+                  for (const Toolchain * const tc : b.toolchains()) {
+                      if (!dev->rootPath().isSameDevice(tc->compilerCommand()))
+                          return false;
+                  }
                   return b.factory() && b.factory()->languageCategory() == it.key()
                          && b.targetAbi() == it.value();
               });
