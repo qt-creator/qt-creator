@@ -167,6 +167,9 @@ void DevContainerPlugin::onProjectAdded(Project *project)
         InfoBar *infoBar = Core::ICore::popupInfoBar();
         infoBar->removeInfo(infoBarId);
 
+        if (!infoBar->canInfoBeAdded(infoBarId))
+            return;
+
         if (instanceConfigs.size() == 1) {
             InfoBarEntry entry(
                 infoBarId,
