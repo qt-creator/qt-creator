@@ -7,6 +7,7 @@
 #include "cmakeproject.h"
 #include "cmakeprojectmanagertr.h"
 #include "targethelper.h"
+#include "testpresetshelper.h"
 
 #include <autotest/autotestconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -177,10 +178,25 @@ private:
         if (!testMenu) {
             Core::MessageManager::writeFlashing(
                 Tr::tr("AutoTest plugin needs to be loaded in order to execute tests."));
+            return;
         }
 
         ProjectExplorer::TestCaseEnvironment testEnv;
-        emit buildSystem->testRunRequested(testInfo, {"--output-on-failure"}, testEnv);
+        QStringList additionalOptions;
+        if (testInfo.path.fileName() == "CMakePresets.json") {
+            const auto cbs = qobject_cast<CMakeBuildSystem *>(buildSystem);
+            auto preset = Utils::findOrDefault(
+                cbs->project()->presetsData().testPresets,
+                [testInfo](const auto &preset) { return preset.name == testInfo.name; });
+            additionalOptions = presetToCTestArgs(preset);
+
+            if (preset.environment)
+                testEnv.environment = *preset.environment;
+        } else {
+            additionalOptions << "--output-on-failure";
+        }
+
+        emit buildSystem->testRunRequested(testInfo, additionalOptions, testEnv);
     }
 
     using TestAcceptor = std::function<void(BuildSystem *, const TestCaseInfo &)>;
@@ -198,15 +214,39 @@ private:
             const auto cmakeProject = qobject_cast<const CMakeProject *>(ProjectManager::startupProject());
             if (!cmakeProject)
                 return;
+
             const auto bs = qobject_cast<CMakeBuildSystem *>(cmakeProject->activeBuildSystem());
             if (!bs)
                 return;
 
-            for (const TestCaseInfo &testInfo : bs->testcasesInfo()) {
+            // First the test presets
+            const auto testPresets = cmakeProject->presetsData().testPresets;
+            QList<TestCaseInfo> testCasesInfo;
+            for (const auto &testPreset : testPresets) {
+                TestCaseInfo testInfo;
+                testInfo.name = testPreset.name;
+                testInfo.path = cmakeProject->projectFilePath().parentDir().pathAppended(
+                    "CMakePresets.json");
+                testCasesInfo << testInfo;
+            }
+            auto presetDisplayName = [cmakeProject](const TestCaseInfo &testInfo) -> QString {
+                auto preset = Utils::findOrDefault(
+                    cmakeProject->presetsData().testPresets,
+                    [testInfo](const auto &preset) { return preset.name == testInfo.name; });
+                if (preset.displayName)
+                    return preset.displayName.value();
+                return testInfo.name;
+            };
+
+            // Then the tests themselves
+            testCasesInfo << bs->testcasesInfo();
+
+            for (const TestCaseInfo &testInfo : testCasesInfo) {
                 const QRegularExpressionMatch match = regexp.match(testInfo.name);
                 if (match.hasMatch()) {
-                    const FilePath projectPath = cmakeProject->projectFilePath();
-                    const QString displayName = testInfo.name;
+                    const QString displayName = testInfo.path.fileName() == "CMakePresets.json"
+                                                    ? presetDisplayName(testInfo)
+                                                    : testInfo.name;
                     LocatorFilterEntry entry;
                     entry.displayName = displayName;
                     if (acceptor) {

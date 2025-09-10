@@ -13,6 +13,7 @@
 
 #include "../presetsmacros.h"
 #include "../presetsparser.h"
+#include "../testpresetshelper.h"
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -408,6 +409,74 @@ private slots:
         else
             QCOMPARE(val5, QString("a:b"));
     }
+
+    void testPresetToCTestArgs()
+    {
+        PresetsDetails::TestPreset p;
+        PresetsDetails::Output output;
+        output.shortProgress = true;
+        output.verbosity = "debug";
+        output.outputOnFailure = true;
+        output.outputLogFile = Utils::FilePath::fromString("/tmp/log.txt");
+        output.outputJUnitFile = Utils::FilePath::fromString("/tmp/junit.xml");
+        output.labelSummary = false;
+        output.subprojectSummary = false;
+        output.maxPassedTestOutputSize = 1024;
+        output.maxFailedTestOutputSize = 2048;
+        output.testOutputTruncation = "full";
+        output.maxTestNameWidth = 80;
+        p.output = output;
+
+        PresetsDetails::Filter filter;
+        PresetsDetails::Filter::Include include;
+        include = PresetsDetails::Filter::Include{};
+        include.name = ".*Foo.*";
+        include.label = "fast";
+        include.useUnion = true;
+        include.index = PresetsDetails::Filter::Include::Index{
+            1, 10, 2, QList<int>{3, 5, 7}
+        };
+        filter.include = include;
+        p.filter = filter;
+
+        PresetsDetails::Execution execution;
+        execution.jobs = 4;
+        execution.showOnly = "human";
+        execution.repeat = PresetsDetails::Execution::Repeat{"count", 3};
+        execution.timeout = 30;
+        execution.noTestsAction = "error";
+        p.execution = execution;
+
+        p.configuration = "Debug";
+
+        const auto args = presetToCTestArgs(p);
+        qDebug() << args;
+
+        QVERIFY(args.contains("--progress"));
+        QVERIFY(args.contains("--debug"));
+        QVERIFY(args.contains("--output-on-failure"));
+        QVERIFY(args.contains("--output-log"));
+        QVERIFY(args.contains("--output-junit"));
+        QVERIFY(args.contains("--no-label-summary"));
+        QVERIFY(args.contains("--no-subproject-summary"));
+        QVERIFY(args.contains("--test-output-size-passed"));
+        QVERIFY(args.contains("--test-output-size-failed"));
+        QVERIFY(args.contains("--test-output-truncation"));
+        QVERIFY(args.contains("--max-width"));
+        QVERIFY(args.contains("--tests-regex"));
+        QVERIFY(args.contains("--label-regex"));
+        QVERIFY(args.contains("--union"));
+        QVERIFY(args.contains("--start"));
+        QVERIFY(args.contains("--end"));
+        QVERIFY(args.contains("--stride"));
+        QVERIFY(args.contains("--specific-test"));
+        QVERIFY(args.contains("--parallel"));
+        QVERIFY(args.contains("--show-only=human"));
+        QVERIFY(args.contains("--repeat"));
+        QVERIFY(args.contains("--timeout"));
+        QVERIFY(args.contains("--build-config"));
+    }
+
 };
 
 QTEST_GUILESS_MAIN(TestPresetsTests)
