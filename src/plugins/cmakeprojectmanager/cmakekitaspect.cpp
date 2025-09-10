@@ -289,8 +289,12 @@ CMakeKeywords CMakeKitAspect::cmakeKeywords(const Kit *k)
 static void setCMakeTool(Kit *k, const Id id)
 {
     QTC_ASSERT(!id.isValid() || CMakeToolManager::findById(id), return);
-    if (k)
+    if (!k)
+        return;
+    if (id.isValid())
         k->setValue(Constants::TOOL_ID, id.toSetting());
+    else
+        k->removeKey(Constants::TOOL_ID);
 }
 
 void CMakeKitAspect::setCMakeExecutable(Kit *k, const FilePath &cmakeExecutable)
