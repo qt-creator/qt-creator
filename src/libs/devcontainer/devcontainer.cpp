@@ -50,8 +50,9 @@ QString InstanceConfig::devContainerId() const
 {
     const QByteArray workspace = workspaceFolder.toUrlishString().toUtf8();
     const QByteArray config = configFilePath.toUrlishString().toUtf8();
+    const QByteArray combined = workspace + config;
     QString id = QString::fromLatin1(
-        QCryptographicHash::hash(workspace, QCryptographicHash::Sha256).toHex());
+        QCryptographicHash::hash(combined, QCryptographicHash::Sha256).toHex());
     return id;
 }
 
