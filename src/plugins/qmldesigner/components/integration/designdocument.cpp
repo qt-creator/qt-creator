@@ -9,15 +9,16 @@
 
 #include <auxiliarydataproperties.h>
 #include <model/modelresourcemanagement.h>
+#include <modelutils.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
+#include <qmldesignerplugin.h>
+#include <qmlobjectnode.h>
+#include <qmlprojectmanager/qmlprojectconstants.h>
 #include <rewritingexception.h>
 #include <utils3d.h>
 #include <variantproperty.h>
 #include <viewmanager.h>
-#include <qmldesignerplugin.h>
-#include <qmlobjectnode.h>
-#include <qmlprojectmanager/qmlprojectconstants.h>
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projecttree.h>
@@ -212,6 +213,8 @@ bool DesignDocument::pasteSVG()
         // If target is still invalid make the root node the target
         if (!targetNode.isValid())
             targetNode = view()->rootModelNode();
+
+        ModelUtils::ensureShapesImport(view()->model());
 
         // Check if document has studio components import, if not create it
         QmlDesigner::Import import = QmlDesigner::Import::createLibraryImport("QtQuick.Studio.Components", "1.0");

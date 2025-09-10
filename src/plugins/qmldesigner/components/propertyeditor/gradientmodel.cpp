@@ -11,6 +11,7 @@
 
 #include <abstractview.h>
 #include <exception.h>
+#include <modelutils.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
@@ -375,7 +376,7 @@ void GradientModel::addGradient()
     if (!m_itemNode.modelNode().hasNodeProperty(gradientPropertyName().toUtf8())) {
 
         if (m_gradientTypeName != "Gradient")
-            ensureShapesImport();
+            QmlDesigner::ModelUtils::ensureShapesImport(model());
 
         view()->executeInTransaction("GradientModel::addGradient", [this](){
             QColor color = m_itemNode.instanceValue("color").value<QColor>();
@@ -678,32 +679,6 @@ bool GradientModel::locked() const
     auto editorView = qobject_cast<QmlDesigner::PropertyEditorView*>(view());
 
     return editorView && editorView->locked();
-}
-
-bool GradientModel::hasShapesImport() const
-{
-    NanotraceHR::Tracer tracer{"gradient model has shapes import", category()};
-
-    if (m_itemNode.isValid()) {
-        QmlDesigner::Import import = QmlDesigner::Import::createLibraryImport("QtQuick.Shapes", "1.0");
-        return model()->hasImport(import, true, true);
-    }
-
-    return false;
-}
-
-void GradientModel::ensureShapesImport()
-{
-    NanotraceHR::Tracer tracer{"gradient model ensure shapes import", category()};
-
-    if (!hasShapesImport()) {
-        QmlDesigner::Import timelineImport = QmlDesigner::Import::createLibraryImport("QtQuick.Shapes", "1.0");
-        try {
-            model()->changeImports({timelineImport}, {});
-        } catch (const QmlDesigner::Exception &) {
-            QTC_ASSERT(false, return);
-        }
-    }
 }
 
 void GradientModel::setupGradientProperties(const QmlDesigner::ModelNode &gradient)
@@ -1053,7 +1028,7 @@ void GradientModel::setPresetByStops(const QList<qreal> &stopsPositions,
         try {
 
             if (m_gradientTypeName != "Gradient")
-                ensureShapesImport();
+                QmlDesigner::ModelUtils::ensureShapesImport(model());
 
             QmlDesigner::ModelNode gradientNode = createGradientNode();
 

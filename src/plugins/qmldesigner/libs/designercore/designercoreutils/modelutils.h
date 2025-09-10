@@ -59,6 +59,7 @@ constexpr std::u16string_view toStdStringView(QStringView view)
 QMLDESIGNERCORE_EXPORT QStringList expressionToList(QStringView exp);
 
 QMLDESIGNERCORE_EXPORT QString listToExpression(const QStringList &stringList);
-;
+
+QMLDESIGNERCORE_EXPORT void ensureShapesImport(Model *model);
 
 } // namespace QmlDesigner::ModelUtils

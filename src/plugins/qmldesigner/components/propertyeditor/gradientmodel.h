@@ -107,8 +107,6 @@ private:
     QString m_gradientPropertyName;
     QString m_gradientTypeName = {"Gradient"};
     bool m_locked = false;
-    bool hasShapesImport() const;
-    void ensureShapesImport();
     void setupGradientProperties(const QmlDesigner::ModelNode &gradient);
     QmlDesigner::Model *model() const;
     QmlDesigner::AbstractView *view() const;
