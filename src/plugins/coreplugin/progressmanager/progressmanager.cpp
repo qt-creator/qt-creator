@@ -15,6 +15,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/infobar.h>
@@ -167,8 +168,68 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
     const Id id = info.id();
 
     QToolButton *infoWidgetCloseButton = nullptr;
-    QLayout *buttonLayout;
     QLabel *titleLabel;
+
+    const auto makeComboBox = [combo = info.combo(), this] {
+        auto cb = new QComboBox();
+        cb->setToolTip(combo.tooltip);
+        for (const InfoBarEntry::ComboInfo &comboInfo : std::as_const(combo.entries))
+            cb->addItem(comboInfo.displayText, comboInfo.data);
+        if (combo.currentIndex >= 0 && combo.currentIndex < cb->count())
+            cb->setCurrentIndex(combo.currentIndex);
+        connect(
+            cb,
+            &QComboBox::currentIndexChanged,
+            this,
+            [cb, combo] { combo.callback({cb->currentText(), cb->currentData()}); },
+            Qt::QueuedConnection);
+        return cb;
+    };
+
+    const auto makeDetails = [this, info] {
+        auto showDetailsButton = new QToolButton;
+        showDetailsButton->setText(Tr::tr("Show Details..."));
+        connect(showDetailsButton, &QToolButton::clicked, this, [this, info](bool) {
+            if (m_detailsWidget) {
+                ICore::raiseWindow(m_detailsWidget);
+                return;
+            }
+            m_detailsWidget = new QWidget;
+            m_detailsWidget->setAttribute(Qt::WA_DeleteOnClose);
+            m_detailsWidget->setLayout(new QVBoxLayout);
+            auto scrollArea = new QScrollArea;
+            scrollArea->setWidgetResizable(true);
+            scrollArea->setWidget(info.detailsWidgetCreator()());
+            m_detailsWidget->layout()->addWidget(scrollArea);
+            m_detailsWidget->setWindowTitle(scrollArea->widget()->windowTitle());
+            ICore::registerWindow(
+                m_detailsWidget, Context(info.id().withPrefix("PopupNotification.Details.")));
+            m_detailsWidget->show();
+        });
+        return showDetailsButton;
+    };
+
+    const auto makeButton = [infoBar, id](const InfoBarEntry::Button &button) {
+        auto infoWidgetButton = new QToolButton;
+        infoWidgetButton->setText(button.text);
+        infoWidgetButton->setToolTip(button.tooltip);
+        connect(infoWidgetButton, &QAbstractButton::clicked, [button, infoBar, id] {
+            infoBar->triggerButton(id, button);
+        });
+        return infoWidgetButton;
+    };
+
+    const auto makeSuppressionButton = [infoBar, id, this] {
+        auto infoWidgetSuppressButton = new QToolButton;
+        infoWidgetSuppressButton->setText(Utils::Tr::tr("Do Not Show Again"));
+        connect(infoWidgetSuppressButton, &QAbstractButton::clicked, this, [infoBar, id] {
+            if (!infoBar)
+                return;
+            infoBar->removeInfo(id);
+            InfoBar::globallySuppressInfo(id);
+        });
+        return infoWidgetSuppressButton;
+    };
 
     // clang-format off
     Column {
@@ -192,7 +253,19 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
             }
         },
         Space(StyleHelper::SpacingTokens::GapHM),
-        Flow{ bindTo(&buttonLayout), alignment(Qt::AlignRight) },
+        Flow {
+            alignment(Qt::AlignRight),
+            If (!info.combo().entries.isEmpty()) >> Then {
+                makeComboBox
+            },
+            If (info.detailsWidgetCreator() != nullptr) >> Then {
+                makeDetails,
+            },
+            Utils::transform(info.buttons(), makeButton),
+            If (info.globalSuppression() == InfoBarEntry::GlobalSuppression::Enabled) >> Then {
+                makeSuppressionButton
+            }
+        },
         customMargins(StyleHelper::SpacingTokens::PaddingHXl,
                       StyleHelper::SpacingTokens::PaddingVL,
                       StyleHelper::SpacingTokens::PaddingHXl,
@@ -220,69 +293,6 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
         } else {
             infoWidgetCloseButton->setText(info.cancelButtonText());
         }
-    }
-
-    const InfoBarEntry::Combo combo = info.combo();
-    if (!combo.entries.isEmpty()) {
-        auto cb = new QComboBox();
-        cb->setToolTip(combo.tooltip);
-        for (const InfoBarEntry::ComboInfo &comboInfo : std::as_const(combo.entries))
-            cb->addItem(comboInfo.displayText, comboInfo.data);
-        if (combo.currentIndex >= 0 && combo.currentIndex < cb->count())
-            cb->setCurrentIndex(combo.currentIndex);
-        connect(
-            cb,
-            &QComboBox::currentIndexChanged,
-            this,
-            [cb, combo] { combo.callback({cb->currentText(), cb->currentData()}); },
-            Qt::QueuedConnection);
-        buttonLayout->addWidget(cb);
-    }
-
-    if (info.detailsWidgetCreator()) {
-        auto showDetailsButton = new QToolButton;
-        showDetailsButton->setText(Tr::tr("Show Details..."));
-        connect(showDetailsButton, &QToolButton::clicked, this, [this, info](bool) {
-            if (m_detailsWidget) {
-                ICore::raiseWindow(m_detailsWidget);
-                return;
-            }
-            m_detailsWidget = new QWidget;
-            m_detailsWidget->setAttribute(Qt::WA_DeleteOnClose);
-            m_detailsWidget->setLayout(new QVBoxLayout);
-            auto scrollArea = new QScrollArea;
-            scrollArea->setWidgetResizable(true);
-            scrollArea->setWidget(info.detailsWidgetCreator()());
-            m_detailsWidget->layout()->addWidget(scrollArea);
-            m_detailsWidget->setWindowTitle(scrollArea->widget()->windowTitle());
-            ICore::registerWindow(
-                m_detailsWidget, Context(info.id().withPrefix("PopupNotification.Details.")));
-            m_detailsWidget->show();
-        });
-        buttonLayout->addWidget(showDetailsButton);
-    }
-
-    const QList<InfoBarEntry::Button> buttons = info.buttons();
-    for (const InfoBarEntry::Button &button : buttons) {
-        auto infoWidgetButton = new QToolButton;
-        infoWidgetButton->setText(button.text);
-        infoWidgetButton->setToolTip(button.tooltip);
-        connect(infoWidgetButton, &QAbstractButton::clicked, [button, infoBar, id] {
-            infoBar->triggerButton(id, button);
-        });
-        buttonLayout->addWidget(infoWidgetButton);
-    }
-
-    if (info.globalSuppression() == InfoBarEntry::GlobalSuppression::Enabled) {
-        auto infoWidgetSuppressButton = new QToolButton;
-        infoWidgetSuppressButton->setText(Utils::Tr::tr("Do Not Show Again"));
-        connect(infoWidgetSuppressButton, &QAbstractButton::clicked, this, [infoBar, id] {
-            if (!infoBar)
-                return;
-            infoBar->removeInfo(id);
-            InfoBar::globallySuppressInfo(id);
-        });
-        buttonLayout->addWidget(infoWidgetSuppressButton);
     }
 }
 
