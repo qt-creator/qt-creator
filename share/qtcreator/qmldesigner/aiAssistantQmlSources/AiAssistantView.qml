@@ -34,12 +34,14 @@ Rectangle {
                     label: modelData
                     enabled: !root.rootView.isGenerating
 
-                    onClicked: root.rootView.handleMessage(modelData)
+                    onClicked: promptTextBox.text = modelData
                 }
             }
         }
 
         PromptTextBox {
+            id: promptTextBox
+
             rootView: root.rootView
 
             Layout.fillHeight: true

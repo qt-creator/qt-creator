@@ -13,6 +13,8 @@ Rectangle {
 
     required property var rootView
 
+    property alias text: textEdit.text
+
     property StudioTheme.ControlStyle style: StudioTheme.ControlStyle {
         radius: StudioTheme.Values.smallRadius
     }
