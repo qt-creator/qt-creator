@@ -1226,7 +1226,11 @@ QmlObjectNode SVGPasteAction::createQmlObjectNode(QmlDesigner::ModelNode &target
 
     depthFirstTraversal(node, processStyleAndCollectShapes);
 
-    ModelNode groupNode = createGroupNode(targetNode, viewBoxProperties);
+    const bool singlePath = shapeElements.size() == 1;
+
+    ModelNode groupNode;
+    if (!singlePath)
+        createGroupNode(targetNode, viewBoxProperties);
 
     for (const QDomElement &e : shapeElements) {
         PropertyMap pathProperties;
@@ -1249,6 +1253,11 @@ QmlObjectNode SVGPasteAction::createQmlObjectNode(QmlDesigner::ModelNode &target
 
         pathProperties["x"] = pathProperties["x"].toDouble() + topLeft.x();
         pathProperties["y"] = pathProperties["y"].toDouble() + topLeft.y();
+
+        if (singlePath) {
+            pathProperties["fillMode"] = QVariant::fromValue(Enumeration("Shape", "Stretch"));
+            return createPathNode(targetNode, pathProperties);
+        }
 
         createPathNode(groupNode, pathProperties);
     }

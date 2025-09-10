@@ -341,4 +341,10 @@ QString listToExpression(const QStringList &stringList)
     return QString();
 }
 
+void ensureShapesImport(Model *model)
+{
+    QmlDesigner::Import import = QmlDesigner::Import::createLibraryImport("QtQuick.Shapes");
+    model->changeImports({import}, {});
+}
+
 } // namespace QmlDesigner::ModelUtils
