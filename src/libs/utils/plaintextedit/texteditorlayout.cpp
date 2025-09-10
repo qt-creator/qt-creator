@@ -526,7 +526,7 @@ QTextBlock TextEditorLayout::findBlockByLineNumber(int lineNumber) const
     int blockNumber = 0;
     if (!d->m_offsetCache.empty()) {
         const int cacheSize = int(d->m_offsetCache.size());
-        int i = cacheSize < lineNumber ? cacheSize - 1 : lineNumber;
+        int i = cacheSize <= lineNumber ? cacheSize - 1 : lineNumber;
         for (; i > 0; --i) {
             if (d->m_offsetCache[i].firstLine >= 0 && d->m_offsetCache[i].firstLine <= lineNumber) {
                 blockNumber = i;
