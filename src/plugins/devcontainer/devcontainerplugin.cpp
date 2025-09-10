@@ -5,6 +5,7 @@
 #include "devcontainerplugin_constants.h"
 #include "devcontainerplugintr.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
@@ -22,11 +23,14 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <texteditor/texteditor.h>
+
 #include <utils/algorithm.h>
 #include <utils/fsengine/fsengine.h>
 #include <utils/guardedcallback.h>
 #include <utils/icon.h>
 #include <utils/infobar.h>
+#include <utils/theme/theme.h>
 
 #include <QMessageBox>
 
@@ -34,6 +38,8 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace DevContainer::Internal {
+
+const Icon DEVCONTAINER_ICON({{":/devcontainer/images/container.png", Theme::IconsBaseColor}});
 
 #ifdef WITH_TESTS
 QObject *createDevcontainerTest();
@@ -80,6 +86,12 @@ public:
             this,
             &DevContainerPlugin::onProjectRemoved);
 
+        connect(
+            Core::EditorManager::instance(),
+            &Core::EditorManager::editorCreated,
+            this,
+            &DevContainerPlugin::onEditorCreated);
+
         for (auto project : ProjectManager::instance()->projects())
             onProjectAdded(project);
 
@@ -91,8 +103,11 @@ public:
         });
 #endif
     }
+
     void onProjectAdded(Project *project);
     void onProjectRemoved(Project *project);
+
+    void onEditorCreated(Core::IEditor *editor, const Utils::FilePath &filePath);
 
     void startDeviceForProject(Project *project, DevContainer::InstanceConfig instanceConfig);
 
@@ -130,7 +145,7 @@ void DevContainerPlugin::onProjectRemoved(Project *project)
     devices.erase(it);
 }
 
-void DevContainerPlugin::onProjectAdded(Project *project)
+static FilePaths devContainerFilesForProject(Project *project)
 {
     /*
     Possible locations:
@@ -142,12 +157,17 @@ void DevContainerPlugin::onProjectAdded(Project *project)
     const FilePath rootDevcontainer = project->projectDirectory() / ".devcontainer.json";
 
     const FilePaths paths{rootDevcontainer, containerFolder / ".devcontainer"};
-    const FilePaths devContainerFiles = filtered(
+    return filtered(
         transform(
             containerFolder.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot),
             [](const FilePath &path) { return path / "devcontainer.json"; })
             << rootDevcontainer << containerFolder / "devcontainer.json",
         &FilePath::isFile);
+}
+
+void DevContainerPlugin::onProjectAdded(Project *project)
+{
+    const FilePaths devContainerFiles = devContainerFilesForProject(project);
 
     if (!devContainerFiles.isEmpty()) {
         const QList<DevContainer::InstanceConfig> instanceConfigs
@@ -250,6 +270,62 @@ void DevContainerPlugin::onProjectAdded(Project *project)
 
         infoBar->addInfo(entry);
     };
+}
+
+void DevContainerPlugin::onEditorCreated(Core::IEditor *editor, const Utils::FilePath &filePath)
+{
+    if (filePath.fileName() != "devcontainer.json" && filePath.fileName() != ".devcontainer.json")
+        return;
+
+    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+    if (!textEditor)
+        return;
+
+    Project *project = ProjectManager::projectForFile(filePath);
+    if (!project)
+        return;
+
+    if (!DevContainer::Config::isValidConfigPath(project->rootProjectDirectory(), filePath))
+        return;
+
+    TextEditor::TextEditorWidget *textEditorWidget = textEditor->editorWidget();
+    if (!textEditorWidget)
+        return;
+
+    QAction *restartAction = new QAction(textEditorWidget);
+    restartAction->setIcon(DEVCONTAINER_ICON.icon());
+    restartAction->setText(Tr::tr("(Re-)Start Development Container"));
+    restartAction->setToolTip(Tr::tr("Start or Restart the development container."));
+
+    const FilePath workspaceFolder = project->rootProjectDirectory();
+
+    connect(restartAction, &QAction::triggered, [this, project, workspaceFolder, filePath]() {
+        auto it = devices.find(project);
+        if (it != devices.end()) {
+            std::shared_ptr<Device> existingDevice = it->second;
+            existingDevice->restart([](Result<> result) {
+                if (!result) {
+                    QMessageBox box(Core::ICore::dialogParent());
+                    box.setWindowTitle(Tr::tr("Development Container Error"));
+                    box.setIcon(QMessageBox::Critical);
+                    box.setText(result.error());
+                    box.exec();
+                }
+            });
+        } else {
+            DevContainer::InstanceConfig instanceConfig{
+                .dockerCli = "docker",
+                .workspaceFolder = workspaceFolder,
+                .configFilePath = filePath,
+                .mounts = {},
+            };
+
+            startDeviceForProject(project, instanceConfig);
+        }
+    });
+
+    textEditorWidget
+        ->insertExtraToolBarAction(TextEditor::TextEditorWidget::Side::Left, restartAction);
 }
 
 void DevContainerPlugin::startDeviceForProject(
