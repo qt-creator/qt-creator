@@ -195,13 +195,13 @@ void CppHighlighter::highlightBlock(const QString &text)
             continue;
 
         // Handle attributes, i.e. identifiers in pairs of "[[" and "]]".
-        if (tk.is(T_LBRACKET) && !tk.isOperator()) {
+        if (tk.is(T_LBRACKET)) {
             attrState.lbrackets = !attrState.lbrackets;
             if (attrState.lbrackets == 0)
                 ++attrState.opened;
             continue;
         }
-        if (tk.is(T_RBRACKET) && !tk.isOperator()) {
+        if (tk.is(T_RBRACKET)) {
             attrState.rbrackets = !attrState.rbrackets;
             if (attrState.rbrackets == 0 && attrState.opened > 0)
                 --attrState.opened;
