@@ -799,7 +799,11 @@ EnableCategoriesFilterAspect::EnableCategoriesFilterAspect(AspectContainer *cont
 {
     setId("EnableCategoriesFilter");
     setSettingsKey("RunConfiguration.EnableCategoriesFilter");
-    setLabel(Tr::tr("Enable Categories Filtering"), LabelPlacement::AtCheckBox);
+    setLabel(Tr::tr("Enable logging category filtering"), LabelPlacement::AtCheckBox);
+    setToolTip(
+        Tr::tr(
+            "Enables filtering for logging categories (QLoggingCategory) in the Application "
+            "Output. Requires Qt 6.11 or later."));
 }
 
 Interpreter::Interpreter()
