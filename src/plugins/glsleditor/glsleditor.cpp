@@ -164,6 +164,10 @@ static const InitFile *fragmentShaderInit(int variant)
     static InitFile glsl_es_100_frag{"glsl_es_100.frag"};
     static InitFile glsl_120_frag{"glsl_120.frag"};
     static InitFile glsl_330_frag{"glsl_330.frag"};
+    static InitFile glsl_460_frag{"glsl_460.frag"};
+
+    if (variant & GLSL::Lexer::Variant_GLSL_460)
+        return &glsl_460_frag;
 
     if (variant & GLSL::Lexer::Variant_GLSL_400)
         return &glsl_330_frag;
@@ -180,6 +184,14 @@ static const InitFile *vertexShaderInit(int variant)
     static InitFile glsl_120_vert{"glsl_120.vert"};
     static InitFile glsl_330_vert{"glsl_330.vert"};
     static InitFile glsl_330_vert_modified{"glsl_330.vert", true};
+    static InitFile glsl_460_vert{"glsl_460.vert"};
+    static InitFile glsl_460_vert_modified{"glsl_460.vert", true};
+
+    if (variant & GLSL::Lexer::Variant_GLSL_460) {
+        if (variant & GLSL::Lexer::Variant_Vulkan)
+            return &glsl_460_vert_modified;
+        return &glsl_460_vert;
+    }
 
     if (variant & GLSL::Lexer::Variant_GLSL_400) {
         if (variant & GLSL::Lexer::Variant_Vulkan)
@@ -199,6 +211,14 @@ static const InitFile *shaderInit(int variant)
     static InitFile glsl_120_common{"glsl_120_common.glsl"};
     static InitFile glsl_330_common{"glsl_330_common.glsl"};
     static InitFile glsl_330_common_modified{"glsl_330_common.glsl", true};
+    static InitFile glsl_460_common{"glsl_460_common.glsl"};
+    static InitFile glsl_460_common_modified{"glsl_460_common.glsl", true};
+
+    if (variant & GLSL::Lexer::Variant_GLSL_460) {
+        if (variant & GLSL::Lexer::Variant_Vulkan)
+            return &glsl_460_common_modified;
+        return &glsl_460_common;
+    }
 
     if (variant & GLSL::Lexer::Variant_GLSL_400) {
         if (variant & GLSL::Lexer::Variant_Vulkan)
@@ -357,7 +377,10 @@ void GlslEditorWidget::updateDocumentNow()
     const QString contents = toPlainText(); // get the code from the editor
     int version = versionFor(contents);
     if (version >= 330) {
-        variant |= GLSL::Lexer::Variant_GLSL_400;
+        if (version >= 420)
+            variant |= GLSL::Lexer::Variant_GLSL_460;
+        else
+            variant |= GLSL::Lexer::Variant_GLSL_400;
         if (m_vulkanSupport->isChecked())
             variant |= GLSL::Lexer::Variant_Vulkan;
     }

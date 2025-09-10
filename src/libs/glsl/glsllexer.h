@@ -45,7 +45,8 @@ public:
     static const int Variant_GLSL_120            = 0x00010000;   // 1.20 and higher
     static const int Variant_GLSL_150            = 0x00020000;   // 1.50 and higher
     static const int Variant_GLSL_400            = 0x00040000;   // 4.00 and higher
-    static const int Variant_GLSL_ES_100         = 0x00080000;   // ES 1.00 and higher
+    static const int Variant_GLSL_460            = 0x00080000;   // 4.60 and higher
+    static const int Variant_GLSL_ES_100         = 0x00100000;   // ES 1.00 and higher
     static const int Variant_VertexShader        = 0x00200000;
     static const int Variant_FragmentShader      = 0x00400000;
     static const int Variant_Vulkan              = 0x00800000;   // Vulkan additions

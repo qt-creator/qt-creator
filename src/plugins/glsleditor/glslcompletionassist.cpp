@@ -441,7 +441,10 @@ IAssistProposal *GlslCompletionAssistProcessor::performAsync()
             int langVar = languageVariant(interface->mimeType());
             const int currentGLSLVersion = interface->glslDocument()->currentGlslVersion();
             if (currentGLSLVersion >= 330) {
-                langVar |= GLSL::Lexer::Variant_GLSL_400;
+                if (currentGLSLVersion >= 420)
+                    langVar |= GLSL::Lexer::Variant_GLSL_460;
+                else
+                    langVar |= GLSL::Lexer::Variant_GLSL_400;
                 if (interface->glslDocument()->vulkanEnabled())
                     langVar |= GLSL::Lexer::Variant_Vulkan;
             }

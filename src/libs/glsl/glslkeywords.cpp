@@ -63,7 +63,7 @@ static inline int classify4(const char *s) {
     if (s[1] == 'a') {
       if (s[2] == 's') {
         if (s[3] == 'e') {
-          return Parser::T_CASE | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+          return Parser::T_CASE | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
         }
       }
     }
@@ -81,7 +81,7 @@ static inline int classify4(const char *s) {
     if (s[1] == 'l') {
       if (s[2] == 'a') {
         if (s[3] == 't') {
-          return Parser::T_FLAT | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+          return Parser::T_FLAT | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
         }
       }
     }
@@ -90,7 +90,7 @@ static inline int classify4(const char *s) {
     if (s[1] == 'o') {
       if (s[2] == 'w') {
         if (s[3] == 'p') {
-          return Parser::T_LOWP | Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400;
+          return Parser::T_LOWP | Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
         }
       }
     }
@@ -123,7 +123,7 @@ static inline int classify4(const char *s) {
     if (s[1] == 'i') {
       if (s[2] == 'n') {
         if (s[3] == 't') {
-          return Parser::T_UINT | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+          return Parser::T_UINT | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
         }
       }
     }
@@ -196,13 +196,13 @@ static inline int classify5(const char *s) {
       if (s[2] == 'a') {
         if (s[3] == 't') {
           if (s[4] == '2') {
-            return Parser::T_DMAT2 | Lexer::Variant_GLSL_400;
+            return Parser::T_DMAT2 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
           }
           else if (s[4] == '3') {
-            return Parser::T_DMAT3 | Lexer::Variant_GLSL_400;
+            return Parser::T_DMAT3 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
           }
           else if (s[4] == '4') {
-            return Parser::T_DMAT4 | Lexer::Variant_GLSL_400;
+            return Parser::T_DMAT4 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
           }
         }
       }
@@ -211,13 +211,13 @@ static inline int classify5(const char *s) {
       if (s[2] == 'e') {
         if (s[3] == 'c') {
           if (s[4] == '2') {
-            return Parser::T_DVEC2 | Lexer::Variant_GLSL_400;
+            return Parser::T_DVEC2 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
           }
           else if (s[4] == '3') {
-            return Parser::T_DVEC3 | Lexer::Variant_GLSL_400;
+            return Parser::T_DVEC3 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
           }
           else if (s[4] == '4') {
-            return Parser::T_DVEC4 | Lexer::Variant_GLSL_400;
+            return Parser::T_DVEC4 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
           }
         }
       }
@@ -248,7 +248,7 @@ static inline int classify5(const char *s) {
       if (s[2] == 'g') {
         if (s[3] == 'h') {
           if (s[4] == 'p') {
-            return Parser::T_HIGHP | Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400;
+            return Parser::T_HIGHP | Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
           }
         }
       }
@@ -285,7 +285,7 @@ static inline int classify5(const char *s) {
       if (s[2] == 't') {
         if (s[3] == 'c') {
           if (s[4] == 'h') {
-            return Parser::T_PATCH | Lexer::Variant_GLSL_400;
+            return Parser::T_PATCH | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
           }
         }
       }
@@ -296,13 +296,13 @@ static inline int classify5(const char *s) {
       if (s[2] == 'e') {
         if (s[3] == 'c') {
           if (s[4] == '2') {
-            return Parser::T_UVEC2 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+            return Parser::T_UVEC2 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
           }
           else if (s[4] == '3') {
-            return Parser::T_UVEC3 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+            return Parser::T_UVEC3 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
           }
           else if (s[4] == '4') {
-            return Parser::T_UVEC4 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+            return Parser::T_UVEC4 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
           }
         }
       }
@@ -329,7 +329,7 @@ static inline int classify6(const char *s) {
                 if (s[3] == 'f') {
                     if (s[4] == 'e') {
                         if (s[5] == 'r') {
-                            return Parser::T_BUFFER | Lexer::Variant_GLSL_400;
+                            return Parser::T_BUFFER | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                         }
                     }
                 }
@@ -342,7 +342,7 @@ static inline int classify6(const char *s) {
         if (s[3] == 'b') {
           if (s[4] == 'l') {
             if (s[5] == 'e') {
-              return Parser::T_DOUBLE | Lexer::Variant_GLSL_400;
+              return Parser::T_DOUBLE | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
             }
           }
         }
@@ -355,7 +355,7 @@ static inline int classify6(const char *s) {
         if (s[3] == 'o') {
           if (s[4] == 'u') {
             if (s[5] == 't') {
-              return Parser::T_LAYOUT | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+              return Parser::T_LAYOUT | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
             }
           }
         }
@@ -368,10 +368,10 @@ static inline int classify6(const char *s) {
         if (s[3] == '2') {
           if (s[4] == 'x') {
             if (s[5] == '2') {
-              return Parser::T_MAT2X2 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+              return Parser::T_MAT2X2 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
             }
             else if (s[5] == '3') {
-              return Parser::T_MAT2X3 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+              return Parser::T_MAT2X3 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
             }
             else if (s[5] == '4') {
               return Parser::T_MAT2X4 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
@@ -381,26 +381,26 @@ static inline int classify6(const char *s) {
         else if (s[3] == '3') {
           if (s[4] == 'x') {
             if (s[5] == '2') {
-              return Parser::T_MAT3X2 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+              return Parser::T_MAT3X2 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
             }
             else if (s[5] == '3') {
-              return Parser::T_MAT3X3 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+              return Parser::T_MAT3X3 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
             }
             else if (s[5] == '4') {
-              return Parser::T_MAT3X4 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+              return Parser::T_MAT3X4 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
             }
           }
         }
         else if (s[3] == '4') {
           if (s[4] == 'x') {
             if (s[5] == '2') {
-              return Parser::T_MAT4X2 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+              return Parser::T_MAT4X2 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
             }
             else if (s[5] == '3') {
-              return Parser::T_MAT4X3 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+              return Parser::T_MAT4X3 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
             }
             else if (s[5] == '4') {
-              return Parser::T_MAT4X4 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+              return Parser::T_MAT4X4 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
             }
           }
         }
@@ -448,7 +448,7 @@ static inline int classify6(const char *s) {
         if (s[3] == 'o') {
           if (s[4] == 't') {
             if (s[5] == 'h') {
-              return Parser::T_SMOOTH | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+              return Parser::T_SMOOTH | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
             }
           }
         }
@@ -470,7 +470,7 @@ static inline int classify6(const char *s) {
         if (s[3] == 't') {
           if (s[4] == 'c') {
             if (s[5] == 'h') {
-              return Parser::T_SWITCH | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+              return Parser::T_SWITCH | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
             }
           }
         }
@@ -488,7 +488,7 @@ static inline int classify7(const char *s) {
           if (s[4] == 'u') {
             if (s[5] == 'l') {
               if (s[6] == 't') {
-                return Parser::T_DEFAULT | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                return Parser::T_DEFAULT | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
               }
             }
           }
@@ -514,39 +514,39 @@ static inline int classify7(const char *s) {
           if (s[4] == '2') {
             if (s[5] == 'x') {
               if (s[6] == '2') {
-                return Parser::T_DMAT2X2 | Lexer::Variant_GLSL_400;
+                return Parser::T_DMAT2X2 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
               }
               else if (s[6] == '3') {
-                return Parser::T_DMAT2X3 | Lexer::Variant_GLSL_400;
+                return Parser::T_DMAT2X3 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
               }
               else if (s[6] == '4') {
-                return Parser::T_DMAT2X4 | Lexer::Variant_GLSL_400;
+                return Parser::T_DMAT2X4 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
               }
             }
           }
           else if (s[4] == '3') {
             if (s[5] == 'x') {
               if (s[6] == '2') {
-                return Parser::T_DMAT3X2 | Lexer::Variant_GLSL_400;
+                return Parser::T_DMAT3X2 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
               }
               else if (s[6] == '3') {
-                return Parser::T_DMAT3X3 | Lexer::Variant_GLSL_400;
+                return Parser::T_DMAT3X3 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
               }
               else if (s[6] == '4') {
-                return Parser::T_DMAT3X4 | Lexer::Variant_GLSL_400;
+                return Parser::T_DMAT3X4 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
               }
             }
           }
           else if (s[4] == '4') {
             if (s[5] == 'x') {
               if (s[6] == '2') {
-                return Parser::T_DMAT4X2 | Lexer::Variant_GLSL_400;
+                return Parser::T_DMAT4X2 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
               }
               else if (s[6] == '3') {
-                return Parser::T_DMAT4X3 | Lexer::Variant_GLSL_400;
+                return Parser::T_DMAT4X3 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
               }
               else if (s[6] == '4') {
-                return Parser::T_DMAT4X4 | Lexer::Variant_GLSL_400;
+                return Parser::T_DMAT4X4 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
               }
             }
           }
@@ -561,17 +561,17 @@ static inline int classify7(const char *s) {
           if (s[4] == 'e') {
             if (s[5] == '1') {
               if (s[6] == 'D') {
-                return Parser::T_IMAGE1D | Lexer::Variant_GLSL_400; // 420
+                return Parser::T_IMAGE1D | Lexer::Variant_GLSL_460; // 420
               }
             }
             else if (s[5] == '2') {
               if (s[6] == 'D') {
-                return Parser::T_IMAGE2D | Lexer::Variant_GLSL_400; // 420
+                return Parser::T_IMAGE2D | Lexer::Variant_GLSL_460; // 420
               }
             }
             else if (s[5] == '3') {
               if (s[6] == 'D') {
-                return Parser::T_IMAGE3D | Lexer::Variant_GLSL_400; // 420
+                return Parser::T_IMAGE3D | Lexer::Variant_GLSL_460; // 420
               }
             }
           }
@@ -586,7 +586,7 @@ static inline int classify7(const char *s) {
           if (s[4] == 'u') {
             if (s[5] == 'm') {
               if (s[6] == 'p') {
-                return Parser::T_MEDIUMP | Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400;
+                return Parser::T_MEDIUMP | Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
               }
             }
           }
@@ -601,7 +601,7 @@ static inline int classify7(const char *s) {
           if (s[4] == 'i') {
             if (s[5] == 's') {
               if (s[6] == 'e') {
-                return Parser::T_PRECISE | Lexer::Variant_GLSL_400;
+                return Parser::T_PRECISE | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
               }
             }
           }
@@ -666,7 +666,7 @@ static inline int classify8(const char *s) {
             if (s[5] == 'o') {
               if (s[6] == 'i') {
                 if (s[7] == 'd') {
-                  return Parser::T_CENTROID | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                  return Parser::T_CENTROID | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                 }
               }
             }
@@ -681,7 +681,7 @@ static inline int classify8(const char *s) {
               if (s[5] == 'e') {
                 if (s[6] == 'n') {
                   if (s[7] == 't') {
-                    return Parser::T_COHERENT | Lexer::Variant_GLSL_400;
+                    return Parser::T_COHERENT | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                   }
                 }
               }
@@ -710,17 +710,17 @@ static inline int classify8(const char *s) {
             if (s[5] == 'e') {
               if (s[6] == '1') {
                 if (s[7] == 'D') {
-                  return Parser::T_IIMAGE1D | Lexer::Variant_GLSL_400; // 420
+                  return Parser::T_IIMAGE1D | Lexer::Variant_GLSL_460; // 420
                 }
               }
               else if (s[6] == '2') {
                 if (s[7] == 'D') {
-                  return Parser::T_IIMAGE2D | Lexer::Variant_GLSL_400; // 420
+                  return Parser::T_IIMAGE2D | Lexer::Variant_GLSL_460; // 420
                 }
               }
               else if (s[6] == '3') {
                 if (s[7] == 'D') {
-                  return Parser::T_IIMAGE3D | Lexer::Variant_GLSL_400; // 420
+                  return Parser::T_IIMAGE3D | Lexer::Variant_GLSL_460; // 420
                 }
               }
             }
@@ -737,7 +737,7 @@ static inline int classify8(const char *s) {
             if (s[5] == 'n') {
               if (s[6] == 'l') {
                 if (s[7] == 'y') {
-                  return Parser::T_READONLY | Lexer::Variant_GLSL_400;
+                  return Parser::T_READONLY | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                 }
               }
             }
@@ -749,7 +749,7 @@ static inline int classify8(const char *s) {
             if (s[5] == 'i') {
               if (s[6] == 'c') {
                 if (s[7] == 't') {
-                  return Parser::T_RESTRICT | Lexer::Variant_GLSL_400;
+                  return Parser::T_RESTRICT | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                 }
               }
             }
@@ -766,17 +766,17 @@ static inline int classify8(const char *s) {
             if (s[5] == 'e') {
               if (s[6] == '1') {
                 if (s[7] == 'D') {
-                  return Parser::T_UIMAGE1D | Lexer::Variant_GLSL_400; // 420
+                  return Parser::T_UIMAGE1D | Lexer::Variant_GLSL_460; // 420
                 }
               }
               else if (s[6] == '2') {
                 if (s[7] == 'D') {
-                  return Parser::T_UIMAGE2D | Lexer::Variant_GLSL_400; // 420
+                  return Parser::T_UIMAGE2D | Lexer::Variant_GLSL_460; // 420
                 }
               }
               else if (s[6] == '3') {
                 if (s[7] == 'D') {
-                  return Parser::T_UIMAGE3D | Lexer::Variant_GLSL_400; // 420
+                  return Parser::T_UIMAGE3D | Lexer::Variant_GLSL_460; // 420
                 }
               }
             }
@@ -793,7 +793,7 @@ static inline int classify8(const char *s) {
             if (s[5] == 'i') {
               if (s[6] == 'l') {
                 if (s[7] == 'e') {
-                  return Parser::T_VOLATILE | Lexer::Variant_GLSL_400;
+                  return Parser::T_VOLATILE | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                 }
               }
             }
@@ -834,7 +834,7 @@ static inline int classify9(const char *s) {
               if (s[6] == 'D') {
                 if (s[7] == 'M') {
                   if (s[8] == 'S') {
-                    return Parser::T_IMAGE2DMS | Lexer::Variant_GLSL_400; // 420
+                    return Parser::T_IMAGE2DMS | Lexer::Variant_GLSL_460; // 420
                   }
                 }
               }
@@ -843,7 +843,7 @@ static inline int classify9(const char *s) {
               if (s[6] == 'u') {
                 if (s[7] == 'b') {
                   if (s[8] == 'e') {
-                    return Parser::T_IMAGECUBE | Lexer::Variant_GLSL_400; // 420
+                    return Parser::T_IMAGECUBE | Lexer::Variant_GLSL_460; // 420
                   }
                 }
               }
@@ -898,17 +898,17 @@ static inline int classify9(const char *s) {
               if (s[6] == 'r') {
                 if (s[7] == '1') {
                   if (s[8] == 'D') {
-                    return Parser::T_SAMPLER1D | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                    return Parser::T_SAMPLER1D | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                   }
                 }
                 else if (s[7] == '2') {
                   if (s[8] == 'D') {
-                    return Parser::T_SAMPLER2D | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                    return Parser::T_SAMPLER2D | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                   }
                 }
                 else if (s[7] == '3') {
                   if (s[8] == 'D') {
-                    return Parser::T_SAMPLER3D | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                    return Parser::T_SAMPLER3D | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                   }
                 }
               }
@@ -956,7 +956,7 @@ static inline int classify9(const char *s) {
               if (s[6] == 'n') {
                 if (s[7] == 'l') {
                   if (s[8] == 'y') {
-                    return Parser::T_WRITEONLY | Lexer::Variant_GLSL_400;
+                    return Parser::T_WRITEONLY | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                   }
                 }
               }
@@ -980,7 +980,7 @@ static inline int classify10(const char *s) {
                 if (s[7] == 'D') {
                   if (s[8] == 'M') {
                     if (s[9] == 'S') {
-                      return Parser::T_IIMAGE2DMS | Lexer::Variant_GLSL_400; // 420
+                      return Parser::T_IIMAGE2DMS | Lexer::Variant_GLSL_460; // 420
                     }
                   }
                 }
@@ -989,7 +989,7 @@ static inline int classify10(const char *s) {
                 if (s[7] == 'u') {
                   if (s[8] == 'b') {
                     if (s[9] == 'e') {
-                      return Parser::T_IIMAGECUBE | Lexer::Variant_GLSL_400; // 420
+                      return Parser::T_IIMAGECUBE | Lexer::Variant_GLSL_460; // 420
                     }
                   }
                 }
@@ -1008,17 +1008,17 @@ static inline int classify10(const char *s) {
                 if (s[7] == 'r') {
                   if (s[8] == '1') {
                     if (s[9] == 'D') {
-                      return Parser::T_ISAMPLER1D | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                      return Parser::T_ISAMPLER1D | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                     }
                   }
                   else if (s[8] == '2') {
                     if (s[9] == 'D') {
-                      return Parser::T_ISAMPLER2D | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                      return Parser::T_ISAMPLER2D | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                     }
                   }
                   else if (s[8] == '3') {
                     if (s[9] == 'D') {
-                      return Parser::T_ISAMPLER3D | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                      return Parser::T_ISAMPLER3D | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                     }
                   }
                 }
@@ -1068,7 +1068,7 @@ static inline int classify10(const char *s) {
                 if (s[7] == 'i') {
                   if (s[8] == 'n') {
                     if (s[9] == 'e') {
-                      return Parser::T_SUBROUTINE | Lexer::Variant_GLSL_400;
+                      return Parser::T_SUBROUTINE | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                     }
                   }
                 }
@@ -1089,7 +1089,7 @@ static inline int classify10(const char *s) {
                 if (s[7] == 'D') {
                   if (s[8] == 'M') {
                     if (s[9] == 'S') {
-                      return Parser::T_UIMAGE2DMS | Lexer::Variant_GLSL_400; // 420
+                      return Parser::T_UIMAGE2DMS | Lexer::Variant_GLSL_460; // 420
                     }
                   }
                 }
@@ -1098,7 +1098,7 @@ static inline int classify10(const char *s) {
                 if (s[7] == 'u') {
                   if (s[8] == 'b') {
                     if (s[9] == 'e') {
-                      return Parser::T_UIMAGECUBE | Lexer::Variant_GLSL_400; //420
+                      return Parser::T_UIMAGECUBE | Lexer::Variant_GLSL_460; //420
                     }
                   }
                 }
@@ -1117,17 +1117,17 @@ static inline int classify10(const char *s) {
                 if (s[7] == 'r') {
                   if (s[8] == '1') {
                     if (s[9] == 'D') {
-                      return Parser::T_USAMPLER1D | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                      return Parser::T_USAMPLER1D | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                     }
                   }
                   else if (s[8] == '2') {
                     if (s[9] == 'D') {
-                      return Parser::T_USAMPLER2D | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                      return Parser::T_USAMPLER2D | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                     }
                   }
                   else if (s[8] == '3') {
                     if (s[9] == 'D') {
-                      return Parser::T_USAMPLER3D | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                      return Parser::T_USAMPLER3D | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                     }
                   }
                 }
@@ -1182,7 +1182,7 @@ static inline int classify11(const char *s) {
                   if (s[8] == 'i') {
                     if (s[9] == 'n') {
                       if (s[10] == 't') {
-                        return Parser::T_ATOMIC_UINT | Lexer::Variant_GLSL_400; // 420
+                        return Parser::T_ATOMIC_UINT | Lexer::Variant_GLSL_460; // 420
                       }
                     }
                   }
@@ -1205,7 +1205,7 @@ static inline int classify11(const char *s) {
                   if (s[8] == 'e') {
                     if (s[9] == 'c') {
                       if (s[10] == 't') {
-                        return Parser::T_IMAGE2DRECT | Lexer::Variant_GLSL_400; // 420
+                        return Parser::T_IMAGE2DRECT | Lexer::Variant_GLSL_460; // 420
                       }
                     }
                   }
@@ -1218,7 +1218,7 @@ static inline int classify11(const char *s) {
                   if (s[8] == 'f') {
                     if (s[9] == 'e') {
                       if (s[10] == 'r') {
-                        return Parser::T_IMAGEBUFFER | Lexer::Variant_GLSL_400; // 420
+                        return Parser::T_IMAGEBUFFER | Lexer::Variant_GLSL_460; // 420
                       }
                     }
                   }
@@ -1241,7 +1241,7 @@ static inline int classify11(const char *s) {
                   if (s[8] == 'D') {
                     if (s[9] == 'M') {
                       if (s[10] == 'S') {
-                        return Parser::T_SAMPLER2DMS | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                        return Parser::T_SAMPLER2DMS | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                       }
                     }
                   }
@@ -1250,7 +1250,7 @@ static inline int classify11(const char *s) {
                   if (s[8] == 'u') {
                     if (s[9] == 'b') {
                       if (s[10] == 'e') {
-                        return Parser::T_SAMPLERCUBE | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                        return Parser::T_SAMPLERCUBE | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                       }
                     }
                   }
@@ -1310,7 +1310,7 @@ static inline int classify12(const char *s) {
                     if (s[9] == 'e') {
                       if (s[10] == 'c') {
                         if (s[11] == 't') {
-                          return Parser::T_IIMAGE2DRECT | Lexer::Variant_GLSL_400; // 420
+                          return Parser::T_IIMAGE2DRECT | Lexer::Variant_GLSL_460; // 420
                         }
                       }
                     }
@@ -1323,7 +1323,7 @@ static inline int classify12(const char *s) {
                     if (s[9] == 'f') {
                       if (s[10] == 'e') {
                         if (s[11] == 'r') {
-                          return Parser::T_IIMAGEBUFFER | Lexer::Variant_GLSL_400; // 420
+                          return Parser::T_IIMAGEBUFFER | Lexer::Variant_GLSL_460; // 420
                         }
                       }
                     }
@@ -1346,7 +1346,7 @@ static inline int classify12(const char *s) {
                     if (s[9] == 'r') {
                       if (s[10] == 'a') {
                         if (s[11] == 'y') {
-                          return Parser::T_IMAGE1DARRAY | Lexer::Variant_GLSL_400; // 420
+                          return Parser::T_IMAGE1DARRAY | Lexer::Variant_GLSL_460; // 420
                         }
                       }
                     }
@@ -1361,7 +1361,7 @@ static inline int classify12(const char *s) {
                     if (s[9] == 'r') {
                       if (s[10] == 'a') {
                         if (s[11] == 'y') {
-                          return Parser::T_IMAGE2DARRAY | Lexer::Variant_GLSL_400; // 420
+                          return Parser::T_IMAGE2DARRAY | Lexer::Variant_GLSL_460; // 420
                         }
                       }
                     }
@@ -1384,7 +1384,7 @@ static inline int classify12(const char *s) {
                     if (s[9] == 'D') {
                       if (s[10] == 'M') {
                         if (s[11] == 'S') {
-                          return Parser::T_ISAMPLER2DMS | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                          return Parser::T_ISAMPLER2DMS | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                         }
                       }
                     }
@@ -1393,7 +1393,7 @@ static inline int classify12(const char *s) {
                     if (s[9] == 'u') {
                       if (s[10] == 'b') {
                         if (s[11] == 'e') {
-                          return Parser::T_ISAMPLERCUBE | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                          return Parser::T_ISAMPLERCUBE | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                         }
                       }
                     }
@@ -1475,7 +1475,7 @@ static inline int classify12(const char *s) {
                     if (s[9] == 'e') {
                       if (s[10] == 'c') {
                         if (s[11] == 't') {
-                          return Parser::T_UIMAGE2DRECT | Lexer::Variant_GLSL_400; // 420
+                          return Parser::T_UIMAGE2DRECT | Lexer::Variant_GLSL_460; // 420
                         }
                       }
                     }
@@ -1488,7 +1488,7 @@ static inline int classify12(const char *s) {
                     if (s[9] == 'f') {
                       if (s[10] == 'e') {
                         if (s[11] == 'r') {
-                          return Parser::T_UIMAGEBUFFER | Lexer::Variant_GLSL_400; // 420
+                          return Parser::T_UIMAGEBUFFER | Lexer::Variant_GLSL_460; // 420
                         }
                       }
                     }
@@ -1511,7 +1511,7 @@ static inline int classify12(const char *s) {
                     if (s[9] == 'D') {
                       if (s[10] == 'M') {
                         if (s[11] == 'S') {
-                          return Parser::T_USAMPLER2DMS | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                          return Parser::T_USAMPLER2DMS | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                         }
                       }
                     }
@@ -1520,7 +1520,7 @@ static inline int classify12(const char *s) {
                     if (s[9] == 'u') {
                       if (s[10] == 'b') {
                         if (s[11] == 'e') {
-                          return Parser::T_USAMPLERCUBE | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                          return Parser::T_USAMPLERCUBE | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                         }
                       }
                     }
@@ -1582,7 +1582,7 @@ static inline int classify13(const char *s) {
                       if (s[10] == 'r') {
                         if (s[11] == 'a') {
                           if (s[12] == 'y') {
-                            return Parser::T_IIMAGE1DARRAY | Lexer::Variant_GLSL_400; // 420
+                            return Parser::T_IIMAGE1DARRAY | Lexer::Variant_GLSL_460; // 420
                           }
                         }
                       }
@@ -1597,7 +1597,7 @@ static inline int classify13(const char *s) {
                       if (s[10] == 'r') {
                         if (s[11] == 'a') {
                           if (s[12] == 'y') {
-                            return Parser::T_IIMAGE2DARRAY | Lexer::Variant_GLSL_400; // 420
+                            return Parser::T_IIMAGE2DARRAY | Lexer::Variant_GLSL_460; // 420
                           }
                         }
                       }
@@ -1649,7 +1649,7 @@ static inline int classify13(const char *s) {
                       if (s[10] == 'i') {
                         if (s[11] == 'v') {
                           if (s[12] == 'e') {
-                            return Parser::T_NOPERSPECTIVE | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                            return Parser::T_NOPERSPECTIVE | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                           }
                         }
                       }
@@ -1676,7 +1676,7 @@ static inline int classify13(const char *s) {
                       if (s[10] == 'e') {
                         if (s[11] == 'c') {
                           if (s[12] == 't') {
-                            return Parser::T_SAMPLER2DRECT | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                            return Parser::T_SAMPLER2DRECT | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                           }
                         }
                       }
@@ -1689,7 +1689,7 @@ static inline int classify13(const char *s) {
                       if (s[10] == 'f') {
                         if (s[11] == 'e') {
                           if (s[12] == 'r') {
-                            return Parser::T_SAMPLERBUFFER | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                            return Parser::T_SAMPLERBUFFER | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                           }
                         }
                       }
@@ -1769,7 +1769,7 @@ static inline int classify13(const char *s) {
                       if (s[10] == 'r') {
                         if (s[11] == 'a') {
                           if (s[12] == 'y') {
-                              return Parser::T_UIMAGE1DARRAY | Lexer::Variant_GLSL_400; // 420
+                              return Parser::T_UIMAGE1DARRAY | Lexer::Variant_GLSL_460; // 420
                           }
                         }
                       }
@@ -1784,7 +1784,7 @@ static inline int classify13(const char *s) {
                         if (s[10] == 'r') {
                           if (s[11] == 'a') {
                             if (s[12] == 'y') {
-                              return Parser::T_UIMAGE2DARRAY | Lexer::Variant_GLSL_400; // 420
+                              return Parser::T_UIMAGE2DARRAY | Lexer::Variant_GLSL_460; // 420
                             }
                           }
                         }
@@ -1841,7 +1841,7 @@ static inline int classify14(const char *s) {
                         if (s[11] == 'r') {
                           if (s[12] == 'a') {
                             if (s[13] == 'y') {
-                              return Parser::T_IMAGE2DMSARRAY | Lexer::Variant_GLSL_400; // 420
+                              return Parser::T_IMAGE2DMSARRAY | Lexer::Variant_GLSL_460; // 420
                             }
                           }
                         }
@@ -1860,7 +1860,7 @@ static inline int classify14(const char *s) {
                         if (s[11] == 'r') {
                           if (s[12] == 'a') {
                             if (s[13] == 'y') {
-                              return Parser::T_IMAGECUBEARRAY | Lexer::Variant_GLSL_400; // 420
+                              return Parser::T_IMAGECUBEARRAY | Lexer::Variant_GLSL_460; // 420
                             }
                           }
                         }
@@ -1887,7 +1887,7 @@ static inline int classify14(const char *s) {
                         if (s[11] == 'e') {
                           if (s[12] == 'c') {
                             if (s[13] == 't') {
-                              return Parser::T_ISAMPLER2DRECT | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                              return Parser::T_ISAMPLER2DRECT | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                             }
                           }
                         }
@@ -1900,7 +1900,7 @@ static inline int classify14(const char *s) {
                         if (s[11] == 'f') {
                           if (s[12] == 'e') {
                             if (s[13] == 'r') {
-                              return Parser::T_ISAMPLERBUFFER | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                              return Parser::T_ISAMPLERBUFFER | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                             }
                           }
                         }
@@ -1969,7 +1969,7 @@ static inline int classify14(const char *s) {
                         if (s[11] == 'r') {
                           if (s[12] == 'a') {
                             if (s[13] == 'y') {
-                              return Parser::T_SAMPLER1DARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                              return Parser::T_SAMPLER1DARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                             }
                           }
                         }
@@ -1984,7 +1984,7 @@ static inline int classify14(const char *s) {
                         if (s[11] == 'r') {
                           if (s[12] == 'a') {
                             if (s[13] == 'y') {
-                              return Parser::T_SAMPLER2DARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                              return Parser::T_SAMPLER2DARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                             }
                           }
                         }
@@ -2084,7 +2084,7 @@ static inline int classify14(const char *s) {
                         if (s[11] == 'e') {
                           if (s[12] == 'c') {
                             if (s[13] == 't') {
-                              return Parser::T_USAMPLER2DRECT | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                              return Parser::T_USAMPLER2DRECT | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                             }
                           }
                         }
@@ -2097,7 +2097,7 @@ static inline int classify14(const char *s) {
                         if (s[11] == 'f') {
                           if (s[12] == 'e') {
                             if (s[13] == 'r') {
-                              return Parser::T_USAMPLERBUFFER | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                              return Parser::T_USAMPLERBUFFER | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                             }
                           }
                         }
@@ -2171,7 +2171,7 @@ static inline int classify15(const char *s) {
                           if (s[12] == 'r') {
                             if (s[13] == 'a') {
                               if (s[14] == 'y') {
-                                return Parser::T_IIMAGE2DMSARRAY | Lexer::Variant_GLSL_400; // 420
+                                return Parser::T_IIMAGE2DMSARRAY | Lexer::Variant_GLSL_460; // 420
                               }
                             }
                           }
@@ -2190,7 +2190,7 @@ static inline int classify15(const char *s) {
                           if (s[12] == 'r') {
                             if (s[13] == 'a') {
                               if (s[14] == 'y') {
-                                return Parser::T_IIMAGECUBEARRAY | Lexer::Variant_GLSL_400; // 420
+                                return Parser::T_IIMAGECUBEARRAY | Lexer::Variant_GLSL_460; // 420
                               }
                             }
                           }
@@ -2219,7 +2219,7 @@ static inline int classify15(const char *s) {
                           if (s[12] == 'r') {
                             if (s[13] == 'a') {
                               if (s[14] == 'y') {
-                                return Parser::T_ISAMPLER1DARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                                return Parser::T_ISAMPLER1DARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                               }
                             }
                           }
@@ -2234,7 +2234,7 @@ static inline int classify15(const char *s) {
                           if (s[12] == 'r') {
                             if (s[13] == 'a') {
                               if (s[14] == 'y') {
-                                return Parser::T_ISAMPLER2DARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                                return Parser::T_ISAMPLER2DARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                               }
                             }
                           }
@@ -2309,7 +2309,7 @@ static inline int classify15(const char *s) {
                           if (s[12] == 'd') {
                             if (s[13] == 'o') {
                               if (s[14] == 'w') {
-                                return Parser::T_SAMPLER1DSHADOW | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_400;
+                                return Parser::T_SAMPLER1DSHADOW | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                               }
                             }
                           }
@@ -2326,7 +2326,7 @@ static inline int classify15(const char *s) {
                           if (s[12] == 'd') {
                             if (s[13] == 'o') {
                               if (s[14] == 'w') {
-                                return Parser::T_SAMPLER2DSHADOW | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_400;
+                                return Parser::T_SAMPLER2DSHADOW | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                               }
                             }
                           }
@@ -2384,7 +2384,7 @@ static inline int classify15(const char *s) {
                           if (s[12] == 'r') {
                             if (s[13] == 'a') {
                               if (s[14] == 'y') {
-                                return Parser::T_UIMAGE2DMSARRAY | Lexer::Variant_GLSL_400; // 420
+                                return Parser::T_UIMAGE2DMSARRAY | Lexer::Variant_GLSL_460; // 420
                               }
                             }
                           }
@@ -2403,7 +2403,7 @@ static inline int classify15(const char *s) {
                           if (s[12] == 'r') {
                             if (s[13] == 'a') {
                               if (s[14] == 'y') {
-                                return Parser::T_UIMAGECUBEARRAY | Lexer::Variant_GLSL_400; // 420
+                                return Parser::T_UIMAGECUBEARRAY | Lexer::Variant_GLSL_460; // 420
                               }
                             }
                           }
@@ -2432,7 +2432,7 @@ static inline int classify15(const char *s) {
                           if (s[12] == 'r') {
                             if (s[13] == 'a') {
                               if (s[14] == 'y') {
-                                return Parser::T_USAMPLER1DARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                                return Parser::T_USAMPLER1DARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                               }
                             }
                           }
@@ -2447,7 +2447,7 @@ static inline int classify15(const char *s) {
                           if (s[12] == 'r') {
                             if (s[13] == 'a') {
                               if (s[14] == 'y') {
-                                return Parser::T_USAMPLER2DARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                                return Parser::T_USAMPLER2DARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                               }
                             }
                           }
@@ -2554,7 +2554,7 @@ static inline int classify16(const char *s) {
                             if (s[13] == 'r') {
                               if (s[14] == 'a') {
                                 if (s[15] == 'y') {
-                                  return Parser::T_SAMPLER2DMSARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                                  return Parser::T_SAMPLER2DMSARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                                 }
                               }
                             }
@@ -2573,7 +2573,7 @@ static inline int classify16(const char *s) {
                             if (s[13] == 'r') {
                               if (s[14] == 'a') {
                                 if (s[15] == 'y') {
-                                  return Parser::T_SAMPLERCUBEARRAY | Lexer::Variant_GLSL_400;
+                                  return Parser::T_SAMPLERCUBEARRAY | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                                 }
                               }
                             }
@@ -2663,7 +2663,7 @@ static inline int classify17(const char *s) {
                               if (s[14] == 'r') {
                                 if (s[15] == 'a') {
                                   if (s[16] == 'y') {
-                                    return Parser::T_ISAMPLER2DMSARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                                    return Parser::T_ISAMPLER2DMSARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                                   }
                                 }
                               }
@@ -2682,7 +2682,7 @@ static inline int classify17(const char *s) {
                               if (s[14] == 'r') {
                                 if (s[15] == 'a') {
                                   if (s[16] == 'y') {
-                                    return Parser::T_ISAMPLERCUBEARRAY | Lexer::Variant_GLSL_400;
+                                    return Parser::T_ISAMPLERCUBEARRAY | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                                   }
                                 }
                               }
@@ -2769,7 +2769,7 @@ static inline int classify17(const char *s) {
                               if (s[14] == 'd') {
                                 if (s[15] == 'o') {
                                   if (s[16] == 'w') {
-                                    return Parser::T_SAMPLERCUBESHADOW | Lexer::Variant_GLSL_400;
+                                    return Parser::T_SAMPLERCUBESHADOW | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                                   }
                                 }
                               }
@@ -2804,7 +2804,7 @@ static inline int classify17(const char *s) {
                               if (s[14] == 'r') {
                                 if (s[15] == 'a') {
                                   if (s[16] == 'y') {
-                                    return Parser::T_USAMPLER2DMSARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                                    return Parser::T_USAMPLER2DMSARRAY | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                                   }
                                 }
                               }
@@ -2823,7 +2823,7 @@ static inline int classify17(const char *s) {
                               if (s[14] == 'r') {
                                 if (s[15] == 'a') {
                                   if (s[16] == 'y') {
-                                    return Parser::T_USAMPLERCUBEARRAY | Lexer::Variant_GLSL_400;
+                                    return Parser::T_USAMPLERCUBEARRAY | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                                   }
                                 }
                               }
@@ -2916,7 +2916,7 @@ static inline int classify19(const char *s) {
                                   if (s[16] == 'd') {
                                     if (s[17] == 'o') {
                                       if (s[18] == 'w') {
-                                        return Parser::T_SAMPLER2DRECTSHADOW | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                                        return Parser::T_SAMPLER2DRECTSHADOW | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                                       }
                                     }
                                   }
@@ -2960,7 +2960,7 @@ static inline int classify20(const char *s) {
                                     if (s[17] == 'd') {
                                       if (s[18] == 'o') {
                                         if (s[19] == 'w') {
-                                          return Parser::T_SAMPLER1DARRAYSHADOW | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                                          return Parser::T_SAMPLER1DARRAYSHADOW | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                                         }
                                       }
                                     }
@@ -2987,7 +2987,7 @@ static inline int classify20(const char *s) {
                                     if (s[17] == 'd') {
                                       if (s[18] == 'o') {
                                         if (s[19] == 'w') {
-                                          return Parser::T_SAMPLER2DARRAYSHADOW | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                                          return Parser::T_SAMPLER2DARRAYSHADOW | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                                         }
                                       }
                                     }
@@ -3034,7 +3034,7 @@ static inline int classify22(const char *s) {
                                         if (s[19] == 'd') {
                                           if (s[20] == 'o') {
                                             if (s[21] == 'w') {
-                                              return Parser::T_SAMPLERCUBEARRAYSHADOW | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400;
+                                              return Parser::T_SAMPLERCUBEARRAYSHADOW | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460;
                                             }
                                           }
                                         }
@@ -3094,17 +3094,17 @@ QStringList Lexer::keywords(int variant) {
   list += QLatin1String("int");
   list += QLatin1String("out");
   list += QLatin1String("bool");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("case");
   list += QLatin1String("else");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("flat");
-  if (variant & (Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("lowp");
   list += QLatin1String("mat2");
   list += QLatin1String("mat3");
   list += QLatin1String("mat4");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("uint");
   list += QLatin1String("vec2");
   list += QLatin1String("vec3");
@@ -3116,262 +3116,262 @@ QStringList Lexer::keywords(int variant) {
   list += QLatin1String("bvec3");
   list += QLatin1String("bvec4");
   list += QLatin1String("const");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("dmat2");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("dmat3");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("dmat4");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("dvec2");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("dvec3");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("dvec4");
   list += QLatin1String("float");
-  if (variant & (Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("highp");
   list += QLatin1String("inout");
   list += QLatin1String("ivec2");
   list += QLatin1String("ivec3");
   list += QLatin1String("ivec4");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("patch");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("uvec2");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("uvec3");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("uvec4");
   list += QLatin1String("while");
   list += QLatin1String("false");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("double");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("layout");
-  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("mat2x2");
-  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("mat2x3");
-  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("mat2x4");
-  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("mat3x2");
-  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("mat3x3");
-  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("mat3x4");
-  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("mat4x2");
-  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("mat4x3");
-  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("mat4x4");
   list += QLatin1String("return");
   if (variant & (Lexer::Variant_Reserved))
     list += QLatin1String("sample");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("smooth");
   list += QLatin1String("struct");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("switch");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("default");
   if (variant & (Lexer::Variant_FragmentShader))
     list += QLatin1String("discard");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("dmat2x2");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("dmat2x3");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("dmat2x4");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("dmat3x2");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("dmat3x3");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("dmat3x4");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("dmat4x2");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("dmat4x3");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("dmat4x4");
-  if (variant & (Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("mediump");
   list += QLatin1String("uniform");
-  if (variant & Lexer::Variant_GLSL_400)
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
       list += QLatin1String("buffer");
   list += QLatin1String("varying");
-  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("centroid");
-  if (variant & Lexer::Variant_GLSL_400)
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
       list += QLatin1String("coherent");
-  if (variant & Lexer::Variant_GLSL_400)
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
       list += QLatin1String("precise");
-  if (variant & Lexer::Variant_GLSL_400)
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
       list += QLatin1String("readonly");
-  if (variant & Lexer::Variant_GLSL_400)
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
       list += QLatin1String("restrict");
-  if (variant & Lexer::Variant_GLSL_400)
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
       list += QLatin1String("shared");
-  if (variant & Lexer::Variant_GLSL_400)
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
       list += QLatin1String("volatile");
-  if (variant & Lexer::Variant_GLSL_400)
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
       list += QLatin1String("writeonly");
   list += QLatin1String("continue");
   if (variant & (Lexer::Variant_VertexShader))
     list += QLatin1String("attribute");
   list += QLatin1String("invariant");
-  if (variant & (Lexer::Variant_GLSL_ES_100))
+  if (variant & (Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("precision");
-  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("sampler1D");
   list += QLatin1String("sampler2D");
-  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("sampler3D");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("isampler1D");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("isampler2D");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("isampler3D");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("subroutine");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("usampler1D");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("usampler2D");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("usampler3D");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("sampler2DMS");
   list += QLatin1String("samplerCube");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("isampler2DMS");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("isamplerCube");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("usampler2DMS");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("usamplerCube");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("noperspective");
   list += QLatin1String("sampler2DRect");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("samplerBuffer");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("isampler2DRect");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("isamplerBuffer");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("sampler1DArray");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("sampler2DArray");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("usampler2DRect");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("usamplerBuffer");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("isampler1DArray");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("isampler2DArray");
-  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("sampler1DShadow");
-  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_120 | Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("sampler2DShadow");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("usampler1DArray");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("usampler2DArray");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("sampler2DMSArray");
   if (variant & (Lexer::Variant_GLSL_400))
     list += QLatin1String("samplerCubeArray");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("isampler2DMSArray");
   if (variant & (Lexer::Variant_GLSL_400))
     list += QLatin1String("isamplerCubeArray");
   if (variant & (Lexer::Variant_GLSL_400))
     list += QLatin1String("samplerCubeShadow");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("usampler2DMSarray");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("usamplerCubeArray");
   list += QLatin1String("sampler2DRectShadow");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("sampler1DArrayShadow");
-  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_150 | Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("sampler2DArrayShadow");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
     list += QLatin1String("samplerCubeArrayShadow");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_400 | Lexer::Variant_GLSL_460))
       list += QLatin1String("atomic_uint");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("iimage1D");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("iimage1DArray");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("iimage2D");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("iimage2DArray");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("iimage2DMS");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("iimage2DMSArray");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("iimage2DRect");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("iimage3D");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("iimageBuffer");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("iimageCube");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("iimageCubeArray");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("image1D");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("image1DArray");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("image2D");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("image2DArray");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("image2DMS");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("image2DMSArray");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("image2DRect");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("image3D");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("imageBuffer");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("imageCube");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("imageCubeArray");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("uimage1D");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("uimage1DArray");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("uimage2D");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("uimage2DArray");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("uimage2DMS");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("uimage2DMSArray");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("uimage2DRect");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("uimage3D");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("uimageBuffer");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("uimageCube");
-  if (variant & (Lexer::Variant_GLSL_400))
+  if (variant & (Lexer::Variant_GLSL_460))
       list += QLatin1String("uimageCubeArray");
   // Vulkan additions
   if (variant & (Lexer::Variant_Vulkan)) {
