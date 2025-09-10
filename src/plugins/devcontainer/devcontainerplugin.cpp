@@ -110,9 +110,11 @@ public:
     void onProjectAdded(Project *project);
     void onProjectRemoved(Project *project);
 
-    void onEditorCreated(Core::IEditor *editor, const Utils::FilePath &filePath);
+    void onEditorCreated(Core::IEditor *editor, const FilePath &filePath);
 
     void startDeviceForProject(Project *project, DevContainer::InstanceConfig instanceConfig);
+
+    std::shared_ptr<Device> device(Project *project, const FilePath &configFilePath);
 
 #ifdef WITH_TESTS
 signals:
@@ -120,7 +122,7 @@ signals:
 #endif
 
 private:
-    std::map<Project *, std::shared_ptr<Device>> devices;
+    std::map<Project *, std::vector<std::shared_ptr<Device>>> devicesForProject;
     std::unique_ptr<DevContainerDeviceFactory> deviceFactory;
     QObject guard;
 };
@@ -137,15 +139,16 @@ void DevContainerPlugin::onProjectRemoved(Project *project)
     InfoBar *infoBar = Core::ICore::popupInfoBar();
     infoBar->removeInfo(infoBarId);
 
-    auto it = devices.find(project);
-    if (it == devices.end())
+    auto it = devicesForProject.find(project);
+    if (it == devicesForProject.end())
         return;
 
-    for (auto device : devices)
-        device.second->down();
+    for (std::shared_ptr<Device> device : it->second) {
+        device->down();
+        DeviceManager::removeDevice(device->id());
+    }
 
-    DeviceManager::removeDevice(it->second->id());
-    devices.erase(it);
+    devicesForProject.erase(it);
 }
 
 static FilePaths devContainerFilesForProject(Project *project)
@@ -275,7 +278,18 @@ void DevContainerPlugin::onProjectAdded(Project *project)
     };
 }
 
-void DevContainerPlugin::onEditorCreated(Core::IEditor *editor, const Utils::FilePath &filePath)
+std::shared_ptr<Device> DevContainerPlugin::device(Project *project, const FilePath &configFilePath)
+{
+    auto it = devicesForProject.find(project);
+    if (it != devicesForProject.end()) {
+        return findOrDefault(it->second, [configFilePath](const std::shared_ptr<Device> &device) {
+            return device->instanceConfig().configFilePath == configFilePath;
+        });
+    }
+    return nullptr;
+}
+
+void DevContainerPlugin::onEditorCreated(Core::IEditor *editor, const FilePath &filePath)
 {
     if (filePath.fileName() != "devcontainer.json" && filePath.fileName() != ".devcontainer.json")
         return;
@@ -303,9 +317,8 @@ void DevContainerPlugin::onEditorCreated(Core::IEditor *editor, const Utils::Fil
     const FilePath workspaceFolder = project->rootProjectDirectory();
 
     connect(restartAction, &QAction::triggered, [this, project, workspaceFolder, filePath]() {
-        auto it = devices.find(project);
-        if (it != devices.end()) {
-            std::shared_ptr<Device> existingDevice = it->second;
+        auto existingDevice = this->device(project, filePath);
+        if (existingDevice) {
             existingDevice->restart([](Result<> result) {
                 if (!result) {
                     QMessageBox box(Core::ICore::dialogParent());
@@ -315,16 +328,17 @@ void DevContainerPlugin::onEditorCreated(Core::IEditor *editor, const Utils::Fil
                     box.exec();
                 }
             });
-        } else {
-            DevContainer::InstanceConfig instanceConfig{
-                .dockerCli = "docker",
-                .workspaceFolder = workspaceFolder,
-                .configFilePath = filePath,
-                .mounts = {},
-            };
-
-            startDeviceForProject(project, instanceConfig);
+            return;
         }
+
+        DevContainer::InstanceConfig instanceConfig{
+            .dockerCli = "docker",
+            .workspaceFolder = workspaceFolder,
+            .configFilePath = filePath,
+            .mounts = {},
+        };
+
+        startDeviceForProject(project, instanceConfig);
     });
 
     textEditorWidget
@@ -344,9 +358,14 @@ void DevContainerPlugin::startDeviceForProject(
     device->setDisplayName(Tr::tr("Development Container for %1").arg(project->displayName()));
     DeviceManager::addDevice(device);
 
-    const auto onDone = Utils::guardedCallback(&guard, [this, project, log, device](Result<> result) {
+    const auto onDone = guardedCallback(&guard, [this, project, log, device](Result<> result) {
         if (result) {
-            devices.insert({project, device});
+            auto it = devicesForProject.find(project);
+            if (it == devicesForProject.end())
+                devicesForProject.insert({project, {device}});
+            else
+                it->second.push_back(device);
+
             log->clear();
 
 #ifdef WITH_TESTS
