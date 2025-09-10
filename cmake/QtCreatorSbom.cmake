@@ -163,6 +163,12 @@ function(qtc_sbom_begin_project)
       set(arg_VERSION "${IDE_VERSION}")
       # Passed as each target version.
       set(arg_DEFAULT_VERSION "${IDE_VERSION}")
+
+      # Newer Qt handles both VERSION and USE_GIT_VERSION together, with the former having
+      # priority.
+      if(Qt6_VERSION VERSION_GREATER_EQUAL 6.10.1)
+        set(arg_USE_GIT_VERSION TRUE)
+      endif()
     else()
       # Rely on version extracted from git.
       set(arg_USE_GIT_VERSION TRUE)
