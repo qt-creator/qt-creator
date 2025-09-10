@@ -54,7 +54,6 @@ Item {
 
         Label {
             id: moreMenu
-            anchors.fill: parent
             text: StudioTheme.Constants.more_medium
             color: StudioTheme.Values.themeTextColor
             font.family: StudioTheme.Constants.iconFont.family
