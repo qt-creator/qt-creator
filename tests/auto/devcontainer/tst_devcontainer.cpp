@@ -295,7 +295,7 @@ FROM alpine:latest AS test
         Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
         Tasking::DoneWith::Success);
 
-    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe();
+    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(false);
     QVERIFY_RESULT(downRecipe);
     QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);
 }
@@ -327,7 +327,7 @@ void tst_DevContainer::upImage()
         Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
         Tasking::DoneWith::Success);
 
-    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe();
+    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(false);
     QVERIFY_RESULT(downRecipe);
     QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);
 }
@@ -373,7 +373,7 @@ void tst_DevContainer::upWithHooks()
         Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
         Tasking::DoneWith::Success);
 
-    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe();
+    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(false);
     QVERIFY_RESULT(downRecipe);
     QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);
 }
@@ -457,7 +457,7 @@ void tst_DevContainer::processInterface()
     sleepProc.kill();
     QVERIFY(sleepProc.waitForFinished());
 
-    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe();
+    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(false);
     QVERIFY_RESULT(downRecipe);
     QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);
 }
@@ -577,7 +577,7 @@ volumes:
     QVERIFY(process.exitCode() == 0);
 
     // Shutdown
-    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe();
+    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(false);
     QVERIFY_RESULT(downRecipe);
     QCOMPARE(
         Tasking::TaskTree::runBlocking((*downRecipe).withTimeout(recipeTimeout)),

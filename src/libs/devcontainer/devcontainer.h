@@ -65,7 +65,7 @@ public:
     Utils::ProcessInterface *createProcessInterface(const RunningInstance &runningInstance) const;
 
     Utils::Result<Tasking::Group> upRecipe(const RunningInstance &runningInstance) const;
-    Utils::Result<Tasking::Group> downRecipe() const;
+    Utils::Result<Tasking::Group> downRecipe(bool forceDown) const;
 
     const Config &config() const;
 

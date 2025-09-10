@@ -56,7 +56,7 @@ private:
     void onConfigChanged();
     Tasking::Group upRecipe(
         InstanceConfig instanceConfig, Tasking::Storage<ProgressPtr> progressStorage);
-    Tasking::Group downRecipe();
+    Tasking::Group downRecipe(bool forceDown);
 
 private:
     Utils::Process::ProcessInterfaceCreator m_processInterfaceCreator;
@@ -64,6 +64,7 @@ private:
     std::unique_ptr<CmdBridge::FileAccess> m_fileAccess;
     std::optional<Utils::Environment> m_systemEnvironment;
     std::optional<Tasking::ExecutableItem> m_downRecipe;
+    std::optional<Tasking::ExecutableItem> m_forceDownRecipe;
     Tasking::ParallelTaskTreeRunner m_taskTreeRunner;
 
     std::unique_ptr<Utils::FilePathWatcher> m_devContainerJsonWatcher;
