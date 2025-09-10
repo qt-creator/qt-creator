@@ -75,6 +75,8 @@ Group pipInstallerTask(const PipInstallerData &data)
 
         process.setCommand({data.python, arguments});
         process.setTerminalMode(data.silent ? TerminalMode::Off : TerminalMode::Run);
+        if (!data.workingDirectory.isEmpty())
+            process.setWorkingDirectory(data.workingDirectory);
         auto progress = new ProcessProgress(&process);
         progress->setDisplayName(operation);
 
