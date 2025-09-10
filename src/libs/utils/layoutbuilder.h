@@ -694,6 +694,20 @@ void addToLayout(Layout *layout, const QList<T> &inner)
         addToLayout(layout, i);
 }
 
+template<typename T>
+concept WidgetFactory
+    = (std::derived_from<std::remove_pointer_t<std::invoke_result_t<T>>, QWidget>
+       && std::is_pointer_v<std::invoke_result_t<T>>);
+
+template<typename FUNC>
+requires WidgetFactory<FUNC>
+void addToLayout(Layout *layout, FUNC factory)
+{
+    auto inner = factory();
+    if (inner)
+        addToLayout(layout, inner);
+}
+
 template<std::ranges::view T>
 void addToLayout(Layout *layout, T inner)
 {
