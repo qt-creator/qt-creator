@@ -31,8 +31,10 @@ Item {
 
     function addGradient() {
         root.gradientModel.addGradient()
+        root.gradientModel.lock()
         colorLine.invalidate()
         colorLine.select(0)
+        root.gradientModel.unlock()
     }
 
     function deleteGradient() {
@@ -41,14 +43,18 @@ Item {
 
     function setPresetByID(presetID) {
         root.gradientModel.setPresetByID(presetID)
+        root.gradientModel.lock()
         colorLine.invalidate()
         colorLine.select(0)
+        root.gradientModel.unlock()
     }
 
     function setPresetByStops(stopsPositions, stopsColors, stopsCount) {
         root.gradientModel.setPresetByStops(stopsPositions, stopsColors, stopsCount)
+        root.gradientModel.lock()
         colorLine.invalidate()
         colorLine.select(0)
+        root.gradientModel.unlock()
     }
 
     function savePreset() {
