@@ -101,16 +101,13 @@ bool Manifest::hasNoRules() const
 
 QString Manifest::toJsonContent() const
 {
-    QJsonObject object;
     QJsonArray groups;
 
     for (const Category &category : std::as_const(m_groups))
         groups.append(toJson(category));
 
-    object.insert(u"role", m_role);
-    object.insert(u"groups", groups);
-
-    return QString{"```json\n%1\n```"}.arg(QJsonDocument{object}.toJson(QJsonDocument::Compact));
+    return QString{"AI Role: %1\n```json\n%2\n```"}
+        .arg(m_role, QJsonDocument{groups}.toJson(QJsonDocument::Compact));
 }
 
 void Manifest::addCategory(const QJsonObject &categoryObject)
