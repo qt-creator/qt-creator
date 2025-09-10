@@ -253,11 +253,11 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
             }
         },
         Space(StyleHelper::SpacingTokens::GapHM),
+        If (!info.combo().entries.isEmpty()) >> Then {
+            makeComboBox
+        },
         Flow {
             alignment(Qt::AlignRight),
-            If (!info.combo().entries.isEmpty()) >> Then {
-                makeComboBox
-            },
             If (info.detailsWidgetCreator() != nullptr) >> Then {
                 makeDetails,
             },
