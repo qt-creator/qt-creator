@@ -1184,7 +1184,8 @@ void PlainTextEditPrivate::adjustScrollbars()
         vmax -= qMax(0, viewport()->height());
     QSizeF documentSize = editorLayout->documentSize();
     vbar()->setRange(0, qMax(0, vmax));
-    vbar()->setPageStep(viewport()->height());
+    int lineHeight = qCeil(QFontMetricsF(q->font()).height());
+    vbar()->setPageStep(viewport()->height() / lineHeight * lineHeight);
     int visualTopLine = 0;
     QTextBlock firstVisibleBlock = q->firstVisibleBlock();
     if (firstVisibleBlock.isValid())
