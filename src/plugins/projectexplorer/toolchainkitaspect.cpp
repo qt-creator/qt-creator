@@ -231,9 +231,9 @@ void ToolchainKitAspectFactory::fix(Kit *k)
                      qPrintable(k->displayName()),
                      qPrintable(ToolchainManager::displayNameOfLanguageId(l)));
             ToolchainKitAspect::clearToolchain(k, l); // make sure to clear out no longer known tool chains
-        }
-        if (!dev || !dev->rootPath().isSameDevice(tc->compilerCommand()))
+        } else if (!dev || !dev->rootPath().isSameDevice(tc->compilerCommand())) {
             ToolchainKitAspect::clearToolchain(k, l);
+        }
     }
 }
 
