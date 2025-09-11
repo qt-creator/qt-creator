@@ -347,7 +347,7 @@ T.TreeViewDelegate {
         sourceSize.width: 48
         sourceSize.height: 48
         asynchronous: true
-        fillMode: Image.Pad
+        fillMode: Image.PreserveAspectFit
         source: thumbnailImage.__computeSource()
 
         function __computeSource() {
