@@ -143,7 +143,8 @@
     \l{Add debuggers}{Debugging}, and \l{Add Qt versions}{Qt version}, as well
     as steps for building, deploying, and running applications.
 
-    To copy the build, deploy, and run steps from another kit, select
+    To copy the build, deploy, and run steps from another kit, go to
+    \uicontrol Projects > \uicontrol {Build & Run}, right-click a kit, and select
     \uicontrol {Copy Steps from Another Kit} in the context menu.
 
     To deactivate a kit, select \uicontrol {Disable Kit for Project} in the
