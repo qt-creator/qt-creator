@@ -463,6 +463,9 @@ DockerDevice::DockerDevice()
     mounts.setDefaultValue({Core::DocumentManager::projectsDirectory().toUrlishString()});
     mounts.setToolTip(Tr::tr("Maps paths in this list one-to-one to the docker container."));
     mounts.setPlaceHolderText(Tr::tr("Host directories to mount into the container."));
+    mounts.addOnChanged(DeviceManager::instance(), [this] {
+        DeviceManager::instance()->deviceUpdated(id());
+    });
 
     extraArgs.setSettingsKey(DockerDeviceExtraArgs);
     extraArgs.setLabelText(Tr::tr("Extra arguments:"));
