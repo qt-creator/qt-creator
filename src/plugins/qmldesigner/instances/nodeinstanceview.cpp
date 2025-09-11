@@ -1053,7 +1053,10 @@ bool parentIsBehavior(ModelNode node)
     return false;
 }
 
-TypeName createQualifiedTypeName(const ModelNode &node, ModulesStorage &modulesStorage)
+TypeName createQualifiedTypeName(const ModelNode &node,
+                                 ModulesStorage &modulesStorage,
+                                 const ProjectStorageType &projectStorage,
+                                 SourceId documentSourceId)
 {
     if (!node)
         return {};
@@ -1061,7 +1064,9 @@ TypeName createQualifiedTypeName(const ModelNode &node, ModulesStorage &modulesS
     auto exportedType = node.exportedTypeName();
     if (exportedType.name.size()) {
         using Storage::ModuleKind;
-        auto module = modulesStorage.module(exportedType.moduleId);
+        auto importModuleId = projectStorage.importModuleIdForSourceIdAndModuleId(documentSourceId,
+                                                                                  exportedType.moduleId);
+        auto module = modulesStorage.module(importModuleId);
         Utils::PathString typeName;
         switch (module.kind) {
         case ModuleKind::QmlLibrary:
@@ -1125,6 +1130,9 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         }
     }
 
+    const auto &projectStorage = *model()->projectStorage();
+    const SourceId documentSourceId = model()->fileUrlSourceId();
+
     QVector<InstanceContainer> instanceContainerList;
     for (const NodeInstance &instance : std::as_const(instanceList)) {
         InstanceContainer::NodeSourceType nodeSourceType = static_cast<InstanceContainer::NodeSourceType>(instance.modelNode().nodeSourceType());
@@ -1141,7 +1149,10 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         const auto modelNode = instance.modelNode();
 
         InstanceContainer container(instance.instanceId(),
-                                    createQualifiedTypeName(modelNode, m_modulesStorage),
+                                    createQualifiedTypeName(modelNode,
+                                                            m_modulesStorage,
+                                                            projectStorage,
+                                                            documentSourceId),
                                     modelNode.exportedTypeName().version.major.toSignedInteger(),
                                     modelNode.exportedTypeName().version.minor.toSignedInteger(),
                                     ModelUtils::componentFilePath(modelNode),
@@ -1268,6 +1279,9 @@ ComponentCompletedCommand NodeInstanceView::createComponentCompletedCommand(cons
 
 CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QList<NodeInstance> &instanceList) const
 {
+    const auto &projectStorage = *model()->projectStorage();
+    const SourceId documentSourceId = model()->fileUrlSourceId();
+
     QVector<InstanceContainer> containerList;
     for (const NodeInstance &instance : instanceList) {
         InstanceContainer::NodeSourceType nodeSourceType = static_cast<InstanceContainer::NodeSourceType>(instance.modelNode().nodeSourceType());
@@ -1283,7 +1297,10 @@ CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QLis
 
         const auto modelNode = instance.modelNode();
         InstanceContainer container(instance.instanceId(),
-                                    createQualifiedTypeName(modelNode, m_modulesStorage),
+                                    createQualifiedTypeName(modelNode,
+                                                            m_modulesStorage,
+                                                            projectStorage,
+                                                            documentSourceId),
                                     modelNode.exportedTypeName().version.major.toSignedInteger(),
                                     modelNode.exportedTypeName().version.minor.toSignedInteger(),
                                     ModelUtils::componentFilePath(modelNode),
@@ -1983,9 +2000,13 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
     VariantProperty prop = modelNode.variantProperty("source");
     QString imageSource = prop.value().toString();
 
+    const auto &projectStorage = *model()->projectStorage();
+    const SourceId documentSourceId = model()->fileUrlSourceId();
+
     ModelNodePreviewImageData imageData;
     imageData.id = modelNode.id();
-    imageData.type = QString::fromUtf8(createQualifiedTypeName(modelNode, m_modulesStorage));
+    imageData.type = QString::fromUtf8(
+        createQualifiedTypeName(modelNode, m_modulesStorage, projectStorage, documentSourceId));
     const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
 
     if (imageSource.isEmpty() && modelNode.metaInfo().isQtQuick3DTexture()) {
@@ -2094,7 +2115,11 @@ QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &model
     if (m_imageDataMap.contains(id)) {
         imageData = m_imageDataMap[id];
     } else {
-        imageData.type = QString::fromLatin1(createQualifiedTypeName(modelNode, m_modulesStorage));
+        const auto &projectStorage = *model()->projectStorage();
+        const SourceId documentSourceId = model()->fileUrlSourceId();
+
+        imageData.type = QString::fromLatin1(
+            createQualifiedTypeName(modelNode, m_modulesStorage, projectStorage, documentSourceId));
         imageData.id = id;
 
         // There might be multiple requests for different preview pixmap sizes.

@@ -998,6 +998,8 @@ struct ProjectStorage::Statements
         database};
     mutable Sqlite::ReadStatement<1> selectMaxTypeIdStatement{"SELECT max(typeId) FROM types",
                                                               database};
+    mutable Sqlite::ReadStatement<1, 2> selectSourceModuleIdForSourceIdAndModuleIdStatement{
+        "SELECT sourceModuleId FROM documentImports WHERE sourceId=?1 AND moduleId=?2", database};
 };
 
 class ProjectStorage::Initializer
@@ -1615,6 +1617,17 @@ ImportId ProjectStorage::importId(SourceId sourceId, Utils::SmallStringView alia
     tracer.end(keyValue("import id", importId));
 
     return importId;
+}
+
+ModuleId ProjectStorage::importModuleIdForSourceIdAndModuleId(SourceId sourceId, ModuleId moduleId) const
+{
+    NanotraceHR::Tracer tracer{"get original import module id for source id and module id",
+                               category(),
+                               keyValue("source id", sourceId),
+                               keyValue("module id", moduleId)};
+
+    return s->selectSourceModuleIdForSourceIdAndModuleIdStatement
+        .valueWithTransaction<ModuleId>(sourceId, moduleId);
 }
 
 ImportedTypeNameId ProjectStorage::importedTypeNameId(ImportId importId,

@@ -182,6 +182,10 @@ public:
                 importId,
                 (QmlDesigner::SourceId sourceId, Utils::SmallStringView moduleName),
                 (const, override));
+    MOCK_METHOD(QmlDesigner::ModuleId,
+                importModuleIdForSourceIdAndModuleId,
+                (QmlDesigner::SourceId sourceId, QmlDesigner::ModuleId moduleId),
+                (const, override));
     MOCK_METHOD(QmlDesigner::ImportedTypeNameId,
                 importedTypeNameId,
                 (QmlDesigner::ImportId sourceId, ::Utils::SmallStringView typeName),

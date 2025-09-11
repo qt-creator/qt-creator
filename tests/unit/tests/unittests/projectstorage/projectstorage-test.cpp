@@ -9217,4 +9217,14 @@ TEST_F(ProjectStorage, get_only_singleton_type_ids_exported_types)
     ASSERT_THAT(singletonTypeIds, ElementsAre(fetchTypeId(sourceId1, "QQuickItem")));
 }
 
+TEST_F(ProjectStorage, get_orginal_import_module_id_for_source_id_and_module_id)
+{
+    auto package{createModuleExportedImportSynchronizationPackage()};
+    storage.synchronize(package);
+
+    auto moduleId = storage.importModuleIdForSourceIdAndModuleId(sourceId3, qmlModuleId);
+
+    ASSERT_THAT(moduleId, qtQuickModuleId);
+}
+
 } // namespace
