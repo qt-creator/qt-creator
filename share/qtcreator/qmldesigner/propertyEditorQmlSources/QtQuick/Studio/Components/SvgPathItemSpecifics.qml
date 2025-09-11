@@ -83,6 +83,64 @@ Column {
 
                 ExpandingSpacer {}
             }
+
+            PropertyLabel {
+                text: qsTr("Fill mode")
+                tooltip: qsTr("Defines what happens when the path has a different size than the item.")
+                blockedByTemplate: !backendValues.fillMode.isAvailable
+            }
+
+            SecondColumnLayout {
+                ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    backendValue: backendValues.fillMode
+                    model: ["NoResize", "Stretch", "PreserveAspectFit", "PreserveAspectCrop"]
+                    scope: "Shape"
+                    enabled: backendValue.isAvailable
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Alignment H")
+                tooltip: qsTr("Sets the horizontal alignment of the shape within the item.")
+            }
+
+            SecondColumnLayout {
+                ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    backendValue: backendValues.horizontalAlignment
+                    model: ["AlignLeft", "AlignRight" ,"AlignHCenter"]
+                    scope: "Shape"
+                    enabled: backendValue.isAvailable
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("Alignment V")
+                tooltip: qsTr("Sets the vertical alignment of the shape within the item.")
+            }
+
+            SecondColumnLayout {
+                ComboBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    backendValue: backendValues.verticalAlignment
+                    model: ["AlignTop", "AlignBottom" ,"AlignVCenter"]
+                    scope: "Shape"
+                    enabled: backendValue.isAvailable
+                }
+
+                ExpandingSpacer {}
+            }
         }
     }
 
