@@ -76,6 +76,7 @@ public:
     ImportId importId(const Storage::Import &import) const override;
     ImportId importId(SourceId sourceId, Utils::SmallStringView alias) const override;
     ModuleId importModuleIdForSourceIdAndModuleId(SourceId sourceId, ModuleId moduleId) const override;
+    Storage::Import originalImportForSourceIdAndModuleId(SourceId sourceId, ModuleId moduleId) const;
 
     ImportedTypeNameId importedTypeNameId(ImportId importId, Utils::SmallStringView typeName) override;
 

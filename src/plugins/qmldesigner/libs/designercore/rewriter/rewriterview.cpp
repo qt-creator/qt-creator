@@ -971,30 +971,56 @@ ModuleIds generateModuleIds(const ModelNodes &nodes, const ModulesStorage &modul
     return moduleIds;
 }
 
-QStringList generateImports(ModuleIds moduleIds, const QUrl &docUrl, const ModulesStorage &modulesStorage)
+QStringList generateImports(ModuleIds moduleIds,
+                            const QUrl &docUrl,
+                            const ModulesStorage &modulesStorage,
+                            const ProjectStorageType &projectStorage,
+                            SourceId documentSourceId)
 {
     QStringList imports;
     imports.reserve(std::ssize(moduleIds));
 
     for (auto moduleId : moduleIds) {
         using Storage::ModuleKind;
-        auto module = modulesStorage.module(moduleId);
+        auto originalImport = projectStorage.originalImportForSourceIdAndModuleId(documentSourceId,
+                                                                                  moduleId);
+        auto module = modulesStorage.module(originalImport.moduleId);
         switch (module.kind) {
-        case ModuleKind::QmlLibrary:
+        case ModuleKind::QmlLibrary: {
             imports.push_back("import " + module.name.toQString());
+            auto &text = imports.back();
+            auto version = originalImport.version;
+            if (version) {
+                if (version.minor)
+                    text += QString(" %1.%2").arg(version.major.value, version.minor.value);
+                else
+                    text += QString(" %1").arg(version.major.value);
+            }
+
+            if (not originalImport.alias.isEmpty())
+                text += QString(" as %1").arg(originalImport.alias.toQString());
+
             break;
+        }
         case ModuleKind::PathLibrary: {
             const Utils::FilePath modulePath = Utils::FilePath::fromString(module.name.toQString());
             const Utils::FilePath docFile = Utils::FilePath::fromUrl(docUrl);
             const QString relPathStr = modulePath.relativePathFromDir(docFile).toFSPathString();
             if (relPathStr != ".")
                 imports.push_back("import \"" + relPathStr + "\"");
+
+            auto &text = imports.back();
+            if (not originalImport.alias.isEmpty())
+                text += QString(" AS %1").arg(originalImport.alias.toQString());
+
             break;
         }
         case ModuleKind::CppLibrary:
             break;
         }
     }
+
+    imports.removeDuplicates();
 
     return imports;
 }
@@ -1006,7 +1032,10 @@ QStringList generateImports(const ModelNodes &nodes, const ModulesStorage &modul
 
     auto moduleIds = generateModuleIds(nodes, modulesStorage);
 
-    return generateImports(moduleIds, model->fileUrl(), modulesStorage);
+    const auto &projectStorage = *model->projectStorage();
+    const SourceId documentSourceId = model->fileUrlSourceId();
+
+    return generateImports(moduleIds, model->fileUrl(), modulesStorage, projectStorage, documentSourceId);
 }
 
 } // namespace

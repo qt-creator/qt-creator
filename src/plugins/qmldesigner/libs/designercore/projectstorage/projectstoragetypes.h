@@ -45,11 +45,13 @@ public:
            unsigned int majorVersion,
            unsigned int minorVersion,
            SourceId sourceId,
-           SourceId contextSourceId)
+           SourceId contextSourceId,
+           Utils::SmallStringView alias)
         : version{majorVersion, minorVersion}
         , moduleId{moduleId}
         , sourceId{sourceId}
         , contextSourceId{contextSourceId}
+        , alias{alias}
     {}
 
     static Import fromSignedInteger(ModuleId moduleId,

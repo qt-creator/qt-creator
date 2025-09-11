@@ -274,6 +274,18 @@ MATCHER_P2(IsInfoType,
     return type.sourceId == sourceId && type.traits == traits;
 }
 
+auto IsImport(const auto &moduleIdMatcher,
+              const auto &versionMatcher,
+              const auto &sourceIdMatcher,
+              const auto &contextSourceIdMatcher)
+{
+    using QmlDesigner::Storage::Import;
+    return AllOf(Field("Import::sourceId", &Import::sourceId, sourceIdMatcher),
+                 Field("Import::moduleId", &Import::moduleId, moduleIdMatcher),
+                 Field("Import::version", &Import::version, versionMatcher),
+                 Field("Import::contextSourceId", &Import::contextSourceId, contextSourceIdMatcher));
+}
+
 class ProjectStorage : public testing::Test
 {
 protected:
@@ -9225,6 +9237,16 @@ TEST_F(ProjectStorage, get_orginal_import_module_id_for_source_id_and_module_id)
     auto moduleId = storage.importModuleIdForSourceIdAndModuleId(sourceId3, qmlModuleId);
 
     ASSERT_THAT(moduleId, qtQuickModuleId);
+}
+
+TEST_F(ProjectStorage, get_orginal_import_for_source_id_and_module_id)
+{
+    auto package{createModuleExportedImportSynchronizationPackage()};
+    storage.synchronize(package);
+
+    auto import = storage.originalImportForSourceIdAndModuleId(sourceId3, qmlModuleId);
+
+    ASSERT_THAT(import, IsImport(qtQuickModuleId, Storage::Version{1}, sourceId3, sourceId3));
 }
 
 } // namespace

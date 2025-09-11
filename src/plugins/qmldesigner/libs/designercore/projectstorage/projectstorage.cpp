@@ -410,8 +410,8 @@ struct ProjectStorage::Statements
         "SELECT typeId FROM exportedTypeNames WHERE moduleId IN carray(?1, ?2, 'int32') AND "
         "name=?3",
         database};
-    mutable Sqlite::ReadStatement<5> selectAllDocumentImportsStatement{
-        "SELECT moduleId, majorVersion, minorVersion, sourceId, contextSourceId "
+    mutable Sqlite::ReadStatement<6> selectAllDocumentImportsStatement{
+        "SELECT moduleId, majorVersion, minorVersion, sourceId, contextSourceId, alias "
         "FROM documentImports ",
         database};
     mutable Sqlite::ReadStatement<7, 2> selectDocumentImportForContextSourceIdStatement{
@@ -1000,6 +1000,15 @@ struct ProjectStorage::Statements
                                                               database};
     mutable Sqlite::ReadStatement<1, 2> selectSourceModuleIdForSourceIdAndModuleIdStatement{
         "SELECT sourceModuleId FROM documentImports WHERE sourceId=?1 AND moduleId=?2", database};
+    mutable Sqlite::ReadStatement<1, 2> selectImportIdForSourceIdAndModuleIdStatement{
+        "SELECT importId FROM documentImports WHERE sourceId=?1 AND moduleId=?2", database};
+    mutable Sqlite::ReadStatement<1, 1> selectParentImportIdForImportIdStatement{
+        "SELECT parentImportId FROM documentImports WHERE importId=?1", database};
+    mutable Sqlite::ReadStatement<6, 1> selectDocumentImportByImportIdStatement{
+        "SELECT moduleId, majorVersion, minorVersion, sourceId, contextSourceId, alias "
+        "FROM documentImports "
+        "WHERE importId=?1",
+        database};
 };
 
 class ProjectStorage::Initializer
@@ -1628,6 +1637,29 @@ ModuleId ProjectStorage::importModuleIdForSourceIdAndModuleId(SourceId sourceId,
 
     return s->selectSourceModuleIdForSourceIdAndModuleIdStatement
         .valueWithTransaction<ModuleId>(sourceId, moduleId);
+}
+
+Storage::Import ProjectStorage::originalImportForSourceIdAndModuleId(SourceId sourceId,
+                                                                     ModuleId moduleId) const
+{
+    NanotraceHR::Tracer tracer{"get original import module id for source id and module id",
+                               category(),
+                               keyValue("source id", sourceId),
+                               keyValue("module id", moduleId)};
+
+    return Sqlite::withImplicitTransaction(database, [&] {
+        auto importId = s->selectImportIdForSourceIdAndModuleIdStatement.value<ImportId>(sourceId,
+                                                                                         moduleId);
+
+        while (importId) {
+            auto parentImportId = s->selectParentImportIdForImportIdStatement.value<ImportId>(importId);
+            if (not parentImportId)
+                break;
+            importId = parentImportId;
+        }
+
+        return s->selectDocumentImportByImportIdStatement.value<Storage::Import>(importId);
+    });
 }
 
 ImportedTypeNameId ProjectStorage::importedTypeNameId(ImportId importId,
