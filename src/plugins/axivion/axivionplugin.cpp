@@ -178,6 +178,7 @@ struct PostDtoStorage
 {
     QUrl url;
     std::optional<QByteArray> credential;
+    QString password;
     QByteArray csrfToken;
     QByteArray writeData;
     std::optional<DtoType> dtoData;
@@ -653,6 +654,35 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
                     showFilterException(error->message);
                     return DoneResult::Error;
                 }
+
+                if constexpr (std::is_same_v<DtoStorageType<DtoType>, PostDtoStorage<DtoType>>
+                              && std::is_same_v<DtoType, Dto::ApiTokenInfoDto>) {
+                    if (statusCode == 400 && error->type == "PasswordVerificationException" && error->data) {
+                        const auto it = error->data->find("passwordMayBeUsedAsApiToken");
+                        if (it != error->data->end()) {
+                            const Dto::Any data = it->second;
+                            if (data.isBool() && data.getBool()) {
+                                Dto::ApiTokenInfoDto fakeDto{
+                                    QString(),
+                                    QString(),
+                                    true,
+                                    QString(),
+                                    QString(),
+                                    dtoStorage->password,
+                                    QString(),
+                                    QString(),
+                                    QString(),
+                                    QString(),
+                                    std::optional<QString>(),
+                                    QString(),
+                                    false
+                                };
+                                dtoStorage->dtoData = fakeDto;
+                                return DoneResult::Success;
+                            }
+                        }
+                    }
+                }
                 errorString = Error(DashboardError(reply->url(), statusCode,
                     reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
                                      *error)).message();
@@ -851,6 +881,7 @@ static Group authorizationRecipe(DashboardMode dashboardMode)
         const Dto::ApiTokenCreationRequestDto requestDto{*passwordStorage, "IdePlugin",
                                                          apiTokenDescription(), 0};
         apiTokenStorage->writeData = requestDto.serialize();
+        apiTokenStorage->password = *passwordStorage;
         return SetupResult::Continue;
     };
 
@@ -915,10 +946,7 @@ static Group authorizationRecipe(DashboardMode dashboardMode)
                 passwordStorage,
                 dashboardStorage,
                 onGroupSetup(onPasswordGroupSetup),
-                Group { // GET DashboardInfoDto
-                    finishAllAndSuccess,
-                    dtoRecipe(dashboardStorage)
-                },
+                dtoRecipe(dashboardStorage) || successItem, // GET DashboardInfoDto
                 Group { // POST ApiTokenCreationRequestDto, GET ApiTokenInfoDto.
                     apiTokenStorage,
                     onGroupSetup(onApiTokenGroupSetup),
