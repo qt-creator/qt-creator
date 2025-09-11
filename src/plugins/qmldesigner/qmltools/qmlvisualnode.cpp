@@ -385,17 +385,26 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
     return newNode;
 }
 
+static QString getSourceForUrl(const QString &fileUrl)
+{
+    const Utils::Result<QByteArray> res = Utils::FilePath::fromString(fileUrl).fileContents();
+
+    if (res)
+        return QString::fromUtf8(*res);
+
+    return Utils::FileUtils::fetchQrc(fileUrl);
+}
 
 static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
-                                                   const QString &source,
+                                                   const QString &sourcePath,
                                                    const QmlVisualNode::Position &position)
 {
     auto model = view->model();
+    const QString source = getSourceForUrl(sourcePath);
 
     auto inputModel = model->createModel({"Item"});
 
-    inputModel->setFileUrl(model->fileUrl());
-    inputModel->changeImports(model->imports(), {});
+    inputModel->setFileUrl(QUrl::fromUserInput(sourcePath));
 
     QPlainTextEdit textEdit;
 
@@ -435,16 +444,6 @@ static QString imagePlaceHolderPath(AbstractView *view)
 
 
     return QString::fromLatin1(imagePlaceHolder);
-}
-
-static QString getSourceForUrl(const QString &fileUrl)
-{
-    const Utils::Result<QByteArray> res = Utils::FilePath::fromString(fileUrl).fileContents();
-
-    if (res)
-        return QString::fromUtf8(*res);
-
-    return Utils::FileUtils::fetchQrc(fileUrl);
 }
 
 QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
@@ -495,8 +494,7 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                 itemLibraryEntry.typeName(), propertyPairList, {}, {}, nodeSourceType));
 
         } else {
-            const QString templateContent = getSourceForUrl(templatePath);
-            newQmlObjectNode = createQmlObjectNodeFromSource(view, templateContent, position);
+            newQmlObjectNode = createQmlObjectNodeFromSource(view, templatePath, position);
         }
 
         if (parentProperty.isValid()) {
