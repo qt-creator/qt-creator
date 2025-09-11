@@ -48,7 +48,9 @@ class CloneIntoRunConfigDialog : public QDialog
 {
 public:
     CloneIntoRunConfigDialog(const RunConfiguration *thisRc)
-        : m_rcModel(new RCModel), m_rcView(new TreeView(this))
+        : m_rcModel(new RCModel(this))
+        , m_sortModel(new SortModel(this))
+        , m_rcView(new TreeView(this))
     {
         setWindowTitle(Tr::tr("Clone From Run Configuration"));
         resize(500, 400);
@@ -120,7 +122,8 @@ public:
         }
 
         // UI
-        m_rcView->setModel(m_rcModel);
+        m_sortModel->setSourceModel(m_rcModel);
+        m_rcView->setModel(m_sortModel);
         m_rcView->expandAll();
         m_rcView->setSortingEnabled(true);
         m_rcView->resizeColumnToContents(0);
@@ -171,7 +174,8 @@ private:
     {
         const QModelIndex current = m_rcView->selectionModel()->currentIndex();
         QTC_ASSERT(isRcItem(current), return);
-        const auto item = dynamic_cast<RCTreeItem *>(m_rcModel->itemForIndex(current));
+        const auto item = dynamic_cast<RCTreeItem *>(
+            m_rcModel->itemForIndex(m_sortModel->mapToSource(current)));
         QTC_ASSERT(item, return);
         m_source = item->runConfig();
         QDialog::accept();
@@ -184,6 +188,7 @@ private:
 
     using RCModel = TreeModel<TreeItem, StaticTreeItem, StaticTreeItem, StaticTreeItem, RCTreeItem>;
     RCModel * const m_rcModel;
+    SortModel * const m_sortModel;
     TreeView * const m_rcView;
     const RunConfiguration * m_source = nullptr;
 };
