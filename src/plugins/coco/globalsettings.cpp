@@ -52,10 +52,10 @@ FilePath CocoSettings::coverageBrowserPath() const
 {
     QString browserPath;
 
-    if (HostOsInfo::isAnyUnixHost())
-        browserPath = "bin/coveragebrowser";
-    else if (HostOsInfo::isMacHost())
+    if (HostOsInfo::isMacHost())
         browserPath = "coveragebrowser";
+    else if (HostOsInfo::isAnyUnixHost())
+        browserPath = "bin/coveragebrowser";
     else
         browserPath = "coveragebrowser.exe";
 
@@ -89,7 +89,9 @@ static FilePath coverageScannerPath(const FilePath &cocoDir)
 {
     QString scannerPath;
 
-    if (HostOsInfo::isAnyUnixHost()  || HostOsInfo::isMacHost())
+    if (HostOsInfo::isMacHost())
+        scannerPath = "coveragescanner";
+    else if (HostOsInfo::isAnyUnixHost())
         scannerPath = "bin/coveragescanner";
     else
         scannerPath = "coveragescanner.exe";
