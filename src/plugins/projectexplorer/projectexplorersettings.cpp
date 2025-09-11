@@ -437,7 +437,7 @@ public:
     {
         setPriority(10);
         setId("ProjectExplorer.BuildAndRunSettings");
-        setDisplayName(Tr::tr("Building And Running"));
+        setDisplayName(Tr::tr("Building and Running"));
         setCreateWidgetFunction([](Project *project) {
             return project->projectExplorerSettings().createConfigWidget();
         });
@@ -483,7 +483,7 @@ PerProjectProjectExplorerSettings::PerProjectProjectExplorerSettings(Project *pr
             st,
         };
     });
-    setDisplayName(Tr::tr("Building And Running"));
+    setDisplayName(Tr::tr("Building and Running"));
     setUsingGlobalSettings(true);
     resetProjectToGlobalSettings();
     setConfigWidgetCreator([this] { return createGlobalOrProjectAspectWidget(this); });
