@@ -230,8 +230,14 @@ void ContentLibraryView::connectImporter()
                     ModelNode newNode;
                     executeInTransaction("ContentLibraryView::widgetInfo", [&] {
                         QVector3D pos = m_bundleItemPos.value<QVector3D>();
-                        newNode = createModelNode(typeName,
-                                                  {{"x", pos.x()}, {"y", pos.y()}, {"z", pos.z()}});
+                        PropertyListType propList;
+                        if (!qFuzzyIsNull(pos.x()))
+                            propList.append({"x", pos.x()});
+                        if (!qFuzzyIsNull(pos.y()))
+                            propList.append({"y", pos.y()});
+                        if (!qFuzzyIsNull(pos.z()))
+                            propList.append({"z", pos.z()});
+                        newNode = createModelNode(typeName, propList);
                         m_bundleItemTarget.defaultNodeListProperty().reparentHere(newNode);
                         newNode.setIdWithoutRefactoring(model()->generateNewId(
                             newNode.simplifiedTypeName(), "node"));
