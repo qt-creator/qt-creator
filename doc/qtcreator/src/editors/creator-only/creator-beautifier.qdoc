@@ -58,6 +58,9 @@
         \li Select \uicontrol {Automatic formatting on file save} to
             automatically beautify files when you save them using the tool you
             select in the \uicontrol Tool field.
+
+            To temporarily disable this setting while saving a file, go to
+            \uicontrol File and select \uicontrol {Save Without Formatting}.
         \li Go to \uicontrol {Artistic Style}, \uicontrol {ClangFormat}, or
             \uicontrol Uncrustify to set the path to the tool executable and
             to select the configuration file that defines the style to use.
@@ -125,6 +128,8 @@
 
             \image {qtcreator-preferences-beautifier-general.webp} {General tab in Beautifier preferences}
 
+            To temporarily disable this setting while saving a file, go to
+            \uicontrol File and select \uicontrol {Save Without Formatting}.
         \li In \uicontrol {Restrict to MIME types}, define the MIME
             types of the files to beautify, separated by semicolons. Leave the
             field empty to apply the tool on all files.

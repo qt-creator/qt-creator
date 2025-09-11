@@ -34,6 +34,9 @@
             \uicontrol {Format while typing}.
         \li To apply the formatting to the edited code when you save the file,
             select \uicontrol {Format edited code on file save}.
+
+            To temporarily disable this setting while saving a file, go to
+            \uicontrol File and select \uicontrol {Save Without Formatting}.
         \li To change the ClangFormat style globally for all projects,
             select \uicontrol {Use custom settings}.
         \li In \uicontrol {Custom settings}, select the settings to change, and

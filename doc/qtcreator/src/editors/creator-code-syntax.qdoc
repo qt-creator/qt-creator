@@ -802,6 +802,9 @@
 
     \image {qtcreator-qml-js-editing.webp} {QML/JS Editing tab in Qt Quick preferences}
 
+    To temporarily disable this setting while saving a file  go to
+    \uicontrol File and select \uicontrol {Save Without Formatting}.
+
     To only format files that belong to the current project, select
     \uicontrol {Restrict to files contained in the current project}.
 
