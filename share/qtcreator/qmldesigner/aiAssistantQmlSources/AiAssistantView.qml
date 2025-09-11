@@ -68,7 +68,7 @@ Rectangle {
                 objectName: "AttachImageButton"
 
                 style: StudioTheme.Values.viewBarButtonStyle
-                buttonIcon: StudioTheme.Constants.attach_medium
+                buttonIcon: StudioTheme.Constants.link_medium
                 tooltip: qsTr("Attach an image.\nThe attached image will be analyzed and integrated into the response by the AI.")
 
                 onClicked: assetImagesView.showWindow()

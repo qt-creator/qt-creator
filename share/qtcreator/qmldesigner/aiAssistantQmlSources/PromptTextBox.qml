@@ -90,7 +90,7 @@ Rectangle {
 
             icon: root.rootView.isGenerating && !sendButton.enabled
                   ? StudioTheme.Constants.more_medium
-                  : StudioTheme.Constants.selectFill_medium
+                  : StudioTheme.Constants.send_medium
 
             iconColor: sendButton.enabled ? root.style.interaction
                                           : root.style.icon.disabled
