@@ -105,9 +105,13 @@ public:
     using AsyncValidationResult = Result<QString>;
     using AsyncValidationFuture = QFuture<AsyncValidationResult>;
     using AsyncValidationFunction = std::function<AsyncValidationFuture(QString)>;
-    using SynchronousValidationFunction = std::function<Result<>(const QString &)>;
-    using ValidationFunction = std::variant<AsyncValidationFunction,
-                                            SynchronousValidationFunction>;
+    using SynchronousValidationFunction = std::function<Result<>(FancyLineEdit &)>;
+    using SimpleSynchronousValidationFunction = std::function<Result<>(const QString &)>;
+    using ValidationFunction = std::variant<
+        AsyncValidationFunction,
+        SynchronousValidationFunction,
+        SimpleSynchronousValidationFunction
+    >;
 
     enum State { Invalid, DisplayingPlaceholderText, Valid };
 
@@ -118,6 +122,7 @@ public:
     void setValidatePlaceHolder(bool on);
 
     void setValidationFunction(const ValidationFunction &fn);
+    static ValidationFunction defaultValidationFunction();
     void validate();
     void onEditingFinished();
 
@@ -151,6 +156,7 @@ private:
 
     void handleValidationResult(AsyncValidationResult result, const QString &oldText);
 
+    static Result<> validateWithValidator(FancyLineEdit &edit);
     // Unimplemented, to force the user to make a decision on
     // whether to use setHistoryCompleter() or setSpecialCompleter().
     void setCompleter(QCompleter *);
