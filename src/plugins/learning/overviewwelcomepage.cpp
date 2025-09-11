@@ -594,7 +594,7 @@ protected:
         const QRectF badgeR(1, 1, SpacingTokens::PaddingHS + textWidth + SpacingTokens::PaddingHS,
                             SpacingTokens::PaddingVXs + badgeTF.lineHeight()
                                 + SpacingTokens::PaddingVXs);
-        drawCardBg(painter, badgeR, creatorColor(Theme::Token_Notification_Neutral_Muted),
+        drawCardBg(painter, badgeR, creatorColor(Theme::Token_Notification_Success_Muted),
                    Qt::NoPen, radiusL);
         painter->setFont(font);
         painter->setPen(badgeTF.color());
