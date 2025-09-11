@@ -85,7 +85,7 @@ bool selectionHasSameParent(const SelectionContext &selectionState)
 
 bool fileComponentExists(const ModelNode &modelNode)
 {
-    if (!modelNode.metaInfo().isFileComponent()) {
+    if (!modelNode.metaInfo().isFileComponentInProject()) {
         return true;
     }
 

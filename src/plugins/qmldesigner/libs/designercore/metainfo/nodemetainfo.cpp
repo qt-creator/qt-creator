@@ -68,7 +68,7 @@ MetaInfoType NodeMetaInfo::type(SL sl) const
     return MetaInfoType::None;
 }
 
-bool NodeMetaInfo::isFileComponent(SL sl) const
+bool NodeMetaInfo::isFileComponentInProject(SL sl) const
 {
     if (!isValid())
         return {};
@@ -78,7 +78,8 @@ bool NodeMetaInfo::isFileComponent(SL sl) const
                                keyValue("type id", m_typeId),
                                keyValue("caller location", sl)};
 
-    auto isFileComponent = typeData().traits.isFileComponent;
+    const auto &traits = typeData().traits;
+    auto isFileComponent = traits.isFileComponent and traits.isInsideProject;
 
     tracer.end(keyValue("is file component", isFileComponent));
 

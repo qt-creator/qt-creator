@@ -126,7 +126,7 @@ QString componentFilePath(const PathCacheType &pathCache, const NodeMetaInfo &me
 {
     auto typeSourceId = metaInfo.sourceId();
 
-    if (typeSourceId && metaInfo.isFileComponent()) {
+    if (typeSourceId && metaInfo.isFileComponentInProject()) {
         return pathCache.sourcePath(typeSourceId).toQString();
     }
 
@@ -137,7 +137,10 @@ QString componentFilePath(const ModelNode &node)
 {
     if (node) {
         const auto &pathCache = node.model()->pathCache();
-        return ModelUtils::componentFilePath(pathCache, node.metaInfo());
+        auto componentPath = ModelUtils::componentFilePath(pathCache, node.metaInfo());
+
+        if (node.metaInfo().isFileComponentInProject())
+            return componentPath;
     }
 
     return {};

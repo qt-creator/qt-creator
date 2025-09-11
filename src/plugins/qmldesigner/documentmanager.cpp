@@ -187,7 +187,7 @@ bool isFileComponent(const ModelNode &node)
 {
     if (node.isValid()
             && node.metaInfo().isValid()
-            && node.metaInfo().isFileComponent())
+            && node.metaInfo().isFileComponentInProject())
         return true;
 
     return false;
@@ -199,7 +199,7 @@ bool hasDelegateWithFileComponent(const ModelNode &node)
             && node.metaInfo().isValid()
             && node.metaInfo().isView()
             && node.hasNodeProperty("delegate")
-            && node.nodeProperty("delegate").modelNode().metaInfo().isFileComponent())
+            && node.nodeProperty("delegate").modelNode().metaInfo().isFileComponentInProject())
         return true;
 
     return false;

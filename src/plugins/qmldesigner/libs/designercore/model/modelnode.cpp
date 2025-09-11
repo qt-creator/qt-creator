@@ -1865,7 +1865,7 @@ bool ModelNode::isComponent(SL sl) const
     if (!metaInfo().isValid())
         return false;
 
-    if (metaInfo().isFileComponent())
+    if (metaInfo().isFileComponentInProject())
         return true;
 
     if (nodeSourceType() == ModelNode::NodeWithComponentSource)
@@ -1876,7 +1876,7 @@ bool ModelNode::isComponent(SL sl) const
         if (delegateNode.isValid()) {
             if (delegateNode.hasMetaInfo()) {
                 const NodeMetaInfo delegateMetaInfo = delegateNode.metaInfo();
-                if (delegateMetaInfo.isValid() && delegateMetaInfo.isFileComponent())
+                if (delegateMetaInfo.isValid() && delegateMetaInfo.isFileComponentInProject())
                     return true;
             }
             if (delegateNode.nodeSourceType() == ModelNode::NodeWithComponentSource)
@@ -1894,7 +1894,7 @@ bool ModelNode::isComponent(SL sl) const
             ModelNode componentNode = nodeListProperty("component").toModelNodeList().constFirst();
             if (componentNode.nodeSourceType() == ModelNode::NodeWithComponentSource)
                 return true;
-            if (componentNode.metaInfo().isFileComponent())
+            if (componentNode.metaInfo().isFileComponentInProject())
                 return true;
         }
 
@@ -1902,7 +1902,7 @@ bool ModelNode::isComponent(SL sl) const
             if (nodeProperty("sourceComponent").modelNode().nodeSourceType()
                 == ModelNode::NodeWithComponentSource)
                 return true;
-            if (nodeProperty("sourceComponent").modelNode().metaInfo().isFileComponent())
+            if (nodeProperty("sourceComponent").modelNode().metaInfo().isFileComponentInProject())
                 return true;
         }
 

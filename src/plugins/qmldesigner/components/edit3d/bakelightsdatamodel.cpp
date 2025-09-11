@@ -291,7 +291,7 @@ bool BakeLightsDataModel::reset()
                 }
             }
 
-            if (!hasExposedProps && node.metaInfo().isFileComponent()
+            if (!hasExposedProps && node.metaInfo().isFileComponentInProject()
                 && node.metaInfo().isQtQuick3DNode()) {
                 const QString compFile = ModelUtils::componentFilePath(node);
                 const QString projPath = m_view->externalDependencies().currentProjectDirPath();

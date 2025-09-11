@@ -212,7 +212,7 @@ void NavigatorView::clearExplorerWarnings()
     allNodes.append(rootModelNode());
     allNodes.append(rootModelNode().allSubModelNodes());
     for (const ModelNode &node : std::as_const(allNodes)) {
-        if (node.metaInfo().isFileComponent()) {
+        if (node.metaInfo().isFileComponentInProject()) {
             const ProjectExplorer::FileNode *fNode = fileNodeForModelNode(node);
             if (fNode)
                 fNode->setHasError(false);
@@ -562,7 +562,7 @@ void NavigatorView::changeToComponent(const QModelIndex &index)
 
     if (index.isValid() && currentModel()->data(index, Qt::UserRole).isValid()) {
         const ModelNode doubleClickNode = modelNodeForIndex(index);
-        if (doubleClickNode.metaInfo().isFileComponent())
+        if (doubleClickNode.metaInfo().isFileComponentInProject())
             Core::EditorManager::openEditor(Utils::FilePath::fromString(
                                                 ModelUtils::componentFilePath(doubleClickNode)),
                                             Utils::Id(),
@@ -614,7 +614,7 @@ const ProjectExplorer::FileNode *NavigatorView::fileNodeForIndex(const QModelInd
 
     if (index.isValid() && currentModel()->data(index, Qt::UserRole).isValid()) {
         ModelNode node = modelNodeForIndex(index);
-        if (node.metaInfo().isFileComponent()) {
+        if (node.metaInfo().isFileComponentInProject()) {
             return fileNodeForModelNode(node);
         }
     }

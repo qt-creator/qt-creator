@@ -65,7 +65,7 @@ public:
     TypeId id() const { return m_typeId; }
 
     MetaInfoType type(SL sl = {}) const;
-    bool isFileComponent(SL sl = {}) const;
+    bool isFileComponentInProject(SL sl = {}) const;
     bool isSingleton(SL sl = {}) const;
     bool isInsideProject(SL sl = {}) const;
     FlagIs canBeContainer(SL sl = {}) const;

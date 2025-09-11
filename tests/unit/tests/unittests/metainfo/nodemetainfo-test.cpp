@@ -246,39 +246,40 @@ TEST_F(NodeMetaInfo, object_no_based_on_item)
     ASSERT_THAT(base, testing::IsFalse());
 }
 
-TEST_F(NodeMetaInfo, object_is_not_file_component)
+TEST_F(NodeMetaInfo, object_is_not_file_component_in_project)
 {
-    bool isFileComponent = objectMetaInfo.isFileComponent();
+    bool isFileComponent = objectMetaInfo.isFileComponentInProject();
 
     ASSERT_FALSE(isFileComponent);
 }
 
-TEST_F(NodeMetaInfo, default_is_not_file_component)
+TEST_F(NodeMetaInfo, default_is_not_file_component_in_project)
 {
-    bool isFileComponent = QmlDesigner::NodeMetaInfo{}.isFileComponent();
+    bool isFileComponent = QmlDesigner::NodeMetaInfo{}.isFileComponentInProject();
 
     ASSERT_FALSE(isFileComponent);
 }
 
-TEST_F(NodeMetaInfo, invalid_is_not_file_component)
+TEST_F(NodeMetaInfo, invalid_is_not_file_component_in_project)
 {
     auto node = model.createModelNode("Foo");
     auto metaInfo = node.metaInfo();
 
-    bool isFileComponent = metaInfo.isFileComponent();
+    bool isFileComponent = metaInfo.isFileComponentInProject();
 
     ASSERT_FALSE(isFileComponent);
 }
 
-TEST_F(NodeMetaInfo, component_is_file_component)
+TEST_F(NodeMetaInfo, component_is_file_component_in_project)
 {
     auto moduleId = projectStorageMock.createModule("/path/to/project", ModuleKind::PathLibrary);
     TypeTraits traits{TypeTraitsKind::Reference};
     traits.isFileComponent = true;
+    traits.isInsideProject = true;
     auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
     QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
 
-    bool isFileComponent = metaInfo.isFileComponent();
+    bool isFileComponent = metaInfo.isFileComponentInProject();
 
     ASSERT_TRUE(isFileComponent);
 }
@@ -292,7 +293,7 @@ TEST_F(NodeMetaInfo, object_is_not_singleton)
 
 TEST_F(NodeMetaInfo, default_is_not_ingleton)
 {
-    bool isSingleton = QmlDesigner::NodeMetaInfo{}.isFileComponent();
+    bool isSingleton = QmlDesigner::NodeMetaInfo{}.isFileComponentInProject();
 
     ASSERT_FALSE(isSingleton);
 }

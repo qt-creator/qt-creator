@@ -55,7 +55,7 @@ inline bool isFileComponent(const SelectionContext &selectionContext)
         ModelNode node = selectionContext.currentSingleSelectedNode();
         if (node.hasMetaInfo()) {
             NodeMetaInfo nodeInfo = node.metaInfo();
-            return nodeInfo.isFileComponent();
+            return nodeInfo.isFileComponentInProject();
         }
     }
     return false;
