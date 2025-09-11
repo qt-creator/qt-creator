@@ -126,6 +126,7 @@ Item {
                         materialsView.expandVisibleSections()
                         texturesView.expandVisibleSections()
                         effectsView.expandVisibleSections()
+                        userView.expandVisibleSections()
                     }
                 }
 

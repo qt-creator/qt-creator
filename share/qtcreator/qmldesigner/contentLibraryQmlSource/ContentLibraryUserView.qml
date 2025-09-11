@@ -122,6 +122,8 @@ Item {
                     delegate: HelperWidgets.Section {
                         id: section
 
+                        property bool hasMatch: !categoryNoMatch
+
                         width: root.width
                         leftPadding: StudioTheme.Values.sectionPadding
                         rightPadding: StudioTheme.Values.sectionPadding
@@ -130,6 +132,7 @@ Item {
 
                         caption: categoryTitle
                         captionTooltip: section.isCustomCat ? categoryBundlePath : ""
+                        visible: searchBox.isEmpty() || !categoryNoMatch
                         dropEnabled: true
                         category: "ContentLib_User"
                         showCloseButton: section.isCustomCat
@@ -270,14 +273,6 @@ Item {
                         }
 
                         Text {
-                            text: qsTr("No match found.");
-                            color: StudioTheme.Values.themeTextColor
-                            font.pixelSize: StudioTheme.Values.baseFontSize
-                            leftPadding: 10
-                            visible: infoText.text === "" && !searchBox.isEmpty() && categoryNoMatch
-                        }
-
-                        Text {
                             id: infoText
 
                             text: {
@@ -320,6 +315,26 @@ Item {
                                 cursorShape: Qt.PointingHandCursor
                             }
                         }
+                    }
+                }
+                Text {
+                    id: noMatchText
+                    text: qsTr("No match found.");
+                    color: StudioTheme.Values.themeTextColor
+                    font.pixelSize: StudioTheme.Values.baseFontSize
+                    leftPadding: 10
+                    rightPadding: 10
+                    width: root.width
+                    wrapMode: Text.WordWrap
+
+                    visible: {
+                        if (searchBox.isEmpty())
+                            return false
+                        for (let i = 0; i < categoryRepeater.count; ++i) {
+                            if (categoryRepeater.itemAt(i).hasMatch)
+                                return false
+                        }
+                        return true
                     }
                 }
             }
