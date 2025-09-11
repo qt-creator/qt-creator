@@ -138,8 +138,7 @@ bool camelCaseLeft(C *cursor, QTextCursor::MoveMode mode)
             case Input::Upper:
                 break;
             default:
-                moveCursor(cursor, QTextCursor::Right, mode);
-                return true;
+                return moveCursor(cursor, QTextCursor::Right, mode);
             }
             break;
         case 2:
@@ -149,8 +148,7 @@ bool camelCaseLeft(C *cursor, QTextCursor::MoveMode mode)
             case Input::Lower:
                 break;
             default:
-                moveCursor(cursor, QTextCursor::Right, mode);
-                return true;
+                return moveCursor(cursor, QTextCursor::Right, mode);
             }
             break;
         case 3:
@@ -182,10 +180,7 @@ bool camelCaseLeft(C *cursor, QTextCursor::MoveMode mode)
                 state = 3;
                 break;
             default:
-                moveCursor(cursor, QTextCursor::Right, mode);
-                if (position(cursor) == 0)
-                    return true;
-                return moveCursor(cursor, QTextCursor::WordLeft, mode);
+                return moveCursor(cursor, QTextCursor::Right, mode);
             }
         }
 
