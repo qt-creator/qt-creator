@@ -270,7 +270,7 @@ void TestResultsPane::addTestResult(const TestResult &result)
 
 void TestResultsPane::addOutputLine(const QByteArray &outputLine, OutputChannel channel)
 {
-    if (!QTC_GUARD(!outputLine.contains('\n'))) {
+    if (QTC_UNEXPECTED(outputLine.contains('\n'))) {
         for (const auto &line : outputLine.split('\n'))
             addOutputLine(line, channel);
         return;

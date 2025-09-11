@@ -212,7 +212,7 @@ void KitAspect::refresh()
         int idx = la.comboBox->findData(itemId, IdRole);
         if (idx == -1) {
             idx = la.comboBox->count() - 1;
-            if (!QTC_GUARD(!itemId.isValid())) {
+            if (QTC_UNEXPECTED(itemId.isValid())) {
                 qWarning() << factory()->displayName();
                 const QVariant newId = idx < 0 ? QVariant() : la.comboBox->itemData(idx, IdRole);
                 la.spec.setter(*kit(), newId);
