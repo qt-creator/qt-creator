@@ -184,11 +184,10 @@ bool BaseQmakeProjectWizardDialog::writeUserFile(const Utils::FilePath &proFile)
         return false;
 
     QmakeProject *pro = new QmakeProject(proFile);
-    bool success = m_targetSetupPage->setupProject(pro);
-    if (success)
-        pro->saveSettings();
+    m_targetSetupPage->setupProject(pro);
+    pro->saveSettings();
     delete pro;
-    return success;
+    return true;
 }
 
 QList<Utils::Id> BaseQmakeProjectWizardDialog::selectedKits() const

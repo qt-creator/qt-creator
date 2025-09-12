@@ -99,8 +99,8 @@ void JsonKitsPage::setupProjectFiles(const JsonWizard::GeneratorFiles &files)
             Project *project = ProjectManager::openProject(Utils::mimeTypeForFile(f.file.filePath()),
                                                            f.file.filePath().absoluteFilePath());
             if (project) {
-                if (setupProject(project))
-                    project->saveSettings();
+                setupProject(project);
+                project->saveSettings();
                 delete project;
             }
         }
