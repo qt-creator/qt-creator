@@ -672,13 +672,6 @@ qreal TextLayoutItem::width() const
 {
     QTC_ASSERT(m_textLayout, return 0);
     return PlainTextDocumentLayout::layoutWidth(m_textLayout.get());
-    qreal blockWidth = 0;
-    for (int i = 0; i < m_textLayout->lineCount(); ++i) {
-        QTextLine line = m_textLayout->lineAt(i);
-        blockWidth = qMax(line.naturalTextWidth() + 8, blockWidth);
-    }
-    return blockWidth;
-
 }
 
 void TextLayoutItem::ensureLayouted(QTextDocument *doc, const QFontMetrics & fm, qreal availableWidth)
