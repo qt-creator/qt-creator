@@ -735,6 +735,7 @@ void TextLayoutItem::clear()
 {
     QTC_ASSERT(m_textLayout, return);
     m_textLayout->clearLayout();
+    m_textLayout->setFormats({});
 }
 
 QTextLayout *TextLayoutItem::layout()
