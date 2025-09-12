@@ -19,7 +19,7 @@
     To specify build settings for the selected \l{Kits}{kit}, go to
     \uicontrol Projects > \uicontrol {Build Settings}.
 
-    \image {qtcreator-build-configurations.png} {Build Settings}
+    \image {qtcreator-settings-build.webp} {Build Settings in the Projects mode}
 
     \section1 Manage build configurations
 

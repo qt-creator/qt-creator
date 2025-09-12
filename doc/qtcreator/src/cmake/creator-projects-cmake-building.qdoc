@@ -168,7 +168,7 @@
     \uicontrol {Deploy Settings}, and \uicontrol {Run Settings} tabs in the
     \uicontrol Projects mode.
 
-    \image {qtcreator-build-cmake-output.png} {CMake output in Projects mode}
+    \image {qtcreator-build-cmake-output.webp} {CMake output in the Projects mode}
 
     To clear the output from CMake, select
     \inlineimage {icons/clean_pane_small.png} {Clear} (\uicontrol Clear).

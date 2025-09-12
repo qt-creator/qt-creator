@@ -40,7 +40,7 @@
     For example, to run the application as a particular user, enter the start
     option \c {--user 10}, where \c 10 is the user ID of the user account.
 
-    \image {qtcreator-android-run-settings.png} {Run Settings for an Android device}
+    \image {qtcreator-android-run-settings.webp} {Run Settings for an Android device}
 
     \section1 Shell Commands
 

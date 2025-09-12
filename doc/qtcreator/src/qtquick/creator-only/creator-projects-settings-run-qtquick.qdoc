@@ -36,8 +36,9 @@
         \li \uicontrol {Main QML file}
         \li File to start \QQV with.
     \row
-        \li \uicontrol {Forward to local display}
-        \li Shows a remotely running X11 client on a local display.
+        \li \uicontrol {X11 forwarding}
+        \li Select \uicontrol Enable to show a remotely running X11 client on a
+            local display.
     \endtable
 
     \sa {Create Qt Quick UI Prototypes}, {Activate kits for a project},

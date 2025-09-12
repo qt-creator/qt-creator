@@ -64,7 +64,7 @@
     \uicontrol {Deploy Settings} and select a deploy configuration in
     \uicontrol {Active deployment configuration}.
 
-    \image {qtcreator-android-deployment-settings.png} {Deploy Settings tab in Projects}
+    \image {qtcreator-android-deployment-settings.webp} {Deploy Settings tab in Projects}
 
     To add deploy configurations for a project, select \uicontrol Add.
 
