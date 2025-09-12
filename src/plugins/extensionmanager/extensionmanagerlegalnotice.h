@@ -9,6 +9,6 @@
 
 namespace ExtensionManager {
 
-EXTENSIONMANAGER_EXPORT void setLegalNoticeVisible(bool show, const QString &text = {});
+EXTENSIONMANAGER_EXPORT void setLegalNoticeVisible(bool show);
 
 } // ExtensionManager
