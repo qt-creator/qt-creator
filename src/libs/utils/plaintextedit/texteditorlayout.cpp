@@ -168,7 +168,7 @@ void TextEditorLayout::clearBlockLayout(QTextBlock &block) const
 
 void TextEditorLayout::clearBlockLayout(QTextBlock &start, QTextBlock &end, bool &blockVisibilityChanged) const
 {
-    for (QTextBlock block = start; block.isValid() && block != end; block = block.next()) {
+    for (QTextBlock block = start; block.isValid(); block = block.next()) {
         LayoutData &data = d->layoutData(block.fragmentIndex());
         if (block.isVisible()) {
             if (blockLineCount(block) == 0) {
@@ -180,6 +180,8 @@ void TextEditorLayout::clearBlockLayout(QTextBlock &start, QTextBlock &end, bool
             setBlockLineCount(block, 0);
         }
         data.clearLayout();
+        if (block == end)
+            break;
     }
     d->resetOffsetCache(start.blockNumber());
 }
