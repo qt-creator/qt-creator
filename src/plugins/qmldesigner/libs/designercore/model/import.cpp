@@ -191,11 +191,7 @@ Imports set_union(const Imports &first, const Imports &second)
     Imports set_union;
     set_union.reserve(std::min(first.size(), second.size()));
 
-    std::set_union(first.begin(),
-                   first.end(),
-                   second.begin(),
-                   second.end(),
-                   std::back_inserter(set_union));
+    std::ranges::set_union(first, second, std::back_inserter(set_union), {}, &Import::path, &Import::path);
 
     return set_union;
 }
@@ -205,11 +201,8 @@ Imports set_intersection(const Imports &first, const Imports &second)
     Imports set_intersection;
     set_intersection.reserve(std::min(first.size(), second.size()));
 
-    std::set_intersection(first.begin(),
-                          first.end(),
-                          second.begin(),
-                          second.end(),
-                          std::back_inserter(set_intersection));
+    std::ranges::set_intersection(
+        first, second, std::back_inserter(set_intersection), {}, &Import::path, &Import::path);
 
     return set_intersection;
 }
@@ -219,17 +212,8 @@ Imports set_strict_difference(const Imports &first, const Imports &second)
     Imports difference;
     difference.reserve(first.size());
 
-    auto strictLess = [](const Import &first, const Import &second) {
-        return std::tie(first.m_url, first.m_type, first.m_version)
-               < std::tie(second.m_url, second.m_type, second.m_version);
-    };
-
-    std::set_difference(first.begin(),
-                        first.end(),
-                        second.begin(),
-                        second.end(),
-                        std::back_inserter(difference),
-                        strictLess);
+    std::ranges::set_difference(
+        first, second, std::back_inserter(difference), {}, &Import::path, &Import::path);
 
     return difference;
 }

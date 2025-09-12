@@ -176,8 +176,8 @@ void ModelPrivate::changeImports(Imports toBeAddedImports, Imports toBeRemovedIm
                                keyValue("added imports", toBeAddedImports),
                                keyValue("removed imports", toBeRemovedImports)};
 
-    std::ranges::sort(toBeAddedImports);
-    std::ranges::sort(toBeRemovedImports);
+    std::ranges::sort(toBeAddedImports, {}, &Import::path);
+    std::ranges::sort(toBeRemovedImports, {}, &Import::path);
 
     Imports removedImports = set_intersection(m_imports, toBeRemovedImports);
     m_imports = set_difference(m_imports, removedImports);
@@ -187,7 +187,7 @@ void ModelPrivate::changeImports(Imports toBeAddedImports, Imports toBeRemovedIm
 
     m_imports = set_union(importWithoutAddedImport, allNewAddedImports);
 
-    if (!removedImports.isEmpty() || !allNewAddedImports.isEmpty()) {
+    if (not removedImports.empty() or not allNewAddedImports.empty()) {
         auto imports = createStorageImports(m_imports, m_localPath, *modulesStorage, m_sourceId);
         projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
 
