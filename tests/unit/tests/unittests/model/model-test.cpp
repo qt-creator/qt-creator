@@ -976,7 +976,7 @@ TEST_F(Model_Imports, change_imports_is_synchronizing_imports_with_project_stora
     EXPECT_CALL(projectStorageMock,
                 synchronizeDocumentImports(
                     UnorderedElementsAre(IsImport(qmlModuleId, documentSourceId, -1, -1),
-                                         IsImport(qtQuickModuleId, documentSourceId, 2, 1),
+                                         IsImport(qtQuickModuleId, documentSourceId, -1, -1),
                                          IsImport(qtQmlModelsModuleId, documentSourceId, -1, -1),
                                          IsImport(localPathModuleId, documentSourceId, -1, -1)),
                     documentSourceId));
@@ -1001,7 +1001,7 @@ TEST_F(Model_Imports, change_imports_with_windows_file_url)
     EXPECT_CALL(projectStorageMock,
                 synchronizeDocumentImports(
                     UnorderedElementsAre(IsImport(qmlModuleId, windowsSourceId, -1, -1),
-                                         IsImport(qtQuickModuleId, windowsSourceId, 2, 1),
+                                         IsImport(qtQuickModuleId, windowsSourceId, -1, -1),
                                          IsImport(qtQmlModelsModuleId, windowsSourceId, -1, -1),
                                          IsImport(localPathModuleId, windowsSourceId, -1, -1)),
                     windowsSourceId));
@@ -1029,7 +1029,7 @@ TEST_F(Model_Imports, change_imports_is_adding_import_in_project_storage)
     auto localPathModuleId = modulesStorage.moduleId("/path", ModuleKind::PathLibrary);
     auto qtQuickImport = QmlDesigner::Import::createLibraryImport("QtQuick", "2.1");
     auto qtQmlModelsImport = QmlDesigner::Import::createLibraryImport("QtQml.Models");
-    model.changeImports({qtQmlModelsImport}, {});
+    model.changeImports({qtQmlModelsImport}, {qtQuickImport});
 
     EXPECT_CALL(projectStorageMock,
                 synchronizeDocumentImports(
@@ -1092,7 +1092,7 @@ TEST_F(Model_Imports, change_imports_is_changing_import_version_with_project_sto
                                          IsImport(localPathModuleId, documentSourceId, -1, -1)),
                     documentSourceId));
 
-    model.changeImports({qtQuickImport}, {});
+    model.changeImports({qtQuickImport}, {qtQuickImport});
 }
 
 TEST_F(Model_Imports, change_imports_is_normalizing_import_path_for_modules)
