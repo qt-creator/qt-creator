@@ -187,7 +187,7 @@ AiAssistantWidget::AiAssistantWidget()
 
 void AiAssistantWidget::clearAttachedImage()
 {
-    m_quickWidget->rootObject()->setProperty("attachedImageSource", "");
+    setAttachedImageSource("");
 }
 
 void AiAssistantWidget::initManifest()
@@ -320,7 +320,16 @@ void AiAssistantWidget::setIsGenerating(bool val)
 
 QString AiAssistantWidget::attachedImageSource() const
 {
-    return m_quickWidget->rootObject()->property("attachedImageSource").toString();
+    return m_attachedImageSource;
+}
+
+void AiAssistantWidget::setAttachedImageSource(const QString &source)
+{
+    if (source == m_attachedImageSource)
+        return;
+
+    m_attachedImageSource = source;
+    emit attachedImageSourceChanged();
 }
 
 void AiAssistantWidget::handleAiResponse(const AiResponse &response)

@@ -29,7 +29,8 @@ Rectangle {
 
         fillMode: Image.PreserveAspectFit
         anchors.fill: parent
-        source: root.rootView.fullImageUrl(root.source)
+        source: root.rootView.fullImageUrl(root.source !== "" ? root.source
+                                                              : root.rootView.attachedImageSource)
         cache: true
         asynchronous: true
 
