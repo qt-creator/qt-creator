@@ -536,13 +536,12 @@ QTextBlock TextEditorLayout::findBlockByLineNumber(int lineNumber) const
     }
 
     QTextBlock b = document()->findBlockByNumber(blockNumber);
-    while (b.isValid() && firstLineNumberOf(b) < lineNumber)
+    while (b.isValid()) {
+        if (firstLineNumberOf(b) + blockLineCount(b) - 1 >= lineNumber)
+            return b;
         b = b.next();
-    if (b.isValid())
-        b = b.previous();
-    if (!b.isValid())
-        b = document()->firstBlock();
-    return b;
+    }
+    return document()->lastBlock();
 }
 
 bool TextEditorLayout::moveCursorImpl(
