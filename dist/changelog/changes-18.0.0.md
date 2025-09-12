@@ -155,6 +155,7 @@ Projects
   that maps to the project file path
 * Added a Qt Interface Framework project wizard
   ([QTBUG-99070](https://bugreports.qt.io/browse/QTBUG-99070))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-18.0/creator-how-to-create-qtif.html))
 * Added the `Enable logging category filtering` option for desktop run
   configurations with Qt 6.11 and later
   ([QTCREATORBUG-33169](https://bugreports.qt.io/browse/QTCREATORBUG-33169))
