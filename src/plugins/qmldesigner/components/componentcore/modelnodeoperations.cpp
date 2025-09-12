@@ -64,6 +64,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
+#include <utils/progressdialog.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/smallstring.h>
@@ -76,6 +77,7 @@
 #include <QMessageBox>
 #include <QPair>
 #include <QPushButton>
+#include <QThread>
 
 #include <algorithm>
 #include <functional>
@@ -1248,6 +1250,140 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
     });
 }
 
+struct CopyData
+{
+    FilePath source;
+    FilePath target;
+};
+
+class CopyAssetsDispatcher
+{
+public:
+    CopyAssetsDispatcher(const QList<CopyData> &copyList)
+        : m_tempDir(DocumentManager::currentProjectDirPath().parentDir().toFSPathString())
+    {
+        FilePath projectDir = DocumentManager::currentProjectDirPath();
+        FilePath tempDirPath = FilePath::fromString(m_tempDir.path());
+
+        for (const CopyData &copyData : std::as_const(copyList)) {
+            if (copyData.target.exists())
+                m_tasks.append(DeleteTask(copyData.target));
+        }
+
+        QList<RenameTask> renames;
+        // Move it to a temp directory to prevent lots of calls on FileSystemWatcher
+        for (const CopyData &copyData : std::as_const(copyList)) {
+            const QString relPath = copyData.target.relativePathFromDir(projectDir).toFSPathString();
+            const FilePath tempFile = tempDirPath.pathAppended(relPath);
+            m_tasks.append(CopyTask{{copyData.source, tempFile}, this});
+            renames.append(RenameTask{{tempFile, copyData.target}, this});
+            m_totalSize += 2 * copyData.source.fileSize(); // Copy and Rename
+        }
+
+        for (const RenameTask &renameData : std::as_const(renames))
+            m_tasks.append(renameData);
+    }
+
+    void cancel() { m_canceled = true; }
+
+    inline bool jobCanceled() const { return m_canceled; }
+
+    FilePaths doneFiles() const { return FilePaths(m_doneFiles.begin(), m_doneFiles.end()); }
+
+    static void execute(std::invocable<int> auto &&onProgressChanged,
+                        std::invocable auto &&onDone,
+                        std::unique_ptr<CopyAssetsDispatcher> &&dispatcher)
+    {
+        CopyAssetsDispatcher *dispatcherPtr = dispatcher.get();
+
+        if (dispatcherPtr->m_thread)
+            return;
+
+        dispatcherPtr->m_thread.reset(QThread::create([onProgressChanged = std::move(onProgressChanged),
+                                                       onDone = std::move(onDone),
+                                                       dispatcher = std::move(dispatcher)] {
+            for (Task &task : dispatcher->m_tasks) {
+                if (dispatcher->jobCanceled())
+                    break;
+                std::visit([](auto &task) { task.execute(); }, task);
+                if (dispatcher->updateProgress())
+                    onProgressChanged(dispatcher->m_progress);
+            }
+            onDone();
+        }));
+
+        dispatcherPtr->m_thread->start();
+    }
+
+    int progress() { return m_progress; }
+
+private:
+    // returns true if is updated
+    bool updateProgress()
+    {
+        int newProgress = m_totalSize ? std::ceil(100. * m_copiedSize / m_totalSize) : 0;
+        if (newProgress != m_progress) {
+            m_progress = newProgress;
+            return true;
+        }
+        return false;
+    }
+
+    struct DeleteTask
+    {
+        FilePath file;
+
+        void execute() { file.removeFile(); }
+    };
+
+    struct CopyTask
+    {
+        CopyData data;
+        CopyAssetsDispatcher *p;
+
+        void execute()
+        {
+            if (auto dir = data.target.parentDir(); !dir.exists())
+                dir.createDir();
+
+            data.source.copyFile(data.target);
+
+            p->m_copiedSize += data.target.fileSize();
+        }
+    };
+
+    struct RenameTask
+    {
+        CopyData data;
+        CopyAssetsDispatcher *p;
+
+        void execute()
+        {
+            if (auto dir = data.target.parentDir(); !dir.exists())
+                dir.createDir();
+
+            data.source.renameFile(data.target);
+            p->m_doneFiles.append(data.target);
+
+            p->m_copiedSize += data.target.fileSize();
+        }
+    };
+
+    using Task = std::variant<DeleteTask, CopyTask, RenameTask>;
+    friend CopyTask;
+    friend RenameTask;
+
+private: // variables
+    qint64 m_totalSize = 0;
+    qint64 m_copiedSize = 0;
+    int m_progress = 0;
+    QTemporaryDir m_tempDir;
+    QVarLengthArray<Task, 100> m_tasks;
+    QVarLengthArray<FilePath, 100> m_doneFiles;
+    std::atomic_bool m_canceled;
+    Utils::UniqueObjectLatePtr<QThread> m_thread;
+};
+
 AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
 {
     QString directory = showDialog ? AddImagesDialog::getDirectory(fileNames, defaultDir) : defaultDir;
@@ -1257,45 +1393,88 @@ AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &de
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     QTC_ASSERT(document, return AddFilesResult::failed(directory));
 
-    QList<QPair<QString, QString>> copyList;
-    QStringList removeList;
+    QList<CopyData> copyList;
+
+    bool yesToAll = false;
+    bool noToAll = false;
+
     for (const QString &fileName : fileNames) {
         const QString targetFile = directory + "/" + QFileInfo(fileName).fileName();
         Utils::FilePath srcFilePath = Utils::FilePath::fromString(fileName);
         Utils::FilePath targetFilePath = Utils::FilePath::fromString(targetFile);
         if (targetFilePath.exists()) {
+            if (noToAll)
+                continue;
             if (srcFilePath.lastModified() == targetFilePath.lastModified())
                 continue;
-            const QString title = Tr::tr("Overwrite Existing File?");
-            const QString question = Tr::tr("File already exists. Overwrite?\n\"%1\"").arg(targetFile);
-            if (QMessageBox::question(qobject_cast<QWidget *>(Core::ICore::dialogParent()),
-                                      title, question, QMessageBox::Yes | QMessageBox::No)
-                    != QMessageBox::Yes) {
+
+            int overwriteFile;
+
+            if (yesToAll) {
+                overwriteFile = QMessageBox::Yes;
+            } else {
+                const QString title = Tr::tr("Overwrite Existing File?");
+                const QString question = Tr::tr("File already exists. Overwrite?\n\"%1\"").arg(targetFile);
+                overwriteFile = QMessageBox::question(Core::ICore::dialogParent(),
+                                                      title,
+                                                      question,
+                                                      QMessageBox::Yes | QMessageBox::No
+                                                          | QMessageBox::YesAll
+                                                          | QMessageBox::NoToAll);
+            }
+
+            if (overwriteFile == QMessageBox::No)
+                continue;
+
+            if (overwriteFile == QMessageBox::NoToAll) {
+                noToAll = true;
                 continue;
             }
-            removeList.append(targetFile);
+
+            if (overwriteFile == QMessageBox::YesToAll)
+                yesToAll = true;
         }
-        copyList.append({fileName, targetFile});
+        copyList.append({FilePath::fromString(fileName), FilePath::fromString(targetFile)});
     }
-    // Defer actual file operations after we have dealt with possible popup dialogs to avoid
-    // unnecessarily refreshing file models multiple times during the operation
-    for (const auto &file : std::as_const(removeList))
-        QFile::remove(file);
 
-    for (const auto &filePair : std::as_const(copyList)) {
-        const bool success = QFile::copy(filePair.first, filePair.second);
-        if (!success)
-            return AddFilesResult::failed(directory);
-
+    const auto updateFiles = [document](const FilePaths &files) {
         ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(document->fileName());
         if (node) {
             ProjectExplorer::FolderNode *containingFolder = node->parentFolderNode();
             if (containingFolder)
-                containingFolder->addFiles({Utils::FilePath::fromString(filePair.second)});
+                containingFolder->addFiles(files);
         }
-    }
+    };
 
-    return AddFilesResult::succeeded(directory);
+    QProgressDialog *progressDialog = Utils::createProgressDialog(100,
+                                                                  Tr::tr("Asset import progress"),
+                                                                  Tr::tr("Copying Assets"));
+    progressDialog->setAutoReset(false);
+
+    std::unique_ptr<CopyAssetsDispatcher> dispatcherPtr = std::make_unique<CopyAssetsDispatcher>(
+        copyList);
+    CopyAssetsDispatcher *dispatcher = dispatcherPtr.get();
+    QObject *delayedObject = new QObject;
+
+    QObject::connect(progressDialog, &QProgressDialog::canceled, [dispatcher] {
+        dispatcher->cancel();
+    });
+
+    auto onProgressChanged = [progressDialog](int v) {
+        QMetaObject::invokeMethod(progressDialog, &QProgressDialog::setValue, v);
+    };
+    auto onDone = [delayedObject, directory, progressDialog, dispatcher, updateFiles] {
+        if (!dispatcher->jobCanceled())
+            delayedObject->setProperty(AddFilesResult::directoryPropName, directory);
+        QMetaObject::invokeMethod(progressDialog, &QWidget::setEnabled, false);
+        QMetaObject::invokeMethod(Core::ICore::instance(), updateFiles, dispatcher->doneFiles());
+        progressDialog->deleteLater();
+        delayedObject->deleteLater();
+    };
+
+    CopyAssetsDispatcher::execute(onProgressChanged, onDone, std::move(dispatcherPtr));
+
+    return AddFilesResult::delayed(delayedObject);
 }
 
 static QString getAssetDefaultDirectory(const QString &assetDir, const QString &defaultDirectory)

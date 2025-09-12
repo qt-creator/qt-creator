@@ -62,9 +62,6 @@ public:
     static QString qmlSourcesPath();
     void clearSearchFilter();
 
-    void delayedUpdateModel();
-    void updateModel();
-
     void setResourcePath(const QString &resourcePath);
     void updateSkippedAssets(const QUrl &currentDoc);
     static QPair<QString, QByteArray> getAssetTypeAndData(const QString &assetPath);
