@@ -854,9 +854,6 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     auto [info, typeName] = context->lookup(astObjectType);
     if (!info.isValid()) {
         qWarning() << "Skipping node with unknown type" << toString(astObjectType);
-        // We need to remove the invalid node so it doesn't corrupt the internal model
-        if (differenceHandler.isAmender())
-            removeModelNode(modelNode);
         return;
     }
 
@@ -1339,16 +1336,27 @@ void TextToModelMerger::syncNodeListProperty(NodeListProperty &modelListProperty
 {
     NanotraceHR::Tracer tracer{"text to model merger sync node list property", category()};
 
+    QList<AST::UiObjectMember *> fixedArrayMembers = Utils::filtered(
+        arrayMembers, [context](const auto &arrayMember) {
+            AST::UiQualifiedId *astObjectType = qualifiedTypeNameId(arrayMember);
+            AST::UiObjectInitializer *astInitializer = initializerOfObject(arrayMember);
+            if (astObjectType || astInitializer) {
+                auto [info, typeName] = context->lookup(astObjectType);
+                return info.isValid();
+            }
+        return false;
+    });
+
     QList<ModelNode> modelNodes = modelListProperty.toModelNodeList();
     int i = 0;
-    for (; i < modelNodes.size() && i < arrayMembers.size(); ++i) {
+    for (; i < modelNodes.size() && i < fixedArrayMembers.size(); ++i) {
         ModelNode modelNode = modelNodes.at(i);
-        syncNode(modelNode, arrayMembers.at(i), context, differenceHandler);
+        syncNode(modelNode, fixedArrayMembers.at(i), context, differenceHandler);
     }
 
-    for (int j = i; j < arrayMembers.size(); ++j) {
+    for (int j = i; j < fixedArrayMembers.size(); ++j) {
         // more elements in the dom-list, so add them to the model
-        AST::UiObjectMember *arrayMember = arrayMembers.at(j);
+        AST::UiObjectMember *arrayMember = fixedArrayMembers.at(j);
         const ModelNode newNode = differenceHandler.listPropertyMissingModelNode(modelListProperty, context, arrayMember);
     }
 
