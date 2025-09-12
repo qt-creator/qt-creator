@@ -56,7 +56,7 @@ extend_qtc_plugin(QmlDesignerBase
 
 # from cmake 3.24 $<LINK_LIBRARY:WHOLE_ARCHIVE,QmlDesignerSettings> is supported which can be added to DEPENDS
 if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
-  target_link_libraries(TextEditor PRIVATE $<LINK_LIBRARY:WHOLE_ARCHIVE,QmlDesignerSettings>)
+  target_link_libraries(QmlDesignerBase PRIVATE $<LINK_LIBRARY:WHOLE_ARCHIVE,QmlDesignerSettings>)
 else ()
   if (MSVC)
     qtc_output_binary_dir(_output_binary_dir)
