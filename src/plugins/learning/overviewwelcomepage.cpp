@@ -741,42 +741,55 @@ private:
         }.emerge();
     }
 
-    void initializeUi()
+    static QWidget *recommendationsPanel(QWidget *parent)
     {
         auto settingsToolButton = new QPushButton;
         settingsToolButton->setIcon(Icons::SETTINGS.icon());
         settingsToolButton->setFlat(true);
         settingsToolButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
+        QWidget *optionsOverlay = createOnboardingWizard(parent);
+        optionsOverlay->setVisible(settings().showWizardOnStart());
+        connect(settingsToolButton, &QAbstractButton::clicked, optionsOverlay, &QWidget::show);
+
         using namespace Layouting;
-        Column {
+        return Column {
+            Row {
+                tfLabel(Tr::tr("Recommended for you"), titleTf),
+                settingsToolButton,
+                st,
+            },
+            new RecommendationsWidget,
+            spacing(SpacingTokens::GapVM),
+            noMargin,
+        }.emerge();
+    }
+
+    void initializeUi()
+    {
+        using namespace Layouting;
+        auto projectsAndBlogPosts = Widget {
             Row {
                 recentProjectsPanel(),
                 blogPostsPanel(),
-                Space(SpacingTokens::PaddingHXxl),
-                customMargins(SpacingTokens::PaddingVXxl, 0, 0, 0),
+                spacing(SpacingTokens::PaddingHXxl),
+                customMargins(0, 0, SpacingTokens::PaddingHXxl, 0),
             },
+        }.emerge();
+        projectsAndBlogPosts->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+
+        Column {
             Widget {
                 Column {
-                    Row {
-                        tfLabel(Tr::tr("Recommended for you"), titleTf),
-                        settingsToolButton,
-                        st,
-                    },
-                    new RecommendationsWidget,
-                    spacing(SpacingTokens::GapVM),
+                    projectsAndBlogPosts,
+                    recommendationsPanel(parentWidget()),
                     noMargin,
+                    spacing(SpacingTokens::PaddingVXxl),
                 },
                 customMargins(SpacingTokens::PaddingVXxl, 0, 0, 0),
             },
             customMargins(0, SpacingTokens::PaddingHXxl, 0, 0),
-            spacing(SpacingTokens::PaddingVXxl),
         }.attachTo(this);
-
-        QWidget *optionsOverlay = createOnboardingWizard(this);
-        optionsOverlay->setVisible(settings().showWizardOnStart());
-
-        connect(settingsToolButton, &QAbstractButton::clicked, optionsOverlay, &QWidget::show);
     }
 
     static QBrush rectFill()
