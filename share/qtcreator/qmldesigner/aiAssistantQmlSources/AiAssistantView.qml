@@ -13,7 +13,6 @@ Rectangle {
     id: root
 
     property var rootView: AiAssistantBackend.rootView
-    property alias attachedImageSource: attachedImage.source
 
     color: StudioTheme.Values.themeBackgroundColorNormal
 
@@ -48,44 +47,17 @@ Rectangle {
             Layout.fillWidth: true
         }
 
-        Row {
-            spacing: 5
+        AssetImage {
+            id: attachedImage
+
             Layout.alignment: Qt.AlignRight
 
-            AssetImage {
-                id: attachedImage
+            visible: root.rootView.attachedImageSource !== ""
+            closable: true
 
-                visible: root.attachedImageSource !== ""
-                closable: true
-
-                onCloseRequest: {
-                    root.attachedImageSource = ""
-                }
-            }
-
-            HelperWidgets.AbstractButton {
-                id: attachImageButton
-                objectName: "AttachImageButton"
-
-                style: StudioTheme.Values.viewBarButtonStyle
-                buttonIcon: StudioTheme.Constants.link_medium
-                tooltip: qsTr("Attach an image.\nThe attached image will be analyzed and integrated into the response by the AI.")
-
-                onClicked: assetImagesView.showWindow()
+            onCloseRequest: {
+                root.rootView.attachedImageSource = ""
             }
         }
-    }
-
-    AssetImagesPopup {
-        id: assetImagesView
-
-        snapItem: attachImageButton
-
-        onWindowShown: {
-            if (!assetImagesView.model.includes(root.attachedImageSource))
-                root.attachedImageSource = ""
-        }
-
-        onImageClicked: (imageSource) => root.attachedImageSource = imageSource
     }
 }

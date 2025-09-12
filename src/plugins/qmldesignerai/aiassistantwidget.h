@@ -30,10 +30,15 @@ class AiAssistantWidget : public QFrame
     Q_OBJECT
 
     Q_PROPERTY(bool isGenerating MEMBER m_isGenerating NOTIFY isGeneratingChanged FINAL)
+    Q_PROPERTY(QString attachedImageSource READ attachedImageSource WRITE setAttachedImageSource
+                   NOTIFY attachedImageSourceChanged FINAL)
 
 public:
     AiAssistantWidget();
     ~AiAssistantWidget() = default;
+
+    QString attachedImageSource() const;
+    void setAttachedImageSource(const QString &source);
 
     void clearAttachedImage();
     void initManifest();
@@ -48,6 +53,7 @@ public:
 
 signals:
     void isGeneratingChanged();
+    void attachedImageSourceChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -55,7 +61,6 @@ protected:
 private: // functions
     void reloadQmlSource();
     void setIsGenerating(bool val);
-    QString attachedImageSource() const;
     void handleAiResponse(const AiResponse &response);
 
 private: // variables
@@ -63,6 +68,7 @@ private: // variables
     Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
 
     QStringList m_inputHistory;
+    QString m_attachedImageSource;
     Manifest m_manifest;
     int m_historyIndex = -1;
     bool m_isGenerating = false;

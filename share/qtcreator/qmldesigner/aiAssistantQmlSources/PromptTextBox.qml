@@ -31,7 +31,7 @@ Rectangle {
         textEdit.text = ""
     }
 
-    RowLayout {
+    ColumnLayout {
         anchors.fill: parent
 
         Basic.TextArea {
@@ -81,24 +81,52 @@ Rectangle {
             }
         }
 
-        HelperWidgets.IconButton {
-            id: sendButton
-            objectName: "SendButton"
-
-            Layout.alignment: Qt.AlignBottom | Qt.AlignHCenter
+        Row {
+            Layout.alignment: Qt.AlignRight
             Layout.margins: StudioTheme.Values.marginTopBottom
 
-            icon: root.rootView.isGenerating && !sendButton.enabled
-                  ? StudioTheme.Constants.more_medium
-                  : StudioTheme.Constants.send_medium
+            HelperWidgets.IconButton {
+                id: attachImageButton
+                objectName: "AttachImageButton"
 
-            iconColor: sendButton.enabled ? root.style.interaction
-                                          : root.style.icon.disabled
+                icon: StudioTheme.Constants.link_medium
 
-            tooltip: qsTr("Send")
-            enabled: textEdit.text !== "" && !root.rootView.isGenerating
+                iconColor: attachImageButton.enabled ? root.style.text.idle
+                                                     : root.style.text.disabled
 
-            onClicked: root.send()
+                tooltip: qsTr("Attach an image.\nThe attached image will be included in the prompt for the AI to analyze and use its content in the response generation.")
+                enabled: !root.rootView.isGenerating
+
+                onClicked: assetImagesView.showWindow()
+            }
+
+            HelperWidgets.IconButton {
+                id: sendButton
+                objectName: "SendButton"
+
+                icon: StudioTheme.Constants.send_medium
+
+                iconColor: sendButton.enabled ? root.style.text.idle
+                                              : root.style.text.disabled
+
+                tooltip: qsTr("Send")
+                enabled: textEdit.text !== "" && !root.rootView.isGenerating
+
+                onClicked: root.send()
+            }
         }
+    }
+
+    AssetImagesPopup {
+        id: assetImagesView
+
+        snapItem: attachImageButton
+
+        onWindowShown: {
+            if (!assetImagesView.model.includes(root.rootView.attachedImageSource))
+                root.rootView.attachedImageSource = ""
+        }
+
+        onImageClicked: (imageSource) => root.rootView.attachedImageSource = imageSource
     }
 }
