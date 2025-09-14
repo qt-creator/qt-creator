@@ -104,6 +104,7 @@ add_subdirectory(appstatisticsmonitor)
 
 # Level 8:
 add_subdirectory(qmlpreview)
+add_subdirectory(zenmode)
 
 # Level 9:
 add_subdirectory(boot2qt)

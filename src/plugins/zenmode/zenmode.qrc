@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/zenmode">
+        <file>images/settingscategory_zenmode.png</file>
+        <file>images/settingscategory_zenmode_2.png</file>
+    </qresource>
+</RCC>
