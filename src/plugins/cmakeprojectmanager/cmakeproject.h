@@ -60,4 +60,8 @@ private:
     Utils::FilePath m_buildDirToImport;
 };
 
+#ifdef WITH_TESTS
+QObject *createTestPresetsInheritanceTest();
+#endif
+
 } // namespace CMakeProjectManager
