@@ -1164,7 +1164,7 @@ LinuxDevice::LinuxDevice()
     sourceProfile.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
     autoConnectOnStartup.setSettingsKey("AutoConnectOnStartup");
-    autoConnectOnStartup.setDefaultValue(false);
+    autoConnectOnStartup.setDefaultValue(true);
     autoConnectOnStartup.setLabelText(Tr::tr("Auto-connect on startup"));
     autoConnectOnStartup.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
