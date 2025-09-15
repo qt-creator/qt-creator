@@ -658,6 +658,11 @@ void AssetsLibraryWidget::setResourcePath(const QString &resourcePath)
     updateSearch();
 }
 
+void AssetsLibraryWidget::updateSkippedAssets(const QUrl &currentDoc)
+{
+    m_assetsModel->updateSkippedAssets(currentDoc);
+}
+
 void AssetsLibraryWidget::startDragAsset(const QStringList &assetPaths, const QPointF &mousePos)
 {
     // Actual drag is created after mouse has moved to avoid a QDrag bug that causes drag to stay

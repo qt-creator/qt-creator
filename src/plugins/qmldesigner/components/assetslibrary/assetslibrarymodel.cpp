@@ -40,6 +40,35 @@ void AssetsLibraryModel::setSearchText(const QString &searchText)
     endResetModel();
 }
 
+void AssetsLibraryModel::updateSkippedAssets(const QUrl &currentDoc)
+{
+    // Every .q3d asset corresponds to specific .qml file
+    // We want to filter out the .q3d file matching to current document from assets view
+
+    const QString fileName = QString("%1.q3d").arg(Utils::FilePath::fromUrl(currentDoc).baseName());
+    const QString oldSkip = m_skipFilePath;
+    const QString rootPath = m_sourceFsModel->rootPath();
+
+    QDirIterator it(rootPath, {fileName}, QDir::Files, QDirIterator::Subdirectories);
+
+    if (it.hasNext())
+        m_skipFilePath = it.next();
+    else
+        m_skipFilePath.clear();
+
+    if (!oldSkip.isEmpty()) {
+        QModelIndex oldSkipIndex = m_sourceFsModel->index(oldSkip);
+        if (oldSkipIndex.isValid())
+            emit m_sourceFsModel->dataChanged(oldSkipIndex, oldSkipIndex);
+    }
+
+    if (!m_skipFilePath.isEmpty()) {
+        QModelIndex newSkipIndex = m_sourceFsModel->index(m_skipFilePath);
+        if (newSkipIndex.isValid())
+            emit m_sourceFsModel->dataChanged(newSkipIndex, newSkipIndex);
+    }
+}
+
 bool AssetsLibraryModel::indexIsValid(const QModelIndex &index) const
 {
     static QModelIndex invalidIndex;
@@ -262,6 +291,9 @@ bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sour
 
     if (QFileInfo(sourcePath).isFile() && !m_fileWatcher->watchesFile(FilePath::fromString(sourcePath)))
         m_fileWatcher->addFile(FilePath::fromString(sourcePath), FileSystemWatcher::WatchModifiedDate);
+
+    if (sourcePath == m_skipFilePath)
+        return false;
 
     const QString rootPath = this->rootPath();
     if (!m_searchText.isEmpty() && path.startsWith(rootPath) && QFileInfo{path}.isDir()) {

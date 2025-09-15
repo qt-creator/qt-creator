@@ -66,6 +66,7 @@ public:
     void updateModel();
 
     void setResourcePath(const QString &resourcePath);
+    void updateSkippedAssets(const QUrl &currentDoc);
     static QPair<QString, QByteArray> getAssetTypeAndData(const QString &assetPath);
 
     void deleteSelectedAssets();
