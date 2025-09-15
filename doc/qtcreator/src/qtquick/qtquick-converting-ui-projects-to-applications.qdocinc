@@ -95,8 +95,8 @@
                 QML_IMPORT_PATH = qml/imports
                 \endcode
                 Where \c {qml/imports} is the import path.
-            \li Select \uicontrol Build > \uicontrol {Run qmake} to apply the
-                \c RESOURCES option to the build configuration.
+            \li Go to \uicontrol Build, and select \uicontrol {Run qmake} to
+                apply the \c RESOURCES option to the build configuration.
             \li Open the \e {main.cpp} file and replace the QQmlApplicationEngine
                 object with a QQuickView object:
                 \quotefromfile progressbar/main.cpp
@@ -105,8 +105,8 @@
                 Where \c {qrc:/qml/imports} is the import path and
                 \c {qrc:/qml/ProgressBar.ui.qml} is the path to and the
                 name of the main QML file in the Qt Quick UI project.
-            \li Select \uicontrol Build > \uicontrol Run to build and run your
-                project.
+            \li Go to \uicontrol Build, and select \uicontrol Run to build and
+                run your project.
 
                 \note If you get error messages related to modules, perfom the steps
                 described in \l{Adding Qt Quick Studio Components to Qt Installations}.

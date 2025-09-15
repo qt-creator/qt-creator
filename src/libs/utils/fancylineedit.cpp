@@ -107,7 +107,7 @@ public:
     FancyIconButton *m_iconbutton[2];
     HistoryCompleter *m_historyCompleter = nullptr;
     QShortcut m_completionShortcut;
-    FancyLineEdit::ValidationFunction m_validationFunction = {};
+    FancyLineEdit::ValidationFunction m_validationFunction = &FancyLineEdit::validateWithValidator;
     QString m_oldText;
     QMenu *m_menu[2];
     FancyLineEdit::State m_state = FancyLineEdit::Invalid;
@@ -141,15 +141,6 @@ FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent)
     , m_placeholderTextColor(QApplication::palette().color(QPalette::PlaceholderText))
     , m_spinner(new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Small, m_lineEdit))
 {
-    m_validationFunction = [this](const QString &text) -> Result<> {
-        if (const QValidator *v = m_lineEdit->validator()) {
-            QString tmp = text;
-            int pos = m_lineEdit->cursorPosition();
-            if (v->validate(tmp, pos) != QValidator::Acceptable)
-                return ResultError(QString());
-        }
-        return ResultOk;
-    };
     m_spinner->setVisible(false);
     m_spinnerDelayTimer.setInterval(200);
     m_spinnerDelayTimer.setSingleShot(true);
@@ -485,6 +476,28 @@ void FancyLineEdit::setValidationFunction(const FancyLineEdit::ValidationFunctio
     validate();
 }
 
+/*!
+    Returns the default validation function, which synchonously executes the line edit's
+    validator.
+
+    \sa setValidationFunction()
+*/
+FancyLineEdit::ValidationFunction FancyLineEdit::defaultValidationFunction()
+{
+    return &FancyLineEdit::validateWithValidator;
+}
+
+Result<> FancyLineEdit::validateWithValidator(FancyLineEdit &edit)
+{
+    if (const QValidator *v = edit.validator()) {
+        QString tmp = edit.text();
+        int pos = edit.cursorPosition();
+        if (v->validate(tmp, pos) != QValidator::Acceptable)
+            return ResultError(QString());
+    }
+    return ResultOk;
+}
+
 FancyLineEdit::State FancyLineEdit::state() const
 {
     return d->m_state;
@@ -605,6 +618,30 @@ void FancyLineEdit::validate()
 
     if (d->m_validationFunction.index() == 1) {
         SynchronousValidationFunction &validationFunction = std::get<1>(d->m_validationFunction);
+        if (!validationFunction)
+            return;
+
+        const QString t = text();
+
+        if (d->m_isFiltering) {
+            if (t != d->m_lastFilterText) {
+                d->m_lastFilterText = t;
+                emit filterChanged(t);
+            }
+        }
+
+        Result<QString> result;
+
+        if (const Result<> validates = validationFunction(*this))
+            result = t;
+        else
+            result = ResultError(validates.error());
+
+        handleValidationResult(result, t);
+    }
+
+    if (d->m_validationFunction.index() == 2) {
+        SimpleSynchronousValidationFunction &validationFunction = std::get<2>(d->m_validationFunction);
         if (!validationFunction)
             return;
 

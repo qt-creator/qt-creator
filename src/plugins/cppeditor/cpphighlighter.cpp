@@ -195,24 +195,26 @@ void CppHighlighter::highlightBlock(const QString &text)
             continue;
 
         // Handle attributes, i.e. identifiers in pairs of "[[" and "]]".
-        if (tk.is(T_LBRACKET) && !tk.isOperator()) {
-            attrState.lbrackets = !attrState.lbrackets;
-            if (attrState.lbrackets == 0)
-                ++attrState.opened;
-            continue;
-        }
-        if (tk.is(T_RBRACKET) && !tk.isOperator()) {
-            attrState.rbrackets = !attrState.rbrackets;
-            if (attrState.rbrackets == 0 && attrState.opened > 0)
-                --attrState.opened;
-            if (attrState.lbrackets)
-                attrState.lbrackets = 0;
-            continue;
-        }
-        attrState.lbrackets = attrState.rbrackets = 0;
-        if (attrState.opened && (tk.is(T_IDENTIFIER) || (tk.isKeyword() && !tk.is(T_USING)))) {
-            setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_ATTRIBUTE));
-            continue;
+        if (m_languageFeatures.cxx11Enabled && !m_languageFeatures.objCEnabled) {
+            if (tk.is(T_LBRACKET)) {
+                attrState.lbrackets = !attrState.lbrackets;
+                if (attrState.lbrackets == 0)
+                    ++attrState.opened;
+                continue;
+            }
+            if (tk.is(T_RBRACKET)) {
+                attrState.rbrackets = !attrState.rbrackets;
+                if (attrState.rbrackets == 0 && attrState.opened > 0)
+                    --attrState.opened;
+                if (attrState.lbrackets)
+                    attrState.lbrackets = 0;
+                continue;
+            }
+            attrState.lbrackets = attrState.rbrackets = 0;
+            if (attrState.opened && (tk.is(T_IDENTIFIER) || (tk.isKeyword() && !tk.is(T_USING)))) {
+                setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_ATTRIBUTE));
+                continue;
+            }
         }
 
         if (i == 0 && tk.is(T_POUND)) {

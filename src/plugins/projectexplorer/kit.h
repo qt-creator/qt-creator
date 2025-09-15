@@ -106,6 +106,7 @@ public:
 
     QList<Utils::OutputLineParser *> createOutputParsers() const;
     QString moduleForHeader(const QString &className) const;
+    bool supportsQtCategoryFilter() const;
 
     QString toHtml(const Tasks &additional = Tasks(), const QString &extraText = QString()) const;
     Kit *clone(bool keepName = false) const;

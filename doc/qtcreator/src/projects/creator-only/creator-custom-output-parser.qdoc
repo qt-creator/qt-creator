@@ -73,11 +73,11 @@
 
     You can activate custom output parsers in the
     \uicontrol {Custom Output Parsers} section of
-    the \uicontrol Build and \uicontrol Run settings,
+    \uicontrol {Build Settings} and \uicontrol {Run Settings},
     as well as in the custom compiler settings.
 
-    To activate a custom output parser in the \uicontrol Build or
-    \uicontrol Run settings of a project:
+    To activate a custom output parser, go to \uicontrol Projects >
+    \uicontrol {Build Settings} or \uicontrol {Run Settings}:
 
     \list 1
         \li In the \uicontrol {Custom Output Parsers} section, select

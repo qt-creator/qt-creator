@@ -210,8 +210,14 @@ void KitAspect::refresh()
         la.comboBox->model()->sort(0);
         const QVariant itemId = la.spec.getter(*k);
         int idx = la.comboBox->findData(itemId, IdRole);
-        if (idx == -1)
+        if (idx == -1) {
             idx = la.comboBox->count() - 1;
+            if (QTC_UNEXPECTED(itemId.isValid())) {
+                qWarning() << factory()->displayName();
+                const QVariant newId = idx < 0 ? QVariant() : la.comboBox->itemData(idx, IdRole);
+                la.spec.setter(*kit(), newId);
+            }
+        }
         la.comboBox->setCurrentIndex(idx);
         la.comboBox->setEnabled(!d->readOnly && la.comboBox->count() > 1);
     }

@@ -6,6 +6,7 @@ QtcPlugin {
     Depends { name: "CmdBridgeClient" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
+    Depends { name: "TextEditor" }
     Depends { name: "Utils" }
     Depends { name: "qtc" }
 
@@ -40,5 +41,16 @@ QtcPlugin {
             "**/*",
             ".**/*",
         ]
+    }
+
+    Group {
+        name: "images"
+        prefix: "images/"
+        files: [
+            "container.png",
+            "container@2x.png",
+        ]
+        fileTags: "qt.core.resource_data"
+        Qt.core.resourcePrefix: "/devcontainer"
     }
 }

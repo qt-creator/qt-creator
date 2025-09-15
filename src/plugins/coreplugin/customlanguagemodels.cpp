@@ -93,7 +93,7 @@ public:
 
 CommandLine CustomLanguageModel::commandLine()
 {
-    return CommandLine(executable.effectiveBinary(), arguments.expandedValue(), CommandLine::Raw);
+    return CommandLine(executable.effectiveBinary(), arguments(), CommandLine::Raw);
 }
 
 CustomLanguageModel &CustomLanguageModel::fromBaseAspect(BaseAspect &aspect)

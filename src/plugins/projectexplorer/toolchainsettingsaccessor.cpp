@@ -69,18 +69,7 @@ static Toolchains autoDetectToolchains(const ToolchainDetector &detector)
                              {"factory", f->displayName().toStdString()});
         QElapsedTimer et;
         et.start();
-        if (std::optional<AsyncToolchainDetector> asyncDetector = f->asyncAutoDetector(detector)) {
-            Toolchains known = Utils::filtered(detector.alreadyKnown,
-                                               [supportedType = f->supportedToolchainType()](
-                                                   const Toolchain *tc) {
-                                                   return tc->typeId() == supportedType
-                                                          && tc->isValid();
-                                               });
-            result.append(known);
-            asyncDetector->run();
-        } else {
-            result.append(f->autoDetect(detector));
-        }
+        result.append(f->autoDetect(detector));
         qCDebug(Log) << f->displayName() << "auto detection took: " << et.elapsed() << "ms";
     }
 

@@ -152,7 +152,6 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
     using namespace Layouting;
 
     setMinimumWidth(ProgressManagerPrivate::infoMinWidth());
-    setMaximumWidth(ProgressManagerPrivate::infoMaxWidth());
 
     const InfoLabel::InfoType infoType = [&info] {
         const QString envString = qtcEnvironmentVariable("QTC_DEBUG_POPUPNOTIFICATION_TYPE", {});

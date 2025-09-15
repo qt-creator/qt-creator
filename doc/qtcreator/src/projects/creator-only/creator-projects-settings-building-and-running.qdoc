@@ -1,0 +1,74 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \page creator-building-running-settings.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects-configure
+
+    \title Specify build and run settings
+
+    To override the build and run settings for the current project:
+
+    \list 1
+
+        \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
+            \uicontrol {Building and Running}.
+
+            \image {qtcreator-projects-building-and-running-settings.webp} {Building and Running settings in the Projects mode}
+
+        \li Clear \uicontrol {Use global settings}.
+
+        \li Specify build and run settings for the project.
+
+    \endlist
+
+    Your choices override some of the values you set in \preferences >
+    \uicontrol {Build & Run} > \uicontrol General.
+
+    \table
+    \header
+        \li Setting
+        \li Value
+    \row
+        \li Add linker library search paths to run environment
+        \li Ensures that library paths used during linking are also available
+            when running the application.
+    \row
+        \li Create suitable run configurations automatically
+        \li Automatically generates run configurations based on the current
+            build settings.
+    \row
+        \li Start build processes with low priority
+        \li Launches build processes with a lower priority.
+    \row
+        \li Warn against build directories with spaces or non-ASCII characters
+        \li Displays warnings if the build directory contains spaces or
+            non-standard characters that may cause issues.
+    \row
+        \li Default for "Run in terminal"
+        \li Specifies whether applications should run in a terminal by default.
+    \row
+        \li Keep run configurations in sync
+        \li Specifies whether adding, removing, or editing a run configuration
+            in one build configuration should update other build configurations
+            accordingly.
+    \row
+        \li Time to wait before force-stopping applications
+        \li Specifies the number of seconds to wait between a \e {soft kill} and a
+            \e {hard kill} of a running application.
+    \endtable
+
+
+    Select \uicontrol {Restore Global} to revert to the global settings.
+
+    \sa {Build and Run}
+
+*/

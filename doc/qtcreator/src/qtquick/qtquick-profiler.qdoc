@@ -93,7 +93,7 @@
     To specify custom QML Profiler settings for a particular project:
 
     \list 1
-        \li Go to \uicontrol Projects > \uicontrol Run.
+        \li Go to \uicontrol Projects > \uicontrol {Run Settings}.
         \li In \uicontrol {QML Profiler Settings}, select \uicontrol Custom.
             \image {qml-profiler-settings.png} {QML Profiler Settings}
     \endlist

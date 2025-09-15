@@ -1,7 +1,7 @@
 {
     "version": 1,
     "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject", "Qbs.QbsProject", "Qt4ProjectManager.Qt4Project" ],
-    "id": "V.QtQuickApplicationEmptyCompat",
+    "id": "B.QtQuickApplicationEmptyCompat",
     "category": "D.ApplicationQt",
     "trDescription": "Creates a Qt Quick application that contains an empty window.\n\nUse this \"compat\" version if you want to use other build systems than CMake or Qt versions lower than 6.",
     "trDisplayName": "Qt Quick Application (compat)",

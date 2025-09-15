@@ -108,11 +108,11 @@
 
         \endlist
 
-        \li Select \uicontrol Run to specify run settings. Usually, you can use
-            the default settings.
+        \li Go to \uicontrol {Run Settings} to specify run settings.
+            Usually, you can use the default settings.
 
-            When you run the project, \QC deploys the application as specified by
-            the deploy steps.
+        \li When you run the project, \QC deploys the application as specified by
+            \uicontrol {Deploy Settings}.
 
     \endlist
 

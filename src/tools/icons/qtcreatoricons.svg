@@ -4178,6 +4178,21 @@
          id="path17569"
          sodipodi:nodetypes="ccccccccc" />
     </g>
+    <g
+       id="src/plugins/devcontainer/images/container">
+      <use
+         transform="translate(2539,132)"
+         height="100%"
+         width="100%"
+         id="use153"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="path51"
+         style="fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round"
+         d="m 2530.5,575.5 v 3 m -2.5,-4.25 2.5,1.25 2.5,-1.25 m -7.5,4.75 5,2.5 5,-2.5 v -6 l -5,-2.5 -5,2.5 z" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"

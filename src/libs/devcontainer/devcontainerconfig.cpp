@@ -1259,4 +1259,35 @@ FilePath Config::workspaceFolder(const Config &config)
         *config.containerConfig));
 }
 
+bool Config::isValidConfigPath(
+    const Utils::FilePath &workspaceFolder, const Utils::FilePath &configPath)
+{
+    /*
+    Possible locations:
+        .devcontainer.json
+        .devcontainer/devcontainer.json
+        .devcontainer/<folder>/devcontainer.json (where <folder> is a sub-folder, one level deep)
+*/
+    // .devcontainer.json
+    if (configPath.fileName() == ".devcontainer.json" && configPath.parentDir() == workspaceFolder)
+        return true;
+
+    if (configPath.fileName() != "devcontainer.json")
+        return false;
+
+    const FilePath parentDir = configPath.parentDir();
+    const FilePath secondLvlParentDir = parentDir.parentDir();
+
+    // .devcontainer/devcontainer.json
+    if (parentDir.fileName() == ".devcontainer" && secondLvlParentDir == workspaceFolder)
+        return true;
+
+    // .devcontainer/<folder>/devcontainer.json (where <folder> is a sub-folder, one level deep)
+    if (secondLvlParentDir.fileName() == ".devcontainer"
+        && secondLvlParentDir.parentDir() == workspaceFolder)
+        return true;
+
+    return false;
+}
+
 } // namespace DevContainer

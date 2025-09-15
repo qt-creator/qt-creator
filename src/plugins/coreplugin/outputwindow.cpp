@@ -147,7 +147,7 @@ OutputWindow::OutputWindow(Context context, const Key &settingsKey, QWidget *par
     connect(pasteAction, &QAction::triggered, this, &QPlainTextEdit::paste);
     connect(selectAllAction, &QAction::triggered, this, &QPlainTextEdit::selectAll);
     connect(this, &QPlainTextEdit::blockCountChanged, this, [this] {
-        if (!d->filterText.isEmpty())
+        if (shouldFilterNewContentOnBlockCountChanged())
             filterNewContent();
     });
 
@@ -220,6 +220,16 @@ void OutputWindow::handleLink(const QPoint &pos)
 }
 
 void OutputWindow::adaptContextMenu(QMenu *, const QPoint &) {}
+
+void OutputWindow::resetLastFilteredBlockNumber()
+{
+    d->lastFilteredBlockNumber = -1;
+}
+
+bool OutputWindow::shouldFilterNewContentOnBlockCountChanged() const
+{
+    return !d->filterText.isEmpty();
+}
 
 void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 {
@@ -386,7 +396,7 @@ void OutputWindow::setWheelZoomEnabled(bool enabled)
     d->zoomEnabled = enabled;
 }
 
-void OutputWindow::updateFilterProperties(
+bool OutputWindow::updateFilterProperties(
         const QString &filterText,
         Qt::CaseSensitivity caseSensitivity,
         bool isRegexp,
@@ -403,8 +413,8 @@ void OutputWindow::updateFilterProperties(
         && d->filterText == filterText
         && d->beforeContext == beforeContext
         && d->afterContext == afterContext)
-        return;
-    d->lastFilteredBlockNumber = -1;
+        return false;
+    resetLastFilteredBlockNumber();
     if (d->filterText != filterText) {
         const bool filterTextWasEmpty = d->filterText.isEmpty();
         d->filterText = filterText;
@@ -432,6 +442,7 @@ void OutputWindow::updateFilterProperties(
     d->beforeContext = beforeContext;
     d->afterContext = afterContext;
     filterNewContent();
+    return true;
 }
 
 void OutputWindow::setOutputFileNameHint(const QString &fileName)
@@ -439,8 +450,11 @@ void OutputWindow::setOutputFileNameHint(const QString &fileName)
     d->outputFileNameHint = fileName;
 }
 
-OutputWindow::TextMatchingFunction OutputWindow::makeMatchingFunction() const
+OutputWindow::TextMatchingFunction OutputWindow::makeMatchingFilterFunction() const
 {
+    const bool normal = !d->filterMode.testFlag(FilterModeFlag::Inverted)
+                        && !d->filterText.isEmpty();
+
     if (d->filterText.isEmpty()) {
         return [](const QString &) { return true; };
     } else if (d->filterMode.testFlag(OutputWindow::FilterModeFlag::RegExp)) {
@@ -450,13 +464,13 @@ OutputWindow::TextMatchingFunction OutputWindow::makeMatchingFunction() const
         if (!regExp.isValid())
             return [](const QString &) { return false; };
 
-        return [regExp](const QString &text) { return regExp.match(text).hasMatch(); };
+        return [regExp, normal](const QString &text) { return regExp.match(text).hasMatch() == normal; };
     } else {
         const auto cs = d->filterMode.testFlag(OutputWindow::FilterModeFlag::CaseSensitive)
                             ? Qt::CaseSensitive : Qt::CaseInsensitive;
 
-        return [cs, filterText = d->filterText](const QString &text) {
-            return text.contains(filterText, cs);
+        return [cs, filterText = d->filterText, normal](const QString &text) {
+            return text.contains(filterText, cs) == normal;
         };
     }
 
@@ -465,10 +479,8 @@ OutputWindow::TextMatchingFunction OutputWindow::makeMatchingFunction() const
 
 void OutputWindow::filterNewContent()
 {
-    const auto findNextMatch = makeMatchingFunction();
-    QTC_ASSERT(findNextMatch, return);
-    const bool invert = d->filterMode.testFlag(FilterModeFlag::Inverted)
-                        && !d->filterText.isEmpty();
+    const auto findNextMatchFilter = makeMatchingFilterFunction();
+    QTC_ASSERT(findNextMatchFilter, return);
     const int requiredBacklog = std::max(d->beforeContext, d->afterContext);
     const int firstBlockIndex = d->lastFilteredBlockNumber - requiredBacklog;
 
@@ -479,7 +491,7 @@ void OutputWindow::filterNewContent()
 
     // Find matching text blocks for the current filter.
     for (; lastBlock != document()->end(); lastBlock = lastBlock.next()) {
-        const bool isMatch = findNextMatch(lastBlock.text()) != invert;
+        const bool isMatch = findNextMatchFilter(lastBlock.text());
 
         if (isMatch)
             matchedBlocks.emplace_back(lastBlock.blockNumber());

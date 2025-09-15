@@ -1419,6 +1419,11 @@ void StringAspect::addToLayoutImpl(Layout &parent)
 
 QString StringAspect::expandedValue() const
 {
+    return operator()();
+}
+
+QString StringAspect::operator()() const
+{
     if (!m_internal.isEmpty()) {
         if (auto expander = macroExpander())
             return expander->expand(m_internal);

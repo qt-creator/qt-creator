@@ -421,8 +421,8 @@ void IosDeviceManager::deviceInfo(const QString &uid,
                         switch (result) {
                         case QMessageBox::Yes:
                             Core::HelpManager::showHelpUrl(
-                                QLatin1String("qthelp://org.qt-project.qtcreator/doc/"
-                                              "creator-developing-ios.html"));
+                                "qthelp://org.qt-project.qtcreator/doc/"
+                                "creator-how-to-connect-ios-devices.html");
                             break;
                         case QMessageBox::No:
                             break;

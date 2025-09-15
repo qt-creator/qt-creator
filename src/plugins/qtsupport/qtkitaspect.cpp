@@ -178,14 +178,21 @@ void QtKitAspectFactory::setup(Kit *k)
 {
     if (!k || k->hasValue(id()))
         return;
-    const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
-    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(k);
 
-    const QtVersions matches
-            = QtVersionManager::versions([&tcAbi, &deviceType](const QtVersion *qt) {
-        return qt->targetDeviceTypes().contains(deviceType)
-                && Utils::contains(qt->qtAbis(), [&tcAbi](const Abi &qtAbi) {
-            return qtAbi.isCompatibleWith(tcAbi); });
+    const IDeviceConstPtr buildDev = BuildDeviceKitAspect::device(k);
+    if (!buildDev)
+        return;
+
+    const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
+    const Id runDeviceType = RunDeviceTypeKitAspect::deviceTypeId(k);
+    const FilePath buildDeviceRoot = buildDev->rootPath();
+
+    const QtVersions matches = QtVersionManager::versions([&](const QtVersion *qt) {
+        return buildDeviceRoot.isSameDevice(qt->qmakeFilePath())
+               && qt->targetDeviceTypes().contains(runDeviceType)
+               && Utils::contains(qt->qtAbis(), [&tcAbi](const Abi &qtAbi) {
+                      return qtAbi.isCompatibleWith(tcAbi);
+                  });
     });
     if (matches.empty())
         return;
@@ -227,6 +234,10 @@ Tasks QtKitAspectFactory::validate(const Kit *k) const
 
 void QtKitAspectFactory::fix(Kit *k)
 {
+    const IDeviceConstPtr dev = BuildDeviceKitAspect::device(k);
+    if (!dev)
+        return QtKitAspect::setQtVersionId(k, -1);
+
     QTC_ASSERT(QtVersionManager::isLoaded(), return);
     QtVersion *version = QtKitAspect::qtVersion(k);
     if (!version) {
@@ -237,6 +248,8 @@ void QtKitAspectFactory::fix(Kit *k)
         }
         return;
     }
+    if (!version->qmakeFilePath().isSameDevice(dev->rootPath()))
+        return QtKitAspect::setQtVersionId(k, -1);
 
     // Set a matching toolchain if we don't have one.
     if (ToolchainKitAspect::cxxToolchain(k))
@@ -245,9 +258,13 @@ void QtKitAspectFactory::fix(Kit *k)
     QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
         ToolchainBundle::HandleMissing::CreateAndRegister);
     using ProjectExplorer::Constants::CXX_LANGUAGE_ID;
-    bundles = Utils::filtered(bundles, [version](const ToolchainBundle &b) {
+    bundles = Utils::filtered(bundles, [&](const ToolchainBundle &b) {
         if (!b.isCompletelyValid() || !b.factory()->languageCategory().contains(CXX_LANGUAGE_ID))
             return false;
+        for (const Toolchain * const tc : b.toolchains()) {
+            if (!dev->rootPath().isSameDevice(tc->compilerCommand()))
+                return false;
+        }
         return Utils::anyOf(version->qtAbis(), [&b](const Abi &qtAbi) {
             return b.supportedAbis().contains(qtAbi)
                    && b.targetAbi().wordWidth() == qtAbi.wordWidth()
@@ -641,10 +658,14 @@ int QtKitAspectFactory::weight(const Kit *k) const
 
 QVariant QtKitAspectFactory::getInfo(const Kit *k, Id request, const QVariant &input) const
 {
-    if (request == "moduleForHeader") {
-        if (const QtVersion * const v = QtKitAspect::qtVersion(k))
-            return v->moduleForHeader(input.toString());
-    }
+    QtVersion * const version = QtKitAspect::qtVersion(k);
+    if (!version || !version->isValid())
+        return {};
+
+    if (request == "moduleForHeader")
+        return version->moduleForHeader(input.toString());
+    if (request == "supportsQtCategoryFilter")
+        return version->qtVersion() >= QVersionNumber(6, 11);
     return {};
 }
 

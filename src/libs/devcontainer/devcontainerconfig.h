@@ -241,6 +241,9 @@ struct DEVCONTAINER_EXPORT Config
         const QJsonObject &json, JsonStringToString jsonStringToString);
     static Utils::Result<Config> fromJson(
         const QByteArray &data, const JsonStringToString &jsonStringToString);
+
+    static bool isValidConfigPath(
+        const Utils::FilePath &workspaceFolder, const Utils::FilePath &configPath);
 };
 
 //! Returns a QJsonValue for the specified path. e.g.: customization(config, "qt-creator/device/mount-cmd-bridge")

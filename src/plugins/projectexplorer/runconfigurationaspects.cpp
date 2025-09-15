@@ -786,6 +786,26 @@ RunAsRootAspect::RunAsRootAspect(AspectContainer *container)
     setVisible(HostOsInfo::isAnyUnixHost());
 }
 
+/*!
+    \class ProjectExplorer::EnableCategoriesFilterAspect
+    \inmodule QtCreator
+
+    \brief The EnableCategoriesFilterAspect class lets a user specify whether
+    the application output should show the categories filtering widget.
+*/
+
+EnableCategoriesFilterAspect::EnableCategoriesFilterAspect(AspectContainer *container)
+    : BoolAspect(container)
+{
+    setId("EnableCategoriesFilter");
+    setSettingsKey("RunConfiguration.EnableCategoriesFilter");
+    setLabel(Tr::tr("Enable logging category filtering"), LabelPlacement::AtCheckBox);
+    setToolTip(
+        Tr::tr(
+            "Enables filtering for logging categories (QLoggingCategory) in the Application "
+            "Output. Requires Qt 6.11 or later."));
+}
+
 Interpreter::Interpreter()
     : id(QUuid::createUuid().toString())
 {}

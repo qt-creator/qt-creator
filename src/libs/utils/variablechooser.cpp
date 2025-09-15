@@ -121,7 +121,9 @@ public:
 class VariableGroupItem : public TreeItem
 {
 public:
-    VariableGroupItem() = default;
+    VariableGroupItem(VariableChooserPrivate *chooser, const MacroExpanderProvider &provider)
+        : m_chooser(chooser), m_provider(provider)
+    {}
 
     QVariant data(int column, int role) const override
     {
@@ -148,7 +150,12 @@ public:
 
     void populateGroup(MacroExpander *expander);
 
-public:
+    QByteArray currentVariableName() const
+    {
+        return m_chooser->m_currentVariableName;
+    }
+
+private:
     VariableChooserPrivate *m_chooser = nullptr; // Not owned.
     bool m_populated = false;
     MacroExpanderProvider m_provider;
@@ -157,11 +164,13 @@ public:
 class VariableItem : public TypedTreeItem<TreeItem, VariableGroupItem>
 {
 public:
-    VariableItem() = default;
+    VariableItem(const QByteArray &variable, MacroExpander *expander)
+        : m_variable(variable), m_expander(expander)
+    {}
 
     Qt::ItemFlags flags(int) const override
     {
-        if (m_variable == parent()->m_chooser->m_currentVariableName)
+        if (m_variable == parent()->currentVariableName())
             return Qt::ItemIsSelectable;
         return Qt::ItemIsSelectable|Qt::ItemIsEnabled;
     }
@@ -198,9 +207,9 @@ public:
         return QVariant();
     }
 
-public:
-    MacroExpander *m_expander;
+private:
     QByteArray m_variable;
+    MacroExpander *m_expander;
 };
 
 void VariableTreeView::contextMenuEvent(QContextMenuEvent *ev)
@@ -293,26 +302,19 @@ void VariableGroupItem::populateGroup(MacroExpander *expander)
 {
     if (!expander)
         return;
+
     const QList<QByteArray> variables = expander->visibleVariables();
-    for (const QByteArray &variable : variables) {
-        auto item = new VariableItem;
-        item->m_variable = variable;
-        item->m_expander = expander;
-        appendChild(item);
-    }
+    for (const QByteArray &variable : variables)
+        appendChild(new VariableItem(variable, expander));
 
     const MacroExpanderProviders subProviders = expander->subProviders();
     for (const MacroExpanderProvider &subProvider : subProviders) {
         if (!subProvider)
             continue;
-        if (expander->isAccumulating()) {
+        if (expander->isAccumulating())
             populateGroup(subProvider());
-        } else {
-            auto item = new VariableGroupItem;
-            item->m_chooser = m_chooser;
-            item->m_provider = subProvider;
-            appendChild(item);
-        }
+        else
+            appendChild(new VariableGroupItem(m_chooser, subProvider));
     }
 }
 
@@ -395,10 +397,7 @@ VariableChooser::~VariableChooser()
 */
 void VariableChooser::addMacroExpanderProvider(const MacroExpanderProvider &provider)
 {
-    auto item = new VariableGroupItem;
-    item->m_chooser = d;
-    item->m_provider = provider;
-    d->m_model.rootItem()->prependChild(item);
+    d->m_model.rootItem()->prependChild(new VariableGroupItem(d, provider));
 }
 
 /*!
@@ -630,4 +629,4 @@ bool VariableChooser::eventFilter(QObject *obj, QEvent *event)
     return false;
 }
 
-} // namespace Internal
+} // namespace Utils

@@ -55,8 +55,8 @@
 
     \section1 Run without deploying
 
-    To run executable files without deploying them first, select \uicontrol Build >
-    \uicontrol {Run Without Deployment}.
+    To run executable files without deploying them first, go to \uicontrol Build
+    and select \uicontrol {Run Without Deployment}.
 
     To make this the default option, go to \preferences >
     \uicontrol {Build & Run} > \uicontrol General, and clear

@@ -20,7 +20,7 @@
 
     Specify settings for deploying applications to generic remote
     Linux devices in the project configuration file and in \uicontrol Projects >
-    \uicontrol {Run Settings} > \uicontrol Deployment.
+    \uicontrol {Deploy Settings}.
 
     \image {qtcreator-embedded-linux-deployment-details.png} {Deployment to remote Linux devices}
 

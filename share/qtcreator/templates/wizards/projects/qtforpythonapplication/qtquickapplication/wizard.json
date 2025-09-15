@@ -1,7 +1,7 @@
 {
     "version": 1,
     "supportedProjectTypes": [ "PythonProject" ],
-    "id": "F.QtQuickQtForPythonApplicationEmpty",
+    "id": "E.QtQuickQtForPythonApplicationEmpty",
     "category": "F.ApplicationPySide",
     "trDescription": "Creates a Qt Quick application that contains an empty window.",
     "trDisplayName": "Qt Quick Application - Empty",

@@ -101,6 +101,8 @@
 
                 \image {qtcreator-ios-add-kit.png} {iOS kit selected for a project in Build & Run}
 
+            \li Go to \uicontrol {Build Settings}.
+
             \li In \uicontrol {iOS Settings}, select the development team to use
                 for signing and provisioning applications. You must configure
                 development teams and provisioning profiles in Xcode using an
@@ -115,7 +117,7 @@
 
         \endlist
 
-        \li Select \uicontrol Run to specify run settings.
+        \li Go to \uicontrol {Run Settings} to specify run settings.
 
             Usually, you can use the default settings.
 
@@ -163,8 +165,8 @@
     {Simulator}, which is installed as part of Xcode. Each Xcode version
     simulates a predefined set of hardware devices and software versions.
 
-    You can change the simulated hardware and software version in the run
-    settings for the project. Go to \uicontrol Projects > \uicontrol Run, and then select
+    To change the simulated hardware and software version, go to
+    \uicontrol Projects > uicontrol {Run Settings} and select
     the device to simulate in the \uicontrol {Device type} field.
 
     \image {qtcreator-ios-simulator-deploy.png} {Deployment settings for iOS Simulator}

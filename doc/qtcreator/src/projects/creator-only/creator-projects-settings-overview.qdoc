@@ -27,8 +27,8 @@
 
     \image {qtcreator-projects-kits.webp} {Sidebar in the Projects mode}
 
-    To specify build or run settings for a kit, select \uicontrol Build or
-    \uicontrol Run below the kit name.
+    To specify build or run settings for a kit, select the kit and go to
+    \uicontrol {Build Settings} or \uicontrol {Run Settings}.
 
     \section1 Specifying Build Settings
 
@@ -84,6 +84,7 @@
     the project:
 
             \list
+                \li \l{Specify building and running settings}{Building and Running}
                 \li \l{Specify Clang tools settings}{Clang Tools}
                 \li \l{Specify clangd settings}{Clangd}
                 \li \l{Override CMake settings for a project}{CMake}
@@ -143,7 +144,8 @@
     \l{Add debuggers}{Debugging}, and \l{Add Qt versions}{Qt version}, as well
     as steps for building, deploying, and running applications.
 
-    To copy the build, deploy, and run steps from another kit, select
+    To copy the build, deploy, and run steps from another kit, go to
+    \uicontrol Projects > \uicontrol {Build & Run}, right-click a kit, and select
     \uicontrol {Copy Steps from Another Kit} in the context menu.
 
     To deactivate a kit, select \uicontrol {Disable Kit for Project} in the

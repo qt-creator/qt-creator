@@ -631,7 +631,17 @@ ProcessRunData RunConfiguration::runnable() const
     if (auto workingDirectoryAspect = aspect<WorkingDirectoryAspect>())
         r.workingDirectory = r.command.executable().withNewMappedPath(workingDirectoryAspect->workingDirectory());
     if (auto environmentAspect = aspect<EnvironmentAspect>())
+    {
         r.environment = environmentAspect->expandedEnvironment(*macroExpander());
+        auto enableCategoriesFilterAspect = aspect<EnableCategoriesFilterAspect>();
+        if (enableCategoriesFilterAspect && enableCategoriesFilterAspect->value()) {
+            r.environment.set("QT_LOGGING_RULES", "_logging_categories=true;*.debug=true");
+            r.environment.set("QT_MESSAGE_PATTERN",
+                              "%{category}:[%{if-debug}D%{endif}%{if-info}I%{endif}"
+                              "%{if-warning}W%{endif}%{if-critical}C%{endif}"
+                              "%{if-fatal}F%{endif}] %{message}");
+        }
+    }
     if (m_runnableModifier)
         m_runnableModifier(r);
 

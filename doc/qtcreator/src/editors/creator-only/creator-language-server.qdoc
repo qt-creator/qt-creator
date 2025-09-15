@@ -261,13 +261,19 @@
 
     \section1 Select \QMLLS version
 
-    \QC tries to use \QMLLS shipped with the Qt version in your current
-    \l{Kits}{kit}. To override that behavior and always use
-    \QMLLS of the highest registered Qt version, select
-    \uicontrol {Use from latest Qt version}.
+    To use \QMLLS shipped with the Qt version in your current \l{Kits}{kit},
+    select \uicontrol {Use qmlls from project Qt kit}. This is the default
+    option.
+
+    To always use \QMLLS of the highest registered Qt version, select
+    \uicontrol {Use qmlls from latest Qt kit}.
 
     To use older \QMLLS versions, select
     \uicontrol{Allow versions below Qt 6.8}.
+
+    To use a specific \QMLLS version, set the path to the executable in
+    \uicontrol {Use custom qmlls executable}. To download the latest
+    \QMLLS version, select \uicontrol {Download latest standalone qmlls}.
 
     \section1 Automatically configure new CMake projects
 

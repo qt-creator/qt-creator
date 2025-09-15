@@ -68,6 +68,24 @@ static void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
                   Utils::OsSpecificAspects::pathListSeparator(sourceDirectory.osType()));
 }
 
+static void expandAllButEnv(const PresetsDetails::TestPreset &preset,
+                            const Utils::FilePath &sourceDirectory,
+                            QString &value)
+{
+    value.replace("${dollar}", "$");
+
+    value.replace("${sourceDir}", sourceDirectory.path());
+    value.replace("${fileDir}", preset.fileDir.path());
+    value.replace("${sourceParentDir}", sourceDirectory.parentDir().path());
+    value.replace("${sourceDirName}", sourceDirectory.fileName());
+
+    value.replace("${presetName}", preset.name);
+    value.replace("${hostSystemName}", getHostSystemName(sourceDirectory.osType()));
+    value.replace("${pathListSep}",
+                  Utils::OsSpecificAspects::pathListSeparator(sourceDirectory.osType()));
+}
+
+
 static QString expandMacroEnv(const QString &macroPrefix,
                               const QString &value,
                               const std::function<QString(const QString &)> &op)
@@ -413,5 +431,23 @@ template void expand<PresetsDetails::BuildPreset>(const PresetsDetails::BuildPre
 
 template bool evaluatePresetCondition<PresetsDetails::BuildPreset>(
     const PresetsDetails::BuildPreset &preset, const Utils::FilePath &sourceDirectory);
+
+
+// Expand for PresetsDetails::TestPreset
+template void expand<PresetsDetails::TestPreset>(const PresetsDetails::TestPreset &preset,
+                                                 Utils::Environment &env,
+                                                 const Utils::FilePath &sourceDirectory);
+
+template void expand<PresetsDetails::TestPreset>(const PresetsDetails::TestPreset &preset,
+                                                 Utils::EnvironmentItems &envItems,
+                                                 const Utils::FilePath &sourceDirectory);
+
+template void expand<PresetsDetails::TestPreset>(const PresetsDetails::TestPreset &preset,
+                                                 const Utils::Environment &env,
+                                                 const Utils::FilePath &sourceDirectory,
+                                                 QString &value);
+
+template bool evaluatePresetCondition<PresetsDetails::TestPreset>(
+    const PresetsDetails::TestPreset &preset, const Utils::FilePath &sourceDirectory);
 
 } // namespace CMakeProjectManager::Internal::CMakePresets::Macros

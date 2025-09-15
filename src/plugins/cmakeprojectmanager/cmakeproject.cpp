@@ -220,6 +220,7 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
 
     QHash<QString, PresetsDetails::ConfigurePreset> configurePresetsHash;
     QHash<QString, PresetsDetails::BuildPreset> buildPresetsHash;
+    QHash<QString, PresetsDetails::TestPreset> testPresetsHash;
 
     result.configurePresets = combinePresetsInternal(configurePresetsHash,
                                                      cmakePresetsData.configurePresets,
@@ -229,6 +230,8 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
                                                  cmakePresetsData.buildPresets,
                                                  cmakeUserPresetsData.buildPresets,
                                                  "build");
+    result.testPresets = combinePresetsInternal(
+        testPresetsHash, cmakePresetsData.testPresets, cmakeUserPresetsData.testPresets, "test");
 
     return result;
 }
@@ -256,6 +259,31 @@ void CMakeProject::setupBuildPresets(Internal::PresetsData &presetsData)
         }
     }
 }
+
+void CMakeProject::setupTestPresets(Internal::PresetsData &presetsData)
+{
+    for (auto &testPreset : presetsData.testPresets) {
+        if (testPreset.inheritConfigureEnvironment) {
+            if (!testPreset.configurePreset && !testPreset.hidden) {
+                TaskHub::addTask<BuildSystemTask>(
+                    Task::TaskType::DisruptingError,
+                    Tr::tr("Test preset %1 is missing a corresponding configure preset.")
+                        .arg(testPreset.name));
+                presetsData.hasValidPresets = false;
+            }
+
+            const QString &configurePresetName = testPreset.configurePreset.value_or(QString());
+            testPreset.environment
+                = Utils::findOrDefault(presetsData.configurePresets,
+                                       [configurePresetName](
+                                           const PresetsDetails::ConfigurePreset &configurePreset) {
+                                           return configurePresetName == configurePreset.name;
+                                       })
+                      .environment;
+        }
+    }
+}
+
 
 QString CMakeProject::projectDisplayName(const Utils::FilePath &projectFilePath)
 {
@@ -343,6 +371,7 @@ void CMakeProject::readPresets()
                     presetData.configurePresets = includeData.configurePresets
                                                   + presetData.configurePresets;
                     presetData.buildPresets = includeData.buildPresets + presetData.buildPresets;
+                    presetData.testPresets = includeData.testPresets + presetData.testPresets;
                     presetData.hasValidPresets = includeData.hasValidPresets && presetData.hasValidPresets;
 
                     includeStack << includePath;
@@ -370,6 +399,7 @@ void CMakeProject::readPresets()
 
     m_presetsData = combinePresets(cmakePresetsData, cmakeUserPresetsData);
     setupBuildPresets(m_presetsData);
+    setupTestPresets(m_presetsData);
 
     if (!m_presetsData.hasValidPresets) {
         m_presetsData = {};

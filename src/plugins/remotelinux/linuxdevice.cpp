@@ -1429,7 +1429,7 @@ void LinuxDevicePrivate::announceConnectionAttempt()
     QTC_ASSERT(isMainThread(), return);
     InfoBarEntry info(announceId(), message);
     info.setTitle(Tr::tr("Establishing a Connection"));
-    info.setInfoType(InfoLabel::Ok);
+    info.setInfoType(InfoLabel::Warning);
     Core::ICore::popupInfoBar()->addInfo(info);
     Core::MessageManager::writeSilently(message);
 }
@@ -1463,6 +1463,7 @@ void LinuxDevicePrivate::unannounceConnectionAttempt()
     info.setTitle(Tr::tr("Connection Attempt Finished"));
     info.setInfoType(infoType);
     InfoBar *infoBar = Core::ICore::popupInfoBar();
+    infoBar->removeInfo(announceId());
     infoBar->addInfo(info);
     Core::MessageManager::writeSilently(message);
 

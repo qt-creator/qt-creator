@@ -29,11 +29,12 @@ struct CORE_EXPORT Highlight
         HighestPriority = 3
     };
 
-    Highlight(Utils::Id category, int position, Utils::Theme::Color color, Priority priority);
+    Highlight(Utils::Id category, int position, int length, Utils::Theme::Color color, Priority priority);
     Highlight() = default;
 
     Utils::Id category;
     int position = -1;
+    int length = 0;
     Utils::Theme::Color color = Utils::Theme::TextColorNormal;
     Priority priority = Invalid;
 };
@@ -50,9 +51,6 @@ public:
     QAbstractScrollArea *scrollArea() const;
     void setScrollArea(QAbstractScrollArea *scrollArea);
 
-    double lineHeight() const;
-    void setLineHeight(double lineHeight);
-
     double visibleRange() const;
     void setVisibleRange(double visibleRange);
 
@@ -67,7 +65,6 @@ public:
 
 private:
     QHash<Utils::Id, QVector<Highlight> > m_highlights;
-    double m_lineHeight = 0.0;
     double m_visibleRange = 0.0; // in pixels
     double m_margin = 0.0;       // in pixels
     QAbstractScrollArea *m_scrollArea = nullptr;

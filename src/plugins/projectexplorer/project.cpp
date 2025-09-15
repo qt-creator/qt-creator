@@ -1126,28 +1126,47 @@ bool Project::isKnownFile(const FilePath &filename) const
 const Node *Project::nodeForFilePath(const FilePath &filePath,
                                      const NodeMatcher &extraMatcher) const
 {
+    const QList<const Node *> nodes = nodesForFilePath(filePath, extraMatcher);
+    return nodes.isEmpty() ? nullptr : nodes.first();
+}
+
+QList<const Node *> Project::nodesForFilePath(const Utils::FilePath &filePath,
+                                              const NodeMatcher &extraMatcher) const
+{
     const FileNode dummy(filePath, FileType::Unknown);
     const auto range = std::equal_range(d->m_sortedNodeList.cbegin(), d->m_sortedNodeList.cend(),
-            &dummy, &nodeLessThan);
+                                        &dummy, &nodeLessThan);
+    QList<const Node *> nodes;
     for (auto it = range.first; it != range.second; ++it) {
         if ((*it)->filePath() == filePath && (!extraMatcher || extraMatcher(*it)))
-            return *it;
+            nodes << *it;
     }
-    return nullptr;
+    return nodes;
 }
 
 ProjectNode *Project::productNodeForFilePath(
     const Utils::FilePath &filePath, const NodeMatcher &extraMatcher) const
 {
-    const Node * const fileNode = nodeForFilePath(filePath, extraMatcher);
-    if (!fileNode)
-        return nullptr;
-    for (ProjectNode *projectNode = fileNode->parentProjectNode(); projectNode;
-         projectNode = projectNode->parentProjectNode()) {
-        if (projectNode->isProduct())
-            return projectNode;
+    const QList<const Node *> fileNodes = nodesForFilePath(filePath, extraMatcher);
+    QList<ProjectNode *> candidates;
+    for (const Node * const fileNode : fileNodes) {
+        for (ProjectNode *projectNode = fileNode->parentProjectNode(); projectNode;
+             projectNode = projectNode->parentProjectNode()) {
+            if (projectNode->isProduct()) {
+
+                // If there are several candidates, we prefer real products to pseudo-products.
+                // See QTCREATORBUG-33224. For now, we assume this is what all callers want.
+                // If the need arises, we can make this configurable.
+                if (projectNode->productType() == ProductType::App
+                    || projectNode->productType() == ProductType::Lib) {
+                    return projectNode;
+                }
+
+                candidates << projectNode;
+            }
+        }
     }
-    return nullptr;
+    return candidates.isEmpty() ? nullptr : candidates.first();
 }
 
 FilePaths Project::binariesForSourceFile(const FilePath &sourceFile) const

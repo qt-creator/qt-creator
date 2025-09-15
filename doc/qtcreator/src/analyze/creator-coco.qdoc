@@ -29,8 +29,7 @@
     CMake:
 
     \list 1
-        \li Go to \uicontrol Projects > \uicontrol {Build & Run} >
-            \uicontrol Build > \uicontrol {Build Settings}.
+        \li Go to \uicontrol Projects > \uicontrol {Build Settings}.
         \li Select an existing build configuration, such as \e Debug, and then
             select \uicontrol Clone to clone it with a new name, such as
             \e DebugCoverage.

@@ -526,7 +526,7 @@ QTextBlock TextEditorLayout::findBlockByLineNumber(int lineNumber) const
     int blockNumber = 0;
     if (!d->m_offsetCache.empty()) {
         const int cacheSize = int(d->m_offsetCache.size());
-        int i = cacheSize < lineNumber ? cacheSize - 1 : lineNumber;
+        int i = cacheSize <= lineNumber ? cacheSize - 1 : lineNumber;
         for (; i > 0; --i) {
             if (d->m_offsetCache[i].firstLine >= 0 && d->m_offsetCache[i].firstLine <= lineNumber) {
                 blockNumber = i;
@@ -536,13 +536,12 @@ QTextBlock TextEditorLayout::findBlockByLineNumber(int lineNumber) const
     }
 
     QTextBlock b = document()->findBlockByNumber(blockNumber);
-    while (b.isValid() && firstLineNumberOf(b) < lineNumber)
+    while (b.isValid()) {
+        if (firstLineNumberOf(b) + blockLineCount(b) - 1 >= lineNumber)
+            return b;
         b = b.next();
-    if (b.isValid())
-        b = b.previous();
-    if (!b.isValid())
-        b = document()->firstBlock();
-    return b;
+    }
+    return document()->lastBlock();
 }
 
 bool TextEditorLayout::moveCursorImpl(
@@ -672,13 +671,6 @@ qreal TextLayoutItem::width() const
 {
     QTC_ASSERT(m_textLayout, return 0);
     return PlainTextDocumentLayout::layoutWidth(m_textLayout.get());
-    qreal blockWidth = 0;
-    for (int i = 0; i < m_textLayout->lineCount(); ++i) {
-        QTextLine line = m_textLayout->lineAt(i);
-        blockWidth = qMax(line.naturalTextWidth() + 8, blockWidth);
-    }
-    return blockWidth;
-
 }
 
 void TextLayoutItem::ensureLayouted(QTextDocument *doc, const QFontMetrics & fm, qreal availableWidth)

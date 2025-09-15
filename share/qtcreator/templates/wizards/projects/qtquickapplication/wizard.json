@@ -1,7 +1,7 @@
 {
     "version": 1,
     "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject" ],
-    "id": "U.QtQuickApplicationEmpty",
+    "id": "A.QtQuickApplicationEmpty",
     "category": "D.ApplicationQt",
     "trDescription": "Creates a Qt Quick application that can have both QML and C++ code. You can build the application and deploy it to desktop, embedded, and mobile target platforms.",
     "trDisplayName": "Qt Quick Application",

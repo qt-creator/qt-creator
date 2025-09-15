@@ -1,5 +1,5 @@
 add_qtc_plugin(DevContainerPlugin
-  PLUGIN_DEPENDS Core ProjectExplorer
+  PLUGIN_DEPENDS Core ProjectExplorer TextEditor
   PLUGIN_TEST_DEPENDS CMakeProjectManager
   DEPENDS DevContainer CmdBridgeClient
   LONG_DESCRIPTION_MD README.md
@@ -11,6 +11,13 @@ add_qtc_plugin(DevContainerPlugin
     devcontainerdevice.h
 )
 
+qtc_add_resources(DevContainerPlugin "images"
+  PREFIX "/devcontainer"
+  BASE "."
+  FILES
+    images/container.png
+    images/container@2x.png
+)
 
 extend_qtc_plugin(DevContainerPlugin
   CONDITION WITH_TESTS

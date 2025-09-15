@@ -1051,8 +1051,6 @@ void PlainTextEditPrivate::repaintContents(const QRectF &contentsRect)
 
 void PlainTextEditPrivate::pageUpDown(QTextCursor::MoveOperation op, QTextCursor::MoveMode moveMode, bool moveCursor)
 {
-
-
     QTextCursor cursor = control->textCursor();
     if (moveCursor) {
         ensureCursorVisible();
@@ -1060,100 +1058,33 @@ void PlainTextEditPrivate::pageUpDown(QTextCursor::MoveOperation op, QTextCursor
             pageUpDownLastCursorY = control->cursorRect(cursor).top() - verticalOffset();
     }
 
-    qreal lastY = pageUpDownLastCursorY;
+    int scrollBarValue = vbar()->value();
 
+    const bool atStart = scrollBarValue == 0;
+    const bool atEnd = scrollBarValue == vbar()->maximum();
 
-    if (op == QTextCursor::Down) {
-        QRectF visible = QRectF(viewport()->rect()).translated(-q->contentOffset());
-        QTextBlock firstVisibleBlock = q->firstVisibleBlock();
-        QTextBlock block = firstVisibleBlock;
-        QRectF br = q->blockBoundingRect(block);
-        qreal h = 0;
-        int atEnd = false;
-        while (h + br.height() <= visible.bottom()) {
-            if (!block.next().isValid()) {
-                atEnd = true;
-                lastY = visible.bottom(); // set cursor to last line
-                break;
-            }
-            h += br.height();
-            block = block.next();
-            br = q->blockBoundingRect(block);
-        }
+    if (op == QTextCursor::Down && !atEnd)
+        scrollBarValue += vbar()->pageStep();
+    else if (op == QTextCursor::Up && !atStart)
+        scrollBarValue -= vbar()->pageStep();
 
-        if (!atEnd) {
-            int line = 0;
-            qreal diff = visible.bottom() - h;
-            int lineCount = editorLayout->blockLayout(block)->lineCount();
-            while (line < lineCount - 1) {
-                if (editorLayout->blockLayout(block)->lineAt(line).naturalTextRect().bottom() > diff) {
-                    // the first line that did not completely fit the screen
-                    break;
-                }
-                ++line;
-            }
-            setTopBlock(block.blockNumber(), line);
-        }
-
-        if (moveCursor) {
-            // move using movePosition to keep the cursor's x
-            lastY += verticalOffset();
-            bool moved = false;
-            do {
-                moved = cursor.movePosition(op, moveMode);
-            } while (moved && control->cursorRect(cursor).top() < lastY);
-        }
-
-    } else if (op == QTextCursor::Up) {
-
-        QRectF visible = QRectF(viewport()->rect()).translated(-q->contentOffset());
-        visible.translate(0, -visible.height()); // previous page
-        QTextBlock block = q->firstVisibleBlock();
-        qreal h = 0;
-        while (h >= visible.top()) {
-            if (!block.previous().isValid()) {
-                if (control->topBlock == 0 && topLine == 0) {
-                    lastY = 0; // set cursor to first line
-                }
-                break;
-            }
-            block = block.previous();
-            QRectF br = q->blockBoundingRect(block);
-            h -= br.height();
-        }
-
-        int line = 0;
-        if (block.isValid()) {
-            qreal diff = visible.top() - h;
-            int lineCount = editorLayout->blockLayout(block)->lineCount();
-            while (line < lineCount) {
-                if (editorLayout->blockLayout(block)->lineAt(line).naturalTextRect().top() >= diff)
-                    break;
-                ++line;
-            }
-            if (line == lineCount) {
-                if (block.next().isValid() && block.next() != q->firstVisibleBlock()) {
-                    block = block.next();
-                    line = 0;
-                } else {
-                    --line;
-                }
-            }
-        }
-        setTopBlock(block.blockNumber(), line);
-
-        if (moveCursor) {
-            cursor.setVisualNavigation(true);
-            // move using movePosition to keep the cursor's x
-            lastY += verticalOffset();
-            bool moved = false;
-            do {
-                moved = cursor.movePosition(op, moveMode);
-            } while (moved && control->cursorRect(cursor).top() > lastY);
-        }
-    }
+    vbar()->setValue(scrollBarValue);
 
     if (moveCursor) {
+        while (cursor.movePosition(op, moveMode)) {
+            if (op == QTextCursor::Down) {
+                if (atEnd)
+                    continue;
+                if (control->cursorRect(cursor).top() >= pageUpDownLastCursorY)
+                    break;
+            } else if (op == QTextCursor::Up) {
+                if (atStart)
+                    continue;
+                if (control->cursorRect(cursor).top() <= pageUpDownLastCursorY)
+                    break;
+            }
+        }
+
         control->setTextCursor(cursor, moveMode == QTextCursor::KeepAnchor);
         pageUpDownLastCursorYIsValid = true;
     }
@@ -1184,7 +1115,8 @@ void PlainTextEditPrivate::adjustScrollbars()
         vmax -= qMax(0, viewport()->height());
     QSizeF documentSize = editorLayout->documentSize();
     vbar()->setRange(0, qMax(0, vmax));
-    vbar()->setPageStep(viewport()->height());
+    int lineHeight = qCeil(QFontMetricsF(q->font()).height());
+    vbar()->setPageStep(viewport()->height() / lineHeight * lineHeight);
     int visualTopLine = 0;
     QTextBlock firstVisibleBlock = q->firstVisibleBlock();
     if (firstVisibleBlock.isValid())

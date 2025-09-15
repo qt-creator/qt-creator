@@ -70,6 +70,18 @@ static FilePath defaultCMakeExecutable()
     return defaultTool ? defaultTool->cmakeExecutable() : FilePath();
 }
 
+const QList<CMakeTool *> toolsForBuildDevice(const Kit *k)
+{
+    if (const IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k)) {
+        return Utils::filtered(
+            CMakeToolManager::cmakeTools(), [rootPath = dev->rootPath()](CMakeTool *t) {
+                return t->cmakeExecutable().isSameDevice(rootPath);
+            });
+    }
+
+    return {};
+}
+
 class CMakeToolListModel : public TreeModel<TreeItem, Internal::CMakeToolTreeItem>
 {
 public:
@@ -82,17 +94,14 @@ public:
     {
         clear();
 
-        if (const IDevice::ConstPtr dev = BuildDeviceKitAspect::device(&m_kit)) {
-            const FilePath rootPath = dev->rootPath();
-            const QList<CMakeTool *> toolsForBuildDevice
-                = Utils::filtered(CMakeToolManager::cmakeTools(), [rootPath](CMakeTool *item) {
-                      return item->cmakeExecutable().isSameDevice(rootPath);
-                  });
-            for (CMakeTool *item : toolsForBuildDevice)
-                rootItem()->appendChild(new CMakeToolTreeItem(item, false));
-        }
-        // The "From Build Device" and "None" items.
-        rootItem()->appendChild(new CMakeToolTreeItem(ProjectExplorer::Constants::BUILD_DEVICE));
+        for (CMakeTool *tool : toolsForBuildDevice(&m_kit))
+            rootItem()->appendChild(new CMakeToolTreeItem(tool, false));
+
+        // "From Build Device"
+        if (BuildDeviceKitAspect::device(&m_kit))
+            rootItem()->appendChild(new CMakeToolTreeItem(ProjectExplorer::Constants::BUILD_DEVICE));
+
+        // "None"
         rootItem()->appendChild(new CMakeToolTreeItem());
     }
 
@@ -280,8 +289,12 @@ CMakeKeywords CMakeKitAspect::cmakeKeywords(const Kit *k)
 static void setCMakeTool(Kit *k, const Id id)
 {
     QTC_ASSERT(!id.isValid() || CMakeToolManager::findById(id), return);
-    if (k)
+    if (!k)
+        return;
+    if (id.isValid())
         k->setValue(Constants::TOOL_ID, id.toSetting());
+    else
+        k->removeKey(Constants::TOOL_ID);
 }
 
 void CMakeKitAspect::setCMakeExecutable(Kit *k, const FilePath &cmakeExecutable)
@@ -308,9 +321,11 @@ void CMakeKitAspectFactory::setup(Kit *k)
     if (cmakeTool(k))
         return;
 
+    const QList<CMakeTool *> matchingTools = toolsForBuildDevice(k);
     // Look for a suitable auto-detected one:
     const QString kitSource = k->detectionSource().id;
-    for (CMakeTool *tool : CMakeToolManager::cmakeTools()) {
+
+    for (CMakeTool *tool : matchingTools) {
         const QString toolSource = tool->detectionSource().id;
         if (!toolSource.isEmpty() && toolSource == kitSource) {
             CMakeKitAspect::setCMakeExecutable(k, tool->cmakeExecutable());
@@ -318,7 +333,8 @@ void CMakeKitAspectFactory::setup(Kit *k)
         }
     }
 
-    CMakeKitAspect::setCMakeExecutable(k, defaultCMakeExecutable());
+    if (matchingTools.contains(CMakeToolManager::defaultCMakeTool()))
+        CMakeKitAspect::setCMakeExecutable(k, defaultCMakeExecutable());
 }
 
 void CMakeKitAspectFactory::fix(Kit *k)
@@ -326,8 +342,13 @@ void CMakeKitAspectFactory::fix(Kit *k)
     QTC_ASSERT(k, return);
     // TODO: Differentiate (centrally?) between "nothing set" and "actively set to nothing".
     Id id = ensureId(k, Id::fromSetting(k->value(Constants::TOOL_ID)));
-    if (id.isValid() && !CMakeToolManager::findById(id))
-        setup(k);
+    if (id.isValid()) {
+        CMakeTool * const tool = CMakeToolManager::findById(id);
+        if (!tool || !toolsForBuildDevice(k).contains(tool)) {
+            setCMakeTool(k, {});
+            setup(k);
+        }
+    }
 }
 
 KitAspectFactory::ItemList CMakeKitAspectFactory::toUserOutput(const Kit *k) const

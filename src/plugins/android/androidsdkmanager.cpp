@@ -45,8 +45,8 @@ class QuestionProgressDialog : public QDialog
     Q_OBJECT
 
 public:
-    QuestionProgressDialog(QWidget *parent)
-        : QDialog(parent)
+    QuestionProgressDialog()
+        : QDialog(Core::ICore::dialogParent())
         , m_outputTextEdit(new QPlainTextEdit)
         , m_questionLabel(new QLabel(Tr::tr("Do you want to accept the Android SDK license?")))
         , m_answerButtonBox(new QDialogButtonBox)
@@ -158,7 +158,7 @@ static std::optional<int> parseProgress(const QString &out)
 
 struct DialogStorage
 {
-    DialogStorage() { m_dialog.reset(new QuestionProgressDialog(Core::ICore::dialogParent())); };
+    DialogStorage() { m_dialog.reset(new QuestionProgressDialog); };
     std::unique_ptr<QuestionProgressDialog> m_dialog;
 };
 
@@ -572,10 +572,10 @@ void AndroidSdkManagerPrivate::runDialogRecipe(const Storage<DialogStorage> &dia
         dialogStorage,
         Group {
             If (!Group {
-                    licensesRecipe,
-                    Sync([dialogStorage] { dialogStorage->m_dialog->setQuestionVisible(false); }),
-                    continuationRecipe
-                }) >> Then {
+                licensesRecipe,
+                Sync([dialogStorage] { dialogStorage->m_dialog->setQuestionVisible(false); }),
+                continuationRecipe
+            }) >> Then {
                 Sync(onError).withAccept(onAcceptSetup)
             }
         }.withCancel(onCancelSetup)

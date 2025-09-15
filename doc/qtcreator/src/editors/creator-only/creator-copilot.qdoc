@@ -37,8 +37,8 @@
     To set preferences for using Copilot:
 
     \list 1
-        \li Go to \preferences > \uicontrol Copilot.
-            \image {qtcreator-preferences-copilot.webp} {Copilot preferences}
+        \li Go to \preferences > \uicontrol AI > \uicontrol Copilot.
+            \image {qtcreator-preferences-copilot.webp} {Copilot tab in AI preferences}
         \li Select \uicontrol {Enable Copilot} to use Copilot.
         \li Select \uicontrol {Sign In} to sign into your subscription, activate
             your device, and authorize the GitHub Copilot plugin.
@@ -50,22 +50,13 @@
             language-server.js in the Copilot Neovim plugin installation folder.
         \li Select \uicontrol {Auto request} to receive suggestions
             for the current text cursor position when you make changes.
-        \li Select \uicontrol {Use proxy} to use a proxy server to
-            connect to Copilot servers.
-        \li In \uicontrol {Proxy host}, enter the host name of the proxy server.
-        \li In \uicontrol {Proxy port}, enter the port number of the
-            proxy server.
+        \li In \uicontrol {GitHub Enterprise URL}, enter the URL to Copilot
+            server that runs in the enterprise environment.
+        \li In \uicontrol {Proxy}, enter the host name and port number of the
+            proxy server to connect to Copilot servers.
         \li Select \uicontrol {Reject unauthorized} to prevent the
             security risk presented by accepting unauthorized certificates from
             the proxy server.
-        \li In \uicontrol {Proxy user}, enter the user name to
-            authenticate to the proxy server.
-        \li Select \uicontrol {Save proxy password} to save the
-            password to authenticate to the proxy server.
-            \note The password is saved insecurely.
-        \li In \uicontrol {Proxy password}, enter the password to save.
-            To see the password as you type, select
-            \inlineimage {icons/original-size.png} {Show Password}.
     \endlist
 
     \section1 Receive suggestions

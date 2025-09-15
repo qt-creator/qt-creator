@@ -90,6 +90,8 @@ QtcPlugin {
         "projecttreehelper.h",
         "targethelper.cpp",
         "targethelper.h",
+        "testpresetshelper.cpp",
+        "testpresetshelper.h"
     ]
 
     Group {

@@ -43,7 +43,7 @@
                     \uicontrol {Open File} dialog, where you can select a project file.
                 \li On Windows and Linux, in all modes except the \uicontrol Help mode,
                     select \key Ctrl+Shift+O to open the \uicontrol {Load Project} dialog.
-                \li In the \uicontrol Welcome mode, \uicontrol Projects tab, press
+                \li In the \uicontrol Welcome mode, \uicontrol Projects tab, select
                     \key Ctrl+Shift+number (\key Cmd+Shift+number on \macos), where
                     the number is the number of a project in the list of recently opened
                     projects (3).
@@ -68,14 +68,13 @@
     To add a build configuration to the workspace:
 
     \list 1
-        \li Go to \uicontrol Projects > \uicontrol {Build & Run} >
-            \uicontrol Build.
+        \li Go to \uicontrol Projects > \uicontrol {Build Settings}.
         \li Select \uicontrol Add > \uicontrol Build.
         \li Specify build settings.
     \endlist
 
     To specify run settings for the workspace, go to \uicontrol Projects >
-    \uicontrol {Build & Run} > \uicontrol Run.
+    \uicontrol {Run Settings}.
 
     \section1 Re-configure projects
 

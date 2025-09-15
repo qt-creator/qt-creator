@@ -11,9 +11,8 @@
 
     \brief Settings for building applications with CMake.
 
-    Specify build settings for the selected \l{Kits}{kit} in
-    \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
-    \uicontrol {Build Settings}.
+    To specify build settings for the selected \l{Kits}{kit}, go to
+    \uicontrol Projects > \uicontrol {Build Settings}.
 
     Configuring medium-sized to large CMake projects in \QC can be a
     challenge due to the number of variables that you need to pass to
@@ -132,8 +131,8 @@
     that if you remove the build directory, all the custom variables that are
     not part of the initial CMake configuration are also removed.
 
-    To reconfigure a project using the changed variable values,
-    select \uicontrol Build > \uicontrol {Clear CMake Configuration}, which
+    To reconfigure a project using the changed variable values, go to
+    \uicontrol Build and select \uicontrol {Clear CMake Configuration}, which
     removes the CMakeCache.txt file. This enables you to do a full rebuild.
 
     \section2 Removing Variables
@@ -165,8 +164,9 @@
 
     \section1 Viewing CMake Output
 
-    Output from CMake is displayed next to the \uicontrol {Build Settings} and
-    \uicontrol {Run Settings} panes in the \uicontrol Projects mode.
+    Output from CMake is displayed next to the \uicontrol {Build Settings},
+    \uicontrol {Deploy Settings}, and \uicontrol {Run Settings} tabs in the
+    \uicontrol Projects mode.
 
     \image {qtcreator-build-cmake-output.png} {CMake output in Projects mode}
 
@@ -190,7 +190,7 @@
     \key Ctrl+-.
 
     To hide the output, select
-    \inlineimage {icons/rightsidebaricon.png} {Hide Right Sidebar}}
+    \inlineimage {icons/rightsidebaricon.png} {Hide Right Sidebar}
     (\uicontrol {Hide Right Sidebar}) or \key {Alt+Shift+0}.
 
     \section1 CLICOLOR_FORCE Environment Variable
@@ -253,8 +253,8 @@
         \li Install Ninja.
         \li Add the path to the Ninja executable to the value of the PATH system
             variable.
-        \li In \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build
-            > \uicontrol {Build Settings}, select \uicontrol {Kit Configuration}.
+        \li Go to \uicontrol Projects > \uicontrol {Build Settings}, and select
+            \uicontrol {Kit Configuration}.
             \image {qtcreator-cmake-kit-configuration.png} {Kit CMake Configuration dialog}
         \li Select \uicontrol Change next to the \uicontrol {CMake generator}
             field to open the \uicontrol {CMake Generator} dialog.
@@ -267,8 +267,8 @@
     \endlist
 
     \note To make sure that old build artifacts don't get in the way
-    the first time you build the project after the change, select
-    \uicontrol Build > \uicontrol {Rebuild Project}. This cleans up the
+    the first time you build the project after the change, go to
+    \uicontrol Build and select \uicontrol {Rebuild Project}. This cleans up the
     build directory and performs a new build.
 
     \section1 Using CMake with Package Managers

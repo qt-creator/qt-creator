@@ -361,7 +361,6 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
         }
     } else if (setting->m_startBehavior == BaseSettings::RequiresProject) {
         const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
-        QHash<Project *, Client *> clientForProject;
         for (Core::IDocument *document : openedDocuments) {
             auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
             if (!textDocument || !setting->m_languageFilter.isSupported(textDocument))
@@ -369,6 +368,7 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
             const Utils::FilePath filePath = textDocument->filePath();
             for (Project *project : ProjectManager::projects()) {
                 for (Target *target : project->targets()) {
+                    const bool targetIsActive = project->activeTarget() == target;
                     for (BuildConfiguration *bc : target->buildConfigurations()) {
                         if (!setting->isValidOnBuildConfiguration(bc))
                             continue;
@@ -378,16 +378,16 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
                                   && !ProjectSettings(project).disabledSettings().contains(setting->m_id));
                         if (!settingIsEnabled)
                             continue;
-                        if (project->isKnownFile(filePath)) {
-                            Client *client = clientForProject[project];
-                            if (!client) {
-                                client = startClient(setting, bc);
-                                if (!client)
-                                    continue;
-                                clientForProject[project] = client;
-                            }
+                        if (!project->isKnownFile(filePath))
+                            continue;
+                        Client *client = startClient(setting, bc);
+                        if (!client)
+                            continue;
+                        if (targetIsActive && target->activeBuildConfiguration() == bc
+                            && client->activatable()) {
+                            openDocumentWithClient(textDocument, client);
+                        } else
                             client->openDocument(textDocument);
-                        }
                     }
                 }
             }

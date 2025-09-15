@@ -26,9 +26,9 @@
     displayed on the device. Command-line output is visible in the \QC
     \uicontrol {Application Output} view.
 
-    In the \uicontrol {Projects} mode, select the remote Linux kit and then
-    select \uicontrol {Run} to view the settings for deploying the application
-    to the connected device. For more information, see
+    In the \uicontrol {Projects} mode, select the remote Linux kit and go to
+    \uicontrol {Deploy Settings} to view the settings for deploying the
+    application to the connected device. For more information, see
     \l{Remote Linux Run Settings}.
 
     Debugging works transparently if GDB server is installed on the device and
