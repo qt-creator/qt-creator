@@ -22,6 +22,9 @@
 
     \image {qtcreator-preferences-devices-remote-linux.webp} {Remote Linux device in the Devices tab in Devices preferences}
 
+    To automatically connect to the remote Linux device when \QC starts, select
+    \uicontrol {Auto-connect on startup}.
+
     //! [openssh]
     \section1 Protecting Device Connections
 
