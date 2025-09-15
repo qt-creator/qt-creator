@@ -22,7 +22,7 @@ bool AiAssistantView::hasWidget() const
 WidgetInfo AiAssistantView::widgetInfo()
 {
     if (!m_widget)
-        m_widget = Utils::makeUniqueObjectPtr<AiAssistantWidget>();
+        m_widget = Utils::makeUniqueObjectPtr<AiAssistantWidget>(this);
 
     return createWidgetInfo(m_widget.get(),
                             "AiAssistant",

@@ -22,6 +22,7 @@ class StudioQuickWidget;
 
 namespace QmlDesigner {
 
+class AiAssistantView;
 class AiResponse;
 
 class AiAssistantWidget : public QFrame
@@ -33,7 +34,7 @@ class AiAssistantWidget : public QFrame
                    NOTIFY attachedImageSourceChanged FINAL)
 
 public:
-    AiAssistantWidget();
+    AiAssistantWidget(AiAssistantView *view);
     ~AiAssistantWidget();
 
     QString attachedImageSource() const;
@@ -49,10 +50,17 @@ public:
     Q_INVOKABLE QString getPreviousCommand();
     Q_INVOKABLE QString getNextCommand();
     Q_INVOKABLE QUrl fullImageUrl(const QString &path) const;
+    Q_INVOKABLE void retryLastPrompt();
+    Q_INVOKABLE void applyLastGeneratedQml();
 
 signals:
     void isGeneratingChanged();
     void attachedImageSourceChanged();
+
+    // from C++ to Qml
+    void notifyAIResponseSuccess();
+    void notifyAIResponseInvalidQml();
+    void notifyAIResponseError(const QString &errMessage = {});
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -61,12 +69,15 @@ private: // functions
     void reloadQmlSource();
     void setIsGenerating(bool val);
     void handleAiResponse(const AiResponse &response);
+    bool isValidQmlCode(const QString &qmlCode) const;
 
 private: // variables
     Utils::UniqueObjectPtr<QNetworkAccessManager> m_manager;
     Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
 
+    QPointer<AiAssistantView> m_view;
     QStringList m_inputHistory;
+    QString m_lastGeneratedQml;
     QString m_attachedImageSource;
     Manifest m_manifest;
     int m_historyIndex = -1;

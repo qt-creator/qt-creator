@@ -4,6 +4,7 @@ add_qtc_plugin(QmlDesignerAi
     QtCreator::QmlDesigner QtCreator::QmlDesignerBase
   DEPENDS
     Qt6::Qml
+    AstCheck
   SOURCES
     qmldesigneraiplugin.cpp qmldesigneraiplugin.h
     aiassistantview.cpp aiassistantview.h

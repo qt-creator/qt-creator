@@ -21,7 +21,7 @@ Rectangle {
         anchors.margins: StudioTheme.Values.marginTopBottom
 
         Flow {
-            spacing: 5
+            spacing: 3
             Layout.fillWidth: true
 
             Repeater {
@@ -58,6 +58,12 @@ Rectangle {
             onCloseRequest: {
                 root.rootView.attachedImageSource = ""
             }
+        }
+
+        ResponseStatePopup {
+            id: responseStatePopup
+
+            Layout.fillWidth: true
         }
     }
 }

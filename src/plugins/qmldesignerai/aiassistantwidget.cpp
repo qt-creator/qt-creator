@@ -3,10 +3,16 @@
 
 #include "aiassistantwidget.h"
 
+#include "aiassistantview.h"
 #include "airesponse.h"
+
+#include <astcheck/astcheck.h>
+#include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljsstaticanalysismessage.h>
 
 #include <asset.h>
 #include <designersettings.h>
+#include <studioquickwidget.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <studioquickwidget.h>
@@ -22,6 +28,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QPlainTextEdit>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QVBoxLayout>
@@ -159,9 +166,10 @@ bool AiAssistantWidget::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-AiAssistantWidget::AiAssistantWidget()
+AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     : m_manager(Utils::makeUniqueObjectPtr<QNetworkAccessManager>())
     , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>())
+    , m_view(view)
 {
     setWindowTitle(tr("AI Assistant", "Title of Ai Assistant widget"));
     setMinimumWidth(220);
@@ -268,12 +276,11 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
 
     connect(reply, &QNetworkReply::finished, this, [reply, this] {
         setIsGenerating(false);
-        if (reply->error() != QNetworkReply::NoError) {
-            qWarning() << "AI Assistant Request failed: " << reply->errorString() << reply->error();
-            // TODO: notify the user that the request failed (+ maybe show the error message)
-        } else {
+        if (reply->error() != QNetworkReply::NoError)
+            emit notifyAIResponseError(reply->errorString());
+        else
             handleAiResponse(reply->readAll());
-        }
+
         reply->deleteLater();
     });
 }
@@ -304,6 +311,20 @@ QUrl AiAssistantWidget::fullImageUrl(const QString &path) const
 {
     return path.isEmpty() ? QUrl()
                           : DocumentManager::currentResourcePath().pathAppended(path).toUrl();
+}
+
+void AiAssistantWidget::retryLastPrompt()
+{
+    QTC_ASSERT(!m_inputHistory.isEmpty(), return);
+
+    QString lastPrompt = m_inputHistory.last();
+    handleMessage(lastPrompt);
+}
+
+void AiAssistantWidget::applyLastGeneratedQml()
+{
+    auto textModifier = rewriterView()->textModifier();
+    textModifier->replace(0, textModifier->text().size(), m_lastGeneratedQml);
 }
 
 void AiAssistantWidget::reloadQmlSource()
@@ -341,7 +362,7 @@ void AiAssistantWidget::handleAiResponse(const AiResponse &response)
     using Utils::FilePath;
 
     if (response.error() != AiResponse::Error::NoError) {
-        qWarning() << __FUNCTION__ << "Response Error:" << response.errorString();
+        emit notifyAIResponseError(response.errorString());
         return;
     }
 
@@ -351,21 +372,46 @@ void AiAssistantWidget::handleAiResponse(const AiResponse &response)
         const QString currentRelativeFilePath = relativePathFromProject(currentFile);
         if (currentRelativeFilePath != file.filePath()
             && currentFile.fileName() != file.filePath()) {
-            qWarning() << __FUNCTION__
-                       << "Invalid file path '%1' Current filePath is '%2'"_L1
-                              .arg(file.filePath(), currentRelativeFilePath);
+            emit notifyAIResponseError(tr("Invalid file path '%1'. Current filePath is '%2'")
+                                           .arg(file.filePath(), currentRelativeFilePath));
             return;
         }
 
         const QString aiFileContent = file.content();
         const QString currentQml = currentQmlText();
         if (!aiFileContent.isEmpty() && currentQml != aiFileContent) {
-            auto textModifier = rewriterView()->textModifier();
-            textModifier->replace(0, textModifier->text().size(), aiFileContent);
+            m_lastGeneratedQml = aiFileContent;
+            if (isValidQmlCode(aiFileContent)) {
+                auto textModifier = rewriterView()->textModifier();
+                textModifier->replace(0, textModifier->text().size(), aiFileContent);
+                emit notifyAIResponseSuccess();
+            } else {
+                emit notifyAIResponseInvalidQml();
+            }
         }
     }
 
     selectIds(response.selectedIds());
+}
+
+bool AiAssistantWidget::isValidQmlCode(const QString &qmlCode) const
+{
+    using namespace QmlJS;
+
+    Document::MutablePtr doc = Document::create(Utils::FilePath::fromString("<internal>"), Dialect::Qml);
+    doc->setSource(qmlCode);
+    bool success = doc->parseQml();
+
+    AstCheck check(doc);
+    QList<StaticAnalysis::Message> messages = check();
+
+    // TODO: add check for correct Qml types (property names)
+
+    success &= Utils::allOf(messages, [](const StaticAnalysis::Message &message) {
+        return message.severity != Severity::Error;
+    });
+
+    return success;
 }
 
 } // namespace QmlDesigner
