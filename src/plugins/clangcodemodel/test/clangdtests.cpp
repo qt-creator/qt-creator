@@ -844,7 +844,18 @@ void ClangdTestTooltips::test()
     QEXPECT_FAIL("TypeNameIntroducedByUsingDeclarationQualified",
                  "https://github.com/clangd/clangd/issues/989", Abort);
     QCOMPARE(int(helpItem.category()), expectedCategory);
-    QEXPECT_FAIL("TemplateClassQualified", "Additional look-up needed?", Abort);
+    QEXPECT_FAIL("TemplateClassQualified", "Additional look-up needed?", Continue);
+    if (client()->versionNumber() >= QVersionNumber(22)) {
+        QEXPECT_FAIL("TypeNameIntroducedByUsingDirectiveQualified",
+                     "llvm/91cdd35008e9ab32dffb7e401cdd7313b3461892",
+                     Continue);
+        QEXPECT_FAIL("TypeNameIntroducedByUsingDirectiveResolvedAndQualified",
+                     "llvm/91cdd35008e9ab32dffb7e401cdd7313b3461892",
+                     Continue);
+        QEXPECT_FAIL("ResolveNamespaceAliasForType",
+                     "llvm/91cdd35008e9ab32dffb7e401cdd7313b3461892",
+                     Continue);
+    }
     QCOMPARE(helpItem.helpIds(), expectedIds);
     QCOMPARE(helpItem.docMark(), expectedMark);
 }
