@@ -468,7 +468,7 @@ def qdump__std____1__optional(d, value):
     if value['__engaged_'].integer() == 0:
         d.putSpecialValue("empty")
     else:
-        d.putItem(value['#1']['__val_'])
+        d.putItem(value['__val_'])
 
 
 def qdump__std____1__tuple(d, value):
