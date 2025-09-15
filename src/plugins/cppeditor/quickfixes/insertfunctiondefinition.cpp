@@ -2268,6 +2268,63 @@ foo::foo2::MyType<int> foo::foo2::bar()
         InsertDefFromDecl factory;
         QuickFixOperationTest(singleDocument(original, expected), &factory);
     }
+
+    void testParameterPack()
+    {
+        const QByteArray original =
+            "template<typename... Args> struct Foo {\n"
+            "    explicit @Foo(Args &&... args);\n"
+            "};\n";
+        const QByteArray expected =
+            "template<typename... Args> struct Foo {\n"
+            "    explicit Foo(Args &&... args);\n"
+            "};\n\n"
+            "template<typename... Args>\n"
+            "Foo<Args...>::Foo(Args &&... args)\n"
+            "{\n\n"
+            "}\n";
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(singleDocument(original, expected), &factory);
+    }
+
+    void testConstantParameterPack()
+    {
+        const QByteArray original =
+            "template<int... Args> struct Foo {\n"
+            "    void @foo();\n"
+            "};\n";
+        const QByteArray expected =
+            "template<int... Args> struct Foo {\n"
+            "    void foo();\n"
+            "};\n\n"
+            "template<int... Args>\n"
+            "void Foo<Args...>::foo()\n"
+            "{\n\n"
+            "}\n";
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(singleDocument(original, expected), &factory);
+    }
+
+    void testTemplateTemplateParameterPack()
+    {
+        const QByteArray original =
+            "template<template<typename...> class... C> struct Foo {\n"
+            "    void @foo(C<int>... c);\n"
+            "};\n";
+        const QByteArray expected =
+            "template<template<typename...> class... C> struct Foo {\n"
+            "    void foo(C<int>... c);\n"
+            "};\n\n"
+            "template<template<typename...> class... C>\n"
+            "void Foo<C...>::foo(C<int>... c)\n"
+            "{\n\n"
+            "}\n";
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(singleDocument(original, expected), &factory);
+    }
 };
 
 class InsertDefsFromDeclsTest : public QObject

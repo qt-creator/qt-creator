@@ -102,7 +102,8 @@ Symbol::Symbol(TranslationUnit *translationUnit, int sourceLocation, const Name 
       _column(0),
       _isGenerated(false),
       _isDeprecated(false),
-      _isUnavailable(false)
+      _isUnavailable(false),
+      _isPack(false)
 {
     setSourceLocation(sourceLocation, translationUnit);
     setName(name);
@@ -122,7 +123,8 @@ Symbol::Symbol(Clone *clone, Subst *subst, Symbol *original)
       _column(original->_column),
       _isGenerated(original->_isGenerated),
       _isDeprecated(original->_isDeprecated),
-      _isUnavailable(original->_isUnavailable)
+      _isUnavailable(original->_isUnavailable),
+      _isPack(original->_isPack)
 {
 }
 
@@ -286,6 +288,7 @@ void Symbol::copy(Symbol *other)
 
     _isGenerated = other->_isGenerated;
     _isDeprecated = other->_isDeprecated;
+    _isPack = other->_isPack;
 }
 
 Link Symbol::toLink() const

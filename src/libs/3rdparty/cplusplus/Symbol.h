@@ -256,6 +256,9 @@ public:
     bool isUnavailable() const { return _isUnavailable; }
     void setUnavailable(bool isUnavailable) { _isUnavailable = isUnavailable; }
 
+    bool isPack() const { return _isPack; }
+    void setIsPack() { _isPack = true; }
+
     /// Returns this Symbol's eclosing scope.
     Scope *enclosingScope() const { return _enclosingScope; }
 
@@ -305,6 +308,7 @@ private:
     bool _isGenerated: 1;
     bool _isDeprecated: 1;
     bool _isUnavailable: 1;
+    bool _isPack: 1;
 
     class HashCode;
 

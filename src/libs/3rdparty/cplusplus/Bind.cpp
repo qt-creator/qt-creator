@@ -2480,6 +2480,8 @@ bool Bind::visit(ParameterDeclarationAST *ast)
 
     Argument *arg = control()->newArgument(location(declaratorId, ast->firstToken()), argName);
     arg->setType(type);
+    if (type && declaratorId && declaratorId->dot_dot_dot_token)
+        arg->setIsPack();
 
     if (ast->expression)
         arg->setInitializer(asStringLiteral(ast->expression));
@@ -2528,7 +2530,6 @@ bool Bind::visit(TemplateDeclarationAST *ast)
 bool Bind::visit(TypenameTypeParameterAST *ast)
 {
     int sourceLocation = location(ast->name, ast->firstToken());
-    // int dot_dot_dot_token = ast->dot_dot_dot_token;
     const Name *name = this->name(ast->name);
     ExpressionTy type_id = this->expression(ast->type_id);
     CPlusPlus::Kind classKey = translationUnit()->tokenKind(ast->classkey_token);
@@ -2536,6 +2537,8 @@ bool Bind::visit(TypenameTypeParameterAST *ast)
     TypenameArgument *arg = control()->newTypenameArgument(sourceLocation, name);
     arg->setType(type_id);
     arg->setClassDeclarator(classKey == T_CLASS);
+    if (ast->dot_dot_dot_token)
+        arg->setIsPack();
     ast->symbol = arg;
     _scope->addMember(arg);
     return false;
@@ -2550,7 +2553,6 @@ bool Bind::visit(TemplateTypeParameterAST *ast)
     // ### process the template prototype
 
     // int greater_token = ast->greater_token;
-    // int dot_dot_dot_token = ast->dot_dot_dot_token;
 
     const Name *name = this->name(ast->name);
     ExpressionTy type_id = this->expression(ast->type_id);
@@ -2575,6 +2577,8 @@ bool Bind::visit(TemplateTypeParameterAST *ast)
             declaration(it->value);
     }
     arg->setClassDeclarator(translationUnit()->tokenKind(ast->class_token) == T_CLASS);
+    if (ast->dot_dot_dot_token)
+        arg->setIsPack();
     ast->symbol = arg;
 
     (void) switchScope(previousScope);
