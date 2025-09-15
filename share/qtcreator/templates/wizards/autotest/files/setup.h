@@ -22,6 +22,6 @@ public slots:
     void cleanupTestCase();
 };
 
-@if 'not %{Cpp:PragmaOnce}'
+@if ! '%{Cpp:PragmaOnce}'
 #endif // %{JS: Cpp.headerGuard('setup.h')}
 @endif
