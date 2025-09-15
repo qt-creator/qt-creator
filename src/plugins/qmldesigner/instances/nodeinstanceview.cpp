@@ -364,8 +364,9 @@ void NodeInstanceView::restartProcess()
     if (m_restartProcessTimerId)
         killTimer(m_restartProcessTimerId);
 
-    if (model()) {
-        m_nodeInstanceServer.reset();
+    m_nodeInstanceServer.reset();
+
+    if (model() && m_currentTarget) {
         m_nodeInstanceServer = createNodeInstanceServerProxy();
 
         if (!isSkippedRootNode(rootModelNode())) {
