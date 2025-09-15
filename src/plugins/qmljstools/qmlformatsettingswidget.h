@@ -3,32 +3,14 @@
 
 #pragma once
 
-#include "qmljsformatterselectionwidget.h"
-#include "qmljscodestylesettings.h"
-
-#include <texteditor/snippets/snippeteditor.h>
-
-#include <memory>
 #include <QWidget>
 
 namespace QmlJSTools {
+
 class FormatterSelectionWidget;
+class QmlCodeStyleWidgetBase;
 
-class QmlFormatSettingsWidget : public QmlCodeStyleWidgetBase
-{
-public:
-    explicit QmlFormatSettingsWidget(
-        QWidget *parent = nullptr,
-        FormatterSelectionWidget *selection = nullptr);
-    void setCodeStyleSettings(const QmlJSCodeStyleSettings &s) override;
-    void setPreferences(QmlJSCodeStylePreferences *preferences) override;
-    void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences* preferences) override;
-
-private:
-    void slotSettingsChanged();
-    std::unique_ptr<TextEditor::SnippetEditorWidget> m_qmlformatConfigTextEdit;
-    FormatterSelectionWidget *m_formatterSelectionWidget = nullptr;
-    QmlJSCodeStylePreferences *m_preferences = nullptr;
-};
+QmlCodeStyleWidgetBase *createQmlFormatSettingsWidget(QWidget *parent,
+                                                      FormatterSelectionWidget *selection);
 
 } // namespace QmlJSTools

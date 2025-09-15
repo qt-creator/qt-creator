@@ -4,14 +4,32 @@
 #include "qmlformatsettingswidget.h"
 #include "qmljsformatterselectionwidget.h"
 #include "qmlformatsettings.h"
+#include "qmljscodestylesettings.h"
 #include "qmljstoolstr.h"
 
 #include <texteditor/snippets/snippeteditor.h>
+
 #include <utils/layoutbuilder.h>
 
-#include <QVBoxLayout>
+#include <memory>
 
 namespace QmlJSTools {
+
+class QmlFormatSettingsWidget : public QmlCodeStyleWidgetBase
+{
+public:
+    QmlFormatSettingsWidget(QWidget *parent, FormatterSelectionWidget *selection);
+
+    void setCodeStyleSettings(const QmlJSCodeStyleSettings &s) override;
+    void setPreferences(QmlJSCodeStylePreferences *preferences) override;
+    void slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences* preferences) override;
+
+private:
+    void slotSettingsChanged();
+    std::unique_ptr<TextEditor::SnippetEditorWidget> m_qmlformatConfigTextEdit;
+    FormatterSelectionWidget *m_formatterSelectionWidget = nullptr;
+    QmlJSCodeStylePreferences *m_preferences = nullptr;
+};
 
 QmlFormatSettingsWidget::QmlFormatSettingsWidget(
     QWidget *parent, FormatterSelectionWidget *selection)
@@ -93,6 +111,11 @@ void QmlFormatSettingsWidget::slotSettingsChanged()
     settings.qmlformatIniContent = m_qmlformatConfigTextEdit->toPlainText();
     QmlFormatSettings::instance().globalQmlFormatIniFile().writeFileContents(settings.qmlformatIniContent.toUtf8());
     emit settingsChanged(settings);
+}
+
+QmlCodeStyleWidgetBase *createQmlFormatSettingsWidget(QWidget *parent, FormatterSelectionWidget *selection)
+{
+    return new QmlFormatSettingsWidget(parent, selection);
 }
 
 } // namespace QmlJSTools

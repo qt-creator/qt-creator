@@ -121,7 +121,7 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
     , m_formatterSettingsStack(new QStackedWidget(this))
 {
     m_formatterSettingsStack->insertWidget(BuiltinFormatterIndex, new BuiltinFormatterSettingsWidget(this, m_formatterSelectionWidget));
-    m_formatterSettingsStack->insertWidget(QmlFormatIndex, new QmlFormatSettingsWidget(this, m_formatterSelectionWidget));
+    m_formatterSettingsStack->insertWidget(QmlFormatIndex, createQmlFormatSettingsWidget(this, m_formatterSelectionWidget));
     m_formatterSettingsStack->insertWidget(CustomFormatterIndex, new CustomFormatterWidget(this, m_formatterSelectionWidget));
 
     for (const auto &formatterWidget :
