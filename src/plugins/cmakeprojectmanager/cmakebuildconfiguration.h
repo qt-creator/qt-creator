@@ -110,7 +110,7 @@ private:
     void filterConfigArgumentsFromAdditionalCMakeArguments();
 
     QStringList m_unrestrictedBuildTargets;
-    QPointer<Internal::CMakeBuildSettingsWidget> m_configWidget = nullptr;
+    Internal::CMakeBuildSettingsWidget *m_configWidget = nullptr;
 
     friend class Internal::CMakeBuildSettingsWidget;
     friend class Internal::CMakeBuildSystem;
