@@ -27,6 +27,8 @@ class Target;
 
 namespace QmlDesigner {
 
+class ViewManager;
+
 class QMLDESIGNER_EXPORT QmlDesignerProjectManager
 {
     class QmlDesignerProjectManagerProjectData;
@@ -35,7 +37,7 @@ class QMLDESIGNER_EXPORT QmlDesignerProjectManager
     class Data;
 
 public:
-    QmlDesignerProjectManager();
+    QmlDesignerProjectManager(ViewManager &viewManager);
     ~QmlDesignerProjectManager();
 
     void registerPreviewImageProvider(QQmlEngine *engine) const;
