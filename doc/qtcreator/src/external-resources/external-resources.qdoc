@@ -317,3 +317,11 @@
     \externalpage https://doc.qt.io/qt-6/android-manifest-file-configuration.html#style-extraction
     \title Style Extraction
 */
+/*!
+    \externalpage https://doc.rust-lang.org/cargo/commands/cargo-build.html
+    \title Rust: cargo-build
+*/
+/*!
+    \externalpage https://www.rust-lang.org/
+    \title Rust
+*/

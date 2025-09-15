@@ -55,23 +55,31 @@
     To open a directory as a project, go to \uicontrol File >
     \uicontrol {Open Workspace}.
 
-    \QC generates the \e .qtcreator/project.json project file in the directory
-    for setting a project name and file exclusion filters. You can add build and
-    run settings to the file, as defined by its \l{project.json}{JSON schema}.
+    \QC uses the default kit to automatically add a build configuration for the
+    workspace. It generates the \e .qtcreator/project.json project file in the
+    directory for setting a project name and file exclusion filters. You can add
+    build and run settings to the file, as defined by its \l{project.json}
+    {JSON schema}.
 
     You can open either the JSON file or the workspace to open the project the
     next time.
 
+    Also, you can open \l {Rust: cargo-build}{Cargo build projects} when
+    developing \l {Rust} packages.
+
     When you add files to the directory or remove them from there, the contents
     of the \l Projects view are updated automatically.
 
-    To add a build configuration to the workspace:
+    To add build configurations to the workspace:
 
     \list 1
         \li Go to \uicontrol Projects > \uicontrol {Build Settings}.
         \li Select \uicontrol Add > \uicontrol Build.
         \li Specify build settings.
     \endlist
+
+    To specify deploy settings for the workspace, go to \uicontrol Projects >
+    \uicontrol {Deploy Settings}.
 
     To specify run settings for the workspace, go to \uicontrol Projects >
     \uicontrol {Run Settings}.
