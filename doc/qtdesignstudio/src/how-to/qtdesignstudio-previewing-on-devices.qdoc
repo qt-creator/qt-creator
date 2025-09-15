@@ -1,0 +1,56 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page previewing-applications.html
+    \title Previewing on devices
+    \previouspage studio-live-preview-desktop.html
+    \nextpage qt-ui-viewer.html
+
+    You can preview your application directly on physical devices. This guide covers how to do it
+    on:
+
+    \list
+        \li Android devices
+        \li Boot to Qt devices
+    \endlist
+
+    \section1 Previewing on Android Devices
+
+    To preview an application on an Android device, use Qt UI Viewer.
+    See \l{Viewing applications on Android}.
+
+    \section1 Previewing on Boot to Qt devices
+
+    \note Previewing on Boot to Qt devices only works on Windows x86 platforms.
+
+    \section2 Setup
+
+    Before you can preview an application, set up your Boot to Qt device:
+
+    \list 1
+        \li Configure your device according to the quick start guide in the
+            \l{Boot to Qt documentation}.
+        \li Connect the device to your computer with a USB cable or wirelessly.
+            USB-connected devices are detected automatically. If you connect wirelessly,
+            you need to set up the connection:
+            \list 1
+                \li Go to \preferences > \uicontrol Devices.
+                \li From the \uicontrol Add drop-down menu, select \uicontrol
+                {Start Wizard to Add Device}.
+                \li Select \uicontrol {Boot to Qt Device} and follow the instructions in the wizard
+                to complete the setup.
+            \endlist
+    \endlist
+
+    \section2 Previewing
+
+    To preview your application on the connected device:
+
+    \list 1
+        \li In the bottom toolbar, select \uicontrol {Boot2Qt device} from the kit drop-down menu.
+        \image design-studio-select-kit.webp
+        \li Select \uicontrol {Run App} from the \uicontrol Run drop-down menu in the top toolbar or
+        press \key {Alt}+\key P.
+    \endlist
+*/
