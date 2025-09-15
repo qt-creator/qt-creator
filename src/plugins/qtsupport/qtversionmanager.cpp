@@ -5,6 +5,7 @@
 
 #include "baseqtversion.h"
 #include "exampleslistmodel.h"
+#include "examplesparser.h"
 #include "gettingstartedwelcomepage.h"
 #include "qtsupportconstants.h"
 #include "qtversionfactory.h"
@@ -511,13 +512,39 @@ void QtVersionManager::registerExampleSet(const QString &displayName,
     m_pluginRegisteredExampleSets.append({displayName, manifestPath, examplesPath});
 }
 
-void QtVersionManager::openExampleProject(const FilePath &project,
-                                          const FilePaths &toOpen,
-                                          const FilePath &mainFile,
-                                          const FilePaths &dependencies,
-                                          const QUrl &docUrl)
+static std::optional<ExampleItem> findExampleItem(const QString &manifestPath, const QString &name)
 {
-    Internal::openExampleProject(project, toOpen, mainFile, dependencies, docUrl);
+    for (const QtVersion *version : qtVersionsToConsiderForExamples()) {
+        const Utils::Result<ParsedExamples> parsed = parseExamples(
+            version->docsPath().pathAppended(manifestPath),
+            version->examplesPath(),
+            version->demosPath(),
+            /*examples=*/true);
+        if (!parsed)
+            continue;
+        ExampleItem *itemPtr = findOrDefault(parsed->items, Utils::equal(&ExampleItem::name, name));
+        const ExampleItem item = itemPtr ? *itemPtr : ExampleItem();
+        qDeleteAll(parsed->items);
+        if (!item.name.isEmpty())
+            return item;
+    }
+    return {};
+}
+
+void QtVersionManager::openExampleProject(const QString &manifestPath, const QString &name)
+{
+    const std::optional<ExampleItem> item = findExampleItem(manifestPath, name);
+    if (item)
+        Internal::openExampleProject(*item);
+}
+
+std::optional<QString> QtVersionManager::getExampleDescription(
+    const QString &manifestPath, const QString &name)
+{
+    const std::optional<ExampleItem> item = findExampleItem(manifestPath, name);
+    if (item)
+        return item->description;
+    return {};
 }
 
 using Path = QString;

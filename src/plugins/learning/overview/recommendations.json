@@ -34,7 +34,6 @@
             "type": "course"
         },
         {
-            "description": "A car model example that demonstrates using Qt Quick 3D cameras, extended scene environment and Qt Quick 3D.",
             "flags": [
             ],
             "id": "qtdoc/examples-manifest.xml",
@@ -77,7 +76,6 @@
             "type": "course"
         },
         {
-            "description": "A dice throwing application using Qt Quick 3D Physics and other Qt Modules.",
             "flags": [
             ],
             "id": "qtdoc/examples-manifest.xml",
@@ -155,7 +153,6 @@
             "type": "course"
         },
         {
-            "description": "A QML implementation of the popular puzzle game by Kuniaki Moribe.",
             "flags": [
             ],
             "id": "qtdoc/examples-manifest.xml",
@@ -188,7 +185,6 @@
             "type": "course"
         },
         {
-            "description": "The Plane Spotter example demonstrates the tight integration of location and positioning data types into QML.",
             "flags": [
                 "experience_advanced"
             ],
@@ -199,7 +195,6 @@
             "type": "example"
         },
         {
-            "description": "An application with a responsive UI showing lightning strikes on a map in real-time by combining Qt Quick, Qt Location, Qt Positioning and Qt Websockets.",
             "flags": [
             ],
             "id": "qtdoc/examples-manifest.xml",
@@ -220,7 +215,6 @@
             "type": "course"
         },
         {
-            "description": "Example of how to create a RESTful API QML client.",
             "flags": [
             ],
             "id": "qtdoc/examples-manifest.xml",
@@ -252,7 +246,6 @@
             "type": "course"
         },
         {
-            "description": "A widget example with menus, toolbars and a status bar.",
             "flags": [
                 "experience_basic"
             ],
@@ -285,7 +278,6 @@
             "type": "course"
         },
         {
-            "description": "The Satellite Info example shows the available satellites using Sky View, Table View, or RSSI View and the user's current position. It is implemented with Qt Positioning and Qt Quick.",
             "flags": [
             ],
             "id": "qtpositioning/examples-manifest.xml",
@@ -330,7 +322,6 @@
             "type": "course"
         },
         {
-            "description": "Playing audio and video using Qt Quick.",
             "flags": [
             ],
             "id": "qtdoc/examples-manifest.xml",
@@ -352,7 +343,6 @@
             "type": "course"
         },
         {
-            "description": "A configurable stock chart for 100 stocks.",
             "flags": [
                 "experience_advanced"
             ],
@@ -375,7 +365,6 @@
             "type": "course"
         },
         {
-            "description": "This is a collection of QML Positioner examples.",
             "flags": [
                 "experience_advanced"
             ],
@@ -421,7 +410,6 @@
             "type": "course"
         },
         {
-            "description": "A demonstration of how to embed non-Qt UI elements into Qt applications.",
             "flags": [
             ],
             "id": "qtdoc/examples-manifest.xml",
@@ -431,7 +419,6 @@
             "type": "example"
         },
         {
-            "description": "A Qt Quick example demonstrating the use of shader effects.",
             "flags": [
                 "experience_advanced"
             ],
@@ -454,7 +441,6 @@
             "type": "course"
         },
         {
-            "description": "Gallery of Bar, Scatter, and Surface graphs.",
             "flags": [
                 "experience_advanced"
             ],
@@ -477,7 +463,6 @@
             "type": "course"
         },
         {
-            "description": "Demonstrates how to add a C++ backend to a 3D project from Qt Design Studio. This example demonstrates adding a C++ backend to a 3D project created in Qt Design Studio. The example itself consists of an interactive industrial robot arm in a Qt Quick 3D scene. The 2D UI to control the robot arm is implement using Qt Quick Controls.",
             "flags": [
                 "experience_advanced"
             ],

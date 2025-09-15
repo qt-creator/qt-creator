@@ -114,16 +114,7 @@ public:
 
     static void openExample(const OverviewItem *item)
     {
-        for (const auto version : qtVersionsWithDocsAndExamples()) {
-            const Result<ExampleData> data = exampleData(item, version->docsPath(),
-                                                         version->examplesPath());
-            if (data) {
-                QtVersionManager::openExampleProject(data->project, data->toOpen, data->mainFile,
-                                                     data->dependencies, data->docUrl);
-                break;
-            }
-            qCDebug(qtWelcomeOverviewLog).noquote() << data.error();
-        }
+        QtVersionManager::openExampleProject(item->id, item->name);
     }
 
     static void handleClicked(const OverviewItem *item)
@@ -196,10 +187,16 @@ private:
             const QString itemId = overviewItemObj.value(QLatin1String(idIsUrl ? "id_url"
                                                                                : "id")).toString();
             const QString itemName = overviewItemObj.value("name").toString();
-            if (type == OverviewItem::Example && !exampleInstalled(itemId, itemName)) {
-                qCDebug(qtWelcomeOverviewLog) << "Excluding" << itemTypeString << itemName
-                                              << "because it is not installed.";
-                continue;
+            QString description = overviewItemObj.value("description").toString();
+            if (type == OverviewItem::Example) {
+                const std::optional<QString> exampleDescription
+                    = QtVersionManager::getExampleDescription(itemId, itemName);
+                if (!exampleDescription) {
+                    qCDebug(qtWelcomeOverviewLog) << "Excluding" << itemTypeString << itemName
+                                                  << "because it is not installed.";
+                    continue;
+                }
+                description = *exampleDescription;
             }
             const QStringList itemFlags = overviewItemObj.value("flags").toVariant().toStringList();
             if (!validByFlags(itemFlags)) {
@@ -216,7 +213,7 @@ private:
             const FilePath resolvedImageUrl =
                 imageUrl.isAbsolutePath() ? imageUrl : jsonFile().parentDir().resolvePath(imageUrl);
             item->imageUrl = StyleHelper::dpiSpecificImageFile(resolvedImageUrl.toFSPathString());
-            item->description = overviewItemObj.value("description").toString();
+            item->description = description;
             item->flags = itemFlags;
             items.append(item);
         }
@@ -245,105 +242,6 @@ private:
         return validByFlags(settings().userFlags(), itemFlags);
     }
 
-    static QtVersions qtVersionsWithDocsAndExamples()
-    {
-        using namespace QtSupport;
-        const QtVersions versions = QtVersionManager::sortVersions(
-            QtVersionManager::versions([](const QtVersion *v) {
-                return v->hasExamples() && v->hasDocs();
-            }));
-        return versions;
-    }
-
-    static Result<ExampleData> exampleData(const OverviewItem *item, const FilePath &docsPath,
-                                           const FilePath &examplePath)
-    {
-        const FilePath manifestPath = docsPath / item->id;
-        const ResultError error(QString::fromLatin1("Could not read \"%1\" from: %2")
-                                    .arg(item->name).arg(manifestPath.toUserOutput()));
-        const Result<QByteArray> xmlContents = manifestPath.fileContents();
-        if (!xmlContents)
-            return error;
-
-        ExampleData result;
-
-        QXmlStreamReader reader(xmlContents->data());
-        while (!reader.atEnd()) {
-            switch (reader.readNext()) {
-            case QXmlStreamReader::StartElement:
-                if (reader.name() == QLatin1String(XML_ELEMENT_EXAMPLE)) {
-                    const QXmlStreamAttributes attributes = reader.attributes();
-                    if (attributes.value(XML_ELEMENT_NAME) != item->name) {
-                        reader.skipCurrentElement();
-                        continue;
-                    }
-                    result.docUrl = QUrl::fromUserInput(
-                        attributes.value(XML_ATTRIBUTE_DOCURL).toString());
-                    const FilePath projectPath = FilePath::fromUserInput(
-                        attributes.value(XML_ATTRIBUTE_PROJECTPATH).toString());
-                    result.project = examplePath.resolvePath(projectPath);
-                } else if (reader.name() == QLatin1String(XML_ATTRIBUTE_FILETOOPEN)) {
-                    const QXmlStreamAttributes attributes = reader.attributes();
-                    const FilePath filePath = FilePath::fromUserInput(reader.readElementText());
-                    const FilePath absoluteFilePath = examplePath.resolvePath(filePath);
-                    result.toOpen.append(absoluteFilePath);
-                    if (attributes.value(XML_ATTRIBUTE_MAINFILE) == QLatin1String(XML_VALUE_TRUE))
-                        result.mainFile = absoluteFilePath;
-                }
-                break;
-            default:
-                break;
-            }
-        }
-        if (result.project.isEmpty())
-            return error;
-
-        // HACK: Workaround for QTCREATORBUG-33266
-        if (!result.mainFile.isEmpty()) {
-            result.toOpen.removeAll(result.mainFile);
-            result.toOpen.prepend(result.mainFile);
-            result.mainFile.clear();
-        }
-
-        return result;
-    }
-
-    static bool exampleInstalled(const QString &exampleId, const QString &exampleName)
-    {
-        if (!QtVersionManager::isLoaded())
-            return false;
-        for (const auto version : qtVersionsWithDocsAndExamples()) {
-            const FilePath manifestPath = version->docsPath() / exampleId;
-            if (!manifestPath.exists())
-                continue;
-            const Result<QByteArray> xmlContents = manifestPath.fileContents();
-            if (!xmlContents)
-                continue;
-            QXmlStreamReader reader(xmlContents->data());
-            while (!reader.atEnd()) {
-                switch (reader.readNext()) {
-                case QXmlStreamReader::StartElement:
-                    if (reader.name() == QLatin1String(XML_ELEMENT_EXAMPLE)) {
-                        const QXmlStreamAttributes attributes = reader.attributes();
-                        if (attributes.value(XML_ELEMENT_NAME) == exampleName)
-                            return true;
-                    }
-                    break;
-                default:
-                    break;
-                }
-            }
-        }
-        return false;
-    }
-
-    static constexpr char XML_ELEMENT_EXAMPLE[] = "example";
-    static constexpr char XML_ELEMENT_NAME[] = "name";
-    static constexpr char XML_ATTRIBUTE_DOCURL[] = "docUrl";
-    static constexpr char XML_ATTRIBUTE_FILETOOPEN[] = "fileToOpen";
-    static constexpr char XML_ATTRIBUTE_MAINFILE[] = "mainFile";
-    static constexpr char XML_ATTRIBUTE_PROJECTPATH[] = "projectPath";
-    static constexpr char XML_VALUE_TRUE[] = "true";
 };
 
 class BlogButton : public QAbstractButton

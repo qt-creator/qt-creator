@@ -175,19 +175,19 @@ static FilePath copyToAlternativeLocation(const FilePath &proFile,
     return {};
 }
 
-void openExampleProject(const FilePath &project, const FilePaths &toOpen, const FilePath &mainFile,
-                        const FilePaths &dependencies, const QUrl &docUrl)
+void openExampleProject(const ExampleItem &item)
 {
     using namespace ProjectExplorer;
-    FilePath proFile = project;
+    const auto docUrl = QUrl::fromUserInput(item.docUrl);
+    FilePath proFile = item.projectPath;
     if (proFile.isEmpty())
         return;
 
-    FilePaths filesToOpen = toOpen;
-    if (!mainFile.isEmpty()) {
+    FilePaths filesToOpen = item.filesToOpen;
+    if (!item.mainFile.isEmpty()) {
         // ensure that the main file is opened on top (i.e. opened last)
-        filesToOpen.removeAll(mainFile);
-        filesToOpen.append(mainFile);
+        filesToOpen.removeAll(item.mainFile);
+        filesToOpen.append(item.mainFile);
     }
 
     if (!proFile.exists())
@@ -201,7 +201,7 @@ void openExampleProject(const FilePath &project, const FilePaths &toOpen, const 
                || !proFile.parentDir().parentDir().isWritableDir() /* shadow build directory */;
     });
     if (needsCopy)
-        proFile = copyToAlternativeLocation(proFile, filesToOpen, dependencies);
+        proFile = copyToAlternativeLocation(proFile, filesToOpen, item.dependencies);
 
     // don't try to load help and files if loading the help request is being cancelled
     if (proFile.isEmpty())
@@ -234,9 +234,7 @@ protected:
         if (exampleItem->isVideo) {
             QDesktopServices::openUrl(QUrl::fromUserInput(exampleItem->videoUrl));
         } else if (exampleItem->hasSourceCode) {
-            openExampleProject(exampleItem->projectPath, exampleItem->filesToOpen,
-                               exampleItem->mainFile, exampleItem->dependencies,
-                               QUrl::fromUserInput(exampleItem->docUrl));
+            openExampleProject(*exampleItem);
         } else {
             auto docUrl = QUrl::fromUserInput(exampleItem->docUrl);
             // The following is more like a hack for qtcreator_tutorials.xml,

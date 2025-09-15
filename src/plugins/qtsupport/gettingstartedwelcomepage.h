@@ -3,20 +3,11 @@
 
 #pragma once
 
-#include <QtCore/qtconfigmacros.h>
-
-QT_FORWARD_DECLARE_CLASS(QUrl)
-
-namespace Utils {
-class FilePath;
-class FilePaths;
-}
-
 namespace QtSupport::Internal {
 
+class ExampleItem;
+
 void setupGettingStartedWelcomePage();
-void openExampleProject(const Utils::FilePath &project, const Utils::FilePaths &toOpen,
-                        const Utils::FilePath &mainFile, const Utils::FilePaths &dependencies,
-                        const QUrl &docUrl);
+void openExampleProject(const ExampleItem &item);
 
 } // QtSupport::Internal
