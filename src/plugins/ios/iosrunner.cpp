@@ -576,7 +576,8 @@ static void handleIosToolStartedOnSimulator(
     barrier->advance();
 }
 
-static Group iosToolKicker(const StoredBarrier &barrier, RunControl *runControl, const DebugInfo &debugInfo)
+static Group iosToolKicker(const StoredBarrier &barrier, RunControl *runControl,
+                           const DebugInfo &debugInfo, bool setupCanceler = true)
 {
     stopRunningRunControl(runControl);
     const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
@@ -596,9 +597,9 @@ static Group iosToolKicker(const StoredBarrier &barrier, RunControl *runControl,
     };
 
     const auto onIosToolSetup = [runControl, debugInfo, bundleDir, deviceType, device,
-                                 barrier](IosToolRunner &runner) {
+                                 setupCanceler, barrier](IosToolRunner &runner) {
         runner.setDeviceType(deviceType);
-        runner.setStartHandler([runControl, debugInfo, bundleDir, device,
+        runner.setStartHandler([runControl, debugInfo, bundleDir, device, setupCanceler,
                                 barrier = barrier.activeStorage()](IosToolHandler *handler) {
             const auto messageHandler = [runControl](const QString &message) {
                 runControl->postMessage(message, StdOutFormat);
@@ -625,10 +626,12 @@ static Group iosToolKicker(const StoredBarrier &barrier, RunControl *runControl,
                 [barrier, runControl, debugInfo, handler](qint64 pid) {
                     handleIosToolStartedOnSimulator(barrier, runControl, debugInfo, handler, pid);
                 });
-            QObject::connect(runControl, &RunControl::canceled, handler, [handler] {
-                if (handler->isRunning())
-                    handler->stop();
-            });
+            if (setupCanceler) {
+                QObject::connect(runControl, &RunControl::canceled, handler, [handler] {
+                    if (handler->isRunning())
+                        handler->stop();
+                });
+            }
 
             const CommandLine command = runControl->commandLine();
             QStringList args = ProcessArgs::splitArgs(command.arguments(), OsTypeMac);
@@ -651,8 +654,10 @@ static Group iosToolKicker(const StoredBarrier &barrier, RunControl *runControl,
     const auto onIosToolDone = [runControl](DoneWith result) {
         if (result == DoneWith::Success)
             runControl->postMessage(Tr::tr("Run ended."), NormalMessageFormat);
-        else
+        else if (result == DoneWith::Error)
             runControl->postMessage(Tr::tr("Run ended with error."), ErrorMessageFormat);
+        else
+            runControl->postMessage(Tr::tr("Run canceled."), ErrorMessageFormat);
     };
 
     return {
@@ -664,10 +669,13 @@ static Group iosToolKicker(const StoredBarrier &barrier, RunControl *runControl,
 static Group iosToolRecipe(RunControl *runControl, const DebugInfo &debugInfo = {},
                            const std::optional<ExecutableItem> &afterStartedRecipe = {})
 {
-    const auto kicker = [runControl, debugInfo](const StoredBarrier &barrier) {
-        return iosToolKicker(barrier, runControl, debugInfo);
+    const bool setupCanceler = !afterStartedRecipe;
+    const auto kicker = [runControl, debugInfo, setupCanceler](const StoredBarrier &barrier) {
+        return iosToolKicker(barrier, runControl, debugInfo, setupCanceler);
     };
-    return When (kicker) >> Do {
+    const WorkflowPolicy policy = afterStartedRecipe ? WorkflowPolicy::StopOnSuccessOrError
+                                                     : WorkflowPolicy::StopOnError;
+    return When (kicker, policy) >> Do {
         afterStartedRecipe ? *afterStartedRecipe : Sync([runControl] { runControl->reportStarted(); })
     };
 }

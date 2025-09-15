@@ -73,9 +73,11 @@ private:
 
 // for Tasking:
 
-class IosToolRunner
+class IosToolRunner final
 {
 public:
+    ~IosToolRunner();
+
     using StartHandler = std::function<void(IosToolHandler *)>;
     void setStartHandler(const StartHandler &startHandler);
     void setDeviceType(const Internal::IosDeviceType &type);

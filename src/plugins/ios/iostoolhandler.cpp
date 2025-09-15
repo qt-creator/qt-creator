@@ -967,6 +967,14 @@ bool IosToolHandler::isRunning() const
     return d->isRunning();
 }
 
+IosToolRunner::~IosToolRunner()
+{
+    if (m_iosToolHandler && m_iosToolHandler->isRunning()) {
+        QObject::disconnect(m_iosToolHandler.get(), &IosToolHandler::finished, nullptr, nullptr);
+        m_iosToolHandler->stop();
+    }
+}
+
 void IosToolRunner::setStartHandler(const StartHandler &startHandler)
 {
     m_startHandler = startHandler;
