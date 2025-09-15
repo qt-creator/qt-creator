@@ -29,6 +29,7 @@
       <description><![CDATA[Developing Qt applications using C++ and the Qt Widgets module.]]></description>
       <tags>qt,qt creator,qt widgets designer,widgets,c++,help</tags>
       <meta>
+        <entry name="keyword">Getting Started Programming with Qt Widgets</entry>
         <entry name="category">Help</entry>
       </meta>
     </tutorial>

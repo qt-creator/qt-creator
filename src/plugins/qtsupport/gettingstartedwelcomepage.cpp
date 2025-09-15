@@ -238,8 +238,17 @@ protected:
                                exampleItem->mainFile, exampleItem->dependencies,
                                QUrl::fromUserInput(exampleItem->docUrl));
         } else {
-            HelpManager::showHelpUrl(QUrl::fromUserInput(exampleItem->docUrl),
-                                     HelpManager::ExternalHelpAlways);
+            auto docUrl = QUrl::fromUserInput(exampleItem->docUrl);
+            // The following is more like a hack for qtcreator_tutorials.xml,
+            // to support multiple Qt versions. See QTCREATORBUG-32772
+            const QStringList identifiers = exampleItem->metaData.value("keyword");
+            if (!identifiers.isEmpty()) {
+                const QMultiMap<QString, QUrl> links = HelpManager::linksForIdentifier(
+                    identifiers.constFirst());
+                if (!links.isEmpty())
+                    docUrl = links.first();
+            }
+            HelpManager::showHelpUrl(docUrl, HelpManager::ExternalHelpAlways);
         }
     }
 
