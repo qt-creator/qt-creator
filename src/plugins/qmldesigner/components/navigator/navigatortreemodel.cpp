@@ -917,14 +917,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                         delete dialog;
                     }
 
-                    if (newModelNode.metaInfo().isQtQuick3DView3D()) {
-                        const QList<ModelNode> models = newModelNode.subModelNodesOfType(
-                            m_view->model()->qtQuick3DModelMetaInfo());
-                        QTC_ASSERT(models.size() == 1, return);
-                        Utils3D::assignMaterialTo3dModel(m_view, models.at(0));
-                    } else if (newModelNode.metaInfo().isQtQuick3DModel()) {
-                        Utils3D::assignMaterialTo3dModel(m_view, newModelNode);
-                    }
+                    Utils3D::handle3DDrop(m_view, newModelNode);
 
                     if (!validContainer) {
                         validContainer = NodeHints::fromModelNode(targetProperty.parentModelNode())

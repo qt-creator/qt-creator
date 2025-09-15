@@ -16,6 +16,7 @@
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
+#include <utils3d.h>
 
 #include <theme.h>
 
@@ -297,6 +298,7 @@ void TextEditorWidget::dropEvent(QDropEvent *dropEvent)
                                                                          QPointF(),
                                                                          targetProperty,
                                                                          false);
+                Utils3D::handle3DDrop(m_textEditorView, newQmlObjectNode);
             });
         }
     } else if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ASSETS)) {

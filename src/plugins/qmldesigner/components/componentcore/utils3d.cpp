@@ -709,5 +709,31 @@ bool hasImported3dType(AbstractView *view,
            || Utils::set_has_common_element(removed, generatedModuleIds, {}, &ExportedTypeName::moduleId);
 }
 
+void handle3DDrop(AbstractView *view, const ModelNode &dropNode)
+{
+    // If a View3D or 3D Model is dropped, we need to assign material to the model
+
+    NodeMetaInfo model3DInfo = view->model()->qtQuick3DModelMetaInfo();
+
+    if (dropNode.metaInfo().isBasedOn(model3DInfo)) {
+        Utils3D::assignMaterialTo3dModel(view, dropNode);
+        return;
+    }
+
+    NodeMetaInfo view3DInfo = view->model()->qtQuick3DView3DMetaInfo();
+
+    if (dropNode.metaInfo().isBasedOn(view3DInfo)) {
+        const QList<ModelNode> models = dropNode.subModelNodesOfType(model3DInfo);
+        QTC_ASSERT(models.size() == 1, return);
+        Utils3D::assignMaterialTo3dModel(view, models.at(0));
+
+        // When the first View3D is added to the scene, we need to reset the puppet or
+        // materials won't render correctly
+        const ModelNodes allView3Ds = view->allModelNodesOfType(view3DInfo);
+        if (allView3Ds.size() == 1)
+            view->resetPuppet();
+    }
+}
+
 } // namespace Utils3D
 } // namespace QmlDesigner
