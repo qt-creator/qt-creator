@@ -169,6 +169,11 @@ struct TraceIdentifierData
 class QmlDesignerPluginPrivate
 {
 public:
+    QmlDesignerPluginPrivate()
+        : projectManager{viewManager}
+    {}
+
+public:
     ExternalDependencies externalDependencies{QmlDesignerBasePlugin::settings()};
     QmlDesignerProjectManager projectManager;
     ViewManager viewManager{projectManager.asynchronousImageCache(),

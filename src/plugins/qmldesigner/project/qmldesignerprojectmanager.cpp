@@ -24,6 +24,7 @@
 #include <sourcepathstorage/nonlockingmutex.h>
 #include <sourcepathstorage/sourcepathcache.h>
 #include <sqlitedatabase.h>
+#include <viewmanager.h>
 
 #include <asynchronousexplicitimagecache.h>
 #include <asynchronousimagecache.h>
@@ -317,6 +318,11 @@ public:
 class QmlDesignerProjectManager::Data
 {
 public:
+    Data(ViewManager &viewManager)
+        : viewManager{viewManager}
+    {}
+
+public:
     Sqlite::Database sourcePathDatabase{createDatabasePath("source_path_v1.db"),
                                         Sqlite::JournalMode::Wal,
                                         Sqlite::LockingMode::Normal};
@@ -326,13 +332,14 @@ public:
                                      Sqlite::JournalMode::Wal,
                                      Sqlite::LockingMode::Normal};
     ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
+    ViewManager &viewManager;
 };
 
-QmlDesignerProjectManager::QmlDesignerProjectManager()
+QmlDesignerProjectManager::QmlDesignerProjectManager(ViewManager &viewManager)
 {
     NanotraceHR::Tracer tracer{"qml designer project manager constructor", category()};
 
-    m_data = std::make_unique<Data>();
+    m_data = std::make_unique<Data>(viewManager);
     m_previewImageCacheData = std::make_unique<PreviewImageCacheData>();
 
     auto editorManager = ::Core::EditorManager::instance();
@@ -523,7 +530,8 @@ void QmlDesignerProjectManager::aboutToRemoveProject(const ::ProjectExplorer::Pr
     NanotraceHR::Tracer tracer{"qml designer project manager about to remove project", category()};
 
     if (m_projectData) {
-        m_previewImageCacheData->collector.setTarget(m_projectData->activeTarget);
+        m_previewImageCacheData->collector.setTarget(nullptr);
+        m_data->viewManager.setNodeInstanceViewTarget(nullptr);
         m_projectData.reset();
     }
 }
@@ -660,6 +668,8 @@ void QmlDesignerProjectManager::update()
         std::cout << location.file_name() << ":" << location.function_name() << ":"
                   << location.line() << ": " << exception.what() << "\n";
     }
+
+    m_data->viewManager.setNodeInstanceViewTarget(m_projectData->activeTarget);
 }
 
 } // namespace QmlDesigner
