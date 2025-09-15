@@ -26,13 +26,19 @@ TelemetryNotification::TelemetryNotification(const JsonObject &params)
     : Notification(methodName, params)
 { }
 
-static QString messageTypeName(int messageType)
+static QString messageTypeName(ShowMessageParams::MessageType messageType)
 {
     switch (messageType) {
-    case Error: return QString("Error");
-    case Warning: return QString("Warning");
-    case Info: return QString("Info");
-    case Log: return QString("Log");
+    case ShowMessageParams::MessageType::Error:
+        return QString("Error");
+    case ShowMessageParams::MessageType::Warning:
+        return QString("Warning");
+    case ShowMessageParams::MessageType::Info:
+        return QString("Info");
+    case ShowMessageParams::MessageType::Log:
+        return QString("Log");
+    case ShowMessageParams::MessageType::Debug:
+        return QString("Debug");
     }
     return QString("");
 }
@@ -40,6 +46,22 @@ static QString messageTypeName(int messageType)
 QString ShowMessageParams::toString() const
 {
     return messageTypeName(type()) + ": " + message();
+}
+
+QtMsgType ShowMessageParams::qtMsgType() const
+{
+    switch (type()) {
+    case ShowMessageParams::MessageType::Error:
+        return QtCriticalMsg;
+    case ShowMessageParams::MessageType::Warning:
+        return QtWarningMsg;
+    case ShowMessageParams::MessageType::Info:
+        return QtInfoMsg;
+    case ShowMessageParams::MessageType::Log:
+        return QtInfoMsg;
+    case ShowMessageParams::MessageType::Debug:
+        return QtDebugMsg;
+    }
 }
 
 } // namespace LanguageServerProtocol

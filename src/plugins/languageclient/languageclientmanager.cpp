@@ -178,6 +178,7 @@ void LanguageClientManager::clientFinished(Client *client)
             if (shouldRestart && client->reset()) {
                 qCDebug(Log) << "restart unexpectedly finished client: " << client->name() << client;
                 client->log(
+                    QtMsgType::QtWarningMsg,
                     Tr::tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
                 QTimer::singleShot(restartTimeoutS * 1000, client, [client]() { client->start(); });
                 for (TextEditor::TextDocument *document : clientDocs) {
@@ -188,7 +189,7 @@ void LanguageClientManager::clientFinished(Client *client)
                 return;
             }
             qCDebug(Log) << "client finished unexpectedly: " << client->name() << client;
-            client->log(Tr::tr("Unexpectedly finished."));
+            client->log(QtMsgType::QtCriticalMsg, Tr::tr("Unexpectedly finished."));
         }
     }
 

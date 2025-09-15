@@ -205,10 +205,13 @@ public:
     // logging
     enum class LogTarget { Console, Ui };
     void setLogTarget(LogTarget target);
-    void log(const QString &message) const;
+    void log(QtMsgType msgType, const QString &message) const;
+
     template<typename Error>
     void log(const LanguageServerProtocol::ResponseError<Error> &responseError) const
-    { log(responseError.toString()); }
+    {
+        log(QtMsgType::QtCriticalMsg, responseError.toString());
+    }
 
     // Caller takes ownership.
     using CustomInspectorTab = std::pair<QWidget *, QString>;

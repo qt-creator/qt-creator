@@ -7,20 +7,23 @@
 
 namespace LanguageServerProtocol {
 
-enum MessageType {
-    Error = 1,
-    Warning = 2,
-    Info = 3,
-    Log = 4,
-};
-
 class LANGUAGESERVERPROTOCOL_EXPORT ShowMessageParams : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
 
-    int type() const { return typedValue<int>(typeKey); }
-    void setType(int type) { insert(typeKey, type); }
+    enum class MessageType {
+        Error = 1,
+        Warning = 2,
+        Info = 3,
+        Log = 4,
+        Debug = 5,
+    };
+
+    MessageType type() const { return (MessageType)typedValue<int>(typeKey); }
+    void setType(MessageType type) { insert(typeKey, (int)type); }
+
+    QtMsgType qtMsgType() const;
 
     QString message() const { return typedValue<QString>(messageKey); }
     void setMessage(QString message) { insert(messageKey, message); }
