@@ -88,46 +88,15 @@ Group localQmlProfilerRecipe(RunControl *runControl)
         CommandLine cmd = runControl->commandLine();
         cmd.prependArgs(arguments, CommandLine::Raw);
         process.setCommand(cmd.toLocal());
-
-        QmlProfilerTool::instance()->finalizeRunControl(runControl);
-        QmlProfilerClientManager *clientManager = QmlProfilerTool::instance()->clientManager();
-
-        const auto handleDone = [runControl, process = &process] {
-            if (QmlProfilerTool::instance()) {
-                QmlProfilerTool::instance()->handleStop();
-                QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()->stateManager();
-                if (stateManager && stateManager->currentState() == QmlProfilerStateManager::AppRunning)
-                    stateManager->setCurrentState(QmlProfilerStateManager::AppStopRequested);
-            }
-            if (process->isRunning())
-                runControl->handleProcessCancellation(process);
-        };
-
-        QObject::connect(clientManager, &QmlProfilerClientManager::connectionFailed,
-                         &process, [handleDone] { handleDone(); });
-        QObject::connect(clientManager, &QmlProfilerClientManager::connectionClosed,
-                         &process, [handleDone] { handleDone(); });
-        QObject::connect(&process, &Process::done, &process, [handleDone] { handleDone(); });
-        QObject::connect(runControl, &RunControl::canceled, &process, [handleDone, process = &process] {
-            QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()
-                ? QmlProfilerTool::instance()->stateManager() : nullptr;
-            if (stateManager == nullptr) {
-                handleDone();
-                return;
-            }
-            if (stateManager->currentState() == QmlProfilerStateManager::AppRunning)
-                stateManager->setCurrentState(QmlProfilerStateManager::AppStopRequested);
-            QObject::connect(stateManager, &QmlProfilerStateManager::stateChanged,
-                             process, [handleDone, stateManager] {
-                if (stateManager->currentState() == QmlProfilerStateManager::Idle)
-                    handleDone();
-            });
-        });
-        clientManager->setServer(runControl->qmlChannel());
-        clientManager->connectToServer();
     };
 
-    return { runControl->processRecipe(modifier, {false, false}) };
+    const ProcessTask processTask = runControl->processTaskWithModifier(modifier, {false, false});
+
+    return {
+        When (processTask, &Process::started, WorkflowPolicy::StopOnSuccessOrError) >> Do {
+            qmlProfilerRecipe(runControl)
+        }
+    };
 }
 
 // Factories
