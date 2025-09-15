@@ -88,7 +88,6 @@ public:
     QtSupport::QmlDebuggingAspect qmlDebugging{this};
     Internal::ConfigureEnvironmentAspect configureEnv{this};
 
-    void updateInitialCMakeArguments();
     QStringList initialCMakeOptions() const;
 
     void setInitialArgs(const QStringList &args) override;
@@ -111,7 +110,7 @@ private:
     void filterConfigArgumentsFromAdditionalCMakeArguments();
 
     QStringList m_unrestrictedBuildTargets;
-    Internal::CMakeBuildSettingsWidget *m_configWidget = nullptr;
+    QPointer<Internal::CMakeBuildSettingsWidget> m_configWidget = nullptr;
 
     friend class Internal::CMakeBuildSettingsWidget;
     friend class Internal::CMakeBuildSystem;

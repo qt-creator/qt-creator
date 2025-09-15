@@ -1874,12 +1874,6 @@ QWidget *CMakeBuildConfiguration::createConfigWidget()
     return m_configWidget;
 }
 
-void CMakeBuildConfiguration::updateInitialCMakeArguments()
-{
-    Q_ASSERT(m_configWidget);
-    m_configWidget->updateInitialCMakeArguments(true);
-}
-
 QStringList CMakeBuildConfiguration::initialCMakeOptions() const
 {
     return initialCMakeArguments.allValues();
@@ -1903,7 +1897,8 @@ QStringList CMakeBuildConfiguration::additionalArgs() const
 void CMakeBuildConfiguration::reconfigure()
 {
     cmakeBuildSystem()->clearCMakeCache();
-    updateInitialCMakeArguments();
+    if (QTC_GUARD(m_configWidget))
+        m_configWidget->updateInitialCMakeArguments();
     cmakeBuildSystem()->runCMake();
 }
 
