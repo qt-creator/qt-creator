@@ -166,6 +166,11 @@ private:
             return StaticTreeItem::data(column, role);
         }
 
+        Qt::ItemFlags flags(int /*column*/) const override
+        {
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        }
+
         const QPointer<const RunConfiguration> m_rc;
         const bool m_sameBuildKey;
     };
