@@ -23,6 +23,7 @@ public:
 
     void setRootPath(const QString &newPath);
     void setSearchText(const QString &searchText);
+    void updateSkippedAssets(const QUrl &currentDoc);
 
     Q_PROPERTY(bool isEmpty READ isEmpty NOTIFY isEmptyChanged)
 
@@ -86,6 +87,7 @@ private:
     bool m_isEmpty = true;
     Utils::FileSystemWatcher *m_fileWatcher = nullptr;
     inline static QHash<QString, bool> s_folderExpandStateHash;
+    QString m_skipFilePath;
 };
 
 } // namespace QmlDesigner

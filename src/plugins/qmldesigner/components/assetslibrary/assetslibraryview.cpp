@@ -93,6 +93,7 @@ void AssetsLibraryView::modelAttached(Model *model)
     m_widget->clearSearchFilter();
 
     setResourcePath(DocumentManager::currentResourcePath().toFSPathString());
+    m_widget->updateSkippedAssets(model->fileUrl());
 
     m_3dImportsSyncTimer.start();
 }
