@@ -701,19 +701,21 @@ void BuildConfiguration::updateDefaultRunConfigurations()
     // that produce already existing RCs
     QList<RunConfiguration *> toRemove;
     QList<RunConfigurationCreationInfo> existing;
-    for (RunConfiguration *rc : std::as_const(existingConfigured)) {
-        bool present = false;
-        for (const RunConfigurationCreationInfo &item : creators) {
-            QString buildKey = rc->buildKey();
-            if (item.factory->runConfigurationId() == rc->id() && item.buildKey == buildKey) {
-                existing.append(item);
-                present = true;
+    if (buildSystem()->hasParsingData()) {
+        for (RunConfiguration *rc : std::as_const(existingConfigured)) {
+            bool present = false;
+            for (const RunConfigurationCreationInfo &item : creators) {
+                QString buildKey = rc->buildKey();
+                if (item.factory->runConfigurationId() == rc->id() && item.buildKey == buildKey) {
+                    existing.append(item);
+                    present = true;
+                }
             }
-        }
-        if (!present &&
-            ProjectExplorerSettings::get(this).automaticallyCreateRunConfigurations() &&
-            !rc->isCustomized()) {
-            toRemove.append(rc);
+            if (!present
+                && ProjectExplorerSettings::get(this).automaticallyCreateRunConfigurations()
+                && !rc->isCustomized()) {
+                toRemove.append(rc);
+            }
         }
     }
     configuredCount -= toRemove.count();
