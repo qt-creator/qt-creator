@@ -497,26 +497,11 @@ void DragTool::commitTransaction()
     NanotraceHR::Tracer tracer{"drag tool commit transaction", category()};
 
     try {
-        handleView3dDrop();
+        if (!m_dragNodes.isEmpty())
+            Utils3D::handle3DDrop(view(), m_dragNodes[0].modelNode());
         m_rewriterTransaction.commit();
     } catch (const RewritingException &e) {
         e.showException();
-    }
-}
-
-void DragTool::handleView3dDrop()
-{
-    NanotraceHR::Tracer tracer{"drag tool handle View3D drop", category()};
-
-    // If a View3D is dropped, we need to assign material to the included model
-    for (const QmlItemNode &dragNode : std::as_const(m_dragNodes)) {
-        if (dragNode.modelNode().metaInfo().isQtQuick3DView3D()) {
-            auto model = dragNode.model();
-            const QList<ModelNode> models = dragNode.modelNode().subModelNodesOfType(
-                model->qtQuick3DModelMetaInfo());
-            QTC_ASSERT(models.size() == 1, return);
-            Utils3D::assignMaterialTo3dModel(view(), models.at(0));
-        }
     }
 }
 

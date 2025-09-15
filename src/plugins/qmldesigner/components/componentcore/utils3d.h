@@ -55,6 +55,7 @@ void assignMaterialTo3dModel(AbstractView *view, const ModelNode &modelNode,
 bool hasImported3dType(AbstractView *view,
                        const AbstractView::ExportedTypeNames &added,
                        const AbstractView::ExportedTypeNames &removed);
+void handle3DDrop(AbstractView *view, const ModelNode &dropNode);
 
 } // namespace Utils3D
 } // namespace QmlDesigner
