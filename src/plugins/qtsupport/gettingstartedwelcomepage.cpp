@@ -185,9 +185,11 @@ void openExampleProject(const ExampleItem &item)
 
     FilePaths filesToOpen = item.filesToOpen;
     if (!item.mainFile.isEmpty()) {
-        // ensure that the main file is opened on top (i.e. opened last)
+        // Ensure that the main file is opened on top.
+        // ICore::openFiles actually only opens the first file,
+        // the others are added as suspended documents.
         filesToOpen.removeAll(item.mainFile);
-        filesToOpen.append(item.mainFile);
+        filesToOpen.prepend(item.mainFile);
     }
 
     if (!proFile.exists())
