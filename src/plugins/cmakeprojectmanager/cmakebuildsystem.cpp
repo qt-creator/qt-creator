@@ -2266,6 +2266,31 @@ static FilePaths librarySearchPaths(const CMakeBuildSystem *bs, const QString &b
     return cmakeBuildTarget.libraryDirectories;
 }
 
+static bool isTestTarget(const QString &targetName, const FilePath &buildDir)
+{
+    // The CTest file is always named CTestTestfile.cmake and lives in the build dir
+    const FilePath testFile = buildDir.pathAppended("CTestTestfile.cmake");
+    if (!testFile.exists())
+        return false;
+
+    // Parse the file
+    std::optional<cmListFile> cmakeListFile = getUncachedCMakeListFile(testFile);
+    if (!cmakeListFile)
+        return false;
+
+    // Find an add_test() call whose first argument equals the target name
+    for (const cmListFileFunction &func : cmakeListFile->Functions) {
+        if (func.LowerCaseName() != "add_test")
+            continue;
+        if (func.Arguments().size() < 1)
+            continue;
+        const auto &arg = func.Arguments().at(0);
+        if (QString::fromStdString(arg.Value) == targetName)
+            return true;
+    }
+    return false;
+}
+
 const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
 {
     const CMakeConfig &cm = configurationFromCMake();
@@ -2297,6 +2322,14 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
             bti.buildKey = buildKey;
             bti.usesTerminal = !ct.linksToQtGui;
             bti.isQtcRunnable = ct.qtcRunnable;
+
+            // Remove the test launchers if the target is not a test
+            if (bti.launchers.size() > 0
+                && !isTestTarget(ct.title, bti.targetFilePath.parentDir())) {
+                bti.launchers = Utils::filtered(bti.launchers, [](const Launcher &l) {
+                    return !l.id.startsWith("test");
+                });
+            }
 
             // Workaround for QTCREATORBUG-19354:
             bti.runEnvModifier = [this, buildKey](Environment &env, bool enabled) {
