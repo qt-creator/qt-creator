@@ -403,10 +403,12 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
 constexpr char installJsonLsInfoBarId[] = "LanguageClient::InstallJsonLs";
 constexpr char installYamlLsInfoBarId[] = "LanguageClient::InstallYamlLs";
 constexpr char installBashLsInfoBarId[] = "LanguageClient::InstallBashLs";
+constexpr char installDockerfileLsInfoBarId[] = "LanguageClient::InstallDockerfileLs";
 
 constexpr char YAML_MIME_TYPE[]{"application/x-yaml"};
 constexpr char SHELLSCRIPT_MIME_TYPE[]{"application/x-shellscript"};
 constexpr char JSON_MIME_TYPE[]{"application/json"};
+constexpr char DOCKERFILE_MIME_TYPE[]{"application/x-dockerfile"};
 
 static FilePath relativePathForServer(const QString &languageServer)
 {
@@ -415,12 +417,14 @@ static FilePath relativePathForServer(const QString &languageServer)
     return HostOsInfo::isWindowsHost() ? relativePath.withSuffix(".cmd") : relativePath;
 }
 
-static void setupNpmServer(TextDocument *document,
-                           const Id &infoBarId,
-                           const QString &languageServer,
-                           const QString &languageServerArgs,
-                           const QString &language,
-                           const QStringList &serverMimeTypes)
+static void setupNpmServer(
+    TextDocument *document,
+    const Id &infoBarId,
+    const QString &languageServer,
+    const QString &languageServerArgs,
+    const QString &language,
+    const QStringList &serverMimeTypes,
+    const QString &executableName = QString())
 {
     InfoBar *infoBar = document->infoBar();
     if (!infoBar->canInfoBeAdded(infoBarId))
@@ -507,7 +511,8 @@ static void setupNpmServer(TextDocument *document,
                 process.setWorkingDirectory(lsPath);
                 return SetupResult::Continue;
             };
-            const auto onListDone = [languageServer, setupStdIOSettings](const Process &process) {
+            const auto onListDone = [languageServer, setupStdIOSettings, executableName](
+                                        const Process &process) {
                 const QStringList output = process.stdOutLines();
                 // we are expecting output in the form of:
                 // tst@ C:\tmp\tst
@@ -518,7 +523,8 @@ static void setupNpmServer(TextDocument *document,
                         continue;
                     const FilePath lsExecutable
                         = FilePath::fromUserInput(line.mid(splitIndex + 1).trimmed())
-                              .resolvePath(relativePathForServer(languageServer));
+                              .resolvePath(relativePathForServer(
+                                  executableName.isEmpty() ? languageServer : executableName));
                     if (lsExecutable.isExecutableFile()) {
                         setupStdIOSettings(lsExecutable);
                         return;
@@ -565,6 +571,15 @@ void autoSetupLanguageServer(TextDocument *document)
                        "start",
                        QString("Bash"),
                        {SHELLSCRIPT_MIME_TYPE});
+    } else if (mimeType.inherits(DOCKERFILE_MIME_TYPE)) {
+        setupNpmServer(
+            document,
+            installDockerfileLsInfoBarId,
+            "dockerfile-language-server-nodejs",
+            "--stdio",
+            QString("Dockerfile"),
+            {DOCKERFILE_MIME_TYPE},
+            "docker-langserver");
     }
 }
 
