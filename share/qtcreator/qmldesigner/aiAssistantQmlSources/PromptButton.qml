@@ -18,8 +18,7 @@ Rectangle {
     objectName: label // for Squish identification
 
     border.width: 1
-    border.color: enabled ? StudioTheme.Values.themePopoutButtonBorder_idle
-                          : StudioTheme.Values.themePopoutControlBorder_disabled
+    border.color: StudioTheme.Values.themeControlOutlineHover
 
     color: enabled ? mouseArea.containsMouse ? mouseArea.pressed ? StudioTheme.Values.themePopoutButtonBackground_interaction
                                                                  : StudioTheme.Values.themePopoutButtonBackground_hover

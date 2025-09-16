@@ -20,7 +20,7 @@ Rectangle {
     }
 
     color: root.style.background.idle
-    border.color: root.style.border.idle
+    border.color: StudioTheme.Values.themeControlOutlineHover
     border.width: root.style.borderWidth
     radius: root.style.radius
 
