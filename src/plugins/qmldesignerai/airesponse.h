@@ -45,12 +45,11 @@ public:
 private: // functions
     void setError(Error error);
     QString getContent();
-    void contentSanityCheckAndExtraction();
     void parseContent(const QString &content);
     void contentFromObject(const QJsonObject &jsonObject);
 
 private: // variables
-    Error m_error;
+    Error m_error = Error::NoError;
     QJsonObject m_rootObject;
     QJsonObject m_content;
 };

@@ -31,8 +31,10 @@ AiResponseFile::AiResponseFile(const QJsonObject &json)
 
 AiResponse::AiResponse(const QByteArray &response)
 {
-    if (response.isEmpty())
+    if (response.isEmpty()) {
+        setError(Error::EmptyResponse);
         return;
+    }
 
     QJsonParseError parseError;
     QJsonDocument doc = QJsonDocument::fromJson(response, &parseError);
@@ -43,7 +45,11 @@ AiResponse::AiResponse(const QByteArray &response)
 
     m_rootObject = doc.object();
 
-    contentSanityCheckAndExtraction();
+    const QString contentStr = getContent();
+    if (contentStr.isEmpty())
+        return;
+
+    parseContent(contentStr);
 }
 
 QString AiResponse::errorString() const
@@ -106,9 +112,6 @@ void AiResponse::setError(Error error)
 
 QString AiResponse::getContent()
 {
-    if (error() != Error::NoError)
-        return {};
-
     auto setErrorAndReturn = [this](Error error) -> QString {
         setError(error);
         return {};
@@ -129,19 +132,11 @@ QString AiResponse::getContent()
         return setErrorAndReturn(Error::InvalidMessage);
 
     QJsonObject messageObject = firstChoice["message"].toObject();
-    if (!messageObject.contains("content") || !messageObject["content"].isString())
+    QString contentString = messageObject.value("content").toString();
+    if (contentString.isEmpty())
         return setErrorAndReturn(Error::EmptyMessage);
 
-    return messageObject["content"].toString();
-}
-
-void AiResponse::contentSanityCheckAndExtraction()
-{
-    const QString contentStr = getContent();
-    if (contentStr.isEmpty())
-        return;
-
-    parseContent(contentStr);
+    return contentString;
 }
 
 void AiResponse::parseContent(const QString &content)
@@ -169,20 +164,20 @@ void AiResponse::parseContent(const QString &content)
 
         QJsonDocument doc = QJsonDocument::fromJson(contentString.toUtf8());
         if (!doc.isObject())
-            return setError(Error::InvalidContentStructure);
+            setError(Error::InvalidContentStructure);
 
-        return contentFromObject(doc.object());
+        contentFromObject(doc.object());
     } else if (contentString.startsWith("```qml", Qt::CaseInsensitive) && contentString.endsWith("```")) {
         contentString.remove(0, 3);
         contentString.chop(3);
 
-        QJsonObject virtualContent{
+        QJsonObject virtualContent {
             {"content", contentString},
         };
 
-        return contentFromObject(virtualContent);
+        contentFromObject(virtualContent);
     } else {
-        return setError(Error::InvalidContentStructure);
+        setError(Error::InvalidContentStructure);
     }
 }
 
