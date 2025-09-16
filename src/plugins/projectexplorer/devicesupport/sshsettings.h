@@ -7,7 +7,7 @@
 
 #include <utils/aspects.h>
 
-#include <QReadLocker>
+#include <QReadWriteLock>
 
 namespace ProjectExplorer {
 

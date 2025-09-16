@@ -14,6 +14,8 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 
+#include <QWriteLocker>
+
 using namespace Core;
 using namespace Utils;
 
@@ -122,37 +124,37 @@ SshSettings::SshSettings()
 
 FilePath SshSettings::sshFilePath() const
 {
-    QReadLocker lock(&m_lock);
+    QWriteLocker lock(&m_lock);
     return m_sshFilePathAspect();
 }
 
 FilePath SshSettings::askpassFilePath() const
 {
-    QReadLocker lock(&m_lock);
+    QWriteLocker lock(&m_lock);
     return m_askpassFilePathAspect();
 }
 
 FilePath SshSettings::keygenFilePath() const
 {
-    QReadLocker lock(&m_lock);
+    QWriteLocker lock(&m_lock);
     return m_keygenFilePathAspect();
 }
 
 FilePath SshSettings::sftpFilePath() const
 {
-    QReadLocker lock(&m_lock);
+    QWriteLocker lock(&m_lock);
     return m_sftpFilePathAspect();
 }
 
 bool SshSettings::useConnectionSharing() const
 {
-    QReadLocker lock(&m_lock);
+    QWriteLocker lock(&m_lock);
     return m_useConnectionSharingAspect();
 }
 
 int SshSettings::connectionSharingTimeoutInMinutes() const
 {
-    QReadLocker lock(&m_lock);
+    QWriteLocker lock(&m_lock);
     return m_connectionSharingTimeoutInMinutesAspect();
 }
 
@@ -163,7 +165,7 @@ class SshSettingsWidget : public IOptionsPageWidget
 public:
     SshSettingsWidget()
     {
-        QReadLocker locker(&sshSettings().m_lock);
+        QWriteLocker locker(&sshSettings().m_lock);
         sshSettings().layouter()().attachTo(this);
     }
 
