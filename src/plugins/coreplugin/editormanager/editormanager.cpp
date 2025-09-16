@@ -977,7 +977,7 @@ IEditor *EditorManagerPrivate::openEditorAt(EditorView *view,
     EditorManager::addCurrentPositionToNavigationHistory();
     EditorManager::OpenEditorFlags tempFlags = flags | EditorManager::IgnoreNavigationHistory;
     IEditor *editor = openEditor(view, link.targetFilePath, editorId, tempFlags, newEditor);
-    if (editor && link.target.isValid())
+    if (editor && link.target.line)
         editor->gotoLine(link.target.line, link.target.column);
     return editor;
 }
