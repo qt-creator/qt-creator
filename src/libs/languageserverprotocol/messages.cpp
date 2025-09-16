@@ -62,6 +62,8 @@ QtMsgType ShowMessageParams::qtMsgType() const
     case ShowMessageParams::MessageType::Debug:
         return QtDebugMsg;
     }
+
+    return QtCriticalMsg;
 }
 
 } // namespace LanguageServerProtocol
