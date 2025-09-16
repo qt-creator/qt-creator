@@ -453,6 +453,7 @@ void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
     qmldirPaths.push_back(qmlRootPath + "/Qt5Compat");
     qmldirPaths.push_back(qmlRootPath + "/QtMultimedia");
     qmldirPaths.push_back(qmlRootPath + "/QtQuickUltralite");
+    qmldirPaths.push_back(qmlRootPath + "/SimulinkConnector");
 }
 
 void qtQmldirPathsForLiteDesigner(QStringList &qmldirPaths)
