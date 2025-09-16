@@ -168,6 +168,7 @@ BaseAspect::BaseAspect(AspectContainer *container)
 BaseAspect::~BaseAspect()
 {
     delete d->m_action;
+    qDeleteAll(d->m_subWidgets);
 }
 
 Id BaseAspect::id() const
@@ -615,9 +616,8 @@ void BaseAspect::cancel()
 
 void BaseAspect::finish()
 {
-    // No qDeleteAll() possible as long as the connect in registerSubWidget() exist.
-    while (d->m_subWidgets.size())
-        delete d->m_subWidgets.takeLast();
+    qDeleteAll(d->m_subWidgets);
+    d->m_subWidgets.clear();
 }
 
 bool BaseAspect::hasAction() const
@@ -648,15 +648,6 @@ bool BaseAspect::isDirty()
 void BaseAspect::registerSubWidget(QWidget *widget)
 {
     d->m_subWidgets.append(widget);
-
-    // FIXME: This interferes with qDeleteAll() in finish() and destructor,
-    // it would not be needed when all users actually deleted their subwidgets,
-    // e.g. the SettingsPage::finish() base implementation, but this still
-    // leaves the cases where no such base functionality is available, e.g.
-    // in the run/build config aspects.
-    connect(widget, &QObject::destroyed, this, [this, widget] {
-        d->m_subWidgets.removeAll(widget);
-    });
 
     widget->setEnabled(isEnabled());
     widget->setToolTip(d->m_tooltip);
