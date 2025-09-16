@@ -400,7 +400,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             m_buildConfig->initialCMakeArguments.cmakeConfiguration());
     }
 
-    connect(bs, &BuildSystem::parsingFinished, this, [this] {
+    connect(bs, &BuildSystem::parsingFinished, &m_buildConfig->qmlDebugging, [this] {
         QTC_ASSERT(m_buildConfig, return);
         CMakeBuildSystem *bs = m_buildConfig->cmakeBuildSystem();
         QTC_ASSERT(bs, return);
