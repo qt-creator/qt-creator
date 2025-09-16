@@ -46,7 +46,7 @@ class CppCodeModelProjectSettings
 public:
     CppCodeModelProjectSettings(ProjectExplorer::Project *project);
 
-    CppCodeModelSettings settings() const;
+    const CppCodeModelSettings &settings() const;
     void setSettings(const CppCodeModelSettings &settings);
     void forceCustomSettingsSettings(const CppCodeModelSettings &settings);
     bool useGlobalSettings() const { return m_useGlobalSettings; }
@@ -221,7 +221,7 @@ CppCodeModelProjectSettings::CppCodeModelProjectSettings(ProjectExplorer::Projec
     loadSettings();
 }
 
-CppCodeModelSettings CppCodeModelProjectSettings::settings() const
+const CppCodeModelSettings &CppCodeModelProjectSettings::settings() const
 {
     return m_useGlobalSettings ? CppCodeModelSettings::global() : m_customSettings;
 }
