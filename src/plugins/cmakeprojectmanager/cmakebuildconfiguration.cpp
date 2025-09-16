@@ -788,6 +788,7 @@ void CMakeBuildSettingsWidget::setWarning(const QString &message)
 
 void CMakeBuildSettingsWidget::updateButtonState()
 {
+    QTC_ASSERT(m_buildConfig, return);
     const bool isParsing = m_buildConfig->cmakeBuildSystem()->isParsing();
 
     // Update extra data in buildconfiguration
