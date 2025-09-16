@@ -162,9 +162,8 @@ void SourceTool::fileSelected(const QString &fileName)
         QString modelFilePath = view()->model()->fileUrl().toLocalFile();
         QDir modelFileDirectory = QFileInfo(modelFilePath).absoluteDir();
         QString relativeFilePath = modelFileDirectory.relativeFilePath(fileName);
-        if (m_oldFileName != relativeFilePath) {
-            m_formEditorItem->qmlItemNode().setVariantProperty("source", relativeFilePath);
-        }
+        if (m_oldFileName != relativeFilePath)
+            m_formEditorItem->qmlItemNode().setVariantProperty("source", QUrl(relativeFilePath));
     }
 
     view()->changeToSelectionTool();

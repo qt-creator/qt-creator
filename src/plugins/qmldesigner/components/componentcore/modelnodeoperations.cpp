@@ -941,9 +941,10 @@ void extractComponent(const SelectionContext &selectionContext)
             if (!sourceValue.isEmpty() && !sourceValue.startsWith("#")) {
                 Utils::FilePath assetPath = compDir.pathAppended(sourceValue); // full asset path
                 QString assetPathRelative = assetPath
-                                                .relativePathFromDir(DocumentManager::currentFilePath())
+                                                .relativePathFromDir(DocumentManager::currentFilePath()
+                                                                         .absolutePath())
                                                 .toFSPathString();
-                node.variantProperty("source").setValue(assetPathRelative);
+                node.variantProperty("source").setValue(QUrl(assetPathRelative));
             }
 
             // TODO: Move root node and its children to the main material library if root node is a material/texture
@@ -1957,7 +1958,7 @@ bool dropAsImage3dTexture(const ModelNode &targetNode,
         return newNode.isValid();
     } else if (targetNode.metaInfo().isQtQuick3DTexture()) {
         // if dropping an image on an existing texture, set the source
-        targetNode.variantProperty("source").setValue(relativePathToQmlFile(imagePath));
+        targetNode.variantProperty("source").setValue(QUrl(relativePathToQmlFile(imagePath)));
         return true;
     } else if (targetNode.metaInfo().isQtQuick3DModel()) {
         const QString relImagePath = relativePathToQmlFile(imagePath);
@@ -2116,7 +2117,7 @@ ModelNode handleItemLibraryImageDrop(const QString &imagePath,
 
             QString relImagePath = relativePathToQmlFile(newImagePath.toFSPathString());
 
-            targetNode.variantProperty("source").setValue(relImagePath);
+            targetNode.variantProperty("source").setValue(QUrl(relImagePath));
         } else {
             // create an image
             QmlItemNode newItemNode = QmlItemNode::createQmlItemNodeFromImage(view,
@@ -2237,7 +2238,7 @@ ModelNode handleItemLibrarySoundDrop(const QString &soundPath,
 
     if (targetNode.metaInfo().isQtMultimediaSoundEffect()) {
         // if dropping into on an existing SoundEffect, update
-        targetNode.variantProperty("source").setValue(relPath);
+        targetNode.variantProperty("source").setValue(QUrl(relPath));
     } else {
         // create a new SoundEffect
         ItemLibraryEntry itemLibraryEntry;
