@@ -360,6 +360,8 @@ public:
         textFullJustification,
         textNumberedList,
         textures_medium,
+        thumbs_down_medium,
+        thumbs_up_medium,
         tickIcon,
         tickMark_small,
         timeline_small,
