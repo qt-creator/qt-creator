@@ -46,11 +46,14 @@ public:
     ModulesStorage &modulesStorage();
     ProjectStorageDependencies projectStorageDependencies();
 
+    void updateIfFilesListInProjectIsChanged(Core::IEditor *editor);
+
 private:
     void editorOpened(::Core::IEditor *editor);
     void currentEditorChanged(::Core::IEditor *);
     void editorsClosed(const QList<Core::IEditor *> &editor);
     void projectAdded(const ::ProjectExplorer::Project *project);
+    void fileListChanged();
     void aboutToRemoveProject(const ::ProjectExplorer::Project *project);
     void projectRemoved(const ::ProjectExplorer::Project *project);
     void generatePreview();

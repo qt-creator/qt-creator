@@ -494,8 +494,10 @@ void QmlDesignerPlugin::setupDesigner()
 {
     NanotraceHR::Tracer tracer{"qml designer plugin setup designer", category()};
 
+    auto currentEditor = Core::EditorManager::currentEditor();
+    d->projectManager.updateIfFilesListInProjectIsChanged(currentEditor);
     d->shortCutManager.disconnectUndoActions(currentDesignDocument());
-    d->documentManager.setCurrentDesignDocument(Core::EditorManager::currentEditor());
+    d->documentManager.setCurrentDesignDocument(currentEditor);
     d->shortCutManager.connectUndoActions(currentDesignDocument());
 
     if (d->documentManager.hasCurrentDesignDocument()) {

@@ -333,6 +333,7 @@ public:
                                      Sqlite::LockingMode::Normal};
     ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
     ViewManager &viewManager;
+    bool filesAreChanged = false;
 };
 
 QmlDesignerProjectManager::QmlDesignerProjectManager(ViewManager &viewManager)
@@ -414,6 +415,22 @@ ProjectStorageDependencies QmlDesignerProjectManager::projectStorageDependencies
             m_data->pathCache,
             m_data->modulesStorage,
             m_projectData->projectStorageData->pathWatcher};
+}
+
+void QmlDesignerProjectManager::updateIfFilesListInProjectIsChanged(Core::IEditor *editor)
+{
+    NanotraceHR::Tracer tracer{
+        "qml designer project manager update if files list in project is changed", category()};
+
+    if (m_data->filesAreChanged) {
+        m_data->filesAreChanged = false;
+        if (m_projectData) {
+            auto path = editor->document()->filePath().canonicalPath().path();
+            auto sourceId = m_data->pathCache.sourceId(SourcePath{path});
+            m_projectData->projectStorageData->pathWatcher.checkForChangeInDirectory(
+                {sourceId.directoryPathId()});
+        }
+    }
 }
 
 void QmlDesignerProjectManager::editorOpened(::Core::IEditor *)
@@ -522,8 +539,19 @@ void QmlDesignerProjectManager::projectAdded(const ::ProjectExplorer::Project *p
         aboutToRemoveTarget(target);
     });
 
+    QObject::connect(project, &::ProjectExplorer::Project::fileListChanged, [&]() {
+        fileListChanged();
+    });
+
     if (auto target = project->activeTarget(); target)
         activeTargetChanged(target);
+}
+
+void QmlDesignerProjectManager::fileListChanged()
+{
+    NanotraceHR::Tracer tracer{"qml designer project manager file list changed", category()};
+
+    m_data->filesAreChanged = true;
 }
 
 void QmlDesignerProjectManager::aboutToRemoveProject(const ::ProjectExplorer::Project *)
