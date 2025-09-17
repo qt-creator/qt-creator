@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
-import QtQuick.Controls
 import StudioTheme as StudioTheme
+import StudioControls as StudioControls
 
 Rectangle {
     id: root
@@ -67,7 +67,7 @@ Rectangle {
         }
     }
 
-    ToolTip {
+    StudioControls.ToolTip {
         id: toolTip
 
         visible: mouseArea.containsMouse && toolTip.text !== ""
