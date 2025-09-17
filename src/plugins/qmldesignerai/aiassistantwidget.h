@@ -5,26 +5,25 @@
 
 #include "manifest.h"
 
-#include <studioquickwidget.h>
-
 #include <utils/uniqueobjectptr.h>
 
 #include <QFrame>
-#include <QNetworkAccessManager>
 #include <QPointer>
-
-#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
+class QNetworkAccessManager;
 class QNetworkReply;
 class QTextEdit;
 class QToolButton;
 QT_END_NAMESPACE
 
+class StudioQuickWidget;
+
 namespace QmlDesigner {
 
 class AiResponse;
+
 class AiAssistantWidget : public QFrame
 {
     Q_OBJECT
@@ -35,7 +34,7 @@ class AiAssistantWidget : public QFrame
 
 public:
     AiAssistantWidget();
-    ~AiAssistantWidget() = default;
+    ~AiAssistantWidget();
 
     QString attachedImageSource() const;
     void setAttachedImageSource(const QString &source);
@@ -64,7 +63,7 @@ private: // functions
     void handleAiResponse(const AiResponse &response);
 
 private: // variables
-    std::unique_ptr<QNetworkAccessManager> m_manager;
+    Utils::UniqueObjectPtr<QNetworkAccessManager> m_manager;
     Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
 
     QStringList m_inputHistory;

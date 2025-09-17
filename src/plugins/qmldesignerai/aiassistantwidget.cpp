@@ -9,6 +9,7 @@
 #include <designersettings.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
+#include <studioquickwidget.h>
 
 #include <coreplugin/icore.h>
 #include <utils/filepath.h>
@@ -18,12 +19,12 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QVBoxLayout>
-#include <QtQuick/QQuickItem>
 
 namespace QmlDesigner {
 
@@ -159,7 +160,7 @@ bool AiAssistantWidget::eventFilter(QObject *obj, QEvent *event)
 }
 
 AiAssistantWidget::AiAssistantWidget()
-    : m_manager(std::make_unique<QNetworkAccessManager>())
+    : m_manager(Utils::makeUniqueObjectPtr<QNetworkAccessManager>())
     , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>())
 {
     setWindowTitle(tr("AI Assistant", "Title of Ai Assistant widget"));
@@ -184,6 +185,8 @@ AiAssistantWidget::AiAssistantWidget()
     vLayout->addWidget(m_quickWidget.get());
     reloadQmlSource();
 }
+
+AiAssistantWidget::~AiAssistantWidget() = default;
 
 void AiAssistantWidget::clearAttachedImage()
 {
