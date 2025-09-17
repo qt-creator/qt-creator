@@ -268,7 +268,7 @@ QStringList DeviceToolAspectFactory::filePattern() const
     return m_filePattern;
 }
 
-Result<> DeviceToolAspectFactory::check(const IDevicePtr &device, const FilePath &candidate) const
+Result<> DeviceToolAspectFactory::check(const DeviceConstRef &device, const FilePath &candidate) const
 {
     if (!m_checker)
         return ResultOk;
@@ -320,7 +320,7 @@ void IDevice::autoDetectDeviceTools()
     }
 }
 
-DeviceToolAspect *DeviceToolAspectFactory::createAspect(const IDevicePtr &device) const
+DeviceToolAspect *DeviceToolAspectFactory::createAspect(const DeviceConstRef &device) const
 {
     auto toolAspect = new DeviceToolAspect;
     toolAspect->setToolId(m_toolId);
