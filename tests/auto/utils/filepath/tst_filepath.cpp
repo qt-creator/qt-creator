@@ -185,7 +185,7 @@ void tst_filepath::initTestCase()
 {
     // initialize test for tst_filepath::relativePath*()
     QVERIFY(tempDir.isValid());
-    rootPath = tempDir.path();
+    rootPath = QFileInfo(tempDir.path()).canonicalFilePath();
     QDir dir(rootPath);
     dir.mkpath("a/b/c/d");
     dir.mkpath("a/x/y/z");
