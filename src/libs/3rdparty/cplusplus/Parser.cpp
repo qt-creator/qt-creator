@@ -2315,7 +2315,7 @@ bool Parser::parseTemplateTypeParameter(DeclarationAST *&node)
         parseTemplateParameterList(ast->template_parameter_list);
         if (maybeSplitGreaterGreaterToken() || LA() == T_GREATER)
             ast->greater_token = consumeToken();
-        if (LA() == T_CLASS)
+        if (LA() == T_CLASS || (_languageFeatures.cxx17Enabled && LA() == T_TYPENAME))
             ast->class_token = consumeToken();
     } else if (!parseTypeConstraint(ast->typeConstraint)) {
         return false;
