@@ -19,7 +19,8 @@ The development container support detects a `devcontainer.json` in your project
 directory and creates a docker container for it.
 It supports Qt Creator specific `customizations` in the `devcontainer.json` that
 let you auto detect or specify custom kits for the container and control other
-aspects like the command bridge.
+aspects like the command bridge. This is experimental and does not support all
+features of development containers yet.
 
 ([Development Container Documentation](https://containers.dev/))
 
@@ -36,6 +37,8 @@ General
   ([QTCREATORBUG-33205](https://bugreports.qt.io/browse/QTCREATORBUG-33205))
 * Fixed a freeze when installing large plugins
   ([QTCREATORBUG-33069](https://bugreports.qt.io/browse/QTCREATORBUG-33069))
+* Fixed the resolution of symlinks with directory links
+  ([QTCREATORBUG-33335](https://bugreports.qt.io/browse/QTCREATORBUG-33335))
 * Welcome
     * Added an `Overview` tab
 * Locator
@@ -61,18 +64,21 @@ Editing
   ([QTCREATORBUG-31901](https://bugreports.qt.io/browse/QTCREATORBUG-31901))
 * Fixed that trailing white space was removed from raw string literals
   ([QTCREATORBUG-30003](https://bugreports.qt.io/browse/QTCREATORBUG-30003))
-* Fixed that `Re-order Member Function Definitions According to Declaration Order`
-  did not move comments accordingly
-  ([QTCREATORBUG-33070](https://bugreports.qt.io/browse/QTCREATORBUG-33070))
 * Fixed the generation of `compile_commands.json` for remote projects
 * Quick fixes
     * Added `Remove Curly Braces`
     * Added `Add definition` for static data members
       ([QTCREATORBUG-20961](https://bugreports.qt.io/browse/QTCREATORBUG-20961))
+    * Fixed that
+      `Re-order Member Function Definitions According to Declaration Order`
+      did not move comments accordingly
+      ([QTCREATORBUG-33070](https://bugreports.qt.io/browse/QTCREATORBUG-33070))
     * Fixed issues with templates and nested classes
       ([QTCREATORBUG-9727](https://bugreports.qt.io/browse/QTCREATORBUG-9727))
     * Fixed issues with nested template parameters
       ([QTCREATORBUG-17695](https://bugreports.qt.io/browse/QTCREATORBUG-17695))
+    * Fixed that `Add Definition in .cpp` could be missing
+      ([QTCREATORBUG-33224](https://bugreports.qt.io/browse/QTCREATORBUG-33224))
 * Built-in
     * Added support for template deduction guides
     * Added support for fold expressions
@@ -160,22 +166,25 @@ Projects
   configurations with Qt 6.11 and later
   ([QTCREATORBUG-33169](https://bugreports.qt.io/browse/QTCREATORBUG-33169))
 * Fixed `Duplicate File` for remote projects
+* Fixed that changing the build device of a kit could update the kit settings UI
+  without actually applying the change
+  ([QTCREATORBUG-33456](https://bugreports.qt.io/browse/QTCREATORBUG-33456))
 
 ### CMake
 
 * Added more detailed information to the build progress tool tip
   ([QTCREATORBUG-33356](https://bugreports.qt.io/browse/QTCREATORBUG-33356))
 * Added the `ct` locator filter for running CTest tests
+* Added support for
+  [Test Presets](https://cmake.org/cmake/help/v3.25/manual/cmake-presets.7.html#test-preset)
 * Fixed `Build for All Configurations`
   ([QTCREATORBUG-33178](https://bugreports.qt.io/browse/QTCREATORBUG-33178))
 * Fixed issues with rewriting `CMakeLists.txt` files with the UTF-8 BOM set
   ([QTCREATORBUG-33363](https://bugreports.qt.io/browse/QTCREATORBUG-33363))
-* vcpkg
 
 ### qmake
 
 * Fixed various issues with opening remote projects
-  TODO: what state is that exactly in now?
 
 ### Python
 
@@ -195,6 +204,8 @@ Debugging
 
 * Fixed `Load QML Stack`
   ([QTCREATORBUG-33244](https://bugreports.qt.io/browse/QTCREATORBUG-33244))
+* Fixed the pretty printing of `std::optional` and `std::vector`
+  ([QTCREATORBUG-33500](https://bugreports.qt.io/browse/QTCREATORBUG-33500))
 
 Analyzer
 --------
