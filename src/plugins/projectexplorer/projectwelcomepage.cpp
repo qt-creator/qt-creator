@@ -437,6 +437,16 @@ public:
         const QString toolTip = BaseDelegate::toolTip(index, SessionModel::ShortcutRole, entryType);
         setToolTip(toolTip);
 
+        m_hasPathData = false;
+        const bool isExpanded = expandedSessions().contains(m_sessionName);
+        if (isExpanded)
+            ensurePathData();
+        m_expand->setChecked(isExpanded);
+    }
+
+    void ensurePathData()
+    {
+        m_hasPathData = true;
         const auto getDisplayPath = [](const FilePath &p) {
             return p.osType() == OsTypeWindows ? p.displayName() : p.withTildeHomePath();
         };
@@ -452,8 +462,6 @@ public:
             path->setText(i < count ? pathDisplay.at(i) : QString());
             i++;
         }
-
-        m_expand->setChecked(expandedSessions().contains(m_sessionName));
     }
 
     QString sessionName() const
@@ -512,10 +520,12 @@ protected:
     void applyExpansion()
     {
         const bool isExpanded = expanded();
-        if (isExpanded)
+        if (isExpanded) {
+            ensurePathData();
             expandedSessions().insert(m_sessionName);
-        else
+        } else {
             expandedSessions().remove(m_sessionName);
+        }
         m_buttons->setVisible(isExpanded);
         m_sessionType->setVisible(isExpanded && anyOf(m_projectPaths, [](const QLabel *label) {
             return !label->text().isEmpty();
@@ -542,6 +552,7 @@ private:
     ElidingLabel *m_sessionNameLabel;
     ElidingLabel *m_sessionType;
     QList<QLabel *> m_projectPaths;
+    bool m_hasPathData = false;
 };
 
 class ProjectItemWidget final : public QWidget
