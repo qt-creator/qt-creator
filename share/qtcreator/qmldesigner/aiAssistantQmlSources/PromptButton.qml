@@ -3,6 +3,7 @@
 
 import QtQuick
 import StudioTheme as StudioTheme
+import StudioControls as StudioControls
 
 Rectangle {
     id: root
@@ -11,9 +12,11 @@ Rectangle {
 
     property alias label: labelText.text
     property alias enabled: mouseArea.enabled
+    property string tooltip: ""
 
     width: labelText.width + 10
     height: labelText.height + 10
+    radius: StudioTheme.Values.smallRadius
 
     objectName: label // for Squish identification
 
@@ -24,6 +27,11 @@ Rectangle {
                                                                  : StudioTheme.Values.themePopoutButtonBackground_hover
                                              : StudioTheme.Values.themePopoutButtonBackground_idle
                    : StudioTheme.Values.themePopoutButtonBackground_disabled
+
+    StudioControls.ToolTip {
+        visible: root.tooltip !== "" && mouseArea.containsMouse
+        text: root.tooltip
+    }
 
     Text {
         id: labelText
