@@ -3,8 +3,8 @@
 
 #include "updateinfoplugin.h"
 
-#include "settingspage.h"
 #include "updateinfoservice.h"
+#include "updateinfosettings.h"
 #include "updateinfotools.h"
 #include "updateinfotr.h"
 
