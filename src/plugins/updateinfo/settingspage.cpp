@@ -7,6 +7,7 @@
 #include "updateinfotr.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
 #include <utils/qtcassert.h>
@@ -22,8 +23,7 @@
 #include <QPointer>
 #include <QPushButton>
 
-namespace UpdateInfo {
-namespace Internal {
+namespace UpdateInfo::Internal {
 
 class UpdateInfoSettingsPageWidget final : public Core::IOptionsPageWidget
 {
@@ -213,13 +213,21 @@ void UpdateInfoSettingsPageWidget::apply()
 
 // SettingsPage
 
-SettingsPage::SettingsPage(UpdateInfoPlugin *plugin)
+class SettingsPage : public Core::IOptionsPage
 {
-    setId(FILTER_OPTIONS_PAGE_ID);
-    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayName(Tr::tr("Update"));
-    setWidgetCreator([plugin] { return new UpdateInfoSettingsPageWidget(plugin); });
+public:
+    explicit SettingsPage(UpdateInfoPlugin *plugin)
+    {
+        setId(FILTER_OPTIONS_PAGE_ID);
+        setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
+        setDisplayName(Tr::tr("Update"));
+        setWidgetCreator([plugin] { return new UpdateInfoSettingsPageWidget(plugin); });
+    }
+};
+
+void setupSettings(UpdateInfoPlugin *plugin)
+{
+    static SettingsPage theSettingsPage(plugin);
 }
 
-} // Internal
-} // UpdateInfoPlugin
+} // UpdateInfoPlugin::Internal
