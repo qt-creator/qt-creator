@@ -311,15 +311,14 @@ TEST_F(PropertyMetaInfo, dont_to_cast_enumeration_if_property_type_is_not_enumer
     auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "MyEnum", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
-    Enumeration enumeration{"MyEnum.Foo"};
-    auto value = QVariant::fromValue(enumeration);
+    auto value = QVariant::fromValue(10);
 
     auto castedValue = propertyInfo.castedValue(value);
 
     ASSERT_THAT(castedValue, QVariantIsValid(IsFalse()));
 }
 
-TEST_F(PropertyMetaInfo, dont_to_cast_enumeration_if_value_is_not_Enumeration)
+TEST_F(PropertyMetaInfo, do_cast_to_enumeration_if_value_is_not_Enumeration)
 {
     TypeTraits traits;
     traits.isEnum = true;
@@ -330,7 +329,7 @@ TEST_F(PropertyMetaInfo, dont_to_cast_enumeration_if_value_is_not_Enumeration)
 
     auto castedValue = propertyInfo.castedValue(value);
 
-    ASSERT_THAT(castedValue, QVariantIsValid(IsFalse()));
+    ASSERT_THAT(castedValue, QVariantIsValid(IsTrue()));
 }
 
 TEST_F(PropertyMetaInfo, cast_to_model_node)
