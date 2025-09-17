@@ -624,41 +624,43 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
                     }
                 }
 
-                if (statusCode == 400 && error->type == "InvalidFilterException"
-                        && !error->message.isEmpty()) {
-                    // handle error..
-                    showFilterException(error->message);
-                    return DoneResult::Error;
-                }
+                if (statusCode >= 400) {
+                    if (error->type == "InvalidFilterException" && !error->message.isEmpty()) {
+                        // handle error..
+                        showFilterException(error->message);
+                        return DoneResult::Error;
+                    }
 
-                if constexpr (std::is_same_v<DtoStorageType<DtoType>, PostDtoStorage<DtoType>>
-                              && std::is_same_v<DtoType, Dto::ApiTokenInfoDto>) {
-                    if (statusCode == 400 && error->type == "PasswordVerificationException" && error->data) {
-                        const auto it = error->data->find("passwordMayBeUsedAsApiToken");
-                        if (it != error->data->end()) {
-                            const Dto::Any data = it->second;
-                            if (data.isBool() && data.getBool()) {
-                                Dto::ApiTokenInfoDto fakeDto{
-                                    QString(),
-                                    QString(),
-                                    true,
-                                    QString(),
-                                    QString(),
-                                    dtoStorage->password,
-                                    QString(),
-                                    QString(),
-                                    QString(),
-                                    QString(),
-                                    std::optional<QString>(),
-                                    QString(),
-                                    false
-                                };
-                                dtoStorage->dtoData = fakeDto;
-                                return DoneResult::Success;
+                    if constexpr (std::is_same_v<DtoStorageType<DtoType>, PostDtoStorage<DtoType>>
+                                  && std::is_same_v<DtoType, Dto::ApiTokenInfoDto>) {
+                        if (error->type == "PasswordVerificationException" && error->data) {
+                            const auto it = error->data->find("passwordMayBeUsedAsApiToken");
+                            if (it != error->data->end()) {
+                                const Dto::Any data = it->second;
+                                if (data.isBool() && data.getBool()) {
+                                    Dto::ApiTokenInfoDto fakeDto{
+                                        QString(),
+                                        QString(),
+                                        true,
+                                        QString(),
+                                        QString(),
+                                        dtoStorage->password,
+                                        QString(),
+                                        QString(),
+                                        QString(),
+                                        QString(),
+                                        std::optional<QString>(),
+                                        QString(),
+                                        false
+                                    };
+                                    dtoStorage->dtoData = fakeDto;
+                                    return DoneResult::Success;
+                                }
                             }
                         }
                     }
                 }
+
                 errorString = dashboardErrorMessage(
                     reply->url(),
                     statusCode,
