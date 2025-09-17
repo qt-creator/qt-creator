@@ -3,15 +3,15 @@
 
 #pragma once
 
+#include "updateinfosettings.h"
+
 #include <extensionsystem/iplugin.h>
 
 QT_BEGIN_NAMESPACE
 class QDate;
 QT_END_NAMESPACE
 
-namespace UpdateInfo {
-
-namespace Internal {
+namespace UpdateInfo::Internal {
 
 const char FILTER_OPTIONS_PAGE_ID[] = "Update";
 
@@ -20,12 +20,6 @@ class UpdateInfoPlugin final : public ExtensionSystem::IPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "UpdateInfo.json")
 public:
-    enum CheckUpdateInterval {
-        DailyCheck,
-        WeeklyCheck,
-        MonthlyCheck
-    };
-    Q_ENUM(CheckUpdateInterval)
 
     UpdateInfoPlugin();
     ~UpdateInfoPlugin() override;
@@ -73,5 +67,4 @@ private:
     void saveSettings();
 };
 
-} // namespace Internal
-} // namespace UpdateInfo
+} // namespace UpdateInfo::Internal

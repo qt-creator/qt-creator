@@ -3,10 +3,31 @@
 
 #pragma once
 
+#include <utils/aspects.h>
+
 namespace UpdateInfo::Internal {
 
-class UpdateInfoPlugin;
+enum CheckUpdateInterval {
+    DailyCheck,
+    WeeklyCheck,
+    MonthlyCheck
+};
 
-void setupSettings(UpdateInfoPlugin *plugin);
+class UpdateInfoSettings : public Utils::AspectContainer
+{
+public:
+    bool automaticCheck = true;
+    CheckUpdateInterval checkInterval = WeeklyCheck;
+    bool checkForQtVersions = true;
+
+    QDate lastCheckDate() const { return m_lastCheckDate; }
+
+// private:
+    QDate m_lastCheckDate;
+};
+
+UpdateInfoSettings &settings();
+
+void setupSettings(class UpdateInfoPlugin *plugin);
 
 } // UpdateInfo::Internal
