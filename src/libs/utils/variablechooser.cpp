@@ -122,14 +122,21 @@ class VariableGroupItem : public TreeItem
 {
 public:
     VariableGroupItem(VariableChooserPrivate *chooser, const MacroExpanderProvider &provider)
-        : m_chooser(chooser), m_provider(provider), m_expanderName(provider()->displayName())
-    {}
+        : m_chooser(chooser), m_provider(provider)
+    {
+        if (MacroExpander *expander = provider())
+            m_expanderName = expander->displayName();
+    }
 
     QVariant data(int column, int role) const override
     {
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
-            if (column == 0)
-                return m_expanderName;
+            if (column == 0) {
+                if (!m_expanderName.isEmpty())
+                    return m_expanderName;
+                if (MacroExpander *expander = m_provider())
+                    return expander->displayName();
+            }
         }
 
         return QVariant();
