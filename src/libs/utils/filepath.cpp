@@ -2497,7 +2497,7 @@ FilePath FilePath::resolveSymlinks() const
         FilePath pathToTest = current.withNewPath("");
         bool resolved = false;
         for (const QStringView &path : components) {
-            pathToTest = pathToTest / QString(path);
+            pathToTest = pathToTest / path.toString();
             if (!resolved) {
                 const FilePath target = pathToTest.symLinkTarget();
                 if (!target.isEmpty()) {
