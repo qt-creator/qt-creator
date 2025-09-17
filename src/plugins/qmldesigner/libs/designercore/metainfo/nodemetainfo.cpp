@@ -2417,7 +2417,7 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
     if (!isValid())
         return {};
 
-    if (isEnumType() && value.canConvert<Enumeration>())
+    if (isEnumType() || value.canConvert<Enumeration>())
         return value;
 
     const TypeId &typeId = propertyData().propertyTypeId;
