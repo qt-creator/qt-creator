@@ -3,9 +3,10 @@
 
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls.Basic as Basic
+import StudioControls as StudioControls
 import HelperWidgets as HelperWidgets
 import StudioTheme as StudioTheme
-import QtQuick.Controls.Basic as Basic
 import AiAssistantBackend
 
 Rectangle {
@@ -33,50 +34,53 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
+        spacing: 0
 
-        Basic.TextArea {
-            id: textEdit
+        HelperWidgets.ScrollView {
+            id: scrollView
 
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-
-            padding: root.style.inputHorizontalPadding
             clip: true
-            font.pixelSize: root.style.baseFontSize
-            color: root.style.text.idle
-            wrapMode: TextEdit.WordWrap
+            hideHorizontalScrollBar: true
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.rightMargin: 2
+            Layout.topMargin: 2
 
-            placeholderText: qsTr("Describe what you want to generate...")
-            placeholderTextColor: root.style.text.placeholder
+            Basic.TextArea {
+                id: textEdit
 
-            Keys.onPressed: function(event) {
-                if (event.isAutoRepeat) {
-                    event.accepted = false
-                    return
-                }
+                width: scrollView.width
 
-                switch (event.key) {
-                case Qt.Key_Return:
-                case Qt.Key_Enter: {
-                    if (!(event.modifiers & Qt.ShiftModifier)){
-                        root.send()
-                        event.accepted = true
-                    } else {
+                font.pixelSize: root.style.baseFontSize
+                color: root.style.text.idle
+                wrapMode: TextEdit.WordWrap
+                enabled: !root.rootView.isGenerating
+
+                placeholderText: qsTr("Describe what you want to generate...")
+                placeholderTextColor: root.style.text.placeholder
+
+                Keys.onPressed: function(event) {
+                    switch (event.key) {
+                    case Qt.Key_Return:
+                    case Qt.Key_Enter: {
+                        if (!(event.modifiers & Qt.ShiftModifier)) {
+                            root.send()
+                            event.accepted = true
+                        }
+                    } break
+                    // TODO: Up/Down keys navigate between lines in the multiline text field.
+                    // This should be replaced with a new history navigation method.
+                    // case Qt.Key_Up: {
+                    //     textEdit.text = root.rootView.getPreviousCommand()
+                    //     event.accepted = true
+                    // } break
+                    // case Qt.Key_Down: {
+                    //     textEdit.text = root.rootView.getNextCommand()
+                    //     event.accepted = true
+                    // } break
+                    default:
                         event.accepted = false
                     }
-                } break
-                // TODO: Up/Down keys navigate between lines in the multiline text field.
-                // This should be replaced with a new history navigation method.
-                // case Qt.Key_Up: {
-                //     textEdit.text = root.rootView.getPreviousCommand()
-                //     event.accepted = true
-                // } break
-                // case Qt.Key_Down: {
-                //     textEdit.text = root.rootView.getNextCommand()
-                //     event.accepted = true
-                // } break
-                default:
-                    event.accepted = false
                 }
             }
         }
