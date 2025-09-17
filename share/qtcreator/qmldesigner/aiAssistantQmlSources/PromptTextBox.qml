@@ -8,6 +8,7 @@ import StudioControls as StudioControls
 import HelperWidgets as HelperWidgets
 import StudioTheme as StudioTheme
 import AiAssistantBackend
+import "../misc"
 
 Rectangle {
     id: root
@@ -56,7 +57,7 @@ Rectangle {
                 wrapMode: TextEdit.WordWrap
                 enabled: !root.rootView.isGenerating
 
-                placeholderText: qsTr("Describe what you want to generate...")
+                placeholderText: root.rootView.isGenerating ? "" : qsTr("Describe what you want to generate...")
                 placeholderTextColor: root.style.text.placeholder
 
                 Keys.onPressed: function(event) {
@@ -118,6 +119,24 @@ Rectangle {
 
                 onClicked: root.send()
             }
+        }
+    }
+
+    Row {
+        x: 10
+        y: 2
+        visible: root.rootView.isGenerating
+
+        Text {
+            text: qsTr("Generating...")
+            color: StudioTheme.Values.themeTextColor
+            anchors.verticalCenter: parent.verticalCenter
+        }
+
+        BusyIndicator {
+            radius: 16
+            dotSize: 4
+            color: StudioTheme.Values.themeTextColor
         }
     }
 
