@@ -1114,7 +1114,10 @@ def qdumpHelper__std__vector__libcxx(d, value):
     else:
         start = value["__begin_"].pointer()
         finish = value["__end_"].pointer()
-        alloc = value["__end_cap_"].pointer()
+        if value.hasMember('__cap_'):
+            alloc = value["__cap_"].pointer()
+        else:
+            alloc = value["__end_cap_"].pointer()
         qdumpHelper__std__vector__nonbool(d, start, finish, alloc, inner_type)
 
 
