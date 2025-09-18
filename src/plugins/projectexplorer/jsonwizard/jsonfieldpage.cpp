@@ -108,7 +108,7 @@ public:
         m_expander.setAccumulating(true);
         m_expander.registerVariable("INPUT", Tr::tr("The text edit input to fix up."),
                                     [this] { return m_currentInput; });
-        m_expander.registerSubProvider([expander]() -> MacroExpander * { return expander; });
+        m_expander.registerSubProvider({this, expander});
         setValidationFunction([this, regex](const QString &) -> Result<> {
             if (regex.match(text()).hasMatch())
                 return ResultOk;

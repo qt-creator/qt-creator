@@ -574,7 +574,7 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
 
     auto chooser = new Utils::VariableChooser(dialog);
     chooser->addSupportedWidget(editor);
-    chooser->addMacroExpanderProvider([this] { return m_buildConfig->macroExpander(); });
+    chooser->addMacroExpanderProvider({this, [this] { return m_buildConfig->macroExpander(); }});
 
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
 

@@ -7,13 +7,10 @@
 
 #include <QWidget>
 
-#include <functional>
-
 namespace Utils {
 
 class MacroExpander;
-
-using MacroExpanderProvider = std::function<MacroExpander *()>;
+class MacroExpanderProvider;
 
 namespace Internal { class VariableChooserPrivate; }
 
@@ -26,7 +23,7 @@ public:
     void addMacroExpanderProvider(const MacroExpanderProvider &provider);
     void addSupportedWidget(QWidget *textcontrol, const QByteArray &ownName = QByteArray());
 
-    static void addSupportForChildWidgets(QWidget *parent, MacroExpander *expander);
+    static void addSupportForChildWidgets(QWidget *parent, const MacroExpanderProvider &provider);
 
 protected:
     bool event(QEvent *ev) override;

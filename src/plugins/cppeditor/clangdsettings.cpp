@@ -725,7 +725,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
 
         const auto chooser = new Utils::VariableChooser(edit);
         chooser->addSupportedWidget(edit);
-        chooser->addMacroExpanderProvider([] { return Utils::globalMacroExpander(); });
+        chooser->addMacroExpanderProvider({this, [] { return Utils::globalMacroExpander(); }});
 
         const auto resetButton = new QPushButton(Tr::tr("Reset"));
         connect(resetButton, &QPushButton::clicked, [e = edit, v = defaultValue] { e->setText(v); });

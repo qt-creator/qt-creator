@@ -195,7 +195,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     MacroExpander *expander = macroExpander();
     expander->setDisplayName(Tr::tr("Build Settings"));
     expander->setAccumulating(true);
-    expander->registerSubProvider([this] { return kit()->macroExpander(); });
+    expander->registerSubProvider({this, [this] { return kit()->macroExpander(); }});
     expander->registerVariable("sourceDir", Tr::tr("Source directory"),
                                [this] { return project()->projectDirectory().toUserOutput(); },
                                false);
@@ -1198,7 +1198,7 @@ void BuildConfiguration::setupBuildDirMacroExpander(
                          Tr::tr("Type of the project's active build configuration"),
                          [buildType] { return buildTypeName(buildType); }, true, !documentationOnly);
     if (kit)
-        exp.registerSubProvider([kit] { return kit->macroExpander(); });
+        exp.registerSubProvider({qApp, [kit] { return kit->macroExpander(); }}); // FIXME: Find a better guard.
 }
 
 FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectDir,

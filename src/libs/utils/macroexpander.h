@@ -8,6 +8,7 @@
 #include "hostosinfo.h"
 
 #include <QList>
+#include <QPointer>
 
 #include <functional>
 
@@ -17,7 +18,24 @@ namespace Internal { class MacroExpanderPrivate; }
 
 class FilePath;
 class MacroExpander;
-using MacroExpanderProvider = std::function<MacroExpander *()>;
+
+class QTCREATOR_UTILS_EXPORT MacroExpanderProvider
+{
+public:
+    MacroExpanderProvider(QObject *guard, const std::function<MacroExpander *()> &creator);
+    MacroExpanderProvider(QObject *guard, MacroExpander *expander);
+    explicit MacroExpanderProvider(MacroExpander *expander); // Guarded by qApp.
+
+    MacroExpander *operator()() const;
+
+    bool operator!() const { return !m_creator; }
+    explicit operator bool() const { return !!m_creator; }
+
+private:
+    QPointer<QObject> m_guard;
+    std::function<MacroExpander *()> m_creator;
+};
+
 using MacroExpanderProviders = QList<MacroExpanderProvider>;
 
 class QTCREATOR_UTILS_EXPORT MacroExpander

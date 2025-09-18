@@ -123,17 +123,12 @@ class VariableGroupItem : public TreeItem
 public:
     VariableGroupItem(VariableChooserPrivate *chooser, const MacroExpanderProvider &provider)
         : m_chooser(chooser), m_provider(provider)
-    {
-        if (MacroExpander *expander = provider())
-            m_expanderName = expander->displayName();
-    }
+    {}
 
     QVariant data(int column, int role) const override
     {
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
             if (column == 0) {
-                if (!m_expanderName.isEmpty())
-                    return m_expanderName;
                 if (MacroExpander *expander = m_provider())
                     return expander->displayName();
             }
@@ -165,7 +160,6 @@ private:
     VariableChooserPrivate *m_chooser = nullptr; // Not owned.
     bool m_populated = false;
     MacroExpanderProvider m_provider;
-    QString m_expanderName;
 };
 
 class VariableItem : public TypedTreeItem<TreeItem, VariableGroupItem>
@@ -387,7 +381,7 @@ VariableChooser::VariableChooser(QWidget *parent) :
     setFocusPolicy(Qt::StrongFocus);
     setFocusProxy(d->m_variableTree);
     setGeometry(QRect(0, 0, 400, 500));
-    addMacroExpanderProvider([] { return globalMacroExpander(); });
+    addMacroExpanderProvider(MacroExpanderProvider(globalMacroExpander()));
 }
 
 /*!
@@ -421,10 +415,10 @@ void VariableChooser::addSupportedWidget(QWidget *textcontrol, const QByteArray 
     textcontrol->setProperty(kVariableNameProperty, ownName);
 }
 
-void VariableChooser::addSupportForChildWidgets(QWidget *parent, MacroExpander *expander)
+void VariableChooser::addSupportForChildWidgets(QWidget *parent, const MacroExpanderProvider &provider)
 {
      auto chooser = new VariableChooser(parent);
-     chooser->addMacroExpanderProvider([expander] { return expander; });
+     chooser->addMacroExpanderProvider(provider);
      const QList<QWidget *> children = parent->findChildren<QWidget *>();
      for (QWidget *child : children) {
          if (qobject_cast<QLineEdit *>(child)

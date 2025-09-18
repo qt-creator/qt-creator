@@ -103,7 +103,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, bool &isDefaultKit, bool 
 
     auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(m_nameEdit);
-    chooser->addMacroExpanderProvider([this] { return m_modifiedKit->macroExpander(); });
+    chooser->addMacroExpanderProvider({this, [this] { return m_modifiedKit->macroExpander(); }});
 
     addAspectsToWorkingCopy(page);
 

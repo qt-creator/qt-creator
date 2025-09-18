@@ -364,7 +364,7 @@ public:
 void QtKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     QTC_ASSERT(kit, return);
-    expander->registerSubProvider(QtMacroSubProvider(kit));
+    expander->registerSubProvider({qApp, QtMacroSubProvider(kit)}); // FIXME: Find better guard
 
     expander->registerVariable("Qt:Name", Tr::tr("Name of Qt Version"),
                 [kit]() -> QString {

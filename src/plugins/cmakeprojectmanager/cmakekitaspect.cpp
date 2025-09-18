@@ -1178,7 +1178,7 @@ private:
 
         auto chooser = new VariableChooser(m_dialog);
         chooser->addSupportedWidget(m_editor);
-        chooser->addMacroExpanderProvider([this] { return kit()->macroExpander(); });
+        chooser->addMacroExpanderProvider({this, [this] { return kit()->macroExpander(); }});
 
         m_additionalEditor = new QLineEdit;
         auto additionalLabel = new QLabel(m_dialog);
@@ -1189,7 +1189,7 @@ private:
 
         auto additionalChooser = new VariableChooser(m_dialog);
         additionalChooser->addSupportedWidget(m_additionalEditor);
-        additionalChooser->addMacroExpanderProvider([this] { return kit()->macroExpander(); });
+        additionalChooser->addMacroExpanderProvider({this, [this] { return kit()->macroExpander(); }});
 
         auto additionalLayout = new QHBoxLayout();
         additionalLayout->addWidget(additionalLabel);

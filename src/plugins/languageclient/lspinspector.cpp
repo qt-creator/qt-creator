@@ -475,7 +475,7 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
 })");
 
     VariableChooser *vc = new VariableChooser(messageEditor->editorWidget());
-    vc->addMacroExpanderProvider(&Utils::globalMacroExpander);
+    vc->addMacroExpanderProvider(MacroExpanderProvider(globalMacroExpander()));
     vc->addSupportedWidget(messageEditor->editorWidget());
 
     auto errorLabel = new QLabel();

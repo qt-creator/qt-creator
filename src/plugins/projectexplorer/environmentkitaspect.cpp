@@ -137,7 +137,7 @@ private:
     NameValuesDialog::Polisher polisher() const
     {
         return [expander = kit()->macroExpander()](QWidget *w) {
-            VariableChooser::addSupportForChildWidgets(w, expander);
+            VariableChooser::addSupportForChildWidgets(w, {w, expander}); // FIXME: Use better guard?
         };
     }
 
