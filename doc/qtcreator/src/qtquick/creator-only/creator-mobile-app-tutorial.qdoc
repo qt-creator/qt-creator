@@ -201,8 +201,8 @@
 
     If you are using a device running Android v4.2.2, it should prompt you to
     verify the connection to allow USB debugging from the PC. To avoid such
-    prompts every time you connect the device, select the
-    \uicontrol {Always allow from this computer} check box, and then select
+    prompts every time you connect the device, select
+    \uicontrol {Always allow from this computer}, and then select
     \uicontrol OK.
 
         \li To run the application on the device, select \key {Ctrl+R}.

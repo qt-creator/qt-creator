@@ -60,21 +60,21 @@
     or scaled uniformly to the specified size with or without cropping. The
     \uicontrol Pad option means that the image is not transformed.
 
-    \note If the \uicontrol Clip check box is not selected, the component might
+    \note If \uicontrol Clip is not selected, the component might
     paint outside its bounding rectangle even if the \uicontrol {Fill mode}
     is set to \uicontrol PreserveAspectCrop.
 
-    Select the \uicontrol Smooth check box to smoothly filter images when scaled
+    Select \uicontrol Smooth to smoothly filter images when scaled
     or transformed. Smooth filtering gives better visual quality, but it may be
     slower on some hardware. If the image is displayed at its natural size,
     this property has no visual or performance effect.
 
-    Select the \uicontrol Mipmap check box to use mipmap filtering when scaling
+    Select \uicontrol Mipmap to use mipmap filtering when scaling
     or transforming images. Mipmap filtering gives better visual quality when
     scaling down compared with smooth filtering, but it may come at a
     performance cost both when initializing the image and during rendering.
 
-    Select the \uicontrol {Auto transform} check box if the image should
+    Select \uicontrol {Auto transform} if the image should
     automatically apply image transformation metadata, such as EXIF orientation.
 
     \section1 Source size
@@ -108,7 +108,7 @@
 
     \note Changing this property dynamically causes the image source to be
     reloaded, potentially even from the network, if it is not in the disk cache.
-    Select the \uicontrol Cache check box to cache the image.
+    Select \uicontrol Cache to cache the image.
 
     \section1 Image alignment
 
@@ -116,7 +116,7 @@
     \uicontrol {Alignment H} and \uicontrol {Alignment V}
     fields. By default, images are centered.
 
-    Select the \uicontrol Mirror check box to horizontally invert the image,
+    Select \uicontrol Mirror to horizontally invert the image,
     effectively displaying a mirrored image.
 
     \section1 Performance
@@ -124,7 +124,7 @@
     By default, locally available images are loaded immediately, and the UI
     is blocked until loading is complete. If a large image is to be loaded,
     it may be preferable to load the image in a low priority thread, by
-    selecting the \uicontrol Asynchronous check box. If the image is obtained
+    selecting \uicontrol Asynchronous. If the image is obtained
     from a network rather than a local resource, it is automatically loaded
     asynchronously.
 
@@ -175,13 +175,13 @@
 
     \image qtquick-designer-animated-image-properties.png "Animated Image properties"
 
-    To play the animation, select the \uicontrol Playing check box.
+    To play the animation, select \uicontrol Playing.
 
-    To pause the animation, select the \imagepauseicon
-    (\uicontrol Paused) check box.
+    To pause the animation, select \imagepauseicon
+    (\uicontrol Paused).
 
-    When the \uicontrol Cache check box is selected, every frame of the
-    animation is cached. Clear the check box if you are playing a long
+    When \uicontrol Cache is selected, every frame of the
+    animation is cached. Clear the checkbox if you are playing a long
     or large animation and you want to conserve memory.
 
     If the image data comes from a sequential device (such as a socket),

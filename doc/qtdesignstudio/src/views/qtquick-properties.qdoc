@@ -125,15 +125,15 @@
 
     \image qtquick-properties-visibility.png "Visibility properties"
 
-    Clear the \uicontrol Visible check box to hide a component and all
+    Clear \uicontrol Visible to hide a component and all
     its child components, unless they have explicitly been set to be visible.
     This might have surprise effects when using property bindings. In such
     cases, it may be better to use the \uicontrol Opacity property instead.
 
     If this property is disabled, the component will no longer receive
     \l{Mouse Area}{mouse events}. However, it will continue to receive key
-    events and will retain the keyboard focus events if the \uicontrol Enabled
-    check box in the \uicontrol Advanced section is selected.
+    events and will retain the keyboard focus events if \uicontrol Enabled
+    in the \uicontrol Advanced section is selected.
 
     The visibility value is only affected by changes to this property or the
     parent's visible property. It does not change, for example, if this
@@ -150,7 +150,7 @@
     You can \l{Creating timeline animations}{animate} the opacity value to make a
     component fade in and out.
 
-    If the \uicontrol Clip check box is selected, the component and its children
+    If \uicontrol Clip is selected, the component and its children
     are clipped to the bounding rectangle of the component.
 
     in the \uicontrol State field, select the \l{Working with states}{state} to
@@ -325,13 +325,13 @@
 
     \image qtquick-properties-advanced.png "Advanced section in Properties"
 
-    Select the \uicontrol Smooth check box to activate smooth sampling. Smooth
+    Select \uicontrol Smooth to activate smooth sampling. Smooth
     sampling is performed using linear interpolation, while non-smooth sampling
     is performed using the nearest neighbor. Because smooth sampling has minimal
     impact on performance, it is activated by default.
 
     Antialiasing is used to make curved lines smoother on the screen. Select
-    the \uicontrol Antialising check box to turn on antialiasing.
+    \uicontrol Antialising to turn on antialiasing.
 
     The value of the \uicontrol {Baseline offset} specifies the position of the
     component's baseline in local coordinates. The baseline of a \l Text
@@ -341,12 +341,12 @@
 
     \section2 Managing mouse and keyboard events
 
-    Select the \uicontrol Enabled check box to allow the component to receive
+    Select \uicontrol Enabled to allow the component to receive
     mouse and keyboard events. The children of the component inherit this
     behavior, unless you explicitly set this value for them.
 
-    You can enable the \uicontrol Focus check box to specify that the component
-    has active focus and the \uicontrol {Focus on tab} check box to add
+    You can enable the \uicontrol Focus checkbox to specify that the component
+    has active focus and the \uicontrol {Focus on tab} checkbox to add
     the component to the \e {tab focus chain}. The tab focus chain traverses
     components by first visiting the parent, and then its children in the order
     they are defined. Pressing \key Tab on a component in the tab focus chain
@@ -380,7 +380,7 @@
     \image qtquick-item-properties-layer.png "Layer properties"
 
     Components are normally rendered directly into the window they belong to.
-    However, by selecting the \uicontrol Enabled check box in the
+    However, by selecting \uicontrol Enabled in the
     \uicontrol Layer section, you can delegate the component and its entire subtree
     into an offscreen surface. Only the offscreen surface, a texture, will
     then be drawn into the window. For more information, see \l{Item Layers}.
@@ -425,11 +425,11 @@
     by custom shaders. If no effect is specified for the layered component,
     mirroring has no effect on the UI representation of the component.
 
-    The component will use linear interpolation for scaling if the
-    \uicontrol Smooth check box is selected. To use a mipmap for downsampling,
-    select the \uicontrol Mipmap check box. Mipmapping may improve the visual
+    The component will use linear interpolation for scaling if
+    \uicontrol Smooth is selected. To use a mipmap for downsampling,
+    select \uicontrol Mipmap. Mipmapping may improve the visual
     quality of downscaled components. For mipmapping of single \uicontrol Image
-    components, select the \uicontrol Mipmap check box in the \l{Images}
+    components, select \uicontrol Mipmap in the \l{Images}
     {image properties}, instead.
 
     To use a texture with a size different from that of the component, specify

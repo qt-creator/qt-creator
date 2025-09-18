@@ -43,9 +43,9 @@
             \list
                 \li In the \uicontrol {Animation ID} field, enter an ID for the
                 animation.
-                \li Optional. Select the \uicontrol {Running in Base State}
-                check box to run the animation when the base state is applied.
-                Clear the check box to run the animation when some other state
+                \li Optional. Select \uicontrol {Running in Base State}
+                to run the animation when the base state is applied.
+                Clear the checkbox to run the animation when some other state
                 is applied. For more information, see
                 \l{Binding Animations to States}.
                 \li In the \uicontrol {Start frame} field, set the first frame
@@ -54,13 +54,13 @@
                 the animation.
                 \li In the \uicontrol {Duration} field, set the length of the
                 animation in milliseconds.
-                \li Optional. Select the \uicontrol Continuous check box to
+                \li Optional. Select \uicontrol Continuous to
                 loop the animation indefinitely.
                 \li Optional. In the \uicontrol Loops field, set the number of
                 times to run the animation. The default number of
                 loops is one, which means that you must restart the animation
                 to see it again.
-                \li Optional. Select the \uicontrol {Ping pong} check box to
+                \li Optional. Select \uicontrol {Ping pong} to
                 play the animation backwards back to the beginning when it
                 reaches the end.
                 \li Optional. In the \uicontrol Finished field, select the state

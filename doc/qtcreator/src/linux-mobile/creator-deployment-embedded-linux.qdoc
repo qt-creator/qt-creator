@@ -95,12 +95,12 @@
     in \QC.
 
     If you have a lot of data to copy, select \uicontrol Details in the
-    \uicontrol {Upload Files via SFTP} step, and then select the
-    \uicontrol {Incremental deployment} check box. \QC takes note of the
+    \uicontrol {Upload Files via SFTP} step, and then select
+    \uicontrol {Incremental deployment}. \QC takes note of the
     deployment time and only copies files that have changed since the last
     deployment. However, when you make major changes on the device, such as
     removing files from the device manually or flashing a new disk image, or
-    when you use another device with the same IP address, clear the check box
+    when you use another device with the same IP address, clear the checkbox
     once, to have \QC deploy all files again.
 
     \section2 Creating a Tarball

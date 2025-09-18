@@ -99,8 +99,8 @@
     Visibility property for \uicontrol Loader3D appropriately in
     \uicontrol {Binding Editor}:
         \list 1
-            \li In \uicontrol Properties > \uicontrol Loader3D, select the
-                \uicontrol Asynchronous check box.
+            \li In \uicontrol Properties > \uicontrol Loader3D, select
+                \uicontrol Asynchronous.
                 \image {loader3d-visibility.png} {The Asynchronous setting turned on in the Properties view.}
             \li In \uicontrol {Visibility},
                 select \imageactionicon

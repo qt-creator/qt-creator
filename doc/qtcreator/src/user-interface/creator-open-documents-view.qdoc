@@ -61,7 +61,7 @@
             select whether you want to be prompted to reload open files
             that were modified externally. For example, when you pull
             changes from a version control system.
-        \li Select the \uicontrol {Auto-save modified files} check box to
+        \li Select \uicontrol {Auto-save modified files} to
             automatically save changed files at the intervals specified in
             the \uicontrol Interval field.
         \li Select the \uicontrol {Auto-save files after refactoring} check
@@ -72,8 +72,8 @@
             \uicontrol {Open Documents} view. Set the minimum number of files
             that should be kept in memory in the \uicontrol {Files to keep open}
             field.
-        \li Select the \uicontrol {Warn before opening text files greater than}
-            check box to receive warnings about opening big text files.
+        \li Select \uicontrol {Warn before opening text files greater than}
+            to receive warnings about opening big text files.
         \li In the \uicontrol {Maximum number of entries in "Recent Files"}
             field, set the number of recently opened files listed in
             \uicontrol File > \uicontrol {Recent Files}.

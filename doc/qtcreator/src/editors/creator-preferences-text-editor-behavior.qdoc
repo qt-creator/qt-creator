@@ -68,8 +68,8 @@
     select \preferences > \uicontrol {Text Editor} >
     \uicontrol Behavior > \uicontrol Typing.
 
-    To disable automatic indentation, clear the
-    \uicontrol {Enable automatic indentation} check box.
+    To disable automatic indentation, clear
+    \uicontrol {Enable automatic indentation}.
 
     You can specify how the indentation is decreased when you select
     \uicontrol Backspace in the \uicontrol {Backspace indentation} field. To go

@@ -386,7 +386,7 @@
     when you select it again.
 
     To temporarily stop the simulation, select \uicontrol Paused. Particles
-    are not destroyed, and when you clear the check box, the simulation
+    are not destroyed, and when you clear the checkbox, the simulation
     resumes from the point where you paused it.
 
     Select \uicontrol Logging to collect particle system statistics, such as

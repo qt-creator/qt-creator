@@ -72,18 +72,18 @@
             QML files to.
         \li In the \uicontrol Assets field, you can change the folder to copy
             the image files to.
-        \li Select the \uicontrol {Create sub directory} check box to import the
+        \li Select \uicontrol {Create sub directory} to import the
             assets in a sub directory inside \uicontrol {Export Paths}.
-        \li Clear the \uicontrol {Import assets} check box if you only want
+        \li Clear \uicontrol {Import assets} if you only want
             to create QML files.
-        \li Clear the \uicontrol {Generate QML} check box if you only
+        \li Clear \uicontrol {Generate QML} if you only
             want to import assets.
-        \li Select the \uicontrol {Merge QML} check box if you have imported the
+        \li Select \uicontrol {Merge QML} if you have imported the
             assets before and want to merge the changes into existing QML files
             instead of overwriting the existing files. See \l {Merging QML Files}.
-        \li Select the \uicontrol {Round off coordinates} check box to round off
+        \li Select \uicontrol {Round off coordinates} to round off
             the position and dimension values to integers in the generated QML files.
-        \li Select the \uicontrol {Save Logs} check box to write the export logs
+        \li Select \uicontrol {Save Logs} to write the export logs
             to a text file inside the directory selected in \uicontrol QML export path.
         \li Select \uicontrol Import to import the QML files and assets. This
             might take a little while for complex projects.

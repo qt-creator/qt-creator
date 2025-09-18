@@ -88,7 +88,7 @@
     \endlist
 
     To use the built-in code model instead, select \preferences >
-    \uicontrol C++ > \uicontrol clangd, and clear the \uicontrol {Use clangd} check box.
+    \uicontrol C++ > \uicontrol clangd, and clear \uicontrol {Use clangd}.
     This setting also exists on the project level, so that you can have the Clang-based
     services generally enabled, but switch them off for certain projects, or vice versa.
 
@@ -286,7 +286,7 @@
             If the document changes again while waiting, this timeout is reset.
         \li Select \uicontrol {Ignore files greater than} to make parsing faster
             by ignoring big files. Specify the maximum size of files to parse in
-            the field next to the check box.
+            the field next to the checkbox.
         \li The \uicontrol {Diagnostic configuration} field shows the Clang
             checks to perform. Select the value of the field to select and edit
             the checks to perform.

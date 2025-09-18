@@ -101,7 +101,7 @@
             properties will be ignored if \uicontrol {Component} is defined
             for a text layer, but explicit properties defined in the \uicontrol
             {Properties} field will be applied.
-        \li Select the \uicontrol {Render Text} check box to render the text layer
+        \li Select \uicontrol {Render Text} to render the text layer
             as an image
         \li In the \uicontrol {Imports} field, enter additional import statements
             to have them added to the generated code file. For example, to use
@@ -137,13 +137,13 @@
             \note The code must have a scope of a component (such as Item, MouseArea, Connections)
             with a valid syntax for \l {UI files}.
             \note Add respective imports for your snippet in \uicontrol Imports.
-        \li Select the \uicontrol Clip check box to enable clipping in the
+        \li Select \uicontrol Clip to enable clipping in the
             component generated from the layer. The generated component will clip
             its own painting, as well as the painting of its children, to its
             bounding rectangle.
-        \li Select the \uicontrol Visible check box to determine the visibility
+        \li Select \uicontrol Visible to determine the visibility
             of the layer in the generated UI in \QDS.
-        \li Select the \uicontrol {Start Screen} check box to set the selected component as the
+        \li Select \uicontrol {Start Screen} to set the selected component as the
             start component.
         \li Select \uicontrol Export to launch the export dialog to export the document
             into a .qtbridge archive.

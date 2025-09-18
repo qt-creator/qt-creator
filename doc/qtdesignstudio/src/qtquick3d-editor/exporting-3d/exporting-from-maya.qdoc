@@ -56,12 +56,12 @@
             to convert NURBS surfaces to polygons based on the NURBS display
             settings.
         \li Optionally, select \uicontrol Animation > \uicontrol {Baked
-            Animation}, and then select \uicontrol {Bake Animation} check box to
+            Animation}, and then select \uicontrol {Bake Animation} to
             include baked animations in your export. Enter the start and end
             frames to bake into your animation.
             \image maya-export-options2.png "More export options in Maya"
-        \li Optionally, select \uicontrol {Embed Media}, and then select the
-            \uicontrol {Embed Media} check box to include embedded textures.
+        \li Optionally, select \uicontrol {Embed Media}, and then select
+            \uicontrol {Embed Media} to include embedded textures.
             The embedded media will be copied to a \c fileName.fbm folder in
             the same location as the FBX file.
         \li Select \uicontrol {Export All} to export files.

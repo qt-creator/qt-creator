@@ -46,7 +46,7 @@
 
     To replace all selected instances, enter the name of the new symbol
     in \uicontrol {Replace with}, and select \uicontrol Replace.
-    To omit an instance, clear the check box next to the instance.
+    To omit an instance, clear the checkbox next to the instance.
 
     \note This action replaces all selected instances of the symbol in
     all files listed in \uicontrol {Search Results}. You cannot

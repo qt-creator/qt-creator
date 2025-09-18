@@ -261,7 +261,7 @@
     filter to locate the files.
 
     To use the sorting from the selected tool instead of from \QC,
-    clear the \uicontrol {Sort results} check box in the \c md
+    clear \uicontrol {Sort results} in the \c md
     locator filter configuration.
 
     \image {qtcreator-locator-filter-edit-md.webp} {Filter Configuration dialog}

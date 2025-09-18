@@ -45,9 +45,9 @@
     \list 1
         \li In the \uicontrol {Export path} field, specify the path where
             the metadata file and assets are exported.
-        \li Clear the \uicontrol {Export assets} check box to disable
+        \li Clear \uicontrol {Export assets} to disable
             exporting assets and only generate the metadata file.
-        \li Select the \uicontrol {Export components separately} check box to
+        \li Select \uicontrol {Export components separately} to
             generate separate metadata files for each component.
         \li In the file list, select the .ui.qml files to be exported.
         \li Select \uicontrol {Export} export to start the export process.

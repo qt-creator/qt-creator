@@ -61,8 +61,8 @@
     circular shapes. For example, to draw a full circle, first draw a rectangle
     with all four sides equal, and then set its radius to half the side length.
 
-    When drawing curved edges, consider enabling the \uicontrol Antialiasing
-    check box in the \uicontrol Advanced section to improve the appearance of
+    When drawing curved edges, consider enabling \uicontrol Antialiasing
+    in the \uicontrol Advanced section to improve the appearance of
     your shape.
 
     \target studio-rectangle
@@ -92,7 +92,7 @@
     \section1 Border
 
     The Border component is used to create borders out of four segments:
-    left, top, right, and bottom. By selecting the check boxes in the
+    left, top, right, and bottom. By selecting the checkboxes in the
     \uicontrol {Draw Edges} section, you can determine whether each
     of the segments is visible. This enables you to draw solid or dashed
     lines with specified dash patterns and joint and cap styles.
@@ -166,8 +166,8 @@
 
     \image studio-shapes-arc-outline-properties.png "Arc Outline Properties"
 
-    To create an arc with an outline, select the \uicontrol {Full outline}
-    check box. The \uicontrol {Outline width} field sets the width of
+    To create an arc with an outline, select \uicontrol {Full outline}.
+    The \uicontrol {Outline width} field sets the width of
     the arc outline, including the stroke.
 
     The \uicontrol {Round outline}, \uicontrol {Round start}, and
@@ -181,7 +181,7 @@
     The Pie component is used to create a pie slice, a pie that is missing slices,
     or just the pie rind (similar to an arc), depending on the values of the
     \uicontrol {Pie start} and \uicontrol {Pie end} fields and the
-    \uicontrol Hide check box.
+    \uicontrol Hide checkbox.
 
     \image studio-shapes-pie.png "Pie properties"
 

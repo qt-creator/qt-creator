@@ -48,8 +48,8 @@
     To override the platform default value that determines whether
     keyboard shortcuts are shown in the labels of context menu items,
     select \preferences > \uicontrol Environment >
-    \uicontrol Interface. The label of the \uicontrol {Show keyboard shortcuts
-    in context menus} check box indicates whether the platform default value
+    \uicontrol Interface. The label of \uicontrol {Show keyboard shortcuts
+    in context menus} indicates whether the platform default value
     is \c on or \c off.
 
     \image {qtcreator-preferences-environment-interface.webp} {Interface tab in Environment preferences}

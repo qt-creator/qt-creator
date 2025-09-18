@@ -108,7 +108,7 @@
 
     To bind pointers (\c *) and references (\c &) in types and declarations to
     identifiers, type names, or left or right \c const or \c volatile keywords,
-    select the check boxes in the \uicontrol {Pointers and References} tab.
+    select the checkboxes in the \uicontrol {Pointers and References} tab.
 
     The \c * and \c & characters are automatically bound to identifiers of
     pointers to functions and pointers to arrays.

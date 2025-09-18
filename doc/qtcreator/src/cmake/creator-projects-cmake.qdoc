@@ -318,8 +318,8 @@
             files to format, separated by semicolons. The default value,
             \c {text/x-cmake} formats CMake files. If the field is empty, all
             files are formatted.
-        \li Select the \uicontrol {Restrict to files contained in the current
-            project} check box to only format CMake files that belong to the
+        \li Select \uicontrol {Restrict to files contained in the current
+            project} to only format CMake files that belong to the
             current project.
     \endlist
 

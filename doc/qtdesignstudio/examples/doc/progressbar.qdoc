@@ -125,7 +125,7 @@
     We want the progress bar to be reusable, so we'll move it to a separate
     component file. To make sure that the component will contain the timeline,
     we select \uicontrol {Filter Tree} in \uicontrol Navigator and then
-    clear the \uicontrol {Show Only Visible Items} check box to show the
+    clear \uicontrol {Show Only Visible Items} to show the
     timeline component in \uicontrol Navigator. We then move the timeline
     component to \e root  to have it moved as a part of the root component.
 
@@ -175,7 +175,7 @@
     We can now add timelines for each progress bar instance, with different
     settings. We select the \imageplus
     button to add a 4000-frame timeline to the first progress bar instance
-    (\e root). We select the \uicontrol Continuous check box so that the
+    (\e root). We select \uicontrol Continuous so that the
     animation will loop.
 
     In \uicontrol Properties > \uicontrol Root, we can see the

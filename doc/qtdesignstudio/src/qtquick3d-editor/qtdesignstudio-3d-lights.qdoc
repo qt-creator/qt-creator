@@ -188,8 +188,8 @@
 
     \section1 Shadows
 
-    To simulate shadows using this light, enable the \uicontrol {Cast shadows}
-    check box. Cast shadows work best with area or point lights.
+    To simulate shadows using this light, enable \uicontrol {Cast shadows}.
+    Cast shadows work best with area or point lights.
 
     To specify the darkness of the shadows, set the \uicontrol {Shadow factor}
     property. The value 0 means no shadows are cast.

@@ -11,7 +11,7 @@
 
     \brief Opens a terminal.
 
-    When you select the \uicontrol {Run in Terminal} check box and run an
+    When you select \uicontrol {Run in Terminal} and run an
     application or the \uicontrol {Open Terminal} button to open a terminal,
     it opens as an output view.
 

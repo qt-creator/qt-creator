@@ -272,7 +272,7 @@
         \li Creates a \l {Button}{push button} with a text label.
     \row
         \li Custom \CheckBox
-        \li Creates a \l {Check Box}{check box}.
+        \li Creates a \l {Check Box}{checkbox}.
     \row
         \li Custom Dial
         \li Creates a \l {Slider and Dial}{dial}.

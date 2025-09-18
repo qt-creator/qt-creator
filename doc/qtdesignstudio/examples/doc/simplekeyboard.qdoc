@@ -27,7 +27,7 @@
     First, we create an empty project, as described in \l {Creating projects}.
     For the purposes of this example, we call the project \e SimpleKeyboard.
     We can use the default settings for other options, but we need to select
-    the \uicontrol {Use Qt Virtual Keyboard} check box on the
+    \uicontrol {Use Qt Virtual Keyboard} on the
     \uicontrol {Define Project Details} page.
 
     \image simplekeyboard-project-details.png "SimpleKeyboard project details"
