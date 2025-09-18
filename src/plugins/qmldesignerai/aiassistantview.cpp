@@ -37,7 +37,7 @@ void AiAssistantView::modelAttached(Model *model)
     AbstractView::modelAttached(model);
 
     m_widget->initManifest();
-    m_widget->clearAttachedImage();
+    m_widget->clear();
 }
 
 } // namespace QmlDesigner

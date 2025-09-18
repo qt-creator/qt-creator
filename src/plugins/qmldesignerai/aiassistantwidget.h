@@ -40,7 +40,7 @@ public:
     QString attachedImageSource() const;
     void setAttachedImageSource(const QString &source);
 
-    void clearAttachedImage();
+    void clear();
     void initManifest();
 
     QSize sizeHint() const override;
@@ -61,6 +61,7 @@ signals:
     void notifyAIResponseSuccess();
     void notifyAIResponseInvalidQml();
     void notifyAIResponseError(const QString &errMessage = {});
+    void removeFeedbackPopup();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
