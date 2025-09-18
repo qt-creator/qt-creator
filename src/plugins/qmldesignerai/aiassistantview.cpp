@@ -28,7 +28,8 @@ WidgetInfo AiAssistantView::widgetInfo()
                             "AiAssistant",
                             WidgetInfo::LeftPane,
                             tr("AI Assistant"),
-                            tr("AI Assistant view"));
+                            tr("AI Assistant view"),
+                            DesignerWidgetFlags::IgnoreErrors);
 }
 
 void AiAssistantView::modelAttached(Model *model)
