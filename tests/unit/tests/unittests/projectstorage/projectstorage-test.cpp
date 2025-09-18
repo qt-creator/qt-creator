@@ -2351,6 +2351,29 @@ TEST_F(ProjectStorage, reset_type_if_source_id_is_synchronized)
                 Not(Contains(IsStorageType(sourceId1, "QQuickItem", TypeTraitsKind::Reference))));
 }
 
+TEST_F(ProjectStorage, remove_prototype_if_source_id_is_synchronized)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    auto itemTypeId = fetchTypeId(sourceId1, "QQuickItem");
+
+    storage.synchronize({.updatedTypeSourceIds = {sourceId1}});
+
+    ASSERT_THAT(storage.prototypeIds(itemTypeId), IsEmpty());
+}
+
+TEST_F(ProjectStorage, remove_base_if_source_id_is_synchronized)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    auto itemTypeId = fetchTypeId(sourceId1, "QQuickItem");
+    auto objectTypeId = fetchTypeId(sourceId2, "QObject");
+
+    storage.synchronize({.updatedTypeSourceIds = {sourceId1}});
+
+    ASSERT_FALSE(bool(storage.basedOn(itemTypeId, objectTypeId)));
+}
+
 TEST_F(ProjectStorage, delete_exported_type_name_if_source_id_is_synchronized)
 {
     auto package{createSimpleSynchronizationPackage()};

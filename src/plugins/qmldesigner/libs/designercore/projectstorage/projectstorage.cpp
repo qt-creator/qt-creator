@@ -211,6 +211,10 @@ struct ProjectStorage::Statements
         "DELETE FROM functionDeclarations WHERE typeId=?", database};
     Sqlite::WriteStatement<1> deleteSignalDeclarationByTypeIdStatement{
         "DELETE FROM signalDeclarations WHERE typeId=?", database};
+    Sqlite::WriteStatement<1> deletePrototypeByTypeIdStatement{
+        "DELETE FROM prototypes WHERE typeId=?", database};
+    Sqlite::WriteStatement<1> deleteBaseByTypeIdStatement{"DELETE FROM bases WHERE typeId=?",
+                                                          database};
     Sqlite::WriteStatement<1> resetTypeStatement{"UPDATE types "
                                                  "SET traits=NULL, "
                                                  "    prototypeNameId=NULL, "
@@ -3047,6 +3051,8 @@ void ProjectStorage::deleteType(TypeId typeId,
     s->deletePropertyDeclarationByTypeIdStatement.write(typeId);
     s->deleteFunctionDeclarationByTypeIdStatement.write(typeId);
     s->deleteSignalDeclarationByTypeIdStatement.write(typeId);
+    s->deletePrototypeByTypeIdStatement.write(typeId);
+    s->deleteBaseByTypeIdStatement.write(typeId);
     s->resetTypeStatement.write(typeId);
 }
 
