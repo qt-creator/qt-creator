@@ -405,7 +405,7 @@ void DynamicPropertiesModel::setSelectedNode(const ModelNode &node)
 DynamicPropertiesModelBackendDelegate::DynamicPropertiesModelBackendDelegate(DynamicPropertiesModel &model)
     : m_model(model)
 {
-    m_type.setModel({"int", "bool", "var", "real", "string", "url", "color"});
+    m_type.setModel({"int", "bool", "var", "real", "double", "string", "url", "color", "alias"});
     connect(&m_type, &StudioQmlComboBoxBackend::activated, this, [this] { handleTypeChanged(); });
     connect(&m_name, &StudioQmlTextBackend::activated, this, [this] { handleNameChanged(); });
     connect(&m_value, &StudioQmlTextBackend::activated, this, [this] { handleValueChanged(); });
