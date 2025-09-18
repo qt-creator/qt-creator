@@ -2417,10 +2417,14 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
     if (!isValid())
         return {};
 
-    if (isEnumType() || value.canConvert<Enumeration>())
-        return value;
-
     const TypeId &typeId = propertyData().propertyTypeId;
+
+    using namespace Storage::Info;
+
+    if ((isEnumType() || typeId == m_projectStorage->commonTypeId<QML, IntType>())
+        && value.canConvert<Enumeration>()) {
+        return value;
+    }
 
     static constexpr auto boolType = QMetaType::fromType<bool>();
     static constexpr auto intType = QMetaType::fromType<int>();
@@ -2431,8 +2435,6 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
     static constexpr auto qStringType = QMetaType::fromType<QString>();
     static constexpr auto qUrlType = QMetaType::fromType<QUrl>();
     static constexpr auto qColorType = QMetaType::fromType<QColor>();
-
-    using namespace Storage::Info;
 
     if (value.typeId() == QMetaType::User && value.typeId() == ModelNode::variantTypeId()) {
         return value;

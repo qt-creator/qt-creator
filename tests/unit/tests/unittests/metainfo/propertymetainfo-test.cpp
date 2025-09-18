@@ -306,7 +306,7 @@ TEST_F(PropertyMetaInfo, cast_to_enumeration)
     ASSERT_THAT(castedValue, IsQVariant<Enumeration>(enumeration));
 }
 
-TEST_F(PropertyMetaInfo, dont_to_cast_enumeration_if_property_type_is_not_enumeration)
+TEST_F(PropertyMetaInfo, dont_cast_to_enumeration_if_value_type_is_not_enumeration)
 {
     auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "MyEnum", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
@@ -318,7 +318,33 @@ TEST_F(PropertyMetaInfo, dont_to_cast_enumeration_if_property_type_is_not_enumer
     ASSERT_THAT(castedValue, QVariantIsValid(IsFalse()));
 }
 
-TEST_F(PropertyMetaInfo, do_cast_to_enumeration_if_value_is_not_Enumeration)
+TEST_F(PropertyMetaInfo, dont_cast_enumeration_if_property_type_is_not_enumeration)
+{
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "MyEnum", {});
+    projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
+    auto propertyInfo = nodeInfo.property("bar");
+    Enumeration enumeration{"MyEnum.Foo"};
+    auto value = QVariant::fromValue(enumeration);
+
+    auto castedValue = propertyInfo.castedValue(value);
+
+    ASSERT_THAT(castedValue, QVariantIsValid(IsFalse()));
+}
+
+TEST_F(PropertyMetaInfo, do_cast_enumeration_if_property_type_int)
+{
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "int", {});
+    projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
+    auto propertyInfo = nodeInfo.property("bar");
+    Enumeration enumeration{"MyEnum.Foo"};
+    auto value = QVariant::fromValue(enumeration);
+
+    auto castedValue = propertyInfo.castedValue(value);
+
+    ASSERT_THAT(castedValue, QVariantIsValid(IsTrue()));
+}
+
+TEST_F(PropertyMetaInfo, do_not_cast_to_enumeration_if_value_is_not_enumeration)
 {
     TypeTraits traits;
     traits.isEnum = true;
@@ -329,7 +355,7 @@ TEST_F(PropertyMetaInfo, do_cast_to_enumeration_if_value_is_not_Enumeration)
 
     auto castedValue = propertyInfo.castedValue(value);
 
-    ASSERT_THAT(castedValue, QVariantIsValid(IsTrue()));
+    ASSERT_THAT(castedValue, QVariantIsValid(IsFalse()));
 }
 
 TEST_F(PropertyMetaInfo, cast_to_model_node)
