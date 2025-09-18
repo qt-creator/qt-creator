@@ -196,9 +196,10 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
 
 AiAssistantWidget::~AiAssistantWidget() = default;
 
-void AiAssistantWidget::clearAttachedImage()
+void AiAssistantWidget::clear()
 {
     setAttachedImageSource("");
+    emit removeFeedbackPopup();
 }
 
 void AiAssistantWidget::initManifest()

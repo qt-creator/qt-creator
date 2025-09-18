@@ -68,6 +68,10 @@ Rectangle {
             if (AiAssistantBackend.rootView.isGenerating)
                 root.hidePopup()
         }
+
+        function onRemoveFeedbackPopup() {
+            hidePopup()
+        }
     }
 
     Timer {
