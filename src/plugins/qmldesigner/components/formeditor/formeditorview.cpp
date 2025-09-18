@@ -92,7 +92,7 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
                                category(),
                                keyValue("model node", qmlItemNode)};
 
-    if (!qmlItemNode.hasFormEditorItem())
+    if (!qmlItemNode.hasFormEditorItem() && !QmlItemNode::isRootWindow(qmlItemNode))
         return;
 
     if (!qmlItemNode.isEffectItem()) {

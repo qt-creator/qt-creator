@@ -34,8 +34,8 @@ public:
     explicit operator bool() const { return isValid(); }
 
     static bool isValidQmlItemNode(const ModelNode &modelNode, SL sl = {});
-
     static bool isItemOrWindow(const ModelNode &modelNode, SL sl = {});
+    static bool isRootWindow(const ModelNode &modelNode, SL sl = {});
 
     static QmlItemNode create(const ModelNode &modelNode) { return QmlItemNode{modelNode}; }
 

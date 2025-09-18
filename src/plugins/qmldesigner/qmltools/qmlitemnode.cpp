@@ -63,6 +63,30 @@ bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode, SL sl)
     return true;
 }
 
+bool QmlItemNode::isRootWindow(const ModelNode &modelNode, SL sl)
+{
+    NanotraceHR::Tracer tracer{"qml item node is root window",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
+
+    auto metaInfo = modelNode.metaInfo();
+    auto model = modelNode.model();
+
+    auto qtQuickWindowWindow = model->qtQuickWindowMetaInfo();
+    auto qtQuickDialogsDialog = model->qtQuickDialogsAbstractDialogMetaInfo();
+    auto qtQuickControlsPopup = model->qtQuickTemplatesPopupMetaInfo();
+
+    auto matched = metaInfo.basedOn(qtQuickWindowWindow,
+                                    qtQuickDialogsDialog,
+                                    qtQuickControlsPopup);
+
+    if (!matched)
+        return false;
+
+    return modelNode.isRootNode();
+}
+
 QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view,
                                            const ItemLibraryEntry &itemLibraryEntry,
                                            const QPointF &position,
