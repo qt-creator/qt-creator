@@ -2546,6 +2546,11 @@ void ProjectStorage::updateAnnotationsTypeTraitsFromPrototypes(SmallTypeIds<256>
                                 std::back_inserter(typesToUpdate));
 
     auto callback = [&](TypeId typeId, long long traits) {
+        NanotraceHR::Tracer tracer{"update annotation type traits from prototype",
+                                   category(),
+                                   keyValue("type id", typeId),
+                                   keyValue("annotation traits", traits)};
+
         s->updateTypeAnnotationTraitsStatement.write(typeId, traits);
     };
 
