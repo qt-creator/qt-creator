@@ -183,6 +183,9 @@ void openExampleProject(const ExampleItem &item)
     if (proFile.isEmpty())
         return;
 
+    if (!proFile.exists())
+        return;
+
     FilePaths filesToOpen = item.filesToOpen;
     if (!item.mainFile.isEmpty()) {
         // Ensure that the main file is opened on top.
@@ -191,9 +194,15 @@ void openExampleProject(const ExampleItem &item)
         filesToOpen.removeAll(item.mainFile);
         filesToOpen.prepend(item.mainFile);
     }
-
-    if (!proFile.exists())
-        return;
+    // Check that the file that is opened actually exists
+    // Works around e.g. broken mainFile in Qt Quick Gallery example in Qt < 6.9
+    while (!filesToOpen.isEmpty()) {
+        if (filesToOpen.constFirst().exists())
+            break;
+        qWarning() << qPrintable(QString("Example \"%1\" refers to invalid file \"%2\"")
+                                     .arg(item.name, filesToOpen.constFirst().toUserOutput()));
+        filesToOpen.removeFirst();
+    }
 
     // If the Qt is a distro Qt on Linux, it will not be writable, hence compilation will fail
     // Same if it is installed in non-writable location for other reasons
