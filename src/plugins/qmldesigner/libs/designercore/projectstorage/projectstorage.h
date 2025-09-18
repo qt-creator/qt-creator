@@ -479,7 +479,6 @@ private:
     void updateAnnotationTypeTraitsInHeirs(TypeId typeId,
                                            Storage::TypeTraits traits,
                                            SmallTypeIds<256> &updatedTypes);
-    void updateAnnotationTypeTraitsFromPrototypes(TypeId typeId);
 
     class TypeAnnotationView
     {

@@ -2504,13 +2504,6 @@ void ProjectStorage::unique(SourceIds &sourceIds)
     sourceIds.erase(removed.begin(), removed.end());
 }
 
-void ProjectStorage::updateAnnotationTypeTraitsFromPrototypes(TypeId typeId)
-{
-    NanotraceHR::Tracer tracer{"update annotation type traits from prototypes",
-                               category(),
-                               keyValue("type id", typeId)};
-}
-
 void ProjectStorage::updateAnnotationTypeTraitsInHeirs(TypeId typeId,
                                                        Storage::TypeTraits traits,
                                                        SmallTypeIds<256> &updatedTypes)
