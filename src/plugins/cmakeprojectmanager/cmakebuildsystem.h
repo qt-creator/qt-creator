@@ -137,6 +137,8 @@ public:
     bool hasSubprojectBuildSupport() const;
 
     QVariant additionalData(Utils::Id id) const override;
+
+    bool isDestructing() const { return m_isDestructing; }
 signals:
     void configurationCleared();
     void configurationChanged(const CMakeConfig &config);
@@ -275,6 +277,8 @@ private:
     QStringList m_extraHeaderPaths;
     QList<QByteArray> m_moduleMappings;
     ProjectExplorer::Task m_generatorError;
+
+    bool m_isDestructing = false;
 };
 
 #ifdef WITH_TESTS
