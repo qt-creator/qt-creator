@@ -194,12 +194,14 @@ void AiAssistantWidget::clear()
 void AiAssistantWidget::initManifest()
 {
     const QString extension = currentDesignDocument()->fileName().suffix().toLower();
-    if (extension == "qml")
+    if (extension.endsWith("qml")) {
         m_manifest = Manifest::fromJsonResource(":/AiAssistant/manifests/ai.manifest.json");
-    else if (extension == "ui.qml")
-        m_manifest = Manifest::fromJsonResource(":/AiAssistant/manifests/ai_ui.manifest.json");
-    else
+
+        if (extension == "ui.qml")
+            m_manifest.addManifest(Manifest::fromJsonResource(":/AiAssistant/manifests/ai_ui.manifest.json"));
+    } else {
         m_manifest = {};
+    }
 }
 
 QSize AiAssistantWidget::sizeHint() const

@@ -58,8 +58,13 @@ QString AiResponse::errorString() const
 QStringList AiResponse::selectedIds() const
 {
     QStringList result;
-    if (m_content.startsWith("$$") && m_content.endsWith("$$")) {
-        QString inner = m_content.mid(2, m_content.length() - 4);
+
+    if (m_content.startsWith("$$")) {
+        QString inner = m_content.mid(2);
+
+        if (inner.endsWith("$$"))
+            inner.chop(2);
+
         result = inner.split(",", Qt::SkipEmptyParts);
         for (QString &id : result)
             id = id.trimmed();

@@ -30,6 +30,8 @@ public:
 
     QString toString() const;
 
+    void addManifest(const Manifest &manifest);
+
 private: // functions
     void addRule(const QJsonObject &ruleObject);
 

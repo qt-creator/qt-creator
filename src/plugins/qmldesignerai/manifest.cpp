@@ -99,6 +99,14 @@ void Manifest::addRule(const QJsonObject &ruleObject)
     m_rules.append(rule);
 }
 
+void Manifest::addManifest(const Manifest &manifest)
+{
+    if (!manifest.m_role.isEmpty())
+        m_role = manifest.m_role;
+
+    m_rules.append(manifest.m_rules); // note: assumption is no duplicate rules
+}
+
 QString resolveTags(const QString &content, const QMap<QByteArray, QString> &tagsMap)
 {
     QString result = content;
