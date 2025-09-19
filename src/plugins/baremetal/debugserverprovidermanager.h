@@ -48,7 +48,6 @@ private:
     static void notifyAboutUpdate(IDebugServerProvider *provider);
 
     Utils::PersistentSettingsWriter *m_writer = nullptr;
-    QList<IDebugServerProvider *> m_providers;
     const Utils::FilePath m_configFile;
     const QList<IDebugServerProviderFactory *> m_factories;
 
