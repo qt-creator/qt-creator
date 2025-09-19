@@ -107,79 +107,87 @@ void TargetSetupWidget::setKitSelected(bool b)
     m_detailsWidget->widget()->setEnabled(b);
 }
 
-void TargetSetupWidget::addBuildInfo(const BuildInfo &info, bool isImport)
+void TargetSetupWidget::addBuildInfos(const QList<BuildInfo> &infos, bool isImport)
 {
-    QTC_ASSERT(info.kitId == m_kit->id(), return);
+    for (const BuildInfo &info : infos) {
+        QTC_ASSERT(info.kitId == m_kit->id(), return);
 
-    if (isImport && !m_haveImported) {
-        // disable everything on first import
-        for (BuildInfoStore &store : m_infoStore) {
-            store.isEnabled = false;
-            store.checkbox->setChecked(false);
+        if (isImport && !m_haveImported) {
+            // disable everything on first import
+            for (BuildInfoStore &store : m_infoStore) {
+                store.isEnabled = false;
+                store.checkbox->setChecked(false);
+            }
+            m_selected = 0;
+
+            m_haveImported = true;
         }
-        m_selected = 0;
 
-        m_haveImported = true;
-    }
+        BuildInfoStore store;
+        store.buildInfo = info;
+        store.isEnabled = info.enabledByDefault;
+        store.hasIssues = false;
+        store.isImported = isImport;
 
-    BuildInfoStore store;
-    store.buildInfo = info;
-    store.isEnabled = info.enabledByDefault;
-    store.hasIssues = false;
-    store.isImported = isImport;
+        // imported configurations may overwrite non-imported configurations,
+        // but nothing else overwrites anything
+        const auto it = isImport
+                            ? std::find_if(
+                                  m_infoStore.begin(),
+                                  m_infoStore.end(),
+                                  [&info](const BuildInfoStore &bsi) {
+                                      return !bsi.isImported
+                                             && bsi.buildInfo.buildDirectory == info.buildDirectory;
+                                  })
+                            : m_infoStore.end();
+        const bool replace = it != m_infoStore.end();
+        const int pos = replace ? std::distance(m_infoStore.begin(), it) : int(m_infoStore.size());
+        if (!replace || (isImport && m_selected == 0))
+            ++m_selected;
 
-    // imported configurations may overwrite non-imported configurations,
-    // but nothing else overwrites anything
-    const auto it = isImport
-                        ? std::find_if(
-                              m_infoStore.begin(),
-                              m_infoStore.end(),
-                              [&info](const BuildInfoStore &bsi) {
-                                  return !bsi.isImported
-                                         && bsi.buildInfo.buildDirectory == info.buildDirectory;
-                              })
-                        : m_infoStore.end();
-    const bool replace = it != m_infoStore.end();
-    const int pos = replace ? std::distance(m_infoStore.begin(), it) : int(m_infoStore.size());
-    if (!replace || (isImport && m_selected == 0))
-        ++m_selected;
+        store.checkbox = new QCheckBox;
+        store.checkbox->setText(info.displayName);
+        store.checkbox->setChecked(store.isEnabled);
+        store.checkbox->setAttribute(Qt::WA_LayoutUsesWidgetRect);
 
-    store.checkbox = new QCheckBox;
-    store.checkbox->setText(info.displayName);
-    store.checkbox->setChecked(store.isEnabled);
-    store.checkbox->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+        store.pathChooser = new PathChooser();
+        store.pathChooser->setExpectedKind(PathChooser::Directory);
+        store.pathChooser->setFilePath(info.buildDirectory);
+        if (!info.showBuildDirConfigWidget)
+            store.pathChooser->setVisible(false);
+        store.pathChooser->setHistoryCompleter("TargetSetup.BuildDir.History");
+        store.pathChooser->setReadOnly(isImport);
 
-    store.pathChooser = new PathChooser();
-    store.pathChooser->setExpectedKind(PathChooser::Directory);
-    store.pathChooser->setFilePath(info.buildDirectory);
-    if (!info.showBuildDirConfigWidget)
-        store.pathChooser->setVisible(false);
-    store.pathChooser->setHistoryCompleter("TargetSetup.BuildDir.History");
-    store.pathChooser->setReadOnly(isImport);
+        store.issuesLabel = new QLabel;
+        store.issuesLabel->setIndent(32);
+        store.issuesLabel->setVisible(false);
 
-    store.issuesLabel = new QLabel;
-    store.issuesLabel->setIndent(32);
-    store.issuesLabel->setVisible(false);
-
-    connect(store.checkbox, &QAbstractButton::toggled, this,
+        connect(
+            store.checkbox,
+            &QAbstractButton::toggled,
+            this,
             [this, checkBox = store.checkbox](bool b) { checkBoxToggled(checkBox, b); });
-    connect(store.pathChooser, &PathChooser::rawPathChanged, this,
+        connect(
+            store.pathChooser,
+            &PathChooser::rawPathChanged,
+            this,
             [this, pathChooser = store.pathChooser] { pathChanged(pathChooser); });
 
-    if (replace) {
-        QTC_CHECK(isImport);
-        m_newBuildsLayout->replaceWidget(it->checkbox, store.checkbox);
-        m_newBuildsLayout->replaceWidget(it->pathChooser, store.pathChooser);
-        m_newBuildsLayout->replaceWidget(it->issuesLabel, store.issuesLabel);
-        *it = std::move(store);
-    } else {
-        m_newBuildsLayout->addWidget(store.checkbox, pos * 2, 0);
-        m_newBuildsLayout->addWidget(store.pathChooser, pos * 2, 1);
-        m_newBuildsLayout->addWidget(store.issuesLabel, pos * 2 + 1, 0, 1, 2);
-        m_infoStore.emplace_back(std::move(store));
-    }
+        if (replace) {
+            QTC_CHECK(isImport);
+            m_newBuildsLayout->replaceWidget(it->checkbox, store.checkbox);
+            m_newBuildsLayout->replaceWidget(it->pathChooser, store.pathChooser);
+            m_newBuildsLayout->replaceWidget(it->issuesLabel, store.issuesLabel);
+            *it = std::move(store);
+        } else {
+            m_newBuildsLayout->addWidget(store.checkbox, pos * 2, 0);
+            m_newBuildsLayout->addWidget(store.pathChooser, pos * 2, 1);
+            m_newBuildsLayout->addWidget(store.issuesLabel, pos * 2 + 1, 0, 1, 2);
+            m_infoStore.emplace_back(std::move(store));
+        }
 
-    reportIssues(pos);
+        reportIssues(pos);
+    }
     emit selectedToggled();
 }
 
@@ -210,8 +218,7 @@ void TargetSetupWidget::setProjectPath(const FilePath &projectPath)
     m_projectPath = projectPath;
     clear();
 
-    for (const BuildInfo &info : buildInfoList(m_kit, projectPath))
-        addBuildInfo(info, false);
+    addBuildInfos(buildInfoList(m_kit, projectPath), false);
 }
 
 void TargetSetupWidget::expandWidget()
@@ -316,7 +323,7 @@ void TargetSetupWidget::updateDefaultBuildDirectories()
             }
         }
         if (!found)  // the change of the kit may have produced more build information than before
-            addBuildInfo(buildInfo, false);
+            addBuildInfos({buildInfo}, false);
     }
 }
 

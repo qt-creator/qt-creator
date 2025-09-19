@@ -45,7 +45,7 @@ public:
     void setKitSelected(bool b);
     bool isValid() const { return m_isValid; }
 
-    void addBuildInfo(const BuildInfo &info, bool isImport);
+    void addBuildInfos(const QList<BuildInfo> &infos, bool isImport);
 
     const QList<BuildInfo> selectedBuildInfoList() const;
     void setProjectPath(const Utils::FilePath &projectPath);
