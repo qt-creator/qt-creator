@@ -3,6 +3,8 @@
 
 #include "eblinkgdbserverprovider.h"
 
+#include "gdbserverprovider.h"
+
 #include <baremetal/baremetalconstants.h>
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
@@ -255,17 +257,7 @@ bool EBlinkGdbServerProvider::operator==(const IDebugServerProvider &other) cons
             && m_gdbNotUseCache == p->m_gdbNotUseCache;
 }
 
-// EBlinkGdbServerProviderFactory
-
-EBlinkGdbServerProviderFactory::EBlinkGdbServerProviderFactory()
-{
-    setId(Constants::GDBSERVER_EBLINK_PROVIDER_ID);
-    setDisplayName(Tr::tr("EBlink"));
-    setCreator([] { return new EBlinkGdbServerProvider; });
-}
-
 // EBlinkGdbServerProviderConfigWidget
-
 
 EBlinkGdbServerProviderConfigWidget::EBlinkGdbServerProviderConfigWidget(
         EBlinkGdbServerProvider *p)
@@ -389,7 +381,6 @@ void EBlinkGdbServerProviderConfigWidget::setFromProvider()
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
 }
 
-
 void EBlinkGdbServerProviderConfigWidget::apply()
 {
     const auto p = static_cast<EBlinkGdbServerProvider *>(m_provider);
@@ -414,6 +405,24 @@ void EBlinkGdbServerProviderConfigWidget::discard()
 {
     setFromProvider();
     GdbServerProviderConfigWidget::discard();
+}
+
+// EBlinkGdbServerProviderFactory
+
+class EBlinkGdbServerProviderFactory final : public IDebugServerProviderFactory
+{
+public:
+    EBlinkGdbServerProviderFactory()
+    {
+        setId(Constants::GDBSERVER_EBLINK_PROVIDER_ID);
+        setDisplayName(Tr::tr("EBlink"));
+        setCreator([] { return new EBlinkGdbServerProvider; });
+    }
+};
+
+void setupEBlinkGdbServerProvider()
+{
+    static EBlinkGdbServerProviderFactory theEBlinkGdbServerProviderFactory;
 }
 
 } // BareMetal::Internal

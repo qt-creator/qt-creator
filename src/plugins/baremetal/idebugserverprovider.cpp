@@ -182,7 +182,22 @@ void IDebugServerProvider::setConfigurationWidgetCreator(const std::function<IDe
 
 // IDebugServerProviderFactory
 
-IDebugServerProviderFactory::IDebugServerProviderFactory() = default;
+static QList<IDebugServerProviderFactory *> theDebugServerProviderFactories;
+
+IDebugServerProviderFactory::IDebugServerProviderFactory()
+{
+    theDebugServerProviderFactories.append(this);
+}
+
+IDebugServerProviderFactory::~IDebugServerProviderFactory()
+{
+    theDebugServerProviderFactories.removeOne(this);
+}
+
+const QList<IDebugServerProviderFactory *> IDebugServerProviderFactory::factories()
+{
+    return theDebugServerProviderFactories;
+}
 
 QString IDebugServerProviderFactory::id() const
 {

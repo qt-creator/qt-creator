@@ -4,18 +4,6 @@
 #include "debugserverprovidermanager.h"
 #include "idebugserverprovider.h"
 
-// GDB debug servers.
-#include "debugservers/gdb/genericgdbserverprovider.h"
-#include "debugservers/gdb/openocdgdbserverprovider.h"
-#include "debugservers/gdb/stlinkutilgdbserverprovider.h"
-#include "debugservers/gdb/jlinkgdbserverprovider.h"
-#include "debugservers/gdb/eblinkgdbserverprovider.h"
-
-// UVSC debug servers.
-#include "debugservers/uvsc/simulatoruvscserverprovider.h"
-#include "debugservers/uvsc/stlinkuvscserverprovider.h"
-#include "debugservers/uvsc/jlinkuvscserverprovider.h"
-
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -39,14 +27,6 @@ static QList<IDebugServerProvider *> s_providers;
 
 DebugServerProviderManager::DebugServerProviderManager()
     : m_configFile(Core::ICore::userResourcePath(fileNameKeyC))
-    , m_factories({new GenericGdbServerProviderFactory,
-                   new JLinkGdbServerProviderFactory,
-                   new OpenOcdGdbServerProviderFactory,
-                   new StLinkUtilGdbServerProviderFactory,
-                   new EBlinkGdbServerProviderFactory,
-                   new SimulatorUvscServerProviderFactory,
-                   new StLinkUvscServerProviderFactory,
-                   new JLinkUvscServerProviderFactory})
 {
     m_writer = new Utils::PersistentSettingsWriter(
                 m_configFile, "QtCreatorDebugServerProviders");
@@ -66,7 +46,6 @@ DebugServerProviderManager::~DebugServerProviderManager()
 {
     qDeleteAll(s_providers);
     s_providers.clear();
-    qDeleteAll(m_factories);
     delete m_writer;
 }
 
@@ -113,7 +92,7 @@ void DebugServerProviderManager::restoreProviders()
                 map[key.toByteArray().mid(lastDot + 1)] = map[key];
         }
         bool restored = false;
-        for (IDebugServerProviderFactory *f : std::as_const(m_factories)) {
+        for (IDebugServerProviderFactory *f : IDebugServerProviderFactory::factories()) {
             if (f->canRestore(map)) {
                 if (IDebugServerProvider *p = f->restore(map)) {
                     registerProvider(p);
@@ -155,11 +134,6 @@ void DebugServerProviderManager::saveProviders()
 QList<IDebugServerProvider *> DebugServerProviderManager::providers()
 {
     return s_providers;
-}
-
-QList<IDebugServerProviderFactory *> DebugServerProviderManager::factories()
-{
-    return m_instance->m_factories;
 }
 
 IDebugServerProvider *DebugServerProviderManager::findProvider(const QString &id)

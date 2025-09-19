@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include "gdbserverprovider.h"
-
 namespace BareMetal::Internal {
 
-class OpenOcdGdbServerProviderFactory final : public IDebugServerProviderFactory
-{
-public:
-    OpenOcdGdbServerProviderFactory();
-};
+void setupOpenOcdGdbServerProvider();
 
 } // BareMetal::Internal

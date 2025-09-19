@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include "gdbserverprovider.h"
-
 namespace BareMetal::Internal {
 
-class GenericGdbServerProviderFactory final : public IDebugServerProviderFactory
-{
-public:
-    GenericGdbServerProviderFactory();
-};
+void setupGenericGdbServerProvider();
 
 } // BareMetal::Internal

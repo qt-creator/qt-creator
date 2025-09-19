@@ -35,14 +35,6 @@ private:
     friend class SimulatorUvProjectOptions;
 };
 
-// SimulatorUvscServerProviderFactory
-
-class SimulatorUvscServerProviderFactory final : public IDebugServerProviderFactory
-{
-public:
-    SimulatorUvscServerProviderFactory();
-};
-
 // SimulatorUvscServerProviderConfigWidget
 
 class SimulatorUvscServerProviderConfigWidget final : public UvscServerProviderConfigWidget
@@ -58,5 +50,7 @@ private:
 
     QCheckBox *m_limitSpeedCheckBox = nullptr;
 };
+
+void setupSimulatorUvscServerProvider();
 
 } // BareMetal::Internal

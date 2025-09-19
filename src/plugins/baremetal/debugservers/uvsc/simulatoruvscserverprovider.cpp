@@ -97,15 +97,6 @@ FilePath SimulatorUvscServerProvider::optionsFilePath(RunControl *runControl,
     return optionsPath;
 }
 
-// SimulatorUvscServerProviderFactory
-
-SimulatorUvscServerProviderFactory::SimulatorUvscServerProviderFactory()
-{
-    setId(Constants::UVSC_SIMULATOR_PROVIDER_ID);
-    setDisplayName(Tr::tr("uVision Simulator"));
-    setCreator([] { return new SimulatorUvscServerProvider; });
-}
-
 // SimulatorUvscServerProviderConfigWidget
 
 SimulatorUvscServerProviderConfigWidget::SimulatorUvscServerProviderConfigWidget(
@@ -144,6 +135,24 @@ void SimulatorUvscServerProviderConfigWidget::setFromProvider()
     Q_ASSERT(p);
     const QSignalBlocker blocker(this);
     m_limitSpeedCheckBox->setChecked(p->m_limitSpeed);
+}
+
+// SimulatorUvscServerProviderFactory
+
+class SimulatorUvscServerProviderFactory final : public IDebugServerProviderFactory
+{
+public:
+    SimulatorUvscServerProviderFactory()
+    {
+        setId(Constants::UVSC_SIMULATOR_PROVIDER_ID);
+        setDisplayName(Tr::tr("uVision Simulator"));
+        setCreator([] { return new SimulatorUvscServerProvider; });
+    }
+};
+
+void setupSimulatorUvscServerProvider()
+{
+    static SimulatorUvscServerProviderFactory theSimulatorUvscServerProviderFactory;
 }
 
 } // BareMetal::Internal

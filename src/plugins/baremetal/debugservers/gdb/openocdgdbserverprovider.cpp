@@ -3,6 +3,8 @@
 
 #include "openocdgdbserverprovider.h"
 
+#include "gdbserverprovider.h"
+
 #include <baremetal/baremetalconstants.h>
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
@@ -192,15 +194,6 @@ bool OpenOcdGdbServerProvider::operator==(const IDebugServerProvider &other) con
             && m_additionalArguments == p->m_additionalArguments;
 }
 
-// OpenOcdGdbServerProviderFactory
-
-OpenOcdGdbServerProviderFactory::OpenOcdGdbServerProviderFactory()
-{
-    setId(Constants::GDBSERVER_OPENOCD_PROVIDER_ID);
-    setDisplayName(Tr::tr("OpenOCD"));
-    setCreator([] { return new OpenOcdGdbServerProvider; });
-}
-
 // OpenOcdGdbServerProviderConfigWidget
 
 OpenOcdGdbServerProviderConfigWidget::OpenOcdGdbServerProviderConfigWidget(
@@ -305,6 +298,24 @@ void OpenOcdGdbServerProviderConfigWidget::setFromProvider()
     m_additionalArgumentsLineEdit->setText(p->m_additionalArguments);
     m_initCommandsTextEdit->setPlainText(p->initCommands());
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
+}
+
+// OpenOcdGdbServerProviderFactory
+
+class OpenOcdGdbServerProviderFactory final : public IDebugServerProviderFactory
+{
+public:
+    OpenOcdGdbServerProviderFactory()
+    {
+        setId(Constants::GDBSERVER_OPENOCD_PROVIDER_ID);
+        setDisplayName(Tr::tr("OpenOCD"));
+        setCreator([] { return new OpenOcdGdbServerProvider; });
+    }
+};
+
+void setupOpenOcdGdbServerProvider()
+{
+    static OpenOcdGdbServerProviderFactory theOpenOcdGdbServerProviderFactory;
 }
 
 } // BareMetal::Internal

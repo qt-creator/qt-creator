@@ -322,7 +322,7 @@ DebugServerProvidersSettingsWidget::DebugServerProvidersSettingsWidget()
     // Set up add menu:
     const auto addMenu = new QMenu(m_addButton);
 
-    for (const auto f : DebugServerProviderManager::factories()) {
+    for (const IDebugServerProviderFactory *f : IDebugServerProviderFactory::factories()) {
         const auto action = new QAction(addMenu);
         action->setText(f->displayName());
         connect(action, &QAction::triggered, this, [this, f] { addProviderToModel(f->create()); });
@@ -332,7 +332,7 @@ DebugServerProvidersSettingsWidget::DebugServerProvidersSettingsWidget()
     connect(m_cloneButton, &QAbstractButton::clicked, this, [this] {
         if (const IDebugServerProvider *old = m_model.provider(currentIndex())) {
             QString id = old->id();
-            for (const auto f : DebugServerProviderManager::factories()) {
+            for (const IDebugServerProviderFactory *f : IDebugServerProviderFactory::factories()) {
                 if (id.startsWith(f->id())) {
                     IDebugServerProvider *p = f->create();
                     Store map;

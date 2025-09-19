@@ -3,6 +3,7 @@
 
 #include "stlinkuvscserverprovider.h"
 
+#include "uvscserverprovider.h"
 #include "uvproject.h"
 #include "uvprojectwriter.h"
 
@@ -235,15 +236,6 @@ FilePath StLinkUvscServerProvider::optionsFilePath(RunControl *runControl,
     return optionsPath;
 }
 
-// StLinkUvscServerProviderFactory
-
-StLinkUvscServerProviderFactory::StLinkUvscServerProviderFactory()
-{
-    setId(Constants::UVSC_STLINK_PROVIDER_ID);
-    setDisplayName(Tr::tr("uVision St-Link"));
-    setCreator([] { return new StLinkUvscServerProvider; });
-}
-
 // StLinkUvscServerProviderConfigWidget
 
 StLinkUvscServerProviderConfigWidget::StLinkUvscServerProviderConfigWidget(
@@ -390,6 +382,24 @@ void StLinkUvscAdapterOptionsWidget::populateSpeeds()
         m_speedBox->addItem(Tr::tr("15kHz"), StLinkUvscAdapterOptions::Speed_15kHz);
         m_speedBox->addItem(Tr::tr("5kHz"), StLinkUvscAdapterOptions::Speed_5kHz);
     }
+}
+
+// StLinkUvscServerProviderFactory
+
+class StLinkUvscServerProviderFactory final : public IDebugServerProviderFactory
+{
+public:
+    StLinkUvscServerProviderFactory()
+    {
+        setId(Constants::UVSC_STLINK_PROVIDER_ID);
+        setDisplayName(Tr::tr("uVision St-Link"));
+        setCreator([] { return new StLinkUvscServerProvider; });
+    }
+};
+
+void setupStLinkUvscServerProvider()
+{
+    static StLinkUvscServerProviderFactory theStLinkUvscServerProviderFactory;
 }
 
 } // BareMetal::Internal

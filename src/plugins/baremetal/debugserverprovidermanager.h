@@ -14,7 +14,6 @@ namespace BareMetal::Internal {
 
 class BareMetalPlugin;
 class IDebugServerProvider;
-class IDebugServerProviderFactory;
 
 // DebugServerProviderManager
 
@@ -26,7 +25,6 @@ public:
     static DebugServerProviderManager *instance();
 
     static QList<IDebugServerProvider *> providers();
-    static QList<IDebugServerProviderFactory *> factories();
     static IDebugServerProvider *findProvider(const QString &id);
     static IDebugServerProvider *findByDisplayName(const QString &displayName);
     static bool registerProvider(IDebugServerProvider *provider);
@@ -49,7 +47,6 @@ private:
 
     Utils::PersistentSettingsWriter *m_writer = nullptr;
     const Utils::FilePath m_configFile;
-    const QList<IDebugServerProviderFactory *> m_factories;
 
     friend class IDebugServerProvider;
 };

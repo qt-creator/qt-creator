@@ -3,6 +3,8 @@
 
 #include "jlinkgdbserverprovider.h"
 
+#include "gdbserverprovider.h"
+
 #include <baremetal/baremetalconstants.h>
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
@@ -211,15 +213,6 @@ bool JLinkGdbServerProvider::operator==(const IDebugServerProvider &other) const
             && m_jlinkTargetIface == p->m_jlinkTargetIface
             && m_jlinkTargetIfaceSpeed == p->m_jlinkTargetIfaceSpeed
             && m_additionalArguments == p->m_additionalArguments;
-}
-
-// JLinkGdbServerProviderFactory
-
-JLinkGdbServerProviderFactory::JLinkGdbServerProviderFactory()
-{
-    setId(Constants::GDBSERVER_JLINK_PROVIDER_ID);
-    setDisplayName(Tr::tr("JLink"));
-    setCreator([] { return new JLinkGdbServerProvider; });
 }
 
 // JLinkGdbServerProviderConfigWidget
@@ -448,6 +441,24 @@ void JLinkGdbServerProviderConfigWidget::setFromProvider()
     setTargetSpeed(p->m_jlinkTargetIfaceSpeed);
 
     updateAllowedControls();
+}
+
+// JLinkGdbServerProviderFactory
+
+class JLinkGdbServerProviderFactory final : public IDebugServerProviderFactory
+{
+public:
+    JLinkGdbServerProviderFactory()
+    {
+        setId(Constants::GDBSERVER_JLINK_PROVIDER_ID);
+        setDisplayName(Tr::tr("JLink"));
+        setCreator([] { return new JLinkGdbServerProvider; });
+    }
+};
+
+void setupJLinkGdbServerProvider()
+{
+    static JLinkGdbServerProviderFactory theJLinkGdbServerProviderFactory;
 }
 
 } // BareMetal::Internal

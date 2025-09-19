@@ -102,6 +102,8 @@ protected:
 class IDebugServerProviderFactory
 {
 public:
+    ~IDebugServerProviderFactory();
+
     QString id() const;
     QString displayName() const;
 
@@ -113,8 +115,11 @@ public:
     static QString idFromMap(const Utils::Store &data);
     static void idToMap(Utils::Store &data, const QString &id);
 
+    static const QList<IDebugServerProviderFactory *> factories();
+
 protected:
     IDebugServerProviderFactory();
+
     void setId(const QString &id);
     void setDisplayName(const QString &name);
     void setCreator(const std::function<IDebugServerProvider *()> &creator);
