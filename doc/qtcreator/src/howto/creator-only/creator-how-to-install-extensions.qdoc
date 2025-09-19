@@ -10,10 +10,14 @@
     \title Manage extensions
 
     In the \uicontrol Extensions mode, you can install extensions from the
-    \QC extension registry or from external repositories, as well as load and
-    unload them.
+    \QC extension registry or from external repositories, as well as activate
+    and deactivate them.
 
     \image {qtcreator-extension-mode.webp} {Extensions mode}
+
+    When you \e {install} extensions, they are copied to the correct place on
+    the computer and \e {activated} for use. \QC can also \e {load} extensions
+    as dependencies of other extensions without explicitly activating them.
 
     To find extensions, start typing in \uicontrol Search.
 
@@ -23,7 +27,7 @@
     or to install extensions from installation packages, select
     \inlineimage {icons/settings.png} {Settings}.
 
-    \sa {Enable and disable plugins}, {Install extensions}, {Load extensions}
+    \sa {Install extensions}, {Activate extensions}
 */
 
 /*!
@@ -32,19 +36,30 @@
 
     \ingroup creator-how-to-use
 
-    \title Load extensions
+    \title Activate extensions
 
-    In the \uicontrol Extensions mode, you can load and unload extensions from
-    the computer.
+    In the \uicontrol Extensions mode, you can activate installed extensions to
+    use them.
 
-    To load extensions when you start \QC:
+    New extensions are often introduced as \e {experimental extensions} to let
+    you try them out before they are fully supported. You must activate them to
+    use them. By default, all the extensions that an extension depends on are
+    loaded.
+
+    You can also deactivate extensions that you do not use, to streamline \QC.
+    If you deactivate an extension, \QC asks you to deactivate all extensions
+    that depend on it. This might lead to some features not working properly.
+    Further, the extensions are not automatically loaded if you activate the
+    first extension again.
+
+    To activate extensions:
 
     \list 1
         \li Go to \uicontrol Extensions.
             \image {qtcreator-extension-activate.webp} {An extension that has not been loaded in Extensions mode}
         \li Select an inactive extension.
         \li Select \uicontrol {Active}.
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
+        \li Select \uicontrol {Restart Now} to restart \QC and load the extension.
     \endlist
 
     \sa {Install extensions}, {Manage extensions}
@@ -93,6 +108,15 @@
 
     To add several repositories, select \uicontrol {Add}.
 
+    \section1 Update extensions
+
+    The \uicontrol {Extensions} mode highlights updated extensions. To install
+    updates, select \uicontrol {Update}.
+
+    \section1 Remove extensions
+
+    To remove an installed extension, select \uicontrol {Remove}.
+
     \section1 Security considerations
 
     \QC does not check extensions from external vendors for security flaws or
@@ -117,5 +141,5 @@
             All extensions that are loaded on start make \QC start a bit slower.
     \endlist
 
-    \sa {Load extensions}, {Manage extensions}
+    \sa {Activate extensions}, {Manage extensions}
 */
