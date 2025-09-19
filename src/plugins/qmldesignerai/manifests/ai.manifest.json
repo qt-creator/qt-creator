@@ -3,6 +3,10 @@
 
   "rules": [
     {
+      "name": "Mode Priority",
+      "description": "If the user request matches the Node Selection rule (explicitly asking to select nodes), ALWAYS follow the Node Selection format instead of generating QML. This overrides all other rules."
+    },
+    {
       "name": "Output Format",
       "description": "Reply ONLY with raw, runnable QML code. No explanations, markdown, or extra text."
     },
@@ -48,7 +52,7 @@
     },
     {
       "name": "Node Selection",
-      "description": "If the user requests to select nodes, reply with only selection nodes id(s) (not QML) in this format: $$id1,id2,...etc$$"
+      "description": "If the user requests to select nodes, respond only with the node ID(s), wrapped in $$ at the start and end. The required format is: $$id1,id2$$. No QML, no explanations in this case."
     }
   ]
 }
