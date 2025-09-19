@@ -35,10 +35,14 @@
 
     \image {qtcreator-settings-build.webp} {Build Settings in the Projects mode}
 
-    Different build configurations allow you to quickly switch between
-    different build settings. \QC creates some configurations by default,
-    depending on the build system used. They usually include at least
-    the following:
+    Different build configurations allow you to quickly switch between different
+    build settings. \QC creates the the build configurations you select when you
+    create or open projects.
+
+    \image {qtcreator-configure-project.webp} {Selecting build configurations when opening projects}
+
+    The available configurations depend on the build system used and usually
+    include at least the following:
 
     \list
         \li Debug

@@ -103,6 +103,8 @@
             \l{Kits}{kits} for building
             and running your project.
             \image {qtcreator-configure-project.webp} {Configure Project view}
+        \li For each kit, select the build configurations to create for the
+            project.
         \li Select \uicontrol {Configure Project}.
     \endlist
 
