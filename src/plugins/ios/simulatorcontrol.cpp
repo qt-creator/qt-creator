@@ -127,59 +127,8 @@ static bool isAvailable(const QJsonObject &object)
                : !object.value(availabilityTag).toString().contains(unavailabilityToken);
 }
 
-static QList<DeviceTypeInfo> getAvailableDeviceTypes()
-{
-    QList<DeviceTypeInfo> deviceTypes;
-    QString output;
-    runSimCtlCommand({"list", "-j", deviceTypeTag}, &output);
-    QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
-    if (!doc.isNull()) {
-        const QJsonArray runtimesArray = doc.object().value(deviceTypeTag).toArray();
-        for (const QJsonValue deviceTypeValue : runtimesArray) {
-            QJsonObject deviceTypeObject = deviceTypeValue.toObject();
-            if (isAvailable(deviceTypeObject)) {
-                DeviceTypeInfo deviceType;
-                deviceType.name = deviceTypeObject.value(nameTag).toString("unknown");
-                deviceType.identifier = deviceTypeObject.value(identifierTag).toString("unknown");
-                deviceTypes.append(deviceType);
-            }
-        }
-        stable_sort(deviceTypes.begin(), deviceTypes.end());
-    } else {
-        qCDebug(simulatorLog) << "Error parsing json output from simctl. Output:" << output;
-    }
-    return deviceTypes;
-}
-
-static QList<RuntimeInfo> getAvailableRuntimes()
-{
-    QList<RuntimeInfo> runtimes;
-    QString output;
-    runSimCtlCommand({"list", "-j", runtimesTag}, &output);
-    QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8());
-    if (!doc.isNull()) {
-        const QJsonArray runtimesArray = doc.object().value(runtimesTag).toArray();
-        for (const QJsonValue runtimeValue : runtimesArray) {
-            QJsonObject runtimeObject = runtimeValue.toObject();
-            if (isAvailable(runtimeObject)) {
-                RuntimeInfo runtime;
-                runtime.name = runtimeObject.value(nameTag).toString("unknown");
-                runtime.build = runtimeObject.value(buildVersionTag).toString("unknown");
-                runtime.identifier = runtimeObject.value(identifierTag).toString("unknown");
-                runtime.version = runtimeObject.value(runtimeVersionTag).toString("unknown");
-                runtimes.append(runtime);
-            }
-        }
-        stable_sort(runtimes.begin(), runtimes.end());
-    } else {
-        qCDebug(simulatorLog) << "Error parsing json output from simctl. Output:" << output;
-    }
-    return runtimes;
-}
-
 static SimulatorInfo deviceInfo(const QString &simUdid);
 static QString bundleIdentifier(const Utils::FilePath &bundlePath);
-static QString bundleExecutable(const Utils::FilePath &bundlePath);
 
 static void startSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid);
 static void installApp(QPromise<SimulatorControl::Response> &promise,
@@ -192,18 +141,6 @@ static void launchApp(QPromise<SimulatorControl::Response> &promise,
                       const QStringList &extraArgs,
                       const QString &stdoutPath,
                       const QString &stderrPath);
-static void deleteSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid);
-static void resetSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid);
-static void renameSimulator(QPromise<SimulatorControl::Response> &promise,
-                            const QString &simUdid,
-                            const QString &newName);
-static void createSimulator(QPromise<SimulatorControl::Response> &promise,
-                            const QString &name,
-                            const DeviceTypeInfo &deviceType,
-                            const RuntimeInfo &runtime);
-static void takeSceenshot(QPromise<SimulatorControl::Response> &promise,
-                          const QString &simUdid,
-                          const QString &filePath);
 
 static QList<SimulatorInfo> s_availableDevices;
 
@@ -248,16 +185,6 @@ static QList<SimulatorInfo> getAvailableSimulators()
     return availableDevices;
 }
 
-QFuture<QList<DeviceTypeInfo>> SimulatorControl::updateDeviceTypes()
-{
-    return Utils::asyncRun(getAvailableDeviceTypes);
-}
-
-QFuture<QList<RuntimeInfo>> SimulatorControl::updateRuntimes()
-{
-    return Utils::asyncRun(getAvailableRuntimes);
-}
-
 QFuture<QList<SimulatorInfo>> SimulatorControl::updateAvailableSimulators(QObject *context)
 {
     QFuture<QList<SimulatorInfo>> future = Utils::asyncRun(getAvailableSimulators);
@@ -277,11 +204,6 @@ bool SimulatorControl::isSimulatorRunning(const QString &simUdid)
 QString SimulatorControl::bundleIdentifier(const Utils::FilePath &bundlePath)
 {
     return Internal::bundleIdentifier(bundlePath);
-}
-
-QString SimulatorControl::bundleExecutable(const Utils::FilePath &bundlePath)
-{
-    return Internal::bundleExecutable(bundlePath);
 }
 
 QFuture<SimulatorControl::Response> SimulatorControl::startSimulator(const QString &simUdid)
@@ -309,34 +231,6 @@ QFuture<SimulatorControl::Response> SimulatorControl::launchApp(const QString &s
                            extraArgs,
                            stdoutPath,
                            stderrPath);
-}
-
-QFuture<SimulatorControl::Response> SimulatorControl::deleteSimulator(const QString &simUdid)
-{
-    return Utils::asyncRun(Internal::deleteSimulator, simUdid);
-}
-
-QFuture<SimulatorControl::Response> SimulatorControl::resetSimulator(const QString &simUdid)
-{
-    return Utils::asyncRun(Internal::resetSimulator, simUdid);
-}
-
-QFuture<SimulatorControl::Response> SimulatorControl::renameSimulator(const QString &simUdid,
-                                                                      const QString &newName)
-{
-    return Utils::asyncRun(Internal::renameSimulator, simUdid, newName);
-}
-
-QFuture<SimulatorControl::Response> SimulatorControl::createSimulator(
-    const QString &name, const DeviceTypeInfo &deviceType, const RuntimeInfo &runtime)
-{
-    return Utils::asyncRun(Internal::createSimulator, name, deviceType, runtime);
-}
-
-QFuture<SimulatorControl::Response> SimulatorControl::takeSceenshot(const QString &simUdid,
-                                                                    const QString &filePath)
-{
-    return Utils::asyncRun(Internal::takeSceenshot, simUdid, filePath);
 }
 
 // Static members
@@ -371,25 +265,6 @@ QString bundleIdentifier(const Utils::FilePath &bundlePath)
     Q_UNUSED(bundlePath)
 #endif
     return bundleID;
-}
-
-QString bundleExecutable(const Utils::FilePath &bundlePath)
-{
-    QString executable;
-#ifdef Q_OS_MAC
-    if (bundlePath.exists()) {
-        CFStringRef cFBundlePath = bundlePath.toUrlishString().toCFString();
-        CFURLRef bundle_url = CFURLCreateWithFileSystemPath (kCFAllocatorDefault, cFBundlePath, kCFURLPOSIXPathStyle, true);
-        CFRelease(cFBundlePath);
-        CFBundleRef bundle = CFBundleCreate (kCFAllocatorDefault, bundle_url);
-        CFStringRef cFStrExecutableName = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(bundle, kCFBundleExecutableKey);
-        executable = QString::fromCFString(cFStrExecutableName).trimmed();
-        CFRelease(bundle);
-    }
-#else
-    Q_UNUSED(bundlePath)
-#endif
-    return executable;
 }
 
 void startSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid)
@@ -538,89 +413,6 @@ void launchApp(QPromise<SimulatorControl::Response> &promise,
     }
 
     promise.addResult(response);
-}
-
-void deleteSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid)
-{
-    SimulatorControl::ResponseData response(simUdid);
-    Result<> result = runSimCtlCommand({"delete", simUdid}, nullptr, [&promise] {
-        return promise.isCanceled();
-    });
-
-    if (!result)
-        promise.addResult(make_unexpected(result.error()));
-    else
-        promise.addResult(response);
-}
-
-void resetSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid)
-{
-    SimulatorControl::ResponseData response(simUdid);
-    Result<> result = runSimCtlCommand({"erase", simUdid}, nullptr, [&promise] {
-        return promise.isCanceled();
-    });
-
-    if (!result)
-        promise.addResult(make_unexpected(result.error()));
-    else
-        promise.addResult(response);
-}
-
-void renameSimulator(QPromise<SimulatorControl::Response> &promise,
-                     const QString &simUdid,
-                     const QString &newName)
-{
-    SimulatorControl::ResponseData response(simUdid);
-    Result<> result = runSimCtlCommand({"rename", simUdid, newName}, nullptr, [&promise] {
-        return promise.isCanceled();
-    });
-    if (!result)
-        promise.addResult(make_unexpected(result.error()));
-    else
-        promise.addResult(response);
-}
-
-void createSimulator(QPromise<SimulatorControl::Response> &promise,
-                     const QString &name,
-                     const DeviceTypeInfo &deviceType,
-                     const RuntimeInfo &runtime)
-{
-    SimulatorControl::ResponseData response("Invalid");
-
-    if (name.isEmpty()) {
-        promise.addResult(response);
-        return;
-    }
-
-    QString stdOutput;
-    Result<> result = runSimCtlCommand(
-        {"create", name, deviceType.identifier, runtime.identifier}, &stdOutput, [&promise] {
-            return promise.isCanceled();
-        });
-
-    if (result)
-        response.simUdid = stdOutput.trimmed();
-
-    if (!result)
-        promise.addResult(make_unexpected(result.error()));
-    else
-        promise.addResult(response);
-}
-
-void takeSceenshot(QPromise<SimulatorControl::Response> &promise,
-                   const QString &simUdid,
-                   const QString &filePath)
-{
-    SimulatorControl::ResponseData response(simUdid);
-    Result<> result
-        = runSimCtlCommand({"io", simUdid, "screenshot", filePath}, nullptr, [&promise] {
-              return promise.isCanceled();
-          });
-
-    if (!result)
-        promise.addResult(make_unexpected(result.error()));
-    else
-        promise.addResult(response);
 }
 
 QString SimulatorInfo::toString() const
