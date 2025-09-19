@@ -101,6 +101,8 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, I
         return cmdLine;
     });
 
+    setWorkingDirectoryProvider([this]{ return project()->projectDirectory(); });
+
     connect(this, &BuildStep::addOutput, this, [](const QString &str, OutputFormat fmt) {
         if (fmt == OutputFormat::ErrorMessage)
             showError(str);
