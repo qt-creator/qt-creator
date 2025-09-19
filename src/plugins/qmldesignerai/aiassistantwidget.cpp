@@ -8,6 +8,7 @@
 
 #include <astcheck/astcheck.h>
 #include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljsreformatter.h>
 #include <qmljs/qmljsstaticanalysismessage.h>
 
 #include <asset.h>
@@ -124,6 +125,17 @@ QString currentQmlText()
         pureQml.remove(startIndex, lengthToRemove);
     }
     return pureQml;
+}
+
+QString reformatQml(const QString &content)
+{
+    auto document = QmlJS::Document::create({}, QmlJS::Dialect::QmlQtQuick2);
+    document->setSource(content);
+    document->parseQml();
+    if (document->isParsedCorrectly())
+        return QmlJS::reformat(document);
+
+    return content;
 }
 
 void selectIds(const QStringList &ids)
@@ -368,7 +380,7 @@ void AiAssistantWidget::handleAiResponse(const AiResponse &response)
     if (!selectedIds.isEmpty()) {
         selectIds(selectedIds);
     } else {
-        const QString newQml = response.content();
+        const QString newQml = reformatQml(response.content());
         const QString currentQml = currentQmlText();
 
         if (!newQml.isEmpty() && currentQml != newQml) {
