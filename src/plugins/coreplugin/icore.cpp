@@ -382,11 +382,14 @@ ICore::ICore()
             emit coreAboutToClose();
         if (failedTests != 0)
             qWarning("Test run was not successful: %d test(s) failed.", failedTests);
-        if (!keepOpenAfterTest)
+        if (!keepOpenAfterTest) {
+            EditorManager::closeAllEditors(false);
             QCoreApplication::exit(failedTests);
+        }
     });
     connect(PluginManager::instance(), &PluginManager::scenarioFinished,
             this, [this](int exitCode) {
+        EditorManager::closeAllEditors(false);
         emit coreAboutToClose();
         QCoreApplication::exit(exitCode);
     });
