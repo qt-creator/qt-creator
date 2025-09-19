@@ -5,9 +5,7 @@
 #include "baremetaldevice.h"
 
 #include "baremetalconstants.h"
-#include "baremetalconstants.h"
 #include "baremetaldevice.h"
-#include "baremetaldeviceconfigurationwidget.h"
 #include "baremetaltr.h"
 #include "debugserverproviderchooser.h"
 #include "debugserverprovidermanager.h"
@@ -15,6 +13,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
+#include <projectexplorer/devicesupport/idevicewidget.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -29,6 +28,44 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace BareMetal::Internal {
+
+class BareMetalDeviceWidget final : public IDeviceWidget
+{
+public:
+    explicit BareMetalDeviceWidget(const IDevicePtr &deviceConfig)
+        : IDeviceWidget(deviceConfig)
+    {
+        const auto dev = std::static_pointer_cast<const BareMetalDevice>(device());
+        QTC_ASSERT(dev, return);
+
+        const auto formLayout = new QFormLayout(this);
+        formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+
+        m_debugServerProviderChooser = new DebugServerProviderChooser(true, this);
+        m_debugServerProviderChooser->populate();
+        m_debugServerProviderChooser->setCurrentProviderId(dev->debugServerProviderId());
+        formLayout->addRow(Tr::tr("Debug server provider:"), m_debugServerProviderChooser);
+
+        connect(m_debugServerProviderChooser, &DebugServerProviderChooser::providerChanged,
+                this, &BareMetalDeviceWidget::debugServerProviderChanged);
+    }
+
+private:
+    void debugServerProviderChanged()
+    {
+        const auto dev = std::static_pointer_cast<BareMetalDevice>(device());
+        QTC_ASSERT(dev, return);
+        dev->setDebugServerProviderId(m_debugServerProviderChooser->currentProviderId());
+    }
+
+    void updateDeviceFromUi() final
+    {
+        debugServerProviderChanged();
+    }
+
+    DebugServerProviderChooser *m_debugServerProviderChooser = nullptr;
+};
+
 
 // BareMetalDevice
 
@@ -80,7 +117,7 @@ void BareMetalDevice::fromMap(const Store &map)
 
 IDeviceWidget *BareMetalDevice::createWidget()
 {
-    return new BareMetalDeviceConfigurationWidget(shared_from_this());
+    return new BareMetalDeviceWidget(shared_from_this());
 }
 
 //  BareMetalDeviceConfigurationWizardSetupPage
