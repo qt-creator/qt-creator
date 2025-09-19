@@ -830,10 +830,6 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
     m_sectionModels.insert(section, model);
     const auto it = m_gridViews.insert(section, gridView);
 
-    constexpr TextFormat headerTitleTF {Theme::Token_Text_Muted, StyleHelper::UiElementH4};
-    auto sectionNameLabel = new ElidingLabel(section.name);
-    applyTf(sectionNameLabel, headerTitleTF);
-
     QLabel *seeAllLink = createLinkLabel(Tr::tr("Show All") + " &gt;", this);
     if (gridView->maxRows().has_value()) {
         seeAllLink->setVisible(true);
