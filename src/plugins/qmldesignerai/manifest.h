@@ -19,12 +19,8 @@ public:
         QString name;
         QString description;
         bool hasTag = false;
-    };
 
-    struct Category
-    {
-        QString name;
-        QList<Rule> rules;
+        QString toString(const QMap<QByteArray, QString> &tagsMap) const;
     };
 
     [[nodiscard]] static Manifest fromJsonResource(const QString &resourcePath);
@@ -32,18 +28,14 @@ public:
     void setTagsMap(const QMap<QByteArray, QString> &tagsMap);
     bool hasNoRules() const;
 
-    QString toJsonContent() const;
+    QString toString() const;
 
 private: // functions
-    void addCategory(const QJsonObject &categoryObject);
-    void addRule(Category &category, const QJsonObject &ruleObject);
-    QJsonObject toJson(const Category &category) const;
-    QJsonObject toJson(const Rule &rule) const;
-    QString resolveTags(const QString &content) const;
+    void addRule(const QJsonObject &ruleObject);
 
 private: // variables
     QString m_role;
-    QList<Category> m_groups;
+    QList<Rule> m_rules;
     QMap<QByteArray, QString> m_tagsMap;
 };
 

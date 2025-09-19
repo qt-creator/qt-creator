@@ -25,32 +25,6 @@ bool hasTag(const QString &content)
     return tagRegex().match(content).hasMatch();
 }
 
-QString getJsonText(const QJsonValue &value)
-{
-    if (value.isString())
-        return value.toString();
-
-    if (!value.isArray())
-        return {};
-
-    QString text;
-    const QJsonArray &array = value.toArray();
-    for (const QJsonValue &arrayValue : array) {
-        if (!arrayValue.isString())
-            return {};
-
-        QString partText = arrayValue.toString();
-        if (!text.isEmpty()) {
-            if (partText.isEmpty())
-                text.append(QChar::LineFeed);
-            else if (!text.at(text.size() - 1).isSpace() && !partText.at(0).isSpace())
-                text.append(QChar::Space);
-        }
-        text.append(partText);
-    }
-    return text;
-}
-
 } // namespace
 
 Manifest Manifest::fromJsonResource(const QString &resourcePath)
@@ -79,12 +53,11 @@ Manifest Manifest::fromJsonResource(const QString &resourcePath)
     }
 
     QJsonObject rootObject = jsonDoc.object();
-    manifest.m_role = getJsonText(rootObject.value(u"role"));
+    manifest.m_role = rootObject.value("role").toString();
 
-    const QJsonArray groups = rootObject.value(u"groups").toArray();
-
-    for (const QJsonValue &category : groups)
-        manifest.addCategory(category.toObject());
+    const QJsonArray rules = rootObject.value("rules").toArray();
+    for (const QJsonValue &rule : rules)
+        manifest.addRule(rule.toObject());
 
     return manifest;
 }
@@ -96,59 +69,26 @@ void Manifest::setTagsMap(const QMap<QByteArray, QString> &tagsMap)
 
 bool Manifest::hasNoRules() const
 {
-    return m_groups.isEmpty();
+    return m_rules.isEmpty();
 }
 
-QString Manifest::toJsonContent() const
+QString Manifest::toString() const
 {
-    QJsonArray groups;
+    QString result = QString("%1\n").arg(m_role);
 
-    for (const Category &category : std::as_const(m_groups))
-        groups.append(toJson(category));
+    for (const Rule &rule : std::as_const(m_rules))
+        result.append(rule.toString(m_tagsMap)).append('\n');
 
-    return QString{"AI Role: %1\n```json\n%2\n```"}
-        .arg(m_role, QJsonDocument{groups}.toJson(QJsonDocument::Compact));
+    return result;
 }
 
-void Manifest::addCategory(const QJsonObject &categoryObject)
+void Manifest::addRule(const QJsonObject &ruleObject)
 {
-    if (categoryObject.isEmpty()) {
-        qWarning() << __FUNCTION__ << "Empty category";
-        return;
-    }
-
-    const QString name = categoryObject.value("category").toString();
-    const QJsonArray rules = categoryObject.value("rules").toArray();
-
-    if (name.isEmpty() || rules.isEmpty()) {
-        qWarning() << __FUNCTION__ << "Invalid category" << name;
-        return;
-    }
-
-    Category category;
-    category.name = name;
-
-    for (const QJsonValue &rule : rules)
-        addRule(category, rule.toObject());
-
-    if (category.rules.isEmpty()) {
-        qWarning() << __FUNCTION__ << "Empty category" << name;
-        return;
-    }
-
-    m_groups.append(category);
-}
-
-void Manifest::addRule(Category &category, const QJsonObject &ruleObject)
-{
-    if (ruleObject.isEmpty()) {
-        qWarning() << __FUNCTION__ << "Empty rule";
-        return;
-    }
+    QTC_ASSERT(!ruleObject.isEmpty(), return);
 
     Manifest::Rule rule;
-    rule.name = ruleObject.value(u"name").toString();
-    rule.description = getJsonText(ruleObject.value(u"description"));
+    rule.name = ruleObject.value("name").toString();
+    rule.description = ruleObject.value("description").toString();
 
     if (rule.name.isEmpty() || rule.description.isEmpty()) {
         qWarning() << __FUNCTION__ << "Invalid rule" << rule.name << rule.description;
@@ -156,39 +96,10 @@ void Manifest::addRule(Category &category, const QJsonObject &ruleObject)
     }
 
     rule.hasTag = hasTag(rule.description);
-    category.rules.append(rule);
+    m_rules.append(rule);
 }
 
-QJsonObject Manifest::toJson(const Category &category) const
-{
-    QJsonObject categoryObject;
-    QJsonArray rulesArray;
-
-    for (const Rule &rule : category.rules) {
-        const QJsonObject &ruleObject = toJson(rule);
-        if (!ruleObject.isEmpty())
-            rulesArray.append(toJson(rule));
-    }
-
-    categoryObject.insert(u"category", category.name);
-    categoryObject.insert(u"rules", rulesArray);
-
-    return categoryObject;
-}
-
-QJsonObject Manifest::toJson(const Rule &rule) const
-{
-    const QString &description = rule.hasTag ? resolveTags(rule.description) : rule.description;
-    if (description.isEmpty())
-        return {};
-
-    return QJsonObject{
-        {"name", rule.name},
-        {"description", description},
-    };
-}
-
-QString Manifest::resolveTags(const QString &content) const
+QString resolveTags(const QString &content, const QMap<QByteArray, QString> &tagsMap)
 {
     QString result = content;
     QRegularExpressionMatchIterator tag = tagRegex().globalMatch(content);
@@ -198,12 +109,21 @@ QString Manifest::resolveTags(const QString &content) const
 
     for (const QByteArray &tagName : std::as_const(tagNames)) {
         const QString tag = QString("[[%1]]").arg(tagName);
-        const QString value = m_tagsMap.value(tagName);
+        const QString value = tagsMap.value(tagName);
         if (value.isEmpty())
             return {};
         result.replace(tag, value);
     }
     return result;
+}
+
+QString Manifest::Rule::toString(const QMap<QByteArray, QString> &tagsMap) const
+{
+    const QString &desc = hasTag ? resolveTags(description, tagsMap) : description;
+    if (description.isEmpty())
+        return {};
+
+    return QString("**%1**: %2").arg(name, desc);
 }
 
 } // namespace QmlDesigner

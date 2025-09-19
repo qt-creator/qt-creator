@@ -7,20 +7,6 @@
 
 namespace QmlDesigner {
 
-struct AiResponseFile
-{
-    QString filePath() const;
-    QString content() const;
-    bool isValid() const;
-
-private:
-    friend class AiResponse;
-    explicit AiResponseFile() = default;
-    explicit AiResponseFile(const QJsonObject &json);
-
-    QJsonObject m_content;
-};
-
 class AiResponse
 {
 public:
@@ -32,26 +18,24 @@ public:
         EmptyChoices,
         InvalidMessage,
         EmptyMessage,
-        InvalidContentStructure,
+        InvalidQmlBlock,
     };
 
     AiResponse(const QByteArray &response);
 
+    QString content() const;
     Error error() const;
     QString errorString() const;
-    AiResponseFile file() const;
     QStringList selectedIds() const;
 
 private: // functions
     void setError(Error error);
-    QString getContent();
-    void parseContent(const QString &content);
-    void contentFromObject(const QJsonObject &jsonObject);
+    void parseContent();
 
 private: // variables
     Error m_error = Error::NoError;
     QJsonObject m_rootObject;
-    QJsonObject m_content;
+    QString m_content;
 };
 
 } // namespace QmlDesigner
