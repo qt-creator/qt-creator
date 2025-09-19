@@ -286,7 +286,14 @@ public:
         WatcherEntries notWatchedEntries;
         notWatchedEntries.reserve(entries.size());
 
-        std::ranges::set_difference(entries, m_watchedEntries, std::back_inserter(notWatchedEntries));
+        auto append = [&](auto &&entry) {
+            NanotraceHR::Tracer tracer{"project storage path watcher not watched entry",
+                                       ProjectStorageTracing::category(),
+                                       NanotraceHR::keyValue("entry", entry)};
+            notWatchedEntries.push_back(entry);
+        };
+
+        Utils::set_difference(entries, m_watchedEntries, append);
 
         return notWatchedEntries;
     }
@@ -299,7 +306,14 @@ public:
         DirectoryPathIds notWatchedDirectoryIds;
         notWatchedDirectoryIds.reserve(ids.size());
 
-        std::ranges::set_difference(ids, m_watchedEntries, std::back_inserter(notWatchedDirectoryIds));
+        auto append = [&](DirectoryPathId id) {
+            NanotraceHR::Tracer tracer{"project storage path watcher not watched directory path",
+                                       ProjectStorageTracing::category(),
+                                       NanotraceHR::keyValue("directory id", id)};
+            notWatchedDirectoryIds.push_back(id);
+        };
+
+        Utils::set_difference(ids, m_watchedEntries, append, {}, {}, &WatcherEntry::directoryPathId);
 
         return notWatchedDirectoryIds;
     }
@@ -313,9 +327,14 @@ public:
         WatcherEntries notAnymoreWatchedEntries;
         notAnymoreWatchedEntries.reserve(1024);
 
-        std::ranges::set_difference(oldEntries,
-                                    newEntries,
-                                    std::back_inserter(notAnymoreWatchedEntries));
+        auto append = [&](auto &&entry) {
+            NanotraceHR::Tracer tracer{"project storage path watcher not anymore watched entry",
+                                       ProjectStorageTracing::category(),
+                                       NanotraceHR::keyValue("entry", entry)};
+            notAnymoreWatchedEntries.push_back(entry);
+        };
+
+        Utils::set_difference(oldEntries, newEntries, append);
 
         return notAnymoreWatchedEntries;
     }
@@ -400,9 +419,14 @@ public:
         WatcherEntries newWatchedEntries;
         newWatchedEntries.reserve(m_watchedEntries.size() - oldEntries.size());
 
-        std::ranges::set_difference(m_watchedEntries,
-                                    oldEntries,
-                                    std::back_inserter(newWatchedEntries));
+        auto append = [&](auto &&entry) {
+            NanotraceHR::Tracer tracer{"project storage path watcher entry",
+                                       ProjectStorageTracing::category(),
+                                       NanotraceHR::keyValue("entry", entry)};
+            newWatchedEntries.push_back(entry);
+        };
+
+        Utils::set_difference(m_watchedEntries, oldEntries, append);
 
         m_watchedEntries = std::move(newWatchedEntries);
 
@@ -440,6 +464,9 @@ public:
                     foundEntries.push_back(entry);
                     entry.lastModified = fileStatus.lastModified;
                     entry.size = fileStatus.size;
+                    tracer.tick("update entry",
+                                NanotraceHR::keyValue("entry", entry),
+                                NanotraceHR::keyValue("file status", fileStatus));
                 }
             },
             {},

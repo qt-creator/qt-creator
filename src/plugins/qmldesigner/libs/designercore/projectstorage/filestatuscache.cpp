@@ -26,7 +26,10 @@ void FileStatusCache::remove(const DirectoryPathIds &directoryPathIds)
     FileStatuses notRemovedFileStatuses;
     notRemovedFileStatuses.reserve(m_cacheEntries.size());
 
-    auto append = [&](const FileStatus &fileStatus) { notRemovedFileStatuses.push_back(fileStatus); };
+    auto append = [&](const FileStatus &fileStatus) {
+        tracer.tick("not removed file status", keyValue("file status", fileStatus));
+        notRemovedFileStatuses.push_back(fileStatus);
+    };
 
     Utils::set_greedy_difference(m_cacheEntries,
                                  directoryPathIds,
@@ -49,7 +52,10 @@ void FileStatusCache::remove(const SourceIds &sourceIds)
     FileStatuses notRemovedFileStatuses;
     notRemovedFileStatuses.reserve(m_cacheEntries.size());
 
-    auto append = [&](const FileStatus &fileStatus) { notRemovedFileStatuses.push_back(fileStatus); };
+    auto append = [&](const FileStatus &fileStatus) {
+        tracer.tick("not removed file status", keyValue("file status", fileStatus));
+        notRemovedFileStatuses.push_back(fileStatus);
+    };
 
     Utils::set_greedy_difference(m_cacheEntries, sourceIds, append, {}, &FileStatus::sourceId);
 

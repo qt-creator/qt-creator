@@ -119,6 +119,20 @@ public:
     operator SourceId() const { return sourceId; }
 
     operator DirectoryPathId() const { return directoryPathId; }
+
+    template<typename String>
+    friend void convertToString(String &string, const WatcherEntry &entry)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("id", entry.id),
+                              keyValue("directory path id", entry.directoryPathId),
+                              keyValue("source id", entry.sourceId),
+                              keyValue("last modified", entry.lastModified),
+                              keyValue("size", entry.size));
+
+        convertToString(string, dict);
+    }
 };
 
 using WatcherEntries = std::vector<WatcherEntry>;
