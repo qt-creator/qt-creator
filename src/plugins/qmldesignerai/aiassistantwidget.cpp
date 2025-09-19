@@ -67,33 +67,27 @@ QString toBase64Image(const Utils::FilePath &imagePath)
     return "data:image/%1;base64,%2"_L1.arg(imagePath.suffix(), byteArray.toBase64());
 }
 
-QJsonObject getUserJson(
-    const QUrl &imageUrl, const QString &filePath, const QString &currentQml, const QString &prompt)
+QJsonObject getUserJson(const QUrl &imageUrl, const QString &currentQml, const QString &prompt)
 {
     using namespace Qt::StringLiterals;
     using Utils::FilePath;
 
     QJsonArray jsonContent;
 
-    jsonContent << QJsonObject{
+    jsonContent << QJsonObject {
         {"type", "text"},
-        {"text", "filePath: %1"_L1.arg(filePath)},
+        {"text", "Current Qml:\n```qml\n%1\n```"_L1.arg(currentQml)},
     };
 
-    jsonContent << QJsonObject{
+    jsonContent << QJsonObject {
         {"type", "text"},
-        {"text", "currentQml:\n```qml\n%1\n```"_L1.arg(currentQml)},
-    };
-
-    jsonContent << QJsonObject{
-        {"type", "text"},
-        {"text", "request: %1"_L1.arg(prompt)},
+        {"text", "Request: %1"_L1.arg(prompt)},
     };
 
     if (!imageUrl.isEmpty()) {
         FilePath imagePath = FilePath::fromUrl(imageUrl);
         if (imagePath.exists()) {
-            jsonContent << QJsonObject{
+            jsonContent << QJsonObject {
                 {"type", "image_url"},
                 {"image_url", QJsonObject{{"url", toBase64Image(imagePath)}}},
             };
@@ -130,11 +124,6 @@ QString currentQmlText()
         pureQml.remove(startIndex, lengthToRemove);
     }
     return pureQml;
-}
-
-QString relativePathFromProject(const Utils::FilePath &file)
-{
-    return file.relativePathFromDir(DocumentManager::currentProjectDirPath()).toFSPathString();
 }
 
 void selectIds(const QStringList &ids)
@@ -259,16 +248,12 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
         {"image_assets", imagePaths},
     });
 
-    QJsonObject userJson = getUserJson(
-        fullImageUrl(attachedImageSource()),
-        relativePathFromProject(qmlFile),
-        currentQmlText(),
-        prompt);
+    QJsonObject userJson = getUserJson(fullImageUrl(attachedImageSource()), currentQmlText(), prompt);
 
     QJsonObject json;
     json["model"] = "meta-llama/llama-4-maverick-17b-128e-instruct";
-    json["messages"] = QJsonArray{
-        QJsonObject{{"role", "system"}, {"content", m_manifest.toJsonContent()}},
+    json["messages"] = QJsonArray {
+        QJsonObject{{"role", "system"}, {"content", m_manifest.toString()}},
         userJson,
     };
 
@@ -367,32 +352,24 @@ void AiAssistantWidget::handleAiResponse(const AiResponse &response)
         return;
     }
 
-    const AiResponseFile file = response.file();
-    if (file.isValid()) {
-        const FilePath currentFile = currentDesignDocument()->fileName();
-        const QString currentRelativeFilePath = relativePathFromProject(currentFile);
-        if (currentRelativeFilePath != file.filePath()
-            && currentFile.fileName() != file.filePath()) {
-            emit notifyAIResponseError(tr("Invalid file path '%1'. Current filePath is '%2'")
-                                           .arg(file.filePath(), currentRelativeFilePath));
-            return;
-        }
-
-        const QString aiFileContent = file.content();
+    QStringList selectedIds = response.selectedIds();
+    if (!selectedIds.isEmpty()) {
+        selectIds(selectedIds);
+    } else {
+        const QString newQml = response.content();
         const QString currentQml = currentQmlText();
-        if (!aiFileContent.isEmpty() && currentQml != aiFileContent) {
-            m_lastGeneratedQml = aiFileContent;
-            if (isValidQmlCode(aiFileContent)) {
+
+        if (!newQml.isEmpty() && currentQml != newQml) {
+            m_lastGeneratedQml = newQml;
+            if (isValidQmlCode(newQml)) {
                 auto textModifier = rewriterView()->textModifier();
-                textModifier->replace(0, textModifier->text().size(), aiFileContent);
+                textModifier->replace(0, textModifier->text().size(), newQml);
                 emit notifyAIResponseSuccess();
             } else {
                 emit notifyAIResponseInvalidQml();
             }
         }
     }
-
-    selectIds(response.selectedIds());
 }
 
 bool AiAssistantWidget::isValidQmlCode(const QString &qmlCode) const

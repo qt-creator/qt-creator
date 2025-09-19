@@ -10,25 +10,6 @@
 
 namespace QmlDesigner {
 
-QString AiResponseFile::filePath() const
-{
-    return m_content.value("filePath").toString();
-}
-
-QString AiResponseFile::content() const
-{
-    return m_content.value("content").toString();
-}
-
-bool AiResponseFile::isValid() const
-{
-    return !m_content.isEmpty();
-}
-
-AiResponseFile::AiResponseFile(const QJsonObject &json)
-    : m_content(json)
-{}
-
 AiResponse::AiResponse(const QByteArray &response)
 {
     if (response.isEmpty()) {
@@ -45,11 +26,7 @@ AiResponse::AiResponse(const QByteArray &response)
 
     m_rootObject = doc.object();
 
-    const QString contentStr = getContent();
-    if (contentStr.isEmpty())
-        return;
-
-    parseContent(contentStr);
+    parseContent();
 }
 
 QString AiResponse::errorString() const
@@ -69,8 +46,8 @@ QString AiResponse::errorString() const
         return Tr::tr("Missing or invalid `message` object in first `choice`");
     case Error::EmptyMessage:
         return Tr::tr("Missing or invalid `content` string in `message`");
-    case Error::InvalidContentStructure:
-        return Tr::tr("Invalid `content` structure received by AI");
+    case Error::InvalidQmlBlock:
+        return Tr::tr("Invalid QML block");
     }
 
     const int errorNo = static_cast<int>(error());
@@ -78,24 +55,15 @@ QString AiResponse::errorString() const
     return Tr::tr("Error number %1").arg(errorNo);
 }
 
-AiResponseFile AiResponse::file() const
-{
-    if (error() != Error::NoError)
-        return AiResponseFile{};
-
-    return AiResponseFile(m_content.value("file").toObject());
-}
-
 QStringList AiResponse::selectedIds() const
 {
-    if (error() != Error::NoError)
-        return {};
-
     QStringList result;
-    const QJsonArray idArray = m_content.value("select").toArray();
-    result.reserve(idArray.size());
-    for (const QJsonValue &value : idArray)
-        result.append(value.toString());
+    if (m_content.startsWith("$$") && m_content.endsWith("$$")) {
+        QString inner = m_content.mid(2, m_content.length() - 4);
+        result = inner.split(",", Qt::SkipEmptyParts);
+        for (QString &id : result)
+            id = id.trimmed();
+    }
 
     return result;
 }
@@ -110,86 +78,59 @@ void AiResponse::setError(Error error)
     m_error = error;
 }
 
-QString AiResponse::getContent()
+QString AiResponse::content() const
 {
-    auto setErrorAndReturn = [this](Error error) -> QString {
-        setError(error);
-        return {};
-    };
+    return m_content;
+}
 
-    if (m_rootObject.isEmpty())
-        return setErrorAndReturn(Error::EmptyResponse);
+void AiResponse::parseContent()
+{
+    if (m_rootObject.isEmpty()) {
+        setError(Error::EmptyResponse);
+        return;
+    }
 
-    if (!m_rootObject.contains("choices") || !m_rootObject["choices"].isArray())
-        return setErrorAndReturn(Error::InvalidChoices);
+    if (!m_rootObject.contains("choices") || !m_rootObject["choices"].isArray()) {
+        setError(Error::InvalidChoices);
+        return;
+    }
 
     QJsonArray choicesArray = m_rootObject["choices"].toArray();
-    if (choicesArray.isEmpty())
-        return setErrorAndReturn(Error::EmptyChoices);
+    if (choicesArray.isEmpty()) {
+        setError(Error::EmptyChoices);
+        return;
+    }
 
     QJsonObject firstChoice = choicesArray.first().toObject();
-    if (!firstChoice.contains("message") || !firstChoice["message"].isObject())
-        return setErrorAndReturn(Error::InvalidMessage);
+    if (!firstChoice.contains("message") || !firstChoice["message"].isObject()) {
+        setError(Error::InvalidMessage);
+        return;
+    }
 
     QJsonObject messageObject = firstChoice["message"].toObject();
-    QString contentString = messageObject.value("content").toString();
-    if (contentString.isEmpty())
-        return setErrorAndReturn(Error::EmptyMessage);
-
-    return contentString;
-}
-
-void AiResponse::parseContent(const QString &content)
-{
-    if (error() != Error::NoError)
+    m_content = messageObject.value("content").toString();
+    if (m_content.isEmpty()) {
+        setError(Error::EmptyMessage);
         return;
-
-    QString contentString = content;
+    }
 
     // remove <think> block if exists
-    if (contentString.startsWith("<think>")) {
-        int endPos = contentString.indexOf("</think>");
+    if (m_content.startsWith("<think>")) {
+        int endPos = m_content.indexOf("</think>");
         if (endPos != -1)
-            contentString.remove(0, endPos + 8);
+            m_content.remove(0, endPos + 8);
         else                            // If no closing tag, remove the opening tag only
-            contentString.remove(0, 7); // 7 is length of "<think>"
+            m_content.remove(0, 7); // 7 is length of "<think>"
     }
+    m_content = m_content.trimmed();
 
-    contentString = contentString.trimmed();
-
-    // remove the start/end sentence and ``` if exists
-    if (contentString.startsWith("```json", Qt::CaseInsensitive) && contentString.endsWith("```")) {
-        contentString.remove(0, 7);
-        contentString.chop(3);
-
-        QJsonDocument doc = QJsonDocument::fromJson(contentString.toUtf8());
-        if (!doc.isObject())
-            setError(Error::InvalidContentStructure);
-
-        contentFromObject(doc.object());
-    } else if (contentString.startsWith("```qml", Qt::CaseInsensitive) && contentString.endsWith("```")) {
-        contentString.remove(0, 3);
-        contentString.chop(3);
-
-        QJsonObject virtualContent {
-            {"content", contentString},
-        };
-
-        contentFromObject(virtualContent);
-    } else {
-        setError(Error::InvalidContentStructure);
+    // remove the wrapper "```qml" and "```" if exists
+    if (m_content.startsWith("```qml", Qt::CaseInsensitive) && m_content.endsWith("```")) {
+        m_content.remove(0, 6);
+        m_content.chop(3);
+    } else if (!m_content.startsWith("$$")) {
+        setError(Error::InvalidQmlBlock);
     }
-}
-
-void AiResponse::contentFromObject(const QJsonObject &jsonObject)
-{
-    if (error() != Error::NoError)
-        return;
-
-    if (jsonObject.isEmpty())
-        return setError(Error::InvalidContentStructure);
-
-    m_content = jsonObject;
 }
 
 } // namespace QmlDesigner
