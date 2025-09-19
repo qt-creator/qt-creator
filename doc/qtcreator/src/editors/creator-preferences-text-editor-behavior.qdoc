@@ -71,7 +71,7 @@
     To disable automatic indentation, clear the
     \uicontrol {Enable automatic indentation} check box.
 
-    You can specify how the indentation is decreased when you press
+    You can specify how the indentation is decreased when you select
     \uicontrol Backspace in the \uicontrol {Backspace indentation} field. To go
     back one space at a time, select \uicontrol None. To decrease indentation
     in leading white space by one level, select

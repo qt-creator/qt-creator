@@ -94,7 +94,7 @@
             location.
     \endlist
 
-    To start debugging, press \key {F5} or select \uicontrol Debug >
+    To start debugging, select \key {F5} or go to \uicontrol Debug >
     \uicontrol {Start Debugging} > \uicontrol {Start Debugging of Startup Project}.
 
     \sa {Activate kits for a project}, {Create kits for VxWorks devices},

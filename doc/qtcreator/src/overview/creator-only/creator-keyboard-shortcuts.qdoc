@@ -447,8 +447,10 @@
 
                In \uicontrol Edit mode:
                \list
-                \li The first press moves focus to the editor
-                \li The second press closes secondary windows
+                \li The first time you select \key Esc, the focus moves to the
+                    editor
+                \li The second time you select \key Esc, secondary windows are
+                    closed
                \endlist
             \li Esc
             \li Esc
@@ -633,8 +635,8 @@
         \row
             \li Select the current block
 
-                The second press extends the selection to the parent block. To
-                enable this behavior, select \preferences >
+                Select the shortcut again to extend the selection to the parent
+                block. To turn on this behavior, go to \preferences >
                 \uicontrol {Text Editor} > \uicontrol Behavior >
                 \uicontrol {Enable smart selection changing}.
             \li Ctrl+U

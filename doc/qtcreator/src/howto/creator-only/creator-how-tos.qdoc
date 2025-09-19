@@ -296,16 +296,16 @@
 
     \title Switch to Edit mode
 
-    To move to the \uicontrol Edit mode and currently active file, press
+    To move to the \uicontrol Edit mode and currently active file, select
     \key Esc.
 
     If you already are in the \uicontrol Edit mode:
 
     \list
 
-        \li The first press moves focus to the editor
+        \li The first time you select \key Esc, the focus moves to the editor
 
-        \li The second press closes secondary windows
+        \li The second time you select \key Esc, secondary windows are closed
 
     \endlist
 
@@ -423,13 +423,13 @@
     To do basic calculations in the locator:
 
     \list 1
-        \li Press \key {Ctrl+K} (\key {Cmd+K} on \macos) to activate the locator.
+        \li Select \key {Ctrl+K} (\key {Cmd+K} on \macos) to activate the locator.
         \li Enter \c =, followed by a space.
         \image {qtcreator-locator.webp} {List of locator filters}
         \li Perform calculations.
     \endlist
 
-    Navigate through the entries and press \key {Enter} to copy the results to
+    Navigate through the entries and select \key {Enter} to copy the results to
     the clipboard
 
     \section1 Built-in functions
@@ -530,7 +530,7 @@
     To locate a QML method:
 
     \list 1
-        \li Press \key {Ctrl+K} to activate the locator.
+        \li Select \key {Ctrl+K} to activate the locator.
         \li Type m, followed by a space.
             \image {qtcreator-locator-m-filter.webp} {The m filter in the locator}
         \li Double-click a QML method in the list to move to it in the editor.
@@ -542,7 +542,7 @@
     the type and and do one of the following:
 
     \list
-        \li Press \key {Ctrl+Shift+U}.
+        \li Select \key {Ctrl+Shift+U}.
         \li Go to \uicontrol Tools > \uicontrol {QML/JS} >
             \uicontrol {Find References to Symbol Under Cursor}.
     \endlist
@@ -559,7 +559,7 @@
     cursor on the type and do one of the following:
 
     \list
-        \li Press \key F2.
+        \li Select \key F2.
         \li Go to \uicontrol {Follow Symbol Under Cursor} in the context menu.
     \endlist
 
@@ -611,7 +611,7 @@
     \title Paste text from clipboard history
 
     \QC stores copied text in clipboard history. To retrieve clips from the
-    history, press \key {Ctrl+Shift+V} until the clip appears.
+    history, select \key {Ctrl+Shift+V} until the clip appears.
     The number of clips in the history is fixed to 10.
 
     \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
@@ -656,12 +656,12 @@
 
     \title Select the current code block
 
-    To select the current block of C++ code in the code editor, press
+    To select the current block of C++ code in the code editor, select
     \key Ctrl+U.
 
-    Press \key Ctrl+U a second time to extend the selection to the parent block.
+    Select \key Ctrl+U a second time to extend the selection to the parent block.
 
-    To undo the last selection, press \key {Ctrl+Alt+Shift+U}.
+    To undo the last selection, select \key {Ctrl+Alt+Shift+U}.
 
     \section1 Turn on smart block selection
 
@@ -693,7 +693,7 @@
     \list
         \li Select \uicontrol File > \uicontrol {New File} > \uicontrol General >
             \uicontrol {Scratch Buffer}.
-        \li Press \key {Ctrl+N}.
+        \li Select \key {Ctrl+N}.
     \endlist
 
     Use the up and down arrow keys and the tab key to navigate in the editor.
@@ -743,7 +743,7 @@
     \list 1
     \li Commit your changes to version control, as you cannot undo the
         replace action.
-    \li Press \key {Ctrl+Shift+F} or go to \uicontrol Edit >
+    \li Select \key {Ctrl+Shift+F} or go to \uicontrol Edit >
         \uicontrol {Find/Replace} > \uicontrol {Advanced Find} >
         \uicontrol {Open Advanced Find} to open \uicontrol {Search Results}.
         \image {qtcreator-search-reg-exp.webp} {Regular expression in Search Results view}

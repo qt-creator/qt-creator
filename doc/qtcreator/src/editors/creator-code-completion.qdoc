@@ -172,7 +172,7 @@
     Select the \uicontrol {Automatically split strings} check box to split
     a string to two lines by adding an end quote at the cursor position when
     you select \key Enter and a start quote at the beginning of the next line,
-    before the rest of the string. In addition, pressing \key {Shift+Enter}
+    before the rest of the string. In addition, selecting \key {Shift+Enter}
     inserts an escape character at the cursor position and moves the rest of
     the string to the next line.
 

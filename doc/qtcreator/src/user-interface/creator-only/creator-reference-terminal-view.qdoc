@@ -46,7 +46,7 @@
         \li To open links in a browser, files in the editor, or folders in the
             \l Projects view, hover over them, and select \key Ctrl.
 
-        \li To \l{Search in current file}{search} through the output, press
+        \li To \l{Search in current file}{search} through the output, select
             \key {Ctrl+F}.
 
         \li To make the font larger or smaller, select

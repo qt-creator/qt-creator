@@ -119,7 +119,7 @@
         \li Hovering the mouse over a function, variable, property, policy,
             environment variable, or CMake find or include module to show
             tooltips
-        \li Selecting any of the above elements and pressing \key F1 to show
+        \li Selecting any of the above elements, and then selecting \key F1 to show
             its documentation
         \li Switching to the \uicontrol Help mode
     \endlist
@@ -220,7 +220,7 @@
 
     \list
 
-        \li Pressing \key F2 when the cursor is on a:
+        \li Selecting \key F2 when the cursor is on a:
             \list
                 \li Filename - to open the file
                 \li CMake function, macro, option, target, CMake's Find or

@@ -239,7 +239,7 @@
         \li Select \key {Ctrl+K} to activate the locator.
         \li Start typing the filename.
             \image {qtcreator-locator-open.webp} {List of files in the locator}
-        \li Use the arrow keys to move to the filename in the list and press
+        \li Use the arrow keys to move to the filename in the list and select
             \key Enter.
 
             The file opens in the editor.
@@ -557,7 +557,7 @@
             editor view.
 
         \li To split the editor view into adjacent views, go to
-            \uicontrol Window > \uicontrol {Split Side by Side}, press
+            \uicontrol Window > \uicontrol {Split Side by Side}, select
             \key {Ctrl+E, 3}, or select \uicontrol Split >
             \uicontrol {Split Side by Side}.
 
@@ -576,7 +576,7 @@
     \section1 Move between views and windows
 
     To move between split views and detached editor windows, go to
-    \uicontrol Window > \uicontrol {Go to Next Split or Window} or press
+    \uicontrol Window > \uicontrol {Go to Next Split or Window} or select
     \key {Ctrl+E, O}.
 
     \section1 Remove splits
@@ -645,7 +645,7 @@
     or select \key {Ctrl+,}.
 
     To move to the next bookmark in the current session, go to \uicontrol Tools >
-    \uicontrol Bookmarks > \uicontrol {Previous Bookmark} or press
+    \uicontrol Bookmarks > \uicontrol {Previous Bookmark} or select
     \key {Ctrl+.}.
 
     \section2 Locate bookmarks
