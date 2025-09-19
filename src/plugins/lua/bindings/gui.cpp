@@ -147,6 +147,7 @@ CREATE_HAS_FUNC(setEnableCodeCopyButton, bool());
 CREATE_HAS_FUNC(setDefaultAction, nullptr);
 CREATE_HAS_FUNC_NAMED(setRole, setRoleButton, QtcButton::Role());
 CREATE_HAS_FUNC_NAMED(setRole, setRoleLabel, QtcLabel::Role());
+CREATE_HAS_FUNC(setCompletionBehavior, Utils::CompletingTextEdit::CompletionBehavior());
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
@@ -412,6 +413,12 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         sol::optional<QtcLabel::Role> role = children.get<sol::optional<QtcLabel::Role>>("role"sv);
         if (role)
             item->setRole(*role);
+    }
+    if constexpr (has_setCompletionBehavior<T>) {
+        sol::optional<Utils::CompletingTextEdit::CompletionBehavior> completionBehavior = children.get<sol::optional<Utils::CompletingTextEdit::CompletionBehavior>>(
+            "completionBehavior"sv);
+        if (completionBehavior)
+            item->setCompletionBehavior(*completionBehavior);
     }
 }
 
@@ -766,6 +773,34 @@ void setupGuiModule()
             sol::property(&TextEdit::markdown),
             sol::base_classes,
             sol::bases<Widget, Object>());
+
+        gui.new_usertype<Layouting::CompletingTextEdit>(
+            "QtcTextEdit",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Layouting::CompletingTextEdit>(children, guard);
+            }),
+            "CompletionBehavior",
+            gui.create_with(
+                "OnKeyPress", Utils::CompletingTextEdit::CompletionBehavior::OnKeyPress,
+                "OnTextChange", Utils::CompletingTextEdit::CompletionBehavior::OnTextChange),
+            "markdown",
+            sol::property(&Layouting::CompletingTextEdit::markdown, &Layouting::CompletingTextEdit::setMarkdown),
+            "text",
+            sol::property(&Layouting::CompletingTextEdit::text, &Layouting::CompletingTextEdit::setText),
+            "completionBehavior",
+            sol::property(
+                &Layouting::CompletingTextEdit::completionBehavior,
+                &Layouting::CompletingTextEdit::setCompletionBehavior),
+            "placeHolderText",
+            sol::property(&Layouting::CompletingTextEdit::setPlaceHolderText),
+            "rightSideIconPath",
+            sol::property(&Layouting::CompletingTextEdit::setRightSideIconPath),
+            "completer",
+            sol::property(
+                &Layouting::CompletingTextEdit::completer, &Layouting::CompletingTextEdit::setCompleter),
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
 
         gui.new_usertype<LineEdit>(
             "LineEdit",

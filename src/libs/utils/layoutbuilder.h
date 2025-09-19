@@ -4,6 +4,7 @@
 #pragma once
 
 #include "builderutils.h"
+#include "completingtextedit.h"
 
 #include <QAction>
 #include <QFrame>
@@ -386,6 +387,31 @@ public:
     void setText(const QString &);
     void setMarkdown(const QString &);
     void setReadOnly(bool);
+};
+
+class QTCREATOR_UTILS_EXPORT CompletingTextEdit : public Widget
+{
+public:
+    using Implementation = Utils::CompletingTextEdit;
+    using I = Building::BuilderItem<CompletingTextEdit>;
+    using Id = Implementation *;
+
+    CompletingTextEdit(std::initializer_list<I> ps);
+
+    QString markdown() const;
+    void setMarkdown(const QString &);
+    QString text() const;
+    void setText(const QString &);
+    void setReadOnly(bool);
+    void setPlaceHolderText(const QString &text);
+    void setRightSideIconPath(const Utils::FilePath &path);
+    QCompleter *completer() const;
+    void setCompleter(QCompleter *completer);
+    void onReturnPressed(QObject *guard, const std::function<void()> &);
+    void onRightSideIconClicked(QObject *guard, const std::function<void()> &);
+    void onTextChanged(QObject *guard, const std::function<void(QString)> &func);
+    Utils::CompletingTextEdit::CompletionBehavior completionBehavior() const;
+    void setCompletionBehavior(Utils::CompletingTextEdit::CompletionBehavior behavior);
 };
 
 class QTCREATOR_UTILS_EXPORT LineEdit : public Widget
