@@ -7,6 +7,8 @@
 #include "baremetaltr.h"
 #include "debugserverprovidermanager.h"
 
+#include <projectexplorer/devicesupport/devicemanager.h>
+
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
@@ -45,9 +47,10 @@ IDebugServerProvider::IDebugServerProvider(const QString &id)
 
 IDebugServerProvider::~IDebugServerProvider()
 {
-    const QSet<BareMetalDevice *> devices = m_devices;
-    for (BareMetalDevice *device : devices)
-        device->unregisterDebugServerProvider(this);
+    DeviceManager::forEachDevice([this](const IDeviceConstPtr &dev) {
+        if (auto device = std::dynamic_pointer_cast<const BareMetalDevice>(dev))
+            device->unregisterDebugServerProvider(id());
+    });
 }
 
 QString IDebugServerProvider::displayName() const
@@ -143,16 +146,6 @@ void IDebugServerProvider::toMap(Store &data) const
     data.insert(engineTypeKeyC, m_engineType);
     data.insert(hostKeyC, m_channel.host());
     data.insert(portKeyC, m_channel.port());
-}
-
-void IDebugServerProvider::registerDevice(BareMetalDevice *device)
-{
-    m_devices.insert(device);
-}
-
-void IDebugServerProvider::unregisterDevice(BareMetalDevice *device)
-{
-    m_devices.remove(device);
 }
 
 void IDebugServerProvider::providerUpdated()

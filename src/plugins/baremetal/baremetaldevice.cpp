@@ -40,12 +40,7 @@ BareMetalDevice::BareMetalDevice()
     m_debugServerProviderId.setSettingsKey("IDebugServerProviderId");
 }
 
-BareMetalDevice::~BareMetalDevice()
-{
-    if (IDebugServerProvider *provider = DebugServerProviderManager::findProvider(
-                debugServerProviderId()))
-        provider->unregisterDevice(this);
-}
+BareMetalDevice::~BareMetalDevice() = default;
 
 QString BareMetalDevice::defaultDisplayName()
 {
@@ -61,17 +56,12 @@ void BareMetalDevice::setDebugServerProviderId(const QString &id)
 {
     if (id == debugServerProviderId())
         return;
-    if (IDebugServerProvider *currentProvider =
-            DebugServerProviderManager::findProvider(debugServerProviderId()))
-        currentProvider->unregisterDevice(this);
     m_debugServerProviderId.setValue(id);
-    if (IDebugServerProvider *provider = DebugServerProviderManager::findProvider(id))
-        provider->registerDevice(this);
 }
 
-void BareMetalDevice::unregisterDebugServerProvider(IDebugServerProvider *provider)
+void BareMetalDevice::unregisterDebugServerProvider(const QString &providerId) const
 {
-    if (provider->id() == debugServerProviderId())
+    if (providerId == debugServerProviderId())
         m_debugServerProviderId.setValue(QString());
 }
 
