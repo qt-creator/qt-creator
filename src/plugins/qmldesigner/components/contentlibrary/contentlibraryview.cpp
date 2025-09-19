@@ -751,7 +751,6 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
 
     m_widget->userModel()->addItem(m_bundleId, name, qml, iconSavePath.toUrl(), depAssetsRelativePaths);
 
-    // generate and save icon
     QPixmap iconPixmapToSave;
 
     if (nodeType == node3D) {
@@ -766,8 +765,12 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
         else
             iconPixmapToSave = iconPixmap;
     } else if (nodeType == item) {
-        // TODO: generate icon for 2D items
-        iconPixmapToSave = m_widget->iconProvider()->requestPixmap("light.png", nullptr, {});
+        Utils::FilePath qmlPath = bundlePath.pathAppended(qml);
+        m_bundleHelper->getImageFromCache(qmlPath.toFSPathString(), [&, iconSavePath](const QImage &image) {
+            saveIconToBundle(image, iconSavePath.toFSPathString());
+        });
+
+        return;
     } else {
         iconPixmapToSave = iconPixmap;
     }
