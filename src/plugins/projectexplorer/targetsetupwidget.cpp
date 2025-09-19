@@ -109,6 +109,7 @@ void TargetSetupWidget::setKitSelected(bool b)
 
 void TargetSetupWidget::addBuildInfos(const QList<BuildInfo> &infos, bool isImport)
 {
+    QList<int> insertedOrReplacedPositions;
     for (const BuildInfo &info : infos) {
         QTC_ASSERT(info.kitId == m_kit->id(), return);
 
@@ -129,19 +130,21 @@ void TargetSetupWidget::addBuildInfos(const QList<BuildInfo> &infos, bool isImpo
         store.hasIssues = false;
         store.isImported = isImport;
 
-        // imported configurations may overwrite non-imported configurations,
+        // imported configurations may overwrite pre-existing configurations,
         // but nothing else overwrites anything
-        const auto it = isImport
-                            ? std::find_if(
-                                  m_infoStore.begin(),
-                                  m_infoStore.end(),
-                                  [&info](const BuildInfoStore &bsi) {
-                                      return !bsi.isImported
-                                             && bsi.buildInfo.buildDirectory == info.buildDirectory;
-                                  })
-                            : m_infoStore.end();
-        const bool replace = it != m_infoStore.end();
-        const int pos = replace ? std::distance(m_infoStore.begin(), it) : int(m_infoStore.size());
+        const auto findConfigIndexToOverwrite = [this, &insertedOrReplacedPositions, &info] {
+            for (auto it = m_infoStore.begin(); it != m_infoStore.end(); ++it) {
+                if (!insertedOrReplacedPositions.contains(std::distance(m_infoStore.begin(), it))
+                    && it->buildInfo.buildDirectory == info.buildDirectory) {
+                    return it;
+                }
+            }
+            return m_infoStore.end();
+        };
+        const auto it = isImport ? findConfigIndexToOverwrite() : m_infoStore.end();
+        const int pos = std::distance(m_infoStore.begin(), it);
+        insertedOrReplacedPositions << pos;
+        const bool replace = pos != int(m_infoStore.size());
         if (!replace || (isImport && m_selected == 0))
             ++m_selected;
 
@@ -188,6 +191,7 @@ void TargetSetupWidget::addBuildInfos(const QList<BuildInfo> &infos, bool isImpo
 
         reportIssues(pos);
     }
+    QTC_CHECK(insertedOrReplacedPositions.size() == infos.size());
     emit selectedToggled();
 }
 
