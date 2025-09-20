@@ -2,12 +2,9 @@ cmake_minimum_required(VERSION 3.16)
 
 project(%{ProjectName} VERSION 0.1 LANGUAGES CXX)
 
-set(CMAKE_AUTOMOC ON)
-
 find_package(Qt6 COMPONENTS Core Gui Quick Quick3D Quick3DXr)
 
 qt_standard_project_setup(REQUIRES 6.8)
-qt6_policy(SET QTP0002 NEW)
 
 qt_add_executable(${CMAKE_PROJECT_NAME}
     MANUAL_FINALIZATION
