@@ -5,6 +5,8 @@
 
 #include "aiassistantwidget.h"
 
+#include <projectexplorer/projecttree.h>
+
 namespace QmlDesigner {
 
 AiAssistantView::AiAssistantView(ExternalDependenciesInterface &externalDependencies)
@@ -21,8 +23,16 @@ bool AiAssistantView::hasWidget() const
 
 WidgetInfo AiAssistantView::widgetInfo()
 {
-    if (!m_widget)
+    if (!m_widget) {
         m_widget = Utils::makeUniqueObjectPtr<AiAssistantWidget>(this);
+
+        using ProjectExplorer::ProjectTree;
+        connect(
+            ProjectTree::instance(),
+            &ProjectTree::treeChanged,
+            this,
+            &AiAssistantView::handleProjectTreeChanges);
+    }
 
     return createWidgetInfo(m_widget.get(),
                             "AiAssistant",
@@ -38,6 +48,11 @@ void AiAssistantView::modelAttached(Model *model)
 
     m_widget->initManifest();
     m_widget->clear();
+}
+
+void AiAssistantView::handleProjectTreeChanges()
+{
+    m_widget->removeMissingAttachedImage();
 }
 
 } // namespace QmlDesigner

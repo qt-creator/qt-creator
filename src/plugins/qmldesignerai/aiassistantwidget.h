@@ -42,6 +42,7 @@ public:
 
     void clear();
     void initManifest();
+    void removeMissingAttachedImage();
 
     QSize sizeHint() const override;
 
