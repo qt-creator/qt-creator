@@ -412,14 +412,23 @@ static Imports getRequiredImports(const ModelNode &node,
     auto removedRanges = std::ranges::unique(typeNames, {}, &ExportedTypeName::moduleId);
     typeNames.erase(removedRanges.begin(), removedRanges.end());
 
+    const Module qtQuickModule = modulesStorage.module(
+        modulesStorage.moduleId("QtQuick", ModuleKind::QmlLibrary));
+
     QVarLengthArray<Module, 32> modules;
     for (const ExportedTypeName &typeName : typeNames) {
         const Module &module = modulesStorage.module(typeName.moduleId);
-        if (module.kind == ModuleKind::QmlLibrary || module.kind == ModuleKind::PathLibrary)
+        if (module != qtQuickModule && (module.kind == ModuleKind::QmlLibrary
+                                        || module.kind == ModuleKind::PathLibrary)) {
             modules.push_back(module);
+        }
     }
 
     std::ranges::sort(modules, {}, &Module::name);
+
+    // Every component needs QtQuick import, and we should also ensure it is the first one as
+    // sometimes order matters
+    modules.insert(modules.cbegin(), qtQuickModule);
 
     Imports imports;
     imports.reserve(typeNames.size());
