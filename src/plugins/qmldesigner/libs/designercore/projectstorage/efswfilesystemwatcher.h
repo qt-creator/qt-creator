@@ -30,7 +30,7 @@ public:
     void removePaths(const QStringList &paths);
 
 signals:
-    void fileChanged(const QString &path);
+    void directoryRemoved(const QString &path);
     void directoryChanged(const QString &path);
 
 private:

@@ -43,6 +43,10 @@ public:
             [&](const QmlDesigner::DirectoryPathIds &directoryPathIds) {
                 addChangedPathForFilePath(directoryPathIds);
             });
+
+        QObject::connect(&m_fileSystemWatcher,
+                         &FileSystemWatcher::directoryRemoved,
+                         [&](const QString &path) { updateDirectoryPathRecursively(path); });
     }
 
     void updateIdPaths(const std::vector<IdPaths> &idPaths) override
@@ -64,7 +68,9 @@ public:
                               const DirectoryPathIds &directoryPathIds) override
     {
         NanotraceHR::Tracer tracer{"project storage path watcher update context id paths",
-                                   ProjectStorageTracing::category()};
+                                   ProjectStorageTracing::category(),
+                                   NanotraceHR::keyValue("id paths", idPaths),
+                                   NanotraceHR::keyValue("directory ids", directoryPathIds)};
 
         const auto &[entires, ids] = convertIdPathsToWatcherEntriesAndIds(idPaths);
 
@@ -125,7 +131,7 @@ public:
         return std::accumulate(idPaths.begin(), idPaths.end(), std::size_t(0), sumSize);
     }
 
-    static Utils::SmallStringView parentDirectoryPath(Utils::SmallStringView directoryPath)
+    static Utils::SmallStringView createParentDirectoryPath(Utils::SmallStringView directoryPath)
     {
         auto found = std::find(directoryPath.rbegin(), directoryPath.rend(), '/');
 
@@ -137,13 +143,17 @@ public:
 
     std::tuple<DirectoryPathId, DirectoryPathId> createDirectoryPathId(SourceId sourceId)
     {
-        if (sourceId.fileNameId())
+        if (sourceId.fileNameId() or not sourceId)
             return {sourceId.directoryPathId(), DirectoryPathId{}};
 
         auto directoryPath = m_pathCache.directoryPath(sourceId.directoryPathId());
 
-        return {sourceId.directoryPathId(),
-                m_pathCache.directoryPathId(parentDirectoryPath(directoryPath))};
+        Utils::SmallStringView parentDirectoryPath = createParentDirectoryPath(directoryPath);
+
+        if (parentDirectoryPath.empty())
+            return {sourceId.directoryPathId(), DirectoryPathId{}};
+
+        return {sourceId.directoryPathId(), m_pathCache.directoryPathId(parentDirectoryPath)};
     }
 
     std::pair<WatcherEntries, ProjectChunkIds> convertIdPathsToWatcherEntriesAndIds(
@@ -172,7 +182,7 @@ public:
                 auto fileStatus = m_fileStatusCache.find(sourceId);
                 auto [directoryPathId, parentDirectoryPathId] = createDirectoryPathId(sourceId);
 
-                tracer.tick("create watcher entry ",
+                tracer.tick("create watcher entry",
                             NanotraceHR::keyValue("id", id),
                             NanotraceHR::keyValue("source id", sourceId),
                             NanotraceHR::keyValue("directory path id", directoryPathId),
@@ -185,7 +195,7 @@ public:
                                      fileStatus.lastModified,
                                      fileStatus.size);
                 if (parentDirectoryPathId) {
-                    tracer.tick("create parent directory watcher entry ",
+                    tracer.tick("create parent directory watcher entry",
                                 NanotraceHR::keyValue("id", id),
                                 NanotraceHR::keyValue("source id", sourceId),
                                 NanotraceHR::keyValue("directory path id", parentDirectoryPathId),
@@ -441,6 +451,48 @@ public:
         }
     }
 
+    void findDirectories(DirectoryPathId rootDirectoryPathId, DirectoryPathIds &directoryPathIds)
+    {
+        NanotraceHR::Tracer tracer{"project storage path watcher find directories",
+                                   ProjectStorageTracing::category(),
+                                   NanotraceHR::keyValue("root directory id", rootDirectoryPathId)};
+
+        auto entries = std::ranges::equal_range(m_watchedEntries,
+                                                rootDirectoryPathId,
+                                                {},
+                                                &WatcherEntry::directoryPathId);
+
+        for (const auto &entry : entries) {
+            if (entry.id.sourceType == SourceType::Directory) {
+                auto directoryPathId = entry.sourceId.directoryPathId();
+                tracer.tick("found directory id",
+                            NanotraceHR::keyValue("directory id", directoryPathId));
+                if (rootDirectoryPathId != directoryPathId) {
+                    directoryPathIds.push_back(directoryPathId);
+                    findDirectories(directoryPathId, directoryPathIds);
+                }
+            }
+        }
+    }
+
+    void updateDirectoryPathRecursively(const QString &path)
+    {
+        NanotraceHR::Tracer tracer{"project storage path watcher update directory path recursively",
+                                   ProjectStorageTracing::category(),
+                                   NanotraceHR::keyValue("path", path)};
+
+        DirectoryPathIds directoryPathIds;
+
+        DirectoryPathId directoryPathId = m_pathCache.directoryPathId(Utils::PathString{path});
+        directoryPathIds.push_back(directoryPathId);
+
+        findDirectories(directoryPathId, directoryPathIds);
+
+        std::ranges::sort(directoryPathIds);
+
+        m_fileStatusCache.update(directoryPathIds);
+    }
+
     void compressChangedDirectoryPath(const QString &path)
     {
         NanotraceHR::Tracer tracer{"project storage path watcher compress changed directory path",
@@ -454,7 +506,8 @@ public:
     WatcherEntries watchedEntriesForPaths(const QmlDesigner::DirectoryPathIds &directoryPathIds)
     {
         NanotraceHR::Tracer tracer{"project storage path watcher watched entries for paths",
-                                   ProjectStorageTracing::category()};
+                                   ProjectStorageTracing::category(),
+                                   NanotraceHR::keyValue("directory ids", directoryPathIds)};
 
         WatcherEntries foundEntries;
         foundEntries.reserve(m_watchedEntries.size());
@@ -463,13 +516,13 @@ public:
             m_watchedEntries,
             directoryPathIds,
             [&](WatcherEntry &entry) {
+                tracer.tick("found entry", NanotraceHR::keyValue("entry", entry));
                 auto fileStatus = m_fileStatusCache.updateAndFind(entry.sourceId);
                 if (entry.lastModified < fileStatus.lastModified || entry.size != fileStatus.size) {
                     foundEntries.push_back(entry);
                     entry.lastModified = fileStatus.lastModified;
                     entry.size = fileStatus.size;
                     tracer.tick("update entry",
-                                NanotraceHR::keyValue("entry", entry),
                                 NanotraceHR::keyValue("file status", fileStatus));
                 }
             },

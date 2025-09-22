@@ -587,4 +587,44 @@ TEST_F(ProjectStoragePathWatcher, update_context_id_paths_updates_file_status_ca
     ASSERT_THAT(fileStatusCache.find(sourceIds[2]), IsNullFileStatus(sourceIds[2]));
 }
 
+TEST_F(ProjectStoragePathWatcher, update_file_cache_for_removed_directories)
+{
+    ProjectChunkId pathDirectoryProjectChunkId{ProjectPartId::create(100), SourceType::Directory};
+    SourceIds directoryIds = {SourceId::create(pathCache.directoryPathId("/path")),
+                              SourceId::create(pathCache.directoryPathId("/path/path1")),
+                              SourceId::create(pathCache.directoryPathId("/path/path2"))};
+    watcher.updateIdPaths({
+        {pathDirectoryProjectChunkId, std::move(directoryIds)},
+        {projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
+        {projectChunkId4, {sourceIds[0], sourceIds[1], sourceIds[2], sourceIds[3]}},
+    });
+    ON_CALL(mockFileSystem, fileStatus(_)).WillByDefault([](auto sourceId) {
+        return QmlDesigner::FileStatus(sourceId);
+    });
+
+    mockQFileSytemWatcher.emitDirectoryRemoved("/path");
+
+    ASSERT_THAT(fileStatusCache.find(sourceIds[0]), IsNullFileStatus(sourceIds[0]));
+}
+
+TEST_F(ProjectStoragePathWatcher, do_not_update_file_cache_for_non_removed_directories)
+{
+    ProjectChunkId pathDirectoryProjectChunkId{ProjectPartId::create(100), SourceType::Directory};
+    SourceIds directoryIds = {SourceId::create(pathCache.directoryPathId("/path")),
+                              SourceId::create(pathCache.directoryPathId("/path/path1")),
+                              SourceId::create(pathCache.directoryPathId("/path/path2"))};
+    watcher.updateIdPaths({
+        {pathDirectoryProjectChunkId, std::move(directoryIds)},
+        {projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
+        {projectChunkId4, {sourceIds[0], sourceIds[1], sourceIds[2], sourceIds[3]}},
+    });
+    ON_CALL(mockFileSystem, fileStatus(_)).WillByDefault([](auto sourceId) {
+        return QmlDesigner::FileStatus(sourceId);
+    });
+
+    mockQFileSytemWatcher.emitDirectoryRemoved("/path");
+
+    ASSERT_THAT(fileStatusCache.find(sourceIds[2]), Not(IsNullFileStatus(sourceIds[2])));
+}
+
 } // namespace

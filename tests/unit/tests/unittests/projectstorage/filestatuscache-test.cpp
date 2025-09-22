@@ -404,4 +404,28 @@ TEST_F(FileStatusCache, remove_entry_with_source_idss)
     ASSERT_THAT(cache, SizeIs(3));
 }
 
+TEST_F(FileStatusCache, update_entries_with_directory_id)
+{
+    cache.find(header);
+    ON_CALL(fileSystem, fileStatus(Eq(header)))
+        .WillByDefault(Return(createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
+
+    cache.update({directoryOneId});
+
+    ASSERT_THAT(cache.find(header),
+                (createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
+}
+
+TEST_F(FileStatusCache, do_not_update_update_entries_with_other_directory_ids)
+{
+    cache.find(header);
+    ON_CALL(fileSystem, fileStatus(Eq(header)))
+        .WillByDefault(Return(createFileStatus(header, headerFileSize2, headerLastModifiedTime2)));
+
+    cache.update({directoryTwoId});
+
+    ASSERT_THAT(cache.find(header),
+                (createFileStatus(header, headerFileSize, headerLastModifiedTime)));
+}
+
 } // namespace

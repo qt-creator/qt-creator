@@ -12,10 +12,12 @@ class MockQFileSytemWatcher : public QObject
     Q_OBJECT
 
 public:
-    MOCK_METHOD1(addPaths, void(const QStringList &));
-    MOCK_METHOD1(removePaths, void(const QStringList &));
+    MOCK_METHOD(void, addPaths, (const QStringList &) );
+    MOCK_METHOD(void, removePaths, (const QStringList &) );
+
+    void emitDirectoryRemoved(const QString &path) { emit directoryRemoved(path); }
 
 signals:
-    void fileChanged(const QString &);
+    void directoryRemoved(const QString &);
     void directoryChanged(const QString &);
 };

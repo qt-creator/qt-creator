@@ -23,6 +23,7 @@ public:
 
     const FileStatus &find(SourceId sourceId) const;
     const FileStatus &updateAndFind(SourceId sourceId) const;
+    void update(const DirectoryPathIds &directoryPathIds) const;
 
     void remove(const DirectoryPathIds &directoryPathIds);
     void remove(const SourceIds &sourceIds);
