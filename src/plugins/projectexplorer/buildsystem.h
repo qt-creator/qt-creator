@@ -43,7 +43,7 @@ public:
     explicit BuildSystem(BuildConfiguration *bc);
     ~BuildSystem() override;
 
-    QString name() const;
+    virtual QString name() const;
     Project *project() const;
     Target *target() const;
     Kit *kit() const;
