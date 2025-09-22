@@ -1784,11 +1784,74 @@ const QString TEST_PROJECT_MIMETYPE = "application/vnd.test.qmakeprofile";
 const QString TEST_PROJECT_DISPLAYNAME = "testProjectFoo";
 const char TEST_PROJECT_ID[] = "Test.Project.Id";
 
-class TestBuildSystem final : public BuildSystem
+class TestBuildSystem : public BuildSystem
 {
 public:
     using BuildSystem::BuildSystem;
     void triggerParsing() final {}
+
+    bool canRenameFile(Node *, const FilePath &, const FilePath &) override
+    {
+        ++canRenameFileCount;
+        return true;
+    }
+    bool renameFiles(Node *, const FilePairs &, FilePaths *) override
+    {
+        ++renameFilesCount;
+        return true;
+    }
+
+    int canRenameFileCount = 0;
+    int renameFilesCount = 0;
+};
+
+class RejectingAllRenameBuildSystem : public TestBuildSystem
+{
+public:
+    using TestBuildSystem::TestBuildSystem;
+    bool renameFiles(Node *, const FilePairs &, FilePaths *) override
+    {
+        ++renameFilesCount;
+        return false;
+    }
+};
+
+class PartiallyRejectingRenameBuildSystem : public TestBuildSystem
+{
+public:
+    using TestBuildSystem::TestBuildSystem;
+    static inline FilePaths pathsToReject;
+    bool renameFiles(Node *, const FilePairs &filePairs, FilePaths *notRenamed) override
+    {
+        ++renameFilesCount;
+        for (auto &[o, _] : filePairs) {
+            if (pathsToReject.contains(o) && notRenamed)
+                notRenamed->append(o);
+        }
+        return true;
+    }
+};
+
+class ReparsingBuildSystem : public TestBuildSystem
+{
+public:
+    using TestBuildSystem::TestBuildSystem;
+    static inline QPointer<Project> projectToReparse;
+    bool renameFiles(Node *originNode, const FilePairs &filePairs, FilePaths *notRenamed) override
+    {
+        const bool ok = TestBuildSystem::renameFiles(originNode, filePairs, notRenamed);
+        if (notRenamed) {
+            for (const auto &pair : filePairs)
+                notRenamed->append(pair.first);
+        }
+        if (projectToReparse) {
+            auto newRoot = std::make_unique<ProjectNode>(projectToReparse->projectFilePath());
+            projectToReparse->setRootProjectNode(std::move(newRoot));
+            if (ProjectTree::instance())
+                emit ProjectTree::instance()->subtreeChanged(nullptr);
+        }
+        return ok;
+    }
 };
 
 class TestBuildConfigurationFactory : public BuildConfigurationFactory
@@ -1823,6 +1886,58 @@ public:
     Kit testKit;
     Target *target = nullptr;
 };
+
+class RenameTestProject : public Project
+{
+public:
+    explicit RenameTestProject(const TemporaryDirectory &td)
+        : Project(TEST_PROJECT_MIMETYPE, td.path())
+    {
+        setType(TEST_PROJECT_ID);
+        setDisplayName(TEST_PROJECT_DISPLAYNAME);
+    }
+
+    bool needsConfiguration() const final { return false; }
+
+    template<typename BS>
+    void initialize()
+    {
+        setBuildSystemCreator<BS>("RenameTestBuildSystem");
+        target = addTargetForKit(&kit);
+        createNodes();
+        Q_ASSERT(dynamic_cast<BS *>(target->buildSystem()));
+    }
+
+    TestBuildSystem *testBuildSystem()
+    {
+        return dynamic_cast<TestBuildSystem *>(target->buildSystem());
+    }
+    Kit kit;
+    Target *target = nullptr;
+    FilePath sourceFile, secondSourceFile;
+
+private:
+    void createNodes()
+    {
+        sourceFile = projectFilePath().pathAppended("test.cpp");
+        secondSourceFile = projectFilePath().pathAppended("test2.cpp");
+        QVERIFY(sourceFile.writeFileContents("content1"));
+        QVERIFY(secondSourceFile.writeFileContents("content2"));
+
+        auto root = std::make_unique<ProjectNode>(projectFilePath());
+        std::vector<std::unique_ptr<FileNode>> vec;
+        vec.emplace_back(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
+        vec.emplace_back(std::make_unique<FileNode>(sourceFile, FileType::Source));
+        vec.emplace_back(std::make_unique<FileNode>(secondSourceFile, FileType::Source));
+        root->addNestedNodes(std::move(vec));
+        setRootProjectNode(std::move(root));
+    }
+};
+
+static FilePath makeRenamedFilePath(const FilePath &original)
+{
+    return original.chopped(4).stringAppended("_renamed.cpp");
+}
 
 class ProjectTest : public QObject
 {
@@ -2110,6 +2225,120 @@ private slots:
         QTest::addRow("cmake") << "CMakeLists.txt";
         QTest::addRow("qbs") << "multi-target-project.qbs";
         QTest::addRow("qmake") << "multi-target-project.pro";
+    }
+
+    void testRenameFile()
+    {
+        TemporaryDirectory tempDir("testProject_renameFile");
+        RenameTestProject testProject(tempDir);
+        testProject.initialize<TestBuildSystem>();
+        auto sourceFileNode = const_cast<Node *>(testProject.nodeForFilePath(testProject.sourceFile));
+        QVERIFY(sourceFileNode);
+        const FilePath testRenamed = makeRenamedFilePath(testProject.sourceFile);
+        QList<std::pair<Node *, FilePath>> nodesToRename{{sourceFileNode, testRenamed}};
+
+        const FilePairs result = ProjectExplorerPlugin::renameFiles(nodesToRename);
+
+        QCOMPARE(result.size(), 1);
+        QCOMPARE(testProject.testBuildSystem()->canRenameFileCount, 1);
+        QCOMPARE(testProject.testBuildSystem()->renameFilesCount, 1);
+        QCOMPARE(testProject.sourceFile.exists(), false);
+        QCOMPARE(testRenamed.exists(), true);
+    }
+
+    void testRenameFile_NullNode()
+    {
+        TemporaryDirectory tempDir("testProject_renameFile_NullNode");
+        RenameTestProject testProject(tempDir);
+        testProject.initialize<TestBuildSystem>();
+        const FilePath testRenamed = makeRenamedFilePath(testProject.sourceFile);
+        QList<std::pair<Node *, FilePath>> nodesToRename{{nullptr, testRenamed}};
+
+        const FilePairs result = ProjectExplorerPlugin::renameFiles(nodesToRename);
+
+        QVERIFY(result.isEmpty());
+    }
+
+    void testRenameMultipleFiles()
+    {
+        TemporaryDirectory tempDir("testProject_renameMultipleFiles");
+        RenameTestProject testProject(tempDir);
+        testProject.initialize<TestBuildSystem>();
+        const FilePath renamedFilePath1 = makeRenamedFilePath(testProject.sourceFile);
+        const FilePath renamedFilePath2 = makeRenamedFilePath(testProject.secondSourceFile);
+        auto testNode1 = const_cast<Node *>(testProject.nodeForFilePath(testProject.sourceFile));
+        auto testNode2 = const_cast<Node *>(testProject.nodeForFilePath(testProject.secondSourceFile));
+        QList<std::pair<Node *, FilePath>>
+            nodesToRename{{testNode1, renamedFilePath1}, {testNode2, renamedFilePath2}};
+
+        const FilePairs result = ProjectExplorerPlugin::renameFiles(nodesToRename);
+
+        QCOMPARE(result.size(), 2);
+        QCOMPARE(testProject.testBuildSystem()->canRenameFileCount, 2);
+        QCOMPARE(testProject.testBuildSystem()->renameFilesCount, 1);
+        QCOMPARE(testProject.sourceFile.exists(), false);
+        QCOMPARE(testProject.secondSourceFile.exists(), false);
+        QCOMPARE(renamedFilePath1.exists(), true);
+        QCOMPARE(renamedFilePath2.exists(), true);
+    }
+
+    void testRenameFile_BuildSystemRejectsAll()
+    {
+        TemporaryDirectory tempDir("testProject_renameFile_BuildSystemRejectsAll");
+        RenameTestProject testProject(tempDir);
+        testProject.initialize<RejectingAllRenameBuildSystem>();
+        Node *sourcNode = const_cast<Node *>(testProject.nodeForFilePath(testProject.sourceFile));
+        const FilePath renamedPath = makeRenamedFilePath(testProject.sourceFile);
+        QList<std::pair<Node *, FilePath>> toRename{{sourcNode, renamedPath}};
+
+        const FilePairs result = ProjectExplorerPlugin::renameFiles(toRename);
+
+        QVERIFY(result.isEmpty());
+        QCOMPARE(testProject.testBuildSystem()->canRenameFileCount, 1);
+        QCOMPARE(testProject.testBuildSystem()->renameFilesCount, 1);
+        QCOMPARE(testProject.sourceFile.exists(), false);
+        QCOMPARE(renamedPath.exists(), true);
+    }
+
+    void testRenameFile_BuildSystemRejectsPartial()
+    {
+        TemporaryDirectory tempDir("testProject_renameFile_BuildSystemRejectsPartial");
+        RenameTestProject testProject(tempDir);
+        testProject.initialize<PartiallyRejectingRenameBuildSystem>();
+        PartiallyRejectingRenameBuildSystem::pathsToReject = {testProject.sourceFile};
+        const FilePath renamed1 = makeRenamedFilePath(testProject.sourceFile);
+        const FilePath renamed2 = makeRenamedFilePath(testProject.secondSourceFile);
+        Node *node1 = const_cast<Node *>(testProject.nodeForFilePath(testProject.sourceFile));
+        Node *node2 = const_cast<Node *>(testProject.nodeForFilePath(testProject.secondSourceFile));
+        QList<std::pair<Node *, FilePath>> toRename{{node1, renamed1}, {node2, renamed2}};
+
+        const FilePairs result = ProjectExplorerPlugin::renameFiles(toRename);
+
+        QCOMPARE(result.size(), 1);
+        QVERIFY(result.contains({testProject.secondSourceFile, renamed2}));
+        QCOMPARE(testProject.testBuildSystem()->canRenameFileCount, 2);
+        QCOMPARE(testProject.testBuildSystem()->renameFilesCount, 1);
+        QCOMPARE(testProject.sourceFile.exists(), false);
+        QCOMPARE(testProject.secondSourceFile.exists(), false);
+        QCOMPARE(renamed1.exists(), true);
+        QCOMPARE(renamed2.exists(), true);
+    }
+
+    void testRenameFile_QmlCrashSimulation()
+    {
+        TemporaryDirectory tempDir("testProject_renameFile_QmlCrashSimulation");
+        RenameTestProject testProject(tempDir);
+        testProject.initialize<ReparsingBuildSystem>();
+        ReparsingBuildSystem::projectToReparse = &testProject;
+        Node *sourceNode = const_cast<Node *>(testProject.nodeForFilePath(testProject.sourceFile));
+        const FilePath renamedPath = makeRenamedFilePath(testProject.sourceFile);
+        QList<std::pair<Node *, FilePath>> toRename{{sourceNode, renamedPath}};
+
+        const FilePairs result = ProjectExplorerPlugin::renameFiles(toRename);
+
+        QVERIFY(renamedPath.exists());
+        QCOMPARE(testProject.sourceFile.exists(), false);
+        QVERIFY(result.isEmpty());
     }
 };
 

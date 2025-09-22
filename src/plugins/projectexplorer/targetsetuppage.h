@@ -38,7 +38,7 @@ public:
     bool importLineEditHasFocus() const;
 
     bool isComplete() const override;
-    bool setupProject(Project *project);
+    void setupProject(Project *project);
     QList<Utils::Id> selectedKits() const;
 
     void openOptions();

@@ -45,7 +45,7 @@
             local Docker installation.
         \li Select a Docker image, and then select \uicontrol OK.
         \li In \uicontrol Devices, check and change Docker device preferences.
-            \image {qtcreator-preferences-devices-docker-device.png} {Docker device in the Devices tab in Devices preferences}
+            \image {qtcreator-preferences-devices-docker-device.webp} {Docker device in the Devices tab in Devices preferences}
         \li Select \uicontrol Apply to save your changes.
     \endlist
 
@@ -85,7 +85,7 @@
     \list 1
         \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.
         \li In \uicontrol Device, select a Docker device.
-            \image {qtcreator-preferences-devices-docker-device.png} {Docker device in the Devices tab in Devices preferences}
+            \image {qtcreator-preferences-devices-docker-device.webp} {Docker device in the Devices tab in Devices preferences}
     \endlist
 
     The following table summarizes the preferences you can set.
@@ -110,17 +110,31 @@
             --cap-add=SYS_PTRACE --security-opt seccomp=unconfined
             \endcode
     \row
-        \li \uicontrol {Clangd executable}
-        \li The path to a remote Clangd executable for a remote code model.
+        \li \uicontrol {Mount Command Bridge}
+        \li Enables communication between \QC and the running container. The Command
+            Bridge is mounted into the container by default. If your Docker server
+            can't access the folder where \QC is installed, mounting may fail. In
+            that case, turn off this option to use a slower workaround.
+    \row
+        \li \uicontrol {Network}
+        \li Configures the network settings of the container.
+    \row
+        \li \uicontrol {Extra arguments}
+        \li Additional arguments to pass to the Docker CLI when starting the container.
+    \row
+        \li \uicontrol {Container environment}
+        \li Environment variables to set in the container.
     \row
         \li \uicontrol {Paths to mount}
         \li Host directories to \l{Specify paths to mount}{mount} into the
             container, such as the project directory.
     \row
-        \li \uicontrol {Search locations}
-        \li Where to \l{Auto-detect kit items}{automatically detect} kit
-            items.
+        \li \uicontrol {Port mappings}
+        \li Host-to-container port mappings to set up when starting the container.
     \endtable
+
+    You can set paths for development tools for Docker devices. For more
+    information, see \l {Configure development tools}.
 
     \section1 Modify entry points
 
@@ -191,6 +205,9 @@
                 device.
             \li Go to \uicontrol Projects > \uicontrol {Build & Run}, and
                 activate the kit for Docker devices.
+
+                \image {qtcreator-preferences-devices-docker-build-run.webp} {A Docker device kit in Build & Run}
+                \caption A Docker device kit in Build & Run
         \endlist
 
     Go to \uicontrol {Run Settings} to specify run settings. Usually, you can use
@@ -212,6 +229,9 @@
     toolchain in Docker to build the applications \e {in} Docker.
 
     \note Enable the Docker plugin to use it.
+
+    \image {qtcreator-preferences-devices-docker-build-run.webp} {A Docker device kit in Build & Run}
+    \caption A Docker device kit in Build & Run
 
     \include linux-mobile/creator-how-to-build-on-remote-devices.qdocinc {build on remote devices} {Docker device}
 

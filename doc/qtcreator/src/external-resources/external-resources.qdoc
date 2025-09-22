@@ -1,7 +1,10 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
-
+/*!
+    \externalpage https://doc.qt.io/QtInterfaceFramework/interfaceframework-index.html
+    \title \QIF
+*/
 /*!
     \externalpage https://doc.qt.io/qtcreator-extending/creating-plugins.html
     \title Creating Plugins
@@ -313,4 +316,12 @@
 /*!
     \externalpage https://doc.qt.io/qt-6/android-manifest-file-configuration.html#style-extraction
     \title Style Extraction
+*/
+/*!
+    \externalpage https://doc.rust-lang.org/cargo/commands/cargo-build.html
+    \title Rust: cargo-build
+*/
+/*!
+    \externalpage https://www.rust-lang.org/
+    \title Rust
 */

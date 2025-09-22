@@ -356,8 +356,8 @@ public:
             }
         });
 
-        Utils::VariableChooser::addSupportForChildWidgets(formattingGroup,
-                                                          Utils::globalMacroExpander());
+        VariableChooser::addSupportForChildWidgets(formattingGroup,
+                                      MacroExpanderProvider(globalMacroExpander()));
 
         populateAnalyzerMessages(s.disabledMessages(), s.disabledMessagesForNonQuickUi());
     }

@@ -216,7 +216,6 @@ QtcPlugin {
             "processlist.cpp", "processlist.h",
             "sshparameters.cpp", "sshparameters.h",
             "sshsettings.cpp", "sshsettings.h",
-            "sshsettingspage.cpp", "sshsettingspage.h",
             "desktopprocesssignaloperation.cpp", "desktopprocesssignaloperation.h",
         ]
     }

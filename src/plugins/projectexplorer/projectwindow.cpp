@@ -752,7 +752,8 @@ private:
     void done()
     {
         QTC_ASSERT(m_targetSetupPage, return);
-        m_targetSetupPage->disconnect();
+        disconnect(m_targetSetupPage, &QWizardPage::completeChanged,
+                   this, &TargetSetupPageWrapper::completeChanged);
         m_targetSetupPage->setupProject(m_project);
         m_targetSetupPage->deleteLater();
         m_targetSetupPage = nullptr;

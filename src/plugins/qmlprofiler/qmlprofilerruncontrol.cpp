@@ -99,16 +99,19 @@ Group localQmlProfilerRecipe(RunControl *runControl)
                 if (stateManager && stateManager->currentState() == QmlProfilerStateManager::AppRunning)
                     stateManager->setCurrentState(QmlProfilerStateManager::AppStopRequested);
             }
-            runControl->handleProcessCancellation(process);
+            if (process->isRunning())
+                runControl->handleProcessCancellation(process);
         };
 
         QObject::connect(clientManager, &QmlProfilerClientManager::connectionFailed,
                          &process, [handleDone] { handleDone(); });
         QObject::connect(clientManager, &QmlProfilerClientManager::connectionClosed,
                          &process, [handleDone] { handleDone(); });
+        QObject::connect(&process, &Process::done, &process, [handleDone] { handleDone(); });
         QObject::connect(runControl, &RunControl::canceled, &process, [handleDone, process = &process] {
-            QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()->stateManager();
-            if (QmlProfilerTool::instance() == nullptr || stateManager == nullptr) {
+            QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()
+                ? QmlProfilerTool::instance()->stateManager() : nullptr;
+            if (stateManager == nullptr) {
                 handleDone();
                 return;
             }
@@ -116,10 +119,8 @@ Group localQmlProfilerRecipe(RunControl *runControl)
                 stateManager->setCurrentState(QmlProfilerStateManager::AppStopRequested);
             QObject::connect(stateManager, &QmlProfilerStateManager::stateChanged,
                              process, [handleDone, stateManager] {
-                if (stateManager->currentState() == QmlProfilerStateManager::Idle) {
-                    QmlProfilerTool::instance()->handleStop();
+                if (stateManager->currentState() == QmlProfilerStateManager::Idle)
                     handleDone();
-                }
             });
         });
         clientManager->setServer(runControl->qmlChannel());

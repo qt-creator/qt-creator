@@ -156,7 +156,7 @@ void SshSharedConnection::deref()
     if (m_stale) // no one uses it
         deleteLater();
     // not stale, so someone may reuse it
-    m_timer.start(SshSettings::connectionSharingTimeout() * 1000 * 60);
+    m_timer.start(sshSettings().connectionSharingTimeoutInMinutes() * 1000 * 60);
 }
 
 void SshSharedConnection::makeStale()
@@ -171,7 +171,7 @@ void SshSharedConnection::connectToHost()
     if (state() != QProcess::NotRunning)
         return;
 
-    const FilePath sshBinary = SshSettings::sshFilePath();
+    const FilePath sshBinary = sshSettings().sshFilePath();
     if (!sshBinary.exists()) {
         emitError(QProcess::FailedToStart, Tr::tr("Cannot establish SSH connection: ssh binary "
                   "\"%1\" does not exist.").arg(sshBinary.toUserOutput()));
@@ -822,7 +822,7 @@ void SshProcessInterfacePrivate::start()
     if (linuxDevice->isDisconnected() && !linuxDevice->isTesting())
         return handleDone();
     const bool useConnectionSharing = !linuxDevice->isDisconnected()
-            && SshSettings::connectionSharingEnabled()
+            && sshSettings().useConnectionSharing()
             && !q->m_setup.m_extraData.value(Constants::DisableSharing).toBool();
 
     // TODO: Do we really need it for master process?
@@ -892,7 +892,7 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
     auto linuxDevice = std::dynamic_pointer_cast<const LinuxDevice>(m_device);
     QTC_ASSERT(linuxDevice, return {});
 
-    const FilePath sshBinary = SshSettings::sshFilePath();
+    const FilePath sshBinary = sshSettings().sshFilePath();
     const bool useTerminal = q->m_setup.m_terminalMode != TerminalMode::Off || q->m_setup.m_ptyData;
     const bool usePidMarker = !useTerminal;
     const bool sourceProfile = linuxDevice->sourceProfile();
@@ -1027,7 +1027,7 @@ public:
         closeShell();
         setSshParameters(parameters);
 
-        const FilePath sshPath = SshSettings::sshFilePath();
+        const FilePath sshPath = sshSettings().sshFilePath();
         CommandLine cmd { sshPath };
         cmd.addArgs(m_displaylessSshParameters.connectionOptions(sshPath)
                     << m_displaylessSshParameters.host());
@@ -1164,7 +1164,7 @@ LinuxDevice::LinuxDevice()
     sourceProfile.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
     autoConnectOnStartup.setSettingsKey("AutoConnectOnStartup");
-    autoConnectOnStartup.setDefaultValue(false);
+    autoConnectOnStartup.setDefaultValue(true);
     autoConnectOnStartup.setLabelText(Tr::tr("Auto-connect on startup"));
     autoConnectOnStartup.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 

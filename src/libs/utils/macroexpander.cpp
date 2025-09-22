@@ -144,7 +144,7 @@ public:
             return true;
 
         found = Utils::anyOf(m_subProviders, [name, ret, &seen] (const MacroExpanderProvider &p) -> bool {
-            MacroExpander *expander = p ? p() : 0;
+            MacroExpander *expander = p();
             return expander && expander->d->resolveMacro(name, ret, seen);
         });
 
@@ -652,6 +652,31 @@ void MacroExpander::setAccumulating(bool on)
 {
     d->m_accumulating = on;
 }
+
+
+// MacroExpanderProvider
+
+MacroExpanderProvider::MacroExpanderProvider(QObject *guard,
+                                             const std::function<MacroExpander *()> &creator)
+    : m_guard(guard), m_creator(creator)
+{}
+
+MacroExpanderProvider::MacroExpanderProvider(QObject *guard, MacroExpander *expander)
+    : m_guard(guard), m_creator([expander] { return expander; })
+{}
+
+MacroExpanderProvider::MacroExpanderProvider(MacroExpander *expander)
+    : m_guard(qApp), m_creator([expander] { return expander; })
+{}
+
+MacroExpander *MacroExpanderProvider::operator()() const
+{
+    QTC_ASSERT(m_guard, return nullptr);
+    return m_creator ? m_creator() : nullptr;
+}
+
+
+// GlobalMacroExpander
 
 class GlobalMacroExpander : public MacroExpander
 {

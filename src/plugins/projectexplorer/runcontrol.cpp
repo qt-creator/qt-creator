@@ -877,7 +877,7 @@ bool RunControl::showPromptToStopDialog(const QString &title,
 
 void RunControl::provideAskPassEntry(Environment &env)
 {
-    const FilePath askpass = SshSettings::askpassFilePath();
+    const FilePath askpass = sshSettings().askpassFilePath();
     if (askpass.exists())
         env.setFallback("SUDO_ASKPASS", askpass.toUserOutput());
 }

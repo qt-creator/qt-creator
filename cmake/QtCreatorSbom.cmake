@@ -446,12 +446,22 @@ endfunction()
 
 # Get the spdx id for the Qt Commercial license.
 function(qtc_sbom_get_default_commercial_license out_var)
+  if(NOT QT_GENERATE_SBOM)
+    set(${out_var} "" PARENT_SCOPE)
+    return()
+  endif()
+
   _qt_internal_sbom_get_spdx_license_expression("QT_COMMERCIAL" license)
   set(${out_var} "${license}" PARENT_SCOPE)
 endfunction()
 
 # Get the spdx id for the Qt Commercial + GPL3 exception license.
 function(qtc_sbom_get_default_open_source_license out_var)
+  if(NOT QT_GENERATE_SBOM)
+    set(${out_var} "" PARENT_SCOPE)
+    return()
+  endif()
+
   _qt_internal_sbom_get_spdx_license_expression("QT_COMMERCIAL_OR_GPL3_WITH_EXCEPTION" license)
   set(${out_var} "${license}" PARENT_SCOPE)
 endfunction()

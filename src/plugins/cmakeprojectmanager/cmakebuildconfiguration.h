@@ -88,7 +88,6 @@ public:
     QtSupport::QmlDebuggingAspect qmlDebugging{this};
     Internal::ConfigureEnvironmentAspect configureEnv{this};
 
-    void updateInitialCMakeArguments();
     QStringList initialCMakeOptions() const;
 
     void setInitialArgs(const QStringList &args) override;

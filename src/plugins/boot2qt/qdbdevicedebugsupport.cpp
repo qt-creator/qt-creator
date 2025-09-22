@@ -31,7 +31,7 @@ namespace Qdb::Internal {
 
 static ProcessTask qdbDeviceInferiorProcess(RunControl *runControl,
                                             QmlDebugServicesPreset qmlServices,
-                                            bool suppressDefaultStdOutHandling = false)
+                                            const ProcessSetupConfig &config = {})
 {
     const auto modifier = [runControl, qmlServices](Process &process) {
         CommandLine cmd{runControl->device()->filePath(Constants::AppcontrollerFilepath)};
@@ -84,7 +84,7 @@ static ProcessTask qdbDeviceInferiorProcess(RunControl *runControl,
         process.setEnvironment(runControl->environment());
         return Tasking::SetupResult::Continue;
     };
-    return runControl->processTaskWithModifier(modifier, {suppressDefaultStdOutHandling});
+    return runControl->processTaskWithModifier(modifier, config);
 }
 
 class QdbRunWorkerFactory final : public RunWorkerFactory
@@ -150,7 +150,7 @@ public:
         setRecipeProducer([](RunControl *runControl) {
             runControl->requestQmlChannel();
             const ProcessTask inferior(qdbDeviceInferiorProcess(
-                runControl, servicesForRunMode(runControl->runMode())));
+                runControl, servicesForRunMode(runControl->runMode()), {.setupCanceler = false}));
             return Group {
                 When (inferior, &Process::started, WorkflowPolicy::StopOnSuccessOrError) >> Do {
                     runControl->createRecipe(runnerIdForRunMode(runControl->runMode()))
@@ -173,7 +173,8 @@ public:
         setId("QdbPerfProfilerWorkerFactory");
         setRecipeProducer([](RunControl *runControl) {
             runControl->requestPerfChannel();
-            return runControl->processRecipe(qdbDeviceInferiorProcess(runControl, NoQmlDebugServices, true));
+            return runControl->processRecipe(qdbDeviceInferiorProcess(
+                runControl, NoQmlDebugServices, {.suppressDefaultStdOutHandling = true}));
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
         addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);

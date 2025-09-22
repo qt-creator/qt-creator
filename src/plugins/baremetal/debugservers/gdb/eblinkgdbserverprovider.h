@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include "gdbserverprovider.h"
-
 namespace BareMetal::Internal {
 
-class EBlinkGdbServerProviderFactory final : public IDebugServerProviderFactory
-{
-public:
-    EBlinkGdbServerProviderFactory();
-};
+void setupEBlinkGdbServerProvider();
 
 } // BareMetal::Internal

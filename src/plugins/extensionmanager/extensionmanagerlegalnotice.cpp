@@ -17,7 +17,7 @@ using namespace Utils;
 
 namespace ExtensionManager {
 
-void setLegalNoticeVisible(bool visible, const QString &text)
+void setLegalNoticeVisible(bool visible)
 {
     const char kEnableExternalRepo[] = "EnableExternalRepo";
 
@@ -31,22 +31,21 @@ void setLegalNoticeVisible(bool visible, const QString &text)
     if (Internal::settings().useExternalRepo() || !infoBar->canInfoBeAdded(kEnableExternalRepo))
         return;
 
-    const QString effectiveText =
-        !text.isEmpty() ? text
-                        : Tr::tr("The Extensions mode displays the Qt Creator Extensions "
-                                 "available from configured online sources (such as Qt Creator "
-                                 "Extension Store provided by Qt Group).\n\n"
-                                 "If you choose to link or connect an external repository, you are "
-                                 "acting at your own discretion and risk.\n\n"
-                                 "By linking or connecting external repositories, you acknowledge "
-                                 "these conditions and accept responsibility for managing "
-                                 "associated risks appropriately.\n\n"
-                                 "You can manage the use of Extensions in "
-                                 "Preferences > Extensions.");
+    const QString text = Tr::tr("Qt Creator Extensions are available from configured online "
+                                "sources, such as Qt Creator Extensions Store provided by "
+                                "Qt Group, but also third-party provided sources. "
+                                "Extensions for Qt Creator may be created and owned by "
+                                "third-parties.\n"
+                                "\n"
+                                "You acknowledge that you download, install, or use Extensions "
+                                "from the Qt Creator Extensions Store at your own discretion "
+                                "and risk. All Qt Creator Extensions are provided \"as is\" "
+                                "without warranties of any kind, and may be subject to "
+                                "additional license terms imposed by their owners or licensors.\n"
+                                "\n"
+                                "You can manage the use of Extensions in Settings > Extensions.");
 
-    InfoBarEntry
-        info(kEnableExternalRepo, effectiveText,
-             InfoBarEntry::GlobalSuppression::Disabled); // Custom buttons do SuppressPersistently
+    InfoBarEntry info(kEnableExternalRepo, text, InfoBarEntry::GlobalSuppression::Disabled);
     info.setTitle(Tr::tr("Use %1 Extensions?").arg(QGuiApplication::applicationDisplayName()));
     info.setInfoType(InfoLabel::Information);
     info.addCustomButton(

@@ -44,6 +44,7 @@ namespace Layouting { class Layout; }
 
 namespace ProjectExplorer {
 
+class DeviceConstRef;
 class FileTransferInterface;
 class FileTransferSetupData;
 class Kit;
@@ -89,14 +90,14 @@ public:
     DeviceToolAspectFactory();
     ~DeviceToolAspectFactory();
 
-    DeviceToolAspect *createAspect(const IDevicePtr &device) const;
+    DeviceToolAspect *createAspect(const DeviceConstRef &device) const;
 
     Utils::Id toolId() const;
     QStringList filePattern() const;
-    Utils::Result<> check(const IDevicePtr &device, const Utils::FilePath &) const;
+    Utils::Result<> check(const DeviceConstRef &device, const Utils::FilePath &) const;
 
 protected:
-    using Checker = std::function<Utils::Result<>(const IDevicePtr &device, const Utils::FilePath &)>;
+    using Checker = std::function<Utils::Result<>(const DeviceConstRef &device, const Utils::FilePath &)>;
     void setToolId(const Utils::Id &toolId);
     void setFilePattern(const QStringList &filePattern);
     void setLabelText(const QString &labelText);
@@ -106,7 +107,7 @@ protected:
     void setToolType(DeviceToolAspect::ToolType toolType);
 
 private:
-    void autoDetect(const IDevicePtr &device, const Utils::FilePaths &searchPaths);
+    void autoDetect(const DeviceConstRef &device, const Utils::FilePaths &searchPaths);
 
     Utils::Id m_toolId;
     QString m_labelText;

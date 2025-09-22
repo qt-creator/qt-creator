@@ -900,8 +900,10 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
         }
 
         // GCC options that clang doesn't know.
-        if (option.contains("direct-extern-access") || option == "-fnothrow-opt")
+        if (option.contains("direct-extern-access") || option == "-fnothrow-opt"
+            || option.startsWith("-fconcepts-diagnostics-depth")) {
             continue;
+        }
 
         // These were already parsed into ProjectPart::includedFiles.
         if (option == includeFileOptionCl || option == includeFileOptionGcc) {

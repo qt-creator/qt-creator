@@ -661,8 +661,10 @@ bool TargetSetupPagePrivate::isUsable(const Kit *kit) const
     return !containsType(tasksGenerator(kit), Task::Error);
 }
 
-bool TargetSetupPage::setupProject(Project *project)
+void TargetSetupPage::setupProject(Project *project)
 {
+    QTC_ASSERT(project, return);
+
     QList<BuildInfo> toSetUp;
     for (TargetSetupWidget *widget : d->widgets) {
         if (!widget->isKitSelected())
@@ -687,8 +689,6 @@ bool TargetSetupPage::setupProject(Project *project)
         activeTarget = d->importer->preferredTarget(project->targets());
     if (activeTarget)
         project->setActiveTarget(activeTarget, SetActive::NoCascade);
-
-    return true;
 }
 
 } // namespace ProjectExplorer

@@ -479,10 +479,10 @@ QtSettingsPageWidget::QtSettingsPageWidget()
 
     auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(m_nameEdit, "Qt:Name");
-    chooser->addMacroExpanderProvider([this] {
+    chooser->addMacroExpanderProvider({this, [this] {
         QtVersion *version = currentVersion();
         return version ? version->macroExpander() : nullptr;
-    });
+    }});
 }
 
 QtVersion *QtSettingsPageWidget::currentVersion() const

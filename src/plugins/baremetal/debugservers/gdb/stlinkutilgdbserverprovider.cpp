@@ -3,6 +3,8 @@
 
 #include "stlinkutilgdbserverprovider.h"
 
+#include "gdbserverprovider.h"
+
 #include <baremetal/baremetalconstants.h>
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
@@ -199,15 +201,6 @@ bool StLinkUtilGdbServerProvider::operator==(const IDebugServerProvider &other) 
             && m_connectUnderReset == p->m_connectUnderReset;
 }
 
-// StLinkUtilGdbServerProviderFactory
-
-StLinkUtilGdbServerProviderFactory::StLinkUtilGdbServerProviderFactory()
-{
-    setId(Constants::GDBSERVER_STLINK_UTIL_PROVIDER_ID);
-    setDisplayName(Tr::tr("ST-LINK Utility"));
-    setCreator([] { return new StLinkUtilGdbServerProvider; });
-}
-
 // StLinkUtilGdbServerProviderConfigWidget
 
 StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget(
@@ -355,6 +348,24 @@ void StLinkUtilGdbServerProviderConfigWidget::setFromProvider()
     m_initCommandsTextEdit->setPlainText(p->initCommands());
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
     m_resetOnConnectCheckBox->setChecked(p->m_connectUnderReset);
+}
+
+// StLinkUtilGdbServerProviderFactory
+
+class StLinkUtilGdbServerProviderFactory final : public IDebugServerProviderFactory
+{
+public:
+    StLinkUtilGdbServerProviderFactory()
+    {
+        setId(Constants::GDBSERVER_STLINK_UTIL_PROVIDER_ID);
+        setDisplayName(Tr::tr("ST-LINK Utility"));
+        setCreator([] { return new StLinkUtilGdbServerProvider; });
+    }
+};
+
+void setupStLinkUtilGdbServerProvider()
+{
+    static StLinkUtilGdbServerProviderFactory theStLinkUtilGdbServerProviderFactory;
 }
 
 } // ProjectExplorer::Internal

@@ -74,9 +74,6 @@ public:
     virtual bool isValid() const = 0;
     virtual bool isSimulator() const { return false; }
 
-    void registerDevice(BareMetalDevice *device);
-    void unregisterDevice(BareMetalDevice *device);
-
 protected:
     void setTypeDisplayName(const QString &typeDisplayName);
     void setEngineType(Debugger::DebuggerEngineType engineType);
@@ -89,7 +86,6 @@ protected:
     QString m_typeDisplayName;
     QUrl m_channel;
     Debugger::DebuggerEngineType m_engineType = Debugger::NoEngineType;
-    QSet<BareMetalDevice *> m_devices;
     std::function<IDebugServerProviderConfigWidget *()> m_configurationWidgetCreator;
 
     friend class DebugServerProvidersSettingsWidget;
@@ -102,6 +98,8 @@ protected:
 class IDebugServerProviderFactory
 {
 public:
+    ~IDebugServerProviderFactory();
+
     QString id() const;
     QString displayName() const;
 
@@ -113,8 +111,11 @@ public:
     static QString idFromMap(const Utils::Store &data);
     static void idToMap(Utils::Store &data, const QString &id);
 
+    static const QList<IDebugServerProviderFactory *> factories();
+
 protected:
     IDebugServerProviderFactory();
+
     void setId(const QString &id);
     void setDisplayName(const QString &name);
     void setCreator(const std::function<IDebugServerProvider *()> &creator);

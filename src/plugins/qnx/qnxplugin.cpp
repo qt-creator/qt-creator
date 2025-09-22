@@ -90,10 +90,12 @@ public:
                         "/opt/qnx800/qnxsdp-env.sh", "/opt/qnx800/qnxsdp-env.bat"});
         setLabelText(Tr::tr("QNX sdpenv.sh:"));
         setToolTip(Tr::tr("QNX Software Development Platform environment file."));
-        setChecker([](const IDevicePtr &device, const FilePath &candidate) -> Result<> {
-            if (device->osType() == OsTypeWindows && candidate.suffix() == "bat")
+        setChecker([](const DeviceConstRef &device, const FilePath &candidate) -> Result<> {
+            IDevice::ConstPtr dev = device.lock();
+            QTC_ASSERT(dev, return ResultError(ResultAssert));
+            if (dev->osType() == OsTypeWindows && candidate.suffix() == "bat")
                 return ResultOk;
-            if (device->osType() != OsTypeWindows && candidate.suffix() == "sh")
+            if (dev->osType() != OsTypeWindows && candidate.suffix() == "sh")
                 return ResultOk;
             return ResultError(Tr::tr("File suffix does not match OS type."));
         });

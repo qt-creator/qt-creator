@@ -400,7 +400,12 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
             m_buildConfig->initialCMakeArguments.cmakeConfiguration());
     }
 
-    connect(bs, &BuildSystem::parsingFinished, this, [this, bs] {
+    connect(bs, &BuildSystem::parsingFinished, this, [this] {
+        QTC_ASSERT(m_buildConfig, return);
+        CMakeBuildSystem *bs = m_buildConfig->cmakeBuildSystem();
+        QTC_ASSERT(bs, return);
+        if (bs->isDestructing())
+            return;
         const CMakeConfig config = bs->configurationFromCMake();
         const TriState qmlDebugSetting = m_buildConfig->qmlDebugging();
         bool qmlDebugConfig = CMakeBuildConfiguration::hasQmlDebugging(config);
@@ -569,7 +574,7 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
 
     auto chooser = new Utils::VariableChooser(dialog);
     chooser->addSupportedWidget(editor);
-    chooser->addMacroExpanderProvider([this] { return m_buildConfig->macroExpander(); });
+    chooser->addMacroExpanderProvider({this, [this] { return m_buildConfig->macroExpander(); }});
 
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
 
@@ -785,6 +790,7 @@ void CMakeBuildSettingsWidget::setWarning(const QString &message)
 
 void CMakeBuildSettingsWidget::updateButtonState()
 {
+    QTC_ASSERT(m_buildConfig, return);
     const bool isParsing = m_buildConfig->cmakeBuildSystem()->isParsing();
 
     // Update extra data in buildconfiguration
@@ -1871,12 +1877,6 @@ QWidget *CMakeBuildConfiguration::createConfigWidget()
     return m_configWidget;
 }
 
-void CMakeBuildConfiguration::updateInitialCMakeArguments()
-{
-    Q_ASSERT(m_configWidget);
-    m_configWidget->updateInitialCMakeArguments(true);
-}
-
 QStringList CMakeBuildConfiguration::initialCMakeOptions() const
 {
     return initialCMakeArguments.allValues();
@@ -1900,7 +1900,8 @@ QStringList CMakeBuildConfiguration::additionalArgs() const
 void CMakeBuildConfiguration::reconfigure()
 {
     cmakeBuildSystem()->clearCMakeCache();
-    updateInitialCMakeArguments();
+    if (QTC_GUARD(m_configWidget))
+        m_configWidget->updateInitialCMakeArguments();
     cmakeBuildSystem()->runCMake();
 }
 

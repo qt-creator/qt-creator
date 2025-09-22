@@ -246,7 +246,7 @@ RunConfiguration::RunConfiguration(BuildConfiguration *bc, Id id)
     MacroExpander &expander = *macroExpander();
     expander.setDisplayName(Tr::tr("Run Settings"));
     expander.setAccumulating(true);
-    expander.registerSubProvider([bc] { return bc->macroExpander(); });
+    expander.registerSubProvider({this, [bc] { return bc->macroExpander(); }});
     setupMacroExpander(expander, this, false);
     expander.registerVariable("RunConfig:WorkingDir",
                                Tr::tr("The run configuration's working directory."),
@@ -320,7 +320,7 @@ QWidget *RunConfiguration::createConfigurationWidget()
     }
     auto widget = form.emerge();
 
-    VariableChooser::addSupportForChildWidgets(widget, macroExpander());
+    VariableChooser::addSupportForChildWidgets(widget, {this, macroExpander()});
 
     auto detailsWidget = new DetailsWidget;
     detailsWidget->setState(DetailsWidget::NoSummary);

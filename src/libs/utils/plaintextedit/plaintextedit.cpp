@@ -508,7 +508,7 @@ void PlainTextDocumentLayout::documentChanged(int from, int charsRemoved, int ch
     int charsChanged = charsRemoved + charsAdded;
 
     QTextBlock changeStartBlock = doc->findBlock(from);
-    QTextBlock changeEndBlock = doc->findBlock(qMax(0, from + charsChanged - 1));
+    QTextBlock changeEndBlock = doc->findBlock(qMax(0, from + charsChanged));
     bool blockVisibilityChanged = false;
 
     if (changeStartBlock == changeEndBlock && newBlockCount == d->blockCount) {

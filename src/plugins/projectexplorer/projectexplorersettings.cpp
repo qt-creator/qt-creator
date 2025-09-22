@@ -185,8 +185,9 @@ ProjectExplorerSettings::ProjectExplorerSettings(bool global)
         buildBeforeDeploy.setValue(static_cast<BuildBeforeRunMode>(value.toInt()));
     }
 
-    if (environmentId().isNull()) {
+    if (global && environmentId().isNull()) {
         environmentId.setValue(QUuid::createUuid().toByteArray());
+        environmentId.setSettingsKey("ProjectExplorer/Settings/EnvironmentId");
         environmentId.writeSettings();
     }
 

@@ -21,6 +21,16 @@
 
     \section1 Analyze the current file
 
+    By default, Clang tools automatically analyze open files and show the results
+    in the code editor and \l {Issues} view.
+
+    \image {qtcreator-clang-diagnostics-in-editor-and-issues.webp}
+    {Clang diagnostics shown in the editor and Issues view}
+    \caption Clang diagnostics shown in the editor and Issues view.
+
+    To turn off the analysis, go to \preferences > \uicontrol Analyzer >
+    \uicontrol {Clang Tools} and clear \uicontrol {Analyze open files}.
+
     To run Clang-Tidy or Clazy to analyze the currently open file:
 
     \list
@@ -67,10 +77,10 @@
     Double-click an issue to move to the location where the issue appears in
     the code editor.
 
-    If a fixit exists for an issue, you can select the check box next to the
+    If a fixit exists for an issue, you can select the checkbox next to the
     issue to schedule it for fixing. Select the \uicontrol {Select Fixits}
-    check box to select all fixits. To see the status of an issue, hover the
-    mouse pointer over the icon next to the check box.
+    checkbox to select all fixits. To see the status of an issue, hover the
+    mouse pointer over the icon next to the checkbox.
 
     To see more information about an issue that is marked with the
     \inlineimage {icons/refactormarker.png} {Light bulb icon}
@@ -139,7 +149,7 @@
     To set Clang-Tidy and Clazy checks to run for the current project:
 
     \list 1
-        \li Select \uicontrol Projects > \uicontrol {Project Settings} >
+        \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol {Clang Tools}.
             \image {qtcreator-clang-tools-settings.webp} {Clang Tools customized settings}
         \li Clear \uicontrol {Use global settings}.
@@ -175,7 +185,7 @@
 
     \list 1
 
-        \li Select \preferences > \uicontrol Analyzer >
+        \li Go to \preferences > \uicontrol Analyzer >
             \uicontrol {Clang Tools}.
 
             \image {qtcreator-preferences-analyzer-clang-tools.webp} {Clang Tools tab in Analyzer preferences}
@@ -191,15 +201,15 @@
             To perform checks from a Clang-Tidy configuration file instead,
             select \uicontrol {Prefer .clang-tidy file, if present}.
 
-        \li To build the project before running the Clang tools, select the
-            \uicontrol {Build the project before analysis} check box. The Clang
+        \li To build the project before running the Clang tools, select
+            \uicontrol {Build the project before analysis}. The Clang
             tools do not require that you build the project before analysis, but
             they might display misleading warnings about files missing that are
             generated during the build. For big projects, not building the
             project might save some time.
 
-        \li To disable automatic analysis of open documents, clear the
-            \uicontrol {Analyze open files} check box.
+        \li To disable automatic analysis of open documents, clear
+            \uicontrol {Analyze open files}.
 
         \li In the \uicontrol {Parallel jobs} field, select the number of jobs
             to run in parallel to make the analysis faster on multi-core
@@ -207,7 +217,7 @@
     \endlist
 
     \sa {Configure Clang diagnostics}, {Analyze code with Clang-Tidy and Clazy},
-    {Specify Clang tools settings}
+    {Specify Clang tools settings}, {Issues}
 */
 
 /*!
@@ -248,8 +258,8 @@
         \li In the \uicontrol {Diagnostic configuration name} field, give the
             configuration a name, and then select \uicontrol OK.
 
-        \li In the \uicontrol {Clang Warnings} tab, select the
-            \uicontrol {Use diagnostic flags from the build system} check box
+        \li In the \uicontrol {Clang Warnings} tab, select
+            \uicontrol {Use diagnostic flags from the build system}
             to forward diagnostic flags, such as warning flags, from the build
             system to the Clang code model for displaying annotations in the
             code editor.
@@ -295,7 +305,7 @@
     are very stable and show hardly any false positives, while the checks at
     level 3 are experimental. You can select the checks to perform
     at each level. To include the checks from the lower levels automatically,
-    select the \uicontrol {Enable lower levels automatically} check box.
+    select \uicontrol {Enable lower levels automatically}.
 
     \section2 Creating Clang-Tidy Configuration Files
 

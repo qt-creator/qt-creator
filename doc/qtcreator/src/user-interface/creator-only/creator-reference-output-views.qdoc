@@ -30,7 +30,7 @@
     To find output in the view, enter search criteria in the \uicontrol Filter
     field.
 
-    To show and hide warnings, select \inlineimage {icons/warning.png}
+    To show and hide Clang diagnostics, select \inlineimage {icons/warning.png}
     {Show Warnings} (\uicontrol {Show Warnings}).
 
     Select one or several lines to apply context-menu actions to their contents.
@@ -64,7 +64,7 @@
     \uicontrol {Clear issues list on new build}.
 
     \sa {View output}, {Add custom output parsers}, {Parse build output},
-    {Show task list files in Issues}
+    {Show task list files in Issues}, {Analyze code with Clang-Tidy and Clazy}
 */
 
 /*!

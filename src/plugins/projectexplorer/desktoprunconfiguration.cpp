@@ -95,6 +95,7 @@ void DesktopRunConfiguration::updateTargetInformation()
 
     BuildTargetInfo bti = buildTargetInfo();
 
+    setDefaultDisplayName(bti.displayName);
     auto terminalAspect = aspect<TerminalAspect>();
     terminalAspect->setUseTerminalHint(!bti.targetFilePath.isLocal() ? false : bti.usesTerminal);
     terminalAspect->setEnabled(bti.targetFilePath.isLocal());

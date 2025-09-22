@@ -140,7 +140,9 @@ CMakeBuildSystem::CMakeBuildSystem(BuildConfiguration *bc)
 
 CMakeBuildSystem::~CMakeBuildSystem()
 {
-    // Trigger any pending parsingFinished signals before destroying any other build system part:
+    // Trigger any pending parsingFinished signals before destroying any other build system part
+    // but tell it to not do anything
+    m_isDestructing = true;
     m_currentGuard = {};
     if (!m_treeScanner.isFinished()) {
         auto future = m_treeScanner.future();

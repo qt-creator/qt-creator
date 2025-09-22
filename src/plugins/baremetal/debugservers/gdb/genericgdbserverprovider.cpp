@@ -3,6 +3,8 @@
 
 #include "genericgdbserverprovider.h"
 
+#include "gdbserverprovider.h"
+
 #include <baremetal/baremetalconstants.h>
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
@@ -64,15 +66,6 @@ GenericGdbServerProvider::GenericGdbServerProvider()
 QSet<GdbServerProvider::StartupMode> GenericGdbServerProvider::supportedStartupModes() const
 {
     return {StartupOnNetwork};
-}
-
-// GenericGdbServerProviderFactory
-
-GenericGdbServerProviderFactory::GenericGdbServerProviderFactory()
-{
-    setId(Constants::GDBSERVER_GENERIC_PROVIDER_ID);
-    setDisplayName(Tr::tr("Generic"));
-    setCreator([] { return new GenericGdbServerProvider; });
 }
 
 // GdbServerProviderConfigWidget
@@ -157,6 +150,24 @@ void GenericGdbServerProviderConfigWidget::setFromProvider()
     m_useExtendedRemoteCheckBox->setChecked(p->useExtendedRemote());
     m_initCommandsTextEdit->setPlainText(p->initCommands());
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
+}
+
+// GenericGdbServerProviderFactory
+
+class GenericGdbServerProviderFactory final : public IDebugServerProviderFactory
+{
+public:
+    GenericGdbServerProviderFactory()
+    {
+        setId(Constants::GDBSERVER_GENERIC_PROVIDER_ID);
+        setDisplayName(Tr::tr("Generic"));
+        setCreator([] { return new GenericGdbServerProvider; });
+    }
+};
+
+void setupGenericGdbServerProvider()
+{
+    static GenericGdbServerProviderFactory theGenericGdbServerProviderFactory;
 }
 
 } // ProjectExplorer::Internal

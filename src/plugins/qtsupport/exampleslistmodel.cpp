@@ -498,7 +498,7 @@ static bool hasExamplesOrDemosAndDocumentation(const QtVersion *v)
     return true;
 }
 
-void ExampleSetModel::updateQtVersionList()
+const QtVersions qtVersionsToConsiderForExamples()
 {
     QtVersions versions = QtVersionManager::sortVersions(
         QtVersionManager::versions([](const QtVersion *v) {
@@ -517,7 +517,12 @@ void ExampleSetModel::updateQtVersionList()
     QtVersion *defaultVersion = QtKitAspect::qtVersion(defaultKit);
     if (defaultVersion && versions.contains(defaultVersion))
         versions.move(versions.indexOf(defaultVersion), 0);
+    return versions;
+}
 
+void ExampleSetModel::updateQtVersionList()
+{
+    const QtVersions versions = qtVersionsToConsiderForExamples();
     recreateModel(versions);
 
     int currentIndex = m_selectedExampleSetIndex;

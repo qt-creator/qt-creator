@@ -18,6 +18,8 @@ namespace Internal {
 
 class ExamplesViewController;
 
+const QtVersions qtVersionsToConsiderForExamples();
+
 class ExampleSetModel : public QStandardItemModel
 {
     Q_OBJECT

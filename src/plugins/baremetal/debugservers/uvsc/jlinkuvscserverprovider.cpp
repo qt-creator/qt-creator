@@ -5,6 +5,7 @@
 
 #include "uvproject.h"
 #include "uvprojectwriter.h"
+#include "uvscserverprovider.h"
 
 #include <baremetal/baremetalconstants.h>
 #include <baremetal/baremetaldebugsupport.h>
@@ -275,15 +276,6 @@ FilePath JLinkUvscServerProvider::optionsFilePath(RunControl *runControl,
     return optionsPath;
 }
 
-// JLinkUvscServerProviderFactory
-
-JLinkUvscServerProviderFactory::JLinkUvscServerProviderFactory()
-{
-    setId(Constants::UVSC_JLINK_PROVIDER_ID);
-    setDisplayName(Tr::tr("uVision JLink"));
-    setCreator([] { return new JLinkUvscServerProvider; });
-}
-
 // JLinkUvscServerProviderConfigWidget
 
 JLinkUvscServerProviderConfigWidget::JLinkUvscServerProviderConfigWidget(
@@ -419,6 +411,24 @@ void JLinkUvscAdapterOptionsWidget::populateSpeeds()
     m_speedBox->addItem(Tr::tr("500kHz"), JLinkUvscAdapterOptions::Speed_500kHz);
     m_speedBox->addItem(Tr::tr("200kHz"), JLinkUvscAdapterOptions::Speed_200kHz);
     m_speedBox->addItem(Tr::tr("100kHz"), JLinkUvscAdapterOptions::Speed_100kHz);
+}
+
+// JLinkUvscServerProviderFactory
+
+class JLinkUvscServerProviderFactory final : public IDebugServerProviderFactory
+{
+public:
+    JLinkUvscServerProviderFactory()
+    {
+        setId(Constants::UVSC_JLINK_PROVIDER_ID);
+        setDisplayName(Tr::tr("uVision JLink"));
+        setCreator([] { return new JLinkUvscServerProvider; });
+    }
+};
+
+void setupJLinkUvscServerProvider()
+{
+    static JLinkUvscServerProviderFactory theJLinkUvscServerProviderFactory;
 }
 
 } // BareMetal::Internal

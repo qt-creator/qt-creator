@@ -808,11 +808,13 @@
     \list
         \li To add untracked files to the version control, select \uicontrol Stage.
             To delete them, select \uicontrol Remove. To add them to the ignore list,
-            select \uicontrol {Add to gitignore}.
+            select \uicontrol {Add to .gitignore}.
         \li To revert modified files to the previous state, select
-            \uicontrol {Revert Unstaged Changes}. To stage the whole file for commit,
+            \uicontrol {Revert Unstaged Changes to <file>} or
+            \uicontrol {Revert All Changes to <file>}. To stage the whole file for commit,
             select \uicontrol Stage. To unstage it, select \uicontrol Unstage.
-        \li Select \uicontrol Recover to restore files deleted from version control.
+        \li Select \uicontrol {Recover <file>} to restore files deleted from
+            version control.
         \li Conflicted files provide actions to \uicontrol {Run Merge Tool} for conflict
             resolution. For deleted files, select \uicontrol {Resolve by Recovering} to
             restore them or \uicontrol {Resolve by Removing} to delete the file.

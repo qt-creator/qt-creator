@@ -14,6 +14,7 @@
 #include "editormanager_p.h"
 
 #include <utils/algorithm.h>
+#include <utils/dropsupport.h>
 #include <utils/environment.h>
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
@@ -24,6 +25,7 @@
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
+#include <QDrag>
 #include <QFileInfo>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -41,6 +43,76 @@ using namespace Core;
 using namespace Utils;
 
 namespace Core::Internal {
+
+class ViewTabBar : public QTabBar
+{
+    Q_OBJECT
+
+public:
+    explicit ViewTabBar(EditorView *parent)
+        : QTabBar(parent)
+        , m_parentView(parent)
+    {}
+
+protected:
+    void mousePressEvent(QMouseEvent *event) override
+    {
+        if (event->button() == Qt::LeftButton)
+            m_clickedIndex = tabAt(event->pos());
+        QTabBar::mousePressEvent(event);
+    }
+    void mouseReleaseEvent(QMouseEvent *event) override
+    {
+        m_clickedIndex = -1;
+        QTabBar::mouseReleaseEvent(event);
+    }
+
+    void mouseMoveEvent(QMouseEvent *event) override
+    {
+        if (event->buttons() == Qt::NoButton) {
+            m_clickedIndex = -1;
+            QTabBar::mouseMoveEvent(event);
+            return;
+        }
+        QTC_ASSERT(m_parentView, return);
+        const QPoint posInView = mapTo(m_parentView, event->pos());
+        if (m_clickedIndex >= 0
+            && (posInView.y() > m_parentView->height() || posInView.x() > m_parentView->width()
+                || posInView.x() < 0 || posInView.y() < 0)) {
+            // Hack to stop the tab dragging.
+            // A mouse move event without buttons lets QTabBar::mouseMoveEvent
+            // call moveTabFinished.
+            auto modEv = std::make_unique<QMouseEvent>(
+                event->type(),
+                event->position(),
+                event->globalPosition().toPoint(),
+                Qt::NoButton,
+                Qt::NoButton,
+                Qt::NoModifier,
+                event->pointingDevice());
+            QTabBar::mouseMoveEvent(modEv.get());
+            // Then do our own drag&drop that can go anywhere.
+            // We are outside our rect() vertically, so look which top is above.
+            const auto tabPos = QPoint(event->pos().x(), rect().center().y());
+            const int tabAtPos = tabAt(tabPos);
+            const int tabIndex = tabAtPos >= 0 ? tabAtPos : (posInView.x() < 0 ? 0 : count() - 1);
+            // Move it back to original position, otherwise a Drag-Copy operation also results
+            // in moved original tab
+            if (tabIndex != m_clickedIndex)
+                moveTab(tabIndex, m_clickedIndex);
+            emit dragRequested(m_clickedIndex);
+        } else {
+            QTabBar::mouseMoveEvent(event);
+        }
+    }
+
+signals:
+    void dragRequested(int index);
+
+private:
+    EditorView *m_parentView = nullptr;
+    int m_clickedIndex = false;
+};
 
 // EditorView
 
@@ -61,7 +133,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
     : QWidget(parent)
     , m_parentSplitterOrView(parentSplitterOrView)
     , m_toolBar(new EditorToolBar(this))
-    , m_tabBar(new QTabBar(this))
+    , m_tabBar(new ViewTabBar(this))
     , m_container(new QStackedWidget(this))
     , m_infoBarDisplay(new InfoBarDisplay(this))
     , m_statusHLine(Layouting::createHr(this))
@@ -157,6 +229,20 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
                 }
             }
         });
+    // Handle dragging outside the tab bar (e.g. to a different view)
+    connect(m_tabBar, &ViewTabBar::dragRequested, this, [this](int index) {
+        QTC_ASSERT(index >= 0 && index < m_tabBar->count(), return);
+        const auto data = m_tabBar->tabData(index).value<TabData>();
+        DocumentModel::Entry *entry = data.entry;
+        QTC_ASSERT(entry, return);
+        auto drag = new QDrag(this);
+        auto dropData = new Utils::DropMimeData;
+        dropData->addFile(entry->filePath());
+        drag->setMimeData(dropData);
+        Qt::DropAction action = drag->exec(Qt::MoveAction | Qt::CopyAction, Qt::MoveAction);
+        if (action == Qt::MoveAction)
+            QMetaObject::invokeMethod(this, [this, index] { closeTab(index); }, Qt::QueuedConnection);
+    });
     tl->addWidget(m_tabBar);
 
     m_infoBarDisplay->setTarget(tl, 2);
@@ -201,15 +287,18 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
     m_widgetEditorMap.insert(empty, nullptr);
 
     const auto dropSupport = new DropSupport(this, [this](QDropEvent *event, DropSupport *) {
-        // do not accept move events except from other editor views (i.e. their tool bars)
+        // do not accept move events except from other editor views (or their tool bars)
         // otherwise e.g. item views that support moving items within themselves would
         // also "move" the item into the editor view, i.e. the item would be removed from the
         // item view
-        if (!qobject_cast<EditorToolBar*>(event->source()))
+        if (!qobject_cast<EditorToolBar *>(event->source())
+            && !qobject_cast<EditorView *>(event->source())) {
             event->setDropAction(Qt::CopyAction);
+        }
         if (event->type() == QDropEvent::DragEnter && !DropSupport::isFileDrop(event))
             return false; // do not accept drops without files
-        return event->source() != m_toolBar; // do not accept drops on ourselves
+        return event->source() != this
+               && event->source() != m_toolBar; // do not accept drops on ourselves
     });
     connect(dropSupport, &DropSupport::filesDropped,
             this, &EditorView::openDroppedFiles);
@@ -1387,3 +1476,5 @@ QString EditLocation::displayName() const
 }
 
 } // Core::Internal
+
+#include "editorview.moc"

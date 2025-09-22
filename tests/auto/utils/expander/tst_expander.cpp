@@ -120,11 +120,11 @@ private slots:
     {
         MacroExpander expander;
         expander.registerVariable("MainVar", "", [] { return "MainValue"; });
-        expander.registerSubProvider([] {
+        expander.registerSubProvider({this, [] {
             static MacroExpander *sub = new MacroExpander;
             sub->registerVariable("SubVar", "", [] { return "SubValue"; });
             return sub;
-        });
+        }});
 
         QCOMPARE(expander.expand(QString("%{MainVar} %{SubVar}")), QString("MainValue SubValue"));
         QString resolved;

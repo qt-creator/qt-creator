@@ -140,6 +140,7 @@ private slots:
     void pathComponents_data();
 
     void symLinks();
+    void resolveSymLinks();
 
     void ensureWritableDirectory();
     void ensureWritableDirectoryPermissions();
@@ -184,7 +185,7 @@ void tst_filepath::initTestCase()
 {
     // initialize test for tst_filepath::relativePath*()
     QVERIFY(tempDir.isValid());
-    rootPath = tempDir.path();
+    rootPath = QFileInfo(tempDir.path()).canonicalFilePath();
     QDir dir(rootPath);
     dir.mkpath("a/b/c/d");
     dir.mkpath("a/x/y/z");
@@ -2015,6 +2016,57 @@ void tst_filepath::symLinks()
     QVERIFY_RESULT(res);
     QVERIFY(link.isSymLink());
     QCOMPARE(link.symLinkTarget(), orig);
+}
+
+void tst_filepath::resolveSymLinks()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("Creating symbolic links requires special privileges on Windows");
+
+    // relative link chain to existing file
+    const FilePath orig1 = FilePath::fromString(rootPath).pathAppended("a/file3.txt");
+    QVERIFY(orig1.exists());
+    const FilePath link1 = FilePath::fromString(rootPath).pathAppended("x/linktest1.txt");
+    const Result<> res1 = FilePath::fromString("../a/file3.txt").createSymLink(link1);
+    QVERIFY_RESULT(res1);
+    QVERIFY(link1.isSymLink());
+    QCOMPARE(link1.symLinkTarget(), orig1);
+    const FilePath link2 = FilePath::fromString(rootPath).pathAppended("x/linktest2.txt");
+    const Result<> res2 = FilePath::fromString("linktest1.txt").createSymLink(link2);
+    QVERIFY_RESULT(res2);
+    QVERIFY(link2.isSymLink());
+    QCOMPARE(link2.symLinkTarget(), link1);
+    QCOMPARE(link2.resolveSymlinks(), orig1);
+
+    // relative link chain to non-existing file
+    const FilePath orig2 = FilePath::fromString(rootPath).pathAppended("a/broken.txt");
+    QVERIFY(!orig2.exists());
+    const FilePath link3 = FilePath::fromString(rootPath).pathAppended("x/linktest3.txt");
+    const Result<> res3 = FilePath::fromString("../a/broken.txt").createSymLink(link3);
+    QVERIFY_RESULT(res3);
+    QVERIFY(link3.isSymLink());
+    QCOMPARE(link3.symLinkTarget(), orig2);
+    const FilePath link4 = FilePath::fromString(rootPath).pathAppended("x/linktest4.txt");
+    const Result<> res4 = FilePath::fromString("linktest3.txt").createSymLink(link4);
+    QVERIFY_RESULT(res4);
+    QVERIFY(link4.isSymLink());
+    QCOMPARE(link4.symLinkTarget(), link3);
+    QCOMPARE(link4.resolveSymlinks(), orig2);
+
+    // relative links in directory links
+    // currently:
+    // <tmp>/a/file3.txt
+    // <tmp>/x/linktest1.txt -> ../a/file3.txt
+    // if now:
+    // <tmp>/a/dirlink -> ../x
+    // then resolution should happen like this:
+    // <tmp>/a/dirlink/linktest1.txt -> <tmp>/a/file3.txt
+    const FilePath dirlink = FilePath::fromString(rootPath).pathAppended("a/dirlink");
+    const Result<> res5 = FilePath::fromString("../x").createSymLink(dirlink);
+    QVERIFY_RESULT(res5);
+    QVERIFY(dirlink.isSymLink());
+    QCOMPARE(dirlink.symLinkTarget(), FilePath::fromString(rootPath).pathAppended("x"));
+    QCOMPARE(dirlink.pathAppended("linktest1.txt").resolveSymlinks(), orig1);
 }
 
 void tst_filepath::ensureWritableDirectory()

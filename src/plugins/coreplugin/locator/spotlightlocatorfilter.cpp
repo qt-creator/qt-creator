@@ -223,7 +223,7 @@ bool SpotlightLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefres
     layout->addRow({}, sortResults);
     std::unique_ptr<MacroExpander> expander(createMacroExpander(""));
     auto chooser = new VariableChooser(&configWidget);
-    chooser->addMacroExpanderProvider([expander = expander.get()] { return expander; });
+    chooser->addMacroExpanderProvider({this, [expander = expander.get()] { return expander; }});
     chooser->addSupportedWidget(argumentsEdit);
     chooser->addSupportedWidget(caseSensitiveArgumentsEdit);
     const bool accepted = ILocatorFilter::openConfigDialog(parent, &configWidget);

@@ -15,6 +15,18 @@
 #include "sdccparser.h"
 #include "sdcctoolchain.h"
 
+// GDB debug servers.
+#include "debugservers/gdb/genericgdbserverprovider.h"
+#include "debugservers/gdb/openocdgdbserverprovider.h"
+#include "debugservers/gdb/stlinkutilgdbserverprovider.h"
+#include "debugservers/gdb/jlinkgdbserverprovider.h"
+#include "debugservers/gdb/eblinkgdbserverprovider.h"
+
+// UVSC debug servers.
+#include "debugservers/uvsc/simulatoruvscserverprovider.h"
+#include "debugservers/uvsc/stlinkuvscserverprovider.h"
+#include "debugservers/uvsc/jlinkuvscserverprovider.h"
+
 #include <extensionsystem/iplugin.h>
 
 namespace BareMetal::Internal {
@@ -27,6 +39,15 @@ class BareMetalPlugin final : public ExtensionSystem::IPlugin
     void initialize() final
     {
         setupBareMetalDevice();
+
+        setupGenericGdbServerProvider();
+        setupJLinkGdbServerProvider();
+        setupOpenOcdGdbServerProvider();
+        setupStLinkUtilGdbServerProvider();
+        setupEBlinkGdbServerProvider();
+        setupSimulatorUvscServerProvider();
+        setupStLinkUvscServerProvider();
+        setupJLinkUvscServerProvider();
 
         setupIarToolchain();
         setupKeilToolchain();

@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include "uvscserverprovider.h"
-
 namespace BareMetal::Internal {
 
-class StLinkUvscServerProviderFactory final : public IDebugServerProviderFactory
-{
-public:
-    StLinkUvscServerProviderFactory();
-};
+void setupStLinkUvscServerProvider();
 
 } // BareMetal::Internal

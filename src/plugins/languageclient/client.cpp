@@ -1783,7 +1783,7 @@ bool ClientPrivate::reset()
 
 void Client::setError(const QString &message)
 {
-    log(message);
+    log(QtMsgType::QtCriticalMsg, message);
     switch (d->m_state) {
     case Uninitialized:
     case InitializeRequested:
@@ -1818,15 +1818,38 @@ void Client::handleMessage(const LanguageServerProtocol::JsonRpcMessage &message
         d->handleMethod(method, id, message);
 }
 
-void Client::log(const QString &message) const
+void Client::log(QtMsgType msgType, const QString &message) const
 {
     switch (d->m_logTarget) {
     case LogTarget::Ui:
-        Core::MessageManager::writeFlashing(QString("LanguageClient %1: %2").arg(name(), message));
+        switch (msgType) {
+        case QtMsgType::QtDebugMsg:
+        case QtMsgType::QtInfoMsg:
+            qCDebug(LOGLSPCLIENT) << message;
+            break;
+        case QtMsgType::QtWarningMsg:
+        case QtMsgType::QtCriticalMsg:
+        case QtMsgType::QtFatalMsg:
+            Core::MessageManager::writeFlashing(
+                QString("LanguageClient %1: %2").arg(name(), message));
+        }
         break;
     case LogTarget::Console:
-        qCDebug(LOGLSPCLIENT) << message;
-        break;
+        switch (msgType) {
+        case QtMsgType::QtDebugMsg:
+            qCDebug(LOGLSPCLIENT) << message;
+            break;
+        case QtMsgType::QtInfoMsg:
+            qCInfo(LOGLSPCLIENT) << message;
+            break;
+        case QtMsgType::QtWarningMsg:
+            qCWarning(LOGLSPCLIENT) << message;
+            break;
+        case QtMsgType::QtCriticalMsg:
+        case QtMsgType::QtFatalMsg:
+            qCCritical(LOGLSPCLIENT) << message;
+        }
+    break;
     }
 }
 
@@ -1887,7 +1910,7 @@ SemanticTokenSupport *Client::semanticTokenSupport()
 
 void ClientPrivate::log(const ShowMessageParams &message)
 {
-    q->log(message.toString());
+    q->log(message.qtMsgType(), message.toString());
 }
 
 LanguageClientValue<MessageActionItem> ClientPrivate::showMessageBox(
@@ -1897,16 +1920,19 @@ LanguageClientValue<MessageActionItem> ClientPrivate::showMessageBox(
     box.setWindowTitle(q->name());
     box.setText(message.toString());
     switch (message.type()) {
-    case Error:
+    case ShowMessageParams::MessageType::Error:
         box.setIcon(QMessageBox::Critical);
         break;
-    case Warning:
+    case ShowMessageParams::MessageType::Warning:
         box.setIcon(QMessageBox::Warning);
         break;
-    case Info:
+    case ShowMessageParams::MessageType::Info:
         box.setIcon(QMessageBox::Information);
         break;
-    case Log:
+    case ShowMessageParams::MessageType::Log:
+        box.setIcon(QMessageBox::NoIcon);
+        break;
+    case ShowMessageParams::MessageType::Debug:
         box.setIcon(QMessageBox::NoIcon);
         break;
     }
@@ -2047,21 +2073,21 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
         if (params.isValid())
             q->handleDiagnostics(params);
         else
-            q->log(invalidParamsErrorMessage(params));
+            q->log(QtMsgType::QtCriticalMsg, invalidParamsErrorMessage(params));
     } else if (method == LogMessageNotification::methodName) {
         auto params = LogMessageNotification(message.toJsonObject()).params().value_or(
             LogMessageParams());
         if (params.isValid())
             log(params);
         else
-            q->log(invalidParamsErrorMessage(params));
+            q->log(QtMsgType::QtCriticalMsg, invalidParamsErrorMessage(params));
     } else if (method == ShowMessageNotification::methodName) {
         auto params = ShowMessageNotification(message.toJsonObject()).params().value_or(
             ShowMessageParams());
         if (params.isValid())
             log(params);
         else
-            q->log(invalidParamsErrorMessage(params));
+            q->log(QtMsgType::QtCriticalMsg, invalidParamsErrorMessage(params));
     } else if (method == ShowMessageRequest::methodName) {
         auto request = ShowMessageRequest(message.toJsonObject());
         ShowMessageRequest::Response response(id);
@@ -2070,7 +2096,7 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
             response.setResult(showMessageBox(params));
         } else {
             const QString errorMessage = invalidParamsErrorMessage(params);
-            q->log(errorMessage);
+            q->log(QtMsgType::QtCriticalMsg, errorMessage);
             response.setError(createInvalidParamsError<std::nullptr_t>(errorMessage));
         }
         sendResponse(response);
@@ -2082,7 +2108,7 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
             sendResponse(createDefaultResponse());
         } else {
             const QString errorMessage = invalidParamsErrorMessage(params);
-            q->log(invalidParamsErrorMessage(params));
+            q->log(QtMsgType::QtCriticalMsg, invalidParamsErrorMessage(params));
             RegisterCapabilityRequest::Response response(id);
             response.setError(createInvalidParamsError<std::nullptr_t>(errorMessage));
             sendResponse(response);
@@ -2095,7 +2121,7 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
             sendResponse(createDefaultResponse());
         } else {
             const QString errorMessage = invalidParamsErrorMessage(params);
-            q->log(invalidParamsErrorMessage(params));
+            q->log(QtMsgType::QtCriticalMsg, invalidParamsErrorMessage(params));
             UnregisterCapabilityRequest::Response response(id);
             response.setError(createInvalidParamsError<std::nullptr_t>(errorMessage));
             sendResponse(response);
@@ -2110,7 +2136,7 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
             response.setResult(result);
         } else {
             const QString errorMessage = invalidParamsErrorMessage(params);
-            q->log(errorMessage);
+            q->log(QtMsgType::QtCriticalMsg, errorMessage);
             response.setError(createInvalidParamsError<std::nullptr_t>(errorMessage));
         }
         sendResponse(response);
@@ -2138,7 +2164,7 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
         if (std::optional<ProgressParams> params
             = ProgressNotification(message.toJsonObject()).params()) {
             if (!params->isValid())
-                q->log(invalidParamsErrorMessage(*params));
+                q->log(QtMsgType::QtCriticalMsg, invalidParamsErrorMessage(*params));
             m_progressManager.handleProgress(*params);
             if (ProgressManager::isProgressEndMessage(*params))
                 emit q->workDone(params->token());
@@ -2246,14 +2272,18 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
     }
     if (const std::optional<InitializeResult> &result = initResponse.result()) {
         if (!result->isValid()) { // continue on ill formed result
-            q->log(QJsonDocument(*result).toJson(QJsonDocument::Indented) + '\n'
-                + Tr::tr("Initialize result is invalid."));
+            q->log(
+                QtMsgType::QtCriticalMsg,
+                QJsonDocument(*result).toJson(QJsonDocument::Indented) + '\n'
+                    + Tr::tr("Initialize result is invalid."));
         }
         const std::optional<ServerInfo> serverInfo = result->serverInfo();
         if (serverInfo) {
             if (!serverInfo->isValid()) {
-                q->log(QJsonDocument(*result).toJson(QJsonDocument::Indented) + '\n'
-                    + Tr::tr("Server Info is invalid."));
+                q->log(
+                    QtMsgType::QtCriticalMsg,
+                    QJsonDocument(*result).toJson(QJsonDocument::Indented) + '\n'
+                        + Tr::tr("Server Info is invalid."));
             } else {
                 m_serverName = serverInfo->name();
                 if (const std::optional<QString> version = serverInfo->version())
@@ -2263,7 +2293,7 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
 
         m_serverCapabilities = result->capabilities();
     } else {
-        q->log(Tr::tr("No initialize result."));
+        q->log(QtMsgType::QtCriticalMsg, Tr::tr("No initialize result."));
     }
 
     if (auto completionProvider = qobject_cast<LanguageClientCompletionAssistProvider *>(

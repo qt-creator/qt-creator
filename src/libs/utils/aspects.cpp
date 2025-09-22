@@ -63,8 +63,10 @@ public:
         if (!m_expander) {
             m_expander = std::make_unique<MacroExpander>();
             m_expander->setDisplayName("Variables");
-            if (m_container)
-                m_expander->registerSubProvider([this] { return m_container->macroExpander(); });
+            if (m_container) {
+                MacroExpanderProvider p(m_container, m_container->macroExpander());
+                m_expander->registerSubProvider(p);
+            }
         }
         return m_expander.get();
     }
@@ -72,8 +74,10 @@ public:
     void setContainer(AspectContainer *container)
     {
         m_container = container;
-        if (m_expander)
-            m_expander->registerSubProvider([this] { return m_container->macroExpander(); });
+        if (m_expander) {
+            MacroExpanderProvider p(m_container, m_container->macroExpander());
+            m_expander->registerSubProvider(p);
+        }
     }
 
     Id m_id;
@@ -764,7 +768,7 @@ void BaseAspect::setMacroExpander(MacroExpander *expander)
 {
     d->macroExpander()->clearSubProviders();
     if (expander)
-        d->macroExpander()->registerSubProvider([expander] { return expander; });
+        d->macroExpander()->registerSubProvider({this, [expander] { return expander; }});
 }
 
 MacroExpander *BaseAspect::macroExpander() const
@@ -806,7 +810,7 @@ void BaseAspect::addMacroExpansion(QWidget *w)
 {
     const auto chooser = new VariableChooser(w);
     chooser->addSupportedWidget(w);
-    chooser->addMacroExpanderProvider([this] { return d->macroExpander(); });
+    chooser->addMacroExpanderProvider({this, [this] { return d->macroExpander(); }});
     if (auto pathChooser = qobject_cast<PathChooser *>(w))
         pathChooser->setMacroExpander(d->macroExpander());
 }

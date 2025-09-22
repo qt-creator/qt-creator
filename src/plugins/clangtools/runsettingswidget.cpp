@@ -90,7 +90,8 @@ static ClangDiagnosticConfigsWidget *createEditWidget(const ClangDiagnosticConfi
 
 void RunSettingsWidget::fromSettings(const RunSettings &s)
 {
-    disconnect(m_diagnosticWidget, 0, 0, 0);
+    disconnect(m_diagnosticWidget, &ClangDiagnosticConfigsSelectionWidget::changed,
+               this, &RunSettingsWidget::changed);
     m_diagnosticWidget->refresh(diagnosticConfigsModel(),
                                 s.diagnosticConfigId(),
                                 createEditWidget);
@@ -100,7 +101,7 @@ void RunSettingsWidget::fromSettings(const RunSettings &s)
     m_preferConfigFile->setChecked(s.preferConfigFile());
     connect(m_preferConfigFile, &QCheckBox::toggled, this, &RunSettingsWidget::changed);
 
-    disconnect(m_buildBeforeAnalysis, 0, 0, 0);
+    disconnect(m_buildBeforeAnalysis, &QCheckBox::toggled, this, nullptr);
     m_buildBeforeAnalysis->setToolTip(hintAboutBuildBeforeAnalysis());
     m_buildBeforeAnalysis->setCheckState(s.buildBeforeAnalysis() ? Qt::Checked : Qt::Unchecked);
     connect(m_buildBeforeAnalysis, &QCheckBox::toggled, this, [this](bool checked) {
@@ -109,7 +110,7 @@ void RunSettingsWidget::fromSettings(const RunSettings &s)
         emit changed();
     });
 
-    disconnect(m_parallelJobsSpinBox, 0, 0, 0);
+    disconnect(m_parallelJobsSpinBox, &QSpinBox::valueChanged, this, &RunSettingsWidget::changed);
     m_parallelJobsSpinBox->setValue(s.parallelJobs());
     m_parallelJobsSpinBox->setMinimum(1);
     m_parallelJobsSpinBox->setMaximum(QThread::idealThreadCount());

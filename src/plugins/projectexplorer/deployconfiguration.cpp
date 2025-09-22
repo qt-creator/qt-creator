@@ -40,7 +40,7 @@ DeployConfiguration::DeployConfiguration(BuildConfiguration *bc, Id id)
     MacroExpander &expander = *macroExpander();
     expander.setDisplayName(Tr::tr("Run Settings"));
     expander.setAccumulating(true);
-    expander.registerSubProvider([bc] { return bc->macroExpander(); });
+    expander.registerSubProvider({bc, [bc] { return bc->macroExpander(); }});
 }
 
 BuildStepList *DeployConfiguration::stepList()
@@ -58,7 +58,7 @@ QWidget *DeployConfiguration::createConfigWidget()
     if (!m_configWidgetCreator)
         return nullptr;
     QWidget *widget = m_configWidgetCreator(this);
-    VariableChooser::addSupportForChildWidgets(widget, macroExpander());
+    VariableChooser::addSupportForChildWidgets(widget, {this, macroExpander()});
     return widget;
 }
 

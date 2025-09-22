@@ -2193,19 +2193,23 @@ static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fil
 } // Internal
 
 /*!
- * \internal
- * Either opens \a filePaths with editors or loads a project.
- *
- *  \a flags can be used to stop on first failure, indicate that a file name
- *  might include line numbers and/or switch mode to edit mode.
- *
- *  \a workingDirectory is used when files are opened by a remote client, since
- *  the file names are relative to the client working directory.
- *
- *  Returns the first opened document. Required to support the \c -block flag
- *  for client mode.
- *
- *  \sa IPlugin::remoteArguments()
+    \internal
+
+    Either opens \a filePaths with editors or loads a project.
+
+    \a flags can be used to stop on first failure, indicate that a file name
+    might include line numbers and/or switch mode to edit mode.
+
+    \a workingDirectory is used when files are opened by a remote client, since
+    the file names are relative to the client working directory.
+
+    Returns the first opened document. Required to support the \c -block flag
+    for client mode.
+
+    The first document is also the only that is actually opened. All further documents
+    are added as suspended documents.
+
+    \sa IPlugin::remoteArguments()
  */
 
 IDocument *ICore::openFiles(const FilePaths &filePaths,

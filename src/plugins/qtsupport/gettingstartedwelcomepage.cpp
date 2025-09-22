@@ -175,23 +175,34 @@ static FilePath copyToAlternativeLocation(const FilePath &proFile,
     return {};
 }
 
-void openExampleProject(const FilePath &project, const FilePaths &toOpen, const FilePath &mainFile,
-                        const FilePaths &dependencies, const QUrl &docUrl)
+void openExampleProject(const ExampleItem &item)
 {
     using namespace ProjectExplorer;
-    FilePath proFile = project;
+    const auto docUrl = QUrl::fromUserInput(item.docUrl);
+    FilePath proFile = item.projectPath;
     if (proFile.isEmpty())
         return;
 
-    FilePaths filesToOpen = toOpen;
-    if (!mainFile.isEmpty()) {
-        // ensure that the main file is opened on top (i.e. opened last)
-        filesToOpen.removeAll(mainFile);
-        filesToOpen.append(mainFile);
-    }
-
     if (!proFile.exists())
         return;
+
+    FilePaths filesToOpen = item.filesToOpen;
+    if (!item.mainFile.isEmpty()) {
+        // Ensure that the main file is opened on top.
+        // ICore::openFiles actually only opens the first file,
+        // the others are added as suspended documents.
+        filesToOpen.removeAll(item.mainFile);
+        filesToOpen.prepend(item.mainFile);
+    }
+    // Check that the file that is opened actually exists
+    // Works around e.g. broken mainFile in Qt Quick Gallery example in Qt < 6.9
+    while (!filesToOpen.isEmpty()) {
+        if (filesToOpen.constFirst().exists())
+            break;
+        qWarning() << qPrintable(QString("Example \"%1\" refers to invalid file \"%2\"")
+                                     .arg(item.name, filesToOpen.constFirst().toUserOutput()));
+        filesToOpen.removeFirst();
+    }
 
     // If the Qt is a distro Qt on Linux, it will not be writable, hence compilation will fail
     // Same if it is installed in non-writable location for other reasons
@@ -201,7 +212,7 @@ void openExampleProject(const FilePath &project, const FilePaths &toOpen, const 
                || !proFile.parentDir().parentDir().isWritableDir() /* shadow build directory */;
     });
     if (needsCopy)
-        proFile = copyToAlternativeLocation(proFile, filesToOpen, dependencies);
+        proFile = copyToAlternativeLocation(proFile, filesToOpen, item.dependencies);
 
     // don't try to load help and files if loading the help request is being cancelled
     if (proFile.isEmpty())
@@ -234,12 +245,19 @@ protected:
         if (exampleItem->isVideo) {
             QDesktopServices::openUrl(QUrl::fromUserInput(exampleItem->videoUrl));
         } else if (exampleItem->hasSourceCode) {
-            openExampleProject(exampleItem->projectPath, exampleItem->filesToOpen,
-                               exampleItem->mainFile, exampleItem->dependencies,
-                               QUrl::fromUserInput(exampleItem->docUrl));
+            openExampleProject(*exampleItem);
         } else {
-            HelpManager::showHelpUrl(QUrl::fromUserInput(exampleItem->docUrl),
-                                     HelpManager::ExternalHelpAlways);
+            auto docUrl = QUrl::fromUserInput(exampleItem->docUrl);
+            // The following is more like a hack for qtcreator_tutorials.xml,
+            // to support multiple Qt versions. See QTCREATORBUG-32772
+            const QStringList identifiers = exampleItem->metaData.value("keyword");
+            if (!identifiers.isEmpty()) {
+                const QMultiMap<QString, QUrl> links = HelpManager::linksForIdentifier(
+                    identifiers.constFirst());
+                if (!links.isEmpty())
+                    docUrl = links.first();
+            }
+            HelpManager::showHelpUrl(docUrl, HelpManager::ExternalHelpAlways);
         }
     }
 

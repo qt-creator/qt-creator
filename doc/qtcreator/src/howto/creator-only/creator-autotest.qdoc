@@ -441,6 +441,10 @@
     \note Availability for build system based tests depends on the build system
     tool's abilities.
 
+    \section1 Run CTest tests from the locator
+
+    You can use the \c ct locator filter to run CTest tests.
+
     \section1 Turn on build system based tests
 
     By default, \QC does not handle build system based tests to avoid

@@ -41,6 +41,7 @@ namespace Internal {
 
 class EditorArea;
 class SplitterOrView;
+class ViewTabBar;
 
 class EditLocation
 {
@@ -176,7 +177,7 @@ private:
 
     SplitterOrView *m_parentSplitterOrView;
     EditorToolBar *m_toolBar;
-    QTabBar *m_tabBar;
+    ViewTabBar *m_tabBar;
     bool m_isShowingTabs = false;
 
     QStackedWidget *m_container;

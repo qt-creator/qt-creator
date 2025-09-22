@@ -87,13 +87,13 @@ BuildStep::BuildStep(BuildStepList *bsl, Id id)
     , m_stepList(bsl)
 {
     connect(this, &ProjectConfiguration::displayNameChanged, this, &BuildStep::updateSummary);
-    macroExpander()->registerSubProvider([bsl] { return bsl->projectConfiguration()->macroExpander(); });
+    macroExpander()->registerSubProvider({this, [bsl] { return bsl->projectConfiguration()->macroExpander(); }});
 }
 
 QWidget *BuildStep::doCreateConfigWidget()
 {
     QWidget *widget = createConfigWidget();
-    VariableChooser::addSupportForChildWidgets(widget, macroExpander());
+    VariableChooser::addSupportForChildWidgets(widget, MacroExpanderProvider(this, macroExpander()));
 
     const auto recreateSummary = [this] {
         if (m_summaryUpdater)

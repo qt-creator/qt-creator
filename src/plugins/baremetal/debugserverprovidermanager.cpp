@@ -4,18 +4,6 @@
 #include "debugserverprovidermanager.h"
 #include "idebugserverprovider.h"
 
-// GDB debug servers.
-#include "debugservers/gdb/genericgdbserverprovider.h"
-#include "debugservers/gdb/openocdgdbserverprovider.h"
-#include "debugservers/gdb/stlinkutilgdbserverprovider.h"
-#include "debugservers/gdb/jlinkgdbserverprovider.h"
-#include "debugservers/gdb/eblinkgdbserverprovider.h"
-
-// UVSC debug servers.
-#include "debugservers/uvsc/simulatoruvscserverprovider.h"
-#include "debugservers/uvsc/stlinkuvscserverprovider.h"
-#include "debugservers/uvsc/jlinkuvscserverprovider.h"
-
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -33,18 +21,12 @@ const char countKeyC[] = "DebugServerProvider.Count";
 const char fileVersionKeyC[] = "Version";
 const char fileNameKeyC[] = "debugserverproviders.xml";
 
+static QList<IDebugServerProvider *> s_providers;
+
 // DebugServerProviderManager
 
 DebugServerProviderManager::DebugServerProviderManager()
     : m_configFile(Core::ICore::userResourcePath(fileNameKeyC))
-    , m_factories({new GenericGdbServerProviderFactory,
-                   new JLinkGdbServerProviderFactory,
-                   new OpenOcdGdbServerProviderFactory,
-                   new StLinkUtilGdbServerProviderFactory,
-                   new EBlinkGdbServerProviderFactory,
-                   new SimulatorUvscServerProviderFactory,
-                   new StLinkUvscServerProviderFactory,
-                   new JLinkUvscServerProviderFactory})
 {
     m_writer = new Utils::PersistentSettingsWriter(
                 m_configFile, "QtCreatorDebugServerProviders");
@@ -62,9 +44,8 @@ DebugServerProviderManager::DebugServerProviderManager()
 
 DebugServerProviderManager::~DebugServerProviderManager()
 {
-    qDeleteAll(m_providers);
-    m_providers.clear();
-    qDeleteAll(m_factories);
+    qDeleteAll(s_providers);
+    s_providers.clear();
     delete m_writer;
 }
 
@@ -111,7 +92,7 @@ void DebugServerProviderManager::restoreProviders()
                 map[key.toByteArray().mid(lastDot + 1)] = map[key];
         }
         bool restored = false;
-        for (IDebugServerProviderFactory *f : std::as_const(m_factories)) {
+        for (IDebugServerProviderFactory *f : IDebugServerProviderFactory::factories()) {
             if (f->canRestore(map)) {
                 if (IDebugServerProvider *p = f->restore(map)) {
                     registerProvider(p);
@@ -135,7 +116,7 @@ void DebugServerProviderManager::saveProviders()
     data.insert(fileVersionKeyC, 1);
 
     int count = 0;
-    for (const IDebugServerProvider *p : std::as_const(m_providers)) {
+    for (const IDebugServerProvider *p : std::as_const(s_providers)) {
         if (p->isValid()) {
             Store tmp;
             p->toMap(tmp);
@@ -152,12 +133,7 @@ void DebugServerProviderManager::saveProviders()
 
 QList<IDebugServerProvider *> DebugServerProviderManager::providers()
 {
-    return m_instance->m_providers;
-}
-
-QList<IDebugServerProviderFactory *> DebugServerProviderManager::factories()
-{
-    return m_instance->m_factories;
+    return s_providers;
 }
 
 IDebugServerProvider *DebugServerProviderManager::findProvider(const QString &id)
@@ -165,7 +141,7 @@ IDebugServerProvider *DebugServerProviderManager::findProvider(const QString &id
     if (id.isEmpty() || !m_instance)
         return nullptr;
 
-    return Utils::findOrDefault(m_instance->m_providers, Utils::equal(&IDebugServerProvider::id, id));
+    return Utils::findOrDefault(s_providers, Utils::equal(&IDebugServerProvider::id, id));
 }
 
 IDebugServerProvider *DebugServerProviderManager::findByDisplayName(const QString &displayName)
@@ -173,37 +149,37 @@ IDebugServerProvider *DebugServerProviderManager::findByDisplayName(const QStrin
     if (displayName.isEmpty())
         return nullptr;
 
-    return Utils::findOrDefault(m_instance->m_providers,
+    return Utils::findOrDefault(s_providers,
                                 Utils::equal(&IDebugServerProvider::displayName, displayName));
 }
 
 void DebugServerProviderManager::notifyAboutUpdate(IDebugServerProvider *provider)
 {
-    if (!provider || !m_instance->m_providers.contains(provider))
+    if (!provider || !s_providers.contains(provider))
         return;
     emit m_instance->providerUpdated(provider);
 }
 
 bool DebugServerProviderManager::registerProvider(IDebugServerProvider *provider)
 {
-    if (!provider || m_instance->m_providers.contains(provider))
+    if (!provider || s_providers.contains(provider))
         return true;
-    for (const IDebugServerProvider *current : std::as_const(m_instance->m_providers)) {
+    for (const IDebugServerProvider *current : std::as_const(s_providers)) {
         if (*provider == *current)
             return false;
         QTC_ASSERT(current->id() != provider->id(), return false);
     }
 
-    m_instance->m_providers.append(provider);
+    s_providers.append(provider);
     emit m_instance->providerAdded(provider);
     return true;
 }
 
 void DebugServerProviderManager::deregisterProvider(IDebugServerProvider *provider)
 {
-    if (!provider || !m_instance->m_providers.contains(provider))
+    if (!provider || !s_providers.contains(provider))
         return;
-    m_instance->m_providers.removeOne(provider);
+    s_providers.removeOne(provider);
     emit m_instance->providerRemoved(provider);
     delete provider;
 }

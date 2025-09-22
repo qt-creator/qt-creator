@@ -1,6 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#ifdef WITH_TESTS
+#include <QtTest>
+#endif
+
 #include "cmakeproject.h"
 
 #include "cmakebuildsystem.h"
@@ -167,11 +171,12 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
                                              && left.inherits.value().first()
                                                     > right.inherits.value().first();
 
-                const bool noInheritsGreater = !left.inherits && !right.inherits
-                                               && left.name > right.name;
+                const bool noInheritsGreaterEqual = !left.inherits &&
+                                                    !right.inherits &&
+                                                    left.name >= right.name;
 
                 if ((left.inherits && !right.inherits) || leftInheritsRight || sameInheritance
-                    || inheritsGreater || noInheritsGreater)
+                    || inheritsGreater || noInheritsGreaterEqual)
                     return false;
                 return true;
             });
@@ -181,12 +186,12 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
 
                 const QStringList inheritsList = recursiveInheritsList(presetsHash,
                                                                        p.inherits.value());
-                Utils::reverseForeach(inheritsList, [&presetsHash, &p](const QString &inheritFrom) {
+                for (const QString &inheritFrom : inheritsList) {
                     if (presetsHash.contains(inheritFrom)) {
                         p.inheritFrom(presetsHash[inheritFrom]);
                         presetsHash[p.name] = p;
                     }
-                });
+                }
             }
         };
 
@@ -382,13 +387,16 @@ void CMakeProject::readPresets()
     const Utils::FilePath cmakePresetsJson = projectDirectory().pathAppended("CMakePresets.json");
     const Utils::FilePath cmakeUserPresetsJson = projectDirectory().pathAppended("CMakeUserPresets.json");
 
-    if (!cmakePresetsJson.exists())
-        return;
-
-    Internal::PresetsData cmakePresetsData = parsePreset(cmakePresetsJson);
+    Internal::PresetsData cmakePresetsData;
+    if (cmakePresetsJson.exists())
+        cmakePresetsData = parsePreset(cmakePresetsJson);
     Internal::PresetsData cmakeUserPresetsData;
     if (cmakeUserPresetsJson.exists())
         cmakeUserPresetsData = parsePreset(cmakeUserPresetsJson);
+
+    // Both presets are optional, but at least one needs to be present
+    if (!cmakePresetsJson.exists() && !cmakeUserPresetsJson.exists())
+        return;
 
     // resolve the include
     Utils::FilePaths includeStack = {cmakePresetsJson};
@@ -457,5 +465,367 @@ QList<Kit *> CMakeProject::oldPresetKits() const
 {
     return m_oldPresetKits;
 }
+
+#ifdef WITH_TESTS
+
+class TestPresetsInheritance final : public QObject
+{
+    Q_OBJECT
+private slots:
+
+    // QTCREATORBUG-32853
+    void testConfigurePresetInheritanceOrder()
+    {
+        const QByteArray content = R"(
+            {
+                "version": 3,
+                "configurePresets": [
+                    {
+                        "name": "says-a",
+                        "cacheVariables": {
+                            "VARIABLE": "a"
+                        }
+                    },
+                    {
+                        "name": "says-b",
+                        "cacheVariables": {
+                            "VARIABLE": "b"
+                        }
+                    },
+                    {
+                        "name": "should-say-a",
+                        "inherits": [
+                            "says-a",
+                            "says-b"
+                        ]
+                    }
+                ]
+            }
+        )";
+        const FilePath presetFiles = FilePath::fromUserInput(QDir::tempPath() + "/CMakePresets.json");
+        QVERIFY(presetFiles.writeFileContents(content));
+
+        // create a CMakeProject – this will automatically read & combine presets
+        CMakeProject project(presetFiles);
+        const PresetsData &pd = project.presetsData();
+
+        // locate the child preset
+        auto it = std::find_if(
+            pd.configurePresets.begin(),
+            pd.configurePresets.end(),
+            [](const PresetsDetails::ConfigurePreset &p) { return p.name == "should-say-a"; });
+        QVERIFY(it != pd.configurePresets.end());
+
+        const PresetsDetails::ConfigurePreset &childPreset = *it;
+        QVERIFY(childPreset.cacheVariables);
+        const auto &cache = childPreset.cacheVariables.value();
+
+        // The value should come from the first preset ("says-a")
+        bool found = false;
+        for (const auto &item : cache) {
+            if (item.key == "VARIABLE") {
+                found = true;
+                QCOMPARE(QString::fromUtf8(item.value), QString("a"));
+            }
+        }
+        QVERIFY(found);
+    }
+
+    // QTCREATORBUG-30288
+    void testInheritanceFromBasePresets()
+    {
+        const QByteArray presets = R"(
+            {
+                "version": 4,
+                "include": [
+                    "CMake/Platform/Linux/CMakePresets.json",
+                    "CMake/Platform/Windows/CMakePresets.json",
+                    "CMake/Platform/Mac/CMakePresets.json"
+                ],
+                "configurePresets": []
+            }
+        )";
+
+        const QByteArray common = R"(
+            {
+                "version": 4,
+                "configurePresets": [
+                    {
+                        "name": "default",
+                        "description": "Placeholder configuration that buildPresets and testPresets can inherit from",
+                        "hidden": true
+                    },
+                    {
+                        "name": "release",
+                        "description": "Specifies build type for single-configuration generators: release",
+                        "hidden": true,
+                        "cacheVariables": {
+                            "CMAKE_BUILD_TYPE": {
+                                "type": "STRING",
+                                "value": "Release"
+                            }
+                        }
+                    },
+                    {
+                        "name": "compile-commands-json",
+                        "description": "Generate compile_commands.json file when used with a Makefile or Ninja Generator",
+                        "hidden": true,
+                        "cacheVariables": {
+                            "CMAKE_EXPORT_COMPILE_COMMANDS": {
+                                "type": "BOOL",
+                                "value": "ON"
+                            }
+                        }
+                    },
+                    {
+                        "name": "config-develop",
+                        "description": "CMake flags for the deploy version",
+                        "hidden": true,
+                        "cacheVariables": {
+                        }
+                    },
+                    {
+                        "name": "ninja",
+                        "displayName": "Ninja",
+                        "description": "Configure using Ninja generator",
+                        "binaryDir": "${sourceDir}/../build_NestedCMakePresets",
+                        "hidden": true,
+                        "generator": "Ninja",
+                        "inherits": [
+                            "compile-commands-json"
+                        ]
+                    },
+                    {
+                        "name": "host-windows",
+                        "displayName": "Host OS - Windows",
+                        "description": "Specifies Windows host condition for configure preset",
+                        "hidden": true,
+                        "condition": {
+                            "type": "equals",
+                            "lhs": "${hostSystemName}",
+                            "rhs": "Windows"
+                        }
+                    },
+                    {
+                        "name": "host-linux",
+                        "displayName": "Host OS - Linux",
+                        "description": "Specifies Linux host condition for configure preset",
+                        "hidden": true,
+                        "condition": {
+                            "type": "equals",
+                            "lhs": "${hostSystemName}",
+                            "rhs": "Linux"
+                        }
+                    },
+                    {
+                        "name": "host-mac",
+                        "displayName": "Host OS - Mac",
+                        "description": "Specifies Mac host condition for configure preset",
+                        "hidden": true,
+                        "condition": {
+                            "type": "equals",
+                            "lhs": "${hostSystemName}",
+                            "rhs": "Darwin"
+                        }
+                    }
+                ]
+            }
+        )";
+        const QByteArray windows = R"(
+            {
+                "version": 4,
+                "include": [
+                    "../Common/CMakePresets.json"
+                ],
+                "configurePresets": [
+                    {
+                        "name": "windows-base",
+                        "hidden": true,
+                        "inherits": [
+                            "default",
+                            "ninja",
+                            "host-windows"
+                        ],
+                        "toolset": {
+                            "value": "host=x64",
+                            "strategy": "external"
+                        },
+                        "architecture": {
+                            "value": "x64",
+                            "strategy": "external"
+                        }
+                    },
+                    {
+                        "name": "windows-msvc-base",
+                        "hidden": true,
+                        "inherits": "windows-base",
+                        "cacheVariables": {
+                            "CMAKE_C_COMPILER": "cl.exe",
+                            "CMAKE_CXX_COMPILER": "cl.exe"
+                        }
+                    },
+                    {
+                        "name": "windows-msvc-release",
+                        "binaryDir": "${sourceDir}/../build_NestedCMakePresets_MSVC_Release",
+                        "inherits": [
+                            "config-develop",
+                            "windows-msvc-base",
+                            "release"
+                        ]
+                    }
+                ]
+            }
+        )";
+        const QByteArray linux = R"(
+            {
+                "version": 4,
+                "include": [
+                    "../Common/CMakePresets.json"
+                ],
+                "configurePresets": [
+                    {
+                        "name": "linux-base",
+                        "hidden": true,
+                        "inherits": [
+                            "default",
+                            "ninja",
+                            "host-linux"
+                        ],
+                        "cacheVariables": {
+                            "VCPKG_TARGET_TRIPLET": "x64-linux"
+                        }
+                    },
+                    {
+                        "name": "linux-gcc-base",
+                        "hidden": true,
+                        "description": "Use gold linker to fix linking",
+                        "inherits": "linux-base",
+                        "cacheVariables": {
+                            "CMAKE_CXX_COMPILER": "g++",
+                            "CMAKE_C_COMPILER": "gcc",
+                            "CMAKE_EXE_LINKER_FLAGS": "-fuse-ld=gold",
+                            "CMAKE_CXX_FLAGS": "-fuse-ld=gold"
+                        }
+                    },
+                    {
+                        "name": "linux-gcc-release",
+                        "binaryDir": "${sourceDir}/../build_NestedCMakePresets_Gcc_Release",
+                        "inherits": [
+                            "config-develop",
+                            "linux-gcc-base",
+                            "release"
+                        ]
+                    }
+                ]
+            }
+        )";
+        const QByteArray mac = R"(
+            {
+                "version": 4,
+                "include": [
+                    "../Common/CMakePresets.json"
+                ],
+                "configurePresets": [
+                    {
+                        "name": "mac-base",
+                        "hidden": true,
+                        "inherits": [
+                            "default",
+                            "ninja",
+                            "host-mac"
+                        ],
+                        "cacheVariables": {
+                            "VCPKG_OSX_ARCHITECTURES": "arm64;x86_64",
+                            "VCPKG_TARGET_TRIPLET": "64-osx-universal"
+                        },
+                        "condition": {
+                            "type": "equals",
+                            "lhs": "${hostSystemName}",
+                            "rhs": "Darwin"
+                        }
+                    },
+                    {
+                        "name": "mac-clang-base",
+                        "hidden": true,
+                        "inherits": "mac-base",
+                        "cacheVariables": {
+                            "CMAKE_CXX_COMPILER": "clang++",
+                            "CMAKE_C_COMPILER": "clang"
+                        }
+                    },
+                    {
+                        "name": "mac-clang-release",
+                        "binaryDir": "${sourceDir}/../build_NestedCMakePresets_Clang_Release",
+                        "inherits": [
+                            "config-develop",
+                            "mac-clang-base",
+                            "release"
+                        ]
+                    }
+                ]
+            }
+        )";
+
+        QString tempStringPath = QDir::tempPath();
+
+        const FilePath presetsFiles = FilePath::fromUserInput(tempStringPath + "/CMakePresets.json");
+        QVERIFY(presetsFiles.parentDir().ensureWritableDir());
+        QVERIFY(presetsFiles.writeFileContents(presets));
+        const FilePath commonPresets = FilePath::fromUserInput(
+            tempStringPath + "/CMake/Platform/Common/CMakePresets.json");
+        QVERIFY(commonPresets.parentDir().ensureWritableDir());
+        QVERIFY(commonPresets.writeFileContents(common));
+        const FilePath linuxPresets = FilePath::fromUserInput(
+            tempStringPath + "/CMake/Platform/Linux/CMakePresets.json");
+        QVERIFY(linuxPresets.parentDir().ensureWritableDir());
+        QVERIFY(linuxPresets.writeFileContents(linux));
+        const FilePath macPresets = FilePath::fromUserInput(
+            tempStringPath + "/CMake/Platform/Mac/CMakePresets.json");
+        QVERIFY(macPresets.parentDir().ensureWritableDir());
+        QVERIFY(macPresets.writeFileContents(mac));
+        const FilePath windowsPresets = FilePath::fromUserInput(
+            tempStringPath + "/CMake/Platform/Windows/CMakePresets.json");
+        QVERIFY(windowsPresets.parentDir().ensureWritableDir());
+        QVERIFY(windowsPresets.writeFileContents(windows));
+
+        // create a CMakeProject – this will automatically read & combine presets
+        CMakeProject project(presetsFiles);
+        const PresetsData &pd = project.presetsData();
+
+        // locate the loaded preset
+        QMap<OsType, QPair<QString, bool>> visibleOsMap;
+        visibleOsMap[OsType::OsTypeMac] = {"mac-clang-release", false};
+        visibleOsMap[OsType::OsTypeLinux] = {"linux-gcc-release", false};
+        visibleOsMap[OsType::OsTypeWindows] = {"windows-msvc-release", false};
+
+        visibleOsMap[HostOsInfo::hostOs()].second = true;
+
+        // Only the host os preset should evaluate the "condition" and not be hidden
+        for (auto os : visibleOsMap.keys()) {
+            const QString presetName = visibleOsMap[os].first;
+
+            auto it = std::find_if(
+                pd.configurePresets.begin(),
+                pd.configurePresets.end(),
+                [presetName](const PresetsDetails::ConfigurePreset &p) { return p.name == presetName; });
+            QVERIFY(it != pd.configurePresets.end());
+
+            bool visible = false;
+            if (it->condition)
+                visible
+                    = !it->hidden
+                      && CMakePresets::Macros::evaluatePresetCondition(*it, presetsFiles.parentDir());
+            QCOMPARE(visibleOsMap[os].second, visible);
+        }
+    }
+};
+
+QObject *createTestPresetsInheritanceTest()
+{
+    return new TestPresetsInheritance();
+}
+#include "cmakeproject.moc"
+
+#endif
 
 } // namespace CMakeProjectManager

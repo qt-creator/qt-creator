@@ -63,7 +63,7 @@ QStringList SshParameters::connectionOptions(const FilePath &binary) const
     if (keyOnly && m_privateKeyFile.isReadableFile())
         args << "-o" << "IdentitiesOnly=yes" << "-i" << m_privateKeyFile.path();
 
-    const QString batchModeEnabled = (keyOnly || SshSettings::askpassFilePath().isEmpty())
+    const QString batchModeEnabled = (keyOnly || sshSettings().askpassFilePath().isEmpty())
             ? QLatin1String("yes") : QLatin1String("no");
     args << "-o" << "BatchMode=" + batchModeEnabled;
 
@@ -81,7 +81,7 @@ void SshParameters::setupSshEnvironment(Process *process)
     Environment env = process->controlEnvironment();
     if (!env.hasChanges())
         env = Environment::systemEnvironment();
-    const FilePath askPass = SshSettings::askpassFilePath();
+    const FilePath askPass = sshSettings().askpassFilePath();
     if (askPass.exists()) {
         if (askPass.fileName().contains("qtc"))
             env = Environment::originalSystemEnvironment();

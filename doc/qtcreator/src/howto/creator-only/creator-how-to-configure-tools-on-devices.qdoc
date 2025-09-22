@@ -1,0 +1,46 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \page creator-how-to-configure-tools-on-devices.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-remote-linux
+    \ingroup creator-how-to-build
+    \ingroup creator-how-to-docker
+
+    \title Configure development tools
+
+    Configure development tools for devices in \preferences > \uicontrol Devices.
+    The available tools vary depending on the device type and enabled plugins.
+
+    \image {qtcreator-preferences-devices-desktop-tools.webp} {Tool configuration options for a desktop device}
+    \caption Tool configuration options for a desktop device in the Devices
+    tab in Devices preferences.
+
+    To configure tools for a device:
+
+    \list 1
+
+        \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.
+
+        \li Select an existing device from \uicontrol Device.
+
+        \li In \uicontrol {Type Specific} > \uicontrol {Run tools on this device}
+            or \uicontrol {Source and build tools on this device}, specify the paths
+            to the tools.
+
+            Or, in \uicontrol {Auto-detection}, configure the auto-detection options
+            and then select \uicontrol {Run auto-detection now}.
+
+    \endlist
+
+    \sa {Use Qt Creator variables}, {Build and Run}{How To: Build and Run},
+    {Docker}{How To: Develop for Docker}, {Remote Linux}{How To: Develop for remote Linux}
+*/

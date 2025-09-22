@@ -65,7 +65,8 @@
     To run some other Python file than \c main.py, create a custom
     executable run configuration:
 
-    \image {qtcreator-python-run-settings-custom-executable.png} {Python custom executable run configuration}
+    \image {qtcreator-python-run-settings-custom-executable.webp}
+    {Python custom executable run settings}
 
     \list 1
         \li Select \uicontrol Add > \uicontrol {Custom Executable}.

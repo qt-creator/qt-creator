@@ -5,7 +5,6 @@ add_qtc_plugin(BareMetal
     baremetalconstants.h
     baremetaldebugsupport.cpp baremetaldebugsupport.h
     baremetaldevice.cpp baremetaldevice.h
-    baremetaldeviceconfigurationwidget.cpp baremetaldeviceconfigurationwidget.h
     baremetalplugin.cpp
     baremetalrunconfiguration.cpp baremetalrunconfiguration.h
     baremetaltr.h
