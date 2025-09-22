@@ -265,19 +265,6 @@ QString BundleImporter::unimportComponent(const TypeName &type, const QString &q
             .arg(QString::fromLatin1(type));
     }
 
-    if (qmldirContent) {
-        QString qmldirStr = QString::fromUtf8(*qmldirContent);
-        const QString pattern = QString{"^\\s*%1\\s+.*\\.qml\\s*\\r?\\n"}
-                                    .arg(QRegularExpression::escape(qmlType));
-        const QRegularExpression regex{pattern, QRegularExpression::MultilineOption};
-        QString newQmldirStr = qmldirStr;
-        newQmldirStr.remove(regex);
-        if (newQmldirStr != qmldirStr) {
-            if (!qmldirPath.writeFileContents(newQmldirStr.toUtf8()))
-                return QStringLiteral("Failed to write qmldir file: '%1'").arg(qmldirPath.toUrlishString());
-        }
-    }
-
     QVariantHash assetRefMap = loadAssetRefMap(bundleImportPath);
     bool writeAssetRefs = false;
     const auto keys = assetRefMap.keys();
@@ -296,10 +283,36 @@ QString BundleImporter::unimportComponent(const TypeName &type, const QString &q
         }
     }
 
+    const QString qmldirPattern = "^\\s*%1\\s+.*\\.qml\\s*\\r?\\n";
+    QString qmldirStr;
+    QString newQmldirStr;
+    if (qmldirContent) {
+        // Remove the main qml type export from qmldir file
+        qmldirStr = QString::fromUtf8(*qmldirContent);
+        const QRegularExpression regex{qmldirPattern.arg(QRegularExpression::escape(qmlType)),
+                                       QRegularExpression::MultilineOption};
+        newQmldirStr = qmldirStr;
+        newQmldirStr.remove(regex);
+    }
+
+    const QString qmlSuffix = "qml";
     for (const QString &removedFile : removedFiles) {
         FilePath removedFilePath = bundleImportPath.resolvePath(removedFile);
         if (removedFilePath.exists())
             removedFilePath.removeFile();
+        if (removedFilePath.suffix() == qmlSuffix) {
+            // If the removed dependency was a qml document, also remove the corresponding type
+            // export from qmldir file
+            QString removedType = removedFilePath.baseName();
+            const QRegularExpression regex{qmldirPattern.arg(QRegularExpression::escape(removedType)),
+                                           QRegularExpression::MultilineOption};
+            newQmldirStr.remove(regex);
+        }
+    }
+
+    if (newQmldirStr != qmldirStr) {
+        if (!qmldirPath.writeFileContents(newQmldirStr.toUtf8()))
+            return QStringLiteral("Failed to write qmldir file: '%1'").arg(qmldirPath.toUrlishString());
     }
 
     if (writeAssetRefs)
