@@ -798,7 +798,7 @@ void ProjectStorageUpdater::updateDirectory(Utils::SmallStringView directoryPath
             isInsideProject);
         break;
     case FileState::Removed: {
-        tracer.tick("update directory don't exits");
+        tracer.tick("update directory removed");
 
         removedDirectoryIds.push_back(directoryId);
 
@@ -812,6 +812,7 @@ void ProjectStorageUpdater::updateDirectory(Utils::SmallStringView directoryPath
     }
     case FileState::NotExists:
     case FileState::NotExistsUnchanged:
+        tracer.tick("update directory don't exits");
         break;
     }
 
@@ -1002,7 +1003,7 @@ void ProjectStorageUpdater::updateQmldir(DirectoryPathId directoryId,
                                     isInsideProject);
         break;
     case FileState::Removed: {
-        tracer.tick("update qmldir don't exits");
+        tracer.tick("update qmldir removed");
 
         package.updatedProjectEntryInfoSourceIds.push_back(qmldirSourceId);
         package.updatedExportedTypeSourceIds.push_back(qmldirSourceId);
@@ -1022,6 +1023,7 @@ void ProjectStorageUpdater::updateQmldir(DirectoryPathId directoryId,
     }
     case FileState::NotExists:
     case FileState::NotExistsUnchanged:
+        tracer.tick("update qmldir don't exits");
         break;
     }
 }
