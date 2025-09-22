@@ -455,7 +455,7 @@ public:
 private:
     void handleSubTreeChanged(FolderNode *node) final;
 
-    Project *m_project;
+    Project *m_project = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT ResourceFileNode : public ProjectExplorer::FileNode

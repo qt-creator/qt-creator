@@ -111,6 +111,7 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/locator/directoryfilter.h>
+#include <coreplugin/messagebox.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
@@ -2472,97 +2473,194 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl)
     dd->startRunControl(runControl);
 }
 
+struct PendingRename {
+    FilePath oldPath;
+    FilePath newPath;
+    FilePath parentFolderPath;
+    Project *project = nullptr;
+};
+
+static QList<PendingRename> collectValidRenames(
+    const QList<std::pair<Node *, FilePath>> &nodesAndDesiredPaths)
+{
+    QList<PendingRename> out;
+    out.reserve(nodesAndDesiredPaths.size());
+
+    for (const auto &nodeAndPath : nodesAndDesiredPaths) {
+        Node *n = nodeAndPath.first;
+        if (!n)
+            continue;
+
+        const FilePath oldPath = n->filePath();
+        const FilePath newPath = nodeAndPath.second;
+        if (oldPath.equalsCaseSensitive(newPath))
+            continue;
+
+        const FolderNode *parent = n->parentFolderNode();
+        const FilePath parentPath = parent ? parent->filePath() : oldPath.parentDir();
+
+        out.append(PendingRename{
+            oldPath,
+            newPath,
+            parentPath,
+            n->getProject()
+        });
+    }
+    return out;
+}
+
 static HandleIncludeGuards canTryToRenameIncludeGuards(const Node *node)
 {
     return node->asFileNode() && node->asFileNode()->fileType() == FileType::Header
-            ? HandleIncludeGuards::Yes : HandleIncludeGuards::No;
+               ? HandleIncludeGuards::Yes
+               : HandleIncludeGuards::No;
+}
+
+static void applyFileSystemRenames(
+    const QList<PendingRename> &pending,
+    FilePairs &successfulRenames,
+    FilePaths &failedRenames)
+{
+    for (const PendingRename &rename : pending) {
+        const bool ok = Core::FileUtils::renameFile(rename.oldPath, rename.newPath, HandleIncludeGuards::Yes);
+        if (ok)
+            successfulRenames.append({rename.oldPath, rename.newPath});
+        else
+            failedRenames.append(rename.oldPath);
+    }
+}
+
+static void applyProjectTreeRenames(
+    const QList<PendingRename> &pending,
+    const FilePairs &fileSystemSuccessfulRenames,
+    FilePairs &completelySuccessfulRenames,
+    FilePaths &projectUpdateFailures,
+    FilePaths &skippedDueToInvalidContext)
+{
+    QHash<Project*, QHash<FilePath, FilePairs>> renamesByProjectAndParent;
+
+    for (const PendingRename &r : pending) {
+        if (!fileSystemSuccessfulRenames.contains({r.oldPath, r.newPath}))
+            continue;
+        if (!r.project) {
+            skippedDueToInvalidContext.append(r.oldPath);
+            continue;
+        }
+        renamesByProjectAndParent[r.project][r.parentFolderPath].append({r.oldPath, r.newPath});
+    }
+
+    for (auto projectIt = renamesByProjectAndParent.cbegin(); projectIt != renamesByProjectAndParent.cend(); ++projectIt) {
+        Project *project = projectIt.key();
+        const auto &perParent = projectIt.value();
+
+        for (auto parentIt = perParent.cbegin(); parentIt != perParent.cend(); ++parentIt) {
+            const FilePath &parentPath = parentIt.key();
+            const FilePairs &filePairs = parentIt.value();
+
+            const Node *currentParentNode = project ? project->nodeForFilePath(parentPath) : nullptr;
+            const FolderNode *currentFolderNode = currentParentNode ? currentParentNode->asFolderNode() : nullptr;
+
+            if (!currentFolderNode) {
+                if (const ProjectNode *rootPN = project ? project->rootProjectNode() : nullptr) {
+                    if (rootPN->filePath() == parentPath)
+                        currentFolderNode = rootPN;
+                }
+            }
+
+            FolderNode *mutableFolderNode = const_cast<FolderNode *>(currentFolderNode);
+            if (!mutableFolderNode) {
+                for (const auto &p : filePairs)
+                    skippedDueToInvalidContext.append(p.first);
+                continue;
+            }
+
+            for (const auto &p : filePairs)
+                (void)mutableFolderNode->canRenameFile(p.first, p.second);
+
+            FilePaths notRenamed;
+            const bool ok = mutableFolderNode->renameFiles(filePairs, &notRenamed);
+
+            for (const auto &p : filePairs) {
+                const bool updated = ok && !notRenamed.contains(p.first);
+                if (updated)
+                    completelySuccessfulRenames.append(p);
+                else
+                    projectUpdateFailures.append(p.first);
+            }
+        }
+    }
+}
+
+static void showRenameDiagnostics(
+    const FilePaths &fileSystemFailures,
+    const FilePaths &projectUpdateFailures,
+    const FilePaths &skippedRenames)
+{
+    if (fileSystemFailures.isEmpty() && projectUpdateFailures.isEmpty()
+        && skippedRenames.isEmpty()) {
+        return;
+    }
+
+    const auto pathsToHtmlList = [](const FilePaths &paths) {
+        QString html = "<ul>";
+        for (const FilePath &path : paths)
+            html += "<li>" + path.toUserOutput() + "</li>";
+        return html += "</ul>";
+    };
+
+    QString messageBody;
+    if (!fileSystemFailures.isEmpty())
+        messageBody += Tr::tr("The following files could not be renamed in the file system:%1")
+                           .arg(pathsToHtmlList(fileSystemFailures));
+
+    if (!projectUpdateFailures.isEmpty()) {
+        if (!messageBody.isEmpty())
+            messageBody += "<br>";
+        messageBody += Tr::tr("These files were renamed in the file system, but project files were "
+                              "not updated:%1")
+                           .arg(pathsToHtmlList(projectUpdateFailures));
+    }
+
+    if (!skippedRenames.isEmpty()) {
+        if (!messageBody.isEmpty())
+            messageBody += "<br>";
+        messageBody += Tr::tr("These files were renamed in the file system, but the project "
+                              "structure was not updated (context lost or unsupported):%1")
+                           .arg(pathsToHtmlList(skippedRenames));
+    }
+
+    Core::AsynchronousMessageBox::warning(Tr::tr("Renaming Issues"), messageBody);
 }
 
 FilePairs ProjectExplorerPlugin::renameFiles(
-    const QList<std::pair<Node *, FilePath>> &nodesAndNewFilePaths)
+    const QList<std::pair<Node *, FilePath>> &nodesAndDesiredNewPaths)
 {
-    const QList<std::pair<Node *, FilePath>> nodesAndNewFilePathsFiltered
-            = Utils::filtered(nodesAndNewFilePaths, [](const std::pair<Node *, FilePath> &elem) {
-        return !elem.first->filePath().equalsCaseSensitive(elem.second);
-    });
+    const QList<PendingRename> pendingRenames = collectValidRenames(nodesAndDesiredNewPaths);
+ 
+    if (pendingRenames.isEmpty())
+        return {};
 
-    // The same as above, for use when the nodes might no longer exist.
-    const QList<std::pair<FilePath, FilePath>> oldAndNewFilePathsFiltered
-            = Utils::transform(nodesAndNewFilePathsFiltered, [](const std::pair<Node *, FilePath> &p) {
-        return std::make_pair(p.first->filePath(), p.second);
-    });
+    FilePairs fileSystemSuccess;
+    FilePaths fileSystemFailures;
+    applyFileSystemRenames(pendingRenames, fileSystemSuccess, fileSystemFailures);
 
-    FilePaths renamedOnly;
-    FilePaths failedRenamings;
-    const auto renameFile = [&failedRenamings](const Node *node, const FilePath &newFilePath) {
-        if (!Core::FileUtils::renameFile(
-                    node->filePath(), newFilePath, canTryToRenameIncludeGuards(node))) {
-            failedRenamings << node->filePath();
-            return false;
-        }
-        return true;
-    };
-    QHash<FolderNode *, QList<std::pair<Node *, FilePath>>> renamingsPerParentNode;
-    for (const auto &elem : nodesAndNewFilePathsFiltered) {
-        if (FolderNode * const folderNode = elem.first->parentFolderNode())
-            renamingsPerParentNode[folderNode] << elem;
-        else if (renameFile(elem.first, elem.second))
-            renamedOnly << elem.first->filePath();
+#ifdef WITH_TESTS
+    if (ProjectExplorerTest::afterFsRenameTestHook) {
+        ProjectExplorerTest::afterFsRenameTestHook();
     }
+#endif
 
-    for (auto it = renamingsPerParentNode.cbegin(); it != renamingsPerParentNode.cend(); ++it) {
-        FilePairs toUpdateInProject;
-        for (const std::pair<Node *, FilePath> &elem : it.value()) {
-            const bool canUpdateProject
-                    = it.key()->canRenameFile(elem.first->filePath(), elem.second);
-            if (renameFile(elem.first, elem.second)) {
-                if (canUpdateProject )
-                    toUpdateInProject << std::make_pair(elem.first->filePath(), elem.second);
-                else
-                    renamedOnly << elem.first->filePath();
-            }
-        }
-        if (toUpdateInProject.isEmpty())
-            continue;
-        FilePaths notRenamed;
-        if (!it.key()->renameFiles(toUpdateInProject, &notRenamed))
-            renamedOnly << notRenamed;
-    }
+    FilePairs projectSuccess;
+    FilePaths projectFailures;
+    FilePaths skippedRenames;
+    applyProjectTreeRenames(
+        pendingRenames, fileSystemSuccess, projectSuccess, projectFailures, skippedRenames);
 
-    if (!failedRenamings.isEmpty() || !renamedOnly.isEmpty()) {
-        const auto pathsAsHtmlList = [](const FilePaths &files) {
-            QString s("<ul>");
-            for (const FilePath &f : files)
-                s.append("<li>").append(f.toUserOutput()).append("</li>");
-            return s.append("</ul>");
-        };
-        QString failedRenamingsString;
-        if (!failedRenamings.isEmpty()) {
-            failedRenamingsString = Tr::tr("The following files could not be renamed: %1")
-                    .arg(pathsAsHtmlList(failedRenamings));
-        }
-        QString renamedOnlyString;
-        if (!renamedOnly.isEmpty()) {
-            renamedOnlyString
-                = "<br>"
-                  + Tr::tr("The following files were renamed, but their project files could not "
-                           "be updated accordingly: %1")
-                        .arg(pathsAsHtmlList(renamedOnly));
-        }
-        QTimer::singleShot(
-                    0, m_instance, [message = QString(failedRenamingsString + renamedOnlyString)] {
-            QMessageBox::warning(
-                        ICore::dialogParent(), Tr::tr("Renaming Did Not Fully Succeed"), message);
-        });
-    }
+    showRenameDiagnostics(fileSystemFailures, projectFailures, skippedRenames);
 
-    FilePairs allRenamedFiles;
-    for (const std::pair<FilePath, FilePath> &candidate : oldAndNewFilePathsFiltered) {
-        if (!failedRenamings.contains(candidate.first))
-            allRenamedFiles.emplaceBack(candidate.first, candidate.second);
-    }
-    emit instance()->filesRenamed(allRenamedFiles);
-    return allRenamedFiles;
+    if (!projectSuccess.isEmpty())
+        emit instance()->filesRenamed(projectSuccess);
+    return projectSuccess;
 }
 
 #ifdef WITH_TESTS
