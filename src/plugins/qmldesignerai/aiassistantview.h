@@ -25,7 +25,10 @@ public:
     // AbstractView
     void modelAttached(Model *model) override;
 
-private:
+private: // functions
+    void handleProjectTreeChanges();
+
+private: // variables
     Utils::UniqueObjectPtr<AiAssistantWidget> m_widget;
 };
 

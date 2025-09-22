@@ -204,6 +204,16 @@ void AiAssistantWidget::initManifest()
     }
 }
 
+void AiAssistantWidget::removeMissingAttachedImage()
+{
+    const QString imagePath = attachedImageSource();
+    if (imagePath.isEmpty())
+        return;
+
+    if (Utils::FilePath file = Utils::FilePath::fromString(imagePath); !file.exists())
+        setAttachedImageSource({});
+}
+
 QSize AiAssistantWidget::sizeHint() const
 {
     return {420, 20};
