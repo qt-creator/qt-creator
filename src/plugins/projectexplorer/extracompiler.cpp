@@ -18,6 +18,7 @@
 #include <utils/result.h>
 #include <utils/qtcprocess.h>
 
+#include <qapplicationstatic.h>
 #include <QDateTime>
 #include <QLoggingCategory>
 #include <QThreadPool>
@@ -29,7 +30,7 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
-Q_GLOBAL_STATIC(QThreadPool, s_extraCompilerThreadPool);
+Q_APPLICATION_STATIC(QThreadPool, s_extraCompilerThreadPool);
 Q_GLOBAL_STATIC(QList<ExtraCompilerFactory *>, factories);
 Q_LOGGING_CATEGORY(log, "qtc.projectexplorer.extracompiler", QtWarningMsg);
 

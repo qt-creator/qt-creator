@@ -10,6 +10,7 @@
 
 #include <utils/qtcassert.h>
 
+#include <qapplicationstatic.h>
 #include <QCoreApplication>
 #include <QDir>
 #include <QUrl>
@@ -18,7 +19,7 @@ namespace Core {
 namespace HelpManager {
 
 // makes sure that plugins can connect to HelpManager signals even if the Help plugin is not loaded
-Q_GLOBAL_STATIC(Signals, m_signals)
+Q_APPLICATION_STATIC(Signals, m_signals)
 
 static Implementation *m_instance = nullptr;
 

@@ -6,6 +6,7 @@
 #include "uvscutils.h"
 #include "../debuggertr.h"
 
+#include <qapplicationstatic.h>
 #include <QMutexLocker>
 
 #include <memory>
@@ -37,7 +38,7 @@ public:
     QByteArray data;
 };
 
-Q_GLOBAL_STATIC(QLibrary, gUvscLibrary)
+Q_APPLICATION_STATIC(QLibrary, gUvscLibrary)
 Q_GLOBAL_STATIC(QList<UvscClient *>, gUvscClients)
 
 static QMutex gUvscsGuard;
