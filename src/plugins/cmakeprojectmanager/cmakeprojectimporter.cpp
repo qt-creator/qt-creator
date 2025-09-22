@@ -87,6 +87,7 @@ struct DirectoryData
     QString platform;
     QString toolset;
     FilePath sysroot;
+    QString osxSysroot;
     QtProjectImporter::QtVersionData qt;
     QList<ToolchainDescriptionEx> toolchains;
     QVariant debugger;
@@ -999,6 +1000,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         }
 
         data->sysroot = config.filePathValueOf("CMAKE_SYSROOT");
+        data->osxSysroot = config.stringValueOf("CMAKE_OSX_SYSROOT");
         data->cmakeSystemName = config.stringValueOf("CMAKE_SYSTEM_NAME");
 
         const auto [qmake, cmakePrefixPath] = qtInfoFromCMakeCache(config, env);
@@ -1105,6 +1107,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             data->platform = extractVisualStudioPlatformFromConfig(config);
         data->toolset = config.stringValueOf("CMAKE_GENERATOR_TOOLSET");
         data->sysroot = config.filePathValueOf("CMAKE_SYSROOT");
+        data->osxSysroot = config.stringValueOf("CMAKE_OSX_SYSROOT");
 
         // Qt:
         const auto info = qtInfoFromCMakeCache(config, env);
@@ -1149,8 +1152,13 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
             || CMakeGeneratorKitAspect::toolset(k) != data->toolset)
         return false;
 
-    if (SysRootKitAspect::sysRoot(k) != data->sysroot)
+    const FilePath kitSysroot = SysRootKitAspect::sysRoot(k);
+    if (kitSysroot != data->sysroot
+        && (data->osxSysroot != "iphoneos" || !kitSysroot.contains("/iPhoneOS.platform/"))
+        && (data->osxSysroot != "iphonesimulator"
+            || !kitSysroot.contains("/iPhoneSimulator.platform/"))) {
         return false;
+    }
 
     if (data->qt.qt && QtSupport::QtKitAspect::qtVersionId(k) != data->qt.qt->uniqueId())
         return false;
