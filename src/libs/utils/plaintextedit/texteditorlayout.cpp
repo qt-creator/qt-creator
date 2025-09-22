@@ -94,6 +94,11 @@ TextEditorLayout::TextEditorLayout(PlainTextDocumentLayout *docLayout)
         this,
         &TextEditorLayout::resetBlockSize);
     connect(
+        this,
+        &PlainTextDocumentLayout::blockSizeChanged,
+        this,
+        &TextEditorLayout::resetBlockSize);
+    connect(
         docLayout,
         &PlainTextDocumentLayout::documentSizeChanged,
         this,
@@ -422,15 +427,6 @@ int TextEditorLayout::firstLineNumberOf(const QTextBlock &block) const
 bool TextEditorLayout::blockLayoutValid(int index) const
 {
     return d->layoutData(index).layedOut;
-}
-
-int TextEditorLayout::blockHeight(const QTextBlock &block) const
-{
-    if (QRectF replacement = replacementBlockBoundingRect(block); !replacement.isNull())
-        return replacement.height();
-    return blockLayoutValid(block.fragmentIndex())
-               ? blockBoundingRect(block).height()
-               : lineSpacing() + additionalBlockHeight(block, true);
 }
 
 int TextEditorLayout::offsetForBlock(const QTextBlock &block) const

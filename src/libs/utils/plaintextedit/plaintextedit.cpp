@@ -456,6 +456,15 @@ bool PlainTextDocumentLayout::moveCursor(
     return cursor.movePosition(operation, mode, steps);
 }
 
+int PlainTextDocumentLayout::blockHeight(const QTextBlock &block) const
+{
+    if (QRectF replacement = replacementBlockBoundingRect(block); !replacement.isNull())
+        return replacement.height();
+    if (blockLayout(block)->lineCount() == 0)
+        return lineSpacing() + additionalBlockHeight(block, true);
+    return blockBoundingRect(block).height();
+}
+
 void PlainTextDocumentLayout::setTextWidth(qreal newWidth)
 {
     d->width = d->maximumWidth = newWidth;
@@ -579,7 +588,7 @@ void PlainTextDocumentLayout::layoutBlock(const QTextBlock &block)
         QFontMetrics fm(block.charFormat().font());
         extraMargin += fm.horizontalAdvance(QChar(0x21B5));
     }
-    const int previousBlockLineCount = blockLineCount(block);
+    const int previousBlockHeight = blockHeight(block);
     tl->beginLayout();
     qreal availableWidth = d->width;
     if (availableWidth <= 0) {
@@ -602,7 +611,9 @@ void PlainTextDocumentLayout::layoutBlock(const QTextBlock &block)
 
     setBlockLineCount(const_cast<QTextBlock&>(block), block.isVisible() ? tl->lineCount() : 0);
     setBlockLayedOut(block);
-    bool emitDocumentSizeChanged = previousBlockLineCount != blockLineCount(block);
+    bool emitDocumentSizeChanged = previousBlockHeight != blockHeight(block);
+    if (emitDocumentSizeChanged)
+        emit blockSizeChanged(block);
 
     if (blockMaximumWidth > d->maximumWidth) {
         // new longest line

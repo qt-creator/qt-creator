@@ -127,7 +127,6 @@ public:
     int blockLineCount(const QTextBlock &block) const override;
     void setBlockLineCount(QTextBlock &block, int lineCount) const override;
 
-    int blockHeight(const QTextBlock &block) const;
     int offsetForBlock(const QTextBlock &block) const;
     void setBlockLayedOut(const QTextBlock &block) const override;
     bool blockLayoutValid(int index) const;
