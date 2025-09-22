@@ -301,6 +301,7 @@ public:
     void emitDocumentSizeChanged() { emit documentSizeChanged(documentSize()); }
 
     static qreal layoutWidth(const QTextLayout *layout);
+    static int lineSpacing(const QFont &font);
 
 signals:
     void documentContentsChanged(int from, int charsRemoved, int charsAdded);

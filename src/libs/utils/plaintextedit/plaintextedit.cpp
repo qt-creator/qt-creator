@@ -343,10 +343,19 @@ int PlainTextDocumentLayout::relativeLineSpacing() const
 
 int PlainTextDocumentLayout::lineSpacing() const
 {
+    return lineSpacing(document()->defaultFont());
+}
+
+int PlainTextDocumentLayout::lineSpacing(const QFont &font)
+{
+    const QFontMetricsF fm(font);
+    // QScriptLine only calculates positive leading values into the line height,
+    // but QFontMetrics always adds leading.
+    const qreal fractionalSpacing = fm.ascent() + fm.descent() + qMax(0.0, fm.leading());
     // QFontMetrics::lineSpacing() returns a rounded value for fonts with a franctional line spacing,
     // but in the layout process the height is rounded up since eef8a57daf0bf6e6142470db1a08970d5020e07d
     // in qtbase.
-    return qCeil(QFontMetricsF(document()->defaultFont()).lineSpacing());
+    return qCeil(fractionalSpacing);
 }
 
 /*!
