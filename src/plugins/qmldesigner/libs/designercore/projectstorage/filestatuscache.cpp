@@ -159,4 +159,26 @@ const FileStatus &FileStatusCache::updateAndFind(SourceId sourceId) const
     return entry;
 }
 
+void FileStatusCache::update(const DirectoryPathIds &directoryPathIds) const
+{
+    NanotraceHR::Tracer tracer{"file status cache update by directory path ids", category()};
+
+    if (directoryPathIds.empty())
+        return;
+
+    auto update = [&](FileStatus &fileStatus) {
+        fileStatus = m_fileSystem.fileStatus(fileStatus.sourceId);
+
+        tracer.tick("update file status", keyValue("entry", fileStatus));
+    };
+
+    Utils::set_greedy_intersection(m_cacheEntries,
+                                   directoryPathIds,
+                                   update,
+                                   {},
+                                   [](const FileStatus &fileStatus) {
+                                       return fileStatus.sourceId.directoryPathId();
+                                   });
+}
+
 } // namespace QmlDesigner

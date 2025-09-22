@@ -30,13 +30,13 @@ public:
     void removePaths(const QStringList &paths);
 
 signals:
-    void fileChanged(const QString &path);
+    void directoryRemoved(const QString &path);
     void directoryChanged(const QString &path);
 
 private:
     void addPath(const QString &path);
     void removePath(const QString &path);
-
+  
 private:
     std::unique_ptr<efsw::FileWatcher> fileWatcher;
     std::unique_ptr<Listener> listener;
