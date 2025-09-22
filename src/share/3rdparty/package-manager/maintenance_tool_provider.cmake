@@ -293,7 +293,7 @@ macro(qt_maintenance_tool_dependency method package_name)
     cmake_policy(SET CMP0155 OLD)
   endif()
 
-  if (${package_name} MATCHES "^Qt([0-9])(.*)$")
+  if (${package_name} MATCHES "^Qt([5-9])(.*)$")
     set(__qt_dependency_qt_major_version ${CMAKE_MATCH_1})
     set(__qt_dependency_qt_package_name ${CMAKE_MATCH_2})
 

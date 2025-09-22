@@ -387,13 +387,16 @@ void CMakeProject::readPresets()
     const Utils::FilePath cmakePresetsJson = projectDirectory().pathAppended("CMakePresets.json");
     const Utils::FilePath cmakeUserPresetsJson = projectDirectory().pathAppended("CMakeUserPresets.json");
 
-    if (!cmakePresetsJson.exists())
-        return;
-
-    Internal::PresetsData cmakePresetsData = parsePreset(cmakePresetsJson);
+    Internal::PresetsData cmakePresetsData;
+    if (cmakePresetsJson.exists())
+        cmakePresetsData = parsePreset(cmakePresetsJson);
     Internal::PresetsData cmakeUserPresetsData;
     if (cmakeUserPresetsJson.exists())
         cmakeUserPresetsData = parsePreset(cmakeUserPresetsJson);
+
+    // Both presets are optional, but at least one needs to be present
+    if (!cmakePresetsJson.exists() && !cmakeUserPresetsJson.exists())
+        return;
 
     // resolve the include
     Utils::FilePaths includeStack = {cmakePresetsJson};

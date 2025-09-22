@@ -327,17 +327,13 @@ CompilationDatabaseBuildSystem::CompilationDatabaseBuildSystem(BuildConfiguratio
         m_projectFileHash.clear();
         requestDelayedParse();
     });
-
-    requestDelayedParse();
-
-    connect(project(), &Project::projectFileIsDirty,
-            this, &CompilationDatabaseBuildSystem::reparseProject);
+    connect(project(), &Project::projectFileIsDirty, this, &BuildSystem::requestDelayedParse);
+    connect(project(), &Project::activeBuildConfigurationChanged,
+            this, &BuildSystem::requestDelayedParse);
     connect(m_deployFileWatcher, &FileSystemWatcher::fileChanged,
             this, &CompilationDatabaseBuildSystem::updateDeploymentData);
-    connect(project(), &Project::activeTargetChanged,
-            this, &CompilationDatabaseBuildSystem::updateDeploymentData);
-    connect(target(), &Target::activeBuildConfigurationChanged,
-            this, &CompilationDatabaseBuildSystem::updateDeploymentData);
+
+    requestDelayedParse();
 }
 
 CompilationDatabaseBuildSystem::~CompilationDatabaseBuildSystem()
