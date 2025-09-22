@@ -1428,7 +1428,6 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
                          relinkableAliasPropertyDeclarations,
                          relinkablePropertyDeclarations,
                          relinkableBases,
-                         package.updatedTypeSourceIds,
                          updatedPrototypeId);
 
         deleteNotUpdatedTypes(updatedTypeIds,
@@ -2648,15 +2647,9 @@ void ProjectStorage::synchronizeTypes(Storage::Synchronization::Types &types,
                                       AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                                       PropertyDeclarations &relinkablePropertyDeclarations,
                                       Bases &relinkableBases,
-                                      const SourceIds &updatedTypeSourceIds,
                                       SmallTypeIds<256> &updatedPrototypeId)
 {
     NanotraceHR::Tracer tracer{"synchronize types", category()};
-
-    Storage::Synchronization::ExportedTypes exportedTypes;
-    exportedTypes.reserve(types.size() * 3);
-    SourceIds sourceIdsOfTypes;
-    sourceIdsOfTypes.reserve(updatedTypeSourceIds.size());
 
     for (auto &type : types) {
         if (!type.sourceId)
@@ -2664,7 +2657,6 @@ void ProjectStorage::synchronizeTypes(Storage::Synchronization::Types &types,
 
         type.typeId = declareType(type.typeName, type.sourceId);
         synchronizeTypeTrait(type);
-        sourceIdsOfTypes.push_back(type.sourceId);
         updatedTypeIds.push_back(type.typeId);
     }
 

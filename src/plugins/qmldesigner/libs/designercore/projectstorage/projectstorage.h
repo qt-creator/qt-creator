@@ -541,7 +541,6 @@ private:
                           AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                           PropertyDeclarations &relinkablePropertyDeclarations,
                           Bases &relinkableBases,
-                          const SourceIds &updatedSourceIds,
                           SmallTypeIds<256> &updatedPrototypeTypes);
 
     void synchronizeProjectEntryInfos(Storage::Synchronization::ProjectEntryInfos &projectEntryInfos,
