@@ -107,6 +107,15 @@
     > \uicontrol {My Components}, and you can use instances of them to build
     more components.
 
+    \section1 Extracting custom components
+
+    To extract a custom component into its contents, right-click the
+    custom component in \uicontrol Navigator or the \uicontrol 2D view and
+    select \uicontrol {Extract Component} in the context menu.
+
+    The custom component is replaced by its contents. The custom
+    component file is not deleted from the project.
+
     \section1 Merging files with templates
 
     You can merge the current component file against an existing second

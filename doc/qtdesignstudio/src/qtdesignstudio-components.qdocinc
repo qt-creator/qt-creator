@@ -50,7 +50,7 @@
 
             The available properties depend on the component type. You can
             \l{Specifying custom properties}{add properties for components} on
-            the \uicontrol Properties tab in the {Connections} view.
+            the \uicontrol Properties tab in the \uicontrol {Connections} view.
     \endlist
 
     For an example of using the \uicontrol Button template to create a button
