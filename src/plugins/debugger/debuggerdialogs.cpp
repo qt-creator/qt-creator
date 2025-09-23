@@ -205,9 +205,9 @@ StartApplicationDialog::StartApplicationDialog()
 
     channelOverrideLabel = new QLabel(Tr::tr("Override server channel:"), this);
     channelOverrideEdit = new QLineEdit(this);
-    //: "For example, /dev/ttyS0, COM1, 127.0.0.1:1234"
+    //: "For example, tcp://127.0.0.1:1234, /dev/ttyS0, COM1"
     channelOverrideEdit->setPlaceholderText(
-        Tr::tr("For example, %1").arg("/dev/ttyS0, COM1, 127.0.0.1:1234"));
+        Tr::tr("For example, %1").arg("tcp://127.0.0.1:1234, /dev/ttyS0, COM1"));
 
     localExecutablePathChooser = new PathChooser(this);
     localExecutablePathChooser->setExpectedKind(PathChooser::File);
