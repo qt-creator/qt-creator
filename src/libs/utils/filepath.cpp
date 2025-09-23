@@ -2187,8 +2187,10 @@ FilePath FilePath::pathAppended(const QString &path) const
     QString other = path;
     other.replace('\\', '/');
 
+    // FIXME: This should possibly be a QTC_UNEXPECTED later
+    // but triggers too often currently.
     if (isEmpty())
-        return FilePath::fromString(other);
+        return withNewPath(other);
 
     QString p = this->path();
     join(p, other);
