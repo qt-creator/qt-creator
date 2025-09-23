@@ -96,22 +96,9 @@ public:
         setWidgetResizable(true);
         setFocusPolicy(Qt::NoFocus);
 
-        inner->setContentsMargins(0, CONTENTS_MARGIN, 0, BELOW_CONTENTS_MARGIN);
+        inner->setContentsMargins(PanelVMargin, CONTENTS_MARGIN, PanelVMargin, BELOW_CONTENTS_MARGIN);
 
-        auto root = new QWidget;
-        root->setFocusPolicy(Qt::NoFocus);
-        root->setContentsMargins(0, 0, 0, 0);
-        setWidget(root);
-
-        auto layout = new QVBoxLayout(root);
-        layout->setContentsMargins(PanelVMargin, 0, PanelVMargin, 0);
-        layout->setSpacing(0);
-
-        if (auto widget = dynamic_cast<ProjectSettingsWidget *>(inner))
-            widget->addToLayout(layout);
-
-        layout->addWidget(inner);
-        //layout->addWidget(new FindToolBarPlaceHolder(this));
+        setWidget(inner);
     }
 };
 
