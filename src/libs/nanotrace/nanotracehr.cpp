@@ -257,10 +257,11 @@ void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
 {
     {
         std::unique_lock taskLock{eventQueue.mutex};
-        std::unique_lock tasksLock{eventQueue.file->tasksMutex};
 
         if (eventQueue.isFinished)
             return;
+
+        std::unique_lock tasksLock{eventQueue.file->tasksMutex};
 
         eventQueue.file->tasks.emplace_back(std::in_place_type<typename TraceEvent::Task>,
                                             std::move(taskLock),
