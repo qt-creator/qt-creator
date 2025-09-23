@@ -711,7 +711,27 @@ private:
 class TargetSetupPageWrapper final : public QWidget
 {
 public:
-    explicit TargetSetupPageWrapper(Project *project);
+    explicit TargetSetupPageWrapper(Project *project)
+        : m_project(project)
+    {
+        setWindowTitle(Tr::tr("Configure Project"));
+
+        m_configureButton = new QPushButton(Tr::tr("&Configure Project"), this);
+
+        m_setupPageContainer = new QVBoxLayout;
+
+        auto hbox = new QHBoxLayout;
+        hbox->addStretch();
+        hbox->addWidget(m_configureButton);
+
+        auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addLayout(m_setupPageContainer);
+        layout->addLayout(hbox);
+
+        connect(m_configureButton, &QAbstractButton::clicked,
+                this, &TargetSetupPageWrapper::done);
+    }
 
     void ensureSetup()
     {
@@ -777,31 +797,6 @@ private:
     QPushButton *m_configureButton = nullptr;
     QVBoxLayout *m_setupPageContainer = nullptr;
 };
-
-TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
-    : m_project(project)
-{
-    setWindowTitle(Tr::tr("Configure Project"));
-
-    auto box = new QDialogButtonBox(this);
-
-    m_configureButton = new QPushButton(this);
-    m_configureButton->setText(Tr::tr("&Configure Project"));
-    box->addButton(m_configureButton, QDialogButtonBox::AcceptRole);
-
-    auto hbox = new QHBoxLayout;
-    hbox->addStretch();
-    hbox->addWidget(box);
-
-    auto layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    m_setupPageContainer = new QVBoxLayout;
-    layout->addLayout(m_setupPageContainer);
-    layout->addLayout(hbox);
-
-    connect(m_configureButton, &QAbstractButton::clicked,
-            this, &TargetSetupPageWrapper::done);
-}
 
 //
 // Third level: The per-kit entries
