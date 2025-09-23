@@ -526,9 +526,10 @@ void EditorView::restoreTabState(QDataStream *stream)
         return;
     QStringList tabs;
     *stream >> tabs;
+    QSet<DocumentModel::Entry *> seen;
     for (const QString &tab : std::as_const(tabs)) {
         DocumentModel::Entry *entry = DocumentModel::entryForFilePath(FilePath::fromString(tab));
-        if (!entry)
+        if (!entry || !Utils::insert(seen, entry))
             continue;
         m_tabBar->addTab(""); // text set below
         const int tabIndex = m_tabBar->count() - 1;
