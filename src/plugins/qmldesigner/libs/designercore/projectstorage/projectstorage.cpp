@@ -550,9 +550,8 @@ struct ProjectStorage::Statements
     Sqlite::ReadStatement<3, 2> selectTypeIdAndBaseNameIdForBaseIdAndTypeNameStatement{
         "SELECT typeId, prototypeNameId, extensionNameId "
         "FROM types JOIN bases USING(typeId) JOIN importedTypeNames AS itn "
-        "WHERE baseId =?2 "
-        "  AND itn.name=?1 "
-        "  OR (importedTypeNameId=prototypeNameId OR importedTypeNameId=extensionNameId)",
+        "WHERE baseId=?2 AND itn.name=?1 "
+        "  AND (importedTypeNameId=prototypeNameId OR importedTypeNameId=extensionNameId)",
         database};
     mutable Sqlite::ReadStatement<1, 1> selectPrototypeAndExtensionIdsStatement{
         "WITH RECURSIVE "
@@ -3009,8 +3008,11 @@ void ProjectStorage::handleBases(TypeId baseId, Bases &relinkableBases)
     for (TypeId typeId : deletedBases) {
         auto nameIds = s->selectBaseNamesByTypeIdStatement.value<NameIds>(typeId);
 
-        if (nameIds.prototypeNameId or nameIds.extensionNameId)
+        if (nameIds.prototypeNameId or nameIds.extensionNameId) {
+            tracer.tick("add relinkable base", keyValue("type id", typeId));
+
             relinkableBases.emplace_back(typeId, nameIds.prototypeNameId, nameIds.extensionNameId);
+        }
     }
 }
 
@@ -3020,10 +3022,13 @@ void ProjectStorage::handleBasesWithExportedTypeNameAndTypeId(Utils::SmallString
 {
     NanotraceHR::Tracer tracer{"handle invalid bases with exported type name and type id",
                                category(),
-                               keyValue("type id", exportedTypeName)};
+                               keyValue("type id", typeId),
+                               keyValue("exported type name", exportedTypeName)};
 
     auto callback =
         [&](TypeId typeId, ImportedTypeNameId prototypeNameId, ImportedTypeNameId extensionNameId) {
+            tracer.tick("add relinkable base", keyValue("type id", typeId));
+
             relinkableBases.emplace_back(typeId, prototypeNameId, extensionNameId);
         };
 
@@ -3792,8 +3797,11 @@ void ProjectStorage::handleBasesWithSourceId(SourceId sourceId, Bases &relinkabl
         [&](TypeId typeId, ImportedTypeNameId prototypeNameId, ImportedTypeNameId extensionNameId) {
             s->deleteAllBasesStatement.write(typeId);
 
-            if (prototypeNameId or extensionNameId)
+            if (prototypeNameId or extensionNameId) {
+                tracer.tick("add relinkable base", keyValue("type id", typeId));
+
                 relinkableBases.emplace_back(typeId, prototypeNameId, extensionNameId);
+            }
         };
 
     s->selectTypeBySourceIdStatement.readCallback(callback, sourceId);
@@ -4973,7 +4981,11 @@ void ProjectStorage::removeRelinkableEntries(std::vector<Relinkable> &relinkable
     Utils::set_greedy_difference(
         relinkables,
         ids,
-        [&](Relinkable &entry) { newRelinkables.push_back(std::move(entry)); },
+        [&](Relinkable &entry) {
+            tracer.tick("relinkable id", keyValue("type id", entry.typeId));
+
+            newRelinkables.push_back(std::move(entry));
+        },
         {},
         projection);
 
