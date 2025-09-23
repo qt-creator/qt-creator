@@ -352,7 +352,7 @@ private:
     const QPointer<Project> m_project;
     bool m_rebuildScheduled = false;
 
-    mutable QPointer<QWidget> m_targetSetupPage;
+    mutable QPointer<QWidget> m_targetSetupPanel;
     QObject m_guard;
 };
 
@@ -1123,7 +1123,7 @@ TargetGroupItem::TargetGroupItem(Project *project)
 
 TargetGroupItem::~TargetGroupItem()
 {
-    delete m_targetSetupPage;
+    delete m_targetSetupPanel;
 }
 
 ProjectItemBase *TargetGroupItem::activeItem()
@@ -1135,10 +1135,10 @@ ProjectItemBase *TargetGroupItem::activeItem()
 
 ProjectPanels TargetGroupItem::panelWidgets() const
 {
-    if (!m_targetSetupPage)
-        m_targetSetupPage = new ProjectPanel(new TargetSetupPageWrapper(m_project));
+    if (!m_targetSetupPanel)
+        m_targetSetupPanel = new ProjectPanel(new TargetSetupPageWrapper(m_project));
 
-    return {m_targetSetupPage.get()};
+    return {m_targetSetupPanel.get()};
 }
 
 void TargetGroupItem::itemActivatedFromBelow(const ProjectItemBase *)
