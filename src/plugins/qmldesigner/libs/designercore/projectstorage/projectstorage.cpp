@@ -3759,24 +3759,6 @@ void ProjectStorage::resetRemovedAliasPropertyDeclarationsToNull(
                             &AliasPropertyDeclaration::propertyDeclarationId);
 }
 
-void ProjectStorage::handleBasesWithSourceIdAndBaseId(SourceId sourceId,
-                                                      TypeId baseId,
-                                                      Bases &relinkableBases)
-{
-    NanotraceHR::Tracer tracer{"handle bases with source id and base id",
-                               category(),
-                               keyValue("source id", sourceId),
-                               keyValue("type id", baseId)};
-
-    auto callback =
-        [&](TypeId typeId, ImportedTypeNameId prototypeNameId, ImportedTypeNameId extensionNameId) {
-            if (prototypeNameId or extensionNameId)
-                relinkableBases.emplace_back(typeId, prototypeNameId, extensionNameId);
-        };
-
-    s->selectTypeIdAndBaseNameIdForBaseIdAndTypeNameStatement.readCallback(callback, baseId, sourceId);
-}
-
 void ProjectStorage::handleBasesWithSourceId(SourceId sourceId, Bases &relinkableBases)
 {
     NanotraceHR::Tracer tracer{"handle bases with source id",

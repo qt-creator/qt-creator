@@ -704,7 +704,6 @@ private:
         Storage::Synchronization::Types &types,
         AliasPropertyDeclarations &relinkableAliasPropertyDeclarations);
 
-    void handleBasesWithSourceIdAndBaseId(SourceId sourceId, TypeId baseId, Bases &relinkableBases);
     void handleBasesWithSourceId(SourceId sourceId, Bases &relinkableBases);
 
     ImportId insertDocumentImport(const Storage::Import &import,
