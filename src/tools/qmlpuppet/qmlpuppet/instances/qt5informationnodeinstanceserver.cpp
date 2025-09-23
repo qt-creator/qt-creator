@@ -1414,7 +1414,10 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView(
             }
         }
         // Key number is selected so that it is unlikely to conflict other ImageContainer use.
-        ImageContainer imgContainer(cmd.instanceId(), {}, 2100000001 + cmd.instanceId());
+        // Use separate key for items without request id to avoid situations where custom requests
+        // overwrite default preview data before it can be processed.
+        qint32 key = cmd.instanceId() + (cmd.requestId().isEmpty() ? 2100000001 : 2110000001);
+        ImageContainer imgContainer(cmd.instanceId(), {}, key);
         imgContainer.setImage(renderImage);
         imgContainer.setRequestId(cmd.requestId());
 
