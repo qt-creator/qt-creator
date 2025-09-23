@@ -38,6 +38,10 @@ Rectangle {
             }
         }
 
+        AiModelsComboBox {
+            Layout.fillWidth: true
+        }
+
         PromptTextBox {
             id: promptTextBox
 

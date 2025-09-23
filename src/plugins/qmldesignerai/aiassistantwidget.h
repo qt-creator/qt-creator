@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include "aiproviderconfig.h"
 #include "manifest.h"
 
 #include <utils/uniqueobjectptr.h>
 
+#include <QAbstractItemModel>
 #include <QFrame>
 #include <QPointer>
 
@@ -17,6 +17,7 @@ class QNetworkAccessManager;
 class QNetworkReply;
 class QTextEdit;
 class QToolButton;
+class QComboBox;
 QT_END_NAMESPACE
 
 class StudioQuickWidget;
@@ -24,6 +25,7 @@ class StudioQuickWidget;
 namespace QmlDesigner {
 
 class AiAssistantView;
+class AiModelsModel;
 class AiResponse;
 
 class AiAssistantWidget : public QFrame
@@ -35,6 +37,7 @@ class AiAssistantWidget : public QFrame
     Q_PROPERTY(bool hasValidModel MEMBER m_hasValidModel NOTIFY hasValidModelChanged FINAL)
     Q_PROPERTY(QString attachedImageSource READ attachedImageSource WRITE setAttachedImageSource
                    NOTIFY attachedImageSourceChanged FINAL)
+    Q_PROPERTY(QAbstractItemModel *modelsModel READ modelsModel CONSTANT)
 
 public:
     AiAssistantWidget(AiAssistantView *view);
@@ -42,6 +45,8 @@ public:
 
     QString attachedImageSource() const;
     void setAttachedImageSource(const QString &source);
+
+    QAbstractItemModel *modelsModel() const;
 
     void clear();
     void initManifest();
@@ -86,13 +91,13 @@ private: // functions
 private: // variables
     Utils::UniqueObjectPtr<QNetworkAccessManager> m_manager;
     Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
+    Utils::UniqueObjectPtr<AiModelsModel> m_modelsModel;
 
     QPointer<AiAssistantView> m_view;
     QStringList m_inputHistory;
     QString m_lastGeneratedQml;
     QString m_attachedImageSource;
     Manifest m_manifest;
-    AiModelInfo m_modelInfo;
     int m_historyIndex = -1;
     bool m_termsAccepted = false;
     bool m_isGenerating = false;
