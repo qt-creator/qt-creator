@@ -6,7 +6,7 @@
 #include "aiassistantconstants.h"
 #include "aiassistanttermsdialog.h"
 #include "aiassistantview.h"
-#include "aiprovidersettings.h"
+#include "aimodelsmodel.h"
 #include "airesponse.h"
 
 #include <astcheck/astcheck.h>
@@ -26,6 +26,7 @@
 
 #include <QApplication>
 #include <QBuffer>
+#include <QComboBox>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -173,6 +174,7 @@ bool AiAssistantWidget::eventFilter(QObject *obj, QEvent *event)
 AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     : m_manager(Utils::makeUniqueObjectPtr<QNetworkAccessManager>())
     , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>())
+    , m_modelsModel(Utils::makeUniqueObjectPtr<AiModelsModel>())
     , m_view(view)
     , m_termsAccepted(Core::ICore::settings()->value(Constants::aiAssistantTermsAcceptedKey, false)
                           .toBool())
@@ -197,6 +199,7 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     });
 
     vLayout->addWidget(m_quickWidget.get());
+
     reloadQmlSource();
     updateModelConfig();
 }
@@ -224,16 +227,8 @@ void AiAssistantWidget::initManifest()
 
 void AiAssistantWidget::updateModelConfig()
 {
-    const QList<AiModelInfo> aiModels = AiProviderSettings::allValidModels();
-
-    if (aiModels.isEmpty()) {
-        m_modelInfo = {};
-        setHasValidModel(false);
-        return;
-    }
-
-    m_modelInfo = aiModels.first();
-    setHasValidModel(m_modelInfo.isValid());
+    m_modelsModel->update();
+    setHasValidModel(m_modelsModel->rowCount() > 0);
 }
 
 void AiAssistantWidget::removeMissingAttachedImage()
@@ -280,14 +275,15 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
     m_inputHistory.append(prompt);
     m_historyIndex = m_inputHistory.size();
 
-    if (!m_modelInfo.isValid()) {
+    const AiModelInfo modelInfo = m_modelsModel->selectedInfo();
+    if (!modelInfo.isValid()) {
         qWarning() << __FUNCTION__ << "No model configuration";
         return; // TODO: Notify error
     }
 
-    QNetworkRequest request(m_modelInfo.url);
+    QNetworkRequest request(modelInfo.url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setRawHeader("Authorization", QByteArray("Bearer ").append(m_modelInfo.apiKey.toUtf8()));
+    request.setRawHeader("Authorization", QByteArray("Bearer ").append(modelInfo.apiKey.toUtf8()));
 
     const Utils::FilePath qmlFile = currentDesignDocument()->fileName();
     const QString imagePaths = getImageAssetsPaths().join('\n');
@@ -298,7 +294,7 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
     QJsonObject userJson = getUserJson(fullImageUrl(attachedImageSource()), currentQmlText(), prompt);
 
     QJsonObject json;
-    json["model"] = m_modelInfo.modelId;
+    json["model"] = modelInfo.modelId;
     json["messages"] = QJsonArray {
         QJsonObject{{"role", "system"}, {"content", m_manifest.toString()}},
         userJson,
@@ -417,6 +413,11 @@ void AiAssistantWidget::setAttachedImageSource(const QString &source)
 
     m_attachedImageSource = source;
     emit attachedImageSourceChanged();
+}
+
+QAbstractItemModel *AiAssistantWidget::modelsModel() const
+{
+    return m_modelsModel.get();
 }
 
 void AiAssistantWidget::handleAiResponse(const AiResponse &response)
