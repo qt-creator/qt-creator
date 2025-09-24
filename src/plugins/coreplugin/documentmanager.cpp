@@ -137,60 +137,33 @@ class FileWatchers : public QObject
 {
     Q_OBJECT
 public:
-    FileWatchers()
-    {
-        connect(&m_localWatcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path) {
-            emit fileChanged(FilePath::fromString(path));
-        });
-    }
-
-    bool contains(const FilePath &filePath) const
-    {
-        return watchers.contains(filePath) || m_localWatcher.files().contains(filePath.path());
-    }
-
-    bool addPath(const FilePath &path)
-    {
-        if (watchers.contains(path))
-            return false;
-
-        Result<std::unique_ptr<FilePathWatcher>> res = path.watch();
-        if (!res) {
-            if (!path.exists())
-                return false; // Too much noise if we complain about non-existing files here.
-            QTC_ASSERT_RESULT(res, return false);
-        }
-
-        connect(res->get(), &FilePathWatcher::pathChanged, this, [this, path] {
-            emit fileChanged(path);
-        });
-        watchers.insert(path, std::move(*res));
-        return true;
-    }
+    bool contains(const FilePath &filePath) const { return watchers.contains(filePath); }
 
     void addPaths(const FilePaths &paths)
     {
-        // TODO This handles local paths separately for efficiency:
-        // Calling QFileSystemWatcher::addPath for each individual file is a lot less
-        // efficient than calling QFileSystemWatcher::addPaths once (1000ms vs 33ms less efficient
-        // for Qt Creator sources).
-        // Needs considerations for the FilePath variant.
-        QStringList localPaths;
-        for (const FilePath &path : paths) {
-            if (path.isLocal())
-                localPaths.append(path.path());
-            else
-                addPath(path);
+        const FilePaths newPaths = Utils::filtered(paths, [this](const FilePath &path) {
+            return !watchers.contains(path);
+        });
+
+        std::vector<Result<std::unique_ptr<FilePathWatcher>>> results = newPaths.watch();
+        for (size_t i = 0; i < results.size(); ++i) {
+            Result<std::unique_ptr<FilePathWatcher>> &res = results.at(i);
+            const FilePath path = newPaths.at(i);
+            if (res) {
+                connect(res->get(), &FilePathWatcher::pathChanged, this, [this, path] {
+                    emit fileChanged(path);
+                });
+                watchers.insert(path, std::move(*res));
+            } else {
+                // Too much noise if we complain about non-existing files here.
+                if (path.exists())
+                    qWarning() << res.error();
+            }
         }
-        if (!localPaths.isEmpty())
-            m_localWatcher.addPaths(localPaths);
     }
 
     bool removePath(const FilePath &path)
     {
-        if (path.isLocal())
-            return m_localWatcher.removePath(path.path());
-
         if (!watchers.contains(path))
             return false;
         watchers.remove(path);
@@ -202,7 +175,6 @@ signals:
 
 protected:
     QMap<FilePath, std::shared_ptr<FilePathWatcher>> watchers;
-    QFileSystemWatcher m_localWatcher;
 };
 
 class DocumentManagerPrivate final : public QObject
