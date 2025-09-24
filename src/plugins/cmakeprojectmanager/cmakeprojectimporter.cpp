@@ -226,7 +226,7 @@ FilePaths CMakeProjectImporter::importCandidates()
                                                                 k,
                                                                 QString(),
                                                                 BuildConfiguration::Unknown);
-            candidates << scanDirectory(shadowBuildDirectory.absolutePath(), QString());
+            candidates << scanDirectory(shadowBuildDirectory, QString());
         }
     }
 
