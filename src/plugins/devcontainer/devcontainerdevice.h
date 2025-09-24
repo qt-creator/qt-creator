@@ -46,7 +46,7 @@ public:
 
     void toMap(Utils::Store &map) const override;
 
-    bool supportsBuildingProject(const ProjectExplorer::Project *project) const override;
+    bool supportsBuildingProject(const Utils::FilePath &projectDir) const override;
 
 public: // FilePath stuff
     bool handlesFile(const Utils::FilePath &filePath) const override;

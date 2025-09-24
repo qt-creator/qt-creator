@@ -719,10 +719,10 @@ Task Project::checkBuildDevice(const Kit *k, const Utils::FilePath &projectFile)
     IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(k);
     if (!buildDevice)
         return createTask(Task::TaskType::Error, ::PE::Tr::tr("Kit has no build device"));
-    if (!buildDevice->rootPath().ensureReachable(projectFile)) {
+    if (!buildDevice->supportsBuildingProject(projectFile.parentDir())) {
         return createTask(
             Task::TaskType::Error,
-            ::PE::Tr::tr("Project file \"%1\" is not reachable from build device \"%2\".")
+            ::PE::Tr::tr("Build device \"%2\" cannot handle project file \"%1\".")
                 .arg(projectFile.toUserOutput(), buildDevice->displayName()));
     }
     return {};
