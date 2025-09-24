@@ -803,6 +803,10 @@ private:
 class TargetItem final : public ProjectItemBase
 {
 public:
+    enum TargetItemDataRole {
+        CanEnableRole = Qt::UserRole + 1,
+    };
+
     TargetItem(Project *project, Id kitId, const Tasks &issues)
         : m_project(project), m_kitId(kitId), m_kitIssues(issues)
     {
@@ -898,6 +902,12 @@ public:
             }();
             return k->toHtml(m_kitIssues, extraText);
         }
+
+        case CanEnableRole: {
+            const Kit *k = KitManager::kit(m_kitId);
+            return k && !m_kitErrorsForProject && !isEnabled();
+        }
+
         default:
             break;
         }
@@ -1032,11 +1042,8 @@ private:
     {
         QIcon overlayIcon;
         switch (overlayType) {
-        case IconOverlay::Add: {
-            static const QIcon add = Utils::Icons::OVERLAY_ADD.icon();
-            overlayIcon = add;
+        case IconOverlay::Add:
             break;
-        }
         case IconOverlay::Warning: {
             static const QIcon warning = Utils::Icons::OVERLAY_WARNING.icon();
             overlayIcon = warning;
@@ -1223,12 +1230,32 @@ class SelectorDelegate : public QStyledItemDelegate
 public:
     SelectorDelegate() = default;
 
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override
+    {
+        painter->save();
+        painter->translate(addIconWidth, 0);
+        QStyledItemDelegate::paint(painter, option, index);
+        painter->restore();
+        if (index.data(TargetItem::CanEnableRole).toBool()) {
+            QRect iconRect = option.rect;
+            iconRect.setWidth(addIconWidth);
+            painter->save();
+            painter->setPen(creatorColor(Theme::Token_Notification_Success_Default));
+            painter->drawText(iconRect, "+", QTextOption(Qt::AlignLeft | Qt::AlignVCenter));
+            painter->restore();
+        }
+    }
+
     QSize sizeHint(const QStyleOptionViewItem &option,
                    const QModelIndex &index) const final
     {
         QSize s = QStyledItemDelegate::sizeHint(option, index);
-        return QSize(s.width(), s.height() * 1.2);
+        return QSize(s.width() + addIconWidth, s.height() * 1.2);
     }
+
+private:
+    static const int addIconWidth = 8;
 };
 
 class SelectorTree : public TreeView
