@@ -879,7 +879,10 @@ void PlainTextEditPrivate::setTopBlock(int blockNumber, int lineNumber, int dx, 
         lineNumber = newTopLine - editorLayout->firstLineNumberOf(block);
     }
 
-    vbar()->setValue(newScrollbarValue);
+    if (vbar()->value() != newScrollbarValue) {
+        vbar()->setValue(newScrollbarValue);
+        return;
+    }
 
     if (!dx && dy == topLineOffset && blockNumber == control->topBlock && lineNumber == topLine)
         return;
@@ -1158,7 +1161,7 @@ void PlainTextEditPrivate::adjustScrollbarsNow()
     hbar()->setRange(0, (int)documentSize.width() - viewport()->width());
     hbar()->setPageStep(viewport()->width());
     static_cast<PlainTextDocumentLayout *>(editorLayout)->d->blockDocumentSizeChanged = documentSizeChangedBlocked;
-    setTopLine(visualTopLine);
+    setTopLine(visualTopLine, 0, topLineOffset);
 }
 
 #endif
