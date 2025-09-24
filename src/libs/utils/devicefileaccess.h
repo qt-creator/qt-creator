@@ -83,7 +83,7 @@ protected:
     virtual Result<FilePath> createTempFile(const FilePath &filePath);
     virtual Result<FilePath> createTempDir(const FilePath &filePath);
 
-    virtual Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const;
+    virtual std::vector<Result<std::unique_ptr<FilePathWatcher>>> watch(const FilePaths &paths) const;
 
     virtual TextEncoding processStdOutEncoding(const FilePath &executable) const;
     virtual TextEncoding processStdErrEncoding(const FilePath &executable) const;
@@ -151,7 +151,8 @@ protected:
     Result<FilePath> createTempFile(const FilePath &filePath) override;
     Result<FilePath> createTempDir(const FilePath &filePath) override;
 
-    Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &filePath) const override;
+    std::vector<Result<std::unique_ptr<FilePathWatcher>>> watch(
+        const FilePaths &paths) const override;
 };
 
 class QTCREATOR_UTILS_EXPORT DesktopDeviceFileAccess : public DeviceFileAccess
@@ -214,7 +215,8 @@ protected:
     Result<FilePath> createTempFile(const FilePath &filePath) override;
     Result<FilePath> createTempDir(const FilePath &filePath) override;
 
-    Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const override;
+    std::vector<Result<std::unique_ptr<FilePathWatcher>>> watch(
+        const FilePaths &paths) const override;
 
     TextEncoding processStdOutEncoding(const FilePath &executable) const override;
     TextEncoding processStdErrEncoding(const FilePath &executable) const override;

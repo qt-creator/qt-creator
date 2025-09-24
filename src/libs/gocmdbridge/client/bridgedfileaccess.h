@@ -97,8 +97,8 @@ protected:
     Utils::Result<Utils::FilePath> createTempDir(const Utils::FilePath &filePath) override;
     Utils::Result<Utils::FilePath> createTemp(const Utils::FilePath &filePath, bool dir);
 
-    Utils::Result<std::unique_ptr<Utils::FilePathWatcher>> watch(
-        const Utils::FilePath &filePath) const override;
+    std::vector<Utils::Result<std::unique_ptr<Utils::FilePathWatcher>>> watch(
+        const Utils::FilePaths &filePaths) const override;
 
 private:
     std::unique_ptr<CmdBridge::Client> m_client;

@@ -368,7 +368,7 @@ bool FilePath::equalsCaseSensitive(const FilePath &other) const
 */
 
 /*!
-    Returns a FilePathWatcher for this path.
+    Returns a FilePathWatcher for each given path.
 
     The returned FilePathWatcher emits its signal when the file at this path
     is modified, renamed, or deleted. The signal is emitted in the calling thread.
@@ -377,9 +377,39 @@ bool FilePath::equalsCaseSensitive(const FilePath &other) const
 
     \sa FilePathWatcher
 */
+std::vector<Result<std::unique_ptr<FilePathWatcher>>> FilePath::watch(const FilePaths &paths)
+{
+    if (paths.isEmpty())
+        return {};
+    if (paths.size() == 1) {
+        return paths.at(0).fileAccess()->watch({paths.at(0)});
+    }
+    using WatchResult = std::vector<Result<std::unique_ptr<FilePathWatcher>>>;
+    WatchResult allResults;
+    allResults.reserve(paths.size());
+    // Sort into device file access instances, so we can call watch() in bulk on them
+    std::unordered_map<DeviceFileAccess *, FilePaths> access;
+    for (const FilePath &path : paths)
+        access[path.fileAccess()].append(path);
+    for (const auto &fileAccess : access) {
+        WatchResult results = fileAccess.first->watch(fileAccess.second);
+        for (auto &result : results)
+            allResults.push_back(std::move(result));
+    }
+    return allResults;
+}
+
+/*!
+    \deprecated Use FilePaths::watch() or static FilePath::watch() instead.
+*/
 Utils::Result<std::unique_ptr<FilePathWatcher>> FilePath::watch() const
 {
-    return fileAccess()->watch(*this);
+    std::vector<Result<std::unique_ptr<FilePathWatcher>>> watches = FilePath::watch({*this});
+    QTC_ASSERT(
+        !watches.empty(),
+        return ResultError(
+            Tr::tr("Internal DeviceFileAccess error: watch() did not return a result.")));
+    return std::move(watches.at(0));
 }
 
 void FilePath::openTerminal(const Environment &env) const
@@ -2800,6 +2830,11 @@ FilePath FilePaths::commonPath() const
 void FilePaths::sort()
 {
     std::sort(begin(), end(), std::less<FilePath>());
+}
+
+std::vector<Utils::Result<std::unique_ptr<FilePathWatcher>>> FilePaths::watch() const
+{
+    return FilePath::watch(*this);
 }
 
 QTextStream &operator<<(QTextStream &s, const FilePath &fn)

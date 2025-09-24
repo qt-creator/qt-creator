@@ -653,9 +653,14 @@ Result<> FileAccess::renameFile(const FilePath &filePath, const FilePath &target
     return ResultOk;
 }
 
-Result<std::unique_ptr<FilePathWatcher>> FileAccess::watch(const FilePath &filePath) const
+std::vector<Result<std::unique_ptr<FilePathWatcher>>> FileAccess::watch(
+    const FilePaths &filePaths) const
 {
-    return m_client->watch(filePath.nativePath());
+    // TODO: Watch whole sets of file paths for efficiency
+    std::vector<Result<std::unique_ptr<FilePathWatcher>>> results;
+    for (const FilePath &path : filePaths)
+        results.push_back(m_client->watch(path.nativePath()));
+    return results;
 }
 
 Result<> FileAccess::signalProcess(int pid, ControlSignal signal) const

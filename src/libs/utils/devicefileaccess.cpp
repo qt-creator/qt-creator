@@ -430,9 +430,12 @@ Result<FilePath> DeviceFileAccess::createTempDir(const FilePath &filePath)
     return notImplementedError("createTempDir()", filePath);
 }
 
-Result<std::unique_ptr<FilePathWatcher>> DeviceFileAccess::watch(const FilePath &filePath) const
+std::vector<Result<std::unique_ptr<FilePathWatcher>>> DeviceFileAccess::watch(
+    const FilePaths &filePaths) const
 {
-    return notImplementedError("watch()", filePath);
+    return Utils::transform<std::vector>(filePaths, [](const FilePath &path) {
+        return Result<std::unique_ptr<FilePathWatcher>>(notImplementedError("watch()", path));
+    });
 }
 
 TextEncoding DeviceFileAccess::processStdOutEncoding(const FilePath &executable) const
@@ -663,10 +666,12 @@ Result<FilePath> UnavailableDeviceFileAccess::createTempDir(const FilePath &file
     return unavailableError(filePath);
 }
 
-Result<std::unique_ptr<FilePathWatcher>>
-    UnavailableDeviceFileAccess::watch(const FilePath &filePath) const
+std::vector<Result<std::unique_ptr<FilePathWatcher>>> UnavailableDeviceFileAccess::watch(
+    const FilePaths &filePaths) const
 {
-    return unavailableError(filePath);
+    return Utils::transform<std::vector>(filePaths, [](const FilePath &path) {
+        return Result<std::unique_ptr<FilePathWatcher>>(unavailableError(path));
+    });
 }
 
 // DesktopDeviceFileAccess
@@ -691,7 +696,11 @@ class DesktopFilePathWatcher final : public FilePathWatcher
             m_thread.wait();
         }
 
-        Result<> watch(DesktopFilePathWatcher *watcher) { return d.watch(watcher); }
+        QList<Result<>> watch(const QList<DesktopFilePathWatcher *> &watchers)
+        {
+            return d.watch(watchers);
+        }
+
         Result<> removeWatch(DesktopFilePathWatcher *watcher) { return d.removeWatch(watcher); }
 
         static GlobalWatcher &instance()
@@ -705,22 +714,24 @@ class DesktopFilePathWatcher final : public FilePathWatcher
         {
         public:
             void init() { QMetaObject::invokeMethod(this, &Private::_init, Qt::QueuedConnection); }
-            Result<> watch(DesktopFilePathWatcher *watcher)
+            QList<Result<>> watch(const QList<DesktopFilePathWatcher *> &watchers)
             {
-                Result<> result;
+                QList<Result<>> results;
                 QMetaObject::invokeMethod(
                     this,
-                    [this, watcher] { return _watch(watcher); },
+                    [this, watchers] { return _watch(watchers); },
                     Qt::BlockingQueuedConnection,
-                    &result);
+                    &results);
 
-                connect(
-                    watcher,
-                    &DesktopFilePathWatcher::continueWatch,
-                    this,
-                    [this](const FilePath &path) { m_watcher->addPath(path.path()); });
+                for (const DesktopFilePathWatcher *watcher : watchers) {
+                    connect(
+                        watcher,
+                        &DesktopFilePathWatcher::continueWatch,
+                        this,
+                        [this](const FilePath &path) { m_watcher->addPath(path.path()); });
+                }
 
-                return result;
+                return results;
             }
             Result<> removeWatch(DesktopFilePathWatcher *watcher)
             {
@@ -767,25 +778,46 @@ class DesktopFilePathWatcher final : public FilePathWatcher
                     }
                 }
             }
-            Result<> _watch(DesktopFilePathWatcher *watcher)
+            QList<Result<>> _watch(const QList<DesktopFilePathWatcher *> &watchers)
             {
-                const FilePath path = watcher->path();
-                auto it = m_watchClients.find(path);
-
-                if (it == m_watchClients.end()) {
-                    if (!m_watcher->addPath(path.path())) {
-                        if (!path.exists()) {
-                            return ResultError(Tr::tr("Failed to watch \"%1\", it does not exist.")
-                                                   .arg(path.toUserOutput()));
-                        }
-
-                        return ResultError(
-                            Tr::tr("Failed to watch \"%1\".").arg(path.toUserOutput()));
-                    }
-                    it = m_watchClients.emplace(path);
+                QList<Result<>> results(watchers.size()); // initialize everything with "Ok"
+                QList<std::pair<int, DesktopFilePathWatcher *>> newToWatch; // (index, watcher)
+                // Check if we need to add the file watch, otherwise just keep note
+                // of the new client for the already watched file.
+                for (int i = 0; i < watchers.size(); ++i) {
+                    DesktopFilePathWatcher *watcher = watchers.at(i);
+                    const FilePath path = watcher->path();
+                    auto it = m_watchClients.find(path);
+                    if (it == m_watchClients.end())
+                        newToWatch += std::pair<int, DesktopFilePathWatcher *>(i, watcher);
+                    else
+                        it->append(watcher);
                 }
-                it->append(watcher);
-                return ResultOk;
+                if (newToWatch.isEmpty())
+                    return results;
+                // add the required new watches
+                const QStringList failedPaths = m_watcher->addPaths(
+                    Utils::transform(
+                        newToWatch, [](const std::pair<int, DesktopFilePathWatcher *> &item) {
+                            return item.second->path().path();
+                        }));
+                // Keep note of the clients for successful ones, add error for failed ones
+                for (const std::pair<int, DesktopFilePathWatcher *> &item : newToWatch) {
+                    const FilePath path = item.second->path();
+                    if (failedPaths.contains(path.path())) {
+                        if (!path.exists()) {
+                            results[item.first] = ResultError(
+                                Tr::tr("Failed to watch \"%1\", it does not exist.")
+                                    .arg(path.toUserOutput()));
+                        } else {
+                            results[item.first] = ResultError(
+                                Tr::tr("Failed to watch \"%1\".").arg(path.toUserOutput()));
+                        }
+                    } else {
+                        m_watchClients[path].append(item.second);
+                    }
+                }
+                return results;
             }
 
             Result<> _removeWatch(DesktopFilePathWatcher *watcher)
@@ -823,13 +855,11 @@ public:
     DesktopFilePathWatcher(const FilePath &path)
         : m_path(path)
     {
-        if (auto result = GlobalWatcher::instance().watch(this); !result)
-            m_error = result.error();
     }
 
     ~DesktopFilePathWatcher()
     {
-        if (m_error.isEmpty()) {
+        if (m_isWatched) {
             QTC_CHECK_RESULT(GlobalWatcher::instance().removeWatch(this));
         }
     }
@@ -838,8 +868,6 @@ public:
 
     void emitChanged() { emit pathChanged(m_path); }
 
-    QString error() const { return m_error; }
-
     void requestContinueWatch()
     {
         if (m_path.exists()) {
@@ -847,12 +875,32 @@ public:
         }
     }
 
+    static std::vector<Result<std::unique_ptr<FilePathWatcher>>> watch(const FilePaths &paths)
+    {
+        std::vector<std::unique_ptr<DesktopFilePathWatcher>> watchers
+            = Utils::transform<std::vector>(paths, [](const FilePath &path) {
+                  return std::make_unique<DesktopFilePathWatcher>(path);
+              });
+        const QList<Result<>> watchResults = GlobalWatcher::instance().watch(
+            Utils::transform<QList>(watchers, &std::unique_ptr<DesktopFilePathWatcher>::get));
+        std::vector<Result<std::unique_ptr<FilePathWatcher>>> results;
+        for (int i = 0; i < watchResults.size(); ++i) {
+            if (watchResults.at(i)) {
+                watchers.at(i)->m_isWatched = true;
+                results.push_back(std::move(watchers.at(i)));
+            } else {
+                results.push_back(ResultError(watchResults.at(i).error()));
+            }
+        }
+        return results;
+    }
+
 signals:
     void continueWatch(const FilePath& path);
 
 private:
     const FilePath m_path;
-    QString m_error;
+    bool m_isWatched = false;
 };
 
 DesktopDeviceFileAccess::DesktopDeviceFileAccess()
@@ -1272,12 +1320,10 @@ Result<FilePath> DesktopDeviceFileAccess::createTempDir(const FilePath &filePath
     return filePath.withNewPath(dir.path());
 }
 
-Result<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(const FilePath &path) const
+std::vector<Result<std::unique_ptr<FilePathWatcher>>> DesktopDeviceFileAccess::watch(
+    const FilePaths &paths) const
 {
-    auto watcher = std::make_unique<DesktopFilePathWatcher>(path);
-    if (watcher->error().isEmpty())
-        return watcher;
-    return ResultError(watcher->error());
+    return DesktopFilePathWatcher::watch(paths);
 }
 
 TextEncoding DesktopDeviceFileAccess::processStdOutEncoding(const FilePath &executable) const

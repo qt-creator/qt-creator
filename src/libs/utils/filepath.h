@@ -311,6 +311,7 @@ public:
 
     bool equalsCaseSensitive(const FilePath &other) const;
 
+    static std::vector<Utils::Result<std::unique_ptr<FilePathWatcher>>> watch(const FilePaths &paths);
     Utils::Result<std::unique_ptr<FilePathWatcher>> watch() const;
     void openTerminal(const Environment &env) const;
 
@@ -379,6 +380,8 @@ public:
     [[nodiscard]] QString toUserOutput(const QString &separator) const;
     [[nodiscard]] FilePath commonPath() const;
     void sort();
+
+    std::vector<Utils::Result<std::unique_ptr<FilePathWatcher>>> watch() const;
 };
 
 //! A Range that iterates over the specified path and its parent directories. Optionally only up to "last".
