@@ -10,6 +10,7 @@
 #include "sshparameters.h"
 
 #include "../kit.h"
+#include "../project.h"
 #include "../projectexplorerconstants.h"
 #include "../projectexplorericons.h"
 #include "../projectexplorertr.h"
@@ -1252,8 +1253,8 @@ FilePaths Internal::IDevicePrivate::autoDetectionPaths() const
 
 bool IDevice::supportsProject(Project *project) const
 {
-    Q_UNUSED(project);
-    return true;
+    QTC_ASSERT(project, return false);
+    return handlesFile(project->projectFilePath());
 }
 
 } // namespace ProjectExplorer
