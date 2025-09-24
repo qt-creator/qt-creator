@@ -63,21 +63,6 @@ QChar charUnderCursor(QLineEdit *edit)
     return edit->text().at(pos);
 };
 
-template<typename C>
-int position(C *cursor);
-
-template<>
-int position(QTextCursor *cursor)
-{
-    return cursor->position();
-}
-
-template<>
-int position(QLineEdit *edit)
-{
-    return edit->cursorPosition();
-}
-
 enum class Input {
     Upper,
     Lower,
