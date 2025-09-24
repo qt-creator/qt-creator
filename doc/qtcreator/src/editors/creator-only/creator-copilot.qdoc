@@ -76,11 +76,10 @@
     and \inlineimage {icons/next.png} {Next}
     buttons for cycling between Copilot suggestions.
 
-    To apply a suggestion as a whole, select \uicontrol Apply or press
-    the \key Tab key.
+    To apply a suggestion as a whole, select \uicontrol Apply or \key Tab.
 
     To apply a suggestion word-by-word, select \uicontrol {Apply Word}
-    or select \key {Alt+Right}.
+    or \key {Alt+Right}.
 
     To reject a suggestion, select \key Esc or the arrow keys.
 

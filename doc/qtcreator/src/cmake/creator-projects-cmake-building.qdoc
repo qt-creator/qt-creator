@@ -142,7 +142,7 @@
 
     \section2 Viewing Advanced Variables
 
-    To view all variables, select the \uicontrol Advanced check box.
+    To view all variables, select \uicontrol Advanced.
 
     To view all variables by default, go to \preferences > \uicontrol CMake >
     \uicontrol General and select \uicontrol {Show advanced options by default}.
@@ -239,7 +239,7 @@
     you usually need to install Ninja yourself.
 
     To install the application to a staging directory when cross-compiling,
-    select the \uicontrol {Stage for installation} check box and specify
+    select \uicontrol {Stage for installation} and specify
     the path to a directory in the \uicontrol {Staging directory} field.
     The packaging tool constructs the package from the contents of the
     directory.

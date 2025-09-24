@@ -55,8 +55,8 @@
     create the necessary files and to bundle them into an APK. For more
     information, see \l{Android Package Templates}.
 
-    To view the packages that the \c androiddeployqt tool created, select the
-    \uicontrol {Open package location after build} check box.
+    To view the packages that the \c androiddeployqt tool created, select
+    \uicontrol {Open package location after build}.
 
     \section2 Specifying Deployment Settings
 
@@ -97,8 +97,8 @@
     information about the available options, see \l{androiddeployqt}.
 
     You can view information about what the \c androiddeployqt tool is doing in
-    \l {Compile Output}. To view more information, select the
-    \uicontrol {Verbose output} check box.
+    \l {Compile Output}. To view more information, select
+    \uicontrol {Verbose output}.
 
     Select \uicontrol {Add debug server} to include the debug server binary
     into a package.
@@ -118,7 +118,7 @@
     For testing the application locally, use the APK format because
     \QC can install and run the package on the device. For distribution
     to the Google Play store, create an AAB by selecting
-    the \uicontrol {Build Android App Bundle (*.aab)} check box.
+    \uicontrol {Build Android App Bundle (*.aab)}.
 
     When building with CMake, you can view the selected ABIs in
     \uicontrol {Initial Configuration} in the \uicontrol CMake section.
@@ -207,7 +207,7 @@
         \li In the \uicontrol {Certificate alias} field, select an alias from the list
             of key pairs that the keystore has.
 
-        \li Select the \uicontrol {Sign package} check box to use the alias to
+        \li Select \uicontrol {Sign package} to use the alias to
             sign the Android package.
 
     \endlist
@@ -463,7 +463,7 @@
     By default, drawing an activity hides the splash screen. To keep it visible until
     \l{https://doc.qt.io/qt-6/qnativeinterface-qandroidapplication.html#hideSplashScreen}
     {QNativeInterface::QAndroidApplication::hideSplashScreen()} is
-    called, select the \uicontrol {Sticky splash screen} check box.
+    called, select \uicontrol {Sticky splash screen}.
 
     In \uicontrol {Image show mode}, select whether to center the splash screen
     on the device display or scale it to fill the display.
@@ -486,8 +486,8 @@
 
     \image {qtcreator-android-manifest-editor-permissions.webp} {Permissions in Android Manifest Editor}
 
-    Select the \uicontrol {Include default permissions for Qt modules} and
-    \uicontrol {Include default features for Qt modules} check boxes to add the
+    Select \uicontrol {Include default permissions for Qt modules} and
+    \uicontrol {Include default features for Qt modules} to add the
     permissions needed by Qt libraries, such as
     \c {android.permission.ACCESS_BACKGROUND_LOCATION} for \l{Qt Positioning}.
 

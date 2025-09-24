@@ -52,5 +52,5 @@
         \li Select \uicontrol {Use jom instead of nmake}.
     \endlist
 
-    Clear the check box if builds fail.
+    Clear the checkbox if builds fail.
 */

@@ -41,7 +41,7 @@
     The \uicontrol {And Operator} component evaluates two boolean inputs.
     The output is evaluated as \c true if both inputs are \c true.
 
-    For example, we could use the checked state of two check boxes to determine
+    For example, we could use the checked state of two checkboxes to determine
     the checked state of a third one. First, we drag three instances of
     the \uicontrol {Check Box} components and one instance of the
     \uicontrol {And Operator} component to \uicontrol Navigator (1). Then, we
@@ -53,19 +53,19 @@
     menu, and then \uicontrol {Set Binding} (4) to open the
     \uicontrol {Binding Editor} (5). There we bind the value of the \c input01
     property of the AND operator to the value of the \c checked property of the
-    first check box. Then, we do the same in the \uicontrol {Input 02} field,
+    first checkbox. Then, we do the same in the \uicontrol {Input 02} field,
     where we bind the \c input02 property to the \c checked property of the
-    second check box.
+    second checkbox.
 
     \image studio-logic-helper-and.png "AND operator properties"
 
-    Finally, we select the third check box and bind its \uicontrol Checked
+    Finally, we select the third checkbox and bind its \uicontrol Checked
     property to the \uicontrol Output property of the AND operator.
 
     \image studio-logic-helper-and-checkbox3.png "Binding Checked property to Output property."
 
-    When we \l{Previewing on desktop}{preview} our UI, all the check boxes are
-    initially unchecked. However, when we select the first and second check box,
+    When we \l{Previewing on desktop}{preview} our UI, all the checkboxes are
+    initially unchecked. However, when we select the first and second checkbox,
     the third one also becomes checked.
 
     \image studio-logic-helper-and-operator.gif "Previewing AND operator"
@@ -80,27 +80,27 @@
     The \uicontrol {Not Operator} component is evaluated to \c true if the
     condition is not met.
 
-    For example, we could specify that if one check box is checked, another
+    For example, we could specify that if one checkbox is checked, another
     one cannot be checked. First, we drag two instances of the
     \uicontrol {Check Box} component and one instance of the
     \uicontrol {Not Operator} component to \uicontrol Navigator. Then, we select
     the \uicontrol {Not Operator} component instance and set its properties in
     \uicontrol Properties. In the \uicontrol {Binding Editor}, we bind the
     value of the \c input property of the NOT operator to the value of the
-    \c checked property of one check box instance.
+    \c checked property of one checkbox instance.
 
     \image studio-logic-helper-not.png "NOT operator properties"
 
-    We then select the other check box instance and bind the value of its
+    We then select the other checkbox instance and bind the value of its
     \uicontrol Checked field to the value of \uicontrol Output
     field of the \uicontrol {Not Operator} component.
 
-    \image studio-logic-helper-not-check-box.png "Check box checked property bound to NOT operator output"
+    \image studio-logic-helper-not-check-box.png "Checkbox checked property bound to NOT operator output"
 
-    When we preview our UI, the second check box is initially selected. However,
-    when we select the first check box, the second one is automatically cleared.
+    When we preview our UI, the second checkbox is initially selected. However,
+    when we select the first checkbox, the second one is automatically cleared.
 
-    \image studio-logic-helper-not-operator.gif "Previewing two check boxes bound with a NOT operator"
+    \image studio-logic-helper-not-operator.gif "Previewing two checkboxes bound with a NOT operator"
 
     \section1 Bi-Directional Binding
 
@@ -196,7 +196,7 @@
     \image studio-logic-helper-minmax-mapper.gif "Previewing a minimum-maximum mapper"
 
     The \uicontrol {Out of range}, \uicontrol {Above max} and
-    \uicontrol {Below min} check boxes are set to \c true if
+    \uicontrol {Below min} checkboxes are set to \c true if
     the value of the \uicontrol Input field is out of range.
 
     For example, in the context of speed, \uicontrol {Above max} being

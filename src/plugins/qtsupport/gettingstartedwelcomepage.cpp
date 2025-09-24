@@ -175,10 +175,23 @@ static FilePath copyToAlternativeLocation(const FilePath &proFile,
     return {};
 }
 
+static QUrl exampleItemUrl(const ExampleItem &item)
+{
+    // The following is more like a hack for qtcreator_tutorials.xml,
+    // to support multiple Qt versions. See QTCREATORBUG-32772
+    const QStringList identifiers = item.metaData.value("keyword");
+    for (const QString &identifier : identifiers) {
+        const QMultiMap<QString, QUrl> links = HelpManager::linksForIdentifier(identifier);
+        if (!links.isEmpty())
+            return links.first();
+    }
+    return QUrl::fromUserInput(item.docUrl);
+}
+
 void openExampleProject(const ExampleItem &item)
 {
     using namespace ProjectExplorer;
-    const auto docUrl = QUrl::fromUserInput(item.docUrl);
+    const auto docUrl = exampleItemUrl(item);
     FilePath proFile = item.projectPath;
     if (proFile.isEmpty())
         return;
@@ -247,17 +260,7 @@ protected:
         } else if (exampleItem->hasSourceCode) {
             openExampleProject(*exampleItem);
         } else {
-            auto docUrl = QUrl::fromUserInput(exampleItem->docUrl);
-            // The following is more like a hack for qtcreator_tutorials.xml,
-            // to support multiple Qt versions. See QTCREATORBUG-32772
-            const QStringList identifiers = exampleItem->metaData.value("keyword");
-            if (!identifiers.isEmpty()) {
-                const QMultiMap<QString, QUrl> links = HelpManager::linksForIdentifier(
-                    identifiers.constFirst());
-                if (!links.isEmpty())
-                    docUrl = links.first();
-            }
-            HelpManager::showHelpUrl(docUrl, HelpManager::ExternalHelpAlways);
+            HelpManager::showHelpUrl(exampleItemUrl(*exampleItem), HelpManager::ExternalHelpAlways);
         }
     }
 

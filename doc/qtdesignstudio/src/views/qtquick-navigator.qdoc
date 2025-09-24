@@ -46,8 +46,8 @@
     specific parts of the application, select \imageeyeopen and
     \imagevisibilityoff in \uicontrol Navigator.
 
-    To change the visibility of a component in the application code, select the
-    \uicontrol Visibility check box in the \uicontrol Properties view or select
+    To change the visibility of a component in the application code, select
+    \uicontrol Visibility in the \uicontrol Properties view or select
     \uicontrol Visibility in the context menu.
 
     You can also set the \uicontrol Opacity field to 0 in \uicontrol Properties

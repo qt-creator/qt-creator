@@ -108,9 +108,8 @@
         \li Close all files in a project.
         \li Close the selected project or all projects except the selected
             one. By default, this closes all files in the projects. To keep
-            them open, clear the \preferences > \uicontrol {Build & Run} >
-            \uicontrol General > \uicontrol {Close source files along with project}
-            check box.
+            them open, go to \preferences > \uicontrol {Build & Run} >
+            \uicontrol General, and clear \uicontrol {Close source files along with project}.
     \endlist
 
     For managing files and directories, use the same functions as in

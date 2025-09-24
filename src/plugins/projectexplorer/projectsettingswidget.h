@@ -26,7 +26,7 @@ public:
 
     void setExpanding(bool expanding);
 
-    void addToLayout(QBoxLayout *layout);
+    void addGlobalOrProjectSelectorToLayout(QBoxLayout *layout);
 
 protected:
     void setUseGlobalSettingsCheckBoxVisible(bool visible);

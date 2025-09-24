@@ -2187,8 +2187,10 @@ FilePath FilePath::pathAppended(const QString &path) const
     QString other = path;
     other.replace('\\', '/');
 
+    // FIXME: This should possibly be a QTC_UNEXPECTED later
+    // but triggers too often currently.
     if (isEmpty())
-        return FilePath::fromString(other);
+        return withNewPath(other);
 
     QString p = this->path();
     join(p, other);
@@ -2494,10 +2496,13 @@ FilePath FilePath::resolveSymlinks() const
     int links = 16;
     while (links--) {
         const QList<QStringView> components = current.pathComponents();
-        FilePath pathToTest = current.withNewPath("");
+        FilePath pathToTest;
         bool resolved = false;
-        for (const QStringView &path : components) {
-            pathToTest = pathToTest / path.toString();
+        for (const QStringView &component : components) {
+            if (pathToTest.isEmpty())
+                pathToTest = current.withNewPath(component.toString());
+            else
+                pathToTest = pathToTest / component.toString();
             if (!resolved) {
                 const FilePath target = pathToTest.symLinkTarget();
                 if (!target.isEmpty()) {

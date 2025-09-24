@@ -56,11 +56,11 @@
     Unified Change Management (UCM) view, they are added to the change set of
     a UCM activity. By default, the activities are automatically assigned names.
     To disable this functionality, select \preferences >
-    \uicontrol {Version Control} > \uicontrol ClearCase, and then clear the
-    \uicontrol {Auto assign activity names} check box.
+    \uicontrol {Version Control} > \uicontrol ClearCase, and then clear
+    \uicontrol {Auto assign activity names}.
 
-    To automatically check out files when you edit them, select the
-    \uicontrol {Automatically check out files on edit} check box.
+    To automatically check out files when you edit them, select
+    \uicontrol {Automatically check out files on edit}.
 
     To cancel the checkout for a file and delete the checked-out version,
     select \uicontrol Tools > \uicontrol ClearCase >
@@ -75,12 +75,12 @@
     \uicontrol {ClearCase} > \uicontrol {Check In}. To confirm
     that you want to check in the files, select \preferences >
     \uicontrol {Version Control} > \uicontrol ClearCase,
-    and then select the \uicontrol {Prompt on check-in} check box.
+    and then select \uicontrol {Prompt on check-in}.
 
     By default, you have to enter a comment when checking files out or in.
     To suppress this prompt, select \preferences > \uicontrol {Version Control} >
-    \uicontrol ClearCase, and then select the
-    \uicontrol {Do not prompt for comment during checkout or check-in} check box.
+    \uicontrol ClearCase, and then select
+    \uicontrol {Do not prompt for comment during checkout or check-in}.
 
     If you change the read-only attribute of a file that is loaded into a
     snapshot view and modify the file without checking it out, you \e hijack the
@@ -89,8 +89,8 @@
 
     By default, the files in the VOBs are indexed for quick access to their
     statuses. To disable indexing, select \preferences >
-    \uicontrol {Version Control} > \uicontrol ClearCase, and then select the
-    \uicontrol {Disable indexer} check box. To only have some VOBs indexed,
+    \uicontrol {Version Control} > \uicontrol ClearCase, and then select
+    \uicontrol {Disable indexer}. To only have some VOBs indexed,
     specify them in the \uicontrol {Index only VOBs} field.
 
     Specify the number of event records to show in \uicontrol {History count}.

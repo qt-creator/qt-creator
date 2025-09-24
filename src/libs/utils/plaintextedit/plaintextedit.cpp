@@ -85,6 +85,7 @@ public:
     int vScrollbarValueForLine(int topLine);
     int topLineForVScrollbarValue(int scrollbarValue);
     void adjustScrollbars();
+    void adjustScrollbarsNow();
     void verticalScrollbarActionTriggered(int action);
     void ensureViewportLayouted();
     void relayoutDocument();
@@ -134,6 +135,7 @@ public:
     void updateViewport();
 
     TextEditorLayout *editorLayout = nullptr;
+    bool adjustScrollBarsScheduled = false;
 
     void append(const QString &text, Qt::TextFormat format = Qt::AutoText);
 
@@ -1104,6 +1106,15 @@ int PlainTextEditPrivate::topLineForVScrollbarValue(int scrollbarValue)
 
 void PlainTextEditPrivate::adjustScrollbars()
 {
+    if (adjustScrollBarsScheduled)
+        return;
+    adjustScrollBarsScheduled = true;
+    QMetaObject::invokeMethod(this, [this] { adjustScrollbarsNow(); }, Qt::QueuedConnection);
+}
+
+void PlainTextEditPrivate::adjustScrollbarsNow()
+{
+    adjustScrollBarsScheduled = false;
     QTextDocument *doc = control->document();
     bool documentSizeChangedBlocked = static_cast<PlainTextDocumentLayout *>(editorLayout)->d->blockDocumentSizeChanged;
     static_cast<PlainTextDocumentLayout *>(editorLayout)->d->blockDocumentSizeChanged = true;
@@ -2342,7 +2353,7 @@ void PlainTextEdit::showEvent(QShowEvent *)
         d->showCursorOnInitialShow = false;
         ensureCursorVisible();
     }
-    d->adjustScrollbars();
+    d->adjustScrollbarsNow();
 }
 
 void PlainTextEdit::changeEvent(QEvent *e)
@@ -2811,7 +2822,7 @@ void PlainTextEdit::setLineWrapMode(LineWrapMode wrap)
     d->lineWrap = wrap;
     d->updateDefaultTextOption();
     d->relayoutDocument();
-    d->adjustScrollbars();
+    d->adjustScrollbarsNow();
     ensureCursorVisible();
 }
 
@@ -2891,7 +2902,7 @@ void PlainTextEdit::setCenterOnScroll(bool enabled)
     if (enabled == d->centerOnScroll)
         return;
     d->centerOnScroll = enabled;
-    d->adjustScrollbars();
+    d->adjustScrollbarsNow();
 }
 
 
@@ -3054,7 +3065,7 @@ void PlainTextEditPrivate::append(const QString &text, Qt::TextFormat format)
     }
 
     static_cast<PlainTextDocumentLayout *>(editorLayout)->d->blockDocumentSizeChanged = documentSizeChangedBlocked;
-    adjustScrollbars();
+    adjustScrollbarsNow();
 
 
     if (atBottom) {

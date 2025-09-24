@@ -151,7 +151,7 @@ public:
 
     FilePath filePath() const { return m_filePath; }
     bool hasError() const { return !m_result; }
-    QString errorString() const { return m_result.error(); }
+    QString errorString() const { return m_result ? QString() : m_result.error(); }
     virtual Utils::Result<> finalize();
 
     bool write(QByteArrayView bytes);

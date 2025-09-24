@@ -121,8 +121,8 @@
 
     Memcheck also reports uses of uninitialised values, most commonly with the
     message \uicontrol {Conditional jump or move depends on uninitialised value(s).}
-    To determine the root cause of these errors, the \uicontrol {Track origins of
-    uninitialized memory} check box is selected by default. You can clear it
+    To determine the root cause of these errors, Memcheck tracks origins of
+    uninitialized memory. Clear \uicontrol {Track origins of uninitialized memory}
     to make Memcheck run faster.
 
     \section1 Viewing a Summary
@@ -141,7 +141,7 @@
     root node are indirectly lost.
 
     By default, Memcheck does not report reachable and indirectly lost blocks.
-    To have them reported, select the \uicontrol {Show reachable and indirectly lost
+    To have them reported, select \uicontrol {Show reachable and indirectly lost
     blocks}.
 
     \section1 Suppressing Errors
@@ -336,7 +336,7 @@
     \section1 Enabling Full Cache Simulation
 
     By default, only instruction read accesses (Ir) are counted. To fully
-    simulate the cache, select the \uicontrol {Enable cache simulation} check box.
+    simulate the cache, select \uicontrol {Enable cache simulation}.
     This enables the following additional event counters:
 
     \list
@@ -351,8 +351,8 @@
 
     \section1 Enabling Branch Prediction Simulation
 
-    To enable the following additional event counters, select the
-    \uicontrol {Enable branch prediction simulation} check box:
+    To enable the following additional event counters, select
+    \uicontrol {Enable branch prediction simulation}:
 
     \list
 

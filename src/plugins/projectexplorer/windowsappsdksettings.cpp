@@ -71,7 +71,6 @@ WindowsAppSdkSettings::WindowsAppSdkSettings()
     if (downloadLocation().isEmpty()) {
         QString path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)
                        + QStringLiteral("/WindowsAppSDK");
-        QDir().mkpath(path);
         downloadLocation.setValue(path);
     }
 
@@ -410,6 +409,13 @@ void WindowsSettingsWidget::downloadNuget()
         return;
     }
 
+    if (!m_winAppSdkSummary->rowsOk({DownloadPathExistsRow}) &&
+        !downloadPath.isEmpty()) {
+        downloadPath.ensureWritableDir();
+        m_downloadPathChooser->triggerChanged();
+        validateDownloadPath();
+    }
+
     if (!m_winAppSdkSummary->rowsOk({DownloadPathExistsRow})) {
         QMessageBox::information(this, nugetDownloadingTitle,
                                  Tr::tr("Download path is not configured."));
@@ -431,6 +437,13 @@ void WindowsSettingsWidget::downloadWindowsAppSdk()
         QMessageBox::information(this, winAppSdkDownloadTitle,
             Tr::tr("Windows App SDK is already configured."));
         return;
+    }
+
+    if (!m_winAppSdkSummary->rowsOk({DownloadPathExistsRow}) &&
+        !downloadPath.isEmpty()) {
+        downloadPath.ensureWritableDir();
+        m_downloadPathChooser->triggerChanged();
+        validateDownloadPath();
     }
 
     if (!m_winAppSdkSummary->rowsOk({DownloadPathExistsRow})) {

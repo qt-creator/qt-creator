@@ -120,7 +120,6 @@
     the \uicontrol {Inner tessellation} field.
 
     To display a wireframe that highlights the additional geometry created by
-    the tessellation generator, select the \uicontrol {Enable wireframe mode}
-    check box.
+    the tessellation generator, select \uicontrol {Enable wireframe mode}.
 
 */

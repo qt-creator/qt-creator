@@ -120,7 +120,7 @@
             they can enter in the field, such as a name or a path, unless it is
             obvious from the context. Use a noun phrase, such as \e {The name of
             the user account.} Describe limitations and special requirements.
-        \li For actions, such as most check boxes, radio buttons, push buttons,
+        \li For actions, such as most checkboxes, radio buttons, push buttons,
             and menu items, describe what happens when users select them. Use a
             verb phrase, such as \e {Removes trailing whitespace upon saving.}
         \li For combo boxes, describe when to pick each option.
@@ -145,7 +145,7 @@
     \row
         \li Check box - \uicontrol {Clean whitespace}
         \li Removes trailing whitespace upon saving.
-        \li Select this check box to remove trailing whitespace upon saving.
+        \li Select this checkbox to remove trailing whitespace upon saving.
     \row
         \li Combo box - \uicontrol Size
         \li The font size used in the terminal (in points).

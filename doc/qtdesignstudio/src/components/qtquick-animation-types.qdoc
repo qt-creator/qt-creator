@@ -98,8 +98,8 @@
 
     \image qtquick-properties-animation.png "Animation properties"
 
-    To run animations automatically, select the \uicontrol Running
-    check box. Animations are run for the time you specify in the
+    To run animations automatically, select \uicontrol Running.
+    Animations are run for the time you specify in the
     \uicontrol Duration field.
 
     You can connect the running property of an animation to a signal emitted
@@ -111,7 +111,7 @@
     the animation continuously repeat until it is explicitly stopped.
 
     To specify that animations should run to completion when they are stopped,
-    select the \uicontrol {Run to end} check box. This behavior is most useful
+    select \uicontrol {Run to end}. This behavior is most useful
     when the \uicontrol Loops property is set, as the animation will finish
     playing normally but not restart.
 
@@ -120,8 +120,8 @@
     \uicontrol {Sequential Animation} component for managing them as a
     group.
 
-    To pause animations, select the \imagepauseicon
-    (\uicontrol Paused) check box.
+    To pause animations, select \imagepauseicon
+    (\uicontrol Paused).
 
     To attach an \l{Editing easing curves}{easing curve} to
     the animation, select the \imagecurveeditor
@@ -151,8 +151,8 @@
     When used in a \uicontrol {Sequential Animation}, a
     \uicontrol {Pause Animation} is a step when nothing
     happens, for a specified duration. To specify a pause
-    between two animations, select the \uicontrol Paused
-    check box and specify the duration of the pause in the
+    between two animations, select \uicontrol Paused
+    and specify the duration of the pause in the
     \uicontrol Duration field.
 
     \section1 Performance considerations

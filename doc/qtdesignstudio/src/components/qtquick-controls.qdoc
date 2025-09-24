@@ -38,12 +38,12 @@
 
     \image {qtquick-designer-control-properties.png} {The Control section in the Properties view.}
 
-    The \uicontrol Enable check box indicates whether the control is enabled.
+    The \uicontrol Enable checkbox indicates whether the control is enabled.
 
     The value of the \uicontrol {Focus policy} field determines whether the
     control accepts focus by tabbing, clicking, and using the mouse wheel.
 
-    Select the \uicontrol Hover and \uicontrol Wheel check boxes to enable the
+    Select \uicontrol Hover and \uicontrol Wheel to enable the
     control to accept mouse events. The hover value is propagated to all child
     components, unless it has been explicitly set for them.
 
@@ -111,7 +111,7 @@
 
     \section3 Highlighted buttons
 
-    Select the \uicontrol Highlight check box in the \uicontrol Button section
+    Select \uicontrol Highlight in the \uicontrol Button section
     to draw the users' attention towards a button. Highlighting a button has no
     effect on keyboard interaction.
 
@@ -124,7 +124,7 @@
     \section3 Flat buttons
 
     A flat button typically does not draw a background unless it is pressed or
-    selected. To create a flat button, select the \uicontrol Flat check box in
+    selected. To create a flat button, select \uicontrol Flat in
     the \uicontrol Button section.
 
     The following image shows an example of a flat button:
@@ -156,15 +156,15 @@
     \uicontrol {Qt Quick Controls} > \uicontrol Controls >
     \uicontrol {Check Box}:
 
-    \image qtquickcontrols2-checkbox.gif "Check boxes"
+    \image qtquickcontrols2-checkbox.gif "Checkboxes"
 
     Alternatively, you can use a wizard to create \l{Creating Custom Controls}
-    {custom check boxes}:
+    {custom checkboxes}:
 
-    \image studio-custom-check-box.gif "Custom check boxes"
+    \image studio-custom-check-box.gif "Custom checkboxes"
 
-    A check box presents an option button that can be toggled on
-    (checked) or off (unchecked). Check boxes are typically used to select
+    A checkbox presents an option button that can be toggled on
+    (checked) or off (unchecked). Checkboxes are typically used to select
     one or more options from a set of options. For larger sets of options,
     such as those in a list, consider creating an instance of the
     \uicontrol {Check Delegate} control instead.
@@ -172,43 +172,43 @@
     \image qtquickcontrols2-checkdelegate.gif "Check delegate"
 
     A delegate can be highlighted in order to draw the user's attention towards
-    it. Highlighting has no effect on keyboard interaction. Select the
-    \uicontrol Highlight check box in the \uicontrol {Item Delegate} section to
+    it. Highlighting has no effect on keyboard interaction. Select
+    \uicontrol Highlight in the \uicontrol {Item Delegate} section to
     highlight the delegate.
 
-    Use check boxes to build multi-selection option lists where any number
+    Use checkboxes to build multi-selection option lists where any number
     of options can be selected, including none, but the options are not
     mutually exclusive.
 
-    Use a single check box for a yes/no choice, such as when users have to
+    Use a single checkbox for a yes/no choice, such as when users have to
     accept the terms of service agreement in a dialog. For a single yes/no
     choice, you can also use a \l Switch. If users are choosing between options,
-    use a check box. If they are choosing between actions to be taken, a switch
+    use a checkbox. If they are choosing between actions to be taken, a switch
     is recommended.
 
-    The value of the \uicontrol Checked check box in the
+    The value of \uicontrol Checked in the
     \uicontrol {Button Content} section determines the state of the
-    check box. However, in addition to the checked and unchecked states, a
-    check box has a third state: \e {partially checked}.
+    checkbox. However, in addition to the checked and unchecked states, a
+    checkbox has a third state: \e {partially checked}.
 
     \image qtquick-properties-check-box.png "Check Box properties"
 
-    Select the \uicontrol Tri-state check box in the \uicontrol {Check Box}
-    section to enable the check box to cycle between checked, partially
+    Select \uicontrol Tri-state in the \uicontrol {Check Box}
+    section to enable the checkbox to cycle between checked, partially
     checked, and unchecked states when users toggle it by using touch, mouse,
     or keyboard.
 
-    \image qtquickcontrols2-checkbox-tristate.gif "Tri-state check box"
+    \image qtquickcontrols2-checkbox-tristate.gif "Tri-state checkbox"
 
-    When options can be grouped, you can use a partially checked check box to
+    When options can be grouped, you can use a partially checked checkbox to
     represent the whole group. Select \uicontrol PartiallyChecked in the
     \uicontrol {Check state} field to indicate that users selected some
     sub-components in the group but not all of them.
 
     The checkable options are often listed vertically.
 
-    The check box label should be a statement that the check mark makes true
-    and that the absence of a check mark makes false. Therefore, the check box
+    The checkbox label should be a statement that the check mark makes true
+    and that the absence of a check mark makes false. Therefore, the checkbox
     label should not contain a negative statement.
 
     \section2 Radio Button
@@ -228,7 +228,7 @@
 
     \image qtquickcontrols2-radiodelegate.gif "Radio delegate"
 
-    Select the \uicontrol Highlight check box in the \uicontrol {Radio Delegate}
+    Select \uicontrol Highlight in the \uicontrol {Radio Delegate}
     section to highlight the delegate.
 
     Recommendations for radio buttons:
@@ -261,7 +261,7 @@
 
     \image qtquickcontrols2-switchdelegate.gif "Switch delegate"
 
-    Select the \uicontrol Highlight check box in the \uicontrol {Item Delegate}
+    Select \uicontrol Highlight in the \uicontrol {Item Delegate}
     section to highlight the delegate.
 
     Use a switch for binary operations that take effect immediately after the
@@ -300,8 +300,8 @@
 
     A \e checkable button toggles between checked (on) and unchecked (off) when
     users select it or the space bar while the button has active
-    focus. Select the \uicontrol Checkable check box to make a button checkable.
-    To make the button checked, select the \uicontrol Checked check box.
+    focus. Select \uicontrol Checkable to make a button checkable.
+    To make the button checked, select \uicontrol Checked.
 
     Buttons that belong to the same parent component can be mutually exclusive.
     Users can select a button to check it, and the previous selection is
@@ -310,8 +310,7 @@
     checked button for that group.
 
     Radio buttons and tab buttons are mutually exclusive by default. To make
-    other types of buttons mutually exclusive, select the \uicontrol Exclusive
-    check box.
+    other types of buttons mutually exclusive, select \uicontrol Exclusive.
 
     If the buttons don't belong to the same parent, checking and unchecking
     buttons does not affect the other buttons in the group.
@@ -324,7 +323,7 @@
     \c canceled(), \c doubleClicked(), \c pressed(), \c released(), and
     \c pressAndHold() for long presses.
 
-    Select the \uicontrol Auto-repeat check box to repeat the \c pressed(),
+    Select \uicontrol Auto-repeat to repeat the \c pressed(),
     \c released(), and \c clicked() signals while the button is pressed and
     held down. The \c pressAndHold() signal will not be emitted.
 
@@ -350,11 +349,11 @@
     can be determined). Due to the visual difference, busy indicators and
     indeterminate progress bars fit in different places in UIs.
 
-    Select the \uicontrol Running check box to make the busy indicator visible.
+    Select \uicontrol Running to make the busy indicator visible.
 
     \image qtquick-properties-busy-indicator.png "Busy Indicator properties"
 
-    Select the \uicontrol Live check box to provide live updates of the
+    Select \uicontrol Live to provide live updates of the
     progress.
 
     Typical places for a busy indicator are:
@@ -374,7 +373,7 @@
 
     \image qtquick-properties-page-indicator.png "Page Indicator properties"
 
-    Select the \uicontrol Interactive check box to determine that the page
+    Select \uicontrol Interactive to determine that the page
     indicator reacts to presses and automatically changes the value of the
     \uicontrol Current field accordingly.
 
@@ -396,7 +395,7 @@
 
     \image {qtquick-designer-progressbar-properties.png} {The Progress Bar section in the Properties view.}
 
-    Select the \uicontrol Indeterminate check box when unable to determine the
+    Select \uicontrol Indeterminate when unable to determine the
     size of the item being downloaded, or if the download progress might get
     interrupted due to a network failure.
 
@@ -462,7 +461,7 @@
     slider or dial. Set the value of the slide handle or dial in the
     \uicontrol Value field. For a range slider, set the initial positions
     of the first and second handles in the \uicontrol {Value 1} and
-    \uicontrol {Value 2} fields. Select the \uicontrol Live check box to
+    \uicontrol {Value 2} fields. Select \uicontrol Live to
     provide live updates of the value properties.
 
     \image qtquick-designer-range-slider-properties.png "Range slider properties"
@@ -509,7 +508,7 @@
 
     A spin box enables users to choose an integer value by clicking
     the up or down indicator buttons, or by pressing up or down on the keyboard.
-    Select the \uicontrol Editable check box to enable users to enter a text
+    Select \uicontrol Editable to enable users to enter a text
     value in the input field.
 
     The other spin box properties are similar to those of a \uicontrol {Dial}.
@@ -529,7 +528,7 @@
     {data model}. The data model is usually a JavaScript array, a \l ListModel,
     or an integer, but other types of data models are also supported.
 
-    Select the \uicontrol Editable check box to auto-complete combo box text
+    Select \uicontrol Editable to auto-complete combo box text
     based on what is available in the model.
 
     \image qtquick-designer-combobox-properties.png "Combo box properties"
@@ -546,8 +545,7 @@
     A flat combo box does not draw a background unless it is
     interacted with, which makes it blend into the UI. Use flat combo
     boxes on a toolbar, for example, to match the flat look of tool
-    buttons. To create a flat combo box, select the \uicontrol Flat
-    check box.
+    buttons. To create a flat combo box, select \uicontrol Flat.
 
     Recommendations for combo boxes:
 
@@ -575,7 +573,7 @@
 
     \image {qtquick-designer-tumbler-properties.png} {The Tumbler section in the Properties view.}
 
-    To enable wrapping, select the \uicontrol Wrap check box.
+    To enable wrapping, select \uicontrol Wrap.
 
     \section1 Tab Bar
 

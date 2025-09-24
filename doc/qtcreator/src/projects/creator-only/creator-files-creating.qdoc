@@ -188,8 +188,8 @@
     Select \uicontrol Remove to remove the selected file from the resource
     collection.
 
-    In the \uicontrol {Remove File} dialog, select the
-    \uicontrol {Delete file permanently} check box to remove the file from
+    In the \uicontrol {Remove File} dialog, select
+    \uicontrol {Delete file permanently} to remove the file from
     the file system.
 
     \image {qtcreator-remove-file.webp} {Remove File dialog}

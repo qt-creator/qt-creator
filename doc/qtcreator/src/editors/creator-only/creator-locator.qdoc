@@ -52,7 +52,7 @@
             string (for example, a filename or class name) or the command to
             execute. Select \key {Tab} to complete the search string.
 
-        \li Select a locator filter in the filter list to use it. Press
+        \li Select a locator filter in the filter list to use it. Use
             the up and down arrow keys or select \key Ctrl+P and \key Ctrl+N
             to move up and down the list, and then select \key Enter to use the
             selected filter.

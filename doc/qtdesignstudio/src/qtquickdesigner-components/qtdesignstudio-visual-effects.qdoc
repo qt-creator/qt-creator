@@ -271,8 +271,7 @@
             rendering speed of the shadow might not be the highest possible.
             The rendering speed is reduced especially if the shadow edges are
             heavily softened. For use cases that require faster rendering speed
-            at the cost of high visual quality, select the \uicontrol Fast
-            check box.
+            at the cost of high visual quality, select \uicontrol Fast.
     \row
         \li \imagelevels16px
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-leveladjust.html}
@@ -331,7 +330,7 @@
             used to determine the visibility of the source component's pixels in the
             display.
 
-            Select the \uicontrol Invert check box to specify that the
+            Select \uicontrol Invert to specify that the
             resulting opacity is the source alpha multiplied with the
             inverse of the mask alpha: \c {As * (1 - Am)}. When this property
             is \c false, the resulting opacity is the source alpha multiplied

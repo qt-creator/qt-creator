@@ -235,8 +235,8 @@
     particular effects applied to them. In that case, the layers are exported
     as images.
 
-    Because MCUs only support simple images, disable the
-    \uicontrol {Export as shapes} check box when designing for MCUs.
+    Because MCUs only support simple images, disable
+    \uicontrol {Export as shapes} when designing for MCUs.
 
     The following table describes the options you have. You can combine options as necessary.
 

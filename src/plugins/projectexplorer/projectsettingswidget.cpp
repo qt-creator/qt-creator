@@ -59,7 +59,7 @@ void ProjectSettingsWidget::setExpanding(bool expanding)
     m_expanding = expanding;
 }
 
-void ProjectSettingsWidget::addToLayout(QBoxLayout *layout)
+void ProjectSettingsWidget::addGlobalOrProjectSelectorToLayout(QBoxLayout *layout)
 {
     if (!m_useGlobalSettingsCheckBoxVisibleVisible && !m_useGlobalSettingsLabelVisibleVisible)
         return;

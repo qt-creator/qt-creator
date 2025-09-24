@@ -23,7 +23,9 @@ qt_add_executable(%{TargetName}
 
 qt_add_qml_module(%{TargetName}
     URI %{ProjectName}
+@if !%{UsesAutoResourcePrefix}
     VERSION 1.0
+@endif
     QML_FILES
         Main.qml
 )

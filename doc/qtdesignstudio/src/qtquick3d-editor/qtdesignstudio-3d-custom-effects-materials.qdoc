@@ -114,10 +114,10 @@
         \li Select the \uicontrol {Custom Material} component in \uicontrol Navigator
             to adjust the values of its properties in the \uicontrol Properties view.
             \image studio-qtquick-3d-custom-material.png "Custom material properties"
-        \li Select the \uicontrol Transparency check box to make the material
+        \li Select \uicontrol Transparency to make the material
             transparent, and \uicontrol Refraction to specify that the
             material is \l{Using Highlights and Reflections}{reflective}.
-        \li Select the \uicontrol {Always dirty} check box to refresh the
+        \li Select \uicontrol {Always dirty} to refresh the
             the material every time it is used.
         \li In the \uicontrol {Shader Info} field, select the shader info
             component to use, and in the \uicontrol Passes field, select the pass

@@ -27,6 +27,7 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QFileInfo>
+#include <QHash>
 #include <QLabel>
 #include <QScrollArea>
 #include <QScrollBar>
@@ -557,22 +558,25 @@ void TargetSetupPagePrivate::import(const FilePath &path, bool silent)
     if (!importer)
         return;
 
+    QHash<TargetSetupWidget *, QList<BuildInfo>> buildInfos;
     for (const BuildInfo &info : importer->import(path, silent)) {
         TargetSetupWidget *w = widget(info.kitId);
         if (!w) {
             Kit *k = KitManager::kit(info.kitId);
-            QTC_CHECK(k);
-            addWidget(k);
+            QTC_ASSERT(k, continue);
+            w = addWidget(k);
         }
-        w = widget(info.kitId);
-        if (!w)
-            continue;
+        QTC_ASSERT(w, continue);
+        buildInfos[w] << info;
+    }
 
-        w->addBuildInfo(info, true);
-        w->setKitSelected(true);
-        w->expandWidget();
+    for (auto it = buildInfos.cbegin(); it != buildInfos.cend(); ++it) {
+        it.key()->addBuildInfos(it.value(), true);
+        it.key()->setKitSelected(true);
+        it.key()->expandWidget();
         kitSelectionChanged();
     }
+
     emit q->completeChanged();
 }
 

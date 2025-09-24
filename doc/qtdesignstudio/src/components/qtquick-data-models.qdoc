@@ -53,7 +53,7 @@
 
     \image qtquick-designer-gridview-properties.png "Grid View properties"
 
-    Select the \uicontrol {Navigation wraps} check box to specify that key
+    Select \uicontrol {Navigation wraps} to specify that key
     navigation wraps around and moves the selection to the next line or cell
     in the other end of the view when it reaches the end of the view.
 
@@ -121,7 +121,7 @@
     current item is in the middle of the view. The begin value must be less than
     the end value.
 
-    Select the \uicontrol {Follows current} check box to enable the view to
+    Select \uicontrol {Follows current} to enable the view to
     manage the highlight. The highlight is moved smoothly to follow the current
     item. Otherwise, the highlight is not moved by the view, and any movement
     must be implemented by the highlight.

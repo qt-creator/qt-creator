@@ -28,8 +28,8 @@
 
     \section1 Sort preference categories
 
-    To sort the preference categories in alphabetic order, select the
-    \uicontrol {Sort categories} check box.
+    To sort the preference categories in alphabetic order, select
+    \uicontrol {Sort categories}.
 
     \image {qtcreator-preferences-sort.webp} {Preference categories in alphabetic order}
 

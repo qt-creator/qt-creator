@@ -182,33 +182,32 @@ bool SaveFile::commit()
         }
     }
 
-    const QString backupName = finalFileName.toFSPathString() + '~';
+    const FilePath backupFile = finalFileName.stringAppended("~");
 
     // Back up current file.
     // If it's opened by another application, the lock follows the move.
     if (finalFileName.exists()) {
         // Kill old backup. Might be useful if creator crashed before removing backup.
-        QFile::remove(backupName);
-        QFile finalFile(finalFileName.toFSPathString());
-        if (!finalFile.rename(backupName)) {
+        backupFile.removeFile(); // Error uninteresting.
+        if (const Result<> res = finalFileName.renameFile(backupFile); !res) {
             m_tempFile->filePath().removeFile();
-            setErrorString(finalFile.errorString());
+            setErrorString(res.error());
             return false;
         }
     }
 
-    Result<> renameResult = m_tempFile->filePath().renameFile(finalFileName);
+    const Result<> renameResult = m_tempFile->filePath().renameFile(finalFileName);
     if (!renameResult) {
         // The case when someone else was able to create finalFileName after we've renamed it.
         // Higher level call may try to save this file again but here we do nothing and
         // return false while keeping the error string from last rename call.
         m_tempFile->filePath().removeFile();
         setErrorString(renameResult.error());
-        QFile::rename(backupName, finalFileName.toFSPathString()); // rollback to backup if possible ...
+        backupFile.renameFile(finalFileName); // rollback to backup if possible ...
         return false; // ... or keep the backup copy at least
     }
 
-    QFile::remove(backupName);
+    backupFile.removeFile();
 
     return true;
 }

@@ -67,8 +67,8 @@
     matches \c int32_t but not \c vector<int>, and \c vector matches
     \c {std::pmr::vector<int>} but not \c {std::optional<vector<int>>}.
 
-    To return non-trivial objects by using a \c const reference, select the
-    \uicontrol {Return non-value types by const reference} check box.
+    To return non-trivial objects by using a \c const reference, select
+    \uicontrol {Return non-value types by const reference}.
 
     \sa {Apply quick fixes}, {Find symbols}, {Rename symbols},
     {Specify settings for quick fixes}, {C++ Quick Fixes}, {QML Quick Fixes}

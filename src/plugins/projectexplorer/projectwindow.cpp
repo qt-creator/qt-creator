@@ -85,7 +85,7 @@ const int CONTENTS_MARGIN = 5;
 const int BELOW_CONTENTS_MARGIN = 16;
 const int PanelVMargin = 14;
 
-class ProjectPanel final : public QScrollArea
+class ProjectPanel : public QScrollArea
 {
 public:
     explicit ProjectPanel(QWidget *inner)
@@ -96,23 +96,12 @@ public:
         setWidgetResizable(true);
         setFocusPolicy(Qt::NoFocus);
 
-        inner->setContentsMargins(0, CONTENTS_MARGIN, 0, BELOW_CONTENTS_MARGIN);
+        inner->setContentsMargins(PanelVMargin, CONTENTS_MARGIN, PanelVMargin, BELOW_CONTENTS_MARGIN);
 
-        auto root = new QWidget;
-        root->setFocusPolicy(Qt::NoFocus);
-        root->setContentsMargins(0, 0, 0, 0);
-        setWidget(root);
-
-        auto layout = new QVBoxLayout(root);
-        layout->setContentsMargins(PanelVMargin, 0, PanelVMargin, 0);
-        layout->setSpacing(0);
-
-        if (auto widget = dynamic_cast<ProjectSettingsWidget *>(inner))
-            widget->addToLayout(layout);
-
-        layout->addWidget(inner);
-        //layout->addWidget(new FindToolBarPlaceHolder(this));
+        setWidget(inner);
     }
+
+    virtual void ensureSetup() {}
 };
 
 class BuildSystemOutputWindow : public OutputWindow
@@ -328,6 +317,7 @@ public:
 //
 
 class TargetItem;
+class TargetSetupPagePanel;
 
 class TargetGroupItem final : public ProjectItemBase
 {
@@ -352,7 +342,7 @@ private:
     const QPointer<Project> m_project;
     bool m_rebuildScheduled = false;
 
-    mutable QPointer<QWidget> m_targetSetupPage;
+    mutable QPointer<TargetSetupPagePanel> m_targetSetupPanel;
     QObject m_guard;
 };
 
@@ -718,14 +708,51 @@ private:
     QObject m_guard;
 };
 
-class TargetSetupPageWrapper : public QWidget
+class TargetSetupPageWrapper final : public QWidget
 {
 public:
-    explicit TargetSetupPageWrapper(Project *project);
-
-    ~TargetSetupPageWrapper()
+    explicit TargetSetupPageWrapper(Project *project)
+        : m_project(project)
     {
-        QTC_CHECK(m_targetSetupPage);
+        setWindowTitle(Tr::tr("Configure Project"));
+
+        m_configureButton = new QPushButton(Tr::tr("&Configure Project"), this);
+
+        m_setupPageContainer = new QVBoxLayout;
+
+        auto hbox = new QHBoxLayout;
+        hbox->addStretch();
+        hbox->addWidget(m_configureButton);
+
+        auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addLayout(m_setupPageContainer);
+        layout->addLayout(hbox);
+
+        connect(m_configureButton, &QAbstractButton::clicked,
+                this, &TargetSetupPageWrapper::done);
+    }
+
+    void ensureSetup()
+    {
+        if (m_targetSetupPage)
+            return;
+
+        m_targetSetupPage = new TargetSetupPage(this);
+        m_targetSetupPage->setProjectAndPath(m_project, m_project->projectFilePath());
+        m_targetSetupPage->setTasksGenerator([this](const Kit *k) {
+            QTC_ASSERT(m_project.get(), return Tasks());
+            return m_project->projectIssues(k);
+        });
+        m_targetSetupPage->setProjectImporter(m_project->projectImporter());
+        m_targetSetupPage->initializePage();
+        m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+        m_setupPageContainer->addWidget(m_targetSetupPage);
+
+        onCompleteChanged();
+
+        connect(m_targetSetupPage, &QWizardPage::completeChanged,
+                this, &TargetSetupPageWrapper::onCompleteChanged);
     }
 
 protected:
@@ -753,14 +780,14 @@ private:
     {
         QTC_ASSERT(m_targetSetupPage, return);
         disconnect(m_targetSetupPage, &QWizardPage::completeChanged,
-                   this, &TargetSetupPageWrapper::completeChanged);
+                   this, &TargetSetupPageWrapper::onCompleteChanged);
         m_targetSetupPage->setupProject(m_project);
         m_targetSetupPage->deleteLater();
         m_targetSetupPage = nullptr;
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
     }
 
-    void completeChanged()
+    void onCompleteChanged()
     {
         m_configureButton->setEnabled(m_targetSetupPage && m_targetSetupPage->isComplete());
     }
@@ -770,47 +797,6 @@ private:
     QPushButton *m_configureButton = nullptr;
     QVBoxLayout *m_setupPageContainer = nullptr;
 };
-
-TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
-    : m_project(project)
-{
-    setWindowTitle(Tr::tr("Configure Project"));
-
-    auto box = new QDialogButtonBox(this);
-
-    m_configureButton = new QPushButton(this);
-    m_configureButton->setText(Tr::tr("&Configure Project"));
-    box->addButton(m_configureButton, QDialogButtonBox::AcceptRole);
-
-    auto hbox = new QHBoxLayout;
-    hbox->addStretch();
-    hbox->addWidget(box);
-
-    auto layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    m_setupPageContainer = new QVBoxLayout;
-    layout->addLayout(m_setupPageContainer);
-    layout->addLayout(hbox);
-
-    m_targetSetupPage = new TargetSetupPage(this);
-    m_targetSetupPage->setProjectAndPath(m_project, m_project->projectFilePath());
-    m_targetSetupPage->setTasksGenerator([this](const Kit *k) {
-        QTC_ASSERT(m_project.get(), return Tasks());
-        return m_project->projectIssues(k);
-    });
-    m_targetSetupPage->setProjectImporter(m_project->projectImporter());
-    m_targetSetupPage->initializePage();
-    m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    m_setupPageContainer->addWidget(m_targetSetupPage);
-
-    completeChanged();
-
-    connect(m_configureButton, &QAbstractButton::clicked,
-            this, &TargetSetupPageWrapper::done);
-
-    connect(m_targetSetupPage, &QWizardPage::completeChanged,
-            this, &TargetSetupPageWrapper::completeChanged);
-}
 
 //
 // Third level: The per-kit entries
@@ -1091,6 +1077,23 @@ public:
     QMetaObject::Connection m_targetRemovedConnection;
 };
 
+class TargetSetupPagePanel final : public ProjectPanel
+{
+public:
+    TargetSetupPagePanel(TargetSetupPageWrapper *wrapper)
+        : ProjectPanel(wrapper), m_targetSetupPageWrapper(wrapper)
+    {}
+
+    void ensureSetup() final
+    {
+        QTC_ASSERT(m_targetSetupPageWrapper, return);
+        m_targetSetupPageWrapper->ensureSetup();
+    }
+
+private:
+    QPointer<TargetSetupPageWrapper> m_targetSetupPageWrapper;
+};
+
 //
 // Also third level:
 //
@@ -1123,7 +1126,7 @@ TargetGroupItem::TargetGroupItem(Project *project)
 
 TargetGroupItem::~TargetGroupItem()
 {
-    delete m_targetSetupPage;
+    delete m_targetSetupPanel;
 }
 
 ProjectItemBase *TargetGroupItem::activeItem()
@@ -1135,10 +1138,12 @@ ProjectItemBase *TargetGroupItem::activeItem()
 
 ProjectPanels TargetGroupItem::panelWidgets() const
 {
-    if (!m_targetSetupPage)
-        m_targetSetupPage = new ProjectPanel(new TargetSetupPageWrapper(m_project));
+    if (!m_targetSetupPanel)
+        m_targetSetupPanel = new TargetSetupPagePanel(new TargetSetupPageWrapper(m_project));
 
-    return {m_targetSetupPage.get()};
+    m_targetSetupPanel->ensureSetup();
+
+    return {m_targetSetupPanel.get()};
 }
 
 void TargetGroupItem::itemActivatedFromBelow(const ProjectItemBase *)

@@ -137,6 +137,13 @@ class FileWatchers : public QObject
 {
     Q_OBJECT
 public:
+    FileWatchers()
+    {
+        connect(&m_localWatcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path) {
+            emit fileChanged(FilePath::fromString(path));
+        });
+    }
+
     FilePaths files() const { return watchers.keys(); }
 
     bool addPath(const FilePath &path)
@@ -160,15 +167,29 @@ public:
 
     void addPaths(const FilePaths &paths)
     {
-        for (const FilePath &path : paths)
-            addPath(path);
+        // TODO This handles local paths separately for efficiency:
+        // Calling QFileSystemWatcher::addPath for each individual file is a lot less
+        // efficient than calling QFileSystemWatcher::addPaths once (1000ms vs 33ms less efficient
+        // for Qt Creator sources).
+        // Needs considerations for the FilePath variant.
+        QStringList localPaths;
+        for (const FilePath &path : paths) {
+            if (path.isLocal())
+                localPaths.append(path.path());
+            else
+                addPath(path);
+        }
+        if (!localPaths.isEmpty())
+            m_localWatcher.addPaths(localPaths);
     }
 
     bool removePath(const FilePath &path)
     {
+        if (path.isLocal())
+            return m_localWatcher.removePath(path.path());
+
         if (!watchers.contains(path))
             return false;
-
         watchers.remove(path);
         return true;
     }
@@ -178,6 +199,7 @@ signals:
 
 protected:
     QMap<FilePath, std::shared_ptr<FilePathWatcher>> watchers;
+    QFileSystemWatcher m_localWatcher;
 };
 
 class DocumentManagerPrivate final : public QObject

@@ -136,7 +136,7 @@
         \li Select \uicontrol {Create a project that you can open in \QDS} to
             make the project compatible with \QDS.
 
-        \li Select \uicontrol {Use Qt Virtual Keyboard} check box to add
+        \li Select \uicontrol {Use Qt Virtual Keyboard} to add
             support for \l{Qt Virtual Keyboard} to the application.
 
             \note If you have not installed the Qt Virtual Keyboard module when

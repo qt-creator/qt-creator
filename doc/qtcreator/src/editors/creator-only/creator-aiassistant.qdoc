@@ -261,5 +261,5 @@
 
     Qt AI Assistant adds inline comments that you can apply to your code.
 
-    \sa {Install extensions}, {Load extensions}
+    \sa {Install extensions}, {Activate extensions}
 */

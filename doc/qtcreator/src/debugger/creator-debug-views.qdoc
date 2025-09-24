@@ -413,7 +413,7 @@
     \uicontrol {Locals} view. The \uicontrol Locals pane shows
     information about parameters of the function in that frame as well as the
     local variables. If the last operation in the debugger was returning from a
-    function after pressing \key {Shift+F11}, the \uicontrol {Return Value}
+    function after selecting \key {Shift+F11}, the \uicontrol {Return Value}
     pane displays the value returned by the function.
 
     You can expand the view contents to check that your application sets a
