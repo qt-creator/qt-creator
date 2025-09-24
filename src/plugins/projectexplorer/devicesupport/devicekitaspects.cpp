@@ -567,10 +567,10 @@ void BuildDeviceKitAspect::setDeviceId(Kit *k, Id id)
     k->setValue(BuildDeviceKitAspect::id(), id.toSetting());
 }
 
-bool BuildDeviceKitAspect::supportsProject(Kit *k, Project *project)
+bool BuildDeviceKitAspect::supportsProject(const Kit *k, const Project *project)
 {
     if (IDevice::ConstPtr dev = device(k))
-        return dev->supportsProject(project);
+        return dev->supportsBuildingProject(project);
 
     return true;
 }

@@ -52,7 +52,7 @@ public:
     static Utils::Id deviceId(const Kit *k);
     static void setDevice(Kit *k, IDeviceConstPtr dev);
     static void setDeviceId(Kit *k, Utils::Id dataId);
-    static bool supportsProject(Kit *k, Project *project);
+    static bool supportsProject(const Kit *k, const Project *project);
 };
 
 } // namespace ProjectExplorer

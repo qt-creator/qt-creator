@@ -1251,7 +1251,7 @@ FilePaths Internal::IDevicePrivate::autoDetectionPaths() const
     return paths;
 }
 
-bool IDevice::supportsProject(Project *project) const
+bool IDevice::supportsBuildingProject(const Project *project) const
 {
     QTC_ASSERT(project, return false);
     return handlesFile(project->projectFilePath());

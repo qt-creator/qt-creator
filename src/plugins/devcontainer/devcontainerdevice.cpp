@@ -671,7 +671,7 @@ bool Device::supportsQtTargetDeviceType(const QSet<Id> &targetDeviceTypes) const
            || IDevice::supportsQtTargetDeviceType(targetDeviceTypes);
 }
 
-bool Device::supportsProject(Project *project) const
+bool Device::supportsBuildingProject(const Project *project) const
 {
     return project && project->projectDirectory() == m_instanceConfig.workspaceFolder;
 }
