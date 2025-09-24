@@ -173,7 +173,6 @@ public:
 
         void visit(ForwardClassDeclaration *type) override
         {
-            qWarning() << Q_FUNC_INFO;
             temps.append(type);
         }
 

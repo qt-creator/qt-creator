@@ -413,6 +413,7 @@ class FindMethodDefinitionInsertPoint : protected ASTVisitor
     QList<const Identifier *> _namespaceNames;
     int _currentDepth = 0;
     HighestValue<int, unsigned> _bestToken;
+    bool _isClassDefinition = false;
 
 public:
     explicit FindMethodDefinitionInsertPoint(TranslationUnit *translationUnit)
@@ -421,11 +422,15 @@ public:
 
     void operator()(Symbol *decl, int *line, int *column)
     {
-        // default to end of file
-        const unsigned lastToken = translationUnit()->ast()->lastToken();
-        _bestToken.maybeSet(-1, lastToken);
+        _isClassDefinition = decl->asForwardClassDeclaration();
 
-        if (lastToken >= 2) {
+        AST * const ast = translationUnit()->ast();
+
+        // default to start of file for class definition, otherwise end of file
+        const unsigned defaultToken = _isClassDefinition ? ast->firstToken() : ast->lastToken();
+        _bestToken.maybeSet(-1, defaultToken);
+
+        if (translationUnit()->ast()->lastToken() >= 2) {
             const QList<const Name *> names = LookupContext::fullyQualifiedName(decl);
             for (const Name *name : names) {
                 const Identifier *id = name->asNameId();
@@ -435,12 +440,12 @@ public:
             }
             _currentDepth = 0;
 
-            accept(translationUnit()->ast());
+            accept(ast);
         }
 
-        if (lastToken == _bestToken.get()) // No matching namespace found
-            translationUnit()->getTokenPosition(lastToken, line, column);
-        else // Insert at end of matching namespace
+        if (defaultToken == _bestToken.get()) // No matching namespace found
+            translationUnit()->getTokenPosition(defaultToken, line, column);
+        else // Insert at start or end of matching namespace
             translationUnit()->getTokenEndPosition(_bestToken.get(), line, column);
     }
 
@@ -464,7 +469,10 @@ protected:
             return false;
 
         // found a good namespace
-        _bestToken.maybeSet(_currentDepth, ast->lastToken() - 2);
+        _bestToken.maybeSet(
+            _currentDepth,
+            _isClassDefinition && ast->linkage_body ? ast->linkage_body->firstToken()
+                                                    : ast->lastToken() - 2);
 
         ++_currentDepth;
         accept(ast->linkage_body);
