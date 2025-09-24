@@ -959,8 +959,12 @@ bool CMakeGeneratorKitAspectFactory::isNinjaPresent(const Kit *k, const CMakeToo
 
     if (Internal::settings(nullptr).ninjaPath().isEmpty()) {
         FilePaths extraDirs;
-        if (tool->filePath().osType() == OsTypeMac)
-            extraDirs << tool->filePath().parentDir();
+        if (tool->filePath().osType() == OsTypeMac) {
+            // Same as the CMake autodetection
+            extraDirs.append("/usr/local/bin");    // homebrew intel
+            extraDirs.append("/opt/homebrew/bin"); // homebrew arm
+            extraDirs.append("/opt/local/bin");    // macports
+        }
 
         auto findNinja = [extraDirs](const Environment &env) -> bool {
             return !env.searchInPath("ninja", extraDirs).isEmpty();
