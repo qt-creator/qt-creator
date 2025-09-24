@@ -223,7 +223,7 @@ FilePaths CMakeProjectImporter::importCandidates()
         const QList<Kit *> kits = KitManager::kits();
         for (const Kit *k : kits) {
             // FIXME: This kind of filtering should be done centrally.
-            if (!BuildDeviceKitAspect::supportsProject(k, m_project)) {
+            if (!m_project->projectIssues(k).isEmpty()) {
                 qCInfo(cmInputLog) << "discarding kit with incompatible build device"
                     << k->displayName();
                 continue;

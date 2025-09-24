@@ -190,8 +190,6 @@ void TargetSetupPagePrivate::setupWidgets(const QString &filterText)
         updateWidget(widget);
         widgets.push_back(widget);
         centralWidget->layout()->addWidget(widget);
-        if (!BuildDeviceKitAspect::supportsProject(k, project))
-            widget->setVisible(false);
     }
     addAdditionalWidgets();
 
@@ -234,11 +232,6 @@ void TargetSetupPage::setProjectAndPath(Project *project, const FilePath &path)
 {
     d->project = project;
     d->projectPath = path;
-
-    for (const auto &w : d->widgets) {
-        if (!BuildDeviceKitAspect::supportsProject(w->kit(), project))
-            w->setVisible(false);
-    }
 
     if (!d->projectPath.isEmpty()) {
         QFileInfo fileInfo(QDir::cleanPath(path.toUrlishString()));
@@ -626,8 +619,6 @@ void TargetSetupPagePrivate::connectWidget(TargetSetupWidget *w)
 void TargetSetupPagePrivate::toggleVisibility(TargetSetupWidget *w)
 {
     const bool shouldBeVisible = [w, this] {
-        if (!BuildDeviceKitAspect::supportsProject(w->kit(), project))
-            return false;
         if (!w->isValid() && hideUnsuitableKitsCheckBox->isChecked())
             return false;
         const QString filterText = kitFilterLineEdit->text();

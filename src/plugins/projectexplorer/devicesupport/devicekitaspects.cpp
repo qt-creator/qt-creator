@@ -11,7 +11,6 @@
 #include "../kitaspect.h"
 #include "../kitmanager.h"
 #include "../projectexplorerconstants.h"
-#include "../project.h"
 #include "../projectexplorertr.h"
 #include "../toolchainkitaspect.h"
 #include "../windowsappsdksettings.h"
@@ -566,14 +565,6 @@ void BuildDeviceKitAspect::setDeviceId(Kit *k, Id id)
 {
     QTC_ASSERT(k, return);
     k->setValue(BuildDeviceKitAspect::id(), id.toSetting());
-}
-
-bool BuildDeviceKitAspect::supportsProject(const Kit *k, const Project *project)
-{
-    if (IDevice::ConstPtr dev = device(k))
-        return dev->supportsBuildingProject(project->projectDirectory());
-
-    return true;
 }
 
 } // namespace ProjectExplorer

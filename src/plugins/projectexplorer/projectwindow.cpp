@@ -1198,7 +1198,8 @@ void TargetGroupItem::rebuildContents()
     removeChildren();
 
     for (Kit *kit : sortedKits) {
-        const bool supportedByBuildDevice = BuildDeviceKitAspect::supportsProject(kit, m_project);
+        const bool supportedByBuildDevice
+            = Project::checkBuildDevice(kit, m_project->projectFilePath()).isNull();
         if (!supportedByBuildDevice)
             continue;
 
