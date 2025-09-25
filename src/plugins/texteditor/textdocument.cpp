@@ -384,9 +384,16 @@ void TextDocument::setFontSettings(const FontSettings &fontSettings)
 {
     if (fontSettings == d->m_fontSettings)
         return;
+    bool emitDocumentSizeChanged = fontSettings.lineSpacing() != d->m_fontSettings.lineSpacing();
     d->m_fontSettings = fontSettings;
     d->m_fontSettingsNeedsApply = true;
     emit fontSettingsChanged();
+    if (emitDocumentSizeChanged) {
+        auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
+        QTC_ASSERT(documentLayout, return);
+        documentLayout->blockSizeChanged(document()->firstBlock());
+        documentLayout->emitDocumentSizeChanged();
+    }
 }
 
 QAction *TextDocument::createDiffAgainstCurrentFileAction(
