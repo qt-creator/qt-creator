@@ -992,7 +992,7 @@ QStringList generateImports(ModuleIds moduleIds,
             auto version = originalImport.version;
             if (version) {
                 if (version.minor)
-                    text += QString(" %1.%2").arg(version.major.value, version.minor.value);
+                    text += QString(" %1.%2").arg(version.major.value).arg(version.minor.value);
                 else
                     text += QString(" %1").arg(version.major.value);
             }
