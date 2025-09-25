@@ -141,7 +141,7 @@
     \include qtcreator-add-linux-device.qdocinc {add linux device} {Remote Linux Device}
 
     \sa {Remote Linux}{How To: Develop for remote Linux},
-    {Debug remotely with GDB}, {Developing for Remote Linux Devices},
+    {Remote Debugging}, {Developing for Remote Linux Devices},
     {Remote Linux Deploy Configuration}
 */
 
