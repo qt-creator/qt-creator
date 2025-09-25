@@ -1071,21 +1071,14 @@ void TextDocument::removeMarkFromMarksCache(TextMark *mark)
     QTC_ASSERT(documentLayout, return);
     d->m_marksCache.removeOne(mark);
 
-    auto scheduleLayoutUpdate = [documentLayout](){
-        // make sure all destructors that may directly or indirectly call this function are
-        // completed before updating.
-        QMetaObject::invokeMethod(documentLayout, &PlainTextDocumentLayout::requestUpdate,
-                                  Qt::QueuedConnection);
-    };
-
     if (mark->isLocationMarker()) {
         documentLayout->hasLocationMarker = false;
-        scheduleLayoutUpdate();
+        documentLayout->scheduleUpdate();
     }
 
     if (d->m_marksCache.isEmpty()) {
         documentLayout->hasMarks = false;
-        scheduleLayoutUpdate();
+        documentLayout->scheduleUpdate();
         return;
     }
 
