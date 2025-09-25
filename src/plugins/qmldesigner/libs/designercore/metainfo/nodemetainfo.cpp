@@ -2602,11 +2602,12 @@ CompoundPropertyMetaInfos MetaInfoUtils::addInflatedValueAndReferenceProperties(
     inflatedProperties.reserve(properties.size() * 2);
 
     for (auto &property : properties) {
+        auto copy = property;
+        inflatedProperties.emplace_back(std::move(copy));
         if (auto propertyType = property.propertyType();
             propertyType && isValueOrNonListReference(propertyType, property)) {
             addSubProperties(inflatedProperties, property, propertyType);
         }
-        inflatedProperties.emplace_back(std::move(property));
     }
 
     return inflatedProperties;
