@@ -14,6 +14,8 @@
 #include "sourcepathstorage/sourcepathcache.h"
 #include "typeannotationreader.h"
 
+#include <qmldesignerutils/stringutils.h>
+
 #include <functional.h>
 #include <sqlitedatabase.h>
 #include <utils/algorithm.h>
@@ -626,7 +628,12 @@ void ProjectStorageUpdater::updateSubdirectories(Utils::SmallStringView director
     Directories existingSubdirecories;
 
     auto skipDirectory = [&](std::string_view subdirectoryPath, DirectoryPathId directoryPathId) {
-        if (subdirectoryPath.ends_with("designer"))
+        auto [_, currentDirectory] = StringUtils::split_last(subdirectoryPath, '/');
+
+        if (currentDirectory == "designer")
+            return true;
+
+        if (currentDirectory.starts_with('.'))
             return true;
 
         if (isInsideProject == IsInsideProject::Yes) {
