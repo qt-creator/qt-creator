@@ -869,6 +869,8 @@ void PlainTextEditPrivate::setTopBlock(int blockNumber, int lineNumber, int dx, 
 
     int newTopLine = editorLayout->firstLineNumberOf(block) + lineNumber;
     int newScrollbarValue = vScrollbarValueForLine(newTopLine) + dy;
+    if (adjustScrollBarsScheduled)
+        adjustScrollbarsNow();
     int maxScrollbarValue = vbar()->maximum();
 
     if (newScrollbarValue > maxScrollbarValue) {
@@ -1132,7 +1134,10 @@ void PlainTextEditPrivate::adjustScrollbars()
     if (adjustScrollBarsScheduled)
         return;
     adjustScrollBarsScheduled = true;
-    QMetaObject::invokeMethod(this, [this] { adjustScrollbarsNow(); }, Qt::QueuedConnection);
+    QMetaObject::invokeMethod(this, [this] {
+        if (adjustScrollBarsScheduled)
+            adjustScrollbarsNow();
+    }, Qt::QueuedConnection);
 }
 
 void PlainTextEditPrivate::adjustScrollbarsNow()
