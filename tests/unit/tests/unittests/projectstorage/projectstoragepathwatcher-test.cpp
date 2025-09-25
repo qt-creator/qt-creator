@@ -166,8 +166,7 @@ TEST_F(ProjectStoragePathWatcher, add_id_paths)
 
 TEST_F(ProjectStoragePathWatcher, add_directory_id_paths)
 {
-    EXPECT_CALL(mockQFileSytemWatcher,
-                addPaths(UnorderedElementsAre(QString(directoryPath), QString(subDirectoryPath))));
+    EXPECT_CALL(mockQFileSytemWatcher, addPaths(UnorderedElementsAre(QString(subDirectoryPath))));
 
     watcher.updateIdPaths({{projectChunkId1, {subDirectoryPathSourceId}}});
 }

@@ -352,10 +352,14 @@ public:
         DirectoryPathIds uniqueDirectoryIds;
         uniqueDirectoryIds.reserve(pathEntries.size());
 
-        std::ranges::unique_copy(pathEntries,
-                                 std::back_inserter(uniqueDirectoryIds),
-                                 {},
-                                 &WatcherEntry::directoryPathId);
+        auto directoryId = [](const auto &entry) { return entry.sourceId.directoryPathId(); };
+
+        auto directoryIds = Utils::transform<QVarLengthArray<DirectoryPathId, 10000>>(pathEntries,
+                                                                                      directoryId);
+
+        std::ranges::sort(directoryIds);
+
+        std::ranges::unique_copy(directoryIds, std::back_inserter(uniqueDirectoryIds));
 
         return uniqueDirectoryIds;
     }
