@@ -739,7 +739,7 @@ static void parametersModifier(RunControl *runControl, DebuggerRunParameters &rp
     if (cppDebug) {
         const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
         rp.setInferiorExecutable(data->localExecutable);
-        rp.setRemoteChannel(runControl->debugChannel());
+        rp.setRemoteChannel(runControl->debugChannel().toString());
 
         QString bundlePath = data->bundleDirectory.toUrlishString();
         bundlePath.chop(4);

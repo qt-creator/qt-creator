@@ -1043,7 +1043,7 @@ static ExecutableItem debuggerRecipe(const Storage<ProcessHandle> pidStorage, Ru
 
     const auto parametersModifier = [pidStorage](DebuggerRunParameters &rp) {
         rp.setDisplayName(QString("VGdb %1").arg(pidStorage->pid()));
-        rp.setRemoteChannelPipe(QString("vgdb --pid=%1").arg(pidStorage->pid()));
+        rp.setRemoteChannel(QString("| vgdb --pid=%1").arg(pidStorage->pid()));
     };
 
     return debuggerRecipe(runControl, rp, parametersModifier);

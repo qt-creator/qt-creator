@@ -2967,7 +2967,7 @@ QString DebuggerEngine::formatStartParameters() const
         str << '\n';
     }
     if (!rp.remoteChannel().isEmpty())
-        str << "Remote: " << rp.remoteChannel().toDisplayString() << '\n';
+        str << "Remote: " << rp.remoteChannel() << '\n';
     if (!rp.qmlServer().host().isEmpty())
         str << "QML server: " << rp.qmlServer().host() << ':' << rp.qmlServer().port() << '\n';
     str << "Sysroot: " << rp.sysRoot() << '\n';
