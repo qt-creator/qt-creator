@@ -450,7 +450,8 @@ void TypePrettyPrinter::visit(Function *type)
         if (s->asClass())
             showTemplateParameters = true;
 
-        if (Template *templ = s->asTemplate(); templ && showTemplateParameters) {
+        if (Template *templ = s->asTemplate();
+            !type->isFriend() && templ && showTemplateParameters) {
             QString &n = nameParts[i];
             const int paramCount = templ->templateParameterCount();
             if (paramCount)
@@ -500,7 +501,7 @@ void TypePrettyPrinter::visit(Function *type)
         }
     }
 
-    if (_overview->showEnclosingTemplate) {
+    if (_overview->showEnclosingTemplate && !type->isFriend()) {
         for (auto [s, i] = std::tuple{type->enclosingScope(), nameParts.length() - 1}; s && i >= 0;
              s = s->enclosingScope()) {
             if (Template *templ = s->asTemplate(); templ && templ->templateParameterCount()) {

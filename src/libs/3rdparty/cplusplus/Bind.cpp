@@ -2103,6 +2103,18 @@ bool Bind::visit(SimpleDeclarationAST *ast)
             }
 
             _scope->addMember(decl);
+            if (decl->isFriend() && _scope->asClass() && nameAndLoc.first->asNameId()) {
+
+                // FIXME: visit(TemplateDeclarationAST*) sets the scope too late.
+                // If we fix that, other things break (possibly because lots of code has
+                // worked around that issue over the years?).
+                if (_scope->enclosingNamespace()) {
+                    // No need for cloning, we just need this symbol here for name minimization
+                    // to work; see symbolIdentical() in LookupContext.cpp.
+                    _scope->enclosingNamespace()->addMember(
+                                control()->newDeclaration(sourceLocation, nameAndLoc.first));
+                }
+            }
 
             *symbolTail = new (translationUnit()->memoryPool()) List<Symbol *>(decl);
             symbolTail = &(*symbolTail)->next;

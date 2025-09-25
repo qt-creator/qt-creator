@@ -165,7 +165,7 @@ public:
             // setup rewriting to get minimally qualified names
             SubstitutionEnvironment env;
             env.setContext(op->context());
-            env.switchScope(decl->enclosingScope());
+            env.switchScope(decl->isFriend() ? decl->enclosingNamespace() : decl->enclosingScope()); // TODO: Do this in enclosingScope()?
             UseMinimalNames q(targetCoN);
             env.enter(&q);
             Control *control = op->context().bindings()->control().get();
@@ -541,8 +541,11 @@ private:
             if (forwardDecl && !isHeaderFile)
                 return;
             Function * const func = symbol->type()->asFunctionType();
-            if (func && (func->isSignal() || func->isPureVirtual() || func->isFriend()))
+            if (func
+                && (func->isSignal() || func->isPureVirtual()
+                    || (func->isFriend() && (!func->name() || !func->name()->asNameId())))) {
                 return;
+            }
             if (!func && !forwardDecl
                 && (!symbol->type().isStatic() || symbol->type().isInline()
                     || simpleDecl->declarator_list->value->initializer)) {
@@ -642,7 +645,7 @@ private:
                 return;
 
             // Determine if we are dealing with a free function
-            const bool isFreeFunction = func && !func->enclosingClass();
+            const bool isFreeFunction = func && (!func->enclosingClass() || func->isFriend());
 
             // Insert Position: Outside Class
             if ((func || !isHeaderFile) && (!isFreeFunction || m_defPosOutsideClass)) {
@@ -1766,17 +1769,229 @@ signed int myclass::foo(signed int)
         QuickFixOperationTest(singleDocument(original, expected), &factory);
     }
 
-    void testNotTriggeredForFriendFunc()
+    void testFriendFuncSingleDocument()
     {
-        const QByteArray contents =
+        const QByteArray original =
             "class Foo\n"
             "{\n"
             "    friend void f@unc();\n"
             "};\n"
             "\n";
+        const QByteArray expected =
+            "class Foo\n"
+            "{\n"
+            "    friend void func()\n"
+            "    {\n\n"
+            "    }\n"
+            "};\n"
+            "\n";
 
         InsertDefFromDecl factory;
-        QuickFixOperationTest(singleDocument(contents, ""), &factory);
+        QuickFixOperationTest(singleDocument(original, expected), &factory);
+    }
+
+    void testFriendFuncWithDef()
+    {
+        QList<TestDocumentPtr> testDocuments;
+        const QByteArray header =
+            "namespace N {\n"
+            "class Foo\n"
+            "{\n"
+            "    friend void f@unc();\n"
+            "    void foo();\n"
+            "};\n"
+            "}\n";
+        testDocuments << CppTestDocument::create("file.h", header, "");
+
+        const QByteArray source =
+            "#include \"file.h\"\n\n"
+            "namespace N {\n"
+            "void Foo::foo()\n"
+            "{\n\n"
+            "}\n\n"
+            "void func()\n"
+            "{\n\n"
+            "}\n"
+            "}\n";
+        testDocuments << CppTestDocument::create("file.cpp", source, "");
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(testDocuments, &factory);
+    }
+
+    void testFriendFuncWithDef2()
+    {
+        QList<TestDocumentPtr> testDocuments;
+        const QByteArray header =
+            "namespace N {\n"
+            "class Foo\n"
+            "{\n"
+            "    friend void f@unc();\n"
+            "    void foo();\n"
+            "};\n"
+            "}\n";
+        testDocuments << CppTestDocument::create("file.h", header, "");
+
+        const QByteArray source =
+            "#include \"file.h\"\n\n"
+            "void N::Foo::foo()\n"
+            "{\n\n"
+            "}\n\n"
+            "void N::func()\n"
+            "{\n\n"
+            "}\n";
+        testDocuments << CppTestDocument::create("file.cpp", source, "");
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(testDocuments, &factory);
+    }
+
+    void testFriendFuncWithQualifiedName()
+    {
+        QList<TestDocumentPtr> testDocuments;
+        const QByteArray header =
+            "namespace N {\n"
+            "class Foo\n"
+            "{\n"
+            "    friend void ::N::f@unc();\n"
+            "    void foo();\n"
+            "};\n"
+            "}\n";
+        testDocuments << CppTestDocument::create("file.h", header, "");
+
+        const QByteArray source =
+            "#include \"file.h\"\n\n"
+            "namespace N {\n"
+            "void Foo::foo()\n"
+            "{\n\n"
+            "}\n"
+            "}\n";
+        testDocuments << CppTestDocument::create("file.cpp", source, "");
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(testDocuments, &factory);
+    }
+
+    void testFriendFuncWithNonMatchingDef()
+    {
+        QList<TestDocumentPtr> testDocuments;
+        const QByteArray header =
+            "namespace N {\n"
+            "class Foo\n"
+            "{\n"
+            "    friend void f@unc();\n"
+            "    void foo();\n"
+            "};\n"
+            "}\n";
+        testDocuments << CppTestDocument::create("file.h", header, header);
+
+        const QByteArray originalSource =
+            "#include \"file.h\"\n\n"
+            "namespace N {\n"
+            "void Foo::foo()\n"
+            "{\n\n"
+            "}\n\n"
+            "}\n\n"
+            "void func()\n"
+            "{\n\n"
+            "}\n";
+        const QByteArray expectedSource =
+            "#include \"file.h\"\n\n"
+            "namespace N {\n"
+            "void Foo::foo()\n"
+            "{\n\n"
+            "}\n\n"
+            "void func()\n"
+            "{\n\n"
+            "}\n\n"
+            "}\n\n"
+            "void func()\n"
+            "{\n\n"
+            "}\n";
+        testDocuments << CppTestDocument::create("file.cpp", originalSource, expectedSource);
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(testDocuments, &factory);
+    }
+
+    void testFriendFuncWithExplicitDecls()
+    {
+        QList<TestDocumentPtr> testDocuments;
+        const QByteArray header =
+            "namespace N {\n"
+            "void func();\n"
+            "class Foo\n"
+            "{\n"
+            "    friend void f@unc();\n"
+            "    void foo();\n"
+            "};\n"
+            "void func();\n"
+            "}\n";
+        testDocuments << CppTestDocument::create("file.h", header, header);
+
+        const QByteArray originalSource =
+            "#include \"file.h\"\n\n"
+            "namespace N {\n"
+            "void Foo::foo()\n"
+            "{\n\n"
+            "}\n\n"
+            "}\n\n"
+            "void func()\n"
+            "{\n\n"
+            "}\n";
+        const QByteArray expectedSource =
+            "#include \"file.h\"\n\n"
+            "namespace N {\n"
+            "void Foo::foo()\n"
+            "{\n\n"
+            "}\n\n"
+            "void func()\n"
+            "{\n\n"
+            "}\n\n"
+            "}\n\n"
+            "void func()\n"
+            "{\n\n"
+            "}\n";
+        testDocuments << CppTestDocument::create("file.cpp", originalSource, expectedSource);
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(testDocuments, &factory);
+    }
+
+    void testFriendFuncInClassTemplate()
+    {
+        QList<TestDocumentPtr> testDocuments;
+        const QByteArray header =
+            "namespace N {\n"
+            "template<typename T> class Foo\n"
+            "{\n"
+            "    friend void f@unc();\n"
+            "    void foo();\n"
+            "};\n"
+            "}\n";
+        testDocuments << CppTestDocument::create("file.h", header, header);
+
+        const QByteArray originalSource =
+            "#include \"file.h\"\n\n"
+            "namespace N {\n"
+            "template<typename T> void Foo<T>::foo()\n"
+            "{\n\n"
+            "}\n\n"
+            "}\n";
+        const QByteArray expectedSource =
+            "#include \"file.h\"\n\n"
+            "namespace N {\n"
+            "template<typename T> void Foo<T>::foo()\n"
+            "{\n\n"
+            "}\n\n"
+            "void N::func()\n" // No name minimization; see FIXME comment in Bind::visit(SimpleDeclarationAST*)
+            "{\n\n"
+            "}\n\n"
+            "}\n";
+        testDocuments << CppTestDocument::create("file.cpp", originalSource, expectedSource);
+
+        InsertDefFromDecl factory;
+        QuickFixOperationTest(testDocuments, &factory);
     }
 
     void testMinimalFunctionParameterType()

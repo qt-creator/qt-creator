@@ -545,7 +545,7 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
 {
     InsertionLocation noResult;
     Class *klass = declaration->enclosingClass();
-    if (!klass)
+    if (!klass || declaration->isFriend())
         return noResult;
 
     // find the index of declaration

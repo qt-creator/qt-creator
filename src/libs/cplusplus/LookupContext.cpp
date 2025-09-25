@@ -46,7 +46,8 @@ static void path_helper(Symbol *symbol,
     if (! symbol)
         return;
 
-    path_helper(symbol->enclosingScope(), names, policy);
+    path_helper(
+        symbol->isFriend() ? symbol->enclosingNamespace() : symbol->enclosingScope(), names, policy);
 
     if (symbol->name()) {
         if (symbol->asClass() || symbol->asNamespace()) {
@@ -187,7 +188,9 @@ QList<const Name *> LookupContext::fullyQualifiedName(Symbol *symbol, InlineName
 {
     if (symbol->asTypenameArgument() || symbol->asTemplateTypeArgument())
         return {symbol->name()};
-    QList<const Name *> qualifiedName = path(symbol->enclosingScope(), policy);
+    Scope * const scope = symbol->isFriend() ? symbol->enclosingNamespace()
+                                             : symbol->enclosingScope();
+    QList<const Name *> qualifiedName = path(scope, policy);
     addNames(symbol->name(), &qualifiedName, /*add all names*/ true);
     return qualifiedName;
 }
