@@ -835,7 +835,7 @@ void ProjectStorageUpdater::updateDirectory(Utils::SmallStringView directoryPath
                          removedDirectoryIds,
                          isInsideProject);
 
-    tracer.end(keyValue("directory state", directoryState));
+    tracer.end(keyValue("directory state", directoryState), keyValue("directory id", directoryId));
 }
 
 void ProjectStorageUpdater::updateQmldirChanged(
@@ -1291,6 +1291,23 @@ void appendProjectChunkSourceIds(ProjectStorageUpdater::ProjectChunkSourceIds &i
     }
 }
 
+DirectoryPathIds mergeDirectoryIds(const DirectoryPathIds &first,
+                                   const DirectoryPathIds &second,
+                                   const DirectoryPathIds &third)
+{
+    DirectoryPathIds ids1;
+    ids1.reserve(first.size() + second.size());
+
+    std::ranges::set_union(first, second, std::back_inserter(ids1));
+
+    DirectoryPathIds idsFinal;
+    idsFinal.reserve(ids1.size() + third.size());
+
+    std::ranges::set_union(ids1, third, std::back_inserter(idsFinal));
+
+    return idsFinal;
+}
+
 } // namespace
 
 void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &changedIdPaths)
@@ -1420,19 +1437,18 @@ void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &chan
 
         m_projectStorage.synchronize(std::move(package));
 
-        auto directoryIdsSize = projectDirectoryIds.size() + qtDirectoryIds.size();
-        DirectoryPathIds directoryIds;
         std::vector<IdPaths> newIdPaths;
         idPaths.reserve(8);
         appendIdPaths(std::move(watchedQtSourceIds), m_qtPartId, newIdPaths);
         appendIdPaths(std::move(watchedProjectSourceIds), m_projectPartId, newIdPaths);
 
-        directoryIds.reserve(directoryIdsSize);
-        std::ranges::merge(projectDirectoryIds, qtDirectoryIds, std::back_inserter(directoryIds));
-        if (directoryIdsSize > 0 or newIdPaths.size() > 0)
+        std::ranges::sort(removedDirectoryIds);
+        DirectoryPathIds directoryIds = mergeDirectoryIds(projectDirectoryIds,
+                                                          qtDirectoryIds,
+                                                          removedDirectoryIds);
+        if (directoryIds.size() > 0 or newIdPaths.size() > 0)
             m_pathWatcher.updateContextIdPaths(newIdPaths, directoryIds);
 
-        std::ranges::sort(removedDirectoryIds);
         m_fileStatusCache.remove(removedDirectoryIds);
 
         m_projectSourceIds.clear();
@@ -1746,7 +1762,7 @@ ProjectStorageUpdater::FileState ProjectStorageUpdater::fileState(
     Storage::Synchronization::SynchronizationPackage &package,
     NotUpdatedSourceIds &notUpdatedSourceIds) const
 {
-    NanotraceHR::Tracer tracer{"update property editor paths",
+    NanotraceHR::Tracer tracer{"project storage updater file state",
                                category(),
                                keyValue("source id", sourceId)};
 
