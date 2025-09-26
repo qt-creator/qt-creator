@@ -41,7 +41,6 @@ void EfswFileSystemWatcher::Listener::handleFileAction(efsw::WatchID,
 {
     NanotraceHR::Tracer tracer{"efsw file system watcher listener handle file action",
                                category(),
-                               keyValue("directory", dir),
                                keyValue("filename", filename)};
 
     std::filesystem::path directory{dir};
@@ -69,7 +68,7 @@ void EfswFileSystemWatcher::Listener::handleFileAction(efsw::WatchID,
         }
     }
 
-    tracer.tick("directory changed", keyValue("path", directoryPath));
+    tracer.tick("directory changed", keyValue("directory", directoryPath));
 
     QMetaObject::invokeMethod(watcher, [=, this]() { emit watcher->directoryChanged(directoryPath); });
 }
