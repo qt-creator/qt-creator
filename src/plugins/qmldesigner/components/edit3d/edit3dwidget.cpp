@@ -13,7 +13,6 @@
 #include <designeractionmanager.h>
 #include <designdocument.h>
 #include <designericons.h>
-#include <designermcumanager.h>
 #include <designmodewidget.h>
 #include <externaldependenciesinterface.h>
 #include <generatedcomponentutils.h>
@@ -412,12 +411,8 @@ bool Edit3DWidget::isSceneLocked() const
 void Edit3DWidget::showOnboardingLabel()
 {
     QString text;
-    const DesignerMcuManager &mcuManager = DesignerMcuManager::instance();
-    if (mcuManager.isMCUProject()) {
-        const QStringList mcuAllowedList = mcuManager.allowedImports();
-        if (!mcuAllowedList.contains("QtQuick3d"))
-            text = tr("3D view is not supported in MCU projects.");
-    }
+    if (m_view->externalDependencies().isQtForMcusProject())
+        text = tr("3D view is not supported in MCU projects.");
 
     if (text.isEmpty()) {
         if (m_view->externalDependencies().isQt6Project()) {

@@ -832,6 +832,20 @@ void ContentLibraryWidget::setIsQt6Project(bool b)
     emit isQt6ProjectChanged();
 }
 
+bool ContentLibraryWidget::isMcuProject() const
+{
+    return m_isMcuProject;
+}
+
+void ContentLibraryWidget::setIsMcuProject(bool b)
+{
+    if (m_isMcuProject == b)
+        return;
+
+    m_isMcuProject = b;
+    emit isMcuProjectChanged();
+}
+
 bool ContentLibraryWidget::importerRunning() const
 {
     return m_importerRunning;

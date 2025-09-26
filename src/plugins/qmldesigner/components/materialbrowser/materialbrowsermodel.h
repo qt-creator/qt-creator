@@ -23,6 +23,7 @@ class MaterialBrowserModel : public QAbstractListModel
     Q_PROPERTY(bool hasModelSelection READ hasModelSelection WRITE setHasModelSelection NOTIFY hasModelSelectionChanged)
     Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary WRITE setHasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
     Q_PROPERTY(bool isQt6Project READ isQt6Project NOTIFY isQt6ProjectChanged)
+    Q_PROPERTY(bool isMcuProject READ isMcuProject NOTIFY isMcuProjectChanged)
     Q_PROPERTY(QString copiedMaterialType READ copiedMaterialType WRITE setCopiedMaterialType NOTIFY copiedMaterialTypeChanged)
     Q_PROPERTY(QStringList defaultMaterialSections MEMBER m_defaultMaterialSections NOTIFY materialSectionsChanged)
     Q_PROPERTY(QStringList principledMaterialSections MEMBER m_principledMaterialSections NOTIFY materialSectionsChanged)
@@ -51,6 +52,9 @@ public:
 
     bool isQt6Project() const;
     void setIsQt6Project(bool b);
+
+    bool isMcuProject() const;
+    void setIsMcuProject(bool b);
 
     bool isEmpty() const { return m_isEmpty; }
 
@@ -108,6 +112,7 @@ signals:
             const QList<QmlDesigner::MaterialBrowserModel::PropertyCopyData> &props,
             bool all);
     void isQt6ProjectChanged();
+    void isMcuProjectChanged();
 
 private:
     bool isValidIndex(int idx) const;
@@ -139,6 +144,7 @@ private:
     bool m_hasMaterialLibrary = false;
     bool m_allPropsCopied = true;
     bool m_isQt6Project = false;
+    bool m_isMcuProject = false;
     QString m_copiedMaterialType;
 
     QPointer<MaterialBrowserView> m_view;

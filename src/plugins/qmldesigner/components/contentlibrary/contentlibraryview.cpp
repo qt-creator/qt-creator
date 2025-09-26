@@ -301,6 +301,7 @@ void ContentLibraryView::modelAttached(Model *model)
     m_widget->setHasMaterialLibrary(hasLibrary);
     m_widget->setHasQuick3DImport(m_hasQuick3DImport);
     m_widget->setIsQt6Project(externalDependencies().isQt6Project());
+    m_widget->setIsMcuProject(externalDependencies().isQtForMcusProject());
 
     m_sceneId = Utils3D::active3DSceneId(model);
 

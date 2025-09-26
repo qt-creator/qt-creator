@@ -284,12 +284,16 @@ Item {
                                     qsTr("<b>Content Library</b> is not supported in Qt5 projects.")
                                 } else if (!ContentLibraryBackend.rootView.hasQuick3DImport
                                            && !alwaysAvailable) {
-                                    qsTr('To use %1, add the <b>QtQuick3D</b> module and the <b>View3D</b>
-                                         component in the <b>Components</b> view, or click
-                                         <a href=\"#add_import\"><span style=\"text-decoration:none;color:%2\">
-                                         here</span></a>.')
-                                    .arg(categoryName)
-                                    .arg(StudioTheme.Values.themeInteraction)
+                                    if (ContentLibraryBackend.rootView.isMcuProject) {
+                                        qsTr("<b>Content Library</b> 3D content is not supported in MCU projects.")
+                                    } else {
+                                        qsTr('To use %1, add the <b>QtQuick3D</b> module and the <b>View3D</b>
+                                             component in the <b>Components</b> view, or click
+                                             <a href=\"#add_import\"><span style=\"text-decoration:none;color:%2\">
+                                             here</span></a>.')
+                                        .arg(categoryName)
+                                        .arg(StudioTheme.Values.themeInteraction)
+                                    }
                                 } else if (!ContentLibraryBackend.rootView.hasMaterialLibrary
                                            && !alwaysAvailable) {
                                     qsTr("<b>Content Library</b> is disabled inside a non-visual component.")

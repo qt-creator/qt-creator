@@ -258,6 +258,7 @@ void MaterialBrowserView::modelAttached(Model *model)
     m_widget->materialBrowserModel()->setHasMaterialLibrary(false);
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
     m_widget->materialBrowserModel()->setIsQt6Project(externalDependencies().isQt6Project());
+    m_widget->materialBrowserModel()->setIsMcuProject(externalDependencies().isQtForMcusProject());
 
     // Project load is already very busy and may even trigger QML Puppet reset, so let's wait a moment
     // before refreshing the model
