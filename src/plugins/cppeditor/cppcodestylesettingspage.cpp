@@ -164,10 +164,9 @@ public:
         , m_bindStarToLeftSpecifier(createCheckBox(Tr::tr("Left const/volatile")))
         , m_bindStarToRightSpecifier(createCheckBox(Tr::tr("Right const/volatile"),
                                                     Tr::tr("This does not apply to references.")))
-        , m_tabSettingsWidget(new TabSettingsWidget)
         , m_statementMacros(new QPlainTextEdit)
     {
-        QObject::connect(m_tabSettingsWidget, &TabSettingsWidget::settingsChanged,
+        QObject::connect(&m_tabSettingsWidget, &TabSettingsWidget::settingsChanged,
                          q, &CppCodeStylePreferencesWidget::slotTabSettingsChanged);
 
         using namespace Layouting;
@@ -325,7 +324,7 @@ public:
 
     QTabWidget *m_categoryTab = nullptr;
     QWidget *m_generalSettingsRow = nullptr;
-    TabSettingsWidget *m_tabSettingsWidget = nullptr;
+    TabSettingsWidget m_tabSettingsWidget;
     QPlainTextEdit * const m_statementMacros;
     bool m_handlingStatementMacroChange = false;
 };
@@ -491,12 +490,12 @@ CppCodeStyleSettings CppCodeStylePreferencesWidget::cppCodeStyleSettings() const
 
 void CppCodeStylePreferencesWidget::setTabSettings(const TabSettings &settings)
 {
-    d->m_tabSettingsWidget->setTabSettings(settings);
+    d->m_tabSettingsWidget.setTabSettings(settings);
 }
 
 TextEditor::TabSettings CppCodeStylePreferencesWidget::tabSettings() const
 {
-    return d->m_tabSettingsWidget->tabSettings();
+    return d->m_tabSettingsWidget.tabSettings();
 }
 
 void CppCodeStylePreferencesWidget::setCodeStyleSettings(const CppCodeStyleSettings &s, bool preview)
