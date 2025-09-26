@@ -4037,7 +4037,7 @@ void GdbEngine::handleGdbStarted()
         = initDebugHelper("gdbbridge", setupDumper, runPythonCommand, CB(handleDumperSetup));
         !res) {
         AsynchronousMessageBox::critical(
-            Tr::tr("Could not setup Debugger Helper Scripts"), res.error());
+            Tr::tr("Cannot Set up Debugger Helper Scripts"), res.error());
         notifyEngineSetupFailed();
         return;
     }

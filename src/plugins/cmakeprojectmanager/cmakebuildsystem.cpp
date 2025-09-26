@@ -1360,7 +1360,7 @@ bool CMakeBuildSystem::mustApplyConfigurationChangesArguments(const BuildDirPara
 
     QDialog question(Core::ICore::dialogParent());
     question.resize(600, 300);
-    question.setWindowTitle(Tr::tr("Apply configuration changes?"));
+    question.setWindowTitle(Tr::tr("Apply Configuration Changes?"));
 
     QDialogButtonBox buttonBox;
     buttonBox.setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Discard);
@@ -2712,7 +2712,7 @@ QList<QPair<Id, QString>> CMakeBuildSystem::generators() const
     const QList<CMakeTool::Generator> &generators = cmakeTool->supportedGenerators();
     for (const CMakeTool::Generator &generator : generators) {
         result << qMakePair(Id::fromSetting(generator.name),
-                            Tr::tr("%1 (via cmake)").arg(generator.name));
+                            Tr::tr("%1 (via CMake)").arg(generator.name));
     }
     return result;
 }
@@ -2723,16 +2723,16 @@ void CMakeBuildSystem::runGenerator(Id id)
     TaskHub::clearAndRemoveTask(m_generatorError);
     const auto showError = [this](const QString &detail) {
         m_generatorError = OtherTask(Task::DisruptingError,
-                                     Tr::tr("cmake generator failed.").append('\n').append(detail));
+                                     Tr::tr("CMake generator failed.").append('\n').append(detail));
         TaskHub::addTask(m_generatorError);
     };
     const FilePath cmakeExecutable = CMakeKitAspect::cmakeExecutable(kit());
     if (cmakeExecutable.isEmpty()) {
-        showError(Tr::tr("Kit does not have a cmake binary set."));
+        showError(Tr::tr("Kit does not have a CMake binary set."));
         return;
     }
     if (!cmakeExecutable.isExecutableFile()) {
-        showError(Tr::tr("No valid cmake executable."));
+        showError(Tr::tr("No valid CMake executable."));
         return;
     }
     const QString generator = id.toSetting().toString();

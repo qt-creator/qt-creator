@@ -144,7 +144,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
             info(kSetupAndroidSetting,
                  Tr::tr("Automatically create usable Android kits and install all essential "
                         "packages. "
-                        "To do this later, select Edit > Preferences > Devices > Android."),
+                        "To do this later, select Edit > Preferences > SDKs > Android."),
                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
         info.setTitle(Tr::tr("Configure Android Options?"));
         info.setInfoType(Utils::InfoLabel::Information);

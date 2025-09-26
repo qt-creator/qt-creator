@@ -396,7 +396,7 @@ QString CvsPluginPrivate::vcsOpenText() const
 ExecutableItem CvsPluginPrivate::cloneTask(const CloneTaskData &data) const
 {
     if (data.localName == data.url)
-        return errorTask(data.baseDirectory, Tr::tr("Local name can't be the same as url."));
+        return errorTask(data.baseDirectory, Tr::tr("Local name cannot be the same as the URL."));
 
     const QStringList args = QStringList{"checkout", data.url} + data.extraArgs;
     const CommandLine command{settings().binaryPath(), settings().addOptions(args)};

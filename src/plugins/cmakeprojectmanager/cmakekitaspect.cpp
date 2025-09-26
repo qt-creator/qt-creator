@@ -366,7 +366,7 @@ KitAspect *CMakeKitAspectFactory::createKitAspect(Kit *k) const
 void CMakeKitAspectFactory::addToMacroExpander(Kit *k, MacroExpander *expander) const
 {
     QTC_ASSERT(k, return);
-    expander->registerFileVariables("CMake:Executable", Tr::tr("Path to the cmake executable"),
+    expander->registerFileVariables("CMake:Executable", Tr::tr("Path to the CMake executable"),
         [k] {
             return CMakeKitAspect::cmakeExecutable(k);
         });
@@ -483,7 +483,7 @@ Utils::Result<Tasking::ExecutableItem> CMakeKitAspectFactory::createAspectFromJs
                 const FilePath cmakeExecutable = rootPath.withNewPath(binaryValue.toString());
                 if (!cmakeExecutable.isExecutableFile()) {
                     promise.addResult(ResultError(
-                        Tr::tr("CMake executable '%1' is not valid")
+                        Tr::tr("CMake executable \"%1\" is not valid.")
                             .arg(cmakeExecutable.toUserOutput())));
                     return;
                 }
@@ -499,7 +499,7 @@ Utils::Result<Tasking::ExecutableItem> CMakeKitAspectFactory::createAspectFromJs
                     promise.addResult(std::move(newTool));
                 else
                     promise.addResult(ResultError(
-                        Tr::tr("CMake tool '%1' is not valid").arg(cmakeExecutable.toUserOutput())));
+                        Tr::tr("CMake tool \"%1\" is not valid.").arg(cmakeExecutable.toUserOutput())));
             },
             json,
             detectionSource,
@@ -509,7 +509,7 @@ Utils::Result<Tasking::ExecutableItem> CMakeKitAspectFactory::createAspectFromJs
     const auto onDone = [logCallback, kit, json](const Async<ResultType> &async) {
         ResultType tool = async.takeResult();
         if (!tool) {
-            logCallback(Tr::tr("Failed to create CMake tool from JSON: %1").arg(tool.error()));
+            logCallback(Tr::tr("Cannot create CMake tool from JSON: %1").arg(tool.error()));
             return;
         }
         const QJsonObject obj = json.toObject();

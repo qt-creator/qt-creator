@@ -294,8 +294,8 @@ void DevContainerPlugin::onEditorCreated(Core::IEditor *editor, const Utils::Fil
 
     QAction *restartAction = new QAction(textEditorWidget);
     restartAction->setIcon(DEVCONTAINER_ICON.icon());
-    restartAction->setText(Tr::tr("(Re-)Start Development Container"));
-    restartAction->setToolTip(Tr::tr("Start or Restart the development container."));
+    restartAction->setText(Tr::tr("Start or Restart Development Container"));
+    restartAction->setToolTip(Tr::tr("Start or stop and restart the development container."));
 
     const FilePath workspaceFolder = project->rootProjectDirectory();
 
