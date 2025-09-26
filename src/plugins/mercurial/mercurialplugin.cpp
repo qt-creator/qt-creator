@@ -31,7 +31,6 @@
 
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
-#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -138,32 +137,29 @@ private:
     FilePath m_submitRepository;
 
 public:
-    VcsEditorFactory logEditorFactory {{
-        LogOutput,
-        Constants::FILELOG_ID,
-        ::VcsBase::Tr::tr("Mercurial File Log Editor"),
-        Constants::LOGAPP,
-        [] { return new MercurialEditorWidget; },
-        std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory logEditorFactory{
+        {LogOutput,
+         Constants::FILELOG_ID,
+         Tr::tr("Mercurial File Log Editor"),
+         Constants::LOGAPP,
+         [] { return new MercurialEditorWidget; },
+         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory annotateEditorFactory {{
-        AnnotateOutput,
-        Constants::ANNOTATELOG_ID,
-        ::VcsBase::Tr::tr("Mercurial Annotation Editor"),
-        Constants::ANNOTATEAPP,
-        [] { return new MercurialEditorWidget; },
-        std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory annotateEditorFactory{
+        {AnnotateOutput,
+         Constants::ANNOTATELOG_ID,
+         Tr::tr("Mercurial Annotation Editor"),
+         Constants::ANNOTATEAPP,
+         [] { return new MercurialEditorWidget; },
+         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory diffEditorFactory {{
-        DiffOutput,
-        Constants::DIFFLOG_ID,
-        ::VcsBase::Tr::tr("Mercurial Diff Editor"),
-        Constants::DIFFAPP,
-        [] { return new MercurialEditorWidget; },
-        std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory diffEditorFactory{
+        {DiffOutput,
+         Constants::DIFFLOG_ID,
+         Tr::tr("Mercurial Diff Editor"),
+         Constants::DIFFAPP,
+         [] { return new MercurialEditorWidget; },
+         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)}};
 };
 
 static MercurialPluginPrivate *dd = nullptr;
@@ -173,13 +169,13 @@ MercurialPluginPrivate::MercurialPluginPrivate()
 {
     dd = this;
 
-    setupVcsSubmitEditor(this, {
-        Constants::COMMITMIMETYPE,
-        Constants::COMMIT_ID,
-        ::VcsBase::Tr::tr("Mercurial Commit Log Editor"),
-        VcsBaseSubmitEditorParameters::DiffFiles,
-        [] { return new CommitEditor; }
-    });
+    setupVcsSubmitEditor(
+        this,
+        {Constants::COMMITMIMETYPE,
+         Constants::COMMIT_ID,
+         Tr::tr("Mercurial Commit Log Editor"),
+         VcsBaseSubmitEditorParameters::DiffFiles,
+         [] { return new CommitEditor; }});
 
     setTopicFileTracker([](const FilePath &repository) {
         return repository.pathAppended(".hg/branch");

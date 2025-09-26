@@ -15,7 +15,6 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectupdater.h>
 #include <projectexplorer/target.h>
@@ -226,11 +225,11 @@ public:
 
         setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
             BuildInfo info;
-            info.typeName = ::ProjectExplorer::Tr::tr("Build");
+            info.typeName = msgBuildConfigurationBuild();
             info.buildDirectory = forSetup ? projectPath.parentDir() : projectPath;
             if (forSetup) {
                 //: The name of the build configuration created by default for a autotools project.
-                info.displayName = ::ProjectExplorer::Tr::tr("Default");
+                info.displayName = msgBuildConfigurationDefault();
             }
             return QList<BuildInfo>{info};
         });

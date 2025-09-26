@@ -9,7 +9,6 @@
 #include "../qmakeprojectmanagertr.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorertr.h>
 
 #include <coreplugin/icore.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -25,8 +24,7 @@ SubdirsProjectWizard::SubdirsProjectWizard()
 {
     setId("U.Qt4Subdirs");
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY));
-    setDisplayCategory(ProjectExplorer::Tr::tr(
-        ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));
+    setDisplayCategory(Core::msgWizardDisplayCategoryOther());
     setDisplayName(Tr::tr("Subdirs Project"));
     setDescription(Tr::tr("Creates a qmake-based subdirs project. This allows you to group "
                           "your projects in a tree structure."));

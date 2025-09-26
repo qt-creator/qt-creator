@@ -546,7 +546,7 @@ void InfoBarDisplay::update()
         QToolButton *infoWidgetSuppressButton = nullptr;
         if (info.globalSuppression() == InfoBarEntry::GlobalSuppression::Enabled) {
             infoWidgetSuppressButton = new QToolButton;
-            infoWidgetSuppressButton->setText(Tr::tr("Do Not Show Again"));
+            infoWidgetSuppressButton->setText(msgDoNotShowAgain());
             connect(infoWidgetSuppressButton, &QAbstractButton::clicked, this, [this, id] {
                 m_infoBar->removeInfo(id);
                 InfoBar::globallySuppressInfo(id);
@@ -587,6 +587,11 @@ void InfoBarDisplay::update()
         m_boxLayout->insertWidget(m_boxIndex, infoWidget);
         m_infoWidgets << infoWidget;
     }
+}
+
+QString msgDoNotShowAgain()
+{
+    return Tr::tr("Do Not Show Again");
 }
 
 } // namespace Utils

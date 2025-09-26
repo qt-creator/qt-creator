@@ -7,7 +7,6 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -2381,7 +2380,7 @@ public:
     BinEditorFactory()
     {
         setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
-        setDisplayName(::Core::Tr::tr("Binary Editor"));
+        setDisplayName(Tr::tr("Binary Editor"));
         addMimeType(Utils::Constants::OCTET_STREAM_MIMETYPE);
 
         setEditorCreator([] {

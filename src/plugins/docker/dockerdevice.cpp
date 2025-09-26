@@ -23,7 +23,6 @@
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorertr.h>
 
 #include <client/bridgedfileaccess.h>
 #include <client/cmdbridgeclient.h>
@@ -1053,8 +1052,7 @@ public:
         m_log = new QTextBrowser;
         m_log->setVisible(dockerDeviceLog().isDebugEnabled());
 
-        const QString fail = QString{"Docker: "}
-                             + ::ProjectExplorer::Tr::tr("The process failed to start.");
+        const QString fail = QString{"Docker: "} + msgProcessFailedToStart();
         auto errorLabel = new InfoLabel(fail, InfoLabel::Error, this);
         errorLabel->setVisible(false);
 

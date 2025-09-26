@@ -774,6 +774,11 @@ void setupDebuggerRunWorker()
     static DebuggerRunWorkerFactory theDebuggerRunWorkerFactory;
 }
 
+QString msgAttachToProcess()
+{
+    return Tr::tr("&Attach to Process");
+}
+
 } // Debugger
 
 #include "debuggerruncontrol.moc"

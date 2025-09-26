@@ -526,9 +526,9 @@ public:
             if (!forSetup || result.isEmpty()) {
                 BuildInfo info;
                 info.factory = this;
-                info.typeName = ::ProjectExplorer::Tr::tr("Build");
+                info.typeName = msgBuildConfigurationBuild();
                 info.buildDirectory = projectPath.parentDir().parentDir().pathAppended("build");
-                info.displayName = ::ProjectExplorer::Tr::tr("Default");
+                info.displayName = msgBuildConfigurationDefault();
                 result << info;
             }
             return result;

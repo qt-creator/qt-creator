@@ -36,7 +36,6 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseplugin.h>
-#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -236,23 +235,21 @@ private:
     QAction *m_menuAction = nullptr;
 
 public:
-    VcsEditorFactory logEditorFactory {{
-        LogOutput,
-        Constants::SUBVERSION_LOG_EDITOR_ID,
-        ::VcsBase::Tr::tr("Subversion File Log Editor"),
-        Constants::SUBVERSION_LOG_MIMETYPE,
-        [] { return new SubversionEditorWidget; },
-        std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory logEditorFactory{
+        {LogOutput,
+         Constants::SUBVERSION_LOG_EDITOR_ID,
+         Tr::tr("Subversion File Log Editor"),
+         Constants::SUBVERSION_LOG_MIMETYPE,
+         [] { return new SubversionEditorWidget; },
+         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory blameEditorFactory {{
-        AnnotateOutput,
-        Constants::SUBVERSION_BLAME_EDITOR_ID,
-        ::VcsBase::Tr::tr("Subversion Annotation Editor"),
-        Constants::SUBVERSION_BLAME_MIMETYPE,
-        [] { return new SubversionEditorWidget; },
-        std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory blameEditorFactory{
+        {AnnotateOutput,
+         Constants::SUBVERSION_BLAME_EDITOR_ID,
+         Tr::tr("Subversion Annotation Editor"),
+         Constants::SUBVERSION_BLAME_MIMETYPE,
+         [] { return new SubversionEditorWidget; },
+         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)}};
 };
 
 
@@ -472,13 +469,15 @@ SubversionPluginPrivate::SubversionPluginPrivate()
 
     connect(&settings(), &AspectContainer::applied, this, &IVersionControl::configurationChanged);
 
-    setupVcsSubmitEditor(this, {
-        Constants::SUBVERSION_SUBMIT_MIMETYPE,
-        Constants::SUBVERSION_COMMIT_EDITOR_ID,
-        ::VcsBase::Tr::tr("Subversion Commit Editor"),
-        VcsBaseSubmitEditorParameters::DiffFiles,
-        [] { return new SubversionSubmitEditor; },
-    });
+    setupVcsSubmitEditor(
+        this,
+        {
+            Constants::SUBVERSION_SUBMIT_MIMETYPE,
+            Constants::SUBVERSION_COMMIT_EDITOR_ID,
+            Tr::tr("Subversion Commit Editor"),
+            VcsBaseSubmitEditorParameters::DiffFiles,
+            [] { return new SubversionSubmitEditor; },
+        });
 }
 
 bool SubversionPluginPrivate::isVcsDirectory(const FilePath &fileName) const

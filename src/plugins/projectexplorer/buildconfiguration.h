@@ -255,4 +255,10 @@ PROJECTEXPLORER_EXPORT BuildConfiguration *activeBuildConfig(const Project *proj
 PROJECTEXPLORER_EXPORT BuildConfiguration *activeBuildConfigForActiveProject();
 PROJECTEXPLORER_EXPORT BuildConfiguration *activeBuildConfigForCurrentProject();
 
+PROJECTEXPLORER_EXPORT QString msgBuildConfigurationBuild();
+PROJECTEXPLORER_EXPORT QString msgBuildConfigurationDefault();
+PROJECTEXPLORER_EXPORT QString msgBuildConfigurationDebug();
+PROJECTEXPLORER_EXPORT QString msgBuildConfigurationRelease();
+PROJECTEXPLORER_EXPORT QString msgBuildConfigurationProfile();
+
 } // namespace ProjectExplorer

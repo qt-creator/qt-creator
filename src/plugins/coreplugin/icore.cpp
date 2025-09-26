@@ -8,7 +8,6 @@
 #include "actionmanager/command.h"
 #include "coreicons.h"
 #include "coreplugintr.h"
-#include "coreplugintr.h"
 #include "dialogs/externaltoolconfig.h"
 #include "dialogs/ioptionspage.h"
 #include "dialogs/settingsdialog.h"
@@ -40,6 +39,7 @@
 #include "navigationwidget.h"
 #include "outputpanemanager.h"
 #include "plugindialog.h"
+#include "plugininstallwizard.h"
 #include "progressmanager/progressmanager_p.h"
 #include "progressmanager/progressview.h"
 #include "rightpane.h"
@@ -1186,7 +1186,7 @@ bool ICore::enablePlugins(const QSet<ExtensionSystem::PluginSpec *> &plugins)
     if (softloadable) {
         PluginManager::loadPluginsAtRuntime(affectedPlugins);
     } else {
-        ICore::askForRestart(Tr::tr("Plugin changes will take effect after restart."));
+        ICore::askForRestart(msgPluginChangesRequireRestart());
     }
     return true;
 }
@@ -2057,7 +2057,7 @@ void ICorePrivate::registerDefaultActions()
     // Show Left Sidebar Action
     ActionBuilder toggleLeftSideBarAction(this, Constants::TOGGLE_LEFT_SIDEBAR);
     toggleLeftSideBarAction.setIcon(Utils::Icons::TOGGLE_LEFT_SIDEBAR.icon());
-    toggleLeftSideBarAction.setText(Tr::tr(Constants::TR_SHOW_LEFT_SIDEBAR));
+    toggleLeftSideBarAction.setText(msgShowLeftSideBar());
     toggleLeftSideBarAction.setCheckable(true);
     toggleLeftSideBarAction.setCommandAttribute(Command::CA_UpdateText);
     toggleLeftSideBarAction.setDefaultKeySequence(Tr::tr("Ctrl+0"), Tr::tr("Alt+0"));
@@ -2073,7 +2073,7 @@ void ICorePrivate::registerDefaultActions()
     // Show Right Sidebar Action
     ActionBuilder toggleRightSideBarAction(this, Constants::TOGGLE_RIGHT_SIDEBAR);
     toggleRightSideBarAction.setIcon(Utils::Icons::TOGGLE_RIGHT_SIDEBAR.icon());
-    toggleRightSideBarAction.setText(Tr::tr(Constants::TR_SHOW_RIGHT_SIDEBAR));
+    toggleRightSideBarAction.setText(msgShowRightSideBar());
     toggleRightSideBarAction.setCheckable(true);
     toggleRightSideBarAction.setCommandAttribute(Command::CA_UpdateText);
     toggleRightSideBarAction.setDefaultKeySequence(Tr::tr("Ctrl+Shift+0"), Tr::tr("Alt+Shift+0"));
@@ -2543,7 +2543,7 @@ void ICorePrivate::aboutToShowRecentFiles()
     // add the Clear Menu item
     if (hasRecentFiles) {
         menu->addSeparator();
-        QAction *action = menu->addAction(Tr::tr(Constants::TR_CLEAR_MENU));
+        QAction *action = menu->addAction(msgClearMenu());
         connect(action, &QAction::triggered,
                 DocumentManager::instance(), &DocumentManager::clearRecentFiles);
     }

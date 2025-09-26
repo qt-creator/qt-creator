@@ -129,6 +129,9 @@ private:
     friend class Internal::CorePlugin;
 };
 
+CORE_EXPORT QString msgWizardDisplayCategoryQt();
+CORE_EXPORT QString msgWizardDisplayCategoryOther();
+
 } // namespace Core
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IWizardFactory::WizardFlags)

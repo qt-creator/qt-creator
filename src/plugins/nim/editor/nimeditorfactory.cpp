@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "nimeditorfactory.h"
-#include "nimindenter.h"
-#include "nimhighlighter.h"
 #include "nimcompletionassistprovider.h"
+#include "nimhighlighter.h"
+#include "nimindenter.h"
+#include "nimtr.h"
 
 #include "../nimconstants.h"
 #include "nimtexteditorwidget.h"
 
-#include <coreplugin/coreplugintr.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
 
@@ -21,7 +21,7 @@ namespace Nim {
 NimEditorFactory::NimEditorFactory()
 {
     setId(Constants::C_NIMEDITOR_ID);
-    setDisplayName(::Core::Tr::tr("Nim Editor"));
+    setDisplayName(Tr::tr("Nim Editor"));
     addMimeType(QLatin1String(Nim::Constants::C_NIM_MIMETYPE));
     addMimeType(QLatin1String(Nim::Constants::C_NIM_SCRIPT_MIMETYPE));
 

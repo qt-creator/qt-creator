@@ -47,4 +47,13 @@ private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
+CPPEDITOR_EXPORT QString msgSymbolsFilterDisplayName();
+CPPEDITOR_EXPORT QString msgSymbolsFilterDescription();
+CPPEDITOR_EXPORT QString msgClassesFilterDisplayName();
+CPPEDITOR_EXPORT QString msgClassesFilterDescription();
+CPPEDITOR_EXPORT QString msgFunctionsFilterDisplayName();
+CPPEDITOR_EXPORT QString msgFunctionsFilterDescription();
+CPPEDITOR_EXPORT QString msgDocumentFilterDisplayName();
+CPPEDITOR_EXPORT QString msgDocumentFilterDescription();
+
 } // namespace CppEditor

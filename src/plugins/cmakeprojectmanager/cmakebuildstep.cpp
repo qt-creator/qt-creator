@@ -31,7 +31,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
-#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchainkitaspect.h>
@@ -315,11 +314,11 @@ bool CMakeBuildStep::init()
     if (m_buildTargets.contains(QString())) {
         RunConfiguration *rc = buildConfiguration()->activeRunConfiguration();
         if (!rc || rc->buildKey().isEmpty()) {
-            emit addTask(BuildSystemTask(Task::Error,
-                                         ::ProjectExplorer::Tr::tr(
-                                    "You asked to build the current Run Configuration's build target only, "
-                                    "but it is not associated with a build target. "
-                                    "Update the Make Step in your build settings.")));
+            emit addTask(BuildSystemTask(
+                Task::Error,
+                Tr::tr("You asked to build the current Run Configuration's build target only, "
+                       "but it is not associated with a build target. "
+                       "Update the Make Step in your build settings.")));
             emitFaultyConfigurationMessage();
             return false;
         }

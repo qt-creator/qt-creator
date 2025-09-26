@@ -3,11 +3,10 @@
 
 #include "modeleditorfactory.h"
 
-#include "modeleditor_constants.h"
 #include "actionhandler.h"
 #include "modeleditor.h"
-
-#include <coreplugin/coreplugintr.h>
+#include "modeleditor_constants.h"
+#include "modeleditortr.h"
 
 #include <QCoreApplication>
 
@@ -17,7 +16,7 @@ namespace Internal {
 ModelEditorFactory::ModelEditorFactory(UiController *uiController, ActionHandler *actionHandler)
 {
     setId(Constants::MODEL_EDITOR_ID);
-    setDisplayName(::Core::Tr::tr("Model Editor"));
+    setDisplayName(Tr::tr("Model Editor"));
     addMimeType(Constants::MIME_TYPE_MODEL);
     setEditorCreator([uiController, actionHandler] { return new ModelEditor(uiController, actionHandler); });
 }

@@ -329,9 +329,8 @@ public:
                 return info;
             };
             return QList<BuildInfo>{
-                oneBuild(BuildConfiguration::Debug, Tr::tr("Debug")),
-                oneBuild(BuildConfiguration::Release, Tr::tr("Release"))
-            };
+                oneBuild(BuildConfiguration::Debug, msgBuildConfigurationDebug()),
+                oneBuild(BuildConfiguration::Release, msgBuildConfigurationRelease())};
         });
     }
 };

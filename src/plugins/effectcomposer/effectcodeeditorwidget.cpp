@@ -10,7 +10,6 @@
 #include <qmldesigner/textmodifier/indentingtexteditormodifier.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreplugintr.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/projectexplorerconstants.h>

@@ -35,7 +35,6 @@
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseplugin.h>
-#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
@@ -198,32 +197,29 @@ public:
 
     FilePath m_submitRepository;
 
-    VcsEditorFactory logEditorFactory {{
-        LogOutput, // type
-        Constants::FILELOG_ID, // id
-        VcsBase::Tr::tr("Bazaar File Log Editor"),
-        Constants::LOGAPP,// mime type
-        [] { return new BazaarEditorWidget; },
-        std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory logEditorFactory{
+        {LogOutput,             // type
+         Constants::FILELOG_ID, // id
+         Tr::tr("Bazaar File Log Editor"),
+         Constants::LOGAPP, // mime type
+         [] { return new BazaarEditorWidget; },
+         std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory annotateEditorFactory {{
-        AnnotateOutput,
-        Constants::ANNOTATELOG_ID,
-        VcsBase::Tr::tr("Bazaar Annotation Editor"),
-        Constants::ANNOTATEAPP,
-        [] { return new BazaarEditorWidget; },
-        std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory annotateEditorFactory{
+        {AnnotateOutput,
+         Constants::ANNOTATELOG_ID,
+         Tr::tr("Bazaar Annotation Editor"),
+         Constants::ANNOTATEAPP,
+         [] { return new BazaarEditorWidget; },
+         std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory diffEditorFactory {{
-        DiffOutput,
-        Constants::DIFFLOG_ID,
-        VcsBase::Tr::tr("Bazaar Diff Editor"),
-        Constants::DIFFAPP,
-        [] { return new BazaarEditorWidget; },
-        std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory diffEditorFactory{
+        {DiffOutput,
+         Constants::DIFFLOG_ID,
+         Tr::tr("Bazaar Diff Editor"),
+         Constants::DIFFAPP,
+         [] { return new BazaarEditorWidget; },
+         std::bind(&BazaarPluginPrivate::vcsDescribe, this, _1, _2)}};
 };
 
 class UnCommitDialog : public QDialog
@@ -477,13 +473,13 @@ BazaarPluginPrivate::BazaarPluginPrivate()
 
     connect(&settings(), &AspectContainer::applied, this, &IVersionControl::configurationChanged);
 
-    setupVcsSubmitEditor(this, {
-        COMMITMIMETYPE,
-        COMMIT_ID,
-        VcsBase::Tr::tr("Bazaar Commit Log Editor"),
-        VcsBaseSubmitEditorParameters::DiffFiles,
-        [] { return new CommitEditor; }
-    });
+    setupVcsSubmitEditor(
+        this,
+        {COMMITMIMETYPE,
+         COMMIT_ID,
+         Tr::tr("Bazaar Commit Log Editor"),
+         VcsBaseSubmitEditorParameters::DiffFiles,
+         [] { return new CommitEditor; }});
 }
 
 void BazaarPluginPrivate::addCurrentFile()

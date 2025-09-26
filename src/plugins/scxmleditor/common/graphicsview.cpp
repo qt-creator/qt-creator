@@ -7,7 +7,6 @@
 #include "graphicsview.h"
 #include "sceneutils.h"
 #include "scxmleditortr.h"
-#include "scxmleditortr.h"
 #include "scxmluifactory.h"
 #include "shapeprovider.h"
 

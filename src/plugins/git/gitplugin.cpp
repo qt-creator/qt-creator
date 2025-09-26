@@ -59,7 +59,6 @@
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseplugin.h>
-#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -338,59 +337,53 @@ public:
 
     GitGrep gitGrep;
 
-    VcsEditorFactory svnLogEditorFactory {{
-        OtherContent,
-        Git::Constants::GIT_SVN_LOG_EDITOR_ID,
-        VcsBase::Tr::tr("Git SVN Log Editor"),
-        "text/vnd.qtcreator.git.svnlog",
-        [] { return new GitEditorWidget; },
-        std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory svnLogEditorFactory{
+        {OtherContent,
+         Git::Constants::GIT_SVN_LOG_EDITOR_ID,
+         Tr::tr("Git SVN Log Editor"),
+         "text/vnd.qtcreator.git.svnlog",
+         [] { return new GitEditorWidget; },
+         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory logEditorFactory {{
-        LogOutput,
-        Git::Constants::GIT_LOG_EDITOR_ID,
-        VcsBase::Tr::tr("Git Log Editor"),
-        "text/vnd.qtcreator.git.log",
-        [] { return new GitLogEditorWidgetT<GitEditorWidget>; },
-        std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory logEditorFactory{
+        {LogOutput,
+         Git::Constants::GIT_LOG_EDITOR_ID,
+         Tr::tr("Git Log Editor"),
+         "text/vnd.qtcreator.git.log",
+         [] { return new GitLogEditorWidgetT<GitEditorWidget>; },
+         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory reflogEditorFactory {{
-        LogOutput,
-        Git::Constants::GIT_REFLOG_EDITOR_ID,
-        VcsBase::Tr::tr("Git Reflog Editor"),
-        "text/vnd.qtcreator.git.reflog",
-        [] { return new GitLogEditorWidgetT<GitReflogEditorWidget>; },
-        std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory reflogEditorFactory{
+        {LogOutput,
+         Git::Constants::GIT_REFLOG_EDITOR_ID,
+         Tr::tr("Git Reflog Editor"),
+         "text/vnd.qtcreator.git.reflog",
+         [] { return new GitLogEditorWidgetT<GitReflogEditorWidget>; },
+         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory blameEditorFactory {{
-        AnnotateOutput,
-        Git::Constants::GIT_BLAME_EDITOR_ID,
-        VcsBase::Tr::tr("Git Annotation Editor"),
-        "text/vnd.qtcreator.git.annotation",
-        [] { return new GitEditorWidget; },
-        std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory blameEditorFactory{
+        {AnnotateOutput,
+         Git::Constants::GIT_BLAME_EDITOR_ID,
+         Tr::tr("Git Annotation Editor"),
+         "text/vnd.qtcreator.git.annotation",
+         [] { return new GitEditorWidget; },
+         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory commitTextEditorFactory {{
-        OtherContent,
-        Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID,
-        VcsBase::Tr::tr("Git Commit Editor"),
-        "text/vnd.qtcreator.git.commit",
-        [] { return new GitEditorWidget; },
-        std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory commitTextEditorFactory{
+        {OtherContent,
+         Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID,
+         Tr::tr("Git Commit Editor"),
+         "text/vnd.qtcreator.git.commit",
+         [] { return new GitEditorWidget; },
+         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory rebaseEditorFactory {{
-        OtherContent,
-        Git::Constants::GIT_REBASE_EDITOR_ID,
-        VcsBase::Tr::tr("Git Rebase Editor"),
-        "text/vnd.qtcreator.git.rebase",
-        [] { return new GitEditorWidget; },
-        std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory rebaseEditorFactory{
+        {OtherContent,
+         Git::Constants::GIT_REBASE_EDITOR_ID,
+         Tr::tr("Git Rebase Editor"),
+         "text/vnd.qtcreator.git.rebase",
+         [] { return new GitEditorWidget; },
+         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)}};
 
 private:
     QStringList lineRange(int &firstLine, bool allowSingleLine = false) const;
@@ -1021,13 +1014,15 @@ GitPluginPrivate::GitPluginPrivate()
 
     m_instantBlame.setup();
 
-    setupVcsSubmitEditor(this, {
-        Git::Constants::SUBMIT_MIMETYPE,
-        Git::Constants::GITSUBMITEDITOR_ID,
-        VcsBase::Tr::tr("Git Submit Editor"),
-        VcsBaseSubmitEditorParameters::DiffRows,
-        [] { return new GitSubmitEditor; },
-    });
+    setupVcsSubmitEditor(
+        this,
+        {
+            Git::Constants::SUBMIT_MIMETYPE,
+            Git::Constants::GITSUBMITEDITOR_ID,
+            Tr::tr("Git Submit Editor"),
+            VcsBaseSubmitEditorParameters::DiffRows,
+            [] { return new GitSubmitEditor; },
+        });
 }
 
 void GitPluginPrivate::diffCurrentFile(GitClient::DiffMode diffMode)

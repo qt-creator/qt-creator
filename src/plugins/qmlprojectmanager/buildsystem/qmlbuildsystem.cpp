@@ -796,7 +796,7 @@ public:
             [](const Kit *, const FilePath &projectPath, bool /* forSetup */) -> QList<BuildInfo> {
                 BuildInfo bi;
                 bi.buildDirectory = projectPath;
-                bi.displayName = bi.typeName = Tr::tr("Default");
+                bi.displayName = bi.typeName = msgBuildConfigurationDefault();
                 bi.showBuildConfigs = bi.showBuildDirConfigWidget = false;
                 return {bi};
             });

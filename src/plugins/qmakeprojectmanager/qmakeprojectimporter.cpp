@@ -191,10 +191,10 @@ const QList<BuildInfo> QmakeProjectImporter::buildInfoList(void *directoryData) 
     BuildInfo info;
     if (data->buildConfig & QtVersion::DebugBuild) {
         info.buildType = BuildConfiguration::Debug;
-        info.displayName = Tr::tr("Debug");
+        info.displayName = msgBuildConfigurationDebug();
     } else {
         info.buildType = BuildConfiguration::Release;
-        info.displayName = Tr::tr("Release");
+        info.displayName = msgBuildConfigurationRelease();
     }
     info.buildDirectory = data->buildDirectory;
 

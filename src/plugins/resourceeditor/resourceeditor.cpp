@@ -11,7 +11,6 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/idocument.h>
@@ -347,7 +346,7 @@ public:
     {
         setId(Constants::RESOURCEEDITOR_ID);
         setMimeTypes(QStringList(Utils::Constants::RESOURCE_MIMETYPE));
-        setDisplayName(::Core::Tr::tr(Constants::C_RESOURCEEDITOR_DISPLAY_NAME));
+        setDisplayName(Tr::tr("Resource Editor"));
 
         FileIconProvider::registerIconOverlayForSuffix(
             ProjectExplorer::Constants::FILEOVERLAY_QRC, "qrc");

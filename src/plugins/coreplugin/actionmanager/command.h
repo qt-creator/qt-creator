@@ -100,6 +100,13 @@ private:
     Internal::CommandPrivate *d;
 };
 
+CORE_EXPORT QString msgClearMenu();
+CORE_EXPORT QString msgShowLeftSideBar();
+CORE_EXPORT QString msgHideLeftSideBar();
+CORE_EXPORT QString msgShowRightSideBar();
+CORE_EXPORT QString msgHideRightSideBar();
+CORE_EXPORT QString msgCopyToClipboard();
+
 } // namespace Core
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Core::Command::CommandAttributes)

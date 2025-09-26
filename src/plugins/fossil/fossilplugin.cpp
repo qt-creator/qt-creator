@@ -38,7 +38,6 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
-#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -136,32 +135,29 @@ public:
     void pullOrPush(FossilCommand command);
 
     // Variables
-    VcsEditorFactory fileLogFactory {{
-        LogOutput,
-        Constants::FILELOG_ID,
-        VcsBase::Tr::tr("Fossil File Log Editor"),
-        Constants::LOGAPP,
-        &createFossilEditorWidget,
-        std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory fileLogFactory{
+        {LogOutput,
+         Constants::FILELOG_ID,
+         Tr::tr("Fossil File Log Editor"),
+         Constants::LOGAPP,
+         &createFossilEditorWidget,
+         std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory annotateLogFactory {{
-        AnnotateOutput,
-        Constants::ANNOTATELOG_ID,
-        VcsBase::Tr::tr("Fossil Annotation Editor"),
-        Constants::ANNOTATEAPP,
-        &createFossilEditorWidget,
-        std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory annotateLogFactory{
+        {AnnotateOutput,
+         Constants::ANNOTATELOG_ID,
+         Tr::tr("Fossil Annotation Editor"),
+         Constants::ANNOTATEAPP,
+         &createFossilEditorWidget,
+         std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory diffFactory {{
-        DiffOutput,
-        Constants::DIFFLOG_ID,
-        VcsBase::Tr::tr("Fossil Diff Editor"),
-        Constants::DIFFAPP,
-        &createFossilEditorWidget,
-        std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory diffFactory{
+        {DiffOutput,
+         Constants::DIFFLOG_ID,
+         Tr::tr("Fossil Diff Editor"),
+         Constants::DIFFAPP,
+         &createFossilEditorWidget,
+         std::bind(&FossilPluginPrivate::vcsDescribe, this, _1, _2)}};
 
     CommandLocator *m_commandLocator = nullptr;
     ActionContainer *m_fossilContainer = nullptr;
@@ -223,13 +219,13 @@ FossilPluginPrivate::FossilPluginPrivate()
 
     createMenu(context);
 
-    setupVcsSubmitEditor(this, {
-        Constants::COMMITMIMETYPE,
-        Constants::COMMIT_ID,
-        VcsBase::Tr::tr("Fossil Commit Log Editor"),
-        VcsBaseSubmitEditorParameters::DiffFiles,
-        [] { return new CommitEditor; }
-    });
+    setupVcsSubmitEditor(
+        this,
+        {Constants::COMMITMIMETYPE,
+         Constants::COMMIT_ID,
+         Tr::tr("Fossil Commit Log Editor"),
+         VcsBaseSubmitEditorParameters::DiffFiles,
+         [] { return new CommitEditor; }});
 }
 
 void FossilPluginPrivate::createMenu(const Context &context)

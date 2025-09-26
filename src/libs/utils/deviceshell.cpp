@@ -185,7 +185,7 @@ Result<> DeviceShell::start()
 
             if (!m_shellProcess->waitForStarted()) {
                 closeShellProcess();
-                return ResultError(Tr::tr("The process failed to start."));
+                return ResultError(msgProcessFailedToStart());
             }
 
             Result<> installResult = installShellScript();
@@ -464,6 +464,11 @@ void DeviceShell::onReadyRead()
         m_commandBuffer.clear();
     else
         m_commandBuffer = m_commandBuffer.mid(lastLineEndIndex);
+}
+
+QString msgProcessFailedToStart()
+{
+    return Tr::tr("The process failed to start.");
 }
 
 } // namespace Utils

@@ -7,7 +7,6 @@
 #include "qdbtr.h"
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtsupporttr.h>
 
 namespace Qdb::Internal {
 
@@ -16,7 +15,7 @@ class QdbQtVersion final : public QtSupport::QtVersion
 public:
     QString description() const final
     {
-        return QtSupport::Tr::tr("Boot2Qt", "Qt version is used for Boot2Qt development");
+        return Tr::tr("Qt version is used for Boot2Qt development");
     }
     QSet<Utils::Id> targetDeviceTypes() const final
     {

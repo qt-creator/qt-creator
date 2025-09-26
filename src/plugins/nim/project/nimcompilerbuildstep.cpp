@@ -65,8 +65,8 @@ QWidget *NimCompilerBuildStep::createConfigWidget()
 
     auto defaultArgumentsComboBox = new QComboBox(widget);
     defaultArgumentsComboBox->addItem(Tr::tr("None", "No default arguments"));
-    defaultArgumentsComboBox->addItem(Tr::tr("Debug"));
-    defaultArgumentsComboBox->addItem(Tr::tr("Release"));
+    defaultArgumentsComboBox->addItem(msgBuildConfigurationDebug());
+    defaultArgumentsComboBox->addItem(msgBuildConfigurationRelease());
 
     auto formLayout = new QFormLayout(widget);
     formLayout->addRow(Tr::tr("Target:"), targetComboBox);

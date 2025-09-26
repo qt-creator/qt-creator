@@ -7,7 +7,6 @@
 
 #include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
-#include <utils/utilstr.h>
 
 #include <coreplugin/icore.h>
 

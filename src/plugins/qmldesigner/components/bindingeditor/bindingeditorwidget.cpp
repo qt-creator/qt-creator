@@ -7,7 +7,6 @@
 #include <qmldesignertr.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreplugintr.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 

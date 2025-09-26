@@ -11,7 +11,6 @@ namespace Constants {
 const char INFO_READ_ONLY[] = "ScxmlEditor.ReadOnly";
 
 const char C_SCXMLEDITOR[] = "Qt5.ScxmlEditor";
-const char C_SCXMLEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Core", "SCXML Editor");
 
 const char K_SCXML_EDITOR_ID[] = "ScxmlEditor.XmlEditor";
 const char C_SCXML_EDITOR[] = "Scxml Editor";

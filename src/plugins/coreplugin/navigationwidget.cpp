@@ -282,14 +282,13 @@ void NavigationWidget::updateToggleAction()
     d->m_toggleSideBarAction->setVisible(toggleActionVisible());
     d->m_toggleSideBarAction->setEnabled(toggleActionEnabled());
     d->m_toggleSideBarAction->setChecked(toggleActionChecked());
-    const char *trToolTip = d->m_side == Side::Left ? (d->m_toggleSideBarAction->isChecked()
-                                                           ? Constants::TR_HIDE_LEFT_SIDEBAR
-                                                           : Constants::TR_SHOW_LEFT_SIDEBAR)
-                                                    : (d->m_toggleSideBarAction->isChecked()
-                                                           ? Constants::TR_HIDE_RIGHT_SIDEBAR
-                                                           : Constants::TR_SHOW_RIGHT_SIDEBAR);
+    const QString toolTip = d->m_side == Side::Left
+                                ? (d->m_toggleSideBarAction->isChecked() ? msgHideLeftSideBar()
+                                                                         : msgShowLeftSideBar())
+                                : (d->m_toggleSideBarAction->isChecked() ? msgHideRightSideBar()
+                                                                         : msgShowRightSideBar());
 
-    d->m_toggleSideBarAction->setToolTip(Tr::tr(trToolTip));
+    d->m_toggleSideBarAction->setToolTip(toolTip);
 }
 
 void NavigationWidget::placeHolderChanged()

@@ -87,4 +87,6 @@ private:
     bool m_forceFailScriptInstallation = false;
 };
 
+QTCREATOR_UTILS_EXPORT QString msgProcessFailedToStart();
+
 } // namespace Utils

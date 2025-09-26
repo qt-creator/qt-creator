@@ -3,9 +3,9 @@
 
 #include "versiondialog.h"
 
+#include "actionmanager/command.h"
 #include "coreicons.h"
 #include "coreplugintr.h"
-#include "coreicons.h"
 #include "icore.h"
 
 #include <utils/algorithm.h>
@@ -56,8 +56,8 @@ VersionDialog::VersionDialog()
     copyRightLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
-    QPushButton *copyButton = buttonBox->addButton(Tr::tr("Copy to Clipboard"),
-                                                   QDialogButtonBox::ActionRole);
+    QPushButton *copyButton
+        = buttonBox->addButton(msgCopyToClipboard(), QDialogButtonBox::ActionRole);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(copyButton, &QPushButton::pressed, this, [] {
         Utils::setClipboardAndSelection(ICore::aboutInformationCompact());

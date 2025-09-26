@@ -496,3 +496,13 @@ void IWizardFactory::setDetailsPageQmlPath(const QString &filePath)
         m_detailsPageQmlPath = QUrl::fromLocalFile(filePath);
     }
 }
+
+QString Core::msgWizardDisplayCategoryQt()
+{
+    return Tr::tr("Qt");
+}
+
+QString Core::msgWizardDisplayCategoryOther()
+{
+    return Tr::tr("Other");
+}

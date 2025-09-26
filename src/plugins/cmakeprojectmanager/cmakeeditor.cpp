@@ -9,12 +9,12 @@
 #include "cmakefilecompletionassist.h"
 #include "cmakeindenter.h"
 #include "cmakeprojectconstants.h"
+#include "cmakeprojectmanagertr.h"
 
 #include "3rdparty/cmake/cmListFileCache.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreplugintr.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
@@ -510,7 +510,7 @@ public:
     CMakeEditorFactory()
     {
         setId(Constants::CMAKE_EDITOR_ID);
-        setDisplayName(::Core::Tr::tr("CMake Editor"));
+        setDisplayName(Tr::tr("CMake Editor"));
         addMimeType(Utils::Constants::CMAKE_MIMETYPE);
         addMimeType(Utils::Constants::CMAKE_PROJECT_MIMETYPE);
 

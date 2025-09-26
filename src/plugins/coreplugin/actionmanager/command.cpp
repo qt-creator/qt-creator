@@ -7,6 +7,7 @@
 #include "actionmanager.h"
 
 #include "../coreconstants.h"
+#include "../coreplugintr.h"
 #include "../icontext.h"
 
 #include <utils/hostosinfo.h>
@@ -622,6 +623,36 @@ QToolButton *Command::toolButtonWithAppendedShortcut(QAction *action, Command *c
 QToolButton *Command::toolButtonWithAppendedShortcut(QAction *action, Utils::Id commandId)
 {
     return toolButtonWithAppendedShortcut(action, ActionManager::command(commandId));
+}
+
+QString msgClearMenu()
+{
+    return Tr::tr("Clear Menu");
+}
+
+QString msgShowLeftSideBar()
+{
+    return Tr::tr("Show Left Sidebar");
+}
+
+QString msgHideLeftSideBar()
+{
+    return Tr::tr("Hide Left Sidebar");
+}
+
+QString msgShowRightSideBar()
+{
+    return Tr::tr("Show Right Sidebar");
+}
+
+QString msgHideRightSideBar()
+{
+    return Tr::tr("Hide Right Sidebar");
+}
+
+QString msgCopyToClipboard()
+{
+    return Tr::tr("Copy to Clipboard");
 }
 
 } // namespace Core

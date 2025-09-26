@@ -6,7 +6,6 @@
 #include "formtemplatewizardpage.h"
 
 #include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
-#include <projectexplorer/projectexplorertr.h>
 
 #include <utils/qtcassert.h>
 #include <utils/wizard.h>
@@ -49,8 +48,8 @@ Result<> FormPageFactory::validateData(Id typeId, const QVariant &data)
     QTC_ASSERT(canCreate(typeId), return ResultError(ResultAssert));
 
     if (!data.isNull() && (data.typeId() != QMetaType::QVariantMap || !data.toMap().isEmpty())) {
-        return ResultError(::ProjectExplorer::Tr::tr(
-                    "\"data\" for a \"Form\" page needs to be unset or an empty object."));
+        return ResultError(
+            Tr::tr("\"data\" for a \"Form\" page needs to be unset or an empty object."));
     }
 
     return ResultOk;

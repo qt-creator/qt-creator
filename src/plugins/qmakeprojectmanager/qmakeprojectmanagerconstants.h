@@ -13,8 +13,6 @@ const char M_CONTEXT[] = "ProFileEditor.ContextMenu";
 
 // Kinds
 const char PROFILE_EDITOR_ID[] = "Qt4.proFileEditor";
-const char PROFILE_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Core", ".pro File Editor");
-
 // Actions
 const char RUNQMAKE[] = "Qt4Builder.RunQMake";
 const char RUNQMAKECONTEXTMENU[] = "Qt4Builder.RunQMakeContextMenu";

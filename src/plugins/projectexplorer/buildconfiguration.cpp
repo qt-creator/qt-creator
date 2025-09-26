@@ -1468,4 +1468,29 @@ BuildConfiguration *activeBuildConfigForCurrentProject()
     return activeBuildConfig(ProjectTree::currentProject());
 }
 
+QString msgBuildConfigurationBuild()
+{
+    return Tr::tr("Build");
+}
+
+QString msgBuildConfigurationDefault()
+{
+    return Tr::tr("Default");
+}
+
+QString msgBuildConfigurationDebug()
+{
+    return Tr::tr("Debug");
+}
+
+QString msgBuildConfigurationRelease()
+{
+    return Tr::tr("Release");
+}
+
+QString msgBuildConfigurationProfile()
+{
+    return Tr::tr("Profile");
+}
+
 } // namespace ProjectExplorer

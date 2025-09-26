@@ -324,8 +324,8 @@ LocatorMatcherTasks cppMatchers(MatcherType type)
 CppAllSymbolsFilter::CppAllSymbolsFilter()
 {
     setId(Constants::LOCATOR_FILTER_ID);
-    setDisplayName(Tr::tr(Constants::LOCATOR_FILTER_DISPLAY_NAME));
-    setDescription(Tr::tr(Constants::LOCATOR_FILTER_DESCRIPTION));
+    setDisplayName(msgSymbolsFilterDisplayName());
+    setDescription(msgSymbolsFilterDescription());
     setDefaultShortcutString(":");
 }
 
@@ -338,8 +338,8 @@ LocatorMatcherTasks CppAllSymbolsFilter::matchers()
 CppClassesFilter::CppClassesFilter()
 {
     setId(Constants::CLASSES_FILTER_ID);
-    setDisplayName(Tr::tr(Constants::CLASSES_FILTER_DISPLAY_NAME));
-    setDescription(Tr::tr(Constants::CLASSES_FILTER_DESCRIPTION));
+    setDisplayName(msgClassesFilterDisplayName());
+    setDescription(msgClassesFilterDescription());
     setDefaultShortcutString("c");
 }
 
@@ -351,8 +351,8 @@ LocatorMatcherTasks CppClassesFilter::matchers()
 CppFunctionsFilter::CppFunctionsFilter()
 {
     setId(Constants::FUNCTIONS_FILTER_ID);
-    setDisplayName(Tr::tr(Constants::FUNCTIONS_FILTER_DISPLAY_NAME));
-    setDescription(Tr::tr(Constants::FUNCTIONS_FILTER_DESCRIPTION));
+    setDisplayName(msgFunctionsFilterDisplayName());
+    setDescription(msgFunctionsFilterDescription());
     setDefaultShortcutString("m");
 }
 
@@ -364,8 +364,8 @@ LocatorMatcherTasks CppFunctionsFilter::matchers()
 CppCurrentDocumentFilter::CppCurrentDocumentFilter()
 {
     setId(Constants::CURRENT_DOCUMENT_FILTER_ID);
-    setDisplayName(Tr::tr(Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME));
-    setDescription(Tr::tr(Constants::CURRENT_DOCUMENT_FILTER_DESCRIPTION));
+    setDisplayName(msgDocumentFilterDisplayName());
+    setDescription(msgDocumentFilterDescription());
     setDefaultShortcutString(".");
     setPriority(High);
 }
@@ -373,6 +373,46 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter()
 LocatorMatcherTasks CppCurrentDocumentFilter::matchers()
 {
     return {currentDocumentMatcher()};
+}
+
+QString msgSymbolsFilterDisplayName()
+{
+    return Tr::tr("C++ Classes, Enums, Functions and Type Aliases");
+}
+
+QString msgSymbolsFilterDescription()
+{
+    return Tr::tr("Locates C++ classes, enums, functions and type aliases in any open project.");
+}
+
+QString msgClassesFilterDisplayName()
+{
+    return Tr::tr("C++ Classes");
+}
+
+QString msgClassesFilterDescription()
+{
+    return Tr::tr("Locates C++ classes in any open project.");
+}
+
+QString msgFunctionsFilterDisplayName()
+{
+    return Tr::tr("C++ Functions");
+}
+
+QString msgFunctionsFilterDescription()
+{
+    return Tr::tr("Locates C++ functions in any open project.");
+}
+
+QString msgDocumentFilterDisplayName()
+{
+    return Tr::tr("C++ Symbols in Current Document");
+}
+
+QString msgDocumentFilterDescription()
+{
+    return Tr::tr("Locates C++ symbols in the current document.");
 }
 
 } // namespace CppEditor

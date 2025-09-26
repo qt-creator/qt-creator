@@ -4,9 +4,8 @@
 #include "compilationdatabaseproject.h"
 
 #include "compilationdatabaseconstants.h"
+#include "compilationdatabaseprojectmanagertr.h"
 #include "compilationdbparser.h"
-
-#include <coreplugin/coreplugintr.h>
 
 #include <cppeditor/projectinfo.h>
 
@@ -491,7 +490,7 @@ public:
     CompilationDatabaseEditorFactory()
     {
         setId(Constants::COMPILATIONDATABASEPROJECT_ID);
-        setDisplayName(::Core::Tr::tr("Compilation Database"));
+        setDisplayName(Tr::tr("Compilation Database"));
         addMimeType(Constants::COMPILATIONDATABASEMIMETYPE);
 
         setEditorCreator([] { return new TextEditor::BaseTextEditor; });

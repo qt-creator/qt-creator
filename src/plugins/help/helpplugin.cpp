@@ -598,8 +598,8 @@ void HelpPluginPrivate::slotSystemInformation()
     layout->addWidget(info);
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
-    QPushButton *copyButton = buttonBox->addButton(Tr::tr("Copy to Clipboard"),
-                                                   QDialogButtonBox::ActionRole);
+    QPushButton *copyButton
+        = buttonBox->addButton(msgCopyToClipboard(), QDialogButtonBox::ActionRole);
     connect(buttonBox, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
     connect(copyButton, &QPushButton::pressed, info, [info] {
         setClipboardAndSelection(info->toPlainText());

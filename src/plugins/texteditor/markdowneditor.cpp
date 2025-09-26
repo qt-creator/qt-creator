@@ -11,7 +11,6 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
@@ -539,7 +538,7 @@ private:
 MarkdownEditorFactory::MarkdownEditorFactory()
 {
     setId(MARKDOWNVIEWER_ID);
-    setDisplayName(::Core::Tr::tr("Markdown Editor"));
+    setDisplayName(Tr::tr("Markdown Editor"));
     addMimeType(MARKDOWNVIEWER_MIME_TYPE);
     setEditorCreator([] { return new MarkdownEditor; });
 

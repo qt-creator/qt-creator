@@ -612,4 +612,9 @@ InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareFo
     return InstallResult::Success;
 }
 
+QString msgPluginChangesRequireRestart()
+{
+    return Tr::tr("Plugin changes will take effect after restart.");
+}
+
 } // namespace Core
