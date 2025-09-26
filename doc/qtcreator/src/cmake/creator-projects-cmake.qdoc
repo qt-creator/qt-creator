@@ -206,12 +206,12 @@
 
     \title Edit CMake configuration files
 
-    To open a CMakeLists.txt file for editing, right-click it in the
+    To open a \c CMakeLists.txt file for editing, right-click it in the
     \uicontrol Projects view and select \uicontrol {Open With} >
     \uicontrol {CMake Editor}.
 
     You can also use the \c cmo filter in the \l {Navigate with locator}{locator}
-    to open the CMakeLists.txt file for the current run configuration
+    to open the \c CMakeLists.txt file for the current run configuration
     in the editor. This is the same build target as when you select
     \uicontrol Build > \uicontrol {Build for Run Configuration}.
 
@@ -296,7 +296,7 @@
 
     \title Format CMake files
 
-    You can use the \l {cmake-format} tool and local \c .cmake-format, \c.py, or
+    You can use the \l {cmake-format} tool and local \c .cmake-format, \c .py, or
     \c .json configuration files to format any text in CMake files that
     you do not guard with a pair of fences. You must install the tool and tell
     \QC where you installed it.
@@ -333,7 +333,7 @@
     When you \l{Create files}{add new or existing files} to
     a project, \QC automatically adds them to the \l {qt_add_executable},
     \l{CMake: add_executable command}{add_executable}, or \l {qt_add_library}
-    function in the CMakeLists.txt file.
+    function in the \c CMakeLists.txt file.
 
     If \QC cannot recognize where the target is created, it will use the
     \l{CMake: target_sources command} {target_sources} function to add the files.
@@ -343,7 +343,7 @@
     function argument.
 
     When you rename or remove files in the \l {Projects} or \l {File System}
-    view, \QC renames them in the CMakeLists.txt file or removes them from it.
+    view, \QC renames them in the \c CMakeLists.txt file or removes them from it.
 
     \sa {Create files}, {Build with CMake}{How To: Build with CMake}, {CMake},
     {File System}, {Projects}
@@ -363,11 +363,11 @@
     \section1 Add your own libraries
 
     Use the \l qt_add_library command to create a library and link against it in
-    the CMakeLists.txt file, as instructed in \l{Structuring projects}.
+    the \c CMakeLists.txt file, as instructed in \l{Structuring projects}.
 
     Specify whether the library is statically or dynamically linked.
     For a statically linked internal library, add the
-    \l{CMake: target_link_libraries command} to the CMakeLists.txt
+    \l{CMake: target_link_libraries command} to the \c CMakeLists.txt
     project file to specify dependencies.
 
     \section1 Add external libraries

@@ -74,18 +74,18 @@
         \li \l {\QMLD}
 
             Or, enable the \QMLD plugin to visually edit \l{UI files}
-            (.ui.qml).
+            (\c .ui.qml).
         \li \l {Converting UI Projects to Applications}
 
-            Qt Quick UI Prototype projects (.qmlproject) are useful
+            Qt Quick UI Prototype projects (\c .qmlproject) are useful
             for creating user interfaces. To use them for application
             development, you have to convert them to Qt Quick
             Application projects that have project configuration
-            files (CMakeLists.txt or .pro), .cpp, and .qrc files.
+            files (\c CMakeLists.txt or \c .pro), \c .cpp, and \c .qrc files.
         \li \l {UI files}
 
             If you switch between \QC and \QDS or cooperate with
-            designers on a project, you might encounter .ui.qml files.
+            designers on a project, you might encounter \c .ui.qml files.
             They are intended to be edited in \QDS only, so you need
             to be careful not to break the code. To visually edit the
             files in \QC, enable the \QMLD plugin.

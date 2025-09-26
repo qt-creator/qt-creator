@@ -65,7 +65,7 @@
 
     Specify whether the library is statically or dynamically linked. For a
     statically linked internal library, \QC adds dependencies as the value of
-    the \l PRE_TARGETDEPS qmake variable in the project file (.pro).
+    the \l PRE_TARGETDEPS qmake variable in the project file (\c .pro).
 
     \section1 Development platform
 
@@ -82,8 +82,8 @@
     in separate folders.
 
     Alternatively, the letter \e d can be added to the library name for the
-    debug version. For example, if the release version is called example.lib,
-    the debug version is called exampled.lib. You can specify that the letter
+    debug version. For example, if the release version is called \c example.lib,
+    the debug version is called \c exampled.lib. You can specify that the letter
     is added for the debug version and removed for the release version.
     If the library name ends in \e d, clear the \uicontrol {Remove "d" suffix
     for release version} option.
@@ -178,7 +178,7 @@
 
     \endlist
 
-    The wizard adds the following library declaration to the .pro file:
+    The wizard adds the following library declaration to the \c .pro file:
 
     \badcode
     win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../../projects/mylib/release/ -lmylib

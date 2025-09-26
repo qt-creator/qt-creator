@@ -23,14 +23,14 @@
     \brief Limitations of \QDS UI files (.ui.qml).
 
     \if defined(qtdesignstudio)
-    \QDS wizards create UI files that have the filename extension \e .ui.qml.
+    \QDS wizards create UI files that have the filename extension \c .ui.qml.
     Edit the UI files in the \l {2D} view.
 
     If you use the \l {Code} view to add code that the \uicontrol {2D} view does
     not support, \QDS displays error messages.
     \else
     If you switch between \QC and \QDS or cooperate with designers on
-    a project, you might encounter UI files (.ui.qml). They are intended to
+    a project, you might encounter UI files (\c .ui.qml). They are intended to
     be edited in \QDS only.
 
     To open UI files with \QDS, select \uicontrol {Open With} >
@@ -38,7 +38,7 @@
     \endif
 
 
-    The following features are not supported in .ui.qml files:
+    The following features are not supported in \c .ui.qml files:
 
     \list
         \li JavaScript blocks
@@ -66,7 +66,7 @@
     \QC supports most JavaScript functions that are supported by the QML
     engine, as well as a subset of Qt QML methods.
 
-    This section lists the functions that you can use in \e .ui.qml files.
+    This section lists the functions that you can use in \c .ui.qml files.
 
     \section2 JavaScript Functions
 
@@ -74,7 +74,7 @@
     and modify states of parameters that are within their scope, and therefore
     always return the same results when given the same parameters. This makes
     it possible to convert and reformat property bindings without breaking the
-    \e .ui.qml files.
+    \c .ui.qml files.
 
     The following JavaScript functions are supported:
 
@@ -186,7 +186,7 @@
 
     In the UI file where the component is used, you can use the \c button
     property alias to implement signal handlers, for example. In the
-    following code snippet, the UI file is called \e MainForm.ui.qml:
+    following code snippet, the UI file is called \c MainForm.ui.qml:
 
     \code
     MainForm {
@@ -198,7 +198,7 @@
     You can also assign properties or define behavior or transitions.
 
     To move from the \l {2D} or \l Navigator view directly to the
-    implementation of a component in the .qml file, right-click the
+    implementation of a component in the \c .qml file, right-click the
     component and select \uicontrol {Go to Implementation} in the
     context menu.
     \else

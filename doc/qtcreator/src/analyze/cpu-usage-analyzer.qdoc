@@ -246,12 +246,12 @@
 
     \section1 Resolving Names for JIT-compiled JavaScript Functions
 
-    Since version 5.6.0, Qt can generate perf.map files with information about
+    Since version 5.6.0, Qt can generate \c perf.map files with information about
     JavaScript functions. Performance Analyzer will read them and show the
     function names in the \uicontrol Timeline, \uicontrol Statistics, and
     \uicontrol {Flame Graph} views. This only works if the process being
     profiled is running on the host computer, not on the target device. To
-    switch on the generation of perf.map files, add the environment variable
+    switch on the generation of \c perf.map files, add the environment variable
     \c QV4_PROFILE_WRITE_PERF_MAP to \uicontrol {Run Environment} and set
     its value to \c 1.
 

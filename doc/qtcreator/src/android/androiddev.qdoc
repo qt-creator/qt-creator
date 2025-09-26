@@ -143,7 +143,7 @@
     \endcode
 
     You can view the latest version of the configuration file that is up-to-date
-    with the Android SDK and NDK changes, \l{sdk_definitions.json}, in Git.
+    with the Android SDK and NDK changes, \l {sdk_definitions.json}{\c sdk_definitions.json}, in Git.
 
     \note For Qt 6.5 or later, \QC reads the NDK version that was used for
     building Qt from \c modules/Core.json and uses it instead of the version

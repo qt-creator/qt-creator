@@ -237,7 +237,7 @@
     \l {Qt for Android Manifest File Configuration}.
 
     If you use CMake as the build system, you must specify the Android package
-    source directory, \c QT_ANDROID_PACKAGE_SOURCE_DIR, in the CMakeList.txt
+    source directory, \c QT_ANDROID_PACKAGE_SOURCE_DIR, in the \c CMakeList.txt
     file, as instructed in the \l{Lock device orientation}
     {mobile device tutorial}.
 

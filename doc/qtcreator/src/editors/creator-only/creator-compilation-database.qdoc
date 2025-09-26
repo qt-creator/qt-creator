@@ -26,7 +26,7 @@
     has, select \uicontrol Build > \uicontrol {Run Generator} > \uicontrol {Compilation Database}.
 
     You can add files, such as non-C files, to the project in
-    \e {compile_database.json.files}.
+    \c {compile_database.json.files}.
 
     You can use the experimental Compilation Database Project Manager to open
     the files in a compilation database with access to all the editing features

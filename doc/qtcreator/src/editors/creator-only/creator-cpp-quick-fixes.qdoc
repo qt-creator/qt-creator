@@ -241,8 +241,8 @@
             information, see \l{Move classes to separate files}.
     \row
         \li Re-order Member Function Definitions According to Declaration Order
-        \li Re-orders method definitions in a .cpp file to follow the order of
-            method declarations in the corresponding .h file.
+        \li Re-orders method definitions in a \c .cpp file to follow the order of
+            method declarations in the corresponding \c .h file.
     \endtable
 
     \section1 Class Member

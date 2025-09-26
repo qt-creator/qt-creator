@@ -49,7 +49,7 @@
     users and should be translated. If the new wizard is included in the \QC
     sources, the translatable strings appear in the \QC translation files and
     can be translated as a part of \QC. Alternatively, you can place the
-    translations in the .json file using the following syntax:
+    translations in the \c .json file using the following syntax:
 
     \code
     "trDisplayName": { "C": "default", "en": "english", "de": "deutsch" }
@@ -65,7 +65,7 @@
 
     \QC has wizards for adding classes, files, and projects. You can
     use them as basis for adding your own wizards. We use the C++ wizard
-    to explain the process and the sections and settings in the .json file.
+    to explain the process and the sections and settings in the \c .json file.
 
     In this example, we create the wizard directory in the shared directory
     and integrate it in the \QC build system, so that it can deployed along with
@@ -181,7 +181,7 @@
 
                 \li \c icon appears next to the \c trDisplayName in the middle
                     panel when \c trDisplayCategory is selected. We recommend
-                    that you specify the path relative to the wizard.json file,
+                    that you specify the path relative to the \c wizard.json file,
                     but you can also use an absolute path. Omit this value to
                     use the default icon for the wizard type.
 
@@ -392,7 +392,7 @@
     \section1 Available Pages
 
     You can add predefined pages to wizards by specifying them in the \c pages
-    section of a wizard.json file.
+    section of a \c wizard.json file.
 
     \section2 Field Page
 

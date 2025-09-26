@@ -24,7 +24,7 @@
             \image {qtcreator-new-project-qt-test.webp} {Project and Test Information dialog in the Qt Test Project wizard}
         \li In \uicontrol {Test case name}, enter a name for the test case.
         \li Select \uicontrol {Requires \QApplication} to add the include
-            statement for QApplication to the main.cpp file of the project.
+            statement for QApplication to the \c main.cpp file of the project.
         \li Select \uicontrol {GUI Application} to create a Qt application.
         \li Select \uicontrol {Generate initialization and cleanup code}
             to add functions to your test that the testing framework
@@ -34,7 +34,7 @@
             Qt 5 or Qt 6.4 or earlier, select \uicontrol {CMake for Qt 5 and Qt 6}.
     \endlist
 
-    \QC creates the test in the specified project directory. Edit the .cpp file
+    \QC creates the test in the specified project directory. Edit the \c .cpp file
     to add private slots for each test function in your test.
 
     For more information about creating Qt tests, see \l{Creating a Test}.
@@ -81,7 +81,7 @@
             Qt 5 or Qt 6.4 or earlier, select \uicontrol {CMake for Qt 5 and Qt 6}.
     \endlist
 
-    \QC creates the test in the specified project directory. Edit the .cpp file
+    \QC creates the test in the specified project directory. Edit the \c .cpp file
     to add private slots for each test function in your test.
 
     \note While scanning for tests, the parser takes into account only files that
@@ -196,7 +196,7 @@
                     the test case.
                 \li In \uicontrol {Boost include directory (optional)},
                     enter the path to the directory that has files needed
-                    by Boost.Test, such as \e version.hpp and the \e test
+                    by Boost.Test, such as \c version.hpp and the \c test
                     subfolder that contains the test header files.
                 \li In \uicontrol {Build system}, select the build
                     system to use for building the project: CMake, qmake, or Qbs.
@@ -287,7 +287,7 @@
     \title Create CTest Based Tests
 
     CTest can execute tests for CMake based projects regardless of the test
-    framework. You configure tests in the project file, usually, CMakeLists.txt.
+    framework. You configure tests in the project file, usually, \c CMakeLists.txt.
     Basically, you enable testing for the project and register the test
     applications or even special commands.
 

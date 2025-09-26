@@ -19,7 +19,7 @@
 
     \section1 Build Directory
 
-    By default, \QC builds qmake projects (that have .pro files) in a separate
+    By default, \QC builds qmake projects (that have \c .pro files) in a separate
     directory from the source directory, as \l{glossary-shadow-build}
     {shadow builds}. This keeps the files generated for each kit separate. If
     you only build and run with a single kit, you can clear the

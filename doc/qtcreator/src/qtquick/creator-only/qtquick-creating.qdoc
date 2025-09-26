@@ -54,7 +54,7 @@
 
             \note If you have not installed the Qt Virtual Keyboard module when
             you installed Qt, an error message will appear when you try to open
-            \e Main.qml for editing. You can use \l{Get and Install Qt}{\QOI}
+            \c Main.qml for editing. You can use \l{Get and Install Qt}{\QOI}
             to install Qt Virtual Keyboard.
 
         \li Select the Qt version to develop with in
@@ -81,7 +81,7 @@
 
     \endlist
 
-    \QC creates a QML file, \e Main.qml, that you can modify in the
+    \QC creates a QML file, \c Main.qml, that you can modify in the
     \uicontrol Edit mode.
 
     \sa {Create Qt Quick UI Prototypes}, {Tutorial: Mobile application},
@@ -105,7 +105,7 @@
 
     \list
         \li C++ code
-        \li Resource files (.qrc)
+        \li Resource files (\c .qrc)
         \li Code needed for deploying applications to \l{glossary-device}
             {devices}
     \endlist
@@ -141,7 +141,7 @@
 
             \note If you have not installed the Qt Virtual Keyboard module when
             you installed Qt, an error message will appear when you try to open
-            \e main.qml.
+            \c main.qml.
 
         \li Select \uicontrol Next to open the \uicontrol {Kit Selection}
             dialog.
@@ -165,14 +165,14 @@
 
     \list
 
-        \li .qmlproject project file defines that all QML, JavaScript, and image
+        \li \c .qmlproject project file defines that all QML, JavaScript, and image
             files in the project folder belong to the project. Therefore, you do
             not need to individually list all the files in the project.
 
-        \li .qml file defines a UI item, such as a component or the
+        \li \c .qml file defines a UI item, such as a component or the
             whole application UI.
 
-        \li Screen01.ui.qml file defines a custom QML type using instances of a
+        \li \c Screen01.ui.qml file defines a custom QML type using instances of a
             Rectangle type that forms the background, a Button, and a Text
             component that displays some text. This file is created if you select
             \uicontrol {Create a project that you can open in \QDS}.

@@ -44,9 +44,9 @@
     \section2 CMake Builds
 
     When using CMake as the build system, use the \l{CMake: install command}
-    {install} command in the CMakeLists.txt file to add the missing files.
+    {install} command in the \c CMakeLists.txt file to add the missing files.
 
-    For example, add the following lines to the CMakeLists.txt file to install
+    For example, add the following lines to the \c CMakeLists.txt file to install
     the binary of your project to the \c /opt directory on the remote device:
 
     \badcode

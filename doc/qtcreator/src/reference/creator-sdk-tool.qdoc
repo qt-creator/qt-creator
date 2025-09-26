@@ -750,7 +750,7 @@
     \section1 Adding, Getting, and Finding Keys
 
     Enter the path to a file relative to the top-level settings directory and
-    without .xml extension, followed by one or more \c {<KEY> <TYPE>:<VALUE>}
+    without \c .xml extension, followed by one or more \c {<KEY> <TYPE>:<VALUE>}
     key-value pairs.
 
     \section1 Removing Configured Items

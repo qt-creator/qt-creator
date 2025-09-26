@@ -149,13 +149,13 @@
 
     To keep working with the third-party toolchain, create a new shell link
     that adds the required paths (as Visual Studio and Qt do). The shell link
-    must point to cmd.exe:
+    must point to \c cmd.exe:
 
     \c {C:\Windows\System32\cmd.exe /K C:\path_to\myenv.bat}
 
     where the /K parameter carries out the command specified in the bat file.
 
-    Create the myenv.bat file at \e path_to, which should be in a convenient
+    Create the \c myenv.bat file at \e path_to, which should be in a convenient
     location. In the file, specify the paths to the toolchains. For example,
 
     \c  {set PATH=C:\path1;C:\path2;%PATH%}

@@ -37,14 +37,14 @@
     \section2 Build with CMake
 
     CMake controls the software compilation process by using simple configuration
-    files, called \e CMakeLists.txt files.
+    files, called \c CMakeLists.txt files.
 
     \generatelist creator-how-to-build-with-cmake
 
     \section2 Build with qmake
 
     qmake automates the generation of Makefiles based on the information in a
-    project file that has the extension \e .pro.
+    project file that has the extension \c .pro.
 
     \generatelist creator-how-to-build-with-qmake
 

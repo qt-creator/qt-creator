@@ -84,7 +84,7 @@
             source file.
         \li Rename existing files. If you change the base name of a
             file, \QC displays a list of other files with the same base name
-            and offers to rename them as well. If you rename a UI file (.ui),
+            and offers to rename them as well. If you rename a UI file (\c .ui),
             \QC also changes corresponding include statements accordingly.
         \li Remove existing files.
         \li Remove existing directories from \l{Import an existing project}

@@ -128,7 +128,7 @@
     \list
         \li Rename IDs
         \li Split initializers
-        \li Move a QML type into a separate file to reuse it in other .qml files
+        \li Move a QML type into a separate file to reuse it in other \c .qml files
     \endlist
 
     The following table summarizes the quick fixes for QML code. The

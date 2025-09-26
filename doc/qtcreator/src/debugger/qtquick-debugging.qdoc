@@ -44,7 +44,7 @@
     \section2 Debugging Qt Quick UI projects
     \endif
 
-    To debug Qt Quick UI projects (.qmlproject), select \uicontrol Automatic
+    To debug Qt Quick UI projects (\c .qmlproject), select \uicontrol Automatic
     or \uicontrol Enabled in \uicontrol{Run Settings} >
     \uicontrol {Debugger Settings} > \uicontrol {QML debugger}.
 
@@ -160,12 +160,12 @@
                 \li When using CMake, the
                     \l{CMake: target_compile_definitions command}
                     {target_compile_definitions} command is defined
-                    in the CMakeLists.txt file:
+                    in the \c CMakeLists.txt file:
                     \c {target_compile_definitions(myapp PRIVATE QT_QML_DEBUG)}
 
                     Where \e myapp is the application to debug.
                 \li When using qmake, the following value is defined for the
-                    \l CONFIG property in the .pro file:
+                    \l CONFIG property in the \c .pro file:
                     \c {CONFIG += qml_debug}
             \endlist
         \endif

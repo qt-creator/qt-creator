@@ -19,9 +19,9 @@
     \title Open projects
 
     To open a project, open the configuration file for the project:
-    \e {CMakeLists.txt} or \e {CMakeCache.txt} (CMake), \e {.pro} (qmake),
-    \e {.qbs} (Qbs), \e {meson.build} (Meson), \e {pyproject.toml} (Python), or
-    \e {Makefile.am} (Autotools, experimental).
+    \c {CMakeLists.txt} or \c {CMakeCache.txt} (CMake), \c {.pro} (qmake),
+    \c {.qbs} (Qbs), \c {meson.build} (Meson), \c {pyproject.toml} (Python), or
+    \c {Makefile.am} (Autotools, experimental).
 
     You can open a project in the following ways:
 
@@ -55,7 +55,7 @@
     To open a directory as a project, go to \uicontrol File >
     \uicontrol {Open Workspace}.
 
-    \QC generates the \e .qtcreator/project.json project file in the directory
+    \QC generates the \c .qtcreator/project.json project file in the directory
     for setting a project name and file exclusion filters. You can add build and
     run settings to the file, as defined by its \l{project.json}{JSON schema}.
 
@@ -79,7 +79,7 @@
 
     \section1 Re-configure projects
 
-    \QC stores information that it needs to build projects in a .user file. If
+    \QC stores information that it needs to build projects in a \c .user file. If
     \QC cannot find the file when you open an existing project, it prompts you
     to enter the information.
 

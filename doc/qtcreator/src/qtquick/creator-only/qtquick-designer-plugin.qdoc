@@ -14,14 +14,14 @@
     Use wizards to create Qt Quick projects that have boiler-plate code. Change
     the code in the \uicontrol Edit mode or use a separate visual editor,
     \l{\QDS documentation}{\QDS} to open and edit \l{UI files}
-    (.ui.qml).
+    (\c .ui.qml).
 
     Don't edit UI files in the \uicontrol Edit mode because it is easy
     to add code that \QDS does not support.
 
     \section1 Opening Files in \QDS
 
-    If you installed \QDS with \QOI, and open a .ui.qml or a .qml file in \QC, it
+    If you installed \QDS with \QOI, and open a \c .ui.qml or a \c .qml file in \QC, it
     asks you whether you would like to open the file in \QDS instead. Select
     \uicontrol {Open in \QDS} to open the file in \QDS.
 
@@ -47,7 +47,7 @@
     Enable the \QMLD plugin in \QC for editing UI files. The functionality is
     restricted and not all \QDS features are supported.
 
-    To use \QMLD, switch to the \uicontrol Design mode when a ui.qml or .qml
+    To use \QMLD, switch to the \uicontrol Design mode when a \c ui.qml or \c .qml
     file is open.
 
     \image {qtquick-designer.webp} {Qt Quick Designer}
