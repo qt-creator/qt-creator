@@ -116,6 +116,8 @@ HelperWidgets.ScrollView {
             text: {
                 if (!ContentLibraryBackend.rootView.isQt6Project) {
                     qsTr("<b>Content Library</b> materials are not supported in Qt5 projects.")
+                } else if (ContentLibraryBackend.rootView.isMcuProject) {
+                    qsTr("<b>Content Library</b> materials are not supported in MCU projects.")
                 } else if (!ContentLibraryBackend.rootView.hasQuick3DImport) {
                     qsTr('To use <b>Content Library</b> materials, add the <b>QtQuick3D</b> module and the <b>View3D</b>
                          component in the <b>Components</b> view, or click

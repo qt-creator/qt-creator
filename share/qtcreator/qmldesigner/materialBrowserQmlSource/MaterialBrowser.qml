@@ -591,6 +591,8 @@ Item {
                 text: {
                     if (!materialBrowserModel.isQt6Project) {
                         qsTr("<b>Material Browser</b> is not supported in Qt5 projects.")
+                    } else if (materialBrowserModel.isMcuProject) {
+                        qsTr("<b>Material Browser</b> is not supported in MCU projects.")
                     } else if (!materialBrowserModel.hasQuick3DImport) {
                         qsTr('To use the <b>Material Browser</b>, add the <b>QtQuick3D</b> module and the <b>View3D</b>
                              component in the <b>Components</b> view, or click

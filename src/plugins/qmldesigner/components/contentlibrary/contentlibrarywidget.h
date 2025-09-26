@@ -43,6 +43,7 @@ class ContentLibraryWidget : public QFrame
     Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
     Q_PROPERTY(bool hasActive3DScene READ hasActive3DScene WRITE setHasActive3DScene NOTIFY hasActive3DSceneChanged)
     Q_PROPERTY(bool isQt6Project READ isQt6Project NOTIFY isQt6ProjectChanged)
+    Q_PROPERTY(bool isMcuProject READ isMcuProject NOTIFY isMcuProjectChanged)
     Q_PROPERTY(bool importerRunning READ importerRunning WRITE setImporterRunning NOTIFY importerRunningChanged)
     Q_PROPERTY(bool hasModelSelection READ hasModelSelection NOTIFY hasModelSelectionChanged)
     Q_PROPERTY(QString showInGraphicalShellMsg MEMBER m_showInGraphicalShellMsg CONSTANT)
@@ -80,6 +81,9 @@ public:
 
     bool isQt6Project() const;
     void setIsQt6Project(bool b);
+
+    bool isMcuProject() const;
+    void setIsMcuProject(bool b);
 
     bool importerRunning() const;
     void setImporterRunning(bool b);
@@ -129,6 +133,7 @@ signals:
     void hasActive3DSceneChanged();
     void isDraggingChanged();
     void isQt6ProjectChanged();
+    void isMcuProjectChanged();
     void importerRunningChanged();
     void hasModelSelectionChanged();
     void importBundle();
@@ -181,6 +186,7 @@ private:
     bool m_hasQuick3DImport = false;
     bool m_isDragging = false;
     bool m_isQt6Project = false;
+    bool m_isMcuProject = false;
     bool m_importerRunning = false;
     bool m_hasModelSelection = false;
     QString m_textureBundleUrl;
