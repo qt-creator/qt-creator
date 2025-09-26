@@ -268,7 +268,7 @@ public:
 
     friend bool operator==(const NodeMetaInfo &first, const NodeMetaInfo &second)
     {
-        return first.m_typeId == second.m_typeId;
+        return first.m_typeId == second.m_typeId && first.m_projectStorage == second.m_projectStorage;
     }
 
     friend auto operator<=>(const NodeMetaInfo &first, const NodeMetaInfo &second)

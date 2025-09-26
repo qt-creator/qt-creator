@@ -65,7 +65,7 @@ public:
 
     friend bool operator==(const PropertyMetaInfo &first, const PropertyMetaInfo &second)
     {
-        return first.m_id == second.m_id;
+        return first.m_id == second.m_id && first.m_projectStorage == second.m_projectStorage;
     }
 
     const ProjectStorageType &projectStorage() const { return *m_projectStorage; }
