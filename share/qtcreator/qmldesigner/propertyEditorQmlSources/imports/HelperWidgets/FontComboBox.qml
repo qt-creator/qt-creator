@@ -59,7 +59,12 @@ StudioControls.ComboBox {
 
     function setupModel() {
         root.model = fileModel.model
-        root.currentIndex = root.find(root.backendValue.value)
+        if (root.enabled) {
+            root.currentIndex = root.find(root.backendValue.value)
+        } else {
+            root.editText = model[0]
+            root.textColor = StudioTheme.Values.themeTextColorDisabled
+        }
     }
 
     function setColor() {

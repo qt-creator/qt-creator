@@ -17,6 +17,7 @@ private:
 
     void listConfFiles();
     void loadConf(const QString &override, bool quiet);
+    void sparkResetIgnoredProperties(QObject *obj);
 
     const QString m_iconResourcePath = QStringLiteral(":/qt-project.org/QmlRuntime/resources/qml-64.png");
     const QString m_confResourcePath = QStringLiteral(":/runner/runnerconf/qmlruntime/");

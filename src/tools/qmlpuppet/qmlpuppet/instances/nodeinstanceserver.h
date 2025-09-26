@@ -214,6 +214,7 @@ public:
     void addAnimation(QQuickAbstractAnimation *animation);
     QList<QQuickAbstractAnimation *> animations() const;
     QVariant animationDefaultValue(int index) const;
+    bool isSpark() const;
 
 public slots:
     void refreshLocalFileProperty(const QString &path);
@@ -298,6 +299,7 @@ protected:
 
 private:
     void setupOnlyWorkingImports(const QStringList &workingImportStatementList);
+    void readMcuOptions();
     ServerNodeInstance m_rootNodeInstance;
     ServerNodeInstance m_activeStateInstance;
     QList<ServerNodeInstance> m_idInstances;
@@ -323,6 +325,7 @@ private:
     int m_extraRenderCurrentPass = 0;
     QList<QQuickAbstractAnimation *> m_animations;
     QList<QVariant> m_defaultValues;
+    bool m_isSpark = false;
 };
 
 }

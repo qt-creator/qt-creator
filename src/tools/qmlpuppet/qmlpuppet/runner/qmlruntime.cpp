@@ -3,6 +3,7 @@
 
 #include "loadwatcher.h"
 #include "qmlruntime.h"
+#include "qmlprivategate.h"
 
 #include <private/qqmlimport_p.h>
 #include <private/qtqmlglobal_p.h>
@@ -277,6 +278,11 @@ void QmlRuntime::initQmlRunner()
         if (m_verboseMode)
             qInfo() << "qml: loading " << qPrintable(url.toString());
         m_qmlEngine->load(url);
+
+        if (m_mcuOptions.isSpark()) {
+            for (QObject* root : m_qmlEngine->rootObjects())
+                sparkResetIgnoredProperties(root);
+        }
     }
 
     if (lw->earlyExit)
@@ -377,3 +383,18 @@ void QmlRuntime::listConfFiles()
             qInfo() << qPrintable(confDirPath);
     }
 }
+
+void QmlRuntime::sparkResetIgnoredProperties(QObject *obj)
+{
+    if (!obj)
+        return;
+
+    using namespace QmlDesigner::Internal;
+    QmlPrivateGate::resetUnsupportedSparkProperties(obj);
+
+    const auto children = obj->children();
+    for (QObject* c : children) {
+        sparkResetIgnoredProperties(c);
+    }
+}
+

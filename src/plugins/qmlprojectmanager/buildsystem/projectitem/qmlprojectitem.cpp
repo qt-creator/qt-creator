@@ -122,6 +122,7 @@ void QmlProjectItem::setupFileFilters()
                                       : fileGroup["directory"].toString();
         Utils::FilePath groupDir = Utils::FilePath::fromString(directory);
         std::unique_ptr<FileFilterItem> fileFilterItem{new FileFilterItem};
+        fileFilterItem->setType(fileGroup["type"].toString());
         fileFilterItem->setRecursive(false);
         fileFilterItem->setPathsProperty(filesArr);
         fileFilterItem->setDefaultDirectory(m_projectFile.parentDir().toUrlishString());
@@ -358,6 +359,16 @@ void QmlProjectItem::setPrimaryLanguage(const QString &language)
     QJsonObject targetObj = m_project["language"].toObject();
     targetObj["primaryLanguage"] = language;
     insertAndUpdateProjectFile("language", targetObj);
+}
+
+QStringList QmlProjectItem::fontFiles() const
+{
+    QStringList fontFiles;
+    for (const auto &fileFilter : m_content) {
+        if (fileFilter->type() == "Font")
+            fontFiles.append(fileFilter->files());
+    }
+    return fontFiles;
 }
 
 Utils::FilePaths QmlProjectItem::files() const

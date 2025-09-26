@@ -72,7 +72,7 @@ VersionData {
     //ComplexProperty is not a type, it's just a way to handle bigger props
     ComplexProperty {
         prefix: "font"
-        bannedProperties: ["wordSpacing", "letterSpacing", "hintingPreference",
+        bannedProperties: ["wordSpacing", "hintingPreference",
             "kerning", "preferShaping",  "capitalization",
             "strikeout", "underline", "styleName", "pointSize"]
     }

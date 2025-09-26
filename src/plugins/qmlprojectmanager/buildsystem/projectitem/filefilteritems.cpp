@@ -52,6 +52,16 @@ FilePaths FileFilterItem::watchedDirectories() const
     return m_dirWatcher ? m_dirWatcher->directories() : FilePaths();
 }
 
+QString FileFilterItem::type() const
+{
+    return m_type;
+}
+
+void FileFilterItem::setType(const QString &type)
+{
+    m_type = type;
+}
+
 QString FileFilterItem::directory() const
 {
     return m_rootDir;

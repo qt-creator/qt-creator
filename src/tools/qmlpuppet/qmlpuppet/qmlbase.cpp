@@ -16,6 +16,7 @@
 #include <QUrl>
 #include <QtEnvironmentVariables>
 #include <QtLogging>
+#include "private/qfontdatabase_p.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -25,12 +26,7 @@ QmlBase::QmlBase(int &argc, char **argv, QObject *parent)
     , m_args({.argc = argc, .argv = argv})
 {
     m_argParser.setApplicationDescription("QML Runtime Provider for QDS");
-    m_argParser.addOption({"qml-puppet", "Run QML Puppet (default)"});
-    m_argParser.addOption({"qml-renderer", "Run QML Renderer"});
-#ifdef ENABLE_INTERNAL_QML_RUNTIME
-    m_argParser.addOption({"qml-runtime", "Run QML Runtime"});
-#endif
-    m_argParser.addOption({"test", "Run test mode"});
+    addCommandLineOptions(m_argParser);
 }
 
 int QmlBase::startTestMode()
@@ -43,17 +39,13 @@ void QmlBase::initQmlRunner()
 {
     QmlDesigner::Internal::QmlPrivateGate::registerFixResourcePathsForObjectCallBack();
 
-    if (const QString defaultFontFamily = qEnvironmentVariable(QMLPUPPET_ENV_DEFAULT_FONT_FAMILY);
-        !defaultFontFamily.isEmpty()) {
-        if (qobject_cast<QGuiApplication *>(QCoreApplication::instance()) != nullptr) {
-            QGuiApplication::setFont(QFont{defaultFontFamily});
-        }
+    if (const auto& defaultFontFamily = m_mcuOptions.defaultFont) {
+        if (qobject_cast<QGuiApplication *>(QCoreApplication::instance()) != nullptr)
+            QGuiApplication::setFont(QFont{*defaultFontFamily});
     }
 
-    if (const QString mcuFontsFolder = qEnvironmentVariable(QMLPUPPET_ENV_MCU_FONTS_DIR);
-        !mcuFontsFolder.isEmpty()) {
-        registerFonts(mcuFontsFolder);
-    }
+    if (const auto& fontsFolder = m_mcuOptions.fontDirectory)
+        registerFonts(*fontsFolder);
 }
 
 int QmlBase::run()
@@ -68,6 +60,12 @@ int QmlBase::run()
 
     initParser();
     initQmlRunner();
+
+    if (m_mcuOptions.isSpark()) {
+        if (m_mcuOptions.fontFile.has_value())
+            setFontFileExclusive(*m_mcuOptions.fontFile);
+    }
+
     return QCoreApplication::exec();
 }
 
@@ -88,6 +86,48 @@ void QmlBase::initParser()
     } else if (m_argParser.isSet("test")) {
         exit(startTestMode());
     }
+
+    m_mcuOptions.parse(m_argParser);
+}
+
+void QmlBase::setFontFileExclusive(const QString &fontFile)
+{
+    QString fontFamily;
+    if (const int fontId = QFontDatabase::addApplicationFont(fontFile); fontId >= 0 ) {
+        const QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
+        QFontDatabase::removeApplicationFont(fontId);
+        fontFamily = fontFamilies.first();
+    }
+
+    auto *db = QFontDatabasePrivate::instance();
+    db->fallbacksCache.clear();
+
+    for (auto fam : QFontDatabase::families()) {
+        if (fam == fontFamily)
+            continue;
+        QFont::insertSubstitution(fam, fontFamily);
+    }
+
+    db->clearFamilies();
+    db->populated = true;
+
+    qGuiApp->setFont(QFont(fontFamily));
+    QFontDatabase::addApplicationFont(fontFile);
+}
+
+void QmlBase::addCommandLineOptions(QCommandLineParser &parser)
+{
+    parser.addOption({"qml-puppet", "Run QML Puppet (default)"});
+    parser.addOption({"qml-renderer", "Run QML Renderer"});
+#ifdef ENABLE_INTERNAL_QML_RUNTIME
+    parser.addOption({"qml-runtime", "Run QML Runtime"});
+#endif
+    parser.addOption({"test", "Run test mode"});
+
+    parser.addOption({"mcu-font-file", "MCU font file when spark engine is used", "String"});
+    parser.addOption({"mcu-font-engine", "MCU font engine beeing used", "String"});
+    parser.addOption({"mcu-font-dir", "MCU mode enabled", "String"});
+    parser.addOption({"mcu-default-font", "Default Font Family for mcu projects", "String"});
 }
 
 void QmlBase::registerFonts(const QDir &dir)
@@ -98,4 +138,21 @@ void QmlBase::registerFonts(const QDir &dir)
     while (itr.hasNext()) {
         QFontDatabase::addApplicationFont(itr.next());
     }
+}
+
+bool QmlBase::McuOptions::isSpark() const
+{
+    return fontEngine.value_or("Static") == QStringLiteral("Spark");
+}
+
+void QmlBase::McuOptions::parse(const QCommandLineParser &parser)
+{
+    if (parser.isSet("mcu-font-engine"))
+        fontEngine = parser.value("mcu-font-engine");
+    if (parser.isSet("mcu-font-file"))
+        fontFile = parser.value("mcu-font-file");
+    if (parser.isSet("mcu-default-font"))
+        defaultFont = parser.value("mcu-default-font");
+    if (parser.isSet("mcu-font-dir"))
+        fontDirectory = parser.value("mcu-font-dir");
 }

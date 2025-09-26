@@ -545,6 +545,9 @@ Qt5NodeInstanceServer *QuickItemNodeInstance::qt5NodeInstanceServer() const
 
 void QuickItemNodeInstance::updateDirtyNodesRecursive(QQuickItem *parentItem) const
 {
+    if (nodeInstanceServer()->isSpark())
+        QmlPrivateGate::resetUnsupportedSparkProperties(parentItem);
+
     const QList<QQuickItem *> childItems = parentItem->childItems();
     for (QQuickItem *childItem : childItems) {
         if (!nodeInstanceServer()->hasInstanceForObject(childItem))

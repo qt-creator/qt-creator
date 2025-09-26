@@ -57,11 +57,10 @@ QProcessUniquePointer puppetProcess(const QString &puppetPath,
     puppetProcess->setWorkingDirectory(workingDirectory);
 
     QStringList processArguments;
-    if (puppetMode == "custom")
-        processArguments = customOptions;
-    else
+    if (puppetMode != "custom")
         processArguments = {socketToken, puppetMode};
 
+    processArguments.append(customOptions);
     processArguments.push_back(freeTypeOption);
 
     puppetProcess->start(puppetPath, processArguments);

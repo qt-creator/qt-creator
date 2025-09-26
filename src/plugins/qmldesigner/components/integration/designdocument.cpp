@@ -461,18 +461,6 @@ bool DesignDocument::isQtForMCUsProject() const
     return false;
 }
 
-QString DesignDocument::defaultFontFamilyMCU() const
-{
-    NanotraceHR::Tracer tracer{"design document default font family MCU", category()};
-
-    if (!m_currentTarget || !m_currentTarget->buildSystem())
-        return QmlProjectManager::Constants::FALLBACK_MCU_FONT_FAMILY;
-
-    return m_currentTarget->buildSystem()
-        ->additionalData(QmlProjectManager::Constants::customDefaultFontFamilyMCU)
-        .toString();
-}
-
 Utils::FilePath DesignDocument::projectFolder() const
 {
     NanotraceHR::Tracer tracer{"design document project folder", category()};

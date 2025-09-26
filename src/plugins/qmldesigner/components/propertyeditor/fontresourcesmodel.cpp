@@ -159,6 +159,10 @@ QStringList FontResourcesModel::model() const
 {
     NanotraceHR::Tracer tracer{"file resources model model", category()};
 
+    auto& mcuManager = QmlDesigner::DesignerMcuManager::instance();
+    if (mcuManager.hasSparkEngine())
+        return mcuManager.fontFamilies();
+
     QSet<QString> fonts;
     for (const auto &item : m_resourceModel->model()) {
         auto family = fontFamily(item.absoluteFilePath());

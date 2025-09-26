@@ -12,6 +12,8 @@
 #include <QSet>
 #include <QHash>
 
+namespace QmlProjectManager { class QmlBuildSystem; }
+
 namespace QmlDesigner {
 
 class QMLDESIGNERCOMPONENTS_EXPORT DesignerMcuManager
@@ -31,9 +33,10 @@ public:
     static DesignerMcuManager& instance();
 
     static QString mcuResourcesPath();
-    static QString defaultFontFamilyMCU();
 
     bool isMCUProject() const;
+    bool hasSparkEngine() const;
+    QStringList fontFamilies() const;
 
     void readMetadata();
     void readVersionData(const DesignerMcuManager::Version &version);
@@ -57,6 +60,8 @@ public:
 private:
     DesignerMcuManager();
     ~DesignerMcuManager();
+
+    QmlProjectManager::QmlBuildSystem* buildSystem() const;
 
 private:
     DesignerMcuManager::Version m_currentVersion;

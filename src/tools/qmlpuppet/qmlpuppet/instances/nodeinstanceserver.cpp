@@ -176,6 +176,8 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
     nodeInstanceServerInstance = this;
     Internal::QmlPrivateGate::registerNotifyPropertyChangeCallBack(notifyPropertyChangeCallBackPointer);
     Internal::QmlPrivateGate::registerFixResourcePathsForObjectCallBack();
+
+    readMcuOptions();
 }
 
 NodeInstanceServer::~NodeInstanceServer()
@@ -1577,6 +1579,9 @@ void NodeInstanceServer::registerFonts(const QUrl &resourceUrl) const
     if (!resourceUrl.isValid())
         return;
 
+    if (isSpark())
+        return;
+
     QmlBase::registerFonts(resourceUrl.toLocalFile());
 }
 
@@ -1623,6 +1628,24 @@ QList<QQuickAbstractAnimation *> NodeInstanceServer::animations() const
 QVariant NodeInstanceServer::animationDefaultValue(int index) const
 {
     return m_defaultValues.at(index);
+}
+
+bool NodeInstanceServer::isSpark() const
+{
+    return m_isSpark;
+}
+
+void NodeInstanceServer::readMcuOptions()
+{
+    QCommandLineParser argParser;
+    QmlBase::addCommandLineOptions(argParser);
+    if (argParser.parse(QCoreApplication::arguments())) {
+        QmlBase::McuOptions mcuOptions;
+        mcuOptions.parse(argParser);
+        if (mcuOptions.isSpark()) {
+            m_isSpark = true;
+        }
+    }
 }
 
 } // namespace QmlDesigner

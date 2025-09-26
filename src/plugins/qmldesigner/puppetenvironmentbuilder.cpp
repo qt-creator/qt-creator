@@ -263,7 +263,6 @@ void PuppetEnvironmentBuilder::addResolveUrlsOnAssignment() const
 void PuppetEnvironmentBuilder::addMcuItems() const
 {
     if (QmlDesigner::DesignerMcuManager::instance().isMCUProject()) {
-        addMcuFonts();
 
         const Utils::FilePath projectRoot = ProjectExplorer::ProjectManager::startupProject()
                                                 ->projectFilePath()
@@ -271,22 +270,6 @@ void PuppetEnvironmentBuilder::addMcuItems() const
         m_environment.set(QmlProjectManager::Constants::QMLPUPPET_ENV_PROJECT_ROOT,
                           projectRoot.toUserOutput());
     }
-}
-
-void PuppetEnvironmentBuilder::addMcuFonts() const
-{
-    const Utils::Result<Utils::FilePath> mcuFontsDir = QmlProjectManager::mcuFontsDir();
-    if (!mcuFontsDir) {
-        qCWarning(puppetEnvirmentBuild)
-            << "Failed to locate MCU installation." << mcuFontsDir.error();
-        return;
-    }
-
-    m_environment.set(QmlProjectManager::Constants::QMLPUPPET_ENV_MCU_FONTS_DIR,
-                      mcuFontsDir->toUserOutput());
-    const QString defaultFontFamily = DesignerMcuManager::defaultFontFamilyMCU();
-    m_environment.set(QmlProjectManager::Constants::QMLPUPPET_ENV_DEFAULT_FONT_FAMILY,
-                      defaultFontFamily);
 }
 
 PuppetType PuppetEnvironmentBuilder::determinePuppetType() const

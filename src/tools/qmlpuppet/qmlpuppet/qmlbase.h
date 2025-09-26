@@ -14,10 +14,9 @@ class QmlBase : public QObject
     Q_OBJECT
 public:
     // These constants should be kept in sync with their counterparts in qmlprojectconstants.h
-    static constexpr char QMLPUPPET_ENV_MCU_FONTS_DIR[] = "QMLPUPPET_MCU_FONTS_DIR";
-    static constexpr char QMLPUPPET_ENV_DEFAULT_FONT_FAMILY[] = "QMLPUPPET_DEFAULT_FONT_FAMILY";
     static constexpr char QMLPUPPET_ENV_PROJECT_ROOT[] = "QMLPUPPET_PROJECT_ROOT";
 
+    static void addCommandLineOptions(QCommandLineParser &parser);
     static void registerFonts(const QDir &dir);
 
     struct AppArgs
@@ -25,6 +24,18 @@ public:
     public:
         int argc;
         char **argv;
+    };
+
+    struct McuOptions
+    {
+        std::optional<QString> fontEngine = std::nullopt;
+        std::optional<QString> fontFile = std::nullopt;
+
+        std::optional<QString> defaultFont = std::nullopt;
+        std::optional<QString> fontDirectory = std::nullopt;
+
+        bool isSpark() const;
+        void parse(const QCommandLineParser &parser);
     };
 
     QmlBase(int &argc, char **argv, QObject *parent = nullptr);
@@ -50,7 +61,9 @@ protected:
     QSharedPointer<QQmlApplicationEngine> m_qmlEngine;
 
     AppArgs m_args;
+    McuOptions m_mcuOptions;
 
 private:
     void initParser();
+    void setFontFileExclusive(const QString &fontFile);
 };

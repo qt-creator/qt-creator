@@ -757,6 +757,30 @@ void doResetProperty(QObject *object, QQmlContext *context, const PropertyName &
        //QQuickDesignerSupportProperties::doResetProperty(object, context, propertyName);
 }
 
+void resetUnsupportedSparkProperties(QObject *object)
+{
+    if (object->metaObject()->className() == QString("QQuickText")) {
+
+        std::vector<std::tuple<QQmlProperty, QVariant>> properties = {
+            { {object, "font.styleName"}, QVariant("Regular") },
+            { {object, "font.wordSpacing"}, QVariant(0.0) },
+            { {object, "font.italic"}, QVariant(false) },
+            { {object, "font.bold"}, QVariant(false) },
+            { {object, "font.underline"}, QVariant(false) }
+        };
+
+        for (auto &[property, defaultVal] : properties) {
+            if (!property.isValid())
+                continue;
+
+            if (property.isResettable())
+                property.reset();
+            else if (property.isWritable())
+                property.write(defaultVal);
+        }
+    }
+}
+
 bool hasValidResetBinding(QObject *object, const PropertyName &propertyName)
 {
     if (propertyName == "Layout.rowSpan")

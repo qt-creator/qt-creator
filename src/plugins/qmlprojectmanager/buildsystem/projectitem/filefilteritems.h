@@ -22,6 +22,7 @@ using FileFilterItems = std::vector<FileFilterItemPtr>;
 class FileFilterItem : public QObject {
     Q_OBJECT
 
+    Q_PROPERTY(QString type READ type WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(QString directory READ directory WRITE setDirectory NOTIFY directoryChanged)
     Q_PROPERTY(bool recursive READ recursive WRITE setRecursive NOTIFY recursiveChanged)
     Q_PROPERTY(QStringList paths READ pathsProperty WRITE setPathsProperty)
@@ -31,6 +32,9 @@ class FileFilterItem : public QObject {
 public:
     FileFilterItem();
     FileFilterItem(const QString &directory, const QStringList &filters);
+
+    QString type() const;
+    void setType(const QString &type);
 
     QString directory() const;
     void setDirectory(const QString &directoryPath);
@@ -50,6 +54,7 @@ public:
     bool matchesFile(const QString &filePath) const;
 
 signals:
+    void typeChanged();
     void directoryChanged();
     void recursiveChanged();
     void pathsChanged();
@@ -70,6 +75,7 @@ private:
     Utils::FileSystemWatcher *dirWatcher();
     Utils::FilePaths watchedDirectories() const;
 
+    QString m_type = {};
     QString m_rootDir;
     QString m_defaultDir;
 

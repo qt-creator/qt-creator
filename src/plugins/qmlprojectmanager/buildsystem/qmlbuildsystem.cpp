@@ -6,6 +6,7 @@
 #include "../qmlprojectconstants.h"
 #include "../qmlprojectmanagertr.h"
 #include "../qmlproject.h"
+#include "../qmlprojectexporter/filetypes.h"
 #include "projectitem/qmlprojectitem.h"
 #include "projectnode/qmlprojectnodes.h"
 
@@ -113,16 +114,51 @@ void QmlBuildSystem::updateDeploymentData()
     setDeploymentData(deploymentData);
 }
 
-QString QmlBuildSystem::defaultFontFamilyMCU() const
+QString QmlBuildSystem::fontEngine() const
+{
+    if (!qtForMCUs())
+        return "";
+
+    const QJsonObject project = m_projectItem->project();
+    QString fontengine = project["mcu"].toObject()["config"].toObject()["fontEngine"].toString();
+    if (!fontengine.isEmpty())
+        return fontengine;
+
+    return QmlProjectManager::Constants::FALLBACK_MCU_FONT_ENGINE;
+}
+
+QString QmlBuildSystem::fontFile() const
+{
+    if (QStringList fontFiles = m_projectItem->fontFiles(); !fontFiles.isEmpty())
+        return fontFiles.first();
+
+    return "";
+}
+
+QString QmlBuildSystem::defaultFontFamily() const
 {
     const QJsonObject project = m_projectItem->project();
     QString defaultFontFamily = project["mcu"].toObject()["config"].toObject()["defaultFontFamily"].toString();
 
-    if (!defaultFontFamily.isEmpty()) {
+    if (!defaultFontFamily.isEmpty())
         return defaultFontFamily;
-    }
 
     return QmlProjectManager::Constants::FALLBACK_MCU_FONT_FAMILY;
+}
+
+QStringList QmlBuildSystem::fontFamilies() const
+{
+    QStringList fontFiles = m_projectItem->fontFiles();
+
+    QStringList out = {};
+    for (const auto& file : fontFiles) {
+        if (const int fontId = QFontDatabase::addApplicationFont(file); fontId >= 0 ) {
+            const QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
+            QFontDatabase::removeApplicationFont(fontId);
+            out << fontFamilies;
+        }
+    }
+    return out;
 }
 
 //probably this method needs to be moved into QmlProjectPlugin::initialize to be called only once
@@ -289,11 +325,19 @@ void QmlBuildSystem::generateProjectTree()
             uniqueFiles.insert(file);
     }
 
+    bool checkFontFilesError = false;
+    if (qtForMCUs() && fontEngine().toLower() == "spark")
+        checkFontFilesError = m_projectItem->fontFiles().size() != 1;
+
     for (const auto &file : uniqueFiles) {
         const FileType fileType = (file == projectFilePath())
             ? FileType::Project
             : FileNode::fileTypeForFileName(file);
-        newRoot->addNestedNode(std::make_unique<FileNode>(file, fileType));
+
+        auto fileNode = std::make_unique<FileNode>(file, fileType);
+        if (checkFontFilesError && isFontFile(fileNode->filePath()))
+            fileNode->setHasError(true);
+        newRoot->addNestedNode(std::move(fileNode));
     }
 
     if (!projectFilePath().endsWith(Constants::fakeProjectName))
@@ -608,7 +652,7 @@ QVariant QmlBuildSystem::additionalData(Utils::Id id) const
     if (id == Constants::canonicalProjectDir)
         return canonicalProjectDir().toUrlishString();
     if (id == Constants::customDefaultFontFamilyMCU)
-        return defaultFontFamilyMCU();
+        return defaultFontFamily();
     return {};
 }
 
@@ -708,15 +752,6 @@ Utils::EnvironmentItems QmlBuildSystem::environment() const
     if (qtForMCUs()) {
         const Utils::FilePath projectRoot = qmlProject()->projectFilePath().parentDir();
         env.append({Constants::QMLPUPPET_ENV_PROJECT_ROOT, projectRoot.toUserOutput()});
-
-        Utils::Result<Utils::FilePath> fontsDir = mcuFontsDir();
-        if (!fontsDir) {
-            qWarning() << "Failed to locate MCU installation." << fontsDir.error();
-            return env;
-        }
-
-        env.append({Constants::QMLPUPPET_ENV_MCU_FONTS_DIR, fontsDir->toUserOutput()});
-        env.append({Constants::QMLPUPPET_ENV_DEFAULT_FONT_FAMILY, defaultFontFamilyMCU()});
     }
 
     return env;

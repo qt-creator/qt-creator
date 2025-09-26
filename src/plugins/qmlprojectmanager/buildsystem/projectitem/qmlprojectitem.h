@@ -69,6 +69,7 @@ public:
     QString primaryLanguage() const;
     void setPrimaryLanguage(const QString &language);
 
+    QStringList fontFiles() const;
     Utils::FilePaths files() const;
     bool matchesFile(const QString &filePath) const;
 

@@ -50,6 +50,7 @@ public:
     void registerCustomData(QObject *object);
     QVariant getResetValue(QObject *object, const PropertyName &propertyName);
     void doResetProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName);
+    void resetUnsupportedSparkProperties(QObject *object);
     bool hasValidResetBinding(QObject *object, const PropertyName &propertyName);
 
     bool hasBindingForProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName, bool *hasChanged);

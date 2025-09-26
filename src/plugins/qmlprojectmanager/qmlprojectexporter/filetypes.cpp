@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "filetypes.h"
+#include "qmlprojectconstants.h"
 
 namespace QmlProjectManager {
 
@@ -42,8 +43,14 @@ bool isAssetFile(const Utils::FilePath &path)
 
 bool isFontFile(const Utils::FilePath &path)
 {
-    static const QStringList suffixes = {"eot", "otf", "ttf", "woff", "woff2"};
-    return suffixes.contains(path.suffix(), Qt::CaseInsensitive);
+    static const QSet<QString> fontSuffixes = [] {
+        QSet<QString> s;
+        for (auto f : Constants::QDS_FONT_FILES_FILTERS)
+            s.insert(QString::fromLatin1(f));
+        return s;
+    }();
+
+    return fontSuffixes.contains("*." + path.suffix());
 }
 
 bool isResource(const Utils::FilePath &path)

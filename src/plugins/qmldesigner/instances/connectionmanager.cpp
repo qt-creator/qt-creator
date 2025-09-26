@@ -5,8 +5,10 @@
 #include "endpuppetcommand.h"
 #include "nodeinstancetracing.h"
 #include "puppetstarter.h"
+#include "qmlbuildsystem.h"
 
 #include <qmldesigner/qmldesignerplugin.h>
+#include <qmlprojectmanager/qmlproject.h>
 
 #include <externaldependenciesinterface.h>
 #include <abstractview.h>
@@ -47,6 +49,19 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
                                  view,
                                  externalDependencies);
 
+    QStringList mcuArgs;
+    using QmlBuildSystem = QmlProjectManager::QmlBuildSystem;
+    if (auto* qmlBuildSystem = qobject_cast<QmlBuildSystem *>(target->buildSystem())) {
+        if (qmlBuildSystem->qtForMCUs()) {
+            mcuArgs.append({"--mcu-font-engine", qmlBuildSystem->fontEngine()});
+            mcuArgs.append({"--mcu-default-font", qmlBuildSystem->defaultFontFamily()});
+            if (auto fontFile = qmlBuildSystem->fontFile(); !fontFile.isEmpty())
+                mcuArgs.append({"--mcu-font-file", fontFile});
+            if (auto fontsDir = QmlProjectManager::mcuFontsDir())
+                mcuArgs.append({"--mcu-font-dir", fontsDir->toUrlishString()});
+        }
+    }
+
     QString qmlPuppetPath;
     for (Connection &connection : m_connections) {
 
@@ -62,7 +77,9 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
             [&] { printProcessOutput(connection.qmlPuppetProcess.get(), connection.name); },
             [&](int exitCode, QProcess::ExitStatus exitStatus) {
                 processFinished(exitCode, exitStatus, connection.name);
-            });
+            },
+            mcuArgs);
+
         if (qmlPuppetPath.isEmpty() && connection.qmlPuppetProcess) {
             qmlPuppetPath = connection.qmlPuppetProcess.get()->program();
             qDebug() << "Start QMLPuppets from: " << qmlPuppetPath;

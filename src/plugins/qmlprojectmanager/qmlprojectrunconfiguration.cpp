@@ -4,6 +4,7 @@
 #include "buildsystem/qmlbuildsystem.h"
 #include "qmlmainfileaspect.h"
 #include "qmlmultilanguageaspect.h"
+#include "qmlproject.h"
 #include "qmlprojectconstants.h"
 #include "qmlprojectmanagertr.h"
 #include "qmlprojectrunconfiguration.h"
@@ -106,9 +107,28 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(BuildConfiguration *bc, I
             cmd.addArg("windows:fontengine=freetype");
         }
 
-        if (bs->qt6Project() && bs->widgetApp()) {
-            cmd.addArg("--apptype");
+        cmd.addArg("--apptype");
+        if (bs->qt6Project() && bs->widgetApp())
             cmd.addArg("widget");
+        else
+            cmd.addArg("gui");
+
+        if (bs->qtForMCUs()) {
+            cmd.addArg("--mcu-font-engine");
+            cmd.addArg(bs->fontEngine());
+
+            if (auto fontFile = bs->fontFile(); !fontFile.isEmpty()) {
+                cmd.addArg("--mcu-font-file");
+                cmd.addArg(fontFile);
+            }
+
+            cmd.addArg("--mcu-default-font");
+            cmd.addArg(bs->defaultFontFamily());
+
+            if (auto fontsDir = QmlProjectManager::mcuFontsDir()) {
+                cmd.addArg("--mcu-font-dir");
+                cmd.addArg(fontsDir->toUrlishString());
+            }
         }
 
         const FilePath main = bs->targetFile(mainScript());

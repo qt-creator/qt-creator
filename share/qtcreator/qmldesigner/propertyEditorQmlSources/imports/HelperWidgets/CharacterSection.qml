@@ -108,13 +108,20 @@ Section {
 
         PropertyLabel {
             text: qsTr("Font")
-            tooltip: qsTr("Sets the font of the text.")
+            tooltip: fontComboBox.spark ?
+                qsTr("Assign the font in the qmlproject for the spark engine.") :
+                qsTr("Sets the font of the text.")
+
+            enabled: !fontComboBox.spark
+            blockedByTemplate: fontComboBox.spark
         }
 
         SecondColumnLayout {
             FontComboBox {
                 id: fontComboBox
                 property string familyName: backendValue.value
+                property bool spark: !backendValue.isAvailable
+                enabled: !spark
                 backendValue: root.fontFamily
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth

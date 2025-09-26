@@ -51,7 +51,6 @@ private:
     void addDisableDeferredProperties() const;
     void addResolveUrlsOnAssignment() const;
     void addMcuItems() const;
-    void addMcuFonts() const;
 
 private:
     ProjectExplorer::BuildSystem *m_buildSystem = nullptr;

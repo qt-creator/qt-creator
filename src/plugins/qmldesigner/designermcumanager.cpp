@@ -7,7 +7,9 @@
 #include "designersettings.h"
 #include "designdocument.h"
 
+#include <projectexplorer/target.h>
 #include <qmljs/qmljssimplereader.h>
+#include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
 #include <qmlprojectmanager/qmlprojectconstants.h>
 
 #include <utils/qtcassert.h>
@@ -46,30 +48,25 @@ QString DesignerMcuManager::mcuResourcesPath()
     return Core::ICore::resourcePath("qmldesigner/qt4mcu").toUrlishString();
 }
 
-QString DesignerMcuManager::defaultFontFamilyMCU()
-{
-    const QmlDesignerPlugin *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
-    if (designerPlugin == nullptr) {
-        return QmlProjectManager::Constants::FALLBACK_MCU_FONT_FAMILY;
-    }
-
-    const QmlDesigner::DesignDocument *designDocument = designerPlugin->documentManager()
-                                                            .currentDesignDocument();
-    if (designDocument == nullptr) {
-        return QmlProjectManager::Constants::FALLBACK_MCU_FONT_FAMILY;
-    }
-
-    return designDocument->defaultFontFamilyMCU();
-}
-
 bool DesignerMcuManager::isMCUProject() const
 {
-    QmlDesigner::DesignDocument *designDocument = QmlDesigner::QmlDesignerPlugin::instance()
-                                                      ->documentManager().currentDesignDocument();
-    if (designDocument)
-        return designDocument->isQtForMCUsProject();
-
+    if (auto *bs = buildSystem())
+        return bs->qtForMCUs();
     return false;
+}
+
+bool DesignerMcuManager::hasSparkEngine() const
+{
+    if (auto *bs = buildSystem())
+        return bs->fontEngine().toLower() == "spark";
+    return false;
+}
+
+QStringList DesignerMcuManager::fontFamilies() const
+{
+    if (auto *bs = buildSystem())
+        return bs->fontFamilies();
+    return {};
 }
 
 void DesignerMcuManager::readMetadata()
@@ -235,6 +232,27 @@ QHash<QString, DesignerMcuManager::ItemProperties> DesignerMcuManager::allowedIt
 
 QHash<QString, QStringList> DesignerMcuManager::bannedComplexProperties() const
 {
+    if (hasSparkEngine()) {
+        QSet<QString> bannedForSpark = {
+            "family",
+            "styleName",
+            "wordSpacing",
+            "underline",
+            "bold",
+            "italic"
+        };
+
+        auto properties = m_bannedComplexProperties;
+        if (auto iter = properties.find("font"); iter != properties.end( )) {
+            const auto &list = iter.value();
+            auto bannedProps = QSet<QString>(list.cbegin(), list.cend());
+            bannedProps.unite(bannedForSpark);
+            iter.value() = bannedProps.values();
+        } else {
+            properties.insert("font", bannedForSpark.values());
+        }
+        return properties;
+    }
     return m_bannedComplexProperties;
 }
 
@@ -248,6 +266,21 @@ DesignerMcuManager::DesignerMcuManager()
 DesignerMcuManager::~DesignerMcuManager()
 {
 
+}
+
+QmlProjectManager::QmlBuildSystem* DesignerMcuManager::buildSystem( ) const
+{
+    QmlDesigner::DesignDocument *designDocument =
+        QmlDesigner::QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
+
+    if (!designDocument)
+        return nullptr;
+
+    ProjectExplorer::Target *target = designDocument->currentTarget();
+    if (!target)
+        return nullptr;
+
+    return qobject_cast<QmlProjectManager::QmlBuildSystem*>(target->buildSystem());
 }
 
 } // QmlDesigner

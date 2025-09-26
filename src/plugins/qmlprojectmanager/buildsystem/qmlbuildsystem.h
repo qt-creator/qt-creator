@@ -123,6 +123,11 @@ public:
 
     void addFileFilter(const Utils::FilePath &path);
 
+    QString fontEngine() const;
+    QString fontFile() const;
+    QString defaultFontFamily() const;
+    QStringList fontFamilies() const;
+
 signals:
     void projectChanged();
 
@@ -145,8 +150,6 @@ private:
 
     void registerMenuButtons();
     void updateDeploymentData();
-
-    [[nodiscard]] QString defaultFontFamilyMCU() const;
 
     friend class FilesUpdateBlocker;
 
