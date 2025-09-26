@@ -1396,7 +1396,7 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
         AliasPropertyDeclarations relinkableAliasPropertyDeclarations;
         PropertyDeclarations relinkablePropertyDeclarations;
         Bases relinkableBases;
-        SmallTypeIds<256> updatedPrototypeId;
+        SmallTypeIds<256> updatedPrototypeIds;
 
         TypeIds updatedTypeIds;
         updatedTypeIds.reserve(package.types.size());
@@ -1427,7 +1427,7 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
                          relinkableAliasPropertyDeclarations,
                          relinkablePropertyDeclarations,
                          relinkableBases,
-                         updatedPrototypeId);
+                         updatedPrototypeIds);
 
         deleteNotUpdatedTypes(updatedTypeIds,
                               package.updatedTypeSourceIds,
@@ -1448,7 +1448,7 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
 
         auto updatedAnnotationTypes = synchronizeTypeAnnotations(package.typeAnnotations,
                                                                  package.updatedTypeAnnotationSourceIds);
-        updateAnnotationsTypeTraitsFromPrototypes(updatedAnnotationTypes, updatedPrototypeId);
+        updateAnnotationsTypeTraitsFromPrototypes(updatedAnnotationTypes, updatedPrototypeIds);
         synchronizePropertyEditorQmlPaths(package.propertyEditorQmlPaths,
                                           package.updatedPropertyEditorQmlPathDirectoryIds);
 
@@ -2527,16 +2527,16 @@ void ProjectStorage::updateTypeIdInTypeAnnotations(Storage::Synchronization::Typ
 }
 
 void ProjectStorage::updateAnnotationsTypeTraitsFromPrototypes(SmallTypeIds<256> &alreadyUpdatedTypes,
-                                                               SmallTypeIds<256> &updatedPrototypeId)
+                                                               SmallTypeIds<256> &updatedPrototypeIds)
 {
     NanotraceHR::Tracer tracer{"update annotations type traits from prototypes", category()};
 
-    std::ranges::sort(updatedPrototypeId);
+    std::ranges::sort(updatedPrototypeIds);
     std::ranges::sort(alreadyUpdatedTypes);
 
     SmallTypeIds<256> typesToUpdate;
 
-    std::ranges::set_difference(updatedPrototypeId,
+    std::ranges::set_difference(updatedPrototypeIds,
                                 alreadyUpdatedTypes,
                                 std::back_inserter(typesToUpdate));
 
@@ -2646,7 +2646,7 @@ void ProjectStorage::synchronizeTypes(Storage::Synchronization::Types &types,
                                       AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                                       PropertyDeclarations &relinkablePropertyDeclarations,
                                       Bases &relinkableBases,
-                                      SmallTypeIds<256> &updatedPrototypeId)
+                                      SmallTypeIds<256> &updatedPrototypeIds)
 {
     NanotraceHR::Tracer tracer{"synchronize types", category()};
 
@@ -2661,7 +2661,7 @@ void ProjectStorage::synchronizeTypes(Storage::Synchronization::Types &types,
 
     std::ranges::sort(types, {}, &Type::typeId);
 
-    syncPrototypesAndExtensions(types, relinkableBases, updatedPrototypeId);
+    syncPrototypesAndExtensions(types, relinkableBases, updatedPrototypeIds);
     resetDefaultPropertiesIfChanged(types);
     resetRemovedAliasPropertyDeclarationsToNull(types, relinkableAliasPropertyDeclarations);
     syncDeclarations(types, aliasPropertyDeclarationsToLink, relinkablePropertyDeclarations);
