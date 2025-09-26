@@ -1067,6 +1067,8 @@ TypeName createQualifiedTypeName(const ModelNode &node,
         using Storage::ModuleKind;
         auto importModuleId = projectStorage.importModuleIdForSourceIdAndModuleId(documentSourceId,
                                                                                   exportedType.moduleId);
+        if (not importModuleId)
+            return "QtQuick/Item";
         auto module = modulesStorage.module(importModuleId);
         Utils::PathString typeName;
         switch (module.kind) {
