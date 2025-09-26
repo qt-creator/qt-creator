@@ -186,7 +186,7 @@ struct ProjectStorage::Statements
         "  typeChain(typeId, baseId) AS ( "
         "      SELECT typeId, prototypeId "
         "      FROM prototypes "
-        "      WHERE typeId IN carray(?1) "
+        "      WHERE typeId=?1 "
         "    UNION ALL "
         "      SELECT tc.typeId, p.prototypeId "
         "      FROM prototypes AS p JOIN typeChain AS tc "
@@ -2549,8 +2549,8 @@ void ProjectStorage::updateAnnotationsTypeTraitsFromPrototypes(SmallTypeIds<256>
         s->updateTypeAnnotationTraitsStatement.write(typeId, traits);
     };
 
-    s->selectTypeAnnotationTraitsFromPrototypeStatement.readCallback(callback,
-                                                                     Sqlite::toIntegers(typesToUpdate));
+    for (TypeId typeId : typesToUpdate)
+        s->selectTypeAnnotationTraitsFromPrototypeStatement.readCallback(callback, typeId);
 }
 
 SmallTypeIds<256> ProjectStorage::synchronizeTypeAnnotations(
