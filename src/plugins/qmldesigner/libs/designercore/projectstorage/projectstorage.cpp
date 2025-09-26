@@ -4553,8 +4553,10 @@ void ProjectStorage::syncPrototypeAndExtension(Storage::Synchronization::Type &t
     if (changedBaseIds)
         checkForPrototypeChainCycle(type.typeId);
 
-    if (changedPrototypes)
+    if (changedPrototypes) {
+        tracer.tick("updated prototype id", keyValue("type id", type.typeId));
         updatedPrototypeIds.push_back(type.typeId);
+    }
 
     typeIds.push_back(type.typeId);
 
