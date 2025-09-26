@@ -72,6 +72,9 @@ public:
             });
     }
 
+    //: default file name suggested for saving text from output views
+    QString outputFileNameHint{::Core::Tr::tr("output.txt")};
+
     Key settingsKey;
     OutputFormatter formatter;
     QList<QPair<QString, OutputFormat>> queuedOutput;
@@ -99,8 +102,6 @@ public:
     QTimer scrollTimer;
     QElapsedTimer lastMessage;
     QHash<unsigned int, QPair<int, int>> taskPositions;
-    //: default file name suggested for saving text from output views
-    QString outputFileNameHint{::Core::Tr::tr("output.txt")};
 };
 
 } // namespace Internal

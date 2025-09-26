@@ -641,7 +641,8 @@ static VersionDetection parseVersionDetection(const QJsonObject &packageEntry)
     };
 }
 
-static Utils::PathChooser::Kind parseLineEditType(const QJsonValue &type)
+using PathChooserKind = Utils::PathChooser::Kind; // trick lupdate, QTBUG-140636
+static PathChooserKind parseLineEditType(const QJsonValue &type)
 {
     //Utility function to handle the different kinds of PathChooser
     //Default is ExistingDirectory, see pathchooser.h for more options

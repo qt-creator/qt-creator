@@ -1123,7 +1123,8 @@ public:
         m_process->start();
     }
 
-    DockerDevice::Ptr createDevice() const
+    using DockerDevicePtr = DockerDevice::Ptr; // trick lupdate, QTBUG-140636
+    DockerDevicePtr createDevice() const
     {
         const QModelIndexList selectedRows = m_view->selectionModel()->selectedRows();
         QTC_ASSERT(selectedRows.size() == 1, return {});
@@ -1131,7 +1132,7 @@ public:
             m_proxyModel->mapToSource(selectedRows.front()));
         QTC_ASSERT(item, return {});
 
-        DockerDevice::Ptr device = DockerDevice::create();
+        DockerDevicePtr device = DockerDevice::create();
         device->repo.setValue(item->repo);
         device->tag.setValue(item->tag);
         device->imageId.setValue(item->imageId);

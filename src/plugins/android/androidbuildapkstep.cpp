@@ -251,8 +251,8 @@ private:
     std::function<bool (const QString &)> verifyCallback = [](const QString &) { return true; };
     QLabel *inputContextlabel = new QLabel(this);
     QLineEdit *inputEdit = new QLineEdit(this);
-    Utils::InfoLabel *warningLabel = new Utils::InfoLabel(::Android::Tr::tr("Incorrect password."),
-                                                          Utils::InfoLabel::Warning, this);
+    InfoLabel *warningLabel
+        = new InfoLabel(::Android::Tr::tr("Incorrect password."), InfoLabel::Warning, this);
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                                        this);
 };

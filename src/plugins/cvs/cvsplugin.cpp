@@ -153,6 +153,38 @@ public:
 class CvsPluginPrivate final : public VersionControlBase
 {
 public:
+    VcsEditorFactory commandLogEditorFactory{
+        {OtherContent,
+         CVS_COMMANDLOG_EDITOR_ID,
+         Tr::tr("CVS Command Log Editor"), // display name
+         "text/vnd.qtcreator.cvs.commandlog",
+         [] { return new CvsEditorWidget; },
+         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)}};
+
+    VcsEditorFactory logEditorFactory{
+        {LogOutput,
+         CVS_FILELOG_EDITOR_ID,
+         Tr::tr("CVS File Log Editor"), // display name
+         "text/vnd.qtcreator.cvs.log",
+         [] { return new CvsEditorWidget; },
+         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)}};
+
+    VcsEditorFactory annotateEditorFactory{
+        {AnnotateOutput,
+         CVS_ANNOTATION_EDITOR_ID,
+         Tr::tr("CVS Annotation Editor"), // display name
+         "text/vnd.qtcreator.cvs.annotation",
+         [] { return new CvsEditorWidget; },
+         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)}};
+
+    VcsEditorFactory diffEditorFactory{
+        {DiffOutput,
+         CVS_DIFF_EDITOR_ID,
+         Tr::tr("CVS Diff Editor"), // display name
+         "text/x-patch",
+         [] { return new CvsEditorWidget; },
+         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)}};
+
     CvsPluginPrivate();
     ~CvsPluginPrivate() final;
 
@@ -285,39 +317,6 @@ private:
     QAction *m_statusRepositoryAction = nullptr;
 
     QAction *m_menuAction = nullptr;
-
-public:
-    VcsEditorFactory commandLogEditorFactory{
-        {OtherContent,
-         CVS_COMMANDLOG_EDITOR_ID,
-         Tr::tr("CVS Command Log Editor"), // display name
-         "text/vnd.qtcreator.cvs.commandlog",
-         [] { return new CvsEditorWidget; },
-         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)}};
-
-    VcsEditorFactory logEditorFactory{
-        {LogOutput,
-         CVS_FILELOG_EDITOR_ID,
-         Tr::tr("CVS File Log Editor"), // display name
-         "text/vnd.qtcreator.cvs.log",
-         [] { return new CvsEditorWidget; },
-         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)}};
-
-    VcsEditorFactory annotateEditorFactory{
-        {AnnotateOutput,
-         CVS_ANNOTATION_EDITOR_ID,
-         Tr::tr("CVS Annotation Editor"), // display name
-         "text/vnd.qtcreator.cvs.annotation",
-         [] { return new CvsEditorWidget; },
-         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)}};
-
-    VcsEditorFactory diffEditorFactory{
-        {DiffOutput,
-         CVS_DIFF_EDITOR_ID,
-         Tr::tr("CVS Diff Editor"), // display name
-         "text/x-patch",
-         [] { return new CvsEditorWidget; },
-         std::bind(&CvsPluginPrivate::vcsDescribe, this, _1, _2)}};
 };
 
 Utils::Id CvsPluginPrivate::id() const

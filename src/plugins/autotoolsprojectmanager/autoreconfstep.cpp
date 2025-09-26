@@ -61,7 +61,8 @@ public:
     }
 
 private:
-    Tasking::GroupItem runRecipe() final
+    using GroupItem = Tasking::GroupItem; // trick lupdate, QTBUG-140636
+    GroupItem runRecipe() final
     {
         using namespace Tasking;
 

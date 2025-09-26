@@ -481,7 +481,8 @@ Result<Tasking::ExecutableItem> KitAspectFactory::createAspectFromJson(
             .arg(id().toString()));
 }
 
-Tasking::Group kitDetectionRecipe(
+using Group = Tasking::Group; // trick lupdate, QTBUG-140636
+Group kitDetectionRecipe(
     const IDeviceConstPtr &device,
     DetectionSource::DetectionType detectionType,
     const LogCallback &logCallback)
@@ -547,7 +548,7 @@ Tasking::Group kitDetectionRecipe(
     // clang-format on
 }
 
-Tasking::Group removeDetectedKitsRecipe(const IDeviceConstPtr &device, const LogCallback &logCallback)
+Group removeDetectedKitsRecipe(const IDeviceConstPtr &device, const LogCallback &logCallback)
 {
     using namespace Tasking;
 

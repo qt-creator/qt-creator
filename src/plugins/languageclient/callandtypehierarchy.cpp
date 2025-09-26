@@ -23,6 +23,7 @@
 #include <QLayout>
 #include <QToolButton>
 
+using namespace Core;
 using namespace Utils;
 using namespace TextEditor;
 using namespace LanguageServerProtocol;
@@ -306,7 +307,7 @@ public:
         if (!editor)
             return;
 
-        Core::IDocument *document = editor->document();
+        IDocument *document = editor->document();
 
         Client *client = LanguageClientManager::clientForFilePath(document->filePath());
         if (!client)
@@ -338,8 +339,10 @@ protected:
     }
 
 private:
-    virtual void sendRequest(Client *client, const TextDocumentPositionParams &params,
-                             const Core::IDocument *document) = 0;
+    virtual void sendRequest(
+        Client *client,
+        const TextDocumentPositionParams &params,
+        const IDocument *document) = 0;
 
     void onItemDoubleClicked(const QModelIndex &index)
     {
@@ -351,7 +354,7 @@ private:
     {
         const auto link = index.data(LinkRole).value<Utils::Link>();
         if (link.hasValidTarget())
-            Core::EditorManager::openEditorAt(link);
+            EditorManager::openEditorAt(link);
     }
 
     AnnotatedItemDelegate m_delegate;
@@ -370,8 +373,8 @@ public:
     }
 
 private:
-    void sendRequest(Client *client, const TextDocumentPositionParams &params,
-                     const Core::IDocument *document) override
+    void sendRequest(
+        Client *client, const TextDocumentPositionParams &params, const IDocument *document) override
     {
         if (!supportsCallHierarchy(client, document))
             return;
@@ -414,8 +417,8 @@ private:
         updateHierarchyAtCursorPosition();
     }
 
-    void sendRequest(Client *client, const TextDocumentPositionParams &params,
-                     const Core::IDocument *document) override
+    void sendRequest(
+        Client *client, const TextDocumentPositionParams &params, const IDocument *document) override
     {
         if (!supportsTypeHierarchy(client, document))
             return;
@@ -447,7 +450,7 @@ private:
     }
 };
 
-class CallHierarchyFactory : public Core::INavigationWidgetFactory
+class CallHierarchyFactory : public INavigationWidgetFactory
 {
 public:
     CallHierarchyFactory()
@@ -457,7 +460,7 @@ public:
         setId(Constants::CALL_HIERARCHY_FACTORY_ID);
     }
 
-    Core::NavigationView createWidget() final
+    NavigationView createWidget() final
     {
         auto h = new CallHierarchy;
         h->updateHierarchyAtCursorPosition();
@@ -474,7 +477,7 @@ public:
 
 class TypeHierarchyFactory final : public TypeHierarchyWidgetFactory
 {
-    TypeHierarchyWidget *createWidget(Core::IEditor *editor) final
+    TypeHierarchyWidget *createWidget(IEditor *editor) final
     {
         const auto textEditor = qobject_cast<BaseTextEditor *>(editor);
         if (!textEditor)
@@ -496,7 +499,7 @@ void setupCallHierarchyFactory()
 
 static bool supportsHierarchy(
     Client *client,
-    const Core::IDocument *document,
+    const IDocument *document,
     const QString &methodName,
     const std::optional<std::variant<bool, WorkDoneProgressOptions>> &provider)
 {
@@ -515,7 +518,7 @@ static bool supportsHierarchy(
     return supported;
 }
 
-bool supportsCallHierarchy(Client *client, const Core::IDocument *document)
+bool supportsCallHierarchy(Client *client, const IDocument *document)
 {
     return supportsHierarchy(client,
                              document,
@@ -528,7 +531,7 @@ void setupTypeHierarchyFactory()
     static TypeHierarchyFactory theTypeHierarchyFactory;
 }
 
-bool supportsTypeHierarchy(Client *client, const Core::IDocument *document)
+bool supportsTypeHierarchy(Client *client, const IDocument *document)
 {
     return supportsHierarchy(client,
                              document,

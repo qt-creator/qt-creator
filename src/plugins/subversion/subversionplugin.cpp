@@ -123,6 +123,22 @@ static inline QStringList svnDirectories()
 class SubversionPluginPrivate final : public VcsBase::VersionControlBase
 {
 public:
+    VcsEditorFactory logEditorFactory{
+        {LogOutput,
+         Constants::SUBVERSION_LOG_EDITOR_ID,
+         Tr::tr("Subversion File Log Editor"),
+         Constants::SUBVERSION_LOG_MIMETYPE,
+         [] { return new SubversionEditorWidget; },
+         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)}};
+
+    VcsEditorFactory blameEditorFactory{
+        {AnnotateOutput,
+         Constants::SUBVERSION_BLAME_EDITOR_ID,
+         Tr::tr("Subversion Annotation Editor"),
+         Constants::SUBVERSION_BLAME_MIMETYPE,
+         [] { return new SubversionEditorWidget; },
+         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)}};
+
     SubversionPluginPrivate();
     ~SubversionPluginPrivate() final;
 
@@ -233,23 +249,6 @@ private:
     QAction *m_describeAction = nullptr;
 
     QAction *m_menuAction = nullptr;
-
-public:
-    VcsEditorFactory logEditorFactory{
-        {LogOutput,
-         Constants::SUBVERSION_LOG_EDITOR_ID,
-         Tr::tr("Subversion File Log Editor"),
-         Constants::SUBVERSION_LOG_MIMETYPE,
-         [] { return new SubversionEditorWidget; },
-         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)}};
-
-    VcsEditorFactory blameEditorFactory{
-        {AnnotateOutput,
-         Constants::SUBVERSION_BLAME_EDITOR_ID,
-         Tr::tr("Subversion Annotation Editor"),
-         Constants::SUBVERSION_BLAME_MIMETYPE,
-         [] { return new SubversionEditorWidget; },
-         std::bind(&SubversionPluginPrivate::vcsDescribe, this, _1, _2)}};
 };
 
 

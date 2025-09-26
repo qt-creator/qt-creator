@@ -72,6 +72,7 @@ constexpr char mimeType[] = "application/language.client.setting";
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace TextEditor;
 
 namespace LanguageClient {
 
@@ -195,16 +196,16 @@ private:
         QWidget *widget = nullptr;
     } m_currentSettings;
 
-    void addItem(const Utils::Id &clientTypeId);
+    void addItem(const Id &clientTypeId);
     void deleteItem();
 
     FilterProxy m_settings;
     QSet<QString> &m_changedSettings;
 };
 
-QMap<Utils::Id, ClientType> &clientTypes()
+QMap<Id, ClientType> &clientTypes()
 {
-    static QMap<Utils::Id, ClientType> types;
+    static QMap<Id, ClientType> types;
     return types;
 }
 
@@ -296,7 +297,7 @@ void LanguageClientSettingsPageWidget::applyCurrentSettings()
     }
 }
 
-BaseSettings *generateSettings(const Utils::Id &clientTypeId)
+BaseSettings *generateSettings(const Id &clientTypeId)
 {
     if (auto generator = clientTypes().value(clientTypeId).generator) {
         auto settings = generator();
@@ -306,7 +307,7 @@ BaseSettings *generateSettings(const Utils::Id &clientTypeId)
     return nullptr;
 }
 
-void LanguageClientSettingsPageWidget::addItem(const Utils::Id &clientTypeId)
+void LanguageClientSettingsPageWidget::addItem(const Id &clientTypeId)
 {
     auto newSettings = generateSettings(clientTypeId);
     QTC_ASSERT(newSettings, return);
@@ -478,7 +479,7 @@ bool LanguageClientSettingsModel::dropMimeData(
         return true;
 
     const QString id = QString::fromUtf8(data->data(mimeType));
-    auto setting = Utils::findOrDefault(m_settings, [id](const BaseSettings *setting) {
+    auto setting = findOrDefault(m_settings, [id](const BaseSettings *setting) {
         return setting->m_id == id;
     });
     if (!setting)
@@ -700,9 +701,9 @@ bool LanguageClientSettings::initialized()
     return settingsPage().initialized();
 }
 
-QList<Utils::Store> LanguageClientSettings::storesBySettingsType(Utils::Id settingsTypeId)
+QList<Store> LanguageClientSettings::storesBySettingsType(Id settingsTypeId)
 {
-    QList<Utils::Store> result;
+    QList<Store> result;
 
     QtcSettings *settingsIn = Core::ICore::settings();
     settingsIn->beginGroup(settingsGroupKey);
@@ -781,8 +782,8 @@ void LanguageClientSettings::toSettings(QtcSettings *settings,
             return variantFromStore(store);
         });
     };
-    auto isStdioSetting = Utils::equal(&BaseSettings::m_settingsTypeId,
-                                       Utils::Id(Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID));
+    auto isStdioSetting = Utils::equal(
+        &BaseSettings::m_settingsTypeId, Id(Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID));
     auto [stdioSettings, typedSettings] = Utils::partition(languageClientSettings, isStdioSetting);
     settings->setValue(clientsKey, transform(stdioSettings));
 
@@ -893,18 +894,18 @@ static QString startupBehaviorString(BaseSettings::StartBehavior behavior)
     return {};
 }
 
-BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *parent,
-                                       Layouting::LayoutModifier additionalItems)
+BaseSettingsWidget::BaseSettingsWidget(
+    const BaseSettings *settings, QWidget *parent, Layouting::LayoutModifier additionalItems)
     : QWidget(parent)
     , m_mimeTypes(new QLabel(settings->m_languageFilter.mimeTypes.join(filterSeparator), this))
     , m_filePattern(
           new QLineEdit(settings->m_languageFilter.filePattern.join(filterSeparator), this))
     , m_startupBehavior(new QComboBox)
-    , m_initializationOptions(new Utils::FancyLineEdit(this))
+    , m_initializationOptions(new FancyLineEdit(this))
 {
     using namespace Layouting;
 
-    auto chooser = new Utils::VariableChooser(this);
+    auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(m_initializationOptions);
 
     auto addMimeTypeButton = new QPushButton(Tr::tr("Set MIME Types..."), this);
@@ -1017,7 +1018,7 @@ public:
     {
         setWindowTitle(Tr::tr("Select MIME Types"));
         auto mainLayout = new QVBoxLayout;
-        auto filter = new Utils::FancyLineEdit(this);
+        auto filter = new FancyLineEdit(this);
         filter->setFiltering(true);
         mainLayout->addWidget(filter);
         auto listView = new QListView(this);
@@ -1030,8 +1031,8 @@ public:
         connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
         connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
         auto proxy = new QSortFilterProxyModel(this);
-        m_mimeTypeModel = new MimeTypeModel(Utils::transform(Utils::allMimeTypes(),
-                                                             &Utils::MimeType::name), this);
+        m_mimeTypeModel
+            = new MimeTypeModel(Utils::transform(Utils::allMimeTypes(), &MimeType::name), this);
         m_mimeTypeModel->m_selectedMimeTypes = selectedMimeTypes;
         proxy->setSourceModel(m_mimeTypeModel);
         proxy->sort(0);
@@ -1075,7 +1076,7 @@ StdIOSettingsWidget::StdIOSettingsWidget(const StdIOSettings *settings, QWidget 
     l.flush();
 }
 
-bool LanguageFilter::isSupported(const Utils::FilePath &filePath, const QString &mimeTypeName) const
+bool LanguageFilter::isSupported(const FilePath &filePath, const QString &mimeTypeName) const
 {
     if (!mimeTypes.isEmpty()) {
         const MimeType mimeType = Utils::mimeTypeForName(mimeTypeName);
@@ -1088,8 +1089,9 @@ bool LanguageFilter::isSupported(const Utils::FilePath &filePath, const QString 
     if (filePattern.isEmpty() && filePath.isEmpty())
         return mimeTypes.isEmpty();
     const QRegularExpression::PatternOptions options
-            = Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive
-            ? QRegularExpression::CaseInsensitiveOption : QRegularExpression::NoPatternOption;
+        = HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive
+              ? QRegularExpression::CaseInsensitiveOption
+              : QRegularExpression::NoPatternOption;
     auto regexps = Utils::transform(filePattern, [&options](const QString &pattern){
         return QRegularExpression(QRegularExpression::wildcardToRegularExpression(pattern),
                                   options);
@@ -1115,10 +1117,9 @@ bool LanguageFilter::operator!=(const LanguageFilter &other) const
     return this->filePattern != other.filePattern || this->mimeTypes != other.mimeTypes;
 }
 
-TextEditor::BaseTextEditor *createJsonEditor(QObject *parent)
+BaseTextEditor *createJsonEditor(QObject *parent)
 {
-    using namespace TextEditor;
-    using namespace Utils::Text;
+    using namespace Text;
     BaseTextEditor *textEditor = nullptr;
     for (Core::IEditorFactory *factory : Core::IEditorFactory::preferredEditorFactories("foo.json")) {
         Core::IEditor *editor = factory->createEditor();
@@ -1135,8 +1136,8 @@ TextEditor::BaseTextEditor *createJsonEditor(QObject *parent)
     widget->setLineNumbersVisible(false);
     widget->setRevisionsVisible(false);
     widget->setCodeFoldingSupported(false);
-    QObject::connect(document, &TextDocument::contentsChanged, widget, [document](){
-        const Utils::Id jsonMarkId("LanguageClient.JsonTextMarkId");
+    QObject::connect(document, &TextDocument::contentsChanged, widget, [document]() {
+        const Id jsonMarkId("LanguageClient.JsonTextMarkId");
         const TextMarks marks = document->marks();
         for (TextMark *mark : marks) {
             if (mark->category().id == jsonMarkId)
@@ -1152,12 +1153,11 @@ TextEditor::BaseTextEditor *createJsonEditor(QObject *parent)
         const Position pos = Position::fromPositionInDocument(document->document(), error.offset);
         if (!pos.isValid())
             return;
-        auto mark = new TextMark(Utils::FilePath(),
-                                 pos.line,
-                                 {::LanguageClient::Tr::tr("JSON Error"), jsonMarkId});
+        auto mark = new TextMark(
+            FilePath(), pos.line, {::LanguageClient::Tr::tr("JSON Error"), jsonMarkId});
         mark->setLineAnnotation(error.errorString());
-        mark->setColor(Utils::Theme::CodeModel_Error_TextMarkColor);
-        mark->setIcon(Utils::Icons::CODEMODEL_ERROR.icon());
+        mark->setColor(Theme::CodeModel_Error_TextMarkColor);
+        mark->setIcon(Icons::CODEMODEL_ERROR.icon());
         document->addMark(mark);
     });
     return textEditor;
@@ -1259,7 +1259,7 @@ public:
         setGlobalSettingsId(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
         setExpanding(true);
 
-        TextEditor::BaseTextEditor *editor = createJsonEditor(this);
+        BaseTextEditor *editor = createJsonEditor(this);
         editor->document()->setContents(m_settings.json());
 
         auto layout = new QVBoxLayout(this);
@@ -1311,8 +1311,11 @@ public:
         group->layout()->addWidget(editor->widget());
         layout->addWidget(group);
 
-        connect(editor->editorWidget()->textDocument(), &TextEditor::TextDocument::contentsChanged,
-                this, [this, editor] { m_settings.setJson(editor->document()->contents()); });
+        connect(
+            editor->editorWidget()->textDocument(),
+            &TextDocument::contentsChanged,
+            this,
+            [this, editor] { m_settings.setJson(editor->document()->contents()); });
     }
 
 private:

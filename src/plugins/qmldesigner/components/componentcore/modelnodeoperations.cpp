@@ -88,9 +88,9 @@ using namespace Utils;
 namespace QmlDesigner {
 
 namespace {
-const Utils::SmallString auxDataString("anchors_");
+const SmallString auxDataString("anchors_");
 
-Utils::SmallString auxPropertyString(Utils::SmallStringView name)
+SmallString auxPropertyString(SmallStringView name)
 {
     return auxDataString + name;
 }
@@ -747,7 +747,10 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
 
     QString itemId = modelNode.id();
 
-    const Utils::FilePath currentDesignDocument = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName();
+    const FilePath currentDesignDocument = QmlDesignerPlugin::instance()
+                                               ->documentManager()
+                                               .currentDesignDocument()
+                                               ->fileName();
     const QString fileName = currentDesignDocument.toUrlishString();
     const QString typeName = currentDesignDocument.baseName();
 
@@ -801,7 +804,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
                 //Move cursor to correct curser position
                 const QString filePath = Core::EditorManager::currentDocument()->filePath().toUrlishString();
                 QList<QmlJSEditor::FindReferences::Usage> usages = FindImplementation::run(filePath, typeName, itemId);
-                Core::EditorManager::openEditorAt({Utils::FilePath::fromString(filePath),
+                Core::EditorManager::openEditorAt({FilePath::fromString(filePath),
                                                    usages.constFirst().line,
                                                    usages.constFirst().col + 1});
             } );
@@ -1236,8 +1239,8 @@ AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &de
     QStringList removeList;
     for (const QString &fileName : fileNames) {
         const QString targetFile = directory + "/" + QFileInfo(fileName).fileName();
-        Utils::FilePath srcFilePath = Utils::FilePath::fromString(fileName);
-        Utils::FilePath targetFilePath = Utils::FilePath::fromString(targetFile);
+        FilePath srcFilePath = FilePath::fromString(fileName);
+        FilePath targetFilePath = FilePath::fromString(targetFile);
         if (targetFilePath.exists()) {
             if (srcFilePath.lastModified() == targetFilePath.lastModified())
                 continue;
@@ -1266,7 +1269,7 @@ AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &de
         if (node) {
             ProjectExplorer::FolderNode *containingFolder = node->parentFolderNode();
             if (containingFolder)
-                containingFolder->addFiles({Utils::FilePath::fromString(filePair.second)});
+                containingFolder->addFiles({FilePath::fromString(filePair.second)});
         }
     }
 
@@ -1277,9 +1280,9 @@ static QString getAssetDefaultDirectory(const QString &assetDir, const QString &
 {
     QString adjustedDefaultDirectory = defaultDirectory;
 
-    Utils::FilePath contentPath = QmlDesignerPlugin::instance()->documentManager().currentResourcePath();
+    FilePath contentPath = QmlDesignerPlugin::instance()->documentManager().currentResourcePath();
 
-    Utils::FilePath assetPath = contentPath.pathAppended(assetDir);
+    FilePath assetPath = contentPath.pathAppended(assetDir);
 
     if (!assetPath.exists())
         assetPath.createDir();
@@ -1621,9 +1624,9 @@ static QString fromCamelCase(const QString &s)
     return result;
 }
 
-QString getTemplateDialog(const Utils::FilePath &projectPath)
+QString getTemplateDialog(const FilePath &projectPath)
 {
-    const Utils::FilePath templatesPath = projectPath.pathAppended("templates");
+    const FilePath templatesPath = projectPath.pathAppended("templates");
 
     const QStringList templateFiles = QDir(templatesPath.toUrlishString()).entryList({"*.qml"});
 
@@ -1660,7 +1663,7 @@ QString getTemplateDialog(const Utils::FilePath &projectPath)
         templateFile = newFile;
     };
 
-    QPushButton *browseButton = new QPushButton(Utils::PathChooser::browseButtonLabel(), dialog);
+    QPushButton *browseButton = new QPushButton(PathChooser::browseButtonLabel(), dialog);
 
     mainLayout->addWidget(new QLabel(Tr::tr("Template:")), 0, 0);
     mainLayout->addWidget(comboBox, 1, 0, 1, 3);
@@ -1707,12 +1710,13 @@ QString getTemplateDialog(const Utils::FilePath &projectPath)
 
 void mergeWithTemplate(const SelectionContext &selectionContext, ExternalDependenciesInterface &externalDependencies)
 {
-    const Utils::FilePath projectPath = Utils::FilePath::fromString(baseDirectory(selectionContext.view()->model()->fileUrl()));
+    const FilePath projectPath = FilePath::fromString(
+        baseDirectory(selectionContext.view()->model()->fileUrl()));
 
     const QString templateFile = getTemplateDialog(projectPath);
 
     if (QFileInfo::exists(templateFile)) {
-        StylesheetMerger::styleMerge(Utils::FilePath::fromString(templateFile),
+        StylesheetMerger::styleMerge(FilePath::fromString(templateFile),
                                      selectionContext.view()->model(),
                                      externalDependencies);
     }
@@ -1870,16 +1874,15 @@ void editIn3dView(const SelectionContext &selectionContext)
     }
 }
 
-Utils::FilePath findEffectFile(const ModelNode &effectNode)
+FilePath findEffectFile(const ModelNode &effectNode)
 {
     const QString effectFile = effectNode.simplifiedTypeName() + ".qep";
-    Utils::FilePath effectPath = Utils::FilePath::fromString(getEffectsDefaultDirectory()
-                                                             + '/' + effectFile);
+    FilePath effectPath = FilePath::fromString(getEffectsDefaultDirectory() + '/' + effectFile);
     if (!effectPath.exists()) {
         // Scan the project's content folder for a matching effect
-        Utils::FilePath contentPath = QmlDesignerPlugin::instance()->documentManager().currentResourcePath();
-        const Utils::FilePaths matches = contentPath.dirEntries({{effectFile}, QDir::Files,
-                                                                 QDirIterator::Subdirectories});
+        FilePath contentPath = QmlDesignerPlugin::instance()->documentManager().currentResourcePath();
+        const FilePaths matches = contentPath.dirEntries(
+            {{effectFile}, QDir::Files, QDirIterator::Subdirectories});
         if (matches.isEmpty()) {
             QMessageBox msgBox;
             msgBox.setText(
@@ -1910,7 +1913,7 @@ void editInEffectComposer(const SelectionContext &selectionContext)
     }
 
     if (targetNode.isValid()) {
-        Utils::FilePath effectPath = findEffectFile(targetNode);
+        FilePath effectPath = findEffectFile(targetNode);
         if (!effectPath.isEmpty())
             openEffectComposer(effectPath.toFSPathString());
     }
@@ -1940,49 +1943,51 @@ void openOldEffectMaker(const QString &filePath)
         return;
     }
 
-    Utils::FilePath effectResPath = QmlDesignerPlugin::instance()->documentManager()
-                                        .generatedComponentUtils().composedEffectsBasePath()
-                                        .pathAppended(QFileInfo(filePath).baseName());
+    FilePath effectResPath = QmlDesignerPlugin::instance()
+                                 ->documentManager()
+                                 .generatedComponentUtils()
+                                 .composedEffectsBasePath()
+                                 .pathAppended(QFileInfo(filePath).baseName());
 
     if (!effectResPath.exists())
         effectResPath.createDir();
 
     const QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(kit);
     if (baseQtVersion) {
-        Utils::Environment env = Utils::Environment::systemEnvironment();
+        Environment env = Environment::systemEnvironment();
 
         auto effectMakerPath = baseQtVersion->binPath().pathAppended("qqem").withExecutableSuffix();
-        if (!effectMakerPath.exists() && env.osType() == Utils::OsTypeMac)
+        if (!effectMakerPath.exists() && env.osType() == OsTypeMac)
             effectMakerPath = baseQtVersion->binPath().pathAppended("qqem.app/Contents/MacOS/qqem");
         if (!effectMakerPath.exists()) {
             qWarning() << __FUNCTION__ << "Cannot find EffectMaker app";
             return;
         }
 
-        Utils::FilePath effectPath = Utils::FilePath::fromString(filePath);
+        FilePath effectPath = FilePath::fromString(filePath);
         QStringList arguments;
         arguments << filePath;
         if (effectPath.fileContents()->isEmpty())
             arguments << "--create";
         arguments << "--exportpath" << effectResPath.toUrlishString();
 
-        if (env.osType() == Utils::OsTypeMac)
+        if (env.osType() == OsTypeMac)
             env.set("QSG_RHI_BACKEND", "metal");
 
-        Utils::Process *qqemProcess = new Utils::Process();
+        Process *qqemProcess = new Process();
         qqemProcess->setEnvironment(env);
         qqemProcess->setCommand({ effectMakerPath, arguments });
-        QObject::connect(qqemProcess, &Utils::Process::done, [qqemProcess]() {
-            qqemProcess->deleteLater();
-        });
+        QObject::connect(qqemProcess, &Process::done, [qqemProcess]() { qqemProcess->deleteLater(); });
         qqemProcess->start();
     }
 }
 
-Utils::FilePath getEffectsImportDirectory()
+FilePath getEffectsImportDirectory()
 {
-    Utils::FilePath effectsPath = QmlDesignerPlugin::instance()->documentManager()
-                                      .generatedComponentUtils().composedEffectsBasePath();
+    FilePath effectsPath = QmlDesignerPlugin::instance()
+                               ->documentManager()
+                               .generatedComponentUtils()
+                               .composedEffectsBasePath();
 
     if (!effectsPath.exists())
         effectsPath.createDir();
@@ -1993,9 +1998,12 @@ Utils::FilePath getEffectsImportDirectory()
 QString getEffectsDefaultDirectory(const QString &defaultDir)
 {
     if (defaultDir.isEmpty()) {
-        return Utils::FilePath::fromString(getAssetDefaultDirectory(
-            "effects",
-            QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toUrlishString())).toUrlishString();
+        return FilePath::fromString(getAssetDefaultDirectory("effects",
+                                                             QmlDesignerPlugin::instance()
+                                                                 ->documentManager()
+                                                                 .currentProjectDirPath()
+                                                                 .toUrlishString()))
+            .toUrlishString();
     }
 
     return getAssetDefaultDirectory("effects", defaultDir);
@@ -2003,8 +2011,10 @@ QString getEffectsDefaultDirectory(const QString &defaultDir)
 
 QString getEffectIcon(const QString &effectPath)
 {
-    Utils::FilePath effectFile = QmlDesignerPlugin::instance()->documentManager()
-                                     .generatedComponentUtils().composedEffectPath(effectPath);
+    FilePath effectFile = QmlDesignerPlugin::instance()
+                              ->documentManager()
+                              .generatedComponentUtils()
+                              .composedEffectPath(effectPath);
     return effectFile.exists() ? QString("effectExported") : QString("effectClass");
 }
 
@@ -2019,8 +2029,8 @@ bool useLayerEffect()
 bool validateEffect(const QString &effectPath)
 {
     const QString effectName = QFileInfo(effectPath).baseName();
-    Utils::FilePath effectsResDir = ModelNodeOperations::getEffectsImportDirectory();
-    Utils::FilePath qmlPath = effectsResDir.resolvePath(effectName + "/" + effectName + ".qml");
+    FilePath effectsResDir = ModelNodeOperations::getEffectsImportDirectory();
+    FilePath qmlPath = effectsResDir.resolvePath(effectName + "/" + effectName + ".qml");
     if (!qmlPath.exists()) {
         QMessageBox msgBox;
         msgBox.setText(Tr::tr("Effect %1 is not complete.").arg(effectName));
@@ -2036,16 +2046,16 @@ bool validateEffect(const QString &effectPath)
     return true;
 }
 
-Utils::FilePath getImagesDefaultDirectory()
+FilePath getImagesDefaultDirectory()
 {
-    return Utils::FilePath::fromString(getAssetDefaultDirectory(
+    return FilePath::fromString(getAssetDefaultDirectory(
         "images",
         QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toUrlishString()));
 }
 
 FilePath getImported3dDefaultDirectory()
 {
-    return Utils::FilePath::fromString(getAssetDefaultDirectory(
+    return FilePath::fromString(getAssetDefaultDirectory(
         "3d",
         QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toUrlishString()));
 }
@@ -2192,7 +2202,7 @@ ModelNode handleImported3dAssetDrop(const QString &assetPath, const ModelNode &t
     const GeneratedComponentUtils &compUtils = QmlDesignerPlugin::instance()->documentManager()
                                              .generatedComponentUtils();
 
-    Utils::FilePath qmlFile = compUtils.getImported3dQml(assetPath);
+    FilePath qmlFile = compUtils.getImported3dQml(assetPath);
     if (qmlFile.exists()) {
         TypeName qmlType = qmlFile.baseName().toUtf8();
         QString importName = compUtils.getImported3dImportName(qmlFile);

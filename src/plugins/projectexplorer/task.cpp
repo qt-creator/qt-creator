@@ -19,10 +19,11 @@
 #include <QTextStream>
 
 using namespace Utils;
+using namespace TextEditor;
 
 namespace ProjectExplorer {
 
-static TextEditor::TextMarkCategory categoryForType(Task::TaskType type)
+static TextMarkCategory categoryForType(Task::TaskType type)
 {
     switch (type) {
     case Task::Error:
@@ -34,7 +35,7 @@ static TextEditor::TextMarkCategory categoryForType(Task::TaskType type)
     }
 }
 
-class TaskMark : public TextEditor::TextMark
+class TaskMark : public TextMark
 {
 public:
     TaskMark(const Task &task) :
@@ -45,8 +46,7 @@ public:
                                 : Theme::ProjectExplorer_TaskWarn_TextMarkColor);
         setDefaultToolTip(task.isError() ? Tr::tr("Error")
                                          : Tr::tr("Warning"));
-        setPriority(task.type() == Task::Error ? TextEditor::TextMark::NormalPriority
-                                               : TextEditor::TextMark::LowPriority);
+        setPriority(task.type() == Task::Error ? TextMark::NormalPriority : TextMark::LowPriority);
         setToolTip(task.formattedDescription({Task::WithSummary | Task::WithLinks},
                                              task.category() == Constants::TASK_CATEGORY_COMPILE
                                                  ? Tr::tr("Build Issue") : QString()));
@@ -252,7 +252,7 @@ QString Task::formattedDescription(DescriptionTags tags, const QString &extraHea
                                          : QString::fromUtf8("<b>%1</b><br/>").arg(extraHeading);
     return QString::fromUtf8("<html><body>%1<code style=\"white-space:pre;font-family:%2\">"
                              "%3</code></body></html>")
-        .arg(htmlExtraHeading, TextEditor::FontSettings::defaultFixedFontFamily(), text);
+        .arg(htmlExtraHeading, FontSettings::defaultFixedFontFamily(), text);
 }
 
 void Task::addLinkDetail(const QString &link)

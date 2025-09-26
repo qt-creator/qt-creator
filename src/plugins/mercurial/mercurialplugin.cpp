@@ -55,6 +55,30 @@ namespace Mercurial::Internal {
 class MercurialPluginPrivate final : public VcsBase::VersionControlBase
 {
 public:
+    VcsEditorFactory logEditorFactory{
+        {LogOutput,
+         Constants::FILELOG_ID,
+         Tr::tr("Mercurial File Log Editor"),
+         Constants::LOGAPP,
+         [] { return new MercurialEditorWidget; },
+         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)}};
+
+    VcsEditorFactory annotateEditorFactory{
+        {AnnotateOutput,
+         Constants::ANNOTATELOG_ID,
+         Tr::tr("Mercurial Annotation Editor"),
+         Constants::ANNOTATEAPP,
+         [] { return new MercurialEditorWidget; },
+         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)}};
+
+    VcsEditorFactory diffEditorFactory{
+        {DiffOutput,
+         Constants::DIFFLOG_ID,
+         Tr::tr("Mercurial Diff Editor"),
+         Constants::DIFFAPP,
+         [] { return new MercurialEditorWidget; },
+         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)}};
+
     MercurialPluginPrivate();
 
     // IVersionControl
@@ -135,31 +159,6 @@ private:
     QAction *m_menuAction = nullptr;
 
     FilePath m_submitRepository;
-
-public:
-    VcsEditorFactory logEditorFactory{
-        {LogOutput,
-         Constants::FILELOG_ID,
-         Tr::tr("Mercurial File Log Editor"),
-         Constants::LOGAPP,
-         [] { return new MercurialEditorWidget; },
-         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)}};
-
-    VcsEditorFactory annotateEditorFactory{
-        {AnnotateOutput,
-         Constants::ANNOTATELOG_ID,
-         Tr::tr("Mercurial Annotation Editor"),
-         Constants::ANNOTATEAPP,
-         [] { return new MercurialEditorWidget; },
-         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)}};
-
-    VcsEditorFactory diffEditorFactory{
-        {DiffOutput,
-         Constants::DIFFLOG_ID,
-         Tr::tr("Mercurial Diff Editor"),
-         Constants::DIFFAPP,
-         [] { return new MercurialEditorWidget; },
-         std::bind(&MercurialPluginPrivate::vcsDescribe, this, _1, _2)}};
 };
 
 static MercurialPluginPrivate *dd = nullptr;

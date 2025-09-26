@@ -398,7 +398,7 @@ public:
                 Column { st, m_pageIndicator, st },
                 st,
                 QtcWidgets::Button {
-                    text(tr("Show All")),
+                    text(Tr::tr("Show All")),
                     role(QtcButton::LargeTertiary),
                     onClicked(this, [] {
                         QDesktopServices::openUrl(QUrl::fromUserInput("https://www.qt.io/blog"));
