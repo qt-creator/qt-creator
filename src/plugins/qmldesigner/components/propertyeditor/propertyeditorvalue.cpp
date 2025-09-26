@@ -374,10 +374,8 @@ void PropertyEditorValue::setModelNodeAndProperty(const ModelNode &modelNode,
         emit modelNodeChanged();
     }
 
-    if (propertyMetaInfo != m_propertyMetaInfo) {
-        m_propertyMetaInfo = propertyMetaInfo;
-        m_propertyType = m_propertyMetaInfo.propertyType();
-    }
+    m_propertyMetaInfo = propertyMetaInfo;
+    m_propertyType = m_propertyMetaInfo.propertyType();
 }
 
 PropertyEditorNodeWrapper *PropertyEditorValue::complexNode()
