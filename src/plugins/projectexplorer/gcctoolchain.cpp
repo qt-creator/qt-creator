@@ -1108,6 +1108,10 @@ void GccToolchain::fromMap(const Store &data)
     if (m_subType == Clang) {
         m_parentToolchainId = data.value(parentToolchainIdKeyC).toByteArray();
         m_priority = data.value(priorityKeyC, PriorityNormal).toInt();
+        if (targetAbi().binaryFormat() == Abi::MachOFormat
+            && compilerCommand().parentDir() != "/usr/bin") {
+            m_priority = Toolchain::PriorityLow;
+        }
         syncAutodetectedWithParentToolchains();
     }
 }
@@ -1768,6 +1772,12 @@ Toolchains GccToolchainFactory::autoDetectToolchain(const ToolchainDescription &
         // lower priority of g++/gcc on macOS - usually just a frontend to clang
         if (detectedSubType == GccToolchain::RealGcc && abi.binaryFormat() == Abi::MachOFormat)
             tc->setPriority(Toolchain::PriorityLow);
+
+        // e.g. from homebrew
+        if (detectedSubType == GccToolchain::Clang && abi.binaryFormat() == Abi::MachOFormat
+            && tcd.compilerPath.parentDir() != "/usr/bin") {
+            tc->setPriority(Toolchain::PriorityLow);
+        }
 
         // GCC is still "more native" than clang on Linux.
         if (detectedSubType == GccToolchain::Clang && abi.binaryFormat() == Abi::ElfFormat
