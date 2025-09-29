@@ -276,6 +276,9 @@ void TypeAnnotationReader::readItemLibraryEntryProperty(QStringView name, const 
     } else if (name == "requiredImport"_L1) {
         m_itemLibraryEntries.back()["import"] = value;
     } else if (name == "toolTip"_L1) {
+        constexpr std::string_view qstr = R"(qsTr(")";
+        if (value.starts_with(qstr))
+            value = value.substr(qstr.size(), value.size() - qstr.size() - 2);
         m_itemLibraryEntries.back()["toolTip"] = value;
     } else {
         addError(DesignerCore::Tr::tr("Unknown property for ItemLibraryEntry %1.").arg(name),

@@ -76,7 +76,7 @@ QString ItemLibraryItem::toolTip() const
 {
     NanotraceHR::Tracer tracer{"item library item tool tip", category()};
 
-    return m_itemLibraryEntry.toolTip();
+    return QApplication::translate("itemlibrary", m_itemLibraryEntry.toolTip().toUtf8());
 }
 
 bool ItemLibraryItem::setVisible(bool isVisible)
