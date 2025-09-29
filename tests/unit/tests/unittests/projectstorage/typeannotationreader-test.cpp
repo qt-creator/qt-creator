@@ -617,12 +617,12 @@ TEST_F(TypeAnnotationReader, parse_item_library_entry)
                                                    "iconPath":"/path/images/frame-icon.png",
                                                    "import":"QtQuick.Controls",
                                                    "name":"Frame",
-                                                   "toolTip":"qsTr(\"An untitled container for a group of controls.\")"},
+                                                   "toolTip":"An untitled container for a group of controls."},
                                                   {"category":"Qt Quick - Controls 2",
                                                    "iconPath":"/path/images/frame-icon.png",
                                                    "import":"QtQuick.Controls",
                                                    "name":"Large Frame",
-                                                   "toolTip":"qsTr(\"An large container for a group of controls.\")"}]
+                                                   "toolTip":"An large container for a group of controls."}]
                                              )xy"))));
 }
 
@@ -674,13 +674,13 @@ TEST_F(TypeAnnotationReader, parse_item_library_entry_with_properties)
                                                    "import":"QtQuick.Controls",
                                                    "name":"Frame",
                                                    "properties":[["width","int",200.0],["height","int",100.0]],
-                                                   "toolTip":"qsTr(\"An untitled container for a group of controls.\")"},
+                                                   "toolTip":"An untitled container for a group of controls."},
                                                   {"category":"Qt Quick - Controls 2",
                                                    "iconPath":"/path/images/frame-icon.png",
                                                    "import":"QtQuick.Controls",
                                                    "name":"Large Frame",
                                                    "properties":[["width","int",2000.0],["height","int",1000.0]],
-                                                   "toolTip":"qsTr(\"An large container for a group of controls.\")"}]
+                                                   "toolTip":"An large container for a group of controls."}]
                                              )xy"))));
 }
 
