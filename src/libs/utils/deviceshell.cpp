@@ -258,12 +258,30 @@ Result<> DeviceShell::start()
     return result;
 }
 
+static std::optional<QByteArray> waitAndReadLine(Process *process, QProcess::ProcessChannel channel)
+{
+    QByteArray result;
+    while (process->waitForReadyRead(5s)) {
+        if (channel == QProcess::StandardOutput)
+            result += process->readAllRawStandardOutput();
+        if (channel == QProcess::StandardError)
+            result += process->readAllRawStandardError();
+        if (result.contains('\n')) {
+            QTC_CHECK(result.endsWith('\n'));
+            return result;
+        }
+    }
+    return {};
+}
+
 Result<QByteArray> DeviceShell::checkCommand(const QByteArray &command)
 {
     const QByteArray checkCmd = "(type " + command + " || echo '<missing>')\n";
 
     m_shellProcess->writeRaw(checkCmd);
-    if (!m_shellProcess->waitForReadyRead()) {
+    const std::optional<QByteArray> out
+        = waitAndReadLine(m_shellProcess.get(), QProcess::StandardOutput);
+    if (!out) {
         if (!m_shellProcess->isRunning()) {
             return ResultError(
                 m_shellProcess->exitMessage(Process::FailureMessageFormat::WithStdErr));
@@ -271,15 +289,14 @@ Result<QByteArray> DeviceShell::checkCommand(const QByteArray &command)
         return ResultError(
             Tr::tr("Timeout while trying to check for %1.").arg(QString::fromUtf8(command)));
     }
-    QByteArray out = m_shellProcess->readAllRawStandardOutput();
-    if (out.contains("<missing>")) {
+    if (out->contains("<missing>")) {
         m_shellScriptState = State::Failed;
         m_missingFeatures.append(QString::fromUtf8(command));
         return ResultError(
             Tr::tr("Command \"%1\" was not found.").arg(QString::fromUtf8(command)));
     }
 
-    return out;
+    return *out;
 }
 
 Result<> DeviceShell::installShellScript()
@@ -311,22 +328,23 @@ Result<> DeviceShell::installShellScript()
     m_shellProcess->writeRaw(scriptCmd);
 
     while (m_shellScriptState == State::Unknown) {
-        if (!m_shellProcess->waitForReadyRead(5s))
+        const std::optional<QByteArray> out
+            = waitAndReadLine(m_shellProcess.get(), QProcess::StandardError);
+        if (!out)
             return ResultError(Tr::tr("Timeout while waiting for shell script installation."));
 
-        QByteArray out = m_shellProcess->readAllRawStandardError();
-        if (out.contains("SCRIPT_INSTALLED") && !out.contains("ERROR_INSTALL_SCRIPT")) {
+        if (out->contains("SCRIPT_INSTALLED") && !out->contains("ERROR_INSTALL_SCRIPT")) {
             m_shellScriptState = State::Succeeded;
             return ResultOk;
         }
-        if (out.contains("ERROR_INSTALL_SCRIPT")) {
+        if (out->contains("ERROR_INSTALL_SCRIPT")) {
             m_shellScriptState = State::Failed;
             return ResultError(
-                Tr::tr("Failed to install shell script: %1").arg(QString::fromUtf8(out)));
+                Tr::tr("Failed to install shell script: %1").arg(QString::fromUtf8(*out)));
         }
-        if (!out.isEmpty()) {
+        if (!out->isEmpty()) {
             qCDebug(deviceShellLog)
-                << "Unexpected output while installing device shell script:" << out;
+                << "Unexpected output while installing device shell script:" << *out;
         }
     }
 
