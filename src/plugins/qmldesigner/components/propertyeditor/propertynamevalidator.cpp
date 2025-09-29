@@ -24,13 +24,13 @@ QValidator::State PropertyNameValidator::validate(QString &input, int &) const
     if (input.isEmpty())
         return QValidator::Intermediate;
 
-    // Property names must begin with a lower case letter and can only contain letters, numbers
-    // and underscores. JavaScript reserved words are not valid property names.
+    // Property names must begin with a lower case letter or underscore and can only contain
+    // letters, numbers and underscores. JavaScript reserved words are not valid property names.
 
     if (QmlDesigner::ModelUtils::isQmlKeyword(input))
         return QValidator::Intermediate;
 
-    static QRegularExpression regExp(R"(^[a-z]\w*$)");
+    static QRegularExpression regExp(R"(^[_a-z]\w*$)");
 
     if (input.contains(regExp))
         return QValidator::Acceptable;
