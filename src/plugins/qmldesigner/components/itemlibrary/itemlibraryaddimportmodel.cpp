@@ -106,7 +106,10 @@ void ItemLibraryAddImportModel::update(const Imports &possibleImports)
             return (liteAllowedList.contains(import.url()));
         });
     } else {
-        filteredImports = possibleImports;
+        const QString ultralite = "QtQuickUltralite";
+        filteredImports = Utils::filtered(possibleImports, [&ultralite](const Import &import) {
+            return !import.url().startsWith(ultralite);
+        });
     }
 
     Utils::sort(filteredImports, [](const Import &firstImport, const Import &secondImport) {
