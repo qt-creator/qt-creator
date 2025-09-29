@@ -322,7 +322,7 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
 
     connect(&device->freePortsAspect, &PortListAspect::volatileValueChanged, this, updatePortWarningLabel);
 
-    auto autoDetectButton = new QPushButton(Tr::tr("Run auto-detection now"));
+    auto autoDetectButton = new QPushButton(Tr::tr("Run Auto-Detection Now"));
 
     connect(&m_detectionRunner, &Tasking::SingleTaskTreeRunner::aboutToStart, [=] {
         autoDetectButton->setEnabled(false);
@@ -604,7 +604,7 @@ ProcessResult SshProcessInterface::runInShell(const CommandLine &command, const 
     using namespace std::chrono_literals;
     process.runBlocking(2s);
     if (process.result() == ProcessResult::Canceled) {
-        Core::MessageManager::writeFlashing(Tr::tr("Can't send control signal to the %1 device. "
+        Core::MessageManager::writeFlashing(Tr::tr("Cannot send control signal to the %1 device. "
                                                    "The device might have been disconnected.")
                                                 .arg(d->m_device->displayName()));
     }
@@ -1483,7 +1483,7 @@ bool LinuxDevicePrivate::checkDisconnectedWithWarning()
         const QString warnStr
             = Tr::tr("Device \"%1\" is currently marked as disconnected.").arg(name);
         InfoBarEntry info(errorId, warnStr, InfoBarEntry::GlobalSuppression::Enabled);
-        info.setTitle(Tr::tr("Device is Disconnected"));
+        info.setTitle(Tr::tr("Device Is Disconnected"));
         info.setDetailsWidgetCreator([] {
             const auto label = new QLabel(Tr::tr(
                 "The device was not available when trying to connect previously.<br>"

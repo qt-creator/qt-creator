@@ -718,7 +718,7 @@ Task Project::checkBuildDevice(const Kit *k, const Utils::FilePath &projectFile)
 {
     IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(k);
     if (!buildDevice)
-        return createTask(Task::TaskType::Error, ::PE::Tr::tr("Kit has no build device"));
+        return createTask(Task::TaskType::Error, ::PE::Tr::tr("Kit has no build device."));
     if (!buildDevice->supportsBuildingProject(projectFile.parentDir())) {
         return createTask(
             Task::TaskType::Error,

@@ -296,11 +296,11 @@ public:
         m_prevBtn = new BlogButton(FilePath::fromUserInput(":/utils/images/prev.png"), this);
         m_prevBtn->setGeometry(btnPad, (blogThumbSize.height() - btnS) / 2, btnS, btnS);
         m_prevBtn->hide();
-        m_prevBtn->setToolTip(Tr::tr("Previous blog post"));
+        m_prevBtn->setToolTip(Tr::tr("Previous blog post."));
         m_nextBtn = new BlogButton(FilePath::fromUserInput(":/utils/images/next.png"), this);
         m_nextBtn->setGeometry(blogThumbSize.width() - btnPad - btnS, m_prevBtn->y(), btnS, btnS);
         m_nextBtn->hide();
-        m_nextBtn->setToolTip(Tr::tr("Next blog post"));
+        m_nextBtn->setToolTip(Tr::tr("Next blog post."));
 
         connect(m_prevBtn, &QAbstractButton::pressed, this, &BlogCarousel::prevPressed);
         connect(m_nextBtn, &QAbstractButton::pressed, this, &BlogCarousel::nextPressed);
@@ -653,7 +653,7 @@ private:
         using namespace Layouting;
         return Column {
             Row {
-                tfLabel(Tr::tr("Recommended for you"), titleTf),
+                tfLabel(Tr::tr("Recommended for You"), titleTf),
                 settingsToolButton,
                 st,
             },

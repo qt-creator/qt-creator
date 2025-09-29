@@ -133,7 +133,7 @@ void PySideInstaller::installPySide(const FilePath &python, const QString &pySid
     if (availablePySides.isEmpty()) {
         if (!quiet) {
             QMessageBox::StandardButton selected = CheckableMessageBox::question(
-                Tr::tr("Missing PySide6 installation"),
+                Tr::tr("Missing PySide6 Installation"),
                 Tr::tr("Install PySide6 via pip for %1?").arg(python.shortNativePath()),
                 {},
                 QMessageBox::Yes | QMessageBox::No,

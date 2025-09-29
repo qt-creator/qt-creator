@@ -401,7 +401,7 @@ void QbsBuildSystem::setFileUpdateError(const QString &reason)
 {
     m_fileUpdateError = OtherTask(
         Task::DisruptingError,
-        Tr::tr("Error updating qbs project file.").append('\n').append(reason));
+        Tr::tr("Cannot update Qbs project file.").append('\n').append(reason));
     TaskHub::addTask(m_fileUpdateError);
 }
 

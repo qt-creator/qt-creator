@@ -225,7 +225,7 @@ bool PythonBuildSystem::save()
     const auto setError = [this](const QString &reason) {
         m_saveError = OtherTask(
             Task::DisruptingError,
-            Tr::tr("Error saving python project file.").append('\n').append(reason));
+            Tr::tr("Cannot save Python project file.").append('\n').append(reason));
         TaskHub::addTask(m_saveError);
     };
 
@@ -353,7 +353,7 @@ void PythonBuildSystem::parse()
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     const auto addError = [](const QString &reason) {
         TaskHub::addTask<BuildSystemTask>(
-            Task::Warning, Tr::tr("Error reading python project.").append('\n').append(reason));
+            Task::Warning, Tr::tr("Cannot read Python project.").append('\n').append(reason));
         TaskHub::requestPopup();
     };
 

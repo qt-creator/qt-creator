@@ -915,7 +915,7 @@ Result<> JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &
         if (!p)
             return ResultError(p.error());
         if (!p->isValid())
-            return ResultError(Tr::tr("No valid typeId"));
+            return ResultError(Tr::tr("No valid typeId."));
         m_pages.append(*p);
     }
 

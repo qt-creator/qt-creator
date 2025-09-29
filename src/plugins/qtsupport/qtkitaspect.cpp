@@ -572,7 +572,7 @@ Utils::Result<Tasking::ExecutableItem> QtKitAspectFactory::createAspectFromJson(
 
                     if (!qtVersion) {
                         promise.addResult(ResultError(
-                            Tr::tr("Failed to create Qt version from qmake path '%1': %2")
+                            Tr::tr("Cannot create Qt version from qmake path \"%1\": %2")
                                 .arg(qmakePath, error)));
                         return;
                     }

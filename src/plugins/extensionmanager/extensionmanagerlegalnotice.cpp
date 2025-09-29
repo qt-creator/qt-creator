@@ -43,7 +43,7 @@ void setLegalNoticeVisible(bool visible)
                                 "without warranties of any kind, and may be subject to "
                                 "additional license terms imposed by their owners or licensors.\n"
                                 "\n"
-                                "You can manage the use of Extensions in Settings > Extensions.");
+                                "You can manage the use of Extensions in Preferences > Extensions.");
 
     InfoBarEntry info(kEnableExternalRepo, text, InfoBarEntry::GlobalSuppression::Disabled);
     info.setTitle(Tr::tr("Use %1 Extensions?").arg(QGuiApplication::applicationDisplayName()));
@@ -54,7 +54,7 @@ void setLegalNoticeVisible(bool visible)
         {},
         InfoBarEntry::ButtonAction::SuppressPersistently);
     info.addCustomButton(
-        Tr::tr("Do not use"),
+        Tr::tr("Do Not Use"),
         [] { Internal::setUseExternalRepo(false); },
         {},
         InfoBarEntry::ButtonAction::SuppressPersistently);

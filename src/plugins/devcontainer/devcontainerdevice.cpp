@@ -372,7 +372,7 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
         }();
 
         if (!result) {
-            instanceConfig.logFunction(Tr::tr("Cannot setup CmdBridge: %1").arg(result.error()));
+            instanceConfig.logFunction(Tr::tr("Cannot set up Command Bridge: %1").arg(result.error()));
             return DoneResult::Error;
         }
         return DoneResult::Success;
