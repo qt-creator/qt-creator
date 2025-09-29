@@ -102,9 +102,11 @@ void ProjectStorageErrorNotifier::prototypeCycle(Utils::SmallStringView typeName
 {
     const QString typeNameString{typeName};
 
+    const QString typeSourcePath = m_pathCache.sourcePath(typeSourceId).toQString();
+
     logIssue(ProjectExplorer::Task::Error,
-             Tr::tr("Prototype cycle detected for type %1 in %2.").arg(typeNameString),
-             m_pathCache.sourcePath(typeSourceId));
+             Tr::tr("Prototype cycle detected for type %1 in %2.").arg(typeNameString).arg(typeSourcePath),
+             typeSourcePath);
 }
 
 void ProjectStorageErrorNotifier::aliasCycle(Utils::SmallStringView typeName,
@@ -114,11 +116,14 @@ void ProjectStorageErrorNotifier::aliasCycle(Utils::SmallStringView typeName,
     const QString typeNameString{typeName};
     const QString propertyNameString{propertyName};
 
+    const QString typeSourcePath = m_pathCache.sourcePath(typeSourceId).toQString();
+
     logIssue(ProjectExplorer::Task::Error,
              Tr::tr("Alias cycle detected for type %1 and property %2 in %3.")
                  .arg(typeNameString)
-                 .arg(propertyNameString),
-             m_pathCache.sourcePath(typeSourceId));
+                 .arg(propertyNameString)
+                 .arg(typeSourcePath),
+             typeSourcePath);
 }
 
 void ProjectStorageErrorNotifier::exportedTypeNameIsDuplicate(ModuleId moduleId,
