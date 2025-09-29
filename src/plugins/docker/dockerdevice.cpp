@@ -1359,4 +1359,11 @@ bool DockerDevice::supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDevic
            || IDevice::supportsQtTargetDeviceType(targetDeviceTypes);
 }
 
+bool DockerDevice::supportsBuildingProject(const Utils::FilePath &projectDir) const
+{
+    if (ensureReachable(projectDir))
+        return true;
+    return handlesFile(projectDir);
+}
+
 } // namespace Docker::Internal
