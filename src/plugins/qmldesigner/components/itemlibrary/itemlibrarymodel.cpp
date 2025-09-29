@@ -414,6 +414,7 @@ void ItemLibraryModel::update(Model *model)
 
     QList<ItemLibraryEntry> itemLibEntries = model->allItemLibraryEntries();
     itemLibEntries.append(model->directoryImportsItemLibraryEntries());
+    const QString ultralite = "QtQuickUltralite";
     for (const ItemLibraryEntry &entry : std::as_const(itemLibEntries)) {
         NodeMetaInfo metaInfo;
 
@@ -439,6 +440,8 @@ void ItemLibraryModel::update(Model *model)
                 && !mcuManager.allowedImports().contains(entry.requiredImport())) {
                 blocked = true;
             }
+        } else {
+            blocked = entry.requiredImport().startsWith(ultralite);
         }
 
         Import import = entryToImport(entry);
