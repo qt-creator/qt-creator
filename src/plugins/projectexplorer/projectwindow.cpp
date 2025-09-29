@@ -1123,7 +1123,7 @@ TargetGroupItem::TargetGroupItem(Project *project)
          scheduleRebuildContents();
     });
 
-    globalProjectExplorerSettings().showAllKits.addOnChanged(&m_guard, [this] {
+    globalProjectExplorerSettings().kitFilter.addOnChanged(&m_guard, [this] {
         scheduleRebuildContents();
     });
 
@@ -1198,20 +1198,32 @@ void TargetGroupItem::rebuildContents()
     m_rebuildScheduled = false;
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
     const auto sortedKits = KitManager::sortedKits();
-    bool isAnyKitNotEnabled = std::any_of(sortedKits.begin(), sortedKits.end(), [this](Kit *kit) {
+    bool isAnyKitEnabled = std::any_of(sortedKits.begin(), sortedKits.end(), [this](Kit *kit) {
         return kit && m_project->target(kit->id()) != nullptr;
     });
     removeChildren();
 
-    for (Kit *kit : sortedKits) {
-        const bool supportedByBuildDevice
-            = Project::checkBuildDevice(kit, m_project->projectFilePath()).isNull();
-        if (!supportedByBuildDevice)
-            continue;
+    const KitFilter kitFilter = globalProjectExplorerSettings().kitFilter();
 
-        if (!isAnyKitNotEnabled || globalProjectExplorerSettings().showAllKits()
-            || m_project->target(kit->id()) != nullptr) {
+    for (Kit *kit : sortedKits) {
+        const auto appendItem = [&] {
             appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
+        };
+
+        if (kitFilter == KitFilter::ShowAll) {
+            appendItem();
+            continue;
+        }
+
+        if (kitFilter == KitFilter::ShowOnlyMatching) {
+            if (m_project->projectIssues(kit).isEmpty())
+                appendItem();
+            continue;
+        }
+
+        if (!isAnyKitEnabled || m_project->target(kit->id()) != nullptr) {
+            appendItem();
+            continue;
         }
     }
 
@@ -1373,34 +1385,26 @@ private:
     QTabWidget *m_tabWidget = nullptr;
 };
 
-class ShowAllKitsButton final : public QLabel
+class ShowAllKitsComboBox final : public QComboBox
 {
 public:
-    ShowAllKitsButton(ProjectsModel *projectsModel)
-        : m_projectsModel(projectsModel)
-    {}
-
-    void mouseReleaseEvent(QMouseEvent *ev) final
+    ShowAllKitsComboBox(ProjectsModel *projectsModel, QWidget *parent)
+        : QComboBox(parent)
     {
-        if (ev->button() != Qt::LeftButton)
-            return;
-        const bool newShowAllKits = !globalProjectExplorerSettings().showAllKits();
-        globalProjectExplorerSettings().showAllKits.setValue(newShowAllKits);
-        globalProjectExplorerSettings().writeSettings();
-        updateText();
-        m_projectsModel->rootItem()->forFirstLevelChildren([](ProjectItem *item) {
-            item->targetsItem()->scheduleRebuildContents();
+        TypedSelectionAspect<KitFilter> &kitFilter = globalProjectExplorerSettings().kitFilter;
+        for (int i = 0; i < 3; ++i)
+            addItem(kitFilter.displayForIndex(i), i);
+
+        setCurrentIndex(int(kitFilter()));
+
+        connect(this, &QComboBox::currentIndexChanged, projectsModel, [projectsModel](int index) {
+            globalProjectExplorerSettings().kitFilter.setValue(KitFilter(index));
+            globalProjectExplorerSettings().writeSettings();
+            projectsModel->rootItem()->forFirstLevelChildren([](ProjectItem *item) {
+                item->targetsItem()->scheduleRebuildContents();
+            });
         });
     }
-
-    void updateText()
-    {
-        setText(globalProjectExplorerSettings().showAllKits()
-                    ? Tr::tr("Hide Inactive Kits")
-                    : Tr::tr("Show All Kits"));
-    }
-
-    ProjectsModel *m_projectsModel;
 };
 
 class ProjectWindowPrivate : public QObject
@@ -1412,8 +1416,6 @@ public:
         q->setCentralWidget(m_centralWidget);
 
         m_projectsModel.setHeader({Tr::tr("Projects")});
-
-        m_showAllKitsButton = new ShowAllKitsButton(&m_projectsModel);
 
         m_targetsView = new SelectorTree;
         m_targetsView->setModel(&m_projectsModel);
@@ -1453,6 +1455,11 @@ public:
         const int space = 18;
         auto scrolledWidget = new QWidget;
         auto scrolledLayout = new QVBoxLayout(scrolledWidget);
+        auto kitsFilterLayout = new QHBoxLayout;
+        auto kitsFilter = new ShowAllKitsComboBox(&m_projectsModel, scrolledWidget);
+
+        kitsFilterLayout->addWidget(kitsFilter);
+        kitsFilterLayout->addStretch();
         scrolledLayout->setSizeConstraint(QLayout::SetFixedSize);
         scrolledLayout->setContentsMargins(0, 0, 0, 0);
         scrolledLayout->setSpacing(0);
@@ -1460,7 +1467,7 @@ public:
         scrolledLayout->addSpacing(space);
         scrolledLayout->addWidget(m_targetsView);
         scrolledLayout->addSpacing(6);
-        scrolledLayout->addWidget(m_showAllKitsButton);
+        scrolledLayout->addItem(kitsFilterLayout);
         scrolledLayout->addSpacing(space);
         scrolledLayout->addWidget(m_vanishedTargetsLabel);
         scrolledLayout->addSpacing(space);
@@ -1610,8 +1617,6 @@ public:
         m_targetsView->updateSize();
         m_vanishedTargetsView->updateSize();
         m_projectSettingsView->updateSize();
-
-        m_showAllKitsButton->updateText();
     }
 
     void registerProject(Project *project)
@@ -1793,7 +1798,6 @@ public:
     SelectorTree *m_targetsView;
     SelectorTree *m_vanishedTargetsView;
     SelectorTree *m_projectSettingsView;
-    ShowAllKitsButton *m_showAllKitsButton;
     QScrollArea *m_scrollArea;
     QPushButton *m_importBuild;
     QAction m_toggleRightSidebarAction;

@@ -114,12 +114,13 @@ ProjectExplorerSettings::ProjectExplorerSettings(bool global)
                "characters such as spaces, potentially resulting in spurious build errors.<p>"
                "Uncheck this option if you do not work with such tools."));
 
-    showAllKits.setSettingsKey("ShowAllKits");
-    showAllKits.setDefaultValue(true);
-    showAllKits.setLabel(Tr::tr("Show all kits in \"Build & Run\" in \"Projects\" mode").replace('&', "&&"));
-    showAllKits.setToolTip(
-        Tr::tr("Show also inactive kits in \"Build & Run\" in \"Projects\" mode."));
-    showAllKits.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    kitFilter.setSettingsKey("ShowAllKits");
+    kitFilter.setDefaultValue(KitFilter::ShowAll);
+    kitFilter.addOption({Tr::tr("Show all kits"), {}, int(KitFilter::ShowAll)});
+    kitFilter.addOption({Tr::tr("Show only suitable kits"), {}, int(KitFilter::ShowOnlyMatching)});
+    kitFilter.addOption({Tr::tr("Show only active kits"), {}, int(KitFilter::ShowOnlyActive)});
+    kitFilter.setLabelText(Tr::tr("Show all kits in \"Build & Run\" in \"Projects\" mode").replace('&', "&&"));
+    kitFilter.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
 
     buildBeforeDeploy.setSettingsKey("BuildBeforeDeploy");
     buildBeforeDeploy.setDefaultValue(BuildBeforeRunMode::WholeProject);
@@ -335,7 +336,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
                 s.abortBuildAllOnError,
                 s.lowBuildPriority,
                 s.warnAgainstNonAsciiBuildDir,
-                s.showAllKits,
+                s.kitFilter,
 
                 Form {
                     appEnvDescriptionLabel, Row{m_appEnvLabel, appEnvButton, st}, br,
