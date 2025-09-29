@@ -52,7 +52,9 @@ public:
     explicit ViewTabBar(EditorView *parent)
         : QTabBar(parent)
         , m_parentView(parent)
-    {}
+    {
+        setProperty(StyleHelper::C_TABBAR_WHEELSCROLLING, true);
+    }
 
 protected:
     void mousePressEvent(QMouseEvent *event) override
@@ -106,6 +108,19 @@ protected:
         }
     }
 
+    void wheelEvent(QWheelEvent *event) override
+    {
+        // The QTabBar wheel event implementation only results in a currentChanged event
+        // which makes it impossible to identify it as a "user triggered" change.
+        // That makes it ugly for tab bars that are 'manually managed' and want to
+        // only react on user changes, like the editor tab bar.
+        // Work around the issue by emitting tabBarClicked if the wheel event results in
+        // a change.
+        const int oldIndex = currentIndex();
+        QTabBar::wheelEvent(event);
+        if (currentIndex() != oldIndex)
+            emit tabBarClicked(currentIndex());
+    }
 signals:
     void dragRequested(int index);
 
