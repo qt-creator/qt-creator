@@ -66,6 +66,8 @@ int ExampleSetModel::readCurrentIndexFromSettings() const
 
 ExampleSetModel::ExampleSetModel()
 {
+    static QRegularExpression funnyVersionRepetition("^Qt6 6[.]");
+    static QString funnyVersionRepetitionReplace("Qt 6.");
     if (debugExamples() && !log().isDebugEnabled())
         log().setEnabled(QtDebugMsg, true);
     // read extra example sets settings
@@ -91,6 +93,12 @@ ExampleSetModel::ExampleSetModel()
         qCDebug(log) << "Adding examples set displayName=" << set.displayName
                      << ", manifestPath=" << set.manifestPath
                      << ", examplesPath=" << set.examplesPath;
+        const QString fixedDisplayName
+            = set.displayName.replace(funnyVersionRepetition, funnyVersionRepetitionReplace);
+        if (fixedDisplayName != set.displayName) {
+            set.displayName = fixedDisplayName;
+            qCDebug(log) << "- fixing display name, new displayName=" << set.displayName;
+        }
         if (!Utils::anyOf(m_extraExampleSets, [&set](const ExtraExampleSet &s) {
                 return FilePath::fromString(s.examplesPath).cleanPath()
                            == FilePath::fromString(set.examplesPath).cleanPath()
