@@ -15,4 +15,6 @@ RUN apt-get update \
     valgrind \
     x11-apps \
     clangd \
-    qbs
+    qbs \
+    cmake \
+    ninja-build
