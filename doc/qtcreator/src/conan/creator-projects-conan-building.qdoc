@@ -20,7 +20,7 @@
     \image {qtcreator-build-steps-conan-install.png} {Conan Install build step}
 
     In the \uicontrol {Conan file} field, enter the location of the
-    \e conanfile.txt file for the project.
+    \c conanfile.txt file for the project.
 
     The \uicontrol {Conan install} field displays the effective
     build command. You can add arguments for the command in the

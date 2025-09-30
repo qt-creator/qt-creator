@@ -122,7 +122,7 @@
 
         \li  GDB on Windows may not work if the 'Embassy \reg Security Center'
             software by 'Wave \reg Systems' is installed and active (causing
-            crashes in \c{vxvault.dll)}).
+            crashes in \c{vxvault.dll}).
 
         \li  GDB may take long to load debugging symbols, especially from large
             libraries.

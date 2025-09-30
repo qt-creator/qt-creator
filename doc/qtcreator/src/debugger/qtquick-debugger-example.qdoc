@@ -44,7 +44,7 @@
     \list 1
 
         \li To look at the code that starts a new game, place a breakpoint in
-            samegame.qml by clicking between the line number and the window
+            \c samegame.qml by clicking between the line number and the window
             border on the line where the \c startNewGame() function is
             called (1).
 
@@ -70,7 +70,7 @@
 
         \li Select \inlineimage {icons/debugger_stepinto_small.png} {Step Into}
             (\uicontrol {Step Into}) on the toolbar or select \key F11 to step
-            into the code in the stack. The samegame.js file opens in the code
+            into the code in the stack. The \c samegame.js file opens in the code
             editor at the function that starts a new game.
 
             \image {qtquick-example-stack.webp} {Stack view}

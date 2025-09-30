@@ -46,7 +46,7 @@
     \section1 Application manager CMake functions
 
     Since Qt 6.7, when using CMake as the build system, use the following
-    functions in the CMakeLists.txt file to indicate, which applications
+    functions in the \c CMakeLists.txt file to indicate, which applications
     to create as built-in packages and which to create as installable packages:
 
     \list

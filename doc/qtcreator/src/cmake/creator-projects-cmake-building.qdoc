@@ -127,13 +127,13 @@
     To reset all the changes that you made, select \uicontrol Reset.
 
     The variable values that you change are passed via \c -D<option>=<value>
-    to CMake, which stores the options in the CMakeCache.txt file. This means
+    to CMake, which stores the options in the \c CMakeCache.txt file. This means
     that if you remove the build directory, all the custom variables that are
     not part of the initial CMake configuration are also removed.
 
     To reconfigure a project using the changed variable values, go to
     \uicontrol Build and select \uicontrol {Clear CMake Configuration}, which
-    removes the CMakeCache.txt file. This enables you to do a full rebuild.
+    removes the \c CMakeCache.txt file. This enables you to do a full rebuild.
 
     \section2 Removing Variables
 
@@ -155,7 +155,7 @@
     \uicontrol {Re-configure with Initial Variables} in
     \uicontrol {Initial Configuration}. \QC deletes the current CMake
     configuration and runs CMake. The initial configuration values are
-    stored in the CMakeLists.txt.user file, so deleting a build directory
+    stored in the \c CMakeLists.txt.user file, so deleting a build directory
     does not delete the initial configuration.
 
     To be asked before \QC resets the changes, go to \preferences >

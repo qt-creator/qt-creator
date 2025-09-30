@@ -513,51 +513,51 @@
         \li M220
         \li Error
         \li This type (type name) is not supported as a root element of a
-            UI file (.ui.qml)
+            UI file (\c .ui.qml)
         \li For more information about supported QML types, see \l{UI files}.
 
     \row
         \li M221
         \li Error
-        \li This type (type name) is not supported in a UI file (.ui.qml)
+        \li This type (type name) is not supported in a UI file (\c .ui.qml)
         \li For more information about supported QML types, see \l{UI files}.
 
     \row
         \li M222
         \li Error
-        \li Functions are not supported in a UI file (.ui.qml)
+        \li Functions are not supported in a UI file (\c .ui.qml)
         \li For a list of supported JavaScript functions, see
             \l{Supported Methods}.
 
     \row
         \li M223
         \li Error
-        \li JavaScript blocks are not supported in a UI file (.ui.qml)
+        \li JavaScript blocks are not supported in a UI file (\c .ui.qml)
         \li For more information about supported features, see \l{UI files}.
 
     \row
         \li M224
         \li Error
-        \li Behavior type is not supported in a UI file (.ui.qml)
+        \li Behavior type is not supported in a UI file (\c .ui.qml)
         \li For more information about supported QML types, see \l{UI files}.
 
     \row
         \li M225
         \li Error
-        \li States are only supported in the root item in a UI file (.ui.qml)
+        \li States are only supported in the root item in a UI file (\c .ui.qml)
         \li For more information about supported features, see \l{UI files}.
 
     \row
         \li M226
         \li Error
         \li Referencing the parent of the root item is not supported in a
-            UI file (.ui.qml)
+            UI file (\c .ui.qml)
         \li For more information about supported features, see \l{UI files}.
 
     \row
         \li M227
         \li Error
-        \li Do not mix translation functions in a UI file (.ui.qml)
+        \li Do not mix translation functions in a UI file (\c .ui.qml)
         \li Even though several different translation functions, such as
             \c qsTr and \c qsTrId are supported, you should pick one and
             use it consistently within a UI file. For more information,

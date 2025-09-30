@@ -215,17 +215,17 @@
     }
     \endcode
 
-    For more information about the available options, see \e standard.def
-    in the \e share/qtcreator/modeleditor directory in the \QC installation
+    For more information about the available options, see \c standard.def
+    in the \c share/qtcreator/modeleditor directory in the \QC installation
     directory. It describes also how to define custom relation types
     and templates for existing types (such as a composition relation that
     can be drawn between classes).
 
     Add your own definition file and save it with the file extension
-    \e .def to add custom colors and icons for stereotypes, elements, or tool
+    \c .def to add custom colors and icons for stereotypes, elements, or tool
     bars. Either store this file in the same directory as the
-    \e standard.def file or select the root element of a model and apply your
-    \e .def file to the property \uicontrol {Config path}.
+    \c standard.def file or select the root element of a model and apply your
+    \c .def file to the property \uicontrol {Config path}.
 
     \sa {Create Models and Diagrams}{How To: Create Models and Diagrams},
     {Create files}, {Sidebar Views}

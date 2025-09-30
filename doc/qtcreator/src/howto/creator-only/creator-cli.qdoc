@@ -33,75 +33,75 @@
             \li Description
 
         \row
-            \li -help
+            \li \c -help
             \li Display help on command-line options.
 
         \row
-            \li -version
+            \li \c -version
             \li Display \QC version.
 
         \row
-            \li -client
+            \li \c -client
             \li Attempt to connect to an already running instance of \QC.
 
        \row
-            \li -pid
+            \li \c -pid
             \li Attempt to connect to an already running instance of \QC with
                 the specified process ID.
 
         \row
-            \li -block
+            \li \c -block
             \li Open files in editors in a running \QC instance and block the
                 command line until the first editor is closed.
 
        \row
-            \li -no-crashcheck
+            \li \c -no-crashcheck
             \li Disable the startup check for a previously crashed \QC instance.
 
        \row
-            \li -load <plugin-id>
+            \li \c -load \e <plugin-id>
             \li Enable the specified plugin and all plugins that it depends on.
                 You can combine \c -load and \c -noload options and specify both
                 options multiple times to enable and disable several plugins.
                 The actions are executed in the specified order.
 
        \row
-            \li -load all
+            \li \c {-load all}
             \li Enable all plugins.
 
         \row
-            \li -noload <plugin-id>
+            \li \c -noload \e <plugin-id>
             \li Disable the specified plugin and all plugins that depend on it.
 
         \row
-            \li -noload all
+            \li \c {-noload all}
             \li Disable all plugins.
 
         \row
-            \li -profile
+            \li \c -profile
             \li Output profiling data about plugin startup and shutdown.
 
        \row
-            \li -pluginpath <path>
+            \li \c -pluginpath \e <path>
             \li Add a path where \QC looks for plugins. To specify several
                 paths, add the \c{-pluginpath} option for each path.
 
         \row
-            \li -settingspath <path>
+            \li \c -settingspath \e <path>
             \li Override the default path where user settings are stored.
 
         \row
-            \li -installsettingspath <path>
+            \li \c -installsettingspath \e <path>
             \li Override the default path from where user-independent settings are read
                 (for example, those written by the installer).
 
         \row
-            \li -temporarycleansettings, -tcs
+            \li \c -temporarycleansettings, \c -tcs
             \li Use clean settings for debug or testing reasons. The settings
                 will be deleted when \QC exits.
 
         \row
-            \li -language <locale>
+            \li \c -language \e <locale>
             \li Set the UI language.
 
                 Use a lowercase, two-letter
@@ -109,55 +109,55 @@
                 {ISO 639 language code}, such as \e de, \e en, or \e fr.
 
        \row
-            \li -test <plugin>[,testfunction[:testdata]] ...
+            \li \c {-test} \e{<plugin>}\c{[,testfunction[:testdata]] ...}
             \li For \QC plugin developers: run the plugin's tests using a
                 separate settings path by default.
 
        \row
-            \li -test all
+            \li \c {-test all}
             \li For \QC plugin developers: run tests from all plugins.
 
        \row
-            \li -notest <plugin>
+            \li \c -notest \e <plugin>
             \li For \QC plugin developers: exclude all of the plugin's
                 tests from the test run.
 
        \row
-            \li -scenario <scenarioname>
+            \li \c -scenario \e <scenarioname>
             \li For \QC plugin developers: run the specified scenario.
 
         \row
-            \li -color <color>
+            \li \c -color \e <color>
             \li Core plugin: override the selected UI color.
 
        \row
-            \li -presentationMode
+            \li \c -presentationMode
             \li Core plugin: display keyboard shortcuts as popups when you
                 select them. Mostly useful when presenting \QC to someone else.
 
         \row
-            \li -theme <default | dark>
+            \li \c {-theme <default | dark>}
             \li Core plugin: apply a dark color theme to \QC, without using
                 stylesheets.
 
         \row
-            \li -notour
+            \li \c -notour
             \li Welcome plugin: skip the UI tour on startup.
 
         \row
-            \li -debug <pid>
+            \li \c -debug \e <pid>
             \li Debugger plugin: attach to the process with the given process
                 ID.
 
         \row
-            \li -debug <executable>[,kit=<kit>]
+            \li \c {-debug} \e{<executable>}[,\c{kit}=\e{<kit>}]
             \li Debugger plugin: launch and debug the executable with the name
                 \c{executable}.
                 A \c{kit} can be specified by ID or name to point to non-default
                 debuggers and sysroots.
 
         \row
-            \li -debug [executable,]core=<corefile>[,kit=<kit>]
+            \li \c{-debug} [\c{executable},]\c{core}=\e{<corefile>}[,\c{kit}=\e{<kit>}]
             \li Debugger plugin: load the core file named \c{corefile}.
                 The parameter \c{executable} specifies the executable that
                 produced the core file.
@@ -169,7 +169,7 @@
                 debuggers and sysroots.
 
         \row
-            \li -debug <executable>,server=<server:port>[,kit=<kit>]
+            \li \c{-debug} \e{<executable>},\c{server}=\e{<server:port>}[,\c{kit}=\e{<kit>}]
             \li Debugger plugin: attach to a debug server running on the port
                 \c{port} on the server \c{server}. The parameter \c{executable}
                 specifies a local copy of the executable the remote debug server
@@ -178,33 +178,33 @@
                 debuggers and sysroots.
 
         \row
-            \li -wincrashevent <event-handle:pid>
+            \li \c -wincrashevent \e <event-handle:pid>
             \li Debugger plugin: attach to crashed processes by using the
                 specified event handle and process ID.
 
         \row
-            \li -git-show <git commit hash>
+            \li \c -git-show \e {<git commit hash>}
             \li Git plugin: show the specified commit hash.
 
         \row
-            \li -customwizard-verbose
+            \li \c -customwizard-verbose
             \li ProjectExplorer plugin: display additional information when
                 loading custom wizards. For more information about custom
                 wizards, see \l{Custom Wizards}
 
         \row
-            \li -ensure-kit-for-binary <path to binary>
+            \li \c -ensure-kit-for-binary \e {<path to binary>}
             \li ProjectExplorer plugin: create a kit with a toolchain
                 corresponding to the given binary's architecture.
 
         \row
-            \li -lastsession
+            \li \c -lastsession
             \li ProjectExplorer plugin: load the last session when \QC starts.
                 Open the projects and files that were open when you last exited
                 \QC.
 
         \row
-            \li <session>
+            \li \e <session>
             \li ProjectExplorer plugin: load the given session when \QC starts.
                 Open the projects and files that were open when you last exited
                 \QC.

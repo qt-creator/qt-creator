@@ -17,7 +17,7 @@
 
     \brief A visual editor for Qt Widgets.
 
-    \QC automatically opens all .ui files in the integrated \QD, in \uicontrol Design
+    \QC automatically opens all \c .ui files in the integrated \QD, in \uicontrol Design
     mode.
 
     \image {qtcreator-formedit.png} {Qt Widgets Designer open in the Design mode}
@@ -50,8 +50,8 @@
     \section1 Managing Image Resources
 
     In standalone \QD, image resources are created using the built-in
-    \uicontrol {Resource Editor}. In \QC, .ui files are usually part of a project,
-    which may have several resource files (.qrc). They are created and
+    \uicontrol {Resource Editor}. In \QC, \c .ui files are usually part of a project,
+    which may have several resource files (\c .qrc). They are created and
     maintained by using the \QC Resource Editor. The \QD \uicontrol {Resource Editor}
     is de-activated and the image resources are displayed in the \QD
     \uicontrol {Resource Browser}.
@@ -115,8 +115,8 @@
         \li Select \uicontrol OK to add the device profile to the list.
     \endlist
 
-    To import device profiles from .qdp files, select \uicontrol Open. To save
-    them as .qdp files, select \uicontrol Save.
+    To import device profiles from \c .qdp files, select \uicontrol Open. To save
+    them as \c .qdp files, select \uicontrol Save.
 
     \sa {Tutorial: Qt Widgets application}, {Adding \QD Plugins}
 */

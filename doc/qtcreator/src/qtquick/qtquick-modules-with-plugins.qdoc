@@ -40,14 +40,14 @@
            \c {imports\asset_imports}.
 
         \if defined(qtcreator)
-        \li  For Qt Quick UI Prototype projects (.qmlproject), specify the path to
-            the directory that has the module in the .qmlproject file
+        \li  For Qt Quick UI Prototype projects (\c .qmlproject), specify the path to
+            the directory that has the module in the \c .qmlproject file
             of the application where you want to use the module
             as a value of the \c importPaths variable. For example,
             \c{importPaths: [ "imports", "asset_imports" ]}.
         \else
         \li Specify the path to the directory that has the module in the
-            .qmlproject file of the application where you want to use the module
+            \c .qmlproject file of the application where you want to use the module
             as a value of the \c importPaths variable. For example,
             \c{importPaths: [ "imports", "asset_imports" ]}.
         \endif
@@ -116,7 +116,7 @@
     \QC should use, specify them using \c{QML_IMPORT_PATH} in the \c{.pro}
     file of your application: \c {QML_IMPORT_PATH += path/to/module}.
 
-    If you use CMake, add the following command to the CMakeLists.txt file to
+    If you use CMake, add the following command to the \c CMakeLists.txt file to
     set the QML import path:
 
     \code

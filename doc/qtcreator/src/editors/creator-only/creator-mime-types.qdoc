@@ -22,7 +22,7 @@
     \list
         \li Choose a mode and editor to open the file in.
             For example, \QC opens C++ source and header files in
-            the C++ editor, and Qt widget based UI files (.ui) in \QD.
+            the C++ editor, and Qt widget based UI files (\c .ui) in \QD.
         \li Offer code editing services, such as code formatting and
             highlighting.
         \li Feed files to the correct language server.

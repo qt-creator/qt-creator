@@ -3243,8 +3243,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         }
         break;
     case Qt::Key_Delete:
-        if (hasMultipleCursors && !ro
-            && (e->modifiers() == Qt::NoModifier || e->modifiers() == Qt::KeypadModifier)) {
+        if (!ro && (e->modifiers() == Qt::NoModifier || e->modifiers() == Qt::KeypadModifier)) {
             if (cursor.hasSelection()) {
                 cursor.removeSelectedText();
             } else {
@@ -3254,6 +3253,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                 cursor.mergeCursors();
                 cursor.endEditBlock();
             }
+            setMultiTextCursor(cursor);
             e->accept();
             return;
         }

@@ -371,14 +371,14 @@
         \li \uicontrol {Polish}
         \li GUI
         \li Threaded, Basic, Windows
-        \li polish
+        \li \c polish
         \li Final touch-up of items before they are rendered using
             QQuickItem::updatePolish().
     \row
         \li \uicontrol {GUI Thread Wait}
         \li GUI
         \li Threaded
-        \li lock
+        \li \c lock
         \li Executing slots connected to the QQuickWindow::afterAnimating()
             signal and then locking the render thread's mutex before waiting on
             the same mutex at \uicontrol {GUI Thread Sync}. If this starts long
@@ -388,13 +388,13 @@
         \li \uicontrol {GUI Thread Sync}
         \li GUI
         \li Threaded
-        \li blockedForSync
+        \li \c blockedForSync
         \li The time the GUI thread is blocked, waiting for the render thread.
     \row
         \li \uicontrol {Animations}
         \li GUI
         \li Threaded, Windows
-        \li animations
+        \li \c animations
         \li Advancing animations in the GUI thread. The basic render loop does
             not drive animations in sync with the rendering. This is why no
             animation events will be shown when using the basic render loop.
@@ -404,14 +404,14 @@
         \li \uicontrol {Render Thread Sync}
         \li Render
         \li Threaded, Basic, Windows
-        \li Frame rendered ... sync
+        \li \c {Frame rendered ... sync}
         \li Synchronizing the QML state into the scene graph using
             QQuickItem::updatePaintNode().
     \row
         \li \uicontrol {Render}
         \li Render
         \li Threaded, Basic, Windows
-        \li Frame rendered ... render
+        \li \c {Frame rendered ... render}
         \li Total time spent rendering the frame, including preparing and
             uploading all the necessary data to the GPU. This is the \e gross
             render time. Do not confuse it with the \e net \uicontrol{Render Render}
@@ -420,20 +420,20 @@
         \li \uicontrol {Swap}
         \li Render
         \li Threaded, Basic, Windows
-        \li Frame rendered ... swap
+        \li \c {Frame rendered ... swap}
         \li Swapping frames after rendering.
     \row
         \li \uicontrol {Render Preprocess}
         \li Render
         \li Threaded, Basic, Windows
-        \li time in renderer ... preprocess
+        \li \c {time in renderer ... preprocess}
         \li Calling QSGNode::preprocess() on all nodes that need to be
             preprocessed. This is part of the gross \uicontrol {Render} step.
     \row
         \li \uicontrol {Render Update}
         \li Render
         \li Threaded, Basic, Windows
-        \li time in renderer ... updates
+        \li \c {time in renderer ... updates}
         \li Iterating and processing all the nodes in the scene graph to update
             their geometry, transformations, opacity, and other state. In the
             \uicontrol {Render Thread Sync} stage, each node is updated separately
@@ -444,70 +444,70 @@
         \li \uicontrol {Render Bind}
         \li Render
         \li Threaded, Basic, Windows
-        \li time in renderer ... binding
+        \li \c {time in renderer ... binding}
         \li Binding the correct framebuffer for OpenGL rendering. This is part
             of the gross \uicontrol {Render} step.
     \row
         \li \uicontrol {Render Render}
         \li Render
         \li Threaded, Basic, Windows
-        \li time in renderer ... rendering
+        \li \c {time in renderer ... rendering}
         \li The actual process of sending all the data to the GPU via OpenGL.
             This is part of the gross \uicontrol {Render} step.
     \row
         \li \uicontrol {Material Compile}
         \li Render
         \li Threaded, Basic, Windows
-        \li shader compiled
+        \li \c {shader compiled}
         \li Compiling GLSL shader programs.
     \row
         \li \uicontrol {Glyph Render}
         \li Render
         \li Threaded, Basic, Windows
-        \li glyphs ... rendering
+        \li \c {glyphs ... rendering}
         \li Rendering of font glyphs into textures.
     \row
         \li \uicontrol {Glyph Upload}
         \li Render
         \li Threaded, Basic, Windows
-        \li glyphs ... upload
+        \li \c {glyphs ... upload}
         \li Uploading of glyph textures to the GPU.
     \row
         \li \uicontrol {Texture Bind}
         \li Render
         \li Threaded, Basic, Windows
-        \li plain texture ... bind
+        \li \c {plain texture ... bind}
         \li Binding a texture in the OpenGL context using glBindTextures.
     \row
         \li \uicontrol {Texture Convert}
         \li Render
         \li Threaded, Basic, Windows
-        \li plain texture ... convert
+        \li \c {plain texture ... convert}
         \li Converting the format and downscaling an image to make it suitable
             for usage as a texture.
     \row
         \li \uicontrol {Texture Swizzle}
         \li Render
         \li Threaded, Basic, Windows
-        \li plain texture ... swizzle
+        \li \c {plain texture ... swizzle}
         \li Swizzling the texture data on the CPU if necessary.
     \row
         \li \uicontrol {Texture Upload}
         \li Render
         \li Threaded, Basic, Windows
-        \li plain texture ... upload / atlastexture uploaded
+        \li \c {plain texture ... upload / atlastexture uploaded}
         \li Uploading the texture data to the GPU.
     \row
         \li \uicontrol {Texture Mipmap}
         \li Render
         \li Threaded, Basic, Windows
-        \li plain texture ... mipmap
+        \li \c {plain texture ... mipmap}
         \li Mipmapping a texture on the GPU.
     \row
         \li \uicontrol {Texture Delete}
         \li Render
         \li Threaded, Basic, Windows
-        \li plain texture deleted
+        \li \c {plain texture deleted}
         \li Deleting a texture from the GPU that became unnecessary.
     \endtable
 
