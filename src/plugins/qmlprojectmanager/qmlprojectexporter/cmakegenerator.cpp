@@ -204,16 +204,19 @@ bool CMakeGenerator::ignore(const Utils::FilePath &path) const
     return false;
 }
 
-bool CMakeGenerator::checkUri(const QString& uri, const Utils::FilePath &path) const
+bool CMakeGenerator::checkUri(const QString &uri, const Utils::FilePath &path, QString &expectedUri) const
 {
     QTC_ASSERT(buildSystem(), return false);
 
     Utils::FilePath relative = path.relativeChildPath(m_root->dir);
-    QList<QStringView> pathComponents = relative.pathView().split('/', Qt::SkipEmptyParts);
+
+    QStringList pathComponents = relative.path().split('/', Qt::SkipEmptyParts);
+    expectedUri = pathComponents.join('.');
+
     if (pathComponents.isEmpty())
         return false;
 
-    for (const auto& import : buildSystem()->allImports()) {
+    for (const auto &import : buildSystem()->allImports()) {
         Utils::FilePath importPath = Utils::FilePath::fromUserInput(import);
         for (const auto& component : importPath.pathView().split('/', Qt::SkipEmptyParts)) {
             if (component == pathComponents.first())
@@ -329,9 +332,18 @@ void CMakeGenerator::readQmlDir(const Utils::FilePath &filePath, NodePtr &node) 
     }
     f.close();
 
-    if (!checkUri(node->uri, node->dir)) {
-        QString text("Unexpected uri %1");
-        logIssue(ProjectExplorer::Task::Warning, text.arg(node->uri), node->dir);
+    QString expectedUri;
+    if (!checkUri(node->uri, node->dir, expectedUri)) {
+        if (expectedUri.isEmpty()) {
+            logIssue(ProjectExplorer::Task::Warning,
+                     "Skipping qml module outside of the project.",
+                     node->dir.pathAppended("qmldir"));
+        } else {
+            QString text("Missmatching uri %1 instead of %2");
+            logIssue(ProjectExplorer::Task::Warning,
+                     text.arg(node->uri).arg(expectedUri),
+                     node->dir.pathAppended("qmldir"));
+        }
     }
 }
 
