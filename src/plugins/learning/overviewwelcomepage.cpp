@@ -393,7 +393,7 @@ public:
             m_carousel,
             m_title,
             Row {
-                Space(67), // HACK: compensate Button, to have pageIndicator centered
+                Space(80), // HACK: compensate Button, to have pageIndicator centered
                 st,
                 Column { st, m_pageIndicator, st },
                 st,
@@ -558,6 +558,162 @@ private:
     OverviewItemDelegate m_delegate;
 };
 
+class RecentProjectItem : public QWidget
+{
+public:
+    RecentProjectItem(QWidget *parent = nullptr)
+        : QWidget(parent)
+    {
+        static const QPixmap iconPixmap = Icon({{":/projectexplorer/images/recentproject.png",
+                                           Theme::Token_Text_Muted}}, Icon::Tint).pixmap();
+        auto iconLabel = new QLabel;
+        iconLabel->setPixmap(iconPixmap);
+        iconLabel->setFixedWidth(iconPixmap.deviceIndependentSize().width());
+
+        static constexpr TextFormat labelTF {
+            .themeColor = Theme::Token_Accent_Default,
+            .uiElement = UiElement::UiElementH5,
+            .drawTextFlags = Qt::AlignVCenter,
+        };
+        m_label = new ElidingLabel;
+        m_label->setElideMode(Qt::ElideMiddle);
+        applyTf(m_label, labelTF);
+        // Hack: H5 line height is too low
+        const int originalTextHeight = m_label->height();
+        const int tweakedTextHeight = originalTextHeight * 1.2;
+        const int textHeightGrow = tweakedTextHeight - originalTextHeight;
+        const int vPadding = SpacingTokens::PaddingVL - textHeightGrow / 2;
+        m_label->setFixedHeight(tweakedTextHeight);
+
+        using namespace Layouting;
+        Column {
+            QtcWidgets::Rectangle {
+                bindTo(&m_background),
+                strokePen(creatorColor(Theme::Token_Stroke_Subtle)),
+                radius(defaultCardBgRounding),
+                Row {
+                    iconLabel,
+                    m_label,
+                    noMargin, spacing(SpacingTokens::GapHM),
+                },
+            },
+            noMargin,
+        }.attachTo(this);
+
+        m_background->setContentsMargins({SpacingTokens::PaddingHM, vPadding,
+                                          SpacingTokens::PaddingHM, vPadding});
+
+        updateHovered();
+    }
+
+    bool event(QEvent *event) override
+    {
+        switch (event->type()) {
+        case QEvent::Enter:
+        case QEvent::Leave:
+            updateHovered();
+            return true;
+        case QEvent::MouseButtonPress:
+            ProjectExplorer::ProjectExplorerPlugin::openProject(m_recentProjectEntry.filePath);
+            return true;
+        default:
+            return QWidget::event(event);
+        }
+    }
+
+    void setRecentProjectEntry(const ProjectExplorer::RecentProjectsEntry &entry)
+    {
+        m_label->setText(entry.displayName);
+        m_recentProjectEntry = entry;
+        setToolTip(Tr::tr("Open Project \"%1\"").arg(entry.filePath.toUserOutput()));
+    }
+
+private:
+    void updateHovered()
+    {
+        const Theme::Color color = underMouse() ? Theme::Token_Background_Muted
+                                                : Theme::Token_Background_Subtle;
+        m_background->setFillBrush(creatorColor(color));
+        QFont labelFont = m_label->font();
+        labelFont.setUnderline(underMouse());
+        m_label->setFont(labelFont);
+    }
+
+    Utils::QtcRectangleWidget *m_background;
+    ElidingLabel *m_label;
+    ProjectExplorer::RecentProjectsEntry m_recentProjectEntry;
+};
+
+class RecentProjectsWidget : public QWidget
+{
+public:
+    RecentProjectsWidget(QWidget *parent = nullptr)
+        : QWidget(parent)
+    {
+        QStackedWidget *stackView;
+        auto newButton = new QtcButton(Tr::tr("Create Project..."), QtcButton::LargePrimary);
+
+        using namespace Layouting;
+        Column list{
+            noMargin, spacing(SpacingTokens::GapVM)
+        };
+        for (int i = 0; i < m_maxProjects; i++) {
+            auto item = new RecentProjectItem;
+            list.addItem(item);
+            m_items.append(item);
+        }
+
+        Column {
+           Stack {
+                bindTo(&stackView),
+                Column {
+                    list,
+                    st,
+                    // TODO: Add "Show all" button
+                    noMargin,
+                },
+                Grid {
+                    GridCell({ Align(Qt::AlignCenter, newButton) }),
+                },
+            },
+            noMargin,
+        }.attachTo(this);
+
+        auto setStackIndex = [stackView] {
+            const bool hasProjects =
+                !ProjectExplorer::ProjectExplorerPlugin::recentProjects().empty();
+            stackView->setCurrentIndex(hasProjects ? 0 : 1);
+        };
+        setStackIndex();
+        connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
+                &ProjectExplorer::ProjectExplorerPlugin::recentProjectsChanged,
+                stackView, setStackIndex);
+        connect(newButton, &QtcButton::clicked, newButton, [] {
+            QAction *openAction = ActionManager::command(Core::Constants::NEW)->action();
+            openAction->trigger();
+        });
+        updateItems();
+    }
+
+private:
+    void updateItems()
+    {
+        int n = 0;
+        const ProjectExplorer::RecentProjectsEntries projects =
+            ProjectExplorer::ProjectExplorerPlugin::recentProjects();
+        for (RecentProjectItem *item : std::as_const(m_items)) {
+            const bool showItem = n < projects.count();
+            item->setVisible(showItem);
+            if (showItem)
+                item->setRecentProjectEntry(projects.at(n));
+            n++;
+        }
+    }
+
+    QList<RecentProjectItem *> m_items;
+    static const int m_maxProjects = 5;
+};
+
 class OverviewWelcomePageWidget final : public QWidget
 {
 public:
@@ -582,45 +738,17 @@ public:
 private:
     static QWidget *recentProjectsPanel()
     {
-        QWidget *projects = ProjectExplorer::ProjectExplorerPlugin::createRecentProjectsView();
-        projects->setMinimumWidth(100);
-        projects->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-
-        auto newButton = new QtcButton(Tr::tr("Create Project..."), QtcButton::LargePrimary);
-        QStackedWidget *stackView;
-
         using namespace Layouting;
         QWidget *panel = QtcWidgets::Rectangle {
             radius(radiusL), fillBrush(rectFill()), strokePen(rectStroke()),
-            customMargins(SpacingTokens::PaddingHXxl, SpacingTokens::PaddingVXl,
-            rectStroke().width(), SpacingTokens::PaddingVXl),
+            customMargins(SpacingTokens::PaddingHXl, SpacingTokens::PaddingVXl,
+            SpacingTokens::PaddingHXl, SpacingTokens::PaddingVXl),
             Column {
                 tfLabel(Tr::tr("Recent Projects"), titleTf),
-                Stack {
-                    bindTo(&stackView),
-                    Row { projects, noMargin },
-                    Grid {
-                        GridCell({ Align(Qt::AlignCenter, newButton) }),
-                    },
-                },
-                noMargin, spacing(SpacingTokens::GapVM),
+                new RecentProjectsWidget,
+                noMargin,
             },
         }.emerge();
-
-        auto setStackIndex = [stackView] {
-            const bool hasProjects =
-                !ProjectExplorer::ProjectExplorerPlugin::recentProjects().empty();
-            stackView->setCurrentIndex(hasProjects ? 0 : 1);
-        };
-        setStackIndex();
-        connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
-                &ProjectExplorer::ProjectExplorerPlugin::recentProjectsChanged,
-                stackView, setStackIndex);
-        connect(newButton, &QtcButton::clicked, newButton, [] {
-            QAction *openAction = ActionManager::command(Core::Constants::NEW)->action();
-            openAction->trigger();
-        });
-
         return panel;
     }
 
@@ -629,8 +757,8 @@ private:
         using namespace Layouting;
         return QtcWidgets::Rectangle {
             radius(radiusL), fillBrush(rectFill()), strokePen(rectStroke()),
-            customMargins(SpacingTokens::PaddingHXxl, SpacingTokens::PaddingVXl,
-                          SpacingTokens::PaddingHXxl, SpacingTokens::PaddingVXl),
+            customMargins(SpacingTokens::PaddingHXl, SpacingTokens::PaddingVXl,
+                          SpacingTokens::PaddingHXl, SpacingTokens::PaddingVXl),
             Column {
                 tfLabel(Tr::tr("Highlights"), titleTf),
                 new BlogWidget,
@@ -692,7 +820,7 @@ private:
 
     static QBrush rectFill()
     {
-        return Qt::transparent;
+        return creatorColor(Core::WelcomePageHelpers::cardDefaultBackground);
     }
 
     static QPen rectStroke()
