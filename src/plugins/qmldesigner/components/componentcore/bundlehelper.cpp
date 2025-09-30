@@ -4,6 +4,7 @@
 #include "bundlehelper.h"
 
 #include "bundleimporter.h"
+#include "componentcoretracing.h"
 #include "utils3d.h"
 
 #include <abstractview.h>
@@ -39,13 +40,20 @@
 #endif
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
+
 Utils::FilePath AssetPath::absFilPath() const
 {
+    NanotraceHR::Tracer tracer{"asset path abs file path", category()};
+
     return basePath.pathAppended(relativePath);
 }
 
 QByteArray AssetPath::fileContent() const
 {
+    NanotraceHR::Tracer tracer{"asset path file content", category()};
+
     return absFilPath().fileContents().value_or("");
 }
 
@@ -53,14 +61,20 @@ BundleHelper::BundleHelper(AbstractView *view, QWidget *widget)
     : m_view(view)
     , m_widget(widget)
 {
+    NanotraceHR::Tracer tracer{"bundle helper constructor", category()};
+
     createImporter();
 }
 
 BundleHelper::~BundleHelper()
-{}
+{
+    NanotraceHR::Tracer tracer{"bundle helper destructor", category()};
+}
 
 void BundleHelper::createImporter()
 {
+    NanotraceHR::Tracer tracer{"bundle helper create importer", category()};
+
     m_importer = Utils::makeUniqueObjectPtr<BundleImporter>();
 
     QObject::connect(
@@ -97,6 +111,8 @@ void BundleHelper::createImporter()
 
 void BundleHelper::importBundleToProject()
 {
+    NanotraceHR::Tracer tracer{"bundle helper import bundle to project", category()};
+
     QString importPath = getImportPath();
     if (importPath.isEmpty())
         return;
@@ -185,6 +201,8 @@ void BundleHelper::importBundleToProject()
 
 void BundleHelper::exportBundle(const QList<ModelNode> &nodes, const QPixmap &iconPixmap)
 {
+    NanotraceHR::Tracer tracer{"bundle helper export bundle", category()};
+
     QTC_ASSERT(!nodes.isEmpty(), return);
 
     QString exportPath = getExportPath(nodes.at(0));
@@ -231,6 +249,8 @@ void BundleHelper::exportBundle(const QList<ModelNode> &nodes, const QPixmap &ic
 
 QJsonObject BundleHelper::exportComponent(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"bundle helper export component", category()};
+
     Utils::FilePath compFilePath = Utils::FilePath::fromString(ModelUtils::componentFilePath(node));
     Utils::FilePath compDir = compFilePath.parentDir();
     QString compBaseName = compFilePath.completeBaseName();
@@ -274,6 +294,8 @@ QJsonObject BundleHelper::exportComponent(const ModelNode &node)
 
 QJsonObject BundleHelper::exportNode(const ModelNode &node, const QPixmap &iconPixmap)
 {
+    NanotraceHR::Tracer tracer{"bundle helper export node", category()};
+
     // tempPath is a temp path for collecting and zipping assets, actual export target is where
     // the user chose to export (i.e. exportPath)
     auto tempPath = Utils::FilePath::fromString(m_tempDir->path());
@@ -340,6 +362,8 @@ QJsonObject BundleHelper::exportNode(const ModelNode &node, const QPixmap &iconP
 
 void BundleHelper::maybeCloseZip()
 {
+    NanotraceHR::Tracer tracer{"bundle helper maybe close zip", category()};
+
     if (--m_remainingFiles <= 0)
         m_zipWriter->close();
 }
@@ -442,6 +466,8 @@ static Imports getRequiredImports(const ModelNode &node,
 
 QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNode &node, int depth)
 {
+    NanotraceHR::Tracer tracer{"bundle helper model node to qml string", category()};
+
     static QStringList depListIds;
 
     QString qml;
@@ -585,6 +611,8 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
 
 QSet<AssetPath> BundleHelper::getBundleComponentDependencies(const ModelNode &node) const
 {
+    NanotraceHR::Tracer tracer{"bundle helper get bundle component dependencies", category()};
+
     const QString compFileName = node.simplifiedTypeName() + ".qml";
 
     Utils::FilePath compPath = componentPath(node).parentDir();
@@ -620,11 +648,15 @@ QSet<AssetPath> BundleHelper::getBundleComponentDependencies(const ModelNode &no
 
 Utils::FilePath BundleHelper::componentPath(const ModelNode &node) const
 {
+    NanotraceHR::Tracer tracer{"bundle helper component path", category()};
+
     return Utils::FilePath::fromString(ModelUtils::componentFilePath(node));
 }
 
 QString BundleHelper::nodeNameToComponentFileName(const QString &name) const
 {
+    NanotraceHR::Tracer tracer{"bundle helper node name to component file name", category()};
+
     QString fileName = UniqueName::generateId(name, "Component");
     fileName[0] = fileName.at(0).toUpper();
     fileName.prepend("My");
@@ -640,10 +672,10 @@ QString BundleHelper::nodeNameToComponentFileName(const QString &name) const
 void BundleHelper::getImageFromCache(const QString &qmlPath,
                                      std::function<void(const QImage &image)> successCallback)
 {
+    NanotraceHR::Tracer tracer{"bundle helper get image from cache", category()};
+
     QmlDesignerPlugin::imageCache().requestSmallImage(
-        Utils::PathString{qmlPath},
-        successCallback,
-        [qmlPath](ImageCache::AbortReason abortReason) {
+        Utils::PathString{qmlPath}, successCallback, [qmlPath](ImageCache::AbortReason abortReason) {
             if (abortReason == ImageCache::AbortReason::Abort) {
                 qWarning() << QLatin1String("ContentLibraryView::getImageFromCache(): icon generation "
                                             "failed for path %1, reason: Abort").arg(qmlPath);
@@ -657,7 +689,10 @@ void BundleHelper::getImageFromCache(const QString &qmlPath,
         });
 }
 
-void BundleHelper::addIconToZip(const QString &iconPath, const auto &image) { // auto: QImage or QPixmap
+void BundleHelper::addIconToZip(const QString &iconPath, const auto &image)
+{
+    NanotraceHR::Tracer tracer{"bundle helper add icon to zip", category()};
+
     QByteArray iconByteArray;
     QBuffer buffer(&iconByteArray);
     buffer.open(QIODevice::WriteOnly);
@@ -669,6 +704,8 @@ void BundleHelper::addIconToZip(const QString &iconPath, const auto &image) { //
 
 QString BundleHelper::getImportPath() const
 {
+    NanotraceHR::Tracer tracer{"bundle helper get import path", category()};
+
     Utils::FilePath projectFP = DocumentManager::currentProjectDirPath();
     if (projectFP.isEmpty()) {
         projectFP = QmlDesignerPlugin::instance()->documentManager()
@@ -684,6 +721,8 @@ QString BundleHelper::getImportPath() const
 
 QString BundleHelper::getExportPath(const ModelNode &node) const
 {
+    NanotraceHR::Tracer tracer{"bundle helper get export path", category()};
+
     QString defaultExportFileName = QLatin1String("%1.%2").arg(node.displayName(),
                                                                Constants::BUNDLE_SUFFIX);
     Utils::FilePath projectFP = DocumentManager::currentProjectDirPath();
@@ -703,6 +742,8 @@ QString BundleHelper::getExportPath(const ModelNode &node) const
 
 bool BundleHelper::isMaterialBundle(const QString &bundleId) const
 {
+    NanotraceHR::Tracer tracer{"bundle helper is material bundle", category()};
+
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
     return bundleId == compUtils.materialsBundleId() || bundleId == compUtils.userMaterialsBundleId();
 }
@@ -710,6 +751,8 @@ bool BundleHelper::isMaterialBundle(const QString &bundleId) const
 // item bundle includes effects and 3D components
 bool BundleHelper::isItemBundle(const QString &bundleId) const
 {
+    NanotraceHR::Tracer tracer{"bundle helper is item bundle", category()};
+
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
     return bundleId == compUtils.effectsBundleId() || bundleId == compUtils.userEffectsBundleId()
            || bundleId == compUtils.user3DBundleId();
@@ -718,6 +761,8 @@ bool BundleHelper::isItemBundle(const QString &bundleId) const
 QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &filePath,
                                                        const Utils::FilePath &mainCompDir) const
 {
+    NanotraceHR::Tracer tracer{"bundle helper get component dependencies", category()};
+
     QSet<AssetPath> depList;
     AssetPath compAssetPath = {mainCompDir, filePath.relativePathFromDir(mainCompDir).toFSPathString()};
 
@@ -817,6 +862,8 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
 
 bool BundleHelper::isProjectComponent(const ModelNode &node) const
 {
+    NanotraceHR::Tracer tracer{"bundle helper is project component", category()};
+
     if (node.isComponent()) {
         const QString projPath = m_view->externalDependencies().currentProjectDirPath();
         const QString compFilePath = ModelUtils::componentFilePath(node);

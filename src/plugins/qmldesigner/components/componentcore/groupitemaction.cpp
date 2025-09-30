@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "groupitemaction.h"
+#include "componentcoretracing.h"
 
 #include "designermcumanager.h"
 #include "modelnodeoperations.h"
@@ -11,12 +12,17 @@
 #include <modelutils.h>
 #include <utils/algorithm.h>
 
-using namespace QmlDesigner;
+namespace QmlDesigner {
+
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
 
 namespace {
 
 bool selectionsAreSiblings(const QList<ModelNode> &selectedItems)
 {
+    NanotraceHR::Tracer tracer{"group item action selections are siblings", category()};
+
     const QList<ModelNode> prunedSelectedItems = ModelUtils::pruneChildren(selectedItems);
     if (prunedSelectedItems.size() < 2)
         return false;
@@ -42,6 +48,8 @@ bool selectionsAreSiblings(const QList<ModelNode> &selectedItems)
 
 ModelNode availableGroupNode(const SelectionContext &selection)
 {
+    NanotraceHR::Tracer tracer{"group item action available group node", category()};
+
     if (!selection.isValid())
         return {};
 
@@ -76,13 +84,17 @@ ModelNode availableGroupNode(const SelectionContext &selection)
     return {};
 }
 
-inline bool itemsAreGrouped(const SelectionContext &selection)
+bool itemsAreGrouped(const SelectionContext &selection)
 {
+    NanotraceHR::Tracer tracer{"group item action items are grouped", category()};
+
     return availableGroupNode(selection).isValid();
 }
 
 bool groupingEnabled(const SelectionContext &selection)
 {
+    NanotraceHR::Tracer tracer{"group item action grouping enabled", category()};
+
     //StudioComponents.GroupItem is not available in Qt for MCUs
     if (DesignerMcuManager::instance().isMCUProject())
         return false;
@@ -95,6 +107,8 @@ bool groupingEnabled(const SelectionContext &selection)
 
 void removeGroup(const ModelNode &group)
 {
+    NanotraceHR::Tracer tracer{"group item action remove group", category()};
+
     QmlItemNode groupItem(group);
     QmlItemNode parent = groupItem.instanceParentItem();
 
@@ -118,6 +132,8 @@ void removeGroup(const ModelNode &group)
 
 void toggleGrouping(const SelectionContext &selection)
 {
+    NanotraceHR::Tracer tracer{"group item action toggle grouping", category()};
+
     if (!selection.isValid())
         return;
 
@@ -144,11 +160,15 @@ GroupItemAction::GroupItemAction(const QIcon &icon,
                       &toggleGrouping,
                       &groupingEnabled)
 {
+    NanotraceHR::Tracer tracer{"group item action constructor", category()};
+
     setCheckable(true);
 }
 
 void GroupItemAction::updateContext()
 {
+    NanotraceHR::Tracer tracer{"group item action update context", category()};
+
     using namespace ComponentCoreConstants;
     ModelNodeAction::updateContext();
     action()->setText(QString::fromLatin1(action()->isChecked()
@@ -158,5 +178,9 @@ void GroupItemAction::updateContext()
 
 bool GroupItemAction::isChecked(const SelectionContext &selectionContext) const
 {
+    NanotraceHR::Tracer tracer{"group item action is checked", category()};
+
     return itemsAreGrouped(selectionContext);
 }
+
+} // namespace QmlDesigner

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "formatoperation.h"
+#include "componentcoretracing.h"
 
 #include <qmlobjectnode.h>
 #include <nodemetainfo.h>
@@ -13,6 +14,9 @@
 #include <QJsonArray>
 
 namespace QmlDesigner::FormatOperation {
+
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
 
 namespace {
 struct StylePropertyStruct
@@ -33,9 +37,11 @@ QList<StyleProperties> applyableProperties = {};
 StylePropertyStruct chosenItem = {};
 } // namespace
 
-void readFormatConfiguration(){
+void readFormatConfiguration()
+{
+    NanotraceHR::Tracer tracer{"format operation read format configuration", category()};
 
-    if (copyableProperties.isEmpty()){
+    if (copyableProperties.isEmpty()) {
         QString source = "formatconfiguration.json";
         Utils::FilePath path = Core::ICore::resourcePath("qmldesigner") / source;
         Utils::Result<QByteArray> res = path.fileContents();
@@ -79,6 +85,8 @@ void readFormatConfiguration(){
 
 bool propertiesCopyable(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"format operation properties copyable", category()};
+
     if (!selectionState.singleNodeIsSelected())
         return false;
 
@@ -97,6 +105,8 @@ bool propertiesCopyable(const SelectionContext &selectionState)
 
 bool propertiesApplyable(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"format operation properties applyable", category()};
+
     if (selectionState.selectedModelNodes().isEmpty())
         return false;
 
@@ -139,6 +149,8 @@ bool propertiesApplyable(const SelectionContext &selectionState)
 
 void copyFormat(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"format operation copy format", category()};
+
     if (!selectionState.view())
         return;
 
@@ -177,6 +189,8 @@ void copyFormat(const SelectionContext &selectionState)
 
 void applyFormat(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"format operation apply format", category()};
+
     if (!selectionState.view())
         return;
 

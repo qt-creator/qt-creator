@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "createtexture.h"
+#include "componentcoretracing.h"
 
 #include <abstractview.h>
 #include <asset.h>
@@ -27,6 +28,9 @@
 #include <QUrl>
 
 namespace QmlDesigner {
+
+using ComponentCoreTracing::category;
+using NanotraceHR::keyValue;
 
 using namespace Qt::StringLiterals;
 
@@ -63,10 +67,14 @@ static QString nameFromId(const QString &id, const QString &defaultName)
 
 CreateTexture::CreateTexture(AbstractView *view)
     : m_view{view}
-{}
+{
+    NanotraceHR::Tracer tracer{"create texture constructor", category()};
+}
 
 ModelNode CreateTexture::execute()
 {
+    NanotraceHR::Tracer tracer{"create texture execute", category()};
+
     ModelNode matLib = Utils3D::materialLibraryNode(m_view);
     if (!matLib.isValid())
         return {};
@@ -90,6 +98,11 @@ ModelNode CreateTexture::execute()
 
 ModelNode CreateTexture::execute(const QString &filePath, AddTextureMode mode, int sceneId)
 {
+    NanotraceHR::Tracer tracer{"create texture execute from file",
+                               category(),
+                               keyValue("file path", filePath),
+                               keyValue("scene id", sceneId)};
+
     Asset asset(filePath);
     if (!asset.isValidTextureSource())
         return {};
@@ -130,6 +143,10 @@ ModelNode CreateTexture::execute(const QString &filePath, AddTextureMode mode, i
  */
 ModelNode CreateTexture::execute(const ModelNode &texture)
 {
+    NanotraceHR::Tracer tracer{"create texture execute duplicate",
+                               category(),
+                               keyValue("node", texture)};
+
     QTC_ASSERT(texture.isValid(), return {});
 
     if (!m_view || !m_view->model())
@@ -203,14 +220,23 @@ ModelNode CreateTexture::execute(const ModelNode &texture)
 
 void CreateTexture::execute(const QStringList &filePaths, AddTextureMode mode, int sceneId)
 {
+    NanotraceHR::Tracer tracer{"create texture execute from multiple files",
+                               category(),
+                               keyValue("file paths", filePaths),
+                               keyValue("scene id", sceneId)};
+
     for (const QString &path : filePaths)
         execute(path, mode, sceneId);
 }
 
 bool CreateTexture::addFileToProject(const QString &filePath)
 {
+    NanotraceHR::Tracer tracer{"create texture add file to project",
+                               category(),
+                               keyValue("file path", filePath)};
+
     AddFilesResult result = ModelNodeOperations::addImageToProject(
-                {filePath}, ModelNodeOperations::getImagesDefaultDirectory().toUrlishString(), false);
+        {filePath}, ModelNodeOperations::getImagesDefaultDirectory().toUrlishString(), false);
 
     if (result.status() == AddFilesResult::Failed) {
         Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Texture"),
@@ -223,6 +249,8 @@ bool CreateTexture::addFileToProject(const QString &filePath)
 
 ModelNode CreateTexture::createTextureFromImage(const  Utils::FilePath &assetPath, AddTextureMode mode)
 {
+    NanotraceHR::Tracer tracer{"create texture from image", category()};
+
     if (mode != AddTextureMode::Texture && mode != AddTextureMode::LightProbe)
         return {};
 

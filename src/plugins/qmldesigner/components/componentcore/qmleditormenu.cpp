@@ -3,6 +3,7 @@
 
 #include "qmleditormenu.h"
 
+#include "componentcoretracing.h"
 #include "designeractionmanager.h"
 #include "designericons.h"
 
@@ -11,57 +12,67 @@
 #include <QApplication>
 #include <QStyleOption>
 
-using namespace QmlDesigner;
+namespace QmlDesigner {
 
-class QmlDesigner::QmlEditorMenuPrivate
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
+
+class QmlEditorMenu::Private
 {
 private:
-    friend class QmlDesigner::QmlEditorMenu;
-    friend class QmlDesigner::QmlEditorStyleObject;
+    friend QmlEditorMenu;
+    friend QmlEditorStyleObject;
 
     bool iconVisibility = true;
     int maxIconWidth = 0;
 
-    static QIcon cascadeLeft;
-    static QIcon cascadeRight;
-    static QIcon tick;
-    static QIcon backspaceIcon;
+    inline static QIcon cascadeLeft;
+    inline static QIcon cascadeRight;
+    inline static QIcon tick;
+    inline static QIcon backspaceIcon;
 };
-
-QIcon QmlEditorMenuPrivate::cascadeLeft;
-QIcon QmlEditorMenuPrivate::cascadeRight;
-QIcon QmlEditorMenuPrivate::tick;
-QIcon QmlEditorMenuPrivate::backspaceIcon;
 
 QmlEditorMenu::QmlEditorMenu(QWidget *parent)
     : QMenu(parent)
-    , d(new QmlEditorMenuPrivate)
+    , d(std::make_unique<Private>())
 {
+    NanotraceHR::Tracer tracer{"qml editor menu constructor", category()};
 }
 
 QmlEditorMenu::QmlEditorMenu(const QString &title, QWidget *parent)
     : QMenu(title, parent)
-    , d(new QmlEditorMenuPrivate)
+    , d(std::make_unique<Private>())
 {
+    NanotraceHR::Tracer tracer{"qml editor menu constructor with title",
+                               category(),
+                               keyValue("title", title)};
 }
 
 QmlEditorMenu::~QmlEditorMenu()
 {
-    delete d;
+    NanotraceHR::Tracer tracer{"qml editor menu destructor", category()};
 }
 
 bool QmlEditorMenu::isValid(const QMenu *menu)
 {
+    NanotraceHR::Tracer tracer{"qml editor menu is valid", category()};
+
     return qobject_cast<const QmlEditorMenu *>(menu);
 }
 
 bool QmlEditorMenu::iconsVisible() const
 {
+    NanotraceHR::Tracer tracer{"qml editor menu icons visible", category()};
+
     return d->iconVisibility;
 }
 
 void QmlEditorMenu::setIconsVisible(bool visible)
 {
+    NanotraceHR::Tracer tracer{"qml editor menu set icons visible",
+                               category(),
+                               keyValue("visible", visible)};
+
     if (d->iconVisibility == visible)
         return;
 
@@ -76,6 +87,8 @@ void QmlEditorMenu::setIconsVisible(bool visible)
 
 void QmlEditorMenu::initStyleOption(QStyleOptionMenuItem *option, const QAction *action) const
 {
+    NanotraceHR::Tracer tracer{"qml editor menu init style option", category()};
+
     if (option->maxIconWidth == 0)
         d->maxIconWidth = 0;
 
@@ -108,11 +121,15 @@ void QmlEditorMenu::initStyleOption(QStyleOptionMenuItem *option, const QAction 
 
 bool QmlEditorMenu::qmlEditorMenu() const
 {
+    NanotraceHR::Tracer tracer{"qml editor menu qml editor menu", category()};
+
     return true;
 }
 
 QmlEditorStyleObject *QmlEditorStyleObject::instance()
 {
+    NanotraceHR::Tracer tracer{"qml editor style object instance", category()};
+
     static QmlEditorStyleObject *s_instance = nullptr;
     if (!s_instance)
         s_instance = new QmlEditorStyleObject;
@@ -121,34 +138,46 @@ QmlEditorStyleObject *QmlEditorStyleObject::instance()
 
 QIcon QmlEditorStyleObject::cascadeIconLeft() const
 {
-    return QmlEditorMenuPrivate::cascadeLeft;
+    NanotraceHR::Tracer tracer{"qml editor style object cascade icon left", category()};
+
+    return QmlEditorMenu::Private::cascadeLeft;
 }
 
 QIcon QmlEditorStyleObject::cascadeIconRight() const
 {
-    return QmlEditorMenuPrivate::cascadeRight;
+    NanotraceHR::Tracer tracer{"qml editor style object cascade icon right", category()};
+
+    return QmlEditorMenu::Private::cascadeRight;
 }
 
 QIcon QmlEditorStyleObject::tickIcon() const
 {
-    return QmlEditorMenuPrivate::tick;
+    NanotraceHR::Tracer tracer{"qml editor style object tick icon", category()};
+
+    return QmlEditorMenu::Private::tick;
 }
 
 QIcon QmlEditorStyleObject::backspaceIcon() const
 {
-    return QmlEditorMenuPrivate::backspaceIcon;
+    NanotraceHR::Tracer tracer{"qml editor style object backspace icon", category()};
+
+    return QmlEditorMenu::Private::backspaceIcon;
 }
 
 QmlEditorStyleObject::QmlEditorStyleObject()
     : QObject(qApp)
 {
+    NanotraceHR::Tracer tracer{"qml editor style object constructor", category()};
+
     QIcon downIcon = DesignerActionManager::instance()
             .contextIcon(DesignerIcons::MinimalDownArrowIcon);
 
-    QmlEditorMenuPrivate::cascadeLeft = DesignerIcons::rotateIcon(downIcon, 90);
-    QmlEditorMenuPrivate::cascadeRight = DesignerIcons::rotateIcon(downIcon, -90);
-    QmlEditorMenuPrivate::tick = DesignerActionManager::instance()
-            .contextIcon(DesignerIcons::SimpleCheckIcon);
-    QmlEditorMenuPrivate::backspaceIcon = DesignerActionManager::instance()
-            .contextIcon(DesignerIcons::BackspaceIcon);
+    QmlEditorMenu::Private::cascadeLeft = DesignerIcons::rotateIcon(downIcon, 90);
+    QmlEditorMenu::Private::cascadeRight = DesignerIcons::rotateIcon(downIcon, -90);
+    QmlEditorMenu::Private::tick = DesignerActionManager::instance().contextIcon(
+        DesignerIcons::SimpleCheckIcon);
+    QmlEditorMenu::Private::backspaceIcon = DesignerActionManager::instance().contextIcon(
+        DesignerIcons::BackspaceIcon);
 }
+
+} // namespace QmlDesigner

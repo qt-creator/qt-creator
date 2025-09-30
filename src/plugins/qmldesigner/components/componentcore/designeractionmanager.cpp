@@ -6,6 +6,7 @@
 #include "anchoraction.h"
 #include "bundlehelper.h"
 #include "changestyleaction.h"
+#include "componentcoretracing.h"
 #include "designeractionmanagerview.h"
 #include "designericons.h"
 #include "designermcumanager.h"
@@ -17,6 +18,7 @@
 #include "qmldesignerconstants.h"
 #include "qmleditormenu.h"
 #include "rewritingexception.h"
+
 #include <bindingproperty.h>
 #include <customnotifications.h>
 #include <nodehints.h>
@@ -55,9 +57,10 @@
 
 #include <exception>
 
-using namespace Utils;
-
 namespace QmlDesigner {
+
+using ComponentCoreTracing::category;
+using NanotraceHR::keyValue;
 
 inline static QString captionForModelNode(const ModelNode &modelNode)
 {
@@ -69,11 +72,15 @@ inline static QString captionForModelNode(const ModelNode &modelNode)
 
 DesignerActionManagerView *DesignerActionManager::view()
 {
+    NanotraceHR::Tracer tracer{"designer action manager view", category()};
+
     return m_designerActionManagerView;
 }
 
 DesignerActionToolBar *DesignerActionManager::createToolBar(QWidget *parent) const
 {
+    NanotraceHR::Tracer tracer{"designer action manager create tool bar", category()};
+
     auto toolBar = new DesignerActionToolBar(parent);
 
     QList<ActionInterface* > categories = Utils::filtered(designerActions(), [](ActionInterface *action) {
@@ -111,8 +118,11 @@ DesignerActionToolBar *DesignerActionManager::createToolBar(QWidget *parent) con
 
 void DesignerActionManager::polishActions() const
 {
-    QList<ActionInterface* > actions =  Utils::filtered(designerActions(),
-                                                        [](ActionInterface *action) { return action->type() != ActionInterface::ContextMenu; });
+    NanotraceHR::Tracer tracer{"designer action manager polish actions", category()};
+
+    QList<ActionInterface *> actions = Utils::filtered(designerActions(), [](ActionInterface *action) {
+        return action->type() != ActionInterface::ContextMenu;
+    });
 
     Core::Context qmlDesignerFormEditorContext(Constants::qmlFormEditorContextId);
     Core::Context qmlDesignerEditor3DContext(Constants::qml3DEditorContextId);
@@ -129,7 +139,7 @@ void DesignerActionManager::polishActions() const
 
     for (auto *action : actions) {
         if (!action->menuId().isEmpty()) {
-            const Id id = Id("QmlDesigner.").withSuffix(action->menuId());
+            const Utils::Id id = Utils::Id("QmlDesigner.").withSuffix(action->menuId());
             Core::Command *cmd = Core::ActionManager::registerAction(action->action(), id, qmlDesignerUIContext);
 
             cmd->setDefaultKeySequence(action->action()->shortcut());
@@ -144,10 +154,10 @@ void DesignerActionManager::polishActions() const
 
 QGraphicsWidget *DesignerActionManager::createFormEditorToolBar(QGraphicsItem *parent)
 {
-    QList<ActionInterface* > actions = Utils::filtered(designerActions(),
-                                                       [](ActionInterface *action) {
-            return action->type() ==  ActionInterface::FormEditorAction
-                && action->action()->isVisible();
+    NanotraceHR::Tracer tracer{"designer action manager create form editor tool bar", category()};
+
+    QList<ActionInterface *> actions = Utils::filtered(designerActions(), [](ActionInterface *action) {
+        return action->type() == ActionInterface::FormEditorAction && action->action()->isVisible();
     });
 
     Utils::sort(actions, [](ActionInterface *l, ActionInterface *r) {
@@ -178,27 +188,39 @@ QGraphicsWidget *DesignerActionManager::createFormEditorToolBar(QGraphicsItem *p
 
 DesignerActionManager &DesignerActionManager::instance()
 {
+    NanotraceHR::Tracer tracer{"designer action manager instance", category()};
+
     return QmlDesignerPlugin::instance()->viewManager().designerActionManager();
 }
 
 void DesignerActionManager::setupContext()
 {
+    NanotraceHR::Tracer tracer{"designer action manager setup context", category()};
+
     m_designerActionManagerView->setupContext();
 }
 
 QList<AddResourceHandler> DesignerActionManager::addResourceHandler() const
 {
+    NanotraceHR::Tracer tracer{"designer action manager add resource handler", category()};
+
     return m_addResourceHandler;
 }
 
 void DesignerActionManager::registerAddResourceHandler(const AddResourceHandler &handler)
 {
+    NanotraceHR::Tracer tracer{"designer action manager register add resource handler", category()};
+
     m_addResourceHandler.append(handler);
 }
 
 void DesignerActionManager::unregisterAddResourceHandlers(const QString &category)
 {
-    for (int i = m_addResourceHandler.size() - 1; i >= 0 ; --i) {
+    NanotraceHR::Tracer tracer{"designer action manager unregister add resource handlers",
+                               ComponentCoreTracing::category(),
+                               keyValue("category", category)};
+
+    for (int i = m_addResourceHandler.size() - 1; i >= 0; --i) {
         const AddResourceHandler &handler = m_addResourceHandler[i];
         if (handler.category == category)
             m_addResourceHandler.removeAt(i);
@@ -207,11 +229,16 @@ void DesignerActionManager::unregisterAddResourceHandlers(const QString &categor
 
 void DesignerActionManager::registerModelNodePreviewHandler(const ModelNodePreviewImageHandler &handler)
 {
+    NanotraceHR::Tracer tracer{"designer action manager register model node preview handler",
+                               category()};
+
     m_modelNodePreviewImageHandlers.append(handler);
 }
 
 bool DesignerActionManager::hasModelNodePreviewHandler(const ModelNode &node) const
 {
+    NanotraceHR::Tracer tracer{"designer action manager has model node preview handler", category()};
+
     const bool isComponent = node.isComponent();
     for (const auto &handler : std::as_const(m_modelNodePreviewImageHandlers)) {
         if ((isComponent || !handler.componentOnly)) {
@@ -224,6 +251,8 @@ bool DesignerActionManager::hasModelNodePreviewHandler(const ModelNode &node) co
 
 ModelNodePreviewImageOperation DesignerActionManager::modelNodePreviewOperation(const ModelNode &node) const
 {
+    NanotraceHR::Tracer tracer{"designer action manager model node preview operation", category()};
+
     ModelNodePreviewImageOperation op = nullptr;
     int prio = -1;
     const bool isComponent = node.isComponent();
@@ -240,6 +269,9 @@ ModelNodePreviewImageOperation DesignerActionManager::modelNodePreviewOperation(
 
 bool DesignerActionManager::externalDragHasSupportedAssets(const QMimeData *mimeData) const
 {
+    NanotraceHR::Tracer tracer{"designer action manager external drag has supported assets",
+                               category()};
+
     if (!mimeData->hasUrls() || mimeData->hasFormat(Constants::MIME_TYPE_ASSETS))
         return false;
 
@@ -260,6 +292,8 @@ bool DesignerActionManager::externalDragHasSupportedAssets(const QMimeData *mime
 
 QHash<QString, QStringList> DesignerActionManager::handleExternalAssetsDrop(const QMimeData *mimeData) const
 {
+    NanotraceHR::Tracer tracer{"designer action manager handle external assets drop", category()};
+
     const QList<AddResourceHandler> handlers = addResourceHandler();
     // create suffix to categry and category to operation hashes
     QHash<QString, QString> suffixCategory;
@@ -296,18 +330,26 @@ QHash<QString, QStringList> DesignerActionManager::handleExternalAssetsDrop(cons
 
 QIcon DesignerActionManager::contextIcon(int contextId) const
 {
+    NanotraceHR::Tracer tracer{"designer action manager context icon", category()};
+
     return m_designerIcons->icon(DesignerIcons::IconId(contextId), DesignerIcons::ContextMenuArea);
 }
 
 QIcon DesignerActionManager::toolbarIcon(int contextId) const
 {
+    NanotraceHR::Tracer tracer{"designer action manager toolbar icon", category()};
+
     return m_designerIcons->icon(DesignerIcons::IconId(contextId), DesignerIcons::ToolbarArea);
 }
 
 void DesignerActionManager::addAddActionCallback(ActionAddedInterface callback)
 {
+    NanotraceHR::Tracer tracer{"designer action manager add add action callback", category()};
+
     m_callBacks.append(callback);
 }
+
+namespace {
 
 class VisiblityModelNodeAction : public ModelNodeContextMenuAction
 {
@@ -317,10 +359,15 @@ public:
                              SelectionContextPredicate enabled = &SelectionContextFunctors::always,
                              SelectionContextPredicate visibility = &SelectionContextFunctors::always) :
         ModelNodeContextMenuAction(id, description, icon, category, key, priority, action, enabled, visibility)
-    {}
+    {
+        NanotraceHR::Tracer tracer{"visibility model node action constructor",
+                                   ComponentCoreTracing::category()};
+    }
 
     void updateContext() override
     {
+        NanotraceHR::Tracer tracer{"visibility model node action update context", category()};
+
         pureAction()->setSelectionContext(selectionContext());
         if (selectionContext().isValid()) {
             action()->setEnabled(isEnabled(selectionContext()));
@@ -344,9 +391,15 @@ public:
                               SelectionContextPredicate enabled = &SelectionContextFunctors::always,
                               SelectionContextPredicate visibility = &SelectionContextFunctors::always) :
         ModelNodeContextMenuAction(id, description, {}, category, key, priority, action, enabled, visibility)
-    {}
+    {
+        NanotraceHR::Tracer tracer{"fill layout model node action constructor",
+                                   ComponentCoreTracing::category()};
+    }
+
     void updateContext() override
     {
+        NanotraceHR::Tracer tracer{"fill layout model node action update context", category()};
+
         pureAction()->setSelectionContext(selectionContext());
         if (selectionContext().isValid()) {
             action()->setEnabled(isEnabled(selectionContext()));
@@ -379,6 +432,9 @@ public:
                              SelectionContextPredicate visibility = &SelectionContextFunctors::always) :
         FillLayoutModelNodeAction(id, description, category, key, priority, action, enabled, visibility)
     {
+        NanotraceHR::Tracer tracer{"fill width model node action constructor",
+                                   ComponentCoreTracing::category()};
+
         m_propertyName = "Layout.fillWidth";
     }
 };
@@ -392,6 +448,9 @@ public:
                               SelectionContextPredicate visibility = &SelectionContextFunctors::always) :
         FillLayoutModelNodeAction(id, description, category, key, priority, action, enabled, visibility)
     {
+        NanotraceHR::Tracer tracer{"fill height model node action constructor",
+                                   ComponentCoreTracing::category()};
+
         m_propertyName = "Layout.fillHeight";
     }
 };
@@ -403,10 +462,14 @@ public:
         ActionGroup(displayName, menuId, icon, priority,
                     &SelectionContextFunctors::always, &SelectionContextFunctors::selectionEnabled)
 
-    {}
+    {
+        NanotraceHR::Tracer tracer{"selection model node action constructor", category()};
+    }
 
     void updateContext() override
     {
+        NanotraceHR::Tracer tracer{"selection model node action update context", category()};
+
         menu()->clear();
         if (selectionContext().isValid()) {
             action()->setEnabled(isEnabled(selectionContext()));
@@ -458,6 +521,8 @@ public:
 
 QString prependSignal(QString signalHandlerName)
 {
+    NanotraceHR::Tracer tracer{"designer action prepend signal", category()};
+
     if (signalHandlerName.isNull() || signalHandlerName.isEmpty())
         return {};
 
@@ -470,6 +535,8 @@ QString prependSignal(QString signalHandlerName)
 
 QStringList getSignalsList(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"designer action get signals list", category()};
+
     if (!node.isValid())
         return {};
 
@@ -506,6 +573,8 @@ struct SlotList
 
 QList<ModelNode> stateGroups(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"designer action state groups", category()};
+
     if (!node.view()->isAttached())
         return {};
 
@@ -516,6 +585,8 @@ QList<ModelNode> stateGroups(const ModelNode &node)
 
 QList<SlotList> getSlotsLists(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"designer action get slots lists", category()};
+
     if (!node.isValid())
         return {};
 
@@ -577,6 +648,8 @@ QList<SlotList> getSlotsLists(const ModelNode &node)
 //creates connection without signalHandlerProperty
 ModelNode createNewConnection(ModelNode targetNode)
 {
+    NanotraceHR::Tracer tracer{"designer action create new connection", category()};
+
     ModelNode newConnectionNode = targetNode.view()->createModelNode("Connections");
 
     if (QmlItemNode::isValidQmlItemNode(targetNode)) {
@@ -593,6 +666,8 @@ ModelNode createNewConnection(ModelNode targetNode)
 
 void removeSignal(SignalHandlerProperty signalHandler)
 {
+    NanotraceHR::Tracer tracer{"designer action remove signal", category()};
+
     if (!signalHandler.isValid())
         return;
     auto connectionNode = signalHandler.parentModelNode();
@@ -615,10 +690,14 @@ public:
                       priority,
                       &SelectionContextFunctors::always,
                       &SelectionContextFunctors::selectionEnabled)
-    {}
+    {
+        NanotraceHR::Tracer tracer{"connections model node action group constructor", category()};
+    }
 
     void updateContext() override
     {
+        NanotraceHR::Tracer tracer{"connections model node action group update context", category()};
+
         menu()->clear();
 
         const auto selection = selectionContext();
@@ -844,10 +923,16 @@ public:
                                      &openDialog,
                                      &isListViewInBaseStateAndHasListModel,
                                      &isListViewInBaseStateAndHasListModel)
-    {}
+    {
+        NanotraceHR::Tracer tracer{"designer action edit list model action constructor", category()};
+    }
 
     static bool isListViewInBaseStateAndHasListModel(const SelectionContext &selectionState)
     {
+        NanotraceHR::Tracer tracer{
+            "designer action edit list model action is list view in base state and has list model",
+            ComponentCoreTracing::category()};
+
         if (!selectionState.isInBaseState() || !selectionState.singleNodeIsSelected())
             return false;
 
@@ -858,10 +943,17 @@ public:
                       == "ListModel";
     }
 
-    bool isEnabled(const SelectionContext &) const override { return true; }
+    bool isEnabled(const SelectionContext &) const override
+    {
+        NanotraceHR::Tracer tracer{"designer action edit list model action is enabled", category()};
+        return true;
+    }
 
     static void openDialog(const SelectionContext &selectionState)
     {
+        NanotraceHR::Tracer tracer{"designer action edit list model action open dialog",
+                                   ComponentCoreTracing::category()};
+
         ModelNode targetNode = selectionState.targetNode();
         if (!targetNode.isValid())
             targetNode = selectionState.currentSingleSelectedNode();
@@ -911,104 +1003,108 @@ public:
     }
 };
 
-namespace {
 const char xProperty[] = "x";
 const char yProperty[] = "y";
-const char zProperty[] = "z";
 const char widthProperty[] = "width";
 const char heightProperty[] = "height";
 const char triggerSlot[] = "trigger";
-} // namespace
 
 using namespace SelectionContextFunctors;
 
 bool multiSelection(const SelectionContext &context)
 {
-    return !singleSelection(context) && selectionNotEmpty(context);
-}
+    NanotraceHR::Tracer tracer{"designer action multi selection", category()};
 
-bool multiSelectionAndInBaseState(const SelectionContext &context)
-{
-    return multiSelection(context) && inBaseState(context);
+    return !singleSelection(context) && selectionNotEmpty(context);
 }
 
 bool selectionHasProperty1or2(const SelectionContext &context, const char *x, const char *y)
 {
+    NanotraceHR::Tracer tracer{"designer action selection has property 1 or 2", category()};
+
     return selectionHasProperty(context, x) || selectionHasProperty(context, y);
 }
 
 bool selectionHasSameParentAndInBaseState(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"designer action selection has same parent and in base state",
+                               category()};
+
     return selectionHasSameParent(context) && inBaseState(context);
 }
 
 bool multiSelectionAndHasSameParent(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"designer action multi selection and has same parent", category()};
+
     return multiSelection(context) && selectionHasSameParent(context);
-}
-
-bool isNotInLayout(const SelectionContext &context)
-{
-    if (selectionNotEmpty(context)) {
-        const ModelNode selectedModelNode = context.selectedModelNodes().constFirst();
-        ModelNode parentModelNode;
-
-        if (selectedModelNode.hasParentProperty())
-            parentModelNode = selectedModelNode.parentProperty().parentModelNode();
-
-        if (parentModelNode.metaInfo().isValid())
-            return !parentModelNode.metaInfo().isLayoutable();
-    }
-
-    return true;
 }
 
 bool selectionCanBeLayouted(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"designer action selection can be layouted", category()};
+
     return multiSelection(context) && selectionHasSameParentAndInBaseState(context);
 }
 
 bool selectionCanBeLayoutedAndQtQuickLayoutPossible(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{
+        "designer action selection can be layouted and qt quick layout possible", category()};
+
     return selectionCanBeLayouted(context);
 }
 
 bool selectionCanBeLayoutedAndQtQuickLayoutPossibleAndNotMCU(const SelectionContext &context)
 {
-    return selectionCanBeLayoutedAndQtQuickLayoutPossible(context) && !DesignerMcuManager::instance().isMCUProject();
-}
+    NanotraceHR::Tracer tracer{
+        "designer action selection can be layouted and qt quick layout possible and not mcu",
+        category()};
 
-bool selectionNotEmptyAndHasZProperty(const SelectionContext &context)
-{
-    return selectionNotEmpty(context) && selectionHasProperty(context, zProperty);
+    return selectionCanBeLayoutedAndQtQuickLayoutPossible(context)
+           && !DesignerMcuManager::instance().isMCUProject();
 }
 
 bool selectionNotEmptyAndHasWidthOrHeightProperty(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{
+        "designer action selection not empty and has width or height property", category()};
+
     return selectionNotEmpty(context)
-        && selectionHasProperty1or2(context, widthProperty, heightProperty);
+           && selectionHasProperty1or2(context, widthProperty, heightProperty);
 }
 
 bool singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot(const SelectionContext &context)
 {
-    return singleSelectionItemIsNotAnchored(context)
-            && singleSelectionNotRoot(context);
+    NanotraceHR::Tracer tracer{
+        "designer action single selection item is not anchored and single selection not root",
+        category()};
+
+    return singleSelectionItemIsNotAnchored(context) && singleSelectionNotRoot(context);
 }
 
 bool singleSelectionItemHasNoFillAnchorAndSingleSelectionNotRoot(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{
+        "designer action single selection item has no fill anchor and single selection not root",
+        category()};
+
     return singleSelection(context) && !singleSelectionItemHasAnchor(context, AnchorLineFill)
            && singleSelectionNotRoot(context);
 }
 
 bool selectionNotEmptyAndHasXorYProperty(const SelectionContext &context)
 {
-    return selectionNotEmpty(context)
-        && selectionHasProperty1or2(context, xProperty, yProperty);
+    NanotraceHR::Tracer tracer{"designer action selection not empty and has x or y property",
+                               category()};
+
+    return selectionNotEmpty(context) && selectionHasProperty1or2(context, xProperty, yProperty);
 }
 
 bool singleSelectionAndHasSlotTrigger(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"designer action single selection and has slot trigger", category()};
+
     if (!singleSelection(context))
         return false;
 
@@ -1017,8 +1113,10 @@ bool singleSelectionAndHasSlotTrigger(const SelectionContext &context)
 
 bool singleSelectionAndInQtQuickLayout(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"designer action single selection and in qt quick layout", category()};
+
     if (!singleSelection(context))
-            return false;
+        return false;
 
     ModelNode currentSelectedNode = context.currentSingleSelectedNode();
     if (!currentSelectedNode.isValid())
@@ -1036,8 +1134,10 @@ bool singleSelectionAndInQtQuickLayout(const SelectionContext &context)
 
 bool isStackedContainer(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"designer action is stacked container", category()};
+
     if (!singleSelection(context))
-            return false;
+        return false;
 
     ModelNode currentSelectedNode = context.currentSingleSelectedNode();
 
@@ -1046,6 +1146,9 @@ bool isStackedContainer(const SelectionContext &context)
 
 bool isStackedContainerAndIndexIsVariantOrResolvableBinding(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{
+        "designer action is stacked container and index is variant or resolvable binding", category()};
+
     if (!isStackedContainer(context))
         return false;
 
@@ -1078,6 +1181,8 @@ bool isStackedContainerAndIndexIsVariantOrResolvableBinding(const SelectionConte
 
 bool isStackedContainerWithoutTabBar(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"designer action is stacked container without tab bar", category()};
+
     if (!isStackedContainer(context))
         return false;
 
@@ -1101,6 +1206,9 @@ bool isStackedContainerWithoutTabBar(const SelectionContext &context)
 
 bool isStackedContainerAndIndexCanBeDecreased(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"designer action is stacked container and index can be decreased",
+                               category()};
+
     if (!isStackedContainer(context))
         return false;
 
@@ -1147,6 +1255,9 @@ bool isStackedContainerAndIndexCanBeDecreased(const SelectionContext &context)
 
 bool isStackedContainerAndIndexCanBeIncreased(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"designer action is stacked container and index can be increased",
+                               category()};
+
     if (!isStackedContainer(context))
         return false;
 
@@ -1193,21 +1304,10 @@ bool isStackedContainerAndIndexCanBeIncreased(const SelectionContext &context)
     return false;
 }
 
-bool isGroup(const SelectionContext &context)
-{
-    if (!inBaseState(context))
-        return false;
-
-    if (!singleSelection(context))
-        return false;
-
-    NodeMetaInfo metaInfo = context.currentSingleSelectedNode().metaInfo();
-
-    return metaInfo.isQtQuickStudioComponentsGroupItem();
-}
-
 bool isLayout(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"designer action is layout", category()};
+
     if (!inBaseState(context))
         return false;
 
@@ -1228,8 +1328,10 @@ bool isLayout(const SelectionContext &context)
 
 bool isPositioner(const SelectionContext &context)
 {
-     if (!inBaseState(context))
-         return false;
+    NanotraceHR::Tracer tracer{"designer action is positioner", category()};
+
+    if (!inBaseState(context))
+        return false;
 
     if (!singleSelection(context))
         return false;
@@ -1241,6 +1343,8 @@ bool isPositioner(const SelectionContext &context)
 
 bool layoutOptionVisible(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"designer action layout option visible", category()};
+
     return (selectionCanBeLayoutedAndQtQuickLayoutPossible(context)
             || singleSelectionAndInQtQuickLayout(context) || isLayout(context))
            && !DesignerMcuManager::instance().isMCUProject();
@@ -1248,25 +1352,17 @@ bool layoutOptionVisible(const SelectionContext &context)
 
 bool positionOptionVisible(const SelectionContext &context)
 {
-    return selectionCanBeLayouted(context)
-            || isPositioner(context);
-}
+    NanotraceHR::Tracer tracer{"designer action position option visible", category()};
 
-bool studioComponentsAvailable(const SelectionContext &context)
-{
-    const Import import = Import::createLibraryImport("QtQuick.Studio.Components", "1.0");
-    return context.view()->model()->isImportPossible(import, true, true);
-}
-
-bool studioComponentsAvailableAndSelectionCanBeLayouted(const SelectionContext &context)
-{
-    return selectionCanBeLayouted(context) && studioComponentsAvailable(context);
+    return selectionCanBeLayouted(context) || isPositioner(context);
 }
 
 bool singleSelectedAndUiFile(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"designer action single selected and ui file", category()};
+
     if (!singleSelection(context))
-            return false;
+        return false;
 
     DesignDocument *designDocument = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
 
@@ -1278,6 +1374,8 @@ bool singleSelectedAndUiFile(const SelectionContext &context)
 
 bool lowerAvailable(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"designer action lower available", category()};
+
     if (!singleSelection(selectionState))
         return false;
 
@@ -1298,6 +1396,8 @@ bool lowerAvailable(const SelectionContext &selectionState)
 
 bool raiseAvailable(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"designer action raise available", category()};
+
     if (!singleSelection(selectionState))
         return false;
 
@@ -1318,12 +1418,16 @@ bool raiseAvailable(const SelectionContext &selectionState)
 
 bool anchorsMenuEnabled(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"designer action anchors menu enabled", category()};
+
     return singleSelectionItemIsNotAnchoredAndSingleSelectionNotRoot(context)
            || singleSelectionItemIsAnchored(context);
 }
 
-static QIcon createResetIcon(const QStringList &basicIconAddresses)
+QIcon createResetIcon(const QStringList &basicIconAddresses)
 {
+    NanotraceHR::Tracer tracer{"designer action create reset icon", category()};
+
     using namespace Utils;
     static const IconMaskAndColor resetMask({":/utils/images/iconoverlay_reset.png",
                                              Theme::IconsStopToolBarColor});
@@ -1343,8 +1447,12 @@ static QIcon createResetIcon(const QStringList &basicIconAddresses)
     return finalIcon;
 }
 
+} // namespace
+
 void DesignerActionManager::createDefaultDesignerActions()
 {
+    NanotraceHR::Tracer tracer{"designer action manager create default actions", category()};
+
     using namespace SelectionContextFunctors;
     using namespace ComponentCoreConstants;
     using namespace ModelNodeOperations;
@@ -2035,11 +2143,14 @@ void DesignerActionManager::createDefaultDesignerActions()
 
 void DesignerActionManager::createDefaultAddResourceHandler()
 {
-    auto registerHandlers = [this](const QStringList &exts, AddResourceOperation op,
-                                   const QString &category) {
-        for (const QString &ext : exts)
-            registerAddResourceHandler(AddResourceHandler(category, ext, op));
-    };
+    NanotraceHR::Tracer tracer{"designer action manager create default add resource handlers",
+                               category()};
+
+    auto registerHandlers =
+        [this](const QStringList &exts, AddResourceOperation op, const QString &category) {
+            for (const QString &ext : exts)
+                registerAddResourceHandler(AddResourceHandler(category, ext, op));
+        };
 
     // Having a single image type category creates too large of a filter, so we split images into
     // categories according to their mime types
@@ -2069,9 +2180,11 @@ void DesignerActionManager::createDefaultAddResourceHandler()
 
 void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()
 {
+    NanotraceHR::Tracer tracer{
+        "designer action manager create default model node preview image handlers", category()};
+
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("Image",
-                                             ModelNodeOperations::previewImageDataForImageNode));
+        ModelNodePreviewImageHandler("Image", ModelNodeOperations::previewImageDataForImageNode));
     registerModelNodePreviewHandler(
                 ModelNodePreviewImageHandler("BorderImage",
                                              ModelNodeOperations::previewImageDataForImageNode));
@@ -2102,6 +2215,8 @@ void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()
 
 void DesignerActionManager::addDesignerAction(ActionInterface *newAction)
 {
+    NanotraceHR::Tracer tracer{"designer action manager add designer action", category()};
+
     m_designerActions.append(QSharedPointer<ActionInterface>(newAction));
 
     for (auto callback : m_callBacks) {
@@ -2112,12 +2227,17 @@ void DesignerActionManager::addDesignerAction(ActionInterface *newAction)
 void DesignerActionManager::addCreatorCommand(Core::Command *command, const QByteArray &category, int priority,
                                               const QIcon &overrideIcon)
 {
+    NanotraceHR::Tracer tracer{"designer action manager add creator command",
+                               ComponentCoreTracing::category()};
+
     addDesignerAction(new CommandAction(command, category, priority, overrideIcon));
 }
 
 QList<QSharedPointer<ActionInterface> > DesignerActionManager::actionsForTargetView(const ActionInterface::TargetView &target)
 {
-    QList<QSharedPointer<ActionInterface> > out;
+    NanotraceHR::Tracer tracer{"designer action manager actions for target view", category()};
+
+    QList<QSharedPointer<ActionInterface>> out;
     for (auto interface : std::as_const(m_designerActions))
         if (interface->targetView() == target)
             out << interface;
@@ -2127,11 +2247,15 @@ QList<QSharedPointer<ActionInterface> > DesignerActionManager::actionsForTargetV
 
 QList<ActionInterface* > DesignerActionManager::designerActions() const
 {
+    NanotraceHR::Tracer tracer{"designer action manager get designer actions", category()};
+
     return Utils::transform(m_designerActions, &QSharedPointer<ActionInterface>::get);
 }
 
 ActionInterface *DesignerActionManager::actionByMenuId(const QByteArray &id)
 {
+    NanotraceHR::Tracer tracer{"designer action manager get action by menu id", category()};
+
     for (const auto &action : m_designerActions)
         if (action->menuId() == id)
             return action.data();
@@ -2147,19 +2271,28 @@ DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designer
     , m_bundleHelper(std::make_unique<BundleHelper>(designerActionManagerView,
                                                     QmlDesignerPlugin::instance()->mainWidget()))
 {
+    NanotraceHR::Tracer tracer{"designer action manager constructor", category()};
+
     setupIcons();
 }
 
-DesignerActionManager::~DesignerActionManager() = default;
+DesignerActionManager::~DesignerActionManager()
+{
+    NanotraceHR::Tracer tracer{"designer action manager destructor", category()};
+}
 
 void DesignerActionManager::setupIcons()
 {
+    NanotraceHR::Tracer tracer{"designer action manager setup icons", category()};
+
     m_designerIcons = std::make_unique<DesignerIcons>("qtds_propertyIconFont.ttf",
                                                       designerIconResourcesPath());
 }
 
 QString DesignerActionManager::designerIconResourcesPath() const
 {
+    NanotraceHR::Tracer tracer{"designer action manager designer icon resources path", category()};
+
 #ifdef SHARE_QML_PATH
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/designericons.json";
@@ -2170,7 +2303,9 @@ QString DesignerActionManager::designerIconResourcesPath() const
 DesignerActionToolBar::DesignerActionToolBar(QWidget *parentWidget) : Utils::StyledBar(parentWidget),
     m_toolBar(new QToolBar("ActionToolBar", this))
 {
-    QWidget* empty = new QWidget();
+    NanotraceHR::Tracer tracer{"designer action tool bar constructor", "designer action manager"};
+
+    QWidget *empty = new QWidget();
     empty->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Preferred);
     m_toolBar->addWidget(empty);
 
@@ -2192,11 +2327,15 @@ DesignerActionToolBar::DesignerActionToolBar(QWidget *parentWidget) : Utils::Sty
 
 void DesignerActionToolBar::registerAction(ActionInterface *action)
 {
+    NanotraceHR::Tracer tracer{"designer action tool bar register action", category()};
+
     m_toolBar->addAction(action->action());
 }
 
 void DesignerActionToolBar::addSeparator()
 {
+    NanotraceHR::Tracer tracer{"designer action tool bar add separator", category()};
+
     auto separatorAction = new QAction(m_toolBar);
     separatorAction->setSeparator(true);
     m_toolBar->addAction(separatorAction);

@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmldesignericonprovider.h"
-#include <qmldesignericons.h>
+#include "componentcoretracing.h"
 
+#include <qmldesignericons.h>
 
 #include <utils/icon.h>
 #include <utils/utilsicons.h>
@@ -14,14 +15,19 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
+
 QmlDesignerIconProvider::QmlDesignerIconProvider()
     : QQuickImageProvider(Pixmap)
 {
-
+    NanotraceHR::Tracer tracer{"qml designer icon provider constructor", category()};
 }
 
 static Utils::FilePath iconPath()
 {
+    NanotraceHR::Tracer tracer{"qml designer icon provider icon path", category()};
+
     return Core::ICore::resourcePath(
         "qmldesigner/propertyEditorQmlSources/imports/HelperWidgets/images/");
 }
@@ -30,6 +36,11 @@ QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id,
                                                QSize *size,
                                                [[maybe_unused]] const QSize &requestedSize)
 {
+    NanotraceHR::Tracer tracer{"qml designer icon provider request pixmap",
+                               category(),
+                               keyValue("id", id),
+                               keyValue("requestedSize", requestedSize)};
+
     QPixmap result = getPixmap(id);
 
     if (size)
@@ -39,6 +50,8 @@ QPixmap QmlDesignerIconProvider::requestPixmap(const QString &id,
 
 QPixmap QmlDesignerIconProvider::getPixmap(const QString &id)
 {
+    NanotraceHR::Tracer tracer{"qml designer icon provider get pixmap", category(), keyValue("id", id)};
+
     using namespace Utils;
 
     QPixmap result;

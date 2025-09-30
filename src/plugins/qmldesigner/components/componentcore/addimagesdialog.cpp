@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "addimagesdialog.h"
+#include "componentcoretracing.h"
 
 #include <qmldesignertr.h>
 
@@ -64,8 +65,16 @@ QComboBox *createDirectoryComboBox(const QString &defaultDirectory)
 
 namespace QmlDesigner {
 
+using ComponentCoreTracing::category;
+using NanotraceHR::keyValue;
+
 QString AddImagesDialog::getDirectory(const QStringList &fileNames, const QString &defaultDirectory)
 {
+    NanotraceHR::Tracer tracer{"add images dialog get directory",
+                               category(),
+                               keyValue("file names", fileNames),
+                               keyValue("default directory", defaultDirectory)};
+
     QDialog *dialog = new QDialog(Core::ICore::dialogParent());
     dialog->setMinimumWidth(480);
 

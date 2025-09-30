@@ -3,6 +3,7 @@
 
 #include "crumblebar.h"
 
+#include "componentcoretracing.h"
 #include "qmldesignerplugin.h"
 
 #include <nodeabstractproperty.h>
@@ -20,12 +21,15 @@
 
 namespace QmlDesigner {
 
+using ComponentCoreTracing::category;
+using NanotraceHR::keyValue;
+
 static DesignDocument *currentDesignDocument()
 {
     return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
 }
 
-static inline QString componentIdForModelNode(const ModelNode &modelNode)
+inline static QString componentIdForModelNode(const ModelNode &modelNode)
 {
     if (modelNode.id().isEmpty()) {
         if (modelNode.hasParentProperty()
@@ -52,15 +56,20 @@ static CrumbleBarInfo createCrumbleBarInfoFromModelNode(const ModelNode &modelNo
 
 CrumbleBar::CrumbleBar(QObject *parent) : QObject(parent)
 {
+    NanotraceHR::Tracer tracer{"crumble bar constructor", category()};
 }
 
 CrumbleBar::~CrumbleBar()
 {
+    NanotraceHR::Tracer tracer{"crumble bar destructor", category()};
+
     delete m_crumblePath;
 }
 
 void CrumbleBar::pushFile(const Utils::FilePath &fileName)
 {
+    NanotraceHR::Tracer tracer{"crumble bar push file", category()};
+
     if (!m_isInternalCalled) {
         crumblePath()->clear();
         m_pathes.clear();
@@ -96,6 +105,7 @@ void CrumbleBar::pushFile(const Utils::FilePath &fileName)
 
 void CrumbleBar::pushInFileComponent(const ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"crumble bar push in file component", category()};
 
     CrumbleBarInfo crumbleBarInfo = createCrumbleBarInfoFromModelNode(modelNode);
     CrumbleBarInfo lastElementCrumbleBarInfo = crumblePath()->dataForLastIndex().value<CrumbleBarInfo>();
@@ -115,11 +125,15 @@ void CrumbleBar::pushInFileComponent(const ModelNode &modelNode)
 
 void CrumbleBar::nextFileIsCalledInternally()
 {
+    NanotraceHR::Tracer tracer{"crumble bar next file is called internally", category()};
+
     m_isInternalCalled = true;
 }
 
 Utils::CrumblePath *CrumbleBar::crumblePath()
 {
+    NanotraceHR::Tracer tracer{"crumble bar crumble path", category()};
+
     if (m_crumblePath == nullptr) {
         m_crumblePath = new Utils::CrumblePath;
         updateVisibility();
@@ -132,6 +146,8 @@ Utils::CrumblePath *CrumbleBar::crumblePath()
 
 QStringList CrumbleBar::path() const
 {
+    NanotraceHR::Tracer tracer{"crumble bar path", category()};
+
     QStringList list;
     for (auto &path : m_pathes) {
         list.append(path.displayName);
@@ -142,11 +158,15 @@ QStringList CrumbleBar::path() const
 
 QList<CrumbleBarInfo> CrumbleBar::infos() const
 {
+    NanotraceHR::Tracer tracer{"crumble bar infos", category()};
+
     return m_pathes;
 }
 
 bool CrumbleBar::showSaveDialog()
 {
+    NanotraceHR::Tracer tracer{"crumble bar show save dialog", category()};
+
     bool canceled = false;
     bool alwaysSave = QmlDesignerPlugin::settings().value(DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR).toBool();
     if (alwaysSave) {
@@ -165,6 +185,8 @@ bool CrumbleBar::showSaveDialog()
 
 void CrumbleBar::popElement()
 {
+    NanotraceHR::Tracer tracer{"crumble bar pop element", category()};
+
     crumblePath()->popElement();
 
     if (!m_pathes.isEmpty())
@@ -173,6 +195,8 @@ void CrumbleBar::popElement()
 
 void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
 {
+    NanotraceHR::Tracer tracer{"crumble bar on crumble path element clicked", category()};
+
     CrumbleBarInfo clickedCrumbleBarInfo = data.value<CrumbleBarInfo>();
 
     if (clickedCrumbleBarInfo == crumblePath()->dataForLastIndex().value<CrumbleBarInfo>())
@@ -215,6 +239,8 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
 
 void CrumbleBar::updateVisibility()
 {
+    NanotraceHR::Tracer tracer{"crumble bar update visibility", category()};
+
     if (!ToolBar::isVisible())
         crumblePath()->setVisible(crumblePath()->length() > 1);
 }

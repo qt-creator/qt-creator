@@ -2,12 +2,18 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "addsignalhandlerdialog.h"
+#include "componentcoretracing.h"
 #include "ui_addsignalhandlerdialog.h"
+
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
 
 AddSignalHandlerDialog::AddSignalHandlerDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::AddSignalHandlerDialog)
 {
+    NanotraceHR::Tracer tracer{"add signal handler dialog constructor", category()};
+
     m_ui->setupUi(this);
     setModal(true);
 
@@ -19,21 +25,29 @@ AddSignalHandlerDialog::AddSignalHandlerDialog(QWidget *parent) :
 
 AddSignalHandlerDialog::~AddSignalHandlerDialog()
 {
+    NanotraceHR::Tracer tracer{"add signal handler dialog destructor", category()};
+
     delete m_ui;
 }
 
 void AddSignalHandlerDialog::setSignals(const QStringList &_signals)
 {
+    NanotraceHR::Tracer tracer{"add signal handler dialog set signals",
+                               category(),
+                               keyValue("number of signals", _signals)};
+
     m_signals = _signals;
     updateComboBox();
 }
 
 QString AddSignalHandlerDialog::signal() const
 {
+    NanotraceHR::Tracer tracer{"add signal handler dialog signal", category()};
+
     return m_signal;
 }
 
-bool checkForPropertyChanges(const QString &signal)
+static bool checkForPropertyChanges(const QString &signal)
 {
     static const QStringList importantProperties = {"pressed","position","value",
                                              "checked","currentIndex","index",
@@ -50,6 +64,8 @@ bool checkForPropertyChanges(const QString &signal)
 
 void AddSignalHandlerDialog::updateComboBox()
 {
+    NanotraceHR::Tracer tracer{"add signal handler dialog update combo box", category()};
+
     m_ui->comboBox->clear();
     for (const QString &signal : std::as_const(m_signals)) {
         if (m_ui->all->isChecked()) {
@@ -64,6 +80,8 @@ void AddSignalHandlerDialog::updateComboBox()
 
 void AddSignalHandlerDialog::handleAccepted()
 {
+    NanotraceHR::Tracer tracer{"add signal handler dialog handle accepted", category()};
+
     m_signal = m_ui->comboBox->currentText();
     emit signalSelected();
 }

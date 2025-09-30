@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "layoutingridlayout.h"
+#include "componentcoretracing.h"
 
 #include <nodeabstractproperty.h>
 #include <nodemetainfo.h>
@@ -15,8 +16,14 @@
 
 namespace QmlDesigner {
 
-inline static void reparentTo(const ModelNode &node, const QmlItemNode &parent)
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
+
+namespace {
+
+static void reparentTo(const ModelNode &node, const QmlItemNode &parent)
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout reparent to", category()};
 
     if (parent.isValid() && node.isValid()) {
         NodeAbstractProperty parentProperty;
@@ -32,6 +39,8 @@ inline static void reparentTo(const ModelNode &node, const QmlItemNode &parent)
 
 static int findFirstBigger(const QVector<int> &v, int tolerance)
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout find first bigger", category()};
+
     if (v.isEmpty())
         return 0;
 
@@ -46,6 +55,8 @@ static int findFirstBigger(const QVector<int> &v, int tolerance)
 
 static void  removeSimilarValues(QVector<int> &v, int tolerance)
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout remove similar values", category()};
+
     QVector<int> newVector;
 
     if (v.size() < 2)
@@ -63,23 +74,29 @@ static void  removeSimilarValues(QVector<int> &v, int tolerance)
 
 static int getCell(const QVector<int> &offsets, int offset)
 {
-        for (int i = 0; i < offsets.length(); ++i) {
-            if (offset < offsets.at(i))
-                    return i;
-        }
+    NanotraceHR::Tracer tracer{"layout in grid layout get cell", category()};
+
+    for (int i = 0; i < offsets.length(); ++i) {
+        if (offset < offsets.at(i))
+            return i;
+    }
     return offsets.length();
 }
 
 static int lowerBound(int i)
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout lower bound", category()};
+
     if (i < 15)
         return 16;
 
     return i;
 }
 
-inline static QPointF getUpperLeftPosition(const QList<ModelNode> &modelNodeList)
+static QPointF getUpperLeftPosition(const QList<ModelNode> &modelNodeList)
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout get upper left position", category()};
+
     QPointF postion(std::numeric_limits<qreal>::max(), std::numeric_limits<qreal>::max());
     for (const ModelNode &modelNode : modelNodeList) {
         if (QmlItemNode::isValidQmlItemNode(modelNode)) {
@@ -95,14 +112,21 @@ inline static QPointF getUpperLeftPosition(const QList<ModelNode> &modelNodeList
 
 static void setUpperLeftPostionToNode(const ModelNode &layoutNode, const QList<ModelNode> &modelNodeList)
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout set upper left position to node", category()};
+
     QPointF upperLeftPosition = getUpperLeftPosition(modelNodeList);
     layoutNode.variantProperty("x").setValue(qRound(upperLeftPosition.x()));
     layoutNode.variantProperty("y").setValue(qRound(upperLeftPosition.y()));
 }
 
+} // namespace
+
 void LayoutInGridLayout::reparentToNodeAndRemovePositionForModelNodes(
     const ModelNode &parentModelNode, const QList<ModelNode> &modelNodeList)
 {
+    NanotraceHR::Tracer tracer{
+        "layout in grid layout reparent to node and remove position for model nodes", category()};
+
     for (ModelNode modelNode : modelNodeList) {
         reparentTo(modelNode, parentModelNode);
         modelNode.removeProperty("x");
@@ -122,16 +146,20 @@ void LayoutInGridLayout::reparentToNodeAndRemovePositionForModelNodes(
 
 void LayoutInGridLayout::setSizeAsPreferredSize(const QList<ModelNode> &modelNodeList)
 {
-     for (ModelNode modelNode : modelNodeList) {
-         if (modelNode.hasVariantProperty("width")) {
-             modelNode.variantProperty("Layout.preferredWidth").setValue(modelNode.variantProperty("width").value());
-             modelNode.removeProperty("width");
-         }
-         if (modelNode.hasVariantProperty("height")) {
-             modelNode.variantProperty("Layout.preferredHeight").setValue(modelNode.variantProperty("height").value());
-             modelNode.removeProperty("height");
-         }
-     }
+    NanotraceHR::Tracer tracer{"layout in grid layout set size as preferred size", category()};
+
+    for (ModelNode modelNode : modelNodeList) {
+        if (modelNode.hasVariantProperty("width")) {
+            modelNode.variantProperty("Layout.preferredWidth")
+                .setValue(modelNode.variantProperty("width").value());
+            modelNode.removeProperty("width");
+        }
+        if (modelNode.hasVariantProperty("height")) {
+            modelNode.variantProperty("Layout.preferredHeight")
+                .setValue(modelNode.variantProperty("height").value());
+            modelNode.removeProperty("height");
+        }
+    }
 }
 
 LayoutInGridLayout::LayoutInGridLayout(const QmlDesigner::SelectionContext &selectionContext) :
@@ -139,11 +167,13 @@ LayoutInGridLayout::LayoutInGridLayout(const QmlDesigner::SelectionContext &sele
   ,m_startX(0)
   ,m_startY(0)
 {
-
+    NanotraceHR::Tracer tracer{"layout in grid layout constructor", category()};
 }
 
 void LayoutInGridLayout::doIt()
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout do it", category()};
+
     const TypeName layoutType = "GridLayout";
 
     if (!m_selectionContext.view()
@@ -195,6 +225,8 @@ void LayoutInGridLayout::doIt()
 
 static bool hasQtQuickLayoutImport(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout has qt quick layout import", category()};
+
     if (context.view() && context.view()->model()) {
         Import import = Import::createLibraryImport(QStringLiteral("QtQuick.Layouts"), {});
         return context.view()->model()->hasImport(import, true, true);
@@ -205,6 +237,8 @@ static bool hasQtQuickLayoutImport(const SelectionContext &context)
 
 void LayoutInGridLayout::ensureLayoutImport(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout ensure layout import", category()};
+
     if (!hasQtQuickLayoutImport(context)) {
         Import layoutImport = Import::createLibraryImport("QtQuick.Layouts", {});
         context.view()-> model()->changeImports({layoutImport}, {});
@@ -213,12 +247,16 @@ void LayoutInGridLayout::ensureLayoutImport(const SelectionContext &context)
 
 void LayoutInGridLayout::layout(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout layout", category()};
+
     LayoutInGridLayout operation(context);
     operation.doIt();
 }
 
 int LayoutInGridLayout::columnCount() const
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout column count", category()};
+
     return m_xTopOffsets.size();
 }
 
@@ -229,6 +267,8 @@ int LayoutInGridLayout::rowCount() const
 
 void LayoutInGridLayout::collectItemNodes()
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout collect item nodes", category()};
+
     const QList<ModelNode> modelNodes = m_selectionContext.selectedModelNodes();
     for (const ModelNode &modelNode : modelNodes) {
         if (QmlItemNode::isValidQmlItemNode(modelNode)) {
@@ -247,6 +287,8 @@ void LayoutInGridLayout::collectItemNodes()
 
 void LayoutInGridLayout::collectOffsets()
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout collect offsets", category()};
+
     //We collect all different x and y offsets that define the cells
     for (const QmlItemNode &qmlItemNode : std::as_const(m_qmlItemNodes)) {
         int x  = qRound((qmlItemNode.instancePosition().x()));
@@ -263,6 +305,8 @@ void LayoutInGridLayout::collectOffsets()
 
 void LayoutInGridLayout::sortOffsets()
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout sort offsets", category()};
+
     std::sort(m_xTopOffsets.begin(), m_xTopOffsets.end());
     std::sort(m_yTopOffsets.begin(), m_yTopOffsets.end());
     std::sort(m_xBottomOffsets.begin(), m_xBottomOffsets.end());
@@ -271,6 +315,8 @@ void LayoutInGridLayout::sortOffsets()
 
 void LayoutInGridLayout::calculateGridOffsets()
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout calculate grid offsets", category()};
+
     if (!m_xTopOffsets.isEmpty())
         m_startX = m_xTopOffsets.constFirst();
 
@@ -314,6 +360,8 @@ void LayoutInGridLayout::calculateGridOffsets()
 
 void LayoutInGridLayout::removeEmtpyRowsAndColumns()
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout remove empty rows and columns", category()};
+
     //Allocate arrays for used rows and columns and rows
     m_rows = QVector<bool>(rowCount());
     m_rows.fill(false);
@@ -345,6 +393,8 @@ void LayoutInGridLayout::removeEmtpyRowsAndColumns()
 
 void LayoutInGridLayout::initializeCells()
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout initialize cells", category()};
+
     //Allocate array and mark cells as false.
     m_cells = QVector<bool>(columnCount() * rowCount());
     m_cells.fill(false);
@@ -352,6 +402,8 @@ void LayoutInGridLayout::initializeCells()
 
 void LayoutInGridLayout::markUsedCells()
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout mark used cells", category()};
+
     //We mark cells which are covered by items with true
     for (const auto &qmlItemNode : std::as_const(m_qmlItemNodes)) {
         int xCell = getCell(m_xTopOffsets, qmlItemNode.instancePosition().x());
@@ -369,6 +421,8 @@ void LayoutInGridLayout::markUsedCells()
 
 void LayoutInGridLayout::fillEmptyCells()
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout fill empty cells", category()};
+
     //Cells which are not covered by items and are not marked as true have to be filled with a "spacer" item
     m_layoutedNodes = m_selectionContext.selectedModelNodes();
 
@@ -407,6 +461,8 @@ constexpr AuxiliaryDataKeyView extraSpanningProperty{AuxiliaryDataType::Document
 }
 void LayoutInGridLayout::setSpanning(const ModelNode &layoutNode)
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout set spanning", category()};
+
     //Define a post layout operation to set columns/rows and the spanning
     if (layoutNode.isValid()) {
         layoutNode.variantProperty("columns").setValue(columnCount());
@@ -442,6 +498,8 @@ void LayoutInGridLayout::setSpanning(const ModelNode &layoutNode)
 
 void LayoutInGridLayout::removeSpacersBySpanning(QList<ModelNode> &nodes)
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout remove spacers by spanning", category()};
+
     for (const ModelNode &node : std::as_const(m_spacerNodes)) {
         if (int index = nodes.indexOf(node)) {
             ModelNode before;
@@ -465,6 +523,8 @@ void LayoutInGridLayout::removeSpacersBySpanning(QList<ModelNode> &nodes)
 
 LayoutInGridLayout::LessThan LayoutInGridLayout::lessThan()
 {
+    NanotraceHR::Tracer tracer{"layout in grid layout less than", category()};
+
     return [this](const ModelNode &node1, const ModelNode &node2) {
         QmlItemNode itemNode1 = QmlItemNode(node1);
         QmlItemNode itemNode2 = QmlItemNode(node2);

@@ -6,6 +6,7 @@
 #include "addimagesdialog.h"
 #include "addsignalhandlerdialog.h"
 #include "componentcore_constants.h"
+#include "componentcoretracing.h"
 #include "createtexture.h"
 #include "findimplementation.h"
 #include "layoutingridlayout.h"
@@ -89,6 +90,9 @@ using namespace Utils;
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
+
 namespace {
 const Utils::SmallString auxDataString("anchors_");
 
@@ -99,11 +103,15 @@ Utils::SmallString auxPropertyString(Utils::SmallStringView name)
 
 QString relativePathToQmlFile(const QString &absolutePath)
 {
+    NanotraceHR::Tracer tracer{"model node operations relative path to qml file", category()};
+
     return DocumentManager::currentFilePath().toFileInfo().dir().relativeFilePath(absolutePath);
 }
 
-inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
+void reparentTo(const ModelNode &node, const QmlItemNode &parent)
 {
+    NanotraceHR::Tracer tracer{"model node operations reparent to", category()};
+
     if (parent.isValid() && node.isValid()) {
         NodeAbstractProperty parentProperty;
 
@@ -116,8 +124,10 @@ inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
     }
 }
 
-inline QPointF getUpperLeftPosition(const QList<ModelNode> &modelNodeList)
+QPointF getUpperLeftPosition(const QList<ModelNode> &modelNodeList)
 {
+    NanotraceHR::Tracer tracer{"model node operations get upper left position", category()};
+
     QPointF postion(std::numeric_limits<qreal>::max(), std::numeric_limits<qreal>::max());
     for (const ModelNode &modelNode : modelNodeList) {
         if (QmlItemNode::isValidQmlItemNode(modelNode)) {
@@ -134,6 +144,8 @@ inline QPointF getUpperLeftPosition(const QList<ModelNode> &modelNodeList)
 
 void setUpperLeftPostionToNode(const ModelNode &layoutNode, const QList<ModelNode> &modelNodeList)
 {
+    NanotraceHR::Tracer tracer{"model node operations set upper left position to node", category()};
+
     QPointF upperLeftPosition = getUpperLeftPosition(modelNodeList);
     layoutNode.variantProperty("x").setValue(qRound(upperLeftPosition.x()));
     layoutNode.variantProperty("y") .setValue(qRound(upperLeftPosition.y()));
@@ -145,17 +157,23 @@ namespace ModelNodeOperations {
 
 bool goIntoComponent(const ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"model node operations go into component", category()};
+
     return DocumentManager::goIntoComponent(modelNode);
 }
 
 void select(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations select", category()};
+
     if (selectionState.view())
         selectionState.view()->setSelectedModelNodes({selectionState.targetNode()});
 }
 
 void deSelect(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations deselect", category()};
+
     if (selectionState.view()) {
         QList<ModelNode> selectedNodes = selectionState.view()->selectedModelNodes();
         const QList<ModelNode> nodes = selectionState.selectedModelNodes();
@@ -167,21 +185,10 @@ void deSelect(const SelectionContext &selectionState)
     }
 }
 
-void cut(const SelectionContext &)
-{
-}
-
-
-void copy(const SelectionContext &)
-{
-}
-
-void deleteSelection(const SelectionContext &)
-{
-}
-
 void toFront(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations to front", category()};
+
     if (!selectionState.view())
         return;
 
@@ -204,6 +211,8 @@ void toFront(const SelectionContext &selectionState)
 
 void toBack(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations to back", category()};
+
     if (!selectionState.view())
         return;
     try {
@@ -224,8 +233,10 @@ void toBack(const SelectionContext &selectionState)
 
 enum OrderAction {RaiseItem, LowerItem};
 
-void changeOrder(const SelectionContext &selectionState, OrderAction orderAction)
+static void changeOrder(const SelectionContext &selectionState, OrderAction orderAction)
 {
+    NanotraceHR::Tracer tracer{"model node operations change order", category()};
+
     if (!selectionState.view())
         return;
 
@@ -254,28 +265,22 @@ void changeOrder(const SelectionContext &selectionState, OrderAction orderAction
 
 void raise(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations raise", category()};
+
     changeOrder(selectionState, RaiseItem);
 }
 
 void lower(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations lower", category()};
+
     changeOrder(selectionState, LowerItem);
-}
-
-void paste(const SelectionContext &)
-{
-}
-
-void undo(const SelectionContext &)
-{
-}
-
-void redo(const SelectionContext &)
-{
 }
 
 void setVisible(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations set visible", category()};
+
     if (!selectionState.view())
         return;
 
@@ -288,6 +293,8 @@ void setVisible(const SelectionContext &selectionState)
 
 static QSet<ModelNode> collectAncestorsAndDescendants(AbstractView *view, const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"model node operations collect ancestors and descendants", category()};
+
     QSet<ModelNode> keepVisible;
 
     ModelNode ancestor = node.parentProperty().parentModelNode();
@@ -307,6 +314,8 @@ static QSet<ModelNode> collectAncestorsAndDescendants(AbstractView *view, const 
 
 void isolateSelectedNodes(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations isolate selected nodes", category()};
+
     AbstractView *view = selectionState.view();
     const QList<ModelNode> selectedNodes = view->selectedModelNodes();
 
@@ -357,6 +366,8 @@ void isolateSelectedNodes(const SelectionContext &selectionState)
 
 void showAllNodes(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations show all nodes", category()};
+
     const QList<ModelNode> allModelNodes = selectionState.view()->allModelNodes();
     for (const ModelNode &node : allModelNodes)
         QmlVisualNode(node).setVisibilityOverride(false);
@@ -364,8 +375,9 @@ void showAllNodes(const SelectionContext &selectionState)
 
 void setFillWidth(const SelectionContext &selectionState)
 {
-    if (!selectionState.view()
-            || !selectionState.hasSingleSelectedModelNode())
+    NanotraceHR::Tracer tracer{"model node operations set fill width", category()};
+
+    if (!selectionState.view() || !selectionState.hasSingleSelectedModelNode())
         return;
 
     try {
@@ -377,8 +389,9 @@ void setFillWidth(const SelectionContext &selectionState)
 
 void setFillHeight(const SelectionContext &selectionState)
 {
-    if (!selectionState.view()
-            || !selectionState.hasSingleSelectedModelNode())
+    NanotraceHR::Tracer tracer{"model node operations set fill height", category()};
+
+    if (!selectionState.view() || !selectionState.hasSingleSelectedModelNode())
         return;
 
     try {
@@ -390,6 +403,8 @@ void setFillHeight(const SelectionContext &selectionState)
 
 void resetSize(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations reset size", category()};
+
     if (!selectionState.view())
         return;
 
@@ -407,6 +422,8 @@ void resetSize(const SelectionContext &selectionState)
 
 void resetPosition(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations reset position", category()};
+
     if (!selectionState.view())
         return;
 
@@ -424,15 +441,15 @@ void resetPosition(const SelectionContext &selectionState)
 
 void goIntoComponentOperation(const SelectionContext &selectionState)
 {
-    goIntoComponent(selectionState.currentSingleSelectedNode());
-}
+    NanotraceHR::Tracer tracer{"model node operations go into component operation", category()};
 
-void setId(const SelectionContext &)
-{
+    goIntoComponent(selectionState.currentSingleSelectedNode());
 }
 
 void resetZ(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations reset z", category()};
+
     if (!selectionState.view())
         return;
 
@@ -447,6 +464,8 @@ void resetZ(const SelectionContext &selectionState)
 
 void reverse(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations reverse", category()};
+
     if (!selectionState.view())
         return;
 
@@ -455,18 +474,24 @@ void reverse(const SelectionContext &selectionState)
     });
 }
 
-inline static void backupPropertyAndRemove(const ModelNode &node, const PropertyName &propertyName)
+static void backupPropertyAndRemove(const ModelNode &node, const PropertyName &propertyName)
 {
+    NanotraceHR::Tracer tracer{"model node operations backup property and remove", category()};
+
     ModelNodeUtils::backupPropertyAndRemove(node, propertyName, auxPropertyString(propertyName));
 }
 
 static void restoreProperty(const ModelNode &node, const PropertyName &propertyName)
 {
+    NanotraceHR::Tracer tracer{"model node operations restore property", category()};
+
     ModelNodeUtils::restoreProperty(node, propertyName, auxPropertyString(propertyName));
 }
 
 void anchorsFill(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations anchors fill", category()};
+
     if (!selectionState.view())
         return;
 
@@ -491,6 +516,8 @@ void anchorsFill(const SelectionContext &selectionState)
 
 void anchorsReset(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations anchors reset", category()};
+
     if (!selectionState.view())
         return;
 
@@ -511,8 +538,10 @@ void anchorsReset(const SelectionContext &selectionState)
 
 using LessThan = std::function<bool (const ModelNode &, const ModelNode&)>;
 
-bool compareByX(const ModelNode &node1, const ModelNode &node2)
+static bool compareByX(const ModelNode &node1, const ModelNode &node2)
 {
+    NanotraceHR::Tracer tracer{"model node operations compare by x", category()};
+
     QmlItemNode itemNode1 = QmlItemNode(node1);
     QmlItemNode itemNode2 = QmlItemNode(node2);
     if (itemNode1.isValid() && itemNode2.isValid())
@@ -520,8 +549,10 @@ bool compareByX(const ModelNode &node1, const ModelNode &node2)
     return false;
 }
 
-bool compareByY(const ModelNode &node1, const ModelNode &node2)
+static bool compareByY(const ModelNode &node1, const ModelNode &node2)
 {
+    NanotraceHR::Tracer tracer{"model node operations compare by y", category()};
+
     QmlItemNode itemNode1 = QmlItemNode(node1);
     QmlItemNode itemNode2 = QmlItemNode(node2);
     if (itemNode1.isValid() && itemNode2.isValid())
@@ -529,8 +560,10 @@ bool compareByY(const ModelNode &node1, const ModelNode &node2)
     return false;
 }
 
-bool compareByGrid(const ModelNode &node1, const ModelNode &node2)
+static bool compareByGrid(const ModelNode &node1, const ModelNode &node2)
 {
+    NanotraceHR::Tracer tracer{"model node operations compare by grid", category()};
+
     QmlItemNode itemNode1 = QmlItemNode(node1);
     QmlItemNode itemNode2 = QmlItemNode(node2);
     if (itemNode1.isValid() && itemNode2.isValid()) {
@@ -548,8 +581,9 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
                                  const TypeName &layoutType,
                                  const LessThan &lessThan)
 {
-    if (!selectionContext.view()
-             || !selectionContext.view()->model()->hasNodeMetaInfo(layoutType))
+    NanotraceHR::Tracer tracer{"model node operations layout helper function", category()};
+
+    if (!selectionContext.view() || !selectionContext.view()->model()->hasNodeMetaInfo(layoutType))
         return;
 
     if (QmlItemNode::isValidQmlItemNode(selectionContext.firstSelectedModelNode())) {
@@ -579,26 +613,36 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
 
 void layoutRowPositioner(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations layout row positioner", category()};
+
     layoutHelperFunction(selectionContext, "Row", compareByX);
 }
 
 void layoutColumnPositioner(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations layout column positioner", category()};
+
     layoutHelperFunction(selectionContext, "Column", compareByY);
 }
 
 void layoutGridPositioner(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations layout grid positioner", category()};
+
     layoutHelperFunction(selectionContext, "Grid", compareByGrid);
 }
 
 void layoutFlowPositioner(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations layout flow positioner", category()};
+
     layoutHelperFunction(selectionContext, "Flow", compareByGrid);
 }
 
 void layoutRowLayout(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations layout row layout", category()};
+
     try {
         LayoutInGridLayout::ensureLayoutImport(selectionContext);
         layoutHelperFunction(selectionContext, "RowLayout", compareByX);
@@ -609,6 +653,8 @@ void layoutRowLayout(const SelectionContext &selectionContext)
 
 void layoutColumnLayout(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations layout column layout", category()};
+
     try {
         LayoutInGridLayout::ensureLayoutImport(selectionContext);
         layoutHelperFunction(selectionContext, "ColumnLayout", compareByY);
@@ -619,6 +665,8 @@ void layoutColumnLayout(const SelectionContext &selectionContext)
 
 void layoutGridLayout(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations layout grid layout", category()};
+
     try {
         Q_ASSERT(!DesignerMcuManager::instance().isMCUProject()); //remove this line when grids are finally supported
 
@@ -631,6 +679,8 @@ void layoutGridLayout(const SelectionContext &selectionContext)
 
 static PropertyNameList sortedPropertyNameList(const PropertyMetaInfos &properties)
 {
+    NanotraceHR::Tracer tracer{"model node operations sorted property name list", category()};
+
     auto propertyNames = Utils::transform<PropertyNameList>(properties, &PropertyMetaInfo::name);
 
     std::sort(propertyNames.begin(), propertyNames.end());
@@ -642,6 +692,8 @@ static PropertyNameList sortedPropertyNameList(const PropertyMetaInfos &properti
 
 static QString toUpper(const QString &signal)
 {
+    NanotraceHR::Tracer tracer{"model node operations to upper", category()};
+
     QString ret = signal;
     ret[0] = signal.at(0).toUpper();
     return ret;
@@ -654,6 +706,8 @@ static void addSignal(const QString &typeName,
                       ExternalDependenciesInterface &externanDependencies,
                       [[maybe_unused]] Model *otherModel)
 {
+    NanotraceHR::Tracer tracer{"model node operations add signal", category()};
+
     auto model = otherModel->createModel({"Item"});
 
     RewriterView rewriterView(externanDependencies,
@@ -686,6 +740,8 @@ static void addSignal(const QString &typeName,
 
 static QStringList cleanSignalNames(const QStringList &input)
 {
+    NanotraceHR::Tracer tracer{"model node operations clean signal names", category()};
+
     QStringList output;
 
     for (const QString &signal : input)
@@ -697,6 +753,8 @@ static QStringList cleanSignalNames(const QStringList &input)
 
 static QStringList getSortedSignalNameList(const ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"model node operations get sorted signal name list", category()};
+
     NodeMetaInfo metaInfo = modelNode.metaInfo();
     QStringList signalNames;
 
@@ -719,6 +777,9 @@ static QStringList getSortedSignalNameList(const ModelNode &modelNode)
 
 void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState, bool addAlwaysNewSlot)
 {
+    NanotraceHR::Tracer tracer{"model node operations add signal handler or goto implementation",
+                               category()};
+
     ModelNode modelNode;
     if (selectionState.singleNodeIsSelected())
         modelNode = selectionState.selectedModelNodes().constFirst();
@@ -813,8 +874,9 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
 
 void removeLayout(const SelectionContext &selectionContext)
 {
-    if (!selectionContext.view()
-            || !selectionContext.hasSingleSelectedModelNode())
+    NanotraceHR::Tracer tracer{"model node operations remove layout", category()};
+
+    if (!selectionContext.view() || !selectionContext.hasSingleSelectedModelNode())
         return;
 
     ModelNode layout = selectionContext.currentSingleSelectedNode();
@@ -853,11 +915,15 @@ void removeLayout(const SelectionContext &selectionContext)
 
 void removePositioner(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations remove positioner", category()};
+
     removeLayout(selectionContext);
 }
 
 void moveToComponent(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations move to component", category()};
+
     ModelNode modelNode;
     if (selectionContext.singleNodeIsSelected())
         modelNode = selectionContext.selectedModelNodes().constFirst();
@@ -871,6 +937,8 @@ void moveToComponent(const SelectionContext &selectionContext)
 
 void extractComponent(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations extract component", category()};
+
     ModelNode selectedNode = selectionContext.currentSingleSelectedNode();
     AbstractView *contextView = selectionContext.view();
 
@@ -992,6 +1060,8 @@ void extractComponent(const SelectionContext &selectionContext)
 
 void addNodeToContentLibrary(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations add node to content library", category()};
+
     ModelNode node = selectionContext.currentSingleSelectedNode();
 
     QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
@@ -1002,17 +1072,23 @@ void addNodeToContentLibrary(const SelectionContext &selectionContext)
 
 void goImplementation(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations go implementation", category()};
+
     addSignalHandlerOrGotoImplementation(selectionState, false);
 }
 
 void addNewSignalHandler(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations add new signal handler", category()};
+
     addSignalHandlerOrGotoImplementation(selectionState, true);
 }
 
 // Open a model's material in the material editor
 void editMaterial(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations edit material", category()};
+
     ModelNode modelNode = selectionContext.targetNode();
 
     if (!modelNode.isValid())
@@ -1047,6 +1123,8 @@ void editMaterial(const SelectionContext &selectionContext)
 
 void addItemToStackedContainer(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations add item to stacked container", category()};
+
     AbstractView *view = selectionContext.view();
 
     QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
@@ -1089,7 +1167,11 @@ void addItemToStackedContainer(const SelectionContext &selectionContext)
 
 PropertyName getIndexPropertyName(const ModelNode &modelNode)
 {
-    const PropertyName propertyName = NodeHints::fromModelNode(modelNode).indexPropertyForStackedContainer().toUtf8();
+    NanotraceHR::Tracer tracer{"model node operations get index property name", category()};
+
+    const PropertyName propertyName = NodeHints::fromModelNode(modelNode)
+                                          .indexPropertyForStackedContainer()
+                                          .toUtf8();
 
     if (modelNode.metaInfo().hasProperty(propertyName))
         return propertyName;
@@ -1105,6 +1187,8 @@ PropertyName getIndexPropertyName(const ModelNode &modelNode)
 
 static void setIndexProperty(const AbstractProperty &property, const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{"model node operations set index property", category()};
+
     if (!property.exists() || property.isVariantProperty()) {
         /* Using QmlObjectNode ensures we take states into account. */
         QmlObjectNode{property.parentModelNode()}.setVariantProperty(property.name(), value);
@@ -1128,6 +1212,8 @@ static void setIndexProperty(const AbstractProperty &property, const QVariant &v
 
 static std::optional<int> getIndexProperty(const AbstractProperty &property)
 {
+    NanotraceHR::Tracer tracer{"model node operations get index property", category()};
+
     if (property.isBindingProperty()) {
         const AbstractProperty resolvedProperty = property.toBindingProperty().resolveToProperty();
         if (resolvedProperty.isValid() && resolvedProperty.isVariantProperty()) {
@@ -1168,6 +1254,9 @@ static std::optional<int> getIndexProperty(const AbstractProperty &property)
 
 void increaseIndexOfStackedContainer(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations increase index of stacked container",
+                               category()};
+
     AbstractView *view = selectionContext.view();
 
     QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
@@ -1192,6 +1281,9 @@ void increaseIndexOfStackedContainer(const SelectionContext &selectionContext)
 
 void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations decrease index of stacked container",
+                               category()};
+
     AbstractView *view = selectionContext.view();
 
     QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
@@ -1214,6 +1306,8 @@ void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext)
 
 void addTabBarToStackedContainer(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations add tab bar to stacked container", category()};
+
     AbstractView *view = selectionContext.view();
 
     QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
@@ -1267,6 +1361,8 @@ public:
     CopyAssetsDispatcher(const QList<CopyData> &copyList)
         : m_tempDir(DocumentManager::currentProjectDirPath().parentDir().toFSPathString())
     {
+        NanotraceHR::Tracer tracer{"copy assets dispatcher constructor", category()};
+
         FilePath projectDir = DocumentManager::currentProjectDirPath();
         FilePath tempDirPath = FilePath::fromString(m_tempDir.path());
 
@@ -1289,16 +1385,33 @@ public:
             m_tasks.append(renameData);
     }
 
-    void cancel() { m_canceled = true; }
+    void cancel()
+    {
+        NanotraceHR::Tracer tracer{"copy assets dispatcher cancel", category()};
 
-    inline bool jobCanceled() const { return m_canceled; }
+        m_canceled = true;
+    }
 
-    FilePaths doneFiles() const { return FilePaths(m_doneFiles.begin(), m_doneFiles.end()); }
+    bool jobCanceled() const
+    {
+        NanotraceHR::Tracer tracer{"copy assets dispatcher job canceled", category()};
+
+        return m_canceled;
+    }
+
+    FilePaths doneFiles() const
+    {
+        NanotraceHR::Tracer tracer{"copy assets dispatcher done files", category()};
+
+        return FilePaths(m_doneFiles.begin(), m_doneFiles.end());
+    }
 
     static void execute(std::invocable<int> auto &&onProgressChanged,
                         std::invocable auto &&onDone,
                         std::unique_ptr<CopyAssetsDispatcher> &&dispatcher)
     {
+        NanotraceHR::Tracer tracer{"copy assets dispatcher execute", category()};
+
         CopyAssetsDispatcher *dispatcherPtr = dispatcher.get();
 
         if (dispatcherPtr->m_thread)
@@ -1320,7 +1433,12 @@ public:
         dispatcherPtr->m_thread->start();
     }
 
-    int progress() { return m_progress; }
+    int progress()
+    {
+        NanotraceHR::Tracer tracer{"copy assets dispatcher progress", category()};
+
+        return m_progress;
+    }
 
 private:
     // returns true if is updated
@@ -1391,6 +1509,8 @@ private: // variables
 
 AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
 {
+    NanotraceHR::Tracer tracer{"model node operations add files to project", category()};
+
     QString directory = showDialog ? AddImagesDialog::getDirectory(fileNames, defaultDir) : defaultDir;
     if (directory.isEmpty())
         return AddFilesResult::cancelled(directory);
@@ -1484,6 +1604,8 @@ AddFilesResult addFilesToProject(const QStringList &fileNames, const QString &de
 
 static QString getAssetDefaultDirectory(const QString &assetDir, const QString &defaultDirectory)
 {
+    NanotraceHR::Tracer tracer{"model node operations get asset default directory", category()};
+
     QString adjustedDefaultDirectory = defaultDirectory;
 
     Utils::FilePath contentPath = QmlDesignerPlugin::instance()->documentManager().currentResourcePath();
@@ -1501,6 +1623,8 @@ static QString getAssetDefaultDirectory(const QString &assetDir, const QString &
 
 AddFilesResult addFontToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
 {
+    NanotraceHR::Tracer tracer{"model node operations add font to project", category()};
+
     const AddFilesResult result = addFilesToProject(fileNames,
                                                     getAssetDefaultDirectory("fonts", defaultDir),
                                                     showDialog);
@@ -1510,26 +1634,36 @@ AddFilesResult addFontToProject(const QStringList &fileNames, const QString &def
 
 AddFilesResult addSoundToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
 {
+    NanotraceHR::Tracer tracer{"model node operations add sound to project", category()};
+
     return addFilesToProject(fileNames, getAssetDefaultDirectory("sounds", defaultDir), showDialog);
 }
 
 AddFilesResult addShaderToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
 {
+    NanotraceHR::Tracer tracer{"model node operations add shader to project", category()};
+
     return addFilesToProject(fileNames, getAssetDefaultDirectory("shaders", defaultDir), showDialog);
 }
 
 AddFilesResult addImageToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
 {
+    NanotraceHR::Tracer tracer{"model node operations add image to project", category()};
+
     return addFilesToProject(fileNames, getAssetDefaultDirectory("images", defaultDir), showDialog);
 }
 
 AddFilesResult addVideoToProject(const QStringList &fileNames, const QString &defaultDir, bool showDialog)
 {
+    NanotraceHR::Tracer tracer{"model node operations add video to project", category()};
+
     return addFilesToProject(fileNames, getAssetDefaultDirectory("videos", defaultDir), showDialog);
 }
 
 static bool hasStudioComponentsImport(const SelectionContext &context)
 {
+    NanotraceHR::Tracer tracer{"model node operations has studio components import", category()};
+
     if (context.view() && context.view()->model()) {
         Import import = Import::createLibraryImport("QtQuick.Studio.Components", "1.0");
         return context.view()->model()->hasImport(import, true, true);
@@ -1538,8 +1672,10 @@ static bool hasStudioComponentsImport(const SelectionContext &context)
     return false;
 }
 
-inline static void setAdjustedPos(const QmlDesigner::ModelNode &modelNode)
+static void setAdjustedPos(const QmlDesigner::ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"model node operations set adjusted pos", category()};
+
     if (modelNode.hasParentProperty()) {
         ModelNode parentNode = modelNode.parentProperty().parentModelNode();
 
@@ -1552,9 +1688,12 @@ inline static void setAdjustedPos(const QmlDesigner::ModelNode &modelNode)
     }
 }
 
-void reparentToNodeAndAdjustPosition(const ModelNode &parentModelNode,
-                                     const QList<ModelNode> &modelNodeList)
+static void reparentToNodeAndAdjustPosition(const ModelNode &parentModelNode,
+                                            const QList<ModelNode> &modelNodeList)
 {
+    NanotraceHR::Tracer tracer{"model node operations reparent to node and adjust position",
+                               category()};
+
     for (const ModelNode &modelNode : modelNodeList) {
         reparentTo(modelNode, parentModelNode);
         setAdjustedPos(modelNode);
@@ -1572,6 +1711,7 @@ void reparentToNodeAndAdjustPosition(const ModelNode &parentModelNode,
 
 void addToGroupItem(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations add to group item", category()};
 
     try {
         if (!hasStudioComponentsImport(selectionContext)) {
@@ -1610,13 +1750,17 @@ void addToGroupItem(const SelectionContext &selectionContext)
 
 static QString baseDirectory(const QUrl &url)
 {
+    NanotraceHR::Tracer tracer{"model node operations base directory", category()};
+
     QString filePath = url.toLocalFile();
     return QFileInfo(filePath).absoluteDir().path();
 }
 
 static QString fromCamelCase(const QString &s)
 {
-    static QRegularExpression regExp1 {"(.)([A-Z][a-z]+)"};
+    NanotraceHR::Tracer tracer{"model node operations from camel case", category()};
+
+    static QRegularExpression regExp1{"(.)([A-Z][a-z]+)"};
     static QRegularExpression regExp2 {"([a-z0-9])([A-Z])"};
 
     QString result = s;
@@ -1626,8 +1770,10 @@ static QString fromCamelCase(const QString &s)
     return result;
 }
 
-QString getTemplateDialog(const Utils::FilePath &projectPath)
+static QString getTemplateDialog(const Utils::FilePath &projectPath)
 {
+    NanotraceHR::Tracer tracer{"model node operations get template dialog", category()};
+
     const Utils::FilePath templatesPath = projectPath.pathAppended("templates");
 
     const QStringList templateFiles = QDir(templatesPath.toUrlishString()).entryList({"*.qml"});
@@ -1714,7 +1860,10 @@ void mergeWithTemplate(const SelectionContext &selectionContext,
                        ExternalDependenciesInterface &externalDependencies,
                        ModulesStorage &modulesStorage)
 {
-    const Utils::FilePath projectPath = Utils::FilePath::fromString(baseDirectory(selectionContext.view()->model()->fileUrl()));
+    NanotraceHR::Tracer tracer{"model node operations merge with template", category()};
+
+    const Utils::FilePath projectPath = Utils::FilePath::fromString(
+        baseDirectory(selectionContext.view()->model()->fileUrl()));
 
     const QString templateFile = getTemplateDialog(projectPath);
 
@@ -1728,6 +1877,8 @@ void mergeWithTemplate(const SelectionContext &selectionContext,
 
 void removeGroup(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations remove group", category()};
+
     if (!selectionContext.view() || !selectionContext.hasSingleSelectedModelNode())
         return;
 
@@ -1762,6 +1913,8 @@ void removeGroup(const SelectionContext &selectionContext)
 
 void editAnnotation(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations edit annotation", category()};
+
     ModelNode selectedNode = selectionContext.currentSingleSelectedNode();
 
     ModelNodeEditorProxy::fromModelNode<AnnotationEditor>(selectedNode);
@@ -1769,6 +1922,8 @@ void editAnnotation(const SelectionContext &selectionContext)
 
 void addMouseAreaFill(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations add mouse area fill", category()};
+
     if (!selectionContext.isValid()) {
         return;
     }
@@ -1797,6 +1952,9 @@ void addMouseAreaFill(const SelectionContext &selectionContext)
 
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"model node operations preview image data for generic node",
+                               category()};
+
     if (auto model = modelNode.model()) {
         if (auto view = model->nodeInstanceView())
             return static_cast<const NodeInstanceView *>(view)->previewImageDataForGenericNode(modelNode,
@@ -1807,6 +1965,8 @@ QVariant previewImageDataForGenericNode(const ModelNode &modelNode)
 
 QVariant previewImageDataForImageNode(const ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"model node operations preview image data for image node", category()};
+
     if (auto model = modelNode.model()) {
         if (auto view = model->nodeInstanceView())
             return static_cast<const NodeInstanceView *>(view)->previewImageDataForImageNode(modelNode);
@@ -1816,6 +1976,8 @@ QVariant previewImageDataForImageNode(const ModelNode &modelNode)
 
 void openSignalDialog(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations open signal dialog", category()};
+
     if (!selectionContext.view() || !selectionContext.hasSingleSelectedModelNode())
         return;
 
@@ -1824,6 +1986,8 @@ void openSignalDialog(const SelectionContext &selectionContext)
 
 void updateImported3DAsset(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations update imported 3d asset", category()};
+
     if (selectionContext.view()) {
         selectionContext.view()->emitCustomNotification(
                     "UpdateImported3DAsset", {selectionContext.currentSingleSelectedNode()});
@@ -1832,6 +1996,8 @@ void updateImported3DAsset(const SelectionContext &selectionContext)
 
 void editIn3dView(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations edit in 3d view", category()};
+
     if (!selectionContext.view())
         return;
 
@@ -1872,6 +2038,8 @@ void editIn3dView(const SelectionContext &selectionContext)
 
 Utils::FilePath findEffectFile(const ModelNode &effectNode)
 {
+    NanotraceHR::Tracer tracer{"model node operations find effect file", category()};
+
     const QString effectFile = effectNode.simplifiedTypeName() + ".qep";
     Utils::FilePath effectPath = Utils::FilePath::fromString(getEffectsDefaultDirectory()
                                                              + '/' + effectFile);
@@ -1898,6 +2066,8 @@ Utils::FilePath findEffectFile(const ModelNode &effectNode)
 
 void editInEffectComposer(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"model node operations edit in effect composer", category()};
+
     if (!selectionContext.view())
         return;
 
@@ -1918,11 +2088,15 @@ void editInEffectComposer(const SelectionContext &selectionContext)
 
 bool isEffectComposerActivated()
 {
+    NanotraceHR::Tracer tracer{"model node operations is effect composer activated", category()};
+
     return ExtensionSystem::PluginManager::specExistsAndIsEnabled("effectcomposer");
 }
 
 void openEffectComposer(const QString &filePath)
 {
+    NanotraceHR::Tracer tracer{"model node operations open effect composer", category()};
+
     if (ModelNodeOperations::isEffectComposerActivated()) {
         QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("EffectComposer", true);
         QmlDesignerPlugin::instance()->viewManager()
@@ -1934,6 +2108,8 @@ void openEffectComposer(const QString &filePath)
 
 void openOldEffectMaker(const QString &filePath)
 {
+    NanotraceHR::Tracer tracer{"model node operations open old effect maker", category()};
+
     const ProjectExplorer::Kit *kit = ProjectExplorer::activeKitForCurrentProject();
     if (!kit) {
         qWarning() << __FUNCTION__ << "No project open";
@@ -1981,8 +2157,12 @@ void openOldEffectMaker(const QString &filePath)
 
 Utils::FilePath getEffectsImportDirectory()
 {
-    Utils::FilePath effectsPath = QmlDesignerPlugin::instance()->documentManager()
-                                      .generatedComponentUtils().composedEffectsBasePath();
+    NanotraceHR::Tracer tracer{"model node operations get effects import directory", category()};
+
+    Utils::FilePath effectsPath = QmlDesignerPlugin::instance()
+                                      ->documentManager()
+                                      .generatedComponentUtils()
+                                      .composedEffectsBasePath();
 
     if (!effectsPath.exists())
         effectsPath.createDir();
@@ -1992,6 +2172,8 @@ Utils::FilePath getEffectsImportDirectory()
 
 QString getEffectsDefaultDirectory(const QString &defaultDir)
 {
+    NanotraceHR::Tracer tracer{"model node operations get effects default directory", category()};
+
     if (defaultDir.isEmpty()) {
         return Utils::FilePath::fromString(getAssetDefaultDirectory(
             "effects",
@@ -2003,13 +2185,19 @@ QString getEffectsDefaultDirectory(const QString &defaultDir)
 
 QString getEffectIcon(const QString &effectPath)
 {
-    Utils::FilePath effectFile = QmlDesignerPlugin::instance()->documentManager()
-                                     .generatedComponentUtils().composedEffectPath(effectPath);
+    NanotraceHR::Tracer tracer{"model node operations get effect icon", category()};
+
+    Utils::FilePath effectFile = QmlDesignerPlugin::instance()
+                                     ->documentManager()
+                                     .generatedComponentUtils()
+                                     .composedEffectPath(effectPath);
     return effectFile.exists() ? QString("effectExported") : QString("effectClass");
 }
 
 bool useLayerEffect()
 {
+    NanotraceHR::Tracer tracer{"model node operations use layer effect", category()};
+
     QtcSettings *settings = Core::ICore::settings();
     const Key layerEffectEntry = "QML/Designer/UseLayerEffect";
 
@@ -2018,6 +2206,8 @@ bool useLayerEffect()
 
 bool validateEffect(const QString &effectPath)
 {
+    NanotraceHR::Tracer tracer{"model node operations validate effect", category()};
+
     const QString effectName = QFileInfo(effectPath).baseName();
     Utils::FilePath effectsResDir = ModelNodeOperations::getEffectsImportDirectory();
     Utils::FilePath qmlPath = effectsResDir.resolvePath(effectName + "/" + effectName + ".qml");
@@ -2038,6 +2228,8 @@ bool validateEffect(const QString &effectPath)
 
 Utils::FilePath getImagesDefaultDirectory()
 {
+    NanotraceHR::Tracer tracer{"model node operations get images default directory", category()};
+
     return Utils::FilePath::fromString(getAssetDefaultDirectory(
         "images",
         QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toUrlishString()));
@@ -2045,6 +2237,8 @@ Utils::FilePath getImagesDefaultDirectory()
 
 FilePath getImported3dDefaultDirectory()
 {
+    NanotraceHR::Tracer tracer{"model node operations get imported 3d default directory", category()};
+
     return Utils::FilePath::fromString(getAssetDefaultDirectory(
         "3d",
         QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toUrlishString()));
@@ -2052,16 +2246,22 @@ FilePath getImported3dDefaultDirectory()
 
 void jumpToCode(const ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"model node operations jump to code", category()};
+
     QmlDesignerPlugin::instance()->viewManager().jumpToCodeInTextEditor(modelNode);
 }
 
 void jumpToCodeOperation(const SelectionContext &selectionState)
 {
+    NanotraceHR::Tracer tracer{"model node operations jump to code operation", category()};
+
     jumpToCode(selectionState.currentSingleSelectedNode());
 }
 
 static bool moveNodeToParent(const NodeAbstractProperty &targetProperty, const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"model node operations move node to parent", category()};
+
     NodeAbstractProperty parentProp = targetProperty.parentProperty();
     if (parentProp.isValid()) {
         ModelNode targetModel = parentProp.parentModelNode();
@@ -2073,6 +2273,8 @@ static bool moveNodeToParent(const NodeAbstractProperty &targetProperty, const M
 
 ModelNode createTextureNode(AbstractView *view, const QString &imagePath)
 {
+    NanotraceHR::Tracer tracer{"model node operations create texture node", category()};
+
     QTC_ASSERT(view, return {});
 
     CreateTexture textureCreator(view);
@@ -2084,6 +2286,8 @@ bool dropAsImage3dTexture(const ModelNode &targetNode,
                           ModelNode &newNode,
                           bool &outMoveNodesAfter)
 {
+    NanotraceHR::Tracer tracer{"model node operations drop as image 3d texture", category()};
+
     AbstractView *view = targetNode.view();
     QTC_ASSERT(view, return {});
 
@@ -2167,6 +2371,8 @@ bool dropAsImage3dTexture(const ModelNode &targetNode,
 
 ModelNode handleItemLibraryEffectDrop(const QString &effectPath, const ModelNode &targetNode)
 {
+    NanotraceHR::Tracer tracer{"model node operations handle item library effect drop", category()};
+
     AbstractView *view = targetNode.view();
     QTC_ASSERT(view, return {});
 
@@ -2191,6 +2397,8 @@ ModelNode handleItemLibraryEffectDrop(const QString &effectPath, const ModelNode
 ModelNode handleImported3dAssetDrop(const QString &assetPath, const ModelNode &targetNode,
                                     const QVector3D &position)
 {
+    NanotraceHR::Tracer tracer{"model node operations handle imported 3d asset drop", category()};
+
     AbstractView *view = targetNode.view();
     QTC_ASSERT(view, return {});
     QTC_ASSERT(targetNode.isValid(), return {});
@@ -2220,6 +2428,8 @@ ModelNode handleImported3dAssetDrop(const QString &assetPath, const ModelNode &t
 
 void handleTextureDrop(const QMimeData *mimeData, const ModelNode &targetModelNode)
 {
+    NanotraceHR::Tracer tracer{"model node operations handle texture drop", category()};
+
     AbstractView *view = targetModelNode.view();
     QTC_ASSERT(view, return );
 
@@ -2254,6 +2464,8 @@ void handleTextureDrop(const QMimeData *mimeData, const ModelNode &targetModelNo
 
 void handleMaterialDrop(const QMimeData *mimeData, const ModelNode &targetNode)
 {
+    NanotraceHR::Tracer tracer{"model node operations handle material drop", category()};
+
     AbstractView *view = targetNode.view();
     QTC_ASSERT(view, return );
 
@@ -2273,6 +2485,8 @@ ModelNode handleItemLibraryImageDrop(const QString &imagePath,
                                      const ModelNode &targetNode,
                                      bool &outMoveNodesAfter)
 {
+    NanotraceHR::Tracer tracer{"model node operations handle item library image drop", category()};
+
     AbstractView *view = targetNode.view();
     QTC_ASSERT(view, return {});
 
@@ -2325,6 +2539,8 @@ ModelNode handleItemLibraryFontDrop(const QString &fontFamily,
                                     NodeAbstractProperty targetProperty,
                                     const ModelNode &targetNode)
 {
+    NanotraceHR::Tracer tracer{"model node operations handle item library font drop", category()};
+
     AbstractView *view = targetNode.view();
     QTC_ASSERT(view, return {});
 
@@ -2357,6 +2573,8 @@ ModelNode handleItemLibraryShaderDrop(const QString &shaderPath,
                                       const ModelNode &targetNode,
                                       bool &outMoveNodesAfter)
 {
+    NanotraceHR::Tracer tracer{"model node operations handle item library shader drop", category()};
+
     AbstractView *view = targetNode.view();
     QTC_ASSERT(view, return {});
 
@@ -2413,6 +2631,8 @@ ModelNode handleItemLibrarySoundDrop(const QString &soundPath,
                                      NodeAbstractProperty targetProperty,
                                      const ModelNode &targetNode)
 {
+    NanotraceHR::Tracer tracer{"model node operations handle item library sound drop", category()};
+
     AbstractView *view = targetNode.view();
     QTC_ASSERT(view, return {});
 
@@ -2455,6 +2675,9 @@ ModelNode handleItemLibraryTexture3dDrop(const QString &tex3DPath,
                                          const ModelNode &targetNode,
                                          bool &outMoveNodesAfter)
 {
+    NanotraceHR::Tracer tracer{"model node operations handle item library texture 3d drop",
+                               category()};
+
     AbstractView *view = targetNode.view();
     QTC_ASSERT(view, return {});
 

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "designericons.h"
+#include "componentcoretracing.h"
 
 #include <invalidargumentexception.h>
 
@@ -13,8 +14,12 @@
 #include <QMetaEnum>
 #include <QRegularExpression>
 
-using namespace QmlDesigner;
-namespace { // Blank namespace
+namespace QmlDesigner {
+
+using ComponentCoreTracing::category;
+using NanotraceHR::keyValue;
+
+namespace {
 
 template <typename EType>
 struct DesignerIconEnums
@@ -260,20 +265,19 @@ void jsonParseErrorOffset(int &line,
     errorFile.close();
 }
 
-} // End of blank namespace
+} // namespace
 
-class QmlDesigner::DesignerIconsPrivate
+class QmlDesigner::DesignerIcons::Private
 {
 public:
-    DesignerIconsPrivate(const QString &fontName)
-        : mFontName(fontName) {}
+    Private(const QString &fontName)
+        : mFontName(fontName)
+    {}
 
     QString mFontName;
     DesignerIcons::IconsMap icons;
-    static QCache<QString, DesignerIcons::IconsMap> cache;
+    inline static QCache<QString, DesignerIcons::IconsMap> cache{100};
 };
-
-QCache<QString, DesignerIcons::IconsMap> DesignerIconsPrivate::cache(100);
 
 IconFontHelper::IconFontHelper(Theme::Icon themeIcon,
                                Theme::Color color,
@@ -283,10 +287,14 @@ IconFontHelper::IconFontHelper(Theme::Icon themeIcon,
     : Super(Theme::getIconUnicode(themeIcon), Theme::getColor(color), size, mode, state)
     , mThemeIcon(themeIcon)
     , mThemeColor(color)
-{}
+{
+    NanotraceHR::Tracer tracer{"icon font helper constructor", category()};
+}
 
 IconFontHelper IconFontHelper::fromJson(const QJsonObject &jsonObject)
 {
+    NanotraceHR::Tracer tracer{"icon font helper from json", category()};
+
     try {
         Theme::Icon iconName = jsonSafeMetaEnum<Theme::Icon>(jsonObject);
         Theme::Color iconColor = jsonSafeMetaEnum<Theme::Color>(jsonObject);
@@ -302,6 +310,8 @@ IconFontHelper IconFontHelper::fromJson(const QJsonObject &jsonObject)
 
 QJsonObject IconFontHelper::toJson() const
 {
+    NanotraceHR::Tracer tracer{"icon font helper to json", category()};
+
     QJsonObject jsonObject;
     pushSimpleEnumValue(jsonObject, themeIcon());
     pushSimpleEnumValue(jsonObject, themeColor());
@@ -313,11 +323,15 @@ QJsonObject IconFontHelper::toJson() const
 
 Theme::Icon IconFontHelper::themeIcon() const
 {
+    NanotraceHR::Tracer tracer{"icon font helper theme icon", category()};
+
     return mThemeIcon;
 }
 
 Theme::Color IconFontHelper::themeColor() const
 {
+    NanotraceHR::Tracer tracer{"icon font helper theme color", category()};
+
     return mThemeColor;
 }
 
@@ -325,24 +339,32 @@ IconFontHelper::IconFontHelper()
     : IconFontHelper({}, {}, {}, {}, {}) {}
 
 DesignerIcons::DesignerIcons(const QString &fontName, const QString &iconDatabase)
-    : d(new DesignerIconsPrivate(fontName))
+    : d(new Private(fontName))
 {
+    NanotraceHR::Tracer tracer{"designer icons constructor", category()};
+
     if (iconDatabase.size())
         loadIconSettings(iconDatabase);
 }
 
 DesignerIcons::~DesignerIcons()
 {
+    NanotraceHR::Tracer tracer{"designer icons destructor", category()};
+
     delete d;
 }
 
 QIcon DesignerIcons::icon(IconId icon, Area area) const
 {
+    NanotraceHR::Tracer tracer{"designer icons icon", category()};
+
     return Utils::StyleHelper::getIconFromIconFont(d->mFontName, helperList(icon, area));
 }
 
 void DesignerIcons::loadIconSettings(const QString &fileName)
 {
+    NanotraceHR::Tracer tracer{"designer icons load icon settings", category()};
+
     if (d->cache.contains(fileName)) {
         d->icons = *d->cache.object(fileName);
         return;
@@ -412,6 +434,8 @@ void DesignerIcons::loadIconSettings(const QString &fileName)
 
 void DesignerIcons::exportSettings(const QString &fileName) const
 {
+    NanotraceHR::Tracer tracer{"designer icons export settings", category()};
+
     QFile outFile(fileName);
     if (!outFile.open(QFile::WriteOnly)) {
         qWarning() << Q_FUNC_INFO << __LINE__ << "Can not open file for writing:" << fileName;
@@ -427,11 +451,15 @@ void DesignerIcons::exportSettings(const QString &fileName) const
 
 void DesignerIcons::clearAll()
 {
+    NanotraceHR::Tracer tracer{"designer icons clear all", category()};
+
     d->icons.clear();
 }
 
 void DesignerIcons::addIcon(const IconId &iconId, const Area &area, const IconFontHelper &fontHelper)
 {
+    NanotraceHR::Tracer tracer{"designer icons add icon", category()};
+
     AreaMap &areaMap = d->icons[iconId];
     IconMap &iconMap = areaMap[area];
     ModeMap &modeMap = iconMap[static_cast<State>(fontHelper.state())];
@@ -446,16 +474,22 @@ void DesignerIcons::addIcon(IconId iconId,
                             Theme::Color color,
                             const QSize &size)
 {
+    NanotraceHR::Tracer tracer{"designer icons add icon", category()};
+
     addIcon(iconId, area, {themeIcon, color, size, mode, state});
 }
 
 void DesignerIcons::addIcon(IconId iconId, Area area, Theme::Icon themeIcon, Theme::Color color, const QSize &size)
 {
+    NanotraceHR::Tracer tracer{"designer icons add icon", category()};
+
     addIcon(iconId, area, {themeIcon, color, size});
 }
 
 QIcon DesignerIcons::rotateIcon(const QIcon &icon, const double &degrees)
 {
+    NanotraceHR::Tracer tracer{"designer icons rotate icon", category()};
+
     QIcon result;
     const QMetaEnum &modeMetaEnum = DesignerIconEnums<QIcon::Mode>().metaEnum;
     const QMetaEnum &stateMetaEnum = DesignerIconEnums<QIcon::State>().metaEnum;
@@ -484,6 +518,8 @@ QIcon DesignerIcons::rotateIcon(const QIcon &icon, const double &degrees)
 QList<Utils::StyleHelper::IconFontHelper> DesignerIcons::helperList(const IconId &iconId,
                                                                     const Area &area) const
 {
+    NanotraceHR::Tracer tracer{"designer icons helper list", category()};
+
     QList<Utils::StyleHelper::IconFontHelper> helperList;
     const IconMap &iconMap = d->icons.value(iconId).value(area);
     for (const ModeMap &modMap : iconMap) {
@@ -492,3 +528,5 @@ QList<Utils::StyleHelper::IconFontHelper> DesignerIcons::helperList(const IconId
     }
     return helperList;
 }
+
+} // namespace QmlDesigner

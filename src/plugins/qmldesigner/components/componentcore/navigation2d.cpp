@@ -1,6 +1,9 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #include "navigation2d.h"
+#include "componentcoretracing.h"
+
 #include <utils/hostosinfo.h>
 #include <designersettings.h>
 #include <qmldesignerplugin.h>
@@ -14,8 +17,13 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
+
 void Navigation2dFilter::scroll(const QPointF &direction, QScrollBar *sbx, QScrollBar *sby)
 {
+    NanotraceHR::Tracer tracer{"navigation 2d filter scroll", category()};
+
     auto doScroll = [](QScrollBar *sb, float distance) {
         if (sb) {
             // max - min + pageStep = sceneRect.size * scale
@@ -34,6 +42,8 @@ void Navigation2dFilter::scroll(const QPointF &direction, QScrollBar *sbx, QScro
 Navigation2dFilter::Navigation2dFilter(QWidget *parent)
     : QObject(parent)
 {
+    NanotraceHR::Tracer tracer{"navigation 2d filter constructor", category()};
+
     if (parent)
         parent->grabGesture(Qt::PinchGesture);
 }
@@ -50,6 +60,8 @@ bool Navigation2dFilter::eventFilter(QObject *object, QEvent *event)
 
 bool Navigation2dFilter::gestureEvent(QGestureEvent *event)
 {
+    NanotraceHR::Tracer tracer{"navigation 2d filter gesture event", category()};
+
     if (QPinchGesture *pinch = static_cast<QPinchGesture *>(event->gesture(Qt::PinchGesture))) {
         QPinchGesture::ChangeFlags changeFlags = pinch->changeFlags();
         if (changeFlags.testFlag(QPinchGesture::ScaleFactorChanged)) {
@@ -63,6 +75,8 @@ bool Navigation2dFilter::gestureEvent(QGestureEvent *event)
 
 bool Navigation2dFilter::wheelEvent(QWheelEvent *event)
 {
+    NanotraceHR::Tracer tracer{"navigation 2d filter wheel event", category()};
+
     bool isMac = Utils::HostOsInfo::isMacHost();
     bool controlPressed = event->modifiers().testFlag(Qt::ControlModifier);
 

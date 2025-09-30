@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "zoomaction.h"
+#include "componentcoretracing.h"
 #include "formeditorwidget.h"
+
 #include <algorithm>
 #include <iterator>
 #include <utility>
@@ -18,34 +20,35 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
+
 // Order matters!
 std::array<double, 27> ZoomAction::m_zooms = {
     0.01, 0.02, 0.05, 0.0625, 0.1, 0.125, 0.2, 0.25, 0.33, 0.5,  0.66, 0.75, 0.9,
     1.0, 1.1, 1.25, 1.33, 1.5, 1.66, 1.75, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0, 16.0
 };
 
-bool isValidIndex(int index)
-{
-    if (index >= 0 && index < static_cast<int>(ZoomAction::zoomLevels().size()))
-        return true;
-
-    return false;
-}
-
 ZoomAction::ZoomAction(QObject *parent)
     : QWidgetAction(parent)
     , m_combo(nullptr)
 {
+    NanotraceHR::Tracer tracer{"zoom action constructor", category()};
+
     m_index = indexOf(1.0);
 }
 
 std::array<double, 27> ZoomAction::zoomLevels()
 {
+    NanotraceHR::Tracer tracer{"zoom action zoom levels", category()};
+
     return m_zooms;
 }
 
 int ZoomAction::indexOf(double zoom)
 {
+    NanotraceHR::Tracer tracer{"zoom action index of", category(), keyValue("zoom", zoom)};
+
     auto finder = [zoom](double val) { return qFuzzyCompare(val, zoom); };
     if (auto iter = std::ranges::find_if(m_zooms, finder); iter != m_zooms.end())
         return static_cast<int>(std::distance(m_zooms.begin(), iter));
@@ -55,6 +58,8 @@ int ZoomAction::indexOf(double zoom)
 
 void ZoomAction::setZoomFactor(double zoom)
 {
+    NanotraceHR::Tracer tracer{"zoom action set zoom factor", category(), keyValue("zoom", zoom)};
+
     if (int index = indexOf(zoom); index >= 0) {
         emitZoomLevelChanged(index);
         if (m_combo) {
@@ -74,6 +79,8 @@ void ZoomAction::setZoomFactor(double zoom)
 
 double ZoomAction::setNextZoomFactor(double zoom)
 {
+    NanotraceHR::Tracer tracer{"zoom action set next zoom factor", category(), keyValue("zoom", zoom)};
+
     if (zoom >= m_zooms.back())
         return zoom;
 
@@ -89,6 +96,10 @@ double ZoomAction::setNextZoomFactor(double zoom)
 
 double ZoomAction::setPreviousZoomFactor(double zoom)
 {
+    NanotraceHR::Tracer tracer{"zoom action set previous zoom factor",
+                               category(),
+                               keyValue("zoom", zoom)};
+
     if (zoom <= m_zooms.front())
         return zoom;
 
@@ -107,16 +118,21 @@ double ZoomAction::setPreviousZoomFactor(double zoom)
 
 int ZoomAction::currentIndex() const
 {
+    NanotraceHR::Tracer tracer{"zoom action current index", category()};
+
     return m_index;
 }
 
-bool parentIsToolBar(QWidget *parent)
+static bool parentIsToolBar(QWidget *parent)
 {
+    NanotraceHR::Tracer tracer{"zoom action check parent is toolbar", category()};
+
     return qobject_cast<QToolBar *>(parent) != nullptr;
 }
 
-QComboBox *createZoomComboBox(QWidget *parent)
+static QComboBox *createZoomComboBox(QWidget *parent)
 {
+    NanotraceHR::Tracer tracer{"zoom action create zoom combo box", category()};
     auto *combo = new QComboBox(parent);
     for (double z : ZoomAction::zoomLevels()) {
         const QString name = QString::number(z * 100., 'g', 4) + " %";
@@ -127,6 +143,8 @@ QComboBox *createZoomComboBox(QWidget *parent)
 
 QWidget *ZoomAction::createWidget(QWidget *parent)
 {
+    NanotraceHR::Tracer tracer{"zoom action create widget", category()};
+
     if (!m_combo && parentIsToolBar(parent)) {
         m_combo = createZoomComboBox(parent);
         m_combo->setProperty(Utils::StyleHelper::C_HIDE_BORDER, true);
@@ -143,6 +161,10 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
 
 void ZoomAction::emitZoomLevelChanged(int index)
 {
+    NanotraceHR::Tracer tracer{"zoom action emit zoom level changed",
+                               category(),
+                               keyValue("index", index)};
+
     if (index >= 0 && index < static_cast<int>(m_zooms.size()))
         emit zoomLevelChanged(m_zooms[static_cast<size_t>(index)]);
 }

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "utils3d.h"
+#include "componentcoretracing.h"
 
 #include <auxiliarydataproperties.h>
 #include <designmodewidget.h>
@@ -30,13 +31,18 @@
 namespace QmlDesigner {
 namespace Utils3D {
 
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
+
 namespace {
 
 std::tuple<QString, Storage::ModuleKind> nodeModuleInfo(const ModelNode &node, Model *model)
 {
-    using Storage::ModuleKind;
+    NanotraceHR::Tracer tracer{"utils 3d node module info", category(), keyValue("node", node)};
+
     using Storage::Info::ExportedTypeName;
     using Storage::Module;
+    using Storage::ModuleKind;
 
     ExportedTypeName exportedName = node.exportedTypeName();
     if (exportedName.moduleId) {
@@ -51,6 +57,8 @@ std::tuple<QString, Storage::ModuleKind> nodeModuleInfo(const ModelNode &node, M
 
 ModelNode active3DSceneNode(AbstractView *view)
 {
+    NanotraceHR::Tracer tracer{"utils 3d active 3d scene node", category()};
+
     if (!view)
         return {};
 
@@ -67,6 +75,8 @@ ModelNode active3DSceneNode(AbstractView *view)
 
 qint32 active3DSceneId(Model *model)
 {
+    NanotraceHR::Tracer tracer{"utils 3d active 3d scene id", category()};
+
     auto sceneId = model->rootModelNode().auxiliaryData(active3dSceneProperty);
     if (sceneId)
         return sceneId->toInt();
@@ -75,12 +85,16 @@ qint32 active3DSceneId(Model *model)
 
 ModelNode materialLibraryNode(AbstractView *view)
 {
+    NanotraceHR::Tracer tracer{"utils 3d material library node", category()};
+
     return view->modelNodeForId(Constants::MATERIAL_LIB_ID);
 }
 
 // Creates material library if it doesn't exist and moves any existing materials and textures into it.
 void ensureMaterialLibraryNode(AbstractView *view)
 {
+    NanotraceHR::Tracer tracer{"utils 3d ensure material library node", category()};
+
     ModelNode matLib = view->modelNodeForId(Constants::MATERIAL_LIB_ID);
     if (matLib.isValid()
         || (!view->rootModelNode().metaInfo().isQtQuick3DNode()
@@ -123,6 +137,10 @@ void ensureMaterialLibraryNode(AbstractView *view)
 
 bool isPartOfMaterialLibrary(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"utils 3d is part of material library",
+                               category(),
+                               keyValue("node", node)};
+
     if (!node.isValid())
         return false;
 
@@ -135,6 +153,10 @@ bool isPartOfMaterialLibrary(const ModelNode &node)
 
 QHash<ModelNode, QSet<ModelNode>> allBoundMaterialsAndTextures(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"utils 3d all bound materials and textures",
+                               category(),
+                               keyValue("node", node)};
+
     auto model = node.model();
     const QList<ModelNode> allNodes = node.allSubModelNodesAndThisNode();
 
@@ -174,6 +196,10 @@ void createMatLibForFile(const QString &fileName,
                          const QHash<ModelNode, QSet<ModelNode>> &matAndTexNodes,
                          AbstractView *view)
 {
+    NanotraceHR::Tracer tracer{"utils 3d create mat lib for file",
+                               category(),
+                               keyValue("file name", fileName)};
+
     if (!view || !view->model() || fileName.isEmpty() || matAndTexNodes.isEmpty())
         return;
 
@@ -278,6 +304,8 @@ void createMatLibForFile(const QString &fileName,
 
 ModelNode getTextureDefaultInstance(const QString &source, AbstractView *view)
 {
+    NanotraceHR::Tracer tracer{"utils 3d get texture default instance", category()};
+
     ModelNode matLib = materialLibraryNode(view);
     if (!matLib.isValid())
         return {};
@@ -301,6 +329,8 @@ ModelNode getTextureDefaultInstance(const QString &source, AbstractView *view)
 
 ModelNode activeView3dNode(AbstractView *view)
 {
+    NanotraceHR::Tracer tracer{"utils 3d active view 3d node", category()};
+
     if (!view || !view->model())
         return {};
 
@@ -323,6 +353,8 @@ ModelNode activeView3dNode(AbstractView *view)
 
 QString activeView3dId(AbstractView *view)
 {
+    NanotraceHR::Tracer tracer{"utils 3d active view 3d id", category()};
+
     ModelNode activeView3D = activeView3dNode(view);
 
     if (activeView3D.isValid())
@@ -333,6 +365,11 @@ QString activeView3dId(AbstractView *view)
 
 ModelNode getMaterialOfModel(const ModelNode &model, int idx)
 {
+    NanotraceHR::Tracer tracer{"utils 3d get material of model",
+                               category(),
+                               keyValue("node", model),
+                               keyValue("index", idx)};
+
     QTC_ASSERT(model.isValid(), return {});
 
     QmlObjectNode qmlObjNode(model);
@@ -353,6 +390,8 @@ ModelNode getMaterialOfModel(const ModelNode &model, int idx)
 
 QList<ModelNode> getSelectedModels(AbstractView *view)
 {
+    NanotraceHR::Tracer tracer{"utils 3d get selected models", category()};
+
     if (!view || !view->model())
         return {};
 
@@ -363,6 +402,8 @@ QList<ModelNode> getSelectedModels(AbstractView *view)
 
 QList<ModelNode> getSelectedTextures(AbstractView *view)
 {
+    NanotraceHR::Tracer tracer{"utils 3d get selected textures", category()};
+
     if (!view || !view->model())
         return {};
 
@@ -373,6 +414,8 @@ QList<ModelNode> getSelectedTextures(AbstractView *view)
 
 QList<ModelNode> getSelectedMaterials(AbstractView *view)
 {
+    NanotraceHR::Tracer tracer{"utils 3d get selected materials", category()};
+
     if (!view || !view->model())
         return {};
 
@@ -384,6 +427,8 @@ QList<ModelNode> getSelectedMaterials(AbstractView *view)
 void applyMaterialToModels(AbstractView *view, const ModelNode &material,
                            const QList<ModelNode> &models, bool add)
 {
+    NanotraceHR::Tracer tracer{"utils 3d apply material to models", category()};
+
     if (models.isEmpty() || !view)
         return;
 
@@ -407,6 +452,8 @@ void applyMaterialToModels(AbstractView *view, const ModelNode &material,
 
 ModelNode resolveSceneEnv(AbstractView *view, int sceneId)
 {
+    NanotraceHR::Tracer tracer{"utils 3d resolve scene env", category()};
+
     ModelNode activeSceneEnv;
     ModelNode selectedNode = view->firstSelectedModelNode();
 
@@ -433,6 +480,11 @@ ModelNode resolveSceneEnv(AbstractView *view, int sceneId)
 
 void assignTextureAsLightProbe(AbstractView *view, const ModelNode &texture, int sceneId)
 {
+    NanotraceHR::Tracer tracer{"utils 3d assign texture as light probe",
+                               category(),
+                               keyValue("texture", texture),
+                               keyValue("sceneId", sceneId)};
+
     ModelNode sceneEnvNode = resolveSceneEnv(view, sceneId);
     QmlObjectNode sceneEnv = sceneEnvNode;
     if (sceneEnv.isValid()) {
@@ -445,6 +497,8 @@ void assignTextureAsLightProbe(AbstractView *view, const ModelNode &texture, int
 // This method should be executed within a transaction as it performs multiple modifications to the model
 ModelNode createMaterial(AbstractView *view, const TypeName &typeName)
 {
+    NanotraceHR::Tracer tracer{"utils 3d create material", category(), keyValue("type name", typeName)};
+
     ModelNode matLib = Utils3D::materialLibraryNode(view);
     if (!matLib.isValid() || !typeName.size())
         return {};
@@ -469,11 +523,16 @@ ModelNode createMaterial(AbstractView *view, const TypeName &typeName)
 
 bool addQuick3DImportAndView3D(AbstractView *view, bool suppressWarningDialog)
 {
+    NanotraceHR::Tracer tracer{"utils 3d add quick 3d import and view 3d",
+                               category(),
+                               keyValue("suppress warning dialog", suppressWarningDialog)};
+
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     if (!view || !view->model() || !document || document->inFileComponentModelActive()) {
         if (!suppressWarningDialog) {
-            Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Import"),
-                                                  Tr::tr("Could not add QtQuick3D import to the document."));
+            Core::AsynchronousMessageBox::warning(
+                Tr::tr("Failed to Add Import"),
+                Tr::tr("Could not add QtQuick3D import to the document."));
         }
         return false;
     }
@@ -506,8 +565,11 @@ bool addQuick3DImportAndView3D(AbstractView *view, bool suppressWarningDialog)
             return;
 
         NodeAbstractProperty targetProp = view->rootModelNode().defaultNodeAbstractProperty();
-        QmlObjectNode newQmlObjectNode = QmlItemNode::createQmlObjectNode(
-            view, *iter, QPointF(), targetProp, false);
+        QmlObjectNode newQmlObjectNode = QmlItemNode::createQmlObjectNode(view,
+                                                                          *iter,
+                                                                          QPointF(),
+                                                                          targetProp,
+                                                                          false);
 
         const QList<ModelNode> models = newQmlObjectNode.modelNode().subModelNodesOfType(
             view->model()->qtQuick3DModelMetaInfo());
@@ -526,6 +588,11 @@ bool addQuick3DImportAndView3D(AbstractView *view, bool suppressWarningDialog)
 void assignMaterialTo3dModel(AbstractView *view, const ModelNode &modelNode,
                              const ModelNode &materialNode)
 {
+    NanotraceHR::Tracer tracer{"utils 3d assign material to 3d model",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("material node", materialNode)};
+
     QTC_ASSERT(modelNode.metaInfo().isQtQuick3DModel(), return);
 
     ModelNode matLib = Utils3D::materialLibraryNode(view);
@@ -569,6 +636,8 @@ void assignMaterialTo3dModel(AbstractView *view, const ModelNode &modelNode,
 
 ModelNode createMaterial(AbstractView *view)
 {
+    NanotraceHR::Tracer tracer{"utils 3d create material", category()};
+
     QTC_ASSERT(view && view->model(), return {});
 
     ModelNode newMatNode;
@@ -588,12 +657,21 @@ ModelNode createMaterial(AbstractView *view)
 
 void renameMaterial(const ModelNode &material, const QString &newName)
 {
+    NanotraceHR::Tracer tracer{"utils 3d rename material",
+                               category(),
+                               keyValue("material", material),
+                               keyValue("new name", newName)};
+
     QTC_ASSERT(material, return);
     QmlObjectNode(material).setNameAndId(newName, "material");
 }
 
 void duplicateMaterial(AbstractView *view, const ModelNode &material)
 {
+    NanotraceHR::Tracer tracer{"utils 3d duplicate material",
+                               category(),
+                               keyValue("material", material)};
+
     QTC_ASSERT(view && view->model() && material, return);
 
     TypeName matType = material.type();
@@ -605,7 +683,7 @@ void duplicateMaterial(AbstractView *view, const ModelNode &material)
         ModelNode matLib = Utils3D::materialLibraryNode(view);
         QTC_ASSERT(matLib.isValid(), return);
 
-// create the duplicate material
+        // create the duplicate material
         QmlObjectNode duplicateMat = view->createModelNode(matType);
 
         duplicateMatNode = duplicateMat.modelNode();
@@ -679,6 +757,10 @@ void duplicateMaterial(AbstractView *view, const ModelNode &material)
 
 void openNodeInPropertyEditor(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"utils 3d open node in property editor",
+                               category(),
+                               keyValue("node", node)};
+
     using namespace Qt::StringLiterals;
     QTC_ASSERT(node, return);
     const auto mainWidget = QmlDesignerPlugin::instance()->mainWidget();
@@ -694,6 +776,8 @@ bool hasImported3dType(AbstractView *view,
                        const AbstractView::ExportedTypeNames &added,
                        const AbstractView::ExportedTypeNames &removed)
 {
+    NanotraceHR::Tracer tracer{"utils 3d has imported 3d type", category()};
+
     QTC_ASSERT(view && view->model(), return false);
 
     using Storage::Info::ExportedTypeName;
@@ -711,6 +795,8 @@ bool hasImported3dType(AbstractView *view,
 
 void handle3DDrop(AbstractView *view, const ModelNode &dropNode)
 {
+    NanotraceHR::Tracer tracer{"utils 3d handle 3d drop", category(), keyValue("node", dropNode)};
+
     // If a View3D or 3D Model is dropped, we need to assign material to the model
 
     NodeMetaInfo model3DInfo = view->model()->qtQuick3DModelMetaInfo();

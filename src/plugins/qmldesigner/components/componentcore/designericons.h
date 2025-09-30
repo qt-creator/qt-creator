@@ -11,7 +11,6 @@
 
 namespace QmlDesigner {
 
-class DesignerIconsPrivate;
 
 class IconFontHelper : public Utils::StyleHelper::IconFontHelper
 {
@@ -39,7 +38,8 @@ private:
 class DesignerIcons
 {
     Q_GADGET
-    friend DesignerIconsPrivate;
+    class Private;
+    friend Private;
 
 public:
     enum IconId {
@@ -177,7 +177,7 @@ private:
     QList<Utils::StyleHelper::IconFontHelper> helperList(const IconId &iconId,
                                                          const Area &area) const;
 
-    DesignerIconsPrivate *d = nullptr;
+    Private *d = nullptr;
 };
 
 }

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "propertycomponentgenerator.h"
+#include "componentcoretracing.h"
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -18,10 +19,16 @@ using namespace Qt::StringLiterals;
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
+
 namespace {
 
 QmlJS::SimpleReaderNode::Ptr createTemplateConfiguration(const QString &propertyEditorResourcesPath)
 {
+    NanotraceHR::Tracer tracer{"property component generator create template configuration",
+                               category()};
+
     QmlJS::SimpleReader reader;
     const QString fileName = propertyEditorResourcesPath + u"/PropertyTemplates/TemplateTypes.qml";
     auto templateConfiguration = reader.readFile(fileName);
@@ -35,6 +42,10 @@ QmlJS::SimpleReaderNode::Ptr createTemplateConfiguration(const QString &property
 template<typename Type>
 Type getProperty(const QmlJS::SimpleReaderNode *node, const QString &name)
 {
+    NanotraceHR::Tracer tracer{"property component generator get property",
+                               category(),
+                               keyValue("propertyName", name)};
+
     if (auto property = node->property(name)) {
         const auto &value = property.value;
         if (value.typeId() == QMetaType::QVariantList) {
@@ -51,6 +62,10 @@ Type getProperty(const QmlJS::SimpleReaderNode *node, const QString &name)
 
 QString getContent(const QString &path)
 {
+    NanotraceHR::Tracer tracer{"property component generator get content",
+                               category(),
+                               keyValue("path", path)};
+
     QFile file{path};
 
     if (file.open(QIODevice::ReadOnly))
@@ -64,6 +79,12 @@ QString generateComponentText(Utils::SmallStringView propertyName,
                               Utils::SmallStringView typeName,
                               bool needsTypeArg)
 {
+    NanotraceHR::Tracer tracer{"property component generator generate component text",
+                               category(),
+                               keyValue("propertyName", propertyName),
+                               keyValue("typeName", typeName),
+                               keyValue("needsTypeArg", needsTypeArg)};
+
     QString underscoreName{propertyName};
     underscoreName.replace('.', '_');
     if (needsTypeArg)
@@ -75,6 +96,8 @@ QString generateComponentText(Utils::SmallStringView propertyName,
 PropertyComponentGenerator::Property generate(const PropertyMetaInfo &property,
                                               const PropertyComponentGenerator::Entry &entry)
 {
+    NanotraceHR::Tracer tracer{"property component generator generate", category()};
+
     auto propertyName = property.name();
     auto component = generateComponentText(propertyName,
                                            entry.propertyTemplate,
@@ -95,6 +118,8 @@ std::optional<PropertyComponentGenerator::Entry> createEntry(QmlJS::SimpleReader
                                                              Model *model,
                                                              const QString &templatesPath)
 {
+    NanotraceHR::Tracer tracer{"property component generator create entry", category()};
+
     auto moduleName = getProperty<QByteArray>(node, "module");
     if (moduleName.isEmpty())
         return {};
@@ -133,6 +158,8 @@ std::optional<PropertyComponentGenerator::Entry> createEntry(QmlJS::SimpleReader
 std::tuple<PropertyComponentGenerator::Entries, bool> createEntries(
     QmlJS::SimpleReaderNode::Ptr templateConfiguration, Model *model, const QString &templatesPath)
 {
+    NanotraceHR::Tracer tracer{"property component generator create entries", category()};
+
     bool hasInvalidTemplates = false;
     PropertyComponentGenerator::Entries entries;
     entries.reserve(32);
@@ -150,6 +177,8 @@ std::tuple<PropertyComponentGenerator::Entries, bool> createEntries(
 
 QStringList createImports(QmlJS::SimpleReaderNode *templateConfiguration)
 {
+    NanotraceHR::Tracer tracer{"property component generator create imports", category()};
+
     auto property = templateConfiguration->property("imports");
     return Utils::transform<QStringList>(property.value.toList(), &QVariant::toString);
 }
@@ -161,12 +190,18 @@ PropertyComponentGenerator::PropertyComponentGenerator(const QString &propertyEd
     : m_templateConfiguration{createTemplateConfiguration(propertyEditorResourcesPath)}
     , m_propertyTemplatesPath{propertyEditorResourcesPath + "/PropertyTemplates/"}
 {
+    NanotraceHR::Tracer tracer{"property component generator constructor",
+                               category(),
+                               keyValue("propertyEditorResourcesPath", propertyEditorResourcesPath)};
+
     setModel(model);
     m_imports = createImports(m_templateConfiguration.get());
 }
 
 PropertyComponentGenerator::Property PropertyComponentGenerator::create(const PropertyMetaInfo &property) const
 {
+    NanotraceHR::Tracer tracer{"property component generator create", category()};
+
     auto propertyType = property.propertyType();
     if (auto entry = findEntry(propertyType))
         return generate(property, *entry);
@@ -176,6 +211,8 @@ PropertyComponentGenerator::Property PropertyComponentGenerator::create(const Pr
 
 void PropertyComponentGenerator::setModel(Model *model)
 {
+    NanotraceHR::Tracer tracer{"property component generator set model", category()};
+
     if (model && m_model && m_model->projectStorage() == model->projectStorage()) {
         m_model = model;
         return;
@@ -194,6 +231,8 @@ void PropertyComponentGenerator::setEntries(QmlJS::SimpleReaderNode::Ptr templat
                                             Model *model,
                                             const QString &propertyTemplatesPath)
 {
+    NanotraceHR::Tracer tracer{"property component generator set entries", category()};
+
     auto [entries, hasInvalidTemplates] = createEntries(templateConfiguration,
                                                         model,
                                                         propertyTemplatesPath);
@@ -206,6 +245,8 @@ void PropertyComponentGenerator::setEntries(QmlJS::SimpleReaderNode::Ptr templat
 
 void PropertyComponentGenerator::refreshMetaInfos(const TypeIds &deletedTypeIds)
 {
+    NanotraceHR::Tracer tracer{"property component generator refresh meta infos", category()};
+
     if (!Utils::set_has_common_element(deletedTypeIds, m_entryTypeIds) && !m_hasInvalidTemplates)
         return;
 
@@ -214,6 +255,8 @@ void PropertyComponentGenerator::refreshMetaInfos(const TypeIds &deletedTypeIds)
 
 const PropertyComponentGenerator::Entry *PropertyComponentGenerator::findEntry(const NodeMetaInfo &type) const
 {
+    NanotraceHR::Tracer tracer{"property component generator find entry", category()};
+
     auto found = std::ranges::find(m_entries, type, &Entry::type);
 
     if (found != m_entries.end())

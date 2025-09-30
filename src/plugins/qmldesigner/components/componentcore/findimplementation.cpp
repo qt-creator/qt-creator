@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "findimplementation.h"
+#include "componentcoretracing.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
@@ -17,172 +18,212 @@
 
 namespace {
 
-using namespace QmlJS;
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
 
-class FindImplementationVisitor: protected AST::Visitor
+class FindImplementationVisitor : protected QmlJS::AST::Visitor
 {
 public:
-    using Results = QList<SourceLocation>;
+    using Results = QList<QmlJS::SourceLocation>;
 
-    FindImplementationVisitor(const Document::Ptr &doc, const ContextPtr &context)
+    FindImplementationVisitor(const QmlJS::Document::Ptr &doc, const QmlJS::ContextPtr &context)
         : m_document(doc)
         , m_context(context)
         , m_scopeChain(doc, context)
         , m_scopeBuilder(&m_scopeChain)
     {
+        NanotraceHR::Tracer tracer{"find implementation visitor constructor", category()};
     }
 
-    Results operator()(const QString &name, const QString &itemId, const ObjectValue *typeValue)
+    Results operator()(const QString &name, const QString &itemId, const QmlJS::ObjectValue *typeValue)
     {
+        NanotraceHR::Tracer tracer{"find implementation visitor operator()", category()};
+
         m_typeName = name;
         m_itemId = itemId;
         m_typeValue = typeValue;
         m_implemenations.clear();
         if (m_document)
-            AST::Node::accept(m_document->ast(), this);
+            QmlJS::AST::Node::accept(m_document->ast(), this);
 
         m_implemenations.append(m_formLocation);
         return m_implemenations;
     }
 
 protected:
-    QString textAt(const SourceLocation &location)
+    QString textAt(const QmlJS::SourceLocation &location)
     {
+        NanotraceHR::Tracer tracer{"find implementation visitor text at", category()};
+
         return m_document->source().mid(location.offset, location.length);
     }
 
-    QString textAt(const SourceLocation &from,
-                   const SourceLocation &to)
+    QString textAt(const QmlJS::SourceLocation &from, const QmlJS::SourceLocation &to)
     {
+        NanotraceHR::Tracer tracer{"find implementation visitor text at", category()};
+
         return m_document->source().mid(from.offset, to.end() - from.begin());
     }
 
-    void accept(AST::Node *node) { AST::Node::accept(node, this); }
-
-    using AST::Visitor::visit;
-
-    bool visit(AST::UiPublicMember *node) override
+    void accept(QmlJS::AST::Node *node)
     {
-        if (node->memberType && node->memberType->name == m_typeName){
-            const ObjectValue * objectValue = m_context->lookupType(m_document.data(), QStringList(m_typeName));
+        NanotraceHR::Tracer tracer{"find implementation visitor accept", category()};
+
+        QmlJS::AST::Node::accept(node, this);
+    }
+
+    using QmlJS::AST::Visitor::visit;
+
+    bool visit(QmlJS::AST::UiPublicMember *node) override
+    {
+        NanotraceHR::Tracer tracer{"find implementation visitor visit ui public member", category()};
+
+        if (node->memberType && node->memberType->name == m_typeName) {
+            const QmlJS::ObjectValue *objectValue = m_context->lookupType(m_document.data(),
+                                                                          QStringList(m_typeName));
             if (objectValue == m_typeValue)
                 m_implemenations.append(node->typeToken);
         }
-        if (AST::cast<AST::Block *>(node->statement)) {
+        if (QmlJS::AST::cast<QmlJS::AST::Block *>(node->statement)) {
             m_scopeBuilder.push(node);
-            AST::Node::accept(node->statement, this);
+            QmlJS::AST::Node::accept(node->statement, this);
             m_scopeBuilder.pop();
             return false;
         }
         return true;
     }
 
-    bool visit(AST::UiObjectDefinition *node) override
+    bool visit(QmlJS::AST::UiObjectDefinition *node) override
     {
+        NanotraceHR::Tracer tracer{"find implementation visitor visit ui object definition",
+                                   category()};
+
         bool oldInside = m_insideObject;
         if (checkTypeName(node->qualifiedTypeNameId))
              m_insideObject = true;
 
         m_scopeBuilder.push(node);
-        AST::Node::accept(node->initializer, this);
+        QmlJS::AST::Node::accept(node->initializer, this);
         m_insideObject = oldInside;
         m_scopeBuilder.pop();
         return false;
     }
 
-    bool visit(AST::UiObjectBinding *node) override
+    bool visit(QmlJS::AST::UiObjectBinding *node) override
     {
+        NanotraceHR::Tracer tracer{"find implementation visitor visit ui object binding", category()};
+
         bool oldInside = m_insideObject;
         if (checkTypeName(node->qualifiedTypeNameId))
             m_insideObject = true;
 
         m_scopeBuilder.push(node);
-        AST::Node::accept(node->initializer, this);
+        QmlJS::AST::Node::accept(node->initializer, this);
 
         m_insideObject = oldInside;
         m_scopeBuilder.pop();
         return false;
     }
 
-    bool visit(AST::UiScriptBinding *node) override
+    bool visit(QmlJS::AST::UiScriptBinding *node) override
     {
+        NanotraceHR::Tracer tracer{"find implementation visitor visit ui script binding", category()};
+
         if (m_insideObject) {
             QStringList stringList = textAt(node->qualifiedId->firstSourceLocation(),
-                                            node->qualifiedId->lastSourceLocation()).split(QLatin1String("."));
+                                            node->qualifiedId->lastSourceLocation())
+                                         .split(QLatin1String("."));
             const QString itemid = stringList.isEmpty() ? QString() : stringList.constFirst();
 
             if (itemid == m_itemId) {
                 m_implemenations.append(node->statement->firstSourceLocation());
             }
-
         }
-        if (AST::cast<AST::Block *>(node->statement)) {
-            AST::Node::accept(node->qualifiedId, this);
+        if (QmlJS::AST::cast<QmlJS::AST::Block *>(node->statement)) {
+            QmlJS::AST::Node::accept(node->qualifiedId, this);
             m_scopeBuilder.push(node);
-            AST::Node::accept(node->statement, this);
+            QmlJS::AST::Node::accept(node->statement, this);
             m_scopeBuilder.pop();
             return false;
         }
         return true;
     }
 
-    bool visit(AST::TemplateLiteral *node) override
+    bool visit(QmlJS::AST::TemplateLiteral *node) override
     {
-        AST::Node::accept(node->expression, this);
+        NanotraceHR::Tracer tracer{"find implementation visitor visit template literal", category()};
+
+        QmlJS::AST::Node::accept(node->expression, this);
         return true;
     }
 
-    bool visit(AST::IdentifierExpression *node) override
+    bool visit(QmlJS::AST::IdentifierExpression *node) override
     {
+        NanotraceHR::Tracer tracer{"find implementation visitor visit identifier expression",
+                                   category()};
+
         if (node->name != m_typeName)
             return false;
 
-        const ObjectValue *scope;
-        const Value *objectValue = m_scopeChain.lookup(m_typeName, &scope);
+        const QmlJS::ObjectValue *scope;
+        const QmlJS::Value *objectValue = m_scopeChain.lookup(m_typeName, &scope);
         if (objectValue == m_typeValue)
             m_implemenations.append(node->identifierToken);
         return false;
     }
 
-    bool visit(AST::FieldMemberExpression *node) override
+    bool visit(QmlJS::AST::FieldMemberExpression *node) override
     {
+        NanotraceHR::Tracer tracer{"find implementation visitor visit field member expression",
+                                   category()};
+
         if (node->name != m_typeName)
             return true;
-        Evaluate evaluate(&m_scopeChain);
-        const Value *lhsValue = evaluate(node->base);
+        QmlJS::Evaluate evaluate(&m_scopeChain);
+        const QmlJS::Value *lhsValue = evaluate(node->base);
         if (!lhsValue)
             return true;
-        const ObjectValue *lhsObj = lhsValue->asObjectValue();
+        const QmlJS::ObjectValue *lhsObj = lhsValue->asObjectValue();
         if (lhsObj && lhsObj->lookupMember(m_typeName, m_context) == m_typeValue)
             m_implemenations.append(node->identifierToken);
         return true;
     }
 
-    bool visit(AST::FunctionDeclaration *node) override
+    bool visit(QmlJS::AST::FunctionDeclaration *node) override
     {
-        return visit(static_cast<AST::FunctionExpression *>(node));
+        NanotraceHR::Tracer tracer{"find implementation visitor visit function declaration",
+                                   category()};
+
+        return visit(static_cast<QmlJS::AST::FunctionExpression *>(node));
     }
 
-    bool visit(AST::FunctionExpression *node) override
+    bool visit(QmlJS::AST::FunctionExpression *node) override
     {
-        AST::Node::accept(node->formals, this);
+        NanotraceHR::Tracer tracer{"find implementation visitor visit function expression",
+                                   category()};
+
+        QmlJS::AST::Node::accept(node->formals, this);
         m_scopeBuilder.push(node);
-        AST::Node::accept(node->body, this);
+        QmlJS::AST::Node::accept(node->body, this);
         m_scopeBuilder.pop();
         return false;
     }
 
-    bool visit(AST::PatternElement *node) override
+    bool visit(QmlJS::AST::PatternElement *node) override
     {
-    if (node->isVariableDeclaration())
-            AST::Node::accept(node->initializer, this);
+        NanotraceHR::Tracer tracer{"find implementation visitor visit pattern element", category()};
+
+        if (node->isVariableDeclaration())
+            QmlJS::AST::Node::accept(node->initializer, this);
         return false;
     }
 
-    bool visit(AST::UiImport *ast) override
+    bool visit(QmlJS::AST::UiImport *ast) override
     {
+        NanotraceHR::Tracer tracer{"find implementation visitor visit ui import", category()};
+
         if (ast && ast->importId == m_typeName) {
-            const Imports *imp = m_context->imports(m_document.data());
+            const QmlJS::Imports *imp = m_context->imports(m_document.data());
             if (!imp)
                 return false;
             if (m_context->lookupType(m_document.data(), QStringList(m_typeName)) == m_typeValue)
@@ -193,14 +234,23 @@ protected:
 
     void throwRecursionDepthError() override
     {
-        qWarning("Warning: Hit maximum recursion depth while visiting AST in FindImplementationVisitor");
+        NanotraceHR::Tracer tracer{"find implementation visitor throw recursion depth error",
+                                   category()};
+
+        qWarning(
+            "Warning: Hit maximum recursion depth while visiting AST in FindImplementationVisitor");
     }
 private:
-    bool checkTypeName(AST::UiQualifiedId *id)
+    bool checkTypeName(QmlJS::AST::UiQualifiedId *id)
     {
-        for (AST::UiQualifiedId *qualifiedId = id; qualifiedId; qualifiedId = qualifiedId->next){
+        NanotraceHR::Tracer tracer{"find implementation visitor check type name", category()};
+
+        for (QmlJS::AST::UiQualifiedId *qualifiedId = id; qualifiedId;
+             qualifiedId = qualifiedId->next) {
             if (qualifiedId->name == m_typeName) {
-                const ObjectValue *objectValue = m_context->lookupType(m_document.data(), id, qualifiedId->next);
+                const QmlJS::ObjectValue *objectValue = m_context->lookupType(m_document.data(),
+                                                                              id,
+                                                                              qualifiedId->next);
                 if (m_typeValue == objectValue){
                     m_formLocation = qualifiedId->identifierToken;
                     return true;
@@ -211,16 +261,16 @@ private:
     }
 
     Results m_implemenations;
-    SourceLocation m_formLocation;
+    QmlJS::SourceLocation m_formLocation;
 
-    Document::Ptr m_document;
-    ContextPtr m_context;
-    ScopeChain m_scopeChain;
-    ScopeBuilder m_scopeBuilder;
+    QmlJS::Document::Ptr m_document;
+    QmlJS::ContextPtr m_context;
+    QmlJS::ScopeChain m_scopeChain;
+    QmlJS::ScopeBuilder m_scopeBuilder;
 
     QString m_typeName;
     QString m_itemId;
-    const ObjectValue *m_typeValue = nullptr;
+    const QmlJS::ObjectValue *m_typeValue = nullptr;
     bool m_insideObject = false;
 };
 
@@ -236,16 +286,24 @@ QString matchingLine(unsigned position, const QString &source)
 
 } //namespace
 
-
-FindImplementation::FindImplementation() = default;
+FindImplementation::FindImplementation()
+{
+    NanotraceHR::Tracer tracer{"find implementation constructor", category()};
+}
 
 QList<QmlJSEditor::FindReferences::Usage> FindImplementation::run(const QString &fileNameStr,
                                                                   const QString &typeName,
                                                                   const QString &itemName)
 {
+    NanotraceHR::Tracer tracer{"find implementation run",
+                               category(),
+                               keyValue("file", fileNameStr),
+                               keyValue("type", typeName),
+                               keyValue("item", itemName)};
+
     QList<QmlJSEditor::FindReferences::Usage> usages;
 
-    QmlJS::ModelManagerInterface *modelManager = ModelManagerInterface::instance();
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
     Utils::FilePath fileName = Utils::FilePath::fromString(fileNameStr);
 
     //Parse always the latest version of document
@@ -255,22 +313,23 @@ QList<QmlJSEditor::FindReferences::Usage> FindImplementation::run(const QString 
     if (documentUpdate->parseQml())
         modelManager->updateDocument(documentUpdate);
 
-    Document::Ptr document = modelManager->snapshot().document(fileName);
+    QmlJS::Document::Ptr document = modelManager->snapshot().document(fileName);
     if (!document)
         return usages;
 
     QmlJS::Link link(modelManager->snapshot(),
                      modelManager->defaultVContext(document->language(), document),
                      modelManager->builtins(document));
-    ContextPtr context = link();
-    ScopeChain scopeChain(document, context);
+    QmlJS::ContextPtr context = link();
+    QmlJS::ScopeChain scopeChain(document, context);
 
-    const ObjectValue *targetValue = scopeChain.context()->lookupType(document.data(), QStringList(typeName));
+    const QmlJS::ObjectValue *targetValue = scopeChain.context()->lookupType(document.data(),
+                                                                             QStringList(typeName));
 
     FindImplementationVisitor visitor(document, context);
 
     const FindImplementationVisitor::Results results = visitor(typeName, itemName, targetValue);
-    for (const SourceLocation &location : results) {
+    for (const QmlJS::SourceLocation &location : results) {
         usages.append(QmlJSEditor::FindReferences::Usage(fileName,
                                                          matchingLine(location.offset, document->source()),
                                                          location.startLine, location.startColumn - 1, location.length));

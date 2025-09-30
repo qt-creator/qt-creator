@@ -2,13 +2,17 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "anchoraction.h"
+#include "componentcoretracing.h"
 #include "nodeabstractproperty.h"
 
 #include <modelnodeutils.h>
 #include <qmlanchors.h>
 #include <qmlitemnode.h>
 
-using namespace QmlDesigner;
+namespace QmlDesigner {
+
+using ComponentCoreTracing::category;
+using NanotraceHR::keyValue;
 
 namespace {
 const Utils::SmallString auxDataString("anchors_");
@@ -267,10 +271,22 @@ ParentAnchorAction::ParentAnchorAction(const QByteArray &id,
                       &SelectionContextFunctors::singleSelectedItem)
     , m_lineType(lineType)
 {
+    NanotraceHR::Tracer tracer{"parent anchor action constructor",
+                               ComponentCoreTracing::category(),
+                               keyValue("id", id),
+                               keyValue("description", description),
+                               keyValue("tooltip", tooltip),
+                               keyValue("category", category),
+                               keyValue("priority", priority)};
+
     setCheckable(true);
 }
 
 bool ParentAnchorAction::isChecked(const SelectionContext &selectionState) const
 {
+    NanotraceHR::Tracer tracer{"parent anchor action is checked", category()};
+
     return singleSelectionIsAnchoredToParentBy(selectionState, m_lineType);
 }
+
+} // namespace QmlDesigner

@@ -5,14 +5,16 @@
 
 #include <QMenu>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QStyleOptionMenuItem;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class QmlEditorMenuPrivate;
 class DesignerIcons;
+class QmlEditorStyleObject;
 
 class QmlEditorMenu : public QMenu
 {
@@ -20,6 +22,9 @@ class QmlEditorMenu : public QMenu
 
     Q_PROPERTY(bool qmlEditorMenu READ qmlEditorMenu CONSTANT)
     Q_PROPERTY(bool iconsVisible READ iconsVisible WRITE setIconsVisible NOTIFY iconVisibilityChanged)
+    class Private;
+
+    friend QmlEditorStyleObject;
 
 public:
     explicit QmlEditorMenu(QWidget *parent = nullptr);
@@ -40,7 +45,7 @@ protected:
 private:
     bool qmlEditorMenu() const;
 
-    QmlEditorMenuPrivate *d = nullptr;
+    std::unique_ptr<Private> d;
 };
 
 class QmlEditorStyleObject : public QObject

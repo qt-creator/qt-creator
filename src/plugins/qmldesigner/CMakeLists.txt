@@ -187,7 +187,9 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/componentcore
   PUBLIC_INCLUDES components/componentcore
-  DEFINES QMLDESIGNERCOMPONENTS_LIBRARY
+  DEFINES
+    QMLDESIGNERCOMPONENTS_LIBRARY
+    $<$<BOOL:${ENABLE_COMPONENT_CORE_TRACING}>:ENABLE_COMPONENT_CORE_TRACING>
   SOURCES
     abstractaction.cpp abstractaction.h
     abstractactiongroup.cpp abstractactiongroup.h
@@ -199,6 +201,7 @@ extend_qtc_plugin(QmlDesigner
     changestyleaction.cpp changestyleaction.h
     componentcore.qrc
     componentcore_constants.h
+    componentcoretracing.cpp componentcoretracing.h
     createtexture.cpp createtexture.h
     crumblebar.cpp crumblebar.h
     designeractionmanager.cpp designeractionmanager.h

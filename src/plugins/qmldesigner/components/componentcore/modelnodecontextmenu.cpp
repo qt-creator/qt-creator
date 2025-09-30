@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "modelnodecontextmenu.h"
-#include "modelnodecontextmenu_helper.h"
+#include "componentcoretracing.h"
 #include "designeractionmanager.h"
-#include <qmldesignerplugin.h>
+#include "modelnodecontextmenu_helper.h"
 #include "qmleditormenu.h"
+
+#include <qmldesignerplugin.h>
 
 #include <modelnode.h>
 
@@ -15,14 +17,22 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
+
 ModelNodeContextMenu::ModelNodeContextMenu(AbstractView *view) :
     m_selectionContext(view)
 {
+    NanotraceHR::Tracer tracer{"model node context menu contructor", category()};
 }
 
-static QSet<ActionInterface *> findMembers(const QSet<ActionInterface *> actionInterface,
-                                           const QByteArray &category)
+namespace {
+QSet<ActionInterface *> findMembers(const QSet<ActionInterface *> actionInterface,
+                                    const QByteArray &category)
 {
+    NanotraceHR::Tracer tracer{"model node context menu find members",
+                               ComponentCoreTracing::category()};
+
     QSet<ActionInterface *> ret;
 
     for (ActionInterface *factory : actionInterface) {
@@ -37,7 +47,10 @@ void populateMenu(QSet<ActionInterface* > &actionInterfaces,
                   QMenu* menu,
                   const SelectionContext &selectionContext)
 {
-    QSet<ActionInterface* > matchingFactories = findMembers(actionInterfaces, category);
+    NanotraceHR::Tracer tracer{"model node context menu populate menu",
+                               ComponentCoreTracing::category()};
+
+    QSet<ActionInterface *> matchingFactories = findMembers(actionInterfaces, category);
 
     actionInterfaces.subtract(matchingFactories);
 
@@ -67,8 +80,12 @@ void populateMenu(QSet<ActionInterface* > &actionInterfaces,
     }
 }
 
+} // namespace
+
 void ModelNodeContextMenu::execute(const QPoint &position, bool selectionMenuBool)
 {
+    NanotraceHR::Tracer tracer{"model node context menu execute", category()};
+
     auto mainMenu = new QmlEditorMenu();
 
     m_selectionContext.setShowSelectionTools(selectionMenuBool);
@@ -88,6 +105,8 @@ void ModelNodeContextMenu::execute(const QPoint &position, bool selectionMenuBoo
 
 void ModelNodeContextMenu::setScenePos(const QPoint &position)
 {
+    NanotraceHR::Tracer tracer{"model node context menu set scene pos", category()};
+
     m_scenePos = position;
 }
 
@@ -96,6 +115,8 @@ void ModelNodeContextMenu::showContextMenu(AbstractView *view,
                                            const QPoint &scenePosition,
                                            bool showSelection)
 {
+    NanotraceHR::Tracer tracer{"model node context menu show context menu", category()};
+
     ModelNodeContextMenu contextMenu(view);
     contextMenu.setScenePos(scenePosition);
     contextMenu.execute(globalPosition, showSelection);

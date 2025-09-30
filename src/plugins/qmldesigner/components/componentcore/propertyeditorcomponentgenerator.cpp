@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "propertyeditorcomponentgenerator.h"
+#include "componentcoretracing.h"
 
 #include <qmldesignertr.h>
 
@@ -12,6 +13,9 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
+
 namespace {
 
 using GeneratorProperty = PropertyComponentGeneratorInterface::Property;
@@ -21,6 +25,8 @@ using GeneratorProperties = std::vector<GeneratorProperty>;
 
 QString createImports(const QStringList &imports)
 {
+    NanotraceHR::Tracer tracer{"property  editor component generator create imports", category()};
+
     QString importsContent;
     importsContent.reserve(512);
 
@@ -34,6 +40,10 @@ QString createImports(const QStringList &imports)
 
 QString componentButton(bool isComponent)
 {
+    NanotraceHR::Tracer tracer{"property  editor component generator component button",
+                               category(),
+                               keyValue("isComponent", isComponent)};
+
     if (isComponent)
         return "ComponentButton {}";
 
@@ -43,6 +53,9 @@ QString componentButton(bool isComponent)
 void createBasicPropertySections(QString &components,
                                  Utils::span<GeneratorProperty> generatorProperties)
 {
+    NanotraceHR::Tracer tracer{"property  editor component generator basic property sections",
+                               category()};
+
     components += R"xy(
       Column {
         width: parent.width
@@ -61,12 +74,17 @@ void createBasicPropertySections(QString &components,
 void createComplexPropertySections(QString &components,
                                    Utils::span<GeneratorProperty> generatorProperties)
 {
+    NanotraceHR::Tracer tracer{"property  editor component generator complex property sections",
+                               category()};
+
     for (const auto &generatorProperty : generatorProperties)
         components += std::get_if<ComplexProperty>(&generatorProperty)->component;
 }
 
 Utils::SmallStringView propertyName(const GeneratorProperty &property)
 {
+    NanotraceHR::Tracer tracer{"property  editor component generator property name", category()};
+
     return std::visit(
         [](const auto &p) -> Utils::SmallStringView {
             if constexpr (!std::is_same_v<std::decay_t<decltype(p)>, std::monostate>)
@@ -79,6 +97,9 @@ Utils::SmallStringView propertyName(const GeneratorProperty &property)
 
 PropertyMetaInfos getUnmanagedProperties(const NodeMetaInfos &prototypes)
 {
+    NanotraceHR::Tracer tracer{"property  editor component generator get unmanaged properties",
+                               category()};
+
     PropertyMetaInfos properties;
     properties.reserve(128);
 
@@ -97,6 +118,9 @@ PropertyMetaInfos getUnmanagedProperties(const NodeMetaInfos &prototypes)
 GeneratorProperties createSortedGeneratorProperties(
     const PropertyMetaInfos &properties, const PropertyComponentGeneratorType &propertyGenerator)
 {
+    NanotraceHR::Tracer tracer{
+        "property  editor component generator create sorted generator properties", category()};
+
     GeneratorProperties generatorProperties;
     generatorProperties.reserve(properties.size());
 
@@ -118,6 +142,9 @@ GeneratorProperties createSortedGeneratorProperties(
 
 QString createPropertySections(GeneratorProperties generatorProperties)
 {
+    NanotraceHR::Tracer tracer{"property  editor component generator create property sections",
+                               category()};
+
     QString propertyComponents;
     propertyComponents.reserve(100000);
 
@@ -142,10 +169,16 @@ QString createPropertySections(GeneratorProperties generatorProperties)
 PropertyEditorComponentGenerator::PropertyEditorComponentGenerator(
     const PropertyComponentGeneratorType &propertyGenerator)
     : m_propertyGenerator{propertyGenerator}
-{}
+{
+    NanotraceHR::Tracer tracer{"property  editor component generator constructor", category()};
+}
 
 QString PropertyEditorComponentGenerator::create(const NodeMetaInfos &prototypeChain, bool isComponent)
 {
+    NanotraceHR::Tracer tracer{"property  editor component generator create",
+                               category(),
+                               keyValue("isComponent", isComponent)};
+
     auto generatorProperties = createSortedGeneratorProperties(getUnmanagedProperties(prototypeChain),
                                                                m_propertyGenerator);
 

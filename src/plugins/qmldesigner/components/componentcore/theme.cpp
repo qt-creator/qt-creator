@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "theme.h"
+#include "componentcoretracing.h"
 #include "qmldesignericonprovider.h"
 
 #include <qmldesignerplugin.h>
@@ -25,14 +26,18 @@ static Q_LOGGING_CATEGORY(themeLog, "qtc.qmldesigner.theme", QtWarningMsg)
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
+
 Theme::Theme(Utils::Theme *originTheme, QObject *parent)
     : Utils::Theme(originTheme, parent)
     , m_constants(nullptr)
 {
-    QString constantsPath
-        = Core::ICore::resourcePath(
-                  "qmldesigner/propertyEditorQmlSources/imports/StudioTheme/InternalConstants.qml")
-              .toUrlishString();
+    NanotraceHR::Tracer tracer{"theme constructor", category()};
+
+    QString constantsPath = Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources/"
+                                                      "imports/StudioTheme/InternalConstants.qml")
+                                .toUrlishString();
 
     QQmlEngine *engine = new QQmlEngine(this);
     setupTheme(engine);
@@ -55,6 +60,10 @@ Theme::Theme(Utils::Theme *originTheme, QObject *parent)
 
 QColor Theme::evaluateColorAtThemeInstance(const QString &themeColorName)
 {
+    NanotraceHR::Tracer tracer{"theme evaluate color at theme instance",
+                               category(),
+                               keyValue("theme color name", themeColorName)};
+
     const QMetaObject &m = *metaObject();
     const QMetaEnum e = m.enumerator(m.indexOfEnumerator("Color"));
     for (int i = 0, total = e.keyCount(); i < total; ++i) {
@@ -68,13 +77,17 @@ QColor Theme::evaluateColorAtThemeInstance(const QString &themeColorName)
 
 Theme *Theme::instance()
 {
-    static QPointer<Theme> qmldesignerTheme =
-        new Theme(Utils::creatorTheme(), QmlDesigner::QmlDesignerPlugin::instance());
+    NanotraceHR::Tracer tracer{"theme instance", category()};
+
+    static QPointer<Theme> qmldesignerTheme = new Theme(Utils::creatorTheme(),
+                                                        QmlDesigner::QmlDesignerPlugin::instance());
     return qmldesignerTheme;
 }
 
 QString Theme::replaceCssColors(const QString &input)
 {
+    NanotraceHR::Tracer tracer{"theme replace css colors", category(), keyValue("input", input)};
+
     const QRegularExpression rx("creatorTheme\\.(\\w+)");
 
     QString output = input;
@@ -106,6 +119,8 @@ QString Theme::replaceCssColors(const QString &input)
 
 void Theme::setupTheme(QQmlEngine *engine)
 {
+    NanotraceHR::Tracer tracer{"theme setup theme", category()};
+
     [[maybe_unused]] static const int typeIndex = qmlRegisterSingletonType<Theme>(
         "QtQuickDesignerTheme", 1, 0, "Theme", [](QQmlEngine *, QJSEngine *) {
             return new Theme(Utils::creatorTheme(), nullptr);
@@ -116,13 +131,15 @@ void Theme::setupTheme(QQmlEngine *engine)
 
 QColor Theme::getColor(Theme::Color role)
 {
+    NanotraceHR::Tracer tracer{"theme get color", category()};
 
     return instance()->color(role);
-
 }
 
 int Theme::smallFontPixelSize() const
 {
+    NanotraceHR::Tracer tracer{"theme small font pixel size", category()};
+
     if (highPixelDensity())
         return 13;
     return 9;
@@ -130,6 +147,8 @@ int Theme::smallFontPixelSize() const
 
 int Theme::captionFontPixelSize() const
 {
+    NanotraceHR::Tracer tracer{"theme caption font pixel size", category()};
+
     if (highPixelDensity())
         return 14;
     return 11;
@@ -137,11 +156,15 @@ int Theme::captionFontPixelSize() const
 
 bool Theme::highPixelDensity() const
 {
+    NanotraceHR::Tracer tracer{"theme high pixel density", category()};
+
     return qApp->primaryScreen()->logicalDotsPerInch() > 100;
 }
 
 QWindow *Theme::mainWindowHandle() const
 {
+    NanotraceHR::Tracer tracer{"theme main window handle", category()};
+
     QWindow *handle = Core::ICore::mainWindow()->windowHandle();
     QQmlEngine::setObjectOwnership(handle, QJSEngine::CppOwnership);
     return handle;
@@ -149,11 +172,15 @@ QWindow *Theme::mainWindowHandle() const
 
 QPixmap Theme::getPixmap(const QString &id)
 {
+    NanotraceHR::Tracer tracer{"theme get pixmap", category(), keyValue("id", id)};
+
     return QmlDesignerIconProvider::getPixmap(id);
 }
 
 QString Theme::getIconUnicode(Theme::Icon i)
 {
+    NanotraceHR::Tracer tracer{"theme get icon unicode", category()};
+
     QTC_ASSERT(instance()->m_constants, return {});
 
     const QMetaObject *m = instance()->metaObject();
@@ -172,12 +199,16 @@ QString Theme::getIconUnicode(Theme::Icon i)
 
 QString Theme::getIconUnicode(const QString &name)
 {
+    NanotraceHR::Tracer tracer{"theme get icon unicode", category(), keyValue("name", name)};
+
     QTC_ASSERT(instance()->m_constants, return {});
     return instance()->m_constants->property(name.toStdString().data()).toString();
 }
 
 QIcon Theme::iconFromName(Icon i, QColor c)
 {
+    NanotraceHR::Tracer tracer{"theme icon from name", category()};
+
     QColor color = c;
     if (!color.isValid())
         color = getColor(Theme::Color::DSiconColor);
@@ -188,36 +219,50 @@ QIcon Theme::iconFromName(Icon i, QColor c)
 
 int Theme::toolbarSize()
 {
+    NanotraceHR::Tracer tracer{"theme toolbar size", category()};
+
     return 41;
 }
 
 QColor Theme::qmlDesignerBackgroundColorDarker() const
 {
+    NanotraceHR::Tracer tracer{"theme qml designer background color darker", category()};
+
     return getColor(QmlDesigner_BackgroundColorDarker);
 }
 
 QColor Theme::qmlDesignerBackgroundColorDarkAlternate() const
 {
+    NanotraceHR::Tracer tracer{"theme qml designer background color dark alternate", category()};
+
     return getColor(QmlDesigner_BackgroundColorDarkAlternate);
 }
 
 QColor Theme::qmlDesignerTabLight() const
 {
+    NanotraceHR::Tracer tracer{"theme qml designer tab light", category()};
+
     return getColor(QmlDesigner_TabLight);
 }
 
 QColor Theme::qmlDesignerTabDark() const
 {
+    NanotraceHR::Tracer tracer{"theme qml designer tab dark", category()};
+
     return getColor(QmlDesigner_TabDark);
 }
 
 QColor Theme::qmlDesignerButtonColor() const
 {
+    NanotraceHR::Tracer tracer{"theme qml designer button color", category()};
+
     return getColor(QmlDesigner_ButtonColor);
 }
 
 QColor Theme::qmlDesignerBorderColor() const
 {
+    NanotraceHR::Tracer tracer{"theme qml designer border color", category()};
+
     return getColor(QmlDesigner_BorderColor);
 }
 

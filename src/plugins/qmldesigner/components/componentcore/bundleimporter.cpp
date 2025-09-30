@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "bundleimporter.h"
+#include "componentcoretracing.h"
 
 #include <documentmanager.h>
 #include <import.h>
@@ -23,11 +24,16 @@ using namespace Utils;
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
+
 static constexpr int normalImportDelay = 200;
 
 BundleImporter::BundleImporter(QObject *parent)
     : QObject(parent)
 {
+    NanotraceHR::Tracer tracer{"bundle importer constructor", category()};
+
     connect(&m_importTimer, &QTimer::timeout, this, &BundleImporter::handleImportTimer);
 }
 
@@ -40,6 +46,13 @@ QString BundleImporter::importComponent(const QString &bundleDir,
                                         const QString &qmlFile,
                                         const QStringList &files)
 {
+    NanotraceHR::Tracer tracer{"bundle importer import component",
+                               category(),
+                               keyValue("bundle dir", bundleDir),
+                               keyValue("type", type),
+                               keyValue("qml file", qmlFile),
+                               keyValue("number of files", files)};
+
     QString module = QString::fromLatin1(type.left(type.lastIndexOf('.')));
     m_bundleId = module.mid(module.lastIndexOf('.') + 1);
 
@@ -148,6 +161,8 @@ QString BundleImporter::importComponent(const QString &bundleDir,
 
 void BundleImporter::handleImportTimer()
 {
+    NanotraceHR::Tracer tracer{"bundle importer handle import timer", category()};
+
     auto handleFailure = [this] {
         m_importTimer.stop();
         m_importTimerCount = 0;
@@ -209,7 +224,10 @@ void BundleImporter::handleImportTimer()
 
 QVariantHash BundleImporter::loadAssetRefMap(const FilePath &bundlePath)
 {
-    FilePath assetRefPath = bundlePath.resolvePath(QLatin1String(Constants::COMPONENT_BUNDLES_ASSET_REF_FILE));
+    NanotraceHR::Tracer tracer{"bundle importer load asset ref map", category()};
+
+    FilePath assetRefPath = bundlePath.resolvePath(
+        QLatin1String(Constants::COMPONENT_BUNDLES_ASSET_REF_FILE));
     const Result<QByteArray> content = assetRefPath.fileContents();
     if (content) {
         QJsonParseError error;
@@ -226,7 +244,10 @@ QVariantHash BundleImporter::loadAssetRefMap(const FilePath &bundlePath)
 
 void BundleImporter::writeAssetRefMap(const FilePath &bundlePath, const QVariantHash &assetRefMap)
 {
-    FilePath assetRefPath = bundlePath.resolvePath(QLatin1String(Constants::COMPONENT_BUNDLES_ASSET_REF_FILE));
+    NanotraceHR::Tracer tracer{"bundle importer write asset ref map", category()};
+
+    FilePath assetRefPath = bundlePath.resolvePath(
+        QLatin1String(Constants::COMPONENT_BUNDLES_ASSET_REF_FILE));
     QJsonObject jsonObj = QJsonObject::fromVariantHash(assetRefMap);
     if (!assetRefPath.writeFileContents(QJsonDocument{jsonObj}.toJson())) {
         // Failure to write asset refs is not considred fatal, so just print error
@@ -236,6 +257,11 @@ void BundleImporter::writeAssetRefMap(const FilePath &bundlePath, const QVariant
 
 QString BundleImporter::unimportComponent(const TypeName &type, const QString &qmlFile)
 {
+    NanotraceHR::Tracer tracer{"bundle importer unimport component",
+                               category(),
+                               keyValue("type", type),
+                               keyValue("qml file", qmlFile)};
+
     QString module = QString::fromLatin1(type.left(type.lastIndexOf('.')));
     m_bundleId = module.mid(module.lastIndexOf('.') + 1);
 
@@ -348,6 +374,10 @@ QString BundleImporter::unimportComponent(const TypeName &type, const QString &q
 
 FilePath BundleImporter::resolveBundleImportPath(const QString &bundleId)
 {
+    NanotraceHR::Tracer tracer{"bundle importer resolve bundle import path",
+                               category(),
+                               keyValue("bundle id", bundleId)};
+
     FilePath bundleImportPath = QmlDesignerPlugin::instance()->documentManager()
                                     .generatedComponentUtils().componentBundlesBasePath();
     if (bundleImportPath.isEmpty())

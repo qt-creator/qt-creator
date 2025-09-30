@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "changestyleaction.h"
+#include "componentcoretracing.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -13,6 +14,9 @@
 #include <QSettings>
 
 namespace QmlDesigner {
+
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
 
 static QString styleConfigFileName(const QString &qmlFileName)
 {
@@ -57,21 +61,31 @@ static bool isQtForMCUs()
 
 ChangeStyleWidgetAction::ChangeStyleWidgetAction(QObject *parent) : QWidgetAction(parent)
 {
+    NanotraceHR::Tracer tracer{"change style widget action constructor", category()};
+
     items = getAllStyleItems();
 }
 
 void ChangeStyleWidgetAction::handleModelUpdate(const QString &style)
 {
+    NanotraceHR::Tracer tracer{"change style widget action handle model update",
+                               category(),
+                               keyValue("style", style)};
+
     emit modelUpdated(style);
 }
 
 const QList<StyleWidgetEntry> ChangeStyleWidgetAction::styleItems() const
 {
+    NanotraceHR::Tracer tracer{"change style widget action style items", category()};
+
     return items;
 }
 
 QList<StyleWidgetEntry> ChangeStyleWidgetAction::getAllStyleItems()
 {
+    NanotraceHR::Tracer tracer{"change style widget action get all style items", category()};
+
     QList<StyleWidgetEntry> items = {{"Basic", "Basic", {}},
                                      {"Fusion", "Fusion", {}},
                                      {"Imagine", "Imagine", {}},
@@ -96,6 +110,11 @@ QList<StyleWidgetEntry> ChangeStyleWidgetAction::getAllStyleItems()
 
 void ChangeStyleWidgetAction::changeCurrentStyle(const QString &style, const QString &qmlFileName)
 {
+    NanotraceHR::Tracer tracer{"change style widget action change current style",
+                               category(),
+                               keyValue("style", style),
+                               keyValue("qml file name", qmlFileName)};
+
     if (style.isEmpty())
         return;
 
@@ -132,6 +151,10 @@ void ChangeStyleWidgetAction::changeCurrentStyle(const QString &style, const QSt
 
 int ChangeStyleWidgetAction::getCurrentStyle(const QString &fileName)
 {
+    NanotraceHR::Tracer tracer{"change style widget action get current style",
+                               category(),
+                               keyValue("qml file name", fileName)};
+
     const QString confFileName = styleConfigFileName(fileName);
 
     if (Utils::FilePath::fromString(confFileName).exists()) {
@@ -153,6 +176,11 @@ int ChangeStyleWidgetAction::getCurrentStyle(const QString &fileName)
 
 void ChangeStyleWidgetAction::handleStyleChanged(const QString &style)
 {
+    NanotraceHR::Tracer tracer{"change style widget action handle style changed",
+                               category(),
+                               keyValue("style", style),
+                               keyValue("qml file name", qmlFileName)};
+
     changeCurrentStyle(style, qmlFileName);
 
     if (view)
@@ -166,6 +194,8 @@ const char disbledTooltip[] = QT_TRANSLATE_NOOP("ChangeStyleWidgetAction",
 
 QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
 {
+    NanotraceHR::Tracer tracer{"change style widget action create widget", category()};
+
     auto comboBox = new QComboBox(parent);
     comboBox->setToolTip(tr(enabledTooltip));
 
@@ -203,6 +233,8 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
 
 void ChangeStyleAction::currentContextChanged(const SelectionContext &selectionContext)
 {
+    NanotraceHR::Tracer tracer{"change style widget action current context changed", category()};
+
     AbstractView *view = selectionContext.view();
     if (view && view->model()) {
         m_action->view = view;

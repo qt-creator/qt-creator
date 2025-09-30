@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "svgpasteaction.h"
+#include "componentcoretracing.h"
 
 #include <itemlibraryentry.h>
 #include <nodeabstractproperty.h>
@@ -22,20 +23,25 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+using QmlDesigner::ComponentCoreTracing::category;
+
 namespace {
 
 /* Copied from qquicksvgparser.cpp 3e783b26a8fb41e3f5a53b883735f5d10fbbd98a */
 
 // '0' is 0x30 and '9' is 0x39
-inline static bool isDigit(ushort ch)
+bool isDigit(ushort ch)
 {
     static quint16 magic = 0x3ff;
     return ((ch >> 4) == 3) && (magic >> (ch & 15));
 }
 
-static qreal toDouble(const QChar *&str)
+qreal toDouble(const QChar *&str)
 {
-    const int maxLen = 255;//technically doubles can go til 308+ but whatever
+    NanotraceHR::Tracer tracer{"svg paste action to double", category()};
+
+    const int maxLen = 255; //technically doubles can go til 308+ but whatever
     char temp[maxLen+1];
     int pos = 0;
 
@@ -110,8 +116,10 @@ static qreal toDouble(const QChar *&str)
     return val;
 }
 
-inline static void parseNumbersArray(const QChar *&str, QVarLengthArray<qreal, 8> &points)
+void parseNumbersArray(const QChar *&str, QVarLengthArray<qreal, 8> &points)
 {
+    NanotraceHR::Tracer tracer{"svg paste action parse numbers array", category()};
+
     while (str->isSpace())
         ++str;
     while (isDigit(str->unicode()) ||
@@ -131,11 +139,11 @@ inline static void parseNumbersArray(const QChar *&str, QVarLengthArray<qreal, 8
     }
 }
 
-static void pathArcSegment(QPainterPath &path,
-                           qreal xc, qreal yc,
-                           qreal th0, qreal th1,
-                           qreal rx, qreal ry, qreal xAxisRotation)
+void pathArcSegment(
+    QPainterPath &path, qreal xc, qreal yc, qreal th0, qreal th1, qreal rx, qreal ry, qreal xAxisRotation)
 {
+    NanotraceHR::Tracer tracer{"svg paste action path arc segment", category()};
+
     qreal sinTh, cosTh;
     qreal a00, a01, a10, a11;
     qreal x1, y1, x2, y2, x3, y3;
@@ -172,6 +180,8 @@ void pathArc(QPainterPath &path,
              qreal x, qreal y,
              qreal curx, qreal cury)
 {
+    NanotraceHR::Tracer tracer{"svg paste action path arc", category()};
+
     qreal sin_th, cos_th;
     qreal a00, a01, a10, a11;
     qreal x0, y0, x1, y1, xc, yc;
@@ -244,6 +254,8 @@ void pathArc(QPainterPath &path,
 
 bool parsePathDataFast(const QString &dataStr, QPainterPath &path)
 {
+    NanotraceHR::Tracer tracer{"svg paste action parse path data fast", category()};
+
     qreal x0 = 0, y0 = 0;              // starting point
     qreal x = 0, y = 0;                // current point
     char lastMode = 0;
@@ -580,7 +592,7 @@ double round(double value, int decimal_places) {
     return std::round(value * multiplier) / multiplier;
 }
 
-const std::initializer_list<QStringView> tagAllowList{
+constexpr std::initializer_list<QStringView> tagAllowList{
     u"path", u"rect", u"line", u"polygon", u"polyline", u"circle", u"ellipse"};
 
 // fillOpacity and strokeOpacity aren't actual QML properties, but get mapped anyways
@@ -595,11 +607,15 @@ const std::initializer_list<std::pair<QStringView, QString>> mapping{{u"fill", "
 
 template <typename Container>
 bool contains(const Container &c, const QStringView &stringView) {
+    NanotraceHR::Tracer tracer{"svg paste action contains", category()};
+
     return std::find(std::begin(c), std::end(c), stringView) != std::end(c);
 }
 
 template <typename Container>
 auto findKey(const Container &c, const QStringView &key) {
+    NanotraceHR::Tracer tracer{"svg paste action find key", category()};
+
     return std::ranges::find(c, key, &std::iter_value_t<Container>::first);
 }
 
@@ -607,6 +623,8 @@ template<typename Callable>
 void depthFirstTraversal(const QDomNode &node,
                          const Callable &action)
 {
+    NanotraceHR::Tracer tracer{"svg paste action depth first traversal", category()};
+
     QDomNode currentNode = node;
 
     while (!currentNode.isNull()) {
@@ -620,6 +638,8 @@ template<typename Callable>
 void topToBottomTraversal(const QDomNode &node,
                           const Callable &action)
 {
+    NanotraceHR::Tracer tracer{"svg paste action top to bottom traversal", category()};
+
     if (node.isNull())
         return;
 
@@ -629,6 +649,8 @@ void topToBottomTraversal(const QDomNode &node,
 
 QTransform parseMatrix(const QString &values)
 {
+    NanotraceHR::Tracer tracer{"svg paste action parse matrix", category()};
+
     // matrix(<a> <b> <c> <d> <e> <f>)
     //     [a c e]        [m11 m21 m31]
     // SVG [b d f]     Qt [m12 m22 m32]
@@ -652,6 +674,8 @@ QTransform parseMatrix(const QString &values)
 
 QTransform parseTranslate(const QString &values)
 {
+    NanotraceHR::Tracer tracer{"svg paste action parse translate", category()};
+
     // translate(<x> [<y>]) translate(<x>[,<y>])
     static const QRegularExpression re(R"(^([\d.-]+)(?:(?:\s*,\s*|\s+)([\d.-]+))?$)");
     QRegularExpressionMatch m = re.match(values.simplified());
@@ -664,6 +688,8 @@ QTransform parseTranslate(const QString &values)
 
 QTransform parseScale(const QString &values)
 {
+    NanotraceHR::Tracer tracer{"svg paste action parse scale", category()};
+
     // scale(<x> [<y>]) scale(<x>[,<y>])
     static const QRegularExpression re(R"(^([\d.-]+)(?:(?:\s*,\s*|\s+)([\d.-]+))?$)");
     QRegularExpressionMatch m = re.match(values.simplified());
@@ -680,6 +706,8 @@ QTransform parseScale(const QString &values)
 
 QTransform parseRotate(const QString &values)
 {
+    NanotraceHR::Tracer tracer{"svg paste action parse rotate", category()};
+
     // rotate(<a> [<x> <y>]) rotate(<a>[,<x>,<y>])
     static const QRegularExpression re(R"(^([\d.-]+)(?:(?:\s*,\s*|\s+)([\d.-]+)(?:\s*,\s*|\s+)([\d.-]+))?$)");
     QRegularExpressionMatch m = re.match(values.simplified());
@@ -706,6 +734,8 @@ QTransform parseRotate(const QString &values)
 
 QTransform parseSkewX(const QString &values)
 {
+    NanotraceHR::Tracer tracer{"svg paste action parse skew x", category()};
+
     // skewX(<a>)
     static const QRegularExpression re(R"(^([\d.-]+)$)");
     QRegularExpressionMatch m = re.match(values.simplified());
@@ -720,6 +750,8 @@ QTransform parseSkewX(const QString &values)
 
 QTransform parseSkewY(const QString &values)
 {
+    NanotraceHR::Tracer tracer{"svg paste action parse skew y", category()};
+
     // skewY(<a>)
     static const QRegularExpression re(R"(^([\d.-]+)$)");
     QRegularExpressionMatch m = re.match(values.simplified());
@@ -734,6 +766,8 @@ QTransform parseSkewY(const QString &values)
 
 QTransform parseTransform(const QString &transformStr)
 {
+    NanotraceHR::Tracer tracer{"svg paste action parse transform", category()};
+
     if (transformStr.isEmpty())
         return QTransform();
 
@@ -773,6 +807,8 @@ QTransform parseTransform(const QString &transformStr)
 
 QString convertQPainterPathtoSVGPath(const QPainterPath &path)
 {
+    NanotraceHR::Tracer tracer{"svg paste action convert q painter path to svg path", category()};
+
     QByteArray byteArray;
     QBuffer buffer(&byteArray);
 
@@ -805,6 +841,8 @@ QString convertQPainterPathtoSVGPath(const QPainterPath &path)
 
 QVariant convertValue(const QByteArray &key, const QString &value)
 {
+    NanotraceHR::Tracer tracer{"svg paste action convert value", category()};
+
     if (key == "fillOpacity" || key == "strokeOpacity") {
         if (value.contains("%"))
             return QString(value).replace("%", "").toFloat() / 100.0f;
@@ -844,6 +882,8 @@ QVariant convertValue(const QByteArray &key, const QString &value)
 
 CSSRule parseCSSRule(const QString &ruleStr)
 {
+    NanotraceHR::Tracer tracer{"svg paste action parse css rule", category()};
+
     static const QRegularExpression reRules(R"(([\s\S]*?):([\s\S]*?)(?:;|;?$))");
 
     CSSRule rule;
@@ -866,6 +906,8 @@ CSSRule parseCSSRule(const QString &ruleStr)
 
 CSSRules parseCSS(const QDomElement &styleElement)
 {
+    NanotraceHR::Tracer tracer{"svg paste action parse css", category()};
+
     static const QRegularExpression reCSS(R"(([\s\S]*?){([\s\S]*?)})");
 
     CSSRules cssRules;
@@ -885,6 +927,8 @@ CSSRules parseCSS(const QDomElement &styleElement)
 
 void applyCSSRules(const CSSRule &cssRule, PropertyMap &properties)
 {
+    NanotraceHR::Tracer tracer{"svg paste action apply css rules", category()};
+
     for (const CSSProperty &property : cssRule) {
         const QString directive = property.directive;
         if (auto iter = findKey(mapping, directive); iter != mapping.end()) {
@@ -897,8 +941,9 @@ void applyCSSRules(const CSSRule &cssRule, PropertyMap &properties)
 // This merges potential fill and/or stroke opacity with fill and/or stroke color
 void mergeOpacity(PropertyMap &properties)
 {
-    auto merge = [&](const QByteArray &opacityKey, const QByteArray &colorKey) {
+    NanotraceHR::Tracer tracer{"svg paste action merge opacity", category()};
 
+    auto merge = [&](const QByteArray &opacityKey, const QByteArray &colorKey) {
         if (!properties.contains(opacityKey))
             return;
 
@@ -922,6 +967,8 @@ void flattenTransformsAndStyles(const QDomElement &element,
                                 QTransform &transform,
                                 PropertyMap &properties)
 {
+    NanotraceHR::Tracer tracer{"svg paste action flatten transforms and styles", category()};
+
     properties.insert("fillColor", "black"); // overwrite default fillColor
     properties.insert("strokeWidth", -1); // overwrite default strokeWidth of 4
 
@@ -968,6 +1015,8 @@ void flattenTransformsAndStyles(const QDomElement &element,
 
 bool applyMinimumBoundingBox(QPainterPath &path, PropertyMap &properties)
 {
+    NanotraceHR::Tracer tracer{"svg paste action apply minimum bounding box", category()};
+
     const QRectF boundingRect = path.boundingRect();
 
     path.translate(-boundingRect.topLeft());
@@ -989,6 +1038,8 @@ bool applyMinimumBoundingBox(QPainterPath &path, PropertyMap &properties)
 
 PropertyMap generateRectProperties(const QDomElement &e, const CSSRules &cssRules)
 {
+    NanotraceHR::Tracer tracer{"svg paste action generate rect properties", category()};
+
     QRectF rect(e.attribute("x").toFloat(),
                 e.attribute("y").toFloat(),
                 e.attribute("width").toFloat(),
@@ -1014,6 +1065,8 @@ PropertyMap generateRectProperties(const QDomElement &e, const CSSRules &cssRule
 
 PropertyMap generateLineProperties(const QDomElement &e, const CSSRules &cssRules)
 {
+    NanotraceHR::Tracer tracer{"svg paste action generate line properties", category()};
+
     QLineF line(e.attribute("x1").toFloat(),
                 e.attribute("y1").toFloat(),
                 e.attribute("x2").toFloat(),
@@ -1036,6 +1089,8 @@ PropertyMap generateLineProperties(const QDomElement &e, const CSSRules &cssRule
 
 PropertyMap generateEllipseProperties(const QDomElement &e, const CSSRules &cssRules)
 {
+    NanotraceHR::Tracer tracer{"svg paste action generate ellipse properties", category()};
+
     const QPointF center(e.attribute("cx").toFloat(), e.attribute("cy").toFloat());
     qreal radiusX = 0;
     qreal radiusY = 0;
@@ -1067,6 +1122,8 @@ PropertyMap generateEllipseProperties(const QDomElement &e, const CSSRules &cssR
 
 PropertyMap generatePathProperties(const QDomElement &e, const CSSRules &cssRules)
 {
+    NanotraceHR::Tracer tracer{"svg paste action generate path properties", category()};
+
     if (!e.hasAttribute("d"))
         return {};
 
@@ -1089,6 +1146,8 @@ PropertyMap generatePathProperties(const QDomElement &e, const CSSRules &cssRule
 
 PropertyMap generatePolygonProperties(const QDomElement &e, const CSSRules &cssRules)
 {
+    NanotraceHR::Tracer tracer{"svg paste action generate polygon properties", category()};
+
     if (!e.hasAttribute("points"))
         return {};
 
@@ -1124,6 +1183,8 @@ PropertyMap generatePolygonProperties(const QDomElement &e, const CSSRules &cssR
 
 ModelNode createPathNode(ModelNode parent, const PropertyMap &properties)
 {
+    NanotraceHR::Tracer tracer{"svg paste action create path node", category()};
+
     ItemLibraryEntry itemLibraryEntry;
     itemLibraryEntry.setName("SVG Path Item");
     itemLibraryEntry.setType("SvgPathItem");
@@ -1142,6 +1203,8 @@ ModelNode createPathNode(ModelNode parent, const PropertyMap &properties)
 
 ModelNode createGroupNode(ModelNode parent, const PropertyMap &properties)
 {
+    NanotraceHR::Tracer tracer{"svg paste action create group node", category()};
+
     ItemLibraryEntry itemLibraryEntry;
     itemLibraryEntry.setName("Group");
     itemLibraryEntry.setType("GroupItem");
@@ -1149,11 +1212,8 @@ ModelNode createGroupNode(ModelNode parent, const PropertyMap &properties)
     ModelNode node = QmlItemNode::createQmlObjectNode(
                 parent.view(), itemLibraryEntry, {}, parent.defaultNodeAbstractProperty(), false);
 
-    PropertyMap::const_iterator i = properties.constBegin();
-    while (i != properties.constEnd()) {
-        node.variantProperty(i.key()).setValue(i.value());
-        ++i;
-    }
+    for (const auto &[key, value] : properties.asKeyValueRange())
+        node.variantProperty(key).setValue(value);
 
     return node;
 }
@@ -1162,10 +1222,14 @@ ModelNode createGroupNode(ModelNode parent, const PropertyMap &properties)
 
 SVGPasteAction::SVGPasteAction()
     : m_domDocument()
-{}
+{
+    NanotraceHR::Tracer tracer{"svg paste action constructor", category()};
+}
 
 bool SVGPasteAction::containsSVG(const QString &str)
 {
+    NanotraceHR::Tracer tracer{"svg paste action contains svg", category()};
+
     if (!m_domDocument.setContent(str, true))
         return false; // TODO error reporting
 
@@ -1177,6 +1241,8 @@ bool SVGPasteAction::containsSVG(const QString &str)
 
 QmlObjectNode SVGPasteAction::createQmlObjectNode(QmlDesigner::ModelNode &targetNode)
 {
+    NanotraceHR::Tracer tracer{"svg paste action create qml object node", category()};
+
     const QDomElement rootElement = m_domDocument.documentElement();
     if (rootElement.isNull()) {
         qWarning() << Q_FUNC_INFO << "Couldn't create a root element.";
