@@ -2,8 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "componenttextmodifier.h"
+#include "rewritertracing.h"
 
-using namespace QmlDesigner;
+namespace QmlDesigner {
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 ComponentTextModifier::ComponentTextModifier(TextModifier *originalModifier, int componentStartOffset, int componentEndOffset, int rootStartOffset) :
         m_originalModifier(originalModifier),
@@ -11,8 +15,17 @@ ComponentTextModifier::ComponentTextModifier(TextModifier *originalModifier, int
         m_componentEndOffset(componentEndOffset),
         m_rootStartOffset(rootStartOffset)
 {
-    connect(m_originalModifier, &TextModifier::textChanged,
-            this, &ComponentTextModifier::handleOriginalTextChanged);
+    NanotraceHR::Tracer tracer{"component text modifier constructor",
+                               category(),
+                               keyValue("original modifier", originalModifier),
+                               keyValue("component start offset", componentStartOffset),
+                               keyValue("component end offset", componentEndOffset),
+                               keyValue("root start offset", rootStartOffset)};
+
+    connect(m_originalModifier,
+            &TextModifier::textChanged,
+            this,
+            &ComponentTextModifier::handleOriginalTextChanged);
 
     connect(m_originalModifier, &TextModifier::replaced, this, &TextModifier::replaced);
     connect(m_originalModifier, &TextModifier::moved, this, &TextModifier::moved);
@@ -20,20 +33,38 @@ ComponentTextModifier::ComponentTextModifier(TextModifier *originalModifier, int
     m_originalText = m_originalModifier->text();
 }
 
-ComponentTextModifier::~ComponentTextModifier() = default;
+ComponentTextModifier::~ComponentTextModifier()
+{
+    NanotraceHR::Tracer tracer{"component text modifier destructor", category()};
+}
 
 void ComponentTextModifier::replace(int offset, int length, const QString& replacement)
 {
+    NanotraceHR::Tracer tracer{"component text modifier replace",
+                               category(),
+                               keyValue("offset", offset),
+                               keyValue("length", length),
+                               keyValue("replacement", replacement)};
+
     m_originalModifier->replace(offset, length, replacement);
 }
 
 void ComponentTextModifier::move(const MoveInfo &moveInfo)
 {
+    NanotraceHR::Tracer tracer{"component text modifier move",
+                               category(),
+                               keyValue("move info", moveInfo)};
+
     m_originalModifier->move(moveInfo);
 }
 
 void ComponentTextModifier::indent(int offset, int length)
 {
+    NanotraceHR::Tracer tracer{"component text modifier indent",
+                               category(),
+                               keyValue("offset", offset),
+                               keyValue("length", length)};
+
     int componentStartLine = getLineInDocument(m_originalModifier->textDocument(), m_componentStartOffset);
     int componentEndLine = getLineInDocument(m_originalModifier->textDocument(), m_componentEndOffset);
 
@@ -61,22 +92,33 @@ void ComponentTextModifier::indent(int offset, int length)
 
 void ComponentTextModifier::indentLines(int startLine, int endLine)
 {
+    NanotraceHR::Tracer tracer{"component text modifier indent lines",
+                               category(),
+                               keyValue("start line", startLine),
+                               keyValue("end line", endLine)};
+
     m_originalModifier->indentLines(startLine, endLine);
 }
 
 TextEditor::TabSettings ComponentTextModifier::tabSettings() const
 {
+    NanotraceHR::Tracer tracer{"component text modifier tab settings", category()};
+
     return m_originalModifier->tabSettings();
 }
 
 void ComponentTextModifier::startGroup()
 {
+    NanotraceHR::Tracer tracer{"component text modifier start group", category()};
+
     m_originalModifier->startGroup();
     m_startLength = m_originalModifier->text().length();
 }
 
 void ComponentTextModifier::flushGroup()
 {
+    NanotraceHR::Tracer tracer{"component text modifier flush group", category()};
+
     m_originalModifier->flushGroup();
 
     int textLength = m_originalModifier->text().length();
@@ -87,6 +129,8 @@ void ComponentTextModifier::flushGroup()
 
 void ComponentTextModifier::commitGroup()
 {
+    NanotraceHR::Tracer tracer{"component text modifier commit group", category()};
+
     m_originalModifier->commitGroup();
 
     m_originalText = m_originalModifier->text();
@@ -97,11 +141,15 @@ void ComponentTextModifier::commitGroup()
 
 QTextDocument *ComponentTextModifier::textDocument() const
 {
+    NanotraceHR::Tracer tracer{"component text modifier text document", category()};
+
     return m_originalModifier->textDocument();
 }
 
 QString ComponentTextModifier::text() const
 {
+    NanotraceHR::Tracer tracer{"component text modifier text", category()};
+
     if (m_componentStartOffset == -1)
         return {};
 
@@ -119,21 +167,29 @@ QString ComponentTextModifier::text() const
 
 QTextCursor ComponentTextModifier::textCursor() const
 {
+    NanotraceHR::Tracer tracer{"component text modifier text cursor", category()};
+
     return m_originalModifier->textCursor();
 }
 
 void ComponentTextModifier::deactivateChangeSignals()
 {
+    NanotraceHR::Tracer tracer{"component text modifier deactivate change signals", category()};
+
     m_originalModifier->deactivateChangeSignals();
 }
 
 void ComponentTextModifier::reactivateChangeSignals()
 {
+    NanotraceHR::Tracer tracer{"component text modifier reactivate change signals", category()};
+
     m_originalModifier->reactivateChangeSignals();
 }
 
 void ComponentTextModifier::handleOriginalTextChanged()
 {
+    NanotraceHR::Tracer tracer{"component text modifier handle original text changed", category()};
+
     // Update offsets when original text changes, if necessary
 
     const QString currentText = m_originalModifier->text();
@@ -200,3 +256,5 @@ void ComponentTextModifier::handleOriginalTextChanged()
 
     emit textChanged();
 }
+
+} // namespace QmlDesigner

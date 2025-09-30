@@ -97,7 +97,7 @@ inline constexpr IsArray isArray;
 struct IsDictonary
 {};
 
-inline constexpr IsDictonary isDictonary;
+inline constexpr IsDictonary isDictionary;
 
 template<std::size_t size, typename Tuple>
 concept HasTupleSize = requires { std::tuple_size_v<Tuple> == size; };
@@ -263,9 +263,9 @@ void convertDictonaryToString(String &string, const IsDictonary &, Entries &...e
 }
 
 template<typename String, KeyValue... Arguments>
-void convertToString(String &string, const std::tuple<IsDictonary, Arguments...> &dictonary)
+void convertToString(String &string, const std::tuple<IsDictonary, Arguments...> &dictionary)
 {
-    std::apply([&](auto &&...entries) { convertDictonaryToString(string, entries...); }, dictonary);
+    std::apply([&](auto &&...entries) { convertDictonaryToString(string, entries...); }, dictionary);
 }
 
 template<typename T>
@@ -331,9 +331,9 @@ void convertToString(String &string, const Map &map)
 }
 
 template<typename String, typename Key, typename Value>
-void convertToString(String &string, const QMap<Key, Value> &dictonary)
+void convertToString(String &string, const QMap<Key, Value> &dictionary)
 {
-    convertToString(string, dictonary.asKeyValueRange());
+    convertToString(string, dictionary.asKeyValueRange());
 }
 
 namespace Internal {
@@ -396,9 +396,9 @@ auto keyValue(const Key &key, Value &&value)
 }
 
 template<KeyValue... Entries>
-auto dictonary(Entries &&...entries)
+auto dictionary(Entries &&...entries)
 {
-    return std::make_tuple(isDictonary, std::forward<Entries>(entries)...);
+    return std::make_tuple(isDictionary, std::forward<Entries>(entries)...);
 }
 
 template<typename... Entries>
@@ -846,11 +846,11 @@ public:
         template<typename String>
         friend void convertToString(String &string, SourceLocation sourceLocation)
         {
-            using NanotraceHR::dictonary;
+            using NanotraceHR::dictionary;
             using NanotraceHR::keyValue;
-            auto dict = dictonary(keyValue("file", sourceLocation.m_fileName),
-                                  keyValue("function", sourceLocation.m_functionName),
-                                  keyValue("line", sourceLocation.m_line));
+            auto dict = dictionary(keyValue("file", sourceLocation.m_fileName),
+                                   keyValue("function", sourceLocation.m_functionName),
+                                   keyValue("line", sourceLocation.m_line));
             convertToString(string, dict);
 
             string.append(',');

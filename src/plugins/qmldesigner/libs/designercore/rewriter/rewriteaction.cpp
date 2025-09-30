@@ -2,18 +2,21 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "rewriteaction.h"
+#include "rewritertracing.h"
 
-#include <QDebug>
-
-#include "nodelistproperty.h"
-#include "nodemetainfo.h"
+#include <nodelistproperty.h>
+#include <nodemetainfo.h>
 
 #include <utils/smallstringio.h>
 
-using namespace QmlDesigner;
-using namespace QmlDesigner::Internal;
-using namespace QmlDesigner;
+#include <QDebug>
+
+namespace QmlDesigner::Internal {
+
 using namespace Qt::StringLiterals;
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 namespace { // anonymous
 
@@ -62,6 +65,7 @@ QStringView toString(QmlRefactoring::PropertyType type)
 
 std::optional<int> PropertyRewriteAction::nodeLocation() const
 {
+    NanotraceHR::Tracer tracer{"property rewrite action node location", category()};
     if (movedAfterCreation())
         return std::make_optional(m_property.toNodeListProperty().indexOf(m_containedModelNode));
 
@@ -70,6 +74,8 @@ std::optional<int> PropertyRewriteAction::nodeLocation() const
 
 bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
+    NanotraceHR::Tracer tracer{"add property rewrite action execute", category()};
+
     if (scheduledInHierarchy()) {
         const int parentLocation = positionStore.nodeOffset(property().parentModelNode());
         bool result = false;
@@ -112,6 +118,8 @@ bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePos
 
 QString AddPropertyRewriteAction::info() const
 {
+    NanotraceHR::Tracer tracer{"add property rewrite action info", category()};
+
     return QStringView(u"AddPropertyRewriteAction for property \"%1\" (type: %2) of node \"%3\" "
                        u"with value >>%4<< and contained object \"%5\"")
         .arg(QString::fromUtf8(property().name()),
@@ -125,6 +133,8 @@ QString AddPropertyRewriteAction::info() const
 
 bool ChangeIdRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
+    NanotraceHR::Tracer tracer{"change id rewrite action execute", category()};
+
     const int nodeLocation = positionStore.nodeOffset(m_node);
     static const PropertyName idPropertyName("id");
     bool result = false;
@@ -166,11 +176,15 @@ bool ChangeIdRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositi
 
 QString ChangeIdRewriteAction::info() const
 {
+    NanotraceHR::Tracer tracer{"change id rewrite action info", category()};
+
     return QStringView(u"ChangeIdRewriteAction from \"%1\" to \"%2\"").arg(m_oldId, m_newId);
 }
 
 bool ChangePropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
+    NanotraceHR::Tracer tracer{"change property rewrite action execute", category()};
+
     if (scheduledInHierarchy()) {
         const int parentLocation = positionStore.nodeOffset(property().parentModelNode());
         if (parentLocation < 0) {
@@ -218,6 +232,8 @@ bool ChangePropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNode
 
 QString ChangePropertyRewriteAction::info() const
 {
+    NanotraceHR::Tracer tracer{"change property rewrite action info", category()};
+
     return QStringView(u"ChangePropertyRewriteAction for property \"%1\" (type: %2) of node \"%3\" "
                        u"with value >>%4<< and contained object \"%5\"")
         .arg(QString::fromUtf8(property().name()),
@@ -231,6 +247,8 @@ QString ChangePropertyRewriteAction::info() const
 
 bool ChangeTypeRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
+    NanotraceHR::Tracer tracer{"change type rewrite action execute", category()};
+
     const int nodeLocation = positionStore.nodeOffset(m_node);
     bool result = false;
 
@@ -252,11 +270,15 @@ bool ChangeTypeRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePosi
 
 QString ChangeTypeRewriteAction::info() const
 {
+    NanotraceHR::Tracer tracer{"change type rewrite action info", category()};
+
     return QLatin1String("ChangeTypeRewriteAction");
 }
 
 bool RemoveNodeRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
+    NanotraceHR::Tracer tracer{"remove node rewrite action execute", category()};
+
     const int nodeLocation = positionStore.nodeOffset(m_node);
     bool result = refactoring.removeObject(nodeLocation);
     if (!result) {
@@ -270,11 +292,15 @@ bool RemoveNodeRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePosi
 
 QString RemoveNodeRewriteAction::info() const
 {
+    NanotraceHR::Tracer tracer{"remove node rewrite action info", category()};
+
     return QLatin1String("RemoveNodeRewriteAction") + QString::number(m_node.internalId());
 }
 
 bool RemovePropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
+    NanotraceHR::Tracer tracer{"remove property rewrite action execute", category()};
+
     const int nodeLocation = positionStore.nodeOffset(m_property.parentModelNode());
     bool result = refactoring.removeProperty(nodeLocation, m_property.name());
     if (!result) {
@@ -289,12 +315,16 @@ bool RemovePropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNode
 
 QString RemovePropertyRewriteAction::info() const
 {
+    NanotraceHR::Tracer tracer{"remove property rewrite action info", category()};
+
     return QStringView(u"RemovePropertyRewriteAction for property \"%1\"")
         .arg(QString::fromUtf8(m_property.name()));
 }
 
 bool ReparentNodeRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
+    NanotraceHR::Tracer tracer{"reparent node rewrite action execute", category()};
+
     const int nodeLocation = positionStore.nodeOffset(m_node);
     const int targetParentObjectLocation = positionStore.nodeOffset(m_targetProperty.parentModelNode());
     const bool isArrayBinding = m_targetProperty.isNodeListProperty();
@@ -319,6 +349,8 @@ bool ReparentNodeRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePo
 
 QString ReparentNodeRewriteAction::info() const
 {
+    NanotraceHR::Tracer tracer{"reparent node rewrite action info", category()};
+
     if (m_node.isValid())
         return QStringView(
                    u"ReparentNodeRewriteAction for node \"%1\" into property \"%2\" of node \"%3\"")
@@ -332,6 +364,8 @@ QString ReparentNodeRewriteAction::info() const
 bool MoveNodeRewriteAction::execute(QmlRefactoring &refactoring,
                                     ModelNodePositionStorage &positionStore)
 {
+    NanotraceHR::Tracer tracer{"move node rewrite action execute", category()};
+
     const int movingNodeLocation = positionStore.nodeOffset(m_movingNode);
     const int newTrailingNodeLocation = m_newTrailingNode.isValid() ? positionStore.nodeOffset(m_newTrailingNode) : -1;
     bool result = false;
@@ -352,6 +386,8 @@ bool MoveNodeRewriteAction::execute(QmlRefactoring &refactoring,
 
 QString MoveNodeRewriteAction::info() const
 {
+    NanotraceHR::Tracer tracer{"move node rewrite action info", category()};
+
     if (m_movingNode.isValid()) {
         if (m_newTrailingNode.isValid())
             return QStringView(u"MoveNodeRewriteAction for node \"%1\" before node \"%2\"")
@@ -368,6 +404,8 @@ QString MoveNodeRewriteAction::info() const
 bool AddImportRewriteAction::execute(QmlRefactoring &refactoring,
                                      ModelNodePositionStorage &/*positionStore*/)
 {
+    NanotraceHR::Tracer tracer{"add import rewrite action execute", category()};
+
     const bool result = refactoring.addImport(m_import);
 
     if (!result)
@@ -380,12 +418,16 @@ bool AddImportRewriteAction::execute(QmlRefactoring &refactoring,
 
 QString AddImportRewriteAction::info() const
 {
+    NanotraceHR::Tracer tracer{"add import rewrite action info", category()};
+
     return toInfo(m_import);
 }
 
 bool RemoveImportRewriteAction::execute(QmlRefactoring &refactoring,
                                         ModelNodePositionStorage &/*positionStore*/)
 {
+    NanotraceHR::Tracer tracer{"remove import rewrite action execute", category()};
+
     const bool result = refactoring.removeImport(m_import);
 
     if (!result)
@@ -398,5 +440,9 @@ bool RemoveImportRewriteAction::execute(QmlRefactoring &refactoring,
 
 QString RemoveImportRewriteAction::info() const
 {
+    NanotraceHR::Tracer tracer{"remove import rewrite action info", category()};
+
     return toInfo(m_import);
 }
+
+} // namespace QmlDesigner::Internal

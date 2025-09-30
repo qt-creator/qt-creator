@@ -65,7 +65,7 @@ void AsynchronousImageCache::request(Utils::SmallStringView name,
     const auto id = extraId.empty() ? Utils::PathString{name}
                                     : Utils::PathString::join({name, "+", extraId});
 
-    using NanotraceHR::dictonary;
+    using NanotraceHR::dictionary;
     using NanotraceHR::keyValue;
     using namespace std::literals::string_view_literals;
 

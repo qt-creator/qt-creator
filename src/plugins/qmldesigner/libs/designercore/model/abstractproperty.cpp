@@ -66,6 +66,16 @@ AbstractView *AbstractProperty::view() const
     return m_view.data();
 }
 
+void convertToString(NanotraceHR::ArgumentsString &string, const AbstractProperty &property)
+{
+    using NanotraceHR::dictionary;
+    using NanotraceHR::keyValue;
+    auto dict = dictionary(keyValue("node", *property.m_internalNode),
+                           keyValue("property name", property.m_propertyName));
+
+    convertToString(string, dict);
+}
+
 /*!
  Checks if the property is valid.
 

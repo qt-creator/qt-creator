@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "propertyparser.h"
+#include "rewritertracing.h"
 
 #include <enumeration.h>
 #include <modelnode.h>
@@ -194,13 +195,25 @@ namespace QmlDesigner {
 namespace Internal {
 namespace PropertyParser {
 
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
+
 QVariant read(const QString &typeStr, const QString &str, const MetaInfo &)
 {
+    NanotraceHR::Tracer tracer{"property parser read",
+                               category(),
+                               keyValue("type", typeStr),
+                               keyValue("string", str)};
     return read(typeStr, str);
 }
 
 QVariant read(const QString &typeStr, const QString &str)
 {
+    NanotraceHR::Tracer tracer{"property parser read",
+                               category(),
+                               keyValue("type", typeStr),
+                               keyValue("string", str)};
+
     int type = QMetaType::fromName(typeStr.toUtf8()).id();
     if (type == 0) {
         if (typeStr != "binding"_L1 && typeStr != "enum"_L1) {
@@ -216,6 +229,11 @@ QVariant read(const QString &typeStr, const QString &str)
 
 QVariant read(int variantType, const QString &str)
 {
+    NanotraceHR::Tracer tracer{"property parser read",
+                               category(),
+                               keyValue("variant type", QMetaType(variantType).name()),
+                               keyValue("string", str)};
+
     QVariant value;
 
     bool conversionOk = true;
@@ -286,6 +304,10 @@ QVariant read(int variantType, const QString &str)
 
 QVariant variantFromString(const QString &s)
 {
+    NanotraceHR::Tracer tracer{"property parser variant from string",
+                               category(),
+                               keyValue("string", s)};
+
     if (s.isEmpty())
         return QVariant(s);
     bool ok = false;

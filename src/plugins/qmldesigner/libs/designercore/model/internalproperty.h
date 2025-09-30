@@ -89,7 +89,7 @@ template<PropertyType... propertyType>
 using type_lookup_t = typename TypeLookup<propertyType...>::Type;
 
 using NanotraceHR::array;
-using NanotraceHR::dictonary;
+using NanotraceHR::dictionary;
 using NanotraceHR::keyValue;
 
 class QMLDESIGNERCORE_EXPORT InternalProperty : public std::enable_shared_from_this<InternalProperty>

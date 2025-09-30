@@ -5,6 +5,7 @@
 
 #include "qmldesignercorelib_global.h"
 
+#include <nanotrace/nanotracehr.h>
 #include <qmljs/qmljsdocument.h>
 #include <texteditor/tabsettings.h>
 
@@ -37,11 +38,33 @@ public:
         QString prefixToInsert;
         QString suffixToInsert;
 
-        MoveInfo(): objectStart(-1), objectEnd(-1), leadingCharsToRemove(0), trailingCharsToRemove(0), destination(-1) {}
+        template<typename String>
+        friend void convertToString(String &string, const MoveInfo &property)
+        {
+            using NanotraceHR::dictionary;
+            using NanotraceHR::keyValue;
+            auto dict = dictionary(keyValue("object start", property.objectStart),
+                                   keyValue("object end", property.objectEnd),
+                                   keyValue("leading chars to remove", property.leadingCharsToRemove),
+                                   keyValue("trailing chars to remove", property.trailingCharsToRemove),
+                                   keyValue("destination", property.destination),
+                                   keyValue("prefix to insert", property.prefixToInsert),
+                                   keyValue("suffix to insert", property.suffixToInsert));
+
+            convertToString(string, dict);
+        }
+
+        MoveInfo()
+            : objectStart(-1)
+            , objectEnd(-1)
+            , leadingCharsToRemove(0)
+            , trailingCharsToRemove(0)
+            , destination(-1)
+        {}
     };
 
 public:
-    TextModifier() = default;
+    TextModifier();
     ~TextModifier();
 
     virtual void replace(int offset, int length, const QString& replacement) = 0;

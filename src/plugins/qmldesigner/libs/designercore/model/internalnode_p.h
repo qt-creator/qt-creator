@@ -41,7 +41,7 @@ class InternalNode;
 using InternalNodePointer = std::shared_ptr<InternalNode>;
 using InternalPropertyPointer = std::shared_ptr<InternalProperty>;
 
-using NanotraceHR::dictonary;
+using NanotraceHR::dictionary;
 using NanotraceHR::keyValue;
 using namespace std::literals::string_view_literals;
 
@@ -229,14 +229,13 @@ public:
 
     PropertyDict::const_iterator end() const { return m_nameProperties.end(); }
 
-    template<typename String>
-    friend void convertToString(String &string, const InternalNode &node)
+    friend void convertToString(auto &string, const InternalNode &node)
     {
-        using NanotraceHR::dictonary;
+        using NanotraceHR::dictionary;
         using NanotraceHR::keyValue;
-        auto dict = dictonary(keyValue("type name", node.typeName),
-                              keyValue("unqualified type name", node.unqualifiedTypeName),
-                              keyValue("exported type name", node.exportedTypeName));
+        auto dict = dictionary(keyValue("type name", node.typeName),
+                               keyValue("unqualified type name", node.unqualifiedTypeName),
+                               keyValue("exported type name", node.exportedTypeName));
 
         convertToString(string, dict);
     }

@@ -116,29 +116,29 @@ template<typename String>
 void convertToString(String &string, const QImage &image)
 {
     using namespace std::string_view_literals;
-    auto dict = dictonary(keyValue("width", image.width()),
-                          keyValue("height", image.height()),
-                          keyValue("bytes", image.sizeInBytes()),
-                          keyValue("has alpha channel", image.hasAlphaChannel()),
-                          keyValue("is color", !image.isGrayscale()),
-                          keyValue("pixel format",
-                                   dictonary(keyValue("bits per pixel",
-                                                      image.pixelFormat().bitsPerPixel()),
-                                             keyValue("byte order",
-                                                      [&] {
-                                                          if (image.pixelFormat().byteOrder()
-                                                              == QPixelFormat::BigEndian)
-                                                              return "big endian"sv;
-                                                          else
-                                                              return "little endian"sv;
-                                                      }),
-                                             keyValue("premultiplied", [&] {
-                                                 if (image.pixelFormat().premultiplied()
-                                                     == QPixelFormat::Premultiplied)
-                                                     return "premultiplied"sv;
-                                                 else
-                                                     return "alpha premultiplied"sv;
-                                             }))));
+    auto dict = dictionary(keyValue("width", image.width()),
+                           keyValue("height", image.height()),
+                           keyValue("bytes", image.sizeInBytes()),
+                           keyValue("has alpha channel", image.hasAlphaChannel()),
+                           keyValue("is color", !image.isGrayscale()),
+                           keyValue("pixel format",
+                                    dictionary(keyValue("bits per pixel",
+                                                        image.pixelFormat().bitsPerPixel()),
+                                               keyValue("byte order",
+                                                        [&] {
+                                                            if (image.pixelFormat().byteOrder()
+                                                                == QPixelFormat::BigEndian)
+                                                                return "big endian"sv;
+                                                            else
+                                                                return "little endian"sv;
+                                                        }),
+                                               keyValue("premultiplied", [&] {
+                                                   if (image.pixelFormat().premultiplied()
+                                                       == QPixelFormat::Premultiplied)
+                                                       return "premultiplied"sv;
+                                                   else
+                                                       return "alpha premultiplied"sv;
+                                               }))));
 
     convertToString(string, dict);
 }

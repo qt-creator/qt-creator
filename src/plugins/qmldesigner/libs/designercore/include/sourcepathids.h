@@ -90,15 +90,15 @@ public:
     template<typename String>
     friend void convertToString(String &string, SourceId id)
     {
-        using NanotraceHR::dictonary;
+        using NanotraceHR::dictionary;
         using NanotraceHR::keyValue;
 
         int fileNameId = static_cast<int>(id.id);
         int directoryPathId = id.id >> 32;
 
-        auto dict = dictonary(keyValue("directory path id", directoryPathId),
-                              keyValue("source name id", fileNameId),
-                              keyValue("source id", id.id));
+        auto dict = dictionary(keyValue("directory path id", directoryPathId),
+                               keyValue("source name id", fileNameId),
+                               keyValue("source id", id.id));
 
         convertToString(string, dict);
     }

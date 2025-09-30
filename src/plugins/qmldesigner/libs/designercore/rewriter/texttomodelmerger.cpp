@@ -19,6 +19,7 @@
 #include "rewriterview.h"
 #include "signalhandlerproperty.h"
 #include "variantproperty.h"
+
 #include <astcheck/astcheck.h>
 
 #include <externaldependenciesinterface.h>
@@ -61,6 +62,9 @@ static Q_LOGGING_CATEGORY(rewriterBenchmark, "qtc.rewriter.load", QtWarningMsg)
 static Q_LOGGING_CATEGORY(texttomodelMergerLog, "qtc.texttomodelmerger", QtWarningMsg)
 
 namespace {
+
+using NanotraceHR::keyValue;
+using QmlDesigner::RewriterTracing::category;
 
 bool isSupportedAttachedProperties(const QString &propertyName)
 {
@@ -449,10 +453,7 @@ bool usesCustomParserButIsNotPropertyChange(const QmlDesigner::NodeMetaInfo &nod
 
 } // anonymous namespace
 
-namespace QmlDesigner {
-using RewriterTracing::category;
-
-namespace Internal {
+namespace QmlDesigner::Internal {
 
 class ReadingContext
 {
@@ -464,17 +465,22 @@ public:
         : m_doc(doc)
         , m_model(model)
     {
+        NanotraceHR::Tracer tracer{"reading context constructor", category()};
     }
 
-    ~ReadingContext() = default;
+    ~ReadingContext() { NanotraceHR::Tracer tracer{"reading context destructor", category()}; }
 
     Document::Ptr doc() const
     {
+        NanotraceHR::Tracer tracer{"reading context doc", category()};
+
         return m_doc;
     }
 
     std::tuple<NodeMetaInfo, TypeName> lookup(AST::UiQualifiedId *astTypeNode)
     {
+        NanotraceHR::Tracer tracer{"reading context lookup", category()};
+
         TypeName fullTypeName;
         for (AST::UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
         if (!iter->name.isEmpty()) {
@@ -491,6 +497,8 @@ public:
                         const ModelNode &node,
                         const AST::UiQualifiedId *propertyId)
     {
+        NanotraceHR::Tracer tracer{"reading context lookup property", category()};
+
         const QString propertyName = propertyPrefix.isEmpty() ? propertyId->name.toString()
                                                               : propertyPrefix;
 
@@ -503,6 +511,8 @@ public:
 
     bool isArrayProperty(const AbstractProperty &property)
     {
+        NanotraceHR::Tracer tracer{"reading context is array property", category()};
+
         return ModelUtils::metainfo(property).isListProperty();
     }
 
@@ -511,10 +521,11 @@ public:
                               const QString &propertyPrefix,
                               AST::UiQualifiedId *propertyId)
     {
+        NanotraceHR::Tracer tracer{"reading context convert to variant", category()};
+
         const QString propertyName = propertyPrefix.isEmpty()
                                          ? toString(propertyId)
                                          : propertyPrefix + "." + toString(propertyId);
-
 
         const PropertyMetaInfo propertyMetaInfo = node.metaInfo().property(propertyName.toUtf8());
         const bool hasQuotes = astValue.trimmed().left(1) == u"\""
@@ -568,6 +579,8 @@ public:
                            AST::UiQualifiedId *propertyId,
                            QStringView astValue)
     {
+        NanotraceHR::Tracer tracer{"reading context convert to enum", category()};
+
         QList<QStringView> astValueList = astValue.split(u'.');
 
         if (astValueList.size() == 2) {
@@ -601,7 +614,11 @@ public:
     }
 
     QList<DiagnosticMessage> diagnosticLinkMessages() const
-    { return m_diagnosticLinkMessages; }
+    {
+        NanotraceHR::Tracer tracer{"reading context diagnostic link messages", category()};
+
+        return m_diagnosticLinkMessages;
+    }
 
 private:
     Document::Ptr m_doc;
@@ -609,16 +626,12 @@ private:
     Model *m_model;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
-
-using namespace QmlDesigner;
-using namespace QmlDesigner::Internal;
-
 TextToModelMerger::TextToModelMerger(RewriterView *reWriterView) :
         m_rewriterView(reWriterView),
         m_isActive(false)
 {
+    NanotraceHR::Tracer tracer{"reading context constructor", category()};
+
     Q_ASSERT(reWriterView);
     m_setupTimer.setSingleShot(true);
     RewriterView::connect(&m_setupTimer, &QTimer::timeout, reWriterView, &RewriterView::delayedSetup);
@@ -626,11 +639,15 @@ TextToModelMerger::TextToModelMerger(RewriterView *reWriterView) :
 
 void TextToModelMerger::setActive(bool active)
 {
+    NanotraceHR::Tracer tracer{"reading context set active", category(), keyValue("active", active)};
+
     m_isActive = active;
 }
 
 bool TextToModelMerger::isActive() const
 {
+    NanotraceHR::Tracer tracer{"reading context is active", category()};
+
     return m_isActive;
 }
 
@@ -1446,11 +1463,15 @@ QStringList TextToModelMerger::syncGroupedProperties(ModelNode &modelNode,
 
 void ModelValidator::modelMissesImport([[maybe_unused]] const QmlDesigner::Import &import)
 {
+    NanotraceHR::Tracer tracer{"model validator model misses import", category()};
+
     Q_ASSERT(m_merger->view()->model()->imports().contains(import));
 }
 
 void ModelValidator::importAbsentInQMl([[maybe_unused]] const QmlDesigner::Import &import)
 {
+    NanotraceHR::Tracer tracer{"model validator import absent in QML", category()};
+
     QTC_ASSERT(!m_merger->view()->model()->imports().contains(import), return);
 }
 
@@ -1458,6 +1479,8 @@ void ModelValidator::bindingExpressionsDiffer([[maybe_unused]] BindingProperty &
                                               [[maybe_unused]] const QString &javascript,
                                               [[maybe_unused]] const TypeName &astType)
 {
+    NanotraceHR::Tracer tracer{"model validator binding expressions differ", category()};
+
     Q_ASSERT(compareJavaScriptExpression(modelProperty.expression(), javascript));
     Q_ASSERT(modelProperty.dynamicTypeName() == astType);
     Q_ASSERT(0);
@@ -1467,6 +1490,8 @@ void ModelValidator::shouldBeBindingProperty([[maybe_unused]] AbstractProperty &
                                              const QString & /*javascript*/,
                                              const TypeName & /*astType*/)
 {
+    NanotraceHR::Tracer tracer{"model validator should be binding property", category()};
+
     Q_ASSERT(modelProperty.isBindingProperty());
     Q_ASSERT(0);
 }
@@ -1474,12 +1499,16 @@ void ModelValidator::shouldBeBindingProperty([[maybe_unused]] AbstractProperty &
 void ModelValidator::signalHandlerSourceDiffer([[maybe_unused]] SignalHandlerProperty &modelProperty,
                                                [[maybe_unused]] const QString &javascript)
 {
+    NanotraceHR::Tracer tracer{"model validator signal handler source differ", category()};
+
     QTC_ASSERT(compareJavaScriptExpression(modelProperty.source(), javascript), return);
 }
 
 void ModelValidator::signalDeclarationSignatureDiffer(SignalDeclarationProperty &modelProperty,
                                                       const QString &signature)
 {
+    NanotraceHR::Tracer tracer{"model validator signal declaration signature differ", category()};
+
     Q_UNUSED(modelProperty)
     Q_UNUSED(signature)
     QTC_ASSERT(compareJavaScriptExpression(modelProperty.signature(), signature), return);
@@ -1488,6 +1517,8 @@ void ModelValidator::signalDeclarationSignatureDiffer(SignalDeclarationProperty 
 void ModelValidator::shouldBeSignalHandlerProperty([[maybe_unused]] AbstractProperty &modelProperty,
                                                    const QString & /*javascript*/)
 {
+    NanotraceHR::Tracer tracer{"model validator should be signal handler property", category()};
+
     Q_ASSERT(modelProperty.isSignalHandlerProperty());
     Q_ASSERT(0);
 }
@@ -1495,6 +1526,8 @@ void ModelValidator::shouldBeSignalHandlerProperty([[maybe_unused]] AbstractProp
 void ModelValidator::shouldBeSignalDeclarationProperty(AbstractProperty &modelProperty,
                                                        const QString & /*javascript*/)
 {
+    NanotraceHR::Tracer tracer{"model validator should be signal declaration property", category()};
+
     Q_UNUSED(modelProperty)
     Q_ASSERT(modelProperty.isSignalDeclarationProperty());
     Q_ASSERT(0);
@@ -1504,6 +1537,8 @@ void ModelValidator::shouldBeNodeListProperty([[maybe_unused]] AbstractProperty 
                                               const QList<AST::UiObjectMember *> /*arrayMembers*/,
                                               ReadingContext * /*context*/)
 {
+    NanotraceHR::Tracer tracer{"model validator should be node list property", category()};
+
     Q_ASSERT(modelProperty.isNodeListProperty());
     Q_ASSERT(0);
 }
@@ -1512,6 +1547,8 @@ void ModelValidator::variantValuesDiffer([[maybe_unused]] VariantProperty &model
                                          [[maybe_unused]] const QVariant &qmlVariantValue,
                                          [[maybe_unused]] const TypeName &dynamicTypeName)
 {
+    NanotraceHR::Tracer tracer{"model validator variant values differ", category()};
+
     QTC_ASSERT(modelProperty.isDynamic() == !dynamicTypeName.isEmpty(), return);
     if (modelProperty.isDynamic()) {
         QTC_ASSERT(modelProperty.dynamicTypeName() == dynamicTypeName, return);
@@ -1527,6 +1564,8 @@ void ModelValidator::shouldBeVariantProperty([[maybe_unused]] AbstractProperty &
                                              const QVariant & /*qmlVariantValue*/,
                                              const TypeName & /*dynamicTypeName*/)
 {
+    NanotraceHR::Tracer tracer{"model validator should be variant property", category()};
+
     QTC_CHECK(modelProperty.isVariantProperty());
     Q_ASSERT(modelProperty.isVariantProperty());
     Q_ASSERT(0);
@@ -1539,12 +1578,15 @@ void ModelValidator::shouldBeNodeProperty([[maybe_unused]] AbstractProperty &mod
                                           const TypeName & /*dynamicPropertyType */,
                                           ReadingContext * /*context*/)
 {
+    NanotraceHR::Tracer tracer{"model validator should be node property", category()};
     Q_ASSERT(modelProperty.isNodeProperty());
     Q_ASSERT(0);
 }
 
 void ModelValidator::modelNodeAbsentFromQml([[maybe_unused]] ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"model validator model node absent from QML", category()};
+
     Q_ASSERT(!modelNode.isValid());
     Q_ASSERT(0);
 }
@@ -1553,6 +1595,8 @@ ModelNode ModelValidator::listPropertyMissingModelNode(NodeListProperty &/*model
                                                        ReadingContext * /*context*/,
                                                        AST::UiObjectMember * /*arrayMember*/)
 {
+    NanotraceHR::Tracer tracer{"model validator list property missing model node", category()};
+
     Q_ASSERT(0);
     return ModelNode();
 }
@@ -1564,6 +1608,7 @@ void ModelValidator::typeDiffers(bool /*isRootNode*/,
                                  QmlJS::AST::UiObjectMember * /*astNode*/,
                                  ReadingContext * /*context*/)
 {
+    NanotraceHR::Tracer tracer{"model validator type differs", category()};
     QTC_ASSERT(modelNode.type() == typeName, return);
 
     QTC_ASSERT(0, return);
@@ -1571,6 +1616,8 @@ void ModelValidator::typeDiffers(bool /*isRootNode*/,
 
 void ModelValidator::propertyAbsentFromQml([[maybe_unused]] AbstractProperty &modelProperty)
 {
+    NanotraceHR::Tracer tracer{"model validator property absent from QML", category()};
+
     Q_ASSERT(!modelProperty.isValid());
     Q_ASSERT(0);
     QTC_CHECK(!modelProperty.isValid());
@@ -1579,18 +1626,28 @@ void ModelValidator::propertyAbsentFromQml([[maybe_unused]] AbstractProperty &mo
 void ModelValidator::idsDiffer([[maybe_unused]] ModelNode &modelNode,
                                [[maybe_unused]] const QString &qmlId)
 {
+    NanotraceHR::Tracer tracer{"model validator ids differ", category()};
+
     QTC_ASSERT(modelNode.id() == qmlId, return);
     QTC_ASSERT(0, return);
 }
 
-void ModelAmender::modelMissesImport(const QmlDesigner::Import &) {}
+void ModelAmender::modelMissesImport(const QmlDesigner::Import &)
+{
+    NanotraceHR::Tracer tracer{"model validator model misses import", category()};
+}
 
-void ModelAmender::importAbsentInQMl(const QmlDesigner::Import &) {}
+void ModelAmender::importAbsentInQMl(const QmlDesigner::Import &)
+{
+    NanotraceHR::Tracer tracer{"model validator import absent in QML", category()};
+}
 
 void ModelAmender::bindingExpressionsDiffer(BindingProperty &modelProperty,
                                             const QString &javascript,
                                             const TypeName &astType)
 {
+    NanotraceHR::Tracer tracer{"model validator binding expressions differ", category()};
+
     if (astType.isEmpty())
         modelProperty.setExpression(javascript);
     else
@@ -1601,6 +1658,8 @@ void ModelAmender::shouldBeBindingProperty(AbstractProperty &modelProperty,
                                            const QString &javascript,
                                            const TypeName &astType)
 {
+    NanotraceHR::Tracer tracer{"model validator should be binding property", category()};
+
     ModelNode theNode = modelProperty.parentModelNode();
     BindingProperty newModelProperty = theNode.bindingProperty(modelProperty.name());
     if (astType.isEmpty())
@@ -1611,16 +1670,22 @@ void ModelAmender::shouldBeBindingProperty(AbstractProperty &modelProperty,
 
 void ModelAmender::signalHandlerSourceDiffer(SignalHandlerProperty &modelProperty, const QString &javascript)
 {
+    NanotraceHR::Tracer tracer{"model validator signal handler source differ", category()};
+
     modelProperty.setSource(javascript);
 }
 
 void ModelAmender::signalDeclarationSignatureDiffer(SignalDeclarationProperty &modelProperty, const QString &signature)
 {
+    NanotraceHR::Tracer tracer{"model validator signal declaration signature differ", category()};
+
     modelProperty.setSignature(signature);
 }
 
 void ModelAmender::shouldBeSignalHandlerProperty(AbstractProperty &modelProperty, const QString &javascript)
 {
+    NanotraceHR::Tracer tracer{"model validator should be signal handler property", category()};
+
     ModelNode theNode = modelProperty.parentModelNode();
     SignalHandlerProperty newModelProperty = theNode.signalHandlerProperty(modelProperty.name());
     newModelProperty.setSource(javascript);
@@ -1628,6 +1693,8 @@ void ModelAmender::shouldBeSignalHandlerProperty(AbstractProperty &modelProperty
 
 void ModelAmender::shouldBeSignalDeclarationProperty(AbstractProperty &modelProperty, const QString &signature)
 {
+    NanotraceHR::Tracer tracer{"model validator should be signal declaration property", category()};
+
     ModelNode theNode = modelProperty.parentModelNode();
     SignalDeclarationProperty newModelProperty = theNode.signalDeclarationProperty(modelProperty.name());
     newModelProperty.setSignature(signature);
@@ -1637,6 +1704,8 @@ void ModelAmender::shouldBeNodeListProperty(AbstractProperty &modelProperty,
                                             const QList<AST::UiObjectMember *> arrayMembers,
                                             ReadingContext *context)
 {
+    NanotraceHR::Tracer tracer{"model validator should be node list property", category()};
+
     ModelNode theNode = modelProperty.parentModelNode();
     NodeListProperty newNodeListProperty = theNode.nodeListProperty(modelProperty.name());
     m_merger->syncNodeListProperty(newNodeListProperty,
@@ -1649,10 +1718,7 @@ void ModelAmender::shouldBeNodeListProperty(AbstractProperty &modelProperty,
 
 void ModelAmender::variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicType)
 {
-//    qDebug()<< "ModelAmender::variantValuesDiffer for property"<<modelProperty.name()
-//            << "in node" << modelProperty.parentModelNode().id()
-//            << ", old value:" << modelProperty.value()
-//            << "new value:" << qmlVariantValue;
+    NanotraceHR::Tracer tracer{"model validator variant values differ", category()};
 
     if (dynamicType.isEmpty())
         modelProperty.setValue(qmlVariantValue);
@@ -1662,6 +1728,8 @@ void ModelAmender::variantValuesDiffer(VariantProperty &modelProperty, const QVa
 
 void ModelAmender::shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const TypeName &dynamicTypeName)
 {
+    NanotraceHR::Tracer tracer{"model validator should be variant property", category()};
+
     ModelNode theNode = modelProperty.parentModelNode();
     VariantProperty newModelProperty = theNode.variantProperty(modelProperty.name());
 
@@ -1678,6 +1746,8 @@ void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
                                         const TypeName &dynamicPropertyType,
                                         ReadingContext *context)
 {
+    NanotraceHR::Tracer tracer{"model validator should be node property", category()};
+
     ModelNode theNode = modelProperty.parentModelNode();
     NodeProperty newNodeProperty = theNode.nodeProperty(modelProperty.name());
 
@@ -1699,6 +1769,8 @@ void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
 
 void ModelAmender::modelNodeAbsentFromQml(ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"model validator model node absent from QML", category()};
+
     removeModelNode(modelNode);
 }
 
@@ -1706,6 +1778,8 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
                                                      ReadingContext *context,
                                                      AST::UiObjectMember *arrayMember)
 {
+    NanotraceHR::Tracer tracer{"model validator list property missing model node", category()};
+
     AST::UiQualifiedId *astObjectType = nullptr;
     AST::UiObjectInitializer *astInitializer = nullptr;
     if (auto def = AST::cast<AST::UiObjectDefinition *>(arrayMember)) {
@@ -1754,6 +1828,8 @@ void ModelAmender::typeDiffers(bool isRootNode,
                                AST::UiObjectMember *astNode,
                                ReadingContext *context)
 {
+    NanotraceHR::Tracer tracer{"model validator type differs", category()};
+
     const bool propertyTakesComponent = modelNode.hasParentProperty()
                                         && propertyHasImplicitComponentType(modelNode.parentProperty(),
                                                                             nodeMetaInfo);
@@ -1783,11 +1859,15 @@ void ModelAmender::typeDiffers(bool isRootNode,
 
 void ModelAmender::propertyAbsentFromQml(AbstractProperty &modelProperty)
 {
+    NanotraceHR::Tracer tracer{"model validator property absent from QML", category()};
+
     removeProperty(modelProperty);
 }
 
 void ModelAmender::idsDiffer(ModelNode &modelNode, const QString &qmlId)
 {
+    NanotraceHR::Tracer tracer{"model validator ids differ", category()};
+
     modelNode.setIdWithoutRefactoring(qmlId);
 }
 
@@ -2015,22 +2095,29 @@ void TextToModelMerger::delayedSetup()
 
 QSet<QPair<QString, QString> > TextToModelMerger::qrcMapping() const
 {
+    NanotraceHR::Tracer tracer{"model validator qrc mapping", category()};
+
     return m_qrcMapping;
 }
 
 QList<QmlTypeData> TextToModelMerger::getQMLSingletons() const
 {
+    NanotraceHR::Tracer tracer{"model validator get QML singletons", category()};
     return {};
 }
 
 void TextToModelMerger::clearPossibleImportKeys()
 {
+    NanotraceHR::Tracer tracer{"model validator clear possible import keys", category()};
+
     m_possibleModules.clear();
     m_previousPossibleModulesSize = -1;
 }
 
 void TextToModelMerger::setRemoveImports(bool removeImports)
 {
+    NanotraceHR::Tracer tracer{"model validator set remove imports", category()};
+
     m_removeImports = removeImports;
 }
 
@@ -2048,3 +2135,5 @@ QString TextToModelMerger::textAt(const Document::Ptr &doc,
     NanotraceHR::Tracer tracer{"text to model merger text at from to", category()};
     return doc->source().mid(from.offset, to.end() - from.begin());
 }
+
+} // namespace QmlDesigner::Internal

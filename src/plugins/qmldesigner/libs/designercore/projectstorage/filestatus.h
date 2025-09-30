@@ -45,11 +45,11 @@ public:
     template<typename String>
     friend void convertToString(String &string, const FileStatus &fileStatus)
     {
-        using NanotraceHR::dictonary;
+        using NanotraceHR::dictionary;
         using NanotraceHR::keyValue;
-        auto dict = dictonary(keyValue("source id", fileStatus.sourceId),
-                              keyValue("size", fileStatus.size),
-                              keyValue("last modified", fileStatus.lastModified));
+        auto dict = dictionary(keyValue("source id", fileStatus.sourceId),
+                               keyValue("size", fileStatus.size),
+                               keyValue("last modified", fileStatus.lastModified));
 
         convertToString(string, dict);
     }

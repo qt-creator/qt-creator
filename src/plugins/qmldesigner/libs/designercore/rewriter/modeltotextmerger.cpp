@@ -5,6 +5,7 @@
 #include "modelnodepositionrecalculator.h"
 #include "qmltextgenerator.h"
 #include "rewriteactioncompressor.h"
+#include "rewritertracing.h"
 
 #include <customnotifications.h>
 
@@ -20,28 +21,35 @@
 #include <utils/span.h>
 
 namespace {
-    enum {
-        DebugRewriteActions = 0
-    };
+enum { DebugRewriteActions = 0 };
 }
 
-using namespace QmlJS;
-using namespace QmlDesigner;
-using namespace QmlDesigner::Internal;
+namespace QmlDesigner::Internal {
 using namespace Qt::StringLiterals;
 
-ModelToTextMerger::ModelToTextMerger(RewriterView *reWriterView):
-        m_rewriterView(reWriterView)
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
+
+ModelToTextMerger::ModelToTextMerger(RewriterView *reWriterView)
+    : m_rewriterView(reWriterView)
 {
+    NanotraceHR::Tracer tracer{"model to text merger constructor", category()};
 }
 
-void ModelToTextMerger::nodeCreated(const ModelNode &/*createdNode*/)
+void ModelToTextMerger::nodeCreated(const ModelNode & /*createdNode*/)
 {
+    NanotraceHR::Tracer tracer{"model to text merger node created", category()};
+
     //the rewriter ignores model nodes outside of the hierachy
 }
 
 void ModelToTextMerger::nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model to text merger node removed",
+                               category(),
+                               keyValue("removed node", removedNode),
+                               keyValue("parent property", parentProperty)};
+
     if (!isInHierarchy(parentProperty))
         return;
 
@@ -55,6 +63,8 @@ void ModelToTextMerger::nodeRemoved(const ModelNode &removedNode, const NodeAbst
 
 void ModelToTextMerger::propertiesRemoved(const QList<AbstractProperty>& propertyList)
 {
+    NanotraceHR::Tracer tracer{"model to text merger properties removed", category()};
+
     for (const AbstractProperty &property : propertyList) {
         // Default property that has actual binding/value should be removed
         if (isInHierarchy(property) && (!property.isDefaultProperty()
@@ -68,6 +78,8 @@ void ModelToTextMerger::propertiesRemoved(const QList<AbstractProperty>& propert
 
 void ModelToTextMerger::propertiesChanged(const QList<AbstractProperty>& propertyList, PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model to text merger properties changed", category()};
+
     const TextEditor::TabSettings tabSettings = m_rewriterView->textModifier()->tabSettings();
     for (const AbstractProperty &property : propertyList) {
 
@@ -108,6 +120,10 @@ void ModelToTextMerger::propertiesChanged(const QList<AbstractProperty>& propert
 
 void ModelToTextMerger::nodeTypeChanged(const ModelNode &node, const QString & /*type*/)
 {
+    NanotraceHR::Tracer tracer{"model to text merger node type changed",
+                               category(),
+                               keyValue("node", node)};
+
     if (!node.isInHierarchy())
         return;
 
@@ -118,6 +134,8 @@ void ModelToTextMerger::nodeTypeChanged(const ModelNode &node, const QString & /
 
 void ModelToTextMerger::addImports(const Imports &imports)
 {
+    NanotraceHR::Tracer tracer{"model to text merger add imports", category()};
+
     for (const Import &import : imports) {
         if (!import.isEmpty())
             schedule(new AddImportRewriteAction(import));
@@ -126,6 +144,8 @@ void ModelToTextMerger::addImports(const Imports &imports)
 
 void ModelToTextMerger::removeImports(const Imports &imports)
 {
+    NanotraceHR::Tracer tracer{"model to text merger remove imports", category()};
+
     for (const Import &import : imports) {
         if (!import.isEmpty())
             schedule(new RemoveImportRewriteAction(import));
@@ -134,12 +154,15 @@ void ModelToTextMerger::removeImports(const Imports &imports)
 
 void ModelToTextMerger::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model to text merger node reparented", category()};
+
     if (isInHierarchy(oldPropertyParent) && isInHierarchy(newPropertyParent)) { // the node is moved
         schedule(new ReparentNodeRewriteAction(node,
                                                oldPropertyParent,
                                                newPropertyParent,
                                                propertyType(newPropertyParent)));
-    } else if (isInHierarchy(oldPropertyParent) && !isInHierarchy(newPropertyParent)) { // the node is removed from hierarchy
+    } else if (isInHierarchy(oldPropertyParent)
+               && !isInHierarchy(newPropertyParent)) { // the node is removed from hierarchy
         if (oldPropertyParent.isNodeProperty()) {
             // ignore, the subsequent remove property will take care of all
         } else if (oldPropertyParent.isNodeListProperty()) {
@@ -150,7 +173,8 @@ void ModelToTextMerger::nodeReparented(const ModelNode &node, const NodeAbstract
         } else {
             schedule(new RemoveNodeRewriteAction(node));
         }
-    } else if (!isInHierarchy(oldPropertyParent) && isInHierarchy(newPropertyParent)) { // the node is inserted into to hierarchy
+    } else if (!isInHierarchy(oldPropertyParent)
+               && isInHierarchy(newPropertyParent)) { // the node is inserted into to hierarchy
         switch (propertyChange) {
         case AbstractView::PropertiesAdded:
             schedule(new AddPropertyRewriteAction(newPropertyParent,
@@ -183,6 +207,7 @@ void ModelToTextMerger::nodeReparented(const ModelNode &node, const NodeAbstract
 
 void ModelToTextMerger::nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId)
 {
+    NanotraceHR::Tracer tracer{"model to text merger node id changed", category()};
     if (!node.isInHierarchy())
         return;
 
@@ -191,6 +216,8 @@ void ModelToTextMerger::nodeIdChanged(const ModelNode& node, const QString& newI
 
 void ModelToTextMerger::nodeSlidAround(const ModelNode &movingNode, const ModelNode &inFrontOfNode)
 {
+    NanotraceHR::Tracer tracer{"model to text merger node slid around", category()};
+
     if (!inFrontOfNode.isValid() || movingNode.parentProperty() == inFrontOfNode.parentProperty())
         schedule(new MoveNodeRewriteAction(movingNode, inFrontOfNode));
     else
@@ -199,11 +226,15 @@ void ModelToTextMerger::nodeSlidAround(const ModelNode &movingNode, const ModelN
 
 RewriterView *ModelToTextMerger::view()
 {
+    NanotraceHR::Tracer tracer{"model to text merger view", category()};
+
     return m_rewriterView;
 }
 
 void ModelToTextMerger::applyChanges()
 {
+    NanotraceHR::Tracer tracer{"model to text merger apply changes", category()};
+
     if (m_rewriteActions.isEmpty())
         return;
 
@@ -217,8 +248,9 @@ void ModelToTextMerger::applyChanges()
 
     m_rewriterView->emitCustomNotification(StartRewriterApply);
 
-    Document::MutablePtr tmpDocument(
-        Document::create(Utils::FilePath::fromString("<ModelToTextMerger>"), Dialect::Qml));
+    QmlJS::Document::MutablePtr tmpDocument(
+        QmlJS::Document::create(Utils::FilePath::fromString("<ModelToTextMerger>"),
+                                QmlJS::Dialect::Qml));
     tmpDocument->setSource(m_rewriterView->textModifier()->text());
     if (!tmpDocument->parseQml()) {
         qDebug() << "*** Possible problem: QML file wasn't parsed correctly.";
@@ -303,6 +335,8 @@ void ModelToTextMerger::applyChanges()
 
 void ModelToTextMerger::reindent(const QMap<int, int> &dirtyAreas) const
 {
+    NanotraceHR::Tracer tracer{"model to text merger reindent", category()};
+
     QList<int> offsets = dirtyAreas.keys();
     Utils::sort(offsets);
     TextModifier *textModifier = m_rewriterView->textModifier();
@@ -315,12 +349,16 @@ void ModelToTextMerger::reindent(const QMap<int, int> &dirtyAreas) const
 
 void ModelToTextMerger::reindentAll() const
 {
+    NanotraceHR::Tracer tracer{"model to text merger reindent all", category()};
+
     TextModifier *textModifier = m_rewriterView->textModifier();
     textModifier->indent(0, textModifier->text().length() - 1);
 }
 
 void ModelToTextMerger::schedule(RewriteAction *action)
 {
+    NanotraceHR::Tracer tracer{"model to text merger schedule", category()};
+
     Q_ASSERT(action);
 
     m_rewriteActions.append(action);
@@ -328,6 +366,8 @@ void ModelToTextMerger::schedule(RewriteAction *action)
 
 QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractProperty &property, const QString &textValue)
 {
+    NanotraceHR::Tracer tracer{"model to text merger property type", category()};
+
     if (property.isBindingProperty()) {
         QString val = textValue.trimmed();
         if (val.isEmpty())
@@ -359,6 +399,8 @@ QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractPrope
 
 Utils::span<const PropertyNameView> ModelToTextMerger::propertyOrder()
 {
+    NanotraceHR::Tracer tracer{"model to text merger property order", category()};
+
     static constexpr auto propertyNames = Utils::to_array<PropertyNameView>(
         "id",
         "name",
@@ -407,11 +449,15 @@ Utils::span<const PropertyNameView> ModelToTextMerger::propertyOrder()
 }
 
 bool ModelToTextMerger::isInHierarchy(const AbstractProperty &property) {
+    NanotraceHR::Tracer tracer{"model to text merger is in hierarchy", category()};
+
     return property.isValid() && property.parentModelNode().isInHierarchy();
 }
 
 void ModelToTextMerger::dumpRewriteActions(QStringView msg)
 {
+    NanotraceHR::Tracer tracer{"model to text merger dump rewrite actions", category()};
+
     if (DebugRewriteActions) {
         qDebug() << "---->" << msg;
 
@@ -422,3 +468,5 @@ void ModelToTextMerger::dumpRewriteActions(QStringView msg)
         qDebug() << "<----" << msg;
     }
 }
+
+} // namespace QmlDesigner::Internal

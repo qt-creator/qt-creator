@@ -350,9 +350,9 @@ private:
         friend void convertToString(String &string,
                                     const AliasPropertyDeclaration &aliasPropertyDeclaration)
         {
-            using NanotraceHR::dictonary;
+            using NanotraceHR::dictionary;
             using NanotraceHR::keyValue;
-            auto dict = dictonary(
+            auto dict = dictionary(
                 keyValue("type id", aliasPropertyDeclaration.typeId),
                 keyValue("property declaration id", aliasPropertyDeclaration.propertyDeclarationId),
                 keyValue("alias imported type name id",
@@ -412,13 +412,13 @@ private:
         template<typename String>
         friend void convertToString(String &string, const PropertyDeclaration &propertyDeclaration)
         {
-            using NanotraceHR::dictonary;
+            using NanotraceHR::dictionary;
             using NanotraceHR::keyValue;
-            auto dict = dictonary(keyValue("type id", propertyDeclaration.typeId),
-                                  keyValue("property declaration id",
-                                           propertyDeclaration.propertyDeclarationId),
-                                  keyValue("imported type name id",
-                                           propertyDeclaration.importedTypeNameId));
+            auto dict = dictionary(keyValue("type id", propertyDeclaration.typeId),
+                                   keyValue("property declaration id",
+                                            propertyDeclaration.propertyDeclarationId),
+                                   keyValue("imported type name id",
+                                            propertyDeclaration.importedTypeNameId));
 
             convertToString(string, dict);
         }
@@ -452,11 +452,11 @@ private:
         template<typename String>
         friend void convertToString(String &string, const Base &prototype)
         {
-            using NanotraceHR::dictonary;
+            using NanotraceHR::dictionary;
             using NanotraceHR::keyValue;
-            auto dict = dictonary(keyValue("type id", prototype.typeId),
-                                  keyValue("prototype name id", prototype.prototypeNameId),
-                                  keyValue("extension name id", prototype.extensionNameId));
+            auto dict = dictionary(keyValue("type id", prototype.typeId),
+                                   keyValue("prototype name id", prototype.prototypeNameId),
+                                   keyValue("extension name id", prototype.extensionNameId));
 
             convertToString(string, dict);
         }
@@ -498,13 +498,13 @@ private:
         template<typename String>
         friend void convertToString(String &string, const TypeAnnotationView &typeAnnotationView)
         {
-            using NanotraceHR::dictonary;
+            using NanotraceHR::dictionary;
             using NanotraceHR::keyValue;
-            auto dict = dictonary(keyValue("type id", typeAnnotationView.typeId),
-                                  keyValue("type name", typeAnnotationView.typeName),
-                                  keyValue("icon path", typeAnnotationView.iconPath),
-                                  keyValue("item library json", typeAnnotationView.itemLibraryJson),
-                                  keyValue("hints json", typeAnnotationView.hintsJson));
+            auto dict = dictionary(keyValue("type id", typeAnnotationView.typeId),
+                                   keyValue("type name", typeAnnotationView.typeName),
+                                   keyValue("icon path", typeAnnotationView.iconPath),
+                                   keyValue("item library json", typeAnnotationView.itemLibraryJson),
+                                   keyValue("hints json", typeAnnotationView.hintsJson));
 
             convertToString(string, dict);
         }
@@ -682,11 +682,11 @@ private:
         friend void convertToString(String &string,
                                     const AliasPropertyDeclarationView &aliasPropertyDeclarationView)
         {
-            using NanotraceHR::dictonary;
+            using NanotraceHR::dictionary;
             using NanotraceHR::keyValue;
-            auto dict = dictonary(keyValue("name", aliasPropertyDeclarationView.name),
-                                  keyValue("id", aliasPropertyDeclarationView.id),
-                                  keyValue("alias id", aliasPropertyDeclarationView.aliasId));
+            auto dict = dictionary(keyValue("name", aliasPropertyDeclarationView.name),
+                                   keyValue("id", aliasPropertyDeclarationView.id),
+                                   keyValue("alias id", aliasPropertyDeclarationView.aliasId));
 
             convertToString(string, dict);
         }
@@ -739,11 +739,11 @@ private:
         friend void convertToString(String &string,
                                     const PropertyEditorQmlPathView &propertyEditorQmlPathView)
         {
-            using NanotraceHR::dictonary;
+            using NanotraceHR::dictionary;
             using NanotraceHR::keyValue;
-            auto dict = dictonary(keyValue("type id", propertyEditorQmlPathView.typeId),
-                                  keyValue("source id", propertyEditorQmlPathView.pathId),
-                                  keyValue("directory id", propertyEditorQmlPathView.directoryId));
+            auto dict = dictionary(keyValue("type id", propertyEditorQmlPathView.typeId),
+                                   keyValue("source id", propertyEditorQmlPathView.pathId),
+                                   keyValue("directory id", propertyEditorQmlPathView.directoryId));
 
             convertToString(string, dict);
         }
@@ -796,10 +796,10 @@ private:
         template<typename String>
         friend void convertToString(String &string, const TypeWithDefaultPropertyView &view)
         {
-            using NanotraceHR::dictonary;
+            using NanotraceHR::dictionary;
             using NanotraceHR::keyValue;
-            auto dict = dictonary(keyValue("type id", view.typeId),
-                                  keyValue("property id", view.defaultPropertyId));
+            auto dict = dictionary(keyValue("type id", view.typeId),
+                                   keyValue("property id", view.defaultPropertyId));
 
             convertToString(string, dict);
         }
@@ -869,13 +869,13 @@ private:
         template<typename String>
         friend void convertToString(String &string, const FetchPropertyDeclarationResult &result)
         {
-            using NanotraceHR::dictonary;
+            using NanotraceHR::dictionary;
             using NanotraceHR::keyValue;
-            auto dict = dictonary(keyValue("property imported type name id",
-                                           result.propertyImportedTypeNameId),
-                                  keyValue("property type id", result.propertyTypeId),
-                                  keyValue("property declaration id", result.propertyDeclarationId),
-                                  keyValue("property traits", result.propertyTraits));
+            auto dict = dictionary(keyValue("property imported type name id",
+                                            result.propertyImportedTypeNameId),
+                                   keyValue("property type id", result.propertyTypeId),
+                                   keyValue("property declaration id", result.propertyDeclarationId),
+                                   keyValue("property traits", result.propertyTraits));
 
             convertToString(string, dict);
         }

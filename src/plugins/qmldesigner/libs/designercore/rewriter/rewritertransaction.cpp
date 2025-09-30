@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "rewritertransaction.h"
-#include <abstractview.h>
+#include "rewritertracing.h"
+#include "rewriterview.h"
+#include "rewritingexception.h"
+
 #include <externaldependenciesinterface.h>
-#include <rewriterview.h>
-#include <rewritingexception.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -14,12 +15,16 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
+
 QList<QByteArray> RewriterTransaction::m_identifierList;
 bool RewriterTransaction::m_activeIdentifier = Utils::qtcEnvironmentVariableIsSet(
     "QML_DESIGNER_TRACE_REWRITER_TRANSACTION");
 
 RewriterTransaction::RewriterTransaction() : m_valid(false)
 {
+    NanotraceHR::Tracer tracer{"rewriter view transaction default constructor", category()};
 }
 
 RewriterTransaction::RewriterTransaction(AbstractView *_view, const QByteArray &identifier)
@@ -27,6 +32,9 @@ RewriterTransaction::RewriterTransaction(AbstractView *_view, const QByteArray &
       m_identifier(identifier),
       m_valid(true)
 {
+    NanotraceHR::Tracer tracer{"rewriter view transaction constructor",
+                               category(),
+                               keyValue("identifier", identifier)};
 
     static int identifierNumber = 0;
     m_identifierNumber = identifierNumber++;
@@ -41,38 +49,57 @@ RewriterTransaction::RewriterTransaction(AbstractView *_view, const QByteArray &
 
 RewriterTransaction::~RewriterTransaction()
 {
+    NanotraceHR::Tracer tracer{"rewriter view transaction destructor",
+                               category(),
+                               keyValue("identifier", m_identifier),
+                               keyValue("number", m_identifierNumber),
+                               keyValue("valid", m_valid)};
     try {
         commit();
     } catch (const RewritingException &e) {
-        QTC_ASSERT(false, ;);
+        tracer.tick("catch exception");
+        QTC_CHECK(false);
         e.showException();
     }
 }
 
 bool RewriterTransaction::isValid() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view transaction isValid", category()};
+
     return m_valid;
 }
 
 void RewriterTransaction::ignoreSemanticChecks()
 {
+    NanotraceHR::Tracer tracer{"rewriter view transaction ignoreSemanticChecks", category()};
+
     m_ignoreSemanticChecks = true;
 }
 
 void RewriterTransaction::beginTransaction()
 {
+    NanotraceHR::Tracer tracer{"rewriter view transaction beginTransaction", category()};
+
     if (m_view && m_view->isAttached())
         m_view->model()->emitRewriterBeginTransaction();
 }
 
 void RewriterTransaction::endTransaction()
 {
+    NanotraceHR::Tracer tracer{"rewriter view transaction endTransaction", category()};
+
     if (m_view && m_view->isAttached())
         m_view->model()->emitRewriterEndTransaction();
 }
 
 void RewriterTransaction::commit()
 {
+    NanotraceHR::Tracer tracer{"rewriter view transaction commit",
+                               category(),
+                               keyValue("identifier", m_identifier),
+                               keyValue("number", m_identifierNumber),
+                               keyValue("valid", m_valid)};
     if (m_valid) {
         m_valid = false;
 
@@ -103,6 +130,12 @@ void RewriterTransaction::commit()
 
 void RewriterTransaction::rollback()
 {
+    NanotraceHR::Tracer tracer{"rewriter view transaction rollback",
+                               category(),
+                               keyValue("identifier", m_identifier),
+                               keyValue("number", m_identifierNumber),
+                               keyValue("valid", m_valid)};
+
     // TODO: should be implemented with a function in the rewriter
     if (m_valid) {
         m_valid = false;
@@ -119,6 +152,8 @@ void RewriterTransaction::rollback()
 RewriterTransaction::RewriterTransaction(const RewriterTransaction &other)
         : m_valid(false)
 {
+    NanotraceHR::Tracer tracer{"rewriter view transaction copy constructor", category()};
+
     if (&other != this) {
         m_valid = other.m_valid;
         m_view = other.m_view;
@@ -130,6 +165,8 @@ RewriterTransaction::RewriterTransaction(const RewriterTransaction &other)
 
 RewriterTransaction& RewriterTransaction::operator=(const RewriterTransaction &other)
 {
+    NanotraceHR::Tracer tracer{"rewriter view transaction assignment operator", category()};
+
     if (!m_valid && (&other != this)) {
         m_valid = other.m_valid;
         m_view = other.m_view;

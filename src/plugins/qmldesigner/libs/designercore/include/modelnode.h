@@ -274,11 +274,7 @@ public:
         return firstNode.m_internalNode <=> secondNode.m_internalNode;
     }
 
-    template<typename String>
-    friend void convertToString(String &string, const ModelNode &node)
-    {
-        convertToString(string, reinterpret_cast<std::uintptr_t>(node.m_internalNode.get()));
-    }
+    friend void convertToString(NanotraceHR::ArgumentsString &string, const ModelNode &node);
 
 private: // functions
     Internal::InternalNodePointer internalNode() const { return m_internalNode; }

@@ -2,6 +2,17 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmltextgenerator.h"
+#include "rewritertracing.h"
+
+#include <qmldesignerutils/stringutils.h>
+
+#include <bindingproperty.h>
+#include <model.h>
+#include <nodelistproperty.h>
+#include <nodemetainfo.h>
+#include <nodeproperty.h>
+#include <signalhandlerproperty.h>
+#include <variantproperty.h>
 
 #include <QColor>
 #include <QVariant>
@@ -9,20 +20,12 @@
 #include <QVector3D>
 #include <QVector4D>
 
-#include <qmldesignerutils/stringutils.h>
-
-#include "bindingproperty.h"
-#include "model.h"
-#include "nodelistproperty.h"
-#include "nodeproperty.h"
-#include "signalhandlerproperty.h"
-#include "variantproperty.h"
-#include <nodemetainfo.h>
-
-using namespace QmlDesigner;
 using namespace Qt::StringLiterals;
 
 namespace QmlDesigner::Internal {
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 static QString properColorName(const QColor &color)
 {
@@ -81,10 +84,18 @@ QmlTextGenerator::QmlTextGenerator(Utils::span<const PropertyNameView> propertyO
     , m_tabSettings(tabSettings)
     , m_startIndentDepth(startIndentDepth)
 {
+    NanotraceHR::Tracer tracer{"qml text generator constructor",
+                               category(),
+                               keyValue("indent", startIndentDepth)};
 }
 
 QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDepth) const
 {
+    NanotraceHR::Tracer tracer{"qml text generator to qml property",
+                               category(),
+                               keyValue("property", property),
+                               keyValue("indent", indentDepth)};
+
     if (property.isBindingProperty()) {
         return property.toBindingProperty().expression();
     } else if (property.isSignalHandlerProperty()) {
@@ -173,6 +184,11 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
 
 QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
 {
+    NanotraceHR::Tracer tracer{"qml text generator to qml node",
+                               category(),
+                               keyValue("node", node),
+                               keyValue("indent", indentDepth)};
+
     QString type = QString::fromLatin1(node.type());
     QString url;
     if (type.contains('.')) {
@@ -216,6 +232,11 @@ QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
 
 QString QmlTextGenerator::propertiesToQml(const ModelNode &node, int indentDepth) const
 {
+    NanotraceHR::Tracer tracer{"qml text generator to qml properties",
+                               category(),
+                               keyValue("node", node),
+                               keyValue("indent", indentDepth)};
+
     QString topPart;
     QString bottomPart;
 
@@ -257,6 +278,11 @@ QString QmlTextGenerator::propertiesToQml(const ModelNode &node, int indentDepth
 
 QString QmlTextGenerator::propertyToQml(const AbstractProperty &property, int indentDepth) const
 {
+    NanotraceHR::Tracer tracer{"qml text generator to qml single property",
+                               category(),
+                               keyValue("property", property),
+                               keyValue("indent", indentDepth)};
+
     QString result;
 
     if (property.isDefaultProperty()) {

@@ -5,6 +5,7 @@
 
 #include "model_p.h"
 #include "modeltotextmerger.h"
+#include "rewritertracing.h"
 #include "texttomodelmerger.h"
 
 #include <bindingproperty.h>
@@ -46,6 +47,9 @@ using namespace Qt::StringLiterals;
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
+
 constexpr QStringView annotationsStart{u"/*##^##"};
 constexpr QStringView annotationsEnd{u"##^##*/"};
 
@@ -67,6 +71,8 @@ RewriterView::RewriterView(ExternalDependenciesInterface &externalDependencies,
     , m_textToModelMerger(std::make_unique<Internal::TextToModelMerger>(this))
     , m_instantQmlTextUpdate(instantQmlTextUpdate)
 {
+    NanotraceHR::Tracer tracer{"rewriter view view constructor", category()};
+
     setKind(Kind::Rewriter);
 
     m_amendTimer.setSingleShot(true);
@@ -75,20 +81,29 @@ RewriterView::RewriterView(ExternalDependenciesInterface &externalDependencies,
     connect(&m_amendTimer, &QTimer::timeout, this, &RewriterView::amendQmlText);
 }
 
-RewriterView::~RewriterView() = default;
+RewriterView::~RewriterView()
+{
+    NanotraceHR::Tracer tracer{"rewriter view destructor", category()};
+}
 
 Internal::ModelToTextMerger *RewriterView::modelToTextMerger() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view model to text merger", category()};
+
     return m_modelToTextMerger.get();
 }
 
 Internal::TextToModelMerger *RewriterView::textToModelMerger() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view text to model merger", category()};
+
     return m_textToModelMerger.get();
 }
 
 void RewriterView::modelAttached(Model *model)
 {
+    NanotraceHR::Tracer tracer{"rewriter view model attached", category()};
+
     AbstractView::modelAttached(model);
 
     if (!m_textModifier)
@@ -98,13 +113,17 @@ void RewriterView::modelAttached(Model *model)
 
     ModelAmender differenceHandler(m_textToModelMerger.get());
     const QString qmlSource = m_textModifier->text();
-    if (m_textToModelMerger->load(qmlSource, differenceHandler))
+    if (m_textToModelMerger->load(qmlSource, differenceHandler)) {
+        tracer.tick("load source", keyValue("source", qmlSource));
         m_lastCorrectQmlSource = qmlSource;
+    }
 
     if (!(m_errors.isEmpty() && m_warnings.isEmpty()))
         notifyErrorsAndWarnings(m_errors);
 
     if (hasIncompleteTypeInformation()) {
+        tracer.tick("has incomplete type information");
+
         m_modelAttachPending = true;
         QTimer::singleShot(1000, this, [this, model]() {
             modelAttached(model);
@@ -115,11 +134,15 @@ void RewriterView::modelAttached(Model *model)
 
 void RewriterView::modelAboutToBeDetached(Model * /*model*/)
 {
+    NanotraceHR::Tracer tracer{"rewriter view model about to be detached", category()};
+
     m_positionStorage->clear();
 }
 
 void RewriterView::nodeCreated(const ModelNode &createdNode)
 {
+    NanotraceHR::Tracer tracer{"rewriter view node created", category()};
+
     Q_ASSERT(textModifier());
     m_positionStorage->setNodeOffset(createdNode, ModelNodePositionStorage::INVALID_LOCATION);
     if (textToModelMerger()->isActive())
@@ -135,6 +158,8 @@ void RewriterView::nodeRemoved(const ModelNode &removedNode,
                                const NodeAbstractProperty &parentProperty,
                                PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"rewriter view node removed", category()};
+
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -147,6 +172,8 @@ void RewriterView::nodeRemoved(const ModelNode &removedNode,
 
 void RewriterView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
 {
+    NanotraceHR::Tracer tracer{"rewriter view properties about to be removed", category()};
+
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -179,6 +206,8 @@ void RewriterView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &pro
 
 void RewriterView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
 {
+    NanotraceHR::Tracer tracer{"rewriter view properties removed", category()};
+
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -195,6 +224,8 @@ void RewriterView::propertiesRemoved(const QList<AbstractProperty> &propertyList
 void RewriterView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
                                             PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"rewriter view variant properties changed", category()};
+
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -212,6 +243,8 @@ void RewriterView::variantPropertiesChanged(const QList<VariantProperty> &proper
 void RewriterView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
                                             PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"rewriter view binding properties changed", category()};
+
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -229,6 +262,8 @@ void RewriterView::bindingPropertiesChanged(const QList<BindingProperty> &proper
 void RewriterView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &propertyList,
                                                   AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"rewriter view signal handler properties changed", category()};
+
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -246,6 +281,8 @@ void RewriterView::signalHandlerPropertiesChanged(const QVector<SignalHandlerPro
 void RewriterView::signalDeclarationPropertiesChanged(
     const QVector<SignalDeclarationProperty> &propertyList, PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"rewriter view signal declaration properties changed", category()};
+
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -265,6 +302,8 @@ void RewriterView::nodeReparented(const ModelNode &node,
                                   const NodeAbstractProperty &oldPropertyParent,
                                   AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"rewriter view node reparented", category()};
+
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -277,12 +316,16 @@ void RewriterView::nodeReparented(const ModelNode &node,
 
 void RewriterView::importsChanged(const Imports &addedImports, const Imports &removedImports)
 {
+    NanotraceHR::Tracer tracer{"rewriter view imports changed", category()};
+
     importsAdded(addedImports);
     importsRemoved(removedImports);
 }
 
 void RewriterView::importsAdded(const Imports &imports)
 {
+    NanotraceHR::Tracer tracer{"rewriter view imports added", category()};
+
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -295,6 +338,8 @@ void RewriterView::importsAdded(const Imports &imports)
 
 void RewriterView::importsRemoved(const Imports &imports)
 {
+    NanotraceHR::Tracer tracer{"rewriter view imports removed", category()};
+
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -307,6 +352,8 @@ void RewriterView::importsRemoved(const Imports &imports)
 
 void RewriterView::nodeIdChanged(const ModelNode &node, const QString &newId, const QString &oldId)
 {
+    NanotraceHR::Tracer tracer{"rewriter view node id changed", category()};
+
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -321,6 +368,7 @@ void RewriterView::nodeOrderChanged(const NodeListProperty &listProperty,
                                     const ModelNode &movedNode,
                                     int /*oldIndex*/)
 {
+    NanotraceHR::Tracer tracer{"rewriter view node order changed", category()};
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -337,6 +385,8 @@ void RewriterView::nodeOrderChanged(const NodeListProperty &listProperty,
 
 void RewriterView::nodeOrderChanged(const NodeListProperty &listProperty)
 {
+    NanotraceHR::Tracer tracer{"rewriter view node order changed", category()};
+
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -352,6 +402,8 @@ void RewriterView::nodeOrderChanged(const NodeListProperty &listProperty)
 
 void RewriterView::rootNodeTypeChanged(const QString &type)
 {
+    NanotraceHR::Tracer tracer{"rewriter view root node type changed", category()};
+
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -364,6 +416,8 @@ void RewriterView::rootNodeTypeChanged(const QString &type)
 
 void RewriterView::nodeTypeChanged(const ModelNode &node, const TypeName &type)
 {
+    NanotraceHR::Tracer tracer{"rewriter view node type changed", category()};
+
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -376,12 +430,16 @@ void RewriterView::nodeTypeChanged(const ModelNode &node, const TypeName &type)
 
 void RewriterView::rewriterBeginTransaction()
 {
+    NanotraceHR::Tracer tracer{"rewriter view begin transaction", category()};
+
     transactionLevel++;
     setModificationGroupActive(true);
 }
 
 void RewriterView::rewriterEndTransaction()
 {
+    NanotraceHR::Tracer tracer{"rewriter view end transaction", category()};
+
     transactionLevel--;
     Q_ASSERT(transactionLevel >= 0);
     if (transactionLevel == 0) {
@@ -392,21 +450,29 @@ void RewriterView::rewriterEndTransaction()
 
 bool RewriterView::isModificationGroupActive() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view is modification group active", category()};
+
     return m_modificationGroupActive;
 }
 
 void RewriterView::setModificationGroupActive(bool active)
 {
+    NanotraceHR::Tracer tracer{"rewriter view set modification group active", category()};
+
     m_modificationGroupActive = active;
 }
 
 TextModifier *RewriterView::textModifier() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view text modifier", category()};
+
     return m_textModifier;
 }
 
 void RewriterView::setTextModifier(TextModifier *textModifier)
 {
+    NanotraceHR::Tracer tracer{"rewriter view set text modifier", category()};
+
     if (m_textModifier)
         disconnect(m_textModifier, &TextModifier::textChanged, this, &RewriterView::qmlTextChanged);
 
@@ -418,6 +484,8 @@ void RewriterView::setTextModifier(TextModifier *textModifier)
 
 QString RewriterView::textModifierContent() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view text modifier content", category()};
+
     if (textModifier())
         return textModifier()->text();
 
@@ -426,18 +494,24 @@ QString RewriterView::textModifierContent() const
 
 void RewriterView::reactivateTextModifierChangeSignals()
 {
+    NanotraceHR::Tracer tracer{"rewriter view reactivate text modifier change signals", category()};
+
     if (textModifier())
         textModifier()->reactivateChangeSignals();
 }
 
 void RewriterView::deactivateTextModifierChangeSignals()
 {
+    NanotraceHR::Tracer tracer{"rewriter view deactivate text modifier change signals", category()};
+
     if (textModifier())
         textModifier()->deactivateChangeSignals();
 }
 
 void RewriterView::auxiliaryDataChanged(const ModelNode &, AuxiliaryDataKeyView key, const QVariant &)
 {
+    NanotraceHR::Tracer tracer{"rewriter view auxiliary data changed", category()};
+
     if (m_restoringAuxData || !m_textModifier)
         return;
 
@@ -447,12 +521,16 @@ void RewriterView::auxiliaryDataChanged(const ModelNode &, AuxiliaryDataKeyView 
 
 void RewriterView::applyModificationGroupChanges()
 {
+    NanotraceHR::Tracer tracer{"rewriter view apply modification group changes", category()};
+
     Q_ASSERT(transactionLevel == 0);
     applyChanges();
 }
 
 void RewriterView::applyChanges()
 {
+    NanotraceHR::Tracer tracer{"rewriter view apply changes", category()};
+
     if (modelToTextMerger()->hasNoPendingChanges())
         return; // quick exit: nothing to be done.
 
@@ -493,6 +571,8 @@ void RewriterView::applyChanges()
 
 void RewriterView::amendQmlText()
 {
+    NanotraceHR::Tracer tracer{"rewriter view amend QML text", category()};
+
     if (!model()->rewriterView())
         return;
     QTC_ASSERT(m_textModifier, return);
@@ -508,6 +588,8 @@ void RewriterView::amendQmlText()
 
 void RewriterView::notifyErrorsAndWarnings(const QList<DocumentMessage> &errors)
 {
+    NanotraceHR::Tracer tracer{"rewriter view notify errors and warnings", category()};
+
     if (m_setWidgetStatusCallback)
         m_setWidgetStatusCallback(errors.isEmpty());
 
@@ -537,6 +619,8 @@ static bool idIsQmlKeyWord(QStringView id)
 
 QString RewriterView::auxiliaryDataAsQML() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view auxiliary data as QML", category()};
+
     bool hasAuxData = false;
 
     setupCanonicalHashes();
@@ -615,68 +699,94 @@ QString RewriterView::auxiliaryDataAsQML() const
 
 ModelNode RewriterView::getNodeForCanonicalIndex(int index)
 {
+    NanotraceHR::Tracer tracer{"rewriter view get node for canonical index", category()};
+
     return m_canonicalIntModelNode.value(index);
 }
 
 void RewriterView::setAllowComponentRoot(bool allow)
 {
+    NanotraceHR::Tracer tracer{"rewriter view set allow component root", category()};
+
     m_allowComponentRoot = allow;
 }
 
 bool RewriterView::allowComponentRoot() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view allow component root", category()};
+
     return m_allowComponentRoot;
 }
 
 void RewriterView::resetPossibleImports()
 {
+    NanotraceHR::Tracer tracer{"rewriter view reset possible imports", category()};
+
     m_textToModelMerger->clearPossibleImportKeys();
 }
 
 bool RewriterView::possibleImportsEnabled() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view possible imports enabled", category()};
+
     return m_possibleImportsEnabled;
 }
 
 void RewriterView::setPossibleImportsEnabled(bool b)
 {
+    NanotraceHR::Tracer tracer{"rewriter view set possible imports enabled", category()};
+
     m_possibleImportsEnabled = b;
 }
 
 void RewriterView::forceAmend()
 {
+    NanotraceHR::Tracer tracer{"rewriter view force amend", category()};
+
     m_amendTimer.stop();
     amendQmlText();
 }
 
 void RewriterView::setRemoveImports(bool removeImports)
 {
+    NanotraceHR::Tracer tracer{"rewriter view set remove imports", category()};
+
     m_textToModelMerger->setRemoveImports(removeImports);
 }
 
 void RewriterView::convertPosition(int pos, int *line, int *column) const
 {
+    NanotraceHR::Tracer tracer{"rewriter view convert position", category()};
+
     QTC_ASSERT(m_textModifier, return);
     m_textModifier->convertPosition(pos, line, column);
 }
 
 Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view position storage", category()};
+
     return m_positionStorage.get();
 }
 
 QList<DocumentMessage> RewriterView::warnings() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view warnings", category()};
+
     return m_warnings;
 }
 
 QList<DocumentMessage> RewriterView::errors() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view errors", category()};
+
     return m_errors;
 }
 
 void RewriterView::clearErrorAndWarnings()
 {
+    NanotraceHR::Tracer tracer{"rewriter view clear error and warnings", category()};
+
     m_errors.clear();
     m_warnings.clear();
     notifyErrorsAndWarnings(m_errors);
@@ -684,39 +794,53 @@ void RewriterView::clearErrorAndWarnings()
 
 void RewriterView::setWarnings(const QList<DocumentMessage> &warnings)
 {
+    NanotraceHR::Tracer tracer{"rewriter view set warnings", category()};
+
     m_warnings = warnings;
     notifyErrorsAndWarnings(m_errors);
 }
 
 void RewriterView::setIncompleteTypeInformation(bool b)
 {
+    NanotraceHR::Tracer tracer{"rewriter view set incomplete type information", category()};
+
     m_hasIncompleteTypeInformation = b;
 }
 
 bool RewriterView::hasIncompleteTypeInformation() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view has incomplete type information", category()};
+
     return m_hasIncompleteTypeInformation;
 }
 
 void RewriterView::setErrors(const QList<DocumentMessage> &errors)
 {
+    NanotraceHR::Tracer tracer{"rewriter view set errors", category()};
+
     m_errors = errors;
     notifyErrorsAndWarnings(m_errors);
 }
 
 void RewriterView::addError(const DocumentMessage &error)
 {
+    NanotraceHR::Tracer tracer{"rewriter view add error", category()};
+
     m_errors.append(error);
     notifyErrorsAndWarnings(m_errors);
 }
 
 void RewriterView::enterErrorState(const QString &errorMessage)
 {
+    NanotraceHR::Tracer tracer{"rewriter view enter error state", category()};
+
     m_rewritingErrorMessage = errorMessage;
 }
 
 void RewriterView::resetToLastCorrectQml()
 {
+    NanotraceHR::Tracer tracer{"rewriter view reset to last correct QML", category()};
+
     QTC_ASSERT(m_textModifier, return);
     m_textModifier->textDocument()->undo();
     m_textModifier->textDocument()->clearUndoRedoStacks(QTextDocument::RedoStack);
@@ -730,6 +854,8 @@ void RewriterView::resetToLastCorrectQml()
 
 QMap<ModelNode, QString> RewriterView::extractText(const QList<ModelNode> &nodes) const
 {
+    NanotraceHR::Tracer tracer{"rewriter view extract text", category()};
+
     QTC_ASSERT(m_textModifier, return {});
     QmlDesigner::ASTObjectTextExtractor extract(m_textModifier->text());
     QMap<ModelNode, QString> result;
@@ -748,6 +874,8 @@ QMap<ModelNode, QString> RewriterView::extractText(const QList<ModelNode> &nodes
 
 int RewriterView::nodeOffset(const ModelNode &node) const
 {
+    NanotraceHR::Tracer tracer{"rewriter view node offset", category()};
+
     return m_positionStorage->nodeOffset(node);
 }
 
@@ -757,6 +885,8 @@ int RewriterView::nodeOffset(const ModelNode &node) const
  */
 int RewriterView::nodeLength(const ModelNode &node) const
 {
+    NanotraceHR::Tracer tracer{"rewriter view node length", category()};
+
     QTC_ASSERT(m_textModifier, return -1);
     ObjectLengthCalculator objectLengthCalculator;
     unsigned length;
@@ -768,6 +898,8 @@ int RewriterView::nodeLength(const ModelNode &node) const
 
 int RewriterView::firstDefinitionInsideOffset(const ModelNode &node) const
 {
+    NanotraceHR::Tracer tracer{"rewriter view first definition inside offset", category()};
+
     QTC_ASSERT(m_textModifier, return -1);
     FirstDefinitionFinder firstDefinitionFinder(m_textModifier->text());
     return firstDefinitionFinder(nodeOffset(node));
@@ -775,6 +907,8 @@ int RewriterView::firstDefinitionInsideOffset(const ModelNode &node) const
 
 int RewriterView::firstDefinitionInsideLength(const ModelNode &node) const
 {
+    NanotraceHR::Tracer tracer{"rewriter view first definition inside length", category()};
+
     QTC_ASSERT(m_textModifier, return -1);
     FirstDefinitionFinder firstDefinitionFinder(m_textModifier->text());
     const int offset = firstDefinitionFinder(nodeOffset(node));
@@ -789,6 +923,8 @@ int RewriterView::firstDefinitionInsideLength(const ModelNode &node) const
 
 bool RewriterView::modificationGroupActive()
 {
+    NanotraceHR::Tracer tracer{"rewriter view modification group active", category()};
+
     return m_modificationGroupActive;
 }
 
@@ -819,6 +955,8 @@ int findEvenClosingBrace(const QStringView &string)
 
 ModelNode RewriterView::nodeAtTextCursorPositionHelper(const ModelNode &root, int cursorPosition) const
 {
+    NanotraceHR::Tracer tracer{"rewriter view node at text cursor position helper", category()};
+
     QTC_ASSERT(m_textModifier, return {});
 
     using myPair = std::pair<ModelNode, int>;
@@ -854,6 +992,8 @@ ModelNode RewriterView::nodeAtTextCursorPositionHelper(const ModelNode &root, in
 
 void RewriterView::setupCanonicalHashes() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view setup canonical hashes", category()};
+
     m_canonicalIntModelNode.clear();
     m_canonicalModelNodeInt.clear();
 
@@ -878,11 +1018,15 @@ void RewriterView::setupCanonicalHashes() const
 
 ModelNode RewriterView::nodeAtTextCursorPosition(int cursorPosition) const
 {
+    NanotraceHR::Tracer tracer{"rewriter view node at text cursor position", category()};
+
     return nodeAtTextCursorPositionHelper(rootModelNode(), cursorPosition);
 }
 
 bool RewriterView::renameId(const QString &oldId, const QString &newId)
 {
+    NanotraceHR::Tracer tracer{"rewriter view rename id", category()};
+
     if (textModifier()) {
         PropertyName propertyName = oldId.toUtf8();
 
@@ -912,11 +1056,15 @@ bool RewriterView::renameId(const QString &oldId, const QString &newId)
 
 QmlJS::Document::Ptr RewriterView::document() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view document", category()};
+
     return textToModelMerger()->document();
 }
 
 QString RewriterView::convertTypeToImportAlias(QStringView type) const
 {
+    NanotraceHR::Tracer tracer{"rewriter view convert type to import alias", category()};
+
     auto [url, simplifiedType] = StringUtils::split_last(type, u'.');
 
     if (url.isEmpty())
@@ -941,12 +1089,16 @@ QString RewriterView::convertTypeToImportAlias(QStringView type) const
 
 QStringList RewriterView::importDirectories() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view import directories", category()};
+
     return Utils::transform<QStringList>(m_textToModelMerger->vContext().paths,
                                          &Utils::FilePath::path);
 }
 
 QSet<QPair<QString, QString>> RewriterView::qrcMapping() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view qrc mapping", category()};
+
     return m_textToModelMerger->qrcMapping();
 }
 
@@ -977,6 +1129,8 @@ QStringList generateImports(ModuleIds moduleIds,
                             const ProjectStorageType &projectStorage,
                             SourceId documentSourceId)
 {
+    NanotraceHR::Tracer tracer{"rewriter view generate imports", "RewriterView"};
+
     QStringList imports;
     imports.reserve(std::ssize(moduleIds));
 
@@ -1042,6 +1196,8 @@ QStringList generateImports(const ModelNodes &nodes, const ModulesStorage &modul
 
 QString RewriterView::moveToComponent(const ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"rewriter view move to component", category()};
+
     if (!modelNode.isValid())
         return {};
 
@@ -1059,6 +1215,8 @@ QString RewriterView::moveToComponent(const ModelNode &modelNode)
 
 QStringList RewriterView::autoComplete(const QString &text, int pos, bool explicitComplete)
 {
+    NanotraceHR::Tracer tracer{"rewriter view auto complete", category()};
+
     QTextDocument textDocument;
     textDocument.setPlainText(text);
 
@@ -1070,11 +1228,15 @@ QStringList RewriterView::autoComplete(const QString &text, int pos, bool explic
 
 void RewriterView::setWidgetStatusCallback(std::function<void(bool)> setWidgetStatusCallback)
 {
+    NanotraceHR::Tracer tracer{"rewriter view set widget status callback", category()};
+
     m_setWidgetStatusCallback = setWidgetStatusCallback;
 }
 
 void RewriterView::qmlTextChanged()
 {
+    NanotraceHR::Tracer tracer{"rewriter view QML text changed", category()};
+
     if (inErrorState())
         return;
     QTC_ASSERT(m_textModifier, return);
@@ -1112,12 +1274,16 @@ void RewriterView::qmlTextChanged()
 
 void RewriterView::delayedSetup()
 {
+    NanotraceHR::Tracer tracer{"rewriter view delayed setup", category()};
+
     if (m_textToModelMerger)
         m_textToModelMerger->delayedSetup();
 }
 
 QString RewriterView::getRawAuxiliaryData() const
 {
+    NanotraceHR::Tracer tracer{"rewriter view get raw auxiliary data", category()};
+
     QTC_ASSERT(m_textModifier, return {});
 
     const QString oldText = m_textModifier->text();
@@ -1133,6 +1299,8 @@ QString RewriterView::getRawAuxiliaryData() const
 
 void RewriterView::writeAuxiliaryData()
 {
+    NanotraceHR::Tracer tracer{"rewriter view write auxiliary data", category()};
+
     QTC_ASSERT(m_textModifier, return);
 
     const QString oldText = m_textModifier->text();
@@ -1208,6 +1376,8 @@ void checkNode(const QmlJS::SimpleReaderNode::Ptr &node, RewriterView *view)
 
 void RewriterView::restoreAuxiliaryData()
 {
+    NanotraceHR::Tracer tracer{"rewriter view restore auxiliary data", category()};
+
     QTC_ASSERT(m_textModifier, return);
 
     const char auxRestoredFlag[] = "AuxRestored@Internal";

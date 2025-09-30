@@ -30,11 +30,11 @@ public:
     template<typename String>
     friend void convertToString(String &string, source_location sourceLocation)
     {
-        using NanotraceHR::dictonary;
+        using NanotraceHR::dictionary;
         using NanotraceHR::keyValue;
-        auto dict = dictonary(keyValue("file", sourceLocation.m_fileName),
-                              keyValue("function", sourceLocation.m_functionName),
-                              keyValue("line", sourceLocation.m_line));
+        auto dict = dictionary(keyValue("file", sourceLocation.m_fileName),
+                               keyValue("function", sourceLocation.m_functionName),
+                               keyValue("line", sourceLocation.m_line));
         convertToString(string, dict);
 
         string.append(',');

@@ -50,10 +50,10 @@ public:
     template<typename String>
     friend void convertToString(String &string, const ProjectChunkId &id)
     {
-        using NanotraceHR::dictonary;
+        using NanotraceHR::dictionary;
         using NanotraceHR::keyValue;
-        auto dict = dictonary(keyValue("project part id", id.id),
-                              keyValue("source type", id.sourceType));
+        auto dict = dictionary(keyValue("project part id", id.id),
+                               keyValue("source type", id.sourceType));
 
         convertToString(string, dict);
     }
@@ -81,9 +81,9 @@ public:
     template<typename String>
     friend void convertToString(String &string, const IdPaths &idPaths)
     {
-        using NanotraceHR::dictonary;
+        using NanotraceHR::dictionary;
         using NanotraceHR::keyValue;
-        auto dict = dictonary(keyValue("id", idPaths.id), keyValue("source ids", idPaths.sourceIds));
+        auto dict = dictionary(keyValue("id", idPaths.id), keyValue("source ids", idPaths.sourceIds));
 
         convertToString(string, dict);
     }
@@ -123,13 +123,13 @@ public:
     template<typename String>
     friend void convertToString(String &string, const WatcherEntry &entry)
     {
-        using NanotraceHR::dictonary;
+        using NanotraceHR::dictionary;
         using NanotraceHR::keyValue;
-        auto dict = dictonary(keyValue("id", entry.id),
-                              keyValue("directory path id", entry.directoryPathId),
-                              keyValue("source id", entry.sourceId),
-                              keyValue("last modified", entry.lastModified),
-                              keyValue("size", entry.size));
+        auto dict = dictionary(keyValue("id", entry.id),
+                               keyValue("directory path id", entry.directoryPathId),
+                               keyValue("source id", entry.sourceId),
+                               keyValue("last modified", entry.lastModified),
+                               keyValue("size", entry.size));
 
         convertToString(string, dict);
     }

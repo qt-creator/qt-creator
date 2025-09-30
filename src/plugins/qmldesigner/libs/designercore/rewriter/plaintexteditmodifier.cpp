@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "plaintexteditmodifier.h"
+#include "rewritertracing.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
@@ -10,26 +11,32 @@
 #include <QDebug>
 #include <QPlainTextEdit>
 
-using namespace Utils;
-using namespace QmlDesigner;
+namespace QmlDesigner {
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 PlainTextEditModifier::PlainTextEditModifier(QTextDocument *document)
     : m_textDocument{document}
     , m_textCursor{document}
 {
+    NanotraceHR::Tracer tracer{"plain text edit modifier constructor", category()};
+
     connect(document, &QTextDocument::contentsChanged, this, &PlainTextEditModifier::textEditChanged);
 }
 
-PlainTextEditModifier::~PlainTextEditModifier() = default;
+PlainTextEditModifier::~PlainTextEditModifier()
+{
+    NanotraceHR::Tracer tracer{"plain text edit modifier destructor", category()};
+}
 
 void PlainTextEditModifier::replace(int offset, int length, const QString &replacement)
 {
-#if 0
-    qDebug() << "Original:"    << m_textEdit->toPlainText();
-    qDebug() << "Replacement:" << replacement;
-    qDebug() << "     offset:" << offset;
-    qDebug() << "     length:" << length;
-#endif
+    NanotraceHR::Tracer tracer{"plain text edit modifier replace",
+                               category(),
+                               keyValue("offset", offset),
+                               keyValue("length", length),
+                               keyValue("replacement", replacement)};
 
     Q_ASSERT(offset >= 0);
     Q_ASSERT(length >= 0);
@@ -40,7 +47,7 @@ void PlainTextEditModifier::replace(int offset, int length, const QString &repla
         m_changeSet->replace(offset, offset + length, replacement);
         emit replaced(offset, length, replacementLength);
     } else {
-        ChangeSet changeSet;
+        Utils::ChangeSet changeSet;
         changeSet.replace(offset, offset + length, replacement);
         emit replaced(offset, length, replacementLength);
         runRewriting(&changeSet);
@@ -49,16 +56,9 @@ void PlainTextEditModifier::replace(int offset, int length, const QString &repla
 
 void PlainTextEditModifier::move(const MoveInfo &moveInfo)
 {
-#if 0
-    qDebug() << "Original:"    << m_textEdit->toPlainText();
-    qDebug() << "Move:" << m_textEdit->toPlainText().mid(moveInfo.objectStart, moveInfo.objectEnd - moveInfo.objectStart);
-    qDebug() << "     prefix:" << moveInfo.prefixToInsert;
-    qDebug() << "     suffix:" <<  moveInfo.suffixToInsert;
-    qDebug() << "     leadingCharsToRemove:" <<  moveInfo.leadingCharsToRemove;
-    qDebug() << "                          " <<  m_textEdit->toPlainText().mid(moveInfo.objectStart - moveInfo.leadingCharsToRemove,  moveInfo.leadingCharsToRemove);
-    qDebug() << "     trailingCharsToRemove:" <<  moveInfo.trailingCharsToRemove;
-    qDebug() << "                           " <<  m_textEdit->toPlainText().mid(moveInfo.objectEnd, moveInfo.trailingCharsToRemove);
-#endif
+    NanotraceHR::Tracer tracer{"plain text edit modifier move",
+                               category(),
+                               keyValue("move info", moveInfo)};
 
     Q_ASSERT(moveInfo.objectStart >= 0);
     Q_ASSERT(moveInfo.objectEnd > moveInfo.objectStart);
@@ -75,7 +75,7 @@ void PlainTextEditModifier::move(const MoveInfo &moveInfo)
         m_changeSet->remove(moveInfo.objectEnd, moveInfo.objectEnd + moveInfo.trailingCharsToRemove);
         emit moved(moveInfo);
     } else {
-        ChangeSet changeSet;
+        Utils::ChangeSet changeSet;
         changeSet.insert(moveInfo.destination, moveInfo.prefixToInsert);
         changeSet.move(moveInfo.objectStart, moveInfo.objectEnd, moveInfo.destination);
         changeSet.insert(moveInfo.destination, moveInfo.suffixToInsert);
@@ -88,20 +88,26 @@ void PlainTextEditModifier::move(const MoveInfo &moveInfo)
 
 void PlainTextEditModifier::startGroup()
 {
+    NanotraceHR::Tracer tracer{"plain text edit modifier start group", category()};
+
     if (!m_changeSet)
-        m_changeSet = new ChangeSet;
+        m_changeSet = new Utils::ChangeSet;
 
     textCursor().beginEditBlock();
 }
 
 void PlainTextEditModifier::flushGroup()
 {
+    NanotraceHR::Tracer tracer{"plain text edit modifier flush group", category()};
+
     if (m_changeSet)
         runRewriting(m_changeSet);
 }
 
 void PlainTextEditModifier::commitGroup()
 {
+    NanotraceHR::Tracer tracer{"plain text edit modifier commit group", category()};
+
     if (m_changeSet) {
         runRewriting(m_changeSet);
         delete m_changeSet;
@@ -113,14 +119,18 @@ void PlainTextEditModifier::commitGroup()
 
 void PlainTextEditModifier::textEditChanged()
 {
+    NanotraceHR::Tracer tracer{"plain text edit modifier text edit changed", category()};
+
     if (!m_ongoingTextChange && m_changeSignalsEnabled)
         emit textChanged();
     else
         m_pendingChangeSignal = true;
 }
 
-void PlainTextEditModifier::runRewriting(ChangeSet *changeSet)
+void PlainTextEditModifier::runRewriting(Utils::ChangeSet *changeSet)
 {
+    NanotraceHR::Tracer tracer{"plain text edit modifier run rewriting", category()};
+
     m_ongoingTextChange = true;
     QTextCursor cursor = textCursor();
     changeSet->apply(&cursor);
@@ -130,26 +140,36 @@ void PlainTextEditModifier::runRewriting(ChangeSet *changeSet)
 
 QTextDocument *PlainTextEditModifier::textDocument() const
 {
+    NanotraceHR::Tracer tracer{"plain text edit modifier text document", category()};
+
     return m_textDocument;
 }
 
 QString PlainTextEditModifier::text() const
 {
+    NanotraceHR::Tracer tracer{"plain text edit modifier text", category()};
+
     return m_textDocument->toPlainText();
 }
 
 QTextCursor PlainTextEditModifier::textCursor() const
 {
+    NanotraceHR::Tracer tracer{"plain text edit modifier text cursor", category()};
+
     return m_textCursor;
 }
 
 void PlainTextEditModifier::deactivateChangeSignals()
 {
+    NanotraceHR::Tracer tracer{"plain text edit modifier deactivate change signals", category()};
+
     m_changeSignalsEnabled = false;
 }
 
 void PlainTextEditModifier::reactivateChangeSignals()
 {
+    NanotraceHR::Tracer tracer{"plain text edit modifier reactivate change signals", category()};
+
     m_changeSignalsEnabled = true;
 
     if (m_pendingChangeSignal) {
@@ -158,3 +178,4 @@ void PlainTextEditModifier::reactivateChangeSignals()
     }
 }
 
+} // namespace QmlDesigner

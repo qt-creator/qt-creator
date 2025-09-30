@@ -1942,6 +1942,11 @@ QString ModelNode::behaviorPropertyName(SL sl) const
     return m_internalNode->behaviorPropertyName;
 }
 
+void convertToString(NanotraceHR::ArgumentsString &string, const ModelNode &node)
+{
+    convertToString(string, *node.m_internalNode);
+}
+
 template<typename Result>
 Result toInternalNodeList(const QList<ModelNode> &nodeList)
 {

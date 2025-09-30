@@ -78,11 +78,11 @@ public:
     template<typename String>
     friend void convertToString(String &string, const Import &import)
     {
-        using NanotraceHR::dictonary;
+        using NanotraceHR::dictionary;
         using NanotraceHR::keyValue;
-        auto dict = dictonary(keyValue("url", import.m_url),
-                              keyValue("version", import.m_version),
-                              keyValue("alias", import.m_alias));
+        auto dict = dictionary(keyValue("url", import.m_url),
+                               keyValue("version", import.m_version),
+                               keyValue("alias", import.m_alias));
         convertToString(string, dict);
     }
 

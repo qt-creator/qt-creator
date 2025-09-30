@@ -2,15 +2,18 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "rewriteactioncompressor.h"
-
-#include <QSet>
+#include "rewritertracing.h"
 
 #include "modelnode.h"
 #include "nodelistproperty.h"
 #include "qmltextgenerator.h"
 
-using namespace QmlDesigner;
-using namespace QmlDesigner::Internal;
+#include <QSet>
+
+namespace QmlDesigner::Internal {
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 static bool nodeOrParentInSet(const ModelNode &modelNode, const QSet<ModelNode> &nodeSet)
 {
@@ -31,6 +34,8 @@ static bool nodeOrParentInSet(const ModelNode &modelNode, const QSet<ModelNode> 
 void RewriteActionCompressor::operator()(QList<RewriteAction *> &actions,
                                          const TextEditor::TabSettings &tabSettings) const
 {
+    NanotraceHR::Tracer tracer{"rewrite action compressor call operator", category()};
+
     compressImports(actions);
     compressRereparentActions(actions);
     compressReparentIntoSamePropertyActions(actions);
@@ -44,6 +49,8 @@ void RewriteActionCompressor::operator()(QList<RewriteAction *> &actions,
 
 void RewriteActionCompressor::compressImports(QList<RewriteAction *> &actions) const
 {
+    NanotraceHR::Tracer tracer{"rewrite action compressor compress imports", category()};
+
     QList<RewriteAction *> actionsToRemove;
     QHash<Import, RewriteAction *> addedImports;
     QHash<Import, RewriteAction *> removedImports;
@@ -86,6 +93,8 @@ void RewriteActionCompressor::compressImports(QList<RewriteAction *> &actions) c
 
 void RewriteActionCompressor::compressRereparentActions(QList<RewriteAction *> &actions) const
 {
+    NanotraceHR::Tracer tracer{"rewrite action compressor compress reparent actions", category()};
+
     QList<RewriteAction *> actionsToRemove;
     QHash<ModelNode, ReparentNodeRewriteAction *> reparentedNodes;
 
@@ -112,6 +121,9 @@ void RewriteActionCompressor::compressRereparentActions(QList<RewriteAction *> &
 
 void RewriteActionCompressor::compressReparentIntoSamePropertyActions(QList<RewriteAction *> &actions) const
 {
+    NanotraceHR::Tracer tracer{
+        "rewrite action compressor compress reparent into same property actions", category()};
+
     QList<RewriteAction *> actionsToRemove;
 
     for (int i = actions.size(); --i >= 0; ) {
@@ -131,6 +143,9 @@ void RewriteActionCompressor::compressReparentIntoSamePropertyActions(QList<Rewr
 
 void RewriteActionCompressor::compressReparentIntoNewPropertyActions(QList<RewriteAction *> &actions) const
 {
+    NanotraceHR::Tracer tracer{
+        "rewrite action compressor compress reparent into new property actions", category()};
+
     QList<RewriteAction *> actionsToRemove;
 
     QList<RewriteAction *> removeActions;
@@ -160,6 +175,9 @@ void RewriteActionCompressor::compressReparentIntoNewPropertyActions(QList<Rewri
 
 void RewriteActionCompressor::compressAddEditRemoveNodeActions(QList<RewriteAction *> &actions) const
 {
+    NanotraceHR::Tracer tracer{"rewrite action compressor compress add edit remove node actions",
+                               category()};
+
     QList<RewriteAction *> actionsToRemove;
     QHash<ModelNode, RewriteAction *> removedNodes;
 
@@ -215,6 +233,8 @@ void RewriteActionCompressor::compressAddEditRemoveNodeActions(QList<RewriteActi
 
 void RewriteActionCompressor::compressPropertyActions(QList<RewriteAction *> &actions) const
 {
+    NanotraceHR::Tracer tracer{"rewrite action compressor compress property actions", category()};
+
     QList<RewriteAction *> actionsToRemove;
     QHash<AbstractProperty, RewriteAction *> removedProperties;
     QHash<AbstractProperty, ChangePropertyRewriteAction *> changedProperties;
@@ -263,6 +283,8 @@ void RewriteActionCompressor::compressPropertyActions(QList<RewriteAction *> &ac
 void RewriteActionCompressor::compressAddEditActions(
     QList<RewriteAction *> &actions, const TextEditor::TabSettings &tabSettings) const
 {
+    NanotraceHR::Tracer tracer{"rewrite action compressor compress add edit actions", category()};
+
     QList<RewriteAction *> actionsToRemove;
     QSet<ModelNode> addedNodes;
     QSet<RewriteAction *> dirtyActions;
@@ -333,6 +355,8 @@ void RewriteActionCompressor::compressAddEditActions(
 
 void RewriteActionCompressor::compressAddReparentActions(QList<RewriteAction *> &actions) const
 {
+    NanotraceHR::Tracer tracer{"rewrite action compressor compress add reparent actions", category()};
+
     QList<RewriteAction *> actionsToRemove;
     QMap<ModelNode, RewriteAction*> addedNodes;
 
@@ -382,6 +406,8 @@ void RewriteActionCompressor::compressAddReparentActions(QList<RewriteAction *> 
 
 void RewriteActionCompressor::compressSlidesIntoNewNode(QList<RewriteAction *> &actions) const
 {
+    NanotraceHR::Tracer tracer{"rewrite action compressor compress slides into new node", category()};
+
     QList<RewriteAction *> actionsToRemove;
     QMap<ModelNode, RewriteAction *> addedNodes;
     for (RewriteAction *action : std::as_const(actions)) {
@@ -421,3 +447,4 @@ void RewriteActionCompressor::compressSlidesIntoNewNode(QList<RewriteAction *> &
         delete action;
     }
 }
+} // namespace QmlDesigner::Internal

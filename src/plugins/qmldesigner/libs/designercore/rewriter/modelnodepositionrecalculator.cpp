@@ -2,14 +2,21 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "modelnodepositionrecalculator.h"
+#include "rewritertracing.h"
 
 #include <QDebug>
 
-using namespace QmlDesigner;
-using namespace QmlDesigner::Internal;
+namespace QmlDesigner::Internal {
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 void ModelNodePositionRecalculator::connectTo(TextModifier *textModifier)
 {
+    NanotraceHR::Tracer tracer{"model node position recalculator connect to",
+                               category(),
+                               keyValue("text modifier", textModifier)};
+
     Q_ASSERT(textModifier);
 
     connect(textModifier, &TextModifier::moved, this, &ModelNodePositionRecalculator::moved);
@@ -18,6 +25,10 @@ void ModelNodePositionRecalculator::connectTo(TextModifier *textModifier)
 
 void ModelNodePositionRecalculator::moved(const TextModifier::MoveInfo &moveInfo)
 {
+    NanotraceHR::Tracer tracer{"model node position recalculator moved",
+                               category(),
+                               keyValue("move info", moveInfo)};
+
     const int from = moveInfo.objectStart;
     const int to = moveInfo.destination;
     const int length = moveInfo.objectEnd - moveInfo.objectStart;
@@ -61,6 +72,12 @@ void ModelNodePositionRecalculator::moved(const TextModifier::MoveInfo &moveInfo
 
 void ModelNodePositionRecalculator::replaced(int offset, int oldLength, int newLength)
 {
+    NanotraceHR::Tracer tracer{"model node position recalculator replaced",
+                               category(),
+                               keyValue("offset", offset),
+                               keyValue("old length", oldLength),
+                               keyValue("new length", newLength)};
+
     Q_ASSERT(offset >= 0);
 
     const int growth = newLength - oldLength;
@@ -83,3 +100,5 @@ void ModelNodePositionRecalculator::replaced(int offset, int oldLength, int newL
     }
     m_dirtyAreas.insert(offset - newLength + oldLength, newLength);
 }
+
+} // namespace QmlDesigner::Internal
