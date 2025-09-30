@@ -803,7 +803,6 @@ QRectF PlainTextEditControl::blockBoundingRect(const QTextBlock &block) const {
     QTextBlock currentBlock = document()->findBlockByNumber(currentBlockNumber);
     if (!currentBlock.isValid())
         return QRectF();
-    Q_ASSERT(currentBlock.blockNumber() == currentBlockNumber);
     PlainTextDocumentLayout *editorLayout = textEdit->editorLayout();
     QTC_ASSERT(editorLayout, return QRectF());
 
@@ -924,7 +923,7 @@ void PlainTextEditPrivate::ensureVisible(int position, bool center, bool forceCe
         return;
     const QTextLine line = editorLayout->blockLayout(block)->lineForTextPosition(
         position - block.position());
-    Q_ASSERT(line.isValid());
+    QTC_ASSERT(line.isValid(), return);
     QRectF lr = line.naturalTextRect().translated(br.topLeft());
 
     if (lr.bottom() >= visible.bottom() || (center && lr.top() < visible.top()) || forceCenter){
