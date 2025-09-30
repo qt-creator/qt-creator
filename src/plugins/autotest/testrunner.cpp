@@ -499,7 +499,9 @@ static void processOutput(TestOutputReader *outputreader, const QString &msg, Ou
                                                 "\t Use the -dograb option to enforce grabbing.";
         if (message.startsWith(gdbSpecialOut))
             message = message.mid(gdbSpecialOut.length() + 1);
-        message.chop(1); // all messages have an additional \n at the end
+        // messages should have additional \n at the end (exception debug - we may get buffered)
+        if (message.endsWith('\n'))
+            message.chop(1);
 
         for (const auto &line : message.split('\n')) {
             if (format == OutputFormat::StdOutFormat)
