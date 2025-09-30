@@ -52,8 +52,8 @@
             \li Component
                 \target glossary-component
             \li An instantiable QML definition, typically
-                in a .qml file. For instance, you can define a Button component
-                in Button.qml. The QML runtime may instantiate this
+                in a \c .qml file. For instance, you can define a Button component
+                in \c Button.qml. The QML runtime may instantiate this
                 Button component to create Button objects. Alternatively, you may
                 define a component in a \l{Component} QML type.
 

@@ -36,7 +36,7 @@
     \section1 Set up PySide6
 
     The recommended way to run PySide6 projects from \QC is to install PySide6
-    for each project. \QC prompts you to do so the first time you open a .py file
+    for each project. \QC prompts you to do so the first time you open a \c .py file
     for a project.
 
     \image {qtcreator-python-install.webp} {Prompts to install PySide6 and Python language server}

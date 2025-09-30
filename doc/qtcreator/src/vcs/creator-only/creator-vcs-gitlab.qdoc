@@ -87,7 +87,7 @@
     \endlist
 
     \QC automatically opens the project. If the cloned project has several
-    project files (such as CMakeList.txt, .pro, and .qbs), \QC prompts you to
+    project files (such as \c CMakeList.txt, \c .pro, and \c .qbs), \QC prompts you to
     select the one to open. If it does not have a project file that \QC can
     open, go to \uicontrol File > \uicontrol {New Project} >
     \uicontrol {Import Project} > \uicontrol {Import Existing Project} and

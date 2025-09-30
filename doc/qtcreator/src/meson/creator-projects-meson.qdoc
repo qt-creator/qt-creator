@@ -57,7 +57,7 @@
 
     \section1 Editing Meson Build Descriptions
 
-    To open a meson.build file for editing, double-click it from project tree.
+    To open a \c meson.build file for editing, double-click it from project tree.
     Only plain text editor is available now.
 
 

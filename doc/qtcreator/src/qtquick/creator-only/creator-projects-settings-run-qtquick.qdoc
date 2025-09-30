@@ -20,7 +20,7 @@
     \image {qtquick-ui-prototype-run-settings.webp} {Run Settings for a Qt Quick UI Prototype project}
 
     The following table summarizes the settings for running Qt Quick UI Prototype
-    projects (.qmlproject).
+    projects (\c .qmlproject).
 
     \table
     \header

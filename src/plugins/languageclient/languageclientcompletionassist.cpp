@@ -272,7 +272,8 @@ public:
     {
         if (m_processor) {
             m_processor->cancel();
-            delete m_processor;
+            if (!m_processor->running())
+                delete m_processor;
             m_processor = nullptr;
         }
     }

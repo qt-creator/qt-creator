@@ -2226,7 +2226,7 @@
 
     \section2 Cleaning Builds
 
-    If out-of-date .pdb files make debugging slower, try a clean build.
+    If out-of-date \c .pdb files make debugging slower, try a clean build.
 
     \section2 Disabling Incremental Linking
 
@@ -2235,14 +2235,14 @@
     linking.
 
     When using CMake as the build system, add the following line to the project
-    CMakeLists.txt file:
+    \c CMakeLists.txt file:
 
     \badcode
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /INCREMENTAL:NO" )
     \endcode
 
     When using qmake as the build system, add the following line to the project
-    .pro file:
+    \c .pro file:
 
     \badcode
     QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO

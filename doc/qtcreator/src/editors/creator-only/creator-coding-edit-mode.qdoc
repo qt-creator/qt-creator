@@ -126,7 +126,7 @@
         \li \l {Language Servers}
     \row
         \li \uicontrol {QDS}
-        \li Open \l {UI files} (.ui.qml) in \QDS.
+        \li Open \l {UI files} (\c .ui.qml) in \QDS.
         \li \l {\QDS documentation}
     \row
         \li \inlineimage {icons/live-preview.png} {Preview}
@@ -232,7 +232,7 @@
     as the currently open file, and you can navigate the file system from there.
     Also, you can switch to another device root.
 
-    For example, to open a QML file called \e HelloWorld.qml in the currently
+    For example, to open a QML file called \c HelloWorld.qml in the currently
     open project using the locator:
 
     \list 1
@@ -405,7 +405,7 @@
     \section1 Open resource files for editing
 
     When the cursor is on a string literal and the string is a Qt resource file
-    (.qrc) path, following the symbol opens the specified resource file for
+    (\c .qrc) path, following the symbol opens the specified resource file for
     editing in the \uicontrol {Resource Browser}.
 
     \image {qtcreator-add-resource.png} {Resource Browser}

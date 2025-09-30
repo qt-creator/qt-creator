@@ -9,7 +9,7 @@
 
     \title Edit Markdown files
 
-    Open \l{https://www.markdownguide.org/basic-syntax/}{Markdown} (.md) files,
+    Open \l{https://www.markdownguide.org/basic-syntax/}{Markdown} (\c .md) files,
     or go to \uicontrol File > \uicontrol {New File} and select
     \uicontrol {General} > \uicontrol {Markdown File} to create a new file.
 

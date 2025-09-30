@@ -101,7 +101,7 @@
     open the document, append the line and column number to the file name in
     the locator, separated by plus signs (+) or colons (:).
 
-    For example, to open \e HelloWorld.qml to line
+    For example, to open \c HelloWorld.qml to line
     41 and column 2, enter:
 
     \code
