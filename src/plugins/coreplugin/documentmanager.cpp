@@ -144,7 +144,10 @@ public:
         });
     }
 
-    FilePaths files() const { return watchers.keys(); }
+    bool contains(const FilePath &filePath) const
+    {
+        return watchers.contains(filePath) || m_localWatcher.files().contains(filePath.path());
+    }
 
     bool addPath(const FilePath &path)
     {
@@ -424,7 +427,7 @@ static void removeFileInfo(IDocument *document)
         d->m_states[filePath].lastUpdatedState.remove(document);
         if (d->m_states.value(filePath).lastUpdatedState.isEmpty()) {
             const FilePath &watchedFilePath = d->m_states.value(filePath).watchedFilePath;
-            if (d->m_fileWatcher.files().contains(watchedFilePath)) {
+            if (d->m_fileWatcher.contains(watchedFilePath)) {
                 qCDebug(log) << "removing watch for" << watchedFilePath;
                 d->m_fileWatcher.removePath(watchedFilePath);
             }
