@@ -422,7 +422,9 @@ static Abi findAbiOfMsvc(MsvcToolchain::Type type,
         else if (version == QLatin1String("v7.0A") || version == QLatin1String("v7.1"))
             msvcVersionString = QLatin1String("10.0");
     }
-    if (msvcVersionString.startsWith(QLatin1String("17.")))
+    if (msvcVersionString.startsWith(QLatin1String("18.")))
+        flavor = Abi::WindowsMsvc2026Flavor;
+    else if (msvcVersionString.startsWith(QLatin1String("17.")))
         flavor = Abi::WindowsMsvc2022Flavor;
     else if (msvcVersionString.startsWith(QLatin1String("16.")))
         flavor = Abi::WindowsMsvc2019Flavor;
@@ -944,6 +946,10 @@ QStringList MsvcToolchain::suggestedMkspecList() const
         return {"win32-msvc",
                 "win32-msvc2022",
                 "win32-arm64-msvc"};
+    case Abi::WindowsMsvc2026Flavor:
+        return {"win32-msvc",
+                "win32-msvc2026",
+                "win32-arm64-msvc"};
     default:
         break;
     }
@@ -955,6 +961,14 @@ Abis MsvcToolchain::supportedAbis() const
     Abi abi = targetAbi();
     Abis abis = {abi};
     switch (abi.osFlavor()) {
+    case Abi::WindowsMsvc2026Flavor:
+        abis << Abi(abi.architecture(),
+                    abi.os(),
+                    Abi::WindowsMsvc2022Flavor,
+                    abi.binaryFormat(),
+                    abi.wordWidth(),
+                    abi.param());
+        Q_FALLTHROUGH();
     case Abi::WindowsMsvc2022Flavor:
         abis << Abi(abi.architecture(),
                     abi.os(),
@@ -1588,9 +1602,10 @@ static const MsvcToolchain *selectMsvcToolChain(const QString &displayedVarsBat,
     QTC_CHECK(displayedVarsBat.isEmpty());
     const ClangClInfo clangClInfo = ClangClInfo::getInfo(clangClPath);
     QList<Abi::OSFlavor> flavors;
-    if (clangClInfo.version().majorVersion() >= 6)
-        flavors << Abi::WindowsMsvc2022Flavor << Abi::WindowsMsvc2019Flavor
-                << Abi::WindowsMsvc2017Flavor;
+    if (clangClInfo.version().majorVersion() >= 6) {
+        flavors << Abi::WindowsMsvc2026Flavor << Abi::WindowsMsvc2022Flavor
+                << Abi::WindowsMsvc2019Flavor << Abi::WindowsMsvc2017Flavor;
+    }
     flavors << Abi::WindowsMsvc2015Flavor << Abi::WindowsMsvc2013Flavor;
     for (const Abi::OSFlavor flavor : std::as_const(flavors)) {
         if (const auto tc = Utils::findOrDefault(g_availableMsvcToolchains,

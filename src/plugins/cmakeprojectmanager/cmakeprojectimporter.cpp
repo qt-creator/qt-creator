@@ -845,6 +845,7 @@ Toolchain *findExternalToolchain(const QString &presetArchitecture, const QStrin
                       .arg(compilerPath.parentDir().parentDir().parentDir().parentDir().fileName());
 
             static std::pair<QString, Abi::OSFlavor> abiTable[] = {
+                {QStringLiteral("v144"), Abi::WindowsMsvc2026Flavor},
                 {QStringLiteral("v143"), Abi::WindowsMsvc2022Flavor},
                 {QStringLiteral("v142"), Abi::WindowsMsvc2019Flavor},
                 {QStringLiteral("v141"), Abi::WindowsMsvc2017Flavor},

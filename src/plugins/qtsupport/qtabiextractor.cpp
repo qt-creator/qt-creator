@@ -167,6 +167,8 @@ private:
             const QVersionNumber rawVersion = QVersionNumber::fromString(compilerVersion);
             switch (rawVersion.majorVersion()) {
             case 19:
+                if (rawVersion.minorVersion() >= 50)
+                    return Abi::WindowsMsvc2026Flavor;
                 if (rawVersion.minorVersion() >= 30)
                     return Abi::WindowsMsvc2022Flavor;
                 if (rawVersion.minorVersion() >= 20)

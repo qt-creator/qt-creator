@@ -97,6 +97,7 @@ static void setupPreregisteredOsFlavors() {
     registerOsFlavor(Abi::WindowsMsvc2017Flavor, "msvc2017", {Abi::OS::WindowsOS});
     registerOsFlavor(Abi::WindowsMsvc2019Flavor, "msvc2019", {Abi::OS::WindowsOS});
     registerOsFlavor(Abi::WindowsMsvc2022Flavor, "msvc2022", {Abi::OS::WindowsOS});
+    registerOsFlavor(Abi::WindowsMsvc2026Flavor, "msvc2026", {Abi::OS::WindowsOS});
     registerOsFlavor(Abi::WindowsMSysFlavor, "msys", {Abi::OS::WindowsOS});
     registerOsFlavor(Abi::WindowsCEFlavor, "ce", {Abi::OS::WindowsOS});
     registerOsFlavor(Abi::VxWorksFlavor, "vxworks", {Abi::OS::VxWorks});
@@ -278,7 +279,9 @@ static Abis parseCoffHeader(const QByteArray &data, int pePos)
             flavor = Abi::WindowsMsvc2013Flavor;
             break;
         case 14:
-            if (minorLinker >= quint8(30))
+            if (minorLinker >= quint8(50))
+                flavor = Abi::WindowsMsvc2026Flavor;
+            else if (minorLinker >= quint8(30))
                 flavor = Abi::WindowsMsvc2022Flavor;
             else if (minorLinker >= quint8(20))
                 flavor = Abi::WindowsMsvc2019Flavor;
@@ -714,9 +717,9 @@ bool Abi::operator == (const Abi &other) const
 
 static bool compatibleMSVCFlavors(const Abi::OSFlavor &left, const Abi ::OSFlavor &right)
 {
-    // MSVC 2022, 2019, 2017 and 2015 are compatible
-    return left >= Abi::WindowsMsvc2015Flavor && left <= Abi::WindowsMsvc2022Flavor
-           && right >= Abi::WindowsMsvc2015Flavor && right <= Abi::WindowsMsvc2022Flavor;
+    // MSVC 2026, 2022, 2019, 2017 and 2015 are compatible
+    return left >= Abi::WindowsMsvc2015Flavor && left <= Abi::WindowsMsvc2026Flavor
+           && right >= Abi::WindowsMsvc2015Flavor && right <= Abi::WindowsMsvc2026Flavor;
 }
 
 bool Abi::isCompatibleWith(const Abi &other) const
@@ -1123,6 +1126,8 @@ bool Abi::osSupportsFlavor(const Abi::OS &os, const Abi::OSFlavor &flavor)
 
 Abi::OSFlavor Abi::flavorForMsvcVersion(int version)
 {
+    if (version >= 1950)
+        return WindowsMsvc2026Flavor;
     if (version >= 1930)
         return WindowsMsvc2022Flavor;
     if (version >= 1920)

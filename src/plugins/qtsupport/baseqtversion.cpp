@@ -2321,6 +2321,8 @@ static Abi refineAbiFromBuildString(const QByteArray &buildString, const Abi &pr
         flavor = Abi::WindowsMsvc2019Flavor;
     } else if (compiler.startsWith("MSVC 2022") && os == Abi::WindowsOS) {
         flavor = Abi::WindowsMsvc2022Flavor;
+    } else if (compiler.startsWith("MSVC 2026") && os == Abi::WindowsOS) {
+        flavor = Abi::WindowsMsvc2022Flavor;
     }
 
     return Abi(arch, os, flavor, format, wordWidth);
