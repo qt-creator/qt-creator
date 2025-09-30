@@ -2,19 +2,29 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "objectlengthcalculator.h"
+#include "../rewriter/rewritertracing.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 
-using namespace QmlDesigner;
+namespace QmlDesigner {
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 ObjectLengthCalculator::ObjectLengthCalculator()
     : m_doc(QmlJS::Document::create(Utils::FilePath::fromString("<internal>"), QmlJS::Dialect::Qml))
 {
+    NanotraceHR::Tracer tracer{"object length calculator constructor", category()};
 }
 
 bool ObjectLengthCalculator::operator()(const QString &text, quint32 offset,
                                         quint32 &length)
 {
+    NanotraceHR::Tracer tracer{"object length calculator operator()",
+                               category(),
+                               keyValue("text", text),
+                               keyValue("offset", offset)};
+
     m_offset = offset;
     m_length = 0;
     m_doc->setSource(text);
@@ -33,6 +43,8 @@ bool ObjectLengthCalculator::operator()(const QString &text, quint32 offset,
 
 bool ObjectLengthCalculator::visit(QmlJS::AST::UiObjectBinding *ast)
 {
+    NanotraceHR::Tracer tracer{"object length calculator visit ui object binding", category()};
+
     if (m_length > 0)
         return false;
 
@@ -53,6 +65,8 @@ bool ObjectLengthCalculator::visit(QmlJS::AST::UiObjectBinding *ast)
 
 bool ObjectLengthCalculator::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
+    NanotraceHR::Tracer tracer{"object length calculator visit ui object definition", category()};
+
     if (m_length > 0)
         return false;
 
@@ -69,5 +83,9 @@ bool ObjectLengthCalculator::visit(QmlJS::AST::UiObjectDefinition *ast)
 
 void ObjectLengthCalculator::throwRecursionDepthError()
 {
+    NanotraceHR::Tracer tracer{"object length calculator throw recursion depth error", category()};
+
     qWarning("Warning: Hit maximum recursion depth while visiting the AST in ObjectLengthCalculator");
 }
+
+} // namespace QmlDesigner

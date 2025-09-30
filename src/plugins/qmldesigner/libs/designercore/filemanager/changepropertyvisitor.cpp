@@ -2,15 +2,16 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "changepropertyvisitor.h"
+#include "../rewriter/rewritertracing.h"
 
 #include <signalhandlerproperty.h>
 
 #include <qmljs/parser/qmljsast_p.h>
 
-using namespace QmlJS;
-using namespace QmlJS::AST;
-using namespace QmlDesigner;
-using namespace QmlDesigner::Internal;
+namespace QmlDesigner::Internal {
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 ChangePropertyVisitor::ChangePropertyVisitor(QmlDesigner::TextModifier &modifier,
                                              quint32 parentLocation,
@@ -23,10 +24,18 @@ ChangePropertyVisitor::ChangePropertyVisitor(QmlDesigner::TextModifier &modifier
         m_value(value),
         m_propertyType(propertyType)
 {
+    NanotraceHR::Tracer tracer{"change property visitor constructor",
+                               category(),
+                               keyValue("parent location", parentLocation),
+                               keyValue("name", name),
+                               keyValue("value", value),
+                               keyValue("property type", int(propertyType))};
 }
 
 bool ChangePropertyVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
+    NanotraceHR::Tracer tracer{"change property visitor visit ui object definition", category()};
+
     if (didRewriting())
         return false;
 
@@ -43,6 +52,8 @@ bool ChangePropertyVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 
 bool ChangePropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 {
+    NanotraceHR::Tracer tracer{"change property visitor visit ui object binding", category()};
+
     if (didRewriting())
         return false;
 
@@ -58,9 +69,13 @@ bool ChangePropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-void ChangePropertyVisitor::replaceInMembers(UiObjectInitializer *initializer,
+void ChangePropertyVisitor::replaceInMembers(QmlJS::AST::UiObjectInitializer *initializer,
                                              const QString &propertyName)
 {
+    NanotraceHR::Tracer tracer{"change property visitor replace in members",
+                               category(),
+                               keyValue("property name", propertyName)};
+
     QString prefix, suffix;
     int dotIdx = propertyName.indexOf(QLatin1Char('.'));
     if (dotIdx != -1) {
@@ -68,14 +83,15 @@ void ChangePropertyVisitor::replaceInMembers(UiObjectInitializer *initializer,
         suffix = propertyName.mid(dotIdx + 1);
     }
 
-    for (UiObjectMemberList *members = initializer->members; members; members = members->next) {
-        UiObjectMember *member = members->member;
+    for (QmlJS::AST::UiObjectMemberList *members = initializer->members; members;
+         members = members->next) {
+        QmlJS::AST::UiObjectMember *member = members->member;
 
         // for non-grouped properties:
         if (isMatchingPropertyMember(propertyName, member)) {
             switch (m_propertyType) {
             case QmlRefactoring::ArrayBinding:
-                insertIntoArray(cast<UiArrayBinding*>(member));
+                insertIntoArray(cast<QmlJS::AST::UiArrayBinding *>(member));
                 break;
 
             case QmlRefactoring::ObjectBinding:
@@ -99,7 +115,7 @@ void ChangePropertyVisitor::replaceInMembers(UiObjectInitializer *initializer,
             break;
         // for grouped properties:
         } else if (!prefix.isEmpty()) {
-            if (auto def = cast<UiObjectDefinition *>(member)) {
+            if (auto def = cast<QmlJS::AST::UiObjectDefinition *>(member)) {
                 if (toString(def->qualifiedTypeNameId) == prefix)
                     replaceInMembers(def->initializer, suffix);
             }
@@ -113,29 +129,35 @@ QString ensureBraces(const QString &source)
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, bool needsSemicolon)
+void ChangePropertyVisitor::replaceMemberValue(QmlJS::AST::UiObjectMember *propertyMember,
+                                               bool needsSemicolon)
 {
+    NanotraceHR::Tracer tracer{"change property visitor replace member value",
+                               category(),
+                               keyValue("needs semicolon", needsSemicolon)};
+
     QString replacement = m_value;
     int startOffset = -1;
     int endOffset = -1;
     bool requiresBraces = false;
 
-    if (auto objectBinding = AST::cast<UiObjectBinding *>(propertyMember)) {
+    if (auto objectBinding = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding *>(propertyMember)) {
         startOffset = objectBinding->qualifiedTypeNameId->identifierToken.offset;
         endOffset = objectBinding->initializer->rbraceToken.end();
-    } else if (auto scriptBinding = AST::cast<UiScriptBinding *>(propertyMember)) {
+    } else if (auto scriptBinding = QmlJS::AST::cast<QmlJS::AST::UiScriptBinding *>(propertyMember)) {
         startOffset = scriptBinding->statement->firstSourceLocation().offset;
         endOffset = scriptBinding->statement->lastSourceLocation().end();
-    } else if (auto arrayBinding = AST::cast<UiArrayBinding *>(propertyMember)) {
+    } else if (auto arrayBinding = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding *>(propertyMember)) {
         startOffset = arrayBinding->lbracketToken.offset;
         endOffset = arrayBinding->rbracketToken.end();
-    } else if (auto sourceElement = AST::cast<UiSourceElement *>(propertyMember)) {
-        auto function = AST::cast<AST::FunctionDeclaration *>(sourceElement->sourceElement);
+    } else if (auto sourceElement = QmlJS::AST::cast<QmlJS::AST::UiSourceElement *>(propertyMember)) {
+        auto function = QmlJS::AST::cast<QmlJS::AST::FunctionDeclaration *>(
+            sourceElement->sourceElement);
         startOffset = function->lbraceToken.offset;
         endOffset = function->rbraceToken.end();
         requiresBraces = true;
-    } else if (auto publicMember = AST::cast<UiPublicMember *>(propertyMember)) {
-        if (publicMember->type == AST::UiPublicMember::Signal) {
+    } else if (auto publicMember = QmlJS::AST::cast<QmlJS::AST::UiPublicMember *>(propertyMember)) {
+        if (publicMember->type == QmlJS::AST::UiPublicMember::Signal) {
             startOffset = publicMember->firstSourceLocation().offset;
             if (publicMember->semicolonToken.isValid())
                 endOffset = publicMember->semicolonToken.end();
@@ -171,18 +193,23 @@ void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, b
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 bool ChangePropertyVisitor::isMatchingPropertyMember(const QString &propName,
-                                                     UiObjectMember *member)
+                                                     QmlJS::AST::UiObjectMember *member)
 {
-    if (auto objectBinding = AST::cast<UiObjectBinding *>(member))
+    NanotraceHR::Tracer tracer{"change property visitor is matching property member",
+                               category(),
+                               keyValue("property name", propName)};
+
+    if (auto objectBinding = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding *>(member))
         return propName == toString(objectBinding->qualifiedId);
-    else if (auto scriptBinding = AST::cast<UiScriptBinding *>(member))
+    else if (auto scriptBinding = QmlJS::AST::cast<QmlJS::AST::UiScriptBinding *>(member))
         return propName == toString(scriptBinding->qualifiedId);
-    else if (auto arrayBinding = AST::cast<UiArrayBinding *>(member))
+    else if (auto arrayBinding = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding *>(member))
         return propName == toString(arrayBinding->qualifiedId);
-    else if (auto publicMember = AST::cast<UiPublicMember *>(member))
+    else if (auto publicMember = QmlJS::AST::cast<QmlJS::AST::UiPublicMember *>(member))
         return propName == publicMember->name;
-    else if (auto uiSourceElement = AST::cast<UiSourceElement *>(member)) {
-        auto function = AST::cast<AST::FunctionDeclaration *>(uiSourceElement->sourceElement);
+    else if (auto uiSourceElement = QmlJS::AST::cast<QmlJS::AST::UiSourceElement *>(member)) {
+        auto function = QmlJS::AST::cast<QmlJS::AST::FunctionDeclaration *>(
+            uiSourceElement->sourceElement);
 
         return function->name == propName;
     } else
@@ -190,8 +217,10 @@ bool ChangePropertyVisitor::isMatchingPropertyMember(const QString &propName,
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-bool ChangePropertyVisitor::nextMemberOnSameLine(UiObjectMemberList *members)
+bool ChangePropertyVisitor::nextMemberOnSameLine(QmlJS::AST::UiObjectMemberList *members)
 {
+    NanotraceHR::Tracer tracer{"change property visitor next member on same line", category()};
+
     if (members && members->next && members->next->member)
         return members->next->member->firstSourceLocation().startLine == members->member->lastSourceLocation().startLine;
     else
@@ -201,11 +230,13 @@ bool ChangePropertyVisitor::nextMemberOnSameLine(UiObjectMemberList *members)
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void ChangePropertyVisitor::insertIntoArray(QmlJS::AST::UiArrayBinding *ast)
 {
+    NanotraceHR::Tracer tracer{"change property visitor insert into array", category()};
+
     if (!ast)
         return;
 
-    UiObjectMember *lastMember = nullptr;
-    for (UiArrayMemberList *iter = ast->members; iter; iter = iter->next) {
+    QmlJS::AST::UiObjectMember *lastMember = nullptr;
+    for (QmlJS::AST::UiArrayMemberList *iter = ast->members; iter; iter = iter->next) {
         lastMember = iter->member;
     }
 
@@ -218,3 +249,4 @@ void ChangePropertyVisitor::insertIntoArray(QmlJS::AST::UiArrayBinding *ast)
     replace(insertionPoint, 0, QStringLiteral(",\n") + indentedArrayMember);
     setDidRewriting(true);
 }
+} // namespace QmlDesigner::Internal

@@ -2,11 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "addpropertyvisitor.h"
+#include "../rewriter/rewritertracing.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 AddPropertyVisitor::AddPropertyVisitor(TextModifier &modifier,
                                        quint32 parentLocation,
@@ -23,10 +27,19 @@ AddPropertyVisitor::AddPropertyVisitor(TextModifier &modifier,
     , m_propertyOrder(propertyOrder)
     , m_dynamicTypeName(dynamicTypeName)
 {
+    NanotraceHR::Tracer tracer{"add property visitor constructor",
+                               category(),
+                               keyValue("parent location", parentLocation),
+                               keyValue("name", name),
+                               keyValue("value", value),
+                               keyValue("property type", int(propertyType)),
+                               keyValue("dynamic type name", dynamicTypeName)};
 }
 
 bool AddPropertyVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
+    NanotraceHR::Tracer tracer{"add property visitor visit ui object definition", category()};
+
     if (didRewriting())
         return false;
 
@@ -41,6 +54,8 @@ bool AddPropertyVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 
 bool AddPropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 {
+    NanotraceHR::Tracer tracer{"add property visitor visit ui object binding", category()};
+
     if (didRewriting())
         return false;
 
@@ -56,6 +71,8 @@ bool AddPropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializer)
 {
+    NanotraceHR::Tracer tracer{"add property visitor add in members", category()};
+
     QmlJS::AST::UiObjectMemberList *insertAfter = searchMemberToInsertAfter(initializer->members, m_name, m_propertyOrder);
     QmlJS::SourceLocation endOfPreviousMember;
     QmlJS::SourceLocation startOfNextMember;

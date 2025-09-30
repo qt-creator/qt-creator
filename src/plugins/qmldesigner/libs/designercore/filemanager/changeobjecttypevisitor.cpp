@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "changeobjecttypevisitor.h"
+#include "../rewriter/rewritertracing.h"
+
 #include <qmljs/parser/qmljsast_p.h>
 
-using namespace QmlJS;
-using namespace QmlJS::AST;
-using namespace QmlDesigner::Internal;
+namespace QmlDesigner::Internal {
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 ChangeObjectTypeVisitor::ChangeObjectTypeVisitor(QmlDesigner::TextModifier &modifier,
                                                  quint32 nodeLocation,
@@ -15,10 +18,16 @@ ChangeObjectTypeVisitor::ChangeObjectTypeVisitor(QmlDesigner::TextModifier &modi
     m_nodeLocation(nodeLocation),
     m_newType(newType)
 {
+    NanotraceHR::Tracer tracer{"change object type visitor constructor",
+                               category(),
+                               NanotraceHR::keyValue("node location", nodeLocation),
+                               NanotraceHR::keyValue("new type", newType)};
 }
 
-bool ChangeObjectTypeVisitor::visit(UiObjectDefinition *ast)
+bool ChangeObjectTypeVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
+    NanotraceHR::Tracer tracer{"change object type visitor visit ui object definition", category()};
+
     if (ast->firstSourceLocation().offset == m_nodeLocation) {
         replaceType(ast->qualifiedTypeNameId);
         return false;
@@ -27,8 +36,10 @@ bool ChangeObjectTypeVisitor::visit(UiObjectDefinition *ast)
     return !didRewriting();
 }
 
-bool ChangeObjectTypeVisitor::visit(UiObjectBinding *ast)
+bool ChangeObjectTypeVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 {
+    NanotraceHR::Tracer tracer{"change object type visitor visit ui object binding", category()};
+
     const quint32 start = ast->qualifiedTypeNameId->identifierToken.offset;
 
     if (start == m_nodeLocation) {
@@ -39,16 +50,20 @@ bool ChangeObjectTypeVisitor::visit(UiObjectBinding *ast)
     return !didRewriting();
 }
 
-void ChangeObjectTypeVisitor::replaceType(UiQualifiedId *typeId)
+void ChangeObjectTypeVisitor::replaceType(QmlJS::AST::UiQualifiedId *typeId)
 {
+    NanotraceHR::Tracer tracer{"change object type visitor replace type", category()};
+
     Q_ASSERT(typeId);
 
     const int startOffset = typeId->identifierToken.offset;
     int endOffset = typeId->identifierToken.end();
-    for (UiQualifiedId *iter = typeId->next; iter; iter = iter->next)
+    for (QmlJS::AST::UiQualifiedId *iter = typeId->next; iter; iter = iter->next)
         if (!iter->next)
             endOffset = iter->identifierToken.end();
 
     replace(startOffset, endOffset - startOffset, m_newType);
     setDidRewriting(true);
 }
+
+} // namespace QmlDesigner::Internal

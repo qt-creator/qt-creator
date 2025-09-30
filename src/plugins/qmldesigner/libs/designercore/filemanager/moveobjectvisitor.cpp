@@ -2,16 +2,17 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "moveobjectvisitor.h"
+#include "../rewriter/rewritertracing.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 
 #include <QDebug>
 
-using namespace QmlJS;
-using namespace QmlJS::AST;
-
 namespace QmlDesigner {
 namespace Internal {
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 class Inserter: public QMLRewriter
 {
@@ -28,11 +29,20 @@ public:
         , targetIsArrayBinding(targetIsArrayBinding)
         , moveInfo(moveInfo)
         , propertyOrder(propertyOrder)
-    {}
+    {
+        NanotraceHR::Tracer tracer{"move object visitor constructor",
+                                   category(),
+                                   keyValue("target parent object location",
+                                            targetParentObjectLocation),
+                                   keyValue("target property name", targetPropertyName),
+                                   keyValue("target is array binding", targetIsArrayBinding)};
+    }
 
 protected:
-    bool visit(UiObjectBinding *ast) override
+    bool visit(QmlJS::AST::UiObjectBinding *ast) override
     {
+        NanotraceHR::Tracer tracer{"move object visitor visit ui object binding", category()};
+
         if (didRewriting())
             return false;
 
@@ -42,8 +52,10 @@ protected:
         return !didRewriting();
     }
 
-    bool visit(UiObjectDefinition *ast) override
+    bool visit(QmlJS::AST::UiObjectDefinition *ast) override
     {
+        NanotraceHR::Tracer tracer{"move object visitor visit ui object definition", category()};
+
         if (didRewriting())
             return false;
 
@@ -54,11 +66,14 @@ protected:
     }
 
 private:
-    void insertInto(UiObjectInitializer *ast)
+    void insertInto(QmlJS::AST::UiObjectInitializer *ast)
     {
+        NanotraceHR::Tracer tracer{"move object visitor insert into", category()};
+
         if (targetPropertyName.isEmpty()) {
-            // insert as UiObjectDefinition:
-            UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members, propertyOrder);
+            // insert as QmlJS::AST::UiObjectDefinition:
+            QmlJS::AST::UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members,
+                                                                                    propertyOrder);
 
             if (insertAfter && insertAfter->member) {
                 moveInfo.destination = insertAfter->member->lastSourceLocation().end();
@@ -74,11 +89,11 @@ private:
             return;
         }
 
-        // see if we need to insert into an UiArrayBinding:
-        for (UiObjectMemberList *iter = ast->members; iter; iter = iter->next) {
-            UiObjectMember *member = iter->member;
+        // see if we need to insert into an QmlJS::AST::UiArrayBinding:
+        for (QmlJS::AST::UiObjectMemberList *iter = ast->members; iter; iter = iter->next) {
+            QmlJS::AST::UiObjectMember *member = iter->member;
 
-            if (auto arrayBinding = cast<UiArrayBinding*>(member)) {
+            if (auto arrayBinding = cast<QmlJS::AST::UiArrayBinding *>(member)) {
                 if (toString(arrayBinding->qualifiedId) == QString::fromUtf8(targetPropertyName)) {
                     appendToArray(arrayBinding);
 
@@ -88,8 +103,10 @@ private:
             }
         }
 
-        { // insert (create) a UiObjectBinding:
-            UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members, targetPropertyName, propertyOrder);
+        { // insert (create) a QmlJS::AST::UiObjectBinding:
+            QmlJS::AST::UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members,
+                                                                                    targetPropertyName,
+                                                                                    propertyOrder);
             moveInfo.prefixToInsert = QStringLiteral("\n") + QString::fromUtf8(targetPropertyName) + (targetIsArrayBinding ? QStringLiteral(": [") : QStringLiteral(": "));
             moveInfo.suffixToInsert = targetIsArrayBinding ? QStringLiteral("\n]") : QStringLiteral("");
 
@@ -104,11 +121,13 @@ private:
         }
     }
 
-    void appendToArray(UiArrayBinding *ast)
+    void appendToArray(QmlJS::AST::UiArrayBinding *ast)
     {
-        UiObjectMember *lastMember = nullptr;
+        NanotraceHR::Tracer tracer{"move object visitor append to array", category()};
 
-        for (UiArrayMemberList *iter = ast->members; iter; iter = iter->next) {
+        QmlJS::AST::UiObjectMember *lastMember = nullptr;
+
+        for (QmlJS::AST::UiArrayMemberList *iter = ast->members; iter; iter = iter->next) {
             if (iter->member)
                 lastMember = iter->member;
         }
@@ -143,23 +162,33 @@ MoveObjectVisitor::MoveObjectVisitor(TextModifier &modifier,
     , targetParentObjectLocation(targetParentObjectLocation)
     , propertyOrder(propertyOrder)
 {
+    NanotraceHR::Tracer tracer{"move object visitor constructor",
+                               category(),
+                               keyValue("object location", objectLocation),
+                               keyValue("target property name", targetPropertyName),
+                               keyValue("target is array binding", targetIsArrayBinding),
+                               keyValue("target parent object location", targetParentObjectLocation)};
 }
 
-bool MoveObjectVisitor::operator()(UiProgram *ast)
+bool MoveObjectVisitor::operator()(QmlJS::AST::UiProgram *ast)
 {
+    NanotraceHR::Tracer tracer{"move object visitor operator()", category()};
+
     program = ast;
 
     return QMLRewriter::operator()(ast);
 }
 
-bool MoveObjectVisitor::visit(UiArrayBinding *ast)
+bool MoveObjectVisitor::visit(QmlJS::AST::UiArrayBinding *ast)
 {
+    NanotraceHR::Tracer tracer{"move object visitor visit ui array binding", category()};
+
     if (didRewriting())
         return false;
 
-    UiArrayMemberList *currentMember = nullptr;
+    QmlJS::AST::UiArrayMemberList *currentMember = nullptr;
 
-    for (UiArrayMemberList *it = ast->members; it; it = it->next) {
+    for (QmlJS::AST::UiArrayMemberList *it = ast->members; it; it = it->next) {
         if (it->member->firstSourceLocation().offset == objectLocation) {
             currentMember = it;
             break;
@@ -204,8 +233,10 @@ bool MoveObjectVisitor::visit(UiArrayBinding *ast)
     return !didRewriting();
 }
 
-bool MoveObjectVisitor::visit(UiObjectBinding *ast)
+bool MoveObjectVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 {
+    NanotraceHR::Tracer tracer{"move object visitor visit ui object binding", category()};
+
     if (didRewriting())
         return false;
 
@@ -230,8 +261,10 @@ bool MoveObjectVisitor::visit(UiObjectBinding *ast)
     return !didRewriting();
 }
 
-bool MoveObjectVisitor::visit(UiObjectDefinition *ast)
+bool MoveObjectVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
+    NanotraceHR::Tracer tracer{"move object visitor visit ui object definition", category()};
+
     if (didRewriting())
         return false;
 
@@ -256,6 +289,8 @@ bool MoveObjectVisitor::visit(UiObjectDefinition *ast)
 
 void MoveObjectVisitor::doMove(const TextModifier::MoveInfo &moveInfo)
 {
+    NanotraceHR::Tracer tracer{"move object visitor do move", category()};
+
     if (moveInfo.objectEnd > moveInfo.objectStart) {
         Inserter findTargetAndInsert(*textModifier(),
                                      targetParentObjectLocation,

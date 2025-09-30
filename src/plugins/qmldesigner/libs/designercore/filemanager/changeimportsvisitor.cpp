@@ -2,19 +2,27 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "changeimportsvisitor.h"
+#include "../rewriter/rewritertracing.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 
-using namespace QmlDesigner;
-using namespace QmlDesigner::Internal;
+namespace QmlDesigner::Internal {
 
 ChangeImportsVisitor::ChangeImportsVisitor(TextModifier &textModifier,
                                            const QString &source):
         QMLRewriter(textModifier), m_source(source)
-{}
+{
+    NanotraceHR::Tracer tracer{"change imports visitor constructor",
+                               RewriterTracing::category(),
+                               NanotraceHR::keyValue("source", source)};
+}
 
 bool ChangeImportsVisitor::add(QmlJS::AST::UiProgram *ast, const Import &import)
 {
+    NanotraceHR::Tracer tracer{"change imports visitor add",
+                               RewriterTracing::category(),
+                               NanotraceHR::keyValue("import", import)};
+
     setDidRewriting(false);
     if (!ast)
         return false;
@@ -43,6 +51,10 @@ bool ChangeImportsVisitor::add(QmlJS::AST::UiProgram *ast, const Import &import)
 
 bool ChangeImportsVisitor::remove(QmlJS::AST::UiProgram *ast, const Import &import)
 {
+    NanotraceHR::Tracer tracer{"change imports visitor remove",
+                               RewriterTracing::category(),
+                               NanotraceHR::keyValue("import", import)};
+
     setDidRewriting(false);
     if (!ast)
         return false;
@@ -75,6 +87,10 @@ bool isEqual(QmlJS::AST::UiImport *ast, const Import &import)
 
 bool ChangeImportsVisitor::equals(QmlJS::AST::UiImport *ast, const Import &import)
 {
+    NanotraceHR::Tracer tracer{"change imports visitor equals",
+                               RewriterTracing::category(),
+                               NanotraceHR::keyValue("import", import)};
+
     if (isEqual(ast, import)) {
         if (ast->version) {
             return std::array{ast->version->majorVersion, ast->version->minorVersion}
@@ -85,3 +101,5 @@ bool ChangeImportsVisitor::equals(QmlJS::AST::UiImport *ast, const Import &impor
 
     return false;
 }
+
+} // namespace QmlDesigner::Internal

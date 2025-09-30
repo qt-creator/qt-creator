@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "addarraymembervisitor.h"
+#include "../rewriter/rewritertracing.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 
-using namespace QmlDesigner;
-using namespace QmlDesigner::Internal;
+namespace QmlDesigner::Internal {
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 AddArrayMemberVisitor::AddArrayMemberVisitor(TextModifier &modifier,
                                              quint32 parentLocation,
@@ -18,10 +21,19 @@ AddArrayMemberVisitor::AddArrayMemberVisitor(TextModifier &modifier,
     m_content(content),
     m_convertObjectBindingIntoArrayBinding(false)
 {
+    NanotraceHR::Tracer tracer{"add array member visitor constructor",
+                               category(),
+                               keyValue("parent location", parentLocation),
+                               keyValue("property name", propertyName),
+                               keyValue("content", content)};
 }
 
 void AddArrayMemberVisitor::findArrayBindingAndInsert(const QString &propertyName, QmlJS::AST::UiObjectMemberList *ast)
 {
+    NanotraceHR::Tracer tracer{"add array member visitor find array binding and insert",
+                               category(),
+                               keyValue("property name", propertyName)};
+
     for (QmlJS::AST::UiObjectMemberList *iter = ast; iter; iter = iter->next) {
         if (auto arrayBinding = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(iter->member)) {
             if (toString(arrayBinding->qualifiedId) == propertyName)
@@ -35,6 +47,8 @@ void AddArrayMemberVisitor::findArrayBindingAndInsert(const QString &propertyNam
 
 bool AddArrayMemberVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 {
+    NanotraceHR::Tracer tracer{"add array member visitor visit ui object binding", category()};
+
     if (didRewriting())
         return false;
 
@@ -46,6 +60,8 @@ bool AddArrayMemberVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 
 bool AddArrayMemberVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
+    NanotraceHR::Tracer tracer{"add array member visitor visit ui object definition", category()};
+
     if (didRewriting())
         return false;
 
@@ -58,6 +74,8 @@ bool AddArrayMemberVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void AddArrayMemberVisitor::insertInto(QmlJS::AST::UiArrayBinding *arrayBinding)
 {
+    NanotraceHR::Tracer tracer{"add array member visitor insert into", category()};
+
     QmlJS::AST::UiObjectMember *lastMember = nullptr;
     for (QmlJS::AST::UiArrayMemberList *iter = arrayBinding->members; iter; iter = iter->next)
         if (iter->member)
@@ -76,6 +94,8 @@ void AddArrayMemberVisitor::insertInto(QmlJS::AST::UiArrayBinding *arrayBinding)
 
 void AddArrayMemberVisitor::convertAndAdd(QmlJS::AST::UiObjectBinding *objectBinding)
 {
+    NanotraceHR::Tracer tracer{"add array member visitor convert and add", category()};
+
     const int indentDepth = calculateIndentDepth(objectBinding->firstSourceLocation());
     const QString arrayPrefix = QStringLiteral("[\n") + addIndentation(QString(), indentDepth);
     replace(objectBinding->qualifiedTypeNameId->identifierToken.offset, 0, arrayPrefix);
@@ -88,3 +108,5 @@ void AddArrayMemberVisitor::convertAndAdd(QmlJS::AST::UiObjectBinding *objectBin
 
     setDidRewriting(true);
 }
+
+} // namespace QmlDesigner::Internal

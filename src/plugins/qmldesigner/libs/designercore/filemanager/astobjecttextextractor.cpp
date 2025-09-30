@@ -2,23 +2,35 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "astobjecttextextractor.h"
+#include "../rewriter/rewritertracing.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 
 #include <QDebug>
 
-using namespace QmlDesigner;
+namespace QmlDesigner {
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 ASTObjectTextExtractor::ASTObjectTextExtractor(const QString &text)
     : m_document(QmlJS::Document::create(Utils::FilePath::fromString("<ASTObjectTextExtractor>"),
                                          QmlJS::Dialect::Qml))
 {
+    NanotraceHR::Tracer tracer{"AST object text extractor constructor",
+                               category(),
+                               keyValue("text", text)};
+
     m_document->setSource(text);
     m_document->parseQml();
 }
 
 QString ASTObjectTextExtractor::operator ()(int location)
 {
+    NanotraceHR::Tracer tracer{"AST object text extractor operator()",
+                               category(),
+                               keyValue("location", location)};
+
     Q_ASSERT(location >= 0);
 
     m_location = location;
@@ -31,6 +43,8 @@ QString ASTObjectTextExtractor::operator ()(int location)
 
 bool ASTObjectTextExtractor::visit(QmlJS::AST::UiObjectBinding *ast)
 {
+    NanotraceHR::Tracer tracer{"AST object text extractor visit ui object binding", category()};
+
     if (!m_text.isEmpty())
         return false;
 
@@ -42,6 +56,8 @@ bool ASTObjectTextExtractor::visit(QmlJS::AST::UiObjectBinding *ast)
 
 bool ASTObjectTextExtractor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
+    NanotraceHR::Tracer tracer{"AST object text extractor visit ui object definition", category()};
+
     if (!m_text.isEmpty())
         return false;
 
@@ -53,5 +69,9 @@ bool ASTObjectTextExtractor::visit(QmlJS::AST::UiObjectDefinition *ast)
 
 void ASTObjectTextExtractor::throwRecursionDepthError()
 {
+    NanotraceHR::Tracer tracer{"AST object text extractor throw recursion depth error", category()};
+
     qWarning("Warning: Hit maximum recursion depth while visiting the AST in ASTObjectTextExtractor");
 }
+
+} // namespace QmlDesigner

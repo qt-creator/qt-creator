@@ -2,10 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "removepropertyvisitor.h"
+#include "../rewriter/rewritertracing.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 
-using namespace QmlDesigner::Internal;
+namespace QmlDesigner::Internal {
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 RemovePropertyVisitor::RemovePropertyVisitor(QmlDesigner::TextModifier &modifier,
                                              quint32 parentLocation,
@@ -14,10 +18,16 @@ RemovePropertyVisitor::RemovePropertyVisitor(QmlDesigner::TextModifier &modifier
     parentLocation(parentLocation),
     propertyName(propertyName)
 {
+    NanotraceHR::Tracer tracer{"remove property visitor constructor",
+                               category(),
+                               keyValue("parent location", parentLocation),
+                               keyValue("property name", propertyName)};
 }
 
 bool RemovePropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 {
+    NanotraceHR::Tracer tracer{"remove property visitor visit ui object binding", category()};
+
     if (ast->firstSourceLocation().offset == parentLocation) {
         //this condition is wrong for the UiObjectBinding case, but we keep it
         //since we are paranoid until the release is done.
@@ -35,6 +45,8 @@ bool RemovePropertyVisitor::visit(QmlJS::AST::UiObjectBinding *ast)
 
 bool RemovePropertyVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
+    NanotraceHR::Tracer tracer{"remove property visitor visit ui object definition", category()};
+
     if (ast->firstSourceLocation().offset == parentLocation) {
         // FIXME: change this to use the QmlJS::Rewriter class
         removeFrom(ast->initializer);
@@ -46,6 +58,8 @@ bool RemovePropertyVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void RemovePropertyVisitor::removeFrom(QmlJS::AST::UiObjectInitializer *ast)
 {
+    NanotraceHR::Tracer tracer{"remove property visitor remove from", category()};
+
     QString prefix;
     int dotIdx = propertyName.indexOf(QLatin1Char('.'));
     if (dotIdx != -1)
@@ -70,6 +84,8 @@ void RemovePropertyVisitor::removeFrom(QmlJS::AST::UiObjectInitializer *ast)
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void RemovePropertyVisitor::removeGroupedProperty(QmlJS::AST::UiObjectDefinition *ast)
 {
+    NanotraceHR::Tracer tracer{"remove property visitor remove grouped property", category()};
+
     int dotIdx = propertyName.indexOf(QLatin1Char('.'));
     if (dotIdx == -1)
         return;
@@ -97,6 +113,8 @@ void RemovePropertyVisitor::removeGroupedProperty(QmlJS::AST::UiObjectDefinition
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void RemovePropertyVisitor::removeMember(QmlJS::AST::UiObjectMember *member)
 {
+    NanotraceHR::Tracer tracer{"remove property visitor remove member", category()};
+
     int start = member->firstSourceLocation().offset;
     int end = member->lastSourceLocation().end();
 
@@ -109,6 +127,9 @@ void RemovePropertyVisitor::removeMember(QmlJS::AST::UiObjectMember *member)
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 bool RemovePropertyVisitor::memberNameMatchesPropertyName(const QString &propertyName, QmlJS::AST::UiObjectMember *ast)
 {
+    NanotraceHR::Tracer tracer{"remove property visitor member name matches property name",
+                               category()};
+
     if (auto publicMember = QmlJS::AST::cast<QmlJS::AST::UiPublicMember*>(ast))
         return publicMember->name == propertyName;
     else if (auto objectBinding = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding*>(ast))
@@ -124,3 +145,5 @@ bool RemovePropertyVisitor::memberNameMatchesPropertyName(const QString &propert
     } else
         return false;
 }
+
+} // namespace QmlDesigner::Internal

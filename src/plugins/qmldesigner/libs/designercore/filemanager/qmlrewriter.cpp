@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlrewriter.h"
+#include "../rewriter/rewritertracing.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 
@@ -13,16 +14,22 @@
 
 static Q_LOGGING_CATEGORY(qmlRewriter, "qtc.rewriter.qmlrewriter", QtWarningMsg)
 
-using namespace QmlDesigner::Internal;
+namespace QmlDesigner::Internal {
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 QMLRewriter::QMLRewriter(QmlDesigner::TextModifier &textModifier):
         m_textModifier(&textModifier),
         m_didRewriting(false)
 {
+    NanotraceHR::Tracer tracer{"QML rewriter constructor", category()};
 }
 
 bool QMLRewriter::operator()(QmlJS::AST::UiProgram *ast)
 {
+    NanotraceHR::Tracer tracer{"QML rewriter operator()", category()};
+
     setDidRewriting(false);
 
     QmlJS::AST::Node::accept(ast, this);
@@ -32,31 +39,50 @@ bool QMLRewriter::operator()(QmlJS::AST::UiProgram *ast)
 
 void QMLRewriter::replace(int offset, int length, const QString &text)
 {
+    NanotraceHR::Tracer tracer{"QML rewriter replace",
+                               category(),
+                               keyValue("offset", offset),
+                               keyValue("length", length),
+                               keyValue("text", text)};
+
     m_textModifier->replace(offset, length, text);
 }
 
 void QMLRewriter::move(const QmlDesigner::TextModifier::MoveInfo &moveInfo)
 {
+    NanotraceHR::Tracer tracer{"QML rewriter move", category(), keyValue("move info", moveInfo)};
+
     m_textModifier->move(moveInfo);
 }
 
 QString QMLRewriter::textBetween(int startPosition, int endPosition) const
 {
+    NanotraceHR::Tracer tracer{"QML rewriter text between",
+                               category(),
+                               keyValue("start position", startPosition),
+                               keyValue("end position", endPosition)};
+
     return m_textModifier->text().mid(startPosition, endPosition - startPosition);
 }
 
 QString QMLRewriter::textAt(const QmlJS::SourceLocation &location) const
 {
+    NanotraceHR::Tracer tracer{"QML rewriter text at", category()};
+
     return m_textModifier->text().mid(location.offset, location.length);
 }
 
 int QMLRewriter::indentDepth() const
 {
+    NanotraceHR::Tracer tracer{"QML rewriter indent depth", category()};
+
     return textModifier()->tabSettings().m_indentSize;
 }
 
 unsigned QMLRewriter::calculateIndentDepth(const QmlJS::SourceLocation &position) const
 {
+    NanotraceHR::Tracer tracer{"QML rewriter calculate indent depth", category()};
+
     QTextDocument *doc = m_textModifier->textDocument();
     QTextCursor tc(doc);
     tc.setPosition(position.offset);
@@ -66,6 +92,11 @@ unsigned QMLRewriter::calculateIndentDepth(const QmlJS::SourceLocation &position
 
 QString QMLRewriter::addIndentation(const QString &text, unsigned depth)
 {
+    NanotraceHR::Tracer tracer{"QML rewriter add indentation",
+                               category(),
+                               keyValue("text", text),
+                               keyValue("depth", depth)};
+
     if (depth == 0)
         return text;
 
@@ -92,6 +123,8 @@ QString QMLRewriter::addIndentation(const QString &text, unsigned depth)
 
 QmlJS::SourceLocation QMLRewriter::calculateLocation(QmlJS::AST::UiQualifiedId *id)
 {
+    NanotraceHR::Tracer tracer{"QML rewriter calculate location", category()};
+
     Q_ASSERT(id != nullptr);
 
     const QmlJS::SourceLocation startLocation = id->identifierToken;
@@ -108,6 +141,8 @@ QmlJS::SourceLocation QMLRewriter::calculateLocation(QmlJS::AST::UiQualifiedId *
 
 bool QMLRewriter::isMissingSemicolon(QmlJS::AST::UiObjectMember *member)
 {
+    NanotraceHR::Tracer tracer{"QML rewriter is missing semicolon", category()};
+
     auto binding = QmlJS::AST::cast<QmlJS::AST::UiScriptBinding *>(member);
     if (binding)
         return isMissingSemicolon(binding->statement);
@@ -117,6 +152,8 @@ bool QMLRewriter::isMissingSemicolon(QmlJS::AST::UiObjectMember *member)
 
 bool QMLRewriter::isMissingSemicolon(QmlJS::AST::Statement *stmt)
 {
+    NanotraceHR::Tracer tracer{"QML rewriter is missing semicolon", category()};
+
     if (auto eStmt = QmlJS::AST::cast<QmlJS::AST::ExpressionStatement *>(stmt)) {
         return !eStmt->semicolonToken.isValid();
     } else if (auto iStmt = QmlJS::AST::cast<QmlJS::AST::IfStatement *>(stmt)) {
@@ -134,6 +171,11 @@ bool QMLRewriter::isMissingSemicolon(QmlJS::AST::Statement *stmt)
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 bool QMLRewriter::includeSurroundingWhitespace(int &start, int &end) const
 {
+    NanotraceHR::Tracer tracer{"QML rewriter include surrounding whitespace",
+                               category(),
+                               keyValue("start", start),
+                               keyValue("end", end)};
+
     QTextDocument *doc = m_textModifier->textDocument();
     bool includeStartingWhitespace = true;
     bool paragraphFound = false;
@@ -175,6 +217,10 @@ bool QMLRewriter::includeSurroundingWhitespace(int &start, int &end) const
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void QMLRewriter::includeLeadingEmptyLine(int &start) const
 {
+    NanotraceHR::Tracer tracer{"QML rewriter include leading empty line",
+                               category(),
+                               keyValue("start", start)};
+
     QTextDocument *doc = textModifier()->textDocument();
 
     if (start == 0)
@@ -213,6 +259,8 @@ int indexOf(Utils::span<const QmlDesigner::PropertyNameView> properties,
 QmlJS::AST::UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(
     QmlJS::AST::UiObjectMemberList *members, Utils::span<const PropertyNameView> propertyOrder)
 {
+    NanotraceHR::Tracer tracer{"QML rewriter search member to insert after", category()};
+
     const int objectDefinitionInsertionPoint = indexOf(propertyOrder, ""); // XXX ????
 
     QmlJS::AST::UiObjectMemberList *lastObjectDef = nullptr;
@@ -249,6 +297,10 @@ QmlJS::AST::UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(
     PropertyNameView propertyName,
     Utils::span<const PropertyNameView> propertyOrder)
 {
+    NanotraceHR::Tracer tracer{"QML rewriter search member to insert after",
+                               category(),
+                               keyValue("property name", propertyName)};
+
     if (!members)
         return nullptr; // empty members
 
@@ -288,6 +340,10 @@ QmlJS::AST::UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(
 QmlJS::AST::UiObjectMemberList *QMLRewriter::searchChildrenToInsertAfter(
     QmlJS::AST::UiObjectMemberList *members, Utils::span<const PropertyNameView> propertyOrder, int pos)
 {
+    NanotraceHR::Tracer tracer{"QML rewriter search children to insert after",
+                               category(),
+                               keyValue("position", pos)};
+
     // An empty property name should be available in the propertyOrder List, which is the right place
     // to define the objects there.
     const int objectDefinitionInsertionPoint = indexOf(propertyOrder, "");
@@ -327,6 +383,8 @@ QmlJS::AST::UiObjectMemberList *QMLRewriter::searchChildrenToInsertAfter(
 
 void QMLRewriter::dump(const ASTPath &path)
 {
+    NanotraceHR::Tracer tracer{"QML rewriter dump", category()};
+
     qCDebug(qmlRewriter) << "AST path with" << path.size() << "node(s):";
     for (int i = 0; i < path.size(); ++i) {
         auto node = path.at(i);
@@ -336,5 +394,10 @@ void QMLRewriter::dump(const ASTPath &path)
 
 void QMLRewriter::throwRecursionDepthError()
 {
-    qCWarning(qmlRewriter) << "Warning: Hit maximum recursion level while visiting AST in QMLRewriter";
+    NanotraceHR::Tracer tracer{"QML rewriter throw recursion depth error", category()};
+
+    qCWarning(qmlRewriter)
+        << "Warning: Hit maximum recursion level while visiting AST in QMLRewriter";
 }
+
+} // namespace QmlDesigner::Internal

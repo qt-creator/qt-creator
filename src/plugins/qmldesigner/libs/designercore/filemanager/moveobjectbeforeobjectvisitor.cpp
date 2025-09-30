@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "moveobjectbeforeobjectvisitor.h"
+#include "../rewriter/rewritertracing.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 
-using namespace QmlDesigner::Internal;
-using namespace QmlDesigner;
+namespace QmlDesigner::Internal {
+
+using NanotraceHR::keyValue;
+using RewriterTracing::category;
 
 MoveObjectBeforeObjectVisitor::MoveObjectBeforeObjectVisitor(TextModifier &modifier,
                                                              quint32 movingObjectLocation,
@@ -16,7 +19,13 @@ MoveObjectBeforeObjectVisitor::MoveObjectBeforeObjectVisitor(TextModifier &modif
     inDefaultProperty(inDefaultProperty),
     toEnd(true),
     beforeObjectLocation(0)
-{}
+{
+    NanotraceHR::Tracer tracer{"move object before object visitor constructor",
+                               category(),
+                               keyValue("moving object location", movingObjectLocation),
+                               keyValue("in default property", inDefaultProperty),
+                               keyValue("to end", toEnd)};
+}
 
 MoveObjectBeforeObjectVisitor::MoveObjectBeforeObjectVisitor(TextModifier &modifier,
                                                              quint32 movingObjectLocation,
@@ -27,10 +36,19 @@ MoveObjectBeforeObjectVisitor::MoveObjectBeforeObjectVisitor(TextModifier &modif
     inDefaultProperty(inDefaultProperty),
     toEnd(false),
     beforeObjectLocation(beforeObjectLocation)
-{}
+{
+    NanotraceHR::Tracer tracer{"move object before object visitor constructor",
+                               category(),
+                               keyValue("moving object location", movingObjectLocation),
+                               keyValue("before object location", beforeObjectLocation),
+                               keyValue("in default property", inDefaultProperty),
+                               keyValue("to end", toEnd)};
+}
 
 bool MoveObjectBeforeObjectVisitor::operator ()(QmlJS::AST::UiProgram *ast)
 {
+    NanotraceHR::Tracer tracer{"move object before object visitor operator()", category()};
+
     movingObject = nullptr;
     beforeObject = nullptr;
     movingObjectParents.clear();
@@ -44,13 +62,27 @@ bool MoveObjectBeforeObjectVisitor::operator ()(QmlJS::AST::UiProgram *ast)
 }
 
 bool MoveObjectBeforeObjectVisitor::preVisit(QmlJS::AST::Node *ast)
-{ if (ast) parents.push(ast); return true; }
+{
+    NanotraceHR::Tracer tracer{"move object before object visitor preVisit", category()};
+
+    if (ast)
+        parents.push(ast);
+    return true;
+}
 
 void MoveObjectBeforeObjectVisitor::postVisit(QmlJS::AST::Node *ast)
-{ if (ast) parents.pop(); }
+{
+    NanotraceHR::Tracer tracer{"move object before object visitor postVisit", category()};
+
+    if (ast)
+        parents.pop();
+}
 
 bool MoveObjectBeforeObjectVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
+    NanotraceHR::Tracer tracer{"move object before object visitor visit ui object definition",
+                               category()};
+
     if (foundEverything())
         return false;
 
@@ -75,6 +107,8 @@ bool MoveObjectBeforeObjectVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 
 void MoveObjectBeforeObjectVisitor::doMove()
 {
+    NanotraceHR::Tracer tracer{"move object before object visitor do move", category()};
+
     Q_ASSERT(movingObject);
     Q_ASSERT(!movingObjectParents.isEmpty());
 
@@ -84,7 +118,7 @@ void MoveObjectBeforeObjectVisitor::doMove()
     QString separator;
 
     if (!inDefaultProperty) {
-        auto initializer = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding*>(parent);
+        auto initializer = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding *>(parent);
         Q_ASSERT(initializer);
 
         otherArrayMember = nullptr;
@@ -141,6 +175,8 @@ void MoveObjectBeforeObjectVisitor::doMove()
 
 QmlJS::AST::Node *MoveObjectBeforeObjectVisitor::movingObjectParent() const
 {
+    NanotraceHR::Tracer tracer{"move object before object visitor moving object parent", category()};
+
     if (movingObjectParents.size() > 1)
         return movingObjectParents.at(movingObjectParents.size() - 2);
     else
@@ -149,6 +185,8 @@ QmlJS::AST::Node *MoveObjectBeforeObjectVisitor::movingObjectParent() const
 
 QmlJS::SourceLocation MoveObjectBeforeObjectVisitor::lastParentLocation() const
 {
+    NanotraceHR::Tracer tracer{"move object before object visitor last parent location", category()};
+
     dump(movingObjectParents);
 
     QmlJS::AST::Node *parent = movingObjectParent();
@@ -159,3 +197,5 @@ QmlJS::SourceLocation MoveObjectBeforeObjectVisitor::lastParentLocation() const
     else
         return QmlJS::SourceLocation();
 }
+
+} // namespace QmlDesigner::Internal
