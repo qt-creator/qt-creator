@@ -19,6 +19,9 @@
     license holders. For more information on licensing, select \uicontrol Compare
     in \l{Qt pricing}.
 
+    To learn the basics of Qt AI Assistant, take the
+    \l {Qt Academy: Getting Started With Qt AI Assistant} course.
+
     \note The LLM itself is not in scope of the Qt AI Assistant. You need to
     connect to a third-party LLM and agree to the terms and conditions, as well
     as to the acceptable use policy of the LLM provider. By using Qt AI Assistant,
