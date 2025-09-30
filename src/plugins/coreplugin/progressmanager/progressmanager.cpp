@@ -532,7 +532,7 @@ ProgressManagerPrivate::ProgressManagerPrivate()
     m_progressView = new ProgressView;
     m_infoBarDisplay = new PopupInfoBarDisplay;
     m_infoBarDisplay->setInfoBar(&m_popupInfoBar);
-    m_progressView->addProgressWidget(m_infoBarDisplay);
+    m_progressView->addExtraWidget(m_infoBarDisplay);
 
     // withDelay, so the statusBarWidget has the chance to get the enter event
     connect(m_progressView.data(), &ProgressView::hoveredChanged, this, &ProgressManagerPrivate::updateVisibilityWithDelay);

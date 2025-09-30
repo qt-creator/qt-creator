@@ -23,11 +23,18 @@ namespace Core::Internal {
 ProgressView::ProgressView(QWidget *parent)
     : QWidget(parent)
 {
-    m_layout = new QVBoxLayout;
-    setLayout(m_layout);
-    m_layout->setContentsMargins(0, 0, 0, 1);
-    m_layout->setSpacing(0);
-    m_layout->setSizeConstraint(QLayout::SetFixedSize);
+    m_outerlayout = new QVBoxLayout;
+    setLayout(m_outerlayout);
+    m_outerlayout->setContentsMargins(0, 0, 0, 1);
+    m_outerlayout->setSpacing(0);
+    m_outerlayout->setSizeConstraint(QLayout::SetFixedSize);
+
+    auto progressWidgetsContainer = new QWidget(this);
+    m_outerlayout->addWidget(progressWidgetsContainer, 0, Qt::AlignRight);
+    m_progressWidgetsLayout = new QVBoxLayout(progressWidgetsContainer);
+    m_progressWidgetsLayout->setContentsMargins({});
+    m_progressWidgetsLayout->setSpacing(0);
+
     setWindowTitle(Tr::tr("Processes"));
 
     auto pinButton = new OverlayWidget(this);
@@ -50,13 +57,19 @@ ProgressView::~ProgressView() = default;
 
 void ProgressView::addProgressWidget(QWidget *widget)
 {
-    m_layout->insertWidget(0, widget);
+    m_progressWidgetsLayout->insertWidget(0, widget);
+    m_pinButton->raise();
+}
+
+void ProgressView::addExtraWidget(QWidget *widget)
+{
+    m_outerlayout->addWidget(widget);
     m_pinButton->raise();
 }
 
 void ProgressView::removeProgressWidget(QWidget *widget)
 {
-    m_layout->removeWidget(widget);
+    m_progressWidgetsLayout->removeWidget(widget);
 }
 
 bool ProgressView::isHovered() const
