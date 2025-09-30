@@ -319,16 +319,6 @@ extend_qtc_library(QmlDesignerCore
 )
 
 extend_qtc_library(QmlDesignerCore
-  INCLUDES pluginmanager
-  SOURCES_PREFIX pluginmanager
-  SOURCES
-    widgetpluginmanager.cpp
-    widgetpluginmanager.h
-    widgetpluginpath.cpp
-    widgetpluginpath.h
-)
-
-extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX sourcepathstorage
   PUBLIC_INCLUDES sourcepathstorage
   PUBLIC_DEFINES

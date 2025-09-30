@@ -291,16 +291,6 @@ extend_qtc_library(TestDesignerCore
 )
 
 extend_qtc_library(TestDesignerCore
-  INCLUDES ${QML_DESIGNER_CORE_DIRECTORY}/pluginmanager
-  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/pluginmanager
-  SOURCES
-    widgetpluginmanager.cpp
-    widgetpluginmanager.h
-    widgetpluginpath.cpp
-    widgetpluginpath.h
-)
-
-extend_qtc_library(TestDesignerCore
   SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/modulesstorage
   PUBLIC_INCLUDES ${QML_DESIGNER_CORE_DIRECTORY}/modulesstorage
   SOURCES_PROPERTIES SKIP_AUTOGEN ON
