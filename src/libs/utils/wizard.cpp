@@ -383,7 +383,7 @@ void Wizard::showVariables()
 {
     QString result = QLatin1String("<table>\n  <tr><td>Key</td><td>Type</td><td>Value</td><td>Eval</td></tr>\n");
     QHash<QString, QVariant> vars = variables();
-    const QList<QString> keys = sorted(vars.keys());
+    const QStringList keys = sorted(vars.keys());
     for (const QString &key : keys) {
         const QVariant &v = vars.value(key);
         result += QLatin1String("  <tr><td>")

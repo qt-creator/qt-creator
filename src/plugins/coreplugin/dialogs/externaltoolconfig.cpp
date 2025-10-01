@@ -278,7 +278,7 @@ bool ExternalToolModel::setData(const QModelIndex &modelIndex, const QVariant &v
             if (string.isEmpty() || m_tools.contains(string))
                 return false;
             // rename category
-            QList<QString> categories = m_tools.keys();
+            QStringList categories = m_tools.keys();
             int previousIndex = categories.indexOf(category);
             categories.removeAt(previousIndex);
             categories.append(string);
@@ -314,7 +314,7 @@ ExternalTool *ExternalToolModel::toolForIndex(const QModelIndex &index)
 QString ExternalToolModel::categoryForIndex(const QModelIndex &index, bool *found) const
 {
     if (index.isValid() && !index.parent().isValid() && index.column() == 0 && index.row() >= 0) {
-        const QList<QString> &keys = m_tools.keys();
+        const QStringList &keys = m_tools.keys();
         if (index.row() < keys.count()) {
             if (found) *found = true;
             return keys.at(index.row());
@@ -345,7 +345,7 @@ QModelIndex ExternalToolModel::addCategory()
         ++count;
         category = categoryBase + QString::number(count);
     }
-    QList<QString> categories = m_tools.keys();
+    QStringList categories = m_tools.keys();
     categories.append(category);
     Utils::sort(categories);
     int pos = categories.indexOf(category);

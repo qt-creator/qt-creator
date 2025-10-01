@@ -392,7 +392,7 @@ void PropertiesView::MView::visitMElement(const MElement *element)
                 this, &PropertiesView::MView::onStereotypesChanged);
     }
     if (!m_stereotypeComboBox->hasFocus()) {
-        QList<QString> stereotypeList;
+        QStringList stereotypeList;
         if (haveSameValue(m_modelElements, &MElement::stereotypes, &stereotypeList)) {
             QString stereotypes = m_stereotypesController->toString(stereotypeList);
             m_stereotypeComboBox->setEnabled(true);
@@ -488,7 +488,7 @@ void PropertiesView::MView::visitMClass(const MClass *klass)
     }
     if (isSingleSelection) {
         if (!m_templateParametersLineEdit->hasFocus()) {
-            QList<QString> templateParameters = splitTemplateParameters(m_templateParametersLineEdit->text());
+            QStringList templateParameters = splitTemplateParameters(m_templateParametersLineEdit->text());
             if (klass->templateParameters() != templateParameters)
                 m_templateParametersLineEdit->setText(formatTemplateParameters(klass->templateParameters()));
         }
@@ -1275,8 +1275,8 @@ void PropertiesView::MView::visitDObjectBefore(const DObject *object)
 
 void PropertiesView::MView::onStereotypesChanged(const QString &stereotypes)
 {
-    QList<QString> set = m_stereotypesController->fromString(stereotypes);
-    assignModelElement<MElement, QList<QString>>(m_modelElements, SelectionMulti, set,
+    QStringList set = m_stereotypesController->fromString(stereotypes);
+    assignModelElement<MElement, QStringList>(m_modelElements, SelectionMulti, set,
                                                   &MElement::stereotypes, &MElement::setStereotypes);
 }
 
@@ -1293,8 +1293,8 @@ void PropertiesView::MView::onNamespaceChanged(const QString &umlNamespace)
 
 void PropertiesView::MView::onTemplateParametersChanged(const QString &templateParameters)
 {
-    QList<QString> templateParametersList = splitTemplateParameters(templateParameters);
-    assignModelElement<MClass, QList<QString>>(m_modelElements, SelectionSingle, templateParametersList,
+    QStringList templateParametersList = splitTemplateParameters(templateParameters);
+    assignModelElement<MClass, QStringList>(m_modelElements, SelectionSingle, templateParametersList,
                                                 &MClass::templateParameters, &MClass::setTemplateParameters);
 }
 
@@ -1734,9 +1734,9 @@ void PropertiesView::MView::setEndBName(const QString &endBName)
         m_endBName = endBName;
 }
 
-QList<QString> PropertiesView::MView::splitTemplateParameters(const QString &templateParameters)
+QStringList PropertiesView::MView::splitTemplateParameters(const QString &templateParameters)
 {
-    QList<QString> templateParametersList;
+    QStringList templateParametersList;
     const QStringList parameters = templateParameters.split(QLatin1Char(','));
     for (const QString &parameter : parameters) {
         const QString &p = parameter.trimmed();
@@ -1746,7 +1746,7 @@ QList<QString> PropertiesView::MView::splitTemplateParameters(const QString &tem
     return templateParametersList;
 }
 
-QString PropertiesView::MView::formatTemplateParameters(const QList<QString> &templateParametersList)
+QString PropertiesView::MView::formatTemplateParameters(const QStringList &templateParametersList)
 {
     QString templateParamters;
     bool first = true;

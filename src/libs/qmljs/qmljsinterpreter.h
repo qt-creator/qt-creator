@@ -909,7 +909,7 @@ class QMLJS_EXPORT ASTFunctionValue: public FunctionValue
 {
     AST::FunctionExpression *m_ast;
     const Document *m_doc;
-    QList<QString> m_argumentNames;
+    QStringList m_argumentNames;
     bool m_isVariadic;
 
 public:

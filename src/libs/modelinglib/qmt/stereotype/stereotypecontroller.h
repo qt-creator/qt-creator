@@ -27,17 +27,17 @@ public:
     QList<StereotypeIcon> stereotypeIcons() const;
     QList<Toolbar> toolbars() const;
     QList<Toolbar> findToolbars(const QString &elementType) const;
-    QList<QString> knownStereotypes(StereotypeIcon::Element stereotypeElement) const;
+    QStringList knownStereotypes(StereotypeIcon::Element stereotypeElement) const;
 
     QString findStereotypeIconId(StereotypeIcon::Element element,
-                                 const QList<QString> &stereotypes) const;
-    QList<QString> filterStereotypesByIconId(const QString &stereotypeIconId,
-                                             const QList<QString> &stereotypes) const;
+                                 const QStringList &stereotypes) const;
+    QStringList filterStereotypesByIconId(const QString &stereotypeIconId,
+                                          const QStringList &stereotypes) const;
     StereotypeIcon findStereotypeIcon(const QString &stereotypeIconId) const;
     CustomRelation findCustomRelation(const QString &customRelationId) const;
     CustomRelation findCustomRelationByStereotype(const QString &steoreotype) const;
     QIcon createIcon(StereotypeIcon::Element element,
-                     const QList<QString> &stereotypes,
+                     const QStringList &stereotypes,
                      const Utils::FilePath &defaultIconPath,
                      const Style *style,
                      const QSize &size,

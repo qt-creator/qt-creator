@@ -148,8 +148,8 @@ protected:
     void setEndAName(const QString &endAName);
     void setEndBName(const QString &endBName);
 
-    QList<QString> splitTemplateParameters(const QString &templateParameters);
-    QString formatTemplateParameters(const QList<QString> &templateParametersList);
+    QStringList splitTemplateParameters(const QString &templateParameters);
+    QString formatTemplateParameters(const QStringList &templateParametersList);
 
     void setRelationPrimaryRolePalette(StyleEngine::ElementType elementType,
                                        DRelation::VisualPrimaryRole visualPrimaryRole);

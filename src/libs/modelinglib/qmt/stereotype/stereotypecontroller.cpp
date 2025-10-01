@@ -28,7 +28,7 @@ namespace qmt {
 namespace {
 
 struct IconKey {
-    IconKey(StereotypeIcon::Element element, const QList<QString> &stereotypes, const FilePath &defaultIconPath,
+    IconKey(StereotypeIcon::Element element, const QStringList &stereotypes, const FilePath &defaultIconPath,
             const Uid &styleUid, const QSize &size, const QMarginsF &margins, qreal lineWidth)
         : m_element(element),
           m_stereotypes(stereotypes),
@@ -56,7 +56,7 @@ struct IconKey {
     }
 
     const StereotypeIcon::Element m_element;
-    const QList<QString> m_stereotypes;
+    const QStringList m_stereotypes;
     const FilePath m_defaultIconPath;
     const Uid m_styleUid;
     const QSize m_size;
@@ -106,20 +106,20 @@ QList<Toolbar> StereotypeController::findToolbars(const QString &elementType) co
     });
 }
 
-QList<QString> StereotypeController::knownStereotypes(StereotypeIcon::Element stereotypeElement) const
+QStringList StereotypeController::knownStereotypes(StereotypeIcon::Element stereotypeElement) const
 {
     QSet<QString> stereotypes;
     for (const StereotypeIcon &icon : d->m_iconIdToStereotypeIconsMap) {
         if (icon.elements().isEmpty() || icon.elements().contains(stereotypeElement))
             stereotypes += icon.stereotypes();
     }
-    QList<QString> list = Utils::toList(stereotypes);
+    QStringList list = Utils::toList(stereotypes);
     std::sort(list.begin(), list.end());
     return list;
 }
 
 QString StereotypeController::findStereotypeIconId(StereotypeIcon::Element element,
-                                                   const QList<QString> &stereotypes) const
+                                                   const QStringList &stereotypes) const
 {
     for (const QString &stereotype : stereotypes) {
         auto it = d->m_stereotypeToIconIdMap.constFind({element, stereotype});
@@ -132,12 +132,12 @@ QString StereotypeController::findStereotypeIconId(StereotypeIcon::Element eleme
     return {};
 }
 
-QList<QString> StereotypeController::filterStereotypesByIconId(const QString &stereotypeIconId,
-                                                               const QList<QString> &stereotypes) const
+QStringList StereotypeController::filterStereotypesByIconId(const QString &stereotypeIconId,
+                                                            const QStringList &stereotypes) const
 {
     if (!d->m_iconIdToStereotypeIconsMap.contains(stereotypeIconId))
         return stereotypes;
-    QList<QString> filteredStereotypes = stereotypes;
+    QStringList filteredStereotypes = stereotypes;
     const QSet<QString> stereotypeList = d->m_iconIdToStereotypeIconsMap.value(stereotypeIconId).stereotypes();
     for (const QString &stereotype : stereotypeList)
         filteredStereotypes.removeAll(stereotype);
@@ -160,7 +160,7 @@ CustomRelation StereotypeController::findCustomRelationByStereotype(const QStrin
     return d->m_stereotypeToCustomRelationMap.value(steoreotype);
 }
 
-QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QList<QString> &stereotypes,
+QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QStringList &stereotypes,
                                        const FilePath &defaultIconPath, const Style *style, const QSize &size,
                                        const QMarginsF &margins, qreal lineWidth)
 {

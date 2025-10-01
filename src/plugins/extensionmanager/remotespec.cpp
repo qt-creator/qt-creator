@@ -131,7 +131,7 @@ const QList<Source> RemoteSpec::sources() const
     return sources;
 }
 
-QList<QString> RemoteSpec::tags() const
+QStringList RemoteSpec::tags() const
 {
     return infoObject().value("tags").toVariant().toStringList();
 }

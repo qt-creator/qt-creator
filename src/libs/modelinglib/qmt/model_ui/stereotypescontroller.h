@@ -23,8 +23,8 @@ signals:
 
 public:
     bool isParsable(const QString &stereotypes);
-    QString toString(const QList<QString> &stereotypes);
-    QList<QString> fromString(const QString &stereotypes);
+    QString toString(const QStringList &stereotypes);
+    QStringList fromString(const QString &stereotypes);
 };
 
 } // namespace qmt

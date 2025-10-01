@@ -5,7 +5,7 @@
 
 namespace qmt {
 
-void CustomRelation::End::setEndItems(const QList<QString> &endItems)
+void CustomRelation::End::setEndItems(const QStringList &endItems)
 {
     m_endItems = endItems;
 }
@@ -69,7 +69,7 @@ void CustomRelation::setTitle(const QString &title)
     m_title = title;
 }
 
-void CustomRelation::setEndItems(const QList<QString> &endItems)
+void CustomRelation::setEndItems(const QStringList &endItems)
 {
     m_endItems = endItems;
 }

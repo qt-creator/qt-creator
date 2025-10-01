@@ -28,12 +28,12 @@ public:
     using JsonObject::JsonObject;
 
     // The token types a server uses.
-    QList<QString> tokenTypes() const { return array<QString>(tokenTypesKey); }
-    void setTokenTypes(const QList<QString> &tokenTypes) { insertArray(tokenTypesKey, tokenTypes); }
+    QStringList tokenTypes() const { return array<QString>(tokenTypesKey); }
+    void setTokenTypes(const QStringList &tokenTypes) { insertArray(tokenTypesKey, tokenTypes); }
 
     // The token modifiers a server uses.
-    QList<QString> tokenModifiers() const { return array<QString>(tokenModifiersKey); }
-    void setTokenModifiers(const QList<QString> &value) { insertArray(tokenModifiersKey, value); }
+    QStringList tokenModifiers() const { return array<QString>(tokenModifiersKey); }
+    void setTokenModifiers(const QStringList &value) { insertArray(tokenModifiersKey, value); }
 
     bool isValid() const override;
 };

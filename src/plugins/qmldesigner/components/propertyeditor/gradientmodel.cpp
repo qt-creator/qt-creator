@@ -957,7 +957,7 @@ void GradientModel::setPresetByID(int presetID)
     const QList<QGradientStop> gradientStops = gradient.stops();
 
     QList<qreal> stopsPositions;
-    QList<QString> stopsColors;
+    QStringList stopsColors;
     for (const QGradientStop &stop : gradientStops) {
         stopsPositions.append(stop.first);
         stopsColors.append(stop.second.name());
@@ -967,7 +967,7 @@ void GradientModel::setPresetByID(int presetID)
 }
 
 void GradientModel::setPresetByStops(const QList<qreal> &stopsPositions,
-                                     const QList<QString> &stopsColors,
+                                     const QStringList &stopsColors,
                                      int stopsCount,
                                      bool saveTransaction)
 {
@@ -1043,7 +1043,7 @@ void GradientModel::updateGradient()
     beginResetModel();
 
     QList<qreal> stops;
-    QList<QString> colors;
+    QStringList colors;
     int stopsCount = rowCount();
     for (int i = 0; i < stopsCount; i++) {
         stops.append(getPosition(i));

@@ -133,9 +133,9 @@ std::unique_ptr<ListModelItem> createItem(const ModelNode &listElementNode,
     return item;
 }
 
-QList<QString> convertToStringList(const QList<PropertyName> &propertyNames)
+QStringList convertToStringList(const QList<PropertyName> &propertyNames)
 {
-    QList<QString> names;
+    QStringList names;
     names.reserve(propertyNames.size());
 
     for (const auto &propertyName : propertyNames)

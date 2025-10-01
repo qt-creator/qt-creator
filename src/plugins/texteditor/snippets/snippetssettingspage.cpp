@@ -57,7 +57,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
 
-    QList<QString> groupIds() const;
+    QStringList groupIds() const;
     void load(const QString &groupId);
 
     QModelIndex createSnippet();
@@ -160,7 +160,7 @@ void SnippetsTableModel::load(const QString &groupId)
     endResetModel();
 }
 
-QList<QString> SnippetsTableModel::groupIds() const
+QStringList SnippetsTableModel::groupIds() const
 {
     return m_collection->groupIds();
 }

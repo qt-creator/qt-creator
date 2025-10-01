@@ -126,7 +126,7 @@ const QList<TextEncoding> &TextEncoding::availableEncodings()
         QList<TextEncoding> encodings;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
         std::set<QString> encodingNames;
-        const QList<QString> codecs = QStringConverter::availableCodecs();
+        const QStringList codecs = QStringConverter::availableCodecs();
         for (const QString &name : codecs) {
             // Drop encoders that don't even remember their names.
             QStringEncoder encoder(name.toUtf8());

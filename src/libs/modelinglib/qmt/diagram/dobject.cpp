@@ -64,7 +64,7 @@ void DObject::setModelUid(const Uid &uid)
     m_modelUid = uid;
 }
 
-void DObject::setStereotypes(const QList<QString> &stereotypes)
+void DObject::setStereotypes(const QStringList &stereotypes)
 {
     m_stereotypes = stereotypes;
 }

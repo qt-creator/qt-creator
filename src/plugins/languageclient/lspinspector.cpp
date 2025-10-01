@@ -399,7 +399,7 @@ Capabilities LspInspector::capabilities(const QString &clientName) const
     return m_capabilities.value(clientName);
 }
 
-QList<QString> LspInspector::clients() const
+QStringList LspInspector::clients() const
 {
     return m_logs.keys();
 }

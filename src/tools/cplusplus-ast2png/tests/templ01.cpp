@@ -10,7 +10,7 @@ template <typename _Tp> struct QList {
     const _Tp &at(int index);
 };
 
-struct QStringList: public QList<QString> {};
+struct QStringList: public QStringList {};
 
 int main()
 {

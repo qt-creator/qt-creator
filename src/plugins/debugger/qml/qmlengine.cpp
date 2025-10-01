@@ -183,7 +183,7 @@ public:
     int sequence = -1;
     QmlEngine *engine;
     QHash<int, Breakpoint> breakpointsSync;
-    QList<QString> breakpointsTemp;
+    QStringList breakpointsTemp;
 
     LookupItems currentlyLookingUp; // Id -> inames
 

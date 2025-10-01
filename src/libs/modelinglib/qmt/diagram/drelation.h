@@ -49,8 +49,8 @@ public:
 
     Uid modelUid() const override { return m_modelUid; }
     void setModelUid(const Uid &uid);
-    QList<QString> stereotypes() const { return m_stereotypes; }
-    void setStereotypes(const QList<QString> &stereotypes);
+    QStringList stereotypes() const { return m_stereotypes; }
+    void setStereotypes(const QStringList &stereotypes);
     Uid endAUid() const { return m_endAUid; }
     void setEndAUid(const Uid &uid);
     Uid endBUid() const { return m_endBUid; }
@@ -75,7 +75,7 @@ public:
 
 private:
     Uid m_modelUid;
-    QList<QString> m_stereotypes;
+    QStringList m_stereotypes;
     Uid m_endAUid;
     Uid m_endBUid;
     QString m_name;

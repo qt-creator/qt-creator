@@ -32,8 +32,8 @@ QString FunctionHintProposalModel::text(int index) const
     if (parametersIndex < 0)
         return label;
 
-    const QList<QString> parameters = Utils::transform(signature.parameters().value_or(Parameters()),
-                                                       &ParameterInformation::label);
+    const QStringList parameters = Utils::transform(signature.parameters().value_or(Parameters()),
+                                                    &ParameterInformation::label);
     if (parameters.size() <= parametersIndex)
         return label;
 
@@ -130,9 +130,9 @@ bool FunctionHintAssistProvider::isContinuationChar(const QChar &/*c*/) const
 }
 
 void FunctionHintAssistProvider::setTriggerCharacters(
-    const std::optional<QList<QString>> &triggerChars)
+    const std::optional<QStringList> &triggerChars)
 {
-    m_triggerChars = triggerChars.value_or(QList<QString>());
+    m_triggerChars = triggerChars.value_or(QStringList());
     for (const QString &trigger : std::as_const(m_triggerChars)) {
         if (trigger.length() > m_activationCharSequenceLength)
             m_activationCharSequenceLength = trigger.length();

@@ -23,7 +23,7 @@ const Utils::FilePaths rootCmakeFiles(ProjectExplorer::Project *project)
         project = ProjectExplorer::ProjectManager::startupProject();
     if (!project)
         return {};
-    return project->projectDirectory().dirEntries({QList<QString>({"CMakeLists.txt"}), QDir::Files});
+    return project->projectDirectory().dirEntries({{"CMakeLists.txt"}, QDir::Files});
 }
 
 const QString readFileContents(const Utils::FilePath &filePath)

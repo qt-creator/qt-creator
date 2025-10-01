@@ -1199,7 +1199,7 @@ void CallgrindTool::setParserData(const ParseDataPtr &data)
 
 void CallgrindTool::createTextMarks()
 {
-    QList<QString> locations;
+    QStringList locations;
     for (int row = 0; row < m_dataModel.rowCount(); ++row) {
         const QModelIndex index = m_dataModel.index(row, DataModel::InclusiveCostColumn);
 

@@ -252,7 +252,7 @@ static void fetchAndMergeBaseTestFunctions(const QSet<QString> &baseClasses,
                                            const CPlusPlus::Document::Ptr &doc,
                                            const CPlusPlus::Snapshot &snapshot)
 {
-    QList<QString> bases = Utils::toList(baseClasses);
+    QStringList bases = Utils::toList(baseClasses);
     while (!bases.empty()) {
         const QString base = bases.takeFirst();
         TestVisitor baseVisitor(base, snapshot);

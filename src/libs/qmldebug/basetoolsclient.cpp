@@ -17,7 +17,7 @@ void BaseToolsClient::stateChanged(State state)
 }
 
 void BaseToolsClient::recurseObjectIdList(const ObjectReference &ref,
-                         QList<int> &debugIds, QList<QString> &objectIds)
+                         QList<int> &debugIds, QStringList &objectIds)
 {
     debugIds << ref.debugId();
     objectIds << ref.idString();

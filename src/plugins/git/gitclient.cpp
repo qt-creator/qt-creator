@@ -2181,7 +2181,7 @@ SubmoduleDataMap GitClient::submoduleList(const FilePath &workingDirectory) cons
     if (!result.isEmpty()) {
         QSettings gitmodulesFile(gitmodulesFileName.toUrlishString(), QSettings::IniFormat);
 
-        const QList<QString> submodules = result.keys();
+        const QStringList submodules = result.keys();
         for (const QString &submoduleName : submodules) {
             gitmodulesFile.beginGroup("submodule \"" + submoduleName + '"');
             const QString path = gitmodulesFile.value("path").toString();

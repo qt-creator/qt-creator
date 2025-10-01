@@ -121,9 +121,9 @@ public:
         return element;
     }
 
-    QList<QString> headerLabels(const QmlDesigner::ListModelEditorModel &model) const
+    QStringList headerLabels(const QmlDesigner::ListModelEditorModel &model) const
     {
-        QList<QString> labels;
+        QStringList labels;
         labels.reserve(model.columnCount());
 
         for (int i = 0; i < model.columnCount(); ++i)

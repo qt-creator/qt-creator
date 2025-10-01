@@ -479,7 +479,7 @@ static ClientCapabilities generateClientCapabilities()
     TextDocumentClientCapabilities::CodeActionCapabilities::CodeActionLiteralSupport literalSupport;
     literalSupport.setCodeActionKind(
         TextDocumentClientCapabilities::CodeActionCapabilities::CodeActionLiteralSupport::
-            CodeActionKind(QList<QString>{"*"}));
+            CodeActionKind(QStringList{"*"}));
     codeActionCapabilities.setCodeActionLiteralSupport(literalSupport);
     documentCapabilities.setCodeAction(codeActionCapabilities);
 

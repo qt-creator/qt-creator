@@ -94,11 +94,11 @@ QList<qreal> GradientPresetItem::stopsPosList() const
     return result;
 }
 
-QList<QString> GradientPresetItem::stopsColorList() const
+QStringList GradientPresetItem::stopsColorList() const
 {
     const QList<QPair<qreal, QColor>> subres = m_gradientVal.stops();
-    const QList<QString> result
-        = Utils::transform<QList<QString>>(subres, [](const QPair<qreal, QColor> &item) {
+    const QStringList result
+        = Utils::transform<QStringList>(subres, [](const QPair<qreal, QColor> &item) {
               return item.second.name();
           });
     return result;

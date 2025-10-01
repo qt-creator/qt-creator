@@ -130,7 +130,7 @@ void EffectComposerModel::addNode(const QString &nodeQenPath)
 
     connectCompositionNode(node);
 
-    const QList<QString> requiredNodes = node->requiredNodes();
+    const QStringList requiredNodes = node->requiredNodes();
     if (requiredNodes.size() > 0) {
         for (const QString &requiredId : requiredNodes) {
             if (auto reqNode = findNodeById(requiredId)) {

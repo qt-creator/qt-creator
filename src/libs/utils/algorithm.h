@@ -1046,7 +1046,7 @@ template<template<typename...> class C = QList, // result container
 Q_REQUIRED_RESULT
 auto transform(const QStringList &container, F function)
 {
-    return transform<C, const QList<QString> &>(static_cast<QList<QString>>(container), function);
+    return transform<C, const QStringList &>(static_cast<QStringList>(container), function);
 }
 
 // member function:
@@ -1056,7 +1056,7 @@ template<template<typename...> class C = QList, // result container type
 Q_REQUIRED_RESULT
 decltype(auto) transform(const QStringList &container, R (S::*p)() const)
 {
-    return transform<C, const QList<QString> &>(static_cast<QList<QString>>(container), std::mem_fn(p));
+    return transform<C, const QStringList &>(static_cast<QStringList>(container), std::mem_fn(p));
 }
 
 // members:
@@ -1066,7 +1066,7 @@ template<template<typename...> class C = QList, // result container
 Q_REQUIRED_RESULT
 decltype(auto) transform(const QStringList &container, R S::*p)
 {
-    return transform<C, const QList<QString> &>(static_cast<QList<QString>>(container), std::mem_fn(p));
+    return transform<C, const QStringList &>(static_cast<QStringList>(container), std::mem_fn(p));
 }
 
 //////////////////

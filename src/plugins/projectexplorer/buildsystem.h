@@ -131,7 +131,7 @@ public:
     void setRootProjectNode(std::unique_ptr<ProjectNode> &&root);
 
     virtual const QList<TestCaseInfo> testcasesInfo() const { return {}; }
-    virtual Utils::CommandLine commandLineForTests(const QList<QString> &tests,
+    virtual Utils::CommandLine commandLineForTests(const QStringList &tests,
                                                    const QStringList &options) const;
 
     class PROJECTEXPLORER_EXPORT ParseGuard

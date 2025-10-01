@@ -43,7 +43,7 @@ void MClass::setUmlNamespace(const QString &umlNamespace)
     m_umlNamespace = umlNamespace;
 }
 
-void MClass::setTemplateParameters(const QList<QString> &templateParameters)
+void MClass::setTemplateParameters(const QStringList &templateParameters)
 {
     m_templateParameters = templateParameters;
 }

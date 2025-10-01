@@ -15,14 +15,14 @@ public:
 
     void setFont(const QFont &font);
     void setTextBrush(const QBrush &brush);
-    void setTemplateParameters(const QList<QString> &templateParameters);
+    void setTemplateParameters(const QStringList &templateParameters);
     void setBreakLines(bool breakLines);
 
 private:
     void updateText();
     void update();
 
-    QList<QString> m_templateParameters;
+    QStringList m_templateParameters;
     bool m_breakLines = false;
     QGraphicsSimpleTextItem *m_parametersText = nullptr;
 };

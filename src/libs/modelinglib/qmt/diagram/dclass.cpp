@@ -21,7 +21,7 @@ void DClass::setUmlNamespace(const QString &umlNamespace)
     m_umlNamespace = umlNamespace;
 }
 
-void DClass::setTemplateParameters(const QList<QString> &templateParameters)
+void DClass::setTemplateParameters(const QStringList &templateParameters)
 {
     m_templateParameters = templateParameters;
 }
