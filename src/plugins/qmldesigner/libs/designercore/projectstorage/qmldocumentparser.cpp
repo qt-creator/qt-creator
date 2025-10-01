@@ -381,6 +381,9 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
 
     QmlDom::DomItem file = items.field(QmlDom::Fields::currentItem);
     const QmlDom::QmlFile *qmlFile = file.as<QmlDom::QmlFile>();
+    if (not qmlFile)
+        return type;
+
     const auto &components = qmlFile->components();
     qmlFile->pragmas();
     if (components.empty())
