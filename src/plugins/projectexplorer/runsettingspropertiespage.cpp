@@ -420,8 +420,8 @@ void DeploySettingsWidget::initForActiveBuildConfig()
 {
     disconnect(m_deployConfigurationCombo, &QComboBox::currentIndexChanged,
                this, &DeploySettingsWidget::currentDeployConfigurationChanged);
-    m_deployConfigurationCombo->setModel(
-        m_target->activeBuildConfiguration()->deployConfigurationModel());
+    BuildConfiguration * const bc = m_target->activeBuildConfiguration();
+    m_deployConfigurationCombo->setModel(QTC_GUARD(bc) ? bc->deployConfigurationModel() : nullptr);
     connect(m_deployConfigurationCombo, &QComboBox::currentIndexChanged,
             this, &DeploySettingsWidget::currentDeployConfigurationChanged);
 
@@ -431,8 +431,7 @@ void DeploySettingsWidget::initForActiveBuildConfig()
     m_deployConfigurationCombo->setEnabled(m_target->activeDeployConfiguration());
     m_renameDeployButton->setEnabled(m_target->activeDeployConfiguration());
 
-    m_removeDeployToolButton->setEnabled(
-        m_target->activeBuildConfiguration()->deployConfigurations().count() > 1);
+    m_removeDeployToolButton->setEnabled(bc ? bc->deployConfigurations().count() > 1 : false);
     updateDeployConfiguration(m_target->activeDeployConfiguration());
 
     updateRemoveToolButtons();
