@@ -354,10 +354,10 @@ void QmlDesignerPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlDesignerPlugin::aboutToShutdown()
 {
-    Utils::QtcSettings *settings = Core::ICore::settings();
-
-    if (!Utils::CheckableDecider("FeedbackPopup").shouldAskAgain())
+    if (!ICore::isQtDesignStudio() || !Utils::CheckableDecider("FeedbackPopup").shouldAskAgain())
         return SynchronousShutdown;
+
+    Utils::QtcSettings *settings = Core::ICore::settings();
 
     int shutdownCount = settings->value("ShutdownCount", 0).toInt();
     settings->setValue("ShutdownCount", ++shutdownCount);
@@ -847,6 +847,9 @@ void QmlDesignerPlugin::handleFeedback(const QString &feedback, int rating)
 
 void QmlDesignerPlugin::launchFeedbackPopupInternal(const QString &identifier)
 {
+    if (!ICore::isQtDesignStudio())
+        return;
+
     m_feedbackWidget = new QQuickWidget(Core::ICore::dialogParent());
     m_feedbackWidget->setObjectName(Constants::OBJECT_NAME_TOP_FEEDBACK);
 
