@@ -329,7 +329,7 @@ void TextEditorLayout::documentChanged(int from, int charsRemoved, int charsAdde
 
     PlainTextDocumentLayout::documentChanged(from, charsRemoved, charsAdded);
 
-    const int to = from + qMax(0, charsAdded - charsRemoved);
+    const int to = from + qMax(0, charsAdded);
 
     QTextBlock block = doc->findBlock(from);
     QTextBlock end = doc->findBlock(to);
