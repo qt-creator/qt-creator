@@ -539,6 +539,8 @@ void EditorView::restoreTabState(QDataStream *stream)
 {
     if (stream->atEnd())
         return;
+    while (m_tabBar->count() > 0)
+        m_tabBar->removeTab(0);
     QStringList tabs;
     *stream >> tabs;
     QSet<DocumentModel::Entry *> seen;
@@ -548,7 +550,9 @@ void EditorView::restoreTabState(QDataStream *stream)
             continue;
         m_tabBar->addTab(""); // text set below
         const int tabIndex = m_tabBar->count() - 1;
-        m_tabBar->setTabData(tabIndex, QVariant::fromValue(TabData({nullptr, entry})));
+        // use already added IEditor for auto saved document if possible
+        m_tabBar->setTabData(
+            tabIndex, QVariant::fromValue(TabData({editorForDocument(entry->document), entry})));
         updateTabText(m_tabBar, tabIndex, entry->document);
     }
 }
