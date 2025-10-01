@@ -185,7 +185,7 @@ QList<IDocument*> SaveItemsDialog::itemsToSave() const
     return m_itemsToSave;
 }
 
-QList<FilePath> SaveItemsDialog::filesToDiff() const
+FilePaths SaveItemsDialog::filesToDiff() const
 {
     return m_filesToDiff;
 }

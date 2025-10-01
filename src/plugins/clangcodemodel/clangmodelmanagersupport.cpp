@@ -70,14 +70,14 @@ namespace {
 class IndexFiles
 {
 public:
-    QList<Utils::FilePath> files;
+    FilePaths files;
     QDateTime minLastModifiedTime;
 };
 } // namespace
 
 static Q_LOGGING_CATEGORY(clangdIndexLog, "qtc.clangcodemodel.clangd.index", QtWarningMsg);
 
-static QHash<QString, IndexFiles> collectIndexedFiles(const Utils::FilePath &indexFolder)
+static QHash<QString, IndexFiles> collectIndexedFiles(const FilePath &indexFolder)
 {
     QHash<QString, IndexFiles> result;
     QDirIterator dirIt(indexFolder.toFSPathString(), QDir::Files);

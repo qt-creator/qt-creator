@@ -700,7 +700,7 @@ static void removeUnusedImports(RewriterView *rewriter)
 
     const QString effectPrefix = compUtils.composedEffectsTypePrefix();
     const QString imported3dPrefix = compUtils.import3dTypePrefix();
-    const QList<Utils::FilePath> qmlFiles = compUtils.imported3dComponents();
+    const Utils::FilePaths qmlFiles = compUtils.imported3dComponents();
     QHash<QString, QString> m_imported3dTypeMap;
     for (const Utils::FilePath &qmlFile : qmlFiles) {
         QString importName = compUtils.getImported3dImportName(qmlFile);

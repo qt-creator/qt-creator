@@ -99,7 +99,7 @@ public:
     {
         //loadQmlTypeDescriptions(resourcePath());
     }
-    void updateSourceFiles(const QList<Utils::FilePath> &files, bool emitDocumentOnDiskChanged)
+    void updateSourceFiles(const Utils::FilePaths &files, bool emitDocumentOnDiskChanged)
     {
         refreshSourceFiles(files, emitDocumentOnDiskChanged).waitForFinished();
     }

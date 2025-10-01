@@ -421,7 +421,7 @@ QList<PythonBuildSystem::FileEntry> PythonBuildSystem::processEntries(
     const QStringList &rawPaths) const
 {
     QList<FileEntry> files;
-    QList<FilePath> seenResolvedPaths;
+    FilePaths seenResolvedPaths;
 
     const FilePath projectDir = projectDirectory();
     const Environment env = projectDirectory().deviceEnvironment();

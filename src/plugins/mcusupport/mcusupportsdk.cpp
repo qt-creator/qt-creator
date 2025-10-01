@@ -685,7 +685,7 @@ static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
     //Parse the default value depending on the operating system
     QString defaultPathString = getOsSpecificValue(cmakeEntry["defaultValue"]).toString();
     QString detectionPathString = getOsSpecificValue(cmakeEntry["detectionPath"]).toString();
-    QList<FilePath> detectionPaths;
+    FilePaths detectionPaths;
     if (!detectionPathString.isEmpty())
         detectionPaths.push_back(FilePath::fromUserInput(detectionPathString));
     detectionPaths

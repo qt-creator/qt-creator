@@ -27,7 +27,7 @@ void QmlJSToolsTest::test_basic()
 
     const Utils::FilePath qmlFilePath = Core::ICore::resourcePath(
                                         "qmldesigner/itemLibraryQmlSources/ItemDelegate.qml");
-    modelManager->updateSourceFiles(QList<Utils::FilePath>({qmlFilePath}), false);
+    modelManager->updateSourceFiles(Utils::FilePaths({qmlFilePath}), false);
     modelManager->test_joinAllThreads();
 
     Snapshot snapshot = modelManager->snapshot();

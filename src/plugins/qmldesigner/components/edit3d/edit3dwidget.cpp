@@ -500,7 +500,7 @@ void Edit3DWidget::updateCreateSubMenu(const QList<ItemLibraryDetails> &entriesL
     // Create menu for imported 3d models, which don't have ItemLibraryEntries
     const GeneratedComponentUtils &compUtils
         = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-    QList<Utils::FilePath> qmlFiles = compUtils.imported3dComponents();
+    Utils::FilePaths qmlFiles = compUtils.imported3dComponents();
     QMenu *catMenu = nullptr;
 
     if (!qmlFiles.isEmpty()) {

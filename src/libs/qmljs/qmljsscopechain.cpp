@@ -276,7 +276,7 @@ static void addInstantiatingComponents(ContextPtr context, QmlComponentChain *ch
         const QString &comment = chain->document()->source().mid(commentLoc.begin(), commentLoc.length);
 
         // find all @scope annotations
-        QList<Utils::FilePath> additionalScopes;
+        Utils::FilePaths additionalScopes;
         int lastOffset = -1;
         QRegularExpressionMatch match;
         forever {

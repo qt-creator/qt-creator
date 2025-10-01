@@ -35,8 +35,8 @@ void PluginDumper::loadBuiltinTypes(const QmlJS::ModelManagerInterface::ProjectI
     metaObject()->invokeMethod(this, [this, info] { onLoadBuiltinTypes(info); });
 }
 
-void PluginDumper::loadPluginTypes(const Utils::FilePath &libraryPath,
-                                   const Utils::FilePath &importPath,
+void PluginDumper::loadPluginTypes(const FilePath &libraryPath,
+                                   const FilePath &importPath,
                                    const QString &importUri,
                                    const QString &importVersion)
 {
@@ -80,8 +80,8 @@ void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::Projec
     runQmlDump(info, QStringList(QLatin1String("--builtins")), info.qtQmlPath);
 }
 
-void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
-                                     const Utils::FilePath &importPath,
+void PluginDumper::onLoadPluginTypes(const FilePath &libraryPath,
+                                     const FilePath &importPath,
                                      const QString &importUri,
                                      const QString &importVersion)
 {
@@ -360,7 +360,7 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
  * \sa QmlJs::modulePath
  * \sa LinkPrivate::importNonFile
  */
-Utils::FilePath PluginDumper::buildQmltypesPath(const QString &name) const
+FilePath PluginDumper::buildQmltypesPath(const QString &name) const
 {
     QString qualifiedName;
     QString version;
@@ -372,14 +372,14 @@ Utils::FilePath PluginDumper::buildQmltypesPath(const QString &name) const
         version = m.captured("major") + QLatin1Char('.') + m.captured("minor");
     }
 
-    const QList<Utils::FilePath> paths = modulePaths(qualifiedName,
-                                                     version,
-                                                     m_modelManager->importPathsNames());
+    const FilePaths paths = modulePaths(qualifiedName,
+                                        version,
+                                        m_modelManager->importPathsNames());
 
     if (paths.isEmpty())
         return {};
 
-    for (const Utils::FilePath &path : paths) {
+    for (const FilePath &path : paths) {
         auto qmltypes = path.dirEntries(FileFilter(QStringList{"*.qmltypes"}, QDir::Files));
         if (!qmltypes.isEmpty())
             return qmltypes.first();
@@ -668,7 +668,7 @@ void PluginDumper::dump(const Plugin &plugin)
         args << QLatin1String("-nonrelocatable");
     args << plugin.importUri;
     args << plugin.importVersion;
-    args << (plugin.importPath.isEmpty() ? Utils::FilePath::fromString(".") : plugin.importPath)
+    args << (plugin.importPath.isEmpty() ? FilePath::fromString(".") : plugin.importPath)
                 .toUrlishString();
     runQmlDump(info, args, plugin.qmldirPath);
 }

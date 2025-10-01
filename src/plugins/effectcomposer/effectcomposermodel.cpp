@@ -1385,7 +1385,7 @@ QString EffectComposerModel::addNodeToLibraryNode(int idx)
     if (!result)
         return errorTag + Tr::tr("Failed to write QEN file for effect:\n%1").arg(qenFile.fileName());
 
-    QList<Utils::FilePath> sources;
+    Utils::FilePaths sources;
     QStringList dests;
     const QList<Uniform *> uniforms = node->uniforms();
     for (Uniform *uniform : uniforms) {

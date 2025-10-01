@@ -32,7 +32,7 @@ public:
     void setAlwaysSaveMessage(const QString &msg);
     bool alwaysSaveChecked();
     QList<IDocument *> itemsToSave() const;
-    QList<Utils::FilePath> filesToDiff() const;
+    Utils::FilePaths filesToDiff() const;
 
 private:
     void collectItemsToSave();
@@ -46,7 +46,7 @@ private:
     QCheckBox *m_saveBeforeBuildCheckBox;
     QDialogButtonBox *m_buttonBox;
     QList<IDocument *> m_itemsToSave;
-    QList<Utils::FilePath> m_filesToDiff;
+    Utils::FilePaths m_filesToDiff;
     QPushButton *m_diffButton = nullptr;
 };
 
