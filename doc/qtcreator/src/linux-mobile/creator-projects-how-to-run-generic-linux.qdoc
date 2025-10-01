@@ -35,6 +35,6 @@
     it is compatible with the GDB on the host.
 
     \sa {Remote Linux}{How To: Develop for remote Linux},
-    {Debug remotely with GDB}, {Run on many platforms}, {Compilers},
+    {Remote Debugging}, {Run on many platforms}, {Compilers},
     {Embedded Platforms}, {Kits}
 */

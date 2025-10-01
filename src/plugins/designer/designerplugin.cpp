@@ -14,7 +14,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreplugintr.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -132,7 +131,7 @@ class DesignerPlugin final : public ExtensionSystem::IPlugin
         IWizardFactory::registerFactoryCreator([]() -> IWizardFactory * {
             IWizardFactory *wizard = new FormClassWizard;
             wizard->setCategory(Core::Constants::WIZARD_CATEGORY_QT);
-            wizard->setDisplayCategory(::Core::Tr::tr(Core::Constants::WIZARD_TR_CATEGORY_QT));
+            wizard->setDisplayCategory(msgWizardDisplayCategoryQt());
             wizard->setDisplayName(Tr::tr("Qt Widgets Designer Form Class"));
             wizard->setIcon({}, "ui/h");
             wizard->setId("C.FormClass");

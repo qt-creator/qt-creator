@@ -22,6 +22,7 @@ public:
     ~ProgressView() override;
 
     void addProgressWidget(QWidget *widget);
+    void addExtraWidget(QWidget *widget);
     void removeProgressWidget(QWidget *widget);
 
     bool isHovered() const;
@@ -42,7 +43,8 @@ private:
     void reposition();
     QPoint topRightReferenceInParent() const;
 
-    QVBoxLayout *m_layout;
+    QVBoxLayout *m_outerlayout;
+    QVBoxLayout *m_progressWidgetsLayout;
     QWidget *m_referenceWidget = nullptr;
     QWidget *m_pinButton = nullptr;
 

@@ -1004,7 +1004,7 @@ QGroupBox *AndroidManifestEditorWidget::createSettingsGroupBox(QWidget *parent)
     m_guiEnabled = new QCheckBox(
         Tr::tr("Don't ask for confirmation when switching to the Manifest Editor UI"));
     m_guiEnabled->setToolTip(Tr::tr("Warning: Using the Manifest Editor UI may overwrite any manual"
-                                    " changes made to the AndroidManifest.xml"));
+                                    " changes made to AndroidManifest.xml."));
     m_guiEnabled->setChecked(isGuiEnabled);
     connect(
         m_guiEnabled, &QCheckBox::toggled, this, &AndroidManifestEditorWidget::saveGuiEnabledState);
@@ -1234,7 +1234,7 @@ void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int
     else
         text = ::Android::Tr::tr("%2: Could not parse file: \"%1\".").arg(errorMessage).arg(line);
     InfoBarEntry infoBarEntry(infoBarId, text);
-    infoBarEntry.addCustomButton(::Android::Tr::tr("Goto error"), [this] {
+    infoBarEntry.addCustomButton(::Android::Tr::tr("Go to Error"), [this] {
         m_textEditorWidget->gotoLine(m_errorLine, m_errorColumn);
     });
     infoBar->removeInfo(infoBarId);
@@ -2064,7 +2064,7 @@ void AndroidManifestEditor::changeEditorPage(QAction *action)
             this->ownWidget(),
             Tr::tr("Enabling the Manifest Editor UI"),
             Tr::tr("Using the Manifest Editor UI may overwrite any manual changes "
-                   "made to the AndroidManifest.xml."),
+                   "made to AndroidManifest.xml."),
             QMessageBox::Cancel,
             QMessageBox::Ok);
         if (ret != QMessageBox::Ok) {

@@ -20,7 +20,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreplugintr.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/locator/locatormanager.h>
@@ -240,21 +239,16 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         setAttribute(Qt::WA_QuitOnClose, false); // don't prevent Qt Creator from closing
     }
     if (style != SideBarWidget) {
-        m_toggleSideBarAction
-            = new QAction(Utils::Icons::TOGGLE_LEFT_SIDEBAR_TOOLBAR.icon(),
-                          Tr::tr(Core::Constants::TR_SHOW_LEFT_SIDEBAR), toolBar);
+        m_toggleSideBarAction = new QAction(
+            Utils::Icons::TOGGLE_LEFT_SIDEBAR_TOOLBAR.icon(), Core::msgShowLeftSideBar(), toolBar);
         m_toggleSideBarAction->setCheckable(true);
         m_toggleSideBarAction->setChecked(false);
         cmd = Core::ActionManager::registerAction(m_toggleSideBarAction,
                                                   Core::Constants::TOGGLE_LEFT_SIDEBAR, context);
-        connect(m_toggleSideBarAction,
-                &QAction::toggled,
-                m_toggleSideBarAction,
-                [this](bool checked) {
-                    m_toggleSideBarAction->setToolTip(
-                        ::Core::Tr::tr(checked ? Core::Constants::TR_HIDE_LEFT_SIDEBAR
-                                               : Core::Constants::TR_SHOW_LEFT_SIDEBAR));
-                });
+        connect(m_toggleSideBarAction, &QAction::toggled, m_toggleSideBarAction, [this](bool checked) {
+            m_toggleSideBarAction->setToolTip(
+                checked ? Core::msgHideLeftSideBar() : Core::msgShowLeftSideBar());
+        });
         addSideBar();
         m_toggleSideBarAction->setChecked(m_sideBar->isVisibleTo(this));
         connect(m_toggleSideBarAction, &QAction::triggered, m_sideBar, &Core::SideBar::setVisible);

@@ -3,8 +3,8 @@
 
 #include "genericprojectfileseditor.h"
 #include "genericprojectconstants.h"
+#include "genericprojectmanagertr.h"
 
-#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <texteditor/textdocument.h>
@@ -20,7 +20,7 @@ public:
     ProjectFilesFactory()
     {
         setId(Constants::FILES_EDITOR_ID);
-        setDisplayName(::Core::Tr::tr(".files Editor"));
+        setDisplayName(Tr::tr(".files Editor"));
         addMimeType("application/vnd.qtcreator.generic.files");
         addMimeType("application/vnd.qtcreator.generic.includes");
         addMimeType("application/vnd.qtcreator.generic.config");

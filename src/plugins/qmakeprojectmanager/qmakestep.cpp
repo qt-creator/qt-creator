@@ -68,8 +68,8 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
 
     buildType.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     buildType.setDisplayName(Tr::tr("qmake build configuration:"));
-    buildType.addOption(Tr::tr("Debug"));
-    buildType.addOption(Tr::tr("Release"));
+    buildType.addOption(msgBuildConfigurationDebug());
+    buildType.addOption(msgBuildConfigurationRelease());
 
     userArguments.setSettingsKey(QMAKE_ARGUMENTS_KEY);
     userArguments.setLabelText(Tr::tr("Additional arguments:"));

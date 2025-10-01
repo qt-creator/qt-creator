@@ -14,7 +14,6 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitaspect.h>
@@ -180,11 +179,11 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Id id) :
 
     buildVariantHolder.setDisplayName(QbsProjectManager::Tr::tr("Build variant:"));
     buildVariantHolder.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    buildVariantHolder.addOption({ProjectExplorer::Tr::tr("Debug"), {}, Constants::QBS_VARIANT_DEBUG});
-    buildVariantHolder.addOption({ProjectExplorer::Tr::tr("Release"), {},
-                                  Constants::QBS_VARIANT_RELEASE});
-    buildVariantHolder.addOption({ProjectExplorer::Tr::tr("Profile"), {},
-                                  Constants::QBS_VARIANT_PROFILING});
+    buildVariantHolder.addOption({msgBuildConfigurationDebug(), {}, Constants::QBS_VARIANT_DEBUG});
+    buildVariantHolder.addOption(
+        {msgBuildConfigurationRelease(), {}, Constants::QBS_VARIANT_RELEASE});
+    buildVariantHolder.addOption(
+        {msgBuildConfigurationProfile(), {}, Constants::QBS_VARIANT_PROFILING});
 
     selectedAbis.setLabelText(QbsProjectManager::Tr::tr("ABIs:"));
     selectedAbis.setDisplayStyle(MultiSelectionAspect::DisplayStyle::ListView);

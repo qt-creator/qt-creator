@@ -942,7 +942,6 @@ public:
             // FIXME: Check.
             aspect->internalToBuffer();
             aspect->bufferToGui();
-            aspect->checkedChanged();
         });
 
         aspect->internalToBuffer();

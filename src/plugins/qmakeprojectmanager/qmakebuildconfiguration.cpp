@@ -28,7 +28,6 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/makestep.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
@@ -691,7 +690,7 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
 
     if (type == BuildConfiguration::Release) {
         //: The name of the release build configuration created by default for a qmake project.
-        info.displayName = ::ProjectExplorer::Tr::tr("Release");
+        info.displayName = msgBuildConfigurationRelease();
         //: Non-ASCII characters in directory suffix may cause build issues.
         suffix = Tr::tr("Release", "Shadow build directory suffix");
         if (settings.qtQuickCompiler() == TriState::Default) {
@@ -701,12 +700,12 @@ static BuildInfo createBuildInfo(const Kit *k, const FilePath &projectPath,
     } else {
         if (type == BuildConfiguration::Debug) {
             //: The name of the debug build configuration created by default for a qmake project.
-            info.displayName = ::ProjectExplorer::Tr::tr("Debug");
+            info.displayName = msgBuildConfigurationDebug();
             //: Non-ASCII characters in directory suffix may cause build issues.
             suffix = Tr::tr("Debug", "Shadow build directory suffix");
         } else if (type == BuildConfiguration::Profile) {
             //: The name of the profile build configuration created by default for a qmake project.
-            info.displayName = ::ProjectExplorer::Tr::tr("Profile");
+            info.displayName = msgBuildConfigurationProfile();
             //: Non-ASCII characters in directory suffix may cause build issues.
             suffix = Tr::tr("Profile", "Shadow build directory suffix");
             if (settings.separateDebugInfo() == TriState::Default)

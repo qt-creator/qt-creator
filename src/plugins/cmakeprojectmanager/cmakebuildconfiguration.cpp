@@ -41,7 +41,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
@@ -2093,12 +2092,12 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
     switch (buildType) {
     case BuildTypeNone:
         info.typeName = "Build";
-        info.displayName = ::ProjectExplorer::Tr::tr("Build");
+        info.displayName = msgBuildConfigurationBuild();
         info.buildType = BuildConfiguration::Unknown;
         break;
     case BuildTypeDebug: {
         info.typeName = "Debug";
-        info.displayName = ::ProjectExplorer::Tr::tr("Debug");
+        info.displayName = msgBuildConfigurationDebug();
         info.buildType = BuildConfiguration::Debug;
         Store extraInfo;
         // enable QML debugging by default
@@ -2108,7 +2107,7 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
     }
     case BuildTypeRelease:
         info.typeName = "Release";
-        info.displayName = ::ProjectExplorer::Tr::tr("Release");
+        info.displayName = msgBuildConfigurationRelease();
         info.buildType = BuildConfiguration::Release;
         break;
     case BuildTypeMinSizeRel:
@@ -2123,7 +2122,7 @@ BuildInfo CMakeBuildConfigurationFactory::createBuildInfo(BuildType buildType)
         break;
     case BuildTypeProfile: {
         info.typeName = "Profile";
-        info.displayName = Tr::tr("Profile");
+        info.displayName = msgBuildConfigurationProfile();
         info.buildType = BuildConfiguration::Profile;
         Store extraInfo;
         // override CMake build type, which defaults to info.typeName

@@ -195,7 +195,7 @@
     version control, go to \uicontrol Tools > \uicontrol Git, and then select
     \uicontrol {Create Repository}.
 
-    \QC creates a new subdirectory named \e {.git} that has all the necessary
+    \QC creates a new subdirectory named \c {.git} that has all the necessary
     repository files.
 
     However, Git does not track anything in the project yet, so you need to

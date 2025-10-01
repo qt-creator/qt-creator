@@ -8,8 +8,7 @@
 #include "profilehoverhandler.h"
 #include "qmakenodes.h"
 #include "qmakeprojectmanagerconstants.h"
-
-#include <coreplugin/coreplugintr.h>
+#include "qmakeprojectmanagertr.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -256,7 +255,7 @@ ProFileEditorFactory::ProFileEditorFactory()
 {
     using namespace Utils::Constants;
     setId(Constants::PROFILE_EDITOR_ID);
-    setDisplayName(::Core::Tr::tr(Constants::PROFILE_EDITOR_DISPLAY_NAME));
+    setDisplayName(Tr::tr(".pro File Editor"));
     addMimeType(PROFILE_MIMETYPE);
     addMimeType(PROINCLUDEFILE_MIMETYPE);
     addMimeType(PROFEATUREFILE_MIMETYPE);

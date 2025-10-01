@@ -229,7 +229,8 @@ static void setJson(const QByteArray &json, ListModel *model)
     model->appendItems(createItemsFromArray(courses) + createItemsFromArray(learningPaths, true));
 }
 
-static Layouting::Grid createDetailWidget(const CourseItem *course)
+using Grid = Layouting::Grid; // trick lupdate, QTBUG-140636
+static Grid createDetailWidget(const CourseItem *course)
 {
     static auto blackLabel = [](const QString &text) {
         QLabel *label = new QLabel;

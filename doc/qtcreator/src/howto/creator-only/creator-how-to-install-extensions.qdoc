@@ -10,8 +10,8 @@
     \title Manage extensions
 
     In the \uicontrol Extensions mode, you can install extensions from the
-    \QC extension registry or from external repositories, as well as activate
-    and deactivate them.
+    \l{\QC extension registry} or from other external repositories, as well
+    as activate and deactivate them.
 
     \image {qtcreator-extension-mode.webp} {Extensions mode}
 
@@ -73,8 +73,8 @@
 
     \title Install extensions
 
-    You can install compatible extensions either from the \QC extension registry
-    or from external repositories.
+    You can install compatible extensions either from the
+    \l{\QC extension registry} or from other external repositories.
 
     To install extensions from the extension registry:
 

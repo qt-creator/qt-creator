@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "glsleditor.h"
-#include "glsleditorconstants.h"
-#include "glslhighlighter.h"
 #include "glslautocompleter.h"
 #include "glslcompletionassist.h"
+#include "glsleditorconstants.h"
+#include "glsleditortr.h"
+#include "glslhighlighter.h"
 #include "glslindenter.h"
 
 #include <glsl/glslastdump.h>
@@ -18,7 +19,6 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
@@ -456,7 +456,7 @@ public:
     GlslEditorFactory()
     {
         setId(Constants::C_GLSLEDITOR_ID);
-        setDisplayName(::Core::Tr::tr(Constants::C_GLSLEDITOR_DISPLAY_NAME));
+        setDisplayName(Tr::tr("GLSL Editor"));
         addMimeType(Utils::Constants::GLSL_MIMETYPE);
         addMimeType(Utils::Constants::GLSL_VERT_MIMETYPE);
         addMimeType(Utils::Constants::GLSL_FRAG_MIMETYPE);

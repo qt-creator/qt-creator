@@ -48,7 +48,7 @@
     around the screen when you tilt the device.
 
     For the image to appear when you run the application, you must specify it
-    as a resource in the \c RESOURCES section of \e CMakeLists.txt file that
+    as a resource in the \c RESOURCES section of \c CMakeLists.txt file that
     the wizard created for you:
 
     \quotefromfile accelbubble/CMakeLists.txt
@@ -57,8 +57,8 @@
 
     \section1 Create the Accelbubble main view
 
-    Create the main view in the \e main.qml file by adding an \l Image
-    component with \e Bluebubble.svg as the source:
+    Create the main view in the \c main.qml file by adding an \l Image
+    component with \c Bluebubble.svg as the source:
 
     \quotefromfile accelbubble/main.qml
     \skipto Image
@@ -121,7 +121,7 @@
      better for the screen orientation to be fixed.
 
     To lock the orientation to portrait or landscape on Android, specify it in
-    an \e AndroidManifest.xml that you can generate in \QC. For more information,
+    an \c AndroidManifest.xml that you can generate in \QC. For more information,
     see \l{Editing Manifest Files}.
 
     \image {qtquick-mobile-tutorial-manifest.png} {Accelbubble manifest file}
@@ -146,8 +146,8 @@
     \skipto qt_finalize_executable
     \printuntil )
 
-    On iOS, you can lock the device orientation in an \e Info.plist file
-    that you specify in the \e CMakeLists.txt file as the value of the
+    On iOS, you can lock the device orientation in an \c Info.plist file
+    that you specify in the \c CMakeLists.txt file as the value of the
     \c MACOSX_BUNDLE_INFO_PLIST variable:
 
     \quotefromfile accelbubble/CMakeLists.txt
@@ -161,7 +161,7 @@
     update the CMake configuration with the following Qt module information:
     \c Sensors, \c Svg, \c Xml.
 
-    The \e CMakeLists.txt file should have the following entries that tell
+    The \c CMakeLists.txt file should have the following entries that tell
     CMake to look up the Qt installation and import the Qt Sensors, Qt SVG,
     and Qt XML modules needed by the application:
 
@@ -182,7 +182,7 @@
     After adding the dependencies, go to \uicontrol Build and select
     \uicontrol {Run CMake} to apply configuration changes.
 
-    For more information about the CMakeLists.txt file, see
+    For more information about the \c CMakeLists.txt file, see
     \l{Getting started with CMake}.
 
     \note If you have not installed all the Qt modules listed in

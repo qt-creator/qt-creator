@@ -22,7 +22,6 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectnodes.h>
@@ -174,12 +173,12 @@ public:
 
         setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
             BuildInfo info;
-            info.typeName = ProjectExplorer::Tr::tr("Build");
+            info.typeName = msgBuildConfigurationBuild();
             info.buildDirectory = forSetup ? projectPath.absolutePath() : projectPath;
 
             if (forSetup)  {
                 //: The name of the build configuration created by default for a generic project.
-                info.displayName = ProjectExplorer::Tr::tr("Default");
+                info.displayName = msgBuildConfigurationDefault();
             }
 
             return QList<BuildInfo>{info};

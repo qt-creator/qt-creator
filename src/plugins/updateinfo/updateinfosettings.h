@@ -3,16 +3,10 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 namespace UpdateInfo::Internal {
 
 class UpdateInfoPlugin;
 
-class SettingsPage : public Core::IOptionsPage
-{
-public:
-    explicit SettingsPage(UpdateInfoPlugin *plugin);
-};
+void setupSettings(UpdateInfoPlugin *plugin);
 
 } // UpdateInfo::Internal

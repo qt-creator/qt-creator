@@ -82,8 +82,7 @@ ExtensionManagerSettings::ExtensionManagerSettings()
                     text(Tr::tr("Install Extension...")),
                     onClicked(this, [] {
                         if (executePluginInstallWizard() == InstallResult::NeedsRestart) {
-                            ICore::askForRestart(
-                                Tr::tr("Plugin changes will take effect after restart."));
+                            ICore::askForRestart(msgPluginChangesRequireRestart());
                         }
                     }),
                 },

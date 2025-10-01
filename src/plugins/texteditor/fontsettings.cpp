@@ -6,11 +6,12 @@
 #include "fontsettingspage.h"
 #include "texteditortr.h"
 
+#include <coreplugin/icore.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/plaintextedit/plaintextedit.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
-#include <coreplugin/icore.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -337,7 +338,7 @@ qreal FontSettings::lineSpacing() const
 {
     QFont currentFont = font();
     currentFont.setPointSize(std::max(m_fontSize * m_fontZoom / 100, 1));
-    qreal spacing = QFontMetricsF(currentFont).lineSpacing();
+    qreal spacing = PlainTextDocumentLayout::lineSpacing(currentFont);
     if (QTC_GUARD(m_lineSpacing > 0) && m_lineSpacing != 100)
         spacing *= qreal(m_lineSpacing) / 100;
     return spacing;

@@ -38,7 +38,6 @@
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseplugin.h>
-#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QAction>
@@ -299,32 +298,29 @@ public:
 
     ManagedDirectoryCache m_managedDirectoryCache;
 
-    VcsEditorFactory logEditorFactory {{
-        LogOutput,
-        PERFORCE_LOG_EDITOR_ID,
-        VcsBase::Tr::tr("Perforce Log Editor"),
-        "text/vnd.qtcreator.p4.log",
-        [] { return new PerforceEditorWidget; },
-        std::bind(&PerforcePluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory logEditorFactory{
+        {LogOutput,
+         PERFORCE_LOG_EDITOR_ID,
+         Tr::tr("Perforce Log Editor"),
+         "text/vnd.qtcreator.p4.log",
+         [] { return new PerforceEditorWidget; },
+         std::bind(&PerforcePluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory annotateEditorFactory {{
-        AnnotateOutput,
-        PERFORCE_ANNOTATION_EDITOR_ID,
-        VcsBase::Tr::tr("Perforce Annotation Editor"),
-        "text/vnd.qtcreator.p4.annotation",
-        [] { return new PerforceEditorWidget; },
-        std::bind(&PerforcePluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory annotateEditorFactory{
+        {AnnotateOutput,
+         PERFORCE_ANNOTATION_EDITOR_ID,
+         Tr::tr("Perforce Annotation Editor"),
+         "text/vnd.qtcreator.p4.annotation",
+         [] { return new PerforceEditorWidget; },
+         std::bind(&PerforcePluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory diffEditorFactory {{
-        DiffOutput,
-        PERFORCE_DIFF_EDITOR_ID,
-        VcsBase::Tr::tr("Perforce Diff Editor"),
-        "text/x-patch",
-        [] { return new PerforceEditorWidget; },
-        std::bind(&PerforcePluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory diffEditorFactory{
+        {DiffOutput,
+         PERFORCE_DIFF_EDITOR_ID,
+         Tr::tr("Perforce Diff Editor"),
+         "text/x-patch",
+         [] { return new PerforceEditorWidget; },
+         std::bind(&PerforcePluginPrivate::vcsDescribe, this, _1, _2)}};
 };
 
 static PerforcePluginPrivate *dd = nullptr;
@@ -336,13 +332,15 @@ PerforcePluginPrivate::PerforcePluginPrivate()
 
     dd = this;
 
-    setupVcsSubmitEditor(this, {
-        SUBMIT_MIMETYPE,
-        PERFORCE_SUBMIT_EDITOR_ID,
-        VcsBase::Tr::tr("Perforce.SubmitEditor"),
-        VcsBaseSubmitEditorParameters::DiffFiles,
-        [] { return new PerforceSubmitEditor; },
-    });
+    setupVcsSubmitEditor(
+        this,
+        {
+            SUBMIT_MIMETYPE,
+            PERFORCE_SUBMIT_EDITOR_ID,
+            Tr::tr("Perforce Submit Editor"),
+            VcsBaseSubmitEditorParameters::DiffFiles,
+            [] { return new PerforceSubmitEditor; },
+        });
 
     const QString prefix = QLatin1String("p4");
     m_commandLocator = new CommandLocator("Perforce", prefix, prefix, this);

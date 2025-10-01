@@ -94,6 +94,11 @@ TextEditorLayout::TextEditorLayout(PlainTextDocumentLayout *docLayout)
         this,
         &TextEditorLayout::resetBlockSize);
     connect(
+        this,
+        &PlainTextDocumentLayout::blockSizeChanged,
+        this,
+        &TextEditorLayout::resetBlockSize);
+    connect(
         docLayout,
         &PlainTextDocumentLayout::documentSizeChanged,
         this,
@@ -324,13 +329,13 @@ void TextEditorLayout::documentChanged(int from, int charsRemoved, int charsAdde
 
     PlainTextDocumentLayout::documentChanged(from, charsRemoved, charsAdded);
 
-    const int charsChanged = charsRemoved + charsAdded;
+    const int to = from + qMax(0, charsAdded - charsRemoved);
 
     QTextBlock block = doc->findBlock(from);
-    QTextBlock end = doc->findBlock(qMax(0, from + charsChanged - 1)).next();
+    QTextBlock end = doc->findBlock(to);
 
     d->updatingFormats = true;
-    while (block.isValid() && block != end) {
+    while (block.isValid()) {
         QList<QTextLayout::FormatRange> documentFormats = block.layout()->formats();
         for (QTextLayout::FormatRange &range : documentFormats)
             range.format.setProperty(DOCUMENT_LAYOUT_FORMAT_PROPERTY_ID, true);
@@ -344,6 +349,8 @@ void TextEditorLayout::documentChanged(int from, int charsRemoved, int charsAdde
         } else if (!documentFormats.isEmpty()) {
             blockLayout(block)->setFormats(documentFormats);
         }
+        if (block == end)
+            break;
         block = block.next();
     }
     d->updatingFormats = false;
@@ -422,15 +429,6 @@ int TextEditorLayout::firstLineNumberOf(const QTextBlock &block) const
 bool TextEditorLayout::blockLayoutValid(int index) const
 {
     return d->layoutData(index).layedOut;
-}
-
-int TextEditorLayout::blockHeight(const QTextBlock &block) const
-{
-    if (QRectF replacement = replacementBlockBoundingRect(block); !replacement.isNull())
-        return replacement.height();
-    return blockLayoutValid(block.fragmentIndex())
-               ? blockBoundingRect(block).height()
-               : lineSpacing() + additionalBlockHeight(block, true);
 }
 
 int TextEditorLayout::offsetForBlock(const QTextBlock &block) const

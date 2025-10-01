@@ -15,7 +15,7 @@
     \l {https://vcpkg.io/en/}{vcpkg} is available on all the
     \l{Supported Platforms}{supported development platforms}.
 
-    You can use \QC to create and edit vcpkg.json files to specify packages to
+    You can use \QC to create and edit \c vcpkg.json files to specify packages to
     build as part of your project when using CMake as the build system.
 
     \note Enable the Vcpkg plugin to use it.
@@ -48,7 +48,7 @@
 
     \title Create vcpkg manifest files
 
-    To create a new vcpkg package manager manifest (vcpkg.json) file:
+    To create a new vcpkg package manager manifest (\c vcpkg.json) file:
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File} >
@@ -69,7 +69,7 @@
         \li Select \uicontrol Finish to create the file.
     \endlist
 
-    The wizard automatically adds the vcpkg.json file to the CMakeLists.txt file
+    The wizard automatically adds the \c vcpkg.json file to the \c CMakeLists.txt file
     of the project.
 
     \sa {vcpkg Package Manager}, {Edit vcpkg manifest files}
@@ -83,7 +83,7 @@
 
     \title Edit vcpkg manifest files
 
-    When you open a vcpkg.json file, it opens in the manifest file editor:
+    When you open a \c vcpkg.json file, it opens in the manifest file editor:
 
     \image {qtcreator-vcpkg-manifest-file-editor.webp} {vcpkg.json file in the manifest file editor}
 
@@ -102,14 +102,14 @@
 
     \section1 Generate code for CMake configuration files
 
-    To generate sample CMake code to copy to the CMakeLists.text file:
+    To generate sample CMake code to copy to the \c CMakeLists.txt file:
 
     \list 1
         \li Select \inlineimage {icons/cmake.png} {CMake Code}
             (\uicontrol {CMake Code}) on the manifest editor toolbar.
             \image {qtcreator-vcpkg-cmake-config.webp} {CMake Code dialog}
         \li Select the example code you need and copy-paste it to the
-            CMakeLists.txt file.
+            \c CMakeLists.txt file.
     \endlist
 
     \section1 Set the path to vcpkg

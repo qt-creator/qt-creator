@@ -31,7 +31,7 @@
 
     \include qtquick-tutorial-create-empty-project.qdocinc qtquick empty application
 
-    \QC generates a component file, \e Main.qml, and opens it in the
+    \QC generates a component file, \c Main.qml, and opens it in the
     \uicontrol Edit mode.
 
     \section1 Deploy applications
@@ -40,7 +40,7 @@
     the top left corner of the view and two empty rectangles.
 
     For the image to appear when you run the application, you must specify it
-    as a resource in the \c RESOURCES section of \e CMakeLists.txt file that
+    as a resource in the \c RESOURCES section of \c CMakeLists.txt file that
     the wizard created for you:
 
     \quotefromfile transitions/CMakeLists.txt
@@ -51,7 +51,7 @@
 
     Because the \l Window QML type requires that you add states into child
     components, use the wizard to create a custom QML type called
-    \e Page that you refer to from \e Main.qml.
+    \e Page that you refer to from \c Main.qml.
 
     To create a custom QML type:
 
@@ -63,10 +63,10 @@
             QML type: \e Page.
         \li Select \uicontrol Next to open the \uicontrol {Project Management}
             dialog.
-        \li Select \uicontrol Finish to create \e Page.qml.
+        \li Select \uicontrol Finish to create \c Page.qml.
     \endlist
 
-    \QC opens \e Page.qml in the \uicontrol Edit mode. It has a root item
+    \QC opens \c Page.qml in the \uicontrol Edit mode. It has a root item
     of the type \l Item. Replace it with a \l Rectangle type. Give the
     type the ID \e page, anchor it to the parent item on all sides, and set
     its color to white:
@@ -85,7 +85,7 @@
 
     \image {qml-toolbar-rectangle.png} {Qt Quick toolbar for rectangles}
 
-    Next, add an \l Image type with \e qt-logo.png as the source. You can also
+    Next, add an \l Image type with \c qt-logo.png as the source. You can also
     use any other image or a component. Position the image in the top-left
     corner of the rectangle:
 
@@ -114,7 +114,7 @@
 
     \printuntil anchors.fill
 
-    To check your code, compare it with the \e {Page.qml} example file.
+    To check your code, compare it with the \c {Page.qml} example file.
 
     Next, make the image move between the rectangles when users click
     them by adding states and by connecting mouse clicks to state changes.
@@ -143,7 +143,7 @@
 
     \section1 Add Page to the main view
 
-    Open \e Main.qml for editing and add an instance of the Page custom
+    Open \c Main.qml for editing and add an instance of the Page custom
     component to it:
 
     \quotefromfile transitions/main.qml

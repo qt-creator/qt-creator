@@ -28,7 +28,7 @@
 
     \list 1
 
-        \li In textfinder.cpp, click between the line number and the window
+        \li In \c textfinder.cpp, click between the line number and the window
             border on the line where we change the cursor position to set a
             breakpoint.
 

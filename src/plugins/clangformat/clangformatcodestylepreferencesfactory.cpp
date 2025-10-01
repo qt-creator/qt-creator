@@ -8,13 +8,13 @@
 #include "clangformatglobalconfigwidget.h"
 #include "clangformatindenter.h"
 #include "clangformatsettings.h"
+#include "clangformattr.h"
 #include "clangformatutils.h"
 
 #include <cppeditor/cppcodestylesettings.h>
 #include <cppeditor/cppcodestylesettingspage.h>
 #include <cppeditor/cppcodestylesnippets.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <cppeditor/cppeditortr.h>
 #include <projectexplorer/project.h>
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/codestylepool.h>
@@ -128,17 +128,13 @@ void ClangFormatSelectorWidget::slotImportClicked()
     }
 
     const FilePath filePath = FileUtils::getOpenFilePath(
-        CppEditor::Tr::tr("Import Code Format"),
-        {},
-        CppEditor::Tr::tr("ClangFormat (*clang-format*);;All files (*)"));
+        Tr::tr("Import Code Format"), {}, Tr::tr("ClangFormat (*clang-format*);;All files (*)"));
 
     if (filePath.isEmpty())
         return;
 
     const QString name = QInputDialog::getText(
-        this,
-        CppEditor::Tr::tr("Import Code Style"),
-        CppEditor::Tr::tr("Enter a name for the imported code style:"));
+        this, Tr::tr("Import Code Style"), Tr::tr("Enter a name for the imported code style:"));
     if (name.isEmpty())
         return;
 
@@ -153,8 +149,8 @@ void ClangFormatSelectorWidget::slotImportClicked()
 
     QMessageBox::warning(
         this,
-        CppEditor::Tr::tr("Import Code Style"),
-        CppEditor::Tr::tr("Cannot import code style from \"%1\".").arg(filePath.toUserOutput()));
+        Tr::tr("Import Code Style"),
+        Tr::tr("Cannot import code style from \"%1\".").arg(filePath.toUserOutput()));
 }
 
 void ClangFormatSelectorWidget::slotExportClicked()
@@ -166,9 +162,9 @@ void ClangFormatSelectorWidget::slotExportClicked()
 
     ICodeStylePreferences *currentPreferences = m_codeStyle->currentPreferences();
     const FilePath filePath = FileUtils::getSaveFilePath(
-        CppEditor::Tr::tr("Export Code Format"),
+        Tr::tr("Export Code Format"),
         FileUtils::homePath() / ".clang-format",
-        CppEditor::Tr::tr("ClangFormat (*clang-format*);;All files (*)"));
+        Tr::tr("ClangFormat (*clang-format*);;All files (*)"));
 
     if (filePath.isEmpty())
         return;
@@ -336,10 +332,7 @@ public:
         return CppEditor::Constants::CPP_SETTINGS_ID;
     }
 
-    QString displayName() override
-    {
-        return CppEditor::Tr::tr(CppEditor::Constants::CPP_SETTINGS_NAME);
-    }
+    QString displayName() override { return Tr::tr("C++"); }
 
     ICodeStylePreferences *createCodeStyle() const override
     {

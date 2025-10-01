@@ -92,7 +92,8 @@ public:
         WindowsMsvc2017Flavor,
         WindowsMsvc2019Flavor,
         WindowsMsvc2022Flavor,
-        WindowsLastMsvcFlavor = WindowsMsvc2022Flavor,
+        WindowsMsvc2026Flavor,
+        WindowsLastMsvcFlavor = WindowsMsvc2026Flavor,
         WindowsMSysFlavor,
         WindowsCEFlavor,
 

@@ -9,7 +9,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <cppeditor/cppeditorconstants.h>
-#include <cppeditor/cppeditortr.h>
 #include <cppeditor/cpplocatorfilter.h>
 
 #include <languageclient/currentdocumentsymbolsrequest.h>
@@ -35,8 +34,8 @@ const int MaxResultCount = 10000;
 ClangdAllSymbolsFilter::ClangdAllSymbolsFilter()
 {
     setId(CppEditor::Constants::LOCATOR_FILTER_ID);
-    setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::LOCATOR_FILTER_DISPLAY_NAME));
-    setDescription(::CppEditor::Tr::tr(CppEditor::Constants::LOCATOR_FILTER_DESCRIPTION));
+    setDisplayName(CppEditor::msgSymbolsFilterDisplayName());
+    setDescription(CppEditor::msgSymbolsFilterDescription());
     setDefaultShortcutString(":");
 }
 
@@ -50,8 +49,8 @@ LocatorMatcherTasks ClangdAllSymbolsFilter::matchers()
 ClangdClassesFilter::ClangdClassesFilter()
 {
     setId(CppEditor::Constants::CLASSES_FILTER_ID);
-    setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::CLASSES_FILTER_DISPLAY_NAME));
-    setDescription(::CppEditor::Tr::tr(CppEditor::Constants::CLASSES_FILTER_DESCRIPTION));
+    setDisplayName(CppEditor::msgClassesFilterDisplayName());
+    setDescription(CppEditor::msgClassesFilterDescription());
     setDefaultShortcutString("c");
 }
 
@@ -65,8 +64,8 @@ LocatorMatcherTasks ClangdClassesFilter::matchers()
 ClangdFunctionsFilter::ClangdFunctionsFilter()
 {
     setId(CppEditor::Constants::FUNCTIONS_FILTER_ID);
-    setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::FUNCTIONS_FILTER_DISPLAY_NAME));
-    setDescription(::CppEditor::Tr::tr(CppEditor::Constants::FUNCTIONS_FILTER_DESCRIPTION));
+    setDisplayName(CppEditor::msgFunctionsFilterDisplayName());
+    setDescription(CppEditor::msgFunctionsFilterDescription());
     setDefaultShortcutString("m");
 }
 
@@ -80,8 +79,8 @@ LocatorMatcherTasks ClangdFunctionsFilter::matchers()
 ClangdCurrentDocumentFilter::ClangdCurrentDocumentFilter()
 {
     setId(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_ID);
-    setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME));
-    setDescription(::CppEditor::Tr::tr(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_DESCRIPTION));
+    setDisplayName(CppEditor::msgDocumentFilterDisplayName());
+    setDescription(CppEditor::msgDocumentFilterDescription());
     setDefaultShortcutString(".");
     setPriority(High);
     setEnabled(false);

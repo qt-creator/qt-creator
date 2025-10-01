@@ -47,7 +47,7 @@ public:
     CppcheckTrigger trigger{marks, tool};
     DiagnosticsModel manualRunModel;
     CppcheckTool manualRunTool{manualRunModel, Constants::MANUAL_CHECK_PROGRESS_ID};
-    Utils::Perspective perspective{Constants::PERSPECTIVE_ID, ::Cppcheck::Tr::tr("Cppcheck")};
+    Perspective perspective{Constants::PERSPECTIVE_ID, ::Cppcheck::Tr::tr("Cppcheck")};
 
     Action *manualRunAction = nullptr;
     QHash<Project *, CppcheckSettings *> projectSettings;

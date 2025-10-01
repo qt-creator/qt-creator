@@ -4,6 +4,7 @@ FROM ubuntu:24.04
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     openssh-client \
+    g++ \
     sudo \
     vim \
     wget \
@@ -15,4 +16,6 @@ RUN apt-get update \
     valgrind \
     x11-apps \
     clangd \
-    qbs
+    qbs \
+    cmake \
+    ninja-build

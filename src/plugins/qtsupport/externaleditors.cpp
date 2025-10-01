@@ -3,7 +3,6 @@
 
 #include "externaleditors.h"
 
-#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 
 #include <projectexplorer/kitmanager.h>
@@ -20,9 +19,10 @@
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeconstants.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QMap>
 #include <QStringList>
@@ -251,7 +251,7 @@ public:
     explicit ExternalDesignerFactory(QObject *guard)
     {
         setId("Qt.Designer");
-        setDisplayName(::Core::Tr::tr("Qt Widgets Designer"));
+        setDisplayName(Tr::tr("Qt Widgets Designer"));
         setMimeTypes({Utils::Constants::FORM_MIMETYPE});
 
         setEditorStarter([guard](const FilePath &filePath) -> Result<> {
@@ -332,7 +332,7 @@ public:
     ExternalLinguistFactory()
     {
         setId("Qt.Linguist");
-        setDisplayName(::Core::Tr::tr("Qt Linguist"));
+        setDisplayName(Tr::tr("Qt Linguist"));
         setMimeTypes({Utils::Constants::LINGUIST_MIMETYPE});
         setEditorStarter([](const FilePath &filePath) {
             LaunchData data;

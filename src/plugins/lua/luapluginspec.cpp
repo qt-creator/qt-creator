@@ -8,8 +8,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <extensionsystem/extensionsystemtr.h>
-
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
 

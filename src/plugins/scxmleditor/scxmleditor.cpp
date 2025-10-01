@@ -9,7 +9,6 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreplugintr.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -318,7 +317,7 @@ public:
         : QObject(guard)
     {
         setId(Constants::K_SCXML_EDITOR_ID);
-        setDisplayName(::Core::Tr::tr(Constants::C_SCXMLEDITOR_DISPLAY_NAME));
+        setDisplayName(Tr::tr("SCXML Editor"));
         addMimeType(Utils::Constants::SCXML_MIMETYPE);
 
         Utils::FileIconProvider::registerIconOverlayForSuffix(":/projectexplorer/images/fileoverlay_scxml.png", "scxml");

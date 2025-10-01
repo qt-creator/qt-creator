@@ -62,7 +62,7 @@
     \section2 qmake run configurations
 
     The run configurations for qmake projects derive their executable from the
-    parsed .pro files. For more information on how the commands are constructed,
+    parsed \c .pro files. For more information on how the commands are constructed,
     see \l{Start external processes}.
 
     \section1 Select the default run target
@@ -87,7 +87,7 @@
 
     When using qmake, you can prevent \QC from automatically creating run
     configurations for subprojects by specifying the \c qtc_runnable
-    variable in the .pro files of the application projects (\c TEMPLATE=app)
+    variable in the \c .pro files of the application projects (\c TEMPLATE=app)
     that you want to run. For example
 
     \badcode
@@ -99,7 +99,7 @@
 
     If any of your application projects specifies \c qtc_runnable,
     \QC creates run configurations only for subprojects that also have
-    \c {CONFIG += qtc_runnable} set in their .pro files.
+    \c {CONFIG += qtc_runnable} set in their \c .pro files.
 
     For more information about qmake project templates, see \l {TEMPLATE}.
 

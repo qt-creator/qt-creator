@@ -52,7 +52,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreplugintr.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -119,7 +118,7 @@ public:
     CppEditorFactory()
     {
         setId(Constants::CPPEDITOR_ID);
-        setDisplayName(::Core::Tr::tr("C++ Editor"));
+        setDisplayName(Tr::tr("C++ Editor"));
         addMimeType(Utils::Constants::C_SOURCE_MIMETYPE);
         addMimeType(Utils::Constants::C_HEADER_MIMETYPE);
         addMimeType(Utils::Constants::CPP_SOURCE_MIMETYPE);

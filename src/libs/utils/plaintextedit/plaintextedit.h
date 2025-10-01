@@ -293,9 +293,15 @@ public:
         QTextCursor::MoveMode mode = QTextCursor::MoveAnchor,
         int steps = 1) const;
 
+    /// Returns the height of the bounding rect if the block is layouted
+    /// otherwise returns linespacing + additional block height.
+    /// This height is overwritten by the replacement rect height if that rect is not empty
+    int blockHeight(const QTextBlock &block) const;
+
     void emitDocumentSizeChanged() { emit documentSizeChanged(documentSize()); }
 
     static qreal layoutWidth(const QTextLayout *layout);
+    static int lineSpacing(const QFont &font);
 
 signals:
     void documentContentsChanged(int from, int charsRemoved, int charsAdded);

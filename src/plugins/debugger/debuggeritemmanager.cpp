@@ -944,7 +944,9 @@ void DebuggerItemModel::saveDebuggers()
     // Do not save default debuggers as they are set by the SDK.
 }
 
-Tasking::ExecutableItem autoDetectDebuggerRecipe(
+using ExecutableItem = Tasking::ExecutableItem; // trick lupdate, QTBUG-140636
+
+ExecutableItem autoDetectDebuggerRecipe(
     ProjectExplorer::Kit *kit,
     const Utils::FilePaths &searchPaths,
     const DetectionSource &detectionSource,
@@ -972,8 +974,6 @@ Tasking::ExecutableItem autoDetectDebuggerRecipe(
             "lldb-vscode-*",
         });
     }
-
-    using namespace Tasking;
 
     static const auto searchDebuggers = [](QPromise<DebuggerItem> &promise,
                                            const FilePaths &searchPaths,
@@ -1014,8 +1014,7 @@ Tasking::ExecutableItem autoDetectDebuggerRecipe(
     return AsyncTask<DebuggerItem>(setupSearch, searchDone);
 }
 
-Tasking::ExecutableItem removeAutoDetected(
-    const QString &detectionSourceId, const LogCallback &logCallback)
+ExecutableItem removeAutoDetected(const QString &detectionSourceId, const LogCallback &logCallback)
 {
     return Tasking::Sync([detectionSourceId, logCallback]() {
         const auto debuggers = filtered(

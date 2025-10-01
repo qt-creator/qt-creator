@@ -11,7 +11,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/jsonwizard/jsonwizard.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
@@ -58,15 +57,14 @@ Result<> VcsConfigurationPageFactory::validateData(Id typeId, const QVariant &da
     if (data.isNull() || data.typeId() != QMetaType::QVariantMap) {
         //: Do not translate "VcsConfiguration", because it is the id of a page.
         return ResultError(
-            ProjectExplorer::Tr::tr("\"data\" must be a JSON object for \"VcsConfiguration\" pages."));
+            Tr::tr("\"data\" must be a JSON object for \"VcsConfiguration\" pages."));
     }
 
     QVariantMap tmp = data.toMap();
     const QString vcsId = tmp.value(QLatin1String("vcsId")).toString();
     if (vcsId.isEmpty()) {
         //: Do not translate "VcsConfiguration", because it is the id of a page.
-        return ResultError(
-            ProjectExplorer::Tr::tr("\"VcsConfiguration\" page requires a \"vcsId\" set."));
+        return ResultError(Tr::tr("\"VcsConfiguration\" page requires a \"vcsId\" set."));
     }
 
     return ResultOk;

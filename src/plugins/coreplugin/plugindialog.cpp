@@ -110,7 +110,7 @@ void PluginDialog::closeDialog()
     PluginManager::loadPluginsAtRuntime(m_softLoad);
 
     if (m_isRestartRequired)
-        ICore::askForRestart(Tr::tr("Plugin changes will take effect after restart."));
+        ICore::askForRestart(msgPluginChangesRequireRestart());
     accept();
 }
 

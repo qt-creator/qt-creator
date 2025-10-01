@@ -25,7 +25,6 @@
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
-#include <utils/utilstr.h>
 
 #include <QAction>
 #include <QComboBox>
@@ -188,7 +187,7 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
 
     const auto makeDetails = [this, info] {
         auto showDetailsButton = new QToolButton;
-        showDetailsButton->setText(Tr::tr("Show Details..."));
+        showDetailsButton->setText(::Core::Tr::tr("Show Details..."));
         connect(showDetailsButton, &QToolButton::clicked, this, [this, info](bool) {
             if (m_detailsWidget) {
                 ICore::raiseWindow(m_detailsWidget);
@@ -221,7 +220,7 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
 
     const auto makeSuppressionButton = [infoBar, id, this] {
         auto infoWidgetSuppressButton = new QToolButton;
-        infoWidgetSuppressButton->setText(Utils::Tr::tr("Do Not Show Again"));
+        infoWidgetSuppressButton->setText(msgDoNotShowAgain());
         connect(infoWidgetSuppressButton, &QAbstractButton::clicked, this, [infoBar, id] {
             if (!infoBar)
                 return;
@@ -533,7 +532,7 @@ ProgressManagerPrivate::ProgressManagerPrivate()
     m_progressView = new ProgressView;
     m_infoBarDisplay = new PopupInfoBarDisplay;
     m_infoBarDisplay->setInfoBar(&m_popupInfoBar);
-    m_progressView->addProgressWidget(m_infoBarDisplay);
+    m_progressView->addExtraWidget(m_infoBarDisplay);
 
     // withDelay, so the statusBarWidget has the chance to get the enter event
     connect(m_progressView.data(), &ProgressView::hoveredChanged, this, &ProgressManagerPrivate::updateVisibilityWithDelay);

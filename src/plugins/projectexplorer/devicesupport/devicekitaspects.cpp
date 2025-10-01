@@ -567,12 +567,4 @@ void BuildDeviceKitAspect::setDeviceId(Kit *k, Id id)
     k->setValue(BuildDeviceKitAspect::id(), id.toSetting());
 }
 
-bool BuildDeviceKitAspect::supportsProject(Kit *k, Project *project)
-{
-    if (IDevice::ConstPtr dev = device(k))
-        return dev->supportsProject(project);
-
-    return true;
-}
-
 } // namespace ProjectExplorer

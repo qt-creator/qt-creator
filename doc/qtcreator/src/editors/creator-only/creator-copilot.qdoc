@@ -47,7 +47,7 @@
         \li In \uicontrol {Node.js path}, enter the full path to the
             Node.js executable.
         \li In \uicontrol {Path to language-server.js}, enter the path to
-            language-server.js in the Copilot Neovim plugin installation folder.
+            \c language-server.js in the Copilot Neovim plugin installation folder.
         \li Select \uicontrol {Auto request} to receive suggestions
             for the current text cursor position when you make changes.
         \li In \uicontrol {GitHub Enterprise URL}, enter the URL to Copilot

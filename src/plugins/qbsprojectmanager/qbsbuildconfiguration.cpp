@@ -18,7 +18,6 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -286,11 +285,10 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
     setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
         QList<BuildInfo> result;
         for (const auto &[type, name, configName] :
-             {std::make_tuple(BuildConfiguration::Debug, ProjectExplorer::Tr::tr("Debug"), "Debug"),
+             {std::make_tuple(BuildConfiguration::Debug, msgBuildConfigurationDebug(), "Debug"),
+              std::make_tuple(BuildConfiguration::Release, msgBuildConfigurationRelease(), "Release"),
               std::make_tuple(
-                  BuildConfiguration::Release, ProjectExplorer::Tr::tr("Release"), "Release"),
-              std::make_tuple(
-                  BuildConfiguration::Profile, ProjectExplorer::Tr::tr("Profile"), "Profile")}) {
+                  BuildConfiguration::Profile, msgBuildConfigurationProfile(), "Profile")}) {
             BuildInfo info;
             info.buildType = type;
             info.typeName = name;

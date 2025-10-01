@@ -12,10 +12,10 @@ QtcPlugin {
     pluginjson.replacements: ({"UPDATEINFO_EXPERIMENTAL_STR": (enable ? "false": "true")})
 
     files: [
-        "settingspage.cpp",
-        "settingspage.h",
         "updateinfoplugin.cpp",
         "updateinfoplugin.h",
+        "updateinfosettings.cpp",
+        "updateinfosettings.h",
         "updateinfotools.h",
         "updateinfotr.h",
     ]

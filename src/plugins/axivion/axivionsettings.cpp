@@ -1013,11 +1013,11 @@ bool handleMissingPathMapping(const FilePath &missingPath, const QString &projec
     }
     QPushButton *filechooser = nullptr;
     if (!hasAnyMapping) {
-        filechooser = new QPushButton(Tr::tr("Select matching file..."));
+        filechooser = new QPushButton(Tr::tr("Select Matching File..."));
         mbox.addButton(filechooser, QMessageBox::AcceptRole);
     }
-    QPushButton *manual = new QPushButton(hasAnyMapping ? Tr::tr("Change existing...")
-                                                        : Tr::tr("Set up manually..."), &mbox);
+    QPushButton *manual = new QPushButton(hasAnyMapping ? Tr::tr("Change Existing...")
+                                                        : Tr::tr("Set up Manually..."), &mbox);
     mbox.addButton(manual, QMessageBox::ActionRole);
     QPushButton *cancel = mbox.addButton(QMessageBox::Cancel);
 

@@ -16,7 +16,6 @@ Window {
     InputPanel {
         id: inputPanel
         z: 99
-        x: 0
         y: window.height
         width: window.width
 
@@ -24,20 +23,16 @@ Window {
             name: "visible"
             when: inputPanel.active
             PropertyChanges {
-                target: inputPanel
-                y: window.height - inputPanel.height
+                inputPanel.y: window.height - inputPanel.height
             }
         }
         transitions: Transition {
             from: ""
             to: "visible"
             reversible: true
-            ParallelAnimation {
-                NumberAnimation {
-                    properties: "y"
-                    duration: 250
-                    easing.type: Easing.InOutQuad
-                }
+            NumberAnimation {
+                properties: "y"
+                easing.type: Easing.InOutQuad
             }
         }
     }

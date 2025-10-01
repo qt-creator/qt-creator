@@ -12,10 +12,10 @@
     To reset all \QC settings, remove the settings files that it creates:
 
     \list
-        \li QtCreator.db
-        \li QtCreator.ini
-        \li qtversion.xml
-        \li qtcreator
+        \li \c QtCreator.db
+        \li \c QtCreator.ini
+        \li \c qtversion.xml
+        \li \c qtcreator
     \endlist
 
     The location of the above files and directories depends on the platform:

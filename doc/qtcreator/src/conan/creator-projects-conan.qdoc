@@ -38,9 +38,9 @@
     \note Enable the Conan plugin to use it.
 
     For each project, you must write a
-    \l{https://docs.conan.io/en/latest/reference/conanfile.html}{conanfile.py}
+    \l{https://docs.conan.io/en/latest/reference/conanfile.html}{\c conanfile.py}
     or \l{https://docs.conan.io/en/latest/reference/conanfile_txt.html}
-    {conanfile.txt} file that specifies the needed libraries and packages.
+    {\c conanfile.txt} file that specifies the needed libraries and packages.
     Then, you must edit the build settings of the project to specify the
     location of the file and the contents of the Conan install command.
 
@@ -52,7 +52,7 @@
 
     To turn off the automatic package manager setup, set
     \c PackageManagerAutoSetup to \c false in \l{Configure Presets}
-    {CMake presets} or a \l{Share project settings}{CMakeLists.txt.shared} file.
+    {CMake presets} or a \l{Share project settings}{\c CMakeLists.txt.shared} file.
 
     \sa {Conan Build Configuration}, {Enable and disable plugins},
     {Override CMake settings for a project}, {Using CMake with Package Managers}

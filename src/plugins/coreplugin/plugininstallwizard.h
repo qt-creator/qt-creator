@@ -20,4 +20,6 @@ enum class InstallResult {
 CORE_EXPORT InstallResult
 executePluginInstallWizard(const Utils::FilePath &archive = {}, bool prepareForUpdate = false);
 
+CORE_EXPORT QString msgPluginChangesRequireRestart();
+
 } // namespace Core

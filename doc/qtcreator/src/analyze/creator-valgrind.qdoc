@@ -149,7 +149,7 @@
     Memcheck detects numerous problems in the system libraries, such as the C
     library, which come pre-installed with your OS. As you cannot easily fix
     them, you want to suppress them. Valgrind reads a list of errors to suppress
-    at startup. A default suppression file is created by the ./configure script
+    at startup. A default suppression file is created by the \c ./configure script
     when the system is built.
 
     You can write your own suppression files if parts of your project have

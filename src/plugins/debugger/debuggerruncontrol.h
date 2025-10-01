@@ -33,4 +33,6 @@ public:
     }
 };
 
+DEBUGGER_EXPORT QString msgAttachToProcess();
+
 } // Debugger

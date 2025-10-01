@@ -178,12 +178,12 @@
     function to start remote debugging in the \uicontrol Debug >
     \uicontrol {Start Debugging} menu.
 
-    Special use cases, such as attaching to a running process on the target,
-    might still require manual setup. You can debug an application that runs on
-    a remote target with the necessary helper processes also running.
+    The fully automated setup and execution of remote debugging requires that
+    a debug server on the remote machine can be started via SSH from the development host.
 
-    For more information, see \l{Debug remotely with GDB} and
-    \l{Debug remotely with CDB}.
+    This is not always possible. For some of such exceptional cases, \QC offers
+    semi-automatic solutions, as described in \l{Debug remotely with GDB server
+    in special cases} and \l{Debug remotely with CDB in special cases}.
 
     \section1 Using Debugging Helpers
 
@@ -535,22 +535,37 @@
     \ingroup creator-how-to-remote-linux
     \ingroup creator-how-to-qnx
 
-    \title Debug remotely with GDB
+    \title Debug remotely with GDB server in special cases
 
-    When debugging on a target supported by GDB server, a local GDB process
-    talks to a GDB server running on the remote machine that controls the
-    process to be debugged.
+    If the requirements for the automated setup in \l{Remote Debugging}
+    are not met but your remote machine is capable of running GDB server
+    (or any compatible probe using the GDB serial protocol), you can still
+    use \QC to debug your application.
 
-    The GDB server process is started on the remote machines by passing a port
-    number and the executable:
+    \section1 Application running, SSH access to remote machine available
+
+    If you want to attach to an application that is already running
+    on the remote machine and a debug server can be started via SSH from the
+    local machine host, go to \uicontrol Debug > \uicontrol {Start Debugging}
+    > \uicontrol {Attach to running applications}.
+
+    \section1 Application not running, terminal access to remote machine available
+
+    If a debug server cannot be started via SSH from the local machine,
+    check your device documentation for alternative means to start a debug
+    server.
+
+    If you have some terminal access to the remote machine, and a GDB server
+    installed there, you can manually transfer the executable to the remote
+    machine and start \c {gdbserver} by passing a port number and the executable:
 
     \code
-    gdbserver :1234 <executable>
+    gdbserver :1234 /path/to/executable
     \endcode
 
     It then typically responds:
     \code
-    Process bin/qtcreator created; pid = 5159
+    Process /path/to/executable created; pid = 5159
     Listening on port 1234
     \endcode
 
@@ -607,7 +622,16 @@
     in GDB, see \l{https://sourceware.org/gdb/onlinedocs/gdb/Connecting.html}
     {Debugging with GDB: Connecting to a Remote Target}.
 
-    \section1 Use SSH port forwarding
+    \section1 Application running, terminal access to remote machine and gdbserver available
+
+    This case is almost identical to the previous section, except that
+    \c {gdbserver} is started differently:
+
+    \code
+    gdbserver --attach :1234 <PID of running application>
+    \endcode
+
+    \section2 Use SSH port forwarding
 
     To enable debugging on remote targets that cannot expose GDB server ports,
     map the remote ports to local ports using SSH tunneling. \QC automatically
@@ -630,10 +654,12 @@
 /*!
     \page creator-how-to-debug-remotely-cdb.html
     \previouspage creator-how-tos.html
-
     \ingroup creator-how-to-debug
+    \title Debug remotely with CDB in special cases
 
-    \title Debug remotely with CDB
+    If the requirements for the automated setup in \l{Remote Debugging}
+    are not met and your remote machine is running Windows, you can still
+    use \QC and CDB to debug your application.
 
     In remote mode, the local CDB process talks to a CDB process that runs on
     the remote machine. The process is started with special command-line options
@@ -2200,7 +2226,7 @@
 
     \section2 Cleaning Builds
 
-    If out-of-date .pdb files make debugging slower, try a clean build.
+    If out-of-date \c .pdb files make debugging slower, try a clean build.
 
     \section2 Disabling Incremental Linking
 
@@ -2209,14 +2235,14 @@
     linking.
 
     When using CMake as the build system, add the following line to the project
-    CMakeLists.txt file:
+    \c CMakeLists.txt file:
 
     \badcode
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /INCREMENTAL:NO" )
     \endcode
 
     When using qmake as the build system, add the following line to the project
-    .pro file:
+    \c .pro file:
 
     \badcode
     QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO

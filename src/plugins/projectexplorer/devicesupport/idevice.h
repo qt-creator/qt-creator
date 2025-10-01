@@ -295,7 +295,7 @@ public:
 
     void autoDetectDeviceTools();
 
-    virtual bool supportsProject(Project *project) const;
+    virtual bool supportsBuildingProject(const Utils::FilePath &projectDir) const;
 
 public:
     Utils::BoolAspect allowEmptyCommand{this};

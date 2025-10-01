@@ -41,15 +41,6 @@ public:
     QString runtimeName;
 };
 
-class RuntimeInfo : public SimulatorEntity
-{
-public:
-    QString version;
-    QString build;
-};
-
-class DeviceTypeInfo : public SimulatorEntity {};
-
 class SimulatorControl
 {
 public:
@@ -64,35 +55,21 @@ public:
 
     using Response = Utils::Result<ResponseData>;
 
-public:
-    static QFuture<QList<DeviceTypeInfo>> updateDeviceTypes();
-    static QFuture<QList<RuntimeInfo>> updateRuntimes();
     static QList<SimulatorInfo> availableSimulators();
     static QFuture<QList<SimulatorInfo>> updateAvailableSimulators(QObject *context);
     static bool isSimulatorRunning(const QString &simUdid);
     static QString bundleIdentifier(const Utils::FilePath &bundlePath);
-    static QString bundleExecutable(const Utils::FilePath &bundlePath);
 
-public:
     static QFuture<Response> startSimulator(const QString &simUdid);
     static QFuture<Response> installApp(const QString &simUdid, const Utils::FilePath &bundlePath);
     static QFuture<Response> launchApp(const QString &simUdid,
                                        const QString &bundleIdentifier,
                                        bool waitForDebugger,
                                        const QStringList &extraArgs,
-                                       const QString &stdoutPath = QString(),
-                                       const QString &stderrPath = QString());
-    static QFuture<Response> deleteSimulator(const QString &simUdid);
-    static QFuture<Response> resetSimulator(const QString &simUdid);
-    static QFuture<Response> renameSimulator(const QString &simUdid, const QString &newName);
-    static QFuture<Response> createSimulator(const QString &name,
-                                             const DeviceTypeInfo &deviceType,
-                                             const RuntimeInfo &runtime);
-    static QFuture<Response> takeSceenshot(const QString &simUdid, const QString &filePath);
+                                       const QString &stdoutPath = {},
+                                       const QString &stderrPath = {});
 };
 
 } // Ios::Internal
 
-Q_DECLARE_METATYPE(Ios::Internal::DeviceTypeInfo)
-Q_DECLARE_METATYPE(Ios::Internal::RuntimeInfo)
 Q_DECLARE_METATYPE(Ios::Internal::SimulatorInfo)

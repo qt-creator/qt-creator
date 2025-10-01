@@ -12,7 +12,6 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/coreplugintr.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iwelcomepage.h>
@@ -104,8 +103,7 @@ static void requestRestart()
 {
     InfoBar *infoBar = ICore::popupInfoBar();
     if (infoBar->canInfoBeAdded(kRestartSetting)) {
-        Utils::InfoBarEntry
-            info(kRestartSetting, Core::Tr::tr("Plugin changes will take effect after restart."));
+        Utils::InfoBarEntry info(kRestartSetting, msgPluginChangesRequireRestart());
         info.setTitle(Tr::tr("Restart Required"));
         info.setInfoType(InfoLabel::Information);
         info.addCustomButton(

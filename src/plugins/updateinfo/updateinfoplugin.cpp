@@ -3,8 +3,8 @@
 
 #include "updateinfoplugin.h"
 
-#include "settingspage.h"
 #include "updateinfoservice.h"
+#include "updateinfosettings.h"
 #include "updateinfotools.h"
 #include "updateinfotr.h"
 
@@ -531,7 +531,7 @@ Result<> UpdateInfoPlugin::initialize(const QStringList &)
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &UpdateInfoPlugin::saveSettings);
 
-    (void) new SettingsPage(this);
+    setupSettings(this);
 
     auto mtools = ActionManager::actionContainer(Constants::M_TOOLS);
     ActionContainer *mmaintenanceTool = ActionManager::createMenu(M_MAINTENANCE_TOOL);

@@ -82,7 +82,7 @@ static InfoBarEntry createInfoBarEntry(const FilePath &filePath)
     };
     const bool enableAddToProjectButton = !ProjectManager::isAnyProjectParsing()
                                           && !ProjectManager::isKnownFile(filePath);
-    infoBarEntry.addCustomButton(Tr::tr("Add to project..."), addToProject, {}, {},
+    infoBarEntry.addCustomButton(Tr::tr("Add to Project..."), addToProject, {}, {},
                                  enableAddToProjectButton);
     return infoBarEntry;
 }

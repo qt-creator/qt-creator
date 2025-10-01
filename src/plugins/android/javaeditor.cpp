@@ -3,8 +3,8 @@
 
 #include "javaeditor.h"
 #include "androidconstants.h"
+#include "androidtr.h"
 
-#include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 
 #include <texteditor/codeassist/keywordscompletionassist.h>
@@ -96,7 +96,7 @@ public:
             "transient", "try", "void", "volatile", "while"
         };
         setId(Constants::JAVA_EDITOR_ID);
-        setDisplayName(::Core::Tr::tr("Java Editor"));
+        setDisplayName(Tr::tr("Java Editor"));
         addMimeType(Utils::Constants::JAVA_MIMETYPE);
 
         setDocumentCreator(createJavaDocument);

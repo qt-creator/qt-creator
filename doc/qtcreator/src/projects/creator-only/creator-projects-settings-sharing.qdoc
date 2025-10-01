@@ -15,11 +15,11 @@
 
     \title Share project settings
 
-    \QC stores user-specific project settings in a \e {.user} file located
+    \QC stores user-specific project settings in a \c {.user} file located
     in a directory \e .qtcreator/ under the project directory. You can
-    share these settings between several projects as a \e {.shared} file
+    share these settings between several projects as a \c {.shared} file
     (such as, \c {CMakeLists.txt.shared}, \c {qtcreator.pro.shared}, or
-    \c {qtcreator.qbs.shared}). It has the same XML structure as a \e {.user}
+    \c {qtcreator.qbs.shared}). It has the same XML structure as a \c {.user}
     file, but only has the settings to share.
 
     To share CMake project settings, use \l{CMake Presets} or a
@@ -27,18 +27,18 @@
 
     \section1 Create a shared settings file
 
-    The easiest way to create a \e {.shared} file is to copy settings from the
-    \e {.user} file. Typically, you would share some of the values in the
+    The easiest way to create a \c {.shared} file is to copy settings from the
+    \c {.user} file. Typically, you would share some of the values in the
     \c ProjectExplorer.Project.EditorSettings section.
 
     \note You must always specify the
     \c ProjectExplorer.Project.Updater.FileVersion variable and use the same
-    value for it as in the \e {.user} file.
+    value for it as in the \c {.user} file.
 
-    You can then deliver the \e {.shared} file to other developers or copy it to
+    You can then deliver the \c {.shared} file to other developers or copy it to
     other development PCs.
 
-    The following is an example of a \e {.shared} file:
+    The following is an example of a \c {.shared} file:
 
     \code
     <?xml version="1.0" encoding="UTF-8"?>
@@ -64,13 +64,13 @@
 
     The first time \QC loads the project after you add shared settings,
     it overwrites the user settings with them. If you open the project for
-    the first time and \QC has not created a \e {.user} file, the settings
-    in the \e {.shared} file take effect immediately.
+    the first time and \QC has not created a \c {.user} file, the settings
+    in the \c {.shared} file take effect immediately.
 
-    If you receive a \e {.shared} file and do not want to use a particular
+    If you receive a \c {.shared} file and do not want to use a particular
     setting in it, you can change it. \QC marks it a \e sticky setting. The next
     time you open a project, the setting is not updated. \QC tracks sticky
-    settings in the \e {.user} file and removes the mark if the values in the
+    settings in the \c {.user} file and removes the mark if the values in the
     user and shared files eventually become identical. This is to avoid
     a permanent sticky setting that was created just because you wanted to try
     something out.

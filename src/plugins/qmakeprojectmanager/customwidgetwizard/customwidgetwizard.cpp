@@ -9,7 +9,6 @@
 #include "../qmakeprojectmanagertr.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorertr.h>
 
 #include <qtsupport/qtsupportconstants.h>
 
@@ -22,7 +21,7 @@ CustomWidgetWizard::CustomWidgetWizard()
 {
     setId("P.Qt4CustomWidget");
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY));
-    setDisplayCategory(ProjectExplorer::Tr::tr(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));
+    setDisplayCategory(Core::msgWizardDisplayCategoryOther());
     setDisplayName(Tr::tr("Qt Custom Designer Widget"));
     setDescription(Tr::tr("Creates a Qt Custom Designer Widget or a Custom Widget Collection."));
     setIcon(themedIcon(":/wizards/images/gui.png"));

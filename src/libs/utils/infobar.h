@@ -177,4 +177,6 @@ private:
     bool m_isShowingDetailsWidget = false;
 };
 
+QTCREATOR_UTILS_EXPORT QString msgDoNotShowAgain();
+
 } // namespace Utils

@@ -1250,10 +1250,9 @@ FilePaths Internal::IDevicePrivate::autoDetectionPaths() const
     return paths;
 }
 
-bool IDevice::supportsProject(Project *project) const
+bool IDevice::supportsBuildingProject(const FilePath &projectDir) const
 {
-    Q_UNUSED(project);
-    return true;
+    return handlesFile(projectDir);
 }
 
 } // namespace ProjectExplorer

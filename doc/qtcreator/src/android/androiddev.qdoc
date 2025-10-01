@@ -143,7 +143,7 @@
     \endcode
 
     You can view the latest version of the configuration file that is up-to-date
-    with the Android SDK and NDK changes, \l{sdk_definitions.json}, in Git.
+    with the Android SDK and NDK changes, \l {sdk_definitions.json}{\c sdk_definitions.json}, in Git.
 
     \note For Qt 6.5 or later, \QC reads the NDK version that was used for
     building Qt from \c modules/Core.json and uses it instead of the version
@@ -256,8 +256,9 @@
 
     \title Manage AVDs
 
-    To view and add Android Virtual Devices (AVD), go to \preferences >
-    \uicontrol Devices.
+    \include {androiddev.qdoc} {android-emulator-info}
+
+    To view and add AVDs, go to \preferences > \uicontrol Devices.
 
     \image {qtcreator-android-avd-manager.webp} {Android device in Devices preferences}
 
@@ -303,6 +304,8 @@
     \ingroup creator-how-to-android
 
     \title Create an Android Virtual Device (AVD)
+
+    \include {androiddev.qdoc} {android-emulator-info}
 
     You can create AVDs for:
 
@@ -388,3 +391,11 @@
     \sa {Android}{How To: Develop for Android}, {Developing for Android},
     {Configure on-device developer options}
 */
+
+//! [android-emulator-info]
+
+    To emulate Android devices on Linux, \macos, or Windows, use an
+    Android Emulator. The Android Emulator runs the Android operating system
+    in a virtual machine called an Android Virtual Device (AVD).
+
+//! [android-emulator-info]

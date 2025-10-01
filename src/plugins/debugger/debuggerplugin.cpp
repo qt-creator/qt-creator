@@ -1683,7 +1683,7 @@ void DebuggerPluginPrivate::attachToRunningApplication()
     kitChooser->setShowIcons(true);
 
     auto dlg = new DeviceProcessesDialog(kitChooser, ICore::dialogParent());
-    dlg->addAcceptButton(Tr::tr("&Attach to Process"));
+    dlg->addAcceptButton(msgAttachToProcess());
     dlg->showAllDevices();
     if (dlg->exec() == QDialog::Rejected) {
         delete dlg;
@@ -2203,13 +2203,13 @@ bool wantRunTool(ToolMode toolMode, const QString &toolName)
         QString currentMode;
         switch (buildType) {
             case BuildConfiguration::Debug:
-                currentMode = Tr::tr("Debug");
+                currentMode = msgBuildConfigurationDebug();
                 break;
             case BuildConfiguration::Profile:
-                currentMode = Tr::tr("Profile");
+                currentMode = msgBuildConfigurationProfile();
                 break;
             case BuildConfiguration::Release:
-                currentMode = Tr::tr("Release");
+                currentMode = msgBuildConfigurationRelease();
                 break;
             default:
                 QTC_CHECK(false);

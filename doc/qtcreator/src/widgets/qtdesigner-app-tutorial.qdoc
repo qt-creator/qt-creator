@@ -97,19 +97,19 @@
 
     \list
 
-        \li main.cpp
-        \li textfinder.h
-        \li textfinder.cpp
-        \li textfinder.ui
-        \li CMakeLists.txt
+        \li \c main.cpp
+        \li \c textfinder.h
+        \li \c textfinder.cpp
+        \li \c textfinder.ui
+        \li \c CMakeLists.txt
 
     \endlist
 
     \image {qtcreator-textfinder-contents.png} {TextFinder project contents}
 
-    The .h and .cpp files come with the necessary boiler plate code.
+    The \c .h and \c .cpp files come with the necessary boiler plate code.
 
-    If you selected CMake as the build system, \QC created a CMakeLists.txt
+    If you selected CMake as the build system, \QC created a \c CMakeLists.txt
     project file for you.
 
     \section1 Fill in the missing pieces
@@ -123,7 +123,7 @@
 
     \list 1
 
-        \li In the \uicontrol {Edit} mode, double-click the textfinder.ui file in the
+        \li In the \uicontrol {Edit} mode, double-click the \c textfinder.ui file in the
             \uicontrol{Projects} view to launch the integrated \QD.
 
         \li Drag the following widgets to the form:
@@ -187,9 +187,9 @@
                     then select \uicontrol OK.
 
                     This adds a private slot, \c{on_findButton_clicked()}, to the
-                    header file, textfinder.h and a private function,
+                    header file, \c textfinder.h and a private function,
                     \c{TextFinder::on_findButton_clicked()}, to the
-                    source file, textfinder.cpp.
+                    source file, \c textfinder.cpp.
 
             \endlist
 
@@ -202,7 +202,7 @@
 
     \section2 Complete the header file
 
-    The textfinder.h file already has the necessary #includes, a constructor,
+    The \c textfinder.h file already has the necessary #includes, a constructor,
     a destructor, and the \c{Ui} object. You need to add a private function,
     \c{loadTextFile()}, to read and display the contents of the input text file
     in the QTextEdit.
@@ -222,12 +222,12 @@
     \section2 Complete the source file
 
     Now that the header file is complete, move on to the source file,
-    textfinder.cpp.
+    \c textfinder.cpp.
 
     \list 1
 
         \li In the \uicontrol{Projects} view in the \uicontrol Edit view, double-click the
-            textfinder.cpp file to open it for editing.
+            \c textfinder.cpp file to open it for editing.
 
         \li Add code to load a text file using QFile, read it with QTextStream,
             and then display it on \c{textEdit} with
@@ -236,7 +236,7 @@
             \snippet textfinder/textfinder.cpp 0
 
         \li To use QFile and QTextStream, add the following #includes to
-            textfinder.cpp:
+            \c textfinder.cpp:
 
             \snippet textfinder/textfinder.cpp 1
 
@@ -253,7 +253,7 @@
     \endlist
 
     The following line of code automatically calls the \c{on_findButton_clicked()}
-    slot in the uic generated ui_textfinder.h file:
+    slot in the uic generated \c ui_textfinder.h file:
 
     \code
     QMetaObject::connectSlotsByName(TextFinder);
@@ -261,9 +261,9 @@
 
     \section2 Create a resource file
 
-    You need a resource file (.qrc) within which you embed the input
-    text file. The input file can be any .txt file with a paragraph of text.
-    Create a text file called input.txt and store it in the textfinder
+    You need a resource file (\c .qrc) within which you embed the input
+    text file. The input file can be any \c .txt file with a paragraph of text.
+    Create a text file called \c input.txt and store it in the textfinder
     folder.
 
     To add a resource file:
@@ -299,7 +299,7 @@
             (/).
 
         \li Select \uicontrol Add > \uicontrol {Add Files}, to locate and add
-            input.txt.
+            \c input.txt.
 
             \image {qtcreator-add-resource.png} {Editing resource files}
 
@@ -308,7 +308,7 @@
     \section1 Add resources to the project file
 
     For the text file to appear when you run the application, you must specify
-    the resource file as a source file in the \e CMakeLists.txt file that the
+    the resource file as a source file in the \c CMakeLists.txt file that the
     wizard created for you:
 
     \quotefromfile textfinder/CMakeLists.txt

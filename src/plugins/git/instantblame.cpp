@@ -13,7 +13,6 @@
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditortr.h>
 #include <texteditor/textmark.h>
 
 #include <utils/filepath.h>
@@ -58,7 +57,7 @@ BlameMark::BlameMark(const FilePath &fileName, int lineNumber, const CommitInfo 
     setActionsProvider([info] {
         QAction *copyToClipboardAction = new QAction;
         copyToClipboardAction->setIcon(Icon::fromTheme("edit-copy"));
-        copyToClipboardAction->setToolTip(TextEditor::Tr::tr("Copy Hash to Clipboard"));
+        copyToClipboardAction->setToolTip(Tr::tr("Copy Hash to Clipboard"));
         QObject::connect(copyToClipboardAction, &QAction::triggered, [info] {
             Utils::setClipboardAndSelection(info.hash);
         });

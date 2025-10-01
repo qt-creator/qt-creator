@@ -23,7 +23,6 @@
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorertr.h>
 
 #include <client/bridgedfileaccess.h>
 #include <client/cmdbridgeclient.h>
@@ -1053,8 +1052,7 @@ public:
         m_log = new QTextBrowser;
         m_log->setVisible(dockerDeviceLog().isDebugEnabled());
 
-        const QString fail = QString{"Docker: "}
-                             + ::ProjectExplorer::Tr::tr("The process failed to start.");
+        const QString fail = QString{"Docker: "} + msgProcessFailedToStart();
         auto errorLabel = new InfoLabel(fail, InfoLabel::Error, this);
         errorLabel->setVisible(false);
 
@@ -1125,7 +1123,8 @@ public:
         m_process->start();
     }
 
-    DockerDevice::Ptr createDevice() const
+    using DockerDevicePtr = DockerDevice::Ptr; // trick lupdate, QTBUG-140636
+    DockerDevicePtr createDevice() const
     {
         const QModelIndexList selectedRows = m_view->selectionModel()->selectedRows();
         QTC_ASSERT(selectedRows.size() == 1, return {});
@@ -1133,7 +1132,7 @@ public:
             m_proxyModel->mapToSource(selectedRows.front()));
         QTC_ASSERT(item, return {});
 
-        DockerDevice::Ptr device = DockerDevice::create();
+        DockerDevicePtr device = DockerDevice::create();
         device->repo.setValue(item->repo);
         device->tag.setValue(item->tag);
         device->imageId.setValue(item->imageId);
@@ -1358,6 +1357,13 @@ bool DockerDevice::supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDevic
 {
     return targetDeviceTypes.contains(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
            || IDevice::supportsQtTargetDeviceType(targetDeviceTypes);
+}
+
+bool DockerDevice::supportsBuildingProject(const Utils::FilePath &projectDir) const
+{
+    if (ensureReachable(projectDir))
+        return true;
+    return handlesFile(projectDir);
 }
 
 } // namespace Docker::Internal

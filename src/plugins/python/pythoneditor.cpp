@@ -15,7 +15,6 @@
 #include "pythonutils.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreplugintr.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -306,7 +305,7 @@ public:
     PythonEditorFactory()
     {
         setId(Constants::C_PYTHONEDITOR_ID);
-        setDisplayName(::Core::Tr::tr(Constants::C_EDITOR_DISPLAY_NAME));
+        setDisplayName(Tr::tr("Python Editor"));
         addMimeType(Constants::C_PY_MIMETYPE);
 
         setOptionalActionMask(OptionalActions::Format

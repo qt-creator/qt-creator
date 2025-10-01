@@ -10,6 +10,10 @@
     \title Creating Plugins
 */
 /*!
+    \externalpage https://github.com/qt-creator/extension-registry
+    \title \QC extension registry
+*/
+/*!
     \externalpage https://doc.qt.io/qtcreator-extending/lua-extensions.html
     \title Extending \QC with Lua
 */
@@ -324,4 +328,8 @@
 /*!
     \externalpage https://www.rust-lang.org/
     \title Rust
+*/
+/*!
+    \externalpage https://www.qt.io/academy/course-catalog#getting-started-with-qt-ai-assistant
+    \title Qt Academy: Getting Started With Qt AI Assistant
 */

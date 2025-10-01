@@ -205,9 +205,9 @@ StartApplicationDialog::StartApplicationDialog()
 
     channelOverrideLabel = new QLabel(Tr::tr("Override server channel:"), this);
     channelOverrideEdit = new QLineEdit(this);
-    //: "For example, tcp://127.0.0.1:1234, /dev/ttyS0, COM1"
+    //: "For example, /dev/ttyS0, COM1, 127.0.0.1:1234"
     channelOverrideEdit->setPlaceholderText(
-        Tr::tr("For example, %1").arg("tcp://127.0.0.1:1234, /dev/ttyS0, COM1"));
+        Tr::tr("For example, %1").arg("/dev/ttyS0, COM1, 127.0.0.1:1234"));
 
     localExecutablePathChooser = new PathChooser(this);
     localExecutablePathChooser->setExpectedKind(PathChooser::File);
@@ -407,14 +407,10 @@ void StartApplicationDialog::run(bool attachRemote)
 
     DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     const QString inputAddress = dialog.channelOverrideEdit->text();
-    if (!inputAddress.isEmpty()) {
+    if (!inputAddress.isEmpty())
         rp.setRemoteChannel(inputAddress);
-    } else {
-        QUrl channel;
-        channel.setHost(dev->sshParameters().host());
-        channel.setPort(newParameters.serverPort);
-        rp.setRemoteChannel(channel);
-    }
+    else
+        rp.setRemoteChannel(dev->sshParameters().host() + ':' + QString::number(newParameters.serverPort));
     rp.setDisplayName(newParameters.displayName());
     rp.setBreakOnMain(newParameters.breakAtMain);
     rp.setDebugInfoLocation(newParameters.debugInfoLocation);
@@ -437,7 +433,7 @@ void StartApplicationDialog::run(bool attachRemote)
         rp.setStartMode(AttachToRemoteServer);
         rp.setCloseMode(KillAtClose);
         rp.setUseContinueInsteadOfRun(true);
-        rp.setDisplayName(Tr::tr("Attach to %1").arg(rp.remoteChannel().toDisplayString()));
+        rp.setDisplayName(Tr::tr("Attach to %1").arg(rp.remoteChannel()));
     }
 
     runControl->setRunRecipe(debuggerRecipe(runControl, rp));
@@ -580,10 +576,7 @@ void runAttachToQmlPortDialog()
     rp.setQmlServer(qmlServer);
 
     const SshParameters sshParameters = device->sshParameters();
-    QUrl channel;
-    channel.setHost(sshParameters.host());
-    channel.setPort(sshParameters.port());
-    rp.setRemoteChannel(channel);
+    rp.setRemoteChannel(sshParameters.host() + ':' + QString::number(sshParameters.port()));
     rp.setStartMode(AttachToQmlServer);
 
     runControl->setRunRecipe(debuggerRecipe(runControl, rp));

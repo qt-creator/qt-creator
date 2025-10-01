@@ -44,9 +44,9 @@ QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) co
     }
     QtTestFramework &qtSettings = theQtTestFramework();
     if (qtSettings.useXMLOutput())
-        arguments << QString{"-o -,xml"};
+        arguments << "-o" << "-,xml";
     else
-        arguments << QString{"-o -,txt"};
+        arguments << "-o" << "-,txt";
 
     if (!testCases().isEmpty())
         arguments << quoteIfNeeded(testCases(), isDebugRunMode());

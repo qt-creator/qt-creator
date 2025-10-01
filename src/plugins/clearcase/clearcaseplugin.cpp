@@ -44,7 +44,6 @@
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
 #include <vcsbase/vcsbaseplugin.h>
-#include <vcsbase/vcsbasetr.h>
 #include <vcsbase/vcscommand.h>
 
 #include <QAbstractButton>
@@ -298,32 +297,29 @@ public:
 
     ClearCaseSettingsPage m_settingsPage;
 
-    VcsEditorFactory logEditorFactory {{
-        LogOutput,
-        LOG_EDITOR_ID,
-        VcsBase::Tr::tr("ClearCase File Log Editor"),   // display_name
-        "text/vnd.qtcreator.clearcase.log",
-        [] { return new ClearCaseEditorWidget; },
-        std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory logEditorFactory{
+        {LogOutput,
+         LOG_EDITOR_ID,
+         Tr::tr("ClearCase File Log Editor"), // display_name
+         "text/vnd.qtcreator.clearcase.log",
+         [] { return new ClearCaseEditorWidget; },
+         std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory annotateEditorFactory {{
-        AnnotateOutput,
-        ANNOTATION_EDITOR_ID,
-        VcsBase::Tr::tr("ClearCase Annotation Editor"),   // display_name
-        "text/vnd.qtcreator.clearcase.annotation",
-        [] { return new ClearCaseEditorWidget; },
-        std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory annotateEditorFactory{
+        {AnnotateOutput,
+         ANNOTATION_EDITOR_ID,
+         Tr::tr("ClearCase Annotation Editor"), // display_name
+         "text/vnd.qtcreator.clearcase.annotation",
+         [] { return new ClearCaseEditorWidget; },
+         std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)}};
 
-    VcsEditorFactory diffEditorFactory {{
-        DiffOutput,
-        DIFF_EDITOR_ID,
-        VcsBase::Tr::tr("ClearCase Diff Editor"),   // display_name
-        "text/x-patch",
-        [] { return new ClearCaseEditorWidget; },
-        std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)
-    }};
+    VcsEditorFactory diffEditorFactory{
+        {DiffOutput,
+         DIFF_EDITOR_ID,
+         Tr::tr("ClearCase Diff Editor"), // display_name
+         "text/x-patch",
+         [] { return new ClearCaseEditorWidget; },
+         std::bind(&ClearCasePluginPrivate::vcsDescribe, this, _1, _2)}};
 
 #ifdef WITH_TESTS
     bool m_fakeClearTool = false;
@@ -732,13 +728,13 @@ ClearCasePluginPrivate::ClearCasePluginPrivate()
     status.addToContainer(CMD_ID_CLEARCASE_MENU);
     m_commandLocator->appendCommand(status.command());
 
-    setupVcsSubmitEditor(this, {
-        Constants::CLEARCASE_SUBMIT_MIMETYPE,
-        Constants::CLEARCASECHECKINEDITOR_ID,
-        VcsBase::Tr::tr("ClearCase Check In Editor"),
-        VcsBaseSubmitEditorParameters::DiffFiles,
-        [] { return new ClearCaseSubmitEditor; }
-    });
+    setupVcsSubmitEditor(
+        this,
+        {Constants::CLEARCASE_SUBMIT_MIMETYPE,
+         Constants::CLEARCASECHECKINEDITOR_ID,
+         Tr::tr("ClearCase Check In Editor"),
+         VcsBaseSubmitEditorParameters::DiffFiles,
+         [] { return new ClearCaseSubmitEditor; }});
 }
 
 // called before closing the submit editor

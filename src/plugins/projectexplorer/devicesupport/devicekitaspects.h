@@ -12,7 +12,6 @@ namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
 class Kit;
-class Project;
 
 class PROJECTEXPLORER_EXPORT RunDeviceTypeKitAspect
 {
@@ -52,7 +51,6 @@ public:
     static Utils::Id deviceId(const Kit *k);
     static void setDevice(Kit *k, IDeviceConstPtr dev);
     static void setDeviceId(Kit *k, Utils::Id dataId);
-    static bool supportsProject(Kit *k, Project *project);
 };
 
 } // namespace ProjectExplorer

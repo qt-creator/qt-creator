@@ -59,7 +59,7 @@ protected:
 
 struct EditorToolBarPrivate
 {
-    explicit EditorToolBarPrivate(QWidget *parent, EditorToolBar *q);
+    explicit EditorToolBarPrivate(EditorToolBar *q);
 
     QComboBox *m_editorList;
     QToolButton *m_closeEditorButton;
@@ -86,22 +86,22 @@ struct EditorToolBarPrivate
     bool m_isStandalone;
 };
 
-EditorToolBarPrivate::EditorToolBarPrivate(QWidget *parent, EditorToolBar *q)
+EditorToolBarPrivate::EditorToolBarPrivate(EditorToolBar *q)
     : m_editorList(new QComboBox(q))
     , m_closeEditorButton(new QToolButton(q))
     , m_lockButton(new QToolButton(q))
     , m_dragHandle(new QToolButton(q))
     , m_dragHandleMenu(nullptr)
-    , m_goBackAction(new QAction(Utils::Icons::PREV_TOOLBAR.icon(), Tr::tr("Go Back"), parent))
-    , m_goForwardAction(new QAction(Utils::Icons::NEXT_TOOLBAR.icon(), Tr::tr("Go Forward"), parent))
+    , m_goBackAction(new QAction(Utils::Icons::PREV_TOOLBAR.icon(), Tr::tr("Go Back"), q))
+    , m_goForwardAction(new QAction(Utils::Icons::NEXT_TOOLBAR.icon(), Tr::tr("Go Forward"), q))
     , m_backButton(new ButtonWithMenu(q))
     , m_forwardButton(new ButtonWithMenu(q))
     , m_splitButton(new QToolButton(q))
     , m_horizontalSplitAction(
-          new QAction(Utils::Icons::SPLIT_HORIZONTAL.icon(), Tr::tr("Split"), parent))
+          new QAction(Utils::Icons::SPLIT_HORIZONTAL.icon(), Tr::tr("Split"), q))
     , m_verticalSplitAction(
-          new QAction(Utils::Icons::SPLIT_VERTICAL.icon(), Tr::tr("Split Side by Side"), parent))
-    , m_splitNewWindowAction(new QAction(Tr::tr("Open in New Window"), parent))
+          new QAction(Utils::Icons::SPLIT_VERTICAL.icon(), Tr::tr("Split Side by Side"), q))
+    , m_splitNewWindowAction(new QAction(Tr::tr("Open in New Window"), q))
     , m_closeSplitButton(new QToolButton(q))
     , m_activeToolBar(nullptr)
     , m_toolBarPlaceholder(new QWidget(q))
@@ -114,7 +114,7 @@ EditorToolBarPrivate::EditorToolBarPrivate(QWidget *parent, EditorToolBar *q)
   Mimic the look of the text editor toolbar as defined in e.g. EditorView::EditorView
   */
 EditorToolBar::EditorToolBar(QWidget *parent) :
-        Utils::StyledBar(parent), d(new EditorToolBarPrivate(parent, this))
+        Utils::StyledBar(parent), d(new EditorToolBarPrivate(this))
 {
     auto toolBarLayout = new QHBoxLayout(this);
     toolBarLayout->setContentsMargins(0, 0, 0, 0);

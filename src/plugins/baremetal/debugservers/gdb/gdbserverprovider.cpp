@@ -157,9 +157,9 @@ Result<> GdbServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp
     rp.setCommandsAfterConnect(initCommands()); // .. and here?
     rp.setCommandsForReset(resetCommands());
     if (m_startupMode == GdbServerProvider::StartupOnNetwork)
-        rp.setRemoteChannel(channel());
+        rp.setRemoteChannel(channel().toString());
     else
-        rp.setRemoteChannelPipe(channelPipe());
+        rp.setRemoteChannel(channelPipe());
     rp.setUseContinueInsteadOfRun(true);
     rp.setUseExtendedRemote(useExtendedRemote());
     rp.setPeripheralDescriptionFile(m_peripheralDescriptionFile);

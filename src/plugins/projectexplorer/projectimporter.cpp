@@ -89,16 +89,16 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath
                               Tr::tr("No build found in %1 matching project %2.")
                                   .arg(importPath.toUserOutput(), projectFilePath().toUserOutput()));
     };
-    qCDebug(log) << "Examining directory" << absoluteImportPath.toUrlishString();
+    qCDebug(log) << "Examining directory" << absoluteImportPath.toUserOutput();
     QString warningMessage;
     QList<void *> dataList = examineDirectory(absoluteImportPath, &warningMessage);
     if (dataList.isEmpty()) {
-        qCDebug(log) << "Nothing to import found in" << absoluteImportPath.toUrlishString();
+        qCDebug(log) << "Nothing to import found in" << absoluteImportPath.toUserOutput();
         handleFailure();
         return result;
     }
     if (!warningMessage.isEmpty()) {
-        qCDebug(log) << "Warning when examining" << absoluteImportPath.toUrlishString();
+        qCDebug(log) << "Warning when examining" << absoluteImportPath.toUserOutput();
         // we should ask user before importing
         if (silent)
             return result;
