@@ -1376,19 +1376,6 @@ bool NodeMetaInfo::isQtQuickBorderImage([[maybe_unused]] SL sl) const
     return isBasedOnCommonType<QtQuick, BorderImage>(m_projectStorage, m_typeId);
 }
 
-bool NodeMetaInfo::isAlias(SL sl) const
-{
-    if (!isValid())
-        return false;
-
-    NanotraceHR::Tracer tracer{"node meta info is alias",
-                               category(),
-                               keyValue("type id", m_typeId),
-                               keyValue("caller location", sl)};
-
-    return false; // all types are already resolved
-}
-
 bool NodeMetaInfo::isQtQuickPositioner(SL sl) const
 {
     if (!isValid())

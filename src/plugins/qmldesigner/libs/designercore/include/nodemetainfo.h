@@ -175,7 +175,6 @@ public:
                          const NodeMetaInfo &metaInfo7,
                          SL sl = {}) const;
 
-    bool isAlias(SL sl = {}) const;
     bool isBool(SL sl = {}) const;
     bool isColor(SL sl = {}) const;
     bool isFloat(SL sl = {}) const;

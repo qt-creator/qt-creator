@@ -1009,8 +1009,7 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
         for (const ModelNode &modelNode : modelNodes) {
             if (modelNode.isValid() && modelNode != parentProperty.parentModelNode()
                 && !modelNode.isAncestorOf(parentProperty.parentModelNode())
-                && (modelNode.metaInfo().isBasedOn(propertyQmlType) || propertyQmlType.isAlias()
-                    || parentProperty.name() == "data"
+                && (modelNode.metaInfo().isBasedOn(propertyQmlType) || parentProperty.name() == "data"
                     || (parentProperty.parentModelNode().metaInfo().defaultPropertyName()
                             == parentProperty.name()
                         && propertyQmlType.isQmlComponent()))) {
