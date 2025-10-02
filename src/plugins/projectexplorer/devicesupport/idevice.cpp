@@ -992,6 +992,13 @@ FilePath IDevice::deviceToolPath(Id toolId) const
     return filePath;
 }
 
+FilePath IDevice::deviceToolPath(Id toolId, const FilePath &deviceHint)
+{
+    IDevice::ConstPtr dev = DeviceManager::deviceForPath(deviceHint);
+    QTC_ASSERT(dev, return {});
+    return dev->deviceToolPath(toolId);
+}
+
 QList<DeviceToolAspect *> IDevice::deviceToolAspects(DeviceToolAspect::ToolType supportType) const
 {
     const QList<DeviceToolAspect *> list =

@@ -246,6 +246,7 @@ public:
     virtual Utils::FilePath rootPath() const;
     virtual Utils::FilePath filePath(const QString &pathOnDevice) const;
 
+    static Utils::FilePath deviceToolPath(Utils::Id toolId, const Utils::FilePath &deviceHint);
     Utils::FilePath deviceToolPath(Utils::Id toolId) const;
     QList<DeviceToolAspect *> deviceToolAspects(DeviceToolAspect::ToolType supportType) const;
 
