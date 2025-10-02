@@ -649,6 +649,8 @@ void EnginesDriver::start()
                 m_runControl->postMessage(msg, NormalMessageFormat);
                 emit done(engine->runParameters().exitCode() ? DoneResult::Error : DoneResult::Success);
             }
+            if (engine->isPrimaryEngine())
+                stop();
         });
         connect(engine, &DebuggerEngine::postMessageRequested, m_runControl, &RunControl::postMessage);
 
