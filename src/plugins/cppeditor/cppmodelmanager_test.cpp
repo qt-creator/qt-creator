@@ -1134,12 +1134,12 @@ void ModelManagerTest::testRenameIncludesInEditor()
     // Copy test files to a temporary directory
     QSet<FilePath> sourceFiles;
     for (const QString &fileName : fileNames) {
-        const QString &file = workingDir.filePath(fileName);
-        QVERIFY(QFile::copy(testDir.file(fileName), file));
+        const FilePath filePath = FilePath::fromString(workingDir.filePath(fileName));
+        QVERIFY(QFile::copy(testDir.file(fileName), filePath.path()));
         // Saving source file names for the model manager update,
         // so we can update just the relevant files.
-        if (ProjectFile::classify(file) == ProjectFile::CXXSource)
-            sourceFiles.insert(FilePath::fromString(file));
+        if (ProjectFile::classify(filePath) == ProjectFile::CXXSource)
+            sourceFiles.insert(filePath);
     }
 
     // Update the c++ model manager and check for the old includes
