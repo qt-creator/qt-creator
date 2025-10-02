@@ -286,7 +286,7 @@ public:
     auto values(const QueryTypes &...queryValues)
     {
         static constexpr auto sourceLocation = source_location::current();
-        return value<Container, capacity>(sourceLocation, queryValues...);
+        return values<Container, capacity>(sourceLocation, queryValues...);
     }
 
     template<typename ResultType,
