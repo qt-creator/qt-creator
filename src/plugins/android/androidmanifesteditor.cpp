@@ -10,8 +10,10 @@
 #include "androidqtversion.h"
 #include "splashscreencontainerwidget.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/helpitem.h>
+#include <coreplugin/helpmanager.h>
+#include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -26,6 +28,7 @@
 #include <projectexplorer/projectwindow.h>
 #include <projectexplorer/target.h>
 
+#include <texteditor/basehoverhandler.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
@@ -35,6 +38,7 @@
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
+#include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
 
 #include <QActionGroup>
@@ -71,7 +75,11 @@ using namespace Utils;
 
 static Q_LOGGING_CATEGORY(androidManifestEditorLog, "qtc.android.manifestEditor", QtWarningMsg)
 
+namespace
+{
 const char ANDROID_GUI_EDITOR_ENABLED_KEY[] = "Android/GuiEditorEnabled";
+constexpr char MANIFEST_GUIDE_BASE[] = "https://developer.android.com/guide/topics/manifest/";
+} // namespace
 
 namespace Android::Internal {
 
@@ -1951,7 +1959,104 @@ private:
     AndroidManifestEditorWidget *m_editorWidget;
 };
 
-// AndroidManifestEditorWidget
+namespace {
+const QStringList manifestSectionKeywords = {
+    "action",
+    "application",
+    "activity",
+    "category",
+    "data",
+    "intent-filter",
+    "manifest",
+    "meta-data",
+    "provider",
+    "receiver",
+    "service",
+    "uses-permission",
+    "uses-sdk",
+    "uses-feature",
+};
+} // namespace
+
+class AndroidManifestHoverHandler final : public TextEditor::BaseHoverHandler
+{
+private:
+    QVariant m_contextHelp;
+    QString m_helpToolTip;
+
+public:
+    const QStringList &keywords() const;
+
+    void identifyMatch(TextEditorWidget *editorWidget, int pos, ReportPriority report) final;
+    void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point) final;
+};
+
+// Expands the word under the cursor (at 'pos') to include common XML/code separators
+// like '-' and '.', treating only specific punctuation and whitespace as breaks.
+QString expandKeyword(QTextCursor cursor, TextEditorWidget &editorWidget, int pos)
+{
+    static TextDocument *document = editorWidget.textDocument();
+    const QList<QChar> delimiters
+        = {'=', '%', '"', '\'', ' ', '\t', '\n', '\r', '\0', '<', '>', '/'};
+    int start = pos;
+    int end = pos;
+
+    while (start > 0) {
+        QChar charBefore = document->characterAt(start - 1);
+        if (delimiters.contains(charBefore))
+            break;
+        start--;
+    }
+
+    int maxPos = editorWidget.textDocument()->document()->characterCount() - 1;
+    while (end < maxPos) {
+        QChar charAt = document->characterAt(end);
+        if (delimiters.contains(charAt))
+            break;
+        end++;
+    }
+    cursor.setPosition(start);
+    cursor.setPosition(end, QTextCursor::KeepAnchor);
+    return cursor.selectedText().trimmed();
+}
+
+void AndroidManifestHoverHandler::identifyMatch(
+    TextEditorWidget *editorWidget, int pos, ReportPriority report)
+{
+    const QScopeGuard cleanup([this, report] { report(priority()); });
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.setPosition(pos);
+    m_helpToolTip.clear();
+    m_contextHelp = QVariant();
+    const QString keyword = expandKeyword(cursor, *editorWidget, pos);
+
+    if (manifestSectionKeywords.contains(keyword)) {
+        QStringList helpIds;
+        m_helpToolTip = Tr::tr("&lt;%11&gt; online docs").arg(keyword);
+        const QString docMark = keyword;
+        const QString internalHelpId = keyword;
+        const QUrl finalUrl = QUrl(MANIFEST_GUIDE_BASE + keyword + "-element");
+        Core::HelpItem helpItem(finalUrl, docMark, Core::HelpItem::Unknown);
+
+        helpIds << internalHelpId;
+        helpItem.setHelpIds(helpIds);
+
+        m_contextHelp = QVariant::fromValue(helpItem);
+    }
+    setPriority(!m_helpToolTip.isEmpty() ? Priority_Help : Priority_None);
+}
+
+void AndroidManifestHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
+{
+    if (m_helpToolTip.isEmpty()) {
+        ToolTip::hide();
+    } else if (toolTip() != m_helpToolTip) {
+        ToolTip::show(point, m_helpToolTip, Qt::MarkdownText, editorWidget, m_contextHelp);
+        setToolTip(m_helpToolTip);
+    }
+}
+
+// AndroidManifestTextEditorWidget
 
 AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent)
     : TextEditorWidget(parent)
@@ -1960,15 +2065,26 @@ AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifest
     textDocument()->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
     setupGenericHighlighter();
     setMarksVisible(false);
-
     // this context is used by the OptionalActions registered for the text editor in
     // the AndroidManifestEditorFactory
     m_context = new Core::IContext(this);
     m_context->setWidget(this);
     m_context->setContext(Core::Context(Constants::ANDROID_MANIFEST_EDITOR_CONTEXT));
-    Core::ICore::addContextObject(m_context);
-}
 
+    m_context->setContextHelpProvider([](const Core::IContext::HelpCallback &callback) {
+        const QVariant tipHelpValue = ToolTip::contextHelp();
+        if (tipHelpValue.canConvert<Core::HelpItem>()) {
+            const Core::HelpItem tipHelp = tipHelpValue.value<Core::HelpItem>();
+            if (!tipHelp.isEmpty())
+                callback(tipHelp); // executes showContextHelp(item)
+        } else {
+            callback(Core::HelpItem());
+        }
+    });
+
+    Core::ICore::addContextObject(m_context);
+    addHoverHandler(new AndroidManifestHoverHandler());
+}
 
 // AndroidManifestEditor
 
