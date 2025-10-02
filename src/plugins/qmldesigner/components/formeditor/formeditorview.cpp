@@ -15,7 +15,6 @@
 #include "rotationtool.h"
 #include "selectiontool.h"
 
-#include <qmldesignertr.h>
 #include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
 #include <customnotifications.h>
@@ -23,10 +22,12 @@
 #include <model.h>
 #include <modelnode.h>
 #include <nodeabstractproperty.h>
+#include <nodehints.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <qml3dnode.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignertr.h>
 #include <rewriterview.h>
 #include <variantproperty.h>
 #include <zoomaction.h>
@@ -811,6 +812,14 @@ QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)
     return QmlItemNode();
 }
 
+static void updateItemClipsChildrenToShape(const QList<FormEditorItem *> &items)
+{
+    for (FormEditorItem *item : items) {
+        if (NodeHints::fromModelNode(item->qmlItemNode()).forceClip())
+            item->setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
+    }
+}
+
 void FormEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList)
 {
     NanotraceHR::Tracer tracer{"form editor view instance property changed", category()};
@@ -832,6 +841,12 @@ void FormEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Proper
             }
         }
     }
+
+    std::ranges::sort(changedItems);
+    auto removed = std::ranges::unique(changedItems);
+    changedItems.erase(removed.begin(), removed.end());
+
+    updateItemClipsChildrenToShape(changedItems);
     m_currentTool->formEditorItemsChanged(changedItems);
     if (needEffectUpdate)
         updateHasEffects();

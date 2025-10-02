@@ -233,8 +233,6 @@ void FormEditorItem::synchronizeOtherProperty(PropertyNameView propertyName)
         setFlag(QGraphicsItem::ItemClipsToShape, itemNode.instanceValue("clip").toBool());
         setFlag(QGraphicsItem::ItemClipsChildrenToShape, itemNode.instanceValue("clip").toBool());
     }
-    if (NodeHints::fromModelNode(itemNode).forceClip())
-        setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
 
     if (propertyName == "z")
         setZValue(itemNode.instanceValue("z").toDouble());
