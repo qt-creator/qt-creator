@@ -73,6 +73,7 @@ public:
     virtual SmallTypeIds<16> prototypeAndSelfIds(TypeId type) const = 0;
     virtual SmallTypeIds<16> prototypeIds(TypeId type) const = 0;
     virtual SmallTypeIds<64> heirIds(TypeId typeId) const = 0;
+    virtual bool inheritsAll(Utils::span<const TypeId> typeIds, TypeId baseTypeId) const = 0;
     virtual TypeId basedOn(TypeId, TypeId) const = 0;
     virtual TypeId basedOn(TypeId, TypeId, TypeId) const = 0;
     virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId) const = 0;

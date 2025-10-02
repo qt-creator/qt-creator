@@ -891,6 +891,16 @@ const Storage::Info::ExportedTypeName &ModelNode::exportedTypeName(SL sl) const
     return m_internalNode->exportedTypeName;
 }
 
+TypeId ModelNode::typeId() const
+{
+    if (!isValid())
+        return TypeId{};
+
+    NanotraceHR::Tracer tracer{"model node type id", category(), keyValue("model node", *this)};
+
+    return m_internalNode->exportedTypeName.typeId;
+}
+
 bool ModelNode::hasMetaInfo(SL sl) const
 {
     if (!isValid())

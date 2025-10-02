@@ -269,6 +269,10 @@ public:
                 (QmlDesigner::TypeId type),
                 (const, override));
     MOCK_METHOD(QmlDesigner::SmallTypeIds<64>, heirIds, (QmlDesigner::TypeId type), (const, override));
+    MOCK_METHOD(bool,
+                inheritsAll,
+                (Utils::span<const QmlDesigner::TypeId> typeIds, QmlDesigner::TypeId baseType),
+                (const, override));
     MOCK_METHOD(QmlDesigner::TypeId,
                 basedOn,
                 (QmlDesigner::TypeId, QmlDesigner::TypeId),

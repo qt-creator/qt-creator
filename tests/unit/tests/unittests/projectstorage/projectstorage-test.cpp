@@ -7976,6 +7976,54 @@ TEST_F(ProjectStorage, is_not_based_on_if_no_base_type_is_given)
     ASSERT_THAT(base, IsNull());
 }
 
+TEST_F(ProjectStorage, inherits_all)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto baseTypeId = fetchTypeId(sourceId1, "QObject");
+    auto typeId = fetchTypeId(sourceId1, "QObject2");
+    auto typeId2 = fetchTypeId(sourceId1, "QObject3");
+
+    bool inherits = storage.inheritsAll({typeId, typeId2}, baseTypeId);
+
+    ASSERT_TRUE(inherits);
+}
+
+TEST_F(ProjectStorage, dont_inherits_all_invalid)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto baseTypeId = fetchTypeId(sourceId1, "QObject");
+
+    bool inherits = storage.inheritsAll({TypeId{}}, baseTypeId);
+
+    ASSERT_FALSE(inherits);
+}
+
+TEST_F(ProjectStorage, dont_inherits_all_non_heir)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto baseTypeId = fetchTypeId(sourceId1, "QObject");
+    auto typeId = fetchTypeId(sourceId1, "QObject2");
+    auto typeId2 = fetchTypeId(sourceId1, "QObject3");
+
+    bool inherits = storage.inheritsAll({baseTypeId, typeId2}, typeId);
+
+    ASSERT_FALSE(inherits);
+}
+
+TEST_F(ProjectStorage, inherits_all_self)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject2");
+
+    bool inherits = storage.inheritsAll({typeId}, typeId);
+
+    ASSERT_TRUE(inherits);
+}
+
 TEST_F(ProjectStorage, get_imported_type_name_id_for_source_id)
 {
     auto sourceId = sourcePathCache.sourceId("/path/foo.qml");

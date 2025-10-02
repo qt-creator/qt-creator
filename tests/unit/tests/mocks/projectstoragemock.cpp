@@ -46,6 +46,17 @@ void setupBasedOn(ProjectStorageMock &mock)
     ON_CALL(mock, basedOn(_, _, _, _, _, _, _, _, _, _, _, _)).WillByDefault(call);
 }
 
+void setupInheritsAll(ProjectStorageMock &mock)
+{
+    auto call = [&](Utils::span<const TypeId> typeIds, TypeId baseTypeId) -> bool {
+        auto isHeir = [&](TypeId typeId) -> bool { return bool(mock.basedOn(typeId, baseTypeId)); };
+
+        return std::ranges::all_of(typeIds, isHeir);
+    };
+
+    ON_CALL(mock, inheritsAll(_, _)).WillByDefault(call);
+}
+
 } // namespace
 
 ModuleId ProjectStorageMock::createModule(Utils::SmallStringView moduleName,
@@ -421,6 +432,7 @@ ProjectStorageMock::ProjectStorageMock(QmlDesigner::ModulesStorage &modulesStora
 void ProjectStorageMock::setupQtQuick()
 {
     setupBasedOn(*this);
+    setupInheritsAll(*this);
 
     auto qmlModuleId = createModule("QML", ModuleKind::QmlLibrary);
     auto qmlNativeModuleId = createModule("QML", ModuleKind::CppLibrary);

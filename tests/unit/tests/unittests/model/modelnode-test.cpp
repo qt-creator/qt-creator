@@ -108,4 +108,20 @@ TEST_F(ModelNode, get_no_exported_type_name_from_invalid_node)
                 IsExportedTypeName(IsNullModuleId(), IsEmpty(), HasNoVersion(), IsNullTypeId()));
 }
 
+TEST_F(ModelNode, get_type_id)
+{
+    auto typeId = rootNode.typeId();
+
+    ASSERT_THAT(typeId, itemTypeId);
+}
+
+TEST_F(ModelNode, get_invalid_type_id_from_invalid_node)
+{
+    QmlDesigner::ModelNode invalidNode;
+
+    auto typeId = invalidNode.typeId();
+
+    ASSERT_THAT(typeId, IsNullTypeId());
+}
+
 } // namespace

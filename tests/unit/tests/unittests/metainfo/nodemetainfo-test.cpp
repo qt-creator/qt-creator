@@ -246,6 +246,29 @@ TEST_F(NodeMetaInfo, object_no_based_on_item)
     ASSERT_THAT(base, testing::IsFalse());
 }
 
+TEST_F(NodeMetaInfo, object_inherits_all_item)
+{
+    bool inherits = objectMetaInfo.inheritsAll({itemMetaInfo.id()});
+
+    ASSERT_TRUE(inherits);
+}
+
+TEST_F(NodeMetaInfo, item_inherits_not_object)
+{
+    bool inherits = itemMetaInfo.inheritsAll({objectMetaInfo.id()});
+
+    ASSERT_FALSE(inherits);
+}
+
+TEST_F(NodeMetaInfo, invalid_inherits_not_all)
+{
+    QmlDesigner::NodeMetaInfo invalid;
+
+    bool inherits = invalid.inheritsAll({objectMetaInfo.id()});
+
+    ASSERT_FALSE(inherits);
+}
+
 TEST_F(NodeMetaInfo, object_is_not_file_component_in_project)
 {
     bool isFileComponent = objectMetaInfo.isFileComponentInProject();

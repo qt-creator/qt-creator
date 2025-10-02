@@ -1016,6 +1016,19 @@ NodeMetaInfo NodeMetaInfo::basedOn([[maybe_unused]] const NodeMetaInfo &metaInfo
             m_projectStorage};
 }
 
+bool NodeMetaInfo::inheritsAll(Utils::span<const TypeId> typeIds, SL sl) const
+{
+    if (!isValid())
+        return {};
+
+    NanotraceHR::Tracer tracer{"node meta info inherits all",
+                               category(),
+                               keyValue("type id", m_typeId),
+                               keyValue("caller location", sl)};
+
+    return m_projectStorage->inheritsAll(typeIds, m_typeId);
+}
+
 bool NodeMetaInfo::isGraphicalItem(SL sl) const
 {
     if (!isValid())

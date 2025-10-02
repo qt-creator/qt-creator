@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "propertymetainfo.h"
 #include "qmldesignercorelib_global.h"
 
 #include <designercore/tracing/qmldesignertracing.h>
@@ -65,6 +66,8 @@ public:
     explicit operator bool() const { return isValid(); }
     bool exists() const;
     ModelNode parentModelNode() const;
+
+    PropertyMetaInfo metaInfo() const;
 
     bool isDefaultProperty(SL sl = {}) const;
     VariantProperty toVariantProperty(SL sl = {}) const;

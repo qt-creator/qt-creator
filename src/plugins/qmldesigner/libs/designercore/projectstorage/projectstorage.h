@@ -177,6 +177,8 @@ public:
 
     SmallTypeIds<64> heirIds(TypeId typeId) const override;
 
+    bool inheritsAll(Utils::span<const TypeId> typeIds, TypeId baseTypeId) const override;
+
     template<typename... TypeIds>
     TypeId basedOn_(TypeId typeId, TypeIds... baseTypeIds) const;
 

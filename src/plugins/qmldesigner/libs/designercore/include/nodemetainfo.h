@@ -174,6 +174,7 @@ public:
                          const NodeMetaInfo &metaInfo6,
                          const NodeMetaInfo &metaInfo7,
                          SL sl = {}) const;
+    bool inheritsAll(Utils::span<const TypeId> typeIds, SL sl = {}) const;
 
     bool isBool(SL sl = {}) const;
     bool isColor(SL sl = {}) const;

@@ -110,6 +110,18 @@ ModelNode AbstractProperty::parentModelNode() const
     return ModelNode(m_internalNode, m_model.data(), m_view);
 }
 
+PropertyMetaInfo AbstractProperty::metaInfo() const
+{
+    NanotraceHR::Tracer tracer{"abstract property meta info", ModelTracing::category()};
+
+    if (!isValid())
+        return {};
+
+    NodeMetaInfo nodeMetaInfo(m_internalNode->exportedTypeName.typeId, m_model->projectStorage());
+
+    return nodeMetaInfo.property(m_propertyName);
+}
+
 /*!
     Returns whether the property is the default property for the model node.
 */

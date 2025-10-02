@@ -4915,6 +4915,31 @@ TypeId ProjectStorage::basedOn_(TypeId typeId, TypeIds... baseTypeIds) const
     return foundTypeId;
 }
 
+bool ProjectStorage::inheritsAll(Utils::span<const TypeId> typeIds, TypeId baseTypeId) const
+{
+    NanotraceHR::Tracer tracer{"is based on type ids", category()};
+
+    return Sqlite::withImplicitTransaction(database, [&] {
+        auto isHeir = [&](TypeId typeId) -> bool {
+            if (not typeId)
+                return false;
+
+            if (typeId == baseTypeId)
+                return true;
+
+            auto &cache = basesCache[static_cast<std::size_t>(typeId.internalId() - 1)];
+            if (not cache) {
+                cache.emplace(
+                    s->selectPrototypeAndExtensionIdsStatement.values<SmallTypeIds<12>>(typeId));
+            }
+
+            return bool(findTypeId(*cache, baseTypeId));
+        };
+
+        return std::ranges::all_of(typeIds, isHeir);
+    });
+}
+
 template<typename Id>
 ImportedTypeNameId ProjectStorage::fetchImportedTypeNameId(Storage::Synchronization::TypeNameKind kind,
                                                            Id id,

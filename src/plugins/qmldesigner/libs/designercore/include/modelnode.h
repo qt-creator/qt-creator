@@ -171,6 +171,7 @@ public:
 
     NodeMetaInfo metaInfo(SL sl = {}) const;
     const Storage::Info::ExportedTypeName &exportedTypeName(SL sl = {}) const;
+    TypeId typeId() const;
     bool hasMetaInfo(SL sl = {}) const;
 
     bool isSelected(SL sl = {}) const;
