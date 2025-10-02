@@ -431,7 +431,12 @@ void ItemLibraryModel::update(Model *model)
         if (mcuManager.isMCUProject()) {
             const QSet<QString> blockTypes = mcuManager.bannedItems();
 
-            if (blockTypes.contains(QString::fromUtf8(entry.typeName())))
+            QString qualifiedTypeName = QString::fromUtf8(entry.typeName());
+
+            if (!entry.requiredImport().isEmpty())
+                qualifiedTypeName.prepend(entry.requiredImport() + ".");
+
+            if (blockTypes.contains(qualifiedTypeName))
                 blocked = true;
 
             // we need to exclude all items from unsupported imports but only if they are not user-defined modules
