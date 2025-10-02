@@ -652,7 +652,7 @@ const QList<InsertionLocation> InsertionPointLocator::methodDefinition(
 
     const FilePath declFilePath = declaration->filePath();
     FilePath target = declFilePath;
-    if (!ProjectFile::isSource(ProjectFile::classify(declFilePath.path()))) {
+    if (!ProjectFile::isSource(ProjectFile::classify(declFilePath))) {
         FilePath candidate = correspondingHeaderOrSource(declFilePath);
         if (!candidate.isEmpty()
             && !Utils::contains(result, [candidate](const InsertionLocation &loc) {
@@ -752,7 +752,7 @@ InsertionLocation insertLocationForMethodDefinition(Symbol *symbol,
     const InsertionPointLocator locator(refactoring);
     const QList<InsertionLocation> list
             = locator.methodDefinition(symbol, useSymbolFinder, filePath);
-    const bool isHeader = ProjectFile::isHeader(ProjectFile::classify(filePath.path()));
+    const bool isHeader = ProjectFile::isHeader(ProjectFile::classify(filePath));
     const bool hasIncludeGuard = isHeader
             && !file->cppDocument()->includeGuardMacroName().isEmpty();
     int lastLine;

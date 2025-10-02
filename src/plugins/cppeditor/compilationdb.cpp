@@ -115,7 +115,7 @@ static QJsonObject createFileObject(const FilePath &buildDir,
     if (purpose == CompilationDbPurpose::Project) {
         args = QJsonArray::fromStringList(arguments);
 
-        const ProjectFile::Kind kind = ProjectFile::classify(projFile.path.path());
+        const ProjectFile::Kind kind = ProjectFile::classify(projFile.path);
         if (projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
             || projectPart.toolchainType == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
             if (!ProjectFile::isObjC(kind)) {

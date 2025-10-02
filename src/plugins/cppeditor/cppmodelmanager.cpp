@@ -422,7 +422,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
     }
 
     const Toolchain * tc = nullptr;
-    const ProjectFile classifier(filePath, ProjectFile::classify(filePath.toUrlishString()));
+    const ProjectFile classifier(filePath, ProjectFile::classify(filePath));
     if (classifier.isC()) {
         tc = ToolchainKitAspect::cToolchain(project->activeKit());
     } else if (classifier.isCxx() || classifier.isHeader()) {
