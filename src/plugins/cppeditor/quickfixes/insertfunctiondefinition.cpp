@@ -54,19 +54,18 @@ class InsertDefOperation: public CppQuickFixOperation
 {
 public:
     // Make sure that either loc is valid or targetFileName is not empty.
-    InsertDefOperation(const CppQuickFixInterface &interface,
-                       Symbol *decl, SimpleDeclarationAST *declAST, const InsertionLocation &loc,
+    InsertDefOperation(const CppQuickFixInterface &interface, SimpleDeclarationAST *declAST,
+                       const InsertionLocation &loc,
                        const DefPos defpos, const FilePath &targetFileName = {},
                        bool freeFunction = false)
         : CppQuickFixOperation(interface, 0)
-        , m_decl(decl)
         , m_declAST(declAST)
         , m_loc(loc)
         , m_defpos(defpos)
         , m_targetFilePath(targetFileName)
     {
         if (m_defpos == DefPosImplementationFile) {
-            const FilePath declFile = decl->filePath();
+            const FilePath declFile = interface.filePath();
             const FilePath targetFile =  m_loc.isValid() ? m_loc.filePath() : m_targetFilePath;
             const QString resolved = targetFile.relativeNativePathFromDir(declFile.parentDir());
             setPriority(2);
@@ -86,10 +85,12 @@ public:
         InsertionLocation loc,
         DefPos defPos,
         SimpleDeclarationAST *declAST,
-        Symbol *decl,
         const FilePath &targetFilePath,
         ChangeSet *changeSet = nullptr)
     {
+        QTC_ASSERT(declAST->symbols && declAST->symbols->value, return);
+        Symbol * const decl = declAST->symbols->value;
+
         ForwardClassDeclaration * const forwardDecl = decl->asForwardClassDeclaration();
 
         QTC_ASSERT(forwardDecl || (declAST->declarator_list && declAST->declarator_list->value),
@@ -246,10 +247,9 @@ public:
 private:
     void perform() override
     {
-        insertDefinition(this, m_loc, m_defpos, m_declAST, m_decl, m_targetFilePath);
+        insertDefinition(this, m_loc, m_defpos, m_declAST, m_targetFilePath);
     }
 
-    Symbol *m_decl;
     SimpleDeclarationAST *m_declAST;
     InsertionLocation m_loc;
     const DefPos m_defpos;
@@ -492,8 +492,7 @@ private:
             }
             ChangeSet &changeSet = changeSets[targetFilePath];
             InsertDefOperation::insertDefinition(
-                this, loc, setting.defPos, finder.decl(),
-                setting.func->asDeclaration(),targetFilePath, &changeSet);
+                this, loc, setting.defPos, finder.decl(), targetFilePath, &changeSet);
         }
         for (auto it = changeSets.cbegin(); it != changeSets.cend(); ++it)
             refactoring.cppFile(it.key())->apply(it.value());
@@ -618,7 +617,6 @@ private:
                         if (!source.isEmpty()) {
                             op = new InsertDefOperation(
                                 interface,
-                                symbol,
                                 simpleDecl,
                                 InsertionLocation(),
                                 DefPosImplementationFile,
@@ -629,7 +627,6 @@ private:
                     } else {
                         op = new InsertDefOperation(
                             interface,
-                            symbol,
                             simpleDecl,
                             InsertionLocation(),
                             DefPosImplementationFile,
@@ -652,7 +649,6 @@ private:
             if ((func || !isHeaderFile) && (!isFreeFunction || m_defPosOutsideClass)) {
                 result << new InsertDefOperation(
                     interface,
-                    symbol,
                     simpleDecl,
                     InsertionLocation(),
                     DefPosOutsideClass,
@@ -667,7 +663,7 @@ private:
             const InsertionLocation loc
                 = InsertionLocation(interface.filePath(), QString(), QString(), line, column);
             result << new InsertDefOperation(
-                interface, symbol, simpleDecl, loc, DefPosInsideClass, FilePath(), isFreeFunction);
+                interface, simpleDecl, loc, DefPosInsideClass, FilePath(), isFreeFunction);
             return;
         }
     }
