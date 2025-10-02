@@ -81,6 +81,7 @@ private:
     QmlDesigner::ModelNode m_modelNode;
     NodeMetaInfo m_backendValueType;
     QString m_targetName;
+    bool m_isAlias = false;
 };
 
 }
