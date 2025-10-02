@@ -37,6 +37,7 @@ public:
     bool m_useQmllsSemanticHighlighting = false;
     bool m_disableBuiltinCodemodel = false;
     bool m_generateQmllsIniFiles = false;
+    bool m_enableCMakeBuilds = true;
     Utils::FilePath m_executable = {};
 
 protected:

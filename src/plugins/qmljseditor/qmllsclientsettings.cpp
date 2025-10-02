@@ -54,6 +54,7 @@ constexpr char useLatestQmllsKey[] = "useLatestQmlls";
 constexpr char executableSelectionKey[] = "executableSelection";
 constexpr char disableBuiltinCodemodelKey[] = "disableBuiltinCodemodel";
 constexpr char generateQmllsIniFilesKey[] = "generateQmllsIniFiles";
+constexpr char enableCMakeBuildsKey[] = "enableCMakeBuilds";
 constexpr char ignoreMinimumQmllsVersionKey[] = "ignoreMinimumQmllsVersion";
 constexpr char useQmllsSemanticHighlightingKey[] = "enableQmllsSemanticHighlighting";
 constexpr char executableKey[] = "executable";
@@ -251,6 +252,9 @@ static CommandLine commandLineForQmlls(BuildConfiguration *bc)
     if (version >= QVersionNumber(6, 8, 1))
         result.addArgs({"-d", qtVersion->docsPath().path()});
 
+    if (!qmllsSettings()->m_enableCMakeBuilds)
+        result.addArg("--no-cmake-calls");
+
     return result;
 }
 
@@ -312,6 +316,7 @@ public:
     bool useLatestQmlls() const;
     bool disableBuiltinCodemodel() const;
     bool generateQmllsIniFiles() const;
+    bool enableCMakeBuilds() const;
     bool ignoreMinimumQmllsVersion() const;
     bool useQmllsSemanticHighlighting() const;
     bool overrideExecutable() const;
@@ -321,6 +326,7 @@ public:
 private:
     QCheckBox *m_disableBuiltinCodemodel;
     QCheckBox *m_generateQmllsIniFiles;
+    QCheckBox *m_enableCMakeBuilds;
     QCheckBox *m_ignoreMinimumQmllsVersion;
     QCheckBox *m_useQmllsSemanticHighlighting;
 
@@ -372,6 +378,11 @@ bool QmllsClientSettings::applyFromSettingsWidget(QWidget *widget)
         changed = true;
     }
 
+    if (m_enableCMakeBuilds != qmllsWidget->enableCMakeBuilds()) {
+        m_enableCMakeBuilds = qmllsWidget->enableCMakeBuilds();
+        changed = true;
+    }
+
     if (m_ignoreMinimumQmllsVersion != qmllsWidget->ignoreMinimumQmllsVersion()) {
         m_ignoreMinimumQmllsVersion = qmllsWidget->ignoreMinimumQmllsVersion();
         changed = true;
@@ -397,6 +408,7 @@ void QmllsClientSettings::toMap(Store &map) const
     map.insert(executableSelectionKey, static_cast<int>(m_executableSelection));
     map.insert(disableBuiltinCodemodelKey, m_disableBuiltinCodemodel);
     map.insert(generateQmllsIniFilesKey, m_generateQmllsIniFiles);
+    map.insert(enableCMakeBuildsKey, m_enableCMakeBuilds);
     map.insert(ignoreMinimumQmllsVersionKey, m_ignoreMinimumQmllsVersion);
     map.insert(useQmllsSemanticHighlightingKey, m_useQmllsSemanticHighlighting);
     map.insert(executableKey, m_executable.toSettings());
@@ -418,6 +430,7 @@ void QmllsClientSettings::fromMap(const Store &map)
 
     m_disableBuiltinCodemodel = map[disableBuiltinCodemodelKey].toBool();
     m_generateQmllsIniFiles = map[generateQmllsIniFilesKey].toBool();
+    m_enableCMakeBuilds = map[enableCMakeBuildsKey].toBool();
     m_ignoreMinimumQmllsVersion = map[ignoreMinimumQmllsVersionKey].toBool();
     m_useQmllsSemanticHighlighting = map[useQmllsSemanticHighlightingKey].toBool();
     m_executable = Utils::FilePath::fromSettings(map[executableKey]);
@@ -681,6 +694,7 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
           Tr::tr("Use advanced features (renaming, find usages, and so on) (experimental)"), this))
     , m_generateQmllsIniFiles(
           new QCheckBox(Tr::tr("Create .qmlls.ini files for new projects"), this))
+    , m_enableCMakeBuilds(new QCheckBox(Tr::tr("Enable qmlls's CMake integration"), this))
     , m_ignoreMinimumQmllsVersion(new QCheckBox(
           Tr::tr("Allow versions below Qt %1")
               .arg(QmllsClientSettings::mininumQmllsVersion.toString()),
@@ -701,6 +715,7 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
     m_overrideExecutable->setChecked(
         settings->m_executableSelection == QmllsClientSettings::FromUser);
 
+    m_enableCMakeBuilds->setChecked(settings->m_enableCMakeBuilds);
     m_disableBuiltinCodemodel->setChecked(settings->m_disableBuiltinCodemodel);
     m_generateQmllsIniFiles->setChecked(settings->m_generateQmllsIniFiles);
     m_ignoreMinimumQmllsVersion->setChecked(settings->m_ignoreMinimumQmllsVersion);
@@ -731,6 +746,7 @@ QmllsClientSettingsWidget::QmllsClientSettingsWidget(
                 m_disableBuiltinCodemodel, br,
                 m_useQmllsSemanticHighlighting, br,
                 m_generateQmllsIniFiles, br,
+                m_enableCMakeBuilds, br,
             }
         },
         Layouting::Group {
@@ -760,6 +776,10 @@ bool QmllsClientSettingsWidget::disableBuiltinCodemodel() const
 bool QmllsClientSettingsWidget::generateQmllsIniFiles() const
 {
     return m_generateQmllsIniFiles->isChecked();
+}
+bool QmllsClientSettingsWidget::enableCMakeBuilds() const
+{
+    return m_enableCMakeBuilds->isChecked();
 }
 bool QmllsClientSettingsWidget::ignoreMinimumQmllsVersion() const
 {
