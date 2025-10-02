@@ -496,7 +496,7 @@ static QString githubQmllsMetadataUrl()
 
 static QString dialogTitle()
 {
-    return Tr::tr("Download standalone qmlls");
+    return Tr::tr("Download Standalone QMLLS");
 }
 
 static GroupItem downloadGithubQmlls()
@@ -506,7 +506,7 @@ static GroupItem downloadGithubQmlls()
         StorageStruct()
         {
             progressDialog.reset(
-                createProgressDialog(100, dialogTitle(), Tr::tr("Downloading standalone qmlls...")));
+                createProgressDialog(100, dialogTitle(), Tr::tr("Downloading standalone QMLLS...")));
         }
 
         void logWarning(const QString &error)
@@ -553,7 +553,7 @@ static GroupItem downloadGithubQmlls()
                     Core::MessageManager::writeDisrupting(
                         Tr::tr("SSL error: %1\n").arg(error.errorString()));
 
-                storage->logWarning(Tr::tr("Encountered SSL errors, download is aborted."));
+                storage->logWarning(Tr::tr("Encountered SSL errors and aborted the download."));
                 query->reply()->abort();
             });
 #endif
@@ -601,7 +601,7 @@ static GroupItem downloadGithubQmlls()
         if (auto [qmllsPath, lastVersion] = evaluateGithubQmlls();
             storage->latestVersion <= lastVersion) {
             storage->logWarning(
-                Tr::tr("Latest Standalone qmlls already exists at %1").arg(qmllsPath.path()));
+                Tr::tr("Latest standalone QMLLS already exists at %1").arg(qmllsPath.path()));
             return SetupResult::StopWithError;
         }
 
@@ -628,7 +628,7 @@ static GroupItem downloadGithubQmlls()
         }
         if (const auto result = storage->downloadPath.writeFileContents(reply->readAll()); !result) {
             storage->logWarning(
-                Tr::tr("Could not open \"%1\" for writing: %2.")
+                Tr::tr("Cannot open \"%1\" for writing: %2.")
                     .arg(storage->downloadPath.toUserOutput(), result.error()));
         }
     };
@@ -636,7 +636,7 @@ static GroupItem downloadGithubQmlls()
     const auto onUnarchiveSetup = [storage](Unarchiver &task) {
         storage->progressDialog->setRange(0, 0);
         storage->progressDialog->setValue(0);
-        storage->progressDialog->setLabelText(Tr::tr("Unarchiving qmlls..."));
+        storage->progressDialog->setLabelText(Tr::tr("Unarchiving QMLLS..."));
         task.setArchive(storage->downloadPath);
         task.setDestination(storage->downloadPath.parentDir());
     };
@@ -651,7 +651,7 @@ static GroupItem downloadGithubQmlls()
         const FilePath expectedQmllsLocation = evaluateGithubQmlls().first;
         if (!expectedQmllsLocation.exists() || expectedQmllsLocation.parentDir() != qmllsDirectory) {
             storage->logWarning(
-                Tr::tr("Could not find qmlls from the extracted archive. Please open a bugreport."));
+                Tr::tr("Could not find QMLLS in the extracted archive. Please create a bugreport."));
             return;
         }
 

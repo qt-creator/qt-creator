@@ -136,8 +136,8 @@ void QbsRequestObject::start()
     connect(m_session, &QbsSession::projectBuilt, this, handleDone);
     connect(m_session, &QbsSession::projectCleaned, this, handleDone);
     connect(m_session, &QbsSession::projectInstalled, this, handleDone);
-    connect(m_session, &QbsSession::errorOccurred, this, [handleDone](QbsSession::Error error) {
-        handleDone(ErrorInfo(QbsSession::errorString(error)));
+    connect(m_session, &QbsSession::errorOccurred, this, [handleDone](const QString &error) {
+        handleDone(ErrorInfo(error));
     });
     connect(m_session, &QbsSession::taskStarted, this, [this](const QString &desciption, int max) {
         m_description = desciption;

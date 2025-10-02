@@ -2670,7 +2670,7 @@ static void showRenameDiagnostics(
         if (!messageBody.isEmpty())
             messageBody += "<br>";
         messageBody += Tr::tr("These files were renamed in the file system, but the project "
-                              "structure was not updated (context lost or unsupported):%1")
+                              "structure was not updated (context lost or not supported):%1")
                            .arg(pathsToHtmlList(skippedRenames));
     }
 

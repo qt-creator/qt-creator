@@ -176,9 +176,8 @@ QbsBuildSystem::QbsBuildSystem(BuildConfiguration *bc)
         }
         m_sourcesForGeneratedFiles.clear();
     });
-    connect(m_session, &QbsSession::errorOccurred, this, [](QbsSession::Error e) {
-        const QString msg = Tr::tr("Fatal qbs error: %1").arg(QbsSession::errorString(e));
-        BuildSystemTask t(Task::Error, msg);
+    connect(m_session, &QbsSession::errorOccurred, this, [](const QString &msg) {
+        BuildSystemTask t(Task::Error, Tr::tr("Fatal Qbs error: %1").arg(msg));
         t.setOrigin("qbs");
         TaskHub::addTask(t);
     });
@@ -401,7 +400,7 @@ void QbsBuildSystem::setFileUpdateError(const QString &reason)
 {
     m_fileUpdateError = OtherTask(
         Task::DisruptingError,
-        Tr::tr("Error updating qbs project file.").append('\n').append(reason));
+        Tr::tr("Cannot update Qbs project file.").append('\n').append(reason));
     TaskHub::addTask(m_fileUpdateError);
 }
 

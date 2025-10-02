@@ -38,7 +38,7 @@ public:
             ->setChecked(true);
 
         const QString captionText =
-            Tr::tr("This helps us recommend the right tutorials and features.");
+            Tr::tr("This helps us recommend suitable tutorials and features.");
 
         using namespace Layouting;
         auto vSpace = Space(SpacingTokens::GapVM);
@@ -50,7 +50,7 @@ public:
             Row { levelBasic, levelAdvanced, st },
             tfLabel(captionText, captionTf),
             vSpace,
-            tfLabel(Tr::tr("Select your target platform(s)"), sectionHeaderTf),
+            tfLabel(Tr::tr("Select your target platforms"), sectionHeaderTf),
             Flow {
                 targetButton(Tr::tr("Desktop"), TARGET_DESKTOP),
                 targetButton(Tr::tr("Android"), TARGET_ANDROID),

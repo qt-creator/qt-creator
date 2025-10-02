@@ -525,7 +525,7 @@ void PlainTextDocumentLayout::documentChanged(int from, int charsRemoved, int ch
 
     QTextDocument *doc = document();
     int newBlockCount = doc->blockCount();
-    const int to = from + qMax(0, charsAdded - charsRemoved);
+    const int to = from + qMax(0, charsAdded);
 
     QTextBlock changeStartBlock = doc->findBlock(from);
     QTextBlock changeEndBlock = doc->findBlock(to);

@@ -55,7 +55,7 @@ public:
             Tr::tr("You will need at least one port for QML debugging."),
             InfoLabel::Warning);
 
-        auto autoDetectButton = new QPushButton(Tr::tr("Run auto-detection now"));
+        auto autoDetectButton = new QPushButton(Tr::tr("Run Auto-Detection Now"));
 
         connect(&m_detectionRunner, &Tasking::SingleTaskTreeRunner::aboutToStart, [=] {
             autoDetectButton->setEnabled(false);

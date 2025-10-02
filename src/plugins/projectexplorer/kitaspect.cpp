@@ -477,7 +477,7 @@ Result<Tasking::ExecutableItem> KitAspectFactory::createAspectFromJson(
     Q_UNUSED(logCallback);
     Q_UNUSED(rootPath);
     return ResultError(
-        Tr::tr("Kit aspect factory '%1' does not support creating aspects from JSON.")
+        Tr::tr("Kit aspect factory \"%1\" does not support creating aspects from JSON.")
             .arg(id().toString()));
 }
 
@@ -505,7 +505,7 @@ Group kitDetectionRecipe(
 
         const QString detectionSourceId = device->id().toString();
 
-        logCallback(Tr::tr("Auto detecting Kits for device: %1").arg(device->displayName()));
+        logCallback(Tr::tr("Auto detecting kits for device: %1").arg(device->displayName()));
 
         *kit = KitManager::registerKit([detectionSourceId, device, detectionSource](Kit *k) {
             k->setDetectionSource(detectionSource);
@@ -542,7 +542,7 @@ Group kitDetectionRecipe(
                 KitManager::deregisterKit(*kit);
                 return;
             }
-            logCallback(Tr::tr("Found Kit: %1").arg((*kit)->displayName()));
+            logCallback(Tr::tr("Found kit: %1").arg((*kit)->displayName()));
         }),
     };
     // clang-format on

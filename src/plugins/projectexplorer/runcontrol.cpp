@@ -478,7 +478,7 @@ Group RunControlPrivate::portsGathererRecipe()
 
     const auto onSetup = [this] {
         if (!data.device) {
-            q->postMessage(Tr::tr("Can't use ports gatherer - no device set."), ErrorMessageFormat);
+            q->postMessage(Tr::tr("Cannot use ports gatherer. No device is set."), ErrorMessageFormat);
             return SetupResult::StopWithError;
         }
         q->postMessage(Tr::tr("Checking available ports..."), NormalMessageFormat);

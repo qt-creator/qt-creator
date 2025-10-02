@@ -4728,7 +4728,7 @@ void TextEditorWidgetPrivate::registerActions()
         ActionBuilder(this, SUGGESTION_APPLY)
             .setContext(m_editorContext)
             .setText(Tr::tr("Apply"))
-            .setToolTip(Tr::tr("Apply the current suggestion"))
+            .setToolTip(Tr::tr("Apply the current suggestion."))
             .addOnTriggered([this] {
                 if (TextSuggestion *s = q->currentSuggestion())
                     s->apply();
@@ -4742,7 +4742,7 @@ void TextEditorWidgetPrivate::registerActions()
         ActionBuilder(this, SUGGESTION_APPLY_WORD)
             .setContext(m_editorContext)
             .setText(Tr::tr("Apply one Word"))
-            .setToolTip(Tr::tr("Apply one word of the current suggestion"))
+            .setToolTip(Tr::tr("Apply one word of the current suggestion."))
             .addOnTriggered([this] {
                 if (TextSuggestion *s = q->currentSuggestion())
                     s->applyWord(q);
@@ -4756,7 +4756,7 @@ void TextEditorWidgetPrivate::registerActions()
         ActionBuilder(this, SUGGESTION_APPLY_LINE)
             .setContext(m_editorContext)
             .setText(Tr::tr("Apply Line"))
-            .setToolTip(Tr::tr("Apply one line of the current suggestion"))
+            .setToolTip(Tr::tr("Apply one line of the current suggestion."))
             .addOnTriggered([this] {
                 if (TextSuggestion *s = q->currentSuggestion())
                     s->applyLine(q);

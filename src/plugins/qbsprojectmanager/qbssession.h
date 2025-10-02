@@ -107,17 +107,7 @@ public:
     ~QbsSession() override;
 
     enum class State { Initializing, Active, Inactive };
-    enum class Error {
-        NoQbsPath,
-        InvalidQbsExecutable,
-        QbsFailedToStart,
-        QbsQuit,
-        ProtocolError,
-        VersionMismatch
-    };
 
-    std::optional<Error> lastError() const;
-    static QString errorString(Error error);
     QJsonObject projectData() const;
 
     int apiLevel() const;
@@ -156,7 +146,7 @@ public:
                                             const QStringList &requestedProperties);
 
 signals:
-    void errorOccurred(Error lastError);
+    void errorOccurred(const QString &msg);
     void projectResolved(const ErrorInfo &error);
     void projectBuilt(const ErrorInfo &error);
     void projectCleaned(const ErrorInfo &error);
@@ -183,7 +173,9 @@ private:
     void sendRequestNow(const QJsonObject &request);
     ErrorInfo getErrorInfo(const QJsonObject &packet);
     void setProjectDataFromReply(const QJsonObject &packet, bool withBuildSystemFiles);
-    void setError(Error error);
+    QString protocolErrorMsg() const;
+    QString qbsExecutableUserString() const;
+    void setError(const QString &error);
     void setInactive();
     FileChangeResult updateFileList(
         const char *action,

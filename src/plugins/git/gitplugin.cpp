@@ -1602,7 +1602,7 @@ void GitPluginPrivate::createPatchesFromCommits()
     LogChangeDialog dialog(LogChangeDialog::Select, Core::ICore::dialogParent());
     PatchItemDelegate delegate(dialog.widget());
     dialog.setContiguousSelectionEnabled(true);
-    dialog.setWindowTitle(Tr::tr("Select commits for patch creation"));
+    dialog.setWindowTitle(Tr::tr("Select Commits for Patch Creation"));
 
     const Utils::FilePath topLevel = state.topLevel();
     if (dialog.runDialog(topLevel, {}, LogChangeWidget::None))

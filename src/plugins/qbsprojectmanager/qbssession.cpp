@@ -12,7 +12,6 @@
 
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -144,7 +143,6 @@ public:
     QEventLoop eventLoop;
     QJsonObject reply;
     QHash<QString, QStringList> generatedFilesForSources;
-    std::optional<Error> lastError;
     State state = State::Inactive;
     int apiLevel = 0;
     bool fileUpdatePossible = true;
@@ -175,7 +173,7 @@ void QbsSession::initialize()
     connect(d->qbsProcess, &Process::done, this, [this] {
         if (d->qbsProcess->result() == ProcessResult::StartFailed) {
             d->eventLoop.exit(1);
-            setError(Error::QbsFailedToStart);
+            setError(d->qbsProcess->exitMessage());
             return;
         }
         d->qbsProcess->deleteLater();
@@ -184,16 +182,16 @@ void QbsSession::initialize()
             QTC_CHECK(false);
             break;
         case State::Active:
-            setError(Error::QbsQuit);
+            setError(d->qbsProcess->exitMessage(Process::FailureMessageFormat::WithStdErr));
             break;
         case State::Initializing:
-            setError(Error::ProtocolError);
+            setError(protocolErrorMsg());
             break;
         }
     });
     connect(d->packetReader, &PacketReader::errorOccurred, this, [this](const QString &msg) {
         qCDebug(qbsPmLog) << "session error" << msg;
-        setError(Error::ProtocolError);
+        setError(protocolErrorMsg());
     });
     connect(d->packetReader, &PacketReader::packetReceived, this, &QbsSession::handlePacket);
     d->state = State::Initializing;
@@ -201,11 +199,22 @@ void QbsSession::initialize()
     QTC_ASSERT(device, return);
     const FilePath qbsExe = QbsSettings::qbsExecutableFilePath(device);
     if (qbsExe.isEmpty()) {
-        QTimer::singleShot(0, this, [this] { setError(Error::NoQbsPath); });
+        QTimer::singleShot(0, this, [this] {
+            setError(Tr::tr("No qbs executable was found, please set the path in the settings."));
+        });
+        return;
+    }
+    if (!qbsExe.exists()) {
+        QTimer::singleShot(0, this, [this] {
+            setError(Tr::tr("No qbs executable was found at \"%1\".")
+                         .arg(qbsExecutableUserString()));
+        });
         return;
     }
     if (!qbsExe.isExecutableFile()) {
-        QTimer::singleShot(0, this, [this] { setError(Error::InvalidQbsExecutable); });
+        QTimer::singleShot(0, this, [this] {
+            setError(Tr::tr("\"%1\" is not an executable file.").arg(qbsExecutableUserString()));
+        });
         return;
     }
     d->qbsProcess->setEnvironment(QbsSettings::qbsProcessEnvironment(device));
@@ -234,32 +243,15 @@ QbsSession::~QbsSession()
     delete d;
 }
 
-std::optional<QbsSession::Error> QbsSession::lastError() const
+QString QbsSession::protocolErrorMsg() const
 {
-    return d->lastError;
+    return Tr::tr("The qbs process \"%1\" sent unexpected data.").arg(qbsExecutableUserString());
 }
 
-QString QbsSession::errorString(QbsSession::Error error)
+QString QbsSession::qbsExecutableUserString() const
 {
-    switch (error) {
-    case Error::NoQbsPath:
-        return Tr::tr("No qbs executable was found, please set the path in the settings.");
-    case Error::InvalidQbsExecutable:
-        return Tr::tr("The qbs executable was not found at the specified path, or it is not "
-                      "executable.");
-    case Error::QbsQuit:
-        return Tr::tr("The qbs process quit unexpectedly.");
-    case Error::QbsFailedToStart:
-        return Tr::tr("The qbs process failed to start.");
-    case Error::ProtocolError:
-        return Tr::tr("The qbs process sent unexpected data.");
-    case Error::VersionMismatch:
-        //: %1 == "Qt Creator" or "Qt Design Studio"
-        return Tr::tr("The qbs API level is not compatible with "
-                      "what %1 expects.")
-            .arg(QGuiApplication::applicationDisplayName());
-    }
-    return QString(); // For dumb compilers.
+    QTC_ASSERT(d->qbsProcess, return {});
+    return d->qbsProcess->commandLine().executable().toUserOutput();
 }
 
 QJsonObject QbsSession::projectData() const
@@ -452,8 +444,8 @@ QbsSession::BuildGraphInfo QbsSession::getBuildGraphInfo(const FilePath &bgFileP
     BuildGraphInfo bgInfo;
     bgInfo.bgFilePath = bgFilePath;
     QTimer::singleShot(10000, &session, [&session] { session.d->eventLoop.exit(1); });
-    connect(&session, &QbsSession::errorOccurred, [&] {
-        bgInfo.error = ErrorInfo(Tr::tr("Failed to load qbs build graph."));
+    connect(&session, &QbsSession::errorOccurred, [&](const QString &error) {
+        bgInfo.error = ErrorInfo(Tr::tr("Failed to load qbs build graph: %1").arg(error));
         session.d->eventLoop.quit();
     });
     connect(&session, &QbsSession::projectResolved, [&](const ErrorInfo &error) {
@@ -491,8 +483,14 @@ void QbsSession::handlePacket(const QJsonObject &packet)
     const QString type = packet.value("type").toString();
     if (type == "hello") {
         QTC_CHECK(d->state == State::Initializing);
-        if (packet.value("api-compat-level").toInt() > 2) {
-            setError(Error::VersionMismatch);
+        const int compatLevel = packet.value("api-compat-level").toInt();
+        const int maxCompatLevel = 2;
+        if (compatLevel > maxCompatLevel) {
+            setError(
+                Tr::tr(
+                    "Version mismatch: qbs at \"%1\" has API compatibility level %2, but we can "
+                    "handle at most %3.")
+                    .arg(qbsExecutableUserString()).arg(compatLevel).arg(maxCompatLevel));
             return;
         }
         d->apiLevel = packet.value("api-level").toInt();
@@ -560,7 +558,7 @@ void QbsSession::handlePacket(const QJsonObject &packet)
         d->eventLoop.quit();
     } else if (type == "protocol-error") {
         ErrorInfo(packet.value("error").toObject()).generateTasks(Task::Error);
-        setError(Error::ProtocolError);
+        setError(protocolErrorMsg());
     }
 }
 
@@ -593,9 +591,8 @@ void QbsSession::setProjectDataFromReply(const QJsonObject &packet, bool withBui
     }
 }
 
-void QbsSession::setError(QbsSession::Error error)
+void QbsSession::setError(const QString &error)
 {
-    d->lastError = error;
     setInactive();
     emit errorOccurred(error);
 }
