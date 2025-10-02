@@ -154,6 +154,13 @@ void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
         pathChooser()->setAllowPathFromDevice(false);
 }
 
+void BuildDirectoryAspect::announceChanges(Changes changes, Announcement howToAnnounce)
+{
+    if (changes.bufferFromInternal)
+        setChecked(d->sourceDir != expandedValue());
+    FilePathAspect::announceChanges(changes, howToAnnounce);
+}
+
 FilePath BuildDirectoryAspect::fixupDir(const FilePath &dir)
 {
     if (!dir.isLocal())

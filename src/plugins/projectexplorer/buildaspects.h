@@ -24,6 +24,7 @@ public:
     void setProblem(const QString &description);
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
+    void announceChanges(Changes changes, Announcement howToAnnounce) override;
 
     static Utils::FilePath fixupDir(const Utils::FilePath &dir);
 
