@@ -95,6 +95,8 @@ static std::pair<FilePath, QVersionNumber> evaluateGithubQmlls()
 
     path.iterateDirectory(
         [&lastVersion](const FilePath &path) {
+            if (!path.pathAppended("qmlls").withExecutableSuffix().exists())
+                return IterationPolicy::Continue;
             if (auto version = QVersionNumber::fromString(path.fileName());
                 !version.isNull() && version > lastVersion) {
                 lastVersion = version;
@@ -606,6 +608,8 @@ static GroupItem downloadGithubQmlls()
         }
 
         const FilePath qmllsDirectory = downloadedQmllsPath() / storage->latestVersion->toString();
+        if (qmllsDirectory.exists())
+            qmllsDirectory.removeRecursively();
         qmllsDirectory.createDir();
         storage->downloadPath = qmllsDirectory / "archive.zip";
 
