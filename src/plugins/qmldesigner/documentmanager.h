@@ -44,6 +44,8 @@ public:
 
     void resetPossibleImports();
 
+    void removeAllDocuments();
+
     const GeneratedComponentUtils &generatedComponentUtils() const;
 
     static bool goIntoComponent(const ModelNode &modelNode);

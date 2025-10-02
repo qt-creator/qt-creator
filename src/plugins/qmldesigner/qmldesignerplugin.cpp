@@ -170,7 +170,7 @@ class QmlDesignerPluginPrivate
 {
 public:
     QmlDesignerPluginPrivate()
-        : projectManager{viewManager}
+        : projectManager{viewManager, documentManager}
     {}
 
 public:

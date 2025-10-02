@@ -273,6 +273,12 @@ void DocumentManager::resetPossibleImports()
     }
 }
 
+void DocumentManager::removeAllDocuments()
+{
+    m_designDocuments.clear();
+    m_currentDesignDocument.clear();
+}
+
 const GeneratedComponentUtils &DocumentManager::generatedComponentUtils() const
 {
    return m_generatedComponentUtils;

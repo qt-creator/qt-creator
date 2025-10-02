@@ -6,6 +6,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <documentmanager.h>
 #include <modulesstorage/modulesstorage.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -318,8 +319,9 @@ public:
 class QmlDesignerProjectManager::Data
 {
 public:
-    Data(ViewManager &viewManager)
+    Data(ViewManager &viewManager, DocumentManager &documentManager)
         : viewManager{viewManager}
+        , documentManager{documentManager}
     {}
 
 public:
@@ -333,14 +335,16 @@ public:
                                      Sqlite::LockingMode::Normal};
     ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
     ViewManager &viewManager;
+    DocumentManager &documentManager;
     bool filesAreChanged = false;
 };
 
-QmlDesignerProjectManager::QmlDesignerProjectManager(ViewManager &viewManager)
+QmlDesignerProjectManager::QmlDesignerProjectManager(ViewManager &viewManager,
+                                                     DocumentManager &documentManager)
 {
     NanotraceHR::Tracer tracer{"qml designer project manager constructor", category()};
 
-    m_data = std::make_unique<Data>(viewManager);
+    m_data = std::make_unique<Data>(viewManager, documentManager);
     m_previewImageCacheData = std::make_unique<PreviewImageCacheData>();
 
     auto editorManager = ::Core::EditorManager::instance();
@@ -561,6 +565,7 @@ void QmlDesignerProjectManager::aboutToRemoveProject(const ::ProjectExplorer::Pr
     if (m_projectData) {
         m_previewImageCacheData->collector.setTarget(nullptr);
         m_data->viewManager.setNodeInstanceViewTarget(nullptr);
+        m_data->documentManager.removeAllDocuments();
         m_projectData.reset();
     }
 }
