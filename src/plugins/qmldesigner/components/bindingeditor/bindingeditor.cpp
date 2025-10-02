@@ -96,10 +96,23 @@ void BindingEditor::setBackendValue(const QVariant &backendValue)
 
             m_targetName = nodeId + "." + propertyEditorValue->name();
 
-            if (!m_backendValueType || m_backendValueType.isAlias()) {
-                if (QmlObjectNode::isValidQmlObjectNode(node))
+            if (!m_backendValueType) {
+                AbstractProperty prop = node.property(propertyEditorValue->name());
+                if (prop.isDynamic()) {
+                    TypeName typeName = prop.dynamicTypeName();
+                    // Alias as is a special case as it has no separate metaInfo for it
+                    if (typeName == "alias")
+                        m_isAlias = true;
+                    else
+                        m_backendValueType = node.model()->metaInfo(typeName);
+                }
+            }
+
+            if (!m_isAlias && !m_backendValueType) {
+                if (QmlObjectNode::isValidQmlObjectNode(node)) {
                     m_backendValueType = node.model()->metaInfo(
                         QmlObjectNode(node).instanceType(propertyEditorValue->name()));
+                }
             }
         }
 
@@ -172,9 +185,8 @@ bool compareTypes(const NodeMetaInfo &sourceType, const NodeMetaInfo &targetType
 
 void BindingEditor::prepareBindings()
 {
-    if (!m_modelNode.isValid() || !m_backendValueType) {
+    if (!m_modelNode.isValid() || (!m_backendValueType && !m_isAlias))
         return;
-    }
 
     const QList<QmlDesigner::ModelNode> allNodes = m_modelNode.view()->allModelNodes();
 
@@ -186,9 +198,8 @@ void BindingEditor::prepareBindings()
              MetaInfoUtils::addInflatedValueAndReferenceProperties(objnode.metaInfo().properties())) {
             const auto &propertyType = property.property.propertyType();
 
-            if (compareTypes(m_backendValueType, propertyType)) {
+            if (m_isAlias || compareTypes(m_backendValueType, propertyType))
                 binding.properties.append(QString::fromUtf8(property.name()));
-            }
         }
 
         //dynamic properties:
@@ -197,9 +208,8 @@ void BindingEditor::prepareBindings()
                 if (bindingProperty.isDynamic()) {
                     auto model = bindingProperty.model();
                     const auto dynamicType = model->metaInfo(bindingProperty.dynamicTypeName());
-                    if (compareTypes(m_backendValueType, dynamicType)) {
+                    if (m_isAlias || compareTypes(m_backendValueType, dynamicType))
                         binding.properties.append(QString::fromUtf8(bindingProperty.name()));
-                    }
                 }
             }
         }
@@ -208,9 +218,8 @@ void BindingEditor::prepareBindings()
                 if (variantProperty.isDynamic()) {
                     auto model = variantProperty.model();
                     const auto dynamicType = model->metaInfo(variantProperty.dynamicTypeName());
-                    if (compareTypes(m_backendValueType, dynamicType)) {
+                    if (m_isAlias || compareTypes(m_backendValueType, dynamicType))
                         binding.properties.append(QString::fromUtf8(variantProperty.name()));
-                    }
                 }
             }
         }
@@ -229,9 +238,8 @@ void BindingEditor::prepareBindings()
             for (const auto &property : metaInfo.properties()) {
                 const auto propertyType = property.propertyType();
 
-                if (compareTypes(m_backendValueType, propertyType)) {
+                if (m_isAlias || compareTypes(m_backendValueType, propertyType))
                     binding.properties.append(QString::fromUtf8(property.name()));
-                }
             }
 
             if (!binding.properties.isEmpty()) {
@@ -242,20 +250,30 @@ void BindingEditor::prepareBindings()
         }
     }
 
+    for (auto &binding : bindings) {
+        std::ranges::sort(binding.properties);
+        auto removed = std::ranges::unique(binding.properties);
+        binding.properties.erase(removed.begin(), removed.end());
+    }
+
     if (!bindings.isEmpty() && m_dialog)
         m_dialog->setAllBindings(bindings, m_backendValueType);
 }
 
 void BindingEditor::updateWindowName()
 {
-    if (m_dialog && m_backendValueType) {
+    if (m_dialog && (m_isAlias || m_backendValueType)) {
         QString targetString;
-
-        auto exportedTypeName = m_modelNode.model()->exportedTypeNameForMetaInfo(m_backendValueType);
-        if (exportedTypeName.name.size()) {
-            targetString = " [" + (m_targetName.isEmpty() ? QString() : (m_targetName + ": "))
-                           + exportedTypeName.name.toQString() + "]";
+        QString typeName;
+        if (m_isAlias) {
+            typeName = "alias";
+        } else {
+            auto exportedTypeName = m_modelNode.model()->exportedTypeNameForMetaInfo(m_backendValueType);
+            if (exportedTypeName.name.size())
+                typeName = exportedTypeName.name.toQString();
         }
+        targetString = " [" + (m_targetName.isEmpty() ? QString() : (m_targetName + ": "))
+                       + typeName + "]";
 
         m_dialog->setWindowTitle(m_dialog->defaultTitle() + targetString);
     }
