@@ -637,6 +637,10 @@ void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, Inf
                                                                    return node.isValid();
                                                                });
 
+    std::ranges::sort(informationChangedNodes);
+    auto removed = std::ranges::unique(informationChangedNodes);
+    informationChangedNodes.erase(removed.begin(), removed.end());
+
     for (const ModelNode &node : informationChangedNodes) {
         const QmlItemNode qmlItemNode(node);
         if (FormEditorItem *item = scene()->itemForQmlItemNode(qmlItemNode)) {
