@@ -274,7 +274,8 @@ public:
         return firstNode.m_internalNode <=> secondNode.m_internalNode;
     }
 
-    friend void convertToString(NanotraceHR::ArgumentsString &string, const ModelNode &node);
+    QMLDESIGNERCORE_EXPORT friend void convertToString(NanotraceHR::ArgumentsString &string,
+                                                       const ModelNode &node);
 
 private: // functions
     Internal::InternalNodePointer internalNode() const { return m_internalNode; }

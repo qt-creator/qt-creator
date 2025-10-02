@@ -127,8 +127,8 @@ public:
                < std::tie(second.m_internalNode, second.m_propertyName);
     }
 
-    friend void convertToString(NanotraceHR::ArgumentsString &string,
-                                const AbstractProperty &property);
+    QMLDESIGNERCORE_EXPORT friend void convertToString(NanotraceHR::ArgumentsString &string,
+                                                       const AbstractProperty &property);
 
 protected:
     AbstractProperty(const Internal::InternalPropertyPointer &property,

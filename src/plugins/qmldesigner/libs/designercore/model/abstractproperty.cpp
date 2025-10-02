@@ -70,10 +70,14 @@ void convertToString(NanotraceHR::ArgumentsString &string, const AbstractPropert
 {
     using NanotraceHR::dictionary;
     using NanotraceHR::keyValue;
-    auto dict = dictionary(keyValue("node", *property.m_internalNode),
-                           keyValue("property name", property.m_propertyName));
+    if (property.m_internalNode) {
+        auto dict = dictionary(keyValue("node", *property.m_internalNode),
+                               keyValue("property name", property.m_propertyName));
 
-    convertToString(string, dict);
+        convertToString(string, dict);
+    } else {
+        convertToString(string, "invalid");
+    }
 }
 
 /*!

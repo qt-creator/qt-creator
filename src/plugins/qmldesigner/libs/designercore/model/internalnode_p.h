@@ -233,6 +233,7 @@ public:
     {
         using NanotraceHR::dictionary;
         using NanotraceHR::keyValue;
+
         auto dict = dictionary(keyValue("type name", node.typeName),
                                keyValue("unqualified type name", node.unqualifiedTypeName),
                                keyValue("exported type name", node.exportedTypeName));

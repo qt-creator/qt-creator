@@ -1944,7 +1944,10 @@ QString ModelNode::behaviorPropertyName(SL sl) const
 
 void convertToString(NanotraceHR::ArgumentsString &string, const ModelNode &node)
 {
-    convertToString(string, *node.m_internalNode);
+    if (node.m_internalNode)
+        convertToString(string, *node.m_internalNode);
+    else
+        convertToString(string, "invalid");
 }
 
 template<typename Result>
