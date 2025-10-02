@@ -16,6 +16,8 @@ RUN apt-get update \
     valgrind \
     x11-apps \
     clangd \
+    clang-tidy \
+    clazy \
     qbs \
     cmake \
     ninja-build
