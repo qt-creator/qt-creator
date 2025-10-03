@@ -180,7 +180,7 @@ Column {
 
             SecondColumnLayout {
                 ItemFilterComboBox {
-                    typeFilter: "QtQuick.QtObject"
+                    typeFilter: "QML.QtObject"
                     backendValue: backendValues.drag_target
                     implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
