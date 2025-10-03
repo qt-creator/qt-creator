@@ -22,7 +22,7 @@ Section {
 
         SecondColumnLayout {
             ItemFilterComboBox {
-                typeFilter: "QtQuick.QtObject"
+                typeFilter: "QML.QtObject"
                 backendValue: backendValues.target
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth

@@ -19,7 +19,7 @@ Section {
 
         SecondColumnLayout {
             ItemFilterComboBox {
-                typeFilter: "QtQml.QtObject"
+                typeFilter: "QML.QtObject"
                 validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
                 backendValue: backendValues.target01
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
@@ -49,7 +49,7 @@ Section {
 
         SecondColumnLayout {
             ItemFilterComboBox {
-                typeFilter: "QtQml.QtObject"
+                typeFilter: "QML.QtObject"
                 validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
                 backendValue: backendValues.target02
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
