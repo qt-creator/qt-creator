@@ -509,7 +509,7 @@ std::optional<Tasking::ExecutableItem> QtKitAspectFactory::autoDetect(
         const auto versions = async.results();
 
         for (QtVersion *version : versions) {
-            logCallback(Tr::tr("Found Qt version: %1").arg(version->displayName()));
+            logCallback(Tr::tr("Found Qt version: %1.").arg(version->displayName()));
             QtVersionManager::addVersion(version);
             QtKitAspect::setQtVersion(kit, version);
         }
@@ -527,7 +527,7 @@ std::optional<Tasking::ExecutableItem> QtKitAspectFactory::removeAutoDetected(
         });
 
         for (QtVersion *version : versions) {
-            logCallback(Tr::tr("Removing Qt: %1").arg(version->displayName()));
+            logCallback(Tr::tr("Removing Qt: %1.").arg(version->displayName()));
             QtVersionManager::removeVersion(version);
         }
     });
@@ -538,7 +538,7 @@ void QtKitAspectFactory::listAutoDetected(
 {
     for (const QtVersion *qt : QtVersionManager::versions()) {
         if (qt->detectionSource().id == detectionSource)
-            logCallback(Tr::tr("Qt: %1").arg(qt->displayName()));
+            logCallback(Tr::tr("Qt: %1.").arg(qt->displayName()));
     }
 }
 
@@ -552,7 +552,7 @@ Utils::Result<Tasking::ExecutableItem> QtKitAspectFactory::createAspectFromJson(
     using ResultType = Result<QtVersion *>;
 
     if (!json.isString())
-        return ResultError(Tr::tr("Expected String, got: %1").arg(json.toString()));
+        return ResultError(Tr::tr("Expected String, got: %1.").arg(json.toString()));
 
     const QString qmakePath = json.toString();
 
@@ -593,7 +593,7 @@ Utils::Result<Tasking::ExecutableItem> QtKitAspectFactory::createAspectFromJson(
 
         QtVersion *qtVersion = result.value();
         if (!qtVersion->isValid()) {
-            logCallback(Tr::tr("Qt version '%1' is not valid.").arg(qtVersion->displayName()));
+            logCallback(Tr::tr("Qt version \"%1\" is not valid.").arg(qtVersion->displayName()));
             return;
         }
 

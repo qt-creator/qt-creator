@@ -246,7 +246,7 @@ void LldbEngine::handleLldbStarted()
 
     if (const Result<> res = initDebugHelper("lldbbridge", setupDumper, runPythonCommand); !res) {
         AsynchronousMessageBox::critical(
-            Tr::tr("Could not setup Debugger Helper Scripts"), res.error());
+            Tr::tr("Cannot Set Up Debugger Helper Scripts"), res.error());
         notifyEngineSetupFailed();
         return;
     }

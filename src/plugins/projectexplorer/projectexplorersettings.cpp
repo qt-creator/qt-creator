@@ -116,10 +116,10 @@ ProjectExplorerSettings::ProjectExplorerSettings(bool global)
 
     kitFilter.setSettingsKey("ShowAllKits");
     kitFilter.setDefaultValue(KitFilter::ShowAll);
-    kitFilter.addOption({Tr::tr("Show all kits"), {}, int(KitFilter::ShowAll)});
-    kitFilter.addOption({Tr::tr("Show only suitable kits"), {}, int(KitFilter::ShowOnlyMatching)});
-    kitFilter.addOption({Tr::tr("Show only active kits"), {}, int(KitFilter::ShowOnlyActive)});
-    kitFilter.setLabelText(Tr::tr("Show all kits in \"Build & Run\" in \"Projects\" mode").replace('&', "&&"));
+    kitFilter.addOption({Tr::tr("Show All Kits"), {}, int(KitFilter::ShowAll)});
+    kitFilter.addOption({Tr::tr("Show Only Suitable Kits"), {}, int(KitFilter::ShowOnlyMatching)});
+    kitFilter.addOption({Tr::tr("Show Only Active Kits"), {}, int(KitFilter::ShowOnlyActive)});
+    kitFilter.setLabelText(Tr::tr("Kits listed in \"Projects\" mode:"));
     kitFilter.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
 
     buildBeforeDeploy.setSettingsKey("BuildBeforeDeploy");

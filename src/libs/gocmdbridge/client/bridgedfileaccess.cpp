@@ -38,10 +38,11 @@ Result<QString> run(const CommandLine &cmdLine, const QByteArray &inputData = {}
         p.setWriteData(inputData);
     p.runBlocking();
     if (p.exitCode() != 0) {
-        return ResultError(Tr::tr("Command %1 failed with exit code %2: %3")
-                                   .arg(cmdLine.toUserOutput())
-                                   .arg(p.exitCode())
-                                   .arg(p.readAllStandardOutput().left(500)));
+        return ResultError(
+            Tr::tr("Command \"%1\" failed with exit code %2: %3")
+                .arg(cmdLine.toUserOutput())
+                .arg(p.exitCode())
+                .arg(p.readAllStandardOutput().left(500)));
     }
     return p.readAllStandardOutput().trimmed();
 }
@@ -65,10 +66,10 @@ Result<> FileAccess::deployAndInit(
     const Environment &environment)
 {
     if (remoteRootPath.isEmpty())
-        return ResultError(Tr::tr("Remote root path is empty"));
+        return ResultError(Tr::tr("Remote root path is empty."));
 
     if (!remoteRootPath.isAbsolutePath())
-        return ResultError(Tr::tr("Remote root path is not absolute"));
+        return ResultError(Tr::tr("Remote root path is not absolute."));
 
     const auto whichDD = run({remoteRootPath.withNewPath("which"), {"dd"}});
 
@@ -420,7 +421,7 @@ Result<FilePath> FileAccess::symLinkTarget(const FilePath &filePath) const
         if (e.code().value() == ENOENT)
             return exceptionError("No such file: %1", filePath, e);
         if (e.code().value() == EINVAL)
-            return ResultError(Tr::tr("Path %1 is not a symlink").arg(filePath.toUserOutput()));
+            return ResultError(Tr::tr("Path \"%1\" is not a symlink.").arg(filePath.toUserOutput()));
         return exceptionError("Error getting symlink target for %1", filePath, e);
     } catch (const std::exception &e) {
         return exceptionError("Error getting symlink target for %1", filePath, e);
@@ -524,7 +525,7 @@ Result<QByteArray> FileAccess::fileContents(const FilePath &filePath,
         return data;
     } catch (const std::system_error &e) {
         if (e.code().value() == ENOENT)
-            return ResultError(Tr::tr("File does not exist: %1").arg(filePath.toUserOutput()));
+            return ResultError(Tr::tr("File does not exist: \"%1\".").arg(filePath.toUserOutput()));
         return exceptionError("Error reading file %1", filePath, e);
     } catch (const std::exception &e) {
         return exceptionError("Error reading file %1", filePath, e);
@@ -539,7 +540,7 @@ Result<qint64> FileAccess::writeFileContents(const FilePath &filePath,
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
         return f->result();
     } catch (const std::exception &e) {
-        return exceptionError(Tr::tr("Error writing file: %1"), filePath, e);
+        return exceptionError(Tr::tr("Error writing file \"%1\""), filePath, e);
     }
 }
 
@@ -552,10 +553,10 @@ Result<> FileAccess::removeFile(const FilePath &filePath) const
         f->waitForFinished();
     } catch (const std::system_error &e) {
         if (e.code().value() == ENOENT)
-            return ResultError(Tr::tr("File does not exist: %1").arg(filePath.toUserOutput()));
-        return exceptionError(Tr::tr("Error removing file: %1"), filePath, e);
+            return ResultError(Tr::tr("File does not exist: \"%1\".").arg(filePath.toUserOutput()));
+        return exceptionError(Tr::tr("Error removing file \"%1\""), filePath, e);
     } catch (const std::exception &e) {
-        return exceptionError(Tr::tr("Error removing file: %1"), filePath, e);
+        return exceptionError(Tr::tr("Error removing file \"%1\""), filePath, e);
     }
 
     return ResultOk;
@@ -652,7 +653,7 @@ Result<> FileAccess::signalProcess(int pid, ControlSignal signal) const
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
         f->waitForFinished();
     } catch (const std::exception &e) {
-        return exceptionError(Tr::tr("Error killing process").arg(pid), {}, e);
+        return exceptionError(Tr::tr("Error killing process with PID %1").arg(pid), {}, e);
     };
 
     return ResultOk;

@@ -51,7 +51,7 @@ static ResultError notImplementedError(const QString &function, const FilePath &
 
 static ResultError unavailableError(const FilePath &filePath)
 {
-    return ResultError(Tr::tr("Device for %1 is unavailable.").arg(filePath.toUserOutput()));
+    return ResultError(Tr::tr("Device for \"%1\" is unavailable.").arg(filePath.toUserOutput()));
 }
 
 // DeviceFileAccess
@@ -1307,8 +1307,8 @@ Result<> DesktopDeviceFileAccess::setPermissions(
 {
     if (QFile(filePath.path()).setPermissions(permissions))
         return ResultOk;
-    return ResultError(Tr::tr("Could not change permissions for \"%1\"")
-        .arg(filePath.toUserOutput()));
+    return ResultError(
+        Tr::tr("Could not change permissions for \"%1\".").arg(filePath.toUserOutput()));
 }
 
 Result<qint64> DesktopDeviceFileAccess::fileSize(const FilePath &filePath) const
@@ -1511,7 +1511,7 @@ Result<> UnixDeviceFileAccess::ensureExistingFile(const FilePath &filePath) cons
     if (!res)
         return ResultError(res.error());
     if (!*res)
-        return ResultError(Tr::tr("Could not create file %1").arg(filePath.toUserOutput()));
+        return ResultError(Tr::tr("Could not create file \"%1\".").arg(filePath.toUserOutput()));
     return ResultOk;
 }
 
@@ -1522,7 +1522,8 @@ Result<> UnixDeviceFileAccess::createDirectory(const FilePath &filePath) const
     if (!res)
         return ResultError(res.error());
     if (!*res)
-        return ResultError(Tr::tr("Could not create directory %1").arg(filePath.toUserOutput()));
+        return ResultError(
+            Tr::tr("Could not create directory \"%1\".").arg(filePath.toUserOutput()));
     return ResultOk;
 }
 

@@ -988,20 +988,20 @@ std::function<void(Layouting::Layout *)> IDevice::deviceToolsGui()
         layout->addItems({
             Column { Space(20) }, br,
             Layouting::Group {
-                title(Tr::tr("Run tools on this device")),
+                title(Tr::tr("Run Tools on This Device")),
                 Form {
                     deviceToolAspects(DeviceToolAspect::RunTool)
                 }
             }, br,
             Layouting::Group {
-                title(Tr::tr("Source and build tools on this device")),
+                title(Tr::tr("Source and Build Tools on This Device")),
                 Form {
                     deviceToolAspects(DeviceToolAspect::ToolType(
                         DeviceToolAspect::SourceTool | DeviceToolAspect::BuildTool))
                 }
             }, br,
             Layouting::Group {
-                title(Tr::tr("Auto-detection")),
+                title(Tr::tr("Auto-Detection")),
                 Column {
                     Grid {
                         d->autoDetectInPath, br,

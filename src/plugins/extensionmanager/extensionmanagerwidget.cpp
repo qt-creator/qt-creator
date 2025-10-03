@@ -648,7 +648,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         .setCheckable(true)
         .setChecked(true)
         .setContext(Constants::C_EXTENSIONMANAGER)
-        .setText(Tr::tr("Toggle secondary details"))
+        .setText(Tr::tr("Toggle Secondary Details"))
         .addOnTriggered(this, [this](bool c) { m_secondaryDetailsColumn->setVisible(c); });
 
     auto primaryDetailsColumn = new QWidget;
