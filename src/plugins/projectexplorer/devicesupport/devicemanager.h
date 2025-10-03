@@ -50,6 +50,7 @@ public:
 
 signals:
     void deviceAdded(Utils::Id id);
+    void deviceAboutToBeRemoved(Utils::Id id);
     void deviceRemoved(Utils::Id id);
     void deviceUpdated(Utils::Id id);
     void updated(); // Emitted for all of the above.

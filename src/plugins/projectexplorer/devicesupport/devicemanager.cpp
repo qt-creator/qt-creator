@@ -3,10 +3,12 @@
 
 #include "devicemanager.h"
 
-#include "idevicefactory.h"
-#include "../projectexplorertr.h"
 #include "../projectexplorerconstants.h"
+#include "../projectexplorericons.h"
+#include "../projectexplorertr.h"
+#include "idevicefactory.h"
 
+#include <coreplugin/foldernavigationwidget.h>
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
@@ -31,6 +33,7 @@
 #include <QTest>
 #endif
 
+using namespace Core;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -261,6 +264,7 @@ void DeviceManager::removeDevice(Id id)
     QTC_ASSERT(device, return);
 
     device->aboutToBeRemoved();
+    emit m_instance->deviceAboutToBeRemoved(device->id());
 
     const bool wasDefault = d->defaultDevices.value(device->type()) == device->id();
     const Id deviceType = device->type();
@@ -431,6 +435,51 @@ DeviceManager::DeviceManager()
     };
 
     Process::setRemoteProcessHooks(processHooks);
+
+    const auto addDeviceToFileSystemView = [](Id deviceId) -> bool {
+        IDevice::Ptr device = find(deviceId);
+        QTC_ASSERT(device, return true /* ignore */);
+        if (device->type() == Constants::DESKTOP_DEVICE_TYPE || !device->fileAccess())
+            return true; // ignore
+        if (device->deviceState() != IDevice::DeviceReadyToUse
+            && device->deviceState() != IDevice::DeviceConnected) {
+            return false; // cannot add
+        }
+        const QIcon icon = device->icon().isNull() ? Icons::DESKTOP_DEVICE.icon() : device->icon();
+        FolderNavigationWidgetFactory::insertRootDirectory(
+            {device->rootPath().toUrlishString(),
+             /*sortValue=*/30,
+             device->displayName(),
+             device->rootPath(),
+             icon},
+            /*isProjectDirectory=*/false);
+        return true;
+    };
+    const auto removeDeviceFromFileSystemView = [](Id deviceId) {
+        IDevice::Ptr device = find(deviceId);
+        QTC_ASSERT(device, return);
+        const QString id = device->rootPath().toUrlishString();
+        if (FolderNavigationWidgetFactory::hasRootDirectory(id))
+            FolderNavigationWidgetFactory::removeRootDirectory(id);
+    };
+    connect(
+        this,
+        &DeviceManager::deviceAdded,
+        FolderNavigationWidgetFactory::instance(),
+        addDeviceToFileSystemView);
+    connect(
+        this,
+        &DeviceManager::deviceAboutToBeRemoved,
+        FolderNavigationWidgetFactory::instance(),
+        removeDeviceFromFileSystemView);
+    connect(
+        this,
+        &DeviceManager::deviceUpdated,
+        FolderNavigationWidgetFactory::instance(),
+        [addDeviceToFileSystemView, removeDeviceFromFileSystemView](Utils::Id id) {
+            if (!addDeviceToFileSystemView(id))
+                removeDeviceFromFileSystemView(id);
+        });
 }
 
 DeviceManager::~DeviceManager()
@@ -530,6 +579,7 @@ private slots:
 
         DeviceManager * const mgr = DeviceManager::instance();
         QSignalSpy deviceAddedSpy(mgr, &DeviceManager::deviceAdded);
+        QSignalSpy deviceAboutToBeRemovedSpy(mgr, &DeviceManager::deviceAboutToBeRemoved);
         QSignalSpy deviceRemovedSpy(mgr, &DeviceManager::deviceRemoved);
         QSignalSpy deviceUpdatedSpy(mgr, &DeviceManager::deviceUpdated);
         QSignalSpy updatedSpy(mgr, &DeviceManager::updated);
@@ -539,6 +589,7 @@ private slots:
         QVERIFY(DeviceManager::find(dev->id()));
         QVERIFY(DeviceManager::hasDevice(dev->displayName()));
         QCOMPARE(deviceAddedSpy.count(), 1);
+        QCOMPARE(deviceAboutToBeRemovedSpy.count(), 0);
         QCOMPARE(deviceRemovedSpy.count(), 0);
         QCOMPARE(deviceUpdatedSpy.count(), 0);
         QCOMPARE(updatedSpy.count(), 1);
@@ -547,6 +598,7 @@ private slots:
 
         DeviceManager::setDeviceState(dev->id(), IDevice::DeviceStateUnknown);
         QCOMPARE(deviceAddedSpy.count(), 0);
+        QCOMPARE(deviceAboutToBeRemovedSpy.count(), 0);
         QCOMPARE(deviceRemovedSpy.count(), 0);
         QCOMPARE(deviceUpdatedSpy.count(), 0);
         QCOMPARE(updatedSpy.count(), 0);
@@ -554,6 +606,7 @@ private slots:
         DeviceManager::setDeviceState(dev->id(), IDevice::DeviceReadyToUse);
         QCOMPARE(DeviceManager::find(dev->id())->deviceState(), IDevice::DeviceReadyToUse);
         QCOMPARE(deviceAddedSpy.count(), 0);
+        QCOMPARE(deviceAboutToBeRemovedSpy.count(), 0);
         QCOMPARE(deviceRemovedSpy.count(), 0);
         QCOMPARE(deviceUpdatedSpy.count(), 1);
         QCOMPARE(updatedSpy.count(), 1);
@@ -569,6 +622,7 @@ private slots:
             DeviceManager::deviceAt(DeviceManager::deviceCount() - 1)->displayName(),
             QString(dev->displayName() + QLatin1Char('2')));
         QCOMPARE(deviceAddedSpy.count(), 1);
+        QCOMPARE(deviceAboutToBeRemovedSpy.count(), 0);
         QCOMPARE(deviceRemovedSpy.count(), 0);
         QCOMPARE(deviceUpdatedSpy.count(), 0);
         QCOMPARE(updatedSpy.count(), 1);
@@ -581,6 +635,7 @@ private slots:
         QVERIFY(!DeviceManager::find(dev->id()));
         QVERIFY(!DeviceManager::find(dev3->id()));
         QCOMPARE(deviceAddedSpy.count(), 0);
+        QCOMPARE(deviceAboutToBeRemovedSpy.count(), 2);
         QCOMPARE(deviceRemovedSpy.count(), 2);
         //    QCOMPARE(deviceUpdatedSpy.count(), 0); Uncomment once the "default" stuff is gone.
         QCOMPARE(updatedSpy.count(), 2);

@@ -458,7 +458,7 @@ static bool itemLessThan(QComboBox *combo,
 }
 
 void FolderNavigationWidget::insertRootDirectory(
-    const FolderNavigationWidgetFactory::RootDirectory &directory)
+    const FolderNavigationWidgetFactory::RootDirectory &directory, bool isProjectDirectory)
 {
     // Find existing. Do not remove yet, to not mess up the current selection.
     int previousIndex = 0;
@@ -484,7 +484,7 @@ void FolderNavigationWidget::insertRootDirectory(
     if (EditorManager::currentEditor()) {
         if (m_autoSync) // we might find a better root for current selection now
             handleCurrentEditorChanged(EditorManager::currentEditor());
-    } else if (m_rootAutoSync) {
+    } else if (m_rootAutoSync && isProjectDirectory) {
         // assume the new root is better (e.g. because a project was opened)
         m_rootSelector->setCurrentIndex(index);
     }
@@ -916,14 +916,20 @@ void FolderNavigationWidgetFactory::restoreSettings(QtcSettings *settings, int p
         settings->value(base + kShowFoldersOnTop, kShowFoldersOnTopDefault).toBool());
 }
 
-void FolderNavigationWidgetFactory::insertRootDirectory(const RootDirectory &directory)
+void FolderNavigationWidgetFactory::insertRootDirectory(
+    const RootDirectory &directory, bool isProjectDirectory)
 {
     const int index = rootIndex(directory.id);
     if (index < 0)
         m_rootDirectories.append(directory);
     else
         m_rootDirectories[index] = directory;
-    emit m_instance->rootDirectoryAdded(directory);
+    emit m_instance->rootDirectoryAdded(directory, isProjectDirectory);
+}
+
+bool FolderNavigationWidgetFactory::hasRootDirectory(const QString &id)
+{
+    return rootIndex(id) != -1;
 }
 
 void FolderNavigationWidgetFactory::removeRootDirectory(const QString &id)

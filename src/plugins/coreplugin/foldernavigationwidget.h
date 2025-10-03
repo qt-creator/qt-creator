@@ -56,9 +56,10 @@ public:
     void restoreSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
 
     void addRootPath(Utils::Id id, const QString &displayName, const QIcon &icon, const Utils::FilePath &path) override;
-    void removeRootPath(Utils::Id path) override;
+    void removeRootPath(Utils::Id id) override;
 
-    static void insertRootDirectory(const RootDirectory &directory);
+    static void insertRootDirectory(const RootDirectory &directory, bool isProjectDirectory = true);
+    static bool hasRootDirectory(const QString &id);
     static void removeRootDirectory(const QString &id);
 
     static void setFallbackSyncFilePath(const Utils::FilePath &filePath);
@@ -66,7 +67,7 @@ public:
     static const Utils::FilePath &fallbackSyncFilePath();
 
 signals:
-    void rootDirectoryAdded(const RootDirectory &directory);
+    void rootDirectoryAdded(const RootDirectory &directory, bool isProjectDirectory);
     void rootDirectoryRemoved(const QString &id);
 
     void aboutToShowContextMenu(QMenu *menu, const Utils::FilePath &filePath, bool isDir);
@@ -96,7 +97,9 @@ public:
     void setShowBreadCrumbs(bool show);
     void setShowFoldersOnTop(bool onTop);
 
-    void insertRootDirectory(const FolderNavigationWidgetFactory::RootDirectory &directory);
+    void insertRootDirectory(
+        const FolderNavigationWidgetFactory::RootDirectory &directory,
+        bool isProjectDirectory = true);
     void removeRootDirectory(const QString &id);
 
     void addNewItem();
