@@ -20,8 +20,8 @@
     On the first page, users can enter a username and password to log in. On the
     second page, they can register as users if they do not already have an account.
 
-    Because the second page will contain most of the same UI components as the
-    login page, you will use \e states to show and hide UI components as necessary
+    Because the complete second page contains most of the same UI components as the
+    login page, use \e states to show and hide UI components as necessary
     when a user selects the \e {Create Account} button.
 
     The starting point for this tutorial is the completed
@@ -33,8 +33,8 @@
 
     \section1 Adding UI components
 
-    You will add another entry field for verifying the password that users
-    enter to create an account. You are already familiar with the tasks in
+    Add another entry field for verifying the password that the user enters
+    to create an account. You are already familiar with the tasks in
     this section from the previous \e {Login UI} tutorials.
 
     To preview the changes that you make, select the run dropdown menu from the
@@ -65,14 +65,14 @@
 
     \image loginui3-base-state.webp The login page with a Repeat Password field.
 
-    Next, you will add states for the login page and the account creation page,
+    Next, add states for the login page and the account creation page,
     where you use the visibility property to hide the \e {Repeat Password} field on
     the login page and the \e {Create Account} button on the account creation
     page.
 
     \section1 Using states to simulate page changes
 
-    You will now add \l{Working with states}{states} to the UI to show and hide UI
+    Add \l{Working with states}{states} to the UI to show and hide UI
     components in the \uicontrol {2D} view, depending on the current page:
 
     \list 1
@@ -107,9 +107,8 @@
 
     \image loginui3-login-state-preview.webp Preview of the login state.
 
-    Next, you will create connections to specify that clicking the
-    \e {Create Account} button on the login page triggers a
-    transition to the account creation page.
+    Next, create connections to specify that clicking the \e {Create Account}
+    button on the login page triggers a transition to the account creation page.
 
     \section1 Connecting buttons to states
 
@@ -118,9 +117,8 @@
     that has a \e clicked signal. The signal is emitted whenever the mouse
     is clicked within the area.
 
-    You will now use the \l {Connections} view to
-    \l{Connecting components to signals}{connect} the clicked signal of the
-    \e createAccount button to \e createAccount state:
+    Use the \l {Connections} view to \l{Connecting components to signals}{connect}
+    the clicked signal of the \e createAccount button to \e createAccount state:
 
     \list 1
         \li Select \uicontrol View > \uicontrol Views >

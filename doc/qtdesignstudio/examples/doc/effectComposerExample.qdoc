@@ -25,7 +25,7 @@
     dragging it and zoom it with the mouse wheel.
 
     The example project has a scalable design. When you resize the window to fit your screen, some
-    components will adjust automatically.
+    of the components adjust automatically.
 
     \section1 Running the example
 

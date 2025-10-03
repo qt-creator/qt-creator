@@ -16,7 +16,7 @@
     \l{https://shadertoy.com}{Shadertoy} to create a custom effect to use in the
     \QDS \uicontrol {Effect Composer}.
 
-    To create the custom effect, you will use the \l{https://www.shadertoy.com/view/3lcSRn}{Moving bars} shader code:
+    To create the custom effect, use the \l{https://www.shadertoy.com/view/3lcSRn}{Moving bars} shader code:
 
     \code
     const float pi = 3.14159265;
@@ -77,7 +77,7 @@
     \section1 Adding a new custom effect for the shader
 
     First, you need to add a new custom effect to your composition in
-    \uicontrol {Effect Composer}. Later, you will copy the shader code to this
+    \uicontrol {Effect Composer}. Later, copy the shader code to this
     custom effect.
 
     To add a custom effect to your composition:
@@ -91,7 +91,7 @@
 
     \section1 Copying the shader code to Shaders Code Editor
 
-    Next, you will copy the shader code and paste it to the \uicontrol {Fragment Shader}
+    Next, copy the shader code and paste it to the \uicontrol {Fragment Shader}
     tab of \uicontrol {Shaders Code Editor}:
 
     \list 1

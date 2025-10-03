@@ -83,9 +83,9 @@
 
     The text might look different on the desktop and MCUs because on the
     desktop we use dynamic font loading, whereas on MCUs fonts are compiled
-    into application sources. Therefore, the text will always be Maven Pro
+    into application sources. Therefore, the font use is always Maven Pro
     on MCUs, whereas on the desktop you'd need to have Maven Pro installed
-    for it to be used. Usually, you will see the system default font instead.
+    for it to be used. Usually, the system uses the default font instead.
 
     We also created a more complicated component called \e MultSegmentArc
     that we use to indicate that a button is pressed.
@@ -107,13 +107,13 @@
 
     \image washingmachineui-progress-indicator.png "Button progress indicator"
 
-    Our component is composed of four blocks, into which the arc segments will
+    Our component is composed of four blocks, into which the arc segments
     rotate to indicate progress. To build it, we use \l{basic-image}{Image}
     components that have pictures of four segments of an arc as sources and
     \l{basic-rectangle}{Rectangle} components that mask the segments of the
     arc that should be hidden until they have rotated into place. For the
     \e Smallbutton component, we override the images with pictures of smaller
-    arc segments that will fit nicely around the small button.
+    arc segments that fit nicely around the small button.
 
     \image washingmachineui-multisegmentarc.png "MultSegmentArc component"
 
@@ -174,7 +174,7 @@
 
     \image washingmachineui-application-flow.png "startScreen component in different views"
 
-    Because we will use states to display one screen at a time, depending on
+    Because we use states to display one screen at a time, depending on
     the choices users make, we can place all the screens on top of each other
     in the top-left corner of the root component.
 
@@ -239,14 +239,14 @@
     date and time, as specified in ECMAScript specification.
 
     To get around this limitation on the desktop, we create our own component
-    in the \e Timedate.qml file with some properties that we will need later
+    in the \e Timedate.qml file with some properties that we need later
     to get the current time in hours and minutes:
 
     \quotefromfile washingMachineUI/Timedate.qml
     \skipto Item {
     \printuntil minInt
 
-    On MCUs, we will unfortunately still see the elapsed time since when the
+    On MCUs, we unfortunately still see the elapsed time since when the
     application was started. However, this is useful on the \e Running screen
     for indicating the progress of the selected wash program.
 
@@ -266,6 +266,6 @@
 
     To use two digits for hours and minutes, we use the \c hrsStr, \c minStr,
     \c hrsInt, and \c minInt properties to add extra zeros for values below
-    10. This way, the clock will display the time as \c 08:00 instead as \c 8:0,
+    10. This way, the clock displays the time as \c 08:00 instead as \c 8:0,
     for example.
 */

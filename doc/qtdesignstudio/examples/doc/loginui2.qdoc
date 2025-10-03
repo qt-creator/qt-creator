@@ -17,9 +17,9 @@
     build on each other to illustrate how to create a simple UI with some basic UI
     components, such as pages, buttons, and entry fields.
 
-    This tutorial describes how  to position the UI components on pages to create a scalable UI.
-    You will use anchors and positioners to ensure that the layout
-    is responsive and all the UI components stay in their proper places when you resize
+    This tutorial describes how to position the UI components on pages to create
+    a scalable UI. Use anchors and positioners to ensure that the layout is
+    responsive and all the UI components stay in their proper places when you resize
     the UI on the desktop or on devices with different screen sizes.
 
     The starting point for this tutorial is the completed
@@ -31,18 +31,20 @@
 
     \section1 Changing the component hierarchy
 
-    You can only anchor components to their parent and sibling components. To make the entry
-    fields and the buttons sibling components to other page elements, drag them from
-    \e adventurePage to \e rectangle in the \l Navigator view (press and hold the \key Shift
-    or \key Ctrl key for \l {Multiselection}{multiple selection}).
+    You can only anchor components to their parent and sibling components. First, to
+    make the entry fields and the buttons sibling components to other page elements,
+    drag them from \e adventurePage to \e rectangle in the \l Navigator view
+    (press and hold the \key Shift or \key Ctrl key for \l {Multiselection}{multiple selection}).
+
+    Next, anchor the static elements to the UI.
 
     \image loginui2-new-hierarchy.webp The Navigator view after moving the entry fields and the buttons.
 
     \section1 Anchoring UI components
 
-    You will now \l {Setting anchors and margins}{anchor} the
-    static page elements, the background image (\e adventurePage), the logo
-    (\e qt_logo_green_128x128px), and the tag line (\e tagLine), to the page.
+    \l {Setting anchors and margins}{Anchor} the static page elements, meaning
+    the background image (\e adventurePage), the logo (\e qt_logo_green_128x128px),
+    and the tag line (\e tagLine), to the page.
 
     To preview the changes that you make, select the run dropdown menu from the
     top toolbar, and then select \uicontrol {Live Preview}, or select \key {Alt+P}.
@@ -106,10 +108,9 @@
 
     \section1 Using column positioners
 
-    You will now position the entry fields and buttons in columns
-    to learn another method of \l{Using positioners}{positioning components}.
-    Then, you will anchor the columns to the page, so that their positions
-    adapt to any screen size changes.
+    Next, position the entry fields and buttons in columns to learn another method
+    of \l{Using positioners}{positioning components}. Then, anchor the columns to
+    the page, so that their positions adapt to any screen size changes.
 
     To position the fields and buttons as columns:
 
@@ -133,7 +134,7 @@
             set the spacing between the buttons to \e 20, as above.
     \endlist
 
-    You will now anchor the field and button columns to the page:
+    Now, anchor the field and button columns to the page:
 
     \list 1
         \li Select \e fields in \uicontrol Navigator.

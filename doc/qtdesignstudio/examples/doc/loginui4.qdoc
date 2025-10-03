@@ -23,7 +23,7 @@
 
     In \l {Login UI: States}, you learned how to use states to simulate page
     changes in a UI and connections to provide user interaction with it. In
-    this part, you will now learn another way of animating the UI by creating
+    this part, you  learn another way of animating the UI by creating
     \l{Creating timeline animations}{timeline animations} that you bind
     to states.
 
@@ -40,16 +40,16 @@
 
     In \l {Login UI: States}, you changed the visibility property in different
     states to simulate changing pages. To make sure that those changes won't
-    interfere with the changes to the opacity property you will make next, you
-    will first remove the states.
+    interfere with the changes to the opacity property you make next, you
+    first remove the states.
 
-    Then, you will add a timeline and insert keyframes for the opacity property
+    Then, add a timeline and insert keyframes for the opacity property
     to hide the \e {Repeat Password} field on the login page and the
     \e {Create Account} button on the account creation page. Because we want the
-    \e {Repeat Password} field to appear to slide down from the \e Password field, you
-    will also need to insert a keyframe for its anchor margin property. To be
-    able to animate the anchor, you also need to pull out the fields from the
-    column component and anchor them to the rectangle and to each other instead.
+    \e {Repeat Password} field to appear to slide down from the \e Password field,
+    you need to insert a keyframe for its anchor margin property. To be able to
+    animate the anchor, you also need to pull out the fields from the column
+    component and anchor them to the rectangle and to each other instead.
 
     To preview the changes that you make, select the \uicontrol {Live Preview} button
     or select \key {Alt+P}.
@@ -139,7 +139,7 @@
             \image loginui4-timeline-settings.png
     \endlist
 
-    Next, you will record the animation in \uicontrol Timeline.
+    Next, record the animation in \uicontrol Timeline.
 
     \section2 Inserting keyframes
 
@@ -169,8 +169,8 @@
             , and selecting \uicontrol {Edit Keyframe}.
             \image loginui4-timeline.webp Recording the opacity property.
         \li Select the record button again to stop recording property changes.
-            If you forget this, all the following changes will be recorded, and
-            the results will be unpredictable.
+            If you forget this, all the following changes are recorded, which
+            leads to unpredictable results.
         \li Select \e createAccount in \uicontrol Navigator, and repeat
             the above steps to insert a keyframe for the \uicontrol Opacity
             property of the button and to record changes for it. However, this
@@ -183,7 +183,7 @@
     When you move the playhead along the timeline, you can see how the \e {Create Account}
     button fades out while the \e {Repeat Password} field fades in.
 
-    You will now animate the top anchor margin of the \e {Repeat Password} field
+    Next, animate the top anchor margin of the \e {Repeat Password} field
     to make it appear to slide down from the \e Password field.
 
     \section2 Animating anchors
@@ -215,10 +215,12 @@
             to save your changes.
     \endlist
 
+    Next, add easing curves to the anchor margin animation.
+
     \section2 Adding easing curves
 
-    You will now add an \l{Editing easing curves}{easing curve} to the anchor
-    margin animation that will make the transition seem smoother:
+    To make the transition seem smoother, add an \l{Editing easing curves}{easing curve} to the anchor
+    margin animation:
 
     \list 1
         \li Select the keyframe marker \imagekeyframelinearactive
@@ -242,7 +244,7 @@
 
     \image loginui4-timeline-final.webp The Timeline view with the recorded property changes.
 
-    Next, you will create states for the login and account creation pages and bind
+    Next, create states for the login and account creation pages and bind
     them to the animation settings.
 
     \section1 Binding animation to states

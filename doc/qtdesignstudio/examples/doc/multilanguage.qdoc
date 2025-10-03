@@ -22,14 +22,14 @@
 
     This project consists of a login page with a couple of text elements.
 
-    Additionally, you will use a JSON translation file in this tutorial.
-    Download it from \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/multi-language}{here}.
+    In this tutorial, you also neeed a JSON translation file. Download it from
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/multi-language}{here}.
 
     \include run-tutorial-project.qdocinc
 
     \section1 JSON translation file
 
-    The JSON translation file you are using in this project has the following
+    The JSON translation file you are using in this tutorial has the following
     structure:
 
     \code
@@ -156,9 +156,8 @@
     \endlist
 
     You can select language from the dropdown list on the left side of the
-    \uicontrol Translations view. Translations for the selected languages will
-    show in the \uicontrol Translations view as well as in the
-    \uicontrol {2D} view.
+    \uicontrol Translations view. \QDS shows translations for the selected languages
+    in the \uicontrol Translations view as well as in the \uicontrol {2D} view.
 
     You can run translation tests, import, and export translations as described
     in \l{Translations}.

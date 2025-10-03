@@ -86,7 +86,7 @@
 
     When you run the application, notice an improvement in the scene lighting.
 
-    As you will add a background image to the scene later, you need to disable the use of skybox:
+    Because you add a background image to the scene later, you need to disable the use of skybox:
 
     \list 1
       \li In the \uicontrol Navigator view, select \e sceneEnvironment.

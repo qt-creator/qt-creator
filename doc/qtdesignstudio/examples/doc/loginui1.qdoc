@@ -24,12 +24,12 @@
 
     \section1 Creating the UI project
 
-    For the purposes of this tutorial, you will use the empty wizard template.
-    Wizard templates are available also for creating UIs that are optimized for
-    mobile platforms and for launcher applications. For more information about
-    the options you have, see \l {Creating projects}.
+    For the purposes of this tutorial, use the empty wizard template to create
+    the UI project. For other purposes, use one of the wizard templates for creating UIs
+    optimized for mobile platforms or launcher applications. For more information see
+    \l {Creating projects}.
 
-    To create a project:
+    To create a project using the empty wizard template:
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New Project}.
@@ -45,7 +45,7 @@
                 You can change the screen size later in \l Properties.
             \endlist
         \li Select \uicontrol Create (5) to create the project.
-    \image loginui1-new-project.webp Creating a new project in Qt Design Studio.
+        \image loginui1-new-project.webp Creating a new project in Qt Design Studio.
     \endlist
 
     Your project should now look something like this in the \uicontrol Projects view:
@@ -61,21 +61,21 @@
     image above. To open and close views, select \uicontrol View > \uicontrol Views.
     For more information about arranging the \QDS workspace, see \l {Workspaces}.
 
-    Remove the button and the text component from the UI to have a clean workspace. Later
-    in this tutorial, you will add and modify them as you need.
+    Remove the button and the text component from the UI to have a clean workspace.
+    Add button and text components later in this tutorial as instructed.
 
-    To remove this button, select it and select \key {Backspace}. Repeat for the
+    To remove the button, select it and select \key {Backspace}. Repeat for the
     text component.
 
-    Next, you will edit the values of the properties of the component instances
+    Next, edit the values of the properties of the component instances
     to create the main page of the UI.
 
     \section1 Creating the main page
 
-    You will now create the main page of your UI. First, you will download
-    a logo, a background image, and a custom font and import them to \QDS as
-    assets. You will then use these assets to add a background image, a logo,
-    and a tag line to your main page.
+    After creating the new project and setting up a clean workspace, you are now
+    ready to create the main page of your UI. First, download a logo, a background
+    image, and a custom font and import them to \QDS as assets. Then, use these
+    assets to add a background image, a logo, and a tag line to your main page.
 
     Download the logo and the background image from here:
 
@@ -100,8 +100,8 @@
         \uicontrol Views > \uicontrol Assets.)
         \image loginui1-add-assets.webp The Assets view.
         \li Select the asset files, and then select \uicontrol Open.
-        \li Select the location where the files will be saved in the
-            \uicontrol {Add Resources} dialog.
+        \li In the \uicontrol {Add Resources} dialog, select the location
+            for saving the files.
         \li Select \uicontrol OK.
     \endlist
 
@@ -166,10 +166,12 @@
 
     Resize the \uicontrol {Live Preview} window to see the whole screen.
 
+    You are now ready to add push buttons to your UI.
+
     \section1 Creating a Push Button
 
-    Next, you will use another wizard template to create a push button and add it to
-    the project. The wizard template creates a reusable button component that
+    Next, you use another wizard template to create a push button and add it to
+    the UI. The wizard template creates a reusable button component that
     appears in \uicontrol Components > \uicontrol {My Components}.
     You can drag it to the \uicontrol 2D view and modify its properties in
     the \uicontrol Properties view to change its appearance and functionality.
@@ -196,18 +198,18 @@
 
     \image loginui1-button-new.webp A new button in Qt Design Studio.
 
-    Next, you will change the appearance of the EntryField component by
+    Next, change the appearance of the EntryField component by
     modifying its properties.
 
     \section1 Styling the button
 
-    To style your new button, you will edit some of the properties of
-    the \e EntryField component. To make the changes apply to all the
-    EntryField instances, you must make them in the \c EntryField.ui.qml file.
+    To style your new button, edit the properties of the \e EntryField
+    component. To make the changes apply to all the EntryField instances,
+    you must make them in the \c EntryField.ui.qml file.
 
     The \uicontrol {Custom Button} wizard template adds a \e normal state
     and a \e down state to change the button background and the text color
-    when the button is clicked. You will now change the colors in all states.
+    when the button is clicked. Now, change the colors in all states.
     When you make changes to the button in the \e {Base State}, they are
     automatically applied to the other states. However, the property values that
     have been explicitly changed in the \uicontrol normal or \uicontrol down state
@@ -261,15 +263,15 @@
     \image loginui1-entry-field-styled.webp Modified button in the 2D view.
 
     \note Do not edit the value of \uicontrol Text in the \uicontrol Character
-    property because this will break the connection, and later you won't be able
-    to change the text in \uicontrol {Button Content} > \uicontrol Text.
+    property because this breaks the connection, and prevents any later
+    changes in \uicontrol {Button Content} > \uicontrol Text.
 
-    Next, you will add instances of the \e EntryField component to the
+    Next, add two instances of the \e EntryField component to the
     \e Screen01 component and modify their properties.
 
     \section1 Adding entry fields to the UI
 
-    You will now add two entry fields to the UI and modify their properties:
+    To add two entry fields to the UI and modify their properties:
 
     \list 1
         \li Double-click \c Screen01.ui.qml in \uicontrol Projects
@@ -294,9 +296,11 @@
             to save your changes.
     \endlist
 
+    Next, create another button that you can use in your UI.
+
     \section1 Creating another button
 
-    Next, you will add two more buttons to your UI. This time, you want to center-align
+    You need to create another button for your UI. This time, you want to center-align
     the text of the buttons and use brighter colors for them, so you create a second
     button component as instructed in \l{Creating a Push Button}. This time you call it
     \e PushButton.
@@ -346,11 +350,13 @@
 
     Your button should now look something like this in \e {Base State}:
 
+    Next, add two buttons to the UI as s the final step in this tutorial.
+
     \image loginui1-button-styled.webp Modified push button in the 2D view.
 
     \section1 Adding push buttons to the UI
 
-    You will now add two buttons to the UI and modify their properties:
+    To add two buttons to the UI and modify their properties:
 
     \list 1
         \li Select the file dropdown menu (1) from the top toolbar, and then select

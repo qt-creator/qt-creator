@@ -30,7 +30,7 @@
     \l Properties.
 
     We want to be able to control the background rectangle and the text label
-    that was added by the project wizard, so we will use an \uicontrol Item
+    that was added by the project wizard, so we use an \uicontrol Item
     component for that. We drag the Item from \uicontrol Components >
     \uicontrol {Default Components} > \uicontrol Basic
     to the \uicontrol {2D} view and change its ID to \e root in
@@ -57,9 +57,9 @@
 
     \section1 Animating the progress bar elements
 
-    The text label will indicate the progress in numbers and changing color,
-    while the indicator rectangle will indicate it by getting wider and
-    changing color. To animate the label and indicator, we'll add timelines
+    The text label indicates the progress in numbers and changing color,
+    while the indicator rectangle indicates it by getting wider and
+    changing color. To animate the label and indicator, we add timelines
     in the \l Timeline view.
 
     For more information about using the timeline, see
@@ -106,7 +106,7 @@
 
     \image progressbar-timeline-indicator.png "Indicator timeline"
 
-    We will now copy the color animation from the text label to the indicator.
+    Now, we copy the color animation from the text label to the indicator.
     First, we right-click the text component in the \uicontrol Timeline view to
     open a context menu and select \uicontrol {Copy All Keyframes} to
     copy the keyframe values we specified for the text label.
@@ -123,7 +123,7 @@
     \section1 Creating a reusable component
 
     We want the progress bar to be reusable, so we'll move it to a separate
-    component file. To make sure that the component will contain the timeline,
+    component file. To make sure that the component contains the timeline,
     we select \uicontrol {Filter Tree} in \uicontrol Navigator and then
     clear the \uicontrol {Show Only Visible Items} check box to show the
     timeline component in \uicontrol Navigator. We then move the timeline
@@ -131,7 +131,7 @@
 
     Now we can right-click root to open a context menu and select
     \uicontrol {Move Component into Separate File}. We can see the
-    properties that will be available from outside of the component.
+    properties that are available from outside of the component.
 
     \image progressbar-move-component.png "Move Component into Separate File dialog"
 
@@ -142,7 +142,7 @@
     open \e Root.qml in the \uicontrol {2D} view.
 
     We want to use the keyframe value as the value of the text label,
-    so we will export it as a \l{Adding property aliases}{property alias}. We
+    so we export it as a \l{Adding property aliases}{property alias}. We
     select \e timeline in \uicontrol Navigator and then \uicontrol Properties >
     \uicontrol Timeline > \uicontrol {Current frame} > \uicontrol Actions >
     \uicontrol {Export Property as Alias}.
@@ -156,7 +156,7 @@
 
     \image progressbar-bindings-progress.png "Connections View Bindings tab"
 
-    We will bind some JavaScript to the value of the text label to turn
+    We bind some JavaScript to the value of the text label to turn
     it into a running number that reflects the number of the keyframe on the
     timeline. We select the text label in \uicontrol Navigator and then
     select \uicontrol Properties > \uicontrol Text > \uicontrol {Set Binding}
@@ -176,7 +176,7 @@
     settings. We select the \imageplus
     button to add a 4000-frame timeline to the first progress bar instance
     (\e root). We select the \uicontrol Continuous check box so that the
-    animation will loop.
+    animation loops.
 
     In \uicontrol Properties > \uicontrol Root, we can see the
     \uicontrol progress property that we can animate. If we had
