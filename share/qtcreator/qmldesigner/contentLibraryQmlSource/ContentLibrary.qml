@@ -120,13 +120,25 @@ Item {
                     }
 
                     onSearchChanged: (searchText) => {
-                        ContentLibraryBackend.rootView.handleSearchFilterChanged(searchText)
+                        compressionTimer.searchText = searchText
+                        compressionTimer.restart()
+                    }
 
-                        // make sure categories with matches are expanded
-                        materialsView.expandVisibleSections()
-                        texturesView.expandVisibleSections()
-                        effectsView.expandVisibleSections()
-                        userView.expandVisibleSections()
+                    Timer {
+                        id: compressionTimer
+                        interval: 400
+                        running: false
+                        repeat: false
+                        property string searchText
+
+                        onTriggered: {
+                            ContentLibraryBackend.rootView.handleSearchFilterChanged(searchText)
+
+                            materialsView.expandVisibleSections()
+                            texturesView.expandVisibleSections()
+                            effectsView.expandVisibleSections()
+                            userView.expandVisibleSections()
+                        }
                     }
                 }
 
