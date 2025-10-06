@@ -975,6 +975,11 @@ void extractComponent(const SelectionContext &selectionContext)
         QTC_ASSERT(rootOfSelection.isValid(), return);
 
         ModelNode newNode = view.insertModel(originalNode);
+        const QList<ModelNode> selectedNodeChildren = selectedNode.directSubModelNodes();
+
+        for (const ModelNode &child : selectedNodeChildren)
+            newNode.defaultNodeListProperty().reparentHere(child);
+
         rootOfSelection.defaultNodeListProperty().reparentHere(newNode);
 
         // Delete current selected node
