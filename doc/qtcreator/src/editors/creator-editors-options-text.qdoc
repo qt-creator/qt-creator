@@ -20,8 +20,8 @@
 
     \title Font & Colors
 
-    \brief Set the font preferences and apply color schemes for syntax
-    highlighting, diff editor, and code analysis results.
+    \summary {Set the font preferences and apply color schemes for syntax
+    highlighting, diff editor, and code analysis results.}
 
     To set editor font and colors, select \preferences >
     \uicontrol {Text Editor} > \uicontrol {Font & Colors}.

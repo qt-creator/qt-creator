@@ -9,7 +9,7 @@
 
     \title Conan Package Manager
 
-    \brief The experimental Conan plugin integrates the Conan package manager.
+    \summary {The experimental Conan plugin integrates the Conan package manager.}
 
     \l {https://conan.io}{Conan} is a C/C++ package manager that speeds up the
     integration of C or C++ libraries into your own project. It's available on

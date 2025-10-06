@@ -8,8 +8,8 @@
 
     \title Outline
 
-    \brief Shows an overview of defined types and other symbols, as well as
-    their properties and hierarchy in a source file.
+    \summary {Shows an overview of defined types and other symbols, as well as
+    their properties and hierarchy in a source file.}
 
     \image {qtcreator-outline-view.webp} {Outline view}
 
@@ -34,7 +34,7 @@
 
     \title Class View
 
-    \brief Shows the class hierarchy of the currently open projects.
+    \summary {Shows the class hierarchy of the currently open projects.}
 
     \image {qtcreator-class-view.webp} {Class View}
 
@@ -54,8 +54,8 @@
 
     \title Call Hierarchy
 
-    \brief Shows information about incoming and outgoing function calls from a
-    \l{Language Servers}{language server}.
+    \summary {Shows information about incoming and outgoing function calls from a
+    language server.}
 
     Place the cursor on a function definition in the code editor to see lists
     of functions that call it and the functions it calls. This works recursively,
@@ -67,6 +67,8 @@
     \uicontrol {Restart} to collect call hierarchy information for the function.
 
     \image {qtcreator-call-hierarchy-view.webp} {Call Hierarchy view}
+
+    \sa {Language Servers}
 */
 
 /*!
@@ -76,7 +78,7 @@
 
     \title Type Hierarchy
 
-    \brief Shows the base classes and derived classes of a class.
+    \summary {Shows the base classes and derived classes of a class.}
 
     To view type hierarchy of a class:
 
@@ -108,8 +110,8 @@
 
     \title Include Hierarchy
 
-    \brief Shows the files that the current file includes and those that include
-    the current file.
+    \summary {Shows the files that the current file includes and those that include
+    the current file.}
 
     To view the include hierarchy of a file:
 

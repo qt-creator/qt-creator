@@ -104,8 +104,8 @@
 
     \title JavaScript and QML Checks
 
-    \brief Run static checks on the QML and JavaScript code in your project to
-    find common problems.
+    \summary {Run static checks on the QML and JavaScript code in your project to
+    find common problems.}
 
     To run static checks, go to \uicontrol Tools > \uicontrol {QML/JS} >
     \uicontrol {Run Checks} or select \key {Ctrl+Shift+C}.

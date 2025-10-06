@@ -59,7 +59,7 @@
 
     \title Heob
 
-    \brief Detect memory leaks with Heob.
+    \summary {Detect memory leaks with Heob.}
 
     To specify settings for Heob, go to \uicontrol Analyze > \uicontrol Heob.
 

@@ -325,7 +325,7 @@
 
     \section2 Using Squish
 
-    \brief The experimental Squish plugin integrates Squish into \QC.
+    The experimental Squish plugin integrates Squish into \QC.
 
     \l{https://www.qt.io/product/quality-assurance/squish}{Squish} is an
     automated GUI testing framework for testing Android, iOS, Java, \macos,

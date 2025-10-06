@@ -9,9 +9,9 @@
 
     \title Developing for Bare Metal Devices
 
-    \brief Create kits to use Bare Metal toolchains installed on the computer
+    \summary {Create kits to use Bare Metal toolchains installed on the computer
     to build applications for and run and debug them on connected Bare Metal
-    devices.
+    devices.}
 
     Run and debug applications on small devices that are not supported
     by the remote Linux device plugin by using GDB or a hardware debugger.

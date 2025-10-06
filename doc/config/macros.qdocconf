@@ -65,6 +65,11 @@ macro.clearfloat.HTML       = "<br style=\"clear: both\" />"
 macro.emptyspan.HTML	    = "<span></span>"
 macro.externallink.HTML     = "<a href=\"\1\" target=\"_blank\">\2</a>"
 
+# Used like \brief, but replicates the sentence also as text.
+# Wrap the entire sentence with {}, for example:
+#     \summary {Creates a build target.}
+macro.summary = "\\brief \1\n\n\1\n"
+
 # Embed YouTube content by video ID - Example: \youtube dQw4w9WgXcQ
 # Also requires a <ID>.jpg thumbnail for offline docs. In .qdocconf, add:
 #

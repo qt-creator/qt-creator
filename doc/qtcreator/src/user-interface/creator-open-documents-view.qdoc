@@ -17,9 +17,9 @@
     \title Open Documents
 
     \if defined(qtdesignstudio)
-    \brief View currently open files.
+    \summary {View currently open files.}
     \else
-    \brief Shows currently open files.
+    \summary {Shows currently open files.}
     \endif
 
     \if defined(qtdesignstudio)

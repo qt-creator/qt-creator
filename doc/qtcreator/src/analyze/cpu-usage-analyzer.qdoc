@@ -115,8 +115,8 @@
 
     \title Performance Analyzer
 
-    \brief Analyze the CPU and memory usage of an application on Linux desktop
-    and embedded devices.
+    \summary {Analyze the CPU and memory usage of an application on Linux desktop
+    and embedded devices.}
 
     To set global preferences for Performance Analyzer, go to \preferences >
     \uicontrol Analyzer > \uicontrol {CPU Usage}.
