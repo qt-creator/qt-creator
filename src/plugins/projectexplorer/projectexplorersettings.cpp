@@ -336,9 +336,8 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
                 s.abortBuildAllOnError,
                 s.lowBuildPriority,
                 s.warnAgainstNonAsciiBuildDir,
-                s.kitFilter,
-
                 Form {
+                    s.kitFilter, br,
                     appEnvDescriptionLabel, Row{m_appEnvLabel, appEnvButton, st}, br,
                     s.buildBeforeDeploy, br,
                     s.stopBeforeBuild, br,
