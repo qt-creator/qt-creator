@@ -2051,7 +2051,7 @@ void EffectComposerModel::copyProcessTargetToEffectDir(Utils::Process *qsbProces
     const Utils::FilePath &effectsResDir
         = QmlDesigner::ModelNodeOperations::getEffectsImportDirectory();
     Utils::FilePath destFile = effectsResDir.pathAppended(
-        "/" + effectName + "/" + effectName + "." + shaderFormat);
+        "/" + effectName + "/" + effectName.toLower() + "." + shaderFormat);
 
     if (destFile.exists())
         destFile.removeFile();
