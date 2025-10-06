@@ -37,18 +37,15 @@ public:
                                                                         : levelAdvanced)
             ->setChecked(true);
 
-        const QString captionText =
-            Tr::tr("This helps us recommend suitable tutorials and features.");
-
         using namespace Layouting;
-        auto vSpace = Space(SpacingTokens::GapVM);
+        auto vSpace = Space(SpacingTokens::GapVXl);
         Column {
-            tfLabel(Tr::tr("Personalize learning"), pageHeaderTf),
-            Tr::tr("Get tutorials and tips tailored to your role and experience."),
+            tfLabel(Tr::tr("Recommend content"), pageHeaderTf),
+            Tr::tr("Qt Creator suggests tutorials, courses and examples based on your "
+                   "experience and needs."),
             vSpace,
             tfLabel(Tr::tr("Your experience level"), sectionHeaderTf),
             Row { levelBasic, levelAdvanced, st },
-            tfLabel(captionText, captionTf),
             vSpace,
             tfLabel(Tr::tr("Select your target platforms"), sectionHeaderTf),
             Flow {
@@ -58,7 +55,6 @@ public:
                 targetButton(Tr::tr("Boot2Qt"), TARGET_BOOT2QT),
                 targetButton(Tr::tr("Qt for MCUs"), TARGET_QTFORMCUS),
             },
-            tfLabel(captionText, captionTf),
             noMargin,
         }.attachTo(this);
 
