@@ -11,9 +11,6 @@
     \brief Shows an overview of defined types and other symbols, as well as
     their properties and hierarchy in a source file.
 
-    To move the code for types and symbols around in the source file, drag
-    them in the outline.
-
     \image {qtcreator-outline-view.webp} {Outline view}
 
     \list
