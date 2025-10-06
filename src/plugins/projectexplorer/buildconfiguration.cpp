@@ -708,10 +708,11 @@ void BuildConfiguration::updateDefaultRunConfigurations()
         for (RunConfiguration *rc : std::as_const(existingConfigured)) {
             bool present = false;
             for (const RunConfigurationCreationInfo &item : creators) {
-                QString buildKey = rc->buildKey();
-                if (item.factory->runConfigurationId() == rc->id() && item.buildKey == buildKey) {
+                if (item.factory->runConfigurationId() == rc->id()
+                    && item.buildKey == rc->buildKey()) {
                     existing.append(item);
                     present = true;
+                    break;
                 }
             }
             if (!present
