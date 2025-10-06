@@ -435,6 +435,8 @@ void ItemLibraryModel::update(Model *model)
 
             if (!entry.requiredImport().isEmpty())
                 qualifiedTypeName.prepend(entry.requiredImport() + ".");
+            else if (entry.customComponentSource().isEmpty())
+                qualifiedTypeName.prepend("QtQuick.");
 
             if (blockTypes.contains(qualifiedTypeName))
                 blocked = true;
