@@ -1,6 +1,7 @@
 set(ALL_CMDBRIDGE_PLATFORMS "")
 
-option(BUILD_EXECUTABLE_CMDBRIDGE "Build the cmdbridge executable, required for fast remote device support" ON)
+env_with_default("QTC_BUILD_EXECUTABLE_CMDBRIDGE" ENV_BUILD_EXECUTABLE_CMDBRIDGE ON)
+option(BUILD_EXECUTABLE_CMDBRIDGE "Build the cmdbridge executable, required for fast remote device support" "${ENV_BUILD_EXECUTABLE_CMDBRIDGE}")
 
 if(NOT BUILD_EXECUTABLE_CMDBRIDGE)
     add_feature_info("Executable CmdBridge" NO "")
@@ -53,7 +54,7 @@ find_program(GO_BIN go)
 find_program(UPX_BIN upx)
 
 if(NOT GO_BIN)
-  message(FATAL_ERROR "Could not find GO compiler, required for the CmdBridge for fast remote device support.")
+  message(FATAL_ERROR "Could not find GO compiler, required for the CmdBridge (BUILD_EXECUTABLE_CMDBRIDGE) for fast remote device support.")
 endif()
 
 set(CMDBRIDGEFEATURE_TEXT "with GO compiler at ${GO_BIN}")
