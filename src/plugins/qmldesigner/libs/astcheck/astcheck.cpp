@@ -879,7 +879,10 @@ bool AstCheck::visit(Block *ast)
     bool isDirectInConnectionsScope =
             (!m_typeStack.isEmpty() && m_typeStack.last() == "Connections");
 
-    if (!isDirectInConnectionsScope)
+    bool isDirectInTimelineAnimationScope = (!m_typeStack.isEmpty()
+                                             && m_typeStack.last() == "TimelineAnimation");
+
+    if (!isDirectInConnectionsScope && !isDirectInTimelineAnimationScope)
         addMessage(ErrBlocksNotSupportedInQmlUi, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
 
     if (Node *p = parent()) {
