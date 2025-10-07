@@ -953,4 +953,13 @@ void RunConfiguration::setUniqueId(const QString &id)
     m_uniqueId = id;
 }
 
+QString RunConfiguration::expandedDisplayName() const
+{
+    QString displayName = ProjectConfiguration::expandedDisplayName();
+    if (hasCreator())
+        return displayName;
+
+    return joinStrings({displayName, QString("[%1]").arg(Tr::tr("unavailable"))}, ' ');
+}
+
 } // namespace ProjectExplorer

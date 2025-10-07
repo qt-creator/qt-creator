@@ -203,6 +203,8 @@ public:
     void setExecutionType(Utils::Id executionType);
     Utils::Id executionType() const;
 
+    QString expandedDisplayName() const override;
+
 protected:
     RunConfiguration(BuildConfiguration *bc, Utils::Id id);
 
