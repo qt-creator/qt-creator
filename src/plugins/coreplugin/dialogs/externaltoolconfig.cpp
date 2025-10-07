@@ -76,7 +76,7 @@ public:
     void revertTool(const QModelIndex &modelIndex);
     QModelIndex addCategory();
     QModelIndex addTool(const QModelIndex &atIndex);
-    void removeTool(const QModelIndex &modelIndex);
+    void removeToolOrCategory(const QModelIndex &modelIndex);
     Qt::DropActions supportedDropActions() const override { return Qt::MoveAction; }
 
 private:
@@ -380,24 +380,34 @@ QModelIndex ExternalToolModel::addTool(const QModelIndex &atIndex)
     return index(pos, 0, parent);
 }
 
-void ExternalToolModel::removeTool(const QModelIndex &modelIndex)
+void ExternalToolModel::removeToolOrCategory(const QModelIndex &modelIndex)
 {
-    ExternalTool *tool = toolForIndex(modelIndex);
-    QTC_ASSERT(tool, return);
-    QTC_ASSERT(!tool->preset(), return);
-    // remove the tool and the tree item
-    int categoryIndex = 0;
-    for (QList<ExternalTool *> &items : m_tools) {
-        int pos = items.indexOf(tool);
-        if (pos != -1) {
-            beginRemoveRows(index(categoryIndex, 0), pos, pos);
-            items.removeAt(pos);
-            endRemoveRows();
-            break;
+    if (modelIndex.parent().isValid()) {
+        ExternalTool *tool = toolForIndex(modelIndex);
+        QTC_ASSERT(tool, return);
+        QTC_ASSERT(!tool->preset(), return);
+        // remove the tool and the tree item
+        int categoryIndex = 0;
+        for (QList<ExternalTool *> &items : m_tools) {
+            int pos = items.indexOf(tool);
+            if (pos != -1) {
+                beginRemoveRows(index(categoryIndex, 0), pos, pos);
+                items.removeAt(pos);
+                endRemoveRows();
+                break;
+            }
+            ++categoryIndex;
         }
-        ++categoryIndex;
+        delete tool;
+    } else {
+        // category
+        const std::optional<QString> category = categoryForIndex(modelIndex);
+        QTC_ASSERT(category, return);
+        QTC_ASSERT(m_tools.value(*category).isEmpty(), return);
+        beginRemoveRows(QModelIndex(), modelIndex.row(), modelIndex.row());
+        m_tools.remove(*category);
+        endRemoveRows();
     }
-    delete tool;
 }
 
 static void fillBaseEnvironmentComboBox(QComboBox *box)
@@ -426,7 +436,7 @@ private:
     void updateButtons(const QModelIndex &index);
     void updateCurrentItem();
     void addTool();
-    void removeTool();
+    void removeToolOrCategory();
     void addCategory();
     void updateEffectiveArguments();
     void editEnvironmentChanges();
@@ -463,7 +473,6 @@ ExternalToolConfig::ExternalToolConfig()
     addButton->setToolTip(Tr::tr("Add tool."));
 
     m_removeButton = new QPushButton(Tr::tr("Remove"));
-    m_removeButton->setToolTip(Tr::tr("Remove tool."));
 
     m_revertButton = new QPushButton(Tr::tr("Reset"));
     m_revertButton->setToolTip(Tr::tr("Revert tool to default."));
@@ -617,8 +626,8 @@ ExternalToolConfig::ExternalToolConfig()
 
     connect(m_revertButton, &QAbstractButton::clicked,
             this, &ExternalToolConfig::revertCurrentItem);
-    connect(m_removeButton, &QAbstractButton::clicked,
-            this, &ExternalToolConfig::removeTool);
+    connect(
+        m_removeButton, &QAbstractButton::clicked, this, &ExternalToolConfig::removeToolOrCategory);
 
     auto menu = new QMenu(addButton);
     addButton->setMenu(menu);
@@ -659,7 +668,9 @@ void ExternalToolConfig::updateButtons(const QModelIndex &index)
 {
     const ExternalTool *tool = ExternalToolModel::toolForIndex(index);
     if (!tool) {
-        m_removeButton->setEnabled(false);
+        const bool isCategory = m_model.categoryForIndex(index).has_value();
+        const bool isEmpty = m_model.rowCount(index) == 0;
+        m_removeButton->setEnabled(isCategory && isEmpty);
         m_revertButton->setEnabled(false);
         return;
     }
@@ -895,11 +906,11 @@ void ExternalToolConfig::addTool()
     m_toolTree->edit(index);
 }
 
-void ExternalToolConfig::removeTool()
+void ExternalToolConfig::removeToolOrCategory()
 {
     QModelIndex currentIndex = m_toolTree->selectionModel()->currentIndex();
-    m_toolTree->selectionModel()->setCurrentIndex(QModelIndex(), QItemSelectionModel::Clear);
-    m_model.removeTool(currentIndex);
+    m_model.removeToolOrCategory(currentIndex);
+    updateCurrentItem();
 }
 
 void ExternalToolConfig::addCategory()
