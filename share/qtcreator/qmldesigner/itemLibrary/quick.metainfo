@@ -123,6 +123,24 @@ MetaInfo {
     }
 
     Type {
+        name: "QtQuick.VectorImage.VectorImage"
+        icon: "images/image-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Vector Image"
+            category: "a.Qt Quick - Vector Image"
+            libraryIcon: "images/image-icon.png"
+            version: "6.8"
+            requiredImport: "QtQuick.VectorImage"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+
+            toolTip: qsTr("Displays a vector image in the SVG format.")
+        }
+    }
+
+    Type {
         name: "QtQuick.AnimatedImage"
         icon: "images/animated-image-icon16.png"
 
