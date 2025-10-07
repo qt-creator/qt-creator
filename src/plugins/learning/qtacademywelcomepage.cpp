@@ -7,6 +7,7 @@
 #include "utils/algorithm.h"
 #include "utils/overlaywidget.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/welcomepagehelper.h>
 
 #include <solutions/spinner/spinner.h>
@@ -23,6 +24,7 @@
 #include <QApplication>
 #include <QDesktopServices>
 #include <QGridLayout>
+#include <QImageWriter>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -36,6 +38,8 @@
 
 using namespace Utils;
 using namespace Core;
+
+const char THUMBNAIL_CACHE_IMAGE_FORMAT[] = "png";
 
 Q_LOGGING_CATEGORY(qtAcademyLog, "qtc.qtacademy", QtWarningMsg)
 
@@ -416,7 +420,8 @@ public:
 
         m_model.setPixmapFunction([this](const QString &url) -> QPixmap {
             queueImageForDownload(url);
-            return {};
+            const FilePath cachedImageFile = cachedThumbnailFileName(url);
+            return QPixmap(cachedImageFile.toUrlishString());
         });
 
         m_filteredModel = new ListModelFilter(&m_model, this);
@@ -556,6 +561,8 @@ private:
             if (items.at(row)->imageUrl == url) {
                 const QModelIndex index = m_model.index(row);
                 emit m_model.dataChanged(index, index, {ListModel::ItemImageRole, Qt::DisplayRole});
+                const QPixmap pixmap = index.data(ListModel::ItemImageRole).value<QPixmap>();
+                storeToThumbnailCache(url, pixmap);
             }
         }
     }
@@ -627,6 +634,24 @@ private:
     {
         m_selectedCourse = course;
         emit courseSelected();
+    }
+
+    static FilePath cachedThumbnailFileName(const QString &url)
+    {
+        const QString baseName =
+            QLatin1String(QCryptographicHash::hash(url.toUtf8(),
+                                                   QCryptographicHash::Sha1).toHex());
+        const FilePath path = ICore::cacheResourcePath() /
+                              (baseName + "." + QLatin1String(THUMBNAIL_CACHE_IMAGE_FORMAT));
+        return path;
+    }
+
+    static void storeToThumbnailCache(const QString &url, const QPixmap &pixmap)
+    {
+        QImageWriter writer(cachedThumbnailFileName(url).toUrlishString(),
+                            THUMBNAIL_CACHE_IMAGE_FORMAT);
+        writer.setCompression(0);
+        writer.write(pixmap.toImage());
     }
 
 signals:
