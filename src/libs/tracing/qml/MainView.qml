@@ -117,203 +117,270 @@ Rectangle {
     }
     Keys.onReleased: shiftPressed = false;
 
-    TimelineLabels {
-        id: categories
-        anchors.top: buttonsBar.bottom
+    SplitView {
+        id: split
+        anchors.top: root.top
+        anchors.left: root.left
+        anchors.right: root.right
         anchors.bottom: overview.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        contentY: content.contentY
-        selectedModel: root.selectedModel
-        selectedItem: root.selectedItem
-        color: Theme.color(Theme.PanelStatusBarBackgroundColor)
-        modelProxy: timelineModelAggregator
-        zoomer: zoomControl
-        reverseSelect: root.shiftPressed
 
-        onMoveCategories: (sourceIndex, targetIndex) => {
-            content.moveCategories(sourceIndex, targetIndex)
-        }
-        onSelectItem: (modelIndex, eventIndex) => {
-            content.select(modelIndex, eventIndex)
-        }
-    }
+        Item {
+            id: splitLeft
+            SplitView.minimumWidth: 162
 
-    TimeDisplay {
-        id: timeDisplay
-        anchors.top: parent.top
-        anchors.left: buttonsBar.right
-        anchors.right: parent.right
-        anchors.bottom: overview.top
-        windowStart: zoomControl.windowStart
-        rangeDuration: zoomControl.rangeDuration
-        contentX: content.contentX
-    }
+            TimelineLabels {
+                id: categories
+                anchors.top: buttonsBar.bottom
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+                contentY: content.contentY
+                selectedModel: root.selectedModel
+                selectedItem: root.selectedItem
+                color: Theme.color(Theme.PanelStatusBarBackgroundColor)
+                modelProxy: timelineModelAggregator
+                zoomer: zoomControl
+                reverseSelect: root.shiftPressed
+                timelineContent: content
 
-    ButtonsBar {
-        id: buttonsBar
-        enabled: zoomControl.traceDuration > 0
-        anchors.top: parent.top
-        anchors.left: parent.left
-        width: 150
-        height: Theme.toolBarHeight()
-        onZoomControlChanged: zoomSliderToolBar.visible = !zoomSliderToolBar.visible
-        onJumpToNext: {
-            var next = timelineModelAggregator.nextItem(root.selectedModel, root.selectedItem,
-                                                      zoomControl.rangeStart);
-            content.select(next.model, next.item);
-        }
-        onJumpToPrev: {
-            var prev = timelineModelAggregator.prevItem(root.selectedModel, root.selectedItem,
-                                                      zoomControl.rangeEnd);
-            content.select(prev.model, prev.item);
-        }
-
-        onRangeSelectChanged: selectionRangeMode = rangeButtonChecked();
-        onLockChanged: content.selectionLocked = !lockButtonChecked();
-    }
-
-    TimelineContent {
-        id: content
-
-        anchors.left: buttonsBar.right
-        anchors.top: buttonsBar.bottom
-        anchors.bottom: overview.top
-        anchors.right: parent.right
-        selectionLocked: true
-        zoomer: zoomControl
-        modelProxy: timelineModelAggregator
-
-        onSelectionLockedChanged: {
-            buttonsBar.updateLockButton(selectionLocked);
-        }
-
-        onWidthChanged: selectionRange.update();
-
-        onPropagateSelection: (newModel, newItem) => {
-            if (lockItemSelection || (newModel === selectedModel && newItem === selectedItem))
-                return;
-
-            lockItemSelection = true;
-            if (selectedModel !== -1 && selectedModel !== newModel)
-                select(selectedModel, -1);
-
-            rangeDetails.saveNote();
-            selectedItem = newItem
-            selectedModel = newModel
-            if (selectedItem !== -1) {
-                // display details
-                rangeDetails.showInfo();
-
-                // update in other views
-                var model = timelineModelAggregator.models[selectedModel];
-                var eventLocation = model.location(selectedItem);
-                if (eventLocation.file !== undefined) {
-                    root.fileName = eventLocation.file;
-                    root.lineNumber = eventLocation.line;
-                    root.columnNumber = eventLocation.column;
+                onMoveCategories: (sourceIndex, targetIndex) => {
+                    content.moveCategories(sourceIndex, targetIndex)
                 }
-                var newTypeId = model.typeId(selectedItem);
-                if (newTypeId !== typeId) {
-                    typeId = newTypeId;
-                    timelineModelAggregator.updateCursorPosition();
-                }
-            } else {
-                selectedModel = -1;
-                rangeDetails.hide();
-            }
-            lockItemSelection = false;
-        }
-    }
-
-    MouseArea {
-        id: selectionRangeControl
-        enabled: root.selectionRangeMode &&
-                 selectionRange.creationState !== selectionRange.creationFinished
-        anchors.right: content.right
-        anchors.left: buttonsBar.right
-        anchors.top: content.top
-        anchors.bottom: content.bottom
-        hoverEnabled: enabled
-        z: 2
-
-        function handlePress() {
-            if (selectionRange.creationState === selectionRange.creationFirstLimit) {
-                content.interactive = false;
-                selectionRange.setPos(selectionRangeControl.mouseX + content.contentX);
-                selectionRange.creationState = selectionRange.creationSecondLimit;
-            }
-        }
-
-        onReleased:  {
-            if (selectionRange.creationState === selectionRange.creationSecondLimit) {
-                content.interactive = true;
-                selectionRange.creationState = selectionRange.creationFinished;
-            }
-        }
-        onPressed: handlePress()
-        onPositionChanged: {
-            if (selectionRange.creationState === selectionRange.creationInactive)
-                selectionRange.creationState = selectionRange.creationFirstLimit;
-
-            if (selectionRangeControl.pressed ||
-                    selectionRange.creationState !== selectionRange.creationFinished)
-                selectionRange.setPos(selectionRangeControl.mouseX + content.contentX);
-        }
-        onCanceled: handlePress()
-    }
-
-    Flickable {
-        flickableDirection: Flickable.HorizontalFlick
-        clip: true
-        interactive: false
-        x: content.x
-        y: content.y
-        height: (root.selectionRangeMode &&
-                 selectionRange.creationState !== selectionRange.creationInactive) ?
-                    content.height : 0
-        width: content.width
-        contentX: content.contentX
-        contentWidth: content.contentWidth
-
-        SelectionRange {
-            id: selectionRange
-            zoomer: zoomControl
-
-            onRangeDoubleClicked: {
-                var diff = zoomer.minimumRangeLength - zoomer.selectionDuration;
-                if (diff > 0)
-                    zoomControl.setRange(zoomer.selectionStart - diff / 2,
-                                         zoomer.selectionEnd + diff / 2);
-                else
-                    zoomControl.setRange(zoomer.selectionStart, zoomer.selectionEnd);
-                root.selectionRangeMode = false;
-            }
-
-            function update() {
-                // If you select something in the main view and then resize the current range by some
-                // other means, the selection should stay where it was.
-                var oldTimePerPixel = viewTimePerPixel;
-                viewTimePerPixel = zoomControl.rangeDuration / content.width;
-                if (creationState === creationFinished && oldTimePerPixel != viewTimePerPixel) {
-                    var newWidth = rangeWidth * oldTimePerPixel / viewTimePerPixel;
-                    rangeLeft = rangeLeft * oldTimePerPixel / viewTimePerPixel;
-                    rangeRight = rangeLeft + newWidth;
+                onSelectItem: (modelIndex, eventIndex) => {
+                    content.select(modelIndex, eventIndex)
                 }
             }
 
-        }
-    }
+            ButtonsBar {
+                id: buttonsBar
+                enabled: zoomControl.traceDuration > 0
+                anchors.top: splitLeft.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: Theme.toolBarHeight()
+                onZoomControlChanged: zoomSliderToolBar.visible = !zoomSliderToolBar.visible
+                onJumpToNext: {
+                    var next = timelineModelAggregator.nextItem(root.selectedModel, root.selectedItem,
+                                                              zoomControl.rangeStart);
+                    content.select(next.model, next.item);
+                }
+                onJumpToPrev: {
+                    var prev = timelineModelAggregator.prevItem(root.selectedModel, root.selectedItem,
+                                                              zoomControl.rangeEnd);
+                    content.select(prev.model, prev.item);
+                }
 
-    TimelineRulers {
-        contentX: buttonsBar.width + content.contentX
-        anchors.left: buttonsBar.right
-        anchors.right: parent.right
-        anchors.top: parent.top
-        height: content.height + buttonsBar.height
-        windowStart: zoomControl.windowStart
-        viewTimePerPixel: selectionRange.viewTimePerPixel
-        scaleHeight: buttonsBar.height
+                onRangeSelectChanged: selectionRangeMode = rangeButtonChecked();
+                onLockChanged: content.selectionLocked = !lockButtonChecked();
+            }
+
+            Rectangle {
+                id: zoomSliderToolBar
+                objectName: "zoomSliderToolBar"
+                color: Theme.color(Theme.Timeline_PanelBackgroundColor)
+                enabled: buttonsBar.enabled
+                visible: false
+                anchors.top: buttonsBar.bottom
+                anchors.left: splitLeft.left
+                anchors.right: splitLeft.right
+                height: buttonsBar.height
+                z: 1
+
+                function updateZoomLevel() {
+                    var newValue = Math.round(
+                                Math.pow(zoomControl.rangeDuration /
+                                         Math.max(1, zoomControl.windowDuration),
+                                         1 / zoomSlider.exponent) * zoomSlider.maximumValue);
+                    if (newValue !== zoomSlider.value) {
+                        zoomSlider.externalUpdate = true;
+                        zoomSlider.value = newValue;
+                    }
+                }
+
+                Slider {
+                    id: zoomSlider
+                    anchors.fill: parent
+                    from: 1
+                    to: 10000
+                    stepSize: 100
+
+                    property int exponent: 3
+                    property bool externalUpdate: false
+                    property int minWindowLength: 1e5 // 0.1 ms
+                    property double fixedPoint: 0
+                    onPressedChanged: fixedPoint = (zoomControl.rangeStart + zoomControl.rangeEnd) / 2;
+
+                    onValueChanged: {
+                        if (externalUpdate || zoomControl.windowEnd <= zoomControl.windowStart) {
+                            // Zoom range is independently updated. We shouldn't mess
+                            // with it here as otherwise we might introduce rounding
+                            // or arithmetic errors.
+                            externalUpdate = false;
+                            return;
+                        }
+
+                        var windowLength = Math.max(
+                                    Math.pow(value / to, exponent) * zoomControl.windowDuration,
+                                    minWindowLength);
+
+                        var startTime = Math.max(zoomControl.windowStart, fixedPoint - windowLength / 2)
+                        zoomControl.setRange(startTime, startTime + windowLength);
+                    }
+                }
+            }
+        }
+
+        Item {
+            id: splitRight
+            SplitView.fillWidth: true
+            height: split.height
+            clip: true
+
+            TimeDisplay {
+                id: timeDisplay
+                anchors.fill: splitRight
+                windowStart: zoomControl.windowStart
+                rangeDuration: zoomControl.rangeDuration
+                contentX: content.contentX
+            }
+
+            TimelineContent {
+                id: content
+                anchors.fill: splitRight
+                anchors.topMargin: buttonsBar.height
+                selectionLocked: true
+                zoomer: zoomControl
+                modelProxy: timelineModelAggregator
+
+                onSelectionLockedChanged: {
+                    buttonsBar.updateLockButton(selectionLocked);
+                }
+
+                onWidthChanged: selectionRange.update();
+
+                onPropagateSelection: (newModel, newItem) => {
+                    if (lockItemSelection || (newModel === selectedModel && newItem === selectedItem))
+                        return;
+
+                    lockItemSelection = true;
+                    if (selectedModel !== -1 && selectedModel !== newModel)
+                        select(selectedModel, -1);
+
+                    rangeDetails.saveNote();
+                    selectedItem = newItem
+                    selectedModel = newModel
+                    if (selectedItem !== -1) {
+                        // display details
+                        rangeDetails.showInfo();
+
+                        // update in other views
+                        var model = timelineModelAggregator.models[selectedModel];
+                        var eventLocation = model.location(selectedItem);
+                        if (eventLocation.file !== undefined) {
+                            root.fileName = eventLocation.file;
+                            root.lineNumber = eventLocation.line;
+                            root.columnNumber = eventLocation.column;
+                        }
+                        var newTypeId = model.typeId(selectedItem);
+                        if (newTypeId !== typeId) {
+                            typeId = newTypeId;
+                            timelineModelAggregator.updateCursorPosition();
+                        }
+                    } else {
+                        selectedModel = -1;
+                        rangeDetails.hide();
+                    }
+                    lockItemSelection = false;
+                }
+            }
+
+            MouseArea {
+                id: selectionRangeControl
+                enabled: root.selectionRangeMode &&
+                            selectionRange.creationState !== selectionRange.creationFinished
+                anchors.fill: content
+                hoverEnabled: enabled
+                z: 2
+
+                function handlePress() {
+                    if (selectionRange.creationState === selectionRange.creationFirstLimit) {
+                        content.interactive = false;
+                        selectionRange.setPos(selectionRangeControl.mouseX + content.contentX);
+                        selectionRange.creationState = selectionRange.creationSecondLimit;
+                    }
+                }
+
+                onReleased:  {
+                    if (selectionRange.creationState === selectionRange.creationSecondLimit) {
+                        content.interactive = true;
+                        selectionRange.creationState = selectionRange.creationFinished;
+                    }
+                }
+                onPressed: handlePress()
+                onPositionChanged: {
+                    if (selectionRange.creationState === selectionRange.creationInactive)
+                        selectionRange.creationState = selectionRange.creationFirstLimit;
+
+                    if (selectionRangeControl.pressed ||
+                            selectionRange.creationState !== selectionRange.creationFinished)
+                        selectionRange.setPos(selectionRangeControl.mouseX + content.contentX);
+                }
+                onCanceled: handlePress()
+            }
+
+            Flickable {
+                flickableDirection: Flickable.HorizontalFlick
+                clip: true
+                interactive: false
+                x: content.x
+                y: content.y
+                height: (root.selectionRangeMode &&
+                            selectionRange.creationState !== selectionRange.creationInactive) ?
+                            content.height : 0
+                width: content.width
+                contentX: content.contentX
+                contentWidth: content.contentWidth
+
+                SelectionRange {
+                    id: selectionRange
+                    zoomer: zoomControl
+
+                    onRangeDoubleClicked: {
+                        var diff = zoomer.minimumRangeLength - zoomer.selectionDuration;
+                        if (diff > 0)
+                            zoomControl.setRange(zoomer.selectionStart - diff / 2,
+                                                    zoomer.selectionEnd + diff / 2);
+                        else
+                            zoomControl.setRange(zoomer.selectionStart, zoomer.selectionEnd);
+                        root.selectionRangeMode = false;
+                    }
+
+                    function update() {
+                        // If you select something in the main view and then resize the current
+                        // range by some other means, the selection should stay where it was.
+                        var oldTimePerPixel = viewTimePerPixel;
+                        viewTimePerPixel = zoomControl.rangeDuration / content.width;
+                        if (creationState === creationFinished && oldTimePerPixel != viewTimePerPixel) {
+                            var newWidth = rangeWidth * oldTimePerPixel / viewTimePerPixel;
+                            rangeLeft = rangeLeft * oldTimePerPixel / viewTimePerPixel;
+                            rangeRight = rangeLeft + newWidth;
+                        }
+                    }
+                }
+            }
+
+            TimelineRulers {
+                id: timelineRulers
+                contentX: splitLeft.width + content.contentX
+                anchors.left: splitRight.left
+                anchors.right: splitRight.right
+                anchors.top: splitRight.top
+                height: content.height + buttonsBar.height
+                windowStart: zoomControl.windowStart
+                viewTimePerPixel: selectionRange.viewTimePerPixel
+                scaleHeight: buttonsBar.height
+            }
+        }
     }
 
     SelectionRangeDetails {
@@ -406,59 +473,6 @@ Rectangle {
             var notes = timelineModelAggregator.notes;
             var noteId = notes ? notes.get(timelineModel.modelId, selectedItem) : -1;
             rangeDetails.noteText = (noteId !== -1) ? notes.text(noteId) : "";
-        }
-    }
-
-    Rectangle {
-        id: zoomSliderToolBar
-        objectName: "zoomSliderToolBar"
-        color: Theme.color(Theme.Timeline_PanelBackgroundColor)
-        enabled: buttonsBar.enabled
-        visible: false
-        width: buttonsBar.width
-        height: buttonsBar.height
-        anchors.left: parent.left
-        anchors.top: buttonsBar.bottom
-
-        function updateZoomLevel() {
-            var newValue = Math.round(Math.pow(zoomControl.rangeDuration /
-                                               Math.max(1, zoomControl.windowDuration),
-                                               1 / zoomSlider.exponent) * zoomSlider.maximumValue);
-            if (newValue !== zoomSlider.value) {
-                zoomSlider.externalUpdate = true;
-                zoomSlider.value = newValue;
-            }
-        }
-
-        Slider {
-            id: zoomSlider
-            anchors.fill: parent
-            from: 1
-            to: 10000
-            stepSize: 100
-
-            property int exponent: 3
-            property bool externalUpdate: false
-            property int minWindowLength: 1e5 // 0.1 ms
-            property double fixedPoint: 0
-            onPressedChanged: fixedPoint = (zoomControl.rangeStart + zoomControl.rangeEnd) / 2;
-
-            onValueChanged: {
-                if (externalUpdate || zoomControl.windowEnd <= zoomControl.windowStart) {
-                    // Zoom range is independently updated. We shouldn't mess
-                    // with it here as otherwise we might introduce rounding
-                    // or arithmetic errors.
-                    externalUpdate = false;
-                    return;
-                }
-
-                var windowLength = Math.max(
-                            Math.pow(value / to, exponent) * zoomControl.windowDuration,
-                            minWindowLength);
-
-                var startTime = Math.max(zoomControl.windowStart, fixedPoint - windowLength / 2)
-                zoomControl.setRange(startTime, startTime + windowLength);
-            }
         }
     }
 

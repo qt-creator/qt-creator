@@ -40,7 +40,10 @@ ToolBar {
 
     RowLayout {
         spacing: 0
-        anchors.fill: parent
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        width: parent.minimumWidth
 
         ImageToolButton {
             id: jumpToPrevButton
