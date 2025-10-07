@@ -1002,7 +1002,7 @@ QGroupBox *AndroidManifestEditorWidget::createSettingsGroupBox(QWidget *parent)
     const bool isGuiEnabled = settings.value(ANDROID_GUI_EDITOR_ENABLED_KEY, false).toBool();
 
     m_guiEnabled = new QCheckBox(
-        Tr::tr("Don't ask for confirmation when switching to the Manifest Editor UI"));
+        Tr::tr("Do not ask for confirmation when switching to the Manifest Editor UI"));
     m_guiEnabled->setToolTip(Tr::tr("Warning: Using the Manifest Editor UI may overwrite any manual"
                                     " changes made to AndroidManifest.xml."));
     m_guiEnabled->setChecked(isGuiEnabled);

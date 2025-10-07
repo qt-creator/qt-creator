@@ -337,7 +337,7 @@ QString GeneratedComponentUtils::user3DBundleType() const
     return componentBundlesTypePrefix() + '.' + user3DBundleId();
 }
 
-QList<Utils::FilePath> GeneratedComponentUtils::imported3dComponents() const
+Utils::FilePaths GeneratedComponentUtils::imported3dComponents() const
 {
     auto import3dPath = Utils::FilePath::fromString(import3dTypePath());
     auto projPath = Utils::FilePath::fromString(m_externalDependencies.currentProjectDirPath());
@@ -375,13 +375,13 @@ Utils::FilePath GeneratedComponentUtils::getImported3dQml(const QString &assetPa
 }
 
 // Recursively find files of certain suffix in a dir
-QList<Utils::FilePath> GeneratedComponentUtils::collectFiles(const Utils::FilePath &dirPath,
-                                                             const QString &suffix) const
+Utils::FilePaths GeneratedComponentUtils::collectFiles(const Utils::FilePath &dirPath,
+                                                       const QString &suffix) const
 {
     if (dirPath.isEmpty())
         return {};
 
-    QList<Utils::FilePath> files;
+    Utils::FilePaths files;
 
     const Utils::FilePaths entryList = dirPath.dirEntries(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
     for (const Utils::FilePath &entry : entryList) {

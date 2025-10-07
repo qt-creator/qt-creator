@@ -79,7 +79,7 @@ bool nameIncludesOperatorName(const Name *name)
 
 QString inlinePrefix(const FilePath &targetFile, const std::function<bool()> &extraCondition)
 {
-    if (ProjectFile::isHeader(ProjectFile::classify(targetFile.path()))
+    if (ProjectFile::isHeader(ProjectFile::classify(targetFile))
         && (!extraCondition || extraCondition())) {
         return "inline ";
     }

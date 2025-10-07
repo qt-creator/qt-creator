@@ -29,7 +29,7 @@ public:
     {
         int matchDepth = {};
         QStringList reversedPaths;
-        QList<Utils::FilePath> sourceFiles;
+        FilePaths sourceFiles;
     };
 
     using Ptr = std::shared_ptr<QrcParser>;

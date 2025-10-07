@@ -1263,7 +1263,7 @@ void AndroidConfigurations::removeUnusedDebuggers()
         return v->type() == Constants::ANDROID_QT_TYPE;
     });
 
-    QList<FilePath> uniqueNdks;
+    FilePaths uniqueNdks;
     for (const QtVersion *qt : qtVersions) {
         FilePath ndkLocation = AndroidConfig::ndkLocation(qt);
         if (!uniqueNdks.contains(ndkLocation))

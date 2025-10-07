@@ -422,7 +422,7 @@ std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::autoDetect(
         for (auto &tool : tools) {
             const FilePath cmake = tool->cmakeExecutable();
             CMakeToolManager::registerCMakeTool(std::move(tool));
-            logCallback(Tr::tr("Found CMake tool: %1").arg(cmake.toUserOutput()));
+            logCallback(Tr::tr("Found CMake tool: \"%1\".").arg(cmake.toUserOutput()));
             CMakeKitAspect::setCMakeExecutable(kit, cmake);
         }
     };
@@ -446,7 +446,7 @@ void CMakeKitAspectFactory::listAutoDetected(
     for (const CMakeTool *tool : CMakeToolManager::cmakeTools()) {
         if (tool->detectionSource().isAutoDetected()
             && tool->detectionSource().id == detectionSource)
-            logCallback(Tr::tr("CMake tool: %1").arg(tool->displayName()));
+            logCallback(Tr::tr("CMake tool: %1.").arg(tool->displayName()));
     }
 }
 
@@ -468,8 +468,8 @@ Utils::Result<Tasking::ExecutableItem> CMakeKitAspectFactory::createAspectFromJs
                 ResultType result;
 
                 if (!json.isObject()) {
-                    promise.addResult(
-                        ResultError(Tr::tr("Expected JSON Object, got: %1").arg(json.toString())));
+                    promise.addResult(ResultError(
+                        Tr::tr("Expected JSON Object, got: \"%1\".").arg(json.toString())));
                     return;
                 }
 
@@ -477,7 +477,7 @@ Utils::Result<Tasking::ExecutableItem> CMakeKitAspectFactory::createAspectFromJs
                 const QJsonValue binaryValue = obj.value("binary");
                 if (!binaryValue.isString()) {
                     promise.addResult(ResultError(
-                        Tr::tr("Expected JSON Object with key 'binary' to be a string")));
+                        Tr::tr("Expected JSON Object with key \"binary\" to be a string.")));
                     return;
                 }
                 const FilePath cmakeExecutable = rootPath.withNewPath(binaryValue.toString());
@@ -516,7 +516,7 @@ Utils::Result<Tasking::ExecutableItem> CMakeKitAspectFactory::createAspectFromJs
         const FilePath cmake = (*tool)->cmakeExecutable();
 
         CMakeToolManager::registerCMakeTool(std::move(*tool));
-        logCallback(Tr::tr("Found CMake tool: %1").arg(cmake.toUserOutput()));
+        logCallback(Tr::tr("Found CMake tool: \"%1\".").arg(cmake.toUserOutput()));
         CMakeKitAspect::setCMakeExecutable(kit, cmake);
 
         if (obj.contains("generator"))

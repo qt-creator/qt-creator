@@ -197,7 +197,7 @@ void setupUtilsModule()
                 const auto locationsStrings = QStandardPaths::standardLocations(
                     static_cast<QStandardPaths::StandardLocation>(location));
 
-                QList<FilePath> locationsPaths;
+                FilePaths locationsPaths;
                 std::transform(locationsStrings.constBegin(), locationsStrings.constEnd(),
                                std::back_inserter(locationsPaths), &FilePath::fromString);
                 return locationsPaths;

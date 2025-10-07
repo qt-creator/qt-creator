@@ -24,7 +24,7 @@ public:
     static QList<GradientPresetItem> storedPresets(const QString &filename);
 
     Q_INVOKABLE void addGradient(const QList<qreal> &stopsPositions,
-                                 const QList<QString> &stopsColors,
+                                 const QStringList &stopsColors,
                                  int stopsCount);
 
     Q_INVOKABLE void changePresetName(int id, const QString &newName);

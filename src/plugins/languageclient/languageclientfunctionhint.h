@@ -33,10 +33,10 @@ public:
     bool isActivationCharSequence(const QString &sequence) const override;
     bool isContinuationChar(const QChar &c) const override;
 
-    void setTriggerCharacters(const std::optional<QList<QString>> &triggerChars);
+    void setTriggerCharacters(const std::optional<QStringList> &triggerChars);
 
 private:
-    QList<QString> m_triggerChars;
+    QStringList m_triggerChars;
     int m_activationCharSequenceLength = 0;
     Client *m_client = nullptr; // not owned
 };

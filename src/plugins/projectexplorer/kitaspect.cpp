@@ -542,7 +542,7 @@ Group kitDetectionRecipe(
                 KitManager::deregisterKit(*kit);
                 return;
             }
-            logCallback(Tr::tr("Found kit: %1").arg((*kit)->displayName()));
+            logCallback(Tr::tr("Found kit: %1.").arg((*kit)->displayName()));
         }),
     };
     // clang-format on
@@ -563,14 +563,14 @@ Group removeDetectedKitsRecipe(const IDeviceConstPtr &device, const LogCallback 
     }
 
     const auto removeKits = [device, detectionSource, logCallback]() {
-        logCallback(Tr::tr("Removing kits for device: %1").arg(device->displayName()));
+        logCallback(Tr::tr("Removing kits for device: %1.").arg(device->displayName()));
 
         const auto detectedKits = filtered(KitManager::kits(), [detectionSource](const Kit *k) {
             return k->detectionSource().id == detectionSource;
         });
 
         for (Kit *kit : detectedKits) {
-            logCallback(Tr::tr("Removing kit: %1").arg(kit->displayName()));
+            logCallback(Tr::tr("Removing kit: %1.").arg(kit->displayName()));
             KitManager::deregisterKit(kit);
         }
     };
@@ -592,7 +592,7 @@ void listAutoDetected(const IDeviceConstPtr &device, const LogCallback &logCallb
 
     for (const auto kit : KitManager::kits()) {
         if (kit->detectionSource().id == detectionSource)
-            logCallback(Tr::tr("Kit: %1").arg(kit->displayName()));
+            logCallback(Tr::tr("Kit: %1.").arg(kit->displayName()));
     }
 
     for (const auto &factory : KitAspectFactory::kitAspectFactories())

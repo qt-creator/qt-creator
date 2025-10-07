@@ -195,7 +195,7 @@ int SnippetsCollection::totalSnippets(const QString &groupId) const
     return m_snippets.at(groupIndex(groupId)).size();
 }
 
-QList<QString> SnippetsCollection::groupIds() const
+QStringList SnippetsCollection::groupIds() const
 {
     return m_groupIndexById.keys();
 }

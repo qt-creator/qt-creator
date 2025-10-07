@@ -11,7 +11,7 @@ class GradientPresetItem
     Q_GADGET
 
     Q_PROPERTY(QList<qreal> stopsPosList READ stopsPosList FINAL)
-    Q_PROPERTY(QList<QString> stopsColorList READ stopsColorList FINAL)
+    Q_PROPERTY(QStringList stopsColorList READ stopsColorList FINAL)
     Q_PROPERTY(int stopListSize READ stopListSize FINAL)
     Q_PROPERTY(QString presetName READ presetName FINAL)
     Q_PROPERTY(int presetID READ presetID FINAL)
@@ -42,7 +42,7 @@ public:
     void setGradient(const Preset value);
 
     QList<qreal> stopsPosList() const;
-    QList<QString> stopsColorList() const;
+    QStringList stopsColorList() const;
     int stopListSize() const;
 
     void setPresetName(const QString &value);

@@ -160,7 +160,7 @@ static FilePaths uniqueNdksForCurrentQtVersions()
 
 ToolchainList autodetectToolchainsFromNdks(
     const ToolchainList &alreadyKnown,
-    const QList<FilePath> &ndkLocations,
+    const FilePaths &ndkLocations,
     const bool isCustom)
 {
     QList<Toolchain *> newToolchains;
@@ -238,7 +238,7 @@ ToolchainList autodetectToolchainsFromNdks(
 
 ToolchainList autodetectToolchains(const ToolchainList &alreadyKnown)
 {
-    const QList<FilePath> uniqueNdks = uniqueNdksForCurrentQtVersions();
+    const FilePaths uniqueNdks = uniqueNdksForCurrentQtVersions();
     return autodetectToolchainsFromNdks(alreadyKnown, uniqueNdks);
 }
 

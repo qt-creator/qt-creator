@@ -8,7 +8,7 @@ using namespace StudioWelcome;
 
 namespace {
 
-std::unique_ptr<QStandardItemModel> createBackendModel(const QList<QString> &itemNames)
+std::unique_ptr<QStandardItemModel> createBackendModel(const QStringList &itemNames)
 {
     auto model = std::make_unique<QStandardItemModel>();
 
@@ -18,9 +18,9 @@ std::unique_ptr<QStandardItemModel> createBackendModel(const QList<QString> &ite
     return model;
 }
 
-QList<QString> displayValues(const QAbstractListModel *model)
+QStringList displayValues(const QAbstractListModel *model)
 {
-    QList<QString> rows;
+    QStringList rows;
     for (int rowIndex = 0; rowIndex < model->rowCount(); ++rowIndex) {
         auto data = model->data(model->index(rowIndex, 0), Qt::DisplayRole);
         rows.push_back(data.value<QString>());

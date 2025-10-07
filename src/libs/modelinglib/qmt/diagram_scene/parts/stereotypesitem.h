@@ -14,9 +14,9 @@ public:
     explicit StereotypesItem(QGraphicsItem *parent = nullptr);
     ~StereotypesItem() override;
 
-    void setStereotypes(const QList<QString> &stereotypes);
+    void setStereotypes(const QStringList &stereotypes);
 
-    static QString format(const QList<QString> &stereotypes);
+    static QString format(const QStringList &stereotypes);
 };
 
 } // namespace qmt

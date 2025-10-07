@@ -39,6 +39,8 @@ General
   ([QTCREATORBUG-33069](https://bugreports.qt.io/browse/QTCREATORBUG-33069))
 * Fixed the resolution of symlinks with directory links
   ([QTCREATORBUG-33335](https://bugreports.qt.io/browse/QTCREATORBUG-33335))
+* Fixed a performance regression when watching many files
+  ([QTCREATORBUG-33523](https://bugreports.qt.io/browse/QTCREATORBUG-33523))
 * Welcome
     * Added an `Overview` tab
 * Locator
@@ -60,6 +62,7 @@ Editing
 
 ### C++
 
+* Updated the prebuilt binaries to LLVM 21.1
 * Added automatic insertion of the closing part of a raw string literal prefix
   ([QTCREATORBUG-31901](https://bugreports.qt.io/browse/QTCREATORBUG-31901))
 * Fixed that trailing white space was removed from raw string literals
@@ -177,10 +180,14 @@ Projects
 * Added the `ct` locator filter for running CTest tests
 * Added support for
   [Test Presets](https://cmake.org/cmake/help/v3.25/manual/cmake-presets.7.html#test-preset)
+* Improved the search for `ninja`
+  ([QTCREATORBUG-33560](https://bugreports.qt.io/browse/QTCREATORBUG-33560))
 * Fixed `Build for All Configurations`
   ([QTCREATORBUG-33178](https://bugreports.qt.io/browse/QTCREATORBUG-33178))
 * Fixed issues with rewriting `CMakeLists.txt` files with the UTF-8 BOM set
   ([QTCREATORBUG-33363](https://bugreports.qt.io/browse/QTCREATORBUG-33363))
+* Fixed that `CMAKE_TEST_LAUNCHER` was set for non-test targets
+  ([QTCREATORBUG-32550](https://bugreports.qt.io/browse/QTCREATORBUG-32550))
 
 ### qmake
 
@@ -206,6 +213,8 @@ Debugging
   ([QTCREATORBUG-33244](https://bugreports.qt.io/browse/QTCREATORBUG-33244))
 * Fixed the pretty printing of `std::optional` and `std::vector`
   ([QTCREATORBUG-33500](https://bugreports.qt.io/browse/QTCREATORBUG-33500))
+* Fixed the option to override the debug server channel
+  ([QTCREATORBUG-33454](https://bugreports.qt.io/browse/QTCREATORBUG-33454))
 
 Analyzer
 --------
@@ -250,8 +259,19 @@ Version Control Systems
 * Fixed updating the `Branch` view after changes
   ([QTCREATORBUG-29918](https://bugreports.qt.io/browse/QTCREATORBUG-29918))
 
+Test Integration
+----------------
+
+* Fixed the output parsing when debugging Qt Tests
+  ([QTCREATORBUG-33552](https://bugreports.qt.io/browse/QTCREATORBUG-33552))
+
 Platforms
 ---------
+
+### Windows
+
+* Fixed that a Windows SDK download folder was unnecessarily created
+  ([QTCREATORBUG-33452](https://bugreports.qt.io/browse/QTCREATORBUG-33452))
 
 ### macOS
 
@@ -272,6 +292,9 @@ Platforms
 * Added support for deployment with `rsync` with remote build devices
 * Improved the error message when device tests fail
   ([QTCREATORBUG-32933](https://bugreports.qt.io/browse/QTCREATORBUG-32933))
+* Fixed that it was not possible to run `Performance Analyzer` (`perf`) on
+  remote Linux devices
+  ([QTCREATORBUG-33114](https://bugreports.qt.io/browse/QTCREATORBUG-33114))
 
 ### Docker
 
@@ -311,6 +334,7 @@ Marcus Tillmanns
 Markus Redeker  
 Miikka Heikkinen  
 Mitch Curtis  
+Morteza Jamshidi  
 Nicholas Bennett  
 Nikita Baryshnikov  
 Olivier De Cannière  
@@ -322,10 +346,12 @@ Samuli Piippo
 Semih Yavuz  
 Sheree Morphett  
 Stanislav Polukhanov  
+Sze Howe Koh  
 Teea Poldsam  
 Thiago Macieira  
 Tian Shilin  
 Tim Jenßen  
 Volodymyr Zibarov  
 Xavier Besson  
+Xi Zijie  
 Zoltan Gera  

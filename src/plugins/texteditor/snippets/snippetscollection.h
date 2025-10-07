@@ -65,7 +65,7 @@ public:
     int totalActiveSnippets(const QString &groupId) const;
     int totalSnippets(const QString &groupId) const;
 
-    QList<QString> groupIds() const;
+    QStringList groupIds() const;
 
     void reload();
     Utils::Result<> synchronize();

@@ -47,10 +47,10 @@ public:
     Backtraces installDefinitions;
 
     // code model
-    QList<Utils::FilePath> includeFiles;
+    Utils::FilePaths includeFiles;
     QStringList compilerOptions;
     ProjectExplorer::Macros macros;
-    QList<Utils::FilePath> files;
+    Utils::FilePaths files;
 };
 
 } // namespace CMakeProjectManager

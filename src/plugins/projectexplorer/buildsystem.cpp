@@ -400,7 +400,7 @@ QString BuildSystem::disabledReason(const QString &buildKey) const
     return {};
 }
 
-CommandLine BuildSystem::commandLineForTests(const QList<QString> & /*tests*/,
+CommandLine BuildSystem::commandLineForTests(const QStringList & /*tests*/,
                                              const QStringList & /*options*/) const
 {
     return {};

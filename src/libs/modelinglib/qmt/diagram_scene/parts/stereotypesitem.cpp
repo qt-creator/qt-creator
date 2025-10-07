@@ -14,12 +14,12 @@ StereotypesItem::~StereotypesItem()
 {
 }
 
-void StereotypesItem::setStereotypes(const QList<QString> &stereotypes)
+void StereotypesItem::setStereotypes(const QStringList &stereotypes)
 {
     setText(format(stereotypes));
 }
 
-QString StereotypesItem::format(const QList<QString> &stereotypes)
+QString StereotypesItem::format(const QStringList &stereotypes)
 {
     QString text;
     if (!stereotypes.isEmpty()) {

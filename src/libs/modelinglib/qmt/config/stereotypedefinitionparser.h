@@ -82,7 +82,7 @@ private:
     void parseToolbarTool(const Toolbar *toolbar, Toolbar::Tool *tool);
 
     template<typename T>
-    void parseEnums(const QList<QString> &identifiers, const QHash<QString, T> &identifierNames,
+    void parseEnums(const QStringList &identifiers, const QHash<QString, T> &identifierNames,
                     const SourcePos &sourcePos, std::function<void(T)> setter);
 
     template<typename T>
@@ -93,7 +93,7 @@ private:
     int parseIntProperty();
     qreal parseFloatProperty();
     QString parseIdentifierProperty();
-    QList<QString> parseIdentifierListProperty();
+    QStringList parseIdentifierListProperty();
     bool parseBoolProperty();
     QColor parseColorProperty();
     Value parseProperty();

@@ -126,8 +126,8 @@ class CentralizedFolderWatcher : public QObject
 public:
     CentralizedFolderWatcher(QmakeBuildSystem *BuildSystem);
 
-    void watchFolders(const QList<QString> &folders, QmakePriFile *file);
-    void unwatchFolders(const QList<QString> &folders, QmakePriFile *file);
+    void watchFolders(const QStringList &folders, QmakePriFile *file);
+    void unwatchFolders(const QStringList &folders, QmakePriFile *file);
 
 private:
     void folderChanged(const QString &folder);
@@ -993,7 +993,7 @@ QSet<QString> CentralizedFolderWatcher::recursiveDirs(const QString &folder)
     return result;
 }
 
-void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, QmakePriFile *file)
+void CentralizedFolderWatcher::watchFolders(const QStringList &folders, QmakePriFile *file)
 {
     m_watcher.addPaths(folders);
 
@@ -1013,7 +1013,7 @@ void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, Qmake
     }
 }
 
-void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, QmakePriFile *file)
+void CentralizedFolderWatcher::unwatchFolders(const QStringList &folders, QmakePriFile *file)
 {
     const QChar slash = QLatin1Char('/');
     for (const QString &f : folders) {

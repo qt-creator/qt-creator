@@ -1164,7 +1164,7 @@ std::optional<ExecutableItem> PythonSettings::autoDetect(
         for (const auto &interpreter : task.results()) {
             interpreterOptionsPage().addInterpreter(interpreter);
             logCallback(
-                Tr::tr("Found \"%1\" (%2)")
+                Tr::tr("Found \"%1\" (%2).")
                     .arg(interpreter.name, interpreter.command.toUserOutput()));
         }
     };
@@ -1176,7 +1176,7 @@ void PythonSettings::removeDetectedPython(
     const QString &detectionSource, const LogCallback &logCallback)
 {
     for (Interpreter &interpreter : interpreterOptionsPage().interpreterFrom(detectionSource))
-        logCallback(Tr::tr("Removing Python: %1").arg(interpreter.name));
+        logCallback(Tr::tr("Removing Python: %1.").arg(interpreter.name));
 
     interpreterOptionsPage().removeInterpreterFrom(detectionSource);
 }
@@ -1185,7 +1185,7 @@ void PythonSettings::listDetectedPython(
     const QString &detectionSource, const LogCallback &logCallback)
 {
     for (Interpreter &interpreter: interpreterOptionsPage().interpreterFrom(detectionSource))
-        logCallback(Tr::tr("Python: %1").arg(interpreter.name));
+        logCallback(Tr::tr("Python: %1.").arg(interpreter.name));
 }
 
 void PythonSettings::fixupPythonKits()

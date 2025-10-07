@@ -42,11 +42,11 @@ public:
     {
     }
 
-    QList<QString> stereotypes() const { return m_stereotypes; }
-    void setStereotypes(const QList<QString> &stereotypes) { m_stereotypes = stereotypes; }
+    QStringList stereotypes() const { return m_stereotypes; }
+    void setStereotypes(const QStringList &stereotypes) { m_stereotypes = stereotypes; }
 
 private:
-    QList<QString> m_stereotypes;
+    QStringList m_stereotypes;
 };
 
 class TreeModel::ItemFactory : public MConstVisitor
@@ -127,7 +127,7 @@ public:
     {
         QMT_CHECK(!m_item);
 
-        QList<QString> stereotypes = item->stereotypes() << item->variety();
+        QStringList stereotypes = item->stereotypes() << item->variety();
         QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementItem, StyleEngine::TypeItem, stereotypes,
                                              ":/modelinglib/48x48/item.png");
         m_item = new ModelItem(icon, m_treeModel->createObjectLabel(item));
@@ -247,7 +247,7 @@ public:
 
     void visitMItem(const MItem *item) final
     {
-        QList<QString> stereotypes = item->stereotypes() << item->variety();
+        QStringList stereotypes = item->stereotypes() << item->variety();
         if (stereotypes != m_item->stereotypes()) {
             QIcon icon = m_treeModel->createIcon(StereotypeIcon::ElementItem, StyleEngine::TypeItem, stereotypes,
                                                  ":/modelinglib/48x48/item.png");

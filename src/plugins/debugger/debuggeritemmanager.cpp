@@ -610,7 +610,8 @@ void DebuggerItemModel::autoDetectCdbDebuggers()
         item.setAbis(Abi::abisOfBinary(cdb));
         item.setCommand(cdb);
         item.setEngineType(CdbEngineType);
-        item.setUnexpandedDisplayName(uniqueDisplayName(Tr::tr("Auto-detected CDB at %1").arg(cdb.toUserOutput())));
+        item.setUnexpandedDisplayName(
+            uniqueDisplayName(Tr::tr("Auto-detected CDB at \"%1\"").arg(cdb.toUserOutput())));
         item.reinitializeFromFile(); // collect version number
         addDebuggerItem(item);
     }
@@ -761,7 +762,7 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(
         }
 
         addDebuggerItem(*item);
-        logMessages.append(Tr::tr("Found: \"%1\"").arg(command.toUserOutput()));
+        logMessages.append(Tr::tr("Found: \"%1\".").arg(command.toUserOutput()));
         if (doEnableNativeDapDebuggers()) {
             if (item->engineType() != GdbEngineType)
                 continue;
@@ -823,9 +824,8 @@ void DebuggerItemModel::autoDetectUvscDebuggers()
         item.setCommand(uVision);
         item.setVersion(uVisionVersion);
         item.setEngineType(UvscEngineType);
-        item.setUnexpandedDisplayName(
-                    uniqueDisplayName(Tr::tr("Auto-detected uVision at %1")
-                                      .arg(uVision.toUserOutput())));
+        item.setUnexpandedDisplayName(uniqueDisplayName(
+            Tr::tr("Auto-detected uVision at \"%1\"").arg(uVision.toUserOutput())));
         addDebuggerItem(item);
     }
 }
@@ -1003,7 +1003,7 @@ ExecutableItem autoDetectDebuggerRecipe(
         QList<DebuggerItem> items = async.results();
         for (const DebuggerItem &item : items) {
             if (item.isValid() && item.engineType() != NoEngineType) {
-                logCallback(Tr::tr("Found debugger: \"%1\"").arg(item.command().toUserOutput()));
+                logCallback(Tr::tr("Found debugger: \"%1\".").arg(item.command().toUserOutput()));
                 DebuggerItemManager::registerDebugger(item);
                 DebuggerKitAspect::setDebugger(kit, item.id());
             } else
@@ -1023,7 +1023,7 @@ ExecutableItem removeAutoDetected(const QString &detectionSourceId, const LogCal
             });
 
         for (const auto &debugger : debuggers) {
-            logCallback(Tr::tr("Removing debugger: \"%1\"").arg(debugger.displayName()));
+            logCallback(Tr::tr("Removing debugger: \"%1\".").arg(debugger.displayName()));
             DebuggerItemManager::deregisterDebugger(debugger.id());
         }
     });
@@ -1037,12 +1037,12 @@ Utils::Result<Tasking::ExecutableItem> createAspectFromJson(
     const ProjectExplorer::LogCallback &logCallback)
 {
     if (!json.isString())
-        return ResultError(Tr::tr("Invalid JSON value for debugger: %1").arg(json.toString()));
+        return ResultError(Tr::tr("Invalid JSON value for debugger: \"%1\".").arg(json.toString()));
 
     const FilePath command = rootPath.withNewPath(json.toString());
 
     if (command.isEmpty())
-        return ResultError(Tr::tr("Empty command for debugger"));
+        return ResultError(Tr::tr("Empty command for debugger."));
 
     const auto setup = [command, detectionSource, logCallback](Async<Result<DebuggerItem>> &async) {
         async.setConcurrentCallData(
@@ -1146,7 +1146,7 @@ void DebuggerItemManager::removeDetectedDebuggers(const QString &detectionSource
             toBeRemoved.append(titem);
     });
     for (DebuggerTreeItem *current : toBeRemoved) {
-        logMessages.append(Tr::tr("Removed \"%1\"").arg(current->m_item.displayName()));
+        logMessages.append(Tr::tr("Removed \"%1\".").arg(current->m_item.displayName()));
         itemModel().destroyItem(current);
     }
 

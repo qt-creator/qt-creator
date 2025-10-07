@@ -61,7 +61,7 @@ struct Struct : public BaseStruct
 void tst_Algorithm::anyOf()
 {
     {
-        const QList<QString> strings({"1", "3", "132"});
+        const QStringList strings({"1", "3", "132"});
         QVERIFY(Utils::anyOf(strings, [](const QString &s) { return s == "132"; }));
         QVERIFY(!Utils::anyOf(strings, [](const QString &s) { return s == "1324"; }));
     }
@@ -86,7 +86,7 @@ void tst_Algorithm::transform()
     // same container type
     {
         // QList has standard inserter
-        const QList<QString> strings({"1", "3", "132"});
+        const QStringList strings({"1", "3", "132"});
         const QList<int> i1 = Utils::transform(strings, [](const QString &s) { return s.toInt(); });
         QCOMPARE(i1, QList<int>({1, 3, 132}));
         const QList<int> i2 = Utils::transform(strings, stringToInt);
@@ -118,7 +118,7 @@ void tst_Algorithm::transform()
     // different container types
     {
         // QList to QSet
-        const QList<QString> strings({"1", "3", "132"});
+        const QStringList strings({"1", "3", "132"});
         const QSet<int> i1 = Utils::transform<QSet>(strings, [](const QString &s) { return s.toInt(); });
         QCOMPARE(i1, QSet<int>({1, 3, 132}));
         const QSet<int> i2 = Utils::transform<QSet>(strings, stringToInt);
@@ -430,14 +430,14 @@ void tst_Algorithm::sort()
     QStringList s2({"13", "31", "22"});
     Utils::sort(s2, [](const QString &a, const QString &b) { return a[1] < b[1]; });
     QCOMPARE(s2, QStringList({"31", "22", "13"}));
-    QList<QString> s3({"12345", "3333", "22"});
+    QStringList s3({"12345", "3333", "22"});
     Utils::sort(s3, &QString::size);
-    QCOMPARE(s3, QList<QString>({"22", "3333", "12345"}));
+    QCOMPARE(s3, QStringList({"22", "3333", "12345"}));
     QList<Struct> s4({4, 3, 2, 1});
     Utils::sort(s4, &Struct::member);
     QCOMPARE(s4, QList<Struct>({1, 2, 3, 4}));
     // member function with pointers
-    QList<QString> arr1({"12345", "3333", "22"});
+    QStringList arr1({"12345", "3333", "22"});
     QList<QString *> s5({&arr1[0], &arr1[1], &arr1[2]});
     QCOMPARE(Utils::sorted(s5, &QString::size), QList<QString *>({&arr1[2], &arr1[1], &arr1[0]}));
     // member with pointers

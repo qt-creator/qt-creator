@@ -37,7 +37,7 @@ public:
 private:
     const Utils::FilePath m_path = Utils::appInfo().resources / QLatin1String("qmlicons");
     QHash<FullTypeName, QIcon> m_iconsMap;
-    QList<QString> m_packageNames;
+    QStringList m_packageNames;
 };
 
 IconsStorage::IconsStorage()

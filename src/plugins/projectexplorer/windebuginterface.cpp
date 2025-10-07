@@ -150,7 +150,7 @@ void WinDebugInterface::dispatchDebugOutput()
     QTC_ASSERT(Utils::isMainThread(), return);
 
     static size_t maxMessagesToSend = 100;
-    std::map<qint64, QList<QString>> output;
+    std::map<qint64, QStringList> output;
     bool hasMoreOutput = false;
 
     m_outputMutex.lock();

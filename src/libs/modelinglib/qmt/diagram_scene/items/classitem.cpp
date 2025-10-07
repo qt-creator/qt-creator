@@ -109,7 +109,7 @@ void ClassItem::update()
     MClass *klass = modelController->findElement<MClass>(diagramClass->modelUid());
     if (klass) {
         // TODO cache relation's Uids and check for change
-        QList<QString> baseClasses;
+        QStringList baseClasses;
         for (const auto &handle : klass->relations()) {
             if (MInheritance *mInheritance = dynamic_cast<MInheritance *>(handle.target())) {
                 if (mInheritance->base() != klass->uid()) {

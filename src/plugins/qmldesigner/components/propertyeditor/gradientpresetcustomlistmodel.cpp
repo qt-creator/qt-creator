@@ -83,7 +83,7 @@ QList<GradientPresetItem> GradientPresetCustomListModel::storedPresets(const QSt
 }
 
 void GradientPresetCustomListModel::addGradient(const QList<qreal> &stopsPositions,
-                                                const QList<QString> &stopsColors,
+                                                const QStringList &stopsColors,
                                                 int stopsCount)
 {
     QGradient tempGradient;

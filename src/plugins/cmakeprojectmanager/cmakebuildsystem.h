@@ -96,7 +96,7 @@ public:
     CMakeBuildConfiguration *cmakeBuildConfiguration() const;
 
     QList<ProjectExplorer::TestCaseInfo> const testcasesInfo() const final;
-    Utils::CommandLine commandLineForTests(const QList<QString> &tests,
+    Utils::CommandLine commandLineForTests(const QStringList &tests,
                                            const QStringList &options) const final;
 
     ProjectExplorer::MakeInstallCommand makeInstallCommand(

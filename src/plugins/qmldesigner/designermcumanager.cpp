@@ -168,7 +168,7 @@ void DesignerMcuManager::readVersionData(const DesignerMcuManager::Version &vers
         m_bannedProperties.unite(QSet<QString>(bannedProperties.begin(), bannedProperties.end()));
     }
 
-    const QList<QString> bannedItems = readPropertyList("bannedItems", versionData);
+    const QStringList bannedItems = readPropertyList("bannedItems", versionData);
 
     m_bannedItems = QSet<QString>(bannedItems.begin(), bannedItems.end());
     m_allowedImports = readPropertyList("allowedImports", versionData);

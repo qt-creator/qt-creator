@@ -108,7 +108,7 @@ public:
         rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
         const ProjectFiles rppFiles = Utils::transform<ProjectFiles>(projectFiles,
                 [](const FilePath &file) {
-            return ProjectFile(file, ProjectFile::classify(file.toUrlishString()));
+            return ProjectFile(file, ProjectFile::classify(file));
         });
         const auto project = modelManagerTestHelper->createProject(
                     name, Utils::FilePath::fromString(dir).pathAppended(name + ".pro"));
@@ -1134,12 +1134,12 @@ void ModelManagerTest::testRenameIncludesInEditor()
     // Copy test files to a temporary directory
     QSet<FilePath> sourceFiles;
     for (const QString &fileName : fileNames) {
-        const QString &file = workingDir.filePath(fileName);
-        QVERIFY(QFile::copy(testDir.file(fileName), file));
+        const FilePath filePath = FilePath::fromString(workingDir.filePath(fileName));
+        QVERIFY(QFile::copy(testDir.file(fileName), filePath.path()));
         // Saving source file names for the model manager update,
         // so we can update just the relevant files.
-        if (ProjectFile::classify(file) == ProjectFile::CXXSource)
-            sourceFiles.insert(FilePath::fromString(file));
+        if (ProjectFile::classify(filePath) == ProjectFile::CXXSource)
+            sourceFiles.insert(filePath);
     }
 
     // Update the c++ model manager and check for the old includes
@@ -1302,7 +1302,7 @@ void ModelManagerTest::testSettingsChanges()
         = Utils::transform(QStringList{"baz.h", "baz2.h", "baz3.h", "foo.cpp", "foo.h", "main.cpp"},
                            [&](const QString &fn) { return p1Dir.filePath(fn); });
     const ProjectFiles p1ProjectFiles = Utils::transform(p1Files, [](const FilePath &fp) {
-        return ProjectFile(fp, ProjectFile::classify(fp.toUrlishString()));
+        return ProjectFile(fp, ProjectFile::classify(fp));
     });
     Project * const p1 = helper.createProject("testdata_project1", FilePath::fromString("p1.pro"));
     setupProjectNodes(*p1, p1ProjectFiles);
@@ -1317,7 +1317,7 @@ void ModelManagerTest::testSettingsChanges()
         = Utils::transform(QStringList{"bar.h", "bar.cpp", "foobar2000.h", "foobar4000.h", "main.cpp"},
                            [&](const QString &fn) { return p1Dir.filePath(fn); });
     const ProjectFiles p2ProjectFiles = Utils::transform(p2Files, [](const FilePath &fp) {
-        return ProjectFile(fp, ProjectFile::classify(fp.toUrlishString()));
+        return ProjectFile(fp, ProjectFile::classify(fp));
     });
     Project * const p2 = helper.createProject("testdata_project2", FilePath::fromString("p2.pro"));
     setupProjectNodes(*p2, p2ProjectFiles);

@@ -40,13 +40,13 @@ struct TestCaseEnvironment
 class QmlCodeModelInfo
 {
 public:
-    QList<Utils::FilePath> sourceFiles;
+    Utils::FilePaths sourceFiles;
     Utils::FilePaths qmlImportPaths;
-    QList<Utils::FilePath> activeResourceFiles;
-    QList<Utils::FilePath> allResourceFiles;
-    QList<Utils::FilePath> generatedQrcFiles;
+    Utils::FilePaths activeResourceFiles;
+    Utils::FilePaths allResourceFiles;
+    Utils::FilePaths generatedQrcFiles;
     QHash<Utils::FilePath, QString> resourceFileContents;
-    QList<Utils::FilePath> applicationDirectories;
+    Utils::FilePaths applicationDirectories;
     QHash<QString, QString> moduleMappings; // E.g.: QtQuick.Controls -> MyProject.MyControls
 
     // whether trying to run qmldump makes sense
@@ -131,7 +131,7 @@ public:
     void setRootProjectNode(std::unique_ptr<ProjectNode> &&root);
 
     virtual const QList<TestCaseInfo> testcasesInfo() const { return {}; }
-    virtual Utils::CommandLine commandLineForTests(const QList<QString> &tests,
+    virtual Utils::CommandLine commandLineForTests(const QStringList &tests,
                                                    const QStringList &options) const;
 
     class PROJECTEXPLORER_EXPORT ParseGuard

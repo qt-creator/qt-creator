@@ -553,7 +553,7 @@ ItemLibraryImport *ItemLibraryModel::importByUrl(const QString &importUrl) const
 void ItemLibraryModel::updateUsedImports(const Imports &usedImports)
 {
     // imports in the excludeList are not marked used and thus can always be removed even when in use.
-    const QList<QString> excludeList = {"SimulinkConnector"};
+    const QStringList excludeList = {"SimulinkConnector"};
 
     for (ItemLibraryImport *importSection : std::as_const(m_importList)) {
         if (!excludeList.contains(importSection->importUrl()))

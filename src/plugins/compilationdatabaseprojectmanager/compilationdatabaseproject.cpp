@@ -230,20 +230,20 @@ static FolderNode *createFoldersIfNeeded(FolderNode *root, const FilePath &folde
     return parent;
 }
 
-static FileType fileTypeForName(const QString &fileName)
+static FileType fileTypeForName(const FilePath &filePath)
 {
-    CppEditor::ProjectFile::Kind fileKind = CppEditor::ProjectFile::classify(fileName);
+    CppEditor::ProjectFile::Kind fileKind = CppEditor::ProjectFile::classify(filePath);
     if (CppEditor::ProjectFile::isHeader(fileKind))
         return FileType::Header;
     return FileType::Source;
 }
 
-static void addChild(FolderNode *root, const FilePath &fileName)
+static void addChild(FolderNode *root, const FilePath &filePath)
 {
-    FolderNode *parentNode = createFoldersIfNeeded(root, fileName.parentDir());
-    if (!parentNode->fileNode(fileName)) {
+    FolderNode *parentNode = createFoldersIfNeeded(root, filePath.parentDir());
+    if (!parentNode->fileNode(filePath)) {
         parentNode->addNode(
-            std::make_unique<FileNode>(fileName, fileTypeForName(fileName.fileName())));
+            std::make_unique<FileNode>(filePath, fileTypeForName(filePath)));
     }
 }
 

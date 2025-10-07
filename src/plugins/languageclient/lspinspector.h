@@ -60,7 +60,7 @@ public:
 
     std::list<LspLogMessage> messages(const QString &clientName) const;
     Capabilities capabilities(const QString &clientName) const;
-    QList<QString> clients() const;
+    QStringList clients() const;
     void clear() { m_logs.clear(); }
 
 signals:

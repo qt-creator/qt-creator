@@ -19,6 +19,7 @@ enum class TerminalMode { On, Off, Smart };
 enum class BuildBeforeRunMode { Off, WholeProject, AppOnly };
 enum class StopBeforeBuild { None, SameProject, All, SameBuildDir, SameApp };
 enum class SyncRunConfigs { Off, SameKit, All };
+enum class KitFilter { ShowAll, ShowOnlyMatching, ShowOnlyActive /* Implies Matching */};
 
 class PROJECTEXPLORER_EXPORT ProjectExplorerSettings : public Utils::AspectContainer
 {
@@ -51,7 +52,7 @@ public:
     Utils::BoolAspect abortBuildAllOnError{this};
     Utils::BoolAspect lowBuildPriority{this};
     Utils::BoolAspect warnAgainstNonAsciiBuildDir{this};
-    Utils::BoolAspect showAllKits{this};
+    Utils::TypedSelectionAspect<KitFilter> kitFilter{this};
     Utils::TypedSelectionAspect<StopBeforeBuild> stopBeforeBuild{this};
     Utils::TypedSelectionAspect<TerminalMode> terminalMode{this};
     Utils::TypedAspect<Utils::EnvironmentItems> appEnvChanges{this};

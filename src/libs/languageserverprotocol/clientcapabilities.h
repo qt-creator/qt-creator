@@ -76,16 +76,16 @@ public:
     void setRequests(const Requests &requests) { insert(requestsKey, requests); }
 
     /// The token types that the client supports.
-    QList<QString> tokenTypes() const { return array<QString>(tokenTypesKey); }
-    void setTokenTypes(const QList<QString> &value) { insertArray(tokenTypesKey, value); }
+    QStringList tokenTypes() const { return array<QString>(tokenTypesKey); }
+    void setTokenTypes(const QStringList &value) { insertArray(tokenTypesKey, value); }
 
     /// The token modifiers that the client supports.
-    QList<QString> tokenModifiers() const { return array<QString>(tokenModifiersKey); }
-    void setTokenModifiers(const QList<QString> &value) { insertArray(tokenModifiersKey, value); }
+    QStringList tokenModifiers() const { return array<QString>(tokenModifiersKey); }
+    void setTokenModifiers(const QStringList &value) { insertArray(tokenModifiersKey, value); }
 
     /// The formats the clients supports.
-    QList<QString> formats() const { return array<QString>(formatsKey); }
-    void setFormats(const QList<QString> &value) { insertArray(formatsKey, value); }
+    QStringList formats() const { return array<QString>(formatsKey); }
+    void setFormats(const QStringList &value) { insertArray(formatsKey, value); }
 
     /// Whether the client supports tokens that can overlap each other.
     std::optional<bool> overlappingTokenSupport() const
@@ -437,11 +437,11 @@ public:
             {
             public:
                 using JsonObject::JsonObject;
-                CodeActionKind() : CodeActionKind(QList<QString>()) {}
-                explicit CodeActionKind(const QList<QString> &kinds) { setValueSet(kinds); }
+                CodeActionKind() : CodeActionKind(QStringList()) {}
+                explicit CodeActionKind(const QStringList &kinds) { setValueSet(kinds); }
 
-                QList<QString> valueSet() const { return array<QString>(valueSetKey); }
-                void setValueSet(const QList<QString> &valueSet)
+                QStringList valueSet() const { return array<QString>(valueSetKey); }
+                void setValueSet(const QStringList &valueSet)
                 { insertArray(valueSetKey, valueSet); }
 
                 bool isValid() const override { return contains(valueSetKey); }

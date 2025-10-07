@@ -653,7 +653,7 @@ static TargetDetails extractTargetDetails
         if (launchers.size() > 0) {
             t.launcherInfos = transform<QList>(launchers, [](const QJsonValue &v) {
                 const QJsonObject o = v.toObject();
-                QList<QString> arguments;
+                QStringList arguments;
                 for (const QJsonValue &arg : o.value("arguments").toArray())
                     arguments.append(arg.toString());
                 FilePath command = FilePath::fromString(o.value("command").toString());

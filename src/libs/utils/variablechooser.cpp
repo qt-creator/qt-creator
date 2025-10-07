@@ -273,6 +273,7 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
 
     m_sortModel.setSourceModel(&m_model);
     m_sortModel.sort(0);
+    m_sortModel.setRecursiveFilteringEnabled(true);
     m_sortModel.setFilterKeyColumn(0);
     m_sortModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_variableTree->setModel(&m_sortModel);

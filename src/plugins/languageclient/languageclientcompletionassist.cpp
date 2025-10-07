@@ -555,10 +555,10 @@ bool LanguageClientCompletionAssistProvider::isActivationCharSequence(const QStr
 }
 
 void LanguageClientCompletionAssistProvider::setTriggerCharacters(
-    const std::optional<QList<QString>> triggerChars)
+    const std::optional<QStringList> triggerChars)
 {
     m_activationCharSequenceLength = 0;
-    m_triggerChars = triggerChars.value_or(QList<QString>());
+    m_triggerChars = triggerChars.value_or(QStringList());
     for (const QString &trigger : std::as_const(m_triggerChars)) {
         if (trigger.length() > m_activationCharSequenceLength)
             m_activationCharSequenceLength = trigger.length();

@@ -942,7 +942,7 @@ void StereotypeDefinitionParser::parseToolbarTool(const Toolbar *toolbar, Toolba
 }
 
 template<typename T>
-void StereotypeDefinitionParser::parseEnums(const QList<QString> &identifiers,
+void StereotypeDefinitionParser::parseEnums(const QStringList &identifiers,
                                             const QHash<QString, T> &identifierNames,
                                             const SourcePos &sourcePos,
                                             std::function<void (T)> setter)
@@ -987,9 +987,9 @@ QString StereotypeDefinitionParser::parseIdentifierProperty()
     return parseIdentifierExpression();
 }
 
-QList<QString> StereotypeDefinitionParser::parseIdentifierListProperty()
+QStringList StereotypeDefinitionParser::parseIdentifierListProperty()
 {
-    QList<QString> identifiers;
+    QStringList identifiers;
     expectColon();
     for (;;) {
         Token token = d->m_scanner->read();

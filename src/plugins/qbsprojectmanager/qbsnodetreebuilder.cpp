@@ -169,7 +169,7 @@ static QSet<QString> referencedBuildSystemFiles(const QJsonObject &prjData)
 static QStringList unreferencedBuildSystemFiles(const QJsonObject &project)
 {
     QStringList unreferenced = arrayToStringList(project.value("build-system-files"));
-    const QList<QString> referenced = toList(referencedBuildSystemFiles(project));
+    const QStringList referenced = toList(referencedBuildSystemFiles(project));
     for (auto it = unreferenced.begin(); it != unreferenced.end(); ) {
         if (referenced.contains(*it))
             it = unreferenced.erase(it);

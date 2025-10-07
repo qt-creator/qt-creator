@@ -27,7 +27,7 @@ class LuaScriptPluginPrivate
 {
 public:
     QString name;
-    QList<QString> cppDepends;
+    QStringList cppDepends;
     sol::function setup;
     sol::environment pluginEnvironment;
 };

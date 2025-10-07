@@ -51,7 +51,7 @@ public:
 private:
     QHash<QString, QVariant> m_properties;
     QHash<QString, QString> m_astPropertyValues;
-    QList<QString> m_bindingOrEnum;
+    QStringList m_bindingOrEnum;
     AST::UiObjectInitializer *m_ast;
     Document::Ptr m_doc;
 };

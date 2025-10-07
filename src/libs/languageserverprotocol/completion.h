@@ -172,9 +172,9 @@ public:
      * then type that character. *Note* that all commit characters should have `length=1` and that superfluous
      * characters will be ignored.
      */
-    std::optional<QList<QString>> commitCharacters() const
+    std::optional<QStringList> commitCharacters() const
     { return optionalArray<QString>(commitCharactersKey); }
-    void setCommitCharacters(const QList<QString> &commitCharacters)
+    void setCommitCharacters(const QStringList &commitCharacters)
     { insertArray(commitCharactersKey, commitCharacters); }
     void clearCommitCharacters() { remove(commitCharactersKey); }
 

@@ -499,7 +499,7 @@ QList<Id> CMakeToolManager::autoDetectCMakeForDevice(
             const Id currentId = registerCMakeByPath(cmake, detectionSource);
             if (currentId.isValid())
                 result.push_back(currentId);
-            logCallback(Tr::tr("Found \"%1\"").arg(cmake.toUserOutput()));
+            logCallback(Tr::tr("Found \"%1\".").arg(cmake.toUserOutput()));
         }
     }
     return result;
@@ -534,7 +534,7 @@ void CMakeToolManager::removeDetectedCMake(
         });
         if (!toRemove.has_value())
             break;
-        logCallback(Tr::tr("Removing CMake tool \"%1\"").arg((*toRemove)->displayName()));
+        logCallback(Tr::tr("Removing CMake tool \"%1\".").arg((*toRemove)->displayName()));
         emit m_instance->cmakeRemoved((*toRemove)->id());
     }
 

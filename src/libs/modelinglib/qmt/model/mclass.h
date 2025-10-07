@@ -21,8 +21,8 @@ public:
 
     QString umlNamespace() const { return m_umlNamespace; }
     void setUmlNamespace(const QString &umlNamespace);
-    QList<QString> templateParameters() const { return m_templateParameters; }
-    void setTemplateParameters(const QList<QString> &templateParameters);
+    QStringList templateParameters() const { return m_templateParameters; }
+    void setTemplateParameters(const QStringList &templateParameters);
     QList<MClassMember> members() const { return m_members; }
     void setMembers(const QList<MClassMember> &members);
 
@@ -36,7 +36,7 @@ public:
 
 private:
     QString m_umlNamespace;
-    QList<QString> m_templateParameters;
+    QStringList m_templateParameters;
     QList<MClassMember> m_members;
 };
 

@@ -25,6 +25,12 @@
 
 namespace UpdateInfo::Internal {
 
+UpdateInfoSettings &settings()
+{
+    static UpdateInfoSettings theUpdateInfoSettings;
+    return theUpdateInfoSettings;
+}
+
 class UpdateInfoSettingsPageWidget final : public Core::IOptionsPageWidget
 {
 public:
@@ -87,10 +93,10 @@ public:
 
         m_lastCheckDateLabel->setText(Tr::tr("Not checked yet"));
 
-        m_checkIntervalComboBox->addItem(Tr::tr("Daily"), UpdateInfoPlugin::DailyCheck);
-        m_checkIntervalComboBox->addItem(Tr::tr("Weekly"), UpdateInfoPlugin::WeeklyCheck);
-        m_checkIntervalComboBox->addItem(Tr::tr("Monthly"), UpdateInfoPlugin::MonthlyCheck);
-        UpdateInfoPlugin::CheckUpdateInterval interval = m_plugin->checkUpdateInterval();
+        m_checkIntervalComboBox->addItem(Tr::tr("Daily"), DailyCheck);
+        m_checkIntervalComboBox->addItem(Tr::tr("Weekly"), WeeklyCheck);
+        m_checkIntervalComboBox->addItem(Tr::tr("Monthly"), MonthlyCheck);
+        CheckUpdateInterval interval = m_plugin->checkUpdateInterval();
         for (int i = 0; i < m_checkIntervalComboBox->count(); i++) {
             if (m_checkIntervalComboBox->itemData(i).toInt() == interval) {
                 m_checkIntervalComboBox->setCurrentIndex(i);
@@ -123,7 +129,7 @@ private:
     void checkRunningChanged(bool running);
     void updateLastCheckDate();
     void updateNextCheckDate();
-    UpdateInfoPlugin::CheckUpdateInterval currentCheckInterval() const;
+    CheckUpdateInterval currentCheckInterval() const;
 
     QPointer<Utils::ProgressIndicator> m_progressIndicator;
 
@@ -139,9 +145,9 @@ private:
     QLabel *m_messageLabel;
 };
 
-UpdateInfoPlugin::CheckUpdateInterval UpdateInfoSettingsPageWidget::currentCheckInterval() const
+CheckUpdateInterval UpdateInfoSettingsPageWidget::currentCheckInterval() const
 {
-    return static_cast<UpdateInfoPlugin::CheckUpdateInterval>
+    return static_cast<CheckUpdateInterval>
             (m_checkIntervalComboBox->itemData(m_checkIntervalComboBox->currentIndex()).toInt());
 }
 

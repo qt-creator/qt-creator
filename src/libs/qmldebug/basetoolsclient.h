@@ -37,7 +37,7 @@ protected:
     void stateChanged(State status) override;
 
     void recurseObjectIdList(const ObjectReference &ref,
-                             QList<int> &debugIds, QList<QString> &objectIds);
+                             QList<int> &debugIds, QStringList &objectIds);
 protected:
     enum LogDirection {
         LogSend,

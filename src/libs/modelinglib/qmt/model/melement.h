@@ -49,8 +49,8 @@ public:
     void setOwner(MObject *owner);
     MExpansion *expansion() const { return m_expansion; }
     void setExpansion(MExpansion *expansion);
-    QList<QString> stereotypes() const { return m_stereotypes; }
-    void setStereotypes(const QList<QString> &stereotypes);
+    QStringList stereotypes() const { return m_stereotypes; }
+    void setStereotypes(const QStringList &stereotypes);
     Flags flags() const { return m_flags; }
     void setFlags(const Flags &flags);
 
@@ -61,7 +61,7 @@ private:
     Uid m_uid;
     MObject *m_owner = nullptr;
     MExpansion *m_expansion = nullptr;
-    QList<QString> m_stereotypes;
+    QStringList m_stereotypes;
     Flags m_flags;
 };
 

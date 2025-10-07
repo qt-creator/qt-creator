@@ -65,7 +65,7 @@ public:
 
     Q_INVOKABLE void setPresetByID(int presetID);
     Q_INVOKABLE void setPresetByStops(const QList<qreal> &stopsPositions,
-                                      const QList<QString> &stopsColors,
+                                      const QStringList &stopsColors,
                                       int stopsCount,
                                       bool saveTransaction = true);
 

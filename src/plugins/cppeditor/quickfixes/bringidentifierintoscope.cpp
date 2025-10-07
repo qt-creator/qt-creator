@@ -381,8 +381,10 @@ private:
             QList<IndexItem::Ptr> indexItems;
             const Snapshot forwardHeaders = forwardingHeaders(interface);
             for (const IndexItem::Ptr &info : matches) {
-                if (!info || info->symbolName() != className)
+                if (!info || info->symbolName() != className
+                    || !ProjectFile::isHeader(info->filePath())) {
                     continue;
+                }
                 indexItems << info;
 
                 Snapshot localForwardHeaders = forwardHeaders;
@@ -1314,6 +1316,14 @@ private slots:
         QTest::newRow("do not preserve first header")
             << TestIncludePaths::globalIncludePath()
             << testDocuments << firstRefactoringOperation << "";
+        testDocuments.clear();
+
+        original = "static @C *c = nullptr;\n";
+        testDocuments << CppTestDocument::create("c.h", original, "");
+        original = "class C {};\n";
+        testDocuments << CppTestDocument::create("x.cpp", original, "");
+        QTest::newRow("do not include cpp file")
+            << TestIncludePaths::globalIncludePath() << testDocuments << 0 << "";
         testDocuments.clear();
     }
 

@@ -35,7 +35,7 @@ void TemplateParameterBox::setTextBrush(const QBrush &brush)
     }
 }
 
-void TemplateParameterBox::setTemplateParameters(const QList<QString> &templateParameters)
+void TemplateParameterBox::setTemplateParameters(const QStringList &templateParameters)
 {
     if (m_templateParameters != templateParameters) {
         m_templateParameters = templateParameters;

@@ -1004,7 +1004,7 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
             });
 
             QObject::connect(WinDebugInterface::instance(), &WinDebugInterface::debugOutput,
-                             &process, [this, process = &process](qint64 pid, const QList<QString> &messages) {
+                             &process, [this, process = &process](qint64 pid, const QStringList &messages) {
                 if (process->processId() != pid)
                     return;
                 for (const QString &message : messages)

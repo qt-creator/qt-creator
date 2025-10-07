@@ -164,7 +164,7 @@ void AssetsLibraryView::sync3dImports()
         = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
     auto projPath = Utils::FilePath::fromString(externalDependencies().currentProjectDirPath());
 
-    const QList<Utils::FilePath> qmlFiles = compUtils.imported3dComponents();
+    const Utils::FilePaths qmlFiles = compUtils.imported3dComponents();
 
     Utils::FilePath resPath = DocumentManager::currentResourcePath();
     QHash<QString, Utils::FilePath> files = collectFiles(resPath, "q3d");

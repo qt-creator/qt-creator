@@ -50,13 +50,13 @@ public:
     struct ProjectInfo
     {
         QPointer<ProjectBase> project;
-        QList<Utils::FilePath> sourceFiles;
+        Utils::FilePaths sourceFiles;
         PathsAndLanguages importPaths;
-        QList<Utils::FilePath> activeResourceFiles;
-        QList<Utils::FilePath> allResourceFiles;
-        QList<Utils::FilePath> generatedQrcFiles;
+        Utils::FilePaths activeResourceFiles;
+        Utils::FilePaths allResourceFiles;
+        Utils::FilePaths generatedQrcFiles;
         QHash<Utils::FilePath, QString> resourceFileContents;
-        QList<Utils::FilePath> applicationDirectories;
+        Utils::FilePaths applicationDirectories;
         QHash<QString, QString> moduleMappings; // E.g.: QtQuick.Controls -> MyProject.MyControls
 
         // whether trying to run qmldump makes sense
@@ -125,9 +125,9 @@ public:
     void removeFromScannedPaths(const PathsAndLanguages &pathsAndLanguages);
 
     void activateScan();
-    void updateSourceFiles(const QList<Utils::FilePath> &files, bool emitDocumentOnDiskChanged);
+    void updateSourceFiles(const Utils::FilePaths &files, bool emitDocumentOnDiskChanged);
     void fileChangedOnDisk(const Utils::FilePath &path);
-    void removeFiles(const QList<Utils::FilePath> &files);
+    void removeFiles(const Utils::FilePaths &files);
     QStringList qrcPathsForFile(const Utils::FilePath &file,
                                 const QLocale *locale = nullptr,
                                 ProjectBase *project = nullptr,
@@ -156,7 +156,7 @@ public:
     ProjectInfo projectInfoForPath(const Utils::FilePath &path) const;
     QList<ProjectInfo> allProjectInfosForPath(const Utils::FilePath &path) const;
 
-    QList<Utils::FilePath> importPathsNames() const;
+    Utils::FilePaths importPathsNames() const;
     QmlJS::QmlLanguageBundles activeBundles() const;
     QmlJS::QmlLanguageBundles extendedBundles() const;
 
@@ -196,14 +196,14 @@ public:
     void removeProjectInfo(ProjectBase *project);
     void maybeQueueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc);
 
-    QFuture<void> refreshSourceFiles(const QList<Utils::FilePath> &sourceFiles,
+    QFuture<void> refreshSourceFiles(const Utils::FilePaths &sourceFiles,
                                      bool emitDocumentOnDiskChanged);
     void waitForFinished();
 
 signals:
     void documentUpdated(QmlJS::Document::Ptr doc);
     void documentChangedOnDisk(QmlJS::Document::Ptr doc);
-    void aboutToRemoveFiles(const QList<Utils::FilePath> &files);
+    void aboutToRemoveFiles(const Utils::FilePaths &files);
     void libraryInfoUpdated(const Utils::FilePath &path, const QmlJS::LibraryInfo &info);
     void projectInfoUpdated(const ProjectInfo &pinfo);
     void projectPathChanged(const Utils::FilePath &projectPath);
@@ -224,14 +224,14 @@ protected:
     static void parseLoop(QSet<Utils::FilePath> &scannedPaths,
                           QSet<Utils::FilePath> &newLibraries,
                           const WorkingCopy &workingCopyInternal,
-                          QList<Utils::FilePath> files,
+                          Utils::FilePaths files,
                           ModelManagerInterface *modelManager,
                           QmlJS::Dialect mainLanguage,
                           bool emitDocChangedOnDisk,
                           const std::function<bool(qreal)> &reportProgress);
     static void parse(QPromise<void> &promise,
                       const WorkingCopy &workingCopyInternal,
-                      QList<Utils::FilePath> files,
+                      Utils::FilePaths files,
                       ModelManagerInterface *modelManager,
                       QmlJS::Dialect mainLanguage,
                       bool emitDocChangedOnDisk);
@@ -254,12 +254,12 @@ private:
 
     struct SyncedData
     {
-        SyncedData(const QList<Utils::FilePath> &defaultImportPaths);
+        SyncedData(const Utils::FilePaths &defaultImportPaths);
         QmlJS::Snapshot m_validSnapshot;
         QmlJS::Snapshot m_newestSnapshot;
         PathsAndLanguages m_allImportPaths;
-        QList<Utils::FilePath> m_applicationPaths;
-        QList<Utils::FilePath> m_defaultImportPaths;
+        Utils::FilePaths m_applicationPaths;
+        Utils::FilePaths m_defaultImportPaths;
         QmlJS::QmlLanguageBundles m_activeBundles;
         QmlJS::QmlLanguageBundles m_extendedBundles;
         QHash<Dialect, QmlJS::ViewerContext> m_defaultVContexts;
@@ -295,7 +295,7 @@ private:
     QThreadPool m_threadPool;
 
 private:
-    QList<Utils::FilePath> importPathsNames(const SyncedData &lockedData) const;
+    Utils::FilePaths importPathsNames(const SyncedData &lockedData) const;
 
     static bool findNewQmlApplicationInPath(
         const Utils::FilePath &path,
@@ -315,7 +315,7 @@ private:
     static bool findNewQmlLibraryInPath(const Utils::FilePath &path,
                                         const Snapshot &snapshot,
                                         ModelManagerInterface *modelManager,
-                                        QList<Utils::FilePath> *importedFiles,
+                                        Utils::FilePaths *importedFiles,
                                         QSet<Utils::FilePath> *scannedPaths,
                                         QSet<Utils::FilePath> *newLibraries,
                                         bool ignoreMissing,

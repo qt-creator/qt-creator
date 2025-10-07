@@ -40,7 +40,7 @@ void DRelation::setModelUid(const Uid &uid)
     m_modelUid = uid;
 }
 
-void DRelation::setStereotypes(const QList<QString> &stereotypes)
+void DRelation::setStereotypes(const QStringList &stereotypes)
 {
     m_stereotypes = stereotypes;
 }

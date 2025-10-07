@@ -189,7 +189,7 @@ public:
     int backtrace = -1;
     bool isGeneratorProvided = false;
     QString nameOnDisk;
-    QList<Utils::FilePath> artifacts;
+    Utils::FilePaths artifacts;
     QString installPrefix;
     std::vector<InstallDestination> installDestination;
     QList<ProjectExplorer::LauncherInfo> launcherInfos;

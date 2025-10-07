@@ -494,7 +494,7 @@ std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
 
             for (Toolchain *toolchain : toolchains) {
                 toolchain->setDetectionSource(detectionSource);
-                logCallback(Tr::tr("Found toolchain: %1").arg(toolchain->displayName()));
+                logCallback(Tr::tr("Found toolchain: %1.").arg(toolchain->displayName()));
             }
 
             ToolchainManager::registerToolchains(toolchains);
@@ -519,7 +519,7 @@ std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::removeAutoDete
               });
 
         for (Toolchain *tc : toolchains)
-            logCallback(Tr::tr("Removing toolchain: %1").arg(tc->displayName()));
+            logCallback(Tr::tr("Removing toolchain: %1.").arg(tc->displayName()));
 
         ToolchainManager::deregisterToolchains(toolchains);
     });
@@ -530,7 +530,7 @@ void ToolchainKitAspectFactory::listAutoDetected(
 {
     for (const Toolchain *tc : ToolchainManager::toolchains()) {
         if (tc->detectionSource().isAutoDetected() && tc->detectionSource().id == detectionSource)
-            logCallback(Tr::tr("Toolchain: %1").arg(tc->displayName()));
+            logCallback(Tr::tr("Toolchain: %1.").arg(tc->displayName()));
     }
 }
 
@@ -545,7 +545,7 @@ Result<Tasking::ExecutableItem> ToolchainKitAspectFactory::createAspectFromJson(
 
     if (!json.isObject()) {
         return ResultError(
-            Tr::tr("Expected a JSON object for toolchain detection, got: %1").arg(json.type()));
+            Tr::tr("Expected a JSON object for toolchain detection, got: %1.").arg(json.type()));
     }
 
     QJsonObject jsonObject = json.toObject();
@@ -557,7 +557,7 @@ Result<Tasking::ExecutableItem> ToolchainKitAspectFactory::createAspectFromJson(
     for (auto it = jsonObject.constBegin(); it != jsonObject.constEnd(); ++it) {
         const Id language = findLanguage(it.key());
         if (!language.isValid())
-            return ResultError(Tr::tr("Unknown language in toolchain detection: %1").arg(it.key()));
+            return ResultError(Tr::tr("Unknown language in toolchain detection: %1.").arg(it.key()));
 
         const FilePath path = rootPath.withNewPath(it.value().toString());
         toolchains.append(qMakePair(language, path));

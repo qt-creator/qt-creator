@@ -56,7 +56,7 @@ class CMakeTargetNode : public ProjectExplorer::ProjectNode
 public:
     CMakeTargetNode(const Utils::FilePath &directory, const QString &target);
 
-    void setTargetInformation(const QList<Utils::FilePath> &artifacts, const QString &type);
+    void setTargetInformation(const Utils::FilePaths &artifacts, const QString &type);
 
     QString tooltip() const final;
     QString buildKey() const final;

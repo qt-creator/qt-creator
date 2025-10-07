@@ -75,7 +75,7 @@ private:
 
     QStringList m_filter;
     // simple "*.png" patterns are stored in m_fileSuffixes, otherwise store in m_regExpList
-    QList<QString> m_fileSuffixes;
+    QStringList m_fileSuffixes;
     QList<QRegularExpression> m_regExpList;
 
     enum RecursiveOption {

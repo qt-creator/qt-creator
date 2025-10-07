@@ -73,7 +73,7 @@ void MElement::setExpansion(MExpansion *expansion)
     m_expansion = expansion;
 }
 
-void MElement::setStereotypes(const QList<QString> &stereotypes)
+void MElement::setStereotypes(const QStringList &stereotypes)
 {
     m_stereotypes = stereotypes;
 }

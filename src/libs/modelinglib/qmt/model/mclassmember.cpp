@@ -20,7 +20,7 @@ void MClassMember::renewUid()
     m_uid.renew();
 }
 
-void MClassMember::setStereotypes(const QList<QString> &stereotypes)
+void MClassMember::setStereotypes(const QStringList &stereotypes)
 {
     m_stereotypes = stereotypes;
 }

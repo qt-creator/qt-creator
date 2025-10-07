@@ -109,7 +109,7 @@ void FlameGraphModelTest::testCounts()
 
 void FlameGraphModelTest::testData()
 {
-    const QList<QString> typeRoles({
+    const QStringList typeRoles({
         Tr::tr("JavaScript"),
         Tr::tr("Signal"),
         Tr::tr("Binding"),

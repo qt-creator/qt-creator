@@ -392,7 +392,7 @@ private:
             return;
 
         CppRefactoringChanges refactoring(snapshot());
-        const bool isHeaderFile = ProjectFile::isHeader(ProjectFile::classify(filePath().toUrlishString()));
+        const bool isHeaderFile = ProjectFile::isHeader(ProjectFile::classify(filePath()));
         FilePath cppFile; // Only set if the class is defined in a header file.
         if (isHeaderFile) {
             InsertionPointLocator locator(refactoring);
@@ -401,7 +401,7 @@ private:
                 if (!location.isValid())
                     continue;
                 const FilePath filePath = location.filePath();
-                if (ProjectFile::isHeader(ProjectFile::classify(filePath.path()))) {
+                if (ProjectFile::isHeader(ProjectFile::classify(filePath))) {
                     const FilePath source = correspondingHeaderOrSource(filePath);
                     if (!source.isEmpty())
                         cppFile = source;
@@ -536,8 +536,7 @@ private:
                 && (!simpleDecl->declarator_list || !simpleDecl->declarator_list->value)) {
                 return;
             }
-            const ProjectFile::Kind kind = ProjectFile::classify(
-                interface.filePath().toUrlishString());
+            const ProjectFile::Kind kind = ProjectFile::classify(interface.filePath());
             const bool isHeaderFile = ProjectFile::isHeader(kind);
             if (forwardDecl && !isHeaderFile)
                 return;
@@ -612,7 +611,7 @@ private:
                             continue;
                     }
 
-                    if (ProjectFile::isHeader(ProjectFile::classify(filePath.path()))) {
+                    if (ProjectFile::isHeader(ProjectFile::classify(filePath))) {
                         const FilePath source = correspondingHeaderOrSource(filePath);
                         if (!source.isEmpty()) {
                             op = new InsertDefOperation(

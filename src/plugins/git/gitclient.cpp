@@ -897,7 +897,7 @@ void GitClient::stopMonitoring(const Utils::FilePath &path)
 {
     const FilePath directory = path;
     // Submodule management
-    const QList<FilePath> subPaths = submoduleDataToAbsolutePath(submoduleList(directory), directory);
+    const FilePaths subPaths = submoduleDataToAbsolutePath(submoduleList(directory), directory);
     for (const FilePath &subModule : subPaths)
         m_modifInfos.remove(subModule);
     m_modifInfos.remove(directory);
@@ -912,7 +912,7 @@ void GitClient::monitorDirectory(const Utils::FilePath &path)
         return;
     m_modifInfos.insert(directory, {directory, {}});
     // Submodule management
-    const QList<FilePath> subPaths = submoduleDataToAbsolutePath(submoduleList(directory), directory);
+    const FilePaths subPaths = submoduleDataToAbsolutePath(submoduleList(directory), directory);
     for (const FilePath &subModule : subPaths)
         m_modifInfos.insert(subModule, {subModule, {}});
 
@@ -2181,7 +2181,7 @@ SubmoduleDataMap GitClient::submoduleList(const FilePath &workingDirectory) cons
     if (!result.isEmpty()) {
         QSettings gitmodulesFile(gitmodulesFileName.toUrlishString(), QSettings::IniFormat);
 
-        const QList<QString> submodules = result.keys();
+        const QStringList submodules = result.keys();
         for (const QString &submoduleName : submodules) {
             gitmodulesFile.beginGroup("submodule \"" + submoduleName + '"');
             const QString path = gitmodulesFile.value("path").toString();

@@ -456,14 +456,14 @@ static ClassDocumentPtrPair
 void QtCreatorIntegration::slotActiveFormWindowChanged(QDesignerFormWindowInterface *formWindow)
 {
     if (formWindow == nullptr
-        || !setQtVersionFromFile(Utils::FilePath::fromString(formWindow->fileName()))) {
+        || !setQtVersionFromFile(FilePath::fromString(formWindow->fileName()))) {
         resetQtVersion();
     }
 }
 
 // Set the file's Qt version on the integration for Qt Designer to write
 // it out in the appropriate format (PYSIDE-2492, scoped enum support).
-bool QtCreatorIntegration::setQtVersionFromFile(const Utils::FilePath &filePath)
+bool QtCreatorIntegration::setQtVersionFromFile(const FilePath &filePath)
 {
     if (const auto *uiProject = ProjectManager::projectForFile(filePath)) {
         if (auto versionOpt = qtVersionFromProject(uiProject)) {
@@ -537,7 +537,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 {
     using DocumentMap = QMap<int, Document::Ptr>;
 
-    const Utils::FilePath currentUiFile = activeEditor()->document()->filePath();
+    const FilePath currentUiFile = activeEditor()->document()->filePath();
 #if 0
     return Designer::Internal::navigateToSlot(currentUiFile.toString(), objectName,
                                               signalSignature, parameterNames, errorMessage);
@@ -566,7 +566,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         const CppEditor::WorkingCopy::Table elements =
                 CppEditor::CppModelManager::workingCopy().elements();
         for (auto it = elements.cbegin(), end = elements.cend(); it != end; ++it) {
-            const Utils::FilePath &fileName = it.key();
+            const FilePath &fileName = it.key();
             if (fileName != configFileName)
                 newDocTable.insert(docTable.document(fileName));
         }
@@ -637,7 +637,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         addDeclaration(docTable, declFilePath, cl, functionNameWithParameterNames);
 
         // Re-load C++ documents.
-        QList<Utils::FilePath> filePaths;
+        FilePaths filePaths;
         for (auto it = docTable.begin(); it != docTable.end(); ++it)
             filePaths << it.key();
         workingCopy = CppEditor::CppModelManager::workingCopy();

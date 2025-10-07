@@ -65,14 +65,14 @@ static CMakeFileResult extractCMakeFilesData(const QFuture<void> &cancelFuture,
     // Load and parse cmake files. We use concurrency here to speed up the process of
     // reading many small files, which can get slow especially on remote devices.
     QFuture<CMakeFileInfo> mapResult
-        = QtConcurrent::mapped(cmakeFileSet, [cancelFuture, sourceDirectory](const auto &info) {
+        = QtConcurrent::mapped(cmakeFileSet, [cancelFuture, sourceDirectory](const CMakeFileInfo &info) {
               if (cancelFuture.isCanceled())
                   return CMakeFileInfo();
               const FilePath sfn = sourceDirectory.resolvePath(info.path);
-              CMakeFileInfo absolute(info);
+              CMakeFileInfo absolute = info;
               absolute.path = sfn;
 
-              const auto mimeType = Utils::mimeTypeForFile(info.path);
+              const MimeType mimeType = Utils::mimeTypeForFile(info.path);
               if (mimeType.matchesName(Utils::Constants::CMAKE_MIMETYPE)
                   || mimeType.matchesName(Utils::Constants::CMAKE_PROJECT_MIMETYPE)) {
                   QByteArray fileContent;
@@ -97,7 +97,7 @@ static CMakeFileResult extractCMakeFilesData(const QFuture<void> &cancelFuture,
 
     CMakeFileResult result;
 
-    for (const auto &info : mapResult.results()) {
+    for (const CMakeFileInfo &info : mapResult.results()) {
         if (cancelFuture.isCanceled())
             return {};
 
@@ -794,9 +794,9 @@ static void addTargets(FolderNode *root,
     };
 
     auto createTargetNode = [](auto &cmakeListsNodes,
-                               const Utils::FilePath &dir,
+                               const FilePath &dir,
                                const QString &displayName) -> CMakeTargetNode * {
-        auto *cmln = cmakeListsNodes.value(dir);
+        FolderNode *cmln = cmakeListsNodes.value(dir);
         QTC_ASSERT(cmln, return nullptr);
 
         QString targetId = displayName;

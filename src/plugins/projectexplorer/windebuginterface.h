@@ -27,7 +27,7 @@ public:
     static void startIfNeeded();
 
 signals:
-    void debugOutput(qint64 pid, const QList<QString> &messages);
+    void debugOutput(qint64 pid, const QStringList &messages);
     void cannotRetrieveDebugOutput();
     void _q_debugOutputReady();
 

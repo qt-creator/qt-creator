@@ -204,8 +204,8 @@ private:
         const SignatureInformation signature = m_sigis.signatures().at(index);
         QString label = signature.label();
 
-        const QList<QString> parameters = Utils::transform(signature.parameters().value_or(Parameters()),
-                                                           &ParameterInformation::label);
+        const QStringList parameters = Utils::transform(signature.parameters().value_or(Parameters()),
+                                                        &ParameterInformation::label);
         if (parameters.size() <= m_currentArg)
             return label;
 

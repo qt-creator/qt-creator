@@ -494,7 +494,7 @@ void McuSupportTest::initTestCase()
     EXPECT_CALL(*freeRtosPackage, path())
         .WillRepeatedly(Return(FilePath::fromUserInput(freeRtosPath)));
     EXPECT_CALL(*freeRtosPackage, isAddToSystemPath()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*freeRtosPackage, detectionPaths()).WillRepeatedly(Return(QList<FilePath>{}));
+    EXPECT_CALL(*freeRtosPackage, detectionPaths()).WillRepeatedly(Return(FilePaths{}));
 
     ON_CALL(*sdkPackage, label()).WillByDefault(Return(QString{QUL_LABEL}));
     ON_CALL(*sdkPackage, settingsKey())
@@ -504,7 +504,7 @@ void McuSupportTest::initTestCase()
     ON_CALL(*sdkPackage, isValidStatus()).WillByDefault(Return(true));
     ON_CALL(*sdkPackage, path()).WillByDefault(Return(FilePath::fromUserInput(qtForMcuSdkPath)));
     ON_CALL(*sdkPackage, isAddToSystemPath()).WillByDefault(Return(true));
-    ON_CALL(*sdkPackage, detectionPaths()).WillByDefault(Return(QList<FilePath>{}));
+    ON_CALL(*sdkPackage, detectionPaths()).WillByDefault(Return(FilePaths{}));
 
     EXPECT_CALL(*armGccToolchainFilePackage, environmentVariableName())
         .WillRepeatedly(Return(QString{QString{}}));
@@ -515,7 +515,7 @@ void McuSupportTest::initTestCase()
         .WillRepeatedly(Return(FilePath::fromUserInput(armGccToolchainFilePath)));
     EXPECT_CALL(*armGccToolchainFilePackage, isAddToSystemPath()).WillRepeatedly(Return(false));
     EXPECT_CALL(*armGccToolchainFilePackage, detectionPaths())
-        .WillRepeatedly(Return(QList<FilePath>{}));
+        .WillRepeatedly(Return(FilePaths{}));
 
     ON_CALL(*settingsMockPtr, getPath)
         .WillByDefault([](const Key &, QSettings::Scope, const FilePath &m_defaultPath) {

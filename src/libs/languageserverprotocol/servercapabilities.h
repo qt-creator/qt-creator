@@ -105,8 +105,8 @@ class LANGUAGESERVERPROTOCOL_EXPORT CodeActionOptions : public WorkDoneProgressO
 public:
     using WorkDoneProgressOptions::WorkDoneProgressOptions;
 
-    QList<QString> codeActionKinds() const { return array<QString>(codeActionKindsKey); }
-    void setCodeActionKinds(const QList<QString> &codeActionKinds)
+    QStringList codeActionKinds() const { return array<QString>(codeActionKindsKey); }
+    void setCodeActionKinds(const QStringList &codeActionKinds)
     { insertArray(codeActionKindsKey, codeActionKinds); }
 
     bool isValid() const override;
@@ -168,9 +168,9 @@ public:
         using WorkDoneProgressOptions::WorkDoneProgressOptions;
 
         // The characters that trigger completion automatically.
-        std::optional<QList<QString>> triggerCharacters() const
+        std::optional<QStringList> triggerCharacters() const
         { return optionalArray<QString>(triggerCharactersKey); }
-        void setTriggerCharacters(const QList<QString> &triggerCharacters)
+        void setTriggerCharacters(const QStringList &triggerCharacters)
         { insertArray(triggerCharactersKey, triggerCharacters); }
         void clearTriggerCharacters() { remove(triggerCharactersKey); }
 
@@ -185,9 +185,9 @@ public:
         using WorkDoneProgressOptions::WorkDoneProgressOptions;
 
         // The characters that trigger signature help automatically.
-        std::optional<QList<QString>> triggerCharacters() const
+        std::optional<QStringList> triggerCharacters() const
         { return optionalArray<QString>(triggerCharactersKey); }
-        void setTriggerCharacters(const QList<QString> &triggerCharacters)
+        void setTriggerCharacters(const QStringList &triggerCharacters)
         { insertArray(triggerCharactersKey, triggerCharacters); }
         void clearTriggerCharacters() { remove(triggerCharactersKey); }
     };
@@ -205,9 +205,9 @@ public:
         { insert(firstTriggerCharacterKey, firstTriggerCharacter); }
 
         // More trigger characters.
-        std::optional<QList<QString>> moreTriggerCharacter() const
+        std::optional<QStringList> moreTriggerCharacter() const
         { return optionalArray<QString>(moreTriggerCharacterKey); }
-        void setMoreTriggerCharacter(const QList<QString> &moreTriggerCharacter)
+        void setMoreTriggerCharacter(const QStringList &moreTriggerCharacter)
         { insertArray(moreTriggerCharacterKey, moreTriggerCharacter); }
         void clearMoreTriggerCharacter() { remove(moreTriggerCharacterKey); }
 
@@ -221,8 +221,8 @@ public:
     public:
         using WorkDoneProgressOptions::WorkDoneProgressOptions;
 
-        QList<QString> commands() const { return array<QString>(commandsKey); }
-        void setCommands(const QList<QString> &commands) { insertArray(commandsKey, commands); }
+        QStringList commands() const { return array<QString>(commandsKey); }
+        void setCommands(const QStringList &commands) { insertArray(commandsKey, commands); }
 
         bool isValid() const override;
     };

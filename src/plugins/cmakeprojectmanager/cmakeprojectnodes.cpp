@@ -284,7 +284,7 @@ void CMakeTargetNode::build()
         static_cast<CMakeBuildSystem *>(bs)->buildCMakeTarget(displayName());
 }
 
-void CMakeTargetNode::setTargetInformation(const QList<FilePath> &artifacts, const QString &type)
+void CMakeTargetNode::setTargetInformation(const FilePaths &artifacts, const QString &type)
 {
     m_tooltip = Tr::tr("Target type:") + " " + type + "<br>";
     if (artifacts.isEmpty()) {

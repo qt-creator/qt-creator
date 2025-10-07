@@ -2505,9 +2505,9 @@ void ICorePrivate::updateContext()
     if (coreLog().isDebugEnabled()) {
         qCDebug(coreLog) << "Context changed:";
         qCDebug(coreLog) << "    "
-                         << Utils::transform<QList<QString>>(uniquecontexts, &Id::toString);
+                         << Utils::transform<QStringList>(uniquecontexts, &Id::toString);
         qCDebug(coreLog) << "    "
-                         << Utils::transform<QList<QString>>(m_activeContext, [](IContext *c) {
+                         << Utils::transform<QStringList>(m_activeContext, [](IContext *c) {
                                 return QString("%1: %2").arg(
                                     QString::fromUtf8(c->metaObject()->className()),
                                     c->widget()

@@ -2422,7 +2422,7 @@ const QList<TestCaseInfo> CMakeBuildSystem::testcasesInfo() const
     return m_testNames;
 }
 
-CommandLine CMakeBuildSystem::commandLineForTests(const QList<QString> &tests,
+CommandLine CMakeBuildSystem::commandLineForTests(const QStringList &tests,
                                                   const QStringList &options) const
 {
     const QSet<QString> testsSet = Utils::toSet(tests);

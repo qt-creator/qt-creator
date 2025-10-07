@@ -175,7 +175,7 @@ static FilePath correspondingHeaderOrSourceInProject(const FilePath &filePath,
 
 FilePath correspondingHeaderOrSource(const FilePath &filePath, bool *wasHeader, CacheUsage cacheUsage)
 {
-    ProjectFile::Kind kind = ProjectFile::classify(filePath.fileName());
+    ProjectFile::Kind kind = ProjectFile::classify(filePath);
     const bool isHeader = ProjectFile::isHeader(kind);
     if (wasHeader)
         *wasHeader = isHeader;

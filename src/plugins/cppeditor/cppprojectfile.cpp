@@ -11,16 +11,6 @@
 
 namespace CppEditor {
 
-template<typename T>
-static ProjectFile::Kind classifyImpl(T &&file)
-{
-    if (ProjectFile::isAmbiguousHeader(file))
-        return ProjectFile::Kind::AmbiguousHeader;
-
-    const Utils::MimeType mimeType = Utils::mimeTypeForFile(file);
-    return ProjectFile::classifyByMimeType(mimeType.name());
-}
-
 ProjectFile::ProjectFile(const Utils::FilePath &filePath, Kind kind, bool active)
     : path(filePath)
     , kind(kind)
@@ -61,14 +51,13 @@ ProjectFile::Kind ProjectFile::classifyByMimeType(const QString &mt)
     return Unsupported;
 }
 
-ProjectFile::Kind ProjectFile::classify(const QString &filePath)
-{
-    return classifyImpl(filePath);
-}
-
 ProjectFile::Kind ProjectFile::classify(const Utils::FilePath &filePath)
 {
-    return classifyImpl(filePath);
+    if (ProjectFile::isAmbiguousHeader(filePath))
+        return ProjectFile::Kind::AmbiguousHeader;
+
+    const Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath);
+    return ProjectFile::classifyByMimeType(mimeType.name());
 }
 
 bool ProjectFile::isAmbiguousHeader(QStringView filePath)
@@ -79,11 +68,6 @@ bool ProjectFile::isAmbiguousHeader(QStringView filePath)
 bool ProjectFile::isAmbiguousHeader(const Utils::FilePath &filePath)
 {
     return isAmbiguousHeader(filePath.fileNameView());
-}
-
-bool ProjectFile::isObjC(const QString &filePath)
-{
-    return isObjC(classify(filePath));
 }
 
 bool ProjectFile::isObjC(const Utils::FilePath &filePath)

@@ -51,8 +51,8 @@ public:
     Uid uid() const { return m_uid; }
     void setUid(const Uid &uid);
     void renewUid();
-    QList<QString> stereotypes() const { return m_stereotypes; }
-    void setStereotypes(const QList<QString> &stereotypes);
+    QStringList stereotypes() const { return m_stereotypes; }
+    void setStereotypes(const QStringList &stereotypes);
     QString group() const { return m_group; }
     void setGroup(const QString &group);
     QString declaration() const { return m_declaration; }
@@ -66,7 +66,7 @@ public:
 
 private:
     Uid m_uid;
-    QList<QString> m_stereotypes;
+    QStringList m_stereotypes;
     QString m_group;
     QString m_declaration;
     Visibility m_visibility = VisibilityUndefined;

@@ -57,7 +57,7 @@ public:
     const QList<Source> sources() const;
     std::vector<std::unique_ptr<RemoteSpec>> versions() const;
 
-    QList<QString> tags() const;
+    QStringList tags() const;
 
     QDateTime createdAt() const;
     QDateTime updatedAt() const;

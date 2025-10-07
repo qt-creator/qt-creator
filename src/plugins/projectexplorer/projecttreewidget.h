@@ -80,7 +80,7 @@ private:
 
     QString m_modelId;
     bool m_autoSync = true;
-    QList<Utils::FilePath> m_delayedRename;
+    Utils::FilePaths m_delayedRename;
 
     static QList<ProjectTreeWidget *> m_projectTreeWidgets;
     friend class ProjectTreeWidgetFactory;

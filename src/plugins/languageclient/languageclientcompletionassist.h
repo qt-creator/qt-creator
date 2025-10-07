@@ -39,7 +39,7 @@ public:
     bool isActivationCharSequence(const QString &sequence) const override;
     bool isContinuationChar(const QChar &) const override { return true; }
 
-    void setTriggerCharacters(const std::optional<QList<QString>> triggerChars);
+    void setTriggerCharacters(const std::optional<QStringList> triggerChars);
 
     void setSnippetsGroup(const QString &group) { m_snippetsGroup = group; }
 
@@ -47,7 +47,7 @@ protected:
     Client *client() const { return m_client; }
 
 private:
-    QList<QString> m_triggerChars;
+    QStringList m_triggerChars;
     QString m_snippetsGroup;
     int m_activationCharSequenceLength = 0;
     Client *m_client = nullptr; // not owned
