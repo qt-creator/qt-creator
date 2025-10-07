@@ -112,6 +112,7 @@ private Q_SLOTS:
     void pseudoFunctionCall();
     void statementMacros();
     void tryCatchClause();
+    void bracedInitialization();
 };
 
 struct Line {
@@ -2294,6 +2295,19 @@ void tst_CodeFormatter::tryCatchClause()
          << Line("    } catch (...) {")
          << Line("        handle();")
          << Line("    }")
+         << Line("}");
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::bracedInitialization()
+{
+    QList<Line> data;
+    data << Line("struct MyPoint{ int m_X{}; int m_Y{}; };")
+         << Line("struct MySize { int m_Width{}; int m_Height{}; };")
+         << Line("struct MyRect { MyPoint m_TopLeft{}; MySize m_Size{}; };")
+         << Line("int main() {")
+         << Line("    auto r = MyRect{.m_TopLeft = {.m_X = 5, .m_Y = 10}")
+         << Line("    ~       };")
          << Line("}");
     checkIndent(data);
 }
