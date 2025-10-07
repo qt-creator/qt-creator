@@ -186,17 +186,15 @@ void NavigatorView::modelAttached(Model *model)
 
         if (AbstractView::model() && m_expandMap.contains(AbstractView::model()->fileUrl())) {
             const QHash<QString, bool> localExpandMap = m_expandMap[AbstractView::model()->fileUrl()];
-            auto it = localExpandMap.constBegin();
-            while (it != localExpandMap.constEnd()) {
-                const ModelNode node = modelNodeForId(it.key());
+            for (const auto [key, value] : localExpandMap.asKeyValueRange()) {
+                const ModelNode node = modelNodeForId(key);
                 // When editing subcomponent, the current root node may be marked collapsed in the
                 // full file view, but we never want to actually collapse it, so skip it.
                 if (!node.isRootNode()) {
                     const QModelIndex index = indexForModelNode(node);
                     if (index.isValid())
-                        treeWidget()->setExpanded(index, it.value());
+                        treeWidget()->setExpanded(index, value);
                 }
-                ++it;
             }
         }
     });

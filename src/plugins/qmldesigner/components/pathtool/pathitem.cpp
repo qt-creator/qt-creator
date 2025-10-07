@@ -83,12 +83,10 @@ void PathItem::writeCubicPath(const ModelNode &pathNode, const CubicSegment &cub
 
 void PathItem::writePathAttributes(const ModelNode &pathNode, const QMap<QString, QVariant> &attributes)
 {
-    for (auto attributesIterator = attributes.cbegin(), end = attributes.cend();
-              attributesIterator != end;
-              ++attributesIterator) {
+    for (const auto [key, value] : attributes.asKeyValueRange()) {
         QList<QPair<PropertyName, QVariant> > propertyList;
-        propertyList.append(PropertyPair("name", attributesIterator.key()));
-        propertyList.append(PropertyPair("value", attributesIterator.value()));
+        propertyList.append(PropertyPair("name", key));
+        propertyList.append(PropertyPair("value", value));
 
         ModelNode lineNode = pathNode.view()->createModelNode("PathAttribute", propertyList);
         pathNode.nodeListProperty("pathElements").reparentHere(lineNode);

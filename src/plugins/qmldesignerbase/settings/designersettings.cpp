@@ -119,11 +119,8 @@ void DesignerSettings::toSettings(QtcSettings *settings) const
     settings->beginGroup(DesignerSettingsGroupKey::QML_SETTINGS_GROUP);
     settings->beginGroup(DesignerSettingsGroupKey::QML_DESIGNER_SETTINGS_GROUP);
 
-    QHash<QByteArray, QVariant>::const_iterator i = m_cache.constBegin();
-    while (i != m_cache.constEnd()) {
-        storeValue(settings, i.key(), i.value());
-        ++i;
-    }
+    for (const auto [key, value] : m_cache.asKeyValueRange())
+        storeValue(settings, key, value);
 
     settings->endGroup();
     settings->endGroup();

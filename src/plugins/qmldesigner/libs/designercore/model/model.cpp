@@ -823,8 +823,8 @@ QMultiHash<ModelNode, InformationName> convertModelNodeInformationHash(
 
     QMultiHash<ModelNode, InformationName> convertedModelNodeInformationHash;
 
-    for (auto it = informationChangeHash.cbegin(), end = informationChangeHash.cend(); it != end; ++it)
-        convertedModelNodeInformationHash.insert(ModelNode(it.key(), view), it.value());
+    for (const auto [key, value] : informationChangeHash.asKeyValueRange())
+        convertedModelNodeInformationHash.insert(ModelNode(key, view), value);
 
     return convertedModelNodeInformationHash;
 }

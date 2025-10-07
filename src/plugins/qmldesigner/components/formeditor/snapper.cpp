@@ -323,18 +323,11 @@ QList<QLineF> Snapper::findSnappingLines(const SnapLineMap &snappingLineMap,
 
     QList<QLineF> lineList;
 
-    for (auto snappingLineIterator = snappingLineMap.cbegin(), end = snappingLineMap.cend();
-              snappingLineIterator != end;
-              ++snappingLineIterator) {
-
-        if (compareLines(snapLine, snappingLineIterator.key())) { // near distance snapping lines
-            lineList += createSnapLine(orientation,
-                                        snappingLineIterator.key(),
-                                        lowerLimit,
-                                        upperLimit,
-                                        snappingLineIterator.value().first);
+    for (const auto [key, value] : snappingLineMap.asKeyValueRange()) {
+        if (compareLines(snapLine, key)) { // near distance snapping lines
+            lineList += createSnapLine(orientation, key, lowerLimit, upperLimit, value.first);
             if (boundingRects != nullptr)
-                boundingRects->append(snappingLineIterator.value().first);
+                boundingRects->append(value.first);
         }
     }
 
@@ -391,10 +384,7 @@ double Snapper::snappedOffsetForLines(const SnapLineMap &snappingLineMap,
 {
     QMultiMap<double, double> minimumSnappingLineMap;
 
-    for (auto snappingLineIterator = snappingLineMap.cbegin(), end = snappingLineMap.cend();
-              snappingLineIterator != end;
-              ++snappingLineIterator) {
-        double snapLine = snappingLineIterator.key();
+    for (const auto [snapLine, _] : snappingLineMap.asKeyValueRange()) {
         double offset = value - snapLine;
         double distance = qAbs(offset);
 
@@ -419,11 +409,8 @@ double Snapper::snappedOffsetForOffsetLines(const SnapLineMap &snappingOffsetMap
 
     QMultiMap<double, double> minimumSnappingLineMap;
 
-    for (auto snappingOffsetIterator = snappingOffsetMap.cbegin(), end = snappingOffsetMap.cend();
-              snappingOffsetIterator != end;
-              ++snappingOffsetIterator) {
-        double snapLine = snappingOffsetIterator.key();
-        const QRectF &formEditorItemRect(snappingOffsetIterator.value().first);
+    for (const auto [snapLine, v] : snappingOffsetMap.asKeyValueRange()) {
+        const QRectF &formEditorItemRect(v.first);
         double formEditorItemRectLowerLimit;
         double formEditorItemRectUpperLimit;
         if (orientation == Qt::Horizontal) {
@@ -585,13 +572,9 @@ static QmlItemNode findItemOnSnappingLine(const QmlItemNode &sourceQmlItemNode, 
     else
         compareAnchorLineType = AnchorLineLeft;
 
-    for (auto snapLineIterator = snappingLines.cbegin(), end = snappingLines.cend();
-              snapLineIterator != end;
-              ++snapLineIterator) {
-        double snapLine = snapLineIterator.key();
-
-        if (qAbs(snapLine - anchorLine ) < 1.0) {
-            QmlItemNode possibleAchorItemNode = snapLineIterator.value().second->qmlItemNode();
+    for (const auto [snapLine, value] : snappingLines.asKeyValueRange()) {
+        if (qAbs(snapLine - anchorLine) < 1.0) {
+            QmlItemNode possibleAchorItemNode = value.second->qmlItemNode();
 
             double currentToAnchorLine = possibleAchorItemNode.anchors().instanceAnchorLine(compareAnchorLineType);
 

@@ -752,11 +752,9 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
             const QStringList values = map.values(key);
             if (values.contains("*.png")) { // Avoid long filter for images by splitting
                 const QHash<QByteArray, QStringList> imageFormats = allImageFormats();
-                QHash<QByteArray, QStringList>::const_iterator i = imageFormats.constBegin();
-                while (i != imageFormats.constEnd()) {
-                    filters.append(filterTemplate.arg(key + QString::fromLatin1(i.key()), i.value().join(' ')));
-                    ++i;
-                }
+                for (const auto [k, value] : imageFormats.asKeyValueRange())
+                    filters.append(filterTemplate.arg(key + QString::fromLatin1(k), value.join(' ')));
+
             } else {
                 filters.append(filterTemplate.arg(key, values.join(' ')));
             }

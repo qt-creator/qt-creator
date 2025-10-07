@@ -498,11 +498,10 @@ void Import3dImporter::copyImportedFiles()
         notifyProgress(0, progressTitle);
 
         int counter = 0;
-        auto it = allOverwrites.constBegin();
-        while (it != allOverwrites.constEnd()) {
-            Utils::FilePath dir = Utils::FilePath::fromUserInput(it.key());
+        for (const auto [key, value] : allOverwrites.asKeyValueRange()) {
+            Utils::FilePath dir = Utils::FilePath::fromUserInput(key);
             if (dir.exists()) {
-                const auto &overwrittenFiles = it.value();
+                const auto &overwrittenFiles = value;
                 if (overwrittenFiles.isEmpty()) {
                     // Overwrite entire import
                     dir.removeRecursively();
@@ -513,7 +512,6 @@ void Import3dImporter::copyImportedFiles()
                 }
             }
             notifyProgress((100 * ++counter) / allOverwrites.size(), progressTitle);
-            ++it;
         }
     }
 
@@ -529,15 +527,13 @@ void Import3dImporter::copyImportedFiles()
             // watchers triggering while library is still incomplete, leading to inconsistent model.
             // This also speeds up the copying as incomplete folder is not parsed unnecessarily
             // by filesystem watchers.
-            QHash<QString, QString>::const_iterator it = assetFiles.begin();
-            while (it != assetFiles.end()) {
-                if (QFileInfo::exists(it.key()) && !QFileInfo::exists(it.value())) {
-                    QDir targetDir = QFileInfo(it.value()).dir();
+            for (const auto [key, value] : assetFiles.asKeyValueRange()) {
+                if (QFileInfo::exists(key) && !QFileInfo::exists(value)) {
+                    QDir targetDir = QFileInfo(value).dir();
                     if (!targetDir.exists())
                         targetDir.mkpath(".");
-                    QFile::copy(it.key(), it.value());
+                    QFile::copy(key, value);
                 }
-                ++it;
             }
             notifyProgress((100 * ++counter) / m_importFiles.size(), progressTitle);
         }

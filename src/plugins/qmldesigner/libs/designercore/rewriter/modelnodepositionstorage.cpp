@@ -25,10 +25,9 @@ void ModelNodePositionStorage::cleanupInvalidOffsets()
 
     QHash<ModelNode, RewriterData> validModelNodes;
 
-    for (auto iter = m_rewriterData.cbegin(), end = m_rewriterData.cend(); iter != end; ++iter) {
-        const ModelNode modelNode = iter.key();
+    for (const auto [modelNode, value] : m_rewriterData.asKeyValueRange()) {
         if (modelNode.isValid())
-            validModelNodes.insert(modelNode, iter.value());
+            validModelNodes.insert(modelNode, value);
     }
     m_rewriterData = validModelNodes;
 }

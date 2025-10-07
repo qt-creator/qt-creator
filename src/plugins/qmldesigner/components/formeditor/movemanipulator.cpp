@@ -184,12 +184,7 @@ QPointF MoveManipulator::findSnappingOffset(const QHash<FormEditorItem*, QRectF>
     QMap<double, double> verticalOffsetMap;
     QMap<double, double> horizontalOffsetMap;
 
-    for (auto hashIterator = boundingRectHash.cbegin(), end = boundingRectHash.cend();
-              hashIterator != end;
-              ++hashIterator) {
-        FormEditorItem *formEditorItem = hashIterator.key();
-        QRectF boundingRect = hashIterator.value();
-
+    for (const auto [formEditorItem, boundingRect] : boundingRectHash.asKeyValueRange()) {
         if (!formEditorItem || !formEditorItem->qmlItemNode().isValid())
             continue;
 
@@ -205,7 +200,6 @@ QPointF MoveManipulator::findSnappingOffset(const QHash<FormEditorItem*, QRectF>
                 horizontalOffsetMap.insert(qAbs(horizontalOffset), horizontalOffset);
         }
     }
-
 
     if (!verticalOffsetMap.isEmpty())
         offset.rx() = verticalOffsetMap.begin().value();
@@ -238,12 +232,9 @@ QHash<FormEditorItem*, QRectF> MoveManipulator::tanslatedBoundingRects(const QHa
 
     QHash<FormEditorItem *, QRectF> translatedBoundingRectHash;
 
-    for (auto hashIterator = boundingRectHash.cbegin(), end = boundingRectHash.cend();
-              hashIterator != end;
-              ++hashIterator) {
+    for (const auto [formEditorItem, value] : boundingRectHash.asKeyValueRange()) {
         QPointF alignedOffset(offsetVector);
-        FormEditorItem *formEditorItem = hashIterator.key();
-        QRectF boundingRect = transform.mapRect(hashIterator.value());
+        QRectF boundingRect = transform.mapRect(value);
 
         if (!formEditorItem || !formEditorItem->qmlItemNode().isValid())
             continue;

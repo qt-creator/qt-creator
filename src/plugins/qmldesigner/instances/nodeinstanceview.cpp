@@ -2198,17 +2198,16 @@ void NodeInstanceView::updateWatcher(const QString &path)
     // Find out which shader files need qsb files generated for them.
     // Go through all configured paths and find files that match the specified filter in that path.
     bool generateQsb = false;
-    QHash<QString, QStringList>::const_iterator it = m_qsbPathToFilterMap.constBegin();
-    while (it != m_qsbPathToFilterMap.constEnd()) {
-        if (!it.key().isEmpty() && !it.key().startsWith(rootPath)) {
-            ++it;
-            continue;
-        }
+    for (const auto [key, value] : m_qsbPathToFilterMap.asKeyValueRange()) {
+        if (!key.isEmpty() && !key.startsWith(rootPath))
 
-        QDirIterator qsbIterator(it.key().isEmpty() ? rootPath : it.key(),
-                                 it.value(), QDir::Files,
-                                 it.key().isEmpty() ? QDirIterator::Subdirectories
-                                                    : QDirIterator::NoIteratorFlags);
+            continue;
+
+        QDirIterator qsbIterator(key.isEmpty() ? rootPath : key,
+                                 value,
+                                 QDir::Files,
+                                 key.isEmpty() ? QDirIterator::Subdirectories
+                                               : QDirIterator::NoIteratorFlags);
 
         while (qsbIterator.hasNext()) {
             QString qsbFile = qsbIterator.next();
@@ -2227,7 +2226,6 @@ void NodeInstanceView::updateWatcher(const QString &path)
                 generateQsb = true;
             }
         }
-        ++it;
     }
 
     if (oldDirs != newDirs) {
@@ -2315,13 +2313,11 @@ void NodeInstanceView::handleShaderChanges()
         return;
 
     QStringList newShaders;
-    QHash<QString, bool>::iterator it = m_qsbTargets.begin();
-    while (it != m_qsbTargets.end()) {
-        if (it.value()) {
-            newShaders.append(it.key());
-            it.value() = false;
+    for (auto [key, value] : m_qsbTargets.asKeyValueRange()) {
+        if (value) {
+            newShaders.append(key);
+            value = false;
         }
-        ++it;
     }
 
     if (newShaders.isEmpty())
@@ -2427,12 +2423,10 @@ QList<NodeInstance> NodeInstanceView::loadInstancesFromCache(const QList<ModelNo
 {
     QList<NodeInstance> instanceList;
 
-    auto previews = cache.previewImages;
-    auto iterator = previews.begin();
-    while (iterator != previews.end()) {
-        if (iterator.key().isValid())
-            m_statePreviewImage.insert(iterator.key(), iterator.value());
-        iterator++;
+    const auto &previews = cache.previewImages;
+    for (const auto [key, value] : previews.asKeyValueRange()) {
+        if (key.isValid())
+            m_statePreviewImage.insert(key, value);
     }
 
     for (const ModelNode &node : std::as_const(nodeList)) {

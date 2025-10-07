@@ -192,15 +192,16 @@ ModelNode TransitionEditorView::addNewTransition()
     return {};
 }
 
-void addAnimationsToTransition(const ModelNode &transition, const QHash<QString, QStringList> &idPropertyList)
+static void addAnimationsToTransition(const ModelNode &transition,
+                                      const QHash<QString, QStringList> &idPropertyList)
 {
     QTC_ASSERT(transition.isValid(), return);
 
     auto view = transition.view();
-    for (auto it = idPropertyList.cbegin(); it != idPropertyList.cend(); ++it) {
+    for (const auto [key, value] : idPropertyList.asKeyValueRange()) {
         ModelNode parallelAnimation = view->createModelNode("ParallelAnimation");
         transition.defaultNodeAbstractProperty().reparentHere(parallelAnimation);
-        for (const QString &property : it.value()) {
+        for (const QString &property : value) {
             ModelNode sequentialAnimation = view->createModelNode("SequentialAnimation");
             parallelAnimation.defaultNodeAbstractProperty().reparentHere(
                 sequentialAnimation);
@@ -213,7 +214,7 @@ void addAnimationsToTransition(const ModelNode &transition, const QHash<QString,
                                                           {{"property", property},
                                                            {"duration", 150}});
 
-            propertyAnimation.bindingProperty("target").setExpression(it.key());
+            propertyAnimation.bindingProperty("target").setExpression(key);
             sequentialAnimation.defaultNodeAbstractProperty().reparentHere(
                 propertyAnimation);
         }

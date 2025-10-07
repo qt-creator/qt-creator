@@ -1192,11 +1192,8 @@ ModelNode createPathNode(ModelNode parent, const PropertyMap &properties)
     ModelNode node = QmlItemNode::createQmlObjectNode(
                 parent.view(), itemLibraryEntry, {}, parent.defaultNodeAbstractProperty(), false);
 
-    PropertyMap::const_iterator i = properties.constBegin();
-    while (i != properties.constEnd()) {
-        node.variantProperty(i.key()).setValue(i.value());
-        ++i;
-    }
+    for (const auto [key, value] : properties.asKeyValueRange())
+        node.variantProperty(key).setValue(value);
 
     return node;
 }
@@ -1212,7 +1209,7 @@ ModelNode createGroupNode(ModelNode parent, const PropertyMap &properties)
     ModelNode node = QmlItemNode::createQmlObjectNode(
                 parent.view(), itemLibraryEntry, {}, parent.defaultNodeAbstractProperty(), false);
 
-    for (const auto &[key, value] : properties.asKeyValueRange())
+    for (const auto [key, value] : properties.asKeyValueRange())
         node.variantProperty(key).setValue(value);
 
     return node;

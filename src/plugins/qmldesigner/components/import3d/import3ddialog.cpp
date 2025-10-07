@@ -162,10 +162,9 @@ Import3dDialog::Import3dDialog(const QStringList &importFiles,
     if (!m_quick3DFiles.isEmpty()) {
         QVector<QJsonObject> groups;
 
-        auto optIt = supportedOpts.constBegin();
         int optIndex = 0;
-        while (optIt != supportedOpts.constEnd()) {
-            QJsonObject options = QJsonObject::fromVariantMap(qvariant_cast<QVariantMap>(optIt.value()));
+        for (const auto [key, value] : supportedOpts.asKeyValueRange()) {
+            QJsonObject options = QJsonObject::fromVariantMap(qvariant_cast<QVariantMap>(value));
             m_importOptions << options.value("options").toObject();
             if (m_importOptions.last().contains(qdsWorkaroundsKey)) {
                 QJsonObject optObj = m_importOptions.last()[qdsWorkaroundsKey].toObject();
@@ -183,10 +182,9 @@ Import3dDialog::Import3dDialog(const QStringList &importFiles,
                 ++it;
             }
             groups << options.value("groups").toObject();
-            const auto &exts = optIt.key().split(':');
+            const auto &exts = key.split(':');
             for (const auto &ext : exts)
                 m_extToImportOptionsMap.insert(ext, optIndex);
-            ++optIt;
             ++optIndex;
         }
 
@@ -200,21 +198,19 @@ Import3dDialog::Import3dDialog(const QStringList &importFiles,
         // Create tab for each supported extension group that also has files included in the import
         QMap<QString, int> tabMap; // QMap used for alphabetical order
         for (const auto &file : std::as_const(m_quick3DFiles)) {
-            auto extIt = supportedExts.constBegin();
             QString ext = QFileInfo(file).suffix().toLower();
-            while (extIt != supportedExts.constEnd()) {
-                if (!tabMap.contains(extIt.key()) && extIt.value().toStringList().contains(ext)) {
-                    tabMap.insert(extIt.key(), m_extToImportOptionsMap.value(ext));
+            for (auto [key, value] : supportedExts.asKeyValueRange()) {
+                if (!tabMap.contains(key) && value.toStringList().contains(ext)) {
+                    tabMap.insert(key, m_extToImportOptionsMap.value(ext));
                     break;
                 }
-                ++extIt;
             }
         }
 
         ui->tabWidget->clear();
-        auto tabIt = tabMap.constBegin();
-        while (tabIt != tabMap.constEnd()) {
-            createTab(tabIt.key(), tabIt.value(), groups[tabIt.value()]);
+
+        for (auto [key, value] : tabMap.asKeyValueRange()) {
+            createTab(key, value, groups[value]);
 
             auto padGrid = [](QWidget *widget, int optionRows) {
                 auto grid = qobject_cast<QGridLayout *>(widget->layout());
@@ -226,10 +222,8 @@ Import3dDialog::Import3dDialog(const QStringList &importFiles,
                     }
                 }
             };
-            padGrid(m_simpleData.contentWidgets[tabIt.value()], m_simpleData.optionsRows);
-            padGrid(m_advancedData.contentWidgets[tabIt.value()], m_advancedData.optionsRows);
-
-            ++tabIt;
+            padGrid(m_simpleData.contentWidgets[value], m_simpleData.optionsRows);
+            padGrid(m_advancedData.contentWidgets[value], m_advancedData.optionsRows);
         }
 
         ui->tabWidget->setCurrentIndex(0);
@@ -629,10 +623,7 @@ QGridLayout *Import3dDialog::createOptionsGrid(
     // key: Option that has condition and is also specified in another condition as property
     // value: List of extra widgets that are affected by key property via condition
     QHash<QString, QList<QWidget *>> conditionChains;
-    auto it = conditionMap.constBegin();
-    while (it != conditionMap.constEnd()) {
-        const QString &option = it.key();
-        const QJsonArray &conditions = it.value();
+    for (const auto [option, conditions] : conditionMap.asKeyValueRange()) {
         if (!conditions.isEmpty()) {
             const QString optItem = conditions[0].toObject().value("property").toString();
             if (conditionMap.contains(optItem)) {
@@ -645,14 +636,10 @@ QGridLayout *Import3dDialog::createOptionsGrid(
                     conditionChains[optItem].append(widgetPair.second);
             }
         }
-        ++it;
     }
 
     // Handle conditions
-    it = conditionMap.constBegin();
-    while (it != conditionMap.constEnd()) {
-        const QString &option = it.key();
-        const QJsonArray &conditions = it.value();
+    for (const auto [option, conditions] : conditionMap.asKeyValueRange()) {
         const auto &conWidgets = optionToWidgetsMap.value(option);
         QWidget *conLabel = conWidgets.first;
         QWidget *conControl = conWidgets.second;
@@ -734,21 +721,18 @@ QGridLayout *Import3dDialog::createOptionsGrid(
                 }
             }
         }
-        ++it;
     }
 
     // Combine options where a non-boolean option depends on a boolean option that no other
     // option depends on
-    auto condIt = conditionalWidgetMap.constBegin();
-    while (condIt != conditionalWidgetMap.constEnd()) {
-        if (condIt.value()) {
+    for (auto [_, value] : conditionalWidgetMap.asKeyValueRange()) {
+        if (value) {
             // Find and fix widget pairs
             for (int i = 0; i < widgets.size(); ++i) {
                 auto &groupWidgets = widgets[i];
                 auto widgetIt = groupWidgets.begin();
                 while (widgetIt != groupWidgets.end()) {
-                    if (widgetIt->second == condIt.value()
-                            && !qobject_cast<QCheckBox *>(condIt.value())) {
+                    if (widgetIt->second == value && !qobject_cast<QCheckBox *>(value)) {
                         if (widgetIt->first)
                             widgetIt->first->hide();
                         groupWidgets.erase(widgetIt);
@@ -768,7 +752,6 @@ QGridLayout *Import3dDialog::createOptionsGrid(
                 }
             }
         }
-        ++condIt;
     }
 
     auto incrementColIndex = [&](int col) {

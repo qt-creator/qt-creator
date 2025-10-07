@@ -1361,13 +1361,13 @@ void checkNode(const QmlJS::SimpleReaderNode::Ptr &node, RewriterView *view)
     if (!modelNode.isValid())
         return;
 
-    auto properties = node->properties();
+    const auto &properties = node->properties();
 
-    for (auto i = properties.begin(); i != properties.end(); ++i) {
-        if (i.key() != "i") {
-            const PropertyName name = fixUpIllegalChars(i.key()).toUtf8();
+    for (const auto [key, value] : properties.asKeyValueRange()) {
+        if (key != "i") {
+            const PropertyName name = fixUpIllegalChars(key).toUtf8();
             if (!modelNode.hasAuxiliaryData(AuxiliaryDataType::Document, name))
-                modelNode.setAuxiliaryData(AuxiliaryDataType::Document, name, i.value().value);
+                modelNode.setAuxiliaryData(AuxiliaryDataType::Document, name, value.value);
         }
     }
 

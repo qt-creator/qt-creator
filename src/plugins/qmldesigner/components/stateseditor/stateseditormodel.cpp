@@ -368,16 +368,14 @@ void StatesEditorModel::removeStateGroup()
 QVariantMap StatesEditorModel::get(int idx) const
 {
     const QHash<int, QByteArray> &names = roleNames();
-    QHash<int, QByteArray>::const_iterator i = names.constBegin();
 
     QVariantMap res;
     QModelIndex modelIndex = index(idx);
 
-    while (i != names.constEnd()) {
-        QVariant data = modelIndex.data(i.key());
+    for (const auto [key, value] : names.asKeyValueRange()) {
+        QVariant data = modelIndex.data(key);
 
-        res[QString::fromUtf8(i.value())] = data;
-        ++i;
+        res[QString::fromUtf8(value)] = data;
     }
     return res;
 }
