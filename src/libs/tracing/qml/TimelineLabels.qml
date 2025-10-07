@@ -21,8 +21,7 @@ Flickable {
     signal selectItem(int modelIndex, int eventIndex)
     signal moveCategories(int sourceIndex, int targetIndex)
 
-    // reserve some more space than needed to prevent weird effects when resizing
-    contentHeight: categoryContent.height + height
+    contentHeight: categoryContent.height
 
     // Dispatch the cursor shape to all labels. When dragging the DropArea receiving
     // the drag events is not necessarily related to the MouseArea receiving the mouse

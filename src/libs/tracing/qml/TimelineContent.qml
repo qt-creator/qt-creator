@@ -10,7 +10,7 @@ Flickable {
     id: flick
     clip: true
 
-    contentHeight: timelineView.height + height
+    contentHeight: timelineView.height
     flickableDirection: Flickable.HorizontalAndVerticalFlick
     boundsBehavior: Flickable.StopAtBounds
     pixelAligned: true
