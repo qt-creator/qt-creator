@@ -182,6 +182,14 @@
     \title Qt Application Manager
 */
 /*!
+    \externalpage https://cmake.org/cmake/help/latest/guide/importing-exporting/index.html
+    \title CMake: Importing and Exporting Guide
+*/
+/*!
+    \externalpage https://cmake.org/cmake/help/latest/guide/using-dependencies/index.html
+    \title CMake: Using Dependencies Guide
+*/
+/*!
     \externalpage https://cmake.org/cmake/help/latest/manual/cmake.1.html
     \title CMake: cmake(1)
 */
