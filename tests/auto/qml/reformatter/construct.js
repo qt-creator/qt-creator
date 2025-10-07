@@ -1,9 +1,9 @@
 class Foo {
-    constructor(window) {
+    constructor(window){
         const a = 10
         const b = 20
     }
 
 
-    constructor() {}
+    constructor(){}
 }

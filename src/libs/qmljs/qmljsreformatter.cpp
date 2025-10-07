@@ -805,7 +805,6 @@ protected:
             out(f->lparenToken);
             accept(f->formals);
             out(f->rparenToken);
-            out(" ");
             out(f->lbraceToken);
             if (f->body) {
                 if (f->body->next || f->lbraceToken.length != 0) {
