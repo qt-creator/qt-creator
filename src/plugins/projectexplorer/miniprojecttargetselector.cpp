@@ -1495,6 +1495,11 @@ void MiniProjectTargetSelector::updateActionAndSummary()
             .arg(lines.join(QLatin1String("<br/>")));
     m_projectAction->setToolTip(toolTip);
     updateSummary();
+
+    for (GenericListWidget *listWidget : qAsConst(m_listWidgets)) {
+        if (listWidget)
+            listWidget->update();
+    }
 }
 
 void MiniProjectTargetSelector::updateSummary()
