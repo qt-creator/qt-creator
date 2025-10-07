@@ -640,6 +640,7 @@ void ToolBarBackend::editGlobalAnnoation()
 
 void ToolBarBackend::showZoomMenu(int x, int y)
 {
+    return; //temporary crash fix
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_STATUSBAR_SHOW_ZOOM);
     ZoomAction *zoomAction = qobject_cast<ZoomAction *>(m_zoomAction->action());
 
