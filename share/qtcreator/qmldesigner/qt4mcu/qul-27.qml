@@ -18,6 +18,7 @@ VersionData {
         "QtQuick.PathView",
         "QtQuick.TextEdit",
         "QtQuick.TextInput",
+        "QtQuick.VectorImage.VectorImage",
         "QtQuick.Controls",
         "QtQuick.Controls.BusyIndicator",
         "QtQuick.Controls.ButtonGroup",
