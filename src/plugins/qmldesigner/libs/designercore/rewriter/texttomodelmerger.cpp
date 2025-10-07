@@ -1932,8 +1932,6 @@ void ModelValidator::typeDiffers(bool /*isRootNode*/,
 
 void ModelValidator::propertyAbsentFromQml([[maybe_unused]] AbstractProperty &modelProperty)
 {
-    Q_ASSERT(!modelProperty.isValid());
-    Q_ASSERT(0);
     QTC_CHECK(!modelProperty.isValid());
 }
 
