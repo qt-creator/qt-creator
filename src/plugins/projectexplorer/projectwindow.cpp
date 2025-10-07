@@ -1198,9 +1198,6 @@ void TargetGroupItem::rebuildContents()
     m_rebuildScheduled = false;
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
     const auto sortedKits = KitManager::sortedKits();
-    bool isAnyKitEnabled = std::any_of(sortedKits.begin(), sortedKits.end(), [this](Kit *kit) {
-        return kit && m_project->target(kit->id()) != nullptr;
-    });
     removeChildren();
 
     const KitFilter kitFilter = globalProjectExplorerSettings().kitFilter();
@@ -1221,7 +1218,7 @@ void TargetGroupItem::rebuildContents()
             continue;
         }
 
-        if (!isAnyKitEnabled || m_project->target(kit->id()) != nullptr) {
+        if (m_project->target(kit->id()) != nullptr) {
             appendItem();
             continue;
         }
