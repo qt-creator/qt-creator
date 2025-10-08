@@ -106,6 +106,27 @@
                     }
                 },
                 {
+                    "name": "QtCompatibility",
+                    "trDisplayName": "Qt code compatibility:",
+                    "type": "ComboBox",
+                    "visible": "%{JS: value('TestFrameWork') === 'QtQuickTest' }",
+                    "data":
+                    {
+                        "index": 0,
+                        "items":
+                        [
+                            {
+                                "trKey": "Qt6 and higher",
+                                "value": "Qt6+"
+                            },
+                            {
+                                "trKey": "Qt5 and higher",
+                                "value": "Qt5+"
+                            }
+                        ]
+                    }
+                },
+                {
                     "name": "CppSrcFile",
                     "type": "LineEdit",
                     "trDisplayName": "Source file:",

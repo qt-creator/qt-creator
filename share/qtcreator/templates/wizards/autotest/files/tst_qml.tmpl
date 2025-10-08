@@ -1,5 +1,11 @@
+@if "%{QtCompatibility}" == "Qt5+"
 import QtQuick 2.15
 import QtTest 1.0
+@endif
+@if "%{QtCompatibility}" == "Qt6+"
+import QtQuick
+import QtTest
+@endif
 
 TestCase {
     name: "%{TestCaseName}"

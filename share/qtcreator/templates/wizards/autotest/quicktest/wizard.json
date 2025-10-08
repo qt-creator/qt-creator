@@ -99,6 +99,26 @@
                     }
                 },
                 {
+                    "name": "QtCompatibility",
+                    "trDisplayName": "Qt code compatibility:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 0,
+                        "items":
+                        [
+                            {
+                                "trKey": "Qt6 and higher",
+                                "value": "Qt6+"
+                            },
+                            {
+                                "trKey": "Qt5 and higher",
+                                "value": "Qt5+"
+                            }
+                        ]
+                    }
+                },
+                {
                     "name": "BuildSystem",
                     "trDisplayName": "Build system:",
                     "type": "ComboBox",
