@@ -16484,15 +16484,15 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
         <source>Do not ask for confirmation when switching to the Manifest Editor UI</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Bestätigung beim Wechseln in die Manifest Editor UI anzeigen</translation>
     </message>
     <message>
         <source>Warning: Using the Manifest Editor UI may overwrite any manual changes made to AndroidManifest.xml.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung: Verwendung der Manifest Editor UI kann manuelle Änderungen an AndroidManifest.xml überschreiben.</translation>
     </message>
     <message>
         <source>The structure of the Android manifest file is corrupted. Expected a top level &apos;manifest&apos; node.</source>
@@ -16504,19 +16504,19 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Go to Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu Fehler gehen</translation>
     </message>
     <message>
         <source>Graphical Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafischer Editor</translation>
     </message>
     <message>
         <source>Enabling the Manifest Editor UI</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivieren der Manifest Editor UI</translation>
     </message>
     <message>
         <source>Using the Manifest Editor UI may overwrite any manual changes made to AndroidManifest.xml.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwendung der Manifest Editor UI kann manuelle Änderungen an AndroidManifest.xml überschreiben.</translation>
     </message>
     <message>
         <source>Target SDK:</source>
@@ -16653,11 +16653,11 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Automatically create usable Android kits and install all essential packages. To do this later, select Edit &gt; Preferences &gt; SDKs &gt; Android.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen Sie automatisch benutzbare Android Kits und installieren alle essentiellen Pakete. Um dies später zu tun, wählen Sie Bearbeiten &gt; Einstellungen &gt; SDKs &gt; Android.</translation>
     </message>
     <message>
         <source>Configure Android Options?</source>
-        <translation type="unfinished"></translation>
+        <translation>Android-Optionen konfigurieren?</translation>
     </message>
     <message>
         <source>Java Language Server</source>
@@ -16697,7 +16697,7 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Could not install custom APK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte benutzerdefiniertes APK nicht installieren.</translation>
     </message>
     <message>
         <source>No Android architecture (ABI) is set by the project.</source>
@@ -16833,7 +16833,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>%1 for Android %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 für Android %2</translation>
     </message>
     <message>
         <source>Unknown Android version. API Level: %1</source>
@@ -17324,12 +17324,13 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Android-Bu
     </message>
     <message>
         <source>Project File Update Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektdatei konnte nicht aktualisiert werden</translation>
     </message>
     <message>
         <source>Could not automatically update the project file for &quot;%1&quot;.
 Set the %2 property manually.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Projektdatei für &quot;%1&quot; konnte nicht automatisch aktualisiert werden.
+Setzen Sie die Eigenschaft %2 manuell.</translation>
     </message>
     <message>
         <source>Android Clang</source>
@@ -17544,7 +17545,7 @@ Rufen Sie QtAndroid::hideSplashScreen() auf, um einen Startbildschirm zu verstec
     </message>
     <message>
         <source>Java Editor</source>
-        <translation type="unfinished">Java-Editor</translation>
+        <translation>Java-Editor</translation>
     </message>
 </context>
 <context>
@@ -19010,7 +19011,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Test run requests from the build system get processed only if there is no running build or test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>Testlaufanforderungen aus dem Build-System werden nur verarbeitet, wenn kein Build oder Testlauf ausgeführt wird.</translation>
     </message>
 </context>
 <context>
@@ -19253,7 +19254,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Analysis path must be local.</source>
-        <translation type="unfinished"></translation>
+        <translation>Analysepfad muss lokal sein.</translation>
     </message>
     <message>
         <source>Highlight marks</source>
@@ -19303,16 +19304,17 @@ Setzen Sie dies, um die globale Umgebung zu überschreiben oder wenn Axivion pyt
     </message>
     <message>
         <source>Project name as it appears in the global dashboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektname, wie er im globalen Dashboard erscheint.</translation>
     </message>
     <message>
         <source>Root path of the analyzed project relative to the usedproject path inside the dashboard.
 Leave empty if the analyzed project refers to the basepath of the analyzed project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wurzelverzeichnis des analysierten Projekts, relativ zum benutzten Pfad im Dashboard.
+Lassen Sie dies leer, falls das analysierte Projekt den Basispfad des analysierten Projekts referenziert.</translation>
     </message>
     <message>
         <source>Local directory path corresponding to the analyis path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokaler Pfad, der dem Analysepfad entspricht.</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -19376,44 +19378,45 @@ Leave empty if the analyzed project refers to the basepath of the analyzed proje
     </message>
     <message>
         <source>Missing Path Mapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende Pfadzuordnung</translation>
     </message>
     <message>
         <source>Configure a valid path mapping for &quot;%1&quot; to open files for this project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurieren Sie eine gültige Pfadzuordnung für &quot;%1&quot;, um Dateien dieses Projekts zu öffnen.</translation>
     </message>
     <message>
         <source>Select local file for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die lokale Datei für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>No matching path mapping for &quot;%1&quot; configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine passende Pfadzuordnung für &quot;%1&quot; konfiguriert.</translation>
     </message>
     <message>
         <source>To open this file, you need to change the existing or add another valid path mapping.
 This may include changing the order of mappings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Um diese Datei zu öffnen, müssen Sie die existierende Pfadzuordung ändern oder eine gültige Zuordnung hinzufügen.
+Vielleicht ist auch eine Änderung der Reihenfolge der existierenden Pfadzuordnungen nötig.</translation>
     </message>
     <message>
         <source>No path mapping for &quot;%1&quot; configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Pfadzuordnung für &quot;%1&quot; konfiguriert.</translation>
     </message>
     <message>
         <source>To open files for this project, specify a valid path mapping or select a matching local file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Um Dateien dieses Projekts zu öffnen, geben Sie eine gültige Pfadzuordnung an oder wählen Sie eine passende lokale Datei aus.</translation>
     </message>
     <message>
         <source>Select Matching File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie passende Datei...</translation>
     </message>
     <message>
         <source>Change Existing...</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestehende ändern...</translation>
     </message>
     <message>
         <source>Set up Manually...</source>
-        <translation type="unfinished"></translation>
+        <translation>Manuell konfigurieren...</translation>
     </message>
     <message>
         <source>Project name:</source>
@@ -20164,7 +20167,7 @@ Inkrementeller Build: Setzt die Umgebungsvariable AXIVION_INCREMENTAL_BUILD=1</t
     </message>
     <message>
         <source>IAREW %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>IAREW %1 (%2)</translation>
     </message>
     <message>
         <source>IAREW</source>
@@ -20184,7 +20187,7 @@ Inkrementeller Build: Setzt die Umgebungsvariable AXIVION_INCREMENTAL_BUILD=1</t
     </message>
     <message>
         <source>SDCC %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>SDCC %1 (%2)</translation>
     </message>
     <message>
         <source>SDCC</source>
@@ -20244,7 +20247,7 @@ Inkrementeller Build: Setzt die Umgebungsvariable AXIVION_INCREMENTAL_BUILD=1</t
     </message>
     <message>
         <source>KEIL %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>KEIL %1 (%2)</translation>
     </message>
     <message>
         <source>KEIL</source>
@@ -20487,15 +20490,15 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     </message>
     <message>
         <source>Bazaar File Log Editor</source>
-        <translation type="unfinished">Bazaar Datei-Log-Editor</translation>
+        <translation>Bazaar Datei-Log-Editor</translation>
     </message>
     <message>
         <source>Bazaar Annotation Editor</source>
-        <translation type="unfinished">Bazaar Annotations-Editor</translation>
+        <translation>Bazaar Annotations-Editor</translation>
     </message>
     <message>
         <source>Bazaar Diff Editor</source>
-        <translation type="unfinished">Bazaar Diff-Editor</translation>
+        <translation>Bazaar Diff-Editor</translation>
     </message>
     <message>
         <source>Triggers a Bazaar version control operation.</source>
@@ -20595,7 +20598,7 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     </message>
     <message>
         <source>Bazaar Commit Log Editor</source>
-        <translation type="unfinished">Bazaar Commit-Log-Editor</translation>
+        <translation>Bazaar Commit-Log-Editor</translation>
     </message>
     <message>
         <source>Update</source>
@@ -21081,7 +21084,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Binary Editor</source>
-        <translation type="unfinished">Binäreditor</translation>
+        <translation>Binäreditor</translation>
     </message>
     <message>
         <source>Zoom: %1%</source>
@@ -22630,19 +22633,19 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Cannot generate compilation database.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann keine Kompilierungsdatenbank generieren.</translation>
     </message>
     <message>
         <source>Generator is already running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Generierung läuft bereits.</translation>
     </message>
     <message>
         <source>No active project.</source>
-        <translation type="unfinished">Kein aktives Projekt.</translation>
+        <translation>Kein aktives Projekt.</translation>
     </message>
     <message>
         <source>Project has no C/C++ project parts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt enthält keine Projektinformation für C/C++.</translation>
     </message>
     <message>
         <source>Generating Clang compilation database canceled.</source>
@@ -22736,7 +22739,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Clangd Disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Clangd deaktiviert</translation>
     </message>
     <message>
         <source>With clangd enabled, Qt Creator fully supports modern C++ when highlighting code, completing symbols and so on.&lt;br&gt;This comes at a higher cost in terms of CPU load and memory usage compared to the built-in code model, which therefore might be the better choice on older machines and/or with legacy code.&lt;br&gt;You can enable/disable and fine-tune clangd &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
@@ -22852,31 +22855,31 @@ Das integrierte Codemodell übernimmt das Einrücken.</translation>
     </message>
     <message>
         <source>Import Code Format</source>
-        <translation type="unfinished">Code-Format importieren</translation>
+        <translation>Code-Format importieren</translation>
     </message>
     <message>
         <source>ClangFormat (*clang-format*);;All files (*)</source>
-        <translation type="unfinished">ClangFormat (*clang-format*);;All files (*)</translation>
+        <translation>ClangFormat (*clang-format*);;All files (*)</translation>
     </message>
     <message>
         <source>Import Code Style</source>
-        <translation type="unfinished">Coding Style importieren</translation>
+        <translation>Coding Style importieren</translation>
     </message>
     <message>
         <source>Enter a name for the imported code style:</source>
-        <translation type="unfinished">Geben Sie einen Namen für den importierten Coding Style ein:</translation>
+        <translation>Geben Sie einen Namen für den importierten Coding Style ein:</translation>
     </message>
     <message>
         <source>Cannot import code style from &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Coding Style kann nicht von &quot;%1&quot; importiert werden.</translation>
     </message>
     <message>
         <source>Export Code Format</source>
-        <translation type="unfinished">Code-Format exportieren</translation>
+        <translation>Code-Format exportieren</translation>
     </message>
     <message>
         <source>C++</source>
-        <translation type="unfinished">C++</translation>
+        <translation>C++</translation>
     </message>
 </context>
 <context>
