@@ -6,9 +6,19 @@ TestCase {
 
 @if "%{GenerateInitAndCleanup}" == "true"
     function initTestCase() {
+        // code to be executed before the first test function
+    }
+
+    function init() {
+        // code to be executed before each test function
     }
 
     function cleanupTestCase() {
+        // code to be executed after the last test function
+    }
+
+    function cleanup() {
+        // code to be executed after each test function
     }
 
 @endif
