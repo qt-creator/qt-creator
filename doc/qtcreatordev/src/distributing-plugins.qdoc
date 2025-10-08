@@ -1,17 +1,35 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page distributing-plugins.html
-    \title Distributing Plugins
+    \title Distributing Extensions and Plugins
 
-    To make your plugin available to a wider range of users, you should look
-    into distributing binary builds of it.
+    To make your extension or plugin available to a wider range of users, publish
+    it as a \QC extension or plugin that users can discover and install in the
+    \uicontrol Extensions mode.
 
-    \section1 Creating Binaries
+    You can also distribute archives of Lua extensions or binary builds
+    of C++-based plugins that users can install in \uicontrol Edit >
+    \uicontrol Preferences > \uicontrol Extensions >
+    \uicontrol {Install Extensions}.
 
-    If your plugin runs and works on multiple platforms, you should provide
-    binary builds for all of the supported platforms.
+    \section1 Publishing Extensions
+
+    The default distribution channel for extensions is the \QC \l{The Registry}
+    {extension registry}.
+
+    Before publishing an extension, read the Qt Extension Publisher Agreement.
+
+    To publish an extension, follow the instructions in the registry repository.
+
+    Users can add their own extension registries, as described in
+    \l{\QC: Install extensions}.
+
+    \section1 Creating Binaries of C++-Based Plugins
+
+    If your C++-based plugin runs and works on multiple platforms, you should
+    provide binary builds for all of the supported platforms.
 
     Qt Creator currently supports:
 

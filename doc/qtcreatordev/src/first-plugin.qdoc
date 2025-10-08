@@ -3,15 +3,14 @@
 
 /*!
     \page first-plugin.html
-    \title Creating Your First Plugin
+    \title Creating C++-Based Plugins
 
-    This section describes how to create a \QC plugin by using the plugin
-    template provided by \QC, and get the first impression of what a plugin
-    consists of and what its general structure is.
+    This topic describes how to create a C++-based \QC plugin and get the first
+    impression of its contents and structure.
 
-    \section1 Creating a Plugin Project
+    \section1 Creating a C++ Plugin Project
 
-    \QC comes with a wizard for \QC plugins, that creates a runable, \e minimal
+    \QC comes with a wizard for \QC C++ plugins, that creates a runable, \e minimal
     plugin for you. We strongly suggest that you use two different \QC instances
     for developing and testing your plugin with. Otherwise your plugin will also
     be loaded in your development environment, which can make that unstable
@@ -27,10 +26,10 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New Project} >
-            \uicontrol Library > \uicontrol {Qt Creator Plugin} >
+            \uicontrol Library > \uicontrol {Qt Creator C++ Plugin} >
             \uicontrol Choose.
 
-            \image firstplugin-wizard.png "Choose the \QC Plugin Wizard"
+            \image firstplugin-wizard.png "Choose the \QC C++ Plugin Wizard"
 
             The \uicontrol{Introduction and Project Location} dialog opens.
 
@@ -331,4 +330,6 @@
     This part defines the code that is called when the menu item is triggered.
     It uses the Qt API to open a message box that displays informative text and
     an \uicontrol OK button.
+
+    \sa {Creating Lua-Based Extensions}
 */

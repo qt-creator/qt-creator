@@ -5,10 +5,10 @@
     \page actionmanager.html
     \title The Action Manager and Commands
 
-    \QC provides a central options page for managing shortcuts for actions in
+    \QC provides a central preferences dialog for managing shortcuts for actions in
     \uicontrol Edit > \uicontrol Preferences > \uicontrol Environment >
-    \uicontrol Keyboard. Plugins must tell \QC about the actions they provide,
-    so they can appear in the options. Also some actions, like \uicontrol Edit >
+    \uicontrol Keyboard. Extensions and plugins must tell \QC about the actions they provide,
+    so they can appear in the preferences. Also some actions, like \uicontrol Edit >
     \uicontrol Undo, need to be dispatched to different plugins depending on the
     context which the user is currently in, for example a text editor, or
     a UI design component. The Core::ActionManager and Core::Command classes
@@ -37,11 +37,11 @@
     instance that is then used to further configure the action.
     If multiple QActions are registered for the same command (the same ID),
     they must be registered for different contexts.
-    The ID is also used for grouping in the options page: everything up to the
+    The ID is also used for grouping in the preferences dialog: everything up to the
     first dot in the ID is used as the category, under which to show the
     command.
 
-    By default, the options page shows the text of the currently active QAction
+    By default, the preferences dialog shows the text of the currently active QAction
     in addition to the ID. If that does not fit the purpose well, you can set a
     different display text with Core::Command::setDescription().
 

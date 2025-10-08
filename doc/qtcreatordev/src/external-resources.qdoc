@@ -10,3 +10,15 @@
     \externalpage https://doc.qt.io/qtcreator/creator-project-wizards.html
     \title Custom Wizards
 */
+/*!
+    \externalpage https://github.com/qt-creator/extension-registry
+    \title The Registry
+*/
+/*!
+    \externalpage https://doc.qt.io/qtcreator/creator-how-to-install-extensions.html
+    \title \QC: Install extensions
+*/
+/*!
+    \externalpage https://github.com/qt-creator/qt-creator/tree/master/dist/api-changelog
+    \title API change log
+*/

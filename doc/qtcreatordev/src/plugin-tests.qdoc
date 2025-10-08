@@ -5,14 +5,14 @@
     \page plugin-tests.html
     \title Adding Tests
 
-    There are two main ways of testing your plugin code:
+    There are two main ways of testing the code of your C++-based \QC plugin:
 
     \list
         \li \l{Plugin Tests}
         \li \l{Auto Tests}
     \endlist
 
-    Both have their specific use cases and setup, which is described in the
+    Both have their specific use cases and setup that are described in the
     following sections.
 
     \section1 Setting up CMake
