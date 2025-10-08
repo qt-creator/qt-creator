@@ -41,9 +41,7 @@ public:
      * @return True, if the parsing was successful. If false is returned,
      *         the makefile could not be opened.
      */
-    bool parse(const QFuture<void> &future);
-
-    MakefileParserOutputData outputData() const { return m_outputData; }
+    MakefileParserOutputData parse(const QFuture<void> &future);
 
 private:
     enum TopTarget {
@@ -169,7 +167,6 @@ private:
      */
     bool maybeParseCPPFlag(const QString &term);
 
-    bool m_success = true;      ///< Return value for MakefileParser::parse().
     bool m_subDirsEmpty = false;///< States if last subdirs var was empty
 
     QFuture<void> m_future;     ///< For periodic checking of cancelled state.
@@ -181,18 +178,19 @@ private:
     QString m_line;             ///< Current line of the makefile
 };
 
-bool MakefileParser::parse(const QFuture<void> &future)
+MakefileParserOutputData MakefileParser::parse(const QFuture<void> &future)
 {
     m_future = future;
 
     QFile file(m_makefile);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qWarning("%s: %s", qPrintable(m_makefile), qPrintable(file.errorString()));
-        return false;
+        return {};
     }
 
     QFileInfo info(m_makefile);
     m_outputData.m_makefiles.append(info.fileName());
+    m_outputData.m_success = true;
 
     QTextStream textStream(&file);
 
@@ -212,9 +210,9 @@ bool MakefileParser::parse(const QFuture<void> &future)
     parseIncludePaths();
 
     if (m_subDirsEmpty)
-        m_success = false;
+        m_outputData.m_success = false;
 
-    return m_success;
+    return m_outputData;
 }
 
 MakefileParser::TopTarget MakefileParser::topTarget() const
@@ -286,7 +284,7 @@ void MakefileParser::parseDefaultSourceExtensions(QTextStream *textStream)
     QTC_ASSERT(m_line.contains(QLatin1String("AM_DEFAULT_SOURCE_EXT")), return);
     const QStringList extensions = targetValues(textStream);
     if (extensions.isEmpty()) {
-        m_success = false;
+        m_outputData.m_success = false;
         return;
     }
 
@@ -302,7 +300,7 @@ void MakefileParser::parseSubDirs(QTextStream *textStream)
 {
     QTC_ASSERT(m_line.contains(QLatin1String("SUBDIRS")), return);
     if (m_future.isCanceled()) {
-        m_success = false;
+        m_outputData.m_success = false;
         return;
     }
 
@@ -358,14 +356,12 @@ void MakefileParser::parseSubDirs(QTextStream *textStream)
             continue;
 
         MakefileParser parser(subDirMakefile);
-        const bool success = parser.parse(m_future);
+        const MakefileParserOutputData result = parser.parse(m_future);
 
         // Don't return, try to parse as many sub directories
         // as possible
-        if (!success)
-            m_success = false;
-
-        const MakefileParserOutputData result = parser.outputData();
+        if (!result.m_success)
+            m_outputData.m_success = false;
 
         m_outputData.m_makefiles.append(subDir + slash + makefileName);
 
@@ -399,7 +395,7 @@ QStringList MakefileParser::directorySources(const QString &directory,
                                              const QStringList &extensions)
 {
     if (m_future.isCanceled()) {
-        m_success = false;
+        m_outputData.m_success = false;
         return {};
     }
 
@@ -440,7 +436,7 @@ QStringList MakefileParser::targetValues(QTextStream *textStream, bool *hasVaria
 
     const int index = m_line.indexOf(QLatin1Char('='));
     if (index < 0) {
-        m_success = false;
+        m_outputData.m_success = false;
         return {};
     }
 
@@ -655,13 +651,10 @@ void MakefileParser::parseIncludePaths()
     m_outputData.m_cxxflags.removeDuplicates();
 }
 
-std::optional<MakefileParserOutputData> parseMakefile(const QString &makefile,
-                                                      const QFuture<void> &future)
+MakefileParserOutputData parseMakefile(const QString &makefile, const QFuture<void> &future)
 {
     MakefileParser parser(makefile);
-    if (parser.parse(future))
-        return parser.outputData();
-    return {};
+    return parser.parse(future);
 }
 
 } // AutotoolsProjectManager::Internal

@@ -72,11 +72,7 @@ AutotoolsBuildSystem::AutotoolsBuildSystem(BuildConfiguration *bc)
 
 static void parseMakefileImpl(QPromise<MakefileParserOutputData> &promise, const QString &makefile)
 {
-    const auto result = parseMakefile(makefile, QFuture<void>(promise.future()));
-    if (result)
-        promise.addResult(*result);
-    else
-        promise.future().cancel();
+    promise.addResult(parseMakefile(makefile, QFuture<void>(promise.future())));
 }
 
 void AutotoolsBuildSystem::triggerParsing()
@@ -88,8 +84,13 @@ void AutotoolsBuildSystem::triggerParsing()
         async.setConcurrentCallData(parseMakefileImpl, projectFilePath().path());
     };
     const auto onDone = [this, storage](const Async<MakefileParserOutputData> &async) {
-        (*storage)->markAsSuccess();
-        makefileParsingFinished(async.result());
+        if (!async.isResultAvailable())
+            return;
+
+        const MakefileParserOutputData result = async.result();
+        if (result.m_success)
+            (*storage)->markAsSuccess();
+        makefileParsingFinished(result);
     };
 
     const Group recipe {

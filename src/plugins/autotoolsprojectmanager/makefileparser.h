@@ -31,9 +31,9 @@ public:
     QStringList m_cflags;
     // List of compiler flags for C++.
     QStringList m_cxxflags;
+    bool m_success = false;
 };
 
-std::optional<MakefileParserOutputData> parseMakefile(const QString &makefile,
-                                                      const QFuture<void> &future);
+MakefileParserOutputData parseMakefile(const QString &makefile, const QFuture<void> &future);
 
 } // AutotoolsProjectManager::Internal
