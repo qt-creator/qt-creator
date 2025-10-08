@@ -10,6 +10,7 @@
 #include "projectmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/find/findplugin.h>
 
 #include <texteditor/textdocument.h>
 
@@ -65,7 +66,9 @@ FileContainer AllProjectsFind::filesForProjects(const QStringList &nameFilters,
         TextEncoding projectEncoding = config->useGlobalSettings()
             ? Core::EditorManager::defaultTextEncoding()
             : config->textEncoding();
-        const FilePaths filteredFiles = filterFiles(project->files(Project::SourceFiles));
+        const FilePaths filteredFiles = filterFiles(project->files(
+            Core::Find::hasFindFlag(DontFindGeneratedFiles) ? Project::SourceFiles
+                                                            : Project::AllFiles));
         for (const FilePath &fileName : filteredFiles) {
             TextEncoding encoding = openEditorEncodings.value(fileName);
             if (!encoding.isValid())
@@ -87,6 +90,11 @@ QString AllProjectsFind::toolTip() const
     return Tr::tr("Filter: %1\nExcluding: %2\n%3")
             .arg(fileNameFilters().join(','))
             .arg(fileExclusionFilters().join(','));
+}
+
+FindFlags AllProjectsFind::supportedFindFlags() const
+{
+    return BaseFileFind::supportedFindFlags() | DontFindGeneratedFiles;
 }
 
 void AllProjectsFind::handleFileListChanged()

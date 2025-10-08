@@ -118,6 +118,9 @@ FindToolWindow::FindToolWindow(QWidget *parent)
     m_ignoreBinaryFiles = new QCheckBox;
     m_ignoreBinaryFiles->setText(Tr::tr("Ignore binary files", nullptr));
 
+    m_ignoreGeneratedFiles = new QCheckBox;
+    m_ignoreGeneratedFiles->setText(Tr::tr("Ignore generated files", nullptr));
+
     m_regExp = new QCheckBox;
     m_regExp->setText(Tr::tr("Use re&gular expressions", nullptr));
 
@@ -139,13 +142,10 @@ FindToolWindow::FindToolWindow(QWidget *parent)
 
     using namespace Layouting;
 
-    Row {
-        m_matchCase,
-        m_wholeWords,
-        m_regExp,
-        m_ignoreBinaryFiles,
-        st,
-        noMargin
+    Column {
+        Row { m_matchCase, m_wholeWords, m_regExp, st, },
+        Row { m_ignoreBinaryFiles, m_ignoreGeneratedFiles, st, },
+        noMargin,
     }.attachTo(m_optionsWidget);
 
     Grid {
@@ -163,6 +163,7 @@ FindToolWindow::FindToolWindow(QWidget *parent)
     connect(m_matchCase, &QAbstractButton::toggled, Find::instance(), &Find::setCaseSensitive);
     connect(m_wholeWords, &QAbstractButton::toggled, Find::instance(), &Find::setWholeWord);
     connect(m_ignoreBinaryFiles, &QAbstractButton::toggled, Find::instance(), &Find::setIgnoreBinaryFiles);
+    connect(m_ignoreGeneratedFiles, &QAbstractButton::toggled, Find::instance(), &Find::setIgnoreGeneratedFiles);
     connect(m_regExp, &QAbstractButton::toggled, Find::instance(), &Find::setRegularExpression);
     connect(m_filterList, &QComboBox::activated, this, &FindToolWindow::setCurrentFilterIndex);
 
@@ -244,12 +245,14 @@ void FindToolWindow::updateButtonStates()
         m_searchLabel->setVisible(m_currentFilter->showSearchTermInput());
         m_optionsWidget->setVisible(
             supportedFlags
-            & (FindCaseSensitively | FindWholeWords | FindRegularExpression | DontFindBinaryFiles));
+            & (FindCaseSensitively | FindWholeWords | FindRegularExpression | DontFindBinaryFiles
+               | DontFindGeneratedFiles));
     }
 
     m_matchCase->setEnabled(filterEnabled && (supportedFlags & FindCaseSensitively));
     m_wholeWords->setEnabled(filterEnabled && (supportedFlags & FindWholeWords));
     m_ignoreBinaryFiles->setEnabled(filterEnabled && (supportedFlags & DontFindBinaryFiles));
+    m_ignoreGeneratedFiles->setEnabled(filterEnabled && (supportedFlags & DontFindGeneratedFiles));
 
     m_regExp->setEnabled(filterEnabled && (supportedFlags & FindRegularExpression));
     m_searchTerm->setEnabled(filterEnabled);
@@ -261,6 +264,7 @@ void FindToolWindow::updateFindFlags()
     m_wholeWords->setChecked(Find::hasFindFlag(FindWholeWords));
     m_regExp->setChecked(Find::hasFindFlag(FindRegularExpression));
     m_ignoreBinaryFiles->setChecked(Find::hasFindFlag(DontFindBinaryFiles));
+    m_ignoreGeneratedFiles->setChecked(Find::hasFindFlag(Utils::DontFindGeneratedFiles));
 }
 
 

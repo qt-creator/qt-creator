@@ -42,6 +42,8 @@ protected:
 
 private:
     TextEditor::FileContainerProvider fileContainerProvider() const override;
+    Utils::FindFlags supportedFindFlags() const override;
+
     void handleFileListChanged();
 
     QPointer<QWidget> m_configWidget;

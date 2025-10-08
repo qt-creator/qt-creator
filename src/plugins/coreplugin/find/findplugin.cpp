@@ -207,7 +207,7 @@ public:
     Internal::FindToolBar *m_findToolBar = nullptr;
     Internal::FindToolWindow *m_findDialog = nullptr;
     SearchResultWindow *m_searchResultWindow = nullptr;
-    FindFlags m_findFlags;
+    FindFlags m_findFlags = DontFindGeneratedFiles;
     CompletionModel m_findCompletionModel;
     QStringListModel m_replaceCompletionModel;
     QStringList m_replaceCompletions;
@@ -387,6 +387,11 @@ void Find::setIgnoreBinaryFiles(bool ignoreBinaryFiles)
     d->setFindFlag(DontFindBinaryFiles, ignoreBinaryFiles);
 }
 
+void Find::setIgnoreGeneratedFiles(bool ignoreGeneratedFiles)
+{
+    d->setFindFlag(Utils::DontFindGeneratedFiles, ignoreGeneratedFiles);
+}
+
 void Find::setBackward(bool backward)
 {
     d->setFindFlag(FindBackward, backward);
@@ -450,6 +455,8 @@ void FindPrivate::writeSettings()
         s.insert("CaseSensitively", true);
     if (m_findFlags & DontFindBinaryFiles)
         s.insert("IgnoreBinaryFiles", true);
+    if (!(m_findFlags & DontFindGeneratedFiles))
+        s.insert("IgnoreGeneratedFiles", false);
     if (m_findFlags & FindWholeWords)
         s.insert("WholeWords", true);
     if (m_findFlags & FindRegularExpression)
@@ -502,6 +509,7 @@ void FindPrivate::readSettings()
             Find::setRegularExpression(s.value("RegularExpression", false).toBool());
             Find::setPreserveCase(s.value("PreserveCase", false).toBool());
             Find::setIgnoreBinaryFiles(s.value("IgnoreBinaryFiles", false).toBool());
+            Find::setIgnoreGeneratedFiles(s.value("IgnoreGeneratedFiles", true).toBool());
         }
         m_findCompletionModel.restore(storeFromVariant(s.value("FindCompletions")));
         m_replaceCompletions = s.value("ReplaceStrings").toStringList();

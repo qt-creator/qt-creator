@@ -23,6 +23,7 @@ public:
 
 protected:
     TextEditor::FileContainerProvider fileContainerProvider() const override;
+    Utils::FindFlags supportedFindFlags() const override;
     QString label() const override;
 };
 

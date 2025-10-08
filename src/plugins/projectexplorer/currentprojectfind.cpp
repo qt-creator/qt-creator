@@ -103,6 +103,7 @@ private:
     QByteArray settingsKey() const final;
 
     TextEditor::FileContainerProvider fileContainerProvider() const final;
+    Utils::FindFlags supportedFindFlags() const final;
     void setupSearch(Core::SearchResult *search) final;
     QString toolTip() const override;
     QWidget *createConfigWidget() override;
@@ -252,6 +253,11 @@ void CurrentProjectFind::restore(const Store &s)
 QByteArray CurrentProjectFind::settingsKey() const
 {
     return "CurrentProjectFind";
+}
+
+FindFlags CurrentProjectFind::supportedFindFlags() const
+{
+    return BaseFileFind::supportedFindFlags() | DontFindGeneratedFiles;
 }
 
 void setupCurrentProjectFind()

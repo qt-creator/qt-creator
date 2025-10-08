@@ -49,6 +49,11 @@ QByteArray FilesInAllProjectsFind::settingsKey() const
     return kSettingsKey;
 }
 
+FindFlags FilesInAllProjectsFind::supportedFindFlags() const
+{
+    return BaseFileFind::supportedFindFlags();
+}
+
 FileContainerProvider FilesInAllProjectsFind::fileContainerProvider() const
 {
     return [nameFilters = fileNameFilters(), exclusionFilters = fileExclusionFilters()] {
