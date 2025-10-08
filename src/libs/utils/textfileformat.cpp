@@ -116,16 +116,12 @@ bool TextFileFormat::decode(const QByteArray &data, QString *target) const
 }
 
 /*!
-    Reads a text file from \a filePath into a string, \a plainText using
-    \a defaultCodec and text file format \a format.
+    Reads a text file from \a filePath into a string. It detects the codec to use
+    from the BOM read file contents. If none is set, it uses \a fallbackEncoding.
+    If the fallback is not set, it uses the text encoding set for the locale.
 
-    Returns whether decoding was possible without errors. If an errors occur
+    Returns whether decoding was possible without errors. If an error occurs,
     it is returned together with a decoding error sample.
-
-    \note This function does \e{not} use the codec set by \l setCodec. Instead
-    it detects the codec to be used from BOM read file contents.
-    If none is present, it falls back using the provided \a fallbackCodec.
-    If this still doesn't exist, it uses \l TextEncoding::encodingForLocale()
 */
 
 TextFileFormat::ReadResult

@@ -313,14 +313,16 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
     \internal
 */
 /*!
-    \fn void Core::EditorManager::aboutToSave(Core::IDocument *document)
+    \fn void Core::EditorManager::aboutToSave(Core::IDocument *document, Core::IDocument::SaveOption option)
 
-    This signal is emitted before the \a document is saved.
+    This signal is emitted before \a document is saved with the save option
+    \a option.
 */
 /*!
-    \fn void Core::EditorManager::saved(Core::IDocument *document)
+    \fn void Core::EditorManager::saved(Core::IDocument *document, Core::IDocument::SaveOption option)
 
-    This signal is emitted after the \a document was saved.
+    This signal is emitted after \a document was saved with the save option
+    \a option.
 */
 /*!
     \fn void Core::EditorManager::autoSaved()

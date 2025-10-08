@@ -95,10 +95,9 @@ Wizard *BaseFileWizardFactory::runWizardImpl(const FilePath &path, Id platform,
 */
 
 /*!
-    \fn Core::BaseFileWizard *Core::BaseFileWizardFactory::create(QWidget *parent,
-                                                                  const Core::WizardDialogParameters &parameters) const
+    \fn Core::BaseFileWizard *Core::BaseFileWizardFactory::create(const Core::WizardDialogParameters &parameters) const
 
-    Creates the wizard on the \a parent with the \a parameters.
+    Creates the wizard with the \a parameters.
 */
 
 /*!
@@ -175,7 +174,7 @@ Result<> BaseFileWizardFactory::postGenerateOpenEditors(const GeneratedFiles &l)
     Performs an overwrite check on a set of \a files. Checks if the file exists and
     can be overwritten at all, and then prompts the user with a summary.
 
-    Returns \a errorMessage if the file cannot be overwritten.
+    Returns whether the file can be overwritten.
 */
 
 Result<BaseFileWizardFactory::OverwriteResult>

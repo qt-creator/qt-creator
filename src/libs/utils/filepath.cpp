@@ -1846,8 +1846,9 @@ static QString calcRelativePath(QStringView absolutePath, QStringView absoluteAn
 }
 
 /*!
-    Returns the relative path of FilePath from a given directory \a anchor.
-    FilePath and anchor may be files or directories.
+    Returns the relative path of FilePath from the directory \a anchorDir.
+    FilePath and anchor directory may be files or directories.
+
     Example usage:
 
     \code
@@ -2643,7 +2644,7 @@ bool FilePath::isRelativePath() const
     so this does not necessarily match the platform's definition of
     an absolute path. Use with care, and try to avoid.
 
-    \sa isRelativePath().
+    \sa isRelativePath()
 */
 bool FilePath::isAbsolutePath() const
 {
