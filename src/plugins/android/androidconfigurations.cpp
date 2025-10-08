@@ -1441,11 +1441,6 @@ void AndroidConfigurations::updateAutomaticKitList()
                 BuildDeviceKitAspect::setDeviceId(k, DeviceManager::defaultDesktopDevice()->id());
                 k->setSticky(QtKitAspect::id(), true);
                 k->setSticky(RunDeviceTypeKitAspect::id(), true);
-
-                const QStringList abis = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
-
-                k->setUnexpandedDisplayName(Tr::tr("%1 for Android %2")
-                        .arg(QLatin1String("Qt %{Qt:Version}"), getMultiOrSingleAbiString(abis)));
                 k->setValueSilently(
                     Constants::ANDROID_KIT_NDK, AndroidConfig::ndkLocation(qt).toSettings());
                 k->setValueSilently(
@@ -1456,7 +1451,14 @@ void AndroidConfigurations::updateAutomaticKitList()
                 initializeKit(existingKit); // Update the existing kit with new data.
                 unhandledKits.removeOne(existingKit);
             } else {
-                KitManager::registerKit(initializeKit);
+                KitManager::registerKit([initializeKit, qt](Kit *k) {
+                    const QStringList abis
+                        = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
+                    k->setUnexpandedDisplayName(
+                        Tr::tr("%1 for Android %2")
+                            .arg(QLatin1String("Qt %{Qt:Version}"), getMultiOrSingleAbiString(abis)));
+                    initializeKit(k);
+                });
             }
         }
     }
