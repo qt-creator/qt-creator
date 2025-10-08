@@ -73,7 +73,7 @@ public:
         definitionsInfolabel->setWordWrap(true);
         definitionsInfolabel->setOpenExternalLinks(true);
         definitionsInfolabel->setText(Tr::tr("<html><head/><body><p>Highlight definitions are provided by the "
-                                             "<a href=\"https://api.kde.org/frameworks/syntax-highlighting/html/index.html\">"
+                                             "<a href=\"https://invent.kde.org/frameworks/syntax-highlighting\">"
                                              "KSyntaxHighlighting</a> engine.</p></body></html>"));
 
         auto downloadDefinitions = new QPushButton(Tr::tr("Download Definitions"));
