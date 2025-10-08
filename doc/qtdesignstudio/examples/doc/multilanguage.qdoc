@@ -9,7 +9,7 @@
     \brief Illustrates how to add support for multiple languages to your
     project.
 
-    \image multilanguage-project.png
+    \image {loginui2.webp} {Login UI in Live Preview.}
 
     The \e{Multi-language Support} tutorial illustrates how you can add
     support for multiple languages to your project. In this tutorial you
@@ -33,8 +33,34 @@
     structure:
 
     \code
-    {
+{
     "translatables": [
+        {
+            "trId": "translation_tagline",
+            "translations": [
+                {
+                    "language": "en",
+                    "translation": "Are you ready to explore?"
+                },
+                {
+                    "language": "sv",
+                    "translation": "Är du redo att utforska?"
+                }
+            ]
+        },
+        {
+            "trId": "translation_username",
+            "translations": [
+                {
+                    "language": "en",
+                    "translation": "Username or Email"
+                },
+                {
+                    "language": "sv",
+                    "translation": "Användarnamn eller E-post"
+                }
+            ]
+        },
         {
             "trId": "translation_password",
             "translations": [
@@ -49,15 +75,15 @@
             ]
         },
         {
-            "trId": "translation_account",
+            "trId": "translation_continue",
             "translations": [
                 {
                     "language": "en",
-                    "translation": "Qt Account"
+                    "translation": "Continue"
                 },
                 {
                     "language": "sv",
-                    "translation": "Qt Konto"
+                    "translation": "Fortsätta"
                 }
             ]
         },
@@ -70,33 +96,7 @@
                 },
                 {
                     "language": "sv",
-                    "translation": "Skapa Konto"
-                }
-            ]
-        },
-        {
-            "trId": "translation_login",
-            "translations": [
-                {
-                    "language": "en",
-                    "translation": "Log In"
-                },
-                {
-                    "language": "sv",
-                    "translation": "Logga In"
-                }
-            ]
-        },
-        {
-            "trId": "translation_username",
-            "translations": [
-                {
-                    "language": "en",
-                    "translation": "Username"
-                },
-                {
-                    "language": "sv",
-                    "translation": "Användarnamn"
+                    "translation": "Registrera Dig"
                 }
             ]
         }
@@ -104,7 +104,7 @@
 }
     \endcode
 
-\section1 Preparing your project
+    \section1 Preparing your project
 
     First, you need to prepare your project for translation:
 
@@ -117,21 +117,21 @@
       all five occurrences of \c qsTr, and replace them with \c{qsTrId}. For
       example, replace:
       \code
-        text: qsTr("Qt Account")
+        text: qsTr("Username or Email")
       \endcode
       with:
       \code
-        text: qsTrId("Qt Account")
+        text: qsTrId("Username or Email")
       \endcode
       \li Next, you need to replace the text value with the text string
       variable from the translation file for the five text strings you want
       to translate. For example, replace:
       \code
-        text: qsTrId("Qt Account")
+        text: qsTrId("Username or Email")
       \endcode
       with:
       \code
-        text: qsTrId("translation_account")
+        text: qsTrId("translation_username")
       \endcode
     \endlist
 
@@ -152,7 +152,7 @@
       \li Select \imageimportjsontranslations and open the \e ml_translations.json
       file. Now you can see all your imported translations in the
       \uicontrol Translations view.
-      \image imported-translations.png
+      \image {imported-translations.webp} {Imported translations in the Translations view.}
     \endlist
 
     You can select language from the dropdown list on the left side of the
@@ -167,7 +167,4 @@
     To do this, select \imagegeneratetranslationfiles in the
     \uicontrol Translations view.
 
-    \note \QDS generates the Qt translation source files in
-    \e{<project-folder>/i18n}. To make translations visible in the application,
-    move or copy the i18n directory to \e{<project-folder>/Content}.
 */
