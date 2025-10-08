@@ -1,3 +1,5 @@
+import qbs.FileInfo
+
 QtcPlugin {
     name: "DevContainerPlugin"
 
@@ -27,7 +29,8 @@ QtcPlugin {
         files: [
             "devcontainer_test.cpp",
         ]
-        cpp.defines: outer.concat([ 'TESTDATA="' + qtc.ide_data_path + '/devcontainer_testdata"' ])
+        cpp.defines: outer.concat('TESTDATA="' + FileInfo.joinPaths(qbs.installRoot,
+            qbs.installPrefix, qtc.ide_data_path, "devcontainer_testdata") + '"')
     }
 
     Group {
@@ -39,7 +42,7 @@ QtcPlugin {
         fileTags: []
         files: [
             "**/*",
-            ".**/*",
+            "**/.devcontainer/*",
         ]
     }
 
