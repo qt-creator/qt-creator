@@ -464,6 +464,7 @@ DockerDevice::DockerDevice()
     mounts.setPlaceHolderText(Tr::tr("Host directories to mount into the container."));
     mounts.addOnChanged(DeviceManager::instance(), [this] {
         DeviceManager::instance()->deviceUpdated(id());
+        d->stopCurrentContainer();
     });
 
     extraArgs.setSettingsKey(DockerDeviceExtraArgs);
