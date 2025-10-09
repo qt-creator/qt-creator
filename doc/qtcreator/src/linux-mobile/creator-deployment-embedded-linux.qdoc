@@ -15,8 +15,8 @@
 
     \title Remote Linux Deploy Configuration
 
-    \brief Copy application files to generic remote Linux devices or create a
-    tarball.
+    \summary {Copy application files to generic remote Linux devices or create a
+    tarball.}
 
     Specify settings for deploying applications to generic remote
     Linux devices in the project configuration file and in \uicontrol Projects >

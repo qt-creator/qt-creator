@@ -10,8 +10,8 @@
 
     \title Converting UI Projects to Applications
 
-    \brief Converting a project that has a .qmlproject file to one that has a
-    .pro file.
+    \summary {Converting a project that has a .qmlproject file to one that has a
+    \c {.pro} file.}
 
     \include qtquick-converting-ui-projects-to-applications.qdocinc {converting-ui-projects-to-applications} {Qt Quick UI Prototype}
 */

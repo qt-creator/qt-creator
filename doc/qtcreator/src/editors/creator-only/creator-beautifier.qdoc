@@ -111,7 +111,7 @@
 
     \title Beautifier
 
-    \brief Format source code with Artistic Style, ClangFormat, or Uncrustify.
+    \summary {Format source code with Artistic Style, ClangFormat, or Uncrustify.}
 
     Automatically apply indentation and style to source code files when you save
     them. Use a predefined style or define your own style.

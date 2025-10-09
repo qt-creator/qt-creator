@@ -71,9 +71,9 @@
     \target kits-tab
     \title Kits
 
-    \brief Set kit preferences. A kit consists of a set of values that define
+    \summary {Set kit preferences. A kit consists of a set of values that define
     one environment, such as a \e {device}, toolchain, Qt version, and debugger
-    command to use.
+    command to use.}
 
     Typically, only a subset of the kit preferences is relevant for a particular
     setup. Therefore, \QC plugins register sets of relevant preferences that you

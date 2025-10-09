@@ -9,7 +9,7 @@
 
     \title Nim
 
-    \brief Set Nim code style and paths to tools.
+    \summary {Set Nim code style and paths to tools.}
 
     \section1 Code Style
 

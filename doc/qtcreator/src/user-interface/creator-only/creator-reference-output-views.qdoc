@@ -170,8 +170,8 @@
 
     \title Application Output
 
-    \brief Displays the status of a program when you execute it, and the debug
-    output.
+    \summary {Displays the status of a program when you execute it, and the debug
+    output.}
 
     \image {qtcreator-application-output.webp} {Application Output}
 

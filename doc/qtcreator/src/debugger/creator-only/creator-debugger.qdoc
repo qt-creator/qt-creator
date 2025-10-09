@@ -163,27 +163,19 @@
 
     \section1 Remote Debugging
 
-    \QC makes remote debugging easy. In general, the remote debugging setup
-    consist of a probe running on the remote computer and a counterpart running
-    on the host. The probe is either integrated into the running
-    process (for example, for QML debugging) or runs a separate process
-    (for example, when using GDB server on embedded Linux). The host
-    side typically consists of \QC itself, often with the help of an external
-    process, such as GDB or CDB.
+    \QC makes remote debugging easy. In the common case where the remote machine
+    already has a debug server like GDBserver installed and remote execution
+    of an application is already set up and works by selecting the \uicontrol
+    Run button (or \key{Ctrl+R}), debugging can be started by selecting the
+    \uicontrol Debug button (or \key{F5}).
 
-    While this setup might look daunting, it is mostly invisible to the user of
-    \QC. To start debugging on a remote target with the necessary helper
-    processes running, activate the corresponding \l{Activate kits for a project}
-    {kit} in \uicontrol Projects > \uicontrol {Build & Run}, and then select a
-    function to start remote debugging in the \uicontrol Debug >
-    \uicontrol {Start Debugging} menu.
+    In this case, \QC launches and connects the debug server and the application
+    on the remote machine and the actual debugger on the development host
+    in the right order automatically.
 
-    The fully automated setup and execution of remote debugging requires that
-    a debug server on the remote machine can be started via SSH from the development host.
-
-    This is not always possible. For some of such exceptional cases, \QC offers
-    semi-automatic solutions, as described in \l{Debug remotely with GDB server
-    in special cases} and \l{Debug remotely with CDB in special cases}.
+    For some exceptional cases where this fully automated setup and execution
+    of remote debugging is not possible, \QC offers semi-automatic solutions,
+    see \l{Debug remotely with GDB} and \l{Debug remotely with CDB}.
 
     \section1 Using Debugging Helpers
 
@@ -535,12 +527,22 @@
     \ingroup creator-how-to-remote-linux
     \ingroup creator-how-to-qnx
 
-    \title Debug remotely with GDB server in special cases
+    \title Debug remotely with GDB
 
-    If the requirements for the automated setup in \l{Remote Debugging}
-    are not met but your remote machine is capable of running GDB server
-    (or any compatible probe using the GDB serial protocol), you can still
-    use \QC to debug your application.
+    In the common case where the remote machine or container already has GDBserver
+    installed and remote execution of an application is already set up
+    and works by selecting the \uicontrol Run button (or \key{Ctrl+R}), you can
+    start remote debugging by selecting the \uicontrol Debug button (or \key{F5}).
+
+    In this case, \QC launches and connects the debug server and the application
+    on the remote machine and the actual debugger on the development host
+    in the right order automatically.
+
+    This is the preferred method.
+
+    If the requirements for this automated setup are not met but your remote
+    machine is capable of running GDB server (or any compatible probe using the
+    GDB serial protocol), you can still use \QC to debug your application.
 
     \section1 Application running, SSH access to remote machine available
 
@@ -655,11 +657,14 @@
     \page creator-how-to-debug-remotely-cdb.html
     \previouspage creator-how-tos.html
     \ingroup creator-how-to-debug
-    \title Debug remotely with CDB in special cases
+    \title Debug remotely with CDB
 
-    If the requirements for the automated setup in \l{Remote Debugging}
-    are not met and your remote machine is running Windows, you can still
-    use \QC and CDB to debug your application.
+    If your remote machine or container runs Windows and your application was
+    compiled using MSVC, you can use CDB for remote debugging.
+
+    If remote execution of an application is already set up and works by selecting
+    the \uicontrol Run button (or \key{Ctrl+R}), you can start remote debugging
+    by selecting the \uicontrol Debug button (or \key{F5}).
 
     In remote mode, the local CDB process talks to a CDB process that runs on
     the remote machine. The process is started with special command-line options

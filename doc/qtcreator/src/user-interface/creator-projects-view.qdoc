@@ -16,9 +16,9 @@
     \title Projects
 
     \if defined(qtdesignstudio)
-    \brief View a list of the files contained within the open project.
+    \summary {View a list of the files contained within the open project.}
     \else
-    \brief Shows a list of projects in a project tree.
+    \summary {Shows a list of projects in a project tree.}
     \endif
 
     \if defined(qtcreator)

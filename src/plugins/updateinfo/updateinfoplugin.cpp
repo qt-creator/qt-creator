@@ -56,7 +56,8 @@ using namespace Core;
 using namespace Tasking;
 using namespace Utils;
 
-namespace UpdateInfo::Internal {
+namespace UpdateInfo {
+namespace Internal {
 
 class ServiceImpl final : public QObject, public UpdateInfo::Service
 {
@@ -76,6 +77,14 @@ public:
     QString m_updateOutput;
     QString m_packagesOutput;
     QTimer *m_checkUpdatesTimer = nullptr;
+    struct Settings
+    {
+        bool automaticCheck = true;
+        UpdateInfoPlugin::CheckUpdateInterval checkInterval = UpdateInfoPlugin::WeeklyCheck;
+        bool checkForQtVersions = true;
+    };
+    Settings m_settings;
+    QDate m_lastCheckDate;
     QVersionNumber m_lastMaxQtVersion;
     std::unique_ptr<ServiceImpl> m_service;
 };
@@ -353,7 +362,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
 
     const Group recipe {
         ProcessTask(onUpdateSetup, onUpdateDone, CallDone::OnSuccess),
-        settings().checkForQtVersions
+        m_d->m_settings.checkForQtVersions
             ? ProcessTask(
                   [doSetup](Process &process) {
                       doSetup(
@@ -554,13 +563,13 @@ Result<> UpdateInfoPlugin::initialize(const QStringList &)
 
 void UpdateInfoPlugin::loadSettings() const
 {
-    UpdateInfoSettings def;
+    UpdateInfoPluginPrivate::Settings def;
     QtcSettings *settings = ICore::settings();
     const Key updaterKey = Key(UpdaterGroup) + '/';
     m_d->m_maintenanceTool = FilePath::fromSettings(
         settings->value(updaterKey + MaintenanceToolKey));
-    Internal::settings().m_lastCheckDate = settings->value(updaterKey + LastCheckDateKey, QDate()).toDate();
-    Internal::settings().automaticCheck
+    m_d->m_lastCheckDate = settings->value(updaterKey + LastCheckDateKey, QDate()).toDate();
+    m_d->m_settings.automaticCheck
         = settings->value(updaterKey + AutomaticCheckKey, def.automaticCheck).toBool();
     const QMetaObject *mo = metaObject();
     const QMetaEnum me = mo->enumerator(mo->indexOfEnumerator(CheckIntervalKey));
@@ -572,23 +581,23 @@ void UpdateInfoPlugin::loadSettings() const
         bool ok = false;
         const int newValue = me.keyToValue(checkInterval.toUtf8(), &ok);
         if (ok)
-            Internal::settings().checkInterval = static_cast<CheckUpdateInterval>(newValue);
+            m_d->m_settings.checkInterval = static_cast<CheckUpdateInterval>(newValue);
     }
     const QString lastMaxQtVersionString = settings->value(updaterKey + LastMaxQtVersionKey)
                                                .toString();
     m_d->m_lastMaxQtVersion = QVersionNumber::fromString(lastMaxQtVersionString);
-    Internal::settings().checkForQtVersions
+    m_d->m_settings.checkForQtVersions
         = settings->value(updaterKey + CheckForNewQtVersionsKey, def.checkForQtVersions).toBool();
 }
 
 void UpdateInfoPlugin::saveSettings()
 {
-    UpdateInfoSettings def;
+    UpdateInfoPluginPrivate::Settings def;
     QtcSettings *settings = ICore::settings();
     settings->beginGroup(UpdaterGroup);
-    settings->setValueWithDefault(LastCheckDateKey, Internal::settings().m_lastCheckDate, QDate());
+    settings->setValueWithDefault(LastCheckDateKey, m_d->m_lastCheckDate, QDate());
     settings
-        ->setValueWithDefault(AutomaticCheckKey, Internal::settings().automaticCheck, def.automaticCheck);
+        ->setValueWithDefault(AutomaticCheckKey, m_d->m_settings.automaticCheck, def.automaticCheck);
     // Note: don't save MaintenanceToolKey on purpose! This setting may be set only by installer.
     // If creator is run not from installed SDK, the setting can be manually created here:
     // [CREATOR_INSTALLATION_LOCATION]/share/qtcreator/QtProject/QtCreator.ini or
@@ -597,80 +606,83 @@ void UpdateInfoPlugin::saveSettings()
     const QMetaEnum me = mo->enumerator(mo->indexOfEnumerator(CheckIntervalKey));
     settings->setValueWithDefault(
         CheckIntervalKey,
-        QString::fromUtf8(me.valueToKey(Internal::settings().checkInterval)),
+        QString::fromUtf8(me.valueToKey(m_d->m_settings.checkInterval)),
         QString::fromUtf8(me.valueToKey(def.checkInterval)));
     settings->setValueWithDefault(LastMaxQtVersionKey, m_d->m_lastMaxQtVersion.toString());
     settings->setValueWithDefault(
-        CheckForNewQtVersionsKey, Internal::settings().checkForQtVersions, def.checkForQtVersions);
+        CheckForNewQtVersionsKey, m_d->m_settings.checkForQtVersions, def.checkForQtVersions);
     settings->endGroup();
 }
 
 bool UpdateInfoPlugin::isAutomaticCheck() const
 {
-    return settings().automaticCheck;
+    return m_d->m_settings.automaticCheck;
 }
 
 void UpdateInfoPlugin::setAutomaticCheck(bool on)
 {
-    if (settings().automaticCheck == on)
+    if (m_d->m_settings.automaticCheck == on)
         return;
 
-    settings().automaticCheck = on;
+    m_d->m_settings.automaticCheck = on;
     if (on)
         startAutoCheckForUpdates();
     else
         stopAutoCheckForUpdates();
 }
 
-CheckUpdateInterval UpdateInfoPlugin::checkUpdateInterval() const
+UpdateInfoPlugin::CheckUpdateInterval UpdateInfoPlugin::checkUpdateInterval() const
 {
-    return settings().checkInterval;
+    return m_d->m_settings.checkInterval;
 }
 
-void UpdateInfoPlugin::setCheckUpdateInterval(CheckUpdateInterval interval)
+void UpdateInfoPlugin::setCheckUpdateInterval(UpdateInfoPlugin::CheckUpdateInterval interval)
 {
-    settings().checkInterval = interval;
+    if (m_d->m_settings.checkInterval == interval)
+        return;
+
+    m_d->m_settings.checkInterval = interval;
 }
 
 bool UpdateInfoPlugin::isCheckingForQtVersions() const
 {
-    return settings().checkForQtVersions;
+    return m_d->m_settings.checkForQtVersions;
 }
 
 void UpdateInfoPlugin::setCheckingForQtVersions(bool on)
 {
-    settings().checkForQtVersions = on;
+    m_d->m_settings.checkForQtVersions = on;
 }
 
 QDate UpdateInfoPlugin::lastCheckDate() const
 {
-    return settings().lastCheckDate();
+    return m_d->m_lastCheckDate;
 }
 
 void UpdateInfoPlugin::setLastCheckDate(const QDate &date)
 {
-    if (settings().m_lastCheckDate == date)
+    if (m_d->m_lastCheckDate == date)
         return;
 
-    settings().m_lastCheckDate = date;
+    m_d->m_lastCheckDate = date;
     emit lastCheckDateChanged(date);
 }
 
 QDate UpdateInfoPlugin::nextCheckDate() const
 {
-    return nextCheckDate(settings().checkInterval);
+    return nextCheckDate(m_d->m_settings.checkInterval);
 }
 
 QDate UpdateInfoPlugin::nextCheckDate(CheckUpdateInterval interval) const
 {
-    if (!settings().m_lastCheckDate.isValid())
+    if (!m_d->m_lastCheckDate.isValid())
         return QDate();
 
     if (interval == DailyCheck)
-        return settings().m_lastCheckDate.addDays(1);
+        return m_d->m_lastCheckDate.addDays(1);
     if (interval == WeeklyCheck)
-        return settings().m_lastCheckDate.addDays(7);
-    return settings().m_lastCheckDate.addMonths(1);
+        return m_d->m_lastCheckDate.addDays(7);
+    return m_d->m_lastCheckDate.addMonths(1);
 }
 
 void UpdateInfoPlugin::startMaintenanceTool(const QStringList &args) const
@@ -688,6 +700,7 @@ void UpdateInfoPlugin::startPackageManager() const
     startMaintenanceTool({"--start-package-manager"});
 }
 
-} // namespace UpdateInfo::Internal
+} //namespace Internal
+} //namespace UpdateInfo
 
 #include "updateinfoplugin.moc"

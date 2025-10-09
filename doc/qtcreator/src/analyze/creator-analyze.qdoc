@@ -14,7 +14,7 @@
 
     \title Analyzing Code
 
-    To use a code analysis tool, select it in the \uicontrol {Analyze Menu} or
+    To use a code analysis tool, select it in the \uicontrol Analyze menu or
     in the pull-down menu of the
     \inlineimage {icons/qtcreator-debug-button.png} {Start Debugging of Startup Project}
     (\uicontrol {Start Debugging of Startup Project}) button.
@@ -129,7 +129,7 @@
     a project, see \l{Run Valgrind tools on external applications}.
 
     To set preferences for the Valgrind tools, select \preferences >
-    \uicontrol Analyzer. You can override the general
+    \uicontrol Analyzer > \uicontrol Valgrind. You can override the general
     settings for each project in the \uicontrol {Run Settings} for the project.
 
     \section1 Detecting Memory Leaks with Heob

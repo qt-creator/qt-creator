@@ -9,8 +9,8 @@
 
     \title Developing for iOS
 
-    \brief Connect iOS devices to your local machine with a USB cable to
-    run applications on them.
+    \summary {Connect iOS devices to your local machine with a USB cable to
+    run applications on them.}
 
     After you install Xcode, \QC automatically detects the toolchain and creates
     the necessary \l{Kits}{kits} to build applications for and run them on

@@ -1459,10 +1459,10 @@ void MiniProjectTargetSelector::updateActionAndSummary()
             targetName = project->activeTarget()->displayName();
 
             if (BuildConfiguration *bc = target->activeBuildConfiguration())
-                buildConfig = bc->displayName();
+                buildConfig = bc->expandedDisplayName();
 
             if (DeployConfiguration *dc = target->activeDeployConfiguration())
-                deployConfig = dc->displayName();
+                deployConfig = dc->expandedDisplayName();
 
             if (RunConfiguration *rc = target->activeRunConfiguration())
                 runConfig = rc->expandedDisplayName();
@@ -1495,6 +1495,11 @@ void MiniProjectTargetSelector::updateActionAndSummary()
             .arg(lines.join(QLatin1String("<br/>")));
     m_projectAction->setToolTip(toolTip);
     updateSummary();
+
+    for (GenericListWidget *listWidget : qAsConst(m_listWidgets)) {
+        if (listWidget)
+            listWidget->update();
+    }
 }
 
 void MiniProjectTargetSelector::updateSummary()

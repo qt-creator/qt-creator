@@ -9,7 +9,7 @@
 
     \title FAQ
 
-    \brief Answers to some frequently asked questions about \QC.
+    \summary {Answers to some frequently asked questions about \QC.}
 
     You might also find answers to your questions in the
     \l{Known Issues} and \l{How To} sections, or the Troubleshooting

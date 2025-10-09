@@ -105,7 +105,7 @@
 
     \endlist
 
-    \image {qtcreator-textfinder-contents.png} {TextFinder project contents}
+    \image {qtcreator-textfinder-contents.webp} {TextFinder project contents}
 
     The \c .h and \c .cpp files come with the necessary boiler plate code.
 
@@ -150,7 +150,7 @@
         \li Double-click the \uicontrol{Push Button} widget and enter the text
             \b{Find}.
 
-        \li In the \uicontrol Properties view, change the \uicontrol objectName to
+        \li In the \uicontrol {Property Editor} view, change the \uicontrol objectName to
             \b findButton.
 
             \image {qtcreator-textfinder-objectname.png} {Changing object names}
@@ -209,7 +209,7 @@
 
     \list 1
 
-        \li In the \uicontrol{Projects} view in the \uicontrol {Edit view}, double-click the
+        \li In the \uicontrol{Projects} view in the \uicontrol Edit mode, double-click the
             \c{textfinder.h} file to open it for editing.
 
         \li Add a private function to the \c{private} section, after the
@@ -226,7 +226,7 @@
 
     \list 1
 
-        \li In the \uicontrol{Projects} view in the \uicontrol Edit view, double-click the
+        \li In the \uicontrol{Projects} view in the \uicontrol Edit mode, double-click the
             \c textfinder.cpp file to open it for editing.
 
         \li Add code to load a text file using QFile, read it with QTextStream,
@@ -293,12 +293,12 @@
             and select \uicontrol{Finish} or \uicontrol Done to open the file
             in the code editor.
 
-        \li Select \uicontrol Add > \uicontrol {Add Prefix}.
+        \li Select \uicontrol {Add Prefix}.
 
         \li In \uicontrol{Prefix}, replace the default prefix with a slash
             (/).
 
-        \li Select \uicontrol Add > \uicontrol {Add Files}, to locate and add
+        \li Select \uicontrol {Add Files}, to locate and add
             \c input.txt.
 
             \image {qtcreator-add-resource.png} {Editing resource files}

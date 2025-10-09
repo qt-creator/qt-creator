@@ -1,5 +1,13 @@
 set(ALL_CMDBRIDGE_PLATFORMS "")
 
+env_with_default("QTC_BUILD_EXECUTABLE_CMDBRIDGE" ENV_BUILD_EXECUTABLE_CMDBRIDGE ON)
+option(BUILD_EXECUTABLE_CMDBRIDGE "Build the cmdbridge executable, required for fast remote device support" "${ENV_BUILD_EXECUTABLE_CMDBRIDGE}")
+
+if(NOT BUILD_EXECUTABLE_CMDBRIDGE)
+    add_feature_info("Executable CmdBridge" NO "")
+    return()
+endif()
+
 function(go_build NAME SOURCES PLATFORMS ARCHITECTURES LDFLAGS)
     qtc_output_binary_dir(_output_binary_dir)
     set(OUTPUT_FOLDER "${_output_binary_dir}/${IDE_LIBEXEC_PATH}")
@@ -45,35 +53,33 @@ endfunction()
 find_program(GO_BIN go)
 find_program(UPX_BIN upx)
 
-if (${GO_BIN} STREQUAL "GO_BIN-NOTFOUND")
-    set(CMDBRIDGEFEATURE NO)
-    set(CMDBRIDGEFEATURE_TEXT "no GO compiler found")
-else ()
-    set(CMDBRIDGEFEATURE YES)
-    set(CMDBRIDGEFEATURE_TEXT "with GO compiler at ${GO_BIN}")
-
-    set(SOURCE_FILES
-        channelwriter.go
-        cmdbridge.go
-        exec.go
-        fileaccess_windows.go
-        fileaccess.go
-        find.go
-        is.go
-        readfile.go
-        stat.go
-        writefile.go
-        watcher.go
-    )
-
-    go_build(cmdbridge "${SOURCE_FILES}" "linux;darwin;windows" "amd64;arm64" "-X main.MagicPacketMarker=${GOBRIDGE_MAGIC_PACKET_MARKER}")
-
-    add_custom_target(CmdBridge
-      DEPENDS
-        ${ALL_CMDBRIDGE_PLATFORMS}
-      SOURCES
-        ${SOURCE_FILES}
-    )
+if(NOT GO_BIN)
+  message(FATAL_ERROR "Could not find GO compiler, required for the CmdBridge (BUILD_EXECUTABLE_CMDBRIDGE) for fast remote device support.")
 endif()
 
-add_feature_info("Executable CmdBridge" ${CMDBRIDGEFEATURE} ${CMDBRIDGEFEATURE_TEXT})
+set(CMDBRIDGEFEATURE_TEXT "with GO compiler at ${GO_BIN}")
+
+set(SOURCE_FILES
+    channelwriter.go
+    cmdbridge.go
+    exec.go
+    fileaccess_windows.go
+    fileaccess.go
+    find.go
+    is.go
+    readfile.go
+    stat.go
+    writefile.go
+    watcher.go
+)
+
+go_build(cmdbridge "${SOURCE_FILES}" "linux;darwin;windows" "amd64;arm64" "-X main.MagicPacketMarker=${GOBRIDGE_MAGIC_PACKET_MARKER}")
+
+add_custom_target(CmdBridge
+  DEPENDS
+    ${ALL_CMDBRIDGE_PLATFORMS}
+  SOURCES
+    ${SOURCE_FILES}
+)
+
+add_feature_info("Executable CmdBridge" YES ${CMDBRIDGEFEATURE_TEXT})
