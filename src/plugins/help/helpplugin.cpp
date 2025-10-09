@@ -187,6 +187,15 @@ HelpPluginPrivate::HelpPluginPrivate()
         ICore::removeAdditionalContext(Context(kToolTipHelpContext));
     });
 
+    connect(LocalHelpManager::instance(), &LocalHelpManager::backendChanged, this, [this] {
+        if (m_centralWidget)
+            m_centralWidget->reloadAll();
+        if (m_rightPaneSideBarWidget)
+            m_rightPaneSideBarWidget->reloadAll();
+        if (m_externalWindow)
+            m_externalWindow->reloadAll();
+    });
+
     // Add Contents, Index, and Context menu items
     ActionBuilder helpContents(this, "Help.ContentsMenu");
     helpContents.setText(Tr::tr(Constants::SB_CONTENTS));

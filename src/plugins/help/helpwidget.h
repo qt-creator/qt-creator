@@ -77,6 +77,7 @@ public:
     void showLinks(const QMultiMap<QString, QUrl> &links, const QString &key,
                           bool newPage = false);
     void activateSideBarItem(const QString &id);
+    void reloadAll();
 
     OpenPagesManager *openPagesManager() const;
 
@@ -105,6 +106,7 @@ private:
     void saveState() const;
     bool supportsPages() const;
     void closeWindow();
+    void reloadViewer(int index);
 
     void goHome();
     void addBookmark();
