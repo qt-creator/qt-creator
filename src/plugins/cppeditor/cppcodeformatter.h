@@ -91,6 +91,7 @@ public: // must be public to make Q_GADGET introspection work
         member_init_expected, // At the start and after every ',' in member_init_open
         member_init, // After an identifier in member_init_expected
         member_init_nest_open, // After '(' or '{' in member_init.
+        member_init_nest_open_block, // After '(' or '{' in member_init at block start.
 
         enum_start, // After 'enum'
         enum_open, // Brace that opens a enum declaration.
@@ -133,6 +134,7 @@ public: // must be public to make Q_GADGET introspection work
         substatement_open, // The brace that opens a substatement block.
 
         arglist_open, // after the lparen. TODO: check if this is enough.
+        arglist_open_block, // after the lparen at block start. TODO: check if this is enough.
         stream_op, // After a '<<' or '>>' in a context where it's likely a stream operator.
         stream_op_cont, // When finding another stream operator in stream_op
         ternary_op, // The ? : operator
@@ -140,6 +142,7 @@ public: // must be public to make Q_GADGET introspection work
 
         condition_open, // Start of a condition in 'if', 'while', entered after opening paren
         condition_paren_open, // After an lparen in a condition
+        condition_paren_open_block, // After an lparen in a condition at block start.
 
         assign_open, // after an assignment token
 
@@ -211,6 +214,8 @@ private:
     void correctIndentation(const QTextBlock &block);
 
     bool isStatementMacroOrEquivalent() const;
+
+    bool currentTokenPotentiallyOpensBlock() const;
 
 private:
     static QStack<State> initialState();

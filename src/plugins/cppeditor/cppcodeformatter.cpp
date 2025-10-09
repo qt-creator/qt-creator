@@ -245,7 +245,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
                     break;
                 } else {
                     turnInto(expression);
-                    enter(arglist_open);
+                    enter(currentTokenPotentiallyOpensBlock() ? arglist_open_block : arglist_open);
                     continue;
                 }
             } break;
@@ -274,6 +274,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             } break;
 
         case arglist_open:
+        case arglist_open_block:
             switch (kind) {
             case T_SEMICOLON:   leave(true); break;
             case T_LBRACE:      enter(brace_list_open); break;
@@ -418,9 +419,9 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             } break;
 
         case catch_statement:
-            switch (kind) {
-            case T_LPAREN:      enter(arglist_open); break;
-            } break;
+            if (kind == T_LPAREN)
+                enter(currentTokenPotentiallyOpensBlock() ? arglist_open_block : arglist_open);
+            break;
 
         case for_statement_paren_open:
             enter(for_statement_init); continue;
@@ -428,21 +429,30 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case for_statement_init:
             switch (kind) {
             case T_SEMICOLON:   turnInto(for_statement_condition); break;
-            case T_LPAREN:      enter(condition_paren_open); break;
+            case T_LPAREN:
+                enter(currentTokenPotentiallyOpensBlock() ? condition_paren_open_block
+                                                          : condition_paren_open);
+                break;
             case T_RPAREN:      turnInto(for_statement_expression); continue;
             } break;
 
         case for_statement_condition:
             switch (kind) {
             case T_SEMICOLON:   turnInto(for_statement_expression); break;
-            case T_LPAREN:      enter(condition_paren_open); break;
+            case T_LPAREN:
+                enter(currentTokenPotentiallyOpensBlock() ? condition_paren_open_block
+                                                          : condition_paren_open);
+                break;
             case T_RPAREN:      turnInto(for_statement_expression); continue;
             } break;
 
         case for_statement_expression:
             switch (kind) {
             case T_RPAREN:      leave(); turnInto(substatement); break;
-            case T_LPAREN:      enter(condition_paren_open); break;
+            case T_LPAREN:
+                enter(currentTokenPotentiallyOpensBlock() ? condition_paren_open_block
+                                                          : condition_paren_open);
+                break;
             } break;
 
         case case_start:
@@ -469,7 +479,10 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case condition_open:
             switch (kind) {
             case T_RPAREN:      turnInto(substatement); break;
-            case T_LPAREN:      enter(condition_paren_open); break;
+            case T_LPAREN:
+                enter(currentTokenPotentiallyOpensBlock() ? condition_paren_open_block
+                                                          : condition_paren_open);
+                break;
             } break;
 
         case block_open:
@@ -481,14 +494,20 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
         // paren nesting
         case condition_paren_open:
+        case condition_paren_open_block:
             switch (kind) {
             case T_RPAREN:      leave(); break;
-            case T_LPAREN:      enter(condition_paren_open); break;
+            case T_LPAREN:
+                enter(currentTokenPotentiallyOpensBlock() ? condition_paren_open_block
+                                                          : condition_paren_open);
+                break;
             } break;
 
         case qt_like_macro:
             switch (kind) {
-            case T_LPAREN:      enter(arglist_open); break;
+            case T_LPAREN:
+                enter(currentTokenPotentiallyOpensBlock() ? arglist_open_block : arglist_open);
+                break;
             case T_SEMICOLON:   leave(true); break;
             default:            leave(); continue;
             } break;
@@ -785,13 +804,28 @@ bool CodeFormatter::isStatementMacroOrEquivalent() const
            || m_statementMacros.contains(tokenText);
 }
 
+/// Returns whether the current token is the only one in the line. Trailing comment tokens are allowed
+bool CodeFormatter::currentTokenPotentiallyOpensBlock() const
+{
+    if (m_tokenIndex != 0)
+        return false;
+
+    for (int i = 1; i < m_tokens.size(); ++i) {
+        if (!tokenAt(i).isComment())
+            return false;
+    }
+    return true;
+}
+
 bool CodeFormatter::tryExpression(bool alsoExpression)
 {
     int newState = -1;
 
     const int kind = m_currentToken.kind();
     switch (kind) {
-    case T_LPAREN:          newState = arglist_open; break;
+    case T_LPAREN:
+        newState = currentTokenPotentiallyOpensBlock() ? arglist_open_block : arglist_open;
+        break;
     case T_QUESTION:        newState = ternary_op; break;
     case T_LBRACE:          newState = braceinit_open; break;
 
@@ -816,7 +850,8 @@ bool CodeFormatter::tryExpression(bool alsoExpression)
         newState = stream_op;
         for (int i = m_currentState.size() - 1; i >= 0; --i) {
             const int type = m_currentState.at(i).type;
-            if (type == arglist_open || type == braceinit_open) { // likely a left-shift instead
+            if (type == arglist_open || type == arglist_open_block || type == braceinit_open) {
+                // likely a left-shift instead
                 newState = -1;
                 break;
             }
@@ -1276,6 +1311,14 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
             *paddingDepth = 2*m_tabSettings.m_indentSize;
         break;
 
+    case arglist_open_block:
+    case condition_paren_open_block:
+    case member_init_nest_open_block:
+        *savedIndentDepth = tokenPosition;
+        *savedPaddingDepth = 0;
+        *indentDepth = tokenPosition + m_tabSettings.m_indentSize;
+        *paddingDepth = 0;
+        break;
     case arglist_open:
     case condition_paren_open:
     case member_init_nest_open:
@@ -1563,6 +1606,7 @@ void QtStyleCodeFormatter::adjustIndent(const Tokens &tokens, int lexerState, in
                 && topState.type != substatement_open
                 && topState.type != brace_list_open
                 && topState.type != arglist_open
+                && topState.type != lambda_statement_expected
                 && !topWasMaybeElse) {
             *indentDepth = topState.savedIndentDepth;
             *paddingDepth = 0;
@@ -1598,6 +1642,17 @@ void QtStyleCodeFormatter::adjustIndent(const Tokens &tokens, int lexerState, in
                         || (type == substatement_open && m_styleSettings.indentBlockBraces))
                     *indentDepth += m_tabSettings.m_indentSize;
                 break;
+            }
+        }
+        break;
+    }
+    case T_RPAREN: {
+        for (int i = 0; state(i).type != topmost_intro; ++i) {
+            const int type = state(i).type;
+            if (type == arglist_open_block || type == condition_paren_open_block
+                || type == member_init_nest_open_block) {
+                *indentDepth = state(i).savedIndentDepth;
+                *paddingDepth = state(i).savedPaddingDepth;
             }
         }
         break;

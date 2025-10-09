@@ -48,6 +48,7 @@ private Q_SLOTS:
     void bug2();
     void bug3();
     void bug4();
+    void bug5();
     void switch1();
     void switch2();
     void switch3();
@@ -826,6 +827,29 @@ void tst_CodeFormatter::bug4()
          << Line("}")
          << Line("int c;")
             ;
+    checkIndent(data);
+}
+
+// QTCREATORBUG-15156
+void tst_CodeFormatter::bug5()
+{
+    QList<Line> data;
+    data << Line("void test()")
+         << Line("{")
+         << Line("    std::thread")
+         << Line("    (", -1)
+         << Line("        []()")
+         << Line("        {")
+         << Line("            try")
+         << Line("            {")
+         << Line("            }")
+         << Line("            catch()")
+         << Line("            {")
+         << Line("            }")
+         << Line("        }")
+         << Line("    ).detach();")
+         << Line("}")
+        ;
     checkIndent(data);
 }
 
