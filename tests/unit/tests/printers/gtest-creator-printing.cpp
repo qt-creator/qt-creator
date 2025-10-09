@@ -44,6 +44,7 @@ std::ostream &operator<<(std::ostream &out, const file_time_type &time)
 #elif defined(Q_OS_LINUX)
     return out << file_time_type::clock::to_sys(time).time_since_epoch().count();
 #else
+    Q_UNUSED(time)
     return out << "broken libC++";
 #endif
 }

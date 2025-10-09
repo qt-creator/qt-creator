@@ -43,6 +43,10 @@ extend_qtc_plugin(Help
     macwebkithelpviewer.h
     macwebkithelpviewer.mm
 )
+if(APPLE)
+  set_source_files_properties(macwebkithelpviewer.mm PROPERTIES
+    COMPILE_OPTIONS "-Wno-deprecated-declarations;-Wno-incompatible-pointer-types")
+endif()
 
 option(BUILD_HELPVIEWERBACKEND_QTWEBENGINE "Build QtWebEngine based help viewer backend." YES)
 find_package(Qt6 COMPONENTS WebEngineWidgets QUIET)

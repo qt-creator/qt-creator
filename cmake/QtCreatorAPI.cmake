@@ -921,6 +921,10 @@ function(add_qtc_executable name)
     # like static libraries, executables with SKIP_INSTALL, clang resources
     # and dSYM directories
     if (APPLE AND _EXECUTABLE_FILE_PATH AND _BUNDLE_INFO_PLIST)
+      cmake_policy(PUSH)
+      if (POLICY CMP0177)
+        cmake_policy(SET CMP0177 NEW)
+      endif()
       install(
         PROGRAMS "${_output_binary_dir}/${_EXECUTABLE_FILE_PATH}"
         DESTINATION "${_EXECUTABLE_PATH}"
@@ -933,6 +937,7 @@ function(add_qtc_executable name)
         ${COMPONENT_OPTION}
         OPTIONAL
       )
+      cmake_policy(POP) # CMP0177
       # Remove build-rpaths. That is BUILD_RPATH and the ones added because we
       # don't use SKIP_BUILD_RPATH
       set(_rpaths_to_remove ${build_rpath})

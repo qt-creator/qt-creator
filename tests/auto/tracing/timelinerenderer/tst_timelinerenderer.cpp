@@ -66,11 +66,16 @@ void tst_TimelineRenderer::updatePaintNode()
 
 void tst_TimelineRenderer::testMouseEvents(DummyRenderer *renderer, int x, int y)
 {
-    QMouseEvent event(QMouseEvent::MouseMove, QPointF(x - 1, y), Qt::NoButton,
-                      Qt::NoButton, Qt::NoModifier);
+    QMouseEvent event(QEvent::MouseMove,
+                      QPointF(x - 1, y),
+                      QPointF(x - 1, y),
+                      QPointF(x - 1, y),
+                      Qt::NoButton,
+                      Qt::NoButton,
+                      Qt::NoModifier);
     renderer->mouseMoveEvent(&event);
 
-    QHoverEvent hover(QMouseEvent::HoverMove, QPointF(x, y), QPointF(x - 1, y));
+    QHoverEvent hover(QEvent::HoverMove, QPointF(x, y), QPointF(x - 1, y), QPointF(x, y), Qt::NoModifier);
     renderer->hoverMoveEvent(&hover);
 }
 

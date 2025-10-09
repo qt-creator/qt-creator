@@ -1442,7 +1442,7 @@ bool AppOpSession::installAppNew()
                                                               bundleUrl.get(),
                                                               options.get(),
                                                               &appSecureTransferSessionCallback))
-        return false;
+        return error == 0;
 
     return true;
 }

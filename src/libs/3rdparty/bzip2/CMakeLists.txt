@@ -14,13 +14,11 @@ add_qtc_library(qtcBZip2
     .
 )
 
-if (MSVC)
-  target_compile_options(qtcBZip2 PUBLIC /wd4244 /wd4267 /wd4996)
-else()
-  # Disable warnings
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    target_compile_options(qtcBZip2 PRIVATE "-Wno-unused-parameter")
-  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(qtcBZip2 PRIVATE "-Wimplicit-fallthrough=0" "-Wno-unused-parameter")
-  endif()
-endif()
+target_compile_options(qtcBZip2 PRIVATE
+  $<$<OR:$<COMPILE_LANG_AND_ID:C,Clang,AppleClang>,$<COMPILE_LANG_AND_ID:CXX,Clang,AppleClang>>:
+    -Wno-unused-parameter -Wno-unused-variable>
+  $<$<OR:$<COMPILE_LANG_AND_ID:C,GNU>,$<COMPILE_LANG_AND_ID:CXX,GNU>>:
+    -Wno-unused-parameter -Wno-unused-variable -Wimplicit-fallthrough=0>
+  $<$<COMPILE_LANG_AND_ID:CXX,MSVC>:
+    /wd4100 /wd4189>
+)

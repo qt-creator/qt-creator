@@ -362,6 +362,21 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(efsw)
 
+# Silence efsw warnings for all possible targets
+foreach(t IN ITEMS efsw efsw-static efsw_shared)
+  if(TARGET ${t})
+    target_compile_options(${t} PRIVATE
+      $<$<OR:$<COMPILE_LANG_AND_ID:C,Clang,AppleClang>,$<COMPILE_LANG_AND_ID:CXX,Clang,AppleClang>>:
+        -Wno-unused-parameter -Wno-unused-variable -Wno-unused-but-set-variable
+        $<$<COMPILE_LANGUAGE:CXX>:-Wno-deprecated-copy-with-user-provided-copy>>
+      $<$<OR:$<COMPILE_LANG_AND_ID:C,GNU>,$<COMPILE_LANG_AND_ID:CXX,GNU>>:
+        -Wno-unused-parameter -Wno-unused-variable -Wno-unused-but-set-variable>
+      $<$<OR:$<COMPILE_LANG_AND_ID:C,MSVC>,$<COMPILE_LANG_AND_ID:CXX,MSVC>>:
+        /wd4100 /wd4189>
+    )
+  endif()
+endforeach()
+
 extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX projectstorage
   DEPENDS efsw-static
