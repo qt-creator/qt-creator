@@ -77,6 +77,7 @@ public:
     QWidget *createProjectExplorerWidget(QWidget *parent) const;
 
     void switchToTextModeDeferred();
+    void sendStatisticsFeedback(const QString &id, const QString &key, int value);
 
     static double formEditorDevicePixelRatio();
 

@@ -786,6 +786,11 @@ void QmlDesignerPlugin::switchToTextModeDeferred()
     QTimer::singleShot(0, this, [] { Core::ModeManager::activateMode(Core::Constants::MODE_EDIT); });
 }
 
+void QmlDesignerPlugin::sendStatisticsFeedback(const QString &id, const QString &key, int value)
+{
+    emit usageStatisticsInsertFeedback(id, key, value);
+}
+
 double QmlDesignerPlugin::formEditorDevicePixelRatio()
 {
     NanotraceHR::Tracer tracer{"qml designer plugin form editor device pixel ratio", category()};

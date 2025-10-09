@@ -53,6 +53,7 @@ public:
     Q_INVOKABLE QUrl fullImageUrl(const QString &path) const;
     Q_INVOKABLE void retryLastPrompt();
     Q_INVOKABLE void applyLastGeneratedQml();
+    Q_INVOKABLE void sendThumbFeedback(bool up);
 
 signals:
     void isGeneratingChanged();

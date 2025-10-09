@@ -337,6 +337,13 @@ void AiAssistantWidget::applyLastGeneratedQml()
     textModifier->replace(0, textModifier->text().size(), m_lastGeneratedQml);
 }
 
+void AiAssistantWidget::sendThumbFeedback(bool up)
+{
+    QmlDesignerPlugin::instance()->sendStatisticsFeedback(m_view->widgetInfo().feedbackDisplayName,
+                                                          m_inputHistory.last(),
+                                                          up ? 1 : -1);
+}
+
 void AiAssistantWidget::reloadQmlSource()
 {
     const QString itemLibraryQmlPath = qmlSourcesPath() + "/AiAssistantView.qml";
