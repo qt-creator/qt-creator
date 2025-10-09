@@ -35,18 +35,13 @@ namespace Ios::Internal {
 const seconds simulatorStartTimeout = seconds(60);
 
 // simctl Json Tags and tokens.
-const char deviceTypeTag[] = "devicetypes";
 const char devicesTag[] = "devices";
 const char availabilityTag[] = "availability";
 const char unavailabilityToken[] = "unavailable";
 const char availabilityTagNew[] = "isAvailable"; // at least since Xcode 10
-const char identifierTag[] = "identifier";
-const char runtimesTag[] = "runtimes";
 const char nameTag[] = "name";
 const char stateTag[] = "state";
 const char udidTag[] = "udid";
-const char runtimeVersionTag[] = "version";
-const char buildVersionTag[] = "buildversion";
 
 static Result<> runCommand(
     const CommandLine &command,
