@@ -63,19 +63,6 @@ void HostOsInfo::unsetOverrideFileNameCaseSensitivity()
     m_useOverrideFileNameCaseSensitivity = false;
 }
 
-bool HostOsInfo::canCreateOpenGLContext(QString *errorMessage)
-{
-#if defined(QT_NO_OPENGL) || !defined(QT_GUI_LIB)
-    Q_UNUSED(errorMessage)
-    return false;
-#else
-    static const bool canCreate = QOpenGLContext().create();
-    if (!canCreate)
-        *errorMessage = Tr::tr("Cannot create OpenGL context.");
-    return canCreate;
-#endif
-}
-
 std::optional<quint64> HostOsInfo::totalMemoryInstalledInBytes()
 {
 #ifdef Q_OS_LINUX

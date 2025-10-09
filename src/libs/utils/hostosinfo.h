@@ -80,8 +80,6 @@ public:
         return OsSpecificAspects::controlModifier(hostOs());
     }
 
-    static bool canCreateOpenGLContext(QString *errorMessage);
-
     static std::optional<quint64> totalMemoryInstalledInBytes();
 
     static const FilePath &root();
