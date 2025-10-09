@@ -494,7 +494,7 @@ const QtVersions qtVersionsToConsiderForExamples()
 {
     QtVersions versions = QtVersionManager::sortVersions(
         QtVersionManager::versions([](const QtVersion *v) {
-            const bool consider = v->qmakeFilePath().isLocal()
+            const bool consider = v->qtFilePath().isLocal()
                                   && hasExamplesOrDemosAndDocumentation(v);
             if (!consider)
                 qCDebug(log) << "Skipping" << v->displayName()

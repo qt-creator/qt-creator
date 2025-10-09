@@ -117,7 +117,13 @@ public:
     bool hasDocs() const;
     bool hasDemos() const;
 
-    // former local functions
+    /// @returns the tool that identified qt: qmake or qtpaths
+    Utils::FilePath qtFilePath() const;
+
+    /// @returns path to the qmake executable associated with the qt version
+    ///
+    /// This could be empty if the qt version was associated with qtpaths
+    /// and qmake was not shipped with the qt distribution
     Utils::FilePath qmakeFilePath() const;
 
     /// @returns the name of the mkspec

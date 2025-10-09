@@ -180,7 +180,7 @@ void registerMcpTools()
 
             bool alreadyRegistered = true;
             QtVersion *version = QtVersionManager::version(
-                [&qmake](const QtVersion *v) { return v->qmakeFilePath() == qmake; });
+                [&qmake](const QtVersion *v) { return v->qtFilePath() == qmake; });
             if (!version) {
                 QString error;
                 version = QtVersionFactory::createQtVersionFromQMakePath(

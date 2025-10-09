@@ -263,7 +263,7 @@ Abis qtAbisFromJson(const QtVersion &qtVersion, const Utils::FilePaths &possible
     if (jsonFile.isEmpty()) {
         Core::MessageManager::writeSilently(
             Tr::tr("Core.json not found for Qt at \"%1\"")
-                .arg(qtVersion.qmakeFilePath().toUserOutput()));
+                .arg(qtVersion.qtFilePath().toUserOutput()));
         return {};
     }
 

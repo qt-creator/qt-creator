@@ -144,7 +144,7 @@ QVariant qtVersionData(const QtVersion *version, int column, int role, bool hasN
     }
 
     if (role == FilePathRole)
-        return version->qmakeFilePath().toVariant();
+        return version->qtFilePath().toVariant();
 
     if (!version->isVersionInfoAvailable()) {
         // The qmake query is still running in the background (e.g. on a slow remote
@@ -154,7 +154,7 @@ QVariant qtVersionData(const QtVersion *version, int column, int role, bool hasN
             if (column == 0)
                 return Tr::tr("%1 (reading information...)").arg(version->unexpandedDisplayName());
             if (column == 1)
-                return version->qmakeFilePath().toUserOutput();
+                return version->qtFilePath().toUserOutput();
         }
         if (role == KitAspect::IdRole)
             return version->uniqueId();
@@ -165,7 +165,7 @@ QVariant qtVersionData(const QtVersion *version, int column, int role, bool hasN
         if (column == 0)
             return version->displayName();
         if (column == 1)
-            return version->qmakeFilePath().toUserOutput();
+            return version->qtFilePath().toUserOutput();
     }
 
     // Bad < Limited < Good, keep sorted ascending.
@@ -274,7 +274,7 @@ public:
         if (!it.version())
             return -1;
         QtVersion *clone = QtVersionFactory::createQtVersionFromQMakePath(
-            it.version()->qmakeFilePath(), DetectionSource::Manual);
+            it.version()->qtFilePath(), DetectionSource::Manual);
         if (!clone)
             return -1;
         clone->setUnexpandedDisplayName(Tr::tr("Clone of %1").arg(it.version()->displayName()));
@@ -502,7 +502,7 @@ QtSettingsPageWidget::QtSettingsPageWidget()
             ? GroupedModel::Filter{}
             : GroupedModel::Filter{[this, deviceRoot](int row) {
                   const QtVersionItem it = m_model.item(row);
-                  const FilePath path = it.version() ? it.version()->qmakeFilePath() : FilePath{};
+                  const FilePath path = it.version() ? it.version()->qtFilePath() : FilePath{};
                   return path.isEmpty() || path.isSameDevice(deviceRoot);
               }});
         updateLinkWithQtButton();
@@ -525,7 +525,7 @@ std::pair<bool, QString> QtSettingsPageWidget::checkAlreadyExists(const FilePath
         const QtVersionItem it = m_model.item(row);
         if (!it.version())
             continue;
-        const FilePath &itemPath = it.version()->qmakeFilePath();
+        const FilePath &itemPath = it.version()->qtFilePath();
         if (itemPath.isSameExecutable(qtVersion)
             || (itemPath.parentDir() == qtVersion.parentDir()
                 && itemPath.fileSize() == qtVersion.fileSize())) {
@@ -764,7 +764,7 @@ void QtSettingsPageWidget::addQtDir()
     if (dev && dev->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
         initialDir = dev->rootPath();
     FilePath qtVersion = FileUtils::getOpenFilePath(
-        Tr::tr("Select a qmake Executable"),
+        Tr::tr("Select a qtpaths or qmake Executable"),
         initialDir,
         filterForQmakeFileDialog(initialDir.osType()),
         nullptr,
@@ -799,8 +799,14 @@ void QtSettingsPageWidget::addQtDir()
         m_nameEdit.setFocus();
         m_nameEdit.selectAll();
     } else {
-        QMessageBox::warning(this, Tr::tr("Qmake Not Executable"),
-                             Tr::tr("The qmake executable %1 could not be added: %2").arg(qtVersion.toUserOutput()).arg(error));
+        const QString qtFileName = qtVersion.fileName();
+        QMessageBox::warning(
+            this,
+            Tr::tr("%1 Not Executable").arg(qtFileName),
+            Tr::tr("The %1 executable %2 could not be added: %3")
+                .arg(qtFileName)
+                .arg(qtVersion.toUserOutput())
+                .arg(error));
         return;
     }
     updateCleanUpButton();
@@ -835,9 +841,9 @@ void QtSettingsPageWidget::editPath()
     QtVersion *current = m_model.item(row).version();
     QTC_ASSERT(current, return);
     FilePath qtVersion = FileUtils::getOpenFilePath(
-        Tr::tr("Select a qmake Executable"),
-        current->qmakeFilePath().absolutePath(),
-        filterForQmakeFileDialog(current->qmakeFilePath().osType()),
+        Tr::tr("Select a qtpaths or qmake Executable"),
+        current->qtFilePath().absolutePath(),
+        filterForQmakeFileDialog(current->qtFilePath().osType()),
         nullptr,
         QFileDialog::DontResolveSymlinks);
     if (qtVersion.isEmpty())
@@ -941,7 +947,7 @@ void QtSettingsPageWidget::updateWidgets()
     m_preEditChanged = row >= 0 && m_model.isChanged(row);
     if (version) {
         m_nameEdit.setText(version->unexpandedDisplayName());
-        m_qmakePath.setText(version->qmakeFilePath().toUserOutput());
+        m_qmakePath.setText(version->qtFilePath().toUserOutput());
         m_configurationWidget = version->createConfigurationWidget();
         if (m_configurationWidget) {
             m_formLayout->addRow(m_configurationWidget);

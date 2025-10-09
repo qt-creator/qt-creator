@@ -351,7 +351,7 @@ void QtVersionManagerImpl::updateFromInstaller(bool emitSignal)
     if (log().isDebugEnabled()) {
         qCDebug(log) << "======= Existing Qt versions =======";
         for (QtVersion *version : std::as_const(m_versions)) {
-            qCDebug(log) << version->qmakeFilePath().toUserOutput() << "id:"<<version->uniqueId();
+            qCDebug(log) << version->qtFilePath().toUserOutput() << "id:"<<version->uniqueId();
             qCDebug(log) << "  autodetection source:" << version->detectionSource();
             qCDebug(log) << "";
         }
@@ -427,7 +427,7 @@ void QtVersionManagerImpl::updateFromInstaller(bool emitSignal)
     if (log().isDebugEnabled()) {
         qCDebug(log) << "======= Before removing outdated sdk versions =======";
         for (QtVersion *version : std::as_const(m_versions)) {
-            qCDebug(log) << version->qmakeFilePath().toUserOutput() << "id:" << version->uniqueId();
+            qCDebug(log) << version->qtFilePath().toUserOutput() << "id:" << version->uniqueId();
             qCDebug(log) << "  autodetection source:" << version->detectionSource();
             qCDebug(log) << "";
         }
@@ -447,7 +447,7 @@ void QtVersionManagerImpl::updateFromInstaller(bool emitSignal)
     if (log().isDebugEnabled()) {
         qCDebug(log)<< "======= End result =======";
         for (QtVersion *version : std::as_const(m_versions)) {
-            qCDebug(log) << version->qmakeFilePath().toUserOutput() << "id:" << version->uniqueId();
+            qCDebug(log) << version->qtFilePath().toUserOutput() << "id:" << version->uniqueId();
             qCDebug(log) << "  autodetection source:" << version->detectionSource();
             qCDebug(log) << "";
         }
@@ -546,7 +546,7 @@ void QtVersionManagerImpl::addQtVersionsFromFilePaths(const FilePaths &filePaths
         if (isQtChooser(qmakePath))
             continue;
         const auto isSameQmake = [qmakePath](const QtVersion *version) {
-            return qmakePath.isSameExecutable(version->qmakeFilePath());
+            return qmakePath.isSameExecutable(version->qtFilePath());
         };
         if (contains(m_versions, isSameQmake))
             continue;
@@ -598,7 +598,7 @@ void QtVersionManagerImpl::handleDeviceUpdated(Id deviceId)
     // still loading or already valid untouched.
     QList<int> changed;
     for (QtVersion *version : std::as_const(m_versions)) {
-        const IDeviceConstPtr dev = DeviceManager::deviceForPath(version->qmakeFilePath());
+        const IDeviceConstPtr dev = DeviceManager::deviceForPath(version->qtFilePath());
         if (!dev || dev->id() != deviceId)
             continue;
         if (version->isVersionInfoAvailable() && !version->isValid()) {
@@ -749,7 +749,7 @@ void QtVersionManagerImpl::updateDocumentation(
     bool updateBlockedDocumentation)
 {
     const auto filterLocal = [](const QtVersions &versions) {
-        return Utils::filtered(versions, [](QtVersion *v) { return v->qmakeFilePath().isLocal(); });
+        return Utils::filtered(versions, [](QtVersion *v) { return v->qtFilePath().isLocal(); });
     };
     const QtVersions added = filterLocal(allAdded);
     const QtVersions removed = filterLocal(allRemoved);

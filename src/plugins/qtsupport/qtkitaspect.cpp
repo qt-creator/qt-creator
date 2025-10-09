@@ -59,7 +59,7 @@ public:
             const FilePath deviceRoot = device->rootPath();
             m_versions = QtVersionManager::versions(
                 [&deviceRoot](const QtVersion *qt) {
-                    return qt->qmakeFilePath().isSameDevice(deviceRoot);
+                    return qt->qtFilePath().isSameDevice(deviceRoot);
                 });
         }
         m_versions.append(nullptr); // The "No Qt" entry.
@@ -205,7 +205,7 @@ void QtKitAspectFactory::setup(Kit *k)
     const FilePath buildDeviceRoot = buildDev->rootPath();
 
     const QtVersions matches = QtVersionManager::versions([&](const QtVersion *qt) {
-        return buildDeviceRoot.isSameDevice(qt->qmakeFilePath())
+        return buildDeviceRoot.isSameDevice(qt->qtFilePath())
                && qt->targetDeviceTypes().contains(runDeviceType)
                && Utils::contains(qt->qtAbis(), [&tcAbi](const Abi &qtAbi) {
                       return qtAbi.isCompatibleWith(tcAbi);
@@ -265,7 +265,7 @@ void QtKitAspectFactory::fix(Kit *k)
         }
         return;
     }
-    if (!version->qmakeFilePath().isSameDevice(dev->rootPath()))
+    if (!version->qtFilePath().isSameDevice(dev->rootPath()))
         return QtKitAspect::setQtVersionId(k, -1);
 
     // Set a matching toolchain if we don't have one.
