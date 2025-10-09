@@ -33,7 +33,8 @@ FormatterSelectionWidget::FormatterSelectionWidget(QWidget *parent)
             Column {
                 m_formatterSelection, br
             }
-        }
+        },
+        noMargin,
     }.attachTo(this);
 }
 

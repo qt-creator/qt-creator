@@ -123,9 +123,13 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
     m_formatterSettingsStack->insertWidget(BuiltinFormatterIndex, new BuiltinFormatterSettingsWidget(this, m_formatterSelectionWidget));
     m_formatterSettingsStack->insertWidget(QmlFormatIndex, createQmlFormatSettingsWidget(this, m_formatterSelectionWidget));
     m_formatterSettingsStack->insertWidget(CustomFormatterIndex, new CustomFormatterWidget(this, m_formatterSelectionWidget));
+    m_formatterSettingsStack->setContentsMargins({});
+
+    m_formatterSelectionWidget->setContentsMargins({});
 
     for (const auto &formatterWidget :
          m_formatterSettingsStack->findChildren<QmlCodeStyleWidgetBase *>()) {
+        formatterWidget->setContentsMargins({});
         connect(
             formatterWidget,
             &QmlCodeStyleWidgetBase::settingsChanged,
@@ -170,9 +174,23 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
         Column {
             m_formatterSelectionWidget, br,
             m_formatterSettingsStack,
-            st
+            st,
+            noMargin
         },
-        m_previewTextEdit,
+        Column {
+            Group {
+                title(Tr::tr("Preview")),
+                Column {
+                    Label {
+                        wordWrap(true),
+                        text(Tr::tr("Edit preview contents to see how the current settings "
+                                    "are applied to custom code snippets. Changes in the preview "
+                                    "do not affect the current settings.")),
+                    },
+                    m_previewTextEdit
+                },
+            },
+        },
         noMargin
     }.attachTo(this);
 

@@ -33,7 +33,7 @@ BuiltinFormatterSettingsWidget::BuiltinFormatterSettingsWidget(QWidget *parent, 
                    m_tabSettingsWidget,
                    Group{
                        title(Tr::tr("Other Settings")),
-                       Form{Tr::tr("Line length:"), m_lineLength, br}}}}}
+                       Form{Tr::tr("Line length:"), m_lineLength, br}}}}, noMargin}
         .attachTo(this);
 
     connect(
