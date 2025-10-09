@@ -33,7 +33,7 @@ Section {
             visible: root.showWrapMode
             text: qsTr("Wrap mode")
             tooltip: qsTr("Sets how overflowing text is handled.")
-            blockedByTemplate: !root.isBackendValueAvailable("wrapMode")
+            //blockedByTemplate: !root.isBackendValueAvailable("wrapMode") workaround because blocked properties do not repects actual types and TextInput is missing this.
         }
 
         SecondColumnLayout {
@@ -46,7 +46,7 @@ Section {
                 backendValue: backendValues.wrapMode
                 scope: "Text"
                 model: ["NoWrap", "WordWrap", "WrapAnywhere", "Wrap"]
-                enabled: root.isBackendValueAvailable("wrapMode")
+                //enabled: root.isBackendValueAvailable("wrapMode")
             }
 
             ExpandingSpacer {}
