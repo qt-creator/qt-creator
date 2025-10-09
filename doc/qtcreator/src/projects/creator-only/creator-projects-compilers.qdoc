@@ -179,8 +179,8 @@
 
     \title Compilers
 
-    \brief Lists the registered compilers. You can add custom compilers to the
-    list.
+    \summary {Lists the registered compilers. You can add custom compilers to the
+    list.}
 
     To build an application using GCC, \MinGW, Clang, or QCC, specify the path
     to the directory where the compiler is located and select

@@ -47,7 +47,6 @@ namespace ProjectExplorer {
 const char BUILD_KEY[] = "ProjectExplorer.RunConfiguration.BuildKey";
 const char CUSTOMIZED_KEY[] = "ProjectExplorer.RunConfiguration.Customized";
 const char UNIQUE_ID_KEY[] = "ProjectExplorer.RunConfiguration.UniqueId";
-const char EXECUTION_TYPE_KEY[] = "ProjectExplorer.RunConfiguration.ExecutionType";
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -465,7 +464,6 @@ void RunConfiguration::toMapSimple(Store &map) const
 
     map.insert(BUILD_KEY, m_buildKey);
     map.insert(UNIQUE_ID_KEY, m_uniqueId);
-    map.insert(EXECUTION_TYPE_KEY, m_executionType.toSetting());
 }
 
 void RunConfiguration::setCommandLineGetter(const CommandLineGetter &cmdGetter)
@@ -580,7 +578,6 @@ void RunConfiguration::fromMap(const Store &map)
     m_customized = m_customized || map.value(CUSTOMIZED_KEY, false).toBool();
     m_buildKey = map.value(BUILD_KEY).toString();
     m_uniqueId = map.value(UNIQUE_ID_KEY).toString();
-    m_executionType = Id::fromSetting(map.value(EXECUTION_TYPE_KEY));
 
     if (m_usesEmptyBuildKeys) {
         QTC_CHECK(m_buildKey.isEmpty());
@@ -841,6 +838,8 @@ RunConfiguration *RunConfigurationFactory::create(BuildConfiguration *bc) const
     for (const RunConfiguration::AspectFactory &factory : theAspectFactories)
         rc->registerAspect(factory(bc), true);
 
+    rc->setExecutionType(executionTypeId());
+
     return rc;
 }
 
@@ -855,8 +854,9 @@ RunConfiguration *RunConfigurationCreationInfo::create(BuildConfiguration *bc) c
     rc->m_buildKey = buildKey;
     rc->update();
     rc->setDisplayName(displayName);
+
+    // THIS MUST BE CALLED LAST!
     rc->setPristineState();
-    rc->setExecutionType(factory->executionTypeId());
 
     return rc;
 }
@@ -951,6 +951,15 @@ QString ProjectExplorer::RunConfiguration::uniqueId() const
 void RunConfiguration::setUniqueId(const QString &id)
 {
     m_uniqueId = id;
+}
+
+QString RunConfiguration::expandedDisplayName() const
+{
+    QString displayName = ProjectConfiguration::expandedDisplayName();
+    if (hasCreator())
+        return displayName;
+
+    return joinStrings({displayName, QString("[%1]").arg(Tr::tr("unavailable"))}, ' ');
 }
 
 } // namespace ProjectExplorer

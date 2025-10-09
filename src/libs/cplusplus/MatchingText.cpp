@@ -419,6 +419,7 @@ bool MatchingText::contextAllowsAutoParentheses(const QTextCursor &cursor,
                 if (c == '"' && cursor.document()->characterAt(pos - 1) == 'R')
                     return true;
             }
+            return false;
         }
     }
 
@@ -536,7 +537,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
         }
     }
 
-    if (textToProcess == "(") {
+    if (textToProcess == "(" && cursor.document()->characterAt(cursor.position()) == '"') {
         const Kind tokKind = stringKindAtCursor(cursor);
         if (tokKind >= T_FIRST_RAW_STRING_LITERAL && tokKind <= T_LAST_RAW_STRING_LITERAL) {
             QString result;

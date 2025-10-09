@@ -10,11 +10,11 @@
     \target qbs-build-system
     \title Qbs
 
-    \brief \l{Qbs Manual}{Qbs} is an all-in-one build tool that generates a build
+    \summary {Qbs is an all-in-one build tool that generates a build
     graph from a high-level project description (like qmake or CMake do) and
-    executes the commands in the low-level build graph (like make does).
+    executes the commands in the low-level build graph (like make does).}
 
-    To use Qbs to build a project, you must create a \c .qbs file for the project.
+    To use \l{Qbs Manual}{Qbs} to build a project, you must create a \c .qbs file for the project.
     You can use \QC to create a C or C++ project that is built with Qbs.
     For more information about Qbs, see
     the \l{http://doc.qt.io/qbs/index.html}{Qbs Manual}.

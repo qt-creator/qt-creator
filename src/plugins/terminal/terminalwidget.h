@@ -109,6 +109,7 @@ private:
     RegisteredAction m_moveCursorWordRight;
     RegisteredAction m_deleteWordLeft;
     RegisteredAction m_deleteLineLeft;
+    RegisteredAction m_closeTerminal;
 
     Internal::ShortcutMap m_shortcutMap;
 

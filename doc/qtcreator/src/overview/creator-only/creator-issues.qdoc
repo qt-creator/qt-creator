@@ -15,7 +15,7 @@
 
     \title Known Issues
 
-    \brief Known issues in \QC version \qtcversion.
+    \summary {Known issues in \QC version \qtcversion.}
 
     The \QC development team is aware of the issues described here, and
     therefore, you do not need to report them in the \l{https://bugreports.qt.io}

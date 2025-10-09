@@ -58,6 +58,8 @@ Prerequisites:
   if later versions don't compile we don't support that version.)
 * CMake
 * Ninja (recommended)
+* [Go compiler](#installing-the-go-compiler), required for the CmdBridge
+  (BUILD_EXECUTABLE_CMDBRIDGE) for fast remote device support.
 
 The used toolchain has to be compatible with the one Qt was compiled with.
 
@@ -365,6 +367,20 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
             -D CMAKE_INSTALL_PREFIX=<installation location> ^
             ..\llvm-project\llvm
           cmake --build . --target install
+
+### Installing the Go Compiler
+
+The CmdBridge requires the Go compiler.
+
+On macOS, run
+
+    brew install golang
+
+On Linux with apt, run
+
+    sudo apt install golang
+
+Alternatively, the Go compiler can be obtained from https://go.dev/dl
 
 # Licenses and Attributions
 

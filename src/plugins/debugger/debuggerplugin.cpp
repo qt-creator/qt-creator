@@ -1528,18 +1528,10 @@ void DebuggerPluginPrivate::updatePresetState()
     if (PluginManager::isShuttingDown())
         return;
 
-    Project *startupProject = ProjectManager::startupProject();
-    RunConfiguration *startupRunConfig = activeRunConfigForActiveProject();
     DebuggerEngine *currentEngine = EngineManager::currentEngine();
 
     const auto canRun = ProjectExplorerPlugin::canRunStartupProject(
         ProjectExplorer::Constants::DEBUG_RUN_MODE);
-
-    QString startupRunConfigName;
-    if (startupRunConfig)
-        startupRunConfigName = startupRunConfig->displayName();
-    if (startupRunConfigName.isEmpty() && startupProject)
-        startupRunConfigName = startupProject->displayName();
 
     // Restrict width, otherwise Creator gets too wide, see QTCREATORBUG-21885
     const QString startToolTip = canRun ? Tr::tr("Start debugging of startup project")

@@ -84,10 +84,7 @@ QVariant ProjectConfigurationModel::data(const QModelIndex &index, int role) con
 
     if (role == Qt::DisplayRole) {
         ProjectConfiguration * const config = m_projectConfigurations.at(index.row());
-        QString displayName = config->expandedDisplayName();
-        if (const auto rc = qobject_cast<RunConfiguration *>(config); rc && !rc->hasCreator())
-            displayName += QString(" [%1]").arg(Tr::tr("unavailable"));
-        return displayName;
+        return config->expandedDisplayName();
     }
     return {};
 }

@@ -190,7 +190,7 @@ Rectangle {
                     var newValue = Math.round(
                                 Math.pow(zoomControl.rangeDuration /
                                          Math.max(1, zoomControl.windowDuration),
-                                         1 / zoomSlider.exponent) * zoomSlider.maximumValue);
+                                         1 / zoomSlider.exponent) * zoomSlider.to);
                     if (newValue !== zoomSlider.value) {
                         zoomSlider.externalUpdate = true;
                         zoomSlider.value = newValue;

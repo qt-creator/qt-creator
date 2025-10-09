@@ -105,6 +105,9 @@ void tst_Reformatter::reformatter_data()
     QTest::newRow("typeAnnotations")
         << QString::fromLatin1(TESTSRCDIR) + "/typeAnnotations.qml"
         << QString::fromLatin1(TESTSRCDIR) +"/typeAnnotations.formatted.qml";
+    QTest::newRow("classDeclaration")
+        << QString::fromLatin1(TESTSRCDIR) + "/construct.js"
+        << QString::fromLatin1(TESTSRCDIR) +"/construct.formatted.js";
 }
 
 void tst_Reformatter::reformatter()

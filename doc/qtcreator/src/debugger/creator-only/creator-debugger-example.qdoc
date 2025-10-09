@@ -32,7 +32,7 @@
             border on the line where we change the cursor position to set a
             breakpoint.
 
-            \image {qtcreator-setting-breakpoint1.png} {Setting a breakpoint in the editor}
+            \image {qtcreator-setting-breakpoint1.webp} {Setting a breakpoint in the editor}
 
         \li Go to \uicontrol Debug > \uicontrol {Start Debugging} >
             \uicontrol {Start Debugging of Startup Project} or select \key F5.

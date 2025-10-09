@@ -321,7 +321,8 @@ FilePath buildDirectory(const BuildConfiguration *bc)
         return buildDir;
 
     // Otherwise fallback to target working dir
-    buildDir = bc->buildSystem()->buildTarget(buildKey).workingDirectory;
+    const BuildTargetInfo buildTarget = bc->buildSystem()->buildTarget(buildKey);
+    buildDir = buildTarget.workingDirectory;
     if (isQt5CmakeProject(bc->target())) {
         // Return the main build dir and not the android libs dir
         const QString libsDir = QString(Constants::ANDROID_BUILD_DIRECTORY) + "/libs";
@@ -340,6 +341,9 @@ FilePath buildDirectory(const BuildConfiguration *bc)
                     buildDir = projectBuildDir;
             }
         }
+        // Workaround for QTCREATORBUG-33569 (buildTarget's workingDirectory is not set)
+        if (buildDir.isEmpty())
+            buildDir = buildTarget.targetFilePath.parentDir();
     }
     return buildDir;
 }

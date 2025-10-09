@@ -16,9 +16,9 @@
     \title File System
 
     \if defined(qtdesignstudio)
-    \brief View all the files in the current directory.
+    \summary {View all the files in the current directory.}
     \else
-    \brief Shows all the files in the current directory.
+    \summary {Shows all the files in the current directory.}
     \endif
 
     \if defined(qtcreator)

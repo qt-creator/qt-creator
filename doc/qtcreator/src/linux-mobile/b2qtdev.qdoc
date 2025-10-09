@@ -9,8 +9,8 @@
 
     \title Developing for \B2Q Devices
 
-    \brief Connect \B2Q devices to the computer to run,
-    debug, and analyze applications built for them from \QC.
+    \summary {Connect \B2Q devices to the computer to run,
+    debug, and analyze applications built for them from \QC.}
 
     The \l{\B2Q: Documentation}{\B2Q} stack runs on a variety of hardware.
     \l{http://qt.io/licensing/}{Qt license} holders can customize the contents of

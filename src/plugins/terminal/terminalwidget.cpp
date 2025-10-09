@@ -264,14 +264,16 @@ void TerminalWidget::registerShortcut(Command *cmd)
 
 void TerminalWidget::setupActions()
 {
-    auto make_registered = [this](ActionBuilder &actionBuilder) {
-        registerShortcut(actionBuilder.command());
+    auto make_registered = [this](ActionBuilder &actionBuilder, bool registerInShortcutMap = true) {
+        if (registerInShortcutMap)
+            registerShortcut(actionBuilder.command());
 
-        return RegisteredAction(actionBuilder.contextAction(),
-                                [cmdId = actionBuilder.command()->id()](QAction *a) {
-                                    ActionManager::unregisterAction(a, cmdId);
-                                    delete a;
-                                });
+        const auto unregister = [cmdId = actionBuilder.command()->id()](QAction *a) {
+            ActionManager::unregisterAction(a, cmdId);
+            delete a;
+        };
+
+        return RegisteredAction(actionBuilder.contextAction(), unregister);
     };
 
     ActionBuilder copyAction(this, Constants::COPY);
@@ -284,11 +286,11 @@ void TerminalWidget::setupActions()
     pasteAction.addOnTriggered(this, &TerminalWidget::pasteFromClipboard);
     m_paste = make_registered(pasteAction);
 
-    ActionBuilder(this, Core::Constants::CLOSE)
-        .setContext(m_context)
+    ActionBuilder closeTerminalAction(this, Core::Constants::CLOSE);
+    closeTerminalAction.setContext(m_context)
         .addOnTriggered(this, &TerminalWidget::closeTerminal)
         .setText(Tr::tr("Close Terminal"));
-    // We do not register the close action, as we want it to be blocked if the keyboard is locked.
+    m_closeTerminal = make_registered(closeTerminalAction, false);
 
     ActionBuilder clearTerminalAction(this, Constants::CLEAR_TERMINAL);
     clearTerminalAction.setContext(m_context);

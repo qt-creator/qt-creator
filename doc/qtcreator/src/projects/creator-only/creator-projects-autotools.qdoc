@@ -9,8 +9,8 @@
 
     \title Autotools
 
-    \brief With Autotools, you can create a portable, complete, and
-    self-contained GNU Build System from simple instructions.
+    \summary {With Autotools, you can create a portable, complete, and
+    self-contained GNU Build System from simple instructions.}
 
     \QC can open projects that use the Autotools build system. You can
     build and run the projects directly from \QC.
