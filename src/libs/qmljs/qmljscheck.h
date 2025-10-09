@@ -80,8 +80,10 @@ protected:
     bool visit(AST::ThrowStatement *ast) override;
     bool visit(AST::DeleteExpression *ast) override;
     bool visit(AST::TypeOfExpression *ast) override;
+    bool visit(AST::UiInlineComponent *ast) override;
 
     void endVisit(QmlJS::AST::UiObjectInitializer *) override;
+    void endVisit(QmlJS::AST::UiInlineComponent *) override;
 
     void throwRecursionDepthError() override;
 private:
@@ -128,6 +130,7 @@ private:
 
     QList<AST::Node *> _chain;
     QStack<StringSet> m_idStack;
+    QStack<StringSet> m_idStackOutsideIInlineComponent;
     QStack<StringSet> m_propertyStack;
     QStack<QString> m_typeStack;
 

@@ -916,6 +916,17 @@ void Check::endVisit(UiObjectInitializer *uiObjectInitializer)
         m_idStack.pop();
 }
 
+bool Check::visit(UiInlineComponent *)
+{
+    m_idStackOutsideIInlineComponent = std::exchange(m_idStack, QStack<StringSet>());
+    return true;
+}
+
+void Check::endVisit(UiInlineComponent *)
+{
+    m_idStack = m_idStackOutsideIInlineComponent;
+}
+
 void Check::throwRecursionDepthError()
 {
     addMessage(ErrHitMaximumRecursion, SourceLocation());
