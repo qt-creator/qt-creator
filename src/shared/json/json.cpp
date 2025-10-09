@@ -774,7 +774,7 @@ JsonValue::JsonValue(const JsonObject &o)
 JsonValue::~JsonValue()
 {
     if (t == String && stringData && !stringData->ref.deref())
-        free(stringData);
+        delete stringData;
 
     if (d && !d->ref.deref())
         delete d;
