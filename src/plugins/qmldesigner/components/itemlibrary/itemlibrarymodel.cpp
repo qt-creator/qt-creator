@@ -368,18 +368,37 @@ void ItemLibraryModel::update(Model *model)
 
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
 
-    QStringList excludedImports {
+    const QStringList excludedImports {
         projectName
+    };
+
+    const QStringList assetImportPrefixes {
+        compUtils.componentBundlesTypePrefix(),
+        compUtils.composedEffectsTypePrefix(),
+        compUtils.import3dTypePrefix()
+    };
+
+    const QString generatedPrefix = compUtils.generatedComponentTypePrefix();
+
+    auto isGenerated = [&generatedPrefix, &assetImportPrefixes](const QString &url) -> bool {
+        if (generatedPrefix.isEmpty()) {
+            // Old projects do not have one general prefix for generated assets, so check all types
+            for (const QString &prefix : assetImportPrefixes) {
+                if (url.startsWith(prefix))
+                    return true;
+            }
+            return false;
+        } else {
+            return url.startsWith(generatedPrefix);
+        }
     };
 
     // create import sections
     const Imports usedImports = model->usedImports();
     QHash<QString, ItemLibraryImport *> importHash;
-    const QString generatedPrefix = compUtils.generatedComponentTypePrefix();
     for (const Import &import : model->imports()) {
-        if (excludedImports.contains(import.url()) || import.url().startsWith(generatedPrefix))
+        if (excludedImports.contains(import.url()) || isGenerated(import.url()))
             continue;
-
         bool addNew = true;
         QString importUrl = import.url();
         if (import.isFileImport())
@@ -489,7 +508,7 @@ void ItemLibraryModel::update(Model *model)
                                                                                 : entry.requiredImport()];
                 }
             } else {
-                if (entry.requiredImport().startsWith(generatedPrefix))
+                if (isGenerated(entry.requiredImport()))
                     continue;
                 catName = ItemLibraryImport::unimportedComponentsTitle();
                 importSection = importHash[catName];

@@ -33,7 +33,6 @@ public:
 
     QString generatedComponentTypePrefix() const;
     QString import3dTypePrefix() const;
-    QString import3dTypePath() const;
     QString componentBundlesTypePrefix() const;
     QString composedEffectsTypePrefix() const;
 

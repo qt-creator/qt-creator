@@ -130,7 +130,7 @@ Utils::FilePath GeneratedComponentUtils::materialBundlePath() const
     if (basePath.isEmpty())
         return {};
 
-    if (basePath.endsWith(Constants::quick3DComponentsFolder))
+    if (basePath.endsWith(oldComponentBundleType))
         return basePath.resolvePath(oldComponentBundlesMaterialBundleType);
 
     return basePath.resolvePath(componentBundlesMaterialBundleType);
@@ -143,7 +143,7 @@ Utils::FilePath GeneratedComponentUtils::effectBundlePath() const
     if (basePath.isEmpty())
         return {};
 
-    if (basePath.endsWith(Constants::quick3DComponentsFolder))
+    if (basePath.endsWith(oldComponentBundleType))
         return basePath.resolvePath(oldComponentBundlesEffectBundleType);
 
     return basePath.resolvePath(componentBundlesEffectBundleType);
@@ -243,13 +243,6 @@ QString GeneratedComponentUtils::import3dTypePrefix() const
     return Constants::oldQuick3dAssetsFolder;
 }
 
-QString GeneratedComponentUtils::import3dTypePath() const
-{
-    QString prefix = import3dTypePrefix();
-    prefix.replace('.', '/');
-    return prefix;
-}
-
 QString GeneratedComponentUtils::componentBundlesTypePrefix() const
 {
     QString basePrefix = generatedComponentTypePrefix();
@@ -257,7 +250,7 @@ QString GeneratedComponentUtils::componentBundlesTypePrefix() const
     if (basePrefix.endsWith(generatedComponentsFolder))
         return basePrefix + '.' + componentBundlesType;
 
-    return componentBundlesType;
+    return oldComponentBundleType;
 }
 
 QString GeneratedComponentUtils::composedEffectsTypePrefix() const
@@ -356,9 +349,7 @@ QString GeneratedComponentUtils::user3DBundleType() const
 
 QList<Utils::FilePath> GeneratedComponentUtils::imported3dComponents() const
 {
-    auto import3dPath = Utils::FilePath::fromString(import3dTypePath());
-    auto projPath = Utils::FilePath::fromString(m_externalDependencies.currentProjectDirPath());
-    auto fullPath = projPath.resolvePath(import3dPath);
+    auto fullPath = import3dBasePath();
 
     if (fullPath.isEmpty())
         return {};
@@ -370,8 +361,12 @@ QString GeneratedComponentUtils::getImported3dImportName(const Utils::FilePath &
 {
     const QStringList sl = qmlFile.toFSPathString().split('/');
     int i = sl.size() - 4;
-    if (i >= 0)
-        return QStringView(u"%1.%2.%3").arg(sl[i], sl[i + 1], sl[i + 2]);
+    if (i >= 0) {
+        if (sl[i] == oldAssetImportFolder)
+            return QStringView(u"%1.%2").arg(sl[i + 1], sl[i + 2]);
+        else
+            return QStringView(u"%1.%2.%3").arg(sl[i], sl[i + 1], sl[i + 2]);
+    }
     return {};
 }
 
