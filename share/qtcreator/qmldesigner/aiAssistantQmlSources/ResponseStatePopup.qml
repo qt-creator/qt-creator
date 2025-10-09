@@ -114,8 +114,7 @@ Rectangle {
                 tooltip: qsTr("Like")
 
                 onClicked: {
-                    // TODO: submit a thumbs up
-
+                    AiAssistantBackend.rootView.sendThumbFeedback(true)
                     root.hidePopup()
                 }
             }
@@ -129,8 +128,7 @@ Rectangle {
                 tooltip: qsTr("Dislike")
 
                 onClicked: {
-                    // TODO: submit a thumbs down
-
+                    AiAssistantBackend.rootView.sendThumbFeedback(false)
                     root.hidePopup()
                 }
             }
