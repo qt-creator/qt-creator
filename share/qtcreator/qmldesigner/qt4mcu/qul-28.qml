@@ -120,7 +120,7 @@ VersionData {
         allowedProperties: ["rotation", "scale", "transformOrigin"]
         bannedProperties: ["lineHeight", "lineHeightMode", "style",
             "styleColor", "minimumPointSize", "minimumPixelSize",
-            "fontSizeMode", "renderType", "renderTypeQuality", "maximumLineCount"]
+            "fontSizeMode", "renderType", "renderTypeQuality", "maximumLineCount", "textFormat"]
     }
 
     QtQuick.TextInput {
