@@ -41,7 +41,43 @@ public:
 #endif
     }
 
+    //! Returns the architecture of the host system.
     static OsArch hostArchitecture();
+
+    //! Returns the architecture the running binary was compiled for.
+    static constexpr OsArch binaryArchitecture()
+    {
+// MSVC:
+#if defined(_M_X64)
+        return OsArchAMD64;
+#elif defined(_M_IX86)
+        return OsArchX86;
+#elif defined(_M_ARM64)
+        return OsArchArm64;
+#elif defined(_M_ARM)
+        return OsArchArm;
+#elif defined(_M_IA64)
+        return OsArchItanium;
+// GCC / Clang:
+#elif defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64)
+        return OsArchAMD64;
+#elif defined(__i386__) || defined(__i386) || defined(__i486__) || defined(__i586__) \
+    || defined(__i686__)
+        return OsArchX86;
+#elif defined(__aarch64__)
+        return OsArchArm64;
+#elif defined(__arm__)
+        return OsArchArm;
+#elif defined(__ia64__) || defined(__itanium__)
+        return OsArchItanium;
+#else
+        static_assert(false, "Unknown architecture, please add detection.");
+        return OsArchUnknown;
+#endif
+    }
+
+    static constexpr bool isArm64Binary() { return binaryArchitecture() == OsArchArm64; }
+    static constexpr bool isAmd64Binary() { return binaryArchitecture() == OsArchAMD64; }
 
     static constexpr bool isWindowsHost() { return hostOs() == OsTypeWindows; }
     static constexpr bool isLinuxHost() { return hostOs() == OsTypeLinux; }
