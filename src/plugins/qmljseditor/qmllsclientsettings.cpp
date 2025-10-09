@@ -565,17 +565,18 @@ static GroupItem downloadGithubQmlls()
         setupNetworkQuery(&query);
     };
 
-    const auto onMetadataQueryDone = [storage](const NetworkQuery &query, DoneWith result) {
+    const auto onMetadataQueryDone =
+        [storage](const NetworkQuery &query, DoneWith result) -> DoneResult {
         if (result == DoneWith::Cancel)
-            return;
+            return DoneResult::Success;
 
         QNetworkReply *reply = query.reply();
-        QTC_ASSERT(reply, return);
+        QTC_ASSERT(reply, return DoneResult::Error);
         const QUrl url = reply->url();
         if (result != DoneWith::Success) {
             storage->logWarning(
                 Tr::tr("Downloading from %1 failed: %2.").arg(url.toString(), reply->errorString()));
-            return;
+            return DoneResult::Error;
         }
         QJsonDocument metadata = QJsonDocument::fromJson(reply->readAll());
 
@@ -589,9 +590,12 @@ static GroupItem downloadGithubQmlls()
             const QString currentName = asset[u"name"].toString();
             if (currentName.contains(name) && !currentName.contains("debug")) {
                 storage->downloadUrl = asset[u"browser_download_url"].toString();
-                break;
+                return DoneResult::Success;
             }
         }
+
+        storage->logWarning(Tr::tr("Could not find a suitable QMLLS binary for this platform."));
+        return DoneResult::Error;
     };
 
     const auto onQuerySetup = [storage, setupNetworkQuery](NetworkQuery &query) {
@@ -614,23 +618,24 @@ static GroupItem downloadGithubQmlls()
         setupNetworkQuery(&query);
         return SetupResult::Continue;
     };
-    const auto onQueryDone = [storage](const NetworkQuery &query, DoneWith result) {
+    const auto onQueryDone = [storage](const NetworkQuery &query, DoneWith result) -> DoneResult {
         if (result == DoneWith::Cancel)
-            return;
+            return DoneResult::Success;
 
         QNetworkReply *reply = query.reply();
-        QTC_ASSERT(reply, return);
+        QTC_ASSERT(reply, return DoneResult::Error);
         const QUrl url = reply->url();
         if (result != DoneWith::Success) {
             storage->logWarning(
                 Tr::tr("Downloading from %1 failed: %2.").arg(url.toString(), reply->errorString()));
-            return;
+            return DoneResult::Error;
         }
         if (const auto result = storage->downloadPath.writeFileContents(reply->readAll()); !result) {
-            storage->logWarning(
-                Tr::tr("Cannot open \"%1\" for writing: %2.")
-                    .arg(storage->downloadPath.toUserOutput(), result.error()));
+            storage->logWarning(result.error());
+            return DoneResult::Error;
         }
+
+        return DoneResult::Success;
     };
 
     const auto onUnarchiveSetup = [storage](Unarchiver &task) {
