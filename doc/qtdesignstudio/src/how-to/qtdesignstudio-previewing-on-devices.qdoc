@@ -22,7 +22,7 @@
 
     \section1 Previewing on Boot to Qt devices
 
-    \note Previewing on Boot to Qt devices only works on Windows x86 platforms.
+    \note Previewing on Boot to Qt devices only works on Windows x64 platforms.
 
     \section2 Setup
 
