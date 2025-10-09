@@ -596,14 +596,28 @@ static GroupItem downloadGithubQmlls()
         if (metadata["tag_name"].isString())
             storage->latestVersion = QVersionNumber::fromString(metadata["tag_name"].toString());
 
-        static constexpr QLatin1StringView name = HostOsInfo::isWindowsHost() ? "qmlls-windows"_L1
-                                                  : HostOsInfo::isMacHost()   ? "qmlls-macos"_L1
-                                                                              : "qmlls-ubuntu"_L1;
-        for (const auto asset : metadata[u"assets"].toArray()) {
-            const QString currentName = asset[u"name"].toString();
-            if (currentName.contains(name) && !currentName.contains("debug")) {
-                storage->downloadUrl = asset[u"browser_download_url"].toString();
-                return DoneResult::Success;
+        if (HostOsInfo::isArm64Binary() || HostOsInfo::isAmd64Binary()) {
+            static constexpr QLatin1StringView binaryName = []() {
+                if (HostOsInfo::isWindowsHost()) {
+                    if (HostOsInfo::isArm64Binary())
+                        return "qmllanguageserver-windows-arm64"_L1;
+                    else
+                        return "qmllanguageserver-windows-x64"_L1;
+                }
+                if (HostOsInfo::isMacHost())
+                    return "qmllanguageserver-macos"_L1;
+
+                if (HostOsInfo::isArm64Binary())
+                    return "qmllanguageserver-linux-arm64"_L1;
+                return "qmllanguageserver-linux-x64"_L1;
+            }();
+
+            for (const auto asset : metadata[u"assets"].toArray()) {
+                const QString currentName = asset[u"name"].toString();
+                if (currentName.startsWith(binaryName) && !currentName.contains("debug")) {
+                    storage->downloadUrl = asset[u"browser_download_url"].toString();
+                    return DoneResult::Success;
+                }
             }
         }
 
