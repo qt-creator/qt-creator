@@ -193,6 +193,15 @@ void MCUBuildStepFactory::updateDeployStep(ProjectExplorer::BuildConfiguration *
         return;
 
     ProjectExplorer::DeployConfiguration *deployConfiguration = bc->activeDeployConfiguration();
+    ProjectExplorer::BuildStepList *stepList = deployConfiguration->stepList();
+    ProjectExplorer::BuildStep *step = stepList->firstStepWithId(DeployMcuProcessStep::id);
+    DeployMcuProcessStep *mcuStep = qobject_cast<DeployMcuProcessStep *>(step);
+
+    if (!enabled) {
+        if (mcuStep)
+            mcuStep->setStepEnabled(false);
+        return;
+    }
 
     // Return if the kit is currupted or is an MCU kit (unsupported in Design Studio)
     if (!deployConfiguration
@@ -214,22 +223,16 @@ void MCUBuildStepFactory::updateDeployStep(ProjectExplorer::BuildConfiguration *
         return;
     }
 
-    ProjectExplorer::BuildStepList *stepList = deployConfiguration->stepList();
-    ProjectExplorer::BuildStep *step = stepList->firstStepWithId(DeployMcuProcessStep::id);
-    if (!step && enabled) {
+    if (mcuStep) {
+        mcuStep->setStepEnabled(true);
+        mcuStep->updateIncludeDirArgs();
+    } else {
         if (findMostRecentQulKit()) {
             stepList->appendStep(DeployMcuProcessStep::id);
         } else {
             DeployMcuProcessStep::showError(
                 QmlProjectManager::Tr::tr("Cannot find a valid Qt for MCUs kit."));
         }
-    } else {
-        if (!step)
-            return;
-        auto mcuStep = qobject_cast<DeployMcuProcessStep *>(step);
-        if (mcuStep)
-            mcuStep->updateIncludeDirArgs();
-        step->setStepEnabled(enabled);
     }
 }
 
