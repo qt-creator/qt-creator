@@ -29,6 +29,8 @@ public:
     ~NodeInstance();
     NodeInstance(const NodeInstance &other);
     NodeInstance& operator=(const NodeInstance &other);
+    NodeInstance(NodeInstance &&other) noexcept;
+    NodeInstance &operator=(NodeInstance &&other) noexcept;
 
     ModelNode modelNode() const;
     bool isValid() const;

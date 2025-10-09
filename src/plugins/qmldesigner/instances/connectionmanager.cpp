@@ -3,6 +3,7 @@
 
 #include "connectionmanager.h"
 #include "endpuppetcommand.h"
+#include "nodeinstancetracing.h"
 #include "puppetstarter.h"
 
 #include <qmldesigner/qmldesignerplugin.h>
@@ -19,9 +20,18 @@
 
 namespace QmlDesigner {
 
-ConnectionManager::ConnectionManager() = default;
+using NanotraceHR::keyValue;
+using NodeInstanceTracing::category;
 
-ConnectionManager::~ConnectionManager() = default;
+ConnectionManager::ConnectionManager()
+{
+    NanotraceHR::Tracer tracer{"connection manager constructor", category()};
+}
+
+ConnectionManager::~ConnectionManager()
+{
+    NanotraceHR::Tracer tracer{"connection manager destructor", category()};
+}
 
 void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerProxy,
                               const QString &qrcMappingString,
@@ -29,6 +39,8 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
                               AbstractView *view,
                               ExternalDependenciesInterface &externalDependencies)
 {
+    NanotraceHR::Tracer tracer{"connection manager setup", category()};
+
     BaseConnectionManager::setUp(nodeInstanceServerProxy,
                                  qrcMappingString,
                                  target,
@@ -75,6 +87,8 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
 
 void ConnectionManager::shutDown()
 {
+    NanotraceHR::Tracer tracer{"connection manager shutdown", category()};
+
     BaseConnectionManager::shutDown();
 
     closeSocketsAndKillProcesses();
@@ -82,6 +96,8 @@ void ConnectionManager::shutDown()
 
 void ConnectionManager::writeCommand(const QVariant &command)
 {
+    NanotraceHR::Tracer tracer{"connection manager write command", category()};
+
     for (Connection &connection : m_connections)
         writeCommandToIODevice(command, connection.socket.get(), m_writeCommandCounter);
 
@@ -90,12 +106,21 @@ void ConnectionManager::writeCommand(const QVariant &command)
 
 quint32 ConnectionManager::writeCounter() const
 {
+    NanotraceHR::Tracer tracer{"connection manager write counter", category()};
+
     return m_writeCommandCounter;
 }
 
 void ConnectionManager::processFinished(int exitCode, QProcess::ExitStatus exitStatus, const QString &connectionName)
 {
-    qWarning() << "Process" << connectionName <<(exitStatus == QProcess::CrashExit ? "crashed:" : "finished:")
+    NanotraceHR::Tracer tracer{"connection manager process finished",
+                               category(),
+                               keyValue("exit code", exitCode),
+                               keyValue("exit status", exitStatus),
+                               keyValue("connection name", connectionName)};
+
+    qWarning() << "Process" << connectionName
+               << (exitStatus == QProcess::CrashExit ? "crashed:" : "finished:")
                << "with exitCode:" << exitCode;
 
     if (QmlDesignerPlugin::settings().value(DesignerSettingsKey::DEBUG_PUPPET).toString().isEmpty()) {
@@ -110,6 +135,8 @@ void ConnectionManager::processFinished(int exitCode, QProcess::ExitStatus exitS
 
 void ConnectionManager::closeSocketsAndKillProcesses()
 {
+    NanotraceHR::Tracer tracer{"connection manager close sockets and kill processes", category()};
+
     for (Connection &connection : m_connections) {
         if (connection.socket) {
             disconnect(connection.socket.get());
@@ -124,6 +151,10 @@ void ConnectionManager::closeSocketsAndKillProcesses()
 
 void ConnectionManager::printProcessOutput(QProcess *process, const QString &connectionName)
 {
+    NanotraceHR::Tracer tracer{"connection manager print process output",
+                               category(),
+                               keyValue("connection name", connectionName)};
+
     while (process && process->canReadLine()) {
         QByteArray line = process->readLine();
         line.chop(1);

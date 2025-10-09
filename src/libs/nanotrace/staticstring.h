@@ -119,4 +119,6 @@ private:
     std::size_t m_size = 0;
 };
 
+using ArgumentsString = StaticString;
+
 } // namespace NanotraceHR

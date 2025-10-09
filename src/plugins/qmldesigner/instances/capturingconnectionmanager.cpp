@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "capturingconnectionmanager.h"
+#include "nodeinstancetracing.h"
 
 #include <coreplugin/messagebox.h>
 
@@ -12,12 +13,17 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+using NodeInstanceTracing::category;
+
 void CapturingConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServer,
                                        const QString &qrcMappingString,
                                        ProjectExplorer::Target *target,
                                        AbstractView *view,
                                        ExternalDependenciesInterface &externalDependencies)
 {
+    NanotraceHR::Tracer tracer{"capturing connection manager setup", category()};
+
     InteractiveConnectionManager::setUp(nodeInstanceServer,
                                         qrcMappingString,
                                         target,
@@ -39,6 +45,12 @@ void CapturingConnectionManager::setUp(NodeInstanceServerInterface *nodeInstance
 
 void CapturingConnectionManager::processFinished(int exitCode, QProcess::ExitStatus exitStatus, const QString &connectionName)
 {
+    NanotraceHR::Tracer tracer{"capturing connection manager process finished",
+                               category(),
+                               keyValue("exit code", exitCode),
+                               keyValue("exit status", exitStatus),
+                               keyValue("connection name", connectionName)};
+
     if (m_captureFileForTest.isOpen()) {
         m_captureFileForTest.close();
         Core::AsynchronousMessageBox::warning(
@@ -52,6 +64,8 @@ void CapturingConnectionManager::processFinished(int exitCode, QProcess::ExitSta
 
 void CapturingConnectionManager::writeCommand(const QVariant &command)
 {
+    NanotraceHR::Tracer tracer{"capturing connection manager write command", category()};
+
     InteractiveConnectionManager::writeCommand(command);
 
     if (m_captureFileForTest.isWritable()) {

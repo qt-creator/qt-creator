@@ -3,15 +3,19 @@
 
 #include "baseconnectionmanager.h"
 #include "endpuppetcommand.h"
-#include "nodeinstanceserverproxy.h"
-#include "nodeinstanceview.h"
-#include "nanotracecommand.h"
 #include "nanotrace/nanotrace.h"
+#include "nanotracecommand.h"
+#include "nodeinstanceserverproxy.h"
+#include "nodeinstancetracing.h"
+#include "nodeinstanceview.h"
 
 #include <QLocalSocket>
 #include <QTimer>
 
 namespace QmlDesigner {
+
+using NanotraceHR::keyValue;
+using NodeInstanceTracing::category;
 
 void BaseConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServer,
                                   const QString &,
@@ -19,12 +23,16 @@ void BaseConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServe
                                   [[maybe_unused]] AbstractView *view,
                                   ExternalDependenciesInterface &)
 {
+    NanotraceHR::Tracer tracer{"base connection manager setup", category()};
+
     m_nodeInstanceServer = nodeInstanceServer;
     m_isActive = true;
 }
 
 void BaseConnectionManager::shutDown()
 {
+    NanotraceHR::Tracer tracer{"base connection manager shutdown", category()};
+
     m_isActive = false;
 
     writeCommand(QVariant::fromValue(EndPuppetCommand()));
@@ -34,6 +42,8 @@ void BaseConnectionManager::shutDown()
 
 void BaseConnectionManager::setCrashCallback(std::function<void()> callback)
 {
+    NanotraceHR::Tracer tracer{"base connection manager set crash callback", category()};
+
     std::lock_guard<std::mutex> lock{m_callbackMutex};
 
     m_crashCallback = std::move(callback);
@@ -41,15 +51,23 @@ void BaseConnectionManager::setCrashCallback(std::function<void()> callback)
 
 bool BaseConnectionManager::isActive() const
 {
+    NanotraceHR::Tracer tracer{"base connection manager is active", category()};
+
     return m_isActive;
 }
 
 void BaseConnectionManager::showCannotConnectToPuppetWarningAndSwitchToEditMode(
     const QString & /*qmlPuppetPath*/)
-{}
+{
+    NanotraceHR::Tracer tracer{"base connection manager show cannot connect warning", category()};
+}
 
 void BaseConnectionManager::processFinished(const QString &reason)
 {
+    NanotraceHR::Tracer tracer{"base connection manager process finished",
+                               category(),
+                               keyValue("reason", reason)};
+
     processFinished(-1, QProcess::CrashExit, reason);
 }
 
@@ -57,6 +75,8 @@ void BaseConnectionManager::writeCommandToIODevice(const QVariant &command,
                                                    QIODevice *ioDevice,
                                                    unsigned int commandCounter)
 {
+    NanotraceHR::Tracer tracer{"base connection manager write command to io device", category()};
+
     if (ioDevice) {
         QByteArray block;
         QDataStream out(&block, QIODevice::WriteOnly);
@@ -73,6 +93,8 @@ void BaseConnectionManager::writeCommandToIODevice(const QVariant &command,
 
 void BaseConnectionManager::dispatchCommand(const QVariant &command, Connection &)
 {
+    NanotraceHR::Tracer tracer{"base connection manager dispatch command", category()};
+
     if (!isActive())
         return;
 
@@ -81,6 +103,8 @@ void BaseConnectionManager::dispatchCommand(const QVariant &command, Connection 
 
 void BaseConnectionManager::readDataStream(Connection &connection)
 {
+    NanotraceHR::Tracer tracer{"base connection manager read data stream", category()};
+
     QList<QVariant> commandList;
 
     while (!connection.socket->atEnd()) {
@@ -137,6 +161,8 @@ void BaseConnectionManager::readDataStream(Connection &connection)
 
 void BaseConnectionManager::callCrashCallback()
 {
+    NanotraceHR::Tracer tracer{"base connection manager call crash callback", category()};
+
     std::lock_guard<std::mutex> lock{m_callbackMutex};
 
     if (m_crashCallback)

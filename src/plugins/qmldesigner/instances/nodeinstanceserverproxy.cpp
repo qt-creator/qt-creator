@@ -4,6 +4,7 @@
 #include "nodeinstanceserverproxy.h"
 
 #include "connectionmanagerinterface.h"
+#include "nodeinstancetracing.h"
 
 #include <changeauxiliarycommand.h>
 #include <changebindingscommand.h>
@@ -68,6 +69,9 @@ namespace QmlDesigner {
 
 static Q_LOGGING_CATEGORY(instanceViewBenchmark, "qtc.nodeinstances.init", QtWarningMsg);
 
+using NanotraceHR::keyValue;
+using NodeInstanceTracing::category;
+
 NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView,
                                                  ProjectExplorer::Target *target,
                                                  ConnectionManagerInterface &connectionManager,
@@ -76,6 +80,8 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
     , m_connectionManager{connectionManager}
 
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy constructor", category()};
+
     if (instanceViewBenchmark().isInfoEnabled())
         m_benchmarkTimer.start();
 
@@ -86,11 +92,15 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
 NodeInstanceServerProxy::~NodeInstanceServerProxy()
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy destructor", category()};
+
     m_connectionManager.shutDown();
 }
 
 void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy dispatch command", category()};
+
     NANOTRACE_SCOPE_ARGS("Update", "dispatchCommand", {"name", command.typeName()});
 
     static const int informationChangedCommandType = QMetaType::fromName("InformationChangedCommand").id();
@@ -142,11 +152,15 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
 
 NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy node instance client", category()};
+
     return m_nodeInstanceView;
 }
 
 QString NodeInstanceServerProxy::qrcMappingString() const
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy qrc mapping string", category()};
+
     if (m_nodeInstanceView && m_nodeInstanceView->model()) {
         RewriterView *rewriterView = m_nodeInstanceView->model()->rewriterView();
         if (rewriterView) {
@@ -172,6 +186,8 @@ QString NodeInstanceServerProxy::qrcMappingString() const
 
 void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy write command", category()};
+
 #ifdef NANOTRACE_DESIGNSTUDIO_ENABLED
     if (command.typeId() == QMetaType::fromName("SyncNanotraceCommand").id()) {
         SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
@@ -191,92 +207,128 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 
 void NodeInstanceServerProxy::createInstances(const CreateInstancesCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy create instances", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::changeFileUrl(const ChangeFileUrlCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy change file url", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::createScene(const CreateSceneCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy create scene", category()};
+
     qCInfo(instanceViewBenchmark) << Q_FUNC_INFO << m_benchmarkTimer.elapsed();
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::clearScene(const ClearSceneCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy clear scene", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::update3DViewState(const Update3dViewStateCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy update 3d view state", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::removeInstances(const RemoveInstancesCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy remove instances", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::changeSelection(const ChangeSelectionCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy change selection", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::removeProperties(const RemovePropertiesCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy remove properties", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::changePropertyBindings(const ChangeBindingsCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy change property bindings", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::changePropertyValues(const ChangeValuesCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy change property values", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy change auxiliary values", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::reparentInstances(const ReparentInstancesCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy reparent instances", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::changeIds(const ChangeIdsCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy change ids", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::changeState(const ChangeStateCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy change state", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::completeComponent(const CompleteComponentCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy complete component", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::changeNodeSource(const ChangeNodeSourceCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy change node source", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::token(const TokenCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy token", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::removeSharedMemory(const RemoveSharedMemoryCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy remove shared memory", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
@@ -287,26 +339,37 @@ void NodeInstanceServerProxy::benchmark(const QString &message)
 
 void NodeInstanceServerProxy::inputEvent(const InputEventCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy input event", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::view3DAction(const View3DActionCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy view 3d action", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::requestModelNodePreviewImage(const RequestModelNodePreviewImageCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy request model node preview image",
+                               category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::changeLanguage(const ChangeLanguageCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy change language", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 
 void NodeInstanceServerProxy::changePreviewImageSize(const ChangePreviewImageSizeCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance server proxy change preview image size", category()};
+
     writeCommand(QVariant::fromValue(command));
 }
 

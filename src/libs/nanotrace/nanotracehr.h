@@ -54,8 +54,6 @@ static_assert(std::is_same_v<Clock::duration, std::chrono::nanoseconds>,
 #  define NO_UNIQUE_ADDRESS
 #endif
 
-using ArgumentsString = StaticString;
-
 namespace Literals {
 struct TracerLiteral
 {

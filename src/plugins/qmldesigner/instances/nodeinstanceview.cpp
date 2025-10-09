@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "nodeinstanceview.h"
+#include "nodeinstancetracing.h"
 
 #include <abstractproperty.h>
 #include <bindingproperty.h>
@@ -101,32 +102,11 @@ enum {
     debug = false
 };
 
-/*!
-\defgroup CoreInstance
-*/
-/*!
-\class QmlDesigner::NodeInstanceView
-\ingroup CoreInstance
-    \brief The NodeInstanceView class is the central class to create and manage
-    instances of the ModelNode class.
-
-    This view is used to instantiate the model nodes. Many abstract views hold a
-    node instance view to get values from the node instances.
-    For this purpose, this view can be rendered offscreen.
-
-    \sa NodeInstance, ModelNode
-*/
-
 namespace QmlDesigner {
 
-/*!
-  Constructs a node instance view object as a child of \a parent. If \a parent
-  is destructed, this instance is destructed, too.
+using NanotraceHR::keyValue;
+using NodeInstanceTracing::category;
 
-  The class will be rendered offscreen if not set otherwise.
-
-    \sa ~NodeInstanceView, setRenderOffScreen()
-*/
 NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager,
                                    ExternalDependenciesInterface &externalDependencies,
                                    ModulesStorage &modulesStorage,
@@ -140,6 +120,8 @@ NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager
     , m_fileSystemWatcher(new QFileSystemWatcher(this))
     , m_qsbEnabled(qsbEnabled)
 {
+    NanotraceHR::Tracer tracer{"node instance view contructor", category()};
+
     setKind(Kind::NodeInstance);
 
     m_baseStatePreviewImage.fill(0xFFFFFF);
@@ -205,6 +187,8 @@ NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager
 */
 NodeInstanceView::~NodeInstanceView()
 {
+    NanotraceHR::Tracer tracer{"node instance view destructor", category()};
+
     removeAllInstanceNodeRelationships();
     m_currentTarget = nullptr;
 }
@@ -213,11 +197,15 @@ NodeInstanceView::~NodeInstanceView()
 
 static bool isSkippedRootNode(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"node instance view is skipped root node", category()};
+
     return node.metaInfo().isQtQuickListModel();
 }
 
 static bool isSkippedNode(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"node instance view is skipped node", category()};
+
     auto model = node.model();
 
     auto listElement = model->qtQmlModelsListElementMetaInfo();
@@ -228,6 +216,8 @@ static bool isSkippedNode(const ModelNode &node)
 
 static bool parentTakesOverRendering(const ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"node instance view parent takes over rendering", category()};
+
     ModelNode currentNode = modelNode;
 
     while ((currentNode = currentNode.parentProperty().parentModelNode())) {
@@ -251,6 +241,8 @@ static QString crashErrorMessage()
 
 void NodeInstanceView::modelAttached(Model *model)
 {
+    NanotraceHR::Tracer tracer{"node instance view model attached", category()};
+
     AbstractView::modelAttached(model);
     m_nodeInstanceServer = createNodeInstanceServerProxy();
     m_lastCrashTime.start();
@@ -277,6 +269,8 @@ void NodeInstanceView::modelAttached(Model *model)
 
 void NodeInstanceView::modelAboutToBeDetached(Model * model)
 {
+    NanotraceHR::Tracer tracer{"node instance view model about to be detached", category()};
+
     m_connectionManager.setCrashCallback({});
 
     m_nodeInstanceCache.insert(model,
@@ -305,6 +299,8 @@ void NodeInstanceView::modelAboutToBeDetached(Model * model)
 
 void NodeInstanceView::handleCrash()
 {
+    NanotraceHR::Tracer tracer{"node instance view handle crash", category()};
+
     qint64 elaspsedTimeSinceLastCrash = m_lastCrashTime.restart();
     qint64 forceRestartTime = 5000;
 #ifdef QT_DEBUG
@@ -324,6 +320,8 @@ void NodeInstanceView::handleCrash()
 
 void NodeInstanceView::startPuppetTransaction()
 {
+    NanotraceHR::Tracer tracer{"node instance view start puppet transaction", category()};
+
     /* We assume no transaction is active. */
     QTC_ASSERT(!m_puppetTransaction.isValid(), return);
     m_puppetTransaction = beginRewriterTransaction("NodeInstanceView::PuppetTransaction");
@@ -331,6 +329,8 @@ void NodeInstanceView::startPuppetTransaction()
 
 void NodeInstanceView::endPuppetTransaction()
 {
+    NanotraceHR::Tracer tracer{"node instance view end puppet transaction", category()};
+
     /* We assume a transaction is active. */
     QTC_ASSERT(m_puppetTransaction.isValid(), return);
 
@@ -349,6 +349,8 @@ void NodeInstanceView::endPuppetTransaction()
 
 void NodeInstanceView::clearErrors()
 {
+    NanotraceHR::Tracer tracer{"node instance view clear errors", category()};
+
     for (NodeInstance &instance : instances()) {
         instance.setError({});
     }
@@ -356,6 +358,8 @@ void NodeInstanceView::clearErrors()
 
 void NodeInstanceView::restartProcess()
 {
+    NanotraceHR::Tracer tracer{"node instance view restart process", category()};
+
     clearErrors();
     emitInstanceErrorChange({});
     if (isAttached())
@@ -387,12 +391,16 @@ void NodeInstanceView::restartProcess()
 
 void NodeInstanceView::delayedRestartProcess()
 {
+    NanotraceHR::Tracer tracer{"node instance view delayed restart process", category()};
+
     if (0 == m_restartProcessTimerId)
         m_restartProcessTimerId = startTimer(100);
 }
 
 void NodeInstanceView::nodeCreated(const ModelNode &createdNode)
 {
+    NanotraceHR::Tracer tracer{"node instance view node created", category()};
+
     NodeInstance instance = loadNode(createdNode);
 
     if (isSkippedNode(createdNode))
@@ -413,6 +421,8 @@ void NodeInstanceView::nodeCreated(const ModelNode &createdNode)
 */
 void NodeInstanceView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
+    NanotraceHR::Tracer tracer{"node instance view node about to be removed", category()};
+
     m_nodeInstanceServer->removeInstances(createRemoveInstancesCommand(removedNode));
     m_nodeInstanceServer->removeSharedMemory(
         createRemoveSharedMemoryCommand("Image", removedNode.internalId()));
@@ -421,6 +431,8 @@ void NodeInstanceView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 
 void NodeInstanceView::resetHorizontalAnchors(const ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"node instance view reset horizontal anchors", category()};
+
     QList<BindingProperty> bindingList;
     QList<VariantProperty> valueList;
 
@@ -443,6 +455,8 @@ void NodeInstanceView::resetHorizontalAnchors(const ModelNode &modelNode)
 
 void NodeInstanceView::resetVerticalAnchors(const ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"node instance view reset vertical anchors", category()};
+
     QList<BindingProperty> bindingList;
     QList<VariantProperty> valueList;
 
@@ -465,6 +479,8 @@ void NodeInstanceView::resetVerticalAnchors(const ModelNode &modelNode)
 
 void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
 {
+    NanotraceHR::Tracer tracer{"node instance view properties about to be removed", category()};
+
     QTC_ASSERT(m_nodeInstanceServer, return);
 
     QList<ModelNode> nodeList;
@@ -519,6 +535,8 @@ void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
 
 void NodeInstanceView::removeInstanceAndSubInstances(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"node instance view remove instance and sub instances", category()};
+
     const QList<ModelNode> subNodes = node.allSubModelNodes();
     for (const ModelNode &subNode : subNodes) {
         if (hasInstanceForModelNode(subNode))
@@ -531,17 +549,23 @@ void NodeInstanceView::removeInstanceAndSubInstances(const ModelNode &node)
 
 void NodeInstanceView::rootNodeTypeChanged(const QString & /*type*/)
 {
+    NanotraceHR::Tracer tracer{"node instance view root node type changed", category()};
+
     restartProcess();
 }
 
 void NodeInstanceView::nodeTypeChanged(const ModelNode &, const TypeName &)
 {
+    NanotraceHR::Tracer tracer{"node instance view node type changed", category()};
+
     restartProcess();
 }
 
 void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& propertyList,
                                                 PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"node instance view binding properties changed", category()};
+
     QTC_ASSERT(m_nodeInstanceServer, return);
     m_nodeInstanceServer->changePropertyBindings(createChangeBindingCommand(propertyList));
 
@@ -561,6 +585,8 @@ void NodeInstanceView::bindingPropertiesChanged(const QList<BindingProperty>& pr
 void NodeInstanceView::variantPropertiesChanged(const QList<VariantProperty>& propertyList,
                                                 PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"node instance view variant properties changed", category()};
+
     QTC_ASSERT(m_nodeInstanceServer, return);
     updatePosition(propertyList);
     m_nodeInstanceServer->changePropertyValues(createChangeValueCommand(propertyList));
@@ -580,6 +606,8 @@ void NodeInstanceView::variantPropertiesChanged(const QList<VariantProperty>& pr
 
 void NodeInstanceView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
+    NanotraceHR::Tracer tracer{"node instance view node reparented", category()};
+
     QTC_ASSERT(m_nodeInstanceServer, return);
     if (!isSkippedNode(node)) {
         updateChildren(newPropertyParent);
@@ -599,12 +627,16 @@ void NodeInstanceView::nodeReparented(const ModelNode &node, const NodeAbstractP
 
 void NodeInstanceView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &newUrl)
 {
+    NanotraceHR::Tracer tracer{"node instance view file url changed", category()};
+
     QTC_ASSERT(m_nodeInstanceServer, return);
     m_nodeInstanceServer->changeFileUrl(createChangeFileUrlCommand(newUrl));
 }
 
 void NodeInstanceView::nodeIdChanged(const ModelNode& node, const QString& /*newId*/, const QString &oldId)
 {
+    NanotraceHR::Tracer tracer{"node instance view node id changed", category()};
+
     QTC_ASSERT(m_nodeInstanceServer, return);
 
     if (hasInstanceForModelNode(node)) {
@@ -616,6 +648,8 @@ void NodeInstanceView::nodeIdChanged(const ModelNode& node, const QString& /*new
 
 void NodeInstanceView::nodeOrderChanged(const NodeListProperty &listProperty)
 {
+    NanotraceHR::Tracer tracer{"node instance view node order changed", category()};
+
     QTC_ASSERT(m_nodeInstanceServer, return);
     QVector<ReparentContainer> containerList;
     PropertyNameView propertyName = listProperty.name();
@@ -643,6 +677,8 @@ void NodeInstanceView::nodeOrderChanged(const NodeListProperty &listProperty)
 
 void NodeInstanceView::importsChanged(const Imports &/*addedImports*/, const Imports &/*removedImports*/)
 {
+    NanotraceHR::Tracer tracer{"node instance view imports changed", category()};
+
     delayedRestartProcess();
 }
 
@@ -650,7 +686,9 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
                                             AuxiliaryDataKeyView key,
                                             const QVariant &value)
 {
-    QTC_ASSERT(m_nodeInstanceServer, return );
+    NanotraceHR::Tracer tracer{"node instance view auxiliary data changed", category()};
+
+    QTC_ASSERT(m_nodeInstanceServer, return);
 
     switch (key.type) {
     case AuxiliaryDataType::Document:
@@ -710,12 +748,16 @@ void NodeInstanceView::customNotification(const AbstractView *view,
                                           const QList<ModelNode> &,
                                           const QList<QVariant> &)
 {
+    NanotraceHR::Tracer tracer{"node instance view custom notification", category()};
+
     if (view && identifier == QStringLiteral("reset QmlPuppet"))
         delayedRestartProcess();
 }
 
 void NodeInstanceView::customNotification(const CustomNotificationPackage &package)
 {
+    NanotraceHR::Tracer tracer{"node instance view custom notification package", category()};
+
     if (auto inputEvent = std::get_if<InputEvent>(&package)) {
         sendInputEvent(inputEvent->event);
     } else if (auto resize3DCanvas = std::get_if<Resize3DCanvas>(&package)) {
@@ -734,21 +776,28 @@ void NodeInstanceView::customNotification(const CustomNotificationPackage &packa
 
 void NodeInstanceView::nodeSourceChanged(const ModelNode &node, const QString & newNodeSource)
 {
-     QTC_ASSERT(m_nodeInstanceServer, return);
-     if (hasInstanceForModelNode(node)) {
-         NodeInstance instance = instanceForModelNode(node);
-         ChangeNodeSourceCommand changeNodeSourceCommand(instance.instanceId(), newNodeSource);
-         m_nodeInstanceServer->changeNodeSource(changeNodeSourceCommand);
+    NanotraceHR::Tracer tracer{"node instance view node source changed", category()};
 
-         // QML Puppet doesn't deal with node source changes properly, so just reset the QML Puppet for now
-         resetPuppet(); // TODO: Remove this once the issue is properly fixed (QDS-4955)
-     }
+    QTC_ASSERT(m_nodeInstanceServer, return);
+    if (hasInstanceForModelNode(node)) {
+        NodeInstance instance = instanceForModelNode(node);
+        ChangeNodeSourceCommand changeNodeSourceCommand(instance.instanceId(), newNodeSource);
+        m_nodeInstanceServer->changeNodeSource(changeNodeSourceCommand);
+
+        // QML Puppet doesn't deal with node source changes properly, so just reset the QML Puppet for now
+        resetPuppet(); // TODO: Remove this once the issue is properly fixed (QDS-4955)
+    }
 }
 
-void NodeInstanceView::capturedData(const CapturedDataCommand &) {}
+void NodeInstanceView::capturedData(const CapturedDataCommand &)
+{
+    NanotraceHR::Tracer tracer{"node instance view captured data", category()};
+}
 
 void NodeInstanceView::currentStateChanged(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"node instance view current state changed", category()};
+
     NodeInstance newStateInstance = instanceForModelNode(node);
 
     if (newStateInstance.isValid() && node.metaInfo().isQtQuickState())
@@ -757,12 +806,18 @@ void NodeInstanceView::currentStateChanged(const ModelNode &node)
         activateBaseState();
 }
 
-void NodeInstanceView::sceneCreated(const SceneCreatedCommand &) {}
+void NodeInstanceView::sceneCreated(const SceneCreatedCommand &)
+{
+    NanotraceHR::Tracer tracer{"node instance view scene created", category()};
+}
 
 //\}
 
 void NodeInstanceView::removeAllInstanceNodeRelationships()
 {
+    NanotraceHR::Tracer tracer{"node instance view remove all instance node relationships",
+                               category()};
+
     m_nodeInstanceHash.clear();
 }
 
@@ -774,6 +829,8 @@ void NodeInstanceView::removeAllInstanceNodeRelationships()
 
 QList<NodeInstance> NodeInstanceView::instances() const
 {
+    NanotraceHR::Tracer tracer{"node instance view instances", category()};
+
     return m_nodeInstanceHash.values();
 }
 
@@ -787,11 +844,15 @@ QList<NodeInstance> NodeInstanceView::instances() const
 */
 const NodeInstance &NodeInstanceView::instanceForModelNode(const ModelNode &node) const
 {
+    NanotraceHR::Tracer tracer{"node instance view instance for model node", category()};
+
     return const_cast<NodeInstanceView &>(*this).instanceForModelNode(node);
 }
 
 NodeInstance &NodeInstanceView::instanceForModelNode(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"node instance view instance for model node", category()};
+
     Q_ASSERT(node.isValid());
     Q_ASSERT(m_nodeInstanceHash.contains(node));
     Q_ASSERT(m_nodeInstanceHash.value(node).modelNode() == node);
@@ -804,11 +865,15 @@ NodeInstance &NodeInstanceView::instanceForModelNode(const ModelNode &node)
 
 bool NodeInstanceView::hasInstanceForModelNode(const ModelNode &node) const
 {
+    NanotraceHR::Tracer tracer{"node instance view has instance for model node", category()};
+
     return m_nodeInstanceHash.contains(node);
 }
 
 NodeInstance NodeInstanceView::instanceForId(qint32 id) const
 {
+    NanotraceHR::Tracer tracer{"node instance view instance for id", category()};
+
     if (id < 0 || !hasModelNodeForInternalId(id))
         return NodeInstance();
 
@@ -817,6 +882,8 @@ NodeInstance NodeInstanceView::instanceForId(qint32 id) const
 
 bool NodeInstanceView::hasInstanceForId(qint32 id) const
 {
+    NanotraceHR::Tracer tracer{"node instance view has instance for id", category()};
+
     if (id < 0 || !hasModelNodeForInternalId(id))
         return false;
 
@@ -830,6 +897,8 @@ bool NodeInstanceView::hasInstanceForId(qint32 id) const
 */
 NodeInstance NodeInstanceView::rootNodeInstance() const
 {
+    NanotraceHR::Tracer tracer{"node instance view root node instance", category()};
+
     return m_rootNodeInstance;
 }
 
@@ -863,7 +932,9 @@ NodeInstance NodeInstanceView::rootNodeInstance() const
 
 void NodeInstanceView::insertInstanceRelationships(const NodeInstance &instance)
 {
-    Q_ASSERT(instance.instanceId() >=0);
+    NanotraceHR::Tracer tracer{"node instance view insert instance relationships", category()};
+
+    Q_ASSERT(instance.instanceId() >= 0);
     if (m_nodeInstanceHash.contains(instance.modelNode()))
         return;
 
@@ -872,6 +943,8 @@ void NodeInstanceView::insertInstanceRelationships(const NodeInstance &instance)
 
 void NodeInstanceView::removeInstanceNodeRelationship(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"node instance view remove instance node relationship", category()};
+
     Q_ASSERT(m_nodeInstanceHash.contains(node));
     NodeInstance instance = instanceForModelNode(node);
     m_nodeInstanceHash.remove(node);
@@ -881,21 +954,29 @@ void NodeInstanceView::removeInstanceNodeRelationship(const ModelNode &node)
 
 void NodeInstanceView::setStateInstance(const NodeInstance &stateInstance)
 {
+    NanotraceHR::Tracer tracer{"node instance view set state instance", category()};
+
     m_activeStateInstance = stateInstance;
 }
 
 void NodeInstanceView::clearStateInstance()
 {
+    NanotraceHR::Tracer tracer{"node instance view clear state instance", category()};
+
     m_activeStateInstance = NodeInstance();
 }
 
 NodeInstance NodeInstanceView::activeStateInstance() const
 {
+    NanotraceHR::Tracer tracer{"node instance view active state instance", category()};
+
     return m_activeStateInstance;
 }
 
 void NodeInstanceView::updateChildren(const NodeAbstractProperty &newPropertyParent)
 {
+    NanotraceHR::Tracer tracer{"node instance view update children", category()};
+
     const QList<ModelNode> childNodeVector = newPropertyParent.directSubNodes();
 
     qint32 parentInstanceId = newPropertyParent.parentModelNode().internalId();
@@ -915,12 +996,16 @@ void NodeInstanceView::updateChildren(const NodeAbstractProperty &newPropertyPar
 
 void setXValue(NodeInstance &instance, const VariantProperty &variantProperty, QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
+    NanotraceHR::Tracer tracer{"node instance view set x value", category()};
+
     instance.setX(variantProperty.value().toDouble());
     informationChangeHash.insert(instance.modelNode(), Transform);
 }
 
 void setYValue(NodeInstance &instance, const VariantProperty &variantProperty, QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
+    NanotraceHR::Tracer tracer{"node instance view set y value", category()};
+
     instance.setY(variantProperty.value().toDouble());
     informationChangeHash.insert(instance.modelNode(), Transform);
 }
@@ -928,6 +1013,8 @@ void setYValue(NodeInstance &instance, const VariantProperty &variantProperty, Q
 
 void NodeInstanceView::updatePosition(const QList<VariantProperty> &propertyList)
 {
+    NanotraceHR::Tracer tracer{"node instance view update position", category()};
+
     QMultiHash<ModelNode, InformationName> informationChangeHash;
 
     QmlModelState currentState = currentStateNode();
@@ -980,6 +1067,8 @@ void NodeInstanceView::updatePosition(const QList<VariantProperty> &propertyList
 
 NodeInstance NodeInstanceView::loadNode(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"node instance view load node", category()};
+
     NodeInstance instance(NodeInstance::create(node));
 
     insertInstanceRelationships(instance);
@@ -992,19 +1081,21 @@ NodeInstance NodeInstanceView::loadNode(const ModelNode &node)
 
 void NodeInstanceView::activateState(const NodeInstance &instance)
 {
+    NanotraceHR::Tracer tracer{"node instance view activate state", category()};
+
     m_nodeInstanceServer->changeState(ChangeStateCommand(instance.instanceId()));
 }
 
 void NodeInstanceView::activateBaseState()
 {
+    NanotraceHR::Tracer tracer{"node instance view activate base state", category()};
+
     m_nodeInstanceServer->changeState(ChangeStateCommand(-1));
 }
 
 void NodeInstanceView::removeRecursiveChildRelationship(const ModelNode &removedNode)
 {
-//    if (hasInstanceForNode(removedNode)) {
-//        instanceForNode(removedNode).setId(QString());
-//    }
+    NanotraceHR::Tracer tracer{"node instance view remove recursive child relationship", category()};
 
     const QList<ModelNode> nodes = removedNode.directSubModelNodes();
     for (const ModelNode &childNode : nodes)
@@ -1015,8 +1106,10 @@ void NodeInstanceView::removeRecursiveChildRelationship(const ModelNode &removed
 
 QRectF NodeInstanceView::sceneRect() const
 {
+    NanotraceHR::Tracer tracer{"node instance view scene rect", category()};
+
     if (rootNodeInstance().isValid())
-       return rootNodeInstance().boundingRect();
+        return rootNodeInstance().boundingRect();
 
     return {};
 }
@@ -1025,6 +1118,8 @@ namespace {
 
 QList<ModelNode> filterNodesForSkipItems(const QList<ModelNode> &nodeList)
 {
+    NanotraceHR::Tracer tracer{"node instance view filter nodes for skip items", category()};
+
     QList<ModelNode> filteredNodeList;
     for (const ModelNode &node : nodeList) {
         if (isSkippedNode(node))
@@ -1037,6 +1132,8 @@ QList<ModelNode> filterNodesForSkipItems(const QList<ModelNode> &nodeList)
 }
 bool shouldSendAuxiliary(const AuxiliaryDataKey &key)
 {
+    NanotraceHR::Tracer tracer{"node instance view should send auxiliary", category()};
+
     return key.type == AuxiliaryDataType::NodeInstancePropertyOverwrite
            || key.type == AuxiliaryDataType::NodeInstanceAuxiliary || key == invisibleProperty
            || key == lockedProperty;
@@ -1044,6 +1141,8 @@ bool shouldSendAuxiliary(const AuxiliaryDataKey &key)
 
 bool parentIsBehavior(ModelNode node)
 {
+    NanotraceHR::Tracer tracer{"node instance view parent is behavior", category()};
+
     while (node.isValid() && !node.isRootNode()) {
         if (!node.behaviorPropertyName().isEmpty())
             return true;
@@ -1059,6 +1158,8 @@ TypeName createQualifiedTypeName(const ModelNode &node,
                                  const ProjectStorageType &projectStorage,
                                  SourceId documentSourceId)
 {
+    NanotraceHR::Tracer tracer{"node instance view create qualified type name", category()};
+
     if (!node)
         return {};
 
@@ -1094,6 +1195,8 @@ TypeName createQualifiedTypeName(const ModelNode &node,
 
 CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 {
+    NanotraceHR::Tracer tracer{"node instance view create create scene command", category()};
+
     QList<ModelNode> nodeList = allModelNodes();
     QList<NodeInstance> instanceList;
 
@@ -1255,11 +1358,15 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 
 ClearSceneCommand NodeInstanceView::createClearSceneCommand() const
 {
+    NanotraceHR::Tracer tracer{"node instance view create clear scene command", category()};
+
     return {};
 }
 
 CompleteComponentCommand NodeInstanceView::createComponentCompleteCommand(const QList<NodeInstance> &instanceList) const
 {
+    NanotraceHR::Tracer tracer{"node instance view create component complete command", category()};
+
     QVector<qint32> containerList;
     for (const NodeInstance &instance : instanceList) {
         if (instance.instanceId() >= 0)
@@ -1271,6 +1378,8 @@ CompleteComponentCommand NodeInstanceView::createComponentCompleteCommand(const 
 
 ComponentCompletedCommand NodeInstanceView::createComponentCompletedCommand(const QList<NodeInstance> &instanceList) const
 {
+    NanotraceHR::Tracer tracer{"node instance view create component completed command", category()};
+
     QVector<qint32> containerList;
     for (const NodeInstance &instance : instanceList) {
         if (instance.instanceId() >= 0)
@@ -1282,6 +1391,8 @@ ComponentCompletedCommand NodeInstanceView::createComponentCompletedCommand(cons
 
 CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QList<NodeInstance> &instanceList) const
 {
+    NanotraceHR::Tracer tracer{"node instance view create create instances command", category()};
+
     const auto &projectStorage = *model()->projectStorage();
     const SourceId documentSourceId = model()->fileUrlSourceId();
 
@@ -1319,6 +1430,8 @@ CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QLis
 
 ReparentInstancesCommand NodeInstanceView::createReparentInstancesCommand(const QList<NodeInstance> &instanceList) const
 {
+    NanotraceHR::Tracer tracer{"node instance view create reparent instances command", category()};
+
     QVector<ReparentContainer> containerList;
     for (const NodeInstance &instance : instanceList) {
         if (instance.modelNode().hasParentProperty()) {
@@ -1337,6 +1450,8 @@ ReparentInstancesCommand NodeInstanceView::createReparentInstancesCommand(const 
 
 ReparentInstancesCommand NodeInstanceView::createReparentInstancesCommand(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent) const
 {
+    NanotraceHR::Tracer tracer{"node instance view create reparent instances command", category()};
+
     QVector<ReparentContainer> containerList;
 
     qint32 newParentInstanceId = -1;
@@ -1362,11 +1477,15 @@ ReparentInstancesCommand NodeInstanceView::createReparentInstancesCommand(const 
 
 ChangeFileUrlCommand NodeInstanceView::createChangeFileUrlCommand(const QUrl &fileUrl) const
 {
+    NanotraceHR::Tracer tracer{"node instance view create change file url command", category()};
+
     return {fileUrl};
 }
 
 ChangeValuesCommand NodeInstanceView::createChangeValueCommand(const QList<VariantProperty>& propertyList) const
 {
+    NanotraceHR::Tracer tracer{"node instance view create change value command", category()};
+
     QVector<PropertyValueContainer> containerList;
 
     QmlTimeline timeline = currentTimelineNode();
@@ -1391,6 +1510,8 @@ ChangeValuesCommand NodeInstanceView::createChangeValueCommand(const QList<Varia
 
 ChangeBindingsCommand NodeInstanceView::createChangeBindingCommand(const QList<BindingProperty> &propertyList) const
 {
+    NanotraceHR::Tracer tracer{"node instance view create change binding command", category()};
+
     QVector<PropertyBindingContainer> containerList;
 
     for (const BindingProperty &property : propertyList) {
@@ -1412,6 +1533,8 @@ ChangeBindingsCommand NodeInstanceView::createChangeBindingCommand(const QList<B
 
 ChangeIdsCommand NodeInstanceView::createChangeIdsCommand(const QList<NodeInstance> &instanceList) const
 {
+    NanotraceHR::Tracer tracer{"node instance view create change ids command", category()};
+
     QVector<IdContainer> containerList;
     for (const NodeInstance &instance : instanceList) {
         QString id = instance.modelNode().id();
@@ -1428,6 +1551,8 @@ ChangeIdsCommand NodeInstanceView::createChangeIdsCommand(const QList<NodeInstan
 
 RemoveInstancesCommand NodeInstanceView::createRemoveInstancesCommand(const QList<ModelNode> &nodeList) const
 {
+    NanotraceHR::Tracer tracer{"node instance view create remove instances command", category()};
+
     QVector<qint32> idList;
     for (const ModelNode &node : nodeList) {
         if (node.isValid() && hasInstanceForModelNode(node)) {
@@ -1443,6 +1568,8 @@ RemoveInstancesCommand NodeInstanceView::createRemoveInstancesCommand(const QLis
 
 ChangeSelectionCommand NodeInstanceView::createChangeSelectionCommand(const QList<ModelNode> &nodeList) const
 {
+    NanotraceHR::Tracer tracer{"node instance view create change selection command", category()};
+
     QVector<qint32> idList;
     for (const ModelNode &node : nodeList) {
         if (node.isValid() && hasInstanceForModelNode(node)) {
@@ -1458,6 +1585,8 @@ ChangeSelectionCommand NodeInstanceView::createChangeSelectionCommand(const QLis
 
 RemoveInstancesCommand NodeInstanceView::createRemoveInstancesCommand(const ModelNode &node) const
 {
+    NanotraceHR::Tracer tracer{"node instance view create remove instances command", category()};
+
     QVector<qint32> idList;
 
     if (node.isValid() && hasInstanceForModelNode(node))
@@ -1468,6 +1597,8 @@ RemoveInstancesCommand NodeInstanceView::createRemoveInstancesCommand(const Mode
 
 RemovePropertiesCommand NodeInstanceView::createRemovePropertiesCommand(const QList<AbstractProperty> &propertyList) const
 {
+    NanotraceHR::Tracer tracer{"node instance view create remove properties command", category()};
+
     QVector<PropertyAbstractContainer> containerList;
 
     for (const AbstractProperty &property : propertyList) {
@@ -1487,11 +1618,15 @@ RemovePropertiesCommand NodeInstanceView::createRemovePropertiesCommand(const QL
 
 RemoveSharedMemoryCommand NodeInstanceView::createRemoveSharedMemoryCommand(const QString &sharedMemoryTypeName, quint32 keyNumber)
 {
+    NanotraceHR::Tracer tracer{"node instance view create remove shared memory command", category()};
+
     return RemoveSharedMemoryCommand(sharedMemoryTypeName, {static_cast<qint32>(keyNumber)});
 }
 
 RemoveSharedMemoryCommand NodeInstanceView::createRemoveSharedMemoryCommand(const QString &sharedMemoryTypeName, const QList<ModelNode> &nodeList)
 {
+    NanotraceHR::Tracer tracer{"node instance view create remove shared memory command", category()};
+
     QVector<qint32> keyNumberVector;
 
     for (const ModelNode &modelNode : nodeList)
@@ -1502,6 +1637,8 @@ RemoveSharedMemoryCommand NodeInstanceView::createRemoveSharedMemoryCommand(cons
 
 void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance view values changed", category()};
+
     if (!model())
         return;
 
@@ -1527,6 +1664,8 @@ void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)
 
 void NodeInstanceView::valuesModified(const ValuesModifiedCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance view values modified", category()};
+
     if (!model())
         return;
 
@@ -1551,6 +1690,8 @@ void NodeInstanceView::valuesModified(const ValuesModifiedCommand &command)
 
 void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance view pixmap changed", category()};
+
     if (!model())
         return;
 
@@ -1593,6 +1734,8 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
 
 QMultiHash<ModelNode, InformationName> NodeInstanceView::informationChanged(const QVector<InformationContainer> &containerVector)
 {
+    NanotraceHR::Tracer tracer{"node instance view information changed", category()};
+
     QMultiHash<ModelNode, InformationName> informationChangeHash;
 
     for (const InformationContainer &container : containerVector) {
@@ -1611,6 +1754,8 @@ QMultiHash<ModelNode, InformationName> NodeInstanceView::informationChanged(cons
 
 void NodeInstanceView::informationChanged(const InformationChangedCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance view information changed", category()};
+
     if (!model())
         return;
 
@@ -1624,6 +1769,8 @@ void NodeInstanceView::informationChanged(const InformationChangedCommand &comma
 
 QImage NodeInstanceView::statePreviewImage(const ModelNode &stateNode) const
 {
+    NanotraceHR::Tracer tracer{"node instance view state preview image", category()};
+
     if (!isAttached())
         return {};
 
@@ -1635,6 +1782,8 @@ QImage NodeInstanceView::statePreviewImage(const ModelNode &stateNode) const
 
 void NodeInstanceView::setTarget(ProjectExplorer::Target *newTarget)
 {
+    NanotraceHR::Tracer tracer{"node instance view set target", category()};
+
     if (m_currentTarget != newTarget) {
         m_currentTarget = newTarget;
         if (m_currentTarget && m_currentTarget->kit()) {
@@ -1651,29 +1800,33 @@ void NodeInstanceView::setTarget(ProjectExplorer::Target *newTarget)
 
 ProjectExplorer::Target *NodeInstanceView::target() const
 {
+    NanotraceHR::Tracer tracer{"node instance view target", category()};
+
     return m_currentTarget;
 }
 
 void NodeInstanceView::statePreviewImagesChanged(const StatePreviewImageChangedCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance view state preview images changed", category()};
+
     if (!model())
-      return;
+        return;
 
-  QVector<ModelNode> previewImageChangeVector;
+    QVector<ModelNode> previewImageChangeVector;
 
-  const QVector<ImageContainer> containers = command.previews();
-  for (const ImageContainer &container : containers) {
-      if (container.keyNumber() == -1) {
-          m_baseStatePreviewImage = container.image();
-          if (!container.image().isNull())
-              previewImageChangeVector.append(rootModelNode());
-      } else if (hasInstanceForId(container.instanceId())) {
-          ModelNode node = modelNodeForInternalId(container.instanceId());
-          m_statePreviewImage.insert(node, container.image());
-          if (!container.image().isNull())
-              previewImageChangeVector.append(node);
-      }
-  }
+    const QVector<ImageContainer> containers = command.previews();
+    for (const ImageContainer &container : containers) {
+        if (container.keyNumber() == -1) {
+            m_baseStatePreviewImage = container.image();
+            if (!container.image().isNull())
+                previewImageChangeVector.append(rootModelNode());
+        } else if (hasInstanceForId(container.instanceId())) {
+            ModelNode node = modelNodeForInternalId(container.instanceId());
+            m_statePreviewImage.insert(node, container.image());
+            if (!container.image().isNull())
+                previewImageChangeVector.append(node);
+        }
+    }
 
   if (!previewImageChangeVector.isEmpty())
        emitInstancesPreviewImageChanged(previewImageChangeVector);
@@ -1681,6 +1834,8 @@ void NodeInstanceView::statePreviewImagesChanged(const StatePreviewImageChangedC
 
 void NodeInstanceView::componentCompleted(const ComponentCompletedCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance view component completed", category()};
+
     if (!model())
         return;
 
@@ -1700,7 +1855,9 @@ void NodeInstanceView::componentCompleted(const ComponentCompletedCommand &comma
 
 void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
 {
-     if (!model())
+    NanotraceHR::Tracer tracer{"node instance view children changed", category()};
+
+    if (!model())
         return;
 
     QVector<ModelNode> childNodeVector;
@@ -1726,6 +1883,8 @@ void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
 
 void NodeInstanceView::token(const TokenCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance view token", category()};
+
     if (!model())
         return;
 
@@ -1743,6 +1902,8 @@ void NodeInstanceView::token(const TokenCommand &command)
 
 void NodeInstanceView::debugOutput(const DebugOutputCommand & command)
 {
+    NanotraceHR::Tracer tracer{"node instance view debug output", category()};
+
     if (m_restartProcessTimerId) {
         // Debug output/errors from puppet are likely invalid if puppet reset has been requested,
         // so ignore them to avoid unnecessary warnings showing in UI
@@ -1769,6 +1930,8 @@ void NodeInstanceView::debugOutput(const DebugOutputCommand & command)
 
 void NodeInstanceView::sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector)
 {
+    NanotraceHR::Tracer tracer{"node instance view send token", category()};
+
     QVector<qint32> instanceIdVector;
     for (const ModelNode &node : nodeVector)
         instanceIdVector.append(node.internalId());
@@ -1778,6 +1941,8 @@ void NodeInstanceView::sendToken(const QString &token, int number, const QVector
 
 void NodeInstanceView::selectionChanged(const ChangeSelectionCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance view selection changed", category()};
+
     clearSelectedModelNodes();
     const QVector<qint32> instanceIds = command.instanceIds();
     for (const qint32 &instanceId : instanceIds) {
@@ -1788,6 +1953,8 @@ void NodeInstanceView::selectionChanged(const ChangeSelectionCommand &command)
 
 void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command)
 {
+    NanotraceHR::Tracer tracer{"node instance view handle puppet to creator command", category()};
+
     if (command.type() == PuppetToCreatorCommand::Edit3DToolState) {
         if (m_nodeInstanceServer) {
             auto data = qvariant_cast<QVariantList>(command.data());
@@ -1856,6 +2023,8 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
 
 std::unique_ptr<NodeInstanceServerProxy> NodeInstanceView::createNodeInstanceServerProxy()
 {
+    NanotraceHR::Tracer tracer{"node instance view create node instance server proxy", category()};
+
     return std::make_unique<NodeInstanceServerProxy>(this,
                                                      m_currentTarget,
                                                      m_connectionManager,
@@ -1865,17 +2034,23 @@ std::unique_ptr<NodeInstanceServerProxy> NodeInstanceView::createNodeInstanceSer
 void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                             const QList<ModelNode> & /*lastSelectedNodeList*/)
 {
+    NanotraceHR::Tracer tracer{"node instance view selected nodes changed", category()};
+
     m_nodeInstanceServer->changeSelection(createChangeSelectionCommand(selectedNodeList));
     m_rotBlockTimer.start();
 }
 
 void NodeInstanceView::sendInputEvent(QEvent *event)
 {
+    NanotraceHR::Tracer tracer{"node instance view send input event", category()};
+
     m_nodeInstanceServer->inputEvent(InputEventCommand(event));
 }
 
 void NodeInstanceView::view3DAction(View3DActionType type, const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{"node instance view view 3d action", category()};
+
     m_nodeInstanceServer->view3DAction({type, value});
 }
 
@@ -1886,6 +2061,8 @@ void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node,
                                                     const QSize &size,
                                                     const QByteArray &requestId) const
 {
+    NanotraceHR::Tracer tracer{"node instance view request model node preview image", category()};
+
     if (m_nodeInstanceServer && node.isValid() && hasInstanceForModelNode(node)) {
         auto instance = instanceForModelNode(node);
         if (instance.isValid()) {
@@ -1919,29 +2096,39 @@ void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node,
 
 void NodeInstanceView::edit3DViewResized(const QSize &size)
 {
+    NanotraceHR::Tracer tracer{"node instance view edit 3d view resized", category()};
+
     m_nodeInstanceServer->update3DViewState(Update3dViewStateCommand(size));
 }
 
 void NodeInstanceView::timerEvent(QTimerEvent *event)
 {
+    NanotraceHR::Tracer tracer{"node instance view timer event", category()};
+
     if (m_restartProcessTimerId == event->timerId())
         restartProcess();
 }
 
 void NodeInstanceView::emitInstancePropertyChange(const QList<QPair<ModelNode, PropertyName>> &propertyList)
 {
+    NanotraceHR::Tracer tracer{"node instance view emit instance property change", category()};
+
     if (isAttached())
         model()->emitInstancePropertyChange(this, propertyList);
 }
 
 void NodeInstanceView::emitInstanceErrorChange(const QVector<qint32> &instanceIds)
 {
+    NanotraceHR::Tracer tracer{"node instance view emit instance error change", category()};
+
     if (isAttached())
         model()->emitInstanceErrorChange(this, instanceIds);
 }
 
 void NodeInstanceView::emitInstancesCompleted(const QVector<ModelNode> &nodeVector)
 {
+    NanotraceHR::Tracer tracer{"node instance view emit instances completed", category()};
+
     if (isAttached())
         model()->emitInstancesCompleted(this, nodeVector);
 }
@@ -1949,30 +2136,41 @@ void NodeInstanceView::emitInstancesCompleted(const QVector<ModelNode> &nodeVect
 void NodeInstanceView::emitInstanceInformationsChange(
     const QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
+    NanotraceHR::Tracer tracer{"node instance view emit instance informations change", category()};
+
     if (isAttached())
         model()->emitInstanceInformationsChange(this, informationChangeHash);
 }
 
 void NodeInstanceView::emitInstancesRenderImageChanged(const QVector<ModelNode> &nodeVector)
 {
+    NanotraceHR::Tracer tracer{"node instance view emit instances render image changed", category()};
+
     if (isAttached())
         model()->emitInstancesRenderImageChanged(this, nodeVector);
 }
 
 void NodeInstanceView::emitInstancesPreviewImageChanged(const QVector<ModelNode> &nodeVector)
 {
+    NanotraceHR::Tracer tracer{"node instance view emit instances preview image changed", category()};
+
     if (isAttached())
         model()->emitInstancesPreviewImageChanged(this, nodeVector);
 }
 
 void NodeInstanceView::emitInstancesChildrenChanged(const QVector<ModelNode> &nodeVector)
 {
+    NanotraceHR::Tracer tracer{"node instance view emit instances children changed", category()};
+
     if (isAttached())
         model()->emitInstancesChildrenChanged(this, nodeVector);
 }
 
 QVariant NodeInstanceView::modelNodePreviewImageDataToVariant(const ModelNodePreviewImageData &imageData) const
 {
+    NanotraceHR::Tracer tracer{"node instance view model node preview image data to variant",
+                               category()};
+
     static QPixmap placeHolder;
     if (placeHolder.isNull()) {
         QPixmap placeHolderSrc(":/navigator/icon/tooltip_placeholder.png");
@@ -1997,6 +2195,8 @@ QVariant NodeInstanceView::modelNodePreviewImageDataToVariant(const ModelNodePre
 
 QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNode) const
 {
+    NanotraceHR::Tracer tracer{"node instance view preview image data for image node", category()};
+
     if (!modelNode.isValid())
         return {};
 
@@ -2107,6 +2307,8 @@ QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &model
                                                           const QSize &size,
                                                           const QByteArray &requestId) const
 {
+    NanotraceHR::Tracer tracer{"node instance view preview image data for generic node", category()};
+
     if (!modelNode.isValid())
         return {};
 
@@ -2139,6 +2341,8 @@ void NodeInstanceView::updatePreviewImageForNode(const ModelNode &modelNode,
                                                  const QImage &image,
                                                  const QByteArray &requestId)
 {
+    NanotraceHR::Tracer tracer{"node instance view update preview image for node", category()};
+
     QPixmap pixmap = QPixmap::fromImage(image);
     if (m_imageDataMap.contains(modelNode.id()))
         m_imageDataMap[modelNode.id()].pixmap = pixmap;
@@ -2148,6 +2352,8 @@ void NodeInstanceView::updatePreviewImageForNode(const ModelNode &modelNode,
 
 void NodeInstanceView::updateWatcher(const QString &path)
 {
+    NanotraceHR::Tracer tracer{"node instance view update watcher", category()};
+
     QString rootPath;
     QStringList oldFiles;
     QStringList oldDirs;
@@ -2248,6 +2454,8 @@ void NodeInstanceView::updateWatcher(const QString &path)
 
 void NodeInstanceView::handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader)
 {
+    NanotraceHR::Tracer tracer{"node instance view handle qsb process exit", category()};
+
     --m_remainingQsbTargets;
 
     const QString errStr = qsbProcess->errorString();
@@ -2269,6 +2477,8 @@ void NodeInstanceView::handleQsbProcessExit(Utils::Process *qsbProcess, const QS
 
 void NodeInstanceView::updateQsbPathToFilterMap()
 {
+    NanotraceHR::Tracer tracer{"node instance view update qsb path to filter map", category()};
+
     m_qsbPathToFilterMap.clear();
     if (m_currentTarget && !m_qsbPath.isEmpty()) {
         const auto bs = qobject_cast<QmlProjectManager::QmlBuildSystem *>(m_currentTarget->buildSystem());
@@ -2301,6 +2511,8 @@ void NodeInstanceView::updateQsbPathToFilterMap()
 
 void NodeInstanceView::handleShaderChanges()
 {
+    NanotraceHR::Tracer tracer{"node instance view handle shader changes", category()};
+
     if (!m_currentTarget)
         return;
 
@@ -2357,6 +2569,8 @@ void NodeInstanceView::handleShaderChanges()
 
 void NodeInstanceView::updateRotationBlocks()
 {
+    NanotraceHR::Tracer tracer{"node instance view update rotation blocks", category()};
+
     if (!model())
         return;
 
@@ -2404,6 +2618,8 @@ void NodeInstanceView::maybeResetOnPropertyChange(PropertyNameView name,
                                                   const ModelNode &node,
                                                   PropertyChangeFlags flags)
 {
+    NanotraceHR::Tracer tracer{"node instance view maybe reset on property change", category()};
+
     bool reset = false;
     if (flags & AbstractView::PropertiesAdded && name == "model"
         && node.metaInfo().isQtQuickRepeater()) {
@@ -2421,6 +2637,8 @@ void NodeInstanceView::maybeResetOnPropertyChange(PropertyNameView name,
 QList<NodeInstance> NodeInstanceView::loadInstancesFromCache(const QList<ModelNode> &nodeList,
                                                              const NodeInstanceCacheData &cache)
 {
+    NanotraceHR::Tracer tracer{"node instance view load instances from cache", category()};
+
     QList<NodeInstance> instanceList;
 
     const auto &previews = cache.previewImages;
@@ -2447,6 +2665,8 @@ QList<NodeInstance> NodeInstanceView::loadInstancesFromCache(const QList<ModelNo
 
 static bool isCapitalized(const QString &string)
 {
+    NanotraceHR::Tracer tracer{"node instance view is capitalized", "qml designer"};
+
     if (string.length() == 0)
         return false;
 
@@ -2455,6 +2675,8 @@ static bool isCapitalized(const QString &string)
 
 QString NodeInstanceView::fullyQualifyPropertyIfApplies(const BindingProperty &property) const
 {
+    NanotraceHR::Tracer tracer{"node instance view fully qualify property if applies", category()};
+
     auto parentModelNode = property.parentModelNode();
 
     const QString originalExpression = property.expression();

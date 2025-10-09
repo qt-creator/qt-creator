@@ -132,6 +132,8 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   PUBLIC_INCLUDES instances
   SOURCES_PREFIX instances
+  DEFINES
+    $<$<BOOL:${ENABLE_NODE_INSTANCE_TRACING}>:ENABLE_NODE_INSTANCE_TRACING>
   SOURCES
     baseconnectionmanager.cpp
     baseconnectionmanager.h
@@ -147,6 +149,8 @@ extend_qtc_plugin(QmlDesigner
     nodeinstance.h
     nodeinstanceserverproxy.cpp
     nodeinstanceserverproxy.h
+    nodeinstancetracing.cpp
+    nodeinstancetracing.h
     nodeinstanceview.cpp
     nodeinstanceview.h
     puppetstarter.cpp

@@ -4,6 +4,8 @@
 #include "qprocessuniqueptr.h"
 #include <qmldesigner_global.h>
 
+#include <nanotrace/staticstring.h>
+
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
@@ -33,6 +35,9 @@ public:
         ~Connection();
 
         void clear();
+
+        friend void convertToString(NanotraceHR::ArgumentsString &string,
+                                    const Connection &connection);
 
     public:
         QString name;

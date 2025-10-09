@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "nodeinstance.h"
+#include "nodeinstancetracing.h"
 
 #include <modelnode.h>
 
@@ -16,6 +17,9 @@ void qt_blurImage(QPainter *painter, QImage &blurImage, qreal radius, bool quali
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
+
+using NanotraceHR::keyValue;
+using NodeInstanceTracing::category;
 
 class ProxyNodeInstanceData
 {
@@ -64,21 +68,30 @@ public:
 NodeInstance::NodeInstance(const ModelNode &node)
     : d(std::make_shared<ProxyNodeInstanceData>(node))
 {
+    NanotraceHR::Tracer tracer{"node instance constructor", category(), keyValue("node", node)};
 }
 
 NodeInstance NodeInstance::create(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"node instance create", category()};
+
     return NodeInstance{node};
 }
 
-NodeInstance::~NodeInstance() = default;
+NodeInstance::~NodeInstance()
+{
+    NanotraceHR::Tracer tracer{"node instance destructor", category()};
+}
 
 NodeInstance::NodeInstance(const NodeInstance &other) = default;
-
 NodeInstance &NodeInstance::operator=(const NodeInstance &other) = default;
+NodeInstance::NodeInstance(NodeInstance &&other) noexcept = default;
+NodeInstance &NodeInstance::operator=(NodeInstance &&other) noexcept = default;
 
 ModelNode NodeInstance::modelNode() const
 {
+    NanotraceHR::Tracer tracer{"node instance model node", category()};
+
     if (d)
         return d->modelNode;
     else
@@ -87,6 +100,8 @@ ModelNode NodeInstance::modelNode() const
 
 qint32 NodeInstance::instanceId() const
 {
+    NanotraceHR::Tracer tracer{"node instance id", category()};
+
     if (d)
         return d->modelNode.internalId();
     else
@@ -95,12 +110,18 @@ qint32 NodeInstance::instanceId() const
 
 void NodeInstance::setDirectUpdate(bool directUpdates)
 {
+    NanotraceHR::Tracer tracer{"node instance set direct update",
+                               category(),
+                               keyValue("direct updates", directUpdates)};
+
     if (d)
         d->directUpdates = directUpdates;
 }
 
 bool NodeInstance::directUpdates() const
 {
+    NanotraceHR::Tracer tracer{"node instance direct updates", category()};
+
     if (d)
         return d->directUpdates && !(d->transform.isRotating() || d->transform.isScaling() || hasAnchors());
     else
@@ -109,6 +130,8 @@ bool NodeInstance::directUpdates() const
 
 void NodeInstance::setX(double x)
 {
+    NanotraceHR::Tracer tracer{"node instance set x", category(), keyValue("x", x)};
+
     if (d && directUpdates()) {
         double dx = x - d->transform.dx();
         d->transform.translate(dx, 0.0);
@@ -117,6 +140,8 @@ void NodeInstance::setX(double x)
 
 void NodeInstance::setY(double y)
 {
+    NanotraceHR::Tracer tracer{"node instance set y", category(), keyValue("y", y)};
+
     if (d && directUpdates()) {
         double dy = y - d->transform.dy();
         d->transform.translate(0.0, dy);
@@ -125,19 +150,18 @@ void NodeInstance::setY(double y)
 
 bool NodeInstance::hasAnchors() const
 {
-    return hasAnchor("anchors.fill")
-            || hasAnchor("anchors.centerIn")
-            || hasAnchor("anchors.top")
-            || hasAnchor("anchors.left")
-            || hasAnchor("anchors.right")
-            || hasAnchor("anchors.bottom")
-            || hasAnchor("anchors.horizontalCenter")
-            || hasAnchor("anchors.verticalCenter")
-            || hasAnchor("anchors.baseline");
+    NanotraceHR::Tracer tracer{"node instance has anchors", category()};
+
+    return hasAnchor("anchors.fill") || hasAnchor("anchors.centerIn") || hasAnchor("anchors.top")
+           || hasAnchor("anchors.left") || hasAnchor("anchors.right") || hasAnchor("anchors.bottom")
+           || hasAnchor("anchors.horizontalCenter") || hasAnchor("anchors.verticalCenter")
+           || hasAnchor("anchors.baseline");
 }
 
 QString NodeInstance::error() const
 {
+    NanotraceHR::Tracer tracer{"node instance error", category()};
+
     if (d)
         return d->errorMessage;
 
@@ -146,6 +170,8 @@ QString NodeInstance::error() const
 
 bool NodeInstance::hasError() const
 {
+    NanotraceHR::Tracer tracer{"node instance has error", category()};
+
     if (d)
         return !d->errorMessage.isEmpty();
 
@@ -154,6 +180,8 @@ bool NodeInstance::hasError() const
 
 QStringList NodeInstance::allStateNames() const
 {
+    NanotraceHR::Tracer tracer{"node instance all state names", category()};
+
     if (d)
         return d->allStates;
 
@@ -164,22 +192,30 @@ static constinit NodeInstance nullInstance;
 
 NodeInstance &NodeInstance::null()
 {
+    NanotraceHR::Tracer tracer{"node instance null", category()};
+
     return nullInstance;
 }
 
 bool NodeInstance::isValid() const
 {
+    NanotraceHR::Tracer tracer{"node instance is valid", category()};
+
     return instanceId() >= 0 && modelNode().isValid();
 }
 
 void NodeInstance::makeInvalid()
 {
+    NanotraceHR::Tracer tracer{"node instance make invalid", category()};
+
     if (d)
         d->modelNode = ModelNode();
 }
 
 QRectF NodeInstance::boundingRect() const
 {
+    NanotraceHR::Tracer tracer{"node instance bounding rect", category()};
+
     if (isValid()) {
         if (d->boundingRectPixmap.isValid())
             return d->boundingRectPixmap;
@@ -190,6 +226,8 @@ QRectF NodeInstance::boundingRect() const
 
 QRectF NodeInstance::contentItemBoundingRect() const
 {
+    NanotraceHR::Tracer tracer{"node instance content item bounding rect", category()};
+
     if (isValid())
         return d->contentItemBoundingRect;
     else
@@ -198,6 +236,8 @@ QRectF NodeInstance::contentItemBoundingRect() const
 
 bool NodeInstance::hasContent() const
 {
+    NanotraceHR::Tracer tracer{"node instance has content", category()};
+
     if (isValid())
         return d->hasContent;
     else
@@ -206,6 +246,8 @@ bool NodeInstance::hasContent() const
 
 bool NodeInstance::isAnchoredBySibling() const
 {
+    NanotraceHR::Tracer tracer{"node instance is anchored by sibling", category()};
+
     if (isValid())
         return d->isAnchoredBySibling;
     else
@@ -214,6 +256,8 @@ bool NodeInstance::isAnchoredBySibling() const
 
 bool NodeInstance::isAnchoredByChildren() const
 {
+    NanotraceHR::Tracer tracer{"node instance is anchored by children", category()};
+
     if (isValid())
         return d->isAnchoredByChildren;
     else
@@ -222,6 +266,8 @@ bool NodeInstance::isAnchoredByChildren() const
 
 bool NodeInstance::isMovable() const
 {
+    NanotraceHR::Tracer tracer{"node instance is movable", category()};
+
     if (isValid())
         return d->isMovable;
     else
@@ -230,6 +276,8 @@ bool NodeInstance::isMovable() const
 
 bool NodeInstance::isResizable() const
 {
+    NanotraceHR::Tracer tracer{"node instance is resizable", category()};
+
     if (isValid())
         return d->isResizable;
     else
@@ -238,6 +286,8 @@ bool NodeInstance::isResizable() const
 
 QTransform NodeInstance::transform() const
 {
+    NanotraceHR::Tracer tracer{"node instance transform", category()};
+
     if (isValid())
         return d->transform;
     else
@@ -246,6 +296,8 @@ QTransform NodeInstance::transform() const
 
 QTransform NodeInstance::contentTransform() const
 {
+    NanotraceHR::Tracer tracer{"node instance content transform", category()};
+
     if (isValid())
         return d->contentTransform;
     else
@@ -254,6 +306,8 @@ QTransform NodeInstance::contentTransform() const
 
 QTransform NodeInstance::contentItemTransform() const
 {
+    NanotraceHR::Tracer tracer{"node instance content item transform", category()};
+
     if (isValid())
         return d->contentItemTransform;
     else
@@ -261,6 +315,8 @@ QTransform NodeInstance::contentItemTransform() const
 }
 QTransform NodeInstance::sceneTransform() const
 {
+    NanotraceHR::Tracer tracer{"node instance scene transform", category()};
+
     if (isValid())
         return d->sceneTransform;
     else
@@ -268,6 +324,8 @@ QTransform NodeInstance::sceneTransform() const
 }
 bool NodeInstance::isInLayoutable() const
 {
+    NanotraceHR::Tracer tracer{"node instance is in layoutable", category()};
+
     if (isValid())
         return d->isInLayoutable;
     else
@@ -276,6 +334,8 @@ bool NodeInstance::isInLayoutable() const
 
 QPointF NodeInstance::position() const
 {
+    NanotraceHR::Tracer tracer{"node instance position", category()};
+
     if (isValid())
         return d->position;
     else
@@ -284,6 +344,8 @@ QPointF NodeInstance::position() const
 
 QSizeF NodeInstance::size() const
 {
+    NanotraceHR::Tracer tracer{"node instance size", category()};
+
     if (isValid())
         return d->size;
     else
@@ -292,6 +354,8 @@ QSizeF NodeInstance::size() const
 
 int NodeInstance::penWidth() const
 {
+    NanotraceHR::Tracer tracer{"node instance pen width", category()};
+
     if (isValid())
         return d->penWidth;
     else
@@ -315,6 +379,8 @@ auto value(const std::map<Arguments...> &dict,
 
 QVariant NodeInstance::property(PropertyNameView name) const
 {
+    NanotraceHR::Tracer tracer{"node instance property", category(), keyValue("name", name)};
+
     if (isValid()) {
         if (auto found = d->propertyValues.find(name); found != d->propertyValues.end()) {
             return found->second;
@@ -391,6 +457,8 @@ QVariant NodeInstance::property(PropertyNameView name) const
 
 bool NodeInstance::hasProperty(PropertyNameView name) const
 {
+    NanotraceHR::Tracer tracer{"node instance has property", category(), keyValue("name", name)};
+
     if (isValid())
         return d->propertyValues.contains(name);
 
@@ -399,6 +467,10 @@ bool NodeInstance::hasProperty(PropertyNameView name) const
 
 bool NodeInstance::hasBindingForProperty(PropertyNameView name) const
 {
+    NanotraceHR::Tracer tracer{"node instance has binding for property",
+                               category(),
+                               keyValue("name", name)};
+
     if (isValid())
         return value(d->hasBindingForProperty, name, false);
 
@@ -407,6 +479,8 @@ bool NodeInstance::hasBindingForProperty(PropertyNameView name) const
 
 TypeName NodeInstance::instanceType(PropertyNameView name) const
 {
+    NanotraceHR::Tracer tracer{"node instance instance type", category(), keyValue("name", name)};
+
     if (isValid())
         return value(d->instanceTypes, name);
 
@@ -415,6 +489,8 @@ TypeName NodeInstance::instanceType(PropertyNameView name) const
 
 qint32 NodeInstance::parentId() const
 {
+    NanotraceHR::Tracer tracer{"node instance parent id", category()};
+
     if (isValid())
         return d->parentInstanceId;
     else
@@ -423,6 +499,8 @@ qint32 NodeInstance::parentId() const
 
 bool NodeInstance::hasAnchor(PropertyNameView name) const
 {
+    NanotraceHR::Tracer tracer{"node instance has anchor", category(), keyValue("name", name)};
+
     if (isValid())
         return value(d->hasAnchors, name, false);
 
@@ -431,6 +509,8 @@ bool NodeInstance::hasAnchor(PropertyNameView name) const
 
 QPair<PropertyName, qint32> NodeInstance::anchor(PropertyNameView name) const
 {
+    NanotraceHR::Tracer tracer{"node instance anchor", category(), keyValue("name", name)};
+
     if (isValid())
         return value(d->anchors, name, QPair<PropertyName, qint32>(PropertyName(), qint32(-1)));
 
@@ -439,6 +519,8 @@ QPair<PropertyName, qint32> NodeInstance::anchor(PropertyNameView name) const
 
 void NodeInstance::setProperty(PropertyNameView name, const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{"node instance set property", category(), keyValue("name", name)};
+
     const auto index = name.indexOf('.');
     if (index != -1) {
         PropertyNameView parentPropName = name.left(index);
@@ -502,6 +584,8 @@ void NodeInstance::setProperty(PropertyNameView name, const QVariant &value)
 
 QPixmap NodeInstance::renderPixmap() const
 {
+    NanotraceHR::Tracer tracer{"node instance render pixmap", category()};
+
     if (isValid())
         return d->renderPixmap;
 
@@ -510,6 +594,8 @@ QPixmap NodeInstance::renderPixmap() const
 
 QPixmap NodeInstance::blurredRenderPixmap() const
 {
+    NanotraceHR::Tracer tracer{"node instance blurred render pixmap", category()};
+
     if (!isValid())
         return {};
 
@@ -525,6 +611,8 @@ QPixmap NodeInstance::blurredRenderPixmap() const
 
 void NodeInstance::setRenderPixmap(const QImage &image)
 {
+    NanotraceHR::Tracer tracer{"node instance set render pixmap", category(), keyValue("image", image)};
+
     d->renderPixmap = QPixmap::fromImage(image);
 
     d->blurredRenderPixmap = QPixmap();
@@ -532,6 +620,10 @@ void NodeInstance::setRenderPixmap(const QImage &image)
 
 bool NodeInstance::setError(const QString &errorMessage)
 {
+    NanotraceHR::Tracer tracer{"node instance set error",
+                               category(),
+                               keyValue("error message", errorMessage)};
+
     if (d->errorMessage != errorMessage) {
         d->errorMessage = errorMessage;
         return true;
@@ -541,11 +633,16 @@ bool NodeInstance::setError(const QString &errorMessage)
 
 void NodeInstance::setParentId(qint32 instanceId)
 {
+    NanotraceHR::Tracer tracer{"node instance set parent id",
+                               category(),
+                               keyValue("instance id", instanceId)};
+
     d->parentInstanceId = instanceId;
 }
 
 InformationName NodeInstance::setInformationSize(const QSizeF &size)
 {
+    NanotraceHR::Tracer tracer{"node instance set information size", category()};
     if (d->size != size) {
         d->size = size;
         return Size;
@@ -556,6 +653,8 @@ InformationName NodeInstance::setInformationSize(const QSizeF &size)
 
 InformationName NodeInstance::setInformationImplicitSize(const QSizeF &implicitSize)
 {
+    NanotraceHR::Tracer tracer{"node instance set information implicit size", category()};
+
     if (d->implicitSize != implicitSize) {
         d->implicitSize = implicitSize;
         return ImplicitSize;
@@ -566,6 +665,8 @@ InformationName NodeInstance::setInformationImplicitSize(const QSizeF &implicitS
 
 InformationName NodeInstance::setInformationBoundingRect(const QRectF &rectangle)
 {
+    NanotraceHR::Tracer tracer{"node instance set information bounding rect", category()};
+
     if (d->boundingRect != rectangle) {
         d->boundingRect = rectangle;
         return BoundingRect;
@@ -576,6 +677,8 @@ InformationName NodeInstance::setInformationBoundingRect(const QRectF &rectangle
 
 InformationName NodeInstance::setInformationBoundingRectPixmap(const QRectF &rectangle)
 {
+    NanotraceHR::Tracer tracer{"node instance set information bounding rect pixmap", category()};
+
     if (d->boundingRectPixmap != rectangle) {
         d->boundingRectPixmap = rectangle;
         return BoundingRectPixmap;
@@ -586,6 +689,8 @@ InformationName NodeInstance::setInformationBoundingRectPixmap(const QRectF &rec
 
 InformationName NodeInstance::setInformationContentItemBoundingRect(const QRectF &rectangle)
 {
+    NanotraceHR::Tracer tracer{"node instance set information content item bounding rect", category()};
+
     if (d->contentItemBoundingRect != rectangle) {
         d->contentItemBoundingRect = rectangle;
         return ContentItemBoundingRect;
@@ -596,6 +701,8 @@ InformationName NodeInstance::setInformationContentItemBoundingRect(const QRectF
 
 InformationName NodeInstance::setInformationTransform(const QTransform &transform)
 {
+    NanotraceHR::Tracer tracer{"node instance set information transform", category()};
+
     if (!directUpdates() && d->transform != transform) {
         d->transform = transform;
         return Transform;
@@ -606,6 +713,8 @@ InformationName NodeInstance::setInformationTransform(const QTransform &transfor
 
 InformationName NodeInstance::setInformationContentTransform(const QTransform &contentTransform)
 {
+    NanotraceHR::Tracer tracer{"node instance set information content transform", category()};
+
     if (d->contentTransform != contentTransform) {
         d->contentTransform = contentTransform;
         return ContentTransform;
@@ -616,6 +725,8 @@ InformationName NodeInstance::setInformationContentTransform(const QTransform &c
 
 InformationName NodeInstance::setInformationContentItemTransform(const QTransform &contentItemTransform)
 {
+    NanotraceHR::Tracer tracer{"node instance set information content item transform", category()};
+
     if (d->contentItemTransform != contentItemTransform) {
         d->contentItemTransform = contentItemTransform;
         return ContentItemTransform;
@@ -626,6 +737,8 @@ InformationName NodeInstance::setInformationContentItemTransform(const QTransfor
 
 InformationName NodeInstance::setInformationPenWith(int penWidth)
 {
+    NanotraceHR::Tracer tracer{"node instance set information pen width", category()};
+
     if (d->penWidth != penWidth) {
         d->penWidth = penWidth;
         return PenWidth;
@@ -636,6 +749,8 @@ InformationName NodeInstance::setInformationPenWith(int penWidth)
 
 InformationName NodeInstance::setInformationPosition(const QPointF &position)
 {
+    NanotraceHR::Tracer tracer{"node instance set information position", category()};
+
     if (d->position != position) {
         d->position = position;
         return Position;
@@ -646,6 +761,8 @@ InformationName NodeInstance::setInformationPosition(const QPointF &position)
 
 InformationName NodeInstance::setInformationIsInLayoutable(bool isInLayoutable)
 {
+    NanotraceHR::Tracer tracer{"node instance set information is in layoutable", category()};
+
     if (d->isInLayoutable != isInLayoutable) {
         d->isInLayoutable = isInLayoutable;
         return IsInLayoutable;
@@ -656,7 +773,9 @@ InformationName NodeInstance::setInformationIsInLayoutable(bool isInLayoutable)
 
 InformationName NodeInstance::setInformationSceneTransform(const QTransform &sceneTransform)
 {
-  if (d->sceneTransform != sceneTransform) {
+    NanotraceHR::Tracer tracer{"node instance set information scene transform", category()};
+
+    if (d->sceneTransform != sceneTransform) {
         d->sceneTransform = sceneTransform;
         if (!directUpdates())
             return SceneTransform;
@@ -667,6 +786,8 @@ InformationName NodeInstance::setInformationSceneTransform(const QTransform &sce
 
 InformationName NodeInstance::setInformationIsResizable(bool isResizable)
 {
+    NanotraceHR::Tracer tracer{"node instance set information is resizable", category()};
+
     if (d->isResizable != isResizable) {
         d->isResizable = isResizable;
         return IsResizable;
@@ -677,6 +798,8 @@ InformationName NodeInstance::setInformationIsResizable(bool isResizable)
 
 InformationName NodeInstance::setInformationIsMovable(bool isMovable)
 {
+    NanotraceHR::Tracer tracer{"node instance set information is movable", category()};
+
     if (d->isMovable != isMovable) {
         d->isMovable = isMovable;
         return IsMovable;
@@ -687,6 +810,8 @@ InformationName NodeInstance::setInformationIsMovable(bool isMovable)
 
 InformationName NodeInstance::setInformationIsAnchoredByChildren(bool isAnchoredByChildren)
 {
+    NanotraceHR::Tracer tracer{"node instance set information is anchored by children", category()};
+
     if (d->isAnchoredByChildren != isAnchoredByChildren) {
         d->isAnchoredByChildren = isAnchoredByChildren;
         return IsAnchoredByChildren;
@@ -697,6 +822,8 @@ InformationName NodeInstance::setInformationIsAnchoredByChildren(bool isAnchored
 
 InformationName NodeInstance::setInformationIsAnchoredBySibling(bool isAnchoredBySibling)
 {
+    NanotraceHR::Tracer tracer{"node instance set information is anchored by sibling", category()};
+
     if (d->isAnchoredBySibling != isAnchoredBySibling) {
         d->isAnchoredBySibling = isAnchoredBySibling;
         return IsAnchoredBySibling;
@@ -707,6 +834,8 @@ InformationName NodeInstance::setInformationIsAnchoredBySibling(bool isAnchoredB
 
 InformationName NodeInstance::setInformationHasContent(bool hasContent)
 {
+    NanotraceHR::Tracer tracer{"node instance set information has content", category()};
+
     if (d->hasContent != hasContent) {
         d->hasContent = hasContent;
         return HasContent;
@@ -717,6 +846,8 @@ InformationName NodeInstance::setInformationHasContent(bool hasContent)
 
 InformationName NodeInstance::setInformationHasAnchor(PropertyNameView sourceAnchorLine, bool hasAnchor)
 {
+    NanotraceHR::Tracer tracer{"node instance set information has anchor", category()};
+
     if (auto found = d->hasAnchors.find(sourceAnchorLine);
         found == d->hasAnchors.end() || found->second != hasAnchor) {
         d->hasAnchors.insert_or_assign(found, sourceAnchorLine, hasAnchor);
@@ -730,6 +861,8 @@ InformationName NodeInstance::setInformationAnchor(PropertyNameView sourceAnchor
                                                    const PropertyName &targetAnchorLine,
                                                    qint32 targetInstanceId)
 {
+    NanotraceHR::Tracer tracer{"node instance set information anchor", category()};
+
     std::pair<PropertyName, qint32> anchorPair = std::pair<PropertyName, qint32>(targetAnchorLine,
                                                                                  targetInstanceId);
     if (auto found = d->anchors.find(sourceAnchorLine);
@@ -744,6 +877,8 @@ InformationName NodeInstance::setInformationAnchor(PropertyNameView sourceAnchor
 InformationName NodeInstance::setInformationInstanceTypeForProperty(PropertyNameView property,
                                                                     const TypeName &type)
 {
+    NanotraceHR::Tracer tracer{"node instance set information instance type for property", category()};
+
     if (auto found = d->instanceTypes.find(property);
         found == d->instanceTypes.end() || found->second != type) {
         d->instanceTypes.insert_or_assign(found, property, type);
@@ -756,6 +891,8 @@ InformationName NodeInstance::setInformationInstanceTypeForProperty(PropertyName
 InformationName NodeInstance::setInformationHasBindingForProperty(PropertyNameView property,
                                                                   bool hasProperty)
 {
+    NanotraceHR::Tracer tracer{"node instance set information has binding for property", category()};
+
     if (auto found = d->hasBindingForProperty.find(property);
         found == d->hasBindingForProperty.end() || found->second != hasProperty) {
         d->hasBindingForProperty.insert_or_assign(found, property, hasProperty);
@@ -767,6 +904,8 @@ InformationName NodeInstance::setInformationHasBindingForProperty(PropertyNameVi
 
 InformationName NodeInstance::setAllStates(const QStringList &states)
 {
+    NanotraceHR::Tracer tracer{"node instance set all states", category()};
+
     if (d->allStates != states) {
         d->allStates = states;
         return AllStates;
@@ -777,6 +916,8 @@ InformationName NodeInstance::setAllStates(const QStringList &states)
 
 InformationName NodeInstance::setInformation(InformationName name, const QVariant &information, const QVariant &secondInformation, const QVariant &thirdInformation)
 {
+    NanotraceHR::Tracer tracer{"node instance set information", category(), keyValue("name", name)};
+
     switch (name) {
     case Size: return setInformationSize(information.toSizeF());
     case ImplicitSize:

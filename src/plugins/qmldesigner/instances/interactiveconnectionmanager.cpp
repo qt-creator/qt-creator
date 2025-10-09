@@ -3,6 +3,7 @@
 
 #include "interactiveconnectionmanager.h"
 #include "nodeinstanceserverproxy.h"
+#include "nodeinstancetracing.h"
 #include "nodeinstanceview.h"
 
 #include <qmldesignerplugin.h>
@@ -17,8 +18,13 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+using NodeInstanceTracing::category;
+
 InteractiveConnectionManager::InteractiveConnectionManager()
 {
+    NanotraceHR::Tracer tracer{"interactive connection manager constructor", category()};
+
     connections().emplace_back("Editor", "editormode");
     connections().emplace_back("Render", "rendermode");
     connections().emplace_back("Preview", "previewmode");
@@ -30,6 +36,8 @@ void InteractiveConnectionManager::setUp(NodeInstanceServerInterface *nodeInstan
                                          AbstractView *view,
                                          ExternalDependenciesInterface &externalDependencies)
 {
+    NanotraceHR::Tracer tracer{"interactive connection manager setup", category()};
+
     ConnectionManager::setUp(nodeInstanceServer, qrcMappingString, target, view, externalDependencies);
 
     int timeOutTime = QmlDesignerPlugin::settings()
@@ -53,6 +61,8 @@ void InteractiveConnectionManager::setUp(NodeInstanceServerInterface *nodeInstan
 
 void InteractiveConnectionManager::shutDown()
 {
+    NanotraceHR::Tracer tracer{"interactive connection manager shutdown", category()};
+
     m_view = {};
     ConnectionManager::shutDown();
 }
@@ -60,6 +70,10 @@ void InteractiveConnectionManager::shutDown()
 void InteractiveConnectionManager::showCannotConnectToPuppetWarningAndSwitchToEditMode(
     const QString &qmlPuppetPath)
 {
+    NanotraceHR::Tracer tracer{"interactive connection manager show cannot connect warning",
+                               category(),
+                               keyValue("qml puppet path", qmlPuppetPath)};
+
     QString title = tr("Cannot Connect to QML Puppet");
     QString message;
 
@@ -78,6 +92,10 @@ void InteractiveConnectionManager::showCannotConnectToPuppetWarningAndSwitchToEd
 
 void InteractiveConnectionManager::dispatchCommand(const QVariant &command, Connection &connection)
 {
+    NanotraceHR::Tracer tracer{"interactive connection manager dispatch command",
+                               category(),
+                               keyValue("connection", connection)};
+
     static const int puppetAliveCommandType = QMetaType::fromName("PuppetAliveCommand").id();
 
     if (command.typeId() == puppetAliveCommandType) {
@@ -89,6 +107,10 @@ void InteractiveConnectionManager::dispatchCommand(const QVariant &command, Conn
 
 void InteractiveConnectionManager::puppetTimeout(Connection &connection)
 {
+    NanotraceHR::Tracer tracer{"interactive connection manager puppet timeout",
+                               category(),
+                               keyValue("connection", connection)};
+
     if (connection.timer && connection.socket && connection.socket->waitForReadyRead(10)) {
         connection.timer->stop();
         connection.timer->start();
@@ -100,6 +122,10 @@ void InteractiveConnectionManager::puppetTimeout(Connection &connection)
 
 void InteractiveConnectionManager::puppetAlive(Connection &connection)
 {
+    NanotraceHR::Tracer tracer{"interactive connection manager puppet alive",
+                               category(),
+                               keyValue("connection", connection)};
+
     if (connection.timer) {
         connection.timer->stop();
         connection.timer->start();
