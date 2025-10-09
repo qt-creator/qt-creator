@@ -54,7 +54,11 @@ find_program(GO_BIN go)
 find_program(UPX_BIN upx)
 
 if(NOT GO_BIN)
-  message(FATAL_ERROR "Could not find GO compiler, required for the CmdBridge (BUILD_EXECUTABLE_CMDBRIDGE) for fast remote device support.")
+  message(FATAL_ERROR
+      "Could not find a Go compiler, required for the CmdBridge.
+For information about installing Go, see \"Installing the Go Compiler\" in the toplevel README.md file or https://code.qt.io/cgit/qt-creator/qt-creator.git/about/README.md#installing-the-go-compiler
+You can also disable the CmdBridge by reconfiguring with -DBUILD_EXECUTABLE_CMDBRIDGE=OFF or setting the environment variable QTC_BUILD_EXECUTABLE_CMDBRIDGE=OFF
+but note that disabling the CmdBridge leads to slow communication with remote devices.")
 endif()
 
 set(CMDBRIDGEFEATURE_TEXT "with GO compiler at ${GO_BIN}")
