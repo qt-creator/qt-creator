@@ -21384,7 +21384,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>CMake executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für CMake:</translation>
     </message>
     <message>
         <source>No cmake tool set.</source>
@@ -21404,7 +21404,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Test preset %1 is missing a corresponding configure preset.</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Test-Preset %1 fehlt ein entsprechendes Configure-Preset.</translation>
     </message>
     <message>
         <source>Attempt to include &quot;%1&quot; which was already parsed.</source>
@@ -21461,7 +21461,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>CMake from Build Device</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake vom Build-Gerät</translation>
     </message>
     <message>
         <source>CMake executable path does not exist.</source>
@@ -21607,7 +21607,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>You asked to build the current Run Configuration&apos;s build target only, but it is not associated with a build target. Update the Make Step in your build settings.</source>
-        <translation type="unfinished">Sie möchten nur das Übersetzungsergebnis für die aktuelle Ausführungsonfiguration bauen, aber sie ist mit keinem verknüpft. Korrigieren Sie den Make-Schritt in der Erstellungskonfiguration.</translation>
+        <translation>Sie möchten nur das Übersetzungsergebnis für die aktuelle Ausführungsonfiguration bauen, aber sie ist mit keinem verknüpft. Korrigieren Sie den Make-Schritt in der Erstellungskonfiguration.</translation>
     </message>
     <message>
         <source>Build</source>
@@ -21733,7 +21733,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Apply Configuration Changes?</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurationänderungen anwenden?</translation>
     </message>
     <message>
         <source>Apply</source>
@@ -21765,19 +21765,19 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>%1 (via CMake)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (über CMake)</translation>
     </message>
     <message>
         <source>CMake generator failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Generator fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Kit does not have a CMake binary set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kit hat keine ausführbare CMake-Datei gesetzt.</translation>
     </message>
     <message>
         <source>No valid CMake executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine gültige ausführbare CMake-Datei.</translation>
     </message>
     <message>
         <source>Cannot create output directory &quot;%1&quot;.</source>
@@ -21817,35 +21817,35 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Path to the CMake executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zum CMake-Werkzeug</translation>
     </message>
     <message>
         <source>Found CMake tool: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Werkzeug gefunden: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>CMake tool: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Werkzeug: %1.</translation>
     </message>
     <message>
         <source>Expected JSON Object, got: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON-Objekt erwartet, &quot;%1&quot; wurde erhalten.</translation>
     </message>
     <message>
         <source>Expected JSON Object with key &quot;binary&quot; to be a string.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für das JSON-Objekt mit Schlüssel &quot;binary&quot; wird eine Zeichenkette erwartet.</translation>
     </message>
     <message>
         <source>CMake executable &quot;%1&quot; is not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare CMake-Datei &quot;%1&quot; ist ungültig.</translation>
     </message>
     <message>
         <source>CMake tool &quot;%1&quot; is not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Werkzeug &quot;%1&quot; ist ungültig.</translation>
     </message>
     <message>
         <source>Cannot create CMake tool from JSON: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Aus der JSON-Information kann kein CMake-Werkzeug erstellt werden: %1</translation>
     </message>
     <message>
         <source>Platform</source>
@@ -21985,15 +21985,15 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Run CTest Test</source>
-        <translation type="unfinished"></translation>
+        <translation>CTest-Test ausführen</translation>
     </message>
     <message>
         <source>Runs a CTest test of the current active CMake project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt einen CTest-Test des aktiven CMake-Projekts aus.</translation>
     </message>
     <message>
         <source>AutoTest plugin needs to be loaded in order to execute tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das AutoTest-Plugin muss geladen sein, um Tests ausführen zu können.</translation>
     </message>
     <message>
         <source>You may need to add the project directory to the list of directories that are mounted by the build device.</source>
@@ -22198,7 +22198,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Invalid &quot;testPresets&quot; section in file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Abschnitt &quot;testPresets&quot; in der Datei &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Invalid &quot;vendor&quot; section in file &quot;%1&quot;.</source>
@@ -22252,15 +22252,15 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>CMake Editor</source>
-        <translation type="unfinished">CMake-Editor</translation>
+        <translation>CMake-Editor</translation>
     </message>
     <message>
         <source>Found &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; gefunden.</translation>
     </message>
     <message>
         <source>Removing CMake tool &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne CMake-Werkzeug &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
@@ -22279,19 +22279,19 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>CVS Command Log Editor</source>
-        <translation type="unfinished">CVS Kommando-Log-Editor</translation>
+        <translation>CVS Kommando-Log-Editor</translation>
     </message>
     <message>
         <source>CVS File Log Editor</source>
-        <translation type="unfinished">CVS Datei-Log-Editor</translation>
+        <translation>CVS Datei-Log-Editor</translation>
     </message>
     <message>
         <source>CVS Annotation Editor</source>
-        <translation type="unfinished">CVS Annotations-Editor</translation>
+        <translation>CVS Annotations-Editor</translation>
     </message>
     <message>
         <source>CVS Diff Editor</source>
-        <translation type="unfinished">CVS Diff-Editor</translation>
+        <translation>CVS Diff-Editor</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
@@ -22299,11 +22299,11 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Local name cannot be the same as the URL.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der lokale Name darf nicht mit der URL übereinstimmen.</translation>
     </message>
     <message>
         <source>CVS Commit Editor</source>
-        <translation type="unfinished">CVS Commit-Editor</translation>
+        <translation>CVS Commit-Editor</translation>
     </message>
     <message>
         <source>Triggers a CVS version control operation.</source>
@@ -23689,15 +23689,15 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>ClearCase File Log Editor</source>
-        <translation type="unfinished">ClearCase Datei-Log-Editor</translation>
+        <translation>ClearCase Datei-Log-Editor</translation>
     </message>
     <message>
         <source>ClearCase Annotation Editor</source>
-        <translation type="unfinished">ClearCase Annotations-Editor</translation>
+        <translation>ClearCase Annotations-Editor</translation>
     </message>
     <message>
         <source>ClearCase Diff Editor</source>
-        <translation type="unfinished">ClearCase Diff-Editor</translation>
+        <translation>ClearCase Diff-Editor</translation>
     </message>
     <message>
         <source>Editing Derived Object: %1</source>
@@ -23877,7 +23877,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>ClearCase Check In Editor</source>
-        <translation type="unfinished">ClearCase Check-In-Editor</translation>
+        <translation>ClearCase Check-In-Editor</translation>
     </message>
     <message>
         <source>Check In</source>
@@ -24001,15 +24001,15 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     <name>QtC::CmdBridge</name>
     <message>
         <source>Command &quot;%1&quot; failed with exit code %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando &quot;%1&quot; ist mit Rückgabewert %2 fehlgeschlagen: %3</translation>
     </message>
     <message>
         <source>Remote root path is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes Wurzelverzeichnis ist leer.</translation>
     </message>
     <message>
         <source>Remote root path is not absolute.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes Wurzelverzeichnis ist nicht absolut.</translation>
     </message>
     <message>
         <source>Could not find dd on remote host: %1</source>
@@ -24017,23 +24017,23 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Path &quot;%1&quot; is not a symlink.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; ist kein Symlink.</translation>
     </message>
     <message>
         <source>File does not exist: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
         <source>Error writing file &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Schreiben der Datei &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Error removing file &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Entfernen der Datei &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Error killing process with PID %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Beenden des Prozesses mit PID %1</translation>
     </message>
     <message>
         <source>Failed starting bridge process</source>
@@ -24490,7 +24490,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Compilation Database</source>
-        <translation type="unfinished">Kompilierungsdatenbank</translation>
+        <translation>Kompilierungsdatenbank</translation>
     </message>
 </context>
 <context>
@@ -24667,7 +24667,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>The sign-in request failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Anmeldung ist fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>A browser window will open. Enter the code %1 when asked.
@@ -24777,15 +24777,15 @@ Der Code wurde in die Zwischenablage kopiert.</translation>
     </message>
     <message>
         <source>Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxyserver</translation>
     </message>
     <message>
         <source>Proxy:</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxyserver:</translation>
     </message>
     <message>
         <source>The proxy server to use for connections.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Proxyserver, der für Verbindungen verwendet werden soll.</translation>
     </message>
     <message>
         <source>Reject Unauthorized</source>
@@ -24801,15 +24801,15 @@ Der Code wurde in die Zwischenablage kopiert.</translation>
     </message>
     <message>
         <source>GitHub Enterprise URL</source>
-        <translation type="unfinished"></translation>
+        <translation>GitHub Enterprise URL</translation>
     </message>
     <message>
         <source>GitHub Enterprise URL:</source>
-        <translation type="unfinished"></translation>
+        <translation>GitHub Enterprise URL:</translation>
     </message>
     <message>
         <source>The URL of your GitHub Enterprise server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die URL Ihres GitHub Enterprise Servers.</translation>
     </message>
     <message>
         <source>The Copilot plugin requires node.js and the Copilot neovim plugin. If you install the neovim plugin as described in %1, the plugin will find the %3 file automatically.
@@ -24987,11 +24987,11 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>Prefer banner style info bars over pop-ups</source>
-        <translation type="unfinished"></translation>
+        <translation>Infoleisten im Banner-Stil gegenüber Popups bevorzugen</translation>
     </message>
     <message>
         <source>Use tabbed editors</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor-Tabs nutzen</translation>
     </message>
     <message>
         <source>Toolbar style:</source>
@@ -25604,19 +25604,19 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>Custom Language Models</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Sprachmodelle</translation>
     </message>
     <message>
         <source>Executable</source>
-        <translation type="unfinished">Ausführbare Datei</translation>
+        <translation>Ausführbare Datei</translation>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei:</translation>
     </message>
     <message>
         <source>Arguments</source>
-        <translation type="unfinished">Argumente</translation>
+        <translation>Argumente</translation>
     </message>
     <message>
         <source>Add</source>
@@ -25624,7 +25624,7 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>&lt;New model&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Neues Modell&gt;</translation>
     </message>
     <message>
         <source>Invalid key sequence.</source>
@@ -25676,7 +25676,7 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished">In die Zwischenablage kopieren</translation>
+        <translation>In die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Qt</source>
@@ -26315,15 +26315,15 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Failed to remove file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Entfernen der Datei &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Cannot decode contents.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inhalt kann nicht dekodiert werden.</translation>
     </message>
     <message>
         <source>Failed to rename the include guard in file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Umbenennen des Include-Guards in der Datei &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Failed to set permissions.</source>
@@ -26452,7 +26452,7 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Version control state: unmerged.</source>
-        <translation type="unfinished"></translation>
+        <translation>Versionskontrollzustand: nicht zusammengeführt.</translation>
     </message>
     <message>
         <source>Show Details...</source>
@@ -26935,7 +26935,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Use Tab Completion</source>
-        <translation type="unfinished"></translation>
+        <translation>Tab-Vervollständigung nutzen</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -27013,7 +27013,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>QStandardPaths::%1 location on the local filesystem.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort auf lokaler Festplatte für QStandardPaths::%1.</translation>
     </message>
     <message>
         <source>No themes found in installation.</source>
@@ -27021,7 +27021,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>AI</source>
-        <translation type="unfinished"></translation>
+        <translation>KI</translation>
     </message>
     <message>
         <source>Help</source>
@@ -27326,23 +27326,23 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Save Without Formatting</source>
-        <translation type="unfinished"></translation>
+        <translation>Ohne Formatierung speichern</translation>
     </message>
     <message>
         <source>Previous Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorheriger Tab</translation>
     </message>
     <message>
         <source>Ctrl+Meta+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+Left</translation>
     </message>
     <message>
         <source>Next Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächster Tab</translation>
     </message>
     <message>
         <source>Ctrl+Meta+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+Right</translation>
     </message>
     <message>
         <source>Alt+Right</source>
@@ -27478,7 +27478,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Save %1 Without Formatting</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ohne Formatierung speichern</translation>
     </message>
     <message>
         <source>Revert %1 to Saved</source>
@@ -27747,7 +27747,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished">Andere</translation>
+        <translation>Andere</translation>
     </message>
     <message>
         <source>Run External Tool</source>
@@ -28109,12 +28109,13 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Copying plugin files...</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiere Plugin-Dateien...</translation>
     </message>
     <message>
         <source>Copying
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiere
+%1</translation>
     </message>
     <message>
         <source>Failed to Copy Plugin Files</source>
@@ -28289,7 +28290,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Remove Folder...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ordner entfernen...</translation>
     </message>
     <message>
         <source>Meta+Y,Meta+F</source>
@@ -28490,7 +28491,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Cycle to Next Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum nächsten Editor wechseln</translation>
     </message>
 </context>
 <context>
@@ -28623,7 +28624,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Remove Curly Braces</source>
-        <translation type="unfinished"></translation>
+        <translation>Geschweifte Klammern entfernen</translation>
     </message>
     <message>
         <source>Move Declaration out of Condition</source>
@@ -28812,19 +28813,19 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>C++ Editor</source>
-        <translation type="unfinished">C++-Editor</translation>
+        <translation>C++-Editor</translation>
     </message>
     <message>
         <source>Clangd executable:</source>
-        <translation type="unfinished">Ausführbare Datei für Clangd:</translation>
+        <translation>Ausführbare Datei für Clangd:</translation>
     </message>
     <message>
         <source>Follow Virtual Function to Base Class Implementation</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelle Funktion zur Implementierung in der Basisklasse verfolgen</translation>
     </message>
     <message>
         <source>Follow Virtual Function to Base Class Implementation in Next Split</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelle Funktion zur Implementierung in der Basisklasse im nächsten geteilten Fenster verfolgen</translation>
     </message>
     <message>
         <source>Switch Header/Source</source>
@@ -29056,11 +29057,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Add File to Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei zu Projekt hinzufügen</translation>
     </message>
     <message>
         <source>Add to Project...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu Projekt hinzufügen...</translation>
     </message>
     <message>
         <source>Note: Multiple parse contexts are available for this file. Choose the preferred one from the editor toolbar.</source>
@@ -30098,7 +30099,7 @@ Dies ist normalerweise nicht empfehlenswert, da die Datei wahrscheinlich währen
     </message>
     <message>
         <source>Renamed Symbol Will Be Overwritten</source>
-        <translation type="unfinished"></translation>
+        <translation>Umbenanntes Symbol wird überschrieben</translation>
     </message>
     <message>
         <source>Open &quot;%1&quot;</source>
