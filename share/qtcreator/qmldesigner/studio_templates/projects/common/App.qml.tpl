@@ -13,6 +13,8 @@ Window {
 
     %{UIClassName} {
         id: mainScreen
+
+        anchors.centerIn: parent
     }
 
 @if %{UseVirtualKeyboard}
