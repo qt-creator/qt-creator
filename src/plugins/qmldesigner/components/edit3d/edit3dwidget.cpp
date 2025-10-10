@@ -772,7 +772,7 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
         const auto urls = dragEnterEvent->mimeData()->urls();
         for (const QUrl &url : urls) {
             Asset asset(url.toLocalFile());
-            if (asset.isImported3D() || asset.isTexture3D()) {
+            if (asset.isImported3D() || asset.isValidTextureSource()) {
                 dragEnterEvent->acceptProposedAction();
                 break;
             }
