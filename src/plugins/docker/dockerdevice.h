@@ -12,7 +12,12 @@
 
 #include <utils/synchronizedvalue.h>
 
-namespace Docker::Internal {
+namespace Docker {
+namespace Internal {
+
+class DockerDevicePrivate;
+class DockerDeviceSetupWizard;
+class DockerDeviceWidget;
 
 class PortMappings : public Utils::AspectList
 {
@@ -22,7 +27,9 @@ public:
     QStringList createArguments() const;
 };
 
-class DockerDevice : public ProjectExplorer::IDevice
+} // namespace Internal
+
+class DOCKER_EXPORT DockerDevice : public ProjectExplorer::IDevice
 {
 public:
     using Ptr = std::shared_ptr<DockerDevice>;
@@ -79,7 +86,7 @@ public:
     Utils::StringSelectionAspect network{this};
     Utils::StringAspect extraArgs{this};
     DockerDeviceEnvironmentAspect environment{this};
-    PortMappings portMappings{this};
+    Internal::PortMappings portMappings{this};
     Utils::BoolAspect mountCmdBridge{this};
 
     Utils::TextDisplay containerStatus{this};
@@ -91,11 +98,13 @@ protected:
 private:
     void aboutToBeRemoved() const final;
 
-    class DockerDevicePrivate *d = nullptr;
+    Internal::DockerDevicePrivate *d = nullptr;
 
-    friend class DockerDeviceSetupWizard;
-    friend class DockerDeviceWidget;
+    friend class Internal::DockerDeviceSetupWizard;
+    friend class Internal::DockerDeviceWidget;
 };
+
+namespace Internal {
 
 class DockerDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
@@ -108,4 +117,5 @@ private:
     Utils::SynchronizedValue<std::vector<std::weak_ptr<DockerDevice>>> m_existingDevices;
 };
 
-} // namespace Docker::Internal
+} // namespace Internal
+} // namespace Docker
