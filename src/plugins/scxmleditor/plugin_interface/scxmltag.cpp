@@ -566,15 +566,19 @@ void ScxmlTag::writeXml(QXmlStreamWriter &xml)
 void ScxmlTag::readXml(QXmlStreamReader &xml, bool checkCopyId)
 {
     QString scxmlInitial;
+    bool hasInitial = false;
 
     // Read and set attributes
     QXmlStreamAttributes attributes = xml.attributes();
     for (int i = 0; i < attributes.count(); ++i) {
-        if (m_tagType == Scxml && attributes[i].qualifiedName() == QLatin1String("initial"))
+        const QString key = attributes[i].qualifiedName().toString();
+        if (m_tagType == Scxml && key == QLatin1String("initial")) {
             scxmlInitial = attributes[i].value().toString();
-        else {
-            QString key = attributes[i].qualifiedName().toString();
+        } else {
             QString value = attributes[i].value().toString();
+
+            if (key == QLatin1String("initial"))
+                hasInitial = true;
 
             // Modify id-attribute if necessary
             switch (m_tagType) {
@@ -585,7 +589,6 @@ void ScxmlTag::readXml(QXmlStreamReader &xml, bool checkCopyId)
             case Initial: {
                 if (key == "id") {
                     setAttribute(key, value);
-
                     QString oldId = value;
                     QString parentNS = stateNameSpace();
                     if (value.startsWith(parentNS))
@@ -638,6 +641,12 @@ void ScxmlTag::readXml(QXmlStreamReader &xml, bool checkCopyId)
 
                 appendChild(childTag);
                 childTag->readXml(xml, checkCopyId);
+                if (!hasInitial && m_tagType == State
+                    && (childTag->tagType() == State || childTag->tagType() == Parallel)) {
+                    hasInitial = true;
+                    setAttribute("initial", childTag->attribute("id"));
+                }
+
             }
         } else if (token == QXmlStreamReader::Invalid) {
             qDebug() << Tr::tr("Error in reading XML ") << xml.error() << ":"
