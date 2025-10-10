@@ -404,7 +404,7 @@
     to a \c .cmake file. You can then change the commands as necessary.
 
     Place \c Find modules in the \c ${CMAKE_CURRENT_SOURCE_DIR}/cmake directory,
-    and append the directory name to the \l {CMAKE_MODULE_PATH} list variable.
+    and append the directory name to the \c {CMAKE_MODULE_PATH} list variable.
     For example:
 
     \code
