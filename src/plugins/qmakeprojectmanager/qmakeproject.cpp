@@ -723,8 +723,10 @@ void QmakeBuildSystem::asyncUpdate()
 
 void QmakeBuildSystem::buildFinished(bool success)
 {
-    if (success)
+    if (success) {
         m_invalidateQmakeVfsContents = true;
+        project()->resetQmlCodeModel(); // QTCREATORBUG-24428
+    }
 }
 
 Tasks QmakeProject::projectIssues(const Kit *k) const

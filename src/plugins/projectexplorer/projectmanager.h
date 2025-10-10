@@ -132,6 +132,7 @@ signals:
 
     void extraProjectInfoChanged(ProjectExplorer::BuildConfiguration *bc,
                                  const ProjectExplorer::QmlCodeModelInfo &extra);
+    void requestCodeModelReset();
 
 private:
     static void configureEditor(Core::IEditor *editor, const Utils::FilePath &filePath);
