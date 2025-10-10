@@ -190,7 +190,7 @@ private:
     bool m_importerRunning = false;
     bool m_hasModelSelection = false;
     QString m_textureBundleUrl;
-    QString m_bundlePath;
+    QString m_textureBundlePath;
     QString m_showInGraphicalShellMsg;
 
     const GeneratedComponentUtils &m_compUtils;
