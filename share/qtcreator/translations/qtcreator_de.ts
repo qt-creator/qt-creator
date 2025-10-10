@@ -35833,215 +35833,215 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     <name>QtC::DevContainer</name>
     <message>
         <source>Inspecting Container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Untersuche Container: %1</translation>
     </message>
     <message>
         <source>Inspecting Image: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Untersuche Image: %1</translation>
     </message>
     <message>
         <source>Create Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle Container</translation>
     </message>
     <message>
         <source>Creating Container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle Container: %1</translation>
     </message>
     <message>
         <source>Waiting for Container to Start: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Warte auf den Start des Containers: %1</translation>
     </message>
     <message>
         <source>Executing in Container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Führe im Container aus: %1</translation>
     </message>
     <message>
         <source>Invalid passwd line: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige passwd-Zeile: %1</translation>
     </message>
     <message>
         <source>Start Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte Container</translation>
     </message>
     <message>
         <source>Starting Container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte Container: %1</translation>
     </message>
     <message>
         <source>Resume Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Setze Container fort</translation>
     </message>
     <message>
         <source>Resuming Container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Setze Container fort: %1</translation>
     </message>
     <message>
         <source>Build Dockerfile</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle Dockerfile</translation>
     </message>
     <message>
         <source>Building Dockerfile: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle Dockerfile: %1</translation>
     </message>
     <message>
         <source>Remove Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Container</translation>
     </message>
     <message>
         <source>Removing Container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Container: %1</translation>
     </message>
     <message>
         <source>Remove Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Image</translation>
     </message>
     <message>
         <source>Removing Image: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Image: %1</translation>
     </message>
     <message>
         <source>Running instance cannot be null.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die laufende Instanz darf nicht Null sein.</translation>
     </message>
     <message>
         <source>Invalid mount format: expected string or object, found %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Mount-Format: Eine Zeichenkette oder ein Objekt wurde erwartet, %1 wurde gefunden</translation>
     </message>
     <message>
         <source>Invalid mount format: missing &apos;type&apos; field in mount object</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Mount-Format: &apos;type&apos;-Feld im Mountobjekt fehlt</translation>
     </message>
     <message>
         <source>Invalid mount format: missing &apos;target&apos; field in mount object</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Mount-Format: &apos;target&apos;-Feld im Mountobjekt fehlt</translation>
     </message>
     <message>
         <source>Cannot parse development container JSON file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Auswerten der JSON-Datei für den Development Container: %1</translation>
     </message>
     <message>
         <source>Invalid development container JSON file: expected an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige JSON-Datei für den Development Container: Ein Objekt wurde erwartet.</translation>
     </message>
     <message>
         <source>Development Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Development Container</translation>
     </message>
     <message>
         <source>Rebuild the development container?</source>
-        <translation type="unfinished"></translation>
+        <translation>Den Development Container neu erstellen?</translation>
     </message>
     <message>
         <source>The Development Container Configuration Changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Konfiguration des Development Container hat sich geändert</translation>
     </message>
     <message>
         <source>Rebuild</source>
-        <translation type="unfinished">Neu erstellen</translation>
+        <translation>Neu erstellen</translation>
     </message>
     <message>
         <source>Development Container Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler im Development Container</translation>
     </message>
     <message>
         <source>Rebuild and restart the development container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Development Container neu erstellen und starten.</translation>
     </message>
     <message>
         <source>The configuration does not contain a &quot;build&quot;, &quot;image&quot; or &quot;dockerComposeFile&quot; entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Konfiguration enthält keinen Eintrag für &quot;build&quot;, &quot;image&quot; oder &quot;dockerComposeFile&quot;.</translation>
     </message>
     <message>
         <source>Cannot load the development container configuration: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Konfiguration des Development Containers kann nicht geladen werden: %1</translation>
     </message>
     <message>
         <source>Cannot set up Command Bridge: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Command Bridge kann nicht eingerichtet werden: %1</translation>
     </message>
     <message>
         <source>Cannot create the development container recipe: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Rezept für den Development Container kann nicht erstellt werden: %1</translation>
     </message>
     <message>
         <source>Unknown kit aspect factory: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Kit-Aspekt-Factory: %1</translation>
     </message>
     <message>
         <source>Cannot create kit aspect %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Kit-Aspekt %1 kann nicht erstellt werden: %2</translation>
     </message>
     <message>
         <source>Cannot start the development container. Check General Messages for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Development Container kann nicht gestartet werden. Details finden Sie in den Allgemeinen Ausgaben.</translation>
     </message>
     <message>
         <source>Starting the development container</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte den Development Container</translation>
     </message>
     <message>
         <source>The development container is not running or has not been started.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Development Container läuft nicht oder wurde nicht gestartet.</translation>
     </message>
     <message>
         <source>Stopping the development container</source>
-        <translation type="unfinished"></translation>
+        <translation>Halte den Development Container an</translation>
     </message>
     <message>
         <source>Cannot stop the development container. Check General Messages for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Development Container konnte nicht angehalten werden. Details finden Sie in den Allgemeinen Ausgaben.</translation>
     </message>
     <message>
         <source>Restarting the development container</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte den Development Container neu</translation>
     </message>
     <message>
         <source>System environment is not available for this device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für dieses Gerät ist keine Systemumgebung verfügbar.</translation>
     </message>
     <message>
         <source>File access is not available for this device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für diese Gerät ist kein Dateizugriff verfügbar.</translation>
     </message>
     <message>
         <source>No mapping available for %1 on %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für %1 ist keine Zuordnung auf %2 verfügbar.</translation>
     </message>
     <message>
         <source>Development Container Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Development Container-Gerät</translation>
     </message>
     <message>
         <source>Found a development container in the project %1, would you like to start it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Projekt %1 wurde ein Development Container gefunden. Möchten Sie diesen starten?</translation>
     </message>
     <message>
         <source>Configure the development container?</source>
-        <translation type="unfinished"></translation>
+        <translation>Den Development Container konfigurieren?</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished">Ja</translation>
+        <translation>Ja</translation>
     </message>
     <message>
         <source>Start the development container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte den Development Container.</translation>
     </message>
     <message>
         <source>Found development containers in the project %1, would you like to start any of them?</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Projekt %1 wurden Development Container gefunden. Möchten Sie einen davon starten?</translation>
     </message>
     <message>
         <source>Start or Restart Development Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Development Container starten oder neu starten</translation>
     </message>
     <message>
         <source>Start or stop and restart the development container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Development Container starten oder anhalten und neu starten.</translation>
     </message>
     <message>
         <source>Development Container for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Development Container für %1</translation>
     </message>
 </context>
 <context>
