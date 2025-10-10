@@ -1544,8 +1544,8 @@ void QmlDesigner::Edit3DView::dropAssets(const QList<QUrl> &urls, const QPointF 
     for (const QUrl &url : urls) {
         Asset asset(url.toLocalFile());
         // For textures we only support single drops
-        if (m_dropped3dImports.isEmpty() && asset.isTexture3D()) {
-            m_droppedTexture = asset.fileName();
+        if (m_dropped3dImports.isEmpty() && asset.isValidTextureSource()) {
+            m_droppedTexture = asset.id();
             break;
         } else if (asset.isImported3D()) {
             m_dropped3dImports.append(asset.id());
