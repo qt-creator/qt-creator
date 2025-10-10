@@ -172,7 +172,7 @@
 
     \section1 Download Android NDKs
 
-    To manually download NDKs, select {icons/online.png}
+    To manually download NDKs, select \inlineimage {icons/online.png}
     {Open Android NDK download URL in the system's browser}.
 
     \section1 Set default NDK
