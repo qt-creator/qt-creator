@@ -76,9 +76,9 @@
     To add environmental lighting:
 
     \list 1
-      \li In the \uicontrol {Content Library} view, go to the \uicontrol Environments tab.
+      \li In the \uicontrol {Content Library} view, go to the \uicontrol Textures tab.
       \li Right-click the image \e BasicLights3_4k.hdr and select \uicontrol {Add Light Probe}.
-      \image 3d-scene-add-light-probe.webp
+      \image {3d-scene-add-light-probe.webp} {Adding light probe in the Content Library view.}
       Setting an image as a light probe for a scene adds the image as the source for the image-based
       lighting and also sets it as a skybox, meaning that the same image is used as the background
       in the scene.
@@ -104,7 +104,7 @@
     \list 1
       \li Go to the \uicontrol Textures tab in the \uicontrol {Content Library} view.
       \li Right-click the image \e 4kScratchySurface.png and select \uicontrol {Add Texture}.
-      \image 3d-scene-add-texture.webp
+      \{image 3d-scene-add-texture.webp} {Adding a background image in the Content Library view.}
       This adds the image as a texture to the project. It is now available in the \uicontrol Assets
       view.
       \li From the \uicontrol Assets view, drag \e 4KScratchySurface.png to \e Rectangle in the
