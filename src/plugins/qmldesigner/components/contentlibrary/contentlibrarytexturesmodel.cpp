@@ -96,22 +96,23 @@ QHash<int, QByteArray> ContentLibraryTexturesModel::roleNames() const
  * @brief Load the bundle categorized icons. Actual textures are downloaded on demand
  *
  * @param textureBundleUrl remote url to the texture bundle
- * @param bundleIconPath local path to the texture bundle icons folder
+ * @param textureBundleIconPath local path to the texture bundle icons folder
  * @param jsonData bundle textures information from the bundle json
  */
 void ContentLibraryTexturesModel::loadTextureBundle(const QString &textureBundleUrl,
-                                                    const QString &bundleIconPath,
+                                                    const QString &textureBundlePath,
+                                                    const QString &textureBundleIconPath,
                                                     const QVariantMap &jsonData)
 {
     if (!m_bundleCategories.isEmpty())
         return;
 
-    QDir bundleDir = QString("%1/%2").arg(bundleIconPath, textureCategory);
-    QTC_ASSERT(bundleDir.exists(), return);
+    QDir bundleIconDir = QString("%1/%2").arg(textureBundleIconPath, textureCategory);
+    QTC_ASSERT(bundleIconDir.exists(), return);
 
     const QVariantMap imageItems = jsonData.value("image_items").toMap();
 
-    const QFileInfoList dirs = bundleDir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+    const QFileInfoList dirs = bundleIconDir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
     for (const QFileInfo &dir : dirs) {
         auto category = new ContentLibraryTexturesCategory(this, dir.fileName());
         const QFileInfoList texIconFiles = QDir(dir.filePath()).entryInfoList(QDir::Files);
@@ -128,7 +129,7 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &textureBundle
                                        texIcon.baseName());
 
             QString texturePath = QString("%1/%2/%3")
-                                      .arg(Paths::bundlesPathSetting(),
+                                      .arg(textureBundlePath,
                                            textureCategory,
                                            dir.fileName());
             QString key = QString("%1/%2/%3").arg(textureCategory, dir.fileName(), texIcon.baseName());

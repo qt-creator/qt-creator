@@ -37,8 +37,9 @@ public:
     void setHasSceneEnv(bool b);
 
     void resetModel();
-    void loadTextureBundle(const QString &textureBundleUrl, const QString &bundlePath,
-                           const QVariantMap &metaData);
+    void loadTextureBundle(const QString &textureBundleUrl, const QString &textureBundlePath,
+                           const QString &textureBundleIconPath, const QVariantMap &metaData);
+
 
 signals:
     void isEmptyChanged();

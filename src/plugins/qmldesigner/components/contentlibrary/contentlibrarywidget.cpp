@@ -168,7 +168,8 @@ ContentLibraryWidget::ContentLibraryWidget(const GeneratedComponentUtils &compUt
                              .toString()
                          + "/textures/" + QByteArray::number(TextureBundleMetadataVersion);
 
-    m_bundlePath = Paths::bundlesPathSetting();
+    m_textureBundlePath = QString("%1/Textures_v%2").arg(Paths::bundlesPathSetting())
+                              .arg(TextureBundleMetadataVersion);
 
     loadTextureBundles();
 
@@ -280,7 +281,7 @@ BundleImporter *ContentLibraryWidget::importer() const
 QVariantMap ContentLibraryWidget::readTextureBundleJson()
 {
     QVariantMap jsonData;
-    QFile jsonFile(m_bundlePath + "/texture_bundle.json");
+    QFile jsonFile(m_textureBundlePath + "/texture_bundle.json");
     if (jsonFile.open(QIODevice::ReadOnly | QIODevice::Text))
         jsonData = QJsonDocument::fromJson(jsonFile.readAll()).toVariant().toMap();
 
@@ -295,7 +296,7 @@ QVariantMap ContentLibraryWidget::readTextureBundleJson()
 
 void ContentLibraryWidget::loadTextureBundles()
 {
-    QDir bundleDir{m_bundlePath};
+    QDir bundleDir{m_textureBundlePath};
 
     if (fetchTextureBundleJson(bundleDir) && fetchTextureBundleIcons(bundleDir))
         populateTextureBundleModels();
@@ -364,7 +365,7 @@ void ContentLibraryWidget::fetchNewTextureIcons(const QVariantMap &existingFiles
     auto multidownloader = new MultiFileDownloader(this);
     multidownloader->setBaseUrl(QString(m_textureBundleUrl + "/icons"));
     multidownloader->setFiles(fileList);
-    multidownloader->setTargetDirPath(m_bundlePath + "/TextureBundleIcons");
+    multidownloader->setTargetDirPath(m_textureBundlePath + "/TextureBundleIcons");
 
     auto downloader = new FileDownloader(this);
     downloader->setDownloadEnabled(true);
@@ -585,9 +586,10 @@ void ContentLibraryWidget::populateTextureBundleModels()
 {
     QVariantMap jsonData = readTextureBundleJson();
 
-    QString bundleIconPath = m_bundlePath + "/TextureBundleIcons";
+    QString bundleIconPath = m_textureBundlePath + "/TextureBundleIcons";
 
-    m_texturesModel->loadTextureBundle(m_textureBundleUrl, bundleIconPath, jsonData);
+    m_texturesModel->loadTextureBundle(m_textureBundleUrl, m_textureBundlePath,
+                                       bundleIconPath, jsonData);
 }
 
 bool ContentLibraryWidget::fetchTextureBundleIcons(const QDir &bundleDir)
@@ -639,7 +641,7 @@ void ContentLibraryWidget::markTextureUpdated(const QString &textureKey)
         checksumOnServer = m_texturesModel->removeModifiedFileEntry(textureKey);
 
     QJsonObject metaDataObj;
-    QFile jsonFile(m_bundlePath + "/texture_bundle.json");
+    QFile jsonFile(m_textureBundlePath + "/texture_bundle.json");
     if (jsonFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         metaDataObj = QJsonDocument::fromJson(jsonFile.readAll()).object();
         jsonFile.close();
@@ -656,7 +658,7 @@ void ContentLibraryWidget::markTextureUpdated(const QString &textureKey)
     QJsonDocument outDoc(metaDataObj);
     QByteArray data = outDoc.toJson();
 
-    QFile outFile(m_bundlePath + "/texture_bundle.json");
+    QFile outFile(m_textureBundlePath + "/texture_bundle.json");
     if (outFile.open(QIODeviceBase::WriteOnly | QIODeviceBase::Text)) {
         outFile.write(data);
         outFile.flush();
