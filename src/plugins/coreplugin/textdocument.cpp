@@ -102,8 +102,7 @@ void BaseTextDocument::setLineTerminationMode(TextFileFormat::LineTerminationMod
 }
 
 /*!
-    Autodetects file format and reads the text file specified by \a filePath
-    into \a plainText.
+    Autodetects file format and reads the text file specified by \a filePath.
 
     Returns whether the operation was successful.
 */

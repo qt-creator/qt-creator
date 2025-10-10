@@ -380,6 +380,10 @@ On Linux with apt, run
 
     sudo apt install golang
 
+On Windows, run
+
+    winget install golang.go
+
 Alternatively, the Go compiler can be obtained from https://go.dev/dl
 
 # Licenses and Attributions

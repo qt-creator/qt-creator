@@ -468,11 +468,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
 
     QAction *reload = openMenu->addAction(Tr::tr("Reload"));
     connect(reload, &QAction::triggered, this, [this] {
-        const int index = m_viewerStack->currentIndex();
-        HelpViewer *previous = currentViewer();
-        insertViewer(index, previous->source());
-        removeViewerAt(index + 1);
-        setCurrentIndex(index);
+        reloadViewer(m_viewerStack->currentIndex());
     });
 
     if (style != ModeWidget) {
@@ -801,6 +797,12 @@ void HelpWidget::activateSideBarItem(const QString &id)
     m_sideBar->activateItem(id);
 }
 
+void HelpWidget::reloadAll()
+{
+    for (int i = 0; i < m_viewerStack->count(); ++i)
+        reloadViewer(i);
+}
+
 OpenPagesManager *HelpWidget::openPagesManager() const
 {
     return m_openPagesManager;
@@ -905,6 +907,16 @@ void HelpWidget::closeWindow()
         emit closeButtonClicked();
     else if (m_style == ExternalWindow)
         close();
+}
+
+void HelpWidget::reloadViewer(int index)
+{
+    const bool isCurrent = index == m_viewerStack->currentIndex();
+    HelpViewer *previous = viewerAt(index);
+    insertViewer(index, previous->source());
+    removeViewerAt(index + 1);
+    if (isCurrent)
+        setCurrentIndex(index);
 }
 
 void HelpWidget::updateCloseButton()

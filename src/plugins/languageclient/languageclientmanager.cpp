@@ -169,8 +169,9 @@ void LanguageClientManager::clientFinished(Client *client)
     const bool unexpectedFinish = client->state() != Client::Shutdown
                                   && client->state() != Client::ShutdownRequested;
 
-    const QList<TextEditor::TextDocument *> &clientDocs
-        = managerInstance->m_clientForDocument.keys(client);
+    const QList<QPointer<TextEditor::TextDocument>> clientDocs = Utils::transform(
+        managerInstance->m_clientForDocument.keys(client),
+        [](TextEditor::TextDocument *doc) { return QPointer<TextEditor::TextDocument>(doc); });
     if (unexpectedFinish) {
         if (!PluginManager::isShuttingDown()) {
             const bool shouldRestart = client->state() > Client::FailedToInitialize
@@ -181,9 +182,11 @@ void LanguageClientManager::clientFinished(Client *client)
                     QtMsgType::QtWarningMsg,
                     Tr::tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
                 QTimer::singleShot(restartTimeoutS * 1000, client, [client]() { client->start(); });
-                for (TextEditor::TextDocument *document : clientDocs) {
-                    client->deactivateDocument(document);
-                    if (Core::EditorManager::currentEditor()->document() == document)
+                for (const QPointer<TextEditor::TextDocument> &document : clientDocs) {
+                    if (!document)
+                        continue;
+                    client->deactivateDocument(document.get());
+                    if (Core::EditorManager::currentEditor()->document() == document.get())
                         TextEditor::IOutlineWidgetFactory::updateOutline();
                 }
                 return;
@@ -194,8 +197,9 @@ void LanguageClientManager::clientFinished(Client *client)
     }
 
     if (unexpectedFinish || !QTC_GUARD(clientDocs.isEmpty())) {
-        for (TextEditor::TextDocument *document : clientDocs)
-            openDocumentWithClient(document, nullptr);
+        for (const QPointer<TextEditor::TextDocument> &document : clientDocs)
+            if (document)
+                openDocumentWithClient(document.get(), nullptr);
     }
 
     deleteClient(client, unexpectedFinish);

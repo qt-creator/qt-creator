@@ -326,9 +326,9 @@ void CMakeToolManager::setDefaultCMakeTool(const Id &id)
 
 CMakeTool *CMakeToolManager::findByCommand(const FilePath &command)
 {
-    // CMakeTool::cmakeExecutable uses the canonicalPath of the CMakeTool
     return Utils::findOrDefault(
-        d->m_cmakeTools, Utils::equal(&CMakeTool::cmakeExecutable, command.canonicalPath()));
+        d->m_cmakeTools,
+        Utils::equal(&CMakeTool::cmakeExecutable, CMakeTool::cmakeExecutable(command)));
 }
 
 Id CMakeToolManager::idForExecutable(const FilePath &cmakeExecutable)

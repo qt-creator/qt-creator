@@ -166,21 +166,19 @@
 */
 
 /*!
-    \fn Core::IDocument::aboutToSave(const Utils::FilePath &filePath, bool autoSave)
+    \fn Core::IDocument::aboutToSave(const Utils::FilePath &filePath, SaveOption option)
 
-    This signal is emitted before the document is saved to \a filePath.
-
-    \a autoSave indicates whether this save was triggered by the auto save timer.
+    This signal is emitted before the document is saved to \a filePath with the
+    save option \a option.
 
     \sa save()
 */
 
 /*!
-    \fn Core::IDocument::saved(const Utils::FilePath &filePath, bool autoSave)
+    \fn Core::IDocument::saved(const Utils::FilePath &filePath, SaveOption option)
 
-    This signal is emitted after the document was saved to \a filePath.
-
-    \a autoSave indicates whether this save was triggered by the auto save timer.
+    This signal is emitted after the document was saved to \a filePath with the
+    save option \a option.
 
     \sa save()
 */

@@ -15,6 +15,7 @@
 #include <solutions/spinner/spinner.h>
 
 #include <QApplication>
+#include <qapplicationstatic.h>
 #include <QFutureWatcher>
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -91,7 +92,7 @@ signals:
 private:
     QKeySequence m_key = Qt::Key_Space | HostOsInfo::controlModifier();
 };
-Q_GLOBAL_STATIC(CompletionShortcut, completionShortcut)
+Q_APPLICATION_STATIC(CompletionShortcut, completionShortcut)
 
 
 // --------- FancyLineEditPrivate

@@ -30,38 +30,78 @@
     To find output in the view, enter search criteria in the \uicontrol Filter
     field.
 
-    To show and hide Clang diagnostics, select \inlineimage {icons/warning.png}
-    {Show Warnings} (\uicontrol {Show Warnings}).
-
-    Select one or several lines to apply context-menu actions to their contents.
-    You can remove the selected lines or copy their contents to the clipboard.
-    For single lines, you can search the Internet for a solution using the
-    contents of the line as search criteria or open a version control
-    annotation view of the line that causes the error message.
-
-    To view detailed information about the selected line (where available), press
-    \key Space.
-
-    To navigate to the corresponding source code, select an issue or
-    select \uicontrol {Show in Editor} in the context menu. The entry must contain the
-    name of the file where the issue was found.
-
-    To view more information about an issue in \l {Compile Output},
-    select \uicontrol {Show Compile Output} in the context menu.
+    To view detailed information about the selected line (where available),
+    select \key Space.
 
     To jump from one issue to the next or previous
     one, select \inlineimage {icons/arrowup.png} {Previous Item}
     and \inlineimage {icons/arrowdown.png} {Next Item}
     or \key F6 and \key Shift+F6.
 
+    \section1 Clear the view
+
+    By default, a new build clears the \uicontrol Issues view. To keep
+    the issues from the previous build rounds:
+
+    \list 1
+        \li Go to \preferences > \uicontrol {Build & Run} > \uicontrol General,
+            or select \uicontrol Configure in the context menu.
+        \li Clear \uicontrol {Clear issues list on new build}.
+    \endlist
+
+    To clear the view, select \inlineimage {icons/clean_pane_small.png} {Clear}
+    (\uicontrol Clear).
+
+    To remove one or several lines, select them and then select \uicontrol Remove
+    in the context menu.
+
+    \section1 Parse build output
+
     To parse build output, select \inlineimage {icons/open.png}
     {Create Issues From External Build Output}
     (\uicontrol {Create Issues From External Build Output}).
 
-    By default, a new build clears the \uicontrol Issues view. To keep
-    the issues from the previous build rounds, clear \preferences >
-    \uicontrol {Build & Run} > \uicontrol General >
-    \uicontrol {Clear issues list on new build}.
+    \section1 Toggle Clang diagnostics
+
+    To show and hide Clang diagnostics, select \inlineimage {icons/warning.png}
+    {Show Warnings} (\uicontrol {Show Warnings}).
+
+    \section1 View the source code
+
+    To navigate to the corresponding source code, select an issue or
+    select \uicontrol {Show in Editor} in the context menu. The entry must contain the
+    name of the file where the issue was found.
+
+    \section1 Annotate issues
+
+    To open a version control annotation view of the line that causes the error
+    message, select \uicontrol Annotate in the context menu.
+
+    \section1 Copy lines
+
+    To copy one or several lines to the clipboard, select them and then select
+    \uicontrol Copy in the context menu.
+
+    \section1 View more information in other views
+
+    To view more information about an issue in \l {Application Output},
+    select \uicontrol {Show App Output} in the context menu.
+
+    To view more information about an issue in \l {Compile Output},
+    select \uicontrol {Show Compile Output} in the context menu.
+
+    \section1 Get help on the issue
+
+    To search the internet for a solution using the contents of a line as search
+    criteria, select the line and then select \uicontrol {Get Help Online} in the
+    context menu.
+
+    To ask an AI to explain the issue on the selected line, select
+    \uicontrol {Get Help from <AI>} in the context menu. To add AIs to the menu,
+    go to \preferences > \uicontrol {AI} > \uicontrol {Custom Language Models}
+    and select \uicontrol {Add}.
+
+    \image {qtcreator-preferences-ai-custom-language-models.webp} {Custom Language Model tab in AI preferences}
 
     \sa {View output}, {Add custom output parsers}, {Parse build output},
     {Show task list files in Issues}, {Analyze code with Clang-Tidy and Clazy}

@@ -373,7 +373,11 @@ HelpViewerFactory LocalHelpManager::viewerBackend()
 
 void LocalHelpManager::setViewerBackendId(const QByteArray &id)
 {
-    Core::ICore::settings()->setValueWithDefault(kViewerBackend, id, {});
+    const QByteArray previous = viewerBackendId();
+    if (id != previous) {
+        Core::ICore::settings()->setValueWithDefault(kViewerBackend, id, {});
+        emit m_instance->backendChanged();
+    }
 }
 
 QByteArray LocalHelpManager::viewerBackendId()

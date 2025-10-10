@@ -164,15 +164,10 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
 
     auto viewerBackendLabel = new QLabel(Tr::tr("Viewer backend:"));
     viewerBackend = new QComboBox;
-    const QString description = Tr::tr("Change takes effect after reloading help pages.");
-    auto viewerBackendDescription = new QLabel(description);
-    viewerBackendLabel->setToolTip(description);
-    viewerBackend->setToolTip(description);
 
     auto viewerBackendLayout = new QHBoxLayout();
     viewerBackendLayout->addWidget(viewerBackendLabel);
     viewerBackendLayout->addWidget(viewerBackend);
-    viewerBackendLayout->addWidget(viewerBackendDescription);
     viewerBackendLayout->addStretch();
 
     auto behaviourGroupBoxLayout = new QVBoxLayout;

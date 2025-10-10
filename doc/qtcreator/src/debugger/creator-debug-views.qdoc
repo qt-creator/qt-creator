@@ -256,7 +256,7 @@
     \endtable
 
     \if defined(qtcreator)
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Setting breakpoints}
     \endif
 */
 
@@ -336,7 +336,7 @@
     debugged application is restarted.
 
     \if defined(qtcreator)
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Setting breakpoints}
     \endif
 */
 
@@ -384,7 +384,7 @@
     it manually.
 
     \if defined(qtcreator)
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Setting breakpoints}
     \endif
 */
 

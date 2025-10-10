@@ -6,6 +6,8 @@
 #include "qtcassert.h"
 #include "threadutils.h"
 
+#include <qapplicationstatic.h>
+
 /*!
   \class Utils::FutureSynchronizer
   \inmodule QtCreator
@@ -66,7 +68,7 @@ void FutureSynchronizer::addFutureImpl(const QFuture<void> &future)
     flushFinishedFutures();
 }
 
-Q_GLOBAL_STATIC(FutureSynchronizer, s_futureSynchronizer);
+Q_APPLICATION_STATIC(FutureSynchronizer, s_futureSynchronizer);
 
 /*!
     Returns a global FutureSynchronizer.

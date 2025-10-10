@@ -30,6 +30,7 @@
 #include <utils/theme/theme.h>
 #include <utils/winutils.h>
 
+#include <qapplicationstatic.h>
 #include <QDesktopServices>
 #include <QDialogButtonBox>
 #include <QElapsedTimer>
@@ -49,7 +50,7 @@ namespace QtSupport::Internal {
 
 const char C_FALLBACK_ROOT[] = "ProjectsFallbackRoot";
 
-Q_GLOBAL_STATIC(ExampleSetModel, s_exampleSetModel)
+Q_APPLICATION_STATIC(ExampleSetModel, s_exampleSetModel)
 
 class ExamplesWelcomePage final : public Core::IWelcomePage
 {

@@ -115,6 +115,7 @@ signals:
     void returnOnCloseChanged();
     void scrollWheelZoomingEnabledChanged(bool enabled);
     void contextHelpOptionChanged(Core::HelpManager::HelpViewerLocation option);
+    void backendChanged();
 
 private:
     static bool m_guiNeedsSetup;
