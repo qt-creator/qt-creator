@@ -59,7 +59,7 @@
                                 "condition": "%{JS: isPluginRunning('qmakeprojectmanager')}"
                             },
                             {
-                                "trKey": "CMake for Qt 5 and Qt 6",
+                                "trKey": "CMake with Qt 5 Compatibility",
                                 "value": "cmake",
                                 "condition": "%{JS: isPluginRunning('cmakeprojectmanager')}"
                             },

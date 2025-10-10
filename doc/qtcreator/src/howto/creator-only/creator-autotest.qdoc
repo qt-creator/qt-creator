@@ -33,7 +33,7 @@
             executes to initialize and clean up the test.
         \li In \uicontrol {Build system}, select the build system to use for building
             the project: CMake, qmake, or Qbs. To build with CMake when developing with
-            Qt 5 or Qt 6.4 or earlier, select \uicontrol {CMake for Qt 5 and Qt 6}.
+            Qt 5 or Qt 6.4 or earlier, select \uicontrol {CMake with Qt 5 Compatibility}.
     \endlist
 
     \QC creates the test in the specified project directory. Edit the \c .cpp file
@@ -85,7 +85,7 @@
             executes to initialize and clean up the test.
         \li In \uicontrol {Build system}, select the build system to use for building
             the project: CMake, qmake, or Qbs. To build with CMake when developing with
-            Qt 5 or Qt 6.4 or earlier, select \uicontrol {CMake for Qt 5 and Qt 6}.
+            Qt 5 or Qt 6.4 or earlier, select \uicontrol {CMake with Qt 5 Compatibility}.
     \endlist
 
     \QC creates the test in the specified project directory. Edit the \c .cpp file
