@@ -211,7 +211,7 @@
             \code
                 CollectionDark.colors.color_dark
             \endcode
-            \image {studio-designtokens-binding-color-property.webp} {Writing the binding logic in the \uicontrol Properties view}
+            \image {studio-designtokens-binding-color-property.webp} {Writing the binding logic in the Properties view.}
 
         \li Select \uicontrol Ok to apply the binding logic. After the binding is
             applied, you can change between the modes in the \DT view. The changes
