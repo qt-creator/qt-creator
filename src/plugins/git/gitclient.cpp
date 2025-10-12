@@ -77,6 +77,7 @@ const char patchOption[] = "--patch";
 const char graphOption[] = "--graph";
 const char decorateOption[] = "--decorate";
 const char allBranchesOption[] = "--all";
+static const char gitIgnoreFile[] = ".gitignore";
 
 using namespace Core;
 using namespace DiffEditor;
@@ -1706,12 +1707,16 @@ bool GitClient::synchronousInit(const FilePath &workingDirectory)
 FilePath GitClient::findGitignoreFor(const FilePath &workingDirectory) const
 {
     const FilePath repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
-    return repoDirectory.pathAppended(".gitignore");
+    return repoDirectory.pathAppended(gitIgnoreFile);
 }
 
-bool GitClient::synchronousAddGitignore(const FilePath &workingDirectory)
+bool GitClient::synchronousAddGitignore(const FilePath &workingDirectory, CreateGitIgnore create)
 {
-    const FilePath gitIgnoreDestination = workingDirectory.pathAppended(".gitignore");
+    const FilePath gitIgnoreDestination = [workingDirectory]() {
+        if (workingDirectory.endsWith(gitIgnoreFile))
+            return workingDirectory;
+        return workingDirectory.pathAppended(gitIgnoreFile);
+    }();
 
     auto intentToAddGitignore = [this, workingDirectory, gitIgnoreDestination] {
         return synchronousAdd(workingDirectory, {gitIgnoreDestination.fileName()}, {"--intent-to-add"});
@@ -1720,14 +1725,18 @@ bool GitClient::synchronousAddGitignore(const FilePath &workingDirectory)
     if (gitIgnoreDestination.exists())
         return intentToAddGitignore();
 
-    const FilePath gitIgnoreTemplate =
-        Core::ICore::resourcePath().pathAppended("templates/wizards/projects/git.ignore");
-
-    if (!QTC_GUARD(gitIgnoreTemplate.exists()))
-        return false;
-
     Core::GeneratedFile gitIgnoreFile(gitIgnoreDestination);
-    gitIgnoreFile.setBinaryContents(gitIgnoreTemplate.fileContents().value());
+
+    if (create == CreateGitIgnore::Template) {
+        const FilePath gitIgnoreTemplate =
+            Core::ICore::resourcePath().pathAppended("templates/wizards/projects/git.ignore");
+
+        if (!QTC_GUARD(gitIgnoreTemplate.exists()))
+            return false;
+
+        gitIgnoreFile.setBinaryContents(gitIgnoreTemplate.fileContents().value());
+    }
+
     if (const Result<> res = gitIgnoreFile.write(); !res) {
         VcsOutputWindow::appendError(workingDirectory, res.error());
         return false;

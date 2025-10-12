@@ -73,6 +73,7 @@
 #include <QFileInfo>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QTimer>
 #include <QVBoxLayout>
 
@@ -1961,6 +1962,27 @@ static void addToGitignore(const FilePath &topLevel, const FilePath &relativePat
     const FilePath fullPath = topLevel.resolvePath(relativePath);
     const FilePath gitignorePath = gitClient().findGitignoreFor(fullPath);
     const QString pattern = "/" + relativePath.path();
+
+    if (!gitignorePath.exists()) {
+        // Probably not existing, offer to create an empty or templated version
+        QMessageBox mb(ICore::dialogParent());
+        mb.setWindowTitle(Tr::tr("File not found"));
+        mb.setIcon(QMessageBox::Question);
+        mb.setText(Tr::tr("File \"%1\" not found. Create an empty or templated .gitignore?")
+                       .arg(gitignorePath.toUserOutput()));
+        QPushButton *emptyButton = mb.addButton(Tr::tr("&Empty"), QMessageBox::ActionRole);
+        QPushButton *templateButton = mb.addButton(Tr::tr("&Template"), QMessageBox::ActionRole);
+        QPushButton *cancelButton = mb.addButton(Tr::tr("&Cancel"), QMessageBox::RejectRole);
+        mb.setDefaultButton(templateButton);
+        mb.setEscapeButton(cancelButton);
+        mb.exec();
+        if (mb.clickedButton() == templateButton)
+            gitClient().synchronousAddGitignore(topLevel, GitClient::CreateGitIgnore::Template);
+        else if (mb.clickedButton() == emptyButton)
+            gitClient().synchronousAddGitignore(topLevel, GitClient::CreateGitIgnore::Empty);
+        else
+            return;
+    }
 
     const TextEncoding fallbackEncoding = VcsBaseEditor::getEncoding(topLevel);
     TextFileFormat format;

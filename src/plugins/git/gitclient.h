@@ -211,7 +211,9 @@ public:
                                QString *errorMessage, const QStringList &extraArguments = {}) const;
     bool synchronousInit(const Utils::FilePath &workingDirectory);
     Utils::FilePath findGitignoreFor(const Utils::FilePath &workingDirectory) const;
-    bool synchronousAddGitignore(const Utils::FilePath &workingDirectory);
+    enum class CreateGitIgnore { Empty, Template };
+    bool synchronousAddGitignore(const Utils::FilePath &workingDirectory,
+                                 CreateGitIgnore create = CreateGitIgnore::Template);
     bool synchronousCheckoutFiles(const Utils::FilePath &workingDirectory, QStringList files = {},
                                   QString revision = {}, QString *errorMessage = nullptr,
                                   bool revertStaging = true);
