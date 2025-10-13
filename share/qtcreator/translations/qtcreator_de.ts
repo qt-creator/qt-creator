@@ -46526,7 +46526,7 @@ Außer: %2
     </message>
     <message>
         <source>Active build configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktive Build-Konfiguration:</translation>
     </message>
     <message>
         <source>New Configuration</source>
@@ -46607,7 +46607,7 @@ Außer: %2
     </message>
     <message>
         <source>Single Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Einzelnes Projekt</translation>
     </message>
     <message>
         <source>Project &quot;%1&quot;:</source>
@@ -46615,11 +46615,11 @@ Außer: %2
     </message>
     <message>
         <source>Project:</source>
-        <translation type="unfinished">Projekt:</translation>
+        <translation>Projekt:</translation>
     </message>
     <message>
         <source>Current</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelles</translation>
     </message>
     <message>
         <source>Open project anyway?</source>
@@ -46769,27 +46769,27 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Kit aspect factory &quot;%1&quot; does not support creating aspects from JSON.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit-Aspekt-Factory &quot;%1&quot; unterstützt keine Erstellung von Aspekten aus JSON.</translation>
     </message>
     <message>
         <source>Auto detecting kits for device: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische Erkennung von Kits für Gerät: %1</translation>
     </message>
     <message>
         <source>Found kit: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit gefunden: %1.</translation>
     </message>
     <message>
         <source>Removing kits for device: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Kits für Gerät: %1.</translation>
     </message>
     <message>
         <source>Removing kit: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Kit: %1.</translation>
     </message>
     <message>
         <source>Kit: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit: %1.</translation>
     </message>
     <message>
         <source>Sessions</source>
@@ -46872,7 +46872,7 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Active run configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktive Ausführungskonfiguration:</translation>
     </message>
     <message>
         <source>Remove Run Configurations?</source>
@@ -46892,11 +46892,11 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Deploy Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment-Einstellungen</translation>
     </message>
     <message>
         <source>Active deployment configuration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktive Deployment-Konfiguration:</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
@@ -47142,27 +47142,27 @@ Möchten Sie sie ignorieren?</translation>
     </message>
     <message>
         <source>Open Project</source>
-        <translation type="unfinished">Projekt öffnen</translation>
+        <translation>Projekt öffnen</translation>
     </message>
     <message>
         <source>Issues not covered by a more specialized category.</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme, die nicht von einer spezifischen Kategorie abgedeckt werden.</translation>
     </message>
     <message>
         <source>The following files could not be renamed in the file system:%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die folgenden Dateien konnten im Dateisystem nicht umbenannt werden:%1</translation>
     </message>
     <message>
         <source>These files were renamed in the file system, but project files were not updated:%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Dateien wurden im Dateisystem umbenannt, aber Projektdateien wurden nicht aktualisiert:%1</translation>
     </message>
     <message>
         <source>These files were renamed in the file system, but the project structure was not updated (context lost or not supported):%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Dateien wurden im Dateisystem umbenannt, aber die Projektstruktur wurde nicht aktualisiert (Kontext verloren oder nicht unterstützt):%1</translation>
     </message>
     <message>
         <source>Renaming Issues</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme beim Umbenennen</translation>
     </message>
     <message>
         <source>Adding Files to Project Failed</source>
@@ -47170,7 +47170,7 @@ Möchten Sie sie ignorieren?</translation>
     </message>
     <message>
         <source>Failed to open terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Terminal konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Remove More Files?</source>
@@ -47330,19 +47330,19 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Edit Active Build Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktive Build-Konfiguration bearbeiten</translation>
     </message>
     <message>
         <source>Ctrl+E, Ctrl+B</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+E, Ctrl+B</translation>
     </message>
     <message>
         <source>Edit Active Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktive Ausführungskonfiguration bearbeiten</translation>
     </message>
     <message>
         <source>Ctrl+E, Ctrl+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+E, Ctrl+R</translation>
     </message>
     <message>
         <source>Current Build Environment</source>
@@ -47547,7 +47547,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>SSH executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für SSH:</translation>
     </message>
     <message>
         <source>SDKs</source>
@@ -47991,15 +47991,15 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Querying %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbeite Anfrage an %1...</translation>
     </message>
     <message>
         <source>Get help from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Hilfe von %1 bekommen</translation>
     </message>
     <message>
         <source>Ask the %1 LLM to help with this issue.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das LLM %1, um Hilfe zu diesem Problem befragen.</translation>
     </message>
     <message>
         <source>Deploy locally</source>
@@ -48033,11 +48033,11 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Stopping process forcefully...</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzwinge den Stopp des Prozesses...</translation>
     </message>
     <message>
         <source>Requesting process to stop...</source>
-        <translation type="unfinished"></translation>
+        <translation>Fordere den Prozess zum Anhalten auf...</translation>
     </message>
     <message>
         <source>No executable specified.</source>
@@ -48045,11 +48045,11 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Cannot use ports gatherer. No device is set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ports Gatherer kann nicht verwendet werden. Es ist kein Gerät festgelegt.</translation>
     </message>
     <message>
         <source>No free ports found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine freien Ports gefunden.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; is still running.&lt;center/&gt;&lt;center&gt;Force it to quit?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -48081,7 +48081,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Create Issues From External Build Output...</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemeinträge aus der Ausgabe von externen Builds erstellen...</translation>
     </message>
     <message>
         <source>Filter by categories</source>
@@ -48105,7 +48105,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>%1 (%2 %3 at &quot;%4&quot;)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%2 %3 an &quot;%4&quot;)</translation>
     </message>
     <message>
         <source>Platform codegen flags:</source>
@@ -48214,19 +48214,19 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>Category</source>
-        <translation type="unfinished">Kategorie</translation>
+        <translation>Kategorie</translation>
     </message>
     <message>
         <source>Critical</source>
-        <translation type="unfinished">Kritisch</translation>
+        <translation>Kritisch</translation>
     </message>
     <message>
         <source>Fatal</source>
-        <translation type="unfinished">Fatal</translation>
+        <translation>Fatal</translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished">Info</translation>
+        <translation>Info</translation>
     </message>
     <message>
         <source>Close Tab</source>
@@ -48267,27 +48267,27 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>Filter Qt Internal Log Categories</source>
-        <translation type="unfinished">Qt-interne Log-Kategorien ausschließen</translation>
+        <translation>Qt-interne Log-Kategorien ausschließen</translation>
     </message>
     <message>
         <source>Filter categories by regular expression</source>
-        <translation type="unfinished">Kategorien mit regulärem Ausdruck filtern</translation>
+        <translation>Kategorien mit regulärem Ausdruck filtern</translation>
     </message>
     <message>
         <source>Invalid regular expression: %1</source>
-        <translation type="unfinished">Ungültiger regulärer Ausdruck: %1</translation>
+        <translation>Ungültiger regulärer Ausdruck: %1</translation>
     </message>
     <message>
         <source>Uncheck All</source>
-        <translation type="unfinished">Alle abwählen</translation>
+        <translation>Alle abwählen</translation>
     </message>
     <message>
         <source>Uncheck All %1</source>
-        <translation type="unfinished">Alle vom Typ %1 abwählen</translation>
+        <translation>Alle vom Typ %1 abwählen</translation>
     </message>
     <message>
         <source>Check All %1</source>
-        <translation type="unfinished">Alle vom Typ %1 auswählen</translation>
+        <translation>Alle vom Typ %1 auswählen</translation>
     </message>
     <message>
         <source>Application Output</source>
@@ -48478,23 +48478,23 @@ Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     </message>
     <message>
         <source>Search in PATH</source>
-        <translation type="unfinished">Im PATH suchen</translation>
+        <translation>Im PATH suchen</translation>
     </message>
     <message>
         <source>Search in Qt Installation</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche in der Qt-Installation</translation>
     </message>
     <message>
         <source>Search in Directories</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche in Verzeichnissen</translation>
     </message>
     <message>
         <source>Semicolon-separated list of directories</source>
-        <translation type="unfinished">Eine durch Semikola getrennte Liste von Verzeichnissen</translation>
+        <translation>Eine durch Semikola getrennte Liste von Verzeichnissen</translation>
     </message>
     <message>
         <source>Select the paths on the device that should be scanned for binaries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die Pfade auf dem Gerät aus, die nach ausführbaren Dateien durchsucht werden sollen.</translation>
     </message>
     <message>
         <source>Enter lists and ranges like this: &quot;1024,1026-1028,1030&quot;.</source>
@@ -48526,15 +48526,15 @@ Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     </message>
     <message>
         <source>Run Tools on This Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Werkzeuge für die Ausführung auf diesem Gerät</translation>
     </message>
     <message>
         <source>Source and Build Tools on This Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Quell- und Build-Werkzeuge auf diesem Gerät</translation>
     </message>
     <message>
         <source>Auto-Detection</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische Bestimmung</translation>
     </message>
     <message>
         <source>localSource() not implemented for this device type.</source>
@@ -48695,11 +48695,11 @@ Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     </message>
     <message>
         <source>Use &lt;a href=&quot;dummy&quot;&gt;global settings&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Die &lt;a href=&quot;dummy&quot;&gt;globalen Einstellungen&lt;/a&gt; verwenden</translation>
     </message>
     <message>
         <source>Use global settings</source>
-        <translation type="unfinished">Globale Einstellungen verwenden</translation>
+        <translation>Die globalen Einstellungen verwenden</translation>
     </message>
     <message>
         <source>The run configuration&apos;s name.</source>
@@ -49178,7 +49178,7 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
     <message>
         <source>No fields found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Felder gefunden.</translation>
     </message>
     <message>
         <source>&quot;data&quot; for a &quot;File&quot; page needs to be unset or an empty object.</source>
@@ -50324,103 +50324,103 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>This wizard creates a Qt Interface Framework project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Assistent erstellt ein Qt Interface Framework Projekt.</translation>
     </message>
     <message>
         <source>Configure the interface that describes data exchanged between frontend and backend.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurieren Sie die Schnittstelle, die die ausgetauschten Daten zwischen Frontend und Backend beschreibt.</translation>
     </message>
     <message>
         <source>Name of the created project, starting with an upper case letter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Name des erstellten Projekts, mit einem Großbuchstaben beginnend.</translation>
     </message>
     <message>
         <source>Interface name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Interface-Name:</translation>
     </message>
     <message>
         <source>Name of the interface that becomes a part of the created module, starting with an upper case letter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Name der Schnittstelle, die Teil des erstellten Moduls wird, mit einem Großbuchstaben beginnend.</translation>
     </message>
     <message>
         <source>Add sample code to the project</source>
-        <translation type="unfinished"></translation>
+        <translation>Beispielcode zum Projekt hinzufügen</translation>
     </message>
     <message>
         <source>Includes basic constructs, otherwise an empty project is created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beinhaltet grundlegende Konstrukte, sonst wird ein leeres Projekt erstellt.</translation>
     </message>
     <message>
         <source>Generate a zoned interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Zoned Interface erzeugen</translation>
     </message>
     <message>
         <source>A zoned interface has corresponding elements for all data in multiple zones.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Zoned Interface hat entsprechende Elemente für alle Daten in mehreren Zonen.</translation>
     </message>
     <message>
         <source>Backend setup:</source>
-        <translation type="unfinished"></translation>
+        <translation>Backend-Einrichtung:</translation>
     </message>
     <message>
         <source>Generate a simulation backend</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Simulations-Backend erzeugen</translation>
     </message>
     <message>
         <source>Creates a simulation backend which is scriptable from QML.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugt ein Simulations-Backend, das aus QML skriptbar ist.</translation>
     </message>
     <message>
         <source>Generate a production backend implementation</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Implementation für das Produktions-Backend erzeugen</translation>
     </message>
     <message>
         <source>Creates a full, native implementation backend.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugt eine vollständige, native Implementation des Backend.</translation>
     </message>
     <message>
         <source>Generate a Qt Remote Objects backend</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Qt Remote Objects-Backend erzeugen</translation>
     </message>
     <message>
         <source>Generates a backend that can connect to the server side by using Qt Remote Objects technology.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugt ein Backend, das mit Qt Remote Objects-Technologie an die Serverseite angeschlossen werden kann.</translation>
     </message>
     <message>
         <source>Generate a Qt Remote Objects simulation server</source>
-        <translation type="unfinished"></translation>
+        <translation>Einen Simulationsserver für Qt Remote Objects erstellen</translation>
     </message>
     <message>
         <source>Generates a simulation server that can be connected by the Qt Remote Objects backend.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugt einen Simulationsserver, der mit dem Qt Remote Objects-Backend verbunden werden kann.</translation>
     </message>
     <message>
         <source>Generate a Qt Remote Objects production server</source>
-        <translation type="unfinished"></translation>
+        <translation>Einen Produktionsserver für Qt Remote Objects erstellen</translation>
     </message>
     <message>
         <source>Generates a natively implemented server that can be connected by the Qt Remote Objects backend.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugt einen nativen Server, der mit dem Qt Remote Objects-Backend verbunden werden kann.</translation>
     </message>
     <message>
         <source>If no functioning backend is selected, the sample code of the frontend UI will not work and may even throw errors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn kein Backend ausgewählt ist, wird der Beispielcode der Frontend-UI nicht funktionieren und kann Fehler ausgeben.</translation>
     </message>
     <message>
         <source>Configure Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Interface konfigurieren</translation>
     </message>
     <message>
         <source>Configure</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurieren</translation>
     </message>
     <message>
         <source>Creates a Qt Interface Framework project with a configured frontend and optional backends.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein Qt Interface Framework-Projekt mit einem konfigurierten Frontend und optionalen Backends.</translation>
     </message>
     <message>
         <source>Qt Interface Framework Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Interface Framework-Projekt</translation>
     </message>
     <message>
         <source>Use existing directory</source>
@@ -50824,7 +50824,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>No valid typeId.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine gültige typeId.</translation>
     </message>
     <message>
         <source>JsonWizard: &quot;%1&quot; not found.</source>
@@ -50886,11 +50886,11 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Kit has no build device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit hat kein Gerät für das Erstellen.</translation>
     </message>
     <message>
         <source>Build device &quot;%2&quot; cannot handle project file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät für das Erstellen &quot;%2&quot; kann die Projektdatei &quot;%1&quot; nicht erreichen.</translation>
     </message>
     <message>
         <source>Incompatible Kit</source>
@@ -51220,7 +51220,7 @@ Sie werden erhalten.</numerusform>
     </message>
     <message>
         <source>Click to enable target, click again to make active</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswählen, um das Ziel einzurichten, ein weiteres Mal auswählen, um es zu aktivieren</translation>
     </message>
     <message>
         <source>Vanished Targets</source>
@@ -51481,11 +51481,11 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Enable logging category filtering</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtern der Log-Kategorien aktivieren</translation>
     </message>
     <message>
         <source>Enables filtering for logging categories (QLoggingCategory) in the Application Output. Requires Qt 6.11 or later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert das Filtern nach Log-Kategorien (QLoggingCategory) in den Ausgaben der Anwendung. Erfordert Qt 6.11 oder später.</translation>
     </message>
     <message>
         <source>Emulator</source>
@@ -51655,21 +51655,22 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Overwrite background color</source>
-        <translation type="unfinished"></translation>
+        <translation>Hintergrundfarbe überschreiben</translation>
     </message>
     <message>
         <source>Customize background color of the application output.
 Note: existing output will not get recolored.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hintergrundfarbe der Ausgabe der Anwendung anpassen.
+Hinweis: Existierende Ausgaben werden nicht neu eingefärbt.</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">Zurücksetzen</translation>
+        <translation>Zurücksetzen</translation>
     </message>
     <message>
         <source>Reset to default.</source>
         <comment>Color</comment>
-        <translation type="unfinished">Auf Vorgabe zurücksetzen.</translation>
+        <translation>Auf Vorgabe zurücksetzen.</translation>
     </message>
     <message>
         <source>Limit output to %1 characters</source>
@@ -51798,27 +51799,27 @@ Note: existing output will not get recolored.</source>
     </message>
     <message>
         <source>Found toolchain: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Toolchain gefunden: %1.</translation>
     </message>
     <message>
         <source>Removing toolchain: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Toolchain: %1.</translation>
     </message>
     <message>
         <source>Toolchain: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Toolchain: %1.</translation>
     </message>
     <message>
         <source>Expected a JSON object for toolchain detection, got: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein JSON-Objekt wurde für die automatische Erkennung von Toolchains erwartet, gefunden: %1.</translation>
     </message>
     <message>
         <source>No toolchains found in JSON object for detection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Im JSON-Objekt wurden für die Erkennung keine Toolchains gefunden.</translation>
     </message>
     <message>
         <source>Unknown language in toolchain detection: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Sprache bei der Erkennung von Toolchains: %1.</translation>
     </message>
     <message>
         <source>No compiler set in kit.</source>
@@ -52064,35 +52065,35 @@ Note: existing output will not get recolored.</source>
     </message>
     <message>
         <source>Keep run configurations in sync:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfigurationen synchronisieren:</translation>
     </message>
     <message>
         <source>Whether adding, removing or editing a run configuration in one build configuration should update other build configurations accordingly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ob das Hinzufügen, Entfernen oder Ändern von Ausführungskonfigurationen in einer Build-Konfiguration andere Build-Konfigurationen entsprechend aktualisieren soll.</translation>
     </message>
     <message>
         <source>Do Not Sync</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht synchronisieren</translation>
     </message>
     <message>
         <source>All build configurations have their own set of run configurations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Build-Konfigurationen haben unabhängige Ausführungskonfigurationen.</translation>
     </message>
     <message>
         <source>Sync Within One Kit</source>
-        <translation type="unfinished"></translation>
+        <translation>Innerhalb eines Kits synchronisieren</translation>
     </message>
     <message>
         <source>Build configurations in the same kit keep their run configurations in sync.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ausführungskonfigurationen von Build-Konfigurationen im selben Kit werden synchronisiert.</translation>
     </message>
     <message>
         <source>Sync Across All Kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Über alle Kits synchronisieren</translation>
     </message>
     <message>
         <source>All build configurations in a project keep their run configurations in sync, even across kits.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ausführungskonfigurationen aller Build-Konfigurationen in einem Projekt werden, auch über Kits hinweg, synchronisiert.</translation>
     </message>
     <message>
         <source>Clear issues list on new build</source>
@@ -52116,15 +52117,15 @@ Note: existing output will not get recolored.</source>
     </message>
     <message>
         <source>Show Only Suitable Kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur geeignete Kits anzeigen</translation>
     </message>
     <message>
         <source>Show Only Active Kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur aktive Kits anzeigen</translation>
     </message>
     <message>
         <source>Kits listed in &quot;Projects&quot; mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Modus &quot;Projekte&quot; angezeigte Kits:</translation>
     </message>
     <message>
         <source>Do Not Build Anything</source>
@@ -52150,7 +52151,7 @@ Note: existing output will not get recolored.</source>
     </message>
     <message>
         <source>Building and Running</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellung und Ausführung</translation>
     </message>
     <message>
         <source>Same Project</source>
@@ -52335,11 +52336,11 @@ Note: existing output will not get recolored.</source>
     </message>
     <message>
         <source>Default working directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-Arbeitsverzeichnis:</translation>
     </message>
     <message>
         <source>Template used to construct the default working directory of a run configuration.&lt;br&gt;&lt;br&gt;The default value can be set using the environment variable &lt;tt&gt;%1&lt;/tt&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorlage für das Vorgabe-Arbeitsverzeichnis.&lt;br&gt;&lt;br&gt;Der Standardwert kann über die Umgebungsvariable &lt;tt&gt;%1&lt;/tt&gt; gesetzt werden.</translation>
     </message>
     <message>
         <source>QML debugging:</source>
@@ -52546,7 +52547,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Run Auto-Detection Now</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische Erkennung jetzt ausführen</translation>
     </message>
     <message>
         <source>Machine type:</source>
@@ -52854,7 +52855,7 @@ Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>Failed to copy project user settings from &quot;%1&quot; to new default location &quot;%2&quot;: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Kopieren der Benutzereinstellungen für das Projekt von &quot;%1&quot; zum neuen Standardort &quot;%2&quot;: %3</translation>
     </message>
 </context>
 <context>
