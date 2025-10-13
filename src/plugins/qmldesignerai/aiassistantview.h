@@ -19,6 +19,8 @@ public:
     AiAssistantView(ExternalDependenciesInterface &externalDependencies);
     ~AiAssistantView() override;
 
+    void updateAiModelConfig();
+
     bool hasWidget() const override;
     WidgetInfo widgetInfo() override;
 

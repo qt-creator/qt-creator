@@ -5,7 +5,11 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <memory>
+
 namespace QmlDesigner {
+
+class AiProviderSettings;
 
 class QmlDesignerAiPlugin final : public ExtensionSystem::IPlugin
 {
@@ -19,6 +23,9 @@ public:
 private:
     virtual Utils::Result<> initialize(const QStringList &arguments) override;
     bool delayedInitialize() override;
+
+private: // variables
+    std::unique_ptr<AiProviderSettings> m_settings;
 };
 
 } // namespace QmlDesigner
