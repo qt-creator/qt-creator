@@ -63703,7 +63703,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Display right &amp;margin after column:</source>
-        <translation type="unfinished"></translation>
+        <translation>Rechten &amp;Rand anzeigen nach Spalte:</translation>
     </message>
     <message>
         <source>Tint whole margin area</source>
@@ -64013,7 +64013,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Selected lines:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Zeilen:</translation>
     </message>
     <message>
         <source>Position in document:</source>
@@ -64097,23 +64097,23 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished">Anwenden</translation>
+        <translation>Anwenden</translation>
     </message>
     <message>
         <source>Apply the current suggestion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuellen Vorschlag anwenden.</translation>
     </message>
     <message>
         <source>Apply one Word</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Wort anwenden</translation>
     </message>
     <message>
         <source>Apply one word of the current suggestion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Wort des aktuellen Vorschlags anwenden.</translation>
     </message>
     <message>
         <source>Apply one line of the current suggestion.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Zeile des aktuellen Vorschlags anwenden.</translation>
     </message>
     <message>
         <source>Fold Recursively</source>
@@ -65745,7 +65745,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Markdown Editor</source>
-        <translation type="unfinished">Markdown-Editor</translation>
+        <translation>Markdown-Editor</translation>
     </message>
     <message>
         <source>Emphasis</source>
@@ -65793,7 +65793,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Plain Text Editor</source>
-        <translation type="unfinished">Texteditor</translation>
+        <translation>Texteditor</translation>
     </message>
 </context>
 <context>
@@ -66057,48 +66057,48 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Installing Packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere Pakete</translation>
     </message>
     <message>
         <source>Install</source>
-        <translation type="unfinished">Installieren</translation>
+        <translation>Installieren</translation>
     </message>
     <message>
         <source>Installing...</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere...</translation>
     </message>
     <message>
         <source>Searching for packages...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche Pakete...</translation>
     </message>
     <message>
         <source>All packages matching &quot;%1&quot; are already installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle zu &quot;%1&quot; passenden Pakete sind bereits installiert.</translation>
     </message>
     <message>
         <source>No packages matching &quot;%1&quot; were found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein passendes Paket für &quot;%1&quot; gefunden.</translation>
     </message>
     <message>
         <source>The following packages were found:</source>
-        <translation type="unfinished"></translation>
+        <translation>Die folgenden Pakete wurden gefunden:</translation>
     </message>
     <message>
         <source>An error occurred. Check the output of the installer below.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Fehler ist aufgetreten. Überprüfen Sie die Ausgabe des Installationsprogramms unten.</translation>
     </message>
     <message>
         <source>Done.</source>
-        <translation type="unfinished">Fertig.</translation>
+        <translation>Fertig.</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Schließen</translation>
+        <translation>Schließen</translation>
     </message>
     <message>
         <source>%1 (Version: %2)</source>
         <extracomment>%1 = package name, %2 = package version</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 (Version: %2)</translation>
     </message>
     <message>
         <source>Update Details</source>
@@ -66292,7 +66292,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Alternatives</source>
-        <translation type="unfinished"></translation>
+        <translation>Alternativen</translation>
     </message>
     <message>
         <source>The path &quot;%1&quot; does not exist.</source>
@@ -66629,31 +66629,31 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Function &quot;%1&quot; is not implemented for &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktion &quot;%1&quot; ist für &quot;%2&quot; nicht implementiert.</translation>
     </message>
     <message>
         <source>Device for &quot;%1&quot; is unavailable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät für &quot;%1&quot; ist nicht verfügbar.</translation>
     </message>
     <message>
         <source>createSymLink is not implemented for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>createSymLink ist für &quot;%1&quot; nicht implementiert.</translation>
     </message>
     <message>
         <source>Failed to remove watcher for &quot;%1&quot;, it was not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Entfernen des Watchers für &quot;%1&quot;, er wurde nicht gefunden.</translation>
     </message>
     <message>
         <source>Failed to remove watcher for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Entfernen des Watchers für &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Could not create file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte Datei &quot;%1&quot; nicht erstellen.</translation>
     </message>
     <message>
         <source>Could not create directory &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte Verzeichnis &quot;%1&quot; nicht erstellen.</translation>
     </message>
     <message>
         <source>Refusing to remove the standard directory &quot;%1&quot;.</source>
@@ -66677,11 +66677,11 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>createSymlinkWindows() called unexpectedly on a non-Windows platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>createSymlinkWindows() wurde unerwartet auf einer Nicht-Windows-Plattform aufgerufen.</translation>
     </message>
     <message>
         <source>Failed to create symbolic link to &quot;%1&quot; at &quot;%2&quot;: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Erstellen des symbolischen Links nach &quot;%1&quot; in &quot;%2&quot;: %3</translation>
     </message>
     <message>
         <source>Failed to rename file &quot;%1&quot; to &quot;%2&quot;: %3</source>
@@ -66709,11 +66709,11 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Failed creating temporary directory &quot;%1&quot; (too many tries).</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Erstellen des temporären Verzeichnisses &quot;%1&quot; (zu viele Versuche).</translation>
     </message>
     <message>
         <source>Failed creating temporary files &quot;%1&quot; (too many tries).</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Erstellen der temporären Dateien &quot;%1&quot; (zu viele Versuche).</translation>
     </message>
     <message>
         <source>Failed to copy file &quot;%1&quot; to &quot;%2&quot;: %3</source>
@@ -66736,19 +66736,19 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Could not create temporary directory in &quot;%1&quot; (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte temporäres Verzeichnis in &quot;%1&quot; nicht erstellen (%2).</translation>
     </message>
     <message>
         <source>Could not change permissions for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte Berechtigungen für &quot;%1&quot; nicht ändern.</translation>
     </message>
     <message>
         <source>Command &quot;%1&quot; failed: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando &quot;%1&quot; fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Failed to create symbolic link for file &quot;%1&quot; at &quot;%2&quot;: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Erstellen des symbolischen Links für Datei &quot;%1&quot; in &quot;%2&quot;: %3</translation>
     </message>
     <message>
         <source>Failed reading file &quot;%1&quot;: %2</source>
@@ -66800,7 +66800,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Failed to create directory &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Erstellen des Verzeichnisses &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>File %1 does not exist.</source>
@@ -66812,15 +66812,15 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Could not find temporary directory on device %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte temporäres Verzeichnis auf Gerät %1 nicht finden</translation>
     </message>
     <message>
         <source>Could not create temporary file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte temporäre Datei nicht erstellen: %1</translation>
     </message>
     <message>
         <source>Could not create temporary directory: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte temporäres Verzeichnis nicht erstellen: %1</translation>
     </message>
     <message>
         <source>%1 on %2</source>
@@ -66846,7 +66846,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Cannot create symbolic link to &quot;%1&quot; at &quot;%2&quot;: Paths do not refer to the same device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann symbolischen Link nach &quot;%1&quot; in &quot;%2&quot; nicht erstellen: Die Pfade gehören nicht zum gleichen Gerät.</translation>
     </message>
     <message>
         <source>Failed to move %1 to %2. Removing the source file failed: %3</source>
@@ -67045,7 +67045,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>%1: File name of the parent directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Dateiname des übergeordneten Verzeichnisses.</translation>
     </message>
     <message>
         <source>Global variables</source>
@@ -67144,11 +67144,11 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Add...</source>
-        <translation type="unfinished">Hinzufügen...</translation>
+        <translation>Hinzufügen...</translation>
     </message>
     <message>
         <source>Edit...</source>
-        <translation type="unfinished">Bearbeiten...</translation>
+        <translation>Bearbeiten...</translation>
     </message>
     <message>
         <source>&lt;VARIABLE&gt;</source>
@@ -67256,7 +67256,7 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.</trans
     </message>
     <message>
         <source>Current Value of %{%1}: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktueller Wert von %{%1}: %2</translation>
     </message>
     <message>
         <source>Insert Unexpanded Value</source>
@@ -68770,12 +68770,12 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     <message>
         <source>&quot;data&quot; must be a JSON object for &quot;VcsConfiguration&quot; pages.</source>
         <extracomment>Do not translate &quot;VcsConfiguration&quot;, because it is the id of a page.</extracomment>
-        <translation type="unfinished">&quot;data&quot; muss für &quot;VcsConfiguration&quot;-Seiten ein JSON-Objekt sein.</translation>
+        <translation>&quot;data&quot; muss für &quot;VcsConfiguration&quot;-Seiten ein JSON-Objekt sein.</translation>
     </message>
     <message>
         <source>&quot;VcsConfiguration&quot; page requires a &quot;vcsId&quot; set.</source>
         <extracomment>Do not translate &quot;VcsConfiguration&quot;, because it is the id of a page.</extracomment>
-        <translation type="unfinished">&quot;VcsConfiguration&quot;-Seite benötigt eine &quot;vcsId&quot;.</translation>
+        <translation>&quot;VcsConfiguration&quot;-Seite benötigt eine &quot;vcsId&quot;.</translation>
     </message>
     <message>
         <source>Configuration</source>
@@ -68982,7 +68982,7 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>Initial checkout task not implemented.</source>
-        <translation type="unfinished"></translation>
+        <translation>Task für initialen Checkout ist nicht implementiert.</translation>
     </message>
     <message>
         <source>Commit</source>
@@ -69131,7 +69131,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Set up WebAssembly?</source>
-        <translation type="unfinished"></translation>
+        <translation>WebAssembly einrichten?</translation>
     </message>
     <message>
         <source>WebAssembly Runtime</source>
@@ -69228,7 +69228,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Emscripten Compiler %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Emscripten-Compiler %1</translation>
     </message>
     <message>
         <source>Emscripten</source>
@@ -69319,11 +69319,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>See where the important UI elements are and how they are used. To take the tour later, select Help &gt; UI Tour.</source>
-        <translation type="unfinished"></translation>
+        <translation>Finden Sie heraus, wo die wichtigen UI-Elemente sind und wie sie verwendet werden. Um die Oberfläche später vorgeführt zu bekommen, wählen Sie Hilfe &gt; Oberfläche vorführen.</translation>
     </message>
     <message>
         <source>Take a UI Tour?</source>
-        <translation type="unfinished"></translation>
+        <translation>Oberfläche vorführen?</translation>
     </message>
     <message>
         <source>Find compile and application output here, as well as a list of configuration and build issues, and the panel for global searches.</source>
