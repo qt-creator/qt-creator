@@ -157,7 +157,7 @@ void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
 FilePath BuildDirectoryAspect::fixupDir(const FilePath &dir)
 {
     if (!dir.isLocal())
-        return dir;
+        return {};
     if (HostOsInfo::isWindowsHost() && !dir.startsWithDriveLetter())
         return {};
     const QString dirString = dir.toUrlishString().toLower();
