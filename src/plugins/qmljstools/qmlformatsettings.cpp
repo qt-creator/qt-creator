@@ -148,26 +148,27 @@ QmlFormatProcess::QmlFormatProcess(const CommandLine &cmd)
     : m_logFile("qmlformat.qtc.log")
 {
     m_logFile.setAutoRemove(false);
-    m_logFile.open();
 
     m_process.setCommand(cmd);
     m_process.setWorkingDirectory(FilePath::fromString(m_tempDir.path()));
     m_process.setProcessMode(ProcessMode::Writer);
 
-    connect(&m_process, &Process::readyReadStandardOutput, [this] {
-        const QString output = m_process.readAllStandardOutput();
-        if (!output.isEmpty()) {
-            qCInfo(qmlformatlog) << "qmlformat stdout is written to: " << m_logFile.filePath();
-            QTextStream(&m_logFile) << "STDOUT: " << output << '\n';
-        }
-    });
-    connect(&m_process, &Process::readyReadStandardError, [this] {
-        const QString output = m_process.readAllStandardError();
-        if (!output.isEmpty()) {
-            qCInfo(qmlformatlog) << "qmlformat stderr is written to: " << m_logFile.filePath();
-            QTextStream(&m_logFile) << "STDERR: " << output << '\n';
-        }
-    });
+    if (m_logFile.open()) {
+        connect(&m_process, &Process::readyReadStandardOutput, [this] {
+            const QString output = m_process.readAllStandardOutput();
+            if (!output.isEmpty()) {
+                qCInfo(qmlformatlog) << "qmlformat stdout is written to: " << m_logFile.filePath();
+                QTextStream(&m_logFile) << "STDOUT: " << output << '\n';
+            }
+        });
+        connect(&m_process, &Process::readyReadStandardError, [this] {
+            const QString output = m_process.readAllStandardError();
+            if (!output.isEmpty()) {
+                qCInfo(qmlformatlog) << "qmlformat stderr is written to: " << m_logFile.filePath();
+                QTextStream(&m_logFile) << "STDERR: " << output << '\n';
+            }
+        });
+    }
 
     connect(&m_process, &Process::done, this, [this] {
         ProcessResultData result = m_process.resultData();

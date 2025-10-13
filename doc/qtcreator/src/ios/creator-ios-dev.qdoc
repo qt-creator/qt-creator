@@ -66,7 +66,7 @@
     The first time you connect the device to your local machine, you are asked to enable
     developer mode on the device. The next time you connect the device, \QC
     detects it automatically. To disable automatic connections to a device that
-    you do not use for development, go to preferences > \uicontrol iOS
+    you do not use for development, go to \preferences > \uicontrol iOS
     and clear \uicontrol {Ask about devices not in developer mode}.
 
     \note The process of configuring devices and the UI varies slightly
@@ -86,7 +86,7 @@
         \li Start Xcode to configure the device.
 
             For example, in Xcode version 15, go to \uicontrol Window >
-            \uicontrol Devices and Simulators > \uicontrol Devices, and select
+            \uicontrol {Devices and Simulators} > \uicontrol Devices, and select
             \uicontrol + to add the connected device.
 
         \li To specify build settings:
@@ -133,7 +133,7 @@
     missing, check that provisioning profiles are listed in Xcode by going to
     \uicontrol Xcode > \uicontrol Preferences > \uicontrol Accounts. For more
     information about how to acquire and install a provisioning profile, see
-    Apple documentation.
+    \l {Apple documentation: Create a development provisioning profile}.
 
     \section1 View device connection status
 
@@ -166,7 +166,7 @@
     simulates a predefined set of hardware devices and software versions.
 
     To change the simulated hardware and software version, go to
-    \uicontrol Projects > uicontrol {Run Settings} and select
+    \uicontrol Projects > \uicontrol {Run Settings} and select
     the device to simulate in the \uicontrol {Device type} field.
 
     \image {qtcreator-ios-simulator-deploy.png} {Deployment settings for iOS Simulator}

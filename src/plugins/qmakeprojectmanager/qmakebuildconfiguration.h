@@ -29,6 +29,7 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfiguration : public ProjectExplore
 
 public:
     QmakeBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id);
+    ~QmakeBuildConfiguration();
 
     void setSubNodeBuild(QmakeProFileNode *node);
     QmakeProFileNode *subNodeBuild() const;
@@ -136,6 +137,8 @@ private:
     QtSupport::QtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     QmakeProFileNode *m_subNodeBuild = nullptr;
     ProjectExplorer::FileNode *m_fileNodeBuild = nullptr;
+
+    QMetaObject::Connection m_bsParsingFinishedConnection;
 };
 
 class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory

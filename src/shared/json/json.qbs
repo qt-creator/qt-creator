@@ -1,14 +1,17 @@
 import qbs
 
-StaticLibrary {
+QtcLibrary {
     name: "qtcjson"
-    Depends { name: "cpp" }
-    cpp.cxxLanguageVersion: "c++17"
-    cpp.minimumMacosVersion: project.minimumMacosVersion
+    type: "staticlibrary"
+
+    hasCMakeProjectFile: false
+    useQt: false
+
     files: [
         "json.cpp",
         "json.h",
     ]
+
     Export {
         Depends { name: "cpp" }
         cpp.includePaths: [exportingProduct.sourceDirectory]

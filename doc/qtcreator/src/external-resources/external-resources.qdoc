@@ -341,3 +341,7 @@
     \externalpage https://www.qt.io/academy/course-catalog#getting-started-with-qt-ai-assistant
     \title Qt Academy: Getting Started With Qt AI Assistant
 */
+/*!
+    \externalpage https://developer.apple.com/help/account/provisioning-profiles/create-a-development-provisioning-profile/
+    \title Apple documentation: Create a development provisioning profile
+*/

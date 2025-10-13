@@ -1618,6 +1618,14 @@ void Project::updateQmlCodeModel(Kit *kit, BuildConfiguration *bc)
     emit ProjectManager::instance()->extraProjectInfoChanged(bc, projectInfo);
 }
 
+void Project::resetQmlCodeModel()
+{
+    if (!s_qmlCodeModelIsUsed)
+        return;
+
+    emit ProjectManager::instance()->requestCodeModelReset();
+}
+
 static FilePaths findGeneratedQrcFiles(const FilePaths &applicationDirectories,
                                        const FilePaths &hiddenRccFolders)
 {

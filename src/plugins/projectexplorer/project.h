@@ -219,6 +219,7 @@ public:
 
     static void setQmlCodeModelIsUsed();
     void updateQmlCodeModel(Kit *kit, BuildConfiguration *bc);
+    void resetQmlCodeModel();
     QmlCodeModelInfo gatherQmlCodeModelInfo(Kit *kit, BuildConfiguration *bc);
 
     void syncRunConfigurations(bool force);

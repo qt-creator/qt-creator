@@ -127,7 +127,7 @@ void SelectableFilesFromDirModel::startParsing(const FilePath &baseDir)
     const auto onDone = [this, baseDir](const Async<ResultType> &task) {
         beginResetModel();
         m_root = task.result();
-        m_outOfBaseDirFiles = Utils::filtered(m_files, [this, baseDir](const FilePath &fn) {
+        m_outOfBaseDirFiles = Utils::filtered(m_files, [baseDir](const FilePath &fn) {
             return !fn.isChildOf(baseDir);
         });
         endResetModel();

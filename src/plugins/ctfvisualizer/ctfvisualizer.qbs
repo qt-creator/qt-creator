@@ -1,4 +1,4 @@
-import qbs
+import qbs.Utilities
 
 QtcPlugin {
     name: "CtfVisualizer"
@@ -11,6 +11,12 @@ QtcPlugin {
     Depends {
         name: "Qt"
         submodules: [ "quick", "quickwidgets" ]
+    }
+
+    Properties {
+        condition: qbs.toolchain.contains("gcc") && (!qbs.toolchain.contains("clang")
+            || Utilities.versionCompare(cpp.compilerVersion, "17") >= 0)
+        cpp.cxxFlags: "-Wno-deprecated-literal-operator"
     }
 
     files: [

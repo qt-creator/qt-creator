@@ -1,4 +1,4 @@
-import qbs 1.0
+import qbs.Utilities
 
 QtcPlugin {
     name: "Python"
@@ -13,6 +13,12 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
     Depends { name: "TextEditor" }
+
+    Properties {
+        condition: qbs.toolchain.contains("gcc") && (!qbs.toolchain.contains("clang")
+            || Utilities.versionCompare(cpp.compilerVersion, "17") >= 0)
+        cpp.cxxFlags: "-Wno-deprecated-literal-operator"
+    }
 
     Group {
         name: "General"

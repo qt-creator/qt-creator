@@ -88,7 +88,7 @@ Tasks CMakeProject::projectIssues(const Kit *k) const
     // FIXME remove when the MCUProject is implemented
     // MCUSupport is not a dependency for CMakePlugin
     // This works for projects in installations only, looking at the file content might be costly compared to file path
-    QRegularExpression mcuRE("QtMCUs/[0-9]+\\.[0-9]+\\.[0-9]+/(demos|examples)");
+    static const QRegularExpression mcuRE("QtMCUs/[0-9]+\\.[0-9]+\\.[0-9]+/(demos|examples)");
     const FilePath projectPath = projectFilePath().absoluteFilePath();
 
     if (k && mcuRE.match(projectPath.path()).hasMatch() && !k->hasFeatures({"MCU"}))

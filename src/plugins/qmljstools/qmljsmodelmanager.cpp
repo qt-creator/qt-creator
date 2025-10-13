@@ -112,6 +112,9 @@ ModelManager::ModelManager()
 
     connect(ProjectManager::instance(), &ProjectManager::extraProjectInfoChanged,
             this, &ModelManager::updateFromBuildConfig);
+    connect(ProjectManager::instance(), &ProjectManager::requestCodeModelReset,
+            this, &ModelManager::resetCodeModel,
+            Qt::QueuedConnection);
 }
 
 ModelManager::~ModelManager() = default;

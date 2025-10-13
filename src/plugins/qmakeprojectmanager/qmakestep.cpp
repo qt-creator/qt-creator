@@ -112,6 +112,7 @@ QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
 {
     QTC_ASSERT(v, return QString());
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
+    QTC_ASSERT(bc, return {});
     QStringList arguments;
     if (bc->subNodeBuild())
         arguments << bc->subNodeBuild()->filePath().nativePath();

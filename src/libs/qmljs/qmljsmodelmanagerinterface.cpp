@@ -228,10 +228,7 @@ FilePath ModelManagerInterface::qmllsForBinPath(const FilePath &binPath, const Q
 {
     if (version < QVersionNumber(6,4,0))
         return {};
-    QString qmllsExe = "qmlls";
-    if (HostOsInfo::isWindowsHost())
-        qmllsExe = "qmlls.exe";
-    return binPath.resolvePath(qmllsExe);
+    return binPath.pathAppended("qmlls").withExecutableSuffix();
 }
 
 FilePath ModelManagerInterface::qmlformatForBinPath(const FilePath &binPath, const QVersionNumber &version)

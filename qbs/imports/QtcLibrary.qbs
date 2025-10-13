@@ -10,6 +10,13 @@ QtcProduct {
     installTags: type.concat("debuginfo_dll")
     useNonGuiPchFile: true
 
+    // For consistent value of cpp.minimumMacosVersion
+    Depends {
+        name: "Qt.core"
+        condition: !useQt && qbs.targetOS.contains("macos")
+        cpp.link: false
+    }
+
     cpp.linkerFlags: {
         var flags = base;
         if (qbs.buildVariant == "debug" && qbs.toolchain.contains("msvc"))

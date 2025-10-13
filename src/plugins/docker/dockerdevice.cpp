@@ -169,7 +169,6 @@ public:
     CommandLine createCommandLine();
 
     Result<QString> updateContainerAccess();
-    void changeMounts(QStringList newMounts);
     bool ensureReachable(const FilePath &other);
     void shutdown();
     Result<FilePath> localSource(const FilePath &other) const;
@@ -867,11 +866,6 @@ Result<QString> DockerDevicePrivate::updateContainerAccess()
     return (*lockedThread)->containerId();
 }
 
-void DockerDevice::setMounts(const QStringList &mounts) const
-{
-    d->changeMounts(mounts);
-}
-
 void DockerDevice::fromMap(const Store &map)
 {
     ProjectExplorer::IDevice::fromMap(map);
@@ -1222,15 +1216,6 @@ void DockerDevicePrivate::shutdown()
 {
     m_isShutdown = true;
     stopCurrentContainer();
-}
-
-void DockerDevicePrivate::changeMounts(QStringList newMounts)
-{
-    newMounts.removeDuplicates();
-    if (q->mounts.value() != newMounts) {
-        q->mounts.value() = newMounts;
-        stopCurrentContainer(); // Force re-start with new mounts.
-    }
 }
 
 Result<FilePath> DockerDevicePrivate::localSource(const FilePath &other) const

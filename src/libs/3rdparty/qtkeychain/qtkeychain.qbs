@@ -85,7 +85,9 @@ QtcLibrary {
 
         Group {
             name: "qtkeychain dbus support"
-            cpp.cxxFlags: outer.concat("-Wno-cast-function-type")
+            cpp.cxxFlags: outer.concat([
+                "-Wno-cast-function-type", "-Wno-missing-field-initializers",
+                "-Wno-ignored-attributes"])
             files: [
                 "keychain_unix.cpp",
                 "libsecret.cpp",

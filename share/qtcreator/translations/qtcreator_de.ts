@@ -16484,15 +16484,15 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
         <source>Do not ask for confirmation when switching to the Manifest Editor UI</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Bestätigung beim Wechseln in die Manifest Editor UI anzeigen</translation>
     </message>
     <message>
         <source>Warning: Using the Manifest Editor UI may overwrite any manual changes made to AndroidManifest.xml.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung: Verwendung der Manifest Editor UI kann manuelle Änderungen an AndroidManifest.xml überschreiben.</translation>
     </message>
     <message>
         <source>The structure of the Android manifest file is corrupted. Expected a top level &apos;manifest&apos; node.</source>
@@ -16504,19 +16504,19 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Go to Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu Fehler gehen</translation>
     </message>
     <message>
         <source>Graphical Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafischer Editor</translation>
     </message>
     <message>
         <source>Enabling the Manifest Editor UI</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivieren der Manifest Editor UI</translation>
     </message>
     <message>
         <source>Using the Manifest Editor UI may overwrite any manual changes made to AndroidManifest.xml.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwendung der Manifest Editor UI kann manuelle Änderungen an AndroidManifest.xml überschreiben.</translation>
     </message>
     <message>
         <source>Target SDK:</source>
@@ -16653,11 +16653,11 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Automatically create usable Android kits and install all essential packages. To do this later, select Edit &gt; Preferences &gt; SDKs &gt; Android.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen Sie automatisch benutzbare Android Kits und installieren alle essentiellen Pakete. Um dies später zu tun, wählen Sie Bearbeiten &gt; Einstellungen &gt; SDKs &gt; Android.</translation>
     </message>
     <message>
         <source>Configure Android Options?</source>
-        <translation type="unfinished"></translation>
+        <translation>Android-Optionen konfigurieren?</translation>
     </message>
     <message>
         <source>Java Language Server</source>
@@ -16697,7 +16697,7 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Could not install custom APK.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte benutzerdefiniertes APK nicht installieren.</translation>
     </message>
     <message>
         <source>No Android architecture (ABI) is set by the project.</source>
@@ -16833,7 +16833,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>%1 for Android %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 für Android %2</translation>
     </message>
     <message>
         <source>Unknown Android version. API Level: %1</source>
@@ -17324,12 +17324,13 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Android-Bu
     </message>
     <message>
         <source>Project File Update Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektdatei konnte nicht aktualisiert werden</translation>
     </message>
     <message>
         <source>Could not automatically update the project file for &quot;%1&quot;.
 Set the %2 property manually.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Projektdatei für &quot;%1&quot; konnte nicht automatisch aktualisiert werden.
+Setzen Sie die Eigenschaft %2 manuell.</translation>
     </message>
     <message>
         <source>Android Clang</source>
@@ -17544,7 +17545,7 @@ Rufen Sie QtAndroid::hideSplashScreen() auf, um einen Startbildschirm zu verstec
     </message>
     <message>
         <source>Java Editor</source>
-        <translation type="unfinished">Java-Editor</translation>
+        <translation>Java-Editor</translation>
     </message>
 </context>
 <context>
@@ -19010,7 +19011,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Test run requests from the build system get processed only if there is no running build or test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>Testlaufanforderungen aus dem Build-System werden nur verarbeitet, wenn kein Build oder Testlauf ausgeführt wird.</translation>
     </message>
 </context>
 <context>
@@ -19253,7 +19254,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Analysis path must be local.</source>
-        <translation type="unfinished"></translation>
+        <translation>Analysepfad muss lokal sein.</translation>
     </message>
     <message>
         <source>Highlight marks</source>
@@ -19303,16 +19304,17 @@ Setzen Sie dies, um die globale Umgebung zu überschreiben oder wenn Axivion pyt
     </message>
     <message>
         <source>Project name as it appears in the global dashboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektname, wie er im globalen Dashboard erscheint.</translation>
     </message>
     <message>
         <source>Root path of the analyzed project relative to the usedproject path inside the dashboard.
 Leave empty if the analyzed project refers to the basepath of the analyzed project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wurzelverzeichnis des analysierten Projekts, relativ zum benutzten Pfad im Dashboard.
+Lassen Sie dies leer, falls das analysierte Projekt den Basispfad des analysierten Projekts referenziert.</translation>
     </message>
     <message>
         <source>Local directory path corresponding to the analyis path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokaler Pfad, der dem Analysepfad entspricht.</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -19376,44 +19378,45 @@ Leave empty if the analyzed project refers to the basepath of the analyzed proje
     </message>
     <message>
         <source>Missing Path Mapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende Pfadzuordnung</translation>
     </message>
     <message>
         <source>Configure a valid path mapping for &quot;%1&quot; to open files for this project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurieren Sie eine gültige Pfadzuordnung für &quot;%1&quot;, um Dateien dieses Projekts zu öffnen.</translation>
     </message>
     <message>
         <source>Select local file for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die lokale Datei für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>No matching path mapping for &quot;%1&quot; configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine passende Pfadzuordnung für &quot;%1&quot; konfiguriert.</translation>
     </message>
     <message>
         <source>To open this file, you need to change the existing or add another valid path mapping.
 This may include changing the order of mappings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Um diese Datei zu öffnen, müssen Sie die existierende Pfadzuordung ändern oder eine gültige Zuordnung hinzufügen.
+Vielleicht ist auch eine Änderung der Reihenfolge der existierenden Pfadzuordnungen nötig.</translation>
     </message>
     <message>
         <source>No path mapping for &quot;%1&quot; configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Pfadzuordnung für &quot;%1&quot; konfiguriert.</translation>
     </message>
     <message>
         <source>To open files for this project, specify a valid path mapping or select a matching local file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Um Dateien dieses Projekts zu öffnen, geben Sie eine gültige Pfadzuordnung an oder wählen Sie eine passende lokale Datei aus.</translation>
     </message>
     <message>
         <source>Select Matching File...</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie passende Datei...</translation>
     </message>
     <message>
         <source>Change Existing...</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestehende ändern...</translation>
     </message>
     <message>
         <source>Set up Manually...</source>
-        <translation type="unfinished"></translation>
+        <translation>Manuell konfigurieren...</translation>
     </message>
     <message>
         <source>Project name:</source>
@@ -20164,7 +20167,7 @@ Inkrementeller Build: Setzt die Umgebungsvariable AXIVION_INCREMENTAL_BUILD=1</t
     </message>
     <message>
         <source>IAREW %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>IAREW %1 (%2)</translation>
     </message>
     <message>
         <source>IAREW</source>
@@ -20184,7 +20187,7 @@ Inkrementeller Build: Setzt die Umgebungsvariable AXIVION_INCREMENTAL_BUILD=1</t
     </message>
     <message>
         <source>SDCC %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>SDCC %1 (%2)</translation>
     </message>
     <message>
         <source>SDCC</source>
@@ -20244,7 +20247,7 @@ Inkrementeller Build: Setzt die Umgebungsvariable AXIVION_INCREMENTAL_BUILD=1</t
     </message>
     <message>
         <source>KEIL %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>KEIL %1 (%2)</translation>
     </message>
     <message>
         <source>KEIL</source>
@@ -20487,15 +20490,15 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     </message>
     <message>
         <source>Bazaar File Log Editor</source>
-        <translation type="unfinished">Bazaar Datei-Log-Editor</translation>
+        <translation>Bazaar Datei-Log-Editor</translation>
     </message>
     <message>
         <source>Bazaar Annotation Editor</source>
-        <translation type="unfinished">Bazaar Annotations-Editor</translation>
+        <translation>Bazaar Annotations-Editor</translation>
     </message>
     <message>
         <source>Bazaar Diff Editor</source>
-        <translation type="unfinished">Bazaar Diff-Editor</translation>
+        <translation>Bazaar Diff-Editor</translation>
     </message>
     <message>
         <source>Triggers a Bazaar version control operation.</source>
@@ -20595,7 +20598,7 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     </message>
     <message>
         <source>Bazaar Commit Log Editor</source>
-        <translation type="unfinished">Bazaar Commit-Log-Editor</translation>
+        <translation>Bazaar Commit-Log-Editor</translation>
     </message>
     <message>
         <source>Update</source>
@@ -21081,7 +21084,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Binary Editor</source>
-        <translation type="unfinished">Binäreditor</translation>
+        <translation>Binäreditor</translation>
     </message>
     <message>
         <source>Zoom: %1%</source>
@@ -21384,7 +21387,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>CMake executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für CMake:</translation>
     </message>
     <message>
         <source>No cmake tool set.</source>
@@ -21404,7 +21407,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Test preset %1 is missing a corresponding configure preset.</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Test-Preset %1 fehlt ein entsprechendes Configure-Preset.</translation>
     </message>
     <message>
         <source>Attempt to include &quot;%1&quot; which was already parsed.</source>
@@ -21461,7 +21464,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>CMake from Build Device</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake vom Build-Gerät</translation>
     </message>
     <message>
         <source>CMake executable path does not exist.</source>
@@ -21607,7 +21610,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>You asked to build the current Run Configuration&apos;s build target only, but it is not associated with a build target. Update the Make Step in your build settings.</source>
-        <translation type="unfinished">Sie möchten nur das Übersetzungsergebnis für die aktuelle Ausführungsonfiguration bauen, aber sie ist mit keinem verknüpft. Korrigieren Sie den Make-Schritt in der Erstellungskonfiguration.</translation>
+        <translation>Sie möchten nur das Übersetzungsergebnis für die aktuelle Ausführungsonfiguration bauen, aber sie ist mit keinem verknüpft. Korrigieren Sie den Make-Schritt in der Erstellungskonfiguration.</translation>
     </message>
     <message>
         <source>Build</source>
@@ -21733,7 +21736,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Apply Configuration Changes?</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurationänderungen anwenden?</translation>
     </message>
     <message>
         <source>Apply</source>
@@ -21765,19 +21768,19 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>%1 (via CMake)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (über CMake)</translation>
     </message>
     <message>
         <source>CMake generator failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Generator fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Kit does not have a CMake binary set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kit hat keine ausführbare CMake-Datei gesetzt.</translation>
     </message>
     <message>
         <source>No valid CMake executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine gültige ausführbare CMake-Datei.</translation>
     </message>
     <message>
         <source>Cannot create output directory &quot;%1&quot;.</source>
@@ -21817,35 +21820,35 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Path to the CMake executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zum CMake-Werkzeug</translation>
     </message>
     <message>
         <source>Found CMake tool: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Werkzeug gefunden: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>CMake tool: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Werkzeug: %1.</translation>
     </message>
     <message>
         <source>Expected JSON Object, got: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON-Objekt erwartet, &quot;%1&quot; wurde erhalten.</translation>
     </message>
     <message>
         <source>Expected JSON Object with key &quot;binary&quot; to be a string.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für das JSON-Objekt mit Schlüssel &quot;binary&quot; wird eine Zeichenkette erwartet.</translation>
     </message>
     <message>
         <source>CMake executable &quot;%1&quot; is not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare CMake-Datei &quot;%1&quot; ist ungültig.</translation>
     </message>
     <message>
         <source>CMake tool &quot;%1&quot; is not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Werkzeug &quot;%1&quot; ist ungültig.</translation>
     </message>
     <message>
         <source>Cannot create CMake tool from JSON: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Aus der JSON-Information kann kein CMake-Werkzeug erstellt werden: %1</translation>
     </message>
     <message>
         <source>Platform</source>
@@ -21985,15 +21988,15 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Run CTest Test</source>
-        <translation type="unfinished"></translation>
+        <translation>CTest-Test ausführen</translation>
     </message>
     <message>
         <source>Runs a CTest test of the current active CMake project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt einen CTest-Test des aktiven CMake-Projekts aus.</translation>
     </message>
     <message>
         <source>AutoTest plugin needs to be loaded in order to execute tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das AutoTest-Plugin muss geladen sein, um Tests ausführen zu können.</translation>
     </message>
     <message>
         <source>You may need to add the project directory to the list of directories that are mounted by the build device.</source>
@@ -22198,7 +22201,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Invalid &quot;testPresets&quot; section in file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Abschnitt &quot;testPresets&quot; in der Datei &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Invalid &quot;vendor&quot; section in file &quot;%1&quot;.</source>
@@ -22252,15 +22255,15 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>CMake Editor</source>
-        <translation type="unfinished">CMake-Editor</translation>
+        <translation>CMake-Editor</translation>
     </message>
     <message>
         <source>Found &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; gefunden.</translation>
     </message>
     <message>
         <source>Removing CMake tool &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne CMake-Werkzeug &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
@@ -22279,19 +22282,19 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>CVS Command Log Editor</source>
-        <translation type="unfinished">CVS Kommando-Log-Editor</translation>
+        <translation>CVS Kommando-Log-Editor</translation>
     </message>
     <message>
         <source>CVS File Log Editor</source>
-        <translation type="unfinished">CVS Datei-Log-Editor</translation>
+        <translation>CVS Datei-Log-Editor</translation>
     </message>
     <message>
         <source>CVS Annotation Editor</source>
-        <translation type="unfinished">CVS Annotations-Editor</translation>
+        <translation>CVS Annotations-Editor</translation>
     </message>
     <message>
         <source>CVS Diff Editor</source>
-        <translation type="unfinished">CVS Diff-Editor</translation>
+        <translation>CVS Diff-Editor</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
@@ -22299,11 +22302,11 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Local name cannot be the same as the URL.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der lokale Name darf nicht mit der URL übereinstimmen.</translation>
     </message>
     <message>
         <source>CVS Commit Editor</source>
-        <translation type="unfinished">CVS Commit-Editor</translation>
+        <translation>CVS Commit-Editor</translation>
     </message>
     <message>
         <source>Triggers a CVS version control operation.</source>
@@ -22630,19 +22633,19 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Cannot generate compilation database.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann keine Kompilierungsdatenbank generieren.</translation>
     </message>
     <message>
         <source>Generator is already running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Generierung läuft bereits.</translation>
     </message>
     <message>
         <source>No active project.</source>
-        <translation type="unfinished">Kein aktives Projekt.</translation>
+        <translation>Kein aktives Projekt.</translation>
     </message>
     <message>
         <source>Project has no C/C++ project parts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt enthält keine Projektinformation für C/C++.</translation>
     </message>
     <message>
         <source>Generating Clang compilation database canceled.</source>
@@ -22736,7 +22739,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Clangd Disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Clangd deaktiviert</translation>
     </message>
     <message>
         <source>With clangd enabled, Qt Creator fully supports modern C++ when highlighting code, completing symbols and so on.&lt;br&gt;This comes at a higher cost in terms of CPU load and memory usage compared to the built-in code model, which therefore might be the better choice on older machines and/or with legacy code.&lt;br&gt;You can enable/disable and fine-tune clangd &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
@@ -22852,31 +22855,31 @@ Das integrierte Codemodell übernimmt das Einrücken.</translation>
     </message>
     <message>
         <source>Import Code Format</source>
-        <translation type="unfinished">Code-Format importieren</translation>
+        <translation>Code-Format importieren</translation>
     </message>
     <message>
         <source>ClangFormat (*clang-format*);;All files (*)</source>
-        <translation type="unfinished">ClangFormat (*clang-format*);;All files (*)</translation>
+        <translation>ClangFormat (*clang-format*);;All files (*)</translation>
     </message>
     <message>
         <source>Import Code Style</source>
-        <translation type="unfinished">Coding Style importieren</translation>
+        <translation>Coding Style importieren</translation>
     </message>
     <message>
         <source>Enter a name for the imported code style:</source>
-        <translation type="unfinished">Geben Sie einen Namen für den importierten Coding Style ein:</translation>
+        <translation>Geben Sie einen Namen für den importierten Coding Style ein:</translation>
     </message>
     <message>
         <source>Cannot import code style from &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Coding Style kann nicht von &quot;%1&quot; importiert werden.</translation>
     </message>
     <message>
         <source>Export Code Format</source>
-        <translation type="unfinished">Code-Format exportieren</translation>
+        <translation>Code-Format exportieren</translation>
     </message>
     <message>
         <source>C++</source>
-        <translation type="unfinished">C++</translation>
+        <translation>C++</translation>
     </message>
 </context>
 <context>
@@ -23689,15 +23692,15 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>ClearCase File Log Editor</source>
-        <translation type="unfinished">ClearCase Datei-Log-Editor</translation>
+        <translation>ClearCase Datei-Log-Editor</translation>
     </message>
     <message>
         <source>ClearCase Annotation Editor</source>
-        <translation type="unfinished">ClearCase Annotations-Editor</translation>
+        <translation>ClearCase Annotations-Editor</translation>
     </message>
     <message>
         <source>ClearCase Diff Editor</source>
-        <translation type="unfinished">ClearCase Diff-Editor</translation>
+        <translation>ClearCase Diff-Editor</translation>
     </message>
     <message>
         <source>Editing Derived Object: %1</source>
@@ -23877,7 +23880,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>ClearCase Check In Editor</source>
-        <translation type="unfinished">ClearCase Check-In-Editor</translation>
+        <translation>ClearCase Check-In-Editor</translation>
     </message>
     <message>
         <source>Check In</source>
@@ -24001,15 +24004,15 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     <name>QtC::CmdBridge</name>
     <message>
         <source>Command &quot;%1&quot; failed with exit code %2: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando &quot;%1&quot; ist mit Rückgabewert %2 fehlgeschlagen: %3</translation>
     </message>
     <message>
         <source>Remote root path is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes Wurzelverzeichnis ist leer.</translation>
     </message>
     <message>
         <source>Remote root path is not absolute.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes Wurzelverzeichnis ist nicht absolut.</translation>
     </message>
     <message>
         <source>Could not find dd on remote host: %1</source>
@@ -24017,23 +24020,23 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Path &quot;%1&quot; is not a symlink.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; ist kein Symlink.</translation>
     </message>
     <message>
         <source>File does not exist: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
         <source>Error writing file &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Schreiben der Datei &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Error removing file &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Entfernen der Datei &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Error killing process with PID %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Beenden des Prozesses mit PID %1</translation>
     </message>
     <message>
         <source>Failed starting bridge process</source>
@@ -24490,7 +24493,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Compilation Database</source>
-        <translation type="unfinished">Kompilierungsdatenbank</translation>
+        <translation>Kompilierungsdatenbank</translation>
     </message>
 </context>
 <context>
@@ -24667,7 +24670,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>The sign-in request failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Anmeldung ist fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>A browser window will open. Enter the code %1 when asked.
@@ -24777,15 +24780,15 @@ Der Code wurde in die Zwischenablage kopiert.</translation>
     </message>
     <message>
         <source>Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxyserver</translation>
     </message>
     <message>
         <source>Proxy:</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxyserver:</translation>
     </message>
     <message>
         <source>The proxy server to use for connections.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Proxyserver, der für Verbindungen verwendet werden soll.</translation>
     </message>
     <message>
         <source>Reject Unauthorized</source>
@@ -24801,15 +24804,15 @@ Der Code wurde in die Zwischenablage kopiert.</translation>
     </message>
     <message>
         <source>GitHub Enterprise URL</source>
-        <translation type="unfinished"></translation>
+        <translation>GitHub Enterprise URL</translation>
     </message>
     <message>
         <source>GitHub Enterprise URL:</source>
-        <translation type="unfinished"></translation>
+        <translation>GitHub Enterprise URL:</translation>
     </message>
     <message>
         <source>The URL of your GitHub Enterprise server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die URL Ihres GitHub Enterprise Servers.</translation>
     </message>
     <message>
         <source>The Copilot plugin requires node.js and the Copilot neovim plugin. If you install the neovim plugin as described in %1, the plugin will find the %3 file automatically.
@@ -24987,11 +24990,11 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>Prefer banner style info bars over pop-ups</source>
-        <translation type="unfinished"></translation>
+        <translation>Infoleisten im Banner-Stil gegenüber Popups bevorzugen</translation>
     </message>
     <message>
         <source>Use tabbed editors</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor-Tabs nutzen</translation>
     </message>
     <message>
         <source>Toolbar style:</source>
@@ -25604,19 +25607,19 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>Custom Language Models</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Sprachmodelle</translation>
     </message>
     <message>
         <source>Executable</source>
-        <translation type="unfinished">Ausführbare Datei</translation>
+        <translation>Ausführbare Datei</translation>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei:</translation>
     </message>
     <message>
         <source>Arguments</source>
-        <translation type="unfinished">Argumente</translation>
+        <translation>Argumente</translation>
     </message>
     <message>
         <source>Add</source>
@@ -25624,7 +25627,7 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>&lt;New model&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Neues Modell&gt;</translation>
     </message>
     <message>
         <source>Invalid key sequence.</source>
@@ -25676,7 +25679,7 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation type="unfinished">In die Zwischenablage kopieren</translation>
+        <translation>In die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Qt</source>
@@ -26315,15 +26318,15 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Failed to remove file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Entfernen der Datei &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Cannot decode contents.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inhalt kann nicht dekodiert werden.</translation>
     </message>
     <message>
         <source>Failed to rename the include guard in file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Umbenennen des Include-Guards in der Datei &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Failed to set permissions.</source>
@@ -26452,7 +26455,7 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Version control state: unmerged.</source>
-        <translation type="unfinished"></translation>
+        <translation>Versionskontrollzustand: nicht zusammengeführt.</translation>
     </message>
     <message>
         <source>Show Details...</source>
@@ -26935,7 +26938,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Use Tab Completion</source>
-        <translation type="unfinished"></translation>
+        <translation>Tab-Vervollständigung nutzen</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -27013,7 +27016,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>QStandardPaths::%1 location on the local filesystem.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort auf lokaler Festplatte für QStandardPaths::%1.</translation>
     </message>
     <message>
         <source>No themes found in installation.</source>
@@ -27021,7 +27024,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>AI</source>
-        <translation type="unfinished"></translation>
+        <translation>KI</translation>
     </message>
     <message>
         <source>Help</source>
@@ -27326,23 +27329,23 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Save Without Formatting</source>
-        <translation type="unfinished"></translation>
+        <translation>Ohne Formatierung speichern</translation>
     </message>
     <message>
         <source>Previous Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorheriger Tab</translation>
     </message>
     <message>
         <source>Ctrl+Meta+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+Left</translation>
     </message>
     <message>
         <source>Next Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächster Tab</translation>
     </message>
     <message>
         <source>Ctrl+Meta+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Meta+Right</translation>
     </message>
     <message>
         <source>Alt+Right</source>
@@ -27478,7 +27481,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Save %1 Without Formatting</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ohne Formatierung speichern</translation>
     </message>
     <message>
         <source>Revert %1 to Saved</source>
@@ -27747,7 +27750,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished">Andere</translation>
+        <translation>Andere</translation>
     </message>
     <message>
         <source>Run External Tool</source>
@@ -28109,12 +28112,13 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Copying plugin files...</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiere Plugin-Dateien...</translation>
     </message>
     <message>
         <source>Copying
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiere
+%1</translation>
     </message>
     <message>
         <source>Failed to Copy Plugin Files</source>
@@ -28289,7 +28293,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Remove Folder...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ordner entfernen...</translation>
     </message>
     <message>
         <source>Meta+Y,Meta+F</source>
@@ -28490,7 +28494,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Cycle to Next Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum nächsten Editor wechseln</translation>
     </message>
 </context>
 <context>
@@ -28623,7 +28627,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Remove Curly Braces</source>
-        <translation type="unfinished"></translation>
+        <translation>Geschweifte Klammern entfernen</translation>
     </message>
     <message>
         <source>Move Declaration out of Condition</source>
@@ -28812,19 +28816,19 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>C++ Editor</source>
-        <translation type="unfinished">C++-Editor</translation>
+        <translation>C++-Editor</translation>
     </message>
     <message>
         <source>Clangd executable:</source>
-        <translation type="unfinished">Ausführbare Datei für Clangd:</translation>
+        <translation>Ausführbare Datei für Clangd:</translation>
     </message>
     <message>
         <source>Follow Virtual Function to Base Class Implementation</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelle Funktion zur Implementierung in der Basisklasse verfolgen</translation>
     </message>
     <message>
         <source>Follow Virtual Function to Base Class Implementation in Next Split</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelle Funktion zur Implementierung in der Basisklasse im nächsten geteilten Fenster verfolgen</translation>
     </message>
     <message>
         <source>Switch Header/Source</source>
@@ -29056,11 +29060,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Add File to Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei zu Projekt hinzufügen</translation>
     </message>
     <message>
         <source>Add to Project...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu Projekt hinzufügen...</translation>
     </message>
     <message>
         <source>Note: Multiple parse contexts are available for this file. Choose the preferred one from the editor toolbar.</source>
@@ -30098,7 +30102,7 @@ Dies ist normalerweise nicht empfehlenswert, da die Datei wahrscheinlich währen
     </message>
     <message>
         <source>Renamed Symbol Will Be Overwritten</source>
-        <translation type="unfinished"></translation>
+        <translation>Umbenanntes Symbol wird überschrieben</translation>
     </message>
     <message>
         <source>Open &quot;%1&quot;</source>
@@ -35832,215 +35836,215 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     <name>QtC::DevContainer</name>
     <message>
         <source>Inspecting Container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Untersuche Container: %1</translation>
     </message>
     <message>
         <source>Inspecting Image: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Untersuche Image: %1</translation>
     </message>
     <message>
         <source>Create Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle Container</translation>
     </message>
     <message>
         <source>Creating Container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle Container: %1</translation>
     </message>
     <message>
         <source>Waiting for Container to Start: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Warte auf den Start des Containers: %1</translation>
     </message>
     <message>
         <source>Executing in Container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Führe im Container aus: %1</translation>
     </message>
     <message>
         <source>Invalid passwd line: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige passwd-Zeile: %1</translation>
     </message>
     <message>
         <source>Start Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte Container</translation>
     </message>
     <message>
         <source>Starting Container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte Container: %1</translation>
     </message>
     <message>
         <source>Resume Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Setze Container fort</translation>
     </message>
     <message>
         <source>Resuming Container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Setze Container fort: %1</translation>
     </message>
     <message>
         <source>Build Dockerfile</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle Dockerfile</translation>
     </message>
     <message>
         <source>Building Dockerfile: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle Dockerfile: %1</translation>
     </message>
     <message>
         <source>Remove Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Container</translation>
     </message>
     <message>
         <source>Removing Container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Container: %1</translation>
     </message>
     <message>
         <source>Remove Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Image</translation>
     </message>
     <message>
         <source>Removing Image: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Image: %1</translation>
     </message>
     <message>
         <source>Running instance cannot be null.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die laufende Instanz darf nicht Null sein.</translation>
     </message>
     <message>
         <source>Invalid mount format: expected string or object, found %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Mount-Format: Eine Zeichenkette oder ein Objekt wurde erwartet, %1 wurde gefunden</translation>
     </message>
     <message>
         <source>Invalid mount format: missing &apos;type&apos; field in mount object</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Mount-Format: &apos;type&apos;-Feld im Mountobjekt fehlt</translation>
     </message>
     <message>
         <source>Invalid mount format: missing &apos;target&apos; field in mount object</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Mount-Format: &apos;target&apos;-Feld im Mountobjekt fehlt</translation>
     </message>
     <message>
         <source>Cannot parse development container JSON file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Auswerten der JSON-Datei für den Development Container: %1</translation>
     </message>
     <message>
         <source>Invalid development container JSON file: expected an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige JSON-Datei für den Development Container: Ein Objekt wurde erwartet.</translation>
     </message>
     <message>
         <source>Development Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Development Container</translation>
     </message>
     <message>
         <source>Rebuild the development container?</source>
-        <translation type="unfinished"></translation>
+        <translation>Den Development Container neu erstellen?</translation>
     </message>
     <message>
         <source>The Development Container Configuration Changed</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Konfiguration des Development Container hat sich geändert</translation>
     </message>
     <message>
         <source>Rebuild</source>
-        <translation type="unfinished">Neu erstellen</translation>
+        <translation>Neu erstellen</translation>
     </message>
     <message>
         <source>Development Container Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler im Development Container</translation>
     </message>
     <message>
         <source>Rebuild and restart the development container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Development Container neu erstellen und starten.</translation>
     </message>
     <message>
         <source>The configuration does not contain a &quot;build&quot;, &quot;image&quot; or &quot;dockerComposeFile&quot; entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Konfiguration enthält keinen Eintrag für &quot;build&quot;, &quot;image&quot; oder &quot;dockerComposeFile&quot;.</translation>
     </message>
     <message>
         <source>Cannot load the development container configuration: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Konfiguration des Development Containers kann nicht geladen werden: %1</translation>
     </message>
     <message>
         <source>Cannot set up Command Bridge: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Command Bridge kann nicht eingerichtet werden: %1</translation>
     </message>
     <message>
         <source>Cannot create the development container recipe: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Rezept für den Development Container kann nicht erstellt werden: %1</translation>
     </message>
     <message>
         <source>Unknown kit aspect factory: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Kit-Aspekt-Factory: %1</translation>
     </message>
     <message>
         <source>Cannot create kit aspect %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Kit-Aspekt %1 kann nicht erstellt werden: %2</translation>
     </message>
     <message>
         <source>Cannot start the development container. Check General Messages for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Development Container kann nicht gestartet werden. Details finden Sie in den Allgemeinen Ausgaben.</translation>
     </message>
     <message>
         <source>Starting the development container</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte den Development Container</translation>
     </message>
     <message>
         <source>The development container is not running or has not been started.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Development Container läuft nicht oder wurde nicht gestartet.</translation>
     </message>
     <message>
         <source>Stopping the development container</source>
-        <translation type="unfinished"></translation>
+        <translation>Halte den Development Container an</translation>
     </message>
     <message>
         <source>Cannot stop the development container. Check General Messages for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Development Container konnte nicht angehalten werden. Details finden Sie in den Allgemeinen Ausgaben.</translation>
     </message>
     <message>
         <source>Restarting the development container</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte den Development Container neu</translation>
     </message>
     <message>
         <source>System environment is not available for this device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für dieses Gerät ist keine Systemumgebung verfügbar.</translation>
     </message>
     <message>
         <source>File access is not available for this device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für diese Gerät ist kein Dateizugriff verfügbar.</translation>
     </message>
     <message>
         <source>No mapping available for %1 on %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für %1 ist keine Zuordnung auf %2 verfügbar.</translation>
     </message>
     <message>
         <source>Development Container Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Development Container-Gerät</translation>
     </message>
     <message>
         <source>Found a development container in the project %1, would you like to start it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Projekt %1 wurde ein Development Container gefunden. Möchten Sie diesen starten?</translation>
     </message>
     <message>
         <source>Configure the development container?</source>
-        <translation type="unfinished"></translation>
+        <translation>Den Development Container konfigurieren?</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished">Ja</translation>
+        <translation>Ja</translation>
     </message>
     <message>
         <source>Start the development container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte den Development Container.</translation>
     </message>
     <message>
         <source>Found development containers in the project %1, would you like to start any of them?</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Projekt %1 wurden Development Container gefunden. Möchten Sie einen davon starten?</translation>
     </message>
     <message>
         <source>Start or Restart Development Container</source>
-        <translation type="unfinished"></translation>
+        <translation>Development Container starten oder neu starten</translation>
     </message>
     <message>
         <source>Start or stop and restart the development container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Development Container starten oder anhalten und neu starten.</translation>
     </message>
     <message>
         <source>Development Container for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Development Container für %1</translation>
     </message>
 </context>
 <context>
