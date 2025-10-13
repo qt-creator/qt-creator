@@ -31627,7 +31627,7 @@ Sie haben die Wahl zu warten oder das Debuggen abzubrechen.</numerusform>
     </message>
     <message>
         <source>Cannot Set Up Debugger Helper Scripts</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugger-Hilfsskripte können nicht eingerichtet werden</translation>
     </message>
     <message>
         <source>Application started.</source>
@@ -33258,7 +33258,7 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>Copy Content to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Inhalt in Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Copy Selected Items to Clipboard</source>
@@ -33270,11 +33270,11 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>GDB server executable:</source>
-        <translation type="unfinished">Ausführbare Datei des GDB-Servers:</translation>
+        <translation>Ausführbare Datei des GDB-Servers:</translation>
     </message>
     <message>
         <source>The GDB server executable to use on the device.</source>
-        <translation type="unfinished">Die ausführbare Datei des GDB-Servers, der auf dem Gerät verwendet werden soll.</translation>
+        <translation>Die ausführbare Datei des GDB-Servers, der auf dem Gerät verwendet werden soll.</translation>
     </message>
     <message>
         <source>Attach to Running Application...</source>
@@ -34590,7 +34590,7 @@ Vielleicht können Symbole nicht untersucht werden oder Haltepunkte nicht anhand
     </message>
     <message>
         <source>Failed to setup remote debugger helper files: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Einrichten der entfernten Debugger-Hilfsdateien: %1</translation>
     </message>
     <message>
         <source>The inferior is in the ELF format.
@@ -34680,7 +34680,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Auto-detected CDB at &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch bestimmter CDB bei &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Added a surrogate GDB DAP item for existing entry &quot;%1&quot;.</source>
@@ -34688,7 +34688,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Found: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gefunden: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Added a surrogate GDB DAP item for &quot;%1&quot;.</source>
@@ -34696,31 +34696,31 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Auto-detected uVision at &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch bestimmter uVision bei &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Found debugger: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugger gefunden: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Removing debugger: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Debugger: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Invalid JSON value for debugger: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger JSON-Wert für Debugger: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Empty command for debugger.</source>
-        <translation type="unfinished"></translation>
+        <translation>Leeres Kommando für Debugger.</translation>
     </message>
     <message>
         <source>Failed to create debugger from JSON: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Erstellen des Debuggers aus der JSON-Information: %1</translation>
     </message>
     <message>
         <source>Removed &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; entfernt.</translation>
     </message>
     <message>
         <source>Add</source>
@@ -35150,7 +35150,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Debugger: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugger: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>No Debugger</source>
@@ -35413,11 +35413,11 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Install the debugpy package to turn on Python debugging support.</source>
-        <translation type="unfinished"></translation>
+        <translation>Installieren Sie das debugpy-Paket, um die Unterstützung für das Python-Debugging zu aktivieren.</translation>
     </message>
     <message>
         <source>Python Debugging Is Not Available</source>
-        <translation type="unfinished"></translation>
+        <translation>Python-Debugging ist nicht verfügbar</translation>
     </message>
     <message>
         <source>Install debugpy</source>
@@ -35484,7 +35484,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>&quot;data&quot; for a &quot;Form&quot; page needs to be unset or an empty object.</source>
-        <translation type="unfinished">&quot;data&quot; darf für eine &quot;Form&quot;-Seite nicht gesetzt sein oder muss ein leeres Objekt sein.</translation>
+        <translation>&quot;data&quot; darf für eine &quot;Form&quot;-Seite nicht gesetzt sein oder muss ein leeres Objekt sein.</translation>
     </message>
     <message>
         <source>Choose a Form Template</source>
@@ -36277,7 +36277,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Docker device is not initialized. Cannot create command line.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Docker-Gerät ist nicht initialisiert. Es kann keine Kommandozeile erstellt werden.</translation>
     </message>
     <message>
         <source>Device is shut down.</source>
@@ -36309,11 +36309,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Mount Command Bridge:</source>
-        <translation type="unfinished"></translation>
+        <translation>Command Bridge einhängen:</translation>
     </message>
     <message>
         <source>The Command Bridge facilitates communication between Qt Creator and the running Container. It is mounted into the Container by default. If your Docker server does not have access to the folder where Qt Creator is installed this can fail. In that case you can disable this option for a slower workaround.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Command Bridge ermöglicht die Kommunikation zwischen Qt Creator und dem laufenden Container. Sie wird standardmäßig in den Container eingehängt. Wenn Ihr Docker-Server keinen Zugriff auf das Verzeichnis hat, in dem Qt Creator installiert ist, kann dies fehlschlagen. In diesem Fall können Sie diese Option deaktivieren und den langsameren Workaround benutzen.</translation>
     </message>
     <message>
         <source>Docker system is not reachable.</source>
@@ -36497,7 +36497,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Starting auto-detection...</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte automatische Erkennung...</translation>
     </message>
     <message>
         <source>Command line:</source>
@@ -36875,7 +36875,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Toggle Secondary Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekundäre Details umschalten</translation>
     </message>
     <message>
         <source>Downloading...</source>
@@ -37014,19 +37014,23 @@ If you choose to link or connect an external repository, you are acting at your 
 You acknowledge that you download, install, or use Extensions from the Qt Creator Extensions Store at your own discretion and risk. All Qt Creator Extensions are provided &quot;as is&quot; without warranties of any kind, and may be subject to additional license terms imposed by their owners or licensors.
 
 You can manage the use of Extensions in Preferences &gt; Extensions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Creator-Erweiterungen sind über konfigurierte Online-Quellen verfügbar, beispielsweise über den Qt Creator Extensions Store der Qt Group, aber auch über Quellen von Drittanbietern. Erweiterungen für Qt Creator können von Drittanbietern erstellt und verwaltet werden.
+
+Sie erkennen an, dass Sie Erweiterungen aus dem Qt Creator Extensions Store nach eigenem Ermessen und auf eigenes Risiko herunterladen, installieren und verwenden. Alle Qt Creator-Erweiterungen werden in der vorliegenden Form (&quot;as is&quot;) ohne jegliche Gewährleistung bereitgestellt und können zusätzlichen Lizenzbedingungen unterliegen, die von ihren Eigentümern oder Lizenzgebern auferlegt werden.
+
+Sie können die Verwendung von Erweiterungen unter Einstellungen &gt; Erweiterungen verwalten.</translation>
     </message>
     <message>
         <source>Use %1 Extensions?</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterungen für %1 benutzen?</translation>
     </message>
     <message>
         <source>Use</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzen</translation>
     </message>
     <message>
         <source>Do Not Use</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht benutzen</translation>
     </message>
 </context>
 <context>
@@ -38087,7 +38091,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Fossil Commit Log Editor</source>
-        <translation type="unfinished">Fossil Commit-Log-Editor</translation>
+        <translation>Fossil Commit-Log-Editor</translation>
     </message>
     <message>
         <source>&amp;Fossil</source>
@@ -38203,15 +38207,15 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Fossil File Log Editor</source>
-        <translation type="unfinished">Fossil Datei-Log-Editor</translation>
+        <translation>Fossil Datei-Log-Editor</translation>
     </message>
     <message>
         <source>Fossil Annotation Editor</source>
-        <translation type="unfinished">Fossil Annotations-Editor</translation>
+        <translation>Fossil Annotations-Editor</translation>
     </message>
     <message>
         <source>Fossil Diff Editor</source>
-        <translation type="unfinished">Fossil Diff-Editor</translation>
+        <translation>Fossil Diff-Editor</translation>
     </message>
     <message>
         <source>Pull...</source>
@@ -38482,7 +38486,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>.files Editor</source>
-        <translation type="unfinished">.files-Dateieditor</translation>
+        <translation>.files-Dateieditor</translation>
     </message>
 </context>
 <context>
@@ -38777,11 +38781,11 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>Cannot amend during merge, use git commit instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Amend kann während eines Merges nicht benutzt werden, benutzen Sie stattdessen git commit.</translation>
     </message>
     <message>
         <source>Cannot amend during cherry-pick, use git commit instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Amend kann während eines Cherry-Picks nicht benutzt werden, benutzen Sie stattdessen git commit.</translation>
     </message>
     <message numerus="yes">
         <source>Committed %n files.</source>
@@ -39443,19 +39447,19 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     </message>
     <message>
         <source>References must not end with &quot;.lock&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Referenzen dürfen nicht mit &quot;.lock&quot; enden.</translation>
     </message>
     <message>
         <source>References must not end with &quot;.&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Referenzen dürfen nicht mit einem Punkt enden.</translation>
     </message>
     <message>
         <source>References must not end with &quot;/&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Referenzen dürfen nicht mit einem Schrägstrich enden.</translation>
     </message>
     <message>
         <source>Reference &quot;%1&quot; already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Referenz &quot;%1&quot; existiert bereits.</translation>
     </message>
     <message>
         <source>Branch Name:</source>
@@ -39829,87 +39833,87 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
     </message>
     <message>
         <source>Confirm File Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateiänderungen bestätigen</translation>
     </message>
     <message>
         <source>Open &quot;%1&quot;</source>
-        <translation type="unfinished">&quot;%1&quot; öffnen</translation>
+        <translation>&quot;%1&quot; öffnen</translation>
     </message>
     <message>
         <source>Copy &quot;%1&quot;</source>
-        <translation type="unfinished">&quot;%1&quot; Kopieren</translation>
+        <translation>&quot;%1&quot; kopieren</translation>
     </message>
     <message>
         <source>Run Merge Tool for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Mergetool für &quot;%1&quot; ausführen</translation>
     </message>
     <message>
         <source>Resolve by Recovering &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Löse durch Wiederherstellung von &quot;%1&quot; auf</translation>
     </message>
     <message>
         <source>Resolve by Removing &quot;%1&quot;...</source>
-        <translation type="unfinished"></translation>
+        <translation>Löse durch Entfernen von &quot;%1&quot;...</translation>
     </message>
     <message>
         <source>&lt;p&gt;Permanently remove file &quot;%1&quot;?&lt;/p&gt;&lt;p&gt;Note: The changes will be discarded.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Datei &quot;%1&quot; permanent löschen?&lt;/p&gt;&lt;p&gt; Hinweis: Die Änderungen werden verworfen.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Mark Conflicts Resolved for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Konflikte für &quot;%1&quot; als gelöst markieren</translation>
     </message>
     <message>
         <source>Resolve Conflicts in &quot;%1&quot; with Ours...</source>
-        <translation type="unfinished"></translation>
+        <translation>Konflikte in &quot;%1&quot; mit &quot;ours&quot; lösen...</translation>
     </message>
     <message>
         <source>&lt;p&gt;Resolve all conflicts to the file &quot;%1&quot; with &lt;b&gt;our&lt;/b&gt; version?&lt;/p&gt;&lt;p&gt;Note: The other changes will be discarded.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Alle Konflikte für die Datei &quot;%1&quot; mit &quot;our&quot; Version lösen?&lt;/p&gt;&lt;p&gt;Hinweis: Die anderen Änderungen werden verworfen.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Resolve Conflicts in &quot;%1&quot; with Theirs...</source>
-        <translation type="unfinished"></translation>
+        <translation>Konflikte in &quot;%1&quot; mit &quot;theirs&quot; lösen...</translation>
     </message>
     <message>
         <source>&lt;p&gt;Resolve all conflicts to the file &quot;%1&quot; with &lt;b&gt;their&lt;/b&gt; version?&lt;/p&gt;&lt;p&gt;Note: Our changes will be discarded.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Alle Konflikte für die Datei &quot;%1&quot; mit &quot;theirs&quot; Version lösen?&lt;/p&gt;&lt;p&gt;Hinweis: Die &quot;our&quot; Änderungen werden verworfen.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Recover &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; wiederherstellen</translation>
     </message>
     <message>
         <source>Unstage &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; aus dem Commit entfernen</translation>
     </message>
     <message>
         <source>Revert All Changes to &quot;%1&quot;...</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Änderungen an &quot;%1&quot; rückgängig machen...</translation>
     </message>
     <message>
         <source>&lt;p&gt;Undo &lt;b&gt;all&lt;/b&gt; changes to the file &quot;%1&quot;?&lt;/p&gt;&lt;p&gt;Note: These changes will be lost.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&lt;b&gt;Alle&lt;/b&gt; Änderungen an der Datei &quot;%1&quot; rückgängig machen?&lt;/p&gt;&lt;p&gt;Hinweis: Diese Änderungen werden verloren gehen.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Stage &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; für Commit vorsehen</translation>
     </message>
     <message>
         <source>Revert Unstaged Changes to &quot;%1&quot;...</source>
-        <translation type="unfinished"></translation>
+        <translation>Noch nicht für den Commit vorgesehene Änderungen an &quot;%1&quot; rückgängig machen...</translation>
     </message>
     <message>
         <source>&lt;p&gt;Undo unstaged changes to the file &quot;%1&quot;?&lt;/p&gt;&lt;p&gt;Note: These changes will be lost.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Noch nicht für den Commit vorgesehene Änderungen an der Datei &quot;%1&quot; rückgängig machen?&lt;/p&gt;&lt;p&gt;Hinweis: Diese Änderungen werden verloren gehen.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Remove &quot;%1&quot;...</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; entfernen...</translation>
     </message>
     <message>
         <source>&lt;p&gt;Permanently remove the file &quot;%1&quot;?&lt;/p&gt;&lt;p&gt;Note: The deletion cannot be undone.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Die Datei &quot;%1&quot; permanent löschen?&lt;/p&gt;&lt;p&gt;Hinweis: Das Löschen kann nicht rückgängig gemacht werden.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Local Changes Found. Choose Action:</source>
@@ -39941,7 +39945,7 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
     </message>
     <message>
         <source>&amp;Diff &amp;&amp; Cancel</source>
-        <translation type="unfinished">&amp;Diff &amp;&amp; abbrechen</translation>
+        <translation>&amp;Diff &amp;&amp; abbrechen</translation>
     </message>
     <message>
         <source>Normal</source>
@@ -40120,25 +40124,27 @@ Nicht markiert - Die Änderung ist kein Entwurf.</translation>
     </message>
     <message>
         <source>Cannot read &quot;%1&quot;, reason %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht gelesen werden, Grund: %2.</translation>
     </message>
     <message>
         <source>Cannot write &quot;%1&quot;, reason %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht geschrieben werden, Grund: %2.</translation>
     </message>
     <message>
         <source>File &quot;%1&quot; recovered.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; wiederhergestellt.
+</translation>
     </message>
     <message>
         <source>File &quot;%1&quot; reverted.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; zurückgesetzt.
+</translation>
     </message>
     <message>
         <source>Error removing file: &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Entfernen der Datei &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>Refreshing Commit Data</source>
@@ -40389,27 +40395,27 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Git SVN Log Editor</source>
-        <translation type="unfinished">Git SVN-Log-Editor</translation>
+        <translation>Git SVN-Log-Editor</translation>
     </message>
     <message>
         <source>Git Log Editor</source>
-        <translation type="unfinished">Git Log-Editor</translation>
+        <translation>Git Log-Editor</translation>
     </message>
     <message>
         <source>Git Reflog Editor</source>
-        <translation type="unfinished">Git Reflog-Editor</translation>
+        <translation>Git Reflog-Editor</translation>
     </message>
     <message>
         <source>Git Annotation Editor</source>
-        <translation type="unfinished">Git Annotations-Editor</translation>
+        <translation>Git Annotations-Editor</translation>
     </message>
     <message>
         <source>Git Commit Editor</source>
-        <translation type="unfinished">Git Commit-Editor</translation>
+        <translation>Git Commit-Editor</translation>
     </message>
     <message>
         <source>Git Rebase Editor</source>
-        <translation type="unfinished">Git Rebase-Editor</translation>
+        <translation>Git Rebase-Editor</translation>
     </message>
     <message>
         <source>Git Settings</source>
@@ -40785,11 +40791,11 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Create from Commits...</source>
-        <translation type="unfinished"></translation>
+        <translation>Von Commits erstellen...</translation>
     </message>
     <message>
         <source>Apply from Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Von Zwischenablage anwenden</translation>
     </message>
     <message>
         <source>Git &amp;Tools</source>
@@ -40833,7 +40839,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Git Submit Editor</source>
-        <translation type="unfinished">Git Submit-Editor</translation>
+        <translation>Git Submit-Editor</translation>
     </message>
     <message>
         <source>Undo Changes to %1</source>
@@ -40873,7 +40879,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Select Commits for Patch Creation</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie Commits für die Erstellung des Patchs aus</translation>
     </message>
     <message>
         <source>Patches (*.patch *.diff)</source>
@@ -40945,56 +40951,56 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Git Blame</source>
-        <translation type="unfinished">Git Blame</translation>
+        <translation>Git Blame</translation>
     </message>
     <message>
         <source>Copy Hash to Clipboard</source>
-        <translation type="unfinished">Hash in die Zwischenablage kopieren</translation>
+        <translation>Hash in die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Revert Commit?</source>
-        <translation type="unfinished">Commit rückgängig machen?</translation>
+        <translation>Commit rückgängig machen?</translation>
     </message>
     <message>
         <source>Revert the commit %1?</source>
-        <translation type="unfinished">Den Commit %1 rückgängig machen?</translation>
+        <translation>Den Commit %1 rückgängig machen?</translation>
     </message>
     <message>
         <source>Blame %1</source>
-        <translation type="unfinished">Blame von %1</translation>
+        <translation>Blame von %1</translation>
     </message>
     <message>
         <source>Blame Parent</source>
-        <translation type="unfinished">Blame des Eltern-Commits</translation>
+        <translation>Blame des Eltern-Commits</translation>
     </message>
     <message>
         <source>File at %1</source>
-        <translation type="unfinished">Datei bei %1</translation>
+        <translation>Datei bei %1</translation>
     </message>
     <message>
         <source>Revert %1</source>
-        <translation type="unfinished">%1 rückgängig machen</translation>
+        <translation>%1 rückgängig machen</translation>
     </message>
     <message>
         <source>Log for line %1</source>
-        <translation type="unfinished">Log für Zeile %1</translation>
+        <translation>Log für Zeile %1</translation>
     </message>
     <message>
         <source>&lt;b&gt;Note:&lt;/b&gt; &quot;%1&quot; or &quot;%2&quot; is enabled in the instant blame settings.</source>
         <extracomment>%1 and %2 are the &quot;ignore whitespace changes&quot; and &quot;ignore line moves&quot; options</extracomment>
-        <translation type="unfinished">&lt;b&gt;Hinweis:&lt;/b&gt; &quot;%1&quot; oder &quot;%2&quot; ist in den Einstellungen für Instant Blame aktiviert.</translation>
+        <translation>&lt;b&gt;Hinweis:&lt;/b&gt; &quot;%1&quot; oder &quot;%2&quot; ist in den Einstellungen für Instant Blame aktiviert.</translation>
     </message>
     <message>
         <source>Not Committed Yet</source>
-        <translation type="unfinished">Noch nicht in Commit</translation>
+        <translation>Noch nicht in Commit</translation>
     </message>
     <message>
         <source>Modified line in %1</source>
-        <translation type="unfinished">Geänderte Zeile in %1</translation>
+        <translation>Geänderte Zeile in %1</translation>
     </message>
     <message>
         <source>You</source>
-        <translation type="unfinished">Sie selbst</translation>
+        <translation>Sie selbst</translation>
     </message>
 </context>
 <context>
@@ -41241,7 +41247,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Linked GitLab Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbundene GitLab-Konfiguration</translation>
     </message>
     <message>
         <source>Projects linked with GitLab receive event notifications in the Version Control output pane.</source>
@@ -41277,7 +41283,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>GLSL Editor</source>
-        <translation type="unfinished">GLSL Editor</translation>
+        <translation>GLSL Editor</translation>
     </message>
 </context>
 <context>
