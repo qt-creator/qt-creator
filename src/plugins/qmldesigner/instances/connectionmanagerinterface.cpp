@@ -40,7 +40,15 @@ ConnectionManagerInterface::Connection::Connection(const QString &name, const QS
     NanotraceHR::Tracer tracer{"connection manager interface connection constructor", category()};
 }
 
-ConnectionManagerInterface::Connection::Connection(Connection &&)
+ConnectionManagerInterface::Connection::Connection(Connection &&connection)
+    : name(std::move(connection.name))
+    , mode(std::move(connection.mode))
+    , qmlPuppetProcess(std::move(connection.qmlPuppetProcess))
+    , socket(std::move(connection.socket))
+    , localServer(std::move(connection.localServer))
+    , blockSize(std::exchange(connection.blockSize, 0))
+    , lastReadCommandCounter(std::exchange(connection.lastReadCommandCounter, 0))
+    , timer(std::move(connection.timer))
 {
     NanotraceHR::Tracer tracer{"connection manager interface connection move constructor", category()};
 }
