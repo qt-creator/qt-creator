@@ -150,7 +150,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
             this, &QmakeBuildConfiguration::updateProblemLabel);
     connect(&settings(), &AspectContainer::changed,
             this, &QmakeBuildConfiguration::updateProblemLabel);
-    connect(buildSystem(), &BuildSystem::parsingFinished,
+    m_bsParsingFinishedConnection = connect(buildSystem(), &BuildSystem::parsingFinished,
             this, &QmakeBuildConfiguration::updateProblemLabel);
     connect(this, &BuildConfiguration::kitChanged,
             this, &QmakeBuildConfiguration::updateProblemLabel);
@@ -180,6 +180,13 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
     runSystemFunctions.addOption(Tr::tr("Ignore"));
     runSystemFunctions.addOption(Tr::tr("Use global setting"));
     runSystemFunctions.setDefaultValue(2);
+}
+
+QmakeBuildConfiguration::~QmakeBuildConfiguration()
+{
+    // BuildSystem might send signals during destruction before this QObject
+    // had a chance to disconnect from it.
+    disconnect(m_bsParsingFinishedConnection);
 }
 
 void QmakeBuildConfiguration::toMap(Store &map) const
