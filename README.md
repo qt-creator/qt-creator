@@ -59,7 +59,7 @@ Prerequisites:
 * CMake
 * Ninja (recommended)
 * [Go compiler](#installing-the-go-compiler), required for the CmdBridge
-  (BUILD_EXECUTABLE_CMDBRIDGE) for fast remote device support.
+  (BUILD_EXECUTABLE_CMDBRIDGE) for fast container and remote device support.
 
 The used toolchain has to be compatible with the one Qt was compiled with.
 

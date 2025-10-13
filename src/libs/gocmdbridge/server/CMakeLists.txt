@@ -1,7 +1,7 @@
 set(ALL_CMDBRIDGE_PLATFORMS "")
 
 env_with_default("QTC_BUILD_EXECUTABLE_CMDBRIDGE" ENV_BUILD_EXECUTABLE_CMDBRIDGE ON)
-option(BUILD_EXECUTABLE_CMDBRIDGE "Build the cmdbridge executable, required for fast remote device support" "${ENV_BUILD_EXECUTABLE_CMDBRIDGE}")
+option(BUILD_EXECUTABLE_CMDBRIDGE "Build the cmdbridge executable, required for fast container and remote device support" "${ENV_BUILD_EXECUTABLE_CMDBRIDGE}")
 
 if(NOT BUILD_EXECUTABLE_CMDBRIDGE)
     add_feature_info("Executable CmdBridge" NO "")
@@ -58,7 +58,7 @@ if(NOT GO_BIN)
       "Could not find a Go compiler, required for the CmdBridge.
 For information about installing Go, see \"Installing the Go Compiler\" in the toplevel README.md file or https://code.qt.io/cgit/qt-creator/qt-creator.git/about/README.md#installing-the-go-compiler
 You can also disable the CmdBridge by reconfiguring with -DBUILD_EXECUTABLE_CMDBRIDGE=OFF or setting the environment variable QTC_BUILD_EXECUTABLE_CMDBRIDGE=OFF
-but note that disabling the CmdBridge leads to slow communication with remote devices.")
+but note that disabling the CmdBridge leads to slow communication with containers and remote devices.")
 endif()
 
 set(CMDBRIDGEFEATURE_TEXT "with GO compiler at ${GO_BIN}")
