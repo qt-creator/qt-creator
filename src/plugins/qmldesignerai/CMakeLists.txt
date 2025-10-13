@@ -6,10 +6,22 @@ add_qtc_plugin(QmlDesignerAi
     Qt6::Qml
     AstCheck
   SOURCES
+    aiassistantconstants.h
     qmldesigneraiplugin.cpp qmldesigneraiplugin.h
     aiassistantview.cpp aiassistantview.h
     aiassistantwidget.cpp aiassistantwidget.h
     aiassistant.qrc
     airesponse.h airesponse.cpp
     manifest.cpp manifest.h
+)
+
+extend_qtc_plugin(QmlDesignerAi
+  PUBLIC_INCLUDES settings
+  SOURCES_PREFIX settings
+  SOURCES
+    aiproviderconfig.cpp aiproviderconfig.h
+    aiproviderdata.cpp aiproviderdata.h
+    aiprovidersettings.cpp aiprovidersettings.h
+    aiprovidersettingswidget.cpp aiprovidersettingswidget.h
+    stringlistwidget.cpp stringlistwidget.h
 )

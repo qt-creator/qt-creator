@@ -101,7 +101,6 @@ void DesignerSettings::fromSettings(QtcSettings *settings)
     restoreValue(settings, DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL,
                  "https://cdn.qt.io/designstudio/bundles");
     restoreValue(settings, DesignerSettingsKey::CONTENT_LIBRARY_NEW_FLAG_EXPIRATION_DAYS, 3);
-    restoreValue(settings, DesignerSettingsKey::GROQ_API_KEY, "");
 
     settings->endGroup();
     settings->endGroup();

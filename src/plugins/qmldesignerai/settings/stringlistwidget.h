@@ -1,0 +1,39 @@
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+#pragma once
+
+#include <QListWidget>
+
+#include <utils/uniqueobjectptr.h>
+
+Q_FORWARD_DECLARE_OBJC_CLASS(QToolBar);
+Q_FORWARD_DECLARE_OBJC_CLASS(QToolButton);
+
+namespace QmlDesigner {
+
+class StringListWidget : public QListWidget
+{
+public:
+    explicit StringListWidget(QWidget *parent = nullptr);
+    ~StringListWidget();
+
+    QStringList items() const;
+    void setItems(const QStringList &items);
+
+    void addItem(const QString &itemText);
+
+    QToolBar *toolBar() const;
+
+private: // functions
+    void onRowChanged(int row);
+
+private: // variables
+    Utils::UniqueObjectPtr<QToolButton> m_addButton;
+    Utils::UniqueObjectPtr<QToolButton> m_removeButton;
+    Utils::UniqueObjectPtr<QToolButton> m_moveUpButton;
+    Utils::UniqueObjectPtr<QToolButton> m_moveDownButton;
+    Utils::UniqueObjectPtr<QToolBar> m_toolBar;
+};
+
+} // namespace QmlDesigner

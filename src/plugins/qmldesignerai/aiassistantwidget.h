@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "aiproviderconfig.h"
 #include "manifest.h"
 
 #include <utils/uniqueobjectptr.h>
@@ -42,6 +43,7 @@ public:
 
     void clear();
     void initManifest();
+    void updateModelConfig();
     void removeMissingAttachedImage();
 
     QSize sizeHint() const override;
@@ -54,6 +56,7 @@ public:
     Q_INVOKABLE void retryLastPrompt();
     Q_INVOKABLE void applyLastGeneratedQml();
     Q_INVOKABLE void sendThumbFeedback(bool up);
+    Q_INVOKABLE void openModelSettings();
 
 signals:
     void isGeneratingChanged();
@@ -83,6 +86,7 @@ private: // variables
     QString m_lastGeneratedQml;
     QString m_attachedImageSource;
     Manifest m_manifest;
+    AiModelInfo m_modelInfo;
     int m_historyIndex = -1;
     bool m_isGenerating = false;
 };

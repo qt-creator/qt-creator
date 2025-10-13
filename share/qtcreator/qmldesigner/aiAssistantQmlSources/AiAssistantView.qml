@@ -60,10 +60,32 @@ Rectangle {
             }
         }
 
-        ResponseStatePopup {
-            id: responseStatePopup
+        RowLayout {
+            ResponseStatePopup {
+                id: responseStatePopup
 
-            Layout.fillWidth: true
+                Layout.fillWidth: true
+            }
+
+            Item { // Spacer
+                Layout.fillWidth: true
+                visible: !responseStatePopup.visible
+            }
+
+            HelperWidgets.IconButton {
+                id: settingsButton
+                objectName: "SettingsButton"
+
+                icon: StudioTheme.Constants.settings_medium
+
+                iconColor: settingsButton.enabled ? StudioTheme.Values.controlStyle.text.idle
+                                                  : StudioTheme.Values.controlStyle.text.disabled
+
+                tooltip: qsTr("Open AI assistant settings.")
+                enabled: !root.rootView.isGenerating
+
+                onClicked: root.rootView.openModelSettings()
+            }
         }
     }
 }

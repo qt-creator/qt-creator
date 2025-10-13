@@ -16,6 +16,11 @@ AiAssistantView::AiAssistantView(ExternalDependenciesInterface &externalDependen
 AiAssistantView::~AiAssistantView()
 {}
 
+void AiAssistantView::updateAiModelConfig()
+{
+    m_widget->updateModelConfig();
+}
+
 bool AiAssistantView::hasWidget() const
 {
     return true;

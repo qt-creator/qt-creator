@@ -3,7 +3,9 @@
 
 #include "aiassistantwidget.h"
 
+#include "aiassistantconstants.h"
 #include "aiassistantview.h"
+#include "aiprovidersettings.h"
 #include "airesponse.h"
 
 #include <astcheck/astcheck.h>
@@ -193,6 +195,7 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
 
     vLayout->addWidget(m_quickWidget.get());
     reloadQmlSource();
+    updateModelConfig();
 }
 
 AiAssistantWidget::~AiAssistantWidget() = default;
@@ -214,6 +217,18 @@ void AiAssistantWidget::initManifest()
     } else {
         m_manifest = {};
     }
+}
+
+void AiAssistantWidget::updateModelConfig()
+{
+    const QList<AiModelInfo> aiModels = AiProviderSettings::allValidModels();
+
+    if (aiModels.isEmpty()) {
+        m_modelInfo = {};
+        return;
+    }
+
+    m_modelInfo = aiModels.first();
 }
 
 void AiAssistantWidget::removeMissingAttachedImage()
@@ -260,11 +275,14 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
     m_inputHistory.append(prompt);
     m_historyIndex = m_inputHistory.size();
 
-    QByteArray groqApiKey = QmlDesignerPlugin::settings().value("GroqApiKey", "").toByteArray();
+    if (!m_modelInfo.isValid()) {
+        qWarning() << __FUNCTION__ << "No model configuration";
+        return; // TODO: Notify error
+    }
 
-    QNetworkRequest request(QUrl("https://api.groq.com/openai/v1/chat/completions"));
+    QNetworkRequest request(m_modelInfo.url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setRawHeader("Authorization", QByteArray("Bearer ").append(groqApiKey));
+    request.setRawHeader("Authorization", QByteArray("Bearer ").append(m_modelInfo.apiKey.toUtf8()));
 
     const Utils::FilePath qmlFile = currentDesignDocument()->fileName();
     const QString imagePaths = getImageAssetsPaths().join('\n');
@@ -275,7 +293,7 @@ void AiAssistantWidget::handleMessage(const QString &prompt)
     QJsonObject userJson = getUserJson(fullImageUrl(attachedImageSource()), currentQmlText(), prompt);
 
     QJsonObject json;
-    json["model"] = "meta-llama/llama-4-maverick-17b-128e-instruct";
+    json["model"] = m_modelInfo.modelId;
     json["messages"] = QJsonArray {
         QJsonObject{{"role", "system"}, {"content", m_manifest.toString()}},
         userJson,
@@ -342,6 +360,11 @@ void AiAssistantWidget::sendThumbFeedback(bool up)
     QmlDesignerPlugin::instance()->sendStatisticsFeedback(m_view->widgetInfo().feedbackDisplayName,
                                                           m_inputHistory.last(),
                                                           up ? 1 : -1);
+}
+
+void AiAssistantWidget::openModelSettings()
+{
+    Core::ICore::showOptionsDialog(Constants::aiAssistantProviderSettingsPage);
 }
 
 void AiAssistantWidget::reloadQmlSource()
