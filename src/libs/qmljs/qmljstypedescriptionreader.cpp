@@ -330,7 +330,8 @@ void TypeDescriptionReader::readProperty(UiObjectDefinition *ast, FakeMetaObject
     }
 
     if (name.isEmpty()) {
-        addError(ast->firstSourceLocation(), Tr::tr("Property object is missing a name or type script binding."));
+        addError(
+            ast->firstSourceLocation(), Tr::tr("Property object is missing a name script binding."));
         return;
     }
 
