@@ -42304,7 +42304,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Run canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführung abgebrochen.</translation>
     </message>
     <message>
         <source>The dSYM %1 seems to be outdated, it might confuse the debugger.</source>
@@ -42526,7 +42526,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Running canceled.</source>
-        <translation>Ausführen abgebrochen.</translation>
+        <translation>Ausführung abgebrochen.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; exited.</source>
@@ -42795,7 +42795,7 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Apple Clang iOS (%1 at &quot;%2&quot;)</source>
-        <translation type="unfinished"></translation>
+        <translation>Apple Clang iOS (%1 in &quot;%2&quot;)</translation>
     </message>
 </context>
 <context>
@@ -43003,7 +43003,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     <message>
         <source>%1 for %2 (%3, %4)</source>
         <extracomment>for example: MyServer for MyProject (Qt 1.2.3, Release)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 für %2 (%3, %4)</translation>
     </message>
     <message>
         <source>uninitialized</source>
@@ -43154,7 +43154,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Sort Alphabetically</source>
-        <translation type="unfinished">Alphabetisch sortieren</translation>
+        <translation>Alphabetisch sortieren</translation>
     </message>
     <message>
         <source>&lt;Select Symbol&gt;</source>
@@ -43310,19 +43310,19 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Intermediate</source>
-        <translation type="unfinished"></translation>
+        <translation>Mittel</translation>
     </message>
     <message>
         <source>Start Course</source>
-        <translation type="unfinished"></translation>
+        <translation>Kurs starten</translation>
     </message>
     <message>
         <source>Course Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Kursbeschreibung</translation>
     </message>
     <message>
         <source>Objectives</source>
-        <translation type="unfinished"></translation>
+        <translation>Ziele</translation>
     </message>
     <message>
         <source>Search for Qt Academy courses...</source>
@@ -43334,103 +43334,103 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Basic</source>
-        <translation type="unfinished">Grundlegend</translation>
+        <translation>Einsteiger</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished">Erweitert</translation>
+        <translation>Fortgeschritten</translation>
     </message>
     <message>
         <source>This helps us recommend suitable tutorials and features.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dies hilft uns, geeignete Tutorials und Funktionen zu empfehlen.</translation>
     </message>
     <message>
         <source>Personalize learning</source>
-        <translation type="unfinished"></translation>
+        <translation>Lernen personalisieren</translation>
     </message>
     <message>
         <source>Get tutorials and tips tailored to your role and experience.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erhalten Sie Tutorials und Tipps, die auf Ihre Rolle und Erfahrung abgestimmt sind.</translation>
     </message>
     <message>
         <source>Your experience level</source>
-        <translation type="unfinished"></translation>
+        <translation>Ihre Erfahrungsstufe</translation>
     </message>
     <message>
         <source>Select your target platforms</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie Ihre Zielplattformen aus</translation>
     </message>
     <message>
         <source>Desktop</source>
-        <translation type="unfinished">Desktop</translation>
+        <translation>Desktop</translation>
     </message>
     <message>
         <source>Android</source>
-        <translation type="unfinished">Android</translation>
+        <translation>Android</translation>
     </message>
     <message>
         <source>iOS</source>
-        <translation type="unfinished">iOS</translation>
+        <translation>iOS</translation>
     </message>
     <message>
         <source>Boot2Qt</source>
-        <translation type="unfinished">Boot2Qt</translation>
+        <translation>Boot2Qt</translation>
     </message>
     <message>
         <source>Qt for MCUs</source>
-        <translation type="unfinished">Qt for MCUs</translation>
+        <translation>Qt for MCUs</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Schließen</translation>
+        <translation>Schließen</translation>
     </message>
     <message>
         <source>Example</source>
-        <translation type="unfinished"></translation>
+        <translation>Beispiel</translation>
     </message>
     <message>
         <source>Tutorial</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutorial</translation>
     </message>
     <message>
         <source>Course</source>
-        <translation type="unfinished"></translation>
+        <translation>Kurs</translation>
     </message>
     <message>
         <source>Blog post</source>
-        <translation type="unfinished"></translation>
+        <translation>Blogbeitrag</translation>
     </message>
     <message>
         <source>Previous blog post.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorheriger Blogbeitrag.</translation>
     </message>
     <message>
         <source>Next blog post.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächster Blogbeitrag.</translation>
     </message>
     <message>
         <source>Show All</source>
-        <translation type="unfinished">Alle anzeigen</translation>
+        <translation>Alle anzeigen</translation>
     </message>
     <message>
         <source>Create Project...</source>
-        <translation type="unfinished">Projekt erstellen...</translation>
+        <translation>Projekt erstellen...</translation>
     </message>
     <message>
         <source>Recent Projects</source>
-        <translation type="unfinished">Zuletzt bearbeitete Projekte</translation>
+        <translation>Zuletzt bearbeitete Projekte</translation>
     </message>
     <message>
         <source>Highlights</source>
-        <translation type="unfinished"></translation>
+        <translation>Highlights</translation>
     </message>
     <message>
         <source>Recommended for You</source>
-        <translation type="unfinished"></translation>
+        <translation>Empfehlungen für Sie</translation>
     </message>
     <message>
         <source>Overview</source>
-        <translation type="unfinished"></translation>
+        <translation>Übersicht</translation>
     </message>
 </context>
 <context>
@@ -43459,7 +43459,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Allow Fetching Data?</source>
-        <translation type="unfinished"></translation>
+        <translation>Herunterladen von Daten erlauben?</translation>
     </message>
     <message>
         <source>Allow the extension &quot;%1&quot; to fetch data from the following URL:
@@ -44225,39 +44225,39 @@ sind ungültige Pfade vorhanden.</translation>
     </message>
     <message>
         <source>Cannot find a valid build system.</source>
-        <translation type="unfinished">Es kann kein gültiges Build-System gefunden werden.</translation>
+        <translation>Es kann kein gültiges Build-System gefunden werden.</translation>
     </message>
     <message>
         <source>Cannot create a valid build directory.</source>
-        <translation type="unfinished">Es kann kein gültiges Build-Verzeichnis erstellt werden.</translation>
+        <translation>Es kann kein gültiges Build-Verzeichnis erstellt werden.</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando:</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumente:</translation>
+        <translation>Argumente:</translation>
     </message>
     <message>
         <source>Build directory:</source>
-        <translation type="unfinished">Build-Verzeichnis:</translation>
+        <translation>Build-Verzeichnis:</translation>
     </message>
     <message>
         <source>The Selected Kit Is Not Supported</source>
-        <translation type="unfinished">Das gewählte Kit wird nicht unterstützt</translation>
+        <translation>Das gewählte Kit wird nicht unterstützt</translation>
     </message>
     <message>
         <source>You cannot use the selected kit to preview Qt for MCUs applications.</source>
-        <translation type="unfinished">Das gewählte Kit kann nicht zur Vorschau von Qt for MCUs-Anwendungen verwendet werden.</translation>
+        <translation>Das gewählte Kit kann nicht zur Vorschau von Qt for MCUs-Anwendungen verwendet werden.</translation>
     </message>
     <message>
         <source>Cannot find a valid Qt for MCUs kit.</source>
-        <translation type="unfinished">Es kann kein gültiges Kit für Qt for MCUs gefunden werden.</translation>
+        <translation>Es kann kein gültiges Kit für Qt for MCUs gefunden werden.</translation>
     </message>
     <message>
         <source>Qt for MCUs Deploy Step</source>
-        <translation type="unfinished">Qt for MCUs Deployment-Schritt</translation>
+        <translation>Qt for MCUs Deployment-Schritt</translation>
     </message>
 </context>
 <context>
@@ -44428,19 +44428,19 @@ sind ungültige Pfade vorhanden.</translation>
     </message>
     <message>
         <source>Mercurial File Log Editor</source>
-        <translation type="unfinished">Mercurial Datei-Log-Editor</translation>
+        <translation>Mercurial Datei-Log-Editor</translation>
     </message>
     <message>
         <source>Mercurial Annotation Editor</source>
-        <translation type="unfinished">Mercurial Annotations-Editor</translation>
+        <translation>Mercurial Annotations-Editor</translation>
     </message>
     <message>
         <source>Mercurial Diff Editor</source>
-        <translation type="unfinished">Mercurial Diff-Editor</translation>
+        <translation>Mercurial Diff-Editor</translation>
     </message>
     <message>
         <source>Mercurial Commit Log Editor</source>
-        <translation type="unfinished">Mercurial Commit-Log-Editor</translation>
+        <translation>Mercurial Commit-Log-Editor</translation>
     </message>
     <message>
         <source>Triggers a Mercurial version control operation.</source>
@@ -44815,11 +44815,11 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Meson executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für Meson:</translation>
     </message>
     <message>
         <source>Ninja executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für Ninja:</translation>
     </message>
 </context>
 <context>
@@ -45099,7 +45099,7 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Model Editor</source>
-        <translation type="unfinished">Model-Editor</translation>
+        <translation>Model-Editor</translation>
     </message>
 </context>
 <context>
@@ -45229,7 +45229,7 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Nim Editor</source>
-        <translation type="unfinished">Nim-Editor</translation>
+        <translation>Nim-Editor</translation>
     </message>
 </context>
 <context>
@@ -45969,19 +45969,19 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     </message>
     <message>
         <source>Perforce Log Editor</source>
-        <translation type="unfinished">Perforce Datei-Log-Editor</translation>
+        <translation>Perforce Datei-Log-Editor</translation>
     </message>
     <message>
         <source>Perforce Annotation Editor</source>
-        <translation type="unfinished">Perforce Annotations-Editor</translation>
+        <translation>Perforce Annotations-Editor</translation>
     </message>
     <message>
         <source>Perforce Diff Editor</source>
-        <translation type="unfinished">Perforce Diff-Editor</translation>
+        <translation>Perforce Diff-Editor</translation>
     </message>
     <message>
         <source>Perforce Submit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Perforce Submit-Editor</translation>
     </message>
     <message>
         <source>Triggers a Perforce version control operation.</source>
@@ -52869,19 +52869,19 @@ Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>Cannot save Python project file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python-Projektdatei kann nicht gespeichert werden.</translation>
     </message>
     <message>
         <source>Cannot read Python project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python-Projekt kann nicht gelesen werden.</translation>
     </message>
     <message>
         <source>Install %1 (requires pip)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 installieren (erfordert pip)</translation>
     </message>
     <message>
         <source>PySide6</source>
-        <translation type="unfinished"></translation>
+        <translation>PySide6</translation>
     </message>
     <message>
         <source>Buffered output</source>
@@ -52909,15 +52909,15 @@ Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>Found &quot;%1&quot; (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; gefunden (%2).</translation>
     </message>
     <message>
         <source>Removing Python: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Python: %1.</translation>
     </message>
     <message>
         <source>Python: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Python: %1.</translation>
     </message>
     <message>
         <source>None</source>
@@ -53010,11 +53010,11 @@ Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>Missing PySide6 Installation</source>
-        <translation type="unfinished"></translation>
+        <translation>PySide6-Installation nicht vorhanden</translation>
     </message>
     <message>
         <source>Install PySide6 via pip for %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>PySide6 mit pip für %1 installieren?</translation>
     </message>
     <message>
         <source>Select PySide Version</source>
@@ -53083,7 +53083,7 @@ Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>Installing &quot;%1&quot; failed: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Installation von &quot;%1&quot; fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>The installation of &quot;%1&quot; was canceled by timeout.</source>
@@ -53168,7 +53168,7 @@ Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>Python Editor</source>
-        <translation type="unfinished">Python-Editor</translation>
+        <translation>Python-Editor</translation>
     </message>
     <message>
         <source>Python Language Server (%1)</source>
