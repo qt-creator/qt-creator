@@ -53408,7 +53408,7 @@ Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>Qbs executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für Qbs:</translation>
     </message>
     <message>
         <source>Build File &quot;%1&quot;</source>
@@ -53534,7 +53534,7 @@ Dies ist selten nötig.</translation>
     </message>
     <message>
         <source>Fatal Qbs error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fataler Qbs-Fehler: %1</translation>
     </message>
     <message>
         <source>Failed</source>
@@ -53542,11 +53542,11 @@ Dies ist selten nötig.</translation>
     </message>
     <message>
         <source>Could not write project file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektdatei &quot;%1&quot; konnte nicht geschrieben werden: %2</translation>
     </message>
     <message>
         <source>Cannot update Qbs project file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Qbs-Projektdatei kann nicht aktualisiert werden.</translation>
     </message>
     <message>
         <source>Reading Project &quot;%1&quot;</source>
@@ -53599,23 +53599,23 @@ Dies ist selten nötig.</translation>
     </message>
     <message>
         <source>No qbs executable was found at &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>In &quot;%1&quot; wurde keine ausführbare qbs-Datei gefunden.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is not an executable file.</source>
-        <translation type="unfinished">&quot;%1&quot; ist keine ausführbare Datei.</translation>
+        <translation>&quot;%1&quot; ist keine ausführbare Datei.</translation>
     </message>
     <message>
         <source>The qbs process &quot;%1&quot; sent unexpected data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der qbs-Prozess &quot;%1&quot; hat unerwartete Daten gesendet.</translation>
     </message>
     <message>
         <source>Failed to load qbs build graph: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Laden des qbs-Build-Graphs: %1</translation>
     </message>
     <message>
         <source>Version mismatch: qbs at &quot;%1&quot; has API compatibility level %2, but we can handle at most %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>Versionskonflikt: qbs in &quot;%1&quot; hat API-Kompatibilitätsstufe %2, aber wir können höchstens %3 handhaben.</translation>
     </message>
     <message>
         <source>Request timed out.</source>
@@ -54228,7 +54228,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Qt Widgets Designer</source>
-        <translation type="unfinished">Qt Widgets Designer</translation>
+        <translation>Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Qt Widgets Designer is not responding (%1).</source>
@@ -54240,7 +54240,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Qt Linguist</source>
-        <translation type="unfinished">Qt Linguist</translation>
+        <translation>Qt Linguist</translation>
     </message>
     <message>
         <source>%1 Dynamic</source>
@@ -54444,7 +54444,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>qmake generator failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>qmake-Generator fehlgeschlagen.</translation>
     </message>
     <message>
         <source>No Qt in kit</source>
@@ -54560,7 +54560,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Could not write project file %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektdatei %1 konnte nicht geschrieben werden: %2</translation>
     </message>
     <message>
         <source>File Error</source>
@@ -54662,7 +54662,7 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
     </message>
     <message>
         <source>.pro File Editor</source>
-        <translation type="unfinished">.pro-Dateieditor</translation>
+        <translation>.pro-Dateieditor</translation>
     </message>
 </context>
 <context>
@@ -56816,16 +56816,17 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Custom qmlls executable &quot;%1&quot; does not exist and was disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte ausführbare Datei für qmlls &quot;%1&quot; existiert nicht und wurde deaktiviert.</translation>
     </message>
     <message>
         <source>Custom qmlls executable &quot;%1&quot; exited abnormally and was disabled. The custom executable output was:
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte ausführbare Datei für qmlls &quot;%1&quot; wurde unerwartet beendet und wurde deaktiviert. Die Ausgabe war:
+%2</translation>
     </message>
     <message>
         <source>Custom qmlls executable &quot;%1&quot; does not seem to be a qmlls executable and was disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte ausführbare Datei für qmlls &quot;%1&quot; scheint nicht gültig zu sein und wurde deaktiviert.</translation>
     </message>
     <message>
         <source>Current kit does not have a valid Qt version, disabling QML Language Server.</source>
@@ -56833,72 +56834,73 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Download Standalone QMLLS</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenständiges QMLLS herunterladen</translation>
     </message>
     <message>
         <source>Downloading standalone QMLLS...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade eigenständiges QMLLS herunter...</translation>
     </message>
     <message>
         <source>SSL error: %1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>SSL-Fehler: %1
+</translation>
     </message>
     <message>
         <source>Encountered SSL errors and aborted the download.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es sind SSL-Fehler aufgetreten, das Herunterladen wurde abgebrochen.</translation>
     </message>
     <message>
         <source>Downloading from %1 failed: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Herunterladen von %1 ist fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Latest standalone QMLLS already exists at %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die letzte Version des eigenständigen QMLLS existiert bereits in %1</translation>
     </message>
     <message>
         <source>Cannot open &quot;%1&quot; for writing: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann &quot;%1&quot; nicht zum Schreiben öffnen: %2.</translation>
     </message>
     <message>
         <source>Unarchiving QMLLS...</source>
-        <translation type="unfinished"></translation>
+        <translation>Entpacke QMLLS...</translation>
     </message>
     <message>
         <source>Unarchiving error: %1</source>
-        <translation type="unfinished">Fehler beim Entpacken: %1</translation>
+        <translation>Fehler beim Entpacken: %1</translation>
     </message>
     <message>
         <source>Could not find QMLLS in the extracted archive. Please create a bugreport.</source>
-        <translation type="unfinished"></translation>
+        <translation>QMLLS konnte nicht im ausgepackten Archiv gefunden werden. Bitte erstellen Sie einen Bugreport.</translation>
     </message>
     <message>
         <source>Standalone qmlls succesfully downloaded in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenständiges qmlls wurde erfolgreich nach %1 heruntergeladen</translation>
     </message>
     <message>
         <source>Use qmlls from project Qt kit</source>
-        <translation type="unfinished"></translation>
+        <translation>qmlls vom Qt, das im Kit des Projekts definiert ist, benutzen</translation>
     </message>
     <message>
         <source>Use qmlls from latest Qt kit (located at %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>qmlls vom neuesten konfigurierten Qt (in %1) benutzen</translation>
     </message>
     <message>
         <source>Use custom qmlls executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte ausführbare Datei für qmlls benutzen:</translation>
     </message>
     <message>
         <source>Download latest standalone qmlls</source>
-        <translation type="unfinished"></translation>
+        <translation>Neueste Version des eigenständigen qmlls herunterladen</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Einstellungen</translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
         <source>Executable selection for qmlls</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswahl der ausführbaren Datei für qmlls</translation>
     </message>
     <message>
         <source>Create .qmlls.ini files for new projects</source>
@@ -56950,7 +56952,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Install Qt Design Studio</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Design Studio installieren</translation>
     </message>
     <message>
         <source>Open Language Server preferences...</source>
@@ -57014,7 +57016,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>QMLJS Editor</source>
-        <translation type="unfinished">QMLJS-Editor</translation>
+        <translation>QMLJS-Editor</translation>
     </message>
     <message>
         <source>This file should only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
@@ -57053,11 +57055,11 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>QML runtime executable:</source>
-        <translation type="unfinished">Ausführbare Datei der QML-Runtime:</translation>
+        <translation>Ausführbare Datei der QML-Runtime:</translation>
     </message>
     <message>
         <source>The QML runtime executable to use on the device.</source>
-        <translation type="unfinished">Die ausführbare Datei der QML-Runtime, die auf dem Gerät verwendet werden soll.</translation>
+        <translation>Die ausführbare Datei der QML-Runtime, die auf dem Gerät verwendet werden soll.</translation>
     </message>
     <message>
         <source>Qt Quick</source>
@@ -58172,11 +58174,11 @@ Qt Design Studio ist nicht konfiguriert. Konfigurieren Sie es in Einstellungen &
     </message>
     <message>
         <source>Qt Version - %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Version - %1</translation>
     </message>
     <message>
         <source>Qt Design Studio Version - %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Design Studio-Version - %1</translation>
     </message>
     <message>
         <source>No QML project file found - Would you like to create one?</source>
@@ -58451,15 +58453,15 @@ Bitte überprüfen Sie die Allgemeinen Ausgaben für weitere Informationen.</tra
     </message>
     <message>
         <source>QNX sdpenv.sh:</source>
-        <translation type="unfinished"></translation>
+        <translation>QNX sdpenv.sh:</translation>
     </message>
     <message>
         <source>QNX Software Development Platform environment file.</source>
-        <translation type="unfinished"></translation>
+        <translation>QNX Software Development Platform Umgebungsdatei.</translation>
     </message>
     <message>
         <source>File suffix does not match OS type.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateiendung passt nicht zum OS-Typ.</translation>
     </message>
     <message>
         <source>Attach to remote QNX application...</source>
@@ -59205,35 +59207,35 @@ wirklich entfernen?</translation>
     </message>
     <message>
         <source>Found Qt version: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Version gefunden: %1.</translation>
     </message>
     <message>
         <source>Removing Qt: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Qt: %1.</translation>
     </message>
     <message>
         <source>Qt: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt: %1.</translation>
     </message>
     <message>
         <source>Expected String, got: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeichenkette erwartet, erhalten: %1.</translation>
     </message>
     <message>
         <source>Expected non-empty qmake path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht-leerer Pfad zu qmake erwartet.</translation>
     </message>
     <message>
         <source>Cannot create Qt version from qmake path &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann keine Qt-Version für qmake-Pfad &quot;%1&quot; erstellen: %2</translation>
     </message>
     <message>
         <source>Qt version &quot;%1&quot; is not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Version &quot;%1&quot; ist nicht gültig.</translation>
     </message>
     <message>
         <source>Adding Qt version: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Füge Qt-Version hinzu: %1</translation>
     </message>
     <message>
         <source>QML debugging and profiling:</source>
@@ -59281,7 +59283,7 @@ wirklich entfernen?</translation>
     </message>
     <message>
         <source>qmake executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für qmake:</translation>
     </message>
     <message>
         <source>Link with a Qt installation to automatically register Qt versions and kits? To do this later, select Edit &gt; Preferences &gt; Kits &gt; Qt Versions &gt; Link with Qt.</source>
@@ -59289,7 +59291,7 @@ wirklich entfernen?</translation>
     </message>
     <message>
         <source>Link with an Installed Qt?</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit einem installierten Qt verknüpfen?</translation>
     </message>
     <message>
         <source>Full path to the host bin directory of the Qt version in the active kit of the project containing the current document.</source>
@@ -59771,7 +59773,7 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Run Auto-Detection Now</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische Erkennung jetzt ausführen</translation>
     </message>
     <message>
         <source>Device is disconnected.</source>
@@ -59787,19 +59789,19 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Auto-connect on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Bei Start automatisch verbinden</translation>
     </message>
     <message>
         <source>Connect</source>
-        <translation type="unfinished">Verbinden</translation>
+        <translation>Verbinden</translation>
     </message>
     <message>
         <source>Connection failed: %1</source>
-        <translation type="unfinished">Fehler beim Herstellen der Verbindung: %1</translation>
+        <translation>Fehler beim Herstellen der Verbindung: %1</translation>
     </message>
     <message>
         <source>Disconnect</source>
-        <translation type="unfinished">Trennen</translation>
+        <translation>Trennen</translation>
     </message>
     <message>
         <source>Error</source>
@@ -59807,11 +59809,11 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Device &quot;%1&quot; unexpectedly lost connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Verbindung zu Gerät &quot;%1&quot; wurde unerwartet verloren.</translation>
     </message>
     <message>
         <source>Connection Lost</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindung verloren</translation>
     </message>
     <message>
         <source>Establishing initial connection to device &quot;%1&quot;. This might take a moment.</source>
@@ -59819,27 +59821,27 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Establishing a Connection</source>
-        <translation type="unfinished"></translation>
+        <translation>Stelle Verbindung her</translation>
     </message>
     <message>
         <source>Connection attempt to device &quot;%1&quot; finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindungsversuch zu Gerät &quot;%1&quot; beendet.</translation>
     </message>
     <message>
         <source>Connection could not be established.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindung konnte nicht hergestellt werden.</translation>
     </message>
     <message>
         <source>Connection in fast mode established.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindung im Schnellmodus hergestellt.</translation>
     </message>
     <message>
         <source>Connection in fallback mode established.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindung im Fallback-Modus hergestellt.</translation>
     </message>
     <message>
         <source>Connection Attempt Finished</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindungsversuch abgeschlossen</translation>
     </message>
     <message>
         <source>Device &quot;%1&quot; is currently marked as disconnected.</source>
@@ -59847,7 +59849,7 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Device Is Disconnected</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät ist getrennt</translation>
     </message>
     <message>
         <source>The device was not available when trying to connect previously.&lt;br&gt;No further connection attempts will be made until the device is manually reset by running a successful connection test via the &lt;a href=&quot;dummy&quot;&gt;settings page&lt;/a&gt;.</source>
@@ -59863,11 +59865,11 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Auto-connection to device &quot;%1&quot; failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische Verbindung zu Gerät &quot;%1&quot; fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Switching auto-connection off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deaktiviere automatische Verbindung.</translation>
     </message>
     <message>
         <source>Created directory: &quot;%1&quot;.</source>
@@ -59894,7 +59896,7 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Cannot send control signal to the %1 device. The device might have been disconnected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann keine Steuerungssignale an das %1-Gerät senden. Das Gerät könnte getrennt worden sein.</translation>
     </message>
     <message>
         <source>The process crashed.</source>
@@ -60176,14 +60178,14 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Rsync executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für rsync:</translation>
     </message>
 </context>
 <context>
     <name>QtC::ResourceEditor</name>
     <message>
         <source>Resource Editor</source>
-        <translation type="unfinished">Ressourceneditor</translation>
+        <translation>Ressourceneditor</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -61253,7 +61255,7 @@ Zeile: %4, Spalte: %5
     </message>
     <message>
         <source>SCXML Editor</source>
-        <translation type="unfinished">SCXML-Editor</translation>
+        <translation>SCXML-Editor</translation>
     </message>
 </context>
 <context>
@@ -62283,11 +62285,11 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Subversion File Log Editor</source>
-        <translation type="unfinished">Subversion Datei-Log-Editor</translation>
+        <translation>Subversion Datei-Log-Editor</translation>
     </message>
     <message>
         <source>Subversion Annotation Editor</source>
-        <translation type="unfinished">Subversion Annotations-Editor</translation>
+        <translation>Subversion Annotations-Editor</translation>
     </message>
     <message>
         <source>Triggers a Subversion version control operation.</source>
@@ -62323,7 +62325,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Subversion Commit Editor</source>
-        <translation type="unfinished">Subversion Commit-Editor</translation>
+        <translation>Subversion Commit-Editor</translation>
     </message>
     <message>
         <source>Revert repository</source>
