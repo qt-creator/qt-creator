@@ -452,7 +452,7 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         const QList<ModelNode> selectedNodes = selectedModelNodes();
 
         for (const ModelNode &node : selectedNodes) {
-            if (m_bundleHelper->isProjectComponent(node))
+            if (!node.metaInfo().isQtQuick3DMaterial() && m_bundleHelper->isProjectComponent(node))
                 addLibComponent(node);
             else
                 addLibItem(node);
