@@ -53638,39 +53638,39 @@ Dies ist selten nötig.</translation>
     <name>QtC::Qdb</name>
     <message>
         <source>Starting command &quot;%1&quot; on device &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte das Kommando &quot;%1&quot; auf Gerät &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Command failed on device &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando auf Gerät &quot;%1&quot; fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Command failed on device &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando auf Gerät &quot;%1&quot; fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Commands on device &quot;%1&quot; finished successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommandos auf Gerät &quot;%1&quot; wurden erfolgreich beendet.</translation>
     </message>
     <message>
         <source>stdout was: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardausgabe war: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>stderr was: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardfehlerausgabe war: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Boot to Qt Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Boot to Qt Gerät</translation>
     </message>
     <message>
         <source>Reboot Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät neu starten</translation>
     </message>
     <message>
         <source>Restore Default App</source>
-        <translation type="unfinished"></translation>
+        <translation>Voreingestellte Anwendung wiederherstellen</translation>
     </message>
     <message>
         <source>WizardPage</source>
@@ -53678,15 +53678,15 @@ Dies ist selten nötig.</translation>
     </message>
     <message>
         <source>Device Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen des Geräts</translation>
     </message>
     <message>
         <source>A short, free-text description.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kurze Freitextbeschreibung.</translation>
     </message>
     <message>
         <source>Host name or IP address</source>
-        <translation type="unfinished">Hostname oder IP-Adresse</translation>
+        <translation>Hostname oder IP-Adresse</translation>
     </message>
     <message>
         <source>Device name:</source>
@@ -53694,19 +53694,19 @@ Dies ist selten nötig.</translation>
     </message>
     <message>
         <source>Device address:</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresse des Geräts:</translation>
     </message>
     <message>
         <source>Boot to Qt Network Device Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Boot to Qt Netzwerk-Gerät einrichten</translation>
     </message>
     <message>
         <source>Set This Application to Start by Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Anwendung als Voreinstellung festlegen</translation>
     </message>
     <message>
         <source>Reset Default Application</source>
-        <translation type="unfinished"></translation>
+        <translation>Voreingestellte Anwendung wiederherstellen</translation>
     </message>
     <message>
         <source>Remote process failed: %1</source>
@@ -53714,15 +53714,15 @@ Dies ist selten nötig.</translation>
     </message>
     <message>
         <source>Application set as the default one.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwendung wurde als Voreinstellung festgelegt.</translation>
     </message>
     <message>
         <source>Reset the default application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Voreingestellte Anwendung wurde zurückgesetzt.</translation>
     </message>
     <message>
         <source>Full command line:</source>
-        <translation type="unfinished">Vollständige Kommandozeile:</translation>
+        <translation>Vollständige Kommandozeile:</translation>
     </message>
     <message>
         <source>Executable on device:</source>
@@ -53730,7 +53730,7 @@ Dies ist selten nötig.</translation>
     </message>
     <message>
         <source>Run on Boot to Qt Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf Boot to Qt Gerät ausführen</translation>
     </message>
     <message>
         <source>Remote path not set</source>
@@ -53742,107 +53742,107 @@ Dies ist selten nötig.</translation>
     </message>
     <message>
         <source>The remote executable must be set to run on a Boot to Qt device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die entfernte ausführbare Datei muss gesetzt sein, um auf einem Boot to Qt Gerät ausgeführt zu werden.</translation>
     </message>
     <message>
         <source>Device &quot;%1&quot; %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät &quot;%1&quot; %2</translation>
     </message>
     <message>
         <source>Boot to Qt device %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Boot to Qt Gerät %1</translation>
     </message>
     <message>
         <source>Device detection error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Geräteerkennungsfehler: %1</translation>
     </message>
     <message>
         <source>Shutting down device discovery due to unexpected response: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Geräteerkennung wird wegen unerwarteter Antwort abgeschaltet: %1</translation>
     </message>
     <message>
         <source>Shutting down message reception due to unexpected response: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nachrichtenempfang wird wegen unerwarteter Antwort abgeschaltet: %1</translation>
     </message>
     <message>
         <source>QDB message: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>QDB-Nachricht: %1</translation>
     </message>
     <message>
         <source>Unexpected QLocalSocket error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwarteter QLocalSocket-Fehler: %1</translation>
     </message>
     <message>
         <source>Could not connect to QDB host server even after trying to start it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Verbindung zum QDB-Hostserver konnte auch nach einem versuchten Neustart nicht hergestellt werden.</translation>
     </message>
     <message>
         <source>Invalid JSON response received from QDB server: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige JSON-Antwort vom QDB-Server empfangen: %1</translation>
     </message>
     <message>
         <source>Could not find QDB host server executable. You can set the location with environment variable %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>QDB-Hostserver-Programm konnte nicht gefunden werden. Sie können den Standort mit der Umgebungsvariable %1 festlegen.</translation>
     </message>
     <message>
         <source>QDB host server started.</source>
-        <translation type="unfinished"></translation>
+        <translation>QDB-Hostserver gestartet.</translation>
     </message>
     <message>
         <source>Could not start QDB host server in &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>QDB-Hostserver in &quot;%1&quot; konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Starting QDB host server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte QDB-Hostserver.</translation>
     </message>
     <message>
         <source>Change default application</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardanwendung ändern</translation>
     </message>
     <message>
         <source>Flash wizard &quot;%1&quot; failed to start.</source>
-        <translation type="unfinished"></translation>
+        <translation>Flash-Wizard &quot;%1&quot; konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Flash wizard executable &quot;%1&quot; not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Flash-Wizard-Programm &quot;%1&quot; nicht gefunden.</translation>
     </message>
     <message>
         <source>Flash Boot to Qt Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Boot to Qt Gerät flashen</translation>
     </message>
     <message>
         <source>Deploy to Boot to Qt target</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment auf Boot to Qt Ziel</translation>
     </message>
     <message>
         <source>Could not check and possibly stop running application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte die laufende Anwendung nicht überprüfen und gegebenenfalls beenden.</translation>
     </message>
     <message>
         <source>Checked that there is no running application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Überprüft, dass keine laufende Anwendung vorhanden ist.</translation>
     </message>
     <message>
         <source>Stopped the running application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die laufende Anwendung wurde beendet.</translation>
     </message>
     <message>
         <source>No device to stop the application on.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Gerät zum Beenden der Anwendung.</translation>
     </message>
     <message>
         <source>Stop already running application</source>
-        <translation type="unfinished"></translation>
+        <translation>Bereits laufende Anwendung beenden</translation>
     </message>
     <message>
         <source>Boot to Qt: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Boot to Qt: %1</translation>
     </message>
     <message>
         <source>Qt version is used for Boot2Qt development</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Qt-Version wird für die Entwicklung von Boot2Qt verwendet</translation>
     </message>
 </context>
 <context>
