@@ -299,7 +299,7 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
     formLayout->addRow(Tr::tr("Device name:"), new QLabel(dev->displayName()));
     formLayout->addRow(Tr::tr("Device type:"), new QLabel(dev->deviceTypeName()));
 
-    QLabel *serialNumberLabel = new QLabel;
+    QPointer<QLabel> serialNumberLabel = new QLabel;
     formLayout->addRow(Tr::tr("Serial number:"), serialNumberLabel);
 
     const QString abis = dev->supportedAbis().join(", ");
@@ -325,11 +325,12 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
     }
 
     // See QTCREATORBUG-31912 why this needs to be delayed.
-    QTimer::singleShot(0, this, [serialNumberLabel, dev] {
+    QTimer::singleShot(0, serialNumberLabel, [serialNumberLabel, dev] {
         const QString serialNumber = dev->serialNumber(); // This executes a blocking process.
         const QString printableSerialNumber = serialNumber.isEmpty() ? Tr::tr("Unknown")
                                                                      : serialNumber;
-        serialNumberLabel->setText(printableSerialNumber);
+        if (serialNumberLabel)
+            serialNumberLabel->setText(printableSerialNumber);
     });
 }
 
