@@ -1077,7 +1077,7 @@ static Result<bool> insertDependencies(
     const FilePath &targetCMakeFile,
     int targetDefinitionLine,
     const QStringList &dependencies,
-    int qtMajorVersion)
+    const QString &qtMajorVersion)
 {
     std::optional<cmListFile> cmakeListFile = getUncachedCMakeListFile(targetCMakeFile);
     if (!cmakeListFile)
@@ -1157,9 +1157,14 @@ bool CMakeBuildSystem::addDependencies(
         if (!cmakeFile)
             return false;
 
-        int qtMajorVersion = 6;
+        QString qtMajorVersion = "6";
         if (auto qt = m_findPackagesFilesHash.value("Qt5Core"); qt.hasValidTarget())
-            qtMajorVersion = 5;
+            qtMajorVersion = "5";
+
+        // Special case for Qt5 and Qt6 wizard code resulted from:
+        // `find_package(QT NAMES Qt6 Qt5 ...)`
+        if (!m_configurationFromCMake.stringValueOf("QT_DIR").isEmpty())
+            qtMajorVersion = "${QT_VERSION_MAJOR}";
 
         Result<bool> inserted = insertDependencies(
             targetName,
@@ -1193,19 +1198,25 @@ private slots:
             projectDir->filePath().pathAppended("existing_qt5.cmake"),
             18,
             {"Qt.Concurrent"},
-            5));
+            "5"));
         QVERIFY(insertDependencies(
             "HelloQt",
             projectDir->filePath().pathAppended("existing_qt6.cmake"),
             8,
             {"Qt.Concurrent"},
-            6));
+            "6"));
+        QVERIFY(insertDependencies(
+            "HelloQt",
+            projectDir->filePath().pathAppended("existing_qt5_and_qt6.cmake"),
+            15,
+            {"Qt.Concurrent"},
+            "${QT_VERSION_MAJOR}"));
         QVERIFY(insertDependencies(
             "HelloCpp",
             projectDir->filePath().pathAppended("no_qt6.cmake"),
             8,
             {"Qt.Concurrent"},
-            6));
+            "6"));
 
         // Compare files.
         static const QString suffix = "_expected.cmake";
