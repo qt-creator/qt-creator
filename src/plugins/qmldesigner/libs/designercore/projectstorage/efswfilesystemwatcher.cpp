@@ -60,7 +60,7 @@ void EfswFileSystemWatcher::Listener::handleFileAction(efsw::WatchID,
         if (removedDirectoryPath.back() == u'/')
             removedDirectoryPath.chop(1);
 
-        if (watcher->watchedPaths.contains(removedDirectoryPath)) {
+        if (watcher->isWatched(removedDirectoryPath)) {
             tracer.tick("directory deleted", keyValue("path", removedDirectoryPath));
 
             QMetaObject::invokeMethod(watcher, [=, this]() {
@@ -75,8 +75,8 @@ void EfswFileSystemWatcher::Listener::handleFileAction(efsw::WatchID,
 }
 
 EfswFileSystemWatcher::EfswFileSystemWatcher()
-    : fileWatcher{std::make_unique<efsw::FileWatcher>()}
-    , listener(std::make_unique<Listener>(this))
+    : listener(std::make_unique<Listener>(this))
+    , fileWatcher{std::make_unique<efsw::FileWatcher>()}
 {
     NanotraceHR::Tracer tracer{"efsw file system watcher constructor", category()};
 }
@@ -98,20 +98,50 @@ void EfswFileSystemWatcher::removePaths(const QStringList &paths)
         removePath(path);
 }
 
-EfswFileSystemWatcher::~EfswFileSystemWatcher() = default;
+EfswFileSystemWatcher::~EfswFileSystemWatcher()
+{
+    std::lock_guard lock{mutex};
+
+    watchedPaths.clear();
+}
+
+namespace {
+auto emplaceWatchedPath(std::set<QString> &watchedPaths, const QString &path, std::mutex &mutex)
+{
+    std::lock_guard lock{mutex};
+
+    return watchedPaths.emplace(path);
+}
+
+bool eraseWatchedPath(std::set<QString> &watchedPaths, const QString &path, std::mutex &mutex)
+{
+    std::lock_guard lock{mutex};
+
+    return watchedPaths.erase(path);
+}
+
+void eraseWatchedPathIterator(std::set<QString> &watchedPaths, auto &iterator, std::mutex &mutex)
+{
+    std::lock_guard lock{mutex};
+
+    watchedPaths.erase(iterator);
+}
+
+} // namespace
 
 void EfswFileSystemWatcher::addPath(const QString &path)
 {
     NanotraceHR::Tracer tracer{"efsw file system watcher add path", category(), keyValue("path", path)};
 
-    auto [iter, inserted] = watchedPaths.emplace(path);
+    auto [iter, inserted] = emplaceWatchedPath(watchedPaths, path, mutex);
+
     if (inserted) {
         tracer.tick("inserted");
 
         std::filesystem::path nativePath{path.toStdString()};
         efsw::WatchID id = fileWatcher->addWatch(nativePath.string(), listener.get());
         if (id == efsw::Errors::FileNotFound) {
-            watchedPaths.erase(iter);
+            eraseWatchedPathIterator(watchedPaths, iter, mutex);
             tracer.tick("not found");
         }
     }
@@ -124,10 +154,17 @@ void EfswFileSystemWatcher::removePath(const QString &path)
                                category(),
                                keyValue("path", path)};
 
-    if (watchedPaths.erase(path)) {
+    if (eraseWatchedPath(watchedPaths, path, mutex)) {
         tracer.tick("erased");
         fileWatcher->removeWatch(path.toStdString());
     }
+}
+
+bool EfswFileSystemWatcher::isWatched(const QString &path) const
+{
+    std::lock_guard lock{mutex};
+
+    return watchedPaths.contains(path);
 }
 
 } // namespace QmlDesigner

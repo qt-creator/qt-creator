@@ -239,7 +239,6 @@ public:
         , fileStatusCache(fileSystem)
         , qmlDocumentParser{modulesStorage, pathCache}
         , qmlTypesParser{modulesStorage}
-        , pathWatcher{pathCache, fileStatusCache, &updater}
         , projectPartId{ProjectPartId::create(
               pathCache
                   .directoryPathId(Utils::PathString{project->projectDirectory().cleanPath().path()})
@@ -257,6 +256,7 @@ public:
                   errorNotifier,
                   projectPartId,
                   qtPartId}
+        , pathWatcher{pathCache, fileStatusCache, &updater}
     {}
     Sqlite::Database database;
     ProjectStorageErrorNotifier errorNotifier;
@@ -265,10 +265,10 @@ public:
     FileStatusCache fileStatusCache;
     QmlDocumentParser qmlDocumentParser;
     QmlTypesParser qmlTypesParser;
-    ProjectStoragePathWatcher<EfswFileSystemWatcher, QTimer, PathCacheType> pathWatcher;
     ProjectPartId projectPartId;
     ProjectPartId qtPartId;
     ProjectStorageUpdater updater;
+    ProjectStoragePathWatcher<EfswFileSystemWatcher, QTimer, PathCacheType> pathWatcher;
 };
 
 std::unique_ptr<ProjectStorageData> createProjectStorageData(const ::ProjectExplorer::Project *project,
