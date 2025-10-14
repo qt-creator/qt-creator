@@ -21,8 +21,8 @@
 namespace QmlDesigner {
 
 template<typename FileSystemWatcher, typename Timer, class SourcePathCache>
-class ProjectStoragePathWatcher : public ProjectStoragePathWatcherInterface,
-                                  public ProjectStorageTriggerUpdateInterface
+class ProjectStoragePathWatcher final : public ProjectStoragePathWatcherInterface,
+                                        public ProjectStorageTriggerUpdateInterface
 {
 public:
     ProjectStoragePathWatcher(SourcePathCache &pathCache,

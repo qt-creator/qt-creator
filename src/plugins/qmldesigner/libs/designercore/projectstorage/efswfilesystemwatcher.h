@@ -7,6 +7,7 @@
 
 #include <QObject>
 
+#include <mutex>
 #include <set>
 
 namespace efsw {
@@ -36,11 +37,13 @@ signals:
 private:
     void addPath(const QString &path);
     void removePath(const QString &path);
+    bool isWatched(const QString &path) const;
 
 private:
-    std::unique_ptr<efsw::FileWatcher> fileWatcher;
-    std::unique_ptr<Listener> listener;
+    mutable std::mutex mutex;
     std::set<QString> watchedPaths;
+    std::unique_ptr<Listener> listener;
+    std::unique_ptr<efsw::FileWatcher> fileWatcher;
 };
 
 } // namespace QmlDesigner
