@@ -119,6 +119,11 @@ Item {
                         }
                     }
 
+                    onEnabledChanged: {
+                        if (!searchBox.enabled)
+                            clearSearchFilter()
+                    }
+
                     onSearchChanged: (searchText) => {
                         compressionTimer.searchText = searchText
                         compressionTimer.restart()
