@@ -24,19 +24,22 @@
     you only build and run with a single kit, you can clear the
     \uicontrol {Shadow build} checkbox.
 
-    Select the build directory in the \uicontrol {Build Directory} field. You
-    can use the \l{Use Qt Creator variables}{variables} that are listed when
+    Select the build directory in \uicontrol {Build directory}. You
+    can use the \l{Use \QC variables}{variables} that are listed when
     you select \inlineimage {icons/replace.png} {Variables} (\uicontrol {Variables}).
 
-    To make in-source builds the default option for all projects, select
-    \preferences > \uicontrol {Build & Run} >
-    \uicontrol {Default Build Properties}, and enter a period (.) in the
-    \uicontrol {Default build directory} field.
+    To make in-source builds the default option for all projects:
+
+    \list 1
+        \li Go to \preferences > \uicontrol {Build & Run} >
+            \uicontrol {Default Build Properties}.
+        \li In \uicontrol {Default build directory}, enter a period (.)
+    \endlist
 
     \section1 Tooltips in Kit Selector
 
-    In the \uicontrol {Tooltip in target selector} field, you can enter text
-    that is displayed as a tooltip when you hover over the build
+    In \uicontrol {Tooltip in target selector}, enter text
+    to show as a tooltip when you hover over the build
     configuration in the \l{Build for many platforms}{kit selector}.
 
     You can create separate versions of project files to keep platform-dependent
@@ -44,13 +47,14 @@
     {scopes} to select the file to process depending on which platform qmake is
     run on.
 
+//! [qmake-qbs-common-settings]
     \section1 Separating Debug Info
 
     If debug info is being generated, you can have it placed into separate
     files, rather than embedded into the binary, by selecting
-    \uicontrol Enable in the \uicontrol {Separate debug info} field. For
+    \uicontrol Enable in \uicontrol {Separate debug info}. For
     more information, see \l{Analyze CPU usage}. To use default
-    settings, select \uicontrol {Leave at Default}.
+    settings, select \uicontrol {Default}.
 
     \section1 Compiling QML
 
@@ -61,15 +65,13 @@
 
     \QC project wizard templates create Qt Quick projects that can be compiled
     because they are set up to use the Qt Resource System. To compile QML code,
-    select \uicontrol Enable in the \uicontrol {Qt Quick Compiler} field. To
-    use default settings, select \uicontrol {Leave at Default}.
-
-    You can specify default behavior for compiling QML code in \preferences >
-    \uicontrol {Build & Run} > \uicontrol Qmake > \uicontrol {Use qmlcachegen}.
+    select \uicontrol Enable in \uicontrol {Qt Quick Compiler}. To
+    use default settings, select \uicontrol {Default}.
+//! [qmake-qbs-common-settings]
 
     \section1 Parsing Project Contents
 
-    In the \uicontrol {qmake system() behavior when parsing} field, you can
+    In \uicontrol {qmake system() behavior when parsing},
     select whether processes are run via qmake's \c system() function or
     ignored. Setting this option to \uicontrol Ignore might help if opening
     or closing projects takes too long, but it might produce inexact parsing
@@ -77,12 +79,12 @@
 
     \section1 Global qmake Settings
 
-    To specify settings for all qmake builds, select \preferences >
+    To specify settings for all qmake builds, go to \preferences >
     \uicontrol {Build & Run} > \uicontrol Qmake.
 
     \image {qtcreator-preferences-build-run-qmake.png} {Qmake tab in Build & Run preferences}
 
-    To set the default build properties, select \preferences >
+    To set the default build properties,  \preferences >
     \uicontrol {Build & Run} > \uicontrol {Default Build Properties}.
 
     \image {qtcreator-build-settings-default.webp} {Default Build Properties tab in Build & Run preferences}
@@ -100,7 +102,7 @@
 
     By default, \QC uses all the CPU cores available to achieve maximum build
     parallelization. On Linux and \macos, you can specify the number of parallel
-    jobs to use for building in the \uicontrol {Parallel jobs} field. Select
+    jobs to use for building in \uicontrol {Parallel jobs}. Select
     \uicontrol {Override MAKEFLAGS} to override existing MAKEFLAGS
     variables.
 
@@ -116,5 +118,5 @@
 
     \sa {Activate kits for a project}, {Configure projects for building},
     {Configure projects for running}, {Open projects},
-    {Set the default build and run directories}
+    {Set the default build and run directories}, {Setting Up QML Debugging}
 */
