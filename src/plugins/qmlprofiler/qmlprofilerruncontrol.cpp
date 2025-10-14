@@ -90,7 +90,8 @@ Group localQmlProfilerRecipe(RunControl *runControl)
         process.setCommand(cmd.toLocal());
     };
 
-    const ProcessTask processTask = runControl->processTaskWithModifier(modifier, {false, false});
+    const ProcessTask processTask = runControl->processTaskWithModifier(modifier,
+                                                                        {.setupCanceler = false});
 
     return {
         When (processTask, &Process::started, WorkflowPolicy::StopOnSuccessOrError) >> Do {

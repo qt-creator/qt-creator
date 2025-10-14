@@ -99,7 +99,8 @@ static ProcessTask inferiorProcess(RunControl *runControl, QmlDebugServicesPrese
         runControl->postMessage(Tr::tr("Starting Application Manager debugging..."), NormalMessageFormat);
         runControl->postMessage(Tr::tr("Using: %1.").arg(cmd.toUserOutput()), NormalMessageFormat);
     };
-    return runControl->processTaskWithModifier(modifier, {suppressDefaultStdOutHandling});
+    return runControl->processTaskWithModifier(modifier,
+                       {.suppressDefaultStdOutHandling = suppressDefaultStdOutHandling});
 }
 
 class AppManagerRunWorkerFactory final : public RunWorkerFactory
