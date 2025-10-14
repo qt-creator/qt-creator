@@ -11,6 +11,8 @@
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 
+#include <functional>
+
 class tst_CmdBridge;
 
 namespace CmdBridge {
@@ -23,6 +25,7 @@ class QTCREATOR_CMDBRIDGE_EXPORT FileAccess : public Utils::DeviceFileAccess
     friend class GoFilePathWatcher;
 
 public:
+    FileAccess(const std::function<void()> &errorExitHandler = {});
     ~FileAccess() override;
 
     Utils::Result<> deployAndInit(
@@ -100,6 +103,7 @@ protected:
 private:
     std::unique_ptr<CmdBridge::Client> m_client;
     Utils::Environment m_environment;
+    const std::function<void()> m_errorExitHandler;
 };
 
 } // namespace CmdBridge
