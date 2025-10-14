@@ -318,7 +318,7 @@ CompileOutputSettings::CompileOutputSettings()
             backgroundColor.setVolatileValue(QColor{});
         });
         connect(&overwriteColor, &Utils::BoolAspect::volatileValueChanged,
-                this, [this, resetColorButton] {
+                resetColorButton, [this, resetColorButton] {
             resetColorButton->setEnabled(overwriteColor.volatileValue());
         });
         resetColorButton->setEnabled(overwriteColor());
