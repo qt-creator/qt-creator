@@ -1607,6 +1607,7 @@ void QtStyleCodeFormatter::adjustIndent(const Tokens &tokens, int lexerState, in
                 && topState.type != brace_list_open
                 && topState.type != arglist_open
                 && topState.type != lambda_statement_expected
+                && topState.type != lambda_declarator_expected
                 && !topWasMaybeElse) {
             *indentDepth = topState.savedIndentDepth;
             *paddingDepth = 0;
