@@ -19,6 +19,7 @@
 #include <ios/iosconstants.h>
 
 #include <projectexplorer/buildinfo.h>
+#include <projectexplorer/buildpropertiessettings.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitmanager.h>
@@ -93,19 +94,6 @@ struct DirectoryData
     QList<ToolchainDescriptionEx> toolchains;
     QVariant debugger;
 };
-
-static FilePaths scanDirectory(const FilePath &path, const QString &prefix)
-{
-    FilePaths result;
-    qCDebug(cmInputLog) << "Scanning for directories matching" << prefix << "in" << path;
-
-    const FilePaths entries = path.dirEntries({{prefix + "*"}, QDir::Dirs | QDir::NoDotAndDotDot});
-    for (const FilePath &entry : entries) {
-        QTC_ASSERT(entry.isDir(), continue);
-        result.append(entry);
-    }
-    return result;
-}
 
 static QString baseCMakeToolDisplayName(CMakeTool &tool)
 {
@@ -210,6 +198,133 @@ static QString displayPresetName(const QString &presetName)
     return QString("%1 (CMake preset)").arg(presetName);
 }
 
+static FilePaths findBuildFolders(const FilePath &path, const QList<QStringView> &patterns)
+{
+    FilePaths result;
+
+    if (patterns.isEmpty()) {
+        if (path.isDir())
+            result.append(path);
+        return result;
+    }
+    const FilePaths candidates = path.dirEntries(
+        {{patterns.front().toString()}, QDir::Dirs | QDir::NoDotAndDotDot});
+
+    for (const auto &candidate : candidates) {
+        if (patterns.size() == 1)
+            result.append(candidate);
+        else
+            result += findBuildFolders(candidate, patterns.mid(1));
+    }
+    return result;
+}
+
+static FilePaths findBuildFolders(const FilePath &path, const FilePath &pattern)
+{
+    qCDebug(cmInputLog) << "Searching for build folders in" << path << "with pattern" << pattern;
+    return findBuildFolders(path, pattern.pathComponents());
+}
+
+QString escapeWildcards(const QString &input)
+{
+    static const QMap<QChar, QString> replacements
+        = {{'*', "[*]"}, {'?', "[?]"}, {'[', "[[]"}, {']', "[]]"}};
+
+    QString result;
+    for (const QChar c : input) {
+        auto it = replacements.find(c);
+        if (it != replacements.end())
+            result += *it;
+        else
+            result += c;
+    }
+
+    return result;
+}
+
+// Converts a string such as "/test/my/buildfolder/pattern-*" into "/test/my/buildfolder" and "pattern-*"
+static std::pair<FilePath, FilePath> pathAndPattern(const FilePath &shadowBuildDirectory)
+{
+    QList<QStringView> path;
+    QList<QStringView> withWildCard;
+
+    bool seenWildCard = false;
+    for (const QStringView &part : shadowBuildDirectory.pathComponents()) {
+        if (part.contains('*'))
+            seenWildCard = true;
+
+        if (seenWildCard)
+            withWildCard.append(part);
+        else
+            path.append(part);
+    }
+
+    return {FilePath::fromPathComponents(path), FilePath::fromPathComponents(withWildCard)};
+}
+
+static FilePaths importCandidatesFromBuildFolderTemplate(const FilePath &projectFilePath)
+{
+    MacroExpander expander;
+    expander.registerExtraResolver([](QString, QString *ret) {
+        *ret = "*";
+        return true;
+    });
+
+    FilePath basePath = projectFilePath;
+
+    const QString buildDirTemplate = expander.expand(
+        escapeWildcards(buildPropertiesSettings().buildDirectoryTemplate()));
+
+    FilePath patternPath = FilePath::fromUserInput(buildDirTemplate);
+
+    if (patternPath.isAbsolutePath()) {
+        const auto [base, pattern] = pathAndPattern(patternPath);
+        basePath = base;
+        patternPath = pattern;
+    }
+
+    return findBuildFolders(basePath, patternPath);
+}
+
+static QList<Kit *> validKitsForImport(const CMakeProject *project)
+{
+    QList<Kit *> result;
+    const QList<Kit *> kits = KitManager::kits();
+    for (Kit *k : kits) {
+        if (!k->isValid())
+            continue;
+
+        const auto kitIssues = project->projectIssues(k);
+        if (!kitIssues.isEmpty()) {
+            qCInfo(cmInputLog) << "Discarding kit" << k->displayName()
+                               << "due to the following issues:";
+            for (const auto &issue : kitIssues)
+                qCInfo(cmInputLog) << "   " << issue.description();
+            continue;
+        }
+
+        result.append(k);
+    }
+    return result;
+}
+
+static FilePaths importCandidatesFromKits(const FilePath &projectFilePath, const QList<Kit *> &kits)
+{
+    FilePaths result;
+    for (Kit *k : kits) {
+        QString shadowBuildDirectory
+            = CMakeBuildConfiguration::shadowBuildDirectory(
+                  projectFilePath, k, "<__bcname__>", BuildConfiguration::Unknown)
+                  .toUrlishString();
+
+        shadowBuildDirectory = escapeWildcards(shadowBuildDirectory).replace("<__bcname__>", "*");
+
+        const auto [path, pattern] = pathAndPattern(FilePath::fromString(shadowBuildDirectory));
+        result << findBuildFolders(path, pattern);
+    }
+    return result;
+}
+
 FilePaths CMakeProjectImporter::importCandidates()
 {
     if (!m_project->buildDirectoryToImport().isEmpty())
@@ -218,24 +333,10 @@ FilePaths CMakeProjectImporter::importCandidates()
     FilePaths candidates = presetCandidates();
 
     if (candidates.isEmpty()) {
-        candidates << scanDirectory(projectFilePath().absolutePath(), "build");
+        candidates << importCandidatesFromBuildFolderTemplate(projectFilePath());
 
-        const QList<Kit *> kits = KitManager::kits();
-        for (const Kit *k : kits) {
-            // FIXME: This kind of filtering should be done centrally.
-            if (!m_project->projectIssues(k).isEmpty()) {
-                qCInfo(cmInputLog) << "discarding kit with incompatible build device"
-                    << k->displayName();
-                continue;
-            }
-
-            FilePath shadowBuildDirectory
-                = CMakeBuildConfiguration::shadowBuildDirectory(projectFilePath(),
-                                                                k,
-                                                                QString(),
-                                                                BuildConfiguration::Unknown);
-            candidates << scanDirectory(shadowBuildDirectory, QString());
-        }
+        const QList<Kit *> validKits = validKitsForImport(m_project);
+        candidates << importCandidatesFromKits(projectFilePath(), validKits);
     }
 
     const FilePaths finalists = Utils::filteredUnique(candidates);
