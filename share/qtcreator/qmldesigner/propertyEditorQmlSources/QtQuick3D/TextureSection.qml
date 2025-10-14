@@ -105,7 +105,7 @@ Section {
         SecondColumnLayout {
             CheckBox {
                 id: flipVcheckBox
-                text: backendValues.flipV.valueToString
+                text: backendValues.flipV ? backendValues.flipV.valueToString : ""
                 backendValue: backendValues.flipV
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
@@ -122,7 +122,7 @@ Section {
         SecondColumnLayout {
             CheckBox {
                 id: flipUCheckBox
-                text: backendValues.flipU.valueToString
+                text: backendValues.flipU ? backendValues.flipU.valueToString : ""
                 backendValue: backendValues.flipU
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
@@ -139,7 +139,7 @@ Section {
         SecondColumnLayout {
             CheckBox {
                 id: autoOrientationCheckBox
-                text: backendValues.autoOrientation.valueToString
+                text: backendValues.autoOrientation ? backendValues.autoOrientation.valueToString : ""
                 backendValue: backendValues.autoOrientation
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
@@ -329,7 +329,7 @@ Section {
         SecondColumnLayout {
             CheckBox {
                 id: generateMipmapscheckBox
-                text: backendValues.generateMipmaps.valueToString
+                text: backendValues.generateMipmaps ? backendValues.generateMipmaps.valueToString : ""
                 backendValue: backendValues.generateMipmaps
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
