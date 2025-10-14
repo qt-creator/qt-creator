@@ -221,6 +221,8 @@ public:
     virtual QString deviceStateToString() const;
     QPixmap deviceStateIcon() const;
 
+    QIcon overlayIcon() const;
+
     static Utils::Id typeFromMap(const Utils::Store &map);
     static Utils::Id idFromMap(const Utils::Store &map);
 

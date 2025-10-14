@@ -445,6 +445,7 @@ public:
         q->setFileAccess(&m_disconnectedAccess);
         m_cmdBridgeAccess.reset();
         m_scriptAccess.reset();
+        DeviceManager::instance()->deviceUpdated(q->id());
     }
 
     LinuxDevice *q = nullptr;

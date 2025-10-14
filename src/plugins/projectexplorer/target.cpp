@@ -58,7 +58,6 @@ public:
         : m_kit(k)
     { }
 
-    QIcon m_overlayIcon;
     QList<BuildConfiguration *> m_buildConfigurations;
     QPointer<BuildConfiguration> m_activeBuildConfiguration;
     Kit *const m_kit;
@@ -77,7 +76,6 @@ Target::Target(Project *project, Kit *k) :
     d(std::make_unique<TargetPrivate>(k))
 {
     QTC_CHECK(d->m_kit);
-    connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
 }
 
 Target::~Target()
@@ -87,8 +85,6 @@ Target::~Target()
 
 void Target::handleKitUpdated()
 {
-    updateDeviceState(); // in case the device changed...
-
     emit iconChanged();
     emit kitChanged();
 }
@@ -284,12 +280,9 @@ QIcon Target::icon() const
 
 QIcon Target::overlayIcon() const
 {
-    return d->m_overlayIcon;
-}
-
-void Target::setOverlayIcon(const QIcon &icon)
-{
-    d->m_overlayIcon = icon;
+    static const QIcon disconnected = Icons::DEVICE_DISCONNECTED_INDICATOR_OVERLAY.icon();
+    IDevice::ConstPtr current = RunDeviceKitAspect::device(kit());
+    return current ? current->overlayIcon() : disconnected;
 }
 
 QString Target::overlayIconToolTip()
@@ -354,40 +347,6 @@ void Target::updateDefaultBuildConfigurations()
 ProjectConfigurationModel *Target::buildConfigurationModel() const
 {
     return &d->m_buildConfigurationModel;
-}
-
-void Target::updateDeviceState()
-{
-    IDevice::ConstPtr current = RunDeviceKitAspect::device(kit());
-
-    QIcon overlay;
-    static const QIcon disconnected = Icons::DEVICE_DISCONNECTED_INDICATOR_OVERLAY.icon();
-    if (!current) {
-        overlay = disconnected;
-    } else {
-        switch (current->deviceState()) {
-        case IDevice::DeviceStateUnknown:
-            overlay = QIcon();
-            return;
-        case IDevice::DeviceReadyToUse: {
-            static const QIcon ready = Icons::DEVICE_READY_INDICATOR_OVERLAY.icon();
-            overlay = ready;
-            break;
-        }
-        case IDevice::DeviceConnected: {
-            static const QIcon connected = Icons::DEVICE_CONNECTED_INDICATOR_OVERLAY.icon();
-            overlay = connected;
-            break;
-        }
-        case IDevice::DeviceDisconnected:
-            overlay = disconnected;
-            break;
-        default:
-            break;
-        }
-    }
-
-    setOverlayIcon(overlay);
 }
 
 bool Target::fromMap(const Store &map)

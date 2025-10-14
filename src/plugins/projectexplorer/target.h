@@ -63,7 +63,6 @@ public:
 
     QIcon icon() const;
     QIcon overlayIcon() const;
-    void setOverlayIcon(const QIcon &icon);
     QString overlayIconToolTip();
 
     Utils::Store toMap() const;
@@ -97,7 +96,6 @@ private:
     bool fromMap(const Utils::Store &map);
     bool addConfigurationsFromMap(const Utils::Store &map, bool setActiveConfigurations);
 
-    void updateDeviceState();
     void handleKitUpdated();
 
     void setActiveBuildConfiguration(BuildConfiguration *configuration);
