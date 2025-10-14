@@ -216,7 +216,7 @@ public:
     virtual DeviceProcessSignalOperation::Ptr signalOperation() const;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
-    virtual DeviceState deviceState() const;
+    DeviceState deviceState() const;
     void setDeviceState(const DeviceState state);
     virtual QString deviceStateToString() const;
     QPixmap deviceStateIcon() const;
