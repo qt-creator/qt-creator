@@ -439,14 +439,15 @@ public:
     Environment getEnvironment();
     void invalidateEnvironmentCache();
 
-    void closeConnection()
+    void closeConnection(bool announce)
     {
         QMutexLocker locker(&m_shellMutex);
         m_deviceState = IDevice::DeviceDisconnected;
         q->setFileAccess(&m_disconnectedAccess);
         m_cmdBridgeAccess.reset();
         m_scriptAccess.reset();
-        DeviceManager::instance()->deviceUpdated(q->id());
+        if (announce)
+            DeviceManager::instance()->deviceUpdated(q->id());
     }
 
     LinuxDevice *q = nullptr;
@@ -1200,7 +1201,7 @@ LinuxDevice::LinuxDevice()
         [](const IDevicePtr &device) {
             const auto dev = std::dynamic_pointer_cast<const LinuxDevice>(device);
             QTC_ASSERT(dev, return);
-            dev->closeConnection();
+            dev->closeConnection(true);
         },
         [](const IDeviceConstPtr &device) {
             return device->deviceState() == IDevice::DeviceConnected
@@ -1344,7 +1345,7 @@ void LinuxDevicePrivate::setupShell(const SshParameters &sshParameters,
     announceConnectionAttempt();
 
     // Remove previous access first.
-    closeConnection();
+    closeConnection(true);
 
     m_scriptAccess = std::make_unique<LinuxDeviceAccess>(this);
 
@@ -1476,7 +1477,7 @@ void LinuxDevicePrivate::announceConnectionLoss()
     infoBar->addInfo(info);
     QTimer::singleShot(5000, q, [id, infoBar] { infoBar->removeInfo(id); });
     Core::MessageManager::writeSilently(message);
-    closeConnection();
+    closeConnection(true);
 }
 
 bool LinuxDevicePrivate::checkDisconnectedWithWarning()
@@ -1583,9 +1584,9 @@ void LinuxDevice::tryToConnect(const Continuation<> &cont) const
         cont(ResultOk);
 }
 
-void LinuxDevice::closeConnection() const
+void LinuxDevice::closeConnection(bool announce) const
 {
-    d->closeConnection();
+    d->closeConnection(announce);
 }
 
 Internal::LinuxDeviceFactory::LinuxDeviceFactory()
@@ -1624,7 +1625,7 @@ void Internal::LinuxDeviceFactory::shutdownExistingDevices()
     m_existingDevices.read([](const std::vector<std::weak_ptr<LinuxDevice>> &devices) {
         for (auto device : devices) {
             if (auto d = device.lock())
-                d->closeConnection();
+                d->closeConnection(false);
         }
     });
 }

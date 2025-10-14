@@ -100,7 +100,7 @@ class ConnectionTaskAdapter final
 public:
     void operator()(ConnectionData *data, Tasking::TaskInterface *iface)
     {
-        data->device->closeConnection();
+        data->device->closeConnection(true);
         data->device->tryToConnect(Continuation<>(data->guard, [data, iface](const Result<> &res) {
             if (data->guard) {
                 data->result = res;
