@@ -451,6 +451,7 @@ static std::vector<cmListFileFunction> findFunctions(
 {
     std::vector<cmListFileFunction> functions;
     std::vector<std::string> conditionStack;
+    const std::string lowerCaseFuncName = functionName.toLower().toStdString();
 
     for (const auto& func : file.Functions)     {
 
@@ -473,7 +474,7 @@ static std::vector<cmListFileFunction> findFunctions(
                 conditionStack.pop_back();
         }
 
-        if (func.LowerCaseName() == functionName.toLower()) {
+        if (func.LowerCaseName() == lowerCaseFuncName) {
             bool shouldAdd = false;
 
             if (conditionStack.empty()) {
@@ -531,10 +532,11 @@ bool CMakeBuildSystem::setTargetProperty(
         return false;
 
     std::vector<cmListFileFunction> functions = findFunctions(*cmakeListFile,  "set_target_properties", condition);
+    const std::string propertyStdString = property.toStdString();
 
-    for (const auto& func : functions) {
+    for (const auto &func : functions) {
         for (const auto& args : func.Arguments()) {
-            if (args.Value == property) {
+            if (args.Value == propertyStdString) {
                 return false;
             }
         }
