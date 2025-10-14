@@ -14,11 +14,8 @@ Rectangle {
     height: 420
     color:  StudioTheme.Values.themePanelBackground
 
-    // invoked from C++ to refresh material preview image
-    function refreshPreview()
-    {
-        topSection.refreshPreview()
-    }
+    // invoked from C++ to refresh texture preview image
+    signal refreshPreview()
 
     // Called from C++ to close context menu on focus out
     function closeContextMenu()
@@ -40,6 +37,14 @@ Rectangle {
 
             headerComponent: Texture.TopSection {
                 id: topSection
+
+                Connections {
+                    target: itemPane
+
+                    function onRefreshPreview() {
+                        topSection.refreshPreview()
+                    }
+                }
             }
 
             DynamicPropertiesSection {
