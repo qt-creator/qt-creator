@@ -65,7 +65,6 @@ public:
 
     void checkOsType() override;
 
-    DeviceState deviceState() const override;
     QString deviceStateToString() const override;
 
     bool isDisconnected() const;

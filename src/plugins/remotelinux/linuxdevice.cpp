@@ -442,7 +442,7 @@ public:
     void closeConnection(bool announce)
     {
         QMutexLocker locker(&m_shellMutex);
-        m_deviceState = IDevice::DeviceDisconnected;
+        q->setDeviceState(IDevice::DeviceDisconnected);
         q->setFileAccess(&m_disconnectedAccess);
         m_cmdBridgeAccess.reset();
         m_scriptAccess.reset();
@@ -451,11 +451,6 @@ public:
     }
 
     LinuxDevice *q = nullptr;
-
-    // We use DeviceConnected if (only) the shell access is usable (either fully,
-    // or single-shot fallback only), and Device::ReadyToUse if the gocmdbridge
-    // is up and running.
-    IDevice::DeviceState m_deviceState = IDevice::DeviceDisconnected;
 
     UnavailableDeviceFileAccess m_disconnectedAccess;
     std::unique_ptr<LinuxDeviceAccess> m_scriptAccess;
@@ -483,7 +478,7 @@ Environment LinuxDevicePrivate::getEnvironment()
     if (m_environmentCache.has_value())
         return m_environmentCache.value();
 
-    if (m_deviceState == IDevice::DeviceDisconnected)
+    if (q->deviceState() == IDevice::DeviceDisconnected)
         return {};
 
     char separator = '\0';
@@ -1151,6 +1146,7 @@ LinuxDevice::LinuxDevice()
     setDisplayType(Tr::tr("Remote Linux"));
     setOsType(OsTypeLinux);
     setDefaultDisplayName(Tr::tr("Remote Linux Device"));
+    setDeviceState(IDevice::DeviceDisconnected);
 
     setupId(IDevice::ManuallyAdded, Utils::Id());
     setType(Constants::GenericLinuxOsType);
@@ -1372,7 +1368,7 @@ void LinuxDevicePrivate::setupShellPhase2(const Result<> &result,
     if (result) {
         // Shell setup is ok.
         q->setFileAccess(m_scriptAccess.get());
-        m_deviceState = IDevice::DeviceConnected;
+        q->setDeviceState(IDevice::DeviceConnected);
 
         setOsTypeFromUnameResult(m_scriptAccess->m_handler->runInShell(unameCommand()));
 
@@ -1388,7 +1384,7 @@ void LinuxDevicePrivate::setupShellPhase2(const Result<> &result,
         if (initResult) {
             DEBUG("Bridge ok to use");
             q->setFileAccess(m_cmdBridgeAccess.get());
-            m_deviceState = IDevice::DeviceReadyToUse;
+            q->setDeviceState(IDevice::DeviceReadyToUse);
         } else {
             DEBUG("Failed to start CmdBridge:" << initResult.error()
                    << ", falling back to slow shell access");
@@ -1396,7 +1392,7 @@ void LinuxDevicePrivate::setupShellPhase2(const Result<> &result,
     } else {
         DEBUG("Failed to setup state");
         q->setFileAccess(&m_disconnectedAccess);
-        m_deviceState = IDevice::DeviceDisconnected;
+        q->setDeviceState(IDevice::DeviceDisconnected);
     }
 
     m_shellMutex.unlock();
@@ -1435,7 +1431,7 @@ void LinuxDevicePrivate::unannounceConnectionAttempt()
         Tr::tr("Connection attempt to device \"%1\" finished.").arg(q->displayName()) + "\n";
 
     InfoLabel::InfoType infoType = InfoLabel::Ok;
-    switch (m_deviceState) {
+    switch (q->deviceState()) {
         case IDevice::DeviceDisconnected:
             message += Tr::tr("Connection could not be established.");
             infoType = InfoLabel::Error;
@@ -1482,7 +1478,7 @@ void LinuxDevicePrivate::announceConnectionLoss()
 
 bool LinuxDevicePrivate::checkDisconnectedWithWarning()
 {
-    if (m_deviceState != IDevice::DeviceDisconnected)
+    if (q->deviceState() != IDevice::DeviceDisconnected)
         return false;
 
     InfoBar *infoBar = Core::ICore::popupInfoBar();
@@ -1550,14 +1546,12 @@ void LinuxDevice::checkOsType()
     d->setOsTypeFromUnameResult(d->runInShell(d->unameCommand()));
 }
 
-IDevice::DeviceState LinuxDevice::deviceState() const
-{
-    return d->m_deviceState;
-}
-
 QString LinuxDevice::deviceStateToString() const
 {
-    switch (d->m_deviceState) {
+    // We use DeviceConnected if (only) the shell access is usable (either fully,
+    // or single-shot fallback only), and Device::ReadyToUse if the gocmdbridge
+    // is up and running.
+    switch (deviceState()) {
         case IDevice::DeviceDisconnected:
             return Tr::tr("Device is considered unconnected. Re-run device test to reset state.");
         case IDevice::DeviceReadyToUse:
@@ -1573,7 +1567,7 @@ QString LinuxDevice::deviceStateToString() const
 
 bool LinuxDevice::isDisconnected() const
 {
-    return d->m_deviceState == IDevice::DeviceDisconnected;
+    return deviceState() == IDevice::DeviceDisconnected;
 }
 
 void LinuxDevice::tryToConnect(const Continuation<> &cont) const
