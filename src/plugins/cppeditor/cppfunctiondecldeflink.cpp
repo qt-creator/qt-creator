@@ -728,7 +728,7 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
         QString newTargetParameters;
         bool hadChanges = newParamCount < existingParamCount; // below, additions and changes set this to true as well
         QHash<Symbol *, QString> renamedTargetParameters;
-        bool switchedOnly = true;
+        bool switchedOnly = !hadChanges;
         for (int newParamIndex = 0; newParamIndex < newParamCount; ++newParamIndex) {
             const int existingParamIndex = newParamToSourceParam[newParamIndex];
             Symbol *newParam = newFunction->argumentAt(newParamIndex);
