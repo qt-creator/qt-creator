@@ -498,7 +498,7 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
                                                "pivot.x", "pivot.y", "pivot.z"};
     const QList<AbstractProperty> nodeProps = node.properties();
     for (const AbstractProperty &p : nodeProps) {
-        if (excludedProps.contains(p.name()))
+        if (depth == 0 && excludedProps.contains(p.name()))
             continue;
 
         if (p.isVariantProperty()) {
