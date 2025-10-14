@@ -641,6 +641,24 @@ TEST_F(QmlDocumentParser, default_property)
     ASSERT_THAT(type.defaultPropertyName, Eq("foos"));
 }
 
+TEST_F(QmlDocumentParser, value_list_property)
+{
+    QString component = R"(Item{
+                             property list<int> foos
+                           })";
+
+    auto type = parser.parse(component,
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath,
+                             Storage::IsInsideProject::No);
+
+    ASSERT_THAT(type.propertyDeclarations,
+                UnorderedElementsAre(IsPropertyDeclaration("foos",
+                                                           IsImportedType("QList<int>"),
+                                                           Storage::PropertyDeclarationTraits::None)));
+}
+
 TEST_F(QmlDocumentParser, has_file_component_trait)
 {
     QString component = R"(import Example

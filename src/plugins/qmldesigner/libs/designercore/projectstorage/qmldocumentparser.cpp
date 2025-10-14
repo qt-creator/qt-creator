@@ -11,6 +11,7 @@
 #include <sourcepathstorage/sourcepathcache.h>
 #include <sqlitedatabase.h>
 
+#include <utils/array.h>
 
 #ifdef QDS_BUILD_QMLPARSER
 #include <private/qqmldomtop_p.h>
@@ -37,7 +38,7 @@ using namespace Qt::StringLiterals;
 
 namespace {
 
-using ImportAliases = QVarLengthArray<QString, 24>;
+using ImportAliases = QVarLengthArray<Utils::SmallString, 24>;
 
 Storage::Version convertVersion(QmlDom::Version version)
 {
@@ -168,17 +169,17 @@ void addImports(Storage::Imports &imports,
     imports.erase(removed.begin(), removed.end());
 }
 
-Synchronization::ImportedTypeName createImportedTypeName(const QStringView rawtypeName,
+Synchronization::ImportedTypeName createImportedTypeName(std::string_view rawtypeName,
                                                          const ImportAliases &importAliases)
 {
     auto foundDot = std::ranges::find(rawtypeName, '.');
 
-    QStringView alias(rawtypeName.begin(), foundDot);
+    Utils::SmallStringView alias(rawtypeName.begin(), foundDot);
 
     if (foundDot == rawtypeName.end() or not importAliases.contains(alias))
         return Synchronization::ImportedType{rawtypeName};
 
-    QStringView typeName(std::next(foundDot), rawtypeName.end());
+    std::string_view typeName(std::next(foundDot), rawtypeName.end());
 
     return Storage::Synchronization::QualifiedImportedType{typeName, alias};
 }
@@ -188,20 +189,25 @@ bool isListProperty(const QStringView rawtypeName)
     return rawtypeName.startsWith(u"list<") && rawtypeName.endsWith(u'>');
 }
 
-struct TypeNameViewAndTraits
+struct TypeNameStringAndTraits
 {
-    QStringView typeName;
+    Storage::TypeNameString typeName;
     Storage::PropertyDeclarationTraits traits;
 };
 
-TypeNameViewAndTraits filteredListTypeName(const QStringView rawtypeName)
+TypeNameStringAndTraits filteredListTypeName(QStringView rawtypeName)
 {
     if (!isListProperty(rawtypeName))
         return {rawtypeName, Storage::PropertyDeclarationTraits::None};
 
-    return {rawtypeName.mid(5, rawtypeName.size() - 6),
-            Storage::PropertyDeclarationTraits::IsList};
-};
+    auto typeName = rawtypeName.mid(5, rawtypeName.size() - 6);
+
+    if (typeName.size() and typeName.front().isUpper())
+        return {typeName, Storage::PropertyDeclarationTraits::IsList};
+
+    return {Storage::TypeNameString::join({"QList<", Storage::TypeNameString{typeName}, ">"}),
+            Storage::PropertyDeclarationTraits::None};
+}
 
 struct TypeNameAndTraits
 {
@@ -215,7 +221,7 @@ TypeNameAndTraits createImportedTypeNameAndTypeTraits(const QStringView rawtypeN
     auto [filteredTypeName, traits] = filteredListTypeName(rawtypeName);
 
     if (!filteredTypeName.contains('.'))
-        return {Synchronization::ImportedType{Utils::SmallString{filteredTypeName}}, traits};
+        return {Synchronization::ImportedType{filteredTypeName}, traits};
 
     return {createImportedTypeName(filteredTypeName, importAliases), traits};
 }
@@ -402,7 +408,7 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
     const auto importAliases = createImportAliases(qmlImports);
 
     type.traits = createTypeTraits(qmlFile, isInsideProject);
-    type.prototype = createImportedTypeName(qmlObject.name(), importAliases);
+    type.prototype = createImportedTypeName(Storage::TypeNameString{qmlObject.name()}, importAliases);
     type.defaultPropertyName = qmlObject.localDefaultPropertyName();
     addImports(imports, qmlFile->imports(), sourceId, directoryPath, m_modulesStorage);
 
