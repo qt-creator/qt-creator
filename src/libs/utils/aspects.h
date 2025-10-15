@@ -753,6 +753,8 @@ signals:
     void validChanged(bool validState);
 
 protected:
+    bool isCheckable() const;
+
     void bufferToGui() override;
     bool guiToBuffer() override;
 
