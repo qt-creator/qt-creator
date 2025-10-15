@@ -514,6 +514,7 @@ public:
     void updateContextMenuActions(Node *currentNode);
     void updateLocationSubMenus();
     void executeRunConfiguration(RunConfiguration *, Id mode);
+    void executeRunConfigurationPhase2(const QPointer<RunConfiguration> &, Id mode, const Result<> &setupResult);
     QPair<bool, QString> buildSettingsEnabledForSession();
     QPair<bool, QString> buildSettingsEnabled(const Project *pro);
 
@@ -2561,11 +2562,32 @@ MiniProjectTargetSelector *ProjectExplorerPlugin::targetSelector()
     return dd->m_targetSelector;
 }
 
-void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfiguration, Id runMode)
+void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfig, Id runMode)
 {
-    const Tasks runConfigIssues = runMode == Constants::DAP_CMAKE_DEBUG_RUN_MODE
-                                      ? Tasks()
-                                      : runConfiguration->checkForIssues();
+    IDevice::ConstPtr device = RunDeviceKitAspect::device(runConfig->kit());
+    if (device) {
+        QPointer<RunConfiguration> rc(runConfig);
+        device->tryToConnect(Continuation<>([rc, runMode, this](const Result<> &res) {
+            executeRunConfigurationPhase2(rc, runMode, res);
+        }));
+    } else {
+        executeRunConfigurationPhase2(runConfig, runMode, ResultOk);
+    }
+}
+
+void ProjectExplorerPluginPrivate::executeRunConfigurationPhase2
+    (const QPointer<RunConfiguration> &runConfiguration, Id runMode, const Result<> &setupResult)
+{
+    Tasks runConfigIssues;
+    if (!runConfiguration)
+        runConfigIssues << DeploymentTask(Task::Error, "Run Configuration vanished");
+
+    if (!setupResult)
+        runConfigIssues << DeploymentTask(Task::Error, setupResult.error());
+
+    if (runConfiguration && runMode != Constants::DAP_CMAKE_DEBUG_RUN_MODE)
+        runConfigIssues << runConfiguration->checkForIssues();
+
     if (!runConfigIssues.isEmpty()) {
         for (const Task &t : runConfigIssues)
             TaskHub::addTask(t);
