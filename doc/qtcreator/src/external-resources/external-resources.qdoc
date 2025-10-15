@@ -75,7 +75,7 @@
 */
 /*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-supported-platforms.html
-    \title \QMCU - Supported Target Platforms
+    \title \QMCU - Supported target platforms
 */
 /*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-prerequisites.html
@@ -83,11 +83,11 @@
 */
 /*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-renesas.html
-    \title Getting Started on Renesas
+    \title Getting started on Renesas
 */
 /*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-on-stm.html
-    \title Getting Started on STM
+    \title Getting started on STM
 */
 /*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-on-nxp.html
@@ -103,7 +103,11 @@
 */
 /*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-on-infineon.html
-    \title Getting Started on Infineon
+    \title Getting started on Infineon
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-on-espressif.html
+    \title Getting started on Espressif
 */
 /*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-windows.html
