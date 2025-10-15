@@ -9929,6 +9929,25 @@
          transform="matrix(0.90909091,0,0,1.1428571,168.40909,-73)" />
     </g>
     <g
+       id="src/plugins/devcontainer/images/containerdevice">
+      <use
+         transform="translate(246,316)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use5913-0-8-1-5-6-8-74-7"
+         width="100%"
+         height="100%" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#src/plugins/devcontainer/images/container"
+         id="use154"
+         style="display:inline"
+         transform="matrix(2,0,0,2,-4757,-781)" />
+    </g>
+    <g
        transform="translate(-139.75,310.5)"
        id="../vxworks/plugins/vxworks/images/vxworksqtdevice">
       <use

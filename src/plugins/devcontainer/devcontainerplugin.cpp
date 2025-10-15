@@ -52,7 +52,8 @@ public:
         : IDeviceFactory(Constants::DEVCONTAINER_DEVICE_TYPE)
     {
         setDisplayName(Tr::tr("Development Container Device"));
-        setIcon(QIcon());
+        setCombinedIcon(":/devcontainer/images/container.png",
+                        ":/devcontainer/images/containerdevice.png");
         setExecutionTypeId(ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID);
     }
 };
@@ -75,6 +76,8 @@ public:
 
     void initialize() final
     {
+        deviceFactory = std::make_unique<DevContainerDeviceFactory>();
+
         connect(
             ProjectManager::instance(),
             &ProjectManager::projectAdded,
@@ -118,7 +121,7 @@ signals:
 
 private:
     std::map<Project *, std::shared_ptr<Device>> devices;
-    DevContainerDeviceFactory deviceFactory;
+    std::unique_ptr<DevContainerDeviceFactory> deviceFactory;
     QObject guard;
 };
 
