@@ -33,8 +33,7 @@ BuildSettings *BuildSettings::createdFor(BuildConfiguration *buildConfig)
 }
 
 BuildSettings::BuildSettings(ModificationFile &featureFile, BuildConfiguration *buildConfig)
-    : m_featureFile{featureFile}
-    , m_buildConfig{buildConfig}
+    : QObject(buildConfig), m_featureFile{featureFile}
 {
     // Do not use m_featureFile in the constructor; it may not yet be valid.
 }
@@ -93,7 +92,7 @@ void BuildSettings::setEnabled(bool enabled)
 
 BuildConfiguration *BuildSettings::buildConfig() const
 {
-    return m_buildConfig;
+    return qobject_cast<BuildConfiguration *>(parent());
 }
 
 } // namespace Coco::Internal
