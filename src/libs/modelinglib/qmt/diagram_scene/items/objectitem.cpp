@@ -58,7 +58,7 @@ ObjectItem::~ObjectItem()
 
 QRectF ObjectItem::boundingRect() const
 {
-    return childrenBoundingRect();
+    return childrenBoundingRect().marginsAdded({ 5.0, 5.0, 5.0, 5.0 });
 }
 
 void ObjectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
