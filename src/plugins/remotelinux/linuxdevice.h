@@ -70,7 +70,7 @@ public:
 
     bool isDisconnected() const;
     void tryToConnect(const Utils::Continuation<> &cont) const override;
-    void closeConnection() const;
+    void closeConnection(bool announce) const;
 
     void attachToSharedConnection(Internal::SshConnectionHandle *sshConnectionHandle,
                                   const ProjectExplorer::SshParameters &sshParams) const;

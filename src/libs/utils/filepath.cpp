@@ -236,6 +236,26 @@ FilePath FilePath::fromPathPart(const QStringView path)
     return result;
 }
 
+FilePath FilePath::fromPathComponents(const QList<QStringView> &components)
+{
+    auto it = components.cbegin();
+    if (it == components.cend())
+        return FilePath();
+
+    QString path;
+    if (components.front() == '/') {
+        path = '/';
+        ++it;
+    }
+    for (; it != components.cend(); ++it) {
+        path += *it;
+        if (it + 1 != components.cend())
+            path += '/';
+    }
+
+    return FilePath::fromPathPart(path);
+}
+
 FilePath FilePath::currentWorkingPath()
 {
     return FilePath::fromString(QDir::currentPath());

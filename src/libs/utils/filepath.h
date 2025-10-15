@@ -83,6 +83,7 @@ public:
     [[nodiscard]] static FilePath fromUrl(const QUrl &url);
     [[nodiscard]] static FilePath fromParts(const QStringView scheme, const QStringView host, const QStringView path);
     [[nodiscard]] static FilePath fromPathPart(const QStringView path);
+    [[nodiscard]] static FilePath fromPathComponents(const QList<QStringView> &components);
 
     [[nodiscard]] static FilePath currentWorkingPath();
 

@@ -15,6 +15,11 @@ using namespace Utils;
 
 namespace CmdBridge {
 
+FileAccess::FileAccess(const std::function<void()> &errorExitHandler)
+    : m_errorExitHandler(errorExitHandler)
+{
+}
+
 FileAccess::~FileAccess() = default;
 
 static ResultError exceptionError(
@@ -52,6 +57,13 @@ Result<> FileAccess::init(
 {
     m_environment = environment;
     m_client = std::make_unique<Client>(pathToBridge, environment);
+    if (m_errorExitHandler) {
+        QObject::connect(m_client.get(), &Client::done, [this](const ProcessResultData &data) {
+            if (data.m_exitCode != 0) {
+                m_errorExitHandler();
+            }
+        });
+    }
 
     auto startResult = m_client->start(deleteOnExit);
     if (!startResult)

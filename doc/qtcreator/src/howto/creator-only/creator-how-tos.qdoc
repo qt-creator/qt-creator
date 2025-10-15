@@ -638,7 +638,8 @@
     \endlist
 
     To specify whether to automatically insert matching characters,
-    select \preferences > \uicontrol {Text Editor} > \uicontrol Completion.
+    go to \preferences > \uicontrol {Text Editor} > \uicontrol Completion
+    and select options in \uicontrol {Automatically Insert Matching Characters}.
 
     \image {qtcreator-preferences-texteditor-completion.webp} {Completion tab in Text Editor preferences}
 

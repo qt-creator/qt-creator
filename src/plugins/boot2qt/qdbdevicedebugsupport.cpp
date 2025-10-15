@@ -127,7 +127,8 @@ public:
             rp.addSolibSearchDir("%{sysroot}/system/lib");
             rp.setSkipDebugServer(true);
 
-            const ProcessTask processTask(qdbDeviceInferiorProcess(runControl, QmlDebuggerServices));
+            const ProcessTask processTask(qdbDeviceInferiorProcess(runControl, QmlDebuggerServices,
+                                                                   {.setupCanceler = false}));
             return Group {
                 When (processTask, &Process::started, WorkflowPolicy::StopOnSuccessOrError) >> Do {
                     debuggerRecipe(runControl, rp)

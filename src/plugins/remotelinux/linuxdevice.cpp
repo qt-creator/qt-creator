@@ -430,6 +430,7 @@ public:
 
     void announceConnectionAttempt();
     void unannounceConnectionAttempt();
+    void announceConnectionLoss();
     Id announceId() const { return q->id().withPrefix("announce_"); }
 
     CommandLine unameCommand() const { return {"uname", {"-s"}, OsType::OsTypeLinux}; }
@@ -438,13 +439,15 @@ public:
     Environment getEnvironment();
     void invalidateEnvironmentCache();
 
-    void closeConnection()
+    void closeConnection(bool announce)
     {
         QMutexLocker locker(&m_shellMutex);
         m_deviceState = IDevice::DeviceDisconnected;
         q->setFileAccess(&m_disconnectedAccess);
         m_cmdBridgeAccess.reset();
         m_scriptAccess.reset();
+        if (announce)
+            DeviceManager::instance()->deviceUpdated(q->id());
     }
 
     LinuxDevice *q = nullptr;
@@ -1198,7 +1201,7 @@ LinuxDevice::LinuxDevice()
         [](const IDevicePtr &device) {
             const auto dev = std::dynamic_pointer_cast<const LinuxDevice>(device);
             QTC_ASSERT(dev, return);
-            dev->closeConnection();
+            dev->closeConnection(true);
         },
         [](const IDeviceConstPtr &device) {
             return device->deviceState() == IDevice::DeviceConnected
@@ -1303,18 +1306,7 @@ LinuxDeviceAccess::LinuxDeviceAccess(LinuxDevicePrivate *devicePrivate)
     m_handler->moveToThread(&m_shellThread);
     QObject::connect(m_handler, &ShellThreadHandler::shellExitedIrregularly,
                      devicePrivate->q, [devicePrivate] {
-        const QString message = Tr::tr("Device \"%1\" unexpectedly lost connection.")
-            .arg(devicePrivate->q->displayName());
-        const Id id = devicePrivate->announceId();
-        InfoBarEntry info(id, message);
-        info.setTitle(Tr::tr("Connection Lost"));
-        info.setInfoType(InfoLabel::Warning);
-        InfoBar *infoBar = Core::ICore::popupInfoBar();
-        infoBar->addInfo(info);
-        QTimer::singleShot(5000, devicePrivate->q, [id, infoBar] { infoBar->removeInfo(id); });
-        Core::MessageManager::writeSilently(message);
-        devicePrivate->closeConnection();
-        DeviceManager::instance()->deviceUpdated(devicePrivate->q->id());
+        devicePrivate->announceConnectionLoss();
     });
     QObject::connect(&m_shellThread, &QThread::finished, m_handler, &QObject::deleteLater);
     m_shellThread.start();
@@ -1353,7 +1345,7 @@ void LinuxDevicePrivate::setupShell(const SshParameters &sshParameters,
     announceConnectionAttempt();
 
     // Remove previous access first.
-    closeConnection();
+    closeConnection(true);
 
     m_scriptAccess = std::make_unique<LinuxDeviceAccess>(this);
 
@@ -1386,7 +1378,10 @@ void LinuxDevicePrivate::setupShellPhase2(const Result<> &result,
 
         // We have good shell access now, try to get bridge access, too:
 
-        m_cmdBridgeAccess = std::make_unique<CmdBridge::FileAccess>();
+        m_cmdBridgeAccess = std::make_unique<CmdBridge::FileAccess>([this] {
+            QMetaObject::invokeMethod(
+                this->q, [this] { announceConnectionLoss(); }, Qt::QueuedConnection);
+        });
         Result<> initResult
             = m_cmdBridgeAccess
                   ->deployAndInit(Core::ICore::libexecPath(), q->rootPath(), getEnvironment());
@@ -1468,6 +1463,21 @@ void LinuxDevicePrivate::unannounceConnectionAttempt()
     Core::MessageManager::writeSilently(message);
 
     QTimer::singleShot(5000, q, [id=announceId(), infoBar] { infoBar->removeInfo(id); });
+}
+
+void LinuxDevicePrivate::announceConnectionLoss()
+{
+    const QString message = Tr::tr("Device \"%1\" unexpectedly lost connection.")
+                                .arg(q->displayName());
+    const Id id = announceId();
+    InfoBarEntry info(id, message);
+    info.setTitle(Tr::tr("Connection Lost"));
+    info.setInfoType(InfoLabel::Warning);
+    InfoBar *infoBar = Core::ICore::popupInfoBar();
+    infoBar->addInfo(info);
+    QTimer::singleShot(5000, q, [id, infoBar] { infoBar->removeInfo(id); });
+    Core::MessageManager::writeSilently(message);
+    closeConnection(true);
 }
 
 bool LinuxDevicePrivate::checkDisconnectedWithWarning()
@@ -1574,9 +1584,9 @@ void LinuxDevice::tryToConnect(const Continuation<> &cont) const
         cont(ResultOk);
 }
 
-void LinuxDevice::closeConnection() const
+void LinuxDevice::closeConnection(bool announce) const
 {
-    d->closeConnection();
+    d->closeConnection(announce);
 }
 
 Internal::LinuxDeviceFactory::LinuxDeviceFactory()
@@ -1615,7 +1625,7 @@ void Internal::LinuxDeviceFactory::shutdownExistingDevices()
     m_existingDevices.read([](const std::vector<std::weak_ptr<LinuxDevice>> &devices) {
         for (auto device : devices) {
             if (auto d = device.lock())
-                d->closeConnection();
+                d->closeConnection(false);
         }
     });
 }

@@ -113,7 +113,7 @@
     configurations do not include QML debugging because the debugging feature
     makes applications vulnerable.
 
-    The \uicontrol {Leave at Default} option in \uicontrol {Projects} >
+    The \uicontrol {Default} option in \uicontrol {Projects} >
     \uicontrol {Build Settings} > \uicontrol {QML debugging and profiling}
     keeps existing, already configured CMake build directories intact. Also, it
     enables you to import an existing build into \QC without enforced changes,

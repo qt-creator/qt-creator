@@ -14,39 +14,32 @@
     To specify build settings for the selected \l{Kits}{kit}, go to
     \uicontrol Projects > \uicontrol {Build Settings}.
 
-    \image {qtcreator-build-settings-qbs.png} {Qbs build settings}
+    \image {qtcreator-build-settings-qbs.webp} {Qbs build settings}
 
-    Qbs builds projects in the directory specified in the
-    \uicontrol {Build Directory} field.
+    Qbs builds projects in the directory that you specify in
+    \uicontrol {Build directory}.
 
-    In the \uicontrol {Tooltip in target selector} field, you can enter text
-    that is displayed as a tooltip when you hover over the build
+    In \uicontrol {Tooltip in target selector}, enter text
+    to show as a tooltip when you hover over the build
     configuration in the \l{Build for many platforms}{kit selector}.
 
-    You can enter a name for the build configuration in the
-    \uicontrol {Configuration name} field.
-
-    If debug info is being generated, you can have it placed into separate
-    files, rather than embedded into the binary, by selecting
-    \uicontrol Enable in the \uicontrol {Separate debug info} field. For
-    more information, see \l{Analyze CPU usage}. To use default
-    settings, select \uicontrol {Leave at Default}.
-
-    For more information about the QML debugging options, see
-    \l{Setting Up QML Debugging}.
+    You can enter a name for the build configuration in
+    \uicontrol {Configuration name}.
 
     For more information about configuring Qbs, see \l{qbs-preferences}
     {Preferences: Qbs}.
 
+    \include {creator-build-settings-qmake.qdoc} {qmake-qbs-common-settings}
+
     \section1 Qbs Build Steps
 
-    \image {creator-qbs-build-app.png} {Qbs build steps}
+    \image {qtcreator-qbs-build-steps.webp} {Qbs build steps in Build Settings}
 
     To specify build steps for Qbs:
 
     \list 1
 
-        \li In the \uicontrol {Build variant} field, select:
+        \li In \uicontrol {Build variant}, select:
             \list
                 \li \uicontrol Debug to include debug symbols in the build for
                     debugging the application.
@@ -57,20 +50,15 @@
                     package.
             \endlist
 
-        \li In the \uicontrol ABIs field, select the ABIs for
-            the \l{Developing for Android}{Android} device
-            architectures to build the project for.
-
-        \li In the \uicontrol {Parallel jobs} field, specify the number of
+        \li In \uicontrol {Parallel jobs}, specify the number of
             parallel jobs to use for building.
 
-        \li In the \uicontrol Properties field, specify the properties to pass
+        \li In \uicontrol Properties, specify the properties to pass
             to the project. Use colons (:) to separate keys from values.
             For more information, see
-            \l{http://doc.qt.io/qbs/language-introduction.html}
-            {Modules} in the Qbs Manual.
+            \l{http://doc.qt.io/qbs/language-introduction.html}{Qbs: Modules}.
 
-        \li In the \uicontrol Flags field, select:
+        \li In \uicontrol Flags, select:
 
             \list
 
@@ -83,11 +71,11 @@
 
                 \li \uicontrol {Force probes} to force re-execution of
                     the configure scripts of
-                    \l{https://doc.qt.io/qbs/qbsprobes-qmlmodule.html}{Probes}.
+                    \l{https://doc.qt.io/qbs/qbsprobes-qmlmodule.html}{QbProbes}.
 
             \endlist
 
-        \li In the \uicontrol {Installation flags} field:
+        \li In \uicontrol {Installation flags}:
 
             \list
 
@@ -108,14 +96,14 @@
 
                 \li Select \uicontrol {Use default location} to install the
                     artifacts to the default location. Clear the checkbox to
-                    specify another location in the
-                    \uicontrol {Installation directory} field.
+                    specify another location in
+                    \uicontrol {Installation directory}.
 
             \endlist
 
     \endlist
 
-    The \uicontrol {Equivalent command line} field displays the build command
+    \uicontrol {Equivalent command line} displays the build command
     that is constructed based on the selected options.
 
     \section1 Qbs Clean Steps
@@ -134,9 +122,9 @@
 
     \endlist
 
-    The \uicontrol {Equivalent command line} field displays the clean command
+    \uicontrol {Equivalent command line} displays the clean command
     that is constructed based on the selected options.
 
     \sa {qbs-build-system}{Build Systems: Qbs},
-    {qbs-preferences}{Preferences: Qbs}
+    {qbs-preferences}{Preferences: Qbs}, {Setting Up QML Debugging}
 */
