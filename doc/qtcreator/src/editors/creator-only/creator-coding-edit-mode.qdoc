@@ -645,7 +645,7 @@
     or select \key {Ctrl+,}.
 
     To move to the next bookmark in the current session, go to \uicontrol Tools >
-    \uicontrol Bookmarks > \uicontrol {Previous Bookmark} or select
+    \uicontrol Bookmarks > \uicontrol {Next Bookmark} or select
     \key {Ctrl+.}.
 
     \section2 Locate bookmarks
