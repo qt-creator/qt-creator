@@ -28,6 +28,7 @@
 #include "bindingproperty.h"
 #include "propertyeditortracing.h"
 #include "propertyeditorvalue.h"
+#include "propertyeditorview.h"
 
 #include <scripteditorutils.h>
 #include <dynamicpropertiesmodel.h>
@@ -227,6 +228,22 @@ DynamicPropertyRow::DynamicPropertyRow()
                              commitExpression(m_backendValue->expression());
                          else if (m_backendValue->expression().isEmpty())
                              resetValue();
+                     });
+    QObject::connect(m_backendValue, &PropertyEditorValue::exportPropertyAsAliasRequested,
+                     this,
+                     [this](const QString &name) {
+                         if (auto model = m_model->dynamicPropertiesModel()) {
+                             if (auto propView = qobject_cast<PropertyEditorView *>(model->view()))
+                                 propView->exportPropertyAsAlias(name);
+                         }
+                     });
+    QObject::connect(m_backendValue, &PropertyEditorValue::removeAliasExportRequested,
+                     this,
+                     [this](const QString &name) {
+                         if (auto model = m_model->dynamicPropertiesModel()) {
+                             if (auto propView = qobject_cast<PropertyEditorView *>(model->view()))
+                                 propView->removeAliasExport(name);
+                         }
                      });
 }
 
