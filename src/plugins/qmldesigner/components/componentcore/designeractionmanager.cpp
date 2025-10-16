@@ -62,14 +62,6 @@ namespace QmlDesigner {
 using ComponentCoreTracing::category;
 using NanotraceHR::keyValue;
 
-inline static QString captionForModelNode(const ModelNode &modelNode)
-{
-    if (modelNode.id().isEmpty())
-        return modelNode.simplifiedDocumentTypeRepresentation();
-
-    return modelNode.id();
-}
-
 DesignerActionManagerView *DesignerActionManager::view()
 {
     NanotraceHR::Tracer tracer{"designer action manager view", category()};
@@ -502,7 +494,8 @@ public:
                     && SelectionContextHelpers::contains(node, selectionContext().scenePosition())
                     && !node.isRootNode() && !ModelUtils::isThisOrAncestorLocked(node)) {
                     selectionContext().setTargetNode(node);
-                    QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select: %1")).arg(captionForModelNode(node));
+                    QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select: %1"))
+                                       .arg(node.displayName());
                     ActionTemplate *selectionAction = new ActionTemplate("SELECT", what, &ModelNodeOperations::select);
 
                     SelectionContext nodeSelectionContext = selectionContext();
