@@ -90,9 +90,7 @@ void BindingEditor::setBackendValue(const QVariant &backendValue)
         if (node.isValid()) {
             m_backendValueType = node.metaInfo().property(propertyEditorValue->name()).propertyType();
 
-            QString nodeId = node.id();
-            if (nodeId.isEmpty())
-                nodeId = node.simplifiedDocumentTypeRepresentation();
+            QString nodeId = node.displayName();
 
             m_targetName = nodeId + "." + propertyEditorValue->name();
 
