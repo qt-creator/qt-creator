@@ -17,6 +17,8 @@ qtc_add_resources(DevContainerPlugin "images"
   FILES
     images/container.png
     images/container@2x.png
+    images/containerdevice.png
+    images/containerdevice@2x.png
 )
 
 extend_qtc_plugin(DevContainerPlugin

@@ -396,8 +396,9 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
         if (doneWith == DoneWith::Error)
             return DoneResult::Error;
 
-        auto downRecipe = (*instance)->downRecipe();
-        if (!downRecipe) {
+        auto downRecipe = (*instance)->downRecipe(false);
+        auto forceDownRecipe = (*instance)->downRecipe(true);
+        if (!downRecipe || !forceDownRecipe) {
             qCWarning(devContainerDeviceLog)
                 << "Cannot create down recipe for the development container instance:"
                 << downRecipe.error();
@@ -405,6 +406,7 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
         }
 
         m_downRecipe = std::move(*downRecipe);
+        m_forceDownRecipe = std::move(*forceDownRecipe);
         return DoneResult::Success;
     };
 
@@ -509,7 +511,7 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
     // clang-format on
 }
 
-Group Device::downRecipe()
+Group Device::downRecipe(bool forceDown)
 {
     if (!m_downRecipe)
         return Group{};
@@ -522,7 +524,7 @@ Group Device::downRecipe()
             m_systemEnvironment.reset();
         }),
         removeDetectedKitsRecipe(shared_from_this(), m_instanceConfig.logFunction),
-        *m_downRecipe
+        forceDown ? *m_forceDownRecipe : *m_downRecipe
     };
     // clang-format on
 }
@@ -561,7 +563,7 @@ Result<> Device::down()
 
     const Storage<ProgressPtr> progressStorage;
 
-    Group recipe{progressStorage, downRecipe()};
+    Group recipe{progressStorage, downRecipe(false)};
 
     if (ExtensionSystem::PluginManager::isShuttingDown()) {
         TaskTree taskTree;
@@ -602,7 +604,7 @@ void Device::restart(std::function<void(Result<>)> callback)
     // clang-format off
     Group recipe {
         progressStorage,
-        downRecipe(),
+        downRecipe(true),
         upRecipe(m_instanceConfig, progressStorage),
     };
     // clang-format on

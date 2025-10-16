@@ -1540,17 +1540,27 @@ static void setupRemoveContainer(const InstanceConfig &instanceConfig, Process &
 }
 
 static Result<Group> downContainerRecipe(
-    const DockerfileContainer &containerConfig, const InstanceConfig &instanceConfig)
+    const DockerfileContainer &containerConfig, const InstanceConfig &instanceConfig, bool forceDown)
 {
     const auto setupRMContainer = [containerConfig, instanceConfig](Process &process) {
         setupRemoveContainer(instanceConfig, process);
     };
 
-    return Group{ProcessTask(setupRMContainer)};
+    const auto shouldShutdown = [containerConfig, forceDown]() {
+        return forceDown || containerConfig.shutdownAction == ShutdownAction::StopContainer;
+    };
+
+    // clang-format off
+    return Group {
+        If (shouldShutdown) >> Then {
+            ProcessTask(setupRMContainer)
+        }
+    };
+    // clang-format on
 }
 
 static Result<Group> downContainerRecipe(
-    const ImageContainer &imageConfig, const InstanceConfig &instanceConfig)
+    const ImageContainer &imageConfig, const InstanceConfig &instanceConfig, bool forceDown)
 {
     const auto setupRemoveImage = [imageConfig, instanceConfig](Process &process) {
         connectProcessToLog(process, instanceConfig, Tr::tr("Remove Image"));
@@ -1567,11 +1577,22 @@ static Result<Group> downContainerRecipe(
         setupRemoveContainer(instanceConfig, process);
     };
 
-    return Group{ProcessTask(setupRMContainer), ProcessTask(setupRemoveImage)};
+    const auto shouldShutdown = [imageConfig, forceDown]() {
+        return forceDown || imageConfig.shutdownAction == ShutdownAction::StopContainer;
+    };
+
+    // clang-format off
+    return Group{
+        If (shouldShutdown) >> Then {
+            ProcessTask(setupRMContainer),
+            ProcessTask(setupRemoveImage)
+        }
+    };
+    // clang-format on
 }
 
 static Result<Group> downContainerRecipe(
-    const ComposeContainer &config, const InstanceConfig &instanceConfig)
+    const ComposeContainer &config, const InstanceConfig &instanceConfig, bool forceDown)
 {
     const auto setupComposeDown = [config, instanceConfig](Process &process) {
         connectProcessToLog(process, instanceConfig, "Compose Down");
@@ -1604,14 +1625,25 @@ static Result<Group> downContainerRecipe(
             QString("Compose Down: %1").arg(process.commandLine().toUserOutput()));
     };
 
-    return Group{ProcessTask(setupComposeDown)};
+    const auto shouldShutdown = [config, forceDown]() {
+        return forceDown || config.shutdownAction == ShutdownAction::StopCompose;
+    };
+
+    // clang-format off
+    return Group {
+        If (shouldShutdown) >> Then {
+            ProcessTask(setupComposeDown)
+        }
+    };
+    // clang-format on
 }
 
-static Result<Group> downRecipe(const Config &config, const InstanceConfig &instanceConfig)
+static Result<Group> downRecipe(
+    const Config &config, const InstanceConfig &instanceConfig, bool forceDown)
 {
     return std::visit(
-        [&instanceConfig](const auto &containerConfig) {
-            return downContainerRecipe(containerConfig, instanceConfig);
+        [&instanceConfig, forceDown](const auto &containerConfig) {
+            return downContainerRecipe(containerConfig, instanceConfig, forceDown);
         },
         *config.containerConfig);
 }
@@ -1636,7 +1668,7 @@ Result<> Instance::down()
     if (!d->config.containerConfig)
         return ResultOk;
 
-    const Utils::Result<Tasking::Group> recipeResult = downRecipe();
+    const Utils::Result<Tasking::Group> recipeResult = downRecipe(false);
     if (!recipeResult)
         return ResultError(recipeResult.error());
     d->taskTree.setRecipe(std::move(*recipeResult));
@@ -1653,9 +1685,9 @@ Result<Tasking::Group> Instance::upRecipe(const RunningInstance &runningInstance
     return prepareRecipe(d->config, d->instanceConfig, runningInstance);
 }
 
-Result<Tasking::Group> Instance::downRecipe() const
+Result<Tasking::Group> Instance::downRecipe(bool forceDown) const
 {
-    return ::DevContainer::downRecipe(d->config, d->instanceConfig);
+    return ::DevContainer::downRecipe(d->config, d->instanceConfig, forceDown);
 }
 
 const Config &Instance::config() const

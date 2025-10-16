@@ -101,6 +101,8 @@ Editing
   ([QTCREATORBUG-30787](https://bugreports.qt.io/browse/QTCREATORBUG-30787))
 * Added the option to override the path to `qmlls`
   ([QTCREATORBUG-32749](https://bugreports.qt.io/browse/QTCREATORBUG-32749))
+* Fixed an issue with `auto-format` on `.js` files
+  ([QTCREATORBUG-33112](https://bugreports.qt.io/browse/QTCREATORBUG-33112))
 
 ### Copilot
 
@@ -168,10 +170,12 @@ Projects
 * Added the `Enable logging category filtering` option for desktop run
   configurations with Qt 6.11 and later
   ([QTCREATORBUG-33169](https://bugreports.qt.io/browse/QTCREATORBUG-33169))
+* Added the option to hide unsuitable kits from the list in `Projects` mode
 * Fixed `Duplicate File` for remote projects
 * Fixed that changing the build device of a kit could update the kit settings UI
   without actually applying the change
   ([QTCREATORBUG-33456](https://bugreports.qt.io/browse/QTCREATORBUG-33456))
+* Fixed the navigation of remote projects with the `File System` view
 
 ### CMake
 
@@ -204,6 +208,11 @@ Projects
   use
 * Added minimal support for Cargo build projects (Rust)
 
+### Autotools
+
+* Fixed issues with parsing projects
+  ([QTCREATORBUG-32073](https://bugreports.qt.io/browse/QTCREATORBUG-32073))
+
 Debugging
 ---------
 
@@ -227,6 +236,11 @@ Analyzer
 * Improved the performance of loading diagnostics from a file
 * Fixed freezes when applying multiple fix-its
   ([QTCREATORBUG-25394](https://bugreports.qt.io/browse/QTCREATORBUG-25394))
+
+### QML Profiler
+
+* Fixed that the zoom slider kept resetting
+  ([QTCREATORBUG-33044](https://bugreports.qt.io/browse/QTCREATORBUG-33044))
 
 ### Axivion
 
@@ -262,6 +276,9 @@ Version Control Systems
 Test Integration
 ----------------
 
+* Improved Qt Test and Qt Quick Test wizards
+  ([QTCREATORBUG-33601](https://bugreports.qt.io/browse/QTCREATORBUG-33601),
+   [QTCREATORBUG-33629](https://bugreports.qt.io/browse/QTCREATORBUG-33629))
 * Fixed the output parsing when debugging Qt Tests
   ([QTCREATORBUG-33552](https://bugreports.qt.io/browse/QTCREATORBUG-33552))
 
@@ -284,6 +301,10 @@ Platforms
 
 * Fixed the qmake project path set when creating APK templates
   ([QTCREATORBUG-33215](https://bugreports.qt.io/browse/QTCREATORBUG-33215))
+* Fixed that custom kit names were lost
+  ([QTCREATORBUG-17689](https://bugreports.qt.io/browse/QTCREATORBUG-17689))
+* Fixed an issue with building and installing `.apk`
+  ([QTCREATORBUG-33569](https://bugreports.qt.io/browse/QTCREATORBUG-33569))
 
 ### Remote Linux
 
@@ -350,6 +371,7 @@ Sze Howe Koh
 Teea Poldsam  
 Thiago Macieira  
 Tian Shilin  
+Tim Blechmann  
 Tim Jenßen  
 Volodymyr Zibarov  
 Xavier Besson  
