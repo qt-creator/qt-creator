@@ -1413,12 +1413,11 @@ FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
             // If AUTOUIC reports the generated header file name, use that path
             generatedFilePaths = this->project()->files(
                 [autogenSignature, generatedFileName](const Node *n) {
-                    const FilePath filePath = n->filePath();
-                    if (!filePath.contains(autogenSignature))
-                        return false;
-
-                    return Project::GeneratedFiles(n) && filePath.endsWith(generatedFileName);
-                });
+                if (!Project::GeneratedFiles(n))
+                    return false;
+                const FilePath &filePath = n->filePath();
+                return filePath.endsWith(generatedFileName) && filePath.contains(autogenSignature);
+            });
         }
 
         if (generatedFilePaths.empty())
