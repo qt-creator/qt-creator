@@ -29,7 +29,7 @@ static DesignDocument *currentDesignDocument()
     return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
 }
 
-inline static QString componentIdForModelNode(const ModelNode &modelNode)
+static QString componentIdForModelNode(const ModelNode &modelNode)
 {
     if (modelNode.id().isEmpty()) {
         if (modelNode.hasParentProperty()
@@ -37,7 +37,7 @@ inline static QString componentIdForModelNode(const ModelNode &modelNode)
                 && modelNode.parentProperty().name() != "children") {
             return QString::fromUtf8(modelNode.parentProperty().name());
         } else {
-            return modelNode.simplifiedDocumentTypeRepresentation();
+            return modelNode.exportedTypeName().name.toQString();
         }
     } else {
         return modelNode.id();
