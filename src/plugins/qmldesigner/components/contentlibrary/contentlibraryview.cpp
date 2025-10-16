@@ -239,8 +239,9 @@ void ContentLibraryView::connectImporter()
                             propList.append({"z", pos.z()});
                         newNode = createModelNode(typeName, propList);
                         m_bundleItemTarget.defaultNodeListProperty().reparentHere(newNode);
-                        newNode.setIdWithoutRefactoring(model()->generateNewId(
-                            newNode.simplifiedDocumentTypeRepresentation(), "node"));
+                        newNode.setIdWithoutRefactoring(
+                            model()->generateNewId(newNode.exportedTypeName().name.toQString(),
+                                                   "node"));
                     });
                     clearSelectedModelNodes();
                     selectModelNode(newNode);
@@ -261,7 +262,7 @@ void ContentLibraryView::connectImporter()
                 QTC_ASSERT(matLib.isValid(), return);
 
                 Utils::reverseForeach(matLib.directSubModelNodes(), [&](const ModelNode &mat) {
-                    if (mat && mat.simplifiedDocumentTypeRepresentation() == type)
+                    if (mat && mat.exportedTypeName().name == type)
                         QmlObjectNode(mat).destroy();
                 });
             });
@@ -630,12 +631,10 @@ void ContentLibraryView::addLibComponent(const ModelNode &node)
     // add the item to the bundle json
     QJsonObject &jsonRef = m_widget->userModel()->bundleObjectRef(m_bundleId);
     QJsonArray itemsArr = jsonRef.value("items").toArray();
-    itemsArr.append(QJsonObject {
-        {"name", node.simplifiedDocumentTypeRepresentation()},
-        {"qml", compFileName},
-        {"icon", iconPath},
-        {"files", QJsonArray::fromStringList(filesList)}
-    });
+    itemsArr.append(QJsonObject{{"name", node.exportedTypeName().name.toQString()},
+                                {"qml", compFileName},
+                                {"icon", iconPath},
+                                {"files", QJsonArray::fromStringList(filesList)}});
 
     jsonRef["items"] = itemsArr;
 
