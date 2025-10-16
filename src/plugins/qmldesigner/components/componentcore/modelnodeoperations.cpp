@@ -891,14 +891,16 @@ void removeLayout(const SelectionContext &selectionContext)
     if (!parent.isValid())
         return;
 
-    selectionContext.view()->executeInTransaction("DesignerActionManager|removeLayout", [selectionContext, &layoutItem, parent](){
-        const QList<ModelNode> modelNodes = selectionContext.currentSingleSelectedNode().directSubModelNodes();
+    auto model = selectionContext.model();
+
+    selectionContext.view()->executeInTransaction("DesignerActionManager|removeLayout", [&]() {
+        const QList<ModelNode> modelNodes = selectionContext.currentSingleSelectedNode()
+                                                .directSubModelNodes();
         for (const ModelNode &modelNode : modelNodes) {
             if (QmlItemNode::isValidQmlItemNode(modelNode)) {
-
                 QmlItemNode qmlItem(modelNode);
-                if (modelNode.simplifiedDocumentTypeRepresentation() == "Item"
-                        && modelNode.id().contains("spacer")) {
+                if (modelNode.metaInfo() == model->qtQuickItemMetaInfo()
+                    && modelNode.id().contains("spacer")) {
                     qmlItem.destroy();
                 } else {
                     QPointF pos = qmlItem.instancePosition();
@@ -2040,7 +2042,7 @@ Utils::FilePath findEffectFile(const ModelNode &effectNode)
 {
     NanotraceHR::Tracer tracer{"model node operations find effect file", category()};
 
-    const QString effectFile = effectNode.simplifiedDocumentTypeRepresentation() + ".qep";
+    const QString effectFile = effectNode.exportedTypeName().name.toQString() + ".qep";
     Utils::FilePath effectPath = Utils::FilePath::fromString(getEffectsDefaultDirectory()
                                                              + '/' + effectFile);
     if (!effectPath.exists()) {
