@@ -152,7 +152,7 @@ static ModelNode createNodeFromNode(const ModelNode &modelNode,
                                     const QHash<QString, QString> &idRenamingHash,
                                     AbstractView *view, const MergePredicate &mergePredicate)
 {
-    ModelNode newNode = view->createModelNode(modelNode.type(),
+    ModelNode newNode = view->createModelNode(modelNode.documentTypeRepresentation(),
                                               {},
                                               {},
                                               modelNode.nodeSource(),
@@ -216,7 +216,7 @@ void ModelMerger::replaceModel(const ModelNode &modelNode, const MergePredicate 
         syncId(rootNode, modelNode, idRenamingHash);
         syncNodeProperties(rootNode, modelNode, idRenamingHash, view(), predicate);
         syncNodeListProperties(rootNode, modelNode, idRenamingHash, view(), predicate);
-        m_view->changeRootNodeType(modelNode.type());
+        m_view->changeRootNodeType(modelNode.documentTypeRepresentation());
     });
 }
 

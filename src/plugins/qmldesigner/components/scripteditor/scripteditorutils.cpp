@@ -40,7 +40,7 @@ QString idOrTypeName(const ModelNode &modelNode)
 {
     QString idLabel = modelNode.id();
     if (idLabel.isEmpty())
-        idLabel = modelNode.simplifiedTypeName();
+        idLabel = modelNode.simplifiedDocumentTypeRepresentation();
     return idLabel;
 }
 

@@ -732,7 +732,7 @@ static void addSignal(const QString &typeName,
         signalHandlerName = itemId.toUtf8() + ".on" + toUpper(signalName).toUtf8();
     const QList<ModelNode> nodes = rewriterView.allModelNodes();
     for (const ModelNode &modelNode : nodes) {
-        if (modelNode.type() == typeName.toUtf8()) {
+        if (modelNode.documentTypeRepresentation() == typeName.toUtf8()) {
             modelNode.signalHandlerProperty(signalHandlerName).setSource(QLatin1String("{\n}"));
         }
     }
@@ -897,7 +897,7 @@ void removeLayout(const SelectionContext &selectionContext)
             if (QmlItemNode::isValidQmlItemNode(modelNode)) {
 
                 QmlItemNode qmlItem(modelNode);
-                if (modelNode.simplifiedTypeName() == "Item"
+                if (modelNode.simplifiedDocumentTypeRepresentation() == "Item"
                         && modelNode.id().contains("spacer")) {
                     qmlItem.destroy();
                 } else {
@@ -2040,7 +2040,7 @@ Utils::FilePath findEffectFile(const ModelNode &effectNode)
 {
     NanotraceHR::Tracer tracer{"model node operations find effect file", category()};
 
-    const QString effectFile = effectNode.simplifiedTypeName() + ".qep";
+    const QString effectFile = effectNode.simplifiedDocumentTypeRepresentation() + ".qep";
     Utils::FilePath effectPath = Utils::FilePath::fromString(getEffectsDefaultDirectory()
                                                              + '/' + effectFile);
     if (!effectPath.exists()) {

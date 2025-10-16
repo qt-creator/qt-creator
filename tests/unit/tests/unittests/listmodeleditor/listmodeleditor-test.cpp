@@ -404,9 +404,9 @@ TEST_F(ListModelEditor, add_row_creates_new_model_node_and_reparents)
     model.setListModel(listModelNode);
 
     EXPECT_CALL(mockView,
-                nodeCreated(Property("ModelNode::type", &ModelNode::type, Eq("ListElement"), sl)));
+                nodeCreated(Property("ModelNode::type", &ModelNode::documentTypeRepresentation, Eq("ListElement"), sl)));
     EXPECT_CALL(mockView,
-                nodeReparented(Property("ModelNode::type", &ModelNode::type, Eq("ListElement"), sl),
+                nodeReparented(Property("ModelNode::type", &ModelNode::documentTypeRepresentation, Eq("ListElement"), sl),
                                Property("AbstractProperty::parentModelNode",
                                         &AbstractProperty::parentModelNode,
                                         Eq(listModelNode)),
@@ -1565,7 +1565,7 @@ TEST_F(ListModelEditor, list_view_has_no_model)
 {
     model.setListView(listViewNode);
 
-    ASSERT_THAT(listViewNode.nodeProperty("model").modelNode().type(), Eq("ListModel"));
+    ASSERT_THAT(listViewNode.nodeProperty("model").modelNode().documentTypeRepresentation(), Eq("ListModel"));
 }
 
 TEST_F(ListModelEditor, list_view_has_model_inside)

@@ -87,8 +87,8 @@ public:
     ModelNode &operator=(ModelNode &&) noexcept = default;
     ~ModelNode() = default;
 
-    TypeName type(SL sl = {}) const;
-    QString simplifiedTypeName(SL sl = {}) const;
+    TypeName documentTypeRepresentation(SL sl = {}) const;
+    QString simplifiedDocumentTypeRepresentation(SL sl = {}) const;
     QString displayName(SL sl = {}) const;
 
     bool isValid() const;

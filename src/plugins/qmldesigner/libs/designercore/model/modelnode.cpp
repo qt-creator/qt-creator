@@ -81,7 +81,7 @@ QString ModelNode::id(SL sl) const
 void ModelNode::ensureIdExists(SL sl) const
 {
     if (!hasId())
-        setIdWithoutRefactoring(model()->generateNewId(simplifiedTypeName()));
+        setIdWithoutRefactoring(model()->generateNewId(simplifiedDocumentTypeRepresentation()));
 
     NanotraceHR::Tracer tracer{"model node ensure id exists",
                                category(),
@@ -187,15 +187,12 @@ void ModelNode::setIdWithoutRefactoring(const QString &id, SL sl) const
     m_model.data()->d->changeNodeId(m_internalNode, id);
 }
 
-/*! \brief the fully-qualified type name of the node is represented as string
-\return type of the node as a string
-*/
-TypeName ModelNode::type(SL sl) const
+TypeName ModelNode::documentTypeRepresentation(SL sl) const
 {
     if (!isValid())
         return {};
 
-    NanotraceHR::Tracer tracer{"model node type",
+    NanotraceHR::Tracer tracer{"model node document type represention",
                                category(),
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
@@ -203,13 +200,12 @@ TypeName ModelNode::type(SL sl) const
     return m_internalNode->typeName;
 }
 
-/*! \return the short-hand type name of the node. */
-QString ModelNode::simplifiedTypeName(SL sl) const
+QString ModelNode::simplifiedDocumentTypeRepresentation(SL sl) const
 {
     if (!isValid())
         return {};
 
-    NanotraceHR::Tracer tracer{"model node simplified type name",
+    NanotraceHR::Tracer tracer{"model node simplified document type represention",
                                category(),
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
@@ -224,7 +220,7 @@ QString ModelNode::displayName(SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    return hasId() ? id() : simplifiedTypeName();
+    return hasId() ? id() : simplifiedDocumentTypeRepresentation();
 }
 
 /*! \brief Returns whether the node is valid
@@ -911,7 +907,7 @@ bool ModelNode::hasMetaInfo(SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    return model()->hasNodeMetaInfo(type());
+    return model()->hasNodeMetaInfo(documentTypeRepresentation());
 }
 
 /*! \brief has a node the selection of the model
@@ -1143,8 +1139,8 @@ bool ModelNode::isAncestorOf(const ModelNode &node, SL sl) const
 QDebug operator<<(QDebug debug, const ModelNode &modelNode)
 {
     if (modelNode.isValid()) {
-        debug.nospace() << "ModelNode(" << modelNode.internalId() << ", " << modelNode.type()
-                        << ", " << modelNode.id() << ')';
+        debug.nospace() << "ModelNode(" << modelNode.internalId() << ", "
+                        << modelNode.documentTypeRepresentation() << ", " << modelNode.id() << ')';
     } else {
         debug.nospace() << "ModelNode(invalid)";
     }
@@ -1156,7 +1152,7 @@ QTextStream &operator<<(QTextStream &stream, const ModelNode &modelNode)
 {
     if (modelNode.isValid()) {
         stream << "ModelNode("
-               << "type: " << modelNode.type() << ", "
+               << "type: " << modelNode.documentTypeRepresentation() << ", "
                << "id: " << modelNode.id() << ')';
     } else {
         stream << "ModelNode(invalid)";
@@ -1844,9 +1840,10 @@ QString ModelNode::convertTypeToImportAlias(SL sl) const
                                keyValue("caller location", sl)};
 
     if (model()->rewriterView())
-        return model()->rewriterView()->convertTypeToImportAlias(QString::fromLatin1(type()));
+        return model()->rewriterView()->convertTypeToImportAlias(
+            QString::fromLatin1(documentTypeRepresentation()));
 
-    return QString::fromLatin1(type());
+    return QString::fromLatin1(documentTypeRepresentation());
 }
 
 ModelNode::NodeSourceType ModelNode::nodeSourceType(SL sl) const

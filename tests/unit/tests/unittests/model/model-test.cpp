@@ -214,7 +214,7 @@ protected:
 class Model_Creation : public Model
 {};
 
-TEST_F(Model_Creation, root_node_has_item_type_name)
+TEST_F(Model_Creation, root_node_has_item_document_type_representation)
 {
     auto model = QmlDesigner::Model::create(projectStorageDependencies,
                                             "Item",
@@ -223,7 +223,7 @@ TEST_F(Model_Creation, root_node_has_item_type_name)
                                             std::make_unique<ModelResourceManagementMockWrapper>(
                                                 resourceManagementMock));
 
-    ASSERT_THAT(model->rootModelNode().type(), Eq("Item"));
+    ASSERT_THAT(model->rootModelNode().documentTypeRepresentation(), Eq("Item"));
 }
 
 TEST_F(Model_Creation, root_node_has_item_meta_info)
@@ -277,11 +277,11 @@ TEST_F(Model_Creation, imports)
 class Model_CreationFromOtherModel : public Model
 {};
 
-TEST_F(Model_CreationFromOtherModel, root_node_has_object_type_name)
+TEST_F(Model_CreationFromOtherModel, root_node_has_object_document_type_representation)
 {
     auto newModel = model.createModel({"QtObject"});
 
-    ASSERT_THAT(newModel->rootModelNode().type(), Eq("QtObject"));
+    ASSERT_THAT(newModel->rootModelNode().documentTypeRepresentation(), Eq("QtObject"));
 }
 
 TEST_F(Model_CreationFromOtherModel, root_node_has_object_meta_info)

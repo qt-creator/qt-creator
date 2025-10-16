@@ -159,7 +159,7 @@ void StylesheetMerger::setupIdRenamingHash()
 ModelNode StylesheetMerger::createReplacementNode(const ModelNode& styleNode, ModelNode &modelNode)
 {
     QList<QPair<PropertyName, QVariant> > propertyList;
-    NodeMetaInfo nodeMetaInfo = m_templateView->model()->metaInfo(styleNode.type());
+    NodeMetaInfo nodeMetaInfo = m_templateView->model()->metaInfo(styleNode.documentTypeRepresentation());
 
     for (const VariantProperty &variantProperty : modelNode.variantProperties()) {
         if (!nodeMetaInfo.hasProperty(variantProperty.name()))
@@ -170,7 +170,7 @@ ModelNode StylesheetMerger::createReplacementNode(const ModelNode& styleNode, Mo
     }
 
     ModelNode newNode(m_templateView->createModelNode(
-        styleNode.type(), propertyList, {}, styleNode.nodeSource(), styleNode.nodeSourceType()));
+        styleNode.documentTypeRepresentation(), propertyList, {}, styleNode.nodeSource(), styleNode.nodeSourceType()));
 
     syncAuxiliaryProperties(newNode, modelNode);
     syncBindingProperties(newNode, modelNode);
@@ -402,7 +402,7 @@ void StylesheetMerger::syncStateNode(ModelNode &outputState, const ModelNode &in
     addProperty(outputState, inputState.property("extend"));
 
     auto changeSetKey = [](const ModelNode &n) {
-        return QString("%1::%2").arg(QString::fromUtf8(n.type()),
+        return QString("%1::%2").arg(QString::fromUtf8(n.documentTypeRepresentation()),
                                      n.bindingProperty("target").expression());
     };
 
@@ -419,7 +419,7 @@ void StylesheetMerger::syncStateNode(ModelNode &outputState, const ModelNode &in
         if (itr != outputChangeSets.end()) {
             changeSet = itr->second;
         } else {
-            const QByteArray typeName = inputChangeset.type();
+            const QByteArray typeName = inputChangeset.documentTypeRepresentation();
 
             changeSet = m_templateView->createModelNode(typeName);
 

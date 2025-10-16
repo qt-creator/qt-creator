@@ -98,8 +98,9 @@ void BundleHelper::createImporter()
                 m_view->executeInTransaction("BundleHelper::createImporter", [&] {
                     ModelNode newNode = m_view->createModelNode(typeName);
                     target.defaultNodeListProperty().reparentHere(newNode);
-                    newNode.setIdWithoutRefactoring(m_view->model()->generateNewId(
-                        newNode.simplifiedTypeName(), "node"));
+                    newNode.setIdWithoutRefactoring(
+                        m_view->model()->generateNewId(newNode.simplifiedDocumentTypeRepresentation(),
+                                                       "node"));
                     m_view->clearSelectedModelNodes();
                     m_view->selectModelNode(newNode);
                     if (typeAdded)
@@ -284,12 +285,10 @@ QJsonObject BundleHelper::exportComponent(const ModelNode &node)
         addIconToZip(iconPath, image);
     });
 
-    return {
-        {"name", node.simplifiedTypeName()},
-        {"qml", compFileName},
-        {"icon", iconPath},
-        {"files", QJsonArray::fromStringList(filesList)}
-    };
+    return {{"name", node.simplifiedDocumentTypeRepresentation()},
+            {"qml", compFileName},
+            {"icon", iconPath},
+            {"files", QJsonArray::fromStringList(filesList)}};
 }
 
 QJsonObject BundleHelper::exportNode(const ModelNode &node, const QPixmap &iconPixmap)
@@ -380,7 +379,8 @@ static QString nodeModuleName(const ModelNode &node, Model *model)
         return moduleStorageModule.name.toQString();
     }
 
-    return QString::fromUtf8(node.type()).left(node.type().lastIndexOf('.'));
+    return QString::fromUtf8(node.documentTypeRepresentation())
+        .left(node.documentTypeRepresentation().lastIndexOf('.'));
 }
 
 static Storage::Info::ExportedTypeNames getTypeNamesForNode(const ModelNode &node)
@@ -510,7 +510,7 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
 
     QString indent = QString(" ").repeated(depth * 4);
 
-    qml += indent + node.simplifiedTypeName() + " {\n";
+    qml += indent + node.simplifiedDocumentTypeRepresentation() + " {\n";
 
     indent = QString(" ").repeated((depth + 1) * 4);
 
@@ -613,7 +613,7 @@ QSet<AssetPath> BundleHelper::getBundleComponentDependencies(const ModelNode &no
 {
     NanotraceHR::Tracer tracer{"bundle helper get bundle component dependencies", category()};
 
-    const QString compFileName = node.simplifiedTypeName() + ".qml";
+    const QString compFileName = node.simplifiedDocumentTypeRepresentation() + ".qml";
 
     Utils::FilePath compPath = componentPath(node).parentDir();
 

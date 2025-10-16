@@ -152,7 +152,7 @@ void NodeListView::reset()
                 setData(row, NodeListModel::idColumn, iid, NodeListModel::internalIdRole);
                 setData(row, NodeListModel::idColumn, eventIds, NodeListModel::eventIdsRole);
 
-                setData(row, NodeListModel::typeColumn, node.type());
+                setData(row, NodeListModel::typeColumn, node.documentTypeRepresentation());
                 setData(row, NodeListModel::fromColumn, node.bindingProperty("from").expression());
                 setData(row, NodeListModel::toColumn, node.bindingProperty("to").expression());
             }

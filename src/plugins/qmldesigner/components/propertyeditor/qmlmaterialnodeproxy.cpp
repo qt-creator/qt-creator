@@ -28,7 +28,7 @@ static bool allMaterialTypesAre(const ModelNodes &materials, const QString &mate
         return false;
 
     for (const ModelNode &material : materials) {
-        if (material.simplifiedTypeName() != materialType)
+        if (material.simplifiedDocumentTypeRepresentation() != materialType)
             return false;
     }
 
@@ -105,10 +105,10 @@ void QmlMaterialNodeProxy::updatePossibleTypes()
         return;
     }
 
-    const QString &matType = materialNode().simplifiedTypeName();
+    const QString &matType = materialNode().simplifiedDocumentTypeRepresentation();
     const ModelNodes selectedNodes = editorNodes();
     bool allAreBasic = Utils::allOf(selectedNodes, [&](const ModelNode &node) {
-        return basicTypes.contains(node.simplifiedTypeName());
+        return basicTypes.contains(node.simplifiedDocumentTypeRepresentation());
     });
 
     if (allAreBasic) {

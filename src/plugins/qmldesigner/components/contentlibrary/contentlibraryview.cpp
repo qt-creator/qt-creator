@@ -240,7 +240,7 @@ void ContentLibraryView::connectImporter()
                         newNode = createModelNode(typeName, propList);
                         m_bundleItemTarget.defaultNodeListProperty().reparentHere(newNode);
                         newNode.setIdWithoutRefactoring(model()->generateNewId(
-                            newNode.simplifiedTypeName(), "node"));
+                            newNode.simplifiedDocumentTypeRepresentation(), "node"));
                     });
                     clearSelectedModelNodes();
                     selectModelNode(newNode);
@@ -261,7 +261,7 @@ void ContentLibraryView::connectImporter()
                 QTC_ASSERT(matLib.isValid(), return);
 
                 Utils::reverseForeach(matLib.directSubModelNodes(), [&](const ModelNode &mat) {
-                    if (mat && mat.simplifiedTypeName() == type)
+                    if (mat && mat.simplifiedDocumentTypeRepresentation() == type)
                         QmlObjectNode(mat).destroy();
                 });
             });
@@ -631,7 +631,7 @@ void ContentLibraryView::addLibComponent(const ModelNode &node)
     QJsonObject &jsonRef = m_widget->userModel()->bundleObjectRef(m_bundleId);
     QJsonArray itemsArr = jsonRef.value("items").toArray();
     itemsArr.append(QJsonObject {
-        {"name", node.simplifiedTypeName()},
+        {"name", node.simplifiedDocumentTypeRepresentation()},
         {"qml", compFileName},
         {"icon", iconPath},
         {"files", QJsonArray::fromStringList(filesList)}
@@ -915,7 +915,7 @@ ModelNode ContentLibraryView::getBundleMaterialDefaultInstance(const TypeName &t
 
     const QList<ModelNode> matLibNodes = matLib.directSubModelNodes();
     for (const ModelNode &mat : matLibNodes) {
-        if (mat.isValid() && mat.type() == type) {
+        if (mat.isValid() && mat.documentTypeRepresentation() == type) {
             bool isDefault = true;
             const QList<AbstractProperty> props = mat.properties();
             for (const AbstractProperty &prop : props) {

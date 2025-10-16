@@ -165,7 +165,7 @@ void PropertyEditorView::changeValue(const QString &name)
                 "objectName");
             const QString &newObjectName = value->value().toString();
             QmlObjectNode objectNode(activeNode());
-            objectNode.setNameAndId(newObjectName, QString::fromLatin1(activeNode().type()));
+            objectNode.setNameAndId(newObjectName, QString::fromLatin1(activeNode().documentTypeRepresentation()));
             return;
         }
     }

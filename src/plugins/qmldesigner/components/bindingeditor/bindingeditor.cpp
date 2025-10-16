@@ -92,7 +92,7 @@ void BindingEditor::setBackendValue(const QVariant &backendValue)
 
             QString nodeId = node.id();
             if (nodeId.isEmpty())
-                nodeId = node.simplifiedTypeName();
+                nodeId = node.simplifiedDocumentTypeRepresentation();
 
             m_targetName = nodeId + "." + propertyEditorValue->name();
 

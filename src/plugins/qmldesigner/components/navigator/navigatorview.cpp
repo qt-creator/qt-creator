@@ -314,13 +314,13 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
     } else if (mimeData->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
         qint32 internalId = mimeData->data(Constants::MIME_TYPE_TEXTURE).toInt();
         ModelNode texNode = modelNodeForInternalId(internalId);
-        m_widget->setDragType(texNode.type());
+        m_widget->setDragType(texNode.documentTypeRepresentation());
 
         m_widget->update();
     } else if (mimeData->hasFormat(Constants::MIME_TYPE_MATERIAL)) {
         qint32 internalId = mimeData->data(Constants::MIME_TYPE_MATERIAL).toInt();
         ModelNode matNode = modelNodeForInternalId(internalId);
-        m_widget->setDragType(matNode.type());
+        m_widget->setDragType(matNode.documentTypeRepresentation());
 
         m_widget->update();
     } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM_2D)) {

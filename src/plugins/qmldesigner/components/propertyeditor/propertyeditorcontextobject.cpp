@@ -177,7 +177,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
 
     auto changeNodeTypeName = [&](ModelNode &selectedNode) {
         // Check if the requested type is the same as already set
-        if (selectedNode.simplifiedTypeName() == typeName)
+        if (selectedNode.simplifiedDocumentTypeRepresentation() == typeName)
             return;
 
         NodeMetaInfo metaInfo = m_model->metaInfo(typeName.toLatin1());
@@ -248,7 +248,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
             msgBox.setWindowTitle("Change Type");
             msgBox.setText(QString("Changing the type from %1 to %2 can't be done without removing "
                                    "incompatible properties.<br><br>%3")
-                               .arg(selectedNode.simplifiedTypeName(), typeName, detailedText));
+                               .arg(selectedNode.simplifiedDocumentTypeRepresentation(), typeName, detailedText));
             msgBox.setInformativeText(
                 "Do you want to continue by removing incompatible properties?");
             msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);

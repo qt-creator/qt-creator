@@ -189,7 +189,7 @@ QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
                                keyValue("node", node),
                                keyValue("indent", indentDepth)};
 
-    QString type = QString::fromLatin1(node.type());
+    QString type = QString::fromLatin1(node.documentTypeRepresentation());
     QString url;
     if (type.contains('.')) {
         QStringList nameComponents = type.split('.');

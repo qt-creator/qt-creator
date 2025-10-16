@@ -347,7 +347,7 @@ void DynamicPropertiesModel::commitPropertyValue(int row, const QVariant &value)
 
 void DynamicPropertiesModel::dispatchPropertyChanges(const AbstractProperty &abstractProperty)
 {
-    if (abstractProperty.parentModelNode().simplifiedTypeName() == "PropertyChanges") {
+    if (abstractProperty.parentModelNode().simplifiedDocumentTypeRepresentation() == "PropertyChanges") {
         QmlPropertyChanges changes(abstractProperty.parentModelNode());
         if (changes.target().isValid()) {
             const ModelNode target = changes.target();

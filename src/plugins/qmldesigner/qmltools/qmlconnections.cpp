@@ -25,8 +25,8 @@ bool QmlConnections::isValidQmlConnections(const ModelNode &modelNode, SL sl)
                                keyValue("model node", modelNode),
                                keyValue("caller location", sl)};
     return isValidQmlModelNodeFacade(modelNode) && modelNode.metaInfo().isValid()
-           && (modelNode.type() == "Connections" || modelNode.type() == "QtQuick.Connections"
-               || modelNode.type() == "Qt.Connections" || modelNode.type() == "QtQml.Connections");
+           && (modelNode.documentTypeRepresentation() == "Connections" || modelNode.documentTypeRepresentation() == "QtQuick.Connections"
+               || modelNode.documentTypeRepresentation() == "Qt.Connections" || modelNode.documentTypeRepresentation() == "QtQml.Connections");
 }
 
 /*!

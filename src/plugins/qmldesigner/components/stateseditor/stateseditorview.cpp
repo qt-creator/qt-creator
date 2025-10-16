@@ -185,7 +185,7 @@ void StatesEditorView::cloneState(int nodeId)
         return;
 
     ModelNode stateNode(modelNodeForInternalId(nodeId));
-    QTC_ASSERT(stateNode.simplifiedTypeName() == "State", return );
+    QTC_ASSERT(stateNode.simplifiedDocumentTypeRepresentation() == "State", return );
 
     QmlModelState modelState(stateNode);
     if (!modelState.isValid() || modelState.isBaseState())
@@ -239,7 +239,7 @@ void StatesEditorView::extendState(int nodeId)
         return;
 
     ModelNode stateNode(modelNodeForInternalId(nodeId));
-    QTC_ASSERT(stateNode.simplifiedTypeName() == "State", return );
+    QTC_ASSERT(stateNode.simplifiedDocumentTypeRepresentation() == "State", return );
 
     QmlModelState modelState(stateNode);
     if (!modelState.isValid() || modelState.isBaseState())
@@ -283,7 +283,7 @@ void StatesEditorView::removeState(int nodeId)
     try {
         if (nodeId > 0 && hasModelNodeForInternalId(nodeId)) {
             ModelNode stateNode(modelNodeForInternalId(nodeId));
-            QTC_ASSERT(stateNode.simplifiedTypeName() == "State", return );
+            QTC_ASSERT(stateNode.simplifiedDocumentTypeRepresentation() == "State", return );
 
             QmlModelState modelState(stateNode);
             if (modelState.isValid()) {
@@ -751,9 +751,9 @@ void StatesEditorView::propertiesRemoved(const QList<AbstractProperty> &property
             resetModel();
         if (property.name() == "extend")
             resetExtend();
-        if (property.parentModelNode().simplifiedTypeName() == "PropertyChanges"
+        if (property.parentModelNode().simplifiedDocumentTypeRepresentation() == "PropertyChanges"
             || (property.name() == "changes"
-                && property.parentModelNode().simplifiedTypeName() == "State"))
+                && property.parentModelNode().simplifiedDocumentTypeRepresentation() == "State"))
             resetPropertyChangesModels();
     }
 }
@@ -769,10 +769,10 @@ void StatesEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
     if (currentState().isValid() && removedNode == currentState())
         setCurrentState(baseState());
 
-    if (removedNode.simplifiedTypeName() == "PropertyChanges")
+    if (removedNode.simplifiedDocumentTypeRepresentation() == "PropertyChanges")
         m_propertyChangesRemoved = true;
 
-    if (removedNode.simplifiedTypeName() == "StateGroup") {
+    if (removedNode.simplifiedDocumentTypeRepresentation() == "StateGroup") {
         if (removedNode == activeStatesGroupNode())
             setActiveStatesGroupNode(rootModelNode());
 
@@ -813,7 +813,7 @@ void StatesEditorView::nodeAboutToBeReparented(const ModelNode &node,
         && oldPropertyParent.name() == "states")
         m_lastIndex = oldPropertyParent.indexOf(node);
 
-    if (node.simplifiedTypeName() == "StateGroup")
+    if (node.simplifiedDocumentTypeRepresentation() == "StateGroup")
         resetStateGroups();
 }
 
@@ -837,7 +837,7 @@ void StatesEditorView::nodeReparented(const ModelNode &node,
         m_statesEditorModel->insertState(index);
     }
 
-    if (node.simplifiedTypeName() == "PropertyChanges")
+    if (node.simplifiedDocumentTypeRepresentation() == "PropertyChanges")
         resetPropertyChangesModels();
 }
 
@@ -859,7 +859,7 @@ void StatesEditorView::bindingPropertiesChanged(const QList<BindingProperty> &pr
         if (property.name() == "when"
             && QmlModelState::isValidQmlModelState(property.parentModelNode()))
             resetModel();
-        if (property.parentModelNode().simplifiedTypeName() == "PropertyChanges")
+        if (property.parentModelNode().simplifiedDocumentTypeRepresentation() == "PropertyChanges")
             resetPropertyChangesModels();
     }
 }
@@ -883,7 +883,7 @@ void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &pr
         else if (property.name() == "extend")
             resetExtend();
 
-        if (property.parentModelNode().simplifiedTypeName() == "PropertyChanges")
+        if (property.parentModelNode().simplifiedDocumentTypeRepresentation() == "PropertyChanges")
             resetPropertyChangesModels();
     }
 }

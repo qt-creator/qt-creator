@@ -942,7 +942,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 modelPropertyNames.remove(astPropertyName.toUtf8());
             } else {
                 qWarning() << "Skipping invalid array property" << astPropertyName
-                           << "for node type" << modelNode.type();
+                           << "for node type" << modelNode.documentTypeRepresentation();
             }
         } else if (auto def = AST::cast<AST::UiObjectDefinition *>(member)) {
             const QString &name = def->qualifiedTypeNameId->name.toString();
@@ -973,7 +973,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                     modelPropertyNames.remove(astPropertyName.toUtf8());
                 } else {
                     qWarning() << "Syncing unknown node property" << astPropertyName
-                               << "for node type" << modelNode.type();
+                               << "for node type" << modelNode.documentTypeRepresentation();
                     AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
                     syncNodeProperty(modelProperty, binding, context, TypeName(), differenceHandler);
                     modelPropertyNames.remove(astPropertyName.toUtf8());
@@ -1042,7 +1042,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         if (modelNode.metaInfo().isQmlComponent())
             setupComponentDelayed(modelNode, differenceHandler.isAmender());
         if (defaultPropertyName.isEmpty()) {
-            qWarning() << "No default property for node type" << modelNode.type() << ", ignoring child items.";
+            qWarning() << "No default property for node type" << modelNode.documentTypeRepresentation() << ", ignoring child items.";
         } else {
             AbstractProperty modelProperty = modelNode.property(defaultPropertyName);
             if (modelProperty.isNodeListProperty()) {
@@ -1152,8 +1152,8 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
     }
 
     if (isLiteralValue(script)) {
-        if (isPropertyChangesType(modelNode.type()) || isConnectionsType(modelNode.type())
-            || isListElementType(modelNode.type())) {
+        if (isPropertyChangesType(modelNode.documentTypeRepresentation()) || isConnectionsType(modelNode.documentTypeRepresentation())
+            || isListElementType(modelNode.documentTypeRepresentation())) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
             QVariant variantValue = parsePropertyScriptBinding(script);
             if (!variantValue.isValid())
@@ -1171,7 +1171,7 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
                 return astPropertyName.toUtf8();
             } else {
                 qWarning() << "Skipping invalid variant property" << astPropertyName
-                           << "for node type" << modelNode.type();
+                           << "for node type" << modelNode.documentTypeRepresentation();
                 return PropertyName();
             }
         }
@@ -1190,7 +1190,7 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
         syncVariantProperty(modelProperty, enumValue, TypeName(), differenceHandler); // TODO: parse type
         return astPropertyName.toUtf8();
     } else { // Not an enum, so:
-        if (isPropertyChangesType(modelNode.type()) || isConnectionsType(modelNode.type())
+        if (isPropertyChangesType(modelNode.documentTypeRepresentation()) || isConnectionsType(modelNode.documentTypeRepresentation())
             || isSupportedAttachedProperties(astPropertyName)
             || modelNode.metaInfo().hasProperty(astPropertyName.toUtf8())
             || newlyCreatedTypeCase) {
@@ -1199,7 +1199,7 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
             return astPropertyName.toUtf8();
         } else {
             qCInfo(texttomodelMergerLog) << Q_FUNC_INFO << "\nSkipping invalid expression property" << astPropertyName
-                    << "for node type" << modelNode.type();
+                    << "for node type" << modelNode.documentTypeRepresentation();
             return PropertyName();
         }
     }
@@ -1609,7 +1609,7 @@ void ModelValidator::typeDiffers(bool /*isRootNode*/,
                                  ReadingContext * /*context*/)
 {
     NanotraceHR::Tracer tracer{"model validator type differs", category()};
-    QTC_ASSERT(modelNode.type() == typeName, return);
+    QTC_ASSERT(modelNode.documentTypeRepresentation() == typeName, return);
 
     QTC_ASSERT(0, return);
 }

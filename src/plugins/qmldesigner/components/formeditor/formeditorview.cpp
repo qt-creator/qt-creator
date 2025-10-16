@@ -922,7 +922,7 @@ void FormEditorView::checkRootModelNode()
         && !Qml3DNode::isValidVisualRoot(rootModelNode()))
         m_formEditorWidget->showErrorMessageBox(
             {DocumentMessage(Tr::tr("%1 is not supported as the root element by the 2D view.")
-                                 .arg(rootModelNode().simplifiedTypeName()))});
+                                 .arg(rootModelNode().simplifiedDocumentTypeRepresentation()))});
     else
         m_formEditorWidget->hideErrorMessageBox();
 }

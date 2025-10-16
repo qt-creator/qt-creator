@@ -37,7 +37,7 @@ inline static QString componentIdForModelNode(const ModelNode &modelNode)
                 && modelNode.parentProperty().name() != "children") {
             return QString::fromUtf8(modelNode.parentProperty().name());
         } else {
-            return modelNode.simplifiedTypeName();
+            return modelNode.simplifiedDocumentTypeRepresentation();
         }
     } else {
         return modelNode.id();

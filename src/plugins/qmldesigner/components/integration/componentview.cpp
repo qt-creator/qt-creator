@@ -138,7 +138,7 @@ QString ComponentView::descriptionForNode(const ModelNode &node) const
         ModelNode parentNode = node.parentProperty().parentModelNode();
 
         if (parentNode.id().isEmpty())
-            description = parentNode.simplifiedTypeName() + ' ';
+            description = parentNode.simplifiedDocumentTypeRepresentation() + ' ';
         else
             description = parentNode.id() + ' ';
 
@@ -367,7 +367,7 @@ void ComponentView::importsChanged(const Imports &addedImports, const Imports &r
             // remove SLConnector component when SimulinkConnector import is removed
             const QList<ModelNode> slConnectors = Utils::filtered(rootModelNode().directSubModelNodes(),
                                                                   [](const ModelNode &node) {
-                                                                      return node.type() == "SLConnector" || node.type() == "SimulinkConnector.SLConnector";
+                                                                      return node.documentTypeRepresentation() == "SLConnector" || node.documentTypeRepresentation() == "SimulinkConnector.SLConnector";
                                                                   });
 
             for (ModelNode node : slConnectors)

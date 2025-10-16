@@ -88,7 +88,7 @@ bool modelIsRotatable(const QmlItemNode &itemNode)
     auto modelNode = itemNode.modelNode();
     return !modelNode.hasBindingProperty("rotation") && itemIsResizable(modelNode)
            && !itemNode.modelIsInLayout()
-           && isMcuRotationAllowed(QString::fromUtf8(modelNode.type()), itemNode.hasChildren());
+           && isMcuRotationAllowed(QString::fromUtf8(modelNode.documentTypeRepresentation()), itemNode.hasChildren());
 }
 
 bool itemIsRotatable(const QmlItemNode &qmlItemNode)

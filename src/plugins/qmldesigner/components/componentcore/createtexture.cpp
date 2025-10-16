@@ -152,7 +152,7 @@ ModelNode CreateTexture::execute(const ModelNode &texture)
     if (!m_view || !m_view->model())
         return {};
 
-    TypeName matType = texture.type();
+    TypeName matType = texture.documentTypeRepresentation();
     QmlObjectNode sourceTexture(texture);
     ModelNode duplicateTextureNode;
     QList<AbstractProperty> dynamicProps;

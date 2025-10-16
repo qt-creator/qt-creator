@@ -275,9 +275,9 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
                 if (m_actionManager->hasModelNodePreviewHandler(modelNode))
                     return {}; // Images have special tooltip popup, so suppress regular one
                 else
-                    return modelNode.type();
+                    return modelNode.documentTypeRepresentation();
             } else {
-                return msgUnknownItem(QString::fromUtf8(modelNode.type()));
+                return msgUnknownItem(QString::fromUtf8(modelNode.documentTypeRepresentation()));
             }
         } else if (role == ToolTipImageRole) {
             if (currentQmlObjectNode.hasError()) // Error already shown on regular tooltip

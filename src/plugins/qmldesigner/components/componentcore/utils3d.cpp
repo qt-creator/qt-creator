@@ -284,7 +284,7 @@ void createMatLibForFile(const QString &fileName,
         const QList<VariantProperty> oldNodeVarProps = oldNode.variantProperties();
         const QList<BindingProperty> oldNodeBindProps = oldNode.bindingProperties();
 
-        ModelNode newNode = fileModel->createModelNode(oldNode.type());
+        ModelNode newNode = fileModel->createModelNode(oldNode.documentTypeRepresentation());
 
         for (const VariantProperty &prop : oldNodeVarProps)
             newNode.variantProperty(prop.name()).setValue(prop.value());
@@ -674,7 +674,7 @@ void duplicateMaterial(AbstractView *view, const ModelNode &material)
 
     QTC_ASSERT(view && view->model() && material, return);
 
-    TypeName matType = material.type();
+    TypeName matType = material.documentTypeRepresentation();
     QmlObjectNode sourceMat(material);
     ModelNode duplicateMatNode;
     QList<AbstractProperty> dynamicProps;

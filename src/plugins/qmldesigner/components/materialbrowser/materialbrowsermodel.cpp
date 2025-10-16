@@ -49,7 +49,7 @@ QVariant MaterialBrowserModel::data(const QModelIndex &index, int role) const
     case Roles::IsComponentRole:
         return m_materialList.at(index.row()).isComponent();
     case Roles::TypeRole: {
-        QString matType = QString::fromLatin1(m_materialList.at(index.row()).type());
+        QString matType = QString::fromLatin1(m_materialList.at(index.row()).documentTypeRepresentation());
         if (matType.startsWith("QtQuick3D."))
             matType.remove("QtQuick3D.");
         return matType;
@@ -403,7 +403,7 @@ void MaterialBrowserModel::copyMaterialProperties(int idx, const QString &sectio
 
     QTC_ASSERT(m_copiedMaterial.isValid(), return);
 
-    QString matType = QString::fromLatin1(m_copiedMaterial.type());
+    QString matType = QString::fromLatin1(m_copiedMaterial.documentTypeRepresentation());
 
     if (matType.startsWith("QtQuick3D."))
         matType.remove("QtQuick3D.");

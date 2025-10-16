@@ -486,18 +486,18 @@ void PathItem::readControlPoints()
         const QList<ModelNode> childNodes = pathNode.nodeListProperty("pathElements").toModelNodeList();
         for (const ModelNode &childNode : childNodes) {
 
-            if (childNode.type() == "PathAttribute") {
+            if (childNode.documentTypeRepresentation() == "PathAttribute") {
                 actualAttributes.insert(childNode.variantProperty("name").value().toString(), childNode.variantProperty("value").value());
-            } else if (childNode.type() == "PathPercent") {
+            } else if (childNode.documentTypeRepresentation() == "PathPercent") {
                 percent = childNode.variantProperty("value").value().toDouble();
             } else {
                 CubicSegment newCubicSegement;
 
-                if (childNode.type() == "PathLine")
+                if (childNode.documentTypeRepresentation() == "PathLine")
                     newCubicSegement = createCubicSegmentForLine(childNode, firstControlPoint);
-                else if (childNode.type() == "PathQuad")
+                else if (childNode.documentTypeRepresentation() == "PathQuad")
                     newCubicSegement = createCubicSegmentForQuad(childNode, firstControlPoint);
-                else if (childNode.type() == "PathCubic")
+                else if (childNode.documentTypeRepresentation() == "PathCubic")
                     newCubicSegement = createCubicSegmentForCubic(childNode, firstControlPoint);
                 else
                     continue;
@@ -681,7 +681,7 @@ const QList<ControlPoint> PathItem::controlPoints() const
 bool hasLineOrQuadPathElements(const QList<ModelNode> &modelNodes)
 {
     for (const ModelNode &modelNode : modelNodes) {
-        if (modelNode.type() == "PathLine" || modelNode.type() == "PathQuad")
+        if (modelNode.documentTypeRepresentation() == "PathLine" || modelNode.documentTypeRepresentation() == "PathQuad")
             return true;
     }
 

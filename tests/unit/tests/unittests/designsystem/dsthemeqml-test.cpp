@@ -42,13 +42,14 @@ constexpr QmlDesigner::ThemeId testThemeId = 1;
 
 MATCHER_P2(HasNodeProperty,
            name,
-           typeName,
+           documentTypeRepresentation,
            std::string(negation ? "hasn't node " : "has node ") + name.toStdString()
-               + std::string(" with type ") + typeName)
+               + std::string(" with document type representation ") + documentTypeRepresentation)
 {
     ModelNode n = arg;
     return n.hasNodeProperty(name) && n.nodeProperty(name).modelNode().isValid()
-           && n.nodeProperty(name).modelNode().type() == typeName;
+           && n.nodeProperty(name).modelNode().documentTypeRepresentation()
+                  == documentTypeRepresentation;
 }
 
 MATCHER_P2(HasBindingProperty,
@@ -154,7 +155,7 @@ TEST_P(DesignSystemQmlTest, group_aliase_properties_are_generated)
 
     // assert
     ASSERT_THAT(rootNode,
-                AllOf(Property("ModelNode::type", &ModelNode::type, Eq("QtObject"), sl),
+                AllOf(Property("ModelNode::type", &ModelNode::documentTypeRepresentation, Eq("QtObject"), sl),
                       HasBindingProperty(groupName, binding),
                       HasBindingProperty("currentTheme", darkThemeName),
                       HasNodeProperty(darkThemeName, "QtObject")));
@@ -172,7 +173,7 @@ TEST_P(DesignSystemQmlTest, empty_groups_generate_no_group_aliase_properties)
 
     // assert
     ASSERT_THAT(rootNode,
-                AllOf(Property("ModelNode::type", &ModelNode::type, Eq("QtObject"), sl),
+                AllOf(Property("ModelNode::type", &ModelNode::documentTypeRepresentation, Eq("QtObject"), sl),
                       Not(HasBindingProperty(groupName, binding)),
                       Not(HasBindingProperty("currentTheme", darkThemeName)),
                       Not(HasNodeProperty(darkThemeName, "QtObject"))));

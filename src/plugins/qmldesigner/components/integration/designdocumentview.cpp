@@ -235,7 +235,7 @@ void DesignDocumentView::copyModelNodes(const QList<ModelNode> &nodesToCopy,
         view.replaceModel(selectedNode);
 
         Q_ASSERT(view.rootModelNode().isValid());
-        Q_ASSERT(view.rootModelNode().type() != "empty");
+        Q_ASSERT(view.rootModelNode().documentTypeRepresentation() != "empty");
 
         view.toClipboard();
     } else { // multi items selected

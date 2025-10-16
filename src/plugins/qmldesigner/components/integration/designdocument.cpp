@@ -282,7 +282,7 @@ void DesignDocument::moveNodesToPosition(const QList<ModelNode> &nodes, const st
     if (isSingleNode) {
         ModelNode singleNode = movingNodes.first();
         if (targetNode.hasParentProperty()
-            && singleNode.simplifiedTypeName() == targetNode.simplifiedTypeName()
+            && singleNode.simplifiedDocumentTypeRepresentation() == targetNode.simplifiedDocumentTypeRepresentation()
             && singleNode.variantProperty("width").value() == targetNode.variantProperty("width").value()
             && singleNode.variantProperty("height").value() == targetNode.variantProperty("height").value()) {
             targetNode = targetNode.parentProperty().parentModelNode();
@@ -364,7 +364,7 @@ QString DesignDocument::simplfiedDisplayName() const
     if (rootModelNode().id().isEmpty())
         return rootModelNode().id();
     else
-        return rootModelNode().simplifiedTypeName();
+        return rootModelNode().simplifiedDocumentTypeRepresentation();
 }
 
 void DesignDocument::updateFileName(const Utils::FilePath & /*oldFileName*/, const Utils::FilePath &newFileName)
@@ -733,7 +733,7 @@ void DesignDocument::pasteToPosition(const std::optional<QVector3D> &position)
     pasteModel->attachView(&view);
     ModelNode rootNode(view.rootModelNode());
 
-    if (rootNode.type() == "empty")
+    if (rootNode.documentTypeRepresentation() == "empty")
         return;
 
     QList<ModelNode> selectedNodes;

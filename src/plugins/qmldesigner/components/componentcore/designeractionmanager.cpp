@@ -65,7 +65,7 @@ using NanotraceHR::keyValue;
 inline static QString captionForModelNode(const ModelNode &modelNode)
 {
     if (modelNode.id().isEmpty())
-        return modelNode.simplifiedTypeName();
+        return modelNode.simplifiedDocumentTypeRepresentation();
 
     return modelNode.id();
 }
@@ -939,7 +939,7 @@ public:
         const ModelNode singleSelectedNode = selectionState.currentSingleSelectedNode();
 
         return singleSelectedNode.metaInfo().isListOrGridView()
-               && singleSelectedNode.property("model").toNodeProperty().modelNode().type()
+               && singleSelectedNode.property("model").toNodeProperty().modelNode().documentTypeRepresentation()
                       == "ListModel";
     }
 

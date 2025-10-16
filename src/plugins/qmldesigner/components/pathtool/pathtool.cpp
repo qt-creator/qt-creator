@@ -31,22 +31,22 @@ namespace QmlDesigner {
 
 static bool isNonSupportedPathElement(const ModelNode &pathElement)
 {
-    if (pathElement.type() == "PathCubic")
+    if (pathElement.documentTypeRepresentation() == "PathCubic")
         return false;
 
-    if (pathElement.type() == "PathAttribute")
+    if (pathElement.documentTypeRepresentation() == "PathAttribute")
         return false;
 
-    if (pathElement.type() == "PathPercent")
+    if (pathElement.documentTypeRepresentation() == "PathPercent")
         return false;
 
-    if (pathElement.type() == "PathAttribute")
+    if (pathElement.documentTypeRepresentation() == "PathAttribute")
         return false;
 
-    if (pathElement.type() == "PathQuad")
+    if (pathElement.documentTypeRepresentation() == "PathQuad")
         return false;
 
-    if (pathElement.type() == "PathLine")
+    if (pathElement.documentTypeRepresentation() == "PathLine")
         return false;
 
     return true;
