@@ -40,13 +40,19 @@ bool isAssetFile(const Utils::FilePath &path)
     return suffixes.contains(path.suffix(), Qt::CaseInsensitive) || isImageFile(path);
 }
 
+bool isFontFile(const Utils::FilePath &path)
+{
+    static const QStringList suffixes = {"eot", "otf", "ttf", "woff", "woff2"};
+    return suffixes.contains(path.suffix(), Qt::CaseInsensitive);
+}
+
 bool isResource(const Utils::FilePath &path)
 {
     auto isOtherFile = [](const Utils::FilePath &p) -> bool {
         static QStringList suffixes = { "qmlproject", "conf" };
         return p.fileName() == "qmldir" || suffixes.contains(p.suffix());
     };
-    return isQmlFile(path) || isAssetFile(path) || isOtherFile(path);
+    return isQmlFile(path) || isAssetFile(path) || isFontFile(path) || isOtherFile(path);
 }
 
 } // namespace QmlProjectManager.
