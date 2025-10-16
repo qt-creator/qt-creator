@@ -99,7 +99,7 @@ void BundleHelper::createImporter()
                     ModelNode newNode = m_view->createModelNode(typeName);
                     target.defaultNodeListProperty().reparentHere(newNode);
                     newNode.setIdWithoutRefactoring(
-                        m_view->model()->generateNewId(newNode.simplifiedDocumentTypeRepresentation(),
+                        m_view->model()->generateNewId(newNode.exportedTypeName().name.toQString(),
                                                        "node"));
                     m_view->clearSelectedModelNodes();
                     m_view->selectModelNode(newNode);
@@ -285,7 +285,7 @@ QJsonObject BundleHelper::exportComponent(const ModelNode &node)
         addIconToZip(iconPath, image);
     });
 
-    return {{"name", node.simplifiedDocumentTypeRepresentation()},
+    return {{"name", node.exportedTypeName().name.toQString()},
             {"qml", compFileName},
             {"icon", iconPath},
             {"files", QJsonArray::fromStringList(filesList)}};
@@ -510,7 +510,7 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
 
     QString indent = QString(" ").repeated(depth * 4);
 
-    qml += indent + node.simplifiedDocumentTypeRepresentation() + " {\n";
+    qml += indent + node.exportedTypeName().name.toQString() + " {\n";
 
     indent = QString(" ").repeated((depth + 1) * 4);
 
@@ -613,7 +613,7 @@ QSet<AssetPath> BundleHelper::getBundleComponentDependencies(const ModelNode &no
 {
     NanotraceHR::Tracer tracer{"bundle helper get bundle component dependencies", category()};
 
-    const QString compFileName = node.simplifiedDocumentTypeRepresentation() + ".qml";
+    const QString compFileName = node.exportedTypeName().name.toQString() + ".qml";
 
     Utils::FilePath compPath = componentPath(node).parentDir();
 
