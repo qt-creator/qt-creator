@@ -152,6 +152,7 @@ void CtfVisualizerTool::setAvailableThreads(const QList<CtfTimelineModel *> &thr
         action->setCheckable(true);
         action->setData(timelineModel->tid());
         action->setChecked(m_traceManager->isRestrictedTo(timelineModel->tid()));
+        action->setEnabled(timelineModel->count());
     }
 }
 
