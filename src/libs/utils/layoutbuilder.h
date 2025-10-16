@@ -7,6 +7,7 @@
 
 #include <QAction>
 #include <QFrame>
+#include <QPointer>
 #include <QString>
 
 #include <initializer_list>
@@ -66,13 +67,7 @@ namespace Layouting {
 // Basic
 //
 
-class QTCREATOR_UTILS_EXPORT Thing
-{
-public:
-    void *ptr; // The product.
-};
-
-class QTCREATOR_UTILS_EXPORT Object : public Thing
+class QTCREATOR_UTILS_EXPORT Object
 {
 public:
     using Implementation = QObject;
@@ -80,6 +75,13 @@ public:
 
     Object() = default;
     Object(std::initializer_list<I> ps);
+
+    void onDestroyed(QObject *guard, const std::function<void()> &func);
+
+    QObject *product() const { return ptr; }
+
+protected:
+    QPointer<QObject> ptr; // The product.
 };
 
 //
@@ -117,7 +119,7 @@ public:
     using I = Building::BuilderItem<Layout>;
 
     Layout() = default;
-    Layout(Implementation *w) { ptr = w; }
+    Layout(Implementation *w);
 
     void span(int cols, int rows);
     void align(Qt::Alignment alignment);
@@ -280,7 +282,7 @@ public:
 
     Widget() = default;
     Widget(std::initializer_list<I> ps);
-    Widget(Implementation *w) { ptr = w; }
+    Widget(Implementation *w);
 
     QWidget *emerge() const;
     void show();
@@ -613,7 +615,7 @@ auto bindTo(T **p)
 template <typename Interface>
 void doit(Interface *x, BindToId, auto p)
 {
-    *p = static_cast<typename Interface::Implementation *>(x->ptr);
+    *p = static_cast<typename Interface::Implementation *>(x->product());
 }
 
 class IdId
@@ -627,7 +629,7 @@ auto id(auto p)
 template <typename Interface>
 void doit(Interface *x, IdId, auto p)
 {
-    **p = static_cast<typename Interface::Implementation *>(x->ptr);
+    **p = static_cast<typename Interface::Implementation *>(x->product());
 }
 
 // Setter dispatchers
@@ -641,6 +643,7 @@ QTC_DEFINE_BUILDER_SETTER(fieldGrowthPolicy, setFieldGrowthPolicy)
 QTC_DEFINE_BUILDER_SETTER(groupChecker, setGroupChecker)
 QTC_DEFINE_BUILDER_SETTER(icon, setIcon)
 QTC_DEFINE_BUILDER_SETTER(onClicked, onClicked)
+QTC_DEFINE_BUILDER_SETTER(onDestroyed, onDestroyed)
 QTC_DEFINE_BUILDER_SETTER(onLinkHovered, onLinkHovered)
 QTC_DEFINE_BUILDER_SETTER(onLinkActivated, onLinkActivated)
 QTC_DEFINE_BUILDER_SETTER(onTextChanged, onTextChanged)
@@ -830,7 +833,7 @@ namespace Tools {
 template<typename X>
 typename X::Implementation *access(const X *x)
 {
-    return static_cast<typename X::Implementation *>(x->ptr);
+    return static_cast<typename X::Implementation *>(x->product());
 }
 
 template<typename X>

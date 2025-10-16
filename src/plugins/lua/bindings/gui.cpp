@@ -11,7 +11,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcwidgets.h>
 
-#include <QMetaEnum>
 #include <QCompleter>
 
 using namespace Layouting;
@@ -110,6 +109,7 @@ void constructWidget(std::unique_ptr<T> &widget, const sol::table &children)
     };
 // clang-format on
 
+CREATE_HAS_FUNC(onDestroyed, nullptr, nullptr)
 CREATE_HAS_FUNC(onTextChanged, nullptr, nullptr)
 CREATE_HAS_FUNC(onClicked, nullptr, nullptr)
 CREATE_HAS_FUNC(setText, QString())
@@ -336,6 +336,18 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
                 });
         }
     }
+
+    if constexpr (has_onDestroyed<T>) {
+        sol::optional<sol::main_function> onDestroyed
+            = children.get<sol::optional<sol::main_function>>("onDestroyed"sv);
+        if (onDestroyed) {
+            item->onDestroyed(guard, [f = *onDestroyed]() {
+                auto res = void_safe_call(f);
+                QTC_CHECK_RESULT(res);
+            });
+        }
+    }
+
     if constexpr (has_onClicked<T>) {
         sol::optional<sol::main_function> onClicked
             = children.get<sol::optional<sol::main_function>>("onClicked"sv);
@@ -550,40 +562,40 @@ void setupGuiModule()
             "show",
             &Layout::show,
             sol::base_classes,
-            sol::bases<Object, Thing>());
+            sol::bases<Object>());
 
         gui.new_usertype<Form>(
             "Form",
             sol::call_constructor,
             sol::factories(&construct<Form>),
             sol::base_classes,
-            sol::bases<Layout, Object, Thing>());
+            sol::bases<Layout, Object>());
 
         gui.new_usertype<Column>(
             "Column",
             sol::call_constructor,
             sol::factories(&construct<Column>),
             sol::base_classes,
-            sol::bases<Layout, Object, Thing>());
+            sol::bases<Layout, Object>());
 
         gui.new_usertype<Row>(
             "Row",
             sol::call_constructor,
             sol::factories(&construct<Row>),
             sol::base_classes,
-            sol::bases<Layout, Object, Thing>());
+            sol::bases<Layout, Object>());
         gui.new_usertype<Flow>(
             "Flow",
             sol::call_constructor,
             sol::factories(&construct<Flow>),
             sol::base_classes,
-            sol::bases<Layout, Object, Thing>());
+            sol::bases<Layout, Object>());
         gui.new_usertype<Grid>(
             "Grid",
             sol::call_constructor,
             sol::factories(&construct<Grid>),
             sol::base_classes,
-            sol::bases<Layout, Object, Thing>());
+            sol::bases<Layout, Object>());
 
         // Widgets
         gui.new_usertype<PushButton>(
@@ -597,7 +609,7 @@ void setupGuiModule()
             "setIconPath",
             &PushButton::setIconPath,
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         auto qtcButton = gui.new_usertype<Utils::QtcWidgets::Button>(
             "QtcButton",
@@ -612,7 +624,7 @@ void setupGuiModule()
             "setRole",
             &Utils::QtcWidgets::Button::setRole,
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         gui.new_usertype<Utils::QtcWidgets::Switch>(
             "QtcSwitch",
@@ -627,7 +639,7 @@ void setupGuiModule()
             "onClicked",
             &Utils::QtcWidgets::Switch::onClicked,
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         auto qtcLabel = gui.new_usertype<Utils::QtcWidgets::Label>(
             "QtcLabel",
@@ -640,7 +652,7 @@ void setupGuiModule()
             "setRole",
             &Utils::QtcWidgets::Label::setRole,
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         gui.new_usertype<Utils::QtcWidgets::SearchBox>(
             "QtcSearchBox",
@@ -653,7 +665,7 @@ void setupGuiModule()
             "setText",
             &Utils::QtcWidgets::SearchBox::setText,
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         gui.new_usertype<Label>(
             "Label",
@@ -664,7 +676,7 @@ void setupGuiModule()
             "text",
             sol::property(&Label::text),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         gui.new_usertype<Layouting::MarkdownBrowser>(
             "MarkdownBrowser",
@@ -676,7 +688,7 @@ void setupGuiModule()
             sol::property(
                 &Layouting::MarkdownBrowser::toMarkdown, &Layouting::MarkdownBrowser::setMarkdown),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         gui.new_usertype<Widget>(
             "Widget",
@@ -701,7 +713,7 @@ void setupGuiModule()
             "toolTip",
             sol::property(&Widget::setToolTip),
             sol::base_classes,
-            sol::bases<Object, Thing>());
+            sol::bases<Object>());
 
         mirrorEnum(gui, QMetaEnum::fromType<Qt::WidgetAttribute>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::WindowType>());
@@ -721,14 +733,14 @@ void setupGuiModule()
                 return constructWidgetType<Stack>(children, guard);
             }),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         gui.new_usertype<Tab>(
             "Tab",
             sol::call_constructor,
             sol::factories(&constructTab, &constructTabFromTable),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         gui.new_usertype<ScrollArea>(
             "ScrollArea",
@@ -742,7 +754,7 @@ void setupGuiModule()
                     return constructWidgetType<ScrollArea>(children, guard);
                 }),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         gui.new_usertype<TextEdit>(
             "TextEdit",
@@ -753,7 +765,7 @@ void setupGuiModule()
             "markdown",
             sol::property(&TextEdit::markdown),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         gui.new_usertype<LineEdit>(
             "LineEdit",
@@ -766,7 +778,7 @@ void setupGuiModule()
             "rightSideIconPath",
             sol::property(&LineEdit::setRightSideIconPath),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         gui.new_usertype<SpinBox>(
             "SpinBox",
@@ -775,13 +787,13 @@ void setupGuiModule()
                 return constructWidgetType<SpinBox>(children, guard);
             }),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
         gui.new_usertype<Splitter>(
             "Splitter",
             sol::call_constructor,
             sol::factories(&constructSplitter),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
         gui.new_usertype<ToolBar>(
             "ToolBar",
             sol::call_constructor,
@@ -789,7 +801,7 @@ void setupGuiModule()
                 return constructWidgetType<ToolBar>(children, guard);
             }),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
         gui.new_usertype<ToolButton>(
             "ToolButton",
             sol::call_constructor,
@@ -797,7 +809,7 @@ void setupGuiModule()
                 return constructWidgetType<ToolButton>(children, guard);
             }),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
         gui.new_usertype<TabWidget>(
             "TabWidget",
             sol::call_constructor,
@@ -805,7 +817,7 @@ void setupGuiModule()
                 return constructTabWidget(children, guard);
             }),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         gui.new_usertype<Group>(
             "Group",
@@ -814,7 +826,7 @@ void setupGuiModule()
                 return constructWidgetType<Group>(children, guard);
             }),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         gui.new_usertype<Spinner>(
             "Spinner",
@@ -827,7 +839,7 @@ void setupGuiModule()
             "decorated",
             sol::property(&Spinner::setDecorated),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         gui.new_usertype<Layouting::IconDisplay>(
             "IconDisplay",
@@ -836,7 +848,7 @@ void setupGuiModule()
                 return constructWidgetType<Layouting::IconDisplay>(children, guard);
             }),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         gui["br"] = &br;
         gui["st"] = &st;
@@ -853,3 +865,21 @@ void setupGuiModule()
 }
 
 } // namespace Lua::Internal
+
+template<typename T>
+concept IsObject = std::is_base_of_v<Object, T>;
+
+template<typename TYPE, typename Handler>
+requires IsObject<TYPE>
+sol::optional<TYPE *> sol_lua_check_get(
+    sol::types<TYPE *>, lua_State *L, int index, Handler &&handler, sol::stack::record &tracking)
+{
+    sol::stack::qualified_check_getter<TYPE *> cg{};
+    auto result = cg.get(L, index, std::forward<Handler>(handler), tracking);
+    if (!result) {
+        return sol::nullopt;
+    }
+    if (!(*result)->product())
+        throw sol::error(std::string("Attempt to access a deleted ") + typeid(TYPE).name());
+    return result;
+}

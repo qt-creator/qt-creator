@@ -316,6 +316,11 @@ Object::Object(std::initializer_list<I> ps)
     apply(this, ps);
 }
 
+void Object::onDestroyed(QObject *guard, const std::function<void()> &func)
+{
+    QObject::connect(access(this), &QObject::destroyed, guard, func);
+}
+
 static QWidget *widgetForItem(QLayoutItem *item)
 {
     if (QWidget *w = item->widget())
@@ -387,6 +392,10 @@ static void addItemToFlowLayout(FlowLayout *layout, const LayoutItem &item)
  */
 
 // Layout
+Layout::Layout(Implementation *w)
+{
+    ptr = w;
+}
 
 void Layout::span(int cols, int rows)
 {
@@ -809,6 +818,11 @@ Widget::Widget(std::initializer_list<I> ps)
 {
     ptr = new Implementation;
     apply(this, ps);
+}
+
+Widget::Widget(Implementation *w)
+{
+    ptr = w;
 }
 
 void Widget::setSize(int w, int h)
