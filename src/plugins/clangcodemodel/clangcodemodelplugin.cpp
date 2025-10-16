@@ -57,6 +57,7 @@ public:
     void initialize() final;
 
 private:
+    void updateGeneratorName(Project *project);
     void generateCompilationDB();
     void createCompilationDBAction();
 
@@ -91,6 +92,16 @@ void ClangCodeModelPlugin::initialize()
     addTestCreator(createClangdTestTooltips);
     addTestCreator(createClangFixItTest);
 #endif
+}
+
+void ClangCodeModelPlugin::updateGeneratorName(Project *project)
+{
+    m_generateCompilationDBAction->setParameter(project ? project->displayName() : QString());
+    if (project) {
+        project->registerGenerator(Constants::GENERATE_COMPILATION_DB,
+                                   m_generateCompilationDBAction->text(),
+                                   [this] { m_generateCompilationDBAction->trigger(); });
+    }
 }
 
 void ClangCodeModelPlugin::generateCompilationDB()
@@ -153,8 +164,7 @@ void ClangCodeModelPlugin::createCompilationDBAction()
         .setCommandAttribute(Command::CA_UpdateText)
         .setCommandDescription(Tr::tr("Generate Compilation Database"));
 
-    if (Project *startupProject = ProjectManager::startupProject())
-        m_generateCompilationDBAction->setParameter(startupProject->displayName());
+    updateGeneratorName(ProjectManager::startupProject());
 
     connect(m_generateCompilationDBAction, &QAction::triggered, this, [this] {
         TaskHub::clearAndRemoveTask(m_generateCompilationDBError);
@@ -180,23 +190,15 @@ void ClangCodeModelPlugin::createCompilationDBAction()
             this, [this](Project *project) {
         if (project != ProjectManager::startupProject())
             return;
-        m_generateCompilationDBAction->setParameter(project->displayName());
+        updateGeneratorName(project); // TODO: What does this have to do with project parts?
     });
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
-            this, [this](Project *project) {
-        m_generateCompilationDBAction->setParameter(project ? project->displayName() : "");
-    });
+            this, &ClangCodeModelPlugin::updateGeneratorName);
     connect(ProjectManager::instance(), &ProjectManager::projectDisplayNameChanged,
             this, [this](Project *project) {
         if (project != ProjectManager::startupProject())
             return;
-        m_generateCompilationDBAction->setParameter(project->displayName());
-    });
-    connect(ProjectManager::instance(), &ProjectManager::projectAdded,
-            this, [this](Project *project) {
-        project->registerGenerator(Constants::GENERATE_COMPILATION_DB,
-                                   m_generateCompilationDBAction->text(),
-                                   [this] { m_generateCompilationDBAction->trigger(); });
+        updateGeneratorName(project);
     });
 }
 
