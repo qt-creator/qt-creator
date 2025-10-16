@@ -215,12 +215,17 @@ QString ModelNode::simplifiedDocumentTypeRepresentation(SL sl) const
 
 QString ModelNode::displayName(SL sl) const
 {
+    if (!isValid())
+        return {};
+
     NanotraceHR::Tracer tracer{"model node display name",
                                category(),
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    return hasId() ? id() : simplifiedDocumentTypeRepresentation();
+    auto id = m_internalNode->id;
+
+    return id.size() ? id : m_internalNode->exportedTypeName.name.toQString();
 }
 
 /*! \brief Returns whether the node is valid
