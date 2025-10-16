@@ -25,7 +25,7 @@ add_executable(%{ProjectName}
   ${TS_FILES}
 @endif
 )
-target_link_libraries(%{ProjectName} Qt${QT_VERSION_MAJOR}::Core)
+target_link_libraries(%{ProjectName} PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 @if %{HasTranslation}
 
 if(COMMAND qt_create_translation)

@@ -252,8 +252,6 @@ ScrollView {
             maximumY: flickable.contentY + flickable.height
             noteReadonly: true
 
-            borderWidth: 0
-
             property var hoveredNode: null;
             property var selectedNode: null;
 

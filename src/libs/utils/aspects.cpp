@@ -921,6 +921,8 @@ public:
         m_checked->setValue(checked);
     }
 
+    bool isCheckable() const { return bool(m_checked); }
+
     void makeCheckable(CheckBoxPlacement checkBoxPlacement, const QString &checkerLabel,
                        const Key &checkerKey, BaseAspect *aspect)
     {
@@ -1671,6 +1673,11 @@ void FilePathAspect::setChecked(bool checked)
 void FilePathAspect::setValueAcceptor(ValueAcceptor &&acceptor)
 {
     d->m_valueAcceptor = std::move(acceptor);
+}
+
+bool FilePathAspect::isCheckable() const
+{
+    return d->m_checkerImpl.isCheckable();
 }
 
 bool FilePathAspect::guiToBuffer()

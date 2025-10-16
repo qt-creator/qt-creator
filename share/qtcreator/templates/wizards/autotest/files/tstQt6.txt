@@ -55,7 +55,7 @@ add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 add_definitions(-DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB_RECURSE QML_FILES *.qml)
-add_custom_target(qmlfiles SOURCES ${QML_FILES})
+add_custom_target(%{TestCaseName}_qmlfiles SOURCES ${QML_FILES})
 @endif
 
 set_target_properties(%{TestCaseName} PROPERTIES

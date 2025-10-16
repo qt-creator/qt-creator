@@ -90,7 +90,12 @@ public:
         if (const auto t = qobject_cast<Target *>(object()))
             return t->displayName();
         return static_cast<ProjectConfiguration *>(object())->expandedDisplayName();
-
+    }
+    QString displayNameForSorting() const
+    {
+        if (const auto r = qobject_cast<RunConfiguration *>(object()))
+            return r->ProjectConfiguration::expandedDisplayName();
+        return rawDisplayName();
     }
     QString displayName() const
     {
@@ -141,8 +146,8 @@ private:
 
 static bool compareItems(const TreeItem *ti1, const TreeItem *ti2)
 {
-    return caseFriendlyCompare(static_cast<const GenericItem *>(ti1)->rawDisplayName(),
-                               static_cast<const GenericItem *>(ti2)->rawDisplayName()) < 0;
+    return caseFriendlyCompare(static_cast<const GenericItem *>(ti1)->displayNameForSorting(),
+                               static_cast<const GenericItem *>(ti2)->displayNameForSorting()) < 0;
 }
 
 class GenericModel : public TreeModel<GenericItem, GenericItem>
@@ -183,6 +188,23 @@ public:
         return findItemAtLevel<1>([object](const GenericItem *item) {
             return item->object() == object;
         });
+    }
+
+    void cachingSort()
+    {
+        QHash<const GenericItem *, QString> displayNames;
+        const auto getName = [&](const GenericItem *ti) {
+            if (const auto it = displayNames.constFind(ti); it != displayNames.constEnd())
+                return it.value();
+            const QString name = ti->displayNameForSorting();
+            displayNames.insert(ti, name);
+            return name;
+        };
+        const auto compare = [&](const TreeItem *ti1, const TreeItem *ti2) {
+            return caseFriendlyCompare(getName(static_cast<const GenericItem *>(ti1)),
+                                       getName(static_cast<const GenericItem *>(ti2))) < 0;
+        };
+        rootItem()->sortChildren(compare);
     }
 
     void setColumnCount(int columns) { m_columnCount = columns; }
@@ -276,7 +298,7 @@ public:
                 setCurrentIndex(item->index());
         });
         connect(model, &GenericModel::displayNameChanged, this, [this, model] {
-            model->rootItem()->sortChildren(&compareItems);
+            model->cachingSort();
             resetOptimalWidth();
             restoreCurrentIndex();
         });
@@ -306,13 +328,17 @@ class GenericListWidget : public SelectorView
 public:
     explicit GenericListWidget(QWidget *parent = nullptr) : SelectorView(parent)
     {
+        m_updateTimer.setSingleShot(true);
         const auto model = new GenericModel(this);
-        connect(model, &GenericModel::displayNameChanged, this, [this, model] {
+        connect(&m_updateTimer, &QTimer::timeout, this, [this, model] {
             const GenericItem * const activeItem = model->itemForIndex(currentIndex());
-            model->rootItem()->sortChildren(&compareItems);
+            model->cachingSort();
             resetOptimalWidth();
             if (activeItem)
                 setCurrentIndex(activeItem->index());
+        });
+        connect(model, &GenericModel::displayNameChanged, this, [this] {
+            m_updateTimer.start(500);
         });
         setModel(model);
         connect(selectionModel(), &QItemSelectionModel::currentChanged,
@@ -404,6 +430,7 @@ private:
     }
 
     QModelIndex m_pressedIndex;
+    QTimer m_updateTimer;
 };
 
 ////////

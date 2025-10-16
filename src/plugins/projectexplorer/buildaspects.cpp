@@ -156,7 +156,7 @@ void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
 
 void BuildDirectoryAspect::announceChanges(Changes changes, Announcement howToAnnounce)
 {
-    if (changes.bufferFromInternal)
+    if (changes.bufferFromInternal && isCheckable())
         setChecked(d->sourceDir != expandedValue());
     FilePathAspect::announceChanges(changes, howToAnnounce);
 }
