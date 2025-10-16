@@ -632,7 +632,7 @@ void ViewManager::qmlJSEditorContextHelp(const Core::IContext::HelpCallback &cal
     if (!selectedNode)
         selectedNode = view()->rootModelNode();
 
-    Core::HelpItem helpItem("QML." + selectedNode.simplifiedDocumentTypeRepresentation(),
+    Core::HelpItem helpItem("QML." + selectedNode.exportedTypeName().name.toQString(),
                             {},
                             {},
                             Core::HelpItem::QmlComponent);
