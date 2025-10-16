@@ -1626,55 +1626,6 @@ void Project::resetQmlCodeModel()
     emit ProjectManager::instance()->requestCodeModelReset();
 }
 
-static FilePaths findGeneratedQrcFiles(const FilePaths &applicationDirectories,
-                                       const FilePaths &hiddenRccFolders)
-{
-    FilePaths result;
-    const qint64 maxFilesToSearch = 8'000; // TODO: Creator 18: load value from settings
-    qint64 searchedFiles = 0;
-
-    std::queue<FilePath> toVisit;
-    for (const FilePath &path : applicationDirectories)
-        toVisit.push(path);
-
-    while (!toVisit.empty()) {
-        FilePath current = toVisit.front();
-        toVisit.pop();
-        current.iterateDirectory(
-            [&toVisit,
-             &searchedFiles,
-             &result](const FilePath &child, const FilePathInfo &childInfo) {
-                if (++searchedFiles > maxFilesToSearch)
-                    return IterationPolicy::Stop;
-                if (childInfo.fileFlags.testFlag(FilePathInfo::DirectoryType)) {
-                    // ignore hidden files except for .qt/rcc and .rcc folders
-                    if (!child.fileName().startsWith(u'.')) {
-                        toVisit.push(child);
-                        return IterationPolicy::Continue;
-                    }
-                    if (child.fileName() == ".qt") {
-                        toVisit.push(child.pathAppended("rcc"));
-                        return IterationPolicy::Continue;
-                    }
-                    if (child.fileName() == ".rcc")
-                        toVisit.push(child);
-                    return IterationPolicy::Continue;
-                }
-                if (childInfo.fileFlags.testFlag(FilePathInfo::FileType) && child.endsWith(".qrc"))
-                    result.append(child);
-                return IterationPolicy::Continue;
-            },
-            {{}, QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::Hidden | QDir::NoDotAndDotDot});
-        if (searchedFiles > maxFilesToSearch)
-            break;
-    }
-
-    for (const FilePath &hiddenRccFolder : hiddenRccFolders)
-        findAllQrcFiles(hiddenRccFolder, result);
-
-    return result;
-}
-
 QmlCodeModelInfo Project::gatherQmlCodeModelInfo(Kit *kit, BuildConfiguration *bc)
 {
     QmlCodeModelInfo projectInfo;
@@ -1762,9 +1713,25 @@ QmlCodeModelInfo Project::gatherQmlCodeModelInfo(Kit *kit, BuildConfiguration *b
         bc->buildSystem()->updateQmlCodeModelInfo(projectInfo);
     }
 
-    // Search recursively in Application Directories for .qrc files.
-    projectInfo.generatedQrcFiles =
-        findGeneratedQrcFiles(projectInfo.applicationDirectories, files(Project::HiddenRccFolders));
+    QSet<FilePath> rccDirs;
+    if (rootProjectNode()) {
+        rootProjectNode()->forEachNode(
+            {},
+            [&rccDirs](FolderNode *n) {
+                static const QString rcc = "rcc";
+                static const QString dotRcc = ".rcc";
+                static const QString dotQt = ".qt";
+                const FilePath &filePath = n->filePath();
+                const QStringView fileName = filePath.fileNameView();
+                if (fileName == dotRcc
+                    || (fileName == rcc && filePath.parentDir().fileNameView() == dotQt)) {
+                    rccDirs.insert(n->filePath());
+                }
+            },
+            {});
+    }
+    for (const FilePath &fp : std::as_const(rccDirs))
+        findAllQrcFiles(fp, projectInfo.generatedQrcFiles);
 
     if (s_qtversionExtraProjectInfoHook && kit)
         s_qtversionExtraProjectInfoHook(kit, projectInfo);
