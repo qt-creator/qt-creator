@@ -12,6 +12,7 @@
 #include "contentlibrarytexturesmodel.h"
 #include "contentlibraryusermodel.h"
 #include "contentlibrarywidget.h"
+#include "stringutils.h"
 
 #include <asset.h>
 #include <auxiliarydataproperties.h>
@@ -913,9 +914,13 @@ ModelNode ContentLibraryView::getBundleMaterialDefaultInstance(const TypeName &t
     if (!matLib.isValid())
         return {};
 
+    auto [moduleName, unqualifiedTypeName] = StringUtils::split_last(type);
+    auto module = model()->module(moduleName, QmlDesigner::Storage::ModuleKind::QmlLibrary);
+    NodeMetaInfo materialMetaInfo = model()->metaInfo(module, unqualifiedTypeName);
+
     const QList<ModelNode> matLibNodes = matLib.directSubModelNodes();
     for (const ModelNode &mat : matLibNodes) {
-        if (mat.isValid() && mat.type() == type) {
+        if (materialMetaInfo == mat.metaInfo()) {
             bool isDefault = true;
             const QList<AbstractProperty> props = mat.properties();
             for (const AbstractProperty &prop : props) {
