@@ -758,28 +758,30 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
     return BuildSystem::addFiles(context, filePaths, notAdded);
 }
 
-std::optional<CMakeBuildSystem::ProjectFileArgumentPosition>
+Result<CMakeBuildSystem::ProjectFileArgumentPosition>
 CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const QString &fileName)
 {
     const std::optional<Link> cmakeFile = cmakeFileForBuildKey(targetName, buildTargets());
     if (!cmakeFile)
-        return std::nullopt;
+        return ResultError(QString("Couldn't find CMake file for target: %1").arg(targetName));
 
     const FilePath targetCMakeFile = cmakeFile->targetFilePath;
     const int targetDefinitionLine = cmakeFile->target.line;
 
     std::optional<cmListFile> cmakeListFile = getUncachedCMakeListFile(targetCMakeFile);
-    if (!cmakeListFile)
-        return std::nullopt;
+    if (!cmakeListFile) {
+        return ResultError(
+            QString("Cannot parse CMake file: %1").arg(targetCMakeFile.toUserOutput()));
+    }
 
     std::optional<cmListFileFunction> function
             = findFunction(*cmakeListFile, [targetDefinitionLine](const auto &func) {
         return func.Line() == targetDefinitionLine;
     });
     if (!function.has_value()) {
-        qCCritical(cmakeBuildSystemLog) << "Function that defined the target" << targetName
-                                        << "could not be found at" << targetDefinitionLine;
-        return std::nullopt;
+        return ResultError(QString("Function that defined the target %1 could not be found at %2")
+                               .arg(targetName)
+                               .arg(targetDefinitionLine));
     }
 
     const std::string target_name = targetName.toStdString();
@@ -846,7 +848,9 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
         }
     }
 
-    return std::nullopt;
+    return ResultError(QString("Function that adds the file %1 to the target %2 could not be found.")
+                           .arg(fileName)
+                           .arg(targetName));
 }
 
 QString CMakeBuildSystem::cmakeGenerator() const
@@ -882,55 +886,45 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
             const QString fileName = file.canonicalPath().relativePathFromDir(projDir);
 
             auto filePos = projectFileArgumentPosition(targetName, fileName);
-            if (filePos) {
-                if (!filePos->cmakeFile.exists()) {
-                    badFiles << file;
+            QTC_ASSERT_RESULT(filePos, badFiles << file; continue);
 
-                    qCCritical(cmakeBuildSystemLog).noquote()
-                        << "File" << filePos->cmakeFile.path() << "does not exist.";
-                    continue;
-                }
+            if (filePos->fromGlobbing) {
+                haveGlobbing = true;
+                continue;
+            }
 
-                if (filePos->fromGlobbing) {
-                    haveGlobbing = true;
-                    continue;
-                }
-
-                BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
-                    Core::EditorManager::openEditorAt(
-                        {filePos->cmakeFile,
-                         static_cast<int>(filePos->argumentPosition.Line),
-                         static_cast<int>(filePos->argumentPosition.Column - 1)},
-                        Constants::CMAKE_EDITOR_ID,
-                        Core::EditorManager::DoNotMakeVisible
-                            | Core::EditorManager::DoNotChangeCurrentEditor));
-                if (!editor) {
-                    badFiles << file;
-
-                    qCCritical(cmakeBuildSystemLog).noquote()
-                        << "BaseTextEditor cannot be obtained for" << filePos->cmakeFile.path()
-                        << filePos->argumentPosition.Line
-                        << int(filePos->argumentPosition.Column - 1);
-                    continue;
-                }
-
-                // If quotes were used for the source file, remove the quotes too
-                int extraChars = 0;
-                if (filePos->argumentPosition.Delim == cmListFileArgument::Quoted)
-                    extraChars = 2;
-
-                editor->replace(filePos->relativeFileName.length() + extraChars, "");
-
-                editor->editorWidget()->autoIndent();
-                if (!Core::DocumentManager::saveDocument(editor->document())) {
-                    badFiles << file;
-
-                    qCCritical(cmakeBuildSystemLog).noquote()
-                        << "Changes to" << filePos->cmakeFile.path() << "could not be saved.";
-                    continue;
-                }
-            } else {
+            BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
+                Core::EditorManager::openEditorAt(
+                    {filePos->cmakeFile,
+                     static_cast<int>(filePos->argumentPosition.Line),
+                     static_cast<int>(filePos->argumentPosition.Column - 1)},
+                    Constants::CMAKE_EDITOR_ID,
+                    Core::EditorManager::DoNotMakeVisible
+                        | Core::EditorManager::DoNotChangeCurrentEditor));
+            if (!editor) {
                 badFiles << file;
+
+                qCCritical(cmakeBuildSystemLog).noquote()
+                    << "BaseTextEditor cannot be obtained for" << filePos->cmakeFile.path()
+                    << filePos->argumentPosition.Line
+                    << int(filePos->argumentPosition.Column - 1);
+                continue;
+            }
+
+            // If quotes were used for the source file, remove the quotes too
+            int extraChars = 0;
+            if (filePos->argumentPosition.Delim == cmListFileArgument::Quoted)
+                extraChars = 2;
+
+            editor->replace(filePos->relativeFileName.length() + extraChars, "");
+
+            editor->editorWidget()->autoIndent();
+            if (!Core::DocumentManager::saveDocument(editor->document())) {
+                badFiles << file;
+
+                qCCritical(cmakeBuildSystemLog).noquote()
+                    << "Changes to" << filePos->cmakeFile.path() << "could not be saved.";
+                continue;
             }
         }
 
@@ -948,30 +942,17 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
 
 bool CMakeBuildSystem::canRenameFile(Node *context,
                                      const FilePath &oldFilePath,
-                                     const FilePath &newFilePath)
+                                     const FilePath &/*newFilePath*/)
 {
-    // "canRenameFile" will cause an actual rename after the function call.
-    // This will make the a sequence like
-    //    canonicalPath().relativePathFrom(projDir).cleanPath().toString()
-    // to fail if the file doesn't exist on disk
-    // therefore cache the results for the subsequent "renameFile" call
-    // where oldFilePath has already been renamed as newFilePath.
-
     if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
         const FilePath projDir = n->filePath().canonicalPath();
         const QString oldRelPathName = oldFilePath.canonicalPath().relativePathFromDir(projDir);
 
         const QString targetName = n->buildKey();
 
-        const QString key
-            = QStringList{projDir.path(), targetName, oldFilePath.path(), newFilePath.path()}
-                  .join(";");
-
         auto filePos = projectFileArgumentPosition(targetName, oldRelPathName);
-        if (!filePos)
-            return false;
+        QTC_ASSERT_RESULT(filePos, return false);
 
-        m_filesToBeRenamed.insert(key, *filePos);
         return true;
     }
     return false;
@@ -1008,21 +989,14 @@ bool CMakeBuildSystem::renameFile(
         const Utils::FilePath &newFilePath,
         bool &shouldRunCMake)
 {
-    const FilePath projDir = context->filePath().canonicalPath();
-    const QString newRelPathName = newFilePath.canonicalPath().relativePathFromDir(projDir);
+    const FilePath projDir = context->filePath();
+    const QString newRelPathName = newFilePath.relativePathFromDir(projDir);
+    const QString oldRelPathName = oldFilePath.relativePathFromDir(projDir);
 
     const QString targetName = context->buildKey();
-    const QString key
-        = QStringList{projDir.path(), targetName, oldFilePath.path(), newFilePath.path()}.join(
-            ";");
 
-    std::optional<CMakeBuildSystem::ProjectFileArgumentPosition> fileToRename
-        = m_filesToBeRenamed.take(key);
-    if (!fileToRename->cmakeFile.exists()) {
-        qCCritical(cmakeBuildSystemLog).noquote()
-        << "File" << fileToRename->cmakeFile.path() << "does not exist.";
-        return false;
-    }
+    auto fileToRename = projectFileArgumentPosition(targetName, oldRelPathName);
+    QTC_ASSERT_RESULT(fileToRename, return false);
 
     bool haveGlobbing = false;
     do {
