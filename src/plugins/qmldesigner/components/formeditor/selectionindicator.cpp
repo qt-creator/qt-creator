@@ -121,7 +121,8 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
         toolbar->setPos(1, -1);
 
         ModelNode modelNode = selectedItem->qmlItemNode().modelNode();
-        QGraphicsTextItem *textItem = new QGraphicsTextItem(modelNode.simplifiedDocumentTypeRepresentation(), m_labelItem.get());
+        QGraphicsTextItem *textItem = new QGraphicsTextItem(modelNode.exportedTypeName().name.toQString(),
+                                                            m_labelItem.get());
 
         if (modelNode.hasId())
             textItem->setPlainText(modelNode.id());
