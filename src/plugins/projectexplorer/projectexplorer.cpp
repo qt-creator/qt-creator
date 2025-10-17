@@ -3473,7 +3473,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
     m_showInGraphicalShell->setVisible(true);
     m_showFileSystemPane->setVisible(true);
     m_searchOnFileSystem->setVisible(true);
-    m_vcsLogAction->setVisible(true);
+    m_vcsLogAction->setVisible(false);
 
     ActionContainer *runMenu = ActionManager::actionContainer(Constants::RUNMENUCONTEXTMENU);
     runMenu->menu()->clear();
@@ -4193,6 +4193,7 @@ void ProjectExplorerPlugin::updateVcsActions(const QString &vcsDisplayName)
 {
     //: %1 = version control name
     dd->m_vcsLogAction->setText(Tr::tr("%1 Log Directory").arg(vcsDisplayName));
+    dd->m_vcsLogAction->setVisible(!vcsDisplayName.isEmpty());
 }
 
 QWidget *ProjectExplorerPlugin::createRecentProjectsView()
