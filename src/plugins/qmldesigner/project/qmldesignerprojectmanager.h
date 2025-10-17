@@ -47,6 +47,8 @@ public:
     ModulesStorage &modulesStorage();
     ProjectStorageDependencies projectStorageDependencies();
 
+    bool isProjectStorageActive() const;
+
     void updateIfFilesListInProjectIsChanged(Core::IEditor *editor);
 
 private:

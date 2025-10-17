@@ -458,7 +458,7 @@ void QmlDesignerPlugin::integrateIntoQtCreator(DesignModeWidget *modeWidget)
 
     connect(Core::ModeManager::instance(),
             &Core::ModeManager::currentModeChanged,
-            [this](Utils::Id newMode, Utils::Id oldMode) {
+            [&](Utils::Id newMode, Utils::Id oldMode) {
                 Core::IEditor *currentEditor = Core::EditorManager::currentEditor();
                 if (isDesignerMode(newMode) && checkIfEditorIsQtQuick(currentEditor)
                     && !documentIsAlreadyOpen(currentDesignDocument(), currentEditor, newMode)) {
@@ -533,6 +533,9 @@ static bool checkUiQMLNagScreen(const Utils::FilePath &fileName)
 void QmlDesignerPlugin::showDesigner()
 {
     NanotraceHR::Tracer tracer{"qml designer plugin show designer", category()};
+
+    if (not d->projectManager.isProjectStorageActive())
+        return;
 
     QTC_ASSERT(!d->documentManager.hasCurrentDesignDocument(), return);
 
