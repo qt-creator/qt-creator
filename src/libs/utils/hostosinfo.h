@@ -42,9 +42,6 @@ QTCREATOR_UTILS_EXPORT OsArch hostArchitecture();
 //! Returns the architecture the running binary was compiled for.
 QTCREATOR_UTILS_EXPORT OsArch binaryArchitecture();
 
-inline bool isArm64Binary() { return binaryArchitecture() == OsArchArm64; }
-inline bool isAmd64Binary() { return binaryArchitecture() == OsArchAMD64; }
-
 QTCREATOR_UTILS_EXPORT constexpr bool isWindowsHost() { return hostOs() == OsTypeWindows; }
 QTCREATOR_UTILS_EXPORT constexpr bool isLinuxHost() { return hostOs() == OsTypeLinux; }
 QTCREATOR_UTILS_EXPORT constexpr bool isMacHost() { return hostOs() == OsTypeMac; }

@@ -598,10 +598,13 @@ static GroupItem downloadGithubQmlls()
         if (metadata["tag_name"].isString())
             storage->latestVersion = QVersionNumber::fromString(metadata["tag_name"].toString());
 
-        if (HostOsInfo::isArm64Binary() || HostOsInfo::isAmd64Binary()) {
-            static QLatin1StringView binaryName = [] {
+        const OsArch arch = HostOsInfo::binaryArchitecture();
+        const bool isArm64 = arch == Utils::OsArchArm64;
+        const bool isAmd64 = arch == Utils::OsArchAMD64;
+        if (isArm64 || isAmd64) {
+            static QLatin1StringView binaryName = [isArm64, isAmd64] {
                 if (HostOsInfo::isWindowsHost()) {
-                    if (HostOsInfo::isArm64Binary())
+                    if (isArm64)
                         return "qmllanguageserver-windows-arm64"_L1;
                     else
                         return "qmllanguageserver-windows-x64"_L1;
@@ -609,7 +612,7 @@ static GroupItem downloadGithubQmlls()
                 if (HostOsInfo::isMacHost())
                     return "qmllanguageserver-macos"_L1;
 
-                if (HostOsInfo::isArm64Binary())
+                if (isAmd64)
                     return "qmllanguageserver-linux-arm64"_L1;
                 return "qmllanguageserver-linux-x64"_L1;
             }();
