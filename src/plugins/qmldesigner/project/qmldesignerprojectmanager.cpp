@@ -421,6 +421,11 @@ ProjectStorageDependencies QmlDesignerProjectManager::projectStorageDependencies
             m_projectData->projectStorageData->pathWatcher};
 }
 
+bool QmlDesignerProjectManager::isProjectStorageActive() const
+{
+    return m_projectData && m_projectData->projectStorageData;
+}
+
 void QmlDesignerProjectManager::updateIfFilesListInProjectIsChanged(Core::IEditor *editor)
 {
     NanotraceHR::Tracer tracer{
