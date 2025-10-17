@@ -10,7 +10,7 @@ extend_qtc_test(unittest
   INCLUDES "${QML_DESIGNER_DIRECTORY}/libs/designsystem"
   DEFINES DESIGNSYSTEM_STATIC_LIBRARY
   DEPENDS
-    Qt::Core Qt::Widgets QmlDesignerUtils TestDesignerCore
+    Qt::Core Qt::Widgets TestDesignerCore
   SOURCES
     dsconstants.h
     dsthemegroup.h dsthemegroup.cpp

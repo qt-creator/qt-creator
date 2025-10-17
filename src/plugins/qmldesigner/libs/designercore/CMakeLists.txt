@@ -18,9 +18,9 @@ add_qtc_library(QmlDesignerCore
     TextEditorSupport
     QmlDesignerSettings
     AstCheck
+    QmlDesignerUtils
   PUBLIC_DEPENDS
     QmlPuppetCommunication
-    QmlDesignerUtils
     Sqlite
   DEFINES
      $<$<BOOL:${QTC_USE_QML_DESIGNER_LITE}>:QTC_USE_QML_DESIGNER_LITE>
