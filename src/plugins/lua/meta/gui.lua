@@ -5,6 +5,10 @@ local gui = {}
 ---@class Object
 gui.Object = {}
 
+---Returns whether the gui object is still valid (not deleted).
+---@return boolean isValid
+function gui.Object:isValid() end
+
 ---The base class of all gui layout classes.
 ---@class Layout : Object
 gui.layout = {}

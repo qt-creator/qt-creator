@@ -561,6 +561,10 @@ void setupGuiModule()
 
         gui.new_usertype<Stretch>("Stretch", sol::call_constructor, sol::constructors<Stretch(int)>());
 
+        gui.new_usertype<Object>("Object", sol::no_constructor, "isValid", [](Object obj) {
+            return obj.product() != nullptr;
+        });
+
         // Layouts
         gui.new_usertype<Layout>(
             "Layout",
