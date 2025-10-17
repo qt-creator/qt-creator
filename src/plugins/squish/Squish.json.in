@@ -36,5 +36,7 @@
         "    </mime-type>",
         "</mime-info>"
     ],
-    "JsonWizardPaths" : [":/squish/wizard/"]
+    "projectexplorer" : {
+        "JsonWizardPaths" : [":/squish/wizard/"]
+    }
 }

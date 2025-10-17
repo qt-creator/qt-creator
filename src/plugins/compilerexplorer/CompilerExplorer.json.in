@@ -31,5 +31,7 @@
         "    </mime-type>",
         "</mime-info>"
     ],
-    "JsonWizardPaths" : [":/compilerexplorer/wizard/"]
+    "projectexplorer" : {
+        "JsonWizardPaths" : [":/compilerexplorer/wizard/"]
+    }
 }

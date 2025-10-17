@@ -33,5 +33,7 @@
         "    </mime-type>",
         "</mime-info>"
     ],
-    "JsonWizardPaths" : [":/vcpkg/wizards/"]
+    "projectexplorer" : {
+        "JsonWizardPaths" : [":/vcpkg/wizards/"]
+    }
 }

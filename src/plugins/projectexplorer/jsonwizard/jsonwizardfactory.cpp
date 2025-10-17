@@ -586,8 +586,14 @@ FilePaths &JsonWizardFactory::searchPaths()
         for (PluginSpec *plugin : PluginManager::plugins()) {
             if (plugin->state() == PluginSpec::Running) {
                 const auto base = plugin->location();
-                const auto values = plugin->metaData().value("JsonWizardPaths").toArray();
-                for (const QJsonValue &v : values) {
+                QJsonArray values = plugin->metaData()
+                                        .value("projectexplorer")
+                                        .toObject()
+                                        .value("JsonWizardPaths")
+                                        .toArray();
+                if (values.isEmpty()) // TODO -> legacy, remove some time after QtC 19.0
+                    values = plugin->metaData().value("JsonWizardPaths").toArray();
+                for (const QJsonValue &v : std::as_const(values)) {
                     const auto path = FilePath::fromString(v.toString());
                     if (!path.isEmpty() && path.isLocal())
                         m_searchPaths << base.resolvePath(path);

@@ -349,6 +349,9 @@
 
     \section2 Other Meta Data
 
+    A \c key of the form \c {FirstKey > SecondKey} means that the value for the \c FirstKey
+    is a JSON object that includes \c SecondKey.
+
     \table
         \header
             \li Key
@@ -361,7 +364,20 @@
                 \l{https://www.freedesktop.org/wiki/Specifications/shared-mime-info-spec/}{XML MIME-info}
                 used for registering additional or adapting built-in MIME types.
         \row
-            \li JsonWizardPaths
+            \li core > VcsDetectionFiles
+            \li Array of strings
+            \li A list of file names. If one of these is found in the parent directories of an
+                opened file or project, and this plugin or extension is disabled, the user is
+                informed that the file or project seems to be under version control and that they
+                can enable this plugin or extension to enable specific support for that version
+                control system.
+        \row
+            \li languageclient > WorkspaceConfig
+            \li Object
+            \li Merges the given JSON object into the data sent to language servers for
+                the \c {workspace/didChangeConfiguration} notification.
+        \row
+            \li projectexplorer > JsonWizardPaths
             \li Array of strings
             \li A list of paths relative to the plugin location or paths to the
                 \l{The Qt Resource System}{Qt resource system} that are searched for

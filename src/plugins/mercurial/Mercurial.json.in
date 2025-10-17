@@ -24,8 +24,10 @@
     ],
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-vcs-mercurial.html",
-    "VcsDetectionFiles" : [
-        ".hg/requires"
-    ],
+    "core" : {
+        "VcsDetectionFiles" : [
+            ".hg/requires"
+        ]
+    },
     ${IDE_PLUGIN_DEPENDENCIES}
 }

@@ -27,5 +27,7 @@
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-developing-mcu.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
-    "JsonWizardPaths" : [":/mcusupport/wizards/"]
+    "projectexplorer" : {
+        "JsonWizardPaths" : [":/mcusupport/wizards/"]
+    }
 }

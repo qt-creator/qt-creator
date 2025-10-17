@@ -34,5 +34,7 @@
         "    </mime-type>",
         "</mime-info>"
     ],
-    "JsonWizardPaths" : [":/modeleditor/wizards/"]
+    "projectexplorer" : {
+        "JsonWizardPaths" : [":/modeleditor/wizards/"]
+    }
 }

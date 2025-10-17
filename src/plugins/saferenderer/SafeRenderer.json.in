@@ -28,5 +28,7 @@
     "DocumentationUrl" : "https://doc.qt.io/QtSafeRenderer/qtsaferenderer-index.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
-    "JsonWizardPaths" : [":/saferenderer/wizards/"]
+    "projectexplorer" : {
+        "JsonWizardPaths" : [":/saferenderer/wizards/"]
+    }
 }

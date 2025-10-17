@@ -185,11 +185,14 @@ static void askForDisabledVcsPlugins(const FilePath &inputDirectory)
             if (plugin->isEffectivelyEnabled())
                 return false;
             const QJsonObject metaData = plugin->metaData();
-            const QJsonArray filesArray = metaData.value("VcsDetectionFiles").toArray();
+            QJsonArray filesArray
+                = metaData.value("core").toObject().value("VcsDetectionFiles").toArray();
+            if (filesArray.isEmpty()) // TODO -> legacy, remove some time after QtC 19.0
+                filesArray = metaData.value("VcsDetectionFiles").toArray();
             if (filesArray.isEmpty())
                 return false;
             QStringList files;
-            for (const QJsonValue &v : filesArray) {
+            for (const QJsonValue &v : std::as_const(filesArray)) {
                 const QString str = v.toString();
                 if (!str.isEmpty())
                     files.append(str);

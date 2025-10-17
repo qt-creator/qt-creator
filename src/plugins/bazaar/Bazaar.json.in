@@ -24,8 +24,10 @@
     ],
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-vcs-bazaar.html",
-    "VcsDetectionFiles" : [
-        ".bzr/branch-format"
-    ],
+    "core" : {
+        "VcsDetectionFiles" : [
+            ".bzr/branch-format"
+        ]
+    },
     ${IDE_PLUGIN_DEPENDENCIES}
 }

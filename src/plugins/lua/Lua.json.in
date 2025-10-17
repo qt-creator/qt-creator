@@ -22,6 +22,8 @@
     "Description" : "Support for Lua based plugins.",
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator-extending/lua-extensions.html",
-    "JsonWizardPaths" : [":/lua/wizards"],
+    "projectexplorer" : {
+        "JsonWizardPaths" : [":/lua/wizards"]
+    },
     ${IDE_PLUGIN_DEPENDENCIES}
 }

@@ -30,10 +30,12 @@
             "Description" : "Show given commit hash"
         }
     ],
-    "VcsDetectionFiles" : [
-        ".git",
-        ".git/config"
-    ],
+    "core" : {
+        "VcsDetectionFiles" : [
+            ".git",
+            ".git/config"
+        ]
+    },
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [
