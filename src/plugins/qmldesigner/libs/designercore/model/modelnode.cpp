@@ -200,19 +200,6 @@ TypeName ModelNode::documentTypeRepresentation(SL sl) const
     return m_internalNode->typeName;
 }
 
-QString ModelNode::simplifiedDocumentTypeRepresentation(SL sl) const
-{
-    if (!isValid())
-        return {};
-
-    NanotraceHR::Tracer tracer{"model node simplified document type represention",
-                               category(),
-                               keyValue("model node", *this),
-                               keyValue("caller location", sl)};
-
-    return m_internalNode->unqualifiedTypeName.toQString();
-}
-
 QString ModelNode::displayName(SL sl) const
 {
     if (!isValid())

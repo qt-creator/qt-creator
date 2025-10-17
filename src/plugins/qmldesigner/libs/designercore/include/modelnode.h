@@ -88,7 +88,6 @@ public:
     ~ModelNode() = default;
 
     TypeName documentTypeRepresentation(SL sl = {}) const;
-    QString simplifiedDocumentTypeRepresentation(SL sl = {}) const;
     QString displayName(SL sl = {}) const;
 
     bool isValid() const;
