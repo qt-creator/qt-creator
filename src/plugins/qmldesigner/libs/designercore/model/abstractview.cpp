@@ -629,8 +629,10 @@ QString AbstractView::contextHelpId() const
 
     QString id = const_cast<AbstractView *>(this)->widgetInfo().uniqueId;
 
-    if (!selectedModelNodes().isEmpty()) {
-        const auto nodeId = selectedModelNodes().first().simplifiedDocumentTypeRepresentation();
+    auto selectedNodes = selectedModelNodes();
+
+    if (!selectedNodes.isEmpty()) {
+        const auto nodeId = selectedNodes.first().exportedTypeName().name.toQString();
         id += " " + nodeId;
     }
 
