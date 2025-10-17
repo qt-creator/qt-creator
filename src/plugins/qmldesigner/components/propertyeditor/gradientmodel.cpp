@@ -620,8 +620,13 @@ void GradientModel::setAnchorBackend(const QVariant &anchorBackend)
         m_itemNode = backendCasted->getItemNode();
 
     if (m_itemNode.isValid()
-            && m_itemNode.modelNode().hasNodeProperty(gradientPropertyName().toUtf8()))
-        m_gradientTypeName = m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode().simplifiedDocumentTypeRepresentation();
+        && m_itemNode.modelNode().hasNodeProperty(gradientPropertyName().toUtf8())) {
+        m_gradientTypeName = m_itemNode.modelNode()
+                                 .nodeProperty(gradientPropertyName().toUtf8())
+                                 .modelNode()
+                                 .exportedTypeName()
+                                 .name.toQString();
+    }
 
     setupModel();
 
