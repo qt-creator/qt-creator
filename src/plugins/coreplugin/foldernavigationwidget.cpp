@@ -774,9 +774,9 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     }
 
     menu.addSeparator();
-    QAction *const collapseAllAction = menu.addAction(Tr::tr("Collapse All"));
+    const QAction *collapseAllAction = menu.addAction(Tr::tr("Collapse All"));
 
-    QAction *action = menu.exec(ev->globalPos());
+    const QAction *action = menu.exec(ev->globalPos());
     if (!action)
         return;
 
