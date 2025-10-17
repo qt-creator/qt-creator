@@ -222,6 +222,7 @@ static void askForDisabledVcsPlugins(const FilePath &inputDirectory)
         Tr::tr("A directory under version control was detected that is supported by the %1 plugin.")
             .arg(pluginDisplayName),
         Utils::InfoBarEntry::GlobalSuppression::Enabled);
+    info.setTitle(Tr::tr("Version Control Detected"));
     info.addCustomButton(Tr::tr("Enable %1").arg(pluginDisplayName), [vcsSuggestion, spec, infoBar] {
         // TODO In case the plugin is actually loaded during runtime (softloadable),
         // we'd need to restructure findVersionControlForDirectory below to take the new plugin
