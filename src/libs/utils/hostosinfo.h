@@ -9,120 +9,73 @@
 
 #include <optional>
 
-QT_BEGIN_NAMESPACE
-class QString;
-QT_END_NAMESPACE
-
 #ifdef Q_OS_WIN
 #define QTC_HOST_EXE_SUFFIX QTC_WIN_EXE_SUFFIX
 #else
 #define QTC_HOST_EXE_SUFFIX ""
 #endif // Q_OS_WIN
 
-namespace Utils {
+namespace Utils { class FilePath; }
 
-class FilePath;
+// The "Host" is the machine QtCreator is running on.
 
-class QTCREATOR_UTILS_EXPORT HostOsInfo
+namespace Utils::HostOsInfo {
+
+QTCREATOR_UTILS_EXPORT constexpr OsType hostOs()
 {
-public:
-    static constexpr OsType hostOs()
-    {
 #if defined(Q_OS_WIN)
-        return OsTypeWindows;
+    return OsTypeWindows;
 #elif defined(Q_OS_LINUX)
-        return OsTypeLinux;
+    return OsTypeLinux;
 #elif defined(Q_OS_MAC)
-        return OsTypeMac;
+    return OsTypeMac;
 #elif defined(Q_OS_UNIX)
-        return OsTypeOtherUnix;
+    return OsTypeOtherUnix;
 #else
-        return OsTypeOther;
+    return OsTypeOther;
 #endif
-    }
+}
 
-    //! Returns the architecture of the host system.
-    static OsArch hostArchitecture();
+//! Returns the architecture of the host system.
+QTCREATOR_UTILS_EXPORT OsArch hostArchitecture();
 
-    //! Returns the architecture the running binary was compiled for.
-    static constexpr OsArch binaryArchitecture()
-    {
-// MSVC:
-#if defined(_M_X64)
-        return OsArchAMD64;
-#elif defined(_M_IX86)
-        return OsArchX86;
-#elif defined(_M_ARM64)
-        return OsArchArm64;
-#elif defined(_M_ARM)
-        return OsArchArm;
-#elif defined(_M_IA64)
-        return OsArchItanium;
-// GCC / Clang:
-#elif defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64)
-        return OsArchAMD64;
-#elif defined(__i386__) || defined(__i386) || defined(__i486__) || defined(__i586__) \
-    || defined(__i686__)
-        return OsArchX86;
-#elif defined(__aarch64__)
-        return OsArchArm64;
-#elif defined(__arm__)
-        return OsArchArm;
-#elif defined(__ia64__) || defined(__itanium__)
-        return OsArchItanium;
-#else
-        static_assert(false, "Unknown architecture, please add detection.");
-        return OsArchUnknown;
-#endif
-    }
+//! Returns the architecture the running binary was compiled for.
+QTCREATOR_UTILS_EXPORT OsArch binaryArchitecture();
 
-    static constexpr bool isArm64Binary() { return binaryArchitecture() == OsArchArm64; }
-    static constexpr bool isAmd64Binary() { return binaryArchitecture() == OsArchAMD64; }
+inline bool isArm64Binary() { return binaryArchitecture() == OsArchArm64; }
+inline bool isAmd64Binary() { return binaryArchitecture() == OsArchAMD64; }
 
-    static constexpr bool isWindowsHost() { return hostOs() == OsTypeWindows; }
-    static constexpr bool isLinuxHost() { return hostOs() == OsTypeLinux; }
-    static constexpr bool isMacHost() { return hostOs() == OsTypeMac; }
-    static constexpr bool isAnyUnixHost()
-    {
+QTCREATOR_UTILS_EXPORT constexpr bool isWindowsHost() { return hostOs() == OsTypeWindows; }
+QTCREATOR_UTILS_EXPORT constexpr bool isLinuxHost() { return hostOs() == OsTypeLinux; }
+QTCREATOR_UTILS_EXPORT constexpr bool isMacHost() { return hostOs() == OsTypeMac; }
+QTCREATOR_UTILS_EXPORT constexpr bool isAnyUnixHost()
+{
 #ifdef Q_OS_UNIX
-        return true;
+    return true;
 #else
-        return false;
+    return false;
 #endif
-    }
+}
 
-    static QString withExecutableSuffix(const QString &executable)
-    {
-        return OsSpecificAspects::withExecutableSuffix(hostOs(), executable);
-    }
+QTCREATOR_UTILS_EXPORT QString withExecutableSuffix(const QString &executable);
 
-    static void setOverrideFileNameCaseSensitivity(Qt::CaseSensitivity sensitivity);
-    static void unsetOverrideFileNameCaseSensitivity();
+QTCREATOR_UTILS_EXPORT void setOverrideFileNameCaseSensitivity(Qt::CaseSensitivity sensitivity);
+QTCREATOR_UTILS_EXPORT void unsetOverrideFileNameCaseSensitivity();
 
-    static Qt::CaseSensitivity fileNameCaseSensitivity()
-    {
-        return m_useOverrideFileNameCaseSensitivity
-                ? m_overrideFileNameCaseSensitivity
-                : OsSpecificAspects::fileNameCaseSensitivity(hostOs());
-    }
+QTCREATOR_UTILS_EXPORT Qt::CaseSensitivity fileNameCaseSensitivity();
 
-    static constexpr QChar pathListSeparator()
-    {
-        return OsSpecificAspects::pathListSeparator(hostOs());
-    }
+QTCREATOR_UTILS_EXPORT constexpr QChar pathListSeparator()
+{
+    return OsSpecificAspects::pathListSeparator(hostOs());
+}
 
-    static constexpr Qt::KeyboardModifier controlModifier()
-    {
-        return OsSpecificAspects::controlModifier(hostOs());
-    }
+QTCREATOR_UTILS_EXPORT constexpr Qt::KeyboardModifier controlModifier()
+{
+    return OsSpecificAspects::controlModifier(hostOs());
+}
 
-    static std::optional<quint64> totalMemoryInstalledInBytes();
+QTCREATOR_UTILS_EXPORT std::optional<quint64> totalMemoryInstalledInBytes();
 
-    static const FilePath &root();
+QTCREATOR_UTILS_EXPORT const FilePath &root(); // Do not use.
 
-private:
-    static Qt::CaseSensitivity m_overrideFileNameCaseSensitivity;
-    static bool m_useOverrideFileNameCaseSensitivity;
-};
-
-} // namespace Utils
+} // namespace Utils::HostOsInfo

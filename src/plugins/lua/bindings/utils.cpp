@@ -109,22 +109,29 @@ void setupUtilsModule()
                 "Id",
                 sol::no_constructor);
 
-            auto hostOsInfoType = utils.new_usertype<HostOsInfo>("HostOsInfo");
-            hostOsInfoType["isWindowsHost"] = &HostOsInfo::isWindowsHost;
-            hostOsInfoType["isMacHost"] = &HostOsInfo::isMacHost;
-            hostOsInfoType["isLinuxHost"] = &HostOsInfo::isLinuxHost;
+            struct LuaHostOsInfo {
+                static bool isWindowsHost() { return HostOsInfo::isWindowsHost(); }
+                static bool isMacHost() { return HostOsInfo::isMacHost(); }
+                static bool isLinuxHost() { return HostOsInfo::isLinuxHost(); }
+                static OsArch hostArchitecture() { return HostOsInfo::hostArchitecture(); }
+            };
+
+            auto hostOsInfoType = utils.new_usertype<LuaHostOsInfo>("HostOsInfo");
+            hostOsInfoType["isWindowsHost"] = &LuaHostOsInfo::isWindowsHost;
+            hostOsInfoType["isMacHost"] = &LuaHostOsInfo::isMacHost;
+            hostOsInfoType["isLinuxHost"] = &LuaHostOsInfo::isLinuxHost;
             hostOsInfoType["os"] = sol::var([]() {
-                if (HostOsInfo::isMacHost())
+                if (LuaHostOsInfo::isMacHost())
                     return "mac";
-                else if (HostOsInfo::isLinuxHost())
+                else if (LuaHostOsInfo::isLinuxHost())
                     return "linux";
-                else if (HostOsInfo::isWindowsHost())
+                else if (LuaHostOsInfo::isWindowsHost())
                     return "windows";
                 else
                     return "unknown";
             }());
             hostOsInfoType["architecture"] = sol::var([]() {
-                switch (HostOsInfo::hostArchitecture()) {
+                switch (LuaHostOsInfo::hostArchitecture()) {
                 case OsArchUnknown:
                     return "unknown";
                 case OsArchX86:

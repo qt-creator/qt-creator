@@ -109,7 +109,7 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
     useJunctionsForSourceAndBuildDirectories.setDefaultValue(false);
     useJunctionsForSourceAndBuildDirectories.setLabelText(::CMakeProjectManager::Tr::tr(
         "Use junctions for CMake configuration and build operations"));
-    useJunctionsForSourceAndBuildDirectories.setVisible(Utils::HostOsInfo().isWindowsHost());
+    useJunctionsForSourceAndBuildDirectories.setVisible(HostOsInfo::isWindowsHost());
     useJunctionsForSourceAndBuildDirectories.setToolTip(::CMakeProjectManager::Tr::tr(
         "Create and use junctions for the source and build directories to overcome "
         "issues with long paths on Windows.<br><br>"

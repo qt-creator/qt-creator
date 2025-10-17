@@ -599,7 +599,7 @@ static GroupItem downloadGithubQmlls()
             storage->latestVersion = QVersionNumber::fromString(metadata["tag_name"].toString());
 
         if (HostOsInfo::isArm64Binary() || HostOsInfo::isAmd64Binary()) {
-            static constexpr QLatin1StringView binaryName = []() {
+            static QLatin1StringView binaryName = [] {
                 if (HostOsInfo::isWindowsHost()) {
                     if (HostOsInfo::isArm64Binary())
                         return "qmllanguageserver-windows-arm64"_L1;

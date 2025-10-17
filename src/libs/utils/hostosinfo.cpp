@@ -24,12 +24,12 @@
 #include <sys/sysctl.h>
 #endif
 
-namespace Utils {
+namespace Utils::HostOsInfo {
 
-Qt::CaseSensitivity HostOsInfo::m_overrideFileNameCaseSensitivity = Qt::CaseSensitive;
-bool HostOsInfo::m_useOverrideFileNameCaseSensitivity = false;
+static Qt::CaseSensitivity m_overrideFileNameCaseSensitivity = Qt::CaseSensitive;
+static bool m_useOverrideFileNameCaseSensitivity = false;
 
-OsArch HostOsInfo::hostArchitecture()
+OsArch hostArchitecture()
 {
 #ifdef Q_OS_WIN
     // Workaround for Creator running in x86 emulation mode on ARM machines
@@ -52,18 +52,18 @@ OsArch HostOsInfo::hostArchitecture()
     return arch;
 }
 
-void HostOsInfo::setOverrideFileNameCaseSensitivity(Qt::CaseSensitivity sensitivity)
+void setOverrideFileNameCaseSensitivity(Qt::CaseSensitivity sensitivity)
 {
     m_useOverrideFileNameCaseSensitivity = true;
     m_overrideFileNameCaseSensitivity = sensitivity;
 }
 
-void HostOsInfo::unsetOverrideFileNameCaseSensitivity()
+void unsetOverrideFileNameCaseSensitivity()
 {
     m_useOverrideFileNameCaseSensitivity = false;
 }
 
-std::optional<quint64> HostOsInfo::totalMemoryInstalledInBytes()
+std::optional<quint64> totalMemoryInstalledInBytes()
 {
 #ifdef Q_OS_LINUX
     struct sysinfo info;
@@ -87,10 +87,53 @@ std::optional<quint64> HostOsInfo::totalMemoryInstalledInBytes()
     return {};
 }
 
-const FilePath &HostOsInfo::root()
+const FilePath &root()
 {
     static const FilePath rootDir = FilePath::fromUserInput(QDir::rootPath());
     return rootDir;
+}
+
+Qt::CaseSensitivity fileNameCaseSensitivity()
+{
+    return m_useOverrideFileNameCaseSensitivity
+               ? m_overrideFileNameCaseSensitivity
+               : OsSpecificAspects::fileNameCaseSensitivity(hostOs());
+}
+
+OsArch binaryArchitecture()
+{
+// MSVC:
+#if defined(_M_X64)
+    return OsArchAMD64;
+#elif defined(_M_IX86)
+    return OsArchX86;
+#elif defined(_M_ARM64)
+    return OsArchArm64;
+#elif defined(_M_ARM)
+    return OsArchArm;
+#elif defined(_M_IA64)
+    return OsArchItanium;
+// GCC / Clang:
+#elif defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64)
+    return OsArchAMD64;
+#elif defined(__i386__) || defined(__i386) || defined(__i486__) || defined(__i586__) \
+    || defined(__i686__)
+        return OsArchX86;
+#elif defined(__aarch64__)
+    return OsArchArm64;
+#elif defined(__arm__)
+    return OsArchArm;
+#elif defined(__ia64__) || defined(__itanium__)
+    return OsArchItanium;
+#else
+    static_assert(false, "Unknown architecture, please add detection.");
+    return OsArchUnknown;
+#endif
+}
+
+QString withExecutableSuffix(const QString &executable)
+{
+    return OsSpecificAspects::withExecutableSuffix(hostOs(), executable);
 }
 
 } // namespace Utils

@@ -120,7 +120,6 @@ void CompilationDatabaseTests::testFilterFromFilename()
 
 void CompilationDatabaseTests::testFilterArguments()
 {
-    using Utils::HostOsInfo;
     const char winPath1[] = "C:\\Qt\\5.9.2\\mingw53_32\\include";
     const char otherPath1[] = "/Qt/5.9.2/mingw53_32/include";
     const char winPath2[] = "C:\\Qt\\5.9.2\\mingw53_32\\include\\QtWidgets";
