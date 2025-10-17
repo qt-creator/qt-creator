@@ -281,10 +281,11 @@ void DesignDocument::moveNodesToPosition(const QList<ModelNode> &nodes, const st
     bool isSingleNode = movingNodes.size() == 1;
     if (isSingleNode) {
         ModelNode singleNode = movingNodes.first();
-        if (targetNode.hasParentProperty()
-            && singleNode.simplifiedDocumentTypeRepresentation() == targetNode.simplifiedDocumentTypeRepresentation()
-            && singleNode.variantProperty("width").value() == targetNode.variantProperty("width").value()
-            && singleNode.variantProperty("height").value() == targetNode.variantProperty("height").value()) {
+        if (targetNode.hasParentProperty() && singleNode.typeId() == targetNode.typeId()
+            && singleNode.variantProperty("width").value()
+                   == targetNode.variantProperty("width").value()
+            && singleNode.variantProperty("height").value()
+                   == targetNode.variantProperty("height").value()) {
             targetNode = targetNode.parentProperty().parentModelNode();
         }
     }
