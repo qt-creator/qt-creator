@@ -112,7 +112,7 @@ public:
                                                         const DesignerSettings &designerSettings,
                                                         SL sl = {});
 
-    QString simplifiedTypeName(SL sl = {}) const;
+    QString exportedTypeName(SL sl = {}) const;
 
     QStringList allStateNames(SL sl = {}) const;
 

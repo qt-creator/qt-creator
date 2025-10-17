@@ -143,7 +143,7 @@ QString QmlModelNodeProxy::simplifiedTypeName() const
     if (multiSelection())
         return tr("multiselection");
 
-    return m_qmlObjectNode.simplifiedTypeName();
+    return m_qmlObjectNode.exportedTypeName();
 }
 
 static QList<int> toInternalIdList(const QList<ModelNode> &nodes)

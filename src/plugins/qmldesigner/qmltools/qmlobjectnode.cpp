@@ -594,7 +594,7 @@ QList<QmlModelState> QmlObjectNode::allDefinedStates(SL sl) const
 
     const auto allNodes = view()->allModelNodes();
     for (const ModelNode &node : allNodes) {
-        if (node.simplifiedDocumentTypeRepresentation() == "StateGroup")
+        if (node.metaInfo().isQtQuickStateGroup())
             returnList.append(QmlModelStateGroup(node).allStates());
     }
 
@@ -1036,14 +1036,14 @@ QmlVisualNode QmlObjectNode::toQmlVisualNode(SL sl) const
     return QmlVisualNode(modelNode());
 }
 
-QString QmlObjectNode::simplifiedTypeName(SL sl) const
+QString QmlObjectNode::exportedTypeName(SL sl) const
 {
     NanotraceHR::Tracer tracer{"qml model node simplified type name",
                                category(),
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    return modelNode().simplifiedDocumentTypeRepresentation();
+    return modelNode().exportedTypeName().name.toQString();
 }
 
 QStringList QmlObjectNode::allStateNames(SL sl) const

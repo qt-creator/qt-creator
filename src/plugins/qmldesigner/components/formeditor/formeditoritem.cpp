@@ -439,7 +439,7 @@ void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
     const auto &itemNode = qmlItemNode();
     paintTextInPlaceHolderForInvisbleItem(painter,
                                           itemNode.id(),
-                                          itemNode.simplifiedTypeName(),
+                                          itemNode.exportedTypeName(),
                                           m_boundingRect);
     painter->restore();
 }
