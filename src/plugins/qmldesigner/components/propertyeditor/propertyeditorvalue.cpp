@@ -727,7 +727,7 @@ QString PropertyEditorNodeWrapper::type() const
 {
     NanotraceHR::Tracer tracer{"property editor node wrapper type", category()};
 
-    return m_modelNode.simplifiedDocumentTypeRepresentation();
+    return m_modelNode.exportedTypeName().name.toQString();
 }
 
 ModelNode PropertyEditorNodeWrapper::parentModelNode() const
