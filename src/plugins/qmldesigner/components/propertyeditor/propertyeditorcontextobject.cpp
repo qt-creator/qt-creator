@@ -177,10 +177,10 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
 
     auto changeNodeTypeName = [&](ModelNode &selectedNode) {
         // Check if the requested type is the same as already set
-        if (selectedNode.simplifiedDocumentTypeRepresentation() == typeName)
+        if (selectedNode.documentTypeRepresentation() == typeName)
             return;
 
-        NodeMetaInfo metaInfo = m_model->metaInfo(typeName.toLatin1());
+        NodeMetaInfo metaInfo = m_model->metaInfo(typeName.toUtf8());
         if (!metaInfo.isValid()) {
             Core::AsynchronousMessageBox::warning(tr("Invalid Type"),
                                                   tr("%1 is an invalid type.").arg(typeName));
