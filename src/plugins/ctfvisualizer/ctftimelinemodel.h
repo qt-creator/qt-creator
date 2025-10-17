@@ -59,7 +59,7 @@ private:
 
     void addCounterValue(const nlohmann::json &event, qint64 normalizedTime, const std::string &name, int selectionId);
 
-    const QString &reuse(const QString &value);
+    QString reuse(const QString &value);
 
 protected:
     CtfTraceManager *const m_traceManager;
