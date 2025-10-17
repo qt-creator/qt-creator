@@ -111,13 +111,7 @@ void DockerDeviceEnvironmentAspect::fromMap(const Utils::Store &map)
 
     if (subMap.contains(DEVICE_ENVIRONMENT_KEY)) {
         const QStringList deviceEnv = subMap.value(DEVICE_ENVIRONMENT_KEY).toStringList();
-        NameValueDictionary envDict;
-        for (const QString &env : deviceEnv) {
-            const auto parts = env.split(QLatin1Char('='));
-            if (parts.size() == 2)
-                envDict.set(parts[0], parts[1]);
-        }
-        m_remoteEnvironment = Environment(envDict);
+        m_remoteEnvironment = Environment(NameValueDictionary(deviceEnv));
     }
 
     if (subMap.contains(CHANGES_KEY)) {
