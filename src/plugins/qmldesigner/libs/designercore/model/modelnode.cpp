@@ -81,7 +81,7 @@ QString ModelNode::id(SL sl) const
 void ModelNode::ensureIdExists(SL sl) const
 {
     if (!hasId())
-        setIdWithoutRefactoring(model()->generateNewId(simplifiedDocumentTypeRepresentation()));
+        setIdWithoutRefactoring(model()->generateNewId(exportedTypeName().name.toQString()));
 
     NanotraceHR::Tracer tracer{"model node ensure id exists",
                                category(),
