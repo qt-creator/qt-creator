@@ -246,9 +246,10 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
             msgBox.setTextFormat(Qt::RichText);
             msgBox.setIcon(QMessageBox::Question);
             msgBox.setWindowTitle("Change Type");
-            msgBox.setText(QString("Changing the type from %1 to %2 can't be done without removing "
-                                   "incompatible properties.<br><br>%3")
-                               .arg(selectedNode.simplifiedDocumentTypeRepresentation(), typeName, detailedText));
+            msgBox.setText(
+                QString("Changing the type from %1 to %2 can't be done without removing "
+                        "incompatible properties.<br><br>%3")
+                    .arg(selectedNode.exportedTypeName().name.toQString(), typeName, detailedText));
             msgBox.setInformativeText(
                 "Do you want to continue by removing incompatible properties?");
             msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
