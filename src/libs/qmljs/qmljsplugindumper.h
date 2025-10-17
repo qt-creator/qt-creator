@@ -84,7 +84,7 @@ private:
                                   const QString &prefix = {});
 
 private:
-    void watchFilePath(const Utils::FilePath &path);
+    void watchFilePaths(const Utils::FilePaths &paths);
     void unwatchFilePath(const Utils::FilePath &path);
     void prepareLibraryInfo(LibraryInfo &libInfo,
                             const Utils::FilePath &libraryPath,

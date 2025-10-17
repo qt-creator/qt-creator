@@ -122,6 +122,7 @@ void PluginDumper::onLoadPluginTypes(const FilePath &libraryPath,
             plugin.typeInfoPaths += pathNow;
     }
 
+    FilePaths pathsToWatch;
     // watch plugin libraries
     const QList<QmlDirParser::Plugin> plugins = snapshot.libraryInfo(canonicalLibraryPath).plugins();
     for (const QmlDirParser::Plugin &plugin : plugins) {
@@ -129,7 +130,7 @@ void PluginDumper::onLoadPluginTypes(const FilePath &libraryPath,
                                                      libraryPath.withNewPath(plugin.path),
                                                      plugin.name);
         if (!pluginLibrary.isEmpty()) {
-            watchFilePath(pluginLibrary);
+            pathsToWatch << pluginLibrary;
             m_libraryToPluginIndex.insert(pluginLibrary, index);
         }
     }
@@ -139,10 +140,12 @@ void PluginDumper::onLoadPluginTypes(const FilePath &libraryPath,
         for (const FilePath &path : std::as_const(plugin.typeInfoPaths)) {
             if (!path.exists())
                 continue;
-            watchFilePath(path);
+            pathsToWatch << path;
             m_libraryToPluginIndex.insert(path, index);
         }
     }
+
+    watchFilePaths(pathsToWatch);
 
     dump(plugin);
 }
@@ -592,16 +595,23 @@ void PluginDumper::loadQmltypesFile(const FilePaths &qmltypesFilePaths,
     });
 }
 
-void PluginDumper::watchFilePath(const FilePath &path)
+void PluginDumper::watchFilePaths(const FilePaths &paths)
 {
-    if (m_pluginWatcher.contains(path) || !path.exists())
-        return;
+    const FilePaths pathsToWatch = Utils::filtered(paths, [this](const FilePath &p) {
+        return !m_pluginWatcher.contains(p) && p.exists();
+    });
 
-    Result<std::unique_ptr<FilePathWatcher>> res = path.watch();
-    QTC_ASSERT_RESULT(res, return);
-
-    connect(res->get(), &FilePathWatcher::pathChanged, this, &PluginDumper::pluginChanged);
-    m_pluginWatcher.insert(path, std::move(*res));
+    std::vector<Result<std::unique_ptr<FilePathWatcher>>> results = pathsToWatch.watch();
+    for (size_t i = 0; i < results.size(); ++i) {
+        Result<std::unique_ptr<FilePathWatcher>> &res = results.at(i);
+        const FilePath path = pathsToWatch.at(i);
+        if (res) {
+            connect(res->get(), &FilePathWatcher::pathChanged, this, &PluginDumper::pluginChanged);
+            m_pluginWatcher.insert(path, std::move(*res));
+        } else {
+            qWarning() << res.error();
+        }
+    }
 }
 
 void PluginDumper::unwatchFilePath(const FilePath &path)
