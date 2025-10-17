@@ -222,6 +222,7 @@ QtcLibrary {
         "optionpushbutton.h",
         "optionpushbutton.cpp",
         "osspecificaspects.h",
+        "osspecificaspects.cpp",
         "outputformat.h",
         "outputformatter.cpp",
         "outputformatter.h",

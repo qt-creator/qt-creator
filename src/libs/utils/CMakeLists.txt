@@ -111,7 +111,7 @@ add_qtc_library(Utils
     networkaccessmanager.cpp networkaccessmanager.h
     optionpushbutton.h
     optionpushbutton.cpp
-    osspecificaspects.h
+    osspecificaspects.cpp osspecificaspects.h
     outputformat.h
     outputformatter.cpp outputformatter.h
     overlaywidget.cpp overlaywidget.h
