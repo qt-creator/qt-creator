@@ -23,7 +23,7 @@ QStringList BindingModelItem::headerLabels()
 }
 
 BindingModelItem::BindingModelItem(const BindingProperty &property)
-    : QStandardItem(idOrTypeName(property.parentModelNode()))
+    : QStandardItem(property.parentModelNode().displayName())
 {
     updateProperty(property);
 }
@@ -41,7 +41,7 @@ PropertyName BindingModelItem::targetPropertyName() const
 void BindingModelItem::updateProperty(const BindingProperty &property)
 {
     setData(property.parentModelNode().internalId(), InternalIdRole);
-    setData(idOrTypeName(property.parentModelNode()), TargetNameRole);
+    setData(property.parentModelNode().displayName(), TargetNameRole);
     setData(property.name().toByteArray(), TargetPropertyNameRole);
 
     // TODO: Make this safe when the new codemodel allows it.

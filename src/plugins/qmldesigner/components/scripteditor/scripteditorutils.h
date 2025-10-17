@@ -24,7 +24,6 @@ class VariantProperty;
 void callLater(const std::function<void()> &fun);
 void showErrorMessage(const QString &text);
 
-QString idOrTypeName(const ModelNode &modelNode);
 PropertyName uniquePropertyName(const PropertyName &suggestion, const ModelNode &modelNode);
 QString addOnToSignalName(const QString &signal);
 QString removeOnFromSignalName(const QString &signal);

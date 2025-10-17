@@ -36,14 +36,6 @@ void showErrorMessage(const QString &text)
     callLater([text]() { QMessageBox::warning(nullptr, Tr::tr("Error"), text); });
 }
 
-QString idOrTypeName(const ModelNode &modelNode)
-{
-    QString idLabel = modelNode.id();
-    if (idLabel.isEmpty())
-        idLabel = modelNode.simplifiedDocumentTypeRepresentation();
-    return idLabel;
-}
-
 PropertyName uniquePropertyName(const PropertyName &suggestion, const ModelNode &modelNode)
 {
     PropertyName name = suggestion;

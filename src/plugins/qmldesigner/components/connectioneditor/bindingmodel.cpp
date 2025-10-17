@@ -300,7 +300,7 @@ void BindingModelBackendDelegate::update(const BindingProperty &property, Abstra
     m_sourceNodeProperty.setCurrentText(sourcePropertyName);
 
     QString targetName = QString::fromUtf8(property.name());
-    m_targetNode = idOrTypeName(property.parentModelNode());
+    m_targetNode = property.parentModelNode().displayName();
 
     auto targetProperties = addName(availableTargetProperties(property), targetName);
     m_property.setModel(targetProperties);

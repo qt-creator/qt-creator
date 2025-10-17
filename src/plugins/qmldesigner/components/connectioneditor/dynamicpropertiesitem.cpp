@@ -29,7 +29,7 @@ QStringList DynamicPropertiesItem::headerLabels()
 }
 
 DynamicPropertiesItem::DynamicPropertiesItem(const AbstractProperty &property)
-    : QStandardItem(idOrTypeName(property.parentModelNode()))
+    : QStandardItem(property.parentModelNode().displayName())
 {
     updateProperty(property);
 }
@@ -55,7 +55,7 @@ std::optional<const QmlObjectNode> parentIfNotDefaultState(const AbstractPropert
 void DynamicPropertiesItem::updateProperty(const AbstractProperty &property)
 {
     setData(property.parentModelNode().internalId(), InternalIdRole);
-    setData(idOrTypeName(property.parentModelNode()), TargetNameRole);
+    setData(property.parentModelNode().displayName(), TargetNameRole);
     setData(property.name().toByteArray(), PropertyNameRole);
     setData(property.dynamicTypeName(), PropertyTypeRole);
 
