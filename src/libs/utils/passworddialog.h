@@ -38,8 +38,7 @@ public:
     PasswordDialog(const QString &title,
                    const QString &prompt,
                    const QString &doNotAskAgainLabel,
-                   bool withUsername,
-                   QWidget *parent = nullptr);
+                   bool withUsername);
     virtual ~PasswordDialog();
 
     void setUser(const QString &user);
@@ -52,14 +51,12 @@ public:
         const QString &prompt,
         const QString &doNotAskAgainLabel,
         const QString &userName,
-        const CheckableDecider &decider,
-        QWidget *parent = nullptr);
+        const CheckableDecider &decider);
 
     static std::optional<QString> getPassword(const QString &title,
                                               const QString &prompt,
                                               const QString &doNotAskAgainLabel,
-                                              const CheckableDecider &decider,
-                                              QWidget *parent = nullptr);
+                                              const CheckableDecider &decider);
 
 private:
     std::unique_ptr<PasswordDialogPrivate> d;

@@ -3,6 +3,7 @@
 
 #include "passworddialog.h"
 
+#include "guiutils.h"
 #include "layoutbuilder.h"
 #include "stylehelper.h"
 #include "utilsicons.h"
@@ -80,9 +81,8 @@ public:
 PasswordDialog::PasswordDialog(const QString &title,
                                const QString &prompt,
                                const QString &doNotAskAgainLabel,
-                               bool withUsername,
-                               QWidget *parent)
-    : QDialog(parent)
+                               bool withUsername)
+    : QDialog(dialogParent())
     , d(new PasswordDialogPrivate)
 {
     setWindowTitle(title);
@@ -158,13 +158,12 @@ std::optional<QPair<QString, QString>> PasswordDialog::getUserAndPassword(
     const QString &prompt,
     const QString &doNotAskAgainLabel,
     const QString &userName,
-    const CheckableDecider &decider,
-    QWidget *parent)
+    const CheckableDecider &decider)
 {
     if (!decider.shouldAskAgain())
         return std::nullopt;
 
-    PasswordDialog dialog(title, prompt, doNotAskAgainLabel, true, parent);
+    PasswordDialog dialog(title, prompt, doNotAskAgainLabel, true);
 
     dialog.setUser(userName);
 
@@ -180,13 +179,12 @@ std::optional<QPair<QString, QString>> PasswordDialog::getUserAndPassword(
 std::optional<QString> PasswordDialog::getPassword(const QString &title,
                                                    const QString &prompt,
                                                    const QString &doNotAskAgainLabel,
-                                                   const CheckableDecider &decider,
-                                                   QWidget *parent)
+                                                   const CheckableDecider &decider)
 {
     if (!decider.shouldAskAgain())
         return std::nullopt;
 
-    PasswordDialog dialog(title, prompt, doNotAskAgainLabel, false, parent);
+    PasswordDialog dialog(title, prompt, doNotAskAgainLabel, false);
 
     if (dialog.exec() == QDialog::Accepted)
         return dialog.password();

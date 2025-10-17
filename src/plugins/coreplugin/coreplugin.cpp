@@ -143,20 +143,19 @@ CoreArguments parseArguments(const QStringList &arguments)
 
 static void initProxyAuthDialog()
 {
-    QObject::connect(Utils::NetworkAccessManager::instance(),
+    QObject::connect(NetworkAccessManager::instance(),
                      &QNetworkAccessManager::proxyAuthenticationRequired,
-                     Utils::NetworkAccessManager::instance(),
+                     NetworkAccessManager::instance(),
                      [](const QNetworkProxy &, QAuthenticator *authenticator) {
                          static bool doNotAskAgain = false;
 
                          std::optional<QPair<QString, QString>> answer
-                             = Utils::PasswordDialog::getUserAndPassword(
+                             = PasswordDialog::getUserAndPassword(
                                  Tr::tr("Proxy Authentication Required"),
                                  authenticator->realm(),
                                  Tr::tr("Do not ask again."),
                                  {},
-                                 &doNotAskAgain,
-                                 Core::ICore::dialogParent());
+                                 &doNotAskAgain);
 
                          if (answer) {
                              authenticator->setUser(answer->first);
