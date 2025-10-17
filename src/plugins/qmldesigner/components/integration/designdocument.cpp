@@ -358,16 +358,6 @@ QString DesignDocument::displayName() const
     return fileName().path();
 }
 
-QString DesignDocument::simplfiedDisplayName() const
-{
-    NanotraceHR::Tracer tracer{"design document simplified display name", category()};
-
-    if (rootModelNode().id().isEmpty())
-        return rootModelNode().id();
-    else
-        return rootModelNode().simplifiedDocumentTypeRepresentation();
-}
-
 void DesignDocument::updateFileName(const Utils::FilePath & /*oldFileName*/, const Utils::FilePath &newFileName)
 {
     NanotraceHR::Tracer tracer{"design document update file name", category()};

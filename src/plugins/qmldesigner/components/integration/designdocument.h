@@ -46,7 +46,6 @@ public:
     ~DesignDocument() override;
 
     QString displayName() const;
-    QString simplfiedDisplayName() const;
 
     void loadDocument(Utils::PlainTextEdit *edit);
     void attachRewriterToModel();
