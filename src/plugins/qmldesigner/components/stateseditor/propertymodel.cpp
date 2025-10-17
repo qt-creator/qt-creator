@@ -90,7 +90,7 @@ void PropertyModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 
     m_modelNode = modelNode;
 
-    QTC_ASSERT(m_modelNode.simplifiedDocumentTypeRepresentation() == "PropertyChanges", return );
+    QTC_ASSERT(m_modelNode.metaInfo().isQtQuickPropertyChanges(), return);
 
     setupModel();
     emit modelNodeBackendChanged();

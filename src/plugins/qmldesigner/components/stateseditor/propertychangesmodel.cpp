@@ -93,7 +93,7 @@ void PropertyChangesModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 
     m_modelNode = modelNode;
 
-    QTC_ASSERT(m_modelNode.simplifiedDocumentTypeRepresentation() == "State", return );
+    QTC_ASSERT(m_modelNode.metaInfo().isQtQuickState(), return);
 
     m_view = qobject_cast<StatesEditorView *>(m_modelNode.view());
     if (m_view)
