@@ -1197,8 +1197,8 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
 
-    // VCS log directory action
-    dd->m_vcsLogAction = new QAction(Tr::tr("VCS Log Directory"), this);
+    // VCS log for directory action
+    dd->m_vcsLogAction = new QAction(Tr::tr("VCS Log for Directory"), this);
     cmd = ActionManager::registerAction(dd->m_vcsLogAction, Constants::VCS_LOG_DIRECTORY, projectTreeContext);
     cmd->setAttribute(Command::CA_UpdateText);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_CONFIG);
@@ -4192,7 +4192,7 @@ void ProjectExplorerPlugin::updateRunActions()
 void ProjectExplorerPlugin::updateVcsActions(const QString &vcsDisplayName)
 {
     //: %1 = version control name
-    dd->m_vcsLogAction->setText(Tr::tr("%1 Log Directory").arg(vcsDisplayName));
+    dd->m_vcsLogAction->setText(Tr::tr("%1 Log for Directory").arg(vcsDisplayName));
     dd->m_vcsLogAction->setVisible(!vcsDisplayName.isEmpty());
 }
 

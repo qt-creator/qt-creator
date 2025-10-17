@@ -735,7 +735,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
             FilePath topLevel;
             if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(filePath, &topLevel)) {
                 //: %1 = version control name
-                const QString text = Tr::tr("%1 Log Directory").arg(vc->displayName());
+                const QString text = Tr::tr("%1 Log for Directory").arg(vc->displayName());
                 QAction *vcsLogDirectory = menu.addAction(text);
                 const FilePath relativeDirectory = filePath.relativeChildPath(topLevel);
                 connect(vcsLogDirectory, &QAction::triggered, this, [vc, topLevel, relativeDirectory] {
