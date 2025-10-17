@@ -372,8 +372,12 @@ Tasks DockerDevicePrivate::validateMounts() const
 Result<Environment> DockerDevicePrivate::fetchEnvironment() const
 {
     Process envCaptureProcess;
-    envCaptureProcess.setCommand(
-        {settings().dockerBinaryPath(), {"run", "--rm", "-i", q->repoAndTag()}});
+
+    CommandLine cmdLine{settings().dockerBinaryPath(), {"run", "--rm", "-i"}};
+    cmdLine.addArgs(q->extraArgs(), CommandLine::Raw);
+    cmdLine.addArg(q->repoAndTag());
+
+    envCaptureProcess.setCommand(cmdLine);
     envCaptureProcess.setWriteData("printenv\n");
     envCaptureProcess.runBlocking();
     if (envCaptureProcess.result() != ProcessResult::FinishedWithSuccess) {
