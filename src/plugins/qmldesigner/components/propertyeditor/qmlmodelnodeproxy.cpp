@@ -187,7 +187,7 @@ QString QmlModelNodeProxy::simplifiedTypeName(int internalId) const
 
     QTC_ASSERT(modelNode.isValid(), return {});
 
-    return modelNode.view()->modelNodeForInternalId(internalId).simplifiedDocumentTypeRepresentation();
+    return modelNode.view()->modelNodeForInternalId(internalId).exportedTypeName().name.toQString();
 }
 
 PropertyEditorSubSelectionWrapper *QmlModelNodeProxy::findWrapper(int internalId) const
