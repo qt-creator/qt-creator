@@ -170,7 +170,8 @@ Storage::Synchronization::ExportedTypes addExports(Storage::Synchronization::Exp
                                                    ModulesStorage &modulesStorage,
                                                    ModuleId cppModuleId,
                                                    SourceId sourceId,
-                                                   Internal::LastModule &lastQmlModule)
+                                                   Internal::LastModule &lastQmlModule,
+                                                   bool isValueType)
 {
     exportedTypes.reserve(Utils::usize(qmlExports) + exportedTypes.size());
 
@@ -185,6 +186,15 @@ Storage::Synchronization::ExportedTypes addExports(Storage::Synchronization::Exp
                                    createVersion(qmlExport.version()),
                                    sourceId,
                                    cppExportedTypeName);
+
+        if (isValueType) {
+            exportedTypes.emplace_back(sourceId,
+                                       getQmlModuleId(qmlExport.package(), modulesStorage, lastQmlModule),
+                                       TypeNameString::join({"list<", exportedTypeName, ">"}),
+                                       createVersion(qmlExport.version()),
+                                       sourceId,
+                                       TypeNameString::join({"QList<", cppExportedTypeName, ">"}));
+        }
     }
 
     exportedTypes.emplace_back(sourceId,
@@ -193,6 +203,13 @@ Storage::Synchronization::ExportedTypes addExports(Storage::Synchronization::Exp
                                Storage::Version{},
                                sourceId,
                                cppExportedTypeName);
+
+    if (isValueType) {
+        auto cppTypeName = TypeNameString::join({"QList<", cppExportedTypeName, ">"});
+
+        exportedTypes.emplace_back(
+            sourceId, cppModuleId, cppTypeName, Storage::Version{}, sourceId, cppTypeName);
+    }
 
     for (QStringView internalAlias : interanalAliases) {
         exportedTypes.emplace_back(sourceId,
@@ -518,7 +535,8 @@ void addType(Storage::Synchronization::Types &types,
                modulesStorage,
                cppModuleId,
                sourceId,
-               lastQmlModule);
+               lastQmlModule,
+               component.isValueType());
 
     auto [functionsDeclarations, signalDeclarations] = createFunctionAndSignals(
         component.ownMethods(), componentNameWithoutNamespace);
