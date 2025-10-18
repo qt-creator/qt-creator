@@ -1079,4 +1079,30 @@ TEST_F(QmlTypesParser, value_list_is_not_inside_project)
     ASSERT_THAT(types, Each(IsTypeTrait(IsInsideProject(false))));
 }
 
+TEST_F(QmlTypesParser, value_type_adds_list_export)
+{
+    auto qtQmlModuleId = modulesStorage.moduleId("QtQml", ModuleKind::QmlLibrary);
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QUrl"
+                                    accessSemantics: "value"
+                                    exports: ["QtQml/url 1.0"]}})"};
+
+    parser.parse(source, imports, types, exportedTypes, projectEntryInfo, Storage::IsInsideProject::No);
+
+    ASSERT_THAT(exportedTypes,
+                IsSupersetOf({IsExportedType(qtQmlModuleId,
+                                             "list<url>",
+                                             QmlDesigner::Storage::Version{1, 0},
+                                             qmltypesSourceId,
+                                             "QList<QUrl>",
+                                             qmltypesSourceId),
+                              IsExportedType(qtQmlNativeModuleId,
+                                             "QList<QUrl>",
+                                             QmlDesigner::Storage::Version{},
+                                             qmltypesSourceId,
+                                             "QList<QUrl>",
+                                             qmltypesSourceId)}));
+}
+
 } // namespace

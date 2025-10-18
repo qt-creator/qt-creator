@@ -655,7 +655,7 @@ TEST_F(QmlDocumentParser, value_list_property)
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration("foos",
-                                                           IsImportedType("QList<int>"),
+                                                           IsImportedType("list<int>"),
                                                            Storage::PropertyDeclarationTraits::None)));
 }
 

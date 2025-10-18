@@ -205,8 +205,7 @@ TypeNameStringAndTraits filteredListTypeName(QStringView rawtypeName)
     if (typeName.size() and typeName.front().isUpper())
         return {typeName, Storage::PropertyDeclarationTraits::IsList};
 
-    return {Storage::TypeNameString::join({"QList<", Storage::TypeNameString{typeName}, ">"}),
-            Storage::PropertyDeclarationTraits::None};
+    return {rawtypeName, Storage::PropertyDeclarationTraits::None};
 }
 
 struct TypeNameAndTraits
