@@ -52,6 +52,8 @@ QtcPlugin {
         files: [
             "container.png",
             "container@2x.png",
+            "containerdevice.png",
+            "containerdevice@2x.png",
         ]
         fileTags: "qt.core.resource_data"
         Qt.core.resourcePrefix: "/devcontainer"
