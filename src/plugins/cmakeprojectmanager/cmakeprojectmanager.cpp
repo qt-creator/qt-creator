@@ -386,7 +386,7 @@ void CMakeManager::runCMakeWithProfiling(BuildSystem *buildSystem)
                 action->setData(file.nativePath());
                 emit ctfVisualiserLoadTrace->action()->triggered();
             }
-        });
+        }, Qt::SingleShotConnection);
 
         cmakeBuildSystem->runCMakeWithProfiling();
     }
