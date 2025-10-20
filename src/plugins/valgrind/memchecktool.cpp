@@ -24,6 +24,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
 
 #include <debugger/analyzer/analyzerutils.h>
@@ -621,8 +622,8 @@ void MemcheckTool::heobAction()
 
     // heob executable
     const QString heob = QString("heob%1.exe").arg(abi.wordWidth());
-    const QString heobPath = dialog.path() + '/' + heob;
-    if (!QFileInfo::exists(heobPath)) {
+    const FilePath heobFilePath = FilePath::fromUserInput(dialog.path()).pathAppended(heob);
+    if (!heobFilePath.isExecutableFile()) {
         QMessageBox::critical(
             Core::ICore::dialogParent(),
             Tr::tr("Heob"),
@@ -630,6 +631,7 @@ void MemcheckTool::heobAction()
                 .arg("<a href=\"https://github.com/ssbssa/heob/releases\">Heob</a>"));
         return;
     }
+    const QString heobPath = heobFilePath.toUserOutput();
 
     // dwarfstack
     if (abi.osFlavor() == Abi::WindowsMSysFlavor) {
@@ -656,11 +658,11 @@ void MemcheckTool::heobAction()
     QFile::remove(xmlPath);
 
     // full command line
-    QString arguments = heob + heobArguments + " \"" + executable.path() + '\"';
+    QString commandLine = "\"" + heobPath + "\" " + heobArguments + " \"" + executable.path() + '\"';
     if (!commandLineArguments.isEmpty())
-        arguments += ' ' + commandLineArguments;
-    QByteArray argumentsCopy(reinterpret_cast<const char *>(arguments.utf16()), arguments.size() * 2 + 2);
-    Q_UNUSED(argumentsCopy)
+        commandLine += ' ' + commandLineArguments;
+    QByteArray commandLineCopy(reinterpret_cast<const char *>(commandLine.utf16()), commandLine.size() * 2 + 2);
+    Q_UNUSED(commandLineCopy)
 
     // process environment
     QByteArray env;
@@ -683,12 +685,16 @@ void MemcheckTool::heobAction()
 
 #ifdef Q_OS_WIN
     // heob process
+    // TODO possible to turn this into runcontrol/runworker to have a tab including its
+    //      functionality? might also improve this async output which should come earlier
+    Core::MessageManager::writeDisrupting("Heob: Starting " + commandLine + "...");
+
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
     memset(&si, 0, sizeof(STARTUPINFO));
     si.cb = sizeof(STARTUPINFO);
     if (!CreateProcess(reinterpret_cast<LPCWSTR>(heobPath.utf16()),
-                       reinterpret_cast<LPWSTR>(argumentsCopy.data()), NULL, NULL, FALSE,
+                       reinterpret_cast<LPWSTR>(commandLineCopy.data()), NULL, NULL, FALSE,
                        CREATE_UNICODE_ENVIRONMENT | CREATE_SUSPENDED | CREATE_NEW_CONSOLE, envPtr,
                        reinterpret_cast<LPCWSTR>(workingDirectory.utf16()), &si, &pi)) {
         DWORD e = GetLastError();
@@ -1508,7 +1514,7 @@ void HeobData::readExitData()
         if (error == ERROR_PIPE_CONNECTED) {
             pipeConnected = true;
         } else if (error == ERROR_IO_PENDING) {
-            if (WaitForSingleObject(m_ov.hEvent, 1000) == WAIT_OBJECT_0)
+            if (WaitForSingleObject(m_ov.hEvent, 10000) == WAIT_OBJECT_0)
                 pipeConnected = true;
             else
                 CancelIo(m_errorPipe);
@@ -1526,6 +1532,7 @@ void HeobData::readExitData()
 
     // connection to heob error pipe failed
     delete this;
+    Core::MessageManager::writeFlashing("Heob: Finished.");
 }
 
 enum
@@ -1553,6 +1560,7 @@ enum
 
 void HeobData::processFinished()
 {
+    const auto atExit = qScopeGuard([] { Core::MessageManager::writeFlashing("Heob: Finished."); });
     m_processFinishedNotifier->setEnabled(false);
 
     QString exitMsg;
