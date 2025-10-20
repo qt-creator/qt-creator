@@ -25,7 +25,7 @@ Q_LOGGING_CATEGORY(abiDetect, "qtc.qtsupport.detectAbis", QtWarningMsg)
 class QtAbiExtractor
 {
 public:
-    QtAbiExtractor(const QVersionNumber &qtVersion, const FilePath &jsonFile)
+    QtAbiExtractor(const QtVersion &qtVersion, const FilePath &jsonFile)
         : m_qtVersion(qtVersion), m_jsonFile(jsonFile) {}
 
     Abis getAbis()
@@ -44,7 +44,7 @@ public:
             return printErrorAndReturn(parseError.errorString());
 
         m_mainObject = jsonDoc.object();
-        if (m_qtVersion < QVersionNumber(6, 9))
+        if (m_qtVersion.qtVersion() < QVersionNumber(6, 9))
             extractAbisV1();
         else
             extractAbisV2();
@@ -160,8 +160,15 @@ private:
                 return Abi::OpenBsdFlavor;
             break;
         case Abi::WindowsOS: {
-            if (compilerId == "GNU" || compilerId == "Clang")
+            if (compilerId == "GNU")
                 return Abi::WindowsMSysFlavor;
+
+            // Clang could be either MSVC or mingw, use default mkspec as heuristic.
+            if (compilerId == "Clang") {
+                if (m_qtVersion.mkspec().endsWith("win32-clang-g++"))
+                    return Abi::WindowsMSysFlavor;
+                return Abi::WindowsMsvc2019Flavor; // 2019 seems the safest bet.
+            }
 
             // https://learn.microsoft.com/en-us/cpp/overview/compiler-versions
             const QVersionNumber rawVersion = QVersionNumber::fromString(compilerVersion);
@@ -229,7 +236,7 @@ private:
         return obj.value("compiler_version").toString();
     }
 
-    const QVersionNumber m_qtVersion;
+    const QtVersion &m_qtVersion;
     const FilePath m_jsonFile;
     QJsonObject m_mainObject;
     Abis m_abis;
@@ -258,7 +265,7 @@ Abis qtAbisFromJson(const QtVersion &qtVersion, const Utils::FilePaths &possible
         return {};
     }
 
-    return QtAbiExtractor(qtVersion.qtVersion(), jsonFile).getAbis();
+    return QtAbiExtractor(qtVersion, jsonFile).getAbis();
 }
 
 } // namespace QtSupport::Internal
