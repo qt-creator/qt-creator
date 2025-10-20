@@ -1021,7 +1021,7 @@ static bool startsWithWindowsDriveLetter(QStringView path)
 }
 
 // This is a compromise across platforms. It will mis-classify "C:/..." as absolute
-// paths on non-Windows, and QRC paths ":abc..." (wrongly) as non-absolute.
+// paths on non-Windows.
 
 static bool isAbsolutePathHelper(QStringView path)
 {
@@ -1029,7 +1029,7 @@ static bool isAbsolutePathHelper(QStringView path)
         return true;
     if (startsWithWindowsDriveLetterAndSlash(path))
         return true;
-    if (path.startsWith(u":/")) // QRC
+    if (path.startsWith(':')) // QRC
         return true;
     return false;
 }

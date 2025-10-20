@@ -1927,6 +1927,9 @@ void tst_filepath::isRelativePath_data()
     QTest::newRow("windows-remote-current-dir") << "device://host/C:" << true;
     QTest::newRow("windows-remote-path") << "device://host/C:/" << false;
     QTest::newRow("windows-remote-path-with-dir") << "device://host/C:/foo" << false;
+
+    QTest::newRow("qrc-absolute-path-variant1") << ":/foo/bar" << false;
+    QTest::newRow("qrc-absolute-path-variant2") << ":foo/bar" << false;
 }
 
 void tst_filepath::isRelativePath()
