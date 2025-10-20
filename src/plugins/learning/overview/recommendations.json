@@ -474,24 +474,24 @@
         },
 
         {
-            "id_url": "https://www.qt.io/blog/get-better-qml-code-completions-with-codellama-13b-qml-and-7b-qml-v2.0",
-            "name": "Get Better QML Code Completions with CodeLlama 13B-QML and 7B-QML v3",
-            "thumbnail": "blogpostgetbetterqmlcodecompletions.webp",
+            "id_url": "https://www.qt.io/blog/qt-6.10-released",
+            "name": "Qt 6.10 Released!",
+            "thumbnail": "blogpostqt610released.webp",
+            "thumbnailurl": "https://www.qt.io/hubfs/QtFramework-6.10-ReleaseBlog-FeaturedImage.webp",
+            "type": "blogpost"
+        },
+        {
+            "id_url": "https://www.qt.io/blog/qt-for-python-release-6.10-is-here",
+            "name": "Qt for Python release: 6.10 is here!",
+            "thumbnail": "blogpostqtforpython610ishere.webp",
+            "thumbnailurl": "https://www.qt.io/hubfs/Qt%20Thumbnails.png",
+            "type": "blogpost"
+        },
+        {
+            "id_url": "https://www.qt.io/blog/openai-users-can-now-enjoy-better-qml-coding-performance",
+            "name": "Qt AI Assistant v0.9.6 Released!",
+            "thumbnail": "blogpostqtaiassistant096released.webp",
             "thumbnailurl": "https://www.qt.io/hubfs/CodeCompletionRectangularShadowClip-converted.gif",
-            "type": "blogpost"
-        },
-        {
-            "id_url": "https://www.qt.io/blog/introducing-qt-certification-testing-platform",
-            "name": "Introducing the Qt Certification Testing Platform",
-            "thumbnail": "blogpostintroducingqtcertificationtestingplatform.webp",
-            "thumbnailurl": "https://www.qt.io/hubfs/Certificate_post_image-1.jpeg",
-            "type": "blogpost"
-        },
-        {
-            "id_url": "https://www.qt.io/blog/qt-customer-training-courses-available-online",
-            "name": "Qt Customer Training Courses Available Online",
-            "thumbnail": "blogpostqtcustomertrainingcourses.webp",
-            "thumbnailurl": "https://www.qt.io/hs-fs/hubfs/undefined-Jun-25-2025-05-56-15-4543-AM.png",
             "type": "blogpost"
         }
     ]
