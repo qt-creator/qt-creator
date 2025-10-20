@@ -253,12 +253,22 @@ static std::optional<VisualStudioInstallation> detectCppBuildTools2017()
     return installation;
 }
 
-static QList<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QString &vswhere)
+static FilePath vswherePath()
 {
+    return FilePath::fromString(
+        windowsProgramFilesDir() + "/Microsoft Visual Studio/Installer/vswhere.exe");
+}
+
+static QList<VisualStudioInstallation> detectVisualStudioFromVswhere()
+{
+    const FilePath vswhere = vswherePath();
+    if (!vswhere.isExecutableFile())
+        return {};
+
     QList<VisualStudioInstallation> installations;
     Process vsWhereProcess;
     vsWhereProcess.setUtf8Codec();
-    vsWhereProcess.setCommand({FilePath::fromString(vswhere),
+    vsWhereProcess.setCommand({vswhere,
                         {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"}});
     vsWhereProcess.runBlocking(5s);
     if (vsWhereProcess.result() != ProcessResult::FinishedWithSuccess) {
@@ -313,6 +323,35 @@ static QList<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QStri
     return installations;
 }
 
+static FilePaths detectClangClFromVswhere()
+{
+    const FilePath vswhere = vswherePath();
+    if (!vswhere.isExecutableFile())
+        return {};
+
+    Process vswhereProcess;
+    vswhereProcess.setUtf8Codec();
+    vswhereProcess.setCommand(
+        {vswhere, {"-products", "*", "-format", "json", "-utf8", "-find", "**\\clang-cl.exe"}});
+    vswhereProcess.runBlocking(5s);
+    if (vswhereProcess.result() != ProcessResult::FinishedWithSuccess) {
+        qWarning() << vswhereProcess.verboseExitMessage();
+        return {};
+    }
+
+    const QByteArray output = vswhereProcess.cleanedStdOut().toUtf8();
+    QJsonParseError error;
+    const QJsonDocument doc = QJsonDocument::fromJson(output, &error);
+    if (error.error != QJsonParseError::NoError || doc.isNull()) {
+        qWarning() << "Could not parse json document from vswhere output.";
+        return {};
+    }
+
+    return Utils::transform<FilePaths>(doc.array(), [](const QJsonValue &v) {
+        return FilePath::fromUserInput(v.toString());
+    });
+}
+
 static QList<VisualStudioInstallation> detectVisualStudioFromRegistry()
 {
     QList<VisualStudioInstallation> result;
@@ -348,15 +387,9 @@ static QList<VisualStudioInstallation> detectVisualStudioFromRegistry()
 
 static QList<VisualStudioInstallation> detectVisualStudio()
 {
-    const QString vswhere = windowsProgramFilesDir()
-                            + "/Microsoft Visual Studio/Installer/vswhere.exe";
-    if (QFileInfo::exists(vswhere)) {
-        const QList<VisualStudioInstallation> installations = detectVisualStudioFromVsWhere(
-            vswhere);
-        if (!installations.isEmpty())
-            return installations;
-    }
-
+    const QList<VisualStudioInstallation> installations = detectVisualStudioFromVswhere();
+    if (!installations.isEmpty())
+        return installations;
     return detectVisualStudioFromRegistry();
 }
 
@@ -2277,6 +2310,11 @@ Toolchains ClangClToolchainFactory::autoDetect(const ToolchainDetector &detector
     const FilePath clangClPath = systemEnvironment.searchInPath("clang-cl.exe");
     if (!clangClPath.isEmpty())
         results.append(detectClangClToolChainInPath(clangClPath, known, ""));
+
+    for (const FilePaths fromVswhere = detectClangClFromVswhere();
+         const FilePath &clangCl : fromVswhere) {
+        results.append(detectClangClToolChainInPath(clangCl, known, ""));
+    }
 
     return results;
 }
