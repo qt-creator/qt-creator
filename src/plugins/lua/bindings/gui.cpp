@@ -800,7 +800,7 @@ void setupGuiModule()
             sol::property(
                 &Layouting::CompletingTextEdit::completer, &Layouting::CompletingTextEdit::setCompleter),
             sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
+            sol::bases<Widget, Object>());
 
         gui.new_usertype<LineEdit>(
             "LineEdit",
