@@ -10,6 +10,8 @@
 #include <utils/hostosinfo.h>
 #include <utils/link.h>
 
+#include <QSignalSpy>
+
 QT_BEGIN_NAMESPACE
 namespace QTest {
 template<>
@@ -155,6 +157,7 @@ private slots:
     void parentsWithLastPath();
     void exists();
     void isNewerThan();
+    void watch();
 
 private:
     QTemporaryDir tempDir;
@@ -2299,6 +2302,105 @@ void tst_filepath::isNewerThan()
     QVERIFY(resultPath->isNewerThan(time));
     QVERIFY(!resultPath->isNewerThan(QDateTime::currentDateTime()));
     QVERIFY(!resultPath->isNewerThan(resultPath->lastModified()));
+}
+
+// QSignalSpy does not work with signals from threads, because it uses a direct connection
+// so add a QObject in between
+class Spy : public QObject
+{
+    Q_OBJECT
+
+public:
+    Spy(FilePathWatcher *watcher)
+        : signalSpy(this, &Spy::trigger)
+    {
+        QObject::connect(watcher, &FilePathWatcher::pathChanged, this, &Spy::trigger);
+    }
+
+    bool wait(int millis) { return signalSpy.wait(millis); }
+
+    void clear() { signalSpy.clear(); }
+
+    qsizetype count() { return signalSpy.count(); }
+
+signals:
+    void trigger();
+
+private:
+    QSignalSpy signalSpy;
+};
+
+void tst_filepath::watch()
+{
+    const FilePath rootDir = FilePath::fromString(rootPath);
+    const auto fileName = [&rootDir](int i) {
+        return rootDir.pathAppended("watchfile" + QString::number(i) + ".txt");
+    };
+    const auto createFile = [fileName](int i) {
+        const auto filePath = fileName(i);
+        filePath.writeFileContents("test");
+        return filePath;
+    };
+    FilePaths watchFiles
+        = Utils::transform<FilePaths, QList<int>>({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, createFile);
+    // Add one that does not exist to make sure the rest still works.
+    watchFiles.append(rootDir.pathAppended("nonexistingfile.txt"));
+    std::vector<Utils::Result<std::unique_ptr<FilePathWatcher>>> firstWatches = watchFiles.watch();
+    QVERIFY(!firstWatches.back().has_value());
+    firstWatches.pop_back();
+    for (const auto &watchResult : firstWatches)
+        QVERIFY_RESULT(watchResult);
+
+    // Verify that modifying one of the files triggers its watcher
+    Spy spy1(firstWatches[0].value().get());
+    QVERIFY_RESULT(fileName(0).writeFileContents("test 1"));
+    QVERIFY(spy1.wait(3000));
+    QCOMPARE(spy1.count(), 1);
+    spy1.clear();
+
+    // Make sure triggering a different file does not trigger the watcher of the first file
+    QVERIFY_RESULT(fileName(1).writeFileContents("test 2"));
+    QVERIFY_RESULT(fileName(0).writeFileContents("test 1"));
+    QVERIFY(spy1.wait(3000));
+    QCOMPARE(spy1.count(), 1);
+    spy1.clear();
+
+    // Add another watcher on the first file
+    const std::vector<Utils::Result<std::unique_ptr<FilePathWatcher>>> secondWatches
+        = FilePaths{fileName(0)}.watch();
+    for (const auto &watchResult : secondWatches)
+        QVERIFY_RESULT(watchResult);
+
+    // Make sure that both watchers are triggered when the file changes
+    Spy spy2(secondWatches[0].value().get());
+    QVERIFY_RESULT(fileName(0).writeFileContents("test 2"));
+    QVERIFY(spy2.wait(3000));
+    QCOMPARE(spy2.count(), 1);
+    QCOMPARE(spy1.count(), 1);
+    spy1.clear();
+    spy2.clear();
+
+    // Make sure that removing the first watcher(s) leaves the second working
+    firstWatches.clear();
+    QVERIFY_RESULT(fileName(0).writeFileContents("test 3"));
+    QVERIFY(spy2.wait(3000));
+    QCOMPARE(spy2.count(), 1);
+    QCOMPARE(spy1.count(), 0);
+    spy1.clear();
+    spy2.clear();
+
+    // Test replacement like it is done for SaveFile
+    const FilePath saveFile = rootDir / "watchfile.savefile";
+    saveFile.writeFileContents("test for save");
+    fileName(0).removeFile();
+    QVERIFY_RESULT(saveFile.renameFile(fileName(0)));
+    QVERIFY(spy2.wait(3000));
+    QCOMPARE(spy2.count(), 1);
+    spy2.clear();
+    // Check that we still are notified for further changes
+    QVERIFY_RESULT(fileName(0).writeFileContents("change after replace"));
+    QVERIFY(spy2.wait(3000));
+    QCOMPARE(spy2.count(), 1);
 }
 
 } // Utils
