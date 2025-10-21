@@ -26,5 +26,17 @@ QtcPlugin {
         "dockersettings.cpp",
         "dockersettings.h",
     ]
-}
 
+    Group {
+        name: "images"
+        prefix: "images/"
+        files: [
+            "dockerdevice.png",
+            "dockerdevice@2x.png",
+            "dockerdevicesmall.png",
+            "dockerdevicesmall@2x.png",
+        ]
+        fileTags: "qt.core.resource_data"
+        Qt.core.resourcePrefix: "/docker"
+    }
+}

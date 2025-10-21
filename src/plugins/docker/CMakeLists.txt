@@ -14,3 +14,13 @@ add_qtc_plugin(Docker
     dockerplugin.cpp
     dockersettings.cpp dockersettings.h
 )
+
+qtc_add_resources(Docker "images"
+  PREFIX "/docker"
+  BASE "."
+  FILES
+    images/dockerdevice.png
+    images/dockerdevice@2x.png
+    images/dockerdevicesmall.png
+    images/dockerdevicesmall@2x.png
+)

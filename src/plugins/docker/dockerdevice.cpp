@@ -860,7 +860,8 @@ DockerDeviceFactory::DockerDeviceFactory()
     : IDeviceFactory(Constants::DOCKER_DEVICE_TYPE)
 {
     setDisplayName(Tr::tr("Docker Device"));
-    setIcon(QIcon());
+    setCombinedIcon(":/docker/images/dockerdevicesmall.png",
+                    ":/docker/images/dockerdevice.png");
     setCreator([this] {
         DockerDeviceSetupWizard wizard;
         if (wizard.exec() != QDialog::Accepted)
