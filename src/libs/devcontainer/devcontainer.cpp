@@ -277,11 +277,7 @@ static void connectProcessToLog(
 
 static QString imageName(const InstanceConfig &instanceConfig)
 {
-    const QString hash = QString::fromLatin1(
-        QCryptographicHash::hash(
-            instanceConfig.workspaceFolder.nativePath().toUtf8(), QCryptographicHash::Sha256)
-            .toHex());
-    return QString("qtc-devcontainer-%1").arg(hash);
+    return QString("qtc-devcontainer-%1").arg(instanceConfig.devContainerId());
 }
 
 static QString containerName(const InstanceConfig &instanceConfig)
