@@ -932,11 +932,13 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
         CommandLine cmdLine = process.commandLine();
         Environment env = process.environment();
 
+        bool runAsRoot = false;
+        if (auto runAsRootAspect = aspectData<RunAsRootAspect>())
+            runAsRoot = runAsRootAspect->value;
+        process.setRunAsRoot(runAsRoot);
+
         if (cmdLine.executable().isLocal()) {
             // Running locally.
-            bool runAsRoot = false;
-            if (auto runAsRootAspect = aspectData<RunAsRootAspect>())
-                runAsRoot = runAsRootAspect->value;
 
             if (runAsRoot)
                 RunControl::provideAskPassEntry(env);
@@ -949,7 +951,6 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
                 cmdLine = disclaim;
             }
 
-            process.setRunAsRoot(runAsRoot);
         }
 
         const IDevice::ConstPtr device = DeviceManager::deviceForPath(cmdLine.executable());
