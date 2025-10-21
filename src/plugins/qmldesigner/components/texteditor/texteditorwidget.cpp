@@ -63,6 +63,7 @@ TextEditorWidget::TextEditorWidget(TextEditorView *textEditorView)
 void TextEditorWidget::setTextEditor(
     Utils::UniqueObjectLatePtr<TextEditor::BaseTextEditor> textEditor)
 {
+    m_updateSelectionTimer.stop();
     std::swap(m_textEditor, textEditor);
 
     if (m_textEditor) {
