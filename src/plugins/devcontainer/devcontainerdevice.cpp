@@ -18,6 +18,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
@@ -405,6 +406,8 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
             return DoneResult::Error;
         }
 
+        DeviceManager::setDeviceState(id(), DeviceState::DeviceReadyToUse);
+
         m_downRecipe = std::move(*downRecipe);
         m_forceDownRecipe = std::move(*forceDownRecipe);
         return DoneResult::Success;
@@ -522,6 +525,7 @@ Group Device::downRecipe(bool forceDown)
             m_processInterfaceCreator = nullptr;
             m_fileAccess.reset();
             m_systemEnvironment.reset();
+            DeviceManager::setDeviceState(id(), DeviceState::DeviceStateUnknown);
         }),
         removeDetectedKitsRecipe(shared_from_this(), m_instanceConfig.logFunction),
         forceDown ? *m_forceDownRecipe : *m_downRecipe
