@@ -560,6 +560,9 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_runConfigurationCombo = new QComboBox(this);
     m_runConfigurationCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     m_runConfigurationCombo->setMinimumContentsLength(15);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 11, 0)
+    m_runConfigurationCombo->view()->setKeyboardSearchFlags(Qt::MatchContains | Qt::MatchWrap);
+#endif
     setWheelScrollingWithoutFocusBlocked(m_runConfigurationCombo);
 
     m_addRunToolButton = new QPushButton(Tr::tr("Add..."), this);

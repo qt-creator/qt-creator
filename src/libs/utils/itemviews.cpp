@@ -66,6 +66,9 @@ TreeView::TreeView(QWidget *parent)
     : View<QTreeView>(parent)
 {
     setUniformRowHeights(true);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 11, 0)
+    setKeyboardSearchFlags(Qt::MatchContains | Qt::MatchWrap);
+#endif
 }
 
 void TreeView::setSearchRole(int role)
