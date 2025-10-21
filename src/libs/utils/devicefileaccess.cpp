@@ -17,6 +17,7 @@
 #include "qtcprocess.h"
 #endif
 
+#include <QElapsedTimer>
 #include <QFileSystemWatcher>
 #include <QOperatingSystemVersion>
 #include <QRandomGenerator>
@@ -26,6 +27,7 @@
 #include <QTemporaryDir>
 #include <QTemporaryFile>
 #include <QThread>
+#include <QTimer>
 
 #ifdef Q_OS_WIN
 #ifdef QTCREATOR_PCH_H
@@ -722,15 +724,6 @@ class DesktopFilePathWatcher final : public FilePathWatcher
                     [this, watchers] { return _watch(watchers); },
                     Qt::BlockingQueuedConnection,
                     &results);
-
-                for (const DesktopFilePathWatcher *watcher : watchers) {
-                    connect(
-                        watcher,
-                        &DesktopFilePathWatcher::continueWatch,
-                        this,
-                        [this](const FilePath &path) { m_watcher->addPath(path.path()); });
-                }
-
                 return results;
             }
             Result<> removeWatch(DesktopFilePathWatcher *watcher)
@@ -747,36 +740,66 @@ class DesktopFilePathWatcher final : public FilePathWatcher
         protected:
             void _init()
             {
+                // magic numbers
+                static constexpr int compressInterval = 50;
+                static constexpr qint64 maxReschedulingInterval = 300;
+                m_notifyTimer = new QTimer(this);
+                m_notifyTimer->setInterval(compressInterval);
+                m_notifyTimer->setSingleShot(true);
+                connect(m_notifyTimer, &QTimer::timeout, this, &Private::notify);
+
                 m_watcher = new QFileSystemWatcher(this);
-
-                connect(m_watcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path) {
-                    notify(path, true);
-                });
-
-                connect(
-                    m_watcher,
-                    &QFileSystemWatcher::directoryChanged,
-                    this,
-                    [this](const QString &path) { notify(path, false); });
-            }
-            void notify(const QString &path, bool isFile) const
-            {
-                const FilePath filePath = FilePath::fromString(path);
-                auto it = m_watchClients.find(filePath);
-                if (it == m_watchClients.end())
-                    return;
-
-                const bool continueWatch = isFile
-                                         && !m_watcher->files()
-                                                 .contains(
-                                                     path);
-                for (DesktopFilePathWatcher *watcher : it.value()) {
-                    watcher->emitChanged();
-                    if (continueWatch) {
-                        QMetaObject::invokeMethod(
-                            watcher, &DesktopFilePathWatcher::requestContinueWatch);
+                const auto addPath = [this](const QString &path) {
+                    // Restart the timer if it wasn't already running,
+                    // or we already saw an event for that file - so we only send a single
+                    // signal for multiple consecutive events for the same file.
+                    // The QFileSystemWatcher can send multiple ones while the file is modified,
+                    // and if the file is removed and readded (like with "atomic" writes or version
+                    // control operations) we also only want a single event.
+                    // But guard that rescheduling by a max delay.
+                    const bool isNew = Utils::insert(m_scheduledPaths, FilePath::fromString(path));
+                    if (!m_notifyTimer->isActive()) {
+                        m_schedulingStarted.start();
+                        m_notifyTimer->start();
+                    } else if (!isNew && m_schedulingStarted.elapsed() < maxReschedulingInterval) {
+                        m_notifyTimer->start();
                     }
+                };
+                connect(m_watcher, &QFileSystemWatcher::fileChanged, this, addPath);
+                connect(m_watcher, &QFileSystemWatcher::directoryChanged, this, addPath);
+            }
+
+            void notify()
+            {
+                const QSet<FilePath> paths = m_scheduledPaths;
+                m_scheduledPaths.clear();
+                FilePaths toReAdd;
+                QList<DesktopFilePathWatcher *> toNotify;
+                const QStringList watchedFiles = m_watcher->files();
+                const QStringList watchedDirectories = m_watcher->directories();
+                for (const FilePath &filePath : paths) {
+                    auto it = m_watchClients.find(filePath);
+                    if (it == m_watchClients.end())
+                        continue;
+
+                    // If the file was removed and readded (like with "atomic" writes), we
+                    // might loose the watch, so possibly readd
+                    const bool reinitWatch = !watchedFiles.contains(filePath.path())
+                                             && !watchedDirectories.contains(filePath.path())
+                                             && filePath.exists();
+                    if (reinitWatch)
+                        toReAdd << filePath;
+                    toNotify += it.value();
                 }
+                if (!toReAdd.isEmpty()) {
+                    const QStringList failedPaths = m_watcher->addPaths(
+                        Utils::transform(toReAdd, &FilePath::path));
+                    if (!failedPaths.isEmpty())
+                        qWarning()
+                            << "Failed to re-add watches for following files:" << failedPaths;
+                }
+                for (DesktopFilePathWatcher *watcher : std::as_const(toNotify))
+                    watcher->emitChanged();
             }
             QList<Result<>> _watch(const QList<DesktopFilePathWatcher *> &watchers)
             {
@@ -802,7 +825,8 @@ class DesktopFilePathWatcher final : public FilePathWatcher
                             return item.second->path().path();
                         }));
                 // Keep note of the clients for successful ones, add error for failed ones
-                for (const std::pair<int, DesktopFilePathWatcher *> &item : newToWatch) {
+                for (const std::pair<int, DesktopFilePathWatcher *> &item :
+                     std::as_const(newToWatch)) {
                     const FilePath path = item.second->path();
                     if (failedPaths.contains(path.path())) {
                         if (!path.exists()) {
@@ -846,6 +870,9 @@ class DesktopFilePathWatcher final : public FilePathWatcher
         private:
             QFileSystemWatcher *m_watcher = nullptr;
             QHash<FilePath, QList<DesktopFilePathWatcher *>> m_watchClients;
+            QTimer *m_notifyTimer = nullptr;
+            QElapsedTimer m_schedulingStarted;
+            QSet<FilePath> m_scheduledPaths;
         };
         Private d;
         QThread m_thread;
@@ -868,13 +895,6 @@ public:
 
     void emitChanged() { emit pathChanged(m_path); }
 
-    void requestContinueWatch()
-    {
-        if (m_path.exists()) {
-            emit continueWatch(m_path);
-        }
-    }
-
     static std::vector<Result<std::unique_ptr<FilePathWatcher>>> watch(const FilePaths &paths)
     {
         std::vector<std::unique_ptr<DesktopFilePathWatcher>> watchers
@@ -894,9 +914,6 @@ public:
         }
         return results;
     }
-
-signals:
-    void continueWatch(const FilePath& path);
 
 private:
     const FilePath m_path;
