@@ -175,7 +175,8 @@ std::unique_ptr<Utils::LuaState> runScript(
 
     if (!result.valid()) {
         sol::error err = result;
-        qWarning() << "Failed to run script" << name << ":" << QString::fromUtf8(err.what());
+        qWarning().noquote() << "Failed to run script" << name << ":"
+                             << QString::fromUtf8(err.what());
         Core::MessageManager::writeFlashing(
             Tr::tr("Failed to run script %1: %2").arg(name, QString::fromUtf8(err.what())));
     }

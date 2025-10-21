@@ -71,7 +71,7 @@
     \list
         \li Soft API freeze: Starting shortly after the beta release of a minor release,
             we start keeping backward source code compatibility within that minor release,
-            including its patch releases. This means that from that point, code that uses \QC API will
+            including its patch releases. This means that from that point, code that uses \QC C++ API will
             compile against the API of all coming versions of this minor release, including its
             patch releases. There still might be occasional exceptions to this rule, which should
             be properly communicated.

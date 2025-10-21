@@ -245,7 +245,7 @@ private:
         QString relativeFileName;
         bool fromGlobbing = false;
     };
-    std::optional<ProjectFileArgumentPosition> projectFileArgumentPosition(
+    Utils::Result<ProjectFileArgumentPosition> projectFileArgumentPosition(
         const QString &targetName, const QString &fileName);
 
     ProjectExplorer::TreeScanner m_treeScanner;
@@ -269,8 +269,6 @@ private:
     CMakeKeywords m_projectKeywords;
     QStringList m_projectImportedTargets;
     QStringList m_projectFindPackageVariables;
-
-    QHash<QString, ProjectFileArgumentPosition> m_filesToBeRenamed;
 
     // Parsing state:
     BuildDirParameters m_parameters;

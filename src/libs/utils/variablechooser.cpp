@@ -4,6 +4,7 @@
 #include "variablechooser.h"
 
 #include "fancylineedit.h"
+#include "fancyiconbutton.h"
 #include "headerviewstretcher.h" // IconButton
 #include "macroexpander.h"
 #include "qtcassert.h"

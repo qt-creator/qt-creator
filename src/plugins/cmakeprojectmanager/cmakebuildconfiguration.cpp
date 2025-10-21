@@ -725,9 +725,15 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments(bool fromReconfigure)
 
 void CMakeBuildSettingsWidget::kitCMakeConfiguration()
 {
+    using namespace Layouting;
     m_buildConfig->kit()->blockNotification();
 
     auto dialog = new QDialog(this);
+    auto deleteLater = [dialog](BaseAspect *aspect) -> BaseAspect * {
+        aspect->setParent(dialog);
+        return aspect;
+    };
+
     dialog->setWindowTitle(Tr::tr("Kit CMake Configuration"));
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setModal(true);
@@ -741,11 +747,10 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Close);
     connect(buttons, &QDialogButtonBox::clicked, dialog, &QDialog::close);
 
-    using namespace Layouting;
     Grid {
-        CMakeKitAspect::createKitAspect(kit),
-        CMakeGeneratorKitAspect::createKitAspect(kit),
-        CMakeConfigurationKitAspect::createKitAspect(kit),
+        deleteLater(CMakeKitAspect::createKitAspect(kit)),
+        deleteLater(CMakeGeneratorKitAspect::createKitAspect(kit)),
+        deleteLater(CMakeConfigurationKitAspect::createKitAspect(kit)),
         empty, empty, buttons,
         columnStretch(1, 1)
     }.attachTo(dialog);

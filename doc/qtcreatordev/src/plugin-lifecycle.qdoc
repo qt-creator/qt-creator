@@ -5,13 +5,13 @@
     \page plugin-lifecycle.html
     \title Plugin Life Cycle
 
-    To be able to write \QC plugins, you must understand the steps that the plugin
+    To write C++-based \QC plugins, you must understand the steps that the plugin
     manager takes when you start or shut down \QC. This section describes
-    the process and the state that plugins go through in detail.
+    the process and the state that the plugins go through in detail.
 
-    You can get more information about what happens when you start \QC by running it with the
-    environment variable \c QT_LOGGING_RULES set to \c {qtc.extensionsystem*=true} which enables
-    logging of plugin-related debug output.
+    To get more information about what happens when you start \QC, run it with the
+    environment variable \c QT_LOGGING_RULES set to \c {qtc.extensionsystem*=true},
+    which enables logging of plugin-related debug output.
 
     When you start \QC, the plugin manager does the following:
 

@@ -308,6 +308,8 @@
     \e {passes} or \e {fails}. In addition, any kind of test results can be
     recorded in the test log.
 
+    \section1 View Squish test log
+
     To view the test log, go to the \uicontrol Squish output,
     \uicontrol {Test Results} tab.
 
@@ -335,7 +337,27 @@
     To view the Squish Runner and Server logs, go to the \uicontrol Squish
     output, \uicontrol {Runner/Server Log} tab.
 
-    \image {qtcreator-squish-output-runner-server-log.png} {Runner and Server Log output}
+    \image {qtcreator-squish-output-runner-server-log.webp} {Runner and Server Log output}
+
+    \section1 Squish view toolbar
+
+    Select options on the view toolbar to perform the following actions:
+
+    \list
+        \li To clear the view, select \inlineimage {icons/clean_pane_small.png}
+            {Clear} (\uicontrol Clear).
+        \li To move between test results or log entries, select
+            \inlineimage {icons/arrowdown.png} {Next Item} (\uicontrol {Next Item})
+            and \inlineimage {icons/arrowup.png} {Previous Item}
+            (\uicontrol {Previous Item}).
+        \li To filter test results or log entries, select
+            \inlineimage {icons/filtericon.png} {Filter Tree}
+            (\uicontrol {Filter Tree}).
+        \li To expand or collapse the test results or log entries, select
+            \inlineimage {icons/expand.png} {Expand All} (\uicontrol {Expand All})
+            or \inlineimage {icons/collapse.png} {Collapse All}
+            (\uicontrol {Collapse All}).
+    \endlist
 
     \sa {Connect to Squish Server}, {Create Squish test suites},
     {Enable and disable plugins}, {Manage Squish test suites and cases},

@@ -114,13 +114,7 @@ void DockerDeviceEnvironmentAspect::fromMap(const Utils::Store &map)
         OsType osType = HostOsInfo::hostOs();
         if (IDevice *device = dynamic_cast<IDevice *>(container()))
             osType = device->osType();
-        NameValueDictionary envDict(osType);
-        for (const QString &env : deviceEnv) {
-            const auto parts = env.split(QLatin1Char('='));
-            if (parts.size() == 2)
-                envDict.set(parts[0], parts[1]);
-        }
-        m_remoteEnvironment = Environment(envDict);
+        m_remoteEnvironment = Environment(NameValueDictionary(deviceEnv, osType));
     }
 
     if (subMap.contains(CHANGES_KEY)) {

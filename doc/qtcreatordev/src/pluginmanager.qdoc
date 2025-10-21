@@ -5,7 +5,7 @@
     \page pluginmanager.html
     \title The Plugin Manager, the Object Pool, and Registered Objects
 
-    Usually, plugins do not need to access the plugin manager directly.
+    Usually, C++-based plugins do not need to access the plugin manager directly.
     They interact with it mostly indirectly through the ExtensionSystem::IPlugin interface.
     There are occasions though, where using the plugin manager API is necessary.
     Plugins need to access the plugin manager's object pool to extend

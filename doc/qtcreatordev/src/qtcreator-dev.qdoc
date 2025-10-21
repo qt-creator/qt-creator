@@ -61,7 +61,7 @@
     UI and the logic yourself.
 
     \list
-        \li \l{Creating Plugins}
+        \li \l{Creating Extensions and Plugins}
         \li \l{Qt Creator Coding Rules}
         \li \l{Creating Wizards in Code}
         \li \l{User Interface Text Guidelines}
@@ -113,7 +113,7 @@
     the ground up.
 
     \list
-        \li \l{Creating Plugins}
+        \li \l{Creating Extensions and Plugins}
         \li \l{Qt Creator Coding Rules}
         \omit
         \li Text Editors
@@ -127,7 +127,7 @@
     its appearance and behavior.
 
     \list
-        \li \l{Creating Plugins}
+        \li \l{Creating Extensions and Plugins}
         \li \l{Qt Creator Coding Rules}
         \omit
         \li \l{Editors}
@@ -182,7 +182,7 @@
     \list
         \li \l{https://doc.qt.io/qtcreator/creator-editor-external.html}{Use external tools}
         \li \l{External Tool Specification Files}
-        \li \l{Creating Plugins}
+        \li \l{Creating Extensions and Plugins}
         \li \l{Qt Creator Coding Rules}
         \omit
         \li \l{Menus and Menu Items}
@@ -207,7 +207,7 @@
     \list
         \li \l{https://doc.qt.io/qtcreator/creator-task-lists.html}
             {Show task list files in Issues}
-        \li \l{Creating Plugins}
+        \li \l{Creating Extensions and Plugins}
         \li \l{Qt Creator Coding Rules}
         \omit
         \li \l{Menus and Menu Items}
@@ -222,7 +222,7 @@
     a full-blown plugin, you can extend \QC with Lua Extensions.
 
     \list
-        \li \l{Extending \QC with Lua}
+        \li \l{Creating Lua-Based Extensions}
     \endlist
 
     \section1 All Topics
@@ -230,7 +230,7 @@
     \list
         \li Developing Qt Creator Plugins
             \list
-                \li \l{Creating Plugins}
+                \li \l{Creating Extensions and Plugins}
                 \omit
                 \li \l{Menus and Menu Items}
                 \endomit
@@ -253,7 +253,7 @@
                 \li \l{User Interface Text Guidelines}
                 \li \l{Writing Documentation}
                 \li \l{Qt Creator Coding Rules}
-                \li \l{Qt Creator API Reference}
+                \li \l{C++ API Reference}
             \endlist
     \endlist
 */

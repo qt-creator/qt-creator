@@ -40,7 +40,8 @@
             style models, and scratch models that use a temporary file.
     \row
         \li \uicontrol {Lua}
-        \li Simple Lua files for \l {Extending \QC with Lua}{Lua plugins}.
+        \li Simple Lua files for \l {Extending \QC with Lua}{Lua plugins} and
+            script files that can access \QC internals and be triggered by an action.
     \row
         \li \uicontrol {Qt}
         \li Source and header files for item, table,
@@ -49,8 +50,8 @@
             JavaScript files for Qt Quick projects.
     \row
         \li \uicontrol {Compiler Explorer}
-        \li Example setup for using Compiler Explorer to compile C++ or Python
-            code.
+        \li Example setup for using Compiler Explorer to compile C++, Python,
+            or Qt and C++ code.
     \row
         \li \uicontrol {GLSL}
         \li OpenGL fragment and vertex shaders.
@@ -93,11 +94,11 @@
     C++ project:
 
     \list 1
-        \li Select \uicontrol File > \uicontrol {New File} >
-            \uicontrol {C++ Class Wizard} > \uicontrol Choose.
+        \li Select \uicontrol File > \uicontrol {New File} > \uicontrol {C/C++} >
+            \uicontrol {C++ Class} > \uicontrol Choose.
         \li Specify the class name, base class, and header and source files for
             the class.
-            \image {qtcreator-cpp-class-wizard.png} {Enter Class Name dialog}
+            \image {qtcreator-cpp-class-wizard.webp} {Define Class dialog}
     \endlist
 
     The wizard supports namespaces. To use a namespace, enter a qualified

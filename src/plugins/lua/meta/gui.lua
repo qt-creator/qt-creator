@@ -5,6 +5,10 @@ local gui = {}
 ---@class Object
 gui.Object = {}
 
+---Returns whether the gui object is still valid (not deleted).
+---@return boolean isValid
+function gui.Object:isValid() end
+
 ---The base class of all gui layout classes.
 ---@class Layout : Object
 gui.layout = {}
@@ -153,6 +157,39 @@ function textEdit:markdown() end
 ---@return TextEdit
 function gui.TextEdit(options) end
 
+---A multiline text edit with enhanced features for command completion and embedded icons.
+---@class QtcTextEdit : Widget
+---@field markdown string Current markdown content
+---@field text string Current text content (plain text)
+---@field completer QCompleter QCompleter object for text completion
+---@field placeHolderText? string Placeholder text when the edit is empty
+---@field completionBehavior QtcTextEdit.CompletionBehavior Completion trigger behavior (OnKeyPress|OnTextChange)
+local qtcTextEdit = {}
+
+---Enum representing how completion is triggered in QtcTextEdit
+---@enum QtcTextEdit.CompletionBehavior
+QtcTextEdit.CompletionBehavior = {
+    -- Trigger completion via key events (e.g., CTRL+E).
+    OnKeyPress = 0,
+    -- Trigger completion on every text change.
+    OnTextChange = 0,
+}
+
+---@class QtcTextEditOptions : WidgetOptions
+---@field markdown? string Initial markdown content
+---@field text? string Initial text content (plain text)
+---@field placeHolderText? string Placeholder text shown when the edit is empty
+---@field rightSideIconPath? FilePath Path to icon displayed on the right side
+---@field completer? QCompleter QCompleter object for text completion
+---@field completionBehavior? QtcTextEdit.CompletionBehavior Completion trigger behavior (default: OnKeyPress)
+---@field onReturnPressed? function Function called when Enter is pressed (Shift+Enter for new line)
+---@field onRightSideIconClicked? function Function called when right-side icon is clicked
+local qtcTextEditOptions = {}
+
+---@param options QtcTextEditOptions
+---@return QtcTextEdit
+function gui.QtcTextEdit(options) end
+
 ---A Single line text edit
 ---@class LineEdit : Widget
 ---@field rightSideIconPath? FilePath A path to icon
@@ -160,9 +197,9 @@ function gui.TextEdit(options) end
 local lineEdit = {}
 
 ---@class LineEditOptions : WidgetOptions
----@field rightSideIconPath? FilePath A path to icon
----@field placeHolderText? string A placeholder text for intput
----@field completer? QCompleter A QCompleter object.
+---@field rightSideIconPath? FilePath Path to icon displayed on the right side
+---@field placeHolderText? string Placeholder text shown when the edit is empty
+---@field completer? QCompleter QCompleter object for text completion
 ---@field onReturnPressed? function The function to be called when Enter is pressed
 ---@field onRightSideIconClicked? function The function to be called when right side icon is clicked
 ---@field text string Current text

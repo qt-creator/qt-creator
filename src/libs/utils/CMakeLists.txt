@@ -51,6 +51,7 @@ add_qtc_library(Utils
     externalterminalprocessimpl.cpp externalterminalprocessimpl.h
     fadingindicator.cpp fadingindicator.h
     faketooltip.cpp faketooltip.h
+    fancyiconbutton.cpp fancyiconbutton.h
     fancylineedit.cpp fancylineedit.h
     fancymainwindow.cpp fancymainwindow.h
     filecrumblabel.cpp filecrumblabel.h

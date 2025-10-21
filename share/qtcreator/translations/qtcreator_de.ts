@@ -16930,7 +16930,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>The lldb-server binary has not been found.</source>
-        <translation>Die ausführbare Datei für lldb-server wurde nicht gefunden.</translation>
+        <translation>Die ausführbare lldb-server-Datei wurde nicht gefunden.</translation>
     </message>
     <message>
         <source>Cannot copy C++ debug server.</source>
@@ -18905,7 +18905,7 @@ Ausführbare Datei: %2</translation>
     </message>
     <message>
         <source>Test executable crashed.</source>
-        <translation>Die ausführbare Datei des Tests ist abgestürzt.</translation>
+        <translation>Die ausführbare Test-Datei ist abgestürzt.</translation>
     </message>
     <message>
         <source>Catch Test</source>
@@ -20809,7 +20809,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     <message>
         <source>%1 Command</source>
         <extracomment>File dialog title for path chooser when choosing binary</extracomment>
-        <translation>Ausführbare Datei für %1</translation>
+        <translation>Ausführbare %1-Datei</translation>
     </message>
     <message>
         <source>Cannot save styles. %1 does not exist.</source>
@@ -20869,7 +20869,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Artistic Style command:</source>
-        <translation>Ausführbare Datei von Artistic Style:</translation>
+        <translation>Ausführbare Artistic Style Datei:</translation>
     </message>
     <message>
         <source>Restrict to MIME types:</source>
@@ -20893,7 +20893,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>ClangFormat command:</source>
-        <translation>Ausführbare Datei von ClangFormat:</translation>
+        <translation>Ausführbare ClangFormat-Datei:</translation>
     </message>
     <message>
         <source>ClangFormat</source>
@@ -20925,7 +20925,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Uncrustify command:</source>
-        <translation>Ausführbare Datei von Uncrustify:</translation>
+        <translation>Ausführbare Uncrustify-Datei:</translation>
     </message>
     <message>
         <source>Uncrustify</source>
@@ -21387,7 +21387,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>CMake executable:</source>
-        <translation>Ausführbare Datei für CMake:</translation>
+        <translation>Ausführbare CMake-Datei:</translation>
     </message>
     <message>
         <source>No cmake tool set.</source>
@@ -22554,7 +22554,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>No CVS executable specified.</source>
-        <translation>Es wurde keine ausführbare Datei für CVS angegeben.</translation>
+        <translation>Es wurde keine ausführbare CVS-Datei angegeben.</translation>
     </message>
     <message>
         <source>CVS Command</source>
@@ -23188,7 +23188,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Set a valid %1 executable.</source>
-        <translation>Wählen Sie eine gültige ausführbare Datei für %1.</translation>
+        <translation>Wählen Sie eine gültige ausführbare %1-Datei.</translation>
     </message>
     <message>
         <source>Project &quot;%1&quot; is not a C/C++ project.</source>
@@ -23462,11 +23462,11 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Clang-Tidy Executable</source>
-        <translation>Ausführbare Datei für Clang-Tidy</translation>
+        <translation>Ausführbare Clang-Tidy-Datei</translation>
     </message>
     <message>
         <source>Clazy Executable</source>
-        <translation>Ausführbare Datei für Clazy</translation>
+        <translation>Ausführbare Clazy-Datei</translation>
     </message>
     <message>
         <source>Executables</source>
@@ -23548,7 +23548,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>ClearCase Command</source>
-        <translation>Ausführbare Datei von ClearCase</translation>
+        <translation>Ausführbare ClearCase-Datei</translation>
     </message>
     <message>
         <source>Arg&amp;uments:</source>
@@ -25756,7 +25756,7 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>There is no patch-command configured in the general &quot;Environment&quot; settings.</source>
-        <translation>Es ist keine ausführbare Datei für das patch-Kommando in den allgemeinen Umgebungseinstellungen konfiguriert.</translation>
+        <translation>In den allgemeinen Umgebungseinstellungen ist kein patch-Kommando konfiguriert.</translation>
     </message>
     <message>
         <source>The patch-command configured in the general &quot;Environment&quot; settings does not exist.</source>
@@ -26850,7 +26850,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Could not find executable for &quot;%1&quot;.</source>
-        <translation>Die ausführbare Datei von &quot;%1&quot; konnte nicht gefunden werden.</translation>
+        <translation>Die ausführbare Datei für &quot;%1&quot; konnte nicht gefunden werden.</translation>
     </message>
     <message>
         <source>Files in File System</source>
@@ -28232,7 +28232,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Could not find executable for &quot;%1&quot; (expanded &quot;%2&quot;)</source>
-        <translation>Die ausführbare Datei von &quot;%1&quot; (expandiert: &quot;%2&quot;) konnte nicht gefunden werden</translation>
+        <translation>Die ausführbare Datei für &quot;%1&quot; (expandiert: &quot;%2&quot;) konnte nicht gefunden werden</translation>
     </message>
     <message>
         <source>Starting external tool &quot;%1&quot;</source>
@@ -28820,7 +28820,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Clangd executable:</source>
-        <translation>Ausführbare Datei für Clangd:</translation>
+        <translation>Ausführbare Clangd-Datei:</translation>
     </message>
     <message>
         <source>Follow Virtual Function to Base Class Implementation</source>
@@ -32881,7 +32881,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>There is no CDB executable specified.</source>
-        <translation>Es wurde keine ausführbare Datei für CDB angegeben.</translation>
+        <translation>Es wurde keine ausführbare CDB-Datei angegeben.</translation>
     </message>
     <message>
         <source>Debugger encountered an exception: %1</source>
@@ -33270,11 +33270,11 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>GDB server executable:</source>
-        <translation>Ausführbare Datei des GDB-Servers:</translation>
+        <translation>Ausführbare GDB-Server-Datei:</translation>
     </message>
     <message>
         <source>The GDB server executable to use on the device.</source>
-        <translation>Die ausführbare Datei des GDB-Servers, der auf dem Gerät verwendet werden soll.</translation>
+        <translation>Die ausführbare GDB-Server-Datei, der auf dem Gerät verwendet werden soll.</translation>
     </message>
     <message>
         <source>Attach to Running Application...</source>
@@ -35238,11 +35238,11 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Internal error: No uVision executable specified.</source>
-        <translation>Interner Fehler: Keine ausführbare Datei für uVision angegeben.</translation>
+        <translation>Interner Fehler: Keine ausführbare uVision-Datei angegeben.</translation>
     </message>
     <message>
         <source>Internal error: The specified uVision executable does not exist.</source>
-        <translation>Interner Fehler: Die angegebene ausführbare Datei für uVision existiert nicht.</translation>
+        <translation>Interner Fehler: Die angegebene ausführbare uVision-Datei existiert nicht.</translation>
     </message>
     <message>
         <source>Internal error: Cannot resolve the library: %1.</source>
@@ -36241,7 +36241,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Docker executable not found</source>
-        <translation>Ausführbare Datei für Docker nicht gefunden</translation>
+        <translation>Ausführbare Docker-Datei nicht gefunden</translation>
     </message>
     <message>
         <source>Failed to retrieve docker networks: %1</source>
@@ -44815,11 +44815,11 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Meson executable:</source>
-        <translation>Ausführbare Datei für Meson:</translation>
+        <translation>Ausführbare Meson-Datei:</translation>
     </message>
     <message>
         <source>Ninja executable:</source>
-        <translation>Ausführbare Datei für Ninja:</translation>
+        <translation>Ausführbare Ninja-Datei:</translation>
     </message>
 </context>
 <context>
@@ -47547,7 +47547,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>SSH executable:</source>
-        <translation>Ausführbare Datei für SSH:</translation>
+        <translation>Ausführbare SSH-Datei:</translation>
     </message>
     <message>
         <source>SDKs</source>
@@ -53408,7 +53408,7 @@ Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>Qbs executable:</source>
-        <translation>Ausführbare Datei für Qbs:</translation>
+        <translation>Ausführbare Qbs-Datei:</translation>
     </message>
     <message>
         <source>Build File &quot;%1&quot;</source>
@@ -56816,17 +56816,17 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Custom qmlls executable &quot;%1&quot; does not exist and was disabled.</source>
-        <translation>Benutzerdefinierte ausführbare Datei für qmlls &quot;%1&quot; existiert nicht und wurde deaktiviert.</translation>
+        <translation>Benutzerdefinierte ausführbare qmlls-Datei &quot;%1&quot; existiert nicht und wurde deaktiviert.</translation>
     </message>
     <message>
         <source>Custom qmlls executable &quot;%1&quot; exited abnormally and was disabled. The custom executable output was:
 %2</source>
-        <translation>Benutzerdefinierte ausführbare Datei für qmlls &quot;%1&quot; wurde unerwartet beendet und wurde deaktiviert. Die Ausgabe war:
+        <translation>Benutzerdefinierte ausführbare qmlls-Datei &quot;%1&quot; wurde unerwartet beendet und wurde deaktiviert. Die Ausgabe war:
 %2</translation>
     </message>
     <message>
         <source>Custom qmlls executable &quot;%1&quot; does not seem to be a qmlls executable and was disabled</source>
-        <translation>Benutzerdefinierte ausführbare Datei für qmlls &quot;%1&quot; scheint nicht gültig zu sein und wurde deaktiviert.</translation>
+        <translation>Benutzerdefinierte ausführbare qmlls-Datei &quot;%1&quot; scheint nicht gültig zu sein und wurde deaktiviert.</translation>
     </message>
     <message>
         <source>Current kit does not have a valid Qt version, disabling QML Language Server.</source>
@@ -56888,7 +56888,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Use custom qmlls executable:</source>
-        <translation>Benutzerdefinierte ausführbare Datei für qmlls benutzen:</translation>
+        <translation>Benutzerdefinierte ausführbare qmlls-Datei benutzen:</translation>
     </message>
     <message>
         <source>Download latest standalone qmlls</source>
@@ -57055,11 +57055,11 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>QML runtime executable:</source>
-        <translation>Ausführbare Datei der QML-Runtime:</translation>
+        <translation>Ausführbare QML-Runtime-Datei:</translation>
     </message>
     <message>
         <source>The QML runtime executable to use on the device.</source>
-        <translation>Die ausführbare Datei der QML-Runtime, die auf dem Gerät verwendet werden soll.</translation>
+        <translation>Die ausführbare QML-Runtime-Datei, die auf dem Gerät verwendet werden soll.</translation>
     </message>
     <message>
         <source>Qt Quick</source>
@@ -57084,7 +57084,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>No qmlformat executable found.</source>
-        <translation>Ausführbare Datei für qmlformat nicht gefunden.</translation>
+        <translation>Ausführbare qmlformat-Datei nicht gefunden.</translation>
     </message>
     <message>
         <source>Failed to generate qmlformat.ini file.</source>
@@ -59283,7 +59283,7 @@ wirklich entfernen?</translation>
     </message>
     <message>
         <source>qmake executable:</source>
-        <translation>Ausführbare Datei für qmake:</translation>
+        <translation>Ausführbare qmake-Datei:</translation>
     </message>
     <message>
         <source>Link with a Qt installation to automatically register Qt versions and kits? To do this later, select Edit &gt; Preferences &gt; Kits &gt; Qt Versions &gt; Link with Qt.</source>
@@ -60178,7 +60178,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Rsync executable:</source>
-        <translation>Ausführbare Datei für rsync:</translation>
+        <translation>Ausführbare rsync-Datei:</translation>
     </message>
 </context>
 <context>
@@ -67282,7 +67282,7 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.</trans
     </message>
     <message>
         <source>No clangd executable specified.</source>
-        <translation>Es wurde keine ausführbare Datei für Clangd angegeben.</translation>
+        <translation>Es wurde keine ausführbare Clangd-Datei angegeben.</translation>
     </message>
     <message>
         <source>Failed to retrieve clangd version: Unexpected clangd output.</source>
@@ -67585,7 +67585,7 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.</trans
     </message>
     <message>
         <source>Valgrind executable:</source>
-        <translation>Ausführbare Datei von Valgrind:</translation>
+        <translation>Ausführbare Valgrind-Datei:</translation>
     </message>
     <message>
         <source>Valgrind Command</source>
@@ -67754,7 +67754,7 @@ Mit Cache-Simulation werden weitere Ereigniszähler aktiviert:
     </message>
     <message>
         <source>KCachegrind executable:</source>
-        <translation>Ausführbare Datei von KCachegrind:</translation>
+        <translation>Ausführbare KCachegrind-Datei:</translation>
     </message>
     <message>
         <source>Callee</source>
@@ -68320,7 +68320,7 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>Error: no Valgrind executable set.</source>
-        <translation>Fehler: Es ist keine ausführbare Datei für Valgrind konfiguriert.</translation>
+        <translation>Fehler: Es ist keine ausführbare Valgrind-Datei konfiguriert.</translation>
     </message>
     <message>
         <source>Process terminated.</source>

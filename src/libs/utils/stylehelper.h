@@ -23,6 +23,7 @@ namespace Utils::StyleHelper {
 
 const unsigned int DEFAULT_BASE_COLOR = 0x666666;
 const int progressFadeAnimationDuration = 600;
+const int defaultFadeAnimationDuration = 160;
 constexpr qreal defaultCardBgRounding = 3.75;
 
 constexpr char C_ALIGN_ARROW[] = "alignarrow";

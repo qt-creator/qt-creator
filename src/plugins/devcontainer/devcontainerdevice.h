@@ -33,6 +33,8 @@ public:
     void up(InstanceConfig instanceConfig, std::function<void(Utils::Result<>)> callback);
     Utils::Result<> down();
 
+    const InstanceConfig &instanceConfig() const { return m_instanceConfig; }
+
     void restart(std::function<void(Utils::Result<>)> callback);
 
     Utils::ProcessInterface *createProcessInterface() const override;

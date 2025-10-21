@@ -3,6 +3,7 @@
 
 #include "layoutbuilder.h"
 
+#include "completingtextedit.h"
 #include "fancylineedit.h"
 #include "filepath.h"
 #include "icon.h"
@@ -316,6 +317,11 @@ Object::Object(std::initializer_list<I> ps)
     apply(this, ps);
 }
 
+void Object::onDestroyed(QObject *guard, const std::function<void()> &func)
+{
+    QObject::connect(access(this), &QObject::destroyed, guard, func);
+}
+
 static QWidget *widgetForItem(QLayoutItem *item)
 {
     if (QWidget *w = item->widget())
@@ -387,6 +393,10 @@ static void addItemToFlowLayout(FlowLayout *layout, const LayoutItem &item)
  */
 
 // Layout
+Layout::Layout(Implementation *w)
+{
+    ptr = w;
+}
 
 void Layout::span(int cols, int rows)
 {
@@ -811,6 +821,11 @@ Widget::Widget(std::initializer_list<I> ps)
     apply(this, ps);
 }
 
+Widget::Widget(Implementation *w)
+{
+    ptr = w;
+}
+
 void Widget::setSize(int w, int h)
 {
     access(this)->resize(w, h);
@@ -1053,6 +1068,86 @@ void TextEdit::setMarkdown(const QString &markdown)
 void TextEdit::setReadOnly(bool on)
 {
     access(this)->setReadOnly(on);
+}
+
+// CompletingTextEdit
+
+CompletingTextEdit::CompletingTextEdit(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    apply(this, ps);
+}
+
+QString CompletingTextEdit::markdown() const
+{
+    return access(this)->toMarkdown();
+}
+
+QString CompletingTextEdit::text() const
+{
+    return access(this)->toPlainText();
+}
+
+void CompletingTextEdit::setText(const QString &text)
+{
+    access(this)->setPlainText(text);
+}
+
+void CompletingTextEdit::setMarkdown(const QString &markdown)
+{
+    access(this)->setMarkdown(markdown);
+}
+
+void CompletingTextEdit::setReadOnly(bool on)
+{
+    access(this)->setReadOnly(on);
+}
+
+void CompletingTextEdit::setPlaceHolderText(const QString &text)
+{
+    access(this)->setPlaceholderText(text);
+}
+
+void CompletingTextEdit::setRightSideIconPath(const Utils::FilePath &path)
+{
+    access(this)->setRightSideIconPath(path);
+}
+
+void CompletingTextEdit::setCompleter(QCompleter *completer)
+{
+    access(this)->setCompleter(completer);
+}
+
+void CompletingTextEdit::onTextChanged(QObject *guard, const std::function<void(QString)> &func)
+{
+    QObject::connect(access(this), &Implementation::textChanged, guard, [func, this]() {
+        func(access(this)->toPlainText());
+    });
+}
+
+QCompleter *CompletingTextEdit::completer() const
+{
+    return access(this)->completer();
+}
+
+void CompletingTextEdit::onReturnPressed(QObject *guard, const std::function<void()> &func)
+{
+    QObject::connect(access(this), &Utils::CompletingTextEdit::returnPressed, guard, func);
+}
+
+void CompletingTextEdit::onRightSideIconClicked(QObject *guard, const std::function<void()> &func)
+{
+    QObject::connect(access(this), &Utils::CompletingTextEdit::rightSideIconClicked, guard, func);
+}
+
+Utils::CompletingTextEdit::CompletionBehavior CompletingTextEdit::completionBehavior() const
+{
+    return access(this)->completionBehavior();
+}
+
+void CompletingTextEdit::setCompletionBehavior(Utils::CompletingTextEdit::CompletionBehavior behavior)
+{
+    access(this)->setCompletionBehavior(behavior);
 }
 
 // PushButton

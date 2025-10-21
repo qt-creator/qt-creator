@@ -6103,8 +6103,9 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
                 painter.setPen(rc);
         }
 
+        q->editorLayout()->ensureBlockLayout(data.block);
         QTextLayout *layout = q->editorLayout()->blockLayout(data.block);
-        QTextLine line = layout->lineAt(layout->lineCount()-1);
+        QTextLine line = layout->lineAt(layout->lineCount() - 1);
         QRectF lineRect = line.naturalTextRect().translated(data.mainLayoutOffset.x(), top);
         lineRect.adjust(0, 0, -1, -1);
 

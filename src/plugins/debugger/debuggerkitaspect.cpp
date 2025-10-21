@@ -41,7 +41,7 @@ namespace Internal {
 static const QList<DebuggerItem> debuggersForBuildDevice(const Kit *k)
 {
     if (const IDeviceConstPtr device = BuildDeviceKitAspect::device(k)) {
-        const Utils::FilePath rootPath = device->rootPath();
+        const FilePath rootPath = device->rootPath();
         return Utils::filtered(DebuggerItemManager::debuggers(), [&](const DebuggerItem &item) {
             if (item.isGeneric())
                 return device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
@@ -49,6 +49,23 @@ static const QList<DebuggerItem> debuggersForBuildDevice(const Kit *k)
         });
     }
     return {};
+}
+
+static const QList<DebuggerItem> debuggersForKit(const Kit *k)
+{
+    QList<DebuggerItem> debuggers = debuggersForBuildDevice(k);
+
+    // Using a debugger from the run device may be useful for some setup, so allow them.
+    if (const IDeviceConstPtr device = RunDeviceKitAspect::device(k)) {
+        const FilePath rootPath = device->rootPath();
+        debuggers << Utils::filtered(DebuggerItemManager::debuggers(), [&](const DebuggerItem &item) {
+            if (item.isGeneric())
+                return device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
+            return item.command().isSameDevice(rootPath);
+        });
+    }
+
+    return debuggers;
 }
 
 class DebuggerItemListModel : public TreeModel<TreeItem, DebuggerTreeItem>
@@ -63,7 +80,7 @@ public:
     {
         clear();
 
-        for (const DebuggerItem &item : debuggersForBuildDevice(&m_kit))
+        for (const DebuggerItem &item : debuggersForKit(&m_kit))
             rootItem()->appendChild(new DebuggerTreeItem(item, false));
         DebuggerItem noneItem;
         noneItem.setUnexpandedDisplayName(Tr::tr("None", "No debugger"));

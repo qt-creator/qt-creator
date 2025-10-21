@@ -60,7 +60,6 @@ protected:
 
 private:
     ModificationFile &m_featureFile;
-    ProjectExplorer::BuildConfiguration *m_buildConfig;
     bool m_enabled = false;
 };
 

@@ -28,8 +28,8 @@ public:
     enum TaskType : char {
         Unknown,
         Error,
+        Warning,
         DisruptingError,
-        Warning
     };
 
     enum DescriptionTag { WithSummary = 1, WithLinks = 2 };

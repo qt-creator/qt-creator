@@ -24,6 +24,7 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
+#include <QQuickItem>
 
 #include <fstream>
 
@@ -151,12 +152,22 @@ void CtfVisualizerTool::setAvailableThreads(const QList<CtfTimelineModel *> &thr
         action->setCheckable(true);
         action->setData(timelineModel->tid());
         action->setChecked(m_traceManager->isRestrictedTo(timelineModel->tid()));
+        action->setEnabled(timelineModel->count());
     }
 }
 
 void CtfVisualizerTool::toggleThreadRestriction(QAction *action)
 {
     const QString tid = action->data().toString();
+
+    // deselect possibly current event
+    // (avoids crashes as next / previous would act afterwards on different or even nullptr models)
+    if (auto root = m_traceView->rootObject()) {
+        QMetaObject::invokeMethod(root, "selectByIndices",
+                                  Q_ARG(QVariant, QVariant(-1)),
+                                  Q_ARG(QVariant, QVariant(-1)));
+    }
+
     m_traceManager->setThreadRestriction(tid, action->isChecked());
 }
 

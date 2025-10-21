@@ -4,13 +4,12 @@
 /*!
     \page qtcreator-api.html
 
-    \title Qt Creator API Reference
+    \title C++ API Reference
 
     The core of \QC is basically only a \l{ExtensionSystem}{plugin loader}. All
-    functionality is implemented in plugins. The basis of \QC is implemented in
-    the Core plugin. The plugin manager provides simple means for
-    plugin cooperation that allow plugins to provide hooks for other plugin's
-    extensions.
+    functionality is implemented in C++-based plugins or Lua-based extensions.
+    The basis of \QC is implemented in the Core plugin. The plugin manager lets
+    plugins cooperate by providing hooks for other plugins.
 
     \section1 Libraries
 
@@ -66,7 +65,8 @@
     \section1 Plugins
 
     As already mentioned, \QC is basically only a plugin loader framework
-    which gets its IDE functionality through plugins. The most important plugin
+    which gets its IDE functionality through C++-based plugins and Lua-based
+    extensions. The most important plugin
     is the Core plugin which provides all the basic functionality needed
     later to integrate e.g. editors or mode windows.
 

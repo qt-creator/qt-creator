@@ -3,14 +3,14 @@
 
 /*!
     \page creating-plugins.html
-    \title Creating Plugins
+    \title Creating Extensions and Plugins
 
-    At its very core, \QC consists of a plugin loader that loads and runs a set
-    of plugins, which then actually provide the functionality that you know from
-    \QC the IDE. So, even the main application window and menus are all provided
-    by plugins. Plugins can use different means to provide other plugins access
-    to their functionality and to allow them to extend certain aspects of the
-    application.
+    At its very core, \QC consists of a \e {plugin loader} that loads and runs a
+    set of C++-based plugins and Lua-based extensions, which then actually
+    provide the functionality that you know from \QC the IDE. So, even the main
+    application window and menus are all provided by plugins. Plugins can use
+    different means to provide other plugins access to their functionality and
+    to allow them to extend certain aspects of the application.
 
     For example the \c Core plugin, which is the very basic plugin that must be
     present for \QC to run at all, provides the main window itself, and API
@@ -22,34 +22,67 @@
     then used by other plugins to add more specialized text editor types to \QC,
     like for editing C/C++ or \c {.pro} files.
 
-    After reading this guide you will know what a basic plugin consists of,
-    how to write a plugin specification file, what the lifecycle of a plugin is,
-    what the general principles for extending existing plugins' functionality
-    and providing interfaces for other plugins are, and will be able to write
-    your first plugin.
-
-    \section1 Basics
+    You can extend \QC by writing:
 
     \list
-        \li \l{Getting Qt and Qt Creator}
-        \li \l{Creating Your First Plugin}
+        \li Lua-based extensions
+        \li C++-based plugins
+    \endlist
+
+    \section1 Lua-Based Extensions
+
+    A Lua extension consists of a Lua script that specifies the extension and
+    loads it. Therefore, you don't need to compile extensions for different
+    platforms. Also, we aim to keep the exported Lua API more stable than the
+    exported C++ API.
+
+    However, the API doesn't support everything you can do with C++. Also,
+    Lua is an interpreted language, which might negatively impact performance.
+
+    For a list of supported Lua modules, see \l{\QC Lua API}.
+
+    To create Lua-based extensions, see:
+
+    \list
+        \li \l{Getting Qt and \QC}
+        \li \l{Creating Lua-Based Extensions}
+        \li \l{Plugin Meta Data}
+        \li \l{The Action Manager and Commands}
+        \li \l{Distributing Extensions and Plugins}
+    \endlist
+
+    \section1 C++-Based Plugins
+
+    A C++-based plugin provides you with access to all the exported \QC C++ API.
+
+    However, you have to build and distribute the plugin for all the supported
+    platforms. Also, the backwards compatibility of the API is limited, so you
+    have to regularly adapt the plugin when the API it uses is changed.
+
+    For a summary of API changes in selected libraries and plugins, see the
+    \l{API change log}.
+
+    After reading the following topics, you will understand the contents of a
+    basic C++-based plugin, how to write a specification file for it, what its
+    lifecycle is, and what the general principles are for extending its
+    functionality and providing interfaces for other extensions and plugins.
+    You can then write your first plugin.
+
+    \list
+        \li \l{Getting Qt and \QC}
+        \li \l{Creating C++-Based Plugins}
         \li \l{Plugin Meta Data}
         \li \l{Plugin Life Cycle}
-        \li \l{Distributing Plugins}
-    \endlist
-
-    \section1 Topics
-
-    \list
         \li \l{Adding Tests}
+        \li \l{The Plugin Manager, the Object Pool, and Registered Objects}
+        \li \l{The Action Manager and Commands}
+        \li \l{Distributing Extensions and Plugins}
     \endlist
 
+    \omit
     \section1 Design Principles
 
     \list
-        \li \l{The Plugin Manager, the Object Pool, and Registered Objects}
-        \li \l{The Action Manager and Commands}
-    \omit
         \li \l{Aggregations}
         \li \l{Extending and Providing Interfaces}
     \endlist
@@ -59,6 +92,6 @@
     \list
         \li \l{A Note on Binary Compatibility}
         \li \l{Creating User-Installable Plugins}
-    \endomit
     \endlist
+    \endomit
 */

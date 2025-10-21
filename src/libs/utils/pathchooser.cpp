@@ -738,12 +738,6 @@ void PathChooser::setHistoryCompleter(const Key &historyKey, bool restoreLastIte
 
 void PathChooser::setValueAlternatives(const FilePaths &candidates)
 {
-    // FIXME: Think about UI. For now:
-
-    // 1. put the alternatives in the line edit's history
-    d->m_lineEdit->setValueAlternatives(Utils::transform(candidates, &FilePath::toUserOutput));
-
-    // 2. add them to a (temporary) button next to the line edit for better visibility.
     if (candidates.size() <= 1) {
         delete d->m_alternativesButton;
         d->m_alternativesButton = nullptr;

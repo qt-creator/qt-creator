@@ -122,6 +122,8 @@ QtcLibrary {
         "fadingindicator.h",
         "faketooltip.cpp",
         "faketooltip.h",
+        "fancyiconbutton.cpp",
+        "fancyiconbutton.h",
         "fancylineedit.cpp",
         "fancylineedit.h",
         "fancymainwindow.cpp",
