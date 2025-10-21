@@ -61,9 +61,17 @@ Project {
               Wildcard '*' can be used in the file name part of the path.
               e.g. files: [ "content/shaders/*.vert", "*.frag" ]  */
     ShaderTool {
-        args: "-s --glsl \\\"100 es,120,150\\\" --hlsl 50 --msl 12"
+        args: "-s --glsl 100es,120,150 --hlsl 50 --msl 12"
         files: [ "content/shaders/*" ]
     }
+
+    EffectComposer {
+        /* Qsb tool arguments for Effect Composer shader generation.
+           Default arguments support all pre-built effects.
+           Changing qsbArgs may make some or all pre-built effects unusable in the project. */
+        qsbArgs: "-s --glsl 300es,140,330,410 --hlsl 50 --msl 12"
+    }
+
 
     multilanguageSupport: true
     supportedLanguages: ["en"]

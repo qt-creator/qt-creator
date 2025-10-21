@@ -101,6 +101,7 @@ public:
 
     QStringList shaderToolArgs() const;
     QStringList shaderToolFiles() const;
+    QStringList effectComposerQsbArgs() const;
 
     QString versionQt() const;
     QString versionQtQuick() const;

@@ -92,6 +92,10 @@ public:
     void setShaderToolFiles(const QStringList &files);
     void addShaderToolFile(const QString &file);
 
+    QStringList effectComposerQsbArgs() const;
+    void setEffectComposerQsbArgs(const QStringList &args);
+    void addEffectComposerQsbArgs(const QString &args);
+
     Utils::EnvironmentItems environment() const;
     void addToEnviroment(const QString &key, const QString &value);
 

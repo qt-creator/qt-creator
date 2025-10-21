@@ -762,6 +762,11 @@ QStringList QmlBuildSystem::shaderToolFiles() const
     return m_projectItem->shaderToolFiles();
 }
 
+QStringList QmlBuildSystem::effectComposerQsbArgs() const
+{
+    return m_projectItem->effectComposerQsbArgs();
+}
+
 QStringList QmlBuildSystem::allImports() const
 {
     return m_projectItem->importPaths() + m_projectItem->mockImports();

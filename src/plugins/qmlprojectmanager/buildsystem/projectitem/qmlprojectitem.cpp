@@ -456,9 +456,6 @@ void QmlProjectItem::addShaderToolArg(const QString &arg)
     QJsonObject targetObj = m_project["shaderTool"].toObject();
     QJsonArray toolArgs = targetObj["args"].toArray();
 
-    if (toolArgs.contains(arg))
-        return;
-
     toolArgs.append(arg);
     targetObj["args"] = toolArgs;
     insertAndUpdateProjectFile("shaderTool", targetObj);
@@ -487,6 +484,28 @@ void QmlProjectItem::addShaderToolFile(const QString &file)
     toolArgs.append(file);
     targetObj["files"] = toolArgs;
     insertAndUpdateProjectFile("shaderTool", targetObj);
+}
+
+QStringList QmlProjectItem::effectComposerQsbArgs() const
+{
+    return m_project["effectComposer"].toObject()["qsbArgs"].toVariant().toStringList();
+}
+
+void QmlProjectItem::setEffectComposerQsbArgs(const QStringList &args)
+{
+    QJsonObject effectComposer = m_project["effectComposer"].toObject();
+    effectComposer["qsbArgs"] = QJsonArray::fromStringList(args);
+    insertAndUpdateProjectFile("effectComposer", effectComposer);
+}
+
+void QmlProjectItem::addEffectComposerQsbArgs(const QString &arg)
+{
+    QJsonObject targetObj = m_project["effectComposer"].toObject();
+    QJsonArray toolArgs = targetObj["qsbArgs"].toArray();
+
+    toolArgs.append(arg);
+    targetObj["qsbArgs"] = toolArgs;
+    insertAndUpdateProjectFile("effectComposer", targetObj);
 }
 
 void QmlProjectItem::insertAndUpdateProjectFile(const QString &key, const QJsonValue &value)

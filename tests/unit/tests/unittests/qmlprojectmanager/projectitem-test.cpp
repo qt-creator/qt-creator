@@ -202,7 +202,7 @@ TEST_F(QmlProjectItem, get_with_qds_prefix_shader_tool_args)
 
     ASSERT_THAT(
         shaderToolArgs,
-        UnorderedElementsAre("-s", "--glsl", "\"100 es,120,150\"", "--hlsl", "50", "--msl", "12"));
+        ElementsAre("-s", "--glsl", "\"100 es,120,150\"", "--hlsl", "50", "--msl", "12"));
 }
 
 TEST_F(QmlProjectItem, get_with_qds_prefix_shader_tool_files)
@@ -210,6 +210,15 @@ TEST_F(QmlProjectItem, get_with_qds_prefix_shader_tool_files)
     auto shaderToolFiles = projectItemWithQdsPrefix->shaderToolFiles();
 
     ASSERT_THAT(shaderToolFiles, UnorderedElementsAre("content/shaders/*"));
+}
+
+TEST_F(QmlProjectItem, get_with_qds_prefix_effect_composer_qsb_args)
+{
+    auto effectComposerQsbArgs = projectItemWithQdsPrefix->effectComposerQsbArgs();
+
+    ASSERT_THAT(
+        effectComposerQsbArgs,
+        ElementsAre("-s", "--glsl", "\"300es,140,330,410\"", "--hlsl", "50", "--msl", "12"));
 }
 
 TEST_F(QmlProjectItem, get_with_qds_prefix_environment)
@@ -360,7 +369,7 @@ TEST_F(QmlProjectItem, get_without_qds_prefix_shader_tool_args)
 
     ASSERT_THAT(
         shaderToolArgs,
-        UnorderedElementsAre("-s", "--glsl", "\"100 es,120,150\"", "--hlsl", "50", "--msl", "12"));
+        ElementsAre("-s", "--glsl", "\"100 es,120,150\"", "--hlsl", "50", "--msl", "12"));
 }
 
 TEST_F(QmlProjectItem, get_without_qds_prefix_shader_tool_files)
@@ -368,6 +377,15 @@ TEST_F(QmlProjectItem, get_without_qds_prefix_shader_tool_files)
     auto shaderToolFiles = projectItemWithoutQdsPrefix->shaderToolFiles();
 
     ASSERT_THAT(shaderToolFiles, UnorderedElementsAre("content/shaders/*"));
+}
+
+TEST_F(QmlProjectItem, get_without_qds_prefix_effect_composer_qsb_args)
+{
+    auto effectComposerQsbArgs = projectItemWithoutQdsPrefix->effectComposerQsbArgs();
+
+    ASSERT_THAT(
+        effectComposerQsbArgs,
+        ElementsAre("-s", "--glsl", "\"300es,140,330,410\"", "--hlsl", "50", "--msl", "12"));
 }
 
 TEST_F(QmlProjectItem, get_without_qds_prefix_environment)
@@ -523,6 +541,13 @@ TEST_F(QmlProjectItem, get_empty_shader_tool_files)
     ASSERT_THAT(shaderToolFiles, IsEmpty());
 }
 
+TEST_F(QmlProjectItem, get_empty_effect_composer_qsb_args)
+{
+    auto effectComposerQsbArgs = projectItemEmpty->effectComposerQsbArgs();
+
+    ASSERT_THAT(effectComposerQsbArgs, IsEmpty());
+}
+
 TEST_F(QmlProjectItem, get_empty_environment)
 {
     auto env = projectItemEmpty->environment();
@@ -645,7 +670,7 @@ TEST_F(QmlProjectItem, set_shader_tool_args)
 
     auto shaderToolArgs = projectItemSetters->shaderToolArgs();
 
-    ASSERT_THAT(shaderToolArgs, UnorderedElementsAre("testing"));
+    ASSERT_THAT(shaderToolArgs, ElementsAre("testing"));
 }
 
 TEST_F(QmlProjectItem, add_shader_tool_args)
@@ -655,7 +680,7 @@ TEST_F(QmlProjectItem, add_shader_tool_args)
 
     auto shaderToolArgs = projectItemSetters->shaderToolArgs();
 
-    ASSERT_THAT(shaderToolArgs, UnorderedElementsAre("testing"));
+    ASSERT_THAT(shaderToolArgs, ElementsAre("testing"));
 }
 
 TEST_F(QmlProjectItem, set_shader_tool_files)
@@ -675,6 +700,25 @@ TEST_F(QmlProjectItem, add_shader_tool_files)
     auto shaderToolFiles = projectItemSetters->shaderToolFiles();
 
     ASSERT_THAT(shaderToolFiles, UnorderedElementsAre("testing"));
+}
+
+TEST_F(QmlProjectItem, set_effect_composer_qsb_args)
+{
+    projectItemSetters->setEffectComposerQsbArgs({"testing"});
+
+    auto effectComposerArgs = projectItemSetters->effectComposerQsbArgs();
+
+    ASSERT_THAT(effectComposerArgs, ElementsAre("testing"));
+}
+
+TEST_F(QmlProjectItem, add_effect_composer_qsb_args)
+{
+    projectItemSetters->setEffectComposerQsbArgs({});
+    projectItemSetters->addEffectComposerQsbArgs("testing");
+
+    auto effectComposerArgs = projectItemSetters->effectComposerQsbArgs();
+
+    ASSERT_THAT(effectComposerArgs, ElementsAre("testing"));
 }
 
 TEST_F(QmlProjectItem, add_environment)

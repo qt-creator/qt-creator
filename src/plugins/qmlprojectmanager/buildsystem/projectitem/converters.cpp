@@ -27,6 +27,7 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
     QJsonObject runConfig = rootObject["runConfig"].toObject();
     QJsonObject languageConfig = rootObject["language"].toObject();
     QJsonObject shaderConfig = rootObject["shaderTool"].toObject();
+    QJsonObject effectComposerConfig = rootObject["effectComposer"].toObject();
     QJsonObject versionConfig = rootObject["versions"].toObject();
     QJsonObject environmentConfig = rootObject["environment"].toObject();
     QJsonObject deploymentConfig = rootObject["deployment"].toObject();
@@ -195,6 +196,15 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
                          shaderConfig["args"].toVariant().toStringList().join(" ").replace("\"",
                                                                                            "\\\""));
             appendStringArray("files", shaderConfig["files"].toVariant().toStringList());
+            endObject();
+        }
+
+        // append EffectComposer object
+        if (!effectComposerConfig["qsbArgs"].toVariant().toStringList().isEmpty()) {
+            startObject("EffectComposer");
+            appendString("qsbArgs",
+                         effectComposerConfig["qsbArgs"].toVariant().toStringList().join(" ")
+                             .replace("\"", "\\\""));
             endObject();
         }
 
@@ -381,6 +391,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
     QJsonObject mcuConfigObject;
     QJsonObject mcuModuleObject;
     QJsonObject shaderToolObject;
+    QJsonObject effectComposerObject;
     QJsonObject otherProperties;
 
     bool qtForMCUs = false;
@@ -446,6 +457,20 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
     }
 
     rootObject.insert("otherProperties", otherProperties);
+
+    auto quotedArgs = [](const QmlJS::SimpleReaderNode::Property &prop) -> QJsonArray {
+        const QStringList quotedArgs = prop.value.toString().split('\"', Qt::SkipEmptyParts);
+        QStringList args;
+        for (int i = 0; i < quotedArgs.size(); ++i) {
+            // Each odd arg in this list is a single quoted argument, which we should
+            // not split further
+            if (i % 2 == 0)
+                args.append(quotedArgs[i].trimmed().split(' '));
+            else
+                args.append(QString(quotedArgs[i]).prepend("\"").append("\""));
+        }
+        return QJsonArray::fromStringList(args);
+    };
 
     // convert the object props
     for (const QmlJS::SimpleReaderNode::Ptr &childNode : rootNode->children()) {
@@ -522,20 +547,10 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
 
             fileGroupsObject.append(targetObject);
         } else if (childNode->name().contains("shadertool", Qt::CaseInsensitive)) {
-            QStringList quotedArgs
-                = childNode->property("args").value.toString().split('\"', Qt::SkipEmptyParts);
-            QStringList args;
-            for (int i = 0; i < quotedArgs.size(); ++i) {
-                // Each odd arg in this list is a single quoted argument, which we should
-                // not be split further
-                if (i % 2 == 0)
-                    args.append(quotedArgs[i].trimmed().split(' '));
-                else
-                    args.append(quotedArgs[i].prepend("\"").append("\""));
-            }
-
-            shaderToolObject.insert("args", QJsonArray::fromStringList(args));
+            shaderToolObject.insert("args", quotedArgs(childNode->property("args")));
             shaderToolObject.insert("files", childNode->property("files").value.toJsonValue());
+        } else if (childNode->name().contains("effectcomposer", Qt::CaseInsensitive)) {
+            effectComposerObject.insert("qsbArgs", quotedArgs(childNode->property("qsbArgs")));
         } else if (childNode->name().contains("config", Qt::CaseInsensitive)) {
             mcuConfigObject = nodeToJsonObject(childNode);
             if (const auto fileSelector = childNode->property("fileSelector"); fileSelector.isValid()) {
@@ -576,6 +591,8 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
     rootObject.insert("mcu", mcuObject);
     if (!shaderToolObject.isEmpty())
         rootObject.insert("shaderTool", shaderToolObject);
+    if (!effectComposerObject.isEmpty())
+        rootObject.insert("effectComposer", effectComposerObject);
     rootObject.insert("fileVersion", 1);
     return rootObject;
 }

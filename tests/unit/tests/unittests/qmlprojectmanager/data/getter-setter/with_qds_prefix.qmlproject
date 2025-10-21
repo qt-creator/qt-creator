@@ -95,4 +95,8 @@ Project {
         args: "-s --glsl \"100 es,120,150\" --hlsl 50 --msl 12"
         files: [ "content/shaders/*" ]
     }
+
+    QDS.EffectComposer {
+        qsbArgs: "-s --glsl \"300es,140,330,410\" --hlsl 50 --msl 12"
+    }
 }
