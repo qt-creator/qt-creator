@@ -1420,24 +1420,33 @@ public:
         m_targetsView = new SelectorTree;
         m_targetsView->setModel(&m_projectsModel);
         m_targetsView->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(m_targetsView, &QAbstractItemView::activated,
-                this, &ProjectWindowPrivate::itemActivated);
+        connect(m_targetsView, &QAbstractItemView::activated, this, [this](const QModelIndex &idx) {
+            m_vanishedTargetsView->clearSelection();
+            m_projectSettingsView->clearSelection();
+            itemActivated(idx);
+        });
         connect(m_targetsView, &QWidget::customContextMenuRequested,
                 this, &ProjectWindowPrivate::openContextMenu);
 
         m_vanishedTargetsView = new SelectorTree;
         m_vanishedTargetsView->setModel(&m_projectsModel);
         m_vanishedTargetsView->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(m_vanishedTargetsView, &QAbstractItemView::activated,
-                this, &ProjectWindowPrivate::itemActivated);
+        connect(m_vanishedTargetsView, &QAbstractItemView::activated, this, [this](const QModelIndex &idx) {
+            m_targetsView->clearSelection();
+            m_projectSettingsView->clearSelection();
+            itemActivated(idx);
+        });
         connect(m_vanishedTargetsView, &QWidget::customContextMenuRequested,
                 this, &ProjectWindowPrivate::openContextMenu);
 
         m_projectSettingsView = new SelectorTree;
         m_projectSettingsView->setModel(&m_projectsModel);
         m_projectSettingsView->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(m_projectSettingsView, &QAbstractItemView::activated,
-                this, &ProjectWindowPrivate::itemActivated);
+        connect(m_projectSettingsView, &QAbstractItemView::activated, this, [this](const QModelIndex &idx) {
+            m_targetsView->clearSelection();
+            m_vanishedTargetsView->clearSelection();
+            itemActivated(idx);
+        });
         connect(m_projectSettingsView, &QWidget::customContextMenuRequested,
                 this, &ProjectWindowPrivate::openContextMenu);
 
