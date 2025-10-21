@@ -957,21 +957,21 @@ bool CMakeGeneratorKitAspectFactory::isNinjaPresent(const Kit *k, const CMakeToo
     if (makeProgram.baseName().startsWith("ninja", makeProgram.caseSensitivity()))
         return true;
 
-    if (Internal::settings(nullptr).ninjaPath().isEmpty()) {
-        FilePaths extraDirs;
-        if (tool->filePath().osType() == OsTypeMac) {
-            // Same as the CMake autodetection
-            extraDirs.append("/usr/local/bin");    // homebrew intel
-            extraDirs.append("/opt/homebrew/bin"); // homebrew arm
-            extraDirs.append("/opt/local/bin");    // macports
-        }
+    const FilePath cmake = tool->filePath();
+    const FilePath ninja = cmake.withNewPath("ninja");
+    if (!ninja.searchInPath().isEmpty())
+        return true;
 
-        auto findNinja = [extraDirs](const Environment &env) -> bool {
-            return !env.searchInPath("ninja", extraDirs).isEmpty();
-        };
-        if (!findNinja(tool->filePath().deviceEnvironment()))
-            return findNinja(k->buildEnvironment());
-    }
+    // The Qt SDK setting and buildEnvironment is valid for local setups
+    if (!cmake.isLocal())
+        return false;
+
+    if (cmake.parentDir().pathAppended("ninja").exists())
+        return true;
+
+    if (Internal::settings(nullptr).ninjaPath().isEmpty())
+        return !k->buildEnvironment().searchInPath("ninja").isEmpty();
+
     return true;
 }
 
@@ -1093,6 +1093,18 @@ void CMakeGeneratorKitAspectFactory::addToBuildEnvironment(const Kit *k, Environ
             return;
         env.appendOrSetPath(Core::ICore::libexecPath());
         env.appendOrSetPath(Core::ICore::libexecPath("jom"));
+    }
+
+    if (info.generator.contains("Ninja")) {
+        if (env.searchInPath("ninja").exists())
+            return;
+
+        CMakeTool *tool = cmakeTool(k);
+        if (tool) {
+            const FilePath cmakeBinDir = tool->filePath().parentDir();
+            if (cmakeBinDir.pathAppended("ninja").exists())
+                env.appendOrSetPath(cmakeBinDir);
+        }
     }
 }
 
