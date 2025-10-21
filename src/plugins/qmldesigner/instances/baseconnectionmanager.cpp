@@ -83,7 +83,7 @@ void BaseConnectionManager::readDataStream(Connection &connection)
 {
     QList<QVariant> commandList;
 
-    while (!connection.socket->atEnd()) {
+    while (isActive() && !connection.socket->atEnd()) {
         if (connection.socket->bytesAvailable() < int(sizeof(quint32)))
             break;
 
