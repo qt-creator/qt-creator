@@ -36,11 +36,11 @@ Q_DECLARE_METATYPE(QList<ReferenceData>)
 
 void Core::Internal::CorePlugin::test_basefilefilter()
 {
-    QFETCH(QStringList, testFiles);
+    QFETCH(FilePaths, testFiles);
     QFETCH(QList<ReferenceData>, referenceDataList);
 
     LocatorFileCache cache;
-    cache.setFilePaths(FilePaths::fromStrings(testFiles));
+    cache.setFilePaths(testFiles);
     const LocatorMatcherTasks tasks = {cache.matcher()};
     for (const ReferenceData &reference : std::as_const(referenceDataList)) {
         const LocatorFilterEntries filterEntries = LocatorMatcher::runBlocking(
@@ -52,19 +52,15 @@ void Core::Internal::CorePlugin::test_basefilefilter()
 
 void Core::Internal::CorePlugin::test_basefilefilter_data()
 {
-    auto shortNativePath = [](const QString &file) {
-        return FilePath::fromString(file).shortNativePath();
-    };
-
-    QTest::addColumn<QStringList>("testFiles");
+    QTest::addColumn<FilePaths>("testFiles");
     QTest::addColumn<QList<ReferenceData> >("referenceDataList");
 
     const QChar pathSeparator = QDir::separator();
     const MyTestDataDir testDir("testdata_basic");
-    const QStringList testFiles({QDir::fromNativeSeparators(testDir.file("file.cpp")),
-                                 QDir::fromNativeSeparators(testDir.file("main.cpp")),
-                                 QDir::fromNativeSeparators(testDir.file("subdir/main.cpp"))});
-    const QStringList testFilesShort = Utils::transform(testFiles, shortNativePath);
+    const FilePaths testFiles({testDir.filePath("file.cpp"),
+                               testDir.filePath("main.cpp"),
+                               testDir.filePath("subdir/main.cpp")});
+    const QStringList testFilesShort = Utils::transform(testFiles, &FilePath::shortNativePath);
 
     QTest::newRow("BaseFileFilter-EmptyInput")
         << testFiles
@@ -125,13 +121,14 @@ void Core::Internal::CorePlugin::test_basefilefilter_data()
                     << ResultData("main.cpp", testFilesShort.at(2))))
             );
 
-    const QStringList priorityTestFiles({testDir.file("qmap.cpp"),
-                                         testDir.file("mid_qcore_mac_p.h"),
-                                         testDir.file("qcore_mac_p.h"),
-                                         testDir.file("foo_qmap.h"),
-                                         testDir.file("qmap.h"),
-                                         testDir.file("bar.h")});
-    const QStringList priorityTestFilesShort = Utils::transform(priorityTestFiles, shortNativePath);
+    const FilePaths priorityTestFiles({testDir.filePath("qmap.cpp"),
+                                       testDir.filePath("mid_qcore_mac_p.h"),
+                                       testDir.filePath("qcore_mac_p.h"),
+                                       testDir.filePath("foo_qmap.h"),
+                                       testDir.filePath("qmap.h"),
+                                       testDir.filePath("bar.h")});
+    const QStringList priorityTestFilesShort = Utils::transform(priorityTestFiles,
+                                                                &FilePath::shortNativePath);
 
     QTest::newRow("BaseFileFilter-InputPriorizeFullOverFuzzy")
         << priorityTestFiles
@@ -145,10 +142,11 @@ void Core::Internal::CorePlugin::test_basefilefilter_data()
                      << ResultData("mid_qcore_mac_p.h", priorityTestFilesShort.at(1))))
            );
 
-    const QStringList sortingTestFiles({QDir::fromNativeSeparators(testDir.file("aaa/zfile.cpp")),
-                                        QDir::fromNativeSeparators(testDir.file("bbb/yfile.cpp")),
-                                        QDir::fromNativeSeparators(testDir.file("ccc/xfile.cpp"))});
-    const QStringList sortingTestFilesShort = Utils::transform(sortingTestFiles, shortNativePath);
+    const FilePaths sortingTestFiles({testDir.filePath("aaa/zfile.cpp"),
+                                      testDir.filePath("bbb/yfile.cpp"),
+                                      testDir.filePath("ccc/xfile.cpp")});
+    const QStringList sortingTestFilesShort = Utils::transform(sortingTestFiles,
+                                                               &FilePath::shortNativePath);
 
     QTest::newRow("BaseFileFilter-SortByDisplayName")
         << sortingTestFiles
