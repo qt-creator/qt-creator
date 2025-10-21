@@ -37,7 +37,7 @@ public:
     {
         // Note: Don't convert into Utils::Process. See more comments in this change in gerrit.
         QProcess p;
-        p.setProgram(cmdLine.executable().toUrlishString());
+        p.setProgram(cmdLine.executable().toFSPathString());
         p.setArguments(cmdLine.splitArguments());
         p.setProcessChannelMode(QProcess::SeparateChannels);
 
