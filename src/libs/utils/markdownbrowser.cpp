@@ -489,19 +489,13 @@ public:
             if (!m_loadRemoteImages)
                 remoteUrls.clear();
 
-            struct RemoteData
-            {
-                QUrl url;
-                QByteArray data;
-            };
-
-            Storage<RemoteData> remoteData;
+            const Storage<QByteArray> remoteData;
 
             const LoopList remoteIterator(Utils::toList(remoteUrls));
             const LoopList localIterator(Utils::toList(localUrls));
 
             auto onQuerySetup =
-                [remoteData, this, remoteIterator, base = m_basePath.toUrl()](NetworkQuery &query) {
+                [this, remoteIterator, base = m_basePath.toUrl()](NetworkQuery &query) {
                     QUrl url = *remoteIterator;
                     if (url.isRelative())
                         url = base.resolved(url);
@@ -512,18 +506,17 @@ public:
 
                     query.setRequest(request);
                     query.setNetworkAccessManager(m_networkAccessManager);
-                    remoteData->url = *remoteIterator;
                 };
 
-            auto onQueryDone = [this, remoteData](const NetworkQuery &query, DoneWith result) {
+            auto onQueryDone = [this, remoteIterator, remoteData](const NetworkQuery &query, DoneWith result) {
                 if (result == DoneWith::Cancel)
                     return;
                 m_urlsToLoad.remove(query.reply()->url());
 
                 if (result == DoneWith::Success) {
-                    remoteData->data = query.reply()->readAll();
+                    *remoteData = query.reply()->readAll();
                 } else {
-                    m_imageHandler.set(remoteData->url.toString(), QByteArray{});
+                    m_imageHandler.set(remoteIterator->toString(), QByteArray{});
                     markContentsDirty(0, this->characterCount());
                 }
             };
@@ -536,15 +529,15 @@ public:
                     [](const QByteArray &data, qsizetype maxSize) {
                         return AnimatedImageHandler::makeEntry(data, maxSize);
                     },
-                    remoteData->data,
+                    *remoteData,
                     maxSize);
             };
 
             auto onMakeEntryDone =
-                [this, remoteIterator, remoteData](const Async<EntryPointer> &async) {
+                [this, remoteIterator](const Async<EntryPointer> &async) {
                     EntryPointer result = async.result();
                     if (result) {
-                        m_imageHandler.set(remoteData->url.toString(), result);
+                        m_imageHandler.set(remoteIterator->toString(), result);
                         markContentsDirty(0, this->characterCount());
                     }
                 };
@@ -588,17 +581,17 @@ public:
 
             // clang-format off
             const Group recipe {
-                parallelLimit(2),
-                For(remoteIterator) >> Do {
-                    remoteData,
+                parallel,
+                For (remoteIterator) >> Do {
                     Group {
+                        remoteData,
                         NetworkQueryTask{onQuerySetup, onQueryDone},
-                        AsyncTask<EntryPointer>(onMakeEntrySetup, onMakeEntryDone),
-                    } || successItem,
+                        AsyncTask<EntryPointer>(onMakeEntrySetup, onMakeEntryDone)
+                    } || successItem
                 },
-                For(localIterator) >> Do {
-                    AsyncTask<EntryPointer>(onLocalSetup, onLocalDone) || successItem,
-                },
+                For (localIterator) >> Do {
+                    AsyncTask<EntryPointer>(onLocalSetup, onLocalDone) || successItem
+                }
             };
             // clang-format on
 
