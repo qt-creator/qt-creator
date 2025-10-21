@@ -18,7 +18,6 @@ McuSupportDevice::McuSupportDevice()
     const QString displayNameAndType = Tr::tr("MCU Device");
     setDefaultDisplayName(displayNameAndType);
     setDisplayType(displayNameAndType);
-    setDeviceState(IDevice::DeviceStateUnknown);
     setMachineType(IDevice::Hardware);
     setOsType(Utils::OsTypeOther);
 }

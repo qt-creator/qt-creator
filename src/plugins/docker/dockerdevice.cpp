@@ -23,6 +23,7 @@
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 
 #include <client/bridgedfileaccess.h>
 #include <client/cmdbridgeclient.h>
@@ -458,6 +459,8 @@ void DockerDevicePrivate::stopCurrentContainer()
 
     auto locked = m_deviceThread.writeLocked();
     locked->reset();
+
+    q->setDeviceState(ProjectExplorer::IDevice::DeviceDisconnected);
 }
 
 bool DockerDevicePrivate::prepareForBuild(const Target *target)
@@ -648,12 +651,6 @@ Result<QString> DockerDevicePrivate::updateContainerAccess()
 
     if (result)
         lockedThread->reset(result->release());
-
-    QString containerStatus = result ? Tr::tr("Running") : result.error().trimmed();
-
-    QTimer::singleShot(0, this, [this, containerStatus] {
-        q->containerStatus.setText(containerStatus);
-    });
 
     if (!result)
         return make_unexpected(result.error());
@@ -1164,8 +1161,6 @@ DockerDevice::DockerDevice()
             &network,
             &StringSelectionAspect::refill);
 
-    containerStatus.setText(Tr::tr("stopped"));
-
     allowEmptyCommand.setValue(true);
 
     portMappings.setSettingsKey("Ports");
@@ -1186,7 +1181,16 @@ DockerDevice::DockerDevice()
     setType(Constants::DOCKER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
 
-    setFileAccessFactory([this] { return d->createFileAccess(); });
+    setFileAccessFactory([this]() -> DeviceFileAccess * {
+        if (auto fA = d->m_fileAccess.readLocked()->get())
+            return fA;
+
+        if (DeviceFileAccess *fileAccess = d->createFileAccess()) {
+            setDeviceState(ProjectExplorer::IDevice::DeviceReadyToUse);
+            return fileAccess;
+        }
+        return nullptr;
+    });
 
     setOpenTerminal([this](const Environment &env, const FilePath &workingDir, const Continuation<> &cont) {
         Result<QString> result = d->updateContainerAccess();
@@ -1357,6 +1361,30 @@ bool DockerDevice::supportsBuildingProject(const Utils::FilePath &projectDir) co
     if (ensureReachable(projectDir))
         return true;
     return handlesFile(projectDir);
+}
+
+QString DockerDevice::deviceStateToString() const
+{
+    switch (deviceState()) {
+    case IDevice::DeviceDisconnected:
+        if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
+            return Tr::tr("Docker system is not reachable.");
+        return Tr::tr("Ready (Waiting for access to container...)");
+    default:
+        return IDevice::deviceStateToString();
+    }
+}
+
+QPixmap DockerDevice::deviceStateIcon() const
+{
+    switch (deviceState()) {
+    case IDevice::DeviceDisconnected:
+        if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
+            return ProjectExplorer::Icons::DEVICE_DISCONNECTED_INDICATOR.pixmap();
+        return ProjectExplorer::Icons::DEVICE_CONNECTED_INDICATOR.pixmap();
+    default:
+        return IDevice::deviceStateIcon();
+    }
 }
 
 } // namespace Docker

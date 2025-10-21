@@ -37,7 +37,6 @@ public:
         const QString displayNameAndType = Tr::tr("Web Browser");
         setDefaultDisplayName(displayNameAndType);
         setDisplayType(displayNameAndType);
-        setDeviceState(IDevice::DeviceStateUnknown);
         setMachineType(IDevice::Hardware);
         setOsType(OsTypeOther);
         setFileAccess(nullptr);

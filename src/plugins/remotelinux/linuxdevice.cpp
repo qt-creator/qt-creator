@@ -1153,12 +1153,10 @@ private:
 LinuxDevice::LinuxDevice()
     : d(new LinuxDevicePrivate(this))
 {
+    setupId(IDevice::ManuallyAdded, Utils::Id());
     setDisplayType(Tr::tr("Remote Linux"));
     setOsType(OsTypeLinux);
     setDefaultDisplayName(Tr::tr("Remote Linux Device"));
-    setDeviceState(IDevice::DeviceDisconnected);
-
-    setupId(IDevice::ManuallyAdded, Utils::Id());
     setType(Constants::GenericLinuxOsType);
     setMachineType(IDevice::Hardware);
     setFreePorts(PortList::fromString(QLatin1String("10000-10100")));

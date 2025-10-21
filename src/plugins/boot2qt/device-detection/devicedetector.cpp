@@ -92,9 +92,9 @@ void DeviceDetector::handleDeviceEvent(QdbDeviceTracker::DeviceEventType eventTy
             state = IDevice::DeviceConnected;
         else
             state = IDevice::DeviceReadyToUse;
-        device->setDeviceState(state);
 
         DeviceManager::addDevice(device);
+        device->setDeviceState(state);
 
         if (state == IDevice::DeviceConnected)
             showMessage(messagePrefix.arg("connected, waiting for IP"), false);

@@ -184,7 +184,6 @@ public:
     Id type;
     IDevice::Origin origin = IDevice::AutoDetected;
     Id id;
-    IDevice::DeviceState deviceState = IDevice::DeviceStateUnknown;
     IDevice::MachineType machineType = IDevice::Hardware;
     OsType osType = OsTypeOther;
     DeviceFileAccess *fileAccess = nullptr;
@@ -741,16 +740,14 @@ DeviceProcessSignalOperation::Ptr IDevice::signalOperation() const
     return {};
 }
 
-IDevice::DeviceState IDevice::deviceState() const
+void IDevice::setDeviceState(DeviceState deviceState)
 {
-    return d->deviceState;
+    DeviceManager::setDeviceState(id(), deviceState);
 }
 
-void IDevice::setDeviceState(const IDevice::DeviceState state)
+IDevice::DeviceState IDevice::deviceState() const
 {
-    if (d->deviceState == state)
-        return;
-    d->deviceState = state;
+    return DeviceManager::deviceState(id());
 }
 
 QIcon IDevice::overlayIcon() const
@@ -912,7 +909,7 @@ void IDevice::addDisplayNameToLayout(Layouting::Layout &layout) const
 
 QString IDevice::deviceStateToString() const
 {
-    switch (d->deviceState) {
+    switch (deviceState()) {
     case IDevice::DeviceReadyToUse: return Tr::tr("Ready to use");
     case IDevice::DeviceConnected: return Tr::tr("Connected");
     case IDevice::DeviceDisconnected: return Tr::tr("Disconnected");

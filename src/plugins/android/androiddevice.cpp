@@ -392,7 +392,6 @@ AndroidDevice::AndroidDevice()
     setDisplayType(Tr::tr("Android"));
     setMachineType(IDevice::Hardware);
     setOsType(OsType::OsTypeOtherUnix);
-    setDeviceState(DeviceDisconnected);
 
     addDeviceAction({Tr::tr("Refresh"), [](const IDevice::Ptr &device) {
         updateDeviceState(device);

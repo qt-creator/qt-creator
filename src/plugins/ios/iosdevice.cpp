@@ -113,7 +113,6 @@ IosDevice::IosDevice(CtorHelper)
     setDisplayType(Tr::tr("iOS"));
     setMachineType(IDevice::Hardware);
     setOsType(Utils::OsTypeMac);
-    setDeviceState(DeviceDisconnected);
 }
 
 IosDevice::IosDevice()

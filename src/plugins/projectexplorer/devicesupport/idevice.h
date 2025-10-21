@@ -219,7 +219,7 @@ public:
     DeviceState deviceState() const;
     void setDeviceState(const DeviceState state);
     virtual QString deviceStateToString() const;
-    QPixmap deviceStateIcon() const;
+    virtual QPixmap deviceStateIcon() const;
 
     QIcon overlayIcon() const;
 

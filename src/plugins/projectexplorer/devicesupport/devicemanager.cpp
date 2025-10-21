@@ -19,6 +19,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/synchronizedvalue.h>
 #include <utils/terminalhooks.h>
 
 #include <QHash>
@@ -63,9 +64,23 @@ public:
         return devices;
     }
 
+    void clearDeviceState(Utils::Id deviceId)
+    {
+        const auto lockedStates = deviceStates.writeLocked();
+        lockedStates->remove(deviceId);
+    }
+
+    void initDeviceState(Utils::Id deviceId)
+    {
+        const auto lockedStates = deviceStates.writeLocked();
+        if (!lockedStates->contains(deviceId))
+            lockedStates->insert(deviceId, IDevice::DeviceDisconnected);
+    }
+
     mutable QMutex mutex;
     QList<IDevice::Ptr> devices;
     QHash<Id, Id> defaultDevices;
+    SynchronizedValue<QMap<Id, IDevice::DeviceState>> deviceStates;
     PersistentSettingsWriter *writer = nullptr;
 };
 
@@ -73,12 +88,12 @@ public:
 
 using namespace Internal;
 
-static DeviceManager *m_instance = nullptr;
+static DeviceManager *s_instance = nullptr;
 static std::unique_ptr<DeviceManagerPrivate> d;
 
 DeviceManager *DeviceManager::instance()
 {
-    return m_instance;
+    return s_instance;
 }
 
 int DeviceManager::deviceCount()
@@ -161,7 +176,7 @@ void DeviceManager::load()
     for (const IDevice::Ptr &device : d->devices)
         device->postLoad();
 
-    emit m_instance->devicesLoaded();
+    emit s_instance->devicesLoaded();
 }
 
 static const IDeviceFactory *restoreFactory(const Store &map)
@@ -197,6 +212,7 @@ QList<IDevice::Ptr> DeviceManager::fromMap(const Store &map, QHash<Id, Id> *defa
         const IDevice::Ptr device = factory->construct();
         QTC_ASSERT(device, continue);
         device->fromMap(map);
+        d->initDeviceState(device->id());
         devices << device;
     }
     return devices;
@@ -222,6 +238,26 @@ Store DeviceManager::toMap()
     return map;
 }
 
+IDevice::DeviceState DeviceManager::deviceState(Utils::Id deviceId)
+{
+    return d->deviceStates.readLocked()->value(deviceId, IDevice::DeviceStateUnknown);
+}
+
+void DeviceManager::setDeviceState(Id deviceId, IDevice::DeviceState newState)
+{
+    if (!d || !s_instance)
+        return;
+
+    {
+        const auto lockedStates = d->deviceStates.writeLocked();
+        if (lockedStates->value(deviceId, IDevice::DeviceStateUnknown) == newState)
+            return;
+        lockedStates->insert(deviceId, newState);
+    }
+    emit s_instance->deviceUpdated(deviceId);
+    emit s_instance->updated();
+}
+
 void DeviceManager::addDevice(const IDevice::Ptr &device)
 {
     QStringList names;
@@ -243,19 +279,19 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
             QMutexLocker locker(&d->mutex);
             d->devices[pos] = device;
         }
-        emit m_instance->deviceUpdated(device->id());
+        emit s_instance->deviceUpdated(device->id());
     } else {
         {
             QMutexLocker locker(&d->mutex);
             d->devices << device;
         }
-        emit m_instance->deviceAdded(device->id());
+        emit s_instance->deviceAdded(device->id());
 
         if (FSEngine::isAvailable())
             FSEngine::addDevice(device->rootPath());
     }
 
-    emit m_instance->updated();
+    emit s_instance->updated();
 }
 
 void DeviceManager::removeDevice(Id id)
@@ -264,7 +300,7 @@ void DeviceManager::removeDevice(Id id)
     QTC_ASSERT(device, return);
 
     device->aboutToBeRemoved();
-    emit m_instance->deviceAboutToBeRemoved(device->id());
+    emit s_instance->deviceAboutToBeRemoved(device->id());
 
     const bool wasDefault = d->defaultDevices.value(device->type()) == device->id();
     const Id deviceType = device->type();
@@ -272,7 +308,7 @@ void DeviceManager::removeDevice(Id id)
         QMutexLocker locker(&d->mutex);
         d->devices.removeAt(d->indexForId(id));
     }
-    emit m_instance->deviceRemoved(device->id());
+    emit s_instance->deviceRemoved(device->id());
 
     if (FSEngine::isAvailable())
         FSEngine::removeDevice(device->rootPath());
@@ -281,28 +317,14 @@ void DeviceManager::removeDevice(Id id)
         for (int i = 0; i < d->devices.count(); ++i) {
             if (deviceAt(i)->type() == deviceType) {
                 d->defaultDevices.insert(deviceAt(i)->type(), deviceAt(i)->id());
-                emit m_instance->deviceUpdated(deviceAt(i)->id());
+                emit s_instance->deviceUpdated(deviceAt(i)->id());
                 break;
             }
         }
     }
 
-    emit m_instance->updated();
-}
-
-void DeviceManager::setDeviceState(Id deviceId, IDevice::DeviceState deviceState)
-{
-    const int pos = d->indexForId(deviceId);
-    if (pos < 0)
-        return;
-    IDevice::Ptr &device = d->devices[pos];
-    if (device->deviceState() == deviceState)
-        return;
-
-    // TODO: make it thread safe?
-    device->setDeviceState(deviceState);
-    emit m_instance->deviceUpdated(deviceId);
-    emit m_instance->updated();
+    d->clearDeviceState(id);
+    emit s_instance->updated();
 }
 
 bool DeviceManager::isLoaded()
@@ -333,7 +355,7 @@ IDevice::ConstPtr DeviceManager::deviceForPath(const FilePath &path)
 
 IDevice::ConstPtr DeviceManager::defaultDesktopDevice()
 {
-    return m_instance->defaultDevice(Constants::DESKTOP_DEVICE_TYPE);
+    return s_instance->defaultDevice(Constants::DESKTOP_DEVICE_TYPE);
 }
 
 void DeviceManager::setDefaultDevice(Id id)
@@ -344,16 +366,16 @@ void DeviceManager::setDefaultDevice(Id id)
     if (device == oldDefaultDevice)
         return;
     d->defaultDevices.insert(device->type(), device->id());
-    emit m_instance->deviceUpdated(device->id());
-    emit m_instance->deviceUpdated(oldDefaultDevice->id());
+    emit s_instance->deviceUpdated(device->id());
+    emit s_instance->deviceUpdated(oldDefaultDevice->id());
 
-    emit m_instance->updated();
+    emit s_instance->updated();
 }
 
 DeviceManager::DeviceManager()
 {
     d = std::make_unique<DeviceManagerPrivate>();
-    m_instance = this;
+    s_instance = this;
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &DeviceManager::save);
 
@@ -485,7 +507,7 @@ DeviceManager::DeviceManager()
 DeviceManager::~DeviceManager()
 {
     delete d->writer;
-    m_instance = nullptr;
+    s_instance = nullptr;
     d.reset();
 }
 

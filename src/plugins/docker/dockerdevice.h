@@ -76,6 +76,9 @@ public:
     QString repoAndTag() const;
     QString repoAndTagEncoded() const;
 
+    QString deviceStateToString() const override;
+    QPixmap deviceStateIcon() const override;
+
     Utils::StringAspect imageId{this};
     Utils::StringAspect repo{this};
     Utils::StringAspect tag{this};
@@ -88,8 +91,6 @@ public:
     DockerDeviceEnvironmentAspect environment{this};
     Internal::PortMappings portMappings{this};
     Utils::BoolAspect mountCmdBridge{this};
-
-    Utils::TextDisplay containerStatus{this};
 
 protected:
     void fromMap(const Utils::Store &map) final;

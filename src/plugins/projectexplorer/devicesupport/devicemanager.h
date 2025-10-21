@@ -42,6 +42,7 @@ public:
     static void addDevice(const IDevice::Ptr &device);
     static void removeDevice(Utils::Id id);
     static void setDeviceState(Utils::Id deviceId, IDevice::DeviceState deviceState);
+    static IDevice::DeviceState deviceState(Utils::Id deviceId);
 
     static bool isLoaded();
 
