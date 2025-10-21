@@ -435,6 +435,12 @@ void setupSettingsModule()
             sol::property([](SelectionAspect *aspect) {
                 return qvariant_cast<sol::object>(aspect->itemValue());
             }),
+            "volatileValue",
+            sol::property(&SelectionAspect::volatileValue, &SelectionAspect::setVolatileValue),
+            "itemValueForIndex",
+            [](SelectionAspect *aspect, int index) {
+                return qvariant_cast<sol::object>(aspect->itemValueForIndex(index));
+            },
             "addOption",
             sol::overload(
                 [](SelectionAspect &self, const QString &name) { self.addOption(name); },

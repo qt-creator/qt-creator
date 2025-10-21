@@ -78,6 +78,7 @@ function settings.ColorAspect.create(options) end
 ---@class SelectionAspect : TypedAspect<int>
 ---@field stringValue string The string value of the aspect.
 ---@field dataValue any The data value of the aspect.
+---@field volatileValue integer The currently highlighted option index.
 settings.SelectionAspect = {}
 
 ---@enum SelectionDisplayStyle
@@ -105,6 +106,12 @@ function settings.SelectionAspect.create(options) end
 function settings.SelectionAspect:addOption(option) end
 
 function settings.SelectionAspect:addOption(option, toolTip) end
+
+---Return the data stored for the option at the given index.
+---@param index integer
+---@return any
+function settings.SelectionAspect:itemValueForIndex(index) end
+
 settings.MultiSelectionAspect = {}
 function settings.MultiSelectionAspect.create(options) end
 
