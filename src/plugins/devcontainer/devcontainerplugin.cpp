@@ -355,7 +355,6 @@ void DevContainerPlugin::startDeviceForProject(
 
     std::shared_ptr<Device> device = std::make_shared<DevContainer::Device>(project);
     device->setDisplayName(Tr::tr("Development Container for %1").arg(project->displayName()));
-    DeviceManager::addDevice(device);
 
     const auto onDone = guardedCallback(&guard, [this, project, log, device](Result<> result) {
         if (result) {

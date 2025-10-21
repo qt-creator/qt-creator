@@ -225,6 +225,8 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
         m_dockerFileWatcher.reset();
         m_devContainerJsonWatcher.reset();
 
+        DeviceManager::addDevice(shared_from_this());
+
         instanceConfig.configFilePath.watch()
             .and_then([this](std::unique_ptr<Utils::FilePathWatcher> jsonWatcher) {
                 connect(
@@ -526,6 +528,7 @@ Group Device::downRecipe(bool forceDown)
             m_fileAccess.reset();
             m_systemEnvironment.reset();
             DeviceManager::setDeviceState(id(), DeviceState::DeviceStateUnknown);
+            DeviceManager::removeDevice(id());
         }),
         removeDetectedKitsRecipe(shared_from_this(), m_instanceConfig.logFunction),
         forceDown ? *m_forceDownRecipe : *m_downRecipe
