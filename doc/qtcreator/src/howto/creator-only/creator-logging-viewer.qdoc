@@ -17,7 +17,7 @@
     To open the log viewer and start collecting log information, select
     \uicontrol Tools > \uicontrol {Debug \QC} > \uicontrol {Show Logs}.
 
-    \image {qtcreator-logging-category-viewer.png} {Logging Category Viewer dialog}
+    \image {qtcreator-logging-category-viewer.webp} {Logging Category Viewer dialog}
 
     The viewer displays log messages from the selected logging categories.
     If you have logging rules defined, they might be listed on startup.
@@ -29,9 +29,9 @@
     \section1 View logs
 
     To enable logging categories, select them in \uicontrol Category.
-    \uicontrol Type specifies the minimum level of messages to display from
-    the respective category. To change the minimum level, double-click the
-    type and select another value.
+    To specifiy the level of messages to display from the respective category,
+    select \uicontrol Debug, \uicontrol Warning, \uicontrol Critical, or
+    \uicontrol Info. The \uicontrol Fatal messages are always enabled.
 
     If you enable more than one category, you can specify different colors for
     the messages in each category. Double-click the value of \uicontrol Color to
@@ -42,7 +42,7 @@
     saved information, select \uicontrol {Update from Preset}.
 
     To save the content of the displayed messages, select
-    \inlineimage {icons/savefile.png} {Save Log} (\uicontrol {Save Log}).
+    \inlineimage {icons/filesave.png} {Save Log} (\uicontrol {Save Log}).
     To copy all or selected messages, select \uicontrol {Copy All} or
     \uicontrol {Copy Selected Logs} in the context menu.
 
@@ -55,10 +55,12 @@
     \inlineimage {icons/run_small.png} {Start Logging}
     (\uicontrol {Start Logging}).
 
+    Use regular expressions in the search field to filter the categories.
     By default, logging categories and messages coming directly from Qt are
-    disabled. To display them, select
-    \inlineimage {icons/qtlogo-16.png} {Toggle Qt Internal Logging}
-    (\uicontrol {Toggle Qt Internal Logging}).
+    filtered out. To display them, select \inlineimage {icons/close.png} {Clear text}
+    (\uicontrol {Clear text}) or clear the search field manually. To hide them
+    again, select \inlineimage {icons/qtlogo-16.png} {Filter Qt Internal Logging Categories}
+    (\uicontrol {Filter Qt Internal Logging Categories}).
 
     New messages automatically scroll the message display to the bottom.
     To stop automatic scrolling, toggle

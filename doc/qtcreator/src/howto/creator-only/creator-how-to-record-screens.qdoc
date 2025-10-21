@@ -63,7 +63,7 @@
     the recorded area, as well as the width and height of the area.
 
     To save a cropped version of the current frame as a file, select
-    \inlineimage {icons/savefile.png} {Save}.
+    \inlineimage {icons/filesave.png} {Save}.
 
     To copy a cropped version of the current frame to the clipboard, select
     \inlineimage {icons/camera.png} {Copy}.
