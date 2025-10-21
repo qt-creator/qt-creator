@@ -244,7 +244,9 @@ private:
 
     void updateCustomUniforms();
     void initShaderDir();
+    std::tuple<QStringList, Utils::FilePath> resolveQsbArgsAndPath();
     void bakeShaders();
+    void doBakeShaders(const QStringList &qsbArgs, const Utils::FilePath &qsbPath);
     void writeComposition(const QString &name);
     void saveResources(const QString &name);
 
@@ -313,6 +315,8 @@ private:
     bool m_advancedMode = false;
     bool m_qsbFirstProcessIsDone = false;
     int m_pendingSaveBakeCounter = -1;
+    QStringList m_pendingBakeArgs;
+    Utils::FilePath m_pendingQsbPath;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

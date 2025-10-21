@@ -60,6 +60,7 @@ public:
     Q_INVOKABLE bool isMCUProject() const;
 
     Q_INVOKABLE void openCodeEditor(int idx);
+    void closeCodeEditor();
 
     void openNearestAvailableCodeEditor(int idx);
 

@@ -22,6 +22,8 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
+#include <qmlprojectmanager/qmlproject.h>
+
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/qtcassert.h>
@@ -45,7 +47,12 @@ EffectComposerModel::EffectComposerModel(QObject *parent)
     , m_currentPreviewColor("#dddddd")
 {
     m_rebakeTimer.setSingleShot(true);
-    connect(&m_rebakeTimer, &QTimer::timeout, this, &EffectComposerModel::bakeShaders);
+    connect(&m_rebakeTimer, &QTimer::timeout, this, [this]() {
+        if (!m_pendingBakeArgs.isEmpty() && !m_pendingQsbPath.isEmpty())
+            doBakeShaders(m_pendingBakeArgs, m_pendingQsbPath);
+        m_pendingBakeArgs.clear();
+        m_pendingQsbPath.clear();
+    });
     m_currentPreviewImage = defaultPreviewImage();
 }
 
@@ -237,6 +244,8 @@ bool EffectComposerModel::changeNodeName(int nodeIndex, const QString &name)
 void EffectComposerModel::clear(bool clearName)
 {
     beginResetModel();
+    m_pendingBakeArgs.clear();
+    m_pendingQsbPath.clear();
     m_rebakeTimer.stop();
     qDeleteAll(m_nodes);
     m_nodes.clear();
@@ -2155,7 +2164,36 @@ void EffectComposerModel::initShaderDir()
     ++m_currentBakeCounter;
 }
 
+std::tuple<QStringList, Utils::FilePath> EffectComposerModel::resolveQsbArgsAndPath()
+{
+    if (QmlDesigner::DesignDocument *doc = QmlDesigner::QmlDesignerPlugin::instance()->currentDesignDocument()) {
+        if (ProjectExplorer::Target *target = doc->currentTarget()) {
+            if (ProjectExplorer::Kit *kit = target->kit()) {
+                if (QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(kit)) {
+                    Utils::FilePath qsbPath = qtVer->binPath().pathAppended("qsb").withExecutableSuffix();
+                    if (qsbPath.exists()) {
+                        QStringList qsbArgs;
+                        if (const auto bs = qobject_cast<QmlProjectManager::QmlBuildSystem *>(target->buildSystem()))
+                            qsbArgs = bs->effectComposerQsbArgs();
+                        if (qsbArgs.isEmpty())
+                            qsbArgs = {"-s", "--glsl", "300es,140,330,410", "--hlsl", "50", "--msl", "12"};
+                        return {qsbArgs, qsbPath};
+                    }
+                }
+            }
+        }
+    }
+
+    return {{}, {}};
+}
+
 void EffectComposerModel::bakeShaders()
+{
+    auto [qsbArgs, qsbPath] = resolveQsbArgsAndPath();
+    doBakeShaders(qsbArgs, qsbPath);
+}
+
+void EffectComposerModel::doBakeShaders(const QStringList &qsbArgs, const Utils::FilePath &qsbPath)
 {
     initShaderDir();
 
@@ -2173,9 +2211,8 @@ void EffectComposerModel::bakeShaders()
     resetEffectError(ErrorQMLParsing);
     resetEffectError(ErrorPreprocessor);
 
-    const ProjectExplorer::Kit *kit = ProjectExplorer::activeKitForCurrentProject();
-    if (!kit) {
-        setEffectError(failMessage.arg("Target not found"));
+    if (qsbArgs.isEmpty() || qsbPath.isEmpty()) {
+        setEffectError(failMessage.arg("Qsb config could not be resolved"));
         return;
     }
 
@@ -2196,18 +2233,6 @@ void EffectComposerModel::bakeShaders()
     QString fs = m_fragmentShader;
     writeToFile(fs.toUtf8(), m_fragmentSourceFilename);
 
-    QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(kit);
-    if (!qtVer) {
-        setEffectError(failMessage.arg("Qt version not found"));
-        return;
-    }
-
-    Utils::FilePath qsbPath = qtVer->binPath().pathAppended("qsb").withExecutableSuffix();
-    if (!qsbPath.exists()) {
-        setEffectError(failMessage.arg("QSB tool for target kit not found"));
-        return;
-    }
-
     Utils::FilePath binPath = Utils::FilePath::fromString(
         QLibraryInfo::path(QLibraryInfo::BinariesPath));
     Utils::FilePath qsbPrevPath = binPath.pathAppended("qsb").withExecutableSuffix();
@@ -2221,13 +2246,13 @@ void EffectComposerModel::bakeShaders()
     const QStringList outPaths = {m_vertexShaderFilename, m_fragmentShaderFilename};
     const QStringList outPrevPaths = {m_vertexShaderPreviewFilename, m_fragmentShaderPreviewFilename};
 
-    auto runQsb = [this, srcPaths](
+    auto runQsb = [this, srcPaths, qsbArgs](
                       const Utils::FilePath &qsbPath, const QStringList &outPaths, bool preview) {
         for (int i = 0; i < 2; ++i) {
             const auto workDir = Utils::FilePath::fromString(outPaths[i]);
-            // TODO: Optional legacy glsl support like standalone effect maker needs to add "100es,120"
-            QStringList args = {"-s", "--glsl", "300es,140,330,410", "--hlsl", "50", "--msl", "12"};
-            args << "-o" << outPaths[i] << srcPaths[i];
+
+            QStringList args;
+            args << qsbArgs << "-o" << outPaths[i] << srcPaths[i];
 
             ++m_remainingQsbTargets;
 
@@ -2473,6 +2498,11 @@ void EffectComposerModel::updateExtraMargin()
 
 void EffectComposerModel::startRebakeTimer()
 {
+    // Since the baking triggered by save at project close can actually happen after project close,
+    // we need to resolve project specific arguments before starting the timer
+    if (m_pendingBakeArgs.isEmpty() || m_pendingQsbPath.isEmpty())
+        std::tie(m_pendingBakeArgs, m_pendingQsbPath) = resolveQsbArgsAndPath();
+
     // This can come multiple times in a row in response to property changes, so let's buffer it
     m_rebakeTimer.start(200);
 }

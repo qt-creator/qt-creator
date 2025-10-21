@@ -159,8 +159,11 @@ void EffectComposerView::modelAttached(QmlDesigner::Model *model)
 void EffectComposerView::modelAboutToBeDetached(QmlDesigner::Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
+
+    // We don't want to clear entire effect composer as there may still be pending shaderbaking
+    // happening, and also we might not be changing the project, so just close the code editor
     if (m_widget)
-        m_widget->effectComposerModel()->clear(true);
+        m_widget->closeCodeEditor();
 }
 
 void EffectComposerView::selectedNodesChanged(const QList<QmlDesigner::ModelNode> & selectedNodeList,

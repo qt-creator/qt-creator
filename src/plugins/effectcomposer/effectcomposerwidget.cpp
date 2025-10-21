@@ -116,6 +116,9 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
 
     connect(m_effectComposerModel.data(), &EffectComposerModel::resourcesSaved,
             this, [this](const QmlDesigner::TypeName &type) {
+        if (!m_effectComposerView->model())
+            return;
+
         QmlDesigner::NodeMetaInfo newTypeInfo = m_effectComposerView->model()->metaInfo(type);
         if (!newTypeInfo.isValid())
             return;
@@ -287,6 +290,11 @@ void EffectComposerWidget::openCodeEditor(int idx)
     m_editor->showWidget();
 
     updateCodeEditorIndex();
+}
+
+void EffectComposerWidget::closeCodeEditor()
+{
+    m_editor->close();
 }
 
 void EffectComposerWidget::openNearestAvailableCodeEditor(int idx)
