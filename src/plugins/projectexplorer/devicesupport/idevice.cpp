@@ -523,6 +523,11 @@ DeviceFileAccess *IDevice::fileAccess() const
     return d->fileAccess;
 }
 
+bool IDevice::supportsFileAccess() const
+{
+    return d->fileAccessFactory || d->fileAccess;
+}
+
 void IDevice::tryToConnect(const Continuation<> &cont) const
 {
     cont(ResultOk);

@@ -439,7 +439,7 @@ DeviceManager::DeviceManager()
     const auto addDeviceToFileSystemView = [](Id deviceId) -> bool {
         IDevice::Ptr device = find(deviceId);
         QTC_ASSERT(device, return true /* ignore */);
-        if (device->type() == Constants::DESKTOP_DEVICE_TYPE || !device->fileAccess())
+        if (device->type() == Constants::DESKTOP_DEVICE_TYPE || !device->supportsFileAccess())
             return true; // ignore
         if (device->deviceState() != IDevice::DeviceReadyToUse
             && device->deviceState() != IDevice::DeviceConnected) {

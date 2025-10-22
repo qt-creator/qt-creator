@@ -267,6 +267,7 @@ public:
     bool isAnyUnixDevice() const;
 
     Utils::DeviceFileAccess *fileAccess() const;
+    bool supportsFileAccess() const;
     virtual void tryToConnect(const Utils::Continuation<> &cont) const;
     virtual bool handlesFile(const Utils::FilePath &filePath) const;
 
