@@ -29,8 +29,8 @@ private:
     ExecutableAspect executable{this};
     ArgumentsAspect arguments{this};
     WorkingDirectoryAspect workingDir{this};
+    RunAsAspect runAs{this};
     TerminalAspect terminal{this};
-    RunAsRootAspect runAsRoot{this};
 };
 
 class CustomExecutableRunConfigurationFactory : public FixedRunConfigurationFactory

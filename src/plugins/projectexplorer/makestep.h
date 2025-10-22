@@ -66,8 +66,8 @@ protected:
     Utils::BoolAspect m_overrideMakeflagsAspect{this};
     Utils::TextDisplay m_nonOverrideWarning{this};
     Utils::IntegerAspect m_jobCountAspect{this};
+    RunAsAspect m_runAsAspect{this};
     Utils::BoolAspect m_disabledForSubdirsAspect{this};
-    RunAsRootAspect m_runAsRootAspect{this};
 
 private:
     static int defaultJobCount();

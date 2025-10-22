@@ -787,6 +787,66 @@ RunAsRootAspect::RunAsRootAspect(AspectContainer *container)
 }
 
 /*!
+    \class ProjectExplorer::RunAsAspect
+    \inmodule QtCreator
+
+    \brief The RunAsAspect class lets a user specify that the
+    application should run under a specific account.
+*/
+RunAsAspect::RunAsAspect(Utils::AspectContainer *container) : AspectContainer(container)
+{
+    setId("RunAs");
+    setDisplayName(Tr::tr("Run as user"));
+    setLabelText(Tr::tr("Run as user:"));
+
+    m_selection.setId("RunAsSelection");
+    m_selection.setSettingsKey("RunConfiguration.RunAsRoot"); // Backward compat.
+    m_selection.addOption(Tr::tr("Default"));
+    m_selection.addOption(Tr::tr("root"));
+    m_selection.addOption(Tr::tr("Other"));
+    m_selection.setDefaultValue(0);
+    m_user.setId("RunAsName");
+    m_user.setSettingsKey("RunConfiguration.RunAsName");
+    m_user.setDisplayStyle(StringAspect::LineEditDisplay);
+
+    updateUserNameEnabled();
+    connect(&m_selection, &SelectionAspect::changed, this, &RunAsAspect::updateUserNameEnabled);
+
+    // Not technically correct, but sensible approximation.
+    // Client code with more context can override.
+    setVisible(HostOsInfo::isAnyUnixHost());
+}
+
+QString RunAsAspect::user() const
+{
+    switch (m_selection()) {
+    case 0:
+        break;
+    case 1:
+        return "root";
+    case 2:
+        return m_user();
+    }
+    return {};
+}
+
+void RunAsAspect::fromMap(const Utils::Store &map)
+{
+    AspectContainer::fromMap(map);
+    updateUserNameEnabled();
+}
+
+void RunAsAspect::addToLayoutImpl(Layouting::Layout &parent)
+{
+    parent.addItems({createLabel(), m_selection, m_user, st});
+}
+
+void RunAsAspect::updateUserNameEnabled()
+{
+    m_user.setEnabled(m_selection.value() == 2);
+}
+
+/*!
     \class ProjectExplorer::EnableCategoriesFilterAspect
     \inmodule QtCreator
 

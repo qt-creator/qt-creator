@@ -3886,9 +3886,9 @@ void GdbEngine::setupEngine()
     // This is filled in DebuggerKitAspect::runnable
     Environment gdbEnv = rp.debugger().environment;
     gdbEnv.setupEnglishOutput();
-    if (rp.runAsRoot())
+    if (!rp.runAsUser().isEmpty())
         RunControl::provideAskPassEntry(gdbEnv);
-    m_gdbProc.setRunAsRoot(rp.runAsRoot());
+    m_gdbProc.setRunAsUser(rp.runAsUser());
 
     showMessage("STARTING " + gdbCommand.toUserOutput());
 
@@ -4338,11 +4338,16 @@ void GdbEngine::interruptLocalInferior(qint64 pid)
         return;
     }
     QString errorMessage;
-    if (runParameters().runAsRoot()) {
+    if (!runParameters().runAsUser().isEmpty()) {
         Environment env = Environment::systemEnvironment();
         RunControl::provideAskPassEntry(env);
         Process proc;
-        proc.setCommand(CommandLine{"sudo", {"-A", "kill", "-s", "SIGINT", QString::number(pid)}});
+        QStringList args{"-A", "kill", "-s", "SIGINT", QString::number(pid)};
+        if (runParameters().runAsUser() != "root") {
+            args.prepend(runParameters().runAsUser());
+            args.prepend("-u");
+        }
+        proc.setCommand(CommandLine{"sudo", args});
         proc.setEnvironment(env);
         proc.start();
         proc.waitForFinished();

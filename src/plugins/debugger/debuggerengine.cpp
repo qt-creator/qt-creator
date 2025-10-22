@@ -137,8 +137,13 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
         params.setSymbolFile(symbolsAspect->filePath);
     if (auto terminalAspect = runControl->aspectData<TerminalAspect>())
         params.m_useTerminal = terminalAspect->useTerminal;
-    if (auto runAsRootAspect = runControl->aspectData<RunAsRootAspect>())
-        params.m_runAsRoot = runAsRootAspect->value;
+    if (auto runAsRootAspect = runControl->aspectData<RunAsRootAspect>()) {
+        if (runAsRootAspect->value)
+            params.m_runAsUser = "root";
+    } else if (auto runAsAspect = runControl->aspectData<RunAsAspect>()) {
+        if (!runAsAspect->value.toString().isEmpty())
+            params.m_runAsUser = runAsAspect->value.toString();
+    }
 
     params.setSysRoot(SysRootKitAspect::sysRoot(kit));
     params.m_macroExpander = runControl->macroExpander();

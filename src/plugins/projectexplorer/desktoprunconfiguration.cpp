@@ -46,7 +46,6 @@ public:
             useDyldSuffix.setVisible(false);
         }
 
-        runAsRoot.setVisible(HostOsInfo::isAnyUnixHost());
         enableCategoriesFilterAspect.setEnabled(kit()->supportsQtCategoryFilter());
 
         environment.addModifier([this](Environment &env) {
@@ -82,10 +81,10 @@ private:
     ExecutableAspect executable{this};
     ArgumentsAspect arguments{this};
     WorkingDirectoryAspect workingDir{this};
+    RunAsAspect runAs{this};
     TerminalAspect terminal{this};
     UseDyldSuffixAspect useDyldSuffix{this};
     UseLibraryPathsAspect useLibraryPaths{this};
-    RunAsRootAspect runAsRoot{this};
     EnableCategoriesFilterAspect enableCategoriesFilterAspect{this};
 };
 

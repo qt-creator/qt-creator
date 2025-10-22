@@ -107,8 +107,7 @@ public:
     void setAllowCoreDumps(bool enabled);
     void setLowPriority();
     void setDisableUnixTerminal();
-    void setRunAsRoot(bool on);
-    bool isRunAsRoot() const;
+    void setRunAsUser(const QString &user);
     void setAbortOnMetaChars(bool abort);
 
     using ProcessInterfaceCreator = std::function<ProcessInterface *()>;

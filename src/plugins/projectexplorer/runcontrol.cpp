@@ -932,15 +932,20 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
         CommandLine cmdLine = process.commandLine();
         Environment env = process.environment();
 
-        bool runAsRoot = false;
-        if (auto runAsRootAspect = aspectData<RunAsRootAspect>())
-            runAsRoot = runAsRootAspect->value;
-        process.setRunAsRoot(runAsRoot);
+        QString runAsUser;
+        if (auto runAsRootAspect = aspectData<RunAsRootAspect>()) {
+            if (runAsRootAspect->value)
+                runAsUser = "root";
+        } else if (auto runAsAspect = aspectData<RunAsAspect>()) {
+            runAsUser = runAsAspect->value.toString();
+        }
+
+        process.setRunAsUser(runAsUser);
 
         if (cmdLine.executable().isLocal()) {
             // Running locally.
 
-            if (runAsRoot)
+            if (!runAsUser.isEmpty())
                 RunControl::provideAskPassEntry(env);
 
             WinDebugInterface::startIfNeeded();

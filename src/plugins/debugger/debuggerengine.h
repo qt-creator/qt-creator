@@ -187,7 +187,7 @@ public:
     void setUseTerminal(bool on) { m_useTerminal = on; }
     bool useTerminal() const { return m_useTerminal; }
 
-    bool runAsRoot() const { return m_runAsRoot; }
+    QString runAsUser() const { return m_runAsUser; }
 
     void modifyDebuggerEnvironment(const Utils::EnvironmentItems &items) {
         m_debugger.environment.modify(items);
@@ -329,7 +329,7 @@ private:
     bool m_breakOnMain = false;
     bool m_multiProcess = false; // Whether to set detach-on-fork off.
     bool m_useTerminal = false;
-    bool m_runAsRoot = false;
+    QString m_runAsUser;
 
     Utils::ProcessRunData m_debugger;
     Utils::FilePath m_overrideStartScript; // Used in attach to core and remote debugging

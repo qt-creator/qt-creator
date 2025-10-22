@@ -191,8 +191,8 @@ ExecutableItem terminalRecipe(const Storage<DebuggerData> &storage, const Stored
         Process *process = new Process;
         storage->terminalProcess.reset(process);
         ProcessRunData stub = runParameters.inferior();
-        if (runParameters.runAsRoot()) {
-            process->setRunAsRoot(true);
+        if (!runParameters.runAsUser().isEmpty()) {
+            process->setRunAsUser(runParameters.runAsUser());
             RunControl::provideAskPassEntry(stub.environment);
         }
         process->setTerminalMode(TerminalMode::Debug);

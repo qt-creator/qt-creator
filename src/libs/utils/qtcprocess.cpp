@@ -1259,14 +1259,9 @@ void Process::setProcessInterfaceCreator(const ProcessInterfaceCreator &creator)
     d->m_processInterfaceCreator = creator;
 }
 
-void Process::setRunAsRoot(bool on)
+void Process::setRunAsUser(const QString &user)
 {
-    d->m_setup.m_runAsUser = on ? "root" : QString();
-}
-
-bool Process::isRunAsRoot() const
-{
-    return d->m_setup.m_runAsUser == "root";
+    d->m_setup.m_runAsUser = user;
 }
 
 void Process::setStandardInputFile(const QString &inputFile)

@@ -147,7 +147,30 @@ class PROJECTEXPLORER_EXPORT RunAsRootAspect : public Utils::BoolAspect
     Q_OBJECT
 
 public:
-    RunAsRootAspect(Utils::AspectContainer *container = nullptr);
+    [[deprecated("Use RunAsAspect instead")]] RunAsRootAspect(
+        Utils::AspectContainer *container = nullptr);
+};
+
+class PROJECTEXPLORER_EXPORT RunAsAspect : public Utils::AspectContainer
+{
+    Q_OBJECT
+
+public:
+    RunAsAspect(Utils::AspectContainer *container = nullptr);
+
+    // Empty means default
+    QString user() const;
+
+private:
+    QVariant variantValue() const override { return user(); }
+    void fromMap(const Utils::Store &map) override;
+    void addToLayoutImpl(Layouting::Layout &parent) override;
+
+    void updateUserNameEnabled();
+
+    Utils::SelectionAspect m_selection{this};
+    Utils::StringAspect m_user{this};
+
 };
 
 class PROJECTEXPLORER_EXPORT EnableCategoriesFilterAspect : public Utils::BoolAspect

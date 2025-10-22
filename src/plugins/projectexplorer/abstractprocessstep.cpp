@@ -184,7 +184,10 @@ bool AbstractProcessStep::setupProcess(Process &process)
     process.setProcessMode(d->m_param.processMode());
     if (const auto runAsRoot = aspect<RunAsRootAspect>(); runAsRoot && runAsRoot->value()) {
         RunControl::provideAskPassEntry(envWithPwd);
-        process.setRunAsRoot(true);
+        process.setRunAsUser("root");
+    } else if (const auto runAs = aspect<RunAsAspect>(); runAs && !runAs->user().isEmpty()) {
+        RunControl::provideAskPassEntry(envWithPwd);
+        process.setRunAsUser(runAs->user());
     }
     process.setEnvironment(envWithPwd);
     process.setCommand({d->m_param.effectiveCommand(), d->m_param.effectiveArguments(),

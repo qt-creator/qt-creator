@@ -33,8 +33,8 @@ public:
     SymbolFileAspect symbolFile{this};
     ArgumentsAspect arguments{this};
     WorkingDirectoryAspect workingDir{this};
+    RunAsAspect runAs{this};
     TerminalAspect terminal{this};
-    RunAsRootAspect runAsRoot{this};
     X11ForwardingAspect x11Forwarding{this};
     UseLibraryPathsAspect useLibraryPath{this};
 };

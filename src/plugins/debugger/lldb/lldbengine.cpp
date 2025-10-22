@@ -205,9 +205,9 @@ void LldbEngine::setupEngine()
 
     DebuggerItem::fixupAndroidLlldbPythonDylib(lldbCmd);
 
-    if (runParameters().runAsRoot()) {
+    if (!runParameters().runAsUser().isEmpty()) {
         ProjectExplorer::RunControl::provideAskPassEntry(environment);
-        m_lldbProc.setRunAsRoot(true);
+        m_lldbProc.setRunAsUser(runParameters().runAsUser());
     }
 
     m_lldbProc.setEnvironment(environment);
