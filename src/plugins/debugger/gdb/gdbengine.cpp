@@ -4566,6 +4566,30 @@ void GdbEngine::setupInferior()
     }
 }
 
+static QString cleanedChannel(QString channel)
+{
+    // The remoteChannel string might have been created via a QUrl::toString
+    // which isn't suitable for `target qnx` or `target (extended-)remote`
+    // https://www.qnx.com/developers/docs/7.0.0/index.html#com.qnx.doc.neutrino.utilities/topic/g/gdb.html
+    // https://sourceware.org/gdb/current/onlinedocs/gdb.html/Connecting.html#index-remote-connection-commands
+    // so change any :// to just :
+    channel.replace("://", ":");
+
+    // Don't touch channels with explicitly set protocols.
+    if (!channel.startsWith("tcp:") && !channel.startsWith("udp:")
+            && !channel.startsWith("file:") && channel.contains(':')
+            && !channel.startsWith('|'))
+    {
+        // "Fix" the IPv6 case with host names without '['...']'
+        if (!channel.startsWith('[') && channel.count(':') >= 2) {
+            channel.insert(0, '[');
+            channel.insert(channel.lastIndexOf(':'), ']');
+        }
+        channel = "tcp:" + channel;
+    }
+    return channel;
+}
+
 void GdbEngine::runEngine()
 {
     CHECK_STATE(EngineRunRequested);
@@ -4578,7 +4602,7 @@ void GdbEngine::runEngine()
         notifyEngineRunAndInferiorStopOk();
         // in case of vxworks target remote is already set by commandsAfterConnect
         if (!rp.debugger().command.executable().contains("gdb_bin"))
-            runCommand({"target remote " + rp.remoteChannel()});
+            runCommand({"target remote " + cleanedChannel(rp.remoteChannel())});
 
     } else if (runParameters().isLocalAttachEngine()) {
 
@@ -4842,26 +4866,7 @@ void GdbEngine::handleSetTargetAsync(const DebuggerResponse &response)
 void GdbEngine::callTargetRemote()
 {
     CHECK_STATE(EngineSetupRequested);
-    QString channel = runParameters().remoteChannel();
-    // The remoteChannel string might have been created via a QUrl::toString
-    // which isn't suitable for `target qnx` or `target (extended-)remote`
-    // https://www.qnx.com/developers/docs/7.0.0/index.html#com.qnx.doc.neutrino.utilities/topic/g/gdb.html
-    // https://sourceware.org/gdb/current/onlinedocs/gdb.html/Connecting.html#index-remote-connection-commands
-    // so change any :// to just :
-    channel.replace("://", ":");
-
-    // Don't touch channels with explicitly set protocols.
-    if (!channel.startsWith("tcp:") && !channel.startsWith("udp:")
-            && !channel.startsWith("file:") && channel.contains(':')
-            && !channel.startsWith('|'))
-    {
-        // "Fix" the IPv6 case with host names without '['...']'
-        if (!channel.startsWith('[') && channel.count(':') >= 2) {
-            channel.insert(0, '[');
-            channel.insert(channel.lastIndexOf(':'), ']');
-        }
-        channel = "tcp:" + channel;
-    }
+    QString channel = cleanedChannel(runParameters().remoteChannel());
 
     if (m_isQnxGdb)
         runCommand({"target qnx " + channel, CB(handleTargetQnx)});
