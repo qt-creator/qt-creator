@@ -225,7 +225,7 @@ void ProjectWelcomePage::createActions()
 
 static QPixmap pixmap(const QString &id, const Theme::Color color)
 {
-    const QString fileName = QString(":/welcome/images/%1.png").arg(id);
+    const QString fileName = QString(":/projectexplorer/images/%1.png").arg(id);
     return Icon({{FilePath::fromString(fileName), color}}, Icon::Tint).pixmap();
 }
 
@@ -566,7 +566,7 @@ public:
         const int shortcutWidth = PaddingHM + shortcutNumberWidth + GapHM;
         m_shortcut->setMinimumWidth(shortcutWidth);
 
-        const QPixmap icon = pixmap("project", Theme::Token_Text_Muted);
+        const QPixmap icon = pixmap("recentproject", Theme::Token_Text_Muted);
         const QSize iconS = icon.deviceIndependentSize().toSize();
         auto iconLabel = new QLabel;
         iconLabel->setFixedSize(iconS);

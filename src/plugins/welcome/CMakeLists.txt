@@ -18,8 +18,4 @@ qtc_add_resources(Welcome "images"
     images/mode_welcome@2x.png
     images/link.png
     images/link@2x.png
-    images/project.png
-    images/project@2x.png
-    images/session.png
-    images/session@2x.png
 )

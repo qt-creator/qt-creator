@@ -90,5 +90,9 @@
         <file>testdata/multi-target-project/multi-target-project.qbs</file>
         <file>images/sdk.png</file>
         <file>images/sdk@2x.png</file>
+        <file>images/recentproject.png</file>
+        <file>images/recentproject@2x.png</file>
+        <file>images/session.png</file>
+        <file>images/session@2x.png</file>
     </qresource>
 </RCC>

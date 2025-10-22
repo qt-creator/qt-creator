@@ -26,10 +26,6 @@ QtcPlugin {
             "mode_welcome@2x.png",
             "link.png",
             "link@2x.png",
-            "project.png",
-            "project@2x.png",
-            "session.png",
-            "session@2x.png",
         ]
         fileTags: "qt.core.resource_data"
     }

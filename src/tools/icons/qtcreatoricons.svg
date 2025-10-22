@@ -6873,7 +6873,7 @@
     </g>
     <g
        transform="translate(-210,274)"
-       id="src/plugins/welcome/images/session">
+       id="src/plugins/projectexplorer/images/session">
       <use
          x="0"
          y="0"
@@ -6898,7 +6898,7 @@
     </g>
     <g
        transform="translate(8,478)"
-       id="src/plugins/welcome/images/project">
+       id="src/plugins/projectexplorer/images/recentproject">
       <use
          x="0"
          y="0"
