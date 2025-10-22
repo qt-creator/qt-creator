@@ -11,8 +11,26 @@ QtcPlugin {
     files: [
         "introductionwidget.cpp",
         "introductionwidget.h",
-        "welcome.qrc",
         "welcomeplugin.cpp",
         "welcometr.h",
     ]
+
+    Group {
+        name: "images"
+        prefix: "images/"
+        files: [
+            "border.png",
+            "mode_welcome.png",
+            "mode_welcome_mask.png",
+            "mode_welcome_mask@2x.png",
+            "mode_welcome@2x.png",
+            "link.png",
+            "link@2x.png",
+            "project.png",
+            "project@2x.png",
+            "session.png",
+            "session@2x.png",
+        ]
+        fileTags: "qt.core.resource_data"
+    }
 }
