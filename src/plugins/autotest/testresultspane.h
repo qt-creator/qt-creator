@@ -9,6 +9,9 @@
 
 #include <utils/itemviews.h>
 
+#include <QQueue>
+#include <QTimer>
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QFrame;
@@ -71,10 +74,12 @@ public:
     void goToPrev() override;
     void updateFilter() override;
 
-    void addTestResult(const TestResult &result);
+    void scheduleTestResult(const TestResult &result);
     void addOutputLine(const QByteArray &outputLine, OutputChannel channel);
     void showTestResult(const QModelIndex &index);
 private:
+    void addTestResult(const TestResult &result);
+    void handleNextBuffered();
     explicit TestResultsPane(QObject *parent = nullptr);
 
     void onItemActivated(const QModelIndex &index);
@@ -125,6 +130,9 @@ private:
     bool m_atEnd = false;
     bool m_testRunning = false;
     QList<TestEditorMark *> m_marks;
+    QQueue<TestResult> m_buffered;
+    std::optional<TestResult> m_lastCurrentMessage = std::nullopt;
+    QTimer m_bufferTimer;
 };
 
 } // namespace Internal

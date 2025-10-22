@@ -71,6 +71,7 @@ public:
     int disabledTests() const { return m_disabled; }
     std::optional<int> reportedDuration() const { return m_reportedDurations; }
     void raiseDisabledTests(int amount) { m_disabled += amount; }
+    void raiseTestResultCount(const QString &id, ResultType type);
 
 private:
     void recalculateMaxWidthOfFileName(const QFont &font);

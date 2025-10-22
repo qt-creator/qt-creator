@@ -155,7 +155,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     connect(TestRunner::instance(), &TestRunner::testRunFinished,
             this, &TestResultsPane::onTestRunFinished);
     connect(TestRunner::instance(), &TestRunner::testResultReady,
-            this, &TestResultsPane::addTestResult);
+            this, &TestResultsPane::scheduleTestResult);
     connect(TestRunner::instance(), &TestRunner::hadDisabledTests,
             m_model, &TestResultModel::raiseDisabledTests);
     visualOutputWidget->installEventFilter(this);
@@ -163,6 +163,10 @@ TestResultsPane::TestResultsPane(QObject *parent) :
             this, &TestResultsPane::onSessionLoaded);
     connect(SessionManager::instance(), &SessionManager::aboutToSaveSession,
             this, &TestResultsPane::onAboutToSaveSession);
+
+    m_bufferTimer.setSingleShot(true);
+    m_bufferTimer.setInterval(150);
+    connect(&m_bufferTimer, &QTimer::timeout, this, &TestResultsPane::handleNextBuffered);
 }
 
 void TestResultsPane::createToolButtons()
@@ -254,6 +258,32 @@ TestResultsPane::~TestResultsPane()
     s_instance = nullptr;
 }
 
+void TestResultsPane::scheduleTestResult(const TestResult &result)
+{
+    if (result.result() == ResultType::MessageCurrentTest) {
+        m_lastCurrentMessage.emplace(result);
+    } else {
+        m_buffered.enqueue(result);
+        m_model->raiseTestResultCount(result.id(), result.result()); // needed for correct summary
+    }
+    if (!m_bufferTimer.isActive())
+        m_bufferTimer.start();
+}
+
+void TestResultsPane::handleNextBuffered()
+{
+    // TODO if (!m_testRunning) build secondary model separately without signals
+    if (m_lastCurrentMessage) {
+        addTestResult(m_lastCurrentMessage.value());
+        m_lastCurrentMessage.reset();
+    }
+    for (int i = 0, end = qMin(30, m_buffered.size()); i < end; ++i)
+        addTestResult(m_buffered.dequeue());
+
+    if (!m_buffered.isEmpty())
+        m_bufferTimer.start();
+}
+
 void TestResultsPane::addTestResult(const TestResult &result)
 {
     const QScrollBar *scrollBar = m_treeView->verticalScrollBar();
@@ -303,6 +333,10 @@ QList<QWidget *> TestResultsPane::toolBarWidgets() const
 
 void TestResultsPane::clearContents()
 {
+    m_bufferTimer.stop();
+    m_buffered.clear();
+    m_lastCurrentMessage.reset();
+
     m_filterModel->clearTestResults();
     if (auto delegate = qobject_cast<TestResultDelegate *>(m_treeView->itemDelegate()))
         delegate->clearCache();
@@ -549,6 +583,7 @@ static bool hasFailedTests(const TestResultModel *model)
 
 void TestResultsPane::onTestRunFinished()
 {
+    m_lastCurrentMessage.reset(); // avoid re-adding buffered current message
     m_testRunning = false;
     m_stopTestRun->setEnabled(false);
 

@@ -271,6 +271,11 @@ static bool isFailed(ResultType type)
     }
 }
 
+void TestResultModel::raiseTestResultCount(const QString &id, ResultType type)
+{
+    m_testResultCount[id][type]++;
+}
+
 void TestResultModel::addTestResult(const TestResult &testResult, bool autoExpand)
 {
     const int lastRow = rootItem()->childCount() - 1;
@@ -289,8 +294,6 @@ void TestResultModel::addTestResult(const TestResult &testResult, bool autoExpan
         rootItem()->appendChild(new TestResultItem(testResult));
         return;
     }
-
-    m_testResultCount[testResult.id()][testResult.result()]++;
 
     TestResultItem *newItem = new TestResultItem(testResult);
     TestResultItem *root = nullptr;
