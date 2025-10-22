@@ -201,10 +201,10 @@ void Theme::readSettingsInternal(QSettings &settings)
 
     for (const QString &include : includes) {
         FilePath path = FilePath::fromString(d->fileName);
-        const Utils::FilePath includedPath = path.parentDir().pathAppended(include);
+        const FilePath includedPath = path.parentDir().pathAppended(include);
 
         if (includedPath.exists()) {
-            QSettings themeSettings(includedPath.toUrlishString(), QSettings::IniFormat);
+            QSettings themeSettings(includedPath.toFSPathString(), QSettings::IniFormat);
             readSettingsInternal(themeSettings);
         } else {
             qWarning("Theme \"%s\" misses include \"%s\".",
