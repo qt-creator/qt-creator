@@ -7,7 +7,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/locator/locatorfiltertest.h>
-#include <coreplugin/testdatadir.h>
+
 #include <utils/environment.h>
 
 #include <QDebug>
@@ -22,7 +22,10 @@ namespace {
 
 const bool debug = qtcEnvironmentVariable("QTC_DEBUG_CPPLOCATORFILTERTESTCASE") == "1";
 
-QTC_DECLARE_MYTESTDATADIR("../../../tests/cpplocators/")
+static FilePath dataDir(const QString &subdir)
+{
+    return FilePath::fromUserInput(SRCDIR "/../../../tests/cpplocators/" + subdir);
+}
 
 class CppLocatorFilterTestCase : public CppEditor::Tests::TestCase
 {
@@ -103,12 +106,13 @@ void LocatorFilterTest::testLocatorFilter_data()
     QTest::addColumn<QString>("searchText");
     QTest::addColumn<ResultDataList>("expectedResults");
 
-    MyTestDataDir testDirectory("testdata_basic");
-    FilePath testFile = testDirectory.filePath("file1.cpp");
+    const FilePath testDirectory = dataDir("testdata_basic");
+    QVERIFY(testDirectory.exists());
+    FilePath testFile = testDirectory / "file1.cpp";
     QString p = testFile.path();
     p[0] = p[0].toLower(); // Ensure Windows path sorts after scope names.
     testFile = testFile.withNewPath(p);
-    const FilePath objTestFile = testDirectory.filePath("file1.mm");
+    const FilePath objTestFile = testDirectory / "file1.mm";
     const QString testFileShort = testFile.shortNativePath();
     const QString objTestFileShort = objTestFile.shortNativePath();
 
@@ -259,10 +263,11 @@ void LocatorFilterTest::testLocatorFilter_data()
 
 void LocatorFilterTest::testCurrentDocumentFilter()
 {
-    MyTestDataDir testDirectory("testdata_basic");
-    const FilePath testFile = testDirectory.filePath("file1.cpp");
+    const FilePath testDirectory = dataDir("testdata_basic");
+    const FilePath testFile = testDirectory / "file1.cpp";
+    QVERIFY(testFile.exists());
 
-    auto expectedResults = ResultDataList{
+    const ResultDataList expectedResults {
         ResultData("int myVariable", ""),
         ResultData("myFunction(bool, int)", ""),
         ResultData("Pos", ""),
@@ -310,8 +315,9 @@ void LocatorFilterTest::testCurrentDocumentFilter()
 
 void LocatorFilterTest::testCurrentDocumentHighlighting()
 {
-    MyTestDataDir testDirectory("testdata_basic");
-    const FilePath testFile = testDirectory.filePath("file1.cpp");
+    const FilePath testDirectory = dataDir("testdata_basic");
+    const FilePath testFile = testDirectory / "file1.cpp";
+    QVERIFY(testFile.exists());
 
     const QString searchText = "pos";
     const ResultDataList expectedResults{
@@ -334,8 +340,8 @@ void LocatorFilterTest::testCurrentDocumentHighlighting()
 
 void LocatorFilterTest::testFunctionsFilterHighlighting()
 {
-    MyTestDataDir testDirectory("testdata_basic");
-    const FilePath testFile = testDirectory.filePath("file1.cpp");
+    const FilePath testDirectory = dataDir("testdata_basic");
+    const FilePath testFile = testDirectory / "file1.cpp";
     const QString testFileShort = testFile.shortNativePath();
 
     const QString searchText = "pos";
