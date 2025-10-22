@@ -7,7 +7,7 @@
 
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/runconfiguration.h>
 
 namespace CMakeProjectManager {
 

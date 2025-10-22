@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/runconfiguration.h>
 
 namespace Qdb::Internal {
 

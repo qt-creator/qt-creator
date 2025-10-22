@@ -4,7 +4,8 @@
 #pragma once
 
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runconfigurationaspects.h>
+
+#include <utils/aspects.h>
 
 namespace Valgrind::Internal {
 

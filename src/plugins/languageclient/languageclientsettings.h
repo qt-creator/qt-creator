@@ -17,8 +17,6 @@
 #include <QUuid>
 #include <QWidget>
 
-#include <projectexplorer/runconfigurationaspects.h>
-
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QLineEdit;

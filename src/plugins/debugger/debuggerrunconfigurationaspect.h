@@ -6,7 +6,6 @@
 #include "debugger_global.h"
 
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runconfigurationaspects.h>
 
 namespace Debugger {
 

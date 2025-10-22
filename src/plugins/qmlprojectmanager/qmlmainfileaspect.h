@@ -5,7 +5,7 @@
 
 #include "qmlprojectmanager_global.h"
 
-#include <projectexplorer/runconfigurationaspects.h>
+#include <utils/aspects.h>
 
 #include <QStandardItemModel>
 
