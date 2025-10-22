@@ -439,4 +439,21 @@ void TerminalPane::contextMenuRequested(const QPoint &pos)
     }
 }
 
+TabWidget::TabWidget()
+{
+    setTabBar(new TabBar());
+}
+
+void TabBar::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::MiddleButton) {
+        const int index = tabAt(event->pos());
+        if (index != -1) {
+            emit tabCloseRequested(index);
+            return;
+        }
+    }
+    QTabBar::mouseReleaseEvent(event);
+}
+
 } // namespace Terminal

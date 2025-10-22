@@ -11,12 +11,28 @@
 
 #include <QAction>
 #include <QMenu>
+#include <QTabBar>
 #include <QTabWidget>
 #include <QToolButton>
 
 namespace Terminal {
 
 class TerminalWidget;
+
+class TabBar : public QTabBar
+{
+public:
+    using QTabBar::QTabBar;
+
+protected:
+    void mouseReleaseEvent(QMouseEvent *event) override;
+};
+
+class TabWidget : public QTabWidget
+{
+public:
+    TabWidget();
+};
 
 class TerminalPane : public Core::IOutputPane
 {
@@ -55,7 +71,7 @@ private:
     void contextMenuRequested(const QPoint &pos);
 
 private:
-    QTabWidget m_tabWidget;
+    TabWidget m_tabWidget;
 
     QToolButton *m_newTerminalButton{nullptr};
     QToolButton *m_closeTerminalButton{nullptr};
