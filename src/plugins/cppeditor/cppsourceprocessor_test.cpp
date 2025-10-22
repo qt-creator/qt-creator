@@ -10,11 +10,9 @@
 #include "cpptoolstestcase.h"
 #include "editordocumenthandle.h"
 
-#include <coreplugin/testdatadir.h>
 #include <texteditor/texteditor.h>
 
 #include <cplusplus/CppDocument.h>
-#include <utils/fileutils.h>
 
 #include <QTest>
 
@@ -168,20 +166,18 @@ static bool isMacroDefinedInDocument(const QByteArray &macroName, const Document
     return false;
 }
 
-static inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
-
 void SourceProcessorTest::testIncludeNext()
 {
-    const Core::Tests::TestDataDir data(
-        _(SRCDIR "/../../../tests/auto/cplusplus/preprocessor/data/include_next-data/"));
-    const FilePath mainFilePath = data.filePath(QLatin1String("main.cpp"));
-    const QString customHeaderPath = data.directory(QLatin1String("customIncludePath"));
-    const QString systemHeaderPath = data.directory(QLatin1String("systemIncludePath"));
+    const FilePath data = SRCDIR "/../../../tests/auto/cplusplus/preprocessor/data/include_next-data/";
+    QVERIFY(data.isReadableDir());
+    const FilePath mainFilePath = data / "main.cpp";
+    const FilePath customHeaderPath = data / "customIncludePath";
+    const FilePath systemHeaderPath = data / "systemIncludePath";
 
     CppSourceProcessor::DocumentCallback documentCallback = [](const Document::Ptr &){};
     CppSourceProcessor sourceProcessor(Snapshot(), documentCallback);
     sourceProcessor.setHeaderPaths(ProjectExplorer::toUserHeaderPaths(
-                                       QStringList{customHeaderPath, systemHeaderPath}));
+                                       QStringList{customHeaderPath.path(), systemHeaderPath.path()}));
 
     sourceProcessor.run(mainFilePath);
     const Snapshot snapshot = sourceProcessor.snapshot();
