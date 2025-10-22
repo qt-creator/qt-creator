@@ -392,7 +392,7 @@ void TerminalInterface::start()
         = m_setup.m_extraData.value(TERMINAL_SHELL_NAME,
                                     m_setup.m_commandLine.executable().fileName());
 
-    if (m_setup.m_runAsRoot && !HostOsInfo::isWindowsHost()) {
+    if (m_setup.m_runAsUser == "root" && !HostOsInfo::isWindowsHost()) {
         CommandLine rootCommand("sudo");
         rootCommand.addCommandLineAsArgs(cmd);
         stubSetupData.m_commandLine = rootCommand;

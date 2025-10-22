@@ -231,7 +231,7 @@ void DefaultImpl::start()
     if (!ensureProgramExists(program))
         return;
 
-    if (m_setup.m_runAsRoot && !HostOsInfo::isWindowsHost()) {
+    if (m_setup.m_runAsUser == "root" && !HostOsInfo::isWindowsHost()) {
         arguments.prepend(program);
         arguments.prepend("-E");
         arguments.prepend("-A");
@@ -1257,12 +1257,12 @@ void Process::setProcessInterfaceCreator(const ProcessInterfaceCreator &creator)
 
 void Process::setRunAsRoot(bool on)
 {
-    d->m_setup.m_runAsRoot = on;
+    d->m_setup.m_runAsUser = on ? "root" : QString();
 }
 
 bool Process::isRunAsRoot() const
 {
-    return d->m_setup.m_runAsRoot;
+    return d->m_setup.m_runAsUser == "root";
 }
 
 void Process::setStandardInputFile(const QString &inputFile)

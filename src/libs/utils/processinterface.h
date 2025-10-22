@@ -83,11 +83,11 @@ public:
     QProcess::ProcessChannelMode m_processChannelMode = QProcess::SeparateChannels;
     QVariantHash m_extraData;
     QString m_standardInputFile;
+    QString m_runAsUser; // Empty means default
     QString m_nativeArguments; // internal, dependent on specific code path
 
     std::chrono::milliseconds m_reaperTimeout{500};
     bool m_abortOnMetaChars = true;
-    bool m_runAsRoot = false;
     bool m_lowPriority = false;
     bool m_unixTerminalDisabled = false;
     bool m_useCtrlCStub = false;

@@ -919,7 +919,7 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
 
     CommandLine commandLine = q->m_setup.m_commandLine;
     FilePath executable = FilePath::fromParts({}, {}, commandLine.executable().path());
-    if (q->m_setup.m_runAsRoot) {
+    if (q->m_setup.m_runAsUser == "root") {
         commandLine.setExecutable(FilePath::fromString("sudo"));
         commandLine.prependArgs({"-E", executable.path()});
     } else {
