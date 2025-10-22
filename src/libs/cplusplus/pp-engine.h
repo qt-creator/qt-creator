@@ -62,8 +62,6 @@ public:
 
     QByteArray run(const Utils::FilePath &filePath, const QByteArray &source,
                    bool noLines = false, bool markGeneratedTokens = true);
-    QByteArray run(const QString &filename, const QByteArray &source,
-                   bool noLines = false, bool markGeneratedTokens = true);
 
     using CancelChecker = std::function<bool()>;
     void setCancelChecker(const CancelChecker &cancelChecker);

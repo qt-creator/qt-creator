@@ -181,7 +181,7 @@ QByteArray tst_CppSelectionChanger::preprocess(const QByteArray &source, const Q
     CPlusPlus::Environment env;
     Preprocessor preprocess(client, &env);
     preprocess.setKeepComments(true);
-    return preprocess.run(fileName, source);
+    return preprocess.run(FilePath::fromString(fileName), source);
 }
 
 void tst_CppSelectionChanger::initTestCase()

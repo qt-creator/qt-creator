@@ -95,7 +95,7 @@ private:
             Environment env;
             Preprocessor preprocess(client, &env);
             preprocess.setKeepComments(true);
-            return preprocess.run(QLatin1String("<stdin>"), source);
+            return preprocess.run("<stdin>", source);
         }
 
     private:

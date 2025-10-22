@@ -741,15 +741,7 @@ Preprocessor::Preprocessor(Client *client, Environment *env)
     m_scratchBuffer.reserve(256);
 }
 
-QByteArray Preprocessor::run(const Utils::FilePath &filePath,
-                             const QByteArray &source,
-                             bool noLines,
-                             bool markGeneratedTokens)
-{
-    return run(filePath.toUrlishString(), source, noLines, markGeneratedTokens);
-}
-
-QByteArray Preprocessor::run(const QString &fileName,
+QByteArray Preprocessor::run(const FilePath &filePath,
                              const QByteArray &source,
                              bool noLines,
                              bool markGeneratedTokens)
@@ -758,7 +750,7 @@ QByteArray Preprocessor::run(const QString &fileName,
 
     QByteArray preprocessed, includeGuardMacroName;
     preprocessed.reserve(source.size() * 2); // multiply by 2 because we insert #gen lines.
-    preprocess(fileName, source, &preprocessed, &includeGuardMacroName, noLines,
+    preprocess(filePath.toFSPathString(), source, &preprocessed, &includeGuardMacroName, noLines,
                markGeneratedTokens, false);
     if (m_client && !includeGuardMacroName.isEmpty())
         m_client->markAsIncludeGuard(includeGuardMacroName);

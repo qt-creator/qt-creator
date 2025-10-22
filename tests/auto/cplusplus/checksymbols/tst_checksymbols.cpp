@@ -119,7 +119,7 @@ public:
         CPlusPlus::Environment env;
         Preprocessor preprocess(0, &env);
         preprocess.setKeepComments(true);
-        const QByteArray preprocessedSource = preprocess.run(filePath, source);
+        const QByteArray preprocessedSource = preprocess.run(FilePath::fromString(filePath), source);
 
         Document::Ptr document = Document::create(Utils::FilePath::fromString(filePath));
         document->setUtf8Source(preprocessedSource);
