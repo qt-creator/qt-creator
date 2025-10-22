@@ -7,8 +7,7 @@
 
 #include <QTest>
 
-namespace Core {
-namespace Tests {
+namespace Core::Tests {
 
 class CORE_EXPORT ResultData
 {
@@ -34,8 +33,7 @@ public:
 
 using ResultDataList = ResultData::ResultDataList;
 
-} // namespace Tests
-} // namespace Core
+} // namespace Core::Tests
 
 Q_DECLARE_METATYPE(Core::Tests::ResultData)
 Q_DECLARE_METATYPE(Core::Tests::ResultDataList)

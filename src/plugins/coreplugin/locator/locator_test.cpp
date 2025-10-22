@@ -2,11 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "../coreplugin.h"
-#include "../testdatadir.h"
 #include "locatorfiltertest.h"
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 
 #include <QDir>
 #include <QTest>
@@ -15,8 +13,6 @@ using namespace Core::Tests;
 using namespace Utils;
 
 namespace {
-
-QTC_DECLARE_MYTESTDATADIR("../../../tests/locators/")
 
 class ReferenceData
 {
@@ -56,10 +52,12 @@ void Core::Internal::CorePlugin::test_basefilefilter_data()
     QTest::addColumn<QList<ReferenceData> >("referenceDataList");
 
     const QChar pathSeparator = QDir::separator();
-    const MyTestDataDir testDir("testdata_basic");
-    const FilePaths testFiles({testDir.filePath("file.cpp"),
-                               testDir.filePath("main.cpp"),
-                               testDir.filePath("subdir/main.cpp")});
+    const FilePath testDir(SRCDIR "/../../../tests/locators/testdata_basic");
+    QVERIFY(testDir.isReadableDir());
+
+    const FilePaths testFiles({testDir / "file.cpp",
+                               testDir / "main.cpp",
+                               testDir / "subdir/main.cpp"});
     const QStringList testFilesShort = Utils::transform(testFiles, &FilePath::shortNativePath);
 
     QTest::newRow("BaseFileFilter-EmptyInput")
@@ -121,12 +119,12 @@ void Core::Internal::CorePlugin::test_basefilefilter_data()
                     << ResultData("main.cpp", testFilesShort.at(2))))
             );
 
-    const FilePaths priorityTestFiles({testDir.filePath("qmap.cpp"),
-                                       testDir.filePath("mid_qcore_mac_p.h"),
-                                       testDir.filePath("qcore_mac_p.h"),
-                                       testDir.filePath("foo_qmap.h"),
-                                       testDir.filePath("qmap.h"),
-                                       testDir.filePath("bar.h")});
+    const FilePaths priorityTestFiles({testDir / "qmap.cpp",
+                                       testDir / "mid_qcore_mac_p.h",
+                                       testDir / "qcore_mac_p.h",
+                                       testDir / "foo_qmap.h",
+                                       testDir / "qmap.h",
+                                       testDir / "bar.h"});
     const QStringList priorityTestFilesShort = Utils::transform(priorityTestFiles,
                                                                 &FilePath::shortNativePath);
 
@@ -142,9 +140,9 @@ void Core::Internal::CorePlugin::test_basefilefilter_data()
                      << ResultData("mid_qcore_mac_p.h", priorityTestFilesShort.at(1))))
            );
 
-    const FilePaths sortingTestFiles({testDir.filePath("aaa/zfile.cpp"),
-                                      testDir.filePath("bbb/yfile.cpp"),
-                                      testDir.filePath("ccc/xfile.cpp")});
+    const FilePaths sortingTestFiles({testDir / "aaa/zfile.cpp",
+                                      testDir / "bbb/yfile.cpp",
+                                      testDir / "ccc/xfile.cpp"});
     const QStringList sortingTestFilesShort = Utils::transform(sortingTestFiles,
                                                                &FilePath::shortNativePath);
 
