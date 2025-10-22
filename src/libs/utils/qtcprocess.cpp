@@ -231,10 +231,14 @@ void DefaultImpl::start()
     if (!ensureProgramExists(program))
         return;
 
-    if (m_setup.m_runAsUser == "root" && !HostOsInfo::isWindowsHost()) {
+    if (!m_setup.m_runAsUser.isEmpty() && !HostOsInfo::isWindowsHost()) {
         arguments.prepend(program);
         arguments.prepend("-E");
         arguments.prepend("-A");
+        if (m_setup.m_runAsUser != "root") {
+            arguments.prepend(m_setup.m_runAsUser);
+            arguments.prepend("-u");
+        }
         program = "sudo";
     }
 

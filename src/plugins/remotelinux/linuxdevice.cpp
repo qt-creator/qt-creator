@@ -919,9 +919,14 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
 
     CommandLine commandLine = q->m_setup.m_commandLine;
     FilePath executable = FilePath::fromParts({}, {}, commandLine.executable().path());
-    if (q->m_setup.m_runAsUser == "root") {
+    if (!q->m_setup.m_runAsUser.isEmpty()) {
+
+        // TODO: If downgrading from root, perhaps use su instead? Might be more widely available.
         commandLine.setExecutable(FilePath::fromString("sudo"));
+
         commandLine.prependArgs({"-E", executable.path()});
+        if (q->m_setup.m_runAsUser != "root")
+            commandLine.prependArgs({"-u", q->m_setup.m_runAsUser});
     } else {
         commandLine.setExecutable(executable);
     }
