@@ -227,11 +227,8 @@ bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
 {
     const auto cmakeTarget = dynamic_cast<CMakeTargetNode *>(context);
     if (cmakeTarget) {
-        const auto buildTarget = Utils::findOrDefault(m_buildTargets,
-                                                      [cmakeTarget](const CMakeBuildTarget &bt) {
-                                                          return bt.title
-                                                                 == cmakeTarget->buildKey();
-                                                      });
+        const auto buildTarget = Utils::findOrDefault(
+            m_buildTargets, Utils::equal(&CMakeBuildTarget::title, cmakeTarget->buildKey()));
         if (buildTarget.targetType != UtilityType)
             return action == ProjectAction::AddNewFile || action == ProjectAction::AddExistingFile
                    || action == ProjectAction::AddExistingDirectory
