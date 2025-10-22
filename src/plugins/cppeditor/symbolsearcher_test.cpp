@@ -5,9 +5,7 @@
 
 #include "cppindexingsupport.h"
 #include "cpptoolstestcase.h"
-#include "searchsymbols.h"
 
-#include <coreplugin/testdatadir.h>
 #include <coreplugin/find/searchresultwindow.h>
 
 #include <utils/async.h>
@@ -17,8 +15,6 @@
 using namespace Utils;
 
 namespace {
-
-QTC_DECLARE_MYTESTDATADIR("../../../tests/cppsymbolsearcher/")
 
 inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
 
@@ -102,8 +98,8 @@ void SymbolSearcherTest::test_data()
     QTest::addColumn<SearchParameters>("searchParameters");
     QTest::addColumn<ResultDataList>("expectedResults");
 
-    MyTestDataDir testDirectory(QLatin1String("testdata_basic"));
-    const FilePath testFile = testDirectory.filePath(QLatin1String("file1.cpp"));
+    const FilePath testFile = SRCDIR "/../../../tests/cppsymbolsearcher/testdata_basic/file1.cpp";
+    QVERIFY(testFile.isReadableFile());
 
     SearchParameters searchParameters;
 
