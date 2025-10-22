@@ -5,7 +5,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/systemsettings.h>
-#include <coreplugin/testdatadir.h>
+
 #include <cppeditor/builtineditordocumentprocessor.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpptoolstestcase.h>
@@ -13,6 +13,7 @@
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
+
 #include <utils/fileutils.h>
 
 #include <QDesignerFormEditorInterface>
@@ -22,7 +23,6 @@
 #include <QTest>
 
 using namespace Core;
-using namespace Core::Tests;
 using namespace CppEditor;
 using namespace CPlusPlus;
 using namespace Designer;
@@ -30,8 +30,6 @@ using namespace Designer::Internal;
 using namespace Utils;
 
 namespace Designer::Internal {
-
-QTC_DECLARE_MYTESTDATADIR("../../../tests/designer/")
 
 class DocumentContainsFunctionDefinition: protected SymbolVisitor
 {
@@ -234,42 +232,49 @@ void GoToSlotTest::test_gotoslot()
         const bool m_saveAfterRefactor;
     } systemSettingsMgr;
 
-    QFETCH(QStringList, files);
-    (GoToSlotTestCase(Utils::transform(files, FilePath::fromString)));
+    QFETCH(FilePaths, files);
+    (GoToSlotTestCase(files));
 }
 
 void GoToSlotTest::test_gotoslot_data()
 {
-    typedef QLatin1String _;
-    QTest::addColumn<QStringList>("files");
+    QTest::addColumn<FilePaths>("files");
 
-    MyTestDataDir testDataDirWithoutProject(_("gotoslot_withoutProject"));
+    const auto dataDir = [](const QString &subdir) {
+        return FilePath::fromUserInput(SRCDIR "/../../../tests/designer/" + subdir);
+    };
+
+    FilePath testDataDirWithoutProject = dataDir("gotoslot_withoutProject");
+    QVERIFY(testDataDirWithoutProject.exists());
     QTest::newRow("withoutProject")
-        << QStringList({testDataDirWithoutProject.file(_("form.cpp")),
-                        testDataDirWithoutProject.file(_("form.h")),
-                        testDataDirWithoutProject.file(_("form.ui"))});
+        << FilePaths({testDataDirWithoutProject / "form.cpp",
+                      testDataDirWithoutProject / "form.h",
+                      testDataDirWithoutProject / "form.ui"});
 
     // Finding the right class for inserting definitions/declarations is based on
     // finding a class with a member whose type is the class from the "ui_xxx.h" header.
     // In the following test data the header files contain an extra class referencing
     // the same class name.
 
-    MyTestDataDir testDataDir;
+    FilePath testDataDir;
 
-    testDataDir = MyTestDataDir(_("gotoslot_insertIntoCorrectClass_pointer"));
+    testDataDir = dataDir("gotoslot_insertIntoCorrectClass_pointer");
+    QVERIFY(testDataDir.exists());
     QTest::newRow("insertIntoCorrectClass_pointer")
-        << QStringList({testDataDir.file(_("form.cpp")), testDataDir.file(_("form.h")),
-                        testDataDirWithoutProject.file(_("form.ui"))}); // reuse
+        << FilePaths({testDataDir / "form.cpp", testDataDir / "form.h",
+                      testDataDirWithoutProject / "form.ui"}); // reuse
 
-    testDataDir = MyTestDataDir(_("gotoslot_insertIntoCorrectClass_non-pointer"));
+    testDataDir = dataDir("gotoslot_insertIntoCorrectClass_non-pointer");
+    QVERIFY(testDataDir.exists());
     QTest::newRow("insertIntoCorrectClass_non-pointer")
-        << QStringList({testDataDir.file(_("form.cpp")), testDataDir.file(_("form.h")),
-                        testDataDirWithoutProject.file(_("form.ui"))}); // reuse
+        << FilePaths({testDataDir / "form.cpp", testDataDir / "form.h",
+                        testDataDirWithoutProject / "form.ui"}); // reuse
 
-    testDataDir = MyTestDataDir(_("gotoslot_insertIntoCorrectClass_pointer_ns_using"));
+    testDataDir = dataDir("gotoslot_insertIntoCorrectClass_pointer_ns_using");
+    QVERIFY(testDataDir.exists());
     QTest::newRow("insertIntoCorrectClass_pointer_ns_using")
-        << QStringList({testDataDir.file(_("form.cpp")), testDataDir.file(_("form.h")),
-                        testDataDir.file(_("form.ui"))});
+        << FilePaths({testDataDir / "form.cpp", testDataDir / "form.h",
+                      testDataDir / "form.ui"});
 }
 
 QObject *createGoToSlotTest()
