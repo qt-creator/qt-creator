@@ -36,6 +36,7 @@ class GeneralHelper : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool isMacOS READ isMacOS CONSTANT)
+    Q_PROPERTY(bool isPickInRectSupported READ isPickInRectSupported CONSTANT)
     Q_PROPERTY(QVariant bgColor READ bgColor NOTIFY bgColorChanged FINAL)
     Q_PROPERTY(double minGridStep READ minGridStep NOTIFY minGridStepChanged FINAL)
     Q_PROPERTY(double cameraSpeed READ cameraSpeed NOTIFY cameraSpeedChanged FINAL)
@@ -92,6 +93,7 @@ public:
                                         const QVariant& value);
     Q_INVOKABLE QQuick3DPickResult pickViewAt(QQuick3DViewport *view, float posX, float posY);
     Q_INVOKABLE QObject *resolvePick(QQuick3DNode *pickNode);
+    Q_INVOKABLE QList<QObject *> pickInRect(QQuick3DViewport *view, const QPointF &start, const QPointF &end);
 
     Q_INVOKABLE bool isLocked(QQuick3DNode *node) const;
     Q_INVOKABLE bool isHidden(QQuick3DNode *node) const;
@@ -140,6 +142,7 @@ public:
     void setLastSceneEnvironmentData(const QVariantMap &data);
 
     bool isMacOS() const;
+    bool isPickInRectSupported() const;
 
     void addRotationBlocks(const QSet<QQuick3DNode *> &nodes);
     void removeRotationBlocks(const QSet<QQuick3DNode *> &nodes);

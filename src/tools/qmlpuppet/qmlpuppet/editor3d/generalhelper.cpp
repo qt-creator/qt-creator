@@ -664,6 +664,28 @@ QObject *GeneralHelper::resolvePick(QQuick3DNode *pickNode)
     return pickNode;
 }
 
+QList<QObject *> GeneralHelper::pickInRect([[maybe_unused]] QQuick3DViewport *view,
+                                           [[maybe_unused]] const QPointF &start,
+                                           [[maybe_unused]] const QPointF &end)
+{
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 11, 0))
+    if (!view)
+        return {};
+    const auto startPos = view->mapFromGlobal(start);
+    const auto endPos = view->mapFromGlobal(end);
+    auto nodes = view->pickInRect(startPos, endPos);
+    QList<QObject *> ret;
+    for (auto n : std::as_const(nodes)) {
+        auto node = static_cast<QQuick3DNode *>(n);
+        if (isPickable(node))
+            ret.append(resolvePick(node));
+    }
+    return ret;
+#else
+    return {};
+#endif
+}
+
 bool GeneralHelper::isLocked(QQuick3DNode *node) const
 {
     if (node) {
@@ -1167,6 +1189,15 @@ void GeneralHelper::rotateMultiSelection(bool commit)
 bool GeneralHelper::isMacOS() const
 {
 #ifdef Q_OS_MACOS
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool GeneralHelper::isPickInRectSupported() const
+{
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 11, 0))
     return true;
 #else
     return false;

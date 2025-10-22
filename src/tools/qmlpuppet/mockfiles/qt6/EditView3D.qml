@@ -1162,6 +1162,11 @@ Item {
                 }
             }
 
+            RectangleSelection {
+                id: rectSelection
+                view3D: viewRoot
+            }
+
             MouseArea {
                 anchors.fill: parent
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
@@ -1206,9 +1211,9 @@ Item {
                             pressPoint.x = mouse.x;
                             pressPoint.y = mouse.y;
                             initialMoveBlock = true;
-                        } else {
-                            mouse.accepted = false;
                         }
+                        if (rectSelection.supported)
+                            rectSelection.start(mouse.x, mouse.y)
                     }
                 }
                 onPositionChanged: (mouse) => {
@@ -1225,6 +1230,11 @@ Item {
                         } else {
                             freeDraggerArea.forceMoveEvent(viewportPoint.x, viewportPoint.y);
                         }
+                    } else {
+                        if (rectSelection.supported) {
+                            if (rectSelection.state != RectangleSelection.State.Stopped)
+                                rectSelection.show(mouse.x, mouse.y)
+                        }
                     }
                 }
 
@@ -1239,6 +1249,16 @@ Item {
                             freeDraggerArea.forceReleaseEvent(viewportPoint.x, viewportPoint.y);
                         }
                         freeDraggerArea = null;
+                    } else {
+                        if (rectSelection.supported) {
+                            // finalize selection info in UI
+                            if (rectSelection.state === RectangleSelection.State.Showing) {
+                                var models = rectSelection.pickInRect(mouse)
+                                selectObjects(models)
+                                selectionChanged(models)
+                            }
+                            rectSelection.stop()
+                        }
                     }
                 }
 

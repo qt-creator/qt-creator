@@ -27,6 +27,8 @@ Item {
     property bool canBeVisible: activeScene === scene && !hidden && (targetNode ? targetNode.visible : false)
     property real iconOpacity: selected ? 0.2 : 1
 
+    property alias iconImage: iconImage
+    property alias iconOverlay: iconOverlay
     property alias iconSource: iconImage.source
 
     signal clicked(Node node, int button, bool multi)

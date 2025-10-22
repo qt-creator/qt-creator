@@ -792,7 +792,7 @@ void Qt5InformationNodeInstanceServer::handleSelectionChanged(const QVariant &ob
     const QVariantList varObjs = objs.value<QVariantList>();
     for (const auto &object : varObjs) {
         auto obj = object.value<QObject *>();
-        if (obj) {
+        if (hasInstanceForObject(obj)) {
             ServerNodeInstance instance = instanceForObject(obj);
             // If instance is a View3D, make sure it is not locked
             bool locked = false;
