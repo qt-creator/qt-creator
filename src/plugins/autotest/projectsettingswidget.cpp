@@ -165,6 +165,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
             return;
         if (tl != br)
             return;
+        m_pathFilters->model()->setData(tl, tl.data(), Qt::ToolTipRole);
         m_projectSettings->setPathFilters(itemsToStringList());
         triggerRescan();
     });
