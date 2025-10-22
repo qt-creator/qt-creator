@@ -13,7 +13,6 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileutils.h>
-#include <coreplugin/testdatadir.h>
 
 #include <cplusplus/LookupContext.h>
 
@@ -22,7 +21,6 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
@@ -57,12 +55,46 @@ namespace {
 
 inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
 
-class MyTestDataDir : public Core::Tests::TestDataDir
+class MyTestDataDir
 {
 public:
-    explicit MyTestDataDir(const QString &dir)
-        : TestDataDir(SRCDIR "/../../../tests/cppmodelmanager/" + dir)
-    {}
+    MyTestDataDir(const QString &dir)
+        : m_directory(SRCDIR "/../../../tests/cppmodelmanager/" + dir)
+    {
+        QFileInfo fi(m_directory);
+        QVERIFY(fi.exists());
+        QVERIFY(fi.isDir());
+    }
+
+    QString file(const QString &fileName) const
+    {
+        return directory() + QLatin1Char('/') + fileName;
+    }
+
+    FilePath filePath(const QString &fileName) const
+    {
+        return FilePath::fromString(directory()) / fileName;
+    }
+
+    QString directory(const QString &subdir = QString(), bool clean = true) const
+    {
+        QString path = m_directory;
+        if (!subdir.isEmpty())
+            path += QLatin1Char('/') + subdir;
+        if (clean)
+            path = QDir::cleanPath(path);
+        return path;
+    }
+
+    FilePath directoryPath(const QString &subdir = QString(), bool clean = true) const
+    {
+        return FilePath::fromUserInput(directory(subdir, clean));
+    }
+
+    QString path() const
+    {
+        return m_directory;
+    }
 
     FilePath includeDir(bool cleaned = true) const
     {
@@ -78,6 +110,9 @@ public:
     {
         return directoryPath("sources").pathAppended(fileName);
     }
+
+private:
+    QString m_directory;
 };
 
 FilePaths toAbsolutePaths(const QStringList &relativePathList,

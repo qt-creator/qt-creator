@@ -302,8 +302,6 @@ extend_qtc_plugin(Core
     locator/locator_test.cpp
     locator/locatorfiltertest.cpp
     locator/locatorfiltertest.h
-    testdatadir.cpp
-    testdatadir.h
 )
 
 extend_qtc_plugin(Core
