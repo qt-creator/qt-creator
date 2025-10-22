@@ -88,6 +88,13 @@ static SdkToolResult runAdbCommand(const QStringList &args)
     return result;
 }
 
+class AndroidDevicePrivate final
+{
+public:
+    std::unique_ptr<QSettings> m_avdSettings;
+    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+};
+
 class AndroidDeviceManagerInstance : public QObject
 {
 public:
@@ -377,6 +384,7 @@ bool AndroidDeviceWidget::questionDialog(const QString &question)
 }
 
 AndroidDevice::AndroidDevice()
+    : d(new AndroidDevicePrivate)
 {
     setupId(IDevice::AutoDetected, Constants::ANDROID_DEVICE_ID);
     setType(Constants::ANDROID_DEVICE_TYPE);
@@ -389,6 +397,11 @@ AndroidDevice::AndroidDevice()
     addDeviceAction({Tr::tr("Refresh"), [](const IDevice::Ptr &device) {
         updateDeviceState(device);
     }});
+}
+
+AndroidDevice::~AndroidDevice()
+{
+    delete d;
 }
 
 void AndroidDevice::addActionsIfNotFound()
@@ -607,7 +620,7 @@ void AndroidDevice::startAvd()
         onGroupDone(onDone, CallDone::OnSuccess)
     };
 
-    m_taskTreeRunner.start(recipe);
+    d->m_taskTreeRunner.start(recipe);
 }
 
 IDevice::DeviceInfo AndroidDevice::deviceInformation() const
@@ -670,13 +683,13 @@ QUrl AndroidDevice::toolControlChannel(const ControlChannelHint &) const
 
 QSettings *AndroidDevice::avdSettings() const
 {
-    return m_avdSettings.get();
+    return d->m_avdSettings.get();
 }
 
 void AndroidDevice::initAvdSettings()
 {
     const FilePath configPath = avdPath().resolvePath(QStringLiteral("config.ini"));
-    m_avdSettings.reset(new QSettings(configPath.toUserOutput(), QSettings::IniFormat));
+    d->m_avdSettings.reset(new QSettings(configPath.toUserOutput(), QSettings::IniFormat));
 }
 
 static void handleDevicesListChange(const QString &serialNumber)

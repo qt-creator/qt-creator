@@ -21,6 +21,7 @@ public:
     using Ptr = std::shared_ptr<AndroidDevice>;
 
     AndroidDevice();
+    ~AndroidDevice();
 
     static IDevice::Ptr create();
     static AndroidDeviceInfo androidDeviceInfoFromDevice(const IDevice::ConstPtr &dev);
@@ -66,8 +67,7 @@ private:
     QSettings *avdSettings() const;
     void initAvdSettings();
 
-    std::unique_ptr<QSettings> m_avdSettings;
-    Tasking::SingleTaskTreeRunner m_taskTreeRunner;
+    class AndroidDevicePrivate *d;
 };
 
 void setupDevicesWatcher();
