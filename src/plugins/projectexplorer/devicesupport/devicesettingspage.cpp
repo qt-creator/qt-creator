@@ -207,6 +207,7 @@ DeviceSettingsWidget::DeviceSettingsWidget()
     m_configurationLabel = new QLabel(Tr::tr("&Device:"));
     m_configurationComboBox = new QComboBox;
     m_configurationComboBox->setModel(&m_deviceProxyModel);
+    m_configurationComboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     m_generalGroupBox = new QGroupBox(Tr::tr("General"));
     m_osTypeValueLabel = new QLabel;
     m_autoDetectionLabel = new QLabel;
