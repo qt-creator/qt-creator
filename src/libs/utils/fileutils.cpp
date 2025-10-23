@@ -404,13 +404,15 @@ bool hasNativeFileDialog()
     return *hasNative;
 }
 
-FilePath getOpenFilePath(const QString &caption,
-                         const FilePath &dir,
-                         const QString &filter,
-                         QString *selectedFilter,
-                         QFileDialog::Options options,
-                         bool fromDeviceIfShiftIsPressed,
-                         bool forceNonNativeDialog)
+static FilePath getOpenFileOrDirInternal(
+    const QString &caption,
+    const FilePath &dir,
+    const QString &filter,
+    QString *selectedFilter,
+    QFileDialog::Options options,
+    QFileDialog::FileMode fileMode,
+    bool fromDeviceIfShiftIsPressed,
+    bool forceNonNativeDialog)
 {
     forceNonNativeDialog = forceNonNativeDialog || !dir.isLocal();
 #ifdef QT_GUI_LIB
@@ -427,8 +429,42 @@ FilePath getOpenFilePath(const QString &caption,
                                      options,
                                      schemes,
                                      forceNonNativeDialog,
-                                     QFileDialog::ExistingFile,
+                                     fileMode,
                                      QFileDialog::AcceptOpen));
+}
+
+FilePath getOpenFilePath(
+    const QString &caption,
+    const FilePath &dir,
+    const QString &filter,
+    QString *selectedFilter,
+    QFileDialog::Options options,
+    bool fromDeviceIfShiftIsPressed,
+    bool forceNonNativeDialog)
+{
+    return getOpenFileOrDirInternal(
+        caption,
+        dir,
+        filter,
+        selectedFilter,
+        options,
+        QFileDialog::ExistingFile,
+        fromDeviceIfShiftIsPressed,
+        forceNonNativeDialog);
+}
+
+FilePath getOpenFileOrDir(const QString &caption, const FilePath &dir, const QString &filter)
+{
+    return getOpenFileOrDirInternal(
+        caption,
+        dir,
+        filter,
+        nullptr,
+        {},
+        dir.isLocal() && dir.osType() == OsTypeWindows ? QFileDialog::ExistingFile
+                                                       : QFileDialog::Directory,
+        false,
+        false);
 }
 
 FilePath getSaveFilePath(const QString &caption,

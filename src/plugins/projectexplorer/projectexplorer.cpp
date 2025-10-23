@@ -2046,7 +2046,7 @@ void ProjectExplorerPluginPrivate::loadAction()
         dir = DocumentManager::projectsDirectory();
 
     FilePath filePath
-        = Utils::FileUtils::getOpenFilePath(Tr::tr("Open Project"), dir, projectFilterString());
+        = Utils::FileUtils::getOpenFileOrDir(Tr::tr("Open Project"), dir, projectFilterString());
     if (filePath.isEmpty())
         return;
 
