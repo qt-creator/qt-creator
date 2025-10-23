@@ -77,9 +77,9 @@ WebAssemblySettings::WebAssemblySettings()
         m_statusIsEmsdkDir = new InfoLabel(Tr::tr("The chosen directory is an emsdk location."));
         m_statusSdkInstalled = new InfoLabel(Tr::tr("An SDK is installed."));
         m_statusSdkActivated = new InfoLabel(Tr::tr("An SDK is activated."));
-        m_statusSdkValid = new InfoLabel(Tr::tr("The activated SDK is usable by %1.")
-                                             .arg(QGuiApplication::applicationDisplayName()),
-                                         InfoLabel::NotOk);
+        m_statusSdkInvalid = new InfoLabel(Tr::tr("The activated SDK is not usable by %1.")
+                                               .arg(QGuiApplication::applicationDisplayName()),
+                                           InfoLabel::NotOk);
 
         m_emSdkVersionDisplay = new InfoLabel;
         m_emSdkVersionDisplay->setElideMode(Qt::ElideNone);
@@ -109,7 +109,7 @@ WebAssemblySettings::WebAssemblySettings()
                     m_statusIsEmsdkDir,
                     m_statusSdkInstalled,
                     m_statusSdkActivated,
-                    m_statusSdkValid,
+                    m_statusSdkInvalid,
                     m_emSdkVersionDisplay,
                 },
             },
@@ -165,7 +165,7 @@ void WebAssemblySettings::updateStatus()
     m_statusIsEmsdkDir->setVisible(!sdkValid);
     m_statusSdkInstalled->setVisible(!sdkValid);
     m_statusSdkActivated->setVisible(!sdkValid);
-    m_statusSdkValid->setVisible(!sdkValid);
+    m_statusSdkInvalid->setVisible(!sdkValid);
     m_emSdkVersionDisplay->setVisible(sdkValid);
     m_emSdkEnvDisplay->setEnabled(sdkValid);
 

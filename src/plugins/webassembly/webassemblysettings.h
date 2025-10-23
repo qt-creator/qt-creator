@@ -24,7 +24,7 @@ private:
     Utils::InfoLabel *m_statusIsEmsdkDir = nullptr;
     Utils::InfoLabel *m_statusSdkInstalled = nullptr;
     Utils::InfoLabel *m_statusSdkActivated = nullptr;
-    Utils::InfoLabel *m_statusSdkValid = nullptr;
+    Utils::InfoLabel *m_statusSdkInvalid = nullptr;
     Utils::InfoLabel *m_emSdkVersionDisplay = nullptr;
     QTextBrowser *m_emSdkEnvDisplay = nullptr;
     Utils::InfoLabel *m_qtVersionDisplay = nullptr;
