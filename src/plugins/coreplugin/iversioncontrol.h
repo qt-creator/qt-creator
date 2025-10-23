@@ -107,7 +107,8 @@ public:
     /*!
      * Returns true if the file has modification compared to version control
      */
-    virtual Core::IVersionControl::FileState modificationState(const Utils::FilePath &path) const;
+    virtual Core::IVersionControl::FileState modificationState(
+        const Utils::FilePath &path, const Utils::FilePath &topLevelDir = {}) const;
 
     /*!
      * Starts monitoring modified files inside path

@@ -260,15 +260,17 @@ void FileNode::setHasError(bool error) const
 
 Core::IVersionControl::FileState FileNode::modificationState() const
 {
+    using namespace Core;
     if (isGenerated())
-        return Core::IVersionControl::FileState::Unknown;
+        return IVersionControl::FileState::Unknown;
 
     if (!m_modificationState) {
         const FilePath dir = filePath().absolutePath();
-        if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(dir))
-            m_modificationState = vc->modificationState(filePath());
+        FilePath topLevelDir;
+        if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(dir, &topLevelDir))
+            m_modificationState = vc->modificationState(filePath(), topLevelDir);
         else
-            m_modificationState = Core::IVersionControl::FileState::Unknown;
+            m_modificationState = IVersionControl::FileState::Unknown;
     }
     return *m_modificationState;
 }

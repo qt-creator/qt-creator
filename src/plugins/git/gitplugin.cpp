@@ -157,7 +157,8 @@ public:
     FilePaths unmanagedFiles(const FilePaths &filePaths) const final;
 
     bool isConfigured() const final;
-    IVersionControl::FileState modificationState(const Utils::FilePath &path) const final;
+    Core::IVersionControl::FileState modificationState(
+        const FilePath &path, const FilePath &topLevelDir = {}) const final;
     void monitorDirectory(const Utils::FilePath &path) final;
     void stopMonitoringDirectory(const Utils::FilePath &path) final;
     bool supportsOperation(Operation operation) const final;
@@ -1872,11 +1873,13 @@ bool GitPluginPrivate::isConfigured() const
     return !gitClient().vcsBinary({}).isEmpty();
 }
 
-IVersionControl::FileState GitPluginPrivate::modificationState(const Utils::FilePath &path) const
+IVersionControl::FileState GitPluginPrivate::modificationState(
+    const FilePath &path, const FilePath &topLevelDir) const
 {
-    const Utils::FilePath projectDir = gitClient().findRepositoryForDirectory(path.absolutePath());
-    return gitClient().modificationState(projectDir, path);
-}
+    FilePath projectDir = topLevelDir;
+    if (projectDir.isEmpty())
+        projectDir = gitClient().findRepositoryForDirectory(path.absolutePath());
+    return gitClient().modificationState(projectDir, path);}
 
 void GitPluginPrivate::monitorDirectory(const Utils::FilePath &path)
 {

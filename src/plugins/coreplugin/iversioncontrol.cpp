@@ -64,9 +64,11 @@ FilePaths IVersionControl::additionalToolsPath() const
     return {};
 }
 
-IVersionControl::FileState IVersionControl::modificationState(const FilePath &path) const
+IVersionControl::FileState IVersionControl::modificationState(
+    const FilePath &path, const FilePath &topLevelDir) const
 {
     Q_UNUSED(path)
+    Q_UNUSED(topLevelDir)
     return IVersionControl::FileState::Unknown;
 }
 
