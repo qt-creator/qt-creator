@@ -2186,10 +2186,7 @@ Result<Environment> FilePath::deviceEnvironmentWithError() const
 FilePaths FilePath::devicePathEnvironmentVariable() const
 {
     FilePaths result = deviceEnvironment().path();
-    if (!isLocal()) {
-        for (FilePath &dir : result)
-            dir.setParts(this->scheme(), this->host(), dir.path());
-    }
+    result.setSchemeAndHost(scheme(), host());
     return result;
 }
 
@@ -2830,6 +2827,23 @@ FilePath FilePaths::commonPath() const
 void FilePaths::sort()
 {
     std::sort(begin(), end(), std::less<FilePath>());
+}
+
+void FilePaths::mapToDevice(const FilePath &deviceRoot)
+{
+    for (FilePath &dir : *this)
+        dir = deviceRoot.withNewMappedPath(dir);
+}
+
+void FilePaths::setSchemeAndHost(const QStringView scheme, const QStringView host)
+{
+    for (FilePath &fp : *this)
+        fp.setParts(scheme, host, fp.path());
+}
+
+void FilePaths::setSchemeAndHost(const FilePath &deviceRoot)
+{
+    setSchemeAndHost(deviceRoot.scheme(), deviceRoot.host());
 }
 
 std::vector<Utils::Result<std::unique_ptr<FilePathWatcher>>> FilePaths::watch() const

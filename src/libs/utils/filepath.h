@@ -380,6 +380,9 @@ public:
     [[nodiscard]] QString toUserOutput(const QString &separator) const;
     [[nodiscard]] FilePath commonPath() const;
     void sort();
+    void mapToDevice(const FilePath &deviceRoot);
+    void setSchemeAndHost(const QStringView scheme, const QStringView host);
+    void setSchemeAndHost(const FilePath &deviceRoot);
 
     std::vector<Utils::Result<std::unique_ptr<FilePathWatcher>>> watch() const;
 };
