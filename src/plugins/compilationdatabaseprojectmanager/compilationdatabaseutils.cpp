@@ -102,8 +102,8 @@ void filteredFlags(const FilePath &filePath,
         }
 
         if (includePathType) {
-            const QString pathStr = workingDir.resolvePath(flag).path();
-            headerPaths.append({pathStr, includePathType.value()});
+            const FilePath path = workingDir.resolvePath(flag);
+            headerPaths.append({path, includePathType.value()});
             includePathType.reset();
             continue;
         }
@@ -141,8 +141,8 @@ void filteredFlags(const FilePath &filePath,
             return flag.startsWith(opt) && flag != opt;
         });
         if (!includeOpt.isEmpty()) {
-            const QString pathStr = workingDir.resolvePath(flag.mid(includeOpt.length())).path();
-            headerPaths.append({pathStr, userIncludeFlags.contains(includeOpt)
+            const FilePath path = workingDir.resolvePath(flag.mid(includeOpt.length()));
+            headerPaths.append({path, userIncludeFlags.contains(includeOpt)
                                 ? HeaderPathType::User : HeaderPathType::System});
             continue;
         }

@@ -6,9 +6,6 @@
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 
-#include <QDir>
-#include <QString>
-
 namespace ProjectExplorer {
 
 enum class HeaderPathType {
@@ -22,9 +19,6 @@ class HeaderPath
 {
 public:
     HeaderPath() = default;
-    HeaderPath(const QString &path, HeaderPathType type)
-        : path(Utils::FilePath::fromUserInput(path)), type(type)
-    {}
     HeaderPath(const Utils::FilePath &path, HeaderPathType type)
         : path(path), type(type)
     {}
