@@ -111,7 +111,8 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     pal.setColor(QPalette::Base, pal.window().color());
     m_treeView->setPalette(pal);
     m_model = new TestResultModel(this);
-    m_filterModel = new TestResultFilterModel(m_model, this);
+    m_filterModel = new TestResultFilterModel(this);
+    m_filterModel->setSourceModel(m_model);
     m_filterModel->setDynamicSortFilter(true);
     m_filterModel->setRecursiveFilteringEnabled(true);
     m_treeView->setModel(m_filterModel);
@@ -272,13 +273,17 @@ void TestResultsPane::scheduleTestResult(const TestResult &result)
 
 void TestResultsPane::handleNextBuffered()
 {
-    // TODO if (!m_testRunning) build secondary model separately without signals
     if (m_lastCurrentMessage) {
         addTestResult(m_lastCurrentMessage.value());
         m_lastCurrentMessage.reset();
     }
     for (int i = 0, end = qMin(30, m_buffered.size()); i < end; ++i)
         addTestResult(m_buffered.dequeue());
+
+    if (!m_testRunning && m_buffered.size() > 30) {
+        handlePendingResultsSilently();
+        return;
+    }
 
     if (!m_buffered.isEmpty())
         m_bufferTimer.start();
@@ -791,7 +796,6 @@ void TestResultsPane::onSessionLoaded()
     initializeFilterMenu();
 }
 
-
 void TestResultsPane::onAboutToSaveSession()
 {
     SessionManager::setSessionValue(SV_SHOW_DURATIONS, m_showDurationButton->isChecked());
@@ -809,7 +813,85 @@ void TestResultsPane::showTestResult(const QModelIndex &index)
 
 bool TestResultsPane::expandIntermediate() const
 {
-    return m_expandCollapse->isChecked();
+    return !m_handlingPending && m_expandCollapse->isChecked();
+}
+
+struct ExpandedRows
+{
+    int row;
+    QList<ExpandedRows> childRows;
+};
+
+static QList<ExpandedRows> collectExpanded(TestResultFilterModel *model, ResultsTreeView *view,
+                                           const QModelIndex &parent)
+{
+    QList<ExpandedRows> result;
+    const int rowsEnd = model->rowCount(parent);
+    for (int row = 0; row < rowsEnd; ++row) {
+        const QModelIndex child = model->index(row, 0, parent);
+        if (view->isExpanded(child))
+            result.append({row, collectExpanded(model, view, child)});
+    }
+    return result;
+}
+
+static void reexpand(TestResultFilterModel *model, ResultsTreeView *view,
+                     const QList<ExpandedRows> &expanded, const QModelIndex &parent)
+{
+    for (const ExpandedRows &exp : expanded) {
+        const QModelIndex &child = model->index(exp.row, 0, parent);
+        view->expand(child);
+        reexpand(model, view, exp.childRows, child);
+    }
+}
+
+void TestResultsPane::handlePendingResultsSilently()
+{
+    m_handlingPending = true;
+    // create copy of the original
+    TestResultModel *copied = new TestResultModel(this);
+    const TestResultItem *origRoot = m_model->rootItem();
+    origRoot->forAllChildren([copied](TreeItem *it) {
+        copied->addTestResult(static_cast<TestResultItem *>(it)->testResult());
+    });
+
+    // append buffered results
+    while (m_buffered.size())
+        copied->addTestResult(m_buffered.dequeue());
+
+    // collect current model's expansion, selection and position
+    const QList<ExpandedRows> origExpanded = collectExpanded(m_filterModel, m_treeView, {});
+    QList<int> selectedRows; // rows of the child items down to the selected one
+    const QModelIndexList itemSelection = m_treeView->selectionModel()->selectedIndexes();
+    if (itemSelection.size() == 1) {
+        QModelIndex idx = itemSelection.first();
+        do {
+            selectedRows.prepend(idx.row());
+            idx = idx.parent();
+        } while (idx.isValid());
+    }
+    int value = -1;
+    if (auto sb = m_treeView->verticalScrollBar())
+        value = sb->value();
+
+    // exchange models + clean up
+    TestResultModel *old = m_model;
+    m_model = copied;
+    m_filterModel->setSourceModel(m_model);
+    delete old;
+
+    // restore expansion, selection and position, ignore expansion of items added silently
+    reexpand(m_filterModel, m_treeView, origExpanded, {});
+    if (!selectedRows.isEmpty()) {
+        QModelIndex idx;
+        for (int row : selectedRows)
+            idx = m_filterModel->index(row, 0, idx);
+        m_treeView->selectionModel()->select(idx, QItemSelectionModel::Select);
+    }
+    if (value != -1)
+        m_treeView->verticalScrollBar()->setValue(value);
+
+    m_handlingPending = false;
 }
 
 } // namespace Autotest::Internal

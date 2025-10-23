@@ -111,6 +111,8 @@ private:
     void onSessionLoaded();
     void onAboutToSaveSession();
 
+    void handlePendingResultsSilently();
+
     QStackedWidget *m_outputWidget;
     QFrame *m_summaryWidget;
     QLabel *m_summaryLabel;
@@ -132,6 +134,7 @@ private:
     bool m_autoScroll = false;
     bool m_atEnd = false;
     bool m_testRunning = false;
+    bool m_handlingPending = false;
     QList<TestEditorMark *> m_marks;
     QQueue<TestResult> m_buffered;
     std::optional<TestResult> m_lastCurrentMessage = std::nullopt;

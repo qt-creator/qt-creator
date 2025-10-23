@@ -93,7 +93,7 @@ class TestResultFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    explicit TestResultFilterModel(TestResultModel *sourceModel, QObject *parent = nullptr);
+    explicit TestResultFilterModel(QObject *parent = nullptr);
 
     void enableAllResultTypes(bool enabled);
     void toggleTestResultType(ResultType type);
@@ -104,12 +104,13 @@ public:
     const QSet<ResultType> enabledFilters() const { return m_enabled; }
     const QVariantList enabledFiltersAsSetting() const;
     void setEnabledFiltersFromSetting(const QVariantList &enabled);
+    void setSourceModel(QAbstractItemModel *sourceModel) override;
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 
 private:
-    TestResultModel *m_sourceModel;
+    TestResultModel *m_sourceModel = nullptr;
     QSet<ResultType> m_enabled;
 };
 

@@ -467,11 +467,9 @@ TestResultItem *TestResultModel::findParentItemFor(const TestResultItem *item,
 
 /********************************** Filter Model **********************************/
 
-TestResultFilterModel::TestResultFilterModel(TestResultModel *sourceModel, QObject *parent)
-    : QSortFilterProxyModel(parent),
-      m_sourceModel(sourceModel)
+TestResultFilterModel::TestResultFilterModel(QObject *parent)
+    : QSortFilterProxyModel(parent)
 {
-    setSourceModel(sourceModel);
     enableAllResultTypes(true);
     if (!testSettings().omitInternalMsg())
         toggleTestResultType(ResultType::MessageInternal);
@@ -554,6 +552,12 @@ void TestResultFilterModel::setEnabledFiltersFromSetting(const QVariantList &ena
     // when misused: ensure non-discardable filters are enabled
     m_enabled << ResultType::MessageFatal << ResultType::MessageSystem << ResultType::MessageError;
     invalidateFilter();
+}
+
+void TestResultFilterModel::setSourceModel(QAbstractItemModel *sourceModel)
+{
+    m_sourceModel = static_cast<TestResultModel *>(sourceModel);
+    QSortFilterProxyModel::setSourceModel(sourceModel);
 }
 
 bool TestResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
