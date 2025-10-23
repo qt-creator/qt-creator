@@ -458,9 +458,14 @@ void DeviceSettingsWidget::handleDeviceUpdated(Id id)
 
 void DeviceSettingsWidget::currentDeviceChanged(int index)
 {
+    const bool didChangeDevice = !m_configWidget || m_configWidget->device() != currentDevice();
+
+    if (didChangeDevice) {
+        delete m_configWidget;
+        m_configWidget = nullptr;
+    }
+
     qDeleteAll(m_additionalActionButtons);
-    delete m_configWidget;
-    m_configWidget = nullptr;
     m_additionalActionButtons.clear();
     const IDevice::ConstPtr device = m_deviceManagerModel->device(index);
     if (!device) {
@@ -506,9 +511,6 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
             QTC_ASSERT(device, return);
             updateDeviceFromUi();
             deviceAction.execute(device);
-            // Widget must be set up from scratch, because the action could have
-            // changed random attributes.
-            currentDeviceChanged(currentIndex());
         });
 
         m_buttonsLayout->insertWidget(m_buttonsLayout->count() - 1, button);
@@ -516,9 +518,12 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
 
     if (!m_osSpecificGroupBox->layout())
         new QVBoxLayout(m_osSpecificGroupBox);
-    m_configWidget = DeviceManager::mutableDevice(device->id())->createWidget();
-    if (m_configWidget)
-        m_osSpecificGroupBox->layout()->addWidget(m_configWidget);
+
+    if (didChangeDevice) {
+        m_configWidget = DeviceManager::mutableDevice(device->id())->createWidget();
+        if (m_configWidget)
+            m_osSpecificGroupBox->layout()->addWidget(m_configWidget);
+    }
     displayCurrent();
 }
 

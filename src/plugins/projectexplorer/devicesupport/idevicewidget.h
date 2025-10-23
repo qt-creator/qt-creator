@@ -17,12 +17,13 @@ public:
 
     virtual void updateDeviceFromUi() = 0;
 
+    IDevicePtr device() const { return m_device; }
+
 protected:
     explicit IDeviceWidget(const IDevicePtr &device) :
         m_device(device)
     { }
 
-    IDevicePtr device() const { return m_device; }
 
 private:
     IDevicePtr m_device;
