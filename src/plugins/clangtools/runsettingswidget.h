@@ -43,4 +43,6 @@ private:
     QSpinBox *m_parallelJobsSpinBox;
 };
 
+void setupClangToolsOptionsPage();
+
 } // ClangTools::Internal

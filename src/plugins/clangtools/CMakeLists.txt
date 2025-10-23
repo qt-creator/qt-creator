@@ -40,7 +40,6 @@ add_qtc_plugin(ClangTools
     filterdialog.cpp filterdialog.h
     inlinesuppresseddiagnostics.cpp inlinesuppresseddiagnostics.h
     runsettingswidget.cpp runsettingswidget.h
-    settingswidget.cpp settingswidget.h
     virtualfilesystemoverlay.cpp virtualfilesystemoverlay.h
 )
 

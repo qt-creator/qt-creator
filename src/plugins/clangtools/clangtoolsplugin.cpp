@@ -9,7 +9,7 @@
 #include "clangtoolstr.h"
 #include "documentclangtoolrunner.h"
 #include "documentquickfixfactory.h"
-#include "settingswidget.h"
+#include "runsettingswidget.h"
 
 #ifdef WITH_TESTS
 #include "clangtoolspreconfiguredsessiontests.h"
@@ -72,7 +72,6 @@ public:
 
     ClangTidyTool clangTidyTool;
     ClazyTool clazyTool;
-    ClangToolsOptionsPage optionsPage;
     QHash<Core::IDocument *, DocumentClangToolRunner *> documentRunners;
     DocumentQuickFixFactory quickFixFactory;
 };
@@ -93,6 +92,8 @@ void ClangToolsPlugin::initialize()
     ClangToolsSettings::instance();
 
     d = new ClangToolsPluginPrivate;
+
+    setupClangToolsOptionsPage();
 
     registerAnalyzeActions();
 
