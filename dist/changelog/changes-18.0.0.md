@@ -176,6 +176,9 @@ Projects
   without actually applying the change
   ([QTCREATORBUG-33456](https://bugreports.qt.io/browse/QTCREATORBUG-33456))
 * Fixed the navigation of remote projects with the `File System` view
+* Fixed that `Build > Run Generator > Compilation Database` generated the
+  database for the wrong project
+  ([QTCREATORBUG-33633]((https://bugreports.qt.io/browse/QTCREATORBUG-33633))
 
 ### CMake
 
@@ -289,6 +292,8 @@ Platforms
 
 * Fixed that a Windows SDK download folder was unnecessarily created
   ([QTCREATORBUG-33452](https://bugreports.qt.io/browse/QTCREATORBUG-33452))
+* Fixed the ABI detection of Qt builds that were done with `clang-cl`
+  ([QTCREATORBUG-33645](https://bugreports.qt.io/browse/QTCREATORBUG-33645))
 
 ### macOS
 
@@ -326,6 +331,7 @@ Credits for these changes go to:
 --------------------------------
 Aaron McCarthy  
 Alessandro Portale  
+Alexandre Laurent  
 Alexandru Croitor  
 Alexis Jeandet  
 Ali Kianian  
@@ -343,12 +349,14 @@ David Schulz
 Dheerendra Purohit  
 Eike Ziller  
 Eren Bursali  
+Esa Törmänen  
 faust747  
 Friedemann Kleint  
 Jaroslaw Kobus  
 Johanna Vanhatapio  
 Kai Köhne  
 Leena Miettinen  
+Lukasz Papierkowski  
 Mahmoud Badri  
 Marco Bubke  
 Marcus Tillmanns  
