@@ -44,7 +44,6 @@ QtcPlugin {
         "clangtoolslogfilereader.cpp",
         "clangtoolslogfilereader.h",
         "clangtoolsplugin.cpp",
-        "clangtoolsplugin.h",
         "clangtoolsprojectsettings.cpp",
         "clangtoolsprojectsettings.h",
         "clangtoolsprojectsettingswidget.cpp",

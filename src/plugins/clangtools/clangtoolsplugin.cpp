@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "clangtoolsplugin.h"
-
 #include "clangtool.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolsprojectsettingswidget.h"
@@ -18,10 +16,7 @@
 #include "readexporteddiagnosticstest.h"
 #endif
 
-#include <utils/icon.h>
-#include <utils/mimeutils.h>
-#include <utils/qtcassert.h>
-#include <utils/stylehelper.h>
+#include <extensionsystem/iplugin.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -34,11 +29,16 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
 
-#include <texteditor/texteditor.h>
-
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+
+#include <texteditor/texteditor.h>
+
+#include <utils/icon.h>
+#include <utils/mimeutils.h>
+#include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <QAction>
 #include <QDebug>
@@ -76,41 +76,54 @@ public:
     DocumentQuickFixFactory quickFixFactory;
 };
 
-ClangToolsPlugin::~ClangToolsPlugin()
+class ClangToolsPlugin final : public ExtensionSystem::IPlugin
 {
-    delete d;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangTools.json")
 
-void ClangToolsPlugin::initialize()
-{
-    TaskHub::addCategory({taskCategory(),
-                          Tr::tr("Clang Tools"),
-                          Tr::tr("Issues that Clang-Tidy and Clazy found when analyzing code.")});
+public:
+    ~ClangToolsPlugin() final
+    {
+        delete d;
+    }
 
-    // Import tidy/clazy diagnostic configs from CppEditor now
-    // instead of at opening time of the settings page
-    ClangToolsSettings::instance();
+private:
+    void initialize() final
+    {
+        TaskHub::addCategory({taskCategory(),
+                              Tr::tr("Clang Tools"),
+                              Tr::tr("Issues that Clang-Tidy and Clazy found when analyzing code.")});
 
-    d = new ClangToolsPluginPrivate;
+        // Import tidy/clazy diagnostic configs from CppEditor now
+        // instead of at opening time of the settings page
+        ClangToolsSettings::instance();
 
-    setupClangToolsOptionsPage();
+        d = new ClangToolsPluginPrivate;
 
-    registerAnalyzeActions();
+        setupClangToolsOptionsPage();
 
-    setupClangToolsProjectPanel();
+        registerAnalyzeActions();
 
-    connect(Core::EditorManager::instance(),
-            &Core::EditorManager::currentEditorChanged,
-            this,
-            &ClangToolsPlugin::onCurrentEditorChanged);
+        setupClangToolsProjectPanel();
+
+        connect(Core::EditorManager::instance(),
+                &Core::EditorManager::currentEditorChanged,
+                this,
+                &ClangToolsPlugin::onCurrentEditorChanged);
 
 #ifdef WITH_TESTS
-    addTestCreator(createInlineSuppressedDiagnosticsTest);
-    addTest<PreconfiguredSessionTests>();
-    addTest<ClangToolsUnitTests>();
-    addTest<ReadExportedDiagnosticsTest>();
+        addTestCreator(createInlineSuppressedDiagnosticsTest);
+        addTest<PreconfiguredSessionTests>();
+        addTest<ClangToolsUnitTests>();
+        addTest<ReadExportedDiagnosticsTest>();
 #endif
-}
+    }
+
+    void registerAnalyzeActions();
+    void onCurrentEditorChanged();
+
+    class ClangToolsPluginPrivate *d = nullptr;
+};
 
 void ClangToolsPlugin::onCurrentEditorChanged()
 {
@@ -195,3 +208,5 @@ void ClangToolsPlugin::registerAnalyzeActions()
 }
 
 } // ClangTools::Internal
+
+#include "clangtoolsplugin.moc"
