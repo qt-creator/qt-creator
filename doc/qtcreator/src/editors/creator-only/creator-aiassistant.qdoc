@@ -79,6 +79,7 @@
     \list
         \li \c codellama:7b-code
         \li \c deepseek-coder-v2:lite
+        \li \c gpt-oss:20b
         \li \c theqtcompany/codellama-7b-qml
         \li \c theqtcompany/codellama-13b-qml
     \endlist
@@ -102,14 +103,16 @@
         \li Code Llama 13B (for Qt 5, running in a cloud deployment of your choice)
         \li Codestral (provided by Mistral)
         \li Llama 3.3 70B (running in a cloud deployment of your choice)
-        \li Claude 3.7 Sonnet (provided by Anthropic, remember that you
+        \li Claude 4.0 Sonnet (provided by Anthropic, remember that you
             need to have a token-based billing payment method configured for your
             Anthropic account: \l {https://console.anthropic.com/}{console.anthropic.com})
-        \li GPT 4o (provided by OpenAI, remember that you need to have a
+        \li Claude 4.5 Sonnet (provided by Anthropic, remember that you
+            need to have a token-based billing payment method configured for your
+            Anthropic account: \l {https://console.anthropic.com/}{console.anthropic.com})
+        \li GPT 5 (provided by OpenAI, remember that you need to have a
             token-based billing payment method configured for your OpenAI account:
             \l {https://platform.openai.com/}{platform.openai.com})
-        \li GPT 4.1-mini (provided by OpenAI)
-        \li DeepSeek V3.1 (provided by DeepSeek)
+        \li DeepSeek V3.2 (provided by DeepSeek)
         \li Code Llama 13B QML through Ollama (running locally on your computer)
         \li Code Llama 7B QML through Ollama (running locally on your computer)
         \li Code Llama 7B through Ollama (running locally on your computer)
