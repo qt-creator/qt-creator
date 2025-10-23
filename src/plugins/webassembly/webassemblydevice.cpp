@@ -41,6 +41,11 @@ public:
         setOsType(OsTypeOther);
         setFileAccess(nullptr);
     }
+
+    bool canCreateProcessModel() const override
+    {
+        return false;
+    }
 };
 
 static IDevicePtr createWebAssemblyDevice()
