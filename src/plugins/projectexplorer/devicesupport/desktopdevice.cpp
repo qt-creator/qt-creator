@@ -128,7 +128,7 @@ DesktopDevice::DesktopDevice()
     setDefaultDisplayName(Tr::tr("Local PC"));
     setDisplayType(Tr::tr("Desktop"));
 
-    DeviceManager::setDeviceState(id(), IDevice::DeviceReadyToUse, true);
+    DeviceManager::setDeviceState(id(), IDevice::DeviceReadyToUse, false);
     setMachineType(IDevice::Hardware);
     setOsType(HostOsInfo::hostOs());
 

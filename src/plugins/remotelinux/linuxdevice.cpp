@@ -442,12 +442,10 @@ public:
     void closeConnection(bool announce)
     {
         QMutexLocker locker(&m_shellMutex);
-        q->setDeviceState(IDevice::DeviceDisconnected);
+        DeviceManager::setDeviceState(q->id(), IDevice::DeviceDisconnected, announce);
         q->setFileAccess(&m_disconnectedAccess);
         m_cmdBridgeAccess.reset();
         m_scriptAccess.reset();
-        if (announce)
-            DeviceManager::instance()->deviceUpdated(q->id());
     }
 
     LinuxDevice *q = nullptr;

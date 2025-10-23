@@ -243,7 +243,7 @@ IDevice::DeviceState DeviceManager::deviceState(Utils::Id deviceId)
     return d->deviceStates.readLocked()->value(deviceId, IDevice::DeviceStateUnknown);
 }
 
-void DeviceManager::setDeviceState(Id deviceId, IDevice::DeviceState newState, bool initializing)
+void DeviceManager::setDeviceState(Id deviceId, IDevice::DeviceState newState, bool announce)
 {
     if (!d || !s_instance)
         return;
@@ -255,7 +255,7 @@ void DeviceManager::setDeviceState(Id deviceId, IDevice::DeviceState newState, b
         lockedStates->insert(deviceId, newState);
     }
 
-    if (!initializing) {
+    if (announce) {
         emit s_instance->deviceUpdated(deviceId);
         emit s_instance->updated();
     }
