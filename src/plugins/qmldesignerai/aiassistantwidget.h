@@ -30,6 +30,7 @@ class AiAssistantWidget : public QFrame
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool termsAccepted MEMBER m_termsAccepted NOTIFY termsAcceptedChanged FINAL)
     Q_PROPERTY(bool isGenerating MEMBER m_isGenerating NOTIFY isGeneratingChanged FINAL)
     Q_PROPERTY(bool hasValidModel MEMBER m_hasValidModel NOTIFY hasValidModelChanged FINAL)
     Q_PROPERTY(QString attachedImageSource READ attachedImageSource WRITE setAttachedImageSource
@@ -58,8 +59,10 @@ public:
     Q_INVOKABLE void applyLastGeneratedQml();
     Q_INVOKABLE void sendThumbFeedback(bool up);
     Q_INVOKABLE void openModelSettings();
+    Q_INVOKABLE void openTermsDialog();
 
 signals:
+    void termsAcceptedChanged();
     void isGeneratingChanged();
     void hasValidModelChanged();
     void attachedImageSourceChanged();
@@ -91,6 +94,7 @@ private: // variables
     Manifest m_manifest;
     AiModelInfo m_modelInfo;
     int m_historyIndex = -1;
+    bool m_termsAccepted = false;
     bool m_isGenerating = false;
     bool m_hasValidModel = false;
 };

@@ -4,6 +4,7 @@
 #include "aiassistantwidget.h"
 
 #include "aiassistantconstants.h"
+#include "aiassistanttermsdialog.h"
 #include "aiassistantview.h"
 #include "aiprovidersettings.h"
 #include "airesponse.h"
@@ -173,6 +174,8 @@ AiAssistantWidget::AiAssistantWidget(AiAssistantView *view)
     : m_manager(Utils::makeUniqueObjectPtr<QNetworkAccessManager>())
     , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>())
     , m_view(view)
+    , m_termsAccepted(Core::ICore::settings()->value(Constants::aiAssistantTermsAcceptedKey, false)
+                          .toBool())
 {
     setWindowTitle(tr("AI Assistant", "Title of Ai Assistant widget"));
     setMinimumWidth(220);
@@ -367,6 +370,16 @@ void AiAssistantWidget::sendThumbFeedback(bool up)
 void AiAssistantWidget::openModelSettings()
 {
     Core::ICore::showOptionsDialog(Constants::aiAssistantProviderSettingsPage);
+}
+
+void AiAssistantWidget::openTermsDialog()
+{
+    AiAssistantTermsDialog dialog;
+    if (dialog.exec() == QDialog::Accepted) {
+        Core::ICore::settings()->setValue(Constants::aiAssistantTermsAcceptedKey, true);
+        m_termsAccepted = true;
+        emit termsAcceptedChanged();
+    }
 }
 
 void AiAssistantWidget::reloadQmlSource()

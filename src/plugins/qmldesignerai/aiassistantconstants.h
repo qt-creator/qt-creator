@@ -10,6 +10,7 @@ namespace QmlDesigner::Constants {
 using namespace Qt::StringLiterals;
 inline constexpr QByteArrayView aiAssistantSettingsKey = "AiAssistant"_L1;
 inline constexpr QByteArrayView aiAssistantProviderConfigKey = "ProviderConfig"_L1;
+inline constexpr QByteArrayView aiAssistantTermsAcceptedKey = "QML/Designer/AiTermsAccepted"_L1;
 
 inline constexpr char aiAssistantSettingsPageCategory[] = "ZW.AiAssistant";
 inline constexpr char aiAssistantProviderSettingsPage[] = "AiAssistant.A.ProviderSettings";

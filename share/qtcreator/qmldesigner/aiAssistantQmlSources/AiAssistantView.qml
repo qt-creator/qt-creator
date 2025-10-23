@@ -31,7 +31,7 @@ Rectangle {
                     required property string modelData
 
                     label: modelData
-                    enabled: !root.rootView.isGenerating && root.rootView.hasValidModel
+                    enabled: !root.rootView.isGenerating && root.rootView.hasValidModel && root.rootView.termsAccepted
 
                     onClicked: promptTextBox.text = modelData
                 }
@@ -82,7 +82,7 @@ Rectangle {
                                                   : StudioTheme.Values.controlStyle.text.disabled
 
                 tooltip: qsTr("Open AI assistant settings.")
-                enabled: !root.rootView.isGenerating
+                enabled: root.rootView.termsAccepted && !root.rootView.isGenerating
 
                 onClicked: root.rootView.openModelSettings()
             }
