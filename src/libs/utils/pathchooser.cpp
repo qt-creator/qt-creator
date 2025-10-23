@@ -14,6 +14,7 @@
 #include "optionpushbutton.h"
 #include "qtcprocess.h"
 #include "qtcassert.h"
+#include "tooltip/tooltip.h"
 #include "utilstr.h"
 
 #include <QFileDialog>
@@ -157,6 +158,28 @@ private:
     const PathChooser *m_pathChooser = nullptr;
 };
 
+class ExpandedValueEventFilter : public QObject
+{
+public:
+    ExpandedValueEventFilter(PathChooser *p) : QObject(p)
+    {
+        p->lineEdit()->installEventFilter(this);
+    }
+
+private:
+    bool eventFilter(QObject *o, QEvent *e) override
+    {
+        const auto p = qobject_cast<PathChooser *>(parent());
+        if (e->type() == QEvent::ToolTip && p->lineEdit()->toolTip().isEmpty()) {
+            const FilePath fp = p->filePath();
+            if (fp != p->unexpandedFilePath())
+                ToolTip::show(static_cast<QHelpEvent *>(e)->globalPos(), fp.toUserOutput());
+            return true;
+        }
+        return QObject::eventFilter(o, e);
+    }
+};
+
 // ------------------ PathChooserPrivate
 
 class PathChooserPrivate
@@ -247,6 +270,8 @@ PathChooser::PathChooser(QWidget *parent) :
     QWidget(parent),
     d(new PathChooserPrivate)
 {
+    new ExpandedValueEventFilter(this);
+
     d->m_hLayout->setContentsMargins(0, 0, 0, 0);
 
     d->m_lineEdit->setContextMenuPolicy(Qt::CustomContextMenu);
