@@ -9,10 +9,7 @@
 #include <cplusplus/PreprocessorClient.h>
 #include <cplusplus/DependencyTable.h>
 
-#include <utils/filepath.h>
-
 #include <QAtomicInt>
-#include <QByteArrayList>
 #include <QDateTime>
 #include <QFuture>
 #include <QHash>
@@ -24,8 +21,8 @@ class LookupContext;
 
 class CPLUSPLUS_EXPORT Document
 {
-    Document(const Document &other);
-    void operator =(const Document &other);
+    Document(const Document &other) = delete;
+    void operator =(const Document &other) = delete;
 
     Document(const Utils::FilePath &filePath);
 
