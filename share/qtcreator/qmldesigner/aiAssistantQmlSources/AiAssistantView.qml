@@ -31,7 +31,7 @@ Rectangle {
                     required property string modelData
 
                     label: modelData
-                    enabled: !root.rootView.isGenerating
+                    enabled: !root.rootView.isGenerating && root.rootView.hasValidModel
 
                     onClicked: promptTextBox.text = modelData
                 }

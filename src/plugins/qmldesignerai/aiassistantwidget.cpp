@@ -225,10 +225,12 @@ void AiAssistantWidget::updateModelConfig()
 
     if (aiModels.isEmpty()) {
         m_modelInfo = {};
+        setHasValidModel(false);
         return;
     }
 
     m_modelInfo = aiModels.first();
+    setHasValidModel(m_modelInfo.isValid());
 }
 
 void AiAssistantWidget::removeMissingAttachedImage()
@@ -379,6 +381,14 @@ void AiAssistantWidget::setIsGenerating(bool val)
     if (m_isGenerating != val) {
         m_isGenerating = val;
         emit isGeneratingChanged();
+    }
+}
+
+void AiAssistantWidget::setHasValidModel(bool val)
+{
+    if (m_hasValidModel != val) {
+        m_hasValidModel = val;
+        emit hasValidModelChanged();
     }
 }
 

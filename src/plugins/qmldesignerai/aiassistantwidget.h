@@ -31,6 +31,7 @@ class AiAssistantWidget : public QFrame
     Q_OBJECT
 
     Q_PROPERTY(bool isGenerating MEMBER m_isGenerating NOTIFY isGeneratingChanged FINAL)
+    Q_PROPERTY(bool hasValidModel MEMBER m_hasValidModel NOTIFY hasValidModelChanged FINAL)
     Q_PROPERTY(QString attachedImageSource READ attachedImageSource WRITE setAttachedImageSource
                    NOTIFY attachedImageSourceChanged FINAL)
 
@@ -60,6 +61,7 @@ public:
 
 signals:
     void isGeneratingChanged();
+    void hasValidModelChanged();
     void attachedImageSourceChanged();
 
     // from C++ to Qml
@@ -74,6 +76,7 @@ protected:
 private: // functions
     void reloadQmlSource();
     void setIsGenerating(bool val);
+    void setHasValidModel(bool val);
     void handleAiResponse(const AiResponse &response);
     bool isValidQmlCode(const QString &qmlCode) const;
 
@@ -89,6 +92,7 @@ private: // variables
     AiModelInfo m_modelInfo;
     int m_historyIndex = -1;
     bool m_isGenerating = false;
+    bool m_hasValidModel = false;
 };
 
 } // namespace QmlDesigner
