@@ -6,6 +6,7 @@
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
 #include "desktopprocesssignaloperation.h"
+#include "devicemanager.h"
 #include "idevice.h"
 #include "idevicewidget.h"
 
@@ -127,7 +128,7 @@ DesktopDevice::DesktopDevice()
     setDefaultDisplayName(Tr::tr("Local PC"));
     setDisplayType(Tr::tr("Desktop"));
 
-    setDeviceState(IDevice::DeviceReadyToUse);
+    DeviceManager::setDeviceState(id(), IDevice::DeviceReadyToUse, true);
     setMachineType(IDevice::Hardware);
     setOsType(HostOsInfo::hostOs());
 
