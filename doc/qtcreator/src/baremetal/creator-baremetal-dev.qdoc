@@ -34,14 +34,14 @@
             NXP Semiconductors (ColdFire, M68K), Texas Instruments (MSP430),
             National Semiconductor (CR16C), Renesas Electronics (M32R, M32C,
             RL78, RX, SuperH, V850), Tensilica XTENSA (ESP8266, ESP32), RISC-V,
-            Arm
+            \tm Arm
         \li \l{https://www.iar.com/iar-embedded-workbench/}{IAR EW}:
             Microchip Technology (AVR, AVR32), NXP Semiconductors
             (ColdFire, M68K), Texas Instruments (MSP430),
             National Semiconductor (CR16C), Renesas Electronics (78K,
             M16/R8C, M32C, R32C, RH850, RL78, RX, SuperH, V850),
-            STMicroelectronics (STM8), 8051, RISC-V, Arm
-        \li \l{https://www.keil.com/product/}{Keil}: Arm, C51 (8051),
+            STMicroelectronics (STM8), 8051, RISC-V, \tm Arm
+        \li \l{https://www.keil.com/product/}{Keil}: \tm Arm, C51 (8051),
             C251 (80251), C166 (C16x, XC16x)
         \li \l{http://sdcc.sourceforge.net/}{SDCC}: STMicroelectronics (STM8),
             8051
@@ -83,7 +83,7 @@
 
     \title Set up EBlink
 
-    \l{https://github.com/EmBitz/EBlink}{EBlink} is an ARM Cortex-M debug tool
+    \l{https://github.com/EmBitz/EBlink}{EBlink} is an Arm Cortex-M debug tool
     that supports squirrel scripting, live variables, and hot-plugging.
 
     \image {qtcreator-baremetal-eblink.webp} {EBlink in the Bare Metal tab in Devices preferences}
@@ -170,9 +170,9 @@
     \title Set up OpenOCD
 
     \l{http://openocd.org}{OpenOCD} (Open On-Chip Debugger) is an on-chip debug
-    solution for targets based on the ARM7 and ARM9 family with Embedded-ICE
+    solution for targets based on the \tm Arm7 and \tm Arm9 family with Embedded-ICE
     (JTAG) facility. It enables source level debugging with the GDB compiled
-    for the ARM architecture.
+    for the \tm Arm architecture.
 
     \image {qtcreator-baremetal-openocd.webp} {OpenOCD in the Bare Metal tab in Devices preferences}
 

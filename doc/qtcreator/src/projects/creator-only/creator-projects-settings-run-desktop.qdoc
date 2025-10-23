@@ -22,7 +22,8 @@
     and the working directory to use. The working directory defaults to
     the directory of the build result.
 
-    Select \uicontrol {Add Deploy Step} > \uicontrol {CMake Install} to add the
+    Select \uicontrol {Deploy Settings} > \uicontrol {Add Deploy Step} >
+    \uicontrol {CMake Install} to add the
     \l{https://cmake.org/cmake/help/latest/manual/cmake.1.html#install-a-project}
     {install} option. It runs installation without using the generated build
     system or the native build tool. \QC automatically adds the value of the
@@ -50,7 +51,7 @@
     To disable library linking for the current project, clear
     \uicontrol {Add build library search path to PATH}. To disable
     library linking for all projects, go to \preferences >
-    \uicontrol {Build & Run} and then clear
+    \uicontrol {Build & Run} > \uicontrol General and then clear
     \uicontrol {Add linker library search paths to run environment}.
 
     \section1 Debugging Linked Frameworks
