@@ -320,8 +320,89 @@ void IDevice::autoDetectDeviceTools()
         toolAspect->setValueAlternatives(candidates);
 
         if (!candidates.isEmpty())
-            toolAspect->setValue(candidates.front());
+            toolAspect->setDefaultPathValue(candidates.front());
     }
+}
+
+Group IDevice::autoDetectDeviceToolsRecipe()
+{
+    struct Data
+    {
+        DeviceToolAspectFactory *factory;
+        FilePaths searchPaths;
+        FilePaths patterns;
+        FilePath currentValue;
+        FilePaths candidates = {};
+    };
+
+    QList<Data> datas;
+
+    for (DeviceToolAspectFactory *factory : theDeviceToolFactories) {
+        FilePaths patterns = FilePaths::fromStrings(factory->filePattern());
+        patterns.setSchemeAndHost(rootPath());
+
+        DeviceToolAspect *toolAspect = d->deviceToolAspects.value(factory->toolId());
+        QTC_ASSERT(toolAspect, continue);
+        datas << Data{factory, d->autoDetectionPaths(), patterns, toolAspect->expandedValue()};
+    }
+
+    const ListIterator iterator(datas);
+
+    std::weak_ptr<IDevice> weakDevice = shared_from_this();
+
+    const auto onSetupSearch = [weakDevice, iterator](Async<Data> &task) {
+        std::shared_ptr<IDevice> device = weakDevice.lock();
+        if (!device)
+            return;
+
+        static const auto searchForTools = [](Data data, IDeviceConstPtr device) -> Data {
+            for (const FilePath &pattern : data.patterns) {
+                FilePaths candidates = Utils::filtered(
+                    pattern.searchAllInDirectories(data.searchPaths), [&](const FilePath &toolPath) {
+                        // We assume that check() is thread safe to call.
+                        return data.factory->check(device, toolPath);
+                    });
+
+                data.candidates.append(candidates);
+            }
+            if (!data.currentValue.isEmpty()) {
+                if (!data.currentValue.isExecutableFile())
+                    data.currentValue.clear();
+            }
+            return data;
+        };
+
+        task.setConcurrentCallData(searchForTools, *iterator, device);
+    };
+
+    const auto onSearchDone = [weakDevice, iterator](const Async<Data> &task) {
+        std::shared_ptr<IDevice> device = weakDevice.lock();
+        if (!device)
+            return;
+
+        const Data data = task.result();
+
+        DeviceToolAspect *toolAspect = device->d->deviceToolAspects.value(
+            iterator->factory->toolId());
+        QTC_ASSERT(toolAspect, return);
+        toolAspect->setValueAlternatives(data.candidates);
+
+        const FilePath newValue = [&] {
+            if (!data.currentValue.isEmpty())
+                return data.currentValue;
+            if (!data.candidates.isEmpty())
+                return data.candidates.front();
+            return FilePath{};
+        }();
+
+        toolAspect->setValue(newValue);
+    };
+
+    // clang-format off
+    return Group {
+        For(iterator) >> Do { AsyncTask<Data>(onSetupSearch, onSearchDone) }
+    };
+    // clang-format on
 }
 
 DeviceToolAspect *DeviceToolAspectFactory::createAspect(const DeviceConstRef &device) const
@@ -473,7 +554,7 @@ IDevice::IDevice()
 
 IDevice::~IDevice() = default;
 
-void IDevice::init()
+void IDevice::initDeviceToolAspects()
 {
     // shared_from_this doesn't work in the ctor.
     for (const DeviceToolAspectFactory *factory : theDeviceToolFactories) {
@@ -786,7 +867,7 @@ QIcon IDevice::overlayIcon() const
     }
     case IDevice::DeviceDisconnected: {
         static const QIcon disconnected = Icons::DEVICE_DISCONNECTED_INDICATOR_OVERLAY.icon();
-        return  disconnected;
+        return disconnected;
     }
     }
     return QIcon();

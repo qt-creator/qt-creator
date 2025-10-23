@@ -124,6 +124,7 @@
 #include <utils/async.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
+#include <utils/globaltasktree.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
 #include <utils/processinterface.h>
@@ -2043,8 +2044,6 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
              return Environment::systemEnvironment();
          }});
 
-    DeviceManager::addDevice(IDevice::Ptr(new DesktopDevice));
-
     setupWorkspaceProject(this);
 
     return ResultOk;
@@ -2168,6 +2167,8 @@ void ProjectExplorerPluginPrivate::closeAllProjects()
 
 void ProjectExplorerPlugin::extensionsInitialized()
 {
+    DeviceManager::addDevice(dd->m_desktopDeviceFactory.construct());
+
     CustomWizard::createWizards();
     IWizardFactory::registerFactoryCreator(
         [] { return JsonWizardFactory::createWizardFactories(); });

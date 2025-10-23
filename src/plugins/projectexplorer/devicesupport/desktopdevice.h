@@ -36,7 +36,7 @@ public:
     Utils::FilePath rootPath() const override;
     Utils::FilePath filePath(const QString &pathOnDevice) const override;
 
-    void fromMap(const Utils::Store &map) override;
+    void initDeviceToolAspects() override;
 
 protected:
     DesktopDevice();

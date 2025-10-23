@@ -18,6 +18,7 @@
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/globaltasktree.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
@@ -431,9 +432,10 @@ FilePath DesktopDevice::rootPath() const
     return IDevice::rootPath();
 }
 
-void DesktopDevice::fromMap(const Store &map)
+void DesktopDevice::initDeviceToolAspects()
 {
-    IDevice::fromMap(map);
+    IDevice::initDeviceToolAspects();
+    GlobalTaskTree::start(autoDetectDeviceToolsRecipe());
 }
 
 } // namespace ProjectExplorer

@@ -319,6 +319,7 @@ public:
     virtual bool supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const;
 
     void autoDetectDeviceTools();
+    QtTaskTree::Group autoDetectDeviceToolsRecipe();
 
     virtual Utils::Result<> supportsBuildingProject(const Utils::FilePath &projectDir) const;
 
@@ -344,11 +345,11 @@ protected:
     void setFileAccess(Utils::DeviceFileAccessPtr fileAccess);
     void setFileAccessFactory(std::function<Utils::DeviceFileAccessPtr()> fileAccessFactory);
 
+    virtual void initDeviceToolAspects();
+
 private:
     IDevice(const IDevice &) = delete;
     IDevice &operator=(const IDevice &) = delete;
-
-    void init();
 
     int version() const;
     void setFromSdk();
