@@ -118,8 +118,8 @@ def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
 
     fixedBuildSystems = list(availableBuildSystems)
     displayedAvailableBS = dumpItems(waitForObject(combo, 2000).model())
-    if "CMake for Qt 5 and Qt 6" in displayedAvailableBS:
-        fixedBuildSystems.append("CMake for Qt 5 and Qt 6")
+    if "CMake with Qt 5 Compatibility" in displayedAvailableBS:
+        fixedBuildSystems.append("CMake with Qt 5 Compatibility")
     if template == 'Qt Quick 2 Extension Plugin':
         fixedBuildSystems.remove('Qbs')
         test.log("Skipped Qbs (not supported).")
@@ -127,7 +127,7 @@ def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
     for counter, buildSystem in enumerate(fixedBuildSystems):
         test.log("Using build system '%s'" % buildSystem)
 
-        if buildSystem == "CMake" and "CMake for Qt 5 and Qt 6" in fixedBuildSystems:
+        if buildSystem == "CMake" and "CMake with Qt 5 Compatibility" in fixedBuildSystems:
             __removeKitsBeforeQt65__(displayedPlatforms)
         selectFromCombo(combo, buildSystem)
         clickButton(waitForObject(":Next_QPushButton"))
