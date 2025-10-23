@@ -661,7 +661,7 @@ MimeTypeSettingsPage::UserMimeTypeHash MimeTypeSettingsPage::readUserModifiedMim
 {
     static Utils::FilePath modifiedMimeTypesPath = ICore::userResourcePath(kModifiedMimeTypesFile);
     UserMimeTypeHash userMimeTypes;
-    QFile file(modifiedMimeTypesPath.toUrlishString());
+    QFile file(modifiedMimeTypesPath.toFSPathString());
     if (file.open(QFile::ReadOnly)) {
         UserMimeType mt;
         QXmlStreamReader reader(&file);
