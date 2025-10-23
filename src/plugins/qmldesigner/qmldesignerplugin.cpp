@@ -275,22 +275,8 @@ Utils::Result<> QmlDesignerPlugin::initialize(const QStringList &)
     Sqlite::LibraryInitializer::initialize();
     QDir{}.mkpath(Core::ICore::cacheResourcePath().toUrlishString());
 
-    if (Core::ICore::isQtDesignStudio()) {
-        QAction *action = new QAction(tr("Give Feedback..."), this);
-        action->setVisible(false); // keep hidden unless UsageStatistic plugin activates it
-        Core::Command *cmd = Core::ActionManager::registerAction(action, "Help.GiveFeedback");
-        Core::ActionManager::actionContainer(Core::Constants::M_HELP)
-            ->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
-
-        connect(action, &QAction::triggered, this, [this] {
-            launchFeedbackPopupInternal(QGuiApplication::applicationDisplayName());
-        });
-    }
-
     d = new QmlDesignerPluginPrivate;
     d->timer.start();
-    if (Core::ICore::isQtDesignStudio())
-        QmlProjectManager::QmlProjectExporter::ResourceGenerator::generateMenuEntry(this);
 
     const QString fontPath
         = Core::ICore::resourcePath(
@@ -312,11 +298,6 @@ Utils::Result<> QmlDesignerPlugin::initialize(const QStringList &)
         const QString composedTitle = title.isEmpty() ? Tr::tr("Error") : title.toString();
         Core::AsynchronousMessageBox::warning(composedTitle, description.toString());
     });
-
-    if (Core::ICore::isQtDesignStudio()) {
-        d->toolBar = ToolBar::create();
-        d->statusBar = ToolBar::createStatusBar();
-    }
 
     return Utils::ResultOk;
 }
@@ -354,23 +335,6 @@ void QmlDesignerPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlDesignerPlugin::aboutToShutdown()
 {
-    if (!ICore::isQtDesignStudio() || !Utils::CheckableDecider("FeedbackPopup").shouldAskAgain())
-        return SynchronousShutdown;
-
-    Utils::QtcSettings *settings = Core::ICore::settings();
-
-    int shutdownCount = settings->value("ShutdownCount", 0).toInt();
-    settings->setValue("ShutdownCount", ++shutdownCount);
-
-    if (!settings->value("UsageStatistic/TrackingEnabled").toBool())
-        return SynchronousShutdown;
-
-    if (shutdownCount >= 5) {
-        m_shutdownPending = true;
-        launchFeedbackPopupInternal(QGuiApplication::applicationDisplayName());
-        return AsynchronousShutdown;
-    }
-
     return SynchronousShutdown;
 }
 
@@ -691,21 +655,6 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
     d->viewManager.registerFormEditorTool(std::make_unique<TransitionTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<View3DTool>());
 
-    if (Core::ICore::isQtDesignStudio()) {
-        d->mainWidget.initialize();
-
-        if (QmlProjectManager::QmlProject::isQtDesignStudioStartedFromQtC())
-            emitUsageStatistics("QDSlaunchedFromQtC");
-
-        FoundLicense license = checkLicense();
-        if (license == FoundLicense::enterprise)
-            Core::ICore::setPrependAboutInformation("License: Enterprise");
-        else if (license == FoundLicense::professional)
-            Core::ICore::setPrependAboutInformation("License: Professional");
-        else if (license == FoundLicense::community)
-            Core::ICore::setPrependAboutInformation("License: Community");
-    }
-
     m_delayedInitialized = true;
 }
 
@@ -831,78 +780,6 @@ void QmlDesignerPlugin::registerCombinedTracedPoints(const QString &identifierFi
                                                         TraceIdentifierData(identifierSecond,
                                                                             newIdentifier,
                                                                             maxDuration));
-}
-
-void QmlDesignerPlugin::launchFeedbackPopup(const QString &identifier)
-{
-    if (Core::ModeManager::currentModeId() == Core::Constants::MODE_DESIGN)
-        launchFeedbackPopupInternal(identifier);
-}
-
-void QmlDesignerPlugin::handleFeedback(const QString &feedback, int rating)
-{
-    const QString identifier = sender()->property("identifier").toString();
-    emit usageStatisticsInsertFeedback(identifier, feedback, rating);
-}
-
-void QmlDesignerPlugin::launchFeedbackPopupInternal(const QString &identifier)
-{
-    if (!ICore::isQtDesignStudio())
-        return;
-
-    m_feedbackWidget = new QQuickWidget(Core::ICore::dialogParent());
-    m_feedbackWidget->setObjectName(Constants::OBJECT_NAME_TOP_FEEDBACK);
-
-    const QString qmlPath = Core::ICore::resourcePath("qmldesigner/feedback/FeedbackPopup.qml").toUrlishString();
-
-    m_feedbackWidget->setSource(QUrl::fromLocalFile(qmlPath));
-    if (Utils::HostOsInfo::isLinuxHost()) {
-        QPoint pos = Core::ICore::dialogParent()->pos();
-        int x = (Core::ICore::dialogParent()->width() - m_feedbackWidget->width()) / 2;
-        int y = (Core::ICore::dialogParent()->height() - m_feedbackWidget->height()) / 2;
-        m_feedbackWidget->move(pos.x() + x, pos.y() + y);
-    }
-    if (!m_feedbackWidget->errors().isEmpty()) {
-        qDebug() << qmlPath;
-        qDebug() << m_feedbackWidget->errors().first().toString();
-    }
-    m_feedbackWidget->setWindowModality(Qt::ApplicationModal);
-    if (Utils::HostOsInfo::isMacHost())
-        m_feedbackWidget->setWindowFlags(Qt::Dialog);
-    else
-        m_feedbackWidget->setWindowFlags(Qt::SplashScreen);
-    m_feedbackWidget->setAttribute(Qt::WA_DeleteOnClose);
-
-    QQuickItem *root = m_feedbackWidget->rootObject();
-
-    QTC_ASSERT(root, return );
-
-    QObject *title = root->findChild<QObject *>("title");
-    QString name = Tr::tr("Enjoying %1?").arg(identiferToDisplayString(identifier));
-    title->setProperty("text", name);
-    root->setProperty("identifier", identifier);
-
-    connect(root, SIGNAL(closeClicked()), this, SLOT(closeFeedbackPopup()));
-
-    QObject::connect(root,
-                     SIGNAL(submitFeedback(QString, int)),
-                     this,
-                     SLOT(handleFeedback(QString, int)));
-
-    m_feedbackWidget->show();
-}
-
-void QmlDesignerPlugin::closeFeedbackPopup()
-{
-    if (m_feedbackWidget) {
-        m_feedbackWidget->deleteLater();
-        m_feedbackWidget = nullptr;
-    }
-
-    if (m_shutdownPending) {
-        Utils::CheckableDecider("FeedbackPopup").doNotAskAgain();
-        emit asynchronousShutdownFinished();
-    }
 }
 
 void QmlDesignerPlugin::emitUsageStatisticsTime(const QString &identifier, int elapsed)

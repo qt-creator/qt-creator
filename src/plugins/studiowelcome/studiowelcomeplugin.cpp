@@ -600,20 +600,6 @@ void StudioWelcomePlugin::extensionsInitialized()
 {
     Core::ModeManager::activateMode(m_welcomeMode->id());
 
-    // Enable QDS new project dialog and QDS wizards
-    if (Core::ICore::isQtDesignStudio()) {
-        ProjectExplorer::JsonWizardFactory::setInstalledWizardsPath(
-            Core::ICore::resourcePath("qmldesigner/studio_templates"));
-
-        Core::ICore::setNewDialogFactory([](QWidget *parent) { return new QdsNewDialog(parent); });
-
-        const QString filters = QString("Project (*.qmlproject);;UI file (*.ui.qml);;QML file "
-                                        "(*.qml);;JavaScript file (*.js);;%1")
-                                    .arg(Core::DocumentManager::allFilesFilterString());
-
-        Core::DocumentManager::setFileDialogFilter(filters);
-    }
-
     if (showSplashScreen()) {
         connect(Core::ICore::instance(), &Core::ICore::coreOpened, this, [this] {
             NANOTRACE_SCOPE("StudioWelcome",

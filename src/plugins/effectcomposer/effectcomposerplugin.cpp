@@ -10,11 +10,6 @@
 
 namespace EffectComposer {
 
-static bool enableEffectComposer()
-{
-    return Core::ICore::isQtDesignStudio();
-}
-
 class EffectComposerPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -28,27 +23,6 @@ public:
     {
         EffectComposerView::registerDeclarativeTypes();
     }
-
-    bool delayedInitialize() override
-    {
-        if (m_delayedInitialized)
-            return true;
-
-        if (enableEffectComposer()) {
-            auto *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
-            auto &viewManager = designerPlugin->viewManager();
-
-            viewManager.registerView(std::make_unique<EffectComposerView>(
-                QmlDesigner::QmlDesignerPlugin::externalDependenciesForPluginInitializationOnly()));
-        }
-
-        m_delayedInitialized = true;
-
-        return true;
-    }
-
-private:
-    bool m_delayedInitialized = false;
 };
 
 } // namespace EffectComposer

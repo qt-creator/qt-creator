@@ -159,9 +159,7 @@ static void addThemesFromPath(const QString &path, QList<ThemeEntry> *themes)
     const QStringList themeList = themeDir.entryList();
     for (const QString &fileName : std::as_const(themeList)) {
         QString id = QFileInfo(fileName).completeBaseName();
-        const bool addTheme = Core::ICore::isQtDesignStudio() == id.startsWith("design");
-        if (addTheme)
-            themes->append(ThemeEntry(Id::fromString(id), themeDir.absoluteFilePath(fileName)));
+        themes->append(ThemeEntry(Id::fromString(id), themeDir.absoluteFilePath(fileName)));
     }
 }
 

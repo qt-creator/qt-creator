@@ -106,21 +106,6 @@ public:
 
 static McuSupportPluginPrivate *dd{nullptr};
 
-static bool isQtMCUsProject(ProjectExplorer::Project *p)
-{
-    if (!Core::ICore::isQtDesignStudio())
-        // should be unreachable
-        printMessage("Testing if the QDS project is an MCU project outside the QDS", true);
-
-    if (!p || !p->rootProjectNode())
-        return false;
-
-    BuildSystem *bs = p->activeBuildSystem();
-    if (!bs)
-        return false;
-    return bs->additionalData("CustomQtForMCUs").toBool();
-}
-
 static void askUserAboutMcuSupportKitsSetup()
 {
     InfoBar *infoBar = ICore::popupInfoBar();
@@ -204,63 +189,39 @@ void McuSupportPlugin::initialize()
     // Temporary fix for CodeModel/Checker race condition
     // Remove after https://bugreports.qt.io/browse/QTCREATORBUG-29269 is closed
 
-    if (!Core::ICore::isQtDesignStudio()) {
-        connect(
-            QmlJS::ModelManagerInterface::instance(),
-            &QmlJS::ModelManagerInterface::documentUpdated,
-            [lasttime = QTime::currentTime()](QmlJS::Document::Ptr doc) mutable {
-                // Prevent inifinite recall loop
-                auto currenttime = QTime::currentTime();
-                if (lasttime.msecsTo(currenttime) < 1000) {
-                    lasttime = currenttime;
-                    return;
-                }
+    connect(
+        QmlJS::ModelManagerInterface::instance(),
+        &QmlJS::ModelManagerInterface::documentUpdated,
+        [lasttime = QTime::currentTime()](QmlJS::Document::Ptr doc) mutable {
+            // Prevent inifinite recall loop
+            auto currenttime = QTime::currentTime();
+            if (lasttime.msecsTo(currenttime) < 1000) {
                 lasttime = currenttime;
+                return;
+            }
+            lasttime = currenttime;
 
-                if (!doc)
-                    return;
-                //Reset code model only for QtMCUs documents
-                const Project *project = ProjectManager::projectForFile(doc->path());
-                if (!project)
-                    return;
-                const QList<Target *> targets = project->targets();
-                bool isMcuDocument
-                    = std::any_of(std::begin(targets), std::end(targets), [](const Target *target) {
-                          if (!target || !target->kit()
-                              || !target->kit()->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY))
-                              return false;
-                          return true;
-                      });
-                if (!isMcuDocument)
-                    return;
+            if (!doc)
+                return;
+            //Reset code model only for QtMCUs documents
+            const Project *project = ProjectManager::projectForFile(doc->path());
+            if (!project)
+                return;
+            const QList<Target *> targets = project->targets();
+            bool isMcuDocument
+                = std::any_of(std::begin(targets), std::end(targets), [](const Target *target) {
+                      if (!target || !target->kit()
+                          || !target->kit()->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY))
+                          return false;
+                      return true;
+                  });
+            if (!isMcuDocument)
+                return;
 
-                Core::ActionManager::command(QmlJSTools::Constants::RESET_CODEMODEL)
-                    ->action()
-                    ->trigger();
-            });
-    } else {
-        // Only in design studio
-        connect(ProjectManager::instance(),
-                &ProjectManager::projectFinishedParsing,
-                [&](ProjectExplorer::Project *p) {
-                    InfoBar *infoBar = ICore::popupInfoBar();
-                    if (!isQtMCUsProject(p) || !infoBar->canInfoBeAdded(qdsMcuDocInfoEntry))
-                        return;
-                    Utils::InfoBarEntry docInfo(
-                        qdsMcuDocInfoEntry,
-                        Tr::tr("Read about using Qt Design Studio for Qt for MCUs."),
-                        Utils::InfoBarEntry::GlobalSuppression::Enabled);
-                    docInfo.addCustomButton(
-                        Tr::tr("Go to the Documentation"),
-                        [] {
-                            QDesktopServices::openUrl(
-                                QUrl("https://doc.qt.io/qtdesignstudio/studio-on-mcus.html"));
-                        },
-                        {},
-                        InfoBarEntry::ButtonAction::Suppress);
-                    infoBar->addInfo(docInfo);
-                });
-    }
+            Core::ActionManager::command(QmlJSTools::Constants::RESET_CODEMODEL)
+                ->action()
+                ->trigger();
+        });
 
     dd->m_options.registerQchFiles();
     dd->m_options.registerExamples();

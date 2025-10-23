@@ -231,7 +231,7 @@ static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrP
 
 void GeneralSettingsWidget::fillLanguageBox() const
 {
-    const QString currentLocale = Core::ICore::isQtDesignStudio() ? QString("C") : language();
+    const QString currentLocale = language();
 
     m_languageBox->addItem(Tr::tr("<System Language>"), QString());
 

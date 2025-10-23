@@ -463,16 +463,10 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
     m_askBeforeDeletingAssetCheckBox->setChecked(
         settings.value(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET).toBool());
 
-#ifdef QT_DEBUG
-    const auto showDebugSettings = true;
-#else
-    const auto showDebugSettings = settings.value(DesignerSettingsKey::SHOW_DEBUG_SETTINGS).toBool();
-#endif
-    const bool showAdvancedFeatures = !Core::ICore::isQtDesignStudio() || showDebugSettings;
-    m_qmlPuppetGroupBox->setVisible(showAdvancedFeatures);
-    m_debugGroupBox->setVisible(showAdvancedFeatures);
-    m_featureTimelineEditorCheckBox->setVisible(Core::ICore::isQtDesignStudio());
-    m_featureDockWidgetContentMinSize->setVisible(Core::ICore::isQtDesignStudio());
+    m_qmlPuppetGroupBox->setVisible(true);
+    m_debugGroupBox->setVisible(true);
+    m_featureTimelineEditorCheckBox->setVisible(false);
+    m_featureDockWidgetContentMinSize->setVisible(false);
     m_smoothRendering->setChecked(settings.value(DesignerSettingsKey::SMOOTH_RENDERING).toBool());
 
     m_alwaysAutoFormatUICheckBox->setChecked(

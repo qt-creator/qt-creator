@@ -1993,17 +1993,16 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &addMouseAreaFillCheck,
                           &singleSelection));
 
-    if (!Core::ICore::isQtDesignStudio()) {
-        addDesignerAction(new ModelNodeContextMenuAction(goToImplementationCommandId,
-                                                         goToImplementationDisplayName,
-                                                         {},
-                                                         rootCategory,
-                                                         QKeySequence(),
-                                                         42,
-                                                         &goImplementation,
-                                                         &singleSelectedAndUiFile,
-                                                         &singleSelectedAndUiFile));
-    }
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          goToImplementationCommandId,
+                          goToImplementationDisplayName,
+                          {},
+                          rootCategory,
+                          QKeySequence(),
+                          42,
+                          &goImplementation,
+                          &singleSelectedAndUiFile,
+                          &singleSelectedAndUiFile));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           editIn3dViewCommandId,

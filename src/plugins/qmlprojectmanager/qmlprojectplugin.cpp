@@ -185,17 +185,6 @@ void openInQds(const FilePath &filePath)
     }
 }
 
-static QmlBuildSystem *qmlBuildSystemforFileNode(const FileNode *fileNode)
-{
-    if (!fileNode)
-        return nullptr;
-
-    if (QmlProject *qmlProject = qobject_cast<QmlProject*>(fileNode->getProject()))
-        return qobject_cast<QmlProjectManager::QmlBuildSystem *>(qmlProject->activeBuildSystem());
-
-    return nullptr;
-}
-
 class ExternalDesignStudioFactory : public Core::IEditorFactory
 {
 public:
@@ -406,116 +395,6 @@ void QmlProjectPlugin::initialize()
     setupQmlBuildConfiguration();
     FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png",
                                                    "qmlproject");
-
-    if (ICore::isQtDesignStudio()) {
-        ActionContainer *menu = ActionManager::actionContainer(
-            ProjectExplorer::Constants::M_FILECONTEXT);
-        QAction *mainfileAction = new QAction(Tr::tr("Set as Main .qml File"), this);
-        mainfileAction->setEnabled(false);
-
-        connect(mainfileAction, &QAction::triggered, this, []() {
-            const Node *currentNode = ProjectTree::currentNode();
-            if (!currentNode || !currentNode->asFileNode()
-                || currentNode->asFileNode()->fileType() != FileType::QML)
-                return;
-
-            const FilePath file = currentNode->filePath();
-
-            QmlBuildSystem *buildSystem = qmlBuildSystemforFileNode(currentNode->asFileNode());
-            if (buildSystem)
-                buildSystem->setMainFileInProjectFile(file);
-        });
-
-        menu->addAction(ActionManager::registerAction(
-                            mainfileAction,
-                            "QmlProject.setMainFile",
-                            Context(ProjectExplorer::Constants::C_PROJECT_TREE)),
-                        ProjectExplorer::Constants::G_FILE_OTHER);
-        mainfileAction->setVisible(false);
-        connect(ProjectTree::instance(),
-                &ProjectTree::currentNodeChanged,
-                mainfileAction,
-                [mainfileAction](Node *node) {
-                    const FileNode *fileNode = node ? node->asFileNode() : nullptr;
-
-                    const bool isVisible = fileNode && fileNode->fileType() == FileType::QML
-                                           && fileNode->filePath().completeSuffix() == "qml";
-
-                    mainfileAction->setVisible(isVisible);
-
-                    if (!isVisible)
-                        return;
-
-                    QmlBuildSystem *buildSystem = qmlBuildSystemforFileNode(fileNode);
-
-                    if (buildSystem)
-                        mainfileAction->setEnabled(buildSystem->mainFilePath()
-                                                   != fileNode->filePath());
-                });
-
-        QAction *mainUifileAction = new QAction(Tr::tr("Set as Main .ui.qml File"), this);
-        mainUifileAction->setEnabled(false);
-
-        connect(mainUifileAction, &QAction::triggered, this, []() {
-            const Node *currentNode = ProjectTree::currentNode();
-            if (!currentNode || !currentNode->asFileNode()
-                || currentNode->asFileNode()->fileType() != FileType::QML)
-                return;
-
-            const FilePath file = currentNode->filePath();
-
-            QmlBuildSystem *buildSystem = qmlBuildSystemforFileNode(currentNode->asFileNode());
-            if (buildSystem)
-                buildSystem->setMainUiFileInProjectFile(file);
-        });
-
-        menu->addAction(ActionManager::registerAction(
-                            mainUifileAction,
-                            "QmlProject.setMainUIFile",
-                            Core::Context(ProjectExplorer::Constants::C_PROJECT_TREE)),
-                        ProjectExplorer::Constants::G_FILE_OTHER);
-        mainUifileAction->setVisible(false);
-        connect(ProjectTree::instance(),
-                &ProjectTree::currentNodeChanged,
-                mainUifileAction,
-                [mainUifileAction](Node *node) {
-                    const FileNode *fileNode = node ? node->asFileNode() : nullptr;
-                    const bool isVisible = fileNode && fileNode->fileType() == FileType::QML
-                                           && fileNode->filePath().completeSuffix() == "ui.qml";
-
-                    mainUifileAction->setVisible(isVisible);
-
-                    if (!isVisible)
-                        return;
-
-                    QmlBuildSystem *buildSystem = qmlBuildSystemforFileNode(fileNode);
-                    if (buildSystem)
-                        mainUifileAction->setEnabled(buildSystem->mainUiFilePath()
-                                                     != fileNode->filePath());
-                });
-
-        connect(EditorManager::instance(),
-                &EditorManager::documentOpened,
-                this,
-                [](Core::IDocument *document) {
-                    if (!ProjectManager::startupProject()
-                        && document->filePath().completeSuffix() == "ui.qml") {
-                        QTimer::singleShot(1000, [document]() {
-                            if (ProjectManager::startupProject())
-                                return;
-
-                            const Utils::FilePath fileName = Utils::FilePath::fromString(
-                                document->filePath().toUrlishString() + Constants::fakeProjectName);
-                            auto result = ProjectExplorer::ProjectExplorerPlugin::openProjects(
-                                {fileName});
-                            QTC_ASSERT(result.project(), return);
-                        });
-                    }
-                });
-
-        QmlProjectExporter::CMakeGenerator::createMenuAction(this);
-        QmlProjectExporter::PythonGenerator::createMenuAction(this);
-    }
 }
 
 void QmlProjectPlugin::displayQmlLandingPage()

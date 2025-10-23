@@ -44,15 +44,8 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setDisplayName(fileName.completeBaseName());
 
     setSupportsBuilding(false);
-    setIsEditModePreferred(!Core::ICore::isQtDesignStudio());
+    setIsEditModePreferred(true);
     setBuildSystemCreator<QmlBuildSystem>("qml");
-
-    if (Core::ICore::isQtDesignStudio()) {
-        if (allowOnlySingleProject() && !fileName.endsWith(Constants::fakeProjectName)) {
-            EditorManager::closeAllDocuments();
-            ProjectManager::closeAllProjects();
-        }
-    }
 
     if (fileName.endsWith(Constants::fakeProjectName)) {
         auto uiFile = fileName.toUrlishString();
@@ -109,14 +102,6 @@ Project::RestoreResult QmlProject::fromMap(const Store &map, QString *errorMessa
                 addTargetForDefaultKit();
             else
                 addTargetForKit(kits.first());
-        }
-
-        // FIXME: are there any other way?
-        // What if it's not a Design Studio project? What should we do then?
-        if (Core::ICore::isQtDesignStudio()) {
-            int preferedVersion = preferedQtTarget(activeTarget());
-
-            setKitWithVersion(preferedVersion, kits);
         }
     }
 

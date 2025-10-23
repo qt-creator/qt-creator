@@ -176,15 +176,8 @@ inline bool singleSelectionView3D(const SelectionContext &selectionState)
     return false;
 }
 
-inline bool singleSelectionEffectComposer(const SelectionContext &selectionState)
+inline bool singleSelectionEffectComposer(const SelectionContext &)
 {
-    if (!Core::ICore::isQtDesignStudio())
-        return false;
-
-    if (selectionState.hasSingleSelectedModelNode()) {
-        QmlItemNode targetNode = selectionState.currentSingleSelectedNode();
-        return targetNode.isEffectItem();
-    }
     return false;
 }
 

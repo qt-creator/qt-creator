@@ -58,7 +58,6 @@ private:
 
     FilePath mainScript() const;
     FilePath qmlRuntimeFilePath() const;
-    void setupQtVersionAspect();
 
     FilePathAspect qmlViewer{this};
     ArgumentsAspect arguments{this};
@@ -123,10 +122,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(BuildConfiguration *bc, I
 
     connect(&qmlMainFile, &BaseAspect::changed, this, &RunConfiguration::update);
 
-    if (Core::ICore::isQtDesignStudio())
-        setupQtVersionAspect();
-    else
-        qtversion.setVisible(false);
+    qtversion.setVisible(false);
 
     if (auto bs = qobject_cast<const QmlBuildSystem *>(buildSystem()))
         multiLanguage.setValue(bs->multilanguageSupport());
@@ -222,68 +218,6 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
     // If not given explicitly by run device, nor Qt, try to pick
     // it from $PATH on the run device.
     return dev ? dev->filePath("qml").searchInPath() : "qml";
-}
-
-void QmlProjectRunConfiguration::setupQtVersionAspect()
-{
-    if (!Core::ICore::isQtDesignStudio())
-        return;
-
-    qtversion.setSettingsKey("QmlProjectManager.kit");
-    qtversion.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    qtversion.setLabelText(Tr::tr("Qt Version:"));
-
-    QtVersion *version = QtKitAspect::qtVersion(kit());
-
-    if (version) {
-        const QmlBuildSystem *buildSystem = qobject_cast<QmlBuildSystem *>(this->buildSystem());
-        const bool isQt6Project = buildSystem && buildSystem->qt6Project();
-
-        if (isQt6Project) {
-            qtversion.addOption(Tr::tr("Qt 6"));
-            qtversion.setReadOnly(true);
-        } else { /* Only if this is not a Qt 6 project changing kits makes sense */
-            qtversion.addOption(Tr::tr("Qt 5"));
-            qtversion.addOption(Tr::tr("Qt 6"));
-
-            const int valueForVersion = version->qtVersion().majorVersion() == 6 ? 1 : 0;
-
-            qtversion.setValue(valueForVersion);
-
-            connect(&qtversion, &BaseAspect::changed, this, [this] {
-                auto project = this->project();
-                QTC_ASSERT(project, return );
-
-                int oldValue = !qtversion();
-                const int preferedQtVersion = qtversion() > 0 ? 6 : 5;
-                Kit *currentKit = kit();
-
-                const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [&](const Kit *k) {
-                    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
-                    return (version && version->qtVersion().majorVersion() == preferedQtVersion)
-                           && RunDeviceTypeKitAspect::deviceTypeId(k)
-                                  == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-                });
-
-                if (kits.contains(currentKit))
-                    return;
-
-                if (!kits.isEmpty()) {
-                    auto newTarget = project->target(kits.first());
-                    if (!newTarget)
-                        newTarget = project->addTargetForKit(kits.first());
-
-                    project->setActiveTarget(newTarget, SetActive::Cascade);
-
-                    /* Reset the aspect. We changed the target and this aspect should not change. */
-                    // FIXME: That should use setValueSilently()
-                    qtversion.blockSignals(true);
-                    qtversion.setValue(oldValue);
-                    qtversion.blockSignals(false);
-                }
-            });
-        }
-    }
 }
 
 bool QmlProjectRunConfiguration::isEnabled(Id) const

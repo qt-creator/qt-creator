@@ -118,7 +118,7 @@ DesignModeWidget::DesignModeWidget()
     , m_crumbleBar(new CrumbleBar(this))
 {
     setAcceptDrops(true);
-    if (Utils::StyleHelper::isQDSTheme() || Core::ICore::isQtDesignStudio())
+    if (Utils::StyleHelper::isQDSTheme())
         qApp->setStyle(QmlDesignerBasePlugin::style());
 
     IContext::attach(this,

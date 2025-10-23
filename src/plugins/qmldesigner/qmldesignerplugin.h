@@ -101,13 +101,7 @@ signals:
                                        int rating);
     void assetChanged(const QString &assetPath);
 
-private slots:
-    void closeFeedbackPopup();
-    void launchFeedbackPopup(const QString &identifier);
-    void handleFeedback(const QString &feedback, int rating);
-
 private: // functions
-    void launchFeedbackPopupInternal(const QString &identifier);
     void integrateIntoQtCreator(Internal::DesignModeWidget *modeWidget);
     void clearDesigner();
     void resetDesignerDocument();
@@ -125,7 +119,6 @@ private: // functions
 
     RewriterView *rewriterView() const;
     Model *currentModel() const;
-    QQuickWidget *m_feedbackWidget = nullptr;
     static QmlDesignerPluginPrivate *privateInstance();
     void enforceDelayedInitialize();
 

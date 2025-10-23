@@ -1083,10 +1083,6 @@ void Project::createTargetFromMap(const Store &map, int index)
 
     Kit *k = KitManager::kit(id);
     if (!k) {
-        // QDS does not want replacement kits.
-        if (ICore::isQtDesignStudio())
-            return;
-
         d->m_vanishedTargets.append(targetMap);
         const QString formerKitName = targetMap.value(Target::displayNameKey()).toString();
         TaskHub::addTask<BuildSystemTask>(

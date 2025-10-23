@@ -253,14 +253,7 @@ bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openIn
 
 bool AssetsLibraryWidget::isEffectsCreationAllowed() const
 {
-    if (!Core::ICore::isQtDesignStudio() || DesignerMcuManager::instance().isMCUProject())
-        return false;
-
-#ifdef LICENSECHECKER
-    return checkLicense() == FoundLicense::enterprise;
-#else
-    return true;
-#endif
+    return false;
 }
 
 void AssetsLibraryWidget::showInGraphicalShell(const QString &path)

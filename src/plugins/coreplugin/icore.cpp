@@ -547,12 +547,6 @@ bool ICore::showWarningWithOptions(const QString &title, const QString &text,
     return false;
 }
 
- bool ICore::isQtDesignStudio()
-{
-    QtcSettings *settings = Core::ICore::settings();
-    return settings->value("QML/Designer/StandAloneMode", false).toBool();
-}
-
 /*!
     Returns the application's main settings object.
 
