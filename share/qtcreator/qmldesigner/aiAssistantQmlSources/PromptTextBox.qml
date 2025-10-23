@@ -55,9 +55,11 @@ Rectangle {
                 font.pixelSize: root.style.baseFontSize
                 color: root.style.text.idle
                 wrapMode: TextEdit.WordWrap
-                enabled: !root.rootView.isGenerating
+                enabled: !root.rootView.isGenerating && root.rootView.hasValidModel
 
-                placeholderText: root.rootView.isGenerating ? "" : qsTr("Describe what you want to generate...")
+                placeholderText: root.rootView.isGenerating || !root.rootView.hasValidModel
+                                 ? ""
+                                 : qsTr("Describe what you want to generate...")
                 placeholderTextColor: root.style.text.placeholder
 
                 Keys.onPressed: function(event) {
@@ -100,7 +102,7 @@ Rectangle {
                                                      : root.style.text.disabled
 
                 tooltip: qsTr("Attach an image.\nThe attached image will be included in the prompt for the AI to analyze and use its content in the response generation.")
-                enabled: !root.rootView.isGenerating
+                enabled: !root.rootView.isGenerating && root.rootView.hasValidModel
 
                 onClicked: assetImagesView.showWindow()
             }
@@ -137,6 +139,40 @@ Rectangle {
             radius: 16
             dotSize: 4
             color: StudioTheme.Values.themeTextColor
+        }
+    }
+
+    Column {
+        id: noValidModelWarning
+
+        visible: !root.rootView.hasValidModel
+        anchors.centerIn: parent
+        spacing: 5
+        width: parent.width - 40 // 40: arbitrary side margings
+
+        Row {
+            spacing: 5
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: Math.min(parent.width, 430) // 430: arbitrary number <= the text actual single line width (for centering + wrapping to work)
+
+            HelperWidgets.IconLabel {
+                icon: StudioTheme.Constants.warning_medium
+                iconColor: StudioTheme.Values.notification_alertDefault
+            }
+
+            Text {
+                text: qsTr("No model configured. Please configure a model in the settings first.")
+                color: StudioTheme.Values.themeTextColor
+                font.pixelSize: StudioTheme.Values.mediumFontSize
+                wrapMode: Text.WordWrap
+                width: parent.width - x
+            }
+        }
+
+        PromptButton {
+            label: qsTr("Configure now")
+            onClicked: root.rootView.openModelSettings()
+            anchors.horizontalCenter: parent.horizontalCenter
         }
     }
 
