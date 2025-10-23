@@ -87,7 +87,6 @@ Project {
         "serialterminal/serialterminal.qbs",
         "silversearcher/silversearcher.qbs",
         "squish/squish.qbs",
-        "studiowelcome/studiowelcome.qbs",
         "subversion/subversion.qbs",
         "terminal/terminal.qbs",
         "texteditor/texteditor.qbs",

@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/studiowelcome">
-        <file>images/mode_welcome_mask.png</file>
-        <file>images/mode_welcome_mask@2x.png</file>
-    </qresource>
-</RCC>
