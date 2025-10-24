@@ -799,11 +799,14 @@ void BaseAspect::addOnLabelPixmapChanged(QObject *guard, const Callback &callbac
 
 void BaseAspect::addMacroExpansion(QWidget *w)
 {
-    const auto chooser = new VariableChooser(w);
-    chooser->addSupportedWidget(w);
-    chooser->addMacroExpanderProvider({this, [this] { return d->macroExpander(); }});
-    if (auto pathChooser = qobject_cast<PathChooser *>(w))
+    const auto varChooser = new VariableChooser(w);
+    varChooser->addMacroExpanderProvider({this, [this] { return d->macroExpander(); }});
+    if (auto pathChooser = qobject_cast<PathChooser *>(w)) {
         pathChooser->setMacroExpander(d->macroExpander());
+        varChooser->addSupportedWidget(pathChooser->lineEdit());
+    } else {
+        varChooser->addSupportedWidget(w);
+    }
 }
 
 namespace Internal {
@@ -1716,7 +1719,7 @@ void FilePathAspect::addToLayoutImpl(Layouting::Layout &parent)
     const QString displayedString = d->m_displayFilter ? d->m_displayFilter(value()) : value();
 
     d->m_pathChooserDisplay = createSubWidget<PathChooser>();
-    addMacroExpansion(d->m_pathChooserDisplay->lineEdit());
+    addMacroExpansion(d->m_pathChooserDisplay);
     d->m_pathChooserDisplay->setExpectedKind(d->m_expectedKind);
     if (!d->m_historyCompleterKey.isEmpty())
         d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
