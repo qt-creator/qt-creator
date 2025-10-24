@@ -2583,16 +2583,13 @@ FilePath FilePath::canonicalPath() const
     }
 
 #ifdef Q_OS_WIN
-    DWORD flagsAndAttrs = FILE_ATTRIBUTE_NORMAL;
-    if (isDir())
-        flagsAndAttrs |= FILE_FLAG_BACKUP_SEMANTICS;
     const HANDLE fileHandle = CreateFile(
                 toUserOutput().toStdWString().c_str(),
                 GENERIC_READ,
                 FILE_SHARE_READ,
                 nullptr,
                 OPEN_EXISTING,
-                flagsAndAttrs,
+                FILE_ATTRIBUTE_NORMAL | FILE_FLAG_BACKUP_SEMANTICS,
                 nullptr);
     if (fileHandle != INVALID_HANDLE_VALUE) {
         TCHAR normalizedPath[MAX_PATH];
