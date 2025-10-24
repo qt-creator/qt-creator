@@ -262,16 +262,6 @@ Utils::Result<> QmlDesignerPlugin::initialize(const QStringList &)
     QGuiApplication::setApplicationDisplayName(specialSnapshotName);
 #endif
 
-    if constexpr (isUsingQmlDesignerLite()) {
-        if (!QmlDesignerBasePlugin::isLiteModeEnabled()) {
-            QMessageBox::warning(Core::ICore::dialogParent(),
-                                 tr("Qml Designer Lite"),
-                                 tr("The Qml Designer Lite plugin is not enabled."));
-            return Utils::ResultError(tr("Qml Designer Lite initialization error: "
-                                         "The Qml Designer Lite plugin is not enabled."));
-        }
-    }
-
     Sqlite::LibraryInitializer::initialize();
     QDir{}.mkpath(Core::ICore::cacheResourcePath().toUrlishString());
 
@@ -329,8 +319,7 @@ void QmlDesignerPlugin::extensionsInitialized()
     if (checkEnterpriseLicense())
         Core::IWizardFactory::registerFeatureProvider(new EnterpriseFeatureProvider);
 
-    if (!QmlDesignerBasePlugin::isLiteModeEnabled())
-        Core::IWizardFactory::registerFeatureProvider(new FullQDSFeatureProvider);
+    Core::IWizardFactory::registerFeatureProvider(new FullQDSFeatureProvider);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlDesignerPlugin::aboutToShutdown()

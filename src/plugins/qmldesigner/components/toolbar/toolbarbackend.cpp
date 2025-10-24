@@ -916,11 +916,6 @@ bool ToolBarBackend::isDocumentDirty() const
            && Core::EditorManager::currentDocument()->isModified();
 }
 
-bool ToolBarBackend::isLiteModeEnabled() const
-{
-    return QmlDesignerBasePlugin::isLiteModeEnabled();
-}
-
 int ToolBarBackend::runTargetIndex() const
 {
     return QmlDesignerPlugin::runManager().currentTargetIndex();

@@ -604,19 +604,11 @@ void QmlDesignerProjectManager::update()
         return;
 
     try {
-        if constexpr (isUsingQmlDesignerLite()) {
-            m_projectData->projectStorageData->updater.update(
-                {directoriesForLiteDesigner(),
-                 propertyEditorResourcesPath(),
-                 {qtCreatorItemLibraryPath()},
-                 projectDirectory(m_projectData->activeTarget)});
-        } else {
-            m_projectData->projectStorageData->updater.update(
-                {directories(m_projectData->activeTarget),
-                 propertyEditorResourcesPath(),
-                 {qtCreatorItemLibraryPath()},
-                 projectDirectory(m_projectData->activeTarget)});
-        }
+        m_projectData->projectStorageData->updater.update(
+            {directories(m_projectData->activeTarget),
+             propertyEditorResourcesPath(),
+             {qtCreatorItemLibraryPath()},
+             projectDirectory(m_projectData->activeTarget)});
     } catch (const Sqlite::Exception &exception) {
         const auto &location = exception.location();
         std::cout << location.file_name() << ":" << location.function_name() << ":"

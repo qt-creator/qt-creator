@@ -31,16 +31,12 @@ public:
     static bool experimentalFeaturesEnabled();
     static QByteArray experimentalFeaturesSettingsKey();
 
-    static void enableLiteMode();
-    static bool isLiteModeEnabled();
-
 private:
-    Utils::Result<> initialize(const QStringList &arguments) final;
+    void initialize() final;
 
 private:
     class Data;
     std::unique_ptr<Data> d;
-    bool m_enableLiteMode = false;
 };
 
 } // namespace QmlDesigner

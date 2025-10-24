@@ -218,7 +218,6 @@ void ViewManager::showView(AbstractView &view)
 
 QList<AbstractView *> ViewManager::standardViews() const
 {
-#ifndef QTC_USE_QML_DESIGNER_LITE
     QList<AbstractView *> list = {&d->auxiliaryDataKeyView,
                                   &d->edit3DView,
                                   &d->formEditorView,
@@ -230,17 +229,6 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->materialBrowserView,
                                   &d->statesEditorView,
                                   &d->designerActionManagerView};
-#else
-    QList<AbstractView *> list = {&d->formEditorView,
-                                  &d->textEditorView,
-                                  &d->assetsLibraryView,
-                                  &d->itemLibraryView,
-                                  &d->navigatorView,
-                                  &d->propertyEditorView,
-                                  &d->statesEditorView,
-                                  &d->designerActionManagerView};
-#endif
-
     if (QmlDesignerPlugin::instance()
             ->settings()
             .value(DesignerSettingsKey::ENABLE_DEBUGVIEW)

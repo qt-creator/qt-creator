@@ -1,5 +1,5 @@
 add_qtc_plugin(ExtraPropertyEditorManager
-  CONDITION TARGET QtCreator::QmlDesigner AND NOT QTC_USE_QML_DESIGNER_LITE
+  CONDITION TARGET QtCreator::QmlDesigner
   PLUGIN_DEPENDS
     QtCreator::QmlDesigner
   DEPENDS

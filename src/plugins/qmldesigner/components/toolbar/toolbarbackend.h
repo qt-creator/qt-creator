@@ -124,8 +124,6 @@ class ToolBarBackend : public QObject
     Q_PROPERTY(bool projectOpened READ projectOpened NOTIFY projectOpenedChanged)
     Q_PROPERTY(bool isDocumentDirty READ isDocumentDirty NOTIFY isDocumentDirtyChanged)
 
-    Q_PROPERTY(bool isLiteModeEnabled READ isLiteModeEnabled CONSTANT)
-
     Q_PROPERTY(int runTargetIndex READ runTargetIndex NOTIFY runTargetIndexChanged)
     Q_PROPERTY(int runTargetType READ runTargetType NOTIFY runTargetTypeChanged)
     Q_PROPERTY(int runManagerState READ runManagerState NOTIFY runManagerStateChanged)
@@ -189,8 +187,6 @@ public:
     bool projectOpened() const;
 
     bool isDocumentDirty() const;
-
-    bool isLiteModeEnabled() const;
 
     int runTargetIndex() const;
     int runTargetType() const;

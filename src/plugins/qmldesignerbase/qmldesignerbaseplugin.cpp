@@ -58,29 +58,14 @@ QByteArray QmlDesignerBasePlugin::experimentalFeaturesSettingsKey()
     return QByteArray(experimentalFeatures) + version.toLatin1();
 }
 
-void QmlDesignerBasePlugin::enableLiteMode()
+void QmlDesignerBasePlugin::initialize()
 {
-    global->m_enableLiteMode = true;
-}
-
-bool QmlDesignerBasePlugin::isLiteModeEnabled()
-{
-    return global->m_enableLiteMode;
-}
-
-Utils::Result<> QmlDesignerBasePlugin::initialize(const QStringList &arguments)
-{
-    if (arguments.contains("-qml-lite-designer"))
-        enableLiteMode();
-
     WindowManager::registerDeclarativeType();
     StudioQuickUtils::registerDeclarativeType();
     StudioIntValidator::registerDeclarativeType();
     StudioDoubleValidator::registerDeclarativeType();
 
     d = std::make_unique<Data>();
-
-    return Utils::ResultOk;
 }
 
 } // namespace QmlDesigner
