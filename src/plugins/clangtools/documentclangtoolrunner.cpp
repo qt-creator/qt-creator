@@ -177,7 +177,7 @@ static Environment projectBuildEnvironment(Project *project)
     if (BuildConfiguration *buildConfig = project->activeBuildConfiguration())
         env = buildConfig->environment();
     if (!env.hasChanges())
-        env = Environment::systemEnvironment();
+        env = project->projectFilePath().deviceEnvironment();
     return env;
 }
 
