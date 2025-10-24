@@ -790,8 +790,7 @@ static Group authorizationRecipe(DashboardMode dashboardMode)
         if (unauthorizedDashboardStorage->dtoData) {
             const Dto::DashboardInfoDto &dashboardInfo = *unauthorizedDashboardStorage->dtoData;
             const QString &username = settings().serverForId(serverId).username;
-            if (username.isEmpty()
-                || (dashboardInfo.username && *dashboardInfo.username == username)) {
+            if (username == "anon_auth" || dashboardInfo.username.value_or("") == username) {
                 dd->m_serverAccess = ServerAccess::NoAuthorization;
                 dd->m_dashboardInfo = toDashboardInfo(*unauthorizedDashboardStorage);
                 return;
