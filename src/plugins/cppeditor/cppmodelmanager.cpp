@@ -718,7 +718,7 @@ SignalSlotType CppModelManager::getSignalSlotType(const FilePath &filePath,
         fixedContent.insert(position, 'x');
 
     const Snapshot snapshot = CppModelManager::snapshot();
-    const Document::Ptr document = snapshot.preprocessedDocument(fixedContent, filePath);
+    const Document::Ptr document = snapshot.preprocessedDocument(fixedContent, filePath, false);
     document->check();
     QTextDocument textDocument(QString::fromUtf8(fixedContent));
     QTextCursor cursor(&textDocument);
