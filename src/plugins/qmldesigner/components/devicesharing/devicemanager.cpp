@@ -14,6 +14,7 @@
 #include <QUdpSocket>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/target.h>
 #include <qmldesigner/qmldesignerconstants.h>
@@ -310,8 +311,14 @@ void DeviceManager::initDevice(const DeviceInfo &deviceInfo, const DeviceSetting
     connect(device.data(), &Device::deviceInfoReady, this, &DeviceManager::deviceInfoReceived);
     connect(device.data(), &Device::disconnected, this, [this](const QString &deviceId) {
         qCDebug(deviceSharePluginLog) << "Device" << deviceId << "disconnected";
+        if (m_currentState != OpTypes::Stopped && m_currentDeviceId == deviceId) {
+            handleError(ErrTypes::DeviceDisconnectedError,
+                        deviceId,
+                        "Device disconnected during deployment");
+        } else {
+            handleError(ErrTypes::NoError, deviceId);
+        }
         emit deviceOffline(deviceId);
-        handleError(ErrTypes::NoError, deviceId);
     });
     connect(device.data(), &Device::projectSendingProgress, this, &DeviceManager::projectSendingProgress);
 
@@ -405,6 +412,13 @@ void DeviceManager::handleError(const ErrTypes &errType, const QString &deviceId
         case ErrTypes::ProjectStartError:
             emit projectStartingError(deviceId, error);
             break;
+        case ErrTypes::DeviceDisconnectedError:
+            emit projectStartingError(deviceId, error);
+            Core::AsynchronousMessageBox::critical(tr("Project deployment interrupted"),
+                                                   error.isEmpty() ? tr("Unknown error.")
+                                                                   : tr(error.toStdString().c_str()));
+            stopProject();
+            break;
         case ErrTypes::NoError:
             break;
         }
@@ -441,7 +455,13 @@ void DeviceManager::runProject(const QString &deviceId)
 
     m_currentState = OpTypes::Packing;
     m_currentDeviceId = deviceId;
-    m_resourceGenerator.createQmlrcAsync(ProjectExplorer::ProjectManager::startupProject());
+    if (!m_resourceGenerator.createQmlrcAsync(ProjectExplorer::ProjectManager::startupProject())) {
+        handleError(ErrTypes::ProjectPackingError,
+                    deviceId,
+                    "Failed to start resource generation. Check your KIT settings.");
+        return;
+    }
+
     emit projectPacking(deviceId);
     qCDebug(deviceSharePluginLog) << "Packing project for device" << deviceId;
 }
@@ -501,7 +521,7 @@ void DeviceManager::stopProject()
         qCWarning(deviceSharePluginLog) << "No project is running";
         return;
     case OpTypes::Packing:
-        qCDebug(deviceSharePluginLog) << "Canceling project packing";
+        qCDebug(deviceSharePluginLog) << "Cancelling project packing";
         m_resourceGenerator.cancel();
         break;
     case OpTypes::Sending:

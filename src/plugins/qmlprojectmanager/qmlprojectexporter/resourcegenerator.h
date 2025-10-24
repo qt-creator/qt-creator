@@ -25,8 +25,8 @@ public:
                                  const Utils::FilePath &qmlrcFilePath);
     Q_INVOKABLE std::optional<Utils::FilePath> createQmlrc(const ProjectExplorer::Project *project);
 
-    Q_INVOKABLE void createQmlrcAsync(const ProjectExplorer::Project *project);
-    Q_INVOKABLE void createQmlrcAsync(const ProjectExplorer::Project *project,
+    Q_INVOKABLE bool createQmlrcAsync(const ProjectExplorer::Project *project);
+    Q_INVOKABLE bool createQmlrcAsync(const ProjectExplorer::Project *project,
                                       const Utils::FilePath &qmlrcFilePath);
 
     Q_INVOKABLE void cancel();

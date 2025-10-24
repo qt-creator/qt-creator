@@ -247,17 +247,17 @@ bool ResourceGenerator::createQrc(const ProjectExplorer::Project *project,
     project root directory
     \param project The project to compile the resources for
 */
-void ResourceGenerator::createQmlrcAsync(const ProjectExplorer::Project *project)
+bool ResourceGenerator::createQmlrcAsync(const ProjectExplorer::Project *project)
 {
-    QTC_ASSERT(project, return);
+    QTC_ASSERT(project, return false);
     if (m_rccProcess.state() != QProcess::NotRunning) {
         Core::MessageManager::writeDisrupting(Tr::tr("Resource generator is already running."));
-        return;
+        return false;
     }
 
     const FilePath projectPath = project->projectFilePath().parentDir();
     const FilePath qmlrcFilePath = projectPath.pathAppended(project->displayName() + ".qmlrc");
-    createQmlrcAsync(project, qmlrcFilePath);
+    return createQmlrcAsync(project, qmlrcFilePath);
 }
 
 /*!
@@ -266,21 +266,21 @@ void ResourceGenerator::createQmlrcAsync(const ProjectExplorer::Project *project
     \param project The project to create the QML resource file for
     \param qmlrcFilePath The path to the QML resource file to create
 */
-void ResourceGenerator::createQmlrcAsync(const ProjectExplorer::Project *project,
+bool ResourceGenerator::createQmlrcAsync(const ProjectExplorer::Project *project,
                                          const FilePath &qmlrcFilePath)
 {
-    QTC_ASSERT(project, return);
+    QTC_ASSERT(project, return false);
     if (m_rccProcess.state() != QProcess::NotRunning) {
         Core::MessageManager::writeDisrupting(Tr::tr("Resource generator is already running."));
-        return;
+        return false;
     }
 
     m_qmlrcFilePath = qmlrcFilePath;
     const FilePath tempQrcFile = m_qmlrcFilePath.parentDir().pathAppended("temp.qrc");
     if (!ResourceGenerator::createQrc(project, tempQrcFile))
-        return;
+        return false;
 
-    runRcc(qmlrcFilePath, tempQrcFile, true);
+    return runRcc(qmlrcFilePath, tempQrcFile, true);
 }
 
 /*!
@@ -348,11 +348,19 @@ bool ResourceGenerator::runRcc(const FilePath &qmlrcFilePath,
                                const bool runAsync)
 {
     const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    QTC_ASSERT(project, return false);
+    QTC_ASSERT(project,
+               Core::AsynchronousMessageBox::critical(tr("QMLRC Generation Error"),
+                                                      tr("No project found."));
+               return false);
 
     const QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
         project->activeTarget()->kit());
-    QTC_ASSERT(qtVersion, return false);
+    QTC_ASSERT(
+        qtVersion,
+        Core::AsynchronousMessageBox::critical(tr("QMLRC Generation Error"),
+                                               tr("No Qt version found for the current project's "
+                                                  "kit. Please check your kit settings."));
+        return false);
 
     const FilePath rccBinary = qtVersion->rccFilePath();
 
