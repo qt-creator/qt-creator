@@ -503,8 +503,11 @@ void Import3dImporter::copyImportedFiles()
             if (dir.exists()) {
                 const auto &overwrittenFiles = value;
                 if (overwrittenFiles.isEmpty()) {
-                    // Overwrite entire import
-                    dir.removeRecursively();
+                    // Overwrite all previous content from module
+                    const Utils::FilePaths entryList = dir.dirEntries(QDir::Files | QDir::Dirs
+                                                                      | QDir::NoDotAndDotDot);
+                    for (const Utils::FilePath &entry : entryList)
+                        entry.removeRecursively();
                 } else {
                     // Overwrite just selected files
                     for (const auto &fileName : overwrittenFiles)
