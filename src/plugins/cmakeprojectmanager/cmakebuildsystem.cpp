@@ -225,14 +225,10 @@ void CMakeBuildSystem::requestDebugging()
 
 bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
 {
-    const auto cmakeTarget = dynamic_cast<CMakeTargetNode *>(context);
-    if (cmakeTarget) {
-        const auto buildTarget = Utils::findOrDefault(m_buildTargets,
-                                                      [cmakeTarget](const CMakeBuildTarget &bt) {
-                                                          return bt.title
-                                                                 == cmakeTarget->buildKey();
-                                                      });
-        if (buildTarget.targetType != UtilityType)
+    const auto cmakeTargetNode = dynamic_cast<CMakeTargetNode *>(context);
+
+    if (cmakeTargetNode) {
+        if (cmakeTargetNode->cmakeBuildTarget().targetType != UtilityType)
             return action == ProjectAction::AddNewFile || action == ProjectAction::AddExistingFile
                    || action == ProjectAction::AddExistingDirectory
                    || action == ProjectAction::Rename || action == ProjectAction::RemoveFile;

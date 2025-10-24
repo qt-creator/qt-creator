@@ -773,13 +773,15 @@ static void addGeneratedFilesNode(ProjectNode *targetRoot, const FilePath &topLe
     addCMakeVFolder(targetRoot, buildDir, 10, Tr::tr("<Generated Files>"), std::move(nodes));
 }
 
-static void addTargets(FolderNode *root,
-                       const QFuture<void> &cancelFuture,
-                       const QHash<FilePath, ProjectNode *> &cmakeListsNodes,
-                       const ConfigurationInfo &config,
-                       const std::vector<TargetDetails> &targetDetails,
-                       const FilePath &sourceDir,
-                       const FilePath &buildDir)
+static void addTargets(
+    FolderNode *root,
+    const QFuture<void> &cancelFuture,
+    const QHash<FilePath, ProjectNode *> &cmakeListsNodes,
+    const ConfigurationInfo &config,
+    const std::vector<TargetDetails> &targetDetails,
+    const FilePath &sourceDir,
+    const FilePath &buildDir,
+    const QList<CMakeBuildTarget> &generatedBuildTargets)
 {
     QHash<QString, const TargetDetails *> targetDetailsHash;
     for (const TargetDetails &t : targetDetails)
@@ -793,7 +795,7 @@ static void addTargets(FolderNode *root,
         return defaultTargetDetails;
     };
 
-    auto createTargetNode = [](auto &cmakeListsNodes,
+    auto createTargetNode = [&generatedBuildTargets](auto &cmakeListsNodes,
                                const FilePath &dir,
                                const QString &displayName) -> CMakeTargetNode * {
         FolderNode *cmln = cmakeListsNodes.value(dir);
@@ -801,12 +803,16 @@ static void addTargets(FolderNode *root,
 
         QString targetId = displayName;
 
+        CMakeBuildTarget generatedTarget = Utils::findOrDefault(
+            generatedBuildTargets, Utils::equal(&CMakeBuildTarget::title, targetId));
         CMakeTargetNode *tn = static_cast<CMakeTargetNode *>(
             cmln->findNode([&targetId](const Node *n) { return n->buildKey() == targetId; }));
         if (!tn) {
-            auto newNode = std::make_unique<CMakeTargetNode>(dir, displayName);
+            auto newNode = std::make_unique<CMakeTargetNode>(dir, generatedTarget);
             tn = newNode.get();
             cmln->addNode(std::move(newNode));
+        } else {
+            tn->setCMakeBuildTarget(generatedTarget);
         }
         tn->setDisplayName(displayName);
         return tn;
@@ -847,10 +853,12 @@ static void addTargets(FolderNode *root,
     }
 }
 
-static std::unique_ptr<CMakeProjectNode> generateRootProjectNode(const QFuture<void> &cancelFuture,
-                                                                 PreprocessedData &data,
-                                                                 const FilePath &sourceDirectory,
-                                                                 const FilePath &buildDirectory)
+static std::unique_ptr<CMakeProjectNode> generateRootProjectNode(
+    const QFuture<void> &cancelFuture,
+    PreprocessedData &data,
+    const FilePath &sourceDirectory,
+    const FilePath &buildDirectory,
+    const QList<CMakeBuildTarget> &generatedBuildTargets)
 {
     std::unique_ptr<CMakeProjectNode> result = std::make_unique<CMakeProjectNode>(sourceDirectory);
 
@@ -875,7 +883,8 @@ static std::unique_ptr<CMakeProjectNode> generateRootProjectNode(const QFuture<v
                data.codemodel,
                data.targetDetails,
                sourceDirectory,
-               buildDirectory);
+               buildDirectory,
+               generatedBuildTargets);
     if (cancelFuture.isCanceled())
         return {};
 
@@ -1052,7 +1061,8 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
     if (cancelFuture.isCanceled())
         return {};
 
-    auto rootProjectNode = generateRootProjectNode(cancelFuture, data, sourceDir, buildDir);
+    auto rootProjectNode
+        = generateRootProjectNode(cancelFuture, data, sourceDir, buildDir, result.buildTargets);
     if (cancelFuture.isCanceled())
         return {};
     if (!qtcEnvironmentVariableIsSet("QTC_PROJECT_NO_COMPRESS"))

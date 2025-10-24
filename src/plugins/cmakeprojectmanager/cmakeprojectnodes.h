@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "cmakebuildtarget.h"
 #include "cmakeconfigitem.h"
 
 #include <projectexplorer/projectnodes.h>
@@ -54,7 +55,7 @@ public:
 class CMakeTargetNode : public ProjectExplorer::ProjectNode
 {
 public:
-    CMakeTargetNode(const Utils::FilePath &directory, const QString &target);
+    CMakeTargetNode(const Utils::FilePath &directory, const CMakeBuildTarget &target);
 
     void setTargetInformation(const Utils::FilePaths &artifacts, const QString &type);
 
@@ -70,11 +71,15 @@ public:
     QVariant data(Utils::Id role) const override;
     void setConfig(const CMakeConfig &config);
 
+    CMakeBuildTarget cmakeBuildTarget() const;
+    void setCMakeBuildTarget(const CMakeBuildTarget &cmakeBuildTarget);
+
     void setVisibleAfterAddFileAction(bool visibleAfterAddFileAction);
 
     using ProjectExplorer::Node::setFilePath;
 private:
     QString m_tooltip;
+    CMakeBuildTarget m_cmakeBuildTarget;
     Utils::FilePath m_buildDirectory;
     Utils::FilePath m_artifact;
     CMakeConfig m_config;

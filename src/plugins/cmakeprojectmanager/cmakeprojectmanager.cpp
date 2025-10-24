@@ -583,11 +583,7 @@ const CMakeListsNode *CMakeManager::currentListsNodeForEditor()
     if (!bs)
         return nullptr;
 
-    auto cmakeBuildTarget
-        = Utils::findOrDefault(bs->buildTargets(), [&targetNode](const CMakeBuildTarget &cbt) {
-              return targetNode->buildKey() == cbt.title;
-          });
-
+    const CMakeBuildTarget cmakeBuildTarget = targetNode->cmakeBuildTarget();
     if (cmakeBuildTarget.backtrace.isEmpty())
         return nullptr;
     const FilePath targetDefinitionDir = cmakeBuildTarget.backtrace.last().path.parentDir();

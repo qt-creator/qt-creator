@@ -148,10 +148,10 @@ QString CMakeProjectNode::tooltip() const
     return QString();
 }
 
-CMakeTargetNode::CMakeTargetNode(const FilePath &directory, const QString &target) :
+CMakeTargetNode::CMakeTargetNode(const FilePath &directory, const CMakeBuildTarget &target) :
     ProjectExplorer::ProjectNode(directory)
 {
-    m_target = target;
+    setCMakeBuildTarget(target);
     setPriority(Node::DefaultProjectPriority + 900);
     setIcon(":/projectexplorer/images/build.png"); // TODO: Use proper icon!
     setListInProject(false);
@@ -264,6 +264,17 @@ QVariant CMakeTargetNode::data(Id role) const
 void CMakeTargetNode::setConfig(const CMakeConfig &config)
 {
     m_config = config;
+}
+
+CMakeBuildTarget CMakeTargetNode::cmakeBuildTarget() const
+{
+    return m_cmakeBuildTarget;
+}
+
+void CMakeTargetNode::setCMakeBuildTarget(const CMakeBuildTarget &cmakeBuildTarget)
+{
+    m_target = cmakeBuildTarget.title;
+    m_cmakeBuildTarget = cmakeBuildTarget;
 }
 
 void CMakeTargetNode::setVisibleAfterAddFileAction(bool visibleAfterAddFileAction)
