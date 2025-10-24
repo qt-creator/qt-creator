@@ -403,6 +403,12 @@ void VariableChooser::addMacroExpanderProvider(const MacroExpanderProvider &prov
     d->m_model.rootItem()->prependChild(new VariableGroupItem(d, provider));
 }
 
+static bool isSupportedWidget(const QWidget *w)
+{
+    return qobject_cast<const QLineEdit *>(w) || qobject_cast<const QTextEdit *>(w)
+           || qobject_cast<const QPlainTextEdit *>(w);
+}
+
 /*!
  * Marks the control \a textcontrol as supporting variables.
  *
@@ -412,7 +418,7 @@ void VariableChooser::addMacroExpanderProvider(const MacroExpanderProvider &prov
  */
 void VariableChooser::addSupportedWidget(QWidget *textcontrol, const QByteArray &ownName)
 {
-    QTC_ASSERT(textcontrol, return);
+    QTC_ASSERT(isSupportedWidget(textcontrol), return);
     textcontrol->setProperty(kVariableSupportProperty, QVariant::fromValue<QWidget *>(this));
     textcontrol->setProperty(kVariableNameProperty, ownName);
 }
@@ -423,9 +429,7 @@ void VariableChooser::addSupportForChildWidgets(QWidget *parent, const MacroExpa
      chooser->addMacroExpanderProvider(provider);
      const QList<QWidget *> children = parent->findChildren<QWidget *>();
      for (QWidget *child : children) {
-         if (qobject_cast<QLineEdit *>(child)
-                 || qobject_cast<QTextEdit *>(child)
-                 || qobject_cast<QPlainTextEdit *>(child))
+         if (isSupportedWidget(child))
              chooser->addSupportedWidget(child);
      }
 }
