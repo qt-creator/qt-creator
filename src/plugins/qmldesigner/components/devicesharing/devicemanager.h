@@ -60,7 +60,8 @@ private:
         InternalError,
         ProjectPackingError,
         ProjectSendingError,
-        ProjectStartError
+        ProjectStartError,
+        DeviceDisconnectedError
     };
     enum class OpTypes { Stopped, Packing, Sending, Starting, Running };
     OpTypes m_currentState;

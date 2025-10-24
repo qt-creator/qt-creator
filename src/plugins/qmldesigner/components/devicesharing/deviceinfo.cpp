@@ -6,7 +6,7 @@
 #include <QJsonDocument>
 
 namespace QmlDesigner::DeviceShare {
-Q_LOGGING_CATEGORY(deviceSharePluginLog, "qtc.designer.deviceSharePluginLog", QtCriticalMsg)
+Q_LOGGING_CATEGORY(deviceSharePluginLog, "qtc.designer.deviceSharePluginLog")
 
 IDeviceData::IDeviceData(const QJsonObject &data)
     : m_data(data)
