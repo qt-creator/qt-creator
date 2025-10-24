@@ -25,12 +25,6 @@ Project {
                 "studioquickutils.h",
                 "studioquickwidget.cpp",
                 "studioquickwidget.h",
-                "studiosettingspage.cpp",
-                "studiosettingspage.h",
-                "studiostyle.cpp",
-                "studiostyle.h",
-                "studiostyle_p.cpp",
-                "studiostyle_p.h",
                 "studiovalidator.cpp",
                 "studiovalidator.h",
             ]

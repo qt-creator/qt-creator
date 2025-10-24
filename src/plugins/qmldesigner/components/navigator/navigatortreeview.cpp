@@ -10,7 +10,6 @@
 #include "qproxystyle.h"
 #include "previewtooltip.h"
 
-#include <qmldesignerbase/studio/studiostyle.h>
 
 #include <theme.h>
 
@@ -37,7 +36,8 @@ class TableViewStyle : public QProxyStyle
 {
 public:
     TableViewStyle(QObject *parent)
-        : QProxyStyle(new StudioStyle("fusion"))
+        // : QProxyStyle(new StudioStyle("fusion"))
+        : QProxyStyle("fusion")
     {
         setParent(parent);
         baseStyle()->setParent(parent);

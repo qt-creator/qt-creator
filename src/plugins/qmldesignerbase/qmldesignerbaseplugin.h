@@ -27,8 +27,6 @@ public:
     static QmlDesignerBasePlugin &instance();
 
     static class DesignerSettings &settings();
-    static QStyle *style();
-    static class StudioConfigSettingsPage *studioConfigSettingsPage();
 
     static bool experimentalFeaturesEnabled();
     static QByteArray experimentalFeaturesSettingsKey();

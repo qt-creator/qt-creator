@@ -188,8 +188,6 @@ QTCREATOR_UTILS_EXPORT QLinearGradient statusBarGradient(const QRect &statusBarR
 QTCREATOR_UTILS_EXPORT void setPanelWidget(QWidget *widget, bool value = true);
 QTCREATOR_UTILS_EXPORT void setPanelWidgetSingleRow(QWidget *widget, bool value = true);
 
-QTCREATOR_UTILS_EXPORT bool isQDSTheme();
-
 QTCREATOR_UTILS_EXPORT
     Qt::HighDpiScaleFactorRoundingPolicy defaultHighDpiScaleFactorRoundingPolicy();
 

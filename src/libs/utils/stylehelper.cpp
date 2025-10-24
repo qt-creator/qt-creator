@@ -142,10 +142,7 @@ QColor StyleHelper::requestedBaseColor()
 
 QColor StyleHelper::toolbarBaseColor(bool lightColored)
 {
-    if (creatorTheme()->flag(Theme::QDSTheme))
-        return creatorColor(Utils::Theme::DStoolbarBackground);
-    else
-        return StyleHelper::baseColor(lightColored);
+    return StyleHelper::baseColor(lightColored);
 }
 
 QColor StyleHelper::highlightColor(bool lightColored)
@@ -725,11 +722,6 @@ void StyleHelper::setPanelWidget(QWidget *widget, bool value)
 void StyleHelper::setPanelWidgetSingleRow(QWidget *widget, bool value)
 {
     widget->setProperty(C_PANEL_WIDGET_SINGLE_ROW, value);
-}
-
-bool StyleHelper::isQDSTheme()
-{
-    return creatorTheme() ? creatorTheme()->flag(Theme::QDSTheme) : false;
 }
 
 Qt::HighDpiScaleFactorRoundingPolicy StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()

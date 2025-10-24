@@ -572,7 +572,6 @@ public:
         ToolBarIconShadow,
         WindowColorAsBase,
         DarkUserInterface,
-        QDSTheme
     };
 
     enum TokenFlag {

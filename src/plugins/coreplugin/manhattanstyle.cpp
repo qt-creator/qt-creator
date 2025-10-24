@@ -317,7 +317,7 @@ void ManhattanStyle::polish(QWidget *widget)
         } else if (qobject_cast<QLabel*>(widget) || qobject_cast<QSpinBox*>(widget)
                    || qobject_cast<QCheckBox*>(widget)) {
             widget->setPalette(panelPalette(widget->palette(), lightColored(widget)));
-        } else if ((qobject_cast<QToolBar*>(widget) && !StyleHelper::isQDSTheme())
+        } else if (qobject_cast<QToolBar*>(widget)
                    || widget->property(StyleHelper::C_PANEL_WIDGET_SINGLE_ROW).toBool()) {
             widget->setFixedHeight(height);
         } else if (qobject_cast<QStatusBar*>(widget)) {
@@ -656,10 +656,6 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
                 if (!enabled)
                     painter->setOpacity(0.75);
                 QBrush baseBrush = option->palette.base();
-                if (widget && qobject_cast<const QSpinBox *>(widget->parentWidget())
-                    && StyleHelper::isQDSTheme()) {
-                    baseBrush = creatorColor(Theme::DScontrolBackgroundDisabled);
-                }
                 painter->fillRect(backgroundRect, baseBrush);
                 painter->restore();
             } else {
@@ -813,7 +809,7 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
         break;
 
     case PE_IndicatorToolBarSeparator:
-        if (!StyleHelper::isQDSTheme()) {
+        {
             QRect separatorRect = rect;
             separatorRect.setLeft(rect.width() / 2);
             separatorRect.setWidth(1);

@@ -3,10 +3,6 @@
 
 #include "qmldesignerbaseplugin.h"
 
-#include "studio/studiosettingspage.h"
-
-#include "studio/studiostyle.h"
-
 #include <designersettings.h>
 #include <studioquickutils.h>
 #include <studiovalidator.h>
@@ -24,8 +20,6 @@ class QmlDesignerBasePlugin::Data
 {
 public:
     DesignerSettings settings;
-    StudioStyle *style = nullptr;
-    std::unique_ptr<StudioConfigSettingsPage> studioConfigSettingsPage;
 
     Data()
         : settings(Core::ICore::settings())
@@ -49,19 +43,6 @@ QmlDesignerBasePlugin::~QmlDesignerBasePlugin() = default;
 DesignerSettings &QmlDesignerBasePlugin::settings()
 {
     return global->d->settings;
-}
-
-QStyle *QmlDesignerBasePlugin::style()
-{
-    if (!global->d->style)
-        global->d->style = new StudioStyle(QApplication::style());
-
-    return global->d->style;
-}
-
-StudioConfigSettingsPage *QmlDesignerBasePlugin::studioConfigSettingsPage()
-{
-    return global->d->studioConfigSettingsPage.get();
 }
 
 bool QmlDesignerBasePlugin::experimentalFeaturesEnabled()
@@ -98,8 +79,7 @@ Utils::Result<> QmlDesignerBasePlugin::initialize(const QStringList &arguments)
     StudioDoubleValidator::registerDeclarativeType();
 
     d = std::make_unique<Data>();
-    if (Core::ICore::settings()->value("QML/Designer/StandAloneMode", false).toBool())
-        d->studioConfigSettingsPage = std::make_unique<StudioConfigSettingsPage>();
+
     return Utils::ResultOk;
 }
 
