@@ -24,13 +24,12 @@ public:
     explicit AiProviderSettingsWidget(const QString &providerName, QWidget *parent);
 
     void load();
-    bool saveIfChanged();
+    bool save();
 
     const AiProviderConfig config() const;
 
 private:
     void setupUi();
-    bool matchesConfig() const;
 
     AiProviderData m_provider;
     AiProviderConfig m_config;

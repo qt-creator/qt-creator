@@ -41,7 +41,7 @@ protected:
     void cancel() final;
 
 private:
-    QList<AiProviderSettingsWidget *> m_modelDataList;
+    QList<AiProviderSettingsWidget *> m_providerWidgets;
     QPointer<AiAssistantView> m_view;
 };
 
