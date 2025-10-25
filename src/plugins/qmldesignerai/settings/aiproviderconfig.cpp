@@ -9,35 +9,30 @@
 
 namespace QmlDesigner {
 
-struct ScopeGroup
+struct GroupScope
 {
-    ScopeGroup(const Utils::Key &category, Utils::QtcSettings *settings, const QString &providerName)
-        : category(category)
-        , settings(settings)
-        , providerName(providerName)
+    GroupScope(const QString &providerName)
     {
-        if (!category.isEmpty())
-            settings->beginGroup(category);
-        settings->beginGroup(Constants::aiAssistantProviderConfigKey);
-        settings->beginGroup(providerName.toUtf8());
+        Core::ICore::settings()->beginGroup(Constants::aiAssistantProviderKey);
+        Core::ICore::settings()->beginGroup(providerName.toUtf8());
     }
 
-    ~ScopeGroup()
+    ~GroupScope()
     {
-        if (!category.isEmpty())
-            settings->endGroup();
-        settings->endGroup();
-        settings->endGroup();
+        Core::ICore::settings()->endGroup();
+        Core::ICore::settings()->endGroup();
     }
-
-    const Utils::Key &category;
-    Utils::QtcSettings *settings = nullptr;
-    const QString &providerName;
 };
 
 AiProviderConfig::AiProviderConfig(const QString &providerName)
     : m_providerName(providerName)
-{}
+{
+    GroupScope group(m_providerName);
+
+    m_url = Core::ICore::settings()->value("url").toUrl();
+    m_apiKey = Core::ICore::settings()->value("apiKey").toString();
+    m_modelIds = Core::ICore::settings()->value("modelIds").toStringList();
+}
 
 bool AiProviderConfig::isValid() const
 {
@@ -49,7 +44,7 @@ QList<AiModelInfo> AiProviderConfig::allValidModels() const
     if (!isValid())
         return {};
 
-    const QStringList &models = modelIds();
+    const QStringList models = modelIds();
     QList<AiModelInfo> infos;
     infos.reserve(models.size());
 
@@ -70,45 +65,16 @@ QList<AiModelInfo> AiProviderConfig::allValidModels() const
     return infos;
 }
 
-void AiProviderConfig::toSettings(const Utils::Key &category, Utils::QtcSettings *settings) const
-{
-    ScopeGroup group(category, settings, m_providerName);
-
-    settings->setValue("url", m_url);
-    settings->setValue("apiKey", m_apiKey);
-    settings->setValue("modelIds", m_modelIds);
-}
-
-void AiProviderConfig::fromSettings(const Utils::Key &category, Utils::QtcSettings *settings)
-{
-    ScopeGroup group(category, settings, m_providerName);
-
-    m_url = settings->value("url").toUrl();
-    m_apiKey = settings->value("apiKey").toString();
-    m_modelIds = settings->value("modelIds").toStringList();
-}
-
-AiProviderConfig AiProviderConfig::fromSettings(
-    const Utils::Key &category, Utils::QtcSettings *settings, const QString &providerName)
-{
-    AiProviderConfig config(providerName);
-    config.fromSettings(category, settings);
-    return config;
-}
-
-void AiProviderConfig::setUrl(const QUrl &url)
+void AiProviderConfig::save(const QString &url, const QString &apiKey, const QStringList &modelIds)
 {
     m_url = url;
-}
-
-void AiProviderConfig::setApiKey(const QString &newApiKey)
-{
-    m_apiKey = newApiKey;
-}
-
-void AiProviderConfig::setModelIds(const QStringList &modelIds)
-{
+    m_apiKey = apiKey;
     m_modelIds = modelIds;
+
+    GroupScope group(m_providerName);
+    Core::ICore::settings()->setValue("url", m_url);
+    Core::ICore::settings()->setValue("apiKey", m_apiKey);
+    Core::ICore::settings()->setValue("modelIds", m_modelIds);
 }
 
 bool AiModelInfo::isValid() const

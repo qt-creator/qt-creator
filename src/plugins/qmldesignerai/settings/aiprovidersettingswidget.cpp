@@ -3,12 +3,7 @@
 
 #include "aiprovidersettingswidget.h"
 
-#include "aiassistantconstants.h"
 #include "stringlistwidget.h"
-
-#include <qmldesignertr.h>
-
-#include <coreplugin/icore.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -32,8 +27,6 @@ AiProviderSettingsWidget::AiProviderSettingsWidget(const QString &providerName, 
 
 void AiProviderSettingsWidget::load()
 {
-    m_config.fromSettings(Constants::aiAssistantSettingsKey, Core::ICore::settings());
-
     m_apiKey->setText(m_config.apiKey());
 
     QUrl url = m_config.url();
@@ -41,21 +34,20 @@ void AiProviderSettingsWidget::load()
         url = m_provider.defaultUrl;
     m_url->setText(url.toString());
 
-    const bool configHasUrlOrApiKey = !m_config.url().isEmpty() || !m_config.apiKey().isEmpty();
-    if (m_config.modelIds().isEmpty() && !configHasUrlOrApiKey)
-        m_models->setItems(m_provider.models);
-    else
-        m_models->setItems(m_config.modelIds());
+    QStringList modelIds = m_config.modelIds();
+    if (modelIds.isEmpty())
+        modelIds = m_provider.models;
+    m_models->setItems(modelIds);
 }
 
-bool AiProviderSettingsWidget::saveIfChanged()
+bool AiProviderSettingsWidget::save()
 {
-    if (matchesConfig())
+    bool changed = m_config.apiKey() != m_apiKey->text() || m_config.url() != m_url->text()
+                   || m_config.modelIds() != m_models->items();
+    if (!changed)
         return false;
-    m_config.setUrl(QUrl(m_url->text()));
-    m_config.setApiKey(m_apiKey->text());
-    m_config.setModelIds(m_models->items());
-    m_config.toSettings(Constants::aiAssistantSettingsKey, Core::ICore::settings());
+
+    m_config.save(m_url->text(), m_apiKey->text(), m_models->items());
     return true;
 }
 
@@ -80,18 +72,18 @@ void AiProviderSettingsWidget::setupUi()
     using namespace Layouting;
     Column{
         Column{
-            createLabel(Tr::tr("Url:")),
+            createLabel(tr("Url:")),
             m_url.get(),
             spacing(3),
         },
         Column{
-            createLabel(Tr::tr("API key:")),
+            createLabel(tr("API key:")),
             m_apiKey.get(),
             spacing(3),
         },
         Column{
             Row{
-                createLabel(Tr::tr("Models:")),
+                createLabel(tr("Models:")),
                 m_models->toolBar(),
             },
             m_models.get(),
@@ -99,13 +91,6 @@ void AiProviderSettingsWidget::setupUi()
         },
         spacing(10),
     }.attachTo(this);
-}
-
-bool AiProviderSettingsWidget::matchesConfig() const
-{
-    return m_config.apiKey() == m_apiKey->text()
-           && m_config.url() == m_url->text()
-           && m_config.modelIds() == m_models->items();
 }
 
 } // namespace QmlDesigner

@@ -20,33 +20,20 @@ namespace QmlDesigner {
 static QList<AiProviderConfig> allProviderConfigs()
 {
     Utils::QtcSettings *settings = Core::ICore::settings();
-    settings->beginGroup(Constants::aiAssistantSettingsKey);
-    settings->beginGroup(Constants::aiAssistantProviderConfigKey);
-    const QStringList settingsKeys = settings->allKeys();
+    settings->beginGroup(Constants::aiAssistantProviderKey);
+    QStringList providerIds = settings->childGroups();
     settings->endGroup();
-    settings->endGroup();
-
-    QSet<QString> providerIdsSet;
-    QStringList providerIds;
-    for (const QString &key : settingsKeys) {
-        const QString providerId = key.left(key.indexOf('/'));
-        if (!providerId.isEmpty() && !providerIdsSet.contains(providerId)) {
-            providerIdsSet.insert(providerId);
-            providerIds.append(providerId);
-        }
-    }
 
     QList<AiProviderConfig> result;
-    for (const QString &providerId : std::as_const(providerIds)) {
-        result.append(
-            AiProviderConfig::fromSettings(Constants::aiAssistantSettingsKey, settings, providerId));
-    }
+    for (const QString &providerId : std::as_const(providerIds))
+        result.append(AiProviderConfig{providerId});
+
     return result;
 }
 
 AiProviderSettings::AiProviderSettings()
 {
-    setId(Constants::aiAssistantProviderSettingsPage);
+    setId(Constants::aiAssistantSettingsPageId);
     setDisplayName(Tr::tr("Ai Provider Settings"));
     setCategory(Constants::aiAssistantSettingsPageCategory);
     setWidgetCreator([this] { return new AiProviderSettingsTab(m_view); });
@@ -72,9 +59,9 @@ AiProviderSettingsTab::AiProviderSettingsTab(AiAssistantView *view)
     : Core::IOptionsPageWidget()
     , m_view(view)
 {
-    auto createSettingsWidget = [this](const QString &name) -> AiProviderSettingsWidget * {
-        AiProviderSettingsWidget *widget = new AiProviderSettingsWidget(name, this);
-        m_modelDataList.append(widget);
+    auto createProviderWidget = [this](const QString &name) -> AiProviderSettingsWidget * {
+        auto widget = new AiProviderSettingsWidget(name, this);
+        m_providerWidgets.append(widget);
         return widget;
     };
 
@@ -83,7 +70,7 @@ AiProviderSettingsTab::AiProviderSettingsTab(AiAssistantView *view)
     const QStringList providers
         = Utils::transform(AiProviderData::defaultProviders(), &AiProviderData::name);
     for (const QString &providerName : providers)
-        providersCol.addItem(createSettingsWidget(providerName));
+        providersCol.addItem(createProviderWidget(providerName));
     providersCol.addItem(Stretch(1));
     providersCol.attachTo(this);
 }
@@ -92,18 +79,20 @@ AiProviderSettingsTab::~AiProviderSettingsTab() = default;
 
 void AiProviderSettingsTab::apply()
 {
-    bool changed = false;
-    for (AiProviderSettingsWidget *settingsWidget : std::as_const(m_modelDataList))
-        changed |= settingsWidget->saveIfChanged();
+    QTC_ASSERT(m_view, return);
 
-    if (changed && m_view)
+    bool changed = false;
+    for (AiProviderSettingsWidget *w : std::as_const(m_providerWidgets))
+        changed |= w->save();
+
+    if (changed)
         m_view->updateAiModelConfig();
 }
 
 void AiProviderSettingsTab::cancel()
 {
-    for (AiProviderSettingsWidget *settingsWidget : std::as_const(m_modelDataList))
-        settingsWidget->load();
+    for (AiProviderSettingsWidget *w : std::as_const(m_providerWidgets))
+        w->load();
 }
 
 } // namespace QmlDesigner

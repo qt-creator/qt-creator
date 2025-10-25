@@ -365,7 +365,7 @@ void AiAssistantWidget::sendThumbFeedback(bool up)
 
 void AiAssistantWidget::openModelSettings()
 {
-    Core::ICore::showOptionsDialog(Constants::aiAssistantProviderSettingsPage);
+    Core::ICore::showOptionsDialog(Constants::aiAssistantSettingsPageId);
 }
 
 void AiAssistantWidget::openTermsDialog()
