@@ -810,7 +810,9 @@ QWidget *Layout::emerge() const
 
 void Layout::show() const
 {
-    return emerge()->show();
+    auto wdgt = emerge();
+    wdgt->setAttribute(Qt::WidgetAttribute::WA_DeleteOnClose, true);
+    wdgt->show();
 }
 
 // "Widgets"
