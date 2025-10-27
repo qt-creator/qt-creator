@@ -30,6 +30,7 @@ StringListWidget::StringListWidget(QWidget *parent)
     , m_removeButton(Utils::makeUniqueObjectPtr<QToolButton>())
     , m_moveUpButton(Utils::makeUniqueObjectPtr<QToolButton>())
     , m_moveDownButton(Utils::makeUniqueObjectPtr<QToolButton>())
+    , m_resetButton(Utils::makeUniqueObjectPtr<QToolButton>())
     , m_toolBar(Utils::makeUniqueObjectPtr<QToolBar>())
 {
     setEditTriggers({
@@ -44,6 +45,8 @@ StringListWidget::StringListWidget(QWidget *parent)
     m_removeButton->setIcon(toolButtonIcon(Theme::minus));
     m_moveUpButton->setIcon(toolButtonIcon(Theme::moveUp_medium));
     m_moveDownButton->setIcon(toolButtonIcon(Theme::moveDown_medium));
+    m_resetButton->setIcon(toolButtonIcon(Theme::resetView_small));
+    m_toolBar->addWidget(m_resetButton.get());
     m_toolBar->addWidget(m_moveDownButton.get());
     m_toolBar->addWidget(m_moveUpButton.get());
     m_toolBar->addWidget(m_removeButton.get());
@@ -78,6 +81,11 @@ StringListWidget::StringListWidget(QWidget *parent)
         insertItem(newRow, rowItem);
         setCurrentRow(newRow);
     });
+
+    setItems({}, {}); // Initialize with no items and no defaults
+    connect(m_resetButton.get(), &QToolButton::clicked, this, [this] {
+        setWidgetItems(m_defaultItems);
+    });
 }
 
 StringListWidget::~StringListWidget() = default;
@@ -94,12 +102,12 @@ QStringList StringListWidget::items() const
     return result;
 }
 
-void StringListWidget::setItems(const QStringList &items)
+void StringListWidget::setItems(const QStringList &items, const QStringList &defaultItems)
 {
-    clear();
-
-    for (const QString &itemText : items)
-        addItem(itemText);
+    m_resetButton->setEnabled(!defaultItems.isEmpty());
+    m_defaultItems = defaultItems;
+    const QStringList &itemsToAdd = items.isEmpty() ? defaultItems : items;
+    setWidgetItems(itemsToAdd);
 }
 
 void StringListWidget::addItem(const QString &itemText)
@@ -120,6 +128,14 @@ void StringListWidget::onRowChanged(int row)
     m_removeButton->setEnabled(hasRowSelection);
     m_moveUpButton->setEnabled(hasRowSelection && row != 0);
     m_moveDownButton->setEnabled(hasRowSelection && row != count() - 1);
+}
+
+void StringListWidget::setWidgetItems(const QStringList &items)
+{
+    clear();
+
+    for (const QString &itemText : items)
+        addItem(itemText);
 }
 
 } // namespace QmlDesigner
