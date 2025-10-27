@@ -3,6 +3,7 @@
 
 #include "aiprovidersettingswidget.h"
 
+#include "aiproviderdata.h"
 #include "stringlistwidget.h"
 
 #include <utils/layoutbuilder.h>
@@ -15,7 +16,6 @@ namespace QmlDesigner {
 
 AiProviderSettingsWidget::AiProviderSettingsWidget(const QString &providerName, QWidget *parent)
     : QGroupBox(parent)
-    , m_provider(AiProviderData::findProvider(providerName))
     , m_config(providerName)
     , m_url(Utils::makeUniqueObjectPtr<QLineEdit>())
     , m_apiKey(Utils::makeUniqueObjectPtr<QLineEdit>())
@@ -28,16 +28,14 @@ AiProviderSettingsWidget::AiProviderSettingsWidget(const QString &providerName, 
 void AiProviderSettingsWidget::load()
 {
     m_apiKey->setText(m_config.apiKey());
+    const auto providerData = AiProviderData::findProvider(m_config.providerName());
 
     QUrl url = m_config.url();
     if (url.isEmpty())
-        url = m_provider.url;
+        url = providerData.url;
     m_url->setText(url.toString());
 
-    QStringList modelIds = m_config.modelIds();
-    if (modelIds.isEmpty())
-        modelIds = m_provider.models;
-    m_models->setItems(modelIds);
+    m_models->setItems(m_config.modelIds(), providerData.models);
 }
 
 bool AiProviderSettingsWidget::save()

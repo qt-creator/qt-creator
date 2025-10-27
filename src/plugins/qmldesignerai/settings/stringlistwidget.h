@@ -19,21 +19,23 @@ public:
     ~StringListWidget();
 
     QStringList items() const;
-    void setItems(const QStringList &items);
-
+    void setItems(const QStringList &items, const QStringList &defaultItems);
     void addItem(const QString &itemText);
 
     QToolBar *toolBar() const;
 
 private: // functions
     void onRowChanged(int row);
+    void setWidgetItems(const QStringList &items);
 
 private: // variables
     Utils::UniqueObjectPtr<QToolButton> m_addButton;
     Utils::UniqueObjectPtr<QToolButton> m_removeButton;
     Utils::UniqueObjectPtr<QToolButton> m_moveUpButton;
     Utils::UniqueObjectPtr<QToolButton> m_moveDownButton;
+    Utils::UniqueObjectPtr<QToolButton> m_resetButton;
     Utils::UniqueObjectPtr<QToolBar> m_toolBar;
+    QStringList m_defaultItems;
 };
 
 } // namespace QmlDesigner

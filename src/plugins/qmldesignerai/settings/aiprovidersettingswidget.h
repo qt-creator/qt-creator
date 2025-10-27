@@ -4,7 +4,6 @@
 #pragma once
 
 #include "aiproviderconfig.h"
-#include "aiproviderdata.h"
 
 #include <utils/uniqueobjectptr.h>
 
@@ -31,7 +30,6 @@ public:
 private:
     void setupUi();
 
-    AiProviderData m_provider;
     AiProviderConfig m_config;
     Utils::UniqueObjectPtr<QLineEdit> m_url;
     Utils::UniqueObjectPtr<QLineEdit> m_apiKey;
