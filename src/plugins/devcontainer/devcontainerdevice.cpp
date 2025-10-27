@@ -10,6 +10,7 @@
 #include <client/cmdbridgeclient.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -88,6 +89,7 @@ public:
     {
         Core::FutureProgress *futureProgress = Core::ProgressManager::addTask(future(), title, id);
         QObject::connect(futureProgress, &Core::FutureProgress::canceled, &tree, &TaskTree::cancel);
+        QObject::connect(futureProgress, &Core::FutureProgress::clicked, &Core::MessageManager::popup);
 
         addSource(tree);
         start();

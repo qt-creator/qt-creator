@@ -15,6 +15,7 @@ namespace Core::MessageManager {
 
 CORE_EXPORT void setFont(const QFont &font);
 CORE_EXPORT void setWheelZoomEnabled(bool enabled);
+CORE_EXPORT void popup();
 
 CORE_EXPORT void writeSilently(const QString &message);
 CORE_EXPORT void writeFlashing(const QString &message);

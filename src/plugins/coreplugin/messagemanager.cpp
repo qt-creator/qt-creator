@@ -219,4 +219,9 @@ void writeDisrupting(const QStringList &messages)
     writeDisrupting(messages.join('\n'));
 }
 
+void popup()
+{
+    messageOutputWindow()->popup(IOutputPane::NoModeSwitch);
+}
+
 } // namespace Core::MessageManager
