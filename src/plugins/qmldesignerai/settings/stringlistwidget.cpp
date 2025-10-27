@@ -46,6 +46,13 @@ StringListWidget::StringListWidget(QWidget *parent)
     m_moveUpButton->setIcon(toolButtonIcon(Theme::moveUp_medium));
     m_moveDownButton->setIcon(toolButtonIcon(Theme::moveDown_medium));
     m_resetButton->setIcon(toolButtonIcon(Theme::resetView_small));
+
+    m_addButton->setToolTip(tr("Add item"));
+    m_removeButton->setToolTip(tr("Remove item"));
+    m_moveUpButton->setToolTip(tr("Move item up"));
+    m_moveDownButton->setToolTip(tr("Move item down"));
+    m_resetButton->setToolTip(tr("Reset to defaults"));
+
     m_toolBar->addWidget(m_resetButton.get());
     m_toolBar->addWidget(m_moveDownButton.get());
     m_toolBar->addWidget(m_moveUpButton.get());
