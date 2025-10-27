@@ -480,11 +480,9 @@ public:
     Stack(std::initializer_list<I> items);
 };
 
-class QTCREATOR_UTILS_EXPORT Tab : public Widget
+class QTCREATOR_UTILS_EXPORT Tab
 {
 public:
-    using Implementation = QWidget;
-
     Tab(const QString &tabName, const Layout &inner);
 
     const QString tabName;

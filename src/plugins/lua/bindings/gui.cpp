@@ -747,11 +747,7 @@ void setupGuiModule()
             sol::bases<Widget, Object>());
 
         gui.new_usertype<Tab>(
-            "Tab",
-            sol::call_constructor,
-            sol::factories(&constructTab, &constructTabFromTable),
-            sol::base_classes,
-            sol::bases<Widget, Object>());
+            "Tab", sol::call_constructor, sol::factories(&constructTab, &constructTabFromTable));
 
         gui.new_usertype<ScrollArea>(
             "ScrollArea",
