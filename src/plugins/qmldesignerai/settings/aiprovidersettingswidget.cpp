@@ -31,7 +31,7 @@ void AiProviderSettingsWidget::load()
 
     QUrl url = m_config.url();
     if (url.isEmpty())
-        url = m_provider.defaultUrl;
+        url = m_provider.url;
     m_url->setText(url.toString());
 
     QStringList modelIds = m_config.modelIds();

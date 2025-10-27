@@ -40,6 +40,14 @@ Rectangle {
 
         AiModelsComboBox {
             Layout.fillWidth: true
+
+            onCurrentTextChanged: {
+                var supportsImageInput = /llama-4-(maverick|scout)/.test(currentText)
+
+                promptTextBox.enableAttachImage = supportsImageInput
+                if (!supportsImageInput)
+                    root.rootView.attachedImageSource = ""
+            }
         }
 
         PromptTextBox {

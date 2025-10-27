@@ -16,6 +16,7 @@ Rectangle {
     required property var rootView
 
     property alias text: textEdit.text
+    property alias enableAttachImage: attachImageButton.visible
 
     property StudioTheme.ControlStyle style: StudioTheme.ControlStyle {
         radius: StudioTheme.Values.smallRadius

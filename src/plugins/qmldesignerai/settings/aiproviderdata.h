@@ -12,7 +12,7 @@ namespace QmlDesigner {
 struct AiProviderData
 {
     QString name;
-    QUrl defaultUrl;
+    QUrl url;
 
     // TODO: provide it with AiModelTraits{modelName, modelId, supportsJsonSchema}
     QList<QString> models;

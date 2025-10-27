@@ -46,8 +46,6 @@ QString AiResponse::errorString() const
         return Tr::tr("Missing or invalid `message` object in first `choice`");
     case Error::EmptyMessage:
         return Tr::tr("Missing or invalid `content` string in `message`");
-    case Error::InvalidQmlBlock:
-        return Tr::tr("Invalid QML block");
     }
 
     const int errorNo = static_cast<int>(error());
@@ -133,8 +131,6 @@ void AiResponse::parseContent()
     if (m_content.startsWith("```qml", Qt::CaseInsensitive) && m_content.endsWith("```")) {
         m_content.remove(0, 6);
         m_content.chop(3);
-    } else if (!m_content.startsWith("$$")) {
-        setError(Error::InvalidQmlBlock);
     }
 }
 
