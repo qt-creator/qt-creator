@@ -187,6 +187,8 @@ void generateCompilationDB(
             for (const ProjectFile &projFile : projectPart->files) {
                 if (promise.isCanceled())
                     return;
+                if (purpose == CompilationDbPurpose::CodeModel && projFile.isHeader())
+                    continue;
                 const QJsonObject json
                     = createFileObject(baseDir,
                                        args,
