@@ -229,17 +229,16 @@ public:
 
         auto autoDetectButton = new QPushButton(Tr::tr("Run Auto-Detection Now"));
 
-        connect(&m_detectionRunner, &QSingleTaskTreeRunner::aboutToStart, [=] {
+        connect(autoDetectButton, &QPushButton::clicked, autoDetectButton, [device, autoDetectButton] {
             autoDetectButton->setEnabled(false);
-        });
-        connect(&m_detectionRunner, &QSingleTaskTreeRunner::done, [=] {
-            autoDetectButton->setEnabled(true);
-        });
 
-        connect(autoDetectButton, &QPushButton::clicked, this, [device, autoDetectButton] {
-            autoDetectButton->setEnabled(false);
-            device->autoDetectDeviceTools();
-            autoDetectButton->setEnabled(true);
+            GlobalTaskTree::start(Group {
+                device->autoDetectDeviceToolsRecipe(),
+                QSyncTask([btn = QPointer<QWidget>(autoDetectButton)] {
+                    if (btn)
+                        btn->setEnabled(true);
+                })
+            });
         });
 
         using namespace Layouting;
@@ -280,7 +279,6 @@ private:
 
     QLineEdit *m_freePortsLineEdit;
     QLabel *m_portsWarningLabel;
-    QSingleTaskTreeRunner m_detectionRunner;
 };
 
 class DesktopDevicePrivate

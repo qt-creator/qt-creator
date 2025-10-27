@@ -296,34 +296,6 @@ bool IDevice::supportsFileTransferMethod(FileTransferMethod method) const
     return false;
 }
 
-void IDevice::autoDetectDeviceTools()
-{
-    const FilePaths searchPaths = d->autoDetectionPaths();
-
-    for (DeviceToolAspectFactory *factory : std::as_const(theDeviceToolFactories)) {
-        FilePaths candidates;
-
-        for (const QString &filePattern : factory->filePattern()) {
-            const FilePaths toolPaths = filePath(filePattern).searchAllInDirectories(searchPaths);
-            for (const FilePath &toolPath : toolPaths) {
-                if (factory->check(shared_from_this(), toolPath)) {
-                    if (toolPath.isChildOf(rootPath()))
-                        candidates.append(FilePath::fromPathPart(toolPath.path()));
-                    else
-                        candidates.append(toolPath);
-                }
-            }
-        }
-
-        DeviceToolAspect *toolAspect = d->deviceToolAspects.value(factory->toolId());
-        QTC_ASSERT(toolAspect, continue);
-        toolAspect->setValueAlternatives(candidates);
-
-        if (!candidates.isEmpty())
-            toolAspect->setDefaultPathValue(candidates.front());
-    }
-}
-
 Group IDevice::autoDetectDeviceToolsRecipe()
 {
     struct Data

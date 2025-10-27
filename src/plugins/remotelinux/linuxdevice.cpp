@@ -35,12 +35,12 @@
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
 #include <utils/fancylineedit.h>
+#include <utils/globaltasktree.h>
 #include <utils/hostosinfo.h>
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/port.h>
-#include <utils/portlist.h>
 #include <utils/portlist.h>
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
@@ -358,15 +358,23 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
         autoDetectButton->setEnabled(true);
     });
 
-    connect(autoDetectButton, &QPushButton::clicked, this, [linuxDevice, button = QPointer(autoDetectButton)] {
-        QTC_ASSERT(button, return);
-        button->setEnabled(false);
-        linuxDevice->tryToConnect({linuxDevice.get(), [linuxDevice, button](const Result<> &res) {
-            if (res)
-                linuxDevice->autoDetectDeviceTools();
-            if (button)
-                button->setEnabled(true);
-        }});
+    connect(autoDetectButton, &QPushButton::clicked, this, [linuxDevice, autoDetectButton] {
+        autoDetectButton->setEnabled(false);
+        linuxDevice->tryToConnect(
+            {linuxDevice.get(), [linuxDevice, autoDetectButton](const Result<> &res) {
+                 if (res) {
+                     GlobalTaskTree::start(
+                         QtTaskTree::Group {
+                             linuxDevice->autoDetectDeviceToolsRecipe(),
+                             QSyncTask([btn = QPointer<QWidget>(autoDetectButton)] {
+                                 if (btn)
+                                     btn->setEnabled(true);
+                             })
+                         });
+                     return;
+                 }
+                 autoDetectButton->setEnabled(true);
+             }});
     });
 
     // clang-format off

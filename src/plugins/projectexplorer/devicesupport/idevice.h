@@ -295,7 +295,6 @@ public:
 
     virtual bool supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const;
 
-    void autoDetectDeviceTools();
     QtTaskTree::Group autoDetectDeviceToolsRecipe();
 
     virtual Utils::Result<> supportsBuildingProject(const Utils::FilePath &projectDir) const;
