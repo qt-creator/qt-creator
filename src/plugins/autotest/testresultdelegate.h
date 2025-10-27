@@ -8,8 +8,7 @@
 #include <QStyledItemDelegate>
 #include <QTextLayout>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class TestResultDelegate : public QStyledItemDelegate
 {
@@ -63,7 +62,7 @@ private:
         int top() const { return m_top + ItemMargin; }
         int left() const { return m_left + ItemMargin; }
         int right() const { return m_right - ItemMargin; }
-        int minimumHeight() const { return IconSize + 2 * ItemMargin; }
+        static constexpr int minimumHeight() { return IconSize + 2 * ItemMargin; }
 
         int iconSize() const { return IconSize; }
         int typeAreaLeft() const { return left() + IconSize + ItemSpacing; }
@@ -108,5 +107,4 @@ private:
     };
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

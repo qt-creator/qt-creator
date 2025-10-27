@@ -13,8 +13,7 @@
 #include <QTextLayout>
 #include <QWindow>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 constexpr int outputLimit = 100000;
 
@@ -28,7 +27,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
 
-    QFontMetrics fm(opt.font);
+    const QFontMetrics fm(opt.font);
     QBrush background;
     QColor foreground;
 
@@ -53,7 +52,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     const TestResult testResult = resultFilterModel->testResult(index);
     QTC_ASSERT(testResult.isValid(), painter->restore(); return);
 
-    QIcon icon = index.data(Qt::DecorationRole).value<QIcon>();
+    const QIcon icon = index.data(Qt::DecorationRole).value<QIcon>();
     if (!icon.isNull()) {
         painter->drawPixmap(positions.left(), positions.top(),
                             icon.pixmap(QSize(positions.iconSize(), positions.iconSize()),
@@ -128,17 +127,18 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
     const QAbstractItemView *view = qobject_cast<const QAbstractItemView *>(opt.widget);
     const bool selected = view->selectionModel()->currentIndex() == index;
 
-    QFontMetrics fm(opt.font);
-    int fontHeight = fm.height();
-    TestResultFilterModel *resultFilterModel = static_cast<TestResultFilterModel *>(view->model());
-    LayoutPositions positions(opt, resultFilterModel, m_showDuration);
-    const int depth = resultFilterModel->itemForIndex(index)->level() + 1;
-    const int indentation = depth * view->style()->pixelMetric(QStyle::PM_TreeViewIndentation, &opt);
-
+    // correct width only important for selected item to calculate layout correctly, other items
+    // get layouted directly inside paint() based on the LayoutPositions, so width of the rect may
+    // be wrong but is good enough as nothing important depends on it
+    // height is always needed to be correct to update the view correctly
     QSize s;
-    s.setWidth(opt.rect.width() - indentation);
+    s.setWidth(opt.rect.width());
 
     if (selected) {
+        auto *resultFilterModel = static_cast<TestResultFilterModel *>(view->model());
+        const LayoutPositions positions(opt, resultFilterModel, m_showDuration);
+        const int depth = resultFilterModel->itemForIndex(index)->level() + 1;
+        const int indentation = depth * view->style()->pixelMetric(QStyle::PM_TreeViewIndentation, &opt);
         const TestResult testResult = resultFilterModel->testResult(index);
         QTC_ASSERT(testResult.isValid(), return {});
         QString output = testResult.outputString(selected);
@@ -149,19 +149,21 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
 
         s.setHeight(m_lastCalculatedHeight + 3);
     } else {
+        const QFontMetrics fm(opt.font);
+        int fontHeight = fm.height();
         s.setHeight(fontHeight + 3);
     }
 
-    if (s.height() < positions.minimumHeight())
-        s.setHeight(positions.minimumHeight());
+    if (s.height() < LayoutPositions::minimumHeight())
+        s.setHeight(LayoutPositions::minimumHeight());
 
     return s;
 }
 
-void TestResultDelegate::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+void TestResultDelegate::currentChanged(const QModelIndex &current, const QModelIndex &/*previous*/)
 {
+    // UniformRowHeights == false, so emitting once will trigger sizeHint() request on all anyhow
     emit sizeHintChanged(current);
-    emit sizeHintChanged(previous);
 }
 
 void TestResultDelegate::clearCache()
@@ -263,5 +265,4 @@ void TestResultDelegate::recalculateTextLayouts(const QModelIndex &index, Result
     m_lastCalculatedMSLayout.endLayout();
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal
