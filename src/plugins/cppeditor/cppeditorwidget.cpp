@@ -1273,11 +1273,8 @@ void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo,
 
 bool CppEditorWidget::isOldStyleSignalOrSlot() const
 {
-    QTextCursor tc(textCursor());
-    const QString content = textDocument()->plainText();
-
     return CppEditor::CppModelManager::instance()
-               ->getSignalSlotType(textDocument()->filePath(), content.toUtf8(), tc.position())
+               ->getSignalSlotType(textDocument()->filePath(), textCursor())
            == CppEditor::SignalSlotType::OldStyleSignal;
 }
 

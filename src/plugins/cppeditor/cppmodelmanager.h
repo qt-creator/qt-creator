@@ -150,9 +150,7 @@ public:
 
     static QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
-    static SignalSlotType getSignalSlotType(const Utils::FilePath &filePath,
-                                            const QByteArray &content,
-                                            int position);
+    static SignalSlotType getSignalSlotType(const Utils::FilePath &filePath, QTextCursor cursor);
 
     static void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
                              const QString &replacement = QString(),

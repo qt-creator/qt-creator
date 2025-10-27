@@ -725,14 +725,14 @@ QList<AssistProposalItemInterface *> ClangdCompletionAssistProcessor::generateCo
     static const auto criterion = [](const CompletionItem &ci) {
         return ClangdCompletionItem::getQtType(ci) == ClangdCompletionItem::SpecialQtType::Signal;
     };
-    const QTextDocument *doc = document();
+    QTextDocument *doc = document();
     const int pos = basePos();
     if (!doc || pos < 0 || !Utils::anyOf(items, criterion))
         return itemGenerator(items);
-    const QString content = doc->toPlainText();
-    const bool requiresSignal = CppModelManager::getSignalSlotType(
-                filePath(), content.toUtf8(), pos)
-            == SignalSlotType::NewStyleSignal;
+    QTextCursor cursor(document());
+    cursor.setPosition(pos);
+    const bool requiresSignal = CppModelManager::getSignalSlotType(filePath(), cursor)
+                                == SignalSlotType::NewStyleSignal;
     if (requiresSignal)
         return itemGenerator(Utils::filtered(items, criterion));
     return itemGenerator(items);

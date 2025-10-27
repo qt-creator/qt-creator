@@ -704,25 +704,40 @@ int argumentPositionOf(const AST *last, const CallAST *callAst)
     return 0;
 }
 
-SignalSlotType CppModelManager::getSignalSlotType(const FilePath &filePath,
-                                                  const QByteArray &content,
-                                                  int position)
+SignalSlotType CppModelManager::getSignalSlotType(const FilePath &filePath, QTextCursor cursor)
 {
-    if (content.isEmpty())
+    QTextDocument *doc = cursor.document();
+    if (doc->isEmpty())
         return SignalSlotType::None;
 
-    // Insert a dummy prefix if we don't have a real one. Otherwise the AST path will not contain
-    // anything after the CallAST.
-    QByteArray fixedContent = content;
-    if (position > 2 && content.mid(position - 2, 2) == "::")
-        fixedContent.insert(position, 'x');
-
+    std::unique_ptr<QTextDocument> scopedDocument;
     const Snapshot snapshot = CppModelManager::snapshot();
-    const Document::Ptr document = snapshot.preprocessedDocument(fixedContent, filePath);
-    document->check();
-    QTextDocument textDocument(QString::fromUtf8(fixedContent));
-    QTextCursor cursor(&textDocument);
-    cursor.setPosition(position);
+    Document::Ptr document;
+    // Create a temporary document with a dummy prefix if we don't have a real one.
+    // Otherwise the AST path will not contain anything after the CallAST.
+    const int position = cursor.position();
+    if (position > 2 && Utils::Text::textAt(doc, position - 2, 2) == "::") {
+        doc = doc->clone();
+        scopedDocument.reset(doc);
+        cursor = QTextCursor(doc);
+        cursor.setPosition(position);
+        cursor.insertText("x");
+        cursor.setPosition(position);
+    } else {
+        const QList<CppEditorWidget *> editorWidgets = CppEditorWidget::editorWidgetsForDocument(
+            TextEditor::TextDocument::textDocumentForFilePath(filePath));
+        for (CppEditorWidget *editorWidget : editorWidgets) {
+            if (editorWidget->isSemanticInfoValidExceptLocalUses()) {
+                document = editorWidget->semanticInfo().doc;
+                break;
+            }
+        }
+    }
+
+    if (!document) {
+        document = snapshot.preprocessedDocument(doc->toPlainText().toUtf8(), filePath, false);
+        document->check();
+    }
 
     const QList<AST *> path = ASTPath(document)(cursor);
     if (path.isEmpty())
@@ -806,8 +821,8 @@ SignalSlotType CppModelManager::getSignalSlotType(const FilePath &filePath,
             QString expression;
             LanguageFeatures features = LanguageFeatures::defaultFeatures();
             CPlusPlus::ExpressionUnderCursor expressionUnderCursor(features);
-            for (int i = cursor.position(); i > 0; --i)
-                if (textDocument.characterAt(i) == '(') {
+            for (int i = position; i > 0; --i)
+                if (doc->characterAt(i) == '(') {
                     cursor.setPosition(i);
                     break;
                 }
